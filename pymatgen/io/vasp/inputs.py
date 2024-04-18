@@ -1881,6 +1881,7 @@ class PotcarSingle:
         if not self.nelectrons.is_integer():
             warnings.warn("POTCAR has non-integer charge, electron configuration not well-defined.")
             return None
+
         el = Element.from_Z(self.atomic_no)
         full_config = el.full_electronic_structure
         nelect = self.nelectrons
@@ -1897,6 +1898,7 @@ class PotcarSingle:
         element = self.keywords["VRHFIN"].split(":")[0].strip()
         try:
             return Element(element).symbol
+
         except ValueError:
             # VASP incorrectly gives the element symbol for Xe as "X"
             # Some potentials, e.g., Zr_sv, gives the symbol as r.
@@ -1911,17 +1913,17 @@ class PotcarSingle:
 
     @property
     def nelectrons(self) -> float:
-        """Number of electrons"""
+        """Number of electrons."""
         return self.zval
 
     @property
     def symbol(self) -> str:
-        """The POTCAR symbol, e.g. W_pv"""
+        """The POTCAR symbol, e.g. W_pv."""
         return self._symbol
 
     @property
     def potential_type(self) -> Literal["NC", "PAW", "US"]:
-        """Type of PSP. E.g., US, PAW, etc."""
+        """Type of PSP: NC, US or PAW."""
         if self.lultra:
             return "US"
         if self.lpaw:
@@ -1937,6 +1939,222 @@ class PotcarSingle:
     def functional_class(self) -> str | None:
         """Functional class associated with PotcarSingle."""
         return self.functional_tags.get(self.LEXCH.lower(), {}).get("class")
+
+    @property
+    def hash_sha256_from_file(self) -> str | None:
+        """SHA256 hash of the POTCAR file as read from the file. None if no SHA256 hash is found."""
+        if sha256 := getattr(self, "SHA256", None):
+            return sha256.split()[0]
+        return None
+
+    @property
+    def sha256_computed_file_hash(self) -> str:
+        """Computes a SHA256 hash of the PotcarSingle EXCLUDING lines starting with 'SHA256' and 'COPYR'."""
+        # we have to remove lines with the hash itself and the copyright
+        # notice to get the correct hash.
+        potcar_list = self.data.split("\n")
+        potcar_to_hash = [line for line in potcar_list if not line.strip().startswith(("SHA256", "COPYR"))]
+        potcar_to_hash_str = "\n".join(potcar_to_hash)
+        return sha256(potcar_to_hash_str.encode("utf-8")).hexdigest()
+
+    @property
+    def md5_computed_file_hash(self) -> str:
+        """MD5 hash of the entire PotcarSingle."""
+        # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
+        # https://github.com/materialsproject/pymatgen/issues/2804
+        md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
+        md5.update(self.data.encode("utf-8"))
+        return md5.hexdigest()
+
+    @property
+    def md5_header_hash(self) -> str:
+        """MD5 hash of the metadata defining the PotcarSingle."""
+        hash_str = ""
+        for k, v in self.keywords.items():
+            # for newer POTCARS we have to exclude 'SHA256' and 'COPYR lines
+            # since they were not used in the initial hashing
+            if k in ("nentries", "Orbitals", "SHA256", "COPYR"):
+                continue
+            hash_str += f"{k}"
+            if isinstance(v, (bool, int)):
+                hash_str += f"{v}"
+            elif isinstance(v, float):
+                hash_str += f"{v:.3f}"
+            elif isinstance(v, (tuple, list)):
+                for item in v:
+                    if isinstance(item, float):
+                        hash_str += f"{item:.3f}"
+                    elif isinstance(item, (Orbital, OrbitalDescription)):
+                        for item_v in item:
+                            if isinstance(item_v, (int, str)):
+                                hash_str += f"{item_v}"
+                            elif isinstance(item_v, float):
+                                hash_str += f"{item_v:.3f}"
+                            else:
+                                hash_str += f"{item_v}" if item_v else ""
+            else:
+                hash_str += v.replace(" ", "")
+
+        self.hash_str = hash_str
+        # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
+        # https://github.com/materialsproject/pymatgen/issues/2804
+        md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
+        md5.update(hash_str.lower().encode("utf-8"))
+        return md5.hexdigest()
+
+    @property
+    def is_valid(self) -> bool:
+        """
+        Check that POTCAR matches reference metadata.
+        Parsed metadata is stored in self._summary_stats as a human-readable dict,
+            self._summary_stats = {
+                "keywords": {
+                    "header": list[str],
+                    "data": list[str],
+                },
+                "stats": {
+                    "header": dict[float],
+                    "data": dict[float],
+                },
+            }
+
+        Rationale:
+            Each POTCAR is structured as
+                Header (self.keywords)
+                Data (actual pseudopotential values in data blocks)
+
+            For the Data block of POTCAR, there are unformatted data blocks
+            of unknown length and contents/data type, e.g., you might see
+                <float> <bool>
+                <Data Keyword>
+                <int> <int> <float>
+                <float> ... <float>
+                <Data Keyword>
+                <float> ... <float>
+            but this is impossible to process algorithmically without a full POTCAR schema.
+            Note also that POTCARs can contain **different** data keywords
+
+            All keywords found in the header, essentially self.keywords, and the data block
+            (<Data Keyword> above) are stored in self._summary_stats["keywords"]
+
+            To avoid issues of copyright, statistics (mean, mean of abs vals, variance, max, min)
+            for the numeric values in the header and data sections of POTCAR are stored
+            in self._summary_stats["stats"]
+
+            tol is then used to match statistical values within a tolerance
+        """
+
+        possible_potcar_matches = []
+        # Some POTCARs have an LEXCH (functional used to generate the POTCAR)
+        # with the expected functional, e.g., the C_d POTCAR for PBE is actually an
+        # LDA pseudopotential.
+
+        # Thus we have to look for matches in all POTCAR dirs, not just the ones with
+        # consistent values of LEXCH
+        for func in self.functional_dir:
+            for titel_no_spc in self._potcar_summary_stats[func]:
+                if self.TITEL.replace(" ", "") == titel_no_spc:
+                    for potcar_subvariant in self._potcar_summary_stats[func][titel_no_spc]:
+                        if self.VRHFIN.replace(" ", "") == potcar_subvariant["VRHFIN"]:
+                            possible_potcar_matches.append(
+                                {
+                                    "POTCAR_FUNCTIONAL": func,
+                                    "TITEL": titel_no_spc,
+                                    **potcar_subvariant,
+                                }
+                            )
+
+        def parse_fortran_style_str(input_str: str) -> str | bool | float | int:
+            """Parse any input string as bool, int, float, or failing that, str.
+            Used to parse FORTRAN-generated POTCAR files where it's unknown
+            a priori what type of data will be encountered.
+            """
+            input_str = input_str.strip()
+
+            if input_str.lower() in {"t", "f", "true", "false"}:
+                return input_str[0].lower() == "t"
+
+            if input_str.upper() == input_str.lower() and input_str[0].isnumeric():
+                # NB: fortran style floats always include a decimal point.
+                #     While you can set, e.g., x = 1E4, you cannot print/write x without
+                #     a decimal point:
+                #         `write(6,*) x`          -->   `10000.0000` in stdout
+                #         `write(6,'(E10.0)') x`  -->   segfault
+                #     The (E10.0) means write an exponential-format number with 10
+                #         characters before the decimal, and 0 characters after
+                return float(input_str) if "." in input_str else int(input_str)
+
+            try:
+                return float(input_str)
+            except ValueError:
+                return input_str
+
+        psp_keys, psp_vals = [], []
+        potcar_body = self.data.split("END of PSCTR-controll parameters\n")[1]
+        for row in re.split(r"\n+|;", potcar_body):  # FORTRAN allows ; to delimit multiple lines merged into 1 line
+            tmp_str = ""
+            for raw_val in row.split():
+                parsed_val = parse_fortran_style_str(raw_val)
+                if isinstance(parsed_val, str):
+                    tmp_str += parsed_val.strip()
+                elif isinstance(parsed_val, (float, int)):
+                    psp_vals.append(parsed_val)
+            if len(tmp_str) > 0:
+                psp_keys.append(tmp_str.lower())
+
+        keyword_vals = []
+        for kwd in self.keywords:
+            val = self.keywords[kwd]
+            if isinstance(val, bool):
+                # has to come first since bools are also ints
+                keyword_vals.append(1.0 if val else 0.0)
+            elif isinstance(val, (float, int)):
+                keyword_vals.append(val)
+            elif hasattr(val, "__len__"):
+                keyword_vals += [num for num in val if isinstance(num, (float, int))]
+
+        def data_stats(data_list: Sequence) -> dict:
+            """Used for hash-less and therefore less brittle POTCAR validity checking."""
+            arr = np.array(data_list)
+            return {
+                "MEAN": np.mean(arr),
+                "ABSMEAN": np.mean(np.abs(arr)),
+                "VAR": np.mean(arr**2),
+                "MIN": arr.min(),
+                "MAX": arr.max(),
+            }
+
+        # NB: to add future summary stats in a way that's consistent with PMG,
+        # it's easiest to save the summary stats as an attr of PotcarSingle
+        self._summary_stats: dict[str, dict] = {  # for this PotcarSingle instance
+            "keywords": {
+                "header": [kwd.lower() for kwd in self.keywords],
+                "data": psp_keys,
+            },
+            "stats": {
+                "header": data_stats(keyword_vals),
+                "data": data_stats(psp_vals),
+            },
+        }
+
+        data_match_tol: float = 1e-6
+        for ref_psp in possible_potcar_matches:
+            key_match = all(
+                set(ref_psp["keywords"][key]) == set(self._summary_stats["keywords"][key])  # type: ignore
+                for key in ["header", "data"]
+            )
+
+            data_diff = [
+                abs(ref_psp["stats"][key][stat] - self._summary_stats["stats"][key][stat])  # type: ignore
+                for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
+                for key in ["header", "data"]
+            ]
+            data_match = all(np.array(data_diff) < data_match_tol)
+
+            if key_match and data_match:
+                return True
+
+        return False
 
     def write_file(self, filename: str) -> None:
         """Write PotcarSingle to a file.
@@ -1957,7 +2175,7 @@ class PotcarSingle:
 
     @classmethod
     def from_file(cls, filename: str) -> Self:
-        """Reads PotcarSingle from file.
+        """Read PotcarSingle from file.
 
         Args:
             filename: Filename.
@@ -1971,6 +2189,7 @@ class PotcarSingle:
         try:
             with zopen(filename, mode="rt") as file:
                 return cls(file.read(), symbol=symbol or None)
+
         except UnicodeDecodeError:
             warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
 
@@ -1979,7 +2198,7 @@ class PotcarSingle:
 
     @classmethod
     def from_symbol_and_functional(cls, symbol: str, functional: str | None = None) -> Self:
-        """Makes a PotcarSingle from a symbol and functional.
+        """Make a PotcarSingle from a symbol and functional.
 
         Args:
             symbol (str): Symbol, e.g., Li_sv
@@ -2016,7 +2235,7 @@ class PotcarSingle:
 
     def verify_potcar(self) -> tuple[bool, bool]:
         """
-        Attempts to verify the integrity of the POTCAR data.
+        Attempt to verify the integrity of the POTCAR data.
 
         This method checks the whole file (removing only the SHA256
         metadata) against the SHA256 hash in the header if this is found.
@@ -2024,17 +2243,19 @@ class PotcarSingle:
         whole file) is checked against all POTCAR file hashes known to pymatgen.
 
         Returns:
-            tuple[bool, bool]: has_sha256 and passed_hash_check are returned.
+            tuple[bool, bool]: has_sha256 and passed_hash_check.
         """
         if self.hash_sha256_from_file:
             has_sha256 = True
             hash_is_valid = self.hash_sha256_from_file == self.sha256_computed_file_hash
+
         else:
             has_sha256 = False
-            # if no sha256 hash is found in the POTCAR file, compare the whole
+            # If no sha256 hash is found in the POTCAR file, compare the whole
             # file with known potcar file hashes.
             md5_file_hash = self.md5_computed_file_hash
             hash_is_valid = md5_file_hash in VASP_POTCAR_HASHES
+
         return has_sha256, hash_is_valid
 
     def identify_potcar(
@@ -2049,8 +2270,8 @@ class PotcarSingle:
         of hashes for POTCARs distributed with VASP 5.4.4.
 
         Args:
-            mode ('data' | 'file'): 'data' mode checks the POTCAR header keywords and stats only
-                while 'file' mode checks the entire summary stats.
+            mode ("data" or "file"): "data" mode checks the POTCAR header keywords
+                and stats only while "file" mode checks the entire summary stats.
             data_tol (float): Tolerance for comparing the summary statistics of the POTCAR
                 with the reference statistics.
 
@@ -2091,13 +2312,16 @@ class PotcarSingle:
 
         for key, values in identity.items():
             if len(values) == 0:
-                # the two keys are set simultaneously, either key being zero indicates no match
+                # The two keys are set simultaneously, either key being zero indicates no match
                 return [], []
             identity[key] = list(set(values))
 
         return identity["potcar_functionals"], identity["potcar_symbols"]
 
-    def identify_potcar_hash_based(self, mode: Literal["data", "file"] = "data"):
+    def identify_potcar_hash_based(
+        self,
+        mode: Literal["data", "file"] = "data",
+    ) -> tuple[list[str], list[str]]:
         """
         Identify the symbol and compatible functionals associated with this PotcarSingle.
 
@@ -2218,231 +2442,16 @@ class PotcarSingle:
             return potcar_functionals, identity["potcar_symbols"]
         return [], []
 
-    @property
-    def hash_sha256_from_file(self) -> str | None:
-        """SHA256 hash of the POTCAR file as read from the file. None if no SHA256 hash is found."""
-        if sha256 := getattr(self, "SHA256", None):
-            return sha256.split()[0]
-        return None
-
-    @property
-    def sha256_computed_file_hash(self) -> str:
-        """Computes a SHA256 hash of the PotcarSingle EXCLUDING lines starting with 'SHA256' and 'COPYR'."""
-        # we have to remove lines with the hash itself and the copyright
-        # notice to get the correct hash.
-        potcar_list = self.data.split("\n")
-        potcar_to_hash = [line for line in potcar_list if not line.strip().startswith(("SHA256", "COPYR"))]
-        potcar_to_hash_str = "\n".join(potcar_to_hash)
-        return sha256(potcar_to_hash_str.encode("utf-8")).hexdigest()
-
-    @property
-    def md5_computed_file_hash(self) -> str:
-        """md5 hash of the entire PotcarSingle."""
-        # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
-        # https://github.com/materialsproject/pymatgen/issues/2804
-        md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
-        md5.update(self.data.encode("utf-8"))
-        return md5.hexdigest()
-
-    @property
-    def md5_header_hash(self) -> str:
-        """Computes a md5 hash of the metadata defining the PotcarSingle."""
-        hash_str = ""
-        for k, v in self.keywords.items():
-            # for newer POTCARS we have to exclude 'SHA256' and 'COPYR lines
-            # since they were not used in the initial hashing
-            if k in ("nentries", "Orbitals", "SHA256", "COPYR"):
-                continue
-            hash_str += f"{k}"
-            if isinstance(v, (bool, int)):
-                hash_str += f"{v}"
-            elif isinstance(v, float):
-                hash_str += f"{v:.3f}"
-            elif isinstance(v, (tuple, list)):
-                for item in v:
-                    if isinstance(item, float):
-                        hash_str += f"{item:.3f}"
-                    elif isinstance(item, (Orbital, OrbitalDescription)):
-                        for item_v in item:
-                            if isinstance(item_v, (int, str)):
-                                hash_str += f"{item_v}"
-                            elif isinstance(item_v, float):
-                                hash_str += f"{item_v:.3f}"
-                            else:
-                                hash_str += f"{item_v}" if item_v else ""
-            else:
-                hash_str += v.replace(" ", "")
-
-        self.hash_str = hash_str
-        # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
-        # https://github.com/materialsproject/pymatgen/issues/2804
-        md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
-        md5.update(hash_str.lower().encode("utf-8"))
-        return md5.hexdigest()
-
-    @property
-    def is_valid(self) -> bool:
-        """
-        Check that POTCAR matches reference metadata.
-        Parsed metadata is stored in self._summary_stats as a human-readable dict,
-            self._summary_stats = {
-                "keywords": {
-                    "header": list[str],
-                    "data": list[str],
-                },
-                "stats": {
-                    "header": dict[float],
-                    "data": dict[float],
-                },
-            }
-
-        Rationale:
-        Each POTCAR is structured as
-            Header (self.keywords)
-            Data (actual pseudopotential values in data blocks)
-
-        For the Data block of POTCAR, there are unformatted data blocks
-        of unknown length and contents/data type, e.g., you might see
-            <float> <bool>
-            <Data Keyword>
-            <int> <int> <float>
-            <float> ... <float>
-            <Data Keyword>
-            <float> ... <float>
-        but this is impossible to process algorithmically without a full POTCAR schema.
-        Note also that POTCARs can contain **different** data keywords
-
-        All keywords found in the header, essentially self.keywords, and the data block
-        (<Data Keyword> above) are stored in self._summary_stats["keywords"]
-
-        To avoid issues of copyright, statistics (mean, mean of abs vals, variance, max, min)
-        for the numeric values in the header and data sections of POTCAR are stored
-        in self._summary_stats["stats"]
-
-        tol is then used to match statistical values within a tolerance
-        """
-
-        possible_potcar_matches = []
-        # Some POTCARs have an LEXCH (functional used to generate the POTCAR)
-        # with the expected functional, e.g., the C_d POTCAR for PBE is actually an
-        # LDA pseudopotential.
-
-        # Thus we have to look for matches in all POTCAR dirs, not just the ones with
-        # consistent values of LEXCH
-        for func in self.functional_dir:
-            for titel_no_spc in self._potcar_summary_stats[func]:
-                if self.TITEL.replace(" ", "") == titel_no_spc:
-                    for potcar_subvariant in self._potcar_summary_stats[func][titel_no_spc]:
-                        if self.VRHFIN.replace(" ", "") == potcar_subvariant["VRHFIN"]:
-                            possible_potcar_matches.append(
-                                {
-                                    "POTCAR_FUNCTIONAL": func,
-                                    "TITEL": titel_no_spc,
-                                    **potcar_subvariant,
-                                }
-                            )
-
-        def parse_fortran_style_str(input_str: str) -> Any:
-            """Parse any input string as bool, int, float, or failing that, str.
-            Used to parse FORTRAN-generated POTCAR files where it's unknown
-            a priori what type of data will be encountered.
-            """
-            input_str = input_str.strip()
-
-            if input_str.lower() in {"t", "f", "true", "false"}:
-                return input_str[0].lower() == "t"
-
-            if input_str.upper() == input_str.lower() and input_str[0].isnumeric():
-                if "." in input_str:
-                    # NB: fortran style floats always include a decimal point.
-                    #     While you can set, e.g., x = 1E4, you cannot print/write x without
-                    #     a decimal point:
-                    #         `write(6,*) x`          -->   `10000.0000` in stdout
-                    #         `write(6,'(E10.0)') x`  -->   segfault
-                    #     The (E10.0) means write an exponential-format number with 10
-                    #         characters before the decimal, and 0 characters after
-                    return float(input_str)
-                return int(input_str)
-            try:
-                return float(input_str)
-            except ValueError:
-                return input_str
-
-        psp_keys, psp_vals = [], []
-        potcar_body = self.data.split("END of PSCTR-controll parameters\n")[1]
-        for row in re.split(r"\n+|;", potcar_body):  # FORTRAN allows ; to delimit multiple lines merged into 1 line
-            tmp_str = ""
-            for raw_val in row.split():
-                parsed_val = parse_fortran_style_str(raw_val)
-                if isinstance(parsed_val, str):
-                    tmp_str += parsed_val.strip()
-                elif isinstance(parsed_val, (float, int)):
-                    psp_vals.append(parsed_val)
-            if len(tmp_str) > 0:
-                psp_keys.append(tmp_str.lower())
-
-        keyword_vals = []
-        for kwd in self.keywords:
-            val = self.keywords[kwd]
-            if isinstance(val, bool):
-                # has to come first since bools are also ints
-                keyword_vals.append(1.0 if val else 0.0)
-            elif isinstance(val, (float, int)):
-                keyword_vals.append(val)
-            elif hasattr(val, "__len__"):
-                keyword_vals += [num for num in val if isinstance(num, (float, int))]
-
-        def data_stats(data_list: Sequence) -> dict:
-            """Used for hash-less and therefore less brittle POTCAR validity checking."""
-            arr = np.array(data_list)
-            return {
-                "MEAN": np.mean(arr),
-                "ABSMEAN": np.mean(np.abs(arr)),
-                "VAR": np.mean(arr**2),
-                "MIN": arr.min(),
-                "MAX": arr.max(),
-            }
-
-        # NB: to add future summary stats in a way that's consistent with PMG,
-        # it's easiest to save the summary stats as an attr of PotcarSingle
-        self._summary_stats = {  # for this PotcarSingle instance
-            "keywords": {
-                "header": [kwd.lower() for kwd in self.keywords],
-                "data": psp_keys,
-            },
-            "stats": {
-                "header": data_stats(keyword_vals),
-                "data": data_stats(psp_vals),
-            },
-        }
-
-        data_match_tol = 1e-6
-        for ref_psp in possible_potcar_matches:
-            key_match = all(
-                set(ref_psp["keywords"][key]) == set(self._summary_stats["keywords"][key])  # type: ignore
-                for key in ["header", "data"]
-            )
-
-            data_diff = [
-                abs(ref_psp["stats"][key][stat] - self._summary_stats["stats"][key][stat])  # type: ignore
-                for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
-                for key in ["header", "data"]
-            ]
-            data_match = all(np.array(data_diff) < data_match_tol)
-
-            if key_match and data_match:
-                return True
-
-        return False
-
 
 def _gen_potcar_summary_stats(
-    append: bool = False, vasp_psp_dir: str | None = None, summary_stats_filename: str | None = POTCAR_STATS_PATH
+    append: bool = False,
+    vasp_psp_dir: str | None = None,
+    summary_stats_filename: str | None = POTCAR_STATS_PATH,
 ):
     """
-    This function is intended for internal use only. It regenerates the reference data in
-    potcar-summary-stats.json.bz2 used to validate POTCARs by comparing header values and
-    several statistics of copyrighted POTCAR data without having to record the POTCAR data itself.
+    Regenerates the reference data in potcar-summary-stats.json.bz2 used to validate POTCARs
+    by comparing header values and several statistics of copyrighted POTCAR data without
+    having to record the POTCAR data itself.
 
     THIS FUNCTION IS DESTRUCTIVE. It will completely overwrite potcar-summary-stats.json.bz2.
 
@@ -2463,9 +2472,9 @@ def _gen_potcar_summary_stats(
         else:
             warnings.warn(f"missing {func_dir} POTCAR directory")
 
-    # use append = True if a new POTCAR library is released to add new summary stats
+    # Use append = True if a new POTCAR library is released to add new summary stats
     # without completely regenerating the dict of summary stats
-    # use append = False to completely regenerate the summary stats dict
+    # Use append = False to completely regenerate the summary stats dict
     new_summary_stats = loadfn(summary_stats_filename) if append else {}
 
     for func, func_dir in func_dir_exist.items():
@@ -2476,7 +2485,7 @@ def _gen_potcar_summary_stats(
             psp = PotcarSingle.from_file(potcar)
             titel_key = psp.TITEL.replace(" ", "")
 
-            # some POTCARs have the same TITEL, but are named differently
+            # Some POTCARs have the same TITEL, but are named differently
             # e.g., there is an "original" PBE POTCAR.Fe_pv and a POTCAR.Fe_pv_new
             # which share a TITEL but differ in their contents
             if titel_key not in new_summary_stats[func]:
@@ -2499,7 +2508,7 @@ def _gen_potcar_summary_stats(
 
 class Potcar(list, MSONable):
     """
-    Object for reading and writing POTCAR files for calculations. Consists of a
+    Read and write POTCAR files for calculations. Consists of a
     list of PotcarSingle.
     """
 
@@ -2542,8 +2551,22 @@ class Potcar(list, MSONable):
         """
         return super().__iter__()
 
-    def as_dict(self):
-        """MSONable dict representation"""
+    @property
+    def symbols(self) -> list[str]:
+        """Get the atomic symbols of all the atoms in the POTCAR file."""
+        return [psingle.symbol for psingle in self]
+
+    @symbols.setter
+    def symbols(self, symbols: Sequence[str]) -> None:
+        self.set_symbols(symbols, functional=self.functional)
+
+    @property
+    def spec(self) -> list[dict]:
+        """Get the atomic symbols and hash of all the atoms in the POTCAR file."""
+        return [{"symbol": psingle.symbol, "hash": psingle.md5_computed_file_hash} for psingle in self]
+
+    def as_dict(self) -> dict:
+        """MSONable dict representation."""
         return {
             "functional": self.functional,
             "symbols": self.symbols,
@@ -2552,7 +2575,7 @@ class Potcar(list, MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -2563,7 +2586,7 @@ class Potcar(list, MSONable):
         return Potcar(symbols=dct["symbols"], functional=dct["functional"])
 
     @classmethod
-    def from_file(cls, filename: str) -> Self:
+    def from_file(cls, filename: PathLike) -> Self:
         """
         Reads Potcar from file.
 
@@ -2598,22 +2621,11 @@ class Potcar(list, MSONable):
         with zopen(filename, mode="wt") as file:
             file.write(str(self))
 
-    @property
-    def symbols(self):
-        """Get the atomic symbols of all the atoms in the POTCAR file."""
-        return [psingle.symbol for psingle in self]
-
-    @symbols.setter
-    def symbols(self, symbols):
-        self.set_symbols(symbols, functional=self.functional)
-
-    @property
-    def spec(self):
-        """Get the atomic symbols and hash of all the atoms in the POTCAR file."""
-        return [{"symbol": psingle.symbol, "hash": psingle.md5_computed_file_hash} for psingle in self]
-
     def set_symbols(
-        self, symbols: Sequence[str], functional: str | None = None, sym_potcar_map: dict[str, str] | None = None
+        self,
+        symbols: Sequence[str],
+        functional: str | None = None,
+        sym_potcar_map: dict[str, str] | None = None,
     ):
         """
         Initialize the POTCAR from a set of symbols. Currently, the POTCARs can
@@ -2630,6 +2642,7 @@ class Potcar(list, MSONable):
                 the given map data rather than the config file location.
         """
         del self[:]
+
         if sym_potcar_map:
             self.extend(PotcarSingle(sym_potcar_map[el]) for el in symbols)
         else:
