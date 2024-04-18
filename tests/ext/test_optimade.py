@@ -27,7 +27,11 @@ except requests.exceptions.ConnectionError:
     mc3d_down = True
 
 try:
-    mc2d_down = requests.get(OptimadeRester.aliases["mcloud.mc2d"] + "/v1/info").status_code not in (200, 403, 301)
+    mc2d_down = requests.get(OptimadeRester.aliases["mcloud.mc2d"] + "/v1/info", timeout=60).status_code not in (
+        200,
+        403,
+        301,
+    )
 except requests.exceptions.ConnectionError:
     mc2d_down = True
 
