@@ -15,7 +15,7 @@ class VaspDoc:
         """Init for VaspDoc."""
         self.url_template = "http://www.vasp.at/wiki/index.php/%s"
 
-    def print_help(self, tag):
+    def print_help(self, tag: str) -> None:
         """
         Print the help for a TAG.
 
@@ -24,7 +24,7 @@ class VaspDoc:
         """
         print(self.get_help(tag))
 
-    def print_jupyter_help(self, tag):
+    def print_jupyter_help(self, tag: str) -> None:
         """
         Display HTML help in ipython notebook.
 
@@ -37,7 +37,7 @@ class VaspDoc:
         display(HTML(html_str))
 
     @classmethod
-    def get_help(cls, tag, fmt="text"):
+    def get_help(cls, tag: str, fmt: str = "text") -> str:
         """
         Get help on a VASP tag.
 
@@ -60,7 +60,7 @@ class VaspDoc:
         return output
 
     @classmethod
-    def get_incar_tags(cls):
+    def get_incar_tags(cls) -> list[str]:
         """Returns: All incar tags."""
         tags = []
         for page in [
