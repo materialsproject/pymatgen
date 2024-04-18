@@ -1568,6 +1568,9 @@ class CifWriter:
                     atom_site_occupancy.append(str(occu))
                     count += 1
 
+        if not len(set(atom_site_label)) == len(atom_site_label):
+            raise OSError(f"Site labels are not unique: `{atom_site_label}`")
+
         block["_atom_site_type_symbol"] = atom_site_type_symbol
         block["_atom_site_label"] = atom_site_label
         block["_atom_site_symmetry_multiplicity"] = atom_site_symmetry_multiplicity

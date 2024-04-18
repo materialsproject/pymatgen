@@ -278,6 +278,21 @@ class TestCifIO(PymatgenTest):
 
         assert set(struct.labels) == set(struct2.labels)
 
+    def test_cif_writer_non_unique_labels(self):
+        """https://github.com/materialsproject/pymatgen/issues/3761"""
+        parser = CifParser(f"{TEST_FILES_DIR}/garnet.cif")
+        struct = parser.parse_structures()[0]
+
+        assert len(set(struct.labels)) != len(struct.labels)
+        with pytest.raises(IOError, match="Site labels are not unique"):
+            CifWriter(struct)
+
+        # struct.relabel_sites()  # TODO: in-place or return new?
+
+        # assert len(set(struct.labels)) != len(struct.labels)
+
+        # CifWriter(struct)
+
     def test_cif_parser_springer_pauling(self):
         # Below are 10 tests for CIFs from the Springer Materials/Pauling file DBs.
 
