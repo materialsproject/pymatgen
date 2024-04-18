@@ -18,7 +18,11 @@ except requests.exceptions.ConnectionError:
     optimade_providers_down = True
 
 try:
-    mc3d_down = requests.get(OptimadeRester.aliases["mcloud.mc3d"] + "/v1/info", timeout=60).status_code not in (200, 403, 301)
+    mc3d_down = requests.get(OptimadeRester.aliases["mcloud.mc3d"] + "/v1/info", timeout=60).status_code not in (
+        200,
+        403,
+        301,
+    )
 except requests.exceptions.ConnectionError:
     mc3d_down = True
 
