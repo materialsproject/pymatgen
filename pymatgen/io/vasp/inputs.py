@@ -230,7 +230,7 @@ class Poscar(MSONable):
         **kwargs: dict[str, Any],
     ) -> Self:
         """
-        Read Poscar from a file.
+        Read POSCAR from a file.
 
         The code will try its best to determine the elements in the POSCAR in
         the following order:
@@ -287,7 +287,7 @@ class Poscar(MSONable):
         read_velocities: bool = True,
     ) -> Self:
         """
-        Read Poscar from a string.
+        Read POSCAR from a string.
 
         The code will try its best to determine the elements in the POSCAR in
         the following order:
@@ -520,10 +520,15 @@ class Poscar(MSONable):
             lattice_velocities=lattice_velocities,
         )
 
-    def get_str(self, direct: bool = True, vasp4_compatible: bool = False, significant_figures: int = 16) -> str:
+    def get_str(
+        self,
+        direct: bool = True,
+        vasp4_compatible: bool = False,
+        significant_figures: int = 16,
+    ) -> str:
         """
-        Returns a string to be written as a POSCAR file. By default, site
-        symbols are written, which means compatibility is for vasp >= 5.
+        Return a string to be written as a POSCAR file. By default, site
+        symbols are written, which is compatible for vasp >= 5.
 
         Args:
             direct (bool): Whether coordinates are output in direct or
@@ -531,7 +536,7 @@ class Poscar(MSONable):
             vasp4_compatible (bool): Set to True to omit site symbols on 6th
                 line to maintain backward vasp 4.x compatibility. Defaults
                 to False.
-            significant_figures (int): No. of significant figures to
+            significant_figures (int): Number of significant digits to
                 output all quantities. Defaults to 16. Note that positions are
                 output in fixed point, while velocities are output in
                 scientific format.
@@ -546,23 +551,28 @@ class Poscar(MSONable):
         if np.linalg.det(lattice.matrix) < 0:
             lattice = Lattice(-lattice.matrix)
 
-        format_str = f"{{:{significant_figures + 5}.{significant_figures}f}}"
-        lines = [self.comment, "1.0"]
+        # Add comment and lattice
+        format_str: str = f"{{:{significant_figures + 5}.{significant_figures}f}}"
+        lines: list[str] = [self.comment, "1.0"]
         for vec in lattice.matrix:
             lines.append(" ".join(format_str.format(c) for c in vec))
 
+        # Add element symbols
         if self.true_names and not vasp4_compatible:
             lines.append(" ".join(self.site_symbols))
         lines.append(" ".join(map(str, self.natoms)))
+
         if self.selective_dynamics:
             lines.append("Selective dynamics")
+
         lines.append("direct" if direct else "cartesian")
 
+        # Add ion positions and selective dynamics
         for idx, site in enumerate(self.structure):
-            coords = site.frac_coords if direct else site.coords
-            line = " ".join(format_str.format(c) for c in coords)
+            coords: ArrayLike = site.frac_coords if direct else site.coords
+            line: str = " ".join(format_str.format(c) for c in coords)
             if self.selective_dynamics is not None:
-                sd = ["T" if j else "F" for j in self.selective_dynamics[idx]]
+                sd: list[str] = ["T" if j else "F" for j in self.selective_dynamics[idx]]
                 line += f" {sd[0]} {sd[1]} {sd[2]}"
             line += f" {site.species_string}"
             lines.append(line)
@@ -602,16 +612,16 @@ class Poscar(MSONable):
 
     get_string = get_str
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.get_str()
 
     def __str__(self) -> str:
         """String representation of Poscar file."""
         return self.get_str()
 
-    def write_file(self, filename: PathLike, **kwargs):
+    def write_file(self, filename: PathLike, **kwargs) -> None:
         """
-        Writes POSCAR to a file. The supported kwargs are the same as those for
+        Write POSCAR to a file. The supported kwargs are the same as those for
         the Poscar.get_str method and are passed through directly.
         """
         with zopen(filename, mode="wt") as file:
@@ -648,17 +658,17 @@ class Poscar(MSONable):
             predictor_corrector=dct.get("predictor_corrector"),
         )
 
-    def set_temperature(self, temperature: float):
+    def set_temperature(self, temperature: float) -> None:
         """
-        Initializes the velocities based on Maxwell-Boltzmann distribution.
+        Initialize the velocities based on Maxwell-Boltzmann distribution.
         Removes linear, but not angular drift (same as VASP).
 
-        Scales the energies to the exact temperature (microcanonical ensemble)
-        Velocities are given in A/fs. This is the vasp default when
+        Scale the energies to the exact temperature (microcanonical ensemble)
+        Velocities are given in A/fs. This is the VASP default when
         direct/cartesian is not specified (even when positions are given in
-        direct coordinates)
+        direct coordinates).
 
-        Overwrites imported velocities, if any.
+        Overwrite imported velocities, if any.
 
         Args:
             temperature (float): Temperature in Kelvin.
@@ -666,18 +676,18 @@ class Poscar(MSONable):
         # mean 0 variance 1
         velocities = np.random.randn(len(self.structure), 3)
 
-        # in AMU, (N,1) array
+        # In AMU, (N,1) array
         atomic_masses = np.array([site.specie.atomic_mass.to("kg") for site in self.structure])
         dof = 3 * len(self.structure) - 3
 
-        # remove linear drift (net momentum)
+        # Remove linear drift (net momentum)
         velocities -= np.average(atomic_masses[:, np.newaxis] * velocities, axis=0) / np.average(atomic_masses)
 
-        # scale velocities due to atomic masses
+        # Scale velocities due to atomic masses
         # mean 0 std proportional to sqrt(1/m)
         velocities /= atomic_masses[:, np.newaxis] ** (1 / 2)
 
-        # scale velocities to get correct temperature
+        # Scale velocities to get correct temperature
         energy = np.sum(1 / 2 * atomic_masses * np.sum(velocities**2, axis=1))
         scale = (temperature * dof / (2 * energy / const.k)) ** (1 / 2)
 
@@ -686,9 +696,9 @@ class Poscar(MSONable):
         self.temperature = temperature
         self.structure.site_properties.pop("selective_dynamics", None)
         self.structure.site_properties.pop("predictor_corrector", None)
-        # returns as a list of lists to be consistent with the other
-        # initializations
 
+        # Set as list[list] to be consistent with the other
+        # initializations
         self.structure.add_site_property("velocities", velocities.tolist())
 
 
@@ -698,8 +708,8 @@ class BadPoscarWarning(UserWarning):
 
 class Incar(dict, MSONable):
     """
-    INCAR object for reading and writing INCAR files. Essentially consists of
-    a dictionary with some helper functions.
+    INCAR object for reading and writing INCAR files. Essentially
+    consists of a dictionary with some helper functions.
     """
 
     def __init__(self, params: dict[str, Any] | None = None) -> None:
