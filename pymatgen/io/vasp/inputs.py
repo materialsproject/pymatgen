@@ -820,7 +820,7 @@ class Incar(dict, MSONable):
             return str(tabulate([[line[0], "=", line[1]] for line in lines], tablefmt="plain"))
         return str_delimited(lines, None, " = ") + "\n"
 
-    def write_file(self, filename: PathLike):
+    def write_file(self, filename: PathLike) -> None:
         """Write Incar to a file.
 
         Args:
@@ -1950,7 +1950,7 @@ class PotcarSingle:
     @property
     def sha256_computed_file_hash(self) -> str:
         """Computes a SHA256 hash of the PotcarSingle EXCLUDING lines starting with 'SHA256' and 'COPYR'."""
-        # we have to remove lines with the hash itself and the copyright
+        # We have to remove lines with the hash itself and the copyright
         # notice to get the correct hash.
         potcar_list = self.data.split("\n")
         potcar_to_hash = [line for line in potcar_list if not line.strip().startswith(("SHA256", "COPYR"))]
@@ -1971,9 +1971,9 @@ class PotcarSingle:
         """MD5 hash of the metadata defining the PotcarSingle."""
         hash_str = ""
         for k, v in self.keywords.items():
-            # for newer POTCARS we have to exclude 'SHA256' and 'COPYR lines
+            # For newer POTCARS we have to exclude 'SHA256' and 'COPYR lines
             # since they were not used in the initial hashing
-            if k in ("nentries", "Orbitals", "SHA256", "COPYR"):
+            if k in {"nentries", "Orbitals", "SHA256", "COPYR"}:
                 continue
             hash_str += f"{k}"
             if isinstance(v, (bool, int)):
@@ -2140,12 +2140,11 @@ class PotcarSingle:
         data_match_tol: float = 1e-6
         for ref_psp in possible_potcar_matches:
             key_match = all(
-                set(ref_psp["keywords"][key]) == set(self._summary_stats["keywords"][key])  # type: ignore
-                for key in ["header", "data"]
+                set(ref_psp["keywords"][key]) == set(self._summary_stats["keywords"][key]) for key in ["header", "data"]
             )
 
             data_diff = [
-                abs(ref_psp["stats"][key][stat] - self._summary_stats["stats"][key][stat])  # type: ignore
+                abs(ref_psp["stats"][key][stat] - self._summary_stats["stats"][key][stat])
                 for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
                 for key in ["header", "data"]
             ]
@@ -2174,7 +2173,7 @@ class PotcarSingle:
         return PotcarSingle(self.data, symbol=self.symbol)
 
     @classmethod
-    def from_file(cls, filename: str) -> Self:
+    def from_file(cls, filename: PathLike) -> Self:
         """Read PotcarSingle from file.
 
         Args:
@@ -2193,11 +2192,15 @@ class PotcarSingle:
         except UnicodeDecodeError:
             warnings.warn("POTCAR contains invalid unicode errors. We will attempt to read it by ignoring errors.")
 
-            with codecs.open(filename, "r", encoding="utf-8", errors="ignore") as file:
+            with codecs.open(str(filename), "r", encoding="utf-8", errors="ignore") as file:
                 return cls(file.read(), symbol=symbol or None)
 
     @classmethod
-    def from_symbol_and_functional(cls, symbol: str, functional: str | None = None) -> Self:
+    def from_symbol_and_functional(
+        cls,
+        symbol: str,
+        functional: str | None = None,
+    ) -> Self:
         """Make a PotcarSingle from a symbol and functional.
 
         Args:
@@ -2259,7 +2262,9 @@ class PotcarSingle:
         return has_sha256, hash_is_valid
 
     def identify_potcar(
-        self, mode: Literal["data", "file"] = "data", data_tol: float = 1e-6
+        self,
+        mode: Literal["data", "file"] = "data",
+        data_tol: float = 1e-6,
     ) -> tuple[list[str], list[str]]:
         """
         Identify the symbol and compatible functionals associated with this PotcarSingle.
@@ -2294,12 +2299,11 @@ class PotcarSingle:
                     continue
 
                 key_match = all(
-                    set(ref_psp["keywords"][key]) == set(self._summary_stats["keywords"][key])  # type: ignore[index]
-                    for key in check_modes
+                    set(ref_psp["keywords"][key]) == set(self._summary_stats["keywords"][key]) for key in check_modes
                 )
 
                 data_diff = [
-                    abs(ref_psp["stats"][key][stat] - self._summary_stats["stats"][key][stat])  # type: ignore[index]
+                    abs(ref_psp["stats"][key][stat] - self._summary_stats["stats"][key][stat])
                     for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
                     for key in check_modes
                 ]
@@ -2325,13 +2329,13 @@ class PotcarSingle:
         """
         Identify the symbol and compatible functionals associated with this PotcarSingle.
 
-        This method checks the md5 hash of either the POTCAR metadadata (PotcarSingle.md5_header_hash)
+        This method checks the MD5 hash of either the POTCAR metadadata (PotcarSingle.md5_header_hash)
         or the entire POTCAR file (PotcarSingle.md5_computed_file_hash) against a database
         of hashes for POTCARs distributed with VASP 5.4.4.
 
         Args:
-            mode ('data' | 'file'): 'data' mode checks the hash of the POTCAR metadata in self.keywords,
-                while 'file' mode checks the hash of the entire POTCAR file.
+            mode ("data" | "file"): "data" mode checks the hash of the POTCAR metadata in self.keywords,
+                while "file" mode checks the hash of the entire POTCAR file.
 
         Returns:
             symbol (list): List of symbols associated with the PotcarSingle
@@ -2435,7 +2439,7 @@ class PotcarSingle:
             raise ValueError(f"Bad {mode=}. Choose 'data' or 'file'.")
 
         if identity := hash_db.get(potcar_hash):
-            # convert the potcar_functionals from the .json dict into the functional
+            # Convert the potcar_functionals from the .json dict into the functional
             # keys that pymatgen uses
             potcar_functionals = [*{mapping_dict[i]["pymatgen_key"] for i in identity["potcar_functionals"]}]
 
@@ -2449,7 +2453,7 @@ def _gen_potcar_summary_stats(
     summary_stats_filename: str | None = POTCAR_STATS_PATH,
 ):
     """
-    Regenerates the reference data in potcar-summary-stats.json.bz2 used to validate POTCARs
+    Regenerate the reference data in potcar-summary-stats.json.bz2 used to validate POTCARs
     by comparing header values and several statistics of copyrighted POTCAR data without
     having to record the POTCAR data itself.
 
@@ -2598,25 +2602,27 @@ class Potcar(list, MSONable):
         """
         with zopen(filename, mode="rt") as file:
             fdata = file.read()
-        potcar = cls()
 
-        functionals = []
+        potcar = cls()
+        functionals: list[str | None] = []
         for psingle_str in fdata.split("End of Dataset"):
             if p_strip := psingle_str.strip():
                 psingle = PotcarSingle(p_strip + "\nEnd of Dataset\n")
                 potcar.append(psingle)
                 functionals.append(psingle.functional)
+
         if len(set(functionals)) != 1:
             raise ValueError("File contains incompatible functionals!")
+
         potcar.functional = functionals[0]
         return potcar
 
-    def write_file(self, filename: str) -> None:
+    def write_file(self, filename: PathLike) -> None:
         """
         Write Potcar to a file.
 
         Args:
-            filename (str): filename to write to.
+            filename (PathLike): filename to write to.
         """
         with zopen(filename, mode="wt") as file:
             file.write(str(self))
@@ -2626,7 +2632,7 @@ class Potcar(list, MSONable):
         symbols: Sequence[str],
         functional: str | None = None,
         sym_potcar_map: dict[str, str] | None = None,
-    ):
+    ) -> None:
         """
         Initialize the POTCAR from a set of symbols. Currently, the POTCARs can
         be fetched from a location specified in .pmgrc.yaml. Use pmg config
@@ -2666,7 +2672,7 @@ class VaspInput(dict, MSONable):
         **kwargs,
     ) -> None:
         """
-        Initializes a VaspInput object with the given input files.
+        Initialize a VaspInput object with the given input files.
 
         Args:
             incar (Incar): The Incar object.
@@ -2689,7 +2695,7 @@ class VaspInput(dict, MSONable):
             output.extend((key, str(val), ""))
         return "\n".join(output)
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """MSONable dict."""
         dct = {key: val.as_dict() for key, val in self.items()}
         dct["@module"] = type(self).__module__
@@ -2713,35 +2719,44 @@ class VaspInput(dict, MSONable):
                 sub_dct["optional_files"][key] = MontyDecoder().process_decoded(val)
         return cls(**sub_dct)  # type: ignore[arg-type]
 
-    def write_input(self, output_dir=".", make_dir_if_not_present=True):
+    def write_input(
+        self,
+        output_dir: PathLike = ".",
+        make_dir_if_not_present: bool = True,
+    ) -> None:
         """
-        Write VASP input to a directory.
+        Write VASP inputs to a directory.
 
         Args:
-            output_dir (str): Directory to write to. Defaults to current
-                directory (".").
+            output_dir (PathLike): Directory to write to.
+                Defaults to current directory (".").
             make_dir_if_not_present (bool): Create the directory if not
                 present. Defaults to True.
         """
-        if make_dir_if_not_present:
-            os.makedirs(output_dir, exist_ok=True)
-        for k, v in self.items():
-            if v is not None:
-                with zopen(os.path.join(output_dir, k), mode="wt") as file:
-                    file.write(str(v))
+        if not os.path.isdir(output_dir) and make_dir_if_not_present:
+            os.makedirs(output_dir)
+
+        for key, value in self.items():
+            if value is not None:
+                with zopen(os.path.join(output_dir, key), mode="wt") as file:
+                    file.write(str(value))
 
     @classmethod
-    def from_directory(cls, input_dir: str, optional_files: dict | None = None) -> Self:
+    def from_directory(
+        cls,
+        input_dir: PathLike,
+        optional_files: dict | None = None,
+    ) -> Self:
         """
-        Read in a set of VASP input from a directory. Note that only the
+        Read in a set of VASP inputs from a directory. Note that only the
         standard INCAR, POSCAR, POTCAR and KPOINTS files are read unless
         optional_filenames is specified.
 
         Args:
-            input_dir (str): Directory to read VASP input from.
-            optional_files (dict): Optional files to read in as well as a
-                dict of {filename: Object type}. Object type must have a
-                static method from_file.
+            input_dir (PathLike): Directory to read VASP input from.
+            optional_files (dict): Optional files to read in as a
+                dict of {filename: Object type}. Objects must have
+                from_file method.
         """
         sub_dct = {}
         for fname, ftype in [
@@ -2762,7 +2777,7 @@ class VaspInput(dict, MSONable):
 
         return cls(**sub_dct)
 
-    def copy(self, deep: bool = True):
+    def copy(self, deep: bool = True) -> VaspInput:
         """Deep copy of VaspInput."""
         if deep:
             return self.from_dict(self.as_dict())
