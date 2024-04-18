@@ -11,8 +11,6 @@ from pymatgen.core.structure import Molecule
 from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
-TEST_DIR = f"{TEST_FILES_DIR}/io/xyz"
-
 
 class TestXYZ(TestCase):
     def setUp(self):
@@ -124,7 +122,7 @@ C32-C2-1
         assert mol[3].z == approx(-0.13790)
 
     def test_from_file(self):
-        filepath = f"{TEST_DIR}/multiple_frame.xyz"
+        filepath = f"{TEST_FILES_DIR}/xyz/multiple_frame.xyz"
         mxyz = XYZ.from_file(filepath)
         assert len(mxyz.all_molecules) == 302
         assert list(mxyz.all_molecules[0].cart_coords[0]) == [
