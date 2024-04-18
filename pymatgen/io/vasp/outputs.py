@@ -612,11 +612,15 @@ class Vasprun(MSONable):
             bool: True if ionic step convergence has been reached, i.e. that vasp
                 exited before reaching the max ionic steps for a relaxation run.
                 In case IBRION=0 (MD) True if the max ionic steps are reached.
+                In case where EDIFFG=0, return True if the max ionic steps are reached.
         """
         nsw = self.parameters.get("NSW", 0)
+        ediffg = self.parameters.get("EDIFFG", 1)
         ibrion = self.parameters.get("IBRION", -1 if nsw in (-1, 0) else 0)
         if ibrion == 0:
             return nsw <= 1 or self.md_n_steps == nsw
+        if ibrion in [1,2] and ediffg == 0:
+            return nsw <= 1 or nsw == len(self.ionic_steps)
 
         return nsw <= 1 or len(self.ionic_steps) < nsw
 
