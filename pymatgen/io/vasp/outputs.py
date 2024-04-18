@@ -4823,7 +4823,7 @@ class Wavecar:
                                     )[:, :, 0]
                                     + 1j
                                     * np.array(
-                                        h5_file["wave/spin_1/kpoint_1/wave"],
+                                        h5_file["wave/spin_1/kpoint_" + str(ink + 1) + "/wave"],
                                         dtype=np.float64,
                                     )[:, :, 1]
                                 )[inb],
