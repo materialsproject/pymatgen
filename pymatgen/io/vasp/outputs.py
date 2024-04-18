@@ -1958,7 +1958,7 @@ class Outcar:
             mag = mag_x
 
         # Data from beginning of OUTCAR
-        run_stats["cores"]  = -1
+        run_stats["cores"] = -1
         with zopen(filename, mode="rt") as file:
             for line in file:
                 if "serial" in line:
@@ -3616,7 +3616,7 @@ class VolumetricData(BaseVolumetricData):
 class Locpot(VolumetricData):
     """Simple object for reading a LOCPOT file."""
 
-    def __init__(self, poscar: Poscar, data: np.ndarray, **kwargs) :
+    def __init__(self, poscar: Poscar, data: np.ndarray, **kwargs):
         """
         Args:
             poscar (Poscar): Poscar object containing structure.
@@ -3694,7 +3694,7 @@ class Elfcar(VolumetricData):
     This also contains information on the kinetic energy density.
     """
 
-    def __init__(self, poscar, data) :
+    def __init__(self, poscar, data):
         """
         Args:
             poscar (Poscar or Structure): Object containing structure.
@@ -3758,7 +3758,7 @@ class Procar:
         nions (int): Number of ions.
     """
 
-    def __init__(self, filename) :
+    def __init__(self, filename):
         """
         Args:
             filename: Name of file containing PROCAR.
@@ -4040,7 +4040,7 @@ class Xdatcar:
     Authors: Ram Balachandran
     """
 
-    def __init__(self, filename, ionicstep_start=1, ionicstep_end=None, comment=None) :
+    def __init__(self, filename, ionicstep_start=1, ionicstep_end=None, comment=None):
         """
         Init a Xdatcar.
 
@@ -4261,7 +4261,7 @@ class Dynmat:
     Authors: Patrick Huck
     """
 
-    def __init__(self, filename) :
+    def __init__(self, filename):
         """
         Args:
             filename: Name of file containing DYNMAT.
@@ -4414,7 +4414,7 @@ class Wavecar:
     Author: Mark Turiansky
     """
 
-    def __init__(self, filename="WAVECAR", verbose=False, precision="normal", vasp_type=None) :
+    def __init__(self, filename="WAVECAR", verbose=False, precision="normal", vasp_type=None):
         """
         Information is extracted from the given WAVECAR.
 
