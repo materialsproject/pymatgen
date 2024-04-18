@@ -3779,7 +3779,7 @@ class Procar:
             n_kpoints = None
             n_bands = None
             n_ions = None
-            weights = []
+            weights: list[float] = []
             headers = None
             data = None
             phase_factors = None
@@ -4538,11 +4538,11 @@ class Wavecar:
                     np.fromfile(file, dtype=np.float64, count=(recl8 - 4 - 3 * self.nb) % recl8)
 
                     if self.vasp_type is None:
-                        self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(kpoint, gamma=True)
+                        self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(kpoint, gamma=True)  # type: ignore[call-overload]
                         if len(self.Gpoints[ink]) == nplane:
                             self.vasp_type = "gam"
                         else:
-                            self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(
+                            self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(  # type: ignore[call-overload]
                                 kpoint, gamma=False
                             )
                             self.vasp_type = "std" if len(self.Gpoints[ink]) == nplane else "ncl"
@@ -4550,7 +4550,7 @@ class Wavecar:
                         if verbose:
                             print(f"\ndetermined {self.vasp_type = }\n")
                     else:
-                        self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(
+                        self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(  # type: ignore[call-overload]
                             kpoint, gamma=self.vasp_type.lower()[0] == "g"
                         )
 
@@ -4706,7 +4706,7 @@ class Wavecar:
         v = self.Gpoints[kpoint] + self.kpoints[kpoint]
         u = np.dot(np.dot(v, self.b), r)
         if self.vasp_type.lower()[0] == "n":
-            c = self.coeffs[kpoint][band][spinor, :]
+            c = self.coeffs[kpoint][band][spinor, :]  # type: ignore[call-overload]
         elif self.spin == 2:
             c = self.coeffs[spin][kpoint][band]
         else:
@@ -4739,14 +4739,14 @@ class Wavecar:
             a numpy ndarray representing the 3D mesh of coefficients
         """
         if self.vasp_type.lower()[0] == "n":
-            tcoeffs = self.coeffs[kpoint][band][spinor, :]
+            tcoeffs = self.coeffs[kpoint][band][spinor, :]  # type: ignore[call-overload]
         elif self.spin == 2:
             tcoeffs = self.coeffs[spin][kpoint][band]
         else:
             tcoeffs = self.coeffs[kpoint][band]
 
         mesh = np.zeros(tuple(self.ng), dtype=np.complex128)
-        for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs):
+        for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs):  # type: ignore[call-overload]
             t = tuple(gp.astype(int) + (self.ng / 2).astype(int))
             mesh[t] = coeff
 
