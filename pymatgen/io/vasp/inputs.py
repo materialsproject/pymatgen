@@ -584,7 +584,9 @@ class Poscar(MSONable):
 
         return "\n".join(lines) + "\n"
 
-    def __repr__(self) -> str:
+    get_string = get_str
+
+    def __repr__(self):
         return self.get_str()
 
     def __str__(self) -> str:
