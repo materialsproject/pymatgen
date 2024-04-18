@@ -4653,7 +4653,7 @@ class Wavecar:
 
                     if len(self.Gpoints[ink]) != nplane and 2 * len(self.Gpoints[ink]) != nplane:
                         raise ValueError(
-                            f"Incorrect vasp_type{self.vasp_type}. Please open an issue if you are certain this WAVECAR"
+                            f"Incorrect vasp_type='{self.vasp_type}'. Please open an issue if you are sure this WAVECAR"
                             " was generated with the given vasp_type."
                         )
 
