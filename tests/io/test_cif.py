@@ -284,14 +284,9 @@ class TestCifIO(PymatgenTest):
         struct = parser.parse_structures()[0]
 
         assert len(set(struct.labels)) != len(struct.labels)
-        with pytest.raises(IOError, match="Site labels are not unique"):
-            CifWriter(struct)
 
-        # struct.relabel_sites()  # TODO: in-place or return new?
-
-        # assert len(set(struct.labels)) != len(struct.labels)
-
-        # CifWriter(struct)
+        # This should pass without raising an error
+        CifWriter(struct)
 
     def test_cif_parser_springer_pauling(self):
         # Below are 10 tests for CIFs from the Springer Materials/Pauling file DBs.

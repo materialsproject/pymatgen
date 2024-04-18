@@ -1519,7 +1519,9 @@ class CifWriter:
                         mag = sp.spin
                     else:
                         # Use site label if available for regular sites
-                        site_label = site.label if site.label != site.species_string else site_label
+                        if site.label != site.species_string:
+                            site_label = f"{site.label}_{count}" if site.label in atom_site_label else site.label
+
                         mag = 0
 
                     atom_site_label.append(site_label)
