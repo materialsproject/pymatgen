@@ -433,11 +433,11 @@ class Poscar(MSONable):
                 )
 
         # Read the atomic coordinates
-        coords = []
-        selective_dynamics: list[np.ndarray] | None = [] if has_selective_dynamics else None
+        coords: list[list[float]] = []
+        selective_dynamics: list[list[bool]] | None = [] if has_selective_dynamics else None
         for idx in range(n_sites):
-            tokens = lines[ipos + 1 + idx].split()
-            crd_scale = scale if cart else 1
+            tokens: list[str] = lines[ipos + 1 + idx].split()
+            crd_scale: float = scale if cart else 1
             coords.append([float(j) * crd_scale for j in tokens[:3]])
             if selective_dynamics is not None:
                 # Warn when values contain suspicious entries
@@ -471,10 +471,10 @@ class Poscar(MSONable):
             coords_are_cartesian=cart,
         )
 
-        lattice_velocities = []
-        velocities = []
-        predictor_corrector = []
-        predictor_corrector_preamble = ""
+        lattice_velocities: list[list[float]] = []
+        velocities: list[list[float]] = []
+        predictor_corrector: list = []
+        predictor_corrector_preamble: str = ""
 
         if read_velocities:
             # Parse the lattice velocities and current lattice, if present.
