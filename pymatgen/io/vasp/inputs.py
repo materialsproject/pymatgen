@@ -708,13 +708,13 @@ class BadPoscarWarning(UserWarning):
 
 class Incar(dict, MSONable):
     """
-    INCAR object for reading and writing INCAR files. Essentially
-    consists of a dictionary with some helper functions.
+    INCAR object for reading and writing INCAR files.
+    Essentially a dictionary with some helper functions.
     """
 
     def __init__(self, params: dict[str, Any] | None = None) -> None:
         """
-        Creates an Incar object.
+        Create an Incar object.
 
         Args:
             params (dict): A set of input parameters as a dictionary.
@@ -735,8 +735,8 @@ class Incar(dict, MSONable):
 
     def __setitem__(self, key: str, val: Any) -> None:
         """
-        Add parameter-val pair to Incar. Warns if parameter is not in list of
-        valid INCAR tags. Also cleans the parameter and val by stripping
+        Add parameter-val pair to Incar. Warn if parameter is not in list of
+        valid INCAR tags. Also clean the parameter and val by stripping
         leading and trailing white spaces.
         """
         super().__setitem__(
@@ -764,22 +764,21 @@ class Incar(dict, MSONable):
             dct["MAGMOM"] = [Magmom.from_dict(m) for m in dct["MAGMOM"]]
         return Incar({k: v for k, v in dct.items() if k not in ("@module", "@class")})
 
-    def copy(self):
+    def copy(self) -> Self:
         return type(self)(self)
 
     def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
         """
-        Returns a string representation of the INCAR. The reason why this
-        method is different from the __str__ method is to provide options for
-        pretty printing.
+        Return a string representation of the INCAR. Differ from the
+        __str__ method to provide options for pretty printing.
 
         Args:
-            sort_keys (bool): Set to True to sort the INCAR parameters
+            sort_keys (bool): Whether to sort the INCAR parameters
                 alphabetically. Defaults to False.
-            pretty (bool): Set to True for pretty aligned output. Defaults
-                to False.
+            pretty (bool): Whether to pretty align output.
+                Defaults to False.
         """
-        keys = sorted(self) if sort_keys else list(self)
+        keys: list[str] = sorted(self) if sort_keys else list(self)
         lines = []
         for key in keys:
             if key == "MAGMOM" and isinstance(self[key], list):
@@ -788,13 +787,13 @@ class Incar(dict, MSONable):
                 if isinstance(self[key][0], (list, Magmom)) and (self.get("LSORBIT") or self.get("LNONCOLLINEAR")):
                     value.append(" ".join(str(i) for j in self[key] for i in j))
                 elif self.get("LSORBIT") or self.get("LNONCOLLINEAR"):
-                    for m, g in itertools.groupby(self[key]):
-                        value.append(f"3*{len(tuple(g))}*{m}")
+                    for _key, group in itertools.groupby(self[key]):
+                        value.append(f"3*{len(tuple(group))}*{_key}")
                 else:
                     # float() to ensure backwards compatibility between
                     # float magmoms and Magmom objects
-                    for m, g in itertools.groupby(self[key], key=float):
-                        value.append(f"{len(tuple(g))}*{m}")
+                    for _key, group in itertools.groupby(self[key], key=float):
+                        value.append(f"{len(tuple(group))}*{_key}")
 
                 lines.append([key, " ".join(value)])
             elif isinstance(self[key], list):
@@ -820,7 +819,7 @@ class Incar(dict, MSONable):
 
     @classmethod
     def from_file(cls, filename: PathLike) -> Self:
-        """Reads an Incar object from a file.
+        """Read an Incar object from a file.
 
         Args:
             filename (str): Filename for file
@@ -833,7 +832,7 @@ class Incar(dict, MSONable):
 
     @classmethod
     def from_str(cls, string: str) -> Self:
-        """Reads an Incar object from a string.
+        """Read an Incar object from a string.
 
         Args:
             string (str): Incar string
@@ -841,26 +840,35 @@ class Incar(dict, MSONable):
         Returns:
             Incar object
         """
-        lines = list(clean_lines(string.splitlines()))
-        params = {}
+        lines: list[str] = list(clean_lines(string.splitlines()))
+        params: dict[str, Any] = {}
         for line in lines:
             for sline in line.split(";"):
                 if match := re.match(r"(\w+)\s*=\s*(.*)", sline.strip()):
-                    key = match.group(1).strip()
-                    val = match.group(2).strip()
-                    val = Incar.proc_val(key, val)
-                    params[key] = val
+                    key: str = match[1].strip()
+                    val: Any = match[2].strip()
+                    params[key] = Incar.proc_val(key, val)
         return cls(params)
 
     @staticmethod
-    def proc_val(key: str, val: Any):
-        """Helper method to convert INCAR parameters to proper types like ints, floats, lists, etc.
+    def proc_val(key: str, val: Any) -> list | bool | float | int | str:
+        """Helper method to convert INCAR parameters to proper types
+        like ints, floats, lists, etc.
 
         Args:
-            key: INCAR parameter key
-            val: Actual value of INCAR parameter.
+            key (str): INCAR parameter key
+            val (Any): Value of INCAR parameter.
         """
-        list_keys = ("LDAUU", "LDAUL", "LDAUJ", "MAGMOM", "DIPOL", "LANGEVIN_GAMMA", "QUAD_EFG", "EINT")
+        list_keys = (
+            "LDAUU",
+            "LDAUL",
+            "LDAUJ",
+            "MAGMOM",
+            "DIPOL",
+            "LANGEVIN_GAMMA",
+            "QUAD_EFG",
+            "EINT",
+        )
         bool_keys = (
             "LDAU",
             "LWAVE",
@@ -873,7 +881,18 @@ class Incar(dict, MSONable):
             "LSORBIT",
             "LNONCOLLINEAR",
         )
-        float_keys = ("EDIFF", "SIGMA", "TIME", "ENCUTFOCK", "HFSCREEN", "POTIM", "EDIFFG", "AGGAC", "PARAM1", "PARAM2")
+        float_keys = (
+            "EDIFF",
+            "SIGMA",
+            "TIME",
+            "ENCUTFOCK",
+            "HFSCREEN",
+            "POTIM",
+            "EDIFFG",
+            "AGGAC",
+            "PARAM1",
+            "PARAM2",
+        )
         int_keys = (
             "NSW",
             "NBANDS",
@@ -898,8 +917,9 @@ class Incar(dict, MSONable):
         )
         lower_str_keys = ("ML_MODE",)
 
-        def smart_int_or_float(num_str):
-            if num_str.find(".") != -1 or num_str.lower().find("e") != -1:
+        def smart_int_or_float(num_str: str) -> str | float:
+            """Determine whether a string represents an integer or a float."""
+            if "." in num_str or "e" in num_str.lower():
                 return float(num_str)
             return int(num_str)
 
@@ -915,17 +935,18 @@ class Incar(dict, MSONable):
                     else:
                         output.append(smart_int_or_float(tok[0]))
                 return output
+
             if key in bool_keys:
                 if match := re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val):
-                    return match.group(1).lower() == "t"
+                    return match[1].lower() == "t"
 
                 raise ValueError(f"{key} should be a boolean type!")
 
             if key in float_keys:
-                return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", val).group(0))  # type: ignore
+                return float(re.search(r"^-?\d*\.?\d*[e|E]?-?\d*", val)[0])  # type: ignore[index]
 
             if key in int_keys:
-                return int(re.match(r"^-?[0-9]+", val).group(0))  # type: ignore
+                return int(re.match(r"^-?[0-9]+", val)[0])  # type: ignore[index]
 
             if key in lower_str_keys:
                 return val.strip().lower()
@@ -933,7 +954,7 @@ class Incar(dict, MSONable):
         except ValueError:
             pass
 
-        # Not in standard keys. We will try a hierarchy of conversions.
+        # Not in known keys. We will try a hierarchy of conversions.
         try:
             return int(val)
         except ValueError:
@@ -954,7 +975,7 @@ class Incar(dict, MSONable):
 
     def diff(self, other: Incar) -> dict[str, dict[str, Any]]:
         """
-        Diff function for Incar. Compares two Incars and indicates which
+        Diff function for Incar. Compare two Incars and indicate which
         parameters are the same and which are not. Useful for checking whether
         two runs were done using the same parameters.
 
@@ -966,29 +987,31 @@ class Incar(dict, MSONable):
                 {"Same" : parameters_that_are_the_same, "Different": parameters_that_are_different}
                 Note that the parameters are return as full dictionaries of values. E.g. {"ISIF":3}
         """
-        similar_param = {}
-        different_param = {}
+        similar_params = {}
+        different_params = {}
         for k1, v1 in self.items():
             if k1 not in other:
-                different_param[k1] = {"INCAR1": v1, "INCAR2": None}
+                different_params[k1] = {"INCAR1": v1, "INCAR2": None}
             elif v1 != other[k1]:
-                different_param[k1] = {"INCAR1": v1, "INCAR2": other[k1]}
+                different_params[k1] = {"INCAR1": v1, "INCAR2": other[k1]}
             else:
-                similar_param[k1] = v1
-        for k2, v2 in other.items():
-            if k2 not in similar_param and k2 not in different_param and k2 not in self:
-                different_param[k2] = {"INCAR1": None, "INCAR2": v2}
-        return {"Same": similar_param, "Different": different_param}
+                similar_params[k1] = v1
 
-    def __add__(self, other):
+        for k2, v2 in other.items():
+            if k2 not in similar_params and k2 not in different_params and k2 not in self:
+                different_params[k2] = {"INCAR1": None, "INCAR2": v2}
+
+        return {"Same": similar_params, "Different": different_params}
+
+    def __add__(self, other: Incar) -> Incar:
         """
         Add all the values of another INCAR object to this object.
-        Facilitates the use of "standard" INCARs.
+        Facilitate the use of "standard" INCARs.
         """
-        params = dict(self.items())
+        params: dict[str, Any] = dict(self.items())
         for key, val in other.items():
             if key in self and val != self[key]:
-                raise ValueError(f"Incars have conflicting values for {key}: {self[key]} != {val}")
+                raise ValueError(f"INCARs have conflicting values for {key}: {self[key]} != {val}")
             params[key] = val
         return Incar(params)
 
