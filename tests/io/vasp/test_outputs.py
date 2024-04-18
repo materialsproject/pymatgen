@@ -48,7 +48,9 @@ try:
 except ImportError:
     h5py = None
 
-kpts_opt_vrun_path = f"{TEST_FILES_DIR}/io/vasp/fixtures/kpoints_opt/vasprun.xml.gz"
+TEST_DIR = f"{TEST_FILES_DIR}/io/vasp"
+
+kpts_opt_vrun_path = f"{TEST_DIR}/io/vasp/fixtures/kpoints_opt/vasprun.xml.gz"
 
 
 class TestVasprun(PymatgenTest):
@@ -739,7 +741,7 @@ class TestVasprun(PymatgenTest):
 
     def test_kpoints_opt_band_structure(self):
         vasp_run = Vasprun(kpts_opt_vrun_path, parse_potcar_file=False, parse_projected_eigen=True)
-        bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/io/vasp/fixtures/kpoints_opt/KPOINTS_OPT")
+        bs = vasp_run.get_band_structure(f"{TEST_DIR}/fixtures/kpoints_opt/KPOINTS_OPT")
         assert isinstance(bs, BandStructureSymmLine)
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
@@ -1377,7 +1379,7 @@ class TestBSVasprun(PymatgenTest):
 
     def test_kpoints_opt(self):
         vasp_run = BSVasprun(kpts_opt_vrun_path, parse_potcar_file=False, parse_projected_eigen=True)
-        bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/io/vasp/fixtures/kpoints_opt/KPOINTS_OPT")
+        bs = vasp_run.get_band_structure(f"{TEST_DIR}/fixtures/kpoints_opt/KPOINTS_OPT")
         assert isinstance(bs, BandStructureSymmLine)
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
@@ -1415,7 +1417,7 @@ class TestOszicar(PymatgenTest):
         assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
 
     def test_static(self):
-        fpath = f"{TEST_FILES_DIR}/io/vasp/fixtures/static_silicon/OSZICAR"
+        fpath = f"{TEST_DIR}/fixtures/static_silicon/OSZICAR"
         oszicar = Oszicar(fpath)
         assert oszicar.final_energy == approx(-10.645278)
         assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
