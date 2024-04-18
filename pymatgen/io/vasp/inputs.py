@@ -1891,6 +1891,53 @@ class PotcarSingle:
             nelect -= e[-1]
         return config
 
+    @property
+    def element(self) -> str:
+        """Attempt to return the atomic symbol based on the VRHFIN keyword."""
+        element = self.keywords["VRHFIN"].split(":")[0].strip()
+        try:
+            return Element(element).symbol
+        except ValueError:
+            # VASP incorrectly gives the element symbol for Xe as "X"
+            # Some potentials, e.g., Zr_sv, gives the symbol as r.
+            if element == "X":
+                return "Xe"
+            return Element(self.symbol.split("_")[0]).symbol
+
+    @property
+    def atomic_no(self) -> int:
+        """Attempt to return the atomic number based on the VRHFIN keyword."""
+        return Element(self.element).Z
+
+    @property
+    def nelectrons(self) -> float:
+        """Number of electrons"""
+        return self.zval
+
+    @property
+    def symbol(self) -> str:
+        """The POTCAR symbol, e.g. W_pv"""
+        return self._symbol
+
+    @property
+    def potential_type(self) -> Literal["NC", "PAW", "US"]:
+        """Type of PSP. E.g., US, PAW, etc."""
+        if self.lultra:
+            return "US"
+        if self.lpaw:
+            return "PAW"
+        return "NC"
+
+    @property
+    def functional(self) -> str | None:
+        """Functional associated with PotcarSingle."""
+        return self.functional_tags.get(self.LEXCH.lower(), {}).get("name")
+
+    @property
+    def functional_class(self) -> str | None:
+        """Functional class associated with PotcarSingle."""
+        return self.functional_tags.get(self.LEXCH.lower(), {}).get("class")
+
     def write_file(self, filename: str) -> None:
         """Write PotcarSingle to a file.
 
@@ -1942,14 +1989,17 @@ class PotcarSingle:
             PotcarSingle
         """
         functional = functional or SETTINGS.get("PMG_DEFAULT_FUNCTIONAL", "PBE")
-        assert isinstance(functional, str)  # mypy type narrowing
+        if functional is None:
+            raise ValueError("Cannot get functional.")
+
         funcdir = cls.functional_dir[functional]
         PMG_VASP_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR")
         if PMG_VASP_PSP_DIR is None:
             raise ValueError(
                 f"No POTCAR for {symbol} with {functional=} found. Please set the PMG_VASP_PSP_DIR in .pmgrc.yaml."
             )
-        paths_to_try = [
+
+        paths_to_try: list[str] = [
             os.path.join(PMG_VASP_PSP_DIR, funcdir, f"POTCAR.{symbol}"),
             os.path.join(PMG_VASP_PSP_DIR, funcdir, symbol, "POTCAR"),
         ]
@@ -1958,57 +2008,11 @@ class PotcarSingle:
             path = zpath(path)
             if os.path.isfile(path):
                 return cls.from_file(path)
-        raise OSError(
+
+        raise RuntimeError(
             f"You do not have the right POTCAR with {functional=} and {symbol=} "
             f"in your {PMG_VASP_PSP_DIR=}. Paths tried: {paths_to_try}"
         )
-
-    @property
-    def element(self) -> str:
-        """Attempt to return the atomic symbol based on the VRHFIN keyword."""
-        element = self.keywords["VRHFIN"].split(":")[0].strip()
-        try:
-            return Element(element).symbol
-        except ValueError:
-            # VASP incorrectly gives the element symbol for Xe as "X"
-            # Some potentials, e.g., Zr_sv, gives the symbol as r.
-            if element == "X":
-                return "Xe"
-            return Element(self.symbol.split("_")[0]).symbol
-
-    @property
-    def atomic_no(self) -> int:
-        """Attempt to return the atomic number based on the VRHFIN keyword."""
-        return Element(self.element).Z
-
-    @property
-    def nelectrons(self) -> float:
-        """Number of electrons"""
-        return self.zval
-
-    @property
-    def symbol(self) -> str:
-        """The POTCAR symbol, e.g. W_pv"""
-        return self._symbol
-
-    @property
-    def potential_type(self) -> Literal["NC", "PAW", "US"]:
-        """Type of PSP. E.g., US, PAW, etc."""
-        if self.lultra:
-            return "US"
-        if self.lpaw:
-            return "PAW"
-        return "NC"
-
-    @property
-    def functional(self) -> str | None:
-        """Functional associated with PotcarSingle."""
-        return self.functional_tags.get(self.LEXCH.lower(), {}).get("name")
-
-    @property
-    def functional_class(self):
-        """Functional class associated with PotcarSingle."""
-        return self.functional_tags.get(self.LEXCH.lower(), {}).get("class")
 
     def verify_potcar(self) -> tuple[bool, bool]:
         """
