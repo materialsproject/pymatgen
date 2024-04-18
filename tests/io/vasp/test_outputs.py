@@ -50,7 +50,7 @@ except ImportError:
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/vasp"
 
-kpts_opt_vrun_path = f"{TEST_DIR}/io/vasp/fixtures/kpoints_opt/vasprun.xml.gz"
+kpts_opt_vrun_path = f"{TEST_DIR}/fixtures/kpoints_opt/vasprun.xml.gz"
 
 
 class TestVasprun(PymatgenTest):
