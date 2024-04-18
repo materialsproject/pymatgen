@@ -176,6 +176,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 same name as the InputSet (e.g., MPStaticSet.zip)
         """
         if potcar_spec:
+            vasp_input = None
             if make_dir_if_not_present:
                 os.makedirs(output_dir, exist_ok=True)
 
@@ -191,19 +192,20 @@ class VaspInputSet(InputGenerator, abc.ABC):
             vasp_input.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
 
         cif_name = ""
-        if include_cif:
+        if include_cif and vasp_input is not None:
             struct = vasp_input["POSCAR"].structure
             cif_name = f"{output_dir}/{struct.formula.replace(' ', '')}.cif"
             struct.to(filename=cif_name)
 
         if zip_output:
-            filename = type(self).__name__ + ".zip"
+            filename = f"{type(self).__name__}.zip"
             with ZipFile(os.path.join(output_dir, filename), mode="w") as zip_file:
                 for file in ["INCAR", "POSCAR", "KPOINTS", "POTCAR", "POTCAR.spec", cif_name]:
                     try:
                         zip_file.write(os.path.join(output_dir, file), arcname=file)
                     except FileNotFoundError:
                         pass
+
                     try:
                         os.remove(os.path.join(output_dir, file))
                     except (FileNotFoundError, PermissionError, IsADirectoryError):
@@ -2709,6 +2711,8 @@ class LobsterSet(DictSet):
                 if atom_type not in self.user_supplied_basis:
                     raise ValueError(f"There are no basis functions for the atom type {atom_type}")
             basis = [f"{key} {value}" for key, value in self.user_supplied_basis.items()]
+        else:
+            basis = None
 
         lobsterin = Lobsterin(settingsdict={"basisfunctions": basis})
         nbands = lobsterin._get_nbands(structure=self.structure)  # type: ignore

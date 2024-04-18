@@ -143,3 +143,12 @@ rute,reson,titels,ges,scalr,strat,struc,hda,nin,ons,pres,kno,loos,lamda,lew,atom
 """
 skip = "pymatgen/analysis/aflow_prototypes.json"
 check-filenames = true
+
+[tool.pyright]
+typeCheckingMode = "off"
+reportPossiblyUnboundVariable = true
+reportUnboundVariable = true
+reportMissingImports = false
+reportMissingModuleSource = false
+reportInvalidTypeForm = false
+exclude = ["**/tests"]

@@ -284,7 +284,7 @@ class BoltztrapRunner(MSONable):
                         # use 90% of bottom bands since highest eigenvalues
                         # are usually incorrect
                         # ask Geoffroy Hautier for more details
-                        nb_bands = int(math.floor(self._bs.nb_bands * (1 - self.cb_cut)))
+                        nb_bands = math.floor(self._bs.nb_bands * (1 - self.cb_cut))
                         for j in range(nb_bands):
                             eigs.append(
                                 Energy(
@@ -384,7 +384,7 @@ class BoltztrapRunner(MSONable):
                         file.write(str(len(self._bs.kpoints)) + "\n")
                         for i, kpt in enumerate(self._bs.kpoints):
                             tmp_proj = []
-                            for j in range(int(math.floor(self._bs.nb_bands * (1 - self.cb_cut)))):
+                            for j in range(math.floor(self._bs.nb_bands * (1 - self.cb_cut))):
                                 tmp_proj.append(self._bs.projections[Spin(self.spin)][j][i][oi][site_nb])
                             # TODO deal with the sorting going on at
                             # the energy level!!!

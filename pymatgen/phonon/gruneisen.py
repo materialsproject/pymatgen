@@ -21,6 +21,7 @@ try:
     from phonopy.phonon.dos import TotalDos
 except ImportError:
     phonopy = None
+    TotalDos = None
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

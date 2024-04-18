@@ -1612,11 +1612,11 @@ class TestLobsterin(TestCase):
         assert lobsterin["basisfunctions"][0] == "Fe 3d 4p 4s"
         assert lobsterin["basisfunctions"][1] == "Co 3d 4p 4s"
         assert {*lobsterin} >= {"skipdos", "skipcohp", "skipcoop", "skippopulationanalysis", "skipgrosspopulation"}
-        with pytest.raises(IOError, match="There are duplicates for the keywords! The program will stop here."):
+        with pytest.raises(KeyError, match="There are duplicates for the keywords!"):
             lobsterin2 = Lobsterin({"cohpstartenergy": -15.0, "cohpstartEnergy": -20.0})
         lobsterin2 = Lobsterin({"cohpstartenergy": -15.0})
         # can only calculate nbands if basis functions are provided
-        with pytest.raises(IOError, match="No basis functions are provided. The program cannot calculate nbands"):
+        with pytest.raises(ValueError, match="No basis functions are provided. The program cannot calculate nbands"):
             lobsterin2._get_nbands(structure=Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Fe3O4"))
 
     def test_standard_settings(self):
@@ -1752,7 +1752,7 @@ class TestLobsterin(TestCase):
     def test_diff(self):
         # test diff
         assert self.Lobsterinfromfile.diff(self.Lobsterinfromfile2)["Different"] == {}
-        assert self.Lobsterinfromfile.diff(self.Lobsterinfromfile2)["Same"]["COHPSTARTENERGY"] == approx(-15.0)
+        assert self.Lobsterinfromfile.diff(self.Lobsterinfromfile2)["Same"]["cohpstartenergy"] == approx(-15.0)
 
         # test diff in both directions
         for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"]:
@@ -1765,8 +1765,8 @@ class TestLobsterin(TestCase):
             assert entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]
 
         assert (
-            self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]["SKIPCOHP"]["lobsterin1"]
-            == self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]["SKIPCOHP"]["lobsterin2"]
+            self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]["skipcohp"]["lobsterin1"]
+            == self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]["skipcohp"]["lobsterin2"]
         )
 
     def test_dict_functionality(self):
@@ -1792,8 +1792,6 @@ class TestLobsterin(TestCase):
         lobsterin1.write_lobsterin(outfile_path)
         lobsterin2 = Lobsterin.from_file(outfile_path)
         assert lobsterin1.diff(lobsterin2)["Different"] == {}
-
-        # TODO: will integer vs float break cohpsteps?
 
     def test_get_basis(self):
         # get basis functions
@@ -2590,7 +2588,7 @@ class TestLobsterMatrices(PymatgenTest):
             self.hamilton_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/Na_hamiltonMatrices.lobster.gz")
 
         with pytest.raises(
-            OSError,
-            match=r"Please check provided input file, it seems to be empty",
+            RuntimeError,
+            match="Please check provided input file, it seems to be empty",
         ):
             self.hamilton_matrices = LobsterMatrices(filename=f"{TEST_FILES_DIR}/cohp/hamiltonMatrices.lobster")
