@@ -186,7 +186,7 @@ class TestBSPlotterProjected(TestCase):
         self.bs_Cu2O = BandStructureSymmLine.from_dict(dct)
         self.plotter_Cu2O = BSPlotterProjected(self.bs_Cu2O)
 
-        with open(f"{TEST_FILES_DIR}/boltztrap2/PbTe_bandstructure.json") as file:
+        with open(f"{TEST_FILES_DIR}/electronic_structure/boltztrap2/PbTe_bandstructure.json") as file:
             dct = json.load(file)
         self.bs_PbTe = BandStructureSymmLine.from_dict(dct)
 
