@@ -11,6 +11,8 @@ from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.sets import OptSet
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/io/qchem"
+
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
 __version__ = "0.1"
@@ -740,7 +742,7 @@ $end
             assert i_str in multi_job_str_test
 
     def test_from_multi_jobs_file(self):
-        job_list_test = QCInput.from_multi_jobs_file(f"{TEST_FILES_DIR}/qchem/pt_n2_wb97mv_0.0.in")
+        job_list_test = QCInput.from_multi_jobs_file(f"{TEST_DIR}/pt_n2_wb97mv_0.0.in")
         species = [
             "S",
             "C",
