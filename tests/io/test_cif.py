@@ -543,7 +543,7 @@ loop_
             assert l1.strip() == l2.strip()
 
     def test_cif_writer_without_refinement(self):
-        si2 = Structure.from_file(f"{TEST_FILES_DIR}/abinit/si.cif")
+        si2 = Structure.from_file(f"{TEST_FILES_DIR}/io/abinit/si.cif")
 
         writer = CifWriter(si2, symprec=1e-3, significant_figures=10, refine_struct=False)
         cif_str = str(writer)

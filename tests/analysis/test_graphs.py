@@ -87,10 +87,10 @@ class TestStructureGraph(PymatgenTest):
 
         # MoS2 example, structure graph obtained from critic2
         # (not ground state, from mp-1023924, single layer)
-        stdout_file = f"{TEST_FILES_DIR}/critic2/MoS2_critic2_stdout.txt"
+        stdout_file = f"{TEST_FILES_DIR}/command_line/critic2/MoS2_critic2_stdout.txt"
         with open(stdout_file) as txt_file:
             reference_stdout = txt_file.read()
-        self.structure = Structure.from_file(f"{TEST_FILES_DIR}/critic2/MoS2.cif")
+        self.structure = Structure.from_file(f"{TEST_FILES_DIR}/command_line/critic2/MoS2.cif")
         c2o = Critic2Analysis(self.structure, reference_stdout)
         self.mos2_sg = c2o.structure_graph(include_critical_points=False)
 
