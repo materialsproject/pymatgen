@@ -720,7 +720,7 @@ class Incar(dict, MSONable):
             params (dict): A set of input parameters as a dictionary.
         """
         super().__init__()
-        if params:
+        if params is not None:
             # if Incar contains vector-like magmoms given as a list
             # of floats, convert to a list of lists
             if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], (int, float))) and (
