@@ -1557,7 +1557,8 @@ class Kpoints(MSONable):
         if style == "l":
             lines.append(self.coord_type)
         for idx, kpt in enumerate(self.kpts):
-            lines.append(" ".join(map(str, kpt)))
+            # TODO (@DanielYang59): fix the following type annotation
+            lines.append(" ".join(map(str, kpt)))  # type: ignore[arg-type]
             if style == "l":
                 lines[-1] += f" ! {self.labels[idx]}"
                 if idx % 2 == 1:
@@ -1778,7 +1779,7 @@ class PotcarSingle:
         keywords = {}
         for key, val in re.findall(r"(\S+)\s*=\s*(.*?)(?=;|$)", search_lines, flags=re.MULTILINE):
             try:
-                keywords[key] = self.parse_functions[key](val)
+                keywords[key] = self.parse_functions[key](val)  # type: ignore[operator]
             except KeyError:
                 warnings.warn(f"Ignoring unknown variable type {key}")
 

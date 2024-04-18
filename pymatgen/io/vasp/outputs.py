@@ -1868,7 +1868,7 @@ class Outcar:
                         # which cannot be parsed as float
                         run_stats[tok[0].strip()] = float(tok[1].strip())
                     except ValueError:
-                        run_stats[tok[0].strip()] = None
+                        run_stats[tok[0].strip()] = -1
                     continue
 
                 if match := efermi_patt.search(clean):
@@ -1957,8 +1957,8 @@ class Outcar:
         else:
             mag = mag_x
 
-        # data from beginning of OUTCAR
-        run_stats["cores"] = None
+        # Data from beginning of OUTCAR
+        run_stats["cores"]  = -1
         with zopen(filename, mode="rt") as file:
             for line in file:
                 if "serial" in line:
@@ -3616,7 +3616,7 @@ class VolumetricData(BaseVolumetricData):
 class Locpot(VolumetricData):
     """Simple object for reading a LOCPOT file."""
 
-    def __init__(self, poscar: Poscar, data: np.ndarray, **kwargs) -> None:
+    def __init__(self, poscar: Poscar, data: np.ndarray, **kwargs) :
         """
         Args:
             poscar (Poscar): Poscar object containing structure.
@@ -3649,15 +3649,16 @@ class Chgcar(VolumetricData):
             data: Actual data.
             data_aug: Augmentation charge data.
         """
-        # allow for poscar or structure files to be passed
+        # Allow for poscar or structure files to be passed
         if isinstance(poscar, Poscar):
             struct = poscar.structure
             self.poscar = poscar
-            self.name = poscar.comment
+            self.name: str = poscar.comment
         elif isinstance(poscar, Structure):
             struct = poscar
             self.poscar = Poscar(poscar)
-            self.name = None
+            # TODO (@DanielYang59): use a default str name for the following?
+            self.name = None  # type: ignore[assignment]
         else:
             raise TypeError("Unsupported POSCAR type.")
 
@@ -3693,7 +3694,7 @@ class Elfcar(VolumetricData):
     This also contains information on the kinetic energy density.
     """
 
-    def __init__(self, poscar, data) -> None:
+    def __init__(self, poscar, data) :
         """
         Args:
             poscar (Poscar or Structure): Object containing structure.
@@ -3757,7 +3758,7 @@ class Procar:
         nions (int): Number of ions.
     """
 
-    def __init__(self, filename) -> None:
+    def __init__(self, filename) :
         """
         Args:
             filename: Name of file containing PROCAR.
@@ -3908,7 +3909,7 @@ class Oszicar:
             depending on the type of VASP run.
     """
 
-    def __init__(self, filename) -> None:
+    def __init__(self, filename):
         """
         Args:
             filename (str): Filename of file to parse.
@@ -4039,7 +4040,7 @@ class Xdatcar:
     Authors: Ram Balachandran
     """
 
-    def __init__(self, filename, ionicstep_start=1, ionicstep_end=None, comment=None) -> None:
+    def __init__(self, filename, ionicstep_start=1, ionicstep_end=None, comment=None) :
         """
         Init a Xdatcar.
 
@@ -4260,7 +4261,7 @@ class Dynmat:
     Authors: Patrick Huck
     """
 
-    def __init__(self, filename) -> None:
+    def __init__(self, filename) :
         """
         Args:
             filename: Name of file containing DYNMAT.
@@ -4413,7 +4414,7 @@ class Wavecar:
     Author: Mark Turiansky
     """
 
-    def __init__(self, filename="WAVECAR", verbose=False, precision="normal", vasp_type=None) -> None:
+    def __init__(self, filename="WAVECAR", verbose=False, precision="normal", vasp_type=None) :
         """
         Information is extracted from the given WAVECAR.
 
