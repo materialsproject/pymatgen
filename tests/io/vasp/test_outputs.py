@@ -77,7 +77,7 @@ class TestVasprun(PymatgenTest):
     def test_vasprun_ediffg_set_to_0(self):
         # Test for simple MD simulation (no ML).
         # Does not generate the `md_data` attribute in Vasprun. Data based on `ionic_steps`
-        vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun_ediffg_set_to_0.xml")
+        vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.ediffg_set_to_0.xml.gz")
         assert len(vasp_run.ionic_steps) == 3
         assert vasp_run.final_energy == approx(-34.60164204)
         assert vasp_run.converged_ionic
