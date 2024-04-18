@@ -619,7 +619,7 @@ class Vasprun(MSONable):
         ibrion = self.parameters.get("IBRION", -1 if nsw in (-1, 0) else 0)
         if ibrion == 0:
             return nsw <= 1 or self.md_n_steps == nsw
-        if ibrion in [1,2] and ediffg == 0:
+        if ibrion in [1, 2] and ediffg == 0:
             return nsw <= 1 or nsw == len(self.ionic_steps)
 
         return nsw <= 1 or len(self.ionic_steps) < nsw
