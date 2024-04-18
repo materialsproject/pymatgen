@@ -24,6 +24,8 @@ from pymatgen.io.cp2k.inputs import (
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
+
 si_struct = Structure(
     lattice=[[0, 2.734364, 2.734364], [2.734364, 0, 2.734364], [2.734364, 2.734364, 0]],
     species=["Si", "Si"],
@@ -159,7 +161,7 @@ class TestBasisAndPotential(PymatgenTest):
 
 class TestInput(PymatgenTest):
     def setUp(self):
-        self.ci = Cp2kInput.from_file(f"{TEST_FILES_DIR}/cp2k/cp2k.inp")
+        self.ci = Cp2kInput.from_file(f"{TEST_DIR}/cp2k.inp")
 
     def test_basic_sections(self):
         cp2k_input = Cp2kInput.from_str(CP2K_INPUT_STR)
