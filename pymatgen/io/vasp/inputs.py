@@ -144,6 +144,23 @@ class Poscar(MSONable):
 
         self.temperature = -1.0
 
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name in {"selective_dynamics", "velocities"} and value is not None and len(value) > 0:
+            value = np.array(value)
+            dim = value.shape
+            if dim[1] != 3 or dim[0] != len(self.structure):
+                raise ValueError(f"{name} array must be same length as the structure.")
+            value = value.tolist()
+
+        super().__setattr__(name, value)
+
+    def __repr__(self) -> str:
+        return self.get_str()
+
+    def __str__(self) -> str:
+        """String representation of Poscar file."""
+        return self.get_str()
+
     @property
     def velocities(self) -> ArrayLike | None:
         """Velocities in Poscar."""
@@ -210,16 +227,6 @@ class Poscar(MSONable):
         """
         syms: list[str] = [site.specie.symbol for site in self.structure]
         return [len(tuple(a[1])) for a in itertools.groupby(syms)]
-
-    def __setattr__(self, name: str, value: Any) -> None:
-        if name in {"selective_dynamics", "velocities"} and value is not None and len(value) > 0:
-            value = np.array(value)
-            dim = value.shape
-            if dim[1] != 3 or dim[0] != len(self.structure):
-                raise ValueError(f"{name} array must be same length as the structure.")
-            value = value.tolist()
-
-        super().__setattr__(name, value)
 
     @classmethod
     def from_file(
@@ -612,13 +619,6 @@ class Poscar(MSONable):
 
     get_string = get_str
 
-    def __repr__(self) -> str:
-        return self.get_str()
-
-    def __str__(self) -> str:
-        """String representation of Poscar file."""
-        return self.get_str()
-
     def write_file(self, filename: PathLike, **kwargs) -> None:
         """
         Write POSCAR to a file. The supported kwargs are the same as those for
@@ -744,6 +744,21 @@ class Incar(dict, MSONable):
             Incar.proc_val(key.strip(), val.strip()) if isinstance(val, str) else val,
         )
 
+    def __str__(self) -> str:
+        return self.get_str(sort_keys=True, pretty=False)
+
+    def __add__(self, other: Incar) -> Incar:
+        """
+        Add all the values of another INCAR object to this object.
+        Facilitate the use of "standard" INCARs.
+        """
+        params: dict[str, Any] = dict(self.items())
+        for key, val in other.items():
+            if key in self and val != self[key]:
+                raise ValueError(f"INCARs have conflicting values for {key}: {self[key]} != {val}")
+            params[key] = val
+        return Incar(params)
+
     def as_dict(self) -> dict:
         """MSONable dict."""
         dct = dict(self)
@@ -804,9 +819,6 @@ class Incar(dict, MSONable):
         if pretty:
             return str(tabulate([[line[0], "=", line[1]] for line in lines], tablefmt="plain"))
         return str_delimited(lines, None, " = ") + "\n"
-
-    def __str__(self) -> str:
-        return self.get_str(sort_keys=True, pretty=False)
 
     def write_file(self, filename: PathLike):
         """Write Incar to a file.
@@ -1002,18 +1014,6 @@ class Incar(dict, MSONable):
                 different_params[k2] = {"INCAR1": None, "INCAR2": v2}
 
         return {"Same": similar_params, "Different": different_params}
-
-    def __add__(self, other: Incar) -> Incar:
-        """
-        Add all the values of another INCAR object to this object.
-        Facilitate the use of "standard" INCARs.
-        """
-        params: dict[str, Any] = dict(self.items())
-        for key, val in other.items():
-            if key in self and val != self[key]:
-                raise ValueError(f"INCARs have conflicting values for {key}: {self[key]} != {val}")
-            params[key] = val
-        return Incar(params)
 
     def check_params(self) -> None:
         """Check INCAR for invalid tags or values.
@@ -1850,8 +1850,30 @@ class PotcarSingle:
                 UnknownPotcarWarning,
             )
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PotcarSingle):
+            return NotImplemented
+        return self.data == other.data and self.keywords == other.keywords
+
+    def __getattr__(self, attr: str) -> Any:
+        """Delegates attributes to keywords. For example, you can use potcarsingle.enmax to get the ENMAX of the POTCAR.
+
+        For float type properties, they are converted to the correct float. By
+        default, all energies in eV and all length scales are in Angstroms.
+        """
+        try:
+            return self.keywords[attr.upper()]
+        except Exception:
+            raise AttributeError(attr)
+
     def __str__(self) -> str:
         return f"{self.data}\n"
+
+    def __repr__(self) -> str:
+        cls_name = type(self).__name__
+        symbol, functional = self.symbol, self.functional
+        TITEL, VRHFIN, n_valence_elec = (self.keywords.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
+        return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
 
     @property
     def electron_configuration(self) -> list[tuple[int, str, int]] | None:
@@ -1877,11 +1899,6 @@ class PotcarSingle:
         """
         with zopen(filename, mode="wt") as file:
             file.write(str(self))
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, PotcarSingle):
-            return NotImplemented
-        return self.data == other.data and self.keywords == other.keywords
 
     def copy(self) -> PotcarSingle:
         """Return a copy of the PotcarSingle.
@@ -2414,23 +2431,6 @@ class PotcarSingle:
 
         return False
 
-    def __getattr__(self, attr: str) -> Any:
-        """Delegates attributes to keywords. For example, you can use potcarsingle.enmax to get the ENMAX of the POTCAR.
-
-        For float type properties, they are converted to the correct float. By
-        default, all energies in eV and all length scales are in Angstroms.
-        """
-        try:
-            return self.keywords[attr.upper()]
-        except Exception:
-            raise AttributeError(attr)
-
-    def __repr__(self) -> str:
-        cls_name = type(self).__name__
-        symbol, functional = self.symbol, self.functional
-        TITEL, VRHFIN, n_valence_elec = (self.keywords.get(key) for key in ("TITEL", "VRHFIN", "ZVAL"))
-        return f"{cls_name}({symbol=}, {functional=}, {TITEL=}, {VRHFIN=}, {n_valence_elec=:.0f})"
-
 
 def _gen_potcar_summary_stats(
     append: bool = False, vasp_psp_dir: str | None = None, summary_stats_filename: str | None = POTCAR_STATS_PATH
@@ -2529,6 +2529,9 @@ class Potcar(list, MSONable):
         if symbols is not None:
             self.set_symbols(symbols, functional, sym_potcar_map)
 
+    def __str__(self) -> str:
+        return "\n".join(str(potcar).strip("\n") for potcar in self) + "\n"
+
     def __iter__(self) -> Iterator[PotcarSingle]:
         """Boilerplate code. Only here to supply type hint so
         `for psingle in Potcar()` is correctly inferred as PotcarSingle
@@ -2580,9 +2583,6 @@ class Potcar(list, MSONable):
             raise ValueError("File contains incompatible functionals!")
         potcar.functional = functionals[0]
         return potcar
-
-    def __str__(self) -> str:
-        return "\n".join(str(potcar).strip("\n") for potcar in self) + "\n"
 
     def write_file(self, filename: str) -> None:
         """
