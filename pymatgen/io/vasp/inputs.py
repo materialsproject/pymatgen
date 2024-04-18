@@ -19,7 +19,7 @@ from collections import namedtuple
 from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
-from typing import TYPE_CHECKING, Any, Literal, cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 import scipy.constants as const
@@ -38,6 +38,7 @@ from pymatgen.util.string import str_delimited
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
     from pathlib import Path
+    from typing import Any, Literal
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self
@@ -144,52 +145,52 @@ class Poscar(MSONable):
         self.temperature = -1.0
 
     @property
-    def velocities(self):
+    def velocities(self) -> ArrayLike | None:
         """Velocities in Poscar."""
         return self.structure.site_properties.get("velocities")
 
     @property
-    def selective_dynamics(self):
+    def selective_dynamics(self) -> ArrayLike | None:
         """Selective dynamics in Poscar."""
         return self.structure.site_properties.get("selective_dynamics")
 
     @property
-    def predictor_corrector(self):
+    def predictor_corrector(self) -> ArrayLike | None:
         """Predictor corrector in Poscar."""
         return self.structure.site_properties.get("predictor_corrector")
 
     @property
-    def predictor_corrector_preamble(self):
+    def predictor_corrector_preamble(self) -> str | None:
         """Predictor corrector preamble in Poscar."""
         return self.structure.properties.get("predictor_corrector_preamble")
 
     @property
-    def lattice_velocities(self):
+    def lattice_velocities(self) -> ArrayLike | None:
         """Lattice velocities in Poscar (including the current lattice vectors)."""
         return self.structure.properties.get("lattice_velocities")
 
-    @velocities.setter  # type: ignore
-    def velocities(self, velocities):
+    @velocities.setter  # type: ignore[no-redef, attr-defined]
+    def velocities(self, velocities: ArrayLike | None) -> None:
         """Setter for Poscar.velocities."""
         self.structure.add_site_property("velocities", velocities)
 
-    @selective_dynamics.setter  # type: ignore
-    def selective_dynamics(self, selective_dynamics):
+    @selective_dynamics.setter  # type: ignore[no-redef, attr-defined]
+    def selective_dynamics(self, selective_dynamics: ArrayLike | None) -> None:
         """Setter for Poscar.selective_dynamics."""
         self.structure.add_site_property("selective_dynamics", selective_dynamics)
 
-    @predictor_corrector.setter  # type: ignore
-    def predictor_corrector(self, predictor_corrector):
+    @predictor_corrector.setter  # type: ignore[no-redef, attr-defined]
+    def predictor_corrector(self, predictor_corrector: ArrayLike | None) -> None:
         """Setter for Poscar.predictor_corrector."""
         self.structure.add_site_property("predictor_corrector", predictor_corrector)
 
-    @predictor_corrector_preamble.setter  # type: ignore
-    def predictor_corrector_preamble(self, predictor_corrector_preamble):
+    @predictor_corrector_preamble.setter  # type: ignore[no-redef, attr-defined]
+    def predictor_corrector_preamble(self, predictor_corrector_preamble: str | None) -> None:
         """Setter for Poscar.predictor_corrector."""
         self.structure.properties["predictor_corrector"] = predictor_corrector_preamble
 
-    @lattice_velocities.setter  # type: ignore
-    def lattice_velocities(self, lattice_velocities: ArrayLike) -> None:
+    @lattice_velocities.setter  # type: ignore[no-redef, attr-defined]
+    def lattice_velocities(self, lattice_velocities: ArrayLike | None) -> None:
         """Setter for Poscar.lattice_velocities."""
         self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
 
@@ -198,7 +199,7 @@ class Poscar(MSONable):
         """
         Sequence of symbols associated with the Poscar. Similar to 6th line in VASP 5+ POSCAR.
         """
-        syms = [site.specie.symbol for site in self.structure]
+        syms: list[str] = [site.specie.symbol for site in self.structure]
         return [a[0] for a in itertools.groupby(syms)]
 
     @property
@@ -207,22 +208,29 @@ class Poscar(MSONable):
         Sequence of number of sites of each type associated with the Poscar.
         Similar to 7th line in vasp 5+ POSCAR or the 6th line in vasp 4 POSCAR.
         """
-        syms = [site.specie.symbol for site in self.structure]
+        syms: list[str] = [site.specie.symbol for site in self.structure]
         return [len(tuple(a[1])) for a in itertools.groupby(syms)]
 
-    def __setattr__(self, name, value) -> None:
-        if name in ("selective_dynamics", "velocities") and value is not None and len(value) > 0:
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name in {"selective_dynamics", "velocities"} and value is not None and len(value) > 0:
             value = np.array(value)
             dim = value.shape
             if dim[1] != 3 or dim[0] != len(self.structure):
                 raise ValueError(f"{name} array must be same length as the structure.")
             value = value.tolist()
+
         super().__setattr__(name, value)
 
     @classmethod
-    def from_file(cls, filename, check_for_potcar=True, read_velocities=True, **kwargs) -> Self:
+    def from_file(
+        cls,
+        filename: PathLike,
+        check_for_potcar: bool = True,
+        read_velocities: bool = True,
+        **kwargs: dict[str, Any],
+    ) -> Self:
         """
-        Reads a Poscar from a file.
+        Read Poscar from a file.
 
         The code will try its best to determine the elements in the POSCAR in
         the following order:
@@ -254,10 +262,10 @@ class Poscar(MSONable):
         """
         if "check_for_POTCAR" in kwargs:
             warnings.warn("check_for_POTCAR is deprecated. Use check_for_potcar instead.", DeprecationWarning)
-            check_for_potcar = kwargs.pop("check_for_POTCAR")
+            check_for_potcar = cast(bool, kwargs.pop("check_for_POTCAR"))
 
-        dirname = os.path.dirname(os.path.abspath(filename))
-        names = None
+        dirname: str = os.path.dirname(os.path.abspath(filename))
+        names: list[str] | None = None
         if check_for_potcar and SETTINGS.get("PMG_POTCAR_CHECKS") is not False:
             potcars = glob(f"{dirname}/*POTCAR*")
             if potcars:
@@ -267,13 +275,19 @@ class Poscar(MSONable):
                     [get_el_sp(n) for n in names]  # ensure valid names
                 except Exception:
                     names = None
+
         with zopen(filename, mode="rt") as file:
             return cls.from_str(file.read(), names, read_velocities=read_velocities)
 
     @classmethod
-    def from_str(cls, data, default_names=None, read_velocities=True) -> Self:
+    def from_str(
+        cls,
+        data: str,
+        default_names: list[str] | None = None,
+        read_velocities: bool = True,
+    ) -> Self:
         """
-        Reads a Poscar from a string.
+        Read Poscar from a string.
 
         The code will try its best to determine the elements in the POSCAR in
         the following order:
@@ -314,28 +328,28 @@ class Poscar(MSONable):
             raise ValueError("Empty POSCAR")
 
         # Parse positions
-        lines = list(clean_lines(chunks[0].split("\n"), remove_empty_lines=False))
-        comment = lines[0]
-        scale = float(lines[1])
-        lattice = np.array([[float(i) for i in line.split()] for line in lines[2:5]])
+        lines: list[str] = list(clean_lines(chunks[0].split("\n"), remove_empty_lines=False))
+        comment: str = lines[0]
+        scale: float = float(lines[1])
+        lattice: np.ndarray = np.array([[float(i) for i in line.split()] for line in lines[2:5]])
         if scale < 0:
             # In vasp, a negative scale factor is treated as a volume. We need
             # to translate this to a proper lattice vector scaling.
-            vol = abs(np.linalg.det(lattice))
+            vol: float = abs(np.linalg.det(lattice))
             lattice *= (-scale / vol) ** (1 / 3)
         else:
             lattice *= scale
 
-        vasp5_symbols = False
-        atomic_symbols = []
+        vasp5_symbols: bool = False
+        atomic_symbols: list[str] = []
 
         try:
-            n_atoms = [int(i) for i in lines[5].split()]
-            ipos = 6
+            n_atoms: list[int] = [int(i) for i in lines[5].split()]
+            ipos: int = 6
 
         except ValueError:
             vasp5_symbols = True
-            symbols = [symbol.split("/")[0] for symbol in lines[5].split()]
+            symbols: list[str] = [symbol.split("/")[0] for symbol in lines[5].split()]
 
             # Atoms and number of atoms in POSCAR written with vasp appear on
             # multiple lines when atoms of the same type are not grouped together
@@ -352,7 +366,7 @@ class Poscar(MSONable):
             #      2   1   3   2   5
             # Direct
             #   ...
-            n_lines_symbols = 1
+            n_lines_symbols: int = 1
             for n_lines_symbols in range(1, 11):
                 try:
                     int(lines[5 + n_lines_symbols].split()[0])
@@ -362,43 +376,45 @@ class Poscar(MSONable):
 
             for i_line_symbols in range(6, 5 + n_lines_symbols):
                 symbols.extend(lines[i_line_symbols].split())
+
             n_atoms = []
             iline_natoms_start = 5 + n_lines_symbols
             for iline_natoms in range(iline_natoms_start, iline_natoms_start + n_lines_symbols):
                 n_atoms.extend([int(i) for i in lines[iline_natoms].split()])
 
-            for i, nat in enumerate(n_atoms):
-                atomic_symbols.extend([symbols[i]] * nat)
+            for idx, n_atom in enumerate(n_atoms):
+                atomic_symbols.extend([symbols[idx]] * n_atom)
+
             ipos = 5 + 2 * n_lines_symbols
 
-        pos_type = lines[ipos].split()[0]
+        pos_type: str = lines[ipos].split()[0]
 
-        has_selective_dynamics = False
+        has_selective_dynamics: bool = False
         # Selective dynamics
         if pos_type[0] in "sS":
             has_selective_dynamics = True
             ipos += 1
             pos_type = lines[ipos].split()[0]
 
-        cart = pos_type[0] in "cCkK"
-        n_sites = sum(n_atoms)
+        cart: bool = pos_type[0] in "cCkK"
+        n_sites: int = sum(n_atoms)
 
         # If default_names is specified (usually coming from a POTCAR), use
         # them. This is in line with VASP's parsing order that the POTCAR
         # specified is the default used.
-        if default_names:
+        if default_names is not None:
             try:
                 atomic_symbols = []
-                for i, nat in enumerate(n_atoms):
-                    atomic_symbols.extend([default_names[i]] * nat)
+                for idx, n_atom in enumerate(n_atoms):
+                    atomic_symbols.extend([default_names[idx]] * n_atom)
                 vasp5_symbols = True
             except IndexError:
                 pass
 
         if not vasp5_symbols:
-            ind = 6 if has_selective_dynamics else 3
+            ind: Literal[3, 6] = 6 if has_selective_dynamics else 3
             try:
-                # Check if names are appended at the end of the coordinates.
+                # Check if names are appended at the end of the coordinates
                 atomic_symbols = [line.split()[ind] for line in lines[ipos + 1 : ipos + 1 + n_sites]]
                 # Ensure symbols are valid elements
                 if not all(Element.is_valid_symbol(sym) for sym in atomic_symbols):
@@ -406,11 +422,11 @@ class Poscar(MSONable):
                 vasp5_symbols = True
 
             except (ValueError, IndexError):
-                # Defaulting to false names.
+                # Defaulting to false names
                 atomic_symbols = []
-                for i, nat in enumerate(n_atoms, start=1):
-                    sym = Element.from_Z(i).symbol
-                    atomic_symbols.extend([sym] * nat)
+                for idx, n_atom in enumerate(n_atoms, start=1):
+                    symbol = Element.from_Z(idx).symbol
+                    atomic_symbols.extend([symbol] * n_atom)
                 warnings.warn(
                     f"Elements in POSCAR cannot be determined. Defaulting to false names {atomic_symbols}.",
                     BadPoscarWarning,
@@ -419,8 +435,8 @@ class Poscar(MSONable):
         # Read the atomic coordinates
         coords = []
         selective_dynamics: list[np.ndarray] | None = [] if has_selective_dynamics else None
-        for i in range(n_sites):
-            tokens = lines[ipos + 1 + i].split()
+        for idx in range(n_sites):
+            tokens = lines[ipos + 1 + idx].split()
             crd_scale = scale if cart else 1
             coords.append([float(j) * crd_scale for j in tokens[:3]])
             if selective_dynamics is not None:
@@ -429,7 +445,7 @@ class Poscar(MSONable):
                     warnings.warn("Selective dynamics values must be either 'T' or 'F'.", BadPoscarWarning)
 
                 # Warn when elements contains Fluorine (F) (#3539)
-                if atomic_symbols[i] == "F" and len(tokens[3:]) >= 4 and "F" in tokens[3:7]:
+                if atomic_symbols[idx] == "F" and len(tokens[3:]) >= 4 and "F" in tokens[3:7]:
                     warnings.warn(
                         (
                             "Selective dynamics toggled with Fluorine element detected. "

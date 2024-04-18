@@ -2860,7 +2860,7 @@ class IStructure(SiteCollection, MSONable):
         elif fmt_low == "poscar":
             from pymatgen.io.vasp import Poscar
 
-            struct = Poscar.from_str(input_string, default_names=False, read_velocities=False, **kwargs).structure
+            struct = Poscar.from_str(input_string, default_names=None, read_velocities=False, **kwargs).structure
         elif fmt_low == "cssr":
             from pymatgen.io.cssr import Cssr
 
