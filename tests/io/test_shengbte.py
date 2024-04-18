@@ -9,7 +9,7 @@ from pymatgen.io.shengbte import Control
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 f90nml = pytest.importorskip("f90nml")
-TEST_DIR = f"{TEST_FILES_DIR}/shengbte"
+TEST_DIR = f"{TEST_FILES_DIR}/io/shengbte"
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
