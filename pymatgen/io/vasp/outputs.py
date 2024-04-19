@@ -1842,7 +1842,7 @@ class Outcar:
         mag_y = []
         mag_z = []
         header = []
-        run_stats = {}
+        run_stats: dict[str, float | None] = {}
         total_mag = nelect = efermi = e_fr_energy = e_wo_entrp = e0 = None
 
         time_patt = re.compile(r"\((sec|kb)\)")
@@ -1868,7 +1868,7 @@ class Outcar:
                         # which cannot be parsed as float
                         run_stats[tok[0].strip()] = float(tok[1].strip())
                     except ValueError:
-                        run_stats[tok[0].strip()] = -1
+                        run_stats[tok[0].strip()] = None
                     continue
 
                 if match := efermi_patt.search(clean):
@@ -1958,7 +1958,7 @@ class Outcar:
             mag = mag_x
 
         # Data from beginning of OUTCAR
-        run_stats["cores"] = -1
+        run_stats["cores"] = None
         with zopen(filename, mode="rt") as file:
             for line in file:
                 if "serial" in line:
