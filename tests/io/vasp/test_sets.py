@@ -1921,7 +1921,7 @@ class TestLobsterSet(PymatgenTest):
             self.lobsterset6 = self.set(self.struct)
 
         # test W_sw
-        self.lobsterset8 = self.set(Structure.from_file(f"{TEST_FILES_DIR}/eletronic_structure/cohp/POSCAR.W"))
+        self.lobsterset8 = self.set(Structure.from_file(f"{TEST_FILES_DIR}/electronic_structure/cohp/POSCAR.W"))
 
     def test_incar(self):
         incar1 = self.lobsterset1.incar
