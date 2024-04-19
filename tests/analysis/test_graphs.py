@@ -45,7 +45,6 @@ __status__ = "Beta"
 __date__ = "August 2017"
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
-molecule_dir = f"{TEST_FILES_DIR}/molecules"
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/graphs"
 
