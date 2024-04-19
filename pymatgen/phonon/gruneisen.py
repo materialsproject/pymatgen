@@ -78,7 +78,7 @@ class GruneisenParameter(MSONable):
         If squared is True, the average will use the squared value of the Gruneisen and a squared root
         is performed on the final result.
         Values associated with negative frequencies will be ignored.
-        See Nath et al. Scripta Materialia 2017 129, 88 for the definitions.
+        See Nath et al. _Scripta Materialia_ **2017**, _129_, 88 for the definitions.
         Adapted from classes in abipy that have been written by Guido Petretto (UCLouvain).
 
         Args:
