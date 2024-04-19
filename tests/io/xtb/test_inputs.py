@@ -8,8 +8,8 @@ __author__ = "Alex Epstein"
 __copyright__ = "Copyright 2020, The Materials Project"
 __version__ = "0.1"
 
-TEST_DIR = f"{TEST_FILES_DIR}/xtb/sample_CREST_output"
-EXPECTED_DIR = f"{TEST_FILES_DIR}/xtb/expected_output"
+TEST_DIR = f"{TEST_FILES_DIR}/io/xtb/sample_CREST_output"
+EXPECTED_DIR = f"{TEST_FILES_DIR}/io/xtb/expected_output"
 
 
 class TestCRESTInput(PymatgenTest):

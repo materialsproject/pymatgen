@@ -25,7 +25,7 @@ try:
 except Exception:
     BOLTZTRAP2_PRESENT = False
 
-TEST_DIR = f"{TEST_FILES_DIR}/boltztrap2"
+TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/boltztrap2"
 
 
 vasp_run_file = f"{TEST_DIR}/vasprun.xml"

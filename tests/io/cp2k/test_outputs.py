@@ -9,10 +9,12 @@ from pytest import approx
 from pymatgen.io.cp2k.outputs import Cp2kOutput
 from pymatgen.util.testing import TEST_FILES_DIR
 
+TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
+
 
 class TestSet(TestCase):
     def setUp(self):
-        self.out = Cp2kOutput(f"{TEST_FILES_DIR}/cp2k/cp2k.out", auto_load=True)
+        self.out = Cp2kOutput(f"{TEST_DIR}/cp2k.out", auto_load=True)
 
     def test_files(self):
         """Can find files successfully."""

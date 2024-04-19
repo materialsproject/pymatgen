@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import copy
-import os
 import re
 from glob import glob
 from shutil import which
@@ -44,8 +43,7 @@ __email__ = "mkhorton@lbl.gov"
 __status__ = "Beta"
 __date__ = "August 2017"
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
-molecule_dir = f"{TEST_FILES_DIR}/molecules"
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/graphs"
 
 
 class TestStructureGraph(PymatgenTest):
@@ -87,10 +85,10 @@ class TestStructureGraph(PymatgenTest):
 
         # MoS2 example, structure graph obtained from critic2
         # (not ground state, from mp-1023924, single layer)
-        stdout_file = f"{TEST_FILES_DIR}/critic2/MoS2_critic2_stdout.txt"
+        stdout_file = f"{TEST_FILES_DIR}/command_line/critic2/MoS2_critic2_stdout.txt"
         with open(stdout_file) as txt_file:
             reference_stdout = txt_file.read()
-        self.structure = Structure.from_file(f"{TEST_FILES_DIR}/critic2/MoS2.cif")
+        self.structure = Structure.from_file(f"{TEST_FILES_DIR}/command_line/critic2/MoS2.cif")
         c2o = Critic2Analysis(self.structure, reference_stdout)
         self.mos2_sg = c2o.structure_graph(include_critical_points=False)
 
@@ -199,7 +197,7 @@ class TestStructureGraph(PymatgenTest):
         assert square_copy.graph.number_of_edges() == 3
 
     def test_substitute(self):
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/Li2O.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/Li2O.cif")
         molecule = FunctionalGroups["methyl"]
 
         structure_copy = copy.deepcopy(structure)
@@ -428,7 +426,7 @@ from    to  to_image
         assert struct_graph == self.square_sg
 
     def test_extract_molecules(self):
-        structure_file = f"{TEST_FILES_DIR}/H6PbCI3N_mp-977013_symmetrized.cif"
+        structure_file = f"{TEST_FILES_DIR}/cif/H6PbCI3N_mp-977013_symmetrized.cif"
 
         struct = Structure.from_file(structure_file)
 
@@ -488,7 +486,7 @@ from    to  to_image
 
 class TestMoleculeGraph(TestCase):
     def setUp(self):
-        cyclohexene_xyz = f"{TEST_FILES_DIR}/graphs/cyclohexene.xyz"
+        cyclohexene_xyz = f"{TEST_DIR}/cyclohexene.xyz"
         cyclohexene = Molecule.from_file(cyclohexene_xyz)
         self.cyclohexene = MoleculeGraph.from_empty_graph(
             cyclohexene, edge_weight_name="strength", edge_weight_units=""
@@ -510,7 +508,7 @@ class TestMoleculeGraph(TestCase):
         self.cyclohexene.add_edge(5, 14, weight=1.0)
         self.cyclohexene.add_edge(5, 15, weight=1.0)
 
-        butadiene = Molecule.from_file(f"{TEST_FILES_DIR}/graphs/butadiene.xyz")
+        butadiene = Molecule.from_file(f"{TEST_DIR}/butadiene.xyz")
         self.butadiene = MoleculeGraph.from_empty_graph(butadiene, edge_weight_name="strength", edge_weight_units="")
         self.butadiene.add_edge(0, 1, weight=2.0)
         self.butadiene.add_edge(1, 2, weight=1.0)
@@ -522,7 +520,7 @@ class TestMoleculeGraph(TestCase):
         self.butadiene.add_edge(3, 8, weight=1.0)
         self.butadiene.add_edge(3, 9, weight=1.0)
 
-        ethylene = Molecule.from_file(f"{TEST_FILES_DIR}/graphs/ethylene.xyz")
+        ethylene = Molecule.from_file(f"{TEST_DIR}/ethylene.xyz")
         self.ethylene = MoleculeGraph.from_empty_graph(ethylene, edge_weight_name="strength", edge_weight_units="")
         self.ethylene.add_edge(0, 1, weight=2.0)
         self.ethylene.add_edge(0, 2, weight=1.0)
@@ -530,7 +528,7 @@ class TestMoleculeGraph(TestCase):
         self.ethylene.add_edge(1, 4, weight=1.0)
         self.ethylene.add_edge(1, 5, weight=1.0)
 
-        self.pc = Molecule.from_file(f"{TEST_FILES_DIR}/graphs/PC.xyz")
+        self.pc = Molecule.from_file(f"{TEST_DIR}/PC.xyz")
         self.pc_edges = [
             [5, 10],
             [5, 12],
@@ -546,9 +544,9 @@ class TestMoleculeGraph(TestCase):
             [6, 0],
             [6, 2],
         ]
-        self.pc_frag1 = Molecule.from_file(f"{TEST_FILES_DIR}/graphs/PC_frag1.xyz")
+        self.pc_frag1 = Molecule.from_file(f"{TEST_DIR}/PC_frag1.xyz")
         self.pc_frag1_edges = [[0, 2], [4, 2], [2, 1], [1, 3]]
-        self.tfsi = Molecule.from_file(f"{TEST_FILES_DIR}/graphs/TFSI.xyz")
+        self.tfsi = Molecule.from_file(f"{TEST_DIR}/TFSI.xyz")
         self.tfsi_edges = (
             [14, 1],
             [1, 4],
@@ -570,8 +568,8 @@ class TestMoleculeGraph(TestCase):
         pytest.importorskip("openbabel")
         edges_frag = {(edge[0], edge[1]): {"weight": 1.0} for edge in self.pc_frag1_edges}
         mol_graph = MoleculeGraph.from_edges(self.pc_frag1, edges_frag)
-        # dumpfn(mol_graph.as_dict(), f"{module_dir}/pc_frag1_mg.json")
-        ref_mol_graph = loadfn(f"{module_dir}/pc_frag1_mg.json")
+        # dumpfn(mol_graph.as_dict(), f"{TEST_FILES_DIR}/analysis/bond_dissociation/pc_frag1_mg.json")
+        ref_mol_graph = loadfn(f"{TEST_FILES_DIR}/analysis/bond_dissociation/pc_frag1_mg.json")
         assert mol_graph == ref_mol_graph
         assert mol_graph.graph.adj == ref_mol_graph.graph.adj
         for node in mol_graph.graph.nodes:
@@ -581,8 +579,8 @@ class TestMoleculeGraph(TestCase):
 
         edges_pc = {(edge[0], edge[1]): {"weight": 1.0} for edge in self.pc_edges}
         mol_graph = MoleculeGraph.from_edges(self.pc, edges_pc)
-        # dumpfn(mol_graph.as_dict(), f"{module_dir}/pc_mg.json")
-        ref_mol_graph = loadfn(f"{module_dir}/pc_mg.json")
+        # dumpfn(mol_graph.as_dict(), f"{TEST_FILES_DIR}/analysis/bond_dissociation/pc_mg.json")
+        ref_mol_graph = loadfn(f"{TEST_FILES_DIR}/analysis/bond_dissociation/pc_mg.json")
         assert mol_graph == ref_mol_graph
         assert mol_graph.graph.adj == ref_mol_graph.graph.adj
         for node in mol_graph.graph:
@@ -817,7 +815,7 @@ class TestMoleculeGraph(TestCase):
         assert no_rings == []
 
     def test_isomorphic(self):
-        ethyl_xyz_path = f"{TEST_FILES_DIR}/graphs/ethylene.xyz"
+        ethyl_xyz_path = f"{TEST_DIR}/ethylene.xyz"
         ethylene = Molecule.from_file(ethyl_xyz_path)
         # swap carbons
         ethylene[0], ethylene[1] = ethylene[1], ethylene[0]
