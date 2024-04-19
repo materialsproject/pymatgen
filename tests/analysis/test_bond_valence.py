@@ -24,7 +24,7 @@ class TestBVAnalyzer(PymatgenTest):
         struct = self.get_structure("Li3V2(PO4)3")
         ans = [1] * 6 + [3] * 4 + [5] * 6 + [-2] * 24
         assert self.analyzer.get_valences(struct) == ans
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/json/Li4Fe3Mn1(PO4)4.json")
+        struct = Structure.from_file(f"{TEST_DIR}/Li4Fe3Mn1(PO4)4.json")
         ans = [1] * 4 + [2] * 4 + [5] * 4 + [-2] * 16
         assert self.analyzer.get_valences(struct) == ans
         struct = self.get_structure("NaFePO4")

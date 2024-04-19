@@ -283,7 +283,7 @@ class TestTensor(PymatgenTest):
         assert empty[tkey] == 1
 
     def test_populate(self):
-        test_data = loadfn(f"{TEST_FILES_DIR}/json/test_toec_data.json")
+        test_data = loadfn(f"{TEST_FILES_DIR}/analysis/elasticity/test_toec_data.json")
 
         sn = self.get_structure("Sn")
         vtens = np.zeros((6, 6))
