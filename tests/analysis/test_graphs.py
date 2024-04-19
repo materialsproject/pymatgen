@@ -47,6 +47,8 @@ __date__ = "August 2017"
 module_dir = os.path.dirname(os.path.abspath(__file__))
 molecule_dir = f"{TEST_FILES_DIR}/molecules"
 
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/graphs"
+
 
 class TestStructureGraph(PymatgenTest):
     def setUp(self):
@@ -488,7 +490,7 @@ from    to  to_image
 
 class TestMoleculeGraph(TestCase):
     def setUp(self):
-        cyclohexene_xyz = f"{TEST_FILES_DIR}/graphs/cyclohexene.xyz"
+        cyclohexene_xyz = f"{TEST_DIR}/cyclohexene.xyz"
         cyclohexene = Molecule.from_file(cyclohexene_xyz)
         self.cyclohexene = MoleculeGraph.from_empty_graph(
             cyclohexene, edge_weight_name="strength", edge_weight_units=""
@@ -510,7 +512,7 @@ class TestMoleculeGraph(TestCase):
         self.cyclohexene.add_edge(5, 14, weight=1.0)
         self.cyclohexene.add_edge(5, 15, weight=1.0)
 
-        butadiene = Molecule.from_file(f"{TEST_FILES_DIR}/graphs/butadiene.xyz")
+        butadiene = Molecule.from_file(f"{TEST_DIR}/butadiene.xyz")
         self.butadiene = MoleculeGraph.from_empty_graph(butadiene, edge_weight_name="strength", edge_weight_units="")
         self.butadiene.add_edge(0, 1, weight=2.0)
         self.butadiene.add_edge(1, 2, weight=1.0)
@@ -522,7 +524,7 @@ class TestMoleculeGraph(TestCase):
         self.butadiene.add_edge(3, 8, weight=1.0)
         self.butadiene.add_edge(3, 9, weight=1.0)
 
-        ethylene = Molecule.from_file(f"{TEST_FILES_DIR}/graphs/ethylene.xyz")
+        ethylene = Molecule.from_file(f"{TEST_DIR}/ethylene.xyz")
         self.ethylene = MoleculeGraph.from_empty_graph(ethylene, edge_weight_name="strength", edge_weight_units="")
         self.ethylene.add_edge(0, 1, weight=2.0)
         self.ethylene.add_edge(0, 2, weight=1.0)
@@ -530,7 +532,7 @@ class TestMoleculeGraph(TestCase):
         self.ethylene.add_edge(1, 4, weight=1.0)
         self.ethylene.add_edge(1, 5, weight=1.0)
 
-        self.pc = Molecule.from_file(f"{TEST_FILES_DIR}/graphs/PC.xyz")
+        self.pc = Molecule.from_file(f"{TEST_DIR}/PC.xyz")
         self.pc_edges = [
             [5, 10],
             [5, 12],
@@ -546,9 +548,9 @@ class TestMoleculeGraph(TestCase):
             [6, 0],
             [6, 2],
         ]
-        self.pc_frag1 = Molecule.from_file(f"{TEST_FILES_DIR}/graphs/PC_frag1.xyz")
+        self.pc_frag1 = Molecule.from_file(f"{TEST_DIR}/PC_frag1.xyz")
         self.pc_frag1_edges = [[0, 2], [4, 2], [2, 1], [1, 3]]
-        self.tfsi = Molecule.from_file(f"{TEST_FILES_DIR}/graphs/TFSI.xyz")
+        self.tfsi = Molecule.from_file(f"{TEST_DIR}/TFSI.xyz")
         self.tfsi_edges = (
             [14, 1],
             [1, 4],
@@ -817,7 +819,7 @@ class TestMoleculeGraph(TestCase):
         assert no_rings == []
 
     def test_isomorphic(self):
-        ethyl_xyz_path = f"{TEST_FILES_DIR}/graphs/ethylene.xyz"
+        ethyl_xyz_path = f"{TEST_DIR}/ethylene.xyz"
         ethylene = Molecule.from_file(ethyl_xyz_path)
         # swap carbons
         ethylene[0], ethylene[1] = ethylene[1], ethylene[0]
