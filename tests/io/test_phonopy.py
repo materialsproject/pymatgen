@@ -37,7 +37,7 @@ except ImportError as exc:
     print(exc)
     Phonopy = None
 
-TEST_DIR = f"{TEST_FILES_DIR}/io/phonopy"
+TEST_DIR = f"{TEST_FILES_DIR}/phonon"
 
 
 class TestPhonopyParser(PymatgenTest):
