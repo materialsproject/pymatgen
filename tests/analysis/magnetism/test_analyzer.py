@@ -32,13 +32,15 @@ class TestCollinearMagneticStructureAnalyzer(TestCase):
 
         self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe3O4.cif", primitive=True)
 
-        self.GdB4 = Structure.from_file(f"{TEST_FILES_DIR}/mcif/magnetic.ncl.example.GdB4.mcif", primitive=True)
+        self.GdB4 = Structure.from_file(f"{TEST_FILES_DIR}/io/cif/mcif/magnetic.ncl.example.GdB4.mcif", primitive=True)
 
-        self.NiO_expt = Structure.from_file(f"{TEST_FILES_DIR}/mcif/magnetic.example.NiO.mcif", primitive=True)
+        self.NiO_expt = Structure.from_file(f"{TEST_FILES_DIR}/io/cif/mcif/magnetic.example.NiO.mcif", primitive=True)
 
         # CuO.mcif sourced from https://www.cryst.ehu.es/magndata/index.php?index=1.62
         # doi: 10.1088/0022-3719/21/15/023
-        self.CuO_expt = Structure.from_file(f"{TEST_FILES_DIR}/mcif/magnetic.example.CuO.mcif.gz", primitive=True)
+        self.CuO_expt = Structure.from_file(
+            f"{TEST_FILES_DIR}/io/cif/mcif/magnetic.example.CuO.mcif.gz", primitive=True
+        )
 
         lattice = Lattice.cubic(4.17)
         species = ["Ni", "O"]
