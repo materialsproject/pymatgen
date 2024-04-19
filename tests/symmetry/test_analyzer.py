@@ -304,7 +304,9 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert conv.lattice.angles == approx([90, 90, 120])
         assert conv.lattice.lengths == approx([3.699919902005897, 3.699919902005897, 6.9779585500000003])
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/json/tric_684654.json")
+        STRUCTURE = f"{TEST_FILES_DIR}/symmetry/analyzer/tric_684654.json"
+
+        structure = Structure.from_file(STRUCTURE)
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.alpha == approx(74.09581916308757)
@@ -314,13 +316,13 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert conv.lattice.b == approx(3.9883228679270686)
         assert conv.lattice.c == approx(7.288495840048958)
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/json/tric_684654.json")
+        structure = Structure.from_file(STRUCTURE)
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure(keep_site_properties=True)
         assert conv.site_properties["magmom"] == [1.0] * len(conv)
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/json/tric_684654.json")
+        structure = Structure.from_file(STRUCTURE)
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure(keep_site_properties=False)

@@ -225,7 +225,7 @@ class TestBSDOSPlotter:
         assert isinstance(dos_ax, plt.Axes)
         plt.close("all")
 
-        with open(f"{TEST_FILES_DIR}/json/SrBa2Sn2O7.json") as file:
+        with open(f"{TEST_FILES_DIR}/eletronic_structure/plotter/SrBa2Sn2O7.json") as file:
             band_struct_dict = json.load(file)
         # generate random projections
         data_structure = [[[[0 for _ in range(12)] for _ in range(9)] for _ in range(70)] for _ in range(90)]

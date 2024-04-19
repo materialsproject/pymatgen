@@ -292,7 +292,7 @@ class TestMagneticStructureEnumerator:
 
 class TestMagneticDeformation:
     def test_magnetic_deformation(self):
-        test_structs = loadfn(f"{TEST_FILES_DIR}/json/magnetic_deformation.json")
+        test_structs = loadfn(f"{TEST_FILES_DIR}/analysis/magnetism/magnetic_deformation.json")
         mag_def = magnetic_deformation(test_structs[0], test_structs[1])
 
         assert mag_def.type == "NM-FM"

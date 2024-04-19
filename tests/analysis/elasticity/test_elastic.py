@@ -65,7 +65,7 @@ class TestElasticTensor(PymatgenTest):
         )
 
         self.elastic_tensor_1 = ElasticTensor(self.ft)
-        filepath = f"{TEST_FILES_DIR}/json/Sn_def_stress.json"
+        filepath = f"{TEST_FILES_DIR}/analysis/elasticity/Sn_def_stress.json"
         with open(filepath) as file:
             self.def_stress_dict = json.load(file)
         with open(f"{TEST_FILES_DIR}/json/test_toec_data.json") as file:
