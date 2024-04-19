@@ -17,6 +17,8 @@ from pymatgen.analysis.magnetism import (
 from pymatgen.core import Element, Lattice, Species, Structure
 from pymatgen.util.testing import TEST_FILES_DIR
 
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/magnetic_orderings"
+
 enum_cmd = which("enum.x") or which("multienum.x")
 makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
 enumlib_present = enum_cmd and makestr_cmd
@@ -251,17 +253,17 @@ class TestMagneticStructureEnumerator:
     @pytest.mark.skipif(not enumlib_present, reason="enumlib not present")
     def test_ordering_enumeration(self):
         # simple afm
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/magnetic_orderings/LaMnO3.json")
+        structure = Structure.from_file(f"{TEST_DIR}/LaMnO3.json")
         enumerator = MagneticStructureEnumerator(structure)
         assert enumerator.input_origin == "afm"
 
         # ferrimagnetic (Cr produces net spin)
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/magnetic_orderings/Cr2NiO4.json")
+        structure = Structure.from_file(f"{TEST_DIR}/Cr2NiO4.json")
         enumerator = MagneticStructureEnumerator(structure)
         assert enumerator.input_origin == "ferri_by_Cr"
 
         # antiferromagnetic on single magnetic site
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/magnetic_orderings/Cr2WO6.json")
+        structure = Structure.from_file(f"{TEST_DIR}/Cr2WO6.json")
         enumerator = MagneticStructureEnumerator(structure)
         assert enumerator.input_origin == "afm_by_Cr"
 
@@ -275,7 +277,7 @@ class TestMagneticStructureEnumerator:
         # assert enumerator.input_origin == "afm"
 
         # antiferromagnetic by structural motif
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/magnetic_orderings/Ca3Co2O6.json")
+        structure = Structure.from_file(f"{TEST_DIR}/Ca3Co2O6.json")
         enumerator = MagneticStructureEnumerator(
             structure,
             strategies=("antiferromagnetic_by_motif",),
