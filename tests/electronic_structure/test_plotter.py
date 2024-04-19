@@ -32,6 +32,8 @@ from pymatgen.electronic_structure.plotter import (
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
+BAND_TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
+
 rc("text", usetex=False)  # Disabling latex is needed for this test to work.
 
 
@@ -88,18 +90,18 @@ class TestDosPlotter(PymatgenTest):
 
 class TestBSPlotter(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/json/CaO_2605_bandstructure.json") as file:
+        with open(f"{BAND_TEST_DIR}/CaO_2605_bandstructure.json") as file:
             dct = json.loads(file.read())
             self.bs = BandStructureSymmLine.from_dict(dct)
             self.plotter = BSPlotter(self.bs)
 
         assert len(self.plotter._bs) == 1, "wrong number of band objects"
 
-        with open(f"{TEST_FILES_DIR}/json/N2_12103_bandstructure.json") as file:
+        with open(f"{BAND_TEST_DIR}/N2_12103_bandstructure.json") as file:
             dct = json.loads(file.read())
             self.sbs_sc = BandStructureSymmLine.from_dict(dct)
 
-        with open(f"{TEST_FILES_DIR}/json/C_48_bandstructure.json") as file:
+        with open(f"{BAND_TEST_DIR}/C_48_bandstructure.json") as file:
             dct = json.loads(file.read())
             self.sbs_met = BandStructureSymmLine.from_dict(dct)
 
@@ -181,7 +183,7 @@ class TestBSPlotter(PymatgenTest):
 
 class TestBSPlotterProjected(TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/json/Cu2O_361_bandstructure.json") as file:
+        with open(f"{BAND_TEST_DIR}/Cu2O_361_bandstructure.json") as file:
             dct = json.load(file)
         self.bs_Cu2O = BandStructureSymmLine.from_dict(dct)
         self.plotter_Cu2O = BSPlotterProjected(self.bs_Cu2O)

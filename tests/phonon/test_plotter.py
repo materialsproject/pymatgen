@@ -54,11 +54,11 @@ class TestPhononDosPlotter(TestCase):
 
 class TestPhononBSPlotter(TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/json/NaCl_phonon_bandstructure.json") as file:
+        with open(f"{TEST_FILES_DIR}/electronic_structure/bandstructure/NaCl_phonon_bandstructure.json") as file:
             dct = json.loads(file.read())
         self.bs = PhononBandStructureSymmLine.from_dict(dct)
         self.plotter = PhononBSPlotter(self.bs, label="NaCl")
-        with open(f"{TEST_FILES_DIR}/json/SrTiO3_phonon_bandstructure.json") as file:
+        with open(f"{TEST_FILES_DIR}/electronic_structure/bandstructure/SrTiO3_phonon_bandstructure.json") as file:
             dct = json.loads(file.read())
         self.bs_sto = PhononBandStructureSymmLine.from_dict(dct)
         self.plotter_sto = PhononBSPlotter(self.bs_sto)
