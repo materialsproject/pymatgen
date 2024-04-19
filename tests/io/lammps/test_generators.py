@@ -5,7 +5,7 @@ from pymatgen.io.lammps.data import LammpsData
 from pymatgen.io.lammps.generators import LammpsMinimization
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/lammps"
+TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 
 class TestLammpsMinimization(PymatgenTest):

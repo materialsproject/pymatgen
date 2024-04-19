@@ -6,6 +6,8 @@ from pymatgen.analysis.structure_prediction.substitutor import Substitutor
 from pymatgen.core import Composition, Species
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/struct_predictor"
+
 
 def get_table():
     """
@@ -13,7 +15,7 @@ def get_table():
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """
-    json_path = f"{TEST_FILES_DIR}/struct_predictor/test_lambda.json"
+    json_path = f"{TEST_DIR}/test_lambda.json"
     with open(json_path) as file:
         return json.load(file)
 

@@ -17,12 +17,15 @@ __email__ = "mkhorton@lbl.gov"
 __status__ = "Production"
 __date__ = "July 2017"
 
+TEST_DIR = f"{TEST_FILES_DIR}/command_line/critic2"
+BADER_TEST_DIR = f"{TEST_FILES_DIR}/command_line/bader"
+
 
 @pytest.mark.skipif(not which("critic2"), reason="critic2 executable not present")
 class TestCritic2Caller:
     def test_from_path(self):
         # uses CHGCARs
-        c2c = Critic2Caller.from_path(f"{TEST_FILES_DIR}/bader")
+        c2c = Critic2Caller.from_path(BADER_TEST_DIR)
 
         # check we have some results!
         assert len(c2c._stdout) >= 500
@@ -49,7 +52,7 @@ class TestCritic2Caller:
 
         # alternatively, can also set when we do the analysis, but note that this will change
         # the analysis performed since augmentation charges are added in core regions
-        c2c = Critic2Caller.from_path(f"{TEST_FILES_DIR}/bader", zpsp={"Fe": 8.0, "O": 6.0})
+        c2c = Critic2Caller.from_path(BADER_TEST_DIR, zpsp={"Fe": 8.0, "O": 6.0})
 
         # check yt integration
         assert c2o.structure.site_properties["bader_volume"][0] == approx(66.0148355)
@@ -58,7 +61,7 @@ class TestCritic2Caller:
 
     def test_from_structure(self):
         # uses pro-molecular density
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/critic2/MoS2.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/MoS2.cif")
 
         c2c = Critic2Caller.from_chgcar(structure)
 
@@ -67,23 +70,21 @@ class TestCritic2Caller:
 
         # test with chgcar and zpsp to ensure zval is formatted as int
         # https://github.com/materialsproject/pymatgen/issues/3501
-        c2c = Critic2Caller.from_chgcar(
-            structure, zpsp={"Mo": 6.0, "S": 6.0}, chgcar=f"{TEST_FILES_DIR}/bader/CHGCAR.gz"
-        )
+        c2c = Critic2Caller.from_chgcar(structure, zpsp={"Mo": 6.0, "S": 6.0}, chgcar=f"{BADER_TEST_DIR}/CHGCAR.gz")
 
         assert "ERROR : load int.CHGCAR id chg_int zpsp Mo 6 S 6" in c2c._input_script
 
 
 class TestCritic2Analysis(TestCase):
     def setUp(self):
-        stdout_file = f"{TEST_FILES_DIR}/critic2/MoS2_critic2_stdout.txt"
-        stdout_file_new_format = f"{TEST_FILES_DIR}/critic2/MoS2_critic2_stdout_new_format.txt"
+        stdout_file = f"{TEST_DIR}/MoS2_critic2_stdout.txt"
+        stdout_file_new_format = f"{TEST_DIR}/MoS2_critic2_stdout_new_format.txt"
         with open(stdout_file) as file:
             reference_stdout = file.read()
         with open(stdout_file_new_format) as file:
             reference_stdout_new_format = file.read()
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/critic2/MoS2.cif")
+        structure = Structure.from_file(f"{TEST_DIR}/MoS2.cif")
 
         self.c2o = Critic2Analysis(structure, reference_stdout)
         self.c2o_new_format = Critic2Analysis(structure, reference_stdout_new_format)
