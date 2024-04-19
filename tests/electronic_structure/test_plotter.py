@@ -39,7 +39,7 @@ rc("text", usetex=False)  # Disabling latex is needed for this test to work.
 
 class TestDosPlotter(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/json/complete_dos.json") as file:
+        with open(f"{BAND_TEST_DIR}/../dos/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
             self.plotter = DosPlotter(sigma=0.2, stack=True)
 
@@ -70,7 +70,7 @@ class TestDosPlotter(PymatgenTest):
         # reproduces the same energy and DOS axis limits
         self.plotter.add_dos_dict(self.dos.get_element_dos(), key_sort_func=lambda x: x.X)
         # Contains energy and DOS limits and expected results
-        with open(f"{TEST_FILES_DIR}/json/complete_dos_limits.json") as file:
+        with open(f"{BAND_TEST_DIR}/../plotter/complete_dos_limits.json") as file:
             limits_results = json.load(file)
 
         for item in limits_results:
