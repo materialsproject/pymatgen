@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import gzip
-import os
 import shutil
 
 import numpy as np
@@ -34,9 +33,8 @@ __version__ = "0.1"
 __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 
-module_dir = os.path.dirname(__file__)
-single_job_dict = loadfn(f"{module_dir}/single_job.json")
-multi_job_dict = loadfn(f"{module_dir}/multi_job.json")
+single_job_dict = loadfn(f"{TEST_FILES_DIR}/io/qchem/single_job.json")
+multi_job_dict = loadfn(f"{TEST_FILES_DIR}/io/qchem/multi_job.json")
 
 property_list = {
     "errors",
