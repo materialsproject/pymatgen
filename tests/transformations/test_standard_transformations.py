@@ -530,7 +530,7 @@ class TestScaleToRelaxedTransformation:
         assert Au_fin.volume == approx(Au_init.volume)
 
         # Test on gb relaxation
-        gb_dir = f"{TEST_FILES_DIR}/grain_boundary"
+        gb_dir = f"{TEST_FILES_DIR}/core/grain_boundary"
         Be_fin = Structure.from_file(f"{gb_dir}/Be_gb_fin.cif")
         Be_init = Structure.from_file(f"{gb_dir}/Be_gb_init.cif")
         Zn_init = Structure.from_file(f"{gb_dir}/Zn_gb_init.cif")
