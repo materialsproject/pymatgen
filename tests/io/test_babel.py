@@ -40,7 +40,7 @@ class TestBabelMolAdaptor(TestCase):
         assert adaptor.pymatgen_mol.formula == "H4 C1"
 
     def test_from_file(self):
-        adaptor = BabelMolAdaptor.from_file(f"{TEST_FILES_DIR}/molecules/Ethane_e.pdb", "pdb")
+        adaptor = BabelMolAdaptor.from_file(f"{TEST_FILES_DIR}/io/babel/Ethane_e.pdb", "pdb")
         mol = adaptor.pymatgen_mol
         assert mol.formula == "H6 C2"
 
