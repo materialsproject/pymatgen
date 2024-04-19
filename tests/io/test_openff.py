@@ -20,24 +20,23 @@ from pymatgen.io.openff import (
 )
 from pymatgen.util.testing import TEST_FILES_DIR
 
-TEST_DIR = f"{TEST_FILES_DIR}/io/openff"
+TEST_DIR = f"{TEST_FILES_DIR}/io/openff/classical_md_mols"
 
 tk = pytest.importorskip("openff.toolkit")
 
 
 @pytest.fixture()
 def mol_files():
-    geo_dir = f"{TEST_DIR}/classical_md_mols"
     return {
-        "CCO_xyz": str(geo_dir / "CCO.xyz"),
-        "CCO_charges": str(geo_dir / "CCO.npy"),
-        "FEC_r_xyz": str(geo_dir / "FEC-r.xyz"),
-        "FEC_s_xyz": str(geo_dir / "FEC-s.xyz"),
-        "FEC_charges": str(geo_dir / "FEC.npy"),
-        "PF6_xyz": str(geo_dir / "PF6.xyz"),
-        "PF6_charges": str(geo_dir / "PF6.npy"),
-        "Li_charges": str(geo_dir / "Li.npy"),
-        "Li_xyz": str(geo_dir / "Li.xyz"),
+        "CCO_xyz": f"{TEST_DIR}/CCO.xyz",
+        "CCO_charges": f"{TEST_DIR}/CCO.npy",
+        "FEC_r_xyz": f"{TEST_DIR}/FEC-r.xyz",
+        "FEC_s_xyz": f"{TEST_DIR}/FEC-s.xyz",
+        "FEC_charges": f"{TEST_DIR}/FEC.npy",
+        "PF6_xyz": f"{TEST_DIR}/PF6.xyz",
+        "PF6_charges": f"{TEST_DIR}/PF6.npy",
+        "Li_charges": f"{TEST_DIR}/Li.npy",
+        "Li_xyz": f"{TEST_DIR}/Li.xyz",
     }
 
 
