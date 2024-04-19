@@ -11,7 +11,7 @@ from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.sets import OptSet
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/io/qchem"
+TEST_DIR = f"{TEST_FILES_DIR}/molecules"
 
 __author__ = "Brandon Wood, Samuel Blau, Shyam Dwaraknath, Julian Self, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
