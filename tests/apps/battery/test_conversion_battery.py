@@ -10,7 +10,7 @@ from pymatgen.apps.battery.conversion_battery import ConversionElectrode, Conver
 from pymatgen.core.composition import Composition
 from pymatgen.util.testing import TEST_FILES_DIR
 
-TEST_DIR = f"{TEST_FILES_DIR}/app/battery"
+TEST_DIR = f"{TEST_FILES_DIR}/apps/battery"
 
 
 class TestConversionElectrode(TestCase):
