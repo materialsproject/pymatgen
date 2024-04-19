@@ -837,7 +837,7 @@ Node #3 Li (O:6), connected to :
         assert ccs_periodicities == {"0D", "2D"}
 
     def test_coordination_sequences(self):
-        BaTiO3_se_fpath = f"{TEST_FILES_DIR}/chemenv/structure_environments/se_mp-5020.json"
+        BaTiO3_se_fpath = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments/se_mp-5020.json"
         with open(BaTiO3_se_fpath) as file:
             dct = json.load(file)
         struct_envs = StructureEnvironments.from_dict(dct)
