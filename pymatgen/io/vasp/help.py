@@ -5,12 +5,18 @@ from __future__ import annotations
 import re
 
 import requests
-from bs4 import BeautifulSoup
+from monty.dev import requires
+
+try:
+    from bs4 import BeautifulSoup
+except ImportError:
+    BeautifulSoup = None
 
 
 class VaspDoc:
     """A VASP documentation helper."""
 
+    @requires(BeautifulSoup, "BeautifulSoup must be installed to fetch from the VASP wiki.")
     def __init__(self):
         """Init for VaspDoc."""
         self.url_template = "http://www.vasp.at/wiki/index.php/%s"

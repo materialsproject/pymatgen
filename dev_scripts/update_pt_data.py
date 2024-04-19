@@ -11,11 +11,16 @@ import re
 from itertools import product
 
 import requests
-from bs4 import BeautifulSoup
+from monty.dev import requires
 from monty.serialization import dumpfn, loadfn
 from ruamel import yaml
 
 from pymatgen.core import Element, get_el_sp
+
+try:
+    from bs4 import BeautifulSoup
+except ImportError:
+    BeautifulSoup = None
 
 ptable_yaml_path = "periodic_table.yaml"
 
@@ -231,6 +236,7 @@ def gen_iupac_ordering():
         periodic_table[el]["IUPAC ordering"] = iupac_ordering_dict[get_el_sp(el)]
 
 
+@requires(BeautifulSoup, "BeautifulSoup must be installed to use this method.")
 def add_electron_affinities():
     """Update the periodic table data file with electron affinities."""
 
