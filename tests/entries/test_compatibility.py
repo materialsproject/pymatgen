@@ -969,7 +969,7 @@ class TestMaterialsProjectCompatibility2020(TestCase):
         assert len(entries) == 2
 
     def test_config_file(self):
-        config_file = Path(f"{TEST_FILES_DIR}/MP2020Compatibility_alternate.yaml")
+        config_file = Path(f"{TEST_FILES_DIR}/entries/compatibility/MP2020Compatibility_alternate.yaml")
         compat = MaterialsProject2020Compatibility(config_file=config_file)
         entry = compat.process_entry(self.entry1)
         for ea in entry.energy_adjustments:
