@@ -29,7 +29,7 @@ class TestVaspToComputedEntryDrone(TestCase):
     def test_assimilate(self):
         """Test assimilate data from "vasprun.xml.xe.gz" file."""
 
-        entry = self.drone.assimilate(f"{TEST_DIR}/test_dir")
+        entry = self.drone.assimilate(f"{TEST_DIR}")
 
         for param in ("hubbards", "is_hubbard", "potcar_spec", "run_type"):
             assert param in entry.parameters
@@ -37,7 +37,7 @@ class TestVaspToComputedEntryDrone(TestCase):
         assert entry.reduced_formula == "Xe"
         assert entry.energy == approx(0.5559329)
 
-        entry = self.structure_drone.assimilate(f"{TEST_DIR}/test_dir")
+        entry = self.structure_drone.assimilate(f"{TEST_DIR}")
         assert entry.reduced_formula == "Xe"
         assert entry.energy == approx(0.5559329)
         assert isinstance(entry, ComputedStructureEntry)
