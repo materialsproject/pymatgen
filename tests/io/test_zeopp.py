@@ -22,6 +22,8 @@ try:
 except ImportError:
     zeo = None
 
+TEST_DIR = f"{TEST_FILES_DIR}/io/zeopp"
+
 __author__ = "Bharat Medasani"
 __copyright__ = "Copyright 2013, The Materials Project"
 __version__ = "0.1"
@@ -143,7 +145,7 @@ H -0.363000 -0.513360 0.889165 0.200000"""
         assert str(self.xyz) == expected
 
     def test_from_file(self):
-        filename = f"{TEST_FILES_DIR}/xyz/EDI_voro.xyz"
+        filename = f"{TEST_DIR}/EDI_voro.xyz"
         voronoi = ZeoVoronoiXYZ.from_file(filename)
         assert isinstance(voronoi.molecule, Molecule)
 
@@ -175,7 +177,7 @@ class TestGetVoronoiNodes(TestCase):
 @unittest.skip("file free_sph.cif not present")
 class TestGetFreeSphereParams(TestCase):
     def setUp(self):
-        filepath = f"{TEST_FILES_DIR}/free_sph.cif"
+        filepath = f"{TEST_FILES_DIR}/cif/free_sph.cif"
         self.structure = Structure.from_file(filepath)
         self.rad_dict = {"Ge": 0.67, "P": 0.52, "S": 1.7, "La": 1.17, "Zr": 0.86, "O": 1.26}
 

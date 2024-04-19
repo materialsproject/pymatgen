@@ -39,7 +39,7 @@ from pymatgen.analysis.local_env import (
 from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/fragmenter_files"
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/local_env/fragmenter_files"
 
 
 class TestValenceIonicRadiusEvaluator(PymatgenTest):
@@ -286,8 +286,8 @@ class TestIsayevNN(PymatgenTest):
 class TestOpenBabelNN(PymatgenTest):
     def setUp(self):
         pytest.importorskip("openbabel")
-        self.benzene = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/benzene.xyz")
-        self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/acetylene.xyz")
+        self.benzene = Molecule.from_file(f"{TEST_DIR}/../benzene.xyz")
+        self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/io/xyz/acetylene.xyz")
 
     def test_nn_orders(self):
         strategy = OpenBabelNN()
@@ -317,8 +317,8 @@ class TestOpenBabelNN(PymatgenTest):
 
 class TestCovalentBondNN(PymatgenTest):
     def setUp(self):
-        self.benzene = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/benzene.xyz")
-        self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/acetylene.xyz")
+        self.benzene = Molecule.from_file(f"{TEST_DIR}/../benzene.xyz")
+        self.acetylene = Molecule.from_file(f"{TEST_FILES_DIR}/io/xyz/acetylene.xyz")
 
     def test_nn_orders(self):
         strategy = CovalentBondNN()

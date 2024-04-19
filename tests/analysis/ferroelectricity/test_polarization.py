@@ -15,7 +15,7 @@ from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Outcar
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/vasp/fixtures/BTO_221_99_polarization"
+TEST_DIR = f"{TEST_FILES_DIR}/io/vasp/fixtures/BTO_221_99_polarization"
 bto_folders = ["nonpolar_polarization"]
 bto_folders += [f"interpolation_{idx}_polarization" for idx in range(8, 0, -1)]
 bto_folders += ["polar_polarization"]

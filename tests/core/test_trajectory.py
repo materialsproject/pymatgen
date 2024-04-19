@@ -12,6 +12,8 @@ from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/core/trajectory"
+
 
 class TestTrajectory(PymatgenTest):
     def setUp(self):
@@ -19,7 +21,7 @@ class TestTrajectory(PymatgenTest):
         self.traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj")
         self.structures = xdatcar.structures
 
-        out = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/ts.out")
+        out = QCOutput(f"{TEST_FILES_DIR}/io/qchem/new_qchem_files/ts.out")
         last_mol = out.data["molecule_from_last_geometry"]
         species = last_mol.species
         coords = out.data["geometries"]
@@ -470,7 +472,7 @@ class TestTrajectory(PymatgenTest):
         self._check_traj_equality(self.traj, written_traj)
 
     def test_from_file(self):
-        traj = Trajectory.from_file(f"{TEST_FILES_DIR}/LiMnO2_chgnet_relax.traj")
+        traj = Trajectory.from_file(f"{TEST_DIR}/LiMnO2_chgnet_relax.traj")
         assert isinstance(traj, Trajectory)
 
         # Check length of the trajectory

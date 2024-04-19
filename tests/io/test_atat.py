@@ -7,7 +7,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.io.atat import Mcsqs
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/mcsqs"
+TEST_DIR = f"{TEST_FILES_DIR}/io/atat/mcsqs"
 
 
 class TestAtat(PymatgenTest):

@@ -21,12 +21,12 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-struct_env_dir = f"{TEST_FILES_DIR}/chemenv/structure_environments"
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments"
 
 
 class TestStructureEnvironments(PymatgenTest):
     def test_structure_environments(self):
-        with open(f"{struct_env_dir}/se_mp-7000.json") as file:
+        with open(f"{TEST_DIR}/se_mp-7000.json") as file:
             dct = json.load(file)
 
         struct_envs = StructureEnvironments.from_dict(dct)
@@ -119,7 +119,7 @@ class TestStructureEnvironments(PymatgenTest):
         assert ce != ce2
 
     def test_light_structure_environments(self):
-        with open(f"{struct_env_dir}/se_mp-7000.json") as file:
+        with open(f"{TEST_DIR}/se_mp-7000.json") as file:
             dct = json.load(file)
 
         struct_envs = StructureEnvironments.from_dict(dct)
@@ -220,8 +220,7 @@ class TestStructureEnvironments(PymatgenTest):
 
     def test_from_structure_environments(self):
         # https://github.com/materialsproject/pymatgen/issues/2756
-        mp_id = "mp-554015"
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/{mp_id}.json.gz")
+        struct = Structure.from_file(f"{TEST_DIR}/mp-554015.json.gz")
         strategy = SimplestChemenvStrategy(distance_cutoff=1.4, angle_cutoff=0.3)
         local_geom_finder = LocalGeometryFinder()
         local_geom_finder.setup_structure(structure=struct)

@@ -10,7 +10,7 @@ from pymatgen.command_line.vampire_caller import VampireCaller
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/magnetic_orderings"
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/magnetic_orderings"
 
 
 @pytest.mark.skipif(not which("vampire-serial"), reason="vampire executable not present")
