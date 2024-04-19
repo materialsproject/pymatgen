@@ -340,12 +340,12 @@ class TestQCOutput(PymatgenTest):
 
     @pytest.mark.skipif(openbabel is None, reason="OpenBabel not installed.")
     def test_structural_change(self):
-        t1 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/structural_change/t1.xyz")
-        t2 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/structural_change/t2.xyz")
-        t3 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/structural_change/t3.xyz")
+        t1 = Molecule.from_file(f"{TEST_FILES_DIR}/analysis/structural_change/t1.xyz")
+        t2 = Molecule.from_file(f"{TEST_FILES_DIR}/analysis/structural_change/t2.xyz")
+        t3 = Molecule.from_file(f"{TEST_FILES_DIR}/analysis/structural_change/t3.xyz")
 
-        thio_1 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/structural_change/thiophene1.xyz")
-        thio_2 = Molecule.from_file(f"{TEST_FILES_DIR}/molecules/structural_change/thiophene2.xyz")
+        thio_1 = Molecule.from_file(f"{TEST_FILES_DIR}/analysis/structural_change/thiophene1.xyz")
+        thio_2 = Molecule.from_file(f"{TEST_FILES_DIR}/analysis/structural_change/thiophene2.xyz")
 
         frag_1 = Molecule.from_file(f"{TEST_DIR}/test_structure_change/frag_1.xyz")
         frag_2 = Molecule.from_file(f"{TEST_DIR}/test_structure_change/frag_2.xyz")
