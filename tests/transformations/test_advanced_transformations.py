@@ -647,7 +647,7 @@ class TestSQSTransformation(PymatgenTest):
 
 @pytest.mark.skipif(ClusterSpace is None, reason="icet not installed.")
 class TestSQSTransformationIcet(PymatgenTest):
-    stored_run: dict = loadfn(f"{TEST_FILES_DIR}/json/icet-sqs-fcc-Mg_75-Al_25-scaling_8.json.gz")
+    stored_run: dict = loadfn(f"{TEST_FILES_DIR}/transformations/icet-sqs-fcc-Mg_75-Al_25-scaling_8.json.gz")
     scaling: int = 8
 
     def test_icet_import(self):

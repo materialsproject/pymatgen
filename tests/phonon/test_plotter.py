@@ -11,12 +11,14 @@ from pymatgen.phonon import CompletePhononDos, PhononBandStructureSymmLine
 from pymatgen.phonon.plotter import PhononBSPlotter, PhononDosPlotter, ThermoPlotter
 from pymatgen.util.testing import TEST_FILES_DIR
 
+TEST_DIR = f"{TEST_FILES_DIR}/phonon/dos"
+
 plt.rc("text", usetex=False)  # Disabling latex for testing
 
 
 class TestPhononDosPlotter(TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/json/NaCl_complete_ph_dos.json") as file:
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json") as file:
             self.dos = CompletePhononDos.from_dict(json.load(file))
         self.plotter = PhononDosPlotter(sigma=0.2, stack=True)
         self.plotter_no_stack = PhononDosPlotter(sigma=0.2, stack=False)
@@ -110,7 +112,7 @@ class TestPhononBSPlotter(TestCase):
 
 class TestThermoPlotter(TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/json/NaCl_complete_ph_dos.json") as file:
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json") as file:
             self.dos = CompletePhononDos.from_dict(json.load(file))
         self.plotter = ThermoPlotter(self.dos, self.dos.structure)
 
