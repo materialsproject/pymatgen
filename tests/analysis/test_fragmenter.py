@@ -12,7 +12,7 @@ __author__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 
 
-TEST_DIR = f"{TEST_FILES_DIR}/analysis/fragmenter_files"
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/local_env"
 
 
 class TestFragmentMolecule(PymatgenTest):

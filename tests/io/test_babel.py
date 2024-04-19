@@ -46,7 +46,7 @@ class TestBabelMolAdaptor(TestCase):
 
     def test_from_file_return_all_molecules(self):
         adaptors = BabelMolAdaptor.from_file(
-            f"{TEST_FILES_DIR}/xyz/multiple_frame.xyz",
+            f"{TEST_FILES_DIR}/io/xyz/multiple_frame.xyz",
             "xyz",
             return_all_molecules=True,
         )
