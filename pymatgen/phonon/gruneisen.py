@@ -75,10 +75,10 @@ class GruneisenParameter(MSONable):
         limit_frequencies: Literal["debye", "acoustic"] | None = None,
     ) -> float:
         """Calculates the average of the Gruneisen based on the values on the regular grid.
-        If squared is True the average will use the squared value of the Gruneisen and a squared root
+        If squared is True, the average will use the squared value of the Gruneisen and a squared root
         is performed on the final result.
-        Values associated to negative frequencies will be ignored.
-        See Scripta Materialia 129, 88 for definitions.
+        Values associated with negative frequencies will be ignored.
+        See Nath et al. _Scripta Materialia_ **2017**, _129_, 88 for the definitions.
         Adapted from classes in abipy that have been written by Guido Petretto (UCLouvain).
 
         Args:
