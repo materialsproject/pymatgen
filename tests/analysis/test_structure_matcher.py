@@ -19,6 +19,8 @@ from pymatgen.core import Element, Lattice, Structure, SymmOp
 from pymatgen.util.coord import find_in_coord_list_pbc
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/structure_match"
+
 
 class TestStructureMatcher(PymatgenTest):
     def setUp(self):
@@ -327,7 +329,7 @@ class TestStructureMatcher(PymatgenTest):
     def test_left_handed_lattice(self):
         """Ensure Left handed lattices are accepted."""
         sm = StructureMatcher()
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/json/Li3GaPCO7.json")
+        struct = Structure.from_file(f"{TEST_DIR}/Li3GaPCO7.json")
         assert sm.fit(struct, struct)
 
     def test_as_dict_and_from_dict(self):
@@ -351,8 +353,8 @@ class TestStructureMatcher(PymatgenTest):
 
     def test_supercell_fit(self):
         sm = StructureMatcher(attempt_supercell=False)
-        s1 = Structure.from_file(f"{TEST_FILES_DIR}/json/Al3F9.json")
-        s2 = Structure.from_file(f"{TEST_FILES_DIR}/json/Al3F9_distorted.json")
+        s1 = Structure.from_file(f"{TEST_DIR}/Al3F9.json")
+        s2 = Structure.from_file(f"{TEST_DIR}/Al3F9_distorted.json")
 
         assert not sm.fit(s1, s2)
 
@@ -763,8 +765,8 @@ class TestStructureMatcher(PymatgenTest):
     def test_electronegativity(self):
         sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5)
 
-        s1 = Structure.from_file(f"{TEST_FILES_DIR}/json/Na2Fe2PAsO4S4.json")
-        s2 = Structure.from_file(f"{TEST_FILES_DIR}/json/Na2Fe2PNO4Se4.json")
+        s1 = Structure.from_file(f"{TEST_DIR}/Na2Fe2PAsO4S4.json")
+        s2 = Structure.from_file(f"{TEST_DIR}/Na2Fe2PNO4Se4.json")
         assert sm.get_best_electronegativity_anonymous_mapping(s1, s2) == {
             Element("S"): Element("Se"),
             Element("As"): Element("N"),
