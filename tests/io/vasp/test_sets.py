@@ -1981,9 +1981,6 @@ class TestLobsterSet(PymatgenTest):
         assert kpoints1.comment.split()[6], 6138
         assert lobsterset_new.user_potcar_functional == "PBE_54"
 
-    # def test_write_inputs(self):
-    #     self.lobsterset1.write_input(output_dir=tmp)
-
 
 @skip_if_no_psp_dir
 class TestMPAbsorptionSet(PymatgenTest):
