@@ -24,7 +24,7 @@ try:
 except ImportError:
     openbabel = None
 
-TEST_DIR = f"{TEST_FILES_DIR}/molecules/new_qchem_files"
+TEST_DIR = f"{TEST_FILES_DIR}/io/qchem/new_qchem_files"
 
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
