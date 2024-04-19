@@ -82,9 +82,9 @@ class TestJahnTeller(TestCase):
         assert magnitude == "none"
 
     def test_jahn_teller_structure_analysis(self):
-        LiFePO4 = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif", primitive=True)
+        LiFePO4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/LiFePO4.cif", primitive=True)
 
-        Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif", primitive=True)
+        Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe3O4.cif", primitive=True)
 
         assert self.jt.is_jahn_teller_active(LiFePO4)
         assert self.jt.is_jahn_teller_active(Fe3O4)

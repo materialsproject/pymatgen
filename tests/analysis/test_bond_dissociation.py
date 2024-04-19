@@ -1,23 +1,23 @@
 from __future__ import annotations
 
-import os
 from unittest import TestCase
 
 import pytest
 from monty.serialization import loadfn
 
 from pymatgen.analysis.bond_dissociation import BondDissociationEnergies
+from pymatgen.util.testing import TEST_FILES_DIR
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/bond_dissociation"
 
 
 class TestBondDissociation(TestCase):
     def setUp(self):
         pytest.importorskip("openbabel")
-        self.PC_65_principle = loadfn(f"{module_dir}/PC_65_principle.json")
+        self.PC_65_principle = loadfn(f"{TEST_DIR}/PC_65_principle.json")
         self.PC_65_principle["initial_molecule"] = self.PC_65_principle["initial_molecule"].as_dict()
         self.PC_65_principle["final_molecule"] = self.PC_65_principle["final_molecule"].as_dict()
-        self.PC_65_fragments = loadfn(f"{module_dir}/PC_65_fragments.json")
+        self.PC_65_fragments = loadfn(f"{TEST_DIR}/PC_65_fragments.json")
         for entry in self.PC_65_fragments:
             entry["initial_molecule"] = entry["initial_molecule"].as_dict()
             entry["final_molecule"] = entry["final_molecule"].as_dict()
@@ -286,10 +286,10 @@ class TestBondDissociation(TestCase):
                 -0.6562050352,
             ],
         ]
-        self.neg_EC_40_principle = loadfn(f"{module_dir}/neg_EC_40_principle.json")
+        self.neg_EC_40_principle = loadfn(f"{TEST_DIR}/neg_EC_40_principle.json")
         self.neg_EC_40_principle["initial_molecule"] = self.neg_EC_40_principle["initial_molecule"].as_dict()
         self.neg_EC_40_principle["final_molecule"] = self.neg_EC_40_principle["final_molecule"].as_dict()
-        self.neg_EC_40_fragments = loadfn(f"{module_dir}/neg_EC_40_fragments.json")
+        self.neg_EC_40_fragments = loadfn(f"{TEST_DIR}/neg_EC_40_fragments.json")
         for entry in self.neg_EC_40_fragments:
             entry["initial_molecule"] = entry["initial_molecule"].as_dict()
             entry["final_molecule"] = entry["final_molecule"].as_dict()
@@ -392,10 +392,10 @@ class TestBondDissociation(TestCase):
                 -342.361057174555,
             ],
         ]
-        self.neg_TFSI_principle = loadfn(f"{module_dir}/neg_TFSI_principle.json")
+        self.neg_TFSI_principle = loadfn(f"{TEST_DIR}/neg_TFSI_principle.json")
         self.neg_TFSI_principle["initial_molecule"] = self.neg_TFSI_principle["initial_molecule"].as_dict()
         self.neg_TFSI_principle["final_molecule"] = self.neg_TFSI_principle["final_molecule"].as_dict()
-        self.neg_TFSI_fragments = loadfn(f"{module_dir}/neg_TFSI_fragments.json")
+        self.neg_TFSI_fragments = loadfn(f"{TEST_DIR}/neg_TFSI_fragments.json")
         for entry in self.neg_TFSI_fragments:
             entry["initial_molecule"] = entry["initial_molecule"].as_dict()
             entry["final_molecule"] = entry["final_molecule"].as_dict()

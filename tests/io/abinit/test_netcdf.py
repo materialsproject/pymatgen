@@ -14,7 +14,7 @@ try:
 except ImportError:
     netCDF4 = None
 
-TEST_DIR = f"{TEST_FILES_DIR}/abinit"
+TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 
 
 class TestEtsfReader(PymatgenTest):

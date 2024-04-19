@@ -86,7 +86,7 @@ class TestIStructure(PymatgenTest):
             [[3.8401979337, 0, 0], [1.9200989668, 3.3257101909, 0], [0, -2.2171384943, 3.1355090603]],
             pbc=(True, True, False),
         )
-        self.V2O3 = IStructure.from_file(f"{TEST_FILES_DIR}/V2O3.cif")
+        self.V2O3 = IStructure.from_file(f"{TEST_FILES_DIR}/cif/V2O3.cif")
 
     @skipIf(not (mcsqs_cmd and enum_cmd), reason="enumlib or mcsqs executable not present")
     def test_get_orderings(self):
@@ -542,13 +542,13 @@ class TestIStructure(PymatgenTest):
         assert fcc_ag_prim.volume == approx(17.10448225)
 
     def test_primitive_with_constrained_lattice(self):
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/Fe310.json.gz")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/core/structure/Fe310.json.gz")
         constraints = {"a": 2.83133, "b": 4.69523, "gamma": 107.54840}
         prim_struct = struct.get_primitive_structure(constrain_latt=constraints)
         assert {key: getattr(prim_struct.lattice, key) for key in constraints} == pytest.approx(constraints)
 
     def test_primitive_with_similar_constraints(self):
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/Fe310.json.gz")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/core/structure/Fe310.json.gz")
         constraints = {"a": 2.83133, "b": 4.69523, "gamma": 107.54840}
         for perturb in (0, 1e-5, -1e-5):
             copy = constraints.copy()
@@ -873,12 +873,12 @@ Direct
 
         # test CIF file with unicode error
         # https://github.com/materialsproject/pymatgen/issues/2947
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/mcif/bad-unicode-gh-2947.mcif")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/io/cif/mcif/bad-unicode-gh-2947.mcif")
         assert struct.formula == "Ni32 O32"
 
         # make sure CIfParser.parse_structures() and Structure.from_file() are consistent
         # i.e. uses same merge_tol for site merging, same primitive=False, etc.
-        assert struct == CifParser(f"{TEST_FILES_DIR}/mcif/bad-unicode-gh-2947.mcif").parse_structures()[0]
+        assert struct == CifParser(f"{TEST_FILES_DIR}/io/cif/mcif/bad-unicode-gh-2947.mcif").parse_structures()[0]
 
         # https://github.com/materialsproject/pymatgen/issues/3551
         json_path = Path("test-with-path.json")
@@ -1583,7 +1583,7 @@ class TestStructure(PymatgenTest):
         assert super_cell.charge == 25, "Set charge not properly modifying _charge"
 
     def test_vesta_lattice_matrix(self):
-        silica_zeolite = Molecule.from_file(f"{TEST_FILES_DIR}/xyz/CON_vesta.xyz")
+        silica_zeolite = Molecule.from_file(f"{TEST_FILES_DIR}/core/structure/CON_vesta.xyz")
 
         s_vesta = Structure(
             lattice=Lattice.from_parameters(22.6840, 13.3730, 12.5530, 90, 69.479, 90, vesta=True),
@@ -1804,7 +1804,7 @@ Sites (8)
             assert struct.lattice.is_orthogonal
 
     def test_to_primitive(self):
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/orci_1010.cif")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/cif/orci_1010.cif")
         primitive = struct.to_primitive()
 
         assert struct != primitive
@@ -1814,7 +1814,7 @@ Sites (8)
         assert primitive.formula == "Mn1 B4"
 
     def test_to_conventional(self):
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/bcc_1927.cif")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/cif/bcc_1927.cif")
         conventional = struct.to_conventional()
 
         assert struct != conventional

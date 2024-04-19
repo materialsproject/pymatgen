@@ -59,7 +59,7 @@ def get_table():
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """
-    json_path = f"{TEST_FILES_DIR}/struct_predictor/test_lambda.json"
+    json_path = f"{TEST_FILES_DIR}/analysis/struct_predictor/test_lambda.json"
     with open(json_path) as file:
         return json.load(file)
 
@@ -292,11 +292,11 @@ class TestMagOrderingTransformation(PymatgenTest):
         self.NiO_AFM_001 = Structure(lattice, species, coords)
         self.NiO_AFM_001.add_spin_by_site([-5, 5, 0, 0])
 
-        self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif")
+        self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe3O4.cif")
         trans = AutoOxiStateDecorationTransformation()
         self.Fe3O4_oxi = trans.apply_transformation(self.Fe3O4)
 
-        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif").remove_oxidation_states()
+        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Li8Fe2NiCoO8.cif").remove_oxidation_states()
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
@@ -647,7 +647,7 @@ class TestSQSTransformation(PymatgenTest):
 
 @pytest.mark.skipif(ClusterSpace is None, reason="icet not installed.")
 class TestSQSTransformationIcet(PymatgenTest):
-    stored_run: dict = loadfn(f"{TEST_FILES_DIR}/icet-sqs-fcc-Mg_75-Al_25-scaling_8.json.gz")
+    stored_run: dict = loadfn(f"{TEST_FILES_DIR}/transformations/icet-sqs-fcc-Mg_75-Al_25-scaling_8.json.gz")
     scaling: int = 8
 
     def test_icet_import(self):
