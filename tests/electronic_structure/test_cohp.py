@@ -17,7 +17,7 @@ from pymatgen.electronic_structure.cohp import (
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/cohp"
+TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
 
 class TestCohp(TestCase):

@@ -10,7 +10,7 @@ from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.gaussian import GaussianInput, GaussianOutput
 from pymatgen.util.testing import TEST_FILES_DIR
 
-TEST_DIR = f"{TEST_FILES_DIR}/molecules"
+TEST_DIR = f"{TEST_FILES_DIR}/io/gaussian"
 
 
 class TestGaussianInput(TestCase):

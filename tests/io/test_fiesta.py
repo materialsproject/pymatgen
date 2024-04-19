@@ -6,6 +6,8 @@ from pymatgen.core.structure import Molecule
 from pymatgen.io.fiesta import FiestaInput, FiestaOutput
 from pymatgen.util.testing import TEST_FILES_DIR
 
+TEST_DIR = f"{TEST_FILES_DIR}/io/fiesta"
+
 
 class TestFiestaInput(TestCase):
     def setUp(self):
@@ -71,7 +73,7 @@ class TestFiestaInput(TestCase):
 
 class TestFiestaOutput(TestCase):
     def setUp(self):
-        self.log_fiesta = FiestaOutput(f"{TEST_FILES_DIR}/fiesta/log_fiesta")
+        self.log_fiesta = FiestaOutput(f"{TEST_DIR}/log_fiesta")
 
     def test_props(self):
         out = self.log_fiesta

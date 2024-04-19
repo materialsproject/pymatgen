@@ -23,6 +23,8 @@ try:
 except ImportError:
     fdint = None
 
+TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/boltztrap"
+
 x_trans = which("x_trans")
 
 
@@ -30,13 +32,13 @@ x_trans = which("x_trans")
 class TestBoltztrapAnalyzer(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.bz = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/transp/")
-        cls.bz_bands = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/bands/")
-        cls.bz_up = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/dos_up/", dos_spin=1)
-        cls.bz_dw = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/dos_dw/", dos_spin=-1)
-        cls.bz_fermi = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/fermi/")
+        cls.bz = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/transp/")
+        cls.bz_bands = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/bands/")
+        cls.bz_up = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/dos_up/", dos_spin=1)
+        cls.bz_dw = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/dos_dw/", dos_spin=-1)
+        cls.bz_fermi = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/fermi/")
 
-        with open(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json") as file:
+        with open(f"{TEST_FILES_DIR}/electronic_structure/bandstructure/Cu2O_361_bandstructure.json") as file:
             dct = json.load(file)
             cls.bs = BandStructure.from_dict(dct)
             cls.btr = BoltztrapRunner(cls.bs, 1)
@@ -198,8 +200,8 @@ class TestBoltztrapAnalyzer(TestCase):
         assert self.bz.get_hall_carrier_concentration()[500][892] / 1e21 == approx(-9.136803845741777, abs=1e-4)
 
     def test_get_symm_bands(self):
-        structure = loadfn(f"{TEST_FILES_DIR}/boltztrap/structure_mp-12103.json")
-        sbs = loadfn(f"{TEST_FILES_DIR}/boltztrap/dft_bs_sym_line.json")
+        structure = loadfn(f"{TEST_DIR}/structure_mp-12103.json")
+        sbs = loadfn(f"{TEST_DIR}/dft_bs_sym_line.json")
         kpoints = [kp.frac_coords for kp in sbs.kpoints]
         labels_dict = {k: sbs.labels_dict[k].frac_coords for k in sbs.labels_dict}
         for kpt_line, label_dict in zip([None, sbs.kpoints, kpoints], [None, sbs.labels_dict, labels_dict]):
@@ -208,8 +210,8 @@ class TestBoltztrapAnalyzer(TestCase):
             assert len(sbs_bzt.bands[Spin.up][1]) == approx(143)
 
     # def test_check_acc_bzt_bands(self):
-    #     structure = loadfn(f"{TEST_FILES_DIR}/boltztrap/structure_mp-12103.json")
-    #     sbs = loadfn(f"{TEST_FILES_DIR}/boltztrap/dft_bs_sym_line.json")
+    #     structure = loadfn(f"{TEST_DIR}/structure_mp-12103.json")
+    #     sbs = loadfn(f"{TEST_DIR}/dft_bs_sym_line.json")
     #     sbs_bzt = self.bz_bands.get_symm_bands(structure, -5.25204548)
     #     corr, werr_vbm, werr_cbm, warn = BoltztrapAnalyzer.check_acc_bzt_bands(sbs_bzt, sbs)
     #     assert corr[2] == 9.16851750e-05
@@ -218,7 +220,7 @@ class TestBoltztrapAnalyzer(TestCase):
     #     assert not warn
 
     def test_get_complete_dos(self):
-        structure = loadfn(f"{TEST_FILES_DIR}/boltztrap/structure_mp-12103.json")
+        structure = loadfn(f"{TEST_DIR}/structure_mp-12103.json")
         cdos = self.bz_up.get_complete_dos(structure, self.bz_dw)
         spins = list(cdos.densities)
         assert Spin.down in spins

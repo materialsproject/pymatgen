@@ -10,7 +10,7 @@ from pytest import approx
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/wannier90"
+TEST_DIR = f"{TEST_FILES_DIR}/io/wannier90"
 
 
 class TestUnk(PymatgenTest):

@@ -7,6 +7,8 @@ from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.sets import SETTINGS, Cp2kValidationError, DftSet, GaussianTypeOrbitalBasisSet, GthPotential
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
+
 Si_structure = Structure(
     lattice=[[0, 2.734364, 2.734364], [2.734364, 0, 2.734364], [2.734364, 2.734364, 0]],
     species=["Si", "Si"],
@@ -17,7 +19,7 @@ molecule = Molecule(species=["Si"], coords=[[0, 0, 0]])
 
 class TestSet(PymatgenTest):
     def setUp(self) -> None:
-        SETTINGS["PMG_CP2K_DATA_DIR"] = f"{TEST_FILES_DIR}/cp2k"
+        SETTINGS["PMG_CP2K_DATA_DIR"] = TEST_DIR
         self.setkwargs = {
             "print_pdos": False,
             "print_dos": False,
