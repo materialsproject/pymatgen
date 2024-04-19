@@ -18,7 +18,7 @@ class TestQuasiRRHO(TestCase):
     def setUp(self):
         self.gout = GaussianOutput(f"{TEST_DIR}/quasirrho_gaufreq.log")
         self.linear_gout = GaussianOutput(f"{TEST_DIR}/co2.log.gz")
-        self.qout = QCOutput(f"{TEST_DIR}/new_qchem_files/Frequency_no_equal.qout")
+        self.qout = QCOutput(f"{TEST_DIR}/Frequency_no_equal.qout")
 
     def test_qrrho_gaussian(self):
         """

@@ -1205,8 +1205,8 @@ $end"""
 
     def test_read_write_nbo7(self):
         test_path = f"{TEST_DIR}/test_nbo7.qin"
-        ref_path = f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7.qin"
-        qcinp = QCInput.from_file(f"{TEST_FILES_DIR}/molecules/new_qchem_files/nbo7.qin")
+        ref_path = f"{TEST_DIR}/new_qchem_files/nbo7.qin"
+        qcinp = QCInput.from_file(f"{TEST_DIR}/new_qchem_files/nbo7.qin")
         qcinp.write_file(test_path)
 
         with open(test_path) as ref_file, open(ref_path) as test_file:
@@ -1217,9 +1217,9 @@ $end"""
         os.remove(test_path)
 
     def test_read_write_nbo_e2pert(self):
-        qcinp = QCInput.from_file(f"{TEST_FILES_DIR}/molecules/new_qchem_files/e2pert.qin")
+        qcinp = QCInput.from_file(f"{TEST_DIR}/new_qchem_files/e2pert.qin")
         qcinp.write_file(f"{TEST_DIR}/test_e2pert.qin")
-        test_path = f"{TEST_FILES_DIR}/molecules/new_qchem_files/e2pert.qin"
+        test_path = f"{TEST_DIR}/new_qchem_files/e2pert.qin"
         ref_path = f"{TEST_DIR}/test_e2pert.qin"
 
         with open(ref_path) as ref_file, open(test_path) as test_file:
@@ -1229,9 +1229,9 @@ $end"""
         os.remove(f"{TEST_DIR}/test_e2pert.qin")
 
     def test_read_write_custom_smd(self):
-        qcinp = QCInput.from_file(f"{TEST_FILES_DIR}/molecules/new_qchem_files/custom_smd.qin")
+        qcinp = QCInput.from_file(f"{TEST_DIR}/new_qchem_files/custom_smd.qin")
         qcinp.write_file(f"{TEST_DIR}/test_custom_smd.qin")
-        test_path = f"{TEST_FILES_DIR}/molecules/new_qchem_files/custom_smd.qin"
+        test_path = f"{TEST_DIR}/new_qchem_files/custom_smd.qin"
         ref_path = f"{TEST_DIR}/test_custom_smd.qin"
 
         with open(ref_path) as ref_file, open(test_path) as test_file:
