@@ -19,7 +19,7 @@ from pymatgen.core import Element, Lattice, Structure, SymmOp
 from pymatgen.util.coord import find_in_coord_list_pbc
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/analysis/structure_match"
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/structure_matcher"
 
 
 class TestStructureMatcher(PymatgenTest):
