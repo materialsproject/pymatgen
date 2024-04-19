@@ -275,13 +275,13 @@ class TestReconstructBandStructure(PymatgenTest):
 class TestLobsterBandStructureSymmLine(PymatgenTest):
     def setUp(self):
         with open(
-            f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json",
+            f"{TEST_FILES_DIR}/electronic_structure/cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json",
         ) as file:
             bs_spin_dict = json.load(file)
         self.bs_spin = LobsterBandStructureSymmLine.from_dict(bs_spin_dict)
 
         with open(
-            f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/lobster_band_structure.json",
+            f"{TEST_FILES_DIR}/electronic_structure/cohp/Fatband_SiO2/Test_p/lobster_band_structure.json",
         ) as file:
             bs_dict = json.load(file)
         self.bs_p = LobsterBandStructureSymmLine.from_dict(bs_dict)
