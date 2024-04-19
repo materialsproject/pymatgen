@@ -1893,7 +1893,10 @@ class TestLobsterSet(PymatgenTest):
     def setUp(self):
         self.set = LobsterSet
         file_path = f"{VASP_IN_DIR}/POSCAR"
+        file_path2 = f"{VASP_IN_DIR}/POSCAR.lobster.spin_DOS"
         self.struct = Structure.from_file(file_path)
+        self.struct2 = Structure.from_file(file_path2)
+
         # test for different parameters!
         self.lobsterset1 = self.set(self.struct, isym=-1, ismear=-5)
         self.lobsterset2 = self.set(self.struct, isym=0, ismear=0)
@@ -1923,6 +1926,9 @@ class TestLobsterSet(PymatgenTest):
         # test W_sw
         self.lobsterset8 = self.set(Structure.from_file(f"{TEST_FILES_DIR}/electronic_structure/cohp/POSCAR.W"))
 
+        # test if potcar selection is consistent with PBE_54
+        self.lobsterset9 = self.set(self.struct2)
+
     def test_incar(self):
         incar1 = self.lobsterset1.incar
         assert "NBANDS" in incar1
@@ -1950,6 +1956,13 @@ class TestLobsterSet(PymatgenTest):
     def test_potcar(self):
         # PBE_54 is preferred at the moment
         assert self.lobsterset1.user_potcar_functional == "PBE_54"
+        # test if potcars selected are consistent with PBE_54
+        assert self.lobsterset2.potcar.symbols == ["Fe_pv", "P", "O"]
+        # test if error raised contains correct potcar symbol for K element as PBE_54 set
+        with pytest.raises(
+            OSError, match="You do not have the right POTCAR with functional='PBE_54' and symbol='K_sv'"
+        ):
+            _ = self.lobsterset9.potcar.symbols
 
     def test_as_from_dict(self):
         dict_here = self.lobsterset1.as_dict()
@@ -1967,6 +1980,9 @@ class TestLobsterSet(PymatgenTest):
         kpoints1 = lobsterset_new.kpoints
         assert kpoints1.comment.split()[6], 6138
         assert lobsterset_new.user_potcar_functional == "PBE_54"
+
+    # def test_write_inputs(self):
+    #     self.lobsterset1.write_input(output_dir=tmp)
 
 
 @skip_if_no_psp_dir
