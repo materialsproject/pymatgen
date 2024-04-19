@@ -25,7 +25,7 @@ try:
 except ImportError:
     openbabel = None
 
-TEST_DIR = f"{TEST_FILES_DIR}/io/qchem/new_qchem_files"
+TEST_DIR = f"{TEST_FILES_DIR}/molecules/new_qchem_files"
 
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
@@ -529,14 +529,14 @@ class TestQCOutput(PymatgenTest):
         assert perturb_ene[0]["perturbation energy"][3209] == 3.94
 
     def test_qchem_6_1_1(self):
-        qc_out = QCOutput(f"{TEST_DIR}/../6.1.1.wb97xv.out.gz")
+        qc_out = QCOutput(f"{TEST_FILES_DIR}/io/qchem/6.1.1.wb97xv.out.gz")
         assert qc_out.data["final_energy"] == -76.43205015
         n_vals = sum(1 for val in qc_out.data.values() if val is not None)
         assert n_vals == 21
 
 
 def test_gradient(tmp_path):
-    with gzip.open(f"{TEST_DIR}/../131.0.gz", "rb") as f_in, open(tmp_path / "131.0", "wb") as f_out:
+    with gzip.open(f"{TEST_FILES_DIR}/io/qchem/131.0.gz", "rb") as f_in, open(tmp_path / "131.0", "wb") as f_out:
         shutil.copyfileobj(f_in, f_out)
     gradient = gradient_parser(tmp_path / "131.0")
     assert np.shape(gradient) == (14, 3)
@@ -544,7 +544,7 @@ def test_gradient(tmp_path):
 
 
 def test_hessian(tmp_path):
-    with gzip.open(f"{TEST_DIR}/../132.0.gz", "rb") as f_in, open(tmp_path / "132.0", "wb") as f_out:
+    with gzip.open(f"{TEST_FILES_DIR}/io/qchem/132.0.gz", "rb") as f_in, open(tmp_path / "132.0", "wb") as f_out:
         shutil.copyfileobj(f_in, f_out)
     hessian = hessian_parser(tmp_path / "132.0", n_atoms=14)
     assert np.shape(hessian) == (42, 42)
@@ -556,7 +556,7 @@ def test_hessian(tmp_path):
 
 
 def test_prev_orbital_coeffs(tmp_path):
-    with gzip.open(f"{TEST_DIR}/../53.0.gz", "rb") as f_in, open(tmp_path / "53.0", "wb") as f_out:
+    with gzip.open(f"{TEST_FILES_DIR}/io/qchem/53.0.gz", "rb") as f_in, open(tmp_path / "53.0", "wb") as f_out:
         shutil.copyfileobj(f_in, f_out)
     orbital_coeffs = orbital_coeffs_parser(tmp_path / "53.0")
     assert len(orbital_coeffs) == 360400
