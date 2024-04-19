@@ -15,7 +15,7 @@ from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.electronic_structure.dos import DOS, CompleteDos, FermiDos, LobsterCompleteDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/eletronic_structure/dos"
+TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/dos"
 
 
 class TestDos(TestCase):
