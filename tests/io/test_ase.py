@@ -15,7 +15,7 @@ except ImportError:
     ase = None
 
 STRUCTURE = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
-XYZ_STRUCTURE = f"{TEST_FILES_DIR}/xyz/acetylene.xyz"
+XYZ_STRUCTURE = f"{TEST_FILES_DIR}/io/xyz/acetylene.xyz"
 
 skip_if_no_ase = pytest.mark.skipif(ase is None, reason="ase not installed")
 
