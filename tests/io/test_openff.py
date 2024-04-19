@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
 import numpy as np
@@ -20,13 +18,16 @@ from pymatgen.io.openff import (
     mol_graph_from_openff_mol,
     mol_graph_to_openff_mol,
 )
+from pymatgen.util.testing import TEST_FILES_DIR
+
+TEST_DIR = f"{TEST_FILES_DIR}/io/openff"
 
 tk = pytest.importorskip("openff.toolkit")
 
 
 @pytest.fixture()
 def mol_files():
-    geo_dir = Path(__file__).absolute().parent.parent / "files/classical_md_mols"
+    geo_dir = f"{TEST_DIR}/classical_md_mols"
     return {
         "CCO_xyz": str(geo_dir / "CCO.xyz"),
         "CCO_charges": str(geo_dir / "CCO.npy"),
