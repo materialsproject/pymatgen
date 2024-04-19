@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import copy
-import os
 import re
 from glob import glob
 from shutil import which
@@ -43,8 +42,6 @@ __maintainer__ = "Matthew Horton"
 __email__ = "mkhorton@lbl.gov"
 __status__ = "Beta"
 __date__ = "August 2017"
-
-module_dir = os.path.dirname(os.path.abspath(__file__))
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/graphs"
 
@@ -571,8 +568,8 @@ class TestMoleculeGraph(TestCase):
         pytest.importorskip("openbabel")
         edges_frag = {(edge[0], edge[1]): {"weight": 1.0} for edge in self.pc_frag1_edges}
         mol_graph = MoleculeGraph.from_edges(self.pc_frag1, edges_frag)
-        # dumpfn(mol_graph.as_dict(), f"{module_dir}/pc_frag1_mg.json")
-        ref_mol_graph = loadfn(f"{module_dir}/pc_frag1_mg.json")
+        # dumpfn(mol_graph.as_dict(), f"{TEST_FILES_DIR}/analysis/bond_dissociation/pc_frag1_mg.json")
+        ref_mol_graph = loadfn(f"{TEST_FILES_DIR}/analysis/bond_dissociation/pc_frag1_mg.json")
         assert mol_graph == ref_mol_graph
         assert mol_graph.graph.adj == ref_mol_graph.graph.adj
         for node in mol_graph.graph.nodes:
@@ -582,8 +579,8 @@ class TestMoleculeGraph(TestCase):
 
         edges_pc = {(edge[0], edge[1]): {"weight": 1.0} for edge in self.pc_edges}
         mol_graph = MoleculeGraph.from_edges(self.pc, edges_pc)
-        # dumpfn(mol_graph.as_dict(), f"{module_dir}/pc_mg.json")
-        ref_mol_graph = loadfn(f"{module_dir}/pc_mg.json")
+        # dumpfn(mol_graph.as_dict(), f"{TEST_FILES_DIR}/analysis/bond_dissociation/pc_mg.json")
+        ref_mol_graph = loadfn(f"{TEST_FILES_DIR}/analysis/bond_dissociation/pc_mg.json")
         assert mol_graph == ref_mol_graph
         assert mol_graph.graph.adj == ref_mol_graph.graph.adj
         for node in mol_graph.graph:
