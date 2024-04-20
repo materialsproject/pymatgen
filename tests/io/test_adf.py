@@ -9,7 +9,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
 
-TEST_DIR = f"{TEST_FILES_DIR}/molecules"
+TEST_DIR = f"{TEST_FILES_DIR}/io/adf"
 
 geometry_string = """GEOMETRY
 smooth conservepoints
@@ -250,13 +250,13 @@ class TestAdfInput(PymatgenTest):
         task = AdfTask("optimize", **rhb18)
         inp = AdfInput(task)
         inp.write_file(mol, tmp_file)
-        expected = readfile(f"{TEST_DIR}/adf/RhB18_adf.inp")
+        expected = readfile(f"{TEST_DIR}/RhB18_adf.inp")
         assert readfile(tmp_file) == expected
 
 
 class TestAdfOutput:
     def test_analytical_freq(self):
-        filename = f"{TEST_DIR}/adf/analytical_freq/adf.out"
+        filename = f"{TEST_DIR}/analytical_freq/adf.out"
         adf_out = AdfOutput(filename)
         assert adf_out.final_energy == approx(-0.54340325)
         assert len(adf_out.energies) == 4
@@ -269,7 +269,7 @@ class TestAdfOutput:
         assert adf_out.normal_modes[0][8] == approx(-0.562)
 
     def test_numerical_freq(self):
-        filename = f"{TEST_DIR}/adf/numerical_freq/adf.out"
+        filename = f"{TEST_DIR}/numerical_freq/adf.out"
         adf_out = AdfOutput(filename)
         assert adf_out.freq_type == "Numerical"
         assert len(adf_out.final_structure) == 4
@@ -285,7 +285,7 @@ class TestAdfOutput:
         assert adf_out.normal_modes[1][9] == approx(-0.536)
 
     def test_single_point(self):
-        filename = f"{TEST_DIR}/adf/sp/adf.out"
+        filename = f"{TEST_DIR}/sp/adf.out"
         adf_out = AdfOutput(filename)
         assert adf_out.final_energy == approx(-0.74399276)
         assert len(adf_out.final_structure) == 4

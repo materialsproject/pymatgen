@@ -11,7 +11,7 @@ from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 from pymatgen.io.feff.sets import FEFFDictSet, MPELNESSet, MPEXAFSSet, MPXANESSet
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-FEFF_TEST_DIR = f"{TEST_FILES_DIR}/feff"
+FEFF_TEST_DIR = f"{TEST_FILES_DIR}/io/feff"
 
 
 class TestFeffInputSet(PymatgenTest):
@@ -30,7 +30,7 @@ TITLE sites: 4
 * 2 Co     0.666667     0.333333     0.003676
 * 3 O     0.333333     0.666667     0.121324
 * 4 O     0.666667     0.333333     0.621325"""
-        cif_file = f"{TEST_FILES_DIR}/CoO19128.cif"
+        cif_file = f"{TEST_FILES_DIR}/cif/CoO19128.cif"
         cls.structure = Structure.from_file(cif_file, primitive=True)
         cls.absorbing_atom = "O"
         cls.mp_xanes = MPXANESSet(cls.absorbing_atom, cls.structure)
@@ -173,7 +173,7 @@ TITLE sites: 4
         assert elnes.tags["KMESH"] == [12, 12, 7]
 
     def test_large_systems(self):
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/La4Fe4O12.cif")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/cif/La4Fe4O12.cif")
         user_tag_settings = {"RECIPROCAL": "", "KMESH": "1000"}
         elnes = MPELNESSet("Fe", struct, user_tag_settings=user_tag_settings)
         assert "RECIPROCAL" not in elnes.tags
@@ -262,7 +262,7 @@ TITLE sites: 4
 
     def test_cluster_index(self):
         # https://github.com/materialsproject/pymatgen/pull/3256
-        cif_file = f"{TEST_FILES_DIR}/Fe3O4.cif"
+        cif_file = f"{TEST_FILES_DIR}/cif/Fe3O4.cif"
         structure = Structure.from_file(cif_file)
         for idx in range(len(structure.species)):
             assert Atoms(structure, idx, 3).cluster

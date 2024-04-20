@@ -9,15 +9,16 @@ from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.util.testing import TEST_FILES_DIR
 
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/quasirrho"
+
 
 class TestQuasiRRHO(TestCase):
     """Test class for QuasiRRHO"""
 
     def setUp(self):
-        TEST_DIR = TEST_FILES_DIR
-        self.gout = GaussianOutput(f"{TEST_DIR}/molecules/quasirrho_gaufreq.log")
-        self.linear_gout = GaussianOutput(f"{TEST_DIR}/molecules/co2.log.gz")
-        self.qout = QCOutput(f"{TEST_DIR}/molecules/new_qchem_files/Frequency_no_equal.qout")
+        self.gout = GaussianOutput(f"{TEST_DIR}/quasirrho_gaufreq.log")
+        self.linear_gout = GaussianOutput(f"{TEST_DIR}/co2.log.gz")
+        self.qout = QCOutput(f"{TEST_DIR}/Frequency_no_equal.qout")
 
     def test_qrrho_gaussian(self):
         """
