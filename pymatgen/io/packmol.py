@@ -199,6 +199,7 @@ class PackmolBoxGen(InputGenerator):
             box_list = f"0.0 0.0 0.0 {box_length:.1f} {box_length:.1f} {box_length:.1f}"
 
         for d in molecules:
+            mol = None
             if isinstance(d["coords"], str):
                 mol = Molecule.from_file(d["coords"])
             elif isinstance(d["coords"], Path):
@@ -210,7 +211,7 @@ class PackmolBoxGen(InputGenerator):
                 raise ValueError("Molecule cannot be None.")
 
             fname = f"packmol_{d['name']}.xyz"
-            mapping.update({fname: mol.to(fmt="xyz")})
+            mapping[fname] = mol.to(fmt="xyz")
             if " " in str(fname):
                 # NOTE - double quotes are deliberately used inside the f-string here, do not change
                 # fmt: off

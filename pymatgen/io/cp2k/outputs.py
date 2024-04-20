@@ -1672,12 +1672,15 @@ def parse_dos(dos_file=None):
     data = np.loadtxt(dos_file)
     data[:, 0] *= Ha_to_eV
     energies = data[:, 0]
+    vbm_top = None
     for idx, val in enumerate(data[:, 1]):
         if val == 0:
             break
         vbm_top = idx
+
     efermi = energies[vbm_top] + 1e-6
     densities = {Spin.up: data[:, 1]}
+
     if data.shape[1] > 3:
         densities[Spin.down] = data[:, 3]
     return Dos(efermi=efermi, energies=energies, densities=densities)
@@ -1755,6 +1758,7 @@ def parse_pdos(dos_file=None, spin_channel=None, total=False):
         data = np.delete(data, 1, 1)
         data[:, 0] *= Ha_to_eV
         energies = data[:, 0]
+        vbm_top = None
         for idx, occu in enumerate(occupations):
             if occu == 0:
                 break

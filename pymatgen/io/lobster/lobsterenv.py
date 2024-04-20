@@ -162,6 +162,8 @@ class LobsterNeighbors(NearNeighbors):
             elif self.id_blist_sg2.lower() == "icobi":
                 are_coops_id2 = False
                 are_cobis_id2 = True
+            else:
+                raise ValueError("only icoops and icobis can be added")
 
             self.bonding_list_2 = Icohplist(
                 filename=self.filename_blist_sg2,
@@ -845,7 +847,7 @@ class LobsterNeighbors(NearNeighbors):
         list_icohps = []
         list_lengths = []
         list_keys = []
-        for idx in range(len(self.structure)):
+        for idx, site in enumerate(self.structure):
             icohps = self._get_icohps(
                 icohpcollection=self.Icohpcollection,
                 isite=idx,
@@ -858,7 +860,7 @@ class LobsterNeighbors(NearNeighbors):
             keys_from_ICOHPs, lengths_from_ICOHPs, neighbors_from_ICOHPs, selected_ICOHPs = additional_conds
 
             if len(neighbors_from_ICOHPs) > 0:
-                centralsite = self.structure[idx]
+                centralsite = site
 
                 neighbors_by_distance_start = self.structure.get_sites_in_sphere(
                     pt=centralsite.coords,
@@ -960,6 +962,7 @@ class LobsterNeighbors(NearNeighbors):
             atomnr2 = self._get_atomnumber(icohp._atom2)
 
             # test additional conditions
+            val1 = val2 = None
             if additional_condition in (1, 3, 5, 6):
                 val1 = self.valences[atomnr1]
                 val2 = self.valences[atomnr2]
@@ -1168,6 +1171,7 @@ class LobsterNeighbors(NearNeighbors):
             tuple[float, float]: [-inf, min(strongest_icohp*0.15,-noise_cutoff)] / [max(strongest_icohp*0.15,
                 noise_cutoff), inf]
         """
+        extremum_based = None
 
         if not adapt_extremum_to_add_cond or additional_condition == 0:
             extremum_based = icohpcollection.extremum_icohpvalue(summed_spin_channels=True) * percentage

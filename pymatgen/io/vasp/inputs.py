@@ -6,7 +6,6 @@ All major VASP input files.
 from __future__ import annotations
 
 import codecs
-import contextlib
 import hashlib
 import itertools
 import json
@@ -328,9 +327,12 @@ class Poscar(MSONable):
             lattice *= scale
 
         vasp5_symbols = False
+        atomic_symbols = []
+
         try:
             n_atoms = [int(i) for i in lines[5].split()]
             ipos = 6
+
         except ValueError:
             vasp5_symbols = True
             symbols = [symbol.split("/")[0] for symbol in lines[5].split()]
@@ -352,9 +354,11 @@ class Poscar(MSONable):
             #   ...
             n_lines_symbols = 1
             for n_lines_symbols in range(1, 11):
-                with contextlib.suppress(ValueError):
+                try:
                     int(lines[5 + n_lines_symbols].split()[0])
                     break
+                except ValueError:
+                    pass
 
             for i_line_symbols in range(6, 5 + n_lines_symbols):
                 symbols.extend(lines[i_line_symbols].split())
@@ -362,7 +366,7 @@ class Poscar(MSONable):
             iline_natoms_start = 5 + n_lines_symbols
             for iline_natoms in range(iline_natoms_start, iline_natoms_start + n_lines_symbols):
                 n_atoms.extend([int(i) for i in lines[iline_natoms].split()])
-            atomic_symbols = []
+
             for i, nat in enumerate(n_atoms):
                 atomic_symbols.extend([symbols[i]] * nat)
             ipos = 5 + 2 * n_lines_symbols
@@ -383,11 +387,13 @@ class Poscar(MSONable):
         # them. This is in line with VASP's parsing order that the POTCAR
         # specified is the default used.
         if default_names:
-            with contextlib.suppress(IndexError):
+            try:
                 atomic_symbols = []
                 for i, nat in enumerate(n_atoms):
                     atomic_symbols.extend([default_names[i]] * nat)
                 vasp5_symbols = True
+            except IndexError:
+                pass
 
         if not vasp5_symbols:
             ind = 6 if has_selective_dynamics else 3
@@ -398,6 +404,7 @@ class Poscar(MSONable):
                 if not all(Element.is_valid_symbol(sym) for sym in atomic_symbols):
                     raise ValueError("Non-valid symbols detected.")
                 vasp5_symbols = True
+
             except (ValueError, IndexError):
                 # Defaulting to false names.
                 atomic_symbols = []
@@ -576,6 +583,8 @@ class Poscar(MSONable):
                 )
 
         return "\n".join(lines) + "\n"
+
+    get_string = get_str
 
     def __repr__(self):
         return self.get_str()
@@ -810,9 +819,9 @@ class Incar(dict, MSONable):
         params = {}
         for line in lines:
             for sline in line.split(";"):
-                if m := re.match(r"(\w+)\s*=\s*(.*)", sline.strip()):
-                    key = m.group(1).strip()
-                    val = m.group(2).strip()
+                if match := re.match(r"(\w+)\s*=\s*(.*)", sline.strip()):
+                    key = match.group(1).strip()
+                    val = match.group(2).strip()
                     val = Incar.proc_val(key, val)
                     params[key] = val
         return cls(params)
@@ -868,7 +877,7 @@ class Incar(dict, MSONable):
                 return float(num_str)
             return int(num_str)
 
-        with contextlib.suppress(ValueError):
+        try:
             if key in list_keys:
                 output = []
                 tokens = re.findall(r"(-?\d+\.?\d*)\*?(-?\d+\.?\d*)?\*?(-?\d+\.?\d*)?", val)
@@ -881,8 +890,8 @@ class Incar(dict, MSONable):
                         output.append(smart_int_or_float(tok[0]))
                 return output
             if key in bool_keys:
-                if m := re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val):
-                    return m.group(1).lower() == "t"
+                if match := re.match(r"^\.?([T|F|t|f])[A-Za-z]*\.?", val):
+                    return match.group(1).lower() == "t"
 
                 raise ValueError(f"{key} should be a boolean type!")
 
@@ -895,12 +904,19 @@ class Incar(dict, MSONable):
             if key in lower_str_keys:
                 return val.strip().lower()
 
-        # Not in standard keys. We will try a hierarchy of conversions.
-        with contextlib.suppress(ValueError):
-            return int(val)
+        except ValueError:
+            pass
 
-        with contextlib.suppress(ValueError):
+        # Not in standard keys. We will try a hierarchy of conversions.
+        try:
+            return int(val)
+        except ValueError:
+            pass
+
+        try:
             return float(val)
+        except ValueError:
+            pass
 
         if "true" in val.lower():
             return True
@@ -1193,7 +1209,7 @@ class Kpoints(MSONable):
         ngrid = kppa / len(structure)
         mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
-        num_div = [int(math.floor(max(mult / length, 1))) for length in lengths]
+        num_div = [math.floor(max(mult / length, 1)) for length in lengths]
 
         is_hexagonal = lattice.is_hexagonal()
         is_face_centered = structure.get_space_group_info()[0][0] == "F"
@@ -1389,8 +1405,11 @@ class Kpoints(MSONable):
 
             kpts_shift: tuple[float, float, float] = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
-                with contextlib.suppress(ValueError):
+                try:
                     _kpts_shift = tuple(float(i) for i in lines[4].split())
+                except ValueError:
+                    _kpts_shift = (0, 0, 0)
+
                 if len(_kpts_shift) == 3:
                     kpts_shift = _kpts_shift
 
@@ -1400,8 +1419,7 @@ class Kpoints(MSONable):
         if num_kpts <= 0:
             _style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
             _kpts_shift = tuple(float(i) for i in lines[6].split())
-            if len(_kpts_shift) == 3:
-                kpts_shift = _kpts_shift
+            kpts_shift = _kpts_shift if len(_kpts_shift) == 3 else (0, 0, 0)
 
             return cls(
                 comment=comment,
@@ -1420,9 +1438,9 @@ class Kpoints(MSONable):
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for idx in range(4, len(lines)):
                 line = lines[idx]
-                if m := patt.match(line):
-                    _kpts.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
-                    labels.append(m.group(4).strip())
+                if match := patt.match(line):
+                    _kpts.append([float(match.group(1)), float(match.group(2)), float(match.group(3))])
+                    labels.append(match.group(4).strip())
             return cls(
                 comment=comment,
                 num_kpts=num_kpts,
@@ -1566,22 +1584,22 @@ class Kpoints(MSONable):
         )
 
 
-def _parse_bool(s):
-    if m := re.match(r"^\.?([TFtf])[A-Za-z]*\.?", s):
-        return m[1] in ["T", "t"]
-    raise ValueError(f"{s} should be a boolean type!")
+def _parse_bool(string):
+    if match := re.match(r"^\.?([TFtf])[A-Za-z]*\.?", string):
+        return match[1] in {"T", "t"}
+    raise ValueError(f"{string} should be a boolean type!")
 
 
-def _parse_float(s):
-    return float(re.search(r"^-?\d*\.?\d*[eE]?-?\d*", s).group(0))
+def _parse_float(string):
+    return float(re.search(r"^-?\d*\.?\d*[eE]?-?\d*", string).group(0))
 
 
-def _parse_int(s):
-    return int(re.match(r"^-?[0-9]+", s).group(0))
+def _parse_int(string):
+    return int(re.match(r"^-?[0-9]+", string).group(0))
 
 
-def _parse_list(s):
-    return [float(y) for y in re.split(r"\s+", s.strip()) if not y.isalpha()]
+def _parse_list(string):
+    return [float(y) for y in re.split(r"\s+", string.strip()) if not y.isalpha()]
 
 
 Orbital = namedtuple("Orbital", ["n", "l", "j", "E", "occ"])

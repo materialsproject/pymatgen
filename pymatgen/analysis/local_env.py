@@ -3794,6 +3794,10 @@ class CrystalNN(NearNeighbors):
     algorithm can also modify probability using smooth distance cutoffs as well as Pauling
     electronegativity differences. The output can either be the most probable coordination
     environment or a weighted list of coordination environments.
+    Please note that the default weights have been benchmarked for inorganic crystal structures.
+    For MOFs or molecular crystals, weights and cutoffs likely will need to be adapted.
+    A starting point could be:
+    CrystalNN(x_diff_weight = 1.5, search_cutoff = 4.5)
     """
 
     NNData = namedtuple("NNData", ["all_nninfo", "cn_weights", "cn_nninfo"])
@@ -4164,10 +4168,10 @@ def _get_radius(site):
             return el.ionic_radii[oxi]
 
         # e.g., oxi = 2.667, average together 2+ and 3+ radii
-        if int(math.floor(oxi)) in el.ionic_radii and int(math.ceil(oxi)) in el.ionic_radii:
-            oxi_low = el.ionic_radii[int(math.floor(oxi))]
-            oxi_high = el.ionic_radii[int(math.ceil(oxi))]
-            x = oxi - int(math.floor(oxi))
+        if math.floor(oxi) in el.ionic_radii and math.ceil(oxi) in el.ionic_radii:
+            oxi_low = el.ionic_radii[math.floor(oxi)]
+            oxi_high = el.ionic_radii[math.ceil(oxi)]
+            x = oxi - math.floor(oxi)
             return (1 - x) * oxi_low + x * oxi_high
 
         if oxi > 0 and el.average_cationic_radius > 0:

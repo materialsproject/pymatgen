@@ -179,6 +179,7 @@ def _stopping_criterion(run_level, accuracy):
 def _find_ecut_pawecutdg(ecut, pawecutdg, pseudos, accuracy):
     """Return a |AttrDict| with the value of ecut and pawecutdg."""
     # Get ecut and pawecutdg from the pseudo hints.
+    has_hints = False
     if ecut is None or (pawecutdg is None and any(p.ispaw for p in pseudos)):
         has_hints = all(p.has_hints for p in pseudos)
 

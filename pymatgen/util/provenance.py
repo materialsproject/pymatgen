@@ -18,7 +18,7 @@ try:
     from pybtex import errors
     from pybtex.database.input import bibtex
 except ImportError:
-    pybtex = bibtex = None
+    pybtex = bibtex = errors = None
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -93,11 +93,10 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
         """Parses a History Node object from either a dict or a tuple.
 
         Args:
-            h_node: A dict with name/url/description fields or a 3-element
-                tuple.
+            h_node: A dict with name/url/description fields or a 3-element tuple.
 
         Returns:
-            History node.
+            HistoryNode
         """
         if isinstance(h_node, dict):
             return cls.from_dict(h_node)
@@ -147,10 +146,10 @@ class Author(namedtuple("Author", ["name", "email"])):
         if isinstance(author, str):
             # Regex looks for whitespace, (any name), whitespace, <, (email),
             # >, whitespace
-            m = re.match(r"\s*(.*?)\s*<(.*?@.*?)>\s*", author)
-            if not m or m.start() != 0 or m.end() != len(author):
+            match = re.match(r"\s*(.*?)\s*<(.*?@.*?)>\s*", author)
+            if not match or match.start() != 0 or match.end() != len(author):
                 raise ValueError(f"Invalid author format! {author}")
-            return cls(m.groups()[0], m.groups()[1])
+            return cls(match.groups()[0], match.groups()[1])
         if isinstance(author, dict):
             return cls.from_dict(author)
         if len(author) != 2:

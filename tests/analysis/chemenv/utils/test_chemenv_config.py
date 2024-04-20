@@ -6,7 +6,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-config_file_dir = f"{TEST_FILES_DIR}/chemenv/config"
+config_file_dir = f"{TEST_FILES_DIR}/analysis/chemenv/config"
 
 
 class TestChemenvConfig(PymatgenTest):

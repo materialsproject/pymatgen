@@ -1221,7 +1221,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
 
     def test_processing_entries_inplace(self):
         # load two entries in GGA_GGA_U_R2SCAN thermo type
-        entriesJson = Path(f"{TEST_FILES_DIR}/entries_thermo_type_GGA_GGA_U_R2SCAN.json")
+        entriesJson = Path(f"{TEST_FILES_DIR}/entries/entries_thermo_type_GGA_GGA_U_R2SCAN.json")
         with open(entriesJson) as file:
             entries = json.load(file, cls=MontyDecoder)
         # check whether the compatibility scheme can keep input entries unchanged

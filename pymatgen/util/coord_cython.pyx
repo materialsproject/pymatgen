@@ -126,9 +126,9 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     cdef np.float_t[:, ::1] cart_im = <np.float_t[:n_pbc_im, :3]> malloc(3 * n_pbc_im * sizeof(np.float_t))
 
     cdef bint has_mask = mask is not None
-    cdef np.int_t[:, :] m
+    cdef np.int_t[:, :] mask_arr
     if has_mask:
-        m = np.array(mask, dtype=np.int_, copy=False, order="C")
+        mask_arr = np.array(mask, dtype=np.int_, copy=False, order="C")
 
     cdef bint has_ftol = (lll_frac_tol is not None)
     cdef np.float_t[:] ftol
@@ -151,7 +151,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     for i in range(I):
         for j in range(J):
             within_frac = False
-            if (not has_mask) or (m[i, j] == 0):
+            if (not has_mask) or (mask_arr[i, j] == 0):
                 within_frac = True
                 if has_ftol:
                     for l in range(3):

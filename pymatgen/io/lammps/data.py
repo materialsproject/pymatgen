@@ -658,16 +658,17 @@ class LammpsData(MSONable):
         bounds = {}
         for line in clean_lines(parts[0][1:]):  # skip the 1st line
             match = None
-            for k, v in header_pattern.items():  # noqa: B007
-                match = re.match(v, line)
+            key = None
+            for key, val in header_pattern.items():  # noqa: B007
+                match = re.match(val, line)
                 if match:
                     break
-            if match and k in ["counts", "types"]:
-                header[k][match.group(2)] = int(match.group(1))
-            elif match and k == "bounds":
+            if match and key in {"counts", "types"}:
+                header[key][match[2]] = int(match[1])
+            elif match and key == "bounds":
                 g = match.groups()
                 bounds[g[2]] = [float(i) for i in g[:2]]
-            elif match and k == "tilt":
+            elif match and key == "tilt":
                 header["tilt"] = [float(i) for i in match.groups()]
         header["bounds"] = [bounds.get(i, [-0.5, 0.5]) for i in "xyz"]
         box = LammpsBox(header["bounds"], header.get("tilt"))
@@ -997,8 +998,8 @@ class Topology(MSONable):
         dests, freq = np.unique(bond_list, return_counts=True)
         hubs = dests[np.where(freq > 1)].tolist()
         bond_arr = np.array(bond_list)
+        hub_spokes = {}
         if len(hubs) > 0:
-            hub_spokes = {}
             for hub in hubs:
                 ix = np.any(np.isin(bond_arr, hub), axis=1)
                 bonds = np.unique(bond_arr[ix]).tolist()

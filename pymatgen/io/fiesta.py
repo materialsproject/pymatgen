@@ -56,9 +56,9 @@ class Nwchem2Fiesta(MSONable):
         self.log_file = log_file
 
         self._NWCHEM2FIESTA_cmd = "NWCHEM2FIESTA"
-        self._nwcheminput_fn = filename + ".nw"
-        self._nwchemoutput_fn = filename + ".nwout"
-        self._nwchemmovecs_fn = filename + ".movecs"
+        self._nwcheminput_fn = f"{filename}.nw"
+        self._nwchemoutput_fn = f"{filename}.nwout"
+        self._nwchemmovecs_fn = f"{filename}.movecs"
 
     def run(self):
         """Performs actual NWCHEM2FIESTA run."""
@@ -133,8 +133,8 @@ class FiestaRun(MSONable):
 
     def _gw_run(self):
         """Performs FIESTA (gw) run."""
-        if self.folder != os.getcwd():
-            init_folder = os.getcwd()
+        init_folder = os.getcwd()
+        if self.folder != init_folder:
             os.chdir(self.folder)
 
         with zopen(self.log_file, mode="w") as fout:
@@ -151,13 +151,13 @@ class FiestaRun(MSONable):
                 stdout=fout,
             )
 
-        if self.folder != os.getcwd():
+        if self.folder != init_folder:
             os.chdir(init_folder)
 
     def bse_run(self):
         """Performs BSE run."""
-        if self.folder != os.getcwd():
-            init_folder = os.getcwd()
+        init_folder = os.getcwd()
+        if self.folder != init_folder:
             os.chdir(self.folder)
 
         with zopen(self.log_file, mode="w") as fout:
@@ -173,7 +173,7 @@ class FiestaRun(MSONable):
                 stdout=fout,
             )
 
-        if self.folder != os.getcwd():
+        if self.folder != init_folder:
             os.chdir(init_folder)
 
     def as_dict(self):
@@ -221,7 +221,7 @@ class BasisSetReader:
         self.data.update(n_nlmo=self.set_n_nlmo())
 
     @staticmethod
-    def _parse_file(input):
+    def _parse_file(lines):
         lmax_nnlo_patt = re.compile(r"\s* (\d+) \s+ (\d+) \s+ \# .* ", re.VERBOSE)
 
         nl_orbital_patt = re.compile(r"\s* (\d+) \s+ (\d+) \s+ (\d+) \s+ \# .* ", re.VERBOSE)
@@ -235,25 +235,25 @@ class BasisSetReader:
         parse_nl_orbital = False
         nnlo = None
         lmax = None
+        l_angular = zeta = ng = None
 
-        for line in input.split("\n"):
+        for line in lines.split("\n"):
             if parse_nl_orbital:
                 match_orb = nl_orbital_patt.search(line)
                 match_alpha = coef_alpha_patt.search(line)
                 if match_orb:
-                    l_angular = match_orb.group(1)
-                    zeta = match_orb.group(2)
-                    ng = match_orb.group(3)
+                    l_angular = match_orb[1]
+                    zeta = match_orb[2]
+                    ng = match_orb[3]
                     basis_set[f"{l_angular}_{zeta}_{ng}"] = []
                 elif match_alpha:
-                    alpha = match_alpha.group(1)
-                    coef = match_alpha.group(2)
+                    alpha = match_alpha[1]
+                    coef = match_alpha[2]
                     basis_set[f"{l_angular}_{zeta}_{ng}"].append((alpha, coef))
             elif parse_lmax_nnlo:
-                match_orb = lmax_nnlo_patt.search(line)
-                if match_orb:
-                    lmax = match_orb.group(1)
-                    nnlo = match_orb.group(2)
+                if match_orb := lmax_nnlo_patt.search(line):
+                    lmax = match_orb[1]
+                    nnlo = match_orb[2]
                     parse_lmax_nnlo = False
                     parse_nl_orbital = True
             elif parse_preamble:
@@ -352,7 +352,7 @@ class FiestaInput(MSONable):
 
         for specie in self._mol.symbol_set:
             for file in list_files:
-                if file.upper().find(specie.upper() + "2") != -1 and file.lower().find(auxiliary_basis_set_type) != -1:
+                if file.upper().find(f"{specie.upper()}2") != -1 and file.lower().find(auxiliary_basis_set_type) != -1:
                     shutil.copyfile(f"{auxiliary_folder}/{file}", f"{folder}/{specie}2.ion")
 
     def set_gw_options(self, nv_band=10, nc_band=10, n_iteration=5, n_grid=6, dE_grid=0.5):
@@ -392,7 +392,7 @@ class FiestaInput(MSONable):
     def dump_bse_data_in_gw_run(self, BSE_dump=True):
         """
         Args:
-            BSE_dump: boolean
+            BSE_dump: bool
 
         Returns:
             set the "do_bse" variable to one in cell.in
@@ -405,7 +405,7 @@ class FiestaInput(MSONable):
     def dump_tddft_data_in_gw_run(self, tddft_dump: bool = True):
         """
         Args:
-            TDDFT_dump: boolean
+            TDDFT_dump: bool
 
         Returns:
             set the do_tddft variable to one in cell.in
@@ -472,9 +472,7 @@ class FiestaInput(MSONable):
     def __str__(self):
         symbols = list(self._mol.symbol_set)
 
-        geometry = []
-        for site in self._mol:
-            geometry.append(f" {site.x} {site.y} {site.z} {int(symbols.index(site.specie.symbol)) + 1}")
+        geometry = [f" {site.x} {site.y} {site.z} {symbols.index(site.specie.symbol) + 1}" for site in self._mol]
 
         t = Template(
             """# number of atoms and species
@@ -775,13 +773,11 @@ class FiestaOutput:
 
         for line in output.split("\n"):
             if parse_total_time:
-                m = end_patt.search(line)
-                if m:
+                if match := end_patt.search(line):
                     GW_results.update(end_normally=True)
 
-                m = total_time_patt.search(line)
-                if m:
-                    GW_results.update(total_time=m.group(1))
+                if match := total_time_patt.search(line):
+                    GW_results.update(total_time=match[1])
 
             if parse_gw_results:
                 if line.find("Dumping eigen energies") != -1:
@@ -789,29 +785,27 @@ class FiestaOutput:
                     parse_gw_results = False
                     continue
 
-                m = GW_BANDS_results_patt.search(line)
-                if m:
+                if match := GW_BANDS_results_patt.search(line):
                     dct = {}
                     dct.update(
-                        band=m.group(1).strip(),
-                        eKS=m.group(2),
-                        eXX=m.group(3),
-                        eQP_old=m.group(4),
-                        z=m.group(5),
-                        sigma_c_Linear=m.group(6),
-                        eQP_Linear=m.group(7),
-                        sigma_c_SCF=m.group(8),
-                        eQP_SCF=m.group(9),
+                        band=match[1].strip(),
+                        eKS=match[2],
+                        eXX=match[3],
+                        eQP_old=match[4],
+                        z=match[5],
+                        sigma_c_Linear=match[6],
+                        eQP_Linear=match[7],
+                        sigma_c_SCF=match[8],
+                        eQP_SCF=match[9],
                     )
-                    GW_results[m.group(1).strip()] = dct
+                    GW_results[match[1].strip()] = dct
 
-                n = GW_GAPS_results_patt.search(line)
-                if n:
+                if n := GW_GAPS_results_patt.search(line):
                     dct = {}
                     dct.update(
-                        Egap_KS=n.group(1),
-                        Egap_QP_Linear=n.group(2),
-                        Egap_QP_SCF=n.group(3),
+                        Egap_KS=n[1],
+                        Egap_QP_Linear=n[2],
+                        Egap_QP_SCF=n[3],
                     )
                     GW_results["Gaps"] = dct
 
@@ -858,13 +852,11 @@ class BSEOutput:
 
         for line in output.split("\n"):
             if parse_total_time:
-                m = end_patt.search(line)
-                if m:
+                if match := end_patt.search(line):
                     BSE_results.update(end_normally=True)
 
-                m = total_time_patt.search(line)
-                if m:
-                    BSE_results.update(total_time=m.group(1))
+                if match := total_time_patt.search(line):
+                    BSE_results.update(total_time=match[1])
 
             if parse_BSE_results:
                 if line.find("FULL BSE main valence -> conduction transitions weight:") != -1:
@@ -872,11 +864,10 @@ class BSEOutput:
                     parse_BSE_results = False
                     continue
 
-                m = BSE_exitons_patt.search(line)
-                if m:
+                if match := BSE_exitons_patt.search(line):
                     dct = {}
-                    dct.update(bse_eig=m.group(2), osc_strength=m.group(3))
-                    BSE_results[str(m.group(1).strip())] = dct
+                    dct.update(bse_eig=match[2], osc_strength=match[3])
+                    BSE_results[str(match[1].strip())] = dct
 
             if line.find("FULL BSE eig.(eV), osc. strength and dipoles:") != -1:
                 parse_BSE_results = True

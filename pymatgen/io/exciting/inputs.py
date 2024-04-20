@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 import xml.etree.ElementTree as ET
 from typing import TYPE_CHECKING
 
@@ -121,14 +122,11 @@ class ExcitingInput(MSONable):
                     lockxyz.append(lxyz)
 
         # check the atomic positions type
-        if "cartesian" in struct.attrib:
-            if struct.attrib["cartesian"]:
-                cartesian = True
-                for p in positions:
-                    for j in range(3):
-                        p[j] = p[j] * ExcitingInput.bohr2ang
-        else:
-            cartesian = False
+        cartesian = False
+        if struct.attrib.get("cartesian"):
+            cartesian = True
+            for p, j in itertools.product(positions, range(3)):
+                p[j] = p[j] * ExcitingInput.bohr2ang
 
         _crystal = struct.find("crystal")
         assert _crystal is not None, "crystal cannot be None."
@@ -233,7 +231,7 @@ class ExcitingInput(MSONable):
         # write atomic positions for each species
         index = 0
         for elem in sorted(new_struct.types_of_species, key=lambda el: el.X):
-            species = ET.SubElement(structure, "species", speciesfile=elem.symbol + ".xml")
+            species = ET.SubElement(structure, "species", speciesfile=f"{elem.symbol}.xml")
             sites = new_struct.indices_from_symbol(elem.symbol)
 
             for j in sites:
@@ -254,8 +252,12 @@ class ExcitingInput(MSONable):
                 # write atomic positions
                 index = index + 1
                 _ = ET.SubElement(species, "atom", coord=coord)
+
         # write bandstructure if needed
-        if bandstr and celltype == "primitive":
+        if bandstr:
+            if celltype != "primitive":
+                raise ValueError("Bandstructure is only implemented for the standard primitive unit cell!")
+
             kpath = HighSymmKpath(new_struct, symprec=symprec, angle_tolerance=angle_tolerance)
             prop = ET.SubElement(root, "properties")
             band_struct = ET.SubElement(prop, "bandstructure")
@@ -269,8 +271,6 @@ class ExcitingInput(MSONable):
                     symbol_map = {"\\Gamma": "GAMMA", "\\Sigma": "SIGMA", "\\Delta": "DELTA", "\\Lambda": "LAMBDA"}
                     symbol = symbol_map.get(symbol, symbol)
                     _ = ET.SubElement(path, "point", coord=coord, label=symbol)
-        elif bandstr and celltype != "primitive":
-            raise ValueError("Bandstructure is only implemented for the standard primitive unit cell!")
 
         # write extra parameters from kwargs if provided
         self._dicttoxml(kwargs, root)
