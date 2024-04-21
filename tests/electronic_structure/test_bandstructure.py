@@ -22,6 +22,8 @@ from pymatgen.electronic_structure.plotter import BSPlotterProjected
 from pymatgen.io.vasp import BSVasprun
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
+
 
 class TestKpoint(TestCase):
     def setUp(self):
@@ -68,12 +70,12 @@ class TestKpoint(TestCase):
 
 class TestBandStructureSymmLine(PymatgenTest):
     def setUp(self):
-        self.bs: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json")
-        self.bs2: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/CaO_2605_bandstructure.json")
-        self.bs_spin: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/NiO_19009_bandstructure.json")
-        self.bs_cbm0: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/InN_22205_bandstructure.json")
-        self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/Cu_30_bandstructure.json")
-        self.bs_diff_spins: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/VBr2_971787_bandstructure.json")
+        self.bs: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu2O_361_bandstructure.json")
+        self.bs2: BandStructureSymmLine = loadfn(f"{TEST_DIR}/CaO_2605_bandstructure.json")
+        self.bs_spin: BandStructureSymmLine = loadfn(f"{TEST_DIR}/NiO_19009_bandstructure.json")
+        self.bs_cbm0: BandStructureSymmLine = loadfn(f"{TEST_DIR}/InN_22205_bandstructure.json")
+        self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
+        self.bs_diff_spins: BandStructureSymmLine = loadfn(f"{TEST_DIR}/VBr2_971787_bandstructure.json")
 
     def test_basic(self):
         assert_allclose(self.bs.projections[Spin.up][10][12][0], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
@@ -191,7 +193,7 @@ class TestBandStructureSymmLine(PymatgenTest):
         cbm_k = bs.get_cbm()["kpoint"].frac_coords
         vbm_k = bs.get_vbm()["kpoint"].frac_coords
         assert bs.get_kpoint_degeneracy(cbm_k) is None
-        bs.structure: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/CaO_2605_structure.json")
+        bs.structure: BandStructureSymmLine = loadfn(f"{TEST_DIR}/CaO_2605_structure.json")
         assert bs.get_kpoint_degeneracy(cbm_k) == 3
         assert bs.get_kpoint_degeneracy(vbm_k) == 1
         cbm_eqs = bs.get_sym_eq_kpoints(cbm_k)
@@ -227,7 +229,7 @@ class TestBandStructureSymmLine(PymatgenTest):
         assert set(d3) >= expected_keys, f"{expected_keys - set(d3)=}"
 
     def test_old_format_load(self):
-        with open(f"{TEST_FILES_DIR}/bs_ZnS_old.json") as file:
+        with open(f"{TEST_DIR}/bs_ZnS_old.json") as file:
             dct = json.load(file)
             bs_old = BandStructureSymmLine.from_dict(dct)
             assert bs_old.get_projection_on_elements()[Spin.up][0][0]["Zn"] == 0.0971
@@ -255,8 +257,8 @@ class TestBandStructureSymmLine(PymatgenTest):
 
 class TestReconstructBandStructure(PymatgenTest):
     def setUp(self):
-        self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/Cu_30_bandstructure.json")
-        self.bs_cu2: BandStructureSymmLine = loadfn(f"{TEST_FILES_DIR}/Cu_30_bandstructure.json")
+        self.bs_cu: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
+        self.bs_cu2: BandStructureSymmLine = loadfn(f"{TEST_DIR}/Cu_30_bandstructure.json")
 
     def test_reconstruct_band_structure(self):
         bs = get_reconstructed_band_structure([self.bs_cu, self.bs_cu2])
@@ -275,13 +277,13 @@ class TestReconstructBandStructure(PymatgenTest):
 class TestLobsterBandStructureSymmLine(PymatgenTest):
     def setUp(self):
         with open(
-            f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json",
+            f"{TEST_FILES_DIR}/electronic_structure/cohp/Fatband_SiO2/Test_p/lobster_band_structure_spin.json",
         ) as file:
             bs_spin_dict = json.load(file)
         self.bs_spin = LobsterBandStructureSymmLine.from_dict(bs_spin_dict)
 
         with open(
-            f"{TEST_FILES_DIR}/cohp/Fatband_SiO2/Test_p/lobster_band_structure.json",
+            f"{TEST_FILES_DIR}/electronic_structure/cohp/Fatband_SiO2/Test_p/lobster_band_structure.json",
         ) as file:
             bs_dict = json.load(file)
         self.bs_p = LobsterBandStructureSymmLine.from_dict(bs_dict)

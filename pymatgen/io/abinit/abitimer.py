@@ -85,11 +85,11 @@ class AbinitTimerParser(collections.abc.Iterable):
     def __init__(self):
         """Initialize object."""
         # List of files that have been parsed.
-        self._filenames = []
+        self._filenames: list = []
 
         # timers[filename][mpi_rank]
         # contains the timer extracted from the file filename associated to the MPI rank mpi_rank.
-        self._timers = {}
+        self._timers: dict = {}
 
     def __iter__(self):
         return iter(self._timers)

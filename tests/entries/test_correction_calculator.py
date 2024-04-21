@@ -7,7 +7,7 @@ import pytest
 from pymatgen.entries.correction_calculator import CorrectionCalculator
 from pymatgen.util.testing import TEST_FILES_DIR
 
-TEST_DIR = f"{TEST_FILES_DIR}/correction_calculator"
+TEST_DIR = f"{TEST_FILES_DIR}/entries/correction_calculator"
 
 
 class TestCorrectionCalculator(TestCase):

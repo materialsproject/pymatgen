@@ -1,15 +1,13 @@
 from __future__ import annotations
 
-import os
-
 import pytest
 from pytest import approx
 
 from pymatgen.analysis.structure_prediction.volume_predictor import DLSVolumePredictor, RLSVolumePredictor
 from pymatgen.core import Structure
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/structure_prediction"
 
 
 class TestRLSVolumePredictor(PymatgenTest):
@@ -48,8 +46,8 @@ class TestRLSVolumePredictor(PymatgenTest):
         # Use Ag7P3S11 as a test case:
 
         # (i) no oxidation states are assigned and CVP-atomic scheme is selected.
-        aps = Structure.from_file(f"{module_dir}/Ag7P3S11_mp-683910_primitive.cif")
-        apo = Structure.from_file(f"{module_dir}/Ag7P3S11_mp-683910_primitive.cif")
+        aps = Structure.from_file(f"{TEST_DIR}/Ag7P3S11_mp-683910_primitive.cif")
+        apo = Structure.from_file(f"{TEST_DIR}/Ag7P3S11_mp-683910_primitive.cif")
         apo.replace_species({"S": "O"})
         predictor = RLSVolumePredictor(radii_type="atomic", check_isostructural=False)
         assert predictor.predict(apo, aps) == approx(1196.31384276)
@@ -82,7 +80,7 @@ class TestDLSVolumePredictor(PymatgenTest):
         p_fast = DLSVolumePredictor(cutoff=0.0)  # for speed on compressed cells
         p_nolimit = DLSVolumePredictor(min_scaling=None, max_scaling=None)  # no limits on scaling
 
-        fen = Structure.from_file(f"{module_dir}/FeN_mp-6988.cif")
+        fen = Structure.from_file(f"{TEST_DIR}/FeN_mp-6988.cif")
 
         assert vol_pred.predict(fen) == approx(18.2252568873)
         fen.scale_lattice(fen.volume * 3.0)

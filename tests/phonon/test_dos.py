@@ -11,12 +11,14 @@ from pymatgen.core import Element
 from pymatgen.phonon.dos import CompletePhononDos, PhononDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/phonon/dos"
+
 
 class TestPhononDos(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/NaCl_ph_dos.json") as file:
+        with open(f"{TEST_DIR}/NaCl_ph_dos.json") as file:
             self.dos = PhononDos.from_dict(json.load(file))
-        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as file:
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json") as file:
             self.structure = CompletePhononDos.from_dict(json.load(file)).structure
 
     def test_repr(self):
@@ -128,7 +130,7 @@ class TestPhononDos(PymatgenTest):
 
 class TestCompletePhononDos(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/NaCl_complete_ph_dos.json") as file:
+        with open(f"{TEST_DIR}/NaCl_complete_ph_dos.json") as file:
             self.cdos = CompletePhononDos.from_dict(json.load(file))
 
     def test_properties(self):

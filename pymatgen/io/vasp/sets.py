@@ -1042,10 +1042,10 @@ class DictSet(VaspInputSet):
         input_set = cls(_dummy_structure, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return type(self).__name__
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return type(self).__name__
 
     def write_input(
@@ -2272,7 +2272,7 @@ class MITNEBSet(DictSet):
     Note that EDIFF is not on a per atom basis for this input set.
     """
 
-    def __init__(self, structures, unset_encut=False, **kwargs):
+    def __init__(self, structures, unset_encut=False, **kwargs) -> None:
         """
         Args:
             structures: List of Structure objects.
