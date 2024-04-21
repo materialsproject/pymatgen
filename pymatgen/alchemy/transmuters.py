@@ -244,7 +244,7 @@ class CifTransmuter(StandardTransmuter):
         """
         transformed_structures = []
         lines = cif_string.split("\n")
-        structure_data = []
+        structure_data: list = []
         read_data = False
         for line in lines:
             if re.match(r"^\s*data", line):

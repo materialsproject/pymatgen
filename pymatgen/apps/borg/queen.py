@@ -44,7 +44,7 @@ class BorgQueen:
         """
         self._drone = drone
         self._num_drones = number_of_drones
-        self._data = []
+        self._data: list = []
 
         if rootpath:
             if number_of_drones > 1:

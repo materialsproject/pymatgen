@@ -243,7 +243,7 @@ class GrainBoundary(Structure):
                 coincident_sites.append(self.sites[idx])
         return coincident_sites
 
-    def __str__(self):
+    def __str__(self) -> str:
         comp = self.composition
         outs = [
             f"Gb Summary ({comp.formula})",

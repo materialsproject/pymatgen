@@ -243,8 +243,8 @@ class QCInput(InputFile):
         """Return a string representation of an entire input file."""
         return str(self)
 
-    def __str__(self):
-        combined_list = []
+    def __str__(self) -> str:
+        combined_list: list = []
         # molecule section
         combined_list.extend((self.molecule_template(self.molecule), "", self.rem_template(self.rem), ""))
         # opt section
