@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from unittest.mock import patch
+
+import pytest
+
 from pymatgen.command_line.chargemol_caller import ChargemolAnalysis
 from pymatgen.core import Element, Structure
 from pymatgen.util.testing import TEST_FILES_DIR
@@ -58,3 +62,13 @@ class TestChargemolAnalysis:
         assert chg_mol.summary["ddec"]["spin_moments"] == chg_mol.ddec_spin_moments
         assert chg_mol.natoms is None
         assert chg_mol.structure is None
+
+    def test_missing_exe_error(self):
+        # monkeypatch CHARGEMOL_EXE to raise in ChargemolAnalysis.__init__
+        patch.dict("os.environ", {"CHARGEMOL_EXE": "non_existent"})
+
+        test_dir = f"{TEST_FILES_DIR}/chargemol/spin_unpolarized"
+        with pytest.raises(
+            OSError, match="ChargemolAnalysis requires the Chargemol executable to be in PATH. Please download"
+        ):
+            ChargemolAnalysis(path=test_dir, run_chargemol=True)
