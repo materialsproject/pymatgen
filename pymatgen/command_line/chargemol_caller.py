@@ -46,7 +46,6 @@ import os
 import subprocess
 import warnings
 from glob import glob
-from pathlib import Path
 from shutil import which
 from typing import TYPE_CHECKING
 
@@ -58,6 +57,8 @@ from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from pymatgen.core import Structure
 
 __author__ = "Martin Siron, Andrew S. Rosen"
@@ -95,7 +96,7 @@ class ChargemolAnalysis:
             run_chargemol (bool): Whether to run the Chargemol analysis. If False,
                 the existing Chargemol output files will be read from path. Default: True.
         """
-        path = (Path(path).absolute() if path else None) or os.getcwd()
+        path = os.path.abspath(path) if path else os.getcwd()
         if run_chargemol and not CHARGEMOL_EXE:
             raise OSError(
                 "ChargemolAnalysis requires the Chargemol executable to be in PATH."
