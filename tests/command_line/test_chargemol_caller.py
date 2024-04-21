@@ -1,55 +1,60 @@
 from __future__ import annotations
 
 from pymatgen.command_line.chargemol_caller import ChargemolAnalysis
-from pymatgen.core import Element
+from pymatgen.core import Element, Structure
 from pymatgen.util.testing import TEST_FILES_DIR
 
 
 class TestChargemolAnalysis:
     def test_parse_chargemol(self):
         test_dir = f"{TEST_FILES_DIR}/chargemol/spin_unpolarized"
-        ca = ChargemolAnalysis(path=test_dir, run_chargemol=False)
-        assert ca.ddec_charges == [0.8432, -0.8432]
-        assert ca.get_partial_charge(0) == 0.8432
-        assert ca.get_partial_charge(0, charge_type="cm5") == 0.420172
-        assert ca.get_charge_transfer(0) == -0.8432
-        assert ca.get_charge_transfer(0, charge_type="cm5") == -0.420172
-        assert ca.get_charge(0, nelect=1) == 1 - 0.8432
-        assert ca.get_charge(0, nelect=1, charge_type="cm5") == 1 - 0.420172
-        assert ca.dipoles == [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
-        assert ca.ddec_spin_moments is None
-        assert ca.bond_order_sums == [0.53992, 0.901058]
-        assert ca.ddec_rsquared_moments == [8.261378, 34.237274]
-        assert ca.ddec_rcubed_moments == [14.496002, 88.169236]
-        assert ca.ddec_rfourth_moments == [37.648248, 277.371929]
-        assert ca.cm5_charges == [0.420172, -0.420172]
-        assert ca.summary["ddec"]["partial_charges"] == ca.ddec_charges
-        assert ca.summary["ddec"]["dipoles"] == ca.dipoles
-        assert ca.summary["ddec"]["bond_order_sums"] == ca.bond_order_sums
-        assert ca.summary["ddec"]["rsquared_moments"] == ca.ddec_rsquared_moments
-        assert ca.summary["ddec"]["rcubed_moments"] == ca.ddec_rcubed_moments
-        assert ca.summary["ddec"]["rfourth_moments"] == ca.ddec_rfourth_moments
-        assert ca.summary["cm5"]["partial_charges"] == ca.cm5_charges
-        assert ca.summary["ddec"]["bond_order_dict"] == ca.bond_order_dict
-        assert ca.summary["ddec"].get("spin_moments") is None
-        assert ca.natoms == [1, 1]
-        assert ca.structure is not None
-        assert len(ca.bond_order_dict) == 2
-        assert ca.bond_order_dict[0]["bonded_to"][0] == {
+        chg_mol = ChargemolAnalysis(path=test_dir, run_chargemol=False)
+        assert chg_mol.ddec_charges == [0.8432, -0.8432]
+        assert chg_mol.get_partial_charge(0) == 0.8432
+        assert chg_mol.get_partial_charge(0, charge_type="cm5") == 0.420172
+        assert chg_mol.get_charge_transfer(0) == -0.8432
+        assert chg_mol.get_charge_transfer(0, charge_type="cm5") == -0.420172
+        assert chg_mol.get_charge(0, nelect=1) == 1 - 0.8432
+        assert chg_mol.get_charge(0, nelect=1, charge_type="cm5") == 1 - 0.420172
+        assert chg_mol.dipoles == [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
+        assert chg_mol.ddec_spin_moments is None
+        assert chg_mol.bond_order_sums == [0.53992, 0.901058]
+        assert chg_mol.ddec_rsquared_moments == [8.261378, 34.237274]
+        assert chg_mol.ddec_rcubed_moments == [14.496002, 88.169236]
+        assert chg_mol.ddec_rfourth_moments == [37.648248, 277.371929]
+        assert chg_mol.cm5_charges == [0.420172, -0.420172]
+        assert chg_mol.summary["ddec"]["partial_charges"] == chg_mol.ddec_charges
+        assert chg_mol.summary["ddec"]["dipoles"] == chg_mol.dipoles
+        assert chg_mol.summary["ddec"]["bond_order_sums"] == chg_mol.bond_order_sums
+        assert chg_mol.summary["ddec"]["rsquared_moments"] == chg_mol.ddec_rsquared_moments
+        assert chg_mol.summary["ddec"]["rcubed_moments"] == chg_mol.ddec_rcubed_moments
+        assert chg_mol.summary["ddec"]["rfourth_moments"] == chg_mol.ddec_rfourth_moments
+        assert chg_mol.summary["cm5"]["partial_charges"] == chg_mol.cm5_charges
+        assert chg_mol.summary["ddec"]["bond_order_dict"] == chg_mol.bond_order_dict
+        assert chg_mol.summary["ddec"].get("spin_moments") is None
+        assert chg_mol.natoms == [1, 1]
+        assert isinstance(chg_mol.structure, Structure)
+        assert len(chg_mol.structure) == 2
+        assert chg_mol.structure.formula == "Na1 Cl1"
+        assert len(chg_mol.bond_order_dict) == 2
+        assert chg_mol.bond_order_dict[0]["bonded_to"][0] == {
             "spin_polarization": 0.0,
             "index": 1,
             "direction": (-1, -1, 0),
             "bond_order": 0.0882,
             "element": Element("Cl"),
         }
-        assert ca.bond_order_dict[1]["bonded_to"][-1]["direction"] == (-1, 0, 0)
-        assert ca.get_property_decorated_structure().site_properties["partial_charge_ddec6"] == ca.ddec_charges
+        assert chg_mol.bond_order_dict[1]["bonded_to"][-1]["direction"] == (-1, 0, 0)
+        # check that partial charges are written to structure site properties
+        charge_decorated_struct = chg_mol.get_property_decorated_structure()
+        struct_partial_charge = charge_decorated_struct.site_properties["partial_charge_ddec6"]
+        assert struct_partial_charge == chg_mol.ddec_charges
 
     def test_parse_chargemol2(self):
         test_dir = f"{TEST_FILES_DIR}/chargemol/spin_polarized"
-        ca = ChargemolAnalysis(path=test_dir, run_chargemol=False)
-        assert ca.ddec_spin_moments == [0.201595, 0.399203, 0.399203]
-        assert ca.summary["ddec"]["bond_order_dict"][0]["bonded_to"][0]["spin_polarization"] == 0.0490
-        assert ca.summary["ddec"]["spin_moments"] == ca.ddec_spin_moments
-        assert ca.natoms is None
-        assert ca.structure is None
+        chg_mol = ChargemolAnalysis(path=test_dir, run_chargemol=False)
+        assert chg_mol.ddec_spin_moments == [0.201595, 0.399203, 0.399203]
+        assert chg_mol.summary["ddec"]["bond_order_dict"][0]["bonded_to"][0]["spin_polarization"] == 0.0490
+        assert chg_mol.summary["ddec"]["spin_moments"] == chg_mol.ddec_spin_moments
+        assert chg_mol.natoms is None
+        assert chg_mol.structure is None
