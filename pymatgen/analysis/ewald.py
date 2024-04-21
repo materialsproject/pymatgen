@@ -540,7 +540,7 @@ class EwaldMinimizer:
         if algo == EwaldMinimizer.ALGO_COMPLETE:
             raise NotImplementedError("Complete algo not yet implemented for EwaldMinimizer")
 
-        self._output_lists = []
+        self._output_lists: list = []
         # Tag that the recurse function looks at each level. If a method
         # sets this to true it breaks the recursion and stops the search.
         self._finished = False
