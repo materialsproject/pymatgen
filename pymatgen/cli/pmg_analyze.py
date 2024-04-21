@@ -111,13 +111,13 @@ def get_magnetizations(dir: str, ion_list: list[int]):
                     fullpath = os.path.join(parent, file)
                     outcar = Outcar(fullpath)
                     mags = outcar.magnetization
-                    mags = [m["tot"] for m in mags]
-                    all_ions = list(range(len(mags)))
+                    _mags: list = [m["tot"] for m in mags]
+                    all_ions = list(range(len(_mags)))
                     row.append(fullpath.lstrip("./"))
                     if ion_list:
                         all_ions = ion_list
                     for ion in all_ions:
-                        row.append(str(mags[ion]))
+                        row.append(str(_mags[ion]))
                     data.append(row)
                     if len(all_ions) > max_row:
                         max_row = len(all_ions)
