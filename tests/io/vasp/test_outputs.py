@@ -79,7 +79,11 @@ class TestVasprun(PymatgenTest):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.ediffg_set_to_0.xml.gz")
         assert len(vasp_run.ionic_steps) == 3
         assert vasp_run.final_energy == approx(-34.60164204)
-        assert vasp_run.converged_ionic
+        assert vasp_run.converged_ionic is True
+        assert vasp_run.converged_electronic is True
+        assert vasp_run.converged is True
+        assert vasp_run.parameters["EDIFFG"] == 0
+        assert vasp_run.parameters["EDIFF"] == 1e-5
 
     def test_bad_random_seed(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.bad_random_seed.xml.gz")
