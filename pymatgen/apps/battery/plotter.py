@@ -179,7 +179,7 @@ class VoltageProfilePlotter:
         _work_ion_symbol: str | None = work_ion_symbol.pop() if len(work_ion_symbol) == 1 else None
 
         if self.xaxis == "x_form":
-            if formula and _work_ion_symbol:
+            if _formula and _work_ion_symbol:
                 return f"x in {_work_ion_symbol}<sub>x</sub>{_formula}"
             return "x Work Ion per Host F.U."
 
