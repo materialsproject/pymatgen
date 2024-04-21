@@ -64,6 +64,8 @@ class Lobsterin(UserDict, MSONable):
     """
 
     # Reminder: LOBSTER is not case sensitive
+    # TODO (@DanielYang59): use {lowered: original} dict with internal lowered keys
+    # to handle case-insensitivity
 
     # Keyword + float can be used in file
     FLOAT_KEYWORDS = (
@@ -132,6 +134,7 @@ class Lobsterin(UserDict, MSONable):
         super().__init__()
 
         # Check for duplicates
+        # TODO (@DanielYang59): repeated duplicate check, move to __setitem__
         keys = [key.lower() for key in settingsdict]
         if len(keys) != len(set(keys)):
             raise KeyError("There are duplicates for the keywords!")
@@ -180,6 +183,8 @@ class Lobsterin(UserDict, MSONable):
         Returns:
             dict with differences and similarities
         """
+        # TODO (@DanielYang59): use set to calculate diff and intersection
+
         similar_param = {}
         different_param = {}
         key_list_others = [element.lower() for element in other]
@@ -290,12 +295,16 @@ class Lobsterin(UserDict, MSONable):
             raise RuntimeError("lobsterin file contains no data.")
         lobsterin_dict: dict[str, Any] = {}
 
+        # TODO: (@DanielYang59) simplify method (separate parser and checker)
+
         for datum in data:
             # Remove all comments
-            if not datum.startswith(("!", "#", "//")):
+            if not datum.startswith(("!", "#", "//")):  # TODO: (@DanielYang59) remove leading whitespace
                 pattern = r"\b[^!#//]+"  # exclude comments after commands
                 if matched_pattern := re.findall(pattern, datum):
-                    raw_datum = matched_pattern[0].replace("\t", " ")  # handle tab in between and end of command
+                    raw_datum = matched_pattern[0].replace(
+                        "\t", " "
+                    )  # handle tab in between and end of command  # TODO: (@DanielYang59) use strip()
                     key_word = raw_datum.strip().split(" ")  # extract keyword
                     if len(key_word) > 1:
                         # check which type of keyword this is, handle accordingly
@@ -304,10 +313,12 @@ class Lobsterin(UserDict, MSONable):
                                 if key_word[0].lower() not in lobsterin_dict:
                                     lobsterin_dict[key_word[0].lower()] = " ".join(key_word[1:])
                                 else:
+                                    # TODO (@DanielYang59): repeated duplicate check, move to __setitem__
                                     raise ValueError(f"Same keyword {key_word[0].lower()} twice!")
                             elif key_word[0].lower() not in lobsterin_dict:
                                 lobsterin_dict[key_word[0].lower()] = float(key_word[1])
                             else:
+                                # TODO (@DanielYang59): repeated duplicate check, move to __setitem__
                                 raise ValueError(f"Same keyword {key_word[0].lower()} twice!")
                         elif key_word[0].lower() not in lobsterin_dict:
                             lobsterin_dict[key_word[0].lower()] = [" ".join(key_word[1:])]
