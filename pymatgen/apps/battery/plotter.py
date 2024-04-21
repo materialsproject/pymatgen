@@ -179,12 +179,12 @@ class VoltageProfilePlotter:
         _work_ion_symbol: str | None = work_ion_symbol.pop() if len(work_ion_symbol) == 1 else None
 
         if self.xaxis == "x_form":
-            if formula and work_ion_symbol:
-                return f"x in {work_ion_symbol}<sub>x</sub>{_formula}"
+            if formula and _work_ion_symbol:
+                return f"x in {_work_ion_symbol}<sub>x</sub>{_formula}"
             return "x Work Ion per Host F.U."
 
         if self.xaxis == "frac_x":
-            if work_ion_symbol:
+            if _work_ion_symbol:
                 return f"Atomic Fraction of {_work_ion_symbol}"
             return "Atomic Fraction of Working Ion"
         raise RuntimeError("No xaxis label can be determined")

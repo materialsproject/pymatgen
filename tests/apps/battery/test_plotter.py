@@ -40,6 +40,7 @@ class TestVoltageProfilePlotter(TestCase):
         plotter.add_electrode(self.ce_FF, "FeF3 conversion")
         fig = plotter.get_plotly_figure()
         assert fig.layout.xaxis.title.text == "Atomic Fraction of Li"
+
         plotter = VoltageProfilePlotter(xaxis="x_form")
         plotter.add_electrode(self.ce_FF, "FeF3 conversion")
         fig = plotter.get_plotly_figure()
