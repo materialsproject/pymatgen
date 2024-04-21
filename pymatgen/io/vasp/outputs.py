@@ -3803,9 +3803,11 @@ class Procar:
                     headers.pop(0)
                     headers.pop(-1)
 
-                    data: defaultdict = defaultdict(lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers))))
+                    data: dict[Spin, np.ndarray] = defaultdict(
+                        lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers)))
+                    )
 
-                    phase_factors: defaultdict = defaultdict(
+                    phase_factors: dict[Spin, np.ndarray] = defaultdict(
                         lambda: np.full((n_kpoints, n_bands, n_ions, len(headers)), np.nan, dtype=np.complex128)
                     )
                 elif expr.match(line):
@@ -4270,7 +4272,7 @@ class Dynmat:
             lines = list(clean_lines(file.readlines()))
             self._nspecs, self._natoms, self._ndisps = map(int, lines[0].split())
             self._masses = map(float, lines[1].split())
-            self.data: defaultdict = defaultdict(dict)
+            self.data: dict[int, dict] = defaultdict(dict)
             atom, disp = None, None
             for idx, line in enumerate(lines[2:]):
                 v = list(map(float, line.split()))
