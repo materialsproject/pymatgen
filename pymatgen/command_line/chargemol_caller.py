@@ -191,9 +191,9 @@ class ChargemolAnalysis:
             with open(os.path.join(temp_dir, "job_control.txt"), mode="w") as file:
                 file.write(lines)
 
-            rs = subprocess.run(CHARGEMOL_EXE, capture_output=True, check=False)
-            _stdout = rs.stdout.decode("utf-8")
-            rs.stderr.decode("utf-8")
+            response = subprocess.run(CHARGEMOL_EXE, capture_output=True, check=False)
+            _stdout = response.stdout.decode("utf-8")
+            response.stderr.decode("utf-8")
 
             self._from_data_dir(chargemol_output_path=temp_dir)
 
@@ -205,8 +205,7 @@ class ChargemolAnalysis:
             Chargemol output files.
                 Default: None (current working directory).
         """
-        if chargemol_output_path is None:
-            chargemol_output_path = "."
+        chargemol_output_path = chargemol_output_path or "."
 
         charge_path = f"{chargemol_output_path}/DDEC6_even_tempered_net_atomic_charges.xyz"
         self.ddec_charges = self._get_data_from_xyz(charge_path)
@@ -225,21 +224,21 @@ class ChargemolAnalysis:
         else:
             self.ddec_spin_moments = None
 
-        rsquared_path = f"{chargemol_output_path}/DDEC_atomic_Rsquared_moments.xyz"
-        if os.path.isfile(rsquared_path):
-            self.ddec_rsquared_moments = self._get_data_from_xyz(rsquared_path)
+        r2_path = f"{chargemol_output_path}/DDEC_atomic_Rsquared_moments.xyz"
+        if os.path.isfile(r2_path):
+            self.ddec_rsquared_moments = self._get_data_from_xyz(r2_path)
         else:
             self.ddec_rsquared_moments = None
 
-        rcubed_path = f"{chargemol_output_path}/DDEC_atomic_Rcubed_moments.xyz"
-        if os.path.isfile(rcubed_path):
-            self.ddec_rcubed_moments = self._get_data_from_xyz(rcubed_path)
+        r3_path = f"{chargemol_output_path}/DDEC_atomic_Rcubed_moments.xyz"
+        if os.path.isfile(r3_path):
+            self.ddec_rcubed_moments = self._get_data_from_xyz(r3_path)
         else:
             self.ddec_rcubed_moments = None
 
-        rfourth_path = f"{chargemol_output_path}/DDEC_atomic_Rfourth_moments.xyz"
-        if os.path.isfile(rfourth_path):
-            self.ddec_rfourth_moments = self._get_data_from_xyz(rfourth_path)
+        r4_path = f"{chargemol_output_path}/DDEC_atomic_Rfourth_moments.xyz"
+        if os.path.isfile(r4_path):
+            self.ddec_rfourth_moments = self._get_data_from_xyz(r4_path)
         else:
             self.ddec_rfourth_moments = None
 
