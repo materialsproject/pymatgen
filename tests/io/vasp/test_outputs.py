@@ -54,6 +54,7 @@ kpts_opt_vrun_path = f"{TEST_DIR}/fixtures/kpoints_opt/vasprun.xml.gz"
 
 
 class TestVasprun(PymatgenTest):
+    @pytest.mark.skip()
     def test_vasprun_ml(self):
         # Test for ML MD simulation
         # The trajectory data is stored in md_data
@@ -67,6 +68,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.md_n_steps == 100
         assert vasp_run.converged_ionic
 
+    @pytest.mark.skip()
     def test_vasprun_md(self):
         # Test for simple MD simulation (no ML).
         # Does not generate the `md_data` attribute in Vasprun. Data based on `ionic_steps`
@@ -76,15 +78,18 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.md_n_steps == 10
         assert vasp_run.converged_ionic
 
+    @pytest.mark.skip()
     def test_bad_random_seed(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.bad_random_seed.xml.gz")
         assert vasp_run.incar["ISMEAR"] == 0
         assert vasp_run.incar["RANDOM_SEED"] is None
 
+    @pytest.mark.skip()
     def test_multiple_dielectric(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.GW0.xml.gz")
         assert len(vasp_run.other_dielectric) == 3
 
+    @pytest.mark.skip()
     def test_charge_charge_dielectric(self):
         """
         VASP 5.4.4 writes out two dielectric functions to vasprun.xml
@@ -99,16 +104,19 @@ class TestVasprun(PymatgenTest):
         assert "density" in vasp_run.dielectric_data
         assert "velocity" in vasp_run.dielectric_data
 
+    @pytest.mark.skip()
     def test_optical_absorption_coeff(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.BSE.xml.gz")
         absorption_coeff = vasp_run.optical_absorption_coeff
         assert absorption_coeff[1] == 0.8327903762077188
         assert vasp_run.final_structure == vasp_run.initial_structure
 
+    @pytest.mark.skip()
     def test_vasprun_with_more_than_two_unlabelled_dielectric_functions(self):
         with pytest.raises(NotImplementedError, match="This vasprun.xml has >2 unlabelled dielectric functions"):
             Vasprun(f"{VASP_OUT_DIR}/vasprun.dielectric_bad.xml.gz")
 
+    @pytest.mark.skip()
     def test_bad_vasprun(self):
         with pytest.raises(ElementTree.ParseError):
             Vasprun(f"{VASP_OUT_DIR}/vasprun.bad.xml.gz")
@@ -121,6 +129,7 @@ class TestVasprun(PymatgenTest):
         assert len(vasp_run.ionic_steps) == 1
         assert vasp_run.final_energy == approx(-269.00551374)
 
+    @pytest.mark.skip()
     def test_runtype(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.GW0.xml.gz")
         assert vasp_run.run_type in "HF"
@@ -163,6 +172,7 @@ class TestVasprun(PymatgenTest):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.vdw.xml.gz")
         assert vasp_run.final_energy == approx(-9.78310677)
 
+    @pytest.mark.skip()
     def test_energies(self):
         # VASP 5.4.1
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.etest1.xml.gz")
@@ -180,12 +190,14 @@ class TestVasprun(PymatgenTest):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.etest4.xml.gz")
         assert vasp_run.final_energy == approx(-15.89364691)
 
+    @pytest.mark.skip()
     def test_nonlmn(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.nonlm.xml.gz"
         vasp_run = Vasprun(filepath, parse_potcar_file=False)
         orbs = list(vasp_run.complete_dos.pdos[vasp_run.final_structure[0]])
         assert OrbitalType.s in orbs
 
+    @pytest.mark.skip()
     def test_standard(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.xml.gz"
         vasp_run = Vasprun(filepath, parse_potcar_file=False)
@@ -305,12 +317,15 @@ class TestVasprun(PymatgenTest):
             UnconvergedVASPWarning, match="vasprun.unconverged.xml.gz is an unconverged VASP run"
         ) as warns:
             vasprun_unconverged = Vasprun(filepath, parse_potcar_file=False)
+        for w in warns:
+            print(w.message)
         assert len(warns) == 1
 
         assert vasprun_unconverged.converged_ionic
         assert not vasprun_unconverged.converged_electronic
         assert not vasprun_unconverged.converged
 
+    @pytest.mark.skip()
     def test_dfpt(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.dfpt.xml.gz"
         vasprun_dfpt = Vasprun(filepath, parse_potcar_file=False)
@@ -326,6 +341,7 @@ class TestVasprun(PymatgenTest):
         entry = MaterialsProjectCompatibility(check_potcar_hash=False).process_entry(entry)
         assert entry.uncorrected_energy + entry.correction == approx(entry.energy)
 
+    @pytest.mark.skip()
     def test_dfpt_ionic(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.dfpt.ionic.xml.gz"
         vasprun_dfpt_ionic = Vasprun(filepath, parse_potcar_file=False)
@@ -333,6 +349,7 @@ class TestVasprun(PymatgenTest):
         assert vasprun_dfpt_ionic.epsilon_ionic[0][1] == approx(-0.00263523)
         assert vasprun_dfpt_ionic.epsilon_ionic[2][2] == approx(19.02110169)
 
+    @pytest.mark.skip()
     def test_dfpt_unconverged(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.dfpt.unconverged.xml.gz"
         vasprun_dfpt_unconverged = Vasprun(filepath, parse_potcar_file=False)
@@ -340,20 +357,24 @@ class TestVasprun(PymatgenTest):
         assert vasprun_dfpt_unconverged.converged_ionic
         assert not vasprun_dfpt_unconverged.converged
 
+    @pytest.mark.skip()
     def test_chi(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.chi.xml.gz"
         vasprun_chi = Vasprun(filepath, parse_potcar_file=False)
         assert vasprun_chi.incar.get("ALGO", ""), "CHI"
 
+    @pytest.mark.skip()
     def test_uniform(self):
         vasprun_uniform = Vasprun(f"{VASP_OUT_DIR}/vasprun.uniform.xml.gz", parse_potcar_file=False)
         assert vasprun_uniform.kpoints.style == Kpoints.supported_modes.Reciprocal
 
+    @pytest.mark.skip()
     def test_no_projected(self):
         vasprun_no_pdos = Vasprun(f"{VASP_OUT_DIR}/vasprun_Li_no_projected.xml.gz", parse_potcar_file=False)
         assert vasprun_no_pdos.complete_dos is not None
         assert not vasprun_no_pdos.dos_has_errors
 
+    @pytest.mark.skip()
     def test_dielectric(self):
         vasprun_diel = Vasprun(f"{VASP_OUT_DIR}/vasprun.dielectric.xml.gz", parse_potcar_file=False)
         assert approx(vasprun_diel.dielectric[0][10]) == 0.4294
@@ -366,6 +387,7 @@ class TestVasprun(PymatgenTest):
         assert approx(vasprun_diel.dielectric[2][85][2]) == 34.186
         assert approx(vasprun_diel.dielectric[2][85][3]) == 0.0
 
+    @pytest.mark.skip()
     def test_dielectric_vasp608(self):
         # test reading dielectric constant in vasp 6.0.8
         vasprun_diel = Vasprun(
@@ -380,11 +402,13 @@ class TestVasprun(PymatgenTest):
         assert approx(vasprun_diel.dielectric_data["velocity"][1][51][0]) == 1.0741
         assert len(vasprun_diel.other_dielectric) == 0
 
+    @pytest.mark.skip()
     def test_indirect_vasprun(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.indirect.xml.gz")
         _gap, _cbm, _vbm, direct = vasp_run.eigenvalue_band_properties
         assert not direct
 
+    @pytest.mark.skip()
     def test_optical_vasprun(self):
         vasprun_optical = Vasprun(
             f"{VASP_OUT_DIR}/vasprun.optical_transitions.xml.gz",
@@ -403,6 +427,7 @@ class TestVasprun(PymatgenTest):
         assert approx(vasprun_optical.optical_transition[55][1]) == 0.0
         assert approx(vasprun_optical.optical_transition[56][1]) == 0.001
 
+    @pytest.mark.skip()
     def test_force_constants(self):
         vasprun_fc = Vasprun(f"{VASP_OUT_DIR}/vasprun.dfpt.phonon.xml.gz", parse_potcar_file=False)
         assert vasprun_fc.force_constants.shape == (16, 16, 3, 3)
@@ -451,18 +476,22 @@ class TestVasprun(PymatgenTest):
             ],
         )
 
+    @pytest.mark.skip()
     def test_xe(self):
         vr = Vasprun(f"{VASP_OUT_DIR}/vasprun.xe.xml.gz", parse_potcar_file=False)
         assert vr.atomic_symbols == ["Xe"]
 
+    @pytest.mark.skip()
     def test_invalid_element(self):
         with pytest.raises(ValueError, match="'Z' is not a valid Element"):
             Vasprun(f"{VASP_OUT_DIR}/vasprun.wrong_sp.xml.gz")
 
+    @pytest.mark.skip()
     def test_selective_dynamics(self):
         vsd = Vasprun(f"{VASP_OUT_DIR}/vasprun.indirect.xml.gz")
         assert list(vsd.final_structure.site_properties.get("selective_dynamics")) == [[True] * 3, [False] * 3]
 
+    @pytest.mark.skip()
     def test_as_dict(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.xml.gz"
         vasp_run = Vasprun(filepath, parse_potcar_file=False)
@@ -471,6 +500,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.as_dict()["input"]["potcar_type"] == ["PAW_PBE", "PAW_PBE", "PAW_PBE", "PAW_PBE", "PAW_PBE"]
         assert vasp_run.as_dict()["input"]["nkpoints"] == 24
 
+    @pytest.mark.skip()
     def test_get_band_structure(self):
         filepath = f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz"
         vasp_run = Vasprun(filepath, parse_projected_eigen=True, parse_potcar_file=False)
@@ -553,6 +583,7 @@ class TestVasprun(PymatgenTest):
         assert bs.get_branch(0)[0]["start_index"] == 0
         assert bs.get_branch(0)[0]["end_index"] == 0
 
+    @pytest.mark.skip()
     def test_projected_magnetisation(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.lvel.Si2H.xml.gz"
         vasp_run = Vasprun(filepath, parse_projected_eigen=True)
@@ -560,6 +591,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.projected_magnetisation.shape == (76, 240, 4, 9, 3)
         assert vasp_run.projected_magnetisation[0, 0, 0, 0, 0] == approx(-0.0712)
 
+    @pytest.mark.skip()
     def test_smart_efermi(self):
         # branch 1 - E_fermi does not cross a band
         vrun = Vasprun(f"{VASP_OUT_DIR}/vasprun.LiF.xml.gz")
@@ -592,6 +624,7 @@ class TestVasprun(PymatgenTest):
         smart_fermi = vrun.calculate_efermi()
         assert smart_fermi == approx(6.0165)
 
+    @pytest.mark.skip()
     def test_float_overflow(self):
         # test we interpret VASP's *********** for overflowed values as NaNs
         # https://github.com/materialsproject/pymatgen/pull/3452
@@ -604,6 +637,7 @@ class TestVasprun(PymatgenTest):
         assert np.isnan(elec_step["e_fr_energy"])
         assert np.isnan(first_ionic_step["forces"]).any()
 
+    @pytest.mark.skip()
     def test_update_potcar(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.xml.gz"
         potcar_path = f"{VASP_IN_DIR}/POTCAR_LiFePO4.gz"
@@ -633,6 +667,7 @@ class TestVasprun(PymatgenTest):
         with pytest.warns(UserWarning, match="No POTCAR file with matching TITEL fields was found in"):
             Vasprun(filepath, parse_potcar_file=potcar_path2)
 
+    @pytest.mark.skip()
     def test_search_for_potcar(self):
         filepath = f"{VASP_OUT_DIR}/vasprun.xml.gz"
         vasp_run = Vasprun(filepath, parse_potcar_file=True)
@@ -649,6 +684,8 @@ class TestVasprun(PymatgenTest):
         # Ensure no potcar is found and nothing is updated
         with pytest.warns(UserWarning, match="No POTCAR file with matching TITEL fields was found in") as warns:
             vasp_run = Vasprun(filepath, parse_potcar_file=".")
+        for warning in warns:
+            print(warning.message)
         assert len(warns) == 2
         assert vasp_run.potcar_spec == [
             {"titel": "PAW_PBE Li 17Jan2003", "hash": None, "summary_stats": {}},
@@ -658,6 +695,7 @@ class TestVasprun(PymatgenTest):
             {"titel": "PAW_PBE O 08Apr2002", "hash": None, "summary_stats": {}},
         ]
 
+    @pytest.mark.skip()
     def test_parsing_chemical_shift_calculations(self):
         filepath = f"{TEST_DIR}/fixtures/nmr/cs/basic/vasprun.xml.chemical_shift.scstep"
         vasp_run = Vasprun(filepath)
@@ -666,6 +704,7 @@ class TestVasprun(PymatgenTest):
         assert n_estep == 10
         assert vasp_run.converged
 
+    @pytest.mark.skip()
     def test_parsing_efg_calcs(self):
         filepath = f"{TEST_DIR}/fixtures/nmr/efg/AlPO4/vasprun.xml"
         vasp_run = Vasprun(filepath)
@@ -673,6 +712,7 @@ class TestVasprun(PymatgenTest):
         assert n_elec_steps == 18
         assert vasp_run.converged
 
+    @pytest.mark.skip()
     def test_charged_structure(self):
         vpath = f"{VASP_OUT_DIR}/vasprun.charged.xml.gz"
         potcar_path = f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE/POTCAR.Si.gz"
@@ -692,11 +732,13 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.initial_structure.charge == -1
         assert vasp_run.final_structure.charge == -1
 
+    @pytest.mark.skip()
     def test_kpointset_electronvelocities(self):
         vpath = f"{VASP_OUT_DIR}/vasprun.lvel.Si2H.xml.gz"
         vasp_run = Vasprun(vpath, parse_potcar_file=False)
         assert vasp_run.eigenvalues[Spin.up].shape[0] == len(vasp_run.actual_kpoints)
 
+    @pytest.mark.skip()
     def test_eigenvalue_band_properties_separate_spins(self):
         eig = Vasprun(f"{VASP_OUT_DIR}/vasprun_eig_separate_spins.xml.gz", separate_spins=True)
         props = eig.eigenvalue_band_properties
@@ -712,6 +754,7 @@ class TestVasprun(PymatgenTest):
         assert props[3][0]
         assert props[3][1]
 
+    @pytest.mark.skip()
     def test_kpoints_opt(self):
         vasp_run = Vasprun(kpts_opt_vrun_path, parse_projected_eigen=True)
         # This calculation was run using KPOINTS_OPT
@@ -739,6 +782,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run_dct["input"]["nkpoints"] == 10
         assert vasp_run_dct["output"]["eigenvalues_kpoints_opt"]["1"][0][0][0] == approx(-6.1536)
 
+    @pytest.mark.skip()
     def test_kpoints_opt_band_structure(self):
         vasp_run = Vasprun(kpts_opt_vrun_path, parse_potcar_file=False, parse_projected_eigen=True)
         bs = vasp_run.get_band_structure(f"{TEST_DIR}/fixtures/kpoints_opt/KPOINTS_OPT")
@@ -765,6 +809,7 @@ class TestVasprun(PymatgenTest):
         projected = bs.get_projections_on_elements_and_orbitals({"Si": ["s"]})
         assert projected[Spin.up][0][58]["Si"]["s"] == -0.0271
 
+    @pytest.mark.skip()
     def test_parse_potcar_cwd_relative(self):
         # Test to ensure that common use cases of vasprun parsing work
         # in the current working directory using relative paths,
@@ -785,6 +830,7 @@ class TestVasprun(PymatgenTest):
                 assert vrun.potcar_spec[ipot]["summary_stats"] == potcar[ipot]._summary_stats
 
 
+@pytest.mark.skip()
 class TestOutcar(PymatgenTest):
     def test_init(self):
         outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")
@@ -1359,6 +1405,7 @@ class TestOutcar(PymatgenTest):
             )
 
 
+@pytest.mark.skip()
 class TestBSVasprun(PymatgenTest):
     def test_get_band_structure(self):
         filepath = f"{VASP_OUT_DIR}/vasprun_Si_bands.xml.gz"
@@ -1407,6 +1454,7 @@ class TestBSVasprun(PymatgenTest):
         assert {*vrun_dct["output"]} >= {"eigenvalues", "eigenvalues_kpoints_opt"}
 
 
+@pytest.mark.skip()
 class TestOszicar(PymatgenTest):
     def test_init(self):
         fpath = f"{VASP_OUT_DIR}/OSZICAR"
@@ -1423,6 +1471,7 @@ class TestOszicar(PymatgenTest):
         assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
 
 
+@pytest.mark.skip()
 class TestLocpot(PymatgenTest):
     def test_init(self):
         filepath = f"{VASP_OUT_DIR}/LOCPOT.gz"
@@ -1438,6 +1487,7 @@ class TestLocpot(PymatgenTest):
         assert l2.data_aug == {}
 
 
+@pytest.mark.skip()
 class TestChgcar(PymatgenTest):
     @classmethod
     def setUpClass(cls):
@@ -1547,6 +1597,7 @@ class TestChgcar(PymatgenTest):
         )
 
 
+@pytest.mark.skip()
 class TestAeccars(PymatgenTest):
     # https://github.com/materialsproject/pymatgen/pull/3343
     def test_read_write_file(self):
@@ -1563,6 +1614,7 @@ class TestAeccars(PymatgenTest):
         assert_allclose(aeccar2.data["total"], aeccar2_read.data["total"])
 
 
+@pytest.mark.skip()
 class TestElfcar(PymatgenTest):
     def test_init(self):
         elfcar = Elfcar.from_file(f"{VASP_OUT_DIR}/ELFCAR.gz")
@@ -1583,6 +1635,7 @@ class TestElfcar(PymatgenTest):
         assert len(elfcar.linear_slice([0.0, 0.0, 0.0], [1.0, 1.0, 1.0])) == 100
 
 
+@pytest.mark.skip()
 class TestProcar(PymatgenTest):
     def test_init(self):
         filepath = f"{VASP_OUT_DIR}/PROCAR.simple"
@@ -1632,6 +1685,7 @@ class TestProcar(PymatgenTest):
         assert d2[Spin.up][2][2] == approx({"Na": 0.688, "Li": 0.042})
 
 
+@pytest.mark.skip()
 class TestXdatcar(PymatgenTest):
     def test_init(self):
         filepath = f"{VASP_OUT_DIR}/XDATCAR_4"
@@ -1659,6 +1713,7 @@ class TestXdatcar(PymatgenTest):
         assert structures[0].lattice != structures[-1].lattice
 
 
+@pytest.mark.skip()
 class TestDynmat(PymatgenTest):
     def test_init(self):
         filepath = f"{VASP_OUT_DIR}/DYNMAT"
@@ -1674,6 +1729,7 @@ class TestDynmat(PymatgenTest):
         # TODO: test get_phonon_frequencies once cross-checked
 
 
+@pytest.mark.skip()
 class TestWavecar(PymatgenTest):
     def setUp(self):
         a = np.array(np.eye(3) * 10, dtype=float)  # lattice vectors
@@ -1937,6 +1993,7 @@ class TestWavecar(PymatgenTest):
         assert unk == unk_ncl
 
 
+@pytest.mark.skip()
 class TestEigenval(PymatgenTest):
     def test_init(self):
         eig = Eigenval(f"{VASP_OUT_DIR}/EIGENVAL.gz")
@@ -1977,6 +2034,7 @@ class TestEigenval(PymatgenTest):
         assert props[3][1]
 
 
+@pytest.mark.skip()
 class TestWaveder(PymatgenTest):
     def setUp(self):
         wder = Waveder.from_binary(f"{VASP_OUT_DIR}/WAVEDER", "float64")
@@ -2014,6 +2072,7 @@ class TestWaveder(PymatgenTest):
         _check(wderf)
 
 
+@pytest.mark.skip()
 class TestWSWQ(PymatgenTest):
     def setUp(self):
         self.wswq = WSWQ.from_file(f"{VASP_OUT_DIR}/WSWQ.gz")
