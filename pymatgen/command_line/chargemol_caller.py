@@ -47,7 +47,7 @@ import subprocess
 import warnings
 from glob import glob
 from shutil import which
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 from monty.tempfile import ScratchDir
@@ -249,7 +249,7 @@ class ChargemolAnalysis:
         else:
             self.cm5_charges = None
 
-    def get_charge_transfer(self, atom_index, charge_type="ddec"):
+    def get_charge_transfer(self, atom_index: int, charge_type: Literal["cm5", "ddec"] = "ddec") -> float:
         """Returns the charge transferred for a particular atom. A positive value means
         that the site has gained electron density (i.e. exhibits anionic character)
         whereas a negative value means the site has lost electron density (i.e. exhibits
@@ -263,13 +263,11 @@ class ChargemolAnalysis:
         Returns:
             float: charge transferred at atom_index
         """
-        if charge_type.lower() not in ["ddec", "cm5"]:
-            raise ValueError(f"Invalid {charge_type=}")
         if charge_type.lower() == "ddec":
-            charge_transfer = -self.ddec_charges[atom_index]
-        elif charge_type.lower() == "cm5":
-            charge_transfer = -self.cm5_charges[atom_index]
-        return charge_transfer
+            return -self.ddec_charges[atom_index]
+        if charge_type.lower() == "cm5":
+            return -self.cm5_charges[atom_index]
+        raise ValueError(f"Invalid {charge_type=}")
 
     def get_charge(self, atom_index, nelect=None, charge_type="ddec"):
         """Convenience method to get the charge on a particular atom using the same
