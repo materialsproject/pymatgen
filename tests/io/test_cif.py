@@ -283,7 +283,7 @@ class TestCifIO(PymatgenTest):
 
     def test_cif_writer_non_unique_labels(self):
         """https://github.com/materialsproject/pymatgen/issues/3761"""
-        parser = CifParser(f"{TEST_FILES_DIR}/garnet.cif")
+        parser = CifParser(f"{TEST_FILES_DIR}/cif/garnet.cif")
         struct = parser.parse_structures()[0]
 
         assert struct.labels[0:3] == ["Ca1", "Ca1", "Ca1"]
