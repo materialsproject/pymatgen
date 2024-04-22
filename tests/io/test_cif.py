@@ -283,10 +283,17 @@ class TestCifIO(PymatgenTest):
         parser = CifParser(f"{TEST_FILES_DIR}/garnet.cif")
         struct = parser.parse_structures()[0]
 
+        assert struct.labels[0:3] == ["Ca1", "Ca1", "Ca1"]
         assert len(set(struct.labels)) != len(struct.labels)
 
         # This should pass without raising an error
-        CifWriter(struct)
+        writer = CifWriter(struct)
+
+        parser2 = CifParser.from_str(str(writer))
+        struct2 = parser2.parse_structures()[0]
+
+        assert struct2.labels[0:3] == ["Ca1", "Ca1_1", "Ca1_2"]
+        assert len(set(struct2.labels)) == len(struct2.labels)
 
     def test_cif_parser_springer_pauling(self):
         # Below are 10 tests for CIFs from the Springer Materials/Pauling file DBs.
