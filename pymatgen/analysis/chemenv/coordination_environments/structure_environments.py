@@ -2230,6 +2230,7 @@ class ChemicalEnvironments(MSONable):
         if len(self.coord_geoms) == 0:
             out += " => No coordination in it <=\n"
             return out
+        mp_symbol = ""
         for key in self.coord_geoms:
             mp_symbol = key
             break
