@@ -118,6 +118,7 @@ class BondDissociationEnergies(MSONable):
             bonds (list): bonds to process.
         """
         # Try to split the principle:
+        frags = []
         try:
             frags = self.mol_graph.split_molecule_subgraphs(bonds, allow_reverse=True)
             frag_success = True

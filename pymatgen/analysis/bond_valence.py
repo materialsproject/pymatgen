@@ -268,6 +268,7 @@ class BVAnalyzer:
                 valences.append(vals)
 
         # make variables needed for recursion
+        attrib = []
         if structure.is_ordered:
             n_sites = np.array(list(map(len, equi_sites)))
             valence_min = np.array(list(map(min, valences)))
@@ -324,7 +325,6 @@ class BVAnalyzer:
         else:
             n_sites = np.array([len(sites) for sites in equi_sites])
             tmp = []
-            attrib = []
             for idx, n_site in enumerate(n_sites):
                 for _ in valences[idx]:
                     tmp.append(n_site)
