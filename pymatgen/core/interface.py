@@ -1121,7 +1121,7 @@ class GrainBoundaryGenerator:
 
         else:
             u, v, w = r_axis
-            mu, mv = None
+            mu = mv = None
             if lat_type.lower() == "c":
                 mu = 1
                 lam = 1
@@ -1229,7 +1229,7 @@ class GrainBoundaryGenerator:
         # set one vector of the basis to the rotation axis direction, and
         # obtain the corresponding transform matrix
         eye = np.eye(3, dtype=int)
-        hh, kk, ll = None
+        hh = kk = ll = None
         for hh in range(3):
             if abs(r_axis[hh]) != 0:
                 eye[hh] = np.array(r_axis)
