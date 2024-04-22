@@ -405,8 +405,6 @@ class Slab(Structure):
         symmetric properties of a slab when creating adsorbed
         structures or symmetric reconstructions.
 
-        TODO (@DanielYang59): use "site" over "point" as arg name for consistency
-
         Args:
             point (ArrayLike): Fractional coordinate of the original site.
             cartesian (bool): Use Cartesian coordinates.
@@ -423,7 +421,7 @@ class Slab(Structure):
         for op in ops:
             slab = self.copy()
             site_other = op.operate(point)
-            if f"{site_other[2]:.6f}" == f"{point[2]:.6f}":
+            if isclose(site_other[2], point[2], abs_tol=1e-6):
                 continue
 
             # Add dummy sites to check if the overall structure is symmetric
@@ -640,8 +638,6 @@ class Slab(Structure):
     ) -> None:
         """Add a species at a selected site in a Slab. Will also add an
         equivalent site on the other side to maintain symmetry.
-
-        TODO (@DanielYang59): use "site" over "point" as arg name for consistency
 
         Args:
             species (str | Element | Species): The species to add.
