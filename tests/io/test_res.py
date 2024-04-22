@@ -132,7 +132,9 @@ class TestAirssProvider:
     def test_sfac_writer(self, provider: AirssProvider):
         """https://github.com/materialsproject/pymatgen/issues/3677"""
         sfac = ResWriter._sfac_from_sites(provider.structure)
-        assert len(sfac.species) == max(ion.specie_num for ion in sfac.ions)
+        specie_nums = [ion.specie_num for ion in sfac.ions]
+        assert set(specie_nums) == {1, 2}
+        assert len(sfac.species) == max(specie_nums)
         assert [str(sp) for sp in sfac.species] == ["C", "Co"]
 
 
