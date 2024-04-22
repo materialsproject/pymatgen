@@ -18,6 +18,8 @@ from pymatgen.transformations.standard_transformations import (
 from pymatgen.util.provenance import StructureNL
 from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/alchemy"
+
 
 class TestTransformedStructure(PymatgenTest):
     def setUp(self):
@@ -61,7 +63,7 @@ class TestTransformedStructure(PymatgenTest):
         assert isinstance(deepcopy(self.trans), TransformedStructure)
 
     def test_from_dict(self):
-        with open(f"{TEST_FILES_DIR}/transformations.json") as file:
+        with open(f"{TEST_DIR}/transformations.json") as file:
             dct = json.load(file)
         dct["other_parameters"] = {"tags": ["test"]}
         ts = TransformedStructure.from_dict(dct)

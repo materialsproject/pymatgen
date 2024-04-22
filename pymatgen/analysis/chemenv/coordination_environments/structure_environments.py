@@ -2085,7 +2085,7 @@ class ChemicalEnvironments(MSONable):
             coord_geoms: coordination geometries to be added to the chemical environment.
         """
         if coord_geoms is None:
-            self.coord_geoms = {}
+            self.coord_geoms: dict = {}
         else:
             raise NotImplementedError(
                 "Constructor for ChemicalEnvironments with the coord_geoms argument is not yet implemented"

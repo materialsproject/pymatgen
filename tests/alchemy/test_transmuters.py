@@ -14,7 +14,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 class TestCifTransmuter(PymatgenTest):
     def test_init(self):
         trafos = [SubstitutionTransformation({"Fe": "Mn", "Fe2+": "Mn2+"})]
-        tsc = CifTransmuter.from_filenames([f"{TEST_FILES_DIR}/MultiStructure.cif"], trafos)
+        tsc = CifTransmuter.from_filenames([f"{TEST_FILES_DIR}/cif/MultiStructure.cif"], trafos)
         assert len(tsc) == 2
         expected = {"Mn", "O", "Li", "P"}
         for s in tsc:
