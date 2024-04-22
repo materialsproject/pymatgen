@@ -95,6 +95,7 @@ class HeisenbergMapper:
         # Check how many commensurate graphs we found
         if len(self.sgraphs) < 2:
             raise SystemExit("We need at least 2 unique orderings.")
+
         # Set attributes
         self._get_nn_dict()
         self._get_exchange_df()
@@ -274,6 +275,7 @@ class HeisenbergMapper:
 
             # Loop over all sites in each graph and compute |S_i . S_j|
             # for n+1 unique graphs to compute n exchange params
+            order = ""
             for _graph in sgraphs:
                 sgraph = sgraphs_copy.pop(0)
                 ex_row = pd.DataFrame(np.zeros((1, n_nn_j + 1)), index=[sgraph_index], columns=columns)
@@ -282,7 +284,7 @@ class HeisenbergMapper:
                     # s_i_sign = np.sign(sgraph.structure.site_properties['magmom'][i])
                     s_i = sgraph.structure.site_properties["magmom"][idx]
 
-                    i_index = 0
+                    i_index = None
                     for k, v in unique_site_ids.items():
                         if idx in k:
                             i_index = v
@@ -299,13 +301,12 @@ class HeisenbergMapper:
                         # s_j_sign = np.sign(sgraph.structure.site_properties['magmom'][j_site])
                         s_j = sgraph.structure.site_properties["magmom"][j_site]
 
-                        j_index = 0
+                        j_index = None
                         for k, v in unique_site_ids.items():
                             if j_site in k:
                                 j_index = v
 
                         # Determine order of connection
-                        order = ""
                         if abs(dist - dists["nn"]) <= tol:
                             order = "-nn"
                         elif abs(dist - dists["nnn"]) <= tol:
