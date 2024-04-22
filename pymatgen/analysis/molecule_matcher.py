@@ -895,7 +895,7 @@ class BruteForceOrderMatcher(KabschMatcher):
 
         # Generate all permutation grouped/sorted by the elements
         p_inds = []
-        U = np.empty()
+        U = np.empty(0)
         for p_inds_test in self.permutations(p_atoms):
             p_centroid_test = p_centroid[p_inds_test]
             U_test = self.kabsch(p_centroid_test, q_centroid)
@@ -994,7 +994,7 @@ class HungarianOrderMatcher(KabschMatcher):
 
         # Generate all permutation grouped/sorted by the elements
         inds = []
-        U = np.empty()
+        U = np.empty(0)
         for p_inds_test in self.permutations(p_atoms, p_centroid, p_weights, q_atoms, q_centroid, q_weights):
             p_centroid_test = p_centroid[p_inds_test]
             U_test = self.kabsch(p_centroid_test, q_centroid)
