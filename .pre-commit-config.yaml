@@ -64,6 +64,6 @@ repos:
         args: [--drop-empty-cells, --keep-output]
 
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.358
+    rev: v1.1.359
     hooks:
       - id: pyright
