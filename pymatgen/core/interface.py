@@ -2168,6 +2168,7 @@ class GrainBoundaryGenerator:
                     logger.info("Found perpendicular c vector")
 
         # find the best a, b vectors with their formed area smallest and average norm of a,b smallest.
+        ab_norm = None
         for ii in combinations(ab_vector, 2):
             area_temp = np.linalg.norm(np.cross(np.matmul(ii[0], trans), np.matmul(ii[1], trans)))
             if abs(area_temp - 0) > 1.0e-8:
@@ -2178,8 +2179,7 @@ class GrainBoundaryGenerator:
                     t_matrix[0] = ii[0]
                     t_matrix[1] = ii[1]
 
-                # DEBUG (@DanielYang59): ab_norm would certainly be unbound
-                elif area_temp < area or (abs(area - area_temp) < 1.0e-8 and ab_norm_temp < ab_norm):  # type: ignore  # temporary suppress
+                elif area_temp < area or (abs(area - area_temp) < 1.0e-8 and ab_norm_temp < ab_norm):
                     t_matrix[0] = ii[0]
                     t_matrix[1] = ii[1]
                     area = area_temp
