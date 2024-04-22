@@ -1456,7 +1456,7 @@ class SlabGenerator:
 
         # Calculate the moving distance as the fractional height
         # of the Slab inside the cell
-        # DEBUG(@DanielYang59): the use actually sizes for slab/vac
+        # DEBUG(@DanielYang59): use actual sizes for slab/vac
         # instead of the input arg (min_slab/vac_size)
         n_layers_slab: int = math.ceil(self.min_slab_size / height)
         n_layers_vac: int = math.ceil(self.min_vac_size / height)
