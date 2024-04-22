@@ -68,6 +68,7 @@ class SOCSpillage:
         so_nkpts = len(so_k)
 
         nelec_list = []
+        cup = cdn = None
         for nk1 in range(1, n_kpts_noso + 1):  # no spin orbit kpoints loop
             knoso = noso_kvecs[nk1 - 1, :]
             for nk2 in range(1, so_nkpts + 1):  # spin orbit

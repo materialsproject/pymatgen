@@ -211,6 +211,7 @@ class HeisenbergMapper:
                 dist = round(cs[-1], 2)  # i_j distance
 
                 j = cs[2]  # j index
+                j_key = None
                 for key, value in unique_site_ids.items():
                     if j in key:
                         j_key = value
@@ -281,6 +282,7 @@ class HeisenbergMapper:
                     # s_i_sign = np.sign(sgraph.structure.site_properties['magmom'][i])
                     s_i = sgraph.structure.site_properties["magmom"][idx]
 
+                    i_index = 0
                     for k, v in unique_site_ids.items():
                         if idx in k:
                             i_index = v
@@ -297,17 +299,20 @@ class HeisenbergMapper:
                         # s_j_sign = np.sign(sgraph.structure.site_properties['magmom'][j_site])
                         s_j = sgraph.structure.site_properties["magmom"][j_site]
 
+                        j_index = 0
                         for k, v in unique_site_ids.items():
                             if j_site in k:
                                 j_index = v
 
                         # Determine order of connection
+                        order = ""
                         if abs(dist - dists["nn"]) <= tol:
                             order = "-nn"
                         elif abs(dist - dists["nnn"]) <= tol:
                             order = "-nnn"
                         elif abs(dist - dists["nnnn"]) <= tol:
                             order = "-nnnn"
+
                         j_ij = f"{i_index}-{j_index}{order}"
                         j_ji = f"{j_index}-{i_index}{order}"
 
@@ -393,6 +398,8 @@ class HeisenbergMapper:
         fm_struct, afm_struct = None, None
         mag_min = np.inf
         mag_max = 0.001
+        fm_e = 0
+        afm_e = 0
         fm_e_min = 0
         afm_e_min = 0
 
@@ -588,15 +595,16 @@ class HeisenbergMapper:
             j_exc (float): Exchange parameter in meV
         """
         # Get unique site identifiers
+        i_index = 0
+        j_index = 0
         for k, v in self.unique_site_ids.items():
             if i in k:
                 i_index = v
             if j in k:
                 j_index = v
 
-        order = ""
-
         # Determine order of interaction
+        order = ""
         if abs(dist - self.dists["nn"]) <= self.tol:
             order = "-nn"
         elif abs(dist - self.dists["nnn"]) <= self.tol:
@@ -958,15 +966,16 @@ class HeisenbergModel(MSONable):
             j_exc (float): Exchange parameter in meV
         """
         # Get unique site identifiers
+        i_index = 0
+        j_index = 0
         for k in self.unique_site_ids:
             if i in k:
                 i_index = self.unique_site_ids[k]
             if j in k:
                 j_index = self.unique_site_ids[k]
 
-        order = ""
-
         # Determine order of interaction
+        order = ""
         if abs(dist - self.dists["nn"]) <= self.tol:
             order = "-nn"
         elif abs(dist - self.dists["nnn"]) <= self.tol:
