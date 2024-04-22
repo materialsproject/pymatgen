@@ -442,7 +442,8 @@ class BSPlotter:
             vbm = bs.get_vbm()
             cbm = bs.get_cbm()
         else:
-            raise RuntimeError("Cannot get CBM/VBM for metal.")
+            vbm = {}
+            cbm = {}
 
         zero_energy = 0.0
         if zero_to_efermi:
@@ -2535,10 +2536,9 @@ class BSDOSPlotter:
             Dictionary representation of color data.
         """
         contribs = {}
+        projections = None
         if bs_projection and bs_projection.lower() == "elements":
             projections = bs.get_projection_on_elements()
-        else:
-            raise RuntimeError("Cannot get projections.")
 
         for spin in (Spin.up, Spin.down):
             if spin in bs.bands:
