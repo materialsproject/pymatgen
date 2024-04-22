@@ -2031,6 +2031,7 @@ class GrainBoundaryGenerator:
                 warnings.warn("Too large matrix. Suggest to use quick_gen=False")
             return t_matrix
 
+        c_index = 0
         for ii, jj in enumerate(miller):
             if jj == 0:
                 ab_vector.append(csl[ii])
@@ -2068,6 +2069,8 @@ class GrainBoundaryGenerator:
         if normal:
             c_cross = np.cross(np.matmul(t_matrix[2], trans), np.matmul(surface, ctrans))
             normal_init = np.linalg.norm(c_cross) < 1e-8
+        else:
+            normal_init = False
 
         jj = np.arange(0, max_j + 1)
         combination = []
@@ -2160,7 +2163,9 @@ class GrainBoundaryGenerator:
                     ab_norm = ab_norm_temp
                     t_matrix[0] = ii[0]
                     t_matrix[1] = ii[1]
-                elif area_temp < area or (abs(area - area_temp) < 1.0e-8 and ab_norm_temp < ab_norm):
+
+                # DEBUG (@DanielYang59): ab_norm would certainly be unbound
+                elif area_temp < area or (abs(area - area_temp) < 1.0e-8 and ab_norm_temp < ab_norm):  # type: ignore  # temporary supress
                     t_matrix[0] = ii[0]
                     t_matrix[1] = ii[1]
                     area = area_temp
