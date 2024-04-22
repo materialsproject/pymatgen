@@ -680,6 +680,7 @@ def plot_slab(
         sites = list(reversed(sites))
         coords = np.array(reversed(coords))
     # Draw circles at sites and stack them accordingly
+    n = None
     for n, coord in enumerate(coords):
         radius = sites[n].species.elements[0].atomic_radius * scale
         ax.add_patch(patches.Circle(coord[:2] - lattice_sum * (repeat // 2), radius, color="w", zorder=2 * n))
