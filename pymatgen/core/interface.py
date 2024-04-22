@@ -590,6 +590,7 @@ class GrainBoundaryGenerator:
                 else:
                     mu, mv = ratio
                 trans_cry1 = np.array([[1, 0, 0], [-0.5, np.sqrt(3.0) / 2.0, 0], [0, 0, np.sqrt(mu / mv)]])
+
             elif lat_type.lower() == "r":
                 if ratio is None:
                     c2_a2_ratio = 1.0
@@ -603,6 +604,7 @@ class GrainBoundaryGenerator:
                         [0, -1 * np.sqrt(3.0) / 3.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)],
                     ]
                 )
+
             else:
                 if lat_type.lower() == "t":
                     if ratio is None:
@@ -610,12 +612,19 @@ class GrainBoundaryGenerator:
                     else:
                         mu, mv = ratio
                     lam = mv
+
                 elif lat_type.lower() == "o":
                     new_ratio = [1 if v is None else v for v in ratio]
                     mu, lam, mv = new_ratio
+
+                else:
+                    raise RuntimeError("Invalid lattice type.")
+
                 trans_cry1 = np.array([[1, 0, 0], [0, np.sqrt(lam / mv), 0], [0, 0, np.sqrt(mu / mv)]])
+
         else:
             trans_cry1 = trans_cry
+
         grain_matrix = np.dot(t2, trans_cry1)
         plane_init = np.cross(grain_matrix[0], grain_matrix[1])
         if lat_type.lower() != "c":
@@ -977,6 +986,7 @@ class GrainBoundaryGenerator:
             index = reduce(gcd, surface)
             surface = [int(round(x / index)) for x in surface]
 
+        lam = None
         if lat_type.lower() == "h":
             # set the value for u,v,w,mu,mv,m,n,d,x
             # check the reference for the meaning of these parameters
@@ -1033,6 +1043,7 @@ class GrainBoundaryGenerator:
             com_fac = reduce(gcd, all_list)
             sigma = F / com_fac
             r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
+
         elif lat_type.lower() == "r":
             # set the value for u,v,w,mu,mv,m,n,d
             # check the reference for the meaning of these parameters
@@ -1107,8 +1118,10 @@ class GrainBoundaryGenerator:
             com_fac = reduce(gcd, all_list)
             sigma = F / com_fac
             r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
+
         else:
             u, v, w = r_axis
+            mu, mv = None
             if lat_type.lower() == "c":
                 mu = 1
                 lam = 1
@@ -1216,6 +1229,7 @@ class GrainBoundaryGenerator:
         # set one vector of the basis to the rotation axis direction, and
         # obtain the corresponding transform matrix
         eye = np.eye(3, dtype=int)
+        hh, kk, ll = None
         for hh in range(3):
             if abs(r_axis[hh]) != 0:
                 eye[hh] = np.array(r_axis)
@@ -1232,14 +1246,14 @@ class GrainBoundaryGenerator:
         scale[hh, hh] = 1
         scale[kk, kk] = least_mul
         scale[ll, ll] = sigma / least_mul
+        n_final = None
         for idx in range(least_mul):
             check_int = idx * new_rot[:, kk] + (sigma / least_mul) * new_rot[:, ll]
             if all(np.round(x, 5).is_integer() for x in list(check_int)):
                 n_final = idx
                 break
-        try:
-            n_final  # noqa: B018
-        except NameError:
+
+        if n_final is None:
             raise RuntimeError("Something is wrong. Check if this GB exists or not")
         scale[kk, ll] = n_final
         # each row of mat_csl is the CSL lattice vector
@@ -2165,7 +2179,7 @@ class GrainBoundaryGenerator:
                     t_matrix[1] = ii[1]
 
                 # DEBUG (@DanielYang59): ab_norm would certainly be unbound
-                elif area_temp < area or (abs(area - area_temp) < 1.0e-8 and ab_norm_temp < ab_norm):  # type: ignore  # temporary supress
+                elif area_temp < area or (abs(area - area_temp) < 1.0e-8 and ab_norm_temp < ab_norm):  # type: ignore  # temporary suppress
                     t_matrix[0] = ii[0]
                     t_matrix[1] = ii[1]
                     area = area_temp
