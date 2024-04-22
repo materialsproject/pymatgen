@@ -90,8 +90,8 @@ class WulffFacet:
         self.index = index
         self.m_ind_orig = m_ind_orig
         self.miller = miller
-        self.points = []
-        self.outer_lines = []
+        self.points: list = []
+        self.outer_lines: list = []
 
 
 class WulffShape:

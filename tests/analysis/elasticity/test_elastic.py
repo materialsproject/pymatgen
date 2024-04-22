@@ -30,6 +30,8 @@ from pymatgen.core.tensors import Tensor
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/elasticity"
+
 
 class TestElasticTensor(PymatgenTest):
     def setUp(self):
@@ -65,10 +67,10 @@ class TestElasticTensor(PymatgenTest):
         )
 
         self.elastic_tensor_1 = ElasticTensor(self.ft)
-        filepath = f"{TEST_FILES_DIR}/Sn_def_stress.json"
+        filepath = f"{TEST_DIR}/Sn_def_stress.json"
         with open(filepath) as file:
             self.def_stress_dict = json.load(file)
-        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as file:
+        with open(f"{TEST_DIR}/test_toec_data.json") as file:
             self.toec_dict = json.load(file)
         self.structure = self.get_structure("Sn")
 
@@ -256,7 +258,7 @@ class TestElasticTensor(PymatgenTest):
 
 class TestElasticTensorExpansion(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as file:
+        with open(f"{TEST_DIR}/test_toec_data.json") as file:
             self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
@@ -357,7 +359,7 @@ class TestElasticTensorExpansion(PymatgenTest):
 
 class TestNthOrderElasticTensor(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as file:
+        with open(f"{TEST_DIR}/test_toec_data.json") as file:
             self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
@@ -396,7 +398,7 @@ class TestDiffFit(PymatgenTest):
     """Tests various functions related to diff fitting."""
 
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as file:
+        with open(f"{TEST_DIR}/test_toec_data.json") as file:
             self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]

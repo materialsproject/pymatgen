@@ -101,7 +101,7 @@ class TestTensor(PymatgenTest):
         )
 
         self.structure = self.get_structure("BaNiO3")
-        ieee_file_path = f"{TEST_FILES_DIR}/ieee_conversion_data.json"
+        ieee_file_path = f"{TEST_FILES_DIR}/core/tensors/ieee_conversion_data.json"
         self.ones = Tensor(np.ones((3, 3)))
         self.ieee_data = loadfn(ieee_file_path)
 
@@ -283,7 +283,7 @@ class TestTensor(PymatgenTest):
         assert empty[tkey] == 1
 
     def test_populate(self):
-        test_data = loadfn(f"{TEST_FILES_DIR}/test_toec_data.json")
+        test_data = loadfn(f"{TEST_FILES_DIR}/analysis/elasticity/test_toec_data.json")
 
         sn = self.get_structure("Sn")
         vtens = np.zeros((6, 6))
@@ -369,7 +369,7 @@ class TestTensorCollection(PymatgenTest):
         self.rand_tc = TensorCollection(list(np.random.random((4, 3, 3))))
         self.diff_rank = TensorCollection([np.ones([3] * i) for i in range(2, 5)])
         self.struct = self.get_structure("Si")
-        ieee_file_path = f"{TEST_FILES_DIR}/ieee_conversion_data.json"
+        ieee_file_path = f"{TEST_FILES_DIR}/core/tensors/ieee_conversion_data.json"
         self.ieee_data = loadfn(ieee_file_path)
 
     def list_based_function_check(self, attribute, coll, *args, **kwargs):

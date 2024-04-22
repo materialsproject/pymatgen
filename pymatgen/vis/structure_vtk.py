@@ -90,7 +90,7 @@ class StructureVis:
         self.title = "Structure Visualizer"
         self.iren = vtk.vtkRenderWindowInteractor()
         self.iren.SetRenderWindow(self.ren_win)
-        self.mapper_map = {}
+        self.mapper_map: dict = {}
         self.structure = None
 
         if element_color_mapping:

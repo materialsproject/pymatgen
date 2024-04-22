@@ -10,7 +10,7 @@ __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
 __date__ = "Mar 18, 2012"
 
-TEST_DIR = f"{TEST_FILES_DIR}/app_borg"
+TEST_DIR = f"{TEST_FILES_DIR}/apps/borg"
 
 
 class TestBorgQueen:

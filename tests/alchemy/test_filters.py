@@ -72,7 +72,7 @@ class TestSpecieProximityFilter(PymatgenTest):
 
 class TestRemoveDuplicatesFilter(TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/TiO2_entries.json") as file:
+        with open(f"{TEST_FILES_DIR}/entries/TiO2_entries.json") as file:
             entries = json.load(file, cls=MontyDecoder)
         self._struct_list = [entry.structure for entry in entries]
         self._sm = StructureMatcher()
@@ -91,7 +91,7 @@ class TestRemoveDuplicatesFilter(TestCase):
 
 class TestRemoveExistingFilter(TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/TiO2_entries.json") as file:
+        with open(f"{TEST_FILES_DIR}/entries/TiO2_entries.json") as file:
             entries = json.load(file, cls=MontyDecoder)
         self._struct_list = [entry.structure for entry in entries]
         self._sm = StructureMatcher()

@@ -3,10 +3,12 @@ from __future__ import annotations
 from pymatgen.io.pwmat.outputs import DosSpin, Movement, OutFermi, Report
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/io/pwmat"
+
 
 class TestMovement(PymatgenTest):
     def test_init_and_properties(self):
-        filepath = f"{TEST_FILES_DIR}/pwmat/MOVEMENT.lzma"
+        filepath = f"{TEST_DIR}/MOVEMENT.lzma"
         movement = Movement(filepath)
         assert movement.n_ionic_steps == len(movement.chunk_sizes) == 1
         assert movement.n_ionic_steps == len(movement.chunk_starts)
@@ -26,14 +28,14 @@ class TestMovement(PymatgenTest):
 
 class TestOutFermi(PymatgenTest):
     def test_init_and_properties(self):
-        filepath = f"{TEST_FILES_DIR}/pwmat/OUT.FERMI.lzma"
+        filepath = f"{TEST_DIR}/OUT.FERMI.lzma"
         out_fermi = OutFermi(filepath)
         assert out_fermi.e_fermi == -2.359
 
 
 class TestReport(PymatgenTest):
     def test_init_and_properties(self):
-        filepath = f"{TEST_FILES_DIR}/pwmat/REPORT"
+        filepath = f"{TEST_DIR}/REPORT"
         report = Report(filepath)
         assert report.spin == 1
         assert report.n_kpoints == 1
@@ -46,7 +48,7 @@ class TestReport(PymatgenTest):
 
 class TestDosSpin(PymatgenTest):
     def test_init_and_properties(self):
-        filepath = f"{TEST_FILES_DIR}/pwmat/DOS.spinup_projected"
+        filepath = f"{TEST_DIR}/DOS.spinup_projected"
         dos_spin = DosSpin(filepath)
         assert dos_spin.dos.shape == (20, 21)
         assert dos_spin.labels == [

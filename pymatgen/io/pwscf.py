@@ -522,7 +522,7 @@ class PWOutput:
             filename (str): Filename.
         """
         self.filename = filename
-        self.data = defaultdict(list)
+        self.data: dict[str, list[float] | float] = defaultdict(list)
         self.read_pattern(PWOutput.patterns)
         for k, v in self.data.items():
             if k == "energies":

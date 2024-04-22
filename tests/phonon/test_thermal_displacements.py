@@ -8,7 +8,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.phonon.thermal_displacements import ThermalDisplacementMatrices
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-TEST_DIR = TEST_FILES_DIR / "phonopy"
+TEST_DIR = f"{TEST_FILES_DIR}/phonon/thermal_displacement_matrices"
 
 
 class TestThermalDisplacement(PymatgenTest):
@@ -40,7 +40,7 @@ class TestThermalDisplacement(PymatgenTest):
                 [4.88e-03, 4.97e-03, 3.97e-03, 7.00e-04, -7.00e-04, -1.44e-03],
                 [4.88e-03, 4.97e-03, 3.97e-03, -7.00e-04, -7.00e-04, 1.44e-03],
             ],
-            structure=Structure.from_file(f"{TEST_DIR}/thermal_displacement_matrices/POSCAR"),
+            structure=Structure.from_file(f"{TEST_DIR}/POSCAR"),
             temperature=0.0,
         )
 
@@ -69,7 +69,7 @@ class TestThermalDisplacement(PymatgenTest):
                 [4.88e-03, 4.97e-03, 3.97e-03, 7.00e-04, -7.00e-04, -1.44e-03],
                 [4.88e-03, 4.97e-03, 3.97e-03, -7.00e-04, -7.00e-04, 1.44e-03],
             ],
-            structure=Structure.from_file(f"{TEST_DIR}/thermal_displacement_matrices/POSCAR"),
+            structure=Structure.from_file(f"{TEST_DIR}/POSCAR"),
             temperature=0.0,
             thermal_displacement_matrix_cif=[
                 [0.00457, 0.00613, 0.00415, -0.00011, -0.00081, -0.00082],
@@ -197,7 +197,7 @@ class TestThermalDisplacement(PymatgenTest):
                 [0.00461, 0.00497, 0.00397, 0.00070, 0.00002, -0.00129],
                 [0.00461, 0.00497, 0.00397, -0.00070, 0.00002, 0.00129],
             ],
-            structure=Structure.from_file(f"{TEST_DIR}/thermal_displacement_matrices/POSCAR"),
+            structure=Structure.from_file(f"{TEST_DIR}/POSCAR"),
             temperature=0.0,
         )
         assert_allclose(
@@ -265,7 +265,7 @@ class TestThermalDisplacement(PymatgenTest):
                 [4.88e-03, 4.97e-03, 3.97e-03, 7.00e-04, -7.00e-04, -1.44e-03],
                 [4.88e-03, 4.97e-03, 3.97e-03, -7.00e-04, -7.00e-04, 1.44e-03],
             ],
-            structure=Structure.from_file(f"{TEST_DIR}/thermal_displacement_matrices/POSCAR"),
+            structure=Structure.from_file(f"{TEST_DIR}/POSCAR"),
             temperature=0.0,
         )
         assert self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["angle"] == approx(0.0)
