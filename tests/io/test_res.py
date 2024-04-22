@@ -129,6 +129,12 @@ class TestAirssProvider:
         assert dct["pressure"] == approx(15.0252)
         assert dct["volume"] == approx(57.051984)
 
+    def test_sfac_writer(self, provider: AirssProvider):
+        """https://github.com/materialsproject/pymatgen/issues/3677"""
+        sfac = ResWriter._sfac_from_sites(provider.structure)
+        assert len(sfac.species) == max(ion.specie_num for ion in sfac.ions)
+        assert [str(sp) for sp in sfac.species] == ["C", "Co"]
+
 
 class TestSpin:
     def test_read_spin(self):
