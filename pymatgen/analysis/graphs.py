@@ -1490,7 +1490,7 @@ class StructureGraph(MSONable):
         # without adding extra logic
         if getattr(self, "_supercell_sg", None) is None:
             self._supercell_sg = supercell_sg = self * (3, 3, 3)
-        else:  # TODO: need double check
+        else:
             raise RuntimeError("Supercell spacegroup is not None.")
 
         # make undirected to find connected subgraphs
