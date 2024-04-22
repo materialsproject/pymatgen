@@ -145,8 +145,6 @@ skip = "pymatgen/analysis/aflow_prototypes.json"
 check-filenames = true
 
 [tool.pyright]
-venv = "pmg"
-venvPath = "~/micromamba/envs"
 typeCheckingMode = "off"
 reportPossiblyUnboundVariable = true
 reportUnboundVariable = true
