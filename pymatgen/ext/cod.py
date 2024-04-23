@@ -57,7 +57,7 @@ class COD:
         return response.decode("utf-8")
 
     @requires(which("mysql"), "mysql must be installed to use this query.")
-    def get_cod_ids(self, formula):
+    def get_cod_ids(self, formula) -> list[int]:
         """Queries the COD for all cod ids associated with a formula. Requires
         mysql executable to be in the path.
 
@@ -80,17 +80,18 @@ class COD:
                 cod_ids.append(int(match.group(1)))
         return cod_ids
 
-    def get_structure_by_id(self, cod_id, **kwargs):
+    def get_structure_by_id(self, cod_id: int, timeout: int = 600, **kwargs) -> Structure:
         """Queries the COD for a structure by id.
 
         Args:
             cod_id (int): COD id.
+            timeout (int): Timeout for the request in seconds. Default = 600.
             kwargs: All kwargs supported by Structure.from_str.
 
         Returns:
             A Structure.
         """
-        response = requests.get(f"http://{self.url}/cod/{cod_id}.cif", timeout=600)
+        response = requests.get(f"http://{self.url}/cod/{cod_id}.cif", timeout=timeout)
         return Structure.from_str(response.text, fmt="cif", **kwargs)
 
     @requires(which("mysql"), "mysql must be installed to use this query.")
