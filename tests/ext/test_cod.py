@@ -9,7 +9,7 @@ import requests
 from pymatgen.ext.cod import COD
 
 try:
-    website_down = requests.get("https://www.crystallography.net", timeout=60).status_code != 200
+    website_down = requests.get("https://www.crystallography.net", timeout=600).status_code != 200
 except requests.exceptions.ConnectionError:
     website_down = True
 
