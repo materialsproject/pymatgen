@@ -609,14 +609,23 @@ class Vasprun(MSONable):
     def converged_ionic(self) -> bool:
         """
         Returns:
-            bool: True if ionic step convergence has been reached, i.e. that vasp
+            bool: True if ionic step convergence has been reached, i.e. VASP
                 exited before reaching the max ionic steps for a relaxation run.
-                In case IBRION=0 (MD) True if the max ionic steps are reached.
+                In case IBRION=0 (MD) or EDIFFG=0, returns True if the max ionic steps are reached.
         """
         nsw = self.parameters.get("NSW", 0)
         ibrion = self.parameters.get("IBRION", -1 if nsw in (-1, 0) else 0)
         if ibrion == 0:
             return nsw <= 1 or self.md_n_steps == nsw
+
+        # context re EDIFFG: the use case for EDIFFG=0 is to ensure a relaxation runs for
+        # NSW steps (the non-AIMD way to generate a relaxation trajectory with DFT). In
+        # that case, user isn't worried about convergence w.r.t. forces or energy. The
+        # next if statement prevents custodian from trying to correct the calc because
+        # Vasprun.converged_ionic = False.
+        ediffg = self.parameters.get("EDIFFG", 1)
+        if ibrion in {1, 2} and ediffg == 0:
+            return nsw <= 1 or nsw == len(self.ionic_steps)
 
         return nsw <= 1 or len(self.ionic_steps) < nsw
 
