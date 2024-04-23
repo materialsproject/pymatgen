@@ -979,7 +979,7 @@ def get_strain_state_dict(strains, stresses, eq_stress=None, tol: float = 1e-10,
         if add_eq:
             # add zero strain state
             mstrains = np.vstack([mstrains, np.zeros(6)])
-            mstresses = np.vstack([mstresses, veq_stress])
+            mstresses = np.vstack([mstresses, veq_stress])  # type: ignore[reportPossiblyUnboundVariable]
         # sort strains/stresses by strain values
         if sort:
             mstresses = mstresses[mstrains[:, ind[0]].argsort()]

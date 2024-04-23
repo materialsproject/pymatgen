@@ -420,6 +420,7 @@ class Slab(Structure):
 
         # Each operation on a site will return an equivalent site.
         # We want to find the site on the other side of the slab.
+        site_other = None
         for op in ops:
             slab = self.copy()
             site_other = op.operate(point)
@@ -436,6 +437,9 @@ class Slab(Structure):
             # sites and try another symmetry operator
             slab.remove_sites([len(slab) - 1])
             slab.remove_sites([len(slab) - 1])
+
+        if site_other is None:
+            raise RuntimeError("Failed to get symmetric site.")
 
         return site_other
 
@@ -686,6 +690,8 @@ class Slab(Structure):
                 list[int]: Indices of the equivalent sites.
             """
             equi_sites = []
+            eq_indices = []
+            eq_sites: list = []
 
             for pt in sites:
                 # Get the index of the original site
@@ -830,6 +836,8 @@ def get_slab_regions(
     # If slab is noncontiguous
     if frac_coords:
         # Locate the lowest site within the upper Slab
+        last_fcoords = []
+        last_indices = []
         while frac_coords:
             last_fcoords = copy.copy(frac_coords)
             last_indices = copy.copy(indices)
@@ -1690,11 +1698,15 @@ def get_d(slab: Slab) -> float:
     # Sort all sites by z-coordinates
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
 
+    distance = None
     for site, next_site in zip(sorted_sites, sorted_sites[1:]):
         if not isclose(site.frac_coords[2], next_site.frac_coords[2], abs_tol=1e-6):
             # DEBUG (@DanielYang59): code will break if no distinguishable layers found
             distance = next_site.frac_coords[2] - site.frac_coords[2]
             break
+
+    if distance is None:
+        raise RuntimeError("Cannot identify any layer.")
 
     return slab.lattice.get_cartesian_coords([0, 0, distance])[2]
 
@@ -1959,6 +1971,9 @@ def get_symmetrically_equivalent_miller_indices(
     # Convert to hkl if hkil, because in_coord_list only handles tuples of 3
     if len(miller_index) >= 3:
         _miller_index: tuple[int, int, int] = (miller_index[0], miller_index[1], miller_index[-1])
+    else:
+        _miller_index = (miller_index[0], miller_index[1], miller_index[2])
+
     max_idx = max(np.abs(miller_index))
     idx_range = list(range(-max_idx, max_idx + 1))
     idx_range.reverse()

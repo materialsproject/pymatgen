@@ -680,19 +680,19 @@ def plot_slab(
         sites = list(reversed(sites))
         coords = np.array(reversed(coords))
     # Draw circles at sites and stack them accordingly
-    for n, coord in enumerate(coords):
-        radius = sites[n].species.elements[0].atomic_radius * scale
-        ax.add_patch(patches.Circle(coord[:2] - lattice_sum * (repeat // 2), radius, color="w", zorder=2 * n))
-        color = color_dict[sites[n].species.elements[0].symbol]
+    for idx, coord in enumerate(coords):
+        radius = sites[idx].species.elements[0].atomic_radius * scale
+        ax.add_patch(patches.Circle(coord[:2] - lattice_sum * (repeat // 2), radius, color="w", zorder=2 * idx))
+        color = color_dict[sites[idx].species.elements[0].symbol]
         ax.add_patch(
             patches.Circle(
                 coord[:2] - lattice_sum * (repeat // 2),
                 radius,
                 facecolor=color,
-                alpha=alphas[n],
+                alpha=alphas[idx],
                 edgecolor="k",
                 lw=0.3,
-                zorder=2 * n + 1,
+                zorder=2 * idx + 1,
             )
         )
     # Adsorption sites
@@ -714,7 +714,7 @@ def plot_slab(
         codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
         vertices = [(np.array(vert) + corner).tolist() for vert in vertices]
         path = Path(vertices, codes)
-        patch = patches.PathPatch(path, facecolor="none", lw=2, alpha=0.5, zorder=2 * n + 2)
+        patch = patches.PathPatch(path, facecolor="none", lw=2, alpha=0.5, zorder=2 * len(coords) + 2)
         ax.add_patch(patch)
     ax.set_aspect("equal")
     center = corner + lattice_sum / 2.0

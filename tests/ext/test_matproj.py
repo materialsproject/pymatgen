@@ -26,7 +26,7 @@ from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
-    skip_mprester_tests = requests.get("https://materialsproject.org", timeout=60).status_code != 200
+    skip_mprester_tests = requests.get("https://materialsproject.org", timeout=600).status_code != 200
 
 except (ModuleNotFoundError, ImportError, requests.exceptions.ConnectionError):
     # Skip all MPRester tests if some downstream problem on the website, mp-api or whatever.
@@ -76,7 +76,7 @@ class TestMPResterOld(PymatgenTest):
             "total_magnetization",
         }
         mp_id = "mp-1143"
-        vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=60)
+        vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=600)
         expected_vals = vals.json()
 
         for prop in props:
@@ -570,7 +570,7 @@ class TestMPResterNewBasic:
     #         "total_magnetization",
     #     }
     #     mp_id = "mp-1143"
-    #     vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=60)
+    #     vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=600)
     #     expected_vals = vals.json()
     #
     #     for prop in props:

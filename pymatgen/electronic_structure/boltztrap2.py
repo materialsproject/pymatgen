@@ -560,6 +560,7 @@ class BztInterpolator:
             vvband_ud = [self.vvband]
             spins = [Spin.up]
 
+        energies = []
         for spin, eb, vvb in zip(spins, eband_ud, vvband_ud):
             energies, densities, _vvdos, _cdos = BL.BTPDOS(eb, vvb, npts=npts_mu, erange=enr)
 
@@ -591,14 +592,17 @@ class BztInterpolator:
         pdoss = {}
         if progress:
             n_iter = np.prod(np.sum([np.array(i.shape)[2:] for i in self.data.proj.values()]))
-            t = tqdm(total=n_iter * 2)
+            bar = tqdm(total=n_iter * 2)
+        else:
+            bar = None
+
         for spin, eb in zip(spins, eband_ud):
             for idx, site in enumerate(self.data.structure):
                 if site not in pdoss:
                     pdoss[site] = {}
                 for iorb, orb in enumerate(Orbital):
                     if progress:
-                        t.update()
+                        bar.update()
                     if iorb == self.data.proj[spin].shape[-1]:
                         break
 
@@ -1059,6 +1063,7 @@ class BztPlotter:
         if temps is None:
             temps = self.bzt_transP.temp_r.tolist()
 
+        doping_all = []
         if isinstance(self.bzt_transP.doping, np.ndarray):
             doping_all = self.bzt_transP.doping.tolist()
             if doping is None:
