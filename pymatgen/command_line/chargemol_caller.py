@@ -191,9 +191,7 @@ class ChargemolAnalysis:
             with open(os.path.join(temp_dir, "job_control.txt"), mode="w") as file:
                 file.write(lines)
 
-            response = subprocess.run(CHARGEMOL_EXE, capture_output=True, check=False)
-            _stdout = response.stdout.decode("utf-8")
-            response.stderr.decode("utf-8")
+            subprocess.run(CHARGEMOL_EXE, capture_output=True, check=True)
 
             self._from_data_dir(chargemol_output_path=temp_dir)
 
