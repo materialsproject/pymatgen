@@ -75,7 +75,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.converged_ionic
 
     def test_vasprun_ediffg_set_to_0(self):
-        # Test for case where EDIFFG is set to 0. This should pass if all ionic steps 
+        # Test for case where EDIFFG is set to 0. This should pass if all ionic steps
         # complete and are electronically converged.
         print(list(os.walk(VASP_OUT_DIR)))
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.ediffg_set_to_0.xml.gz")
