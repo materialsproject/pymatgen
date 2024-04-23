@@ -67,13 +67,16 @@ class SOCSpillage:
         # so_occs = np.array([np.array(so.band_energy)[:, :, 2]])
         so_nkpts = len(so_k)
 
-        nelec_list = []
+        n_elec_list: list[list[int]] = []
+        cup = cdn = 0
         for nk1 in range(1, n_kpts_noso + 1):  # no spin orbit kpoints loop
-            knoso = noso_kvecs[nk1 - 1, :]
+            k_no_spin_orbit = noso_kvecs[nk1 - 1, :]
             for nk2 in range(1, so_nkpts + 1):  # spin orbit
                 kso = so_kvecs[nk2 - 1, :]
                 if (
-                    self.isclose(kso[0], knoso[0]) and self.isclose(kso[1], knoso[1]) and self.isclose(kso[2], knoso[2])
+                    self.isclose(kso[0], k_no_spin_orbit[0])
+                    and self.isclose(kso[1], k_no_spin_orbit[1])
+                    and self.isclose(kso[2], k_no_spin_orbit[2])
                 ):  # do kpoints match?
                     for c, e in enumerate(noso_occs[0, nk1 - 1, :]):
                         if e < 0.5:
@@ -84,14 +87,14 @@ class SOCSpillage:
                             cdn = c
                             break
 
-                    nelec_list.append([cup, cdn, cup + cdn])
-        n_arr = np.array(nelec_list)
+                    n_elec_list.append([cup, cdn, cup + cdn])
+        n_arr = np.array(n_elec_list)
 
         n_up = int(round(np.mean(n_arr[:, 0])))
         n_dn = int(round(np.mean(n_arr[:, 1])))
         n_tot = int(round(np.mean(n_arr[:, 2])))
 
-        nelec = int(n_tot)
+        n_elec = int(n_tot)
 
         # noso_homo_up = np.max(noso_bands[0, :, n_up - 1])
         # noso_lumo_up = np.min(noso_bands[0, :, n_up])
@@ -99,13 +102,13 @@ class SOCSpillage:
         # noso_homo_dn = np.max(noso_bands[1, :, n_dn - 1])
         # noso_lumo_dn = np.min(noso_bands[1, :, n_dn])
 
-        so_homo = np.max(so_bands[0, :, nelec - 1])
-        so_lumo = np.min(so_bands[0, :, nelec])
+        so_homo = np.max(so_bands[0, :, n_elec - 1])
+        so_lumo = np.min(so_bands[0, :, n_elec])
 
         # noso_direct_up = np.min(noso_bands[0, :, n_up] - noso_bands[0, :, n_up - 1])
         # noso_direct_dn = np.min(noso_bands[1, :, n_dn] - noso_bands[1, :, n_dn - 1])
 
-        so_direct = np.min(so_bands[0, :, nelec] - so_bands[0, :, nelec - 1])
+        so_direct = np.min(so_bands[0, :, n_elec] - so_bands[0, :, n_elec - 1])
 
         noso_direct = 1000000.0
         noso_homo = -10000000.0
@@ -127,11 +130,13 @@ class SOCSpillage:
 
         nelec_tot = 0.0
         for nk1 in range(1, n_kpts_noso + 1):  # no spin orbit kpoints loop
-            knoso = noso_kvecs[nk1 - 1, :]
+            k_no_spin_orbit = noso_kvecs[nk1 - 1, :]
             for nk2 in range(1, so_nkpts + 1):  # spin orbit
                 kso = so_kvecs[nk2 - 1, :]
                 if (
-                    self.isclose(kso[0], knoso[0]) and self.isclose(kso[1], knoso[1]) and self.isclose(kso[2], knoso[2])
+                    self.isclose(kso[0], k_no_spin_orbit[0])
+                    and self.isclose(kso[1], k_no_spin_orbit[1])
+                    and self.isclose(kso[2], k_no_spin_orbit[2])
                 ):  # do kpoints match?
                     # changes section 2
                     nelec_up = n_arr[nk1 - 1, 0]
@@ -193,7 +198,7 @@ class SOCSpillage:
                                 nk1,
                                 nk2,
                                 kso,
-                                knoso,
+                                k_no_spin_orbit,
                                 np.real(gamma_k[-1]),
                                 "!!!!!!!!!!",
                             )

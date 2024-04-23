@@ -32,7 +32,7 @@ try:
 
     from pymatgen.io.babel import BabelMolAdaptor
 except ImportError:
-    openbabel = None
+    openbabel = BabelMolAdaptor = None  # type: ignore[misc]
 
 if TYPE_CHECKING:
     from typing_extensions import Self
@@ -894,6 +894,8 @@ class BruteForceOrderMatcher(KabschMatcher):
         rmsd = np.inf
 
         # Generate all permutation grouped/sorted by the elements
+        p_inds = []
+        U = np.empty(0)
         for p_inds_test in self.permutations(p_atoms):
             p_centroid_test = p_centroid[p_inds_test]
             U_test = self.kabsch(p_centroid_test, q_centroid)
@@ -991,6 +993,8 @@ class HungarianOrderMatcher(KabschMatcher):
         rmsd = np.inf
 
         # Generate all permutation grouped/sorted by the elements
+        inds = []
+        U = np.empty(0)
         for p_inds_test in self.permutations(p_atoms, p_centroid, p_weights, q_atoms, q_centroid, q_weights):
             p_centroid_test = p_centroid[p_inds_test]
             U_test = self.kabsch(p_centroid_test, q_centroid)
@@ -1262,6 +1266,7 @@ class GeneticOrderMatcher(KabschMatcher):
 
         # starting matches (only based on element)
         partial_matches = [[j] for j in range(self.N) if p_atoms[j] == q_atoms[0]]
+        matches: list = []
 
         for idx in range(1, self.N):
             # extending the target fragment with then next atom

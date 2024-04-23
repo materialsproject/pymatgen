@@ -87,7 +87,7 @@ class Ion:
 
 @dataclass(frozen=True)
 class ResSFAC:
-    species: set[str]
+    species: list[str]
     ions: list[Ion]
 
     def __str__(self) -> str:
@@ -180,7 +180,7 @@ class ResParser:
 
     def _parse_sfac(self, line: str, it: Iterator[str]) -> ResSFAC:
         """Parses the SFAC block."""
-        species = set(line.split())
+        species = list(line.split())
         ions = []
         try:
             while True:
@@ -256,24 +256,24 @@ class ResWriter:
         return ResCELL(1.0, lattice.a, lattice.b, lattice.c, lattice.alpha, lattice.beta, lattice.gamma)
 
     @classmethod
-    def _ions_from_sites(cls, sites: list[PeriodicSite]) -> list[Ion]:
-        """Produce a list of entries for a SFAC block from a list of pymatgen PeriodicSite."""
+    def _sfac_from_sites(cls, sites: list[PeriodicSite]) -> ResSFAC:
+        """Produce a SFAC block from a list of pymatgen PeriodicSite."""
         ions: list[Ion] = []
-        i = 0
+        species: list[str] = list()
+
         for site in sites:
             for specie, occ in site.species.items():
-                i += 1
+                try:
+                    i = species.index(specie) + 1
+                except ValueError:
+                    species.append(specie)
+                    i = len(species)
+
                 x, y, z = map(float, site.frac_coords)
                 spin = site.properties.get("magmom")
                 spin = spin and float(spin)
                 ions.append(Ion(specie, i, (x, y, z), occ, spin))
-        return ions
 
-    @classmethod
-    def _sfac_from_sites(cls, sites: list[PeriodicSite]) -> ResSFAC:
-        """Produce a SFAC block from a list of pymatgen PeriodicSite."""
-        ions = cls._ions_from_sites(sites)
-        species = {ion.specie for ion in ions}
         return ResSFAC(species, ions)
 
     @classmethod

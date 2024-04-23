@@ -268,6 +268,8 @@ class ChemicalPotentialDiagram(MSONable):
 
         if element_padding is not None and element_padding > 0:
             new_lims = self._get_new_limits_from_padding(domains, elem_indices, element_padding, self.default_min_limit)
+        else:
+            new_lims = []
 
         for formula, pts in domains.items():
             formula_elems = set(Composition(formula).elements)
@@ -326,6 +328,8 @@ class ChemicalPotentialDiagram(MSONable):
 
         if element_padding and element_padding > 0:
             new_lims = self._get_new_limits_from_padding(domains, elem_indices, element_padding, self.default_min_limit)
+        else:
+            new_lims = []
 
         for formula, pts in domains.items():
             entry = self.entry_dict[formula]
