@@ -474,12 +474,16 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         points = self.zone_axis_filter(points)
         # first is the max_d, min_r
         first_point_dict = self.get_first_point(structure, points)
+        first_point = (0, 0, 0)
+        first_d = 0.0
         for point, v in first_point_dict.items():
             first_point = point
             first_d = v
         spacings = self.get_interplanar_spacings(structure, points)
         # second is the first non-parallel-to-first-point vector when sorted.
         # note 000 is "parallel" to every plane vector.
+        second_point = (0, 0, 0)
+        second_d = 0.0
         for plane in sorted(spacings):
             second_point, second_d = plane, spacings[plane]
             if not self.is_parallel(structure, first_point, second_point):

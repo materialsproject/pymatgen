@@ -205,8 +205,10 @@ class VampireCaller:
 
                 if magmoms[site] > 0:
                     spin = 1
-                if magmoms[site] < 0:
+                elif magmoms[site] < 0:
                     spin = -1
+                else:
+                    spin = 0
 
                 atom = structure[i].species.reduced_formula
 

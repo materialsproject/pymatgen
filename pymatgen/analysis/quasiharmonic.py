@@ -133,6 +133,7 @@ class QuasiHarmonicDebyeApprox:
         )
 
         for temp in temperatures:
+            G_opt = V_opt = None
             try:
                 G_opt, V_opt = self.optimizer(temp)
             except Exception:
