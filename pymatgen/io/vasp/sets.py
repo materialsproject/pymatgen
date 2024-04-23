@@ -2694,7 +2694,7 @@ class LobsterSet(DictSet):
         """Get updates to the INCAR config for this calculation type."""
         from pymatgen.io.lobster import Lobsterin
 
-        potcar_symbols = self.poscar.site_symbols
+        potcar_symbols = self.potcar_symbols
 
         # predefined basis! Check if the basis is okay! (charge spilling and bandoverlaps!)
         if self.user_supplied_basis is None and self.address_basis_file is None:
