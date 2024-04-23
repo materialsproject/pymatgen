@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import abc
 import os
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -31,6 +31,8 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
     from typing_extensions import Self
 
 __author__ = "David Waroquiers"
@@ -256,6 +258,7 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
             Equivalent site in the unit cell, translations and symmetry transformation.
         """
         # Get the index of the site in the unit cell of which the PeriodicSite psite is a replica.
+        isite = 0
         try:
             isite = self.structure_environments.structure.index(psite)
         except ValueError:
@@ -283,6 +286,8 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
         # that gets back the site to the unit cell (Translation III)
         # TODO: check that these tolerances are needed, now that the structures are refined before analyzing envs
         tolerances = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4]
+        d_this_site2 = (0, 0, 0)
+        sym_trafo = None
         for tolerance in tolerances:
             for sym_op in self.symops:
                 new_site = PeriodicSite(

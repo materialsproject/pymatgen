@@ -447,6 +447,9 @@ class OxideType:
                 for species, occu in site.species.items():
                     elem_map[species.element] += occu
             comp = Composition(elem_map)
+        else:
+            raise TypeError("Invalid type for element.")
+
         if Element("O") not in comp or comp.is_element:
             return "None", 0
 
@@ -466,6 +469,7 @@ class OxideType:
         is_superoxide = False
         is_peroxide = False
         is_ozonide = False
+        bond_atoms = []
         if np.any(dist_matrix < relative_cutoff * 1.35):
             bond_atoms = np.where(dist_matrix < relative_cutoff * 1.35)[0]
             is_superoxide = True
@@ -475,10 +479,9 @@ class OxideType:
         if is_superoxide and len(bond_atoms) > len(set(bond_atoms)):
             is_superoxide = False
             is_ozonide = True
-        try:
-            n_bonds = len(set(bond_atoms))
-        except UnboundLocalError:
-            n_bonds = 0
+
+        n_bonds = len(set(bond_atoms))
+
         if is_ozonide:
             str_oxide = "ozonide"
         elif is_superoxide:

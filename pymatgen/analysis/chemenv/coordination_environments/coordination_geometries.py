@@ -808,6 +808,9 @@ class CoordinationGeometry:
             coords = [site.coords for site in sites]
         elif input == "coords":
             coords = sites
+        else:
+            raise RuntimeError("Invalid input for edges.")
+
         # if permutation is None:
         #     coords = [site.coords for site in sites]
         # else:

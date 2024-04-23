@@ -751,7 +751,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     def _relax(
         self,
-        calculator: str | Calculator,
+        calculator: Literal["M3GNet", "gfn2-xtb"] | Calculator,
         relax_cell: bool = True,
         optimizer: str | Optimizer = "FIRE",
         steps: int = 500,
@@ -805,6 +805,8 @@ class SiteCollection(collections.abc.Sequence, ABC):
             if optimizer not in valid_keys:
                 raise ValueError(f"Unknown {optimizer=}, must be one of {valid_keys}")
             opt_class = getattr(optimize, optimizer)
+        else:
+            opt_class = optimizer
 
         # Get Atoms object
         adaptor = AseAtomsAdaptor()
@@ -843,11 +845,12 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
         if return_trajectory:
             if run_uip:
-                traj_observer()  # save properties of the Atoms during the relaxation
+                # Save properties of the Atoms during the relaxation
+                traj_observer()  # type: ignore[reportPossiblyUnboundVariable]
             else:
                 traj_file = opt_kwargs["trajectory"]
                 traj_observer = read(traj_file, index=":")
-            return system, traj_observer
+            return system, traj_observer  # type: ignore[reportPossiblyUnboundVariable]
 
         return system
 
@@ -1672,7 +1675,7 @@ class IStructure(SiteCollection, MSONable):
     def get_symmetric_neighbor_list(
         self,
         r: float,
-        sg: str,
+        sg: str | None,
         unique: bool = False,
         numerical_tol: float = 1e-8,
         exclude_self: bool = True,
@@ -1716,6 +1719,7 @@ class IStructure(SiteCollection, MSONable):
 
         if sg is None:
             ops = SpaceGroup(self.get_space_group_info()[0]).symmetry_ops
+
         else:
             try:  # first assume sg is int
                 sgp = SpaceGroup.from_int_number(int(sg))
@@ -1723,13 +1727,13 @@ class IStructure(SiteCollection, MSONable):
                 sgp = SpaceGroup(sg)
             ops = sgp.symmetry_ops
 
-        lattice = self.lattice
+            lattice = self.lattice
 
-        if not sgp.is_compatible(lattice):
-            raise ValueError(
-                f"Supplied lattice with parameters {lattice.parameters} is incompatible with "
-                f"supplied spacegroup {sgp.symbol}!"
-            )
+            if not sgp.is_compatible(lattice):
+                raise ValueError(
+                    f"Supplied lattice with parameters {lattice.parameters} is incompatible with "
+                    f"supplied spacegroup {sgp.symbol}!"
+                )
 
         # get a list of neighbors up to distance r
         bonds = self.get_neighbor_list(r)
@@ -2055,7 +2059,7 @@ class IStructure(SiteCollection, MSONable):
                 for i in indices[within_r]:
                     item = []
                     if include_site:
-                        item.append(nnsite)
+                        item.append(nnsite)  # type: ignore[reportPossiblyUnboundVariable]
                     item.append(d[i])
                     if include_index:
                         item.append(j)
@@ -2303,7 +2307,7 @@ class IStructure(SiteCollection, MSONable):
 
         for x in images:
             if interpolate_lattices:
-                l_a = np.dot(np.identity(3) + x * lvec, lstart).T
+                l_a = np.dot(np.identity(3) + x * lvec, lstart).T  # type: ignore[reportPossiblyUnboundVariable]
                 lattice = Lattice(l_a)
             else:
                 lattice = self.lattice

@@ -320,7 +320,7 @@ class WulffShape:
         """Returns the sorted pts in a facet used to draw a line."""
         lines = list(facet.outer_lines)
         pt = []
-        prev = None
+        prev = line = None
         while len(lines) > 0:
             if prev is None:
                 line = lines.pop(0)
