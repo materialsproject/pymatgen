@@ -1005,6 +1005,12 @@ class TestStructure(PymatgenTest):
         new2 = struct.replace_species({"Si": replacement}, in_place=False)
         assert new2.labels == [label] * len(struct)
 
+    def test_relabel_sites(self):
+        struct = self.struct.copy()
+        assert self.struct.labels == ["Si", "Si"]
+        struct.relabel_sites()
+        assert struct.labels == ["Si_1", "Si_2"]
+
     def test_append_insert_remove_replace_substitute(self):
         struct = self.struct
         struct.insert(1, "O", [0.5, 0.5, 0.5])
