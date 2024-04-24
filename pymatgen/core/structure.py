@@ -341,17 +341,16 @@ class SiteCollection(collections.abc.Sequence, ABC):
         Site labels are updated in-place, and relabeled by suffixing
         _1, _2, ..., _n for duplicates.
         """
-        from itertools import groupby
+        grouped = collections.defaultdict(list)
+        for site in self:
+            grouped[site.label].append(site)
 
-        grouped = groupby(self, key=lambda x: x.label)
-
-        for _label, sites in grouped:
-            sites = list(sites)
+        for _label, sites in grouped.items():
             if len(sites) == 0:
                 continue
 
             for i, site in enumerate(sites):
-                site.label = f"{site.label}_{i+1}"
+                site.label = f"{_label}_{i+1}"
 
     def __contains__(self, site: object) -> bool:
         return site in self.sites
