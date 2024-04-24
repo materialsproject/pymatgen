@@ -1519,9 +1519,7 @@ class CifWriter:
                         mag = sp.spin
                     else:
                         # Use site label if available for regular sites
-                        if site.label != site.species_string:
-                            site_label = f"{site.label}_{count}" if site.label in atom_site_label else site.label
-
+                        site_label = site.label if site.label != site.species_string else site_label
                         mag = 0
 
                     atom_site_label.append(site_label)
@@ -1569,6 +1567,14 @@ class CifWriter:
                     atom_site_label.append(site_label)
                     atom_site_occupancy.append(str(occu))
                     count += 1
+
+        if len(set(atom_site_label)) != len(atom_site_label):
+            warnings.warn(
+                "Site labels are not unique, which is not compliant with the CIF spec "
+                "(https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_label.html):"
+                f"`{atom_site_label}`.",
+                UserWarning,
+            )
 
         block["_atom_site_type_symbol"] = atom_site_type_symbol
         block["_atom_site_label"] = atom_site_label

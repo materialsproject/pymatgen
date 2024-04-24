@@ -335,6 +335,24 @@ class SiteCollection(collections.abc.Sequence, ABC):
         """Site labels as a list."""
         return [site.label for site in self]
 
+    def relabel_sites(self):
+        """Relabel sites and ensure they are unique.
+
+        Site labels are updated in-place, and relabeled by suffixing
+        _1, _2, ..., _n for duplicates.
+        """
+        from itertools import groupby
+
+        grouped = groupby(self, key=lambda x: x.label)
+
+        for _label, sites in grouped:
+            sites = list(sites)
+            if len(sites) == 0:
+                continue
+
+            for i, site in enumerate(sites):
+                site.label = f"{site.label}_{i+1}"
+
     def __contains__(self, site: object) -> bool:
         return site in self.sites
 

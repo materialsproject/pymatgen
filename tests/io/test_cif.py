@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import warnings
+
 import numpy as np
 import pytest
 from pytest import approx
@@ -289,14 +291,17 @@ class TestCifIO(PymatgenTest):
         assert struct.labels[0:3] == ["Ca1", "Ca1", "Ca1"]
         assert len(set(struct.labels)) != len(struct.labels)
 
-        # This should pass without raising an error
-        writer = CifWriter(struct)
+        # This should raise a warning
+        with pytest.warns(UserWarning):
+            CifWriter(struct)
 
-        parser2 = CifParser.from_str(str(writer))
-        struct2 = parser2.parse_structures()[0]
+        struct.relabel_sites()
+        assert struct.labels[0:3] == ["Ca1_1", "Ca1_2", "Ca1_3"]
 
-        assert struct2.labels[0:3] == ["Ca1", "Ca1_1", "Ca1_2"]
-        assert len(set(struct2.labels)) == len(struct2.labels)
+        # This should pass without raising a warning
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            CifWriter(struct)
 
     def test_cif_parser_springer_pauling(self):
         # Below are 10 tests for CIFs from the Springer Materials/Pauling file DBs.
