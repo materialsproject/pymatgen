@@ -335,22 +335,27 @@ class SiteCollection(collections.abc.Sequence, ABC):
         """Site labels as a list."""
         return [site.label for site in self]
 
-    def relabel_sites(self):
-        """Relabel sites and ensure they are unique.
+    def relabel_sites(self) -> Self:
+        """Relabel sites to ensure they are unique.
 
-        Site labels are updated in-place, and relabeled by suffixing
-        _1, _2, ..., _n for duplicates.
+        Site labels are updated in-place, and relabeled by suffixing _1, _2, ..., _n for duplicates.
+        Call Structure.copy().relabel_sites() to avoid modifying the original structure.
+
+        Returns:
+            SiteCollection: self with relabeled sites.
         """
         grouped = collections.defaultdict(list)
         for site in self:
             grouped[site.label].append(site)
 
-        for _label, sites in grouped.items():
+        for label, sites in grouped.items():
             if len(sites) == 0:
                 continue
 
-            for i, site in enumerate(sites):
-                site.label = f"{_label}_{i+1}"
+            for idx, site in enumerate(sites):
+                site.label = f"{label}_{idx + 1}"
+
+        return self
 
     def __contains__(self, site: object) -> bool:
         return site in self.sites
