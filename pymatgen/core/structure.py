@@ -4291,8 +4291,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         symmetries. Modifies the structure in place.
 
         Args:
-            distance (float): Distance in angstroms by which to perturb each
-                site.
+            distance (float): Distance in angstroms by which to perturb each site.
             min_distance (None, int, or float): if None, all displacements will
                 be equal amplitude. If int or float, perturb each site a
                 distance drawn from the uniform distribution between
