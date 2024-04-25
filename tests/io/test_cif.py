@@ -1084,3 +1084,26 @@ Gd1 5.05 5.05 0.0"""
 }
 """
         assert self.mcif_ncl.get_bibtex_string() == ref_bibtex_string
+
+
+def test_cif_writer_non_unique_labels(capsys):
+    # https://github.com/materialsproject/pymatgen/issues/3761
+    parser = CifParser(f"{TEST_FILES_DIR}/cif/garnet.cif")
+    struct = parser.parse_structures()[0]
+
+    assert struct.labels[0:3] == ["Ca1", "Ca1", "Ca1"]
+    assert len(set(struct.labels)) != len(struct.labels)
+
+    # This should raise a warning
+    with pytest.warns(UserWarning, match="Site labels are not unique, which is not compliant with the CIF spec"):
+        CifWriter(struct)
+
+    struct.relabel_sites()
+    assert struct.labels[0:3] == ["Ca1_1", "Ca1_2", "Ca1_3"]
+
+    _ = capsys.readouterr()
+    # This should not raise a warning
+    CifWriter(struct)
+    stdout, stderr = capsys.readouterr()
+    assert stdout == ""
+    assert stderr == ""
