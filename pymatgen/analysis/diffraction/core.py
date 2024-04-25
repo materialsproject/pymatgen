@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import abc
-import collections
+from collections import defaultdict
 from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
@@ -217,7 +217,7 @@ def get_unique_families(hkls):
         h2 = np.abs(hkl2)
         return np.all(np.sort(h1) == np.sort(h2))
 
-    unique = collections.defaultdict(list)
+    unique = defaultdict(list)
     for hkl1 in hkls:
         found = False
         for hkl2, v2 in unique.items():

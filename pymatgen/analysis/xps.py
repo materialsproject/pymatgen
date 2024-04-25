@@ -18,8 +18,8 @@ This version contains all detailed information for all orbitals.
 
 from __future__ import annotations
 
-import collections
 import warnings
+from collections import defaultdict
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -49,7 +49,7 @@ due.cite(
 def _load_cross_sections(fname):
     data = pd.read_csv(fname)
 
-    dct = collections.defaultdict(dict)
+    dct = defaultdict(dict)
     for row in data.itertuples():
         sym = row.element
         el = Element(sym)

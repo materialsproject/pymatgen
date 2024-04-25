@@ -5,9 +5,9 @@ Created on Nov 15, 2011.
 
 from __future__ import annotations
 
-import collections
 import json
 import re
+from collections import defaultdict
 from itertools import product
 
 import requests
@@ -154,7 +154,7 @@ def parse_shannon_radii():
     sheet = wb["Sheet1"]
     i = 2
     el = charge = cn = None
-    radii = collections.defaultdict(dict)
+    radii = defaultdict(dict)
     while sheet[f"E{i}"].value:
         if sheet[f"A{i}"].value:
             el = sheet[f"A{i}"].value
@@ -277,7 +277,7 @@ def add_ionization_energies():
     for table in soup.find_all("table"):
         if "Hydrogen" in table.text:
             break
-    data = collections.defaultdict(list)
+    data = defaultdict(list)
     for row in table.find_all("tr"):
         row = [td.get_text().strip() for td in row.find_all("td")]
         if row:

@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import collections
 import itertools
 import math
 import operator
 import warnings
+from collections import defaultdict
 from fractions import Fraction
 from functools import reduce
 from typing import TYPE_CHECKING, cast
@@ -1785,9 +1785,9 @@ def get_points_in_spheres(
     all_cube_index = _three_to_one(all_cube_index, ny, nz)
     site_cube_index = _three_to_one(_compute_cube_index(center_coords, global_min, r), ny, nz)
     # create cube index to coordinates, images, and indices map
-    cube_to_coords: dict[int, list] = collections.defaultdict(list)
-    cube_to_images: dict[int, list] = collections.defaultdict(list)
-    cube_to_indices: dict[int, list] = collections.defaultdict(list)
+    cube_to_coords: dict[int, list] = defaultdict(list)
+    cube_to_images: dict[int, list] = defaultdict(list)
+    cube_to_indices: dict[int, list] = defaultdict(list)
     for ii, jj, kk, ll in zip(all_cube_index.ravel(), valid_coords, valid_images, valid_indices):
         cube_to_coords[ii].append(jj)
         cube_to_images[ii].append(kk)
