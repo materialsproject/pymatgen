@@ -277,7 +277,7 @@ class Poscar(MSONable):
             potcars = glob(f"{dirname}/*POTCAR*")
             if potcars:
                 try:
-                    potcar = Potcar.from_file(sorted(potcars)[0])
+                    potcar = Potcar.from_file(min(potcars))
                     names = [sym.split("_")[0] for sym in potcar.symbols]
                     [get_el_sp(n) for n in names]  # ensure valid names
                 except Exception:
@@ -2608,7 +2608,7 @@ class Potcar(list, MSONable):
         functionals: list[str | None] = []
         for psingle_str in fdata.split("End of Dataset"):
             if p_strip := psingle_str.strip():
-                psingle = PotcarSingle(p_strip + "\nEnd of Dataset\n")
+                psingle = PotcarSingle(f"{p_strip}\nEnd of Dataset\n")
                 potcar.append(psingle)
                 functionals.append(psingle.functional)
 

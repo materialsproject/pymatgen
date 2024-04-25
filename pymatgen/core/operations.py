@@ -403,8 +403,8 @@ class SymmOp(MSONable):
         """
         rot = SymmOp.from_origin_axis_angle(origin, axis, angle)
         refl = SymmOp.reflection(axis, origin)
-        m = np.dot(rot.affine_matrix, refl.affine_matrix)
-        return SymmOp(m)
+        matrix = np.dot(rot.affine_matrix, refl.affine_matrix)
+        return SymmOp(matrix)
 
     def as_dict(self) -> dict[str, Any]:
         """MSONable dict."""

@@ -388,18 +388,15 @@ class Vasprun(MSONable):
                             ionic_steps.extend(self._parse_chemical_shielding_calculation(elem))
                     elif parse_dos and tag == "dos":
                         if elem.get("comment") == "kpoints_opt":
-                            if self.kpoints_opt_props is None:
-                                self.kpoints_opt_props = KpointOptProps()
+                            kpoints_opt_props = self.kpoints_opt_props = self.kpoints_opt_props or KpointOptProps()
                             try:
-                                (
-                                    self.kpoints_opt_props.tdos,
-                                    self.kpoints_opt_props.idos,
-                                    self.kpoints_opt_props.pdos,
-                                ) = self._parse_dos(elem)
-                                self.kpoints_opt_props.efermi = self.kpoints_opt_props.tdos.efermi
-                                self.kpoints_opt_props.dos_has_errors = False
+                                kpoints_opt_props.tdos, kpoints_opt_props.idos, kpoints_opt_props.pdos = (
+                                    self._parse_dos(elem)
+                                )
+                                kpoints_opt_props.efermi = kpoints_opt_props.tdos.efermi
+                                kpoints_opt_props.dos_has_errors = False
                             except Exception:
-                                self.kpoints_opt_props.dos_has_errors = True
+                                kpoints_opt_props.dos_has_errors = True
                         else:
                             try:
                                 self.tdos, self.idos, self.pdos = self._parse_dos(elem)
@@ -2428,10 +2425,10 @@ class Outcar:
             text = file.read()
         unsym_table_pattern_text = header_pattern + first_part_pattern + r"(?P<table_body>.+)" + unsym_footer_pattern
         table_pattern = re.compile(unsym_table_pattern_text, re.MULTILINE | re.DOTALL)
-        rp = re.compile(row_pattern)
-        m = table_pattern.search(text)
-        if m:
-            table_text = m.group("table_body")
+        row_pat = re.compile(row_pattern)
+
+        if match := table_pattern.search(text):
+            table_text = match.group("table_body")
             micro_header_pattern = r"ion\s+\d+"
             micro_table_pattern_text = micro_header_pattern + r"\s*^(?P<table_body>(?:\s*" + row_pattern + r")+)\s+"
             micro_table_pattern = re.compile(micro_table_pattern_text, re.MULTILINE | re.DOTALL)
@@ -2440,7 +2437,7 @@ class Outcar:
                 table_body_text = mt.group("table_body")
                 tensor_matrix = []
                 for line in table_body_text.rstrip().split("\n"):
-                    ml = rp.search(line)
+                    ml = row_pat.search(line)
                     processed_line = [float(v) for v in ml.groups()]
                     tensor_matrix.append(processed_line)
                 unsym_tensors.append(tensor_matrix)
@@ -3028,13 +3025,7 @@ class Outcar:
             def piezo_section_start(results, _match):
                 results.piezo_ionic_index = 0
 
-            search.append(
-                [
-                    r"PIEZOELECTRIC TENSOR IONIC CONTR  for field in x, y, z        ",
-                    None,
-                    piezo_section_start,
-                ]
-            )
+            search.append(["PIEZOELECTRIC TENSOR IONIC CONTR  for field in x, y, z        ", None, piezo_section_start])
 
             def piezo_data(results, match):
                 results.piezo_ionic_tensor[results.piezo_ionic_index, :] = np.array(
@@ -3578,7 +3569,7 @@ class VolumetricData(BaseVolumetricData):
             # use original name if it's been set (e.g. from Chgcar)
             comment = getattr(self, "name", poscar.comment)
 
-            lines = comment + "\n"
+            lines = f"{comment}\n"
             lines += "   1.00000000000000\n"
             for vec in self.structure.lattice.matrix:
                 lines += f" {vec[0]:12.6f}{vec[1]:12.6f}{vec[2]:12.6f}\n"
@@ -3941,10 +3932,9 @@ class Oszicar:
         header: list = []
         with zopen(filename, mode="rt") as fid:
             for line in fid:
-                m = electronic_pattern.match(line.strip())
-                if m:
-                    tokens = m.group(1).split()
-                    data = {header[i]: smart_convert(header[i], tokens[i]) for i in range(len(tokens))}
+                if match := electronic_pattern.match(line.strip()):
+                    tokens = match.group(1).split()
+                    data = {header[idx]: smart_convert(header[idx], tokens[idx]) for idx in range(len(tokens))}
                     if tokens[0] == "1":
                         electronic_steps.append([data])
                     else:

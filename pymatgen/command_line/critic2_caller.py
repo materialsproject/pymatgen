@@ -331,7 +331,7 @@ def get_filepath(filename, warning, path, suffix):
         path: Path to search
         suffix: Suffixes to search.
     """
-    paths = glob(os.path.join(path, filename + suffix + "*"))
+    paths = glob(os.path.join(path, f"{filename}{suffix}*"))
     if not paths:
         warnings.warn(warning)
         return None

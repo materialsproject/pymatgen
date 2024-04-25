@@ -105,7 +105,7 @@ class CifBlock:
             line = "\n"
             for val in map(self._format_field, fields):
                 if val[0] == ";":
-                    out += line + "\n" + val
+                    out += f"{line}\n{val}"
                     line = "\n"
                 elif len(line) + len(val) + 2 < self.max_len:
                     line += f"  {val}"
@@ -1541,10 +1541,7 @@ class CifWriter:
         else:
             # The following just presents a deterministic ordering.
             unique_sites = [
-                (
-                    sorted(sites, key=lambda s: tuple(abs(x) for x in s.frac_coords))[0],
-                    len(sites),
-                )
+                (min(sites, key=lambda site: tuple(abs(x) for x in site.frac_coords)), len(sites))
                 for sites in spg_analyzer.get_symmetrized_structure().equivalent_sites  # type: ignore[reportPossiblyUnboundVariable]
             ]
             for site, mult in sorted(

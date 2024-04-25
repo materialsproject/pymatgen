@@ -270,7 +270,7 @@ class Lobsterin(UserDict, MSONable):
                         # checks if entry is True or False
                         for key_here in self:
                             if key.lower() == key_here.lower():
-                                file.write(key + "\n")
+                                file.write(f"{key}\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.STRING_KEYWORDS]:
                         file.write(f"{key} {self.get(key)}\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.LISTKEYWORDS]:
@@ -711,10 +711,14 @@ class Lobsterin(UserDict, MSONable):
             lobsterin_dict["loadProjectionFromFile"] = True
 
         if option == "standard_with_energy_range_from_vasprun":
-            Vr = Vasprun(Vasprun_output)
-            lobsterin_dict["COHPstartEnergy"] = round(min(Vr.complete_dos.energies - Vr.complete_dos.efermi), 4)
-            lobsterin_dict["COHPendEnergy"] = round(max(Vr.complete_dos.energies - Vr.complete_dos.efermi), 4)
-            lobsterin_dict["COHPSteps"] = len(Vr.complete_dos.energies)
+            vasp_run = Vasprun(Vasprun_output)
+            lobsterin_dict["COHPstartEnergy"] = round(
+                min(vasp_run.complete_dos.energies - vasp_run.complete_dos.efermi), 4
+            )
+            lobsterin_dict["COHPendEnergy"] = round(
+                max(vasp_run.complete_dos.energies - vasp_run.complete_dos.efermi), 4
+            )
+            lobsterin_dict["COHPSteps"] = len(vasp_run.complete_dos.energies)
 
         # TODO: add cobi here! might be relevant lobster version
         if option == "onlycohp":

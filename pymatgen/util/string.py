@@ -100,7 +100,7 @@ def str_delimited(results, header=None, delimiter="\t"):
     """
     out = ""
     if header is not None:
-        out += delimiter.join(header) + "\n"
+        out += f"{delimiter.join(header)}\n"
     return out + "\n".join(delimiter.join([str(m) for m in result]) for result in results)
 
 

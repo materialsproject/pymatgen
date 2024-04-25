@@ -604,10 +604,10 @@ class LobsterNeighbors(NearNeighbors):
         plotlabels = []
         for key, item in count.items():
             plotlabels.append(f"{item} x {key}")
-        plotlabel = ", ".join(plotlabels)
+        label = ", ".join(plotlabels)
         if per_bond:
-            plotlabel = plotlabel + " (per bond)"
-        return plotlabel
+            label += " (per bond)"
+        return label
 
     def get_info_icohps_between_neighbors(self, isites=None, onlycation_isites=True):
         """

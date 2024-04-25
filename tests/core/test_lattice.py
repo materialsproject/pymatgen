@@ -80,8 +80,8 @@ class TestLattice(PymatgenTest):
         # Random testing that get_cart and get_frac coords reverses each other.
         rand_coord = np.random.random_sample(3)
         coord = self.tetragonal.get_cartesian_coords(rand_coord)
-        fcoord = self.tetragonal.get_fractional_coords(coord)
-        assert_allclose(fcoord, rand_coord)
+        frac_coord = self.tetragonal.get_fractional_coords(coord)
+        assert_allclose(frac_coord, rand_coord)
 
     def test_get_vector_along_lattice_directions(self):
         lattice_mat = np.array([[0.5, 0.0, 0.0], [0.5, np.sqrt(3) / 2.0, 0.0], [0.0, 0.0, 1.0]])
@@ -109,8 +109,8 @@ class TestLattice(PymatgenTest):
         assert d_hkl == cubic_copy.d_hkl(hkl)
 
     def test_reciprocal_lattice(self):
-        recip_latt = self.lattice.reciprocal_lattice
-        assert_allclose(recip_latt.matrix, 0.628319 * np.eye(3), atol=1e-6)
+        recip_lattice = self.lattice.reciprocal_lattice
+        assert_allclose(recip_lattice.matrix, 0.628319 * np.eye(3), atol=1e-6)
         assert_allclose(
             self.tetragonal.reciprocal_lattice.matrix,
             [[0.628319, 0.0, 0.0], [0.0, 0.628319, 0], [0.0, 0.0, 0.3141590]],
@@ -118,8 +118,8 @@ class TestLattice(PymatgenTest):
         )
 
         # Test the crystallographic version.
-        recip_latt_crystallographic = self.lattice.reciprocal_lattice_crystallographic
-        assert_allclose(recip_latt.matrix, recip_latt_crystallographic.matrix * 2 * np.pi, 5)
+        recip_lattice_crystallographic = self.lattice.reciprocal_lattice_crystallographic
+        assert_allclose(recip_lattice.matrix, recip_lattice_crystallographic.matrix * 2 * np.pi, 5)
 
     def test_static_methods(self):
         expected_lengths = [3.840198, 3.84019885, 3.8401976]

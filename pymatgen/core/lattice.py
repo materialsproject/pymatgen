@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import collections
 import itertools
 import math
 import operator
 import warnings
+from collections import defaultdict
 from fractions import Fraction
 from functools import reduce
 from typing import TYPE_CHECKING, cast
@@ -1317,11 +1317,11 @@ class Lattice(MSONable):
             center: Cartesian coordinates of center of sphere.
             r: radius of sphere.
             zip_results (bool): Whether to zip the results together to group by
-                point, or return the raw fcoord, dist, index arrays
+                point, or return the raw frac_coord, dist, index arrays
 
         Returns:
             if zip_results:
-                [(fcoord, dist, index, supercell_image) ...] since most of the time, subsequent
+                [(frac_coord, dist, index, supercell_image) ...] since most of the time, subsequent
                 processing requires the distance, index number of the atom, or index of the image
             else:
                 frac_coords, dists, inds, image
@@ -1375,11 +1375,11 @@ class Lattice(MSONable):
             center: Cartesian coordinates of center of sphere.
             r: radius of sphere.
             zip_results (bool): Whether to zip the results together to group by
-                point, or return the raw fcoord, dist, index arrays
+                point, or return the raw frac_coord, dist, index arrays
 
         Returns:
             if zip_results:
-                [(fcoord, dist, index, supercell_image) ...] since most of the time, subsequent
+                [(frac_coord, dist, index, supercell_image) ...] since most of the time, subsequent
                 processing requires the distance, index number of the atom, or index of the image
             else:
                 frac_coords, dists, inds, image
@@ -1432,11 +1432,11 @@ class Lattice(MSONable):
             center: Cartesian coordinates of center of sphere.
             r: radius of sphere.
             zip_results (bool): Whether to zip the results together to group by
-                point, or return the raw fcoord, dist, index arrays
+                point, or return the raw frac_coord, dist, index arrays
 
         Returns:
             if zip_results:
-                [(fcoord, dist, index, supercell_image) ...] since most of the time, subsequent
+                [(frac_coord, dist, index, supercell_image) ...] since most of the time, subsequent
                 processing requires the distance, index number of the atom, or index of the image
             else:
                 frac_coords, dists, inds, image
@@ -1495,26 +1495,26 @@ class Lattice(MSONable):
 
     def get_all_distances(
         self,
-        fcoords1: ArrayLike,
-        fcoords2: ArrayLike,
+        frac_coords1: ArrayLike,
+        frac_coords2: ArrayLike,
     ) -> np.ndarray:
         """Returns the distances between two lists of coordinates taking into
         account periodic boundary conditions and the lattice. Note that this
         computes an MxN array of distances (i.e. the distance between each
-        point in fcoords1 and every coordinate in fcoords2). This is
+        point in frac_coords1 and every coordinate in frac_coords2). This is
         different functionality from pbc_diff.
 
         Args:
-            fcoords1: First set of fractional coordinates. e.g., [0.5, 0.6,
+            frac_coords1: First set of fractional coordinates. e.g., [0.5, 0.6,
                 0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
                 coord or any array of coords.
-            fcoords2: Second set of fractional coordinates.
+            frac_coords2: Second set of fractional coordinates.
 
         Returns:
             2d array of Cartesian distances. E.g the distance between
-            fcoords1[i] and fcoords2[j] is distances[i,j]
+            frac_coords1[i] and frac_coords2[j] is distances[i,j]
         """
-        _v, d2 = pbc_shortest_vectors(self, fcoords1, fcoords2, return_d2=True)
+        _v, d2 = pbc_shortest_vectors(self, frac_coords1, frac_coords2, return_d2=True)
         return np.sqrt(d2)
 
     def is_hexagonal(self, hex_angle_tol: float = 5, hex_length_tol: float = 0.01) -> bool:
@@ -1785,9 +1785,9 @@ def get_points_in_spheres(
     all_cube_index = _three_to_one(all_cube_index, ny, nz)
     site_cube_index = _three_to_one(_compute_cube_index(center_coords, global_min, r), ny, nz)
     # create cube index to coordinates, images, and indices map
-    cube_to_coords: dict[int, list] = collections.defaultdict(list)
-    cube_to_images: dict[int, list] = collections.defaultdict(list)
-    cube_to_indices: dict[int, list] = collections.defaultdict(list)
+    cube_to_coords: dict[int, list] = defaultdict(list)
+    cube_to_images: dict[int, list] = defaultdict(list)
+    cube_to_indices: dict[int, list] = defaultdict(list)
     for ii, jj, kk, ll in zip(all_cube_index.ravel(), valid_coords, valid_images, valid_indices):
         cube_to_coords[ii].append(jj)
         cube_to_images[ii].append(kk)

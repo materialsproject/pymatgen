@@ -9,6 +9,7 @@ import os
 import re
 import string
 import warnings
+from collections import defaultdict
 from functools import total_ordering
 from itertools import combinations_with_replacement, product
 from math import isnan
@@ -205,7 +206,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if not isinstance(other, (Composition, dict)):
             return NotImplemented
 
-        new_el_map: dict[SpeciesLike, float] = collections.defaultdict(float)
+        new_el_map: dict[SpeciesLike, float] = defaultdict(float)
         new_el_map.update(self)
         for key, val in other.items():
             new_el_map[get_el_sp(key)] += val
@@ -223,7 +224,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if not isinstance(other, (Composition, dict)):
             return NotImplemented
 
-        new_el_map: dict[SpeciesLike, float] = collections.defaultdict(float)
+        new_el_map: dict[SpeciesLike, float] = defaultdict(float)
         new_el_map.update(self)
         for key, val in other.items():
             new_el_map[get_el_sp(key)] -= val
@@ -534,7 +535,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         formula = formula.replace("]", ")")
 
         def get_sym_dict(form: str, factor: float) -> dict[str, float]:
-            sym_dict: dict[str, float] = collections.defaultdict(float)
+            sym_dict: dict[str, float] = defaultdict(float)
             for m in re.finditer(r"([A-Z][a-z]*)\s*([-*\.e\d]*)", form):
                 el = m.group(1)
                 amt = 1.0
@@ -638,7 +639,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             dict[str, float]: element symbol and (unreduced) amount. E.g.
                 {"Fe": 4.0, "O": 6.0}.
         """
-        dct: dict[str, float] = collections.defaultdict(float)
+        dct: dict[str, float] = defaultdict(float)
         for el, amt in self.items():
             dct[el.symbol] += amt
         return dict(dct)
@@ -651,7 +652,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             dict[str, float]: element symbol and (unreduced) amount. E.g.
                 {"Fe": 4.0, "O": 6.0} or {"Fe3+": 4.0, "O2-": 6.0}
         """
-        dct: dict[str, float] = collections.defaultdict(float)
+        dct: dict[str, float] = defaultdict(float)
         for el, amt in self.items():
             dct[str(el)] += amt
         return dict(dct)
@@ -873,7 +874,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             Composition object without charge decoration, for example
             {"Fe3+": 2.0, "O2-":3.0} becomes {"Fe": 2.0, "O":3.0}
         """
-        dct: dict[Element, float] = collections.defaultdict(float)
+        dct: dict[Element, float] = defaultdict(float)
         for specie, amt in self.items():
             dct[Element(specie.symbol)] += amt
         return Composition(dct)
@@ -938,7 +939,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         el_amt = comp.get_el_amt_dict()
         elements = list(el_amt)
         el_sums = []  # matrix: dim1= el_idx, dim2=possible sums
-        el_sum_scores = collections.defaultdict(set)  # dict of el_idx, sum -> score
+        el_sum_scores = defaultdict(set)  # dict of el_idx, sum -> score
         el_best_oxid_combo = {}  # dict of el_idx, sum -> oxid combo with best score
         for idx, el in enumerate(elements):
             el_sum_scores[idx] = {}

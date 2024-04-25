@@ -979,7 +979,7 @@ class StructureMatcher(MSONable):
 
         matches = self._anonymous_match(struct1, struct2, fu, s1_supercell, use_rms=True, break_on_match=False)
         if matches:
-            best = sorted(matches, key=lambda x: x[1][0])[0]
+            best = min(matches, key=lambda x: x[1][0])
             return best[1][0], best[0]
 
         return None, None

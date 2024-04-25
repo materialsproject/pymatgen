@@ -1092,11 +1092,11 @@ class BztPlotter:
                 if output == "avg_eigs":
                     plt.plot(mu, prop_out.mean(axis=1), label=f"{temp} K")
                 elif output == "eigs":
-                    for i in range(3):
+                    for idx in range(3):
                         plt.plot(
                             mu,
-                            prop_out[:, i],
-                            label=f"eig {i} {temp} K",
+                            prop_out[:, idx],
+                            label=f"eig {idx} {temp} K",
                         )
 
             plt.xlabel(r"$\mu$ (eV)", fontsize=30)
@@ -1109,20 +1109,20 @@ class BztPlotter:
                 if output == "avg_eigs":
                     plt.semilogx(doping_all, prop_out.mean(axis=1), "s-", label=f"{temp} K")
                 elif output == "eigs":
-                    for i in range(3):
+                    for idx in range(3):
                         plt.plot(
                             doping_all,
-                            prop_out[:, i],
+                            prop_out[:, idx],
                             "s-",
-                            label=f"eig {i} {temp} K",
+                            label=f"eig {idx} {temp} K",
                         )
             plt.xlabel(r"Carrier conc. $cm^{-3}$", fontsize=30)
-            leg_title = dop_type + "-type"
+            leg_title = f"{dop_type}-type"
 
         elif prop_z == "doping" and prop_x == "temp":
             for dop in doping:
-                di = doping_all.index(dop)
-                prop_out = np.linalg.eigh(p_array[dop_type][:, di])[0]
+                dop_idx = doping_all.index(dop)
+                prop_out = np.linalg.eigh(p_array[dop_type][:, dop_idx])[0]
                 if output == "avg_eigs":
                     plt.plot(
                         temps_all,
@@ -1131,12 +1131,12 @@ class BztPlotter:
                         label=f"{dop} $cm^{-3}$",
                     )
                 elif output == "eigs":
-                    for i in range(3):
+                    for idx in range(3):
                         plt.plot(
                             temps_all,
-                            prop_out[:, i],
+                            prop_out[:, idx],
                             "s-",
-                            label=f"eig {i} {dop} $cm^{{-3}}$",
+                            label=f"eig {idx} {dop} $cm^{{-3}}$",
                         )
 
             plt.xlabel(r"Temperature (K)", fontsize=30)

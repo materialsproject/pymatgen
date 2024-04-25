@@ -1334,19 +1334,17 @@ class Fatband:
 
             if ifilename == 0:
                 eigenvals = {}
-                eigenvals[Spin.up] = [
-                    [collections.defaultdict(float) for _ in range(self.number_kpts)] for _ in range(self.nbands)
-                ]
+                eigenvals[Spin.up] = [[defaultdict(float) for _ in range(self.number_kpts)] for _ in range(self.nbands)]
                 if self.is_spinpolarized:
                     eigenvals[Spin.down] = [
-                        [collections.defaultdict(float) for _ in range(self.number_kpts)] for _ in range(self.nbands)
+                        [defaultdict(float) for _ in range(self.number_kpts)] for _ in range(self.nbands)
                     ]
 
                 p_eigenvals = {}
                 p_eigenvals[Spin.up] = [
                     [
                         {
-                            str(elem): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[elem]}
+                            str(elem): {str(orb): defaultdict(float) for orb in atom_orbital_dict[elem]}
                             for elem in atom_names
                         }
                         for _ in range(self.number_kpts)
@@ -1358,7 +1356,7 @@ class Fatband:
                     p_eigenvals[Spin.down] = [
                         [
                             {
-                                str(elem): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[elem]}
+                                str(elem): {str(orb): defaultdict(float) for orb in atom_orbital_dict[elem]}
                                 for elem in atom_names
                             }
                             for _ in range(self.number_kpts)

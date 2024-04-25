@@ -742,11 +742,9 @@ class NwOutput:
             for e, v in error_defs.items():
                 if line.find(e) != -1:
                     errors.append(v)
-            if parse_time:
-                m = time_patt.search(line)
-                if m:
-                    time = m.group(1)
-                    parse_time = False
+            if parse_time and (match := time_patt.search(line)):
+                time = match.group(1)
+                parse_time = False
             if parse_geom:
                 if line.strip() == "Atomic Mass":
                     if lattice:
@@ -758,18 +756,18 @@ class NwOutput:
                     lattice = []
                     parse_geom = False
                 else:
-                    m = coord_patt.search(line)
-                    if m:
-                        species.append(m.group(1).capitalize())
-                        coords.append([float(m.group(2)), float(m.group(3)), float(m.group(4))])
-                    m = lat_vector_patt.search(line)
-                    if m:
-                        lattice.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
+                    match = coord_patt.search(line)
+                    if match:
+                        species.append(match.group(1).capitalize())
+                        coords.append([float(match.group(2)), float(match.group(3)), float(match.group(4))])
+                    match = lat_vector_patt.search(line)
+                    if match:
+                        lattice.append([float(match.group(1)), float(match.group(2)), float(match.group(3))])
 
             if parse_force:
-                m = force_patt.search(line)
-                if m:
-                    forces.extend(map(float, m.groups()[5:]))
+                match = force_patt.search(line)
+                if match:
+                    forces.extend(map(float, match.groups()[5:]))
                 elif len(forces) > 0:
                     all_forces.append(forces)
                     forces = []
@@ -850,30 +848,30 @@ class NwOutput:
                         parse_proj_hess = False
 
             else:
-                m = energy_patt.search(line)
-                if m:
-                    energies.append(Energy(m.group(1), "Ha").to("eV"))
+                match = energy_patt.search(line)
+                if match:
+                    energies.append(Energy(match.group(1), "Ha").to("eV"))
                     parse_time = True
                     continue
 
-                m = energy_gas_patt.search(line)
-                if m:
+                match = energy_gas_patt.search(line)
+                if match:
                     cosmo_scf_energy = energies[-1]
                     energies[-1] = {}
                     energies[-1]["cosmo scf"] = cosmo_scf_energy
-                    energies[-1].update({"gas phase": Energy(m.group(1), "Ha").to("eV")})
+                    energies[-1].update({"gas phase": Energy(match.group(1), "Ha").to("eV")})
 
-                m = energy_sol_patt.search(line)
-                if m:
-                    energies[-1].update({"sol phase": Energy(m.group(1), "Ha").to("eV")})
+                match = energy_sol_patt.search(line)
+                if match:
+                    energies[-1].update({"sol phase": Energy(match.group(1), "Ha").to("eV")})
 
-                m = preamble_patt.search(line)
-                if m:
+                match = preamble_patt.search(line)
+                if match:
                     try:
-                        val = int(m.group(2))
+                        val = int(match.group(2))
                     except ValueError:
-                        val = m.group(2)
-                    k = m.group(1).replace("No. of ", "n").replace(" ", "_")
+                        val = match.group(2)
+                    k = match.group(1).replace("No. of ", "n").replace(" ", "_")
                     data[k.lower()] = val
                 elif line.find('Geometry "geometry"') != -1:
                     parse_geom = True
@@ -911,9 +909,9 @@ class NwOutput:
                     if job_type == "NWChem DFT Module" and "COSMO solvation results" in output:
                         job_type += " COSMO"
                 else:
-                    m = corrections_patt.search(line)
-                    if m:
-                        corrections[m.group(1)] = FloatWithUnit(m.group(2), "kJ mol^-1").to("eV atom^-1")
+                    match = corrections_patt.search(line)
+                    if match:
+                        corrections[match.group(1)] = FloatWithUnit(match.group(2), "kJ mol^-1").to("eV atom^-1")
 
         if frequencies:
             for _freq, mode in frequencies:
