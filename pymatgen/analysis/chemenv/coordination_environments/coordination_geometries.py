@@ -808,6 +808,9 @@ class CoordinationGeometry:
             coords = [site.coords for site in sites]
         elif input == "coords":
             coords = sites
+        else:
+            raise RuntimeError("Invalid input for edges.")
+
         # if permutation is None:
         #     coords = [site.coords for site in sites]
         # else:
@@ -908,7 +911,7 @@ class AllCoordinationGeometries(dict):
 
         self.minpoints = {}
         self.maxpoints = {}
-        self.separations_cg = {}
+        self.separations_cg: dict[int, dict] = {}
         for cn in range(6, 21):
             for cg in self.get_implemented_geometries(coordination=cn):
                 if only_symbols is not None and cg.ce_symbol not in only_symbols:

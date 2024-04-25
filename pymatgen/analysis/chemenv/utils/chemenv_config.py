@@ -78,12 +78,11 @@ class ChemEnvConfig:
                 break
             elif test == "S":
                 config_file = self.save()
+                print(f"Configuration has been saved to file {config_file!r}")
                 break
             else:
                 print(" ... wrong key, try again ...")
             print()
-        if test == "S":
-            print(f"Configuration has been saved to file {config_file!r}")
 
     @property
     def has_materials_project_access(self):

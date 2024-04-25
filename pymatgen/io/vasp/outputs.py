@@ -609,14 +609,23 @@ class Vasprun(MSONable):
     def converged_ionic(self) -> bool:
         """
         Returns:
-            bool: True if ionic step convergence has been reached, i.e. that vasp
+            bool: True if ionic step convergence has been reached, i.e. VASP
                 exited before reaching the max ionic steps for a relaxation run.
-                In case IBRION=0 (MD) True if the max ionic steps are reached.
+                In case IBRION=0 (MD) or EDIFFG=0, returns True if the max ionic steps are reached.
         """
         nsw = self.parameters.get("NSW", 0)
         ibrion = self.parameters.get("IBRION", -1 if nsw in (-1, 0) else 0)
         if ibrion == 0:
             return nsw <= 1 or self.md_n_steps == nsw
+
+        # context re EDIFFG: the use case for EDIFFG=0 is to ensure a relaxation runs for
+        # NSW steps (the non-AIMD way to generate a relaxation trajectory with DFT). In
+        # that case, user isn't worried about convergence w.r.t. forces or energy. The
+        # next if statement prevents custodian from trying to correct the calc because
+        # Vasprun.converged_ionic = False.
+        ediffg = self.parameters.get("EDIFFG", 1)
+        if ibrion in {1, 2} and ediffg == 0:
+            return nsw <= 1 or nsw == len(self.ionic_steps)
 
         return nsw <= 1 or len(self.ionic_steps) < nsw
 
@@ -1583,7 +1592,7 @@ class BSVasprun(Vasprun):
         parse_potcar_file: bool | str = False,
         occu_tol: float = 1e-8,
         separate_spins: bool = False,
-    ):
+    ) -> None:
         """
         Args:
             filename: Filename to parse
@@ -1823,7 +1832,7 @@ class Outcar:
     Authors: Rickard Armiento, Shyue Ping Ong
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename) -> None:
         """
         Args:
             filename (str): OUTCAR filename to parse.
@@ -1842,7 +1851,7 @@ class Outcar:
         mag_y = []
         mag_z = []
         header = []
-        run_stats = {}
+        run_stats: dict[str, float | None] = {}
         total_mag = nelect = efermi = e_fr_energy = e_wo_entrp = e0 = None
 
         time_patt = re.compile(r"\((sec|kb)\)")
@@ -1957,7 +1966,7 @@ class Outcar:
         else:
             mag = mag_x
 
-        # data from beginning of OUTCAR
+        # Data from beginning of OUTCAR
         run_stats["cores"] = None
         with zopen(filename, mode="rt") as file:
             for line in file:
@@ -1982,7 +1991,7 @@ class Outcar:
         self.final_energy = e0
         self.final_energy_wo_entrp = e_wo_entrp
         self.final_fr_energy = e_fr_energy
-        self.data = {}
+        self.data: dict = {}
 
         # Read "total number of plane waves", NPLWV:
         self.read_pattern(
@@ -3616,7 +3625,7 @@ class VolumetricData(BaseVolumetricData):
 class Locpot(VolumetricData):
     """Simple object for reading a LOCPOT file."""
 
-    def __init__(self, poscar: Poscar, data: np.ndarray, **kwargs) -> None:
+    def __init__(self, poscar: Poscar, data: np.ndarray, **kwargs):
         """
         Args:
             poscar (Poscar): Poscar object containing structure.
@@ -3642,22 +3651,23 @@ class Locpot(VolumetricData):
 class Chgcar(VolumetricData):
     """Simple object for reading a CHGCAR file."""
 
-    def __init__(self, poscar, data, data_aug=None):
+    def __init__(self, poscar, data, data_aug=None) -> None:
         """
         Args:
             poscar (Poscar | Structure): Object containing structure.
             data: Actual data.
             data_aug: Augmentation charge data.
         """
-        # allow for poscar or structure files to be passed
+        # Allow for poscar or structure files to be passed
         if isinstance(poscar, Poscar):
             struct = poscar.structure
             self.poscar = poscar
-            self.name = poscar.comment
+            self.name: str = poscar.comment
         elif isinstance(poscar, Structure):
             struct = poscar
             self.poscar = Poscar(poscar)
-            self.name = None
+            # TODO (@DanielYang59): use a default str name for the following?
+            self.name = None  # type: ignore[assignment]
         else:
             raise TypeError("Unsupported POSCAR type.")
 
@@ -3779,7 +3789,7 @@ class Procar:
             n_kpoints = None
             n_bands = None
             n_ions = None
-            weights = []
+            weights: list[float] = []
             headers = None
             data = None
             phase_factors = None
@@ -3802,9 +3812,11 @@ class Procar:
                     headers.pop(0)
                     headers.pop(-1)
 
-                    data = defaultdict(lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers))))
+                    data: dict[Spin, np.ndarray] = defaultdict(
+                        lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers)))
+                    )
 
-                    phase_factors = defaultdict(
+                    phase_factors: dict[Spin, np.ndarray] = defaultdict(
                         lambda: np.full((n_kpoints, n_bands, n_ions, len(headers)), np.nan, dtype=np.complex128)
                     )
                 elif expr.match(line):
@@ -3926,7 +3938,7 @@ class Oszicar:
             except ValueError:
                 return "--"
 
-        header = []
+        header: list = []
         with zopen(filename, mode="rt") as fid:
             for line in fid:
                 m = electronic_pattern.match(line.strip())
@@ -4050,9 +4062,9 @@ class Xdatcar:
             comment (str): Optional comment attached to this set of structures.
         """
         preamble = None
-        coords_str = []
-        structures = []
-        preamble_done = False
+        coords_str: list = []
+        structures: list = []
+        preamble_done: bool = False
         if ionicstep_start < 1:
             raise ValueError("Start ionic step cannot be less than 1")
         if ionicstep_end is not None and ionicstep_end < 1:
@@ -4242,7 +4254,7 @@ class Xdatcar:
         with zopen(filename, mode="wt") as file:
             file.write(self.get_str(**kwargs))
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.get_str()
 
 
@@ -4269,7 +4281,7 @@ class Dynmat:
             lines = list(clean_lines(file.readlines()))
             self._nspecs, self._natoms, self._ndisps = map(int, lines[0].split())
             self._masses = map(float, lines[1].split())
-            self.data = defaultdict(dict)
+            self.data: dict[int, dict] = defaultdict(dict)
             atom, disp = None, None
             for idx, line in enumerate(lines[2:]):
                 v = list(map(float, line.split()))
@@ -4502,7 +4514,7 @@ class Wavecar:
             self.kpoints = []
             if spin == 2:
                 self.coeffs = [[[None for _ in range(self.nb)] for _ in range(self.nk)] for _ in range(spin)]
-                self.band_energy = [[] for _ in range(spin)]
+                self.band_energy: list = [[] for _ in range(spin)]
             else:
                 self.coeffs = [[None for i in range(self.nb)] for j in range(self.nk)]
                 self.band_energy = []
@@ -4538,11 +4550,11 @@ class Wavecar:
                     np.fromfile(file, dtype=np.float64, count=(recl8 - 4 - 3 * self.nb) % recl8)
 
                     if self.vasp_type is None:
-                        self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(kpoint, gamma=True)
+                        self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(kpoint, gamma=True)  # type: ignore[call-overload]
                         if len(self.Gpoints[ink]) == nplane:
                             self.vasp_type = "gam"
                         else:
-                            self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(
+                            self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(  # type: ignore[call-overload]
                                 kpoint, gamma=False
                             )
                             self.vasp_type = "std" if len(self.Gpoints[ink]) == nplane else "ncl"
@@ -4550,7 +4562,7 @@ class Wavecar:
                         if verbose:
                             print(f"\ndetermined {self.vasp_type = }\n")
                     else:
-                        self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(
+                        self.Gpoints[ink], extra_gpoints, extra_coeff_inds = self._generate_G_points(  # type: ignore[call-overload]
                             kpoint, gamma=self.vasp_type.lower()[0] == "g"
                         )
 
@@ -4706,7 +4718,7 @@ class Wavecar:
         v = self.Gpoints[kpoint] + self.kpoints[kpoint]
         u = np.dot(np.dot(v, self.b), r)
         if self.vasp_type.lower()[0] == "n":
-            c = self.coeffs[kpoint][band][spinor, :]
+            c = self.coeffs[kpoint][band][spinor, :]  # type: ignore[call-overload]
         elif self.spin == 2:
             c = self.coeffs[spin][kpoint][band]
         else:
@@ -4739,14 +4751,14 @@ class Wavecar:
             a numpy ndarray representing the 3D mesh of coefficients
         """
         if self.vasp_type.lower()[0] == "n":
-            tcoeffs = self.coeffs[kpoint][band][spinor, :]
+            tcoeffs = self.coeffs[kpoint][band][spinor, :]  # type: ignore[call-overload]
         elif self.spin == 2:
             tcoeffs = self.coeffs[spin][kpoint][band]
         else:
             tcoeffs = self.coeffs[kpoint][band]
 
         mesh = np.zeros(tuple(self.ng), dtype=np.complex128)
-        for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs):
+        for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs):  # type: ignore[call-overload]
             t = tuple(gp.astype(int) + (self.ng / 2).astype(int))
             mesh[t] = coeff
 
@@ -4896,7 +4908,7 @@ class Eigenval:
             to be converted into proper objects. The kpoint index is 0-based (unlike the 1-based indexing in VASP).
     """
 
-    def __init__(self, filename, occu_tol=1e-8, separate_spins=False):
+    def __init__(self, filename, occu_tol=1e-8, separate_spins=False) -> None:
         """
         Reads input from filename to construct Eigenval object.
 

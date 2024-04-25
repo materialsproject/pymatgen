@@ -78,6 +78,8 @@ def draw_cg(
         show_distorted:
         faces_color_override:
     """
+    csm_suffix = ""
+    perf_radius = 0
     if show_perfect:
         if csm_info is None:
             raise ValueError("Not possible to show perfect environment without csm_info")
@@ -219,6 +221,7 @@ def compute_environments(chemenv_configuration):
             for key_character, qq in questions.items():
                 print(f" - <{key_character}> for a structure from {string_sources[qq]['string']}")
             test = input(" ... ")
+            source_type = ""
             if test == "q":
                 break
             if test not in list(questions):
@@ -231,16 +234,22 @@ def compute_environments(chemenv_configuration):
                     continue
             else:
                 source_type = questions[test]
+
         else:
             found = False
             source_type = next(iter(questions.values()))
+
+        input_source = ""
         if found and len(questions) > 1:
-            input_source = test
+            input_source = test  # type: ignore[reportPossiblyUnboundVariable]
+
+        structure = None
         if source_type == "cif":
             if not found:
                 input_source = input("Enter path to CIF file : ")
             parser = CifParser(input_source)
             structure = parser.parse_structures(primitive=True)[0]
+
         elif source_type == "mp":
             if not found:
                 input_source = input('Enter materials project id (e.g. "mp-1902") : ')
@@ -248,6 +257,7 @@ def compute_environments(chemenv_configuration):
 
             with MPRester() as mpr:
                 structure = mpr.get_structure_by_material_id(input_source)
+
         lgf.setup_structure(structure)
         print(f"Computing environments for {structure.reduced_formula} ... ")
         se = lgf.compute_structure_environments(maximum_distance_factor=max_dist_factor)
@@ -258,7 +268,7 @@ def compute_environments(chemenv_configuration):
                 '("y" or "n", "d" with details, "g" to see the grid) : '
             )
             strategy = default_strategy
-            if test in ["y", "d", "g"]:
+            if test in {"y", "d", "g"}:
                 strategy.set_structure_environments(se)
                 for equiv_list in se.equivalent_sites:
                     site = equiv_list[0]
@@ -277,6 +287,7 @@ def compute_environments(chemenv_configuration):
                     comp = site.species
                     # ce = strategy.get_site_coordination_environment(site)
                     reduced_formula = comp.get_reduced_formula_and_factor()[0]
+                    the_cg = None
                     if strategy.uniquely_determines_coordination_environments:
                         ce = ces[0]
                         if ce is None:
@@ -349,6 +360,9 @@ def compute_environments(chemenv_configuration):
                     vis = StructureVis(show_polyhedron=False, show_unit_cell=True)
                     vis.show_help = False
                     first_time = False
+                else:
+                    vis = None  # TODO: following code logic seems buggy
+
                 vis.set_structure(se.structure)
                 strategy.set_structure_environments(se)
                 for site in se.structure:

@@ -9,7 +9,7 @@ import math
 import typing
 import warnings
 from collections import Counter
-from typing import TYPE_CHECKING, Literal, cast, no_type_check
+from typing import TYPE_CHECKING, cast, no_type_check
 
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
@@ -34,11 +34,13 @@ except ImportError:
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Literal
 
     from numpy.typing import ArrayLike
 
     from pymatgen.electronic_structure.dos import CompleteDos, Dos
 
+logger = logging.getLogger(__name__)
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Anubhav Jain"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -46,8 +48,6 @@ __version__ = "0.1"
 __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __date__ = "May 1, 2012"
-
-logger = logging.getLogger(__name__)
 
 
 class DosPlotter:
@@ -441,6 +441,9 @@ class BSPlotter:
         if not bs_is_metal:
             vbm = bs.get_vbm()
             cbm = bs.get_cbm()
+        else:
+            vbm = {}
+            cbm = {}
 
         zero_energy = 0.0
         if zero_to_efermi:
@@ -604,6 +607,8 @@ class BSPlotter:
 
         handles = []
         vbm_min, cbm_max = [], []
+        data = []
+        one_is_metal = False
 
         colors = next(iter(plt.rcParams["axes.prop_cycle"].by_key().values()))
         for ibs, bs in enumerate(self._bs):
@@ -617,9 +622,7 @@ class BSPlotter:
                 data = self.bs_plot_data(zero_to_efermi, bs, bs_ref, split_branches=False)
 
             # remember if one bs is a metal for setting the ylim later
-            one_is_metal = False
-            if not one_is_metal and data["is_metal"]:
-                one_is_metal = data["is_metal"]
+            one_is_metal = data["is_metal"]
 
             # remember all the cbm and vbm for setting the ylim later
             if not data["is_metal"]:
@@ -1709,6 +1712,7 @@ class BSPlotterProjected(BSPlotter):
         if len(dictio) == 0:
             raise KeyError("The 'dictio' is empty. We cannot do anything.")
 
+        orb = None
         for elt in dictio:
             if Element.is_valid_symbol(elt):
                 if isinstance(dictio[elt], list):
@@ -2318,8 +2322,7 @@ class BSDOSPlotter:
         fig = plt.figure(figsize=self.fig_size)
         fig.patch.set_facecolor("white")
         bs_ax = plt.subplot(gs[0])
-        if dos:
-            dos_ax = plt.subplot(gs[1])
+        dos_ax = plt.subplot(gs[1]) if dos else None
 
         # set basic axes limits for the plot
         bs_ax.set_xlim(0, x_distances_list[-1][-1])
@@ -2354,8 +2357,7 @@ class BSDOSPlotter:
                     band_energies[spin].append([e - bs.efermi for e in band])  # type: ignore
 
         # renormalize the DOS energies to Fermi level
-        if dos:
-            dos_energies = [e - dos.efermi for e in dos.energies]
+        dos_energies = [e - dos.efermi for e in dos.energies] if dos else []
 
         # get the projection data to set colors for the band structure
         colordata = self._get_colordata(bs, elements, bs_projection)
@@ -2534,6 +2536,7 @@ class BSDOSPlotter:
             Dictionary representation of color data.
         """
         contribs = {}
+        projections = None
         if bs_projection and bs_projection.lower() == "elements":
             projections = bs.get_projection_on_elements()
 
@@ -3037,7 +3040,7 @@ class BoltztrapPlotter:
         plt.tight_layout()
         return ax
 
-    def plot_seebeck_temp(self, doping="all", output="average"):
+    def plot_seebeck_temp(self, doping="all", output: Literal["average", "eigs"] = "average"):
         """Plot the Seebeck coefficient in function of temperature for different
         doping levels.
 
@@ -3050,10 +3053,7 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-        if output == "average":
-            sbk = self._bz.get_seebeck(output="average")
-        elif output == "eigs":
-            sbk = self._bz.get_seebeck(output="eigs")
+        sbk = self._bz.get_seebeck(output="average") if output == "average" else self._bz.get_seebeck(output="eigs")
 
         ax = pretty_plot(22, 14)
         tlist = sorted(sbk["n"])
@@ -3089,7 +3089,9 @@ class BoltztrapPlotter:
 
         return ax
 
-    def plot_conductivity_temp(self, doping="all", output="average", relaxation_time=1e-14):
+    def plot_conductivity_temp(
+        self, doping="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14
+    ):
         """Plot the conductivity in function of temperature for different doping levels.
 
         Args:
@@ -3104,7 +3106,7 @@ class BoltztrapPlotter:
         """
         if output == "average":
             cond = self._bz.get_conductivity(relaxation_time=relaxation_time, output="average")
-        elif output == "eigs":
+        else:
             cond = self._bz.get_conductivity(relaxation_time=relaxation_time, output="eigs")
 
         ax = pretty_plot(22, 14)
@@ -3142,7 +3144,9 @@ class BoltztrapPlotter:
 
         return ax
 
-    def plot_power_factor_temp(self, doping="all", output="average", relaxation_time=1e-14):
+    def plot_power_factor_temp(
+        self, doping="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14
+    ):
         """Plot the Power Factor in function of temperature for different doping levels.
 
         Args:
@@ -3157,7 +3161,7 @@ class BoltztrapPlotter:
         """
         if output == "average":
             pow_factor = self._bz.get_power_factor(relaxation_time=relaxation_time, output="average")
-        elif output == "eigs":
+        else:
             pow_factor = self._bz.get_power_factor(relaxation_time=relaxation_time, output="eigs")
 
         ax = pretty_plot(22, 14)
@@ -3210,7 +3214,7 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-        if output not in ("average", "eigs"):
+        if output not in {"average", "eigs"}:
             raise ValueError(f"{output=} must be 'average' or 'eigs'")
         zt = self._bz.get_zt(relaxation_time=relaxation_time, output=output)
 
@@ -3262,7 +3266,7 @@ class BoltztrapPlotter:
         """
         if output == "average":
             eff_mass = self._bz.get_average_eff_mass(output="average")
-        elif output == "eigs":
+        else:
             eff_mass = self._bz.get_average_eff_mass(output="eigs")
 
         ax_main = pretty_plot(22, 14)
@@ -3290,7 +3294,7 @@ class BoltztrapPlotter:
         plt.tight_layout()
         return ax_main
 
-    def plot_seebeck_dop(self, temps="all", output="average"):
+    def plot_seebeck_dop(self, temps="all", output: Literal["average", "eigs"] = "average"):
         """Plot the Seebeck in function of doping levels for different temperatures.
 
         Args:
@@ -3302,10 +3306,7 @@ class BoltztrapPlotter:
         Returns:
             a matplotlib object
         """
-        if output == "average":
-            sbk = self._bz.get_seebeck(output="average")
-        elif output == "eigs":
-            sbk = self._bz.get_seebeck(output="eigs")
+        sbk = self._bz.get_seebeck(output="average") if output == "average" else self._bz.get_seebeck(output="eigs")
 
         tlist = sorted(sbk["n"]) if temps == "all" else temps
         ax = pretty_plot(22, 14)
@@ -3334,7 +3335,7 @@ class BoltztrapPlotter:
 
         return ax
 
-    def plot_conductivity_dop(self, temps="all", output="average", relaxation_time=1e-14):
+    def plot_conductivity_dop(self, temps="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14):
         """Plot the conductivity in function of doping levels for different
         temperatures.
 
@@ -3350,7 +3351,7 @@ class BoltztrapPlotter:
         """
         if output == "average":
             cond = self._bz.get_conductivity(relaxation_time=relaxation_time, output="average")
-        elif output == "eigs":
+        else:
             cond = self._bz.get_conductivity(relaxation_time=relaxation_time, output="eigs")
 
         tlist = sorted(cond["n"]) if temps == "all" else temps
@@ -3384,7 +3385,7 @@ class BoltztrapPlotter:
 
         return ax
 
-    def plot_power_factor_dop(self, temps="all", output="average", relaxation_time=1e-14):
+    def plot_power_factor_dop(self, temps="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14):
         """Plot the Power Factor in function of doping levels for different temperatures.
 
         Args:
@@ -3399,7 +3400,7 @@ class BoltztrapPlotter:
         """
         if output == "average":
             pow_factor = self._bz.get_power_factor(relaxation_time=relaxation_time, output="average")
-        elif output == "eigs":
+        else:
             pow_factor = self._bz.get_power_factor(relaxation_time=relaxation_time, output="eigs")
 
         tlist = sorted(pow_factor["n"]) if temps == "all" else temps
@@ -3432,7 +3433,7 @@ class BoltztrapPlotter:
 
         return ax
 
-    def plot_zt_dop(self, temps="all", output="average", relaxation_time=1e-14):
+    def plot_zt_dop(self, temps="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14):
         """Plot the figure of merit zT in function of doping levels for different
         temperatures.
 
@@ -3448,7 +3449,7 @@ class BoltztrapPlotter:
         """
         if output == "average":
             zt = self._bz.get_zt(relaxation_time=relaxation_time, output="average")
-        elif output == "eigs":
+        else:
             zt = self._bz.get_zt(relaxation_time=relaxation_time, output="eigs")
 
         tlist = sorted(zt["n"]) if temps == "all" else temps
@@ -3483,7 +3484,7 @@ class BoltztrapPlotter:
 
         return ax
 
-    def plot_eff_mass_dop(self, temps="all", output="average"):
+    def plot_eff_mass_dop(self, temps="all", output: Literal["average", "eigs"] = "average"):
         """Plot the average effective mass in function of doping levels
         for different temperatures.
 
@@ -3499,7 +3500,7 @@ class BoltztrapPlotter:
         """
         if output == "average":
             em = self._bz.get_average_eff_mass(output="average")
-        elif output == "eigs":
+        else:
             em = self._bz.get_average_eff_mass(output="eigs")
 
         tlist = sorted(em["n"]) if temps == "all" else temps
@@ -3714,7 +3715,9 @@ class CohpPlotter:
 
         allpts = []
         keys = list(self._cohps)
-        for i, key in enumerate(keys):
+        idx = key = None
+
+        for idx, key in enumerate(keys):
             energies = self._cohps[key]["energies"]
             populations = self._cohps[key]["COHP"] if not integrated else self._cohps[key]["ICOHP"]
             for spin in [Spin.up, Spin.down]:
@@ -3730,13 +3733,13 @@ class CohpPlotter:
                         ax.plot(
                             x,
                             y,
-                            color=colors[i % ncolors],
+                            color=colors[idx % ncolors],
                             linestyle="-",
                             label=str(key),
                             linewidth=3,
                         )
                     else:
-                        ax.plot(x, y, color=colors[i % ncolors], linestyle="--", linewidth=3)
+                        ax.plot(x, y, color=colors[idx % ncolors], linestyle="--", linewidth=3)
 
         if xlim:
             ax.set_xlim(xlim)
@@ -3761,7 +3764,7 @@ class CohpPlotter:
                 ax.plot(
                     [self._cohps[key]["efermi"], self._cohps[key]["efermi"]],
                     ylim,
-                    color=colors[i % ncolors],
+                    color=colors[idx % ncolors],
                     linestyle="--",
                     linewidth=2,
                 )
@@ -3773,7 +3776,7 @@ class CohpPlotter:
                 ax.plot(
                     xlim,
                     [self._cohps[key]["efermi"], self._cohps[key]["efermi"]],
-                    color=colors[i % ncolors],
+                    color=colors[idx % ncolors],
                     linestyle="--",
                     linewidth=2,
                 )
@@ -3905,8 +3908,7 @@ def plot_fermi_surface(
     if transparency_factor is None:
         transparency_factor = [1] * n_surfaces
 
-    if mlab_figure:
-        fig = mlab_figure
+    fig = mlab_figure if mlab_figure else None
 
     if kpoints_dict is None:
         kpoints_dict = {}

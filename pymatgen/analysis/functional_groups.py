@@ -279,6 +279,7 @@ class FunctionalGroupExtractor:
                         num_deviants += 1
 
                 if num_deviants <= 1:
+                    ring_group = []
                     for node in ring:
                         ring_group = copy.deepcopy(ring)
                         neighbors = self.molgraph.graph[node]

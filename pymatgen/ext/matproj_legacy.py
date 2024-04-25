@@ -1570,7 +1570,7 @@ class _MPResterLegacy:
 
     @staticmethod
     def _check_nomad_exist(url) -> bool:
-        response = requests.get(url=url)
+        response = requests.get(url=url, timeout=600)
         if response.status_code != 200:
             return False
         content = json.loads(response.text)
