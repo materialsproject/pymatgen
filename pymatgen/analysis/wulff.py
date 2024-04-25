@@ -90,8 +90,8 @@ class WulffFacet:
         self.index = index
         self.m_ind_orig = m_ind_orig
         self.miller = miller
-        self.points = []
-        self.outer_lines = []
+        self.points: list = []
+        self.outer_lines: list = []
 
 
 class WulffShape:
@@ -320,7 +320,7 @@ class WulffShape:
         """Returns the sorted pts in a facet used to draw a line."""
         lines = list(facet.outer_lines)
         pt = []
-        prev = None
+        prev = line = None
         while len(lines) > 0:
             if prev is None:
                 line = lines.pop(0)

@@ -1378,7 +1378,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
         rotation_angle,
         expand_times=4,
         vacuum_thickness=0.0,
-        ab_shift=None,
+        ab_shift: tuple[float, float] | None = None,
         normal=False,
         ratio=True,
         plane=None,
@@ -1404,7 +1404,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
                 cell do not interact with each other. Default set to 4.
             vacuum_thickness (float): The thickness of vacuum that you want to insert between
                 two grains of the GB. Default to 0.
-            ab_shift (list of float, in unit of a, b vectors of Gb): in plane shift of two grains
+            ab_shift (tuple[float, float]): in plane shift of two grains in unit of a, b vectors of Gb
             normal (logic):
                 determine if need to require the c axis of top grain (first transformation matrix)
                 perpendicular to the surface or not.
@@ -1447,7 +1447,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
         self.rotation_angle = rotation_angle
         self.expand_times = expand_times
         self.vacuum_thickness = vacuum_thickness
-        self.ab_shift = ab_shift or [0, 0]
+        self.ab_shift = ab_shift or (0, 0)
         self.normal = normal
         self.ratio = ratio
         self.plane = plane
@@ -1468,6 +1468,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
             Grain boundary Structures.
         """
         gbg = GrainBoundaryGenerator(structure)
+
         return gbg.gb_from_parameters(
             self.rotation_axis,
             self.rotation_angle,

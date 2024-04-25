@@ -14,7 +14,7 @@ __maintainer__ = "Handong Ling, Rachel Woods-Robinson"
 __email__ = "handongling@berkeley.edu, rwoodsrobinson@lbl.gov"
 
 
-TEST_DIR = f"{TEST_FILES_DIR}/mcsqs"
+TEST_DIR = f"{TEST_FILES_DIR}/io/atat/mcsqs"
 
 
 @pytest.mark.skipif(not (which("mcsqs") and which("str2cif")), reason="mcsqs executable not present")

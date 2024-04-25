@@ -81,7 +81,7 @@ class TestLatticeFromAbivars(PymatgenTest):
         # Ga  Ga2  1  0.66666666666667  0.333333333333333  0.000880  1.0
         # N  N3  1  0.333333333333333  0.666666666666667  0.124120  1.0
         # N  N4  1  0.666666666666667  0.333333333333333  0.624120  1.0
-        gan = Structure.from_file(f"{TEST_FILES_DIR}/abinit/gan.cif")
+        gan = Structure.from_file(f"{TEST_FILES_DIR}/io/abinit/gan.cif")
 
         # By default, znucl is filled using the first new type found in sites.
         def_vars = structure_to_abivars(gan)

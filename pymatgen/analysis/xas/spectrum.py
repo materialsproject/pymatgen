@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 import warnings
-from typing import Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.interpolate import interp1d
@@ -12,6 +12,9 @@ from scipy.interpolate import interp1d
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from typing import Literal
 
 __author__ = "Chen Zheng, Yiming Chen"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -234,6 +237,7 @@ def site_weighted_spectrum(xas_list: list[XAS], num_samples: int = 500) -> XAS:
     maxes, mines = [], []
     fs = []
     multiplicities = []
+    xas = None
 
     for xas in xas_list:
         multiplicity = len(ss.find_equivalent_sites(ss[xas.absorbing_index]))

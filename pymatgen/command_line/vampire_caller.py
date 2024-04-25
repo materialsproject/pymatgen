@@ -131,8 +131,8 @@ class VampireCaller:
 
         # Call Vampire
         with subprocess.Popen(["vampire-serial"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
-            stdout, stderr = process.communicate()
-            stdout = stdout.decode()
+            _stdout, stderr = process.communicate()
+            stdout: str = _stdout.decode()
 
         if stderr:
             van_helsing = stderr.decode()
@@ -205,8 +205,10 @@ class VampireCaller:
 
                 if magmoms[site] > 0:
                     spin = 1
-                if magmoms[site] < 0:
+                elif magmoms[site] < 0:
                     spin = -1
+                else:
+                    spin = 0
 
                 atom = structure[i].species.reduced_formula
 

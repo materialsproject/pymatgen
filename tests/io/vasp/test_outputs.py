@@ -48,7 +48,9 @@ try:
 except ImportError:
     h5py = None
 
-kpts_opt_vrun_path = f"{TEST_FILES_DIR}/vasp/fixtures/kpoints_opt/vasprun.xml.gz"
+TEST_DIR = f"{TEST_FILES_DIR}/io/vasp"
+
+kpts_opt_vrun_path = f"{TEST_DIR}/fixtures/kpoints_opt/vasprun.xml.gz"
 
 
 class TestVasprun(PymatgenTest):
@@ -73,6 +75,19 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.final_energy == approx(-327.73014059)
         assert vasp_run.md_n_steps == 10
         assert vasp_run.converged_ionic
+
+    def test_vasprun_ediffg_set_to_0(self):
+        # Test for case where EDIFFG is set to 0. This should pass if all ionic steps
+        # complete and are electronically converged.
+        print(list(os.walk(VASP_OUT_DIR)))
+        vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.ediffg_set_to_0.xml.gz")
+        assert len(vasp_run.ionic_steps) == 3
+        assert vasp_run.final_energy == approx(-34.60164204)
+        assert vasp_run.converged_ionic is True
+        assert vasp_run.converged_electronic is True
+        assert vasp_run.converged is True
+        assert vasp_run.parameters["EDIFFG"] == 0
+        assert vasp_run.parameters["EDIFF"] == 1e-5
 
     def test_bad_random_seed(self):
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.bad_random_seed.xml.gz")
@@ -657,7 +672,7 @@ class TestVasprun(PymatgenTest):
         ]
 
     def test_parsing_chemical_shift_calculations(self):
-        filepath = f"{TEST_FILES_DIR}/nmr/cs/basic/vasprun.xml.chemical_shift.scstep"
+        filepath = f"{TEST_DIR}/fixtures/nmr/cs/basic/vasprun.xml.chemical_shift.scstep"
         vasp_run = Vasprun(filepath)
 
         n_estep = len(vasp_run.ionic_steps[-1]["electronic_steps"])
@@ -665,7 +680,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.converged
 
     def test_parsing_efg_calcs(self):
-        filepath = f"{TEST_FILES_DIR}/nmr/efg/AlPO4/vasprun.xml"
+        filepath = f"{TEST_DIR}/fixtures/nmr/efg/AlPO4/vasprun.xml"
         vasp_run = Vasprun(filepath)
         n_elec_steps = len(vasp_run.ionic_steps[-1]["electronic_steps"])
         assert n_elec_steps == 18
@@ -739,7 +754,7 @@ class TestVasprun(PymatgenTest):
 
     def test_kpoints_opt_band_structure(self):
         vasp_run = Vasprun(kpts_opt_vrun_path, parse_potcar_file=False, parse_projected_eigen=True)
-        bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/vasp/fixtures/kpoints_opt/KPOINTS_OPT")
+        bs = vasp_run.get_band_structure(f"{TEST_DIR}/fixtures/kpoints_opt/KPOINTS_OPT")
         assert isinstance(bs, BandStructureSymmLine)
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
@@ -1013,7 +1028,7 @@ class TestOutcar(PymatgenTest):
 
     def test_read_lcalcpol(self):
         # outcar with electrons Angst units
-        folder = "vasp/fixtures/BTO_221_99_polarization/interpolation_6_polarization/"
+        folder = "io/vasp/fixtures/BTO_221_99_polarization/interpolation_6_polarization/"
         filepath = TEST_FILES_DIR / folder / "OUTCAR"
         outcar = Outcar(filepath)
 
@@ -1104,7 +1119,7 @@ class TestOutcar(PymatgenTest):
         assert outcar.as_dict() is not None
 
     def test_chemical_shielding(self):
-        filename = f"{TEST_FILES_DIR}/nmr/cs/core.diff/hydromagnesite/OUTCAR"
+        filename = f"{TEST_DIR}/fixtures/nmr/cs/core.diff/hydromagnesite/OUTCAR"
         outcar = Outcar(filename)
         expected_chemical_shielding = [
             [191.9974, 69.5232, 0.6342],
@@ -1126,7 +1141,7 @@ class TestOutcar(PymatgenTest):
         )
 
     def test_chemical_shielding_with_different_core_contribution(self):
-        filename = f"{TEST_FILES_DIR}/nmr/cs/core.diff/core.diff.chemical.shifts.OUTCAR"
+        filename = f"{TEST_DIR}/fixtures/nmr/cs/core.diff/core.diff.chemical.shifts.OUTCAR"
         outcar = Outcar(filename)
         c_vo = outcar.data["chemical_shielding"]["valence_only"][7]
         assert list(c_vo) == approx([198.7009, 73.7484, 1])
@@ -1134,7 +1149,7 @@ class TestOutcar(PymatgenTest):
         assert list(c_vc) == approx([-1.9406, 73.7484, 1])
 
     def test_cs_raw_tensors(self):
-        filename = f"{TEST_FILES_DIR}/nmr/cs/core.diff/core.diff.chemical.shifts.OUTCAR"
+        filename = f"{TEST_DIR}/fixtures/nmr/cs/core.diff/core.diff.chemical.shifts.OUTCAR"
         outcar = Outcar(filename)
         unsym_tensors = outcar.data["unsym_cs_tensor"]
         assert unsym_tensors[0] == [
@@ -1149,7 +1164,7 @@ class TestOutcar(PymatgenTest):
         ]
 
     def test_cs_g0_contribution(self):
-        filename = f"{TEST_FILES_DIR}/nmr/cs/core.diff/core.diff.chemical.shifts.OUTCAR"
+        filename = f"{TEST_DIR}/fixtures/nmr/cs/core.diff/core.diff.chemical.shifts.OUTCAR"
         outcar = Outcar(filename)
         g0_contrib = outcar.data["cs_g0_contribution"]
         assert g0_contrib == [
@@ -1159,13 +1174,13 @@ class TestOutcar(PymatgenTest):
         ]
 
     def test_cs_core_contribution(self):
-        filename = f"{TEST_FILES_DIR}/nmr/cs/core.diff/core.diff.chemical.shifts.OUTCAR"
+        filename = f"{TEST_DIR}/fixtures/nmr/cs/core.diff/core.diff.chemical.shifts.OUTCAR"
         outcar = Outcar(filename)
         core_contrib = outcar.data["cs_core_contribution"]
         assert core_contrib == {"Mg": -412.8248405, "C": -200.5098812, "O": -271.0766979}
 
     def test_nmr_efg(self):
-        filename = f"{TEST_FILES_DIR}/nmr/efg/AlPO4/OUTCAR"
+        filename = f"{TEST_DIR}/fixtures/nmr/efg/AlPO4/OUTCAR"
         outcar = Outcar(filename)
         expected_efg = [
             {"eta": 0.465, "nuclear_quadrupole_moment": 146.6, "cq": -5.573},
@@ -1377,7 +1392,7 @@ class TestBSVasprun(PymatgenTest):
 
     def test_kpoints_opt(self):
         vasp_run = BSVasprun(kpts_opt_vrun_path, parse_potcar_file=False, parse_projected_eigen=True)
-        bs = vasp_run.get_band_structure(f"{TEST_FILES_DIR}/vasp/fixtures/kpoints_opt/KPOINTS_OPT")
+        bs = vasp_run.get_band_structure(f"{TEST_DIR}/fixtures/kpoints_opt/KPOINTS_OPT")
         assert isinstance(bs, BandStructureSymmLine)
         cbm = bs.get_cbm()
         vbm = bs.get_vbm()
@@ -1415,7 +1430,7 @@ class TestOszicar(PymatgenTest):
         assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
 
     def test_static(self):
-        fpath = f"{TEST_FILES_DIR}/vasp/fixtures/static_silicon/OSZICAR"
+        fpath = f"{TEST_DIR}/fixtures/static_silicon/OSZICAR"
         oszicar = Oszicar(fpath)
         assert oszicar.final_energy == approx(-10.645278)
         assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
@@ -1548,13 +1563,13 @@ class TestChgcar(PymatgenTest):
 class TestAeccars(PymatgenTest):
     # https://github.com/materialsproject/pymatgen/pull/3343
     def test_read_write_file(self):
-        aeccar0_test = Chgcar.from_file(f"{TEST_FILES_DIR}/bader/AECCAR0.gz")
+        aeccar0_test = Chgcar.from_file(f"{TEST_FILES_DIR}/command_line/bader/AECCAR0.gz")
         aeccar0_outpath = f"{self.tmp_path}/AECCAR0_test"
         aeccar0_test.write_file(aeccar0_outpath)
         aeccar0_read = Chgcar.from_file(aeccar0_outpath)
         assert_allclose(aeccar0_test.data["total"], aeccar0_read.data["total"])
 
-        aeccar2 = Chgcar.from_file(f"{TEST_FILES_DIR}/bader/AECCAR2.gz")
+        aeccar2 = Chgcar.from_file(f"{TEST_FILES_DIR}/command_line/bader/AECCAR2.gz")
         aeccar2_outpath = f"{self.tmp_path}/AECCAR2_test"
         aeccar2.write_file(aeccar2_outpath)
         aeccar2_read = Chgcar.from_file(aeccar2_outpath)
@@ -1911,11 +1926,11 @@ class TestWavecar(PymatgenTest):
         assert_allclose(c.data["total"], 0.0)
 
     def test_write_unks(self):
-        unk_std = Unk.from_file(f"{TEST_FILES_DIR}/wannier90/UNK.N2.std")
-        unk_ncl = Unk.from_file(f"{TEST_FILES_DIR}/wannier90/UNK.H2.ncl")
+        unk_std = Unk.from_file(f"{TEST_FILES_DIR}/io/wannier90/UNK.N2.std")
+        unk_ncl = Unk.from_file(f"{TEST_FILES_DIR}/io/wannier90/UNK.H2.ncl")
 
         with pytest.raises(ValueError, match="invalid directory"):
-            self.wavecar.write_unks(f"{TEST_FILES_DIR}/wannier90/UNK.N2.std")
+            self.wavecar.write_unks(f"{TEST_FILES_DIR}/io/wannier90/UNK.N2.std")
 
         # different grids
         self.wavecar.write_unks("./unk_dir")

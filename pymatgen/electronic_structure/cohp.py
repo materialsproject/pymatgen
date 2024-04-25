@@ -555,6 +555,8 @@ class CompleteCohp(Cohp):
         are_cobis = dct.get("are_cobis", False)
         are_multi_center_cobis = dct.get("are_multi_center_cobis", False)
         are_coops = dct["are_coops"]
+        avg_cohp = None
+
         if "bonds" in dct:
             bonds = {
                 bond: {

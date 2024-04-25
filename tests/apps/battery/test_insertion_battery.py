@@ -10,22 +10,24 @@ from pymatgen.apps.battery.insertion_battery import InsertionElectrode, Insertio
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.testing import TEST_FILES_DIR
 
+TEST_DIR = f"{TEST_FILES_DIR}/apps/battery"
+
 
 class TestInsertionElectrode(TestCase):
     def setUp(self):
         self.entry_Li = ComputedEntry("Li", -1.90753119)
         self.entry_Ca = ComputedEntry("Ca", -1.99689568)
 
-        with open(f"{TEST_FILES_DIR}/LiTiO2_batt.json") as file:
+        with open(f"{TEST_DIR}/LiTiO2_batt.json") as file:
             self.entries_LTO = json.load(file, cls=MontyDecoder)
 
-        with open(f"{TEST_FILES_DIR}/MgVO_batt.json") as file:
+        with open(f"{TEST_DIR}/MgVO_batt.json") as file:
             self.entries_MVO = json.load(file, cls=MontyDecoder)
 
-        with open(f"{TEST_FILES_DIR}/Mg_batt.json") as file:
+        with open(f"{TEST_DIR}/Mg_batt.json") as file:
             self.entry_Mg = json.load(file, cls=MontyDecoder)
 
-        with open(f"{TEST_FILES_DIR}/CaMoO2_batt.json") as file:
+        with open(f"{TEST_DIR}/CaMoO2_batt.json") as file:
             self.entries_CMO = json.load(file, cls=MontyDecoder)
 
         self.ie_LTO = InsertionElectrode.from_entries(self.entries_LTO, self.entry_Li)

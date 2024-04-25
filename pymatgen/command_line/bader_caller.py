@@ -533,8 +533,9 @@ def bader_analysis_from_path(path: str, suffix: str = ""):
         return paths[0]
 
     chgcar_path = _get_filepath("CHGCAR", "Could not find CHGCAR!")
-    if chgcar_path is not None:
-        chgcar = Chgcar.from_file(chgcar_path)
+    if chgcar_path is None:
+        raise FileNotFoundError("Could not find CHGCAR!")
+    chgcar = Chgcar.from_file(chgcar_path)
 
     aeccar0_path = _get_filepath("AECCAR0")
     if not aeccar0_path:

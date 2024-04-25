@@ -1006,6 +1006,7 @@ class StructureMatcher(MSONable):
 
         if matches:
             min_X_diff = np.inf
+            best = None
             for match in matches:
                 X_diff = 0
                 for key, val in match[0].items():

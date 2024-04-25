@@ -13,7 +13,7 @@ from pymatgen.symmetry.analyzer import PointGroupAnalyzer, SpacegroupAnalyzer, c
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/molecules"
+TEST_DIR = f"{TEST_FILES_DIR}/symmetry/analyzer"
 
 
 class TestSpacegroupAnalyzer(PymatgenTest):
@@ -122,7 +122,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
     def test_init_cell(self):
         # see https://github.com/materialsproject/pymatgen/pull/3179
-        li2o = Structure.from_file(f"{TEST_FILES_DIR}/Li2O.cif")
+        li2o = Structure.from_file(f"{TEST_FILES_DIR}/cif/Li2O.cif")
 
         # test that magmoms are not included in spacegroup analyzer when species have no spin
         # or no magmom site properties are set
@@ -138,7 +138,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert sga._cell[3] == 12 * (0,)
 
         # now set spin for O only
-        li2o = Structure.from_file(f"{TEST_FILES_DIR}/Li2O.cif")
+        li2o = Structure.from_file(f"{TEST_FILES_DIR}/cif/Li2O.cif")
         li2o.replace_species({"O2-": Species("O", oxidation_state=-2, spin=1)})
         assert not all(species.spin is None for species in li2o.types_of_species)
         sga = SpacegroupAnalyzer(li2o)
@@ -147,7 +147,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
     def test_get_symmetry(self):
         # see discussion in https://github.com/materialsproject/pymatgen/pull/2724
-        Co8 = Structure.from_file(f"{TEST_FILES_DIR}/Co8.cif")
+        Co8 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Co8.cif")
         symprec = 1e-1
 
         sga = SpacegroupAnalyzer(Co8, symprec=symprec)
@@ -216,7 +216,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
     def test_find_primitive(self):
         """F mol -3 mol Li2O testing of converting to primitive cell."""
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/Li2O.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/Li2O.cif")
         spga = SpacegroupAnalyzer(structure)
         primitive_structure = spga.find_primitive()
         assert primitive_structure.formula == "Li2 O1"
@@ -256,14 +256,14 @@ class TestSpacegroupAnalyzer(PymatgenTest):
             assert full_grid[idx][2] == approx(grid[_][0][2])
 
     def test_get_conventional_standard_structure(self):
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/bcc_1927.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/bcc_1927.cif")
         assert structure == structure
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == (90, 90, 90)
         assert conv.lattice.lengths == approx([9.1980270633769461] * 3)
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/btet_1915.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/btet_1915.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == (90, 90, 90)
@@ -271,7 +271,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert conv.lattice.b == approx(5.0615106678044235)
         assert conv.lattice.c == approx(4.2327080177761687)
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/orci_1010.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/orci_1010.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == (90, 90, 90)
@@ -279,7 +279,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert conv.lattice.b == approx(4.6330325651443296)
         assert conv.lattice.c == approx(5.373703587040775)
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/orcc_1003.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/orcc_1003.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == (90, 90, 90)
@@ -287,24 +287,26 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert conv.lattice.b == approx(31.437979757624728)
         assert conv.lattice.c == approx(3.99648651)
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/orac_632475.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/orac_632475.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == (90, 90, 90)
         assert conv.lattice.lengths == approx([3.1790663399999999, 9.9032878699999998, 3.5372412099999999])
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/monoc_1028.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/monoc_1028.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == approx([90, 117.53832420192903, 90])
         assert conv.lattice.lengths == approx([14.033435583000625, 3.96052850731, 6.8743926325200002])
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/hex_1170.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/hex_1170.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == approx([90, 90, 120])
         assert conv.lattice.lengths == approx([3.699919902005897, 3.699919902005897, 6.9779585500000003])
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/tric_684654.json")
+        STRUCTURE = f"{TEST_FILES_DIR}/symmetry/analyzer/tric_684654.json"
+
+        structure = Structure.from_file(STRUCTURE)
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.alpha == approx(74.09581916308757)
@@ -314,13 +316,13 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert conv.lattice.b == approx(3.9883228679270686)
         assert conv.lattice.c == approx(7.288495840048958)
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/tric_684654.json")
+        structure = Structure.from_file(STRUCTURE)
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure(keep_site_properties=True)
         assert conv.site_properties["magmom"] == [1.0] * len(conv)
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/tric_684654.json")
+        structure = Structure.from_file(STRUCTURE)
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure(keep_site_properties=False)
@@ -337,19 +339,19 @@ class TestSpacegroupAnalyzer(PymatgenTest):
             ("hex_1170.cif", [90, 90, 120], [3.699919902005897, 3.699919902005897, 6.9779585500000003]),
             ("rhomb_3478_conv.cif", [28.0491861, 28.049186140, 28.049186140], [5.93526274, 5.9352627428, 5.9352627428]),
         ]:
-            structure = Structure.from_file(f"{TEST_FILES_DIR}/{file_name}")
+            structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/{file_name}")
             spga = SpacegroupAnalyzer(structure, symprec=1e-2)
             prim = spga.get_primitive_standard_structure()
             assert prim.lattice.angles == approx(expected_angles)
             assert prim.lattice.abc == approx(expected_abc)
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/rhomb_3478_conv.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/rhomb_3478_conv.cif")
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = spga.get_primitive_standard_structure(keep_site_properties=True)
         assert prim.site_properties["magmom"] == [1.0] * len(prim)
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/rhomb_3478_conv.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/rhomb_3478_conv.cif")
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = spga.get_primitive_standard_structure(keep_site_properties=False)

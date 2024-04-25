@@ -214,6 +214,7 @@ class SlabEntry(ComputedStructureEntry):
         # Next, we add the contribution to the bulk energy from
         # the variable element (the element without a ref_entry),
         # as a function of the other elements
+        ref_el = None
         for ref_el in ucell_comp.as_dict():
             if str(ref_el) not in ref_entries_dict:
                 break
@@ -955,6 +956,8 @@ class SurfaceEnergyPlotter:
                 stable_u_range_dict = self.stable_u_range_dict(
                     chempot_range, ref_delu, no_doped=no_doped, delu_dict=delu_dict, miller_index=hkl
                 )
+            else:
+                stable_u_range_dict = {}
 
             already_labelled = []
             label = ""
@@ -1021,6 +1024,7 @@ class SurfaceEnergyPlotter:
             Plot: Plot of binding energy vs monolayer for all facets.
         """
         ax = pretty_plot(width=8, height=7)
+        ads_entry = clean_entry = None
         for hkl in self.all_slab_entries:
             ml_be_dict = {}
             for clean_entry in self.all_slab_entries[hkl]:

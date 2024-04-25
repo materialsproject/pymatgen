@@ -15,7 +15,7 @@ try:
     from phonopy import Phonopy
     from phonopy.harmonic import dynmat_to_fc as dyntofc
 except ImportError:
-    Phonopy = None
+    Phonopy = dyntofc = None
 
 
 if TYPE_CHECKING:

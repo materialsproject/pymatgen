@@ -1042,10 +1042,10 @@ class DictSet(VaspInputSet):
         input_set = cls(_dummy_structure, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return type(self).__name__
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return type(self).__name__
 
     def write_input(
@@ -2272,7 +2272,7 @@ class MITNEBSet(DictSet):
     Note that EDIFF is not on a per atom basis for this input set.
     """
 
-    def __init__(self, structures, unset_encut=False, **kwargs):
+    def __init__(self, structures, unset_encut=False, **kwargs) -> None:
         """
         Args:
             structures: List of Structure objects.
@@ -2694,7 +2694,7 @@ class LobsterSet(DictSet):
         """Get updates to the INCAR config for this calculation type."""
         from pymatgen.io.lobster import Lobsterin
 
-        potcar_symbols = self.poscar.site_symbols
+        potcar_symbols = self.potcar_symbols
 
         # predefined basis! Check if the basis is okay! (charge spilling and bandoverlaps!)
         if self.user_supplied_basis is None and self.address_basis_file is None:

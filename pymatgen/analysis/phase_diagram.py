@@ -1258,7 +1258,9 @@ class PhaseDiagram(MSONable):
                                 break
                         if not already_in:
                             all_coords.append(res)
-        return all_coords
+
+                return all_coords
+        return None
 
     def get_chempot_range_stability_phase(self, target_comp, open_elt):
         """
@@ -2939,6 +2941,11 @@ class PDPlotter:
                 font_dict = {"color": "#000000", "size": 24.0}
                 opacity = 1.0
 
+            else:
+                clean_formula = ""
+                font_dict = {}
+                opacity = 0
+
             offset = 0.03 if self._dim == 2 else 0.06
 
             if x < 0.4:
@@ -3835,6 +3842,9 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
     xleft = 1000.0
     xright = -1000.0
 
+    nameup = ""
+    nameleft = ""
+    nameright = ""
     for coord in stable_entries:
         if coord[0] > xright:
             xright = coord[0]

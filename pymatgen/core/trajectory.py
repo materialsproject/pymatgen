@@ -322,10 +322,14 @@ class Trajectory(MSONable):
                 raise IndexError(f"Frame index {frames} out of range.")
 
             if self.lattice is None:
+                charge = 0
                 if self.charge is not None:
                     charge = int(self.charge)
+
+                spin = None
                 if self.spin_multiplicity is not None:
                     spin = int(self.spin_multiplicity)
+
                 return Molecule(
                     self.species,
                     self.coords[frames],
@@ -544,11 +548,15 @@ class Trajectory(MSONable):
         """
         filename = str(Path(filename).expanduser().resolve())
         is_mol = False
+        molecules = []
+        structures = []
 
         if fnmatch(filename, "*XDATCAR*"):
             structures = Xdatcar(filename).structures
+
         elif fnmatch(filename, "vasprun*.xml*"):
             structures = Vasprun(filename).structures
+
         elif fnmatch(filename, "*.traj"):
             try:
                 from ase.io.trajectory import Trajectory as AseTrajectory
@@ -571,6 +579,7 @@ class Trajectory(MSONable):
 
         if is_mol:
             return cls.from_molecules(molecules, **kwargs)
+
         return cls.from_structures(structures, constant_lattice=constant_lattice, **kwargs)
 
     @staticmethod

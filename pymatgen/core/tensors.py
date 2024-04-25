@@ -584,6 +584,7 @@ class Tensor(np.ndarray, MSONable):
             Tensor: Populated tensor
         """
         guess = Tensor(np.zeros(self.shape))
+        mask = None
         if precond:
             # Generate the guess from populated
             sops = SpacegroupAnalyzer(structure).get_symmetry_operations()

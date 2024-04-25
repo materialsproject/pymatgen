@@ -19,7 +19,7 @@ __email__ = "esters@uoregon.edu"
 __date__ = "Nov 30, 2017"
 
 
-TEST_DIR = f"{TEST_FILES_DIR}/cohp"
+TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 

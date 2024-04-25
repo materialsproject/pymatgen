@@ -1568,6 +1568,14 @@ class CifWriter:
                     atom_site_occupancy.append(str(occu))
                     count += 1
 
+        if len(set(atom_site_label)) != len(atom_site_label):
+            warnings.warn(
+                "Site labels are not unique, which is not compliant with the CIF spec "
+                "(https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_label.html):"
+                f"`{atom_site_label}`.",
+                UserWarning,
+            )
+
         block["_atom_site_type_symbol"] = atom_site_type_symbol
         block["_atom_site_label"] = atom_site_label
         block["_atom_site_symmetry_multiplicity"] = atom_site_symmetry_multiplicity

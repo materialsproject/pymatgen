@@ -10,7 +10,7 @@ from pymatgen.core.structure import Molecule
 from pymatgen.io.nwchem import NwInput, NwInputError, NwOutput, NwTask
 from pymatgen.util.testing import TEST_FILES_DIR
 
-TEST_DIR = f"{TEST_FILES_DIR}/nwchem"
+TEST_DIR = f"{TEST_FILES_DIR}/io/nwchem"
 
 coords = [
     [0.000000, 0.000000, 0.000000],

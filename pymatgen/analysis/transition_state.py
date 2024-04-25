@@ -305,6 +305,10 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=Fa
         a NEBAnalysis object
     """
     x = StructureMatcher()
+    neb1_structures = []
+    neb1_energies = []
+    neb1_forces = []
+    neb1_r = []
     for neb_index, neb in enumerate(neb_analyses):
         if neb_index == 0:
             neb1 = neb

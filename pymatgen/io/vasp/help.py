@@ -11,11 +11,11 @@ from bs4 import BeautifulSoup
 class VaspDoc:
     """A VASP documentation helper."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Init for VaspDoc."""
         self.url_template = "http://www.vasp.at/wiki/index.php/%s"
 
-    def print_help(self, tag):
+    def print_help(self, tag: str) -> None:
         """
         Print the help for a TAG.
 
@@ -24,7 +24,7 @@ class VaspDoc:
         """
         print(self.get_help(tag))
 
-    def print_jupyter_help(self, tag):
+    def print_jupyter_help(self, tag: str) -> None:
         """
         Display HTML help in ipython notebook.
 
@@ -37,7 +37,7 @@ class VaspDoc:
         display(HTML(html_str))
 
     @classmethod
-    def get_help(cls, tag, fmt="text"):
+    def get_help(cls, tag: str, fmt: str = "text") -> str:
         """
         Get help on a VASP tag.
 
@@ -48,7 +48,7 @@ class VaspDoc:
             Help text.
         """
         tag = tag.upper()
-        response = requests.get(f"https://www.vasp.at/wiki/index.php/{tag}", verify=False)
+        response = requests.get(f"https://www.vasp.at/wiki/index.php/{tag}", verify=False, timeout=600)
         soup = BeautifulSoup(response.text)
         main_doc = soup.find(id="mw-content-text")
         if fmt == "text":
@@ -60,14 +60,14 @@ class VaspDoc:
         return output
 
     @classmethod
-    def get_incar_tags(cls):
+    def get_incar_tags(cls) -> list[str]:
         """Returns: All incar tags."""
         tags = []
         for page in [
             "https://www.vasp.at/wiki/index.php/Category:INCAR",
             "https://www.vasp.at/wiki/index.php?title=Category:INCAR&pagefrom=ML+FF+LCONF+DISCARD#mw-pages",
         ]:
-            response = requests.get(page, verify=False)
+            response = requests.get(page, verify=False, timeout=600)
             soup = BeautifulSoup(response.text)
             for div in soup.findAll("div", {"class": "mw-category-group"}):
                 children = div.findChildren("li")

@@ -8,10 +8,12 @@ from pymatgen.core import Composition, Structure
 from pymatgen.io.pwmat.inputs import ACExtractor, ACstrExtractor, AtomConfig, GenKpt, HighSymmetryPoint
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/io/pwmat"
+
 
 class TestACstrExtractor(PymatgenTest):
     def test_extract(self):
-        filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
+        filepath = f"{TEST_DIR}/atom.config"
         ac_extractor = ACExtractor(file_path=filepath)
         with zopen(filepath, mode="rt") as file:
             ac_str_extractor = ACstrExtractor(atom_config_str="".join(file.readlines()))
@@ -28,19 +30,19 @@ class TestACstrExtractor(PymatgenTest):
 
 class TestAtomConfig(PymatgenTest):
     def test_init(self):
-        filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
+        filepath = f"{TEST_DIR}/atom.config"
         structure = Structure.from_file(filepath)
         atom_config = AtomConfig(structure, sort_structure=False)
         assert atom_config.structure.composition == Composition("Cr2I6")
 
     def test_from_file(self):
-        filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
+        filepath = f"{TEST_DIR}/atom.config"
         atom_config = AtomConfig.from_file(filename=filepath, mag=True)
         assert Composition("Cr2I6").to_pretty_string() == atom_config.true_names
         assert all("magmom" in site.properties for site in atom_config.structure)
 
     def test_write_file(self):
-        filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
+        filepath = f"{TEST_DIR}/atom.config"
         atom_config = AtomConfig.from_file(filepath)
         tmp_file = f"{self.tmp_path}/atom.config.testing.lzma"
         atom_config.write_file(tmp_file)
@@ -50,7 +52,7 @@ class TestAtomConfig(PymatgenTest):
 
 class TestGenKpt(PymatgenTest):
     def test_from_structure(self):
-        filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
+        filepath = f"{TEST_DIR}/atom.config"
         structure = Structure.from_file(filepath)
         gen_kpt = GenKpt.from_structure(structure, dim=2, density=0.01)
         assert gen_kpt.density == pytest.approx(0.0628318530)
@@ -58,7 +60,7 @@ class TestGenKpt(PymatgenTest):
         assert gen_kpt.kpath["path"] == [["GAMMA", "M", "K", "GAMMA"]]
 
     def test_write_file(self):
-        filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
+        filepath = f"{TEST_DIR}/atom.config"
         structure = Structure.from_file(filepath)
         dim = 2
         density = 0.01
@@ -73,7 +75,7 @@ class TestGenKpt(PymatgenTest):
 
 class TestHighSymmetryPoint(PymatgenTest):
     def test_from_structure(self):
-        filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
+        filepath = f"{TEST_DIR}/atom.config"
         structure = Structure.from_file(filepath)
         high_symmetry_points = HighSymmetryPoint.from_structure(structure, dim=2, density=0.01)
         assert list(high_symmetry_points.kpath) == ["kpoints", "path"]
@@ -82,7 +84,7 @@ class TestHighSymmetryPoint(PymatgenTest):
         assert high_symmetry_points.reciprocal_lattice.shape == (3, 3)
 
     def test_write_file(self):
-        filepath = f"{TEST_FILES_DIR}/pwmat/atom.config"
+        filepath = f"{TEST_DIR}/atom.config"
         structure = Structure.from_file(filepath)
         dim = 2
         density = 0.01
