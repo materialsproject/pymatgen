@@ -32,7 +32,7 @@ __email__ = "bkmedasani@lbl.gov"
 __date__ = "Aug 2, 2013"
 
 
-@pytest.mark.skipif(zeo is None, reason="zeo not present.")
+@pytest.mark.skipif(zeo is None, reason="zeo not present")
 class TestZeoCssr(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
@@ -75,7 +75,7 @@ class TestZeoCssr(TestCase):
         assert isinstance(zeo_cssr.structure, Structure)
 
 
-@pytest.mark.skipif(zeo is None, reason="zeo not present.")
+@pytest.mark.skipif(zeo is None, reason="zeo not present")
 class TestZeoCssrOxi(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
@@ -119,7 +119,7 @@ class TestZeoCssrOxi(TestCase):
         assert isinstance(zeocssr.structure, Structure)
 
 
-@pytest.mark.skipif(zeo is None, reason="zeo not present.")
+@pytest.mark.skipif(zeo is None, reason="zeo not present")
 class TestZeoVoronoiXYZ(TestCase):
     def setUp(self):
         coords = [
@@ -150,7 +150,7 @@ H -0.363000 -0.513360 0.889165 0.200000"""
         assert isinstance(voronoi.molecule, Molecule)
 
 
-@pytest.mark.skipif(zeo is None, reason="zeo not present.")
+@pytest.mark.skipif(zeo is None, reason="zeo not present")
 class TestGetVoronoiNodes(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
@@ -189,7 +189,7 @@ class TestGetFreeSphereParams(TestCase):
         assert free_sph_params["inc_sph_along_free_sph_path_max_dia"] == approx(2.58251, abs=1e-1)
 
 
-@pytest.mark.skipif(zeo is None, reason="zeo not present.")
+@pytest.mark.skipif(zeo is None, reason="zeo not present")
 class TestGetHighAccuracyVoronoiNodes(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
@@ -209,7 +209,7 @@ class TestGetHighAccuracyVoronoiNodes(TestCase):
         assert isinstance(vor_node_struct, Structure)
 
 
-@pytest.mark.skipif(zeo is None, reason="zeo not present.")
+@pytest.mark.skipif(zeo is None, reason="zeo not present")
 class TestGetVoronoiNodesMultiOxi(TestCase):
     def setUp(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
