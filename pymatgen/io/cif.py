@@ -1541,10 +1541,7 @@ class CifWriter:
         else:
             # The following just presents a deterministic ordering.
             unique_sites = [
-                (
-                    sorted(sites, key=lambda s: tuple(abs(x) for x in s.frac_coords))[0],
-                    len(sites),
-                )
+                (min(sites, key=lambda site: tuple(abs(x) for x in site.frac_coords)), len(sites))
                 for sites in spg_analyzer.get_symmetrized_structure().equivalent_sites  # type: ignore[reportPossiblyUnboundVariable]
             ]
             for site, mult in sorted(

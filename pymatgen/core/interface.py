@@ -2781,7 +2781,7 @@ def label_termination(slab: Structure) -> str:
     plane_heights = {
         np.average(np.mod([s.frac_coords[2] for s in sites], 1)): c for c, sites in clustered_sites.items()
     }
-    top_plane_cluster = sorted(plane_heights.items(), key=lambda x: x[0])[-1][1]
+    top_plane_cluster = max(plane_heights.items(), key=lambda x: x[0])[1]
     top_plane_sites = clustered_sites[top_plane_cluster]
     top_plane = Structure.from_sites(top_plane_sites)
 
@@ -2794,16 +2794,16 @@ def count_layers(struct: Structure, el=None) -> int:
     """Counts the number of 'layers' along the c-axis."""
     el = el or struct.elements[0]
     frac_coords = [site.frac_coords for site in struct if site.species_string == str(el)]
-    n = len(frac_coords)
+    n_el_sites = len(frac_coords)
 
-    if n == 1:
+    if n_el_sites == 1:
         return 1
 
-    dist_matrix = np.zeros((n, n))
+    dist_matrix = np.zeros((n_el_sites, n_el_sites))
     h = struct.lattice.c
     # Projection of c lattice vector in
     # direction of surface normal.
-    for ii, jj in combinations(list(range(n)), 2):
+    for ii, jj in combinations(list(range(n_el_sites)), 2):
         if ii != jj:
             cdist = frac_coords[ii][2] - frac_coords[jj][2]
             cdist = abs(cdist - round(cdist)) * h

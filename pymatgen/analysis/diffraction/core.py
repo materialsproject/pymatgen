@@ -215,7 +215,7 @@ def get_unique_families(hkls):
     def is_perm(hkl1, hkl2) -> bool:
         h1 = np.abs(hkl1)
         h2 = np.abs(hkl2)
-        return all(i == j for i, j in zip(sorted(h1), sorted(h2)))
+        return np.all(np.sort(h1) == np.sort(h2))
 
     unique = collections.defaultdict(list)
     for hkl1 in hkls:
@@ -229,7 +229,7 @@ def get_unique_families(hkls):
             unique[hkl1].append(hkl1)
 
     pretty_unique = {}
-    for v in unique.values():
-        pretty_unique[sorted(v)[-1]] = len(v)
+    for val in unique.values():
+        pretty_unique[max(val)] = len(val)
 
     return pretty_unique

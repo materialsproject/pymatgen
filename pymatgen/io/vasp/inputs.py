@@ -277,7 +277,7 @@ class Poscar(MSONable):
             potcars = glob(f"{dirname}/*POTCAR*")
             if potcars:
                 try:
-                    potcar = Potcar.from_file(sorted(potcars)[0])
+                    potcar = Potcar.from_file(min(potcars))
                     names = [sym.split("_")[0] for sym in potcar.symbols]
                     [get_el_sp(n) for n in names]  # ensure valid names
                 except Exception:

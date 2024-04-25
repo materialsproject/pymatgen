@@ -124,8 +124,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 filepath = vasprun_files[0]
             elif len(vasprun_files) > 1:
                 # Since multiple files are ambiguous, we will always read
-                # the one that it the last one alphabetically.
-                filepath = sorted(vasprun_files)[-1]
+                # the last one alphabetically.
+                filepath = max(vasprun_files)
                 warnings.warn(f"{len(vasprun_files)} vasprun.xml.* found. {filepath} is being parsed.")
 
         try:
