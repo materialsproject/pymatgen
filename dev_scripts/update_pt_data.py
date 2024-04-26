@@ -5,9 +5,9 @@ Created on Nov 15, 2011.
 
 from __future__ import annotations
 
-import collections
 import json
 import re
+from collections import defaultdict
 from itertools import product
 
 import requests
@@ -42,9 +42,9 @@ def parse_oxi_state():
             else:
                 m3 = re.match(r"(<b>)*([\+\-]\d)(</b>)*", tok)
                 if m3:
-                    oxi_states.append(int(m3.group(2)))
+                    oxi_states += [int(m3.group(2))]
                     if m3.group(1):
-                        common_oxi.append(int(m3.group(2)))
+                        common_oxi += [int(m3.group(2))]
         if el in data:
             del data[el]["Max oxidation state"]
             del data[el]["Min oxidation state"]
@@ -128,16 +128,16 @@ def parse_radii():
 def update_ionic_radii():
     data = loadfn(ptable_yaml_path)
 
-    for d in data.values():
-        if "Ionic_radii" in d:
-            d["Ionic radii"] = {k: v / 100 for k, v in d["Ionic_radii"].items()}
-            del d["Ionic_radii"]
-        if "Ionic_radii_hs" in d:
-            d["Ionic radii hs"] = {k: v / 100 for k, v in d["Ionic_radii_hs"].items()}
-            del d["Ionic_radii_hs"]
-        if "Ionic_radii_ls" in d:
-            d["Ionic radii ls"] = {k: v / 100 for k, v in d["Ionic_radii_ls"].items()}
-            del d["Ionic_radii_ls"]
+    for dct in data.values():
+        if "Ionic_radii" in dct:
+            dct["Ionic radii"] = {k: v / 100 for k, v in dct["Ionic_radii"].items()}
+            del dct["Ionic_radii"]
+        if "Ionic_radii_hs" in dct:
+            dct["Ionic radii hs"] = {k: v / 100 for k, v in dct["Ionic_radii_hs"].items()}
+            del dct["Ionic_radii_hs"]
+        if "Ionic_radii_ls" in dct:
+            dct["Ionic radii ls"] = {k: v / 100 for k, v in dct["Ionic_radii_ls"].items()}
+            del dct["Ionic_radii_ls"]
     with open("periodic_table2.yaml", mode="w") as file:
         yaml.dump(data, file)
     with open("../pymatgen/core/periodic_table.json", mode="w") as file:
@@ -150,10 +150,11 @@ def parse_shannon_radii():
     from openpyxl import load_workbook
 
     wb = load_workbook("Shannon Radii.xlsx")
-    print(wb.get_sheet_names())
+    print(wb.sheetnames())
     sheet = wb["Sheet1"]
     i = 2
-    radii = collections.defaultdict(dict)
+    el = charge = cn = None
+    radii = defaultdict(dict)
     while sheet[f"E{i}"].value:
         if sheet[f"A{i}"].value:
             el = sheet[f"A{i}"].value
@@ -162,8 +163,7 @@ def parse_shannon_radii():
             radii[el][charge] = {}
         if sheet[f"C{i}"].value:
             cn = sheet[f"C{i}"].value
-            if cn not in radii[el][charge]:
-                radii[el][charge][cn] = {}
+            radii[el][charge].setdefault(cn, {})
 
         spin = sheet[f"D{i}"].value if sheet[f"D{i}"].value is not None else ""
 
@@ -234,8 +234,9 @@ def gen_iupac_ordering():
 def add_electron_affinities():
     """Update the periodic table data file with electron affinities."""
 
-    req = requests.get("https://wikipedia.org/wiki/Electron_affinity_(data_page)")
+    req = requests.get("https://wikipedia.org/wiki/Electron_affinity_(data_page)", timeout=600)
     soup = BeautifulSoup(req.text, "html.parser")
+    table = None
     for table in soup.find_all("table"):
         if "Hydrogen" in table.text:
             break
@@ -243,8 +244,8 @@ def add_electron_affinities():
     for tr in table.find_all("tr"):
         row = []
         for td in tr.find_all("td"):
-            row.append(td.get_text().strip())
-        data.append(row)
+            row += [td.get_text().strip()]
+        data += [row]
     data.pop(0)
 
     ea = {}
@@ -272,17 +273,18 @@ def add_ionization_energies():
 
     with open("NIST Atomic Ionization Energies Output.html") as file:
         soup = BeautifulSoup(file.read(), "html.parser")
+    table = None
     for table in soup.find_all("table"):
         if "Hydrogen" in table.text:
             break
-    data = collections.defaultdict(list)
+    data = defaultdict(list)
     for row in table.find_all("tr"):
         row = [td.get_text().strip() for td in row.find_all("td")]
         if row:
             Z = int(row[0])
             val = re.sub(r"\s", "", row[8].strip("()[]"))
             val = None if val == "" else float(val)
-            data[Z].append(val)
+            data[Z] += [val]
     print(data)
     print(data[51])
     assert set(data).issuperset(range(1, 93))  # Ensure that we have data for up to U.

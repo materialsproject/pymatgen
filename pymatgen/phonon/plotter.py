@@ -133,6 +133,7 @@ class PhononDosPlotter:
         self,
         xlim: float | None = None,
         ylim: float | None = None,
+        invert_axes: bool = False,
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
         legend: dict | None = None,
         ax: Axes | None = None,
@@ -142,6 +143,8 @@ class PhononDosPlotter:
         Args:
             xlim: Specifies the x-axis limits. Set to None for automatic determination.
             ylim: Specifies the y-axis limits.
+            invert_axes (bool): Whether to invert the x and y axes. Enables chemist style DOS plotting.
+                Defaults to False.
             units (thz | ev | mev | ha | cm-1 | cm^-1): units for the frequencies. Defaults to "thz".
             legend: dict with legend options. For example, {"loc": "upper right"}
                 will place the legend in the upper right corner. Defaults to {"fontsize": 30}.
@@ -155,21 +158,21 @@ class PhononDosPlotter:
         n_colors = max(3, len(self._doses))
         n_colors = min(9, n_colors)
 
-        y = None
+        ys = None
         all_densities = []
         all_frequencies = []
-        ax = pretty_plot(12, 8, ax=ax)
+        ax = pretty_plot(*(8, 12) if invert_axes else (12, 8), ax=ax)
 
         # Note that this complicated processing of frequencies is to allow for
         # stacked plots in matplotlib.
         for dos in self._doses.values():
             frequencies = dos["frequencies"] * unit.factor
             densities = dos["densities"]
-            if y is None:
-                y = np.zeros(frequencies.shape)
+            if ys is None:
+                ys = np.zeros(frequencies.shape)
             if self.stack:
-                y += densities
-                new_dens = y.copy()
+                ys += densities
+                new_dens = ys.copy()
             else:
                 new_dens = densities
             all_frequencies.append(frequencies)
@@ -182,25 +185,46 @@ class PhononDosPlotter:
         colors = ("blue", "red", "green", "orange", "purple", "brown", "pink", "gray", "olive")
         for idx, (key, frequencies, densities) in enumerate(zip(keys, all_frequencies, all_densities)):
             color = self._doses[key].get("color", colors[idx % n_colors])
+            linewidth = self._doses[key].get("linewidth", 3)
+            kwargs = {
+                key: val
+                for key, val in self._doses[key].items()
+                if key not in ["frequencies", "densities", "color", "linewidth"]
+            }
             all_pts.extend(list(zip(frequencies, densities)))
-            if self.stack:
-                ax.fill(frequencies, densities, color=color, label=str(key))
+            if invert_axes:
+                xs, ys = densities, frequencies
             else:
-                ax.plot(frequencies, densities, color=color, label=str(key), linewidth=3)
+                xs, ys = frequencies, densities
+            if self.stack:
+                ax.fill(xs, ys, color=color, label=str(key), **kwargs)
+            else:
+                ax.plot(xs, ys, color=color, label=str(key), linewidth=linewidth, **kwargs)
 
         if xlim:
             ax.set_xlim(xlim)
         if ylim:
             ax.set_ylim(ylim)
+        elif invert_axes:
+            _ylim = ax.get_ylim()
+            relevant_x = [p[1] for p in all_pts if _ylim[0] < p[0] < _ylim[1]] or ax.get_xlim()
+            ax.set_xlim((min(relevant_x), max(relevant_x)))
         else:
             _xlim = ax.get_xlim()
             relevant_y = [p[1] for p in all_pts if _xlim[0] < p[0] < _xlim[1]] or ax.get_ylim()
             ax.set_ylim((min(relevant_y), max(relevant_y)))
 
-        ax.axvline(0, linewidth=2, color="black", linestyle="--")
+        if invert_axes:
+            ax.axhline(0, linewidth=2, color="black", linestyle="--")
 
-        ax.set_xlabel(rf"$\mathrm{{Frequencies\ ({unit.label})}}$", fontsize=legend.get("fontsize", 30))
-        ax.set_ylabel(r"$\mathrm{Density\ of\ states}$", fontsize=legend.get("fontsize", 30))
+            ax.set_xlabel(r"$\mathrm{Density\ of\ states}$", fontsize=legend.get("fontsize", 30))
+            ax.set_ylabel(rf"$\mathrm{{Frequencies\ ({unit.label})}}$", fontsize=legend.get("fontsize", 30))
+
+        else:
+            ax.axvline(0, linewidth=2, color="black", linestyle="--")
+
+            ax.set_xlabel(rf"$\mathrm{{Frequencies\ ({unit.label})}}$", fontsize=legend.get("fontsize", 30))
+            ax.set_ylabel(r"$\mathrm{Density\ of\ states}$", fontsize=legend.get("fontsize", 30))
 
         # only show legend if there are labels
         if sum(map(len, keys)) > 0:
@@ -214,6 +238,7 @@ class PhononDosPlotter:
         img_format: str = "eps",
         xlim: float | None = None,
         ylim: float | None = None,
+        invert_axes: bool = False,
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
     ) -> None:
         """Save matplotlib plot to a file.
@@ -224,9 +249,11 @@ class PhononDosPlotter:
             xlim: Specifies the x-axis limits. Set to None for automatic
                 determination.
             ylim: Specifies the y-axis limits.
+            invert_axes: Whether to invert the x and y axes. Enables chemist style DOS plotting.
+                Defaults to False.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1
         """
-        self.get_plot(xlim, ylim, units=units)
+        self.get_plot(xlim, ylim, invert_axes=invert_axes, units=units)
         plt.savefig(filename, format=img_format)
         plt.close()
 
@@ -234,6 +261,7 @@ class PhononDosPlotter:
         self,
         xlim: float | None = None,
         ylim: None = None,
+        invert_axes: bool = False,
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
     ) -> None:
         """Show the plot using matplotlib.
@@ -242,9 +270,11 @@ class PhononDosPlotter:
             xlim: Specifies the x-axis limits. Set to None for automatic
                 determination.
             ylim: Specifies the y-axis limits.
+            invert_axes: Whether to invert the x and y axes. Enables chemist style DOS plotting.
+                Defaults to False.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
-        self.get_plot(xlim, ylim, units=units)
+        self.get_plot(xlim, ylim, invert_axes=invert_axes, units=units)
         plt.show()
 
 
@@ -256,7 +286,7 @@ class PhononBSPlotter:
         Args:
             bs: A PhononBandStructureSymmLine object.
             label: A label for the plot. Defaults to None for no label. Esp. useful with
-                the plot_compare method to distinguish the two band structures.
+                the plot_compare method to distinguish the band structures.
         """
         if not isinstance(bs, PhononBandStructureSymmLine):
             raise ValueError(
@@ -395,10 +425,10 @@ class PhononBSPlotter:
             return colors
         # if there are four groups, use cyan, magenta, yellow and black
         if len(colors) == 4:
-            r = (1 - colors[0]) * (1 - colors[3])
-            g = (1 - colors[1]) * (1 - colors[3])
-            b = (1 - colors[2]) * (1 - colors[3])
-            return [r, g, b]
+            red = (1 - colors[0]) * (1 - colors[3])
+            green = (1 - colors[1]) * (1 - colors[3])
+            blue = (1 - colors[2]) * (1 - colors[3])
+            return [red, green, blue]
         raise ValueError(f"Expected 2, 3 or 4 colors, got {len(colors)}")
 
     def get_proj_plot(
@@ -424,7 +454,7 @@ class PhononBSPlotter:
                 the colors will be automatically generated.
         """
         assert self._bs.structure is not None, "Structure is required for get_proj_plot"
-        elements = [e.symbol for e in self._bs.structure.elements]
+        elements = [elem.symbol for elem in self._bs.structure.elements]
         if site_comb == "element":
             assert 2 <= len(elements) <= 4, "the compound must have 2, 3 or 4 unique elements"
             indices: list[list[int]] = [[] for _ in range(len(elements))]
@@ -484,7 +514,7 @@ class PhononBSPlotter:
         if rgb_labels is not None:
             labels = rgb_labels  # type: ignore[assignment]
         elif site_comb == "element":
-            labels = [e.symbol for e in self._bs.structure.elements]
+            labels = [elem.symbol for elem in self._bs.structure.elements]
         else:
             labels = [f"{idx}" for idx in range(len(site_comb))]
         if len(indices) == 2:
@@ -590,30 +620,30 @@ class PhononBSPlotter:
 
     def plot_compare(
         self,
-        other_plotter: PhononBSPlotter,
+        other_plotter: PhononBSPlotter | dict[str, PhononBSPlotter],
         units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
-        labels: tuple[str, str] | None = None,
+        self_label: str = "self",
+        colors: Sequence[str] | None = None,
         legend_kwargs: dict | None = None,
         on_incompatible: Literal["raise", "warn", "ignore"] = "raise",
         other_kwargs: dict | None = None,
         **kwargs,
     ) -> Axes:
-        """Plot two band structure for comparison. self in blue, other in red.
-        The two band structures need to be defined on the same symmetry lines!
+        """Plot two band structure for comparison. self in blue, others in red, green, ...
+        The band structures need to be defined on the same symmetry lines!
         The distance between symmetry lines is determined by the band structure used to
         initialize PhononBSPlotter (self).
 
         Args:
-            other_plotter (PhononBSPlotter): another PhononBSPlotter object defined along the
-                same symmetry lines
+            other_plotter (PhononBSPlotter | dict[str, PhononBSPlotter]): Other PhononBSPlotter object(s) defined along
+                the same symmetry lines
             units (str): units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
                 Defaults to 'thz'.
-            labels (tuple[str, str] | None): labels for the two band structures. Defaults to None,
-                which will use the label of the two PhononBSPlotter objects if present.
-                Label order is (self_label, other_label), i.e. the label of the PhononBSPlotter
-                on which plot_compare() is called must come first.
+            self_label (str): label for the self band structure. Defaults to to the label passed to PhononBSPlotter.init
+                or, if None, 'self'.
+            colors (list[str]): list of colors for the other band structures. Defaults to None for automatic colors.
             legend_kwargs: dict[str, Any]: kwargs passed to ax.legend().
-            on_incompatible ('raise' | 'warn' | 'ignore'): What to do if the two band structures
+            on_incompatible ('raise' | 'warn' | 'ignore'): What to do if the band structures
                 are not compatible. Defaults to 'raise'.
             other_kwargs: dict[str, Any]: kwargs passed to other_plotter ax.plot().
             **kwargs: passed to ax.plot().
@@ -625,35 +655,46 @@ class PhononBSPlotter:
         legend_kwargs = legend_kwargs or {}
         other_kwargs = other_kwargs or {}
         legend_kwargs.setdefault("fontsize", 20)
+        _colors = ("blue", "red", "green", "orange", "purple", "brown", "pink", "gray", "olive")
+        if isinstance(other_plotter, PhononBSPlotter):
+            other_plotter = {other_plotter._label or "other": other_plotter}
+        if colors:
+            assert len(colors) == len(other_plotter) + 1, "Wrong number of colors"
 
         self_data = self.bs_plot_data()
-        other_data = other_plotter.bs_plot_data()
-
-        if len(self_data["distances"]) != len(other_data["distances"]):
-            if on_incompatible == "raise":
-                raise ValueError("The two band structures are not compatible.")
-            if on_incompatible == "warn":
-                logger.warning("The two band structures are not compatible.")
-            return None  # ignore/warn
 
         line_width = kwargs.setdefault("linewidth", 1)
+        ax = self.get_plot(units=units, color=colors[0] if colors else _colors[0], **kwargs)
 
-        ax = self.get_plot(units=units, **kwargs)
+        colors_other = []
 
-        kwargs.setdefault("color", "red")  # don't move this line up! it would mess up self.get_plot color
+        for idx, plotter in enumerate(other_plotter.values()):
+            other_data = plotter.bs_plot_data()
 
-        for band_idx in range(other_plotter.n_bands):
-            for dist_idx, dists in enumerate(self_data["distances"]):
-                xs = dists
-                ys = [other_data["frequency"][dist_idx][band_idx][j] * unit.factor for j in range(len(dists))]
-                ax.plot(xs, ys, **(kwargs | other_kwargs))
+            if np.asarray(self_data["distances"]).shape != np.asarray(other_data["distances"]).shape:
+                if on_incompatible == "raise":
+                    raise ValueError("The two band structures are not compatible.")
+                if on_incompatible == "warn":
+                    logger.warning("The two band structures are not compatible.")
+                return None  # ignore/warn
+
+            color = colors[idx + 1] if colors else _colors[1 + idx % len(_colors)]
+            _kwargs = kwargs.copy()  # Don't set the color in kwargs, or every band will be red
+            colors_other.append(
+                _kwargs.setdefault("color", color)
+            )  # don't move this line up! it would mess up self.get_plot color
+
+            for band_idx in range(plotter.n_bands):
+                for dist_idx, dists in enumerate(self_data["distances"]):
+                    xs = dists
+                    ys = [other_data["frequency"][dist_idx][band_idx][j] * unit.factor for j in range(len(dists))]
+                    ax.plot(xs, ys, **(_kwargs | other_kwargs))
 
         # add legend showing which color corresponds to which band structure
-        if labels or (self._label and other_plotter._label):
-            color_self, color_other = ax.lines[0].get_color(), ax.lines[-1].get_color()
-            label_self, label_other = labels or (self._label, other_plotter._label)
-            ax.plot([], [], label=label_self, linewidth=2 * line_width, color=color_self)
-            linestyle = other_kwargs.get("linestyle", "-")
+        color_self = ax.lines[0].get_color()
+        ax.plot([], [], label=self._label or self_label, linewidth=2 * line_width, color=color_self)
+        linestyle = other_kwargs.get("linestyle", "-")
+        for color_other, label_other in zip(colors_other, other_plotter):
             ax.plot([], [], label=label_other, linewidth=2 * line_width, color=color_other, linestyle=linestyle)
             ax.legend(**legend_kwargs)
 

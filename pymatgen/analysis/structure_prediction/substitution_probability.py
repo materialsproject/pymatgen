@@ -13,11 +13,15 @@ import math
 import os
 from collections import defaultdict
 from operator import mul
+from typing import TYPE_CHECKING
 
 from monty.design_patterns import cached_class
 
 from pymatgen.core import Species, get_el_sp
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -75,7 +79,7 @@ class SubstitutionProbability:
 
         # create Z and px
         self.Z = 0
-        self._px = defaultdict(float)
+        self._px: dict[Species, float] = defaultdict(float)
         for s1, s2 in itertools.product(self.species, repeat=2):
             value = math.exp(self.get_lambda(s1, s2))
             self._px[s1] += value / 2
@@ -168,7 +172,7 @@ class SubstitutionProbability:
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.

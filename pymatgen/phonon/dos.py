@@ -8,13 +8,15 @@ import numpy as np
 import scipy.constants as const
 from monty.functools import lazy_property
 from monty.json import MSONable
-from scipy.ndimage.filters import gaussian_filter1d
+from scipy.ndimage import gaussian_filter1d
 
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_linear_interpolated_value
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from typing_extensions import Self
 
 BOLTZ_THZ_PER_K = const.value("Boltzmann constant in Hz/K") / const.tera  # Boltzmann constant in THz/K
 THZ_TO_J = const.value("hertz-joule relationship") * const.tera
@@ -133,7 +135,7 @@ class PhononDos(MSONable):
         return "\n".join(str_arr)
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Sequence]) -> PhononDos:
+    def from_dict(cls, dct: dict[str, Sequence]) -> Self:
         """Returns PhononDos object from dict representation of PhononDos."""
         return cls(dct["frequencies"], dct["densities"])
 
@@ -458,7 +460,7 @@ class CompletePhononDos(PhononDos):
         return {el: PhononDos(self.frequencies, densities) for el, densities in el_dos.items()}
 
     @classmethod
-    def from_dict(cls, dct: dict) -> CompletePhononDos:
+    def from_dict(cls, dct: dict) -> Self:
         """Returns CompleteDos object from dict representation."""
         total_dos = PhononDos.from_dict(dct)
         struct = Structure.from_dict(dct["structure"])

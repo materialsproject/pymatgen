@@ -17,6 +17,8 @@ from pymatgen.util.coord_cython import is_coord_subset_pbc, pbc_shortest_vectors
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
+    from typing_extensions import Self
+
     from pymatgen.util.typing import SpeciesLike
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
@@ -75,9 +77,10 @@ class AbstractComparator(MSONable, abc.ABC):
         """
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
-        :param d: Dict representation
+        Args:
+            dct (dict): Dict representation
 
         Returns:
             Comparator.
@@ -87,11 +90,11 @@ class AbstractComparator(MSONable, abc.ABC):
                 f"pymatgen.analysis.{trans_modules}",
                 globals(),
                 locals(),
-                [d["@class"]],
+                [dct["@class"]],
                 0,
             )
-            if hasattr(mod, d["@class"]):
-                trans = getattr(mod, d["@class"])
+            if hasattr(mod, dct["@class"]):
+                trans = getattr(mod, dct["@class"])
                 return trans()
         raise ValueError("Invalid Comparator dict")
 
@@ -267,7 +270,10 @@ class OccupancyComparator(AbstractComparator):
 
     def get_hash(self, composition):
         """
-        :param composition: Composition.
+        Args:
+            composition: Composition.
+
+        TODO: might need a proper hash method
 
         Returns:
             1. Difficult to define sensible hash
@@ -854,24 +860,25 @@ class StructureMatcher(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
-        :param d: Dict representation
+        Args:
+            dct (dict): Dict representation
 
         Returns:
             StructureMatcher
         """
         return cls(
-            ltol=d["ltol"],
-            stol=d["stol"],
-            angle_tol=d["angle_tol"],
-            primitive_cell=d["primitive_cell"],
-            scale=d["scale"],
-            attempt_supercell=d["attempt_supercell"],
-            allow_subset=d["allow_subset"],
-            comparator=AbstractComparator.from_dict(d["comparator"]),
-            supercell_size=d["supercell_size"],
-            ignored_species=d["ignored_species"],
+            ltol=dct["ltol"],
+            stol=dct["stol"],
+            angle_tol=dct["angle_tol"],
+            primitive_cell=dct["primitive_cell"],
+            scale=dct["scale"],
+            attempt_supercell=dct["attempt_supercell"],
+            allow_subset=dct["allow_subset"],
+            comparator=AbstractComparator.from_dict(dct["comparator"]),
+            supercell_size=dct["supercell_size"],
+            ignored_species=dct["ignored_species"],
         )
 
     def _anonymous_match(
@@ -962,16 +969,17 @@ class StructureMatcher(MSONable):
             struct2 (Structure): 2nd structure
 
         Returns:
-            tuple: [min_rms, min_mapping]: min_rms is the minimum rms distance, and min_mapping is the
-                corresponding minimal species mapping that would map
-                struct1 to struct2. (None, None) is returned if the minimax_rms exceeds the threshold.
+            tuple[float, float] | tuple[None, None]: 1st element is min_rms, 2nd is min_mapping.
+                min_rms is the minimum RMS distance, and min_mapping is the corresponding
+                minimal species mapping that would map struct1 to struct2. (None, None) is
+                returned if the minimax_rms exceeds the threshold.
         """
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
 
         matches = self._anonymous_match(struct1, struct2, fu, s1_supercell, use_rms=True, break_on_match=False)
         if matches:
-            best = sorted(matches, key=lambda x: x[1][0])[0]
+            best = min(matches, key=lambda x: x[1][0])
             return best[1][0], best[0]
 
         return None, None
@@ -998,6 +1006,7 @@ class StructureMatcher(MSONable):
 
         if matches:
             min_X_diff = np.inf
+            best = None
             for match in matches:
                 X_diff = 0
                 for key, val in match[0].items():
@@ -1157,10 +1166,10 @@ class StructureMatcher(MSONable):
         temp.make_supercell(sc)
         temp.translate_sites(list(range(len(temp))), t)
         # translate sites to correct unit cell
-        for i, j in enumerate(mapping[: len(s1)]):
-            if j is not None:
-                vec = np.round(struct1[i].frac_coords - temp[j].frac_coords)
-                temp.translate_sites(j, vec, to_unit_cell=False)
+        for ii, jj in enumerate(mapping[: len(s1)]):
+            if jj is not None:
+                vec = np.round(struct1[ii].frac_coords - temp[jj].frac_coords)
+                temp.translate_sites(jj, vec, to_unit_cell=False)
 
         sites = [temp.sites[i] for i in mapping if i is not None]
 

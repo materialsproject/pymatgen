@@ -15,13 +15,6 @@ from monty.json import MontyDecoder, MSONable, jsanitize
 
 from pymatgen.core.structure import Molecule, Structure
 
-if TYPE_CHECKING:
-    from typing import Any
-
-    from numpy.typing import ArrayLike
-
-    from pymatgen.core.structure import SiteCollection
-
 try:
     from ase.atoms import Atoms
     from ase.calculators.singlepoint import SinglePointDFTCalculator
@@ -29,14 +22,23 @@ try:
     from ase.io.jsonio import decode, encode
     from ase.spacegroup import Spacegroup
 
-    no_ase_err = None
+    NO_ASE_ERR = None
 except ImportError:
-    no_ase_err = PackageNotFoundError("AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
+    NO_ASE_ERR = PackageNotFoundError("AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
+    encode = decode = FixAtoms = SinglePointDFTCalculator = Spacegroup = None
 
     class Atoms:  # type: ignore[no-redef]
         def __init__(self, *args, **kwargs):
-            raise no_ase_err
+            raise NO_ASE_ERR
 
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from numpy.typing import ArrayLike
+    from typing_extensions import Self
+
+    from pymatgen.core.structure import SiteCollection
 
 __author__ = "Shyue Ping Ong, Andrew S. Rosen"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -63,12 +65,13 @@ class MSONAtoms(Atoms, MSONable):
             "atoms_info": jsanitize(atoms.info, strict=True),
         }
 
-    def from_dict(dct: dict[str, Any]) -> MSONAtoms:
+    @classmethod
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         # Normally, we would want to this to be a wrapper around atoms.fromdict() with @module and
         # @class key-value pairs inserted. However, atoms.todict()/atoms.fromdict() is not meant
         # to be used in a round-trip fashion and does not work properly with constraints.
         # See ASE issue #1387.
-        mson_atoms = MSONAtoms(decode(dct["atoms_json"]))
+        mson_atoms = cls(decode(dct["atoms_json"]))
         atoms_info = MontyDecoder().process_decoded(dct["atoms_info"])
         mson_atoms.info = atoms_info
         return mson_atoms
@@ -92,8 +95,8 @@ class AseAtomsAdaptor:
         Returns:
             Atoms: ASE Atoms object
         """
-        if no_ase_err:
-            raise no_ase_err
+        if NO_ASE_ERR:
+            raise NO_ASE_ERR
         if not structure.is_ordered:
             raise ValueError("ASE Atoms only supports ordered structures")
 

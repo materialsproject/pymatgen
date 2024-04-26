@@ -42,7 +42,10 @@ class ChemEnvConfig:
     )
 
     def __init__(self, package_options=None):
-        """:param package_options:"""
+        """
+        Args:
+            package_options:
+        """
         if SETTINGS.get("PMG_MAPI_KEY"):
             self.materials_project_configuration = SETTINGS.get("PMG_MAPI_KEY")
         else:
@@ -75,12 +78,11 @@ class ChemEnvConfig:
                 break
             elif test == "S":
                 config_file = self.save()
+                print(f"Configuration has been saved to file {config_file!r}")
                 break
             else:
                 print(" ... wrong key, try again ...")
             print()
-        if test == "S":
-            print(f"Configuration has been saved to file {config_file!r}")
 
     @property
     def has_materials_project_access(self):
@@ -94,7 +96,7 @@ class ChemEnvConfig:
         self.package_options = self.DEFAULT_PACKAGE_OPTIONS
         print("Choose between the following strategies : ")
         strategies = list(strategies_class_lookup)
-        for idx, strategy in enumerate(strategies, 1):
+        for idx, strategy in enumerate(strategies, start=1):
             print(f" <{idx}> : {strategy}")
         test = input(" ... ")
         self.package_options["default_strategy"] = {
@@ -135,7 +137,9 @@ class ChemEnvConfig:
     def save(self, root_dir=None):
         """
         Save the options.
-        :param root_dir:
+
+        Args:
+            root_dir:
         """
         if root_dir is None:
             home = expanduser("~")
@@ -158,7 +162,9 @@ class ChemEnvConfig:
     def auto_load(cls, root_dir=None):
         """
         Autoload options.
-        :param root_dir:
+
+        Args:
+            root_dir:
         """
         if root_dir is None:
             home = expanduser("~")

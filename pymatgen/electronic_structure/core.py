@@ -13,6 +13,10 @@ from monty.json import MSONable
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from typing_extensions import Self
+
+    from pymatgen.core import Lattice
+
 
 @unique
 class Spin(Enum):
@@ -125,9 +129,11 @@ class Magmom(MSONable):
     def __init__(
         self, moment: float | Sequence[float] | np.ndarray | Magmom, saxis: Sequence[float] = (0, 0, 1)
     ) -> None:
-        """:param moment: magnetic moment, supplied as float or list/np.ndarray
-        :param saxis: spin axis, supplied as list/np.ndarray, parameter will
-            be converted to unit vector (default is [0, 0, 1])
+        """
+        Args:
+            moment: magnetic moment, supplied as float or list/np.ndarray
+            saxis: spin axis, supplied as list/np.ndarray, parameter will
+                be converted to unit vector (default is [0, 0, 1]).
 
         Returns:
             Magmom object
@@ -148,7 +154,7 @@ class Magmom(MSONable):
         self.saxis = saxis / np.linalg.norm(saxis)
 
     @classmethod
-    def from_global_moment_and_saxis(cls, global_moment, saxis):
+    def from_global_moment_and_saxis(cls, global_moment, saxis) -> Self:
         """Convenience method to initialize Magmom from a given global
         magnetic moment, i.e. magnetic moment with saxis=(0,0,1), and
         provided saxis.
@@ -156,8 +162,9 @@ class Magmom(MSONable):
         Method is useful if you do not know the components of your
         magnetic moment in frame of your desired saxis.
 
-        :param global_moment:
-        :param saxis: desired saxis
+        Args:
+            global_moment: global magnetic moment
+            saxis: desired saxis
         """
         magmom = Magmom(global_moment)
         return cls(magmom.get_moment(saxis=saxis), saxis=saxis)
@@ -204,18 +211,19 @@ class Magmom(MSONable):
         Magmom's internal spin quantization axis, i.e. equivalent to
         Magmom.moment.
 
-        :param saxis: (list/numpy array) spin quantization axis
+        Args:
+            saxis: (list/numpy array) spin quantization axis
 
         Returns:
             np.ndarray of length 3
         """
         # transform back to moment with spin axis [0, 0, 1]
-        m_inv = self._get_transformation_matrix_inv(self.saxis)
-        moment = np.matmul(self.moment, m_inv)
+        trafo_mat_inv = self._get_transformation_matrix_inv(self.saxis)
+        moment = np.matmul(self.moment, trafo_mat_inv)
 
         # transform to new saxis
-        m = self._get_transformation_matrix(saxis)
-        moment = np.matmul(moment, m)
+        trafo_mat = self._get_transformation_matrix(saxis)
+        moment = np.matmul(moment, trafo_mat)
 
         # round small values to zero
         moment[np.abs(moment) < 1e-8] = 0
@@ -295,7 +303,8 @@ class Magmom(MSONable):
         If saxis are inconsistent, can create consistent set with:
         Magmom.get_consistent_set(magmoms).
 
-        :param magmoms: list of magmoms (Magmoms, scalars or vectors)
+        Args:
+            magmoms: list of magmoms (Magmoms, scalars or vectors)
 
         Returns:
             bool
@@ -312,11 +321,12 @@ class Magmom(MSONable):
         """Method to ensure a list of magmoms use the same spin axis.
         Returns a tuple of a list of Magmoms and their global spin axis.
 
-        :param magmoms: list of magmoms (Magmoms, scalars or vectors)
-        :param saxis: can provide a specific global spin axis
+        Args:
+            magmoms: list of magmoms (Magmoms, scalars or vectors)
+            saxis: can provide a specific global spin axis
 
         Returns:
-            (list of Magmoms, global spin axis) tuple
+            tuple[list[Magmom], np.ndarray]: (list of Magmoms, global spin axis)
         """
         magmoms = [Magmom(magmom) for magmom in magmoms]
         saxis = Magmom.get_suggested_saxis(magmoms) if saxis is None else saxis / np.linalg.norm(saxis)
@@ -330,7 +340,8 @@ class Magmom(MSONable):
         with collinear spins, this would give a sensible saxis for a ncl
         calculation.
 
-        :param magmoms: list of magmoms (Magmoms, scalars or vectors)
+        Args:
+            magmoms: list of magmoms (Magmoms, scalars or vectors)
 
         Returns:
             np.ndarray of length 3
@@ -353,7 +364,9 @@ class Magmom(MSONable):
     def are_collinear(magmoms) -> bool:
         """Method checks to see if a set of magnetic moments are collinear
         with each other.
-        :param magmoms: list of magmoms (Magmoms, scalars or vectors).
+
+        Args:
+            magmoms: list of magmoms (Magmoms, scalars or vectors).
 
         Returns:
             bool.
@@ -375,13 +388,15 @@ class Magmom(MSONable):
         return num_ncl == 0
 
     @classmethod
-    def from_moment_relative_to_crystal_axes(cls, moment, lattice):
+    def from_moment_relative_to_crystal_axes(cls, moment: list[float], lattice: Lattice) -> Self:
         """Obtaining a Magmom object from a magnetic moment provided
         relative to crystal axes.
 
         Used for obtaining moments from magCIF file.
-        :param moment: list of floats specifying vector magmom
-        :param lattice: Lattice
+
+        Args:
+            moment: list of floats specifying vector magmom
+            lattice: Lattice
 
         Returns:
             Magmom
@@ -397,7 +412,8 @@ class Magmom(MSONable):
         """If scalar magmoms, moments will be given arbitrarily along z.
         Used for writing moments to magCIF file.
 
-        :param lattice: Lattice
+        Args:
+            lattice: Lattice
 
         Returns:
             vector as list of floats

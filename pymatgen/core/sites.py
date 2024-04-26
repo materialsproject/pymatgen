@@ -16,6 +16,7 @@ from pymatgen.util.coord import pbc_diff
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.util.typing import CompositionLike, SpeciesLike
 
@@ -40,21 +41,22 @@ class Site(collections.abc.Hashable, MSONable):
     ) -> None:
         """Creates a non-periodic Site.
 
-        :param species: Species on the site. Can be:
-            i.  A Composition-type object (preferred)
-            ii. An  element / species specified either as a string
-                symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
-                e.g., 3, 56, or actual Element or Species objects.
-            iii.Dict of elements/species and occupancies, e.g.,
-                {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
-                disordered structures.
-        :param coords: Cartesian coordinates of site.
-        :param properties: Properties associated with the site as a dict, e.g.
-            {"magmom": 5}. Defaults to None.
-        :param label: Label for the site. Defaults to None.
-        :param skip_checks: Whether to ignore all the usual checks and just
-            create the site. Use this if the Site is created in a controlled
-            manner and speed is desired.
+        Args:
+            species: Species on the site. Can be:
+                i.  A Composition-type object (preferred)
+                ii. An  element / species specified either as a string
+                    symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
+                    e.g., 3, 56, or actual Element or Species objects.
+                iii.Dict of elements/species and occupancies, e.g.,
+                    {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
+                    disordered structures.
+            coords: Cartesian coordinates of site.
+            properties: Properties associated with the site as a dict, e.g.
+                {"magmom": 5}. Defaults to None.
+            label: Label for the site. Defaults to None.
+            skip_checks: Whether to ignore all the usual checks and just
+                create the site. Use this if the Site is created in a controlled
+                manner and speed is desired.
         """
         if not skip_checks:
             if not isinstance(species, Composition):
@@ -163,7 +165,7 @@ class Site(collections.abc.Hashable, MSONable):
     @property
     def specie(self) -> Element | Species | DummySpecies:
         """The Species/Element at the site. Only works for ordered sites. Otherwise
-        an AttributeError is raised. Use this property sparingly.  Robust
+        an AttributeError is raised. Use this property sparingly. Robust
         design should make use of the property species instead. Note that the
         singular of species is also species. So the choice of this variable
         name is governed by programmatic concerns as opposed to grammar.
@@ -261,7 +263,7 @@ class Site(collections.abc.Hashable, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Site:
+    def from_dict(cls, dct: dict) -> Self:
         """Create Site from dict representation."""
         atoms_n_occu = {}
         for sp_occu in dct["species"]:
@@ -298,28 +300,29 @@ class PeriodicSite(Site, MSONable):
     ) -> None:
         """Create a periodic site.
 
-        :param species: Species on the site. Can be:
-            i.  A Composition-type object (preferred)
-            ii. An  element / species specified either as a string
-                symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
-                e.g., 3, 56, or actual Element or Species objects.
-            iii.Dict of elements/species and occupancies, e.g.,
-                {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
-                disordered structures.
-        :param coords: Coordinates of site, fractional coordinates
-            by default. See ``coords_are_cartesian`` for more details.
-        :param lattice: Lattice associated with the site.
-        :param to_unit_cell: Translates fractional coordinate to the
-            basic unit cell, i.e. all fractional coordinates satisfy 0
-            <= a < 1. Defaults to False.
-        :param coords_are_cartesian: Set to True if you are providing
-            Cartesian coordinates. Defaults to False.
-        :param properties: Properties associated with the site as a dict, e.g.
-            {"magmom": 5}. Defaults to None.
-        :param label: Label for the site. Defaults to None.
-        :param skip_checks: Whether to ignore all the usual checks and just
-            create the site. Use this if the PeriodicSite is created in a
-            controlled manner and speed is desired.
+        Args:
+            species: Species on the site. Can be:
+                i.  A Composition-type object (preferred)
+                ii. An  element / species specified either as a string
+                    symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
+                    e.g., 3, 56, or actual Element or Species objects.
+                iii.Dict of elements/species and occupancies, e.g.,
+                    {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
+                    disordered structures.
+            coords: Coordinates of site, fractional coordinates
+                by default. See ``coords_are_cartesian`` for more details.
+            lattice: Lattice associated with the site.
+            to_unit_cell: Translates fractional coordinate to the
+                basic unit cell, i.e. all fractional coordinates satisfy 0
+                <= a < 1. Defaults to False.
+            coords_are_cartesian: Set to True if you are providing
+                Cartesian coordinates. Defaults to False.
+            properties: Properties associated with the site as a dict, e.g.
+                {"magmom": 5}. Defaults to None.
+            label: Label for the site. Defaults to None.
+            skip_checks: Whether to ignore all the usual checks and just
+                create the site. Use this if the PeriodicSite is created in a
+                controlled manner and speed is desired.
         """
         frac_coords = lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
 
@@ -497,15 +500,15 @@ class PeriodicSite(Site, MSONable):
         jimage is also returned.
 
         Args:
-            fcoords (3x1 array): fcoords to get distance from.
+            fcoords (3x1 array): fractional coordinates to get distance from.
             jimage (3x1 array): Specific periodic image in terms of
                 lattice translations, e.g., [1,0,0] implies to take periodic
                 image that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 
         Returns:
-            (distance, jimage): distance and periodic lattice translations
-            of the other site for which the distance applies.
+            tuple[float, np.ndarray]: distance and periodic lattice translations (jimage)
+                of the other site for which the distance applies.
         """
         return self.lattice.get_distance_and_image(self.frac_coords, fcoords, jimage=jimage)
 
@@ -525,8 +528,8 @@ class PeriodicSite(Site, MSONable):
                 the image that is nearest to the site is found.
 
         Returns:
-            (distance, jimage): distance and periodic lattice translations
-            of the other site for which the distance applies.
+            tuple[float, np.ndarray]: distance and periodic lattice translations (jimage)
+                of the other site for which the distance applies.
         """
         return self.distance_and_image_from_frac_coords(other.frac_coords, jimage)
 
@@ -588,7 +591,7 @@ class PeriodicSite(Site, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct, lattice=None) -> PeriodicSite:
+    def from_dict(cls, dct, lattice=None) -> Self:
         """Create PeriodicSite from dict representation.
 
         Args:

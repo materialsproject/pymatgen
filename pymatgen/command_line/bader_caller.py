@@ -34,6 +34,8 @@ from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core import Structure
 
 __author__ = "shyuepingong"
@@ -88,7 +90,7 @@ class BaderAnalysis:
             """Utility function to copy a compressed file to a target directory (ScratchDir)
             and decompress it, to avoid modifying files in place.
 
-            Parameters:
+            Args:
                 file (str | Path): The path to the compressed file to be decompressed.
                 target_dir (str, optional): The target directory where the decompressed file will be stored.
                     Defaults to "." (current directory).
@@ -229,11 +231,9 @@ class BaderAnalysis:
         return data
 
     @deprecated(
-        message=(
-            "parse_atomic_densities was deprecated on 2024-02-26 "
-            "and will be removed on 2025-02-26.\nSee https://"
-            "github.com/materialsproject/pymatgen/issues/3652 for details."
-        )
+        message="parse_atomic_densities was deprecated on 2024-02-26 "
+        "and will be removed on 2025-02-26.\nSee https://"
+        "github.com/materialsproject/pymatgen/issues/3652 for details."
     )
     def _parse_atomic_densities(self) -> list[dict]:
         """Parse atom-centered charge densities with excess zeros removed.
@@ -443,7 +443,7 @@ class BaderAnalysis:
         return summary
 
     @classmethod
-    def from_path(cls, path: str, suffix: str = "") -> BaderAnalysis:
+    def from_path(cls, path: str, suffix: str = "") -> Self:
         """Convenient constructor that takes in the path name of VASP run
         to perform Bader analysis.
 
@@ -510,8 +510,10 @@ def bader_analysis_from_path(path: str, suffix: str = ""):
     3. Runs Bader analysis twice: once for charge, and a second time
     for the charge difference (magnetization density).
 
-    :param path: path to folder to search in
-    :param suffix: specific suffix to look for (e.g. '.relax1' for 'CHGCAR.relax1.gz'
+    Args:
+        path: path to folder to search in
+        suffix: specific suffix to look for (e.g. '.relax1' for 'CHGCAR.relax1.gz'
+
     Returns:
         summary dict
     """
@@ -531,8 +533,9 @@ def bader_analysis_from_path(path: str, suffix: str = ""):
         return paths[0]
 
     chgcar_path = _get_filepath("CHGCAR", "Could not find CHGCAR!")
-    if chgcar_path is not None:
-        chgcar = Chgcar.from_file(chgcar_path)
+    if chgcar_path is None:
+        raise FileNotFoundError("Could not find CHGCAR!")
+    chgcar = Chgcar.from_file(chgcar_path)
 
     aeccar0_path = _get_filepath("AECCAR0")
     if not aeccar0_path:
@@ -568,10 +571,11 @@ def bader_analysis_from_objects(
     2. Runs Bader analysis twice: once for charge, and a second time
     for the charge difference (magnetization density).
 
-    :param chgcar: Chgcar object
-    :param potcar: (optional) Potcar object
-    :param aeccar0: (optional) Chgcar object from aeccar0 file
-    :param aeccar2: (optional) Chgcar object from aeccar2 file
+    Args:
+        chgcar: Chgcar object
+        potcar: (optional) Potcar object
+        aeccar0: (optional) Chgcar object from aeccar0 file
+        aeccar2: (optional) Chgcar object from aeccar2 file
 
     Returns:
         summary dict

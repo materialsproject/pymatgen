@@ -22,7 +22,8 @@ from pymatgen.io.vasp import Incar, Potcar
 def parse_view(args):
     """Handle view commands.
 
-    :param args: Args from command.
+    Args:
+        args: Args from command.
     """
     from pymatgen.vis.structure_vtk import StructureVis
 
@@ -37,7 +38,8 @@ def parse_view(args):
 def diff_incar(args):
     """Handle diff commands.
 
-    :param args: Args from command.
+    Args:
+        args: Args from command.
     """
     filepath1 = args.incars[0]
     filepath2 = args.incars[1]
@@ -49,7 +51,7 @@ def diff_incar(args):
             return " ".join(f"{len(tuple(group))}*{i:.2f}" for (i, group) in itertools.groupby(v))
         return v
 
-    d = incar1.diff(incar2)
+    diff = incar1.diff(incar2)
     output = [
         ["SAME PARAMS", "", ""],
         ["---------------", "", ""],
@@ -57,20 +59,18 @@ def diff_incar(args):
         ["DIFFERENT PARAMS", "", ""],
         ["----------------", "", ""],
     ]
-    output.extend(
-        [(k, format_lists(d["Same"][k]), format_lists(d["Same"][k])) for k in sorted(d["Same"]) if k != "SYSTEM"]
-    )
-    output.extend(
-        [
-            (
-                k,
-                format_lists(d["Different"][k]["INCAR1"]),
-                format_lists(d["Different"][k]["INCAR2"]),
-            )
-            for k in sorted(d["Different"])
-            if k != "SYSTEM"
-        ]
-    )
+    output += [
+        (k, format_lists(diff["Same"][k]), format_lists(diff["Same"][k])) for k in sorted(diff["Same"]) if k != "SYSTEM"
+    ]
+    output += [
+        (
+            k,
+            format_lists(diff["Different"][k]["INCAR1"]),
+            format_lists(diff["Different"][k]["INCAR2"]),
+        )
+        for k in sorted(diff["Different"])
+        if k != "SYSTEM"
+    ]
     print(tabulate(output, headers=["", filepath1, filepath2]))
     return 0
 

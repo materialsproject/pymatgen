@@ -15,7 +15,7 @@ try:
     from phonopy import Phonopy
     from phonopy.harmonic import dynmat_to_fc as dyntofc
 except ImportError:
-    Phonopy = None
+    Phonopy = dyntofc = None
 
 
 if TYPE_CHECKING:
@@ -64,7 +64,7 @@ class BornEffectiveCharge:
             opstol (float): tolerance for determining if a symmetry
             operation relates two sites
 
-        Return:
+        Returns:
             list of symmetry operations mapping equivalent sites and
             the indexes of those sites.
         """
@@ -117,7 +117,7 @@ class BornEffectiveCharge:
         Args:
             max_charge (float): maximum born effective charge value
 
-        Return:
+        Returns:
             np.array Born effective charge tensor
         """
         n_atoms = len(self.structure)
@@ -197,7 +197,7 @@ class InternalStrainTensor:
             opstol (float): tolerance for determining if a symmetry
             operation relates two sites
 
-        Return:
+        Returns:
             list of symmetry operations mapping equivalent sites and
             the indexes of those sites.
         """
@@ -231,7 +231,7 @@ class InternalStrainTensor:
         Args:
             max_force (float): maximum born effective charge value
 
-        Return:
+        Returns:
             InternalStrainTensor
         """
         n_atoms = len(self.structure)
@@ -289,7 +289,7 @@ class ForceConstantMatrix:
             opstol (float): tolerance for determining if a symmetry
             operation relates two sites
 
-        Return:
+        Returns:
             list of symmetry operations mapping equivalent sites and
             the indexes of those sites.
         """
@@ -357,7 +357,7 @@ class ForceConstantMatrix:
         Args:
             max_charge (float): maximum born effective charge value
 
-        Return:
+        Returns:
             numpy array representing the force constant matrix
         """
         struct = self.structure
@@ -417,11 +417,10 @@ class ForceConstantMatrix:
             unsymmetrized_fcm (numpy array): unsymmetrized force constant matrix
             max_charge (float): maximum born effective charge value
 
-        Return:
+        Returns:
             3Nx3N numpy array representing the force constant matrix
         """
         operations = self.FCM_operations
-        D = unsymmetrized_fcm
         for op in operations:
             same = 0
             transpose = 0
@@ -430,24 +429,24 @@ class ForceConstantMatrix:
             if op[0] == op[3] and op[1] == op[2]:
                 transpose = 1
             if transpose == 0 and same == 0:
-                D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = np.zeros([3, 3])
+                unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = np.zeros([3, 3])
 
                 for symop in op[4]:
-                    tempfcm = D[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
+                    tempfcm = unsymmetrized_fcm[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
                     tempfcm = symop.transform_tensor(tempfcm)
 
-                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += tempfcm
+                    unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += tempfcm
 
                 if len(op[4]) != 0:
-                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = D[
+                    unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = unsymmetrized_fcm[
                         3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
                     ] / len(op[4])
-                D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = D[
+                unsymmetrized_fcm[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = unsymmetrized_fcm[
                     3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
                 ].T
                 continue
 
-            temp_tensor = Tensor(D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3])
+            temp_tensor = Tensor(unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3])
             temp_tensor_sum = sum(temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]])
             if len(self.sharedops[op[0]][op[1]]) != 0:
                 temp_tensor_sum = temp_tensor_sum / (len(self.sharedops[op[0]][op[1]]))
@@ -462,10 +461,10 @@ class ForceConstantMatrix:
             else:
                 temp_tensor_sum = (temp_tensor_sum + temp_tensor_sum.T) / 2
 
-            D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = temp_tensor_sum
-            D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = temp_tensor_sum.T
+            unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = temp_tensor_sum
+            unsymmetrized_fcm[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = temp_tensor_sum.T
 
-        return D
+        return unsymmetrized_fcm
 
     def get_stable_FCM(self, fcm, fcmasum=10):
         """
@@ -478,7 +477,7 @@ class ForceConstantMatrix:
             fcmasum (int): number of iterations to attempt to obey the acoustic sum
                 rule
 
-        Return:
+        Returns:
             3Nx3N numpy array representing the force constant matrix
         """
         check = 0
@@ -526,7 +525,7 @@ class ForceConstantMatrix:
             numiter (int): number of iterations to attempt to obey the acoustic sum
                 rule
 
-        Return:
+        Returns:
             numpy array representing the force constant matrix
         """
         # set max force in reciprocal space
@@ -617,7 +616,7 @@ class ForceConstantMatrix:
             asum (int): number of iterations to attempt to obey the acoustic sum
                 rule
 
-        Return:
+        Returns:
             NxNx3x3 np.array representing the force constant matrix
         """
         from pymatgen.io.phonopy import get_phonopy_structure
@@ -664,7 +663,7 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
         FCM (numpy array): NxNx3x3 array representing the born effective charge tensor
         rcondy (float): condition for excluding eigenvalues in the pseudoinverse
 
-    Return:
+    Returns:
         3x3x3 calculated Piezo tensor
     """
     n_sites = len(BEC)
@@ -694,7 +693,7 @@ def rand_piezo(struct, pointops, sharedops, BEC, IST, FCM, anumiter=10):
         IST (numpy array): Nx3x3x3 array representing the internal strain tensor
         FCM (numpy array): NxNx3x3 array representing the born effective charge tensor
         anumiter (int): number of iterations for acoustic sum rule convergence
-    Return:
+    Returns:
         list in the form of [Nx3x3 random born effective charge tenosr,
         Nx3x3x3 random internal strain tensor, NxNx3x3 random force constant matrix, 3x3x3 piezo tensor]
     """

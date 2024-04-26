@@ -6,10 +6,14 @@ calculate relevant properties of the stress tensor.
 from __future__ import annotations
 
 import math
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from pymatgen.core.tensors import SquareTensor
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -29,7 +33,7 @@ class Stress(SquareTensor):
 
     symbol = "s"
 
-    def __new__(cls, stress_matrix):
+    def __new__(cls, stress_matrix) -> Self:
         """
         Create a Stress object. Note that the constructor uses __new__
         rather than __init__ according to the standard method of

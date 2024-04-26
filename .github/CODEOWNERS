@@ -2,3 +2,5 @@
 pymatgen/io/ase.py @Andrew-S-Rosen
 pymatgen/io/abinit/* @gmatteo
 pymatgen/io/lobster/* @JaGeo
+pymatgen/ext/* @ml-evs
+tests/ext/* @ml-evs

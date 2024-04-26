@@ -20,6 +20,8 @@ from pymatgen.io.lammps.data import LammpsBox
 if TYPE_CHECKING:
     from typing import Any
 
+    from typing_extensions import Self
+
 __author__ = "Kiran Mathew, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
 __version__ = "1.0"
@@ -47,7 +49,7 @@ class LammpsDump(MSONable):
         self.data = data
 
     @classmethod
-    def from_str(cls, string: str) -> LammpsDump:
+    def from_str(cls, string: str) -> Self:
         """
         Constructor from string parsing.
 
@@ -71,10 +73,10 @@ class LammpsDump(MSONable):
         return cls(time_step, n_atoms, box, data)
 
     @classmethod
-    def from_dict(cls, dct: dict) -> LammpsDump:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             LammpsDump
@@ -111,7 +113,7 @@ def parse_lammps_dumps(file_pattern):
     files = glob(file_pattern)
     if len(files) > 1:
         pattern = file_pattern.replace("*", "([0-9]+)").replace("\\", "\\\\")
-        files = sorted(files, key=lambda f: int(re.match(pattern, f).group(1)))
+        files = sorted(files, key=lambda f: int(re.match(pattern, f)[1]))
 
     for filename in files:
         with zopen(filename, mode="rt") as file:
@@ -169,7 +171,7 @@ def parse_lammps_log(filename: str = "log.lammps") -> list[pd.DataFrame]:
                 data = {}
                 step = re.match(multi_pattern, ts[0])
                 assert step is not None
-                data["Step"] = int(step.group(1))
+                data["Step"] = int(step[1])
                 data.update({k: float(v) for k, v in re.findall(kv_pattern, "".join(ts[1:]))})
                 dicts.append(data)
             df = pd.DataFrame(dicts)

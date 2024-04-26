@@ -10,14 +10,6 @@ See: Grimme, S. Chem. Eur. J. 2012, 18, 9955
 
 from __future__ import annotations
 
-__author__ = "Alex Epstein"
-__copyright__ = "Copyright 2020, The Materials Project"
-__version__ = "0.1"
-__maintainer__ = "Alex Epstein"
-__email__ = "aepstein@lbl.gov"
-__date__ = "August 1, 2023"
-__credits__ = "Ryan Kingsbury, Steven Wheeler, Trevor Seguin, Evan Spotte-Smith"
-
 from math import isclose
 from typing import TYPE_CHECKING
 
@@ -28,9 +20,19 @@ from pymatgen.core.units import kb as kb_ev
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core import Molecule
     from pymatgen.io.gaussian import GaussianOutput
     from pymatgen.io.qchem.outputs import QCOutput
+
+__author__ = "Alex Epstein"
+__copyright__ = "Copyright 2020, The Materials Project"
+__version__ = "0.1"
+__maintainer__ = "Alex Epstein"
+__email__ = "aepstein@lbl.gov"
+__date__ = "August 1, 2023"
+__credits__ = "Ryan Kingsbury, Steven Wheeler, Trevor Seguin, Evan Spotte-Smith"
 
 # Define useful constants
 kb = kb_ev * const.eV  # Pymatgen kb [J/K]
@@ -133,9 +135,8 @@ class QuasiRRHO:
         self._get_quasirrho_thermo(mol=mol, mult=mult, frequencies=frequencies, elec_energy=energy, sigma_r=sigma_r)
 
     @classmethod
-    def from_gaussian_output(cls, output: GaussianOutput, **kwargs) -> QuasiRRHO:
+    def from_gaussian_output(cls, output: GaussianOutput, **kwargs) -> Self:
         """
-
         Args:
             output (GaussianOutput): Pymatgen GaussianOutput object
 
@@ -145,13 +146,12 @@ class QuasiRRHO:
         mult = output.spin_multiplicity
         elec_e = output.final_energy
         mol = output.final_structure
-        vib_freqs = [f["frequency"] for f in output.frequencies[-1]]
+        vib_freqs = [freq["frequency"] for freq in output.frequencies[-1]]
         return cls(mol=mol, frequencies=vib_freqs, energy=elec_e, mult=mult, **kwargs)
 
     @classmethod
-    def from_qc_output(cls, output: QCOutput, **kwargs) -> QuasiRRHO:
+    def from_qc_output(cls, output: QCOutput, **kwargs) -> Self:
         """
-
         Args:
             output (QCOutput): Pymatgen QCOutput object
 

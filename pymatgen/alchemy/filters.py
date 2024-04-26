@@ -13,6 +13,8 @@ from pymatgen.core import get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core import Structure
 
 
@@ -92,7 +94,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
             ]
         )
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """Returns: MSONable dict."""
         return {
             "@module": type(self).__module__,
@@ -106,7 +108,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -149,9 +151,9 @@ class SpecieProximityFilter(AbstractStructureFilter):
             sp_to_test = species.intersection(all_species)
             if sp_to_test:
                 max_r = max(self.specie_and_min_dist[sp] for sp in sp_to_test)
-                nn = structure.get_neighbors(site, max_r)
+                neighbors = structure.get_neighbors(site, max_r)
                 for sp in sp_to_test:
-                    for nn_site, dist, *_ in nn:
+                    for nn_site, dist, *_ in neighbors:
                         if sp in nn_site.species and dist < self.specie_and_min_dist[sp]:
                             return False
         return True
@@ -165,7 +167,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -242,7 +244,7 @@ class RemoveExistingFilter(AbstractStructureFilter):
                 structure matcher is used. A recommended value is 1e-5.
         """
         self.symprec = symprec
-        self.structure_list = []
+        self.structure_list: list = []
         self.existing_structures = existing_structures
         if isinstance(structure_matcher, dict):
             self.structure_matcher = StructureMatcher.from_dict(structure_matcher)

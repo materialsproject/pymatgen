@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -17,7 +17,7 @@ from pymatgen.core.composition import Composition, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
-class TestInterfaceReaction(unittest.TestCase):
+class TestInterfaceReaction(TestCase):
     def setUp(self):
         self.entries = [
             ComputedEntry(Composition("Li"), 0),
@@ -242,13 +242,17 @@ class TestInterfaceReaction(unittest.TestCase):
         test_array = [(0.5, 1, 3), (0.4, 2, 3), (0, 1, 9), (1, 2, 7)]
         result = [InterfacialReactivity._convert(x, f1, f2) for x, f1, f2 in test_array]
         answer = [0.75, 0.5, 0, 1]
-        assert_allclose(result, answer), f"_convert: conversion gets error! {answer} expected, but gets {result}"
+        assert_allclose(
+            result, answer, err_msg=f"_convert: conversion gets error! {answer} expected, but gets {result}"
+        )
 
     def test_reverse_convert(self):
         test_array = [(0.5, 1, 3), (0.4, 2, 3), (0, 1, 9), (1, 2, 7)]
         result = [InterfacialReactivity._reverse_convert(x, f1, f2) for x, f1, f2 in test_array]
         answer = [0.25, 0.3076923, 0, 1]
-        assert_allclose(result, answer), f"_convert: conversion gets error! {answer} expected, but gets {result}"
+        assert_allclose(
+            result, answer, err_msg=f"_convert: conversion gets error! {answer} expected, but gets {result}"
+        )
 
     def test_products_property(self):
         test1 = sorted(self.irs[0].products) == sorted(["MnO2", "O2", "Mn"])
@@ -434,12 +438,14 @@ class TestInterfaceReaction(unittest.TestCase):
             return lst[0][1], lst[1][1]
 
         result_info = [ir.get_no_mixing_energy() for ir in self.irs if ir.grand]
-        for i, j in zip(result_info, answer):
-            err_msg = f"get_no_mixing_energy: names get error, {name_lst(j)} expected but gets {name_lst(i)}"
-            assert name_lst(i) == name_lst(j), err_msg
-            (
-                assert_allclose(energy_lst(i), energy_lst(j), atol=1e-9),
-                f"get_no_mixing_energy: {energy_lst(j)} expected but gets {energy_lst(i)}",
+        for ii, jj in zip(result_info, answer):
+            err_msg = f"get_no_mixing_energy: names get error, {name_lst(jj)} expected but gets {name_lst(ii)}"
+            assert name_lst(ii) == name_lst(jj), err_msg
+            assert_allclose(
+                energy_lst(ii),
+                energy_lst(jj),
+                atol=1e-9,
+                err_msg=f"get_no_mixing_energy: {energy_lst(jj)} expected but gets {energy_lst(ii)}",
             )
 
     def test_get_chempot_correction(self):

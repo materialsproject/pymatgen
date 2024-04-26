@@ -117,9 +117,9 @@ class TestAdsorbateSiteFinder(PymatgenTest):
 
     def test_adsorb_both_surfaces(self):
         # Test out for monatomic adsorption
-        o = Molecule("O", [[0, 0, 0]])
-        ad_slabs = self.asf_100.adsorb_both_surfaces(o)
-        ad_slabs_one = self.asf_100.generate_adsorption_structures(o)
+        oxi = Molecule("O", [[0, 0, 0]])
+        ad_slabs = self.asf_100.adsorb_both_surfaces(oxi)
+        ad_slabs_one = self.asf_100.generate_adsorption_structures(oxi)
         assert len(ad_slabs) == len(ad_slabs_one)
         for ad_slab in ad_slabs:
             sg = SpacegroupAnalyzer(ad_slab)
@@ -161,9 +161,9 @@ class TestAdsorbateSiteFinder(PymatgenTest):
                     "Ni", sub_both_sides=True, target_species=["Mg"]
                 )
                 # Test if default parameters dope the surface site
-                for i, site in enumerate(sub_structs[0]):
-                    if site_finder.slab[i].surface_properties == "surface" and site.species_string == "Mg":
-                        assert sub_structs[0][i].surface_properties == "substitute"
+                for idx, site in enumerate(sub_structs[0]):
+                    if site_finder.slab[idx].surface_properties == "surface" and site.species_string == "Mg":
+                        assert sub_structs[0][idx].surface_properties == "substitute"
 
                 assert sub_structs[0].is_symmetric()
                 # Correctly dope the target species

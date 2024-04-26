@@ -8,7 +8,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.kpath import KPathSetyawanCurtarolo
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/space_group_structs"
+TEST_DIR = f"{TEST_FILES_DIR}/symmetry/space_group_structs"
 
 
 class TestBandStructureSC(PymatgenTest):

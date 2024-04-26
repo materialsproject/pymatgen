@@ -88,7 +88,7 @@ class PackmolSet(InputSet):
             os.chdir(wd)
 
     @classmethod
-    def from_directory(cls, directory: str | Path):
+    def from_directory(cls, directory: str | Path) -> None:
         """
         Construct an InputSet from a directory of one or more files.
 
@@ -184,6 +184,9 @@ class PackmolBoxGen(InputGenerator):
             net_volume = 0.0
             for d in molecules:
                 mol = Molecule.from_file(d["coords"]) if not isinstance(d["coords"], Molecule) else d["coords"]
+
+                if mol is None:
+                    raise ValueError("Molecule cannot be None.")
                 # pad the calculated length by an amount related to the tolerance parameter
                 # the amount to add was determined arbitrarily
                 length = (
@@ -196,14 +199,19 @@ class PackmolBoxGen(InputGenerator):
             box_list = f"0.0 0.0 0.0 {box_length:.1f} {box_length:.1f} {box_length:.1f}"
 
         for d in molecules:
+            mol = None
             if isinstance(d["coords"], str):
                 mol = Molecule.from_file(d["coords"])
             elif isinstance(d["coords"], Path):
                 mol = Molecule.from_file(str(d["coords"]))
             elif isinstance(d["coords"], Molecule):
                 mol = d["coords"]
+
+            if mol is None:
+                raise ValueError("Molecule cannot be None.")
+
             fname = f"packmol_{d['name']}.xyz"
-            mapping.update({fname: mol.to(fmt="xyz")})
+            mapping[fname] = mol.to(fmt="xyz")
             if " " in str(fname):
                 # NOTE - double quotes are deliberately used inside the f-string here, do not change
                 # fmt: off

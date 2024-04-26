@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 from pymatgen.core.structure import Structure
 from pymatgen.io.xr import Xr
@@ -14,7 +14,7 @@ __email__ = "nils.e.r.zimmermann@gmail.com"
 __date__ = "June 23, 2016"
 
 
-class TestXr(unittest.TestCase):
+class TestXr(TestCase):
     def setUp(self):
         struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         self.xr = Xr(struct)
@@ -57,7 +57,7 @@ class TestXr(unittest.TestCase):
         assert str(self.xr) == expected_string
 
     def test_from_file(self):
-        filename = f"{TEST_FILES_DIR}/EDI.xr"
+        filename = f"{TEST_FILES_DIR}/io/xr/EDI.xr"
         xr = Xr.from_file(filename)
         assert isinstance(xr.structure, Structure)
         xr2 = Xr.from_file(filename, use_cores=False)

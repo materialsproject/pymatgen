@@ -32,6 +32,7 @@ from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
     import matplotlib.pyplot as plt
+    from typing_extensions import Self
 
 __author__ = "Sai Jayaraman"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -129,20 +130,13 @@ class PourbaixEntry(MSONable, Stringify):
 
     @property
     def energy(self):
-        """
-        Returns (float): total energy of the Pourbaix
-            entry (at pH, V = 0 vs. SHE).
-        """
+        """Total energy of the Pourbaix entry (at pH, V = 0 vs. SHE)."""
         # Note: this implicitly depends on formation energies as input
         return self.uncorrected_energy + self.conc_term - (MU_H2O * self.nH2O)
 
     @property
     def energy_per_atom(self):
-        """
-        energy per atom of the Pourbaix entry.
-
-        Returns (float): energy per atom
-        """
+        """Energy per atom of the Pourbaix entry."""
         return self.energy / self.composition.num_atoms
 
     @property
@@ -225,12 +219,14 @@ class PourbaixEntry(MSONable, Stringify):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """Invokes a PourbaixEntry from a dictionary."""
-        entry_type = d["entry_type"]
-        entry = IonEntry.from_dict(d["entry"]) if entry_type == "Ion" else MontyDecoder().process_decoded(d["entry"])
-        entry_id = d["entry_id"]
-        concentration = d["concentration"]
+        entry_type = dct["entry_type"]
+        entry = (
+            IonEntry.from_dict(dct["entry"]) if entry_type == "Ion" else MontyDecoder().process_decoded(dct["entry"])
+        )
+        entry_id = dct["entry_id"]
+        concentration = dct["concentration"]
         return cls(entry, entry_id, concentration)
 
     @property
@@ -293,7 +289,7 @@ class MultiEntry(PourbaixEntry):
 
         # Attributes that are just lists of entry attributes
         if attr in ["entry_id", "phase_type"]:
-            return [getattr(e, attr) for e in self.entry_list]
+            return [getattr(entry, attr) for entry in self.entry_list]
 
         # normalization_factor, num_atoms should work from superclass
         return self.__getattribute__(attr)
@@ -301,7 +297,7 @@ class MultiEntry(PourbaixEntry):
     @property
     def name(self):
         """MultiEntry name, i. e. the name of each entry joined by ' + '."""
-        return " + ".join(e.name for e in self.entry_list)
+        return " + ".join(entry.name for entry in self.entry_list)
 
     def __repr__(self):
         energy, npH, nPhi, nH2O, entry_id = self.energy, self.npH, self.nPhi, self.nH2O, self.entry_id
@@ -313,12 +309,12 @@ class MultiEntry(PourbaixEntry):
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
-            "entry_list": [e.as_dict() for e in self.entry_list],
+            "entry_list": [entry.as_dict() for entry in self.entry_list],
             "weights": self.weights,
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -326,7 +322,7 @@ class MultiEntry(PourbaixEntry):
         Returns:
             MultiEntry
         """
-        entry_list = [PourbaixEntry.from_dict(entry) for entry in dct.get("entry_list")]
+        entry_list = [PourbaixEntry.from_dict(entry) for entry in dct.get("entry_list", ())]
         return cls(entry_list, dct.get("weights"))
 
 
@@ -358,9 +354,9 @@ class IonEntry(PDEntry):
         super().__init__(composition=ion.composition, energy=energy, name=name, attribute=attribute)
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """Returns an IonEntry object from a dict."""
-        return cls(Ion.from_dict(d["ion"]), d["energy"], d.get("name"), d.get("attribute"))
+        return cls(Ion.from_dict(dct["ion"]), dct["energy"], dct.get("name"), dct.get("attribute"))
 
     def as_dict(self):
         """Creates a dict of composition, energy, and ion name."""
@@ -447,7 +443,7 @@ class PourbaixDiagram(MSONable):
         if isinstance(entries[0], MultiEntry):
             self._processed_entries = entries
             # Extract individual entries
-            single_entries = list(set(itertools.chain.from_iterable([e.entry_list for e in entries])))
+            single_entries = list(set(itertools.chain.from_iterable([entry.entry_list for entry in entries])))
             self._unprocessed_entries = single_entries
             self._filtered_entries = single_entries
             self._conc_dict = None
@@ -697,7 +693,7 @@ class PourbaixDiagram(MSONable):
             # Note that we get reduced compositions for solids and non-reduced
             # compositions for ions because ions aren't normalized due to
             # their charge state.
-            entry_comps = [e.composition for e in entry_list]
+            entry_comps = [entry.composition for entry in entry_list]
             rxn = Reaction(entry_comps + dummy_oh, [prod_comp])
             react_coeffs = [-coeff for coeff in rxn.coeffs[: len(entry_list)]]
             all_coeffs = [*react_coeffs, rxn.get_coeff(prod_comp)]
@@ -805,7 +801,7 @@ class PourbaixDiagram(MSONable):
         Returns:
             PourbaixEntry: stable entry at pH, V
         """
-        energies_at_conditions = [e.normalized_energy_at_conditions(pH, V) for e in self.stable_entries]
+        energies_at_conditions = [entry.normalized_energy_at_conditions(pH, V) for entry in self.stable_entries]
         return self.stable_entries[np.argmin(energies_at_conditions)]
 
     def get_decomposition_energy(self, entry, pH, V):
@@ -851,7 +847,7 @@ class PourbaixDiagram(MSONable):
         Returns:
             np.array: minimum Pourbaix energy at conditions
         """
-        all_gs = np.array([e.normalized_energy_at_conditions(pH, V) for e in self.stable_entries])
+        all_gs = np.array([entry.normalized_energy_at_conditions(pH, V) for entry in self.stable_entries])
         return np.min(all_gs, axis=0)
 
     def get_stable_entry(self, pH, V):
@@ -866,7 +862,7 @@ class PourbaixDiagram(MSONable):
             PourbaixEntry | MultiEntry: Pourbaix or multi-entry
                 corresponding to the minimum energy entry at a given pH, V condition
         """
-        all_gs = np.array([e.normalized_energy_at_conditions(pH, V) for e in self.stable_entries])
+        all_gs = np.array([entry.normalized_energy_at_conditions(pH, V) for entry in self.stable_entries])
         return self.stable_entries[np.argmin(all_gs)]
 
     @property
@@ -877,7 +873,7 @@ class PourbaixDiagram(MSONable):
     @property
     def unstable_entries(self):
         """Returns all unstable entries in the Pourbaix diagram."""
-        return [e for e in self.all_entries if e not in self.stable_entries]
+        return [entry for entry in self.all_entries if entry not in self.stable_entries]
 
     @property
     def all_entries(self):
@@ -897,23 +893,28 @@ class PourbaixDiagram(MSONable):
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
-            "entries": [e.as_dict() for e in self._unprocessed_entries],
+            "entries": [entry.as_dict() for entry in self._unprocessed_entries],
             "comp_dict": self._elt_comp,
             "conc_dict": self._conc_dict,
             "filter_solids": self.filter_solids,
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             PourbaixDiagram
         """
-        decoded_entries = MontyDecoder().process_decoded(d["entries"])
-        return cls(decoded_entries, d.get("comp_dict"), d.get("conc_dict"), d.get("filter_solids"))
+        decoded_entries = MontyDecoder().process_decoded(dct["entries"])
+        return cls(
+            decoded_entries,
+            comp_dict=dct.get("comp_dict"),
+            conc_dict=dct.get("conc_dict"),
+            filter_solids=bool(dct.get("filter_solids")),
+        )
 
 
 class PourbaixPlotter:
@@ -1077,7 +1078,7 @@ def generate_entry_label(entry):
         entry (PourbaixEntry or MultiEntry): entry to get a label for
     """
     if isinstance(entry, MultiEntry):
-        return " + ".join(e.name for e in entry.entry_list)
+        return " + ".join(entry.name for entry in entry.entry_list)
 
     # TODO - a more elegant solution could be added later to Stringify
     # for example, the pattern re.sub(r"([-+][\d\.]*)", r"$^{\1}$", )

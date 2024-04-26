@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-import unittest
+from unittest import TestCase
 
 from pytest import approx
 
@@ -13,8 +13,12 @@ from pymatgen.apps.borg.hive import (
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR
 
+TEST_DIR = f"{TEST_FILES_DIR}/apps/borg"
 
-class TestVaspToComputedEntryDrone(unittest.TestCase):
+MOL_TEST_DIR = f"{TEST_FILES_DIR}/io/gaussian"
+
+
+class TestVaspToComputedEntryDrone(TestCase):
     def setUp(self):
         self.drone = VaspToComputedEntryDrone(data=["efermi"])
         self.structure_drone = VaspToComputedEntryDrone(inc_structure=True)
@@ -27,7 +31,7 @@ class TestVaspToComputedEntryDrone(unittest.TestCase):
     def test_assimilate(self):
         """Test assimilate data from "vasprun.xml.xe.gz" file."""
 
-        entry = self.drone.assimilate(f"{TEST_FILES_DIR}/app_borg/test_dir")
+        entry = self.drone.assimilate(f"{TEST_DIR}")
 
         for param in ("hubbards", "is_hubbard", "potcar_spec", "run_type"):
             assert param in entry.parameters
@@ -35,7 +39,7 @@ class TestVaspToComputedEntryDrone(unittest.TestCase):
         assert entry.reduced_formula == "Xe"
         assert entry.energy == approx(0.5559329)
 
-        entry = self.structure_drone.assimilate(f"{TEST_FILES_DIR}/app_borg/test_dir")
+        entry = self.structure_drone.assimilate(f"{TEST_DIR}")
         assert entry.reduced_formula == "Xe"
         assert entry.energy == approx(0.5559329)
         assert isinstance(entry, ComputedStructureEntry)
@@ -47,7 +51,7 @@ class TestVaspToComputedEntryDrone(unittest.TestCase):
         assert isinstance(drone, VaspToComputedEntryDrone)
 
 
-class TestSimpleVaspToComputedEntryDrone(unittest.TestCase):
+class TestSimpleVaspToComputedEntryDrone(TestCase):
     def setUp(self):
         self.drone = SimpleVaspToComputedEntryDrone()
         self.structure_drone = SimpleVaspToComputedEntryDrone(inc_structure=True)
@@ -63,18 +67,18 @@ class TestSimpleVaspToComputedEntryDrone(unittest.TestCase):
         assert isinstance(drone, SimpleVaspToComputedEntryDrone)
 
 
-class TestGaussianToComputedEntryDrone(unittest.TestCase):
+class TestGaussianToComputedEntryDrone(TestCase):
     def setUp(self):
         self.drone = GaussianToComputedEntryDrone(data=["corrections"])
         self.structure_drone = GaussianToComputedEntryDrone(inc_structure=True)
 
     def test_get_valid_paths(self):
-        for path in os.walk(f"{TEST_FILES_DIR}/molecules"):
-            if path[0] == f"{TEST_FILES_DIR}/molecules":
+        for path in os.walk(MOL_TEST_DIR):
+            if path[0] == MOL_TEST_DIR:
                 assert len(self.drone.get_valid_paths(path)) > 0
 
     def test_assimilate(self):
-        test_file = f"{TEST_FILES_DIR}/molecules/methane.log"
+        test_file = f"{MOL_TEST_DIR}/methane.log"
         entry = self.drone.assimilate(test_file)
         for param in [
             "functional",

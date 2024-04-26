@@ -141,9 +141,9 @@ class TestPeriodicSite(PymatgenTest):
         assert (
             not (abs(dist_old - dist_new) < 1e-8) ^ (jimage_old == jimage_new).all()
         ), "If old dist == new dist, images must be the same!"
-        latt = Lattice.from_parameters(3.0, 3.1, 10.0, 2.96, 2.0, 1.0)
-        site = PeriodicSite("Fe", [0.1, 0.1, 0.1], latt)
-        site2 = PeriodicSite("Fe", [0.99, 0.99, 0.99], latt)
+        lattice = Lattice.from_parameters(3.0, 3.1, 10.0, 2.96, 2.0, 1.0)
+        site = PeriodicSite("Fe", [0.1, 0.1, 0.1], lattice)
+        site2 = PeriodicSite("Fe", [0.99, 0.99, 0.99], lattice)
         dist, img = site.distance_and_image(site2)
         assert dist == approx(0.15495358379511573)
         assert list(img) == [-11, 6, 0]
@@ -250,8 +250,7 @@ def get_distance_and_image_old(site1, site2, jimage=None):
             nearest to the site is found.
 
     Returns:
-        (distance, jimage):
-            distance and periodic lattice translations of the other site
+        tuple[float, np.array]: distance and periodic lattice translations of the other site
             for which the distance applies.
 
     Note:

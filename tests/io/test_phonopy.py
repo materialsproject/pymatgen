@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import os
-import unittest
 from pathlib import Path
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -37,7 +37,8 @@ except ImportError as exc:
     print(exc)
     Phonopy = None
 
-TEST_DIR = f"{TEST_FILES_DIR}/phonopy"
+TEST_DIR = f"{TEST_FILES_DIR}/io/phonopy"
+PHONON_DIR = f"{TEST_FILES_DIR}/phonon"
 
 
 class TestPhonopyParser(PymatgenTest):
@@ -95,7 +96,7 @@ class TestPhonopyParser(PymatgenTest):
         assert Element.Cl in cdos.get_element_dos()
 
 
-@unittest.skipIf(Phonopy is None, "Phonopy not present")
+@pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
 class TestStructureConversion(PymatgenTest):
     def test_structure_conversion(self):
         struct_pmg = PymatgenTest.get_structure("LiFePO4")
@@ -106,8 +107,8 @@ class TestStructureConversion(PymatgenTest):
         assert struct_pmg_round_trip.matches(struct_pmg)
 
         coords_ph = struct_ph.get_scaled_positions()
-        symbols_pmg = {e.symbol for e in struct_pmg.composition}
-        symbols_pmg2 = {e.symbol for e in struct_pmg_round_trip.composition}
+        symbols_pmg = {*map(str, struct_pmg.composition)}
+        symbols_pmg2 = {*map(str, struct_pmg_round_trip.composition)}
 
         assert struct_ph.get_cell()[1, 1] == approx(struct_pmg.lattice._matrix[1, 1], abs=1e-7)
         assert struct_pmg.lattice._matrix[1, 1] == approx(struct_pmg_round_trip.lattice._matrix[1, 1], abs=1e-7)
@@ -123,7 +124,7 @@ class TestStructureConversion(PymatgenTest):
         assert struct_pmg_round_trip.site_properties["magmom"] == struct_pmg.site_properties["magmom"]
 
 
-@unittest.skipIf(Phonopy is None, "Phonopy not present")
+@pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
 class TestGetDisplacedStructures(PymatgenTest):
     def test_get_displaced_structures(self):
         pmg_s = Structure.from_file(f"{TEST_DIR}/POSCAR-unitcell", primitive=False)
@@ -133,12 +134,12 @@ class TestGetDisplacedStructures(PymatgenTest):
         assert len(structures) == 49
         assert_allclose(
             structures[4].frac_coords[0],
-            np.array([0.10872682, 0.21783039, 0.12595286]),
+            [0.10872682, 0.21783039, 0.12595286],
             atol=1e-7,
         )
         assert_allclose(
             structures[-1].frac_coords[9],
-            np.array([0.89127318, 0.78130015, 0.37404715]),
+            [0.89127318, 0.78130015, 0.37404715],
             atol=1e-7,
         )
         assert len(structures[0]) == 128
@@ -152,11 +153,11 @@ class TestGetDisplacedStructures(PymatgenTest):
             supercell_matrix=supercell_matrix,
             yaml_fname="test.yaml",
         )
-        assert os.path.exists("test.yaml")
+        assert os.path.isfile("test.yaml")
 
 
-@unittest.skipIf(Phonopy is None, "Phonopy not present")
-class TestPhonopyFromForceConstants(unittest.TestCase):
+@pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
+class TestPhonopyFromForceConstants(TestCase):
     def setUp(self) -> None:
         test_path = Path(TEST_DIR)
         structure_file = test_path / "POSCAR-NaCl"
@@ -206,17 +207,16 @@ class TestPhonopyFromForceConstants(unittest.TestCase):
         assert bs.bands[2][10] == approx(2.869229797603161)
 
 
-# @unittest.skipIf(Phonopy is None, "Phonopy not present")
-class TestGruneisen(unittest.TestCase):
+class TestGruneisen:
     def test_ph_bs_symm_line(self):
         self.bs_symm_line_1 = get_gruneisen_ph_bs_symm_line(
-            gruneisen_path=f"{TEST_FILES_DIR}/gruneisen/gruneisen_band_Si.yaml",
-            structure_path=f"{TEST_FILES_DIR}/gruneisen/eq/POSCAR_Si",
+            gruneisen_path=f"{PHONON_DIR}/gruneisen/gruneisen_band_Si.yaml",
+            structure_path=f"{PHONON_DIR}/gruneisen/eq/POSCAR_Si",
             fit=True,
         )
         self.bs_symm_line_2 = get_gruneisen_ph_bs_symm_line(
-            gruneisen_path=f"{TEST_FILES_DIR}/gruneisen/gruneisen_band_Si.yaml",
-            structure_path=f"{TEST_FILES_DIR}/gruneisen/eq/POSCAR_Si",
+            gruneisen_path=f"{PHONON_DIR}/gruneisen/gruneisen_band_Si.yaml",
+            structure_path=f"{PHONON_DIR}/gruneisen/eq/POSCAR_Si",
             fit=False,
         )
 
@@ -224,12 +224,12 @@ class TestGruneisen(unittest.TestCase):
 
         assert self.bs_symm_line_1.gruneisen[0][0] != self.bs_symm_line_2.gruneisen[0][0]
         with pytest.raises(ValueError, match="Please provide a structure or structure path"):
-            get_gruneisen_ph_bs_symm_line(gruneisen_path=f"{TEST_FILES_DIR}/gruneisen/gruneisen_eq_plus_minus_InP.yaml")
+            get_gruneisen_ph_bs_symm_line(gruneisen_path=f"{PHONON_DIR}/gruneisen/gruneisen_eq_plus_minus_InP.yaml")
 
     def test_gruneisen_parameter(self):
         self.gruneisenobject_Si = get_gruneisenparameter(
-            f"{TEST_FILES_DIR}/gruneisen/gruneisen_mesh_Si.yaml",
-            structure_path=f"{TEST_FILES_DIR}/gruneisen/eq/POSCAR_Si",
+            f"{PHONON_DIR}/gruneisen/gruneisen_mesh_Si.yaml",
+            structure_path=f"{PHONON_DIR}/gruneisen/eq/POSCAR_Si",
         )
 
         assert self.gruneisenobject_Si.frequencies[0][0] == approx(0.2523831291)
@@ -237,15 +237,15 @@ class TestGruneisen(unittest.TestCase):
 
         # catch the exception when no structure is present
         with pytest.raises(ValueError, match="Please provide a structure or structure path"):
-            get_gruneisenparameter(f"{TEST_FILES_DIR}/gruneisen/gruneisen_mesh_InP_without_struct.yaml")
+            get_gruneisenparameter(f"{PHONON_DIR}/gruneisen/gruneisen_mesh_InP_without_struct.yaml")
 
 
-@unittest.skipIf(Phonopy is None, "Phonopy not present")
+@pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
 class TestThermalDisplacementMatrices(PymatgenTest):
     def test_get_thermal_displacement_matrix(self):
         list_matrices = get_thermal_displacement_matrices(
-            f"{TEST_FILES_DIR}/phonopy/thermal_displacement_matrices/thermal_displacement_matrices.yaml",
-            f"{TEST_FILES_DIR}/phonopy/thermal_displacement_matrices/POSCAR",
+            f"{PHONON_DIR}/thermal_displacement_matrices/thermal_displacement_matrices.yaml",
+            f"{PHONON_DIR}/thermal_displacement_matrices/POSCAR",
         )
 
         assert_allclose(

@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import copy
 import json
-import unittest
 from collections import defaultdict
+from unittest import TestCase
 
 import pytest
 from monty.json import MontyDecoder
@@ -23,6 +23,8 @@ from pymatgen.entries.computed_entries import (
 )
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR
+
+TEST_DIR = f"{TEST_FILES_DIR}/entries"
 
 vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.xml.gz")
 
@@ -89,7 +91,7 @@ def test_temp_energy_adjustment():
     assert str(ea_dct) == str(ea2.as_dict())
 
 
-class TestComputedEntry(unittest.TestCase):
+class TestComputedEntry(TestCase):
     def setUp(self):
         self.entry = ComputedEntry(
             vasp_run.final_structure.composition,
@@ -238,7 +240,7 @@ class TestComputedEntry(unittest.TestCase):
             assert str(entry) == str(copy)
 
 
-class TestComputedStructureEntry(unittest.TestCase):
+class TestComputedStructureEntry(TestCase):
     def setUp(self):
         self.entry = ComputedStructureEntry(vasp_run.final_structure, vasp_run.final_energy, parameters=vasp_run.incar)
 
@@ -435,7 +437,7 @@ class TestComputedStructureEntry(unittest.TestCase):
         assert copy3 != copy1
 
 
-class TestGibbsComputedStructureEntry(unittest.TestCase):
+class TestGibbsComputedStructureEntry(TestCase):
     def setUp(self):
         self.temps = [300, 600, 900, 1200, 1500, 1800]
         self.struct = vasp_run.final_structure
@@ -452,9 +454,9 @@ class TestGibbsComputedStructureEntry(unittest.TestCase):
             for temp in self.temps
         }
 
-        with open(f"{TEST_FILES_DIR}/Mn-O_entries.json") as file:
+        with open(f"{TEST_DIR}/Mn-O_entries.json") as file:
             data = json.load(file)
-        with open(f"{TEST_FILES_DIR}/structure_CO2.json") as file:
+        with open(f"{TEST_DIR}/structure_CO2.json") as file:
             self.co2_struct = MontyDecoder().process_decoded(json.load(file))
 
         self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]
@@ -499,7 +501,7 @@ class TestGibbsComputedStructureEntry(unittest.TestCase):
         assert test_entry == entry
         assert entry.energy == approx(test_entry.energy)
 
-    def test_str(self):
+    def test_repr(self):
         assert str(self.entries_with_temps[300]).startswith(
             "GibbsComputedStructureEntry test - Li1 Fe4 P4 O16\nGibbs Free Energy (Formation) = -56.2127"
         )

@@ -17,6 +17,7 @@ import itertools
 import logging
 import math
 import re
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
@@ -31,7 +32,10 @@ try:
 
     from pymatgen.io.babel import BabelMolAdaptor
 except ImportError:
-    openbabel = None
+    openbabel = BabelMolAdaptor = None  # type: ignore[misc]
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 __author__ = "Xiaohui Qu, Adam Fekete"
@@ -80,7 +84,7 @@ class AbstractMolAtomMapper(MSONable, abc.ABC):
         """
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -166,17 +170,17 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
 
     def get_molecule_hash(self, mol):
         """Return inchi as molecular hash."""
-        obconv = openbabel.OBConversion()
-        obconv.SetOutFormat("inchi")
-        obconv.AddOption("X", openbabel.OBConversion.OUTOPTIONS, "DoNotAddH")
-        inchi_text = obconv.WriteString(mol)
+        ob_conv = openbabel.OBConversion()
+        ob_conv.SetOutFormat("inchi")
+        ob_conv.AddOption("X", openbabel.OBConversion.OUTOPTIONS, "DoNotAddH")
+        inchi_text = ob_conv.WriteString(mol)
         match = re.search(r"InChI=(?P<inchi>.+)\n", inchi_text)
         return match.group("inchi")
 
     def as_dict(self):
         """
         Returns:
-            Jsonable dict.
+            JSON-able dict.
         """
         return {
             "version": __version__,
@@ -185,10 +189,10 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             IsomorphismMolAtomMapper
@@ -220,15 +224,15 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict Representation.
+            dct (dict): Dict Representation.
 
         Returns:
             InchiMolAtomMapper
         """
-        return cls(angle_tolerance=d["angle_tolerance"])
+        return cls(angle_tolerance=dct["angle_tolerance"])
 
     @staticmethod
     def _inchi_labels(mol):
@@ -281,10 +285,10 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             c1x += float(oa1.x())
             c1y += float(oa1.y())
             c1z += float(oa1.z())
-        num_atoms = len(group_atoms)
-        c1x /= num_atoms
-        c1y /= num_atoms
-        c1z /= num_atoms
+        n_atoms = len(group_atoms)
+        c1x /= n_atoms
+        c1y /= n_atoms
+        c1z /= n_atoms
         return c1x, c1y, c1z
 
     def _virtual_molecule(self, mol, ilabels, eq_atoms):
@@ -299,7 +303,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             farthest_group_idx: The equivalent atom group index in which
                 there is the farthest atom to the centroid
 
-        Return:
+        Returns:
             The virtual molecule
         """
         vmol = openbabel.OBMol()
@@ -350,7 +354,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             ilabel2: inchi label map of the second molecule
             eq_atoms: equivalent atom labels
 
-        Return:
+        Returns:
             corrected inchi labels of heavy atoms of the second molecule
         """
         n_virtual = vmol1.NumAtoms()
@@ -423,7 +427,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             heavy_indices1: inchi label map of the first molecule
             heavy_indices2: label map of the second molecule
 
-        Return:
+        Returns:
             corrected label map of all atoms of the second molecule
         """
         num_atoms = mol2.NumAtoms()
@@ -534,7 +538,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             return None, None  # Topologically different
 
         if iequal_atom1 != iequal_atom2:
-            raise Exception("Design Error! Equivalent atoms are inconsistent")
+            raise RuntimeError("Design Error! Equivalent atoms are inconsistent")
 
         vmol1 = self._virtual_molecule(ob_mol1, ilabel1, iequal_atom1)
         vmol2 = self._virtual_molecule(ob_mol2, ilabel2, iequal_atom2)
@@ -663,7 +667,7 @@ class MoleculeMatcher(MSONable):
             Assumption: if s1=s2 and s2=s3, then s1=s3
             This may not be true for small tolerances.
         """
-        mol_hash = [(i, self._mapper.get_molecule_hash(m)) for i, m in enumerate(mol_list)]
+        mol_hash = [(idx, self._mapper.get_molecule_hash(mol)) for idx, mol in enumerate(mol_list)]
         mol_hash.sort(key=lambda x: x[1])
 
         # Use molecular hash to pre-group molecules.
@@ -707,17 +711,17 @@ class MoleculeMatcher(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             MoleculeMatcher
         """
         return cls(
-            tolerance=d["tolerance"],
-            mapper=AbstractMolAtomMapper.from_dict(d["mapper"]),
+            tolerance=dct["tolerance"],
+            mapper=AbstractMolAtomMapper.from_dict(dct["mapper"]),
         )
 
 
@@ -890,6 +894,8 @@ class BruteForceOrderMatcher(KabschMatcher):
         rmsd = np.inf
 
         # Generate all permutation grouped/sorted by the elements
+        p_inds = []
+        U = np.empty(0)
         for p_inds_test in self.permutations(p_atoms):
             p_centroid_test = p_centroid[p_inds_test]
             U_test = self.kabsch(p_centroid_test, q_centroid)
@@ -987,6 +993,8 @@ class HungarianOrderMatcher(KabschMatcher):
         rmsd = np.inf
 
         # Generate all permutation grouped/sorted by the elements
+        inds = []
+        U = np.empty(0)
         for p_inds_test in self.permutations(p_atoms, p_centroid, p_weights, q_atoms, q_centroid, q_weights):
             p_centroid_test = p_centroid[p_inds_test]
             U_test = self.kabsch(p_centroid_test, q_centroid)
@@ -1258,6 +1266,7 @@ class GeneticOrderMatcher(KabschMatcher):
 
         # starting matches (only based on element)
         partial_matches = [[j] for j in range(self.N) if p_atoms[j] == q_atoms[0]]
+        matches: list = []
 
         for idx in range(1, self.N):
             # extending the target fragment with then next atom

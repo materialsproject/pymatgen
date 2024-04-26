@@ -16,7 +16,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-json_dir = f"{TEST_FILES_DIR}/chemenv/json"
+json_dir = f"{TEST_FILES_DIR}/analysis/chemenv/json"
 
 
 class TestCoordinationGeometryFinder(PymatgenTest):

@@ -22,11 +22,6 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-try:
-    import bson  # type: ignore
-except ModuleNotFoundError:
-    bson = None  # type: ignore
-
 __author__ = "waroquiers"
 
 
@@ -122,24 +117,23 @@ class TestConnectedComponent(PymatgenTest):
 
         cc = ConnectedComponent(graph=graph)
         ref_sorted_edges = [[en1, en2], [en1, en3]]
-        sorted_edges = sorted(sorted(e) for e in cc.graph.edges())
+        sorted_edges = sorted(sorted(edge) for edge in cc.graph.edges())
         assert sorted_edges == ref_sorted_edges
 
         cc_from_dict = ConnectedComponent.from_dict(cc.as_dict())
         cc_from_json = ConnectedComponent.from_dict(json.loads(json.dumps(cc.as_dict())))
         loaded_cc_list = [cc_from_dict, cc_from_json]
-        if bson is not None:
-            bson_data = bson.BSON.encode(cc.as_dict())
-            cc_from_bson = ConnectedComponent.from_dict(bson_data.decode())
-            loaded_cc_list.append(cc_from_bson)
+        json_str = self.assert_msonable(cc)
+        cc_from_json = ConnectedComponent.from_dict(json.loads(json_str))
+        loaded_cc_list.append(cc_from_json)
         for loaded_cc in loaded_cc_list:
             assert loaded_cc.graph.number_of_nodes() == 3
             assert loaded_cc.graph.number_of_edges() == 2
             assert set(cc.graph.nodes()) == set(loaded_cc.graph.nodes())
-            assert sorted_edges == sorted(sorted(e) for e in loaded_cc.graph.edges())
+            assert sorted_edges == sorted(sorted(edge) for edge in loaded_cc.graph.edges())
 
-            for e in sorted_edges:
-                assert cc.graph[e[0]][e[1]] == loaded_cc.graph[e[0]][e[1]]
+            for edge in sorted_edges:
+                assert cc.graph[edge[0]][edge[1]] == loaded_cc.graph[edge[0]][edge[1]]
 
             for node in loaded_cc.graph.nodes():
                 assert isinstance(node.central_site, PeriodicSite)
@@ -379,7 +373,7 @@ class TestConnectedComponent(PymatgenTest):
         assert not cc.is_3d
         assert cc.is_periodic
         assert cc.periodicity == "2D"
-        assert_allclose(cc.periodicity_vectors, [np.array([0, 1, 0]), np.array([1, 1, 0])])
+        assert_allclose(cc.periodicity_vectors, [[0, 1, 0], [1, 1, 0]])
         assert isinstance(cc.periodicity_vectors, list)
         assert cc.periodicity_vectors[0].dtype is np.dtype(int)
 
@@ -449,10 +443,7 @@ class TestConnectedComponent(PymatgenTest):
         assert cc.is_3d
         assert cc.is_periodic
         assert cc.periodicity == "3D"
-        assert_allclose(
-            cc.periodicity_vectors,
-            [np.array([0, 1, 0]), np.array([1, 1, 0]), np.array([1, 1, 1])],
-        )
+        assert_allclose(cc.periodicity_vectors, [[0, 1, 0], [1, 1, 0], [1, 1, 1]])
         assert isinstance(cc.periodicity_vectors, list)
         assert cc.periodicity_vectors[0].dtype is np.dtype(int)
 
@@ -769,7 +760,7 @@ Node #11 P (T:4), connected to :
             assert cc.periodicity == "2D"
 
         # Connectivity of Li4Fe3Mn1(PO4)4
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/Li4Fe3Mn1(PO4)4.cif")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/cif/Li4Fe3Mn1(PO4)4.cif")
         lgf.setup_structure(structure=struct)
         se = lgf.compute_structure_environments(only_atoms=["Li", "Fe", "Mn", "P"], maximum_distance_factor=1.2)
         lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)
@@ -806,7 +797,7 @@ Node #11 P (T:4), connected to :
         # Sort connected components as they might
         # come in a different order depending on
         # the algorithm used to get them.
-        sorted_ccs = sorted(ccs, key=lambda x: sorted(x.graph.nodes())[0])
+        sorted_ccs = sorted(ccs, key=lambda x: min(x.graph.nodes()))
         expected_full_desc_0 = """Connected component with environment nodes :
 Node #0 Li (O:6), connected to :
   - Node #1 Li (O:6) with delta image cells
@@ -846,7 +837,7 @@ Node #3 Li (O:6), connected to :
         assert ccs_periodicities == {"0D", "2D"}
 
     def test_coordination_sequences(self):
-        BaTiO3_se_fpath = f"{TEST_FILES_DIR}/chemenv/structure_environments/se_mp-5020.json"
+        BaTiO3_se_fpath = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments/se_mp-5020.json"
         with open(BaTiO3_se_fpath) as file:
             dct = json.load(file)
         struct_envs = StructureEnvironments.from_dict(dct)

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import pandas as pd
 import pytest
@@ -12,7 +12,7 @@ from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
 
-class TestXYZ(unittest.TestCase):
+class TestXYZ(TestCase):
     def setUp(self):
         coords = [
             [0, 0, 0],
@@ -66,10 +66,10 @@ H -0.513360 0.889165 -0.363000"""
         xyz = XYZ.from_str(expected)
         mol = xyz.molecule
         sp = ["C", "H", "H", "H", "H"]
-        for i, site in enumerate(mol):
-            assert site.species_string == sp[i]
+        for idx, site in enumerate(mol):
+            assert site.species_string == sp[idx]
             assert len(site.coords) == 3
-            if i == 0:
+            if idx == 0:
                 assert all(c == 0 for c in site.coords)
 
         mol_str = """2
@@ -122,7 +122,7 @@ C32-C2-1
         assert mol[3].z == approx(-0.13790)
 
     def test_from_file(self):
-        filepath = f"{TEST_FILES_DIR}/xyz/multiple_frame.xyz"
+        filepath = f"{TEST_FILES_DIR}/io/xyz/multiple_frame.xyz"
         mxyz = XYZ.from_file(filepath)
         assert len(mxyz.all_molecules) == 302
         assert list(mxyz.all_molecules[0].cart_coords[0]) == [

@@ -6,7 +6,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-config_file_dir = f"{TEST_FILES_DIR}/chemenv/config"
+config_file_dir = f"{TEST_FILES_DIR}/analysis/chemenv/config"
 
 
 class TestChemenvConfig(PymatgenTest):
@@ -23,10 +23,10 @@ class TestChemenvConfig(PymatgenTest):
             config.package_options_description() == "Package options :\n"
             " - Maximum distance factor : 1.8000\n"
             ' - Default strategy is "SimplestChemenvStrategy" :\n'
-            "    Simplest ChemenvStrategy using fixed angle and distance parameters \n"
-            "    for the definition of neighbors in the Voronoi approach. \n"
-            "    The coordination environment is then given as the one with the \n"
-            "    lowest continuous symmetry measure.\n"
+            "Simplest ChemenvStrategy using fixed angle and distance parameters \n"
+            "for the definition of neighbors in the Voronoi approach. \n"
+            "The coordination environment is then given as the one with the \n"
+            "lowest continuous symmetry measure.\n"
             "   with options :\n"
             "     - distance_cutoff : 1.4\n"
             "     - angle_cutoff : 0.3\n"

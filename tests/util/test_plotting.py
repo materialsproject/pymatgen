@@ -12,14 +12,14 @@ except ImportError:
     pymatviz = None
 
 
-class FuncTestCase(PymatgenTest):
+class TestFunc(PymatgenTest):
     def test_plot_periodic_heatmap(self):
         random_data = {"Te": 0.11083, "Au": 0.75756, "Th": 1.24758, "Ni": -2.0354}
-        ret_val = periodic_table_heatmap(random_data)
+        fig = periodic_table_heatmap(random_data)
         if pymatviz:
-            assert isinstance(ret_val, Figure)
+            assert isinstance(fig, Figure)
         else:
-            assert ret_val is plt
+            assert isinstance(fig, plt.Axes)
 
         # Test all keywords
         periodic_table_heatmap(
@@ -39,6 +39,10 @@ class FuncTestCase(PymatgenTest):
 
     def test_van_arkel_triangle(self):
         random_list = [("Fe", "C"), ("Ni", "F")]
-        ret_val = van_arkel_triangle(random_list)
-        assert ret_val is plt
-        van_arkel_triangle(random_list, annotate=True)
+        ax = van_arkel_triangle(random_list)
+        assert isinstance(ax, plt.Axes)
+        assert ax.get_title() == ""
+        assert ax.get_xlabel() == r"$\frac{\chi_{A}+\chi_{B}}{2}$"
+        assert ax.get_ylabel() == r"$|\chi_{A}-\chi_{B}|$"
+        ax = van_arkel_triangle(random_list, annotate=True)
+        assert isinstance(ax, plt.Axes)

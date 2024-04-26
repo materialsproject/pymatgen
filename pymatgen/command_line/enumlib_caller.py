@@ -243,8 +243,8 @@ class EnumlibAdaptor:
             n_disordered
             * lcm(
                 *(
-                    f.limit_denominator(n_disordered * self.max_cell_size).denominator
-                    for f in map(fractions.Fraction, index_amounts)
+                    fraction.limit_denominator(n_disordered * self.max_cell_size).denominator
+                    for fraction in map(fractions.Fraction, index_amounts)
                 )
             )
         )
@@ -256,7 +256,7 @@ class EnumlibAdaptor:
         # enumeration. See Cu7Te5.cif test file.
         base *= 10
 
-        # base = n_disordered # 10 ** int(math.ceil(math.log10(n_disordered)))
+        # base = n_disordered # 10 ** math.ceil(math.log10(n_disordered))
         # To get a reasonable number of structures, we fix concentrations to the
         # range expected in the original structure.
         total_amounts = sum(index_amounts)
@@ -266,7 +266,7 @@ class EnumlibAdaptor:
             if abs(conc * base - round(conc * base)) < 1e-5:
                 output.append(f"{int(round(conc * base))} {int(round(conc * base))} {base}")
             else:
-                min_conc = int(math.floor(conc * base))
+                min_conc = math.floor(conc * base)
                 output.append(f"{min_conc - 1} {min_conc + 1} {base}")
         output.append("")
         logger.debug("Generated input file:\n" + "\n".join(output))

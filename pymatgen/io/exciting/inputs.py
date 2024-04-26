@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import itertools
 import xml.etree.ElementTree as ET
+from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy.constants as const
@@ -12,6 +14,11 @@ from monty.json import MSONable
 from pymatgen.core import Element, Lattice, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 __author__ = "Christian Vorwerk"
 __copyright__ = "Copyright 2016"
@@ -64,19 +71,27 @@ class ExcitingInput(MSONable):
         self.structure.add_site_property("selective_dynamics", lockxyz)
 
     @classmethod
-    def from_str(cls, data):
+    def from_str(cls, data: str) -> Self:
         """Reads the exciting input from a string."""
-        root = ET.fromstring(data)
-        species_node = root.find("structure").iter("species")
+        root: ET.Element = ET.fromstring(data)
+        struct = root.find("structure")
+        if struct is None:
+            raise ValueError("No structure found in input file!")
+
+        species_node = struct.iter("species")
         elements = []
         positions = []
         vectors = []
         lockxyz = []
         # get title
-        title_in = str(root.find("title").text)
+        _title = root.find("title")
+        assert _title is not None, "title cannot be None."
+        title_in = str(_title.text)
         # Read elements and coordinates
         for nodes in species_node:
-            symbol = nodes.get("speciesfile").split(".")[0]
+            _speciesfile = nodes.get("speciesfile")
+            assert _speciesfile is not None, "speciesfile cannot be None."
+            symbol = _speciesfile.split(".")[0]
             if len(symbol.split("_")) == 2:
                 symbol = symbol.split("_")[0]
             if Element.is_valid_symbol(symbol):
@@ -84,40 +99,50 @@ class ExcitingInput(MSONable):
                 element = symbol
             else:
                 raise ValueError("Unknown element!")
+
             for atom in nodes.iter("atom"):
-                x, y, z = atom.get("coord").split()
+                _coord = atom.get("coord")
+                assert _coord is not None, "coordinate cannot be None."
+                x, y, z = _coord.split()
                 positions.append([float(x), float(y), float(z)])
                 elements.append(element)
                 # Obtain lockxyz for each atom
-                if atom.get("lockxyz") is not None:
+                if atom.get("lockxyz") is None:
+                    lockxyz.append([False, False, False])
+                else:
                     lxyz = []
-                    for line in atom.get("lockxyz").split():
+
+                    _lockxyz = atom.get("lockxyz")
+                    assert _lockxyz is not None, "lockxyz cannot be None."
+                    for line in _lockxyz.split():
                         if line in ("True", "true"):
                             lxyz.append(True)
                         else:
                             lxyz.append(False)
                     lockxyz.append(lxyz)
-                else:
-                    lockxyz.append([False, False, False])
+
         # check the atomic positions type
-        if "cartesian" in root.find("structure").attrib:
-            if root.find("structure").attrib["cartesian"]:
-                cartesian = True
-                for p in positions:
-                    for j in range(3):
-                        p[j] = p[j] * ExcitingInput.bohr2ang
-                print(positions)
-        else:
-            cartesian = False
+        cartesian = False
+        if struct.attrib.get("cartesian"):
+            cartesian = True
+            for p, j in itertools.product(positions, range(3)):
+                p[j] = p[j] * ExcitingInput.bohr2ang
+
+        _crystal = struct.find("crystal")
+        assert _crystal is not None, "crystal cannot be None."
+
         # get the scale attribute
-        scale_in = root.find("structure").find("crystal").get("scale")
+        scale_in = _crystal.get("scale")
         scale = float(scale_in) * ExcitingInput.bohr2ang if scale_in else ExcitingInput.bohr2ang
+
         # get the stretch attribute
-        stretch_in = root.find("structure").find("crystal").get("stretch")
+        stretch_in = _crystal.get("stretch")
         stretch = np.array([float(a) for a in stretch_in]) if stretch_in else np.array([1.0, 1.0, 1.0])
+
         # get basis vectors and scale them accordingly
-        basisnode = root.find("structure").find("crystal").iter("basevect")
+        basisnode = _crystal.iter("basevect")
         for vect in basisnode:
+            assert vect.text is not None, "vectors cannot be None."
             x, y, z = vect.text.split()
             vectors.append(
                 [
@@ -133,9 +158,10 @@ class ExcitingInput(MSONable):
         return cls(structure_in, title_in, lockxyz)
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
-        :param filename: Filename
+        Args:
+            filename: Filename
 
         Returns:
             ExcitingInput
@@ -205,7 +231,7 @@ class ExcitingInput(MSONable):
         # write atomic positions for each species
         index = 0
         for elem in sorted(new_struct.types_of_species, key=lambda el: el.X):
-            species = ET.SubElement(structure, "species", speciesfile=elem.symbol + ".xml")
+            species = ET.SubElement(structure, "species", speciesfile=f"{elem.symbol}.xml")
             sites = new_struct.indices_from_symbol(elem.symbol)
 
             for j in sites:
@@ -226,8 +252,12 @@ class ExcitingInput(MSONable):
                 # write atomic positions
                 index = index + 1
                 _ = ET.SubElement(species, "atom", coord=coord)
+
         # write bandstructure if needed
-        if bandstr and celltype == "primitive":
+        if bandstr:
+            if celltype != "primitive":
+                raise ValueError("Bandstructure is only implemented for the standard primitive unit cell!")
+
             kpath = HighSymmKpath(new_struct, symprec=symprec, angle_tolerance=angle_tolerance)
             prop = ET.SubElement(root, "properties")
             band_struct = ET.SubElement(prop, "bandstructure")
@@ -241,8 +271,6 @@ class ExcitingInput(MSONable):
                     symbol_map = {"\\Gamma": "GAMMA", "\\Sigma": "SIGMA", "\\Delta": "DELTA", "\\Lambda": "LAMBDA"}
                     symbol = symbol_map.get(symbol, symbol)
                     _ = ET.SubElement(path, "point", coord=coord, label=symbol)
-        elif bandstr and celltype != "primitive":
-            raise ValueError("Bandstructure is only implemented for the standard primitive unit cell!")
 
         # write extra parameters from kwargs if provided
         self._dicttoxml(kwargs, root)
@@ -325,13 +353,14 @@ class ExcitingInput(MSONable):
         """
         Helper method to indent elements.
 
-        :param elem:
-        :param level:
+        Args:
+            elem:
+            level:
         """
         i = "\n" + level * "  "
         if len(elem):
             if not elem.text or not elem.text.strip():
-                elem.text = i + "  "
+                elem.text = f"{i}  "
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
             for el in elem:

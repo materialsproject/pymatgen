@@ -34,9 +34,8 @@ class StaticSetGenerator(AimsInputGenerator):
         prev_parameters: Dict[str, Any]
             The previous parameters
 
-        Returns
-        -------
-        The updated for the parameters for the output section of FHI-aims
+        Returns:
+            dict: The updated for the parameters for the output section of FHI-aims
         """
         return prev_parameters
 
@@ -75,9 +74,8 @@ class RelaxSetGenerator(AimsInputGenerator):
         prev_parameters: Dict[str, Any]
             The previous parameters
 
-        Returns
-        -------
-        The updated for the parameters for the output section of FHI-aims
+        Returns:
+            dict: The updated for the parameters for the output section of FHI-aims
         """
         updates = {"relax_geometry": f"{self.method} {self.max_force:e}"}
         if isinstance(structure, Structure) and self.relax_cell:
@@ -116,8 +114,7 @@ class SocketIOSetGenerator(AimsInputGenerator):
         prev_parameters: Dict[str, Any]
             The previous parameters
 
-        Returns
-        -------
-        The updated for the parameters for the output section of FHI-aims
+        Returns:
+            dict: The updated for the parameters for the output section of FHI-aims
         """
         return {"use_pimd_wrapper": (self.host, self.port)}

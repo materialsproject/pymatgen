@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 import warnings
 from shutil import which
 from unittest.mock import patch
@@ -14,8 +13,10 @@ from pytest import approx
 from pymatgen.command_line.bader_caller import BaderAnalysis, bader_analysis_from_path
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/command_line/bader"
 
-@unittest.skipIf(not which("bader"), "bader executable not present")
+
+@pytest.mark.skipif(not which("bader"), reason="bader executable not present")
 class TestBaderAnalysis(PymatgenTest):
     def setUp(self):
         warnings.catch_warnings()
@@ -59,13 +60,12 @@ class TestBaderAnalysis(PymatgenTest):
         assert len(analysis.data) == 14
 
         # Test Cube file format parsing
-        TEST_DIR = f"{TEST_FILES_DIR}/bader"
+
         copy_r(TEST_DIR, self.tmp_path)
         analysis = BaderAnalysis(cube_filename=f"{TEST_DIR}/elec.cube.gz")
         assert len(analysis.data) == 9
 
     def test_from_path(self):
-        TEST_DIR = f"{TEST_FILES_DIR}/bader"
         # we need to create two copies of input files since monty decompressing files
         # deletes the compressed version which can't happen twice in same directory
         copy_r(TEST_DIR, direct_dir := f"{self.tmp_path}/direct")
@@ -84,7 +84,7 @@ class TestBaderAnalysis(PymatgenTest):
                 assert_allclose(val, val_from_path, atol=1e-5)
 
     def test_bader_analysis_from_path(self):
-        summary = bader_analysis_from_path(f"{TEST_FILES_DIR}/bader")
+        summary = bader_analysis_from_path(TEST_DIR)
         """
         Reference summary dict (with bader 1.0)
         summary_ref = {

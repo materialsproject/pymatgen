@@ -12,6 +12,7 @@ import json
 import logging
 import multiprocessing as mp
 import re
+from collections import defaultdict
 from typing import TYPE_CHECKING, Literal
 
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -22,6 +23,8 @@ from pymatgen.core import Composition, Element
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+    from typing_extensions import Self
 
     from pymatgen.entries import Entry
     from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
@@ -112,7 +115,7 @@ def group_entries_by_structure(
     logger.info(f"Started at {start}")
     entries_host = [(entry, _get_host(entry.structure, species_to_remove)) for entry in entries]
     if ncpus:
-        symm_entries = collections.defaultdict(list)
+        symm_entries = defaultdict(list)
         for entry, host in entries_host:
             symm_entries[comparator.get_structure_hash(host)].append((entry, host))
 
@@ -211,14 +214,16 @@ class EntrySet(collections.abc.MutableSet, MSONable):
     def add(self, element):
         """Add an entry.
 
-        :param element: Entry
+        Args:
+            element: Entry
         """
         self.entries.add(element)
 
     def discard(self, element):
         """Discard an entry.
 
-        :param element: Entry
+        Args:
+            element: Entry
         """
         self.entries.discard(element)
 
@@ -239,10 +244,10 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         per atom entry at each composition.
         """
         entries = sorted(self.entries, key=lambda e: e.reduced_formula)
-        ground_states = set()
-        for _, g in itertools.groupby(entries, key=lambda e: e.reduced_formula):
-            ground_states.add(min(g, key=lambda e: e.energy_per_atom))
-        return ground_states
+        return {
+            min(g, key=lambda e: e.energy_per_atom)
+            for _, g in itertools.groupby(entries, key=lambda e: e.reduced_formula)
+        }
 
     def remove_non_ground_states(self):
         """Removes all non-ground state entries, i.e., only keep the lowest energy
@@ -312,7 +317,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
                 writer.writerow(row)
 
     @classmethod
-    def from_csv(cls, filename: str):
+    def from_csv(cls, filename: str) -> Self:
         """Imports PDEntries from a csv.
 
         Args:

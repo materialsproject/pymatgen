@@ -8,21 +8,23 @@ import re
 import sys
 from collections import namedtuple
 from io import StringIO
+from typing import TYPE_CHECKING
 
 from monty.json import MontyDecoder, MontyEncoder
+
+from pymatgen.core.structure import Molecule, Structure
 
 try:
     from pybtex import errors
     from pybtex.database.input import bibtex
 except ImportError:
-    pybtex = bibtex = None
-
-from typing import TYPE_CHECKING
-
-from pymatgen.core.structure import Molecule, Structure
+    pybtex = bibtex = errors = None
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from typing_extensions import Self
+
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __credits__ = "Dan Gunter"
@@ -75,8 +77,8 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
         """Returns: Dict."""
         return {"name": self.name, "url": self.url, "description": self.description}
 
-    @staticmethod
-    def from_dict(dct: dict[str, str]) -> HistoryNode:
+    @classmethod
+    def from_dict(cls, dct: dict[str, str]) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -84,25 +86,24 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
         Returns:
             HistoryNode
         """
-        return HistoryNode(dct["name"], dct["url"], dct["description"])
+        return cls(dct["name"], dct["url"], dct["description"])
 
-    @staticmethod
-    def parse_history_node(h_node):
+    @classmethod
+    def parse_history_node(cls, h_node) -> Self:
         """Parses a History Node object from either a dict or a tuple.
 
         Args:
-            h_node: A dict with name/url/description fields or a 3-element
-                tuple.
+            h_node: A dict with name/url/description fields or a 3-element tuple.
 
         Returns:
-            History node.
+            HistoryNode
         """
         if isinstance(h_node, dict):
-            return HistoryNode.from_dict(h_node)
+            return cls.from_dict(h_node)
 
         if len(h_node) != 3:
             raise ValueError(f"Invalid History node, should be dict or (name, version, description) tuple: {h_node}")
-        return HistoryNode(h_node[0], h_node[1], h_node[2])
+        return cls(h_node[0], h_node[1], h_node[2])
 
 
 class Author(namedtuple("Author", ["name", "email"])):
@@ -120,19 +121,19 @@ class Author(namedtuple("Author", ["name", "email"])):
         """Returns: MSONable dict."""
         return {"name": self.name, "email": self.email}
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             Author
         """
-        return Author(d["name"], d["email"])
+        return cls(dct["name"], dct["email"])
 
-    @staticmethod
-    def parse_author(author):
+    @classmethod
+    def parse_author(cls, author) -> Self:
         """Parses an Author object from either a String, dict, or tuple.
 
         Args:
@@ -145,15 +146,15 @@ class Author(namedtuple("Author", ["name", "email"])):
         if isinstance(author, str):
             # Regex looks for whitespace, (any name), whitespace, <, (email),
             # >, whitespace
-            m = re.match(r"\s*(.*?)\s*<(.*?@.*?)>\s*", author)
-            if not m or m.start() != 0 or m.end() != len(author):
+            match = re.match(r"\s*(.*?)\s*<(.*?@.*?)>\s*", author)
+            if not match or match.start() != 0 or match.end() != len(author):
                 raise ValueError(f"Invalid author format! {author}")
-            return Author(m.groups()[0], m.groups()[1])
+            return cls(match.groups()[0], match.groups()[1])
         if isinstance(author, dict):
-            return Author.from_dict(author)
+            return cls.from_dict(author)
         if len(author) != 2:
             raise ValueError(f"Invalid author, should be String or (name, email) tuple: {author}")
-        return Author(author[0], author[1])
+        return cls(author[0], author[1])
 
 
 class StructureNL:
@@ -272,30 +273,29 @@ class StructureNL:
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             Class
         """
-        a = d["about"]
-        dec = MontyDecoder()
+        about = dct["about"]
 
-        created_at = dec.process_decoded(a.get("created_at"))
-        data = {k: v for k, v in d["about"].items() if k.startswith("_")}
-        data = dec.process_decoded(data)
+        created_at = MontyDecoder().process_decoded(about.get("created_at"))
+        data = {k: v for k, v in dct["about"].items() if k.startswith("_")}
+        data = MontyDecoder().process_decoded(data)
 
-        structure = Structure.from_dict(d) if "lattice" in d else Molecule.from_dict(d)
+        structure = Structure.from_dict(dct) if "lattice" in dct else Molecule.from_dict(dct)
         return cls(
             structure,
-            a["authors"],
-            projects=a.get("projects"),
-            references=a.get("references", ""),
-            remarks=a.get("remarks"),
+            about["authors"],
+            projects=about.get("projects"),
+            references=about.get("references", ""),
+            remarks=about.get("remarks"),
             data=data,
-            history=a.get("history"),
+            history=about.get("history"),
             created_at=created_at,
         )
 
@@ -310,7 +310,7 @@ class StructureNL:
         data=None,
         histories=None,
         created_at=None,
-    ):
+    ) -> list[Self]:
         """A convenience method for getting a list of StructureNL objects by
         specifying structures and metadata separately. Some of the metadata
         is applied to all of the structures for ease of use.
@@ -339,7 +339,7 @@ class StructureNL:
 
         snl_list = []
         for idx, struct in enumerate(structures):
-            snl = StructureNL(
+            snl = cls(
                 struct,
                 authors,
                 projects=projects,

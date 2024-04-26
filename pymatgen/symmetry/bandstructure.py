@@ -270,6 +270,8 @@ class HighSymmKpath(KPathBase):
                     unlabeled[label_a] = coord_a
 
             for label_a, coord_a in unlabeled.items():
+                key = None
+
                 for op in rpg:
                     coord_a_t = np.dot(op, coord_a)
                     key = [
@@ -333,20 +335,20 @@ class HighSymmKpath(KPathBase):
         new_bands = {spin: [np.array([]) for _ in range(bandstructure.nb_bands)] for spin in spins}
         new_projections = {spin: [[] for _ in range(bandstructure.nb_bands)] for spin in spins}
 
-        num_branches = len(bandstructure.branches)
+        n_branches = len(bandstructure.branches)
         new_branches = []
 
         # This ensures proper format of bandstructure.branches
         processed = []
-        for ind in range(num_branches):
-            branch = bandstructure.branches[ind]
+        for idx in range(n_branches):
+            branch = bandstructure.branches[idx]
 
             if branch["name"] not in processed:
                 if tuple(branch["name"].split("-")) in plot_axis:
                     new_branches.append(branch)
                     processed.append(branch["name"])
                 else:
-                    next_branch = bandstructure.branches[ind + 1]
+                    next_branch = bandstructure.branches[idx + 1]
                     combined = {
                         "start_index": branch["start_index"],
                         "end_index": next_branch["end_index"],
@@ -385,7 +387,7 @@ class HighSymmKpath(KPathBase):
         for spin in spins:
             new_projections[spin] = np.array(new_projections[spin])
 
-        new_labels_dict = {label: point.frac_coords for label, point in bandstructure.labels_dict.items()}
+        new_labels_dict = {key: point.frac_coords for key, point in bandstructure.labels_dict.items()}
 
         return BandStructureSymmLine(
             kpoints=new_kpoints,

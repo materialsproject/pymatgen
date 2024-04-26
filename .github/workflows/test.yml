@@ -19,6 +19,9 @@ jobs:
   test:
     # prevent this action from running on forks
     if: github.repository == 'materialsproject/pymatgen'
+    defaults:
+      run:
+        shell: bash -l {0} # enables conda/mamba env activation by reading bash profile
     strategy:
       fail-fast: false
       matrix:
@@ -48,65 +51,41 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: setup.py
+      - name: Set up micromamba
+        uses: mamba-org/setup-micromamba@main
+
+      - name: Create mamba environment
+        run: |
+          micromamba create -n pmg python=${{ matrix.python-version }} --yes
 
       - name: Install uv
-        run: pip install uv
+        run: micromamba run -n pmg pip install uv
 
       - name: Copy GULP to bin
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo cp cmd_line/gulp/Linux_64bit/* /usr/local/bin/
 
-      - name: Install Bader
+      - name: Install ubuntu-only conda dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
-          wget https://theory.cm.utexas.edu/henkelman/code/bader/download/bader_lnx_64.tar.gz
-          tar xvzf bader_lnx_64.tar.gz
-          sudo mv bader /usr/local/bin/
-        continue-on-error: true # This is not critical to succeed.
+          micromamba install -n pmg -c conda-forge enumlib packmol bader openbabel openff-toolkit --yes
 
-      - name: Install Enumlib
-        if: matrix.os == 'ubuntu-latest'
+      - name: Install pymatgen and dependencies
         run: |
-          git clone --recursive https://github.com/msg-byu/enumlib.git
-          cd enumlib/symlib/src
-          export F90=gfortran
-          make
-          cd ../../src
-          make enum.x
-          sudo mv enum.x /usr/local/bin/
-          cd ..
-          sudo cp aux_src/makeStr.py /usr/local/bin/
-        continue-on-error: true # This is not critical to succeed.
+          micromamba activate pmg
+          # TODO remove temporary fix. added since uv install torch is flaky.
+          # track https://github.com/astral-sh/uv/issues/1921 for resolution
+          pip install torch
 
-      - name: Install Packmol
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          wget -O packmol.tar.gz https://github.com/m3g/packmol/archive/refs/tags/v20.14.2.tar.gz
-          tar xvzf packmol.tar.gz
-          export F90=gfortran
-          cd packmol-20.14.2
-          ./configure
-          make
-          sudo mv packmol /usr/local/bin/
-          cd ..
-        continue-on-error: true # This is not critical to succeed.
+          uv pip install numpy cython
 
-      - name: Install dependencies
-        run: |
-          uv pip install numpy cython --system
-
-          uv pip install -e '.[dev,optional]' --system
+          uv pip install --editable '.[dev,optional]'
 
           # TODO remove next line installing ase from main branch when FrechetCellFilter is released
-          uv pip install --upgrade 'ase@git+https://gitlab.com/ase/ase' --system
+          uv pip install --upgrade 'git+https://gitlab.com/ase/ase'
 
       - name: pytest split ${{ matrix.split }}
         run: |
+          micromamba activate pmg
           pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests

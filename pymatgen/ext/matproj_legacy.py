@@ -35,8 +35,11 @@ from pymatgen.util.due import Doi, due
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from typing_extensions import Self
+
     from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
     from pymatgen.phonon.dos import CompletePhononDos
+
 logger = logging.getLogger(__name__)
 MP_LOG_FILE = os.path.join(os.path.expanduser("~"), ".mprester.log.yaml")
 
@@ -233,7 +236,7 @@ class _MPResterLegacy:
             except Exception:
                 pass
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         """Support for "with" context."""
         return self
 
@@ -450,10 +453,10 @@ class _MPResterLegacy:
         payload = {"structure": json.dumps(struct.as_dict(), cls=MontyEncoder)}
         response = self.session.post(f"{self.preamble}/find_structure", data=payload)
         if response.status_code in [200, 400]:
-            resp = json.loads(response.text, cls=MontyDecoder)
-            if resp["valid_response"]:
-                return resp["response"]
-            raise MPRestError(resp["error"])
+            response = json.loads(response.text, cls=MontyDecoder)
+            if response["valid_response"]:
+                return response["response"]
+            raise MPRestError(response["error"])
         raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def get_entries(
@@ -639,7 +642,7 @@ class _MPResterLegacy:
             refs = [e for e in ion_ref_entries if e.reduced_formula == i_d["Reference Solid"]]
             if not refs:
                 raise ValueError("Reference solid not contained in entry list")
-            stable_ref = sorted(refs, key=lambda x: x.data["e_above_hull"])[0]
+            stable_ref = min(refs, key=lambda x: x.data["e_above_hull"])
             rf = stable_ref.composition.get_reduced_composition_and_factor()[1]
 
             solid_diff = ion_ref_pd.get_form_energy(stable_ref) - i_d["Reference solid energy"] * rf
@@ -1100,12 +1103,12 @@ class _MPResterLegacy:
         payload = {"snl": json.dumps(json_data, cls=MontyEncoder)}
         response = self.session.post(f"{self.preamble}/snl/submit", data=payload)
         if response.status_code in [200, 400]:
-            resp = json.loads(response.text, cls=MontyDecoder)
-            if resp["valid_response"]:
-                if resp.get("warning"):
-                    warnings.warn(resp["warning"])
-                return resp["inserted_ids"]
-            raise MPRestError(resp["error"])
+            response = json.loads(response.text, cls=MontyDecoder)
+            if response["valid_response"]:
+                if response.get("warning"):
+                    warnings.warn(response["warning"])
+                return response["inserted_ids"]
+            raise MPRestError(response["error"])
 
         raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
@@ -1126,12 +1129,12 @@ class _MPResterLegacy:
         response = self.session.post(f"{self.preamble}/snl/delete", data=payload)
 
         if response.status_code in [200, 400]:
-            resp = json.loads(response.text, cls=MontyDecoder)
-            if resp["valid_response"]:
-                if resp.get("warning"):
-                    warnings.warn(resp["warning"])
-                return resp
-            raise MPRestError(resp["error"])
+            response = json.loads(response.text, cls=MontyDecoder)
+            if response["valid_response"]:
+                if response.get("warning"):
+                    warnings.warn(response["warning"])
+                return response
+            raise MPRestError(response["error"])
 
         raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
@@ -1154,12 +1157,12 @@ class _MPResterLegacy:
         payload = {"criteria": json.dumps(criteria)}
         response = self.session.post(f"{self.preamble}/snl/query", data=payload)
         if response.status_code in [200, 400]:
-            resp = json.loads(response.text)
-            if resp["valid_response"]:
-                if resp.get("warning"):
-                    warnings.warn(resp["warning"])
-                return resp["response"]
-            raise MPRestError(resp["error"])
+            response = json.loads(response.text)
+            if response["valid_response"]:
+                if response.get("warning"):
+                    warnings.warn(response["warning"])
+                return response["response"]
+            raise MPRestError(response["error"])
 
         raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
@@ -1217,7 +1220,7 @@ class _MPResterLegacy:
         histories = []
         for e in queen.get_data():
             structures.append(e.structure)
-            m = {
+            meta_dict = {
                 "_vasp": {
                     "parameters": e.parameters,
                     "final_energy": e.energy,
@@ -1228,8 +1231,8 @@ class _MPResterLegacy:
             if "history" in e.parameters:
                 histories.append(e.parameters["history"])
             if master_data is not None:
-                m.update(master_data)
-            metadata.append(m)
+                meta_dict.update(master_data)
+            metadata.append(meta_dict)
         if master_history is not None:
             histories = master_history * len(structures)
 
@@ -1252,12 +1255,12 @@ class _MPResterLegacy:
             data=payload,
         )
         if response.status_code in [200, 400]:
-            resp = json.loads(response.text, cls=MontyDecoder)
-            if resp["valid_response"]:
-                if resp.get("warning"):
-                    warnings.warn(resp["warning"])
-                return resp["response"]
-            raise MPRestError(resp["error"])
+            response = json.loads(response.text, cls=MontyDecoder)
+            if response["valid_response"]:
+                if response.get("warning"):
+                    warnings.warn(response["warning"])
+                return response["response"]
+            raise MPRestError(response["error"])
         raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def get_cohesive_energy(self, material_id, per_atom=False):
@@ -1567,7 +1570,7 @@ class _MPResterLegacy:
 
     @staticmethod
     def _check_nomad_exist(url) -> bool:
-        response = requests.get(url=url)
+        response = requests.get(url=url, timeout=600)
         if response.status_code != 200:
             return False
         content = json.loads(response.text)
@@ -1601,9 +1604,9 @@ class _MPResterLegacy:
         def parse_sym(sym):
             if sym == "*":
                 return [el.symbol for el in Element]
-            m = re.match(r"\{(.*)\}", sym)
-            if m:
-                return [s.strip() for s in m.group(1).split(",")]
+
+            if match := re.match(r"\{(.*)\}", sym):
+                return [s.strip() for s in match.group(1).split(",")]
             return [sym]
 
         def parse_tok(t):
@@ -1625,13 +1628,13 @@ class _MPResterLegacy:
                 if ("*" in sym) or ("{" in sym):
                     wild_card_els.append(sym)
                 else:
-                    m = re.match(r"([A-Z][a-z]*)[\.\d]*", sym)
-                    explicit_els.append(m.group(1))
+                    match = re.match(r"([A-Z][a-z]*)[\.\d]*", sym)
+                    explicit_els.append(match[1])
             n_elements = len(wild_card_els) + len(set(explicit_els))
             parts = re.split(r"(\*|\{.*\})", t)
             parts = [parse_sym(s) for s in parts if s != ""]
-            for f in itertools.product(*parts):
-                comp = Composition("".join(f))
+            for formula in itertools.product(*parts):
+                comp = Composition("".join(formula))
                 if len(comp) == n_elements:
                     # Check for valid Elements in keys.
                     for elem in comp:
@@ -1657,5 +1660,5 @@ def get_chunks(sequence: Sequence[Any], size=1):
     Returns:
         list[Sequence[Any]]: input sequence in chunks of length size.
     """
-    chunks = int(math.ceil(len(sequence) / float(size)))
+    chunks = math.ceil(len(sequence) / float(size))
     return [sequence[i * size : (i + 1) * size] for i in range(chunks)]

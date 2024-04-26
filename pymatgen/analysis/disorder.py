@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import collections
 import itertools
+from collections import defaultdict
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -24,8 +24,8 @@ def get_warren_cowley_parameters(structure: Structure, r: float, dr: float) -> d
     """
     comp = structure.composition
 
-    n_ij = collections.defaultdict(int)  # type: ignore
-    n_neighbors = collections.defaultdict(int)  # type: ignore
+    n_ij = defaultdict(int)  # type: ignore
+    n_neighbors = defaultdict(int)  # type: ignore
     for site in structure:
         for nn in structure.get_neighbors_in_shell(site.coords, r, dr):
             n_ij[(site.specie, nn.specie)] += 1

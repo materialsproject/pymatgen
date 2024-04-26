@@ -25,7 +25,7 @@ long_description = (
 setup(
     name="pymatgen",
     packages=find_namespace_packages(include=["pymatgen.*", "pymatgen.**.*", "cmd_line"]),
-    version="2024.3.1",
+    version="2024.4.13",
     python_requires=">=3.9",
     install_requires=[
         "matplotlib>=1.5",
@@ -60,6 +60,7 @@ setup(
             "pytest-split",
             "pytest",
             "ruff",
+            "typing-extensions",
         ],
         "docs": [
             "sphinx",

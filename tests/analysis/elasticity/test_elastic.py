@@ -30,6 +30,8 @@ from pymatgen.core.tensors import Tensor
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/elasticity"
+
 
 class TestElasticTensor(PymatgenTest):
     def setUp(self):
@@ -65,10 +67,10 @@ class TestElasticTensor(PymatgenTest):
         )
 
         self.elastic_tensor_1 = ElasticTensor(self.ft)
-        filepath = f"{TEST_FILES_DIR}/Sn_def_stress.json"
+        filepath = f"{TEST_DIR}/Sn_def_stress.json"
         with open(filepath) as file:
             self.def_stress_dict = json.load(file)
-        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as file:
+        with open(f"{TEST_DIR}/test_toec_data.json") as file:
             self.toec_dict = json.load(file)
         self.structure = self.get_structure("Sn")
 
@@ -256,7 +258,7 @@ class TestElasticTensor(PymatgenTest):
 
 class TestElasticTensorExpansion(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as file:
+        with open(f"{TEST_DIR}/test_toec_data.json") as file:
             self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
@@ -295,7 +297,7 @@ class TestElasticTensorExpansion(PymatgenTest):
     def test_gruneisen(self):
         # Get GGT
         ggt = self.exp_cu.get_ggt([1, 0, 0], [0, 1, 0])
-        assert_allclose(np.eye(3) * np.array([4.92080537, 4.2852349, -0.7147651]), ggt)
+        assert_allclose(ggt, np.eye(3) * np.array([4.92080537, 4.2852349, -0.7147651]))
         # Get TGT
         tgt = self.exp_cu.get_tgt()
         assert_allclose(tgt, np.eye(3) * 2.59631832, atol=1e-12)
@@ -335,11 +337,11 @@ class TestElasticTensorExpansion(PymatgenTest):
         # Ensure zero strain is same as SOEC
         test_zero = self.exp_cu.get_effective_ecs(np.zeros((3, 3)))
         assert_allclose(test_zero, self.exp_cu[0])
-        s = np.zeros((3, 3))
-        s[0, 0] = 0.02
-        test_2percent = self.exp_cu.get_effective_ecs(s)
+        strain = np.zeros((3, 3))
+        strain[0, 0] = 0.02
+        test_2percent = self.exp_cu.get_effective_ecs(strain)
         diff = test_2percent - test_zero
-        assert_allclose(self.exp_cu[1].einsum_sequence([s]), diff)
+        assert_allclose(self.exp_cu[1].einsum_sequence([strain]), diff)
 
     def test_get_strain_from_stress(self):
         strain = Strain.from_voigt([0.05, 0, 0, 0, 0, 0])
@@ -357,7 +359,7 @@ class TestElasticTensorExpansion(PymatgenTest):
 
 class TestNthOrderElasticTensor(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as file:
+        with open(f"{TEST_DIR}/test_toec_data.json") as file:
             self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
@@ -396,7 +398,7 @@ class TestDiffFit(PymatgenTest):
     """Tests various functions related to diff fitting."""
 
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/test_toec_data.json") as file:
+        with open(f"{TEST_DIR}/test_toec_data.json") as file:
             self.data_dict = json.load(file)
         self.strains = [Strain(sm) for sm in self.data_dict["strains"]]
         self.pk_stresses = [Stress(d) for d in self.data_dict["pk_stresses"]]
@@ -411,8 +413,8 @@ class TestDiffFit(PymatgenTest):
             strain_states.append(tuple(ss))
             vec = np.zeros((4, 6))
             rand_values = np.random.uniform(0.1, 1, 4)
-            for i in strain_ind:
-                vec[:, i] = rand_values
+            for idx in strain_ind:
+                vec[:, idx] = rand_values
             vecs[strain_ind] = vec
         all_strains = [Strain.from_voigt(v).zeroed() for vec in vecs.values() for v in vec]
         random.shuffle(all_strains)

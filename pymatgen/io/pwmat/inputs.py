@@ -13,6 +13,8 @@ from pymatgen.core import Lattice, Structure
 from pymatgen.symmetry.kpath import KPathSeek
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.util.typing import PathLike
 
 __author__ = "Hanyu Liu"
@@ -375,7 +377,7 @@ class AtomConfig(MSONable):
         return self.get_str()
 
     @classmethod
-    def from_str(cls, data: str, mag: bool = False) -> AtomConfig:
+    def from_str(cls, data: str, mag: bool = False) -> Self:
         """Reads a atom.config from a string.
 
         Args:
@@ -402,7 +404,7 @@ class AtomConfig(MSONable):
         return cls(structure)
 
     @classmethod
-    def from_file(cls, filename: PathLike, mag: bool = False) -> AtomConfig:
+    def from_file(cls, filename: PathLike, mag: bool = False) -> Self:
         """Returns a AtomConfig from a file
 
         Args:
@@ -416,7 +418,7 @@ class AtomConfig(MSONable):
             return cls.from_str(data=file.read(), mag=mag)
 
     @classmethod
-    def from_dict(cls, dct: dict) -> AtomConfig:
+    def from_dict(cls, dct: dict) -> Self:
         """Returns a AtomConfig object from a dictionary.
 
         Args:
@@ -434,17 +436,16 @@ class AtomConfig(MSONable):
             str: String representation of atom.config
         """
         # This corrects for VASP really annoying bug of crashing on lattices
-        # which have triple product < 0. We will just invert the lattice
-        # vectors.
-        latt = self.structure.lattice
-        if np.linalg.det(latt.matrix) < 0:
-            latt = Lattice(-latt.matrix)
+        # which have triple product < 0. We will just invert the lattice vectors.
+        lattice = self.structure.lattice
+        if np.linalg.det(lattice.matrix) < 0:
+            lattice = Lattice(-lattice.matrix)
 
         lines: list[str] = []
         lines.append(f"\t{self.structure.num_sites} atoms\n")
         lines.append("Lattice vector\n")
         for ii in range(3):
-            lines.append(f"{latt.matrix[ii][0]:>15f}{latt.matrix[ii][1]:>15f}{latt.matrix[ii][2]:>15f}\n")
+            lines.append(f"{lattice.matrix[ii][0]:>15f}{lattice.matrix[ii][1]:>15f}{lattice.matrix[ii][2]:>15f}\n")
         lines.append("Position, move_x, move_y, move_z\n")
         for ii in range(self.structure.num_sites):
             lines.append(f"{int(self.structure.species[ii].Z):>4d}")
@@ -500,8 +501,8 @@ class GenKpt(MSONable):
         self.kpath.update({"path": path})
         self.density = density
 
-    @staticmethod
-    def from_structure(structure: Structure, dim: int, density: float = 0.01) -> GenKpt:
+    @classmethod
+    def from_structure(cls, structure: Structure, dim: int, density: float = 0.01) -> Self:
         """Obtain a AtomConfig object from Structure object.
 
         Args:
@@ -531,7 +532,7 @@ class GenKpt(MSONable):
             kpts = kpath_set.kpath["kpoints"]
             path = kpath_set.kpath["path"]
         rec_lattice: np.ndarray = structure.lattice.reciprocal_lattice.matrix  # with 2*pi
-        return GenKpt(rec_lattice, kpts, path, density * 2 * np.pi)
+        return cls(rec_lattice, kpts, path, density * 2 * np.pi)
 
     def get_str(self):
         """Returns a string to be written as a gen.kpt file."""
@@ -602,8 +603,8 @@ class HighSymmetryPoint(MSONable):
         self.kpath.update({"path": path})
         self.density = density
 
-    @staticmethod
-    def from_structure(structure: Structure, dim: int, density: float = 0.01) -> HighSymmetryPoint:
+    @classmethod
+    def from_structure(cls, structure: Structure, dim: int, density: float = 0.01) -> Self:
         """Obtain HighSymmetry object from Structure object.
 
         Args:
@@ -614,9 +615,7 @@ class HighSymmetryPoint(MSONable):
         """
         reciprocal_lattice: np.ndarray = structure.lattice.reciprocal_lattice.matrix
         gen_kpt = GenKpt.from_structure(structure=structure, dim=dim, density=density)
-        return HighSymmetryPoint(
-            reciprocal_lattice, gen_kpt.kpath["kpoints"], gen_kpt.kpath["path"], density * 2 * np.pi
-        )
+        return cls(reciprocal_lattice, gen_kpt.kpath["kpoints"], gen_kpt.kpath["path"], density * 2 * np.pi)
 
     def get_str(self) -> str:
         """Returns a string describing high symmetry points in HIGH_SYMMETRY_POINTS format."""

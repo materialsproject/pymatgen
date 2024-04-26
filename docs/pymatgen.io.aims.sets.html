@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pymatgen.io.aims.sets package &mdash; pymatgen 2024.3.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
+
+  
+    <link rel="canonical" href="https://pymatgen.orgpymatgen.io.aims.sets.html"/>
+  <!--[if lt IE 9]>
+    <script src="assets/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="assets/jquery.js?v=5d32c60e"></script>
+        <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="assets/documentation_options.js?v=df55f829"></script>
+        <script src="assets/doctools.js?v=888ff710"></script>
+        <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="assets/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+
+          
+          
+          <a href="index.html">
+            
+          </a>
+              <div class="version">
+                2024.3.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">pymatgen.io.aims.sets package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-pymatgen.io.aims.sets.base">pymatgen.io.aims.sets.base module</a><ul>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputGenerator"><code class="docutils literal notranslate"><span class="pre">AimsInputGenerator</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputGenerator.d2k"><code class="docutils literal notranslate"><span class="pre">AimsInputGenerator.d2k()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputGenerator.d2k_recipcell"><code class="docutils literal notranslate"><span class="pre">AimsInputGenerator.d2k_recipcell()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputGenerator.get_input_set"><code class="docutils literal notranslate"><span class="pre">AimsInputGenerator.get_input_set()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputGenerator.get_parameter_updates"><code class="docutils literal notranslate"><span class="pre">AimsInputGenerator.get_parameter_updates()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputGenerator.k2d"><code class="docutils literal notranslate"><span class="pre">AimsInputGenerator.k2d()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputGenerator.user_kpoints_settings"><code class="docutils literal notranslate"><span class="pre">AimsInputGenerator.user_kpoints_settings</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputGenerator.user_params"><code class="docutils literal notranslate"><span class="pre">AimsInputGenerator.user_params</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputSet"><code class="docutils literal notranslate"><span class="pre">AimsInputSet</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputSet.control_in"><code class="docutils literal notranslate"><span class="pre">AimsInputSet.control_in</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputSet.geometry_in"><code class="docutils literal notranslate"><span class="pre">AimsInputSet.geometry_in</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputSet.get_input_files"><code class="docutils literal notranslate"><span class="pre">AimsInputSet.get_input_files()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputSet.params_json"><code class="docutils literal notranslate"><span class="pre">AimsInputSet.params_json</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputSet.remove_parameters"><code class="docutils literal notranslate"><span class="pre">AimsInputSet.remove_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputSet.set_parameters"><code class="docutils literal notranslate"><span class="pre">AimsInputSet.set_parameters()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputSet.set_structure"><code class="docutils literal notranslate"><span class="pre">AimsInputSet.set_structure()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.base.recursive_update"><code class="docutils literal notranslate"><span class="pre">recursive_update()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-pymatgen.io.aims.sets.bs">pymatgen.io.aims.sets.bs module</a><ul>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.bs.BandStructureSetGenerator"><code class="docutils literal notranslate"><span class="pre">BandStructureSetGenerator</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.bs.BandStructureSetGenerator.calc_type"><code class="docutils literal notranslate"><span class="pre">BandStructureSetGenerator.calc_type</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.bs.BandStructureSetGenerator.get_parameter_updates"><code class="docutils literal notranslate"><span class="pre">BandStructureSetGenerator.get_parameter_updates()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.bs.BandStructureSetGenerator.k_point_density"><code class="docutils literal notranslate"><span class="pre">BandStructureSetGenerator.k_point_density</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.bs.GWSetGenerator"><code class="docutils literal notranslate"><span class="pre">GWSetGenerator</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.bs.GWSetGenerator.calc_type"><code class="docutils literal notranslate"><span class="pre">GWSetGenerator.calc_type</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.bs.GWSetGenerator.get_parameter_updates"><code class="docutils literal notranslate"><span class="pre">GWSetGenerator.get_parameter_updates()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.bs.GWSetGenerator.k_point_density"><code class="docutils literal notranslate"><span class="pre">GWSetGenerator.k_point_density</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.bs.prepare_band_input"><code class="docutils literal notranslate"><span class="pre">prepare_band_input()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-pymatgen.io.aims.sets.core">pymatgen.io.aims.sets.core module</a><ul>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.core.RelaxSetGenerator"><code class="docutils literal notranslate"><span class="pre">RelaxSetGenerator</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.core.RelaxSetGenerator.calc_type"><code class="docutils literal notranslate"><span class="pre">RelaxSetGenerator.calc_type</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.core.RelaxSetGenerator.get_parameter_updates"><code class="docutils literal notranslate"><span class="pre">RelaxSetGenerator.get_parameter_updates()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.core.RelaxSetGenerator.max_force"><code class="docutils literal notranslate"><span class="pre">RelaxSetGenerator.max_force</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.core.RelaxSetGenerator.method"><code class="docutils literal notranslate"><span class="pre">RelaxSetGenerator.method</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.core.RelaxSetGenerator.relax_cell"><code class="docutils literal notranslate"><span class="pre">RelaxSetGenerator.relax_cell</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.core.SocketIOSetGenerator"><code class="docutils literal notranslate"><span class="pre">SocketIOSetGenerator</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.core.SocketIOSetGenerator.calc_type"><code class="docutils literal notranslate"><span class="pre">SocketIOSetGenerator.calc_type</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.core.SocketIOSetGenerator.get_parameter_updates"><code class="docutils literal notranslate"><span class="pre">SocketIOSetGenerator.get_parameter_updates()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.core.SocketIOSetGenerator.host"><code class="docutils literal notranslate"><span class="pre">SocketIOSetGenerator.host</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.core.SocketIOSetGenerator.port"><code class="docutils literal notranslate"><span class="pre">SocketIOSetGenerator.port</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.core.StaticSetGenerator"><code class="docutils literal notranslate"><span class="pre">StaticSetGenerator</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.core.StaticSetGenerator.calc_type"><code class="docutils literal notranslate"><span class="pre">StaticSetGenerator.calc_type</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.aims.sets.core.StaticSetGenerator.get_parameter_updates"><code class="docutils literal notranslate"><span class="pre">StaticSetGenerator.get_parameter_updates()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pymatgen</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content style-external-links">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">pymatgen.io.aims.sets package</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.io.aims.sets.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pymatgen.io.aims.sets">
+<span id="pymatgen-io-aims-sets-package"></span><h1>pymatgen.io.aims.sets package<a class="headerlink" href="#module-pymatgen.io.aims.sets" title="Link to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
+</section>
+<section id="module-pymatgen.io.aims.sets.base">
+<span id="pymatgen-io-aims-sets-base-module"></span><h2>pymatgen.io.aims.sets.base module<a class="headerlink" href="#module-pymatgen.io.aims.sets.base" title="Link to this heading"></a></h2>
+<p>Module defining base FHI-aims input set and generator.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.base.AimsInputGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AimsInputGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_params:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_kpoints_settings:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/base.py#L178-L452"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.base.AimsInputGenerator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.io.html#pymatgen.io.core.InputGenerator" title="pymatgen.io.core.InputGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">InputGenerator</span></code></a></p>
+<p>A class to generate Aims input sets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_params</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Updates the default parameters for the FHI-aims calculator</p></li>
+<li><p><strong>user_kpoints_settings</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The settings used to create the k-grid parameters for FHI-aims</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.base.AimsInputGenerator.d2k">
+<span class="sig-name descname"><span class="pre">d2k</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">kptdensity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">even</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/base.py#L372-L396"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.base.AimsInputGenerator.d2k" title="Link to this definition"></a></dt>
+<dd><p>Convert k-point density to Monkhorst-Pack grid size.</p>
+<p>inspired by [ase.calculators.calculator.kptdensity2monkhorstpack]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Contains unit cell and information about boundary conditions.</p></li>
+<li><p><strong>kptdensity</strong> (<em>float</em><em> or </em><em>list</em><em> of </em><em>floats</em>) – Required k-point density.  Default value is 5.0 point per Ang^-1.</p></li>
+<li><p><strong>even</strong> (<em>bool</em>) – Round up to even numbers.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Monkhorst-Pack grid size in all directions</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.base.AimsInputGenerator.d2k_recipcell">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">d2k_recipcell</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">recipcell</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">np.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pbc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kptdensity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">even</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/base.py#L416-L452"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.base.AimsInputGenerator.d2k_recipcell" title="Link to this definition"></a></dt>
+<dd><p>Convert k-point density to Monkhorst-Pack grid size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>recipcell</strong> (<a class="reference internal" href="pymatgen.io.cp2k.html#pymatgen.io.cp2k.inputs.Cell" title="pymatgen.io.cp2k.inputs.Cell"><em>Cell</em></a>) – The reciprocal cell</p></li>
+<li><p><strong>pbc</strong> (<em>Sequence</em><em>[</em><em>bool</em><em>]</em>) – If element of pbc is True then system is periodic in that direction</p></li>
+<li><p><strong>kptdensity</strong> (<em>float</em><em> or </em><em>list</em><em>[</em><em>floats</em><em>]</em>) – Required k-point density.  Default value is 3.5 point per Ang^-1.</p></li>
+<li><p><strong>even</strong> (<em>bool</em>) – Round up to even numbers.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Monkhorst-Pack grid size in all directions</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.base.AimsInputGenerator.get_input_set">
+<span class="sig-name descname"><span class="pre">get_input_set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputSet" title="pymatgen.io.aims.sets.base.AimsInputSet"><span class="pre">AimsInputSet</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/base.py#L194-L225"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.base.AimsInputGenerator.get_input_set" title="Link to this definition"></a></dt>
+<dd><p>Generate an AimsInputSet object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em> or </em><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – Structure or Molecule to generate the input set for.</p></li>
+<li><p><strong>prev_dir</strong> (<em>str</em><em> or </em><em>Path</em>) – Path to the previous working directory</p></li>
+<li><p><strong>properties</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – System properties that are being calculated</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>The input set for the calculation of structure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.base.AimsInputGenerator.get_parameter_updates">
+<span class="sig-name descname"><span class="pre">get_parameter_updates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/base.py#L356-L370"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.base.AimsInputGenerator.get_parameter_updates" title="Link to this definition"></a></dt>
+<dd><p>Update the parameters for a given calculation type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em> or </em><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – The system to run</p></li>
+<li><p><strong>prev_parameters</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Previous calculation parameters.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary of updates to apply.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.base.AimsInputGenerator.k2d">
+<span class="sig-name descname"><span class="pre">k2d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_grid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/base.py#L398-L414"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.base.AimsInputGenerator.k2d" title="Link to this definition"></a></dt>
+<dd><p>Generate the kpoint density in each direction from given k_grid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – Contains unit cell and information about boundary conditions.</p></li>
+<li><p><strong>k_grid</strong> (<em>np.ndarray</em><em>[</em><em>int</em><em>]</em>) – k_grid that was used.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Density of kpoints in each direction. result.mean() computes average density</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.base.AimsInputGenerator.user_kpoints_settings">
+<span class="sig-name descname"><span class="pre">user_kpoints_settings</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/aims/sets/base.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.base.AimsInputGenerator.user_kpoints_settings" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.base.AimsInputGenerator.user_params">
+<span class="sig-name descname"><span class="pre">user_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/aims/sets/base.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.base.AimsInputGenerator.user_params" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.base.AimsInputSet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AimsInputSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">('energy',</span> <span class="pre">'free_energy')</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/base.py#L37-L175"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.base.AimsInputSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="pymatgen.io.html#pymatgen.io.core.InputSet" title="pymatgen.io.core.InputSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">InputSet</span></code></a></p>
+<p>A class to represent a set of Aims inputs.</p>
+<p>Construct the AimsInputSet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameters</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The ASE parameters object for the calculation</p></li>
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em> or </em><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – The Structure/Molecule objects to
+create the inputs for</p></li>
+<li><p><strong>properties</strong> (<em>Sequence</em><em>[</em><em>str</em><em>]</em>) – The properties to calculate for the calculation</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.base.AimsInputSet.control_in">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">control_in</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">slice</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.io.html#pymatgen.io.core.InputFile" title="pymatgen.io.core.InputFile"><span class="pre">InputFile</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/aims/sets/base.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.base.AimsInputSet.control_in" title="Link to this definition"></a></dt>
+<dd><p>Get the control.in file contents.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.base.AimsInputSet.geometry_in">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">geometry_in</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">slice</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.io.html#pymatgen.io.core.InputFile" title="pymatgen.io.core.InputFile"><span class="pre">InputFile</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/aims/sets/base.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.base.AimsInputSet.geometry_in" title="Link to this definition"></a></dt>
+<dd><p>Get the geometry.in file contents.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.base.AimsInputSet.get_input_files">
+<span class="sig-name descname"><span class="pre">get_input_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/base.py#L67-L90"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.base.AimsInputSet.get_input_files" title="Link to this definition"></a></dt>
+<dd><p>Get the input file contents for the calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The contents of the control.in and geometry.in file</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.base.AimsInputSet.params_json">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">params_json</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">slice</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.io.html#pymatgen.io.core.InputFile" title="pymatgen.io.core.InputFile"><span class="pre">InputFile</span></a></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/aims/sets/base.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.base.AimsInputSet.params_json" title="Link to this definition"></a></dt>
+<dd><p>Get the JSON representation of the parameters dict.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.base.AimsInputSet.remove_parameters">
+<span class="sig-name descname"><span class="pre">remove_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/base.py#L136-L160"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.base.AimsInputSet.remove_parameters" title="Link to this definition"></a></dt>
+<dd><p>Remove the aims parameters listed in keys.</p>
+<p>This removes the aims variables from the parameters object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>keys</strong> (<em>Iterable</em><em>[</em><em>str</em><em>] or </em><em>str</em>) – string or list of strings with the names of
+the aims parameters to be removed.</p></li>
+<li><p><strong>strict</strong> (<em>bool</em>) – whether to raise a KeyError if one of the aims parameters
+to be removed is not present.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with the variables that have been removed.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.base.AimsInputSet.set_parameters">
+<span class="sig-name descname"><span class="pre">set_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/base.py#L107-L134"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.base.AimsInputSet.set_parameters" title="Link to this definition"></a></dt>
+<dd><p>Set the parameters object for the AimsTemplate.</p>
+<p>This sets the parameters object that is passed to an AimsTemplate and
+resets the control.in file</p>
+<p>One can pass a dictionary mapping the aims variables to their values or
+the aims variables as keyword arguments. A combination of the two
+options is also allowed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dictionary with the variables that have been added.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.base.AimsInputSet.set_structure">
+<span class="sig-name descname"><span class="pre">set_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/base.py#L162-L175"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.base.AimsInputSet.set_structure" title="Link to this definition"></a></dt>
+<dd><p>Set the structure object for this input set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em> or </em><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – The new Structure or Molecule
+for the calculation</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.base.recursive_update">
+<span class="sig-name descname"><span class="pre">recursive_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">up</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/base.py#L455-L483"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.base.recursive_update" title="Link to this definition"></a></dt>
+<dd><p>Update a dictionary recursively and return it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>(</strong><strong>dict</strong><strong>)</strong> (<em>up</em>) – </p></li>
+<li><p><strong>(</strong><strong>dict</strong><strong>)</strong> – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated dictionary.</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<p>d = {‘activate_hybrid’: {“hybrid_functional”: “HSE06”}}
+u = {‘activate_hybrid’: {“cutoff_radius”: 8}}</p>
+<p>yields {‘activate_hybrid’: {“hybrid_functional”: “HSE06”, “cutoff_radius”: 8}}}</p>
+</dd></dl>
+
+</section>
+<section id="module-pymatgen.io.aims.sets.bs">
+<span id="pymatgen-io-aims-sets-bs-module"></span><h2>pymatgen.io.aims.sets.bs module<a class="headerlink" href="#module-pymatgen.io.aims.sets.bs" title="Link to this heading"></a></h2>
+<p>Input sets for band structure calculations.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.bs.BandStructureSetGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BandStructureSetGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_params:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_kpoints_settings:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_type:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'bands'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_point_density:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/bs.py#L64-L100"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.bs.BandStructureSetGenerator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputGenerator" title="pymatgen.io.aims.sets.base.AimsInputGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AimsInputGenerator</span></code></a></p>
+<p>A generator for the band structure calculation input set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>calc_type</strong> (<em>str</em>) – The type of calculations</p></li>
+<li><p><strong>k_point_density</strong> (<em>float</em>) – The number of k_points per angstrom</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.bs.BandStructureSetGenerator.calc_type">
+<span class="sig-name descname"><span class="pre">calc_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'bands'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/aims/sets/bs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.bs.BandStructureSetGenerator.calc_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.bs.BandStructureSetGenerator.get_parameter_updates">
+<span class="sig-name descname"><span class="pre">get_parameter_updates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/bs.py#L79-L100"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.bs.BandStructureSetGenerator.get_parameter_updates" title="Link to this definition"></a></dt>
+<dd><p>Get the parameter updates for the calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – The structure to calculate the bands for</p></li>
+<li><p><strong>prev_parameters</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The previous parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated for the parameters for the output section of FHI-aims</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.bs.BandStructureSetGenerator.k_point_density">
+<span class="sig-name descname"><span class="pre">k_point_density</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/aims/sets/bs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.bs.BandStructureSetGenerator.k_point_density" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.bs.GWSetGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GWSetGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_params:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_kpoints_settings:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_type:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'GW'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_point_density:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/bs.py#L103-L142"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.bs.GWSetGenerator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputGenerator" title="pymatgen.io.aims.sets.base.AimsInputGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AimsInputGenerator</span></code></a></p>
+<p>A generator for the input set for calculations employing GW self-energy correction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>calc_type</strong> (<em>str</em>) – The type of calculations</p></li>
+<li><p><strong>k_point_density</strong> (<em>float</em>) – The number of k_points per angstrom</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.bs.GWSetGenerator.calc_type">
+<span class="sig-name descname"><span class="pre">calc_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GW'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/aims/sets/bs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.bs.GWSetGenerator.calc_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.bs.GWSetGenerator.get_parameter_updates">
+<span class="sig-name descname"><span class="pre">get_parameter_updates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/bs.py#L119-L142"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.bs.GWSetGenerator.get_parameter_updates" title="Link to this definition"></a></dt>
+<dd><p>Get the parameter updates for the calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em> or </em><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – The structure to calculate the bands for</p></li>
+<li><p><strong>prev_parameters</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The previous parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated for the parameters for the output section of FHI-aims</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.bs.GWSetGenerator.k_point_density">
+<span class="sig-name descname"><span class="pre">k_point_density</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">20</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/aims/sets/bs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.bs.GWSetGenerator.k_point_density" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.bs.prepare_band_input">
+<span class="sig-name descname"><span class="pre">prepare_band_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/bs.py#L22-L61"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.bs.prepare_band_input" title="Link to this definition"></a></dt>
+<dd><p>Prepare the band information needed for the FHI-aims control.in file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – The structure for which the band path is calculated</p></li>
+<li><p><strong>density</strong> (<em>float</em>) – Number of kpoints per Angstrom.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pymatgen.io.aims.sets.core">
+<span id="pymatgen-io-aims-sets-core-module"></span><h2>pymatgen.io.aims.sets.core module<a class="headerlink" href="#module-pymatgen.io.aims.sets.core" title="Link to this heading"></a></h2>
+<p>Module defining core FHI-aims input set generators.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.core.RelaxSetGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RelaxSetGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_params:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_kpoints_settings:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_type:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'relaxation'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relax_cell:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_force:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'trm'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/core.py#L44-L88"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.core.RelaxSetGenerator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputGenerator" title="pymatgen.io.aims.sets.base.AimsInputGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AimsInputGenerator</span></code></a></p>
+<p>Class to generate FHI-aims relax sets.</p>
+<p>I.e., sets for optimization of internal and lattice coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>calc_type</strong> (<em>str</em>) – The type of calculation</p></li>
+<li><p><strong>relax_cell</strong> (<em>bool</em>) – If True then relax the unit cell from the structure</p></li>
+<li><p><strong>max_force</strong> (<em>float</em>) – Maximum allowed force in the calculation</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – Method used for the geometry optimization</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.core.RelaxSetGenerator.calc_type">
+<span class="sig-name descname"><span class="pre">calc_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'relaxation'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/aims/sets/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.core.RelaxSetGenerator.calc_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.core.RelaxSetGenerator.get_parameter_updates">
+<span class="sig-name descname"><span class="pre">get_parameter_updates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/core.py#L68-L88"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.core.RelaxSetGenerator.get_parameter_updates" title="Link to this definition"></a></dt>
+<dd><p>Get the parameter updates for the calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em> or </em><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – The structure to calculate the bands for</p></li>
+<li><p><strong>prev_parameters</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The previous parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated for the parameters for the output section of FHI-aims</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.core.RelaxSetGenerator.max_force">
+<span class="sig-name descname"><span class="pre">max_force</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.001</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/aims/sets/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.core.RelaxSetGenerator.max_force" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.core.RelaxSetGenerator.method">
+<span class="sig-name descname"><span class="pre">method</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'trm'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/aims/sets/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.core.RelaxSetGenerator.method" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.core.RelaxSetGenerator.relax_cell">
+<span class="sig-name descname"><span class="pre">relax_cell</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/aims/sets/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.core.RelaxSetGenerator.relax_cell" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.core.SocketIOSetGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SocketIOSetGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_params:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_kpoints_settings:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_type:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'multi_scf'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">host:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'localhost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">12345</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/core.py#L91-L123"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.core.SocketIOSetGenerator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputGenerator" title="pymatgen.io.aims.sets.base.AimsInputGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AimsInputGenerator</span></code></a></p>
+<p>Class to generate FHI-aims input sets for running with the socket.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>calc_type</strong> (<em>str</em>) – The type of calculation</p></li>
+<li><p><strong>host</strong> (<em>str</em>) – The hostname for the server the socket is on</p></li>
+<li><p><strong>port</strong> (<em>int</em>) – The port the socket server is listening on</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.core.SocketIOSetGenerator.calc_type">
+<span class="sig-name descname"><span class="pre">calc_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'multi_scf'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/aims/sets/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.core.SocketIOSetGenerator.calc_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.core.SocketIOSetGenerator.get_parameter_updates">
+<span class="sig-name descname"><span class="pre">get_parameter_updates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/core.py#L109-L123"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.core.SocketIOSetGenerator.get_parameter_updates" title="Link to this definition"></a></dt>
+<dd><p>Get the parameter updates for the calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em> or </em><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – The structure to calculate the bands for</p></li>
+<li><p><strong>prev_parameters</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The previous parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated for the parameters for the output section of FHI-aims</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.core.SocketIOSetGenerator.host">
+<span class="sig-name descname"><span class="pre">host</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'localhost'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/aims/sets/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.core.SocketIOSetGenerator.host" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.core.SocketIOSetGenerator.port">
+<span class="sig-name descname"><span class="pre">port</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">12345</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/aims/sets/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.core.SocketIOSetGenerator.port" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.core.StaticSetGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StaticSetGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_params:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_kpoints_settings:</span> <span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_type:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'static'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/core.py#L15-L41"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.core.StaticSetGenerator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pymatgen.io.aims.sets.base.AimsInputGenerator" title="pymatgen.io.aims.sets.base.AimsInputGenerator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AimsInputGenerator</span></code></a></p>
+<p>Common class for ground-state generators.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>calc_type</strong> (<em>str</em>) – The type of calculation</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.core.StaticSetGenerator.calc_type">
+<span class="sig-name descname"><span class="pre">calc_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'static'</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/aims/sets/core.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.core.StaticSetGenerator.calc_type" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pymatgen.io.aims.sets.core.StaticSetGenerator.get_parameter_updates">
+<span class="sig-name descname"><span class="pre">get_parameter_updates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><span class="pre">Molecule</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/aims/sets/core.py#L27-L41"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.aims.sets.core.StaticSetGenerator.get_parameter_updates" title="Link to this definition"></a></dt>
+<dd><p>Get the parameter updates for the calculation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a><em> or </em><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Molecule" title="pymatgen.core.structure.Molecule"><em>Molecule</em></a>) – The structure to calculate the bands for</p></li>
+<li><p><strong>prev_parameters</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – The previous parameters</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>The updated for the parameters for the output section of FHI-aims</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2011, Pymatgen Development Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

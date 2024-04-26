@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from io import StringIO
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import pandas as pd
 from monty.io import zopen
@@ -14,6 +14,9 @@ from pymatgen.core.structure import SiteCollection
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 
 class XYZ:
@@ -34,7 +37,7 @@ class XYZ:
             mol (Molecule | Structure): Input molecule or structure or list thereof.
             coord_precision: Precision to be used for coordinates.
         """
-        self._mols = [mol] if isinstance(mol, SiteCollection) else mol
+        self._mols = cast(list[SiteCollection], [mol] if isinstance(mol, SiteCollection) else mol)
         self.precision = coord_precision
 
     @property
@@ -54,24 +57,23 @@ class XYZ:
     def _from_frame_str(contents) -> Molecule:
         """Convert a single frame XYZ string to a molecule."""
         lines = contents.split("\n")
-        num_sites = int(lines[0])
+        n_sites = int(lines[0])
         coords = []
         sp = []
         coord_pattern = re.compile(r"(\w+)\s+([0-9\-\+\.*^eEdD]+)\s+([0-9\-\+\.*^eEdD]+)\s+([0-9\-\+\.*^eEdD]+)")
-        for i in range(2, 2 + num_sites):
-            m = coord_pattern.search(lines[i])
-            if m:
-                sp.append(m.group(1))  # this is 1-indexed
+        for idx in range(2, 2 + n_sites):
+            if match := coord_pattern.search(lines[idx]):
+                sp.append(match.group(1))  # this is 1-indexed
                 # this is 0-indexed
                 # in case of 0.0D+00 or 0.00d+01 old double precision writing
                 # replace d or D by e for ten power exponent,
                 # and some files use *^ convention in place of e
-                xyz = [val.lower().replace("d", "e").replace("*^", "e") for val in m.groups()[1:4]]
+                xyz = [val.lower().replace("d", "e").replace("*^", "e") for val in match.groups()[1:4]]
                 coords.append([float(val) for val in xyz])
         return Molecule(sp, coords)
 
     @classmethod
-    def from_str(cls, contents) -> XYZ:
+    def from_str(cls, contents: str) -> Self:
         """
         Creates XYZ object from a string.
 
@@ -96,7 +98,7 @@ class XYZ:
         return cls(mols)
 
     @classmethod
-    def from_file(cls, filename) -> XYZ:
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Creates XYZ object from a file.
 

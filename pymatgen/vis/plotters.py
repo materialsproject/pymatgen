@@ -13,7 +13,7 @@ class SpectrumPlotter:
     """
     Class for plotting Spectrum objects and subclasses. Note that the interface
     is extremely flexible given that there are many different ways in which
-    people want to view spectra. The typical usage is::
+    people want to view spectra. The typical usage is:
 
         # Initializes plotter with some optional args. Defaults are usually
         # fine,
@@ -49,8 +49,8 @@ class SpectrumPlotter:
 
         mod = importlib.import_module(f"palettable.colorbrewer.{color_cycle[0]}")
         self.colors_cycle = getattr(mod, color_cycle[1]).mpl_colors
-        self.colors = []
-        self._spectra = {}
+        self.colors: list = []
+        self._spectra: dict = {}
 
     def add_spectrum(self, label, spectrum, color=None):
         """
