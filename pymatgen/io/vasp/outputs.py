@@ -5407,36 +5407,37 @@ class Vaspout(Vasprun):
             KpointsSupportedModes.Line_mode: {"mode": "l"},
             KpointsSupportedModes.Monkhorst: {"mode": "m"},
         }
+        kpts = {"comment": kpoints.get("system", "Unknown")}
 
         for kpoints_style, props in _kpoints_style_from_mode.items():
             if all(kpoints.get(k) == v for k, v in props.items()):
-                kpoints["style"] = kpoints_style
+                kpts["style"] = kpoints_style
                 break
 
-        if not kpoints.get("style"):
+        if not kpts.get("style"):
             raise ValueError("Could not identify KPOINTS style.")
 
         if coord_type := kpoints.get("coordinate_space"):
-            coord_type = "Reciprocal" if coord_type == "R" else "Cartesian"
+            kpts["coord_type"] = "Reciprocal" if coord_type == "R" else "Cartesian"
 
-        num_kpts = len(kpoints["coordinates_kpoints"])
-        kpt_labels = [None for _ in range(num_kpts)]
-        for i, idx in enumerate(kpoints.get("positions_labels_kpoints", [])):
-            kpt_labels[idx - 1] = kpoints["labels_kpoints"][i]
+        actual_kpoints = [None]
+        actual_kpoint_weights = [None]
+        if kpoints.get("coordinates_kpoints"):
+            kpts["num_kpts"] = len(kpoints["coordinates_kpoints"])
+            kpts["labels"] = [None for _ in range(kpts["num_kpts"])]
+            for i, idx in enumerate(kpoints.get("positions_labels_kpoints", [])):
+                kpts["labels"][idx - 1] = kpoints["labels_kpoints"][i]
+                kpts["kpts"] = kpoints["coordinates_kpoints"]
+            actual_kpoints = kpoints["coordinates_kpoints"]
+            actual_kpoint_weights = kpoints["weights_kpoints"]
+                
 
-        return (
-            Kpoints(
-                comment=kpoints.get("system", "Unknown"),
-                num_kpts=num_kpts,
-                style=kpoints["style"],
-                kpts=kpoints["coordinates_kpoints"],
-                kpts_weights=kpoints["weights_kpoints"],
-                coord_type=coord_type,
-                labels=kpt_labels if any(kpt_labels) else None,
-            ),
-            kpoints["coordinates_kpoints"],
-            kpoints["weights_kpoints"],
-        )
+        elif all(kpoints.get(f"nkp{axis}") for axis in {"x","y","z"}):
+            kpts["num_kpts"] = kpoints["number_kpoints"]
+            kpts["kpts"] = [[kpoints[f"nkp{axis}"] for axis in {"x","y","z"}]]
+            
+
+        return Kpoints(**kpts), actual_kpoints, actual_kpoint_weights,
 
     @staticmethod
     def _parse_atominfo(composition: Composition):
