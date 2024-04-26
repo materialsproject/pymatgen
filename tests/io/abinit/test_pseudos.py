@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import collections
 import os.path
+from collections import defaultdict
 
 import pytest
 from pytest import approx
@@ -9,15 +9,15 @@ from pytest import approx
 from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/abinit"
+TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 
 
 class TestPseudo(PymatgenTest):
     def setUp(self):
-        nc_pseudo_fnames = collections.defaultdict(list)
+        nc_pseudo_fnames = defaultdict(list)
         nc_pseudo_fnames["Si"] = [f"{TEST_DIR}/{file}" for file in ("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")]
 
-        self.nc_pseudos = collections.defaultdict(list)
+        self.nc_pseudos = defaultdict(list)
 
         for symbol, file_names in nc_pseudo_fnames.items():
             for file_name in file_names:

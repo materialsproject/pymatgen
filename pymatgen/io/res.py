@@ -87,7 +87,7 @@ class Ion:
 
 @dataclass(frozen=True)
 class ResSFAC:
-    species: set[str]
+    species: list[str]
     ions: list[Ion]
 
     def __str__(self) -> str:
@@ -180,7 +180,7 @@ class ResParser:
 
     def _parse_sfac(self, line: str, it: Iterator[str]) -> ResSFAC:
         """Parses the SFAC block."""
-        species = set(line.split())
+        species = list(line.split())
         ions = []
         try:
             while True:
@@ -256,24 +256,24 @@ class ResWriter:
         return ResCELL(1.0, lattice.a, lattice.b, lattice.c, lattice.alpha, lattice.beta, lattice.gamma)
 
     @classmethod
-    def _ions_from_sites(cls, sites: list[PeriodicSite]) -> list[Ion]:
-        """Produce a list of entries for a SFAC block from a list of pymatgen PeriodicSite."""
+    def _sfac_from_sites(cls, sites: list[PeriodicSite]) -> ResSFAC:
+        """Produce a SFAC block from a list of pymatgen PeriodicSite."""
         ions: list[Ion] = []
-        i = 0
+        species: list[str] = list()
+
         for site in sites:
             for specie, occ in site.species.items():
-                i += 1
+                try:
+                    i = species.index(specie) + 1
+                except ValueError:
+                    species.append(specie)
+                    i = len(species)
+
                 x, y, z = map(float, site.frac_coords)
                 spin = site.properties.get("magmom")
                 spin = spin and float(spin)
                 ions.append(Ion(specie, i, (x, y, z), occ, spin))
-        return ions
 
-    @classmethod
-    def _sfac_from_sites(cls, sites: list[PeriodicSite]) -> ResSFAC:
-        """Produce a SFAC block from a list of pymatgen PeriodicSite."""
-        ions = cls._ions_from_sites(sites)
-        species = {ion.specie for ion in ions}
         return ResSFAC(species, ions)
 
     @classmethod
@@ -434,7 +434,7 @@ class AirssProvider(ResProvider):
         Retrieves the run start date and the path it was started in from the REM entries.
 
         Returns:
-            (date, path)
+            tuple[date, str]: (date, path)
         """
         for rem in self._res.REMS:
             if rem.strip().startswith("Run started:"):
@@ -463,7 +463,7 @@ class AirssProvider(ResProvider):
         Retrieves the functional, relativity scheme, and dispersion correction from the REM entries.
 
         Returns:
-            (functional, relativity, dispersion)
+            tuple[str, str, str]: (functional, relativity, dispersion)
         """
         for rem in self._res.REMS:
             if rem.strip().startswith("Functional"):
@@ -478,7 +478,7 @@ class AirssProvider(ResProvider):
         from the REM entries.
 
         Returns:
-            (cut-off, grid scale, Gmax, fsbc)
+            tuple[float, float, float, str]: (cut-off, grid scale, Gmax, fsbc)
         """
         for rem in self._res.REMS:
             if rem.strip().startswith("Cut-off"):
@@ -492,7 +492,7 @@ class AirssProvider(ResProvider):
         Retrieves the MP grid, the grid offsets, number of kpoints, and maximum kpoint spacing.
 
         Returns:
-            (MP grid), (offsets), No. kpts, max spacing)
+            tuple[tuple[int, int, int], Vector3D, int, float]: (MP grid), (offsets), No. kpts, max spacing)
         """
         for rem in self._res.REMS:
             if rem.strip().startswith("MP grid"):
@@ -508,7 +508,7 @@ class AirssProvider(ResProvider):
         Retrieves the version of AIRSS that was used along with the build date (not compile date).
 
         Returns:
-            (version string, date)
+            tuple[str, date] (version string, date)
         """
         for rem in self._res.REMS:
             if rem.strip().startswith("AIRSS Version"):
@@ -535,13 +535,13 @@ class AirssProvider(ResProvider):
         Returns:
             dict[specie, potential]
         """
-        pspots: dict[str, str] = {}
+        pseudo_pots: dict[str, str] = {}
         for rem in self._res.REMS:
             srem = rem.split()
             if len(srem) == 2 and Element.is_valid_symbol(srem[0]):
                 k, v = srem
-                pspots[k] = v
-        return pspots
+                pseudo_pots[k] = v
+        return pseudo_pots
 
     @property
     def seed(self) -> str:

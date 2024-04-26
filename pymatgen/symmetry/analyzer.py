@@ -581,6 +581,7 @@ class SpacegroupAnalyzer:
             The structure in a conventional standardized cell
         """
         tol = 1e-5
+        transf = None
         struct = self.get_refined_structure(keep_site_properties=keep_site_properties)
         lattice = struct.lattice
         latt_type = self.get_lattice_type()
@@ -718,6 +719,7 @@ class SpacegroupAnalyzer:
                 # keep the ones with the non-90 angle=alpha
                 # and b<c
                 new_matrix = None
+
                 for t in itertools.permutations(list(range(3)), 3):
                     m = lattice.matrix
                     a, b, c, alpha, beta, gamma = Lattice([m[t[0]], m[t[1]], m[t[2]]]).parameters
@@ -734,6 +736,7 @@ class SpacegroupAnalyzer:
                             [0, c * cos(alpha), c * sin(alpha)],
                         ]
                         continue
+
                     if alpha < 90 and b < c:
                         transf = np.zeros(shape=(3, 3))
                         transf[0][t[0]] = 1
@@ -745,6 +748,7 @@ class SpacegroupAnalyzer:
                             [0, b, 0],
                             [0, c * cos(alpha), c * sin(alpha)],
                         ]
+
                 if new_matrix is None:
                     # this if is to treat the case
                     # where alpha==90 (but we still have a monoclinic sg

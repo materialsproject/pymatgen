@@ -155,7 +155,7 @@ class JonesFaithfulTransformation:
         P = np.array(P).transpose()
         P_string = transformation_to_string(P, components=("a", "b", "c"))
         p_string = transformation_to_string(np.zeros((3, 3)), p)
-        return P_string + ";" + p_string
+        return f"{P_string};{p_string}"
 
     def transform_symmop(self, symmop: SymmOp | MagSymmOp) -> SymmOp | MagSymmOp:
         """Takes a symmetry operation and transforms it."""

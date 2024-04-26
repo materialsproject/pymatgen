@@ -240,7 +240,7 @@ class Tensor(np.ndarray, MSONable):
         grouped = self.get_grouped_indices(voigt=voigt, **kwargs)
         p = 0 if zero_index else 1
         for indices in grouped:
-            sym_string = self.symbol + "_"
+            sym_string = f"{self.symbol}_"
             sym_string += "".join(str(i + p) for i in indices[0])
             value = array[indices[0]]
             if not np.isclose(value, 0):
@@ -584,6 +584,7 @@ class Tensor(np.ndarray, MSONable):
             Tensor: Populated tensor
         """
         guess = Tensor(np.zeros(self.shape))
+        mask = None
         if precond:
             # Generate the guess from populated
             sops = SpacegroupAnalyzer(structure).get_symmetry_operations()

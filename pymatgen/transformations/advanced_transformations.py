@@ -386,7 +386,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 raise ValueError(f"Too many disordered sites! ({n_disordered} > {self.max_disordered_sites})")
             max_cell_sizes: Iterable[int] = range(
                 self.min_cell_size,
-                int(math.floor(self.max_disordered_sites / n_disordered)) + 1,
+                math.floor(self.max_disordered_sites / n_disordered) + 1,
             )
         else:
             max_cell_sizes = [self.max_cell_size]
@@ -416,6 +416,8 @@ class EnumerateStructureTransformation(AbstractTransformation):
         original_latt = structure.lattice
         inv_latt = np.linalg.inv(original_latt.matrix)
         ewald_matrices = {}
+        m3gnet_model = None
+
         if not callable(self.sort_criteria) and self.sort_criteria.startswith("m3gnet"):
             import matgl
             from matgl.ext.ase import M3GNetCalculator, Relaxer
@@ -452,12 +454,14 @@ class EnumerateStructureTransformation(AbstractTransformation):
                     relax_results = m3gnet_model.relax(struct)
                     energy = float(relax_results["trajectory"].energies[-1])
                     struct = relax_results["final_structure"]
-                else:
-                    from pymatgen.io.ase import AseAtomsAdaptor
 
+                elif self.sort_criteria == "m3gnet":
                     atoms = AseAtomsAdaptor().get_atoms(struct)
                     m3gnet_model.calculate(atoms)
                     energy = float(m3gnet_model.results["energy"])
+
+                else:
+                    raise ValueError("Unsupported sort criteria.")
 
                 return {
                     "num_sites": len(struct),
@@ -1374,7 +1378,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
         rotation_angle,
         expand_times=4,
         vacuum_thickness=0.0,
-        ab_shift=None,
+        ab_shift: tuple[float, float] | None = None,
         normal=False,
         ratio=True,
         plane=None,
@@ -1400,7 +1404,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
                 cell do not interact with each other. Default set to 4.
             vacuum_thickness (float): The thickness of vacuum that you want to insert between
                 two grains of the GB. Default to 0.
-            ab_shift (list of float, in unit of a, b vectors of Gb): in plane shift of two grains
+            ab_shift (tuple[float, float]): in plane shift of two grains in unit of a, b vectors of Gb
             normal (logic):
                 determine if need to require the c axis of top grain (first transformation matrix)
                 perpendicular to the surface or not.
@@ -1443,7 +1447,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
         self.rotation_angle = rotation_angle
         self.expand_times = expand_times
         self.vacuum_thickness = vacuum_thickness
-        self.ab_shift = ab_shift or [0, 0]
+        self.ab_shift = ab_shift or (0, 0)
         self.normal = normal
         self.ratio = ratio
         self.plane = plane
@@ -1464,6 +1468,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
             Grain boundary Structures.
         """
         gbg = GrainBoundaryGenerator(structure)
+
         return gbg.gb_from_parameters(
             self.rotation_axis,
             self.rotation_angle,
@@ -2075,6 +2080,9 @@ class SQSTransformation(AbstractTransformation):
                 cluster_cutoffs=clusters,
                 sqs_kwargs=self.icet_sqs_kwargs,
             ).run()
+
+        else:
+            raise RuntimeError(f"Unsupported SQS method {self.sqs_method}.")
 
         return self._get_unique_best_sqs_structs(
             sqs,

@@ -193,10 +193,10 @@ class MagneticSpaceGroup(SymmetryGroup):
             n = 1  # nth Wyckoff site
             num_wyckoff = b[0]
             while len(wyckoff_sites) < num_wyckoff:
-                m = b[1 + o]  # multiplicity
-                label = str(b[2 + o] * m) + get_label(num_wyckoff - n)
+                multiplicity = b[1 + o]
+                label = str(b[2 + o] * multiplicity) + get_label(num_wyckoff - n)
                 sites = []
-                for j in range(m):
+                for j in range(multiplicity):
                     s = b[3 + o + (j * 22) : 3 + o + (j * 22) + 22]  # data corresponding to specific Wyckoff position
                     translation_vec = [s[0] / s[3], s[1] / s[3], s[2] / s[3]]
                     matrix = [
@@ -227,7 +227,7 @@ class MagneticSpaceGroup(SymmetryGroup):
                 # could do something else with these in future
                 wyckoff_sites.append({"label": label, "str": " ".join(s["str"] for s in sites)})
                 n += 1
-                o += m * 22 + 2
+                o += multiplicity * 22 + 2
 
             return wyckoff_sites
 
@@ -266,14 +266,14 @@ class MagneticSpaceGroup(SymmetryGroup):
                 f"{Fraction(p[1]).limit_denominator()},"
                 f"{Fraction(p[2]).limit_denominator()}"
             )
-            return P_string + ";" + p_string
+            return f"{P_string};{p_string}"
 
-        for i in range(8, 15):
+        for idx in range(8, 15):
             try:
-                raw_data[i] = array("b", raw_data[i])  # construct array from sql binary blobs
+                raw_data[idx] = array("b", raw_data[idx])  # construct array from sql binary blobs
             except Exception:
                 # array() behavior changed, need to explicitly convert buffer to str in earlier Python
-                raw_data[i] = array("b", str(raw_data[i]))
+                raw_data[idx] = array("b", str(raw_data[idx]))
 
         self._data["og_bns_transform"] = _parse_transformation(raw_data[8])
         self._data["bns_operators"] = _parse_operators(raw_data[9])

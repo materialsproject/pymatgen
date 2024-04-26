@@ -403,13 +403,13 @@ def load_O_adsorption():
         for el in metals_O_entry_dict:
             if el in key:
                 if "111" in key:
-                    clean = SlabEntry(entry.structure, entry.energy, (1, 1, 1), label=key + "_clean")
+                    clean = SlabEntry(entry.structure, entry.energy, (1, 1, 1), label=f"{key}_clean")
                     metals_O_entry_dict[el][(1, 1, 1)][clean] = []
                 if "110" in key:
-                    clean = SlabEntry(entry.structure, entry.energy, (1, 1, 0), label=key + "_clean")
+                    clean = SlabEntry(entry.structure, entry.energy, (1, 1, 0), label=f"{key}_clean")
                     metals_O_entry_dict[el][(1, 1, 0)][clean] = []
                 if "100" in key:
-                    clean = SlabEntry(entry.structure, entry.energy, (1, 0, 0), label=key + "_clean")
+                    clean = SlabEntry(entry.structure, entry.energy, (1, 0, 0), label=f"{key}_clean")
                     metals_O_entry_dict[el][(1, 0, 0)][clean] = []
 
     with open(f"{TEST_DIR}/cs_entries_o_ads.json") as file:
@@ -424,7 +424,7 @@ def load_O_adsorption():
                         entry.structure,
                         entry.energy,
                         (1, 1, 1),
-                        label=key + "_O",
+                        label=f"{key}_O",
                         adsorbates=[O_entry],
                         clean_entry=clean,
                     )
@@ -435,7 +435,7 @@ def load_O_adsorption():
                         entry.structure,
                         entry.energy,
                         (1, 1, 0),
-                        label=key + "_O",
+                        label=f"{key}_O",
                         adsorbates=[O_entry],
                         clean_entry=clean,
                     )
@@ -446,7 +446,7 @@ def load_O_adsorption():
                         entry.structure,
                         entry.energy,
                         (1, 0, 0),
-                        label=key + "_O",
+                        label=f"{key}_O",
                         adsorbates=[O_entry],
                         clean_entry=clean,
                     )

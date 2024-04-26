@@ -347,7 +347,7 @@ def get_dimensionality_cheon(
         else:
             dim = np.log2(float(max3) / max1) / np.log2(3)
             if dim == int(dim):
-                dim = str(int(dim)) + "D"
+                dim = f"{int(dim)}D"
             else:
                 return None
     else:
@@ -361,7 +361,7 @@ def get_dimensionality_cheon(
         else:
             dim = np.log2(float(max2) / max1)
             if dim == int(dim):
-                dim = str(int(dim)) + "D"
+                dim = f"{int(dim)}D"
             else:
                 structure = copy.copy(structure_save)
                 structure.make_supercell(np.eye(3) * 3)
@@ -372,7 +372,7 @@ def get_dimensionality_cheon(
                 else:
                     dim = np.log2(float(max3) / max1) / np.log2(3)
                     if dim == int(dim):
-                        dim = str(int(dim)) + "D"
+                        dim = f"{int(dim)}D"
                     else:
                         return None
     return dim

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import collections
 import fnmatch
+import itertools
 import os
 import re
 import warnings
@@ -124,7 +125,6 @@ class Cohpcar:
         if not self.are_multi_center_cobis:
             # The COHP data start in row num_bonds + 3
             data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
-            self.energies = data[0]
             cohp_data = {
                 "average": {
                     "COHP": {spin: data[1 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
@@ -134,7 +134,8 @@ class Cohpcar:
         else:
             # The COBI data start in row num_bonds + 3 if multi-center cobis exist
             data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
-            self.energies = data[0]
+
+        self.energies = data[0]
 
         orb_cohp: dict[str, Any] = {}
         # present for Lobster versions older than Lobster 2.2.0
@@ -385,7 +386,7 @@ class Icohplist(MSONable):
             with zopen(filename, mode="rt") as file:
                 data = file.read().split("\n")[1:-1]
             if len(data) == 0:
-                raise OSError("ICOHPLIST file contains no data.")
+                raise RuntimeError("ICOHPLIST file contains no data.")
 
             # Which Lobster version?
             if len(data[0].split()) == 8:
@@ -422,7 +423,7 @@ class Icohplist(MSONable):
                 # TODO: adapt this for orbital-wise stuff
                 n_bonds = len(data_without_orbitals) // 2
                 if n_bonds == 0:
-                    raise OSError("ICOHPLIST file contains no data.")
+                    raise RuntimeError("ICOHPLIST file contains no data.")
             else:
                 n_bonds = len(data_without_orbitals)
 
@@ -549,7 +550,7 @@ class NciCobiList:
         with zopen(filename, mode="rt") as file:  # type:ignore
             data = file.read().split("\n")[1:-1]
         if len(data) == 0:
-            raise OSError("NcICOBILIST file contains no data.")
+            raise RuntimeError("NcICOBILIST file contains no data.")
 
         # If the calculation is spin-polarized, the line in the middle
         # of the file will be another header line.
@@ -579,7 +580,7 @@ class NciCobiList:
             # TODO: adapt this for orbitalwise case
             n_bonds = len(data_without_orbitals) // 2
             if n_bonds == 0:
-                raise OSError("NcICOBILIST file contains no data.")
+                raise RuntimeError("NcICOBILIST file contains no data.")
         else:
             n_bonds = len(data_without_orbitals)
 
@@ -674,11 +675,11 @@ class Doscar:
         tdensities = {}
         itdensities = {}
         with zopen(doscar, mode="rt") as file:
-            natoms = int(file.readline().split()[0])
+            n_atoms = int(file.readline().split()[0])
             efermi = float([file.readline() for nn in range(4)][3].split()[17])
             dos = []
             orbitals = []
-            for _atom in range(natoms + 1):
+            for _atom in range(n_atoms + 1):
                 line = file.readline()
                 ndos = int(line.split()[2])
                 orbitals += [line.split(";")[-1].split()]
@@ -702,7 +703,7 @@ class Doscar:
             itdensities[Spin.up] = doshere[:, 2]
             pdoss = []
             spin = Spin.up
-            for atom in range(natoms):
+            for atom in range(n_atoms):
                 pdos = defaultdict(dict)
                 data = dos[atom + 1]
                 _, ncol = data.shape
@@ -718,7 +719,7 @@ class Doscar:
             itdensities[Spin.up] = doshere[:, 3]
             itdensities[Spin.down] = doshere[:, 4]
             pdoss = []
-            for atom in range(natoms):
+            for atom in range(n_atoms):
                 pdos = defaultdict(dict)
                 data = dos[atom + 1]
                 _, ncol = data.shape
@@ -820,7 +821,7 @@ class Charge(MSONable):
             with zopen(filename, mode="rt") as file:
                 data = file.read().split("\n")[3:-3]
             if len(data) == 0:
-                raise OSError("CHARGES file contains no data.")
+                raise RuntimeError("CHARGES file contains no data.")
 
             self.num_atoms = len(data)
             for atom in range(self.num_atoms):
@@ -943,7 +944,7 @@ class Lobsterout(MSONable):
             with zopen(filename, mode="rt") as file:  # read in file
                 data = file.read().split("\n")
             if len(data) == 0:
-                raise OSError("lobsterout does not contain any data")
+                raise RuntimeError("lobsterout does not contain any data")
 
             # check if Lobster starts from a projection
             self.is_restart_from_projection = "loading projection from projectionData.lobster..." in data
@@ -964,11 +965,11 @@ class Lobsterout(MSONable):
             self.basis_functions = basisfunctions
 
             wall_time, user_time, sys_time = self._get_timing(data=data)
-            timing = {}
-            timing["wall_time"] = wall_time
-            timing["user_time"] = user_time
-            timing["sys_time"] = sys_time
-            self.timing = timing
+            self.timing = {
+                "wall_time": wall_time,
+                "user_time": user_time,
+                "sys_time": sys_time,
+            }
 
             warninglines = self._get_all_warning_lines(data=data)
             self.warning_lines = warninglines
@@ -1084,15 +1085,13 @@ class Lobsterout(MSONable):
 
     @staticmethod
     def _get_number_of_spins(data):
-        if "spillings for spin channel 2" in data:
-            return 2
-        return 1
+        return 2 if "spillings for spin channel 2" in data else 1
 
     @staticmethod
     def _get_threads(data):
         for row in data:
             splitrow = row.split()
-            if len(splitrow) > 11 and ((splitrow[11]) == "threads" or (splitrow[11] == "thread")):
+            if len(splitrow) > 11 and splitrow[11] in {"threads", "thread"}:
                 return splitrow[10]
         raise ValueError("Threads not found.")
 
@@ -1157,9 +1156,9 @@ class Lobsterout(MSONable):
                 if "wall" in splitrow:
                     wall_time = splitrow[2:10]
                 if "user" in splitrow:
-                    user_time = splitrow[0:8]
+                    user_time = splitrow[:8]
                 if "sys" in splitrow:
-                    sys_time = splitrow[0:8]
+                    sys_time = splitrow[:8]
 
         wall_time_dict = {"h": wall_time[0], "min": wall_time[2], "s": wall_time[4], "ms": wall_time[6]}
         user_time_dict = {"h": user_time[0], "min": user_time[2], "s": user_time[4], "ms": user_time[6]}
@@ -1267,6 +1266,7 @@ class Fatband:
         atom_type = []
         atom_names = []
         orbital_names = []
+        parameters = []
 
         if not isinstance(filenames, list) or filenames is None:
             filenames_new = []
@@ -1308,7 +1308,9 @@ class Fatband:
                         "present"
                     )
 
-        kpoints_array = []
+        kpoints_array: list = []
+        eigenvals: dict = {}
+        p_eigenvals: dict = {}
         for ifilename, filename in enumerate(filenames):
             with zopen(filename, mode="rt") as file:
                 contents = file.read().split("\n")
@@ -1331,20 +1333,18 @@ class Fatband:
                     self.is_spinpolarized = len(linenumbers) == 2
 
             if ifilename == 0:
-                eigenvals = {}  # type: dict
-                eigenvals[Spin.up] = [
-                    [collections.defaultdict(float) for _ in range(self.number_kpts)] for _ in range(self.nbands)
-                ]
+                eigenvals = {}
+                eigenvals[Spin.up] = [[defaultdict(float) for _ in range(self.number_kpts)] for _ in range(self.nbands)]
                 if self.is_spinpolarized:
                     eigenvals[Spin.down] = [
-                        [collections.defaultdict(float) for _ in range(self.number_kpts)] for _ in range(self.nbands)
+                        [defaultdict(float) for _ in range(self.number_kpts)] for _ in range(self.nbands)
                     ]
 
-                p_eigenvals = {}  # type: dict
+                p_eigenvals = {}
                 p_eigenvals[Spin.up] = [
                     [
                         {
-                            str(elem): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[elem]}
+                            str(elem): {str(orb): defaultdict(float) for orb in atom_orbital_dict[elem]}
                             for elem in atom_names
                         }
                         for _ in range(self.number_kpts)
@@ -1356,7 +1356,7 @@ class Fatband:
                     p_eigenvals[Spin.down] = [
                         [
                             {
-                                str(elem): {str(orb): collections.defaultdict(float) for orb in atom_orbital_dict[elem]}
+                                str(elem): {str(orb): defaultdict(float) for orb in atom_orbital_dict[elem]}
                                 for elem in atom_names
                             }
                             for _ in range(self.number_kpts)
@@ -1366,6 +1366,7 @@ class Fatband:
 
             idx_kpt = -1
             linenumber = 0
+            iband = 0
             for line in contents[1:-1]:
                 if line.split()[0] == "#":
                     KPOINT = np.array(
@@ -1486,7 +1487,7 @@ class Bandoverlaps(MSONable):
                 kpoint = line.split(" ")
                 kpoint_array = []
                 for kpointel in kpoint:
-                    if kpointel not in ["at", "k-point", ""]:
+                    if kpointel not in {"at", "k-point", ""}:
                         kpoint_array += [float(kpointel)]
 
             elif "maxDeviation" in line:
@@ -1559,15 +1560,16 @@ class Bandoverlaps(MSONable):
             for matrix in self.band_overlaps_dict[Spin.down]["matrices"]:
                 for iband1, band1 in enumerate(matrix):
                     for iband2, band2 in enumerate(band1):
-                        if number_occ_bands_spin_down is not None:
-                            if iband1 < number_occ_bands_spin_down and iband2 < number_occ_bands_spin_down:
-                                if iband1 == iband2:
-                                    if abs(band2 - 1.0).all() > limit_deviation:
-                                        return False
-                                elif band2.all() > limit_deviation:
-                                    return False
-                        else:
+                        if number_occ_bands_spin_down is None:
                             raise ValueError("number_occ_bands_spin_down has to be specified")
+
+                        if iband1 < number_occ_bands_spin_down and iband2 < number_occ_bands_spin_down:
+                            if iband1 == iband2:
+                                if abs(band2 - 1.0).all() > limit_deviation:
+                                    return False
+                            elif band2.all() > limit_deviation:
+                                return False
+
         return True
 
     @property
@@ -1686,10 +1688,9 @@ class Wavefunction:
                 real += [float(splitline[4])]
                 imaginary += [float(splitline[5])]
 
-        if not len(real) == grid[0] * grid[1] * grid[2]:
+        if len(real) != grid[0] * grid[1] * grid[2] or len(imaginary) != grid[0] * grid[1] * grid[2]:
             raise ValueError("Something went wrong while reading the file")
-        if not len(imaginary) == grid[0] * grid[1] * grid[2]:
-            raise ValueError("Something went wrong while reading the file")
+
         return grid, points, real, imaginary, distance
 
     def set_volumetric_data(self, grid, structure):
@@ -1713,36 +1714,31 @@ class Wavefunction:
         new_imaginary = []
         new_density = []
 
-        runner = 0
-        for x in range(Nx + 1):
-            for y in range(Ny + 1):
-                for z in range(Nz + 1):
-                    x_here = x / float(Nx) * a[0] + y / float(Ny) * b[0] + z / float(Nz) * c[0]
-                    y_here = x / float(Nx) * a[1] + y / float(Ny) * b[1] + z / float(Nz) * c[1]
-                    z_here = x / float(Nx) * a[2] + y / float(Ny) * b[2] + z / float(Nz) * c[2]
+        for runner, (x, y, z) in enumerate(itertools.product(range(Nx + 1), range(Ny + 1), range(Nz + 1))):
+            x_here = x / float(Nx) * a[0] + y / float(Ny) * b[0] + z / float(Nz) * c[0]
+            y_here = x / float(Nx) * a[1] + y / float(Ny) * b[1] + z / float(Nz) * c[1]
+            z_here = x / float(Nx) * a[2] + y / float(Ny) * b[2] + z / float(Nz) * c[2]
 
-                    if x != Nx and y != Ny and z != Nz:
-                        if (
-                            not np.isclose(self.points[runner][0], x_here, 1e-3)
-                            and not np.isclose(self.points[runner][1], y_here, 1e-3)
-                            and not np.isclose(self.points[runner][2], z_here, 1e-3)
-                        ):
-                            raise ValueError(
-                                "The provided wavefunction from Lobster does not contain all relevant"
-                                " points. "
-                                "Please use a line similar to: printLCAORealSpaceWavefunction kpoint 1 "
-                                "coordinates 0.0 0.0 0.0 coordinates 1.0 1.0 1.0 box bandlist 1 "
-                            )
+            if x != Nx and y != Ny and z != Nz:
+                if (
+                    not np.isclose(self.points[runner][0], x_here, 1e-3)
+                    and not np.isclose(self.points[runner][1], y_here, 1e-3)
+                    and not np.isclose(self.points[runner][2], z_here, 1e-3)
+                ):
+                    raise ValueError(
+                        "The provided wavefunction from Lobster does not contain all relevant"
+                        " points. "
+                        "Please use a line similar to: printLCAORealSpaceWavefunction kpoint 1 "
+                        "coordinates 0.0 0.0 0.0 coordinates 1.0 1.0 1.0 box bandlist 1 "
+                    )
 
-                        new_x += [x_here]
-                        new_y += [y_here]
-                        new_z += [z_here]
+                new_x += [x_here]
+                new_y += [y_here]
+                new_z += [z_here]
 
-                        new_real += [self.real[runner]]
-                        new_imaginary += [self.imaginary[runner]]
-                        new_density += [self.real[runner] ** 2 + self.imaginary[runner] ** 2]
-
-                    runner += 1
+                new_real += [self.real[runner]]
+                new_imaginary += [self.imaginary[runner]]
+                new_density += [self.real[runner] ** 2 + self.imaginary[runner] ** 2]
 
         self.final_real = np.reshape(new_real, [Nx, Ny, Nz])
         self.final_imaginary = np.reshape(new_imaginary, [Nx, Ny, Nz])
@@ -1844,7 +1840,7 @@ class MadelungEnergies(MSONable):
             with zopen(filename, mode="rt") as file:
                 data = file.read().split("\n")[5]
             if len(data) == 0:
-                raise OSError("MadelungEnergies file contains no data.")
+                raise RuntimeError("MadelungEnergies file contains no data.")
             line = data.split()
             self._filename = filename
             self.ewald_splitting = float(line[0])
@@ -1924,7 +1920,7 @@ class SitePotential(MSONable):
             with zopen(filename, mode="rt") as file:
                 data = file.read().split("\n")
             if len(data) == 0:
-                raise OSError("SitePotentials file contains no data.")
+                raise RuntimeError("SitePotentials file contains no data.")
 
             self._filename = filename
             self.ewald_splitting = float(data[0].split()[9])
@@ -2088,7 +2084,7 @@ class LobsterMatrices:
         with zopen(self._filename, mode="rt") as file:
             file_data = file.readlines()
         if len(file_data) == 0:
-            raise OSError("Please check provided input file, it seems to be empty")
+            raise RuntimeError("Please check provided input file, it seems to be empty")
 
         pattern_coeff_hamil_trans = r"(\d+)\s+kpoint\s+(\d+)"  # regex pattern to extract spin and k-point number
         pattern_overlap = r"kpoint\s+(\d+)"  # regex pattern to extract k-point number

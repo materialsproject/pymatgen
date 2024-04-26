@@ -36,8 +36,8 @@ class CRESTOutput(MSONable):
         self.path = path
         self.filename = output_filename
 
-        self.cmd_options = {}
-        self.sorted_structures_energies = []
+        self.cmd_options: dict = {}
+        self.sorted_structures_energies: list = []
         self.properly_terminated = False
         self._parse_crest_output()
 
@@ -56,7 +56,7 @@ class CRESTOutput(MSONable):
 
         # Get CREST command
         crest_cmd = None
-        with open(output_filepath) as xtbout_file:
+        with open(output_filepath, encoding="utf-8") as xtbout_file:
             for line in xtbout_file:
                 if "> crest" in line:
                     crest_cmd = line.strip()[8:]
@@ -112,7 +112,7 @@ class CRESTOutput(MSONable):
             )
             conformer_degeneracies = []
             energies = []
-            with open(output_filepath) as xtbout_file:
+            with open(output_filepath, encoding="utf-8") as xtbout_file:
                 for line in xtbout_file:
                     conformer_match = conformer_pattern.match(line)
                     rotamer_match = rotamer_pattern.match(line)
@@ -131,8 +131,8 @@ class CRESTOutput(MSONable):
                     if "crest_rotamers" in filename:
                         n_rot_file = int(os.path.splitext(filename)[0].split("_")[2])
                         n_rot_files.append(n_rot_file)
-                if len(n_rot_files) > 0:
-                    final_rotamer_filename = f"crest_rotamers_{max(n_rot_files)}.xyz"
+                final_rotamer_filename = f"crest_rotamers_{max(n_rot_files)}.xyz" if len(n_rot_files) > 0 else ""
+
             try:
                 rotamers_path = os.path.join(self.path, final_rotamer_filename)
                 rotamer_structures = XYZ.from_file(rotamers_path).all_molecules

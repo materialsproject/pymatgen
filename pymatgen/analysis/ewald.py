@@ -291,7 +291,7 @@ class EwaldSummation(MSONable):
             site_index (int): Index of site
 
         Returns:
-        (float) - Energy of that site
+            float: Energy of that site
         """
         if not self._initialized:
             self._calc_ewald_terms()
@@ -344,8 +344,7 @@ class EwaldSummation(MSONable):
 
         for g, g2, gr, exp_val, s_real, s_imag in zip(gs, g2s, grs, exp_vals, s_reals, s_imags):
             # Uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
-            m = (gr[None, :] + pi / 4) - gr[:, None]
-            np.sin(m, m)
+            m = np.sin((gr[None, :] + pi / 4) - gr[:, None])
             m *= exp_val / g2
 
             e_recip += m
@@ -541,7 +540,7 @@ class EwaldMinimizer:
         if algo == EwaldMinimizer.ALGO_COMPLETE:
             raise NotImplementedError("Complete algo not yet implemented for EwaldMinimizer")
 
-        self._output_lists = []
+        self._output_lists: list = []
         # Tag that the recurse function looks at each level. If a method
         # sets this to true it breaks the recursion and stops the search.
         self._finished = False

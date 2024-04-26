@@ -406,7 +406,7 @@ class CorrectionCalculator:
                 F:
             CompositionCorrections:
         """
-        fn = name + "Compatibility.yaml"
+        fn = f"{name}Compatibility.yaml"
         path = os.path.join(dir, fn) if dir else fn
 
         yml = yaml.YAML()

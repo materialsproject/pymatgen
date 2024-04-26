@@ -775,6 +775,7 @@ class LocalGeometryFinder:
 
             to_add_from_hints = []
             nb_sets_info = {}
+            cn = 0
 
             for cn, nb_sets in struct_envs.neighbors_sets[isite].items():
                 if cn not in all_cns:
@@ -1534,8 +1535,7 @@ class LocalGeometryFinder:
         algos = []
         perfect2local_maps = []
         local2perfect_maps = []
-        if testing:
-            separation_permutations = []
+        separation_permutations = []
         nplanes = 0
         for npoints in range(
             separation_plane_algo.minimum_number_of_points,
@@ -1793,9 +1793,10 @@ class LocalGeometryFinder:
         plane_found = False
         permutations = []
         permutations_symmetry_measures = []
-        if testing:
-            separation_permutations = []
+        separation_permutations = []
         dist_tolerances = dist_tolerances or DIST_TOLERANCES
+        algo = ""
+
         for dist_tolerance in dist_tolerances:
             algo = "NOT_FOUND"
             separation = local_plane.indices_separate(self.local_geometry._coords, dist_tolerance)

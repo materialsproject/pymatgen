@@ -10,7 +10,7 @@ from pymatgen.core.surface import SlabGenerator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/grain_boundary"
+TEST_DIR = f"{TEST_FILES_DIR}/core/grain_boundary"
 
 
 class TestGrainBoundary(PymatgenTest):

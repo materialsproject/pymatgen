@@ -103,9 +103,7 @@ class ChemicalPotentialDiagram(MSONable):
             renormalized_entries = []
             for entry in entries:
                 comp_dict = entry.composition.as_dict()
-                renormalization_energy = sum(
-                    [comp_dict[el] * _el_refs[Element(el)].energy_per_atom for el in comp_dict]
-                )
+                renormalization_energy = sum(comp_dict[el] * _el_refs[Element(el)].energy_per_atom for el in comp_dict)
                 renormalized_entries.append(_renormalize_entry(entry, renormalization_energy / sum(comp_dict.values())))
 
             entries = renormalized_entries
@@ -270,6 +268,8 @@ class ChemicalPotentialDiagram(MSONable):
 
         if element_padding is not None and element_padding > 0:
             new_lims = self._get_new_limits_from_padding(domains, elem_indices, element_padding, self.default_min_limit)
+        else:
+            new_lims = []
 
         for formula, pts in domains.items():
             formula_elems = set(Composition(formula).elements)
@@ -328,6 +328,8 @@ class ChemicalPotentialDiagram(MSONable):
 
         if element_padding and element_padding > 0:
             new_lims = self._get_new_limits_from_padding(domains, elem_indices, element_padding, self.default_min_limit)
+        else:
+            new_lims = []
 
         for formula, pts in domains.items():
             entry = self.entry_dict[formula]

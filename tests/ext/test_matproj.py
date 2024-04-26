@@ -26,7 +26,7 @@ from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
-    skip_mprester_tests = requests.get("https://materialsproject.org").status_code != 200
+    skip_mprester_tests = requests.get("https://materialsproject.org", timeout=600).status_code != 200
 
 except (ModuleNotFoundError, ImportError, requests.exceptions.ConnectionError):
     # Skip all MPRester tests if some downstream problem on the website, mp-api or whatever.
@@ -76,7 +76,7 @@ class TestMPResterOld(PymatgenTest):
             "total_magnetization",
         }
         mp_id = "mp-1143"
-        vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/")
+        vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=600)
         expected_vals = vals.json()
 
         for prop in props:
@@ -120,7 +120,7 @@ class TestMPResterOld(PymatgenTest):
 
     def test_find_structure(self):
         mpr = _MPResterLegacy()
-        cif_file = f"{TEST_FILES_DIR}/Fe3O4.cif"
+        cif_file = f"{TEST_FILES_DIR}/cif/Fe3O4.cif"
         data = mpr.find_structure(str(cif_file))
         assert len(data) > 1
         struct = Structure.from_file(cif_file, primitive=True)
@@ -570,7 +570,7 @@ class TestMPResterNewBasic:
     #         "total_magnetization",
     #     }
     #     mp_id = "mp-1143"
-    #     vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/")
+    #     vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=600)
     #     expected_vals = vals.json()
     #
     #     for prop in props:

@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import collections
 import itertools
+from collections import defaultdict
 from math import acos, pi
 from typing import TYPE_CHECKING
 from warnings import warn
@@ -227,7 +227,7 @@ class RelaxationAnalyzer:
                 between site1 and site_n is the same as bonding between site_n and site1, there is no
                 reason to duplicate the information or computation.
         """
-        data: dict[int, dict[int, float]] = collections.defaultdict(dict)
+        data: dict[int, dict[int, float]] = defaultdict(dict)
         for indices in itertools.combinations(list(range(len(self.initial))), 2):
             ii, jj = sorted(indices)
             initial_dist = self.initial[ii].distance(self.initial[jj])
@@ -442,11 +442,14 @@ class OxideType:
         if isinstance(structure.elements[0], Element):
             comp = structure.composition
         elif isinstance(structure.elements[0], Species):
-            elem_map: dict[Element, float] = collections.defaultdict(float)
+            elem_map: dict[Element, float] = defaultdict(float)
             for site in structure:
                 for species, occu in site.species.items():
                     elem_map[species.element] += occu
             comp = Composition(elem_map)
+        else:
+            raise TypeError("Invalid type for element.")
+
         if Element("O") not in comp or comp.is_element:
             return "None", 0
 
@@ -466,6 +469,7 @@ class OxideType:
         is_superoxide = False
         is_peroxide = False
         is_ozonide = False
+        bond_atoms = []
         if np.any(dist_matrix < relative_cutoff * 1.35):
             bond_atoms = np.where(dist_matrix < relative_cutoff * 1.35)[0]
             is_superoxide = True
@@ -475,10 +479,9 @@ class OxideType:
         if is_superoxide and len(bond_atoms) > len(set(bond_atoms)):
             is_superoxide = False
             is_ozonide = True
-        try:
-            n_bonds = len(set(bond_atoms))
-        except UnboundLocalError:
-            n_bonds = 0
+
+        n_bonds = len(set(bond_atoms))
+
         if is_ozonide:
             str_oxide = "ozonide"
         elif is_superoxide:
@@ -518,7 +521,7 @@ def sulfide_type(structure):
         structure (Structure): Input structure.
 
     Returns:
-        (str) sulfide/polysulfide or None if structure is a sulfate.
+        str: sulfide/polysulfide or None if structure is a sulfate.
     """
     structure = structure.copy().remove_oxidation_states()
     sulphur = Element("S")

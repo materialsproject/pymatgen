@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import collections
 import itertools
 import json
 import logging
@@ -10,6 +9,7 @@ import math
 import os
 import re
 import warnings
+from collections import defaultdict
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, Literal, no_type_check
 
@@ -1181,7 +1181,7 @@ class PhaseDiagram(MSONable):
         else:
             el_energies = dict.fromkeys(elements, 0)
 
-        chempot_ranges = collections.defaultdict(list)
+        chempot_ranges = defaultdict(list)
         vertices = [list(range(len(self.elements)))]
 
         if len(all_chempots) > len(self.elements):
@@ -1258,7 +1258,9 @@ class PhaseDiagram(MSONable):
                                 break
                         if not already_in:
                             all_coords.append(res)
-        return all_coords
+
+                return all_coords
+        return None
 
     def get_chempot_range_stability_phase(self, target_comp, open_elt):
         """
@@ -2629,7 +2631,7 @@ class PDPlotter:
                 if hasattr(el_ref, "original_entry"):  # for grand potential PDs, etc.
                     clean_formula = htmlify(el_ref.original_entry.reduced_formula)
 
-                layout["ternary"][axis + "axis"]["title"] = {
+                layout["ternary"][f"{axis}axis"]["title"] = {
                     "text": clean_formula,
                     "font": {"size": 24},
                 }
@@ -2938,6 +2940,11 @@ class PDPlotter:
 
                 font_dict = {"color": "#000000", "size": 24.0}
                 opacity = 1.0
+
+            else:
+                clean_formula = ""
+                font_dict = {}
+                opacity = 0
 
             offset = 0.03 if self._dim == 2 else 0.06
 
@@ -3835,6 +3842,9 @@ def order_phase_diagram(lines, stable_entries, unstable_entries, ordering):
     xleft = 1000.0
     xright = -1000.0
 
+    nameup = ""
+    nameleft = ""
+    nameright = ""
     for coord in stable_entries:
         if coord[0] > xright:
             xright = coord[0]

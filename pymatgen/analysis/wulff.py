@@ -90,8 +90,8 @@ class WulffFacet:
         self.index = index
         self.m_ind_orig = m_ind_orig
         self.miller = miller
-        self.points = []
-        self.outer_lines = []
+        self.points: list = []
+        self.outer_lines: list = []
 
 
 class WulffShape:
@@ -320,7 +320,7 @@ class WulffShape:
         """Returns the sorted pts in a facet used to draw a line."""
         lines = list(facet.outer_lines)
         pt = []
-        prev = None
+        prev = line = None
         while len(lines) > 0:
             if prev is None:
                 line = lines.pop(0)
@@ -378,7 +378,7 @@ class WulffShape:
                 Joules per square meter (True)
 
         Returns:
-            (matplotlib.pyplot)
+            mpl_toolkits.mplot3d.Axes3D: 3D plot of the Wulff shape.
         """
         from mpl_toolkits.mplot3d import art3d
 
@@ -472,7 +472,7 @@ class WulffShape:
             ax_3d.grid("off")
         if axis_off:
             ax_3d.axis("off")
-        return plt
+        return ax_3d
 
     def get_plotly(
         self,

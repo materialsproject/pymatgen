@@ -44,6 +44,7 @@ try:
     zeo_found = True
 except ImportError:
     zeo_found = False
+    AtomNetwork = prune_voronoi_network_close_node = None
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -177,18 +178,17 @@ class ZeoVoronoiXYZ(XYZ):
             ZeoVoronoiXYZ object
         """
         lines = contents.split("\n")
-        num_sites = int(lines[0])
+        n_sites = int(lines[0])
         coords = []
         sp = []
         prop = []
         coord_patt = re.compile(r"(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)")
-        for i in range(2, 2 + num_sites):
-            m = coord_patt.search(lines[i])
-            if m:
-                sp.append(m.group(1))  # this is 1-indexed
+        for idx in range(2, 2 + n_sites):
+            if match := coord_patt.search(lines[idx]):
+                sp.append(match.group(1))  # this is 1-indexed
                 # coords.append(map(float, m.groups()[1:4]))  # this is 0-indexed
-                coords.append([float(j) for j in [m.group(i) for i in [3, 4, 2]]])
-                prop.append(float(m.group(5)))
+                coords.append([float(j) for j in [match.group(i) for i in [3, 4, 2]]])
+                prop.append(float(match.group(5)))
         return cls(Molecule(sp, coords, site_properties={"voronoi_radius": prop}))
 
     @classmethod
@@ -241,22 +241,22 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     """
     with ScratchDir("."):
         name = "temp_zeo1"
-        zeo_inp_filename = name + ".cssr"
+        zeo_inp_filename = f"{name}.cssr"
         ZeoCssr(structure).write_file(zeo_inp_filename)
         rad_file = None
         rad_flag = False
 
         if rad_dict:
-            rad_file = name + ".rad"
+            rad_file = f"{name}.rad"
             rad_flag = True
-            with open(rad_file, "w+") as file:
+            with open(rad_file, "w+", encoding="utf-8") as file:
                 for el in rad_dict:
                     file.write(f"{el} {rad_dict[el].real}\n")
 
         atom_net = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         vor_net, vor_edge_centers, vor_face_centers = atom_net.perform_voronoi_decomposition()
         vor_net.analyze_writeto_XYZ(name, probe_rad, atom_net)
-        voro_out_filename = name + "_voro.xyz"
+        voro_out_filename = f"{name}_voro.xyz"
         voro_node_mol = ZeoVoronoiXYZ.from_file(voro_out_filename).molecule
 
     species = ["X"] * len(voro_node_mol)
@@ -331,8 +331,8 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         zeo_inp_filename = f"{name}.cssr"
         ZeoCssr(structure).write_file(zeo_inp_filename)
         rad_flag = True
-        rad_file = name + ".rad"
-        with open(rad_file, "w+") as file:
+        rad_file = f"{name}.rad"
+        with open(rad_file, "w+", encoding="utf-8") as file:
             for el in rad_dict:
                 print(f"{el} {rad_dict[el].real}", file=file)
 
@@ -342,7 +342,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         # generate_simplified_highaccuracy_voronoi_network(atom_net)
         # get_nearest_largest_diameter_highaccuracy_vornode(atom_net)
         red_ha_vornet.analyze_writeto_XYZ(name, probe_rad, atom_net)
-        voro_out_filename = name + "_voro.xyz"
+        voro_out_filename = f"{name}_voro.xyz"
         voro_node_mol = ZeoVoronoiXYZ.from_file(voro_out_filename).molecule
 
     species = ["X"] * len(voro_node_mol)
@@ -390,15 +390,15 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
     """
     with ScratchDir("."):
         name = "temp_zeo1"
-        zeo_inp_filename = name + ".cssr"
+        zeo_inp_filename = f"{name}.cssr"
         ZeoCssr(structure).write_file(zeo_inp_filename)
         rad_file = None
         rad_flag = False
 
         if rad_dict:
-            rad_file = name + ".rad"
+            rad_file = f"{name}.rad"
             rad_flag = True
-            with open(rad_file, "w+") as file:
+            with open(rad_file, "w+", encoding="utf-8") as file:
                 for el in rad_dict:
                     file.write(f"{el} {rad_dict[el].real}\n")
 
@@ -406,16 +406,16 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
         out_file = "temp.res"
         atom_net.calculate_free_sphere_parameters(out_file)
         if os.path.isfile(out_file) and os.path.getsize(out_file) > 0:
-            with open(out_file) as file:
+            with open(out_file, encoding="utf-8") as file:
                 output = file.readline()
         else:
             output = ""
     fields = [val.strip() for val in output.split()][1:4]
     if len(fields) == 3:
         fields = [float(field) for field in fields]
-        free_sphere_params = {
+        return {
             "inc_sph_max_dia": fields[0],
             "free_sph_max_dia": fields[1],
             "inc_sph_along_free_sph_path_max_dia": fields[2],
         }
-    return free_sphere_params
+    return None

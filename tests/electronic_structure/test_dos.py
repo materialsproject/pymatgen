@@ -15,10 +15,12 @@ from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.electronic_structure.dos import DOS, CompleteDos, FermiDos, LobsterCompleteDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/dos"
+
 
 class TestDos(TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/complete_dos.json") as file:
+        with open(f"{TEST_DIR}/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
 
     def test_get_gap(self):
@@ -53,7 +55,7 @@ class TestDos(TestCase):
 
 class TestFermiDos(TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/complete_dos.json") as file:
+        with open(f"{TEST_DIR}/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
         self.dos = FermiDos(self.dos)
 
@@ -100,9 +102,9 @@ class TestFermiDos(TestCase):
 
 class TestCompleteDos(TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/complete_dos.json") as file:
+        with open(f"{TEST_DIR}/complete_dos.json") as file:
             self.dos = CompleteDos.from_dict(json.load(file))
-        with zopen(f"{TEST_FILES_DIR}/pdag3_complete_dos.json.gz") as file:
+        with zopen(f"{TEST_DIR}/pdag3_complete_dos.json.gz") as file:
             self.dos_pdag3 = CompleteDos.from_dict(json.load(file))
 
     def test_get_gap(self):
@@ -295,7 +297,7 @@ class TestCompleteDos(TestCase):
 
 class TestDOS(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/complete_dos.json") as file:
+        with open(f"{TEST_DIR}/complete_dos.json") as file:
             dct = json.load(file)
             ys = list(zip(dct["densities"]["1"], dct["densities"]["-1"]))
             self.dos = DOS(dct["energies"], ys, dct["efermi"])
@@ -320,34 +322,34 @@ class TestDOS(PymatgenTest):
 
 class TestSpinPolarization(TestCase):
     def test_spin_polarization(self):
-        dos_path = f"{TEST_FILES_DIR}/dos_spin_polarization_mp-865805.json"
+        dos_path = f"{TEST_DIR}/dos_spin_polarization_mp-865805.json"
         dos = loadfn(dos_path)
         assert dos.spin_polarization == approx(0.6460514663341762)
 
 
 class TestLobsterCompleteDos(TestCase):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/LobsterCompleteDos_spin.json") as file:
+        with open(f"{TEST_DIR}/LobsterCompleteDos_spin.json") as file:
             data_spin = json.load(file)
         self.LobsterCompleteDOS_spin = LobsterCompleteDos.from_dict(data_spin)
 
-        with open(f"{TEST_FILES_DIR}/LobsterCompleteDos_nonspin.json") as file:
+        with open(f"{TEST_DIR}/LobsterCompleteDos_nonspin.json") as file:
             data_nonspin = json.load(file)
         self.LobsterCompleteDOS_nonspin = LobsterCompleteDos.from_dict(data_nonspin)
 
-        with open(f"{TEST_FILES_DIR}/structure_KF.json") as file:
+        with open(f"{TEST_DIR}/structure_KF.json") as file:
             data_structure = json.load(file)
         self.structure = Structure.from_dict(data_structure)
 
-        with open(f"{TEST_FILES_DIR}/LobsterCompleteDos_MnO.json") as file:
+        with open(f"{TEST_DIR}/LobsterCompleteDos_MnO.json") as file:
             data_MnO = json.load(file)
         self.LobsterCompleteDOS_MnO = LobsterCompleteDos.from_dict(data_MnO)
 
-        with open(f"{TEST_FILES_DIR}/LobsterCompleteDos_MnO_nonspin.json") as file:
+        with open(f"{TEST_DIR}/LobsterCompleteDos_MnO_nonspin.json") as file:
             data_MnO_nonspin = json.load(file)
         self.LobsterCompleteDOS_MnO_nonspin = LobsterCompleteDos.from_dict(data_MnO_nonspin)
 
-        with open(f"{TEST_FILES_DIR}/structure_MnO.json") as file:
+        with open(f"{TEST_DIR}/structure_MnO.json") as file:
             data_MnO = json.load(file)
         self.structure_MnO = Structure.from_dict(data_MnO)
 

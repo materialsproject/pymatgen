@@ -104,6 +104,7 @@ class Critic2Caller:
             _stdout, _stderr = rs.communicate()
         stdout = _stdout.decode()
 
+        stderr = ""
         if _stderr:
             stderr = _stderr.decode()
             warnings.warn(stderr)
@@ -330,7 +331,7 @@ def get_filepath(filename, warning, path, suffix):
         path: Path to search
         suffix: Suffixes to search.
     """
-    paths = glob(os.path.join(path, filename + suffix + "*"))
+    paths = glob(os.path.join(path, f"{filename}{suffix}*"))
     if not paths:
         warnings.warn(warning)
         return None
@@ -791,6 +792,7 @@ class Critic2Analysis(MSONable):
         unique_critical_points = []
 
         # parse unique critical points
+        start_i = end_i = unique_idx = None
         for idx, line in enumerate(stdout):
             if "mult  name            f             |grad|           lap" in line:
                 start_i = idx + 1

@@ -194,7 +194,9 @@ class SymmOp(MSONable):
             tol (float): Absolute tolerance for checking distance.
 
         Returns:
-            (are_related, is_reversed)
+            tuple[bool, bool]: First bool indicates if the vectors are related,
+                the second if the vectors are related but the starting and end point
+                are exchanged.
         """
         from_c = self.operate(from_a)
         to_c = self.operate(to_a)
@@ -401,8 +403,8 @@ class SymmOp(MSONable):
         """
         rot = SymmOp.from_origin_axis_angle(origin, axis, angle)
         refl = SymmOp.reflection(axis, origin)
-        m = np.dot(rot.affine_matrix, refl.affine_matrix)
-        return SymmOp(m)
+        matrix = np.dot(rot.affine_matrix, refl.affine_matrix)
+        return SymmOp(matrix)
 
     def as_dict(self) -> dict[str, Any]:
         """MSONable dict."""

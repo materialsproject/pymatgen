@@ -57,7 +57,7 @@ class TestXr(TestCase):
         assert str(self.xr) == expected_string
 
     def test_from_file(self):
-        filename = f"{TEST_FILES_DIR}/EDI.xr"
+        filename = f"{TEST_FILES_DIR}/io/xr/EDI.xr"
         xr = Xr.from_file(filename)
         assert isinstance(xr.structure, Structure)
         xr2 = Xr.from_file(filename, use_cores=False)

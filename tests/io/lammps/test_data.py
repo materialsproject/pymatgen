@@ -17,7 +17,7 @@ from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.io.lammps.data import CombinedData, ForceField, LammpsBox, LammpsData, Topology, lattice_2_lmpbox
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-TEST_DIR = f"{TEST_FILES_DIR}/lammps"
+TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
 
 class TestLammpsBox(PymatgenTest):
@@ -314,7 +314,7 @@ class TestLammpsData(PymatgenTest):
         for kw in base_kws:
             ff_kw = f"{kw} Coeffs"
             ff_coeffs = c_ff.topo_coeffs[ff_kw]
-            topo_kw = kw + "s"
+            topo_kw = f"{kw}s"
             topos_df = c.topology[topo_kw]
             topo_df: pd.DataFrame = topos_df[topos_df["atom1"] >= shift]
             topo_arr = topo_df.drop("type", axis=1)

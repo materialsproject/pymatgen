@@ -760,7 +760,7 @@ Node #11 P (T:4), connected to :
             assert cc.periodicity == "2D"
 
         # Connectivity of Li4Fe3Mn1(PO4)4
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/Li4Fe3Mn1(PO4)4.cif")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/cif/Li4Fe3Mn1(PO4)4.cif")
         lgf.setup_structure(structure=struct)
         se = lgf.compute_structure_environments(only_atoms=["Li", "Fe", "Mn", "P"], maximum_distance_factor=1.2)
         lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)
@@ -797,7 +797,7 @@ Node #11 P (T:4), connected to :
         # Sort connected components as they might
         # come in a different order depending on
         # the algorithm used to get them.
-        sorted_ccs = sorted(ccs, key=lambda x: sorted(x.graph.nodes())[0])
+        sorted_ccs = sorted(ccs, key=lambda x: min(x.graph.nodes()))
         expected_full_desc_0 = """Connected component with environment nodes :
 Node #0 Li (O:6), connected to :
   - Node #1 Li (O:6) with delta image cells
@@ -837,7 +837,7 @@ Node #3 Li (O:6), connected to :
         assert ccs_periodicities == {"0D", "2D"}
 
     def test_coordination_sequences(self):
-        BaTiO3_se_fpath = f"{TEST_FILES_DIR}/chemenv/structure_environments/se_mp-5020.json"
+        BaTiO3_se_fpath = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments/se_mp-5020.json"
         with open(BaTiO3_se_fpath) as file:
             dct = json.load(file)
         struct_envs = StructureEnvironments.from_dict(dct)

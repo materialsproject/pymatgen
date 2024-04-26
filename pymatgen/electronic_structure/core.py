@@ -218,12 +218,12 @@ class Magmom(MSONable):
             np.ndarray of length 3
         """
         # transform back to moment with spin axis [0, 0, 1]
-        m_inv = self._get_transformation_matrix_inv(self.saxis)
-        moment = np.matmul(self.moment, m_inv)
+        trafo_mat_inv = self._get_transformation_matrix_inv(self.saxis)
+        moment = np.matmul(self.moment, trafo_mat_inv)
 
         # transform to new saxis
-        m = self._get_transformation_matrix(saxis)
-        moment = np.matmul(moment, m)
+        trafo_mat = self._get_transformation_matrix(saxis)
+        moment = np.matmul(moment, trafo_mat)
 
         # round small values to zero
         moment[np.abs(moment) < 1e-8] = 0
@@ -326,7 +326,7 @@ class Magmom(MSONable):
             saxis: can provide a specific global spin axis
 
         Returns:
-            (list of Magmoms, global spin axis) tuple
+            tuple[list[Magmom], np.ndarray]: (list of Magmoms, global spin axis)
         """
         magmoms = [Magmom(magmom) for magmom in magmoms]
         saxis = Magmom.get_suggested_saxis(magmoms) if saxis is None else saxis / np.linalg.norm(saxis)

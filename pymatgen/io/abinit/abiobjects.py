@@ -722,11 +722,11 @@ class KSampling(AbivarAble, MSONable):
 
             if use_symmetries and use_time_reversal:
                 kptopt = 1
-            if not use_symmetries and use_time_reversal:
+            elif not use_symmetries and use_time_reversal:
                 kptopt = 2
-            if not use_symmetries and not use_time_reversal:
+            elif not use_symmetries and not use_time_reversal:
                 kptopt = 3
-            if use_symmetries and not use_time_reversal:
+            else:  # use_symmetries and not use_time_reversal
                 kptopt = 4
 
             abivars.update(

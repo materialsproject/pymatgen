@@ -642,7 +642,7 @@ class _MPResterLegacy:
             refs = [e for e in ion_ref_entries if e.reduced_formula == i_d["Reference Solid"]]
             if not refs:
                 raise ValueError("Reference solid not contained in entry list")
-            stable_ref = sorted(refs, key=lambda x: x.data["e_above_hull"])[0]
+            stable_ref = min(refs, key=lambda x: x.data["e_above_hull"])
             rf = stable_ref.composition.get_reduced_composition_and_factor()[1]
 
             solid_diff = ion_ref_pd.get_form_energy(stable_ref) - i_d["Reference solid energy"] * rf
@@ -1570,7 +1570,7 @@ class _MPResterLegacy:
 
     @staticmethod
     def _check_nomad_exist(url) -> bool:
-        response = requests.get(url=url)
+        response = requests.get(url=url, timeout=600)
         if response.status_code != 200:
             return False
         content = json.loads(response.text)
@@ -1604,9 +1604,9 @@ class _MPResterLegacy:
         def parse_sym(sym):
             if sym == "*":
                 return [el.symbol for el in Element]
-            m = re.match(r"\{(.*)\}", sym)
-            if m:
-                return [s.strip() for s in m.group(1).split(",")]
+
+            if match := re.match(r"\{(.*)\}", sym):
+                return [s.strip() for s in match.group(1).split(",")]
             return [sym]
 
         def parse_tok(t):
@@ -1628,8 +1628,8 @@ class _MPResterLegacy:
                 if ("*" in sym) or ("{" in sym):
                     wild_card_els.append(sym)
                 else:
-                    m = re.match(r"([A-Z][a-z]*)[\.\d]*", sym)
-                    explicit_els.append(m.group(1))
+                    match = re.match(r"([A-Z][a-z]*)[\.\d]*", sym)
+                    explicit_els.append(match[1])
             n_elements = len(wild_card_els) + len(set(explicit_els))
             parts = re.split(r"(\*|\{.*\})", t)
             parts = [parse_sym(s) for s in parts if s != ""]
@@ -1660,5 +1660,5 @@ def get_chunks(sequence: Sequence[Any], size=1):
     Returns:
         list[Sequence[Any]]: input sequence in chunks of length size.
     """
-    chunks = int(math.ceil(len(sequence) / float(size)))
+    chunks = math.ceil(len(sequence) / float(size))
     return [sequence[i * size : (i + 1) * size] for i in range(chunks)]

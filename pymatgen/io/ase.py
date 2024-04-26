@@ -22,13 +22,14 @@ try:
     from ase.io.jsonio import decode, encode
     from ase.spacegroup import Spacegroup
 
-    no_ase_err = None
+    NO_ASE_ERR = None
 except ImportError:
-    no_ase_err = PackageNotFoundError("AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
+    NO_ASE_ERR = PackageNotFoundError("AseAtomsAdaptor requires the ASE package. Use `pip install ase`")
+    encode = decode = FixAtoms = SinglePointDFTCalculator = Spacegroup = None
 
     class Atoms:  # type: ignore[no-redef]
         def __init__(self, *args, **kwargs):
-            raise no_ase_err
+            raise NO_ASE_ERR
 
 
 if TYPE_CHECKING:
@@ -94,8 +95,8 @@ class AseAtomsAdaptor:
         Returns:
             Atoms: ASE Atoms object
         """
-        if no_ase_err:
-            raise no_ase_err
+        if NO_ASE_ERR:
+            raise NO_ASE_ERR
         if not structure.is_ordered:
             raise ValueError("ASE Atoms only supports ordered structures")
 

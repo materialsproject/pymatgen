@@ -5,9 +5,9 @@ Created on Nov 15, 2011.
 
 from __future__ import annotations
 
-import collections
 import json
 import re
+from collections import defaultdict
 from itertools import product
 
 import requests
@@ -150,10 +150,11 @@ def parse_shannon_radii():
     from openpyxl import load_workbook
 
     wb = load_workbook("Shannon Radii.xlsx")
-    print(wb.get_sheet_names())
+    print(wb.sheetnames())
     sheet = wb["Sheet1"]
     i = 2
-    radii = collections.defaultdict(dict)
+    el = charge = cn = None
+    radii = defaultdict(dict)
     while sheet[f"E{i}"].value:
         if sheet[f"A{i}"].value:
             el = sheet[f"A{i}"].value
@@ -233,8 +234,9 @@ def gen_iupac_ordering():
 def add_electron_affinities():
     """Update the periodic table data file with electron affinities."""
 
-    req = requests.get("https://wikipedia.org/wiki/Electron_affinity_(data_page)")
+    req = requests.get("https://wikipedia.org/wiki/Electron_affinity_(data_page)", timeout=600)
     soup = BeautifulSoup(req.text, "html.parser")
+    table = None
     for table in soup.find_all("table"):
         if "Hydrogen" in table.text:
             break
@@ -271,10 +273,11 @@ def add_ionization_energies():
 
     with open("NIST Atomic Ionization Energies Output.html") as file:
         soup = BeautifulSoup(file.read(), "html.parser")
+    table = None
     for table in soup.find_all("table"):
         if "Hydrogen" in table.text:
             break
-    data = collections.defaultdict(list)
+    data = defaultdict(list)
     for row in table.find_all("tr"):
         row = [td.get_text().strip() for td in row.find_all("td")]
         if row:

@@ -124,8 +124,8 @@ class VaspToComputedEntryDrone(AbstractDrone):
                 filepath = vasprun_files[0]
             elif len(vasprun_files) > 1:
                 # Since multiple files are ambiguous, we will always read
-                # the one that it the last one alphabetically.
-                filepath = sorted(vasprun_files)[-1]
+                # the last one alphabetically.
+                filepath = max(vasprun_files)
                 warnings.warn(f"{len(vasprun_files)} vasprun.xml.* found. {filepath} is being parsed.")
 
         try:
@@ -220,14 +220,14 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
             filenames = {"INCAR", "POTCAR", "CONTCAR", "OSZICAR", "POSCAR", "DYNMAT"}
             if "relax1" in files and "relax2" in files:
                 for filename in ("INCAR", "POTCAR", "POSCAR"):
-                    search_str = f"{path}/relax1", filename + "*"
+                    search_str = f"{path}/relax1", f"{filename}*"
                     files_to_parse[filename] = glob(search_str)[0]
                 for filename in ("CONTCAR", "OSZICAR"):
-                    search_str = f"{path}/relax2", filename + "*"
+                    search_str = f"{path}/relax2", f"{filename}*"
                     files_to_parse[filename] = glob(search_str)[-1]
             else:
                 for filename in filenames:
-                    files = sorted(glob(os.path.join(path, filename + "*")))
+                    files = sorted(glob(os.path.join(path, f"{filename}*")))
                     if len(files) == 1 or filename in ("INCAR", "POTCAR") or (len(files) == 1 and filename == "DYNMAT"):
                         files_to_parse[filename] = files[0]
                     elif len(files) > 1:

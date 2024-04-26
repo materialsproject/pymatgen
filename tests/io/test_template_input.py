@@ -7,11 +7,13 @@ import pytest
 from pymatgen.io.template import TemplateInputGen
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/io"
+
 
 class TestTemplateInputGen(PymatgenTest):
     def test_write_inputs(self):
         input_set = TemplateInputGen().get_input_set(
-            template=f"{TEST_FILES_DIR}/template_input_file.txt",
+            template=f"{TEST_DIR}/template_input_file.txt",
             variables={"TEMPERATURE": 298},
             filename="hello_world.in",
         )
@@ -25,7 +27,7 @@ class TestTemplateInputGen(PymatgenTest):
         input_set.write_input(f"{self.tmp_path}/temp", make_dir=True)
 
         input_set = TemplateInputGen().get_input_set(
-            template=f"{TEST_FILES_DIR}/template_input_file.txt",
+            template=f"{TEST_DIR}/template_input_file.txt",
             variables={"TEMPERATURE": 400},
             filename="hello_world.in",
         )

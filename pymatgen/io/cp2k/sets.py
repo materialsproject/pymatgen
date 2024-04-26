@@ -234,7 +234,7 @@ class DftSet(Cp2kInput):
 
         # Build the QS Section
         qs = QS(method=self.qs_method, eps_default=eps_default, eps_pgf_orb=kwargs.get("eps_pgf_orb"))
-        max_scf = max_scf if max_scf else 20 if ot else 400  # If ot, max_scf is for inner loop
+        max_scf = max_scf or 20 if ot else 400  # If ot, max_scf is for inner loop
         scf = Scf(eps_scf=eps_scf, max_scf=max_scf, subsections={})
 
         if ot:
@@ -399,7 +399,7 @@ class DftSet(Cp2kInput):
         for el in structure.symbol_set:
             possible_basis_sets = []
             possible_potentials = []
-            basis, aux_basis, potential = None, None, None
+            basis, aux_basis, potential, DATA = None, None, None, None
             desired_basis, desired_aux_basis, desired_potential = None, None, None
             have_element_file = os.path.isfile(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el))
 

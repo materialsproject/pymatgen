@@ -255,9 +255,9 @@ class SupercellTransformation(AbstractTransformation):
         if allow_rotation and sum(min_expand != 0) > 1:
             min1, min2, min3 = map(int, min_expand)  # type: ignore  # map(int) just for mypy's sake
             scaling_matrix = [
-                [min1 if min1 else 1, 1 if min1 and min2 else 0, 1 if min1 and min3 else 0],
-                [-1 if min2 and min1 else 0, min2 if min2 else 1, 1 if min2 and min3 else 0],
-                [-1 if min3 and min1 else 0, -1 if min3 and min2 else 0, min3 if min3 else 1],
+                [min1 or 1, 1 if min1 and min2 else 0, 1 if min1 and min3 else 0],
+                [-1 if min2 and min1 else 0, min2 or 1, 1 if min2 and min3 else 0],
+                [-1 if min3 and min1 else 0, -1 if min3 and min2 else 0, min3 or 1],
             ]
             struct_scaled = structure.make_supercell(scaling_matrix, in_place=False)
             min_expand_scaled = np.int8(
@@ -509,7 +509,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
                 ordering.
         """
         self.algo = algo
-        self._all_structures = []
+        self._all_structures: list = []
         self.no_oxi_states = no_oxi_states
         self.symmetrized_structures = symmetrized_structures
 

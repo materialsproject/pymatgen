@@ -240,17 +240,17 @@ class SpaceGroup(SymmetryGroup):
             # TODO: Support different origin choices.
             enc = list(data["enc"])
             inversion = int(enc.pop(0))
-            ngen = int(enc.pop(0))
+            n_gen = int(enc.pop(0))
             symm_ops = [np.eye(4)]
             if inversion:
                 symm_ops.append(np.array([[-1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]]))
-            for _ in range(ngen):
-                m = np.eye(4)
-                m[:3, :3] = SpaceGroup.gen_matrices[enc.pop(0)]
-                m[0, 3] = SpaceGroup.translations[enc.pop(0)]
-                m[1, 3] = SpaceGroup.translations[enc.pop(0)]
-                m[2, 3] = SpaceGroup.translations[enc.pop(0)]
-                symm_ops.append(m)
+            for _ in range(n_gen):
+                matrix = np.eye(4)
+                matrix[:3, :3] = SpaceGroup.gen_matrices[enc.pop(0)]
+                matrix[0, 3] = SpaceGroup.translations[enc.pop(0)]
+                matrix[1, 3] = SpaceGroup.translations[enc.pop(0)]
+                matrix[2, 3] = SpaceGroup.translations[enc.pop(0)]
+                symm_ops.append(matrix)
             self.generators = symm_ops
             self.full_symbol = data["full_symbol"]
             self.point_group = data["point_group"]
@@ -293,12 +293,15 @@ class SpaceGroup(SymmetryGroup):
             set[str]: All possible settings for the given international symbol.
         """
         symbols = []
+        int_number = None
         if int_symbol in SpaceGroup.abbrev_sg_mapping:
             symbols.append(SpaceGroup.abbrev_sg_mapping[int_symbol])
             int_number = SpaceGroup.sg_encoding[int_symbol]["int_number"]
+
         elif int_symbol in SpaceGroup.full_sg_mapping:
             symbols.append(SpaceGroup.full_sg_mapping[int_symbol])
             int_number = SpaceGroup.sg_encoding[int_symbol]["int_number"]
+
         else:
             for spg in SpaceGroup.SYMM_OPS:
                 if int_symbol in [
@@ -554,7 +557,7 @@ def in_array_list(array_list: list[np.ndarray] | np.ndarray, arr: np.ndarray, to
         tol (float): The tolerance. Defaults to 1e-5. If 0, an exact match is done.
 
     Returns:
-        (bool)
+        bool: True if arr is in array_list.
     """
     if len(array_list) == 0:
         return False

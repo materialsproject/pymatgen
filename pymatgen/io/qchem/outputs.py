@@ -677,14 +677,11 @@ class QCOutput(MSONable):
         if spin_unrestricted:
             header_pattern = r"Final Beta MO Eigenvalues"
             footer_pattern = r"Final Alpha MO Coefficients+\s*"
-            beta_eigenvalues = read_matrix_pattern(
+            self.data["beta_eigenvalues"] = read_matrix_pattern(
                 header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
             )
 
         self.data["alpha_eigenvalues"] = alpha_eigenvalues
-
-        if spin_unrestricted:
-            self.data["beta_eigenvalues"] = beta_eigenvalues
 
     def _read_fock_matrix(self):
         """Parses the Fock matrix. The matrix is read in whole
@@ -705,13 +702,6 @@ class QCOutput(MSONable):
         alpha_fock_matrix = read_matrix_pattern(
             header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
         )
-        # The beta Fock matrix is only present if this is a spin-unrestricted calculation.
-        if spin_unrestricted:
-            header_pattern = r"Final Beta Fock Matrix"
-            footer_pattern = "SCF time:"
-            beta_fock_matrix = read_matrix_pattern(
-                header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
-            )
 
         # Convert the matrices to the right dimension. Right now they are simply
         # one massive list of numbers, but we need to split them into a matrix. The
@@ -720,7 +710,14 @@ class QCOutput(MSONable):
         alpha_fock_matrix = process_parsed_fock_matrix(alpha_fock_matrix)
         self.data["alpha_fock_matrix"] = alpha_fock_matrix
 
+        # The beta Fock matrix is only present if this is a spin-unrestricted calculation.
         if spin_unrestricted:
+            header_pattern = r"Final Beta Fock Matrix"
+            footer_pattern = "SCF time:"
+            beta_fock_matrix = read_matrix_pattern(
+                header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+            )
+
             # Perform the same transformation for the beta Fock matrix.
             beta_fock_matrix = process_parsed_fock_matrix(beta_fock_matrix)
             self.data["beta_fock_matrix"] = beta_fock_matrix
@@ -744,12 +741,6 @@ class QCOutput(MSONable):
         alpha_coeff_matrix = read_matrix_pattern(
             header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
         )
-        if spin_unrestricted:
-            header_pattern = r"Final Beta MO Coefficients"
-            footer_pattern = "Final Alpha Density Matrix"
-            beta_coeff_matrix = read_matrix_pattern(
-                header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
-            )
 
         # Convert the matrices to the right dimension. Right now they are simply
         # one massive list of numbers, but we need to split them into a matrix. The
@@ -759,6 +750,12 @@ class QCOutput(MSONable):
         self.data["alpha_coeff_matrix"] = alpha_coeff_matrix
 
         if spin_unrestricted:
+            header_pattern = r"Final Beta MO Coefficients"
+            footer_pattern = "Final Alpha Density Matrix"
+            beta_coeff_matrix = read_matrix_pattern(
+                header_pattern, footer_pattern, elements_pattern, self.text, postprocess=float
+            )
+
             # Perform the same transformation for the beta Fock matrix.
             beta_coeff_matrix = process_parsed_fock_matrix(beta_coeff_matrix)
             self.data["beta_coeff_matrix"] = beta_coeff_matrix

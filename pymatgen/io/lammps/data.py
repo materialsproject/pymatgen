@@ -216,14 +216,14 @@ def lattice_2_lmpbox(lattice: Lattice, origin: Sequence = (0, 0, 0)) -> tuple[La
     a, b, c = lattice.abc
     xlo, ylo, zlo = origin
     xhi = a + xlo
-    m = lattice.matrix
-    xy = np.dot(m[1], m[0] / a)
+    matrix = lattice.matrix
+    xy = np.dot(matrix[1], matrix[0] / a)
     yhi = np.sqrt(b**2 - xy**2) + ylo
-    xz = np.dot(m[2], m[0] / a)
-    yz = (np.dot(m[1], m[2]) - xy * xz) / (yhi - ylo)
+    xz = np.dot(matrix[2], matrix[0] / a)
+    yz = (np.dot(matrix[1], matrix[2]) - xy * xz) / (yhi - ylo)
     zhi = np.sqrt(c**2 - xz**2 - yz**2) + zlo
     tilt = None if lattice.is_orthogonal else [xy, xz, yz]
-    rot_matrix = np.linalg.solve([[xhi - xlo, 0, 0], [xy, yhi - ylo, 0], [xz, yz, zhi - zlo]], m)
+    rot_matrix = np.linalg.solve([[xhi - xlo, 0, 0], [xy, yhi - ylo, 0], [xz, yz, zhi - zlo]], matrix)
     bounds = [[xlo, xhi], [ylo, yhi], [zlo, zhi]]
     symm_op = SymmOp.from_rotation_and_translation(rot_matrix, origin)
     return LammpsBox(bounds, tilt), symm_op
@@ -658,16 +658,17 @@ class LammpsData(MSONable):
         bounds = {}
         for line in clean_lines(parts[0][1:]):  # skip the 1st line
             match = None
-            for k, v in header_pattern.items():  # noqa: B007
-                match = re.match(v, line)
+            key = None
+            for key, val in header_pattern.items():  # noqa: B007
+                match = re.match(val, line)
                 if match:
                     break
-            if match and k in ["counts", "types"]:
-                header[k][match.group(2)] = int(match.group(1))
-            elif match and k == "bounds":
+            if match and key in {"counts", "types"}:
+                header[key][match[2]] = int(match[1])
+            elif match and key == "bounds":
                 g = match.groups()
                 bounds[g[2]] = [float(i) for i in g[:2]]
-            elif match and k == "tilt":
+            elif match and key == "tilt":
                 header["tilt"] = [float(i) for i in match.groups()]
         header["bounds"] = [bounds.get(i, [-0.5, 0.5]) for i in "xyz"]
         box = LammpsBox(header["bounds"], header.get("tilt"))
@@ -997,8 +998,8 @@ class Topology(MSONable):
         dests, freq = np.unique(bond_list, return_counts=True)
         hubs = dests[np.where(freq > 1)].tolist()
         bond_arr = np.array(bond_list)
+        hub_spokes = {}
         if len(hubs) > 0:
-            hub_spokes = {}
             for hub in hubs:
                 ix = np.any(np.isin(bond_arr, hub), axis=1)
                 bonds = np.unique(bond_arr[ix]).tolist()
@@ -1176,7 +1177,7 @@ class ForceField(MSONable):
         all_data = {kw: process_data(main_data)}
         if class2_data:
             all_data.update({k: process_data(v) for k, v in class2_data.items()})
-        return all_data, {kw[:-7] + "s": mapper}
+        return all_data, {f"{kw[:-7]}s": mapper}
 
     def to_file(self, filename: str) -> None:
         """

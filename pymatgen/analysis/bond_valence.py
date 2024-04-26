@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import collections
 import functools
 import operator
 import os
+from collections import defaultdict
 from math import exp, sqrt
 from typing import TYPE_CHECKING
 
@@ -268,6 +268,7 @@ class BVAnalyzer:
                 valences.append(vals)
 
         # make variables needed for recursion
+        attrib = []
         if structure.is_ordered:
             n_sites = np.array(list(map(len, equi_sites)))
             valence_min = np.array(list(map(min, valences)))
@@ -278,7 +279,7 @@ class BVAnalyzer:
             self._best_vset = None
 
             def evaluate_assignment(v_set):
-                el_oxi = collections.defaultdict(list)
+                el_oxi = defaultdict(list)
                 for idx, sites in enumerate(equi_sites):
                     el_oxi[sites[0].specie.symbol].append(v_set[idx])
                 max_diff = max(max(v) - min(v) for v in el_oxi.values())
@@ -324,7 +325,6 @@ class BVAnalyzer:
         else:
             n_sites = np.array([len(sites) for sites in equi_sites])
             tmp = []
-            attrib = []
             for idx, n_site in enumerate(n_sites):
                 for _ in valences[idx]:
                     tmp.append(n_site)
@@ -346,7 +346,7 @@ class BVAnalyzer:
             self._best_vset = None
 
             def evaluate_assignment(v_set):
-                el_oxi = collections.defaultdict(list)
+                el_oxi = defaultdict(list)
                 jj = 0
                 for sites in equi_sites:
                     for specie, _ in get_z_ordered_elmap(sites[0].species):
@@ -474,7 +474,7 @@ def add_oxidation_state_by_site_fraction(structure, oxidation_states):
     """
     try:
         for idx, site in enumerate(structure):
-            new_sp = collections.defaultdict(float)
+            new_sp = defaultdict(float)
             for j, (el, occu) in enumerate(get_z_ordered_elmap(site.species)):
                 specie = Species(el.symbol, oxidation_states[idx][j])
                 new_sp[specie] += occu

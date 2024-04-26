@@ -10,10 +10,12 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.entries.entry_tools import EntrySet, group_entries_by_composition, group_entries_by_structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/entries"
+
 
 class TestFunc(PymatgenTest):
     def test_group_entries_by_structure(self):
-        entries = loadfn(f"{TEST_FILES_DIR}/TiO2_entries.json")
+        entries = loadfn(f"{TEST_DIR}/TiO2_entries.json")
         groups = group_entries_by_structure(entries)
         assert sorted(len(g) for g in groups) == [1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 4]
         assert len(groups) < len(entries)
@@ -40,7 +42,7 @@ class TestFunc(PymatgenTest):
 
 class TestEntrySet(PymatgenTest):
     def setUp(self):
-        entries = loadfn(f"{TEST_FILES_DIR}/Li-Fe-P-O_entries.json")
+        entries = loadfn(f"{TEST_DIR}/Li-Fe-P-O_entries.json")
         self.entry_set = EntrySet(entries)
 
     def test_chemsys(self):

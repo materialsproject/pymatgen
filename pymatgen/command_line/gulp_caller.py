@@ -287,7 +287,7 @@ class GulpIO:
             alpha, beta, gamma = lattice.angles
             a, b, c = lattice.lengths
             lat_str = f"{a:6f} {b:6f} {c:6f} {alpha:6f} {beta:6f} {gamma:6f}"
-            gin += lat_str + "\n"
+            gin += f"{lat_str}\n"
 
         if frac_flg:
             gin += "frac\n"
@@ -673,8 +673,8 @@ class GulpCaller:
                 stdout=subprocess.PIPE,
                 stdin=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-            ) as p:
-                out, err = p.communicate(bytearray(gin, "utf-8"))
+            ) as p_open:
+                out, err = p_open.communicate(bytearray(gin, "utf-8"))
             out = out.decode("utf-8")
             err = err.decode("utf-8")
 
@@ -697,10 +697,10 @@ class GulpCaller:
             if conv_err_string in out:
                 raise GulpConvergenceError(out)
 
-            gout = ""
+            g_out = ""
             for line in out.split("\n"):
-                gout = gout + line + "\n"
-            return gout
+                g_out += f"{line}\n"
+            return g_out
 
 
 def get_energy_tersoff(structure, gulp_cmd="gulp"):

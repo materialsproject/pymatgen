@@ -560,6 +560,7 @@ class BztInterpolator:
             vvband_ud = [self.vvband]
             spins = [Spin.up]
 
+        energies = []
         for spin, eb, vvb in zip(spins, eband_ud, vvband_ud):
             energies, densities, _vvdos, _cdos = BL.BTPDOS(eb, vvb, npts=npts_mu, erange=enr)
 
@@ -591,14 +592,17 @@ class BztInterpolator:
         pdoss = {}
         if progress:
             n_iter = np.prod(np.sum([np.array(i.shape)[2:] for i in self.data.proj.values()]))
-            t = tqdm(total=n_iter * 2)
+            bar = tqdm(total=n_iter * 2)
+        else:
+            bar = None
+
         for spin, eb in zip(spins, eband_ud):
             for idx, site in enumerate(self.data.structure):
                 if site not in pdoss:
                     pdoss[site] = {}
                 for iorb, orb in enumerate(Orbital):
                     if progress:
-                        t.update()
+                        bar.update()
                     if iorb == self.data.proj[spin].shape[-1]:
                         break
 
@@ -994,6 +998,9 @@ class BztPlotter:
             xlim: chemical potential range in eV, useful when prop_x='mu'
             ax: figure.axes where to plot. If None, a new figure is produced.
 
+        Returns:
+            plt.Axes: matplotlib Axes object
+
         Example:
             bztPlotter.plot_props('S','mu','temp',temps=[600,900,1200]).show()
             more example are provided in the notebook
@@ -1056,6 +1063,7 @@ class BztPlotter:
         if temps is None:
             temps = self.bzt_transP.temp_r.tolist()
 
+        doping_all = []
         if isinstance(self.bzt_transP.doping, np.ndarray):
             doping_all = self.bzt_transP.doping.tolist()
             if doping is None:
@@ -1084,11 +1092,11 @@ class BztPlotter:
                 if output == "avg_eigs":
                     plt.plot(mu, prop_out.mean(axis=1), label=f"{temp} K")
                 elif output == "eigs":
-                    for i in range(3):
+                    for idx in range(3):
                         plt.plot(
                             mu,
-                            prop_out[:, i],
-                            label=f"eig {i} {temp} K",
+                            prop_out[:, idx],
+                            label=f"eig {idx} {temp} K",
                         )
 
             plt.xlabel(r"$\mu$ (eV)", fontsize=30)
@@ -1101,20 +1109,20 @@ class BztPlotter:
                 if output == "avg_eigs":
                     plt.semilogx(doping_all, prop_out.mean(axis=1), "s-", label=f"{temp} K")
                 elif output == "eigs":
-                    for i in range(3):
+                    for idx in range(3):
                         plt.plot(
                             doping_all,
-                            prop_out[:, i],
+                            prop_out[:, idx],
                             "s-",
-                            label=f"eig {i} {temp} K",
+                            label=f"eig {idx} {temp} K",
                         )
             plt.xlabel(r"Carrier conc. $cm^{-3}$", fontsize=30)
-            leg_title = dop_type + "-type"
+            leg_title = f"{dop_type}-type"
 
         elif prop_z == "doping" and prop_x == "temp":
             for dop in doping:
-                di = doping_all.index(dop)
-                prop_out = np.linalg.eigh(p_array[dop_type][:, di])[0]
+                dop_idx = doping_all.index(dop)
+                prop_out = np.linalg.eigh(p_array[dop_type][:, dop_idx])[0]
                 if output == "avg_eigs":
                     plt.plot(
                         temps_all,
@@ -1123,12 +1131,12 @@ class BztPlotter:
                         label=f"{dop} $cm^{-3}$",
                     )
                 elif output == "eigs":
-                    for i in range(3):
+                    for idx in range(3):
                         plt.plot(
                             temps_all,
-                            prop_out[:, i],
+                            prop_out[:, idx],
                             "s-",
-                            label=f"eig {i} {dop} $cm^{{-3}}$",
+                            label=f"eig {idx} {dop} $cm^{{-3}}$",
                         )
 
             plt.xlabel(r"Temperature (K)", fontsize=30)
@@ -1140,7 +1148,7 @@ class BztPlotter:
         plt.legend(title=leg_title if leg_title != "" else "", fontsize=15)
         plt.tight_layout()
         plt.grid()
-        return plt
+        return ax
 
     def plot_bands(self):
         """Plot a band structure on symmetry line using BSPlotter()."""
