@@ -5430,14 +5430,16 @@ class Vaspout(Vasprun):
                 kpts["kpts"] = kpoints["coordinates_kpoints"]
             actual_kpoints = kpoints["coordinates_kpoints"]
             actual_kpoint_weights = kpoints["weights_kpoints"]
-                
 
-        elif all(kpoints.get(f"nkp{axis}") for axis in {"x","y","z"}):
+        elif all(kpoints.get(f"nkp{axis}") for axis in ("x", "y", "z")):
             kpts["num_kpts"] = kpoints["number_kpoints"]
-            kpts["kpts"] = [[kpoints[f"nkp{axis}"] for axis in {"x","y","z"}]]
-            
+            kpts["kpts"] = [[kpoints[f"nkp{axis}"] for axis in ("x", "y", "z")]]
 
-        return Kpoints(**kpts), actual_kpoints, actual_kpoint_weights,
+        return (
+            Kpoints(**kpts),
+            actual_kpoints,
+            actual_kpoint_weights,
+        )
 
     @staticmethod
     def _parse_atominfo(composition: Composition):
