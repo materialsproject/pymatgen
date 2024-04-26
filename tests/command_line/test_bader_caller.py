@@ -74,17 +74,17 @@ class TestBaderAnalysis(PymatgenTest):
         analysis = BaderAnalysis(chgcar_filename=chgcar_path, chgref_filename=chgref_path)
         analysis_from_path = BaderAnalysis.from_path(from_path_dir)
 
-        for key in analysis_from_path.summary:
-            val, val_from_path = analysis.summary[key], analysis_from_path.summary[key]
-            if isinstance(analysis_from_path.summary[key], (bool, str)):
+        for key, val_from_path in analysis_from_path.summary.items():
+            val = analysis.summary[key]
+            if isinstance(val_from_path, (bool, str)):
                 assert val == val_from_path, f"{key=}"
             elif key == "charge":
                 assert_allclose(val, val_from_path, atol=1e-5)
 
     def test_bader_analysis_from_path(self):
-        summary = bader_analysis_from_path(TEST_DIR)
         """
         Reference summary dict (with bader 1.0)
+
         summary_ref = {
             "magmom": [4.298761, 4.221997, 4.221997, 3.816685, 4.221997, 4.298763, 0.36292, 0.370516, 0.36292,
                 0.36292, 0.36292, 0.36292, 0.36292, 0.370516],
@@ -100,6 +100,9 @@ class TestBaderAnalysis(PymatgenTest):
             "reference_used": True,
         }
         """
+
+        summary = bader_analysis_from_path(TEST_DIR)
+
         assert set(summary) == {
             "magmom",
             "min_dist",
