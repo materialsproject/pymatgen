@@ -77,6 +77,7 @@ setup(
             "chgnet",
             "f90nml>=1.1.2",
             "galore>=0.6.1",
+            "graphviz>=0.20.3",
             "h5py>=3.8.0",
             "jarvis-tools>=2020.7.14",
             "matgl",
