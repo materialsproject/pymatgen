@@ -11,7 +11,7 @@ from setuptools import Extension, find_namespace_packages, setup
 is_win_64 = sys.platform.startswith("win") and platform.machine().endswith("64")
 extra_link_args = ["-Wl,--allow-multiple-definition"] if is_win_64 else []
 
-with open("README.md") as file:
+with open("README.md", encoding="utf-8") as file:
     long_description = file.read()
 
 # unlike GitHub readme's, PyPI doesn't support <picture> tags used for responsive images
