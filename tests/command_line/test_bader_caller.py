@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import warnings
 from shutil import which
-from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -60,7 +59,6 @@ class TestBaderAnalysis(PymatgenTest):
         assert len(analysis.data) == 14
 
         # Test Cube file format parsing
-
         copy_r(TEST_DIR, self.tmp_path)
         analysis = BaderAnalysis(cube_filename=f"{TEST_DIR}/elec.cube.gz")
         assert len(analysis.data) == 9
@@ -131,12 +129,10 @@ class TestBaderAnalysis(PymatgenTest):
         )
 
     def test_missing_file_bader_exe_path(self):
-        pytest.skip("doesn't reliably raise RuntimeError")
-        # mock which("bader") to return None so we always fall back to use bader_exe_path
-        with (
-            patch("shutil.which", return_value=None),
-            pytest.raises(
-                RuntimeError, match="BaderAnalysis requires the executable bader be in the PATH or the full path "
-            ),
-        ):
-            BaderAnalysis(chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz", bader_exe_path="")
+        # Mock which("bader") to return None so we always fall back to use bader_exe_path
+        with pytest.MonkeyPatch.context() as monkeypatch:
+            monkeypatch.setenv("PATH", "")
+
+            with pytest.raises(
+                    RuntimeError, match="Requires bader or bader.exe to be in the PATH or the absolute path"):
+                BaderAnalysis(chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz")
