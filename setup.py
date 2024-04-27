@@ -48,7 +48,8 @@ setup(
     ],
     extras_require={
         "ase": ["ase>=3.3"],
-        "tblite": ["tblite[ase]>=0.3.0"],
+        # don't depend on tblite above 3.11 since unsupported https://github.com/tblite/tblite/issues/175
+        "tblite": ["tblite[ase]>=0.3.0; python_version<'3.12'"],
         "vis": ["vtk>=6.0.0"],
         "abinit": ["netcdf4"],
         "relaxation": ["matgl", "chgnet>=0.3.0"],
@@ -83,7 +84,8 @@ setup(
             "netCDF4>=1.5.8",
             "phonopy>=2.4.2",
             "seekpath>=1.9.4",
-            "tblite[ase]>=0.3.0; platform_system=='Linux'",
+            # don't depend on tblite above 3.11 since unsupported https://github.com/tblite/tblite/issues/175
+            "tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'",
             # "hiphive>=0.6",
             # "openbabel>=3.1.1; platform_system=='Linux'",
         ],
