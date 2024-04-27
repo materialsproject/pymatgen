@@ -1480,7 +1480,7 @@ class Vasprun(MSONable):
         return istep
 
     @staticmethod
-    def _parse_dos(elem):
+    def _parse_dos(elem) -> tuple[Dos, Dos, list[dict]]:
         efermi = float(elem.find("i").text)
         energies = None
         tdensities = {}
@@ -1500,22 +1500,18 @@ class Vasprun(MSONable):
             orbs.pop(0)
             lm = any("x" in s for s in orbs)
             for s in partial.find("array").find("set").findall("set"):
-                pdos = defaultdict(dict)
+                pdos: dict[Orbital | OrbitalType, dict[Spin, np.ndarray]] = defaultdict(dict)
 
                 for ss in s.findall("set"):
                     spin = Spin.up if ss.attrib["comment"] == "spin 1" else Spin.down
                     data = np.array(_parse_vasp_array(ss))
-                    _nrow, ncol = data.shape
-                    for j in range(1, ncol):
-                        orb = Orbital(j - 1) if lm else OrbitalType(j - 1)
-                        pdos[orb][spin] = data[:, j]
+                    _n_row, n_col = data.shape
+                    for col_idx in range(1, n_col):
+                        orb = Orbital(col_idx - 1) if lm else OrbitalType(col_idx - 1)
+                        pdos[orb][spin] = data[:, col_idx]  # type: ignore[index]
                 pdoss.append(pdos)
         elem.clear()
-        return (
-            Dos(efermi, energies, tdensities),
-            Dos(efermi, energies, idensities),
-            pdoss,
-        )
+        return Dos(efermi, energies, tdensities), Dos(efermi, energies, idensities), pdoss
 
     @staticmethod
     def _parse_eigen(elem):
