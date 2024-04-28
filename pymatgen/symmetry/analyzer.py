@@ -1297,19 +1297,19 @@ class PointGroupAnalyzer:
                 symm_number += 1
         return symm_number
 
-    def is_valid_op(self, symmop) -> bool:
+    def is_valid_op(self, symm_op) -> bool:
         """Check if a particular symmetry operation is a valid symmetry operation for a
         molecule, i.e., the operation maps all atoms to another equivalent atom.
 
         Args:
-            symmop (SymmOp): Symmetry operation to test.
+            symm_op (SymmOp): Symmetry operation to test.
 
         Returns:
             bool: Whether SymmOp is valid for Molecule.
         """
         coords = self.centered_mol.cart_coords
         for site in self.centered_mol:
-            coord = symmop.operate(site.coords)
+            coord = symm_op.operate(site.coords)
             ind = find_in_coord_list(coords, coord, self.tol)
             if not (len(ind) == 1 and self.centered_mol[ind[0]].species == site.species):
                 return False

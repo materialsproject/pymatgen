@@ -110,10 +110,10 @@ class TestCoordinationGeometryFinder(PymatgenTest):
             cg=cg_tet, centering_type="centroid", include_central_site_in_centroid=False
         )
         points_perfect_tet = perfect_tet.points_wcs_ctwcc()
-        res = self.lgf.coordination_geometry_symmetry_measures_fallback_random(
-            coordination_geometry=cg_tet, NRANDOM=5, points_perfect=points_perfect_tet
+        result = self.lgf.coordination_geometry_symmetry_measures_fallback_random(
+            coordination_geometry=cg_tet, n_random=5, points_perfect=points_perfect_tet
         )
-        permutations_symmetry_measures, _permutations, _algos, _local2perfect_maps, _perfect2local_maps = res
+        permutations_symmetry_measures, _permutations, _algos, _local2perfect_maps, _perfect2local_maps = result
         for perm_csm_dict in permutations_symmetry_measures:
             assert perm_csm_dict["symmetry_measure"] == approx(0.140355832317)
 

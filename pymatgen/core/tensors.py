@@ -353,14 +353,14 @@ class Tensor(np.ndarray, MSONable):
         Args:
             rank (int): Tensor rank to generate the voigt map
         """
-        vdict = {}
+        voigt_dict = {}
         for ind in itertools.product(*[range(3)] * rank):
             v_ind = ind[: rank % 2]
             for j in range(rank // 2):
                 pos = rank % 2 + 2 * j
                 v_ind += (reverse_voigt_map[ind[pos : pos + 2]],)
-            vdict[ind] = v_ind
-        return vdict
+            voigt_dict[ind] = v_ind
+        return voigt_dict
 
     @classmethod
     def from_voigt(cls, voigt_input) -> Self:
@@ -962,7 +962,7 @@ def get_uvec(vec):
 
 def symmetry_reduce(tensors, structure: Structure, tol: float = 1e-8, **kwargs):
     """Function that converts a list of tensors corresponding to a structure
-    and returns a dictionary consisting of unique tensor keys with symmop
+    and returns a dictionary consisting of unique tensor keys with SymmOp
     values corresponding to transformations that will result in derivative
     tensors from the original list.
 
@@ -983,9 +983,9 @@ def symmetry_reduce(tensors, structure: Structure, tol: float = 1e-8, **kwargs):
     unique_mapping = TensorMapping([tensors[0]], [[]], tol=tol)
     for tensor in tensors[1:]:
         is_unique = True
-        for unique_tensor, symmop in itertools.product(unique_mapping, symm_ops):
-            if np.allclose(unique_tensor.transform(symmop), tensor, atol=tol):
-                unique_mapping[unique_tensor].append(symmop)
+        for unique_tensor, symm_op in itertools.product(unique_mapping, symm_ops):
+            if np.allclose(unique_tensor.transform(symm_op), tensor, atol=tol):
+                unique_mapping[unique_tensor].append(symm_op)
                 is_unique = False
                 break
         if is_unique:

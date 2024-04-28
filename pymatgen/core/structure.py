@@ -4138,13 +4138,13 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def apply_operation(self, symmop: SymmOp, fractional: bool = False) -> Self:
+    def apply_operation(self, symm_op: SymmOp, fractional: bool = False) -> Self:
         """Apply a symmetry operation to the structure in place and return the modified
         structure. The lattice is operated on by the rotation matrix only.
         Coords are operated in full and then transformed to the new lattice.
 
         Args:
-            symmop (SymmOp): Symmetry operation to apply.
+            symm_op (SymmOp): Symmetry operation to apply.
             fractional (bool): Whether the symmetry operation is applied in
                 fractional space. Defaults to False, i.e., symmetry operation
                 is applied in Cartesian coordinates.
@@ -4153,10 +4153,10 @@ class Structure(IStructure, collections.abc.MutableSequence):
             Structure: post-operation structure
         """
         if not fractional:
-            self._lattice = Lattice([symmop.apply_rotation_only(row) for row in self._lattice.matrix])
+            self._lattice = Lattice([symm_op.apply_rotation_only(row) for row in self._lattice.matrix])
 
             def operate_site(site):
-                new_cart = symmop.operate(site.coords)
+                new_cart = symm_op.operate(site.coords)
                 new_frac = self._lattice.get_fractional_coords(new_cart)
                 return PeriodicSite(
                     site.species,
@@ -4168,13 +4168,13 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 )
 
         else:
-            new_latt = np.dot(symmop.rotation_matrix, self._lattice.matrix)
+            new_latt = np.dot(symm_op.rotation_matrix, self._lattice.matrix)
             self._lattice = Lattice(new_latt)
 
             def operate_site(site):
                 return PeriodicSite(
                     site.species,
-                    symmop.operate(site.frac_coords),
+                    symm_op.operate(site.frac_coords),
                     self._lattice,
                     properties=site.properties,
                     skip_checks=True,
@@ -4872,18 +4872,18 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         return self
 
-    def apply_operation(self, symmop: SymmOp) -> Molecule:
+    def apply_operation(self, symm_op: SymmOp) -> Molecule:
         """Apply a symmetry operation to the molecule.
 
         Args:
-            symmop (SymmOp): Symmetry operation to apply.
+            symm_op (SymmOp): Symmetry operation to apply.
 
         Returns:
             Molecule: self after symmetry operation.
         """
 
         def operate_site(site):
-            new_cart = symmop.operate(site.coords)
+            new_cart = symm_op.operate(site.coords)
             return Site(site.species, new_cart, properties=site.properties, label=site.label)
 
         self.sites = [operate_site(site) for site in self]

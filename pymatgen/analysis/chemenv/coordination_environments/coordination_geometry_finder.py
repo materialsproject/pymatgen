@@ -17,6 +17,7 @@ from __future__ import annotations
 import itertools
 import logging
 import time
+import warnings
 from random import shuffle
 from typing import TYPE_CHECKING
 
@@ -2032,7 +2033,7 @@ class LocalGeometryFinder:
         return [], [], [], stop_search
 
     def coordination_geometry_symmetry_measures_fallback_random(
-        self, coordination_geometry, NRANDOM=10, points_perfect=None
+        self, coordination_geometry, n_random=10, points_perfect=None, **kwargs
     ):
         """
         Returns the symmetry measures for a random set of permutations for the coordination geometry
@@ -2041,17 +2042,20 @@ class LocalGeometryFinder:
 
         Args:
             coordination_geometry: The coordination geometry to be investigated
-            NRANDOM: Number of random permutations to be tested
+            n_random: Number of random permutations to be tested
 
         Returns:
             The symmetry measures for the given coordination geometry for each permutation investigated.
         """
-        permutations_symmetry_measures = [None] * NRANDOM
+        if "NRANDOM" in kwargs:
+            warnings.warn("NRANDOM is deprecated, use n_random instead", category=DeprecationWarning)
+            n_random = kwargs.pop("NRANDOM")
+        permutations_symmetry_measures = [None] * n_random
         permutations = []
         algos = []
         perfect2local_maps = []
         local2perfect_maps = []
-        for idx in range(NRANDOM):
+        for idx in range(n_random):
             perm = np.random.permutation(coordination_geometry.coordination_number)
             permutations.append(perm)
             p2l = {}
