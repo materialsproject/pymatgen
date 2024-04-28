@@ -1905,7 +1905,7 @@ class ReconstructionGenerator:
 
         for slab in slabs:
             z_spacing = get_d(slab)
-            top_site = sorted(slab, key=lambda site: site.frac_coords[2])[-1].coords
+            top_site = max(slab, key=lambda site: site.frac_coords[2]).coords
 
             # Remove specified sites
             if "points_to_remove" in self.reconstruction_json:

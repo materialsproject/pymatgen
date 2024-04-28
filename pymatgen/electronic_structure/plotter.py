@@ -816,7 +816,7 @@ class BSPlotter:
                         label0 = f"${label0}$"
                     tick_labels.pop()
                     tick_distance.pop()
-                    tick_labels.append(label0 + "$\\mid$" + label1)
+                    tick_labels.append(f"{label0}$\\mid${label1}")
                 elif kpt.label.startswith("\\") or kpt.label.find("_") != -1:
                     tick_labels.append(f"${kpt.label}$")
                 else:
@@ -1996,7 +1996,7 @@ class BSPlotterProjected(BSPlotter):
                 if elem == "s":
                     label += "s,"
                 elif len(orbs) == len(individual_orbs[elem]):
-                    label += elem + ","
+                    label += f"{elem},"
                 else:
                     orb_label = [orb[1:] for orb in orbs]
                     label += f"{elem}{str(orb_label).replace('[', '').replace(']', '').replace(', ', '-')},"
@@ -2126,7 +2126,7 @@ class BSPlotterProjected(BSPlotter):
                 f_label.extend((n_label[idx][0], n_label[idx][1]))
             else:
                 f_distance.append(length + n_distance[idx])
-                f_label[-1] = n_label[idx - 1][1] + "$\\mid$" + n_label[idx][0]
+                f_label[-1] = f"{n_label[idx - 1][1]}$\\mid${n_label[idx][0]}"
                 f_label.append(n_label[idx][1])
             rf_distance.append(length + n_distance[idx])
             length += n_distance[idx]
@@ -2873,7 +2873,7 @@ class BoltztrapPlotter:
                     mu_steps_2.append(mu)
                     cmplx_fact_2.append(cmplx_fact[i])
 
-            ax.plot(mu_steps_1, cmplx_fact_1, label=str(T) + "K", linewidth=3.0)
+            ax.plot(mu_steps_1, cmplx_fact_1, label=f"{T}K", linewidth=3.0)
             ax.plot(mu_steps_2, cmplx_fact_2, linewidth=3.0)
             if output == "average":
                 ax.gca().get_lines()[1].set_c(ax.gca().get_lines()[0].get_c())
@@ -3056,26 +3056,26 @@ class BoltztrapPlotter:
         sbk = self._bz.get_seebeck(output="average") if output == "average" else self._bz.get_seebeck(output="eigs")
 
         ax = pretty_plot(22, 14)
-        tlist = sorted(sbk["n"])
+        temperatures = sorted(sbk["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
-        for idx, doping_type in enumerate(["n", "p"]):
+        for idx, dop_type in enumerate("np"):
             plt.subplot(121 + idx)
             for dop in doping:
-                dop_idx = self._bz.doping[doping_type].index(dop)
+                dop_idx = self._bz.doping[dop_type].index(dop)
                 sbk_temp = []
-                for temp in tlist:
-                    sbk_temp.append(sbk[doping_type][temp][dop_idx])
+                for temp in temperatures:
+                    sbk_temp.append(sbk[dop_type][temp][dop_idx])
                 if output == "average":
-                    ax.plot(tlist, sbk_temp, marker="s", label=f"{dop} $cm^{-3}$")
+                    ax.plot(temperatures, sbk_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
                     for xyz in range(3):
                         ax.plot(
-                            tlist,
+                            temperatures,
                             list(zip(*sbk_temp))[xyz],
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
-            ax.set_title(f"{doping_type}-type", fontsize=20)
+            ax.set_title(f"{dop_type}-type", fontsize=20)
             if idx == 0:
                 ax.set_ylabel("Seebeck \n coefficient  ($\\mu$V/K)", fontsize=30.0)
             ax.set_xlabel("Temperature (K)", fontsize=30.0)
@@ -3110,26 +3110,26 @@ class BoltztrapPlotter:
             cond = self._bz.get_conductivity(relaxation_time=relaxation_time, output="eigs")
 
         ax = pretty_plot(22, 14)
-        tlist = sorted(cond["n"])
+        temperatures = sorted(cond["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
-        for idx, doping_type in enumerate(["n", "p"]):
+        for idx, dop_type in enumerate("np"):
             plt.subplot(121 + idx)
             for dop in doping:
-                dop_idx = self._bz.doping[doping_type].index(dop)
+                dop_idx = self._bz.doping[dop_type].index(dop)
                 cond_temp = []
-                for temp in tlist:
-                    cond_temp.append(cond[doping_type][temp][dop_idx])
+                for temp in temperatures:
+                    cond_temp.append(cond[dop_type][temp][dop_idx])
                 if output == "average":
-                    ax.plot(tlist, cond_temp, marker="s", label=str(dop) + " $cm^{-3}$")
+                    ax.plot(temperatures, cond_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
                     for xyz in range(3):
                         ax.plot(
-                            tlist,
+                            temperatures,
                             list(zip(*cond_temp))[xyz],
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
-            ax.set_title(f"{doping_type}-type", fontsize=20)
+            ax.set_title(f"{dop_type}-type", fontsize=20)
             if idx == 0:
                 ax.set_ylabel("conductivity $\\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
             ax.set_xlabel("Temperature (K)", fontsize=30.0)
@@ -3165,26 +3165,26 @@ class BoltztrapPlotter:
             pow_factor = self._bz.get_power_factor(relaxation_time=relaxation_time, output="eigs")
 
         ax = pretty_plot(22, 14)
-        tlist = sorted(pow_factor["n"])
+        temperatures = sorted(pow_factor["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
-        for idx, doping_type in enumerate(["n", "p"]):
+        for idx, dop_type in enumerate("np"):
             plt.subplot(121 + idx)
             for dop in doping:
-                dop_idx = self._bz.doping[doping_type].index(dop)
+                dop_idx = self._bz.doping[dop_type].index(dop)
                 pf_temp = []
-                for temp in tlist:
-                    pf_temp.append(pow_factor[doping_type][temp][dop_idx])
+                for temp in temperatures:
+                    pf_temp.append(pow_factor[dop_type][temp][dop_idx])
                 if output == "average":
-                    ax.plot(tlist, pf_temp, marker="s", label=f"{dop} $cm^{-3}$")
+                    ax.plot(temperatures, pf_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
                     for xyz in range(3):
                         ax.plot(
-                            tlist,
+                            temperatures,
                             list(zip(*pf_temp))[xyz],
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
-            ax.set_title(f"{doping_type}-type", fontsize=20)
+            ax.set_title(f"{dop_type}-type", fontsize=20)
             if idx == 0:
                 ax.set_ylabel("Power Factor ($\\mu$W/(mK$^2$))", fontsize=30.0)
             ax.set_xlabel("Temperature (K)", fontsize=30.0)
@@ -3219,26 +3219,26 @@ class BoltztrapPlotter:
         zt = self._bz.get_zt(relaxation_time=relaxation_time, output=output)
 
         ax = pretty_plot(22, 14)
-        tlist = sorted(zt["n"])
+        temperatures = sorted(zt["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
-        for idx, doping_type in enumerate(["n", "p"]):
+        for idx, dop_type in enumerate("np"):
             plt.subplot(121 + idx)
             for dop in doping:
-                dop_idx = self._bz.doping[doping_type].index(dop)
+                dop_idx = self._bz.doping[dop_type].index(dop)
                 zt_temp = []
-                for temp in tlist:
-                    zt_temp.append(zt[doping_type][temp][dop_idx])
+                for temp in temperatures:
+                    zt_temp.append(zt[dop_type][temp][dop_idx])
                 if output == "average":
-                    ax.plot(tlist, zt_temp, marker="s", label=str(dop) + " $cm^{-3}$")
+                    ax.plot(temperatures, zt_temp, marker="s", label=f"{dop} $cm^{-3}$")
                 elif output == "eigs":
                     for xyz in range(3):
                         ax.plot(
-                            tlist,
+                            temperatures,
                             list(zip(*zt_temp))[xyz],
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
-            ax.set_title(f"{doping_type}-type", fontsize=20)
+            ax.set_title(f"{dop_type}-type", fontsize=20)
             if idx == 0:
                 ax.set_ylabel("zT", fontsize=30.0)
             ax.set_xlabel("Temperature (K)", fontsize=30.0)
@@ -3270,19 +3270,19 @@ class BoltztrapPlotter:
             eff_mass = self._bz.get_average_eff_mass(output="eigs")
 
         ax_main = pretty_plot(22, 14)
-        tlist = sorted(eff_mass["n"])
+        temperatures = sorted(eff_mass["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
-        for idx, doping_type in enumerate(["n", "p"]):
+        for idx, dop_type in enumerate("np"):
             ax = plt.subplot(121 + idx)
             for dop in doping:
-                dop_idx = self._bz.doping[doping_type].index(dop)
-                em_temp = [eff_mass[doping_type][temp][dop_idx] for temp in tlist]
+                dop_idx = self._bz.doping[dop_type].index(dop)
+                em_temp = [eff_mass[dop_type][temp][dop_idx] for temp in temperatures]
                 if output == "average":
-                    ax.plot(tlist, em_temp, marker="s", label=f"{dop} $cm^{{-3}}$")
+                    ax.plot(temperatures, em_temp, marker="s", label=f"{dop} $cm^{{-3}}$")
                 elif output == "eigs":
                     for xyz in range(3):
-                        ax.plot(tlist, list(zip(*em_temp))[xyz], marker="s", label=f"{xyz} {dop} $cm^{{-3}}$")
-            ax.set_title(f"{doping_type}-type", fontsize=20)
+                        ax.plot(temperatures, list(zip(*em_temp))[xyz], marker="s", label=f"{xyz} {dop} $cm^{{-3}}$")
+            ax.set_title(f"{dop_type}-type", fontsize=20)
             if idx == 0:
                 ax.set_ylabel("Effective mass (m$_e$)", fontsize=30.0)
             ax.set_xlabel("Temperature (K)", fontsize=30.0)
@@ -3308,24 +3308,27 @@ class BoltztrapPlotter:
         """
         sbk = self._bz.get_seebeck(output="average") if output == "average" else self._bz.get_seebeck(output="eigs")
 
-        tlist = sorted(sbk["n"]) if temps == "all" else temps
+        temperatures = sorted(sbk["n"]) if temps == "all" else temps
         ax = pretty_plot(22, 14)
-        for i, dt in enumerate(["n", "p"]):
-            plt.subplot(121 + i)
-            for temp in tlist:
+        for idx, dop_type in enumerate("np"):
+            plt.subplot(121 + idx)
+            for temp in temperatures:
                 if output == "eigs":
                     for xyz in range(3):
                         ax.semilogx(
-                            self._bz.doping[dt], list(zip(*sbk[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
+                            self._bz.doping[dop_type],
+                            list(zip(*sbk[dop_type][temp]))[xyz],
+                            marker="s",
+                            label=f"{xyz} {temp} K",
                         )
                 elif output == "average":
-                    ax.semilogx(self._bz.doping[dt], sbk[dt][temp], marker="s", label=f"{temp} K")
-            ax.set_title(dt + "-type", fontsize=20)
-            if i == 0:
+                    ax.semilogx(self._bz.doping[dop_type], sbk[dop_type][temp], marker="s", label=f"{temp} K")
+            ax.set_title(f"{dop_type}-type", fontsize=20)
+            if idx == 0:
                 ax.set_ylabel("Seebeck coefficient ($\\mu$V/K)", fontsize=30.0)
             ax.set_xlabel("Doping concentration (cm$^{-3}$)", fontsize=30.0)
 
-            p = "lower right" if i == 0 else "best"
+            p = "lower right" if idx == 0 else "best"
             ax.legend(loc=p, fontsize=15)
             ax.grid()
             ax.set_xticks(fontsize=25)
@@ -3354,25 +3357,28 @@ class BoltztrapPlotter:
         else:
             cond = self._bz.get_conductivity(relaxation_time=relaxation_time, output="eigs")
 
-        tlist = sorted(cond["n"]) if temps == "all" else temps
+        temperatures = sorted(cond["n"]) if temps == "all" else temps
         ax = pretty_plot(22, 14)
-        for i, dt in enumerate(["n", "p"]):
-            plt.subplot(121 + i)
-            for temp in tlist:
+        for idx, dop_type in enumerate("np"):
+            plt.subplot(121 + idx)
+            for temp in temperatures:
                 if output == "eigs":
                     for xyz in range(3):
                         ax.semilogx(
-                            self._bz.doping[dt], list(zip(*cond[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
+                            self._bz.doping[dop_type],
+                            list(zip(*cond[dop_type][temp]))[xyz],
+                            marker="s",
+                            label=f"{xyz} {temp} K",
                         )
                 elif output == "average":
                     ax.semilogx(
-                        self._bz.doping[dt],
-                        cond[dt][temp],
+                        self._bz.doping[dop_type],
+                        cond[dop_type][temp],
                         marker="s",
                         label=f"{temp} K",
                     )
-            ax.set_title(dt + "-type", fontsize=20)
-            if i == 0:
+            ax.set_title(f"{dop_type}-type", fontsize=20)
+            if idx == 0:
                 ax.set_ylabel("conductivity $\\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
             ax.set_xlabel("Doping concentration ($cm^{-3}$)", fontsize=30.0)
             ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
@@ -3403,23 +3409,23 @@ class BoltztrapPlotter:
         else:
             pow_factor = self._bz.get_power_factor(relaxation_time=relaxation_time, output="eigs")
 
-        tlist = sorted(pow_factor["n"]) if temps == "all" else temps
+        temperatures = sorted(pow_factor["n"]) if temps == "all" else temps
         ax = pretty_plot(22, 14)
-        for i, dt in enumerate(["n", "p"]):
-            plt.subplot(121 + i)
-            for temp in tlist:
+        for idx, dop_type in enumerate("np"):
+            plt.subplot(121 + idx)
+            for temp in temperatures:
                 if output == "eigs":
                     for xyz in range(3):
                         ax.semilogx(
-                            self._bz.doping[dt],
-                            list(zip(*pow_factor[dt][temp]))[xyz],
+                            self._bz.doping[dop_type],
+                            list(zip(*pow_factor[dop_type][temp]))[xyz],
                             marker="s",
                             label=f"{xyz} {temp} K",
                         )
                 elif output == "average":
-                    ax.semilogx(self._bz.doping[dt], pow_factor[dt][temp], marker="s", label=f"{temp} K")
-            ax.set_title(dt + "-type", fontsize=20)
-            if i == 0:
+                    ax.semilogx(self._bz.doping[dop_type], pow_factor[dop_type][temp], marker="s", label=f"{temp} K")
+            ax.set_title(f"{dop_type}-type", fontsize=20)
+            if idx == 0:
                 ax.set_ylabel("Power Factor  ($\\mu$W/(mK$^2$))", fontsize=30.0)
             ax.set_xlabel("Doping concentration ($cm^{-3}$)", fontsize=30.0)
             ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
@@ -3452,29 +3458,32 @@ class BoltztrapPlotter:
         else:
             zt = self._bz.get_zt(relaxation_time=relaxation_time, output="eigs")
 
-        tlist = sorted(zt["n"]) if temps == "all" else temps
+        temperatures = sorted(zt["n"]) if temps == "all" else temps
         ax = pretty_plot(22, 14)
-        for i, dt in enumerate(["n", "p"]):
-            plt.subplot(121 + i)
-            for temp in tlist:
+        for idx, dop_type in enumerate("np"):
+            plt.subplot(121 + idx)
+            for temp in temperatures:
                 if output == "eigs":
                     for xyz in range(3):
                         ax.semilogx(
-                            self._bz.doping[dt], list(zip(*zt[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
+                            self._bz.doping[dop_type],
+                            list(zip(*zt[dop_type][temp]))[xyz],
+                            marker="s",
+                            label=f"{xyz} {temp} K",
                         )
                 elif output == "average":
                     ax.semilogx(
-                        self._bz.doping[dt],
-                        zt[dt][temp],
+                        self._bz.doping[dop_type],
+                        zt[dop_type][temp],
                         marker="s",
                         label=f"{temp} K",
                     )
-            ax.set_title(dt + "-type", fontsize=20)
-            if i == 0:
+            ax.set_title(f"{dop_type}-type", fontsize=20)
+            if idx == 0:
                 ax.set_ylabel("zT", fontsize=30.0)
             ax.set_xlabel("Doping concentration ($cm^{-3}$)", fontsize=30.0)
 
-            p = "lower right" if i == 0 else "best"
+            p = "lower right" if idx == 0 else "best"
             ax.legend(loc=p, fontsize=15)
             ax.grid()
             ax.set_xticks(fontsize=25)
@@ -3503,29 +3512,32 @@ class BoltztrapPlotter:
         else:
             em = self._bz.get_average_eff_mass(output="eigs")
 
-        tlist = sorted(em["n"]) if temps == "all" else temps
+        temperatures = sorted(em["n"]) if temps == "all" else temps
         ax = pretty_plot(22, 14)
-        for i, dt in enumerate(["n", "p"]):
-            plt.subplot(121 + i)
-            for temp in tlist:
+        for idx, dop_type in enumerate("np"):
+            plt.subplot(121 + idx)
+            for temp in temperatures:
                 if output == "eigs":
                     for xyz in range(3):
                         ax.semilogx(
-                            self._bz.doping[dt], list(zip(*em[dt][temp]))[xyz], marker="s", label=f"{xyz} {temp} K"
+                            self._bz.doping[dop_type],
+                            list(zip(*em[dop_type][temp]))[xyz],
+                            marker="s",
+                            label=f"{xyz} {temp} K",
                         )
                 elif output == "average":
                     ax.semilogx(
-                        self._bz.doping[dt],
-                        em[dt][temp],
+                        self._bz.doping[dop_type],
+                        em[dop_type][temp],
                         marker="s",
                         label=f"{temp} K",
                     )
-            ax.set_title(dt + "-type", fontsize=20)
-            if i == 0:
+            ax.set_title(f"{dop_type}-type", fontsize=20)
+            if idx == 0:
                 ax.set_ylabel("Effective mass (m$_e$)", fontsize=30.0)
             ax.set_xlabel("Doping concentration ($cm^{-3}$)", fontsize=30.0)
 
-            p = "lower right" if i == 0 else "best"
+            p = "lower right" if idx == 0 else "best"
             ax.legend(loc=p, fontsize=15)
             ax.grid()
             ax.set_xticks(fontsize=25)

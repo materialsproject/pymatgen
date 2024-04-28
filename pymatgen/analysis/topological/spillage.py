@@ -203,9 +203,9 @@ class SOCSpillage:
                                 "!!!!!!!!!!",
                             )
 
-        gmax = max(np.real(gamma_k))
-        nkmax = np.argmax(np.real(gamma_k))
-        kmax = kpoints[nkmax]
+        gamma_max = max(np.real(gamma_k))
+        n_kmax = np.argmax(np.real(gamma_k))
+        k_max = kpoints[n_kmax]
 
         print("------------------------------------")
         print("\n                   INDIRECT DIRECT      HOMO/LUMO (eV)")
@@ -223,5 +223,5 @@ class SOCSpillage:
             "   ",
             [so_homo, so_lumo],
         )
-        print("gamma max", np.real(gmax), " at k =  ", kmax)
-        return gmax
+        print("gamma max", np.real(gamma_max), " at k =  ", k_max)
+        return gamma_max

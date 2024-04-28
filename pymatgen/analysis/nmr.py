@@ -165,7 +165,7 @@ class ElectricFieldGradient(SquareTensor):
     def V_xx(self):
         """Returns: First diagonal element."""
         diags = np.diag(self.principal_axis_system)
-        return sorted(diags, key=np.abs)[0]
+        return min(diags, key=np.abs)
 
     @property
     def V_yy(self):

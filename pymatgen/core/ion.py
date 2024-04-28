@@ -55,19 +55,19 @@ class Ion(Composition, MSONable, Stringify):
                 if m_chg.group(1) != "":
                     if m_chg.group(3) != "":
                         raise ValueError("Invalid formula")
-                    charge += float(m_chg.group(1)) * (float(m_chg.group(2) + "1"))
+                    charge += float(m_chg.group(1)) * (float(f"{m_chg.group(2)}1"))
                 elif m_chg.group(3) != "":
-                    charge += float(m_chg.group(3)) * (float(m_chg.group(2) + "1"))
+                    charge += float(m_chg.group(3)) * (float(f"{m_chg.group(2)}1"))
                 else:
-                    for i in re.findall("[+-]", m_chg.group(2)):
-                        charge += float(i + "1")
+                    for val in re.findall("[+-]", m_chg.group(2)):
+                        charge += float(f"{val}1")
 
             formula = formula.replace(match.group(), "", 1)
 
         # if no brackets, parse trailing +/-
         for m_chg in re.finditer(r"([+-])([\.\d]*)", formula):
             sign = m_chg.group(1)
-            sgn = float(str(sign + "1"))
+            sgn = float(f"{sign}1")
             if m_chg.group(2).strip() != "":
                 charge += float(m_chg.group(2)) * sgn
             else:

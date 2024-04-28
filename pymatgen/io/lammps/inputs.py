@@ -572,7 +572,7 @@ class LammpsInputFile(InputFile):
                 sequence += next_symbol
                 idx += 1
                 next_symbol = contents[index + idx]
-            contents = contents.replace(sequence + "\n", "")
+            contents = contents.replace(f"{sequence}\n", "")
 
         # Remove unwanted lines from the string
         lines = cls._clean_lines(contents.splitlines(), ignore_comments=ignore_comments)

@@ -1960,7 +1960,7 @@ class TestLobsterSet(PymatgenTest):
         assert self.lobsterset2.potcar.symbols == ["Fe_pv", "P", "O"]
         # test if error raised contains correct potcar symbol for K element as PBE_54 set
         with pytest.raises(
-            OSError, match="You do not have the right POTCAR with functional='PBE_54' and symbol='K_sv'"
+            RuntimeError, match="You do not have the right POTCAR with functional='PBE_54' and symbol='K_sv'"
         ):
             _ = self.lobsterset9.potcar.symbols
 

@@ -98,8 +98,8 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         )
 
         # Obtain crystallographic reciprocal lattice points within range
-        recip_latt = lattice.reciprocal_lattice_crystallographic
-        recip_pts = recip_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], max_r)
+        recip_lattice = lattice.reciprocal_lattice_crystallographic
+        recip_pts = recip_lattice.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], max_r)
         if min_r:
             recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
 
@@ -129,7 +129,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
         coeffs = np.array(_coeffs)
         frac_coords = np.array(_frac_coords)
         occus = np.array(_occus)
-        dwfactors = np.array(_dwfactors)
+        dw_factors = np.array(_dwfactors)
         peaks: dict[float, list[float | list[tuple[int, ...]]]] = {}
         two_thetas: list[float] = []
 
@@ -147,7 +147,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
                 s = g_hkl / 2
 
                 # Calculate Debye-Waller factor
-                dw_correction = np.exp(-dwfactors * (s**2))
+                dw_correction = np.exp(-dw_factors * (s**2))
 
                 # Vectorized computation of g.r for all fractional coords and
                 # hkl.

@@ -64,15 +64,15 @@ class LDos(MSONable):
 
         if "RECIPROCAL" in parameters:
             pot_dict = {}
-            pot_readstart = re.compile(".*iz.*lmaxsc.*xnatph.*xion.*folp.*")
-            pot_readend = re.compile(".*ExternalPot.*switch.*")
+            pot_read_start = re.compile(".*iz.*lmaxsc.*xnatph.*xion.*folp.*")
+            pot_read_end = re.compile(".*ExternalPot.*switch.*")
             pot_inp = re.sub(r"feff.inp", r"pot.inp", feff_inp_file)
             dos_index = 1
             begin = 0
 
             with zopen(pot_inp, mode="r") as potfile:
                 for line in potfile:
-                    if len(pot_readend.findall(line)) > 0:
+                    if len(pot_read_end.findall(line)) > 0:
                         break
 
                     if begin == 1:
@@ -88,16 +88,16 @@ class LDos(MSONable):
                             pot_dict[ele_name] = min(dos_index, pot_dict[ele_name])
                         dos_index += 1
 
-                    if len(pot_readstart.findall(line)) > 0:
+                    if len(pot_read_start.findall(line)) > 0:
                         begin = 1
         else:
             pot_string = Potential.pot_string_from_file(feff_inp_file)
             dicts = Potential.pot_dict_from_str(pot_string)
             pot_dict = dicts[0]
 
-        with zopen(ldos_file + "00.dat", mode="r") as file:
+        with zopen(f"{ldos_file}00.dat", mode="r") as file:
             lines = file.readlines()
-        efermi = float(lines[0].split()[4])
+        e_fermi = float(lines[0].split()[4])
 
         dos_energies = []
         ldos = {}
@@ -144,7 +144,7 @@ class LDos(MSONable):
                     t_dos[j] = t_dos[j] + density[j]
         _t_dos: dict = {Spin.up: t_dos}
 
-        dos = Dos(efermi, dos_energies, _t_dos)
+        dos = Dos(e_fermi, dos_energies, _t_dos)
         complete_dos = CompleteDos(structure, dos, pdoss)
         charge_transfer = LDos.charge_transfer_from_file(feff_inp_file, ldos_file)
         return cls(complete_dos, charge_transfer)

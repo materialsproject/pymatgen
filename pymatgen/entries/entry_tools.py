@@ -12,6 +12,7 @@ import json
 import logging
 import multiprocessing as mp
 import re
+from collections import defaultdict
 from typing import TYPE_CHECKING, Literal
 
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -114,7 +115,7 @@ def group_entries_by_structure(
     logger.info(f"Started at {start}")
     entries_host = [(entry, _get_host(entry.structure, species_to_remove)) for entry in entries]
     if ncpus:
-        symm_entries = collections.defaultdict(list)
+        symm_entries = defaultdict(list)
         for entry, host in entries_host:
             symm_entries[comparator.get_structure_hash(host)].append((entry, host))
 
