@@ -314,12 +314,6 @@ class Section(MSONable):
         s2.silence()
         return d2.as_dict() == s2.as_dict()
 
-    def __deepcopy__(self, memodict=None):
-        c = copy.deepcopy(self.as_dict())
-        return getattr(__import__(c["@module"], globals(), locals(), c["@class"], 0), c["@class"]).from_dict(
-            copy.deepcopy(self.as_dict())
-        )
-
     def __getitem__(self, d):
         if r := self.get_keyword(d) or self.get_section(d):
             return r
@@ -629,9 +623,6 @@ class SectionList(MSONable):
 
     def __getitem__(self, item):
         return self.sections[item]
-
-    def __deepcopy__(self, memodict=None):
-        return SectionList(sections=[d.__deepcopy__() for d in self.sections])
 
     @staticmethod
     def _get_str(d, indent=0):
