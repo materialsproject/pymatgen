@@ -7,11 +7,13 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from os import PathLike as OsPathLike
-from typing import TYPE_CHECKING, Any, TypeAlias, Union
+from typing import TYPE_CHECKING, Any, Union
 
 from pymatgen.core import Composition, DummySpecies, Element, Species
 
 if TYPE_CHECKING:  # needed to avoid circular imports
+    from typing_extensions import TypeAlias
+
     from pymatgen.analysis.cost import CostEntry  # type: ignore[attr-defined]
     from pymatgen.analysis.phase_diagram import GrandPotPDEntry, PDEntry, TransformedPDEntry
     from pymatgen.entries import Entry
