@@ -61,6 +61,7 @@ setup(
             "pytest",
             "ruff",
             "typing-extensions",
+            "wheel",
         ],
         "docs": [
             "sphinx",
@@ -72,7 +73,7 @@ setup(
             # TODO restore BoltzTraP2 when install fixed, hopefully following merge of
             # https://gitlab.com/sousaw/BoltzTraP2/-/merge_requests/18
             # caused CI failure due to ModuleNotFoundError: No module named 'packaging'
-            # "BoltzTraP2>=24.1.1; platform_system!='Windows'",
+            "BoltzTraP2>=24.1.1; platform_system!='Windows'",
             "chemview>=0.6",
             "chgnet",
             "f90nml>=1.1.2",
