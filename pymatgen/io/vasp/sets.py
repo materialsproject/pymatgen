@@ -34,12 +34,13 @@ import os
 import re
 import shutil
 import warnings
+from collections.abc import Sequence
 from copy import deepcopy
 from dataclasses import dataclass, field
 from glob import glob
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Union
+from typing import TYPE_CHECKING, Literal, Union, cast
 from zipfile import ZipFile
 
 import numpy as np
@@ -56,9 +57,10 @@ from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
+from pymatgen.util.typing import Kpoint
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from typing import Any
 
     from typing_extensions import Self
 
@@ -872,7 +874,7 @@ class DictSet(VaspInputSet):
                     comment="Uniform grid",
                     style=Kpoints.supported_modes.Reciprocal,
                     num_kpts=len(mesh),
-                    kpts=tuple([i[0] for i in mesh]),
+                    kpts=tuple(i[0] for i in mesh),
                     kpts_weights=[i[1] for i in mesh],
                 )
             else:
@@ -906,8 +908,8 @@ class DictSet(VaspInputSet):
                 comment="Uniform grid",
                 style=Kpoints.supported_modes.Reciprocal,
                 num_kpts=len(mesh),
-                kpts=tuple([i[0] for i in mesh]),
-                kpts_weights=[0 for i in mesh],
+                kpts=tuple(i[0] for i in mesh),
+                kpts_weights=[0 for _ in mesh],
             )
 
         added_kpoints = None
@@ -917,7 +919,7 @@ class DictSet(VaspInputSet):
                 comment="Specified k-points only",
                 style=Kpoints.supported_modes.Reciprocal,
                 num_kpts=len(points),
-                kpts=tuple(points),
+                kpts=points,
                 labels=["user-defined"] * len(points),
                 kpts_weights=[0] * len(points),
             )
@@ -3096,7 +3098,7 @@ def _combine_kpoints(*kpoints_objects: Kpoints) -> Kpoints:
         comment="Combined k-points",
         style=Kpoints.supported_modes.Reciprocal,
         num_kpts=len(kpoints),
-        kpts=kpoints,
+        kpts=cast(Sequence[Kpoint], kpoints),
         labels=labels,
         kpts_weights=weights,
     )
