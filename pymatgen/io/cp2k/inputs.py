@@ -50,6 +50,7 @@ if TYPE_CHECKING:
 
     from pymatgen.core.lattice import Lattice
     from pymatgen.core.structure import Molecule, Structure
+    from pymatgen.util.typing import Kpoint
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
@@ -2031,8 +2032,8 @@ class Kpoints(Section):
         weights = kpoints.kpts_weights
 
         if kpoints.style == KpointsSupportedModes.Monkhorst:
-            k = kpts[0]
-            x, y, z = (k, k, k) if isinstance(k, (int, float)) else k
+            kpt: Kpoint = kpts[0]  # type: ignore[assignment]
+            x, y, z = (kpt, kpt, kpt) if isinstance(kpt, (int, float)) else kpt  # type: ignore[misc]
             scheme = f"MONKHORST-PACK {x} {y} {z}"
             units = "B_VECTOR"
         elif kpoints.style == KpointsSupportedModes.Reciprocal:

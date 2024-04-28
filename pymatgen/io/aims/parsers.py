@@ -5,7 +5,7 @@ from __future__ import annotations
 import gzip
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
@@ -566,9 +566,9 @@ class AimsOutCalcChunk(AimsOutChunk):
             elif "atom   " in line:
                 line_split = line.split()
                 species.append(line_split[4])
-                coords.append([float(inp) for inp in line_split[1:4]])
+                coords.append(cast(tuple[float, float, float], tuple(float(inp) for inp in line_split[1:4])))
             elif "velocity   " in line:
-                velocities.append([float(inp) for inp in line.split()[1:]])
+                velocities.append(cast(tuple[float, float, float], tuple(float(inp) for inp in line.split()[1:4])))
 
         lattice = Lattice(lattice_vectors) if len(lattice_vectors) == 3 else None
         return species, coords, velocities, lattice

@@ -3096,7 +3096,7 @@ def _combine_kpoints(*kpoints_objects: Kpoints) -> Kpoints:
         comment="Combined k-points",
         style=Kpoints.supported_modes.Reciprocal,
         num_kpts=len(kpoints),
-        kpts=tuple(kpoints),
+        kpts=kpoints,
         labels=labels,
         kpts_weights=weights,
     )
