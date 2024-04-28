@@ -24,7 +24,7 @@ long_description = (
 
 setup(
     name="pymatgen",
-    packages=find_namespace_packages(include=["pymatgen.*", "pymatgen.**.*", "cmd_line"]),
+    packages=find_namespace_packages(include=["pymatgen.*", "pymatgen.**.*"]),
     version="2024.4.13",
     python_requires=">=3.9",
     install_requires=[
@@ -114,7 +114,6 @@ setup(
         "pymatgen.vis": ["*.yaml"],
         "pymatgen.io.lammps": ["CoeffsDataType.yaml", "templates/*.template"],
         "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
-        "cmd_line": ["**/*"],
     },
     author="Pymatgen Development Team",
     author_email="ongsp@ucsd.edu",
