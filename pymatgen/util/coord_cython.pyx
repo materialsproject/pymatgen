@@ -82,8 +82,8 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
             Can speed up calculation considerably for large structures.
 
     Returns:
-        array of displacement vectors from fcoords1 to fcoords2
-        first index is fcoords1 index, second is fcoords2 index
+        np.array: of displacement vectors from fcoords1 to fcoords2
+            first index is fcoords1 index, second is fcoords2 index
     """
 
     #ensure correct shape

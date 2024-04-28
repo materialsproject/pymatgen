@@ -55,10 +55,10 @@ class HHIModel:
         Gets the reserve and production HHI for a compound.
 
         Args:
-            comp_or_form (Composition or String): A Composition or String formula
+            comp_or_form (CompositionLike): A Composition or String formula
 
         Returns:
-            A tuple representing the (HHI_production, HHI_reserve)
+            tuple[float, float]: HHI_production, HHI_reserve
         """
         try:
             if not isinstance(comp_or_form, Composition):

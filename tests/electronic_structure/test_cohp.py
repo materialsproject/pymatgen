@@ -932,7 +932,7 @@ class TestCompleteCohp(PymatgenTest):
             b_dict = b.as_dict()
             del a_dict["structure"]
             del b_dict["structure"]
-            return (a_dict == b_dict) and (a.structure == b.structure)
+            return a_dict == b_dict and a.structure == b.structure
 
         assert is_equal(self.cohp_lobster, self.cohp_lobster_dict)
         assert is_equal(self.cohp_orb, self.cohp_orb_dict)

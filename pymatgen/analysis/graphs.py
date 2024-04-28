@@ -1398,7 +1398,7 @@ class StructureGraph(MSONable):
 
         edges_other = {(u, v, data["to_jimage"]) for u, v, data in other_sorted.graph.edges(keys=False, data=True)}
 
-        return (edges == edges_other) and (self.structure == other_sorted.structure)
+        return edges == edges_other and self.structure == other_sorted.structure
 
     def diff(self, other: StructureGraph, strict: bool = True) -> dict:
         """
@@ -2799,7 +2799,7 @@ class MoleculeGraph(MSONable):
 
         edges_other = set(other_sorted.graph.edges(keys=False))
 
-        return (edges == edges_other) and (self.molecule == other_sorted.molecule)
+        return edges == edges_other and self.molecule == other_sorted.molecule
 
     def isomorphic_to(self, other: MoleculeGraph) -> bool:
         """

@@ -303,7 +303,7 @@ class NearNeighbors:
                 'take_max_species' will use Fe as the site specie.
 
         Returns:
-            cn (float): coordination number.
+            float: coordination number.
         """
         structure = _handle_disorder(structure, on_disorder)
         siw = self.get_nn_info(structure, n)
@@ -322,7 +322,7 @@ class NearNeighbors:
                 weight).
 
         Returns:
-            cn (dict): dictionary of CN of each element bonded to site
+            dict[str, float]: coordination number of each element bonded to site with index n in structure.
         """
         siw = self.get_nn_info(structure, n)
 
@@ -409,6 +409,7 @@ class NearNeighbors:
 
         Args:
             structure (Structure): Input structure
+
         Returns:
             List of NN site information for each site in the structure. Each
                 entry has the same format as `get_nn_info`
@@ -4063,7 +4064,7 @@ class CrystalNN(NearNeighbors):
                 'take_max_species' will use Fe as the site specie.
 
         Returns:
-            cn (float): coordination number.
+            float: coordination number.
         """
         use_weights = kwargs.get("use_weights", False)
         if self.weighted_cn != use_weights:
@@ -4084,7 +4085,7 @@ class CrystalNN(NearNeighbors):
                 weight).
 
         Returns:
-            cn (dict): dictionary of CN of each element bonded to site
+            dict[int, list[dict]]: coordination number and list of coordinated sites
         """
         if self.weighted_cn != use_weights:
             raise ValueError("The weighted_cn parameter and use_weights parameter should match!")

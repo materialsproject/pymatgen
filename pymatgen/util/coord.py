@@ -182,8 +182,8 @@ def pbc_diff(frac_coords1: ArrayLike, frac_coords2: ArrayLike, pbc: PbcLike = (T
         pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]) = [-0.2, -0.4, 0.2]
         pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]) = [-0.4, -0.4, 0.11]
     """
-    fdist = np.subtract(frac_coords1, frac_coords2)
-    return fdist - np.round(fdist) * pbc
+    frac_dist = np.subtract(frac_coords1, frac_coords2)
+    return frac_dist - np.round(frac_dist) * pbc
 
 
 def pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask=None, return_d2: bool = False):
@@ -202,8 +202,8 @@ def pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask=None, return_
         return_d2 (bool): whether to also return the squared distances
 
     Returns:
-        array of displacement vectors from frac_coords1 to frac_coords2
-        first index is frac_coords1 index, second is frac_coords2 index
+        np.array: of displacement vectors from frac_coords1 to frac_coords2
+            first index is frac_coords1 index, second is frac_coords2 index
     """
     return coord_cython.pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask, return_d2)
 

@@ -997,7 +997,7 @@ class StructureMatcher(MSONable):
             struct2 (Structure): 2nd structure
 
         Returns:
-            min_mapping (dict): Mapping of struct1 species to struct2 species
+            dict[Element, Element] | None: Mapping of struct1 species to struct2 species.
         """
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)

@@ -545,7 +545,7 @@ class GenKpt(MSONable):
                 hsp2 (str): The name of the second high symmetry point.
 
             Returns:
-                distance (float): Distance between two high symmetry points.With factor of 2*pi
+                float: The distance between two high symmetry points. With factor of 2*pi.
             """
             hsp1_coord: np.ndarray = np.dot(
                 np.array(self.kpath["kpoints"][hsp1]).reshape(1, 3), self.reciprocal_lattice
@@ -624,7 +624,7 @@ class HighSymmetryPoint(MSONable):
             """Calculate the distance of two high symmetry points.
 
             Returns:
-                distance (float): Calculate the distance of two high symmetry points. With factor of 2*pi.
+                float: The distance between two high symmetry points with factor of 2*pi.
             """
             hsp1_coord: np.ndarray = np.dot(
                 np.array(self.kpath["kpoints"][hsp1]).reshape(1, 3), self.reciprocal_lattice
