@@ -1089,7 +1089,7 @@ class Kpoints(MSONable):
         comment: str = "Default gamma",
         num_kpts: int = 0,
         style: KpointsSupportedModes = supported_modes.Gamma,
-        kpts: Kpoint | Sequence[Kpoint] = ((1, 1, 1),),
+        kpts: Sequence[Kpoint] = ((1, 1, 1),),
         kpts_shift: Vector3D = (0, 0, 0),
         kpts_weights=None,
         coord_type=None,
@@ -1190,19 +1190,14 @@ class Kpoints(MSONable):
         return "\n".join(lines) + "\n"
 
     @property
-    def kpts(self) -> Kpoint | Sequence[Kpoint]:
+    def kpts(self) -> Sequence[Kpoint]:
         """
         A sequence of kpoints, where each kpoint is a tuple of 3.
         """
-        # If is Kpoint-like type (Sequence[float])
-        if all(isinstance(kpt, (int, float)) for kpt in self._kpts):
-            return cast(Kpoint, tuple(self._kpts))  # type: ignore[arg-type]
-
-        # If is Sequence[Kpoint]-like type
         if all(isinstance(kpt, Sequence) for kpt in self._kpts):
             return cast(Sequence[Kpoint], list(map(tuple, self._kpts)))  # type: ignore[arg-type]
 
-        raise ValueError(f"Invalid kpoint type {type(self._kpts)}.")
+        return [cast(tuple[float, float, float], tuple(self._kpts))]
 
     @kpts.setter
     def kpts(self, kpts: Sequence[float | int] | Sequence[Sequence[float | int]]) -> None:
