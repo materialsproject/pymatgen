@@ -656,7 +656,7 @@ class GulpCaller:
                 if is_exe(file):
                     self._gulp_cmd = file
                     return
-        raise GulpError("Executable not found")
+        raise GulpError("Executable not found, please download from https://gulp.curtin.edu.au/index.html.")
 
     def run(self, gin):
         """Run GULP using the gin as input.
