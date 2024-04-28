@@ -1091,7 +1091,7 @@ class Kpoints(MSONable):
         style: KpointsSupportedModes = supported_modes.Gamma,
         kpts: Sequence[Kpoint] = ((1, 1, 1),),
         kpts_shift: Vector3D = (0, 0, 0),
-        kpts_weights: list[int] | None = None,
+        kpts_weights: list[float] | None = None,
         coord_type: Literal["Reciprocal", "Cartesian"] | None = None,
         labels: list[str] | None = None,
         tet_number: int = 0,
@@ -1119,8 +1119,7 @@ class Kpoints(MSONable):
                 the kpts should still be specified as a 2D array. e.g.,
                 [(20,),] or [(2, 2, 2),].
             kpts_shift (3x1 array): Shift for kpoints.
-            kpts_weights: Optional weights for kpoints. Weights should be
-                integers. For explicit kpoints.
+            kpts_weights (list[float]): Optional weights for explicit kpoints.
             coord_type: In line-mode, this variable specifies whether the
                 Kpoints were given in Cartesian or Reciprocal coordinates.
             labels: In line-mode, this should provide a list of labels for
