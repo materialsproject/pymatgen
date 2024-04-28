@@ -589,7 +589,7 @@ class InterfacialReactivity(MSONable):
         mixing ratio x_min.
 
         Returns:
-            Tuple (x_min, E_min).
+            tuple[float, float]: (x_min, E_min).
         """
         return min(((x, energy) for _, x, energy, _, _ in self.get_kinks()), key=lambda tup: tup[1])
 

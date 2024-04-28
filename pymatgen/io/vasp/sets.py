@@ -992,8 +992,8 @@ class DictSet(VaspInputSet):
             prev_calc_dir (str): The path to the previous calculation directory.
 
         Returns:
-            The input set with the settings (structure, k-points, incar, etc)
-            updated using the previous VASP run.
+            VaspInputSet: A new input set with settings (Structure, k-points, incar, etc)
+                updated using the previous VASP run.
         """
         self._set_previous(prev_calc_dir)
 

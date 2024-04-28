@@ -429,9 +429,8 @@ class OxideType:
         Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide.
 
         Returns:
-            oxide_type (str): Type of oxide
-            ozonide/peroxide/superoxide/hydroxide/None.
-            nbonds (int): Number of peroxide/superoxide/hydroxide bonds in structure.
+            tuple[str, int]: Type of oxide (ozonide/peroxide/superoxide/hydroxide/None) and number of
+                peroxide/superoxide/hydroxide bonds in structure.
         """
         structure = self.structure
         relative_cutoff = self.relative_cutoff

@@ -1780,8 +1780,7 @@ class BoltztrapAnalyzer:
             path_dir: (str) dir containing the boltztrap.intrans file
 
         Returns:
-            intrans (dict): a dictionary containing various inputs that had
-                been used in the Boltztrap run.
+            dict: various inputs that had been used in the Boltztrap run.
         """
         intrans = {}
         with open(f"{path_dir}/boltztrap.intrans") as file:

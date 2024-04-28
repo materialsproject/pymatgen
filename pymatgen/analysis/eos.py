@@ -310,7 +310,7 @@ class BirchMurnaghan(EOSBase):
 
 
 class PourierTarantola(EOSBase):
-    """PourierTarantola EOS."""
+    """Pourier-Tarantola EOS."""
 
     def _func(self, volume, params):
         """Pourier-Tarantola equation from PRB 70, 224107."""

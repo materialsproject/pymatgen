@@ -448,7 +448,7 @@ class SurfaceEnergyPlotter:
         delu_default=0,
         no_doped=False,
         no_clean=False,
-    ):
+    ) -> tuple[SlabEntry, float]:
         """
         Returns the entry corresponding to the most stable slab for a particular
             facet at a specific chempot. We assume that surface energy is constant
@@ -465,7 +465,7 @@ class SurfaceEnergyPlotter:
             no_clean (bool): Consider stability of doped slabs only.
 
         Returns:
-            SlabEntry, surface_energy (float)
+            tuple[SlabEntry, float]: The most stable slab entry and its surface energy.
         """
         all_delu_dict = self.set_all_variables(delu_dict, delu_default)
 

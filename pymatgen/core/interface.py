@@ -1374,14 +1374,15 @@ class GrainBoundaryGenerator:
                 which is rational number. If irrational, set c2_a2_ratio = None
 
         Returns:
-            sigmas (dict): dictionary with keys as the possible integer sigma values and values as list of the
-                possible rotation angles to the corresponding sigma values. e.g. the format as
-                    {sigma1: [angle11,angle12,...], sigma2: [angle21, angle22,...],...}
-                Note: the angles are the rotation angle of one grain respect to the
-                other grain.
-                When generate the microstructure of the grain boundary using these
-                angles, you need to analyze the symmetry of the structure. Different
-                angles may result in equivalent microstructures.
+            dict: sigmas dictionary with keys as the possible integer sigma values
+                and values as list of the possible rotation angles to the
+                corresponding sigma values. e.g. the format as
+                {sigma1: [angle11,angle12,...], sigma2: [angle21, angle22,...],...}
+                Note: the angles are the rotation angles of one grain respect to
+                the other grain.
+                When generate the microstructures of the grain boundary using these angles,
+                you need to analyze the symmetry of the structure. Different angles may
+                result in equivalent microstructures.
         """
         sigmas = {}
         # make sure gcd(r_axis)==1
@@ -1486,17 +1487,14 @@ class GrainBoundaryGenerator:
                     If irrational, set ratio_alpha = None.
 
         Returns:
-            sigmas (dict):
-                    dictionary with keys as the possible integer sigma values
-                    and values as list of the possible rotation angles to the
-                    corresponding sigma values.
-                    e.g. the format as
-                    {sigma1: [angle11,angle12,...], sigma2: [angle21, angle22,...],...}
-                    Note: the angles are the rotation angle of one grain respect to the
-                    other grain.
-                    When generate the microstructure of the grain boundary using these
-                    angles, you need to analyze the symmetry of the structure. Different
-                    angles may result in equivalent microstructures.
+            dict[int, list[float]]: keys are possible integer sigma values
+                and values are lists of possible rotation angles to the
+                {sigma1: [angle11, angle12,...], sigma2: [angle21, angle22,...],...}
+                Note: the angles are the rotation angle of one grain respect to the
+                other grain.
+                When generating the microstructure of the grain boundary using these
+                angles, you need to analyze the symmetry of the structure. Different
+                angles may result in equivalent microstructures.
         """
         sigmas = {}
         # transform four index notation to three index notation

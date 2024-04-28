@@ -210,7 +210,7 @@ class Lattice(MSONable):
             miller_index ([h,k,l]): Miller index of plane
 
         Returns:
-            d_hkl (float)
+            float: distance between hkl plane and origin
         """
         g_star = self.reciprocal_lattice_crystallographic.metric_tensor
         hkl = np.array(miller_index)

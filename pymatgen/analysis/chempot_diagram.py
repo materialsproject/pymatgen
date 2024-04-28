@@ -677,7 +677,7 @@ def get_centroid_2d(vertices: np.ndarray) -> np.ndarray:
             circumferentially
 
     Returns:
-        Array giving 2-d centroid coordinates
+        np.array: Giving 2-d centroid coordinates.
     """
     cx = 0
     cy = 0
