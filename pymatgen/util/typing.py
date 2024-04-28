@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from os import PathLike as OsPathLike
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, TypeAlias, Union
 
 from pymatgen.core import Composition, DummySpecies, Element, Species
 
@@ -19,17 +19,17 @@ if TYPE_CHECKING:  # needed to avoid circular imports
     from pymatgen.entries.exp_entries import ExpEntry
 
 
-PathLike = Union[str, OsPathLike]
-PbcLike = tuple[bool, bool, bool]
+PathLike: TypeAlias = Union[str, OsPathLike]
+PbcLike: TypeAlias = tuple[bool, bool, bool]
 
 # Things that can be cast to a Species-like object using get_el_sp
-SpeciesLike = Union[str, Element, Species, DummySpecies]
+SpeciesLike: TypeAlias = Union[str, Element, Species, DummySpecies]
 
 # Things that can be cast to a Composition
-CompositionLike = Union[str, Element, Species, DummySpecies, dict, Composition]
+CompositionLike: TypeAlias = Union[str, Element, Species, DummySpecies, dict, Composition]
 
 # Entry or any of its subclasses or dicts that can be unpacked into any of them
-EntryLike = Union[
+EntryLike: TypeAlias = Union[
     dict[str, Any],
     "Entry",
     "PDEntry",
@@ -42,11 +42,10 @@ EntryLike = Union[
     "GibbsComputedStructureEntry",
 ]
 
+Vector3D: TypeAlias = tuple[float, float, float]
+Matrix3D: TypeAlias = tuple[Vector3D, Vector3D, Vector3D]
 
-Vector3D = tuple[float, float, float]
-Matrix3D = tuple[Vector3D, Vector3D, Vector3D]
-
-SitePropsType = Union[list[dict[Any, Sequence[Any]]], dict[Any, Sequence[Any]]]
+SitePropsType: TypeAlias = Union[list[dict[Any, Sequence[Any]]], dict[Any, Sequence[Any]]]
 
 # Types specific to io.vasp
-Kpoint = Union[tuple[float, float, float], tuple[int,]]
+Kpoint: TypeAlias = Union[tuple[float, float, float], tuple[int,]]
