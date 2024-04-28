@@ -76,10 +76,12 @@ jobs:
           micromamba activate pmg
           # TODO remove temporary fix. added since uv install torch is flaky.
           # track https://github.com/astral-sh/uv/issues/1921 for resolution
-          # uv cannot install BoltzTraP2 for some reason
-          pip install torch BoltzTraP2
+          pip install torch
 
-          uv pip install numpy cython wheel
+          uv pip install numpy cython
+
+          # uv cannot install BoltzTraP2 for some reason
+          pip install BoltzTraP2
 
           uv pip install --editable '.[dev,optional]'
 
