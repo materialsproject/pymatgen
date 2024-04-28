@@ -1194,13 +1194,13 @@ class Kpoints(MSONable):
         """
         A sequence of kpoints, where each kpoint is a tuple of 3.
         """
-        # If is Kpoint-like type (Sequence[float | int])
+        # If is Kpoint-like type (Sequence[float])
         if all(isinstance(kpt, (int, float)) for kpt in self._kpts):
-            return cast(Kpoint, tuple(int(x) for x in self._kpts))  # type: ignore[arg-type]
+            return cast(Kpoint, tuple(self._kpts))  # type: ignore[arg-type]
 
         # If is Sequence[Kpoint]-like type
         if all(isinstance(kpt, Sequence) for kpt in self._kpts):
-            return cast(Sequence[Kpoint], list(map(tuple, self._kpts)))
+            return cast(Sequence[Kpoint], list(map(tuple, self._kpts)))  # type: ignore[arg-type]
 
         raise ValueError("Invalid kpoint type.")
 
@@ -1537,10 +1537,10 @@ class Kpoints(MSONable):
 
         # Automatic gamma and Monk KPOINTS, with optional shift
         if style in {"g", "m"}:
-            _kpt: list[int] = [int(float(i)) for i in lines[3].split()]
+            _kpt: list[float] = [float(i) for i in lines[3].split()]
             if len(_kpt) != 3:
                 raise ValueError("Invalid Kpoint length.")
-            kpt: tuple[int, int, int] = cast(tuple[int, int, int], tuple(_kpt))
+            kpt: tuple[float, float, float] = cast(tuple[float, float, float], tuple(_kpt))
 
             kpts_shift: Vector3D = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
@@ -1563,7 +1563,7 @@ class Kpoints(MSONable):
             kpts_shift = cast(Vector3D, tuple(_kpts_shift)) if len(_kpts_shift) == 3 else (0, 0, 0)
 
             kpts: list[Kpoint] = [
-                cast(Kpoint, tuple(int(float(j)) for j in lines[line_idx].split())) for line_idx in range(3, 6)
+                cast(Kpoint, tuple(float(j) for j in lines[line_idx].split())) for line_idx in range(3, 6)
             ]
 
             return cls(
@@ -1578,13 +1578,13 @@ class Kpoints(MSONable):
         if style == "l":
             coord_type = "Cartesian" if lines[3].lower()[0] in "ck" else "Reciprocal"
             _style = cls.supported_modes.Line_mode
-            _kpts: list[tuple[int, int, int]] = []
+            _kpts: list[tuple[float, float, float]] = []
             labels = []
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for idx in range(4, len(lines)):
                 line = lines[idx]
                 if match := patt.match(line):
-                    _kpts.append((int(float(match[1])), int(float(match[2])), int(float(match[3]))))
+                    _kpts.append((float(match[1]), float(match[2]), float(match[3])))
                     labels.append(match[4].strip())
 
             return cls(
@@ -1607,7 +1607,7 @@ class Kpoints(MSONable):
 
         for idx in range(3, 3 + num_kpts):
             tokens = lines[idx].split()
-            kpts.append(cast(tuple[int, int, int], tuple(int(j) for j in tokens[:3])))
+            kpts.append(cast(tuple[float, float, float], tuple(float(j) for j in tokens[:3])))
             kpts_weights.append(float(tokens[3]))
             if len(tokens) > 4:
                 labels.append(tokens[4])
