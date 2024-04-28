@@ -1196,7 +1196,7 @@ class Kpoints(MSONable):
         """
         A sequence of kpoints, where each kpoint is a tuple of 3.
         """
-        if all(isinstance(kpt, Sequence) for kpt in self._kpts):
+        if all(isinstance(kpt, (Sequence, np.ndarray)) for kpt in self._kpts):
             return cast(Sequence[Kpoint], list(map(tuple, self._kpts)))  # type: ignore[arg-type]
 
         return [cast(tuple[float, float, float], tuple(self._kpts))]
