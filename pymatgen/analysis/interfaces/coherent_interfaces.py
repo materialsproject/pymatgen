@@ -53,7 +53,7 @@ class CoherentInterfaceBuilder:
         self._find_terminations()
 
     def _find_matches(self) -> None:
-        """Finds and stores the ZSL matches."""
+        """Find and stores the ZSL matches."""
         self.zsl_matches = []
 
         film_sg = SlabGenerator(
@@ -107,7 +107,7 @@ class CoherentInterfaceBuilder:
             )
 
     def _find_terminations(self):
-        """Finds all terminations."""
+        """Find all terminations."""
         film_sg = SlabGenerator(
             self.film_structure,
             self.film_miller,

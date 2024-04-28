@@ -35,7 +35,7 @@ class SymmOp(MSONable):
     """
 
     def __init__(self, affine_transformation_matrix: ArrayLike, tol: float = 0.01) -> None:
-        """Initializes the SymmOp from a 4x4 affine transformation matrix.
+        """Initialize the SymmOp from a 4x4 affine transformation matrix.
         In general, this constructor should not be used unless you are
         transferring rotations. Use the static constructors instead to
         generate a SymmOp from proper rotations and translation.
@@ -474,7 +474,7 @@ class MagSymmOp(SymmOp):
     """
 
     def __init__(self, affine_transformation_matrix: ArrayLike, time_reversal: int, tol: float = 0.01) -> None:
-        """Initializes the MagSymmOp from a 4x4 affine transformation matrix and time reversal
+        """Initialize the MagSymmOp from a 4x4 affine transformation matrix and time reversal
         operator. In general, this constructor should not be used unless you are transferring
         rotations. Use the static constructors instead to generate a SymmOp from proper rotations
         and translation.

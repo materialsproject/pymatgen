@@ -36,7 +36,7 @@ class Entry(MSONable, ABC):
     """
 
     def __init__(self, composition: Composition | str | dict[str, float], energy: float) -> None:
-        """Initializes an Entry.
+        """Initialize an Entry.
 
         Args:
             composition (Composition): Composition of the entry. For

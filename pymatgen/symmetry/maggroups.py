@@ -35,7 +35,7 @@ class MagneticSpaceGroup(SymmetryGroup):
     """Representation of a magnetic space group."""
 
     def __init__(self, label, setting_transformation="a,b,c;0,0,0"):
-        """Initializes a MagneticSpaceGroup from its Belov, Neronova and
+        """Initialize a MagneticSpaceGroup from its Belov, Neronova and
         Smirnova (BNS) number supplied as a list or its label supplied
         as a string. To create a magnetic structure in pymatgen, the
         Structure.from_magnetic_spacegroup() method can be used, which

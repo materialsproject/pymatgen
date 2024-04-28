@@ -292,7 +292,7 @@ class FloatWithUnit(float):
     """
 
     def __init__(self, val: float | Number, unit: str, unit_type: str | None = None) -> None:
-        """Initializes a float with unit.
+        """Initialize a float with unit.
 
         Args:
             val (float): Value

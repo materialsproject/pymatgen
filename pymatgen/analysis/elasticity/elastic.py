@@ -672,7 +672,7 @@ class ElasticTensorExpansion(TensorCollection):
         return c * 6.022e23
 
     def omega(self, structure: Structure, n, u):
-        """Finds directional frequency contribution to the heat
+        """Find directional frequency contribution to the heat
         capacity from direction and polarization.
 
         Args:
@@ -892,7 +892,7 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
 
 
 def find_eq_stress(strains, stresses, tol: float = 1e-10):
-    """Finds stress corresponding to zero strain state in stress-strain list.
+    """Find stress corresponding to zero strain state in stress-strain list.
 
     Args:
         strains (Nx3x3 array-like): array corresponding to strains

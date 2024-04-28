@@ -79,7 +79,7 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
     """
 
     def __init__(self, permutations):
-        """Initializes a separation plane for a given perfect coordination geometry.
+        """Initialize a separation plane for a given perfect coordination geometry.
 
         Args:
             permutations: Permutations used for this algorithm.
@@ -140,7 +140,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         multiplicity=None,
         other_plane_points=None,
     ):
-        """Initializes a separation plane for a given perfect coordination geometry.
+        """Initialize a separation plane for a given perfect coordination geometry.
 
         Args:
             plane_points: Indices of the points that are in the plane in the perfect structure (and should be

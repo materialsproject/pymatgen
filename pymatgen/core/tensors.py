@@ -739,7 +739,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         return all(tensor.is_symmetric(tol) for tensor in self)
 
     def fit_to_structure(self, structure: Structure, symprec: float = 0.1):
-        """Fits all tensors to a Structure.
+        """Fit all tensors to a Structure.
 
         Args:
             structure: Structure

@@ -45,7 +45,7 @@ class StandardTransmuter:
         extend_collection: int = 0,
         ncores: int | None = None,
     ) -> None:
-        """Initializes a transmuter from an initial list of
+        """Initialize a transmuter from an initial list of
         pymatgen.alchemy.materials.TransformedStructure.
 
         Args:

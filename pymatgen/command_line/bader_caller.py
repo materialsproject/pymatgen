@@ -73,7 +73,7 @@ class BaderAnalysis:
         bader_path: str | None = None,
         parse_atomic_densities: bool = False,
     ) -> None:
-        """Initializes the Bader caller.
+        """Initialize the Bader caller.
 
         Args:
             chgcar_filename (str): The filename of the CHGCAR.

@@ -43,7 +43,7 @@ class TransformedStructure(MSONable):
         history: list[AbstractTransformation | dict[str, Any]] | None = None,
         other_parameters: dict[str, Any] | None = None,
     ) -> None:
-        """Initializes a transformed structure from a structure.
+        """Initialize a transformed structure from a structure.
 
         Args:
             structure (Structure): Input structure

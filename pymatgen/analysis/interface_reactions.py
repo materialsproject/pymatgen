@@ -131,7 +131,7 @@ class InterfacialReactivity(MSONable):
                 self.e2 = self._get_entry_energy(self.pd, self.comp2)
 
     def get_kinks(self) -> list[tuple[int, float, float, Reaction, float]]:
-        """Finds all the kinks in mixing ratio where reaction products changes
+        """Find all the kinks in mixing ratio where reaction products changes
         along the tie-line of composition self.c1 and composition self.c2.
 
         Returns:
@@ -453,7 +453,7 @@ class InterfacialReactivity(MSONable):
 
     @staticmethod
     def _get_entry_energy(pd: PhaseDiagram, composition: Composition):
-        """Finds the lowest entry energy for entries matching the composition.
+        """Find the lowest entry energy for entries matching the composition.
         Entries with non-negative formation energies are excluded. If no
         entry is found, use the convex hull energy for the composition.
 
@@ -581,7 +581,7 @@ class InterfacialReactivity(MSONable):
 
     @property
     def minimum(self):
-        """Finds the minimum reaction energy E_min and corresponding
+        """Find the minimum reaction energy E_min and corresponding
         mixing ratio x_min.
 
         Returns:

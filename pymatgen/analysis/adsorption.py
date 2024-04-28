@@ -233,7 +233,7 @@ class AdsorbateSiteFinder:
         positions=("ontop", "bridge", "hollow"),
         no_obtuse_hollow=True,
     ):
-        """Finds surface sites according to the above algorithm. Returns a list
+        """Find surface sites according to the above algorithm. Returns a list
         of corresponding Cartesian coordinates.
 
         Args:
@@ -347,7 +347,7 @@ class AdsorbateSiteFinder:
 
     @classmethod
     def ensemble_center(cls, site_list, indices, cartesian=True):
-        """Finds the center of an ensemble of sites selected from a list of
+        """Find the center of an ensemble of sites selected from a list of
         sites. Helper method for the find_adsorption_sites algorithm.
 
         Args:

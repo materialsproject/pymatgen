@@ -2055,7 +2055,7 @@ def _get_slsqp_decomp(
     tols=(1e-8,),
     maxiter=1000,
 ):
-    """Finds the amounts of competing compositions that minimize the energy of a
+    """Find the amounts of competing compositions that minimize the energy of a
     given composition.
 
     The algorithm is based on the work in the following paper:

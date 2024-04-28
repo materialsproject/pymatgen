@@ -497,7 +497,7 @@ class StructureMatcher(MSONable):
 
     @classmethod
     def _cart_dists(cls, s1, s2, avg_lattice, mask, normalization, lll_frac_tol=None):
-        """Finds a matching in Cartesian space. Finds an additional
+        """Find a matching in Cartesian space. Finds an additional
         fractional translation vector to minimize RMS distance.
 
         Args:

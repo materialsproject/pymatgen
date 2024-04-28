@@ -787,7 +787,7 @@ class PourbaixDiagram(MSONable):
         return pourbaix_domains, pourbaix_domain_vertices
 
     def find_stable_entry(self, pH, V):
-        """Finds stable entry at a pH,V condition
+        """Find stable entry at a pH,V condition
 
         Args:
             pH (float): pH to find stable entry
@@ -800,7 +800,7 @@ class PourbaixDiagram(MSONable):
         return self.stable_entries[np.argmin(energies_at_conditions)]
 
     def get_decomposition_energy(self, entry, pH, V):
-        """Finds decomposition to most stable entries in eV/atom,
+        """Find decomposition to most stable entries in eV/atom,
         supports vectorized inputs for pH and V.
 
         Args:

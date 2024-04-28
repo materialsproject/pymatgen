@@ -85,7 +85,7 @@ class ChargemolAnalysis:
         atomic_densities_path: str | Path | None = None,
         run_chargemol: bool = True,
     ) -> None:
-        """Initializes the Chargemol Analysis.
+        """Initialize the Chargemol Analysis.
 
         Args:
             path (str): Path to the CHGCAR, POTCAR, AECCAR0, and AECCAR files.

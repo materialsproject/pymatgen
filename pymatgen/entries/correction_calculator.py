@@ -40,7 +40,7 @@ class CorrectionCalculator:
         allow_unstable: float | bool = 0.1,
         exclude_polyanions: list[str] | None = None,
     ) -> None:
-        """Initializes a CorrectionCalculator.
+        """Initialize a CorrectionCalculator.
 
         Args:
             species: list of species to calculate corrections for

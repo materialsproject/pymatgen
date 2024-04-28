@@ -936,7 +936,7 @@ class MagOrderingTransformation(AbstractTransformation):
 
 
 def find_codopant(target: Species, oxidation_state: float, allowed_elements: Sequence[str] | None = None) -> Species:
-    """Finds the element from "allowed elements" that (i) possesses the desired
+    """Find the element from "allowed elements" that (i) possesses the desired
     "oxidation state" and (ii) is closest in ionic radius to the target specie.
 
     Args:

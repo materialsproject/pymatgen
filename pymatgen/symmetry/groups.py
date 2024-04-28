@@ -109,7 +109,7 @@ class PointGroup(SymmetryGroup):
     """
 
     def __init__(self, int_symbol: str) -> None:
-        """Initializes a Point Group from its international symbol.
+        """Initialize a Point Group from its international symbol.
 
         Args:
             int_symbol (str): International or Hermann-Mauguin Symbol.
@@ -191,7 +191,7 @@ class SpaceGroup(SymmetryGroup):
     full_sg_mapping = {v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()}
 
     def __init__(self, int_symbol: str) -> None:
-        """Initializes a Space Group from its full or abbreviated international
+        """Initialize a Space Group from its full or abbreviated international
         symbol. Only standard settings are supported.
 
         Args:

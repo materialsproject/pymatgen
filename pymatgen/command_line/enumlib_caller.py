@@ -80,7 +80,7 @@ class EnumlibAdaptor:
         check_ordered_symmetry=True,
         timeout=None,
     ):
-        """Initializes the adapter with a structure and some parameters.
+        """Initialize the adapter with a structure and some parameters.
 
         Args:
             structure: An input structure.

@@ -354,7 +354,7 @@ class Simplex(MSONable):
     """
 
     def __init__(self, coords) -> None:
-        """Initializes a Simplex from vertex coordinates.
+        """Initialize a Simplex from vertex coordinates.
 
         Args:
             coords ([[float]]): Coords of the vertices of the simplex. E.g.,

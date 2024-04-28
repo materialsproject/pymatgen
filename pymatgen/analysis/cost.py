@@ -118,7 +118,6 @@ class CostDBElements(CostDBCSV):
     """Singleton object that provides the cost data for elements."""
 
     def __init__(self):
-        """Init."""
         CostDBCSV.__init__(self, f"{module_dir}/costdb_elements.csv")
 
 

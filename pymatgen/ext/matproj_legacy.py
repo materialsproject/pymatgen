@@ -433,7 +433,7 @@ class _MPResterLegacy:
         return [d[prop] for d in data]
 
     def find_structure(self, filename_or_structure):
-        """Finds matching structures on the Materials Project site.
+        """Find matching structures on the Materials Project site.
 
         Args:
             filename_or_structure: filename or Structure object
