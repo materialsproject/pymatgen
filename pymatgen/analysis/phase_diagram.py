@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import collections
 import itertools
 import json
 import logging
@@ -10,6 +9,7 @@ import math
 import os
 import re
 import warnings
+from collections import defaultdict
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, Literal, no_type_check
 
@@ -1181,7 +1181,7 @@ class PhaseDiagram(MSONable):
         else:
             el_energies = dict.fromkeys(elements, 0)
 
-        chempot_ranges = collections.defaultdict(list)
+        chempot_ranges = defaultdict(list)
         vertices = [list(range(len(self.elements)))]
 
         if len(all_chempots) > len(self.elements):
@@ -2631,7 +2631,7 @@ class PDPlotter:
                 if hasattr(el_ref, "original_entry"):  # for grand potential PDs, etc.
                     clean_formula = htmlify(el_ref.original_entry.reduced_formula)
 
-                layout["ternary"][axis + "axis"]["title"] = {
+                layout["ternary"][f"{axis}axis"]["title"] = {
                     "text": clean_formula,
                     "font": {"size": 24},
                 }

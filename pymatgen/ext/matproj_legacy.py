@@ -642,7 +642,7 @@ class _MPResterLegacy:
             refs = [e for e in ion_ref_entries if e.reduced_formula == i_d["Reference Solid"]]
             if not refs:
                 raise ValueError("Reference solid not contained in entry list")
-            stable_ref = sorted(refs, key=lambda x: x.data["e_above_hull"])[0]
+            stable_ref = min(refs, key=lambda x: x.data["e_above_hull"])
             rf = stable_ref.composition.get_reduced_composition_and_factor()[1]
 
             solid_diff = ion_ref_pd.get_form_energy(stable_ref) - i_d["Reference solid energy"] * rf

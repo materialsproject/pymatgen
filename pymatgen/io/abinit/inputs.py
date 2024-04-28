@@ -869,7 +869,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
 
         # Add JSON section with pseudo potentials.
         ppinfo = ["\n\n\n#<JSON>"]
-        psp_dict = {"pseudos": [p.as_dict() for p in self.pseudos]}
+        psp_dict = {"pseudos": [pseudo.as_dict() for pseudo in self.pseudos]}
         ppinfo.extend(json.dumps(psp_dict, indent=4).splitlines())
         ppinfo.append("</JSON>")
 
@@ -898,8 +898,8 @@ class BasicAbinitInput(AbstractInput, MSONable):
         self._structure = as_structure(structure)
 
         # Check volume
-        m = self.structure.lattice.matrix
-        if np.dot(np.cross(m[0], m[1]), m[2]) <= 0:
+        matrix = self.structure.lattice.matrix
+        if np.dot(np.cross(matrix[0], matrix[1]), matrix[2]) <= 0:
             raise self.Error("The triple product of the lattice vector is negative. Use structure.abi_sanitize.")
 
         return self._structure

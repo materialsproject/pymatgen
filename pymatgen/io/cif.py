@@ -105,7 +105,7 @@ class CifBlock:
             line = "\n"
             for val in map(self._format_field, fields):
                 if val[0] == ";":
-                    out += line + "\n" + val
+                    out += f"{line}\n{val}"
                     line = "\n"
                 elif len(line) + len(val) + 2 < self.max_len:
                     line += f"  {val}"
@@ -1541,10 +1541,7 @@ class CifWriter:
         else:
             # The following just presents a deterministic ordering.
             unique_sites = [
-                (
-                    sorted(sites, key=lambda s: tuple(abs(x) for x in s.frac_coords))[0],
-                    len(sites),
-                )
+                (min(sites, key=lambda site: tuple(abs(x) for x in site.frac_coords)), len(sites))
                 for sites in spg_analyzer.get_symmetrized_structure().equivalent_sites  # type: ignore[reportPossiblyUnboundVariable]
             ]
             for site, mult in sorted(
@@ -1567,6 +1564,14 @@ class CifWriter:
                     atom_site_label.append(site_label)
                     atom_site_occupancy.append(str(occu))
                     count += 1
+
+        if len(set(atom_site_label)) != len(atom_site_label):
+            warnings.warn(
+                "Site labels are not unique, which is not compliant with the CIF spec "
+                "(https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_label.html):"
+                f"`{atom_site_label}`.",
+                UserWarning,
+            )
 
         block["_atom_site_type_symbol"] = atom_site_type_symbol
         block["_atom_site_label"] = atom_site_label

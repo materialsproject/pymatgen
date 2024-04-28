@@ -51,7 +51,7 @@ try:
         raise RuntimeError("Imported due lacks .cite. DueCredit is now disabled")
 except Exception as exc:
     if not isinstance(exc, ImportError):
-        logging.getLogger("duecredit").error("Failed to import duecredit due to %s" % str(exc))
+        logging.getLogger("duecredit").error(f"Failed to import duecredit due to {exc}")
     # Initiate due stub
     due = InactiveDueCreditCollector()
     BibTeX = Doi = Url = Text = _donothing_func

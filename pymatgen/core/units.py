@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import collections
 import re
+from collections import defaultdict
 from functools import partial
 from numbers import Number
 from typing import TYPE_CHECKING, Any
@@ -175,7 +176,7 @@ class Unit(collections.abc.Mapping):
                 space-separated.
         """
         if isinstance(unit_def, str):
-            unit: dict[str, int] = collections.defaultdict(int)
+            unit: dict[str, int] = defaultdict(int)
 
             for match in re.finditer(r"([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
                 val = match.group(2)
@@ -187,7 +188,7 @@ class Unit(collections.abc.Mapping):
         self._unit = _check_mappings(unit)
 
     def __mul__(self, other):
-        new_units = collections.defaultdict(int)
+        new_units = defaultdict(int)
         for k, v in self.items():
             new_units[k] += v
         for k, v in other.items():
@@ -195,7 +196,7 @@ class Unit(collections.abc.Mapping):
         return Unit(new_units)
 
     def __truediv__(self, other):
-        new_units = collections.defaultdict(int)
+        new_units = defaultdict(int)
         for k, v in self.items():
             new_units[k] += v
         for k, v in other.items():
@@ -228,7 +229,7 @@ class Unit(collections.abc.Mapping):
             tuple[dict, float]: (base_units_dict, scaling factor). base_units_dict will not
                 contain any constants, which are gathered in the scaling factor.
         """
-        b = collections.defaultdict(int)
+        b = defaultdict(int)
         factor = 1
         for k, v in self.items():
             derived = False
@@ -387,18 +388,18 @@ class FloatWithUnit(float):
         return self._unit
 
     @classmethod
-    def from_str(cls, s: str) -> Self:
+    def from_str(cls, string: str) -> Self:
         """Parse string to FloatWithUnit.
         Example: Memory.from_str("1. Mb").
         """
         # Extract num and unit string.
-        s = s.strip()
-        for _idx, char in enumerate(s):
+        string = string.strip()
+        for _idx, char in enumerate(string):
             if char.isalpha() or char.isspace():
                 break
         else:
-            raise ValueError(f"Unit is missing in string {s}")
-        num, unit = float(s[:_idx]), s[_idx:]
+            raise ValueError(f"Unit is missing in string {string}")
+        num, unit = float(string[:_idx]), string[_idx:]
 
         # Find unit type (set it to None if it cannot be detected)
         for unit_type, dct in BASE_UNITS.items():

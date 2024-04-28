@@ -564,7 +564,7 @@ class Section(MSONable):
                 width=50,
             )
             string += f"\n{filled}\n"
-        string += "\t" * indent + "&" + d.name
+        string += "\t" * indent + f"&{d.name}"
         string += f" {' '.join(map(str, d.section_parameters))}\n"
 
         for v in d.keywords.values():

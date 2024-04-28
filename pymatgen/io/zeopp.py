@@ -178,18 +178,17 @@ class ZeoVoronoiXYZ(XYZ):
             ZeoVoronoiXYZ object
         """
         lines = contents.split("\n")
-        num_sites = int(lines[0])
+        n_sites = int(lines[0])
         coords = []
         sp = []
         prop = []
         coord_patt = re.compile(r"(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)")
-        for i in range(2, 2 + num_sites):
-            m = coord_patt.search(lines[i])
-            if m:
-                sp.append(m.group(1))  # this is 1-indexed
+        for idx in range(2, 2 + n_sites):
+            if match := coord_patt.search(lines[idx]):
+                sp.append(match.group(1))  # this is 1-indexed
                 # coords.append(map(float, m.groups()[1:4]))  # this is 0-indexed
-                coords.append([float(j) for j in [m.group(i) for i in [3, 4, 2]]])
-                prop.append(float(m.group(5)))
+                coords.append([float(j) for j in [match.group(i) for i in [3, 4, 2]]])
+                prop.append(float(match.group(5)))
         return cls(Molecule(sp, coords, site_properties={"voronoi_radius": prop}))
 
     @classmethod
@@ -343,7 +342,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         # generate_simplified_highaccuracy_voronoi_network(atom_net)
         # get_nearest_largest_diameter_highaccuracy_vornode(atom_net)
         red_ha_vornet.analyze_writeto_XYZ(name, probe_rad, atom_net)
-        voro_out_filename = name + "_voro.xyz"
+        voro_out_filename = f"{name}_voro.xyz"
         voro_node_mol = ZeoVoronoiXYZ.from_file(voro_out_filename).molecule
 
     species = ["X"] * len(voro_node_mol)
