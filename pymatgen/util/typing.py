@@ -49,4 +49,4 @@ Matrix3D = tuple[Vector3D, Vector3D, Vector3D]
 SitePropsType = Union[list[dict[Any, Sequence[Any]]], dict[Any, Sequence[Any]]]
 
 # Types specific to io.vasp
-Kpoint = tuple[int, int, int] | tuple[int,]
+Kpoint = Union[tuple[int, int, int], tuple[int,]]
