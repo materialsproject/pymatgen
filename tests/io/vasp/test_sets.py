@@ -1257,7 +1257,7 @@ class TestMITNEBSet(PymatgenTest):
 
     def test_kpoints(self):
         kpoints = self.vis.kpoints
-        assert kpoints.kpts == [(25),]
+        assert kpoints.kpts == [(25, ),]
         assert kpoints.style == Kpoints.supported_modes.Automatic
 
     def test_as_from_dict(self):
