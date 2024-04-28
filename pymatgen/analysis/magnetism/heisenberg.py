@@ -128,10 +128,9 @@ class HeisenbergMapper:
             structure (Structure): ground state Structure object.
 
         Returns:
-            unique_site_ids (dict): maps tuples of equivalent site indices to a
-                unique int identifier
-            wyckoff_ids (dict): maps tuples of equivalent site indices to their
-                wyckoff symbols
+            tuple[dict, dict]: unique_site_ids maps tuples of equivalent site indices to a
+                unique int identifier.
+                wyckoff_ids maps tuples of equivalent site indices to their wyckoff symbols
         """
         # Get a nonmagnetic representation of the supercell geometry
         s0 = CollinearMagneticStructureAnalyzer(
@@ -356,7 +355,7 @@ class HeisenbergMapper:
         solve for the exchange parameters.
 
         Returns:
-            ex_params (dict): Exchange parameter values (meV/atom).
+            dict[str, float]: Exchange parameters (meV/atom).
         """
         ex_mat = self.ex_mat
         # Solve the matrix equation for J_ij values
@@ -466,7 +465,7 @@ class HeisenbergMapper:
             afm_e (float): afm energy/atom
 
         Returns:
-            j_avg (float): Average exchange parameter (meV/atom)
+            float: Average J exchange parameter (meV/atom)
         """
         # Get low energy orderings if not supplied
         if any(arg is None for arg in [fm_struct, afm_struct, fm_e, afm_e]):
@@ -503,7 +502,7 @@ class HeisenbergMapper:
             j_avg (float): j_avg (float): Average exchange parameter (meV/atom)
 
         Returns:
-            mft_t (float): Critical temperature (K)
+            float: Critical temperature mft_t (K)
         """
         n_sub_lattices = len(self.unique_site_ids)
         k_boltzmann = 0.0861733  # meV/K
@@ -545,7 +544,7 @@ class HeisenbergMapper:
             filename (str): if not None, save interaction graph to filename.
 
         Returns:
-            igraph (StructureGraph): Exchange interaction graph.
+            StructureGraph: Exchange interaction graph.
         """
         structure = self.ordered_structures[0]
         sgraph = self.sgraphs[0]
@@ -593,7 +592,7 @@ class HeisenbergMapper:
                 (10E-2 precision)
 
         Returns:
-            j_exc (float): Exchange parameter in meV
+            float: Exchange parameter J_exc in meV
         """
         # Get unique site identifiers
         i_index = 0
@@ -964,7 +963,7 @@ class HeisenbergModel(MSONable):
             dist (float): distance (Angstrom) between sites +- tol
 
         Returns:
-            j_exc (float): Exchange parameter in meV
+            float: Exchange parameter J_exc in meV
         """
         # Get unique site identifiers
         i_index = 0

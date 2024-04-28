@@ -134,7 +134,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             points (tuple): the desired hkl indices.
 
         Returns:
-            Dict of hkl to its interplanar spacing, in angstroms (float).
+            dict[tuple[int, int, int], float]: hkl planes mapped to
+                interplanar spacings, in angstroms (float).
         """
         points_filtered = self.zone_axis_filter(points)
         if (0, 0, 0) in points_filtered:
@@ -152,7 +153,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             interplanar_spacings (dict): dictionary of hkl to interplanar spacing
 
         Returns:
-            dict of hkl plane (3-tuple) to Bragg angle in radians (float)
+            dict[tuple[int, int, int], float]: hkl planes mapped to Bragg angles [radians]
         """
         plane = list(interplanar_spacings)
         interplanar_spacings_val = np.array(list(interplanar_spacings.values()))
