@@ -114,7 +114,6 @@ setup(
         "pymatgen.vis": ["*.yaml"],
         "pymatgen.io.lammps": ["CoeffsDataType.yaml", "templates/*.template"],
         "pymatgen.symmetry": ["*.yaml", "*.json", "*.sqlite"],
-        "cmd_line": ["**/*"],
     },
     author="Pymatgen Development Team",
     author_email="ongsp@ucsd.edu",
