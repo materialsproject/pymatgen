@@ -297,7 +297,7 @@ class _MPResterLegacy:
             task_id (str): A task id.
 
         Returns:
-            materials_id (str)
+            str: An MP material id.
         """
         return self._make_request(f"/materials/mid_from_tid/{task_id}")
 
@@ -308,7 +308,7 @@ class _MPResterLegacy:
             material_id (str): A material id.
 
         Returns:
-            BibTeX (str)
+            str: A BibTeX formatted string.
         """
         return self._make_request(f"/materials/{material_id}/refs")
 

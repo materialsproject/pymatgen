@@ -544,7 +544,7 @@ class PeriodicSite(Site, MSONable):
                 the image that is nearest to the site is found.
 
         Returns:
-            distance (float): Distance between the two sites
+            float: distance between the two sites.
         """
         return self.distance_and_image(other, jimage)[0]
 

@@ -198,11 +198,12 @@ class Report(MSONable):
         and the number of bands.
 
         Returns:
-            spin (int): Whether turn on spin or not
-                1: turn down the spin
-                2: turn on the spin.
-            num_kpts (int): The number of kpoints.
-            num_bands (int): The number of bands.
+            tuple[int, int, int]: containing:
+                spin (int): Whether turn on spin or not
+                    1: turn down the spin
+                    2: turn on the spin.
+                num_kpts (int): The number of kpoints.
+                num_bands (int): The number of bands.
         """
         content: str = "SPIN"
         row_idx: int = LineLocator.locate_all_lines(file_path=self.filename, content=content)[0]
