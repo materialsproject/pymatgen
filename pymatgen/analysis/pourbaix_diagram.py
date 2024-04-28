@@ -145,8 +145,7 @@ class PourbaixEntry(MSONable, Stringify):
         return self.entry.elements
 
     def energy_at_conditions(self, pH, V):
-        """
-        Get free energy for a given pH and V.
+        """Get free energy for a given pH and V.
 
         Args:
             pH (float): pH at which to evaluate free energy
@@ -158,8 +157,7 @@ class PourbaixEntry(MSONable, Stringify):
         return self.energy + self.npH * PREFAC * pH + self.nPhi * V
 
     def get_element_fraction(self, element):
-        """
-        Gets the elemental fraction of a given non-OH element.
+        """Get the elemental fraction of a given non-OH element.
 
         Args:
             element (Element or str): string or element corresponding
@@ -180,8 +178,7 @@ class PourbaixEntry(MSONable, Stringify):
         return self.energy * self.normalization_factor
 
     def normalized_energy_at_conditions(self, pH, V):
-        """
-        Energy at an electrochemical condition, compatible with
+        """Energy at an electrochemical condition, compatible with
         numpy arrays for pH/V input.
 
         Args:
@@ -359,7 +356,7 @@ class IonEntry(PDEntry):
         return cls(Ion.from_dict(dct["ion"]), dct["energy"], dct.get("name"), dct.get("attribute"))
 
     def as_dict(self):
-        """Creates a dict of composition, energy, and ion name."""
+        """Create a dict of composition, energy, and ion name."""
         return {"ion": self.ion.as_dict(), "energy": self.energy, "name": self.name}
 
     def __repr__(self):
@@ -670,8 +667,7 @@ class PourbaixDiagram(MSONable):
 
     @staticmethod
     def process_multientry(entry_list, prod_comp, coeff_threshold=1e-4):
-        """
-        Static method for finding a multientry based on
+        """Static method for finding a multientry based on
         a list of entries and a product composition.
         Essentially checks to see if a valid aqueous
         reaction exists between the entries and the
@@ -791,8 +787,7 @@ class PourbaixDiagram(MSONable):
         return pourbaix_domains, pourbaix_domain_vertices
 
     def find_stable_entry(self, pH, V):
-        """
-        Finds stable entry at a pH,V condition
+        """Find stable entry at a pH,V condition
 
         Args:
             pH (float): pH to find stable entry
@@ -805,8 +800,7 @@ class PourbaixDiagram(MSONable):
         return self.stable_entries[np.argmin(energies_at_conditions)]
 
     def get_decomposition_energy(self, entry, pH, V):
-        """
-        Finds decomposition to most stable entries in eV/atom,
+        """Find decomposition to most stable entries in eV/atom,
         supports vectorized inputs for pH and V.
 
         Args:
@@ -836,8 +830,7 @@ class PourbaixDiagram(MSONable):
         return decomposition_energy
 
     def get_hull_energy(self, pH, V):
-        """
-        Gets the minimum energy of the Pourbaix "basin" that is formed
+        """Get the minimum energy of the Pourbaix "basin" that is formed
         from the stable Pourbaix planes. Vectorized.
 
         Args:
@@ -851,8 +844,7 @@ class PourbaixDiagram(MSONable):
         return np.min(all_gs, axis=0)
 
     def get_stable_entry(self, pH, V):
-        """
-        Gets the stable entry at a given pH, V condition.
+        """Get the stable entry at a given pH, V condition.
 
         Args:
             pH (float): pH at a given condition
@@ -928,8 +920,7 @@ class PourbaixPlotter:
         self._pbx = pourbaix_diagram
 
     def show(self, *args, **kwargs):
-        """
-        Shows the Pourbaix plot.
+        """Show the Pourbaix plot.
 
         Args:
             *args: args to get_pourbaix_plot

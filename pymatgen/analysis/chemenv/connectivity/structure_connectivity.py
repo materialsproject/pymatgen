@@ -143,8 +143,7 @@ class StructureConnectivity(MSONable):
                 )
 
     def setup_environment_subgraph(self, environments_symbols, only_atoms=None):
-        """
-        Set up the graph for predefined environments and optionally atoms.
+        """Set up the graph for predefined environments and optionally atoms.
 
         Args:
             environments_symbols: Symbols of the environments for the environment subgraph.

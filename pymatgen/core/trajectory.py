@@ -204,7 +204,7 @@ class Trajectory(MSONable):
         self.coords_are_displacement = False
 
     def to_displacements(self) -> None:
-        """Converts positions of trajectory into displacements between consecutive frames.
+        """Convert positions of trajectory into displacements between consecutive frames.
 
         `base_positions` and `coords` should both be in fractional coords. Does
         not work for absolute coords because the atoms are to be wrapped into the
@@ -402,7 +402,7 @@ class Trajectory(MSONable):
         system: str | None = None,
         significant_figures: int = 6,
     ) -> None:
-        """Writes to Xdatcar file.
+        """Write to Xdatcar file.
 
         The supported kwargs are the same as those for the
         Xdatcar_from_structs.get_str method and are passed through directly.

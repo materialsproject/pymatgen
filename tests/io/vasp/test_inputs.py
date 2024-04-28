@@ -341,8 +341,7 @@ direct
         with pytest.raises(ValueError, match="velocities array must be same length as the structure"):
             poscar.velocities = [[0, 0, 0]]
         poscar.selective_dynamics = np.array([[True, False, False]] * 24)
-        expected = """
-        Fe4P4O16
+        expected = """Fe4P4O16
 1.0
   10.4117668699494264    0.0000000000000000    0.0000000000000000
    0.0000000000000000    6.0671718799705294    0.0000000000000000

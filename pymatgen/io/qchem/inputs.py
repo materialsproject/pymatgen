@@ -512,8 +512,7 @@ class QCInput(InputFile):
 
     @staticmethod
     def solvent_template(solvent: dict) -> str:
-        """
-        Solvent template.
+        """Solvent template.
 
         Args:
             solvent ():
@@ -778,8 +777,7 @@ class QCInput(InputFile):
 
     @staticmethod
     def find_sections(string: str) -> list:
-        """
-        Find sections in the string.
+        """Find sections in the string.
 
         Args:
             string (str): String

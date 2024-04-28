@@ -213,7 +213,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @sites.setter
     def sites(self, sites: Sequence[PeriodicSite]) -> None:
-        """Sets the sites in the Structure."""
+        """Set the sites in the Structure."""
         # if self is mutable Structure or Molecule, set _sites as list
         is_mutable = isinstance(self._sites, list)  # type: ignore[has-type]
         self._sites = list(sites) if is_mutable else tuple(sites)
@@ -432,7 +432,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @property
     def is_ordered(self) -> bool:
-        """Checks if structure is ordered, meaning no partial occupancies in any
+        """Check if structure is ordered, meaning no partial occupancies in any
         of the sites.
         """
         return all(site.is_ordered for site in self)
@@ -490,7 +490,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @abstractmethod
     def to(self, filename: str = "", fmt: FileFormats = "") -> str | None:
-        """Generates string representations (cif, json, poscar, ....) of SiteCollections (e.g.,
+        """Generate string representations (cif, json, poscar, ....) of SiteCollections (e.g.,
         molecules / structures). Should return str or None if written to a file.
         """
         raise NotImplementedError
@@ -512,7 +512,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         raise NotImplementedError
 
     def add_site_property(self, property_name: str, values: Sequence | np.ndarray) -> SiteCollection:
-        """Adds a property to a site. Note: This is the preferred method
+        """Add a property to a site. Note: This is the preferred method
         for adding magnetic moments, selective dynamics, and related
         site-specific properties to a structure/molecule object.
 
@@ -744,7 +744,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return cluster
 
     def _calculate(self, calculator: str | Calculator, verbose: bool = False) -> Calculator:
-        """Performs an ASE calculation.
+        """Perform an ASE calculation.
 
         Args:
             calculator (str | Calculator): An ASE Calculator or a string from the following case-insensitive
@@ -788,7 +788,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return_trajectory: bool = False,
         verbose: bool = False,
     ) -> Structure | Molecule | tuple[Structure | Molecule, TrajectoryObserver | Trajectory]:
-        """Performs a structure relaxation using an ASE calculator.
+        """Perform a structure relaxation using an ASE calculator.
 
         Args:
             calculator (str | ase.Calculator): An ASE Calculator or a string from the following options: "M3GNet",
@@ -927,7 +927,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         raise ValueError(f"Unknown {calculator=}.")
 
     def to_ase_atoms(self, **kwargs) -> Atoms:
-        """Converts the structure/molecule to an ase.Atoms object.
+        """Convert the structure/molecule to an ase.Atoms object.
 
         Args:
             kwargs: Passed to ase.Atoms init.
@@ -1310,7 +1310,7 @@ class IStructure(SiteCollection, MSONable):
 
     @properties.setter
     def properties(self, properties: dict) -> None:
-        """Sets properties associated with the whole Structure."""
+        """Set properties associated with the whole Structure."""
         self._properties = properties
 
     @property
@@ -1417,7 +1417,7 @@ class IStructure(SiteCollection, MSONable):
         return hash(self.composition)
 
     def __mul__(self, scaling_matrix: int | Sequence[int] | Sequence[Sequence[int]]) -> Structure:
-        """Makes a supercell. Allowing to have sites outside the unit cell.
+        """Make a supercell. Allowing to have sites outside the unit cell.
 
         Args:
             scaling_matrix: A scaling matrix for transforming the lattice
@@ -3285,7 +3285,7 @@ class IMolecule(SiteCollection, MSONable):
         return tuple(type(self).from_sites(cluster) for cluster in clusters)
 
     def get_covalent_bonds(self, tol: float = 0.2) -> list[CovalentBond]:
-        """Determines the covalent bonds in a molecule.
+        """Determine the covalent bonds in a molecule.
 
         Args:
             tol (float): The tol to determine bonds in a structure. See
@@ -3389,7 +3389,7 @@ class IMolecule(SiteCollection, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct) -> IMolecule | Molecule:
+    def from_dict(cls, dct: dict) -> IMolecule | Molecule:
         """Reconstitute a Molecule object from a dict representation created using as_dict().
 
         Args:
@@ -3476,7 +3476,7 @@ class IMolecule(SiteCollection, MSONable):
         no_cross: bool = False,
         reorder: bool = True,
     ) -> IStructure | Structure:
-        """Creates a Structure from a Molecule by putting the Molecule in the
+        """Create a Structure from a Molecule by putting the Molecule in the
         center of a orthorhombic box. Useful for creating Structure for
         calculating molecules using periodic codes.
 
@@ -4138,13 +4138,13 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def apply_operation(self, symmop: SymmOp, fractional: bool = False) -> Self:
+    def apply_operation(self, symm_op: SymmOp, fractional: bool = False) -> Self:
         """Apply a symmetry operation to the structure in place and return the modified
         structure. The lattice is operated on by the rotation matrix only.
         Coords are operated in full and then transformed to the new lattice.
 
         Args:
-            symmop (SymmOp): Symmetry operation to apply.
+            symm_op (SymmOp): Symmetry operation to apply.
             fractional (bool): Whether the symmetry operation is applied in
                 fractional space. Defaults to False, i.e., symmetry operation
                 is applied in Cartesian coordinates.
@@ -4153,10 +4153,10 @@ class Structure(IStructure, collections.abc.MutableSequence):
             Structure: post-operation structure
         """
         if not fractional:
-            self._lattice = Lattice([symmop.apply_rotation_only(row) for row in self._lattice.matrix])
+            self._lattice = Lattice([symm_op.apply_rotation_only(row) for row in self._lattice.matrix])
 
             def operate_site(site):
-                new_cart = symmop.operate(site.coords)
+                new_cart = symm_op.operate(site.coords)
                 new_frac = self._lattice.get_fractional_coords(new_cart)
                 return PeriodicSite(
                     site.species,
@@ -4168,13 +4168,13 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 )
 
         else:
-            new_latt = np.dot(symmop.rotation_matrix, self._lattice.matrix)
+            new_latt = np.dot(symm_op.rotation_matrix, self._lattice.matrix)
             self._lattice = Lattice(new_latt)
 
             def operate_site(site):
                 return PeriodicSite(
                     site.species,
-                    symmop.operate(site.frac_coords),
+                    symm_op.operate(site.frac_coords),
                     self._lattice,
                     properties=site.properties,
                     skip_checks=True,
@@ -4314,7 +4314,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         return self
 
     def perturb(self, distance: float, min_distance: float | None = None) -> Self:
-        """Performs a random perturbation of the sites in a structure to break
+        """Perform a random perturbation of the sites in a structure to break
         symmetries. Modifies the structure in place.
 
         Args:
@@ -4379,7 +4379,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         return struct
 
     def scale_lattice(self, volume: float) -> Self:
-        """Performs a scaling of the lattice vectors so that length proportions
+        """Perform a scaling of the lattice vectors so that length proportions
         and angles are preserved.
 
         Args:
@@ -4437,7 +4437,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         return self
 
     def set_charge(self, new_charge: float = 0.0) -> Self:
-        """Sets the overall structure charge.
+        """Set the overall structure charge.
 
         Args:
             new_charge (float): new charge to set
@@ -4460,7 +4460,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         return_trajectory: bool = False,
         verbose: bool = False,
     ) -> Structure | tuple[Structure, TrajectoryObserver | Trajectory]:
-        """Performs a crystal structure relaxation using an ASE calculator.
+        """Perform a crystal structure relaxation using an ASE calculator.
 
         Args:
             calculator: An ASE Calculator or a string from the following options: "m3gnet".
@@ -4494,7 +4494,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         )
 
     def calculate(self, calculator: str | Calculator = "m3gnet", verbose: bool = False) -> Calculator:
-        """Performs an ASE calculation.
+        """Perform an ASE calculation.
 
         Args:
             calculator: An ASE Calculator or a string from the following options: "m3gnet".
@@ -4580,7 +4580,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         charge_spin_check: bool = True,
         properties: dict | None = None,
     ) -> None:
-        """Creates a MutableMolecule.
+        """Create a MutableMolecule.
 
         Args:
             species: list of atomic species. Possible kinds of input include a
@@ -4670,7 +4670,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         validate_proximity: bool = False,
         properties: dict | None = None,
     ) -> Molecule:
-        """Appends a site to the molecule.
+        """Append a site to the molecule.
 
         Args:
             species: Species of inserted site
@@ -4851,7 +4851,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         return self
 
     def perturb(self, distance: float) -> Molecule:
-        """Performs a random perturbation of the sites in a structure to break
+        """Perform a random perturbation of the sites in a structure to break
         symmetries.
 
         Args:
@@ -4872,18 +4872,18 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         return self
 
-    def apply_operation(self, symmop: SymmOp) -> Molecule:
+    def apply_operation(self, symm_op: SymmOp) -> Molecule:
         """Apply a symmetry operation to the molecule.
 
         Args:
-            symmop (SymmOp): Symmetry operation to apply.
+            symm_op (SymmOp): Symmetry operation to apply.
 
         Returns:
             Molecule: self after symmetry operation.
         """
 
         def operate_site(site):
-            new_cart = symmop.operate(site.coords)
+            new_cart = symm_op.operate(site.coords)
             return Site(site.species, new_cart, properties=site.properties, label=site.label)
 
         self.sites = [operate_site(site) for site in self]
@@ -4991,7 +4991,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         return_trajectory: bool = False,
         verbose: bool = False,
     ) -> Molecule | tuple[Molecule, TrajectoryObserver]:
-        """Performs a molecule relaxation using an ASE calculator.
+        """Perform a molecule relaxation using an ASE calculator.
 
         Args:
             calculator: An ASE Calculator or a string from the following options: "gfn2-xtb".
@@ -5021,7 +5021,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         )
 
     def calculate(self, calculator: str | Calculator = "gfn2-xtb", verbose: bool = False) -> Calculator:
-        """Performs an ASE calculation.
+        """Perform an ASE calculation.
 
         Args:
             calculator: An ASE Calculator or a string from the following options: "gfn2-xtb".

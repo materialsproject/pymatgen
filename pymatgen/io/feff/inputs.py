@@ -567,7 +567,7 @@ class Tags(dict):
         return tags_dict
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Creates Tags object from a dictionary.
 
@@ -696,8 +696,7 @@ class Tags(dict):
 
     @staticmethod
     def proc_val(key, val):
-        """
-        Static helper method to convert Feff parameters to proper types, e.g.
+        """Static helper method to convert Feff parameters to proper types, e.g.
         integers, floats, lists, etc.
 
         Args:
@@ -974,8 +973,7 @@ class Paths(MSONable):
 
 
 class FeffParseError(ParseError):
-    """
-    Exception class for Structure.
+    """Exception class for Structure.
     Raised when the structure has problems, e.g., atoms that are too close.
     """
 

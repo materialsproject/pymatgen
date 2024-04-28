@@ -348,8 +348,7 @@ class DftSet(Cp2kInput):
 
     @staticmethod
     def get_basis_and_potential(structure, basis_and_potential):
-        """
-        Get a dictionary of basis and potential info for constructing the input file.
+        """Get a dictionary of basis and potential info for constructing the input file.
 
         data in basis_and_potential argument can be specified in several ways:
 
@@ -563,8 +562,7 @@ class DftSet(Cp2kInput):
 
     @staticmethod
     def get_xc_functionals(xc_functionals: list | str | None = None) -> list:
-        """
-        Get XC functionals. If simplified names are provided in kwargs, they
+        """Get XC functionals. If simplified names are provided in kwargs, they
         will be expanded into their corresponding X and C names.
         """
         names = xc_functionals or SETTINGS.get("PMG_DEFAULT_CP2K_FUNCTIONAL")

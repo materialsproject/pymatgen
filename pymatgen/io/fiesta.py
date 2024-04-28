@@ -61,7 +61,7 @@ class Nwchem2Fiesta(MSONable):
         self._nwchemmovecs_fn = f"{filename}.movecs"
 
     def run(self):
-        """Performs actual NWCHEM2FIESTA run."""
+        """Perform actual NWCHEM2FIESTA run."""
         init_folder = os.getcwd()
         os.chdir(self.folder)
 
@@ -121,7 +121,7 @@ class FiestaRun(MSONable):
         self.grid = grid
 
     def run(self):
-        """Performs FIESTA (gw) run."""
+        """Perform FIESTA (gw) run."""
         if len(self.grid) == 3:
             self.mpi_procs = self.grid[0] * self.grid[1] * self.grid[2]
             self._gw_run()
@@ -132,7 +132,7 @@ class FiestaRun(MSONable):
             raise ValueError("Wrong grid size: must be [nrow, ncolumn, nslice] for gw of [nrow, nslice] for bse")
 
     def _gw_run(self):
-        """Performs FIESTA (gw) run."""
+        """Perform FIESTA (gw) run."""
         init_folder = os.getcwd()
         if self.folder != init_folder:
             os.chdir(self.folder)
@@ -155,7 +155,7 @@ class FiestaRun(MSONable):
             os.chdir(init_folder)
 
     def bse_run(self):
-        """Performs BSE run."""
+        """Perform BSE run."""
         init_folder = os.getcwd()
         if self.folder != init_folder:
             os.chdir(self.folder)
@@ -356,8 +356,7 @@ class FiestaInput(MSONable):
                     shutil.copyfile(f"{auxiliary_folder}/{file}", f"{folder}/{specie}2.ion")
 
     def set_gw_options(self, nv_band=10, nc_band=10, n_iteration=5, n_grid=6, dE_grid=0.5):
-        """
-        Set parameters in cell.in for a GW computation
+        """Set parameters in cell.in for a GW computation
 
         Args:
             nv__band: number of valence bands to correct with GW
@@ -378,8 +377,7 @@ class FiestaInput(MSONable):
         return "makedirs FULL_BSE_Densities folder"
 
     def set_bse_options(self, n_excitations=10, nit_bse=200):
-        """
-        Set parameters in cell.in for a BSE computation
+        """Set parameters in cell.in for a BSE computation
 
         Args:
             nv_bse: number of valence bands

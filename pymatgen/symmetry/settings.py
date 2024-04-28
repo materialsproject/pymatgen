@@ -157,23 +157,23 @@ class JonesFaithfulTransformation:
         p_string = transformation_to_string(np.zeros((3, 3)), p)
         return f"{P_string};{p_string}"
 
-    def transform_symmop(self, symmop: SymmOp | MagSymmOp) -> SymmOp | MagSymmOp:
+    def transform_symmop(self, symm_op: SymmOp | MagSymmOp) -> SymmOp | MagSymmOp:
         """Takes a symmetry operation and transforms it."""
-        W_rot = symmop.rotation_matrix
-        w_translation = symmop.translation_vector
+        W_rot = symm_op.rotation_matrix
+        w_translation = symm_op.translation_vector
         P_inv = np.linalg.inv(self.P)
         W_ = np.matmul(np.matmul(P_inv, W_rot), self.P)
         w_ = np.matmul(P_inv, (w_translation + np.matmul(W_rot - np.identity(3), self.p)))
         w_ = np.mod(w_, 1.0)
-        if isinstance(symmop, MagSymmOp):
+        if isinstance(symm_op, MagSymmOp):
             return MagSymmOp.from_rotation_and_translation_and_time_reversal(
                 rotation_matrix=W_,
                 translation_vec=w_,
-                time_reversal=symmop.time_reversal,
-                tol=symmop.tol,
+                time_reversal=symm_op.time_reversal,
+                tol=symm_op.tol,
             )
-        if isinstance(symmop, SymmOp):
-            return SymmOp.from_rotation_and_translation(rotation_matrix=W_, translation_vec=w_, tol=symmop.tol)
+        if isinstance(symm_op, SymmOp):
+            return SymmOp.from_rotation_and_translation(rotation_matrix=W_, translation_vec=w_, tol=symm_op.tol)
         raise RuntimeError
 
     def transform_coords(self, coords: list[list[float]] | np.ndarray) -> list[list[float]]:

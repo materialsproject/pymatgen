@@ -291,7 +291,7 @@ class ComputedEntry(Entry):
         data: dict | None = None,
         entry_id: object | None = None,
     ):
-        """Initializes a ComputedEntry.
+        """Initialize a ComputedEntry.
 
         Args:
             composition (Composition): Composition of the entry. For
@@ -557,7 +557,7 @@ class ComputedStructureEntry(ComputedEntry):
         data: dict | None = None,
         entry_id: object | None = None,
     ) -> None:
-        """Initializes a ComputedStructureEntry.
+        """Initialize a ComputedStructureEntry.
 
         Args:
             structure (Structure): The actual structure of an entry.
@@ -611,7 +611,7 @@ class ComputedStructureEntry(ComputedEntry):
         return dct
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -944,7 +944,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         return dct
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.

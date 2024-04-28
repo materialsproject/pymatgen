@@ -398,8 +398,8 @@ class Slab(Structure):
         point: ArrayLike,
         cartesian: bool = False,
     ) -> ArrayLike:
-        """This method uses symmetry operations to find an equivalent site on
-        the other side of the slab. Works mainly for slabs with Laue symmetry.
+        """Use symmetry operations to find an equivalent site on the other side of
+        the slab. Works mainly for slabs with Laue symmetry.
 
         This is useful for retaining the non-polar and
         symmetric properties of a slab when creating adsorbed
@@ -899,7 +899,7 @@ class SlabGenerator:
         max_normal_search: int | None = None,
         reorient_lattice: bool = True,
     ) -> None:
-        """Calculates the slab scale factor and uses it to generate an
+        """Calculate the slab scale factor and uses it to generate an
         oriented unit cell (OUC) of the initial structure.
         Also stores the initial information needed later on to generate a slab.
 
@@ -1739,7 +1739,7 @@ class ReconstructionGenerator:
         min_vacuum_size: float,
         reconstruction_name: str,
     ) -> None:
-        """Generates reconstructed slabs from a set of instructions.
+        """Generate reconstructed slabs from a set of instructions.
 
         Args:
             initial_structure (Structure): Initial input structure. Note

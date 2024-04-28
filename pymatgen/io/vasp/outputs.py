@@ -793,7 +793,7 @@ class Vasprun(MSONable):
 
     @property
     def md_n_steps(self) -> int:
-        """Number of steps for md runs."""
+        """Number of steps for MD runs."""
         # if ML enabled count all the actual MD steps
         if self.md_data:
             return len(self.md_data)
@@ -1169,8 +1169,7 @@ class Vasprun(MSONable):
             ]
 
     def update_charge_from_potcar(self, path):
-        """
-        Sets the charge of a structure based on the POTCARs found.
+        """Set the charge of a structure based on the POTCARs found.
 
         Args:
             path: Path to search for POTCARs
@@ -4121,8 +4120,7 @@ class Xdatcar:
 
     @property
     def site_symbols(self):
-        """
-        Sequence of symbols associated with the Xdatcar. Similar to 6th line in
+        """Sequence of symbols associated with the Xdatcar. Similar to 6th line in
         vasp 5+ Xdatcar.
         """
         syms = [site.specie.symbol for site in self.structures[0]]
@@ -4130,8 +4128,7 @@ class Xdatcar:
 
     @property
     def natoms(self):
-        """
-        Sequence of number of sites of each type associated with the Poscar.
+        """Sequence of number of sites of each type associated with the Poscar.
         Similar to 7th line in vasp 5+ Xdatcar.
         """
         syms = [site.specie.symbol for site in self.structures[0]]
@@ -4679,8 +4676,7 @@ class Wavecar:
         return gpoints, extra_gpoints, extra_coeff_inds
 
     def evaluate_wavefunc(self, kpoint: int, band: int, r: np.ndarray, spin: int = 0, spinor: int = 0) -> np.complex64:
-        r"""
-        Evaluates the wavefunction for a given position, r.
+        r"""Evaluates the wavefunction for a given position, r.
 
         The wavefunction is given by the k-point and band. It is evaluated
         at the given position by summing over the components. Formally,
@@ -5147,8 +5143,7 @@ class Waveder(MSONable):
 
 @dataclass
 class WSWQ(MSONable):
-    r"""
-    Class for reading a WSWQ file.
+    r"""Read a WSWQ file.
     The WSWQ file is used to calculation the wave function overlaps between
         - W: Wavefunctions in the current directory's WAVECAR file
         - WQ: Wavefunctions stored in a filed named the WAVECAR.qqq.
@@ -5185,7 +5180,7 @@ class WSWQ(MSONable):
 
     @classmethod
     def from_file(cls, filename: str) -> Self:
-        """Constructs a WSWQ object from a file.
+        """Construct a WSWQ object from a file.
 
         Args:
             filename (str): Name of WSWQ file.

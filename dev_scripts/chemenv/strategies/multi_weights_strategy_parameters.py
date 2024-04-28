@@ -52,8 +52,7 @@ class CoordinationEnvironmentMorphing:
 
     @classmethod
     def simple_expansion(cls, initial_environment_symbol, expected_final_environment_symbol, neighbors_indices):
-        """
-        Simple expansion of a coordination environment.
+        """Simple expansion of a coordination environment.
 
         Args:
             initial_environment_symbol (str): The initial coordination environment symbol.

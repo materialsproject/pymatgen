@@ -460,7 +460,7 @@ class AtomConfig(MSONable):
         return "".join(lines)
 
     def write_file(self, filename: PathLike, **kwargs):
-        """Writes AtomConfig to a file."""
+        """Write AtomConfig to a file."""
         with zopen(filename, "wt") as file:
             file.write(self.get_str(**kwargs))
 
@@ -576,7 +576,7 @@ class GenKpt(MSONable):
         return gen_kpt_str
 
     def write_file(self, filename: PathLike):
-        """Writes gen.kpt to a file.
+        """Write gen.kpt to a file.
 
         Args:
             filename (PathLike): The absolute path of file to be written.

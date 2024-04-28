@@ -503,8 +503,7 @@ class DictSet(VaspInputSet):
         prev_dir: str | Path | None = None,
         potcar_spec: bool = False,
     ) -> VaspInput:
-        """
-        Get a VASP input set.
+        """Get a VASP input set.
 
         Note, if both ``structure`` and ``prev_dir`` are set, then the structure
         specified will be preferred over the final structure from the last VASP run.
@@ -788,7 +787,7 @@ class DictSet(VaspInputSet):
 
     @property
     def nelect(self) -> float:
-        """Gets the default number of electrons for a given structure."""
+        """Get the default number of electrons for a given structure."""
         if self.structure is None:
             raise RuntimeError("No structure is associated with the input set!")
 
@@ -955,8 +954,7 @@ class DictSet(VaspInputSet):
         return super().potcar
 
     def estimate_nbands(self) -> int:
-        """
-        Estimate the number of bands that VASP will initialize a
+        """Estimate the number of bands that VASP will initialize a
         calculation with by default. Note that in practice this
         can depend on # of cores (if not set explicitly).
         Note that this formula is slightly different than the formula on the VASP wiki
@@ -1256,8 +1254,7 @@ class MPRelaxSet(DictSet):
 )
 @dataclass
 class MPScanRelaxSet(DictSet):
-    """
-    Class for writing a relaxation input set using the accurate and numerically
+    """Write a relaxation input set using the accurate and numerically
     efficient r2SCAN variant of the Strongly Constrained and Appropriately Normed
     (SCAN) metaGGA density functional.
 
@@ -1358,7 +1355,7 @@ class MPHSERelaxSet(DictSet):
 
 @dataclass
 class MPStaticSet(DictSet):
-    """Creates input files for a static calculation.
+    """Create input files for a static calculation.
 
     Args:
         structure (Structure): Structure from previous run.
@@ -1418,7 +1415,7 @@ class MPStaticSet(DictSet):
 
 @dataclass
 class MatPESStaticSet(DictSet):
-    """Creates input files for a MatPES static calculation.
+    """Create input files for a MatPES static calculation.
 
     The goal of MatPES is to generate potential energy surface data. This is a distinctly different
     from the objectives of the MP static calculations, which aims to obtain primarily accurate
@@ -2101,10 +2098,8 @@ class MVLGWSet(DictSet):
 
 @dataclass
 class MVLSlabSet(DictSet):
-    """
-    Class for writing a set of slab vasp runs,
-    including both slabs (along the c direction) and orient unit cells (bulk),
-    to ensure the same KPOINTS, POTCAR and INCAR criterion.
+    """Write a set of slab vasp runs, including both slabs (along the c direction)
+    and orient unit cells (bulk), to ensure the same KPOINTS, POTCAR and INCAR criterion.
 
     Args:
         structure: Structure
@@ -2179,8 +2174,7 @@ class MVLSlabSet(DictSet):
 
 @dataclass
 class MVLGBSet(DictSet):
-    """
-    Class for writing a vasp input files for grain boundary calculations, slab or bulk.
+    """Write a vasp input files for grain boundary calculations, slab or bulk.
 
     Args:
         structure (Structure): provide the structure
@@ -2269,8 +2263,7 @@ class MVLRelax52Set(DictSet):
 
 
 class MITNEBSet(DictSet):
-    """
-    Class for writing NEB inputs.
+    """Write NEB inputs.
 
     Note that EDIFF is not on a per atom basis for this input set.
     """
@@ -2377,8 +2370,7 @@ class MITNEBSet(DictSet):
 
 @dataclass
 class MITMDSet(DictSet):
-    """
-    Class for writing a vasp md run. This DOES NOT do multiple stage runs.
+    """Write a VASP MD run. This DOES NOT do multiple stage runs.
 
     Args:
         structure (Structure): Input structure.
@@ -2450,7 +2442,7 @@ class MPMDSet(DictSet):
         Limit for Synthesis of Metastable Inorganic Materials. Sci. Adv. 2018,
         4 (4).
 
-    Class for writing a vasp md run. This DOES NOT do multiple stage runs.
+    Class for writing a VASP MD run. This DOES NOT do multiple stage runs.
     Precision remains normal, to increase accuracy of stress tensor.
 
     Args:
@@ -2526,8 +2518,7 @@ class MPMDSet(DictSet):
 
 @dataclass
 class MVLNPTMDSet(DictSet):
-    """
-    Class for writing a vasp md run in NPT ensemble.
+    """Write a VASP MD run in NPT ensemble.
 
     Notes:
         To eliminate Pulay stress, the default ENCUT is set to a rather large
@@ -2591,8 +2582,7 @@ class MVLNPTMDSet(DictSet):
 
 @dataclass
 class MVLScanRelaxSet(DictSet):
-    """
-    Class for writing a relax input set using Strongly Constrained and
+    """Write a relax input set using Strongly Constrained and
     Appropriately Normed (SCAN) semilocal density functional.
 
     Notes:

@@ -864,7 +864,7 @@ class Lattice(MSONable):
         atol: float = 1,
         skip_rotation_matrix: bool = False,
     ) -> Iterator[tuple[Lattice, np.ndarray | None, np.ndarray]]:
-        """Finds all mappings between current lattice and another lattice.
+        """Find all mappings between current lattice and another lattice.
 
         Args:
             other_lattice (Lattice): Another lattice that is equivalent to this one.
@@ -932,7 +932,7 @@ class Lattice(MSONable):
         atol: float = 1,
         skip_rotation_matrix: bool = False,
     ) -> tuple[Lattice, np.ndarray | None, np.ndarray] | None:
-        """Finds a mapping between current lattice and another lattice. There
+        """Find a mapping between current lattice and another lattice. There
         are an infinite number of choices of basis vectors for two entirely
         equivalent lattices. This method returns a mapping that maps
         other_lattice to this lattice.
@@ -978,7 +978,7 @@ class Lattice(MSONable):
         return cls(self._lll_matrix_mappings[delta][0])
 
     def _calculate_lll(self, delta: float = 0.75) -> tuple[np.ndarray, np.ndarray]:
-        """Performs a Lenstra-Lenstra-Lovasz lattice basis reduction to obtain a
+        """Perform a Lenstra-Lenstra-Lovasz lattice basis reduction to obtain a
         c-reduced basis. This method returns a basis which is as "good" as
         possible, with "good" defined by orthogonality of the lattice vectors.
 
@@ -1544,7 +1544,7 @@ class Lattice(MSONable):
         frac_coords2: ArrayLike,
         jimage: ArrayLike | None = None,
     ) -> tuple[float, np.ndarray]:
-        """Gets distance between two frac_coords assuming periodic boundary
+        """Get distance between two frac_coords assuming periodic boundary
         conditions. If the index jimage is not specified it selects the j
         image nearest to the i atom and returns the distance and jimage
         indices in terms of lattice vector translations. If the index jimage
@@ -1660,7 +1660,7 @@ def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose:
     mi /= min(m for m in mi if m != 0)
     mi /= np.max(np.abs(mi))
 
-    # deal with the case we have nice fractions
+    # deal with the case where we have nice fractions
     md = [Fraction(n).limit_denominator(12).denominator for n in mi]
     mi *= reduce(operator.mul, md)
     int_miller_index = np.round(mi, 1).astype(int)

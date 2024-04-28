@@ -64,8 +64,7 @@ class Unk:
 
     @data.setter
     def data(self, value: np.ndarray) -> None:
-        """
-        Sets the value of data.
+        """Set the value of data.
 
         Args:
             value (np.ndarray): data to replace stored data, must have shape

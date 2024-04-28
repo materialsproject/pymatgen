@@ -408,8 +408,7 @@ class Reaction(BalancedReaction):
 
 
 class ReactionError(Exception):
-    """
-    Exception class for Reactions. Allows more information in exception
+    """Exception class for Reactions. Allows more information in exception
     messages to cover situations not covered by standard exception classes.
     """
 
@@ -450,8 +449,7 @@ class ComputedReaction(Reaction):
 
     @property
     def all_entries(self):
-        """
-        Equivalent of all_comp but returns entries, in the same order as the
+        """Equivalent of all_comp but returns entries, in the same order as the
         coefficients.
         """
         entries = []

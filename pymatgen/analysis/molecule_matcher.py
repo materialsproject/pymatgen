@@ -236,8 +236,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 
     @staticmethod
     def _inchi_labels(mol):
-        """
-        Get the inchi canonical labels of the heavy atoms in the molecule.
+        """Get the inchi canonical labels of the heavy atoms in the molecule.
 
         Args:
             mol: The molecule. OpenBabel OBMol object
@@ -590,8 +589,7 @@ class MoleculeMatcher(MSONable):
         self._mapper = mapper or InchiMolAtomMapper()
 
     def fit(self, mol1, mol2):
-        """
-        Fit two molecules.
+        """Fit two molecules.
 
         Args:
             mol1: First molecule. OpenBabel OBMol or pymatgen Molecule object
@@ -603,8 +601,7 @@ class MoleculeMatcher(MSONable):
         return self.get_rmsd(mol1, mol2) < self._tolerance
 
     def get_rmsd(self, mol1, mol2):
-        """
-        Get RMSD between two molecule with arbitrary atom order.
+        """Get RMSD between two molecule with arbitrary atom order.
 
         Returns:
             RMSD if topology of the two molecules are the same
@@ -939,7 +936,7 @@ class BruteForceOrderMatcher(KabschMatcher):
 
     @staticmethod
     def permutations(atoms):
-        """Generates all the possible permutations of atom order. To achieve better
+        """Generate all the possible permutations of atom order. To achieve better
         performance all the cases where the atoms are different has been ignored.
         """
         element_iterators = [itertools.permutations(np.where(atoms == element)[0]) for element in np.unique(atoms)]
@@ -949,7 +946,7 @@ class BruteForceOrderMatcher(KabschMatcher):
 
 
 class HungarianOrderMatcher(KabschMatcher):
-    """This method pre-aligns the molecules based on their principal inertia
+    """Pre-align the molecules based on their principal inertia
     axis and then re-orders the input atom list using the Hungarian method.
 
     Notes:
@@ -1032,7 +1029,7 @@ class HungarianOrderMatcher(KabschMatcher):
 
     @staticmethod
     def permutations(p_atoms, p_centroid, p_weights, q_atoms, q_centroid, q_weights):
-        """Generates two possible permutations of atom order. This method uses the principle component
+        """Generate two possible permutations of atom order. This method uses the principle component
         of the inertia tensor to pre-align the molecules and hungarian method to determine the order.
         There are always two possible permutation depending on the way to pre-aligning the molecules.
 
@@ -1249,7 +1246,7 @@ class GeneticOrderMatcher(KabschMatcher):
         return out
 
     def permutations(self, p: Molecule):
-        """Generates all of possible permutations of atom order according the threshold.
+        """Generate all of possible permutations of atom order according the threshold.
 
         Args:
             p: a `Molecule` object what will be matched with the target one.

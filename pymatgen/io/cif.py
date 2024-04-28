@@ -329,7 +329,7 @@ class CifParser:
         self.warnings: list[str] = []
 
         def is_magcif() -> bool:
-            """Checks to see if file appears to be a magCIF file (heuristic)."""
+            """Check to see if file appears to be a magCIF file (heuristic)."""
             # Doesn't seem to be a canonical way to test if file is magCIF or
             # not, so instead check for magnetic symmetry datanames
             prefixes = ["_space_group_magn", "_atom_site_moment", "_space_group_symop_magn"]
@@ -382,8 +382,7 @@ class CifParser:
         return cls(stream, **kwargs)
 
     def _sanitize_data(self, data):
-        """
-        Some CIF files do not conform to spec. This function corrects
+        """Some CIF files do not conform to spec. This function corrects
         known issues, particular in regards to Springer materials/
         Pauling files.
 
@@ -774,8 +773,7 @@ class CifParser:
         return sym_ops
 
     def get_magsymops(self, data):
-        """
-        Equivalent to get_symops except for magnetic symmetry groups.
+        """Equivalent to get_symops except for magnetic symmetry groups.
         Separate function since additional operation for time reversal symmetry
         (which changes magnetic moments on sites) needs to be returned.
         """
@@ -1233,8 +1231,7 @@ class CifParser:
         return structures
 
     def get_bibtex_string(self) -> str:
-        """
-        Get BibTeX reference from CIF file.
+        """Get BibTeX reference from CIF file.
 
         args:
             data:

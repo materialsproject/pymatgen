@@ -113,7 +113,7 @@ class Correction(abc.ABC):
 
 
 class PotcarCorrection(Correction):
-    """Checks that POTCARs are valid within a pre-defined input set. This
+    """Check that POTCARs are valid within a pre-defined input set. This
     ensures that calculations performed using different InputSets are not
     compared against each other.
 
@@ -699,9 +699,8 @@ class CorrectionsList(Compatibility):
         return corrections, uncertainties
 
     def get_explanation_dict(self, entry):
-        """Provides an explanation dict of the corrections that are being applied
-        for a given compatibility scheme. Inspired by the "explain" methods
-        in many database methodologies.
+        """Explain the corrections applied for a given compatibility scheme. Inspired by the
+        "explain" methods in many database methodologies.
 
         Args:
             entry: A ComputedEntry.

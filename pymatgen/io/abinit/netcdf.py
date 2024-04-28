@@ -462,8 +462,7 @@ class AbinitHeader(AttrDict):
         return self.to_str()
 
     def to_str(self, verbose=0, title=None, **kwargs):
-        """
-        String representation. kwargs are passed to `pprint.pformat`.
+        """String representation. kwargs are passed to `pprint.pformat`.
 
         Args:
             verbose: Verbosity level

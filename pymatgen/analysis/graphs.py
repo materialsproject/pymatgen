@@ -986,8 +986,7 @@ class StructureGraph(MSONable):
 
     @property
     def types_and_weights_of_connections(self) -> dict:
-        """
-        Extract a dictionary summarizing the types and weights
+        """Extract a dictionary summarizing the types and weights
         of edges in the graph.
 
         Returns:
@@ -1011,8 +1010,7 @@ class StructureGraph(MSONable):
 
     @property
     def weight_statistics(self) -> dict:
-        """
-        Extract a statistical summary of edge weights present in
+        """Extract a statistical summary of edge weights present in
         the graph.
 
         Returns:
@@ -1031,8 +1029,7 @@ class StructureGraph(MSONable):
         }
 
     def types_of_coordination_environments(self, anonymous: bool = False) -> list[str]:
-        """
-        Extract information on the different co-ordination environments
+        """Extract information on the different co-ordination environments
         present in the graph.
 
         Args:
@@ -1085,7 +1082,7 @@ class StructureGraph(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """As in pymatgen.core.Structure except restoring graphs using from_dict_of_dicts
         from NetworkX to restore graph information.
         """
@@ -2075,8 +2072,7 @@ class MoleculeGraph(MSONable):
         return sub_mols
 
     def split_molecule_subgraphs(self, bonds, allow_reverse=False, alterations=None):
-        """
-        Split MoleculeGraph into two or more MoleculeGraphs by
+        """Split MoleculeGraph into two or more MoleculeGraphs by
         breaking a set of bonds. This function uses
         MoleculeGraph.break_edge repeatedly to create
         disjoint graphs (two or more separate molecules).
@@ -2129,8 +2125,7 @@ class MoleculeGraph(MSONable):
         return original.get_disconnected_fragments()
 
     def build_unique_fragments(self):
-        """
-        Find all possible fragment combinations of the MoleculeGraphs (in other
+        """Find all possible fragment combinations of the MoleculeGraphs (in other
         words, all connected induced subgraphs).
         """
         self.set_node_attributes()
@@ -2399,8 +2394,7 @@ class MoleculeGraph(MSONable):
             )
 
     def find_rings(self, including=None) -> list[list[tuple[int, int]]]:
-        """
-        Find ring structures in the MoleculeGraph.
+        """Find ring structures in the MoleculeGraph.
 
         Args:
             including (list[int]): list of site indices. If including is not None, then find_rings

@@ -314,12 +314,6 @@ class Section(MSONable):
         s2.silence()
         return d2.as_dict() == s2.as_dict()
 
-    def __deepcopy__(self, memodict=None):
-        c = copy.deepcopy(self.as_dict())
-        return getattr(__import__(c["@module"], globals(), locals(), c["@class"], 0), c["@class"]).from_dict(
-            copy.deepcopy(self.as_dict())
-        )
-
     def __getitem__(self, d):
         if r := self.get_keyword(d) or self.get_section(d):
             return r
@@ -387,8 +381,7 @@ class Section(MSONable):
         return self + other
 
     def get(self, d, default=None):
-        """
-        Similar to get for dictionaries. This will attempt to retrieve the
+        """Similar to get for dictionaries. This will attempt to retrieve the
         section or keyword matching d. Will not raise an error if d does not exist.
 
         Args:
@@ -403,8 +396,7 @@ class Section(MSONable):
         return default
 
     def get_section(self, d, default=None):
-        """
-        Get function, only for subsections.
+        """Get function, only for subsections.
 
         Args:
             d: Name of section to get
@@ -416,8 +408,7 @@ class Section(MSONable):
         return default
 
     def get_keyword(self, d, default=None):
-        """
-        Get function, only for subsections.
+        """Get function, only for subsections.
 
         Args:
             d: Name of keyword to get
@@ -633,9 +624,6 @@ class SectionList(MSONable):
     def __getitem__(self, item):
         return self.sections[item]
 
-    def __deepcopy__(self, memodict=None):
-        return SectionList(sections=[d.__deepcopy__() for d in self.sections])
-
     @staticmethod
     def _get_str(d, indent=0):
         return " \n".join(s._get_str(s, indent) for s in d)
@@ -645,8 +633,7 @@ class SectionList(MSONable):
         return SectionList._get_str(self.sections)
 
     def get(self, d, index=-1):
-        """
-        Get for section list. If index is specified, return the section at that index.
+        """Get for section list. If index is specified, return the section at that index.
         Otherwise, return a get on the last section.
         """
         return self.sections[index].get(d)
@@ -696,17 +683,14 @@ class Cp2kInput(Section):
         return string
 
     @classmethod
-    def _from_dict(cls, dct):
+    def _from_dict(cls, dct: dict):
         """Initialize from a dictionary."""
-        return Cp2kInput(
-            "CP2K_INPUT",
-            subsections=getattr(
-                __import__(dct["@module"], globals(), locals(), dct["@class"], 0),
-                dct["@class"],
-            )
-            .from_dict(dct)
-            .subsections,
+        constructor = getattr(
+            __import__(dct["@module"], globals(), locals(), dct["@class"], 0),
+            dct["@class"],
         )
+
+        return Cp2kInput("CP2K_INPUT", subsections=constructor.from_dict(dct).subsections)
 
     @classmethod
     def from_file(cls, filename: str | Path) -> Self:
@@ -2233,8 +2217,7 @@ class BasisInfo(MSONable):
     xc: str | None = None
 
     def softmatch(self, other):
-        """
-        Soft matching to see if two basis sets match.
+        """Soft matching to see if two basis sets match.
 
         Will only match those attributes which *are* defined for this basis info object (one way checking)
         """
@@ -2321,8 +2304,7 @@ class AtomicMetadata(MSONable):
     version: str | None = None
 
     def softmatch(self, other):
-        """
-        Soft matching to see if a desired basis/potential matches requirements.
+        """Soft matching to see if a desired basis/potential matches requirements.
 
         Does soft matching on the "info" attribute first. Then soft matches against the
         element and name/aliases.
@@ -2534,8 +2516,7 @@ class PotentialInfo(MSONable):
     xc: str | None = None
 
     def softmatch(self, other):
-        """
-        Soft matching to see if two potentials match.
+        """Soft matching to see if two potentials match.
 
         Will only match those attributes which *are* defined for this basis info object (one way checking)
         """

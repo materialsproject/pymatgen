@@ -298,7 +298,7 @@ class SlabEntry(ComputedStructureEntry):
 
     @property
     def surface_area(self):
-        """Calculates the surface area of the slab."""
+        """Calculate the surface area of the slab."""
         matrix = self.structure.lattice.matrix
         return np.linalg.norm(np.cross(matrix[0], matrix[1]))
 
@@ -1092,8 +1092,7 @@ class SurfaceEnergyPlotter:
         annotate_monolayer=True,
         JPERM2=False,
     ):
-        """
-        For each facet, plot the clean surface energy against the most
+        """For each facet, plot the clean surface energy against the most
             stable binding energy.
 
         Args:
@@ -1273,8 +1272,7 @@ class SurfaceEnergyPlotter:
         return ax
 
     def set_all_variables(self, delu_dict, delu_default):
-        """
-        Sets all chemical potential values and returns a dictionary where
+        """Set all chemical potential values and returns a dictionary where
             the key is a sympy Symbol and the value is a float (chempot).
 
         Args:
@@ -1742,8 +1740,7 @@ class NanoscaleStability:
         return bulk_entry.energy / bulk_entry.structure.volume
 
     def scaled_wulff(self, wulff_shape, r):
-        """
-        Scales the Wulff shape with an effective radius r. Note that the resulting
+        """Scales the Wulff shape with an effective radius r. Note that the resulting
             Wulff does not necessarily have the same effective radius as the one
             provided. The Wulff shape is scaled by its surface energies where first
             the surface energies are scale by the minimum surface energy and then
