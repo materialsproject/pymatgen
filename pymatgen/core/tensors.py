@@ -178,7 +178,7 @@ class Tensor(np.ndarray, MSONable):
         return sum(w * self.project(n) for w, n in zip(weights, points))
 
     def get_grouped_indices(self, voigt=False, **kwargs):
-        """Gets index sets for equivalent tensor values.
+        """Get index sets for equivalent tensor values.
 
         Args:
             voigt (bool): whether to get grouped indices
@@ -953,7 +953,7 @@ class SquareTensor(Tensor):
 
 
 def get_uvec(vec):
-    """Gets a unit vector parallel to input vector."""
+    """Get a unit vector parallel to input vector."""
     norm = np.linalg.norm(vec)
     if norm < 1e-8:
         return vec

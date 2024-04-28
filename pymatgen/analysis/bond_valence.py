@@ -424,8 +424,7 @@ class BVAnalyzer:
         raise ValueError("Valences cannot be assigned!")
 
     def get_oxi_state_decorated_structure(self, structure: Structure):
-        """
-        Get an oxidation state decorated structure. This currently works only
+        """Get an oxidation state decorated structure. This currently works only
         for ordered structures only.
 
         Args:

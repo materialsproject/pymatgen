@@ -503,8 +503,7 @@ class DictSet(VaspInputSet):
         prev_dir: str | Path | None = None,
         potcar_spec: bool = False,
     ) -> VaspInput:
-        """
-        Get a VASP input set.
+        """Get a VASP input set.
 
         Note, if both ``structure`` and ``prev_dir`` are set, then the structure
         specified will be preferred over the final structure from the last VASP run.
@@ -788,7 +787,7 @@ class DictSet(VaspInputSet):
 
     @property
     def nelect(self) -> float:
-        """Gets the default number of electrons for a given structure."""
+        """Get the default number of electrons for a given structure."""
         if self.structure is None:
             raise RuntimeError("No structure is associated with the input set!")
 

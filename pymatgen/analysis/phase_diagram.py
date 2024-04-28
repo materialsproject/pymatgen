@@ -611,8 +611,7 @@ class PhaseDiagram(MSONable):
 
     @lru_cache(1)  # noqa: B019
     def _get_facet_and_simplex(self, comp: Composition) -> tuple[Simplex, Simplex]:
-        """
-        Get any facet that a composition falls into. Cached so successive
+        """Get any facet that a composition falls into. Cached so successive
         calls at same composition are fast.
 
         Args:
@@ -626,8 +625,7 @@ class PhaseDiagram(MSONable):
         raise RuntimeError(f"No facet found for {comp = }")
 
     def _get_all_facets_and_simplexes(self, comp):
-        """
-        Get all facets that a composition falls into.
+        """Get all facets that a composition falls into.
 
         Args:
             comp (Composition): A composition
@@ -980,8 +978,7 @@ class PhaseDiagram(MSONable):
         return self.get_decomp_and_phase_separation_energy(entry, **kwargs)[1]
 
     def get_composition_chempots(self, comp):
-        """
-        Get the chemical potentials for all elements at a given composition.
+        """Get the chemical potentials for all elements at a given composition.
 
         Args:
             comp (Composition): Composition
@@ -993,8 +990,7 @@ class PhaseDiagram(MSONable):
         return self._get_facet_chempots(facet)
 
     def get_all_chempots(self, comp):
-        """
-        Get chemical potentials at a given composition.
+        """Get chemical potentials at a given composition.
 
         Args:
             comp (Composition): Composition
@@ -1012,8 +1008,7 @@ class PhaseDiagram(MSONable):
         return chempots
 
     def get_transition_chempots(self, element):
-        """
-        Get the critical chemical potentials for an element in the Phase
+        """Get the critical chemical potentials for an element in the Phase
         Diagram.
 
         Args:
@@ -1039,8 +1034,7 @@ class PhaseDiagram(MSONable):
         return tuple(clean_pots)
 
     def get_critical_compositions(self, comp1, comp2):
-        """
-        Get the critical compositions along the tieline between two
+        """Get the critical compositions along the tieline between two
         compositions. I.e. where the decomposition products change.
         The endpoints are also returned.
 
@@ -1754,8 +1748,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
     # get_phase_separation_energy()
 
     def get_pd_for_entry(self, entry: Entry | Composition) -> PhaseDiagram:
-        """
-        Get the possible phase diagrams for an entry.
+        """Get the possible phase diagrams for an entry.
 
         Args:
             entry (PDEntry | Composition): A PDEntry or Composition-like object
@@ -2015,8 +2008,7 @@ class ReactionDiagram:
         self.pd = pd
 
     def get_compound_pd(self):
-        """
-        Get the CompoundPhaseDiagram object, which can then be used for
+        """Get the CompoundPhaseDiagram object, which can then be used for
         plotting.
 
         Returns:

@@ -440,8 +440,7 @@ class Cp2kOutput:
             warnings.warn("Geometry optimization did not converge", UserWarning)
 
     def parse_energies(self):
-        """
-        Get the total energy from a CP2K calculation. Presently, the energy reported in the
+        """Get the total energy from a CP2K calculation. Presently, the energy reported in the
         trajectory (pos.xyz) file takes precedence over the energy reported in the main output
         file. This is because the trajectory file keeps track of energies in between restarts,
         while the main output file may or may not depending on whether a particular machine

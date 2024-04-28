@@ -832,8 +832,7 @@ class Charge(MSONable):
                 self.loewdin += [float(line[3])]
 
     def get_structure_with_charges(self, structure_filename):
-        """
-        Get a Structure with Mulliken and Loewdin charges as site properties
+        """Get a Structure with Mulliken and Loewdin charges as site properties
 
         Args:
             structure_filename: filename of POSCAR
@@ -1625,8 +1624,7 @@ class Grosspop(MSONable):
                         self.list_dict_grosspop += [small_dict]
 
     def get_structure_with_total_grosspop(self, structure_filename: str) -> Structure:
-        """
-        Get a Structure with Mulliken and Loewdin total grosspopulations as site properties
+        """Get a Structure with Mulliken and Loewdin total grosspopulations as site properties
 
         Args:
             structure_filename (str): filename of POSCAR
@@ -1939,8 +1937,7 @@ class SitePotential(MSONable):
             self.madelungenergies_loewdin = float(data[self.num_atoms + 1].split()[4])
 
     def get_structure_with_site_potentials(self, structure_filename):
-        """
-        Get a Structure with Mulliken and Loewdin charges as site properties
+        """Get a Structure with Mulliken and Loewdin charges as site properties
 
         Args:
             structure_filename: filename of POSCAR

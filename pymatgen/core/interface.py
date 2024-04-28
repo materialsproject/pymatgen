@@ -163,8 +163,7 @@ class GrainBoundary(Structure):
         )
 
     def get_sorted_structure(self, key=None, reverse=False):
-        """
-        Get a sorted copy of the structure. The parameters have the same
+        """Get a sorted copy of the structure. The parameters have the same
         meaning as in list.sort. By default, sites are sorted by the
         electronegativity of the species. Note that Slab has to override this
         because of the different __init__ args.

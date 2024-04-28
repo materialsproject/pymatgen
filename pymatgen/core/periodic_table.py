@@ -260,8 +260,7 @@ class ElementBase(Enum):
 
     @property
     def atomic_orbitals_eV(self) -> dict[str, float]:
-        """
-        Get the LDA energies in eV for neutral atoms, by orbital.
+        """Get the LDA energies in eV for neutral atoms, by orbital.
 
         This property contains the same info as `self.atomic_orbitals`,
         but uses eV for units, per matsci issue https://matsci.org/t/unit-of-atomic-orbitals-energy/54325
@@ -1124,7 +1123,7 @@ class Species(MSONable, Stringify):
         return output
 
     def get_nmr_quadrupole_moment(self, isotope: str | None = None) -> float:
-        """Gets the nuclear electric quadrupole moment in units of e * millibarns.
+        """Get the nuclear electric quadrupole moment in units of e * millibarns.
 
         Args:
             isotope (str): the isotope to get the quadrupole moment for

@@ -399,8 +399,7 @@ class ChemicalPotentialDiagram(MSONable):
         element_padding: float,
         default_min_limit: float,
     ):
-        """
-        Gets new minimum limits for each element by subtracting specified padding
+        """Get new minimum limits for each element by subtracting specified padding
         from the minimum for each axis found in any of the domains.
         """
         all_pts = np.vstack(list(domains.values()))

@@ -205,7 +205,7 @@ class AdsorbateSiteFinder:
         return slab.copy(site_properties={"surface_properties": surf_props})
 
     def get_extended_surface_mesh(self, repeat=(5, 5, 1)):
-        """Gets an extended surface mesh for to use for adsorption site finding
+        """Get an extended surface mesh for to use for adsorption site finding
         by constructing supercell of surface sites.
 
         Args:
@@ -604,7 +604,7 @@ def get_mi_vec(slab):
 
 
 def get_rot(slab: Slab) -> SymmOp:
-    """Gets the transformation to rotate the z axis into the miller index."""
+    """Get the transformation to rotate the z axis into the miller index."""
     new_z = get_mi_vec(slab)
     a, _b, _c = slab.lattice.matrix
     new_x = a / np.linalg.norm(a)

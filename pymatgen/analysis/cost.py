@@ -135,8 +135,7 @@ class CostAnalyzer:
         self.costdb = costdb
 
     def get_lowest_decomposition(self, composition):
-        """
-        Get the decomposition leading to lowest cost.
+        """Get the decomposition leading to lowest cost.
 
         Args:
             composition:
@@ -159,8 +158,7 @@ class CostAnalyzer:
             raise ValueError("Error during PD building; most likely, cost data does not exist!")
 
     def get_cost_per_mol(self, comp):
-        """
-        Get best estimate of minimum cost/mol based on known data.
+        """Get best estimate of minimum cost/mol based on known data.
 
         Args:
             comp:
@@ -174,8 +172,7 @@ class CostAnalyzer:
         return sum(k.energy_per_atom * v * comp.num_atoms for k, v in decomp.items())
 
     def get_cost_per_kg(self, comp):
-        """
-        Get best estimate of minimum cost/kg based on known data.
+        """Get best estimate of minimum cost/kg based on known data.
 
         Args:
             comp:

@@ -1544,7 +1544,7 @@ class Lattice(MSONable):
         frac_coords2: ArrayLike,
         jimage: ArrayLike | None = None,
     ) -> tuple[float, np.ndarray]:
-        """Gets distance between two frac_coords assuming periodic boundary
+        """Get distance between two frac_coords assuming periodic boundary
         conditions. If the index jimage is not specified it selects the j
         image nearest to the i atom and returns the distance and jimage
         indices in terms of lattice vector translations. If the index jimage

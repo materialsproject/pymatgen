@@ -1148,8 +1148,7 @@ class GaussianOutput:
         return data
 
     def get_scan_plot(self, coords=None):
-        """
-        Get a matplotlib plot of the potential energy surface.
+        """Get a matplotlib plot of the potential energy surface.
 
         Args:
             coords: internal coordinate name to use as abscissa.
@@ -1211,8 +1210,7 @@ class GaussianOutput:
         return transitions
 
     def get_spectre_plot(self, sigma=0.05, step=0.01):
-        """
-        Get a matplotlib plot of the UV-visible xas. Transitions are plotted
+        """Get a matplotlib plot of the UV-visible xas. Transitions are plotted
         as vertical lines and as a sum of normal functions with sigma with. The
         broadening is applied in energy and the xas is plotted as a function
         of the wavelength.

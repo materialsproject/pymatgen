@@ -56,8 +56,7 @@ class Deformation(SquareTensor):
         return len(self.get_perturbed_indices(tol)) == 1
 
     def get_perturbed_indices(self, tol: float = 1e-8):
-        """
-        Gets indices of perturbed elements of the deformation gradient,
+        """Get indices of perturbed elements of the deformation gradient,
         i. e. those that differ from the identity.
         """
         return list(zip(*np.where(abs(self - np.eye(3)) > tol)))

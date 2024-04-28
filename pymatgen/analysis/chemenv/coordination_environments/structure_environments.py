@@ -578,8 +578,7 @@ class StructureEnvironments(MSONable):
         self.info["sites_info"][isite].update(info_dict)
 
     def get_coordination_environments(self, isite, cn, nb_set):
-        """
-        Get the ChemicalEnvironments for a given site, coordination and neighbors set.
+        """Get the ChemicalEnvironments for a given site, coordination and neighbors set.
 
         Args:
             isite: Index of the site for which the ChemicalEnvironments is looked for.
@@ -600,8 +599,7 @@ class StructureEnvironments(MSONable):
         return self.ce_list[isite][cn][nb_set_index]
 
     def get_csm(self, isite, mp_symbol):
-        """
-        Get the continuous symmetry measure for a given site in the given coordination environment.
+        """Get the continuous symmetry measure for a given site in the given coordination environment.
 
         Args:
             isite: Index of the site.
@@ -1718,8 +1716,7 @@ class LightStructureEnvironments(MSONable):
                 }
 
     def get_site_info_for_specie_ce(self, specie, ce_symbol):
-        """
-        Get list of indices that have the given specie with a given Coordination environment.
+        """Get list of indices that have the given specie with a given Coordination environment.
 
         Args:
             specie: Species to get.
@@ -1747,8 +1744,7 @@ class LightStructureEnvironments(MSONable):
         return {"isites": isites, "fractions": fractions, "csms": csms}
 
     def get_site_info_for_specie_allces(self, specie, min_fraction=0):
-        """
-        Get list of indices that have the given specie.
+        """Get list of indices that have the given specie.
 
         Args:
             specie: Species to get.
@@ -1782,8 +1778,7 @@ class LightStructureEnvironments(MSONable):
         return allces
 
     def get_statistics(self, statistics_fields=DEFAULT_STATISTICS_FIELDS, bson_compatible=False):
-        """
-        Get the statistics of environments for this structure.
+        """Get the statistics of environments for this structure.
 
         Args:
             statistics_fields: Which statistics to get.
@@ -1903,8 +1898,7 @@ class LightStructureEnvironments(MSONable):
         return True
 
     def clear_environments(self, conditions=None):
-        """
-        Get the clear environments in the structure.
+        """Get the clear environments in the structure.
 
         Args:
             conditions: Conditions to be checked for an environment to be "clear".

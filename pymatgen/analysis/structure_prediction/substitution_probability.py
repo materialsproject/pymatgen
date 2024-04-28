@@ -109,8 +109,7 @@ class SubstitutionProbability:
         return self._px[get_el_sp(sp)]
 
     def prob(self, s1, s2):
-        """
-        Gets the probability of 2 species substitution. Not used by the
+        """Get the probability of 2 species substitution. Not used by the
         structure predictor.
 
         Returns:

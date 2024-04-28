@@ -145,8 +145,7 @@ class PourbaixEntry(MSONable, Stringify):
         return self.entry.elements
 
     def energy_at_conditions(self, pH, V):
-        """
-        Get free energy for a given pH and V.
+        """Get free energy for a given pH and V.
 
         Args:
             pH (float): pH at which to evaluate free energy
@@ -158,8 +157,7 @@ class PourbaixEntry(MSONable, Stringify):
         return self.energy + self.npH * PREFAC * pH + self.nPhi * V
 
     def get_element_fraction(self, element):
-        """
-        Gets the elemental fraction of a given non-OH element.
+        """Get the elemental fraction of a given non-OH element.
 
         Args:
             element (Element or str): string or element corresponding
@@ -836,8 +834,7 @@ class PourbaixDiagram(MSONable):
         return decomposition_energy
 
     def get_hull_energy(self, pH, V):
-        """
-        Gets the minimum energy of the Pourbaix "basin" that is formed
+        """Get the minimum energy of the Pourbaix "basin" that is formed
         from the stable Pourbaix planes. Vectorized.
 
         Args:
@@ -851,8 +848,7 @@ class PourbaixDiagram(MSONable):
         return np.min(all_gs, axis=0)
 
     def get_stable_entry(self, pH, V):
-        """
-        Gets the stable entry at a given pH, V condition.
+        """Get the stable entry at a given pH, V condition.
 
         Args:
             pH (float): pH at a given condition

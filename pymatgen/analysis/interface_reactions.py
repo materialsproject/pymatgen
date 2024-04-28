@@ -523,8 +523,7 @@ class InterfacialReactivity(MSONable):
 
     @classmethod
     def get_chempot_correction(cls, element: str, temp: float, pres: float):
-        """
-        Get the normalized correction term Δμ for chemical potential of a gas
+        """Get the normalized correction term Δμ for chemical potential of a gas
         phase consisting of element at given temperature and pressure,
         referenced to that in the standard state (T_std = 298.15 K,
         T_std = 1 bar). The gas phase is limited to be one of O2, N2, Cl2,

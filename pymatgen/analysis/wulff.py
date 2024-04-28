@@ -354,8 +354,7 @@ class WulffShape:
         aspect_ratio=(8, 8),
         custom_colors=None,
     ):
-        """
-        Get the Wulff shape plot.
+        """Get the Wulff shape plot.
 
         Args:
             color_set: default is 'PuBu'
@@ -482,8 +481,7 @@ class WulffShape:
         custom_colors=None,
         units_in_JPERM2=True,
     ):
-        """
-        Get the Wulff shape as a plotly Figure object.
+        """Get the Wulff shape as a plotly Figure object.
 
         Args:
             color_set: default is 'PuBu'

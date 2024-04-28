@@ -151,8 +151,7 @@ class LDos(MSONable):
 
     @staticmethod
     def charge_transfer_from_file(feff_inp_file, ldos_file):
-        """
-        Get charge transfer from file.
+        """Get charge transfer from file.
 
         Args:
             feff_inp_file (str): name of feff.inp file for run
@@ -292,8 +291,7 @@ class Xmu(MSONable):
 
     @classmethod
     def from_file(cls, xmu_dat_file: str = "xmu.dat", feff_inp_file: str = "feff.inp") -> Self:
-        """
-        Get Xmu from file.
+        """Get Xmu from file.
 
         Args:
             xmu_dat_file (str): filename and path for xmu.dat

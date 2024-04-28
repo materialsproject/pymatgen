@@ -403,8 +403,7 @@ class Section(MSONable):
         return default
 
     def get_section(self, d, default=None):
-        """
-        Get function, only for subsections.
+        """Get function, only for subsections.
 
         Args:
             d: Name of section to get
@@ -416,8 +415,7 @@ class Section(MSONable):
         return default
 
     def get_keyword(self, d, default=None):
-        """
-        Get function, only for subsections.
+        """Get function, only for subsections.
 
         Args:
             d: Name of keyword to get
@@ -645,8 +643,7 @@ class SectionList(MSONable):
         return SectionList._get_str(self.sections)
 
     def get(self, d, index=-1):
-        """
-        Get for section list. If index is specified, return the section at that index.
+        """Get for section list. If index is specified, return the section at that index.
         Otherwise, return a get on the last section.
         """
         return self.sections[index].get(d)

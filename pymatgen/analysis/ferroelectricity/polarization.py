@@ -195,8 +195,7 @@ class Polarization:
         return cls(p_elecs, p_ions, structures)
 
     def get_pelecs_and_pions(self, convert_to_muC_per_cm2=False):
-        """
-        Get the electronic and ionic dipole moments / polarizations.
+        """Get the electronic and ionic dipole moments / polarizations.
 
         convert_to_muC_per_cm2: Convert from electron * Angstroms to microCoulomb
             per centimeter**2
@@ -224,8 +223,7 @@ class Polarization:
         return None
 
     def get_same_branch_polarization_data(self, convert_to_muC_per_cm2=True, all_in_polar=True):
-        r"""
-        Get same branch dipole moment (convert_to_muC_per_cm2=False)
+        r"""Get same branch dipole moment (convert_to_muC_per_cm2=False)
         or polarization for given polarization data (convert_to_muC_per_cm2=True).
 
         Polarization is a lattice vector, meaning it is only defined modulo the
@@ -359,8 +357,7 @@ class Polarization:
         return (tot[-1] - tot[0]).reshape((1, 3))
 
     def get_polarization_change_norm(self, convert_to_muC_per_cm2=True, all_in_polar=True):
-        """
-        Get magnitude of difference between nonpolar and polar same branch
+        """Get magnitude of difference between nonpolar and polar same branch
         polarization.
         """
         polar = self.structures[-1]

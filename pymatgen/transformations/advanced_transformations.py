@@ -2090,7 +2090,7 @@ class SQSTransformation(AbstractTransformation):
 
     @staticmethod
     def _get_unique_best_sqs_structs(sqs, best_only, return_ranked_list, remove_duplicate_structures, reduction_algo):
-        """Gets unique sqs structures with lowest objective function. Requires an mcsqs output that has been run
+        """Get unique sqs structures with lowest objective function. Requires an mcsqs output that has been run
             in parallel, otherwise returns Sqs.bestsqs.
 
         Args:

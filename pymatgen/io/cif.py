@@ -1233,8 +1233,7 @@ class CifParser:
         return structures
 
     def get_bibtex_string(self) -> str:
-        """
-        Get BibTeX reference from CIF file.
+        """Get BibTeX reference from CIF file.
 
         args:
             data:

@@ -121,8 +121,7 @@ class HeisenbergMapper:
 
     @staticmethod
     def _get_unique_sites(structure):
-        """
-        Get dict that maps site indices to unique identifiers.
+        """Get dict that maps site indices to unique identifiers.
 
         Args:
             structure (Structure): ground state Structure object.
@@ -536,8 +535,7 @@ class HeisenbergMapper:
         return mft_t
 
     def get_interaction_graph(self, filename=None):
-        """
-        Get a StructureGraph with edges and weights that correspond to exchange
+        """Get a StructureGraph with edges and weights that correspond to exchange
         interactions and J_ij values, respectively.
 
         Args:

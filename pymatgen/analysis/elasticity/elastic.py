@@ -584,8 +584,7 @@ class ElasticTensorExpansion(TensorCollection):
         return sum(c.energy_density(strain, convert_GPa_to_eV) for c in self)
 
     def get_ggt(self, n, u):
-        """
-        Gets the Generalized Gruneisen tensor for a given
+        """Get the Generalized Gruneisen tensor for a given
         third-order elastic tensor expansion.
 
         Args:
@@ -598,8 +597,7 @@ class ElasticTensorExpansion(TensorCollection):
         )
 
     def get_tgt(self, temperature: float | None = None, structure: Structure = None, quad=None):
-        """
-        Gets the thermodynamic Gruneisen tensor (TGT) by via an
+        """Get the thermodynamic Gruneisen tensor (TGT) by via an
         integration of the GGT weighted by the directional heat
         capacity.
 
@@ -637,8 +635,7 @@ class ElasticTensorExpansion(TensorCollection):
         return SquareTensor(num / denom)
 
     def get_gruneisen_parameter(self, temperature=None, structure=None, quad=None):
-        """
-        Gets the single average gruneisen parameter from the TGT.
+        """Get the single average gruneisen parameter from the TGT.
 
         Args:
             temperature (float): Temperature in kelvin, if not specified
@@ -653,8 +650,7 @@ class ElasticTensorExpansion(TensorCollection):
         return np.trace(self.get_tgt(temperature, structure, quad)) / 3.0
 
     def get_heat_capacity(self, temperature, structure: Structure, n, u, cutoff=1e2):
-        """
-        Gets the directional heat capacity for a higher order tensor
+        """Get the directional heat capacity for a higher order tensor
         expansion as a function of direction and polarization.
 
         Args:
@@ -698,8 +694,7 @@ class ElasticTensorExpansion(TensorCollection):
     def thermal_expansion_coeff(
         self, structure: Structure, temperature: float, mode: Literal["dulong - petit", "debye"] = "debye"
     ):
-        """
-        Gets thermal expansion coefficient from third-order constants.
+        """Get thermal expansion coefficient from third-order constants.
 
         Args:
             temperature (float): Temperature in kelvin, if not specified
@@ -730,8 +725,7 @@ class ElasticTensorExpansion(TensorCollection):
         return SquareTensor(alpha)
 
     def get_compliance_expansion(self):
-        """
-        Gets a compliance tensor expansion from the elastic
+        """Get a compliance tensor expansion from the elastic
         tensor expansion.
         """
         # TODO: this might have a general form
@@ -754,8 +748,7 @@ class ElasticTensorExpansion(TensorCollection):
         return TensorCollection(ce_exp)
 
     def get_strain_from_stress(self, stress):
-        """
-        Gets the strain from a stress state according
+        """Get the strain from a stress state according
         to the compliance expansion corresponding to the
         tensor expansion.
         """
@@ -781,8 +774,7 @@ class ElasticTensorExpansion(TensorCollection):
         return ec_sum
 
     def get_wallace_tensor(self, tau):
-        """
-        Gets the Wallace Tensor for determining yield strength
+        """Get the Wallace Tensor for determining yield strength
         criteria.
 
         Args:
@@ -801,8 +793,7 @@ class ElasticTensorExpansion(TensorCollection):
         return b
 
     def get_symmetric_wallace_tensor(self, tau):
-        """
-        Gets the symmetrized wallace tensor for determining
+        """Get the symmetrized wallace tensor for determining
         yield strength criteria.
 
         Args:
@@ -813,8 +804,7 @@ class ElasticTensorExpansion(TensorCollection):
         return Tensor(0.5 * (wallace + np.transpose(wallace, [2, 3, 0, 1])))
 
     def get_stability_criteria(self, s, n):
-        """
-        Gets the stability criteria from the symmetric
+        """Get the stability criteria from the symmetric
         Wallace tensor from an input vector and stress
         value.
 
@@ -830,8 +820,7 @@ class ElasticTensorExpansion(TensorCollection):
         return np.linalg.det(sym_wallace.voigt)
 
     def get_yield_stress(self, n):
-        """
-        Gets the yield stress for a given direction.
+        """Get the yield stress for a given direction.
 
         Args:
             n (3x1 array-like): direction for which to find the

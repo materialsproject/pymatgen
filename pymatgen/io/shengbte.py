@@ -199,8 +199,7 @@ class Control(MSONable, dict):
 
     @classmethod
     def from_structure(cls, structure: Structure, reciprocal_density: int | None = 50000, **kwargs) -> Self:
-        """
-        Get a ShengBTE control object from a structure.
+        """Get a ShengBTE control object from a structure.
 
         Args:
             structure: A structure object.
@@ -238,8 +237,7 @@ class Control(MSONable, dict):
         return Control(**control_dict)
 
     def get_structure(self) -> Structure:
-        """
-        Get a pymatgen Structure from a ShengBTE control object.
+        """Get a pymatgen Structure from a ShengBTE control object.
 
         The control object must have the "lattvec", "types", "elements", and
         "positions" settings otherwise an error will be thrown.

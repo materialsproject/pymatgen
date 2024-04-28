@@ -411,8 +411,7 @@ class DetailedVoronoiContainer(MSONable):
     #     return {'i_distfactor': idist, 'i_angfactor': iang, 'i_additional_condition': i_additional_condition}
 
     def neighbors_surfaces(self, isite, surface_calculation_type=None, max_dist=2.0):
-        """
-        Get the different surfaces corresponding to the different distance-angle cutoffs for a given site.
+        """Get the different surfaces corresponding to the different distance-angle cutoffs for a given site.
 
         Args:
             isite: Index of the site
@@ -436,8 +435,7 @@ class DetailedVoronoiContainer(MSONable):
         return surfaces
 
     def neighbors_surfaces_bounded(self, isite, surface_calculation_options=None):
-        """
-        Get the different surfaces (using boundaries) corresponding to the different distance-angle cutoffs
+        """Get the different surfaces (using boundaries) corresponding to the different distance-angle cutoffs
         for a given site.
 
         Args:
@@ -542,8 +540,7 @@ class DetailedVoronoiContainer(MSONable):
         max_dist=2.0,
         additional_conditions=None,
     ):
-        """
-        Get the different surfaces and their cn_map corresponding to the different distance-angle cutoffs
+        """Get the different surfaces and their cn_map corresponding to the different distance-angle cutoffs
         for a given site.
 
         Args:
@@ -581,8 +578,7 @@ class DetailedVoronoiContainer(MSONable):
         return maps_and_surfaces
 
     def maps_and_surfaces_bounded(self, isite, surface_calculation_options=None, additional_conditions=None):
-        """
-        Get the different surfaces (using boundaries) and their cn_map corresponding to the different
+        """Get the different surfaces (using boundaries) and their cn_map corresponding to the different
         distance-angle cutoffs for a given site.
 
         Args:
@@ -615,8 +611,7 @@ class DetailedVoronoiContainer(MSONable):
         return maps_and_surfaces
 
     def neighbors(self, isite, distfactor, angfactor, additional_condition=None):
-        """
-        Get the neighbors of a given site corresponding to a given distance and angle factor.
+        """Get the neighbors of a given site corresponding to a given distance and angle factor.
 
         Args:
             isite: Index of the site.
@@ -651,8 +646,7 @@ class DetailedVoronoiContainer(MSONable):
         ]
 
     def voronoi_parameters_bounds_and_limits(self, isite, plot_type, max_dist):
-        """
-        Get the different boundaries and limits of the distance and angle factors for the given site.
+        """Get the different boundaries and limits of the distance and angle factors for the given site.
 
         Args:
             isite: Index of the site.
@@ -783,8 +777,7 @@ class DetailedVoronoiContainer(MSONable):
         return True
 
     def get_rdf_figure(self, isite, normalized=True, figsize=None, step_function=None):
-        """
-        Get the Radial Distribution Figure for a given site.
+        """Get the Radial Distribution Figure for a given site.
 
         Args:
             isite: Index of the site.
@@ -833,8 +826,7 @@ class DetailedVoronoiContainer(MSONable):
         return fig
 
     def get_sadf_figure(self, isite, normalized=True, figsize=None, step_function=None):
-        """
-        Get the Solid Angle Distribution Figure for a given site.
+        """Get the Solid Angle Distribution Figure for a given site.
 
         Args:
             isite: Index of the site.

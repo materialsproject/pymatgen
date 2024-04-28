@@ -83,8 +83,7 @@ class SpectrumPlotter:
             self.add_spectrum(label, spectra_dict[label])
 
     def get_plot(self, xlim=None, ylim=None):
-        """
-        Get a matplotlib plot showing the DOS.
+        """Get a matplotlib plot showing the DOS.
 
         Args:
             xlim: Specifies the x-axis limits. Set to None for automatic

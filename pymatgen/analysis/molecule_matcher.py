@@ -236,8 +236,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 
     @staticmethod
     def _inchi_labels(mol):
-        """
-        Get the inchi canonical labels of the heavy atoms in the molecule.
+        """Get the inchi canonical labels of the heavy atoms in the molecule.
 
         Args:
             mol: The molecule. OpenBabel OBMol object
@@ -603,8 +602,7 @@ class MoleculeMatcher(MSONable):
         return self.get_rmsd(mol1, mol2) < self._tolerance
 
     def get_rmsd(self, mol1, mol2):
-        """
-        Get RMSD between two molecule with arbitrary atom order.
+        """Get RMSD between two molecule with arbitrary atom order.
 
         Returns:
             RMSD if topology of the two molecules are the same
