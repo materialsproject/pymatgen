@@ -3076,23 +3076,25 @@ def _get_ispin(vasprun: Vasprun | None, outcar: Outcar | None) -> int:
 
 
 def _combine_kpoints(*kpoints_objects: Kpoints) -> Kpoints:
-    """Combine k-points files together."""
-    labels, kpoints, weights = [], [], []
+    """Combine multiple Kpoints objects."""
+    _labels: list[list[str]] = []
+    _kpoints: list[Sequence[Kpoint]] = []
+    _weights = []
 
     for kpoints_object in filter(None, kpoints_objects):
         if kpoints_object.style != Kpoints.supported_modes.Reciprocal:
             raise ValueError("Can only combine kpoints with style=Kpoints.supported_modes.Reciprocal")
         if kpoints_object.labels is None:
-            labels.append([""] * len(kpoints_object.kpts))
+            _labels.append([""] * len(kpoints_object.kpts))
         else:
-            labels.append(kpoints_object.labels)
+            _labels.append(kpoints_object.labels)
 
-        weights.append(kpoints_object.kpts_weights)
-        kpoints.append(kpoints_object.kpts)
+        _kpoints.append(kpoints_object.kpts)
+        _weights.append(kpoints_object.kpts_weights)
 
-    labels = np.concatenate(labels).tolist()
-    weights = np.concatenate(weights).tolist()
-    kpoints = np.concatenate(kpoints).tolist()
+    labels = np.concatenate(_labels).tolist()
+    kpoints = np.concatenate(_kpoints).tolist()
+    weights = np.concatenate(_weights).tolist()
 
     return Kpoints(
         comment="Combined k-points",

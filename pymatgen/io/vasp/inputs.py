@@ -1091,12 +1091,12 @@ class Kpoints(MSONable):
         style: KpointsSupportedModes = supported_modes.Gamma,
         kpts: Sequence[Kpoint] = ((1, 1, 1),),
         kpts_shift: Vector3D = (0, 0, 0),
-        kpts_weights=None,
-        coord_type=None,
-        labels=None,
+        kpts_weights: list[int] | None = None,
+        coord_type: Literal["Reciprocal", "Cartesian"] | None = None,
+        labels: list[str] | None = None,
         tet_number: int = 0,
         tet_weight: float = 0,
-        tet_connections=None,
+        tet_connections: list[tuple] | None = None,
     ) -> None:
         """
         Highly flexible constructor for Kpoints object. The flexibility comes
@@ -1163,15 +1163,16 @@ class Kpoints(MSONable):
 
         style = self.style.name.lower()[0]
         if style == "l":
-            lines.append(self.coord_type)
+            lines.append(str(self.coord_type))
 
         for idx, kpt in enumerate(self.kpts):
             lines.append(" ".join(map(str, kpt)))  # type: ignore[arg-type]
             if style == "l":
-                lines[-1] += f" ! {self.labels[idx]}"
+                if self.labels is not None:
+                    lines[-1] += f" ! {self.labels[idx]}"
                 if idx % 2 == 1:
                     lines[-1] += "\n"
-            elif self.num_kpts > 0:
+            elif self.num_kpts > 0 and self.kpts_weights is not None:
                 if self.labels is not None:
                     lines[-1] += f" {int(self.kpts_weights[idx])} {self.labels[idx]}"
                 else:
@@ -1180,9 +1181,10 @@ class Kpoints(MSONable):
         # Print tetrahedron parameters if the number of tetrahedrons > 0
         if style not in "lagm" and self.tet_number > 0:
             lines.extend(("Tetrahedron", f"{self.tet_number} {self.tet_weight:f}"))
-            for sym_weight, vertices in self.tet_connections:
-                a, b, c, d = vertices
-                lines.append(f"{sym_weight} {a} {b} {c} {d}")
+            if self.tet_connections is not None:
+                for sym_weight, vertices in self.tet_connections:
+                    a, b, c, d = vertices
+                    lines.append(f"{sym_weight} {a} {b} {c} {d}")
 
         # Print shifts for automatic kpoints types if not zero.
         if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0, 0, 0):
@@ -1571,7 +1573,9 @@ class Kpoints(MSONable):
 
         # Line-mode KPOINTS, usually used with band structures
         if style == "l":
-            coord_type = "Cartesian" if lines[3].lower()[0] in "ck" else "Reciprocal"
+            coord_type: Literal["Cartesian", "Reciprocal"] = (
+                "Cartesian" if lines[3].lower()[0] in "ck" else "Reciprocal"
+            )
             _style = cls.supported_modes.Line_mode
             _kpts: list[tuple[float, float, float]] = []
             labels = []
@@ -1602,7 +1606,7 @@ class Kpoints(MSONable):
 
         for idx in range(3, 3 + num_kpts):
             tokens = lines[idx].split()
-            kpts.append(cast(tuple[float, float, float], tuple(float(j) for j in tokens[:3])))
+            kpts.append(cast(tuple[float, float, float], tuple(float(i) for i in tokens[:3])))
             kpts_weights.append(float(tokens[3]))
             if len(tokens) > 4:
                 labels.append(tokens[4])
