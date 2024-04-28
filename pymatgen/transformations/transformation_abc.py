@@ -23,7 +23,7 @@ class AbstractTransformation(MSONable, abc.ABC):
 
     @abc.abstractmethod
     def apply_transformation(self, structure: Structure):
-        """Applies the transformation to a structure. Depending on whether a
+        """Apply the transformation to a structure. Depending on whether a
         transformation is one-to-many, there may be an option to return a
         ranked list of structures.
 

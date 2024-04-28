@@ -1432,14 +1432,12 @@ class BoltztrapAnalyzer:
         isotropy_tolerance=0.05,
         use_average=True,
     ):
-        """This method takes in eigenvalues over a range of carriers,
-        temperatures, and doping levels, and tells you what is the "best"
+        """Use eigenvalues over a range of carriers, temperatures, and doping levels, to estimate the "best"
         value that can be achieved for the given target_property. Note that
         this method searches the doping dict only, not the full mu dict.
 
         Args:
-            target_prop: target property, i.e. "seebeck", "power factor",
-                         "conductivity", "kappa", or "zt"
+            target_prop: target property, i.e. "seebeck", "power factor", "conductivity", "kappa", or "zt"
             maximize: True to maximize, False to minimize (e.g. kappa)
             min_temp: minimum temperature allowed
             max_temp: maximum temperature allowed

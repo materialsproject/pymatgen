@@ -223,7 +223,7 @@ class Unit(collections.abc.Mapping):
 
     @property
     def as_base_units(self):
-        """Converts all units to base SI units, including derived units.
+        """Convert all units to base SI units, including derived units.
 
         Returns:
             tuple[dict, float]: (base_units_dict, scaling factor). base_units_dict will not

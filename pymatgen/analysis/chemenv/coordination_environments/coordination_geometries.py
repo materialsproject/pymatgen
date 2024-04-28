@@ -79,7 +79,7 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
     """
 
     def __init__(self, permutations):
-        """Initialize a separation plane for a given perfect coordination geometry.
+        """Initializes a separation plane for a given perfect coordination geometry.
 
         Args:
             permutations: Permutations used for this algorithm.
@@ -140,7 +140,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         multiplicity=None,
         other_plane_points=None,
     ):
-        """Initialize a separation plane for a given perfect coordination geometry.
+        """Initializes a separation plane for a given perfect coordination geometry.
 
         Args:
             plane_points: Indices of the points that are in the plane in the perfect structure (and should be
@@ -233,7 +233,8 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         return self._argsorted_ref_separation_perm
 
     def safe_separation_permutations(self, ordered_plane=False, ordered_point_groups=None, add_opposite=False):
-        """Simple and safe permutations for this separation plane.
+        """
+        Simple and safe permutations for this separation plane.
 
         This is not meant to be used in production. Default configuration for ChemEnv does not use this method.
 
@@ -1168,9 +1169,7 @@ class AllCoordinationGeometries(dict):
                     return False
                 if IUCr_symbol is not None and IUCr_symbol != cg.IUCr_symbol:
                     return False
-                if cn is not None and int(cn) != int(cg.coordination_number):
-                    return False
-                return True
+                return not (cn is not None and int(cn) != int(cg.coordination_number))
             except LookupError:
                 return False
         elif IUPAC_symbol is not None:
@@ -1178,17 +1177,13 @@ class AllCoordinationGeometries(dict):
                 cg = self.get_geometry_from_IUPAC_symbol(IUPAC_symbol)
                 if IUCr_symbol is not None and IUCr_symbol != cg.IUCr_symbol:
                     return False
-                if cn is not None and cn != cg.coordination_number:
-                    return False
-                return True
+                return not (cn is not None and cn != cg.coordination_number)
             except LookupError:
                 return False
         elif IUCr_symbol is not None:
             try:
                 cg = self.get_geometry_from_IUCr_symbol(IUCr_symbol)
-                if cn is not None and cn != cg.coordination_number:
-                    return False
-                return True
+                return not (cn is not None and cn != cg.coordination_number)
             except LookupError:
                 return True
         # TODO give a more helpful error message that suggests possible reasons and solutions

@@ -356,7 +356,7 @@ class IonEntry(PDEntry):
         return cls(Ion.from_dict(dct["ion"]), dct["energy"], dct.get("name"), dct.get("attribute"))
 
     def as_dict(self):
-        """Creates a dict of composition, energy, and ion name."""
+        """Create a dict of composition, energy, and ion name."""
         return {"ion": self.ion.as_dict(), "energy": self.energy, "name": self.name}
 
     def __repr__(self):

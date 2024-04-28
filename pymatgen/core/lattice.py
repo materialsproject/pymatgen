@@ -978,7 +978,7 @@ class Lattice(MSONable):
         return cls(self._lll_matrix_mappings[delta][0])
 
     def _calculate_lll(self, delta: float = 0.75) -> tuple[np.ndarray, np.ndarray]:
-        """Performs a Lenstra-Lenstra-Lovasz lattice basis reduction to obtain a
+        """Perform a Lenstra-Lenstra-Lovasz lattice basis reduction to obtain a
         c-reduced basis. This method returns a basis which is as "good" as
         possible, with "good" defined by orthogonality of the lattice vectors.
 

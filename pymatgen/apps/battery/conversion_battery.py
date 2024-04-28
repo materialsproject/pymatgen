@@ -291,7 +291,7 @@ class ConversionVoltagePair(AbstractVoltagePair):
 
     @classmethod
     def from_steps(cls, step1, step2, normalization_els, framework_formula) -> Self:
-        """Creates a ConversionVoltagePair from two steps in the element profile
+        """Create a ConversionVoltagePair from two steps in the element profile
         from a PD analysis.
 
         Args:

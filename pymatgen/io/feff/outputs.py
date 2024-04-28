@@ -33,7 +33,7 @@ __date__ = "April 7, 2013"
 
 
 class LDos(MSONable):
-    """Parser for ldos files ldos01, ldos02, ....."""
+    """Parser for ldos files ldos01, ldos02, ..."""
 
     def __init__(self, complete_dos, charge_transfer):
         """

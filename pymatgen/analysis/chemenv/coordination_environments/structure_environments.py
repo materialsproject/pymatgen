@@ -1930,9 +1930,9 @@ class LightStructureEnvironments(MSONable):
         Returns:
             bool: True if the coordination environment is found for the given atom.
         """
-        for isite, site in enumerate(self.structure):
+        for idx, site in enumerate(self.structure):
             if Element(atom_symbol) in site.species.element_composition and self.site_contains_environment(
-                isite, ce_symbol
+                idx, ce_symbol
             ):
                 return True
         return False

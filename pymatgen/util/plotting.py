@@ -391,7 +391,7 @@ def periodic_table_heatmap(
 
 
 def format_formula(formula: str) -> str:
-    """Converts str of chemical formula into
+    """Convert str of chemical formula into
     latex format for labelling purposes.
 
     Args:

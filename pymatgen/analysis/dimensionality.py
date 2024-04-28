@@ -167,7 +167,7 @@ def get_structure_components(
 
 
 def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=False):
-    """Calculates the dimensionality of the component containing the given site.
+    """Calculate the dimensionality of the component containing the given site.
 
     Implements directly the modified breadth-first-search algorithm described in
     Algorithm 1 of:

@@ -32,7 +32,7 @@ ob_align_missing = openbabel is None or "OBAlign" not in dir(openbabel)
 
 
 def rotate(mol, seed):
-    """Performs a random rotation of the sites in a structure.
+    """Perform a random rotation of the sites in a structure.
 
     Args:
         mol (Molecule): The Molecule object which will be transformed.
@@ -46,7 +46,7 @@ def rotate(mol, seed):
 
 
 def perturb(mol, scale, seed):
-    """Performs a random perturbation of the sites in a structure.
+    """Perform a random perturbation of the sites in a structure.
 
     Args:
         scale (float): Distance in angstroms by which to perturb each site.
@@ -60,7 +60,7 @@ def perturb(mol, scale, seed):
 
 
 def permute(mol, seed):
-    """Performs a random permutation of the sites in a structure.
+    """Perform a random permutation of the sites in a structure.
 
     Args:
         seed (int): The seed value for the random generator.

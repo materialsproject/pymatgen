@@ -183,9 +183,7 @@ class AdfKey(MSONable):
             key = subkey.key
         else:
             raise ValueError("The subkey should be an AdfKey or a string!")
-        if len(self.subkeys) > 0 and key in (k.key for k in self.subkeys):
-            return True
-        return False
+        return len(self.subkeys) > 0 and key in (k.key for k in self.subkeys)
 
     def add_subkey(self, subkey):
         """

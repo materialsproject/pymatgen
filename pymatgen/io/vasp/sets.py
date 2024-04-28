@@ -1356,7 +1356,7 @@ class MPHSERelaxSet(DictSet):
 
 @dataclass
 class MPStaticSet(DictSet):
-    """Creates input files for a static calculation.
+    """Create input files for a static calculation.
 
     Args:
         structure (Structure): Structure from previous run.
@@ -1416,7 +1416,7 @@ class MPStaticSet(DictSet):
 
 @dataclass
 class MatPESStaticSet(DictSet):
-    """Creates input files for a MatPES static calculation.
+    """Create input files for a MatPES static calculation.
 
     The goal of MatPES is to generate potential energy surface data. This is a distinctly different
     from the objectives of the MP static calculations, which aims to obtain primarily accurate

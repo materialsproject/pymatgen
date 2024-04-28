@@ -85,7 +85,7 @@ class DosPlotter:
         ] = {}
 
     def add_dos(self, label: str, dos: Dos) -> None:
-        """Adds a dos for plotting.
+        """Add a dos for plotting.
 
         Args:
             label: label for the DOS. Must be unique.
@@ -3629,7 +3629,7 @@ class CohpPlotter:
         self._cohps: dict[str, dict[str, np.ndarray | dict[Spin, np.ndarray] | float]] = {}
 
     def add_cohp(self, label, cohp) -> None:
-        """Adds a COHP for plotting.
+        """Add a COHP for plotting.
 
         Args:
             label: Label for the COHP. Must be unique.
@@ -3647,7 +3647,7 @@ class CohpPlotter:
         }
 
     def add_cohp_dict(self, cohp_dict, key_sort_func=None) -> None:
-        """Adds a dictionary of COHPs with an optional sorting function
+        """Add a dictionary of COHPs with an optional sorting function
         for the keys.
 
         Args:
@@ -4022,7 +4022,7 @@ def plot_fermi_surface(
 
 
 def plot_wigner_seitz(lattice, ax: plt.Axes = None, **kwargs):
-    """Adds the skeleton of the Wigner-Seitz cell of the lattice to a matplotlib Axes.
+    """Add the skeleton of the Wigner-Seitz cell of the lattice to a matplotlib Axes.
 
     Args:
         lattice: Lattice object
@@ -4053,7 +4053,7 @@ def plot_wigner_seitz(lattice, ax: plt.Axes = None, **kwargs):
 
 
 def plot_lattice_vectors(lattice, ax: plt.Axes = None, **kwargs):
-    """Adds the basis vectors of the lattice provided to a matplotlib Axes.
+    """Add the basis vectors of the lattice provided to a matplotlib Axes.
 
     Args:
         lattice: Lattice object
@@ -4083,7 +4083,7 @@ def plot_lattice_vectors(lattice, ax: plt.Axes = None, **kwargs):
 
 
 def plot_path(line, lattice=None, coords_are_cartesian=False, ax: plt.Axes = None, **kwargs):
-    """Adds a line passing through the coordinates listed in 'line' to a matplotlib Axes.
+    """Add a line passing through the coordinates listed in 'line' to a matplotlib Axes.
 
     Args:
         line: list of coordinates.
@@ -4119,7 +4119,7 @@ def plot_path(line, lattice=None, coords_are_cartesian=False, ax: plt.Axes = Non
 
 
 def plot_labels(labels, lattice=None, coords_are_cartesian=False, ax: plt.Axes = None, **kwargs):
-    """Adds labels to a matplotlib Axes.
+    """Add labels to a matplotlib Axes.
 
     Args:
         labels: dict containing the label as a key and the coordinates as value.
@@ -4192,7 +4192,7 @@ def fold_point(p, lattice, coords_are_cartesian=False):
 
 
 def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax: plt.Axes = None, **kwargs):
-    """Adds Points to a matplotlib Axes.
+    """Add Points to a matplotlib Axes.
 
     Args:
         points: list of coordinates

@@ -913,7 +913,7 @@ class _MPResterLegacy:
         mp_decode: bool = True,
         show_progress_bar: bool = True,
     ):
-        r"""Performs an advanced query using MongoDB-like syntax for directly
+        r"""Perform an advanced query using MongoDB-like syntax for directly
         querying the Materials Project database. This allows one to perform
         queries which are otherwise too cumbersome to perform using the standard
         convenience methods.

@@ -258,7 +258,7 @@ class GulpIO:
         cation_shell_flg: bool = False,
         symm_flg: bool = True,
     ):
-        """Generates GULP input string corresponding to pymatgen structure.
+        """Generate GULP input string corresponding to pymatgen structure.
 
         Args:
             structure: pymatgen Structure object
@@ -313,7 +313,7 @@ class GulpIO:
 
     @staticmethod
     def specie_potential_lines(structure, potential, **kwargs):
-        """Generates GULP input specie and potential string for pymatgen
+        """Generate GULP input specie and potential string for pymatgen
         structure.
 
         Args:

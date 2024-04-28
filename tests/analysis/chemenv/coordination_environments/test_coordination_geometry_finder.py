@@ -88,9 +88,9 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         assert self.lgf.indices == [4, 6, 3, 1, 2, 5]
 
         LiFePO4_struct = self.get_structure("LiFePO4")
-        isite = 10
-        envs_LiFePO4 = self.lgf.compute_coordination_environments(structure=LiFePO4_struct, indices=[isite])
-        assert envs_LiFePO4[isite][0]["csm"] == approx(0.140355832317)
+        site_idx = 10
+        envs_LiFePO4 = self.lgf.compute_coordination_environments(structure=LiFePO4_struct, indices=[site_idx])
+        assert envs_LiFePO4[site_idx][0]["csm"] == approx(0.140355832317)
         nbs_coords = [
             np.array([6.16700437, -4.55194317, -5.89031356]),
             np.array([4.71588167, -4.54248093, -3.75553856]),
@@ -104,7 +104,7 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         self.lgf.compute_structure_environments(voronoi_distance_cutoff=25)
 
         self.lgf.setup_structure(LiFePO4_struct)
-        self.lgf.setup_local_geometry(isite, coords=nbs_coords)
+        self.lgf.setup_local_geometry(site_idx, coords=nbs_coords)
 
         perfect_tet = AbstractGeometry.from_cg(
             cg=cg_tet, centering_type="centroid", include_central_site_in_centroid=False

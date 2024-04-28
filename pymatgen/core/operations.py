@@ -62,7 +62,7 @@ class SymmOp(MSONable):
         translation_vec: ArrayLike = (0, 0, 0),
         tol: float = 0.1,
     ) -> Self:
-        """Creates a symmetry operation from a rotation matrix and a translation
+        """Create a symmetry operation from a rotation matrix and a translation
         vector.
 
         Args:
@@ -135,7 +135,7 @@ class SymmOp(MSONable):
         return np.dot(self.rotation_matrix, vector)
 
     def transform_tensor(self, tensor: np.ndarray) -> np.ndarray:
-        """Applies rotation portion to a tensor. Note that tensor has to be in
+        """Apply rotation portion to a tensor. Note that tensor has to be in
         full form, not the Voigt form.
 
         Args:
@@ -242,7 +242,7 @@ class SymmOp(MSONable):
     def from_axis_angle_and_translation(
         axis: ArrayLike, angle: float, angle_in_radians: bool = False, translation_vec: ArrayLike = (0, 0, 0)
     ) -> SymmOp:
-        """Generates a SymmOp for a rotation about a given axis plus translation.
+        """Generate a SymmOp for a rotation about a given axis plus translation.
 
         Args:
             axis: The axis of rotation in Cartesian space. For example,
@@ -282,7 +282,7 @@ class SymmOp(MSONable):
     def from_origin_axis_angle(
         origin: ArrayLike, axis: ArrayLike, angle: float, angle_in_radians: bool = False
     ) -> SymmOp:
-        """Generates a SymmOp for a rotation about a given axis through an
+        """Generate a SymmOp for a rotation about a given axis through an
         origin.
 
         Args:
@@ -564,7 +564,7 @@ class MagSymmOp(SymmOp):
         time_reversal: int = 1,
         tol: float = 0.1,
     ) -> MagSymmOp:
-        """Creates a symmetry operation from a rotation matrix, translation
+        """Create a symmetry operation from a rotation matrix, translation
         vector and time reversal operator.
 
         Args:

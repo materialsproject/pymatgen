@@ -470,7 +470,7 @@ class CollinearMagneticStructureAnalyzer:
 
     @property
     def ordering(self) -> Ordering:
-        """Applies heuristics to return a magnetic ordering for a collinear
+        """Apply heuristics to return a magnetic ordering for a collinear
         magnetic structure. Result is not guaranteed to be correct, just a best
         guess. Tolerance for minimum total magnetization to be considered
         ferro/ferrimagnetic is self.threshold_ordering and defaults to 1e-8.
@@ -1056,7 +1056,7 @@ MagneticDeformation = namedtuple("MagneticDeformation", "type deformation")
     description="A Simple Computational Proxy for Screening Magnetocaloric Compounds",
 )
 def magnetic_deformation(structure_A: Structure, structure_B: Structure) -> MagneticDeformation:
-    """Calculates 'magnetic deformation proxy',
+    """Calculate 'magnetic deformation proxy',
     a measure of deformation (norm of finite strain)
     between 'non-magnetic' (non-spin-polarized) and
     ferromagnetic structures.

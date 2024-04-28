@@ -61,7 +61,7 @@ class Nwchem2Fiesta(MSONable):
         self._nwchemmovecs_fn = f"{filename}.movecs"
 
     def run(self):
-        """Performs actual NWCHEM2FIESTA run."""
+        """Perform actual NWCHEM2FIESTA run."""
         init_folder = os.getcwd()
         os.chdir(self.folder)
 
@@ -121,7 +121,7 @@ class FiestaRun(MSONable):
         self.grid = grid
 
     def run(self):
-        """Performs FIESTA (gw) run."""
+        """Perform FIESTA (gw) run."""
         if len(self.grid) == 3:
             self.mpi_procs = self.grid[0] * self.grid[1] * self.grid[2]
             self._gw_run()
@@ -132,7 +132,7 @@ class FiestaRun(MSONable):
             raise ValueError("Wrong grid size: must be [nrow, ncolumn, nslice] for gw of [nrow, nslice] for bse")
 
     def _gw_run(self):
-        """Performs FIESTA (gw) run."""
+        """Perform FIESTA (gw) run."""
         init_folder = os.getcwd()
         if self.folder != init_folder:
             os.chdir(self.folder)
@@ -155,7 +155,7 @@ class FiestaRun(MSONable):
             os.chdir(init_folder)
 
     def bse_run(self):
-        """Performs BSE run."""
+        """Perform BSE run."""
         init_folder = os.getcwd()
         if self.folder != init_folder:
             os.chdir(self.folder)

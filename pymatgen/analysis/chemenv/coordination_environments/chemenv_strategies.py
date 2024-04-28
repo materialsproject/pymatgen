@@ -454,7 +454,8 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
 
     @abc.abstractmethod
     def __eq__(self, other: object) -> bool:
-        """Equality method that should be implemented for any strategy
+        """
+        Equality method that should be implemented for any strategy
 
         Args:
             other: strategy to be compared with the current one
@@ -2282,14 +2283,10 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
         # Case 2
         if d1 <= self.dmin and d2 <= self.dmax:
             ld2 = self.f_lower(d2)
-            if a2 <= ld2 or a1 >= self.amax:
-                return False
-            return True
+            return not (a2 <= ld2 or a1 >= self.amax)
         # Case 3
         if d1 <= self.dmin and d2 >= self.dmax:
-            if a2 <= self.amin or a1 >= self.amax:
-                return False
-            return True
+            return not (a2 <= self.amin or a1 >= self.amax)
         # Case 4
         if self.dmin <= d1 <= self.dmax and self.dmin <= d2 <= self.dmax:
             ld1 = self.f_lower(d1)
@@ -2298,15 +2295,11 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
                 return False
             ud1 = self.f_upper(d1)
             ud2 = self.f_upper(d2)
-            if a1 >= ud1 and a1 >= ud2:
-                return False
-            return True
+            return not (a1 >= ud1 and a1 >= ud2)
         # Case 5
         if self.dmin <= d1 <= self.dmax and d2 >= self.dmax:
             ud1 = self.f_upper(d1)
-            if a1 >= ud1 or a2 <= self.amin:
-                return False
-            return True
+            return not (a1 >= ud1 or a2 <= self.amin)
         raise ValueError("Should not reach this point!")
 
     def __eq__(self, other: object) -> bool:

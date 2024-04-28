@@ -428,7 +428,7 @@ class TestSpecies(PymatgenTest):
 
         with open(f"{self.tmp_path}/cscl.pickle", "rb") as file:
             tup = pickle.load(file)
-            assert tup == cs, cl
+            assert tup == (cs, cl)
 
     def test_get_crystal_field_spin(self):
         assert Species("Fe", 2).get_crystal_field_spin() == 4

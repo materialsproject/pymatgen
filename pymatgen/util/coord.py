@@ -304,7 +304,7 @@ def lattice_points_in_supercell(supercell_matrix):
 
 
 def barycentric_coords(coords, simplex):
-    """Converts a list of coordinates to barycentric coordinates, given a
+    """Convert a list of coordinates to barycentric coordinates, given a
     simplex with d+1 points. Only works for d >= 2.
 
     Args:
@@ -324,7 +324,7 @@ def barycentric_coords(coords, simplex):
 
 
 def get_angle(v1: ArrayLike, v2: ArrayLike, units: Literal["degrees", "radians"] = "degrees") -> float:
-    """Calculates the angle between two vectors.
+    """Calculate the angle between two vectors.
 
     Args:
         v1: Vector 1

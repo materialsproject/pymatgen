@@ -1316,7 +1316,7 @@ class PointGroupAnalyzer:
         return True
 
     def _get_eq_sets(self):
-        """Calculates the dictionary for mapping equivalent atoms onto each other.
+        """Calculate the dictionary for mapping equivalent atoms onto each other.
 
         Returns:
             dict: with two possible keys:

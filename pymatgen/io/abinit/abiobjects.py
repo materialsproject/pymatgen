@@ -363,7 +363,7 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
 
     @classmethod
     def as_spinmode(cls, obj):
-        """Converts obj into a `SpinMode` instance."""
+        """Convert obj into a `SpinMode` instance."""
         if isinstance(obj, cls):
             return obj
 

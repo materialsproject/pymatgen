@@ -204,7 +204,7 @@ class Trajectory(MSONable):
         self.coords_are_displacement = False
 
     def to_displacements(self) -> None:
-        """Converts positions of trajectory into displacements between consecutive frames.
+        """Convert positions of trajectory into displacements between consecutive frames.
 
         `base_positions` and `coords` should both be in fractional coords. Does
         not work for absolute coords because the atoms are to be wrapped into the

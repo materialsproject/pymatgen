@@ -490,7 +490,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @abstractmethod
     def to(self, filename: str = "", fmt: FileFormats = "") -> str | None:
-        """Generates string representations (cif, json, poscar, ....) of SiteCollections (e.g.,
+        """Generate string representations (cif, json, poscar, ....) of SiteCollections (e.g.,
         molecules / structures). Should return str or None if written to a file.
         """
         raise NotImplementedError
@@ -512,7 +512,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         raise NotImplementedError
 
     def add_site_property(self, property_name: str, values: Sequence | np.ndarray) -> SiteCollection:
-        """Adds a property to a site. Note: This is the preferred method
+        """Add a property to a site. Note: This is the preferred method
         for adding magnetic moments, selective dynamics, and related
         site-specific properties to a structure/molecule object.
 
@@ -744,7 +744,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return cluster
 
     def _calculate(self, calculator: str | Calculator, verbose: bool = False) -> Calculator:
-        """Performs an ASE calculation.
+        """Perform an ASE calculation.
 
         Args:
             calculator (str | Calculator): An ASE Calculator or a string from the following case-insensitive
@@ -788,7 +788,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return_trajectory: bool = False,
         verbose: bool = False,
     ) -> Structure | Molecule | tuple[Structure | Molecule, TrajectoryObserver | Trajectory]:
-        """Performs a structure relaxation using an ASE calculator.
+        """Perform a structure relaxation using an ASE calculator.
 
         Args:
             calculator (str | ase.Calculator): An ASE Calculator or a string from the following options: "M3GNet",
@@ -927,7 +927,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         raise ValueError(f"Unknown {calculator=}.")
 
     def to_ase_atoms(self, **kwargs) -> Atoms:
-        """Converts the structure/molecule to an ase.Atoms object.
+        """Convert the structure/molecule to an ase.Atoms object.
 
         Args:
             kwargs: Passed to ase.Atoms init.
@@ -1417,7 +1417,7 @@ class IStructure(SiteCollection, MSONable):
         return hash(self.composition)
 
     def __mul__(self, scaling_matrix: int | Sequence[int] | Sequence[Sequence[int]]) -> Structure:
-        """Makes a supercell. Allowing to have sites outside the unit cell.
+        """Make a supercell. Allowing to have sites outside the unit cell.
 
         Args:
             scaling_matrix: A scaling matrix for transforming the lattice
@@ -3476,7 +3476,7 @@ class IMolecule(SiteCollection, MSONable):
         no_cross: bool = False,
         reorder: bool = True,
     ) -> IStructure | Structure:
-        """Creates a Structure from a Molecule by putting the Molecule in the
+        """Create a Structure from a Molecule by putting the Molecule in the
         center of a orthorhombic box. Useful for creating Structure for
         calculating molecules using periodic codes.
 
@@ -4314,7 +4314,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         return self
 
     def perturb(self, distance: float, min_distance: float | None = None) -> Self:
-        """Performs a random perturbation of the sites in a structure to break
+        """Perform a random perturbation of the sites in a structure to break
         symmetries. Modifies the structure in place.
 
         Args:
@@ -4379,7 +4379,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         return struct
 
     def scale_lattice(self, volume: float) -> Self:
-        """Performs a scaling of the lattice vectors so that length proportions
+        """Perform a scaling of the lattice vectors so that length proportions
         and angles are preserved.
 
         Args:
@@ -4460,7 +4460,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         return_trajectory: bool = False,
         verbose: bool = False,
     ) -> Structure | tuple[Structure, TrajectoryObserver | Trajectory]:
-        """Performs a crystal structure relaxation using an ASE calculator.
+        """Perform a crystal structure relaxation using an ASE calculator.
 
         Args:
             calculator: An ASE Calculator or a string from the following options: "m3gnet".
@@ -4494,7 +4494,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         )
 
     def calculate(self, calculator: str | Calculator = "m3gnet", verbose: bool = False) -> Calculator:
-        """Performs an ASE calculation.
+        """Perform an ASE calculation.
 
         Args:
             calculator: An ASE Calculator or a string from the following options: "m3gnet".
@@ -4580,7 +4580,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         charge_spin_check: bool = True,
         properties: dict | None = None,
     ) -> None:
-        """Creates a MutableMolecule.
+        """Create a MutableMolecule.
 
         Args:
             species: list of atomic species. Possible kinds of input include a
@@ -4670,7 +4670,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         validate_proximity: bool = False,
         properties: dict | None = None,
     ) -> Molecule:
-        """Appends a site to the molecule.
+        """Append a site to the molecule.
 
         Args:
             species: Species of inserted site
@@ -4851,7 +4851,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         return self
 
     def perturb(self, distance: float) -> Molecule:
-        """Performs a random perturbation of the sites in a structure to break
+        """Perform a random perturbation of the sites in a structure to break
         symmetries.
 
         Args:
@@ -4991,7 +4991,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         return_trajectory: bool = False,
         verbose: bool = False,
     ) -> Molecule | tuple[Molecule, TrajectoryObserver]:
-        """Performs a molecule relaxation using an ASE calculator.
+        """Perform a molecule relaxation using an ASE calculator.
 
         Args:
             calculator: An ASE Calculator or a string from the following options: "gfn2-xtb".
@@ -5021,7 +5021,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         )
 
     def calculate(self, calculator: str | Calculator = "gfn2-xtb", verbose: bool = False) -> Calculator:
-        """Performs an ASE calculation.
+        """Perform an ASE calculation.
 
         Args:
             calculator: An ASE Calculator or a string from the following options: "gfn2-xtb".

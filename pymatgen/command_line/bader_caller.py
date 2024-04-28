@@ -47,7 +47,7 @@ __date__ = "4/5/13"
 
 
 class BaderAnalysis:
-    """Performs Bader charge analysis for Cube files or VASP outputs.
+    """Perform Bader charge analysis for Cube files or VASP outputs.
 
     Attributes:
         data (list[dict]): Atomic data parsed from bader analysis.

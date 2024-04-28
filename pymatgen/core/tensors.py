@@ -107,7 +107,7 @@ class Tensor(np.ndarray, MSONable):
         return new_tensor
 
     def transform(self, symm_op):
-        """Applies a transformation (via a symmetry operation) to a tensor.
+        """Apply a transformation (via a symmetry operation) to a tensor.
 
         Args:
             symm_op (SymmOp): a symmetry operation to apply to the tensor
@@ -115,7 +115,7 @@ class Tensor(np.ndarray, MSONable):
         return type(self)(symm_op.transform_tensor(self))
 
     def rotate(self, matrix, tol: float = 1e-3):
-        """Applies a rotation directly, and tests input matrix to ensure a valid
+        """Apply a rotation directly, and tests input matrix to ensure a valid
         rotation.
 
         Args:
@@ -129,7 +129,7 @@ class Tensor(np.ndarray, MSONable):
         return self.transform(symm_op)
 
     def einsum_sequence(self, other_arrays, einsum_string=None):
-        """Calculates the result of an einstein summation expression."""
+        """Calculate the result of an einstein summation expression."""
         if not isinstance(other_arrays, list):
             raise ValueError("other tensors must be list of tensors or tensor input")
 
@@ -213,7 +213,7 @@ class Tensor(np.ndarray, MSONable):
         return [g for g in grouped if g]
 
     def get_symbol_dict(self, voigt=True, zero_index=False, **kwargs):
-        """Creates a summary dict for tensor with associated symbol.
+        """Create a summary dict for tensor with associated symbol.
 
         Args:
             voigt (bool): whether to get symbol dict for voigt
@@ -513,7 +513,7 @@ class Tensor(np.ndarray, MSONable):
         vsym=True,
         verbose=False,
     ) -> Self:
-        """Creates a tensor from values and indices, with options
+        """Create a tensor from values and indices, with options
         for populating the remainder of the tensor.
 
         Args:
@@ -783,7 +783,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
     @classmethod
     def from_voigt(cls, voigt_input_list, base_class=Tensor) -> Self:
-        """Creates TensorCollection from voigt form.
+        """Create TensorCollection from voigt form.
 
         Args:
             voigt_input_list: List of voigt tensors
@@ -844,7 +844,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Creates TensorCollection from dict.
+        """Create TensorCollection from dict.
 
         Args:
             dct: dict
@@ -948,7 +948,7 @@ class SquareTensor(Tensor):
         return np.poly(self)[1:] * np.array([-1, 1, -1])
 
     def polar_decomposition(self, side="right"):
-        """Calculates matrices for polar decomposition."""
+        """Calculate matrices for polar decomposition."""
         return polar(self, side=side)
 
 

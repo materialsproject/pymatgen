@@ -86,7 +86,7 @@ class NthOrderElasticTensor(Tensor):
         return Stress(stress_matrix)
 
     def energy_density(self, strain, convert_GPa_to_eV=True):
-        """Calculates the elastic energy density due to a strain."""
+        """Calculate the elastic energy density due to a strain."""
         e_density = np.sum(self.calculate_stress(strain) * strain) / self.order
         if convert_GPa_to_eV:
             e_density *= self.GPa_to_eV_A3  # Conversion factor for GPa to eV/A^3
@@ -220,7 +220,7 @@ class ElasticTensor(NthOrderElasticTensor):
         return v
 
     def directional_elastic_mod(self, n) -> float:
-        """Calculates directional elastic modulus for a specific vector."""
+        """Calculate directional elastic modulus for a specific vector."""
         n = get_uvec(n)
         return self.einsum_sequence([n] * 4)
 
@@ -265,7 +265,7 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @raise_if_unphysical
     def snyder_ac(self, structure: Structure) -> float:
-        """Calculates Snyder's acoustic sound velocity.
+        """Calculate Snyder's acoustic sound velocity.
 
         Args:
             structure: pymatgen structure object
@@ -321,7 +321,7 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @raise_if_unphysical
     def clarke_thermalcond(self, structure: Structure) -> float:
-        """Calculates Clarke's thermal conductivity.
+        """Calculate Clarke's thermal conductivity.
 
         Args:
             structure: pymatgen structure object
@@ -357,7 +357,7 @@ class ElasticTensor(NthOrderElasticTensor):
     )
     @raise_if_unphysical
     def agne_diffusive_thermalcond(self, structure: Structure) -> float:
-        """Calculates Agne's diffusive thermal conductivity.
+        """Calculate Agne's diffusive thermal conductivity.
 
         Please cite the original authors if using this method
         M. T. Agne, R. Hanus, G. J. Snyder, Energy Environ. Sci. 2018, 11, 609-616.
@@ -579,7 +579,7 @@ class ElasticTensorExpansion(TensorCollection):
         return sum(c.calculate_stress(strain) for c in self)
 
     def energy_density(self, strain, convert_GPa_to_eV=True):
-        """Calculates the elastic energy density due to a strain in eV/A^3 or GPa."""
+        """Calculate the elastic energy density due to a strain in eV/A^3 or GPa."""
         return sum(c.energy_density(strain, convert_GPa_to_eV) for c in self)
 
     def get_ggt(self, n, u):
@@ -975,7 +975,7 @@ def get_strain_state_dict(strains, stresses, eq_stress=None, tol: float = 1e-10,
 
 
 def generate_pseudo(strain_states, order=3):
-    """Generates the pseudo-inverse for a given set of strains.
+    """Generate the pseudo-inverse for a given set of strains.
 
     Args:
         strain_states (6xN array like): a list of Voigt-notation strain-states,

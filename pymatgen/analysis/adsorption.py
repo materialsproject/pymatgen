@@ -93,7 +93,7 @@ class AdsorbateSiteFinder:
         selective_dynamics=False,
         undercoord_threshold=0.09,
     ) -> Self:
-        """This method constructs the adsorbate site finder from a bulk
+        """Construct the adsorbate site finder from a bulk
         structure and a miller index, which allows the surface sites to be
         determined from the difference in bulk and slab coordination, as
         opposed to the height threshold.
@@ -150,15 +150,12 @@ class AdsorbateSiteFinder:
                 surf_props += ["surface"]
             else:
                 surf_props += ["subsurface"]
-        new_site_properties = {
-            "surface_properties": surf_props,
-            "undercoords": under_coords,
-        }
+        new_site_properties = {"surface_properties": surf_props, "undercoords": under_coords}
         new_slab = this_slab.copy(site_properties=new_site_properties)
         return cls(new_slab, selective_dynamics)
 
     def find_surface_sites_by_height(self, slab: Slab, height=0.9, xy_tol=0.05):
-        """This method finds surface sites by determining which sites are
+        """Find surface sites by determining which sites are
         within a threshold value in height from the topmost site in a list of
         sites.
 
@@ -196,7 +193,7 @@ class AdsorbateSiteFinder:
         return surf_sites
 
     def assign_site_properties(self, slab: Slab, height=0.9):
-        """Assigns site properties."""
+        """Assign site properties."""
         if "surface_properties" in slab.site_properties:
             return slab
 
@@ -307,7 +304,7 @@ class AdsorbateSiteFinder:
         return ads_sites
 
     def symm_reduce(self, coords_set, threshold=1e-6):
-        """Reduces the set of adsorbate sites by finding removing symmetrically
+        """Reduce the set of adsorbate sites by finding removing symmetrically
         equivalent duplicates.
 
         Args:
@@ -363,7 +360,7 @@ class AdsorbateSiteFinder:
         return np.average([site_list[idx].frac_coords for idx in indices], axis=0)
 
     def add_adsorbate(self, molecule: Molecule, ads_coord, repeat=None, translate=True, reorient=True):
-        """Adds an adsorbate at a particular coordinate. Adsorbate represented
+        """Add an adsorbate at a particular coordinate. Adsorbate represented
         by a Molecule object and is translated to (0, 0, 0) if translate is
         True, or positioned relative to the input adsorbate coordinate if
         translate is False.
@@ -616,13 +613,13 @@ def get_rot(slab: Slab) -> SymmOp:
 
 
 def put_coord_inside(lattice, cart_coordinate):
-    """Converts a Cartesian coordinate such that it is inside the unit cell."""
+    """Convert a Cartesian coordinate such that it is inside the unit cell."""
     fc = lattice.get_fractional_coords(cart_coordinate)
     return lattice.get_cartesian_coords([c - np.floor(c) for c in fc])
 
 
 def reorient_z(structure):
-    """Reorients a structure such that the z axis is concurrent with the normal
+    """Reorient a structure such that the z axis is concurrent with the normal
     to the A-B plane.
     """
     struct = structure.copy()

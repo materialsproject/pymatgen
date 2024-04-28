@@ -372,7 +372,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         return sorted(all_structures, key=lambda s: s["energy"])
 
     def _fast_ordering(self, structure: Structure, num_remove_dict, num_to_return=1):
-        """This method uses the matrix form of Ewald sum to calculate the ewald
+        """Use the matrix form of Ewald sum to calculate the Ewald
         sums of the potential structures. This is on the order of 4 orders of
         magnitude faster when there are large numbers of permutations to
         consider. There are further optimizations possible (doing a smarter

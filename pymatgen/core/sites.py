@@ -39,7 +39,7 @@ class Site(collections.abc.Hashable, MSONable):
         label: str | None = None,
         skip_checks: bool = False,
     ) -> None:
-        """Creates a non-periodic Site.
+        """Create a non-periodic Site.
 
         Args:
             species: Species on the site. Can be:
@@ -231,8 +231,6 @@ class Site(collections.abc.Hashable, MSONable):
             return False
         if self.species_string < other.species_string:
             return True
-        if self.species_string > other.species_string:
-            return False
         return False
 
     def __str__(self) -> str:

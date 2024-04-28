@@ -270,7 +270,7 @@ def gs_input(
     scf_algorithm=None,
 ):
     """
-    Returns a |BasicAbinitInput| for ground-state calculation.
+    Returns a BasicAbinitInput for ground-state calculation.
 
     Args:
         structure: |Structure| object.
@@ -1005,11 +1005,11 @@ class BasicAbinitInput(AbstractInput, MSONable):
 
 class BasicMultiDataset:
     """
-    This object is essentially a list of BasicAbinitInput objects.
+    This object is essentially a list of BasicAbinitInputs.
     that provides an easy-to-use interface to apply global changes to the
     the inputs stored in the objects.
 
-    Let's assume for example that multi contains two BasicAbinitInput objects and we
+    Let's assume for example that multi contains two BasicAbinitInputs and we
     want to set `ecut` to 1 in both dictionaries. The direct approach would be:
 
         for inp in multi:
@@ -1071,7 +1071,7 @@ class BasicMultiDataset:
 
             pseudos = PseudoTable(pseudo_paths)
 
-        # Build the list of BasicAbinitInput objects.
+        # Build the list of BasicAbinitInputs.
         if ndtset <= 0:
             raise ValueError(f"{ndtset=} cannot be <=0")
 
@@ -1083,7 +1083,7 @@ class BasicMultiDataset:
 
     @classmethod
     def from_inputs(cls, inputs: list[BasicAbinitInput]) -> Self:
-        """Build object from a list of BasicAbinitInput objects."""
+        """Build object from a list of BasicAbinitInputs."""
         for inp in inputs:
             if any(p1 != p2 for p1, p2 in zip(inputs[0].pseudos, inp.pseudos)):
                 raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
@@ -1189,14 +1189,14 @@ class BasicMultiDataset:
             raise NotImplementedError("Operation not supported")
 
     def append(self, abinit_input):
-        """Add a |BasicAbinitInput| to the list."""
+        """Add a BasicAbinitInput to the list."""
         assert isinstance(abinit_input, BasicAbinitInput)
         if any(p1 != p2 for p1, p2 in zip(abinit_input.pseudos, abinit_input.pseudos)):
             raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
         self._inputs.append(abinit_input)
 
     def extend(self, abinit_inputs):
-        """Extends self with a list of |BasicAbinitInput| objects."""
+        """Extends self with a list of BasicAbinitInputs."""
         assert all(isinstance(inp, BasicAbinitInput) for inp in abinit_inputs)
         for inp in abinit_inputs:
             if any(p1 != p2 for p1, p2 in zip(self[0].pseudos, inp.pseudos)):
@@ -1208,7 +1208,7 @@ class BasicMultiDataset:
         self.append(self[dtindex].deepcopy())
 
     def split_datasets(self):
-        """Return list of |BasicAbinitInput| objects.."""
+        """Return list of BasicAbinitInputs."""
         return self._inputs
 
     def deepcopy(self):

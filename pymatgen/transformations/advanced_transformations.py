@@ -69,7 +69,7 @@ class ChargeBalanceTransformation(AbstractTransformation):
         self.charge_balance_sp = str(charge_balance_sp)
 
     def apply_transformation(self, structure: Structure):
-        """Applies the transformation.
+        """Apply the transformation.
 
         Args:
             structure: Input Structure
@@ -122,7 +122,7 @@ class SuperTransformation(AbstractTransformation):
         self.nstructures_per_trans = nstructures_per_trans
 
     def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
-        """Applies the transformation.
+        """Apply the transformation.
 
         Args:
             structure: Input Structure
@@ -160,7 +160,7 @@ class SuperTransformation(AbstractTransformation):
 
 
 class MultipleSubstitutionTransformation:
-    """Performs multiple substitutions on a structure. For example, can do a
+    """Perform multiple substitutions on a structure. For example, can do a
     fractional replacement of Ge in LiGePS with a list of species, creating one
     structure for each substitution. Ordering is done using a dummy element so
     only one ordering must be done per substitution oxidation state. Charge
@@ -179,7 +179,7 @@ class MultipleSubstitutionTransformation:
         charge_balance_species=None,
         order=True,
     ):
-        """Performs multiple fractional substitutions on a transmuter.
+        """Perform multiple fractional substitutions on a transmuter.
 
         Args:
             sp_to_replace: species to be replaced
@@ -203,7 +203,7 @@ class MultipleSubstitutionTransformation:
         self.order = order
 
     def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
-        """Applies the transformation.
+        """Apply the transformation.
 
         Args:
             structure: Input Structure
@@ -516,7 +516,7 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
         self._substitutor = SubstitutionPredictor(threshold=threshold, **kwargs)
 
     def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
-        """Applies the transformation.
+        """Apply the transformation.
 
         Args:
             structure: Input Structure
@@ -1210,7 +1210,7 @@ class SlabTransformation(AbstractTransformation):
         self.tol = tol
 
     def apply_transformation(self, structure: Structure):
-        """Applies the transformation.
+        """Apply the transformation.
 
         Args:
             structure: Input Structure
@@ -1453,7 +1453,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
         self.quick_gen = quick_gen
 
     def apply_transformation(self, structure: Structure):
-        """Applies the transformation.
+        """Apply the transformation.
 
         Args:
             structure: Input Structure
@@ -1982,7 +1982,7 @@ class SQSTransformation(AbstractTransformation):
 
     @staticmethod
     def _get_disordered_substructure(struct_disordered):
-        """Converts disordered structure into a substructure consisting of only disordered sites.
+        """Convert disordered structure into a substructure consisting of only disordered sites.
 
         Args:
             struct_disordered: pymatgen disordered Structure object.
@@ -2020,7 +2020,7 @@ class SQSTransformation(AbstractTransformation):
         return clusters
 
     def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
-        """Applies SQS transformation.
+        """Apply SQS transformation.
 
         Args:
             structure (pymatgen Structure): pymatgen Structure with partial occupancies

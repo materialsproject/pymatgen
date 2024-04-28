@@ -32,7 +32,7 @@ class Ion(Composition, MSONable, Stringify):
 
     @classmethod
     def from_formula(cls, formula: str) -> Self:
-        """Creates Ion from formula. The net charge can either be represented as
+        """Create Ion from formula. The net charge can either be represented as
         Mn++, Mn+2, Mn[2+], Mn[++], or Mn[+2]. Note the order of the sign and
         magnitude in each representation.
 
@@ -95,7 +95,7 @@ class Ion(Composition, MSONable, Stringify):
         return anon_formula + chg_str
 
     def get_reduced_formula_and_factor(self, iupac_ordering: bool = False, hydrates: bool = False) -> tuple[str, float]:
-        """Calculates a reduced formula and factor.
+        """Calculate a reduced formula and factor.
 
         Similar to Composition.get_reduced_formula_and_factor except that O-H formulas
         receive special handling to differentiate between hydrogen peroxide and OH-.
@@ -214,7 +214,7 @@ class Ion(Composition, MSONable, Stringify):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Generates an ion object from a dict created by as_dict().
+        """Generate an ion object from a dict created by as_dict().
 
         Args:
             dct: {symbol: amount} dict.

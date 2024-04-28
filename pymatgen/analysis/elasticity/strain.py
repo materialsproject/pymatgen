@@ -63,7 +63,7 @@ class Deformation(SquareTensor):
 
     @property
     def green_lagrange_strain(self):
-        """Calculates the Euler-Lagrange strain from the deformation gradient."""
+        """Calculate the Euler-Lagrange strain from the deformation gradient."""
         return Strain.from_deformation(self)
 
     def apply_to_structure(self, structure: Structure):
