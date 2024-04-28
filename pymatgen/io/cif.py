@@ -32,7 +32,7 @@ from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
 if TYPE_CHECKING:
     from typing_extensions import Self
 
-    from pymatgen.core.trajectory import Vector3D
+    from pymatgen.util.typing import Vector3D
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 

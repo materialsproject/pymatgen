@@ -959,7 +959,7 @@ class Vasprun(MSONable):
                         start_bs_index = i
                         break
                 for i in range(start_bs_index, len(kpoint_file.kpts)):
-                    if kpoint_file.labels[i] is not None:
+                    if kpoint_file.labels is not None and kpoint_file.labels[i] is not None:
                         labels_dict[kpoint_file.labels[i]] = kpoint_file.kpts[i]
                 # remake the data only considering line band structure k-points
                 # (weight = 0.0 kpoints)
@@ -979,13 +979,15 @@ class Vasprun(MSONable):
                 else:
                     eigenvals[Spin.up] = up_eigen
             else:
-                if "" in kpoint_file.labels:
-                    raise ValueError(
-                        "A band structure along symmetry lines requires a label "
-                        "for each kpoint. Check your KPOINTS file"
-                    )
-                labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
-                labels_dict.pop(None, None)
+                if kpoint_file.labels is not None:
+                    if "" in kpoint_file.labels:
+                        raise ValueError(
+                            "A band structure along symmetry lines requires a label "
+                            "for each kpoint. Check your KPOINTS file"
+                        )
+                    labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
+                labels_dict.pop(None, None)  # type: ignore[call-overload]
+
             return BandStructureSymmLine(
                 kpoints,
                 eigenvals,

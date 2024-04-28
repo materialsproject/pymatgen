@@ -40,7 +40,7 @@ from dataclasses import dataclass, field
 from glob import glob
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Union, cast
+from typing import TYPE_CHECKING, Literal, Union, cast
 from zipfile import ZipFile
 
 import numpy as np
@@ -57,11 +57,14 @@ from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
+from pymatgen.util.typing import Kpoint
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from typing_extensions import Self
 
-    from pymatgen.core.trajectory import Vector3D
+    from pymatgen.util.typing import Vector3D
 
 MODULE_DIR = Path(__file__).resolve().parent
 # TODO (janosh): replace with following line once PMG is py3.9+ only
@@ -871,7 +874,7 @@ class DictSet(VaspInputSet):
                     comment="Uniform grid",
                     style=Kpoints.supported_modes.Reciprocal,
                     num_kpts=len(mesh),
-                    kpts=[i[0] for i in mesh],
+                    kpts=tuple(i[0] for i in mesh),
                     kpts_weights=[i[1] for i in mesh],
                 )
             else:
@@ -905,8 +908,8 @@ class DictSet(VaspInputSet):
                 comment="Uniform grid",
                 style=Kpoints.supported_modes.Reciprocal,
                 num_kpts=len(mesh),
-                kpts=[i[0] for i in mesh],
-                kpts_weights=[0 for i in mesh],
+                kpts=tuple(i[0] for i in mesh),
+                kpts_weights=[0 for _ in mesh],
             )
 
         added_kpoints = None
@@ -3073,28 +3076,31 @@ def _get_ispin(vasprun: Vasprun | None, outcar: Outcar | None) -> int:
 
 
 def _combine_kpoints(*kpoints_objects: Kpoints) -> Kpoints:
-    """Combine k-points files together."""
-    labels, kpoints, weights = [], [], []
+    """Combine multiple Kpoints objects."""
+    _labels: list[list[str]] = []
+    _kpoints: list[Sequence[Kpoint]] = []
+    _weights = []
 
     for kpoints_object in filter(None, kpoints_objects):
         if kpoints_object.style != Kpoints.supported_modes.Reciprocal:
             raise ValueError("Can only combine kpoints with style=Kpoints.supported_modes.Reciprocal")
         if kpoints_object.labels is None:
-            labels.append([""] * len(kpoints_object.kpts))
+            _labels.append([""] * len(kpoints_object.kpts))
         else:
-            labels.append(kpoints_object.labels)
+            _labels.append(kpoints_object.labels)
 
-        weights.append(kpoints_object.kpts_weights)
-        kpoints.append(kpoints_object.kpts)
+        _kpoints.append(kpoints_object.kpts)
+        _weights.append(kpoints_object.kpts_weights)
 
-    labels = np.concatenate(labels).tolist()
-    weights = np.concatenate(weights).tolist()
-    kpoints = np.concatenate(kpoints)
+    labels = np.concatenate(_labels).tolist()
+    kpoints = np.concatenate(_kpoints).tolist()
+    weights = np.concatenate(_weights).tolist()
+
     return Kpoints(
         comment="Combined k-points",
         style=Kpoints.supported_modes.Reciprocal,
         num_kpts=len(kpoints),
-        kpts=cast(Sequence[Sequence[float]], kpoints),
+        kpts=cast(Sequence[Kpoint], kpoints),
         labels=labels,
         kpts_weights=weights,
     )

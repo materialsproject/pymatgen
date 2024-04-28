@@ -1407,9 +1407,10 @@ class Fatband:
         self.p_eigenvals = p_eigenvals
 
         label_dict = {}
-        for idx, label in enumerate(kpoints_object.labels[-self.number_kpts :], start=0):
-            if label is not None:
-                label_dict[label] = kpoints_array[idx]
+        if kpoints_object.labels is not None:
+            for idx, label in enumerate(kpoints_object.labels[-self.number_kpts :], start=0):
+                if label is not None:
+                    label_dict[label] = kpoints_array[idx]
 
         self.label_dict = label_dict
 

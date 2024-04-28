@@ -50,6 +50,7 @@ if TYPE_CHECKING:
 
     from pymatgen.core.lattice import Lattice
     from pymatgen.core.structure import Molecule, Structure
+    from pymatgen.util.typing import Kpoint
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
@@ -2031,37 +2032,44 @@ class Kpoints(Section):
         weights = kpoints.kpts_weights
 
         if kpoints.style == KpointsSupportedModes.Monkhorst:
-            k = kpts[0]
-            x, y, z = (k, k, k) if isinstance(k, (int, float)) else k
+            kpt: Kpoint = kpts[0]  # type: ignore[assignment]
+            x, y, z = (kpt, kpt, kpt) if isinstance(kpt, (int, float)) else kpt  # type: ignore[misc]
             scheme = f"MONKHORST-PACK {x} {y} {z}"
             units = "B_VECTOR"
+
         elif kpoints.style == KpointsSupportedModes.Reciprocal:
             units = "B_VECTOR"
             scheme = "GENERAL"
+
         elif kpoints.style == KpointsSupportedModes.Cartesian:
             units = "CART_ANGSTROM"
             scheme = "GENERAL"
+
         elif kpoints.style == KpointsSupportedModes.Gamma:
+            if not structure:
+                raise ValueError(
+                    "No cp2k automatic gamma constructor. A structure is required to construct from spglib"
+                )
+
             if (isinstance(kpts[0], Iterable) and tuple(kpts[0]) == (1, 1, 1)) or (
                 isinstance(kpts[0], (float, int)) and int(kpts[0]) == 1
             ):
                 scheme = "GAMMA"
-                units = "B_VECTOR"
-            elif not structure:
-                raise ValueError(
-                    "No cp2k automatic gamma constructor. A structure is required to construct from spglib"
-                )
             else:
                 sga = SpacegroupAnalyzer(structure)
-                _kpts, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpts))
-                kpts = list(itertools.chain.from_iterable(_kpts))
+                _kpts, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpts))  # type: ignore[assignment]
+                kpts = tuple(itertools.chain.from_iterable(_kpts))
                 scheme = "GENERAL"
-                units = "B_VECTOR"
+
+            units = "B_VECTOR"
+
         elif kpoints.style == KpointsSupportedModes.Line_mode:
             scheme = "GENERAL"
             units = "B_VECTOR"
+
         else:
             raise ValueError("Unrecognized k-point style")
+
         return Kpoints(kpts=kpts, weights=weights, scheme=scheme, units=units)
 
 
