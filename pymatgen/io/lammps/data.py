@@ -292,8 +292,7 @@ class LammpsData(MSONable):
 
     @property
     def structure(self) -> Structure:
-        """
-        Exports a periodic structure object representing the simulation
+        """Exports a periodic structure object representing the simulation
         box.
 
         Returns:
@@ -1325,8 +1324,7 @@ class CombinedData(LammpsData):
 
     @property
     def structure(self) -> Structure:
-        """
-        Exports a periodic structure object representing the simulation
+        """Exports a periodic structure object representing the simulation
         box.
 
         Returns:

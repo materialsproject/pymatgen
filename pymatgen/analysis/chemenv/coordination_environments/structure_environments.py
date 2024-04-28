@@ -1952,8 +1952,7 @@ class LightStructureEnvironments(MSONable):
         return self.strategy.uniquely_determines_coordination_environments
 
     def __eq__(self, other: object) -> bool:
-        """
-        Equality method that checks if the LightStructureEnvironments object is equal to another
+        """Equality method that checks if the LightStructureEnvironments object is equal to another
         LightStructureEnvironments object. Two LightStructureEnvironments objects are equal if the strategy used
         is the same, if the structure is the same, if the valences used in the strategies are the same, if the
         coordination environments and the neighbors determined by the strategy are the same.
@@ -2281,8 +2280,7 @@ class ChemicalEnvironments(MSONable):
         return True
 
     def __eq__(self, other: object) -> bool:
-        """
-        Equality method that checks if the ChemicalEnvironments object is equal to another ChemicalEnvironments.
+        """Equality method that checks if the ChemicalEnvironments object is equal to another ChemicalEnvironments.
         object.
 
         Args:

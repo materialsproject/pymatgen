@@ -178,8 +178,7 @@ class PourbaixEntry(MSONable, Stringify):
         return self.energy * self.normalization_factor
 
     def normalized_energy_at_conditions(self, pH, V):
-        """
-        Energy at an electrochemical condition, compatible with
+        """Energy at an electrochemical condition, compatible with
         numpy arrays for pH/V input.
 
         Args:

@@ -48,8 +48,7 @@ class HeisenbergMapper:
     """
 
     def __init__(self, ordered_structures, energies, cutoff=0, tol: float = 0.02):
-        """
-        Exchange parameters are computed by mapping to a classical Heisenberg
+        """Exchange parameters are computed by mapping to a classical Heisenberg
         model. Strategy is the scheme for generating neighbors. Currently only
         MinimumDistanceNN is implemented.
         n+1 unique orderings are required to compute n exchange
@@ -454,8 +453,7 @@ class HeisenbergMapper:
         return fm_struct, afm_struct, fm_e, afm_e
 
     def estimate_exchange(self, fm_struct=None, afm_struct=None, fm_e=None, afm_e=None):
-        """
-        Estimate <J> for a structure based on low energy FM and AFM orderings.
+        """Estimate <J> for a structure based on low energy FM and AFM orderings.
 
         Args:
             fm_struct (Structure): fm structure with 'magmom' site property

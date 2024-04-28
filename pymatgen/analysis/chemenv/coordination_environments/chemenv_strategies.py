@@ -454,8 +454,7 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
 
     @abc.abstractmethod
     def __eq__(self, other: object) -> bool:
-        """
-        Equality method that should be implemented for any strategy
+        """Equality method that should be implemented for any strategy
 
         Args:
             other: strategy to be compared with the current one

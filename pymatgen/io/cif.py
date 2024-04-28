@@ -773,8 +773,7 @@ class CifParser:
         return sym_ops
 
     def get_magsymops(self, data):
-        """
-        Equivalent to get_symops except for magnetic symmetry groups.
+        """Equivalent to get_symops except for magnetic symmetry groups.
         Separate function since additional operation for time reversal symmetry
         (which changes magnetic moments on sites) needs to be returned.
         """

@@ -602,8 +602,7 @@ class InterfacialReactivity(MSONable):
 
 
 class GrandPotentialInterfacialReactivity(InterfacialReactivity):
-    """
-    Extends upon InterfacialReactivity to allow for modelling possible reactions
+    """Extends upon InterfacialReactivity to allow for modelling possible reactions
     at the interface between two solids in the presence of an open element. The
     thermodynamics of the open system are provided by the user via the
     GrandPotentialPhaseDiagram class.

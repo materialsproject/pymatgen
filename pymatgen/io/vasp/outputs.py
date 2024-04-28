@@ -4676,8 +4676,7 @@ class Wavecar:
         return gpoints, extra_gpoints, extra_coeff_inds
 
     def evaluate_wavefunc(self, kpoint: int, band: int, r: np.ndarray, spin: int = 0, spinor: int = 0) -> np.complex64:
-        r"""
-        Evaluates the wavefunction for a given position, r.
+        r"""Evaluates the wavefunction for a given position, r.
 
         The wavefunction is given by the k-point and band. It is evaluated
         at the given position by summing over the components. Formally,

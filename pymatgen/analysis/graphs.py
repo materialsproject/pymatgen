@@ -986,8 +986,7 @@ class StructureGraph(MSONable):
 
     @property
     def types_and_weights_of_connections(self) -> dict:
-        """
-        Extract a dictionary summarizing the types and weights
+        """Extract a dictionary summarizing the types and weights
         of edges in the graph.
 
         Returns:
@@ -1011,8 +1010,7 @@ class StructureGraph(MSONable):
 
     @property
     def weight_statistics(self) -> dict:
-        """
-        Extract a statistical summary of edge weights present in
+        """Extract a statistical summary of edge weights present in
         the graph.
 
         Returns:
@@ -1031,8 +1029,7 @@ class StructureGraph(MSONable):
         }
 
     def types_of_coordination_environments(self, anonymous: bool = False) -> list[str]:
-        """
-        Extract information on the different co-ordination environments
+        """Extract information on the different co-ordination environments
         present in the graph.
 
         Args:

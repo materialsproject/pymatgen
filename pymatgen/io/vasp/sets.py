@@ -954,8 +954,7 @@ class DictSet(VaspInputSet):
         return super().potcar
 
     def estimate_nbands(self) -> int:
-        """
-        Estimate the number of bands that VASP will initialize a
+        """Estimate the number of bands that VASP will initialize a
         calculation with by default. Note that in practice this
         can depend on # of cores (if not set explicitly).
         Note that this formula is slightly different than the formula on the VASP wiki

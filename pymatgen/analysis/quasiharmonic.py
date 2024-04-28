@@ -118,8 +118,7 @@ class QuasiHarmonicDebyeApprox:
         self.optimize_gibbs_free_energy()
 
     def optimize_gibbs_free_energy(self):
-        """
-        Evaluate the Gibbs free energy as a function of V, T and P i.e
+        """Evaluate the Gibbs free energy as a function of V, T and P i.e
         G(V, T, P), minimize G(V, T, P) w.r.t. V for each T and store the
         optimum values.
 
@@ -145,8 +144,7 @@ class QuasiHarmonicDebyeApprox:
             self.optimum_volumes.append(V_opt)
 
     def optimizer(self, temperature):
-        """
-        Evaluate G(V, T, P) at the given temperature(and pressure) and minimize it w.r.t. V.
+        """Evaluate G(V, T, P) at the given temperature(and pressure) and minimize it w.r.t. V.
 
         1. Compute the  vibrational Helmholtz free energy, A_vib.
         2. Compute the Gibbs free energy as a function of volume, temperature

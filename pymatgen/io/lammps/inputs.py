@@ -851,8 +851,7 @@ class LammpsInputFile(InputFile):
 
 
 class LammpsRun(MSONable):
-    """
-    Examples for various simple LAMMPS runs with given simulation box,
+    """Examples for various simple LAMMPS runs with given simulation box,
     force field and a few more settings. Experienced LAMMPS users should
     consider using write_lammps_inputs method with more sophisticated
     templates.
@@ -906,8 +905,7 @@ class LammpsRun(MSONable):
         nsteps: int,
         other_settings: dict | None = None,
     ) -> LammpsRun:
-        r"""
-        Example for a simple MD run based on template md.template.
+        r"""Example for a simple MD run based on template md.template.
 
         Args:
             data (LammpsData or str): Data file as a LammpsData

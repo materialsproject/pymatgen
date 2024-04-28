@@ -58,8 +58,7 @@ def get_phonopy_structure(pmg_structure: Structure) -> PhonopyAtoms:
 
 
 def get_structure_from_dict(dct):
-    """
-    Extracts a structure from the dictionary extracted from the output
+    """Extracts a structure from the dictionary extracted from the output
     files of phonopy like phonopy.yaml or band.yaml.
     Adds "phonopy_masses" in the site_properties of the structures.
     Compatible with older phonopy versions.
