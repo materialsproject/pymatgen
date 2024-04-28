@@ -1160,11 +1160,12 @@ class Kpoints(MSONable):
 
     def __repr__(self) -> str:
         lines = [self.comment, str(self.num_kpts), self.style.name]
+
         style = self.style.name.lower()[0]
         if style == "l":
             lines.append(self.coord_type)
+
         for idx, kpt in enumerate(self.kpts):
-            # TODO (@DanielYang59): fix the following type annotation
             lines.append(" ".join(map(str, kpt)))  # type: ignore[arg-type]
             if style == "l":
                 lines[-1] += f" ! {self.labels[idx]}"
@@ -1195,11 +1196,11 @@ class Kpoints(MSONable):
         """
         # If is Kpoint-like type (Sequence[float | int])
         if all(isinstance(kpt, (int, float)) for kpt in self._kpts):
-            return tuple(int(x) for x in self._kpts)
+            return cast(Kpoint, tuple(int(x) for x in self._kpts))  # type: ignore[arg-type]
 
         # If is Sequence[Kpoint]-like type
         if all(isinstance(kpt, Sequence) for kpt in self._kpts):
-            return map(tuple, self._kpts)
+            return cast(Sequence[Kpoint], map(tuple, self._kpts))  # type: ignore[arg-type]
 
         raise ValueError("Invalid kpoint type.")
 
@@ -1536,9 +1537,10 @@ class Kpoints(MSONable):
 
         # Automatic gamma and Monk KPOINTS, with optional shift
         if style in {"g", "m"}:
-            kpts: Kpoint = cast(Kpoint, tuple(int(i) for i in lines[3].split()))
-            if len(kpts) != 3:
-                raise ValueError("Invalid kpoint length.")
+            _kpt: list[int] = [int(i) for i in lines[3].split()]
+            if len(_kpt) != 3:
+                raise ValueError("Invalid Kpoint length.")
+            kpt: tuple[int, int, int] = cast(tuple[int, int, int], tuple(_kpt))
 
             kpts_shift: Vector3D = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
@@ -1552,19 +1554,23 @@ class Kpoints(MSONable):
 
                 kpts_shift = cast(Vector3D, tuple(_kpts_shift))
 
-            return cls.gamma_automatic(kpts, kpts_shift) if style == "g" else cls.monkhorst_automatic(kpts, kpts_shift)
+            return cls.gamma_automatic(kpt, kpts_shift) if style == "g" else cls.monkhorst_automatic(kpt, kpts_shift)
 
         # Automatic kpoints with basis
         if num_kpts <= 0:
             _style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
             _kpts_shift = [float(i) for i in lines[6].split()]
-            kpts_shift = tuple(_kpts_shift) if len(_kpts_shift) == 3 else (0, 0, 0)
+            kpts_shift = cast(Vector3D, tuple(_kpts_shift)) if len(_kpts_shift) == 3 else (0, 0, 0)
+
+            kpts: list[Kpoint] = [
+                cast(Kpoint, tuple(int(j) for j in lines[line_idx].split())) for line_idx in range(3, 6)
+            ]
 
             return cls(
                 comment=comment,
                 num_kpts=num_kpts,
                 style=_style,
-                kpts=[cast(Kpoint, (tuple(int(j) for j in lines[i].split()) for i in range(3, 6)))],
+                kpts=kpts,
                 kpts_shift=kpts_shift,
             )
 
@@ -1572,7 +1578,7 @@ class Kpoints(MSONable):
         if style == "l":
             coord_type = "Cartesian" if lines[3].lower()[0] in "ck" else "Reciprocal"
             _style = cls.supported_modes.Line_mode
-            _kpts: list[Kpoint] = []
+            _kpts: list[tuple[int, int, int]] = []
             labels = []
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for idx in range(4, len(lines)):
@@ -1580,6 +1586,7 @@ class Kpoints(MSONable):
                 if match := patt.match(line):
                     _kpts.append((int(match[1]), int(match[2]), int(match[3])))
                     labels.append(match[4].strip())
+
             return cls(
                 comment=comment,
                 num_kpts=num_kpts,
@@ -1591,7 +1598,7 @@ class Kpoints(MSONable):
 
         # Assume explicit KPOINTS if all else fails.
         _style = cls.supported_modes.Cartesian if style in "ck" else cls.supported_modes.Reciprocal
-        _kpts = []
+        kpts = []
         kpts_weights = []
         labels = []
         tet_number = 0
@@ -1600,7 +1607,7 @@ class Kpoints(MSONable):
 
         for idx in range(3, 3 + num_kpts):
             tokens = lines[idx].split()
-            _kpts.append(cast(Kpoint, tuple(int(j) for j in tokens[:3])))
+            kpts.append(cast(tuple[int, int, int], tuple(int(j) for j in tokens[:3])))
             kpts_weights.append(float(tokens[3]))
             if len(tokens) > 4:
                 labels.append(tokens[4])
@@ -1623,7 +1630,7 @@ class Kpoints(MSONable):
             comment=comment,
             num_kpts=num_kpts,
             style=cls.supported_modes[str(_style)],
-            kpts=_kpts,
+            kpts=kpts,
             kpts_weights=kpts_weights,
             tet_number=tet_number,
             tet_weight=tet_weight,

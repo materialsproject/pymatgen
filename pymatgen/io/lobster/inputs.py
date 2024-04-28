@@ -429,7 +429,7 @@ class Lobsterin(UserDict, MSONable):
         reciprocal_density: int = 100,
         isym: int = -1,
         from_grid: bool = False,
-        input_grid: tuple[float, float, float] = (5, 5, 5),
+        input_grid: tuple[int, int, int] = (5, 5, 5),
         line_mode: bool = True,
         kpoints_line_density: int = 20,
         symprec: float = 0.01,
