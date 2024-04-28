@@ -136,8 +136,7 @@ def get_nearest_site(struct: Structure, coords: Sequence[float], site: PeriodicS
 
 
 class Polarization:
-    """
-    Class for recovering the same branch polarization for a set of polarization
+    """Recover the same branch polarization for a set of polarization
     calculations along the nonpolar - polar distortion path of a ferroelectric.
 
     p_elecs, p_ions, and structures lists should be given in order

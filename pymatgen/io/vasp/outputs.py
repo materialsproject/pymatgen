@@ -793,7 +793,7 @@ class Vasprun(MSONable):
 
     @property
     def md_n_steps(self) -> int:
-        """Number of steps for md runs."""
+        """Number of steps for MD runs."""
         # if ML enabled count all the actual MD steps
         if self.md_data:
             return len(self.md_data)
@@ -5143,8 +5143,7 @@ class Waveder(MSONable):
 
 @dataclass
 class WSWQ(MSONable):
-    r"""
-    Class for reading a WSWQ file.
+    r"""Read a WSWQ file.
     The WSWQ file is used to calculation the wave function overlaps between
         - W: Wavefunctions in the current directory's WAVECAR file
         - WQ: Wavefunctions stored in a filed named the WAVECAR.qqq.

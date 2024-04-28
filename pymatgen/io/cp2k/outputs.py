@@ -37,8 +37,7 @@ logger = logging.getLogger(__name__)
 
 
 class Cp2kOutput:
-    """
-    Class for parsing output file from CP2K. The CP2K output file is very flexible in the way that
+    """Parse output file from CP2K. The CP2K output file is very flexible in the way that
     it is returned. This class will automatically parse parameters that should always be present,
     but other parsing features may be called depending on the run type.
     """

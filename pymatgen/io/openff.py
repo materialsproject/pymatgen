@@ -1,4 +1,4 @@
-"""Utility functions for classical md subpackage."""
+"""Utility functions for classical MD subpackage."""
 
 from __future__ import annotations
 

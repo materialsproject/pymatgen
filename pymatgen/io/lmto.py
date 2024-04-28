@@ -32,8 +32,7 @@ __date__ = "Nov 30, 2017"
 
 
 class LMTOCtrl:
-    """
-    Class for parsing CTRL files from the Stuttgart LMTO-ASA code.
+    """Parse CTRL files from the Stuttgart LMTO-ASA code.
     Currently, only HEADER, VERS and the structure can be used.
     """
 

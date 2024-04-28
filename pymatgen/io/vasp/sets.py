@@ -1254,8 +1254,7 @@ class MPRelaxSet(DictSet):
 )
 @dataclass
 class MPScanRelaxSet(DictSet):
-    """
-    Class for writing a relaxation input set using the accurate and numerically
+    """Write a relaxation input set using the accurate and numerically
     efficient r2SCAN variant of the Strongly Constrained and Appropriately Normed
     (SCAN) metaGGA density functional.
 
@@ -2099,10 +2098,8 @@ class MVLGWSet(DictSet):
 
 @dataclass
 class MVLSlabSet(DictSet):
-    """
-    Class for writing a set of slab vasp runs,
-    including both slabs (along the c direction) and orient unit cells (bulk),
-    to ensure the same KPOINTS, POTCAR and INCAR criterion.
+    """Write a set of slab vasp runs, including both slabs (along the c direction)
+    and orient unit cells (bulk), to ensure the same KPOINTS, POTCAR and INCAR criterion.
 
     Args:
         structure: Structure
@@ -2177,8 +2174,7 @@ class MVLSlabSet(DictSet):
 
 @dataclass
 class MVLGBSet(DictSet):
-    """
-    Class for writing a vasp input files for grain boundary calculations, slab or bulk.
+    """Write a vasp input files for grain boundary calculations, slab or bulk.
 
     Args:
         structure (Structure): provide the structure
@@ -2267,8 +2263,7 @@ class MVLRelax52Set(DictSet):
 
 
 class MITNEBSet(DictSet):
-    """
-    Class for writing NEB inputs.
+    """Write NEB inputs.
 
     Note that EDIFF is not on a per atom basis for this input set.
     """
@@ -2375,8 +2370,7 @@ class MITNEBSet(DictSet):
 
 @dataclass
 class MITMDSet(DictSet):
-    """
-    Class for writing a vasp md run. This DOES NOT do multiple stage runs.
+    """Write a VASP MD run. This DOES NOT do multiple stage runs.
 
     Args:
         structure (Structure): Input structure.
@@ -2448,7 +2442,7 @@ class MPMDSet(DictSet):
         Limit for Synthesis of Metastable Inorganic Materials. Sci. Adv. 2018,
         4 (4).
 
-    Class for writing a vasp md run. This DOES NOT do multiple stage runs.
+    Class for writing a VASP MD run. This DOES NOT do multiple stage runs.
     Precision remains normal, to increase accuracy of stress tensor.
 
     Args:
@@ -2524,8 +2518,7 @@ class MPMDSet(DictSet):
 
 @dataclass
 class MVLNPTMDSet(DictSet):
-    """
-    Class for writing a vasp md run in NPT ensemble.
+    """Write a VASP MD run in NPT ensemble.
 
     Notes:
         To eliminate Pulay stress, the default ENCUT is set to a rather large
@@ -2589,8 +2582,7 @@ class MVLNPTMDSet(DictSet):
 
 @dataclass
 class MVLScanRelaxSet(DictSet):
-    """
-    Class for writing a relax input set using Strongly Constrained and
+    """Write a relax input set using Strongly Constrained and
     Appropriately Normed (SCAN) semilocal density functional.
 
     Notes:

@@ -28,9 +28,8 @@ __date__ = "June 27, 2019"
 
 
 class Control(MSONable, dict):
-    """
-    Class for reading, updating, and writing ShengBTE CONTROL files.
-    See  https://bitbucket.org/sousaw/shengbte/src/master/ for more
+    """Read, update, and write ShengBTE CONTROL files.
+    See https://bitbucket.org/sousaw/shengbte/src/master/ for more
     detailed description and default values of CONTROL arguments.
     """
 

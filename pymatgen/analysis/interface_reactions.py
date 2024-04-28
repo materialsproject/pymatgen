@@ -41,8 +41,7 @@ with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_interfac
     description="Understanding interface stability in solid-state batteries",
 )
 class InterfacialReactivity(MSONable):
-    """
-    Class for modeling an interface between two solids and its possible reactions.
+    """Model an interface between two solids and its possible reactions.
     The two reactants are provided as Composition objects (c1 and c2), along with the
     relevant compositional PhaseDiagram object. Possible reactions are calculated by
     finding all points along a tie-line between c1 and c2 where there is a "kink" in

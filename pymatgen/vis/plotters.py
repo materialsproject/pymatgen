@@ -10,8 +10,7 @@ from pymatgen.util.plotting import pretty_plot
 
 
 class SpectrumPlotter:
-    """
-    Class for plotting Spectrum objects and subclasses. Note that the interface
+    """Plot Spectrum objects and subclasses. Note that the interface
     is extremely flexible given that there are many different ways in which
     people want to view spectra. The typical usage is:
 

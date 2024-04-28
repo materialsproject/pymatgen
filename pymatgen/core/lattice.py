@@ -1660,7 +1660,7 @@ def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose:
     mi /= min(m for m in mi if m != 0)
     mi /= np.max(np.abs(mi))
 
-    # deal with the case we have nice fractions
+    # deal with the case where we have nice fractions
     md = [Fraction(n).limit_denominator(12).denominator for n in mi]
     mi *= reduce(operator.mul, md)
     int_miller_index = np.round(mi, 1).astype(int)
