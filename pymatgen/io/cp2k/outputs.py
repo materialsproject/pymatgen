@@ -1155,8 +1155,7 @@ class Cp2kOutput:
         )
 
     def parse_homo_lumo(self):
-        """
-        Find the HOMO - LUMO gap in [eV]. Returns the last value. For gaps/eigenvalues decomposed
+        """Find the HOMO - LUMO gap in [eV]. Returns the last value. For gaps/eigenvalues decomposed
         by spin up/spin down channel and over many ionic steps, see parse_mo_eigenvalues().
         """
         pattern = re.compile(r"HOMO.*-.*LUMO.*gap.*\s(-?\d+.\d+)")

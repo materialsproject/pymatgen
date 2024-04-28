@@ -4411,8 +4411,7 @@ def metal_edge_extender(
     metals: list | tuple | None = ("Li", "Mg", "Ca", "Zn", "B", "Al"),
     coordinators: list | tuple = ("O", "N", "F", "S", "Cl"),
 ):
-    """
-    Function to identify and add missed coordinate bond edges for metals.
+    """Function to identify and add missed coordinate bond edges for metals.
 
     Args:
         mol_graph: pymatgen.analysis.graphs.MoleculeGraph object

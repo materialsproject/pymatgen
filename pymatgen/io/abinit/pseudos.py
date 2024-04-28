@@ -1546,8 +1546,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
 
     @classmethod
     def from_dir(cls, top, exts=None, exclude_dirs="_*") -> Self | None:
-        """
-        Find all pseudos in the directory tree starting from top.
+        """Find all pseudos in the directory tree starting from top.
 
         Args:
             top: Top of the directory tree

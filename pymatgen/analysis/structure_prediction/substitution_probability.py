@@ -142,8 +142,7 @@ class SubstitutionProbability:
         return math.exp(self.get_lambda(s1, s2)) * self.Z / (self.get_px(s1) * self.get_px(s2))
 
     def cond_prob_list(self, l1, l2):
-        """
-        Find the probabilities of 2 lists. These should include ALL species.
+        """Find the probabilities of 2 lists. These should include ALL species.
         This is the probability conditional on l2.
 
         Args:

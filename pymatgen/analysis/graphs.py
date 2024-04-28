@@ -2125,8 +2125,7 @@ class MoleculeGraph(MSONable):
         return original.get_disconnected_fragments()
 
     def build_unique_fragments(self):
-        """
-        Find all possible fragment combinations of the MoleculeGraphs (in other
+        """Find all possible fragment combinations of the MoleculeGraphs (in other
         words, all connected induced subgraphs).
         """
         self.set_node_attributes()
@@ -2395,8 +2394,7 @@ class MoleculeGraph(MSONable):
             )
 
     def find_rings(self, including=None) -> list[list[tuple[int, int]]]:
-        """
-        Find ring structures in the MoleculeGraph.
+        """Find ring structures in the MoleculeGraph.
 
         Args:
             including (list[int]): list of site indices. If including is not None, then find_rings

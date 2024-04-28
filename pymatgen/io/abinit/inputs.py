@@ -479,8 +479,7 @@ def ion_ioncell_relax_input(
 
 
 def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
-    """
-    Find the values of shiftk and nshiftk appropriated for the sampling of the Brillouin zone.
+    """Find the values of shiftk and nshiftk appropriated for the sampling of the Brillouin zone.
 
     When the primitive vectors of the lattice do NOT form a FCC or a BCC lattice,
     the usual (shifted) Monkhorst-Pack grids are formed by using nshiftk=1 and shiftk 0.5 0.5 0.5 .

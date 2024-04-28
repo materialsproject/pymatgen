@@ -154,8 +154,7 @@ class SubstrateAnalyzer(ZSLGenerator):
         ground_state_energy=0,
         lowest=False,
     ):
-        """
-        Finds all topological matches for the substrate and calculates elastic
+        """Finds all topological matches for the substrate and calculates elastic
         strain energy and total energy for the film if elasticity tensor and
         ground state energy are provided:
 

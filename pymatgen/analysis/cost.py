@@ -64,8 +64,7 @@ class CostDB(abc.ABC):
 
     @abc.abstractmethod
     def get_entries(self, chemsys):
-        """
-        For a given chemical system, return an array of CostEntries.
+        """For a given chemical system, return an array of CostEntries.
 
         Args:
             chemsys:
@@ -101,8 +100,7 @@ class CostDBCSV(CostDB):
                 self._chemsys_entries[chemsys].append(pde)
 
     def get_entries(self, chemsys):
-        """
-        For a given chemical system, return an array of CostEntries.
+        """For a given chemical system, return an array of CostEntries.
 
         Args:
             chemsys:

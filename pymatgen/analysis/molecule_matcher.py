@@ -589,8 +589,7 @@ class MoleculeMatcher(MSONable):
         self._mapper = mapper or InchiMolAtomMapper()
 
     def fit(self, mol1, mol2):
-        """
-        Fit two molecules.
+        """Fit two molecules.
 
         Args:
             mol1: First molecule. OpenBabel OBMol or pymatgen Molecule object

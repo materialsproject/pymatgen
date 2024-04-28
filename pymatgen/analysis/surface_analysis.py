@@ -1092,8 +1092,7 @@ class SurfaceEnergyPlotter:
         annotate_monolayer=True,
         JPERM2=False,
     ):
-        """
-        For each facet, plot the clean surface energy against the most
+        """For each facet, plot the clean surface energy against the most
             stable binding energy.
 
         Args:

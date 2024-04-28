@@ -82,8 +82,7 @@ class Deformation(SquareTensor):
 
     @classmethod
     def from_index_amount(cls, matrix_pos, amt) -> Self:
-        """
-        Factory method for constructing a Deformation object
+        """Factory method for constructing a Deformation object
         from a matrix position and amount.
 
         Args:
@@ -186,8 +185,7 @@ class Strain(SquareTensor):
 
     @classmethod
     def from_deformation(cls, deformation: ArrayLike) -> Self:
-        """
-        Factory method that returns a Strain object from a deformation
+        """Factory method that returns a Strain object from a deformation
         gradient.
 
         Args:

@@ -384,8 +384,7 @@ class HeisenbergMapper:
         return ex_params
 
     def get_low_energy_orderings(self):
-        """
-        Find lowest energy FM and AFM orderings to compute E_AFM - E_FM.
+        """Find lowest energy FM and AFM orderings to compute E_AFM - E_FM.
 
         Returns:
             fm_struct (Structure): fm structure with 'magmom' site property

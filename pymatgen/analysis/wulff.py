@@ -188,8 +188,7 @@ class WulffShape:
         self.miller_area = miller_area
 
     def _get_all_miller_e(self):
-        """
-        From self: get miller_list(unique_miller), e_surf_list and symmetry operations(symm_ops)
+        """From self: get miller_list(unique_miller), e_surf_list and symmetry operations(symm_ops)
         according to lattice apply symm_ops to get all the miller index, then get normal, get
         all the facets functions for Wulff shape calculation: |normal| = 1, e_surf is plane's
         distance to (0, 0, 0), normal[0]x + normal[1]y + normal[2]z = e_surf.

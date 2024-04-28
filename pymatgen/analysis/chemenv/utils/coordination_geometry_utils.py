@@ -453,8 +453,7 @@ def rotateCoordsOpt(coords, R):
 
 
 def changebasis(uu, vv, nn, pps):
-    """
-    For a list of points given in standard coordinates (in terms of e1, e2 and e3), returns the same list
+    """For a list of points given in standard coordinates (in terms of e1, e2 and e3), returns the same list
     expressed in the basis (uu, vv, nn), which is supposed to be orthonormal.
 
     Args:

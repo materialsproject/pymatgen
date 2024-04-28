@@ -266,8 +266,7 @@ class BondDissociationEnergies(MSONable):
         return [entries, initial_entries, final_entries]
 
     def filter_fragment_entries(self, fragment_entries: list) -> None:
-        """
-        Filter the fragment entries.
+        """Filter the fragment entries.
 
         Args:
             fragment_entries (List): Fragment entries to be filtered.

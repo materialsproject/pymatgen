@@ -292,8 +292,7 @@ class IcetSQS:
         return list(working_list)
 
     def _get_best_sqs_from_list(self, structures: list[Atoms], output_list: list[dict]) -> None:
-        """
-        Find best SQS structure from list of SQS structures.
+        """Find best SQS structure from list of SQS structures.
 
         Args:
             structures (list of ase Atoms) : list of SQS structures
