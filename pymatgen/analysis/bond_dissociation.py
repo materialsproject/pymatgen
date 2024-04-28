@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import warnings
+from typing import cast
 
 import networkx as nx
 from monty.json import MSONable
@@ -74,7 +75,8 @@ class BondDissociationEnergies(MSONable):
                     raise RuntimeError(f"{key=} must be present in all fragment entries! Exiting...")
 
         # Define expected charges
-        final_charge = int(molecule_entry["final_molecule"]["charge"])  # type: ignore[index]
+        final_mol = cast(dict, molecule_entry["final_molecule"])
+        final_charge = int(final_mol["charge"])  # type: ignore[index]
         if not allow_additional_charge_separation:
             if final_charge == 0:
                 self.expected_charges = [-1, 0, 1]
@@ -90,9 +92,7 @@ class BondDissociationEnergies(MSONable):
             self.expected_charges = [final_charge - 2, final_charge - 1, final_charge, final_charge + 1]
 
         # Build principle molecule graph
-        self.mol_graph = MoleculeGraph.from_local_env_strategy(
-            Molecule.from_dict(molecule_entry["final_molecule"]), OpenBabelNN()
-        )
+        self.mol_graph = MoleculeGraph.from_local_env_strategy(Molecule.from_dict(final_mol), OpenBabelNN())
         # Loop through bonds, aka graph edges, and fragment and process:
         for bond in self.mol_graph.graph.edges:
             bonds = [(bond[0], bond[1])]
