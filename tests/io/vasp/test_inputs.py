@@ -859,10 +859,7 @@ Cartesian
         assert kpoints.kpts == [(2, 2, 2)]
         kpoints = Kpoints.automatic(100)
         assert kpoints.style == Kpoints.supported_modes.Automatic
-        print(kpoints.kpts)
-        assert kpoints.kpts == [
-            (100,),
-        ]
+        assert kpoints.kpts == [(100,)]
         filepath = f"{VASP_IN_DIR}/POSCAR"
         struct = Structure.from_file(filepath)
         kpoints = Kpoints.automatic_density(struct, 500)
