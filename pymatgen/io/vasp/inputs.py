@@ -1200,7 +1200,7 @@ class Kpoints(MSONable):
 
         # If is Sequence[Kpoint]-like type
         if all(isinstance(kpt, Sequence) for kpt in self._kpts):
-            return cast(Sequence[Kpoint], map(tuple, self._kpts))  # type: ignore[arg-type]
+            return cast(Sequence[Kpoint], list(map(tuple, self._kpts)))
 
         raise ValueError("Invalid kpoint type.")
 
