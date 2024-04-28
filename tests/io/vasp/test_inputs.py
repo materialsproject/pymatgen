@@ -810,7 +810,9 @@ class TestKpoints:
     def test_init(self):
         filepath = f"{VASP_IN_DIR}/KPOINTS_auto"
         kpoints = Kpoints.from_file(filepath)
-        assert kpoints.kpts == [(10,),], "Wrong kpoint lattice read"
+        assert kpoints.kpts == [
+            (10,),
+        ], "Wrong kpoint lattice read"
         filepath = f"{VASP_IN_DIR}/KPOINTS_cartesian"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.kpts == [(0.25, 0, 0), (0, 0.25, 0), (0, 0, 0.25)], "Wrong kpoint lattice read"
@@ -853,31 +855,45 @@ Cartesian
     def test_static_constructors(self):
         kpoints = Kpoints.gamma_automatic((3, 3, 3), [0, 0, 0])
         assert kpoints.style == Kpoints.supported_modes.Gamma
-        assert kpoints.kpts == [(3, 3, 3),]
+        assert kpoints.kpts == [
+            (3, 3, 3),
+        ]
         kpoints = Kpoints.monkhorst_automatic((2, 2, 2), [0, 0, 0])
         assert kpoints.style == Kpoints.supported_modes.Monkhorst
-        assert kpoints.kpts == [(2, 2, 2),]
+        assert kpoints.kpts == [
+            (2, 2, 2),
+        ]
         kpoints = Kpoints.automatic(100)
         assert kpoints.style == Kpoints.supported_modes.Automatic
         print(kpoints.kpts)
-        assert kpoints.kpts == [(100,),]
+        assert kpoints.kpts == [
+            (100,),
+        ]
         filepath = f"{VASP_IN_DIR}/POSCAR"
         struct = Structure.from_file(filepath)
         kpoints = Kpoints.automatic_density(struct, 500)
-        assert kpoints.kpts == [(1, 3, 3),]
+        assert kpoints.kpts == [
+            (1, 3, 3),
+        ]
         assert kpoints.style == Kpoints.supported_modes.Gamma
         kpoints = Kpoints.automatic_density(struct, 500, force_gamma=True)
         assert kpoints.style == Kpoints.supported_modes.Gamma
         kpoints = Kpoints.automatic_density_by_vol(struct, 1000)
-        assert kpoints.kpts == [(6, 10, 13),]
+        assert kpoints.kpts == [
+            (6, 10, 13),
+        ]
         assert kpoints.style == Kpoints.supported_modes.Gamma
         kpoints = Kpoints.automatic_density_by_lengths(struct, [50, 50, 1], force_gamma=True)
-        assert kpoints.kpts == [(5, 9, 1),]
+        assert kpoints.kpts == [
+            (5, 9, 1),
+        ]
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
         struct.make_supercell(3)
         kpoints = Kpoints.automatic_density(struct, 500)
-        assert kpoints.kpts == [(1, 1, 1),]
+        assert kpoints.kpts == [
+            (1, 1, 1),
+        ]
         assert kpoints.style == Kpoints.supported_modes.Gamma
         kpoints = Kpoints.from_str(
             """k-point mesh
@@ -956,9 +972,27 @@ direct
         # test different combos of length densities and expected kpoints
         # TODO should test Monkhorst style case and force_gamma=True case
         for length_densities, expected_kpts, expected_style in [
-            ([50, 50, 1], [(5, 9, 1),], Kpoints.supported_modes.Gamma),
-            ([25, 50, 3], [(3, 9, 1),], Kpoints.supported_modes.Gamma),
-            ([24, 48, 2], [(3, 8, 1),], Kpoints.supported_modes.Gamma),
+            (
+                [50, 50, 1],
+                [
+                    (5, 9, 1),
+                ],
+                Kpoints.supported_modes.Gamma,
+            ),
+            (
+                [25, 50, 3],
+                [
+                    (3, 9, 1),
+                ],
+                Kpoints.supported_modes.Gamma,
+            ),
+            (
+                [24, 48, 2],
+                [
+                    (3, 8, 1),
+                ],
+                Kpoints.supported_modes.Gamma,
+            ),
         ]:
             kpoints = Kpoints.automatic_density_by_lengths(structure, length_densities)
 
