@@ -45,6 +45,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
+    from pymatgen.symmetry.bandstructure import HighSymmKpath
     from pymatgen.util.typing import PathLike
 
 
@@ -1157,21 +1158,21 @@ class Kpoints(MSONable):
         """
         A sequence of kpoints, where each kpoint is a tuple of 3.
         """
-        # TODO: (@DanielYang59): need to consider the special case of automatic
-
+        # If is Kpoint-like type (Sequence[float | int])
         if all(isinstance(kpt, (int, float)) for kpt in self._kpts):
-            return tuple(self._kpts)
+            return tuple(int(x) for x in self._kpts)
 
+        # If is Sequence[Kpoint]-like type
         if all(isinstance(kpt, Sequence) for kpt in self._kpts):
             return map(tuple, self._kpts)
 
         raise ValueError("Invalid kpoint type.")
 
     @kpts.setter
-    def kpts(self, kpts: Kpoint | Sequence[Kpoint]) -> None:
+    def kpts(self, kpts: Sequence[float | int] | Sequence[Sequence[float | int]]) -> None:
         """
         Args:
-            kpts: Kpoints
+            kpts: Sequence[float | int] | Sequence[Sequence[float | int]]
         """
         self._kpts = kpts
 
@@ -1215,7 +1216,7 @@ class Kpoints(MSONable):
         VASP manual.
 
         Args:
-            subdivisions: Parameter determining number of subdivisions along
+            subdivisions (int): Number of subdivisions along
                 each reciprocal lattice vector.
 
         Returns:
@@ -1285,15 +1286,17 @@ class Kpoints(MSONable):
         if math.fabs((math.floor(kppa ** (1 / 3) + 0.5)) ** 3 - kppa) < 1:
             kppa += kppa * 0.01
         lattice = structure.lattice
-        lengths = lattice.abc
+        lengths: Vector3D = lattice.abc
         ngrid = kppa / len(structure)
-        mult = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
+        mult: float = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
-        num_div = [math.floor(max(mult / length, 1)) for length in lengths]
+        num_div: tuple[int, int, int] = cast(
+            tuple[int, int, int], [math.floor(max(mult / length, 1)) for length in lengths]
+        )
 
-        is_hexagonal = lattice.is_hexagonal()
-        is_face_centered = structure.get_space_group_info()[0][0] == "F"
-        has_odd = any(idx % 2 == 1 for idx in num_div)
+        is_hexagonal: bool = lattice.is_hexagonal()
+        is_face_centered: bool = structure.get_space_group_info()[0][0] == "F"
+        has_odd: bool = any(idx % 2 == 1 for idx in num_div)
         if has_odd or is_hexagonal or is_face_centered or force_gamma:
             style = Kpoints.supported_modes.Gamma
         else:
@@ -1303,9 +1306,7 @@ class Kpoints(MSONable):
             comment,
             0,
             style,
-            [
-                tuple(num_div),
-            ],
+            [num_div],
             (0, 0, 0),
         )
 
@@ -1328,7 +1329,7 @@ class Kpoints(MSONable):
         n_grid = kppa / len(structure)
 
         multip = (n_grid * a * b * c) ** (1 / 3)
-        n_div = [round(multip / length) for length in lattice.abc]
+        n_div: list[int] = cast(list[int], [round(multip / length) for length in lattice.abc])
 
         # Ensure that all num_div[i] > 0
         n_div = [idx if idx > 0 else 1 for idx in n_div]
@@ -1345,9 +1346,7 @@ class Kpoints(MSONable):
             comment,
             n_kpts,
             style,
-            [
-                cast(Kpoint, tuple(n_div)),
-            ],
+            [cast(tuple[int, int, int], tuple(n_div))],
             (0, 0, 0),
         )
 
@@ -1387,7 +1386,7 @@ class Kpoints(MSONable):
 
         Args:
             structure (Structure): Input structure
-            length_densities (list[floats]): Defines the density of k-points in each
+            length_densities (list[float]): Defines the density of k-points in each
             dimension, e.g. [50.0, 50.0, 1.0].
             force_gamma (bool): Force a gamma centered mesh
 
@@ -1395,15 +1394,18 @@ class Kpoints(MSONable):
             Kpoints
         """
         if len(length_densities) != 3:
-            msg = f"The dimensions of length_densities must be 3, not {len(length_densities)}"
-            raise ValueError(msg)
-        comment = f"k-point density of {length_densities}/[a, b, c]"
+            raise ValueError(f"The dimensions of length_densities must be 3, not {len(length_densities)}")
+
+        comment: str = f"k-point density of {length_densities}/[a, b, c]"
+
         lattice = structure.lattice
+
         abc = lattice.abc
-        num_div: Kpoint = tuple(np.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))
-        is_hexagonal = lattice.is_hexagonal()
-        is_face_centered = structure.get_space_group_info()[0][0] == "F"
-        has_odd = any(idx % 2 == 1 for idx in num_div)
+        num_div: tuple[int, int, int] = tuple(np.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))
+
+        is_hexagonal: bool = lattice.is_hexagonal()
+        is_face_centered: bool = structure.get_space_group_info()[0][0] == "F"
+        has_odd: bool = any(idx % 2 == 1 for idx in num_div)
         if has_odd or is_hexagonal or is_face_centered or force_gamma:
             style = Kpoints.supported_modes.Gamma
         else:
@@ -1420,7 +1422,7 @@ class Kpoints(MSONable):
         )
 
     @classmethod
-    def automatic_linemode(cls, divisions: int, ibz: Any) -> Self:
+    def automatic_linemode(cls, divisions: int, ibz: HighSymmKpath) -> Self:
         """
         Convenient static constructor for a KPOINTS in mode line_mode.
         gamma centered Monkhorst-Pack grids and the number of subdivisions
@@ -1454,7 +1456,7 @@ class Kpoints(MSONable):
             coord_type="Reciprocal",
             kpts=kpoints,
             labels=labels,
-            num_kpts=int(divisions),
+            num_kpts=divisions,
         )
 
     def copy(self):
