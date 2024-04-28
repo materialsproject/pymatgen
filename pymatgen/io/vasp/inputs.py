@@ -1153,6 +1153,41 @@ class Kpoints(MSONable):
         self.tet_weight = tet_weight
         self.tet_connections = tet_connections
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Kpoints):
+            return NotImplemented
+        return self.as_dict() == other.as_dict()
+
+    def __repr__(self) -> str:
+        lines = [self.comment, str(self.num_kpts), self.style.name]
+        style = self.style.name.lower()[0]
+        if style == "l":
+            lines.append(self.coord_type)
+        for idx, kpt in enumerate(self.kpts):
+            # TODO (@DanielYang59): fix the following type annotation
+            lines.append(" ".join(map(str, kpt)))  # type: ignore[arg-type]
+            if style == "l":
+                lines[-1] += f" ! {self.labels[idx]}"
+                if idx % 2 == 1:
+                    lines[-1] += "\n"
+            elif self.num_kpts > 0:
+                if self.labels is not None:
+                    lines[-1] += f" {int(self.kpts_weights[idx])} {self.labels[idx]}"
+                else:
+                    lines[-1] += f" {int(self.kpts_weights[idx])}"
+
+        # Print tetrahedron parameters if the number of tetrahedrons > 0
+        if style not in "lagm" and self.tet_number > 0:
+            lines.extend(("Tetrahedron", f"{self.tet_number} {self.tet_weight:f}"))
+            for sym_weight, vertices in self.tet_connections:
+                a, b, c, d = vertices
+                lines.append(f"{sym_weight} {a} {b} {c} {d}")
+
+        # Print shifts for automatic kpoints types if not zero.
+        if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0, 0, 0):
+            lines.append(" ".join(map(str, self.kpts_shift)))
+        return "\n".join(lines) + "\n"
+
     @property
     def kpts(self) -> Kpoint | Sequence[Kpoint]:
         """
@@ -1462,11 +1497,6 @@ class Kpoints(MSONable):
     def copy(self):
         return self.from_dict(self.as_dict())
 
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Kpoints):
-            return NotImplemented
-        return self.as_dict() == other.as_dict()
-
     @classmethod
     def from_file(cls, filename: str | Path) -> Self:
         """
@@ -1610,36 +1640,6 @@ class Kpoints(MSONable):
         """
         with zopen(filename, mode="wt") as file:
             file.write(str(self))
-
-    def __repr__(self) -> str:
-        lines = [self.comment, str(self.num_kpts), self.style.name]
-        style = self.style.name.lower()[0]
-        if style == "l":
-            lines.append(self.coord_type)
-        for idx, kpt in enumerate(self.kpts):
-            # TODO (@DanielYang59): fix the following type annotation
-            lines.append(" ".join(map(str, kpt)))  # type: ignore[arg-type]
-            if style == "l":
-                lines[-1] += f" ! {self.labels[idx]}"
-                if idx % 2 == 1:
-                    lines[-1] += "\n"
-            elif self.num_kpts > 0:
-                if self.labels is not None:
-                    lines[-1] += f" {int(self.kpts_weights[idx])} {self.labels[idx]}"
-                else:
-                    lines[-1] += f" {int(self.kpts_weights[idx])}"
-
-        # Print tetrahedron parameters if the number of tetrahedrons > 0
-        if style not in "lagm" and self.tet_number > 0:
-            lines.extend(("Tetrahedron", f"{self.tet_number} {self.tet_weight:f}"))
-            for sym_weight, vertices in self.tet_connections:
-                a, b, c, d = vertices
-                lines.append(f"{sym_weight} {a} {b} {c} {d}")
-
-        # Print shifts for automatic kpoints types if not zero.
-        if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0, 0, 0):
-            lines.append(" ".join(map(str, self.kpts_shift)))
-        return "\n".join(lines) + "\n"
 
     def as_dict(self) -> dict:
         """MSONable dict."""
