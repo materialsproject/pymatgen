@@ -329,7 +329,7 @@ class CifParser:
         self.warnings: list[str] = []
 
         def is_magcif() -> bool:
-            """Checks to see if file appears to be a magCIF file (heuristic)."""
+            """Check to see if file appears to be a magCIF file (heuristic)."""
             # Doesn't seem to be a canonical way to test if file is magCIF or
             # not, so instead check for magnetic symmetry datanames
             prefixes = ["_space_group_magn", "_atom_site_moment", "_space_group_symop_magn"]

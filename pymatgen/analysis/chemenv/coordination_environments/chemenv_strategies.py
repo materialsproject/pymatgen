@@ -484,7 +484,7 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
         raise NotImplementedError
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the SimpleAbundanceChemenvStrategy object from a dict representation of the
         SimpleAbundanceChemenvStrategy object created using the as_dict method.
@@ -1245,7 +1245,7 @@ class TargetedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
         )
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the TargetedPenaltiedAbundanceChemenvStrategy object from a dict representation of the
         TargetedPenaltiedAbundanceChemenvStrategy object created using the as_dict method.

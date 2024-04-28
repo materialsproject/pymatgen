@@ -165,12 +165,12 @@ class Substitutor(MSONable):
 
     @staticmethod
     def _is_charge_balanced(struct) -> bool:
-        """Checks if the structure object is charge balanced."""
+        """Check if the structure object is charge balanced."""
         return abs(sum(site.specie.oxi_state for site in struct)) < Substitutor.charge_balanced_tol
 
     @staticmethod
     def _is_from_chemical_system(chemical_system, struct):
-        """Checks if the structure object is from the given chemical system."""
+        """Check if the structure object is from the given chemical system."""
         return {sp.symbol for sp in struct.composition} == set(chemical_system)
 
     def pred_from_list(self, species_list):

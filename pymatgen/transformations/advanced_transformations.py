@@ -615,7 +615,7 @@ class MagOrderParameterConstraint(MSONable):
         self.site_constraints = site_constraints
 
     def satisfies_constraint(self, site):
-        """Checks if a periodic site satisfies the constraint."""
+        """Check if a periodic site satisfies the constraint."""
         if not site.is_ordered:
             return False
 

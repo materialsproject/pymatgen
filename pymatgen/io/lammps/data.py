@@ -1177,7 +1177,7 @@ class ForceField(MSONable):
         return all_data, {f"{kw[:-7]}s": mapper}
 
     def to_file(self, filename: str) -> None:
-        """Saves object to a file in YAML format.
+        """Save object to a file in YAML format.
 
         Args:
             filename (str): Filename.
@@ -1193,8 +1193,7 @@ class ForceField(MSONable):
 
     @classmethod
     def from_file(cls, filename: str) -> Self:
-        """
-        Constructor that reads in a file in YAML format.
+        """Constructor that reads in a file in YAML format.
 
         Args:
             filename (str): Filename.

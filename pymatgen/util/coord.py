@@ -80,7 +80,7 @@ def is_coord_subset(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-8) 
 
 
 def coord_list_mapping(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-8):
-    """Gives the index mapping from a subset to a superset.
+    """Get the index mapping from a subset to a superset.
     Subset and superset cannot contain duplicate rows.
 
     Args:
@@ -103,7 +103,7 @@ def coord_list_mapping(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-
 
 
 def coord_list_mapping_pbc(subset, superset, atol: float = 1e-8, pbc: PbcLike = (True, True, True)):
-    """Gives the index mapping from a subset to a superset.
+    """Get the index mapping from a subset to a superset.
     Superset cannot contain duplicate matching rows.
 
     Args:
@@ -400,7 +400,7 @@ class Simplex(MSONable):
             raise ValueError("Simplex is not full-dimensional") from exc
 
     def in_simplex(self, point: Sequence[float], tolerance: float = 1e-8) -> bool:
-        """Checks if a point is in the simplex using the standard barycentric
+        """Check if a point is in the simplex using the standard barycentric
         coordinate system algorithm.
 
         Taking an arbitrary vertex as an origin, we compute the basis for the

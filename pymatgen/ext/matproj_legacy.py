@@ -1373,7 +1373,7 @@ class _MPResterLegacy:
         return self._make_request(req)
 
     def get_wulff_shape(self, material_id):
-        """Constructs a Wulff shape for a material.
+        """Construct a Wulff shape for a material.
 
         Args:
             material_id (str): Materials Project material_id, e.g. 'mp-123'.

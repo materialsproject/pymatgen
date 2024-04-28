@@ -52,7 +52,7 @@ class Deformation(SquareTensor):
         return obj.view(cls)
 
     def is_independent(self, tol: float = 1e-8):
-        """Checks to determine whether the deformation is independent."""
+        """Check to determine whether the deformation is independent."""
         return len(self.get_perturbed_indices(tol)) == 1
 
     def get_perturbed_indices(self, tol: float = 1e-8):

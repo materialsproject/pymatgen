@@ -1082,7 +1082,7 @@ class StructureGraph(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """As in pymatgen.core.Structure except restoring graphs using from_dict_of_dicts
         from NetworkX to restore graph information.
         """

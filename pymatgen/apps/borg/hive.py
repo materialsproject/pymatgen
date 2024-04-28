@@ -49,7 +49,7 @@ class AbstractDrone(MSONable, abc.ABC):
 
     @abc.abstractmethod
     def get_valid_paths(self, path):
-        """Checks if path contains valid data for assimilation, and then returns
+        """Check if path contains valid data for assimilation, and then returns
         the valid paths. The paths returned can be a list of directory or file
         paths, depending on what kind of data you are assimilating. For
         example, if you are assimilating VASP runs, you are only interested in
@@ -139,7 +139,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         # entry.parameters["history"] = _get_transformation_history(path)
 
     def get_valid_paths(self, path):
-        """Checks if paths contains vasprun.xml or (POSCAR+OSZICAR).
+        """Check if paths contains vasprun.xml or (POSCAR+OSZICAR).
 
         Args:
             path: input path as a tuple generated from os.walk, i.e.,
@@ -376,7 +376,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         return entry
 
     def get_valid_paths(self, path):
-        """Checks if path contains files with define extensions.
+        """Check if path contains files with define extensions.
 
         Args:
             path: input path as a tuple generated from os.walk, i.e.,
@@ -417,7 +417,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
 
 def _get_transformation_history(path):
-    """Checks for a transformations.json* file and returns the history."""
+    """Check for a transformations.json* file and returns the history."""
     trans_json = glob(f"{path}/transformations.json*")
     if trans_json:
         try:

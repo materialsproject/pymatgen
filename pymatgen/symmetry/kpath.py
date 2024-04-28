@@ -1,4 +1,4 @@
-"""Provides classes for generating high-symmetry k-paths using different conventions."""
+"""Classes for generating high-symmetry k-paths using different conventions."""
 
 from __future__ import annotations
 

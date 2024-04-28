@@ -154,7 +154,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         return ax
 
     def show_plot(self, structure: Structure, **kwargs):
-        """Shows the diffraction plot.
+        """Show the diffraction plot.
 
         Args:
             structure (Structure): Input structure

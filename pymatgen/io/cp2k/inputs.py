@@ -683,17 +683,14 @@ class Cp2kInput(Section):
         return string
 
     @classmethod
-    def _from_dict(cls, dct):
+    def _from_dict(cls, dct: dict):
         """Initialize from a dictionary."""
-        return Cp2kInput(
-            "CP2K_INPUT",
-            subsections=getattr(
-                __import__(dct["@module"], globals(), locals(), dct["@class"], 0),
-                dct["@class"],
-            )
-            .from_dict(dct)
-            .subsections,
+        constructor = getattr(
+            __import__(dct["@module"], globals(), locals(), dct["@class"], 0),
+            dct["@class"],
         )
+
+        return Cp2kInput("CP2K_INPUT", subsections=constructor.from_dict(dct).subsections)
 
     @classmethod
     def from_file(cls, filename: str | Path) -> Self:

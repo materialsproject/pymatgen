@@ -3519,7 +3519,7 @@ class PDPlotter:
         process_attributes=False,
         ax: plt.Axes = None,
     ):
-        """Shows the plot using matplotlib.
+        """Show the plot using matplotlib.
 
         Imports are done within the function as matplotlib is no longer the default.
         """
@@ -3701,7 +3701,7 @@ class PDPlotter:
 
     @no_type_check
     def _get_matplotlib_3d_plot(self, label_stable=True, ax: plt.Axes = None):
-        """Shows the plot using matplotlib.
+        """Show the plot using matplotlib.
 
         Args:
             label_stable (bool): Whether to label stable compounds.

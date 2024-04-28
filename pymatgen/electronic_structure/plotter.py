@@ -4230,7 +4230,7 @@ def plot_points(points, lattice=None, coords_are_cartesian=False, fold=False, ax
 
 @add_fig_kwargs
 def plot_brillouin_zone_from_kpath(kpath, ax: plt.Axes = None, **kwargs) -> plt.Axes:
-    """Gives the plot (as a matplotlib object) of the symmetry line path in
+    """Get the plot (as a matplotlib object) of the symmetry line path in
         the Brillouin Zone.
 
     Args:

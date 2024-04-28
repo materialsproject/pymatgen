@@ -166,8 +166,7 @@ class Unit(collections.abc.Mapping):
     """
 
     def __init__(self, unit_def) -> None:
-        """Constructs a unit.
-
+        """
         Args:
             unit_def: A definition for the unit. Either a mapping of unit to
                 powers, e.g., {"m": 2, "s": -1} represents "m^2 s^-1",

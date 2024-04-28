@@ -1016,7 +1016,7 @@ class StructureEnvironments(MSONable):
         max_dist=2.0,
         figsize=None,
     ):
-        """Saves the environments figure to a given file.
+        """Save the environments figure to a given file.
 
         Args:
             isite: Index of the site for which the plot has to be done.
@@ -2013,7 +2013,7 @@ class LightStructureEnvironments(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the LightStructureEnvironments object from a dict representation of the
         LightStructureEnvironments created using the as_dict method.

@@ -133,7 +133,7 @@ def lower_and_check_unique(dict_to_check):
         dict_to_check (dict): The dictionary to check and standardize
 
     Returns:
-        to_return (dict): An identical dictionary but with all keys made
+        dict: An identical dictionary but with all keys made
             lower case and no identical keys present.
     """
     if dict_to_check is None:

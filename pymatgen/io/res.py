@@ -320,7 +320,7 @@ class ResWriter:
 
 
 class ResProvider(MSONable):
-    """Provides access to elements of the res file in the form of familiar pymatgen objects."""
+    """Access elements of the RES file as familiar pymatgen objects."""
 
     def __init__(self, res: Res) -> None:
         """The :func:`from_str` and :func:`from_file` methods should be used instead of constructing this directly."""

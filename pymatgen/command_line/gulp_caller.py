@@ -237,7 +237,7 @@ class GulpIO:
 
     @staticmethod
     def keyword_line(*args):
-        """Checks if the input args are proper gulp keywords and
+        """Check if the input args are proper gulp keywords and
         generates the 1st line of gulp input. Full keywords are expected.
 
         Args:

@@ -432,7 +432,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @property
     def is_ordered(self) -> bool:
-        """Checks if structure is ordered, meaning no partial occupancies in any
+        """Check if structure is ordered, meaning no partial occupancies in any
         of the sites.
         """
         return all(site.is_ordered for site in self)
@@ -3285,7 +3285,7 @@ class IMolecule(SiteCollection, MSONable):
         return tuple(type(self).from_sites(cluster) for cluster in clusters)
 
     def get_covalent_bonds(self, tol: float = 0.2) -> list[CovalentBond]:
-        """Determines the covalent bonds in a molecule.
+        """Determine the covalent bonds in a molecule.
 
         Args:
             tol (float): The tol to determine bonds in a structure. See
@@ -3389,7 +3389,7 @@ class IMolecule(SiteCollection, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct) -> IMolecule | Molecule:
+    def from_dict(cls, dct: dict) -> IMolecule | Molecule:
         """Reconstitute a Molecule object from a dict representation created using as_dict().
 
         Args:

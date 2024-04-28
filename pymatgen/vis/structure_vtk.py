@@ -32,7 +32,7 @@ EL_COLORS = loadfn(f"{module_dir}/ElementColorSchemes.yaml")
 
 
 class StructureVis:
-    """Provides Structure object visualization using VTK."""
+    """Structure object visualization using VTK."""
 
     @requires(vtk, "Visualization requires the installation of VTK with Python bindings.")
     def __init__(

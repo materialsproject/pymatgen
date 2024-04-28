@@ -611,7 +611,7 @@ class ComputedStructureEntry(ComputedEntry):
         return dct
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -944,7 +944,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         return dct
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.

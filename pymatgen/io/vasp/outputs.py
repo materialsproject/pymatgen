@@ -5181,7 +5181,7 @@ class WSWQ(MSONable):
 
     @classmethod
     def from_file(cls, filename: str) -> Self:
-        """Constructs a WSWQ object from a file.
+        """Construct a WSWQ object from a file.
 
         Args:
             filename (str): Name of WSWQ file.

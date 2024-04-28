@@ -58,7 +58,7 @@ class AbstractTransformation(MSONable, abc.ABC):
     @property
     @abc.abstractmethod
     def is_one_to_many(self) -> bool:
-        """Determines if a Transformation is a one-to-many transformation. If a
+        """Determine if a Transformation is a one-to-many transformation. If a
         Transformation is a one-to-many transformation, the
         apply_transformation method should have a keyword arg
         "return_ranked_list" which allows for the transformed structures to be

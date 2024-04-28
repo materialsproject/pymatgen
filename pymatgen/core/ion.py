@@ -246,7 +246,7 @@ class Ion(Composition, MSONable, Stringify):
         all_oxi_states: bool = False,
         max_sites: int | None = None,
     ) -> list[dict[str, float]]:
-        """Checks if the composition is charge-balanced and returns back all
+        """Check if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
         integer values. Note that more num_atoms in the composition gives
         more degrees of freedom. e.g., if possible oxidation states of

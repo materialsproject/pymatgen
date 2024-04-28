@@ -740,7 +740,7 @@ class ElementBase(Enum):
 
     @property
     def is_quadrupolar(self) -> bool:
-        """Checks if this element can be quadrupolar."""
+        """Check if this element can be quadrupolar."""
         return len(self.data.get("NMR Quadrupole Moment", {})) > 0
 
     @property

@@ -567,7 +567,7 @@ class Tags(dict):
         return tags_dict
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Creates Tags object from a dictionary.
 

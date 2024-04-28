@@ -88,7 +88,7 @@ class TestWulffShape(PymatgenTest):
         self.wulff_Ir.get_plotly()
 
     def symm_check(self, ucell, wulff_vertices):
-        """Checks if the point group of the Wulff shape matches
+        """Check if the point group of the Wulff shape matches
         the point group of its conventional unit cell.
 
         Args:

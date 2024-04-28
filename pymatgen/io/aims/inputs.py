@@ -556,7 +556,7 @@ class AimsControlIn(MSONable):
         verbose_header: bool = False,
         overwrite: bool = False,
     ) -> None:
-        """Writes the control.in file
+        """Write the control.in file
 
         Args:
             structure (Structure | Molecule): The structure to write the input

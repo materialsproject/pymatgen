@@ -920,7 +920,7 @@ class PourbaixPlotter:
         self._pbx = pourbaix_diagram
 
     def show(self, *args, **kwargs):
-        """Shows the Pourbaix plot.
+        """Show the Pourbaix plot.
 
         Args:
             *args: args to get_pourbaix_plot

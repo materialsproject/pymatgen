@@ -373,7 +373,7 @@ class SpaceGroup(SymmetryGroup):
         return orbit, generators
 
     def is_compatible(self, lattice: Lattice, tol: float = 1e-5, angle_tol: float = 5) -> bool:
-        """Checks whether a particular lattice is compatible with the
+        """Check whether a particular lattice is compatible with the
         *conventional* unit cell.
 
         Args:

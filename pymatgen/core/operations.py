@@ -157,7 +157,7 @@ class SymmOp(MSONable):
         return np.einsum(einsum_string, *einsum_args)
 
     def are_symmetrically_related(self, point_a: ArrayLike, point_b: ArrayLike, tol: float = 0.001) -> bool:
-        """Checks if two points are symmetrically related.
+        """Check if two points are symmetrically related.
 
         Args:
             point_a (3x1 array): First point.
@@ -179,7 +179,7 @@ class SymmOp(MSONable):
         r_b: ArrayLike,
         tol: float = 0.001,
     ) -> tuple[bool, bool]:
-        """Checks if two vectors, or rather two vectors that connect two points
+        """Check if two vectors, or rather two vectors that connect two points
         each are symmetrically related. r_a and r_b give the change of unit
         cells. Two vectors are also considered symmetrically equivalent if starting
         and end point are exchanged.
@@ -210,10 +210,10 @@ class SymmOp(MSONable):
         to_c = to_c % 1
 
         if np.allclose(from_b, from_c, atol=tol) and np.allclose(to_b, to_c) and np.allclose(r_b, r_c, atol=tol):
-            return (True, False)
+            return True, False
         if np.allclose(to_b, from_c, atol=tol) and np.allclose(from_b, to_c) and np.allclose(r_b, -r_c, atol=tol):
-            return (True, True)
-        return (False, False)
+            return True, True
+        return False, False
 
     @property
     def rotation_matrix(self) -> np.ndarray:
@@ -353,9 +353,9 @@ class SymmOp(MSONable):
             SymmOp for the reflection about the plane
         """
         # Normalize the normal vector first.
-        n = np.array(normal, dtype=float) / np.linalg.norm(normal)
+        normal = np.array(normal, dtype=float) / np.linalg.norm(normal)
 
-        u, v, w = n
+        u, v, w = normal
 
         translation = np.eye(4)
         translation[0:3, 3] = -np.array(origin)
@@ -439,23 +439,23 @@ class SymmOp(MSONable):
         tokens = xyz_str.strip().replace(" ", "").lower().split(",")
         re_rot = re.compile(r"([+-]?)([\d\.]*)/?([\d\.]*)([x-z])")
         re_trans = re.compile(r"([+-]?)([\d\.]+)/?([\d\.]*)(?![x-z])")
-        for i, tok in enumerate(tokens):
+        for idx, tok in enumerate(tokens):
             # build the rotation matrix
             for m in re_rot.finditer(tok):
                 factor = -1.0 if m.group(1) == "-" else 1.0
                 if m.group(2) != "":
                     factor *= float(m.group(2)) / float(m.group(3)) if m.group(3) != "" else float(m.group(2))
                 j = ord(m.group(4)) - 120
-                rot_matrix[i, j] = factor
+                rot_matrix[idx, j] = factor
             # build the translation vector
             for m in re_trans.finditer(tok):
                 factor = -1 if m.group(1) == "-" else 1
                 num = float(m.group(2)) / float(m.group(3)) if m.group(3) != "" else float(m.group(2))
-                trans[i] = num * factor
+                trans[idx] = num * factor
         return cls.from_rotation_and_translation(rot_matrix, trans)
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct: dict.

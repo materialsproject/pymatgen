@@ -260,7 +260,7 @@ class SimpleGraphCycle(MSONable):
 
     @classmethod
     def from_edges(cls, edges, edges_are_ordered: bool = True) -> Self:
-        """Constructs SimpleGraphCycle from a list edges.
+        """Construct SimpleGraphCycle from a list edges.
 
         By default, the edges list is supposed to be ordered as it will be
         much faster to construct the cycle. If edges_are_ordered is set to

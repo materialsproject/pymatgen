@@ -329,7 +329,7 @@ class AdsorbateSiteFinder:
         return [self.slab.lattice.get_cartesian_coords(coords) for coords in unique_coords]
 
     def near_reduce(self, coords_set, threshold=1e-4):
-        """Prunes coordinate set for coordinates that are within threshold.
+        """Prune coordinate set for coordinates that are within threshold.
 
         Args:
             coords_set (Nx3 array-like): list or array of coordinates

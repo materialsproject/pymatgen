@@ -167,7 +167,7 @@ class ConversionElectrode(AbstractElectrode):
         return sub_electrodes
 
     def is_super_electrode(self, conversion_electrode) -> bool:
-        """Checks if a particular conversion electrode is a sub electrode of the
+        """Check if a particular conversion electrode is a sub electrode of the
         current electrode. Starting from a more lithiated state may result in
         a subelectrode that is essentially on the same path. For example, a
         ConversionElectrode formed by starting from an FePO4 composition would

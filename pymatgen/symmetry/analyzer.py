@@ -434,7 +434,7 @@ class SpacegroupAnalyzer:
 
     @cite_conventional_cell_algo
     def get_conventional_to_primitive_transformation_matrix(self, international_monoclinic=True):
-        """Gives the transformation matrix to transform a conventional unit cell to a
+        """Get the transformation matrix to transform a conventional unit cell to a
         primitive cell according to certain standards the standards are defined in
         Setyawan, W., & Curtarolo, S. (2010). High-throughput electronic band structure
         calculations: Challenges and tools. Computational Materials Science, 49(2),
@@ -478,7 +478,7 @@ class SpacegroupAnalyzer:
 
     @cite_conventional_cell_algo
     def get_primitive_standard_structure(self, international_monoclinic=True, keep_site_properties=False):
-        """Gives a structure with a primitive cell according to certain standards. The
+        """Get a structure with a primitive cell according to certain standards. The
         standards are defined in Setyawan, W., & Curtarolo, S. (2010). High-throughput
         electronic band structure calculations: Challenges and tools. Computational
         Materials Science, 49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010.
@@ -557,7 +557,7 @@ class SpacegroupAnalyzer:
 
     @cite_conventional_cell_algo
     def get_conventional_standard_structure(self, international_monoclinic=True, keep_site_properties=False):
-        """Gives a structure with a conventional cell according to certain standards. The
+        """Get a structure with a conventional cell according to certain standards. The
         standards are defined in Setyawan, W., & Curtarolo, S. (2010). High-throughput
         electronic band structure calculations: Challenges and tools. Computational
         Materials Science, 49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010 They
@@ -1169,7 +1169,7 @@ class PointGroupAnalyzer:
         return min(valid_sets, key=len)
 
     def _check_rot_sym(self, axis):
-        """Determines the rotational symmetry about supplied axis.
+        """Determine the rotational symmetry about supplied axis.
 
         Used only for symmetric top molecules which has possible rotational symmetry
         operations > 2.
@@ -1188,7 +1188,7 @@ class PointGroupAnalyzer:
         return 1
 
     def _check_perpendicular_r2_axis(self, axis):
-        """Checks for R2 axes perpendicular to unique axis.
+        """Check for R2 axes perpendicular to unique axis.
 
         For handling symmetric top molecules.
         """

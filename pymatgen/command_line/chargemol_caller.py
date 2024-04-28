@@ -343,7 +343,7 @@ class ChargemolAnalysis:
         method="ddec6",
         compute_bond_orders=True,
     ):
-        """Writes job_script.txt for Chargemol execution.
+        """Write job_script.txt for Chargemol execution.
 
         Args:
             net_charge (float): Net charge of the system.

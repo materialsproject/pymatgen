@@ -203,7 +203,7 @@ class TransformedStructure(MSONable):
         create_directory: bool = True,
         **kwargs,
     ) -> None:
-        """Writes VASP input to an output_dir.
+        """Write VASP input to an output_dir.
 
         Args:
             vasp_input_set: pymatgen.io.vasp.sets.VaspInputSet like object that creates vasp input files from

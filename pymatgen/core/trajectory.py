@@ -402,7 +402,7 @@ class Trajectory(MSONable):
         system: str | None = None,
         significant_figures: int = 6,
     ) -> None:
-        """Writes to Xdatcar file.
+        """Write to Xdatcar file.
 
         The supported kwargs are the same as those for the
         Xdatcar_from_structs.get_str method and are passed through directly.

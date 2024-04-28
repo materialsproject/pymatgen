@@ -360,7 +360,7 @@ class EwaldSummation(MSONable):
         return e_recip, forces
 
     def _calc_real_and_point(self):
-        """Determines the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2."""
+        """Determine the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2."""
         frac_coords = self._struct.frac_coords
         force_pf = 2 * self._sqrt_eta / sqrt(pi)
         coords = self._coords
