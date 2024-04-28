@@ -12,8 +12,6 @@ from typing import TYPE_CHECKING, Any, Union
 from pymatgen.core import Composition, DummySpecies, Element, Species
 
 if TYPE_CHECKING:  # needed to avoid circular imports
-    from typing_extensions import TypeAlias
-
     from pymatgen.analysis.cost import CostEntry  # type: ignore[attr-defined]
     from pymatgen.analysis.phase_diagram import GrandPotPDEntry, PDEntry, TransformedPDEntry
     from pymatgen.entries import Entry
@@ -21,17 +19,17 @@ if TYPE_CHECKING:  # needed to avoid circular imports
     from pymatgen.entries.exp_entries import ExpEntry
 
 
-PathLike: TypeAlias = Union[str, OsPathLike]
-PbcLike: TypeAlias = tuple[bool, bool, bool]
+PathLike = Union[str, OsPathLike]
+PbcLike = tuple[bool, bool, bool]
 
 # Things that can be cast to a Species-like object using get_el_sp
-SpeciesLike: TypeAlias = Union[str, Element, Species, DummySpecies]
+SpeciesLike = Union[str, Element, Species, DummySpecies]
 
 # Things that can be cast to a Composition
-CompositionLike: TypeAlias = Union[str, Element, Species, DummySpecies, dict, Composition]
+CompositionLike = Union[str, Element, Species, DummySpecies, dict, Composition]
 
 # Entry or any of its subclasses or dicts that can be unpacked into any of them
-EntryLike: TypeAlias = Union[
+EntryLike = Union[
     dict[str, Any],
     "Entry",
     "PDEntry",
@@ -44,10 +42,10 @@ EntryLike: TypeAlias = Union[
     "GibbsComputedStructureEntry",
 ]
 
-Vector3D: TypeAlias = tuple[float, float, float]
-Matrix3D: TypeAlias = tuple[Vector3D, Vector3D, Vector3D]
+Vector3D = tuple[float, float, float]
+Matrix3D = tuple[Vector3D, Vector3D, Vector3D]
 
-SitePropsType: TypeAlias = Union[list[dict[Any, Sequence[Any]]], dict[Any, Sequence[Any]]]
+SitePropsType = Union[list[dict[Any, Sequence[Any]]], dict[Any, Sequence[Any]]]
 
 # Types specific to io.vasp
-Kpoint: TypeAlias = Union[tuple[float, float, float], tuple[int,]]
+Kpoint = Union[tuple[float, float, float], tuple[int,]]
