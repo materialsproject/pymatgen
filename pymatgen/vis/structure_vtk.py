@@ -128,8 +128,7 @@ class StructureVis:
         self.ren_win.Render()
 
     def write_image(self, filename="image.png", magnification=1, image_format="png"):
-        """
-        Save render window to an image.
+        """Save render window to an image.
 
         Arguments:
             filename: file to save to. Defaults to image.png.

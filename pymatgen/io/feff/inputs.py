@@ -696,8 +696,7 @@ class Tags(dict):
 
     @staticmethod
     def proc_val(key, val):
-        """
-        Static helper method to convert Feff parameters to proper types, e.g.
+        """Static helper method to convert Feff parameters to proper types, e.g.
         integers, floats, lists, etc.
 
         Args:

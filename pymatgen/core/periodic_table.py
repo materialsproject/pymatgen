@@ -508,7 +508,7 @@ class ElementBase(Enum):
         return self.symbol
 
     def __lt__(self, other):
-        """Sets a default sort order for atomic species by Pauling electronegativity. Very
+        """Set a default sort order for atomic species by Pauling electronegativity. Very
         useful for getting correct formulas. For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
@@ -994,7 +994,7 @@ class Species(MSONable, Stringify):
         return hash(str(self))
 
     def __lt__(self, other: object) -> bool:
-        """Sets a default sort order for atomic species by Pauling electronegativity,
+        """Set a default sort order for atomic species by Pauling electronegativity,
         followed by oxidation state, followed by spin.
         """
         if not isinstance(other, type(self)):
@@ -1313,7 +1313,7 @@ class DummySpecies(Species):
         raise AttributeError
 
     def __lt__(self, other):
-        """Sets a default sort order for atomic species by Pauling electronegativity,
+        """Set a default sort order for atomic species by Pauling electronegativity,
         followed by oxidation state.
         """
         if self.X != other.X:

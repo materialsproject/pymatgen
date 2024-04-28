@@ -629,8 +629,7 @@ class AbstractInput(MutableMapping, abc.ABC):
         return copy.deepcopy(self)
 
     def set_vars(self, *args, **kwargs):
-        """
-        Set the value of the variables.
+        """Set the value of the variables.
         Return dict with the variables added to the input.
 
         Example:
@@ -642,8 +641,7 @@ class AbstractInput(MutableMapping, abc.ABC):
         return kwargs
 
     def set_vars_ifnotin(self, *args, **kwargs):
-        """
-        Set the value of the variables but only if the variable is not already present.
+        """Set the value of the variables but only if the variable is not already present.
         Return dict with the variables added to the input.
 
         Example:
@@ -827,8 +825,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
             )
 
     def to_str(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
-        """
-        String representation.
+        """String representation.
 
         Args:
             post: String that will be appended to the name of the variables
@@ -906,8 +903,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
 
     # Helper functions to facilitate the specification of several variables.
     def set_kmesh(self, ngkpt, shiftk, kptopt=1):
-        """
-        Set the variables for the sampling of the BZ.
+        """Set the variables for the sampling of the BZ.
 
         Args:
             ngkpt: Monkhorst-Pack divisions
@@ -922,8 +918,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return self.set_kmesh(ngkpt=(1, 1, 1), shiftk=(0, 0, 0))
 
     def set_kpath(self, ndivsm, kptbounds=None, iscf=-2):
-        """
-        Set the variables for the computation of the electronic band structure.
+        """Set the variables for the computation of the electronic band structure.
 
         Args:
             ndivsm: Number of divisions for the smallest segment.
@@ -950,8 +945,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return self.set_vars(kptbounds=kptbounds, kptopt=-(len(kptbounds) - 1), ndivsm=ndivsm, iscf=iscf)
 
     def set_spin_mode(self, spin_mode):
-        """
-        Set the variables used to the treat the spin degree of freedom.
+        """Set the variables used to the treat the spin degree of freedom.
         Return dictionary with the variables that have been removed.
 
         Args:
@@ -1231,8 +1225,7 @@ class BasicMultiDataset:
         return self.to_str()
 
     def to_str(self, with_pseudos=True):
-        """
-        String representation i.e. the input file read by Abinit.
+        """String representation i.e. the input file read by Abinit.
 
         Args:
             with_pseudos: False if JSON section with pseudo data should not be added.

@@ -260,8 +260,7 @@ class Cohpcar:
 
     @staticmethod
     def _get_bond_data(line: str, are_multi_center_cobis: bool = False) -> dict:
-        """
-        Subroutine to extract bond label, site indices, and length from
+        """Subroutine to extract bond label, site indices, and length from
         a LOBSTER header line. The site indices are zero-based, so they
         can be easily used with a Structure object.
 

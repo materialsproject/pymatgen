@@ -356,8 +356,7 @@ class FiestaInput(MSONable):
                     shutil.copyfile(f"{auxiliary_folder}/{file}", f"{folder}/{specie}2.ion")
 
     def set_gw_options(self, nv_band=10, nc_band=10, n_iteration=5, n_grid=6, dE_grid=0.5):
-        """
-        Set parameters in cell.in for a GW computation
+        """Set parameters in cell.in for a GW computation
 
         Args:
             nv__band: number of valence bands to correct with GW
@@ -378,8 +377,7 @@ class FiestaInput(MSONable):
         return "makedirs FULL_BSE_Densities folder"
 
     def set_bse_options(self, n_excitations=10, nit_bse=200):
-        """
-        Set parameters in cell.in for a BSE computation
+        """Set parameters in cell.in for a BSE computation
 
         Args:
             nv_bse: number of valence bands

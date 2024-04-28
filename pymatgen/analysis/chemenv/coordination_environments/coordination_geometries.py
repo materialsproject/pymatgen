@@ -233,8 +233,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         return self._argsorted_ref_separation_perm
 
     def safe_separation_permutations(self, ordered_plane=False, ordered_point_groups=None, add_opposite=False):
-        """
-        Simple and safe permutations for this separation plane.
+        """Simple and safe permutations for this separation plane.
 
         This is not meant to be used in production. Default configuration for ChemEnv does not use this method.
 

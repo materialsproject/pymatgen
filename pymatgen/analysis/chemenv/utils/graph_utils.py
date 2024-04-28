@@ -301,8 +301,7 @@ class SimpleGraphCycle(MSONable):
 
     @classmethod
     def from_dict(cls, dct: dict, validate: bool = False) -> Self:
-        """
-        Serialize from dict.
+        """Serialize from dict.
 
         Args:
             dct (dict): Dict representation.

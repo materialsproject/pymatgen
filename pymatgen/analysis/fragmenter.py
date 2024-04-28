@@ -40,8 +40,7 @@ class Fragmenter(MSONable):
         prev_unique_frag_dict: dict | None = None,
         assume_previous_thoroughness: bool = True,
     ):
-        """
-        Standard constructor for molecule fragmentation.
+        """Standard constructor for molecule fragmentation.
 
         Args:
             molecule (Molecule): The molecule to fragment.

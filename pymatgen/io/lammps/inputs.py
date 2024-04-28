@@ -153,8 +153,7 @@ class LammpsInputFile(InputFile):
     def set_args(
         self, command: str, argument: str, stage_name: str | None = None, how: str | int | list[int] = "all"
     ) -> None:
-        """
-        Sets the arguments for the given command to the given string.
+        """Set the arguments for the given command to the given string.
         If the command is not found, nothing is done. Use LammpsInputFile.add_commands instead.
         If a stage name is specified, it will be replaced or set only for this stage.
         If no stage name is given, it will apply the change in all of them that contain the given command.

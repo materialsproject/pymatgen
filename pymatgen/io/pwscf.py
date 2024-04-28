@@ -357,8 +357,7 @@ class PWInput:
 
     @staticmethod
     def proc_val(key, val):
-        """
-        Static helper method to convert PWINPUT parameters to proper type, e.g.,
+        """Static helper method to convert PWINPUT parameters to proper type, e.g.,
         integers, floats, etc.
 
         Args:

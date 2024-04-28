@@ -307,8 +307,7 @@ class WulffShape:
         )
 
     def show(self, *args, **kwargs):
-        """
-        Show the Wulff plot.
+        """Show the Wulff plot.
 
         Args:
             *args: Passed to get_plot.

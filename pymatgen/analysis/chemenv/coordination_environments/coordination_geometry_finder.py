@@ -156,8 +156,7 @@ class AbstractGeometry:
         self.bare_coords = self._bare_coords
 
     def __str__(self):
-        """
-        String representation of the AbstractGeometry
+        """String representation of the AbstractGeometry
 
         Returns:
             str: String representation of the AbstractGeometry.
@@ -421,8 +420,7 @@ class LocalGeometryFinder:
         structure_refinement=STRUCTURE_REFINEMENT_REFINED,
         spg_analyzer_options=None,
     ):
-        """
-        Setup of the parameters for the coordination geometry finder. A reference point for the geometries has to be
+        """Setup of the parameters for the coordination geometry finder. A reference point for the geometries has to be
         chosen. This can be the centroid of the structure (including or excluding the atom for which the coordination
         geometry is looked for) or the atom itself. In the 'standard' centering_type, the reference point is the central
         atom for coordination numbers 1, 2, 3 and 4 and the centroid for coordination numbers > 4.
@@ -451,8 +449,7 @@ class LocalGeometryFinder:
             self.spg_analyzer_options = spg_analyzer_options
 
     def setup_parameter(self, parameter, value):
-        """
-        Setup of one specific parameter to the given value. The other parameters are unchanged. See setup_parameters
+        """Setup of one specific parameter to the given value. The other parameters are unchanged. See setup_parameters
         method for the list of possible parameters
 
         Args:
@@ -462,8 +459,7 @@ class LocalGeometryFinder:
         self.__dict__[parameter] = value
 
     def setup_structure(self, structure: Structure):
-        """
-        Sets up the structure for which the coordination geometries have to be identified. The structure is analyzed
+        """Set up the structure for which the coordination geometries have to be identified. The structure is analyzed
         with the space group analyzer and a refined structure is used
 
         Args:
@@ -503,8 +499,7 @@ class LocalGeometryFinder:
         return self.structure
 
     def set_structure(self, lattice: Lattice, species, coords, coords_are_cartesian):
-        """
-        Sets up the pymatgen structure for which the coordination geometries have to be identified starting from the
+        """Set up the pymatgen structure for which the coordination geometries have to be identified starting from the
         lattice, the species and the coordinates
 
         Args:
@@ -949,8 +944,7 @@ class LocalGeometryFinder:
         return ce
 
     def setup_local_geometry(self, isite, coords, optimization=None):
-        """
-        Sets up the AbstractGeometry for the local geometry of site with index isite.
+        """Set up the AbstractGeometry for the local geometry of site with index isite.
 
         Args:
             isite: Index of the site for which the local geometry has to be set up
@@ -1109,8 +1103,7 @@ class LocalGeometryFinder:
         self.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
 
     def setup_random_structure(self, coordination):
-        """
-        Sets up a purely random structure with a given coordination.
+        """Set up a purely random structure with a given coordination.
 
         Args:
             coordination: coordination number for the random structure.
@@ -1129,8 +1122,7 @@ class LocalGeometryFinder:
         self.setup_random_indices_local_geometry(coordination)
 
     def setup_random_indices_local_geometry(self, coordination):
-        """
-        Sets up random indices for the local geometry, for testing purposes
+        """Set up random indices for the local geometry, for testing purposes
 
         Args:
             coordination: coordination of the local geometry.
@@ -1140,8 +1132,7 @@ class LocalGeometryFinder:
         np.random.shuffle(self.indices)
 
     def setup_ordered_indices_local_geometry(self, coordination):
-        """
-        Sets up ordered indices for the local geometry, for testing purposes
+        """Set up ordered indices for the local geometry, for testing purposes
 
         Args:
             coordination: coordination of the local geometry.
@@ -1150,8 +1141,7 @@ class LocalGeometryFinder:
         self.indices = list(range(1, coordination + 1))
 
     def setup_explicit_indices_local_geometry(self, explicit_indices):
-        """
-        Sets up explicit indices for the local geometry, for testing purposes
+        """Set up explicit indices for the local geometry, for testing purposes
 
         Args:
             explicit_indices: explicit indices for the neighbors (set of numbers

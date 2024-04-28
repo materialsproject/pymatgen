@@ -378,8 +378,7 @@ class Cp2kOutput:
         return self.initial_structure
 
     def ran_successfully(self):
-        """
-        Sanity checks that the program ran successfully. Looks at the bottom of the CP2K output
+        """Sanity checks that the program ran successfully. Looks at the bottom of the CP2K output
         file for the "PROGRAM ENDED" line, which is printed when successfully ran. Also grabs
         the number of warnings issued.
         """

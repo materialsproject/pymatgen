@@ -382,8 +382,7 @@ class CifParser:
         return cls(stream, **kwargs)
 
     def _sanitize_data(self, data):
-        """
-        Some CIF files do not conform to spec. This function corrects
+        """Some CIF files do not conform to spec. This function corrects
         known issues, particular in regards to Springer materials/
         Pauling files.
 

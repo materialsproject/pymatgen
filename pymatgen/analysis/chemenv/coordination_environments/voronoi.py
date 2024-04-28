@@ -127,8 +127,7 @@ class DetailedVoronoiContainer(MSONable):
         logging.debug(f"Neighbors distances and angles set up in {t2 - t1:.2f} seconds")
 
     def setup_voronoi_list(self, indices, voronoi_cutoff):
-        """
-        Set up of the voronoi list of neighbors by calling qhull.
+        """Set up of the voronoi list of neighbors by calling qhull.
 
         Args:
             indices: indices of the sites for which the Voronoi is needed.

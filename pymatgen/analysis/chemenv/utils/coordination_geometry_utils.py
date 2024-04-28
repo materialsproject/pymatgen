@@ -702,8 +702,7 @@ class Plane:
             self.p3[zeros[1]] = 1.0
 
     def __str__(self):
-        """
-        String representation of the Plane object
+        """String representation of the Plane object
 
         Returns:
             String representation of the Plane object.

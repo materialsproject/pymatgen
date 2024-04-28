@@ -69,8 +69,7 @@ class PotcarScrambler:
             return input_str
 
     def scramble_single_potcar(self, potcar: PotcarSingle) -> str:
-        """
-        Scramble the body of a POTCAR, retain the PSCTR header information.
+        """Scramble the body of a POTCAR, retain the PSCTR header information.
 
         To the best of my (ADK) knowledge, in the OUTCAR file,
         almost all information from the POTCAR in the "PSCTR" block
@@ -84,8 +83,7 @@ class PotcarScrambler:
         is included. This information is not scrambled below.
         """
         scrambled_potcar_str = ""
-        needs_sha256 = False
-        scramble_values = False
+        needs_sha256 = scramble_values = False
         og_sha_str = "SHA256 = None\n"
         for line in potcar.data.split("\n")[:-1]:
             single_line_rows = line.split(";")

@@ -221,7 +221,7 @@ class Site(collections.abc.Hashable, MSONable):
         return f"Site: {name} ({self.coords[0]:.4f}, {self.coords[1]:.4f}, {self.coords[2]:.4f})"
 
     def __lt__(self, other):
-        """Sets a default sort order for atomic species by electronegativity. Very
+        """Set a default sort order for atomic species by electronegativity. Very
         useful for getting correct formulas. For example, FeO4PLi is
         automatically sorted in LiFePO4.
         """
@@ -361,7 +361,7 @@ class PeriodicSite(Site, MSONable):
 
     @lattice.setter
     def lattice(self, lattice: Lattice) -> None:
-        """Sets Lattice associated with PeriodicSite."""
+        """Set Lattice associated with PeriodicSite."""
         self._lattice = lattice
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 

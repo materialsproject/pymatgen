@@ -512,8 +512,7 @@ class QCInput(InputFile):
 
     @staticmethod
     def solvent_template(solvent: dict) -> str:
-        """
-        Solvent template.
+        """Solvent template.
 
         Args:
             solvent ():

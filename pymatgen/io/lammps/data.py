@@ -821,8 +821,7 @@ class LammpsData(MSONable):
         atom_style: Literal["atomic", "charge"] = "charge",
         is_sort: bool = False,
     ) -> Self:
-        """
-        Simple constructor building LammpsData from a structure without
+        """Simple constructor building LammpsData from a structure without
         force field parameters and topologies.
 
         Args:
@@ -861,8 +860,7 @@ class LammpsData(MSONable):
         return cls.from_ff_and_topologies(box=box, ff=ff, topologies=[topo], atom_style=atom_style)
 
     def set_charge_atom(self, charges: dict[int, float]) -> None:
-        """
-        Set the charges of specific atoms of the data.
+        """Set the charges of specific atoms of the data.
 
         Args:
             charges: A dictionary with atom indexes as keys and
@@ -1180,8 +1178,7 @@ class ForceField(MSONable):
         return all_data, {f"{kw[:-7]}s": mapper}
 
     def to_file(self, filename: str) -> None:
-        """
-        Saves object to a file in YAML format.
+        """Saves object to a file in YAML format.
 
         Args:
             filename (str): Filename.

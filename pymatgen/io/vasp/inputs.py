@@ -215,16 +215,13 @@ class Poscar(MSONable):
 
     @property
     def site_symbols(self) -> list[str]:
-        """
-        Sequence of symbols associated with the Poscar. Similar to 6th line in VASP 5+ POSCAR.
-        """
+        """Sequence of symbols associated with the Poscar. Similar to 6th line in VASP 5+ POSCAR."""
         syms: list[str] = [site.specie.symbol for site in self.structure]
         return [a[0] for a in itertools.groupby(syms)]
 
     @property
     def natoms(self) -> list[int]:
-        """
-        Sequence of number of sites of each type associated with the Poscar.
+        """Sequence of number of sites of each type associated with the Poscar.
         Similar to 7th line in vasp 5+ POSCAR or the 6th line in vasp 4 POSCAR.
         """
         syms: list[str] = [site.specie.symbol for site in self.structure]
@@ -1213,15 +1210,12 @@ class Kpoints(MSONable):
 
     @property
     def style(self) -> KpointsSupportedModes:
-        """
-        Style for kpoint generation. One of Kpoints_supported_modes enum.
-        """
+        """Style for kpoint generation. One of Kpoints_supported_modes enum."""
         return self._style
 
     @style.setter
     def style(self, style) -> None:
-        """
-        Sets the style for the Kpoints. One of Kpoints_supported_modes enum.
+        """Set the style for the Kpoints. One of Kpoints_supported_modes enum.
 
         Args:
             style: Style

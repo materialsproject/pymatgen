@@ -879,8 +879,7 @@ class KSampling(AbivarAble, MSONable):
 
     @classmethod
     def _path(cls, ndivsm, structure=None, kpath_bounds=None, comment=None):
-        """
-        Static constructor for path in k-space.
+        """Static constructor for path in k-space.
 
         Args:
             structure: Structure object.

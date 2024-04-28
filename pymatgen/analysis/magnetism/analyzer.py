@@ -560,8 +560,7 @@ class CollinearMagneticStructureAnalyzer:
         return cmag_analyzer.matches(b_positive) or cmag_analyzer.matches(analyzer)
 
     def __str__(self):
-        """
-        Sorts a Structure (by fractional coordinate), and
+        """Sorts a Structure (by fractional coordinate), and
         prints sites with magnetic information. This is
         useful over Structure.__str__ because sites are in
         a consistent order, which makes visual comparison between

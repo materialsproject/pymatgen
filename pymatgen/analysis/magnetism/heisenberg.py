@@ -159,7 +159,7 @@ class HeisenbergMapper:
         return unique_site_ids, wyckoff_ids
 
     def _get_nn_dict(self):
-        """Sets self.nn_interactions and self.dists instance variables describing unique
+        """Set self.nn_interactions and self.dists instance variables describing unique
         nearest neighbor interactions.
         """
         tol = self.tol  # tolerance on NN distances

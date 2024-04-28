@@ -2075,8 +2075,7 @@ class MoleculeGraph(MSONable):
         return sub_mols
 
     def split_molecule_subgraphs(self, bonds, allow_reverse=False, alterations=None):
-        """
-        Split MoleculeGraph into two or more MoleculeGraphs by
+        """Split MoleculeGraph into two or more MoleculeGraphs by
         breaking a set of bonds. This function uses
         MoleculeGraph.break_edge repeatedly to create
         disjoint graphs (two or more separate molecules).

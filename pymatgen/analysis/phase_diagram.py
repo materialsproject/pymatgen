@@ -1400,8 +1400,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
     """
 
     def __init__(self, entries, chempots, elements=None, *, computed_data=None):
-        """
-        Standard constructor for grand potential phase diagram.
+        """Standard constructor for grand potential phase diagram.
 
         Args:
             entries ([PDEntry]): A list of PDEntry-like objects having an
@@ -1771,8 +1770,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         raise ValueError(f"No suitable PhaseDiagrams found for {entry}.")
 
     def get_decomposition(self, comp: Composition) -> dict[PDEntry, float]:
-        """
-        See PhaseDiagram.
+        """See PhaseDiagram.
 
         Args:
             comp (Composition): A composition
@@ -1791,8 +1789,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             return _get_slsqp_decomp(comp, competing_entries)
 
     def get_equilibrium_reaction_energy(self, entry: Entry) -> float:
-        """
-        See PhaseDiagram.
+        """See PhaseDiagram.
 
         NOTE this is only approximately the same as the what we would get
         from `PhaseDiagram` as we make use of the slsqp approach inside
@@ -3523,8 +3520,7 @@ class PDPlotter:
         process_attributes=False,
         ax: plt.Axes = None,
     ):
-        """
-        Shows the plot using matplotlib.
+        """Shows the plot using matplotlib.
 
         Imports are done within the function as matplotlib is no longer the default.
         """
@@ -3706,8 +3702,7 @@ class PDPlotter:
 
     @no_type_check
     def _get_matplotlib_3d_plot(self, label_stable=True, ax: plt.Axes = None):
-        """
-        Shows the plot using matplotlib.
+        """Shows the plot using matplotlib.
 
         Args:
             label_stable (bool): Whether to label stable compounds.

@@ -387,8 +387,7 @@ class Section(MSONable):
         return self + other
 
     def get(self, d, default=None):
-        """
-        Similar to get for dictionaries. This will attempt to retrieve the
+        """Similar to get for dictionaries. This will attempt to retrieve the
         section or keyword matching d. Will not raise an error if d does not exist.
 
         Args:
@@ -2230,8 +2229,7 @@ class BasisInfo(MSONable):
     xc: str | None = None
 
     def softmatch(self, other):
-        """
-        Soft matching to see if two basis sets match.
+        """Soft matching to see if two basis sets match.
 
         Will only match those attributes which *are* defined for this basis info object (one way checking)
         """
@@ -2318,8 +2316,7 @@ class AtomicMetadata(MSONable):
     version: str | None = None
 
     def softmatch(self, other):
-        """
-        Soft matching to see if a desired basis/potential matches requirements.
+        """Soft matching to see if a desired basis/potential matches requirements.
 
         Does soft matching on the "info" attribute first. Then soft matches against the
         element and name/aliases.
@@ -2531,8 +2528,7 @@ class PotentialInfo(MSONable):
     xc: str | None = None
 
     def softmatch(self, other):
-        """
-        Soft matching to see if two potentials match.
+        """Soft matching to see if two potentials match.
 
         Will only match those attributes which *are* defined for this basis info object (one way checking)
         """

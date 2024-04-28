@@ -1819,8 +1819,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         )
 
     def sorted(self, attrname, reverse=False):
-        """
-        Sort the table according to the value of attribute attrname.
+        """Sort the table according to the value of attribute attrname.
 
         Returns:
             New class: `PseudoTable` object

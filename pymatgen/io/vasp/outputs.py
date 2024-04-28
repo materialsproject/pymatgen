@@ -1169,8 +1169,7 @@ class Vasprun(MSONable):
             ]
 
     def update_charge_from_potcar(self, path):
-        """
-        Sets the charge of a structure based on the POTCARs found.
+        """Set the charge of a structure based on the POTCARs found.
 
         Args:
             path: Path to search for POTCARs
@@ -4121,8 +4120,7 @@ class Xdatcar:
 
     @property
     def site_symbols(self):
-        """
-        Sequence of symbols associated with the Xdatcar. Similar to 6th line in
+        """Sequence of symbols associated with the Xdatcar. Similar to 6th line in
         vasp 5+ Xdatcar.
         """
         syms = [site.specie.symbol for site in self.structures[0]]
@@ -4130,8 +4128,7 @@ class Xdatcar:
 
     @property
     def natoms(self):
-        """
-        Sequence of number of sites of each type associated with the Poscar.
+        """Sequence of number of sites of each type associated with the Poscar.
         Similar to 7th line in vasp 5+ Xdatcar.
         """
         syms = [site.specie.symbol for site in self.structures[0]]

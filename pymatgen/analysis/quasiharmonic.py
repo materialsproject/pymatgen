@@ -269,8 +269,7 @@ class QuasiHarmonicDebyeApprox:
 
     @cite_gibbs
     def gruneisen_parameter(self, temperature, volume):
-        """
-        Slater-gamma formulation(the default):
+        """Slater-gamma formulation(the default):
             gruneisen parameter = - d log(theta)/ d log(V) = - (1/6 + 0.5 d log(B)/ d log(V))
                                 = - (1/6 + 0.5 V/B dB/dV), where dB/dV = d^2E/dV^2 + V * d^3E/dV^3.
 

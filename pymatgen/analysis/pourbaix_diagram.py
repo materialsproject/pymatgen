@@ -668,8 +668,7 @@ class PourbaixDiagram(MSONable):
 
     @staticmethod
     def process_multientry(entry_list, prod_comp, coeff_threshold=1e-4):
-        """
-        Static method for finding a multientry based on
+        """Static method for finding a multientry based on
         a list of entries and a product composition.
         Essentially checks to see if a valid aqueous
         reaction exists between the entries and the
@@ -924,8 +923,7 @@ class PourbaixPlotter:
         self._pbx = pourbaix_diagram
 
     def show(self, *args, **kwargs):
-        """
-        Shows the Pourbaix plot.
+        """Shows the Pourbaix plot.
 
         Args:
             *args: args to get_pourbaix_plot

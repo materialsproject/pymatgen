@@ -126,8 +126,7 @@ class SpectrumPlotter:
         return ax
 
     def save_plot(self, filename: str, **kwargs):
-        """
-        Save matplotlib plot to a file.
+        """Save matplotlib plot to a file.
 
         Args:
             filename (str): Filename to write to. Must include extension to specify image format.

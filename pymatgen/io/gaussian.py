@@ -1174,8 +1174,7 @@ class GaussianOutput:
         return ax
 
     def save_scan_plot(self, filename="scan.pdf", img_format="pdf", coords=None):
-        """
-        Save matplotlib plot of the potential energy surface to a file.
+        """Save matplotlib plot of the potential energy surface to a file.
 
         Args:
             filename: Filename to write to.
@@ -1262,8 +1261,7 @@ class GaussianOutput:
         return data, ax
 
     def save_spectre_plot(self, filename="spectre.pdf", img_format="pdf", sigma=0.05, step=0.01):
-        """
-        Save matplotlib plot of the spectre to a file.
+        """Save matplotlib plot of the spectre to a file.
 
         Args:
             filename: Filename to write to.

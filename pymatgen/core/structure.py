@@ -213,7 +213,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @sites.setter
     def sites(self, sites: Sequence[PeriodicSite]) -> None:
-        """Sets the sites in the Structure."""
+        """Set the sites in the Structure."""
         # if self is mutable Structure or Molecule, set _sites as list
         is_mutable = isinstance(self._sites, list)  # type: ignore[has-type]
         self._sites = list(sites) if is_mutable else tuple(sites)
@@ -1310,7 +1310,7 @@ class IStructure(SiteCollection, MSONable):
 
     @properties.setter
     def properties(self, properties: dict) -> None:
-        """Sets properties associated with the whole Structure."""
+        """Set properties associated with the whole Structure."""
         self._properties = properties
 
     @property
@@ -4437,7 +4437,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         return self
 
     def set_charge(self, new_charge: float = 0.0) -> Self:
-        """Sets the overall structure charge.
+        """Set the overall structure charge.
 
         Args:
             new_charge (float): new charge to set

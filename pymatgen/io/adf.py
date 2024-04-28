@@ -457,8 +457,7 @@ class AdfTask(MSONable):
         return AdfKey.from_str("Units\nlength angstrom\nangle degree\nEnd")
 
     def _setup_task(self, geo_subkeys):
-        """
-        Setup the block 'Geometry' given subkeys and the task.
+        """Setup the block 'Geometry' given subkeys and the task.
 
         Args:
             geo_subkeys (Sized): User-defined subkeys for the block 'Geometry'.

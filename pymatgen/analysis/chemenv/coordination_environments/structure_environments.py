@@ -1016,8 +1016,7 @@ class StructureEnvironments(MSONable):
         max_dist=2.0,
         figsize=None,
     ):
-        """
-        Saves the environments figure to a given file.
+        """Saves the environments figure to a given file.
 
         Args:
             isite: Index of the site for which the plot has to be done.

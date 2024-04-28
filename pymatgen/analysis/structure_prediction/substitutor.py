@@ -227,8 +227,7 @@ class Substitutor(MSONable):
         return output
 
     def pred_from_comp(self, composition):
-        """
-        Similar to pred_from_list except this method returns a list after
+        """Similar to pred_from_list except this method returns a list after
         checking that compositions are charge balanced.
         """
         output = []

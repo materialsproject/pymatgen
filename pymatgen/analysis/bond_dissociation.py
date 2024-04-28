@@ -245,8 +245,7 @@ class BondDissociationEnergies(MSONable):
                                 n_entries_for_this_frag_pair += 1
 
     def search_fragment_entries(self, frag) -> list:
-        """
-        Search all fragment entries for those isomorphic to the given fragment.
+        """Search all fragment entries for those isomorphic to the given fragment.
         We distinguish between entries where both initial and final MoleculeGraphs are isomorphic to the
         given fragment (entries) vs those where only the initial MoleculeGraph is isomorphic to the given
         fragment (initial_entries) vs those where only the final MoleculeGraph is isomorphic (final_entries).
