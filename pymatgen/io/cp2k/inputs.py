@@ -2036,33 +2036,40 @@ class Kpoints(Section):
             x, y, z = (kpt, kpt, kpt) if isinstance(kpt, (int, float)) else kpt  # type: ignore[misc]
             scheme = f"MONKHORST-PACK {x} {y} {z}"
             units = "B_VECTOR"
+
         elif kpoints.style == KpointsSupportedModes.Reciprocal:
             units = "B_VECTOR"
             scheme = "GENERAL"
+
         elif kpoints.style == KpointsSupportedModes.Cartesian:
             units = "CART_ANGSTROM"
             scheme = "GENERAL"
+
         elif kpoints.style == KpointsSupportedModes.Gamma:
+            if not structure:
+                raise ValueError(
+                    "No cp2k automatic gamma constructor. A structure is required to construct from spglib"
+                )
+
             if (isinstance(kpts[0], Iterable) and tuple(kpts[0]) == (1, 1, 1)) or (
                 isinstance(kpts[0], (float, int)) and int(kpts[0]) == 1
             ):
                 scheme = "GAMMA"
-                units = "B_VECTOR"
-            elif not structure:
-                raise ValueError(
-                    "No cp2k automatic gamma constructor. A structure is required to construct from spglib"
-                )
             else:
                 sga = SpacegroupAnalyzer(structure)
-                _kpts, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpts))
+                _kpts, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpts))  # type: ignore[assignment]
                 kpts = tuple(itertools.chain.from_iterable(_kpts))
                 scheme = "GENERAL"
-                units = "B_VECTOR"
+
+            units = "B_VECTOR"
+
         elif kpoints.style == KpointsSupportedModes.Line_mode:
             scheme = "GENERAL"
             units = "B_VECTOR"
+
         else:
             raise ValueError("Unrecognized k-point style")
+
         return Kpoints(kpts=kpts, weights=weights, scheme=scheme, units=units)
 
 

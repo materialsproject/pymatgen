@@ -986,7 +986,7 @@ class Vasprun(MSONable):
                             "for each kpoint. Check your KPOINTS file"
                         )
                     labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
-                labels_dict.pop(None, None)
+                labels_dict.pop(None, None)  # type: ignore[call-overload]
 
             return BandStructureSymmLine(
                 kpoints,
