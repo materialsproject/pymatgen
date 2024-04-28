@@ -843,7 +843,40 @@ Cartesian
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.tet_connections == [(6, [1, 2, 3, 4])]
 
-    def test_style_setter(self):
+    def test_property_kpts(self):
+        kpoints_0 = Kpoints(kpts=[[1, 1, 1]])
+        assert kpoints_0.kpts == [(1, 1, 1)]
+
+        kpoints_1 = Kpoints(kpts=[(1, 1, 1)])
+        assert kpoints_1.kpts == [(1, 1, 1)]
+
+        kpoints_2 = Kpoints(kpts=[np.array((1, 1, 1))])
+        assert kpoints_2.kpts == [(1, 1, 1)]
+
+        kpoints_3 = Kpoints(
+            style=Kpoints.supported_modes.Line_mode,
+            kpts=[[1, 1, 1], (2, 2, 2), np.array([3, 3, 3])],
+        )
+        assert kpoints_3.kpts == [(1, 1, 1), (2, 2, 2), (3, 3, 3)]
+
+        kpoints_4 = Kpoints(kpts=[[1]])
+        assert kpoints_4.kpts == [(1,)]
+
+        kpoints_5 = Kpoints(kpts=[1, 1, 1])
+        assert kpoints_5.kpts == [(1, 1, 1)]
+
+    @pytest.mark.parametrize(
+        "invalid_kpts",
+        [
+            (("1", "1", "1")),  # invalid data type
+            ((1, 1)),  # length not 1 or 3
+        ],
+    )
+    def test_property_kpts_invalid(self, invalid_kpts):
+        with pytest.raises(ValueError, match="Invalid Kpoint"):
+            Kpoints(kpts=invalid_kpts)
+
+    def test_property_style(self):
         filepath = f"{VASP_IN_DIR}/KPOINTS"
         kpoints = Kpoints.from_file(filepath)
         assert kpoints.style == Kpoints.supported_modes.Monkhorst

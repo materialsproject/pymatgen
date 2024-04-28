@@ -1193,12 +1193,15 @@ class Kpoints(MSONable):
     @property
     def kpts(self) -> Sequence[Kpoint]:
         """
-        A sequence of kpoints, where each kpoint is a tuple of 3.
+        A sequence of Kpoints, where each Kpoint is a tuple of 3 or 1.
         """
-        if all(isinstance(kpt, (Sequence, np.ndarray)) for kpt in self._kpts):
+        if all(isinstance(kpt, (list, tuple, np.ndarray)) and len(kpt) in {1, 3} for kpt in self._kpts):
             return cast(Sequence[Kpoint], list(map(tuple, self._kpts)))  # type: ignore[arg-type]
 
-        return [cast(tuple[float, float, float], tuple(self._kpts))]
+        if all(isinstance(point, (int, float)) for point in self._kpts) and len(self._kpts) == 3:
+            return [cast(tuple[float, float, float], tuple(self._kpts))]
+
+        raise ValueError(f"Invalid Kpoint {self._kpts}.")
 
     @kpts.setter
     def kpts(self, kpts: Sequence[float | int] | Sequence[Sequence[float | int]]) -> None:
@@ -1228,7 +1231,7 @@ class Kpoints(MSONable):
 
         if (
             style
-            in (Kpoints.supported_modes.Automatic, Kpoints.supported_modes.Gamma, Kpoints.supported_modes.Monkhorst)
+            in {Kpoints.supported_modes.Automatic, Kpoints.supported_modes.Gamma, Kpoints.supported_modes.Monkhorst}
             and len(self.kpts) > 1
         ):
             raise ValueError(
