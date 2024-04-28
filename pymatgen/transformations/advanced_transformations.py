@@ -463,23 +463,19 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 else:
                     raise ValueError("Unsupported sort criteria.")
 
-                return {
-                    "num_sites": len(struct),
-                    "energy": energy,
-                    "structure": struct,
-                }
+                return {"num_sites": len(struct), "energy": energy, "structure": struct}
 
             return {"num_sites": len(struct), "structure": struct}
 
         all_structures = Parallel(n_jobs=self.n_jobs)(delayed(_get_stats)(struct) for struct in structures)
 
-        def sort_func(s):
+        def sort_func(struct):
             return (
-                s["energy"] / s["num_sites"]
+                struct["energy"] / struct["num_sites"]
                 if callable(self.sort_criteria)
                 or self.sort_criteria.startswith("m3gnet")
                 or (contains_oxidation_state and self.sort_criteria == "ewald")
-                else s["num_sites"]
+                else struct["num_sites"]
             )
 
         self._all_structures = sorted(all_structures, key=sort_func)

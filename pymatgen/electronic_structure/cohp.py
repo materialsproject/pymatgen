@@ -978,7 +978,7 @@ class IcohpValue(MSONable):
             spin: Spin.up or Spin.down.
 
         Returns:
-            icohpvalue (float) corresponding to chosen spin.
+            float: corresponding to chosen spin.
         """
         if not self.is_spin_polarized and spin == Spin.down:
             raise ValueError("The calculation was not performed with spin polarization")
@@ -992,7 +992,7 @@ class IcohpValue(MSONable):
             spin: Spin.up or Spin.down.
 
         Returns:
-            icohpvalue (float) corresponding to chosen spin.
+            float: corresponding to chosen spin.
         """
         if not self.is_spin_polarized and spin == Spin.down:
             raise ValueError("The calculation was not performed with spin polarization")
@@ -1002,7 +1002,8 @@ class IcohpValue(MSONable):
 
     @property
     def icohp(self):
-        """Dict with icohps for spinup and spindown
+        """Dict with ICOHPs for spin up and spin down.
+
         Returns:
             dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}.
         """
