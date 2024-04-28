@@ -1202,7 +1202,7 @@ class Kpoints(MSONable):
         if all(isinstance(kpt, Sequence) for kpt in self._kpts):
             return cast(Sequence[Kpoint], list(map(tuple, self._kpts)))  # type: ignore[arg-type]
 
-        raise ValueError("Invalid kpoint type.")
+        raise ValueError(f"Invalid kpoint type {type(self._kpts)}.")
 
     @kpts.setter
     def kpts(self, kpts: Sequence[float | int] | Sequence[Sequence[float | int]]) -> None:
