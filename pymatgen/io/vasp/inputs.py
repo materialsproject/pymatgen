@@ -1537,7 +1537,7 @@ class Kpoints(MSONable):
 
         # Automatic gamma and Monk KPOINTS, with optional shift
         if style in {"g", "m"}:
-            _kpt: list[int] = [int(i) for i in lines[3].split()]
+            _kpt: list[int] = [int(float(i)) for i in lines[3].split()]
             if len(_kpt) != 3:
                 raise ValueError("Invalid Kpoint length.")
             kpt: tuple[int, int, int] = cast(tuple[int, int, int], tuple(_kpt))
@@ -1563,7 +1563,7 @@ class Kpoints(MSONable):
             kpts_shift = cast(Vector3D, tuple(_kpts_shift)) if len(_kpts_shift) == 3 else (0, 0, 0)
 
             kpts: list[Kpoint] = [
-                cast(Kpoint, tuple(int(j) for j in lines[line_idx].split())) for line_idx in range(3, 6)
+                cast(Kpoint, tuple(int(float(j)) for j in lines[line_idx].split())) for line_idx in range(3, 6)
             ]
 
             return cls(
@@ -1584,7 +1584,7 @@ class Kpoints(MSONable):
             for idx in range(4, len(lines)):
                 line = lines[idx]
                 if match := patt.match(line):
-                    _kpts.append((int(match[1]), int(match[2]), int(match[3])))
+                    _kpts.append((int(float(match[1])), int(float(match[2])), int(float(match[3]))))
                     labels.append(match[4].strip())
 
             return cls(
