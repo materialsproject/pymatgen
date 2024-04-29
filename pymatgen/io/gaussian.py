@@ -177,9 +177,8 @@ class GaussianInput:
         paras = {}
         var_pattern = re.compile(r"^([A-Za-z]+\S*)[\s=,]+([\d\-\.]+)$")
         for line in coord_lines:
-            m = var_pattern.match(line.strip())
-            if m:
-                paras[m.group(1).strip("=")] = float(m.group(2))
+            if match := var_pattern.match(line.strip()):
+                paras[match.group(1).strip("=")] = float(match.group(2))
 
         species = []
         coords = []
@@ -191,8 +190,8 @@ class GaussianInput:
             if not line:
                 break
             if (not zmode) and GaussianInput._xyz_patt.match(line):
-                m = GaussianInput._xyz_patt.match(line)
-                species.append(m.group(1))
+                match = GaussianInput._xyz_patt.match(line)
+                species.append(match.group(1))
                 tokens = re.split(r"[,\s]+", line.strip())
                 if len(tokens) > 4:
                     coords.append([float(i) for i in tokens[2:5]])
@@ -294,9 +293,9 @@ class GaussianInput:
         link0_dict = {}
         for line in lines:
             if link0_patt.match(line):
-                m = link0_patt.match(line)
-                assert m is not None
-                link0_dict[m.group(1).strip("=")] = m.group(2)
+                match = link0_patt.match(line)
+                assert match is not None
+                link0_dict[match.group(1).strip("=")] = match.group(2)
 
         route_patt = re.compile(r"^#[sSpPnN]*.*")
         route = ""
@@ -1033,14 +1032,14 @@ class GaussianOutput:
         parameter_patt = re.compile(r"(Eps|Numeral density|RSolv|Eps\(inf[inity]*\))\s+=\s*(\S*)")
 
         if energy_patt.search(line):
-            m = energy_patt.search(line)
-            self.pcm[f"{m.group(1)} energy"] = float(m.group(2))
+            match = energy_patt.search(line)
+            self.pcm[f"{match.group(1)} energy"] = float(match.group(2))
         elif total_patt.search(line):
-            m = total_patt.search(line)
-            self.pcm["Total energy"] = float(m.group(1))
+            match = total_patt.search(line)
+            self.pcm["Total energy"] = float(match.group(1))
         elif parameter_patt.search(line):
-            m = parameter_patt.search(line)
-            self.pcm[m.group(1)] = float(m.group(2))
+            match = parameter_patt.search(line)
+            self.pcm[match.group(1)] = float(match.group(2))
 
     def as_dict(self):
         """JSON-serializable dict representation."""
@@ -1149,8 +1148,7 @@ class GaussianOutput:
         return data
 
     def get_scan_plot(self, coords=None):
-        """
-        Get a matplotlib plot of the potential energy surface.
+        """Get a matplotlib plot of the potential energy surface.
 
         Args:
             coords: internal coordinate name to use as abscissa.
@@ -1176,8 +1174,7 @@ class GaussianOutput:
         return ax
 
     def save_scan_plot(self, filename="scan.pdf", img_format="pdf", coords=None):
-        """
-        Save matplotlib plot of the potential energy surface to a file.
+        """Save matplotlib plot of the potential energy surface to a file.
 
         Args:
             filename: Filename to write to.
@@ -1212,8 +1209,7 @@ class GaussianOutput:
         return transitions
 
     def get_spectre_plot(self, sigma=0.05, step=0.01):
-        """
-        Get a matplotlib plot of the UV-visible xas. Transitions are plotted
+        """Get a matplotlib plot of the UV-visible xas. Transitions are plotted
         as vertical lines and as a sum of normal functions with sigma with. The
         broadening is applied in energy and the xas is plotted as a function
         of the wavelength.
@@ -1265,8 +1261,7 @@ class GaussianOutput:
         return data, ax
 
     def save_spectre_plot(self, filename="spectre.pdf", img_format="pdf", sigma=0.05, step=0.01):
-        """
-        Save matplotlib plot of the spectre to a file.
+        """Save matplotlib plot of the spectre to a file.
 
         Args:
             filename: Filename to write to.

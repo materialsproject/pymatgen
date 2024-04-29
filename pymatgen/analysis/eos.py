@@ -285,8 +285,7 @@ class Birch(EOSBase):
     """Birch EOS."""
 
     def _func(self, volume, params):
-        """
-        From Intermetallic compounds: Principles and Practice, Vol. I:
+        """From Intermetallic compounds: Principles and Practice, Vol. I:
         Principles Chapter 9 pages 195-210 by M. Mehl. B. Klein,
         D. Papaconstantopoulos.
         case where n=0.
@@ -310,7 +309,7 @@ class BirchMurnaghan(EOSBase):
 
 
 class PourierTarantola(EOSBase):
-    """PourierTarantola EOS."""
+    """Pourier-Tarantola EOS."""
 
     def _func(self, volume, params):
         """Pourier-Tarantola equation from PRB 70, 224107."""
@@ -414,8 +413,7 @@ class NumericalEOS(PolynomialEOS):
     """A numerical EOS."""
 
     def fit(self, min_ndata_factor=3, max_poly_order_factor=5, min_poly_order=2):
-        """
-        Fit the input data to the 'numerical eos', the equation of state employed
+        """Fit the input data to the 'numerical eos', the equation of state employed
         in the quasiharmonic Debye model described in the paper:
         10.1103/PhysRevB.90.174107.
 
@@ -570,8 +568,7 @@ class EOS:
         self.model = self.MODELS[eos_name]
 
     def fit(self, volumes, energies):
-        """
-        Fit energies as function of volumes.
+        """Fit energies as function of volumes.
 
         Args:
             volumes (list/np.array)

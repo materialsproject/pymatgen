@@ -297,7 +297,7 @@ class _MPResterLegacy:
             task_id (str): A task id.
 
         Returns:
-            materials_id (str)
+            str: An MP material id.
         """
         return self._make_request(f"/materials/mid_from_tid/{task_id}")
 
@@ -308,7 +308,7 @@ class _MPResterLegacy:
             material_id (str): A material id.
 
         Returns:
-            BibTeX (str)
+            str: A BibTeX formatted string.
         """
         return self._make_request(f"/materials/{material_id}/refs")
 
@@ -433,7 +433,7 @@ class _MPResterLegacy:
         return [d[prop] for d in data]
 
     def find_structure(self, filename_or_structure):
-        """Finds matching structures on the Materials Project site.
+        """Find matching structures on the Materials Project site.
 
         Args:
             filename_or_structure: filename or Structure object
@@ -642,7 +642,7 @@ class _MPResterLegacy:
             refs = [e for e in ion_ref_entries if e.reduced_formula == i_d["Reference Solid"]]
             if not refs:
                 raise ValueError("Reference solid not contained in entry list")
-            stable_ref = sorted(refs, key=lambda x: x.data["e_above_hull"])[0]
+            stable_ref = min(refs, key=lambda x: x.data["e_above_hull"])
             rf = stable_ref.composition.get_reduced_composition_and_factor()[1]
 
             solid_diff = ion_ref_pd.get_form_energy(stable_ref) - i_d["Reference solid energy"] * rf
@@ -913,7 +913,7 @@ class _MPResterLegacy:
         mp_decode: bool = True,
         show_progress_bar: bool = True,
     ):
-        r"""Performs an advanced query using MongoDB-like syntax for directly
+        r"""Perform an advanced query using MongoDB-like syntax for directly
         querying the Materials Project database. This allows one to perform
         queries which are otherwise too cumbersome to perform using the standard
         convenience methods.
@@ -1264,7 +1264,7 @@ class _MPResterLegacy:
         raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def get_cohesive_energy(self, material_id, per_atom=False):
-        """Gets the cohesive for a material (eV per formula unit). Cohesive energy
+        """Get the cohesive for a material (eV per formula unit). Cohesive energy
             is defined as the difference between the bulk energy and the sum of
             total DFT energy of isolated atoms for atom elements in the bulk.
 
@@ -1288,7 +1288,7 @@ class _MPResterLegacy:
         return ecoh_per_formula / n if per_atom else ecoh_per_formula
 
     def get_reaction(self, reactants, products):
-        """Gets a reaction from the Materials Project.
+        """Get a reaction from the Materials Project.
 
         Args:
             reactants ([str]): List of formulas
@@ -1324,7 +1324,7 @@ class _MPResterLegacy:
         return self._make_request(req)
 
     def get_all_substrates(self):
-        """Gets the list of all possible substrates considered in the
+        """Get the list of all possible substrates considered in the
         Materials Project substrate database.
 
         Returns:
@@ -1337,7 +1337,7 @@ class _MPResterLegacy:
         description="Data Descriptor: Surface energies of elemental crystals. Scientific Data",
     )
     def get_surface_data(self, material_id, miller_index=None, inc_structures=False):
-        """Gets surface data for a material. Useful for Wulff shapes.
+        """Get surface data for a material. Useful for Wulff shapes.
 
         Reference for surface data:
 
@@ -1373,7 +1373,7 @@ class _MPResterLegacy:
         return self._make_request(req)
 
     def get_wulff_shape(self, material_id):
-        """Constructs a Wulff shape for a material.
+        """Construct a Wulff shape for a material.
 
         Args:
             material_id (str): Materials Project material_id, e.g. 'mp-123'.
@@ -1406,7 +1406,7 @@ class _MPResterLegacy:
         rotation_axis=None,
         include_work_of_separation=False,
     ):
-        """Gets grain boundary data for a material.
+        """Get grain boundary data for a material.
 
         Args:
             material_id (str): Materials Project material_id, e.g., 'mp-129'.
@@ -1462,7 +1462,7 @@ class _MPResterLegacy:
         relative_mu=None,
         use_hull_energy=False,
     ):
-        """Gets critical reactions between two reactants.
+        """Get critical reactions between two reactants.
 
         Get critical reactions ("kinks" in the mixing ratio where
         reaction products change) between two reactants. See the

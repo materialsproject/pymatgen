@@ -39,7 +39,7 @@ class Site(collections.abc.Hashable, MSONable):
         label: str | None = None,
         skip_checks: bool = False,
     ) -> None:
-        """Creates a non-periodic Site.
+        """Create a non-periodic Site.
 
         Args:
             species: Species on the site. Can be:
@@ -221,7 +221,7 @@ class Site(collections.abc.Hashable, MSONable):
         return f"Site: {name} ({self.coords[0]:.4f}, {self.coords[1]:.4f}, {self.coords[2]:.4f})"
 
     def __lt__(self, other):
-        """Sets a default sort order for atomic species by electronegativity. Very
+        """Set a default sort order for atomic species by electronegativity. Very
         useful for getting correct formulas. For example, FeO4PLi is
         automatically sorted in LiFePO4.
         """
@@ -231,8 +231,6 @@ class Site(collections.abc.Hashable, MSONable):
             return False
         if self.species_string < other.species_string:
             return True
-        if self.species_string > other.species_string:
-            return False
         return False
 
     def __str__(self) -> str:
@@ -361,7 +359,7 @@ class PeriodicSite(Site, MSONable):
 
     @lattice.setter
     def lattice(self, lattice: Lattice) -> None:
-        """Sets Lattice associated with PeriodicSite."""
+        """Set Lattice associated with PeriodicSite."""
         self._lattice = lattice
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
 
@@ -491,7 +489,7 @@ class PeriodicSite(Site, MSONable):
     def distance_and_image_from_frac_coords(
         self, fcoords: ArrayLike, jimage: ArrayLike | None = None
     ) -> tuple[float, np.ndarray]:
-        """Gets distance between site and a fractional coordinate assuming
+        """Get distance between site and a fractional coordinate assuming
         periodic boundary conditions. If the index jimage of two sites atom j
         is not specified it selects the j image nearest to the i atom and
         returns the distance and jimage indices in terms of lattice vector
@@ -513,7 +511,7 @@ class PeriodicSite(Site, MSONable):
         return self.lattice.get_distance_and_image(self.frac_coords, fcoords, jimage=jimage)
 
     def distance_and_image(self, other: PeriodicSite, jimage: ArrayLike | None = None) -> tuple[float, np.ndarray]:
-        """Gets distance and instance between two sites assuming periodic boundary
+        """Get distance and instance between two sites assuming periodic boundary
         conditions. If the index jimage of two sites atom j is not specified it
         selects the j image nearest to the i atom and returns the distance and
         jimage indices in terms of lattice vector translations. If the index
@@ -544,7 +542,7 @@ class PeriodicSite(Site, MSONable):
                 the image that is nearest to the site is found.
 
         Returns:
-            distance (float): Distance between the two sites
+            float: distance between the two sites.
         """
         return self.distance_and_image(other, jimage)[0]
 

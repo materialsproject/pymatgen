@@ -43,7 +43,7 @@ class TransformedStructure(MSONable):
         history: list[AbstractTransformation | dict[str, Any]] | None = None,
         other_parameters: dict[str, Any] | None = None,
     ) -> None:
-        """Initializes a transformed structure from a structure.
+        """Initialize a transformed structure from a structure.
 
         Args:
             structure (Structure): Input structure
@@ -102,7 +102,7 @@ class TransformedStructure(MSONable):
     def append_transformation(
         self, transformation, return_alternatives: bool = False, clear_redo: bool = True
     ) -> list[TransformedStructure] | None:
-        """Appends a transformation to the TransformedStructure.
+        """Append a transformation to the TransformedStructure.
 
         Args:
             transformation: Transformation to append
@@ -157,7 +157,7 @@ class TransformedStructure(MSONable):
         return None
 
     def append_filter(self, structure_filter: AbstractStructureFilter) -> None:
-        """Adds a filter.
+        """Add a filter.
 
         Args:
             structure_filter (StructureFilter): A filter implementing the
@@ -172,7 +172,7 @@ class TransformedStructure(MSONable):
         transformations: list[AbstractTransformation],
         return_alternatives: bool = False,
     ) -> None:
-        """Extends a sequence of transformations to the TransformedStructure.
+        """Extend a sequence of transformations to the TransformedStructure.
 
         Args:
             transformations: Sequence of Transformations
@@ -203,7 +203,7 @@ class TransformedStructure(MSONable):
         create_directory: bool = True,
         **kwargs,
     ) -> None:
-        """Writes VASP input to an output_dir.
+        """Write VASP input to an output_dir.
 
         Args:
             vasp_input_set: pymatgen.io.vasp.sets.VaspInputSet like object that creates vasp input files from
@@ -232,7 +232,7 @@ class TransformedStructure(MSONable):
         return "\n".join(output)
 
     def set_parameter(self, key: str, value: Any) -> TransformedStructure:
-        """Sets a parameter.
+        """Set a parameter.
 
         Args:
             key (str): The string key.
@@ -270,7 +270,7 @@ class TransformedStructure(MSONable):
         primitive: bool = True,
         occupancy_tolerance: float = 1.0,
     ) -> Self:
-        """Generates TransformedStructure from a cif string.
+        """Generate TransformedStructure from a cif string.
 
         Args:
             cif_string (str): Input cif string. Should contain only one
@@ -314,7 +314,7 @@ class TransformedStructure(MSONable):
         poscar_string: str,
         transformations: list[AbstractTransformation] | None = None,
     ) -> Self:
-        """Generates TransformedStructure from a poscar string.
+        """Generate TransformedStructure from a poscar string.
 
         Args:
             poscar_string (str): Input POSCAR string.
@@ -347,7 +347,7 @@ class TransformedStructure(MSONable):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Creates a TransformedStructure from a dict."""
+        """Create a TransformedStructure from a dict."""
         struct = Structure.from_dict(dct)
         return cls(struct, history=dct["history"], other_parameters=dct.get("other_parameters"))
 

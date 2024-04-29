@@ -460,7 +460,7 @@ class AtomConfig(MSONable):
         return "".join(lines)
 
     def write_file(self, filename: PathLike, **kwargs):
-        """Writes AtomConfig to a file."""
+        """Write AtomConfig to a file."""
         with zopen(filename, "wt") as file:
             file.write(self.get_str(**kwargs))
 
@@ -545,7 +545,7 @@ class GenKpt(MSONable):
                 hsp2 (str): The name of the second high symmetry point.
 
             Returns:
-                distance (float): Distance between two high symmetry points.With factor of 2*pi
+                float: The distance between two high symmetry points. With factor of 2*pi.
             """
             hsp1_coord: np.ndarray = np.dot(
                 np.array(self.kpath["kpoints"][hsp1]).reshape(1, 3), self.reciprocal_lattice
@@ -576,7 +576,7 @@ class GenKpt(MSONable):
         return gen_kpt_str
 
     def write_file(self, filename: PathLike):
-        """Writes gen.kpt to a file.
+        """Write gen.kpt to a file.
 
         Args:
             filename (PathLike): The absolute path of file to be written.
@@ -624,7 +624,7 @@ class HighSymmetryPoint(MSONable):
             """Calculate the distance of two high symmetry points.
 
             Returns:
-                distance (float): Calculate the distance of two high symmetry points. With factor of 2*pi.
+                float: The distance between two high symmetry points with factor of 2*pi.
             """
             hsp1_coord: np.ndarray = np.dot(
                 np.array(self.kpath["kpoints"][hsp1]).reshape(1, 3), self.reciprocal_lattice

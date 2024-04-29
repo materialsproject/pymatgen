@@ -363,7 +363,7 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
 
     @classmethod
     def as_spinmode(cls, obj):
-        """Converts obj into a `SpinMode` instance."""
+        """Convert obj into a `SpinMode` instance."""
         if isinstance(obj, cls):
             return obj
 
@@ -879,8 +879,7 @@ class KSampling(AbivarAble, MSONable):
 
     @classmethod
     def _path(cls, ndivsm, structure=None, kpath_bounds=None, comment=None):
-        """
-        Static constructor for path in k-space.
+        """Static constructor for path in k-space.
 
         Args:
             structure: Structure object.

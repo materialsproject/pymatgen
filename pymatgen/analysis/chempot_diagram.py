@@ -399,8 +399,7 @@ class ChemicalPotentialDiagram(MSONable):
         element_padding: float,
         default_min_limit: float,
     ):
-        """
-        Gets new minimum limits for each element by subtracting specified padding
+        """Get new minimum limits for each element by subtracting specified padding
         from the minimum for each axis found in any of the domains.
         """
         all_pts = np.vstack(list(domains.values()))
@@ -677,7 +676,7 @@ def get_centroid_2d(vertices: np.ndarray) -> np.ndarray:
             circumferentially
 
     Returns:
-        Array giving 2-d centroid coordinates
+        np.array: Giving 2-d centroid coordinates.
     """
     cx = 0
     cy = 0

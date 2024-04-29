@@ -1,4 +1,4 @@
-"""Provides a class for interacting with KPath classes to
+"""A class for interacting with KPath classes to
 generate high-symmetry k-paths using different conventions.
 """
 
@@ -221,7 +221,7 @@ class HighSymmKpath(KPathBase):
     def _get_klabels(self, lm_bs, sc_bs, hin_bs, rpg):
         """
         Returns:
-            labels (dict): Dictionary of equivalent labels for paths if 'all' is chosen.
+            dict[str, dict[str, dict[str, str]]]: equivalent labels for paths if 'all' is chosen.
             If an exact kpoint match cannot be found, symmetric equivalency will be
             searched for and indicated with an asterisk in the equivalent label.
             If an equivalent label can still not be found, or the point is not in

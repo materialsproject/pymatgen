@@ -497,8 +497,7 @@ class StructureMatcher(MSONable):
 
     @classmethod
     def _cart_dists(cls, s1, s2, avg_lattice, mask, normalization, lll_frac_tol=None):
-        """
-        Finds a matching in Cartesian space. Finds an additional
+        """Find a matching in Cartesian space. Finds an additional
         fractional translation vector to minimize RMS distance.
 
         Args:
@@ -572,8 +571,7 @@ class StructureMatcher(MSONable):
     def fit(
         self, struct1: Structure, struct2: Structure, symmetric: bool = False, skip_structure_reduction: bool = False
     ) -> bool:
-        """
-        Fit two structures.
+        """Fit two structures.
 
         Args:
             struct1 (Structure): 1st structure
@@ -979,7 +977,7 @@ class StructureMatcher(MSONable):
 
         matches = self._anonymous_match(struct1, struct2, fu, s1_supercell, use_rms=True, break_on_match=False)
         if matches:
-            best = sorted(matches, key=lambda x: x[1][0])[0]
+            best = min(matches, key=lambda x: x[1][0])
             return best[1][0], best[0]
 
         return None, None
@@ -997,7 +995,7 @@ class StructureMatcher(MSONable):
             struct2 (Structure): 2nd structure
 
         Returns:
-            min_mapping (dict): Mapping of struct1 species to struct2 species
+            dict[Element, Element] | None: Mapping of struct1 species to struct2 species.
         """
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)

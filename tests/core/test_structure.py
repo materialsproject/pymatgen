@@ -1005,6 +1005,25 @@ class TestStructure(PymatgenTest):
         new2 = struct.replace_species({"Si": replacement}, in_place=False)
         assert new2.labels == [label] * len(struct)
 
+    def test_relabel_sites(self):
+        struct = self.struct.copy()
+        assert self.struct.labels == ["Si", "Si"]
+        relabeled = struct.relabel_sites()
+        assert relabeled is struct
+        assert relabeled.labels == struct.labels == ["Si_1", "Si_2"]
+
+        struct.replace_species({"Si": "Li"})
+        assert struct.labels == ["Li", "Li"]
+        struct.relabel_sites()
+        assert struct.labels == ["Li_1", "Li_2"]
+
+        li_si = self.struct.copy().replace(0, "Li")
+        assert li_si.labels == ["Li", "Si"]
+        li_si.relabel_sites(ignore_uniq=True)  # check no-op for unique labels
+        assert li_si.labels == ["Li", "Si"]
+        li_si.relabel_sites()  # check no-op for unique labels
+        assert li_si.labels == ["Li_1", "Si_1"]
+
     def test_append_insert_remove_replace_substitute(self):
         struct = self.struct
         struct.insert(1, "O", [0.5, 0.5, 0.5])

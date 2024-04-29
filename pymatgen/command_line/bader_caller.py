@@ -47,7 +47,7 @@ __date__ = "4/5/13"
 
 
 class BaderAnalysis:
-    """Performs Bader charge analysis for Cube files or VASP outputs.
+    """Perform Bader charge analysis for Cube files or VASP outputs.
 
     Attributes:
         data (list[dict]): Atomic data parsed from bader analysis.
@@ -73,7 +73,7 @@ class BaderAnalysis:
         bader_path: str | None = None,
         parse_atomic_densities: bool = False,
     ) -> None:
-        """Initializes the Bader caller.
+        """Initialize the Bader caller.
 
         Args:
             chgcar_filename (str): The filename of the CHGCAR.

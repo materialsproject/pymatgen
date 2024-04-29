@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import collections
 import itertools
+from collections import defaultdict
 from math import acos, pi
 from typing import TYPE_CHECKING
 from warnings import warn
@@ -227,7 +227,7 @@ class RelaxationAnalyzer:
                 between site1 and site_n is the same as bonding between site_n and site1, there is no
                 reason to duplicate the information or computation.
         """
-        data: dict[int, dict[int, float]] = collections.defaultdict(dict)
+        data: dict[int, dict[int, float]] = defaultdict(dict)
         for indices in itertools.combinations(list(range(len(self.initial))), 2):
             ii, jj = sorted(indices)
             initial_dist = self.initial[ii].distance(self.initial[jj])
@@ -429,9 +429,8 @@ class OxideType:
         Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide.
 
         Returns:
-            oxide_type (str): Type of oxide
-            ozonide/peroxide/superoxide/hydroxide/None.
-            nbonds (int): Number of peroxide/superoxide/hydroxide bonds in structure.
+            tuple[str, int]: Type of oxide (ozonide/peroxide/superoxide/hydroxide/None) and number of
+                peroxide/superoxide/hydroxide bonds in structure.
         """
         structure = self.structure
         relative_cutoff = self.relative_cutoff
@@ -442,7 +441,7 @@ class OxideType:
         if isinstance(structure.elements[0], Element):
             comp = structure.composition
         elif isinstance(structure.elements[0], Species):
-            elem_map: dict[Element, float] = collections.defaultdict(float)
+            elem_map: dict[Element, float] = defaultdict(float)
             for site in structure:
                 for species, occu in site.species.items():
                     elem_map[species.element] += occu

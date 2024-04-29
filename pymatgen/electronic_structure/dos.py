@@ -229,7 +229,7 @@ class Dos(MSONable):
         return smeared_dens
 
     def __add__(self, other):
-        """Adds two DOS together. Checks that energy scales are the same.
+        """Add two DOS together. Checks that energy scales are the same.
         Otherwise, a ValueError is thrown.
 
         Args:
@@ -534,7 +534,7 @@ class FermiDos(Dos, MSONable):
         step: float = 0.1,
         precision: int = 8,
     ) -> float:
-        """Finds the Fermi level at which the doping concentration at the given
+        """Find the Fermi level at which the doping concentration at the given
         temperature (T) is equal to concentration. A greedy algorithm is used
         where the relative error is minimized by calculating the doping at a
         grid which continually becomes finer.
@@ -761,7 +761,7 @@ class CompleteDos(Dos):
 
     @property
     def spin_polarization(self) -> float | None:
-        """Calculates spin polarization at Fermi level. If the
+        """Calculate spin polarization at Fermi level. If the
         calculation is not spin-polarized, None will be returned.
 
         See Sanvito et al., doi: 10.1126/sciadv.1602241 for an example usage.
@@ -1102,7 +1102,7 @@ class CompleteDos(Dos):
         n_bins: int = 256,
         normalize: bool = True,
     ) -> NamedTuple:
-        """Generates the DOS fingerprint.
+        """Generate the DOS fingerprint.
 
         Based on work of:
 
@@ -1184,7 +1184,7 @@ class CompleteDos(Dos):
 
     @staticmethod
     def fp_to_dict(fp: NamedTuple) -> dict:
-        """Converts a fingerprint into a dictionary.
+        """Convert a fingerprint into a dictionary.
 
         Args:
             fp: The DOS fingerprint to be converted into a dictionary
@@ -1206,7 +1206,7 @@ class CompleteDos(Dos):
         normalize: bool = False,
         tanimoto: bool = False,
     ) -> float:
-        """Calculates the similarity index (dot product) of two fingerprints.
+        """Calculate the similarity index (dot product) of two fingerprints.
 
         Args:
             fp1 (NamedTuple): The 1st dos fingerprint object

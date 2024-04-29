@@ -157,8 +157,7 @@ class VolumetricData(MSONable):
             self.data[k] = np.multiply(self.data[k], factor)
 
     def value_at(self, x, y, z):
-        """
-        Get a data value from self.data at a given point (x, y, z) in terms
+        """Get a data value from self.data at a given point (x, y, z) in terms
         of fractional lattice parameters. Will be interpolated using a
         RegularGridInterpolator on self.data if (x, y, z) is not in the original
         set of data points.
@@ -175,8 +174,7 @@ class VolumetricData(MSONable):
         return self.interpolator([x, y, z])[0]
 
     def linear_slice(self, p1, p2, n=100):
-        """
-        Get a linear slice of the volumetric data with n data points from
+        """Get a linear slice of the volumetric data with n data points from
         point p1 to point p2, in the form of a list.
 
         Args:
@@ -198,8 +196,7 @@ class VolumetricData(MSONable):
         return [self.value_at(xpts[i], ypts[i], zpts[i]) for i in range(n)]
 
     def get_integrated_diff(self, ind, radius, nbins=1):
-        """
-        Get integrated difference of atom index ind up to radius. This can be
+        """Get integrated difference of atom index ind up to radius. This can be
         an extremely computationally intensive process, depending on how many
         grid points are in the VolumetricData.
 
@@ -250,8 +247,7 @@ class VolumetricData(MSONable):
         return data
 
     def get_average_along_axis(self, ind):
-        """
-        Get the averaged total of the volumetric data a certain axis direction.
+        """Get the averaged total of the volumetric data a certain axis direction.
         For example, useful for visualizing Hartree Potentials from a LOCPOT
         file.
 
@@ -261,14 +257,14 @@ class VolumetricData(MSONable):
         Returns:
             Average total along axis
         """
-        m = self.data["total"]
+        total_spin_dens = self.data["total"]
         ng = self.dim
         if ind == 0:
-            total = np.sum(np.sum(m, axis=1), 1)
+            total = np.sum(np.sum(total_spin_dens, axis=1), 1)
         elif ind == 1:
-            total = np.sum(np.sum(m, axis=0), 1)
+            total = np.sum(np.sum(total_spin_dens, axis=0), 1)
         else:
-            total = np.sum(np.sum(m, axis=0), 0)
+            total = np.sum(np.sum(total_spin_dens, axis=0), 0)
         return total / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
 
     def to_hdf5(self, filename):

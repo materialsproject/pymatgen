@@ -35,7 +35,7 @@ class MagneticSpaceGroup(SymmetryGroup):
     """Representation of a magnetic space group."""
 
     def __init__(self, label, setting_transformation="a,b,c;0,0,0"):
-        """Initializes a MagneticSpaceGroup from its Belov, Neronova and
+        """Initialize a MagneticSpaceGroup from its Belov, Neronova and
         Smirnova (BNS) number supplied as a list or its label supplied
         as a string. To create a magnetic structure in pymatgen, the
         Structure.from_magnetic_spacegroup() method can be used, which
@@ -266,14 +266,14 @@ class MagneticSpaceGroup(SymmetryGroup):
                 f"{Fraction(p[1]).limit_denominator()},"
                 f"{Fraction(p[2]).limit_denominator()}"
             )
-            return P_string + ";" + p_string
+            return f"{P_string};{p_string}"
 
-        for i in range(8, 15):
+        for idx in range(8, 15):
             try:
-                raw_data[i] = array("b", raw_data[i])  # construct array from sql binary blobs
+                raw_data[idx] = array("b", raw_data[idx])  # construct array from sql binary blobs
             except Exception:
                 # array() behavior changed, need to explicitly convert buffer to str in earlier Python
-                raw_data[i] = array("b", str(raw_data[i]))
+                raw_data[idx] = array("b", str(raw_data[idx]))
 
         self._data["og_bns_transform"] = _parse_transformation(raw_data[8])
         self._data["bns_operators"] = _parse_operators(raw_data[9])
@@ -389,7 +389,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         return orbit, orbit_magmoms
 
     def is_compatible(self, lattice: Lattice, tol: float = 1e-5, angle_tol: float = 5) -> bool:
-        """Checks whether a particular lattice is compatible with the
+        """Check whether a particular lattice is compatible with the
         *conventional* unit cell.
 
         Args:

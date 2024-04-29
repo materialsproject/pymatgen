@@ -32,7 +32,7 @@ class Ion(Composition, MSONable, Stringify):
 
     @classmethod
     def from_formula(cls, formula: str) -> Self:
-        """Creates Ion from formula. The net charge can either be represented as
+        """Create Ion from formula. The net charge can either be represented as
         Mn++, Mn+2, Mn[2+], Mn[++], or Mn[+2]. Note the order of the sign and
         magnitude in each representation.
 
@@ -55,19 +55,19 @@ class Ion(Composition, MSONable, Stringify):
                 if m_chg.group(1) != "":
                     if m_chg.group(3) != "":
                         raise ValueError("Invalid formula")
-                    charge += float(m_chg.group(1)) * (float(m_chg.group(2) + "1"))
+                    charge += float(m_chg.group(1)) * (float(f"{m_chg.group(2)}1"))
                 elif m_chg.group(3) != "":
-                    charge += float(m_chg.group(3)) * (float(m_chg.group(2) + "1"))
+                    charge += float(m_chg.group(3)) * (float(f"{m_chg.group(2)}1"))
                 else:
-                    for i in re.findall("[+-]", m_chg.group(2)):
-                        charge += float(i + "1")
+                    for val in re.findall("[+-]", m_chg.group(2)):
+                        charge += float(f"{val}1")
 
             formula = formula.replace(match.group(), "", 1)
 
         # if no brackets, parse trailing +/-
         for m_chg in re.finditer(r"([+-])([\.\d]*)", formula):
             sign = m_chg.group(1)
-            sgn = float(str(sign + "1"))
+            sgn = float(f"{sign}1")
             if m_chg.group(2).strip() != "":
                 charge += float(m_chg.group(2)) * sgn
             else:
@@ -95,7 +95,7 @@ class Ion(Composition, MSONable, Stringify):
         return anon_formula + chg_str
 
     def get_reduced_formula_and_factor(self, iupac_ordering: bool = False, hydrates: bool = False) -> tuple[str, float]:
-        """Calculates a reduced formula and factor.
+        """Calculate a reduced formula and factor.
 
         Similar to Composition.get_reduced_formula_and_factor except that O-H formulas
         receive special handling to differentiate between hydrogen peroxide and OH-.
@@ -214,7 +214,7 @@ class Ion(Composition, MSONable, Stringify):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Generates an ion object from a dict created by as_dict().
+        """Generate an ion object from a dict created by as_dict().
 
         Args:
             dct: {symbol: amount} dict.
@@ -246,7 +246,7 @@ class Ion(Composition, MSONable, Stringify):
         all_oxi_states: bool = False,
         max_sites: int | None = None,
     ) -> list[dict[str, float]]:
-        """Checks if the composition is charge-balanced and returns back all
+        """Check if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
         integer values. Note that more num_atoms in the composition gives
         more degrees of freedom. e.g., if possible oxidation states of

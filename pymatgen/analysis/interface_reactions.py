@@ -41,8 +41,7 @@ with open(os.path.join(os.path.dirname(__file__), "..", "util", "plotly_interfac
     description="Understanding interface stability in solid-state batteries",
 )
 class InterfacialReactivity(MSONable):
-    """
-    Class for modeling an interface between two solids and its possible reactions.
+    """Model an interface between two solids and its possible reactions.
     The two reactants are provided as Composition objects (c1 and c2), along with the
     relevant compositional PhaseDiagram object. Possible reactions are calculated by
     finding all points along a tie-line between c1 and c2 where there is a "kink" in
@@ -131,8 +130,7 @@ class InterfacialReactivity(MSONable):
                 self.e2 = self._get_entry_energy(self.pd, self.comp2)
 
     def get_kinks(self) -> list[tuple[int, float, float, Reaction, float]]:
-        """
-        Finds all the kinks in mixing ratio where reaction products changes
+        """Find all the kinks in mixing ratio where reaction products changes
         along the tie-line of composition self.c1 and composition self.c2.
 
         Returns:
@@ -454,8 +452,7 @@ class InterfacialReactivity(MSONable):
 
     @staticmethod
     def _get_entry_energy(pd: PhaseDiagram, composition: Composition):
-        """
-        Finds the lowest entry energy for entries matching the composition.
+        """Find the lowest entry energy for entries matching the composition.
         Entries with non-negative formation energies are excluded. If no
         entry is found, use the convex hull energy for the composition.
 
@@ -523,8 +520,7 @@ class InterfacialReactivity(MSONable):
 
     @classmethod
     def get_chempot_correction(cls, element: str, temp: float, pres: float):
-        """
-        Get the normalized correction term Δμ for chemical potential of a gas
+        """Get the normalized correction term Δμ for chemical potential of a gas
         phase consisting of element at given temperature and pressure,
         referenced to that in the standard state (T_std = 298.15 K,
         T_std = 1 bar). The gas phase is limited to be one of O2, N2, Cl2,
@@ -584,12 +580,11 @@ class InterfacialReactivity(MSONable):
 
     @property
     def minimum(self):
-        """
-        Finds the minimum reaction energy E_min and corresponding
+        """Find the minimum reaction energy E_min and corresponding
         mixing ratio x_min.
 
         Returns:
-            Tuple (x_min, E_min).
+            tuple[float, float]: (x_min, E_min).
         """
         return min(((x, energy) for _, x, energy, _, _ in self.get_kinks()), key=lambda tup: tup[1])
 
@@ -603,8 +598,7 @@ class InterfacialReactivity(MSONable):
 
 
 class GrandPotentialInterfacialReactivity(InterfacialReactivity):
-    """
-    Extends upon InterfacialReactivity to allow for modelling possible reactions
+    """Extends upon InterfacialReactivity to allow for modelling possible reactions
     at the interface between two solids in the presence of an open element. The
     thermodynamics of the open system are provided by the user via the
     GrandPotentialPhaseDiagram class.

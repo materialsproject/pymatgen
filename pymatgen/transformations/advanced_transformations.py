@@ -69,7 +69,7 @@ class ChargeBalanceTransformation(AbstractTransformation):
         self.charge_balance_sp = str(charge_balance_sp)
 
     def apply_transformation(self, structure: Structure):
-        """Applies the transformation.
+        """Apply the transformation.
 
         Args:
             structure: Input Structure
@@ -122,7 +122,7 @@ class SuperTransformation(AbstractTransformation):
         self.nstructures_per_trans = nstructures_per_trans
 
     def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
-        """Applies the transformation.
+        """Apply the transformation.
 
         Args:
             structure: Input Structure
@@ -160,7 +160,7 @@ class SuperTransformation(AbstractTransformation):
 
 
 class MultipleSubstitutionTransformation:
-    """Performs multiple substitutions on a structure. For example, can do a
+    """Perform multiple substitutions on a structure. For example, can do a
     fractional replacement of Ge in LiGePS with a list of species, creating one
     structure for each substitution. Ordering is done using a dummy element so
     only one ordering must be done per substitution oxidation state. Charge
@@ -179,7 +179,7 @@ class MultipleSubstitutionTransformation:
         charge_balance_species=None,
         order=True,
     ):
-        """Performs multiple fractional substitutions on a transmuter.
+        """Perform multiple fractional substitutions on a transmuter.
 
         Args:
             sp_to_replace: species to be replaced
@@ -203,7 +203,7 @@ class MultipleSubstitutionTransformation:
         self.order = order
 
     def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
-        """Applies the transformation.
+        """Apply the transformation.
 
         Args:
             structure: Input Structure
@@ -463,23 +463,19 @@ class EnumerateStructureTransformation(AbstractTransformation):
                 else:
                     raise ValueError("Unsupported sort criteria.")
 
-                return {
-                    "num_sites": len(struct),
-                    "energy": energy,
-                    "structure": struct,
-                }
+                return {"num_sites": len(struct), "energy": energy, "structure": struct}
 
             return {"num_sites": len(struct), "structure": struct}
 
         all_structures = Parallel(n_jobs=self.n_jobs)(delayed(_get_stats)(struct) for struct in structures)
 
-        def sort_func(s):
+        def sort_func(struct):
             return (
-                s["energy"] / s["num_sites"]
+                struct["energy"] / struct["num_sites"]
                 if callable(self.sort_criteria)
                 or self.sort_criteria.startswith("m3gnet")
                 or (contains_oxidation_state and self.sort_criteria == "ewald")
-                else s["num_sites"]
+                else struct["num_sites"]
             )
 
         self._all_structures = sorted(all_structures, key=sort_func)
@@ -520,7 +516,7 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
         self._substitutor = SubstitutionPredictor(threshold=threshold, **kwargs)
 
     def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
-        """Applies the transformation.
+        """Apply the transformation.
 
         Args:
             structure: Input Structure
@@ -619,7 +615,7 @@ class MagOrderParameterConstraint(MSONable):
         self.site_constraints = site_constraints
 
     def satisfies_constraint(self, site):
-        """Checks if a periodic site satisfies the constraint."""
+        """Check if a periodic site satisfies the constraint."""
         if not site.is_ordered:
             return False
 
@@ -940,7 +936,7 @@ class MagOrderingTransformation(AbstractTransformation):
 
 
 def find_codopant(target: Species, oxidation_state: float, allowed_elements: Sequence[str] | None = None) -> Species:
-    """Finds the element from "allowed elements" that (i) possesses the desired
+    """Find the element from "allowed elements" that (i) possesses the desired
     "oxidation state" and (ii) is closest in ionic radius to the target specie.
 
     Args:
@@ -1214,7 +1210,7 @@ class SlabTransformation(AbstractTransformation):
         self.tol = tol
 
     def apply_transformation(self, structure: Structure):
-        """Applies the transformation.
+        """Apply the transformation.
 
         Args:
             structure: Input Structure
@@ -1457,7 +1453,7 @@ class GrainBoundaryTransformation(AbstractTransformation):
         self.quick_gen = quick_gen
 
     def apply_transformation(self, structure: Structure):
-        """Applies the transformation.
+        """Apply the transformation.
 
         Args:
             structure: Input Structure
@@ -1986,7 +1982,7 @@ class SQSTransformation(AbstractTransformation):
 
     @staticmethod
     def _get_disordered_substructure(struct_disordered):
-        """Converts disordered structure into a substructure consisting of only disordered sites.
+        """Convert disordered structure into a substructure consisting of only disordered sites.
 
         Args:
             struct_disordered: pymatgen disordered Structure object.
@@ -2024,7 +2020,7 @@ class SQSTransformation(AbstractTransformation):
         return clusters
 
     def apply_transformation(self, structure: Structure, return_ranked_list: bool | int = False):
-        """Applies SQS transformation.
+        """Apply SQS transformation.
 
         Args:
             structure (pymatgen Structure): pymatgen Structure with partial occupancies
@@ -2094,7 +2090,7 @@ class SQSTransformation(AbstractTransformation):
 
     @staticmethod
     def _get_unique_best_sqs_structs(sqs, best_only, return_ranked_list, remove_duplicate_structures, reduction_algo):
-        """Gets unique sqs structures with lowest objective function. Requires an mcsqs output that has been run
+        """Get unique sqs structures with lowest objective function. Requires an mcsqs output that has been run
             in parallel, otherwise returns Sqs.bestsqs.
 
         Args:

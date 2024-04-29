@@ -693,6 +693,7 @@ def rand_piezo(struct, pointops, sharedops, BEC, IST, FCM, anumiter=10):
         IST (numpy array): Nx3x3x3 array representing the internal strain tensor
         FCM (numpy array): NxNx3x3 array representing the born effective charge tensor
         anumiter (int): number of iterations for acoustic sum rule convergence
+
     Returns:
         list in the form of [Nx3x3 random born effective charge tenosr,
         Nx3x3x3 random internal strain tensor, NxNx3x3 random force constant matrix, 3x3x3 piezo tensor]

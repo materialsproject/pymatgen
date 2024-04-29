@@ -1,5 +1,5 @@
 """Interface with command line GULP.
-http://projects.ivec.org
+https://gulp.curtin.edu.au/index.html
 WARNING: you need to have GULP installed on your system.
 """
 
@@ -237,7 +237,7 @@ class GulpIO:
 
     @staticmethod
     def keyword_line(*args):
-        """Checks if the input args are proper gulp keywords and
+        """Check if the input args are proper gulp keywords and
         generates the 1st line of gulp input. Full keywords are expected.
 
         Args:
@@ -258,7 +258,7 @@ class GulpIO:
         cation_shell_flg: bool = False,
         symm_flg: bool = True,
     ):
-        """Generates GULP input string corresponding to pymatgen structure.
+        """Generate GULP input string corresponding to pymatgen structure.
 
         Args:
             structure: pymatgen Structure object
@@ -287,7 +287,7 @@ class GulpIO:
             alpha, beta, gamma = lattice.angles
             a, b, c = lattice.lengths
             lat_str = f"{a:6f} {b:6f} {c:6f} {alpha:6f} {beta:6f} {gamma:6f}"
-            gin += lat_str + "\n"
+            gin += f"{lat_str}\n"
 
         if frac_flg:
             gin += "frac\n"
@@ -313,7 +313,7 @@ class GulpIO:
 
     @staticmethod
     def specie_potential_lines(structure, potential, **kwargs):
-        """Generates GULP input specie and potential string for pymatgen
+        """Generate GULP input specie and potential string for pymatgen
         structure.
 
         Args:
@@ -371,7 +371,7 @@ class GulpIO:
         raise GulpError("GULP library not found")
 
     def buckingham_input(self, structure: Structure, keywords, library=None, uc=True, valence_dict=None):
-        """Gets a GULP input for an oxide structure and buckingham potential
+        """Get a GULP input for an oxide structure and buckingham potential
         from library.
 
         Args:
@@ -459,7 +459,7 @@ class GulpIO:
         return gin
 
     def tersoff_input(self, structure: Structure, periodic=False, uc=True, *keywords):
-        """Gets a GULP input with Tersoff potential for an oxide structure.
+        """Get a GULP input with Tersoff potential for an oxide structure.
 
         Args:
             structure: pymatgen Structure
@@ -656,7 +656,7 @@ class GulpCaller:
                 if is_exe(file):
                     self._gulp_cmd = file
                     return
-        raise GulpError("Executable not found")
+        raise GulpError("Executable not found, please download from https://gulp.curtin.edu.au/index.html.")
 
     def run(self, gin):
         """Run GULP using the gin as input.
@@ -673,8 +673,8 @@ class GulpCaller:
                 stdout=subprocess.PIPE,
                 stdin=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-            ) as p:
-                out, err = p.communicate(bytearray(gin, "utf-8"))
+            ) as p_open:
+                out, err = p_open.communicate(bytearray(gin, "utf-8"))
             out = out.decode("utf-8")
             err = err.decode("utf-8")
 
@@ -697,10 +697,10 @@ class GulpCaller:
             if conv_err_string in out:
                 raise GulpConvergenceError(out)
 
-            gout = ""
+            g_out = ""
             for line in out.split("\n"):
-                gout = gout + line + "\n"
-            return gout
+                g_out += f"{line}\n"
+            return g_out
 
 
 def get_energy_tersoff(structure, gulp_cmd="gulp"):

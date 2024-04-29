@@ -39,7 +39,7 @@ class Stringify:
         return str(self)
 
     def to_latex_string(self) -> str:
-        """Generates a LaTeX formatted string. The mode is set by the class variable STRING_MODE, which defaults to
+        """Generate a LaTeX formatted string. The mode is set by the class variable STRING_MODE, which defaults to
         "SUBSCRIPT". E.g., Fe2O3 is transformed to Fe$_{2}$O$_{3}$. Setting STRING_MODE to "SUPERSCRIPT" creates
         superscript, e.g., Fe2+ becomes Fe^{2+}. The initial string is obtained from the class's __str__ method.
 
@@ -57,7 +57,7 @@ class Stringify:
         return str_
 
     def to_html_string(self) -> str:
-        """Generates a HTML formatted string. This uses the output from to_latex_string to generate a HTML output.
+        """Generate a HTML formatted string. This uses the output from to_latex_string to generate a HTML output.
 
         Returns:
             HTML formatted string.
@@ -100,7 +100,7 @@ def str_delimited(results, header=None, delimiter="\t"):
     """
     out = ""
     if header is not None:
-        out += delimiter.join(header) + "\n"
+        out += f"{delimiter.join(header)}\n"
     return out + "\n".join(delimiter.join([str(m) for m in result]) for result in results)
 
 
@@ -146,7 +146,7 @@ def charge_string(charge, brackets=True, explicit_one=True):
 
 
 def latexify(formula: str, bold: bool = False):
-    """Generates a LaTeX formatted formula. E.g., Fe2O3 is transformed to
+    """Generate a LaTeX formatted formula. E.g., Fe2O3 is transformed to
     Fe$_{2}$O$_{3}$.
 
     Note that Composition now has a to_latex_string() method that may
@@ -163,7 +163,7 @@ def latexify(formula: str, bold: bool = False):
 
 
 def htmlify(formula: str) -> str:
-    """Generates a HTML formatted formula, e.g. Fe2O3 is transformed to
+    """Generate a HTML formatted formula, e.g. Fe2O3 is transformed to
     Fe<sub>2</sub>O</sub>3</sub>.
 
     Note that Composition now has a to_html_string() method that may
@@ -176,7 +176,7 @@ def htmlify(formula: str) -> str:
 
 
 def unicodeify(formula: str) -> str:
-    """Generates a formula with unicode subscripts, e.g. Fe2O3 is transformed
+    """Generate a formula with unicode subscripts, e.g. Fe2O3 is transformed
     to Fe₂O₃. Does not support formulae with decimal points.
 
     Note that Composition now has a to_unicode_string() method that may
@@ -195,7 +195,7 @@ def unicodeify(formula: str) -> str:
 
 
 def latexify_spacegroup(spacegroup_symbol):
-    r"""Generates a latex formatted spacegroup. E.g., P2_1/c is converted to
+    r"""Generate a latex formatted spacegroup. E.g., P2_1/c is converted to
     P2$_{1}$/c and P-1 is converted to P$\\overline{1}$.
 
     Note that SymmetryGroup now has a to_latex_string() method that may
@@ -212,7 +212,7 @@ def latexify_spacegroup(spacegroup_symbol):
 
 
 def unicodeify_spacegroup(spacegroup_symbol):
-    r"""Generates a unicode formatted spacegroup. E.g., P2$_{1}$/c is converted to
+    r"""Generate a unicode formatted spacegroup. E.g., P2$_{1}$/c is converted to
     P2₁/c and P$\\overline{1}$ is converted to P̅1.
 
     Note that SymmetryGroup now has a to_unicode_string() method that
@@ -243,7 +243,7 @@ def unicodeify_spacegroup(spacegroup_symbol):
 
 
 def unicodeify_species(specie_string):
-    """Generates a unicode formatted species string, with appropriate
+    """Generate a unicode formatted species string, with appropriate
     superscripts for oxidation states.
 
     Note that Species now has a to_unicode_string() method that

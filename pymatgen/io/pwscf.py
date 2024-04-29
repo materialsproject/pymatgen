@@ -357,8 +357,7 @@ class PWInput:
 
     @staticmethod
     def proc_val(key, val):
-        """
-        Static helper method to convert PWINPUT parameters to proper type, e.g.,
+        """Static helper method to convert PWINPUT parameters to proper type, e.g.,
         integers, floats, etc.
 
         Args:
@@ -459,10 +458,10 @@ class PWInput:
             "refold_pos",
         )
 
-        def smart_int_or_float(numstr):
-            if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
-                return float(numstr)
-            return int(numstr)
+        def smart_int_or_float(num_str):
+            if num_str.find(".") != -1 or num_str.lower().find("e") != -1:
+                return float(num_str)
+            return int(num_str)
 
         try:
             if key in bool_keys:
@@ -470,7 +469,7 @@ class PWInput:
                     return True
                 if val.lower() == ".false.":
                     return False
-                raise ValueError(key + " should be a boolean type!")
+                raise ValueError(f"{key} should be a boolean type!")
 
             if key in float_keys:
                 return float(re.search(r"^-?\d*\.?\d*d?-?\d*", val.lower())[0].replace("d", "e"))
