@@ -611,8 +611,7 @@ class PhaseDiagram(MSONable):
 
     @lru_cache(1)  # noqa: B019
     def _get_facet_and_simplex(self, comp: Composition) -> tuple[Simplex, Simplex]:
-        """
-        Get any facet that a composition falls into. Cached so successive
+        """Get any facet that a composition falls into. Cached so successive
         calls at same composition are fast.
 
         Args:
@@ -626,8 +625,7 @@ class PhaseDiagram(MSONable):
         raise RuntimeError(f"No facet found for {comp = }")
 
     def _get_all_facets_and_simplexes(self, comp):
-        """
-        Get all facets that a composition falls into.
+        """Get all facets that a composition falls into.
 
         Args:
             comp (Composition): A composition
@@ -980,8 +978,7 @@ class PhaseDiagram(MSONable):
         return self.get_decomp_and_phase_separation_energy(entry, **kwargs)[1]
 
     def get_composition_chempots(self, comp):
-        """
-        Get the chemical potentials for all elements at a given composition.
+        """Get the chemical potentials for all elements at a given composition.
 
         Args:
             comp (Composition): Composition
@@ -993,8 +990,7 @@ class PhaseDiagram(MSONable):
         return self._get_facet_chempots(facet)
 
     def get_all_chempots(self, comp):
-        """
-        Get chemical potentials at a given composition.
+        """Get chemical potentials at a given composition.
 
         Args:
             comp (Composition): Composition
@@ -1012,8 +1008,7 @@ class PhaseDiagram(MSONable):
         return chempots
 
     def get_transition_chempots(self, element):
-        """
-        Get the critical chemical potentials for an element in the Phase
+        """Get the critical chemical potentials for an element in the Phase
         Diagram.
 
         Args:
@@ -1039,8 +1034,7 @@ class PhaseDiagram(MSONable):
         return tuple(clean_pots)
 
     def get_critical_compositions(self, comp1, comp2):
-        """
-        Get the critical compositions along the tieline between two
+        """Get the critical compositions along the tieline between two
         compositions. I.e. where the decomposition products change.
         The endpoints are also returned.
 
@@ -1406,8 +1400,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
     """
 
     def __init__(self, entries, chempots, elements=None, *, computed_data=None):
-        """
-        Standard constructor for grand potential phase diagram.
+        """Standard constructor for grand potential phase diagram.
 
         Args:
             entries ([PDEntry]): A list of PDEntry-like objects having an
@@ -1754,8 +1747,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
     # get_phase_separation_energy()
 
     def get_pd_for_entry(self, entry: Entry | Composition) -> PhaseDiagram:
-        """
-        Get the possible phase diagrams for an entry.
+        """Get the possible phase diagrams for an entry.
 
         Args:
             entry (PDEntry | Composition): A PDEntry or Composition-like object
@@ -1778,8 +1770,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         raise ValueError(f"No suitable PhaseDiagrams found for {entry}.")
 
     def get_decomposition(self, comp: Composition) -> dict[PDEntry, float]:
-        """
-        See PhaseDiagram.
+        """See PhaseDiagram.
 
         Args:
             comp (Composition): A composition
@@ -1798,8 +1789,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             return _get_slsqp_decomp(comp, competing_entries)
 
     def get_equilibrium_reaction_energy(self, entry: Entry) -> float:
-        """
-        See PhaseDiagram.
+        """See PhaseDiagram.
 
         NOTE this is only approximately the same as the what we would get
         from `PhaseDiagram` as we make use of the slsqp approach inside
@@ -2015,8 +2005,7 @@ class ReactionDiagram:
         self.pd = pd
 
     def get_compound_pd(self):
-        """
-        Get the CompoundPhaseDiagram object, which can then be used for
+        """Get the CompoundPhaseDiagram object, which can then be used for
         plotting.
 
         Returns:
@@ -2066,8 +2055,7 @@ def _get_slsqp_decomp(
     tols=(1e-8,),
     maxiter=1000,
 ):
-    """
-    Finds the amounts of competing compositions that minimize the energy of a
+    """Find the amounts of competing compositions that minimize the energy of a
     given composition.
 
     The algorithm is based on the work in the following paper:
@@ -3531,8 +3519,7 @@ class PDPlotter:
         process_attributes=False,
         ax: plt.Axes = None,
     ):
-        """
-        Shows the plot using matplotlib.
+        """Show the plot using matplotlib.
 
         Imports are done within the function as matplotlib is no longer the default.
         """
@@ -3714,8 +3701,7 @@ class PDPlotter:
 
     @no_type_check
     def _get_matplotlib_3d_plot(self, label_stable=True, ax: plt.Axes = None):
-        """
-        Shows the plot using matplotlib.
+        """Show the plot using matplotlib.
 
         Args:
             label_stable (bool): Whether to label stable compounds.

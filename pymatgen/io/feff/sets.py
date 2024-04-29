@@ -233,8 +233,7 @@ class FEFFDictSet(AbstractFeffInputSet):
 
     @property
     def tags(self) -> Tags:
-        """
-        FEFF job parameters.
+        """FEFF job parameters.
 
         Returns:
             Tags
@@ -261,8 +260,7 @@ class FEFFDictSet(AbstractFeffInputSet):
 
     @property
     def potential(self) -> Potential:
-        """
-        FEFF potential.
+        """FEFF potential.
 
         Returns:
             Potential

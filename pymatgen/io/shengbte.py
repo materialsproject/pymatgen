@@ -28,9 +28,8 @@ __date__ = "June 27, 2019"
 
 
 class Control(MSONable, dict):
-    """
-    Class for reading, updating, and writing ShengBTE CONTROL files.
-    See  https://bitbucket.org/sousaw/shengbte/src/master/ for more
+    """Read, update, and write ShengBTE CONTROL files.
+    See https://bitbucket.org/sousaw/shengbte/src/master/ for more
     detailed description and default values of CONTROL arguments.
     """
 
@@ -199,8 +198,7 @@ class Control(MSONable, dict):
 
     @classmethod
     def from_structure(cls, structure: Structure, reciprocal_density: int | None = 50000, **kwargs) -> Self:
-        """
-        Get a ShengBTE control object from a structure.
+        """Get a ShengBTE control object from a structure.
 
         Args:
             structure: A structure object.
@@ -238,8 +236,7 @@ class Control(MSONable, dict):
         return Control(**control_dict)
 
     def get_structure(self) -> Structure:
-        """
-        Get a pymatgen Structure from a ShengBTE control object.
+        """Get a pymatgen Structure from a ShengBTE control object.
 
         The control object must have the "lattvec", "types", "elements", and
         "positions" settings otherwise an error will be thrown.

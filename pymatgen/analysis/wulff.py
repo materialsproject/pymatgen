@@ -188,8 +188,7 @@ class WulffShape:
         self.miller_area = miller_area
 
     def _get_all_miller_e(self):
-        """
-        From self: get miller_list(unique_miller), e_surf_list and symmetry operations(symm_ops)
+        """From self: get miller_list(unique_miller), e_surf_list and symmetry operations(symm_ops)
         according to lattice apply symm_ops to get all the miller index, then get normal, get
         all the facets functions for Wulff shape calculation: |normal| = 1, e_surf is plane's
         distance to (0, 0, 0), normal[0]x + normal[1]y + normal[2]z = e_surf.
@@ -307,8 +306,7 @@ class WulffShape:
         )
 
     def show(self, *args, **kwargs):
-        """
-        Show the Wulff plot.
+        """Show the Wulff plot.
 
         Args:
             *args: Passed to get_plot.
@@ -354,8 +352,7 @@ class WulffShape:
         aspect_ratio=(8, 8),
         custom_colors=None,
     ):
-        """
-        Get the Wulff shape plot.
+        """Get the Wulff shape plot.
 
         Args:
             color_set: default is 'PuBu'
@@ -482,8 +479,7 @@ class WulffShape:
         custom_colors=None,
         units_in_JPERM2=True,
     ):
-        """
-        Get the Wulff shape as a plotly Figure object.
+        """Get the Wulff shape as a plotly Figure object.
 
         Args:
             color_set: default is 'PuBu'

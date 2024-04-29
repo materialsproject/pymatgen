@@ -44,7 +44,6 @@ jobs:
 
     env:
       PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
-      GULP_LIB: ${{ github.workspace }}/cmd_line/gulp/Libraries
       PMG_VASP_PSP_DIR: ${{ github.workspace }}/tests/files
 
     steps:
@@ -61,12 +60,7 @@ jobs:
       - name: Install uv
         run: micromamba run -n pmg pip install uv
 
-      - name: Copy GULP to bin
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo cp cmd_line/gulp/Linux_64bit/* /usr/local/bin/
-
-      - name: Install ubuntu-only dependencies
+      - name: Install ubuntu-only conda dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
           micromamba install -n pmg -c conda-forge enumlib packmol bader openbabel openff-toolkit --yes

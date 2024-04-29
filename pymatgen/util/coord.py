@@ -80,7 +80,7 @@ def is_coord_subset(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-8) 
 
 
 def coord_list_mapping(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-8):
-    """Gives the index mapping from a subset to a superset.
+    """Get the index mapping from a subset to a superset.
     Subset and superset cannot contain duplicate rows.
 
     Args:
@@ -103,7 +103,7 @@ def coord_list_mapping(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-
 
 
 def coord_list_mapping_pbc(subset, superset, atol: float = 1e-8, pbc: PbcLike = (True, True, True)):
-    """Gives the index mapping from a subset to a superset.
+    """Get the index mapping from a subset to a superset.
     Superset cannot contain duplicate matching rows.
 
     Args:
@@ -304,7 +304,7 @@ def lattice_points_in_supercell(supercell_matrix):
 
 
 def barycentric_coords(coords, simplex):
-    """Converts a list of coordinates to barycentric coordinates, given a
+    """Convert a list of coordinates to barycentric coordinates, given a
     simplex with d+1 points. Only works for d >= 2.
 
     Args:
@@ -324,7 +324,7 @@ def barycentric_coords(coords, simplex):
 
 
 def get_angle(v1: ArrayLike, v2: ArrayLike, units: Literal["degrees", "radians"] = "degrees") -> float:
-    """Calculates the angle between two vectors.
+    """Calculate the angle between two vectors.
 
     Args:
         v1: Vector 1
@@ -354,7 +354,7 @@ class Simplex(MSONable):
     """
 
     def __init__(self, coords) -> None:
-        """Initializes a Simplex from vertex coordinates.
+        """Initialize a Simplex from vertex coordinates.
 
         Args:
             coords ([[float]]): Coords of the vertices of the simplex. E.g.,
@@ -400,7 +400,7 @@ class Simplex(MSONable):
             raise ValueError("Simplex is not full-dimensional") from exc
 
     def in_simplex(self, point: Sequence[float], tolerance: float = 1e-8) -> bool:
-        """Checks if a point is in the simplex using the standard barycentric
+        """Check if a point is in the simplex using the standard barycentric
         coordinate system algorithm.
 
         Taking an arbitrary vertex as an origin, we compute the basis for the

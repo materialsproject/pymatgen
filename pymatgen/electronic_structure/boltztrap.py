@@ -251,7 +251,7 @@ class BoltztrapRunner(MSONable):
         return self._nelec
 
     def write_energy(self, output_file) -> None:
-        """Writes the energy to an output file.
+        """Write the energy to an output file.
 
         Args:
             output_file: Filename
@@ -304,7 +304,7 @@ class BoltztrapRunner(MSONable):
                         file.write(f"{float(e):18.8f}\n")
 
     def write_struct(self, output_file) -> None:
-        """Writes the structure to an output file.
+        """Write the structure to an output file.
 
         Args:
             output_file: Filename
@@ -339,7 +339,7 @@ class BoltztrapRunner(MSONable):
                     file.write(f"{' '.join(map(str, row))}\n")
 
     def write_def(self, output_file) -> None:
-        """Writes the def to an output file.
+        """Write the def to an output file.
 
         Args:
             output_file: Filename
@@ -368,7 +368,7 @@ class BoltztrapRunner(MSONable):
             )
 
     def write_proj(self, output_file_proj: str, output_file_def: str) -> None:
-        """Writes the projections to an output file.
+        """Write the projections to an output file.
 
         Args:
             output_file_proj: output file name
@@ -425,7 +425,7 @@ class BoltztrapRunner(MSONable):
                         kpt_idx += 1
 
     def write_intrans(self, output_file) -> None:
-        """Writes the intrans to an output file.
+        """Write the intrans to an output file.
 
         Args:
             output_file: Filename
@@ -502,7 +502,7 @@ class BoltztrapRunner(MSONable):
                     fout.write("\n")
 
     def write_input(self, output_dir) -> None:
-        """Writes the input files.
+        """Write the input files.
 
         Args:
             output_dir: Directory to write the input files.
@@ -960,7 +960,7 @@ class BoltztrapAnalyzer:
         return bcheck
 
     def get_seebeck(self, output="eigs", doping_levels=True):
-        """Gives the seebeck coefficient (microV/K) in either a
+        """Get the seebeck coefficient (microV/K) in either a
         full 3x3 tensor form, as 3 eigenvalues, or as the average value
         (trace/3.0) If doping_levels=True, the results are given at
         different p and n doping
@@ -991,7 +991,7 @@ class BoltztrapAnalyzer:
         return BoltztrapAnalyzer._format_to_output(self._seebeck, self._seebeck_doping, output, doping_levels, 1e6)
 
     def get_conductivity(self, output="eigs", doping_levels=True, relaxation_time=1e-14):
-        """Gives the conductivity (1/Ohm*m) in either a full 3x3 tensor
+        """Get the conductivity (1/Ohm*m) in either a full 3x3 tensor
         form, as 3 eigenvalues, or as the average value
         (trace/3.0) If doping_levels=True, the results are given at
         different p and n doping
@@ -1026,7 +1026,7 @@ class BoltztrapAnalyzer:
         )
 
     def get_power_factor(self, output="eigs", doping_levels=True, relaxation_time=1e-14):
-        """Gives the power factor (Seebeck^2 * conductivity) in units
+        """Get the power factor (Seebeck^2 * conductivity) in units
         microW/(m*K^2) in either a full 3x3 tensor form,
         as 3 eigenvalues, or as the average value (trace/3.0) If
         doping_levels=True, the results are given at
@@ -1088,7 +1088,7 @@ class BoltztrapAnalyzer:
         )
 
     def get_thermal_conductivity(self, output="eigs", doping_levels=True, k_el=True, relaxation_time=1e-14):
-        """Gives the electronic part of the thermal conductivity in either a
+        """Get the electronic part of the thermal conductivity in either a
         full 3x3 tensor form,
         as 3 eigenvalues, or as the average value (trace/3.0) If
         doping_levels=True, the results are given at
@@ -1153,7 +1153,7 @@ class BoltztrapAnalyzer:
         return BoltztrapAnalyzer._format_to_output(result, result_doping, output, doping_levels, multi=relaxation_time)
 
     def get_zt(self, output="eigs", doping_levels=True, relaxation_time=1e-14, k_l=1):
-        """Gives the ZT coefficient (S^2*cond*T/thermal cond) in either a full
+        """Get the ZT coefficient (S^2*cond*T/thermal cond) in either a full
         3x3 tensor form,
         as 3 eigenvalues, or as the average value (trace/3.0) If
         doping_levels=True, the results are given at
@@ -1225,7 +1225,7 @@ class BoltztrapAnalyzer:
         return BoltztrapAnalyzer._format_to_output(result, result_doping, output, doping_levels)
 
     def get_average_eff_mass(self, output="eigs", doping_levels=True):
-        """Gives the average effective mass tensor. We call it average because
+        """Get the average effective mass tensor. We call it average because
         it takes into account all the bands
         and regions in the Brillouin zone. This is different than the standard
         textbook effective mass which relates
@@ -1432,14 +1432,12 @@ class BoltztrapAnalyzer:
         isotropy_tolerance=0.05,
         use_average=True,
     ):
-        """This method takes in eigenvalues over a range of carriers,
-        temperatures, and doping levels, and tells you what is the "best"
+        """Use eigenvalues over a range of carriers, temperatures, and doping levels, to estimate the "best"
         value that can be achieved for the given target_property. Note that
         this method searches the doping dict only, not the full mu dict.
 
         Args:
-            target_prop: target property, i.e. "seebeck", "power factor",
-                         "conductivity", "kappa", or "zt"
+            target_prop: target property, i.e. "seebeck", "power factor", "conductivity", "kappa", or "zt"
             maximize: True to maximize, False to minimize (e.g. kappa)
             min_temp: minimum temperature allowed
             max_temp: maximum temperature allowed
@@ -1576,7 +1574,7 @@ class BoltztrapAnalyzer:
         return result
 
     def get_complete_dos(self, structure: Structure, analyzer_for_second_spin=None):
-        """Gives a CompleteDos object with the DOS from the interpolated projected band structure.
+        """Get a CompleteDos object with the DOS from the interpolated projected band structure.
 
         Args:
             structure: necessary to identify sites for projection
@@ -1639,7 +1637,7 @@ class BoltztrapAnalyzer:
         return min(self.mu_doping["p"][temp]), max(self.mu_doping["n"][temp])
 
     def get_carrier_concentration(self):
-        """Gives the carrier concentration (in cm^-3).
+        """Get the carrier concentration (in cm^-3).
 
         Returns:
             a dictionary {temp:[]} with an array of carrier concentration
@@ -1649,7 +1647,7 @@ class BoltztrapAnalyzer:
         return {temp: [1e24 * i / self.vol for i in self._carrier_conc[temp]] for temp in self._carrier_conc}
 
     def get_hall_carrier_concentration(self):
-        """Gives the Hall carrier concentration (in cm^-3). This is the trace of
+        """Get the Hall carrier concentration (in cm^-3). This is the trace of
         the Hall tensor (see Boltztrap source code) Hall carrier concentration
         are not always exactly the same than carrier concentration.
 

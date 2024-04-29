@@ -5,6 +5,7 @@ change until best practices are established.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from os import PathLike as OsPathLike
 from typing import TYPE_CHECKING, Any, Union
 
@@ -40,3 +41,11 @@ EntryLike = Union[
     "CostEntry",
     "GibbsComputedStructureEntry",
 ]
+
+Vector3D = tuple[float, float, float]
+Matrix3D = tuple[Vector3D, Vector3D, Vector3D]
+
+SitePropsType = Union[list[dict[Any, Sequence[Any]]], dict[Any, Sequence[Any]]]
+
+# Types specific to io.vasp
+Kpoint = Union[tuple[float, float, float], tuple[int,]]

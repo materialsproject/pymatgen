@@ -40,7 +40,7 @@ from dataclasses import dataclass, field
 from glob import glob
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Union, cast
+from typing import TYPE_CHECKING, Literal, Union, cast
 from zipfile import ZipFile
 
 import numpy as np
@@ -57,11 +57,14 @@ from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
+from pymatgen.util.typing import Kpoint
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from typing_extensions import Self
 
-    from pymatgen.core.trajectory import Vector3D
+    from pymatgen.util.typing import Vector3D
 
 MODULE_DIR = Path(__file__).resolve().parent
 # TODO (janosh): replace with following line once PMG is py3.9+ only
@@ -500,8 +503,7 @@ class DictSet(VaspInputSet):
         prev_dir: str | Path | None = None,
         potcar_spec: bool = False,
     ) -> VaspInput:
-        """
-        Get a VASP input set.
+        """Get a VASP input set.
 
         Note, if both ``structure`` and ``prev_dir`` are set, then the structure
         specified will be preferred over the final structure from the last VASP run.
@@ -785,7 +787,7 @@ class DictSet(VaspInputSet):
 
     @property
     def nelect(self) -> float:
-        """Gets the default number of electrons for a given structure."""
+        """Get the default number of electrons for a given structure."""
         if self.structure is None:
             raise RuntimeError("No structure is associated with the input set!")
 
@@ -871,7 +873,7 @@ class DictSet(VaspInputSet):
                     comment="Uniform grid",
                     style=Kpoints.supported_modes.Reciprocal,
                     num_kpts=len(mesh),
-                    kpts=[i[0] for i in mesh],
+                    kpts=tuple(i[0] for i in mesh),
                     kpts_weights=[i[1] for i in mesh],
                 )
             else:
@@ -905,8 +907,8 @@ class DictSet(VaspInputSet):
                 comment="Uniform grid",
                 style=Kpoints.supported_modes.Reciprocal,
                 num_kpts=len(mesh),
-                kpts=[i[0] for i in mesh],
-                kpts_weights=[0 for i in mesh],
+                kpts=tuple(i[0] for i in mesh),
+                kpts_weights=[0 for _ in mesh],
             )
 
         added_kpoints = None
@@ -952,8 +954,7 @@ class DictSet(VaspInputSet):
         return super().potcar
 
     def estimate_nbands(self) -> int:
-        """
-        Estimate the number of bands that VASP will initialize a
+        """Estimate the number of bands that VASP will initialize a
         calculation with by default. Note that in practice this
         can depend on # of cores (if not set explicitly).
         Note that this formula is slightly different than the formula on the VASP wiki
@@ -1253,8 +1254,7 @@ class MPRelaxSet(DictSet):
 )
 @dataclass
 class MPScanRelaxSet(DictSet):
-    """
-    Class for writing a relaxation input set using the accurate and numerically
+    """Write a relaxation input set using the accurate and numerically
     efficient r2SCAN variant of the Strongly Constrained and Appropriately Normed
     (SCAN) metaGGA density functional.
 
@@ -1355,7 +1355,7 @@ class MPHSERelaxSet(DictSet):
 
 @dataclass
 class MPStaticSet(DictSet):
-    """Creates input files for a static calculation.
+    """Create input files for a static calculation.
 
     Args:
         structure (Structure): Structure from previous run.
@@ -1415,7 +1415,7 @@ class MPStaticSet(DictSet):
 
 @dataclass
 class MatPESStaticSet(DictSet):
-    """Creates input files for a MatPES static calculation.
+    """Create input files for a MatPES static calculation.
 
     The goal of MatPES is to generate potential energy surface data. This is a distinctly different
     from the objectives of the MP static calculations, which aims to obtain primarily accurate
@@ -2098,10 +2098,8 @@ class MVLGWSet(DictSet):
 
 @dataclass
 class MVLSlabSet(DictSet):
-    """
-    Class for writing a set of slab vasp runs,
-    including both slabs (along the c direction) and orient unit cells (bulk),
-    to ensure the same KPOINTS, POTCAR and INCAR criterion.
+    """Write a set of slab vasp runs, including both slabs (along the c direction)
+    and orient unit cells (bulk), to ensure the same KPOINTS, POTCAR and INCAR criterion.
 
     Args:
         structure: Structure
@@ -2176,8 +2174,7 @@ class MVLSlabSet(DictSet):
 
 @dataclass
 class MVLGBSet(DictSet):
-    """
-    Class for writing a vasp input files for grain boundary calculations, slab or bulk.
+    """Write a vasp input files for grain boundary calculations, slab or bulk.
 
     Args:
         structure (Structure): provide the structure
@@ -2266,8 +2263,7 @@ class MVLRelax52Set(DictSet):
 
 
 class MITNEBSet(DictSet):
-    """
-    Class for writing NEB inputs.
+    """Write NEB inputs.
 
     Note that EDIFF is not on a per atom basis for this input set.
     """
@@ -2374,8 +2370,7 @@ class MITNEBSet(DictSet):
 
 @dataclass
 class MITMDSet(DictSet):
-    """
-    Class for writing a vasp md run. This DOES NOT do multiple stage runs.
+    """Write a VASP MD run. This DOES NOT do multiple stage runs.
 
     Args:
         structure (Structure): Input structure.
@@ -2447,7 +2442,7 @@ class MPMDSet(DictSet):
         Limit for Synthesis of Metastable Inorganic Materials. Sci. Adv. 2018,
         4 (4).
 
-    Class for writing a vasp md run. This DOES NOT do multiple stage runs.
+    Class for writing a VASP MD run. This DOES NOT do multiple stage runs.
     Precision remains normal, to increase accuracy of stress tensor.
 
     Args:
@@ -2523,8 +2518,7 @@ class MPMDSet(DictSet):
 
 @dataclass
 class MVLNPTMDSet(DictSet):
-    """
-    Class for writing a vasp md run in NPT ensemble.
+    """Write a VASP MD run in NPT ensemble.
 
     Notes:
         To eliminate Pulay stress, the default ENCUT is set to a rather large
@@ -2588,8 +2582,7 @@ class MVLNPTMDSet(DictSet):
 
 @dataclass
 class MVLScanRelaxSet(DictSet):
-    """
-    Class for writing a relax input set using Strongly Constrained and
+    """Write a relax input set using Strongly Constrained and
     Appropriately Normed (SCAN) semilocal density functional.
 
     Notes:
@@ -3073,28 +3066,31 @@ def _get_ispin(vasprun: Vasprun | None, outcar: Outcar | None) -> int:
 
 
 def _combine_kpoints(*kpoints_objects: Kpoints) -> Kpoints:
-    """Combine k-points files together."""
-    labels, kpoints, weights = [], [], []
+    """Combine multiple Kpoints objects."""
+    _labels: list[list[str]] = []
+    _kpoints: list[Sequence[Kpoint]] = []
+    _weights = []
 
     for kpoints_object in filter(None, kpoints_objects):
         if kpoints_object.style != Kpoints.supported_modes.Reciprocal:
             raise ValueError("Can only combine kpoints with style=Kpoints.supported_modes.Reciprocal")
         if kpoints_object.labels is None:
-            labels.append([""] * len(kpoints_object.kpts))
+            _labels.append([""] * len(kpoints_object.kpts))
         else:
-            labels.append(kpoints_object.labels)
+            _labels.append(kpoints_object.labels)
 
-        weights.append(kpoints_object.kpts_weights)
-        kpoints.append(kpoints_object.kpts)
+        _kpoints.append(kpoints_object.kpts)
+        _weights.append(kpoints_object.kpts_weights)
 
-    labels = np.concatenate(labels).tolist()
-    weights = np.concatenate(weights).tolist()
-    kpoints = np.concatenate(kpoints)
+    labels = np.concatenate(_labels).tolist()
+    kpoints = np.concatenate(_kpoints).tolist()
+    weights = np.concatenate(_weights).tolist()
+
     return Kpoints(
         comment="Combined k-points",
         style=Kpoints.supported_modes.Reciprocal,
         num_kpts=len(kpoints),
-        kpts=cast(Sequence[Sequence[float]], kpoints),
+        kpts=cast(Sequence[Kpoint], kpoints),
         labels=labels,
         kpts_weights=weights,
     )

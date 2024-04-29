@@ -59,8 +59,7 @@ class NEBAnalysis(MSONable):
         self.setup_spline(spline_options=self.spline_options)
 
     def setup_spline(self, spline_options=None):
-        """
-        Setup of the options for the spline interpolation.
+        """Setup of the options for the spline interpolation.
 
         Args:
             spline_options (dict): Options for cubic spline. For example,

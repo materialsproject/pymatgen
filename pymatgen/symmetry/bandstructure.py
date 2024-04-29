@@ -1,4 +1,4 @@
-"""Provides a class for interacting with KPath classes to
+"""A class for interacting with KPath classes to
 generate high-symmetry k-paths using different conventions.
 """
 

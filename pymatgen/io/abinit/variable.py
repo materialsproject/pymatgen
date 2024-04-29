@@ -118,8 +118,7 @@ class InputVariable:
 
     @staticmethod
     def format_scalar(val, float_decimal=0):
-        """
-        Format a single numerical value into a string
+        """Format a single numerical value into a string
         with the appropriate number of decimal.
         """
         str_val = str(val)
@@ -186,8 +185,7 @@ class InputVariable:
         return line.rstrip("\n")
 
     def format_list(self, values, float_decimal=0):
-        """
-        Format a list of values into a string.
+        """Format a list of values into a string.
         The result might be spread among several lines.
         """
         line = ""

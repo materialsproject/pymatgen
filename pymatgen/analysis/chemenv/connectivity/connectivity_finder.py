@@ -32,8 +32,7 @@ class ConnectivityFinder:
         self.setup_parameters(multiple_environments_choice=multiple_environments_choice)
 
     def get_structure_connectivity(self, light_structure_environments):
-        """
-        Get the structure connectivity from the coordination environments provided
+        """Get the structure connectivity from the coordination environments provided
         as an input.
 
         Args:

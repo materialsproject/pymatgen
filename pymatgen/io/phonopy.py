@@ -58,8 +58,7 @@ def get_phonopy_structure(pmg_structure: Structure) -> PhonopyAtoms:
 
 
 def get_structure_from_dict(dct):
-    """
-    Extracts a structure from the dictionary extracted from the output
+    """Extracts a structure from the dictionary extracted from the output
     files of phonopy like phonopy.yaml or band.yaml.
     Adds "phonopy_masses" in the site_properties of the structures.
     Compatible with older phonopy versions.
@@ -651,8 +650,7 @@ def get_gruneisen_ph_bs_symm_line(gruneisen_path, structure=None, structure_path
 def get_thermal_displacement_matrices(
     thermal_displacements_yaml="thermal_displacement_matrices.yaml", structure_path="POSCAR"
 ):
-    """
-    Function to read "thermal_displacement_matrices.yaml" from phonopy and return a list of
+    """Function to read "thermal_displacement_matrices.yaml" from phonopy and return a list of
     ThermalDisplacementMatrices objects
     Args:
         thermal_displacements_yaml: path to thermal_displacement_matrices.yaml

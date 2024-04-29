@@ -297,9 +297,8 @@ class Magmom(MSONable):
 
     @staticmethod
     def have_consistent_saxis(magmoms) -> bool:
-        """This method checks that all Magmom objects in a list have a
-        consistent spin quantization axis. To write MAGMOM tags to a
-        VASP INCAR, a global SAXIS value for all magmoms has to be used.
+        """Check that all Magmom objects in a list have a consistent spin quantization axis.
+        To write MAGMOM tags to a VASP INCAR, a global SAXIS value for all magmoms has to be used.
         If saxis are inconsistent, can create consistent set with:
         Magmom.get_consistent_set(magmoms).
 
@@ -312,9 +311,7 @@ class Magmom(MSONable):
         magmoms = [Magmom(magmom) for magmom in magmoms]
         ref_saxis = magmoms[0].saxis
         match_ref = [magmom.saxis == ref_saxis for magmom in magmoms]
-        if np.all(match_ref):
-            return True
-        return False
+        return np.all(match_ref)
 
     @staticmethod
     def get_consistent_set_and_saxis(magmoms, saxis=None):
@@ -335,7 +332,7 @@ class Magmom(MSONable):
 
     @staticmethod
     def get_suggested_saxis(magmoms):
-        """This method returns a suggested spin axis for a set of magmoms,
+        """Get a suggested spin axis for a set of magmoms,
         taking the largest magnetic moment as the reference. For calculations
         with collinear spins, this would give a sensible saxis for a ncl
         calculation.

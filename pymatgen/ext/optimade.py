@@ -167,12 +167,12 @@ class OptimadeRester:
         return self.describe()
 
     def describe(self):
-        """Provides human-readable information about the resources being searched by the OptimadeRester."""
+        """Human-readable information about the resources being searched by the OptimadeRester."""
         provider_text = "\n".join(map(str, (provider for provider in self._providers.values() if provider)))
         return f"OptimadeRester connected to:\n{provider_text}"
 
     def _get_json(self, url):
-        """Retrieves and returns JSON resource from given url."""
+        """Retrieve and returns JSON resource from given url."""
         return self.session.get(url, timeout=self._timeout).json()
 
     @staticmethod
@@ -440,7 +440,7 @@ class OptimadeRester:
         return snls
 
     def _validate_provider(self, provider_url) -> Provider | None:
-        """Checks that a given URL is indeed an OPTIMADE provider,
+        """Check that a given URL is indeed an OPTIMADE provider,
         returning None if it is not a provider, or the provider
         prefix if it is.
 

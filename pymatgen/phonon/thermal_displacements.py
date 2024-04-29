@@ -208,7 +208,7 @@ class ThermalDisplacementMatrices(MSONable):
         return U1U2U3
 
     def write_cif(self, filename: str) -> None:
-        """Writes a cif including thermal displacements.
+        """Write a cif including thermal displacements.
 
         Args:
             filename: name of the cif file

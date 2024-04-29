@@ -36,7 +36,7 @@ PRIOR_PROB = {Species.from_str(sp): data for sp, data in all_data["occurrence"].
 
 
 def calculate_bv_sum(site, nn_list, scale_factor=1.0):
-    """Calculates the BV sum of a site.
+    """Calculate the BV sum of a site.
 
     Args:
         site (PeriodicSite): The central site to calculate the bond valence
@@ -62,7 +62,7 @@ def calculate_bv_sum(site, nn_list, scale_factor=1.0):
 
 
 def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
-    """Calculates the BV sum of a site for unordered structures.
+    """Calculate the BV sum of a site for unordered structures.
 
     Args:
         site (PeriodicSite): The central site to calculate the bond valence
@@ -424,8 +424,7 @@ class BVAnalyzer:
         raise ValueError("Valences cannot be assigned!")
 
     def get_oxi_state_decorated_structure(self, structure: Structure):
-        """
-        Get an oxidation state decorated structure. This currently works only
+        """Get an oxidation state decorated structure. This currently works only
         for ordered structures only.
 
         Args:

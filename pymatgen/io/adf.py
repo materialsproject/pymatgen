@@ -183,9 +183,7 @@ class AdfKey(MSONable):
             key = subkey.key
         else:
             raise ValueError("The subkey should be an AdfKey or a string!")
-        if len(self.subkeys) > 0 and key in (k.key for k in self.subkeys):
-            return True
-        return False
+        return len(self.subkeys) > 0 and key in (k.key for k in self.subkeys)
 
     def add_subkey(self, subkey):
         """
@@ -457,8 +455,7 @@ class AdfTask(MSONable):
         return AdfKey.from_str("Units\nlength angstrom\nangle degree\nEnd")
 
     def _setup_task(self, geo_subkeys):
-        """
-        Setup the block 'Geometry' given subkeys and the task.
+        """Setup the block 'Geometry' given subkeys and the task.
 
         Args:
             geo_subkeys (Sized): User-defined subkeys for the block 'Geometry'.

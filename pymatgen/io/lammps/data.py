@@ -292,8 +292,7 @@ class LammpsData(MSONable):
 
     @property
     def structure(self) -> Structure:
-        """
-        Exports a periodic structure object representing the simulation
+        """Exports a periodic structure object representing the simulation
         box.
 
         Returns:
@@ -821,8 +820,7 @@ class LammpsData(MSONable):
         atom_style: Literal["atomic", "charge"] = "charge",
         is_sort: bool = False,
     ) -> Self:
-        """
-        Simple constructor building LammpsData from a structure without
+        """Simple constructor building LammpsData from a structure without
         force field parameters and topologies.
 
         Args:
@@ -861,8 +859,7 @@ class LammpsData(MSONable):
         return cls.from_ff_and_topologies(box=box, ff=ff, topologies=[topo], atom_style=atom_style)
 
     def set_charge_atom(self, charges: dict[int, float]) -> None:
-        """
-        Set the charges of specific atoms of the data.
+        """Set the charges of specific atoms of the data.
 
         Args:
             charges: A dictionary with atom indexes as keys and
@@ -1180,8 +1177,7 @@ class ForceField(MSONable):
         return all_data, {f"{kw[:-7]}s": mapper}
 
     def to_file(self, filename: str) -> None:
-        """
-        Saves object to a file in YAML format.
+        """Save object to a file in YAML format.
 
         Args:
             filename (str): Filename.
@@ -1197,8 +1193,7 @@ class ForceField(MSONable):
 
     @classmethod
     def from_file(cls, filename: str) -> Self:
-        """
-        Constructor that reads in a file in YAML format.
+        """Constructor that reads in a file in YAML format.
 
         Args:
             filename (str): Filename.
@@ -1328,8 +1323,7 @@ class CombinedData(LammpsData):
 
     @property
     def structure(self) -> Structure:
-        """
-        Exports a periodic structure object representing the simulation
+        """Exports a periodic structure object representing the simulation
         box.
 
         Returns:
