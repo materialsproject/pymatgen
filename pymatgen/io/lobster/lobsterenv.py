@@ -253,9 +253,8 @@ class LobsterNeighbors(NearNeighbors):
     def get_anion_types(self):
         return self.anion_types
 
-    def get_nn_info(self, structure: Structure, n, use_weights: bool = False):
-        """
-        Get coordination number, CN, of site with index n in structure.
+    def get_nn_info(self, structure: Structure, n: int, use_weights: bool = False) -> dict:  # type: ignore[override]
+        """Get coordination number, CN, of site with index n in structure.
 
         Args:
             structure (Structure): input structure.
@@ -266,14 +265,20 @@ class LobsterNeighbors(NearNeighbors):
                 weight).
                 True is not implemented for LobsterNeighbors
 
+        Raises:
+            ValueError: if use_weights is True or if structure passed and structure used to
+                initialize LobsterNeighbors have different lengths.
+
         Returns:
-            cn (integer or float): coordination number.
+            dict[str, Any]: coordination number and a list of nearest neighbors.
         """
         if use_weights:
             raise ValueError("LobsterEnv cannot use weights")
         if len(structure) != len(self.structure):
-            raise ValueError("The wrong structure was provided")
-        return self.sg_list[n]
+            raise ValueError(
+                f"Length of structure ({len(structure)}) and LobsterNeighbors ({len(self.structure)}) differ"
+            )
+        return self.sg_list[n]  # type: ignore[return-value]
 
     def get_light_structure_environment(self, only_cation_environments=False, only_indices=None):
         """
@@ -506,7 +511,7 @@ class LobsterNeighbors(NearNeighbors):
             summed_spin_channels: will sum all spin channels
 
         Returns:
-            str: label for cohp (str), CompleteCohp object which describes all cohps (coops or cobis)
+            str: label for COHP, CompleteCohp object which describes all cohps (coops or cobis)
                 of the sites as given by isites and the other parameters
         """
         # TODO: add options for orbital-resolved cohps
@@ -514,8 +519,8 @@ class LobsterNeighbors(NearNeighbors):
             isites=isites, onlycation_isites=onlycation_isites
         )
 
-        with tempfile.TemporaryDirectory() as t:
-            path = f"{t}/POSCAR.vasp"
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            path = f"{tmp_dir}/POSCAR.vasp"
 
             self.structure.to(filename=path, fmt="poscar")
 

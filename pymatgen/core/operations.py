@@ -35,7 +35,7 @@ class SymmOp(MSONable):
     """
 
     def __init__(self, affine_transformation_matrix: ArrayLike, tol: float = 0.01) -> None:
-        """Initializes the SymmOp from a 4x4 affine transformation matrix.
+        """Initialize the SymmOp from a 4x4 affine transformation matrix.
         In general, this constructor should not be used unless you are
         transferring rotations. Use the static constructors instead to
         generate a SymmOp from proper rotations and translation.
@@ -62,7 +62,7 @@ class SymmOp(MSONable):
         translation_vec: ArrayLike = (0, 0, 0),
         tol: float = 0.1,
     ) -> Self:
-        """Creates a symmetry operation from a rotation matrix and a translation
+        """Create a symmetry operation from a rotation matrix and a translation
         vector.
 
         Args:
@@ -135,7 +135,7 @@ class SymmOp(MSONable):
         return np.dot(self.rotation_matrix, vector)
 
     def transform_tensor(self, tensor: np.ndarray) -> np.ndarray:
-        """Applies rotation portion to a tensor. Note that tensor has to be in
+        """Apply rotation portion to a tensor. Note that tensor has to be in
         full form, not the Voigt form.
 
         Args:
@@ -157,7 +157,7 @@ class SymmOp(MSONable):
         return np.einsum(einsum_string, *einsum_args)
 
     def are_symmetrically_related(self, point_a: ArrayLike, point_b: ArrayLike, tol: float = 0.001) -> bool:
-        """Checks if two points are symmetrically related.
+        """Check if two points are symmetrically related.
 
         Args:
             point_a (3x1 array): First point.
@@ -179,7 +179,7 @@ class SymmOp(MSONable):
         r_b: ArrayLike,
         tol: float = 0.001,
     ) -> tuple[bool, bool]:
-        """Checks if two vectors, or rather two vectors that connect two points
+        """Check if two vectors, or rather two vectors that connect two points
         each are symmetrically related. r_a and r_b give the change of unit
         cells. Two vectors are also considered symmetrically equivalent if starting
         and end point are exchanged.
@@ -210,10 +210,10 @@ class SymmOp(MSONable):
         to_c = to_c % 1
 
         if np.allclose(from_b, from_c, atol=tol) and np.allclose(to_b, to_c) and np.allclose(r_b, r_c, atol=tol):
-            return (True, False)
+            return True, False
         if np.allclose(to_b, from_c, atol=tol) and np.allclose(from_b, to_c) and np.allclose(r_b, -r_c, atol=tol):
-            return (True, True)
-        return (False, False)
+            return True, True
+        return False, False
 
     @property
     def rotation_matrix(self) -> np.ndarray:
@@ -242,7 +242,7 @@ class SymmOp(MSONable):
     def from_axis_angle_and_translation(
         axis: ArrayLike, angle: float, angle_in_radians: bool = False, translation_vec: ArrayLike = (0, 0, 0)
     ) -> SymmOp:
-        """Generates a SymmOp for a rotation about a given axis plus translation.
+        """Generate a SymmOp for a rotation about a given axis plus translation.
 
         Args:
             axis: The axis of rotation in Cartesian space. For example,
@@ -282,7 +282,7 @@ class SymmOp(MSONable):
     def from_origin_axis_angle(
         origin: ArrayLike, axis: ArrayLike, angle: float, angle_in_radians: bool = False
     ) -> SymmOp:
-        """Generates a SymmOp for a rotation about a given axis through an
+        """Generate a SymmOp for a rotation about a given axis through an
         origin.
 
         Args:
@@ -353,9 +353,9 @@ class SymmOp(MSONable):
             SymmOp for the reflection about the plane
         """
         # Normalize the normal vector first.
-        n = np.array(normal, dtype=float) / np.linalg.norm(normal)
+        normal = np.array(normal, dtype=float) / np.linalg.norm(normal)
 
-        u, v, w = n
+        u, v, w = normal
 
         translation = np.eye(4)
         translation[0:3, 3] = -np.array(origin)
@@ -439,23 +439,23 @@ class SymmOp(MSONable):
         tokens = xyz_str.strip().replace(" ", "").lower().split(",")
         re_rot = re.compile(r"([+-]?)([\d\.]*)/?([\d\.]*)([x-z])")
         re_trans = re.compile(r"([+-]?)([\d\.]+)/?([\d\.]*)(?![x-z])")
-        for i, tok in enumerate(tokens):
+        for idx, tok in enumerate(tokens):
             # build the rotation matrix
             for m in re_rot.finditer(tok):
                 factor = -1.0 if m.group(1) == "-" else 1.0
                 if m.group(2) != "":
                     factor *= float(m.group(2)) / float(m.group(3)) if m.group(3) != "" else float(m.group(2))
                 j = ord(m.group(4)) - 120
-                rot_matrix[i, j] = factor
+                rot_matrix[idx, j] = factor
             # build the translation vector
             for m in re_trans.finditer(tok):
                 factor = -1 if m.group(1) == "-" else 1
                 num = float(m.group(2)) / float(m.group(3)) if m.group(3) != "" else float(m.group(2))
-                trans[i] = num * factor
+                trans[idx] = num * factor
         return cls.from_rotation_and_translation(rot_matrix, trans)
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct: dict.
@@ -474,7 +474,7 @@ class MagSymmOp(SymmOp):
     """
 
     def __init__(self, affine_transformation_matrix: ArrayLike, time_reversal: int, tol: float = 0.01) -> None:
-        """Initializes the MagSymmOp from a 4x4 affine transformation matrix and time reversal
+        """Initialize the MagSymmOp from a 4x4 affine transformation matrix and time reversal
         operator. In general, this constructor should not be used unless you are transferring
         rotations. Use the static constructors instead to generate a SymmOp from proper rotations
         and translation.
@@ -545,17 +545,17 @@ class MagSymmOp(SymmOp):
         return Magmom.from_global_moment_and_saxis(transformed_moment, magmom.saxis)
 
     @classmethod
-    def from_symmop(cls, symmop: SymmOp, time_reversal) -> Self:
+    def from_symmop(cls, symm_op: SymmOp, time_reversal) -> Self:
         """Initialize a MagSymmOp from a SymmOp and time reversal operator.
 
         Args:
-            symmop (SymmOp): SymmOp
+            symm_op (SymmOp): SymmOp
             time_reversal (int): Time reversal operator, +1 or -1.
 
         Returns:
             MagSymmOp object
         """
-        return cls(symmop.affine_matrix, time_reversal, symmop.tol)
+        return cls(symm_op.affine_matrix, time_reversal, symm_op.tol)
 
     @staticmethod
     def from_rotation_and_translation_and_time_reversal(
@@ -564,7 +564,7 @@ class MagSymmOp(SymmOp):
         time_reversal: int = 1,
         tol: float = 0.1,
     ) -> MagSymmOp:
-        """Creates a symmetry operation from a rotation matrix, translation
+        """Create a symmetry operation from a rotation matrix, translation
         vector and time reversal operator.
 
         Args:

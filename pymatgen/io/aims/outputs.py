@@ -18,10 +18,10 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
 
-    from emmet.core.math import Matrix3D, Vector3D
     from typing_extensions import Self
 
     from pymatgen.core import Molecule, Structure
+    from pymatgen.util.typing import Matrix3D, Vector3D
 
 __author__ = "Andrey Sobolev and Thomas A. R. Purcell"
 __version__ = "1.0"

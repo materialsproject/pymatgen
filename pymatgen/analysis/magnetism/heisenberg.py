@@ -48,8 +48,7 @@ class HeisenbergMapper:
     """
 
     def __init__(self, ordered_structures, energies, cutoff=0, tol: float = 0.02):
-        """
-        Exchange parameters are computed by mapping to a classical Heisenberg
+        """Exchange parameters are computed by mapping to a classical Heisenberg
         model. Strategy is the scheme for generating neighbors. Currently only
         MinimumDistanceNN is implemented.
         n+1 unique orderings are required to compute n exchange
@@ -121,17 +120,15 @@ class HeisenbergMapper:
 
     @staticmethod
     def _get_unique_sites(structure):
-        """
-        Get dict that maps site indices to unique identifiers.
+        """Get dict that maps site indices to unique identifiers.
 
         Args:
             structure (Structure): ground state Structure object.
 
         Returns:
-            unique_site_ids (dict): maps tuples of equivalent site indices to a
-                unique int identifier
-            wyckoff_ids (dict): maps tuples of equivalent site indices to their
-                wyckoff symbols
+            tuple[dict, dict]: unique_site_ids maps tuples of equivalent site indices to a
+                unique int identifier.
+                wyckoff_ids maps tuples of equivalent site indices to their wyckoff symbols
         """
         # Get a nonmagnetic representation of the supercell geometry
         s0 = CollinearMagneticStructureAnalyzer(
@@ -161,7 +158,7 @@ class HeisenbergMapper:
         return unique_site_ids, wyckoff_ids
 
     def _get_nn_dict(self):
-        """Sets self.nn_interactions and self.dists instance variables describing unique
+        """Set self.nn_interactions and self.dists instance variables describing unique
         nearest neighbor interactions.
         """
         tol = self.tol  # tolerance on NN distances
@@ -356,7 +353,7 @@ class HeisenbergMapper:
         solve for the exchange parameters.
 
         Returns:
-            ex_params (dict): Exchange parameter values (meV/atom).
+            dict[str, float]: Exchange parameters (meV/atom).
         """
         ex_mat = self.ex_mat
         # Solve the matrix equation for J_ij values
@@ -387,8 +384,7 @@ class HeisenbergMapper:
         return ex_params
 
     def get_low_energy_orderings(self):
-        """
-        Find lowest energy FM and AFM orderings to compute E_AFM - E_FM.
+        """Find lowest energy FM and AFM orderings to compute E_AFM - E_FM.
 
         Returns:
             fm_struct (Structure): fm structure with 'magmom' site property
@@ -456,8 +452,7 @@ class HeisenbergMapper:
         return fm_struct, afm_struct, fm_e, afm_e
 
     def estimate_exchange(self, fm_struct=None, afm_struct=None, fm_e=None, afm_e=None):
-        """
-        Estimate <J> for a structure based on low energy FM and AFM orderings.
+        """Estimate <J> for a structure based on low energy FM and AFM orderings.
 
         Args:
             fm_struct (Structure): fm structure with 'magmom' site property
@@ -466,7 +461,7 @@ class HeisenbergMapper:
             afm_e (float): afm energy/atom
 
         Returns:
-            j_avg (float): Average exchange parameter (meV/atom)
+            float: Average J exchange parameter (meV/atom)
         """
         # Get low energy orderings if not supplied
         if any(arg is None for arg in [fm_struct, afm_struct, fm_e, afm_e]):
@@ -503,7 +498,7 @@ class HeisenbergMapper:
             j_avg (float): j_avg (float): Average exchange parameter (meV/atom)
 
         Returns:
-            mft_t (float): Critical temperature (K)
+            float: Critical temperature mft_t (K)
         """
         n_sub_lattices = len(self.unique_site_ids)
         k_boltzmann = 0.0861733  # meV/K
@@ -537,15 +532,14 @@ class HeisenbergMapper:
         return mft_t
 
     def get_interaction_graph(self, filename=None):
-        """
-        Get a StructureGraph with edges and weights that correspond to exchange
+        """Get a StructureGraph with edges and weights that correspond to exchange
         interactions and J_ij values, respectively.
 
         Args:
             filename (str): if not None, save interaction graph to filename.
 
         Returns:
-            igraph (StructureGraph): Exchange interaction graph.
+            StructureGraph: Exchange interaction graph.
         """
         structure = self.ordered_structures[0]
         sgraph = self.sgraphs[0]
@@ -593,7 +587,7 @@ class HeisenbergMapper:
                 (10E-2 precision)
 
         Returns:
-            j_exc (float): Exchange parameter in meV
+            float: Exchange parameter J_exc in meV
         """
         # Get unique site identifiers
         i_index = 0
@@ -964,7 +958,7 @@ class HeisenbergModel(MSONable):
             dist (float): distance (Angstrom) between sites +- tol
 
         Returns:
-            j_exc (float): Exchange parameter in meV
+            float: Exchange parameter J_exc in meV
         """
         # Get unique site identifiers
         i_index = 0

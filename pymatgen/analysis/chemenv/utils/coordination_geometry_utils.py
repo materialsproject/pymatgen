@@ -453,8 +453,7 @@ def rotateCoordsOpt(coords, R):
 
 
 def changebasis(uu, vv, nn, pps):
-    """
-    For a list of points given in standard coordinates (in terms of e1, e2 and e3), returns the same list
+    """For a list of points given in standard coordinates (in terms of e1, e2 and e3), returns the same list
     expressed in the basis (uu, vv, nn), which is supposed to be orthonormal.
 
     Args:
@@ -702,8 +701,7 @@ class Plane:
             self.p3[zeros[1]] = 1.0
 
     def __str__(self):
-        """
-        String representation of the Plane object
+        """String representation of the Plane object
 
         Returns:
             String representation of the Plane object.
@@ -1022,7 +1020,7 @@ class Plane:
 
     @classmethod
     def from_2points_and_origin(cls, p1, p2) -> Self:
-        """Initializes plane from two points and the origin.
+        """Initialize plane from two points and the origin.
 
         Args:
             p1: First point.
@@ -1035,7 +1033,7 @@ class Plane:
 
     @classmethod
     def from_3points(cls, p1, p2, p3) -> Self:
-        """Initializes plane from three points.
+        """Initialize plane from three points.
 
         Args:
             p1: First point.
@@ -1056,7 +1054,7 @@ class Plane:
 
     @classmethod
     def from_npoints(cls, points, best_fit="least_square_distance") -> Self:
-        """Initializes plane from a list of points.
+        """Initialize plane from a list of points.
 
         If the number of points is larger than 3, will use a least square fitting or max distance fitting.
 
@@ -1080,7 +1078,7 @@ class Plane:
 
     @classmethod
     def from_npoints_least_square_distance(cls, points) -> Self:
-        """Initializes plane from a list of points using a least square fitting procedure.
+        """Initialize plane from a list of points using a least square fitting procedure.
 
         Args:
             points: List of points.
@@ -1125,7 +1123,7 @@ class Plane:
 
     @classmethod
     def from_npoints_maximum_distance(cls, points) -> Self:
-        """Initializes plane from a list of points using a max distance fitting procedure.
+        """Initialize plane from a list of points using a max distance fitting procedure.
 
         Args:
             points: List of points.

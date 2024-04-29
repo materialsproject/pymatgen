@@ -167,7 +167,7 @@ def get_structure_components(
 
 
 def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=False):
-    """Calculates the dimensionality of the component containing the given site.
+    """Calculate the dimensionality of the component containing the given site.
 
     Implements directly the modified breadth-first-search algorithm described in
     Algorithm 1 of:
@@ -379,8 +379,7 @@ def get_dimensionality_cheon(
 
 
 def find_connected_atoms(struct, tolerance=0.45, ldict=None):
-    """
-    Finds bonded atoms and returns a adjacency matrix of bonded atoms.
+    """Find bonded atoms and returns a adjacency matrix of bonded atoms.
 
     Author: "Gowoon Cheon"
     Email: "gcheon@stanford.edu"
@@ -427,8 +426,7 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=None):
 
 
 def find_clusters(struct, connected_matrix):
-    """
-    Finds bonded clusters of atoms in the structure with periodic boundary
+    """Find bonded clusters of atoms in the structure with periodic boundary
     conditions.
 
     If there are atoms that are not bonded to anything, returns [0,1,0]. (For

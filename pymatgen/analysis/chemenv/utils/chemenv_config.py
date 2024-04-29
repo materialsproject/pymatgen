@@ -135,8 +135,7 @@ class ChemEnvConfig:
         return out
 
     def save(self, root_dir=None):
-        """
-        Save the options.
+        """Save the options.
 
         Args:
             root_dir:

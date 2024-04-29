@@ -52,19 +52,18 @@ class Deformation(SquareTensor):
         return obj.view(cls)
 
     def is_independent(self, tol: float = 1e-8):
-        """Checks to determine whether the deformation is independent."""
+        """Check to determine whether the deformation is independent."""
         return len(self.get_perturbed_indices(tol)) == 1
 
     def get_perturbed_indices(self, tol: float = 1e-8):
-        """
-        Gets indices of perturbed elements of the deformation gradient,
+        """Get indices of perturbed elements of the deformation gradient,
         i. e. those that differ from the identity.
         """
         return list(zip(*np.where(abs(self - np.eye(3)) > tol)))
 
     @property
     def green_lagrange_strain(self):
-        """Calculates the Euler-Lagrange strain from the deformation gradient."""
+        """Calculate the Euler-Lagrange strain from the deformation gradient."""
         return Strain.from_deformation(self)
 
     def apply_to_structure(self, structure: Structure):
@@ -83,8 +82,7 @@ class Deformation(SquareTensor):
 
     @classmethod
     def from_index_amount(cls, matrix_pos, amt) -> Self:
-        """
-        Factory method for constructing a Deformation object
+        """Factory method for constructing a Deformation object
         from a matrix position and amount.
 
         Args:
@@ -187,8 +185,7 @@ class Strain(SquareTensor):
 
     @classmethod
     def from_deformation(cls, deformation: ArrayLike) -> Self:
-        """
-        Factory method that returns a Strain object from a deformation
+        """Factory method that returns a Strain object from a deformation
         gradient.
 
         Args:

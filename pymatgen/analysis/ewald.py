@@ -302,7 +302,7 @@ class EwaldSummation(MSONable):
         return np.sum(self._recip[:, site_index]) + np.sum(self._real[:, site_index]) + self._point[site_index]
 
     def _calc_ewald_terms(self):
-        """Calculates and sets all Ewald terms (point, real and reciprocal)."""
+        """Calculate and sets all Ewald terms (point, real and reciprocal)."""
         self._recip, recip_forces = self._calc_recip()
         self._real, self._point, real_point_forces = self._calc_real_and_point()
         if self._compute_forces:
@@ -360,7 +360,7 @@ class EwaldSummation(MSONable):
         return e_recip, forces
 
     def _calc_real_and_point(self):
-        """Determines the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2."""
+        """Determine the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2."""
         frac_coords = self._struct.frac_coords
         force_pf = 2 * self._sqrt_eta / sqrt(pi)
         coords = self._coords

@@ -1060,7 +1060,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
 
 
 def get_reconstructed_band_structure(list_bs, efermi=None):
-    """This method takes a list of band structures and reconstructs
+    """Take a list of band structures and reconstructs
     one band structure object from all of them.
 
     This is typically very useful when you split non self consistent

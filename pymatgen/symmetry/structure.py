@@ -77,7 +77,7 @@ class SymmetrizedStructure(Structure):
         )
 
     def find_equivalent_sites(self, site: PeriodicSite) -> list[PeriodicSite]:
-        """Finds all symmetrically equivalent sites for a particular site.
+        """Find all symmetrically equivalent sites for a particular site.
 
         Args:
             site (PeriodicSite): A site in the structure

@@ -166,8 +166,7 @@ class Unit(collections.abc.Mapping):
     """
 
     def __init__(self, unit_def) -> None:
-        """Constructs a unit.
-
+        """
         Args:
             unit_def: A definition for the unit. Either a mapping of unit to
                 powers, e.g., {"m": 2, "s": -1} represents "m^2 s^-1",
@@ -223,7 +222,7 @@ class Unit(collections.abc.Mapping):
 
     @property
     def as_base_units(self):
-        """Converts all units to base SI units, including derived units.
+        """Convert all units to base SI units, including derived units.
 
         Returns:
             tuple[dict, float]: (base_units_dict, scaling factor). base_units_dict will not
@@ -292,7 +291,7 @@ class FloatWithUnit(float):
     """
 
     def __init__(self, val: float | Number, unit: str, unit_type: str | None = None) -> None:
-        """Initializes a float with unit.
+        """Initialize a float with unit.
 
         Args:
             val (float): Value

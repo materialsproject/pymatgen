@@ -578,8 +578,7 @@ class StructureEnvironments(MSONable):
         self.info["sites_info"][isite].update(info_dict)
 
     def get_coordination_environments(self, isite, cn, nb_set):
-        """
-        Get the ChemicalEnvironments for a given site, coordination and neighbors set.
+        """Get the ChemicalEnvironments for a given site, coordination and neighbors set.
 
         Args:
             isite: Index of the site for which the ChemicalEnvironments is looked for.
@@ -600,8 +599,7 @@ class StructureEnvironments(MSONable):
         return self.ce_list[isite][cn][nb_set_index]
 
     def get_csm(self, isite, mp_symbol):
-        """
-        Get the continuous symmetry measure for a given site in the given coordination environment.
+        """Get the continuous symmetry measure for a given site in the given coordination environment.
 
         Args:
             isite: Index of the site.
@@ -1018,8 +1016,7 @@ class StructureEnvironments(MSONable):
         max_dist=2.0,
         figsize=None,
     ):
-        """
-        Saves the environments figure to a given file.
+        """Save the environments figure to a given file.
 
         Args:
             isite: Index of the site for which the plot has to be done.
@@ -1718,8 +1715,7 @@ class LightStructureEnvironments(MSONable):
                 }
 
     def get_site_info_for_specie_ce(self, specie, ce_symbol):
-        """
-        Get list of indices that have the given specie with a given Coordination environment.
+        """Get list of indices that have the given specie with a given Coordination environment.
 
         Args:
             specie: Species to get.
@@ -1747,8 +1743,7 @@ class LightStructureEnvironments(MSONable):
         return {"isites": isites, "fractions": fractions, "csms": csms}
 
     def get_site_info_for_specie_allces(self, specie, min_fraction=0):
-        """
-        Get list of indices that have the given specie.
+        """Get list of indices that have the given specie.
 
         Args:
             specie: Species to get.
@@ -1782,8 +1777,7 @@ class LightStructureEnvironments(MSONable):
         return allces
 
     def get_statistics(self, statistics_fields=DEFAULT_STATISTICS_FIELDS, bson_compatible=False):
-        """
-        Get the statistics of environments for this structure.
+        """Get the statistics of environments for this structure.
 
         Args:
             statistics_fields: Which statistics to get.
@@ -1903,8 +1897,7 @@ class LightStructureEnvironments(MSONable):
         return True
 
     def clear_environments(self, conditions=None):
-        """
-        Get the clear environments in the structure.
+        """Get the clear environments in the structure.
 
         Args:
             conditions: Conditions to be checked for an environment to be "clear".
@@ -1937,9 +1930,9 @@ class LightStructureEnvironments(MSONable):
         Returns:
             bool: True if the coordination environment is found for the given atom.
         """
-        for isite, site in enumerate(self.structure):
+        for idx, site in enumerate(self.structure):
             if Element(atom_symbol) in site.species.element_composition and self.site_contains_environment(
-                isite, ce_symbol
+                idx, ce_symbol
             ):
                 return True
         return False
@@ -1959,8 +1952,7 @@ class LightStructureEnvironments(MSONable):
         return self.strategy.uniquely_determines_coordination_environments
 
     def __eq__(self, other: object) -> bool:
-        """
-        Equality method that checks if the LightStructureEnvironments object is equal to another
+        """Equality method that checks if the LightStructureEnvironments object is equal to another
         LightStructureEnvironments object. Two LightStructureEnvironments objects are equal if the strategy used
         is the same, if the structure is the same, if the valences used in the strategies are the same, if the
         coordination environments and the neighbors determined by the strategy are the same.
@@ -2021,7 +2013,7 @@ class LightStructureEnvironments(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the LightStructureEnvironments object from a dict representation of the
         LightStructureEnvironments created using the as_dict method.
@@ -2288,8 +2280,7 @@ class ChemicalEnvironments(MSONable):
         return True
 
     def __eq__(self, other: object) -> bool:
-        """
-        Equality method that checks if the ChemicalEnvironments object is equal to another ChemicalEnvironments.
+        """Equality method that checks if the ChemicalEnvironments object is equal to another ChemicalEnvironments.
         object.
 
         Args:

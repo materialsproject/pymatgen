@@ -1,5 +1,5 @@
 """Interface with command line GULP.
-http://projects.ivec.org
+https://gulp.curtin.edu.au/index.html
 WARNING: you need to have GULP installed on your system.
 """
 
@@ -237,7 +237,7 @@ class GulpIO:
 
     @staticmethod
     def keyword_line(*args):
-        """Checks if the input args are proper gulp keywords and
+        """Check if the input args are proper gulp keywords and
         generates the 1st line of gulp input. Full keywords are expected.
 
         Args:
@@ -258,7 +258,7 @@ class GulpIO:
         cation_shell_flg: bool = False,
         symm_flg: bool = True,
     ):
-        """Generates GULP input string corresponding to pymatgen structure.
+        """Generate GULP input string corresponding to pymatgen structure.
 
         Args:
             structure: pymatgen Structure object
@@ -313,7 +313,7 @@ class GulpIO:
 
     @staticmethod
     def specie_potential_lines(structure, potential, **kwargs):
-        """Generates GULP input specie and potential string for pymatgen
+        """Generate GULP input specie and potential string for pymatgen
         structure.
 
         Args:
@@ -371,7 +371,7 @@ class GulpIO:
         raise GulpError("GULP library not found")
 
     def buckingham_input(self, structure: Structure, keywords, library=None, uc=True, valence_dict=None):
-        """Gets a GULP input for an oxide structure and buckingham potential
+        """Get a GULP input for an oxide structure and buckingham potential
         from library.
 
         Args:
@@ -459,7 +459,7 @@ class GulpIO:
         return gin
 
     def tersoff_input(self, structure: Structure, periodic=False, uc=True, *keywords):
-        """Gets a GULP input with Tersoff potential for an oxide structure.
+        """Get a GULP input with Tersoff potential for an oxide structure.
 
         Args:
             structure: pymatgen Structure
@@ -656,7 +656,7 @@ class GulpCaller:
                 if is_exe(file):
                     self._gulp_cmd = file
                     return
-        raise GulpError("Executable not found")
+        raise GulpError("Executable not found, please download from https://gulp.curtin.edu.au/index.html.")
 
     def run(self, gin):
         """Run GULP using the gin as input.

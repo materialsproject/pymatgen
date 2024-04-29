@@ -260,8 +260,7 @@ class ElementBase(Enum):
 
     @property
     def atomic_orbitals_eV(self) -> dict[str, float]:
-        """
-        Get the LDA energies in eV for neutral atoms, by orbital.
+        """Get the LDA energies in eV for neutral atoms, by orbital.
 
         This property contains the same info as `self.atomic_orbitals`,
         but uses eV for units, per matsci issue https://matsci.org/t/unit-of-atomic-orbitals-energy/54325
@@ -509,7 +508,7 @@ class ElementBase(Enum):
         return self.symbol
 
     def __lt__(self, other):
-        """Sets a default sort order for atomic species by Pauling electronegativity. Very
+        """Set a default sort order for atomic species by Pauling electronegativity. Very
         useful for getting correct formulas. For example, FeO4PLi is
         automatically sorted into LiFePO4.
         """
@@ -741,7 +740,7 @@ class ElementBase(Enum):
 
     @property
     def is_quadrupolar(self) -> bool:
-        """Checks if this element can be quadrupolar."""
+        """Check if this element can be quadrupolar."""
         return len(self.data.get("NMR Quadrupole Moment", {})) > 0
 
     @property
@@ -995,7 +994,7 @@ class Species(MSONable, Stringify):
         return hash(str(self))
 
     def __lt__(self, other: object) -> bool:
-        """Sets a default sort order for atomic species by Pauling electronegativity,
+        """Set a default sort order for atomic species by Pauling electronegativity,
         followed by oxidation state, followed by spin.
         """
         if not isinstance(other, type(self)):
@@ -1124,7 +1123,7 @@ class Species(MSONable, Stringify):
         return output
 
     def get_nmr_quadrupole_moment(self, isotope: str | None = None) -> float:
-        """Gets the nuclear electric quadrupole moment in units of e * millibarns.
+        """Get the nuclear electric quadrupole moment in units of e * millibarns.
 
         Args:
             isotope (str): the isotope to get the quadrupole moment for
@@ -1314,7 +1313,7 @@ class DummySpecies(Species):
         raise AttributeError
 
     def __lt__(self, other):
-        """Sets a default sort order for atomic species by Pauling electronegativity,
+        """Set a default sort order for atomic species by Pauling electronegativity,
         followed by oxidation state.
         """
         if self.X != other.X:

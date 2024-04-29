@@ -31,7 +31,7 @@ def pretty_plot(
     dpi: float | None = None,
     color_cycle: tuple[str, str] = ("qualitative", "Set1_9"),
 ) -> Axes:
-    """Provides a publication quality plot, with nice defaults for font sizes etc.
+    """Get a publication quality plot, with nice defaults for font sizes etc.
 
     Args:
         width (float): Width of plot in inches. Defaults to 8in.
@@ -391,7 +391,7 @@ def periodic_table_heatmap(
 
 
 def format_formula(formula: str) -> str:
-    """Converts str of chemical formula into
+    """Convert str of chemical formula into
     latex format for labelling purposes.
 
     Args:

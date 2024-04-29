@@ -29,8 +29,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
-    from pymatgen.core.trajectory import Vector3D
-    from pymatgen.util.typing import CompositionLike
+    from pymatgen.util.typing import CompositionLike, Vector3D
 
 # This module implements representations of grain boundaries, as well as
 # algorithms for generating them.
@@ -164,8 +163,7 @@ class GrainBoundary(Structure):
         )
 
     def get_sorted_structure(self, key=None, reverse=False):
-        """
-        Get a sorted copy of the structure. The parameters have the same
+        """Get a sorted copy of the structure. The parameters have the same
         meaning as in list.sort. By default, sites are sorted by the
         electronegativity of the species. Note that Slab has to override this
         because of the different __init__ args.
@@ -868,8 +866,7 @@ class GrainBoundaryGenerator:
         max_search=20,
         quick_gen=False,
     ):
-        """
-        Find the two transformation matrix for each grain from given rotation axis,
+        """Find the two transformation matrix for each grain from given rotation axis,
         GB plane, rotation angle and corresponding ratio (see explanation for ratio
         below).
         The structure of each grain can be obtained by applying the corresponding
@@ -1289,8 +1286,7 @@ class GrainBoundaryGenerator:
 
     @staticmethod
     def enum_sigma_cubic(cutoff, r_axis):
-        """
-        Find all possible sigma values and corresponding rotation angles
+        """Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in cubic system.
         The algorithm for this code is from reference, Acta Cryst, A40,108(1984).
 
@@ -1361,8 +1357,7 @@ class GrainBoundaryGenerator:
 
     @staticmethod
     def enum_sigma_hex(cutoff, r_axis, c2_a2_ratio):
-        """
-        Find all possible sigma values and corresponding rotation angles
+        """Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in hexagonal system.
         The algorithm for this code is from reference, Acta Cryst, A38,550(1982).
 
@@ -1374,14 +1369,15 @@ class GrainBoundaryGenerator:
                 which is rational number. If irrational, set c2_a2_ratio = None
 
         Returns:
-            sigmas (dict): dictionary with keys as the possible integer sigma values and values as list of the
-                possible rotation angles to the corresponding sigma values. e.g. the format as
-                    {sigma1: [angle11,angle12,...], sigma2: [angle21, angle22,...],...}
-                Note: the angles are the rotation angle of one grain respect to the
-                other grain.
-                When generate the microstructure of the grain boundary using these
-                angles, you need to analyze the symmetry of the structure. Different
-                angles may result in equivalent microstructures.
+            dict: sigmas dictionary with keys as the possible integer sigma values
+                and values as list of the possible rotation angles to the
+                corresponding sigma values. e.g. the format as
+                {sigma1: [angle11,angle12,...], sigma2: [angle21, angle22,...],...}
+                Note: the angles are the rotation angles of one grain respect to
+                the other grain.
+                When generate the microstructures of the grain boundary using these angles,
+                you need to analyze the symmetry of the structure. Different angles may
+                result in equivalent microstructures.
         """
         sigmas = {}
         # make sure gcd(r_axis)==1
@@ -1470,8 +1466,7 @@ class GrainBoundaryGenerator:
 
     @staticmethod
     def enum_sigma_rho(cutoff, r_axis, ratio_alpha):
-        """
-        Find all possible sigma values and corresponding rotation angles
+        """Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in rhombohedral system.
         The algorithm for this code is from reference, Acta Cryst, A45,505(1989).
 
@@ -1486,17 +1481,14 @@ class GrainBoundaryGenerator:
                     If irrational, set ratio_alpha = None.
 
         Returns:
-            sigmas (dict):
-                    dictionary with keys as the possible integer sigma values
-                    and values as list of the possible rotation angles to the
-                    corresponding sigma values.
-                    e.g. the format as
-                    {sigma1: [angle11,angle12,...], sigma2: [angle21, angle22,...],...}
-                    Note: the angles are the rotation angle of one grain respect to the
-                    other grain.
-                    When generate the microstructure of the grain boundary using these
-                    angles, you need to analyze the symmetry of the structure. Different
-                    angles may result in equivalent microstructures.
+            dict[int, list[float]]: keys are possible integer sigma values
+                and values are lists of possible rotation angles to the
+                {sigma1: [angle11, angle12,...], sigma2: [angle21, angle22,...],...}
+                Note: the angles are the rotation angle of one grain respect to the
+                other grain.
+                When generating the microstructure of the grain boundary using these
+                angles, you need to analyze the symmetry of the structure. Different
+                angles may result in equivalent microstructures.
         """
         sigmas = {}
         # transform four index notation to three index notation
@@ -1600,8 +1592,7 @@ class GrainBoundaryGenerator:
 
     @staticmethod
     def enum_sigma_tet(cutoff, r_axis, c2_a2_ratio):
-        """
-        Find all possible sigma values and corresponding rotation angles
+        """Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in tetragonal system.
         The algorithm for this code is from reference, Acta Cryst, B46,117(1990).
 
@@ -1701,8 +1692,7 @@ class GrainBoundaryGenerator:
 
     @staticmethod
     def enum_sigma_ort(cutoff, r_axis, c2_b2_a2_ratio):
-        """
-        Find all possible sigma values and corresponding rotation angles
+        """Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in orthorhombic system.
         The algorithm for this code is from reference, Scipta Metallurgica 27, 291(1992).
 
@@ -1835,8 +1825,7 @@ class GrainBoundaryGenerator:
 
     @staticmethod
     def enum_possible_plane_cubic(plane_cutoff, r_axis, r_angle):
-        """
-        Find all possible plane combinations for GBs given a rotation axis and angle for
+        """Find all possible plane combinations for GBs given a rotation axis and angle for
         cubic system, and classify them to different categories, including 'Twist',
         'Symmetric tilt', 'Normal tilt', 'Mixed' GBs.
 
@@ -1901,8 +1890,7 @@ class GrainBoundaryGenerator:
 
     @staticmethod
     def get_rotation_angle_from_sigma(sigma, r_axis, lat_type="C", ratio=None):
-        """
-        Find all possible rotation angle for the given sigma value.
+        """Find all possible rotation angle for the given sigma value.
 
         Args:
             sigma (int): sigma value provided
@@ -2364,7 +2352,7 @@ class Interface(Structure):
         vacuum_over_film: float = 0,
         interface_properties: dict | None = None,
     ) -> None:
-        """Makes an interface structure, a structure object with additional information
+        """Make an interface structure, a structure object with additional information
         and methods pertaining to interfaces.
 
         Args:
@@ -2647,7 +2635,7 @@ class Interface(Structure):
         interface_properties: dict | None = None,
         center_slab: bool = True,
     ) -> Self:
-        """Makes an interface structure by merging a substrate and film slabs
+        """Make an interface structure by merging a substrate and film slabs
         The film a- and b-vectors will be forced to be the substrate slab's
         a- and b-vectors.
 

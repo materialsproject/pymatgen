@@ -10,8 +10,7 @@ from pymatgen.util.plotting import pretty_plot
 
 
 class SpectrumPlotter:
-    """
-    Class for plotting Spectrum objects and subclasses. Note that the interface
+    """Plot Spectrum objects and subclasses. Note that the interface
     is extremely flexible given that there are many different ways in which
     people want to view spectra. The typical usage is:
 
@@ -83,8 +82,7 @@ class SpectrumPlotter:
             self.add_spectrum(label, spectra_dict[label])
 
     def get_plot(self, xlim=None, ylim=None):
-        """
-        Get a matplotlib plot showing the DOS.
+        """Get a matplotlib plot showing the DOS.
 
         Args:
             xlim: Specifies the x-axis limits. Set to None for automatic
@@ -127,8 +125,7 @@ class SpectrumPlotter:
         return ax
 
     def save_plot(self, filename: str, **kwargs):
-        """
-        Save matplotlib plot to a file.
+        """Save matplotlib plot to a file.
 
         Args:
             filename (str): Filename to write to. Must include extension to specify image format.

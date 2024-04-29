@@ -107,8 +107,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def zone_axis_filter(
         self, points: list[tuple[int, int, int]] | np.ndarray, laue_zone: int = 0
     ) -> list[tuple[int, int, int]]:
-        """
-        Filters out all points that exist within the specified Laue zone according to the zone axis rule.
+        """Filters out all points that exist within the specified Laue zone according to the zone axis rule.
 
         Args:
             points (np.ndarray): The list of points to be filtered.
@@ -134,7 +133,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             points (tuple): the desired hkl indices.
 
         Returns:
-            Dict of hkl to its interplanar spacing, in angstroms (float).
+            dict[tuple[int, int, int], float]: hkl planes mapped to
+                interplanar spacings, in angstroms (float).
         """
         points_filtered = self.zone_axis_filter(points)
         if (0, 0, 0) in points_filtered:
@@ -145,14 +145,13 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def bragg_angles(
         self, interplanar_spacings: dict[tuple[int, int, int], float]
     ) -> dict[tuple[int, int, int], float]:
-        """
-        Gets the Bragg angles for every hkl point passed in (where n = 1).
+        """Get the Bragg angles for every hkl point passed in (where n = 1).
 
         Args:
             interplanar_spacings (dict): dictionary of hkl to interplanar spacing
 
         Returns:
-            dict of hkl plane (3-tuple) to Bragg angle in radians (float)
+            dict[tuple[int, int, int], float]: hkl planes mapped to Bragg angles [radians]
         """
         plane = list(interplanar_spacings)
         interplanar_spacings_val = np.array(list(interplanar_spacings.values()))
@@ -360,8 +359,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return phi in (180, 0) or np.isnan(phi)
 
     def get_first_point(self, structure: Structure, points: list) -> dict[tuple[int, int, int], float]:
-        """
-        Gets the first point to be plotted in the 2D DP, corresponding to maximum d/minimum R.
+        """Get the first point to be plotted in the 2D DP, corresponding to maximum d/minimum R.
 
         Args:
             structure (Structure): The input structure.

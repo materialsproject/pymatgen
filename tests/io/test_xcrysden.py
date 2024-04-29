@@ -68,8 +68,7 @@ PRIMCOORD
         )
 
     def test_xsf_symbol_parse(self):
-        """
-        Ensure that the same structure is parsed
+        """Ensure that the same structure is parsed
         even if the atomic symbol / number convention
         is different.
         """

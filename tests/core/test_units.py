@@ -171,8 +171,7 @@ class TestFloatWithUnit(PymatgenTest):
 
 class TestArrayWithFloatWithUnit(PymatgenTest):
     def test_energy(self):
-        """
-        Similar to FloatWithUnitTest.test_energy.
+        """Similar to FloatWithUnitTest.test_energy.
         Check whether EnergyArray and FloatWithUnit have same behavior.
 
         # TODO
@@ -195,8 +194,7 @@ class TestArrayWithFloatWithUnit(PymatgenTest):
         assert float(e_in_ev + 1) == 2.1
 
     def test_time(self):
-        """
-        Similar to FloatWithUnitTest.test_time.
+        """Similar to FloatWithUnitTest.test_time.
         Check whether EnergyArray and FloatWithUnit have same behavior.
         """
         # here there's a minor difference because we have a ndarray with dtype=int
@@ -207,8 +205,7 @@ class TestArrayWithFloatWithUnit(PymatgenTest):
         assert str(3 * a) == "60 h"
 
     def test_length(self):
-        """
-        Similar to FloatWithUnitTest.test_time.
+        """Similar to FloatWithUnitTest.test_time.
         Check whether EnergyArray and FloatWithUnit have same behavior.
         """
         x = LengthArray(4.2, "ang")

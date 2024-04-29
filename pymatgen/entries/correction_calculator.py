@@ -40,7 +40,7 @@ class CorrectionCalculator:
         allow_unstable: float | bool = 0.1,
         exclude_polyanions: list[str] | None = None,
     ) -> None:
-        """Initializes a CorrectionCalculator.
+        """Initialize a CorrectionCalculator.
 
         Args:
             species: list of species to calculate corrections for
@@ -358,7 +358,7 @@ class CorrectionCalculator:
         return fig
 
     def make_yaml(self, name: str = "MP2020", dir: str | None = None) -> None:
-        """Creates the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityUncertainties.yaml
+        """Create the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityUncertainties.yaml
         for correction uncertainties.
 
         Args:
