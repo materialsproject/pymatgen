@@ -2065,159 +2065,6 @@ class PotcarSingle:
         md5.update(hash_str.lower().encode("utf-8"))
         return md5.hexdigest()
 
-    @property
-    def is_valid(self) -> bool:
-        """
-        Check that POTCAR matches reference metadata.
-        Parsed metadata is stored in self._summary_stats as a human-readable dict,
-            self._summary_stats = {
-                "keywords": {
-                    "header": list[str],
-                    "data": list[str],
-                },
-                "stats": {
-                    "header": dict[float],
-                    "data": dict[float],
-                },
-            }
-
-        Rationale:
-            Each POTCAR is structured as
-                Header (self.keywords)
-                Data (actual pseudopotential values in data blocks)
-
-            For the Data block of POTCAR, there are unformatted data blocks
-            of unknown length and contents/data type, e.g., you might see
-                <float> <bool>
-                <Data Keyword>
-                <int> <int> <float>
-                <float> ... <float>
-                <Data Keyword>
-                <float> ... <float>
-            but this is impossible to process algorithmically without a full POTCAR schema.
-            Note also that POTCARs can contain **different** data keywords
-
-            All keywords found in the header, essentially self.keywords, and the data block
-            (<Data Keyword> above) are stored in self._summary_stats["keywords"]
-
-            To avoid issues of copyright, statistics (mean, mean of abs vals, variance, max, min)
-            for the numeric values in the header and data sections of POTCAR are stored
-            in self._summary_stats["stats"]
-
-            tol is then used to match statistical values within a tolerance
-        """
-
-        possible_potcar_matches = []
-        # Some POTCARs have an LEXCH (functional used to generate the POTCAR)
-        # with the expected functional, e.g., the C_d POTCAR for PBE is actually an
-        # LDA pseudopotential.
-
-        # Thus we have to look for matches in all POTCAR dirs, not just the ones with
-        # consistent values of LEXCH
-        for func in self.functional_dir:
-            for titel_no_spc in self._potcar_summary_stats[func]:
-                if self.TITEL.replace(" ", "") == titel_no_spc:
-                    for potcar_subvariant in self._potcar_summary_stats[func][titel_no_spc]:
-                        if self.VRHFIN.replace(" ", "") == potcar_subvariant["VRHFIN"]:
-                            possible_potcar_matches.append(
-                                {
-                                    "POTCAR_FUNCTIONAL": func,
-                                    "TITEL": titel_no_spc,
-                                    **potcar_subvariant,
-                                }
-                            )
-
-        def parse_fortran_style_str(input_str: str) -> str | bool | float | int:
-            """Parse any input string as bool, int, float, or failing that, str.
-            Used to parse FORTRAN-generated POTCAR files where it's unknown
-            a priori what type of data will be encountered.
-            """
-            input_str = input_str.strip()
-
-            if input_str.lower() in {"t", "f", "true", "false"}:
-                return input_str[0].lower() == "t"
-
-            if input_str.upper() == input_str.lower() and input_str[0].isnumeric():
-                # NB: fortran style floats always include a decimal point.
-                #     While you can set, e.g., x = 1E4, you cannot print/write x without
-                #     a decimal point:
-                #         `write(6,*) x`          -->   `10000.0000` in stdout
-                #         `write(6,'(E10.0)') x`  -->   segfault
-                #     The (E10.0) means write an exponential-format number with 10
-                #         characters before the decimal, and 0 characters after
-                return float(input_str) if "." in input_str else int(input_str)
-
-            try:
-                return float(input_str)
-            except ValueError:
-                return input_str
-
-        psp_keys, psp_vals = [], []
-        potcar_body = self.data.split("END of PSCTR-controll parameters\n")[1]
-        for row in re.split(r"\n+|;", potcar_body):  # FORTRAN allows ; to delimit multiple lines merged into 1 line
-            tmp_str = ""
-            for raw_val in row.split():
-                parsed_val = parse_fortran_style_str(raw_val)
-                if isinstance(parsed_val, str):
-                    tmp_str += parsed_val.strip()
-                elif isinstance(parsed_val, (float, int)):
-                    psp_vals.append(parsed_val)
-            if len(tmp_str) > 0:
-                psp_keys.append(tmp_str.lower())
-
-        keyword_vals = []
-        for kwd in self.keywords:
-            val = self.keywords[kwd]
-            if isinstance(val, bool):
-                # has to come first since bools are also ints
-                keyword_vals.append(1.0 if val else 0.0)
-            elif isinstance(val, (float, int)):
-                keyword_vals.append(val)
-            elif hasattr(val, "__len__"):
-                keyword_vals += [num for num in val if isinstance(num, (float, int))]
-
-        def data_stats(data_list: Sequence) -> dict:
-            """Used for hash-less and therefore less brittle POTCAR validity checking."""
-            arr = np.array(data_list)
-            return {
-                "MEAN": np.mean(arr),
-                "ABSMEAN": np.mean(np.abs(arr)),
-                "VAR": np.mean(arr**2),
-                "MIN": arr.min(),
-                "MAX": arr.max(),
-            }
-
-        # NB: to add future summary stats in a way that's consistent with PMG,
-        # it's easiest to save the summary stats as an attr of PotcarSingle
-        self._summary_stats: dict[str, dict] = {  # for this PotcarSingle instance
-            "keywords": {
-                "header": [kwd.lower() for kwd in self.keywords],
-                "data": psp_keys,
-            },
-            "stats": {
-                "header": data_stats(keyword_vals),
-                "data": data_stats(psp_vals),
-            },
-        }
-
-        data_match_tol: float = 1e-6
-        for ref_psp in possible_potcar_matches:
-            key_match = all(
-                set(ref_psp["keywords"][key]) == set(self._summary_stats["keywords"][key]) for key in ["header", "data"]
-            )
-
-            data_diff = [
-                abs(ref_psp["stats"][key][stat] - self._summary_stats["stats"][key][stat])
-                for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
-                for key in ["header", "data"]
-            ]
-            data_match = all(np.array(data_diff) < data_match_tol)
-
-            if key_match and data_match:
-                return True
-
-        return False
-
     def write_file(self, filename: str) -> None:
         """Write PotcarSingle to a file.
 
@@ -2324,6 +2171,47 @@ class PotcarSingle:
 
         return has_sha256, hash_is_valid
 
+    @staticmethod
+    def compare_potcar_stats(
+        potcar_stats_1: dict,
+        potcar_stats_2: dict,
+        tolerance: float = 1.0e-6,
+        check_potcar_fields: Sequence[str] = ["header", "data"],
+    ) -> bool:
+        """
+        Compare PotcarSingle._summary_stats to assess if they are the same within a tolerance.
+
+        Args:
+            potcar_stats_1 : dict
+                Dict of potcar summary stats from the first PotcarSingle, from the PotcarSingle._summary stats attr
+            potcar_stats_2 : dict
+                Second dict of summary stats
+            tolerance : float = 1.e-6
+                Tolerance to assess equality of numeric statistical values
+            check_potcar_fields : Sequence[str] = ["header", "data"]
+                The specific fields of the POTCAR to check, whether just the "header", just the "data", or both
+
+        Returns:
+            bool
+                Whether the POTCARs are identical according to their summary stats.
+        """
+
+        key_match = all(
+            set(potcar_stats_1["keywords"].get(key)) == set(potcar_stats_2["keywords"].get(key))  # type: ignore
+            for key in check_potcar_fields
+        )
+
+        data_match = False
+        if key_match:
+            data_diff = [
+                abs(potcar_stats_1["stats"].get(key, {}).get(stat) - potcar_stats_2["stats"].get(key, {}).get(stat))  # type: ignore
+                for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
+                for key in check_potcar_fields
+            ]
+            data_match = all(np.array(data_diff) < tolerance)
+
+        return key_match and data_match
+
     def identify_potcar(
         self,
         mode: Literal["data", "file"] = "data",
@@ -2361,19 +2249,9 @@ class PotcarSingle:
                 if self.VRHFIN.replace(" ", "") != ref_psp["VRHFIN"]:
                     continue
 
-                key_match = all(
-                    set(ref_psp["keywords"][key]) == set(self._summary_stats["keywords"][key]) for key in check_modes
-                )
-
-                data_diff = [
-                    abs(ref_psp["stats"][key][stat] - self._summary_stats["stats"][key][stat])
-                    for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
-                    for key in check_modes
-                ]
-
-                data_match = all(np.array(data_diff) < data_tol)
-
-                if key_match and data_match:
+                if self.compare_potcar_stats(
+                    ref_psp, self._summary_stats, tolerance=data_tol, check_potcar_fields=check_modes
+                ):
                     identity["potcar_functionals"].append(func)
                     identity["potcar_symbols"].append(ref_psp["symbol"])
 
@@ -2509,6 +2387,166 @@ class PotcarSingle:
             return potcar_functionals, identity["potcar_symbols"]
         return [], []
 
+    @property
+    def is_valid(self) -> bool:
+        """
+        Check that POTCAR matches reference metadata.
+        Parsed metadata is stored in self._summary_stats as a human-readable dict,
+            self._summary_stats = {
+                "keywords": {
+                    "header": list[str],
+                    "data": list[str],
+                },
+                "stats": {
+                    "header": dict[float],
+                    "data": dict[float],
+                },
+            }
+
+        Rationale:
+        Each POTCAR is structured as
+            Header (self.keywords)
+            Data (actual pseudopotential values in data blocks)
+
+        For the Data block of POTCAR, there are unformatted data blocks
+        of unknown length and contents/data type, e.g., you might see
+            <float> <bool>
+            <Data Keyword>
+            <int> <int> <float>
+            <float> ... <float>
+            <Data Keyword>
+            <float> ... <float>
+        but this is impossible to process algorithmically without a full POTCAR schema.
+        Note also that POTCARs can contain **different** data keywords
+
+        All keywords found in the header, essentially self.keywords, and the data block
+        (<Data Keyword> above) are stored in self._summary_stats["keywords"]
+
+        To avoid issues of copyright, statistics (mean, mean of abs vals, variance, max, min)
+        for the numeric values in the header and data sections of POTCAR are stored
+        in self._summary_stats["stats"]
+
+        tol is then used to match statistical values within a tolerance
+        """
+
+        possible_potcar_matches = []
+        # Some POTCARs have an LEXCH (functional used to generate the POTCAR)
+        # with the expected functional, e.g., the C_d POTCAR for PBE is actually an
+        # LDA pseudopotential.
+
+        # Thus we have to look for matches in all POTCAR dirs, not just the ones with
+        # consistent values of LEXCH
+        for func in self.functional_dir:
+            for titel_no_spc in self._potcar_summary_stats[func]:
+                if self.TITEL.replace(" ", "") == titel_no_spc:
+                    for potcar_subvariant in self._potcar_summary_stats[func][titel_no_spc]:
+                        if self.VRHFIN.replace(" ", "") == potcar_subvariant["VRHFIN"]:
+                            possible_potcar_matches.append(
+                                {
+                                    "POTCAR_FUNCTIONAL": func,
+                                    "TITEL": titel_no_spc,
+                                    **potcar_subvariant,
+                                }
+                            )
+
+        def parse_fortran_style_str(input_str: str) -> Any:
+            """Parse any input string as bool, int, float, or failing that, str.
+            Used to parse FORTRAN-generated POTCAR files where it's unknown
+            a priori what type of data will be encountered.
+            """
+            input_str = input_str.strip()
+
+            if input_str.lower() in {"t", "f", "true", "false"}:
+                return input_str[0].lower() == "t"
+
+            if input_str.upper() == input_str.lower() and input_str[0].isnumeric():
+                if "." in input_str:
+                    # NB: fortran style floats always include a decimal point.
+                    #     While you can set, e.g., x = 1E4, you cannot print/write x without
+                    #     a decimal point:
+                    #         `write(6,*) x`          -->   `10000.0000` in stdout
+                    #         `write(6,'(E10.0)') x`  -->   segfault
+                    #     The (E10.0) means write an exponential-format number with 10
+                    #         characters before the decimal, and 0 characters after
+                    return float(input_str)
+                return int(input_str)
+            try:
+                return float(input_str)
+            except ValueError:
+                return input_str
+
+        psp_keys, psp_vals = [], []
+        potcar_body = self.data.split("END of PSCTR-controll parameters\n")[1]
+        for row in re.split(r"\n+|;", potcar_body):  # FORTRAN allows ; to delimit multiple lines merged into 1 line
+            tmp_str = ""
+            for raw_val in row.split():
+                parsed_val = parse_fortran_style_str(raw_val)
+                if isinstance(parsed_val, str):
+                    tmp_str += parsed_val.strip()
+                elif isinstance(parsed_val, (float, int)):
+                    psp_vals.append(parsed_val)
+            if len(tmp_str) > 0:
+                psp_keys.append(tmp_str.lower())
+
+        keyword_vals = []
+        for kwd in self.keywords:
+            val = self.keywords[kwd]
+            if isinstance(val, bool):
+                # has to come first since bools are also ints
+                keyword_vals.append(1.0 if val else 0.0)
+            elif isinstance(val, (float, int)):
+                keyword_vals.append(val)
+            elif hasattr(val, "__len__"):
+                keyword_vals += [num for num in val if isinstance(num, (float, int))]
+
+        def data_stats(data_list: Sequence) -> dict:
+            """Used for hash-less and therefore less brittle POTCAR validity checking."""
+            arr = np.array(data_list)
+            return {
+                "MEAN": np.mean(arr),
+                "ABSMEAN": np.mean(np.abs(arr)),
+                "VAR": np.mean(arr**2),
+                "MIN": arr.min(),
+                "MAX": arr.max(),
+            }
+
+        # NB: to add future summary stats in a way that's consistent with PMG,
+        # it's easiest to save the summary stats as an attr of PotcarSingle
+        self._summary_stats = {  # for this PotcarSingle instance
+            "keywords": {
+                "header": [kwd.lower() for kwd in self.keywords],
+                "data": psp_keys,
+            },
+            "stats": {
+                "header": data_stats(keyword_vals),
+                "data": data_stats(psp_vals),
+            },
+        }
+
+        data_match_tol = 1e-6
+        for ref_psp in possible_potcar_matches:
+            if self.compare_potcar_stats(ref_psp, self._summary_stats, tolerance=data_match_tol):
+                return True
+
+        return False
+
+    def spec(self, extra_spec: Sequence[str] | None = None) -> dict[str, Any]:
+        """
+        POTCAR spec used in vasprun.xml.
+
+        Args:
+            extra_spec : Sequence[str] or None (default)
+                A list of extra POTCAR fields to include in the spec.
+                If None, defaults to no extra spec.
+        Returns:
+            dict of POTCAR spec
+        """
+        extra_spec = extra_spec or []
+        spec = {"titel": self.TITEL, "hash": self.md5_header_hash, "summary_stats": self._summary_stats}
+        for attr in extra_spec:
+            spec[attr] = getattr(self, attr, None)
+        return spec
+
 
 def _gen_potcar_summary_stats(
     append: bool = False,
@@ -2627,11 +2665,6 @@ class Potcar(list, MSONable):
     def symbols(self, symbols: Sequence[str]) -> None:
         self.set_symbols(symbols, functional=self.functional)
 
-    @property
-    def spec(self) -> list[dict]:
-        """Get the atomic symbols and hash of all the atoms in the POTCAR file."""
-        return [{"symbol": psingle.symbol, "hash": psingle.md5_computed_file_hash} for psingle in self]
-
     def as_dict(self) -> dict:
         """MSONable dict representation."""
         return {
@@ -2653,22 +2686,19 @@ class Potcar(list, MSONable):
         return Potcar(symbols=dct["symbols"], functional=dct["functional"])
 
     @classmethod
-    def from_file(cls, filename: PathLike) -> Self:
+    def from_str(cls, data: str):
         """
-        Reads Potcar from file.
+        Read Potcar from a string.
 
-        Args:
-            filename: Filename
+        :param data: Potcar as a string.
 
         Returns:
             Potcar
         """
-        with zopen(filename, mode="rt") as file:
-            fdata = file.read()
-
         potcar = cls()
-        functionals: list[str | None] = []
-        for psingle_str in fdata.split("End of Dataset"):
+
+        functionals = []
+        for psingle_str in data.split("End of Dataset"):
             if p_strip := psingle_str.strip():
                 psingle = PotcarSingle(f"{p_strip}\nEnd of Dataset\n")
                 potcar.append(psingle)
@@ -2680,7 +2710,21 @@ class Potcar(list, MSONable):
         potcar.functional = functionals[0]
         return potcar
 
-    def write_file(self, filename: PathLike) -> None:
+    @classmethod
+    def from_file(cls, filename: str):
+        """
+        Reads Potcar from file.
+
+        :param filename: Filename
+
+        Returns:
+            Potcar
+        """
+        with zopen(filename, mode="rt") as file:
+            fdata = file.read()
+        return cls.from_str(fdata)
+
+    def write_file(self, filename: str) -> None:
         """
         Write Potcar to a file.
 
@@ -2689,6 +2733,31 @@ class Potcar(list, MSONable):
         """
         with zopen(filename, mode="wt") as file:
             file.write(str(self))
+
+    @property
+    def spec(self) -> list[dict]:
+        """
+        POTCAR spec for all POTCARs in this instance.
+
+        Args:
+            extra_spec : Sequence[str] or None (default)
+                A list of extra POTCAR fields to include in the spec.
+                If None, defaults to ["symbol"] (needed for compatibility with LOBSTER).
+
+        Return:
+            list[dict], a list of PotcarSingle.spec dicts
+        """
+        return [psingle.spec(extra_spec=["symbol"]) for psingle in self]
+
+    def write_potcar_spec(self, filename: str = "POTCAR.spec.json.gz") -> None:
+        """
+        Write POTCAR spec to file.
+
+        Args:
+            filename : str = "POTCAR.spec.json.gz"
+                The name of a file to write the POTCAR spec to.
+        """
+        dumpfn(self.spec, filename)
 
     def set_symbols(
         self,
@@ -2716,6 +2785,42 @@ class Potcar(list, MSONable):
             self.extend(PotcarSingle(sym_potcar_map[el]) for el in symbols)
         else:
             self.extend(PotcarSingle.from_symbol_and_functional(el, functional) for el in symbols)
+
+    @classmethod
+    def from_spec(cls, potcar_spec: list[dict], functionals: list[str] | None = None) -> Potcar:
+        """
+        Generate a POTCAR from a list of POTCAR spec dicts.
+
+        If a set of POTCARs *for the same functional* cannot be found, raises a ValueError.
+        Args:
+            potcar_spec: list[dict]
+                List of POTCAR specs, from Potcar.spec or [PotcarSingle.spec]
+            functionals : list[str] or None (default)
+                If a list of strings, the functionals to restrict the search to.
+
+        Returns:
+            Potcar, a POTCAR using a single functional that matches the input spec.
+        """
+
+        functionals = functionals or list(PotcarSingle._potcar_summary_stats)
+        for functional in functionals:
+            potcar = Potcar()
+            matched = [False for _ in range(len(potcar_spec))]
+            for ispec, spec in enumerate(potcar_spec):
+                titel = spec.get("titel", "")
+                titel_no_spc = titel.replace(" ", "")
+                symbol = titel.split(" ")[1].strip()
+
+                for stats in PotcarSingle._potcar_summary_stats[functional].get(titel_no_spc, []):
+                    if PotcarSingle.compare_potcar_stats(spec["summary_stats"], stats):
+                        potcar.append(PotcarSingle.from_symbol_and_functional(symbol=symbol, functional=functional))
+                        matched[ispec] = True
+                        break
+
+                if all(matched):
+                    return potcar
+
+        raise ValueError("Cannot match the give POTCAR spec to a set of POTCARs generated with the same functional.")
 
 
 class UnknownPotcarWarning(UserWarning):
