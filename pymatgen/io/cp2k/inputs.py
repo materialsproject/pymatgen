@@ -1280,7 +1280,7 @@ class OrbitalTransformation(Section):
 
 
 class Cell(Section):
-    """Defines the simulation cell (lattice)."""
+    """Controls the cell/lattice parameters for the simulation."""
 
     def __init__(self, lattice: Lattice, keywords: dict | None = None, **kwargs):
         """
@@ -1832,7 +1832,7 @@ class BrokenSymmetry(Section):
 
 
 class XCFunctional(Section):
-    """Defines the XC functional(s) to use."""
+    """Info about which XC functional to use."""
 
     def __init__(
         self,

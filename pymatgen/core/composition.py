@@ -173,7 +173,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             raise TypeError(f"Invalid {key=} for Composition") from exc
 
     def __eq__(self, other: object) -> bool:
-        """Defines == for Compositions."""
+        """Composition equality. We consider compositions equal if they have the
+        same elements and the amounts are within Composition.amount_tolerance
+        of each other.
+
+        Args:
+            other: Composition to compare to.
+        """
         if not isinstance(other, (Composition, dict)):
             return NotImplemented
 
@@ -186,8 +192,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return all(abs(amt - other[el]) <= Composition.amount_tolerance for el, amt in self.items())
 
     def __ge__(self, other: object) -> bool:
-        """Defines >= for Compositions. Should ONLY be used for defining a sort
-        order (the behavior is probably not what you'd expect).
+        """Composition greater than or equal to. We consider compositions A >= B
+        if all elements in B are in A and the amount of each element in A is
+        greater than or equal to the amount of the element in B within
+        Composition.amount_tolerance.
+
+        Should ONLY be used for defining a sort order (the behavior is probably not what you'd expect).
         """
         if not isinstance(other, Composition):
             return NotImplemented
@@ -195,6 +205,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         for el in sorted(set(self.elements + other.elements)):
             if other[el] - self[el] >= Composition.amount_tolerance:
                 return False
+            # TODO @janosh 2024-04-29: is this a bug? why would we return True early?
             if self[el] - other[el] >= Composition.amount_tolerance:
                 return True
         return True

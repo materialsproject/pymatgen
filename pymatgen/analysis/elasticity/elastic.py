@@ -380,7 +380,7 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @raise_if_unphysical
     def debye_temperature(self, structure: Structure) -> float:
-        """Estimates the Debye temperature from longitudinal and transverse sound velocities.
+        """Estimate the Debye temperature from longitudinal and transverse sound velocities.
 
         Args:
             structure: pymatgen structure object

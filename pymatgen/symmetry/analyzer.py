@@ -1628,7 +1628,7 @@ class SpacegroupOperations(list):
 
 
 class PointGroupOperations(list):
-    """Defines a point group, which is essentially a sequence of symmetry operations.
+    """Represents a point group, which is a sequence of symmetry operations.
 
     Attributes:
         sch_symbol (str): Schoenflies symbol of the point group.

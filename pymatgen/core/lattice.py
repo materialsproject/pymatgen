@@ -1,4 +1,6 @@
-"""Defines the classes relating to 3D lattices."""
+"""This module defines the Lattice class, the fundamental class for representing
+periodic crystals. It is essentially a matrix with some extra methods and attributes.
+"""
 
 from __future__ import annotations
 

@@ -107,7 +107,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def zone_axis_filter(
         self, points: list[tuple[int, int, int]] | np.ndarray, laue_zone: int = 0
     ) -> list[tuple[int, int, int]]:
-        """Filters out all points that exist within the specified Laue zone according to the zone axis rule.
+        """Filter out all points that exist within the specified Laue zone according to the zone axis rule.
 
         Args:
             points (np.ndarray): The list of points to be filtered.
