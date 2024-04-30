@@ -1614,7 +1614,7 @@ class TestLobsterin(TestCase):
             lobsterin2 = Lobsterin({"cohpstartenergy": -15.0, "cohpstartEnergy": -20.0})
         lobsterin2 = Lobsterin({"cohpstartenergy": -15.0})
         # can only calculate nbands if basis functions are provided
-        with pytest.raises(ValueError, match="No basis functions are provided. The program cannot calculate nbands"):
+        with pytest.raises(ValueError, match="No basis functions are provided. The program cannot calculate nbands."):
             lobsterin2._get_nbands(structure=Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Fe3O4"))
 
     def test_standard_settings(self):
@@ -2421,13 +2421,17 @@ class TestWavefunction(PymatgenTest):
             filename=f"{TEST_DIR}/LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR_O.gz"),
         )
-        wave1.write_file(filename=f"{self.tmp_path}/wavecar_test.vasp", part="real")
-        assert os.path.isfile("wavecar_test.vasp")
+        real_wavecar_path = f"{self.tmp_path}/real-wavecar.vasp"
+        wave1.write_file(filename=real_wavecar_path, part="real")
+        assert os.path.isfile(real_wavecar_path)
 
-        wave1.write_file(filename=f"{self.tmp_path}/wavecar_test.vasp", part="imaginary")
-        assert os.path.isfile("wavecar_test.vasp")
-        wave1.write_file(filename=f"{self.tmp_path}/density.vasp", part="density")
-        assert os.path.isfile("density.vasp")
+        imag_wavecar_path = f"{self.tmp_path}/imaginary-wavecar.vasp"
+        wave1.write_file(filename=imag_wavecar_path, part="imaginary")
+        assert os.path.isfile(imag_wavecar_path)
+
+        density_wavecar_path = f"{self.tmp_path}/density-wavecar.vasp"
+        wave1.write_file(filename=density_wavecar_path, part="density")
+        assert os.path.isfile(density_wavecar_path)
 
 
 class TestSitePotentials(PymatgenTest):

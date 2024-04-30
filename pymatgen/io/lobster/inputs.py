@@ -51,29 +51,7 @@ due.cite(
 )
 
 
-class DotDict(UserDict):
-    # copied for python 3.12 compat from
-    # https://github.com/python/cpython/issues/105524#issuecomment-1610750842
-    def __getitem__(self, key):
-        subitem = self.data
-        for subkey in key.split("."):
-            try:
-                subitem = subitem[subkey]
-            except KeyError:
-                raise KeyError(f"`{key}` not found in configuration") from None
-        return subitem
-
-    def __contains__(self, key):
-        subitem = self.data
-        for subkey in key.split("."):
-            try:
-                subitem = subitem[subkey]
-            except KeyError:
-                return False
-        return True
-
-
-class Lobsterin(DotDict, MSONable):
+class Lobsterin(UserDict, MSONable):
     """
     This class can handle and generate lobsterin files
     Furthermore, it can also modify INCAR files for lobster, generate KPOINT files for fatband calculations in Lobster,
@@ -154,7 +132,7 @@ class Lobsterin(DotDict, MSONable):
             raise KeyError("There are duplicates for the keywords!")
         self.update(settingsdict)
 
-    def __setitem__(self, key, val):
+    def __setitem__(self, key, val) -> None:
         """
         Add parameter-val pair to Lobsterin. Warns if parameter is not in list of
         valid lobsterin tags. Also cleans the parameter and val by stripping
@@ -168,7 +146,7 @@ class Lobsterin(DotDict, MSONable):
 
         super().__setitem__(new_key, val.strip() if isinstance(val, str) else val)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key) -> Any:
         """Implements getitem from dict to avoid problems with cases."""
         normalized_key = next((k for k in self if key.strip().lower() == k.lower()), key)
 
@@ -177,6 +155,16 @@ class Lobsterin(DotDict, MSONable):
             raise KeyError(f"{key=} is not available")
 
         return self.data[normalized_key]
+
+    def __contains__(self, key) -> bool:
+        """Implements getitem from dict to avoid problems with cases."""
+        normalized_key = next((k for k in self if key.strip().lower() == k.lower()), key)
+
+        key_is_unknown = normalized_key.lower() not in map(str.lower, Lobsterin.AVAILABLE_KEYWORDS)
+        if key_is_unknown or normalized_key not in self.data:
+            return False
+
+        return True
 
     def __delitem__(self, key):
         new_key = next((key_here for key_here in self if key.strip().lower() == key_here.lower()), key)
