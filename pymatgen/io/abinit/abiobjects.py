@@ -577,7 +577,7 @@ class Electrons(AbivarAble, MSONable):
         self.algorithm = algorithm
 
     @property
-    def nsppol(self):
+    def nsppol(self) -> int:
         """Number of independent spin polarizations."""
         return self.spin_mode.nsppol
 

@@ -1313,8 +1313,7 @@ class StructureEnvironments(MSONable):
 
 
 class LightStructureEnvironments(MSONable):
-    """
-    Class used to store the chemical environments of a given structure obtained from a given ChemenvStrategy. Currently,
+    """Store the chemical environments of a given structure obtained from a given ChemenvStrategy. Currently,
     only strategies leading to the determination of a unique environment for each site is allowed
     This class does not store all the information contained in the StructureEnvironments object, only the coordination
     environment found.
@@ -2063,8 +2062,7 @@ class LightStructureEnvironments(MSONable):
 
 
 class ChemicalEnvironments(MSONable):
-    """
-    Class used to store all the information about the chemical environment of a given site for a given list of
+    """Store all the information about the chemical environment of a given site for a given list of
     coordinated neighbors (internally called "cn_map").
     """
 

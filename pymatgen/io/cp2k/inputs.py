@@ -61,8 +61,7 @@ MODULE_DIR = Path(__file__).resolve().parent
 
 
 class Keyword(MSONable):
-    """
-    Class representing a keyword argument in CP2K. Within CP2K Sections, which activate features
+    """A keyword argument in CP2K. Within CP2K Sections, which activate features
     of the CP2K code, the keywords are arguments that control the functionality of that feature.
     For example, the section "FORCE_EVAL" activates the evaluation of forces/energies, but within
     "FORCE_EVAL" the keyword "METHOD" controls whether or not this will be done with, say,

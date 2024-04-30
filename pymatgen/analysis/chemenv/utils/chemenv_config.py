@@ -19,11 +19,10 @@ __date__ = "Feb 20, 2016"
 
 
 class ChemEnvConfig:
-    """
-    Class used to store the configuration of the chemenv package :
-     - Materials project access
-     - ICSD database access
-     - Default options (strategies, ...).
+    """Store the configuration of the chemenv package:
+    - Materials project access
+    - ICSD database access
+    - Default options (strategies, ...).
     """
 
     DEFAULT_PACKAGE_OPTIONS = dict(

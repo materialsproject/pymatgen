@@ -752,7 +752,7 @@ class PourbaixDiagram(MSONable):
             [0, 0, -1, 2 * g_max],
         ]
         hs_hyperplanes = np.vstack([hyperplanes, border_hyperplanes])
-        interior_point = [*np.average(limits, axis=1).tolist(), g_max]
+        interior_point = [*np.mean(limits, axis=1).tolist(), g_max]
         hs_int = HalfspaceIntersection(hs_hyperplanes, np.array(interior_point))
 
         # organize the boundary points by entry
@@ -771,7 +771,7 @@ class PourbaixDiagram(MSONable):
             points = np.array(points)[:, :2]
             # Initial sort to ensure consistency
             points = points[np.lexsort(np.transpose(points))]
-            center = np.average(points, axis=0)
+            center = np.mean(points, axis=0)
             points_centered = points - center
 
             # Sort points by cross product of centered points,
@@ -979,7 +979,7 @@ class PourbaixPlotter:
             ax.plot(V0_line[0], V0_line[1], "k-.", linewidth=lw)
 
         for entry, vertices in self._pbx._stable_domain_vertices.items():
-            center = np.average(vertices, axis=0)
+            center = np.mean(vertices, axis=0)
             x, y = np.transpose(np.vstack([vertices, vertices[0]]))
             ax.plot(x, y, "k-", linewidth=lw)
 

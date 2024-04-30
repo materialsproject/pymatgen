@@ -603,8 +603,7 @@ class AirssProvider(ResProvider):
 
 
 class ResIO:
-    """
-    Class providing convenience methods for converting a Structure or ComputedStructureEntry
+    """Convenience methods for converting a Structure or ComputedStructureEntry
     to/from a string or file in the res format as used by AIRSS.
 
     Note: Converting from and back to pymatgen objects is expected to be reversible, i.e. you

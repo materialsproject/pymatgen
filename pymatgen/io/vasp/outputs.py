@@ -4032,8 +4032,7 @@ def get_band_structure_from_vasp_multiple_branches(dir_name, efermi=None, projec
 
 
 class Xdatcar:
-    """
-    Class representing an XDATCAR file. Only tested with VASP 5.x files.
+    """XDATCAR output file. Only tested with VASP 5.x files.
 
     Attributes:
         structures (list): List of structures parsed from XDATCAR.

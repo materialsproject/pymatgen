@@ -621,7 +621,7 @@ class EwaldMinimizer:
             elapsed_time = datetime.utcnow() - self._start_time
             speedup_parameter = elapsed_time.total_seconds() / 1800
             avg_int = np.sum(interaction_matrix, axis=None)
-            avg_frac = np.average(np.outer(1 - fractions, 1 - fractions))
+            avg_frac = np.mean(np.outer(1 - fractions, 1 - fractions))
             average_correction = avg_int * avg_frac
 
             interaction_correction = average_correction * speedup_parameter + interaction_correction * (

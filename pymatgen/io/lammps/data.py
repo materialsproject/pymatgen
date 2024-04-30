@@ -888,8 +888,7 @@ class LammpsData(MSONable):
 
 
 class Topology(MSONable):
-    """
-    Class carrying most data in Atoms, Velocities and molecular topology sections for
+    """Class carrying most data in Atoms, Velocities and molecular topology sections for
     ONE SINGLE Molecule or Structure object, or a plain list of Sites.
     """
 
@@ -1024,10 +1023,10 @@ class Topology(MSONable):
 
 class ForceField(MSONable):
     """
-    Class carrying most data in Masses and force field sections.
+    Class carrying most data in masses and force field sections.
 
     Attributes:
-        masses (pandas.DataFrame): DataFrame for Masses section.
+        masses (pandas.DataFrame): DataFrame for masses section.
         force_fieldct (dict): Force field section keywords (keys) and
             data (values) as DataFrames.
         maps (dict): Dict for labeling atoms and topologies.

@@ -406,7 +406,6 @@ def vectorsToMatrix(aa, bb):
 
 def matrixTimesVector(MM, aa):
     """
-
     Args:
         MM: A matrix of size 3x3
         aa: A vector of size 3

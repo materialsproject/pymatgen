@@ -152,8 +152,7 @@ class ZeoCssr(Cssr):
 
 
 class ZeoVoronoiXYZ(XYZ):
-    """
-    Class to read Voronoi Nodes from XYZ file written by Zeo++.
+    """Read Voronoi Nodes from XYZ file written by Zeo++.
     The sites have an additional column representing the voronoi node radius.
     The voronoi node radius is represented by the site property voronoi_radius.
     """

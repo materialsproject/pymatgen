@@ -261,7 +261,7 @@ class SlabEntry(ComputedStructureEntry):
         """Returns the TOTAL number of adsorbed surfaces in the slab."""
         struct = self.structure
         weights = [s.species.weight for s in struct]
-        center_of_mass = np.average(struct.frac_coords, weights=weights, axis=0)
+        center_of_mass = np.mean(struct.frac_coords, weights=weights, axis=0)
 
         n_surfs = 0
         # Are there adsorbates on top surface?

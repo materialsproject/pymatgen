@@ -73,8 +73,7 @@ class AbstractChemenvAlgorithm(MSONable, abc.ABC):
 
 
 class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
-    """
-    Class representing the algorithm doing the explicit permutations for the calculation of
+    """Algorithm doing the explicit permutations for the calculation of
     the Continuous Symmetry Measure.
     """
 
@@ -121,8 +120,7 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
 
 
 class SeparationPlane(AbstractChemenvAlgorithm):
-    """
-    Class representing the algorithm using separation planes for the calculation of
+    """Algorithm using separation planes for the calculation of
     the Continuous Symmetry Measure.
     """
 
@@ -830,7 +828,7 @@ class CoordinationGeometry:
 
     def get_pmeshes(self, sites, permutation=None):
         """Returns the pmesh strings used for jmol to show this geometry."""
-        pmeshes = []
+        p_meshes = []
         # _vertices = [site.coords for site in sites]
         _vertices = [site.coords for site in sites] if permutation is None else [sites[ii].coords for ii in permutation]
         _face_centers = []
@@ -867,14 +865,13 @@ class CoordinationGeometry:
                 for face_vertex in face:
                     out += f"{face_vertex}\n"
                 out += f"{face[0]}\n"
-        pmeshes.append({"pmesh_string": out})
-        return pmeshes
+        p_meshes.append({"pmesh_string": out})
+        return p_meshes
 
 
 class AllCoordinationGeometries(dict):
-    """
-    Class used to store all the reference "coordination geometries" (list with instances of the CoordinationGeometry
-    classes).
+    """Store all the reference "coordination geometries" (list with instances
+    of the CoordinationGeometry classes).
     """
 
     def __init__(self, permutations_safe_override=False, only_symbols=None):

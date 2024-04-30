@@ -2707,7 +2707,7 @@ class Interface(Structure):
 
         # Shift coords to center
         if center_slab:
-            coords = np.add(coords, [0, 0, 0.5 - np.average(coords[:, 2])])
+            coords = np.add(coords, [0, 0, 0.5 - np.mean(coords[:, 2])])
 
         # Only merge site properties in both slabs
         site_properties = {}
@@ -2766,9 +2766,7 @@ def label_termination(slab: Structure) -> str:
     for idx, cluster in enumerate(clusters):
         clustered_sites[cluster].append(slab[idx])
 
-    plane_heights = {
-        np.average(np.mod([s.frac_coords[2] for s in sites], 1)): c for c, sites in clustered_sites.items()
-    }
+    plane_heights = {np.mean(np.mod([s.frac_coords[2] for s in sites], 1)): c for c, sites in clustered_sites.items()}
     top_plane_cluster = max(plane_heights.items(), key=lambda x: x[0])[1]
     top_plane_sites = clustered_sites[top_plane_cluster]
     top_plane = Structure.from_sites(top_plane_sites)
@@ -2806,8 +2804,6 @@ def count_layers(struct: Structure, el=None) -> int:
     for idx, cluster in enumerate(clusters):
         clustered_sites[cluster].append(struct[idx])
 
-    plane_heights = {
-        np.average(np.mod([s.frac_coords[2] for s in sites], 1)): c for c, sites in clustered_sites.items()
-    }
+    plane_heights = {np.mean(np.mod([s.frac_coords[2] for s in sites], 1)): c for c, sites in clustered_sites.items()}
 
     return len(plane_heights)

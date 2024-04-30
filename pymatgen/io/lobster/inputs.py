@@ -815,7 +815,6 @@ class Lobsterin(UserDict, MSONable):
 
 def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> list:
     """
-
     Args:
         min_basis: list of basis entries: e.g., ['Si 3p 3s ']
         max_basis: list of basis entries: e.g., ['Si 3p 3s '].

@@ -44,8 +44,7 @@ template_dir = f"{module_dir}/templates"
 
 
 class LammpsInputFile(InputFile):
-    """
-    Class representing a LAMMPS input settings file, e.g. in.lammps.
+    """LAMMPS input settings file such as `in.lammps`.
     Allows for LAMMPS input generation in line/stage wise manner. A stage
     here is defined as a block of LAMMPS input commands usually performing a
     specific task during the simulation such as energy minimization or

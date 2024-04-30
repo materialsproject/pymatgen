@@ -2151,7 +2151,6 @@ class BoltztrapAnalyzer:
 
 def read_cube_file(filename):
     """
-
     Args:
         filename: Cube filename.
 

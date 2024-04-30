@@ -19,7 +19,6 @@ if TYPE_CHECKING:
 
 def lorentzian(x, x_0: float = 0, sigma: float = 1.0):
     """
-
     Args:
         x: x values
         x_0: Center

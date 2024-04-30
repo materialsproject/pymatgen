@@ -68,17 +68,16 @@ def get_avg_mom_inertia(mol):
             inertia_tensor[ii, jj] += -wt * c[ii] * c[jj]
             inertia_tensor[jj, ii] += -wt * c[jj] * c[ii]
 
-    # amuangs^2 to kg m^2
+    # atomic mass unit * angstrom^2 to kg m^2
     inertia_eigen_vals = np.linalg.eig(inertia_tensor)[0] * amu_to_kg * 1e-20
 
-    iav = np.average(inertia_eigen_vals)
+    iav = np.mean(inertia_eigen_vals)
 
     return iav, inertia_eigen_vals
 
 
 class QuasiRRHO:
-    """
-    Class to calculate thermochemistry using Grimme's Quasi-RRHO approximation.
+    """Calculate thermochemistry using Grimme's Quasi-RRHO approximation.
     All outputs are in atomic units, e.g. energy outputs are in Hartrees.
     Citation: Grimme, S. Chemistry - A European Journal 18, 9955-9964 (2012).
 

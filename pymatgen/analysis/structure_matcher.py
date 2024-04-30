@@ -282,11 +282,9 @@ class OccupancyComparator(AbstractComparator):
 
 
 class StructureMatcher(MSONable):
-    """
-    Class to match structures by similarity.
+    """Match structures by similarity.
 
     Algorithm:
-
     1. Given two structures: s1 and s2
     2. Optional: Reduce to primitive cells.
     3. If the number of sites do not match, return False
@@ -524,7 +522,7 @@ class StructureMatcher(MSONable):
         lin = LinearAssignment(d_2)
         sol = lin.solution
         short_vecs = vecs[np.arange(len(sol)), sol]
-        translation = np.average(short_vecs, axis=0)
+        translation = np.mean(short_vecs, axis=0)
         f_translation = avg_lattice.get_fractional_coords(translation)
         new_d2 = np.sum((short_vecs - translation) ** 2, axis=-1)
 
