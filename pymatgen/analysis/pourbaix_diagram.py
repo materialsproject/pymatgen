@@ -262,8 +262,7 @@ class MultiEntry(PourbaixEntry):
     """
 
     def __init__(self, entry_list, weights=None):
-        """
-        Initializes a MultiEntry.
+        """Initialize a MultiEntry.
 
         Args:
             entry_list ([PourbaixEntry]): List of component PourbaixEntries
@@ -513,8 +512,7 @@ class PourbaixDiagram(MSONable):
         return vecs
 
     def _get_hull_in_nph_nphi_space(self, entries) -> tuple[list[PourbaixEntry], list[Simplex]]:
-        """
-        Generates convex hull of Pourbaix diagram entries in composition,
+        """Generate convex hull of Pourbaix diagram entries in composition,
         npH, and nphi space. This enables filtering of multi-entries
         such that only compositionally stable combinations of entries
         are included.
@@ -571,8 +569,7 @@ class PourbaixDiagram(MSONable):
         return min_entries, valid_facets
 
     def _preprocess_pourbaix_entries(self, entries, nproc=None):
-        """
-        Generates multi-entries for Pourbaix diagram.
+        """Generate multi-entries for Pourbaix diagram.
 
         Args:
             entries ([PourbaixEntry]): list of PourbaixEntries to preprocess

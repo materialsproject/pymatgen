@@ -223,8 +223,7 @@ class IcetSQS:
         )
 
     def enumerate_sqs_structures(self, cluster_space: _ClusterSpace | None = None) -> list:
-        """
-        Generate an SQS by enumeration of all possible arrangements.
+        """Generate an SQS by enumeration of all possible arrangements.
 
         Adapted from icet.tools.structure_generation.generate_sqs_by_enumeration
         to accommodate multiprocessing.

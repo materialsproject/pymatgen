@@ -639,8 +639,7 @@ class Plane:
     )
 
     def __init__(self, coefficients, p1=None, p2=None, p3=None):
-        """
-        Initializes a plane from the 4 coefficients a, b, c and d of ax + by + cz + d = 0
+        """Initialize a plane from the 4 coefficients a, b, c and d of ax + by + cz + d = 0
 
         Args:
             coefficients: abcd coefficients of the plane.

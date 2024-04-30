@@ -2067,8 +2067,7 @@ class ChemicalEnvironments(MSONable):
     """
 
     def __init__(self, coord_geoms=None):
-        """
-        Initializes the ChemicalEnvironments object containing all the information about the chemical
+        """Initialize the ChemicalEnvironments object containing all the information about the chemical
         environment of a given site.
 
         Args:

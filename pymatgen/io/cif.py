@@ -571,8 +571,7 @@ class CifParser:
         lattice: Lattice | None = None,
         labels: dict[Vector3D, str] | None = None,
     ):
-        """
-        Generate unique coordinates using coord and symmetry positions
+        """Generate unique coordinates using coord and symmetry positions
         and also their corresponding magnetic moments, if supplied.
         """
         coords_out: list[np.ndarray] = []
@@ -622,8 +621,7 @@ class CifParser:
         angle_strings=("alpha", "beta", "gamma"),
         lattice_type=None,
     ):
-        """
-        Generate the lattice from the provided lattice parameters. In
+        """Generate the lattice from the provided lattice parameters. In
         the absence of all six lattice parameters, the crystal system
         and necessary parameters are parsed.
         """

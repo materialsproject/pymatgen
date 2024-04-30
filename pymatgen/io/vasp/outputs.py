@@ -4761,8 +4761,7 @@ class Wavecar:
         phase: bool = False,
         scale: int = 2,
     ) -> Chgcar:
-        """
-        Generates a Chgcar object, which is the charge density of the specified
+        """Generate a Chgcar object, which is the charge density of the specified
         wavefunction.
 
         This function generates a Chgcar object with the charge density of the

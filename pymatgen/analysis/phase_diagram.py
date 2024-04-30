@@ -1476,8 +1476,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
     amount_tol = 1e-5
 
     def __init__(self, entries, terminal_compositions, normalize_terminal_compositions=True):
-        """
-        Initializes a CompoundPhaseDiagram.
+        """Initialize a CompoundPhaseDiagram.
 
         Args:
             entries ([PDEntry]): Sequence of input entries. For example,

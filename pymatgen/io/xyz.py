@@ -112,8 +112,7 @@ class XYZ:
             return cls.from_str(file.read())
 
     def as_dataframe(self):
-        """
-        Generates a coordinates data frame with columns: atom, x, y, and z
+        """Generate a coordinates data frame with columns: atom, x, y, and z
         In case of multiple frame XYZ, returns the last frame.
 
         Returns:

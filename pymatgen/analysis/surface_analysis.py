@@ -1347,8 +1347,7 @@ class WorkFunctionAnalyzer:
     """
 
     def __init__(self, structure: Structure, locpot_along_c, efermi, shift=0, blength=3.5):
-        """
-        Initializes the WorkFunctionAnalyzer class.
+        """Initialize the WorkFunctionAnalyzer class.
 
         Args:
             structure (Structure): Structure object modelling the surface
@@ -1574,8 +1573,7 @@ class WorkFunctionAnalyzer:
 
     @classmethod
     def from_files(cls, poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5) -> Self:
-        """
-        Initializes a WorkFunctionAnalyzer from POSCAR, LOCPOT, and OUTCAR files.
+        """Initialize a WorkFunctionAnalyzer from POSCAR, LOCPOT, and OUTCAR files.
 
         Args:
             poscar_filename (str): The path to the POSCAR file.

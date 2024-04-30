@@ -62,8 +62,7 @@ class LMTOCtrl:
         return self.get_str()
 
     def get_str(self, sigfigs=8) -> str:
-        """
-        Generates the string representation of the CTRL file. This is
+        """Generate the string representation of the CTRL file. This is
         the minimal CTRL file necessary to execute lmhart.run.
         """
         ctrl_dict = self.as_dict()

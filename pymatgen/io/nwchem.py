@@ -621,8 +621,7 @@ class NwOutput:
         return roots
 
     def get_excitation_spectrum(self, width=0.1, npoints=2000):
-        """
-        Generate an excitation spectra from the singlet roots of TDDFT calculations.
+        """Generate an excitation spectra from the singlet roots of TDDFT calculations.
 
         Args:
             width (float): Width for Gaussian smearing.

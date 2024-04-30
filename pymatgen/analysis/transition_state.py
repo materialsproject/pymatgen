@@ -30,8 +30,7 @@ class NEBAnalysis(MSONable):
     """An NEBAnalysis class."""
 
     def __init__(self, r, energies, forces, structures, spline_options=None):
-        """
-        Initializes an NEBAnalysis from the cumulative root mean squared distances
+        """Initialize an NEBAnalysis from the cumulative root mean squared distances
         between structures, the energies, the forces, the structures and the
         interpolation_order for the analysis.
 
@@ -86,8 +85,7 @@ class NEBAnalysis(MSONable):
 
     @classmethod
     def from_outcars(cls, outcars, structures, **kwargs) -> Self:
-        """
-        Initializes an NEBAnalysis from Outcar and Structure objects. Use
+        """Initialize an NEBAnalysis from Outcar and Structure objects. Use
         the static constructors, e.g., from_dir instead if you
         prefer to have these automatically generated from a directory of NEB
         calculations.
@@ -192,8 +190,7 @@ class NEBAnalysis(MSONable):
 
     @classmethod
     def from_dir(cls, root_dir, relaxation_dirs=None, **kwargs) -> Self:
-        """
-        Initializes a NEBAnalysis object from a directory of a NEB run.
+        """Initialize a NEBAnalysis object from a directory of a NEB run.
         Note that OUTCARs must be present in all image directories. For the
         terminal OUTCARs from relaxation calculations, you can specify the
         locations using relaxation_dir. If these are not specified, the code

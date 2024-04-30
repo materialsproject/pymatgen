@@ -287,8 +287,7 @@ class InterfacialReactivity(MSONable):
         return reactants
 
     def _get_reaction(self, x: float) -> Reaction:
-        """
-        Generates balanced reaction at mixing ratio x : (1-x) for
+        """Generate balanced reaction at mixing ratio x : (1-x) for
         self.comp1 : self.comp2.
 
         Args:
@@ -666,8 +665,7 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
             self.e2 = self.pd.get_hull_energy(self.comp2)
 
     def get_no_mixing_energy(self):
-        """
-        Generates the opposite number of energy above grand potential
+        """Generate the opposite number of energy above grand potential
         convex hull for both reactants.
 
         Returns:

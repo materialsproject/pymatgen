@@ -88,8 +88,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
     @staticmethod
     def generate_points(coord_left: int = -10, coord_right: int = 10) -> np.ndarray:
-        """
-        Generates a bunch of 3D points that span a cube.
+        """Generate a bunch of 3D points that span a cube.
 
         Args:
             coord_left (int): The minimum coordinate value.
@@ -514,8 +513,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return positions
 
     def tem_dots(self, structure: Structure, points) -> list:
-        """
-        Generates all TEM_dot as named tuples that will appear on the 2D diffraction pattern.
+        """Generate all TEM_dot as named tuples that will appear on the 2D diffraction pattern.
 
         Args:
             structure (Structure): The input structure.
@@ -539,8 +537,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return dots
 
     def get_plot_2d(self, structure: Structure) -> go.Figure:
-        """
-        Generates the 2D diffraction pattern of the input structure.
+        """Generate the 2D diffraction pattern of the input structure.
 
         Args:
             structure (Structure): The input structure.
@@ -617,8 +614,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return go.Figure(data=data, layout=layout)
 
     def get_plot_2d_concise(self, structure: Structure) -> go.Figure:
-        """
-        Generates the concise 2D diffraction pattern of the input structure of a smaller size and without layout.
+        """Generate the concise 2D diffraction pattern of the input structure of a smaller size and without layout.
         Does not display.
 
         Args:

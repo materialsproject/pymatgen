@@ -126,8 +126,7 @@ class BVAnalyzer:
         charge_neutrality_tolerance=CHARGE_NEUTRALITY_TOLERANCE,
         forbidden_species=None,
     ):
-        """
-        Initializes the BV analyzer, with useful defaults.
+        """Initialize the BV analyzer, with useful defaults.
 
         Args:
             symm_tol:

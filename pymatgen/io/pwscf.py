@@ -37,8 +37,7 @@ class PWInput:
         kpoints_grid=(1, 1, 1),
         kpoints_shift=(0, 0, 0),
     ):
-        """
-        Initializes a PWSCF input file.
+        """Initialize a PWSCF input file.
 
         Args:
             structure (Structure): Input structure. For spin-polarized calculation,

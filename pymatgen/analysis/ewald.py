@@ -67,8 +67,7 @@ class EwaldSummation(MSONable):
         w=1 / 2**0.5,
         compute_forces=False,
     ):
-        """
-        Initializes and calculates the Ewald sum. Default convergence
+        """Initialize and calculate the Ewald sum. Default convergence
         parameters have been specified, but you can override them if you wish.
 
         Args:

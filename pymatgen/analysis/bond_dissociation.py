@@ -44,8 +44,7 @@ class BondDissociationEnergies(MSONable):
         allow_additional_charge_separation: bool = False,
         multibreak: bool = False,
     ) -> None:
-        """
-        Note that the entries passed by the user must have the following keys: formula_pretty, initial_molecule,
+        """The provided entries must have the following keys: formula_pretty, initial_molecule,
         final_molecule. If a PCM is present, all entries should also have a pcm_dielectric key.
 
         Args:
@@ -327,8 +326,7 @@ class BondDissociationEnergies(MSONable):
                 self.filtered_entries += [entry]
 
     def build_new_entry(self, frags: list, bonds: list) -> list:
-        """
-        Build a new entry for bond dissociation that will be returned to the user.
+        """Build a new entry for bond dissociation that will be returned to the user.
 
         Args:
             frags (list): Fragments involved in the bond dissociation.

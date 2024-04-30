@@ -77,8 +77,7 @@ class Keyword(MSONable):
         verbose: bool | None = True,
         repeats: bool | None = False,
     ):
-        """
-        Initializes a keyword. These Keywords and the value passed to them are sometimes as simple
+        """Initialize a keyword. These Keywords and the value passed to them are sometimes as simple
         as KEYWORD VALUE, but can also be more elaborate such as KEYWORD [UNITS] VALUE1 VALUE2,
         which is why this class exists: to handle many values and control easy printing to an
         input file.
@@ -191,8 +190,7 @@ class KeywordList(MSONable):
     """
 
     def __init__(self, keywords: Sequence[Keyword]):
-        """
-        Initializes a keyword list given a sequence of keywords.
+        """Initialize a keyword list given a sequence of keywords.
 
         Args:
             keywords: A list of keywords. Must all have the same name (case-insensitive)
@@ -594,8 +592,7 @@ class SectionList(MSONable):
     """Section list."""
 
     def __init__(self, sections: Sequence[Section]):
-        """
-        Initializes a SectionList object using a sequence of sections.
+        """Initialize a SectionList object using a sequence of sections.
 
         Args:
             sections: A list of keywords. Must all have the same name (case-insensitive)

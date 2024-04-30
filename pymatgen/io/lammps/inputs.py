@@ -484,8 +484,7 @@ class LammpsInputFile(InputFile):
         self.stages += new_list_to_add
 
     def get_str(self, ignore_comments: bool = False, keep_stages: bool = True) -> str:
-        """
-        Generates and ² the string representation of the LammpsInputFile.
+        """Generate and ² the string representation of the LammpsInputFile.
         Stages are separated by empty lines.
         The headers of the stages will be put in comments preceding each stage.
         Other comments will be put inline within stages, where they have been added.

@@ -556,8 +556,7 @@ class ElasticTensorExpansion(TensorCollection):
 
     @classmethod
     def from_diff_fit(cls, strains, stresses, eq_stress=None, tol: float = 1e-10, order=3) -> Self:
-        """
-        Generates an elastic tensor expansion via the fitting function
+        """Generate an elastic tensor expansion via the fitting function
         defined below in diff_fit.
         """
         c_list = diff_fit(strains, stresses, eq_stress, order, tol)

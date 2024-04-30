@@ -522,8 +522,7 @@ class CoordinationGeometry:
         equivalent_indices=None,
         neighbors_sets_hints=None,
     ):
-        """
-        Initializes one "coordination geometry" according to [Pure Appl. Chem., Vol. 79, No. 10, pp. 1779--1799, 2007]
+        """Initialize one "coordination geometry" according to [Pure Appl. Chem., Vol. 79, No. 10, pp. 1779--1799, 2007]
         and [Acta Cryst. A, Vol. 46, No. 1, pp. 1--11, 1990].
 
         Args:
@@ -875,8 +874,7 @@ class AllCoordinationGeometries(dict):
     """
 
     def __init__(self, permutations_safe_override=False, only_symbols=None):
-        """
-        Initializes the list of Coordination Geometries.
+        """Initialize the list of Coordination Geometries.
 
         Args:
             permutations_safe_override: Whether to use safe permutations.

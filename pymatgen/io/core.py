@@ -256,8 +256,7 @@ class InputGenerator(MSONable):
 
     @abc.abstractmethod
     def get_input_set(self, *args, **kwargs):
-        """
-        Generate an InputSet object. Typically the first argument to this method
+        """Generate an InputSet object. Typically the first argument to this method
         will be a Structure or other form of atomic coordinates.
         """
         raise NotImplementedError(f"get_input_set has not been implemented in {type(self).__name__}")

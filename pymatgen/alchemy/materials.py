@@ -352,8 +352,7 @@ class TransformedStructure(MSONable):
         return cls(struct, history=dct["history"], other_parameters=dct.get("other_parameters"))
 
     def to_snl(self, authors: list[str], **kwargs) -> StructureNL:
-        """
-        Generate a StructureNL from TransformedStructure.
+        """Generate a StructureNL from TransformedStructure.
 
         Args:
             authors (List[str]): List of authors contributing to the generated StructureNL.

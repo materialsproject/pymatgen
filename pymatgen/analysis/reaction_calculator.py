@@ -273,8 +273,7 @@ class BalancedReaction(MSONable):
 
     @classmethod
     def from_str(cls, rxn_str: str) -> Self:
-        """
-        Generates a balanced reaction from a string. The reaction must
+        """Generate a balanced reaction from a string. The reaction must
         already be balanced.
 
         Args:

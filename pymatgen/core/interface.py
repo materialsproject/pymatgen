@@ -287,8 +287,7 @@ class GrainBoundary(Structure):
 
     @classmethod
     def from_dict(cls, dct: dict) -> GrainBoundary:  # type: ignore[override]
-        """
-        Generates a GrainBoundary object from a dictionary created by as_dict().
+        """Generate a GrainBoundary object from a dictionary created by as_dict().
 
         Args:
             dct: dict

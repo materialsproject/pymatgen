@@ -1029,8 +1029,7 @@ class DictSet(VaspInputSet):
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir: str, **kwargs) -> Self:
-        """
-        Generate a set of VASP input files for static calculations from a
+        """Generate a set of VASP input files for static calculations from a
         directory of previous VASP run.
 
         Args:
@@ -2079,8 +2078,7 @@ class MVLGWSet(DictSet):
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir: str, mode: str = "DIAG", **kwargs) -> Self:
-        """
-        Generate a set of VASP input files for GW or BSE calculations from a
+        """Generate a set of VASP input files for GW or BSE calculations from a
         directory of previous Exact Diag VASP run.
 
         Args:
@@ -2137,7 +2135,7 @@ class MVLSlabSet(DictSet):
         """Get updates to the kpoints configuration for this calculation type.
 
         k_product, default to 50, is kpoint number * length for a & b
-            directions, also for c direction in bulk calculations
+        directions, also for c direction in bulk calculations
         Automatic mesh & Gamma is the default setting.
         """
         # To get input sets, the input structure has to has the same number

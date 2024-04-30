@@ -101,8 +101,7 @@ class HeisenbergMapper:
 
     @staticmethod
     def _get_graphs(cutoff, ordered_structures):
-        """
-        Generate graph representations of magnetic structures with nearest
+        """Generate graph representations of magnetic structures with nearest
         neighbor bonds. Right now this only works for MinimumDistanceNN.
 
         Args:
