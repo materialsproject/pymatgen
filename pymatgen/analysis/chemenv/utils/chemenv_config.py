@@ -85,9 +85,7 @@ class ChemEnvConfig:
 
     @property
     def has_materials_project_access(self):
-        """
-        Whether MP access is enabled.
-        """
+        """Whether MP access is enabled."""
         return self.materials_project_configuration is not None
 
     def setup_package_options(self):

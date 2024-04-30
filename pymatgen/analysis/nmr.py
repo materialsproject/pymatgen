@@ -179,10 +179,7 @@ class ElectricFieldGradient(SquareTensor):
 
     @property
     def asymmetry(self):
-        """
-        Asymmetry of the electric field tensor defined as:
-            (V_yy - V_xx)/V_zz.
-        """
+        """Asymmetry of the electric field tensor defined as (V_yy - V_xx)/V_zz."""
         diags = np.diag(self.principal_axis_system)
         V = sorted(diags, key=np.abs)
         return np.abs((V[1] - V[0]) / V[2])

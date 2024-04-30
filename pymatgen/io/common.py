@@ -83,8 +83,7 @@ class VolumetricData(MSONable):
 
     @property
     def spin_data(self):
-        """
-        The data decomposed into actual spin data as {spin: data}.
+        """The data decomposed into actual spin data as {spin: data}.
         Essentially, this provides the actual Spin.up and Spin.down data
         instead of the total and diff. Note that by definition, a
         non-spin-polarized run would have Spin.up data == Spin.down data.

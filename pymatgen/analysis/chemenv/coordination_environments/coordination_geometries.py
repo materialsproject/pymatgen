@@ -180,39 +180,27 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         )
 
     @property
-    def permutations(self):
-        """
-        Permutations used for this separation plane algorithm.
-
-        Returns:
-            list[Permutations]: to be performed.
-        """
+    def permutations(self) -> list[list[int]]:
+        """List of permutations to be performed for this separation plane algorithm."""
         return self._permutations
 
     @property
-    def ref_separation_perm(self):
-        """
-        Ordered indices of the separation plane.
+    def ref_separation_perm(self) -> list[int]:
+        """Ordered indices of the separation plane.
 
         Examples:
             For a separation plane of type 2|4|3, with plane_points indices [0, 3, 5, 8] and
             point_groups indices [1, 4] and [2, 7, 6], the list of ordered indices is :
             [0, 3, 5, 8, 1, 4, 2, 7, 6].
-
-        Returns:
-            list[int]: of ordered indices of this separation plane.
         """
         return self._ref_separation_perm
 
     @property
-    def argsorted_ref_separation_perm(self):
+    def argsorted_ref_separation_perm(self) -> list[int]:
         """
         "Arg sorted" ordered indices of the separation plane.
 
         This is used in the identification of the final permutation to be used.
-
-        Returns:
-            list[int]: "arg sorted" ordered indices of the separation plane.
         """
         return self._argsorted_ref_separation_perm
 

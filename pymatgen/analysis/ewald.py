@@ -195,8 +195,7 @@ class EwaldSummation(MSONable):
 
     @property
     def reciprocal_space_energy_matrix(self):
-        """
-        The reciprocal space energy matrix. Each matrix element (i, j)
+        """The reciprocal space energy matrix. Each matrix element (i, j)
         corresponds to the interaction energy between site i and site j in
         reciprocal space.
         """
@@ -215,8 +214,7 @@ class EwaldSummation(MSONable):
 
     @property
     def real_space_energy_matrix(self):
-        """
-        The real space energy matrix. Each matrix element (i, j) corresponds to
+        """The real space energy matrix. Each matrix element (i, j) corresponds to
         the interaction energy between site i and site j in real space.
         """
         if not self._initialized:
@@ -234,8 +232,7 @@ class EwaldSummation(MSONable):
 
     @property
     def point_energy_matrix(self):
-        """
-        The point space matrix. A diagonal matrix with the point terms for each
+        """The point space matrix. A diagonal matrix with the point terms for each
         site in the diagonal elements.
         """
         if not self._initialized:
@@ -253,8 +250,7 @@ class EwaldSummation(MSONable):
 
     @property
     def total_energy_matrix(self):
-        """
-        The total energy matrix. Each matrix element (i, j) corresponds to the
+        """The total energy matrix. Each matrix element (i, j) corresponds to the
         total interaction energy between site i and site j.
 
         Note that this does not include the charged-cell energy, which is only important
@@ -271,10 +267,7 @@ class EwaldSummation(MSONable):
 
     @property
     def forces(self):
-        """
-        The forces on each site as a Nx3 matrix. Each row corresponds to a
-        site.
-        """
+        """The forces on each site as a Nx3 matrix. Each row corresponds to a site."""
         if not self._initialized:
             self._calc_ewald_terms()
             self._initialized = True

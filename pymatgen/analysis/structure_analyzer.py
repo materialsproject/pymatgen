@@ -259,15 +259,10 @@ class VoronoiConnectivity:
 
     @property
     def connectivity_array(self):
-        """
-        Provides connectivity array.
-
-        Returns:
-            connectivity: An array of shape [atom_i, atom_j, image_j]. atom_i is
-            the index of the atom in the input structure. Since the second
-            atom can be outside of the unit cell, it must be described
-            by both an atom index and an image index. Array data is the
-            solid angle of polygon between atom_i and image_j of atom_j
+        """The connectivity array of shape [atom_i, atom_j, image_j]. atom_i is the index of the
+        atom in the input structure. Since the second atom can be outside of the unit cell, it
+        must be described by both an atom index and an image index. Array data is the solid
+        angle of polygon between atom_i and image_j of atom_j.
         """
         # shape = [site, axis]
         cart_coords = np.array(self.structure.cart_coords)

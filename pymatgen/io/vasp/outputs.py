@@ -657,10 +657,7 @@ class Vasprun(MSONable):
 
     @property
     def complete_dos(self):
-        """
-        A complete dos object which incorporates the total dos and all
-        projected dos.
-        """
+        """A complete DOS object which incorporates the total DOS and all projected DOS."""
         final_struct = self.final_structure
         pdoss = {final_struct[i]: pdos for i, pdos in enumerate(self.pdos)}
         return CompleteDos(self.final_structure, self.tdos, pdoss)
@@ -1003,12 +1000,10 @@ class Vasprun(MSONable):
 
     @property
     def eigenvalue_band_properties(self):
-        """
-        Band properties from the eigenvalues as a tuple,
-        (band gap, cbm, vbm, is_band_gap_direct). In the case of separate_spins=True,
-        the band gap, cbm, vbm, and is_band_gap_direct are each lists of length 2,
-        with index 0 representing the spin-up channel and index 1 representing
-        the spin-down channel.
+        """Band properties from the eigenvalues as a tuple, (band gap, cbm, vbm, is_band_gap_direct).
+        In the case of separate_spins=True, the band gap, cbm, vbm, and is_band_gap_direct are each
+        lists of length 2, with index 0 representing the spin-up channel and index 1 representing the
+        spin-down channel.
         """
         vbm = -float("inf")
         vbm_kpoint = None
@@ -3946,8 +3941,7 @@ class Oszicar:
 
     @property
     def all_energies(self):
-        """
-        Compilation of all energies from all electronic steps and ionic steps
+        """Compilation of all energies from all electronic steps and ionic steps
         as a tuple of list of energies, e.g.,
         ((4507.24605593, 143.824705755, -512.073149912, ...), ...).
         """
@@ -4942,9 +4936,8 @@ class Eigenval:
                             self.eigenvalues[Spin.down][ikpt, i, 1] = sl[4]
 
     @property
-    def eigenvalue_band_properties(self):
-        """
-        Band properties from the eigenvalues as a tuple,
+    def eigenvalue_band_properties(self) -> tuple:
+        """Band properties from the eigenvalues as a tuple,
         (band gap, cbm, vbm, is_band_gap_direct). In the case of separate_spins=True,
         the band gap, cbm, vbm, and is_band_gap_direct are each lists of length 2,
         with index 0 representing the spin-up channel and index 1 representing

@@ -2196,10 +2196,8 @@ class MVLGBSet(DictSet):
 
     @property
     def kpoints_updates(self):
-        """
-        k_product, default to 40, is kpoint number * length for a & b
-        directions, also for c direction in bulk calculations
-        Automatic mesh & Gamma is the default setting.
+        """k_product is kpoint number * length for a & b directions, also for c direction
+        in bulk calculations Automatic mesh & Gamma is the default setting.
         """
         # use k_product to calculate kpoints, k_product = kpts[0][0] * a
         lengths = self.structure.lattice.abc
