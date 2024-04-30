@@ -7,7 +7,7 @@ inputs from a structure without further user intervention. This ensures comparab
 Read the following carefully before implementing new input sets:
 
 1. 99% of what needs to be done can be done by specifying user_incar_settings to override some of the defaults of
-   various input sets. Unless there is an extremely good reason to add a new set, **do not** add one. E.g., if you want
+   various input sets. Unless there is an extremely good reason to add a new set, **do not** add one. e.g. if you want
    to turn the Hubbard U off, just set "LDAU": False as a user_incar_setting.
 2. All derivative input sets should inherit appropriate configurations (e.g., from MPRelaxSet), and more often than
    not, DictSet should be the superclass. Proper superclass delegation should be used where possible. In particular,
@@ -22,7 +22,7 @@ The above are recommendations. The following are **UNBREAKABLE** rules:
 2. user_incar_settings, user_kpoints_settings and user_<whatever>_settings are ABSOLUTE. Any new sets you implement
    must obey this. If a user wants to override your settings, you assume he knows what he is doing. Do not
    magically override user supplied settings. You can issue a warning if you think the user is wrong.
-3. All input sets must save all supplied args and kwargs as instance variables. E.g., self.arg = arg and
+3. All input sets must save all supplied args and kwargs as instance variables. e.g. self.arg = arg and
    self.kwargs = kwargs in the __init__. This ensures the as_dict and from_dict work correctly.
 """
 
@@ -271,7 +271,7 @@ class DictSet(VaspInputSet):
     2. If the species of the site has a spin setting, that is used. This can be set
         with structure.add_spin_by_element().
     3. If the species itself has a particular setting in the config file, that
-       is used, e.g., Mn3+ may have a different magmom than Mn4+.
+       is used, e.g. Mn3+ may have a different magmom than Mn4+.
     4. Lastly, the element symbol itself is checked in the config file. If
        there are no settings, a default value of 0.6 is used.
 
@@ -283,7 +283,7 @@ class DictSet(VaspInputSet):
         files_to_transfer (dict): A dictionary of {filename: filepath}. This allows the
             transfer of files from a previous calculation.
         user_incar_settings (dict): User INCAR settings. This allows a user to override
-            INCAR settings, e.g., setting a different MAGMOM for various elements or
+            INCAR settings, e.g. setting a different MAGMOM for various elements or
             species. Note that in the new scheme, ediff_per_atom and hubbard_u are no
             longer args. Instead, the CONFIG supports EDIFF_PER_ATOM and EDIFF keys.
             The former scales with # of atoms, the latter does not. If both are present,
@@ -298,9 +298,9 @@ class DictSet(VaspInputSet):
             incar settings. Finally, KSPACING is a special setting and can be set to
             "auto" in which the KSPACING is set automatically based on the band gap.
         user_kpoints_settings (dict or Kpoints): Allow user to override kpoints setting
-            by supplying a dict. E.g., {"reciprocal_density": 1000}. User can also
+            by supplying a dict. e.g. {"reciprocal_density": 1000}. User can also
             supply Kpoints object.
-        user_potcar_settings (dict): Allow user to override POTCARs. E.g., {"Gd":
+        user_potcar_settings (dict): Allow user to override POTCARs. e.g. {"Gd":
             "Gd_3"}. This is generally not recommended.
         constrain_total_magmom (bool): Whether to constrain the total magmom (NUPDOWN in
             INCAR) to be the sum of the expected MAGMOM for all species.
@@ -1029,8 +1029,7 @@ class DictSet(VaspInputSet):
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir: str, **kwargs) -> Self:
-        """
-        Generate a set of VASP input files for static calculations from a
+        """Generate a set of VASP input files for static calculations from a
         directory of previous VASP run.
 
         Args:
@@ -2079,8 +2078,7 @@ class MVLGWSet(DictSet):
 
     @classmethod
     def from_prev_calc(cls, prev_calc_dir: str, mode: str = "DIAG", **kwargs) -> Self:
-        """
-        Generate a set of VASP input files for GW or BSE calculations from a
+        """Generate a set of VASP input files for GW or BSE calculations from a
         directory of previous Exact Diag VASP run.
 
         Args:
@@ -2134,10 +2132,10 @@ class MVLSlabSet(DictSet):
 
     @property
     def kpoints_updates(self):
-        """Get updates to the kpoints configuration for this calculation type.
+        """Updates to the kpoints configuration for this calculation type.
 
         k_product, default to 50, is kpoint number * length for a & b
-            directions, also for c direction in bulk calculations
+        directions, also for c direction in bulk calculations
         Automatic mesh & Gamma is the default setting.
         """
         # To get input sets, the input structure has to has the same number
@@ -2161,7 +2159,7 @@ class MVLSlabSet(DictSet):
     def as_dict(self, verbosity=2):
         """
         Args:
-            verbosity (int): Verbosity of dict. E.g., whether to include Structure.
+            verbosity (int): Verbosity of dict. e.g. whether to include Structure.
 
         Returns:
             MSONable dict
@@ -2198,10 +2196,8 @@ class MVLGBSet(DictSet):
 
     @property
     def kpoints_updates(self):
-        """
-        k_product, default to 40, is kpoint number * length for a & b
-        directions, also for c direction in bulk calculations
-        Automatic mesh & Gamma is the default setting.
+        """k_product is kpoint number * length for a & b directions, also for c direction
+        in bulk calculations Automatic mesh & Gamma is the default setting.
         """
         # use k_product to calculate kpoints, k_product = kpts[0][0] * a
         lengths = self.structure.lattice.abc
@@ -2394,7 +2390,7 @@ class MITMDSet(DictSet):
 
     @property
     def incar_updates(self):
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         # MD default settings
         return {
             "TEBEG": self.start_temp,

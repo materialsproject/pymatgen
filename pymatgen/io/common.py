@@ -83,8 +83,7 @@ class VolumetricData(MSONable):
 
     @property
     def spin_data(self):
-        """
-        The data decomposed into actual spin data as {spin: data}.
+        """The data decomposed into actual spin data as {spin: data}.
         Essentially, this provides the actual Spin.up and Spin.down data
         instead of the total and diff. Note that by definition, a
         non-spin-polarized run would have Spin.up data == Spin.down data.
@@ -97,8 +96,7 @@ class VolumetricData(MSONable):
         return self._spin_data
 
     def get_axis_grid(self, ind):
-        """
-        Returns the grid for a particular axis.
+        """Get the grid for a particular axis.
 
         Args:
             ind (int): Axis index.
@@ -210,7 +208,7 @@ class VolumetricData(MSONable):
 
         Returns:
             Differential integrated charge as a np array of [[radius, value],
-            ...]. Format is for ease of plotting. E.g., plt.plot(data[:,0],
+            ...]. Format is for ease of plotting. e.g. plt.plot(data[:,0],
             data[:,1])
         """
         # For non-spin-polarized runs, this is zero by definition.

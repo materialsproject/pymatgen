@@ -39,7 +39,7 @@ class RotationTransformation(AbstractTransformation):
     def __init__(self, axis, angle, angle_in_radians=False):
         """
         Args:
-            axis (3x1 array): Axis of rotation, e.g., [1, 0, 0]
+            axis (3x1 array): Axis of rotation, e.g. [1, 0, 0]
             angle (float): Angle to rotate
             angle_in_radians (bool): Set to True if angle is supplied in radians.
                 Else degrees are assumed.
@@ -86,7 +86,7 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
         """
         Args:
             oxidation_states (dict): Oxidation states supplied as a dict,
-            e.g., {"Li":1, "O":-2}.
+            e.g. {"Li":1, "O":-2}.
         """
         self.oxidation_states = oxidation_states
 
@@ -203,7 +203,7 @@ class SupercellTransformation(AbstractTransformation):
         """
         Args:
             scaling_matrix: A matrix of transforming the lattice vectors.
-                Defaults to the identity matrix. Has to be all integers. e.g.,
+                Defaults to the identity matrix. Has to be all integers. e.g.
                 [[2,1,0],[0,3,0],[0,0,1]] generates a new structure with
                 lattice vectors a" = 2a + b, b" = 3b, c" = c where a, b, and c
                 are the lattice vectors of the original structure.
@@ -311,7 +311,7 @@ class SubstitutionTransformation(AbstractTransformation):
         """
         Args:
             species_map: A dict or list of tuples containing the species mapping in
-                string-string pairs. E.g., {"Li": "Na"} or [("Fe2+","Mn2+")].
+                string-string pairs. e.g. {"Li": "Na"} or [("Fe2+","Mn2+")].
                 Multiple substitutions can be done. Overloaded to accept
                 sp_and_occu dictionary E.g. {"Si: {"Ge":0.75, "C":0.25}},
                 which substitutes a single species with multiple species to
@@ -361,7 +361,7 @@ class RemoveSpeciesTransformation(AbstractTransformation):
     def __init__(self, species_to_remove):
         """
         Args:
-            species_to_remove: List of species to remove. E.g., ["Li", "Mn"].
+            species_to_remove: List of species to remove. e.g. ["Li", "Mn"].
         """
         self.species_to_remove = species_to_remove
 
@@ -413,9 +413,9 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
     def __init__(self, specie_to_remove, fraction_to_remove, algo=ALGO_FAST):
         """
         Args:
-            specie_to_remove: Species to remove. Must have oxidation state E.g.,
+            specie_to_remove: Species to remove. Must have oxidation state e.g.
                 "Li+"
-            fraction_to_remove: Fraction of specie to remove. E.g., 0.5
+            fraction_to_remove: Fraction of specie to remove. e.g. 0.5
             algo: This parameter allows you to choose the algorithm to perform
                 ordering. Use one of PartialRemoveSpecieTransformation.ALGO_*
                 variables to set the algo.
@@ -945,7 +945,7 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
             species_map (dict): A dict or list of tuples containing the species mapping in
                 string-string pairs. The first species corresponds to the relaxed
                 structure while the second corresponds to the species in the
-                structure to be scaled. E.g., {"Li":"Na"} or [("Fe2+","Mn2+")].
+                structure to be scaled. e.g. {"Li":"Na"} or [("Fe2+","Mn2+")].
                 Multiple substitutions can be done. Overloaded to accept
                 sp_and_occu dictionary E.g. {"Si: {"Ge":0.75, "C":0.25}},
                 which substitutes a single species with multiple species to

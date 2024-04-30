@@ -982,14 +982,14 @@ class DopingTransformation(AbstractTransformation):
     ):
         """
         Args:
-            dopant (Species-like): E.g., Al3+. Must have oxidation state.
-            ionic_radius_tol (float): E.g., Fractional allowable ionic radii
+            dopant (Species-like): e.g. Al3+. Must have oxidation state.
+            ionic_radius_tol (float): e.g. Fractional allowable ionic radii
                 mismatch for dopant to fit into a site. Default of inf means
                 that any dopant with the right oxidation state is allowed.
             min_length (float): Min. lattice parameter between periodic
                 images of dopant. Defaults to 10A for now.
             alio_tol (int): If this is not 0, attempt will be made to dope
-                sites with oxidation_states +- alio_tol of the dopant. E.g.,
+                sites with oxidation_states +- alio_tol of the dopant. e.g.
                 1 means that the ions like Ca2+ and Ti4+ are considered as
                 potential doping sites for Al3+.
             codopant (bool): If True, doping will be carried out with a
@@ -1912,9 +1912,9 @@ class SQSTransformation(AbstractTransformation):
         """
         Args:
             scaling (int or list): Scaling factor to determine supercell. Two options are possible:
-                a. (preferred) Scales number of atoms, e.g., for a structure with 8 atoms,
+                a. (preferred) Scales number of atoms, e.g. for a structure with 8 atoms,
                     scaling=4 would lead to a 32 atom supercell
-                b. A sequence of three scaling factors, e.g., [2, 1, 1], which
+                b. A sequence of three scaling factors, e.g. [2, 1, 1], which
                     specifies that the supercell should have dimensions 2a x b x c
             cluster_size_and_shell (Optional[Dict[int, int]]): Dictionary of cluster interactions with entries in
                 the form number of atoms: nearest neighbor shell

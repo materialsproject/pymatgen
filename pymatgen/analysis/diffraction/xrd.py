@@ -98,8 +98,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
     AVAILABLE_RADIATION = tuple(WAVELENGTHS)
 
     def __init__(self, wavelength="CuKa", symprec: float = 0, debye_waller_factors=None):
-        """
-        Initializes the XRD calculator with a given radiation.
+        """Initialize the XRD calculator with a given radiation.
 
         Args:
             wavelength (str/float): The wavelength can be specified as either a

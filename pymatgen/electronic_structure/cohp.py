@@ -770,7 +770,7 @@ class CompleteCohp(Cohp):
             for i in avg_data:
                 for spin in spins:
                     rows = np.array([v[i][spin] for v in cohp_data.values()])
-                    avg = np.average(rows, axis=0)
+                    avg = np.mean(rows, axis=0)
                     # LMTO COHPs have 5 significant figures
                     avg_data[i].update({spin: np.array([round_to_sigfigs(a, 5) for a in avg], dtype=float)})
             avg_cohp = Cohp(efermi, energies, avg_data["COHP"], icohp=avg_data["ICOHP"])

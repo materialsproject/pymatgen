@@ -123,8 +123,8 @@ class GaussianInput:
             route_parameters: Additional route parameters as a dict. For example,
                 {'SP':"", "SCF":"Tight"}
             input_parameters: Additional input parameters for run as a dict. Used
-                for example, in PCM calculations. E.g., {"EPS":12}
-            link0_parameters: Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
+                for example, in PCM calculations. e.g. {"EPS":12}
+            link0_parameters: Link0 parameters as a dict. e.g. {"%mem": "1000MW"}
             dieze_tag: # preceding the route line. E.g. "#p"
             gen_basis: allows a user-specified basis set to be used in a Gaussian
                 calculation. If this is not None, the attribute ``basis_set`` will
@@ -260,7 +260,7 @@ class GaussianInput:
 
         def _parse_species(sp_str):
             """
-            The species specification can take many forms. E.g.,
+            The species specification can take many forms. e.g.
             simple integers representing atomic numbers ("8"),
             actual species string ("C") or a labelled species ("C1").
             Sometimes, the species string is also not properly capitalized,
@@ -528,7 +528,7 @@ class GaussianOutput:
         route (dict): Additional route parameters as a dict. For example,
             {'SP':"", "SCF":"Tight"}.
         dieze_tag (str): # preceding the route line, e.g. "#P".
-        link0 (dict): Link0 parameters as a dict. E.g., {"%mem": "1000MW"}.
+        link0 (dict): Link0 parameters as a dict. e.g. {"%mem": "1000MW"}.
         charge (int): Charge for structure.
         spin_multiplicity (int): Spin multiplicity for structure.
         num_basis_func (int): Number of basis functions in the run.

@@ -163,7 +163,7 @@ class ValenceIonicRadiusEvaluator:
         return radii
 
     def _get_valences(self):
-        """Computes ionic valences of elements for all sites in the structure."""
+        """Compute ionic valences of elements for all sites in the structure."""
         try:
             bv = BVAnalyzer()
             self._structure = bv.get_oxi_state_decorated_structure(self._structure)
@@ -2359,20 +2359,14 @@ class LocalStructOrderParams:
         self._cos_n_p: dict[int, list[float]] = {}
 
     @property
-    def num_ops(self):
-        """
-        Returns:
-            int: the number of different order parameters that are targeted to be calculated.
-        """
+    def num_ops(self) -> int:
+        """Number of different order parameters that are targeted to be calculated."""
         return len(self._types)
 
     @property
     def last_nneigh(self):
-        """
-        Returns:
-            int: the number of neighbors encountered during the most
-                recent order parameter calculation. A value of -1 indicates
-                that no such calculation has yet been performed for this instance.
+        """Number of neighbors encountered during the most recent order parameter calculation.
+        A value of -1 indicates that no such calculation has yet been performed for this instance.
         """
         return len(self._last_nneigh)
 
@@ -2769,8 +2763,7 @@ class LocalStructOrderParams:
         return self._types[index]
 
     def get_parameters(self, index):
-        """
-        Returns list of floats that represents
+        """Get list of floats that represents
         the parameters associated
         with calculation of the order
         parameter that was defined at the index provided.
@@ -4155,7 +4148,7 @@ def _get_radius(site):
         if oxi in el.ionic_radii:
             return el.ionic_radii[oxi]
 
-        # e.g., oxi = 2.667, average together 2+ and 3+ radii
+        # e.g. oxi = 2.667, average together 2+ and 3+ radii
         if math.floor(oxi) in el.ionic_radii and math.ceil(oxi) in el.ionic_radii:
             oxi_low = el.ionic_radii[math.floor(oxi)]
             oxi_high = el.ionic_radii[math.ceil(oxi)]

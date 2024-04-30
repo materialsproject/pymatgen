@@ -129,7 +129,7 @@ class ElasticTensor(NthOrderElasticTensor):
     """
     This class extends Tensor to describe the 3x3x3x3 second-order elastic tensor,
     C_{ijkl}, with various methods for estimating other properties derived from the second
-    order elastic tensor (e. g. bulk modulus, shear modulus, Young's modulus, Poisson's ratio)
+    order elastic tensor (e.g. bulk modulus, shear modulus, Young's modulus, Poisson's ratio)
     in units of eV/A^3.
     """
 
@@ -151,8 +151,7 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @property
     def compliance_tensor(self):
-        """
-        Returns the Voigt notation compliance tensor, which is the matrix
+        """The Voigt notation compliance tensor, which is the matrix
         inverse of the Voigt notation elastic tensor.
         """
         s_voigt = np.linalg.inv(self.voigt)
@@ -380,7 +379,7 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @raise_if_unphysical
     def debye_temperature(self, structure: Structure) -> float:
-        """Estimates the Debye temperature from longitudinal and transverse sound velocities.
+        """Estimate the Debye temperature from longitudinal and transverse sound velocities.
 
         Args:
             structure: pymatgen structure object
@@ -426,8 +425,7 @@ class ElasticTensor(NthOrderElasticTensor):
     def get_structure_property_dict(
         self, structure: Structure, include_base_props: bool = True, ignore_errors: bool = False
     ) -> dict[str, float | Structure | None]:
-        """
-        Returns a dictionary of properties derived from the elastic tensor
+        """Get a dictionary of properties derived from the elastic tensor
         and an associated structure.
 
         Args:
@@ -540,7 +538,7 @@ class ElasticTensorExpansion(TensorCollection):
     to an elastic tensor expansion, which can be used to
     calculate stress and energy density and inherits all
     of the list-based properties of TensorCollection
-    (e. g. symmetrization, voigt conversion, etc.).
+    (e.g. symmetrization, voigt conversion, etc.).
     """
 
     def __init__(self, c_list: Sequence) -> None:
@@ -556,8 +554,7 @@ class ElasticTensorExpansion(TensorCollection):
 
     @classmethod
     def from_diff_fit(cls, strains, stresses, eq_stress=None, tol: float = 1e-10, order=3) -> Self:
-        """
-        Generates an elastic tensor expansion via the fitting function
+        """Generate an elastic tensor expansion via the fitting function
         defined below in diff_fit.
         """
         c_list = diff_fit(strains, stresses, eq_stress, order, tol)
@@ -757,8 +754,7 @@ class ElasticTensorExpansion(TensorCollection):
         return strain
 
     def get_effective_ecs(self, strain, order=2):
-        """
-        Returns the effective elastic constants
+        """Get the effective elastic constants
         from the elastic tensor expansion.
 
         Args:
@@ -980,7 +976,7 @@ def generate_pseudo(strain_states, order=3):
     Args:
         strain_states (6xN array like): a list of Voigt-notation strain-states,
             i. e. perturbed indices of the strain as a function of the smallest
-            strain e. g. (0, 1, 0, 0, 1, 0)
+            strain e.g. (0, 1, 0, 0, 1, 0)
         order (int): order of pseudo-inverse to calculate
 
     Returns:
@@ -1019,9 +1015,9 @@ def get_symbol_list(rank, dim=6):
     by index transposition, i. e. C_1121 = C_1211 etc.
 
     Args:
-        dim (int): dimension of matrix/tensor, e. g. 6 for
+        dim (int): dimension of matrix/tensor, e.g. 6 for
             voigt notation and 3 for standard
-        rank (int): rank of tensor, e. g. 3 for third-order ECs
+        rank (int): rank of tensor, e.g. 3 for third-order ECs
 
     Returns:
         c_vec (array): array representing distinct indices

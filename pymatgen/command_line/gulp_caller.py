@@ -338,7 +338,7 @@ class GulpIO:
 
     @staticmethod
     def library_line(file_name):
-        """Specifies GULP library file to read species and potential parameters.
+        """Specify GULP library file to read species and potential parameters.
         If using library don't specify species and potential
         in the input file and vice versa. Make sure the elements of
         structure are in the library file.

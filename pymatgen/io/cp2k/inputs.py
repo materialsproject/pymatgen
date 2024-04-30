@@ -61,8 +61,7 @@ MODULE_DIR = Path(__file__).resolve().parent
 
 
 class Keyword(MSONable):
-    """
-    Class representing a keyword argument in CP2K. Within CP2K Sections, which activate features
+    """A keyword argument in CP2K. Within CP2K Sections, which activate features
     of the CP2K code, the keywords are arguments that control the functionality of that feature.
     For example, the section "FORCE_EVAL" activates the evaluation of forces/energies, but within
     "FORCE_EVAL" the keyword "METHOD" controls whether or not this will be done with, say,
@@ -78,8 +77,7 @@ class Keyword(MSONable):
         verbose: bool | None = True,
         repeats: bool | None = False,
     ):
-        """
-        Initializes a keyword. These Keywords and the value passed to them are sometimes as simple
+        """Initialize a keyword. These Keywords and the value passed to them are sometimes as simple
         as KEYWORD VALUE, but can also be more elaborate such as KEYWORD [UNITS] VALUE1 VALUE2,
         which is why this class exists: to handle many values and control easy printing to an
         input file.
@@ -192,8 +190,7 @@ class KeywordList(MSONable):
     """
 
     def __init__(self, keywords: Sequence[Keyword]):
-        """
-        Initializes a keyword list given a sequence of keywords.
+        """Initialize a keyword list given a sequence of keywords.
 
         Args:
             keywords: A list of keywords. Must all have the same name (case-insensitive)
@@ -595,8 +592,7 @@ class SectionList(MSONable):
     """Section list."""
 
     def __init__(self, sections: Sequence[Section]):
-        """
-        Initializes a SectionList object using a sequence of sections.
+        """Initialize a SectionList object using a sequence of sections.
 
         Args:
             sections: A list of keywords. Must all have the same name (case-insensitive)
@@ -1281,7 +1277,7 @@ class OrbitalTransformation(Section):
 
 
 class Cell(Section):
-    """Defines the simulation cell (lattice)."""
+    """Controls the cell/lattice parameters for the simulation."""
 
     def __init__(self, lattice: Lattice, keywords: dict | None = None, **kwargs):
         """
@@ -1305,7 +1301,7 @@ class Cell(Section):
 
 
 class Kind(Section):
-    """Specifies the information for the different atom types being simulated."""
+    """Specify the information for the different atom types being simulated."""
 
     def __init__(
         self,
@@ -1445,7 +1441,7 @@ class DftPlusU(Section):
 
 
 class Coord(Section):
-    """Specifies the coordinates of the atoms using a pymatgen structure object."""
+    """Specify the coordinates of the atoms using a pymatgen structure object."""
 
     def __init__(
         self,
@@ -1833,7 +1829,7 @@ class BrokenSymmetry(Section):
 
 
 class XCFunctional(Section):
-    """Defines the XC functional(s) to use."""
+    """Info about which XC functional to use."""
 
     def __init__(
         self,
@@ -2058,7 +2054,7 @@ class Kpoints(Section):
 
 
 class KpointSet(Section):
-    """Specifies a kpoint line to be calculated between special points."""
+    """Specify a kpoint line to be calculated between special points."""
 
     def __init__(self, npoints: int, kpoints: Iterable, units: str = "B_VECTOR") -> None:
         """
@@ -2097,7 +2093,7 @@ class Kpoint_Set(KpointSet):
 
 
 class BandStructure(Section):
-    """Specifies high symmetry paths for outputting the band structure in CP2K."""
+    """Specify high symmetry paths for outputting the band structure in CP2K."""
 
     def __init__(
         self,

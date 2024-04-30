@@ -59,8 +59,7 @@ class AbstractFeffInputSet(MSONable, abc.ABC):
     @property
     @abc.abstractmethod
     def atoms(self):
-        """
-        Returns Atoms string from a structure that goes in feff.inp file.
+        """Get Atoms string from a structure that goes in feff.inp file.
 
         Returns:
             Atoms object.
@@ -163,7 +162,7 @@ class FEFFDictSet(AbstractFeffInputSet):
 
                     being written to the input file.
             spacegroup_analyzer_settings (dict): parameters passed to SpacegroupAnalyzer.
-                E.g., {"symprec": 0.01, "angle_tolerance": 4}
+                e.g. {"symprec": 0.01, "angle_tolerance": 4}
         """
         self.absorbing_atom = absorbing_atom
         self.user_tag_settings = user_tag_settings or {}

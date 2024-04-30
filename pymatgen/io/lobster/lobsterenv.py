@@ -35,6 +35,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core import Structure
+    from pymatgen.core.periodic_table import Element
 
 __author__ = "Janine George"
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -114,9 +115,9 @@ class LobsterNeighbors(NearNeighbors):
             filename_blist_sg1: (str) Path to additional ICOOP, ICOBI data for structure graphs
             filename_blist_sg2: (str) Path to additional ICOOP, ICOBI data for structure graphs
             id_blist_sg1: (str) Identity of data in filename_blist_sg1,
-                e.g., "icoop" or "icobi"
+                e.g. "icoop" or "icobi"
             id_blist_sg2: (str) Identity of data in filename_blist_sg2,
-                e.g., "icoop" or "icobi".
+                e.g. "icoop" or "icobi".
         """
         if filename_icohp is not None:
             self.ICOHP = Icohplist(are_coops=are_coops, are_cobis=are_cobis, filename=filename_icohp)
@@ -222,19 +223,18 @@ class LobsterNeighbors(NearNeighbors):
         )
 
     @property
-    def structures_allowed(self):
+    def structures_allowed(self) -> bool:
         """Whether this NearNeighbors class can be used with Structure objects?"""
         return True
 
     @property
-    def molecules_allowed(self):
+    def molecules_allowed(self) -> bool:
         """Whether this NearNeighbors class can be used with Molecule objects?"""
         return False
 
     @property
-    def anion_types(self):
-        """
-        Return the types of anions present in crystal structure as a set
+    def anion_types(self) -> set[Element]:
+        """The types of anions present in crystal structure as a set.
 
         Returns:
             set[Element]: describing anions in the crystal structure.
@@ -1414,7 +1414,7 @@ class ICOHPNeighborsInfo(NamedTuple):
         n_bonds (int): number of identified bonds to the selected sites
         labels (list[str]): labels (from ICOHPLIST) for all identified bonds
         atoms (list[list[str]]): list of list describing the species present in the identified interactions
-            (names from ICOHPLIST), e.g., ["Ag3", "O5"]
+            (names from ICOHPLIST), e.g. ["Ag3", "O5"]
         central_isites (list[int]): list of the central isite for each identified interaction.
     """
 

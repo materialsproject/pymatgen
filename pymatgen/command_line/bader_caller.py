@@ -422,7 +422,7 @@ class BaderAnalysis:
 
     @property
     def summary(self) -> dict[str, Any]:
-        """Dict summary of key analysis, e.g., atomic volume, charge, etc."""
+        """Dict summary of key analysis, e.g. atomic volume, charge, etc."""
         summary = {
             "min_dist": [d["min_dist"] for d in self.data],
             "charge": [d["charge"] for d in self.data],

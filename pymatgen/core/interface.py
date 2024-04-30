@@ -88,9 +88,9 @@ class GrainBoundary(Structure):
 
                 i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                    e.g., (3, 56, ...) or actual Element or Species objects.
+                    e.g. (3, 56, ...) or actual Element or Species objects.
 
-                ii. List of dict of elements/species and occupancies, e.g.,
+                ii. List of dict of elements/species and occupancies, e.g.
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
             coords (Nx3 array): list of fractional/cartesian coordinates for each species.
@@ -287,8 +287,7 @@ class GrainBoundary(Structure):
 
     @classmethod
     def from_dict(cls, dct: dict) -> GrainBoundary:  # type: ignore[override]
-        """
-        Generates a GrainBoundary object from a dictionary created by as_dict().
+        """Generate a GrainBoundary object from a dictionary created by as_dict().
 
         Args:
             dct: dict
@@ -2359,16 +2358,16 @@ class Interface(Structure):
             lattice (Lattice/3x3 array): The lattice, either as a
                 pymatgen.core.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
-                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+                vector. e.g. [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
             species ([Species]): Sequence of species on each site. Can take in
                 flexible input, including:
 
                 i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                    e.g., (3, 56, ...) or actual Element or Species objects.
+                    e.g. (3, 56, ...) or actual Element or Species objects.
 
-                ii. List of dict of elements/species and occupancies, e.g.,
+                ii. List of dict of elements/species and occupancies, e.g.
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
             coords (Nx3 array): list of fractional/cartesian coordinates of
@@ -2379,7 +2378,7 @@ class Interface(Structure):
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in Cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
-                dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
+                dict of sequences, e.g. {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
             in_plane_offset: fractional shift in plane for the film with respect
@@ -2511,7 +2510,7 @@ class Interface(Structure):
         return struct_copy
 
     def get_shifts_based_on_adsorbate_sites(self, tolerance: float = 0.1) -> list[tuple[float, float]]:
-        """Computes possible in-plane shifts based on an adsorbate site  algorithm.
+        """Compute possible in-plane shifts based on an adsorbate site algorithm.
 
         Args:
             tolerance: tolerance for "uniqueness" for shifts in Cartesian unit
@@ -2707,7 +2706,7 @@ class Interface(Structure):
 
         # Shift coords to center
         if center_slab:
-            coords = np.add(coords, [0, 0, 0.5 - np.average(coords[:, 2])])
+            coords = np.add(coords, [0, 0, 0.5 - np.mean(coords[:, 2])])
 
         # Only merge site properties in both slabs
         site_properties = {}
@@ -2766,9 +2765,7 @@ def label_termination(slab: Structure) -> str:
     for idx, cluster in enumerate(clusters):
         clustered_sites[cluster].append(slab[idx])
 
-    plane_heights = {
-        np.average(np.mod([s.frac_coords[2] for s in sites], 1)): c for c, sites in clustered_sites.items()
-    }
+    plane_heights = {np.mean(np.mod([s.frac_coords[2] for s in sites], 1)): c for c, sites in clustered_sites.items()}
     top_plane_cluster = max(plane_heights.items(), key=lambda x: x[0])[1]
     top_plane_sites = clustered_sites[top_plane_cluster]
     top_plane = Structure.from_sites(top_plane_sites)
@@ -2806,8 +2803,6 @@ def count_layers(struct: Structure, el=None) -> int:
     for idx, cluster in enumerate(clusters):
         clustered_sites[cluster].append(struct[idx])
 
-    plane_heights = {
-        np.average(np.mod([s.frac_coords[2] for s in sites], 1)): c for c, sites in clustered_sites.items()
-    }
+    plane_heights = {np.mean(np.mod([s.frac_coords[2] for s in sites], 1)): c for c, sites in clustered_sites.items()}
 
     return len(plane_heights)

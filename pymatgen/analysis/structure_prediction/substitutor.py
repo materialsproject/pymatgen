@@ -65,8 +65,7 @@ class Substitutor(MSONable):
         self._symprec = symprec
 
     def get_allowed_species(self):
-        """
-        Returns the species in the domain of the probability function
+        """Get the species in the domain of the probability function
         any other specie will not work.
         """
         return self._sp.species
@@ -96,7 +95,7 @@ class Substitutor(MSONable):
         Args:
             target_species:
                 a list of species with oxidation states
-                e.g., [Species('Li+'), Species('Ni2+'), Species('O-2')]
+                e.g. [Species('Li+'), Species('Ni2+'), Species('O-2')]
 
             structures_list:
                 list of dictionary of the form {'structure': Structure object, 'id': some id where it comes from}

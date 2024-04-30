@@ -216,13 +216,8 @@ class Header(MSONable):
         return cls(structure, source, comment)
 
     @property
-    def structure_symmetry(self):
-        """
-        Returns space number and space group.
-
-        Returns:
-            Space number and space group list
-        """
+    def structure_symmetry(self) -> tuple[str, int]:
+        """The space group symbol and space number of the structure."""
         return self.space_group, self.space_number
 
     @property
@@ -477,8 +472,7 @@ class Atoms(MSONable):
         return Molecule(symbols, coords)
 
     def get_lines(self) -> list[list[str | int]]:
-        """
-        Returns a list of string representations of the atomic configuration
+        """Get a list of string representations of the atomic configuration
         information(x, y, z, ipot, atom_symbol, distance, id).
 
         Returns:
@@ -580,8 +574,7 @@ class Tags(dict):
         return cls({k: v for k, v in dct.items() if k not in ("@module", "@class")})
 
     def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
-        """
-        Returns a string representation of the Tags. The reason why this
+        """Get a string representation of the Tags. The reason why this
         method is different from the __str__ method is to provide options
         for pretty printing.
 
@@ -880,8 +873,7 @@ class Potential(MSONable):
         return pot_dict, pot_dict_reverse
 
     def __str__(self):
-        """
-        Returns a string representation of potential parameters to be used in
+        """Get a string representation of potential parameters to be used in
         the feff.inp file,
         determined from structure object.
 
@@ -974,7 +966,7 @@ class Paths(MSONable):
 
 class FeffParseError(ParseError):
     """Exception class for Structure.
-    Raised when the structure has problems, e.g., atoms that are too close.
+    Raised when the structure has problems, e.g. atoms that are too close.
     """
 
 

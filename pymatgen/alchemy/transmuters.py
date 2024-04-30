@@ -182,7 +182,7 @@ class StandardTransmuter:
 
         Args:
             tags: A sequence of tags. Note that this should be a sequence of
-                strings, e.g., ["My awesome structures", "Project X"].
+                strings, e.g. ["My awesome structures", "Project X"].
         """
         self.set_parameter("tags", tags)
 
@@ -336,7 +336,7 @@ def batch_write_vasp_input(
             Defaults to True.
         subfolder: Function to create subdirectory name from
             transformed_structure.
-            e.g., lambda x: x.other_parameters["tags"][0] to use the first
+            e.g. lambda x: x.other_parameters["tags"][0] to use the first
             tag.
         include_cif (bool): Boolean indication whether to output a CIF as
             well. CIF files are generally better supported in visualization

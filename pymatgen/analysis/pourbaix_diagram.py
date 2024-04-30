@@ -107,22 +107,22 @@ class PourbaixEntry(MSONable, Stringify):
 
     @property
     def npH(self):
-        """Get the number of H."""
+        """The number of H."""
         return self.entry.composition.get("H", 0) - 2 * self.entry.composition.get("O", 0)
 
     @property
     def nH2O(self):
-        """Get the number of H2O."""
+        """The number of H2O."""
         return self.entry.composition.get("O", 0)
 
     @property
     def nPhi(self):
-        """Get the number of electrons."""
+        """The number of electrons."""
         return self.npH - self.charge
 
     @property
     def name(self):
-        """Get the name for entry."""
+        """The entry's name."""
         if self.phase_type == "Solid":
             return f"{self.entry.reduced_formula}(s)"
 
@@ -170,10 +170,8 @@ class PourbaixEntry(MSONable, Stringify):
 
     @property
     def normalized_energy(self):
-        """
-        Returns:
-            energy normalized by number of non H or O atoms, e. g.
-            for Zn2O6, energy / 2 or for AgTe3(OH)3, energy / 4.
+        """Energy normalized by number of non H or O atoms, e.g.
+        for Zn2O6, energy / 2 or for AgTe3(OH)3, energy / 4.
         """
         return self.energy * self.normalization_factor
 
@@ -192,16 +190,14 @@ class PourbaixEntry(MSONable, Stringify):
 
     @property
     def conc_term(self):
-        """
-        Returns the concentration contribution to the free energy,
-        and should only be present when there are ions in the entry.
+        """The concentration contribution to the free energy. Should only be present
+        when there are ions in the entry.
         """
         return PREFAC * np.log10(self.concentration)
 
     # TODO: not sure if these are strictly necessary with refactor
     def as_dict(self):
-        """
-        Returns dict which contains Pourbaix Entry data.
+        """Get dict which contains Pourbaix Entry data.
         Note that the pH, voltage, H2O factors are always calculated when
         constructing a PourbaixEntry object.
         """
@@ -262,8 +258,7 @@ class MultiEntry(PourbaixEntry):
     """
 
     def __init__(self, entry_list, weights=None):
-        """
-        Initializes a MultiEntry.
+        """Initialize a MultiEntry.
 
         Args:
             entry_list ([PourbaixEntry]): List of component PourbaixEntries
@@ -343,7 +338,7 @@ class IonEntry(PDEntry):
             energy: Energy for composition.
             name: Optional parameter to name the entry. Defaults to the
                 chemical formula.
-            attribute: Optional attribute of the entry, e.g., band gap.
+            attribute: Optional attribute of the entry, e.g. band gap.
         """
         self.ion = ion
         # Auto-assign name
@@ -513,8 +508,7 @@ class PourbaixDiagram(MSONable):
         return vecs
 
     def _get_hull_in_nph_nphi_space(self, entries) -> tuple[list[PourbaixEntry], list[Simplex]]:
-        """
-        Generates convex hull of Pourbaix diagram entries in composition,
+        """Generate convex hull of Pourbaix diagram entries in composition,
         npH, and nphi space. This enables filtering of multi-entries
         such that only compositionally stable combinations of entries
         are included.
@@ -571,8 +565,7 @@ class PourbaixDiagram(MSONable):
         return min_entries, valid_facets
 
     def _preprocess_pourbaix_entries(self, entries, nproc=None):
-        """
-        Generates multi-entries for Pourbaix diagram.
+        """Generate multi-entries for Pourbaix diagram.
 
         Args:
             entries ([PourbaixEntry]): list of PourbaixEntries to preprocess
@@ -705,8 +698,7 @@ class PourbaixDiagram(MSONable):
 
     @staticmethod
     def get_pourbaix_domains(pourbaix_entries, limits=None):
-        """
-        Returns a set of Pourbaix stable domains (i. e. polygons) in
+        """Get a set of Pourbaix stable domains (i. e. polygons) in
         pH-V space from a list of pourbaix_entries.
 
         This function works by using scipy's HalfspaceIntersection
@@ -752,7 +744,7 @@ class PourbaixDiagram(MSONable):
             [0, 0, -1, 2 * g_max],
         ]
         hs_hyperplanes = np.vstack([hyperplanes, border_hyperplanes])
-        interior_point = [*np.average(limits, axis=1).tolist(), g_max]
+        interior_point = [*np.mean(limits, axis=1).tolist(), g_max]
         hs_int = HalfspaceIntersection(hs_hyperplanes, np.array(interior_point))
 
         # organize the boundary points by entry
@@ -771,7 +763,7 @@ class PourbaixDiagram(MSONable):
             points = np.array(points)[:, :2]
             # Initial sort to ensure consistency
             points = points[np.lexsort(np.transpose(points))]
-            center = np.average(points, axis=0)
+            center = np.mean(points, axis=0)
             points_centered = points - center
 
             # Sort points by cross product of centered points,
@@ -979,7 +971,7 @@ class PourbaixPlotter:
             ax.plot(V0_line[0], V0_line[1], "k-.", linewidth=lw)
 
         for entry, vertices in self._pbx._stable_domain_vertices.items():
-            center = np.average(vertices, axis=0)
+            center = np.mean(vertices, axis=0)
             x, y = np.transpose(np.vstack([vertices, vertices[0]]))
             ax.plot(x, y, "k-", linewidth=lw)
 
@@ -1049,8 +1041,7 @@ class PourbaixPlotter:
         return ax
 
     def domain_vertices(self, entry):
-        """
-        Returns the vertices of the Pourbaix domain.
+        """Get the vertices of the Pourbaix domain.
 
         Args:
             entry: Entry for which domain vertices are desired
