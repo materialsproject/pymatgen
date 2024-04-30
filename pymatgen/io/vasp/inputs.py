@@ -1113,7 +1113,7 @@ class Kpoints(MSONable):
                 Kpoints.supported_modes enum types.
             kpts (2D array): Array of kpoints. Even when only a single
                 specification is required, e.g. in the automatic scheme,
-                the kpts should still be specified as a 2D array. e.g.,
+                the kpts should still be specified as a 2D array. e.g.
                 [(20,),] or [(2, 2, 2),].
             kpts_shift (3x1 array): Shift for kpoints.
             kpts_weights (list[float]): Optional weights for explicit kpoints.
@@ -1733,7 +1733,7 @@ class PotcarSingle:
     Attributes:
         data (str): POTCAR data as a string.
         keywords (dict): Keywords parsed from the POTCAR as a dict. All keywords are also
-            accessible as attributes in themselves. E.g., potcar.enmax, potcar.encut, etc.
+            accessible as attributes in themselves. e.g. potcar.enmax, potcar.encut, etc.
 
     MD5 hashes of the entire POTCAR file and the actual data are validated
     against a database of known good hashes. Appropriate warnings or errors
@@ -1960,7 +1960,7 @@ class PotcarSingle:
 
         except ValueError:
             # VASP incorrectly gives the element symbol for Xe as "X"
-            # Some potentials, e.g., Zr_sv, gives the symbol as r.
+            # Some potentials, e.g. Zr_sv, gives the symbol as r.
             if element == "X":
                 return "Xe"
             return Element(self.symbol.split("_")[0]).symbol
@@ -2083,7 +2083,7 @@ class PotcarSingle:
                 Data (actual pseudopotential values in data blocks)
 
             For the Data block of POTCAR, there are unformatted data blocks
-            of unknown length and contents/data type, e.g., you might see
+            of unknown length and contents/data type, e.g. you might see
                 <float> <bool>
                 <Data Keyword>
                 <int> <int> <float>
@@ -2105,7 +2105,7 @@ class PotcarSingle:
 
         possible_potcar_matches = []
         # Some POTCARs have an LEXCH (functional used to generate the POTCAR)
-        # with the expected functional, e.g., the C_d POTCAR for PBE is actually an
+        # with the expected functional, e.g. the C_d POTCAR for PBE is actually an
         # LDA pseudopotential.
 
         # Thus we have to look for matches in all POTCAR dirs, not just the ones with
@@ -2135,7 +2135,7 @@ class PotcarSingle:
 
             if input_str.upper() == input_str.lower() and input_str[0].isnumeric():
                 # NB: fortran style floats always include a decimal point.
-                #     While you can set, e.g., x = 1E4, you cannot print/write x without
+                #     While you can set, e.g. x = 1E4, you cannot print/write x without
                 #     a decimal point:
                 #         `write(6,*) x`          -->   `10000.0000` in stdout
                 #         `write(6,'(E10.0)') x`  -->   segfault
@@ -2263,8 +2263,8 @@ class PotcarSingle:
         """Make a PotcarSingle from a symbol and functional.
 
         Args:
-            symbol (str): Symbol, e.g., Li_sv
-            functional (str): Functional, e.g., PBE
+            symbol (str): Symbol, e.g. Li_sv
+            functional (str): Functional, e.g. PBE
 
         Returns:
             PotcarSingle
@@ -2549,7 +2549,7 @@ def _gen_potcar_summary_stats(
             titel_key = psp.TITEL.replace(" ", "")
 
             # Some POTCARs have the same TITEL, but are named differently
-            # e.g., there is an "original" PBE POTCAR.Fe_pv and a POTCAR.Fe_pv_new
+            # e.g. there is an "original" PBE POTCAR.Fe_pv and a POTCAR.Fe_pv_new
             # which share a TITEL but differ in their contents
             if titel_key not in new_summary_stats[func]:
                 new_summary_stats[func][titel_key] = []
@@ -2586,7 +2586,7 @@ class Potcar(list, MSONable):
         """
         Args:
             symbols (list[str]): Element symbols for POTCAR. This should correspond
-                to the symbols used by VASP. E.g., "Mg", "Fe_pv", etc.
+                to the symbols used by VASP. e.g. "Mg", "Fe_pv", etc.
             functional (str): Functional used. To know what functional options
                 there are, use Potcar.FUNCTIONAL_CHOICES. Note that VASP has
                 different versions of the same functional. By default, the old

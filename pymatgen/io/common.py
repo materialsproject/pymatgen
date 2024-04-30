@@ -208,7 +208,7 @@ class VolumetricData(MSONable):
 
         Returns:
             Differential integrated charge as a np array of [[radius, value],
-            ...]. Format is for ease of plotting. E.g., plt.plot(data[:,0],
+            ...]. Format is for ease of plotting. e.g. plt.plot(data[:,0],
             data[:,1])
         """
         # For non-spin-polarized runs, this is zero by definition.

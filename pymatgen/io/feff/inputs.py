@@ -970,7 +970,7 @@ class Paths(MSONable):
 
 class FeffParseError(ParseError):
     """Exception class for Structure.
-    Raised when the structure has problems, e.g., atoms that are too close.
+    Raised when the structure has problems, e.g. atoms that are too close.
     """
 
 

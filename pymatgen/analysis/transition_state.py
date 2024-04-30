@@ -86,7 +86,7 @@ class NEBAnalysis(MSONable):
     @classmethod
     def from_outcars(cls, outcars, structures, **kwargs) -> Self:
         """Initialize an NEBAnalysis from Outcar and Structure objects. Use
-        the static constructors, e.g., from_dir instead if you
+        the static constructors, e.g. from_dir instead if you
         prefer to have these automatically generated from a directory of NEB
         calculations.
 
@@ -199,7 +199,7 @@ class NEBAnalysis(MSONable):
         non-terminal points, the CONTCAR is read to obtain structures. For
         terminal points, the POSCAR is used. The image directories are
         assumed to be the only directories that can be resolved to integers.
-        E.g., "00", "01", "02", "03", "04", "05", "06". The minimum
+        e.g. "00", "01", "02", "03", "04", "05", "06". The minimum
         sub-directory structure that can be parsed is of the following form (
         a 5-image example is shown):
 
@@ -288,7 +288,7 @@ def combine_neb_plots(neb_analyses, arranged_neb_analyses=False, reverse_plot=Fa
     smallest-energy difference. If all end points have very close energies, it's
     likely to result in an inaccurate connection. Manually arrange neb_analyses
     if the combined plot is not as expected compared with all individual plots.
-    E.g., if there are two NEBAnalysis objects to combine, arrange in such a
+    e.g. if there are two NEBAnalysis objects to combine, arrange in such a
     way that the end-point energy of the first NEBAnalysis object is the
     start-point energy of the second NEBAnalysis object.
     Note that the barrier labeled in y-axis in the combined plot might be

@@ -201,7 +201,7 @@ class RelaxationAnalyzer:
         """Get the percentage lattice parameter changes.
 
         Returns:
-            dict[str, float]: Percent changes in lattice parameter, e.g.,
+            dict[str, float]: Percent changes in lattice parameter, e.g.
                 {'a': 0.012, 'b': 0.021, 'c': -0.031} implies a change of 1.2%,
                 2.1% and -3.1% in the a, b and c lattice parameters respectively.
         """

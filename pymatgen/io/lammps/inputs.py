@@ -158,8 +158,8 @@ class LammpsInputFile(InputFile):
         either the first occurrence, all of them, or the index of the occurrence.
 
         Args:
-            command (str): String representing the command to change, e.g., "units".
-            argument (str): String with the new value for the command, e.g., "atomic".
+            command (str): String representing the command to change, e.g. "units".
+            argument (str): String with the new value for the command, e.g. "atomic".
             stage_name (str): String giving the stage name where the change should take place.
             how (str or int or list): "all" for changing all occurrences of the command within the stage_name
                 or the whole InputFile, "first" for the first occurrence, int i for the i-th time the command
@@ -371,7 +371,7 @@ class LammpsInputFile(InputFile):
                 commands="pair_coeff 1 1 morse 0.0580 3.987 3.404"
             )
             ```
-            To add multiple commands, use a dict or a list, e.g.,
+            To add multiple commands, use a dict or a list, e.g.
             ```
             your_input_file.add_commands(
                 stage_name="Definition of the potential",
@@ -860,9 +860,9 @@ class LammpsRun(MSONable):
         Args:
             script_template (str): String template for input script
                 with placeholders. The format for placeholders has to
-                be '$variable_name', e.g., '$temperature'
+                be '$variable_name', e.g. '$temperature'
             settings (dict): Contains values to be written to the
-                placeholders, e.g., {'temperature': 1}.
+                placeholders, e.g. {'temperature': 1}.
             data (LammpsData or str): Data file as a LammpsData
                 instance or path to an existing data file. Default to
                 None, i.e., no data file supplied. Useful only when
@@ -953,9 +953,9 @@ class LammpsTemplateGen(TemplateInputGen):
         Args:
             script_template: String template for input script with
                 placeholders. The format for placeholders has to be
-                '$variable_name', e.g., '$temperature'
+                '$variable_name', e.g. '$temperature'
             settings: Contains values to be written to the
-                placeholders, e.g., {'temperature': 1}. Default to None.
+                placeholders, e.g. {'temperature': 1}. Default to None.
             data: Data file as a LammpsData instance. Default to None, i.e., no
                 data file supplied. Note that a matching 'read_data' command
                 must be provided in the script template in order for the data
@@ -992,9 +992,9 @@ def write_lammps_inputs(
         output_dir (str): Directory to output the input files.
         script_template (str): String template for input script with
             placeholders. The format for placeholders has to be
-            '$variable_name', e.g., '$temperature'
+            '$variable_name', e.g. '$temperature'
         settings (dict): Contains values to be written to the
-            placeholders, e.g., {'temperature': 1}. Default to None.
+            placeholders, e.g. {'temperature': 1}. Default to None.
         data (LammpsData or str): Data file as a LammpsData instance or
             path to an existing data file. Default to None, i.e., no
             data file supplied. Useful only when read_data cmd is in

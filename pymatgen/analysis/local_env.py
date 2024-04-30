@@ -4148,7 +4148,7 @@ def _get_radius(site):
         if oxi in el.ionic_radii:
             return el.ionic_radii[oxi]
 
-        # e.g., oxi = 2.667, average together 2+ and 3+ radii
+        # e.g. oxi = 2.667, average together 2+ and 3+ radii
         if math.floor(oxi) in el.ionic_radii and math.ceil(oxi) in el.ionic_radii:
             oxi_low = el.ionic_radii[math.floor(oxi)]
             oxi_high = el.ionic_radii[math.ceil(oxi)]

@@ -684,7 +684,7 @@ class KSampling(AbivarAble, MSONable):
                 Not used for the other modes
             kpts: Number of divisions. Even when only a single specification is
                 required, e.g. in the automatic scheme, the kpts should still
-                be specified as a 2D array. e.g., [[20]] or [[2,2,2]].
+                be specified as a 2D array. e.g. [[20]] or [[2,2,2]].
             kpt_shifts: Shifts for Kpoints.
             use_symmetries: False if spatial symmetries should not be used
                 to reduce the number of independent k-points.

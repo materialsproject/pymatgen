@@ -362,7 +362,7 @@ class StructureMatcher(MSONable):
                 SpeciesComparator, which implies rigid species
                 mapping, i.e., Fe2+ only matches Fe2+ and not Fe3+.
 
-                Other comparators are provided, e.g., ElementComparator which
+                Other comparators are provided, e.g. ElementComparator which
                 matches only the elements and not the species.
 
                 The reason why a comparator object is used instead of
@@ -375,7 +375,7 @@ class StructureMatcher(MSONable):
                 present in both structures.
             ignored_species (list): A list of ions to be ignored in matching.
                 Useful for matching structures that have similar frameworks
-                except for certain ions, e.g., Li-ion intercalation frameworks.
+                except for certain ions, e.g. Li-ion intercalation frameworks.
                 This is more useful than allow_subset because it allows better
                 control over what species are ignored in the matching.
         """
@@ -954,7 +954,7 @@ class StructureMatcher(MSONable):
     def get_rms_anonymous(self, struct1, struct2):
         """
         Performs an anonymous fitting, which allows distinct species in one
-        structure to map to another. E.g., to compare if the Li2O and Na2O
+        structure to map to another. e.g. to compare if the Li2O and Na2O
         structures are similar.
 
         Args:
@@ -980,7 +980,7 @@ class StructureMatcher(MSONable):
     def get_best_electronegativity_anonymous_mapping(self, struct1: Structure, struct2: Structure) -> dict | None:
         """
         Performs an anonymous fitting, which allows distinct species in one
-        structure to map to another. E.g., to compare if the Li2O and Na2O
+        structure to map to another. e.g. to compare if the Li2O and Na2O
         structures are similar. If multiple substitutions are within tolerance
         this will return the one which minimizes the difference in
         electronegativity between the matches species.
@@ -1043,7 +1043,7 @@ class StructureMatcher(MSONable):
     ) -> bool:
         """
         Performs an anonymous fitting, which allows distinct species in one structure to map
-        to another. E.g., to compare if the Li2O and Na2O structures are similar.
+        to another. e.g. to compare if the Li2O and Na2O structures are similar.
 
         Args:
             struct1 (Structure): 1st structure

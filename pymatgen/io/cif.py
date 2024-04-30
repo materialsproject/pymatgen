@@ -301,7 +301,7 @@ class CifParser:
             site_tolerance (float): This tolerance is used to determine if two sites are sitting in the same position,
                 in which case they will be combined to a single disordered site. Defaults to 1e-4.
             frac_tolerance (float): This tolerance is used to determine is a coordinate should be rounded to an ideal
-                value. E.g., 0.6667 is rounded to 2/3. This is desired if symmetry operations are going to be applied.
+                value. e.g. 0.6667 is rounded to 2/3. This is desired if symmetry operations are going to be applied.
                 However, for very large CIF files, this may need to be set to 0.
             check_cif (bool): Whether to check that stoichiometry reported in CIF matches
                 that of resulting Structure, and whether elements are missing. Defaults to True.

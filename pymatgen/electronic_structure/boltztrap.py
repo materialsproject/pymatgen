@@ -450,7 +450,7 @@ class BoltztrapRunner(MSONable):
                 fout.write(".15                       # (efcut) energy range of chemical potential\n")
                 fout.write(f"{self.tmax} {self.tgrid}                  # Tmax, temperature grid\n")
                 fout.write("-1.  # energyrange of bands given DOS output sig_xxx and dos_xxx (xxx is band number)\n")
-                fout.write(self.dos_type + "\n")  # e.g., HISTO or TETRA
+                fout.write(self.dos_type + "\n")  # e.g. HISTO or TETRA
                 fout.write(f"{self.tauref} {self.tauexp} {self.tauen} 0 0 0\n")
                 fout.write(f"{2 * len(self.doping)}\n")
 

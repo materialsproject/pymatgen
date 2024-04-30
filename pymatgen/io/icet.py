@@ -179,7 +179,7 @@ class IcetSQS:
 
         Returns:
             Dict with sublattice compositions specified by uppercase letters,
-                e.g., In_x Ga_1-x As becomes:
+                e.g. In_x Ga_1-x As becomes:
                 {
                     "A": {"In": x, "Ga": 1 - x},
                     "B": {"As": 1}

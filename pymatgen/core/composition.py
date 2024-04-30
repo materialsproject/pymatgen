@@ -48,7 +48,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     __getitem__ is overridden to return 0 when an element is not found.
     (somewhat like a defaultdict, except it is immutable).
 
-    Also adds more convenience methods relevant to compositions, e.g.,
+    Also adds more convenience methods relevant to compositions, e.g.
     get_fraction.
 
     It should also be noted that many Composition related functionality takes
@@ -105,14 +105,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         1. A dict of either {Element/Species: amount},
 
             {string symbol:amount}, or {atomic number:amount} or any mixture
-            of these. E.g., {Element("Li"): 2, Element("O"): 1},
+            of these. e.g. {Element("Li"): 2, Element("O"): 1},
             {"Li":2, "O":1}, {3: 2, 8: 1} all result in a Li2O composition.
-        2. Keyword arg initialization, similar to a dict, e.g.,
+        2. Keyword arg initialization, similar to a dict, e.g.
 
             Composition(Li = 2, O = 1)
 
         In addition, the Composition constructor also allows a single
-        string as an input formula. E.g., Composition("Li2O").
+        string as an input formula. e.g. Composition("Li2O").
 
         Args:
             *args: Any number of 2-tuples as key-value pairs.
@@ -301,7 +301,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     @property
     def formula(self) -> str:
         """Returns a formula string, with elements sorted by electronegativity,
-        e.g., Li4 Fe4 P4 O16.
+        e.g. Li4 Fe4 P4 O16.
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt, key=lambda sym: get_el_sp(sym).X)
@@ -311,7 +311,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     @property
     def alphabetical_formula(self) -> str:
         """Returns a formula string, with elements sorted by alphabetically
-        e.g., Fe4 Li4 O16 P4.
+        e.g. Fe4 Li4 O16 P4.
         """
         return " ".join(sorted(self.formula.split()))
 
@@ -744,7 +744,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """Check if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
         integer values. Note that more num_atoms in the composition gives
-        more degrees of freedom. e.g., if possible oxidation states of
+        more degrees of freedom. e.g. if possible oxidation states of
         element X are [2,4] and Y are [-3], then XY is not charge balanced
         but X2Y2 is. Results are returned from most to least probable based
         on ICSD statistics. Use max_sites to improve performance if needed.

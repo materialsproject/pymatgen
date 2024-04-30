@@ -360,7 +360,7 @@ class _MPResterLegacy:
         REST Endpoint: https://materialsproject.org/materials/<mp-id>/doc.
 
         Args:
-            materials_id (str): E.g., mp-1143 for Al2O3
+            materials_id (str): e.g. mp-1143 for Al2O3
 
         Returns:
             Dict of json document of all data that is displayed on a materials
@@ -377,9 +377,9 @@ class _MPResterLegacy:
         https://materialsproject.org/materials/<mp-id>/xas/<absorbing_element>.
 
         Args:
-            material_id (str): E.g., mp-1143 for Al2O3
+            material_id (str): e.g. mp-1143 for Al2O3
             absorbing_element (str): The absorbing element in the corresponding
-                structure. E.g., Al in Al2O3
+                structure. e.g. Al in Al2O3
         """
         element_list = self.get_data(material_id, prop="elements")[0]["elements"]
         if absorbing_element not in element_list:
@@ -575,8 +575,8 @@ class _MPResterLegacy:
 
         Args:
             chemsys (str or [str]): Chemical system string comprising element
-                symbols separated by dashes, e.g., "Li-Fe-O" or List of element
-                symbols, e.g., ["Li", "Fe", "O"].
+                symbols separated by dashes, e.g. "Li-Fe-O" or List of element
+                symbols, e.g. ["Li", "Fe", "O"].
             solid_compat: Compatibility scheme used to pre-process solid DFT energies prior to applying aqueous
                 energy adjustments. May be passed as a class (e.g. MaterialsProject2020Compatibility) or an instance
                 (e.g., MaterialsProject2020Compatibility()). If None, solid DFT energies are used as-is.
@@ -718,7 +718,7 @@ class _MPResterLegacy:
 
         Args:
             material_id (str): Materials Project material_id (a string,
-                e.g., mp-1234).
+                e.g. mp-1234).
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
                 processed using the MaterialsProject2020Compatibility class,
@@ -760,7 +760,7 @@ class _MPResterLegacy:
 
         Args:
             material_id (str): Materials Project material_id (a string,
-                e.g., mp-1234).
+                e.g. mp-1234).
 
         Returns:
             A Dos object.
@@ -836,8 +836,8 @@ class _MPResterLegacy:
 
         Args:
             elements (str or [str]): Chemical system string comprising element
-                symbols separated by dashes, e.g., "Li-Fe-O" or List of element
-                symbols, e.g., ["Li", "Fe", "O"].
+                symbols separated by dashes, e.g. "Li-Fe-O" or List of element
+                symbols, e.g. ["Li", "Fe", "O"].
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
                 processed using the MaterialsProject2020Compatibility class,
@@ -938,9 +938,9 @@ class _MPResterLegacy:
                 mongo-style dict.
 
                 If string, it supports a powerful but simple string criteria.
-                E.g., "Fe2O3" means search for materials with reduced_formula
-                Fe2O3. Wild cards are also supported. E.g., "\\*2O" means get
-                all materials whose formula can be formed as \\*2O, e.g.,
+                e.g. "Fe2O3" means search for materials with reduced_formula
+                Fe2O3. Wild cards are also supported. e.g. "\\*2O" means get
+                all materials whose formula can be formed as \\*2O, e.g.
                 Li2O, K2O, etc.
 
                 Other syntax examples:
@@ -973,7 +973,7 @@ class _MPResterLegacy:
                 Defaults to True. Set to False to reduce visual noise.
 
         Returns:
-            List of results. E.g.,
+            List of results. e.g.
             [{u'formula': {u'O': 1, u'Li': 2.0}},
             {u'formula': {u'Na': 2.0, u'O': 2.0}},
             {u'formula': {u'K': 1, u'O': 3.0}},
@@ -1349,7 +1349,7 @@ class _MPResterLegacy:
         Args:
             material_id (str): Materials Project material_id, e.g. 'mp-123'.
             miller_index (list of integer): The miller index of the surface.
-            e.g., [3, 2, 1]. If miller_index is provided, only one dictionary
+            e.g. [3, 2, 1]. If miller_index is provided, only one dictionary
             of this specific plane will be returned.
             inc_structures (bool): Include final surface slab structures.
                 These are unnecessary for Wulff shape construction.
@@ -1409,12 +1409,12 @@ class _MPResterLegacy:
         """Get grain boundary data for a material.
 
         Args:
-            material_id (str): Materials Project material_id, e.g., 'mp-129'.
-            pretty_formula (str): The formula of metals. e.g., 'Fe'
-            chemsys (str): The chemical system. e.g., 'Fe-O'
+            material_id (str): Materials Project material_id, e.g. 'mp-129'.
+            pretty_formula (str): The formula of metals. e.g. 'Fe'
+            chemsys (str): The chemical system. e.g. 'Fe-O'
             sigma (int): The sigma value of a certain type of grain boundary
-            gb_plane (list of integer): The Miller index of grain boundary plane. e.g., [1, 1, 1]
-            rotation_axis (list of integer): The Miller index of rotation axis. e.g.,
+            gb_plane (list of integer): The Miller index of grain boundary plane. e.g. [1, 1, 1]
+            rotation_axis (list of integer): The Miller index of rotation axis. e.g.
                 [1, 0, 0], [1, 1, 0], and [1, 1, 1] Sigma value is determined by the combination of
                 rotation axis and rotation angle. The five degrees of freedom (DOF) of one grain boundary
                 include: rotation axis (2 DOFs), rotation angle (1 DOF), and grain boundary plane (2 DOFs).
@@ -1583,7 +1583,7 @@ class _MPResterLegacy:
 
         Args:
             criteria_string (str): A string representing a search criteria.
-                Also supports wild cards. E.g.,
+                Also supports wild cards. e.g.
                 something like "*2O" gets converted to
                 {'pretty_formula': {'$in': [u'B2O', u'Xe2O', u"Li2O", ...]}}
 
@@ -1593,7 +1593,7 @@ class _MPResterLegacy:
                     Li-Fe-O or *-Fe-O: Interpreted as chemical systems.
 
                 You can mix and match with spaces, which are interpreted as
-                "OR". E.g., "mp-1234 FeO" means query for all compounds with
+                "OR". e.g. "mp-1234 FeO" means query for all compounds with
                 reduced formula FeO or with materials_id mp-1234.
 
         Returns:

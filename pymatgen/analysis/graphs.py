@@ -1481,7 +1481,7 @@ class StructureGraph(MSONable):
             list of unique Molecules in Structure
         """
         # creating a supercell is an easy way to extract
-        # molecules (and not, e.g., layers of a 2D crystal)
+        # molecules (and not, e.g. layers of a 2D crystal)
         # without adding extra logic
         if getattr(self, "_supercell_sg", None) is None:
             self._supercell_sg = supercell_sg = self * (3, 3, 3)

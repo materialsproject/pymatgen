@@ -201,10 +201,10 @@ class SpaceGroup(SymmetryGroup):
                 represented by an underscore. For example, "P6_3/mmc".
                 Alternative settings can be accessed by adding a ":identifier".
                 For example, the hexagonal setting  for rhombohedral cells can be
-                accessed by adding a ":H", e.g., "R-3m:H". To find out all
+                accessed by adding a ":H", e.g. "R-3m:H". To find out all
                 possible settings for a spacegroup, use the get_settings()
                 classmethod. Alternative origin choices can be indicated by a
-                translation vector, e.g., 'Fm-3m(a-1/4,b-1/4,c-1/4)'.
+                translation vector, e.g. 'Fm-3m(a-1/4,b-1/4,c-1/4)'.
         """
         from pymatgen.core.operations import SymmOp
 
@@ -419,7 +419,7 @@ class SpaceGroup(SymmetryGroup):
     def crystal_system(self) -> CrystalSystem:
         """
         Returns:
-            str: Crystal system of the space group, e.g., cubic, hexagonal, etc.
+            str: Crystal system of the space group, e.g. cubic, hexagonal, etc.
         """
         num = self.int_number
         if num <= 2:
@@ -549,7 +549,7 @@ def sg_symbol_from_int_number(int_number: int, hexagonal: bool = True) -> str:
 def in_array_list(array_list: list[np.ndarray] | np.ndarray, arr: np.ndarray, tol: float = 1e-5) -> bool:
     """Extremely efficient nd-array comparison using numpy's broadcasting. This
     function checks if a particular array a, is present in a list of arrays.
-    It works for arrays of any size, e.g., even matrix searches.
+    It works for arrays of any size, e.g. even matrix searches.
 
     Args:
         array_list ([array]): A list of arrays to compare to.

@@ -281,7 +281,7 @@ class TransformedStructure(MSONable):
             primitive (bool): Option to set if the primitive cell should be
                 extracted. Defaults to True. However, there are certain
                 instances where you might want to use a non-primitive cell,
-                e.g., if you are trying to generate all possible orderings of
+                e.g. if you are trying to generate all possible orderings of
                 partial removals or order a disordered structure. Defaults to True.
             occupancy_tolerance (float): If total occupancy of a site is
                 between 1 and occupancy_tolerance, the occupancies will be

@@ -88,7 +88,7 @@ class ChemicalPotentialDiagram(MSONable):
                 which are used to construct the border hyperplanes used in the HalfSpaceIntersection
                 algorithm; these constrain the space over which the domains are calculated and also
                 determine the size of the plotted diagram. Any elemental limits not specified are
-                covered in the default_min_limit argument. e.g., {Element("Li"): [-12.0, 0.0], ...}
+                covered in the default_min_limit argument. e.g. {Element("Li"): [-12.0, 0.0], ...}
             default_min_limit (float): Default minimum chemical potential limit (i.e.,
                 lower bound) for unspecified elements within the "limits" argument.
             formal_chempots (bool): Whether to plot the formal ('reference') chemical potentials

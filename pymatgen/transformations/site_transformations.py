@@ -31,8 +31,8 @@ class InsertSitesTransformation(AbstractTransformation):
     def __init__(self, species, coords, coords_are_cartesian=False, validate_proximity=True):
         """
         Args:
-            species: A list of species. e.g., ["Li", "Fe"]
-            coords: A list of coords corresponding to those species. e.g.,
+            species: A list of species. e.g. ["Li", "Fe"]
+            coords: A list of coords corresponding to those species. e.g.
                 [[0,0,0],[0.5,0.5,0.5]].
             coords_are_cartesian (bool): Set to True if coords are given in
                 Cartesian coords. Defaults to False.
@@ -88,7 +88,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
         """
         Args:
             indices_species_map: A dict containing the species mapping in
-                int-string pairs. E.g., { 1:"Na"} or {2:"Mn2+"}. Multiple
+                int-string pairs. e.g. { 1:"Na"} or {2:"Mn2+"}. Multiple
                 substitutions can be done. Overloaded to accept sp_and_occu
                 dictionary. E.g. {1: {"Ge":0.75, "C":0.25} }, which
                 substitutes a single species with multiple species to generate a
@@ -133,7 +133,7 @@ class RemoveSitesTransformation(AbstractTransformation):
     def __init__(self, indices_to_remove):
         """
         Args:
-            indices_to_remove: List of indices to remove. E.g., [0, 1, 2].
+            indices_to_remove: List of indices to remove. e.g. [0, 1, 2].
         """
         self.indices_to_remove = indices_to_remove
 
@@ -276,7 +276,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 A list of list of indices, e.g. [[0, 1], [2, 3, 4, 5]].
             fractions:
                 The corresponding fractions to remove. Must be same length as
-                indices. e.g., [0.5, 0.25]
+                indices. e.g. [0.5, 0.25]
             algo:
                 This parameter allows you to choose the algorithm to perform
                 ordering. Use one of PartialRemoveSpecieTransformation.ALGO_*

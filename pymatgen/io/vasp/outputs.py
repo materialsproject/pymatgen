@@ -75,7 +75,7 @@ def _parse_v_parameters(val_type, val, filename, param_name):
         val_type: Value type parsed from vasprun.xml.
         val: Actual string value parsed for vasprun.xml.
         filename: Fullpath of vasprun.xml. Used for robust error handling.
-            E.g., if vasprun.xml contains *** for some Incar parameters,
+            e.g. if vasprun.xml contains *** for some Incar parameters,
             the code will try to read from an INCAR file present in the same
             directory.
         param_name: Name of parameter.
@@ -206,12 +206,12 @@ class Vasprun(MSONable):
         incar (Incar): Incar object for parameters specified in INCAR file.
         parameters (Incar): Incar object with parameters that vasp actually used, including all defaults.
         kpoints (Kpoints): Kpoints object for KPOINTS specified in run.
-        actual_kpoints (list): List of actual kpoints, e.g., [[0.25, 0.125, 0.08333333], [-0.25, 0.125, 0.08333333],
+        actual_kpoints (list): List of actual kpoints, e.g. [[0.25, 0.125, 0.08333333], [-0.25, 0.125, 0.08333333],
             [0.25, 0.375, 0.08333333], ....].
-        actual_kpoints_weights (list): List of kpoint weights, E.g., [0.04166667, 0.04166667, 0.04166667, 0.04166667,
+        actual_kpoints_weights (list): List of kpoint weights, e.g. [0.04166667, 0.04166667, 0.04166667, 0.04166667,
             0.04166667, ....].
-        atomic_symbols (list): List of atomic symbols, e.g., ["Li", "Fe", "Fe", "P", "P", "P"].
-        potcar_symbols (list): List of POTCAR symbols. e.g., ["PAW_PBE Li 17Jan2003", "PAW_PBE Fe 06Sep2000", ..].
+        atomic_symbols (list): List of atomic symbols, e.g. ["Li", "Fe", "Fe", "P", "P", "P"].
+        potcar_symbols (list): List of POTCAR symbols. e.g. ["PAW_PBE Li 17Jan2003", "PAW_PBE Fe 06Sep2000", ..].
         kpoints_opt_props (object): Object whose attributes are the data from KPOINTS_OPT (if present,
             else None). Attributes of the same name have the same format and meaning as Vasprun (or they are
             None if absent). Attributes are: tdos, idos, pdos, efermi, eigenvalues, projected_eigenvalues,
@@ -1102,7 +1102,7 @@ class Vasprun(MSONable):
             potcar_paths = [str(path)]
         else:
             # the abspath is needed here in cases where no leading directory is specified,
-            # e.g., Vasprun("vasprun.xml"). see gh-3586:
+            # e.g. Vasprun("vasprun.xml"). see gh-3586:
             search_path = os.path.dirname(os.path.abspath(self.filename)) if path is True else str(path)
 
             potcar_paths = [
@@ -1771,18 +1771,18 @@ class Outcar:
     are always present.
 
     Attributes:
-        magnetization (tuple): Magnetization on each ion as a tuple of dict, e.g.,
+        magnetization (tuple): Magnetization on each ion as a tuple of dict, e.g.
             ({"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005}, ... )
         chemical_shielding (dict): Chemical shielding on each ion as a dictionary with core and valence contributions.
         unsym_cs_tensor (list): Unsymmetrized chemical shielding tensor matrixes on each ion as a list.
-            e.g., [[[sigma11, sigma12, sigma13], [sigma21, sigma22, sigma23], [sigma31, sigma32, sigma33]], ...]
+            e.g. [[[sigma11, sigma12, sigma13], [sigma21, sigma22, sigma23], [sigma31, sigma32, sigma33]], ...]
         cs_g0_contribution (np.array): G=0 contribution to chemical shielding. 2D rank 3 matrix.
-        cs_core_contribution (dict): Core contribution to chemical shielding. dict. e.g.,
+        cs_core_contribution (dict): Core contribution to chemical shielding. dict. e.g.
             {'Mg': -412.8, 'C': -200.5, 'O': -271.1}
-        efg (tuple): Electric Field Gradient (EFG) tensor on each ion as a tuple of dict, e.g.,
+        efg (tuple): Electric Field Gradient (EFG) tensor on each ion as a tuple of dict, e.g.
             ({"cq": 0.1, "eta", 0.2, "nuclear_quadrupole_moment": 0.3}, {"cq": 0.7, "eta", 0.8,
             "nuclear_quadrupole_moment": 0.9}, ...)
-        charge (tuple): Charge on each ion as a tuple of dict, e.g.,
+        charge (tuple): Charge on each ion as a tuple of dict, e.g.
             ({"p": 0.154, "s": 0.078, "d": 0.0, "tot": 0.232}, ...)
         is_stopped (bool): True if OUTCAR is from a stopped run (using STOPCAR, see VASP Manual).
         run_stats (dict): Various useful run stats as a dict including "System time (sec)", "Total CPU time used (sec)",
@@ -2119,7 +2119,7 @@ class Outcar:
         arguments.
 
         Args:
-            patterns (dict): A dict of patterns, e.g.,
+            patterns (dict): A dict of patterns, e.g.
                 {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"}.
             reverse (bool): Read files in reverse. Defaults to false. Useful for
                 large files, esp OUTCARs, especially when used with
@@ -3866,10 +3866,10 @@ class Procar:
                 that VASP uses 1-based indexing for atoms, but this is
                 converted to 0-based indexing in this parser to be
                 consistent with representation of structures in pymatgen.
-            orbital (str): An orbital. If it is a single character, e.g., s,
+            orbital (str): An orbital. If it is a single character, e.g. s,
                 p, d or f, the sum of all s-type, p-type, d-type or f-type
                 orbitals occupations are returned respectively. If it is a
-                specific orbital, e.g., px, dxy, etc., only the occupation
+                specific orbital, e.g. px, dxy, etc., only the occupation
                 of that orbital is returned.
 
         Returns:
@@ -3889,13 +3889,13 @@ class Oszicar:
     information about a run.
 
     Attributes:
-        electronic_steps (list): All electronic steps as a list of list of dict. e.g.,
+        electronic_steps (list): All electronic steps as a list of list of dict. e.g.
             [[{"rms": 160.0, "E": 4507.24605593, "dE": 4507.2, "N": 1, "deps": -17777.0, "ncg": 16576}, ...], [....]
             where electronic_steps[index] refers the list of electronic steps in one ionic_step,
             electronic_steps[index][subindex] refers to a particular electronic step at subindex in ionic step at
             index. The dict of properties depends on the type of VASP run, but in general, "E", "dE" and "rms" should
             be present in almost all runs.
-        ionic_steps (list): All ionic_steps as a list of dict, e.g.,
+        ionic_steps (list): All ionic_steps as a list of dict, e.g.
             [{"dE": -526.36, "E0": -526.36024, "mag": 0.0, "F": -526.36024}, ...]
             This is the typical output from VASP at the end of each ionic step. The stored dict might be different
             depending on the type of VASP run.
@@ -3942,7 +3942,7 @@ class Oszicar:
     @property
     def all_energies(self):
         """Compilation of all energies from all electronic steps and ionic steps
-        as a tuple of list of energies, e.g.,
+        as a tuple of list of energies, e.g.
         ((4507.24605593, 143.824705755, -512.073149912, ...), ...).
         """
         all_energies = []

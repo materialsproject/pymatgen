@@ -861,7 +861,7 @@ class LammpsData(MSONable):
 
         Args:
             charges: A dictionary with atom indexes as keys and
-                charges as values, e.g., to set the charge
+                charges as values, e.g. to set the charge
                 of the atom with index 3 to -2, use `{3: -2}`.
         """
         for iat, q in charges.items():
@@ -970,7 +970,7 @@ class Topology(MSONable):
         Another constructor that creates an instance from a molecule.
         Covalent bonds and other bond-based topologies (angles and
         dihedrals) can be automatically determined. Cannot be used for
-        non bond-based topologies, e.g., improper dihedrals.
+        non bond-based topologies, e.g. improper dihedrals.
 
         Args:
             molecule (Molecule): Input molecule.

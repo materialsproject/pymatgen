@@ -1779,7 +1779,7 @@ class Wavefunction:
         or similar (the whole unit cell has to be covered!).
 
         Args:
-            filename: Filename for the output, e.g., WAVECAR.vasp
+            filename: Filename for the output, e.g. WAVECAR.vasp
             part: which part of the wavefunction will be saved ("real" or "imaginary")
         """
         if not (

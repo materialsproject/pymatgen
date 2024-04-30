@@ -1137,7 +1137,7 @@ class PhaseDiagram(MSONable):
 
         Args:
             elements: Sequence of elements to be considered as independent variables.
-                E.g., if you want to show the stability ranges
+                e.g. if you want to show the stability ranges
                 of all Li-Co-O phases with respect to mu_Li and mu_O, you will supply
                 [Element("Li"), Element("O")]
             referenced: If True, gives the results with a reference being the
@@ -1867,7 +1867,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
 class ReactionDiagram:
     """
-    Analyzes the possible reactions between a pair of compounds, e.g.,
+    Analyzes the possible reactions between a pair of compounds, e.g.
     an electrolyte and an electrode.
     """
 
@@ -1876,12 +1876,12 @@ class ReactionDiagram:
         Args:
             entry1 (ComputedEntry): Entry for 1st component. Note that
                 corrections, if any, must already be pre-applied. This is to
-                give flexibility for different kinds of corrections, e.g.,
+                give flexibility for different kinds of corrections, e.g.
                 if a particular entry is fitted to an experimental data (such
                 as EC molecule).
             entry2 (ComputedEntry): Entry for 2nd component. Note that
                 corrections must already be pre-applied. This is to
-                give flexibility for different kinds of corrections, e.g.,
+                give flexibility for different kinds of corrections, e.g.
                 if a particular entry is fitted to an experimental data (such
                 as EC molecule).
             all_entries ([ComputedEntry]): All other entries to be
@@ -2361,7 +2361,7 @@ class PDPlotter:
 
         Args:
             elements: Sequence of elements to be considered as independent
-                variables. E.g., if you want to show the stability ranges of
+                variables. e.g. if you want to show the stability ranges of
                 all Li-Co-O phases w.r.t. to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
             referenced: if True, gives the results with a reference being the
@@ -2378,7 +2378,7 @@ class PDPlotter:
 
         Args:
             elements: Sequence of elements to be considered as independent
-                variables. E.g., if you want to show the stability ranges of
+                variables. e.g. if you want to show the stability ranges of
                 all Li-Co-O phases w.r.t. to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
             referenced: if True, gives the results with a reference being the
@@ -3732,12 +3732,12 @@ def uniquelines(q):
     used for converting convex hull facets into line pairs of coordinates.
 
     Args:
-        q: A 2-dim sequence, where each row represents a facet. E.g.,
+        q: A 2-dim sequence, where each row represents a facet. e.g.
             [[1,2,3],[3,6,7],...]
 
     Returns:
         setoflines:
-            A set of tuple of lines. E.g., ((1,2), (1,3), (2,3), ....)
+            A set of tuple of lines. e.g. ((1,2), (1,3), (2,3), ....)
     """
     return {tuple(sorted(line)) for facets in q for line in itertools.combinations(facets, 2)}
 

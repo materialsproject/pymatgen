@@ -70,7 +70,7 @@ class Neighbor(Site):
 
         (site, nn_distance, index).
 
-    In future, usage should be to call attributes, e.g., Neighbor.index, Neighbor.distance, etc.
+    In future, usage should be to call attributes, e.g. Neighbor.index, Neighbor.distance, etc.
     """
 
     def __init__(
@@ -130,7 +130,7 @@ class PeriodicNeighbor(PeriodicSite):
 
         (site, distance, index, image).
 
-    In future, usage should be to call attributes, e.g., PeriodicNeighbor.index,
+    In future, usage should be to call attributes, e.g. PeriodicNeighbor.index,
     PeriodicNeighbor.distance, etc.
     """
 
@@ -560,7 +560,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         Note that this clears the label of any affected site.
 
         Args:
-            species_mapping (dict): Species to swap. Species can be elements too. E.g.,
+            species_mapping (dict): Species to swap. Species can be elements too. e.g.
                 {Element("Li"): Element("Na")} performs a Li for Na substitution. The second species can
                 be a sp_and_occu dict. For example, a site with 0.5 Si that is passed the mapping
                 {Element('Si'): {Element('Ge'): 0.75, Element('C'): 0.25} } will have .375 Ge and .125 C.
@@ -599,7 +599,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
         Args:
             oxidation_states (dict): Dict of oxidation states.
-                E.g., {"Li":1, "Fe":2, "P":5, "O":-2}
+                e.g. {"Li":1, "Fe":2, "P":5, "O":-2}
 
         Raises:
             ValueError if oxidation states are not specified for all elements.
@@ -969,16 +969,16 @@ class IStructure(SiteCollection, MSONable):
             lattice (Lattice/3x3 array): The lattice, either as a
                 pymatgen.core.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
-                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+                vector. e.g. [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
             species ([Species]): Sequence of species on each site. Can take in
                 flexible input, including:
 
                 i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                    e.g., (3, 56, ...) or actual Element or Species objects.
+                    e.g. (3, 56, ...) or actual Element or Species objects.
 
-                ii. List of dict of elements/species and occupancies, e.g.,
+                ii. List of dict of elements/species and occupancies, e.g.
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
             coords (Nx3 array): list of fractional/Cartesian coordinates of
@@ -1110,12 +1110,12 @@ class IStructure(SiteCollection, MSONable):
         Args:
             sg (str/int): The spacegroup. If a string, it will be interpreted
                 as one of the notations supported by
-                pymatgen.symmetry.groups.Spacegroup. E.g., "R-3c" or "Fm-3m".
+                pymatgen.symmetry.groups.Spacegroup. e.g. "R-3c" or "Fm-3m".
                 If an int, it will be interpreted as an international number.
             lattice (Lattice/3x3 array): The lattice, either as a
                 pymatgen.core.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
-                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+                vector. e.g. [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
                 Note that no attempt is made to check that the lattice is
                 compatible with the spacegroup specified. This may be
@@ -1125,9 +1125,9 @@ class IStructure(SiteCollection, MSONable):
 
                 i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                    e.g., (3, 56, ...) or actual Element or Species objects.
+                    e.g. (3, 56, ...) or actual Element or Species objects.
 
-                ii. List of dict of elements/species and occupancies, e.g.,
+                ii. List of dict of elements/species and occupancies, e.g.
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
             coords (Nx3 array): list of fractional/cartesian coordinates of
@@ -1135,7 +1135,7 @@ class IStructure(SiteCollection, MSONable):
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in Cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
-                dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
+                dict of sequences, e.g. {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
             tol (float): A fractional tolerance to deal with numerical
@@ -1205,13 +1205,13 @@ class IStructure(SiteCollection, MSONable):
             msg (str/list/pymatgen.symmetry.maggroups.MagneticSpaceGroup):
                 The magnetic spacegroup.
                 If a string, it will be interpreted as one of the notations
-                supported by MagneticSymmetryGroup, e.g., "R-3'c" or "Fm'-3'm".
+                supported by MagneticSymmetryGroup, e.g. "R-3'c" or "Fm'-3'm".
                 If a list of two ints, it will be interpreted as the number of
                 the spacegroup in its Belov, Neronova and Smirnova (BNS) setting.
             lattice (Lattice/3x3 array): The lattice, either as a
                 pymatgen.core.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
-                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+                vector. e.g. [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
                 Note that no attempt is made to check that the lattice is
                 compatible with the spacegroup specified. This may be
@@ -1220,15 +1220,15 @@ class IStructure(SiteCollection, MSONable):
                 flexible input, including:
                 i.  A sequence of element / species specified either as string
                 symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                e.g., (3, 56, ...) or actual Element or Species objects.
+                e.g. (3, 56, ...) or actual Element or Species objects.
 
-                ii. List of dict of elements/species and occupancies, e.g.,
+                ii. List of dict of elements/species and occupancies, e.g.
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
             coords (Nx3 array): list of fractional/cartesian coordinates of
                 each species.
             site_properties (dict): Properties associated with the sites as a
-                dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
+                dict of sequences, e.g. {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
                 fractional_coords. Unlike Structure.from_spacegroup(),
                 this argument is mandatory, since magnetic moment information
@@ -1424,11 +1424,11 @@ class IStructure(SiteCollection, MSONable):
                 vectors. Has to be all integers. Several options are possible:
 
                 a. A full 3x3 scaling matrix defining the linear combination
-                   of the old lattice vectors. E.g., [[2,1,0],[0,3,0],[0,0,
+                   of the old lattice vectors. e.g. [[2,1,0],[0,3,0],[0,0,
                    1]] generates a new structure with lattice vectors a' =
                    2a + b, b' = 3b, c' = c where a, b, and c are the lattice
                    vectors of the original structure.
-                b. A sequence of three scaling factors. E.g., [2, 1, 1]
+                b. A sequence of three scaling factors. e.g. [2, 1, 1]
                    specifies that the supercell should have dimensions 2a x b x
                    c.
                 c. A number, which simply scales all lattice vectors by the
@@ -1724,7 +1724,7 @@ class IStructure(SiteCollection, MSONable):
             sg (str/int): The spacegroup the symmetry operations of which will be
                 used to classify the neighbors. If a string, it will be interpreted
                 as one of the notations supported by
-                pymatgen.symmetry.groups.Spacegroup. E.g., "R-3c" or "Fm-3m".
+                pymatgen.symmetry.groups.Spacegroup. e.g. "R-3c" or "Fm-3m".
                 If an int, it will be interpreted as an international number.
                 If None, 'get_space_group_info' will be used to determine the
                 space group, default to None.
@@ -2672,7 +2672,7 @@ class IStructure(SiteCollection, MSONable):
                 which is the default format used in pymatgen. Other options
                 include "abivars".
             **kwargs: Allow passing of other kwargs needed for certain
-            formats, e.g., "abivars".
+            formats, e.g. "abivars".
 
         Returns:
             JSON-serializable dict representation.
@@ -2762,7 +2762,7 @@ class IStructure(SiteCollection, MSONable):
                 filename is. Options include "cif", "poscar", "cssr", "json",
                 "xsf", "mcsqs", "prismatic", "yaml", "yml", "fleur-inpgen", "pwmat".
                 Non-case sensitive.
-            **kwargs: Kwargs passthru to relevant methods. E.g., This allows
+            **kwargs: Kwargs passthru to relevant methods. e.g. This allows
                 the passing of parameters like symprec to the
                 CifWriter.__init__ method for generation of symmetric CIFs.
 
@@ -3109,7 +3109,7 @@ class IMolecule(SiteCollection, MSONable):
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 1 Ang apart. Defaults to False.
             site_properties (dict): Properties associated with the sites as
-                a dict of sequences, e.g., {"magmom":[5,5,5,5]}. The
+                a dict of sequences, e.g. {"magmom":[5,5,5,5]}. The
                 sequences have to be the same length as the atomic species
                 and fractional_coords. Defaults to None for no properties.
             labels (list[str]): Labels associated with the sites as a
@@ -3755,16 +3755,16 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Args:
             lattice: The lattice, either as a pymatgen.core.Lattice or
                 simply as any 2D array. Each row should correspond to a lattice
-                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]] specifies a
+                vector. e.g. [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
             species: List of species on each site. Can take in flexible input,
                 including:
 
                 i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                    e.g., (3, 56, ...) or actual Element or Species objects.
+                    e.g. (3, 56, ...) or actual Element or Species objects.
 
-                ii. List of dict of elements/species and occupancies, e.g.,
+                ii. List of dict of elements/species and occupancies, e.g.
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
             coords (Nx3 array): list of fractional/cartesian coordinates of
@@ -3779,7 +3779,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in Cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
-                dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
+                dict of sequences, e.g. {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
             labels (list[str]): Labels associated with the sites as a
@@ -4101,7 +4101,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """Remove all occurrences of several species from a structure.
 
         Args:
-            species: Sequence of species to remove, e.g., ["Li", "Na"].
+            species: Sequence of species to remove, e.g. ["Li", "Na"].
 
         Returns:
             Structure: self with species removed.
@@ -4190,7 +4190,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         Args:
             strain (float or list): Amount of strain to apply. Can be a float,
-                or a sequence of 3 numbers. E.g., 0.01 means all lattice
+                or a sequence of 3 numbers. e.g. 0.01 means all lattice
                 vectors are increased by 1%. This is equivalent to calling
                 modify_lattice with a lattice with lattice parameters that
                 are 1% larger.
@@ -4350,11 +4350,11 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 vectors. Has to be all integers. Several options are possible:
 
                 a. A full 3x3 scaling matrix defining the linear combination
-                   the old lattice vectors. E.g., [[2,1,0],[0,3,0],[0,0,
+                   the old lattice vectors. e.g. [[2,1,0],[0,3,0],[0,0,
                    1]] generates a new structure with lattice vectors a' =
                    2a + b, b' = 3b, c' = c where a, b, and c are the lattice
                    vectors of the original structure.
-                b. An sequence of three scaling factors. E.g., [2, 1, 1]
+                b. An sequence of three scaling factors. e.g. [2, 1, 1]
                    specifies that the supercell should have dimensions 2a x b x
                    c.
                 c. A number, which simply scales all lattice vectors by the
@@ -4511,9 +4511,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """Method to rapidly construct common prototype structures.
 
         Args:
-            prototype: Name of prototype. E.g., cubic, rocksalt, perovksite etc.
+            prototype: Name of prototype. e.g. cubic, rocksalt, perovksite etc.
             species: List of species corresponding to symmetrically distinct sites.
-            **kwargs: Lattice parameters, e.g., a = 3.0, b = 4, c = 5. Only the required lattice parameters need to be
+            **kwargs: Lattice parameters, e.g. a = 3.0, b = 4, c = 5. Only the required lattice parameters need to be
                 specified. For example, if it is a cubic prototype, only a needs to be specified.
 
         Returns:
@@ -4596,7 +4596,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             validate_proximity (bool): Whether to check if there are sites
                 that are less than 1 Ang apart. Defaults to False.
             site_properties (dict): Properties associated with the sites as
-                a dict of sequences, e.g., {"magmom":[5,5,5,5]}. The
+                a dict of sequences, e.g. {"magmom":[5,5,5,5]}. The
                 sequences have to be the same length as the atomic species
                 and fractional_coords. Defaults to None for no properties.
             labels (list[str]): Labels associated with the sites as a
@@ -4634,7 +4634,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             site (PeriodicSite/Species/Sequence): Three options exist. You can
                 provide a Site directly, or for convenience, you can provide
                 simply a Species-like string/object, or finally a (Species,
-                coords) sequence, e.g., ("Fe", [0.5, 0.5, 0.5]).
+                coords) sequence, e.g. ("Fe", [0.5, 0.5, 0.5]).
         """
         if isinstance(idx, int):
             indices = [idx]
@@ -5036,7 +5036,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
 class StructureError(Exception):
     """Exception class for Structure.
-    Raised when the structure has problems, e.g., atoms that are too close.
+    Raised when the structure has problems, e.g. atoms that are too close.
     """
 
 

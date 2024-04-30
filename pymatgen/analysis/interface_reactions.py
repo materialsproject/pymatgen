@@ -484,7 +484,7 @@ class InterfacialReactivity(MSONable):
             x: Mixing ratio x in comp1 - comp2 tie line, a float
                 between 0 and 1.
             factor1: Compositional ratio between composition c1 and
-                processed composition comp1. E.g., factor for
+                processed composition comp1. e.g. factor for
                 Composition('SiO2') and Composition('O') is 2.0.
             factor2: Compositional ratio between composition c2 and
                 processed composition comp2.
@@ -504,7 +504,7 @@ class InterfacialReactivity(MSONable):
             x: Mixing ratio x in c1 - c2 tie line, a float between
                 0 and 1.
             factor1: Compositional ratio between composition c1 and
-                processed composition comp1. E.g., factor for
+                processed composition comp1. e.g. factor for
                 Composition('SiO2') and Composition('O') is 2.
             factor2: Compositional ratio between composition c2 and
                 processed composition comp2.
@@ -565,7 +565,7 @@ class InterfacialReactivity(MSONable):
     def labels(self):
         """Get a dictionary containing kink information:
         {index: 'x= mixing_ratio energy= reaction_energy reaction_equation'}.
-        E.g., {1: 'x= 0 energy = 0 Mn -> Mn',
+        e.g. {1: 'x= 0 energy = 0 Mn -> Mn',
                2: 'x= 0.5 energy = -15 O2 + Mn -> MnO2',
                3: 'x= 1 energy = 0 O2 -> O2'}.
         """
@@ -585,7 +585,7 @@ class InterfacialReactivity(MSONable):
 
     @property
     def products(self):
-        """List of formulas of potential products. E.g., ['Li','O2','Mn']."""
+        """List of formulas of potential products. e.g. ['Li','O2','Mn']."""
         products = set()
         for _, _, _, react, _ in self.get_kinks():
             products = products | {key.reduced_formula for key in react.products}

@@ -1155,7 +1155,7 @@ class SurfaceEnergyPlotter:
 
         Args:
             elements (list): Sequence of elements to be considered as independent
-                variables. E.g., if you want to show the stability ranges of
+                variables. e.g. if you want to show the stability ranges of
                 all Li-Co-O phases w.r.t. to duLi and duO, you will supply
                 [Element("Li"), Element("O")]
             miller_index ([h, k, l]): Miller index of the surface we are interested in

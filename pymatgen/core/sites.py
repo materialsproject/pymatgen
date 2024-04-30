@@ -46,8 +46,8 @@ class Site(collections.abc.Hashable, MSONable):
                 i.  A Composition-type object (preferred)
                 ii. An  element / species specified either as a string
                     symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
-                    e.g., 3, 56, or actual Element or Species objects.
-                iii.Dict of elements/species and occupancies, e.g.,
+                    e.g. 3, 56, or actual Element or Species objects.
+                iii.Dict of elements/species and occupancies, e.g.
                     {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
                     disordered structures.
             coords: Cartesian coordinates of site.
@@ -82,7 +82,7 @@ class Site(collections.abc.Hashable, MSONable):
 
     @property
     def species(self) -> Composition:
-        """The species on the site as a composition, e.g., Fe0.5Mn0.5."""
+        """The species on the site as a composition, e.g. Fe0.5Mn0.5."""
         return self._species
 
     @species.setter
@@ -303,8 +303,8 @@ class PeriodicSite(Site, MSONable):
                 i.  A Composition-type object (preferred)
                 ii. An  element / species specified either as a string
                     symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
-                    e.g., 3, 56, or actual Element or Species objects.
-                iii.Dict of elements/species and occupancies, e.g.,
+                    e.g. 3, 56, or actual Element or Species objects.
+                iii.Dict of elements/species and occupancies, e.g.
                     {"Fe" : 0.5, "Mn":0.5}. This allows the setup of
                     disordered structures.
             coords: Coordinates of site, fractional coordinates
@@ -500,7 +500,7 @@ class PeriodicSite(Site, MSONable):
         Args:
             fcoords (3x1 array): fractional coordinates to get distance from.
             jimage (3x1 array): Specific periodic image in terms of
-                lattice translations, e.g., [1,0,0] implies to take periodic
+                lattice translations, e.g. [1,0,0] implies to take periodic
                 image that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 
@@ -521,7 +521,7 @@ class PeriodicSite(Site, MSONable):
         Args:
             other (PeriodicSite): Other site to get distance from.
             jimage (3x1 array): Specific periodic image in terms of lattice
-                translations, e.g., [1,0,0] implies to take periodic image
+                translations, e.g. [1,0,0] implies to take periodic image
                 that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 
@@ -537,7 +537,7 @@ class PeriodicSite(Site, MSONable):
         Args:
             other (PeriodicSite): Other site to get distance from.
             jimage (3x1 array): Specific periodic image in terms of lattice
-                translations, e.g., [1,0,0] implies to take periodic image
+                translations, e.g. [1,0,0] implies to take periodic image
                 that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 

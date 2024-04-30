@@ -338,7 +338,7 @@ class IonEntry(PDEntry):
             energy: Energy for composition.
             name: Optional parameter to name the entry. Defaults to the
                 chemical formula.
-            attribute: Optional attribute of the entry, e.g., band gap.
+            attribute: Optional attribute of the entry, e.g. band gap.
         """
         self.ion = ion
         # Auto-assign name

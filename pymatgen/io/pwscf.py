@@ -356,7 +356,7 @@ class PWInput:
 
     @staticmethod
     def proc_val(key, val):
-        """Static helper method to convert PWINPUT parameters to proper type, e.g.,
+        """Static helper method to convert PWINPUT parameters to proper type, e.g.
         integers, floats, etc.
 
         Args:
@@ -536,7 +536,7 @@ class PWOutput:
         arguments.
 
         Args:
-            patterns (dict): A dict of patterns, e.g.,
+            patterns (dict): A dict of patterns, e.g.
                 {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"}.
             reverse (bool): Read files in reverse. Defaults to false. Useful for
                 large files, esp OUTCARs, especially when used with
