@@ -51,7 +51,29 @@ due.cite(
 )
 
 
-class Lobsterin(UserDict, MSONable):
+class DotDict(UserDict):
+    # copied for python 3.12 compat from
+    # https://github.com/python/cpython/issues/105524#issuecomment-1610750842
+    def __getitem__(self, key):
+        subitem = self.data
+        for subkey in key.split("."):
+            try:
+                subitem = subitem[subkey]
+            except KeyError:
+                raise KeyError(f"`{key}` not found in configuration") from None
+        return subitem
+
+    def __contains__(self, key):
+        subitem = self.data
+        for subkey in key.split("."):
+            try:
+                subitem = subitem[subkey]
+            except KeyError:
+                return False
+        return True
+
+
+class Lobsterin(DotDict, MSONable):
     """
     This class can handle and generate lobsterin files
     Furthermore, it can also modify INCAR files for lobster, generate KPOINT files for fatband calculations in Lobster,
@@ -150,12 +172,11 @@ class Lobsterin(UserDict, MSONable):
         """Implements getitem from dict to avoid problems with cases."""
         normalized_key = next((k for k in self if key.strip().lower() == k.lower()), key)
 
-        if normalized_key.lower() not in [element.lower() for element in Lobsterin.AVAILABLE_KEYWORDS]:
-            raise KeyError(f"{key=} is currently not available")
+        key_is_unknown = normalized_key.lower() not in map(str.lower, Lobsterin.AVAILABLE_KEYWORDS)
+        if key_is_unknown or normalized_key not in self.data:
+            raise KeyError(f"{key=} is not available")
 
-        if normalized_key in self.data:
-            return self.data[normalized_key]
-        raise KeyError(normalized_key)
+        return self.data[normalized_key]
 
     def __delitem__(self, key):
         new_key = next((key_here for key_here in self if key.strip().lower() == key_here.lower()), key)
