@@ -184,7 +184,7 @@ class Slab(Structure):
     def center_of_mass(self) -> np.ndarray:
         """The center of mass of the Slab in fractional coordinates."""
         weights = [site.species.weight for site in self]
-        return np.mean(self.frac_coords, weights=weights, axis=0)
+        return np.average(self.frac_coords, weights=weights, axis=0)
 
     @property
     def dipole(self) -> np.ndarray:
@@ -786,7 +786,7 @@ def center_slab(slab: Slab) -> Slab:
 
     # Now the slab is case 1, move it to the center
     weights = [site.species.weight for site in slab]
-    center_of_mass = np.mean(slab.frac_coords, weights=weights, axis=0)
+    center_of_mass = np.average(slab.frac_coords, weights=weights, axis=0)
     shift = 0.5 - center_of_mass[2]
 
     slab.translate_sites(all_indices, [0, 0, shift])

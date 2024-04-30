@@ -2128,7 +2128,7 @@ class MVLSlabSet(DictSet):
                 updates.update({"AMIN": 0.01, "AMIX": 0.2, "BMIX": 0.001})
             if self.auto_dipole:
                 weights = [s.species.weight for s in self.structure]  # type: ignore
-                center_of_mass = np.mean(self.structure.frac_coords, weights=weights, axis=0)  # type: ignore
+                center_of_mass = np.average(self.structure.frac_coords, weights=weights, axis=0)  # type: ignore
                 updates.update({"IDIPOL": 3, "LDIPOL": True, "DIPOL": center_of_mass})
         return updates
 
