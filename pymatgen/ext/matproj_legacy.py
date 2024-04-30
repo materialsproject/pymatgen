@@ -1178,7 +1178,7 @@ class _MPResterLegacy:
         created_at=None,
         ncpus=None,
     ):
-        """Assimilates all vasp run directories beneath a particular
+        """Assimilate all vasp run directories beneath a particular
         directory using BorgQueen to obtain structures, and then submits thhem
         to the Materials Project as SNL files. VASP related meta data like
         initial structure and final energies are automatically incorporated.
@@ -1578,7 +1578,7 @@ class _MPResterLegacy:
 
     @staticmethod
     def parse_criteria(criteria_string):
-        """Parses a powerful and simple string criteria and generates a proper
+        """Parse a powerful and simple string criteria and generates a proper
         mongo syntax criteria.
 
         Args:

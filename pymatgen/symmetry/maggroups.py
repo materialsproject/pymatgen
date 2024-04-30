@@ -150,7 +150,7 @@ class MagneticSpaceGroup(SymmetryGroup):
             }
 
         def _parse_operators(b):
-            """Parses compact binary representation into list of MagSymmOps."""
+            """Parse compact binary representation into list of MagSymmOps."""
             if len(b) == 0:  # e.g. if magtype != 4, OG setting == BNS setting, and b == [] for OG symmops
                 return None
             raw_symops = [b[i : i + 6] for i in range(0, len(b), 6)]
@@ -178,7 +178,7 @@ class MagneticSpaceGroup(SymmetryGroup):
             return symops
 
         def _parse_wyckoff(b):
-            """Parses compact binary representation into list of Wyckoff sites."""
+            """Parse compact binary representation into list of Wyckoff sites."""
             if len(b) == 0:
                 return None
 
@@ -232,7 +232,7 @@ class MagneticSpaceGroup(SymmetryGroup):
             return wyckoff_sites
 
         def _parse_lattice(b):
-            """Parses compact binary representation into list of lattice vectors/centerings."""
+            """Parse compact binary representation into list of lattice vectors/centerings."""
             if len(b) == 0:
                 return None
             raw_lattice = [b[i : i + 4] for i in range(0, len(b), 4)]
@@ -252,7 +252,7 @@ class MagneticSpaceGroup(SymmetryGroup):
             return lattice
 
         def _parse_transformation(b):
-            """Parses compact binary representation into transformation between OG and BNS settings."""
+            """Parse compact binary representation into transformation between OG and BNS settings."""
             if len(b) == 0:
                 return None
             # capital letters used here by convention,

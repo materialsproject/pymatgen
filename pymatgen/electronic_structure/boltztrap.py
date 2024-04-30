@@ -1668,7 +1668,7 @@ class BoltztrapAnalyzer:
 
     @staticmethod
     def parse_outputtrans(path_dir):
-        """Parses .outputtrans file.
+        """Parse .outputtrans file.
 
         Args:
             path_dir: dir containing boltztrap.outputtrans
@@ -1696,7 +1696,7 @@ class BoltztrapAnalyzer:
 
     @staticmethod
     def parse_transdos(path_dir, efermi, dos_spin=1, trim_dos=False):
-        """Parses .transdos (total DOS) and .transdos_x_y (partial DOS) files.
+        """Parse .transdos (total DOS) and .transdos_x_y (partial DOS) files.
 
         Args:
             path_dir: (str) dir containing DOS files
@@ -1771,7 +1771,7 @@ class BoltztrapAnalyzer:
 
     @staticmethod
     def parse_intrans(path_dir):
-        """Parses boltztrap.intrans mainly to extract the value of scissor applied
+        """Parse boltztrap.intrans mainly to extract the value of scissor applied
         to the bands or some other inputs.
 
         Args:
@@ -1791,7 +1791,7 @@ class BoltztrapAnalyzer:
 
     @staticmethod
     def parse_struct(path_dir):
-        """Parses boltztrap.struct file (only the volume).
+        """Parse boltztrap.struct file (only the volume).
 
         Args:
             path_dir: (str) dir containing the boltztrap.struct file
@@ -1807,7 +1807,7 @@ class BoltztrapAnalyzer:
 
     @staticmethod
     def parse_cond_and_hall(path_dir, doping_levels=None):
-        """Parses the conductivity and Hall tensors.
+        """Parse the conductivity and Hall tensors.
 
         Args:
             path_dir: Path containing .condtens / .halltens files

@@ -555,7 +555,7 @@ class OptimadeRester:
         return ",".join({*additional_response_fields, *self.mandatory_response_fields})
 
     def refresh_aliases(self, providers_url="https://providers.optimade.org/providers.json"):
-        """Updates available OPTIMADE structure resources based on the current list of OPTIMADE
+        """Update available OPTIMADE structure resources based on the current list of OPTIMADE
         providers.
         """
         json = self._get_json(providers_url)

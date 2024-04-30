@@ -46,7 +46,7 @@ def find_in_coord_list(coord_list, coord, atol: float = 1e-8):
 
 
 def in_coord_list(coord_list, coord, atol: float = 1e-8) -> bool:
-    """Tests if a particular coord is within a coord_list.
+    """Test if a particular coord is within a coord_list.
 
     Args:
         coord_list: List of coords to test
@@ -61,7 +61,7 @@ def in_coord_list(coord_list, coord, atol: float = 1e-8) -> bool:
 
 
 def is_coord_subset(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-8) -> bool:
-    """Tests if all coords in subset are contained in superset.
+    """Test if all coords in subset are contained in superset.
     Doesn't use periodic boundary conditions.
 
     Args:
@@ -234,7 +234,7 @@ def find_in_coord_list_pbc(
 
 
 def in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc: PbcLike = (True, True, True)) -> bool:
-    """Tests if a particular fractional coord is within a fractional coord_list.
+    """Test if a particular fractional coord is within a fractional coord_list.
 
     Args:
         fcoord_list: List of fractional coords to test
@@ -250,7 +250,7 @@ def in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc: PbcLike = (T
 
 
 def is_coord_subset_pbc(subset, superset, atol: float = 1e-8, mask=None, pbc: PbcLike = (True, True, True)) -> bool:
-    """Tests if all fractional coords in subset are contained in superset.
+    """Test if all fractional coords in subset are contained in superset.
 
     Args:
         subset (list): List of fractional coords to test
@@ -417,7 +417,7 @@ class Simplex(MSONable):
         return (self.bary_coords(point) >= -tolerance).all()
 
     def line_intersection(self, point1: Sequence[float], point2: Sequence[float], tolerance: float = 1e-8):
-        """Computes the intersection points of a line with a simplex.
+        """Compute the intersection points of a line with a simplex.
 
         Args:
             point1 (Sequence[float]): 1st point to determine the line.

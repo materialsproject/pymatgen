@@ -2511,7 +2511,7 @@ class Interface(Structure):
         return struct_copy
 
     def get_shifts_based_on_adsorbate_sites(self, tolerance: float = 0.1) -> list[tuple[float, float]]:
-        """Computes possible in-plane shifts based on an adsorbate site  algorithm.
+        """Compute possible in-plane shifts based on an adsorbate site algorithm.
 
         Args:
             tolerance: tolerance for "uniqueness" for shifts in Cartesian unit

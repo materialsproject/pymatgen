@@ -969,7 +969,7 @@ class Species(MSONable, Stringify):
         self._spin = spin
 
     def __getattr__(self, attr: str) -> Any:
-        """Allows Specie to inherit properties of underlying element."""
+        """Allow Specie to inherit properties of underlying element."""
         return getattr(self._el, attr)
 
     def __getstate__(self) -> dict:

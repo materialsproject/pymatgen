@@ -284,7 +284,7 @@ class Tensor(np.ndarray, MSONable):
         return type(self).from_voigt(new_v)
 
     def is_symmetric(self, tol: float = 1e-5):
-        """Tests whether a tensor is symmetric or not based on the residual
+        """Test whether a tensor is symmetric or not based on the residual
         with its symmetric part, from self.symmetrized.
 
         Args:
@@ -307,7 +307,7 @@ class Tensor(np.ndarray, MSONable):
         return sum(self.transform(symm_op) for symm_op in symm_ops) / len(symm_ops)
 
     def is_fit_to_structure(self, structure: Structure, tol: float = 1e-2):
-        """Tests whether a tensor is invariant with respect to the
+        """Test whether a tensor is invariant with respect to the
         symmetry operations of a particular structure by testing
         whether the residual of the symmetric portion is below a
         tolerance.
@@ -330,7 +330,7 @@ class Tensor(np.ndarray, MSONable):
         return v_matrix * self._vscale
 
     def is_voigt_symmetric(self, tol: float = 1e-6) -> bool:
-        """Tests symmetry of tensor to that necessary for voigt-conversion
+        """Test symmetry of tensor to that necessary for voigt-conversion
         by grouping indices into pairs and constructing a sequence of
         possible permutations to be used in a tensor transpose.
         """

@@ -1304,7 +1304,7 @@ class Cell(Section):
 
 
 class Kind(Section):
-    """Specifies the information for the different atom types being simulated."""
+    """Specify the information for the different atom types being simulated."""
 
     def __init__(
         self,
@@ -1444,7 +1444,7 @@ class DftPlusU(Section):
 
 
 class Coord(Section):
-    """Specifies the coordinates of the atoms using a pymatgen structure object."""
+    """Specify the coordinates of the atoms using a pymatgen structure object."""
 
     def __init__(
         self,
@@ -2057,7 +2057,7 @@ class Kpoints(Section):
 
 
 class KpointSet(Section):
-    """Specifies a kpoint line to be calculated between special points."""
+    """Specify a kpoint line to be calculated between special points."""
 
     def __init__(self, npoints: int, kpoints: Iterable, units: str = "B_VECTOR") -> None:
         """
@@ -2096,7 +2096,7 @@ class Kpoint_Set(KpointSet):
 
 
 class BandStructure(Section):
-    """Specifies high symmetry paths for outputting the band structure in CP2K."""
+    """Specify high symmetry paths for outputting the band structure in CP2K."""
 
     def __init__(
         self,

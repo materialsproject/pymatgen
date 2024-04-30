@@ -2235,7 +2235,7 @@ class Outcar:
         return retained_data
 
     def read_electrostatic_potential(self):
-        """Parses the eletrostatic potential for the last ionic step."""
+        """Parse the eletrostatic potential for the last ionic step."""
         pattern = {"ngf": r"\s+dimension x,y,z NGXF=\s+([\.\-\d]+)\sNGYF=\s+([\.\-\d]+)\sNGZF=\s+([\.\-\d]+)"}
         self.read_pattern(pattern, postprocess=int)
         self.ngf = self.data.get("ngf", [[]])[0]
