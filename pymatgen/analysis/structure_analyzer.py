@@ -190,8 +190,7 @@ class RelaxationAnalyzer:
         self.final = final_structure
 
     def get_percentage_volume_change(self) -> float:
-        """
-        Returns the percentage volume change.
+        """Get the percentage volume change.
 
         Returns:
             float: Volume change in percent. 0.055 means a 5.5% increase.
@@ -199,11 +198,10 @@ class RelaxationAnalyzer:
         return self.final.volume / self.initial.volume - 1
 
     def get_percentage_lattice_parameter_changes(self) -> dict[str, float]:
-        """
-        Returns the percentage lattice parameter changes.
+        """Get the percentage lattice parameter changes.
 
         Returns:
-            dict[str, float]: Percent changes in lattice parameter, e.g.,
+            dict[str, float]: Percent changes in lattice parameter, e.g.
                 {'a': 0.012, 'b': 0.021, 'c': -0.031} implies a change of 1.2%,
                 2.1% and -3.1% in the a, b and c lattice parameters respectively.
         """
@@ -212,8 +210,7 @@ class RelaxationAnalyzer:
         return {length: getattr(final_latt, length) / getattr(initial_latt, length) - 1 for length in ["a", "b", "c"]}
 
     def get_percentage_bond_dist_changes(self, max_radius: float = 3.0) -> dict[int, dict[int, float]]:
-        """
-        Returns the percentage bond distance changes for each site up to a
+        """Get the percentage bond distance changes for each site up to a
         maximum radius for nearest neighbors.
 
         Args:
@@ -262,15 +259,10 @@ class VoronoiConnectivity:
 
     @property
     def connectivity_array(self):
-        """
-        Provides connectivity array.
-
-        Returns:
-            connectivity: An array of shape [atom_i, atom_j, image_j]. atom_i is
-            the index of the atom in the input structure. Since the second
-            atom can be outside of the unit cell, it must be described
-            by both an atom index and an image index. Array data is the
-            solid angle of polygon between atom_i and image_j of atom_j
+        """The connectivity array of shape [atom_i, atom_j, image_j]. atom_i is the index of the
+        atom in the input structure. Since the second atom can be outside of the unit cell, it
+        must be described by both an atom index and an image index. Array data is the solid
+        angle of polygon between atom_i and image_j of atom_j.
         """
         # shape = [site, axis]
         cart_coords = np.array(self.structure.cart_coords)
@@ -307,15 +299,13 @@ class VoronoiConnectivity:
 
     @property
     def max_connectivity(self):
-        """
-        Returns the 2d array [site_i, site_j] that represents the maximum connectivity of
+        """The 2d array [site_i, site_j] that represents the maximum connectivity of
         site i to any periodic image of site j.
         """
         return np.max(self.connectivity_array, axis=2)
 
     def get_connections(self):
-        """
-        Returns a list of site pairs that are Voronoi Neighbors, along
+        """Get a list of site pairs that are Voronoi Neighbors, along
         with their real-space distances.
         """
         con = []
@@ -429,9 +419,8 @@ class OxideType:
         Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide.
 
         Returns:
-            oxide_type (str): Type of oxide
-            ozonide/peroxide/superoxide/hydroxide/None.
-            nbonds (int): Number of peroxide/superoxide/hydroxide bonds in structure.
+            tuple[str, int]: Type of oxide (ozonide/peroxide/superoxide/hydroxide/None) and number of
+                peroxide/superoxide/hydroxide bonds in structure.
         """
         structure = self.structure
         relative_cutoff = self.relative_cutoff

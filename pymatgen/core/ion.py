@@ -32,7 +32,7 @@ class Ion(Composition, MSONable, Stringify):
 
     @classmethod
     def from_formula(cls, formula: str) -> Self:
-        """Creates Ion from formula. The net charge can either be represented as
+        """Create Ion from formula. The net charge can either be represented as
         Mn++, Mn+2, Mn[2+], Mn[++], or Mn[+2]. Note the order of the sign and
         magnitude in each representation.
 
@@ -79,7 +79,7 @@ class Ion(Composition, MSONable, Stringify):
     @property
     def formula(self) -> str:
         """Returns a formula string with appended charge. The
-        charge is written with the sign preceding the magnitude, e.g.,
+        charge is written with the sign preceding the magnitude, e.g.
         'Ca1 +2'. Uncharged species have "(aq)" appended, e.g. "O2 (aq)".
         """
         formula = super().formula
@@ -95,7 +95,7 @@ class Ion(Composition, MSONable, Stringify):
         return anon_formula + chg_str
 
     def get_reduced_formula_and_factor(self, iupac_ordering: bool = False, hydrates: bool = False) -> tuple[str, float]:
-        """Calculates a reduced formula and factor.
+        """Calculate a reduced formula and factor.
 
         Similar to Composition.get_reduced_formula_and_factor except that O-H formulas
         receive special handling to differentiate between hydrogen peroxide and OH-.
@@ -182,7 +182,7 @@ class Ion(Composition, MSONable, Stringify):
     @property
     def reduced_formula(self) -> str:
         """Returns a reduced formula string with appended charge. The
-        charge is placed in brackets with the sign preceding the magnitude, e.g.,
+        charge is placed in brackets with the sign preceding the magnitude, e.g.
         'Ca[+2]'. Uncharged species have "(aq)" appended, e.g. "O2(aq)".
         """
         formula, factor = self.get_reduced_formula_and_factor()
@@ -214,7 +214,7 @@ class Ion(Composition, MSONable, Stringify):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Generates an ion object from a dict created by as_dict().
+        """Generate an ion object from a dict created by as_dict().
 
         Args:
             dct: {symbol: amount} dict.
@@ -228,7 +228,7 @@ class Ion(Composition, MSONable, Stringify):
     def to_reduced_dict(self) -> dict:
         """
         Returns:
-            dict with element symbol and reduced amount e.g.,
+            dict with element symbol and reduced amount e.g.
         {"Fe": 2.0, "O":3.0}.
         """
         dct = self.composition.to_reduced_dict
@@ -246,10 +246,10 @@ class Ion(Composition, MSONable, Stringify):
         all_oxi_states: bool = False,
         max_sites: int | None = None,
     ) -> list[dict[str, float]]:
-        """Checks if the composition is charge-balanced and returns back all
+        """Check if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
         integer values. Note that more num_atoms in the composition gives
-        more degrees of freedom. e.g., if possible oxidation states of
+        more degrees of freedom. e.g. if possible oxidation states of
         element X are [2,4] and Y are [-3], then XY is not charge balanced
         but X2Y2 is. Results are returned from most to least probable based
         on ICSD statistics. Use max_sites to improve performance if needed.

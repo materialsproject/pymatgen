@@ -35,6 +35,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core import Structure
+    from pymatgen.core.periodic_table import Element
 
 __author__ = "Janine George"
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -114,9 +115,9 @@ class LobsterNeighbors(NearNeighbors):
             filename_blist_sg1: (str) Path to additional ICOOP, ICOBI data for structure graphs
             filename_blist_sg2: (str) Path to additional ICOOP, ICOBI data for structure graphs
             id_blist_sg1: (str) Identity of data in filename_blist_sg1,
-                e.g., "icoop" or "icobi"
+                e.g. "icoop" or "icobi"
             id_blist_sg2: (str) Identity of data in filename_blist_sg2,
-                e.g., "icoop" or "icobi".
+                e.g. "icoop" or "icobi".
         """
         if filename_icohp is not None:
             self.ICOHP = Icohplist(are_coops=are_coops, are_cobis=are_cobis, filename=filename_icohp)
@@ -222,19 +223,18 @@ class LobsterNeighbors(NearNeighbors):
         )
 
     @property
-    def structures_allowed(self):
+    def structures_allowed(self) -> bool:
         """Whether this NearNeighbors class can be used with Structure objects?"""
         return True
 
     @property
-    def molecules_allowed(self):
+    def molecules_allowed(self) -> bool:
         """Whether this NearNeighbors class can be used with Molecule objects?"""
         return False
 
     @property
-    def anion_types(self):
-        """
-        Return the types of anions present in crystal structure as a set
+    def anion_types(self) -> set[Element]:
+        """The types of anions present in crystal structure as a set.
 
         Returns:
             set[Element]: describing anions in the crystal structure.
@@ -253,9 +253,8 @@ class LobsterNeighbors(NearNeighbors):
     def get_anion_types(self):
         return self.anion_types
 
-    def get_nn_info(self, structure: Structure, n, use_weights: bool = False):
-        """
-        Get coordination number, CN, of site with index n in structure.
+    def get_nn_info(self, structure: Structure, n: int, use_weights: bool = False) -> dict:  # type: ignore[override]
+        """Get coordination number, CN, of site with index n in structure.
 
         Args:
             structure (Structure): input structure.
@@ -266,14 +265,20 @@ class LobsterNeighbors(NearNeighbors):
                 weight).
                 True is not implemented for LobsterNeighbors
 
+        Raises:
+            ValueError: if use_weights is True or if structure passed and structure used to
+                initialize LobsterNeighbors have different lengths.
+
         Returns:
-            cn (integer or float): coordination number.
+            dict[str, Any]: coordination number and a list of nearest neighbors.
         """
         if use_weights:
             raise ValueError("LobsterEnv cannot use weights")
         if len(structure) != len(self.structure):
-            raise ValueError("The wrong structure was provided")
-        return self.sg_list[n]
+            raise ValueError(
+                f"Length of structure ({len(structure)}) and LobsterNeighbors ({len(self.structure)}) differ"
+            )
+        return self.sg_list[n]  # type: ignore[return-value]
 
     def get_light_structure_environment(self, only_cation_environments=False, only_indices=None):
         """
@@ -506,7 +511,7 @@ class LobsterNeighbors(NearNeighbors):
             summed_spin_channels: will sum all spin channels
 
         Returns:
-            str: label for cohp (str), CompleteCohp object which describes all cohps (coops or cobis)
+            str: label for COHP, CompleteCohp object which describes all cohps (coops or cobis)
                 of the sites as given by isites and the other parameters
         """
         # TODO: add options for orbital-resolved cohps
@@ -514,8 +519,8 @@ class LobsterNeighbors(NearNeighbors):
             isites=isites, onlycation_isites=onlycation_isites
         )
 
-        with tempfile.TemporaryDirectory() as t:
-            path = f"{t}/POSCAR.vasp"
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            path = f"{tmp_dir}/POSCAR.vasp"
 
             self.structure.to(filename=path, fmt="poscar")
 
@@ -1409,7 +1414,7 @@ class ICOHPNeighborsInfo(NamedTuple):
         n_bonds (int): number of identified bonds to the selected sites
         labels (list[str]): labels (from ICOHPLIST) for all identified bonds
         atoms (list[list[str]]): list of list describing the species present in the identified interactions
-            (names from ICOHPLIST), e.g., ["Ag3", "O5"]
+            (names from ICOHPLIST), e.g. ["Ag3", "O5"]
         central_isites (list[int]): list of the central isite for each identified interaction.
     """
 

@@ -406,7 +406,6 @@ def vectorsToMatrix(aa, bb):
 
 def matrixTimesVector(MM, aa):
     """
-
     Args:
         MM: A matrix of size 3x3
         aa: A vector of size 3
@@ -453,8 +452,7 @@ def rotateCoordsOpt(coords, R):
 
 
 def changebasis(uu, vv, nn, pps):
-    """
-    For a list of points given in standard coordinates (in terms of e1, e2 and e3), returns the same list
+    """For a list of points given in standard coordinates (in terms of e1, e2 and e3), returns the same list
     expressed in the basis (uu, vv, nn), which is supposed to be orthonormal.
 
     Args:
@@ -641,8 +639,7 @@ class Plane:
     )
 
     def __init__(self, coefficients, p1=None, p2=None, p3=None):
-        """
-        Initializes a plane from the 4 coefficients a, b, c and d of ax + by + cz + d = 0
+        """Initialize a plane from the 4 coefficients a, b, c and d of ax + by + cz + d = 0
 
         Args:
             coefficients: abcd coefficients of the plane.
@@ -702,8 +699,7 @@ class Plane:
             self.p3[zeros[1]] = 1.0
 
     def __str__(self):
-        """
-        String representation of the Plane object
+        """String representation of the Plane object
 
         Returns:
             String representation of the Plane object.
@@ -752,8 +748,7 @@ class Plane:
         return any(self.is_same_plane_as(plane) for plane in plane_list)
 
     def indices_separate(self, points, dist_tolerance):
-        """
-        Returns three lists containing the indices of the points lying on one side of the plane, on the plane
+        """Get three lists containing the indices of the points lying on one side of the plane, on the plane
         and on the other side of the plane. The dist_tolerance parameter controls the tolerance to which a point
         is considered to lie on the plane or not (distance to the plane)
 
@@ -872,8 +867,7 @@ class Plane:
         return [pp - np.dot(pp - self.p1, self.normal_vector) * self.normal_vector for pp in pps]
 
     def orthonormal_vectors(self):
-        """
-        Returns a list of three orthogonal vectors, the two first being parallel to the plane and the
+        """Get a list of three orthogonal vectors, the two first being parallel to the plane and the
         third one is the normal vector of the plane
 
         Returns:
@@ -1022,7 +1016,7 @@ class Plane:
 
     @classmethod
     def from_2points_and_origin(cls, p1, p2) -> Self:
-        """Initializes plane from two points and the origin.
+        """Initialize plane from two points and the origin.
 
         Args:
             p1: First point.
@@ -1035,7 +1029,7 @@ class Plane:
 
     @classmethod
     def from_3points(cls, p1, p2, p3) -> Self:
-        """Initializes plane from three points.
+        """Initialize plane from three points.
 
         Args:
             p1: First point.
@@ -1056,7 +1050,7 @@ class Plane:
 
     @classmethod
     def from_npoints(cls, points, best_fit="least_square_distance") -> Self:
-        """Initializes plane from a list of points.
+        """Initialize plane from a list of points.
 
         If the number of points is larger than 3, will use a least square fitting or max distance fitting.
 
@@ -1080,7 +1074,7 @@ class Plane:
 
     @classmethod
     def from_npoints_least_square_distance(cls, points) -> Self:
-        """Initializes plane from a list of points using a least square fitting procedure.
+        """Initialize plane from a list of points using a least square fitting procedure.
 
         Args:
             points: List of points.
@@ -1125,7 +1119,7 @@ class Plane:
 
     @classmethod
     def from_npoints_maximum_distance(cls, points) -> Self:
-        """Initializes plane from a list of points using a max distance fitting procedure.
+        """Initialize plane from a list of points using a max distance fitting procedure.
 
         Args:
             points: List of points.

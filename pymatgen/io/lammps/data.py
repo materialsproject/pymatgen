@@ -153,8 +153,7 @@ class LammpsBox(MSONable):
         return np.dot(np.cross(matrix[0], matrix[1]), matrix[2])
 
     def get_str(self, significant_figures: int = 6) -> str:
-        """
-        Returns the string representation of simulation box in LAMMPS
+        """Get the string representation of simulation box in LAMMPS
         data file format.
 
         Args:
@@ -292,8 +291,7 @@ class LammpsData(MSONable):
 
     @property
     def structure(self) -> Structure:
-        """
-        Exports a periodic structure object representing the simulation
+        """Exports a periodic structure object representing the simulation
         box.
 
         Returns:
@@ -324,8 +322,7 @@ class LammpsData(MSONable):
         )
 
     def get_str(self, distance: int = 6, velocity: int = 8, charge: int = 4, hybrid: bool = True) -> str:
-        """
-        Returns the string representation of LammpsData, essentially
+        """Get the string representation of LammpsData, essentially
         the string to be written to a file. Support hybrid style
         coeffs read and write.
 
@@ -821,8 +818,7 @@ class LammpsData(MSONable):
         atom_style: Literal["atomic", "charge"] = "charge",
         is_sort: bool = False,
     ) -> Self:
-        """
-        Simple constructor building LammpsData from a structure without
+        """Simple constructor building LammpsData from a structure without
         force field parameters and topologies.
 
         Args:
@@ -861,12 +857,11 @@ class LammpsData(MSONable):
         return cls.from_ff_and_topologies(box=box, ff=ff, topologies=[topo], atom_style=atom_style)
 
     def set_charge_atom(self, charges: dict[int, float]) -> None:
-        """
-        Set the charges of specific atoms of the data.
+        """Set the charges of specific atoms of the data.
 
         Args:
             charges: A dictionary with atom indexes as keys and
-                charges as values, e.g., to set the charge
+                charges as values, e.g. to set the charge
                 of the atom with index 3 to -2, use `{3: -2}`.
         """
         for iat, q in charges.items():
@@ -891,8 +886,7 @@ class LammpsData(MSONable):
 
 
 class Topology(MSONable):
-    """
-    Class carrying most data in Atoms, Velocities and molecular topology sections for
+    """Class carrying most data in Atoms, Velocities and molecular topology sections for
     ONE SINGLE Molecule or Structure object, or a plain list of Sites.
     """
 
@@ -976,7 +970,7 @@ class Topology(MSONable):
         Another constructor that creates an instance from a molecule.
         Covalent bonds and other bond-based topologies (angles and
         dihedrals) can be automatically determined. Cannot be used for
-        non bond-based topologies, e.g., improper dihedrals.
+        non bond-based topologies, e.g. improper dihedrals.
 
         Args:
             molecule (Molecule): Input molecule.
@@ -1027,10 +1021,10 @@ class Topology(MSONable):
 
 class ForceField(MSONable):
     """
-    Class carrying most data in Masses and force field sections.
+    Class carrying most data in masses and force field sections.
 
     Attributes:
-        masses (pandas.DataFrame): DataFrame for Masses section.
+        masses (pandas.DataFrame): DataFrame for masses section.
         force_fieldct (dict): Force field section keywords (keys) and
             data (values) as DataFrames.
         maps (dict): Dict for labeling atoms and topologies.
@@ -1180,8 +1174,7 @@ class ForceField(MSONable):
         return all_data, {f"{kw[:-7]}s": mapper}
 
     def to_file(self, filename: str) -> None:
-        """
-        Saves object to a file in YAML format.
+        """Save object to a file in YAML format.
 
         Args:
             filename (str): Filename.
@@ -1197,8 +1190,7 @@ class ForceField(MSONable):
 
     @classmethod
     def from_file(cls, filename: str) -> Self:
-        """
-        Constructor that reads in a file in YAML format.
+        """Constructor that reads in a file in YAML format.
 
         Args:
             filename (str): Filename.
@@ -1328,8 +1320,7 @@ class CombinedData(LammpsData):
 
     @property
     def structure(self) -> Structure:
-        """
-        Exports a periodic structure object representing the simulation
+        """Exports a periodic structure object representing the simulation
         box.
 
         Returns:
@@ -1466,8 +1457,7 @@ class CombinedData(LammpsData):
         return cls(mols, names, list_of_numbers, coordinates, style_return)
 
     def get_str(self, distance: int = 6, velocity: int = 8, charge: int = 4, hybrid: bool = True) -> str:
-        """
-        Returns the string representation of CombinedData, essentially
+        """Get the string representation of CombinedData, essentially
         the string to be written to a file. Combination info is included
         as a comment. For single molecule ID data, the info format is:
             num name

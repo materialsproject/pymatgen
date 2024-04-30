@@ -84,8 +84,7 @@ class AseAtomsAdaptor:
 
     @staticmethod
     def get_atoms(structure: SiteCollection, msonable: bool = True, **kwargs) -> MSONAtoms | Atoms:
-        """
-        Returns ASE Atoms object from pymatgen structure or molecule.
+        """Get ASE Atoms object from pymatgen structure or molecule.
 
         Args:
             structure (SiteCollection): pymatgen Structure or Molecule
@@ -224,8 +223,7 @@ class AseAtomsAdaptor:
 
     @staticmethod
     def get_structure(atoms: Atoms, cls: type[Structure] = Structure, **cls_kwargs) -> Structure:
-        """
-        Returns pymatgen structure from ASE Atoms.
+        """Get pymatgen structure from ASE Atoms.
 
         Args:
             atoms: ASE Atoms object
@@ -354,8 +352,7 @@ class AseAtomsAdaptor:
 
     @staticmethod
     def get_molecule(atoms: Atoms, cls: type[Molecule] = Molecule, **cls_kwargs) -> Molecule:
-        """
-        Returns pymatgen molecule from ASE Atoms.
+        """Get pymatgen molecule from ASE Atoms.
 
         Args:
             atoms: ASE Atoms object

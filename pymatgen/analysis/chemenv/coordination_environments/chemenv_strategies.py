@@ -196,9 +196,8 @@ class AdditionalConditionInt(int, StrategyOption):
 
 
 class AbstractChemenvStrategy(MSONable, abc.ABC):
-    """
-    Class used to define a Chemenv strategy for the neighbors and coordination environment to be applied to a
-    StructureEnvironments object.
+    """Base class to define a Chemenv strategy for the neighbors and coordination environment
+    to be applied to a StructureEnvironments object.
     """
 
     AC = AdditionalConditions()
@@ -484,7 +483,7 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
         raise NotImplementedError
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the SimpleAbundanceChemenvStrategy object from a dict representation of the
         SimpleAbundanceChemenvStrategy object created using the as_dict method.
@@ -1245,7 +1244,7 @@ class TargetedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
         )
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the TargetedPenaltiedAbundanceChemenvStrategy object from a dict representation of the
         TargetedPenaltiedAbundanceChemenvStrategy object created using the as_dict method.
@@ -2283,14 +2282,10 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
         # Case 2
         if d1 <= self.dmin and d2 <= self.dmax:
             ld2 = self.f_lower(d2)
-            if a2 <= ld2 or a1 >= self.amax:
-                return False
-            return True
+            return not (a2 <= ld2 or a1 >= self.amax)
         # Case 3
         if d1 <= self.dmin and d2 >= self.dmax:
-            if a2 <= self.amin or a1 >= self.amax:
-                return False
-            return True
+            return not (a2 <= self.amin or a1 >= self.amax)
         # Case 4
         if self.dmin <= d1 <= self.dmax and self.dmin <= d2 <= self.dmax:
             ld1 = self.f_lower(d1)
@@ -2299,15 +2294,11 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
                 return False
             ud1 = self.f_upper(d1)
             ud2 = self.f_upper(d2)
-            if a1 >= ud1 and a1 >= ud2:
-                return False
-            return True
+            return not (a1 >= ud1 and a1 >= ud2)
         # Case 5
         if self.dmin <= d1 <= self.dmax and d2 >= self.dmax:
             ud1 = self.f_upper(d1)
-            if a1 >= ud1 or a2 <= self.amin:
-                return False
-            return True
+            return not (a1 >= ud1 or a2 <= self.amin)
         raise ValueError("Should not reach this point!")
 
     def __eq__(self, other: object) -> bool:

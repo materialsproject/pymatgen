@@ -83,8 +83,7 @@ class VolumetricData(MSONable):
 
     @property
     def spin_data(self):
-        """
-        The data decomposed into actual spin data as {spin: data}.
+        """The data decomposed into actual spin data as {spin: data}.
         Essentially, this provides the actual Spin.up and Spin.down data
         instead of the total and diff. Note that by definition, a
         non-spin-polarized run would have Spin.up data == Spin.down data.
@@ -97,8 +96,7 @@ class VolumetricData(MSONable):
         return self._spin_data
 
     def get_axis_grid(self, ind):
-        """
-        Returns the grid for a particular axis.
+        """Get the grid for a particular axis.
 
         Args:
             ind (int): Axis index.
@@ -157,8 +155,7 @@ class VolumetricData(MSONable):
             self.data[k] = np.multiply(self.data[k], factor)
 
     def value_at(self, x, y, z):
-        """
-        Get a data value from self.data at a given point (x, y, z) in terms
+        """Get a data value from self.data at a given point (x, y, z) in terms
         of fractional lattice parameters. Will be interpolated using a
         RegularGridInterpolator on self.data if (x, y, z) is not in the original
         set of data points.
@@ -175,8 +172,7 @@ class VolumetricData(MSONable):
         return self.interpolator([x, y, z])[0]
 
     def linear_slice(self, p1, p2, n=100):
-        """
-        Get a linear slice of the volumetric data with n data points from
+        """Get a linear slice of the volumetric data with n data points from
         point p1 to point p2, in the form of a list.
 
         Args:
@@ -198,8 +194,7 @@ class VolumetricData(MSONable):
         return [self.value_at(xpts[i], ypts[i], zpts[i]) for i in range(n)]
 
     def get_integrated_diff(self, ind, radius, nbins=1):
-        """
-        Get integrated difference of atom index ind up to radius. This can be
+        """Get integrated difference of atom index ind up to radius. This can be
         an extremely computationally intensive process, depending on how many
         grid points are in the VolumetricData.
 
@@ -213,7 +208,7 @@ class VolumetricData(MSONable):
 
         Returns:
             Differential integrated charge as a np array of [[radius, value],
-            ...]. Format is for ease of plotting. E.g., plt.plot(data[:,0],
+            ...]. Format is for ease of plotting. e.g. plt.plot(data[:,0],
             data[:,1])
         """
         # For non-spin-polarized runs, this is zero by definition.
@@ -250,8 +245,7 @@ class VolumetricData(MSONable):
         return data
 
     def get_average_along_axis(self, ind):
-        """
-        Get the averaged total of the volumetric data a certain axis direction.
+        """Get the averaged total of the volumetric data a certain axis direction.
         For example, useful for visualizing Hartree Potentials from a LOCPOT
         file.
 

@@ -684,7 +684,7 @@ class QCOutput(MSONable):
         self.data["alpha_eigenvalues"] = alpha_eigenvalues
 
     def _read_fock_matrix(self):
-        """Parses the Fock matrix. The matrix is read in whole
+        """Parse the Fock matrix. The matrix is read in whole
         from the output file and then transformed into the right dimensions.
         """
         # The header is the same for both spin-restricted and spin-unrestricted calculations.
@@ -723,7 +723,7 @@ class QCOutput(MSONable):
             self.data["beta_fock_matrix"] = beta_fock_matrix
 
     def _read_coefficient_matrix(self):
-        """Parses the coefficient matrix from the output file. Done is much
+        """Parse the coefficient matrix from the output file. Done is much
         the same was as the Fock matrix.
         """
         # The header is the same for both spin-restricted and spin-unrestricted calculations.
@@ -761,7 +761,7 @@ class QCOutput(MSONable):
             self.data["beta_coeff_matrix"] = beta_coeff_matrix
 
     def _read_charge_and_multiplicity(self):
-        """Parses charge and multiplicity."""
+        """Parse charge and multiplicity."""
         temp_charge = read_pattern(self.text, {"key": r"\$molecule\s+([\-\d]+)\s+\d"}, terminate_on_match=True).get(
             "key"
         )
@@ -795,7 +795,7 @@ class QCOutput(MSONable):
                 self.data["multiplicity"] = int(float(temp_multiplicity[0][0])) + 1
 
     def _read_species_and_inital_geometry(self):
-        """Parses species and initial geometry."""
+        """Parse species and initial geometry."""
         header_pattern = r"Standard Nuclear Orientation \(Angstroms\)\s+I\s+Atom\s+X\s+Y\s+Z\s+-+"
         table_pattern = r"\s*\d+\s+([a-zA-Z]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*([\d\-\.]+)\s*"
         footer_pattern = r"\s*-+"
@@ -837,7 +837,7 @@ class QCOutput(MSONable):
                 self.data["initial_molecule"] = None
 
     def _read_SCF(self):
-        """Parses both old and new SCFs."""
+        """Parse both old and new SCFs."""
         if self.data.get("using_GEN_SCFMAN", []):
             footer_pattern = r"(^\s*\-+\n\s+SCF time|^\s*gen_scfman_exception: SCF failed to converge)"
             header_pattern = (
@@ -1238,7 +1238,7 @@ class QCOutput(MSONable):
             self.data["warnings"]["diagonalizing_BBt"] = True
 
     def _read_geometries(self):
-        """Parses all geometries from an optimization trajectory."""
+        """Parse all geometries from an optimization trajectory."""
         geoms = []
         if self.data.get("new_optimizer") is None:
             header_pattern = r"\s+Optimization\sCycle:\s+\d+\s+Coordinates \(Angstroms\)\s+ATOM\s+X\s+Y\s+Z"
@@ -1348,7 +1348,7 @@ class QCOutput(MSONable):
         return index - 2
 
     def _read_gradients(self):
-        """Parses all gradients obtained during an optimization trajectory."""
+        """Parse all gradients obtained during an optimization trajectory."""
         grad_header_pattern = r"Gradient of (?:SCF)?(?:MP2)? Energy(?: \(in au\.\))?"
         footer_pattern = r"(?:Max gradient component|Gradient time)"
 
@@ -1479,7 +1479,7 @@ class QCOutput(MSONable):
                     self.data["errors"] += ["svd_failed"]
 
     def _read_frequency_data(self):
-        """Parses cpscf_nseg, frequencies, enthalpy, entropy, and mode vectors."""
+        """Parse cpscf_nseg, frequencies, enthalpy, entropy, and mode vectors."""
         if read_pattern(self.text, {"key": r"Calculating MO derivatives via CPSCF"}, terminate_on_match=True).get(
             "key"
         ) == [[]]:
@@ -1766,7 +1766,7 @@ class QCOutput(MSONable):
                     )
 
     def _read_pcm_information(self):
-        """Parses information from PCM solvent calculations."""
+        """Parse information from PCM solvent calculations."""
         temp_dict = read_pattern(
             self.text,
             {
@@ -1791,7 +1791,7 @@ class QCOutput(MSONable):
                 self.data["solvent_data"][key] = temp_result
 
     def _read_smd_information(self):
-        """Parses information from SMD solvent calculations."""
+        """Parse information from SMD solvent calculations."""
         temp_dict = read_pattern(
             self.text,
             {
@@ -1908,7 +1908,7 @@ class QCOutput(MSONable):
                 self.data["solvent_data"]["cmirs"][key] = temp_result
 
     def _read_nbo_data(self):
-        """Parses NBO output."""
+        """Parse NBO output."""
         dfs = nbo_parser(self.filename)
         nbo_data = {}
         for key, value in dfs.items():
@@ -1916,7 +1916,7 @@ class QCOutput(MSONable):
         self.data["nbo_data"] = nbo_data
 
     def _read_cdft(self):
-        """Parses output from charge- or spin-constrained DFT (CDFT) calculations."""
+        """Parse output from charge- or spin-constrained DFT (CDFT) calculations."""
         # Parse constraint and optimization parameters
         temp_dict = read_pattern(
             self.text, {"constraint": r"Constraint\s+(\d+)\s+:\s+([\-\.0-9]+)", "multiplier": r"\s*Lam\s+([\.\-0-9]+)"}
@@ -2055,7 +2055,7 @@ class QCOutput(MSONable):
             self.data["almo_coupling_eV"] = float(temp_dict["coupling"][0][0]) / 1000
 
     def _check_completion_errors(self):
-        """Parses potential errors that can cause jobs to crash."""
+        """Parse potential errors that can cause jobs to crash."""
         if read_pattern(
             self.text,
             {"key": r"Coordinates do not transform within specified threshold"},

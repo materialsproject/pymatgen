@@ -45,7 +45,7 @@ class StandardTransmuter:
         extend_collection: int = 0,
         ncores: int | None = None,
     ) -> None:
-        """Initializes a transmuter from an initial list of
+        """Initialize a transmuter from an initial list of
         pymatgen.alchemy.materials.TransformedStructure.
 
         Args:
@@ -101,7 +101,7 @@ class StandardTransmuter:
             x.redo_next_change()
 
     def append_transformation(self, transformation, extend_collection=False, clear_redo=True):
-        """Appends a transformation to all TransformedStructures.
+        """Append a transformation to all TransformedStructures.
 
         Args:
             transformation: Transformation to append
@@ -134,7 +134,7 @@ class StandardTransmuter:
             self.transformed_structures += new_structures
 
     def extend_transformations(self, transformations):
-        """Extends a sequence of transformations to the TransformedStructure.
+        """Extend a sequence of transformations to the TransformedStructure.
 
         Args:
             transformations: Sequence of Transformations
@@ -143,7 +143,7 @@ class StandardTransmuter:
             self.append_transformation(trafo)
 
     def apply_filter(self, structure_filter: Callable):
-        """Applies a structure_filter to the list of TransformedStructures
+        """Apply a structure_filter to the list of TransformedStructures
         in the transmuter.
 
         Args:
@@ -182,7 +182,7 @@ class StandardTransmuter:
 
         Args:
             tags: A sequence of tags. Note that this should be a sequence of
-                strings, e.g., ["My awesome structures", "Project X"].
+                strings, e.g. ["My awesome structures", "Project X"].
         """
         self.set_parameter("tags", tags)
 
@@ -224,12 +224,12 @@ class StandardTransmuter:
 
 
 class CifTransmuter(StandardTransmuter):
-    """Generates a Transmuter from a cif string, possibly containing multiple
+    """Generate a Transmuter from a cif string, possibly containing multiple
     structures.
     """
 
     def __init__(self, cif_string, transformations=None, primitive=True, extend_collection=False):
-        """Generates a Transmuter from a cif string, possibly
+        """Generate a Transmuter from a cif string, possibly
         containing multiple structures.
 
         Args:
@@ -259,7 +259,7 @@ class CifTransmuter(StandardTransmuter):
 
     @classmethod
     def from_filenames(cls, filenames, transformations=None, primitive=True, extend_collection=False) -> Self:
-        """Generates a TransformedStructureCollection from a cif, possibly
+        """Generate a TransformedStructureCollection from a cif, possibly
         containing multiple structures.
 
         Args:
@@ -282,7 +282,7 @@ class CifTransmuter(StandardTransmuter):
 
 
 class PoscarTransmuter(StandardTransmuter):
-    """Generates a transmuter from a sequence of POSCARs."""
+    """Generate a transmuter from a sequence of POSCARs."""
 
     def __init__(self, poscar_string, transformations=None, extend_collection=False):
         """
@@ -336,7 +336,7 @@ def batch_write_vasp_input(
             Defaults to True.
         subfolder: Function to create subdirectory name from
             transformed_structure.
-            e.g., lambda x: x.other_parameters["tags"][0] to use the first
+            e.g. lambda x: x.other_parameters["tags"][0] to use the first
             tag.
         include_cif (bool): Boolean indication whether to output a CIF as
             well. CIF files are generally better supported in visualization

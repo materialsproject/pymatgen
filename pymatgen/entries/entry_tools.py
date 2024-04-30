@@ -231,7 +231,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
     def chemsys(self) -> set:
         """
         Returns:
-            set representing the chemical system, e.g., {"Li", "Fe", "P", "O"}.
+            set representing the chemical system, e.g. {"Li", "Fe", "P", "O"}.
         """
         chemsys = set()
         for e in self.entries:
@@ -267,7 +267,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         and Li-O entries are returned.
 
         Args:
-            chemsys: Chemical system specified as list of elements. E.g.,
+            chemsys: Chemical system specified as list of elements. e.g.
                 ["Li", "O"]
 
         Returns:
@@ -296,7 +296,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
             filename: Filename to write to.
             entries: PDEntries to export.
             latexify_names: Format entry names to be LaTex compatible,
-                e.g., Li_{2}O
+                e.g. Li_{2}O
         """
         els: set[Element] = set()
         for entry in self.entries:

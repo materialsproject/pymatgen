@@ -90,7 +90,7 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
 
     @classmethod
     def parse_history_node(cls, h_node) -> Self:
-        """Parses a History Node object from either a dict or a tuple.
+        """Parse a History Node object from either a dict or a tuple.
 
         Args:
             h_node: A dict with name/url/description fields or a 3-element tuple.
@@ -134,7 +134,7 @@ class Author(namedtuple("Author", ["name", "email"])):
 
     @classmethod
     def parse_author(cls, author) -> Self:
-        """Parses an Author object from either a String, dict, or tuple.
+        """Parse an Author object from either a String, dict, or tuple.
 
         Args:
             author: A String formatted as "NAME <email@domain.com>",

@@ -261,7 +261,7 @@ class BandStructure:
         Args:
             el_orb_spec: A dictionary of Elements and Orbitals for which we want
                 to have projections on. It is given as: {Element:[orbitals]},
-                e.g., {'Cu':['d','s']}
+                e.g. {'Cu':['d','s']}
 
         Returns:
             A dictionary of projections on elements in the
@@ -1033,7 +1033,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         Args:
             el_orb_spec: A dictionary of Elements and Orbitals for which we want
                 to have projections on. It is given as: {Element:[orbitals]},
-                e.g., {'Si':['3s','3p']} or {'Si':['3s','3p_x', '3p_y', '3p_z']} depending on input files
+                e.g. {'Si':['3s','3p']} or {'Si':['3s','3p_x', '3p_y', '3p_z']} depending on input files
 
         Returns:
             A dictionary of projections on elements in the
@@ -1060,7 +1060,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
 
 
 def get_reconstructed_band_structure(list_bs, efermi=None):
-    """This method takes a list of band structures and reconstructs
+    """Take a list of band structures and reconstructs
     one band structure object from all of them.
 
     This is typically very useful when you split non self consistent

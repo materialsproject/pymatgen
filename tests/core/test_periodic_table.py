@@ -413,9 +413,7 @@ class TestSpecies(PymatgenTest):
         assert self.specie4.spin == 5
 
     def test_deepcopy(self):
-        el1 = Species("Fe4+")
-        el2 = Species("Na1+")
-        elem_list = [el1, el2]
+        elem_list = [Species("Fe4+"), Species("Na1+")]
         assert elem_list == deepcopy(elem_list), "Deepcopy operation doesn't produce exact copy."
 
     def test_pickle(self):

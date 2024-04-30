@@ -37,8 +37,7 @@ logger = logging.getLogger(__name__)
 
 
 class Cp2kOutput:
-    """
-    Class for parsing output file from CP2K. The CP2K output file is very flexible in the way that
+    """Parse output file from CP2K. The CP2K output file is very flexible in the way that
     it is returned. This class will automatically parse parameters that should always be present,
     but other parsing features may be called depending on the run type.
     """
@@ -378,8 +377,7 @@ class Cp2kOutput:
         return self.initial_structure
 
     def ran_successfully(self):
-        """
-        Sanity checks that the program ran successfully. Looks at the bottom of the CP2K output
+        """Sanity checks that the program ran successfully. Looks at the bottom of the CP2K output
         file for the "PROGRAM ENDED" line, which is printed when successfully ran. Also grabs
         the number of warnings issued.
         """
@@ -440,8 +438,7 @@ class Cp2kOutput:
             warnings.warn("Geometry optimization did not converge", UserWarning)
 
     def parse_energies(self):
-        """
-        Get the total energy from a CP2K calculation. Presently, the energy reported in the
+        """Get the total energy from a CP2K calculation. Presently, the energy reported in the
         trajectory (pos.xyz) file takes precedence over the energy reported in the main output
         file. This is because the trajectory file keeps track of energies in between restarts,
         while the main output file may or may not depending on whether a particular machine
@@ -1157,8 +1154,7 @@ class Cp2kOutput:
         )
 
     def parse_homo_lumo(self):
-        """
-        Find the HOMO - LUMO gap in [eV]. Returns the last value. For gaps/eigenvalues decomposed
+        """Find the HOMO - LUMO gap in [eV]. Returns the last value. For gaps/eigenvalues decomposed
         by spin up/spin down channel and over many ionic steps, see parse_mo_eigenvalues().
         """
         pattern = re.compile(r"HOMO.*-.*LUMO.*gap.*\s(-?\d+.\d+)")
@@ -1497,7 +1493,7 @@ class Cp2kOutput:
         arguments.
 
         Args:
-            patterns (dict): A dict of patterns, e.g.,
+            patterns (dict): A dict of patterns, e.g.
                 {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"}.
             reverse (bool): Read files in reverse. Defaults to false. Useful for
                 large files, esp OUTCARs, especially when used with
@@ -1649,7 +1645,7 @@ class Cp2kOutput:
 
 # TODO should store as pandas? Maybe it should be stored as a dict so it's python native
 def parse_energy_file(energy_file):
-    """Parses energy file for calculations with multiple ionic steps."""
+    """Parse energy file for calculations with multiple ionic steps."""
     columns = [
         "step",
         "kinetic_energy",

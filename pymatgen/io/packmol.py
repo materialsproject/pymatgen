@@ -137,8 +137,7 @@ class PackmolBoxGen(InputGenerator):
         molecules: list[dict],
         box: list[float] | None = None,
     ) -> PackmolSet:
-        """
-        Generate a Packmol InputSet for a set of molecules.
+        """Generate a Packmol InputSet for a set of molecules.
 
         Args:
             molecules: A list of dict containing information about molecules to pack

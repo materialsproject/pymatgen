@@ -31,10 +31,10 @@ bond_lengths = _load_bond_length_data()
 
 
 class CovalentBond:
-    """Defines a covalent bond between two sites."""
+    """A covalent bond between two sites."""
 
     def __init__(self, site1: Site, site2: Site) -> None:
-        """Initializes a covalent bond between two sites.
+        """Initialize a covalent bond between two sites.
 
         Args:
             site1 (Site): First site.

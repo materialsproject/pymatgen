@@ -81,8 +81,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         with_labels=True,
         fontsize=16,
     ) -> plt.Axes:
-        """
-        Returns the diffraction plot as a matplotlib Axes.
+        """Get the diffraction plot as a matplotlib Axes.
 
         Args:
             structure: Input structure
@@ -154,8 +153,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         return ax
 
     def show_plot(self, structure: Structure, **kwargs):
-        """
-        Shows the diffraction plot.
+        """Show the diffraction plot.
 
         Args:
             structure (Structure): Input structure

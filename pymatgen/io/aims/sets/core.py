@@ -42,10 +42,7 @@ class StaticSetGenerator(AimsInputGenerator):
 
 @dataclass
 class RelaxSetGenerator(AimsInputGenerator):
-    """
-    Class to generate FHI-aims relax sets.
-
-    I.e., sets for optimization of internal and lattice coordinates.
+    """Generate FHI-aims relax sets for optimizing internal coordinates and lattice params.
 
     Parameters
     ----------

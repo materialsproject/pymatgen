@@ -149,8 +149,7 @@ class BalancedReaction(MSONable):
         self._coeffs = [c * scale_factor for c in coeffs]
 
     def get_el_amount(self, element: Element | Species) -> float:
-        """
-        Returns the amount of the element in the reaction.
+        """Get the amount of the element in the reaction.
 
         Args:
             element (Element/Species): Element in the reaction
@@ -236,9 +235,7 @@ class BalancedReaction(MSONable):
         return cls._str_from_formulas(r_coeffs, r_formulas), factor
 
     def as_entry(self, energies) -> ComputedEntry:
-        """
-        Returns a ComputedEntry representation of the reaction.
-        """
+        """Get a ComputedEntry representation of the reaction."""
         relevant_comp = [comp * abs(coeff) for coeff, comp in zip(self._coeffs, self._all_comp)]
         comp: Composition = sum(relevant_comp, Composition())  # type: ignore[assignment]
 
@@ -273,8 +270,7 @@ class BalancedReaction(MSONable):
 
     @classmethod
     def from_str(cls, rxn_str: str) -> Self:
-        """
-        Generates a balanced reaction from a string. The reaction must
+        """Generate a balanced reaction from a string. The reaction must
         already be balanced.
 
         Args:
@@ -306,7 +302,7 @@ class Reaction(BalancedReaction):
     def __init__(self, reactants: list[Composition], products: list[Composition]) -> None:
         """
         Reactants and products to be specified as list of
-        pymatgen.core.structure.Composition. e.g., [comp1, comp2].
+        pymatgen.core.structure.Composition. e.g. [comp1, comp2].
 
         Args:
             reactants ([Composition]): List of reactants.
@@ -408,8 +404,7 @@ class Reaction(BalancedReaction):
 
 
 class ReactionError(Exception):
-    """
-    Exception class for Reactions. Allows more information in exception
+    """Exception class for Reactions. Allows more information in exception
     messages to cover situations not covered by standard exception classes.
     """
 
@@ -450,8 +445,7 @@ class ComputedReaction(Reaction):
 
     @property
     def all_entries(self):
-        """
-        Equivalent of all_comp but returns entries, in the same order as the
+        """Equivalent of all_comp but returns entries, in the same order as the
         coefficients.
         """
         entries = []

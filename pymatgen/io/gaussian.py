@@ -123,8 +123,8 @@ class GaussianInput:
             route_parameters: Additional route parameters as a dict. For example,
                 {'SP':"", "SCF":"Tight"}
             input_parameters: Additional input parameters for run as a dict. Used
-                for example, in PCM calculations. E.g., {"EPS":12}
-            link0_parameters: Link0 parameters as a dict. E.g., {"%mem": "1000MW"}
+                for example, in PCM calculations. e.g. {"EPS":12}
+            link0_parameters: Link0 parameters as a dict. e.g. {"%mem": "1000MW"}
             dieze_tag: # preceding the route line. E.g. "#p"
             gen_basis: allows a user-specified basis set to be used in a Gaussian
                 calculation. If this is not None, the attribute ``basis_set`` will
@@ -260,7 +260,7 @@ class GaussianInput:
 
         def _parse_species(sp_str):
             """
-            The species specification can take many forms. E.g.,
+            The species specification can take many forms. e.g.
             simple integers representing atomic numbers ("8"),
             actual species string ("C") or a labelled species ("C1").
             Sometimes, the species string is also not properly capitalized,
@@ -528,7 +528,7 @@ class GaussianOutput:
         route (dict): Additional route parameters as a dict. For example,
             {'SP':"", "SCF":"Tight"}.
         dieze_tag (str): # preceding the route line, e.g. "#P".
-        link0 (dict): Link0 parameters as a dict. E.g., {"%mem": "1000MW"}.
+        link0 (dict): Link0 parameters as a dict. e.g. {"%mem": "1000MW"}.
         charge (int): Charge for structure.
         spin_multiplicity (int): Spin multiplicity for structure.
         num_basis_func (int): Number of basis functions in the run.
@@ -1148,8 +1148,7 @@ class GaussianOutput:
         return data
 
     def get_scan_plot(self, coords=None):
-        """
-        Get a matplotlib plot of the potential energy surface.
+        """Get a matplotlib plot of the potential energy surface.
 
         Args:
             coords: internal coordinate name to use as abscissa.
@@ -1175,8 +1174,7 @@ class GaussianOutput:
         return ax
 
     def save_scan_plot(self, filename="scan.pdf", img_format="pdf", coords=None):
-        """
-        Save matplotlib plot of the potential energy surface to a file.
+        """Save matplotlib plot of the potential energy surface to a file.
 
         Args:
             filename: Filename to write to.
@@ -1211,8 +1209,7 @@ class GaussianOutput:
         return transitions
 
     def get_spectre_plot(self, sigma=0.05, step=0.01):
-        """
-        Get a matplotlib plot of the UV-visible xas. Transitions are plotted
+        """Get a matplotlib plot of the UV-visible xas. Transitions are plotted
         as vertical lines and as a sum of normal functions with sigma with. The
         broadening is applied in energy and the xas is plotted as a function
         of the wavelength.
@@ -1264,8 +1261,7 @@ class GaussianOutput:
         return data, ax
 
     def save_spectre_plot(self, filename="spectre.pdf", img_format="pdf", sigma=0.05, step=0.01):
-        """
-        Save matplotlib plot of the spectre to a file.
+        """Save matplotlib plot of the spectre to a file.
 
         Args:
             filename: Filename to write to.

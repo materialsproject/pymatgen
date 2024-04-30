@@ -53,7 +53,7 @@ class PhononDos(MSONable):
         return gaussian_filter1d(self.densities, sigma / avg_diff)
 
     def __add__(self, other: PhononDos) -> PhononDos:
-        """Adds two DOS together. Pads densities with zeros to make frequencies matching.
+        """Add two DOS together. Pads densities with zeros to make frequencies matching.
 
         Args:
             other: Another DOS object.

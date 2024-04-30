@@ -1,4 +1,4 @@
-"""Provides a class for interacting with KPath classes to
+"""A class for interacting with KPath classes to
 generate high-symmetry k-paths using different conventions.
 """
 
@@ -140,38 +140,29 @@ class HighSymmKpath(KPathBase):
 
     @property
     def path_type(self):
-        """
-        Returns:
-            The type of kpath chosen.
-        """
+        """The type of kpath chosen."""
         return self._path_type
 
     @property
     def label_index(self):
-        """
-        Returns:
-            The correspondence between numbers and kpoint symbols for the
+        """The correspondence between numbers and kpoint symbols for the
         combined kpath generated when path_type = 'all'. None otherwise.
         """
         return self._label_index
 
     @property
     def equiv_labels(self):
-        """
-        Returns:
-            The correspondence between the kpoint symbols in the Latimer and
-            Munro convention, Setyawan and Curtarolo, and Hinuma
-            conventions respectively. Only generated when path_type = 'all'.
+        """The correspondence between the kpoint symbols in the Latimer and
+        Munro convention, Setyawan and Curtarolo, and Hinuma
+        conventions respectively. Only generated when path_type = 'all'.
         """
         return self._equiv_labels
 
     @property
     def path_lengths(self):
-        """
-        Returns:
-            List of lengths of the Latimer and Munro, Setyawan and Curtarolo, and Hinuma
-            conventions in the combined HighSymmKpath object when path_type = 'all' respectively.
-            None otherwise.
+        """List of lengths of the Latimer and Munro, Setyawan and Curtarolo, and Hinuma
+        conventions in the combined HighSymmKpath object when path_type = 'all' respectively.
+        None otherwise.
         """
         return self._path_lengths
 
@@ -221,7 +212,7 @@ class HighSymmKpath(KPathBase):
     def _get_klabels(self, lm_bs, sc_bs, hin_bs, rpg):
         """
         Returns:
-            labels (dict): Dictionary of equivalent labels for paths if 'all' is chosen.
+            dict[str, dict[str, dict[str, str]]]: equivalent labels for paths if 'all' is chosen.
             If an exact kpoint match cannot be found, symmetric equivalency will be
             searched for and indicated with an asterisk in the equivalent label.
             If an equivalent label can still not be found, or the point is not in

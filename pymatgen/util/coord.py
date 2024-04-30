@@ -37,7 +37,7 @@ def find_in_coord_list(coord_list, coord, atol: float = 1e-8):
             array.
 
     Returns:
-        Indices of matches, e.g., [0, 1, 2, 3]. Empty list if not found.
+        Indices of matches, e.g. [0, 1, 2, 3]. Empty list if not found.
     """
     if len(coord_list) == 0:
         return []
@@ -46,7 +46,7 @@ def find_in_coord_list(coord_list, coord, atol: float = 1e-8):
 
 
 def in_coord_list(coord_list, coord, atol: float = 1e-8) -> bool:
-    """Tests if a particular coord is within a coord_list.
+    """Test if a particular coord is within a coord_list.
 
     Args:
         coord_list: List of coords to test
@@ -61,7 +61,7 @@ def in_coord_list(coord_list, coord, atol: float = 1e-8) -> bool:
 
 
 def is_coord_subset(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-8) -> bool:
-    """Tests if all coords in subset are contained in superset.
+    """Test if all coords in subset are contained in superset.
     Doesn't use periodic boundary conditions.
 
     Args:
@@ -80,7 +80,7 @@ def is_coord_subset(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-8) 
 
 
 def coord_list_mapping(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-8):
-    """Gives the index mapping from a subset to a superset.
+    """Get the index mapping from a subset to a superset.
     Subset and superset cannot contain duplicate rows.
 
     Args:
@@ -103,7 +103,7 @@ def coord_list_mapping(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-
 
 
 def coord_list_mapping_pbc(subset, superset, atol: float = 1e-8, pbc: PbcLike = (True, True, True)):
-    """Gives the index mapping from a subset to a superset.
+    """Get the index mapping from a subset to a superset.
     Superset cannot contain duplicate matching rows.
 
     Args:
@@ -169,7 +169,7 @@ def pbc_diff(frac_coords1: ArrayLike, frac_coords2: ArrayLike, pbc: PbcLike = (T
     account periodic boundary conditions.
 
     Args:
-        frac_coords1: First set of fractional coordinates. e.g., [0.5, 0.6,
+        frac_coords1: First set of fractional coordinates. e.g. [0.5, 0.6,
             0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
             coord or any array of coords.
         frac_coords2: Second set of fractional coordinates.
@@ -182,8 +182,8 @@ def pbc_diff(frac_coords1: ArrayLike, frac_coords2: ArrayLike, pbc: PbcLike = (T
         pbc_diff([0.1, 0.1, 0.1], [0.3, 0.5, 0.9]) = [-0.2, -0.4, 0.2]
         pbc_diff([0.9, 0.1, 1.01], [0.3, 0.5, 0.9]) = [-0.4, -0.4, 0.11]
     """
-    fdist = np.subtract(frac_coords1, frac_coords2)
-    return fdist - np.round(fdist) * pbc
+    frac_dist = np.subtract(frac_coords1, frac_coords2)
+    return frac_dist - np.round(frac_dist) * pbc
 
 
 def pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask=None, return_d2: bool = False):
@@ -192,7 +192,7 @@ def pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask=None, return_
 
     Args:
         lattice: lattice to use
-        frac_coords1: First set of fractional coordinates. e.g., [0.5, 0.6, 0.7]
+        frac_coords1: First set of fractional coordinates. e.g. [0.5, 0.6, 0.7]
             or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
             coord or any array of coords.
         frac_coords2: Second set of fractional coordinates.
@@ -202,8 +202,8 @@ def pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask=None, return_
         return_d2 (bool): whether to also return the squared distances
 
     Returns:
-        array of displacement vectors from frac_coords1 to frac_coords2
-        first index is frac_coords1 index, second is frac_coords2 index
+        np.array: of displacement vectors from frac_coords1 to frac_coords2
+            first index is frac_coords1 index, second is frac_coords2 index
     """
     return coord_cython.pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask, return_d2)
 
@@ -223,7 +223,7 @@ def find_in_coord_list_pbc(
             axis of the lattice.
 
     Returns:
-        Indices of matches, e.g., [0, 1, 2, 3]. Empty list if not found.
+        Indices of matches, e.g. [0, 1, 2, 3]. Empty list if not found.
     """
     if len(frac_coord_list) == 0:
         return []
@@ -234,7 +234,7 @@ def find_in_coord_list_pbc(
 
 
 def in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc: PbcLike = (True, True, True)) -> bool:
-    """Tests if a particular fractional coord is within a fractional coord_list.
+    """Test if a particular fractional coord is within a fractional coord_list.
 
     Args:
         fcoord_list: List of fractional coords to test
@@ -250,7 +250,7 @@ def in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc: PbcLike = (T
 
 
 def is_coord_subset_pbc(subset, superset, atol: float = 1e-8, mask=None, pbc: PbcLike = (True, True, True)) -> bool:
-    """Tests if all fractional coords in subset are contained in superset.
+    """Test if all fractional coords in subset are contained in superset.
 
     Args:
         subset (list): List of fractional coords to test
@@ -304,7 +304,7 @@ def lattice_points_in_supercell(supercell_matrix):
 
 
 def barycentric_coords(coords, simplex):
-    """Converts a list of coordinates to barycentric coordinates, given a
+    """Convert a list of coordinates to barycentric coordinates, given a
     simplex with d+1 points. Only works for d >= 2.
 
     Args:
@@ -324,7 +324,7 @@ def barycentric_coords(coords, simplex):
 
 
 def get_angle(v1: ArrayLike, v2: ArrayLike, units: Literal["degrees", "radians"] = "degrees") -> float:
-    """Calculates the angle between two vectors.
+    """Calculate the angle between two vectors.
 
     Args:
         v1: Vector 1
@@ -354,10 +354,10 @@ class Simplex(MSONable):
     """
 
     def __init__(self, coords) -> None:
-        """Initializes a Simplex from vertex coordinates.
+        """Initialize a Simplex from vertex coordinates.
 
         Args:
-            coords ([[float]]): Coords of the vertices of the simplex. E.g.,
+            coords ([[float]]): Coords of the vertices of the simplex. e.g.
                 [[1, 2, 3], [2, 4, 5], [6, 7, 8], [8, 9, 10].
         """
         self._coords = np.array(coords)
@@ -400,7 +400,7 @@ class Simplex(MSONable):
             raise ValueError("Simplex is not full-dimensional") from exc
 
     def in_simplex(self, point: Sequence[float], tolerance: float = 1e-8) -> bool:
-        """Checks if a point is in the simplex using the standard barycentric
+        """Check if a point is in the simplex using the standard barycentric
         coordinate system algorithm.
 
         Taking an arbitrary vertex as an origin, we compute the basis for the
@@ -417,7 +417,7 @@ class Simplex(MSONable):
         return (self.bary_coords(point) >= -tolerance).all()
 
     def line_intersection(self, point1: Sequence[float], point2: Sequence[float], tolerance: float = 1e-8):
-        """Computes the intersection points of a line with a simplex.
+        """Compute the intersection points of a line with a simplex.
 
         Args:
             point1 (Sequence[float]): 1st point to determine the line.
