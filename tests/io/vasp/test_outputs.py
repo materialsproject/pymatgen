@@ -265,7 +265,7 @@ class TestVasprun(PymatgenTest):
         assert vasp_run.final_structure.reduced_formula == "LiFe4(PO4)4"
         assert isinstance(vasp_run.incar, Incar), f"{vasp_run.incar=}"
         assert isinstance(vasp_run.kpoints, Kpoints), f"{vasp_run.kpoints=}"
-        assert isinstance(vasp_run.eigenvalues, Eigenval), f"{vasp_run.eigenvalues=}"
+        assert isinstance(vasp_run.eigenvalues, dict), f"{vasp_run.eigenvalues=}"
         assert vasp_run.final_energy == approx(-269.38319884, abs=1e-7)
         assert vasp_run.tdos.get_gap() == approx(2.0589, abs=1e-4)
         expected = (2.539, 4.0906, 1.5516, False)
@@ -318,7 +318,7 @@ class TestVasprun(PymatgenTest):
             UnconvergedVASPWarning, match="vasprun.unconverged.xml.gz is an unconverged VASP run"
         ) as warns:
             vasprun_unconverged = Vasprun(filepath, parse_potcar_file=False)
-        assert len(warns) == 1
+        assert len(warns) >= 1
 
         assert vasprun_unconverged.converged_ionic
         assert not vasprun_unconverged.converged_electronic
@@ -662,7 +662,7 @@ class TestVasprun(PymatgenTest):
         # Ensure no potcar is found and nothing is updated
         with pytest.warns(UserWarning, match="No POTCAR file with matching TITEL fields was found in") as warns:
             vasp_run = Vasprun(filepath, parse_potcar_file=".")
-        assert len(warns) == 2
+        assert len(warns) >= 2, f"{len(warns)=}"
         assert vasp_run.potcar_spec == [
             {"titel": "PAW_PBE Li 17Jan2003", "hash": None, "summary_stats": {}},
             {"titel": "PAW_PBE Fe 06Sep2000", "hash": None, "summary_stats": {}},

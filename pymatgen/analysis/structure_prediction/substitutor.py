@@ -120,10 +120,10 @@ class Substitutor(MSONable):
             raise ValueError("the species in target_species are not allowed for the probability model you are using")
 
         for permutation in itertools.permutations(target_species):
-            for s in structures_list:
+            for dct in structures_list:
                 # check if: species are in the domain,
                 # and the probability of subst. is above the threshold
-                els = s["structure"].elements
+                els = dct["structure"].elements
                 if (
                     len(els) == len(permutation)
                     and len(set(els) & set(self.get_allowed_species())) == len(els)
@@ -136,18 +136,18 @@ class Substitutor(MSONable):
 
                     transf = SubstitutionTransformation(clean_subst)
 
-                    if Substitutor._is_charge_balanced(transf.apply_transformation(s["structure"])):
-                        ts = TransformedStructure(
-                            s["structure"],
+                    if Substitutor._is_charge_balanced(transf.apply_transformation(dct["structure"])):
+                        t_struct = TransformedStructure(
+                            dct["structure"],
                             [transf],
-                            history=[{"source": s["id"]}],
+                            history=[{"source": dct["id"]}],
                             other_parameters={
                                 "type": "structure_prediction",
                                 "proba": self._sp.cond_prob_list(permutation, els),
                             },
                         )
-                        result.append(ts)
-                        transmuter.append_transformed_structures([ts])
+                        result.append(t_struct)
+                        transmuter.append_transformed_structures([t_struct])
 
         if remove_duplicates:
             transmuter.apply_filter(RemoveDuplicatesFilter(symprec=self._symprec))

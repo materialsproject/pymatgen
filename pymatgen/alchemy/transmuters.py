@@ -219,8 +219,8 @@ class StandardTransmuter:
         Returns:
             StandardTransmuter
         """
-        trafo_struct = [TransformedStructure(s, []) for s in structures]
-        return cls(trafo_struct, transformations, extend_collection)
+        t_struct = [TransformedStructure(s, []) for s in structures]
+        return cls(t_struct, transformations, extend_collection)
 
 
 class CifTransmuter(StandardTransmuter):
@@ -253,8 +253,8 @@ class CifTransmuter(StandardTransmuter):
             if read_data:
                 structure_data[-1].append(line)
         for data in structure_data:
-            trafo_struct = TransformedStructure.from_cif_str("\n".join(data), [], primitive)
-            transformed_structures.append(trafo_struct)
+            t_struct = TransformedStructure.from_cif_str("\n".join(data), [], primitive)
+            transformed_structures.append(t_struct)
         super().__init__(transformed_structures, transformations, extend_collection)
 
     @classmethod
@@ -293,8 +293,8 @@ class PoscarTransmuter(StandardTransmuter):
             extend_collection: Whether to use more than one output structure
                 from one-to-many transformations.
         """
-        trafo_struct = TransformedStructure.from_poscar_str(poscar_string, [])
-        super().__init__([trafo_struct], transformations, extend_collection=extend_collection)
+        t_struct = TransformedStructure.from_poscar_str(poscar_string, [])
+        super().__init__([t_struct], transformations, extend_collection=extend_collection)
 
     @classmethod
     def from_filenames(cls, poscar_filenames, transformations=None, extend_collection=False) -> StandardTransmuter:
