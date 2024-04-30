@@ -538,16 +538,13 @@ class Vasprun(MSONable):
 
     @property
     def dielectric(self):
-        """
-        Returns:
-            The real and imaginary part of the dielectric constant (e.g., computed
-            by RPA) in function of the energy (frequency). Optical properties (e.g.
-            absorption coefficient) can be obtained through this.
-            The data is given as a tuple of 3 values containing each of them
-            the energy, the real part tensor, and the imaginary part tensor
-            ([energies],[[real_partxx,real_partyy,real_partzz,real_partxy,
-            real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz,
-            imag_partxy, imag_partyz, imag_partxz]]).
+        """The real and imaginary part of the dielectric constant (e.g., computed by RPA) in
+        function of the energy (frequency). Optical properties (e.g. absorption coefficient)
+        can be obtained through this. The data is given as a tuple of 3 values containing each
+        of them the energy, the real part tensor, and the imaginary part tensor
+        ([energies],[[real_partxx,real_partyy,real_partzz,real_partxy,
+        real_partyz,real_partxz]],[[imag_partxx,imag_partyy,imag_partzz, imag_partxy,
+        imag_partyz, imag_partxz]]).
         """
         return self.dielectric_data["density"]
 

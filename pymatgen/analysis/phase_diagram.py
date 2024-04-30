@@ -90,10 +90,7 @@ class PDEntry(Entry):
 
     @property
     def energy(self) -> float:
-        """
-        Returns:
-            the energy of the entry.
-        """
+        """The entry's energy."""
         return self._energy
 
     def as_dict(self):
@@ -115,10 +112,10 @@ class PDEntry(Entry):
             PDEntry
         """
         return cls(
-            Composition(dct["composition"]),
-            dct["energy"],
-            dct.get("name"),
-            dct.get("attribute"),
+            composition=Composition(dct["composition"]),
+            energy=dct["energy"],
+            name=dct.get("name"),
+            attribute=dct.get("attribute"),
         )
 
 
@@ -169,11 +166,8 @@ class GrandPotPDEntry(PDEntry):
         return sum(self._composition[el] * pot for el, pot in self.chempots.items())
 
     @property
-    def energy(self):
-        """
-        Returns:
-            The grand potential energy.
-        """
+    def energy(self) -> float:
+        """Grand potential energy."""
         return self._energy - self.chemical_energy
 
     def __repr__(self):
@@ -514,10 +508,7 @@ class PhaseDiagram(MSONable):
 
     @property
     def all_entries_hulldata(self):
-        """
-        Returns:
-            The actual ndarray used to construct the convex hull.
-        """
+        """The ndarray used to construct the convex hull."""
         data = [
             [e.composition.get_atomic_fraction(el) for el in self.elements] + [e.energy_per_atom]
             for e in self.all_entries

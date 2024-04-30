@@ -35,6 +35,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core import Structure
+    from pymatgen.core.periodic_table import Element
 
 __author__ = "Janine George"
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -222,19 +223,18 @@ class LobsterNeighbors(NearNeighbors):
         )
 
     @property
-    def structures_allowed(self):
+    def structures_allowed(self) -> bool:
         """Whether this NearNeighbors class can be used with Structure objects?"""
         return True
 
     @property
-    def molecules_allowed(self):
+    def molecules_allowed(self) -> bool:
         """Whether this NearNeighbors class can be used with Molecule objects?"""
         return False
 
     @property
-    def anion_types(self):
-        """
-        Return the types of anions present in crystal structure as a set
+    def anion_types(self) -> set[Element]:
+        """The types of anions present in crystal structure as a set.
 
         Returns:
             set[Element]: describing anions in the crystal structure.

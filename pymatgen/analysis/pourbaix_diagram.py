@@ -170,10 +170,8 @@ class PourbaixEntry(MSONable, Stringify):
 
     @property
     def normalized_energy(self):
-        """
-        Returns:
-            energy normalized by number of non H or O atoms, e. g.
-            for Zn2O6, energy / 2 or for AgTe3(OH)3, energy / 4.
+        """Energy normalized by number of non H or O atoms, e.g.
+        for Zn2O6, energy / 2 or for AgTe3(OH)3, energy / 4.
         """
         return self.energy * self.normalization_factor
 

@@ -2359,20 +2359,14 @@ class LocalStructOrderParams:
         self._cos_n_p: dict[int, list[float]] = {}
 
     @property
-    def num_ops(self):
-        """
-        Returns:
-            int: the number of different order parameters that are targeted to be calculated.
-        """
+    def num_ops(self) -> int:
+        """Number of different order parameters that are targeted to be calculated."""
         return len(self._types)
 
     @property
     def last_nneigh(self):
-        """
-        Returns:
-            int: the number of neighbors encountered during the most
-                recent order parameter calculation. A value of -1 indicates
-                that no such calculation has yet been performed for this instance.
+        """Number of neighbors encountered during the most recent order parameter calculation.
+        A value of -1 indicates that no such calculation has yet been performed for this instance.
         """
         return len(self._last_nneigh)
 

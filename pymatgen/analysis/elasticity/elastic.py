@@ -129,7 +129,7 @@ class ElasticTensor(NthOrderElasticTensor):
     """
     This class extends Tensor to describe the 3x3x3x3 second-order elastic tensor,
     C_{ijkl}, with various methods for estimating other properties derived from the second
-    order elastic tensor (e. g. bulk modulus, shear modulus, Young's modulus, Poisson's ratio)
+    order elastic tensor (e.g. bulk modulus, shear modulus, Young's modulus, Poisson's ratio)
     in units of eV/A^3.
     """
 
@@ -538,7 +538,7 @@ class ElasticTensorExpansion(TensorCollection):
     to an elastic tensor expansion, which can be used to
     calculate stress and energy density and inherits all
     of the list-based properties of TensorCollection
-    (e. g. symmetrization, voigt conversion, etc.).
+    (e.g. symmetrization, voigt conversion, etc.).
     """
 
     def __init__(self, c_list: Sequence) -> None:
@@ -976,7 +976,7 @@ def generate_pseudo(strain_states, order=3):
     Args:
         strain_states (6xN array like): a list of Voigt-notation strain-states,
             i. e. perturbed indices of the strain as a function of the smallest
-            strain e. g. (0, 1, 0, 0, 1, 0)
+            strain e.g. (0, 1, 0, 0, 1, 0)
         order (int): order of pseudo-inverse to calculate
 
     Returns:
@@ -1015,9 +1015,9 @@ def get_symbol_list(rank, dim=6):
     by index transposition, i. e. C_1121 = C_1211 etc.
 
     Args:
-        dim (int): dimension of matrix/tensor, e. g. 6 for
+        dim (int): dimension of matrix/tensor, e.g. 6 for
             voigt notation and 3 for standard
-        rank (int): rank of tensor, e. g. 3 for third-order ECs
+        rank (int): rank of tensor, e.g. 3 for third-order ECs
 
     Returns:
         c_vec (array): array representing distinct indices

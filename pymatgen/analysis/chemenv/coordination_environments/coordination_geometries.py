@@ -13,7 +13,7 @@ import abc
 import itertools
 import json
 import os
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
@@ -54,17 +54,12 @@ class AbstractChemenvAlgorithm(MSONable, abc.ABC):
         self._algorithm_type = algorithm_type
 
     @abc.abstractmethod
-    def as_dict(self):
+    def as_dict(self) -> dict[str, Any]:
         """A JSON-serializable dict representation of the algorithm."""
 
     @property
-    def algorithm_type(self):
-        """
-        Return the type of algorithm.
-
-        Returns:
-            str: Type of the algorithm
-        """
+    def algorithm_type(self) -> str:
+        """The type of algorithm."""
         return self._algorithm_type
 
     @abc.abstractmethod
@@ -90,21 +85,13 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
         return self.algorithm_type
 
     @property
-    def permutations(self):
-        """
-        Return the permutations to be performed for this algorithm.
-
-        Returns:
-            list: Permutations to be performed.
-        """
+    def permutations(self) -> list[list[int]]:
+        """Permutations to be performed for this algorithm."""
         return self._permutations
 
     @property
     def as_dict(self):
-        """
-        Returns:
-            dict: JSON-serializable representation of this ExplicitPermutationsAlgorithm
-        """
+        """JSON-serializable representation of this ExplicitPermutationsAlgorithm."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

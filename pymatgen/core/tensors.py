@@ -185,7 +185,7 @@ class Tensor(np.ndarray, MSONable):
                 of voigt or full notation tensor, defaults
                 to false
             **kwargs: keyword args for np.isclose. Can take atol
-                and rtol for absolute and relative tolerance, e. g.
+                and rtol for absolute and relative tolerance, e.g.
 
                 >>> tensor.group_array_indices(atol=1e-8)
 
@@ -223,7 +223,7 @@ class Tensor(np.ndarray, MSONable):
                 defaults to false, since tensor notations tend to use
                 one-indexing, rather than zero indexing like python
             **kwargs: keyword args for np.isclose. Can take atol
-                and rtol for absolute and relative tolerance, e. g.
+                and rtol for absolute and relative tolerance, e.g.
 
                 >>> tensor.get_symbol_dict(atol=1e-8)
 
