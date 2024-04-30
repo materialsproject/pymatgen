@@ -89,7 +89,6 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
         """Permutations to be performed for this algorithm."""
         return self._permutations
 
-    @property
     def as_dict(self):
         """JSON-serializable representation of this ExplicitPermutationsAlgorithm."""
         return {
@@ -285,13 +284,10 @@ class SeparationPlane(AbstractChemenvAlgorithm):
                             self._safe_permutations.append(perm)
         return self._safe_permutations
 
-    @property
     def as_dict(self):
         """
-        Return the JSON-serializable dict representation of this SeparationPlane algorithm.
-
         Returns:
-            dict: JSON-serializable representation of this SeparationPlane algorithm.
+            dict: JSON-serializable dict representation of this SeparationPlane algorithm.
         """
         return {
             "@module": type(self).__module__,
