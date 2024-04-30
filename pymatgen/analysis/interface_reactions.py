@@ -563,11 +563,11 @@ class InterfacialReactivity(MSONable):
 
     @property
     def labels(self):
-        """Get a dictionary containing kink information:
+        """A dictionary containing kink information:
         {index: 'x= mixing_ratio energy= reaction_energy reaction_equation'}.
         e.g. {1: 'x= 0 energy = 0 Mn -> Mn',
-               2: 'x= 0.5 energy = -15 O2 + Mn -> MnO2',
-               3: 'x= 1 energy = 0 O2 -> O2'}.
+              2: 'x= 0.5 energy = -15 O2 + Mn -> MnO2',
+              3: 'x= 1 energy = 0 O2 -> O2'}.
         """
         return {
             j: f"x= {x:.4} energy in eV/atom = {energy:.4} {reaction}" for j, x, energy, reaction, _ in self.get_kinks()

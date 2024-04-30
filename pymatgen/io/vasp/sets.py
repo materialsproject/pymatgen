@@ -2132,7 +2132,7 @@ class MVLSlabSet(DictSet):
 
     @property
     def kpoints_updates(self):
-        """Get updates to the kpoints configuration for this calculation type.
+        """Updates to the kpoints configuration for this calculation type.
 
         k_product, default to 50, is kpoint number * length for a & b
         directions, also for c direction in bulk calculations
@@ -2390,7 +2390,7 @@ class MITMDSet(DictSet):
 
     @property
     def incar_updates(self):
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         # MD default settings
         return {
             "TEBEG": self.start_temp,

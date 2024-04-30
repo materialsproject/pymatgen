@@ -124,23 +124,18 @@ class EOSBase(ABC):
         return self.func(volume)
 
     @property
-    def e0(self):
+    def e0(self) -> float:
         """Returns the min energy."""
         return self._params[0]
 
     @property
-    def b0(self):
-        """Get the bulk modulus.
-        Note: the units for the bulk modulus: unit of energy/unit of volume^3.
-        """
+    def b0(self) -> float:
+        """The bulk modulus in units of energy/unit of volume^3."""
         return self._params[1]
 
     @property
-    def b0_GPa(self):
-        """Get the bulk modulus in GPa.
-        Note: This assumes that the energy and volumes are in eV and Ang^3
-            respectively.
-        """
+    def b0_GPa(self) -> FloatWithUnit:
+        """The bulk modulus in GPa. This assumes the energy and volumes are in eV and Ang^3."""
         return FloatWithUnit(self.b0, "eV ang^-3").to("GPa")
 
     @property

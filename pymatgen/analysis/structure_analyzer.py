@@ -299,7 +299,7 @@ class VoronoiConnectivity:
 
     @property
     def max_connectivity(self):
-        """Get the 2d array [site_i, site_j] that represents the maximum connectivity of
+        """The 2d array [site_i, site_j] that represents the maximum connectivity of
         site i to any periodic image of site j.
         """
         return np.max(self.connectivity_array, axis=2)

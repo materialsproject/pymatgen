@@ -107,22 +107,22 @@ class PourbaixEntry(MSONable, Stringify):
 
     @property
     def npH(self):
-        """Get the number of H."""
+        """The number of H."""
         return self.entry.composition.get("H", 0) - 2 * self.entry.composition.get("O", 0)
 
     @property
     def nH2O(self):
-        """Get the number of H2O."""
+        """The number of H2O."""
         return self.entry.composition.get("O", 0)
 
     @property
     def nPhi(self):
-        """Get the number of electrons."""
+        """The number of electrons."""
         return self.npH - self.charge
 
     @property
     def name(self):
-        """Get the name for entry."""
+        """The entry's name."""
         if self.phase_type == "Solid":
             return f"{self.entry.reduced_formula}(s)"
 
@@ -190,8 +190,8 @@ class PourbaixEntry(MSONable, Stringify):
 
     @property
     def conc_term(self):
-        """Get the concentration contribution to the free energy,
-        and should only be present when there are ions in the entry.
+        """The concentration contribution to the free energy. Should only be present
+        when there are ions in the entry.
         """
         return PREFAC * np.log10(self.concentration)
 

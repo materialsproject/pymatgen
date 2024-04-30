@@ -65,7 +65,7 @@ class ChemicalShielding(SquareTensor):
 
     @property
     def principal_axis_system(self):
-        """Get a chemical shielding tensor aligned to the principle axis system
+        """A chemical shielding tensor aligned to the principle axis system
         so that only the 3 diagonal components are non-zero.
         """
         return ChemicalShielding(np.diag(np.sort(np.linalg.eigvals(self.symmetrized))))
@@ -154,8 +154,8 @@ class ElectricFieldGradient(SquareTensor):
 
     @property
     def principal_axis_system(self):
-        """Get a electric field gradient tensor aligned to the principle axis system so that only the 3 diagonal
-        components are non-zero.
+        """An electric field gradient tensor aligned to the principle axis system so that
+        only the 3 diagonal components are non-zero.
         """
         return ElectricFieldGradient(np.diag(np.sort(np.linalg.eigvals(self))))
 

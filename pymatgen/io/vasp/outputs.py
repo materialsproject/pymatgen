@@ -691,8 +691,8 @@ class Vasprun(MSONable):
         raise VaspParseError("Length of U value parameters and atomic symbols are mismatched")
 
     @property
-    def run_type(self):
-        """Get the run type. Currently detects GGA, metaGGA, HF, HSE, B3LYP,
+    def run_type(self) -> str:
+        """The run type. Currently detects GGA, metaGGA, HF, HSE, B3LYP,
         and hybrid functionals based on relevant INCAR tags. LDA is assigned if
         PAW POTCARs are used and no other functional is detected.
 
@@ -736,41 +736,41 @@ class Vasprun(MSONable):
         }
 
         if self.parameters.get("AEXX", 1.00) == 1.00:
-            rt = "HF"
+            run_type = "HF"
         elif self.parameters.get("HFSCREEN", 0.30) == 0.30:
-            rt = "HSE03"
+            run_type = "HSE03"
         elif self.parameters.get("HFSCREEN", 0.20) == 0.20:
-            rt = "HSE06"
+            run_type = "HSE06"
         elif self.parameters.get("AEXX", 0.20) == 0.20:
-            rt = "B3LYP"
+            run_type = "B3LYP"
         elif self.parameters.get("LHFCALC", True):
-            rt = "PBEO or other Hybrid Functional"
+            run_type = "PBEO or other Hybrid Functional"
         elif self.incar.get("METAGGA") and self.incar.get("METAGGA") not in [
             "--",
             "None",
         ]:
             incar_tag = self.incar.get("METAGGA", "").strip().upper()
-            rt = METAGGA_TYPES.get(incar_tag, incar_tag)
+            run_type = METAGGA_TYPES.get(incar_tag, incar_tag)
         elif self.parameters.get("GGA"):
             incar_tag = self.parameters.get("GGA", "").strip().upper()
-            rt = GGA_TYPES.get(incar_tag, incar_tag)
+            run_type = GGA_TYPES.get(incar_tag, incar_tag)
         elif self.potcar_symbols[0].split()[0] == "PAW":
-            rt = "LDA"
+            run_type = "LDA"
         else:
-            rt = "unknown"
+            run_type = "unknown"
             warnings.warn("Unknown run type!")
 
         if self.is_hubbard or self.parameters.get("LDAU", True):
-            rt += "+U"
+            run_type += "+U"
 
         if self.parameters.get("LUSE_VDW", False):
-            rt += "+rVV10"
+            run_type += "+rVV10"
         elif self.incar.get("IVDW") in IVDW_TYPES:
-            rt += "+vdW-" + IVDW_TYPES[self.incar.get("IVDW")]
+            run_type += "+vdW-" + IVDW_TYPES[self.incar.get("IVDW")]
         elif self.incar.get("IVDW"):
-            rt += "+vdW-unknown"
+            run_type += "+vdW-unknown"
 
-        return rt
+        return run_type
 
     @property
     def is_hubbard(self) -> bool:

@@ -151,7 +151,7 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @property
     def compliance_tensor(self):
-        """Get the Voigt notation compliance tensor, which is the matrix
+        """The Voigt notation compliance tensor, which is the matrix
         inverse of the Voigt notation elastic tensor.
         """
         s_voigt = np.linalg.inv(self.voigt)

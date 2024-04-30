@@ -216,12 +216,8 @@ class Header(MSONable):
         return cls(structure, source, comment)
 
     @property
-    def structure_symmetry(self):
-        """Get space number and space group.
-
-        Returns:
-            Space number and space group list
-        """
+    def structure_symmetry(self) -> tuple[str, int]:
+        """The space group symbol and space number of the structure."""
         return self.space_group, self.space_number
 
     @property

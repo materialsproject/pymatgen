@@ -231,18 +231,14 @@ class SlabEntry(ComputedStructureEntry):
 
     @property
     def get_unit_primitive_area(self):
-        """Get the surface area of the adsorbed system per
-        unit area of the primitive slab system.
-        """
+        """The surface area of the adsorbed system per unit area of the primitive slab system."""
         A_ads = self.surface_area
         A_clean = self.clean_entry.surface_area
         return A_ads / A_clean
 
     @property
     def get_monolayer(self):
-        """Get the primitive unit surface area density of the
-        adsorbate.
-        """
+        """The primitive unit surface area density of the adsorbate."""
         unit_a = self.get_unit_primitive_area
         n_surfs = self.Nsurfs_ads_in_slab
         n_ads = self.Nads_in_slab

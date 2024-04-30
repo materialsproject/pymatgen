@@ -48,7 +48,7 @@ class Stress(SquareTensor):
 
     @property
     def dev_principal_invariants(self):
-        """Get the principal invariants of the deviatoric stress tensor,
+        """The principal invariants of the deviatoric stress tensor,
         which is calculated by finding the coefficients of the characteristic
         polynomial of the stress tensor minus the identity times the mean
         stress.

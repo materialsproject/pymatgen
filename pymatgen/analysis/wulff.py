@@ -708,14 +708,14 @@ class WulffShape:
 
     @property
     def tot_corner_sites(self):
-        """Get the number of vertices in the convex hull.
+        """The number of vertices in the convex hull.
         Useful for identifying catalytically active sites.
         """
         return len(self.wulff_convex.vertices)
 
     @property
     def tot_edges(self):
-        """Get the number of edges in the convex hull.
+        """The number of edges in the convex hull.
         Useful for identifying catalytically active sites.
         """
         all_edges = []
