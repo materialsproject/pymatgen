@@ -203,8 +203,7 @@ class BVAnalyzer:
         return prob
 
     def get_valences(self, structure: Structure):
-        """
-        Returns a list of valences for each site in the structure.
+        """Get a list of valences for each site in the structure.
 
         Args:
             structure: Structure to analyze

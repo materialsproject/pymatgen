@@ -937,8 +937,7 @@ class KSampling(AbivarAble, MSONable):
         use_time_reversal=True,
         shifts=(0.5, 0.5, 0.5),
     ):
-        """
-        Returns an automatic Kpoint object based on a structure and a kpoint
+        """Get an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes for hexagonal cells and Monkhorst-Pack grids otherwise.
 
         Algorithm:

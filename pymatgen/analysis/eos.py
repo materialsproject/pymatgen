@@ -130,16 +130,14 @@ class EOSBase(ABC):
 
     @property
     def b0(self):
-        """
-        Returns the bulk modulus.
+        """Get the bulk modulus.
         Note: the units for the bulk modulus: unit of energy/unit of volume^3.
         """
         return self._params[1]
 
     @property
     def b0_GPa(self):
-        """
-        Returns the bulk modulus in GPa.
+        """Get the bulk modulus in GPa.
         Note: This assumes that the energy and volumes are in eV and Ang^3
             respectively.
         """
@@ -157,12 +155,7 @@ class EOSBase(ABC):
 
     @property
     def results(self):
-        """
-        Returns a summary dict.
-
-        Returns:
-            dict
-        """
+        """A summary dict."""
         return {"e0": self.e0, "b0": self.b0, "b1": self.b1, "v0": self.v0}
 
     def plot(self, width=8, height=None, ax: plt.Axes = None, dpi=None, **kwargs):

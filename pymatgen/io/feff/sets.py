@@ -59,8 +59,7 @@ class AbstractFeffInputSet(MSONable, abc.ABC):
     @property
     @abc.abstractmethod
     def atoms(self):
-        """
-        Returns Atoms string from a structure that goes in feff.inp file.
+        """Get Atoms string from a structure that goes in feff.inp file.
 
         Returns:
             Atoms object.

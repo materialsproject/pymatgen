@@ -94,8 +94,7 @@ class LammpsInputFile(InputFile):
 
     @property
     def ncomments(self) -> int:
-        """
-        Returns the number of comments in the current LammpsInputFile. Includes the blocks of comments as well
+        """Get the number of comments in the current LammpsInputFile. Includes the blocks of comments as well
         as inline comments (comment lines within blocks of LAMMPS commands).
         """
         n_comments = 0
@@ -136,8 +135,7 @@ class LammpsInputFile(InputFile):
         return args if len(args) != 1 else args[0]
 
     def contains_command(self, command: str, stage_name: str | None = None) -> bool:
-        """
-        Returns whether a given command is present in the LammpsInputFile.
+        """Get whether a given command is present in the LammpsInputFile.
         A stage name can be given; in this case the search will happen only for this stage.
 
         Args:

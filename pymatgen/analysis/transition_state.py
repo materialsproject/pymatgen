@@ -97,7 +97,7 @@ class NEBAnalysis(MSONable):
                 coordinate. Must be same length as outcar.
             interpolation_order (int): Order of polynomial to use to
                 interpolate between images. Same format as order parameter in
-                scipy.interplotate.PiecewisePolynomial.
+                scipy.interpolate.PiecewisePolynomial.
         """
         if len(outcars) != len(structures):
             raise ValueError("# of Outcars must be same as # of Structures")
@@ -114,8 +114,7 @@ class NEBAnalysis(MSONable):
             prev = st
         rms_dist = np.cumsum(rms_dist)
 
-        energies = []
-        forces = []
+        energies, forces = [], []
         for idx, outcar in enumerate(outcars):
             outcar.read_neb()
             energies.append(outcar.data["energy"])
@@ -128,8 +127,7 @@ class NEBAnalysis(MSONable):
         return cls(r=rms_dist, energies=energies, forces=forces, structures=structures, **kwargs)
 
     def get_extrema(self, normalize_rxn_coordinate=True):
-        """
-        Returns the positions of the extrema along the MEP. Both local
+        """Get the positions of the extrema along the MEP. Both local
         minimums and maximums are returned.
 
         Args:

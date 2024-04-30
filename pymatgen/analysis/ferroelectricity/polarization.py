@@ -315,8 +315,7 @@ class Polarization:
         return np.array(adjust_pol)
 
     def get_lattice_quanta(self, convert_to_muC_per_cm2=True, all_in_polar=True):
-        """
-        Returns the dipole / polarization quanta along a, b, and c for
+        """Get the dipole / polarization quanta along a, b, and c for
         all structures.
         """
         lattices = [s.lattice for s in self.structures]

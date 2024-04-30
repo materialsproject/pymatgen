@@ -618,8 +618,7 @@ class StructureEnvironments(MSONable):
         return csms[0]
 
     def get_csms(self, isite, mp_symbol) -> list:
-        """
-        Returns the continuous symmetry measure(s) of site with index isite with respect to the
+        """Get the continuous symmetry measure(s) of site with index isite with respect to the
         perfect coordination environment with mp_symbol. For some environments, a given mp_symbol might not
         be available (if there is no voronoi parameters leading to a number of neighbors corresponding to
         the coordination number of environment mp_symbol). For some environments, a given mp_symbol might
@@ -2084,8 +2083,7 @@ class ChemicalEnvironments(MSONable):
         return self.coord_geoms[mp_symbol]
 
     def __len__(self):
-        """
-        Returns the number of coordination geometries in this ChemicalEnvironments object.
+        """Get the number of coordination geometries in this ChemicalEnvironments object.
 
         Returns:
             Number of coordination geometries in this ChemicalEnvironments object.
@@ -2096,8 +2094,7 @@ class ChemicalEnvironments(MSONable):
         yield from self.coord_geoms.items()
 
     def minimum_geometry(self, symmetry_measure_type=None, max_csm=None):
-        """
-        Returns the geometry with the minimum continuous symmetry measure of this ChemicalEnvironments.
+        """Get the geometry with the minimum continuous symmetry measure of this ChemicalEnvironments.
 
         Returns:
             tuple (symbol, csm) with symbol being the geometry with the minimum continuous symmetry measure and
@@ -2120,8 +2117,7 @@ class ChemicalEnvironments(MSONable):
         return cglist[imin], csmlist[imin]
 
     def minimum_geometries(self, n=None, symmetry_measure_type=None, max_csm=None):
-        """
-        Returns a list of geometries with increasing continuous symmetry measure in this ChemicalEnvironments object.
+        """Get a list of geometries with increasing continuous symmetry measure in this ChemicalEnvironments object.
 
         Args:
             n: Number of geometries to be included in the list.
@@ -2209,8 +2205,7 @@ class ChemicalEnvironments(MSONable):
         }
 
     def __str__(self):
-        """
-        Returns a string representation of the ChemicalEnvironments object.
+        """Get a string representation of the ChemicalEnvironments object.
 
         Returns:
             String representation of the ChemicalEnvironments object.
@@ -2316,8 +2311,7 @@ class ChemicalEnvironments(MSONable):
         return True
 
     def as_dict(self):
-        """
-        Returns a dictionary representation of the ChemicalEnvironments object.
+        """Get a dictionary representation of the ChemicalEnvironments object.
 
         Returns:
             A dictionary representation of the ChemicalEnvironments object.

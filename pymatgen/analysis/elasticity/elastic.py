@@ -151,8 +151,7 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @property
     def compliance_tensor(self):
-        """
-        Returns the Voigt notation compliance tensor, which is the matrix
+        """Get the Voigt notation compliance tensor, which is the matrix
         inverse of the Voigt notation elastic tensor.
         """
         s_voigt = np.linalg.inv(self.voigt)
@@ -426,8 +425,7 @@ class ElasticTensor(NthOrderElasticTensor):
     def get_structure_property_dict(
         self, structure: Structure, include_base_props: bool = True, ignore_errors: bool = False
     ) -> dict[str, float | Structure | None]:
-        """
-        Returns a dictionary of properties derived from the elastic tensor
+        """Get a dictionary of properties derived from the elastic tensor
         and an associated structure.
 
         Args:
@@ -756,8 +754,7 @@ class ElasticTensorExpansion(TensorCollection):
         return strain
 
     def get_effective_ecs(self, strain, order=2):
-        """
-        Returns the effective elastic constants
+        """Get the effective elastic constants
         from the elastic tensor expansion.
 
         Args:

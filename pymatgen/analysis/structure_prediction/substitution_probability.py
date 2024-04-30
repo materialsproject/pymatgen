@@ -250,8 +250,7 @@ class SubstitutionPredictor:
         return output
 
     def composition_prediction(self, composition, to_this_composition=True):
-        """
-        Returns charged balanced substitutions from a starting or ending
+        """Get charged balanced substitutions from a starting or ending
         composition.
 
         Args:

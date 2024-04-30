@@ -281,8 +281,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         scaled: bool | None = None,
         two_theta_range: tuple[float, float] | None = None,
     ) -> pd.DataFrame:
-        """
-        Returns all relevant TEM DP info in a pandas dataframe.
+        """Get all relevant TEM DP info in a pandas dataframe.
 
         Args:
             structure (Structure): The input structure.
@@ -379,8 +378,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
     @staticmethod
     def get_interplanar_angle(structure: Structure, p1: tuple[int, int, int], p2: tuple[int, int, int]) -> float:
-        """
-        Returns the interplanar angle (in degrees) between the normal of two crystal planes.
+        """Get the interplanar angle (in degrees) between the normal of two crystal planes.
         Formulas from International Tables for Crystallography Volume C pp. 2-9.
 
         Args:

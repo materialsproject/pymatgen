@@ -149,8 +149,7 @@ class BalancedReaction(MSONable):
         self._coeffs = [c * scale_factor for c in coeffs]
 
     def get_el_amount(self, element: Element | Species) -> float:
-        """
-        Returns the amount of the element in the reaction.
+        """Get the amount of the element in the reaction.
 
         Args:
             element (Element/Species): Element in the reaction
@@ -236,9 +235,7 @@ class BalancedReaction(MSONable):
         return cls._str_from_formulas(r_coeffs, r_formulas), factor
 
     def as_entry(self, energies) -> ComputedEntry:
-        """
-        Returns a ComputedEntry representation of the reaction.
-        """
+        """Get a ComputedEntry representation of the reaction."""
         relevant_comp = [comp * abs(coeff) for coeff, comp in zip(self._coeffs, self._all_comp)]
         comp: Composition = sum(relevant_comp, Composition())  # type: ignore[assignment]
 

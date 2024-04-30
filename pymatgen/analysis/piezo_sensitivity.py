@@ -52,8 +52,7 @@ class BornEffectiveCharge:
             warnings.warn("Input born effective charge tensor does not satisfy charge neutrality")
 
     def get_BEC_operations(self, eigtol=1e-5, opstol=1e-3):
-        """
-        Returns the symmetry operations which maps the tensors
+        """Get the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
         [site index 1, site index 2, [Symmops mapping from site
         index 1 to site index 2]].
@@ -186,8 +185,7 @@ class InternalStrainTensor:
             warnings.warn("Input internal strain tensor does not satisfy standard symmetries")
 
     def get_IST_operations(self, opstol=1e-3):
-        """
-        Returns the symmetry operations which maps the tensors
+        """Get the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
         [site index 1, site index 2, [Symmops mapping from site
         index 1 to site index 2]].
@@ -275,8 +273,7 @@ class ForceConstantMatrix:
         self.FCM_operations = None
 
     def get_FCM_operations(self, eigtol=1e-5, opstol=1e-5):
-        """
-        Returns the symmetry operations which maps the tensors
+        """Get the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
         [site index 1a, site index 1b, site index 2a, site index 2b,
         [Symmops mapping from site index 1a, 1b to site index 2a, 2b]].

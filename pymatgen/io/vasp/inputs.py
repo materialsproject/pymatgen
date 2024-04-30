@@ -1293,8 +1293,7 @@ class Kpoints(MSONable):
 
     @classmethod
     def automatic_density(cls, structure: Structure, kppa: float, force_gamma: bool = False) -> Self:
-        """
-        Returns an automatic Kpoint object based on a structure and a kpoint
+        """Get an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes for hexagonal cells and face-centered cells,
         Monkhorst-Pack grids otherwise.
 
@@ -1341,8 +1340,7 @@ class Kpoints(MSONable):
 
     @classmethod
     def automatic_gamma_density(cls, structure: Structure, kppa: float) -> Self:
-        """
-        Returns an automatic Kpoint object based on a structure and a kpoint
+        """Get an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes always. For GW.
 
         Algorithm:
@@ -1381,8 +1379,7 @@ class Kpoints(MSONable):
 
     @classmethod
     def automatic_density_by_vol(cls, structure: Structure, kppvol: int, force_gamma: bool = False) -> Self:
-        """
-        Returns an automatic Kpoint object based on a structure and a kpoint
+        """Get an automatic Kpoint object based on a structure and a kpoint
         density per inverse Angstrom^3 of reciprocal cell.
 
         Algorithm:
@@ -1404,8 +1401,7 @@ class Kpoints(MSONable):
     def automatic_density_by_lengths(
         cls, structure: Structure, length_densities: Sequence[float], force_gamma: bool = False
     ) -> Self:
-        """
-        Returns an automatic Kpoint object based on a structure and a k-point
+        """Get an automatic Kpoint object based on a structure and a k-point
         density normalized by lattice constants.
 
         Algorithm:

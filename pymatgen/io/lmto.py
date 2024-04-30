@@ -90,8 +90,7 @@ class LMTOCtrl:
         return "\n".join(lines) + "\n"
 
     def as_dict(self):
-        """
-        Returns the CTRL as a dictionary. "SITE" and "CLASS" are of
+        """Get the CTRL as a dictionary. "SITE" and "CLASS" are of
         the form {'CATEGORY': {'TOKEN': value}}, the rest is of the
         form 'TOKEN'/'CATEGORY': value. It gets the conventional standard
         structure because primitive cells use the conventional

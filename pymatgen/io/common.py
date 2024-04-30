@@ -97,8 +97,7 @@ class VolumetricData(MSONable):
         return self._spin_data
 
     def get_axis_grid(self, ind):
-        """
-        Returns the grid for a particular axis.
+        """Get the grid for a particular axis.
 
         Args:
             ind (int): Axis index.

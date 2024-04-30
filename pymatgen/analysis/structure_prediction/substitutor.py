@@ -65,8 +65,7 @@ class Substitutor(MSONable):
         self._symprec = symprec
 
     def get_allowed_species(self):
-        """
-        Returns the species in the domain of the probability function
+        """Get the species in the domain of the probability function
         any other specie will not work.
         """
         return self._sp.species

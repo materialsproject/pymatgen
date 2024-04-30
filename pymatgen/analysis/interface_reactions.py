@@ -207,8 +207,7 @@ class InterfacialReactivity(MSONable):
         return fig
 
     def get_dataframe(self) -> DataFrame:
-        """
-        Returns a pandas DataFrame representation of the data produced by the
+        """Get a pandas DataFrame representation of the data produced by the
         get_kinks() method.
         """
         rxns = [
@@ -224,8 +223,7 @@ class InterfacialReactivity(MSONable):
         return DataFrame(rxns)
 
     def get_critical_original_kink_ratio(self):
-        """
-        Returns a list of molar mixing ratio for each kink between ORIGINAL
+        """Get a list of molar mixing ratio for each kink between ORIGINAL
         (instead of processed) reactant compositions. This is the
         same list as mixing ratio obtained from get_kinks method
         if self.norm = False.
@@ -243,8 +241,7 @@ class InterfacialReactivity(MSONable):
         return ratios
 
     def _get_original_composition_ratio(self, reaction):
-        """
-        Returns the molar mixing ratio between the reactants with ORIGINAL (
+        """Get the molar mixing ratio between the reactants with ORIGINAL (
         instead of processed) compositions for a reaction.
 
         Args:
@@ -566,8 +563,7 @@ class InterfacialReactivity(MSONable):
 
     @property
     def labels(self):
-        """
-        Returns a dictionary containing kink information:
+        """Get a dictionary containing kink information:
         {index: 'x= mixing_ratio energy= reaction_energy reaction_equation'}.
         E.g., {1: 'x= 0 energy = 0 Mn -> Mn',
                2: 'x= 0.5 energy = -15 O2 + Mn -> MnO2',

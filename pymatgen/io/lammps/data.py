@@ -153,8 +153,7 @@ class LammpsBox(MSONable):
         return np.dot(np.cross(matrix[0], matrix[1]), matrix[2])
 
     def get_str(self, significant_figures: int = 6) -> str:
-        """
-        Returns the string representation of simulation box in LAMMPS
+        """Get the string representation of simulation box in LAMMPS
         data file format.
 
         Args:
@@ -323,8 +322,7 @@ class LammpsData(MSONable):
         )
 
     def get_str(self, distance: int = 6, velocity: int = 8, charge: int = 4, hybrid: bool = True) -> str:
-        """
-        Returns the string representation of LammpsData, essentially
+        """Get the string representation of LammpsData, essentially
         the string to be written to a file. Support hybrid style
         coeffs read and write.
 
@@ -1459,8 +1457,7 @@ class CombinedData(LammpsData):
         return cls(mols, names, list_of_numbers, coordinates, style_return)
 
     def get_str(self, distance: int = 6, velocity: int = 8, charge: int = 4, hybrid: bool = True) -> str:
-        """
-        Returns the string representation of CombinedData, essentially
+        """Get the string representation of CombinedData, essentially
         the string to be written to a file. Combination info is included
         as a comment. For single molecule ID data, the info format is:
             num name

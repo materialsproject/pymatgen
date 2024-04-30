@@ -762,8 +762,7 @@ class CoordinationGeometry:
         return len(self.permutations)
 
     def ref_permutation(self, permutation):
-        """
-        Returns the reference permutation for a set of equivalent permutations.
+        """Get the reference permutation for a set of equivalent permutations.
 
         Can be useful to skip permutations that have already been performed.
 
@@ -789,16 +788,14 @@ class CoordinationGeometry:
         return self.central_site
 
     def faces(self, sites, permutation=None):
-        """
-        Returns the list of faces of this coordination geometry. Each face is given as a
+        """Get the list of faces of this coordination geometry. Each face is given as a
         list of its vertices coordinates.
         """
         coords = [site.coords for site in sites] if permutation is None else [sites[ii].coords for ii in permutation]
         return [[coords[ii] for ii in face] for face in self._faces]
 
     def edges(self, sites, permutation=None, input="sites"):
-        """
-        Returns the list of edges of this coordination geometry. Each edge is given as a
+        """Get the list of edges of this coordination geometry. Each edge is given as a
         list of its end vertices coordinates.
         """
         if input == "sites":
@@ -817,8 +814,7 @@ class CoordinationGeometry:
         return [[coords[ii] for ii in edge] for edge in self._edges]
 
     def solid_angles(self, permutation=None):
-        """
-        Returns the list of "perfect" solid angles Each edge is given as a
+        """Get the list of "perfect" solid angles Each edge is given as a
         list of its end vertices coordinates.
         """
         if permutation is None:
@@ -968,8 +964,7 @@ class AllCoordinationGeometries(dict):
         return "\n".join(outs)
 
     def get_geometries(self, coordination=None, returned="cg"):
-        """
-        Returns a list of coordination geometries with the given coordination number.
+        """Get a list of coordination geometries with the given coordination number.
 
         Args:
             coordination: The coordination number of which the list of coordination geometries are returned.
@@ -1032,8 +1027,7 @@ class AllCoordinationGeometries(dict):
         return geom
 
     def get_implemented_geometries(self, coordination=None, returned="cg", include_deactivated=False):
-        """
-        Returns a list of the implemented coordination geometries with the given coordination number.
+        """Get a list of the implemented coordination geometries with the given coordination number.
 
         Args:
             coordination: The coordination number of which the list of implemented coordination geometries
@@ -1063,8 +1057,7 @@ class AllCoordinationGeometries(dict):
         return geom
 
     def get_not_implemented_geometries(self, coordination=None, returned="mp_symbol"):
-        """
-        Returns a list of the implemented coordination geometries with the given coordination number.
+        """Get a list of the implemented coordination geometries with the given coordination number.
 
         Args:
             coordination: The coordination number of which the list of implemented coordination geometries
@@ -1089,8 +1082,7 @@ class AllCoordinationGeometries(dict):
         return geom
 
     def get_geometry_from_name(self, name):
-        """
-        Returns the coordination geometry of the given name.
+        """Get the coordination geometry of the given name.
 
         Args:
             name: The name of the coordination geometry.
@@ -1101,8 +1093,7 @@ class AllCoordinationGeometries(dict):
         raise LookupError(f"No coordination geometry found with name {name!r}")
 
     def get_geometry_from_IUPAC_symbol(self, IUPAC_symbol):
-        """
-        Returns the coordination geometry of the given IUPAC symbol.
+        """Get the coordination geometry of the given IUPAC symbol.
 
         Args:
             IUPAC_symbol: The IUPAC symbol of the coordination geometry.
@@ -1113,8 +1104,7 @@ class AllCoordinationGeometries(dict):
         raise LookupError(f"No coordination geometry found with IUPAC symbol {IUPAC_symbol!r}")
 
     def get_geometry_from_IUCr_symbol(self, IUCr_symbol):
-        """
-        Returns the coordination geometry of the given IUCr symbol.
+        """Get the coordination geometry of the given IUCr symbol.
 
         Args:
             IUCr_symbol: The IUCr symbol of the coordination geometry.
@@ -1125,8 +1115,7 @@ class AllCoordinationGeometries(dict):
         raise LookupError(f"No coordination geometry found with IUCr symbol {IUCr_symbol!r}")
 
     def get_geometry_from_mp_symbol(self, mp_symbol):
-        """
-        Returns the coordination geometry of the given mp_symbol.
+        """Get the coordination geometry of the given mp_symbol.
 
         Args:
             mp_symbol: The mp_symbol of the coordination geometry.

@@ -42,8 +42,7 @@ class XYZ:
 
     @property
     def molecule(self) -> Molecule:
-        """
-        Returns molecule associated with this XYZ. In case of multi-frame
+        """Get molecule associated with this XYZ. In case of multi-frame
         XYZ, returns the last frame.
         """
         return self._mols[-1]  # type: ignore[return-value]

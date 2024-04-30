@@ -26,8 +26,7 @@ class XSF:
         self.structure = structure
 
     def to_str(self, atom_symbol: bool = True) -> str:
-        """
-        Returns a string with the structure in XSF format
+        """Get a string with the structure in XSF format
         See http://www.xcrysden.org/doc/XSF.html.
 
         Args:

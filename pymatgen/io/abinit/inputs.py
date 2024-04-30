@@ -145,8 +145,7 @@ class ShiftMode(Enum):
 
     @classmethod
     def from_object(cls, obj) -> Self:
-        """
-        Returns an instance of ShiftMode based on the type of object passed. Converts strings to ShiftMode depending
+        """Get an instance of ShiftMode based on the type of object passed. Converts strings to ShiftMode depending
         on the initial letter of the string. G for GammaCentered, M for MonkhorstPack,
         S for Symmetric, O for OneSymmetric.
         Case insensitive.

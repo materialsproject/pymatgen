@@ -192,16 +192,14 @@ class PourbaixEntry(MSONable, Stringify):
 
     @property
     def conc_term(self):
-        """
-        Returns the concentration contribution to the free energy,
+        """Get the concentration contribution to the free energy,
         and should only be present when there are ions in the entry.
         """
         return PREFAC * np.log10(self.concentration)
 
     # TODO: not sure if these are strictly necessary with refactor
     def as_dict(self):
-        """
-        Returns dict which contains Pourbaix Entry data.
+        """Get dict which contains Pourbaix Entry data.
         Note that the pH, voltage, H2O factors are always calculated when
         constructing a PourbaixEntry object.
         """
@@ -702,8 +700,7 @@ class PourbaixDiagram(MSONable):
 
     @staticmethod
     def get_pourbaix_domains(pourbaix_entries, limits=None):
-        """
-        Returns a set of Pourbaix stable domains (i. e. polygons) in
+        """Get a set of Pourbaix stable domains (i. e. polygons) in
         pH-V space from a list of pourbaix_entries.
 
         This function works by using scipy's HalfspaceIntersection
@@ -1046,8 +1043,7 @@ class PourbaixPlotter:
         return ax
 
     def domain_vertices(self, entry):
-        """
-        Returns the vertices of the Pourbaix domain.
+        """Get the vertices of the Pourbaix domain.
 
         Args:
             entry: Entry for which domain vertices are desired

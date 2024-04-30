@@ -2769,8 +2769,7 @@ class LocalStructOrderParams:
         return self._types[index]
 
     def get_parameters(self, index):
-        """
-        Returns list of floats that represents
+        """Get list of floats that represents
         the parameters associated
         with calculation of the order
         parameter that was defined at the index provided.

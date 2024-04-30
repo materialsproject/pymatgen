@@ -190,8 +190,7 @@ class RelaxationAnalyzer:
         self.final = final_structure
 
     def get_percentage_volume_change(self) -> float:
-        """
-        Returns the percentage volume change.
+        """Get the percentage volume change.
 
         Returns:
             float: Volume change in percent. 0.055 means a 5.5% increase.
@@ -199,8 +198,7 @@ class RelaxationAnalyzer:
         return self.final.volume / self.initial.volume - 1
 
     def get_percentage_lattice_parameter_changes(self) -> dict[str, float]:
-        """
-        Returns the percentage lattice parameter changes.
+        """Get the percentage lattice parameter changes.
 
         Returns:
             dict[str, float]: Percent changes in lattice parameter, e.g.,
@@ -212,8 +210,7 @@ class RelaxationAnalyzer:
         return {length: getattr(final_latt, length) / getattr(initial_latt, length) - 1 for length in ["a", "b", "c"]}
 
     def get_percentage_bond_dist_changes(self, max_radius: float = 3.0) -> dict[int, dict[int, float]]:
-        """
-        Returns the percentage bond distance changes for each site up to a
+        """Get the percentage bond distance changes for each site up to a
         maximum radius for nearest neighbors.
 
         Args:
@@ -307,15 +304,13 @@ class VoronoiConnectivity:
 
     @property
     def max_connectivity(self):
-        """
-        Returns the 2d array [site_i, site_j] that represents the maximum connectivity of
+        """Get the 2d array [site_i, site_j] that represents the maximum connectivity of
         site i to any periodic image of site j.
         """
         return np.max(self.connectivity_array, axis=2)
 
     def get_connections(self):
-        """
-        Returns a list of site pairs that are Voronoi Neighbors, along
+        """Get a list of site pairs that are Voronoi Neighbors, along
         with their real-space distances.
         """
         con = []

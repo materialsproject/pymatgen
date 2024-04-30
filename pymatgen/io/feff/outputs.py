@@ -258,14 +258,14 @@ class Xmu(MSONable):
     r"""
     Parser for data in 'xmu.dat' file.
     The file 'xmu.dat' contains XANES, EXAFS or NRIXS data depending on the
-    situation; \\mu, \\mu_0, and \\chi = \\chi * \\mu_0/ \\mu_0/(edge+50eV) as
+    situation; \mu, \mu_0, and \chi = \chi * \mu_0 / \mu_0 / (edge+50eV) as
     functions of absolute energy E, relative energy E - E_f and wave number k.
 
     Default attributes:
         xmu: Photon absorption cross section of absorbing atom in material
         Energies: Energies of data point
         relative_energies: E - E_fermi
-        wavenumber: k=\\sqrt(E -E_fermi)
+        wavenumber: k=\sqrt(E -E_fermi)
         mu: The total absorption cross-section.
         mu0: The embedded atomic background absorption.
         chi: fine structure.
@@ -317,16 +317,14 @@ class Xmu(MSONable):
 
     @property
     def relative_energies(self):
-        """
-        Returns energy with respect to the Fermi level.
+        """Get energy with respect to the Fermi level.
         E - E_f.
         """
         return self.data[:, 1]
 
     @property
     def wavenumber(self):
-        r"""
-        Returns The wave number in units of \\AA^-1. k=\\sqrt(E - E_f) where E is
+        r"""Get the wave number in units of \AA^-1. k=\sqrt(E - E_f) where E is
         the energy and E_f is the Fermi level computed from electron gas theory
         at the average interstitial charge density.
         """

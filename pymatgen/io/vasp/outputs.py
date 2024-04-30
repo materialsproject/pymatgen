@@ -698,8 +698,7 @@ class Vasprun(MSONable):
 
     @property
     def run_type(self):
-        """
-        Returns the run type. Currently detects GGA, metaGGA, HF, HSE, B3LYP,
+        """Get the run type. Currently detects GGA, metaGGA, HF, HSE, B3LYP,
         and hybrid functionals based on relevant INCAR tags. LDA is assigned if
         PAW POTCARs are used and no other functional is detected.
 
@@ -800,8 +799,7 @@ class Vasprun(MSONable):
         return self.nionic_steps
 
     def get_computed_entry(self, inc_structure=True, parameters=None, data=None, entry_id: str | None = None):
-        """
-        Returns a ComputedEntry or ComputedStructureEntry from the Vasprun.
+        """Get a ComputedEntry or ComputedStructureEntry from the Vasprun.
 
         Args:
             inc_structure (bool): Set to True if you want
@@ -3869,8 +3867,7 @@ class Procar:
         return dico
 
     def get_occupation(self, atom_index, orbital):
-        """
-        Returns the occupation for a particular orbital of a particular atom.
+        """Get the occupation for a particular orbital of a particular atom.
 
         Args:
             atom_num (int): Index of atom in the PROCAR. It should be noted

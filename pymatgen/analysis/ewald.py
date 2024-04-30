@@ -631,8 +631,7 @@ class EwaldMinimizer:
 
     @classmethod
     def get_next_index(cls, matrix, manipulation, indices_left):
-        """
-        Returns an index that should have the most negative effect on the
+        """Get an index that should have the most negative effect on the
         matrix sum.
         """
 

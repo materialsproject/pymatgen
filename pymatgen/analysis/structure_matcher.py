@@ -391,8 +391,7 @@ class StructureMatcher(MSONable):
         self._ignored_species = ignored_species
 
     def _get_supercell_size(self, s1, s2):
-        """
-        Returns the supercell size, and whether the supercell should be applied to s1.
+        """Get the supercell size, and whether the supercell should be applied to s1.
         If fu == 1, s1_supercell is returned as true, to avoid ambiguity.
         """
         if self._supercell_size == "num_sites":
@@ -482,8 +481,7 @@ class StructureMatcher(MSONable):
 
     @classmethod
     def _cmp_fstruct(cls, s1, s2, frac_tol, mask):
-        """
-        Returns true if a matching exists between s2 and s2
+        """Get true if a matching exists between s2 and s2
         under frac_tol. s2 should be a subset of s1.
         """
         if len(s2) > len(s1):
@@ -529,8 +527,7 @@ class StructureMatcher(MSONable):
         return new_d2**0.5 * normalization, f_translation, sol
 
     def _get_mask(self, struct1, struct2, fu, s1_supercell):
-        """
-        Returns mask for matching struct2 to struct1. If struct1 has sites
+        """Get mask for matching struct2 to struct1. If struct1 has sites
         a b c, and fu = 2, assumes supercells of struct2 will be ordered
         aabbcc (rather than abcabc).
 
@@ -1066,8 +1063,7 @@ class StructureMatcher(MSONable):
         return bool(matches)
 
     def get_supercell_matrix(self, supercell, struct) -> np.ndarray | None:
-        """
-        Returns the matrix for transforming struct to supercell. This
+        """Get the matrix for transforming struct to supercell. This
         can be used for very distorted 'supercells' where the primitive cell
         is impossible to find.
         """
@@ -1086,8 +1082,7 @@ class StructureMatcher(MSONable):
         return match[2]
 
     def get_transformation(self, struct1, struct2):
-        """
-        Returns the supercell transformation, fractional translation vector,
+        """Get the supercell transformation, fractional translation vector,
         and a mapping to transform struct2 to be similar to struct1.
 
         Args:

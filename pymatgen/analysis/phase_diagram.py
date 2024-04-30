@@ -574,8 +574,7 @@ class PhaseDiagram(MSONable):
         return self.get_reference_energy(comp) / comp.num_atoms
 
     def get_form_energy(self, entry: PDEntry) -> float:
-        """
-        Returns the formation energy for an entry (NOT normalized) from the
+        """Get the formation energy for an entry (NOT normalized) from the
         elemental references.
 
         Args:
@@ -588,8 +587,7 @@ class PhaseDiagram(MSONable):
         return entry.energy - self.get_reference_energy(comp)
 
     def get_form_energy_per_atom(self, entry: PDEntry) -> float:
-        """
-        Returns the formation energy per atom for an entry from the
+        """Get the formation energy per atom for an entry from the
         elemental references.
 
         Args:
@@ -661,8 +659,7 @@ class PhaseDiagram(MSONable):
         return dict(zip(self.elements, chempots))
 
     def _get_simplex_intersections(self, c1, c2):
-        """
-        Returns coordinates of the intersection of the tie line between two compositions
+        """Get coordinates of the intersection of the tie line between two compositions
         and the simplexes of the PhaseDiagram.
 
         Args:
@@ -1145,8 +1142,7 @@ class PhaseDiagram(MSONable):
     def get_chempot_range_map(
         self, elements: Sequence[Element], referenced: bool = True, joggle: bool = True
     ) -> dict[Element, list[Simplex]]:
-        """
-        Returns a chemical potential range map for each stable entry.
+        """Get a chemical potential range map for each stable entry.
 
         Args:
             elements: Sequence of elements to be considered as independent variables.
@@ -1198,8 +1194,7 @@ class PhaseDiagram(MSONable):
         return chempot_ranges
 
     def getmu_vertices_stability_phase(self, target_comp, dep_elt, tol_en=1e-2):
-        """
-        Returns a set of chemical potentials corresponding to the vertices of
+        """Get a set of chemical potentials corresponding to the vertices of
         the simplex in the chemical potential phase diagram.
         The simplex is built using all elements in the target_composition
         except dep_elt.
@@ -1257,8 +1252,7 @@ class PhaseDiagram(MSONable):
         return None
 
     def get_chempot_range_stability_phase(self, target_comp, open_elt):
-        """
-        Returns a set of chemical potentials corresponding to the max and min
+        """Get a set of chemical potentials corresponding to the max and min
         chemical potential of the open element for a given composition. It is
         quite common to have for instance a ternary oxide (e.g., ABO3) for
         which you want to know what are the A and B chemical potential leading
@@ -2385,8 +2379,7 @@ class PDPlotter:
         self.get_chempot_range_map_plot(elements, referenced=referenced).show()
 
     def get_chempot_range_map_plot(self, elements, referenced=True):
-        """
-        Returns a plot of the chemical potential range _map. Currently works
+        """Get a plot of the chemical potential range _map. Currently works
         only for 3-component PDs.
 
         Note: this functionality is now included in the ChemicalPotentialDiagram
