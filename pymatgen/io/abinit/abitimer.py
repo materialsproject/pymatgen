@@ -62,8 +62,7 @@ class AbinitTimerParser(collections.abc.Iterable):
 
     @classmethod
     def walk(cls, top=".", ext=".abo"):
-        """
-        Scan directory tree starting from top, look for files with extension `ext` and
+        """Scan directory tree starting from top, look for files with extension `ext` and
         parse timing data.
 
         Returns:
@@ -85,11 +84,11 @@ class AbinitTimerParser(collections.abc.Iterable):
     def __init__(self):
         """Initialize object."""
         # List of files that have been parsed.
-        self._filenames = []
+        self._filenames: list = []
 
         # timers[filename][mpi_rank]
         # contains the timer extracted from the file filename associated to the MPI rank mpi_rank.
-        self._timers = {}
+        self._timers: dict = {}
 
     def __iter__(self):
         return iter(self._timers)
@@ -727,8 +726,7 @@ class AbinitTimer:
         return values
 
     def names_and_values(self, key, minval=None, minfract=None, sorted=True):
-        """
-        Select the entries whose value[key] is >= minval or whose fraction[key] is >= minfract
+        """Select the entries whose value[key] is >= minval or whose fraction[key] is >= minfract
         Return the names of the sections and the corresponding values.
         """
         values = self.get_values(key)
@@ -845,8 +843,7 @@ class AbinitTimer:
 
     @add_fig_kwargs
     def scatter_hist(self, ax: plt.Axes = None, **kwargs):
-        """
-        Scatter plot + histogram.
+        """Scatter plot + histogram.
 
         Args:
             ax: matplotlib Axes or None if a new figure should be created.

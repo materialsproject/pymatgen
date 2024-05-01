@@ -243,8 +243,8 @@ class QCInput(InputFile):
         """Return a string representation of an entire input file."""
         return str(self)
 
-    def __str__(self):
-        combined_list = []
+    def __str__(self) -> str:
+        combined_list: list = []
         # molecule section
         combined_list.extend((self.molecule_template(self.molecule), "", self.rem_template(self.rem), ""))
         # opt section
@@ -512,8 +512,7 @@ class QCInput(InputFile):
 
     @staticmethod
     def solvent_template(solvent: dict) -> str:
-        """
-        Solvent template.
+        """Solvent template.
 
         Args:
             solvent ():
@@ -778,8 +777,7 @@ class QCInput(InputFile):
 
     @staticmethod
     def find_sections(string: str) -> list:
-        """
-        Find sections in the string.
+        """Find sections in the string.
 
         Args:
             string (str): String

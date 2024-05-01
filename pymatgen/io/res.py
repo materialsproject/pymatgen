@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from pymatgen.core.trajectory import Vector3D
+    from pymatgen.util.typing import Vector3D
 
 
 @dataclass(frozen=True)
@@ -87,7 +87,7 @@ class Ion:
 
 @dataclass(frozen=True)
 class ResSFAC:
-    species: set[str]
+    species: list[str]
     ions: list[Ion]
 
     def __str__(self) -> str:
@@ -135,7 +135,7 @@ class ResParser:
         self.source: str = ""
 
     def _parse_titl(self, line: str) -> AirssTITL | None:
-        """Parses the TITL entry. Checks for AIRSS values in the entry."""
+        """Parse the TITL entry. Checks for AIRSS values in the entry."""
         fields = line.split(maxsplit=6)
         if len(fields) >= 6:
             # this is probably an AIRSS res file
@@ -157,7 +157,7 @@ class ResParser:
         return None
 
     def _parse_cell(self, line: str) -> ResCELL:
-        """Parses the CELL entry."""
+        """Parse the CELL entry."""
         fields = line.split()
         if len(fields) != 7:
             raise ResParseError(f"Failed to parse CELL {line=}, expected 7 fields.")
@@ -165,7 +165,7 @@ class ResParser:
         return ResCELL(field_1, a, b, c, alpha, beta, gamma)
 
     def _parse_ion(self, line: str) -> Ion:
-        """Parses entries in the SFAC block."""
+        """Parse entries in the SFAC block."""
         fields = line.split()
         if len(fields) == 6:
             spin = None
@@ -179,8 +179,8 @@ class ResParser:
         return Ion(specie, specie_num, (x, y, z), occ, spin)
 
     def _parse_sfac(self, line: str, it: Iterator[str]) -> ResSFAC:
-        """Parses the SFAC block."""
-        species = set(line.split())
+        """Parse the SFAC block."""
+        species = list(line.split())
         ions = []
         try:
             while True:
@@ -193,7 +193,7 @@ class ResParser:
         return ResSFAC(species, ions)
 
     def _parse_txt(self) -> Res:
-        """Parses the text of the file."""
+        """Parse the text of the file."""
         _REMS: list[str] = []
         _TITL: AirssTITL | None = None
         _CELL: ResCELL | None = None
@@ -233,14 +233,14 @@ class ResParser:
 
     @classmethod
     def _parse_str(cls, source: str) -> Res:
-        """Parses the res file as a string."""
+        """Parse the res file as a string."""
         self = cls()
         self.source = source
         return self._parse_txt()
 
     @classmethod
     def _parse_file(cls, filename: str | Path) -> Res:
-        """Parses the res file as a file."""
+        """Parse the res file as a file."""
         self = cls()
         with zopen(filename, mode="r") as file:
             self.source = file.read()
@@ -256,24 +256,24 @@ class ResWriter:
         return ResCELL(1.0, lattice.a, lattice.b, lattice.c, lattice.alpha, lattice.beta, lattice.gamma)
 
     @classmethod
-    def _ions_from_sites(cls, sites: list[PeriodicSite]) -> list[Ion]:
-        """Produce a list of entries for a SFAC block from a list of pymatgen PeriodicSite."""
+    def _sfac_from_sites(cls, sites: list[PeriodicSite]) -> ResSFAC:
+        """Produce a SFAC block from a list of pymatgen PeriodicSite."""
         ions: list[Ion] = []
-        i = 0
+        species: list[str] = list()
+
         for site in sites:
             for specie, occ in site.species.items():
-                i += 1
+                try:
+                    i = species.index(specie) + 1
+                except ValueError:
+                    species.append(specie)
+                    i = len(species)
+
                 x, y, z = map(float, site.frac_coords)
                 spin = site.properties.get("magmom")
                 spin = spin and float(spin)
                 ions.append(Ion(specie, i, (x, y, z), occ, spin))
-        return ions
 
-    @classmethod
-    def _sfac_from_sites(cls, sites: list[PeriodicSite]) -> ResSFAC:
-        """Produce a SFAC block from a list of pymatgen PeriodicSite."""
-        ions = cls._ions_from_sites(sites)
-        species = {ion.specie for ion in ions}
         return ResSFAC(species, ions)
 
     @classmethod
@@ -320,7 +320,7 @@ class ResWriter:
 
 
 class ResProvider(MSONable):
-    """Provides access to elements of the res file in the form of familiar pymatgen objects."""
+    """Access elements of the RES file as familiar pymatgen objects."""
 
     def __init__(self, res: Res) -> None:
         """The :func:`from_str` and :func:`from_file` methods should be used instead of constructing this directly."""
@@ -414,7 +414,7 @@ class AirssProvider(ResProvider):
 
     @classmethod
     def _parse_date(cls, string: str) -> date:
-        """Parses a date from a string where the date is in the format typically used by CASTEP."""
+        """Parse a date from a string where the date is in the format typically used by CASTEP."""
         match = cls._date_fmt.search(string)
         if match is None:
             raise ResParseError(f"Could not parse the date from {string=}.")
@@ -603,8 +603,7 @@ class AirssProvider(ResProvider):
 
 
 class ResIO:
-    """
-    Class providing convenience methods for converting a Structure or ComputedStructureEntry
+    """Convenience methods for converting a Structure or ComputedStructureEntry
     to/from a string or file in the res format as used by AIRSS.
 
     Note: Converting from and back to pymatgen objects is expected to be reversible, i.e. you

@@ -480,25 +480,25 @@ class TestMITMPRelaxSet(PymatgenTest):
 
     def test_get_kpoints(self):
         kpoints = MPRelaxSet(self.structure).kpoints
-        assert kpoints.kpts == [[2, 4, 5]]
+        assert kpoints.kpts == [(2, 4, 5)]
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
         kpoints = MPRelaxSet(self.structure, user_kpoints_settings={"reciprocal_density": 1000}).kpoints
-        assert kpoints.kpts == [[6, 10, 13]]
+        assert kpoints.kpts == [(6, 10, 13)]
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
-        kpoints_obj = Kpoints(kpts=[[3, 3, 3]])
+        kpoints_obj = Kpoints(kpts=[(3, 3, 3)])
         kpoints_return = MPRelaxSet(self.structure, user_kpoints_settings=kpoints_obj).kpoints
-        assert kpoints_return.kpts == [[3, 3, 3]]
+        assert kpoints_return.kpts == [(3, 3, 3)]
 
         kpoints = self.mit_set.kpoints
-        assert kpoints.kpts == [[25]]
+        assert kpoints.kpts == [(25,)]
         assert kpoints.style == Kpoints.supported_modes.Automatic
 
         recip_param_set = MPRelaxSet(self.structure, force_gamma=True)
         recip_param_set.kpoints_settings = {"reciprocal_density": 40}
         kpoints = recip_param_set.kpoints
-        assert kpoints.kpts == [[2, 4, 5]]
+        assert kpoints.kpts == [(2, 4, 5)]
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
     @skip_if_no_psp_dir
@@ -517,7 +517,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         assert incar["ISMEAR"] == 1
         assert incar["SIGMA"] == 0.2
         kpoints = mp_metal_set.kpoints
-        assert_allclose(kpoints.kpts[0], [5, 5, 5])
+        assert_allclose(kpoints.kpts[0], (5, 5, 5))
 
     def test_as_from_dict(self):
         mit_set = self.set(self.structure)
@@ -687,9 +687,9 @@ class TestMPStaticSet(PymatgenTest):
         assert leps_vis.incar["EDIFF"] == 1e-5
         assert "NPAR" not in leps_vis.incar
         assert leps_vis.incar["NSW"] == 1
-        assert non_prev_vis.kpoints.kpts == [[11, 10, 10]]
+        assert non_prev_vis.kpoints.kpts == [(11, 10, 10)]
         non_prev_vis = self.set(vis.structure, reciprocal_density=200)
-        assert non_prev_vis.kpoints.kpts == [[14, 12, 12]]
+        assert non_prev_vis.kpoints.kpts == [(14, 12, 12)]
         # Check LCALCPOL flag
         lcalc_pol_vis = self.set.from_prev_calc(prev_calc_dir=prev_run, lcalcpol=True)
         assert lcalc_pol_vis.incar["LCALCPOL"]
@@ -1257,7 +1257,7 @@ class TestMITNEBSet(PymatgenTest):
 
     def test_kpoints(self):
         kpoints = self.vis.kpoints
-        assert kpoints.kpts == [[25]]
+        assert kpoints.kpts == [(25,)]
         assert kpoints.style == Kpoints.supported_modes.Automatic
 
     def test_as_from_dict(self):
@@ -1853,7 +1853,7 @@ class TestMVLGBSet(PymatgenTest):
         kpoints = self.d_slab["KPOINTS"]
         k_a = int(40 / (self.struct.lattice.abc[0]) + 0.5)
         k_b = int(40 / (self.struct.lattice.abc[1]) + 0.5)
-        assert kpoints.kpts == [[k_a, k_b, 1]]
+        assert kpoints.kpts == [(k_a, k_b, 1)]
 
 
 class TestMVLRelax52Set(PymatgenTest):
@@ -1893,7 +1893,10 @@ class TestLobsterSet(PymatgenTest):
     def setUp(self):
         self.set = LobsterSet
         file_path = f"{VASP_IN_DIR}/POSCAR"
+        file_path2 = f"{VASP_IN_DIR}/POSCAR.lobster.spin_DOS"
         self.struct = Structure.from_file(file_path)
+        self.struct2 = Structure.from_file(file_path2)
+
         # test for different parameters!
         self.lobsterset1 = self.set(self.struct, isym=-1, ismear=-5)
         self.lobsterset2 = self.set(self.struct, isym=0, ismear=0)
@@ -1923,6 +1926,9 @@ class TestLobsterSet(PymatgenTest):
         # test W_sw
         self.lobsterset8 = self.set(Structure.from_file(f"{TEST_FILES_DIR}/electronic_structure/cohp/POSCAR.W"))
 
+        # test if potcar selection is consistent with PBE_54
+        self.lobsterset9 = self.set(self.struct2)
+
     def test_incar(self):
         incar1 = self.lobsterset1.incar
         assert "NBANDS" in incar1
@@ -1950,6 +1956,13 @@ class TestLobsterSet(PymatgenTest):
     def test_potcar(self):
         # PBE_54 is preferred at the moment
         assert self.lobsterset1.user_potcar_functional == "PBE_54"
+        # test if potcars selected are consistent with PBE_54
+        assert self.lobsterset2.potcar.symbols == ["Fe_pv", "P", "O"]
+        # test if error raised contains correct potcar symbol for K element as PBE_54 set
+        with pytest.raises(
+            RuntimeError, match="You do not have the right POTCAR with functional='PBE_54' and symbol='K_sv'"
+        ):
+            _ = self.lobsterset9.potcar.symbols
 
     def test_as_from_dict(self):
         dict_here = self.lobsterset1.as_dict()
@@ -2049,13 +2062,13 @@ class TestMPAbsorptionSet(PymatgenTest):
         prev_run = f"{TEST_DIR}/fixtures/absorption/static"
         absorption_ipa = MPAbsorptionSet.from_prev_calc(prev_calc_dir=prev_run, mode="IPA")
         kpoints1 = absorption_ipa.kpoints
-        assert kpoints1.kpts == [[13, 13, 13]]
+        assert kpoints1.kpts == [(13, 13, 13)]
         assert kpoints1.style == Kpoints.supported_modes.Gamma
         # Check RPA kpoints
         prev_run = f"{TEST_DIR}/fixtures/absorption/ipa"
         absorption_rpa = MPAbsorptionSet.from_prev_calc(prev_run, mode="RPA")
         kpoints2 = absorption_rpa.kpoints
-        assert kpoints2.kpts == [[13, 13, 13]]
+        assert kpoints2.kpts == [(13, 13, 13)]
         assert kpoints2.style == Kpoints.supported_modes.Gamma
 
     def test_as_from_dict(self):

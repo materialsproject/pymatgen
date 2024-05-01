@@ -80,7 +80,7 @@ class EnumlibAdaptor:
         check_ordered_symmetry=True,
         timeout=None,
     ):
-        """Initializes the adapter with a structure and some parameters.
+        """Initialize the adapter with a structure and some parameters.
 
         Args:
             structure: An input structure.
@@ -151,8 +151,7 @@ class EnumlibAdaptor:
             f"Spacegroup {fitter.get_space_group_symbol()} ({fitter.get_space_group_number()}) "
             f"with {len(symmetrized_structure.equivalent_sites)} distinct sites"
         )
-        """
-        Enumlib doesn"t work when the number of species get too large. To
+        """Enumlib doesn"t work when the number of species get too large. To
         simplify matters, we generate the input file only with disordered sites
         and exclude the ordered sites from the enumeration. The fact that
         different disordered sites with the exact same species may belong to

@@ -170,7 +170,7 @@ class SpacegroupAnalyzer:
         return spglib.get_pointgroup(rotations)[0].strip()
 
     def get_crystal_system(self) -> CrystalSystem:
-        """Get the crystal system for the structure, e.g., (triclinic, orthorhombic,
+        """Get the crystal system for the structure, e.g. (triclinic, orthorhombic,
         cubic, etc.).
 
         Raises:
@@ -200,7 +200,7 @@ class SpacegroupAnalyzer:
         return "cubic"
 
     def get_lattice_type(self) -> LatticeType:
-        """Get the lattice for the structure, e.g., (triclinic, orthorhombic, cubic,
+        """Get the lattice for the structure, e.g. (triclinic, orthorhombic, cubic,
         etc.).This is the same as the crystal system with the exception of the
         hexagonal/rhombohedral lattice.
 
@@ -434,7 +434,7 @@ class SpacegroupAnalyzer:
 
     @cite_conventional_cell_algo
     def get_conventional_to_primitive_transformation_matrix(self, international_monoclinic=True):
-        """Gives the transformation matrix to transform a conventional unit cell to a
+        """Get the transformation matrix to transform a conventional unit cell to a
         primitive cell according to certain standards the standards are defined in
         Setyawan, W., & Curtarolo, S. (2010). High-throughput electronic band structure
         calculations: Challenges and tools. Computational Materials Science, 49(2),
@@ -478,7 +478,7 @@ class SpacegroupAnalyzer:
 
     @cite_conventional_cell_algo
     def get_primitive_standard_structure(self, international_monoclinic=True, keep_site_properties=False):
-        """Gives a structure with a primitive cell according to certain standards. The
+        """Get a structure with a primitive cell according to certain standards. The
         standards are defined in Setyawan, W., & Curtarolo, S. (2010). High-throughput
         electronic band structure calculations: Challenges and tools. Computational
         Materials Science, 49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010.
@@ -557,7 +557,7 @@ class SpacegroupAnalyzer:
 
     @cite_conventional_cell_algo
     def get_conventional_standard_structure(self, international_monoclinic=True, keep_site_properties=False):
-        """Gives a structure with a conventional cell according to certain standards. The
+        """Get a structure with a conventional cell according to certain standards. The
         standards are defined in Setyawan, W., & Curtarolo, S. (2010). High-throughput
         electronic band structure calculations: Challenges and tools. Computational
         Materials Science, 49(2), 299-312. doi:10.1016/j.commatsci.2010.05.010 They
@@ -1169,7 +1169,7 @@ class PointGroupAnalyzer:
         return min(valid_sets, key=len)
 
     def _check_rot_sym(self, axis):
-        """Determines the rotational symmetry about supplied axis.
+        """Determine the rotational symmetry about supplied axis.
 
         Used only for symmetric top molecules which has possible rotational symmetry
         operations > 2.
@@ -1188,7 +1188,7 @@ class PointGroupAnalyzer:
         return 1
 
     def _check_perpendicular_r2_axis(self, axis):
-        """Checks for R2 axes perpendicular to unique axis.
+        """Check for R2 axes perpendicular to unique axis.
 
         For handling symmetric top molecules.
         """
@@ -1297,26 +1297,26 @@ class PointGroupAnalyzer:
                 symm_number += 1
         return symm_number
 
-    def is_valid_op(self, symmop) -> bool:
+    def is_valid_op(self, symm_op) -> bool:
         """Check if a particular symmetry operation is a valid symmetry operation for a
         molecule, i.e., the operation maps all atoms to another equivalent atom.
 
         Args:
-            symmop (SymmOp): Symmetry operation to test.
+            symm_op (SymmOp): Symmetry operation to test.
 
         Returns:
             bool: Whether SymmOp is valid for Molecule.
         """
         coords = self.centered_mol.cart_coords
         for site in self.centered_mol:
-            coord = symmop.operate(site.coords)
+            coord = symm_op.operate(site.coords)
             ind = find_in_coord_list(coords, coord, self.tol)
             if not (len(ind) == 1 and self.centered_mol[ind[0]].species == site.species):
                 return False
         return True
 
     def _get_eq_sets(self):
-        """Calculates the dictionary for mapping equivalent atoms onto each other.
+        """Calculate the dictionary for mapping equivalent atoms onto each other.
 
         Returns:
             dict: with two possible keys:
@@ -1628,7 +1628,7 @@ class SpacegroupOperations(list):
 
 
 class PointGroupOperations(list):
-    """Defines a point group, which is essentially a sequence of symmetry operations.
+    """Represents a point group, which is a sequence of symmetry operations.
 
     Attributes:
         sch_symbol (str): Schoenflies symbol of the point group.

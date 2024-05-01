@@ -88,7 +88,7 @@ class ChemicalPotentialDiagram(MSONable):
                 which are used to construct the border hyperplanes used in the HalfSpaceIntersection
                 algorithm; these constrain the space over which the domains are calculated and also
                 determine the size of the plotted diagram. Any elemental limits not specified are
-                covered in the default_min_limit argument. e.g., {Element("Li"): [-12.0, 0.0], ...}
+                covered in the default_min_limit argument. e.g. {Element("Li"): [-12.0, 0.0], ...}
             default_min_limit (float): Default minimum chemical potential limit (i.e.,
                 lower bound) for unspecified elements within the "limits" argument.
             formal_chempots (bool): Whether to plot the formal ('reference') chemical potentials
@@ -235,8 +235,7 @@ class ChemicalPotentialDiagram(MSONable):
         return border_hyperplanes
 
     def _get_hyperplanes_and_entries(self) -> tuple[np.ndarray, list[PDEntry]]:
-        """
-        Returns both the array of hyperplanes, as well as a list of the minimum
+        """Get both the array of hyperplanes, as well as a list of the minimum
         entries.
         """
         data = np.array(
@@ -268,6 +267,8 @@ class ChemicalPotentialDiagram(MSONable):
 
         if element_padding is not None and element_padding > 0:
             new_lims = self._get_new_limits_from_padding(domains, elem_indices, element_padding, self.default_min_limit)
+        else:
+            new_lims = []
 
         for formula, pts in domains.items():
             formula_elems = set(Composition(formula).elements)
@@ -326,6 +327,8 @@ class ChemicalPotentialDiagram(MSONable):
 
         if element_padding and element_padding > 0:
             new_lims = self._get_new_limits_from_padding(domains, elem_indices, element_padding, self.default_min_limit)
+        else:
+            new_lims = []
 
         for formula, pts in domains.items():
             entry = self.entry_dict[formula]
@@ -395,8 +398,7 @@ class ChemicalPotentialDiagram(MSONable):
         element_padding: float,
         default_min_limit: float,
     ):
-        """
-        Gets new minimum limits for each element by subtracting specified padding
+        """Get new minimum limits for each element by subtracting specified padding
         from the minimum for each axis found in any of the domains.
         """
         all_pts = np.vstack(list(domains.values()))
@@ -411,8 +413,7 @@ class ChemicalPotentialDiagram(MSONable):
 
     @staticmethod
     def _get_2d_domain_lines(draw_domains) -> list[Scatter]:
-        """
-        Returns a list of Scatter objects tracing the domain lines on a
+        """Get a list of Scatter objects tracing the domain lines on a
         2-dimensional chemical potential diagram.
         """
         x, y = [], []
@@ -433,8 +434,7 @@ class ChemicalPotentialDiagram(MSONable):
 
     @staticmethod
     def _get_3d_domain_lines(domains: dict[str, list[Simplex] | None]) -> list[Scatter3d]:
-        """
-        Returns a list of Scatter3d objects tracing the domain lines on a
+        """Get a list of Scatter3d objects tracing the domain lines on a
         3-dimensional chemical potential diagram.
         """
         x, y, z = [], [], []
@@ -460,8 +460,7 @@ class ChemicalPotentialDiagram(MSONable):
     def _get_3d_domain_simplexes_and_ann_loc(
         points_3d: np.ndarray,
     ) -> tuple[list[Simplex], np.ndarray]:
-        """
-        Returns a list of Simplex objects and coordinates of annotation for one
+        """Get a list of Simplex objects and coordinates of annotation for one
         domain in a 3-d chemical potential diagram. Uses PCA to project domain
         into 2-dimensional space so that ConvexHull can be used to identify the
         bounding polygon.
@@ -480,8 +479,7 @@ class ChemicalPotentialDiagram(MSONable):
         draw_domains: dict[str, np.ndarray],
         formula_colors: list[str] | None,
     ) -> list[Mesh3d]:
-        """
-        Returns a list of Mesh3d objects for the domains specified by the
+        """Get a list of Mesh3d objects for the domains specified by the
         user (i.e., draw_domains).
         """
         meshes = []
@@ -541,8 +539,7 @@ class ChemicalPotentialDiagram(MSONable):
     def _get_min_entries_and_el_refs(
         entries: list[PDEntry],
     ) -> tuple[list[PDEntry], dict[Element, PDEntry]]:
-        """
-        Returns a list of the minimum-energy entries at each composition and the
+        """Get a list of the minimum-energy entries at each composition and the
         entries corresponding to the elemental references.
         """
         el_refs = {}
@@ -673,7 +670,7 @@ def get_centroid_2d(vertices: np.ndarray) -> np.ndarray:
             circumferentially
 
     Returns:
-        Array giving 2-d centroid coordinates
+        np.array: Giving 2-d centroid coordinates.
     """
     cx = 0
     cy = 0

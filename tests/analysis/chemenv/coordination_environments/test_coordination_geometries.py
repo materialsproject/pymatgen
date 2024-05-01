@@ -26,14 +26,14 @@ class FakeSite:
 class TestCoordinationGeometries(PymatgenTest):
     def test_algorithms(self):
         expl_algo = ExplicitPermutationsAlgorithm(permutations=[[0, 1, 2], [1, 2, 3]])
-        expl_algo2 = ExplicitPermutationsAlgorithm.from_dict(expl_algo.as_dict)
+        expl_algo2 = ExplicitPermutationsAlgorithm.from_dict(expl_algo.as_dict())
         assert expl_algo.permutations == expl_algo2.permutations
 
         sep_plane_algos_oct = all_cg["O:6"].algorithms
         assert len(sep_plane_algos_oct[0].safe_separation_permutations()) == 24
         assert len(sep_plane_algos_oct[1].safe_separation_permutations()) == 36
 
-        sep_plane_algos_oct_0 = SeparationPlane.from_dict(sep_plane_algos_oct[0].as_dict)
+        sep_plane_algos_oct_0 = SeparationPlane.from_dict(sep_plane_algos_oct[0].as_dict())
         assert sep_plane_algos_oct[0].plane_points == sep_plane_algos_oct_0.plane_points
         assert sep_plane_algos_oct[0].mirror_plane == sep_plane_algos_oct_0.mirror_plane
         assert sep_plane_algos_oct[0].ordered_plane == sep_plane_algos_oct_0.ordered_plane

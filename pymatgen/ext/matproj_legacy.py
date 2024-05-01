@@ -297,7 +297,7 @@ class _MPResterLegacy:
             task_id (str): A task id.
 
         Returns:
-            materials_id (str)
+            str: An MP material id.
         """
         return self._make_request(f"/materials/mid_from_tid/{task_id}")
 
@@ -308,7 +308,7 @@ class _MPResterLegacy:
             material_id (str): A material id.
 
         Returns:
-            BibTeX (str)
+            str: A BibTeX formatted string.
         """
         return self._make_request(f"/materials/{material_id}/refs")
 
@@ -360,7 +360,7 @@ class _MPResterLegacy:
         REST Endpoint: https://materialsproject.org/materials/<mp-id>/doc.
 
         Args:
-            materials_id (str): E.g., mp-1143 for Al2O3
+            materials_id (str): e.g. mp-1143 for Al2O3
 
         Returns:
             Dict of json document of all data that is displayed on a materials
@@ -377,9 +377,9 @@ class _MPResterLegacy:
         https://materialsproject.org/materials/<mp-id>/xas/<absorbing_element>.
 
         Args:
-            material_id (str): E.g., mp-1143 for Al2O3
+            material_id (str): e.g. mp-1143 for Al2O3
             absorbing_element (str): The absorbing element in the corresponding
-                structure. E.g., Al in Al2O3
+                structure. e.g. Al in Al2O3
         """
         element_list = self.get_data(material_id, prop="elements")[0]["elements"]
         if absorbing_element not in element_list:
@@ -433,7 +433,7 @@ class _MPResterLegacy:
         return [d[prop] for d in data]
 
     def find_structure(self, filename_or_structure):
-        """Finds matching structures on the Materials Project site.
+        """Find matching structures on the Materials Project site.
 
         Args:
             filename_or_structure: filename or Structure object
@@ -575,8 +575,8 @@ class _MPResterLegacy:
 
         Args:
             chemsys (str or [str]): Chemical system string comprising element
-                symbols separated by dashes, e.g., "Li-Fe-O" or List of element
-                symbols, e.g., ["Li", "Fe", "O"].
+                symbols separated by dashes, e.g. "Li-Fe-O" or List of element
+                symbols, e.g. ["Li", "Fe", "O"].
             solid_compat: Compatibility scheme used to pre-process solid DFT energies prior to applying aqueous
                 energy adjustments. May be passed as a class (e.g. MaterialsProject2020Compatibility) or an instance
                 (e.g., MaterialsProject2020Compatibility()). If None, solid DFT energies are used as-is.
@@ -642,7 +642,7 @@ class _MPResterLegacy:
             refs = [e for e in ion_ref_entries if e.reduced_formula == i_d["Reference Solid"]]
             if not refs:
                 raise ValueError("Reference solid not contained in entry list")
-            stable_ref = sorted(refs, key=lambda x: x.data["e_above_hull"])[0]
+            stable_ref = min(refs, key=lambda x: x.data["e_above_hull"])
             rf = stable_ref.composition.get_reduced_composition_and_factor()[1]
 
             solid_diff = ion_ref_pd.get_form_energy(stable_ref) - i_d["Reference solid energy"] * rf
@@ -718,7 +718,7 @@ class _MPResterLegacy:
 
         Args:
             material_id (str): Materials Project material_id (a string,
-                e.g., mp-1234).
+                e.g. mp-1234).
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
                 processed using the MaterialsProject2020Compatibility class,
@@ -760,7 +760,7 @@ class _MPResterLegacy:
 
         Args:
             material_id (str): Materials Project material_id (a string,
-                e.g., mp-1234).
+                e.g. mp-1234).
 
         Returns:
             A Dos object.
@@ -836,8 +836,8 @@ class _MPResterLegacy:
 
         Args:
             elements (str or [str]): Chemical system string comprising element
-                symbols separated by dashes, e.g., "Li-Fe-O" or List of element
-                symbols, e.g., ["Li", "Fe", "O"].
+                symbols separated by dashes, e.g. "Li-Fe-O" or List of element
+                symbols, e.g. ["Li", "Fe", "O"].
             compatible_only (bool): Whether to return only "compatible"
                 entries. Compatible entries are entries that have been
                 processed using the MaterialsProject2020Compatibility class,
@@ -913,7 +913,7 @@ class _MPResterLegacy:
         mp_decode: bool = True,
         show_progress_bar: bool = True,
     ):
-        r"""Performs an advanced query using MongoDB-like syntax for directly
+        r"""Perform an advanced query using MongoDB-like syntax for directly
         querying the Materials Project database. This allows one to perform
         queries which are otherwise too cumbersome to perform using the standard
         convenience methods.
@@ -938,9 +938,9 @@ class _MPResterLegacy:
                 mongo-style dict.
 
                 If string, it supports a powerful but simple string criteria.
-                E.g., "Fe2O3" means search for materials with reduced_formula
-                Fe2O3. Wild cards are also supported. E.g., "\\*2O" means get
-                all materials whose formula can be formed as \\*2O, e.g.,
+                e.g. "Fe2O3" means search for materials with reduced_formula
+                Fe2O3. Wild cards are also supported. e.g. "\\*2O" means get
+                all materials whose formula can be formed as \\*2O, e.g.
                 Li2O, K2O, etc.
 
                 Other syntax examples:
@@ -973,7 +973,7 @@ class _MPResterLegacy:
                 Defaults to True. Set to False to reduce visual noise.
 
         Returns:
-            List of results. E.g.,
+            List of results. e.g.
             [{u'formula': {u'O': 1, u'Li': 2.0}},
             {u'formula': {u'Na': 2.0, u'O': 2.0}},
             {u'formula': {u'K': 1, u'O': 3.0}},
@@ -1178,7 +1178,7 @@ class _MPResterLegacy:
         created_at=None,
         ncpus=None,
     ):
-        """Assimilates all vasp run directories beneath a particular
+        """Assimilate all vasp run directories beneath a particular
         directory using BorgQueen to obtain structures, and then submits thhem
         to the Materials Project as SNL files. VASP related meta data like
         initial structure and final energies are automatically incorporated.
@@ -1264,7 +1264,7 @@ class _MPResterLegacy:
         raise MPRestError(f"REST error with status code {response.status_code} and error {response.text}")
 
     def get_cohesive_energy(self, material_id, per_atom=False):
-        """Gets the cohesive for a material (eV per formula unit). Cohesive energy
+        """Get the cohesive for a material (eV per formula unit). Cohesive energy
             is defined as the difference between the bulk energy and the sum of
             total DFT energy of isolated atoms for atom elements in the bulk.
 
@@ -1288,7 +1288,7 @@ class _MPResterLegacy:
         return ecoh_per_formula / n if per_atom else ecoh_per_formula
 
     def get_reaction(self, reactants, products):
-        """Gets a reaction from the Materials Project.
+        """Get a reaction from the Materials Project.
 
         Args:
             reactants ([str]): List of formulas
@@ -1324,7 +1324,7 @@ class _MPResterLegacy:
         return self._make_request(req)
 
     def get_all_substrates(self):
-        """Gets the list of all possible substrates considered in the
+        """Get the list of all possible substrates considered in the
         Materials Project substrate database.
 
         Returns:
@@ -1337,7 +1337,7 @@ class _MPResterLegacy:
         description="Data Descriptor: Surface energies of elemental crystals. Scientific Data",
     )
     def get_surface_data(self, material_id, miller_index=None, inc_structures=False):
-        """Gets surface data for a material. Useful for Wulff shapes.
+        """Get surface data for a material. Useful for Wulff shapes.
 
         Reference for surface data:
 
@@ -1349,7 +1349,7 @@ class _MPResterLegacy:
         Args:
             material_id (str): Materials Project material_id, e.g. 'mp-123'.
             miller_index (list of integer): The miller index of the surface.
-            e.g., [3, 2, 1]. If miller_index is provided, only one dictionary
+            e.g. [3, 2, 1]. If miller_index is provided, only one dictionary
             of this specific plane will be returned.
             inc_structures (bool): Include final surface slab structures.
                 These are unnecessary for Wulff shape construction.
@@ -1373,7 +1373,7 @@ class _MPResterLegacy:
         return self._make_request(req)
 
     def get_wulff_shape(self, material_id):
-        """Constructs a Wulff shape for a material.
+        """Construct a Wulff shape for a material.
 
         Args:
             material_id (str): Materials Project material_id, e.g. 'mp-123'.
@@ -1406,15 +1406,15 @@ class _MPResterLegacy:
         rotation_axis=None,
         include_work_of_separation=False,
     ):
-        """Gets grain boundary data for a material.
+        """Get grain boundary data for a material.
 
         Args:
-            material_id (str): Materials Project material_id, e.g., 'mp-129'.
-            pretty_formula (str): The formula of metals. e.g., 'Fe'
-            chemsys (str): The chemical system. e.g., 'Fe-O'
+            material_id (str): Materials Project material_id, e.g. 'mp-129'.
+            pretty_formula (str): The formula of metals. e.g. 'Fe'
+            chemsys (str): The chemical system. e.g. 'Fe-O'
             sigma (int): The sigma value of a certain type of grain boundary
-            gb_plane (list of integer): The Miller index of grain boundary plane. e.g., [1, 1, 1]
-            rotation_axis (list of integer): The Miller index of rotation axis. e.g.,
+            gb_plane (list of integer): The Miller index of grain boundary plane. e.g. [1, 1, 1]
+            rotation_axis (list of integer): The Miller index of rotation axis. e.g.
                 [1, 0, 0], [1, 1, 0], and [1, 1, 1] Sigma value is determined by the combination of
                 rotation axis and rotation angle. The five degrees of freedom (DOF) of one grain boundary
                 include: rotation axis (2 DOFs), rotation angle (1 DOF), and grain boundary plane (2 DOFs).
@@ -1462,7 +1462,7 @@ class _MPResterLegacy:
         relative_mu=None,
         use_hull_energy=False,
     ):
-        """Gets critical reactions between two reactants.
+        """Get critical reactions between two reactants.
 
         Get critical reactions ("kinks" in the mixing ratio where
         reaction products change) between two reactants. See the
@@ -1570,7 +1570,7 @@ class _MPResterLegacy:
 
     @staticmethod
     def _check_nomad_exist(url) -> bool:
-        response = requests.get(url=url)
+        response = requests.get(url=url, timeout=600)
         if response.status_code != 200:
             return False
         content = json.loads(response.text)
@@ -1578,12 +1578,12 @@ class _MPResterLegacy:
 
     @staticmethod
     def parse_criteria(criteria_string):
-        """Parses a powerful and simple string criteria and generates a proper
+        """Parse a powerful and simple string criteria and generates a proper
         mongo syntax criteria.
 
         Args:
             criteria_string (str): A string representing a search criteria.
-                Also supports wild cards. E.g.,
+                Also supports wild cards. e.g.
                 something like "*2O" gets converted to
                 {'pretty_formula': {'$in': [u'B2O', u'Xe2O', u"Li2O", ...]}}
 
@@ -1593,7 +1593,7 @@ class _MPResterLegacy:
                     Li-Fe-O or *-Fe-O: Interpreted as chemical systems.
 
                 You can mix and match with spaces, which are interpreted as
-                "OR". E.g., "mp-1234 FeO" means query for all compounds with
+                "OR". e.g. "mp-1234 FeO" means query for all compounds with
                 reduced formula FeO or with materials_id mp-1234.
 
         Returns:

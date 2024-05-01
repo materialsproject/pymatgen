@@ -175,12 +175,11 @@ class IcetSQS:
         )
 
     def _get_site_composition(self) -> None:
-        """
-        Get Icet-format composition from structure.
+        """Get Icet-format composition from structure.
 
         Returns:
             Dict with sublattice compositions specified by uppercase letters,
-                e.g., In_x Ga_1-x As becomes:
+                e.g. In_x Ga_1-x As becomes:
                 {
                     "A": {"In": x, "Ga": 1 - x},
                     "B": {"As": 1}
@@ -201,8 +200,7 @@ class IcetSQS:
         return ClusterSpace(structure=self._ordered_atoms, cutoffs=self.cutoffs_list, chemical_symbols=chemical_symbols)
 
     def get_icet_sqs_obj(self, material: Atoms | Structure, cluster_space: _ClusterSpace | None = None) -> float:
-        """
-        Get the SQS objective function.
+        """Get the SQS objective function.
 
         Args:
             material (ase Atoms or pymatgen Structure) : structure to
@@ -225,8 +223,7 @@ class IcetSQS:
         )
 
     def enumerate_sqs_structures(self, cluster_space: _ClusterSpace | None = None) -> list:
-        """
-        Generate an SQS by enumeration of all possible arrangements.
+        """Generate an SQS by enumeration of all possible arrangements.
 
         Adapted from icet.tools.structure_generation.generate_sqs_by_enumeration
         to accommodate multiprocessing.
@@ -294,8 +291,7 @@ class IcetSQS:
         return list(working_list)
 
     def _get_best_sqs_from_list(self, structures: list[Atoms], output_list: list[dict]) -> None:
-        """
-        Find best SQS structure from list of SQS structures.
+        """Find best SQS structure from list of SQS structures.
 
         Args:
             structures (list of ase Atoms) : list of SQS structures

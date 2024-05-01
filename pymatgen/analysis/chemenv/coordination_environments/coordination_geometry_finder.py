@@ -17,6 +17,7 @@ from __future__ import annotations
 import itertools
 import logging
 import time
+import warnings
 from random import shuffle
 from typing import TYPE_CHECKING
 
@@ -156,8 +157,7 @@ class AbstractGeometry:
         self.bare_coords = self._bare_coords
 
     def __str__(self):
-        """
-        String representation of the AbstractGeometry
+        """String representation of the AbstractGeometry
 
         Returns:
             str: String representation of the AbstractGeometry.
@@ -421,8 +421,7 @@ class LocalGeometryFinder:
         structure_refinement=STRUCTURE_REFINEMENT_REFINED,
         spg_analyzer_options=None,
     ):
-        """
-        Setup of the parameters for the coordination geometry finder. A reference point for the geometries has to be
+        """Setup of the parameters for the coordination geometry finder. A reference point for the geometries has to be
         chosen. This can be the centroid of the structure (including or excluding the atom for which the coordination
         geometry is looked for) or the atom itself. In the 'standard' centering_type, the reference point is the central
         atom for coordination numbers 1, 2, 3 and 4 and the centroid for coordination numbers > 4.
@@ -451,8 +450,7 @@ class LocalGeometryFinder:
             self.spg_analyzer_options = spg_analyzer_options
 
     def setup_parameter(self, parameter, value):
-        """
-        Setup of one specific parameter to the given value. The other parameters are unchanged. See setup_parameters
+        """Setup of one specific parameter to the given value. The other parameters are unchanged. See setup_parameters
         method for the list of possible parameters
 
         Args:
@@ -462,8 +460,7 @@ class LocalGeometryFinder:
         self.__dict__[parameter] = value
 
     def setup_structure(self, structure: Structure):
-        """
-        Sets up the structure for which the coordination geometries have to be identified. The structure is analyzed
+        """Set up the structure for which the coordination geometries have to be identified. The structure is analyzed
         with the space group analyzer and a refined structure is used
 
         Args:
@@ -492,8 +489,7 @@ class LocalGeometryFinder:
                 self.symmetrized_structure = self.spg_analyzer_refined.get_symmetrized_structure()
 
     def get_structure(self):
-        """
-        Returns the pymatgen Structure that has been setup for the identification of geometries (the initial one
+        """Get the pymatgen Structure that has been setup for the identification of geometries (the initial one
         might have been refined/symmetrized using the SpaceGroupAnalyzer).
 
         Returns:
@@ -503,8 +499,7 @@ class LocalGeometryFinder:
         return self.structure
 
     def set_structure(self, lattice: Lattice, species, coords, coords_are_cartesian):
-        """
-        Sets up the pymatgen structure for which the coordination geometries have to be identified starting from the
+        """Set up the pymatgen structure for which the coordination geometries have to be identified starting from the
         lattice, the species and the coordinates
 
         Args:
@@ -775,6 +770,7 @@ class LocalGeometryFinder:
 
             to_add_from_hints = []
             nb_sets_info = {}
+            cn = 0
 
             for cn, nb_sets in struct_envs.neighbors_sets[isite].items():
                 if cn not in all_cns:
@@ -948,8 +944,7 @@ class LocalGeometryFinder:
         return ce
 
     def setup_local_geometry(self, isite, coords, optimization=None):
-        """
-        Sets up the AbstractGeometry for the local geometry of site with index isite.
+        """Set up the AbstractGeometry for the local geometry of site with index isite.
 
         Args:
             isite: Index of the site for which the local geometry has to be set up
@@ -1108,8 +1103,7 @@ class LocalGeometryFinder:
         self.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
 
     def setup_random_structure(self, coordination):
-        """
-        Sets up a purely random structure with a given coordination.
+        """Set up a purely random structure with a given coordination.
 
         Args:
             coordination: coordination number for the random structure.
@@ -1128,8 +1122,7 @@ class LocalGeometryFinder:
         self.setup_random_indices_local_geometry(coordination)
 
     def setup_random_indices_local_geometry(self, coordination):
-        """
-        Sets up random indices for the local geometry, for testing purposes
+        """Set up random indices for the local geometry, for testing purposes
 
         Args:
             coordination: coordination of the local geometry.
@@ -1139,8 +1132,7 @@ class LocalGeometryFinder:
         np.random.shuffle(self.indices)
 
     def setup_ordered_indices_local_geometry(self, coordination):
-        """
-        Sets up ordered indices for the local geometry, for testing purposes
+        """Set up ordered indices for the local geometry, for testing purposes
 
         Args:
             coordination: coordination of the local geometry.
@@ -1149,8 +1141,7 @@ class LocalGeometryFinder:
         self.indices = list(range(1, coordination + 1))
 
     def setup_explicit_indices_local_geometry(self, explicit_indices):
-        """
-        Sets up explicit indices for the local geometry, for testing purposes
+        """Set up explicit indices for the local geometry, for testing purposes
 
         Args:
             explicit_indices: explicit indices for the neighbors (set of numbers
@@ -1160,8 +1151,7 @@ class LocalGeometryFinder:
         self.indices = [ii + 1 for ii in explicit_indices]
 
     def get_coordination_symmetry_measures(self, only_minimum=True, all_csms=True, optimization=None):
-        """
-        Returns the continuous symmetry measures of the current local geometry in a dictionary.
+        """Get the continuous symmetry measures of the current local geometry in a dictionary.
 
         Returns:
             the continuous symmetry measures of the current local geometry in a dictionary.
@@ -1289,8 +1279,7 @@ class LocalGeometryFinder:
     def get_coordination_symmetry_measures_optim(
         self, only_minimum=True, all_csms=True, nb_set=None, optimization=None
     ):
-        """
-        Returns the continuous symmetry measures of the current local geometry in a dictionary.
+        """Get the continuous symmetry measures of the current local geometry in a dictionary.
 
         Returns:
             the continuous symmetry measures of the current local geometry in a dictionary.
@@ -1436,8 +1425,7 @@ class LocalGeometryFinder:
     def coordination_geometry_symmetry_measures_standard(
         self, coordination_geometry, algo, points_perfect=None, optimization=None
     ):
-        """
-        Returns the symmetry measures for a set of permutations (whose setup depends on the coordination geometry)
+        """Get the symmetry measures for a set of permutations (whose setup depends on the coordination geometry)
         for the coordination geometry "coordination_geometry". Standard implementation looking for the symmetry
         measures of each permutation
 
@@ -1518,8 +1506,7 @@ class LocalGeometryFinder:
         tested_permutations=False,
         points_perfect=None,
     ):
-        """
-        Returns the symmetry measures of the given coordination geometry "coordination_geometry" using separation
+        """Get the symmetry measures of the given coordination geometry "coordination_geometry" using separation
         facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3POINTS and other ...
 
         Args:
@@ -1534,8 +1521,7 @@ class LocalGeometryFinder:
         algos = []
         perfect2local_maps = []
         local2perfect_maps = []
-        if testing:
-            separation_permutations = []
+        separation_permutations = []
         nplanes = 0
         for npoints in range(
             separation_plane_algo.minimum_number_of_points,
@@ -1623,8 +1609,7 @@ class LocalGeometryFinder:
         nb_set=None,
         optimization=None,
     ):
-        """
-        Returns the symmetry measures of the given coordination geometry "coordination_geometry" using separation
+        """Get the symmetry measures of the given coordination geometry "coordination_geometry" using separation
         facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3POINTS and other ...
 
         Args:
@@ -1793,9 +1778,10 @@ class LocalGeometryFinder:
         plane_found = False
         permutations = []
         permutations_symmetry_measures = []
-        if testing:
-            separation_permutations = []
+        separation_permutations = []
         dist_tolerances = dist_tolerances or DIST_TOLERANCES
+        algo = ""
+
         for dist_tolerance in dist_tolerances:
             algo = "NOT_FOUND"
             separation = local_plane.indices_separate(self.local_geometry._coords, dist_tolerance)
@@ -2041,26 +2027,28 @@ class LocalGeometryFinder:
         return [], [], [], stop_search
 
     def coordination_geometry_symmetry_measures_fallback_random(
-        self, coordination_geometry, NRANDOM=10, points_perfect=None
+        self, coordination_geometry, n_random=10, points_perfect=None, **kwargs
     ):
-        """
-        Returns the symmetry measures for a random set of permutations for the coordination geometry
+        """Get the symmetry measures for a random set of permutations for the coordination geometry
         "coordination_geometry". Fallback implementation for the plane separation algorithms measures
         of each permutation
 
         Args:
             coordination_geometry: The coordination geometry to be investigated
-            NRANDOM: Number of random permutations to be tested
+            n_random: Number of random permutations to be tested
 
         Returns:
             The symmetry measures for the given coordination geometry for each permutation investigated.
         """
-        permutations_symmetry_measures = [None] * NRANDOM
+        if "NRANDOM" in kwargs:
+            warnings.warn("NRANDOM is deprecated, use n_random instead", category=DeprecationWarning)
+            n_random = kwargs.pop("NRANDOM")
+        permutations_symmetry_measures = [None] * n_random
         permutations = []
         algos = []
         perfect2local_maps = []
         local2perfect_maps = []
-        for idx in range(NRANDOM):
+        for idx in range(n_random):
             perm = np.random.permutation(coordination_geometry.coordination_number)
             permutations.append(perm)
             p2l = {}

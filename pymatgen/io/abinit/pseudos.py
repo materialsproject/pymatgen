@@ -316,8 +316,7 @@ class Pseudo(MSONable, abc.ABC):
         # return None
 
     def hint_for_accuracy(self, accuracy="normal"):
-        """
-        Returns a Hint object with the suggested value of ecut [Ha] and
+        """Get a Hint object with the suggested value of ecut [Ha] and
         pawecutdg [Ha] for the given accuracy.
         ecut and pawecutdg are set to zero if no hint is available.
 
@@ -1033,10 +1032,10 @@ class PseudoParser:
 
     def __init__(self):
         # List of files that have been parsed successfully.
-        self._parsed_paths = []
+        self._parsed_paths: list = []
 
         # List of files that could not been parsed.
-        self._wrong_paths = []
+        self._wrong_paths: list = []
 
     def scan_directory(self, dirname, exclude_exts=(), exclude_fnames=()):
         """
@@ -1228,14 +1227,14 @@ class PawXmlSetup(Pseudo, PawPseudo):
         # In this way, we know that only the first two bound states (with f and n attributes)
         # should be used for constructing an initial guess for the wave functions.
 
-        self.valence_states = {}
+        self.valence_states: dict = {}
         for node in root.find("valence_states"):
             attrib = AttrDict(node.attrib)
             assert attrib.id not in self.valence_states
             self.valence_states[attrib.id] = attrib
 
         # Parse the radial grids
-        self.rad_grids = {}
+        self.rad_grids: dict = {}
         for node in root.findall("radial_grid"):
             grid_params = node.attrib
             gid = grid_params["id"]
@@ -1546,8 +1545,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
 
     @classmethod
     def from_dir(cls, top, exts=None, exclude_dirs="_*") -> Self | None:
-        """
-        Find all pseudos in the directory tree starting from top.
+        """Find all pseudos in the directory tree starting from top.
 
         Args:
             top: Top of the directory tree
@@ -1819,8 +1817,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         )
 
     def sorted(self, attrname, reverse=False):
-        """
-        Sort the table according to the value of attribute attrname.
+        """Sort the table according to the value of attribute attrname.
 
         Returns:
             New class: `PseudoTable` object

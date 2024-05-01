@@ -47,7 +47,7 @@ __date__ = "4/5/13"
 
 
 class BaderAnalysis:
-    """Performs Bader charge analysis for Cube files or VASP outputs.
+    """Perform Bader charge analysis for Cube files or VASP outputs.
 
     Attributes:
         data (list[dict]): Atomic data parsed from bader analysis.
@@ -73,7 +73,7 @@ class BaderAnalysis:
         bader_path: str | None = None,
         parse_atomic_densities: bool = False,
     ) -> None:
-        """Initializes the Bader caller.
+        """Initialize the Bader caller.
 
         Args:
             chgcar_filename (str): The filename of the CHGCAR.
@@ -422,7 +422,7 @@ class BaderAnalysis:
 
     @property
     def summary(self) -> dict[str, Any]:
-        """Dict summary of key analysis, e.g., atomic volume, charge, etc."""
+        """Dict summary of key analysis, e.g. atomic volume, charge, etc."""
         summary = {
             "min_dist": [d["min_dist"] for d in self.data],
             "charge": [d["charge"] for d in self.data],
@@ -533,8 +533,9 @@ def bader_analysis_from_path(path: str, suffix: str = ""):
         return paths[0]
 
     chgcar_path = _get_filepath("CHGCAR", "Could not find CHGCAR!")
-    if chgcar_path is not None:
-        chgcar = Chgcar.from_file(chgcar_path)
+    if chgcar_path is None:
+        raise FileNotFoundError("Could not find CHGCAR!")
+    chgcar = Chgcar.from_file(chgcar_path)
 
     aeccar0_path = _get_filepath("AECCAR0")
     if not aeccar0_path:

@@ -97,7 +97,7 @@ class PhononDosPlotter:
         self._doses: dict[str, dict[str, np.ndarray]] = {}
 
     def add_dos(self, label: str, dos: PhononDos, **kwargs: Any) -> None:
-        """Adds a dos for plotting.
+        """Add a dos for plotting.
 
         Args:
             label (str): label for the DOS. Must be unique.

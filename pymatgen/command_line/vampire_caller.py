@@ -131,8 +131,8 @@ class VampireCaller:
 
         # Call Vampire
         with subprocess.Popen(["vampire-serial"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
-            stdout, stderr = process.communicate()
-            stdout = stdout.decode()
+            _stdout, stderr = process.communicate()
+            stdout: str = _stdout.decode()
 
         if stderr:
             van_helsing = stderr.decode()
@@ -205,8 +205,10 @@ class VampireCaller:
 
                 if magmoms[site] > 0:
                     spin = 1
-                if magmoms[site] < 0:
+                elif magmoms[site] < 0:
                     spin = -1
+                else:
+                    spin = 0
 
                 atom = structure[i].species.reduced_formula
 
@@ -219,7 +221,7 @@ class VampireCaller:
                 ]
 
         mat_file = "\n".join(mat_file)
-        mat_file_name = mat_name + ".mat"
+        mat_file_name = f"{mat_name}.mat"
 
         self.mat_id_dict = mat_id_dict
 
@@ -359,7 +361,7 @@ class VampireCaller:
                 iid += 1
 
         ucf = "\n".join(ucf)
-        ucf_file_name = mat_name + ".ucf"
+        ucf_file_name = f"{mat_name}.ucf"
 
         with open(ucf_file_name, mode="w") as file:
             file.write(ucf)

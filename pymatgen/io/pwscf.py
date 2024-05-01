@@ -37,8 +37,7 @@ class PWInput:
         kpoints_grid=(1, 1, 1),
         kpoints_shift=(0, 0, 0),
     ):
-        """
-        Initializes a PWSCF input file.
+        """Initialize a PWSCF input file.
 
         Args:
             structure (Structure): Input structure. For spin-polarized calculation,
@@ -357,8 +356,7 @@ class PWInput:
 
     @staticmethod
     def proc_val(key, val):
-        """
-        Static helper method to convert PWINPUT parameters to proper type, e.g.,
+        """Static helper method to convert PWINPUT parameters to proper type, e.g.
         integers, floats, etc.
 
         Args:
@@ -459,10 +457,10 @@ class PWInput:
             "refold_pos",
         )
 
-        def smart_int_or_float(numstr):
-            if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
-                return float(numstr)
-            return int(numstr)
+        def smart_int_or_float(num_str):
+            if num_str.find(".") != -1 or num_str.lower().find("e") != -1:
+                return float(num_str)
+            return int(num_str)
 
         try:
             if key in bool_keys:
@@ -470,7 +468,7 @@ class PWInput:
                     return True
                 if val.lower() == ".false.":
                     return False
-                raise ValueError(key + " should be a boolean type!")
+                raise ValueError(f"{key} should be a boolean type!")
 
             if key in float_keys:
                 return float(re.search(r"^-?\d*\.?\d*d?-?\d*", val.lower())[0].replace("d", "e"))
@@ -522,7 +520,7 @@ class PWOutput:
             filename (str): Filename.
         """
         self.filename = filename
-        self.data = defaultdict(list)
+        self.data: dict[str, list[float] | float] = defaultdict(list)
         self.read_pattern(PWOutput.patterns)
         for k, v in self.data.items():
             if k == "energies":
@@ -538,7 +536,7 @@ class PWOutput:
         arguments.
 
         Args:
-            patterns (dict): A dict of patterns, e.g.,
+            patterns (dict): A dict of patterns, e.g.
                 {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"}.
             reverse (bool): Read files in reverse. Defaults to false. Useful for
                 large files, esp OUTCARs, especially when used with

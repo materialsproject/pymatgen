@@ -30,8 +30,6 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-
     from typing_extensions import Self
 
     from pymatgen.core.composition import Composition
@@ -134,7 +132,7 @@ class Lobsterin(UserDict, MSONable):
             raise KeyError("There are duplicates for the keywords!")
         self.update(settingsdict)
 
-    def __setitem__(self, key, val):
+    def __setitem__(self, key, val) -> None:
         """
         Add parameter-val pair to Lobsterin. Warns if parameter is not in list of
         valid lobsterin tags. Also cleans the parameter and val by stripping
@@ -148,14 +146,25 @@ class Lobsterin(UserDict, MSONable):
 
         super().__setitem__(new_key, val.strip() if isinstance(val, str) else val)
 
-    def __getitem__(self, item):
+    def __getitem__(self, key) -> Any:
         """Implements getitem from dict to avoid problems with cases."""
-        new_item = next((key_here for key_here in self if item.strip().lower() == key_here.lower()), item)
+        normalized_key = next((k for k in self if key.strip().lower() == k.lower()), key)
 
-        if new_item.lower() not in [element.lower() for element in Lobsterin.AVAILABLE_KEYWORDS]:
-            raise KeyError("Key is currently not available")
+        key_is_unknown = normalized_key.lower() not in map(str.lower, Lobsterin.AVAILABLE_KEYWORDS)
+        if key_is_unknown or normalized_key not in self.data:
+            raise KeyError(f"{key=} is not available")
 
-        return super().__getitem__(new_item)
+        return self.data[normalized_key]
+
+    def __contains__(self, key) -> bool:
+        """Implements getitem from dict to avoid problems with cases."""
+        normalized_key = next((k for k in self if key.strip().lower() == k.lower()), key)
+
+        key_is_unknown = normalized_key.lower() not in map(str.lower, Lobsterin.AVAILABLE_KEYWORDS)
+        if key_is_unknown or normalized_key not in self.data:
+            return False
+
+        return True
 
     def __delitem__(self, key):
         new_key = next((key_here for key_here in self if key.strip().lower() == key_here.lower()), key)
@@ -270,7 +279,7 @@ class Lobsterin(UserDict, MSONable):
                         # checks if entry is True or False
                         for key_here in self:
                             if key.lower() == key_here.lower():
-                                file.write(key + "\n")
+                                file.write(f"{key}\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.STRING_KEYWORDS]:
                         file.write(f"{key} {self.get(key)}\n")
                     elif key.lower() in [element.lower() for element in Lobsterin.LISTKEYWORDS]:
@@ -431,7 +440,7 @@ class Lobsterin(UserDict, MSONable):
         reciprocal_density: int = 100,
         isym: int = -1,
         from_grid: bool = False,
-        input_grid: Sequence[int] = (5, 5, 5),
+        input_grid: tuple[int, int, int] = (5, 5, 5),
         line_mode: bool = True,
         kpoints_line_density: int = 20,
         symprec: float = 0.01,
@@ -446,7 +455,7 @@ class Lobsterin(UserDict, MSONable):
             isym (int): either -1 or 0. Current Lobster versions only allow -1.
             from_grid (bool): If True KPOINTS will be generated with the help of a grid given in input_grid.
                 Otherwise, they will be generated from the reciprocal_density
-            input_grid (list): grid to generate the KPOINTS file
+            input_grid (tuple): grid to generate the KPOINTS file
             line_mode (bool): If True, band structure will be generated
             kpoints_line_density (int): density of the lines in the band structure
             symprec (float): precision to determine symmetry
@@ -543,7 +552,7 @@ class Lobsterin(UserDict, MSONable):
             comment=comment,
             style=Kpoints.supported_modes.Reciprocal,
             num_kpts=len(kpts),
-            kpts=kpts,
+            kpts=tuple(kpts),
             kpts_weights=weights,
             labels=all_labels,
         )
@@ -566,30 +575,30 @@ class Lobsterin(UserDict, MSONable):
         lobsterin_dict: dict[str, Any] = {}
 
         for datum in data:
-            # Remove all comments
-            if not datum.startswith(("!", "#", "//")):
-                pattern = r"\b[^!#//]+"  # exclude comments after commands
-                if matched_pattern := re.findall(pattern, datum):
-                    raw_datum = matched_pattern[0].replace("\t", " ")  # handle tab in between and end of command
-                    key_word = raw_datum.strip().split(" ")  # extract keyword
-                    if len(key_word) > 1:
-                        # check which type of keyword this is, handle accordingly
-                        if key_word[0].lower() not in [datum2.lower() for datum2 in Lobsterin.LISTKEYWORDS]:
-                            if key_word[0].lower() not in [datum2.lower() for datum2 in Lobsterin.FLOAT_KEYWORDS]:
-                                if key_word[0].lower() not in lobsterin_dict:
-                                    lobsterin_dict[key_word[0].lower()] = " ".join(key_word[1:])
-                                else:
-                                    raise ValueError(f"Same keyword {key_word[0].lower()} twice!")
-                            elif key_word[0].lower() not in lobsterin_dict:
-                                lobsterin_dict[key_word[0].lower()] = float(key_word[1])
-                            else:
-                                raise ValueError(f"Same keyword {key_word[0].lower()} twice!")
-                        elif key_word[0].lower() not in lobsterin_dict:
-                            lobsterin_dict[key_word[0].lower()] = [" ".join(key_word[1:])]
+            if datum.startswith(("!", "#", "//")):
+                continue  # ignore comments
+            pattern = r"\b[^!#//]+"  # exclude comments after commands
+            if matched_pattern := re.findall(pattern, datum):
+                raw_datum = matched_pattern[0].replace("\t", " ")  # handle tab in between and end of command
+                key_word = raw_datum.strip().split(" ")  # extract keyword
+                key = key_word[0].lower()
+                if len(key_word) > 1:
+                    # check which type of keyword this is, handle accordingly
+                    if key not in [datum2.lower() for datum2 in Lobsterin.LISTKEYWORDS]:
+                        if key not in [datum2.lower() for datum2 in Lobsterin.FLOAT_KEYWORDS]:
+                            if key in lobsterin_dict:
+                                raise ValueError(f"Same keyword {key} twice!")
+                            lobsterin_dict[key] = " ".join(key_word[1:])
+                        elif key in lobsterin_dict:
+                            raise ValueError(f"Same keyword {key} twice!")
                         else:
-                            lobsterin_dict[key_word[0].lower()].append(" ".join(key_word[1:]))
-                    elif len(key_word) > 0:
-                        lobsterin_dict[key_word[0].lower()] = True
+                            lobsterin_dict[key] = float("nan" if key_word[1].strip() == "None" else key_word[1])
+                    elif key not in lobsterin_dict:
+                        lobsterin_dict[key] = [" ".join(key_word[1:])]
+                    else:
+                        lobsterin_dict[key].append(" ".join(key_word[1:]))
+                elif len(key_word) > 0:
+                    lobsterin_dict[key] = True
 
         return cls(lobsterin_dict)
 
@@ -711,10 +720,14 @@ class Lobsterin(UserDict, MSONable):
             lobsterin_dict["loadProjectionFromFile"] = True
 
         if option == "standard_with_energy_range_from_vasprun":
-            Vr = Vasprun(Vasprun_output)
-            lobsterin_dict["COHPstartEnergy"] = round(min(Vr.complete_dos.energies - Vr.complete_dos.efermi), 4)
-            lobsterin_dict["COHPendEnergy"] = round(max(Vr.complete_dos.energies - Vr.complete_dos.efermi), 4)
-            lobsterin_dict["COHPSteps"] = len(Vr.complete_dos.energies)
+            vasp_run = Vasprun(Vasprun_output)
+            lobsterin_dict["COHPstartEnergy"] = round(
+                min(vasp_run.complete_dos.energies - vasp_run.complete_dos.efermi), 4
+            )
+            lobsterin_dict["COHPendEnergy"] = round(
+                max(vasp_run.complete_dos.energies - vasp_run.complete_dos.efermi), 4
+            )
+            lobsterin_dict["COHPSteps"] = len(vasp_run.complete_dos.energies)
 
         # TODO: add cobi here! might be relevant lobster version
         if option == "onlycohp":
@@ -813,10 +826,9 @@ class Lobsterin(UserDict, MSONable):
 
 def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> list:
     """
-
     Args:
-        min_basis: list of basis entries: e.g., ['Si 3p 3s ']
-        max_basis: list of basis entries: e.g., ['Si 3p 3s '].
+        min_basis: list of basis entries: e.g. ['Si 3p 3s ']
+        max_basis: list of basis entries: e.g. ['Si 3p 3s '].
 
     Returns:
         list[list[str]]: all possible combinations of basis functions, e.g. [['Si 3p 3s']]

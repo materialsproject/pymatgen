@@ -74,7 +74,7 @@ class GruneisenParameter(MSONable):
         squared: bool = True,
         limit_frequencies: Literal["debye", "acoustic"] | None = None,
     ) -> float:
-        """Calculates the average of the Gruneisen based on the values on the regular grid.
+        """Calculate the average of the Gruneisen based on the values on the regular grid.
         If squared is True, the average will use the squared value of the Gruneisen and a squared root
         is performed on the final result.
         Values associated with negative frequencies will be ignored.
@@ -134,7 +134,7 @@ class GruneisenParameter(MSONable):
         theta_d: float | None = None,
         t: float | None = None,
     ) -> float:
-        """Calculates the thermal conductivity at the acoustic Debye temperature with the Slack formula,
+        """Calculate the thermal conductivity at the acoustic Debye temperature with the Slack formula,
         using the average Gruneisen.
         Adapted from abipy.
 
@@ -292,7 +292,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
     def as_dict(self) -> dict:
         """
         Returns:
-            MSONable (dict).
+            dict[str, Any]: MSONable dict.
         """
         dct = {
             "@module": type(self).__module__,

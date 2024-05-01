@@ -163,7 +163,7 @@ class Cohp(MSONable):
         limit: -COHP smaller -limit will be considered.
         """
         populations = self.cohp
-        n_energies_below_efermi = len([x for x in self.energies if x <= self.efermi])
+        n_energies_below_efermi = len([energy for energy in self.energies if energy <= self.efermi])
 
         if populations is None:
             return None
@@ -555,6 +555,8 @@ class CompleteCohp(Cohp):
         are_cobis = dct.get("are_cobis", False)
         are_multi_center_cobis = dct.get("are_multi_center_cobis", False)
         are_coops = dct["are_coops"]
+        avg_cohp = None
+
         if "bonds" in dct:
             bonds = {
                 bond: {
@@ -768,7 +770,7 @@ class CompleteCohp(Cohp):
             for i in avg_data:
                 for spin in spins:
                     rows = np.array([v[i][spin] for v in cohp_data.values()])
-                    avg = np.average(rows, axis=0)
+                    avg = np.mean(rows, axis=0)
                     # LMTO COHPs have 5 significant figures
                     avg_data[i].update({spin: np.array([round_to_sigfigs(a, 5) for a in avg], dtype=float)})
             avg_cohp = Cohp(efermi, energies, avg_data["COHP"], icohp=avg_data["ICOHP"])
@@ -976,7 +978,7 @@ class IcohpValue(MSONable):
             spin: Spin.up or Spin.down.
 
         Returns:
-            icohpvalue (float) corresponding to chosen spin.
+            float: corresponding to chosen spin.
         """
         if not self.is_spin_polarized and spin == Spin.down:
             raise ValueError("The calculation was not performed with spin polarization")
@@ -990,7 +992,7 @@ class IcohpValue(MSONable):
             spin: Spin.up or Spin.down.
 
         Returns:
-            icohpvalue (float) corresponding to chosen spin.
+            float: corresponding to chosen spin.
         """
         if not self.is_spin_polarized and spin == Spin.down:
             raise ValueError("The calculation was not performed with spin polarization")
@@ -1000,7 +1002,8 @@ class IcohpValue(MSONable):
 
     @property
     def icohp(self):
-        """Dict with icohps for spinup and spindown
+        """Dict with ICOHPs for spin up and spin down.
+
         Returns:
             dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}.
         """
@@ -1017,10 +1020,10 @@ class IcohpValue(MSONable):
 
     @property
     def summed_orbital_icohp(self):
-        """Sums orbitals-resolved ICOHPs of both spin channels for spin-plarized compounds.
+        """Sums orbital-resolved ICOHPs of both spin channels for spin-polarized compounds.
 
         Returns:
-            {"str(Orbital1)-str(Ortibal2)": icohp value in eV}.
+            dict[str, float]: "str(Orbital1)-str(Ortibal2)" mapped to ICOHP value in eV.
         """
         orbital_icohp = {}
         for orb, item in self._orbitals.items():

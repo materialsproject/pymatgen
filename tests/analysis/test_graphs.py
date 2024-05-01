@@ -339,7 +339,8 @@ from    to  to_image
             assert nio_struct_graph.get_coordination_of_site(n) == 6
 
     @pytest.mark.skipif(
-        pygraphviz is None or not (which("neato") and which("fdp")), reason="graphviz executables not present"
+        pygraphviz is None or not (which("neato") and which("fdp")),
+        reason="graphviz executables not present",
     )
     def test_draw(self):
         # draw MoS2 graph

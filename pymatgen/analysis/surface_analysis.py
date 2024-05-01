@@ -149,8 +149,7 @@ class SlabEntry(ComputedStructureEntry):
         return dct
 
     def gibbs_binding_energy(self, eads=False):
-        """
-        Returns the adsorption energy or Gibbs binding energy of an adsorbate on a surface.
+        """Get the adsorption energy or Gibbs binding energy of an adsorbate on a surface.
 
         Args:
             eads (bool): Whether to calculate the adsorption energy
@@ -214,6 +213,7 @@ class SlabEntry(ComputedStructureEntry):
         # Next, we add the contribution to the bulk energy from
         # the variable element (the element without a ref_entry),
         # as a function of the other elements
+        ref_el = None
         for ref_el in ucell_comp.as_dict():
             if str(ref_el) not in ref_entries_dict:
                 break
@@ -231,20 +231,14 @@ class SlabEntry(ComputedStructureEntry):
 
     @property
     def get_unit_primitive_area(self):
-        """
-        Returns the surface area of the adsorbed system per
-        unit area of the primitive slab system.
-        """
+        """The surface area of the adsorbed system per unit area of the primitive slab system."""
         A_ads = self.surface_area
         A_clean = self.clean_entry.surface_area
         return A_ads / A_clean
 
     @property
     def get_monolayer(self):
-        """
-        Returns the primitive unit surface area density of the
-            adsorbate.
-        """
+        """The primitive unit surface area density of the adsorbate."""
         unit_a = self.get_unit_primitive_area
         n_surfs = self.Nsurfs_ads_in_slab
         n_ads = self.Nads_in_slab
@@ -297,7 +291,7 @@ class SlabEntry(ComputedStructureEntry):
 
     @property
     def surface_area(self):
-        """Calculates the surface area of the slab."""
+        """Calculate the surface area of the slab."""
         matrix = self.structure.lattice.matrix
         return np.linalg.norm(np.cross(matrix[0], matrix[1]))
 
@@ -447,9 +441,8 @@ class SurfaceEnergyPlotter:
         delu_default=0,
         no_doped=False,
         no_clean=False,
-    ):
-        """
-        Returns the entry corresponding to the most stable slab for a particular
+    ) -> tuple[SlabEntry, float]:
+        """Get the entry corresponding to the most stable slab for a particular
             facet at a specific chempot. We assume that surface energy is constant
             so all free variables must be set with delu_dict, otherwise they are
             assumed to be equal to delu_default.
@@ -464,7 +457,7 @@ class SurfaceEnergyPlotter:
             no_clean (bool): Consider stability of doped slabs only.
 
         Returns:
-            SlabEntry, surface_energy (float)
+            tuple[SlabEntry, float]: The most stable slab entry and its surface energy.
         """
         all_delu_dict = self.set_all_variables(delu_dict, delu_default)
 
@@ -955,6 +948,8 @@ class SurfaceEnergyPlotter:
                 stable_u_range_dict = self.stable_u_range_dict(
                     chempot_range, ref_delu, no_doped=no_doped, delu_dict=delu_dict, miller_index=hkl
                 )
+            else:
+                stable_u_range_dict = {}
 
             already_labelled = []
             label = ""
@@ -1021,6 +1016,7 @@ class SurfaceEnergyPlotter:
             Plot: Plot of binding energy vs monolayer for all facets.
         """
         ax = pretty_plot(width=8, height=7)
+        ads_entry = clean_entry = None
         for hkl in self.all_slab_entries:
             ml_be_dict = {}
             for clean_entry in self.all_slab_entries[hkl]:
@@ -1088,8 +1084,7 @@ class SurfaceEnergyPlotter:
         annotate_monolayer=True,
         JPERM2=False,
     ):
-        """
-        For each facet, plot the clean surface energy against the most
+        """For each facet, plot the clean surface energy against the most
             stable binding energy.
 
         Args:
@@ -1156,7 +1151,7 @@ class SurfaceEnergyPlotter:
 
         Args:
             elements (list): Sequence of elements to be considered as independent
-                variables. E.g., if you want to show the stability ranges of
+                variables. e.g. if you want to show the stability ranges of
                 all Li-Co-O phases w.r.t. to duLi and duO, you will supply
                 [Element("Li"), Element("O")]
             miller_index ([h, k, l]): Miller index of the surface we are interested in
@@ -1269,8 +1264,7 @@ class SurfaceEnergyPlotter:
         return ax
 
     def set_all_variables(self, delu_dict, delu_default):
-        """
-        Sets all chemical potential values and returns a dictionary where
+        """Set all chemical potential values and returns a dictionary where
             the key is a sympy Symbol and the value is a float (chempot).
 
         Args:
@@ -1345,8 +1339,7 @@ class WorkFunctionAnalyzer:
     """
 
     def __init__(self, structure: Structure, locpot_along_c, efermi, shift=0, blength=3.5):
-        """
-        Initializes the WorkFunctionAnalyzer class.
+        """Initialize the WorkFunctionAnalyzer class.
 
         Args:
             structure (Structure): Structure object modelling the surface
@@ -1414,8 +1407,7 @@ class WorkFunctionAnalyzer:
         self.ave_locpot = (self.vacuum_locpot - min(self.locpot_along_c)) / 2
 
     def get_locpot_along_slab_plot(self, label_energies=True, plt=None, label_fontsize=10):
-        """
-        Returns a plot of the local potential (eV) vs the
+        """Get a plot of the local potential (eV) vs the
             position along the c axis of the slab model (Ang).
 
         Args:
@@ -1572,8 +1564,7 @@ class WorkFunctionAnalyzer:
 
     @classmethod
     def from_files(cls, poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5) -> Self:
-        """
-        Initializes a WorkFunctionAnalyzer from POSCAR, LOCPOT, and OUTCAR files.
+        """Initialize a WorkFunctionAnalyzer from POSCAR, LOCPOT, and OUTCAR files.
 
         Args:
             poscar_filename (str): The path to the POSCAR file.
@@ -1726,8 +1717,7 @@ class NanoscaleStability:
 
     @staticmethod
     def bulk_gform(bulk_entry):
-        """
-        Returns the formation energy of the bulk.
+        """Get the formation energy of the bulk.
 
         Args:
             bulk_entry (ComputedStructureEntry): Entry of the corresponding bulk.
@@ -1738,8 +1728,7 @@ class NanoscaleStability:
         return bulk_entry.energy / bulk_entry.structure.volume
 
     def scaled_wulff(self, wulff_shape, r):
-        """
-        Scales the Wulff shape with an effective radius r. Note that the resulting
+        """Scales the Wulff shape with an effective radius r. Note that the resulting
             Wulff does not necessarily have the same effective radius as the one
             provided. The Wulff shape is scaled by its surface energies where first
             the surface energies are scale by the minimum surface energy and then
@@ -1778,8 +1767,7 @@ class NanoscaleStability:
         normalize=False,
         scale_per_atom=False,
     ):
-        """
-        Returns the plot of the formation energy of a particle against its
+        """Get the plot of the formation energy of a particle against its
             effect radius.
 
         Args:
@@ -1845,8 +1833,7 @@ class NanoscaleStability:
         normalize=False,
         scale_per_atom=False,
     ):
-        """
-        Returns the plot of the formation energy of a particles
+        """Get the plot of the formation energy of a particles
             of different polymorphs against its effect radius.
 
         Args:

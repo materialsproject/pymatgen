@@ -90,7 +90,7 @@ def main():
 
     parser_config = subparsers.add_parser(
         "config",
-        help="Tools for configuring pymatgen, e.g., potcar setup, modifying .pmgrc.yaml configuration file.",
+        help="Tools for configuring pymatgen, e.g. potcar setup, modifying .pmgrc.yaml configuration file.",
     )
     groups = parser_config.add_mutually_exclusive_group(required=True)
     groups.add_argument(
@@ -122,7 +122,7 @@ def main():
         "--add",
         dest="var_spec",
         nargs="+",
-        help="Variables to add in the form of space separated key value pairs. E.g., PMG_VASP_PSP_DIR ~/PSPs",
+        help="Variables to add in the form of space separated key value pairs. e.g. PMG_VASP_PSP_DIR ~/PSPs",
     )
 
     groups.add_argument(
@@ -265,7 +265,7 @@ def main():
         "--xrd",
         dest="xrd_structure_file",
         metavar="structure_file",
-        help="Generate XRD plots from any supported structure file, e.g., CIF, POSCAR, vasprun.xml, etc.",
+        help="Generate XRD plots from any supported structure file, e.g. CIF, POSCAR, vasprun.xml, etc.",
     )
 
     parser_plot.add_argument(
@@ -282,7 +282,7 @@ def main():
         dest="element",
         type=str,
         nargs=1,
-        help="List of elements to plot as comma-separated values e.g., Fe,Mn",
+        help="List of elements to plot as comma-separated values e.g. Fe,Mn",
     )
     parser_plot.add_argument(
         "-o",
@@ -300,7 +300,7 @@ def main():
         type=str,
         nargs=1,
         help="Comma-separated list of indices to plot "
-        "charge integration, e.g., 1,2,3,4. If not "
+        "charge integration, e.g. 1,2,3,4. If not "
         "provided, the code will plot the chgint "
         "for all symmetrically distinct atoms "
         "detected.",
@@ -372,7 +372,7 @@ def main():
         dest="localenv",
         nargs="+",
         help="Local environment analysis. Provide bonds in the format of"
-        "Center Species-Ligand Species=max_dist, e.g., H-O=0.5.",
+        "Center Species-Ligand Species=max_dist, e.g. H-O=0.5.",
     )
 
     parser_structure.set_defaults(func=analyze_structures)
@@ -385,7 +385,7 @@ def main():
         dest="exclude_bonding",
         type=str,
         nargs=1,
-        help="List of elements to exclude from bonding analysis. E.g., Li,Na",
+        help="List of elements to exclude from bonding analysis. e.g. Li,Na",
     )
     parser_view.set_defaults(func=parse_view)
 

@@ -79,7 +79,7 @@ class SubstitutionProbability:
 
         # create Z and px
         self.Z = 0
-        self._px = defaultdict(float)
+        self._px: dict[Species, float] = defaultdict(float)
         for s1, s2 in itertools.product(self.species, repeat=2):
             value = math.exp(self.get_lambda(s1, s2))
             self._px[s1] += value / 2
@@ -109,8 +109,7 @@ class SubstitutionProbability:
         return self._px[get_el_sp(sp)]
 
     def prob(self, s1, s2):
-        """
-        Gets the probability of 2 species substitution. Not used by the
+        """Get the probability of 2 species substitution. Not used by the
         structure predictor.
 
         Returns:
@@ -143,8 +142,7 @@ class SubstitutionProbability:
         return math.exp(self.get_lambda(s1, s2)) * self.Z / (self.get_px(s1) * self.get_px(s2))
 
     def cond_prob_list(self, l1, l2):
-        """
-        Find the probabilities of 2 lists. These should include ALL species.
+        """Find the probabilities of 2 lists. These should include ALL species.
         This is the probability conditional on l2.
 
         Args:
@@ -252,8 +250,7 @@ class SubstitutionPredictor:
         return output
 
     def composition_prediction(self, composition, to_this_composition=True):
-        """
-        Returns charged balanced substitutions from a starting or ending
+        """Get charged balanced substitutions from a starting or ending
         composition.
 
         Args:

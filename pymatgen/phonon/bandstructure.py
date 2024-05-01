@@ -183,7 +183,7 @@ class PhononBandStructure(MSONable):
         return self.min_freq()[1] + tol < 0
 
     def has_imaginary_gamma_freq(self, tol: float = 0.01) -> bool:
-        """Checks if there are imaginary modes at the gamma point and all close points.
+        """Check if there are imaginary modes at the gamma point and all close points.
 
         Args:
             tol: Tolerance for determining if a frequency is imaginary. Defaults to 0.01.

@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import collections
 import itertools
 import math
 import re
 import warnings
+from collections import defaultdict
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -245,9 +245,7 @@ class BandStructure:
         result = {}
         structure = self.structure
         for spin, v in self.projections.items():
-            result[spin] = [
-                [collections.defaultdict(float) for i in range(len(self.kpoints))] for j in range(self.nb_bands)
-            ]
+            result[spin] = [[defaultdict(float) for i in range(len(self.kpoints))] for j in range(self.nb_bands)]
             for i, j, k in itertools.product(
                 range(self.nb_bands),
                 range(len(self.kpoints)),
@@ -263,7 +261,7 @@ class BandStructure:
         Args:
             el_orb_spec: A dictionary of Elements and Orbitals for which we want
                 to have projections on. It is given as: {Element:[orbitals]},
-                e.g., {'Cu':['d','s']}
+                e.g. {'Cu':['d','s']}
 
         Returns:
             A dictionary of projections on elements in the
@@ -276,7 +274,7 @@ class BandStructure:
         el_orb_spec = {get_el_sp(el): orbs for el, orbs in el_orb_spec.items()}
         for spin, v in self.projections.items():
             result[spin] = [
-                [{str(e): collections.defaultdict(float) for e in el_orb_spec} for i in range(len(self.kpoints))]
+                [{str(e): defaultdict(float) for e in el_orb_spec} for i in range(len(self.kpoints))]
                 for j in range(self.nb_bands)
             ]
 
@@ -351,7 +349,7 @@ class BandStructure:
         else:
             list_ind_kpts.append(index)
         # get all other bands sharing the vbm
-        list_ind_band = collections.defaultdict(list)
+        list_ind_band = defaultdict(list)
         for spin in self.bands:
             for i in range(self.nb_bands):
                 if math.fabs(self.bands[spin][i][index] - max_tmp) < 0.001:
@@ -416,7 +414,7 @@ class BandStructure:
             list_index_kpoints.append(index)
 
         # get all other bands sharing the cbm
-        list_index_band = collections.defaultdict(list)
+        list_index_band = defaultdict(list)
         for spin in self.bands:
             for i in range(self.nb_bands):
                 if math.fabs(self.bands[spin][i][index] - max_tmp) < 0.001:
@@ -1020,9 +1018,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         """
         result = {}
         for spin, v in self.projections.items():
-            result[spin] = [
-                [collections.defaultdict(float) for i in range(len(self.kpoints))] for j in range(self.nb_bands)
-            ]
+            result[spin] = [[defaultdict(float) for i in range(len(self.kpoints))] for j in range(self.nb_bands)]
             for i, j in itertools.product(range(self.nb_bands), range(len(self.kpoints))):
                 for key, item in v[i][j].items():
                     for item2 in item.values():
@@ -1037,7 +1033,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         Args:
             el_orb_spec: A dictionary of Elements and Orbitals for which we want
                 to have projections on. It is given as: {Element:[orbitals]},
-                e.g., {'Si':['3s','3p']} or {'Si':['3s','3p_x', '3p_y', '3p_z']} depending on input files
+                e.g. {'Si':['3s','3p']} or {'Si':['3s','3p_x', '3p_y', '3p_z']} depending on input files
 
         Returns:
             A dictionary of projections on elements in the
@@ -1050,7 +1046,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         el_orb_spec = {get_el_sp(el): orbs for el, orbs in el_orb_spec.items()}
         for spin, v in self.projections.items():
             result[spin] = [
-                [{str(e): collections.defaultdict(float) for e in el_orb_spec} for i in range(len(self.kpoints))]
+                [{str(e): defaultdict(float) for e in el_orb_spec} for i in range(len(self.kpoints))]
                 for j in range(self.nb_bands)
             ]
 
@@ -1064,7 +1060,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
 
 
 def get_reconstructed_band_structure(list_bs, efermi=None):
-    """This method takes a list of band structures and reconstructs
+    """Take a list of band structures and reconstructs
     one band structure object from all of them.
 
     This is typically very useful when you split non self consistent

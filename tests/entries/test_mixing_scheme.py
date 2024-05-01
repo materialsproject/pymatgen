@@ -1230,8 +1230,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
 
     def test_check_potcar(self, ms_complete):
-        """
-        Entries with invalid or missing POTCAR raise error by default but should be ignored if
+        """Entries with invalid or missing POTCAR raise error by default but should be ignored if
         check_potcar=False in MaterialsProjectDFTMixingScheme.
         """
         # remove the POTCAR spec from one of the entries (changing in-place is fine since

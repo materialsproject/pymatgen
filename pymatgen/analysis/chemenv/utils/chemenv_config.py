@@ -19,11 +19,10 @@ __date__ = "Feb 20, 2016"
 
 
 class ChemEnvConfig:
-    """
-    Class used to store the configuration of the chemenv package :
-     - Materials project access
-     - ICSD database access
-     - Default options (strategies, ...).
+    """Store the configuration of the chemenv package:
+    - Materials project access
+    - ICSD database access
+    - Default options (strategies, ...).
     """
 
     DEFAULT_PACKAGE_OPTIONS = dict(
@@ -78,18 +77,15 @@ class ChemEnvConfig:
                 break
             elif test == "S":
                 config_file = self.save()
+                print(f"Configuration has been saved to file {config_file!r}")
                 break
             else:
                 print(" ... wrong key, try again ...")
             print()
-        if test == "S":
-            print(f"Configuration has been saved to file {config_file!r}")
 
     @property
     def has_materials_project_access(self):
-        """
-        Whether MP access is enabled.
-        """
+        """Whether MP access is enabled."""
         return self.materials_project_configuration is not None
 
     def setup_package_options(self):
@@ -136,8 +132,7 @@ class ChemEnvConfig:
         return out
 
     def save(self, root_dir=None):
-        """
-        Save the options.
+        """Save the options.
 
         Args:
             root_dir:

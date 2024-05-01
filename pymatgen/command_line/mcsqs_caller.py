@@ -50,9 +50,9 @@ def run_mcsqs(
         clusters (dict): Dictionary of cluster interactions with entries in the form
             number of atoms: cutoff in angstroms
         scaling (int or list): Scaling factor to determine supercell. Two options are possible:
-                a. (preferred) Scales number of atoms, e.g., for a structure with 8 atoms,
+                a. (preferred) Scales number of atoms, e.g. for a structure with 8 atoms,
                    scaling=4 would lead to a 32 atom supercell
-                b. A sequence of three scaling factors, e.g., [2, 1, 1], which
+                b. A sequence of three scaling factors, e.g. [2, 1, 1], which
                    specifies that the supercell should have dimensions 2a x b x c
             Defaults to 1.
         search_time (float): Time spent looking for the ideal SQS in minutes (default: 60)

@@ -118,8 +118,7 @@ class QuasiHarmonicDebyeApprox:
         self.optimize_gibbs_free_energy()
 
     def optimize_gibbs_free_energy(self):
-        """
-        Evaluate the Gibbs free energy as a function of V, T and P i.e
+        """Evaluate the Gibbs free energy as a function of V, T and P i.e
         G(V, T, P), minimize G(V, T, P) w.r.t. V for each T and store the
         optimum values.
 
@@ -133,6 +132,7 @@ class QuasiHarmonicDebyeApprox:
         )
 
         for temp in temperatures:
+            G_opt = V_opt = None
             try:
                 G_opt, V_opt = self.optimizer(temp)
             except Exception:
@@ -144,8 +144,7 @@ class QuasiHarmonicDebyeApprox:
             self.optimum_volumes.append(V_opt)
 
     def optimizer(self, temperature):
-        """
-        Evaluate G(V, T, P) at the given temperature(and pressure) and minimize it w.r.t. V.
+        """Evaluate G(V, T, P) at the given temperature(and pressure) and minimize it w.r.t. V.
 
         1. Compute the  vibrational Helmholtz free energy, A_vib.
         2. Compute the Gibbs free energy as a function of volume, temperature
@@ -268,8 +267,7 @@ class QuasiHarmonicDebyeApprox:
 
     @cite_gibbs
     def gruneisen_parameter(self, temperature, volume):
-        """
-        Slater-gamma formulation(the default):
+        """Slater-gamma formulation(the default):
             gruneisen parameter = - d log(theta)/ d log(V) = - (1/6 + 0.5 d log(B)/ d log(V))
                                 = - (1/6 + 0.5 V/B dB/dV), where dB/dV = d^2E/dV^2 + V * d^3E/dV^3.
 

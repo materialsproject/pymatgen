@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import warnings
+from typing import cast
 
 import networkx as nx
 from monty.json import MSONable
@@ -43,8 +44,7 @@ class BondDissociationEnergies(MSONable):
         allow_additional_charge_separation: bool = False,
         multibreak: bool = False,
     ) -> None:
-        """
-        Note that the entries passed by the user must have the following keys: formula_pretty, initial_molecule,
+        """The provided entries must have the following keys: formula_pretty, initial_molecule,
         final_molecule. If a PCM is present, all entries should also have a pcm_dielectric key.
 
         Args:
@@ -74,7 +74,8 @@ class BondDissociationEnergies(MSONable):
                     raise RuntimeError(f"{key=} must be present in all fragment entries! Exiting...")
 
         # Define expected charges
-        final_charge = int(molecule_entry["final_molecule"]["charge"])  # type: ignore[index]
+        final_mol = cast(dict, molecule_entry["final_molecule"])
+        final_charge = int(final_mol["charge"])  # type: ignore[index]
         if not allow_additional_charge_separation:
             if final_charge == 0:
                 self.expected_charges = [-1, 0, 1]
@@ -90,9 +91,7 @@ class BondDissociationEnergies(MSONable):
             self.expected_charges = [final_charge - 2, final_charge - 1, final_charge, final_charge + 1]
 
         # Build principle molecule graph
-        self.mol_graph = MoleculeGraph.from_local_env_strategy(
-            Molecule.from_dict(molecule_entry["final_molecule"]), OpenBabelNN()
-        )
+        self.mol_graph = MoleculeGraph.from_local_env_strategy(Molecule.from_dict(final_mol), OpenBabelNN())
         # Loop through bonds, aka graph edges, and fragment and process:
         for bond in self.mol_graph.graph.edges:
             bonds = [(bond[0], bond[1])]
@@ -118,8 +117,9 @@ class BondDissociationEnergies(MSONable):
             bonds (list): bonds to process.
         """
         # Try to split the principle:
+        fragments: list[MoleculeGraph] = []
         try:
-            frags = self.mol_graph.split_molecule_subgraphs(bonds, allow_reverse=True)
+            fragments = self.mol_graph.split_molecule_subgraphs(bonds, allow_reverse=True)
             frag_success = True
 
         except MolGraphSplitError:
@@ -166,7 +166,7 @@ class BondDissociationEnergies(MSONable):
                         # We shouldn't ever encounter more than one good entry.
                         raise RuntimeError("There should only be one valid ring opening fragment! Exiting...")
             elif len(bonds) == 2:
-                raise RuntimeError("Should only be trying to break two bonds if multibreak is true! Exiting...")
+                raise RuntimeError("Should only be trying to break two bonds if multibreak=True! Exiting...")
             else:
                 raise ValueError("No reason to try and break more than two bonds at once! Exiting...")
             frag_success = False
@@ -176,19 +176,19 @@ class BondDissociationEnergies(MSONable):
             # As above, we begin by making sure we haven't already encountered an identical pair of fragments:
             frags_done = False
             for frag_pair in self.done_frag_pairs:
-                if frag_pair[0].isomorphic_to(frags[0]):
-                    if frag_pair[1].isomorphic_to(frags[1]):
+                if frag_pair[0].isomorphic_to(fragments[0]):
+                    if frag_pair[1].isomorphic_to(fragments[1]):
                         frags_done = True
                         break
-                elif frag_pair[1].isomorphic_to(frags[0]) and frag_pair[0].isomorphic_to(frags[1]):
+                elif frag_pair[1].isomorphic_to(fragments[0]) and frag_pair[0].isomorphic_to(fragments[1]):
                     frags_done = True
                     break
             if not frags_done:
                 # If we haven't, we save this pair and search for the relevant fragment entries:
-                self.done_frag_pairs += [frags]
+                self.done_frag_pairs += [fragments]
                 n_entries_for_this_frag_pair = 0
-                frag1_entries = self.search_fragment_entries(frags[0])
-                frag2_entries = self.search_fragment_entries(frags[1])
+                frag1_entries = self.search_fragment_entries(fragments[0])
+                frag2_entries = self.search_fragment_entries(fragments[1])
                 frag1_charges_found = []
                 frag2_charges_found = []
                 # We then check for our expected charges of each fragment:
@@ -200,14 +200,14 @@ class BondDissociationEnergies(MSONable):
                         frag2_charges_found += [frag2["initial_molecule"]["charge"]]
                 # If we're missing some of either, tell the user:
                 if len(frag1_charges_found) < len(self.expected_charges):
-                    bb = BabelMolAdaptor(frags[0].molecule)
+                    bb = BabelMolAdaptor(fragments[0].molecule)
                     pb_mol = bb.pybel_mol
                     smiles = pb_mol.write("smi").split()[0]
                     for charge in self.expected_charges:
                         if charge not in frag1_charges_found:
                             warnings.warn(f"Missing {charge=} for fragment {smiles}")
                 if len(frag2_charges_found) < len(self.expected_charges):
-                    bb = BabelMolAdaptor(frags[1].molecule)
+                    bb = BabelMolAdaptor(fragments[1].molecule)
                     pb_mol = bb.pybel_mol
                     smiles = pb_mol.write("smi").split()[0]
                     for charge in self.expected_charges:
@@ -244,8 +244,7 @@ class BondDissociationEnergies(MSONable):
                                 n_entries_for_this_frag_pair += 1
 
     def search_fragment_entries(self, frag) -> list:
-        """
-        Search all fragment entries for those isomorphic to the given fragment.
+        """Search all fragment entries for those isomorphic to the given fragment.
         We distinguish between entries where both initial and final MoleculeGraphs are isomorphic to the
         given fragment (entries) vs those where only the initial MoleculeGraph is isomorphic to the given
         fragment (initial_entries) vs those where only the final MoleculeGraph is isomorphic (final_entries).
@@ -266,8 +265,7 @@ class BondDissociationEnergies(MSONable):
         return [entries, initial_entries, final_entries]
 
     def filter_fragment_entries(self, fragment_entries: list) -> None:
-        """
-        Filter the fragment entries.
+        """Filter the fragment entries.
 
         Args:
             fragment_entries (List): Fragment entries to be filtered.
@@ -328,8 +326,7 @@ class BondDissociationEnergies(MSONable):
                 self.filtered_entries += [entry]
 
     def build_new_entry(self, frags: list, bonds: list) -> list:
-        """
-        Build a new entry for bond dissociation that will be returned to the user.
+        """Build a new entry for bond dissociation that will be returned to the user.
 
         Args:
             frags (list): Fragments involved in the bond dissociation.

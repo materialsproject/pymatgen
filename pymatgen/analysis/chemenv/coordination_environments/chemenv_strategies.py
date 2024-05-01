@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import abc
 import os
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -31,6 +31,8 @@ from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
     from typing_extensions import Self
 
 __author__ = "David Waroquiers"
@@ -194,9 +196,8 @@ class AdditionalConditionInt(int, StrategyOption):
 
 
 class AbstractChemenvStrategy(MSONable, abc.ABC):
-    """
-    Class used to define a Chemenv strategy for the neighbors and coordination environment to be applied to a
-    StructureEnvironments object.
+    """Base class to define a Chemenv strategy for the neighbors and coordination environment
+    to be applied to a StructureEnvironments object.
     """
 
     AC = AdditionalConditions()
@@ -256,6 +257,7 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
             Equivalent site in the unit cell, translations and symmetry transformation.
         """
         # Get the index of the site in the unit cell of which the PeriodicSite psite is a replica.
+        isite = 0
         try:
             isite = self.structure_environments.structure.index(psite)
         except ValueError:
@@ -283,6 +285,8 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
         # that gets back the site to the unit cell (Translation III)
         # TODO: check that these tolerances are needed, now that the structures are refined before analyzing envs
         tolerances = [1e-8, 1e-7, 1e-6, 1e-5, 1e-4]
+        d_this_site2 = (0, 0, 0)
+        sym_trafo = None
         for tolerance in tolerances:
             for sym_op in self.symops:
                 new_site = PeriodicSite(
@@ -479,7 +483,7 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
         raise NotImplementedError
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the SimpleAbundanceChemenvStrategy object from a dict representation of the
         SimpleAbundanceChemenvStrategy object created using the as_dict method.
@@ -1240,7 +1244,7 @@ class TargetedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
         )
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the TargetedPenaltiedAbundanceChemenvStrategy object from a dict representation of the
         TargetedPenaltiedAbundanceChemenvStrategy object created using the as_dict method.
@@ -2278,14 +2282,10 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
         # Case 2
         if d1 <= self.dmin and d2 <= self.dmax:
             ld2 = self.f_lower(d2)
-            if a2 <= ld2 or a1 >= self.amax:
-                return False
-            return True
+            return not (a2 <= ld2 or a1 >= self.amax)
         # Case 3
         if d1 <= self.dmin and d2 >= self.dmax:
-            if a2 <= self.amin or a1 >= self.amax:
-                return False
-            return True
+            return not (a2 <= self.amin or a1 >= self.amax)
         # Case 4
         if self.dmin <= d1 <= self.dmax and self.dmin <= d2 <= self.dmax:
             ld1 = self.f_lower(d1)
@@ -2294,15 +2294,11 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
                 return False
             ud1 = self.f_upper(d1)
             ud2 = self.f_upper(d2)
-            if a1 >= ud1 and a1 >= ud2:
-                return False
-            return True
+            return not (a1 >= ud1 and a1 >= ud2)
         # Case 5
         if self.dmin <= d1 <= self.dmax and d2 >= self.dmax:
             ud1 = self.f_upper(d1)
-            if a1 >= ud1 or a2 <= self.amin:
-                return False
-            return True
+            return not (a1 >= ud1 or a2 <= self.amin)
         raise ValueError("Should not reach this point!")
 
     def __eq__(self, other: object) -> bool:

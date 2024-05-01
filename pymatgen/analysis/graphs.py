@@ -11,7 +11,7 @@ from collections import defaultdict, namedtuple
 from itertools import combinations
 from operator import itemgetter
 from shutil import which
-from typing import TYPE_CHECKING, Any, Callable, cast
+from typing import TYPE_CHECKING, cast
 
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
@@ -35,6 +35,7 @@ except ImportError:
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any, Callable
 
     from igraph import Graph
     from numpy.typing import ArrayLike
@@ -571,9 +572,8 @@ class StructureGraph(MSONable):
                 f"Edge between {from_index} and {to_index} cannot be altered; no edge exists between those sites."
             )
 
-        if to_jimage is None:
-            edge_index = 0
-        else:
+        edge_index = 0
+        if to_jimage is not None:
             for idx, properties in existing_edges.items():
                 if properties["to_jimage"] == to_jimage:
                     edge_index = idx
@@ -606,6 +606,7 @@ class StructureGraph(MSONable):
         if to_jimage is None:
             raise ValueError("Image must be supplied, to avoid ambiguity.")
 
+        edge_index = 0
         if existing_edges:
             for idx, props in existing_edges.items():
                 if props["to_jimage"] == to_jimage:
@@ -751,8 +752,7 @@ class StructureGraph(MSONable):
                     )
 
     def get_connected_sites(self, n: int, jimage: tuple[int, int, int] = (0, 0, 0)) -> list[ConnectedSite]:
-        """
-        Returns a named tuple of neighbors of site n:
+        """Get a named tuple of neighbors of site n:
         periodic_site, jimage, index, weight.
         Index is the index of the corresponding site
         in the original structure, weight can be
@@ -804,8 +804,7 @@ class StructureGraph(MSONable):
         return _connected_sites
 
     def get_coordination_of_site(self, n: int) -> int:
-        """
-        Returns the number of neighbors of site n. In graph terms,
+        """Get the number of neighbors of site n. In graph terms,
         simply returns degree of node corresponding to site n.
 
         Args:
@@ -985,8 +984,7 @@ class StructureGraph(MSONable):
 
     @property
     def types_and_weights_of_connections(self) -> dict:
-        """
-        Extract a dictionary summarizing the types and weights
+        """Extract a dictionary summarizing the types and weights
         of edges in the graph.
 
         Returns:
@@ -1010,8 +1008,7 @@ class StructureGraph(MSONable):
 
     @property
     def weight_statistics(self) -> dict:
-        """
-        Extract a statistical summary of edge weights present in
+        """Extract a statistical summary of edge weights present in
         the graph.
 
         Returns:
@@ -1030,8 +1027,7 @@ class StructureGraph(MSONable):
         }
 
     def types_of_coordination_environments(self, anonymous: bool = False) -> list[str]:
-        """
-        Extract information on the different co-ordination environments
+        """Extract information on the different co-ordination environments
         present in the graph.
 
         Args:
@@ -1084,7 +1080,7 @@ class StructureGraph(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, dct) -> Self:
+    def from_dict(cls, dct: dict) -> Self:
         """As in pymatgen.core.Structure except restoring graphs using from_dict_of_dicts
         from NetworkX to restore graph information.
         """
@@ -1397,7 +1393,7 @@ class StructureGraph(MSONable):
 
         edges_other = {(u, v, data["to_jimage"]) for u, v, data in other_sorted.graph.edges(keys=False, data=True)}
 
-        return (edges == edges_other) and (self.structure == other_sorted.structure)
+        return edges == edges_other and self.structure == other_sorted.structure
 
     def diff(self, other: StructureGraph, strict: bool = True) -> dict:
         """
@@ -1485,10 +1481,12 @@ class StructureGraph(MSONable):
             list of unique Molecules in Structure
         """
         # creating a supercell is an easy way to extract
-        # molecules (and not, e.g., layers of a 2D crystal)
+        # molecules (and not, e.g. layers of a 2D crystal)
         # without adding extra logic
         if getattr(self, "_supercell_sg", None) is None:
             self._supercell_sg = supercell_sg = self * (3, 3, 3)
+        else:
+            raise RuntimeError("Supercell spacegroup is not None.")
 
         # make undirected to find connected subgraphs
         supercell_sg.graph = nx.Graph(supercell_sg.graph)
@@ -2072,8 +2070,7 @@ class MoleculeGraph(MSONable):
         return sub_mols
 
     def split_molecule_subgraphs(self, bonds, allow_reverse=False, alterations=None):
-        """
-        Split MoleculeGraph into two or more MoleculeGraphs by
+        """Split MoleculeGraph into two or more MoleculeGraphs by
         breaking a set of bonds. This function uses
         MoleculeGraph.break_edge repeatedly to create
         disjoint graphs (two or more separate molecules).
@@ -2126,8 +2123,7 @@ class MoleculeGraph(MSONable):
         return original.get_disconnected_fragments()
 
     def build_unique_fragments(self):
-        """
-        Find all possible fragment combinations of the MoleculeGraphs (in other
+        """Find all possible fragment combinations of the MoleculeGraphs (in other
         words, all connected induced subgraphs).
         """
         self.set_node_attributes()
@@ -2396,8 +2392,7 @@ class MoleculeGraph(MSONable):
             )
 
     def find_rings(self, including=None) -> list[list[tuple[int, int]]]:
-        """
-        Find ring structures in the MoleculeGraph.
+        """Find ring structures in the MoleculeGraph.
 
         Args:
             including (list[int]): list of site indices. If including is not None, then find_rings
@@ -2445,8 +2440,7 @@ class MoleculeGraph(MSONable):
         return cycles_edges
 
     def get_connected_sites(self, n):
-        """
-        Returns a named tuple of neighbors of site n:
+        """Get a named tuple of neighbors of site n:
         periodic_site, jimage, index, weight.
         Index is the index of the corresponding site
         in the original structure, weight can be
@@ -2487,8 +2481,7 @@ class MoleculeGraph(MSONable):
         return connected_sites
 
     def get_coordination_of_site(self, n) -> int:
-        """
-        Returns the number of neighbors of site n.
+        """Get the number of neighbors of site n.
         In graph terms, simply returns degree
         of node corresponding to site n.
 
@@ -2796,7 +2789,7 @@ class MoleculeGraph(MSONable):
 
         edges_other = set(other_sorted.graph.edges(keys=False))
 
-        return (edges == edges_other) and (self.molecule == other_sorted.molecule)
+        return edges == edges_other and self.molecule == other_sorted.molecule
 
     def isomorphic_to(self, other: MoleculeGraph) -> bool:
         """

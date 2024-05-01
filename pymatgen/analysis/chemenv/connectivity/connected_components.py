@@ -625,14 +625,14 @@ class ConnectedComponent(MSONable):
 
     @property
     def periodicity_vectors(self):
-        """Get periodicity vectors of this connected component."""
+        """Periodicity vectors of this connected component."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         return [np.array(pp) for pp in self._periodicity_vectors]
 
     @property
     def periodicity(self):
-        """Get periodicity of this connected component."""
+        """Periodicity of this connected component."""
         if self._periodicity_vectors is None:
             self.compute_periodicity()
         return f"{len(self._periodicity_vectors)}D"

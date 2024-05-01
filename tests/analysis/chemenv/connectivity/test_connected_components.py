@@ -797,7 +797,7 @@ Node #11 P (T:4), connected to :
         # Sort connected components as they might
         # come in a different order depending on
         # the algorithm used to get them.
-        sorted_ccs = sorted(ccs, key=lambda x: sorted(x.graph.nodes())[0])
+        sorted_ccs = sorted(ccs, key=lambda x: min(x.graph.nodes()))
         expected_full_desc_0 = """Connected component with environment nodes :
 Node #0 Li (O:6), connected to :
   - Node #1 Li (O:6) with delta image cells

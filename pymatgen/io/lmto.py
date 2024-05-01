@@ -32,8 +32,7 @@ __date__ = "Nov 30, 2017"
 
 
 class LMTOCtrl:
-    """
-    Class for parsing CTRL files from the Stuttgart LMTO-ASA code.
+    """Parse CTRL files from the Stuttgart LMTO-ASA code.
     Currently, only HEADER, VERS and the structure can be used.
     """
 
@@ -63,8 +62,7 @@ class LMTOCtrl:
         return self.get_str()
 
     def get_str(self, sigfigs=8) -> str:
-        """
-        Generates the string representation of the CTRL file. This is
+        """Generate the string representation of the CTRL file. This is
         the minimal CTRL file necessary to execute lmhart.run.
         """
         ctrl_dict = self.as_dict()
@@ -92,8 +90,7 @@ class LMTOCtrl:
         return "\n".join(lines) + "\n"
 
     def as_dict(self):
-        """
-        Returns the CTRL as a dictionary. "SITE" and "CLASS" are of
+        """Get the CTRL as a dictionary. "SITE" and "CLASS" are of
         the form {'CATEGORY': {'TOKEN': value}}, the rest is of the
         form 'TOKEN'/'CATEGORY': value. It gets the conventional standard
         structure because primitive cells use the conventional
@@ -349,8 +346,7 @@ class LMTOCopl:
 
     @staticmethod
     def _get_bond_data(line):
-        """
-        Subroutine to extract bond label, site indices, and length from
+        """Subroutine to extract bond label, site indices, and length from
         a COPL header line. The site indices are zero-based, so they
         can be easily used with a Structure object.
 

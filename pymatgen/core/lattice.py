@@ -1,12 +1,14 @@
-"""Defines the classes relating to 3D lattices."""
+"""This module defines the Lattice class, the fundamental class for representing
+periodic crystals. It is essentially a matrix with some extra methods and attributes.
+"""
 
 from __future__ import annotations
 
-import collections
 import itertools
 import math
 import operator
 import warnings
+from collections import defaultdict
 from fractions import Fraction
 from functools import reduce
 from typing import TYPE_CHECKING, cast
@@ -25,8 +27,7 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
-    from pymatgen.core.trajectory import Vector3D
-    from pymatgen.util.typing import PbcLike
+    from pymatgen.util.typing import PbcLike, Vector3D
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -54,7 +55,7 @@ class Lattice(MSONable):
                 iii) [1, 0, 0 , 0, 1, 0, 0, 0, 1]
                 iv) (1, 0, 0, 0, 1, 0, 0, 0, 1)
                 Each row should correspond to a lattice vector.
-                E.g., [[10, 0, 0], [20, 10, 0], [0, 0, 30]] specifies a lattice
+                e.g. [[10, 0, 0], [20, 10, 0], [0, 0, 30]] specifies a lattice
                 with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].
             pbc: a tuple defining the periodic boundary conditions along the three
                 axis of the lattice.
@@ -108,7 +109,7 @@ class Lattice(MSONable):
         """Support format printing.
 
         Supported fmt_spec (str) are:
-        1. "l" for a list format that can be easily copied and pasted, e.g.,
+        1. "l" for a list format that can be easily copied and pasted, e.g.
            ".3fl" prints something like
            "[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]"
         2. "p" for lattice parameters ".1fp" prints something like
@@ -210,7 +211,7 @@ class Lattice(MSONable):
             miller_index ([h,k,l]): Miller index of plane
 
         Returns:
-            d_hkl (float)
+            float: distance between hkl plane and origin
         """
         g_star = self.reciprocal_lattice_crystallographic.metric_tensor
         hkl = np.array(miller_index)
@@ -865,7 +866,7 @@ class Lattice(MSONable):
         atol: float = 1,
         skip_rotation_matrix: bool = False,
     ) -> Iterator[tuple[Lattice, np.ndarray | None, np.ndarray]]:
-        """Finds all mappings between current lattice and another lattice.
+        """Find all mappings between current lattice and another lattice.
 
         Args:
             other_lattice (Lattice): Another lattice that is equivalent to this one.
@@ -933,7 +934,7 @@ class Lattice(MSONable):
         atol: float = 1,
         skip_rotation_matrix: bool = False,
     ) -> tuple[Lattice, np.ndarray | None, np.ndarray] | None:
-        """Finds a mapping between current lattice and another lattice. There
+        """Find a mapping between current lattice and another lattice. There
         are an infinite number of choices of basis vectors for two entirely
         equivalent lattices. This method returns a mapping that maps
         other_lattice to this lattice.
@@ -979,7 +980,7 @@ class Lattice(MSONable):
         return cls(self._lll_matrix_mappings[delta][0])
 
     def _calculate_lll(self, delta: float = 0.75) -> tuple[np.ndarray, np.ndarray]:
-        """Performs a Lenstra-Lenstra-Lovasz lattice basis reduction to obtain a
+        """Perform a Lenstra-Lenstra-Lovasz lattice basis reduction to obtain a
         c-reduced basis. This method returns a basis which is as "good" as
         possible, with "good" defined by orthogonality of the lattice vectors.
 
@@ -1317,11 +1318,11 @@ class Lattice(MSONable):
             center: Cartesian coordinates of center of sphere.
             r: radius of sphere.
             zip_results (bool): Whether to zip the results together to group by
-                point, or return the raw fcoord, dist, index arrays
+                point, or return the raw frac_coord, dist, index arrays
 
         Returns:
             if zip_results:
-                [(fcoord, dist, index, supercell_image) ...] since most of the time, subsequent
+                [(frac_coord, dist, index, supercell_image) ...] since most of the time, subsequent
                 processing requires the distance, index number of the atom, or index of the image
             else:
                 frac_coords, dists, inds, image
@@ -1375,11 +1376,11 @@ class Lattice(MSONable):
             center: Cartesian coordinates of center of sphere.
             r: radius of sphere.
             zip_results (bool): Whether to zip the results together to group by
-                point, or return the raw fcoord, dist, index arrays
+                point, or return the raw frac_coord, dist, index arrays
 
         Returns:
             if zip_results:
-                [(fcoord, dist, index, supercell_image) ...] since most of the time, subsequent
+                [(frac_coord, dist, index, supercell_image) ...] since most of the time, subsequent
                 processing requires the distance, index number of the atom, or index of the image
             else:
                 frac_coords, dists, inds, image
@@ -1432,11 +1433,11 @@ class Lattice(MSONable):
             center: Cartesian coordinates of center of sphere.
             r: radius of sphere.
             zip_results (bool): Whether to zip the results together to group by
-                point, or return the raw fcoord, dist, index arrays
+                point, or return the raw frac_coord, dist, index arrays
 
         Returns:
             if zip_results:
-                [(fcoord, dist, index, supercell_image) ...] since most of the time, subsequent
+                [(frac_coord, dist, index, supercell_image) ...] since most of the time, subsequent
                 processing requires the distance, index number of the atom, or index of the image
             else:
                 frac_coords, dists, inds, image
@@ -1495,26 +1496,26 @@ class Lattice(MSONable):
 
     def get_all_distances(
         self,
-        fcoords1: ArrayLike,
-        fcoords2: ArrayLike,
+        frac_coords1: ArrayLike,
+        frac_coords2: ArrayLike,
     ) -> np.ndarray:
         """Returns the distances between two lists of coordinates taking into
         account periodic boundary conditions and the lattice. Note that this
         computes an MxN array of distances (i.e. the distance between each
-        point in fcoords1 and every coordinate in fcoords2). This is
+        point in frac_coords1 and every coordinate in frac_coords2). This is
         different functionality from pbc_diff.
 
         Args:
-            fcoords1: First set of fractional coordinates. e.g., [0.5, 0.6,
+            frac_coords1: First set of fractional coordinates. e.g. [0.5, 0.6,
                 0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
                 coord or any array of coords.
-            fcoords2: Second set of fractional coordinates.
+            frac_coords2: Second set of fractional coordinates.
 
         Returns:
             2d array of Cartesian distances. E.g the distance between
-            fcoords1[i] and fcoords2[j] is distances[i,j]
+            frac_coords1[i] and frac_coords2[j] is distances[i,j]
         """
-        _v, d2 = pbc_shortest_vectors(self, fcoords1, fcoords2, return_d2=True)
+        _v, d2 = pbc_shortest_vectors(self, frac_coords1, frac_coords2, return_d2=True)
         return np.sqrt(d2)
 
     def is_hexagonal(self, hex_angle_tol: float = 5, hex_length_tol: float = 0.01) -> bool:
@@ -1545,7 +1546,7 @@ class Lattice(MSONable):
         frac_coords2: ArrayLike,
         jimage: ArrayLike | None = None,
     ) -> tuple[float, np.ndarray]:
-        """Gets distance between two frac_coords assuming periodic boundary
+        """Get distance between two frac_coords assuming periodic boundary
         conditions. If the index jimage is not specified it selects the j
         image nearest to the i atom and returns the distance and jimage
         indices in terms of lattice vector translations. If the index jimage
@@ -1557,7 +1558,7 @@ class Lattice(MSONable):
             frac_coords1 (3x1 array): Reference frac_coords to get distance from.
             frac_coords2 (3x1 array): frac_coords to get distance from.
             jimage (3x1 array): Specific periodic image in terms of
-                lattice translations, e.g., [1,0,0] implies to take periodic
+                lattice translations, e.g. [1,0,0] implies to take periodic
                 image that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 
@@ -1661,7 +1662,7 @@ def get_integer_index(miller_index: Sequence[float], round_dp: int = 4, verbose:
     mi /= min(m for m in mi if m != 0)
     mi /= np.max(np.abs(mi))
 
-    # deal with the case we have nice fractions
+    # deal with the case where we have nice fractions
     md = [Fraction(n).limit_denominator(12).denominator for n in mi]
     mi *= reduce(operator.mul, md)
     int_miller_index = np.round(mi, 1).astype(int)
@@ -1785,9 +1786,9 @@ def get_points_in_spheres(
     all_cube_index = _three_to_one(all_cube_index, ny, nz)
     site_cube_index = _three_to_one(_compute_cube_index(center_coords, global_min, r), ny, nz)
     # create cube index to coordinates, images, and indices map
-    cube_to_coords: dict[int, list] = collections.defaultdict(list)
-    cube_to_images: dict[int, list] = collections.defaultdict(list)
-    cube_to_indices: dict[int, list] = collections.defaultdict(list)
+    cube_to_coords: dict[int, list] = defaultdict(list)
+    cube_to_images: dict[int, list] = defaultdict(list)
+    cube_to_indices: dict[int, list] = defaultdict(list)
     for ii, jj, kk, ll in zip(all_cube_index.ravel(), valid_coords, valid_images, valid_indices):
         cube_to_coords[ii].append(jj)
         cube_to_images[ii].append(kk)

@@ -52,8 +52,7 @@ class CoordinationEnvironmentMorphing:
 
     @classmethod
     def simple_expansion(cls, initial_environment_symbol, expected_final_environment_symbol, neighbors_indices):
-        """
-        Simple expansion of a coordination environment.
+        """Simple expansion of a coordination environment.
 
         Args:
             initial_environment_symbol (str): The initial coordination environment symbol.
@@ -74,12 +73,12 @@ class CoordinationEnvironmentMorphing:
         )
 
     def figure_fractions(self, weights_options: dict, morphing_factors: Sequence[float] | None = None) -> None:
-        """
-        Plot the fractions of the initial and final coordination environments as a function of the morphing factor.
+        """Plot the fractions of the initial and final coordination environments as a
+        function of the morphing factor.
 
         Args:
-            weights_options (dict): The weights options.
-            morphing_factors (list): The morphing factors.
+            weights_options (dict): The weights options. morphing_factors (list): The
+            morphing factors.
         """
         if morphing_factors is None:
             morphing_factors = np.linspace(1.0, 2.0, 21)

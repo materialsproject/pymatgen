@@ -131,8 +131,7 @@ def _c2index_isreverse(c1, c2):
 
 
 class SimpleGraphCycle(MSONable):
-    """
-    Class used to describe a cycle in a simple graph (graph without multiple edges).
+    """Describe a cycle in a simple graph (graph without multiple edges).
 
     Note that the convention used here is the networkx convention for which simple graphs allow
     to have self-loops in a simple graph.
@@ -260,7 +259,7 @@ class SimpleGraphCycle(MSONable):
 
     @classmethod
     def from_edges(cls, edges, edges_are_ordered: bool = True) -> Self:
-        """Constructs SimpleGraphCycle from a list edges.
+        """Construct SimpleGraphCycle from a list edges.
 
         By default, the edges list is supposed to be ordered as it will be
         much faster to construct the cycle. If edges_are_ordered is set to
@@ -301,8 +300,7 @@ class SimpleGraphCycle(MSONable):
 
     @classmethod
     def from_dict(cls, dct: dict, validate: bool = False) -> Self:
-        """
-        Serialize from dict.
+        """Serialize from dict.
 
         Args:
             dct (dict): Dict representation.
@@ -468,7 +466,6 @@ class MultiGraphCycle(MSONable):
 
 def get_all_elementary_cycles(graph):
     """
-
     Args:
         graph:
     """

@@ -40,7 +40,7 @@ class CorrectionCalculator:
         allow_unstable: float | bool = 0.1,
         exclude_polyanions: list[str] | None = None,
     ) -> None:
-        """Initializes a CorrectionCalculator.
+        """Initialize a CorrectionCalculator.
 
         Args:
             species: list of species to calculate corrections for
@@ -97,7 +97,7 @@ class CorrectionCalculator:
         return self.compute_corrections(exp_entries, calc_entries)
 
     def compute_corrections(self, exp_entries: list, calc_entries: dict) -> dict:
-        """Computes the corrections and fills in correction, corrections_std_error, and corrections_dict.
+        """Compute the corrections and fills in correction, corrections_std_error, and corrections_dict.
 
         Args:
             exp_entries: list of dictionary objects with the following keys/values:
@@ -358,7 +358,7 @@ class CorrectionCalculator:
         return fig
 
     def make_yaml(self, name: str = "MP2020", dir: str | None = None) -> None:
-        """Creates the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityUncertainties.yaml
+        """Create the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityUncertainties.yaml
         for correction uncertainties.
 
         Args:
@@ -406,7 +406,7 @@ class CorrectionCalculator:
                 F:
             CompositionCorrections:
         """
-        fn = name + "Compatibility.yaml"
+        fn = f"{name}Compatibility.yaml"
         path = os.path.join(dir, fn) if dir else fn
 
         yml = yaml.YAML()

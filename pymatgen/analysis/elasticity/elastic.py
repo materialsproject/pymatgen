@@ -86,7 +86,7 @@ class NthOrderElasticTensor(Tensor):
         return Stress(stress_matrix)
 
     def energy_density(self, strain, convert_GPa_to_eV=True):
-        """Calculates the elastic energy density due to a strain."""
+        """Calculate the elastic energy density due to a strain."""
         e_density = np.sum(self.calculate_stress(strain) * strain) / self.order
         if convert_GPa_to_eV:
             e_density *= self.GPa_to_eV_A3  # Conversion factor for GPa to eV/A^3
@@ -129,7 +129,7 @@ class ElasticTensor(NthOrderElasticTensor):
     """
     This class extends Tensor to describe the 3x3x3x3 second-order elastic tensor,
     C_{ijkl}, with various methods for estimating other properties derived from the second
-    order elastic tensor (e. g. bulk modulus, shear modulus, Young's modulus, Poisson's ratio)
+    order elastic tensor (e.g. bulk modulus, shear modulus, Young's modulus, Poisson's ratio)
     in units of eV/A^3.
     """
 
@@ -151,8 +151,7 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @property
     def compliance_tensor(self):
-        """
-        Returns the Voigt notation compliance tensor, which is the matrix
+        """The Voigt notation compliance tensor, which is the matrix
         inverse of the Voigt notation elastic tensor.
         """
         s_voigt = np.linalg.inv(self.voigt)
@@ -220,7 +219,7 @@ class ElasticTensor(NthOrderElasticTensor):
         return v
 
     def directional_elastic_mod(self, n) -> float:
-        """Calculates directional elastic modulus for a specific vector."""
+        """Calculate directional elastic modulus for a specific vector."""
         n = get_uvec(n)
         return self.einsum_sequence([n] * 4)
 
@@ -265,7 +264,7 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @raise_if_unphysical
     def snyder_ac(self, structure: Structure) -> float:
-        """Calculates Snyder's acoustic sound velocity.
+        """Calculate Snyder's acoustic sound velocity.
 
         Args:
             structure: pymatgen structure object
@@ -321,7 +320,7 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @raise_if_unphysical
     def clarke_thermalcond(self, structure: Structure) -> float:
-        """Calculates Clarke's thermal conductivity.
+        """Calculate Clarke's thermal conductivity.
 
         Args:
             structure: pymatgen structure object
@@ -357,7 +356,7 @@ class ElasticTensor(NthOrderElasticTensor):
     )
     @raise_if_unphysical
     def agne_diffusive_thermalcond(self, structure: Structure) -> float:
-        """Calculates Agne's diffusive thermal conductivity.
+        """Calculate Agne's diffusive thermal conductivity.
 
         Please cite the original authors if using this method
         M. T. Agne, R. Hanus, G. J. Snyder, Energy Environ. Sci. 2018, 11, 609-616.
@@ -380,8 +379,7 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @raise_if_unphysical
     def debye_temperature(self, structure: Structure) -> float:
-        """
-        Estimates the Debye temperature from longitudinal and transverse sound velocities.
+        """Estimate the Debye temperature from longitudinal and transverse sound velocities.
 
         Args:
             structure: pymatgen structure object
@@ -427,8 +425,7 @@ class ElasticTensor(NthOrderElasticTensor):
     def get_structure_property_dict(
         self, structure: Structure, include_base_props: bool = True, ignore_errors: bool = False
     ) -> dict[str, float | Structure | None]:
-        """
-        Returns a dictionary of properties derived from the elastic tensor
+        """Get a dictionary of properties derived from the elastic tensor
         and an associated structure.
 
         Args:
@@ -541,7 +538,7 @@ class ElasticTensorExpansion(TensorCollection):
     to an elastic tensor expansion, which can be used to
     calculate stress and energy density and inherits all
     of the list-based properties of TensorCollection
-    (e. g. symmetrization, voigt conversion, etc.).
+    (e.g. symmetrization, voigt conversion, etc.).
     """
 
     def __init__(self, c_list: Sequence) -> None:
@@ -557,8 +554,7 @@ class ElasticTensorExpansion(TensorCollection):
 
     @classmethod
     def from_diff_fit(cls, strains, stresses, eq_stress=None, tol: float = 1e-10, order=3) -> Self:
-        """
-        Generates an elastic tensor expansion via the fitting function
+        """Generate an elastic tensor expansion via the fitting function
         defined below in diff_fit.
         """
         c_list = diff_fit(strains, stresses, eq_stress, order, tol)
@@ -580,12 +576,11 @@ class ElasticTensorExpansion(TensorCollection):
         return sum(c.calculate_stress(strain) for c in self)
 
     def energy_density(self, strain, convert_GPa_to_eV=True):
-        """Calculates the elastic energy density due to a strain in eV/A^3 or GPa."""
+        """Calculate the elastic energy density due to a strain in eV/A^3 or GPa."""
         return sum(c.energy_density(strain, convert_GPa_to_eV) for c in self)
 
     def get_ggt(self, n, u):
-        """
-        Gets the Generalized Gruneisen tensor for a given
+        """Get the Generalized Gruneisen tensor for a given
         third-order elastic tensor expansion.
 
         Args:
@@ -598,8 +593,7 @@ class ElasticTensorExpansion(TensorCollection):
         )
 
     def get_tgt(self, temperature: float | None = None, structure: Structure = None, quad=None):
-        """
-        Gets the thermodynamic Gruneisen tensor (TGT) by via an
+        """Get the thermodynamic Gruneisen tensor (TGT) by via an
         integration of the GGT weighted by the directional heat
         capacity.
 
@@ -637,8 +631,7 @@ class ElasticTensorExpansion(TensorCollection):
         return SquareTensor(num / denom)
 
     def get_gruneisen_parameter(self, temperature=None, structure=None, quad=None):
-        """
-        Gets the single average gruneisen parameter from the TGT.
+        """Get the single average gruneisen parameter from the TGT.
 
         Args:
             temperature (float): Temperature in kelvin, if not specified
@@ -653,8 +646,7 @@ class ElasticTensorExpansion(TensorCollection):
         return np.trace(self.get_tgt(temperature, structure, quad)) / 3.0
 
     def get_heat_capacity(self, temperature, structure: Structure, n, u, cutoff=1e2):
-        """
-        Gets the directional heat capacity for a higher order tensor
+        """Get the directional heat capacity for a higher order tensor
         expansion as a function of direction and polarization.
 
         Args:
@@ -677,8 +669,7 @@ class ElasticTensorExpansion(TensorCollection):
         return c * 6.022e23
 
     def omega(self, structure: Structure, n, u):
-        """
-        Finds directional frequency contribution to the heat
+        """Find directional frequency contribution to the heat
         capacity from direction and polarization.
 
         Args:
@@ -698,8 +689,7 @@ class ElasticTensorExpansion(TensorCollection):
     def thermal_expansion_coeff(
         self, structure: Structure, temperature: float, mode: Literal["dulong - petit", "debye"] = "debye"
     ):
-        """
-        Gets thermal expansion coefficient from third-order constants.
+        """Get thermal expansion coefficient from third-order constants.
 
         Args:
             temperature (float): Temperature in kelvin, if not specified
@@ -730,8 +720,7 @@ class ElasticTensorExpansion(TensorCollection):
         return SquareTensor(alpha)
 
     def get_compliance_expansion(self):
-        """
-        Gets a compliance tensor expansion from the elastic
+        """Get a compliance tensor expansion from the elastic
         tensor expansion.
         """
         # TODO: this might have a general form
@@ -754,8 +743,7 @@ class ElasticTensorExpansion(TensorCollection):
         return TensorCollection(ce_exp)
 
     def get_strain_from_stress(self, stress):
-        """
-        Gets the strain from a stress state according
+        """Get the strain from a stress state according
         to the compliance expansion corresponding to the
         tensor expansion.
         """
@@ -766,8 +754,7 @@ class ElasticTensorExpansion(TensorCollection):
         return strain
 
     def get_effective_ecs(self, strain, order=2):
-        """
-        Returns the effective elastic constants
+        """Get the effective elastic constants
         from the elastic tensor expansion.
 
         Args:
@@ -781,8 +768,7 @@ class ElasticTensorExpansion(TensorCollection):
         return ec_sum
 
     def get_wallace_tensor(self, tau):
-        """
-        Gets the Wallace Tensor for determining yield strength
+        """Get the Wallace Tensor for determining yield strength
         criteria.
 
         Args:
@@ -801,8 +787,7 @@ class ElasticTensorExpansion(TensorCollection):
         return b
 
     def get_symmetric_wallace_tensor(self, tau):
-        """
-        Gets the symmetrized wallace tensor for determining
+        """Get the symmetrized wallace tensor for determining
         yield strength criteria.
 
         Args:
@@ -813,8 +798,7 @@ class ElasticTensorExpansion(TensorCollection):
         return Tensor(0.5 * (wallace + np.transpose(wallace, [2, 3, 0, 1])))
 
     def get_stability_criteria(self, s, n):
-        """
-        Gets the stability criteria from the symmetric
+        """Get the stability criteria from the symmetric
         Wallace tensor from an input vector and stress
         value.
 
@@ -830,8 +814,7 @@ class ElasticTensorExpansion(TensorCollection):
         return np.linalg.det(sym_wallace.voigt)
 
     def get_yield_stress(self, n):
-        """
-        Gets the yield stress for a given direction.
+        """Get the yield stress for a given direction.
 
         Args:
             n (3x1 array-like): direction for which to find the
@@ -905,8 +888,7 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
 
 
 def find_eq_stress(strains, stresses, tol: float = 1e-10):
-    """
-    Finds stress corresponding to zero strain state in stress-strain list.
+    """Find stress corresponding to zero strain state in stress-strain list.
 
     Args:
         strains (Nx3x3 array-like): array corresponding to strains
@@ -979,7 +961,7 @@ def get_strain_state_dict(strains, stresses, eq_stress=None, tol: float = 1e-10,
         if add_eq:
             # add zero strain state
             mstrains = np.vstack([mstrains, np.zeros(6)])
-            mstresses = np.vstack([mstresses, veq_stress])
+            mstresses = np.vstack([mstresses, veq_stress])  # type: ignore[reportPossiblyUnboundVariable]
         # sort strains/stresses by strain values
         if sort:
             mstresses = mstresses[mstrains[:, ind[0]].argsort()]
@@ -989,12 +971,12 @@ def get_strain_state_dict(strains, stresses, eq_stress=None, tol: float = 1e-10,
 
 
 def generate_pseudo(strain_states, order=3):
-    """Generates the pseudo-inverse for a given set of strains.
+    """Generate the pseudo-inverse for a given set of strains.
 
     Args:
         strain_states (6xN array like): a list of Voigt-notation strain-states,
             i. e. perturbed indices of the strain as a function of the smallest
-            strain e. g. (0, 1, 0, 0, 1, 0)
+            strain e.g. (0, 1, 0, 0, 1, 0)
         order (int): order of pseudo-inverse to calculate
 
     Returns:
@@ -1033,9 +1015,9 @@ def get_symbol_list(rank, dim=6):
     by index transposition, i. e. C_1121 = C_1211 etc.
 
     Args:
-        dim (int): dimension of matrix/tensor, e. g. 6 for
+        dim (int): dimension of matrix/tensor, e.g. 6 for
             voigt notation and 3 for standard
-        rank (int): rank of tensor, e. g. 3 for third-order ECs
+        rank (int): rank of tensor, e.g. 3 for third-order ECs
 
     Returns:
         c_vec (array): array representing distinct indices

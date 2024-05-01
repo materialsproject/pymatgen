@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 import warnings
-from typing import Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.interpolate import interp1d
@@ -12,6 +12,9 @@ from scipy.interpolate import interp1d
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from typing import Literal
 
 __author__ = "Chen Zheng, Yiming Chen"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -58,7 +61,7 @@ class XAS(Spectrum):
         spectrum_type="XANES",
         absorbing_index=None,
     ):
-        """Initializes a spectrum object."""
+        """Initialize a spectrum object."""
         super().__init__(x, y, structure, absorbing_element, edge)
         self.structure = structure
         self.absorbing_element = absorbing_element
@@ -80,8 +83,7 @@ class XAS(Spectrum):
         )
 
     def stitch(self, other: XAS, num_samples: int = 500, mode: Literal["XAFS", "L23"] = "XAFS") -> XAS:
-        """
-        Stitch XAS objects to get the full XAFS spectrum or L23 edge XANES
+        """Stitch XAS objects to get the full XAFS spectrum or L23 edge XANES
         spectrum depending on the mode.
 
         1. Use XAFS mode for stitching XANES and EXAFS with same absorption edge.
@@ -234,6 +236,7 @@ def site_weighted_spectrum(xas_list: list[XAS], num_samples: int = 500) -> XAS:
     maxes, mines = [], []
     fs = []
     multiplicities = []
+    xas = None
 
     for xas in xas_list:
         multiplicity = len(ss.find_equivalent_sites(ss[xas.absorbing_index]))

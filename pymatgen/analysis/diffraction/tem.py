@@ -88,8 +88,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
     @staticmethod
     def generate_points(coord_left: int = -10, coord_right: int = 10) -> np.ndarray:
-        """
-        Generates a bunch of 3D points that span a cube.
+        """Generate a bunch of 3D points that span a cube.
 
         Args:
             coord_left (int): The minimum coordinate value.
@@ -107,8 +106,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def zone_axis_filter(
         self, points: list[tuple[int, int, int]] | np.ndarray, laue_zone: int = 0
     ) -> list[tuple[int, int, int]]:
-        """
-        Filters out all points that exist within the specified Laue zone according to the zone axis rule.
+        """Filter out all points that exist within the specified Laue zone according to the zone axis rule.
 
         Args:
             points (np.ndarray): The list of points to be filtered.
@@ -134,7 +132,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             points (tuple): the desired hkl indices.
 
         Returns:
-            Dict of hkl to its interplanar spacing, in angstroms (float).
+            dict[tuple[int, int, int], float]: hkl planes mapped to
+                interplanar spacings, in angstroms (float).
         """
         points_filtered = self.zone_axis_filter(points)
         if (0, 0, 0) in points_filtered:
@@ -145,14 +144,13 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def bragg_angles(
         self, interplanar_spacings: dict[tuple[int, int, int], float]
     ) -> dict[tuple[int, int, int], float]:
-        """
-        Gets the Bragg angles for every hkl point passed in (where n = 1).
+        """Get the Bragg angles for every hkl point passed in (where n = 1).
 
         Args:
             interplanar_spacings (dict): dictionary of hkl to interplanar spacing
 
         Returns:
-            dict of hkl plane (3-tuple) to Bragg angle in radians (float)
+            dict[tuple[int, int, int], float]: hkl planes mapped to Bragg angles [radians]
         """
         plane = list(interplanar_spacings)
         interplanar_spacings_val = np.array(list(interplanar_spacings.values()))
@@ -283,8 +281,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         scaled: bool | None = None,
         two_theta_range: tuple[float, float] | None = None,
     ) -> pd.DataFrame:
-        """
-        Returns all relevant TEM DP info in a pandas dataframe.
+        """Get all relevant TEM DP info in a pandas dataframe.
 
         Args:
             structure (Structure): The input structure.
@@ -360,8 +357,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return phi in (180, 0) or np.isnan(phi)
 
     def get_first_point(self, structure: Structure, points: list) -> dict[tuple[int, int, int], float]:
-        """
-        Gets the first point to be plotted in the 2D DP, corresponding to maximum d/minimum R.
+        """Get the first point to be plotted in the 2D DP, corresponding to maximum d/minimum R.
 
         Args:
             structure (Structure): The input structure.
@@ -382,8 +378,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
     @staticmethod
     def get_interplanar_angle(structure: Structure, p1: tuple[int, int, int], p2: tuple[int, int, int]) -> float:
-        """
-        Returns the interplanar angle (in degrees) between the normal of two crystal planes.
+        """Get the interplanar angle (in degrees) between the normal of two crystal planes.
         Formulas from International Tables for Crystallography Volume C pp. 2-9.
 
         Args:
@@ -474,12 +469,16 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         points = self.zone_axis_filter(points)
         # first is the max_d, min_r
         first_point_dict = self.get_first_point(structure, points)
+        first_point = (0, 0, 0)
+        first_d = 0.0
         for point, v in first_point_dict.items():
             first_point = point
             first_d = v
         spacings = self.get_interplanar_spacings(structure, points)
         # second is the first non-parallel-to-first-point vector when sorted.
         # note 000 is "parallel" to every plane vector.
+        second_point = (0, 0, 0)
+        second_d = 0.0
         for plane in sorted(spacings):
             second_point, second_d = plane, spacings[plane]
             if not self.is_parallel(structure, first_point, second_point):
@@ -512,8 +511,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return positions
 
     def tem_dots(self, structure: Structure, points) -> list:
-        """
-        Generates all TEM_dot as named tuples that will appear on the 2D diffraction pattern.
+        """Generate all TEM_dot as named tuples that will appear on the 2D diffraction pattern.
 
         Args:
             structure (Structure): The input structure.
@@ -537,8 +535,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return dots
 
     def get_plot_2d(self, structure: Structure) -> go.Figure:
-        """
-        Generates the 2D diffraction pattern of the input structure.
+        """Generate the 2D diffraction pattern of the input structure.
 
         Args:
             structure (Structure): The input structure.
@@ -615,8 +612,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return go.Figure(data=data, layout=layout)
 
     def get_plot_2d_concise(self, structure: Structure) -> go.Figure:
-        """
-        Generates the concise 2D diffraction pattern of the input structure of a smaller size and without layout.
+        """Generate the concise 2D diffraction pattern of the input structure of a smaller size and without layout.
         Does not display.
 
         Args:

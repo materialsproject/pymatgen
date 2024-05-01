@@ -201,8 +201,7 @@ class TestComputedEntry(TestCase):
         assert len(entry.energy_adjustments) == 1
 
     def test_conflicting_correction_adjustment(self):
-        """
-        Should raise a ValueError if a user tries to manually set both the correction
+        """Should raise a ValueError if a user tries to manually set both the correction
         and energy_adjustment, even if the values match.
         """
         ea = ConstantEnergyAdjustment(-10, name="Dummy adjustment")

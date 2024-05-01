@@ -506,7 +506,7 @@ class AimsControlIn(MSONable):
             content += "# \n# List of parameters used to initialize the calculator:"
             for param, val in parameters.items():
                 content += f"#     {param}:{val}\n"
-        content += lim + "\n"
+        content += f"{lim}\n"
 
         assert ("smearing" in parameters and "occupation_type" in parameters) is False
 
@@ -543,7 +543,7 @@ class AimsControlIn(MSONable):
             for cube in cubes:
                 content += cube.control_block
 
-        content += lim + "\n\n"
+        content += f"{lim}\n\n"
         species_dir = self._parameters.get("species_dir", os.environ.get("AIMS_SPECIES_DIR"))
         content += self.get_species_block(structure, species_dir)
 
@@ -556,7 +556,7 @@ class AimsControlIn(MSONable):
         verbose_header: bool = False,
         overwrite: bool = False,
     ) -> None:
-        """Writes the control.in file
+        """Write the control.in file
 
         Args:
             structure (Structure | Molecule): The structure to write the input
