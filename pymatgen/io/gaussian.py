@@ -1292,7 +1292,7 @@ class GaussianOutput:
         are the same as GaussianInput class.
 
         Returns:
-            gaunip (GaussianInput) : the gaussian input object
+            GaussianInput: the gaussian input object
         """
         if not mol:
             mol = self.final_structure

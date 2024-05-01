@@ -584,7 +584,7 @@ class Tags(dict):
             pretty: Set to True for pretty aligned output. Defaults to False.
 
         Returns:
-            String representation of Tags.
+            str: String representation of the Tags.
         """
         keys = list(self)
         if sort_keys:
@@ -744,9 +744,9 @@ class Tags(dict):
             other: The other PARAMETER dictionary to compare to.
 
         Returns:
-            Dict of the format {"Same" : parameters_that_are_the_same,
-            "Different": parameters_that_are_different} Note that the
-            parameters are return as full dictionaries of values.
+            dict[str, dict]: has format {"Same" : parameters_that_are_the_same,
+                "Different": parameters_that_are_different} Note that the
+                parameters are return as full dictionaries of values.
         """
         similar_param = {}
         different_param = {}
@@ -874,15 +874,10 @@ class Potential(MSONable):
 
     def __str__(self):
         """Get a string representation of potential parameters to be used in
-        the feff.inp file,
-        determined from structure object.
+        the feff.inp file, determined from structure object.
 
-                The lines are arranged as follows:
-
+            The lines are arranged as follows:
             ipot   Z   element   lmax1   lmax2   stoichiometry   spinph
-
-        Returns:
-            String representation of Atomic Coordinate Shells.
         """
         central_element = Element(self.absorbing_atom)
         ipotrow = [[0, central_element.Z, central_element.symbol, -1, -1, 0.0001, 0]]

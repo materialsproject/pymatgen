@@ -2205,11 +2205,7 @@ class ChemicalEnvironments(MSONable):
         }
 
     def __str__(self):
-        """Get a string representation of the ChemicalEnvironments object.
-
-        Returns:
-            String representation of the ChemicalEnvironments object.
-        """
+        """Get a string representation of the ChemicalEnvironments."""
         out = "Chemical environments object :\n"
         if len(self.coord_geoms) == 0:
             out += " => No coordination in it <=\n"

@@ -551,13 +551,11 @@ class QCInput(InputFile):
 
     @staticmethod
     def scan_template(scan: dict[str, list]) -> str:
-        """
+        """Get string representing Q-Chem input format for scan section.
+
         Args:
             scan (dict): Dictionary with scan section information.
                 Ex: {"stre": ["3 6 1.5 1.9 0.1"], "tors": ["1 2 3 4 -180 180 15"]}.
-
-        Returns:
-            String representing Q-Chem input format for scan section
         """
         scan_list = []
         scan_list.append("$scan")
@@ -586,7 +584,7 @@ class QCInput(InputFile):
                 **NOTE: keys must be given as strings even though they are numbers!**.
 
         Returns:
-            String representing Q-Chem input format for van_der_waals section
+            str: representing Q-Chem input format for van_der_waals section
         """
         vdw_list = []
         vdw_list.append("$van_der_waals")

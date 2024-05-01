@@ -238,15 +238,10 @@ class PackmolRunner:
 
     @staticmethod
     def _format_param_val(param_val) -> str:
-        """
-        Internal method to format values in the packmol parameter dictionaries.
+        """Internal method to format values in the packmol parameter dictionaries.
 
         Args:
-            param_val:
-                Some object to turn into String
-
-        Returns:
-            String representation of the object
+            param_val (Any): Some object to turn into string
         """
         if isinstance(param_val, list):
             return " ".join(str(x) for x in param_val)
