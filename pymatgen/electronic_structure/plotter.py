@@ -909,7 +909,7 @@ class BSPlotterProjected(BSPlotter):
             bs = bs[0]
 
         if len(bs.projections) == 0:
-            raise ValueError("try to plot projections on a band structure without any")
+            raise ValueError("Can't plot projections on a band structure without any projections data")
 
         self._bs = bs
         self._nb_bands = bs.nb_bands
