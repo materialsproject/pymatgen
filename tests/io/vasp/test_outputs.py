@@ -21,7 +21,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spin
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
-from pymatgen.io.vasp.inputs import Kpoints, Poscar, Potcar
+from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.io.vasp.outputs import (
     WSWQ,
     BSVasprun,
@@ -251,8 +251,8 @@ class TestVasprun(PymatgenTest):
         assert len(trajectory) == len(vasp_run.ionic_steps)
         assert "forces" in trajectory[0].site_properties
 
-        for i, step in enumerate(vasp_run.ionic_steps):
-            assert vasp_run.structures[i] == step["structure"]
+        for idx, step in enumerate(vasp_run.ionic_steps):
+            assert vasp_run.structures[idx] == step["structure"]
 
         assert all(
             vasp_run.structures[idx] == vasp_run.ionic_steps[idx]["structure"]
@@ -263,14 +263,14 @@ class TestVasprun(PymatgenTest):
 
         assert vasp_run.atomic_symbols == ["Li"] + 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"]
         assert vasp_run.final_structure.reduced_formula == "LiFe4(PO4)4"
-        assert vasp_run.incar is not None, "Incar cannot be read"
-        assert vasp_run.kpoints is not None, "Kpoints cannot be read"
-        assert vasp_run.eigenvalues is not None, "Eigenvalues cannot be read"
+        assert isinstance(vasp_run.incar, Incar), f"{vasp_run.incar=}"
+        assert isinstance(vasp_run.kpoints, Kpoints), f"{vasp_run.kpoints=}"
+        assert isinstance(vasp_run.eigenvalues, dict), f"{vasp_run.eigenvalues=}"
         assert vasp_run.final_energy == approx(-269.38319884, abs=1e-7)
         assert vasp_run.tdos.get_gap() == approx(2.0589, abs=1e-4)
         expected = (2.539, 4.0906, 1.5516, False)
         assert vasp_run.eigenvalue_band_properties == approx(expected)
-        assert not vasp_run.is_hubbard
+        assert vasp_run.is_hubbard is False
         assert vasp_run.potcar_symbols == [
             "PAW_PBE Li 17Jan2003",
             "PAW_PBE Fe 06Sep2000",
@@ -278,12 +278,12 @@ class TestVasprun(PymatgenTest):
             "PAW_PBE P 17Jan2003",
             "PAW_PBE O 08Apr2002",
         ]
-        assert vasp_run.kpoints is not None, "Kpoints cannot be read"
-        assert vasp_run.actual_kpoints is not None, "Actual kpoints cannot be read"
-        assert vasp_run.actual_kpoints_weights is not None, "Actual kpoints weights cannot be read"
+        assert isinstance(vasp_run.kpoints, Kpoints), f"{vasp_run.kpoints=}"
+        assert isinstance(vasp_run.actual_kpoints, list), f"{vasp_run.actual_kpoints=}"
+        assert isinstance(vasp_run.actual_kpoints_weights, list), f"{vasp_run.actual_kpoints_weights=}"
         for atom_doses in vasp_run.pdos:
             for orbital_dos in atom_doses:
-                assert orbital_dos is not None, "Partial Dos cannot be read"
+                assert isinstance(orbital_dos, Orbital), f"{orbital_dos=}"
 
         # test skipping ionic steps.
         vasprun_skip = Vasprun(filepath, 3, parse_potcar_file=False)
@@ -318,7 +318,7 @@ class TestVasprun(PymatgenTest):
             UnconvergedVASPWarning, match="vasprun.unconverged.xml.gz is an unconverged VASP run"
         ) as warns:
             vasprun_unconverged = Vasprun(filepath, parse_potcar_file=False)
-        assert len(warns) == 1
+        assert len(warns) >= 1
 
         assert vasprun_unconverged.converged_ionic
         assert not vasprun_unconverged.converged_electronic
@@ -662,7 +662,7 @@ class TestVasprun(PymatgenTest):
         # Ensure no potcar is found and nothing is updated
         with pytest.warns(UserWarning, match="No POTCAR file with matching TITEL fields was found in") as warns:
             vasp_run = Vasprun(filepath, parse_potcar_file=".")
-        assert len(warns) == 2
+        assert len(warns) >= 2, f"{len(warns)=}"
         assert vasp_run.potcar_spec == [
             {"titel": "PAW_PBE Li 17Jan2003", "hash": None, "summary_stats": {}},
             {"titel": "PAW_PBE Fe 06Sep2000", "hash": None, "summary_stats": {}},

@@ -132,7 +132,7 @@ class Lobsterin(UserDict, MSONable):
             raise KeyError("There are duplicates for the keywords!")
         self.update(settingsdict)
 
-    def __setitem__(self, key, val):
+    def __setitem__(self, key, val) -> None:
         """
         Add parameter-val pair to Lobsterin. Warns if parameter is not in list of
         valid lobsterin tags. Also cleans the parameter and val by stripping
@@ -146,14 +146,25 @@ class Lobsterin(UserDict, MSONable):
 
         super().__setitem__(new_key, val.strip() if isinstance(val, str) else val)
 
-    def __getitem__(self, item):
+    def __getitem__(self, key) -> Any:
         """Implements getitem from dict to avoid problems with cases."""
-        new_item = next((key_here for key_here in self if item.strip().lower() == key_here.lower()), item)
+        normalized_key = next((k for k in self if key.strip().lower() == k.lower()), key)
 
-        if new_item.lower() not in [element.lower() for element in Lobsterin.AVAILABLE_KEYWORDS]:
-            raise KeyError("Key is currently not available")
+        key_is_unknown = normalized_key.lower() not in map(str.lower, Lobsterin.AVAILABLE_KEYWORDS)
+        if key_is_unknown or normalized_key not in self.data:
+            raise KeyError(f"{key=} is not available")
 
-        return super().__getitem__(new_item)
+        return self.data[normalized_key]
+
+    def __contains__(self, key) -> bool:
+        """Implements getitem from dict to avoid problems with cases."""
+        normalized_key = next((k for k in self if key.strip().lower() == k.lower()), key)
+
+        key_is_unknown = normalized_key.lower() not in map(str.lower, Lobsterin.AVAILABLE_KEYWORDS)
+        if key_is_unknown or normalized_key not in self.data:
+            return False
+
+        return True
 
     def __delitem__(self, key):
         new_key = next((key_here for key_here in self if key.strip().lower() == key_here.lower()), key)
@@ -564,30 +575,30 @@ class Lobsterin(UserDict, MSONable):
         lobsterin_dict: dict[str, Any] = {}
 
         for datum in data:
-            # Remove all comments
-            if not datum.startswith(("!", "#", "//")):
-                pattern = r"\b[^!#//]+"  # exclude comments after commands
-                if matched_pattern := re.findall(pattern, datum):
-                    raw_datum = matched_pattern[0].replace("\t", " ")  # handle tab in between and end of command
-                    key_word = raw_datum.strip().split(" ")  # extract keyword
-                    if len(key_word) > 1:
-                        # check which type of keyword this is, handle accordingly
-                        if key_word[0].lower() not in [datum2.lower() for datum2 in Lobsterin.LISTKEYWORDS]:
-                            if key_word[0].lower() not in [datum2.lower() for datum2 in Lobsterin.FLOAT_KEYWORDS]:
-                                if key_word[0].lower() not in lobsterin_dict:
-                                    lobsterin_dict[key_word[0].lower()] = " ".join(key_word[1:])
-                                else:
-                                    raise ValueError(f"Same keyword {key_word[0].lower()} twice!")
-                            elif key_word[0].lower() not in lobsterin_dict:
-                                lobsterin_dict[key_word[0].lower()] = float(key_word[1])
-                            else:
-                                raise ValueError(f"Same keyword {key_word[0].lower()} twice!")
-                        elif key_word[0].lower() not in lobsterin_dict:
-                            lobsterin_dict[key_word[0].lower()] = [" ".join(key_word[1:])]
+            if datum.startswith(("!", "#", "//")):
+                continue  # ignore comments
+            pattern = r"\b[^!#//]+"  # exclude comments after commands
+            if matched_pattern := re.findall(pattern, datum):
+                raw_datum = matched_pattern[0].replace("\t", " ")  # handle tab in between and end of command
+                key_word = raw_datum.strip().split(" ")  # extract keyword
+                key = key_word[0].lower()
+                if len(key_word) > 1:
+                    # check which type of keyword this is, handle accordingly
+                    if key not in [datum2.lower() for datum2 in Lobsterin.LISTKEYWORDS]:
+                        if key not in [datum2.lower() for datum2 in Lobsterin.FLOAT_KEYWORDS]:
+                            if key in lobsterin_dict:
+                                raise ValueError(f"Same keyword {key} twice!")
+                            lobsterin_dict[key] = " ".join(key_word[1:])
+                        elif key in lobsterin_dict:
+                            raise ValueError(f"Same keyword {key} twice!")
                         else:
-                            lobsterin_dict[key_word[0].lower()].append(" ".join(key_word[1:]))
-                    elif len(key_word) > 0:
-                        lobsterin_dict[key_word[0].lower()] = True
+                            lobsterin_dict[key] = float("nan" if key_word[1].strip() == "None" else key_word[1])
+                    elif key not in lobsterin_dict:
+                        lobsterin_dict[key] = [" ".join(key_word[1:])]
+                    else:
+                        lobsterin_dict[key].append(" ".join(key_word[1:]))
+                elif len(key_word) > 0:
+                    lobsterin_dict[key] = True
 
         return cls(lobsterin_dict)
 
