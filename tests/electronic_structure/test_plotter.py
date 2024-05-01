@@ -184,20 +184,21 @@ class TestBSPlotter(PymatgenTest):
 class TestBSPlotterProjected(TestCase):
     def setUp(self):
         with open(f"{BAND_TEST_DIR}/Cu2O_361_bandstructure.json") as file:
-            dct = json.load(file)
-        self.bs_Cu2O = BandStructureSymmLine.from_dict(dct)
+            self.bs_Cu2O = BandStructureSymmLine.from_dict(json.load(file))
         self.plotter_Cu2O = BSPlotterProjected(self.bs_Cu2O)
 
         with open(f"{TEST_FILES_DIR}/electronic_structure/boltztrap2/PbTe_bandstructure.json") as file:
-            dct = json.load(file)
-        self.bs_PbTe = BandStructureSymmLine.from_dict(dct)
+            self.bs_PbTe = BandStructureSymmLine.from_dict(json.load(file))
 
     def test_methods(self):
         # Minimal baseline testing for get_plot. not a true test. Just checks that
         # it can actually execute.
         self.plotter_Cu2O.get_elt_projected_plots()
         self.plotter_Cu2O.get_elt_projected_plots_color()
-        self.plotter_Cu2O.get_projected_plots_dots({"Cu": ["d", "s"], "O": ["p"]})
+        axes = self.plotter_Cu2O.get_projected_plots_dots({"Cu": ["d", "s"], "O": ["p"]})
+        assert len(axes) == 4, f"{len(axes)=}"
+        assert len(axes[0].get_lines()) == 4903, f"{len(axes[0].get_lines())=}"
+        assert len(axes[-1].get_lines()) == 0, f"{len(axes[-1].get_lines())=}"
         ax = self.plotter_Cu2O.get_projected_plots_dots_patom_pmorb(
             {"Cu": ["dxy", "s", "px"], "O": ["px", "py", "pz"]},
             {"Cu": [3, 5], "O": [1]},

@@ -684,7 +684,7 @@ class BSPlotter:
             if zero_to_efermi:
                 ax.set_ylim(e_min, e_max if one_is_metal else max(cbm_max) + e_max)
             else:
-                all_efermi = [b.efermi for b in self._bs]
+                all_efermi = [band_struct.efermi for band_struct in self._bs]
                 ll = min([min(vbm_min), min(all_efermi)])
                 hh = max([max(cbm_max), max(all_efermi)])
                 ax.set_ylim(ll + e_min, hh + e_max)
@@ -897,27 +897,28 @@ class BSPlotterProjected(BSPlotter):
     projected along orbitals, elements or sites.
     """
 
-    def __init__(self, bs) -> None:
+    def __init__(self, bs: BandStructureSymmLine) -> None:
         """
         Args:
-            bs: A BandStructureSymmLine object with projections.
+            bs: A BandStructureSymmLine object with projections e.g. from a VASP calculation.
         """
         if isinstance(bs, list):
             warnings.warn(
-                "Multiple bands are not handled by BSPlotterProjected. The first band in the list will be considered"
+                "Multiple band structures are not handled by BSPlotterProjected. "
+                "Only the first in the list will be considered"
             )
             bs = bs[0]
 
         if len(bs.projections) == 0:
-            raise ValueError("Can't plot projections on a band structure without any projections data")
+            raise ValueError("Can't plot projections on a band structure without projections data")
 
-        self._bs = bs
-        self._nb_bands = bs.nb_bands
+        self._bs: BandStructureSymmLine = bs
+        self._nb_bands: int = bs.nb_bands  # type: ignore[assignment]
 
-    def _get_projections_by_branches(self, dictio):
-        proj = self._bs.get_projections_on_elements_and_orbitals(dictio)
+    def _get_projections_by_branches(self, project_onto):
+        proj = self._bs.get_projections_on_elements_and_orbitals(project_onto)
         proj_br = []
-        for b in self._bs.branches:
+        for branch in self._bs.branches:
             if self._bs.is_spin_polarized:
                 proj_br.append(
                     {
@@ -928,24 +929,29 @@ class BSPlotterProjected(BSPlotter):
             else:
                 proj_br.append({str(Spin.up): [[] for _ in range(self._nb_bands)]})
 
-            for i in range(self._nb_bands):
-                for j in range(b["start_index"], b["end_index"] + 1):
-                    proj_br[-1][str(Spin.up)][i].append(
-                        {e: {o: proj[Spin.up][i][j][e][o] for o in proj[Spin.up][i][j][e]} for e in proj[Spin.up][i][j]}
+            for band_idx in range(self._nb_bands):
+                for j in range(branch["start_index"], branch["end_index"] + 1):
+                    proj_br[-1][str(Spin.up)][band_idx].append(
+                        {
+                            e: {o: proj[Spin.up][band_idx][j][e][o] for o in proj[Spin.up][band_idx][j][e]}
+                            for e in proj[Spin.up][band_idx][j]
+                        }
                     )
             if self._bs.is_spin_polarized:
-                for b in self._bs.branches:
-                    for i in range(self._nb_bands):
-                        for j in range(b["start_index"], b["end_index"] + 1):
-                            proj_br[-1][str(Spin.down)][i].append(
+                for branch in self._bs.branches:
+                    for band_idx in range(self._nb_bands):
+                        for j in range(branch["start_index"], branch["end_index"] + 1):
+                            proj_br[-1][str(Spin.down)][band_idx].append(
                                 {
-                                    e: {o: proj[Spin.down][i][j][e][o] for o in proj[Spin.down][i][j][e]}
-                                    for e in proj[Spin.down][i][j]
+                                    e: {o: proj[Spin.down][band_idx][j][e][o] for o in proj[Spin.down][band_idx][j][e]}
+                                    for e in proj[Spin.down][band_idx][j]
                                 }
                             )
         return proj_br
 
-    def get_projected_plots_dots(self, dictio, zero_to_efermi=True, ylim=None, vbm_cbm_marker=False):
+    def get_projected_plots_dots(
+        self, dictio, zero_to_efermi=True, ylim=None, vbm_cbm_marker=False, band_linewidth: float = 1.0
+    ):
         """Method returning a plot composed of subplots along different elements
         and orbitals.
 
@@ -961,6 +967,7 @@ class BSPlotterProjected(BSPlotter):
                 Defaults to True.
             ylim: Specify the y-axis limits. Defaults to None.
             vbm_cbm_marker: Add markers for the VBM and CBM. Defaults to False.
+            band_linewidth (float): The linewidth of the bands. Defaults to 1.0.
 
         Returns:
             list[plt.Axes]: A list with different subfigures for each projection
@@ -968,50 +975,48 @@ class BSPlotterProjected(BSPlotter):
             The bigger the red or blue dot in the band structure the higher
             character for the corresponding element and orbital.
         """
-        band_linewidth = 1.0
-        fig_cols = len(dictio) * 100
-        fig_rows = max(len(v) for v in dictio.values()) * 10
+        n_rows = max(map(len, dictio.values()))  # largest number of orbitals for an element
+        n_cols = len(dictio)  # number of elements
         proj = self._get_projections_by_branches(dictio)
         data = self.bs_plot_data(zero_to_efermi)
-        ax = pretty_plot(12, 8)
-        e_min = -4
-        e_max = 4
-        if self._bs.is_metal():
-            e_min = -10
-            e_max = 10
+        e_min, e_max = (-10, 10) if self._bs.is_metal() else (-4, 4)
 
-        for el in dictio:
-            for idx, key in enumerate(dictio[el], 1):
-                ax = plt.subplot(fig_rows + fig_cols + idx)
+        fig, axs = plt.subplots(n_rows, n_cols, figsize=(12, 8), constrained_layout=True)
+
+        for col_idx, el in enumerate(dictio):
+            for row_idx, key in enumerate(dictio[el]):
+                ax = axs[col_idx] if n_rows == 1 else axs[row_idx, col_idx]
+
                 self._make_ticks(ax)
-                for b in range(len(data["distances"])):
-                    for i in range(self._nb_bands):
+                # loop symmetry line segments of the band structure (Gamma->X, X->M, ...)
+                for k_path_idx in range(len(data["distances"])):
+                    for band_idx in range(self._nb_bands):
                         ax.plot(
-                            data["distances"][b],
-                            data["energy"][str(Spin.up)][b][i],
+                            data["distances"][k_path_idx],
+                            data["energy"][str(Spin.up)][k_path_idx][band_idx],
                             "b-",
                             linewidth=band_linewidth,
                         )
                         if self._bs.is_spin_polarized:
                             ax.plot(
-                                data["distances"][b],
-                                data["energy"][str(Spin.down)][b][i],
+                                data["distances"][k_path_idx],
+                                data["energy"][str(Spin.down)][k_path_idx][band_idx],
                                 "r--",
                                 linewidth=band_linewidth,
                             )
-                            for j in range(len(data["energy"][str(Spin.up)][b][i])):
+                            for j in range(len(data["energy"][str(Spin.up)][k_path_idx][band_idx])):
                                 ax.plot(
-                                    data["distances"][b][j],
-                                    data["energy"][str(Spin.down)][b][i][j],
+                                    data["distances"][k_path_idx][j],
+                                    data["energy"][str(Spin.down)][k_path_idx][band_idx][j],
                                     "ro",
-                                    markersize=proj[b][str(Spin.down)][i][j][str(el)][key] * 15.0,
+                                    markersize=proj[k_path_idx][str(Spin.down)][band_idx][j][str(el)][key] * 15.0,
                                 )
-                        for j in range(len(data["energy"][str(Spin.up)][b][i])):
+                        for j in range(len(data["energy"][str(Spin.up)][k_path_idx][band_idx])):
                             ax.plot(
-                                data["distances"][b][j],
-                                data["energy"][str(Spin.up)][b][i][j],
+                                data["distances"][k_path_idx][j],
+                                data["energy"][str(Spin.up)][k_path_idx][band_idx][j],
                                 "bo",
-                                markersize=proj[b][str(Spin.up)][i][j][str(el)][key] * 15.0,
+                                markersize=proj[k_path_idx][str(Spin.up)][band_idx][j][str(el)][key] * 15.0,
                             )
                 if ylim is None:
                     if self._bs.is_metal():
@@ -1031,7 +1036,8 @@ class BSPlotterProjected(BSPlotter):
                 else:
                     ax.set_ylim(ylim)
                 ax.set_title(f"{el} {key}")
-        return plt.gcf().axes
+
+        return fig.axes
 
     @no_type_check
     def get_elt_projected_plots(self, zero_to_efermi: bool = True, ylim=None, vbm_cbm_marker: bool = False) -> plt.Axes:
@@ -1047,12 +1053,11 @@ class BSPlotterProjected(BSPlotter):
         proj = self._get_projections_by_branches({e.symbol: ["s", "p", "d"] for e in self._bs.structure.elements})
         data = self.bs_plot_data(zero_to_efermi)
         _fig, axs = plt.subplots(2, 2, figsize=(12, 8))  # Adjust the layout as needed
-        ax = pretty_plot(12, 8, ax=axs[0][0])
-        e_min, e_max = -4, 4
-        if self._bs.is_metal():
-            e_min, e_max = -10, 10
+        e_min, e_max = (-10, 10) if self._bs.is_metal() else (-4, 4)
+
         for idx, el in enumerate(self._bs.structure.elements, start=1):
-            ax = plt.subplot(220 + idx)
+            ax = pretty_plot(12, 8, ax=axs.flat[idx - 1])
+
             self._make_ticks(ax)
             for b in range(len(data["distances"])):
                 for band_idx in range(self._nb_bands):
