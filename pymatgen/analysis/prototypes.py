@@ -89,8 +89,7 @@ class AflowPrototypeMatcher:
         return tags
 
     def get_prototypes(self, structure: Structure) -> list | None:
-        """
-        Get prototype(s) structures for a given input structure. If you use this method in
+        """Get prototype(s) structures for a given input structure. If you use this method in
         your work, please cite the appropriate AFLOW publication:
 
         Mehl, M. J., Hicks, D., Toher, C., Levy, O., Hanson, R. M., Hart, G., & Curtarolo,

@@ -770,7 +770,7 @@ class CompleteCohp(Cohp):
             for i in avg_data:
                 for spin in spins:
                     rows = np.array([v[i][spin] for v in cohp_data.values()])
-                    avg = np.average(rows, axis=0)
+                    avg = np.mean(rows, axis=0)
                     # LMTO COHPs have 5 significant figures
                     avg_data[i].update({spin: np.array([round_to_sigfigs(a, 5) for a in avg], dtype=float)})
             avg_cohp = Cohp(efermi, energies, avg_data["COHP"], icohp=avg_data["ICOHP"])
@@ -978,7 +978,7 @@ class IcohpValue(MSONable):
             spin: Spin.up or Spin.down.
 
         Returns:
-            icohpvalue (float) corresponding to chosen spin.
+            float: corresponding to chosen spin.
         """
         if not self.is_spin_polarized and spin == Spin.down:
             raise ValueError("The calculation was not performed with spin polarization")
@@ -992,7 +992,7 @@ class IcohpValue(MSONable):
             spin: Spin.up or Spin.down.
 
         Returns:
-            icohpvalue (float) corresponding to chosen spin.
+            float: corresponding to chosen spin.
         """
         if not self.is_spin_polarized and spin == Spin.down:
             raise ValueError("The calculation was not performed with spin polarization")
@@ -1002,7 +1002,8 @@ class IcohpValue(MSONable):
 
     @property
     def icohp(self):
-        """Dict with icohps for spinup and spindown
+        """Dict with ICOHPs for spin up and spin down.
+
         Returns:
             dict={Spin.up: icohpvalue for spin.up, Spin.down: icohpvalue for spin.down}.
         """

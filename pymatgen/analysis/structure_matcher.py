@@ -282,11 +282,9 @@ class OccupancyComparator(AbstractComparator):
 
 
 class StructureMatcher(MSONable):
-    """
-    Class to match structures by similarity.
+    """Match structures by similarity.
 
     Algorithm:
-
     1. Given two structures: s1 and s2
     2. Optional: Reduce to primitive cells.
     3. If the number of sites do not match, return False
@@ -364,7 +362,7 @@ class StructureMatcher(MSONable):
                 SpeciesComparator, which implies rigid species
                 mapping, i.e., Fe2+ only matches Fe2+ and not Fe3+.
 
-                Other comparators are provided, e.g., ElementComparator which
+                Other comparators are provided, e.g. ElementComparator which
                 matches only the elements and not the species.
 
                 The reason why a comparator object is used instead of
@@ -377,7 +375,7 @@ class StructureMatcher(MSONable):
                 present in both structures.
             ignored_species (list): A list of ions to be ignored in matching.
                 Useful for matching structures that have similar frameworks
-                except for certain ions, e.g., Li-ion intercalation frameworks.
+                except for certain ions, e.g. Li-ion intercalation frameworks.
                 This is more useful than allow_subset because it allows better
                 control over what species are ignored in the matching.
         """
@@ -393,8 +391,7 @@ class StructureMatcher(MSONable):
         self._ignored_species = ignored_species
 
     def _get_supercell_size(self, s1, s2):
-        """
-        Returns the supercell size, and whether the supercell should be applied to s1.
+        """Get the supercell size, and whether the supercell should be applied to s1.
         If fu == 1, s1_supercell is returned as true, to avoid ambiguity.
         """
         if self._supercell_size == "num_sites":
@@ -484,8 +481,7 @@ class StructureMatcher(MSONable):
 
     @classmethod
     def _cmp_fstruct(cls, s1, s2, frac_tol, mask):
-        """
-        Returns true if a matching exists between s2 and s2
+        """Get true if a matching exists between s2 and s2
         under frac_tol. s2 should be a subset of s1.
         """
         if len(s2) > len(s1):
@@ -497,8 +493,7 @@ class StructureMatcher(MSONable):
 
     @classmethod
     def _cart_dists(cls, s1, s2, avg_lattice, mask, normalization, lll_frac_tol=None):
-        """
-        Finds a matching in Cartesian space. Finds an additional
+        """Find a matching in Cartesian space. Finds an additional
         fractional translation vector to minimize RMS distance.
 
         Args:
@@ -525,15 +520,14 @@ class StructureMatcher(MSONable):
         lin = LinearAssignment(d_2)
         sol = lin.solution
         short_vecs = vecs[np.arange(len(sol)), sol]
-        translation = np.average(short_vecs, axis=0)
+        translation = np.mean(short_vecs, axis=0)
         f_translation = avg_lattice.get_fractional_coords(translation)
         new_d2 = np.sum((short_vecs - translation) ** 2, axis=-1)
 
         return new_d2**0.5 * normalization, f_translation, sol
 
     def _get_mask(self, struct1, struct2, fu, s1_supercell):
-        """
-        Returns mask for matching struct2 to struct1. If struct1 has sites
+        """Get mask for matching struct2 to struct1. If struct1 has sites
         a b c, and fu = 2, assumes supercells of struct2 will be ordered
         aabbcc (rather than abcabc).
 
@@ -572,8 +566,7 @@ class StructureMatcher(MSONable):
     def fit(
         self, struct1: Structure, struct2: Structure, symmetric: bool = False, skip_structure_reduction: bool = False
     ) -> bool:
-        """
-        Fit two structures.
+        """Fit two structures.
 
         Args:
             struct1 (Structure): 1st structure
@@ -961,7 +954,7 @@ class StructureMatcher(MSONable):
     def get_rms_anonymous(self, struct1, struct2):
         """
         Performs an anonymous fitting, which allows distinct species in one
-        structure to map to another. E.g., to compare if the Li2O and Na2O
+        structure to map to another. e.g. to compare if the Li2O and Na2O
         structures are similar.
 
         Args:
@@ -979,7 +972,7 @@ class StructureMatcher(MSONable):
 
         matches = self._anonymous_match(struct1, struct2, fu, s1_supercell, use_rms=True, break_on_match=False)
         if matches:
-            best = sorted(matches, key=lambda x: x[1][0])[0]
+            best = min(matches, key=lambda x: x[1][0])
             return best[1][0], best[0]
 
         return None, None
@@ -987,7 +980,7 @@ class StructureMatcher(MSONable):
     def get_best_electronegativity_anonymous_mapping(self, struct1: Structure, struct2: Structure) -> dict | None:
         """
         Performs an anonymous fitting, which allows distinct species in one
-        structure to map to another. E.g., to compare if the Li2O and Na2O
+        structure to map to another. e.g. to compare if the Li2O and Na2O
         structures are similar. If multiple substitutions are within tolerance
         this will return the one which minimizes the difference in
         electronegativity between the matches species.
@@ -997,7 +990,7 @@ class StructureMatcher(MSONable):
             struct2 (Structure): 2nd structure
 
         Returns:
-            min_mapping (dict): Mapping of struct1 species to struct2 species
+            dict[Element, Element] | None: Mapping of struct1 species to struct2 species.
         """
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
@@ -1050,7 +1043,7 @@ class StructureMatcher(MSONable):
     ) -> bool:
         """
         Performs an anonymous fitting, which allows distinct species in one structure to map
-        to another. E.g., to compare if the Li2O and Na2O structures are similar.
+        to another. e.g. to compare if the Li2O and Na2O structures are similar.
 
         Args:
             struct1 (Structure): 1st structure
@@ -1070,8 +1063,7 @@ class StructureMatcher(MSONable):
         return bool(matches)
 
     def get_supercell_matrix(self, supercell, struct) -> np.ndarray | None:
-        """
-        Returns the matrix for transforming struct to supercell. This
+        """Get the matrix for transforming struct to supercell. This
         can be used for very distorted 'supercells' where the primitive cell
         is impossible to find.
         """
@@ -1090,8 +1082,7 @@ class StructureMatcher(MSONable):
         return match[2]
 
     def get_transformation(self, struct1, struct2):
-        """
-        Returns the supercell transformation, fractional translation vector,
+        """Get the supercell transformation, fractional translation vector,
         and a mapping to transform struct2 to be similar to struct1.
 
         Args:

@@ -40,8 +40,7 @@ class Fragmenter(MSONable):
         prev_unique_frag_dict: dict | None = None,
         assume_previous_thoroughness: bool = True,
     ):
-        """
-        Standard constructor for molecule fragmentation.
+        """Standard constructor for molecule fragmentation.
 
         Args:
             molecule (Molecule): The molecule to fragment.
@@ -296,8 +295,7 @@ class Fragmenter(MSONable):
 
 
 def open_ring(mol_graph: MoleculeGraph, bond: list, opt_steps: int) -> MoleculeGraph:
-    """
-    Function to actually open a ring using OpenBabel's local opt. Given a molecule
+    """Function to actually open a ring using OpenBabel's local opt. Given a molecule
     graph and a bond, convert the molecule graph into an OpenBabel molecule, remove
     the given bond, perform the local opt with the number of steps determined by
     self.steps, and then convert the resulting structure back into a molecule graph

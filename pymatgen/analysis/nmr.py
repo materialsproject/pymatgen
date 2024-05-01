@@ -65,8 +65,7 @@ class ChemicalShielding(SquareTensor):
 
     @property
     def principal_axis_system(self):
-        """
-        Returns a chemical shielding tensor aligned to the principle axis system
+        """A chemical shielding tensor aligned to the principle axis system
         so that only the 3 diagonal components are non-zero.
         """
         return ChemicalShielding(np.diag(np.sort(np.linalg.eigvals(self.symmetrized))))
@@ -155,9 +154,8 @@ class ElectricFieldGradient(SquareTensor):
 
     @property
     def principal_axis_system(self):
-        """
-        Returns a electric field gradient tensor aligned to the principle axis system so that only the 3 diagonal
-        components are non-zero.
+        """An electric field gradient tensor aligned to the principle axis system so that
+        only the 3 diagonal components are non-zero.
         """
         return ElectricFieldGradient(np.diag(np.sort(np.linalg.eigvals(self))))
 
@@ -165,7 +163,7 @@ class ElectricFieldGradient(SquareTensor):
     def V_xx(self):
         """Returns: First diagonal element."""
         diags = np.diag(self.principal_axis_system)
-        return sorted(diags, key=np.abs)[0]
+        return min(diags, key=np.abs)
 
     @property
     def V_yy(self):
@@ -181,10 +179,7 @@ class ElectricFieldGradient(SquareTensor):
 
     @property
     def asymmetry(self):
-        """
-        Asymmetry of the electric field tensor defined as:
-            (V_yy - V_xx)/V_zz.
-        """
+        """Asymmetry of the electric field tensor defined as (V_yy - V_xx)/V_zz."""
         diags = np.diag(self.principal_axis_system)
         V = sorted(diags, key=np.abs)
         return np.abs((V[1] - V[0]) / V[2])

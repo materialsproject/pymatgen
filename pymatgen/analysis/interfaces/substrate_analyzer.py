@@ -94,8 +94,7 @@ class SubstrateAnalyzer(ZSLGenerator):
     """
 
     def __init__(self, film_max_miller=1, substrate_max_miller=1, **kwargs):
-        """
-        Initializes the substrate analyzer
+        """Initialize the substrate analyzer
 
         Args:
             zslgen (ZSLGenerator): Defaults to a ZSLGenerator with standard
@@ -113,8 +112,7 @@ class SubstrateAnalyzer(ZSLGenerator):
     def generate_surface_vectors(
         self, film: Structure, substrate: Structure, film_millers: ArrayLike, substrate_millers: ArrayLike
     ):
-        """
-        Generates the film/substrate slab combinations for a set of given
+        """Generate the film/substrate slab combinations for a set of given
         miller indices.
 
         Args:
@@ -154,8 +152,7 @@ class SubstrateAnalyzer(ZSLGenerator):
         ground_state_energy=0,
         lowest=False,
     ):
-        """
-        Finds all topological matches for the substrate and calculates elastic
+        """Find all topological matches for the substrate and calculates elastic
         strain energy and total energy for the film if elasticity tensor and
         ground state energy are provided:
 

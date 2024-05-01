@@ -314,7 +314,7 @@ class TestLammpsData(PymatgenTest):
         for kw in base_kws:
             ff_kw = f"{kw} Coeffs"
             ff_coeffs = c_ff.topo_coeffs[ff_kw]
-            topo_kw = kw + "s"
+            topo_kw = f"{kw}s"
             topos_df = c.topology[topo_kw]
             topo_df: pd.DataFrame = topos_df[topos_df["atom1"] >= shift]
             topo_arr = topo_df.drop("type", axis=1)
@@ -757,11 +757,11 @@ class TestFunc(TestCase):
         frac_coords = np.random.rand(10, 3)
         init_structure = Structure(init_latt, ["H"] * 10, frac_coords)
         origin = np.random.rand(3) * 10 - 5
-        box, symmop = lattice_2_lmpbox(lattice=init_latt, origin=origin)
+        box, symm_op = lattice_2_lmpbox(lattice=init_latt, origin=origin)
         boxed_latt = box.to_lattice()
         assert_allclose(init_latt.abc, boxed_latt.abc)
         assert_allclose(init_latt.angles, boxed_latt.angles)
-        cart_coords = symmop.operate_multi(init_structure.cart_coords) - origin
+        cart_coords = symm_op.operate_multi(init_structure.cart_coords) - origin
         boxed_structure = Structure(boxed_latt, ["H"] * 10, cart_coords, coords_are_cartesian=True)
         assert_allclose(boxed_structure.frac_coords, frac_coords)
         tetra_latt = Lattice.tetragonal(5, 5)

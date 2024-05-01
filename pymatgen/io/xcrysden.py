@@ -26,8 +26,7 @@ class XSF:
         self.structure = structure
 
     def to_str(self, atom_symbol: bool = True) -> str:
-        """
-        Returns a string with the structure in XSF format
+        """Get a string with the structure in XSF format
         See http://www.xcrysden.org/doc/XSF.html.
 
         Args:
@@ -96,9 +95,9 @@ class XSF:
                     lattice.append([float(c) for c in lines[j].split()])
 
             if "PRIMCOORD" in line:
-                num_sites = int(lines[idx].split()[0])
+                n_sites = int(lines[idx].split()[0])
 
-                for j in range(idx + 1, idx + 1 + num_sites):
+                for j in range(idx + 1, idx + 1 + n_sites):
                     tokens = lines[j].split()
                     Z = Element(tokens[0]).Z if tokens[0].isalpha() else int(tokens[0])
                     species.append(Z)

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import collections
 import re
+from collections import defaultdict
 from functools import partial
 from numbers import Number
 from typing import TYPE_CHECKING, Any
@@ -160,22 +161,21 @@ def _check_mappings(u):
 
 
 class Unit(collections.abc.Mapping):
-    """Represents a unit, e.g., "m" for meters, etc. Supports compound units.
+    """Represents a unit, e.g. "m" for meters, etc. Supports compound units.
     Only integer powers are supported for units.
     """
 
     def __init__(self, unit_def) -> None:
-        """Constructs a unit.
-
+        """
         Args:
             unit_def: A definition for the unit. Either a mapping of unit to
-                powers, e.g., {"m": 2, "s": -1} represents "m^2 s^-1",
+                powers, e.g. {"m": 2, "s": -1} represents "m^2 s^-1",
                 or simply as a string "kg m^2 s^-1". Note that the supported
                 format uses "^" as the power operator and all units must be
                 space-separated.
         """
         if isinstance(unit_def, str):
-            unit: dict[str, int] = collections.defaultdict(int)
+            unit: dict[str, int] = defaultdict(int)
 
             for match in re.finditer(r"([A-Za-z]+)\s*\^*\s*([\-0-9]*)", unit_def):
                 val = match.group(2)
@@ -187,7 +187,7 @@ class Unit(collections.abc.Mapping):
         self._unit = _check_mappings(unit)
 
     def __mul__(self, other):
-        new_units = collections.defaultdict(int)
+        new_units = defaultdict(int)
         for k, v in self.items():
             new_units[k] += v
         for k, v in other.items():
@@ -195,7 +195,7 @@ class Unit(collections.abc.Mapping):
         return Unit(new_units)
 
     def __truediv__(self, other):
-        new_units = collections.defaultdict(int)
+        new_units = defaultdict(int)
         for k, v in self.items():
             new_units[k] += v
         for k, v in other.items():
@@ -222,13 +222,13 @@ class Unit(collections.abc.Mapping):
 
     @property
     def as_base_units(self):
-        """Converts all units to base SI units, including derived units.
+        """Convert all units to base SI units, including derived units.
 
         Returns:
             tuple[dict, float]: (base_units_dict, scaling factor). base_units_dict will not
                 contain any constants, which are gathered in the scaling factor.
         """
-        b = collections.defaultdict(int)
+        b = defaultdict(int)
         factor = 1
         for k, v in self.items():
             derived = False
@@ -273,7 +273,7 @@ class FloatWithUnit(float):
     pre-defined unit type subclasses such as Energy, Length, etc. instead of
     using FloatWithUnit directly.
 
-    Supports conversion, addition and subtraction of the same unit type. E.g.,
+    Supports conversion, addition and subtraction of the same unit type. e.g.
     1 m + 20 cm will be automatically converted to 1.2 m (units follow the
     leftmost quantity). Note that FloatWithUnit does not override the eq
     method for float, i.e., units are not checked when testing for equality.
@@ -291,12 +291,12 @@ class FloatWithUnit(float):
     """
 
     def __init__(self, val: float | Number, unit: str, unit_type: str | None = None) -> None:
-        """Initializes a float with unit.
+        """Initialize a float with unit.
 
         Args:
             val (float): Value
-            unit (Unit): A unit. E.g., "C".
-            unit_type (str): A type of unit. E.g., "charge"
+            unit (Unit): A unit. e.g. "C".
+            unit_type (str): A type of unit. e.g. "charge"
         """
         if unit_type is not None and str(unit) not in ALL_UNITS[unit_type]:
             raise UnitError(f"{unit} is not a supported unit for {unit_type}")
@@ -383,22 +383,22 @@ class FloatWithUnit(float):
 
     @property
     def unit(self) -> Unit:
-        """The unit, e.g., "eV"."""
+        """The unit, e.g. "eV"."""
         return self._unit
 
     @classmethod
-    def from_str(cls, s: str) -> Self:
+    def from_str(cls, string: str) -> Self:
         """Parse string to FloatWithUnit.
         Example: Memory.from_str("1. Mb").
         """
         # Extract num and unit string.
-        s = s.strip()
-        for _idx, char in enumerate(s):
+        string = string.strip()
+        for _idx, char in enumerate(string):
             if char.isalpha() or char.isspace():
                 break
         else:
-            raise ValueError(f"Unit is missing in string {s}")
-        num, unit = float(s[:_idx]), s[_idx:]
+            raise ValueError(f"Unit is missing in string {string}")
+        num, unit = float(string[:_idx]), string[_idx:]
 
         # Find unit type (set it to None if it cannot be detected)
         for unit_type, dct in BASE_UNITS.items():
@@ -448,7 +448,7 @@ class ArrayWithUnit(np.ndarray):
     use the pre-defined unit type subclasses such as EnergyArray,
     LengthArray, etc. instead of using ArrayWithFloatWithUnit directly.
 
-    Supports conversion, addition and subtraction of the same unit type. E.g.,
+    Supports conversion, addition and subtraction of the same unit type. e.g.
     1 m + 20 cm will be automatically converted to 1.2 m (units follow the
     leftmost quantity).
 
@@ -487,7 +487,7 @@ class ArrayWithUnit(np.ndarray):
 
     @property
     def unit(self) -> str:
-        """The unit, e.g., "eV"."""
+        """The unit, e.g. "eV"."""
         return self._unit
 
     def __reduce__(self):
@@ -624,7 +624,7 @@ A float with an energy unit.
 
 Args:
     val (float): Value
-    unit (Unit): E.g., eV, kJ, etc. Must be valid unit or UnitError is raised.
+    unit (Unit): e.g. eV, kJ, etc. Must be valid unit or UnitError is raised.
 """
 EnergyArray = partial(ArrayWithUnit, unit_type="energy")
 
@@ -634,7 +634,7 @@ A float with a length unit.
 
 Args:
     val (float): Value
-    unit (Unit): E.g., m, ang, bohr, etc. Must be valid unit or UnitError is
+    unit (Unit): e.g. m, ang, bohr, etc. Must be valid unit or UnitError is
         raised.
 """
 LengthArray = partial(ArrayWithUnit, unit_type="length")
@@ -645,7 +645,7 @@ A float with a mass unit.
 
 Args:
     val (float): Value
-    unit (Unit): E.g., amu, kg, etc. Must be valid unit or UnitError is
+    unit (Unit): e.g. amu, kg, etc. Must be valid unit or UnitError is
         raised.
 """
 MassArray = partial(ArrayWithUnit, unit_type="mass")
@@ -656,7 +656,7 @@ A float with a temperature unit.
 
 Args:
     val (float): Value
-    unit (Unit): E.g., K. Only K (kelvin) is supported.
+    unit (Unit): e.g. K. Only K (kelvin) is supported.
 """
 TempArray = partial(ArrayWithUnit, unit_type="temperature")
 
@@ -666,7 +666,7 @@ A float with a time unit.
 
 Args:
     val (float): Value
-    unit (Unit): E.g., s, min, h. Must be valid unit or UnitError is
+    unit (Unit): e.g. s, min, h. Must be valid unit or UnitError is
         raised.
 """
 TimeArray = partial(ArrayWithUnit, unit_type="time")
@@ -677,7 +677,7 @@ A float with a charge unit.
 
 Args:
     val (float): Value
-    unit (Unit): E.g., C, e (electron charge). Must be valid unit or UnitError
+    unit (Unit): e.g. C, e (electron charge). Must be valid unit or UnitError
         is raised.
 """
 ChargeArray = partial(ArrayWithUnit, unit_type="charge")
@@ -688,7 +688,7 @@ A float with a memory unit.
 
 Args:
     val (float): Value
-    unit (Unit): E.g., Kb, Mb, Gb, Tb. Must be valid unit or UnitError
+    unit (Unit): e.g. Kb, Mb, Gb, Tb. Must be valid unit or UnitError
         is raised.
 """
 

@@ -316,8 +316,7 @@ class Pseudo(MSONable, abc.ABC):
         # return None
 
     def hint_for_accuracy(self, accuracy="normal"):
-        """
-        Returns a Hint object with the suggested value of ecut [Ha] and
+        """Get a Hint object with the suggested value of ecut [Ha] and
         pawecutdg [Ha] for the given accuracy.
         ecut and pawecutdg are set to zero if no hint is available.
 
@@ -1546,8 +1545,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
 
     @classmethod
     def from_dir(cls, top, exts=None, exclude_dirs="_*") -> Self | None:
-        """
-        Find all pseudos in the directory tree starting from top.
+        """Find all pseudos in the directory tree starting from top.
 
         Args:
             top: Top of the directory tree
@@ -1819,8 +1817,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         )
 
     def sorted(self, attrname, reverse=False):
-        """
-        Sort the table according to the value of attribute attrname.
+        """Sort the table according to the value of attribute attrname.
 
         Returns:
             New class: `PseudoTable` object

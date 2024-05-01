@@ -132,8 +132,7 @@ class NetcdfReader:
                 print(child)
 
     def read_dimvalue(self, dimname, path="/", default=NO_DEFAULT):
-        """
-        Returns the value of a dimension.
+        """Get the value of a dimension.
 
         Args:
             dimname: Name of the variable
@@ -157,8 +156,7 @@ class NetcdfReader:
         return list(group.variables)
 
     def read_value(self, varname, path="/", cmode=None, default=NO_DEFAULT):
-        """
-        Returns the values of variable with name varname in the group specified by path.
+        """Get the values of variable with name varname in the group specified by path.
 
         Args:
             varname: Name of the variable
@@ -462,8 +460,7 @@ class AbinitHeader(AttrDict):
         return self.to_str()
 
     def to_str(self, verbose=0, title=None, **kwargs):
-        """
-        String representation. kwargs are passed to `pprint.pformat`.
+        """String representation. kwargs are passed to `pprint.pformat`.
 
         Args:
             verbose: Verbosity level

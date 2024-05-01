@@ -38,11 +38,10 @@ class VaspDoc:
 
     @classmethod
     def get_help(cls, tag: str, fmt: str = "text") -> str:
-        """
-        Get help on a VASP tag.
+        """Get help on a VASP tag.
 
         Args:
-            tag (str): VASP tag, e.g., ISYM.
+            tag (str): VASP tag, e.g. ISYM.
 
         Returns:
             Help text.

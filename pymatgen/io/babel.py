@@ -48,8 +48,7 @@ class BabelMolAdaptor:
 
     @needs_openbabel
     def __init__(self, mol: Molecule | openbabel.OBMol | pybel.Molecule) -> None:
-        """
-        Initializes with pymatgen Molecule or OpenBabel's OBMol.
+        """Initialize with pymatgen Molecule or OpenBabel's OBMol.
 
         Args:
             mol: pymatgen's Molecule/IMolecule or OpenBabel OBMol

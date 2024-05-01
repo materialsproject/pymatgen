@@ -32,7 +32,7 @@ from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
 if TYPE_CHECKING:
     from typing_extensions import Self
 
-    from pymatgen.core.trajectory import Vector3D
+    from pymatgen.util.typing import Vector3D
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 
@@ -105,7 +105,7 @@ class CifBlock:
             line = "\n"
             for val in map(self._format_field, fields):
                 if val[0] == ";":
-                    out += line + "\n" + val
+                    out += f"{line}\n{val}"
                     line = "\n"
                 elif len(line) + len(val) + 2 < self.max_len:
                     line += f"  {val}"
@@ -301,7 +301,7 @@ class CifParser:
             site_tolerance (float): This tolerance is used to determine if two sites are sitting in the same position,
                 in which case they will be combined to a single disordered site. Defaults to 1e-4.
             frac_tolerance (float): This tolerance is used to determine is a coordinate should be rounded to an ideal
-                value. E.g., 0.6667 is rounded to 2/3. This is desired if symmetry operations are going to be applied.
+                value. e.g. 0.6667 is rounded to 2/3. This is desired if symmetry operations are going to be applied.
                 However, for very large CIF files, this may need to be set to 0.
             check_cif (bool): Whether to check that stoichiometry reported in CIF matches
                 that of resulting Structure, and whether elements are missing. Defaults to True.
@@ -329,7 +329,7 @@ class CifParser:
         self.warnings: list[str] = []
 
         def is_magcif() -> bool:
-            """Checks to see if file appears to be a magCIF file (heuristic)."""
+            """Check to see if file appears to be a magCIF file (heuristic)."""
             # Doesn't seem to be a canonical way to test if file is magCIF or
             # not, so instead check for magnetic symmetry datanames
             prefixes = ["_space_group_magn", "_atom_site_moment", "_space_group_symop_magn"]
@@ -382,8 +382,7 @@ class CifParser:
         return cls(stream, **kwargs)
 
     def _sanitize_data(self, data):
-        """
-        Some CIF files do not conform to spec. This function corrects
+        """Some CIF files do not conform to spec. This function corrects
         known issues, particular in regards to Springer materials/
         Pauling files.
 
@@ -572,8 +571,7 @@ class CifParser:
         lattice: Lattice | None = None,
         labels: dict[Vector3D, str] | None = None,
     ):
-        """
-        Generate unique coordinates using coord and symmetry positions
+        """Generate unique coordinates using coord and symmetry positions
         and also their corresponding magnetic moments, if supplied.
         """
         coords_out: list[np.ndarray] = []
@@ -623,8 +621,7 @@ class CifParser:
         angle_strings=("alpha", "beta", "gamma"),
         lattice_type=None,
     ):
-        """
-        Generate the lattice from the provided lattice parameters. In
+        """Generate the lattice from the provided lattice parameters. In
         the absence of all six lattice parameters, the crystal system
         and necessary parameters are parsed.
         """
@@ -774,8 +771,7 @@ class CifParser:
         return sym_ops
 
     def get_magsymops(self, data):
-        """
-        Equivalent to get_symops except for magnetic symmetry groups.
+        """Equivalent to get_symops except for magnetic symmetry groups.
         Separate function since additional operation for time reversal symmetry
         (which changes magnetic moments on sites) needs to be returned.
         """
@@ -1233,8 +1229,7 @@ class CifParser:
         return structures
 
     def get_bibtex_string(self) -> str:
-        """
-        Get BibTeX reference from CIF file.
+        """Get BibTeX reference from CIF file.
 
         args:
             data:
@@ -1541,10 +1536,7 @@ class CifWriter:
         else:
             # The following just presents a deterministic ordering.
             unique_sites = [
-                (
-                    sorted(sites, key=lambda s: tuple(abs(x) for x in s.frac_coords))[0],
-                    len(sites),
-                )
+                (min(sites, key=lambda site: tuple(abs(x) for x in site.frac_coords)), len(sites))
                 for sites in spg_analyzer.get_symmetrized_structure().equivalent_sites  # type: ignore[reportPossiblyUnboundVariable]
             ]
             for site, mult in sorted(

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import abc
-import collections
+from collections import defaultdict
 from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
@@ -81,8 +81,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         with_labels=True,
         fontsize=16,
     ) -> plt.Axes:
-        """
-        Returns the diffraction plot as a matplotlib Axes.
+        """Get the diffraction plot as a matplotlib Axes.
 
         Args:
             structure: Input structure
@@ -154,8 +153,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         return ax
 
     def show_plot(self, structure: Structure, **kwargs):
-        """
-        Shows the diffraction plot.
+        """Show the diffraction plot.
 
         Args:
             structure (Structure): Input structure
@@ -215,9 +213,9 @@ def get_unique_families(hkls):
     def is_perm(hkl1, hkl2) -> bool:
         h1 = np.abs(hkl1)
         h2 = np.abs(hkl2)
-        return all(i == j for i, j in zip(sorted(h1), sorted(h2)))
+        return np.all(np.sort(h1) == np.sort(h2))
 
-    unique = collections.defaultdict(list)
+    unique = defaultdict(list)
     for hkl1 in hkls:
         found = False
         for hkl2, v2 in unique.items():
@@ -229,7 +227,7 @@ def get_unique_families(hkls):
             unique[hkl1].append(hkl1)
 
     pretty_unique = {}
-    for v in unique.values():
-        pretty_unique[sorted(v)[-1]] = len(v)
+    for val in unique.values():
+        pretty_unique[max(val)] = len(val)
 
     return pretty_unique

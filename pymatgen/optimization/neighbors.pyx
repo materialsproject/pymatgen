@@ -49,8 +49,7 @@ def find_points_in_spheres(
         const double[:, ::1] lattice,
         const double tol=1e-8,
         const double min_r=1.0):
-    """
-    For each point in `center_coords`, get all the neighboring points in `all_coords`
+    """For each point in `center_coords`, get all the neighboring points in `all_coords`
     that are within the cutoff radius `r`. All the coordinates should be Cartesian.
 
     Args:
@@ -497,8 +496,7 @@ cdef double distance2(
         long index2,
         long size
     ) nogil:
-    """
-    Faster way to compute the distance squared by not using slice but providing indices
+    """Faster way to compute the distance squared by not using slice but providing indices
     in each matrix
     """
     cdef:

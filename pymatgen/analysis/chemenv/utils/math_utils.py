@@ -62,8 +62,7 @@ def prime_factors(n: int) -> list[int]:
 
 
 def _factor_generator(n: int) -> dict[int, int]:
-    """
-    From a given natural integer, returns the prime factors and their multiplicity
+    """From a given natural integer, returns the prime factors and their multiplicity
 
     Args:
         n: Natural integer
@@ -79,8 +78,7 @@ def _factor_generator(n: int) -> dict[int, int]:
 
 
 def divisors(n):
-    """
-    From a given natural integer, returns the list of divisors in ascending order
+    """From a given natural integer, returns the list of divisors in ascending order
 
     Args:
         n: Natural integer
@@ -100,7 +98,6 @@ def divisors(n):
 
 def get_center_of_arc(p1, p2, radius):
     """
-
     Args:
         p1:
         p2:
@@ -120,7 +117,6 @@ def get_center_of_arc(p1, p2, radius):
 
 def get_linearly_independent_vectors(vectors_list):
     """
-
     Args:
         vectors_list:
     """
@@ -144,7 +140,6 @@ def get_linearly_independent_vectors(vectors_list):
 
 def scale_and_clamp(xx, edge0, edge1, clamp0, clamp1):
     """
-
     Args:
         xx:
         edge0:
@@ -158,7 +153,6 @@ def scale_and_clamp(xx, edge0, edge1, clamp0, clamp1):
 # Step function based on the cumulative distribution function of the normal law
 def normal_cdf_step(xx, mean, scale):
     """
-
     Args:
         xx:
         mean:
@@ -176,7 +170,6 @@ def normal_cdf_step(xx, mean, scale):
 
 def smoothstep(xx, edges=None, inverse=False):
     """
-
     Args:
         xx:
         edges:
@@ -193,7 +186,6 @@ def smoothstep(xx, edges=None, inverse=False):
 
 def smootherstep(xx, edges=None, inverse=False):
     """
-
     Args:
         xx:
         edges:
@@ -210,7 +202,6 @@ def smootherstep(xx, edges=None, inverse=False):
 
 def cosinus_step(xx, edges=None, inverse=False):
     """
-
     Args:
         xx:
         edges:
@@ -227,7 +218,6 @@ def cosinus_step(xx, edges=None, inverse=False):
 
 def power3_step(xx, edges=None, inverse=False):
     """
-
     Args:
         xx:
         edges:
@@ -238,7 +228,6 @@ def power3_step(xx, edges=None, inverse=False):
 
 def powern_parts_step(xx, edges=None, inverse=False, nn=2):
     """
-
     Args:
         xx:
         edges:
@@ -282,7 +271,6 @@ def powern_parts_step(xx, edges=None, inverse=False, nn=2):
 
 def powern_decreasing(xx, edges=None, nn=2):
     """
-
     Args:
         xx:
         edges:
@@ -297,7 +285,6 @@ def powern_decreasing(xx, edges=None, nn=2):
 
 def power2_decreasing_exp(xx, edges=None, alpha=1.0):
     """
-
     Args:
         xx:
         edges:
@@ -317,7 +304,6 @@ def power2_decreasing_exp(xx, edges=None, alpha=1.0):
 
 def power2_tangent_decreasing(xx, edges=None, prefactor=None):
     """
-
     Args:
         xx:
         edges:
@@ -333,7 +319,6 @@ def power2_tangent_decreasing(xx, edges=None, prefactor=None):
 
 def power2_inverse_decreasing(xx, edges=None, prefactor=None):
     """
-
     Args:
         xx:
         edges:
@@ -349,7 +334,6 @@ def power2_inverse_decreasing(xx, edges=None, prefactor=None):
 
 def power2_inverse_power2_decreasing(xx, edges=None, prefactor=None):
     """
-
     Args:
         xx:
         edges:
@@ -368,7 +352,6 @@ def power2_inverse_power2_decreasing(xx, edges=None, prefactor=None):
 
 def power2_inverse_powern_decreasing(xx, edges=None, prefactor=None, powern=2.0):
     """
-
     Args:
         xx:
         edges:

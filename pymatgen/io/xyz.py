@@ -42,8 +42,7 @@ class XYZ:
 
     @property
     def molecule(self) -> Molecule:
-        """
-        Returns molecule associated with this XYZ. In case of multi-frame
+        """Get molecule associated with this XYZ. In case of multi-frame
         XYZ, returns the last frame.
         """
         return self._mols[-1]  # type: ignore[return-value]
@@ -57,19 +56,18 @@ class XYZ:
     def _from_frame_str(contents) -> Molecule:
         """Convert a single frame XYZ string to a molecule."""
         lines = contents.split("\n")
-        num_sites = int(lines[0])
+        n_sites = int(lines[0])
         coords = []
         sp = []
         coord_pattern = re.compile(r"(\w+)\s+([0-9\-\+\.*^eEdD]+)\s+([0-9\-\+\.*^eEdD]+)\s+([0-9\-\+\.*^eEdD]+)")
-        for i in range(2, 2 + num_sites):
-            m = coord_pattern.search(lines[i])
-            if m:
-                sp.append(m.group(1))  # this is 1-indexed
+        for idx in range(2, 2 + n_sites):
+            if match := coord_pattern.search(lines[idx]):
+                sp.append(match.group(1))  # this is 1-indexed
                 # this is 0-indexed
                 # in case of 0.0D+00 or 0.00d+01 old double precision writing
                 # replace d or D by e for ten power exponent,
                 # and some files use *^ convention in place of e
-                xyz = [val.lower().replace("d", "e").replace("*^", "e") for val in m.groups()[1:4]]
+                xyz = [val.lower().replace("d", "e").replace("*^", "e") for val in match.groups()[1:4]]
                 coords.append([float(val) for val in xyz])
         return Molecule(sp, coords)
 
@@ -113,8 +111,7 @@ class XYZ:
             return cls.from_str(file.read())
 
     def as_dataframe(self):
-        """
-        Generates a coordinates data frame with columns: atom, x, y, and z
+        """Generate a coordinates data frame with columns: atom, x, y, and z
         In case of multiple frame XYZ, returns the last frame.
 
         Returns:

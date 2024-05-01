@@ -1,4 +1,4 @@
-"""Provides classes for generating high-symmetry k-paths using different conventions."""
+"""Classes for generating high-symmetry k-paths using different conventions."""
 
 from __future__ import annotations
 
@@ -63,42 +63,26 @@ class KPathBase(abc.ABC):
 
     @property
     def structure(self):
-        """
-        Returns:
-            The input structure.
-        """
+        """The input structure."""
         return self._structure
 
     @property
     def lattice(self):
-        """
-        Returns:
-            The real space lattice.
-        """
+        """The real space lattice."""
         return self._latt
 
     @property
     def rec_lattice(self):
-        """
-        Returns:
-            The reciprocal space lattice.
-        """
+        """The reciprocal space lattice."""
         return self._rec_lattice
 
     @property
     def kpath(self):
-        """
-        Returns:
-            The symmetry line path in reciprocal space.
-        """
+        """The symmetry line path in reciprocal space."""
         return self._kpath
 
     def get_kpoints(self, line_density=20, coords_are_cartesian=True):
-        """
-        Returns:
-            kpoints along the path in Cartesian coordinates
-        together with the critical-point labels.
-        """
+        """Get kpoints along the path in Cartesian coordinates together with the critical-point labels."""
         list_k_points = []
         sym_point_labels = []
         for b in self.kpath["path"]:
@@ -278,26 +262,17 @@ class KPathSetyawanCurtarolo(KPathBase):
 
     @property
     def conventional(self):
-        """
-        Returns:
-            The conventional cell structure.
-        """
+        """The conventional cell structure."""
         return self._conv
 
     @property
     def prim(self):
-        """
-        Returns:
-            The primitive cell structure.
-        """
+        """The primitive cell structure."""
         return self._prim
 
     @property
     def prim_rec(self):
-        """
-        Returns:
-            The primitive reciprocal cell structure.
-        """
+        """The primitive reciprocal cell structure."""
         return self._rec_lattice
 
     def cubic(self):
@@ -1089,11 +1064,9 @@ class KPathLatimerMunro(KPathBase):
 
     @property
     def mag_type(self):
-        """
-        Returns:
-            The type of magnetic space group as a string. Current implementation does not
-            distinguish between types 3 and 4, so return value is '3/4'. If has_magmoms is
-            False, returns '0'.
+        """The type of magnetic space group as a string. Current implementation does not
+        distinguish between types 3 and 4, so return value is '3/4'. If has_magmoms is
+        False, returns '0'.
         """
         return self._mag_type
 

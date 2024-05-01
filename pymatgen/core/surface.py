@@ -96,15 +96,15 @@ class Slab(Structure):
             lattice (Lattice/3x3 array): The lattice, either as a
                 pymatgen.core.Lattice or simply as any 2D array.
                 Each row should correspond to a lattice
-                vector. E.g., [[10,0,0], [20,10,0], [0,0,30]].
+                vector. e.g. [[10,0,0], [20,10,0], [0,0,30]].
             species ([Species]): Sequence of species on each site. Can take in
                 flexible input, including:
 
                 i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                    e.g., (3, 56, ...) or actual Element or Species objects.
+                    e.g. (3, 56, ...) or actual Element or Species objects.
 
-                ii. List of dict of elements/species and occupancies, e.g.,
+                ii. List of dict of elements/species and occupancies, e.g.
                     [{"Fe": 0.5, "Mn": 0.5}, ...]. This allows the setup of
                     disordered structures.
             coords (Nx3 array): list of fractional/cartesian coordinates of each species.
@@ -128,7 +128,7 @@ class Slab(Structure):
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in Cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
-                dict of sequences, e.g., {"magmom":[5,5,5,5]}. The sequences
+                dict of sequences, e.g. {"magmom":[5,5,5,5]}. The sequences
                 have to be the same length as the atomic species and
                 fractional_coords. Defaults to None for no properties.
             energy (float): A value for the energy.
@@ -398,8 +398,8 @@ class Slab(Structure):
         point: ArrayLike,
         cartesian: bool = False,
     ) -> ArrayLike:
-        """This method uses symmetry operations to find an equivalent site on
-        the other side of the slab. Works mainly for slabs with Laue symmetry.
+        """Use symmetry operations to find an equivalent site on the other side of
+        the slab. Works mainly for slabs with Laue symmetry.
 
         This is useful for retaining the non-polar and
         symmetric properties of a slab when creating adsorbed
@@ -899,7 +899,7 @@ class SlabGenerator:
         max_normal_search: int | None = None,
         reorient_lattice: bool = True,
     ) -> None:
-        """Calculates the slab scale factor and uses it to generate an
+        """Calculate the slab scale factor and uses it to generate an
         oriented unit cell (OUC) of the initial structure.
         Also stores the initial information needed later on to generate a slab.
 
@@ -1150,7 +1150,7 @@ class SlabGenerator:
 
         # Center the slab layer around the vacuum
         if self.center_slab:
-            c_center = np.average([coord[2] for coord in slab.frac_coords])
+            c_center = np.mean([coord[2] for coord in slab.frac_coords])
             slab.translate_sites(list(range(len(slab))), [0, 0, 0.5 - c_center])
 
         # Reduce to primitive cell
@@ -1739,7 +1739,7 @@ class ReconstructionGenerator:
         min_vacuum_size: float,
         reconstruction_name: str,
     ) -> None:
-        """Generates reconstructed slabs from a set of instructions.
+        """Generate reconstructed slabs from a set of instructions.
 
         Args:
             initial_structure (Structure): Initial input structure. Note
@@ -1905,7 +1905,7 @@ class ReconstructionGenerator:
 
         for slab in slabs:
             z_spacing = get_d(slab)
-            top_site = sorted(slab, key=lambda site: site.frac_coords[2])[-1].coords
+            top_site = max(slab, key=lambda site: site.frac_coords[2]).coords
 
             # Remove specified sites
             if "points_to_remove" in self.reconstruction_json:

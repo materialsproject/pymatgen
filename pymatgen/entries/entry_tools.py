@@ -12,6 +12,7 @@ import json
 import logging
 import multiprocessing as mp
 import re
+from collections import defaultdict
 from typing import TYPE_CHECKING, Literal
 
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -114,7 +115,7 @@ def group_entries_by_structure(
     logger.info(f"Started at {start}")
     entries_host = [(entry, _get_host(entry.structure, species_to_remove)) for entry in entries]
     if ncpus:
-        symm_entries = collections.defaultdict(list)
+        symm_entries = defaultdict(list)
         for entry, host in entries_host:
             symm_entries[comparator.get_structure_hash(host)].append((entry, host))
 
@@ -230,7 +231,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
     def chemsys(self) -> set:
         """
         Returns:
-            set representing the chemical system, e.g., {"Li", "Fe", "P", "O"}.
+            set representing the chemical system, e.g. {"Li", "Fe", "P", "O"}.
         """
         chemsys = set()
         for e in self.entries:
@@ -266,7 +267,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         and Li-O entries are returned.
 
         Args:
-            chemsys: Chemical system specified as list of elements. E.g.,
+            chemsys: Chemical system specified as list of elements. e.g.
                 ["Li", "O"]
 
         Returns:
@@ -295,7 +296,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
             filename: Filename to write to.
             entries: PDEntries to export.
             latexify_names: Format entry names to be LaTex compatible,
-                e.g., Li_{2}O
+                e.g. Li_{2}O
         """
         els: set[Element] = set()
         for entry in self.entries:
