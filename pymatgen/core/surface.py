@@ -1684,8 +1684,6 @@ with open(f"{module_dir}/reconstructions_archive.json", encoding="utf-8") as dat
 
 def get_d(slab: Slab) -> float:
     """Determine the z-spacing between the bottom two layers for a Slab.
-
-    TODO (@DanielYang59): this should be private/internal to ReconstructionGenerator?
     """
     # Sort all sites by z-coordinates
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
@@ -1693,7 +1691,6 @@ def get_d(slab: Slab) -> float:
     distance = None
     for site, next_site in zip(sorted_sites, sorted_sites[1:]):
         if not isclose(site.frac_coords[2], next_site.frac_coords[2], abs_tol=1e-6):
-            # DEBUG (@DanielYang59): code will break if no distinguishable layers found
             distance = next_site.frac_coords[2] - site.frac_coords[2]
             break
 
