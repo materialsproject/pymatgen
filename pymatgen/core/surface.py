@@ -1683,8 +1683,7 @@ with open(f"{module_dir}/reconstructions_archive.json", encoding="utf-8") as dat
 
 
 def get_d(slab: Slab) -> float:
-    """Determine the z-spacing between the bottom two layers for a Slab.
-    """
+    """Determine the z-spacing between the bottom two layers for a Slab."""
     # Sort all sites by z-coordinates
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
 
