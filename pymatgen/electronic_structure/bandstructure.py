@@ -810,13 +810,13 @@ class BandStructureSymmLine(BandStructure, MSONable):
         """
         to_return = []
         for idx in self.get_equivalent_kpoints(index):
-            for b in self.branches:
-                if b["start_index"] <= idx <= b["end_index"]:
+            for branch in self.branches:
+                if branch["start_index"] <= idx <= branch["end_index"]:
                     to_return.append(
                         {
-                            "name": b["name"],
-                            "start_index": b["start_index"],
-                            "end_index": b["end_index"],
+                            "name": branch["name"],
+                            "start_index": branch["start_index"],
+                            "end_index": branch["end_index"],
                             "index": idx,
                         }
                     )
