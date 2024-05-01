@@ -1298,8 +1298,7 @@ class Lattice(MSONable):
         zip_results=True,
     ) -> list[tuple[np.ndarray, float, int, np.ndarray]] | tuple[np.ndarray, ...] | list:
         """Find all points within a sphere from the point taking into account
-        periodic boundary conditions. This includes sites in other periodic
-        images.
+        periodic boundary conditions. This includes sites in other periodic images.
 
         Algorithm:
 
@@ -1342,10 +1341,12 @@ class Lattice(MSONable):
                 all_coords=cart_coords, center_coords=center_coords, r=float(r), pbc=pbc, lattice=latt_matrix, tol=1e-8
             )
             if len(indices) < 1:
-                return [] if zip_results else [()] * 4
+                # return empty np.array (not list or tuple) to ensure consistent return type
+                # whether sphere contains points or not
+                return np.array([]) if zip_results else tuple(np.array([]) for _ in range(4))
             frac_coords = frac_points[indices] + images
             if zip_results:
-                return list(zip(frac_coords, distances, indices, images))
+                return tuple(zip(frac_coords, distances, indices, images))
             return frac_coords, distances, indices, images
 
     def get_points_in_sphere_py(
