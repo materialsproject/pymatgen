@@ -752,8 +752,7 @@ class StructureGraph(MSONable):
                     )
 
     def get_connected_sites(self, n: int, jimage: tuple[int, int, int] = (0, 0, 0)) -> list[ConnectedSite]:
-        """
-        Returns a named tuple of neighbors of site n:
+        """Get a named tuple of neighbors of site n:
         periodic_site, jimage, index, weight.
         Index is the index of the corresponding site
         in the original structure, weight can be
@@ -805,8 +804,7 @@ class StructureGraph(MSONable):
         return _connected_sites
 
     def get_coordination_of_site(self, n: int) -> int:
-        """
-        Returns the number of neighbors of site n. In graph terms,
+        """Get the number of neighbors of site n. In graph terms,
         simply returns degree of node corresponding to site n.
 
         Args:
@@ -1483,7 +1481,7 @@ class StructureGraph(MSONable):
             list of unique Molecules in Structure
         """
         # creating a supercell is an easy way to extract
-        # molecules (and not, e.g., layers of a 2D crystal)
+        # molecules (and not, e.g. layers of a 2D crystal)
         # without adding extra logic
         if getattr(self, "_supercell_sg", None) is None:
             self._supercell_sg = supercell_sg = self * (3, 3, 3)
@@ -2442,8 +2440,7 @@ class MoleculeGraph(MSONable):
         return cycles_edges
 
     def get_connected_sites(self, n):
-        """
-        Returns a named tuple of neighbors of site n:
+        """Get a named tuple of neighbors of site n:
         periodic_site, jimage, index, weight.
         Index is the index of the corresponding site
         in the original structure, weight can be
@@ -2484,8 +2481,7 @@ class MoleculeGraph(MSONable):
         return connected_sites
 
     def get_coordination_of_site(self, n) -> int:
-        """
-        Returns the number of neighbors of site n.
+        """Get the number of neighbors of site n.
         In graph terms, simply returns degree
         of node corresponding to site n.
 

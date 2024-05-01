@@ -187,8 +187,7 @@ class InterfacialReactivity(MSONable):
 
     def plot(self, backend: Literal["plotly", "matplotlib"] = "plotly") -> Figure | plt.Figure:
         """
-        Plots reaction energy as a function of mixing ratio x in self.c1 - self.c2
-        tie line.
+        Plots reaction energy as a function of mixing ratio x in self.c1 - self.c2 tie line.
 
         Args:
             backend ("plotly" | "matplotlib"): Plotting library used to create the plot. Defaults to
@@ -207,8 +206,7 @@ class InterfacialReactivity(MSONable):
         return fig
 
     def get_dataframe(self) -> DataFrame:
-        """
-        Returns a pandas DataFrame representation of the data produced by the
+        """Get a pandas DataFrame representation of the data produced by the
         get_kinks() method.
         """
         rxns = [
@@ -224,8 +222,7 @@ class InterfacialReactivity(MSONable):
         return DataFrame(rxns)
 
     def get_critical_original_kink_ratio(self):
-        """
-        Returns a list of molar mixing ratio for each kink between ORIGINAL
+        """Get a list of molar mixing ratio for each kink between ORIGINAL
         (instead of processed) reactant compositions. This is the
         same list as mixing ratio obtained from get_kinks method
         if self.norm = False.
@@ -243,8 +240,7 @@ class InterfacialReactivity(MSONable):
         return ratios
 
     def _get_original_composition_ratio(self, reaction):
-        """
-        Returns the molar mixing ratio between the reactants with ORIGINAL (
+        """Get the molar mixing ratio between the reactants with ORIGINAL (
         instead of processed) compositions for a reaction.
 
         Args:
@@ -287,8 +283,7 @@ class InterfacialReactivity(MSONable):
         return reactants
 
     def _get_reaction(self, x: float) -> Reaction:
-        """
-        Generates balanced reaction at mixing ratio x : (1-x) for
+        """Generate balanced reaction at mixing ratio x : (1-x) for
         self.comp1 : self.comp2.
 
         Args:
@@ -488,7 +483,7 @@ class InterfacialReactivity(MSONable):
             x: Mixing ratio x in comp1 - comp2 tie line, a float
                 between 0 and 1.
             factor1: Compositional ratio between composition c1 and
-                processed composition comp1. E.g., factor for
+                processed composition comp1. e.g. factor for
                 Composition('SiO2') and Composition('O') is 2.0.
             factor2: Compositional ratio between composition c2 and
                 processed composition comp2.
@@ -508,7 +503,7 @@ class InterfacialReactivity(MSONable):
             x: Mixing ratio x in c1 - c2 tie line, a float between
                 0 and 1.
             factor1: Compositional ratio between composition c1 and
-                processed composition comp1. E.g., factor for
+                processed composition comp1. e.g. factor for
                 Composition('SiO2') and Composition('O') is 2.
             factor2: Compositional ratio between composition c2 and
                 processed composition comp2.
@@ -567,12 +562,11 @@ class InterfacialReactivity(MSONable):
 
     @property
     def labels(self):
-        """
-        Returns a dictionary containing kink information:
+        """A dictionary containing kink information:
         {index: 'x= mixing_ratio energy= reaction_energy reaction_equation'}.
-        E.g., {1: 'x= 0 energy = 0 Mn -> Mn',
-               2: 'x= 0.5 energy = -15 O2 + Mn -> MnO2',
-               3: 'x= 1 energy = 0 O2 -> O2'}.
+        e.g. {1: 'x= 0 energy = 0 Mn -> Mn',
+              2: 'x= 0.5 energy = -15 O2 + Mn -> MnO2',
+              3: 'x= 1 energy = 0 O2 -> O2'}.
         """
         return {
             j: f"x= {x:.4} energy in eV/atom = {energy:.4} {reaction}" for j, x, energy, reaction, _ in self.get_kinks()
@@ -590,7 +584,7 @@ class InterfacialReactivity(MSONable):
 
     @property
     def products(self):
-        """List of formulas of potential products. E.g., ['Li','O2','Mn']."""
+        """List of formulas of potential products. e.g. ['Li','O2','Mn']."""
         products = set()
         for _, _, _, react, _ in self.get_kinks():
             products = products | {key.reduced_formula for key in react.products}
@@ -666,8 +660,7 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
             self.e2 = self.pd.get_hull_energy(self.comp2)
 
     def get_no_mixing_energy(self):
-        """
-        Generates the opposite number of energy above grand potential
+        """Generate the opposite number of energy above grand potential
         convex hull for both reactants.
 
         Returns:

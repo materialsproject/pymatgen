@@ -130,8 +130,7 @@ def as_structure(obj):
 
 @unique
 class ShiftMode(Enum):
-    """
-    Class defining the mode to be used for the shifts.
+    """Mode used to generate the shifts for the k-point sampling.
     G: Gamma centered
     M: Monkhorst-Pack ((0.5, 0.5, 0.5))
     S: Symmetric. Respects the chksymbreak with multiple shifts
@@ -146,8 +145,7 @@ class ShiftMode(Enum):
 
     @classmethod
     def from_object(cls, obj) -> Self:
-        """
-        Returns an instance of ShiftMode based on the type of object passed. Converts strings to ShiftMode depending
+        """Get an instance of ShiftMode based on the type of object passed. Converts strings to ShiftMode depending
         on the initial letter of the string. G for GammaCentered, M for MonkhorstPack,
         S for Symmetric, O for OneSymmetric.
         Case insensitive.
@@ -198,19 +196,19 @@ def _find_ecut_pawecutdg(ecut, pawecutdg, pseudos, accuracy):
     return AttrDict(ecut=ecut, pawecutdg=pawecutdg)
 
 
-def _find_scf_nband(structure, pseudos, electrons, spinat=None):
+def _find_scf_nband(structure, pseudos, electrons: aobj.Electrons, spinat=None):
     """Find the value of nband."""
     if electrons.nband is not None:
         return electrons.nband
 
-    nsppol, smearing = electrons.nsppol, electrons.smearing
+    n_sp_pol, smearing = electrons.nsppol, electrons.smearing
 
     # Number of valence electrons including possible extra charge
     n_val_elec = num_valence_electrons(structure, pseudos)
     n_val_elec -= electrons.charge
 
     # First guess (semiconductors)
-    nband = n_val_elec // 2
+    n_band = n_val_elec // 2
 
     # TODO: Find better algorithm
     # If nband is too small we may kill the job, increase nband and restart
@@ -218,15 +216,15 @@ def _find_scf_nband(structure, pseudos, electrons, spinat=None):
     # if the change is not propagated e.g. phonons in metals.
 
     # metallic occupation
-    nband = max(np.ceil(nband * 1.2), nband + 10) if smearing else max(np.ceil(nband * 1.1), nband + 4)
+    n_band = max(np.ceil(n_band * 1.2), n_band + 10) if smearing else max(np.ceil(n_band * 1.1), n_band + 4)
 
     # Increase number of bands based on the starting magnetization
-    if nsppol == 2 and spinat is not None:
-        nband += np.ceil(max(np.sum(spinat, axis=0)) / 2.0)
+    if n_sp_pol == 2 and spinat is not None:
+        n_band += np.ceil(max(np.sum(spinat, axis=0)) / 2.0)
 
     # Force even nband (easier to divide among procs, mandatory if nspinor == 2)
-    nband += nband % 2
-    return int(nband)
+    n_band += n_band % 2
+    return int(n_band)
 
 
 def _get_shifts(shift_mode, structure):

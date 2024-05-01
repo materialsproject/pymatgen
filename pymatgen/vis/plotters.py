@@ -30,7 +30,7 @@ class SpectrumPlotter:
         """
         Args:
             xshift (float): A shift that is applied to the x values. This is
-                commonly used to shift to an arbitrary zero. E.g., zeroing at the
+                commonly used to shift to an arbitrary zero. e.g. zeroing at the
                 Fermi energy in DOS, or at the absorption edge in XAS spectra. The
                 same xshift is applied to all spectra.
             yshift (float): A shift that is applied to the y values. This is
@@ -58,7 +58,7 @@ class SpectrumPlotter:
         Args:
             label (str): Label for the Spectrum. Must be unique.
             spectrum: Spectrum object
-            color (str): This is passed on to matplotlib. E.g., "k--" indicates
+            color (str): This is passed on to matplotlib. e.g. "k--" indicates
                 a dashed black line. If None, a color will be chosen based on
                 the default color cycle.
         """

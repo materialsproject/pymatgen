@@ -149,8 +149,7 @@ class SlabEntry(ComputedStructureEntry):
         return dct
 
     def gibbs_binding_energy(self, eads=False):
-        """
-        Returns the adsorption energy or Gibbs binding energy of an adsorbate on a surface.
+        """Get the adsorption energy or Gibbs binding energy of an adsorbate on a surface.
 
         Args:
             eads (bool): Whether to calculate the adsorption energy
@@ -232,20 +231,14 @@ class SlabEntry(ComputedStructureEntry):
 
     @property
     def get_unit_primitive_area(self):
-        """
-        Returns the surface area of the adsorbed system per
-        unit area of the primitive slab system.
-        """
+        """The surface area of the adsorbed system per unit area of the primitive slab system."""
         A_ads = self.surface_area
         A_clean = self.clean_entry.surface_area
         return A_ads / A_clean
 
     @property
     def get_monolayer(self):
-        """
-        Returns the primitive unit surface area density of the
-            adsorbate.
-        """
+        """The primitive unit surface area density of the adsorbate."""
         unit_a = self.get_unit_primitive_area
         n_surfs = self.Nsurfs_ads_in_slab
         n_ads = self.Nads_in_slab
@@ -449,8 +442,7 @@ class SurfaceEnergyPlotter:
         no_doped=False,
         no_clean=False,
     ) -> tuple[SlabEntry, float]:
-        """
-        Returns the entry corresponding to the most stable slab for a particular
+        """Get the entry corresponding to the most stable slab for a particular
             facet at a specific chempot. We assume that surface energy is constant
             so all free variables must be set with delu_dict, otherwise they are
             assumed to be equal to delu_default.
@@ -1159,7 +1151,7 @@ class SurfaceEnergyPlotter:
 
         Args:
             elements (list): Sequence of elements to be considered as independent
-                variables. E.g., if you want to show the stability ranges of
+                variables. e.g. if you want to show the stability ranges of
                 all Li-Co-O phases w.r.t. to duLi and duO, you will supply
                 [Element("Li"), Element("O")]
             miller_index ([h, k, l]): Miller index of the surface we are interested in
@@ -1347,8 +1339,7 @@ class WorkFunctionAnalyzer:
     """
 
     def __init__(self, structure: Structure, locpot_along_c, efermi, shift=0, blength=3.5):
-        """
-        Initializes the WorkFunctionAnalyzer class.
+        """Initialize the WorkFunctionAnalyzer class.
 
         Args:
             structure (Structure): Structure object modelling the surface
@@ -1416,8 +1407,7 @@ class WorkFunctionAnalyzer:
         self.ave_locpot = (self.vacuum_locpot - min(self.locpot_along_c)) / 2
 
     def get_locpot_along_slab_plot(self, label_energies=True, plt=None, label_fontsize=10):
-        """
-        Returns a plot of the local potential (eV) vs the
+        """Get a plot of the local potential (eV) vs the
             position along the c axis of the slab model (Ang).
 
         Args:
@@ -1574,8 +1564,7 @@ class WorkFunctionAnalyzer:
 
     @classmethod
     def from_files(cls, poscar_filename, locpot_filename, outcar_filename, shift=0, blength=3.5) -> Self:
-        """
-        Initializes a WorkFunctionAnalyzer from POSCAR, LOCPOT, and OUTCAR files.
+        """Initialize a WorkFunctionAnalyzer from POSCAR, LOCPOT, and OUTCAR files.
 
         Args:
             poscar_filename (str): The path to the POSCAR file.
@@ -1728,8 +1717,7 @@ class NanoscaleStability:
 
     @staticmethod
     def bulk_gform(bulk_entry):
-        """
-        Returns the formation energy of the bulk.
+        """Get the formation energy of the bulk.
 
         Args:
             bulk_entry (ComputedStructureEntry): Entry of the corresponding bulk.
@@ -1779,8 +1767,7 @@ class NanoscaleStability:
         normalize=False,
         scale_per_atom=False,
     ):
-        """
-        Returns the plot of the formation energy of a particle against its
+        """Get the plot of the formation energy of a particle against its
             effect radius.
 
         Args:
@@ -1846,8 +1833,7 @@ class NanoscaleStability:
         normalize=False,
         scale_per_atom=False,
     ):
-        """
-        Returns the plot of the formation energy of a particles
+        """Get the plot of the formation energy of a particles
             of different polymorphs against its effect radius.
 
         Args:

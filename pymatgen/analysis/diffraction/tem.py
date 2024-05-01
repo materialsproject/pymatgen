@@ -88,8 +88,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
     @staticmethod
     def generate_points(coord_left: int = -10, coord_right: int = 10) -> np.ndarray:
-        """
-        Generates a bunch of 3D points that span a cube.
+        """Generate a bunch of 3D points that span a cube.
 
         Args:
             coord_left (int): The minimum coordinate value.
@@ -107,7 +106,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def zone_axis_filter(
         self, points: list[tuple[int, int, int]] | np.ndarray, laue_zone: int = 0
     ) -> list[tuple[int, int, int]]:
-        """Filters out all points that exist within the specified Laue zone according to the zone axis rule.
+        """Filter out all points that exist within the specified Laue zone according to the zone axis rule.
 
         Args:
             points (np.ndarray): The list of points to be filtered.
@@ -282,8 +281,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         scaled: bool | None = None,
         two_theta_range: tuple[float, float] | None = None,
     ) -> pd.DataFrame:
-        """
-        Returns all relevant TEM DP info in a pandas dataframe.
+        """Get all relevant TEM DP info in a pandas dataframe.
 
         Args:
             structure (Structure): The input structure.
@@ -380,8 +378,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
     @staticmethod
     def get_interplanar_angle(structure: Structure, p1: tuple[int, int, int], p2: tuple[int, int, int]) -> float:
-        """
-        Returns the interplanar angle (in degrees) between the normal of two crystal planes.
+        """Get the interplanar angle (in degrees) between the normal of two crystal planes.
         Formulas from International Tables for Crystallography Volume C pp. 2-9.
 
         Args:
@@ -514,8 +511,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return positions
 
     def tem_dots(self, structure: Structure, points) -> list:
-        """
-        Generates all TEM_dot as named tuples that will appear on the 2D diffraction pattern.
+        """Generate all TEM_dot as named tuples that will appear on the 2D diffraction pattern.
 
         Args:
             structure (Structure): The input structure.
@@ -539,8 +535,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return dots
 
     def get_plot_2d(self, structure: Structure) -> go.Figure:
-        """
-        Generates the 2D diffraction pattern of the input structure.
+        """Generate the 2D diffraction pattern of the input structure.
 
         Args:
             structure (Structure): The input structure.
@@ -617,8 +612,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return go.Figure(data=data, layout=layout)
 
     def get_plot_2d_concise(self, structure: Structure) -> go.Figure:
-        """
-        Generates the concise 2D diffraction pattern of the input structure of a smaller size and without layout.
+        """Generate the concise 2D diffraction pattern of the input structure of a smaller size and without layout.
         Does not display.
 
         Args:

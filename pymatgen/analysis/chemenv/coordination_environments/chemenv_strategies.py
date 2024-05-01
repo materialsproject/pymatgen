@@ -196,9 +196,8 @@ class AdditionalConditionInt(int, StrategyOption):
 
 
 class AbstractChemenvStrategy(MSONable, abc.ABC):
-    """
-    Class used to define a Chemenv strategy for the neighbors and coordination environment to be applied to a
-    StructureEnvironments object.
+    """Base class to define a Chemenv strategy for the neighbors and coordination environment
+    to be applied to a StructureEnvironments object.
     """
 
     AC = AdditionalConditions()

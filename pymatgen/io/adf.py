@@ -123,11 +123,8 @@ class AdfKey(MSONable):
         return self.name.upper() in self.block_keys
 
     @property
-    def key(self):
-        """
-        Return the name of this key. If this is a block key, the name will be
-        converted to upper cases.
-        """
+    def key(self) -> str:
+        """The name of this key. If this is a block key, the name will be converted to upper cases."""
         if self.is_block_key():
             return self.name.upper()
         return self.name

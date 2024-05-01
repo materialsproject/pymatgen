@@ -79,7 +79,7 @@ class Ion(Composition, MSONable, Stringify):
     @property
     def formula(self) -> str:
         """Returns a formula string with appended charge. The
-        charge is written with the sign preceding the magnitude, e.g.,
+        charge is written with the sign preceding the magnitude, e.g.
         'Ca1 +2'. Uncharged species have "(aq)" appended, e.g. "O2 (aq)".
         """
         formula = super().formula
@@ -124,7 +124,7 @@ class Ion(Composition, MSONable, Stringify):
             tuple[str, float]: A pretty normalized formula and a multiplicative factor, i.e.,
                 H4O4 returns ('H2O2', 2.0).
         """
-        all_int = all(abs(x - round(x)) < Composition.amount_tolerance for x in self.values())
+        all_int = all(abs(val - round(val)) < Composition.amount_tolerance for val in self.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
 
@@ -182,7 +182,7 @@ class Ion(Composition, MSONable, Stringify):
     @property
     def reduced_formula(self) -> str:
         """Returns a reduced formula string with appended charge. The
-        charge is placed in brackets with the sign preceding the magnitude, e.g.,
+        charge is placed in brackets with the sign preceding the magnitude, e.g.
         'Ca[+2]'. Uncharged species have "(aq)" appended, e.g. "O2(aq)".
         """
         formula, factor = self.get_reduced_formula_and_factor()
@@ -228,7 +228,7 @@ class Ion(Composition, MSONable, Stringify):
     def to_reduced_dict(self) -> dict:
         """
         Returns:
-            dict with element symbol and reduced amount e.g.,
+            dict with element symbol and reduced amount e.g.
         {"Fe": 2.0, "O":3.0}.
         """
         dct = self.composition.to_reduced_dict
@@ -249,7 +249,7 @@ class Ion(Composition, MSONable, Stringify):
         """Check if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
         integer values. Note that more num_atoms in the composition gives
-        more degrees of freedom. e.g., if possible oxidation states of
+        more degrees of freedom. e.g. if possible oxidation states of
         element X are [2,4] and Y are [-3], then XY is not charge balanced
         but X2Y2 is. Results are returned from most to least probable based
         on ICSD statistics. Use max_sites to improve performance if needed.

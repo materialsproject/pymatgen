@@ -101,8 +101,7 @@ class Movement(MSONable):
 
     @property
     def e_atoms(self) -> np.ndarray:
-        """
-        Returns individual energies of atoms in each ionic step structures
+        """Get individual energies of atoms in each ionic step structures
         contained in MOVEMENT.
 
         Returns:

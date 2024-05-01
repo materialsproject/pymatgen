@@ -62,8 +62,7 @@ class LMTOCtrl:
         return self.get_str()
 
     def get_str(self, sigfigs=8) -> str:
-        """
-        Generates the string representation of the CTRL file. This is
+        """Generate the string representation of the CTRL file. This is
         the minimal CTRL file necessary to execute lmhart.run.
         """
         ctrl_dict = self.as_dict()
@@ -91,8 +90,7 @@ class LMTOCtrl:
         return "\n".join(lines) + "\n"
 
     def as_dict(self):
-        """
-        Returns the CTRL as a dictionary. "SITE" and "CLASS" are of
+        """Get the CTRL as a dictionary. "SITE" and "CLASS" are of
         the form {'CATEGORY': {'TOKEN': value}}, the rest is of the
         form 'TOKEN'/'CATEGORY': value. It gets the conventional standard
         structure because primitive cells use the conventional

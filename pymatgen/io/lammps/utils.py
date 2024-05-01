@@ -418,7 +418,7 @@ class PackmolRunner:
         bma = BabelMolAdaptor.from_file(filename, "pdb")
         pbm = pybel.Molecule(bma._ob_mol)
 
-        assert len(pbm.residues) == sum(x["number"] for x in self.param_list)
+        assert len(pbm.residues) == sum(param["number"] for param in self.param_list)
 
         packed_mol = self.convert_obatoms_to_molecule(
             pbm.residues[0].atoms,

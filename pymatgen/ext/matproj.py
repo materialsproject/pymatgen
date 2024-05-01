@@ -157,7 +157,7 @@ class _MPResterBasic:
         """Get  a data corresponding to a criteria.
 
         Args:
-            criteria (dict): Materials Project ID (e.g. mp-1234), e.g., {"formula": "Fe2O3,FeO"}
+            criteria (dict): Materials Project ID (e.g. mp-1234), e.g. {"formula": "Fe2O3,FeO"}
             fields (list): Fields to query for. If None (the default), all fields are returned.
 
         Returns:
@@ -315,7 +315,7 @@ class _MPResterBasic:
 
         Args:
             material_id (str): Materials Project material_id (a string,
-                e.g., mp-1234).
+                e.g. mp-1234).
             *args: Pass-through to get_entries.
             **kwargs: Pass-through to get_entries.
 
@@ -332,8 +332,8 @@ class _MPResterBasic:
 
         Args:
             elements (str or [str]): Chemical system string comprising element
-                symbols separated by dashes, e.g., "Li-Fe-O" or List of element
-                symbols, e.g., ["Li", "Fe", "O"].
+                symbols separated by dashes, e.g. "Li-Fe-O" or List of element
+                symbols, e.g. ["Li", "Fe", "O"].
             *args: Pass-through to get_entries.
             **kwargs: Pass-through to get_entries.
 

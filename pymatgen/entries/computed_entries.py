@@ -776,7 +776,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
 
         Returns:
             float: the difference between formation enthalpy (T=0 K, Materials
-            Project) and the predicted Gibbs free energy of formation  (eV)
+            Project) and the predicted Gibbs free energy of formation (eV)
         """
         comp = self.composition
 

@@ -126,8 +126,7 @@ class BVAnalyzer:
         charge_neutrality_tolerance=CHARGE_NEUTRALITY_TOLERANCE,
         forbidden_species=None,
     ):
-        """
-        Initializes the BV analyzer, with useful defaults.
+        """Initialize the BV analyzer, with useful defaults.
 
         Args:
             symm_tol:
@@ -204,16 +203,15 @@ class BVAnalyzer:
         return prob
 
     def get_valences(self, structure: Structure):
-        """
-        Returns a list of valences for each site in the structure.
+        """Get a list of valences for each site in the structure.
 
         Args:
             structure: Structure to analyze
 
         Returns:
             A list of valences for each site in the structure (for an ordered structure),
-            e.g., [1, 1, -2] or a list of lists with the valences for each fractional
-            element of each site in the structure (for an unordered structure), e.g., [[2,
+            e.g. [1, 1, -2] or a list of lists with the valences for each fractional
+            element of each site in the structure (for an unordered structure), e.g. [[2,
             4], [3], [-2], [-2], [-2]]
 
         Raises:
@@ -469,7 +467,7 @@ def add_oxidation_state_by_site_fraction(structure, oxidation_states):
     Args:
         oxidation_states (list): List of list of oxidation states for each
             site fraction for each site.
-            E.g., [[2, 4], [3], [-2], [-2], [-2]]
+            e.g. [[2, 4], [3], [-2], [-2], [-2]]
     """
     try:
         for idx, site in enumerate(structure):

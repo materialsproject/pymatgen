@@ -577,7 +577,7 @@ class Electrons(AbivarAble, MSONable):
         self.algorithm = algorithm
 
     @property
-    def nsppol(self):
+    def nsppol(self) -> int:
         """Number of independent spin polarizations."""
         return self.spin_mode.nsppol
 
@@ -684,7 +684,7 @@ class KSampling(AbivarAble, MSONable):
                 Not used for the other modes
             kpts: Number of divisions. Even when only a single specification is
                 required, e.g. in the automatic scheme, the kpts should still
-                be specified as a 2D array. e.g., [[20]] or [[2,2,2]].
+                be specified as a 2D array. e.g. [[20]] or [[2,2,2]].
             kpt_shifts: Shifts for Kpoints.
             use_symmetries: False if spatial symmetries should not be used
                 to reduce the number of independent k-points.
@@ -937,8 +937,7 @@ class KSampling(AbivarAble, MSONable):
         use_time_reversal=True,
         shifts=(0.5, 0.5, 0.5),
     ):
-        """
-        Returns an automatic Kpoint object based on a structure and a kpoint
+        """Get an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes for hexagonal cells and Monkhorst-Pack grids otherwise.
 
         Algorithm:

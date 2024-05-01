@@ -52,8 +52,7 @@ class EwaldElectrostaticModel(EnergyModel):
     """Wrapper around EwaldSum to calculate the electrostatic energy."""
 
     def __init__(self, real_space_cut=None, recip_space_cut=None, eta=None, acc_factor=8.0):
-        """
-        Initializes the model. Args have the same definitions as in
+        """Initialize the model. Args have the same definitions as in
         pymatgen.analysis.ewald.EwaldSummation.
 
         Args:

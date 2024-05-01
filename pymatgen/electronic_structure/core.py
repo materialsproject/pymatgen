@@ -231,12 +231,8 @@ class Magmom(MSONable):
         return moment
 
     @property
-    def global_moment(self):
-        """Get the magnetic moment defined in an arbitrary global reference frame.
-
-        Returns:
-            np.ndarray of length 3
-        """
+    def global_moment(self) -> np.ndarray:
+        """The magnetic moment defined in an arbitrary global reference frame as an np.array of length 3."""
         return self.get_moment()
 
     @property

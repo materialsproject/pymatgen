@@ -218,8 +218,7 @@ class Strain(SquareTensor):
         raise ValueError("Index must either be 2-tuple or integer corresponding to full-tensor or Voigt index")
 
     def get_deformation_matrix(self, shape: Literal["upper", "lower", "symmetric"] = "upper"):
-        """
-        Returns the deformation matrix.
+        """Get the deformation matrix.
 
         Args:
             shape ('upper' | 'lower' | 'symmetric'): method for determining deformation

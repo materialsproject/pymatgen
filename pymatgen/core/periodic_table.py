@@ -51,12 +51,12 @@ class ElementBase(Enum):
         represented by a None unless otherwise stated.
 
         Args:
-            symbol (str): Element symbol, e.g., "H", "Fe"
+            symbol (str): Element symbol, e.g. "H", "Fe"
 
         Attributes:
             Z (int): Atomic number.
             symbol (str): Element symbol.
-            long_name (str): Long name for element. E.g., "Hydrogen".
+            long_name (str): Long name for element. e.g. "Hydrogen".
             A (int) : Atomic mass number (number of protons plus neutrons).
             atomic_radius_calculated (float): Calculated atomic radius for the element. This is the empirical value.
                 Data is obtained from http://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
@@ -73,9 +73,9 @@ class ElementBase(Enum):
             refractive_index (float): Refractive index.
             poissons_ratio (float): Poisson's ratio.
             molar_volume (float): Molar volume.
-            electronic_structure (str): Electronic structure. E.g., The electronic structure for Fe is represented
+            electronic_structure (str): Electronic structure. e.g. The electronic structure for Fe is represented
                 as [Ar].3d6.4s2.
-            atomic_orbitals (dict): Atomic Orbitals. Energy of the atomic orbitals as a dict. E.g., The orbitals
+            atomic_orbitals (dict): Atomic Orbitals. Energy of the atomic orbitals as a dict. e.g. The orbitals
                 energies in Hartree are represented as {'1s': -1.0, '2s': -0.1}. Data is obtained from
                 https://www.nist.gov/pml/data/atomic-reference-data-electronic-structure-calculations.
                 The LDA values for neutral atoms are used.
@@ -290,7 +290,7 @@ class ElementBase(Enum):
     @property
     def electronic_structure(self) -> str:
         """Electronic structure as string, with only valence electrons.
-        E.g., The electronic structure for Fe is represented as '[Ar].3d6.4s2'.
+        e.g. The electronic structure for Fe is represented as '[Ar].3d6.4s2'.
         """
         return re.sub("</*sup>", "", self._data["Electronic structure"])
 
@@ -361,7 +361,7 @@ class ElementBase(Enum):
     @property
     def oxidation_states(self) -> tuple[int, ...]:
         """Tuple of all known oxidation states."""
-        return tuple(int(x) for x in self._data.get("Oxidation states", []))
+        return tuple(map(int, self._data.get("Oxidation states", [])))
 
     @property
     def common_oxidation_states(self) -> tuple[int, ...]:
@@ -378,7 +378,7 @@ class ElementBase(Enum):
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
         """Full electronic structure as tuple.
-        E.g., The electronic structure for Fe is represented as:
+        e.g. The electronic structure for Fe is represented as:
         [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
         (3, "d", 6), (4, "s", 2)].
         """
@@ -969,7 +969,7 @@ class Species(MSONable, Stringify):
         self._spin = spin
 
     def __getattr__(self, attr: str) -> Any:
-        """Allows Specie to inherit properties of underlying element."""
+        """Allow Specie to inherit properties of underlying element."""
         return getattr(self._el, attr)
 
     def __getstate__(self) -> dict:
@@ -1057,7 +1057,7 @@ class Species(MSONable, Stringify):
 
         Args:
             species_string (str): A typical string representation of a
-                species, e.g., "Mn2+", "Fe3+", "O2-".
+                species, e.g. "Mn2+", "Fe3+", "O2-".
 
         Returns:
             A Species object.
@@ -1289,7 +1289,7 @@ class DummySpecies(Species):
                 rules are applied to the choice of the symbol. The dummy
                 symbol cannot have any part of first two letters that will
                 constitute an Element symbol. Otherwise, a composition may
-                be parsed wrongly. E.g., "X" is fine, but "Vac" is not
+                be parsed wrongly. e.g. "X" is fine, but "Vac" is not
                 because Vac contains V, a valid Element.
             oxidation_state (float): Oxidation state for dummy specie. Defaults to 0.
                 deprecated and retained purely for backward compatibility.
@@ -1373,7 +1373,7 @@ class DummySpecies(Species):
 
         Args:
             species_string (str): A string representation of a dummy
-                species, e.g., "X2+", "X3+".
+                species, e.g. "X2+", "X3+".
 
         Returns:
             A DummySpecies object.

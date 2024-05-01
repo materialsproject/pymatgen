@@ -97,7 +97,7 @@ class CorrectionCalculator:
         return self.compute_corrections(exp_entries, calc_entries)
 
     def compute_corrections(self, exp_entries: list, calc_entries: dict) -> dict:
-        """Computes the corrections and fills in correction, corrections_std_error, and corrections_dict.
+        """Compute the corrections and fills in correction, corrections_std_error, and corrections_dict.
 
         Args:
             exp_entries: list of dictionary objects with the following keys/values:
