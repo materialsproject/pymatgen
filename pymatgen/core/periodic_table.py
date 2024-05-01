@@ -361,7 +361,7 @@ class ElementBase(Enum):
     @property
     def oxidation_states(self) -> tuple[int, ...]:
         """Tuple of all known oxidation states."""
-        return tuple(int(x) for x in self._data.get("Oxidation states", []))
+        return tuple(map(int, self._data.get("Oxidation states", [])))
 
     @property
     def common_oxidation_states(self) -> tuple[int, ...]:

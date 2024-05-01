@@ -187,8 +187,7 @@ class InterfacialReactivity(MSONable):
 
     def plot(self, backend: Literal["plotly", "matplotlib"] = "plotly") -> Figure | plt.Figure:
         """
-        Plots reaction energy as a function of mixing ratio x in self.c1 - self.c2
-        tie line.
+        Plots reaction energy as a function of mixing ratio x in self.c1 - self.c2 tie line.
 
         Args:
             backend ("plotly" | "matplotlib"): Plotting library used to create the plot. Defaults to

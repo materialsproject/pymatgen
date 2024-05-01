@@ -124,7 +124,7 @@ class Ion(Composition, MSONable, Stringify):
             tuple[str, float]: A pretty normalized formula and a multiplicative factor, i.e.,
                 H4O4 returns ('H2O2', 2.0).
         """
-        all_int = all(abs(x - round(x)) < Composition.amount_tolerance for x in self.values())
+        all_int = all(abs(val - round(val)) < Composition.amount_tolerance for val in self.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
 

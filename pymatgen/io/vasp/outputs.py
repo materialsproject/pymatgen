@@ -4191,7 +4191,7 @@ class Xdatcar:
         if np.linalg.det(lattice.matrix) < 0:
             lattice = Lattice(-lattice.matrix)
         lines = [self.comment, "1.0", str(lattice)]
-        lines.extend((" ".join(self.site_symbols), " ".join(str(x) for x in self.natoms)))
+        lines.extend((" ".join(self.site_symbols), " ".join(map(str, self.natoms))))
         format_str = f"{{:.{significant_figures}f}}"
         ionicstep_cnt = 1
         output_cnt = 1

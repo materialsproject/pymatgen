@@ -570,19 +570,8 @@ class NwOutput:
         Parses TDDFT roots. Adapted from nw_spectrum.py script.
 
         Returns:
-            {
-                "singlet": [
-                    {
-                        "energy": float,
-                        "osc_strength: float
-                    }
-                ],
-                "triplet": [
-                    {
-                        "energy": float
-                    }
-                ]
-            }
+            dict[str, list]: A dict of the form {"singlet": [dict, ...], "triplet": [dict, ...]} where
+                each sub-dict is of the form {"energy": float, "osc_strength": float}.
         """
         start_tag = "Convergence criterion met"
         end_tag = "Excited state energy"

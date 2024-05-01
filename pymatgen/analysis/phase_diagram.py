@@ -632,15 +632,15 @@ class PhaseDiagram(MSONable):
 
         return all_facets
 
-    def _get_facet_chempots(self, facet):
+    def _get_facet_chempots(self, facet: list[int]) -> dict[Element, float]:
         """
         Calculates the chemical potentials for each element within a facet.
 
         Args:
-            facet: Facet of the phase diagram.
+            facet (list): Indices of the entries in the facet.
 
         Returns:
-            {element: chempot} for all elements in the phase diagram.
+            dict[Element, float]: Chemical potentials for each element in the facet.
         """
         comp_list = [self.qhull_entries[idx].composition for idx in facet]
         energy_list = [self.qhull_entries[idx].energy_per_atom for idx in facet]
@@ -1255,8 +1255,9 @@ class PhaseDiagram(MSONable):
             open_elt: Element that you want to constrain to be max or min
 
         Returns:
-            {Element: (mu_min, mu_max)}: Chemical potentials are given in
-                "absolute" values (i.e., not referenced to 0)
+            dict[Element, (float, float)]: A dictionary of the form {Element: (min_mu, max_mu)}
+            where min_mu and max_mu are the minimum and maximum chemical potentials
+            for the given element (as "absolute" values, i.e. not referenced to 0).
         """
         mu_ref = np.array([self.el_refs[elem].energy_per_atom for elem in self.elements if elem != open_elt])
         chempot_ranges = self.get_chempot_range_map([elem for elem in self.elements if elem != open_elt])

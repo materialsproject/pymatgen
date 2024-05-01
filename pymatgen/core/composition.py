@@ -377,7 +377,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             A pretty normalized formula and a multiplicative factor, i.e.,
             Li4Fe4P4O16 returns (LiFePO4, 4).
         """
-        all_int = all(abs(x - round(x)) < Composition.amount_tolerance for x in self.values())
+        all_int = all(abs(val - round(val)) < Composition.amount_tolerance for val in self.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
         el_amt_dict = {key: int(round(val)) for key, val in self.get_el_amt_dict().items()}
@@ -578,7 +578,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         anonymized_formula ABC3.
         """
         reduced = self.element_composition
-        if all(x == int(x) for x in self.values()):
+        if all(val == int(val) for val in self.values()):
             reduced /= gcd(*(int(i) for i in self.values()))
 
         anon = ""

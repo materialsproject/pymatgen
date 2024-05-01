@@ -163,7 +163,7 @@ class Cohp(MSONable):
         limit: -COHP smaller -limit will be considered.
         """
         populations = self.cohp
-        n_energies_below_efermi = len([x for x in self.energies if x <= self.efermi])
+        n_energies_below_efermi = len([energy for energy in self.energies if energy <= self.efermi])
 
         if populations is None:
             return None
@@ -1020,10 +1020,10 @@ class IcohpValue(MSONable):
 
     @property
     def summed_orbital_icohp(self):
-        """Sums orbitals-resolved ICOHPs of both spin channels for spin-plarized compounds.
+        """Sums orbital-resolved ICOHPs of both spin channels for spin-polarized compounds.
 
         Returns:
-            {"str(Orbital1)-str(Ortibal2)": icohp value in eV}.
+            dict[str, float]: "str(Orbital1)-str(Ortibal2)" mapped to ICOHP value in eV.
         """
         orbital_icohp = {}
         for orb, item in self._orbitals.items():

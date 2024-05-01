@@ -51,7 +51,7 @@ class TestLattice(PymatgenTest):
                 assert (name1 == name2) == (latt1 == latt2)
 
         # ensure partial periodic boundaries is unequal to all full periodic boundaries
-        assert not any(self.cubic_partial_pbc == x for x in self.families.values())
+        assert not any(self.cubic_partial_pbc == family for family in self.families.values())
 
     def test_format(self):
         assert (

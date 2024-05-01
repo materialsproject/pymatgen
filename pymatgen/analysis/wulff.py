@@ -159,7 +159,7 @@ class WulffShape:
         logger.debug(len(self.facets))
 
         # 3. consider the dual condition
-        dual_pts = [x.dual_pt for x in self.facets]
+        dual_pts = [facet.dual_pt for facet in self.facets]
         dual_convex = ConvexHull(dual_pts)
         dual_cv_simp = dual_convex.simplices
         # simplices	(ndarray of ints, shape (n_facet, n_dim))
