@@ -1124,7 +1124,7 @@ class CompleteDos(Dos):
             ValueError: If type is not one of the accepted values {s/p/d/f/}summed_{pdos/tdos}.
 
         Returns:
-            Fingerprint(namedtuple) : The electronic density of states fingerprint
+            NamedTuple: The electronic density of states fingerprint
                 of format (energies, densities, type, n_bins)
         """
         fingerprint = namedtuple("fingerprint", "energies densities type n_bins bin_width")

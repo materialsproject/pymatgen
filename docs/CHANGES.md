@@ -6,6 +6,56 @@ nav_order: 4
 
 # Changelog
 
+## v2024.5.1
+
+### 🐛 Bug Fixes
+
+* Fix OPTIMADE rester URL contruction and improve testing by @ml-evs in https://github.com/materialsproject/pymatgen/pull/3756
+* Add fix for SFAC writer by @stefsmeets in https://github.com/materialsproject/pymatgen/pull/3779
+* Fix LobsterSet by @naik-aakash in https://github.com/materialsproject/pymatgen/pull/3771
+* Update `vasprun.converged_ionic` logic when `EDIFFG=0`, REDO of PR #3765 by @matthewkuner in https://github.com/materialsproject/pymatgen/pull/3783
+* Fix for incorrect file path in `tests/io/test_zeopp.py` by @AntObi in https://github.com/materialsproject/pymatgen/pull/3784
+* Fix for writing non-unique site labels in `CifWriter` by @stefsmeets in https://github.com/materialsproject/pymatgen/pull/3767
+* Homogenize return type of `Lattice.get_points_in_sphere` to always be `np.array`(s) by @janosh in https://github.com/materialsproject/pymatgen/pull/3797
+
+### 📖 Documentation
+
+* Add note to documentation for usage of CrystalNN by @JaGeo in https://github.com/materialsproject/pymatgen/pull/3764
+* Update to average Grüneisen documentation by @JaGeo in https://github.com/materialsproject/pymatgen/pull/3773
+* Format doc strings by @janosh in https://github.com/materialsproject/pymatgen/pull/3790
+* Imperative doc strings by @janosh in https://github.com/materialsproject/pymatgen/pull/3792
+
+### 🧹 House-Keeping
+
+* `pyright` fixes for `ext/io/phonon/symmetry/transformations/util/vis/dev_scripts` and improve `io.lobster` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3757
+* Separate test files by modules and collect test files `csv/cif` into folders  by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3746
+
+### 🚧 CI
+
+* Officially support Python 3.12 and test in CI by @janosh in https://github.com/materialsproject/pymatgen/pull/3685
+
+### 🏥 Package Health
+
+* Remove `gulp` from package data, code base and CI tests by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3789
+
+### 🏷️ Type Hints
+
+* Add type annotations for `io.vasp.inputs/optics` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3740
+* `pyright` fixes by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3777
+* Convert `kpts` in `Kpoints` to `Sequence[tuple]` and set it as `property` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3758
+
+### 🤷‍♂️ Other Changes
+
+* add `get_string->get_str` alias for `Poscar` by @timurbazhirov in https://github.com/materialsproject/pymatgen/pull/3763
+* Fix `ruff` FURB192 by @janosh in https://github.com/materialsproject/pymatgen/pull/3785
+
+## New Contributors
+
+* @timurbazhirov made their first contribution in https://github.com/materialsproject/pymatgen/pull/3763
+* @AntObi made their first contribution in https://github.com/materialsproject/pymatgen/pull/3784
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.4.13...2024.5.1
+
 ## v2024.4.13
 
 Hot fix release for [v2024.4.12](#v2024412) to be yanked on PyPI due to https://github.com/materialsproject/pymatgen/issues/3751.

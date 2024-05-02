@@ -699,11 +699,7 @@ class Plane:
             self.p3[zeros[1]] = 1.0
 
     def __str__(self):
-        """String representation of the Plane object
-
-        Returns:
-            String representation of the Plane object.
-        """
+        """String representation of the Plane."""
         return (
             f"Plane object\n  => Normal vector : {self.normal_vector}\n  => Equation of the plane"
             f" ax + by + cz + d = 0\n     with a = {self._coefficients[0]}\n          "

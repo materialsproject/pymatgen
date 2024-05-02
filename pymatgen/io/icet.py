@@ -203,13 +203,11 @@ class IcetSQS:
         """Get the SQS objective function.
 
         Args:
-            material (ase Atoms or pymatgen Structure) : structure to
-                compute SQS objective function.
-        Kwargs:
-            cluster_space (ClusterSpace) : ClusterSpace of the SQS search.
+            material (pymatgen.Structure | ase.Atoms): structure to compute SQS objective function for.
+            cluster_space (ClusterSpace): ClusterSpace of the SQS search.
 
         Returns:
-            float : the SQS objective function
+            float: the SQS objective function
         """
         if isinstance(material, Structure):
             material = AseAtomsAdaptor.get_atoms(material)
@@ -228,11 +226,11 @@ class IcetSQS:
         Adapted from icet.tools.structure_generation.generate_sqs_by_enumeration
         to accommodate multiprocessing.
 
-        Kwargs:
+        Args:
             cluster_space (ClusterSpace) : ClusterSpace of the SQS search.
 
         Returns:
-            list : a list of dicts of the form: {
+            list: dicts of the form: {
                     "structure": SQS structure,
                     "objective_function": SQS objective function,
                 }

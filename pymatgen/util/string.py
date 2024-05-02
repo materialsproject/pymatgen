@@ -44,7 +44,7 @@ class Stringify:
         superscript, e.g. Fe2+ becomes Fe^{2+}. The initial string is obtained from the class's __str__ method.
 
         Returns:
-            String for display as in LaTeX with proper superscripts and subscripts.
+            str: for LaTeX display with proper sub-/superscripts.
         """
         str_ = self.to_pretty_string()
         # First we process strings that already have _ and ^ by escaping the relevant parts.

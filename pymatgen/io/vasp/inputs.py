@@ -532,8 +532,7 @@ class Poscar(MSONable):
         vasp4_compatible: bool = False,
         significant_figures: int = 16,
     ) -> str:
-        """
-        Return a string to be written as a POSCAR file. By default, site
+        """Return a string to be written as a POSCAR file. By default, site
         symbols are written, which is compatible for vasp >= 5.
 
         Args:
@@ -548,7 +547,7 @@ class Poscar(MSONable):
                 scientific format.
 
         Returns:
-            String representation of POSCAR.
+            str: representation of POSCAR.
         """
         # This corrects for VASP really annoying bug of crashing on lattices
         # which have triple product < 0. We will just invert the lattice

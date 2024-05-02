@@ -985,7 +985,7 @@ class IcohpValue(MSONable):
 
         return self._icohp[spin]
 
-    def icohpvalue_orbital(self, orbitals, spin=Spin.up):
+    def icohpvalue_orbital(self, orbitals, spin=Spin.up) -> float:
         """
         Args:
             orbitals: List of Orbitals or "str(Orbital1)-str(Orbital2)"
@@ -1107,7 +1107,7 @@ class IcohpCollection(MSONable):
             joinstr.append(str(value))
         return "\n".join(joinstr)
 
-    def get_icohp_by_label(self, label, summed_spin_channels=True, spin=Spin.up, orbitals=None):
+    def get_icohp_by_label(self, label, summed_spin_channels=True, spin=Spin.up, orbitals=None) -> float:
         """Get an icohp value for a certain bond as indicated by the label (bond labels starting by "1" as in
         ICOHPLIST/ICOOPLIST).
 
@@ -1118,9 +1118,9 @@ class IcohpCollection(MSONable):
             orbitals: List of Orbital or "str(Orbital1)-str(Orbital2)"
 
         Returns:
-            float describing ICOHP/ICOOP value
+            float: ICOHP/ICOOP value
         """
-        icohp_here = self._icohplist[label]
+        icohp_here: IcohpValue = self._icohplist[label]
         if orbitals is None:
             if summed_spin_channels:
                 return icohp_here.summed_icohp
@@ -1133,7 +1133,7 @@ class IcohpCollection(MSONable):
 
         return icohp_here.icohpvalue_orbital(spin=spin, orbitals=orbitals)
 
-    def get_summed_icohp_by_label_list(self, label_list, divisor=1.0, summed_spin_channels=True, spin=Spin.up):
+    def get_summed_icohp_by_label_list(self, label_list, divisor=1.0, summed_spin_channels=True, spin=Spin.up) -> float:
         """Get the sum of several ICOHP values that are indicated by a list of labels
         (labels of the bonds are the same as in ICOHPLIST/ICOOPLIST).
 
@@ -1144,7 +1144,7 @@ class IcohpCollection(MSONable):
             spin: if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned
 
         Returns:
-            float that is a sum of all ICOHPs/ICOOPs as indicated with label_list
+            float: sum of all ICOHPs/ICOOPs as indicated with label_list
         """
         sum_icohp = 0
         for label in label_list:
