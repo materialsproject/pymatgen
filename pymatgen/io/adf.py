@@ -428,27 +428,27 @@ class AdfTask(MSONable):
 
     @staticmethod
     def get_default_basis_set():
-        """Returns: Default basis set."""
+        """Get Default basis set."""
         return AdfKey.from_str("Basis\ntype DZ\ncore small\nEND")
 
     @staticmethod
     def get_default_scf():
-        """Returns: ADF using default SCF."""
+        """Get ADF using default SCF."""
         return AdfKey.from_str("SCF\niterations 300\nEND")
 
     @staticmethod
     def get_default_geo():
-        """Returns: ADFKey using default geometry."""
+        """Get ADFKey using default geometry."""
         return AdfKey.from_str("GEOMETRY SinglePoint\nEND")
 
     @staticmethod
     def get_default_xc():
-        """Returns: ADFKey using default XC."""
+        """Get ADFKey using default XC."""
         return AdfKey.from_str("XC\nGGA PBE\nEND")
 
     @staticmethod
     def get_default_units():
-        """Returns: Default units."""
+        """Get Default units."""
         return AdfKey.from_str("Units\nlength angstrom\nangle degree\nEnd")
 
     def _setup_task(self, geo_subkeys):

@@ -202,14 +202,14 @@ class AbstractElectrode(Sequence, MSONable):
 
     @property
     def normalization_mass(self):
-        """Returns: Mass used for normalization. This is the mass of the discharged
+        """The mass used for normalization. This is the mass of the discharged
         electrode of the last voltage pair.
         """
         return self.voltage_pairs[-1].mass_discharge
 
     @property
     def normalization_volume(self):
-        """Returns: Mass used for normalization. This is the vol of the discharged
+        """The mass used for normalization. This is the vol of the discharged
         electrode of the last voltage pair.
         """
         return self.voltage_pairs[-1].vol_discharge

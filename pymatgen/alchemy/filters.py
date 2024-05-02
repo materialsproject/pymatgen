@@ -95,7 +95,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         )
 
     def as_dict(self) -> dict:
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -159,7 +159,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
         return True
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -280,7 +280,7 @@ class RemoveExistingFilter(AbstractStructureFilter):
         return True
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

@@ -74,7 +74,7 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
     __slots__ = ()
 
     def as_dict(self) -> dict[str, str]:
-        """Returns: Dict."""
+        """Get MSONable dict."""
         return {"name": self.name, "url": self.url, "description": self.description}
 
     @classmethod
@@ -118,7 +118,7 @@ class Author(namedtuple("Author", ["name", "email"])):
         return f"{self.name} <{self.email}>"
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {"name": self.name, "email": self.email}
 
     @classmethod
@@ -257,7 +257,7 @@ class StructureNL:
         self.created_at = created_at or datetime.datetime.utcnow()
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         dct = self.structure.as_dict()
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__

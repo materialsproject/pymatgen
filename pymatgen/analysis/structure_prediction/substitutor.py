@@ -243,7 +243,7 @@ class Substitutor(MSONable):
         return output
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "name": type(self).__name__,
             "version": __version__,
