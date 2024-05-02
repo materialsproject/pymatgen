@@ -958,26 +958,27 @@ class BSPlotterProjected(BSPlotter):
         vbm_cbm_marker: bool = False,
         band_linewidth: float = 1.0,
     ) -> plt.Axes:
-        """Generate a plot with subplots for different elements and orbitals.
+        """Generate a plot with subplots for each element-orbital pair.
 
         The orbitals are named as in the FATBAND file, e.g. "2p" or "2p_x".
+
+        he blue and red colors are for spin up and spin down
+        The size of the dot in the plot corresponds to the value
+        for the specific point.
 
         Args:
             dictio: The element and orbitals you want a projection on. The
                 format is {Element: [*Orbitals]} for instance
-                {"Cu":["d", "s"], "O":["p"]} will give projections for Cu on
-                d and s orbitals and oxygen on p.
+                {"Cu":["d", "s"], "O":["p"]} will yield projections for
+                Cu on d and s orbitals and oxygen on p.
             zero_to_efermi: Set the Fermi level as the plot's origin
                 (i.e. subtract E_f). Defaults to True.
-            ylim: Specify the y-axis limits. Defaults to None.
-            vbm_cbm_marker: Add markers for the VBM and CBM. Defaults to False.
+            ylim: The y-axis limits. Defaults to None.
+            vbm_cbm_marker (bool): Add markers for the VBM and CBM. Defaults to False.
             band_linewidth (float): The width of the lines. Defaults to 1.0.
 
         Returns:
-            list[plt.Axes]: A list with different subfigures for each projection
-            The blue and red colors are for spin up and spin down.
-            The bigger the red or blue dot in the band structure the higher
-            character for the corresponding element and orbital.
+            plt.Axes
         """
         n_rows = max(map(len, dictio.values()))  # largest number of orbitals for an element
         n_cols = len(dictio)  # number of elements
