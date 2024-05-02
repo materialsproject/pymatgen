@@ -273,13 +273,13 @@ class LMTOCtrl:
 
 
 class LMTOCopl:
-    """Class for reading COPL files, which contain COHP data.
+    """Read COPL files, which contain COHP data.
 
     Attributes:
         cohp_data (dict): Contains the COHP data of the form:
             {bond: {"COHP": {Spin.up: cohps, Spin.down:cohps},
-                    "ICOHP": {Spin.up: icohps, Spin.down: icohps},
-                    "length": bond length}
+                "ICOHP": {Spin.up: icohps, Spin.down: icohps},
+                "length": bond length}
         efermi (float): The Fermi energy in Ry or eV.
         energies (list): Sequence of energies in Ry or eV.
         is_spin_polarized (bool): Boolean to indicate if the calculation is spin polarized.

@@ -611,7 +611,7 @@ def is_anion_cation_bond(valences, ii, jj) -> bool:
 
 
 class Plane:
-    """Class used to describe a plane."""
+    """Describe a plane."""
 
     TEST_2D_POINTS = (
         np.array([0, 0], float),

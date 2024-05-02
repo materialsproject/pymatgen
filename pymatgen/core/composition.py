@@ -1245,7 +1245,7 @@ def reduce_formula(sym_amt, iupac_ordering: bool = False) -> tuple[str, float]:
 
 
 class ChemicalPotential(dict, MSONable):
-    """Class to represent set of chemical potentials. Can be: multiplied/divided by a Number
+    """Represent set of chemical potentials. Can be: multiplied/divided by a Number
     multiplied by a Composition (returns an energy) added/subtracted with other ChemicalPotentials.
     """
 

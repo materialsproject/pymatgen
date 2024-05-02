@@ -854,7 +854,7 @@ class CompleteCohp(Cohp):
 
 
 class IcohpValue(MSONable):
-    """Class to store information on an ICOHP or ICOOP value.
+    """Store information on an ICOHP or ICOOP value.
 
     Attributes:
         energies (ndarray): Energy values for the COHP/ICOHP/COOP/ICOOP.
@@ -1034,7 +1034,7 @@ class IcohpValue(MSONable):
 
 
 class IcohpCollection(MSONable):
-    """Class to store IcohpValues.
+    """Store IcohpValues.
 
     Attributes:
         are_coops (bool): Boolean to indicate if these are ICOOPs.

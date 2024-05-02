@@ -100,7 +100,7 @@ class SymmetryGroup(Sequence, Stringify, ABC):
 
 @cached_class
 class PointGroup(SymmetryGroup):
-    """Class representing a Point Group, with generators and symmetry operations.
+    """A Point Group, with generators and symmetry operations.
 
     Attributes:
         symbol (str): Full International or Hermann-Mauguin Symbol.
@@ -166,7 +166,7 @@ class PointGroup(SymmetryGroup):
 
 @cached_class
 class SpaceGroup(SymmetryGroup):
-    """Class representing a SpaceGroup.
+    """A SpaceGroup.
 
     Attributes:
         symbol (str): Full International or Hermann-Mauguin Symbol.

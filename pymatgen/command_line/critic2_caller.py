@@ -79,7 +79,7 @@ due.cite(
 
 
 class Critic2Caller:
-    """Class to call critic2 and store standard output for further processing."""
+    """Call critic2 and store standard output for further processing."""
 
     @requires(
         which("critic2"),
@@ -360,7 +360,7 @@ class CriticalPoint(MSONable):
         coords=None,
         field_hessian=None,
     ):
-        """Class to characterize a critical point from a topological
+        """Characterize a critical point from a topological
         analysis of electron charge density.
 
         Note this class is usually associated with a Structure, so
@@ -414,7 +414,7 @@ class CriticalPoint(MSONable):
 
 
 class Critic2Analysis(MSONable):
-    """Class to process the standard output from critic2 into pymatgen-compatible objects."""
+    """Process the standard output from critic2 into pymatgen-compatible objects."""
 
     def __init__(
         self,

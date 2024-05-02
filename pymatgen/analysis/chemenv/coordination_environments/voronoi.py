@@ -64,7 +64,7 @@ def from_bson_voronoi_list2(bson_nb_voro_list2: list[PeriodicSite], structure: S
 
 
 class DetailedVoronoiContainer(MSONable):
-    """Class used to store the full Voronoi of a given structure."""
+    """Store the full Voronoi of a given structure."""
 
     AC = AdditionalConditions()
     default_voronoi_cutoff = 10.0

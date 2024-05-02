@@ -2791,7 +2791,7 @@ class BSDOSPlotter:
 
 class BoltztrapPlotter:
     # TODO: We need a unittest for this. Come on folks.
-    """class containing methods to plot the data from Boltztrap."""
+    """Plot Boltztrap data."""
 
     def __init__(self, bz) -> None:
         """
@@ -3667,9 +3667,8 @@ class BoltztrapPlotter:
 
 
 class CohpPlotter:
-    """Class for plotting crystal orbital Hamilton populations (COHPs) or
-    crystal orbital overlap populations (COOPs). It is modeled after the
-    DosPlotter object.
+    """Plot crystal orbital Hamilton populations (COHPs) or crystal orbital overlap
+    populations (COOPs). It is modeled after the DosPlotter object.
     """
 
     def __init__(self, zero_at_efermi=True, are_coops=False, are_cobis=False) -> None:

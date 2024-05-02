@@ -389,7 +389,7 @@ ELEMENTS_HO = {Element("H"), Element("O")}
 # TODO: invocation from a MultiEntry entry list could be a bit more robust
 # TODO: serialization is still a bit rough around the edges
 class PourbaixDiagram(MSONable):
-    """Class to create a Pourbaix diagram from entries."""
+    """Create a Pourbaix diagram from entries."""
 
     def __init__(
         self,

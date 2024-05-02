@@ -569,13 +569,12 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 
 
 class MoleculeMatcher(MSONable):
-    """Class to match molecules and identify whether molecules are the same."""
+    """Match molecules and identify whether molecules are the same."""
 
     @requires(
         openbabel,
-        "BabelMolAdaptor requires openbabel to be installed with "
-        "Python bindings. Please get it at http://openbabel.org "
-        "(version >=3.0.0).",
+        "BabelMolAdaptor requires openbabel to be installed with Python "
+        "bindings. Please get it at http://openbabel.org (version >=3.0.0).",
     )
     def __init__(self, tolerance: float = 0.01, mapper=None) -> None:
         """

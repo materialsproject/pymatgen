@@ -61,7 +61,7 @@ logger = logging.getLogger(__name__)
 
 
 class Slab(Structure):
-    """Class to hold information for a Slab, with additional
+    """Hold information for a Slab, with additional
     attributes pertaining to slabs, but the init method does not
     actually create a slab. Also has additional methods that returns other information
     about a Slab such as the surface area, normal, and atom adsorption.

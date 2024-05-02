@@ -40,7 +40,7 @@ space_groups = {sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]}  # t
 
 
 class ThermalDisplacementMatrices(MSONable):
-    """Class to handle thermal displacement matrices
+    """Handle thermal displacement matrices
     This class stores thermal displacement matrices in Ucart format.
 
     An earlier implementation based on Matlab can be found here:

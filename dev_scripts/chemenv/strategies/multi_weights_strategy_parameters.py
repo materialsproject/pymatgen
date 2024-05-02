@@ -37,17 +37,17 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 
-allcg = AllCoordinationGeometries()
+all_cg = AllCoordinationGeometries()
 
 
 class CoordinationEnvironmentMorphing:
-    """Class to morph a coordination environment into another one."""
+    """Morph a coordination environment into another one."""
 
     def __init__(self, initial_environment_symbol, expected_final_environment_symbol, morphing_description):
         self.initial_environment_symbol = initial_environment_symbol
         self.expected_final_environment_symbol = expected_final_environment_symbol
         self.morphing_description = morphing_description
-        self.coordination_geometry = allcg.get_geometry_from_mp_symbol(initial_environment_symbol)
+        self.coordination_geometry = all_cg.get_geometry_from_mp_symbol(initial_environment_symbol)
         self.abstract_geometry = AbstractGeometry.from_cg(self.coordination_geometry)
 
     @classmethod

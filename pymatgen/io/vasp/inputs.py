@@ -2719,7 +2719,7 @@ class UnknownPotcarWarning(UserWarning):
 
 
 class VaspInput(dict, MSONable):
-    """Class to contain a set of vasp input objects corresponding to a run."""
+    """Contain a set of vasp input objects corresponding to a run."""
 
     def __init__(
         self,

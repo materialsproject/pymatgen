@@ -30,7 +30,7 @@ __date__ = "March 14, 2012"
 
 
 class Kpoint(MSONable):
-    """Class to store kpoint objects. A kpoint is defined with a lattice and frac
+    """Store kpoint objects. A kpoint is defined with a lattice and frac
     or Cartesian coordinates syntax similar than the site object in
     pymatgen.core.structure.
     """

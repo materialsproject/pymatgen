@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 
 
 class QCOutput(MSONable):
-    """Class to parse QChem output files."""
+    """Parse QChem output files."""
 
     def __init__(self, filename: str):
         """

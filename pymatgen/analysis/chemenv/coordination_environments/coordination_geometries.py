@@ -330,7 +330,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
 
 
 class CoordinationGeometry:
-    """Class used to store the ideal representation of a chemical environment or "coordination geometry"."""
+    """Store the ideal representation of a chemical environment or "coordination geometry"."""
 
     # Default value of continuous symmetry measure beyond which no further
     # search is performed for the separation plane algorithms

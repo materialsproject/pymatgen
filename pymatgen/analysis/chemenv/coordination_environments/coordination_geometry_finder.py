@@ -73,7 +73,7 @@ due.cite(
 
 
 class AbstractGeometry:
-    """Class used to describe a geometry (perfect or distorted)."""
+    """Describe a geometry (perfect or distorted)."""
 
     def __init__(
         self,

@@ -41,12 +41,12 @@ symbol_cn_mapping = all_cg.get_symbol_cn_mapping()
 
 
 class StructureEnvironments(MSONable):
-    """Class used to store the chemical environments of a given structure."""
+    """Store the chemical environments of a given structure."""
 
     AC = AdditionalConditions()
 
     class NeighborsSet:
-        """Class used to store a given set of neighbors of a given site (based on the detailed_voronoi)."""
+        """Store a given set of neighbors of a given site (based on the detailed_voronoi)."""
 
         def __init__(self, structure: Structure, isite, detailed_voronoi, site_voronoi_indices, sources=None):
             """Constructor for NeighborsSet.

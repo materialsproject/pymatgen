@@ -417,7 +417,7 @@ class Polarization:
 
 
 class EnergyTrend:
-    """Class for fitting trends to energies."""
+    """Analyze the trend in energy across a distortion path."""
 
     def __init__(self, energies):
         """

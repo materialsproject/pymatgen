@@ -34,7 +34,7 @@ __date__ = "June 2019"
 
 
 class HeisenbergMapper:
-    """Class to compute exchange parameters from low energy magnetic orderings.
+    """Compute exchange parameters from low energy magnetic orderings.
 
     Attributes:
         strategy (object): Class from pymatgen.analysis.local_env for constructing graphs.
@@ -666,7 +666,7 @@ class HeisenbergMapper:
 
 
 class HeisenbergScreener:
-    """Class to clean and screen magnetic orderings."""
+    """Clean and screen magnetic orderings."""
 
     def __init__(self, structures, energies, screen=False):
         """

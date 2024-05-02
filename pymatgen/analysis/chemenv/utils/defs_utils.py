@@ -42,7 +42,7 @@ due.cite(
 
 
 class AdditionalConditions:
-    """Class for additional conditions."""
+    """Additional conditions that can be used to filter coordination environments."""
 
     NO_ADDITIONAL_CONDITION = 0
     ONLY_ANION_CATION_BONDS = 1

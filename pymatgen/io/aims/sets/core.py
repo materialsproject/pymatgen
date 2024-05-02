@@ -85,7 +85,7 @@ class RelaxSetGenerator(AimsInputGenerator):
 
 @dataclass
 class SocketIOSetGenerator(AimsInputGenerator):
-    """Class to generate FHI-aims input sets for running with the socket.
+    """Generate FHI-aims input sets for running with the socket.
 
     Parameters
     ----------

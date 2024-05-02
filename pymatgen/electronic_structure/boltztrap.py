@@ -715,7 +715,7 @@ class BoltztrapError(Exception):
 
 
 class BoltztrapAnalyzer:
-    """Class used to store all the data from a boltztrap run."""
+    """Store all the data from a boltztrap run."""
 
     def __init__(
         self,

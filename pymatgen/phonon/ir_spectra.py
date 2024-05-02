@@ -34,7 +34,7 @@ __date__ = "Oct 31, 2018"
 
 
 class IRDielectricTensor(MSONable):
-    """Class to handle the Ionic Dielectric Tensor
+    """Handle the Ionic Dielectric Tensor
     The implementation is adapted from Abipy
     See the definitions Eq.(53-54) in :cite:`Gonze1997` PRB55, 10355 (1997).
     """

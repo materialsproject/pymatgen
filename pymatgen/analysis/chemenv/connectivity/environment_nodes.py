@@ -97,7 +97,7 @@ class AbstractEnvironmentNode(MSONable):
 
 
 class EnvironmentNode(AbstractEnvironmentNode):
-    """Class used to define an environment as a node in a graph."""
+    """Define an environment as a node in a graph."""
 
     def __init__(self, central_site, i_central_site, ce_symbol) -> None:
         """

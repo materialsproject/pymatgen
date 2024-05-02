@@ -1266,7 +1266,7 @@ class LobsterNeighbors(NearNeighbors):
 
 
 class LobsterLightStructureEnvironments(LightStructureEnvironments):
-    """Class to store LightStructureEnvironments based on Lobster outputs."""
+    """Store LightStructureEnvironments based on Lobster outputs."""
 
     @classmethod
     def from_Lobster(

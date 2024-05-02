@@ -40,7 +40,7 @@ __date__ = "Apr 11, 2021"
 
 
 class GruneisenParameter(MSONable):
-    """Class for Grueneisen parameters on a regular grid."""
+    """Store the Gruneisen parameter for a single q-point on a regular grid."""
 
     def __init__(
         self,
