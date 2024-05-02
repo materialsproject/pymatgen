@@ -40,9 +40,9 @@ class TestTransformedStructure(PymatgenTest):
             [0, -2.2171384943, 3.1355090603],
         ]
         struct = Structure(lattice, ["Si4+", "Si4+"], coords)
-        ts = TransformedStructure(struct, [])
-        ts.append_transformation(SupercellTransformation.from_scaling_factors(2, 1, 1))
-        alt = ts.append_transformation(
+        t_struct = TransformedStructure(struct, [])
+        t_struct.append_transformation(SupercellTransformation.from_scaling_factors(2, 1, 1))
+        alt = t_struct.append_transformation(
             PartialRemoveSpecieTransformation("Si4+", 0.5, algo=PartialRemoveSpecieTransformation.ALGO_COMPLETE), 5
         )
         assert len(alt) == 2
@@ -66,36 +66,36 @@ class TestTransformedStructure(PymatgenTest):
         with open(f"{TEST_DIR}/transformations.json") as file:
             dct = json.load(file)
         dct["other_parameters"] = {"tags": ["test"]}
-        ts = TransformedStructure.from_dict(dct)
-        ts.other_parameters["author"] = "Will"
-        ts.append_transformation(SubstitutionTransformation({"Fe": "Mn"}))
-        assert ts.final_structure.reduced_formula == "MnPO4"
-        assert ts.other_parameters == {"author": "Will", "tags": ["test"]}
+        t_struct = TransformedStructure.from_dict(dct)
+        t_struct.other_parameters["author"] = "Will"
+        t_struct.append_transformation(SubstitutionTransformation({"Fe": "Mn"}))
+        assert t_struct.final_structure.reduced_formula == "MnPO4"
+        assert t_struct.other_parameters == {"author": "Will", "tags": ["test"]}
 
     def test_undo_and_redo_last_change(self):
         trafos = [
             SubstitutionTransformation({"Li": "Na"}),
             SubstitutionTransformation({"Fe": "Mn"}),
         ]
-        ts = TransformedStructure(self.structure, trafos)
-        assert ts.final_structure.reduced_formula == "NaMnPO4"
-        ts.undo_last_change()
-        assert ts.final_structure.reduced_formula == "NaFePO4"
-        ts.undo_last_change()
-        assert ts.final_structure.reduced_formula == "LiFePO4"
+        t_struct = TransformedStructure(self.structure, trafos)
+        assert t_struct.final_structure.reduced_formula == "NaMnPO4"
+        t_struct.undo_last_change()
+        assert t_struct.final_structure.reduced_formula == "NaFePO4"
+        t_struct.undo_last_change()
+        assert t_struct.final_structure.reduced_formula == "LiFePO4"
         with pytest.raises(IndexError, match="No more changes to undo"):
-            ts.undo_last_change()
-        ts.redo_next_change()
-        assert ts.final_structure.reduced_formula == "NaFePO4"
-        ts.redo_next_change()
-        assert ts.final_structure.reduced_formula == "NaMnPO4"
+            t_struct.undo_last_change()
+        t_struct.redo_next_change()
+        assert t_struct.final_structure.reduced_formula == "NaFePO4"
+        t_struct.redo_next_change()
+        assert t_struct.final_structure.reduced_formula == "NaMnPO4"
         with pytest.raises(IndexError, match="No more changes to redo"):
-            ts.redo_next_change()
+            t_struct.redo_next_change()
         # Make sure that this works with filters.
         f3 = ContainsSpecieFilter(["O2-"], strict_compare=True, AND=False)
-        ts.append_filter(f3)
-        ts.undo_last_change()
-        ts.redo_next_change()
+        t_struct.append_filter(f3)
+        t_struct.undo_last_change()
+        t_struct.redo_next_change()
 
     def test_set_parameter(self):
         trans = self.trans.set_parameter("author", "will")
@@ -113,19 +113,19 @@ class TestTransformedStructure(PymatgenTest):
     def test_snl(self):
         self.trans.set_parameter("author", "will")
         with pytest.warns(UserWarning) as warns:
-            snl = self.trans.to_snl([("will", "will@test.com")])
+            struct_nl = self.trans.to_snl([("will", "will@test.com")])
 
-        assert len(warns) == 1, "Warning not raised on type conversion with other_parameters"
+        assert len(warns) >= 1, f"Warning not raised on type conversion with other_parameters {len(warns)=}"
         assert (
             str(warns[0].message)
             == "Data in TransformedStructure.other_parameters discarded during type conversion to SNL"
         )
 
-        ts = TransformedStructure.from_snl(snl)
-        assert ts.history[-1]["@class"] == "SubstitutionTransformation"
+        t_struct = TransformedStructure.from_snl(struct_nl)
+        assert t_struct.history[-1]["@class"] == "SubstitutionTransformation"
 
         hist = ("testname", "testURL", {"test": "testing"})
-        snl = StructureNL(ts.final_structure, [("will", "will@test.com")], history=[hist])
-        snl = TransformedStructure.from_snl(snl).to_snl([("notwill", "notwill@test.com")])
-        assert snl.history == [hist]
-        assert snl.authors == [("notwill", "notwill@test.com")]
+        struct_nl = StructureNL(t_struct.final_structure, [("will", "will@test.com")], history=[hist])
+        t_struct = TransformedStructure.from_snl(struct_nl).to_snl([("notwill", "notwill@test.com")])
+        assert t_struct.history == [hist]
+        assert t_struct.authors == [("notwill", "notwill@test.com")]

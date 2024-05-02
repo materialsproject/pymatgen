@@ -159,7 +159,7 @@ class WulffShape:
         logger.debug(len(self.facets))
 
         # 3. consider the dual condition
-        dual_pts = [x.dual_pt for x in self.facets]
+        dual_pts = [facet.dual_pt for facet in self.facets]
         dual_convex = ConvexHull(dual_pts)
         dual_cv_simp = dual_convex.simplices
         # simplices	(ndarray of ints, shape (n_facet, n_dim))
@@ -708,17 +708,15 @@ class WulffShape:
 
     @property
     def tot_corner_sites(self):
-        """
-        Returns the number of vertices in the convex hull.
-            Useful for identifying catalytically active sites.
+        """The number of vertices in the convex hull.
+        Useful for identifying catalytically active sites.
         """
         return len(self.wulff_convex.vertices)
 
     @property
     def tot_edges(self):
-        """
-        Returns the number of edges in the convex hull.
-            Useful for identifying catalytically active sites.
+        """The number of edges in the convex hull.
+        Useful for identifying catalytically active sites.
         """
         all_edges = []
         for facet in self.facets:

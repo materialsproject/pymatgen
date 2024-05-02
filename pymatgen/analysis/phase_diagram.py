@@ -90,10 +90,7 @@ class PDEntry(Entry):
 
     @property
     def energy(self) -> float:
-        """
-        Returns:
-            the energy of the entry.
-        """
+        """The entry's energy."""
         return self._energy
 
     def as_dict(self):
@@ -115,10 +112,10 @@ class PDEntry(Entry):
             PDEntry
         """
         return cls(
-            Composition(dct["composition"]),
-            dct["energy"],
-            dct.get("name"),
-            dct.get("attribute"),
+            composition=Composition(dct["composition"]),
+            energy=dct["energy"],
+            name=dct.get("name"),
+            attribute=dct.get("attribute"),
         )
 
 
@@ -169,11 +166,8 @@ class GrandPotPDEntry(PDEntry):
         return sum(self._composition[el] * pot for el, pot in self.chempots.items())
 
     @property
-    def energy(self):
-        """
-        Returns:
-            The grand potential energy.
-        """
+    def energy(self) -> float:
+        """Grand potential energy."""
         return self._energy - self.chemical_energy
 
     def __repr__(self):
@@ -514,10 +508,7 @@ class PhaseDiagram(MSONable):
 
     @property
     def all_entries_hulldata(self):
-        """
-        Returns:
-            The actual ndarray used to construct the convex hull.
-        """
+        """The ndarray used to construct the convex hull."""
         data = [
             [e.composition.get_atomic_fraction(el) for el in self.elements] + [e.energy_per_atom]
             for e in self.all_entries
@@ -574,8 +565,7 @@ class PhaseDiagram(MSONable):
         return self.get_reference_energy(comp) / comp.num_atoms
 
     def get_form_energy(self, entry: PDEntry) -> float:
-        """
-        Returns the formation energy for an entry (NOT normalized) from the
+        """Get the formation energy for an entry (NOT normalized) from the
         elemental references.
 
         Args:
@@ -588,8 +578,7 @@ class PhaseDiagram(MSONable):
         return entry.energy - self.get_reference_energy(comp)
 
     def get_form_energy_per_atom(self, entry: PDEntry) -> float:
-        """
-        Returns the formation energy per atom for an entry from the
+        """Get the formation energy per atom for an entry from the
         elemental references.
 
         Args:
@@ -643,15 +632,15 @@ class PhaseDiagram(MSONable):
 
         return all_facets
 
-    def _get_facet_chempots(self, facet):
+    def _get_facet_chempots(self, facet: list[int]) -> dict[Element, float]:
         """
         Calculates the chemical potentials for each element within a facet.
 
         Args:
-            facet: Facet of the phase diagram.
+            facet (list): Indices of the entries in the facet.
 
         Returns:
-            {element: chempot} for all elements in the phase diagram.
+            dict[Element, float]: Chemical potentials for each element in the facet.
         """
         comp_list = [self.qhull_entries[idx].composition for idx in facet]
         energy_list = [self.qhull_entries[idx].energy_per_atom for idx in facet]
@@ -661,8 +650,7 @@ class PhaseDiagram(MSONable):
         return dict(zip(self.elements, chempots))
 
     def _get_simplex_intersections(self, c1, c2):
-        """
-        Returns coordinates of the intersection of the tie line between two compositions
+        """Get coordinates of the intersection of the tie line between two compositions
         and the simplexes of the PhaseDiagram.
 
         Args:
@@ -1145,12 +1133,11 @@ class PhaseDiagram(MSONable):
     def get_chempot_range_map(
         self, elements: Sequence[Element], referenced: bool = True, joggle: bool = True
     ) -> dict[Element, list[Simplex]]:
-        """
-        Returns a chemical potential range map for each stable entry.
+        """Get a chemical potential range map for each stable entry.
 
         Args:
             elements: Sequence of elements to be considered as independent variables.
-                E.g., if you want to show the stability ranges
+                e.g. if you want to show the stability ranges
                 of all Li-Co-O phases with respect to mu_Li and mu_O, you will supply
                 [Element("Li"), Element("O")]
             referenced: If True, gives the results with a reference being the
@@ -1198,8 +1185,7 @@ class PhaseDiagram(MSONable):
         return chempot_ranges
 
     def getmu_vertices_stability_phase(self, target_comp, dep_elt, tol_en=1e-2):
-        """
-        Returns a set of chemical potentials corresponding to the vertices of
+        """Get a set of chemical potentials corresponding to the vertices of
         the simplex in the chemical potential phase diagram.
         The simplex is built using all elements in the target_composition
         except dep_elt.
@@ -1257,8 +1243,7 @@ class PhaseDiagram(MSONable):
         return None
 
     def get_chempot_range_stability_phase(self, target_comp, open_elt):
-        """
-        Returns a set of chemical potentials corresponding to the max and min
+        """Get a set of chemical potentials corresponding to the max and min
         chemical potential of the open element for a given composition. It is
         quite common to have for instance a ternary oxide (e.g., ABO3) for
         which you want to know what are the A and B chemical potential leading
@@ -1270,8 +1255,9 @@ class PhaseDiagram(MSONable):
             open_elt: Element that you want to constrain to be max or min
 
         Returns:
-            {Element: (mu_min, mu_max)}: Chemical potentials are given in
-                "absolute" values (i.e., not referenced to 0)
+            dict[Element, (float, float)]: A dictionary of the form {Element: (min_mu, max_mu)}
+            where min_mu and max_mu are the minimum and maximum chemical potentials
+            for the given element (as "absolute" values, i.e. not referenced to 0).
         """
         mu_ref = np.array([self.el_refs[elem].energy_per_atom for elem in self.elements if elem != open_elt])
         chempot_ranges = self.get_chempot_range_map([elem for elem in self.elements if elem != open_elt])
@@ -1476,8 +1462,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
     amount_tol = 1e-5
 
     def __init__(self, entries, terminal_compositions, normalize_terminal_compositions=True):
-        """
-        Initializes a CompoundPhaseDiagram.
+        """Initialize a CompoundPhaseDiagram.
 
         Args:
             entries ([PDEntry]): Sequence of input entries. For example,
@@ -1883,7 +1868,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
 class ReactionDiagram:
     """
-    Analyzes the possible reactions between a pair of compounds, e.g.,
+    Analyzes the possible reactions between a pair of compounds, e.g.
     an electrolyte and an electrode.
     """
 
@@ -1892,12 +1877,12 @@ class ReactionDiagram:
         Args:
             entry1 (ComputedEntry): Entry for 1st component. Note that
                 corrections, if any, must already be pre-applied. This is to
-                give flexibility for different kinds of corrections, e.g.,
+                give flexibility for different kinds of corrections, e.g.
                 if a particular entry is fitted to an experimental data (such
                 as EC molecule).
             entry2 (ComputedEntry): Entry for 2nd component. Note that
                 corrections must already be pre-applied. This is to
-                give flexibility for different kinds of corrections, e.g.,
+                give flexibility for different kinds of corrections, e.g.
                 if a particular entry is fitted to an experimental data (such
                 as EC molecule).
             all_entries ([ComputedEntry]): All other entries to be
@@ -2377,7 +2362,7 @@ class PDPlotter:
 
         Args:
             elements: Sequence of elements to be considered as independent
-                variables. E.g., if you want to show the stability ranges of
+                variables. e.g. if you want to show the stability ranges of
                 all Li-Co-O phases w.r.t. to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
             referenced: if True, gives the results with a reference being the
@@ -2386,8 +2371,7 @@ class PDPlotter:
         self.get_chempot_range_map_plot(elements, referenced=referenced).show()
 
     def get_chempot_range_map_plot(self, elements, referenced=True):
-        """
-        Returns a plot of the chemical potential range _map. Currently works
+        """Get a plot of the chemical potential range _map. Currently works
         only for 3-component PDs.
 
         Note: this functionality is now included in the ChemicalPotentialDiagram
@@ -2395,7 +2379,7 @@ class PDPlotter:
 
         Args:
             elements: Sequence of elements to be considered as independent
-                variables. E.g., if you want to show the stability ranges of
+                variables. e.g. if you want to show the stability ranges of
                 all Li-Co-O phases w.r.t. to uLi and uO, you will supply
                 [Element("Li"), Element("O")]
             referenced: if True, gives the results with a reference being the
@@ -3749,12 +3733,12 @@ def uniquelines(q):
     used for converting convex hull facets into line pairs of coordinates.
 
     Args:
-        q: A 2-dim sequence, where each row represents a facet. E.g.,
+        q: A 2-dim sequence, where each row represents a facet. e.g.
             [[1,2,3],[3,6,7],...]
 
     Returns:
         setoflines:
-            A set of tuple of lines. E.g., ((1,2), (1,3), (2,3), ....)
+            A set of tuple of lines. e.g. ((1,2), (1,3), (2,3), ....)
     """
     return {tuple(sorted(line)) for facets in q for line in itertools.combinations(facets, 2)}
 

@@ -36,11 +36,11 @@ class BaseLammpsGenerator(InputGenerator):
     r"""
     Base class to generate LAMMPS input sets.
     Uses template files for the input. The variables that can be changed
-    in the input template file are those starting with a $ sign, e.g., $nsteps.
+    in the input template file are those starting with a $ sign, e.g. $nsteps.
     This generic class is specialized for each template in subclasses, e.g. LammpsMinimization.
     You can create a template for your own task following those present in pymatgen/io/lammps/templates.
     The parameters are then replaced based on the values found
-    in the settings dictionary that you provide, e.g., `{"nsteps": 1000}`.
+    in the settings dictionary that you provide, e.g. `{"nsteps": 1000}`.
 
     Attributes:
         template: Path (string) to the template file used to create the InputFile for LAMMPS.

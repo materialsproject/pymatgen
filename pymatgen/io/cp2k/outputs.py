@@ -1493,7 +1493,7 @@ class Cp2kOutput:
         arguments.
 
         Args:
-            patterns (dict): A dict of patterns, e.g.,
+            patterns (dict): A dict of patterns, e.g.
                 {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"}.
             reverse (bool): Read files in reverse. Defaults to false. Useful for
                 large files, esp OUTCARs, especially when used with
@@ -1645,7 +1645,7 @@ class Cp2kOutput:
 
 # TODO should store as pandas? Maybe it should be stored as a dict so it's python native
 def parse_energy_file(energy_file):
-    """Parses energy file for calculations with multiple ionic steps."""
+    """Parse energy file for calculations with multiple ionic steps."""
     columns = [
         "step",
         "kinetic_energy",

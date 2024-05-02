@@ -170,7 +170,7 @@ class SpacegroupAnalyzer:
         return spglib.get_pointgroup(rotations)[0].strip()
 
     def get_crystal_system(self) -> CrystalSystem:
-        """Get the crystal system for the structure, e.g., (triclinic, orthorhombic,
+        """Get the crystal system for the structure, e.g. (triclinic, orthorhombic,
         cubic, etc.).
 
         Raises:
@@ -200,7 +200,7 @@ class SpacegroupAnalyzer:
         return "cubic"
 
     def get_lattice_type(self) -> LatticeType:
-        """Get the lattice for the structure, e.g., (triclinic, orthorhombic, cubic,
+        """Get the lattice for the structure, e.g. (triclinic, orthorhombic, cubic,
         etc.).This is the same as the crystal system with the exception of the
         hexagonal/rhombohedral lattice.
 
@@ -1628,7 +1628,7 @@ class SpacegroupOperations(list):
 
 
 class PointGroupOperations(list):
-    """Defines a point group, which is essentially a sequence of symmetry operations.
+    """Represents a point group, which is a sequence of symmetry operations.
 
     Attributes:
         sch_symbol (str): Schoenflies symbol of the point group.

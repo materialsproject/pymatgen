@@ -296,7 +296,7 @@ class AnionCorrection(Correction):
                 else:
                     warnings.warn(
                         "No structure or oxide_type parameter present. Note that peroxide/superoxide corrections "
-                        "are not as reliable and relies only on detection of special formulas, e.g., Li2O2."
+                        "are not as reliable and relies only on detection of special formulas, e.g. Li2O2."
                     )
                     rform = entry.reduced_formula
                     if rform in UCorrection.common_peroxides:
@@ -994,7 +994,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                 else:
                     warnings.warn(
                         "No structure or oxide_type parameter present. Note that peroxide/superoxide corrections "
-                        "are not as reliable and relies only on detection of special formulas, e.g., Li2O2."
+                        "are not as reliable and relies only on detection of special formulas, e.g. Li2O2."
                     )
 
                     common_peroxides = "Li2O2 Na2O2 K2O2 Cs2O2 Rb2O2 BeO2 MgO2 CaO2 SrO2 BaO2".split()

@@ -316,8 +316,7 @@ class Pseudo(MSONable, abc.ABC):
         # return None
 
     def hint_for_accuracy(self, accuracy="normal"):
-        """
-        Returns a Hint object with the suggested value of ecut [Ha] and
+        """Get a Hint object with the suggested value of ecut [Ha] and
         pawecutdg [Ha] for the given accuracy.
         ecut and pawecutdg are set to zero if no hint is available.
 

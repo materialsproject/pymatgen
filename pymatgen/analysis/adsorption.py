@@ -139,7 +139,7 @@ class AdsorbateSiteFinder:
         surf_props, under_coords = [], []
         this_mi_vec = get_mi_vec(this_slab)
         mi_mags = [np.dot(this_mi_vec, site.coords) for site in this_slab]
-        average_mi_mag = np.average(mi_mags)
+        average_mi_mag = np.mean(mi_mags)
         for n, site in enumerate(this_slab):
             bulk_coord = this_slab.site_properties["bulk_coordinations"][n]
             slab_coord = len(vnn_surface.get_nn(this_slab, n))
@@ -355,9 +355,9 @@ class AdsorbateSiteFinder:
                 Cartesian coordinate
         """
         if cartesian:
-            return np.average([site_list[idx].coords for idx in indices], axis=0)
+            return np.mean([site_list[idx].coords for idx in indices], axis=0)
 
-        return np.average([site_list[idx].frac_coords for idx in indices], axis=0)
+        return np.mean([site_list[idx].frac_coords for idx in indices], axis=0)
 
     def add_adsorbate(self, molecule: Molecule, ads_coord, repeat=None, translate=True, reorient=True):
         """Add an adsorbate at a particular coordinate. Adsorbate represented

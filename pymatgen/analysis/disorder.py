@@ -20,7 +20,7 @@ def get_warren_cowley_parameters(structure: Structure, r: float, dr: float) -> d
         dr: Shell width
 
     Returns:
-        Warren-Crowley parameters in the form of a dict, e.g., {(Element Mo, Element W): -1.0, ...}
+        Warren-Crowley parameters in the form of a dict, e.g. {(Element Mo, Element W): -1.0, ...}
     """
     comp = structure.composition
 

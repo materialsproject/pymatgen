@@ -383,7 +383,7 @@ class InsertionElectrode(AbstractElectrode):
 
 @dataclass
 class InsertionVoltagePair(AbstractVoltagePair):
-    """Defines an Insertion Voltage Pair."""
+    """A voltage pair for an insertion battery, e.g. LiFePO4 -> FePO4."""
 
     entry_charge: ComputedEntry
     entry_discharge: ComputedEntry

@@ -16,7 +16,7 @@ def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
 
     Args:
         text_str (str): the input string to search for patterns
-        patterns (dict): A dict of patterns, e.g.,
+        patterns (dict): A dict of patterns, e.g.
             {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"}.
         terminate_on_match (bool): Whether to terminate when there is at
             least one match in each key in pattern.

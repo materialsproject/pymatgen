@@ -1,4 +1,4 @@
-"""Defines an abstract base class contract for Transformation object."""
+"""Abstract base class for structure transformations."""
 
 from __future__ import annotations
 

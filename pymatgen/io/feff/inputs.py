@@ -216,13 +216,8 @@ class Header(MSONable):
         return cls(structure, source, comment)
 
     @property
-    def structure_symmetry(self):
-        """
-        Returns space number and space group.
-
-        Returns:
-            Space number and space group list
-        """
+    def structure_symmetry(self) -> tuple[str, int]:
+        """The space group symbol and space number of the structure."""
         return self.space_group, self.space_number
 
     @property
@@ -477,8 +472,7 @@ class Atoms(MSONable):
         return Molecule(symbols, coords)
 
     def get_lines(self) -> list[list[str | int]]:
-        """
-        Returns a list of string representations of the atomic configuration
+        """Get a list of string representations of the atomic configuration
         information(x, y, z, ipot, atom_symbol, distance, id).
 
         Returns:
@@ -580,8 +574,7 @@ class Tags(dict):
         return cls({k: v for k, v in dct.items() if k not in ("@module", "@class")})
 
     def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
-        """
-        Returns a string representation of the Tags. The reason why this
+        """Get a string representation of the Tags. The reason why this
         method is different from the __str__ method is to provide options
         for pretty printing.
 
@@ -591,7 +584,7 @@ class Tags(dict):
             pretty: Set to True for pretty aligned output. Defaults to False.
 
         Returns:
-            String representation of Tags.
+            str: String representation of the Tags.
         """
         keys = list(self)
         if sort_keys:
@@ -751,9 +744,9 @@ class Tags(dict):
             other: The other PARAMETER dictionary to compare to.
 
         Returns:
-            Dict of the format {"Same" : parameters_that_are_the_same,
-            "Different": parameters_that_are_different} Note that the
-            parameters are return as full dictionaries of values.
+            dict[str, dict]: has format {"Same" : parameters_that_are_the_same,
+                "Different": parameters_that_are_different} Note that the
+                parameters are return as full dictionaries of values.
         """
         similar_param = {}
         different_param = {}
@@ -880,17 +873,11 @@ class Potential(MSONable):
         return pot_dict, pot_dict_reverse
 
     def __str__(self):
-        """
-        Returns a string representation of potential parameters to be used in
-        the feff.inp file,
-        determined from structure object.
+        """Get a string representation of potential parameters to be used in
+        the feff.inp file, determined from structure object.
 
-                The lines are arranged as follows:
-
+            The lines are arranged as follows:
             ipot   Z   element   lmax1   lmax2   stoichiometry   spinph
-
-        Returns:
-            String representation of Atomic Coordinate Shells.
         """
         central_element = Element(self.absorbing_atom)
         ipotrow = [[0, central_element.Z, central_element.symbol, -1, -1, 0.0001, 0]]
@@ -974,7 +961,7 @@ class Paths(MSONable):
 
 class FeffParseError(ParseError):
     """Exception class for Structure.
-    Raised when the structure has problems, e.g., atoms that are too close.
+    Raised when the structure has problems, e.g. atoms that are too close.
     """
 
 

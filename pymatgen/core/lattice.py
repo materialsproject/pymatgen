@@ -1,4 +1,6 @@
-"""Defines the classes relating to 3D lattices."""
+"""This module defines the Lattice class, the fundamental class for representing
+periodic crystals. It is essentially a matrix with some extra methods and attributes.
+"""
 
 from __future__ import annotations
 
@@ -53,7 +55,7 @@ class Lattice(MSONable):
                 iii) [1, 0, 0 , 0, 1, 0, 0, 0, 1]
                 iv) (1, 0, 0, 0, 1, 0, 0, 0, 1)
                 Each row should correspond to a lattice vector.
-                E.g., [[10, 0, 0], [20, 10, 0], [0, 0, 30]] specifies a lattice
+                e.g. [[10, 0, 0], [20, 10, 0], [0, 0, 30]] specifies a lattice
                 with lattice vectors [10, 0, 0], [20, 10, 0] and [0, 0, 30].
             pbc: a tuple defining the periodic boundary conditions along the three
                 axis of the lattice.
@@ -107,7 +109,7 @@ class Lattice(MSONable):
         """Support format printing.
 
         Supported fmt_spec (str) are:
-        1. "l" for a list format that can be easily copied and pasted, e.g.,
+        1. "l" for a list format that can be easily copied and pasted, e.g.
            ".3fl" prints something like
            "[[10.000, 0.000, 0.000], [0.000, 10.000, 0.000], [0.000, 0.000, 10.000]]"
         2. "p" for lattice parameters ".1fp" prints something like
@@ -1296,8 +1298,7 @@ class Lattice(MSONable):
         zip_results=True,
     ) -> list[tuple[np.ndarray, float, int, np.ndarray]] | tuple[np.ndarray, ...] | list:
         """Find all points within a sphere from the point taking into account
-        periodic boundary conditions. This includes sites in other periodic
-        images.
+        periodic boundary conditions. This includes sites in other periodic images.
 
         Algorithm:
 
@@ -1340,10 +1341,12 @@ class Lattice(MSONable):
                 all_coords=cart_coords, center_coords=center_coords, r=float(r), pbc=pbc, lattice=latt_matrix, tol=1e-8
             )
             if len(indices) < 1:
-                return [] if zip_results else [()] * 4
+                # return empty np.array (not list or tuple) to ensure consistent return type
+                # whether sphere contains points or not
+                return np.array([]) if zip_results else tuple(np.array([]) for _ in range(4))
             frac_coords = frac_points[indices] + images
             if zip_results:
-                return list(zip(frac_coords, distances, indices, images))
+                return tuple(zip(frac_coords, distances, indices, images))
             return frac_coords, distances, indices, images
 
     def get_points_in_sphere_py(
@@ -1504,7 +1507,7 @@ class Lattice(MSONable):
         different functionality from pbc_diff.
 
         Args:
-            frac_coords1: First set of fractional coordinates. e.g., [0.5, 0.6,
+            frac_coords1: First set of fractional coordinates. e.g. [0.5, 0.6,
                 0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
                 coord or any array of coords.
             frac_coords2: Second set of fractional coordinates.
@@ -1556,7 +1559,7 @@ class Lattice(MSONable):
             frac_coords1 (3x1 array): Reference frac_coords to get distance from.
             frac_coords2 (3x1 array): frac_coords to get distance from.
             jimage (3x1 array): Specific periodic image in terms of
-                lattice translations, e.g., [1,0,0] implies to take periodic
+                lattice translations, e.g. [1,0,0] implies to take periodic
                 image that is one a-lattice vector away. If jimage is None,
                 the image that is nearest to the site is found.
 

@@ -194,8 +194,7 @@ class DetailedVoronoiContainer(MSONable):
         logging.debug(f"Voronoi list set up in {t2 - t1:.2f} seconds")
 
     def setup_neighbors_distances_and_angles(self, indices):
-        """
-        Initializes the angle and distance separations.
+        """Initialize the angle and distance separations.
 
         Args:
             indices: Indices of the sites for which the Voronoi is needed.

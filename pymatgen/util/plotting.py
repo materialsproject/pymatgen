@@ -104,7 +104,7 @@ def pretty_plot_two_axis(
         height (float): Height of plot in inches. Defaults to width * golden
             ratio.
         dpi (int): Sets dot per inch for figure. Defaults to 300.
-        plot_kwargs: Passthrough kwargs to matplotlib's plot method. E.g.,
+        plot_kwargs: Passthrough kwargs to matplotlib's plot method. e.g.
             linewidth, etc.
 
     Returns:

@@ -47,8 +47,7 @@ class NDCalculator(AbstractDiffractionPatternCalculator):
     """
 
     def __init__(self, wavelength=1.54184, symprec: float = 0, debye_waller_factors=None):
-        """
-        Initializes the ND calculator with a given radiation.
+        """Initialize the ND calculator with a given radiation.
 
         Args:
             wavelength (float): The wavelength of neutron in angstroms.

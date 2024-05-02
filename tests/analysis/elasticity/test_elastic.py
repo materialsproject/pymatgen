@@ -395,7 +395,7 @@ class TestNthOrderElasticTensor(PymatgenTest):
 
 
 class TestDiffFit(PymatgenTest):
-    """Tests various functions related to diff fitting."""
+    """Test various functions related to diff fitting."""
 
     def setUp(self):
         with open(f"{TEST_DIR}/test_toec_data.json") as file:
