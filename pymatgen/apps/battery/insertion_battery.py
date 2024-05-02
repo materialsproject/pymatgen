@@ -132,7 +132,7 @@ class InsertionElectrode(AbstractElectrode):
         return list_copy if charge_to_discharge else list_copy.reverse()
 
     def get_unstable_entries(self, charge_to_discharge=True):
-        """Returns the unstable entries for the electrode.
+        """Get the unstable entries for the electrode.
 
         Args:
             charge_to_discharge: Order from most charge to most discharged

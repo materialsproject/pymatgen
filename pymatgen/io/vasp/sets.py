@@ -782,7 +782,7 @@ class DictSet(VaspInputSet):
 
     @property
     def potcar_functional(self) -> UserPotcarFunctional:
-        """Returns the functional used for POTCAR generation."""
+        """Get the functional used for POTCAR generation."""
         return self.user_potcar_functional
 
     @property

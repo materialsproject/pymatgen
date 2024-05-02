@@ -137,7 +137,7 @@ class SlabEntry(ComputedStructureEntry):
         )
 
     def as_dict(self):
-        """Returns dict which contains Slab Entry data."""
+        """Get dict which contains Slab Entry data."""
         dct = {"@module": type(self).__module__, "@class": type(self).__name__}
         dct["structure"] = self.structure
         dct["energy"] = self.energy
@@ -246,12 +246,12 @@ class SlabEntry(ComputedStructureEntry):
 
     @property
     def Nads_in_slab(self):
-        """Returns the TOTAL number of adsorbates in the slab on BOTH sides."""
+        """The TOTAL number of adsorbates in the slab on BOTH sides."""
         return sum(self.composition.as_dict()[a] for a in self.ads_entries_dict)
 
     @property
     def Nsurfs_ads_in_slab(self):
-        """Returns the TOTAL number of adsorbed surfaces in the slab."""
+        """The TOTAL number of adsorbed surfaces in the slab."""
         struct = self.structure
         weights = [s.species.weight for s in struct]
         center_of_mass = np.average(struct.frac_coords, weights=weights, axis=0)
@@ -272,7 +272,7 @@ class SlabEntry(ComputedStructureEntry):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Returns a SlabEntry by reading in an dictionary."""
+        """Get a SlabEntry by reading in an dictionary."""
         structure = SlabEntry.from_dict(dct["structure"])
         energy = SlabEntry.from_dict(dct["energy"])
         miller_index = dct["miller_index"]
@@ -297,7 +297,7 @@ class SlabEntry(ComputedStructureEntry):
 
     @property
     def cleaned_up_slab(self):
-        """Returns a slab with the adsorbates removed."""
+        """A slab with the adsorbates removed."""
         ads_strs = list(self.ads_entries_dict)
         cleaned = self.structure.copy()
         cleaned.remove_species(ads_strs)
@@ -305,7 +305,7 @@ class SlabEntry(ComputedStructureEntry):
 
     @property
     def create_slab_label(self):
-        """Returns a label (str) for this particular slab based on composition, coverage and Miller index."""
+        """A label (str) for this particular slab based on composition, coverage and Miller index."""
         if "label" in self.data:
             return self.data["label"]
 
@@ -325,7 +325,7 @@ class SlabEntry(ComputedStructureEntry):
     def from_computed_structure_entry(
         cls, entry, miller_index, label=None, adsorbates=None, clean_entry=None, **kwargs
     ) -> Self:
-        """Returns SlabEntry from a ComputedStructureEntry."""
+        """Get SlabEntry from a ComputedStructureEntry."""
         return cls(
             entry.structure,
             entry.energy,

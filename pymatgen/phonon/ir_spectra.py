@@ -61,7 +61,7 @@ class IRDielectricTensor(MSONable):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Returns IRDielectricTensor from dict representation."""
+        """Get IRDielectricTensor from dict representation."""
         structure = Structure.from_dict(dct["structure"])
         oscillator_strength = dct["oscillator_strength"]
         ph_freqs_gamma = dct["ph_freqs_gamma"]

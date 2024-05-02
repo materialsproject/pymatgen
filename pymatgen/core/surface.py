@@ -318,7 +318,7 @@ class Slab(Structure):
         return np.linalg.norm(dip_per_unit_area) > tol_dipole_per_unit_area
 
     def get_surface_sites(self, tag: bool = False) -> dict[str, list]:
-        """Returns the surface sites and their indices in a dictionary.
+        """Get the surface sites and their indices in a dictionary.
         Useful for analysis involving broken bonds and for finding adsorption sites.
 
         The oriented unit cell of the slab will determine the

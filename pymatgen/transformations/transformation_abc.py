@@ -50,7 +50,7 @@ class AbstractTransformation(MSONable, abc.ABC):
 
     @property
     def inverse(self) -> AbstractTransformation | None:
-        """Returns the inverse transformation if available.
+        """Get the inverse transformation if available.
         Otherwise, should return None. Defaults to None, so only need to
         override if applicable.
         """

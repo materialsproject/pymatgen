@@ -90,7 +90,7 @@ class ValenceIonicRadiusEvaluator:
 
     @property
     def structure(self):
-        """Returns oxidation state decorated structure."""
+        """Oxidation state decorated structure."""
         return self._structure.copy()
 
     def _get_ionic_radii(self):

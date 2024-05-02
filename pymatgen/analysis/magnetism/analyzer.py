@@ -322,7 +322,7 @@ class CollinearMagneticStructureAnalyzer:
         return np.array(magmoms)
 
     def get_structure_with_spin(self) -> Structure:
-        """Returns a Structure with species decorated with spin values instead
+        """Get a Structure with species decorated with spin values instead
         of using magmom site properties.
         """
         structure = self.structure.copy()
@@ -332,7 +332,7 @@ class CollinearMagneticStructureAnalyzer:
         return structure
 
     def get_structure_with_only_magnetic_atoms(self, make_primitive: bool = True) -> Structure:
-        """Returns a Structure with only magnetic atoms present.
+        """Get a Structure with only magnetic atoms present.
 
         Args:
             make_primitive: Whether to make structure primitive after
@@ -351,7 +351,7 @@ class CollinearMagneticStructureAnalyzer:
         return structure
 
     def get_nonmagnetic_structure(self, make_primitive: bool = True) -> Structure:
-        """Returns a Structure without magnetic moments defined.
+        """Get a Structure without magnetic moments defined.
 
         Args:
             make_primitive: Whether to make structure primitive after
@@ -369,7 +369,7 @@ class CollinearMagneticStructureAnalyzer:
         return structure
 
     def get_ferromagnetic_structure(self, make_primitive: bool = True) -> Structure:
-        """Returns a Structure with all magnetic moments positive
+        """Get a Structure with all magnetic moments positive
         or zero.
 
         Args:
@@ -417,7 +417,7 @@ class CollinearMagneticStructureAnalyzer:
 
     @property
     def magnetic_species_and_magmoms(self) -> dict[str, Any]:
-        """Returns a dict of magnetic species and the magnitude of
+        """Get a dict of magnetic species and the magnitude of
         their associated magmoms. Will return a list if there are
         multiple magmoms per species.
 
@@ -507,7 +507,7 @@ class CollinearMagneticStructureAnalyzer:
         return Ordering.NM
 
     def get_exchange_group_info(self, symprec: float = 1e-2, angle_tolerance: float = 5) -> tuple[str, int]:
-        """Returns the information on the symmetry of the Hamiltonian
+        """Get the information on the symmetry of the Hamiltonian
         describing the exchange energy of the system, taking into
         account relative direction of magnetic moments but not their
         absolute direction.

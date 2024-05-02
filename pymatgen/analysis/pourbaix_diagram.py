@@ -141,7 +141,7 @@ class PourbaixEntry(MSONable, Stringify):
 
     @property
     def elements(self):
-        """Returns elements in the entry."""
+        """Elements in the entry."""
         return self.entry.elements
 
     def energy_at_conditions(self, pH, V):
@@ -229,7 +229,7 @@ class PourbaixEntry(MSONable, Stringify):
 
     @property
     def composition(self):
-        """Returns composition."""
+        """Composition."""
         return self.entry.composition
 
     @property
@@ -347,7 +347,7 @@ class IonEntry(PDEntry):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Returns an IonEntry object from a dict."""
+        """Get an IonEntry object from a dict."""
         return cls(Ion.from_dict(dct["ion"]), dct["energy"], dct.get("name"), dct.get("attribute"))
 
     def as_dict(self):
@@ -848,12 +848,12 @@ class PourbaixDiagram(MSONable):
 
     @property
     def stable_entries(self):
-        """Returns the stable entries in the Pourbaix diagram."""
+        """The stable entries in the Pourbaix diagram."""
         return list(self._stable_domains)
 
     @property
     def unstable_entries(self):
-        """Returns all unstable entries in the Pourbaix diagram."""
+        """All unstable entries in the Pourbaix diagram."""
         return [entry for entry in self.all_entries if entry not in self.stable_entries]
 
     @property

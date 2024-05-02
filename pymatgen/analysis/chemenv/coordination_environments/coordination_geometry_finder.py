@@ -1337,7 +1337,7 @@ class LocalGeometryFinder:
         points_perfect=None,
         optimization=None,
     ):
-        """Returns the symmetry measures of a given coordination_geometry for a set of
+        """Get the symmetry measures of a given coordination_geometry for a set of
         permutations depending on the permutation setup. Depending on the parameters of
         the LocalGeometryFinder and on the coordination geometry, different methods are called.
 
@@ -1386,7 +1386,7 @@ class LocalGeometryFinder:
     def coordination_geometry_symmetry_measures_sepplane_optim(
         self, coordination_geometry, points_perfect=None, nb_set=None, optimization=None
     ):
-        """Returns the symmetry measures of a given coordination_geometry for a set of
+        """Get the symmetry measures of a given coordination_geometry for a set of
         permutations depending on the permutation setup. Depending on the parameters of
         the LocalGeometryFinder and on the coordination geometry, different methods are called.
 

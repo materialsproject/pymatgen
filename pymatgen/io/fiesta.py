@@ -412,7 +412,7 @@ class FiestaInput(MSONable):
 
     @property
     def infos_on_system(self):
-        """Returns infos on initial parameters as in the log file of Fiesta."""
+        """Infos on initial parameters as in the log file of Fiesta."""
         lst = [
             "=========================================",
             "Reading infos on system:",
@@ -464,7 +464,7 @@ class FiestaInput(MSONable):
 
     @property
     def molecule(self):
-        """Returns molecule associated with this FiestaInput."""
+        """Molecule associated with this FiestaInput."""
         return self._mol
 
     def __str__(self):

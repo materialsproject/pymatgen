@@ -117,7 +117,7 @@ class Cp2kOutput:
 
     @property
     def calculation_type(self):
-        """Returns the calculation type (what io.vasp.outputs calls run_type)."""
+        """The calculation type (what io.vasp.outputs calls run_type)."""
         LDA_TYPES = {"LDA", "PADE", "BECKE88", "BECKE88_LR", "BECKE88_LR_ADIABATIC", "BECKE97"}
 
         GGA_TYPES = {"PBE", "PW92"}
@@ -203,7 +203,7 @@ class Cp2kOutput:
 
     @property
     def is_hubbard(self) -> bool:
-        """Returns True if hubbard +U correction was used."""
+        """Get True if hubbard +U correction was used."""
         for val in self.data.get("atomic_kind_info", {}).values():
             if val.get("DFT_PLUS_U", {}).get("U_MINUS_J", 0) > 0:
                 return True
@@ -1256,12 +1256,12 @@ class Cp2kOutput:
 
     @property
     def complete_dos(self) -> CompleteDos | None:
-        """Returns complete dos object if it has been parsed."""
+        """Get complete dos object if it has been parsed."""
         return self.data.get("cdos")
 
     @property
     def band_structure(self) -> BandStructure | None:
-        """Returns band structure object if it has been parsed."""
+        """Get band structure object if it has been parsed."""
         return self.data.get("band_structure")
 
     def parse_bandstructure(self, bandstructure_filename=None) -> None:

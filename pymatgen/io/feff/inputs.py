@@ -227,7 +227,7 @@ class Header(MSONable):
 
     @classmethod
     def from_file(cls, filename: str) -> Self:
-        """Returns Header object from file."""
+        """Get Header object from file."""
         hs = cls.header_string_from_file(filename)
         return cls.from_str(hs)
 
@@ -413,7 +413,7 @@ class Atoms(MSONable):
 
     @property
     def cluster(self):
-        """Returns the atomic cluster as a Molecule object."""
+        """The atomic cluster as a Molecule object."""
         return self._cluster
 
     @staticmethod

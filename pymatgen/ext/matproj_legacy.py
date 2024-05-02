@@ -290,7 +290,7 @@ class _MPResterLegacy:
         return dct["version"]["db"]
 
     def get_materials_id_from_task_id(self, task_id) -> str:
-        """Returns a new MP materials id from a task id (which can be
+        """Get a new MP materials id from a task id (which can be
         equivalent to an old materials id).
 
         Args:
@@ -302,7 +302,7 @@ class _MPResterLegacy:
         return self._make_request(f"/materials/mid_from_tid/{task_id}")
 
     def get_materials_id_references(self, material_id):
-        """Returns all references for a materials id.
+        """Get all references for a materials id.
 
         Args:
             material_id (str): A material id.
@@ -893,7 +893,7 @@ class _MPResterLegacy:
         return self.get_data(formula, data_type="exp")
 
     def get_exp_entry(self, formula):
-        """Returns an ExpEntry object, which is the experimental equivalent of a
+        """Get an ExpEntry object, which is the experimental equivalent of a
         ComputedEntry and can be used for analyses using experimental data.
 
         Args:
@@ -1247,7 +1247,7 @@ class _MPResterLegacy:
         )
 
     def get_stability(self, entries):
-        """Returns the stability of all entries."""
+        """Get the stability of all entries."""
         payload = {"entries": json.dumps(entries, cls=MontyEncoder)}
         response = self.session.post(
             f"{self.preamble}/phase_diagram/calculate_stability",

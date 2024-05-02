@@ -142,7 +142,7 @@ class ChargemolAnalysis:
 
     @staticmethod
     def _get_filepath(path, filename, suffix=""):
-        """Returns the full path to the filename in the path. Works even if the file has
+        """Get the full path to the filename in the path. Works even if the file has
         a .gz extension.
 
         Args:
@@ -253,7 +253,7 @@ class ChargemolAnalysis:
             self.cm5_charges = None
 
     def get_charge_transfer(self, atom_index, charge_type="ddec"):
-        """Returns the charge transferred for a particular atom. A positive value means
+        """Get the charge transferred for a particular atom. A positive value means
         that the site has gained electron density (i.e. exhibits anionic character)
         whereas a negative value means the site has lost electron density (i.e. exhibits
         cationic character). This is the same thing as the negative of the partial atomic
@@ -491,7 +491,7 @@ class ChargemolAnalysis:
 
     @property
     def summary(self):
-        """Returns a dictionary summary of the Chargemol analysis
+        """A dictionary summary of the Chargemol analysis
         {
             "ddec": {
                 "partial_charges": list[float],

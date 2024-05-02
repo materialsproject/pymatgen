@@ -303,7 +303,7 @@ class AbstractElectrode(Sequence, MSONable):
         return sum(pair.mAh for pair in pairs_in_range) / normalization_vol * 1e24 / N_A
 
     def get_specific_energy(self, min_voltage=None, max_voltage=None, use_overall_normalization=True):
-        """Returns the specific energy of the battery in mAh/g.
+        """Get the specific energy of the battery in mAh/g.
 
         Args:
             min_voltage (float): The minimum allowable voltage for a given

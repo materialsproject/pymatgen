@@ -159,24 +159,24 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @property
     def k_voigt(self) -> float:
-        """Returns the K_v bulk modulus (in eV/A^3)."""
+        """Get the K_v bulk modulus (in eV/A^3)."""
         return self.voigt[:3, :3].mean()
 
     @property
     def g_voigt(self) -> float:
-        """Returns the G_v shear modulus (in eV/A^3)."""
+        """Get the G_v shear modulus (in eV/A^3)."""
         return (
             2 * self.voigt[:3, :3].trace() - np.triu(self.voigt[:3, :3]).sum() + 3 * self.voigt[3:, 3:].trace()
         ) / 15.0
 
     @property
     def k_reuss(self) -> float:
-        """Returns the K_r bulk modulus (in eV/A^3)."""
+        """Get the K_r bulk modulus (in eV/A^3)."""
         return 1 / self.compliance_tensor.voigt[:3, :3].sum()
 
     @property
     def g_reuss(self) -> float:
-        """Returns the G_r shear modulus (in eV/A^3)."""
+        """Get the G_r shear modulus (in eV/A^3)."""
         return 15 / (
             8 * self.compliance_tensor.voigt[:3, :3].trace()
             - 4 * np.triu(self.compliance_tensor.voigt[:3, :3]).sum()
@@ -185,12 +185,12 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @property
     def k_vrh(self) -> float:
-        """Returns the K_vrh (Voigt-Reuss-Hill) average bulk modulus (in eV/A^3)."""
+        """Get the K_vrh (Voigt-Reuss-Hill) average bulk modulus (in eV/A^3)."""
         return 0.5 * (self.k_voigt + self.k_reuss)
 
     @property
     def g_vrh(self) -> float:
-        """Returns the G_vrh (Voigt-Reuss-Hill) average shear modulus (in eV/A^3)."""
+        """Get the G_vrh (Voigt-Reuss-Hill) average shear modulus (in eV/A^3)."""
         return 0.5 * (self.g_voigt + self.g_reuss)
 
     @property
@@ -394,21 +394,21 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @property
     def universal_anisotropy(self) -> float:
-        """Returns the universal anisotropy value."""
+        """Get the universal anisotropy value."""
         return 5 * self.g_voigt / self.g_reuss + self.k_voigt / self.k_reuss - 6.0
 
     @property
     def homogeneous_poisson(self) -> float:
-        """Returns the homogeneous poisson ratio."""
+        """Get the homogeneous poisson ratio."""
         return (1 - 2 / 3 * self.g_vrh / self.k_vrh) / (2 + 2 / 3 * self.g_vrh / self.k_vrh)
 
     def green_kristoffel(self, u) -> float:
-        """Returns the Green-Kristoffel tensor for a second-order tensor."""
+        """Get the Green-Kristoffel tensor for a second-order tensor."""
         return self.einsum_sequence([u, u], "ijkl,i,l")
 
     @property
     def property_dict(self):
-        """Returns a dictionary of properties derived from the elastic tensor."""
+        """A dictionary of properties derived from the elastic tensor."""
         props = (
             "k_voigt",
             "k_reuss",

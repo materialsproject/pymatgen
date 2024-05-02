@@ -108,7 +108,7 @@ class Kpoint(MSONable):
         return self._frac_coords[2]
 
     def __str__(self) -> str:
-        """Returns a string with fractional, Cartesian coordinates and label."""
+        """Get a string with fractional, Cartesian coordinates and label."""
         return f"{self.frac_coords} {self.cart_coords} {self.label}"
 
     def __eq__(self, other: object) -> bool:
@@ -302,7 +302,7 @@ class BandStructure:
         return False
 
     def get_vbm(self):
-        """Returns data about the VBM.
+        """Get data about the VBM.
 
         Returns:
             dict: With keys "band_index", "kpoint_index", "kpoint", "energy"
@@ -366,7 +366,7 @@ class BandStructure:
         }
 
     def get_cbm(self):
-        """Returns data about the CBM.
+        """Get data about the CBM.
 
         Returns:
             dict[str, Any]: with keys band_index, kpoint_index, kpoint, energy.
@@ -432,7 +432,7 @@ class BandStructure:
         }
 
     def get_band_gap(self):
-        r"""Returns band gap data.
+        r"""Get band gap data.
 
         Returns:
             A dict {"energy","direct","transition"}:
@@ -463,7 +463,7 @@ class BandStructure:
         return result
 
     def get_direct_band_gap_dict(self):
-        """Returns a dictionary of information about the direct
+        """Get a dictionary of information about the direct
         band gap.
 
         Returns:
@@ -492,7 +492,7 @@ class BandStructure:
         return direct_gap_dict
 
     def get_direct_band_gap(self):
-        """Returns the direct band gap.
+        """Get the direct band gap.
 
         Returns:
             the value of the direct band gap
@@ -503,7 +503,7 @@ class BandStructure:
         return min(v["value"] for v in dg.values())
 
     def get_sym_eq_kpoints(self, kpoint, cartesian=False, tol: float = 1e-2):
-        """Returns a list of unique symmetrically equivalent k-points.
+        """Get a list of unique symmetrically equivalent k-points.
 
         Args:
             kpoint (1x3 array): coordinate of the k-point
@@ -528,7 +528,7 @@ class BandStructure:
         return np.delete(points, rm_list, axis=0)
 
     def get_kpoint_degeneracy(self, kpoint, cartesian=False, tol: float = 1e-2):
-        """Returns degeneracy of a given k-point based on structure symmetry.
+        """Get degeneracy of a given k-point based on structure symmetry.
 
         Args:
             kpoint (1x3 array): coordinate of the k-point
@@ -770,7 +770,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
             self.is_spin_polarized = True
 
     def get_equivalent_kpoints(self, index):
-        """Returns the list of kpoint indices equivalent (meaning they are the
+        """Get the list of kpoint indices equivalent (meaning they are the
         same frac coords) to the given one.
 
         Args:
@@ -796,7 +796,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         return list_index_kpoints
 
     def get_branch(self, index):
-        r"""Returns in what branch(es) is the kpoint. There can be several
+        r"""Get in what branch(es) is the kpoint. There can be several
         branches.
 
         Args:

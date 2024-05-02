@@ -271,7 +271,7 @@ class ElementBase(Enum):
 
     @property
     def data(self) -> dict[str, Any]:
-        """Returns dict of data for element."""
+        """Get dict of data for element."""
         return self._data.copy()
 
     @property
@@ -560,7 +560,7 @@ class ElementBase(Enum):
 
     @staticmethod
     def from_row_and_group(row: int, group: int) -> Element:
-        """Returns an element from a row and group number.
+        """Get an element from a row and group number.
         Important Note: For lanthanoids and actinoids, the row number must
         be 8 and 9, respectively, and the group number must be
         between 3 (La, Ac) and 17 (Lu, Lr). This is different than the
@@ -595,7 +595,7 @@ class ElementBase(Enum):
 
     @staticmethod
     def is_valid_symbol(symbol: str) -> bool:
-        """Returns true if symbol is a valid element symbol.
+        """Get true if symbol is a valid element symbol.
 
         Args:
             symbol (str): Element symbol
@@ -607,7 +607,7 @@ class ElementBase(Enum):
 
     @property
     def row(self) -> int:
-        """Returns the periodic table row of the element.
+        """Get the periodic table row of the element.
         Note: For lanthanoids and actinoids, the row is always 6 or 7,
         respectively.
         """
@@ -625,7 +625,7 @@ class ElementBase(Enum):
 
     @property
     def group(self) -> int:
-        """Returns the periodic table group of the element.
+        """Get the periodic table group of the element.
         Note: For lanthanoids and actinoids, the group is always 3.
         """
         z = self.Z
@@ -1053,7 +1053,7 @@ class Species(MSONable, Stringify):
 
     @classmethod
     def from_str(cls, species_string: str) -> Self:
-        """Returns a Species from a string representation.
+        """Get a Species from a string representation.
 
         Args:
             species_string (str): A typical string representation of a
@@ -1367,7 +1367,7 @@ class DummySpecies(Species):
 
     @classmethod
     def from_str(cls, species_string: str) -> Self:
-        """Returns a Dummy from a string representation.
+        """Get a Dummy from a string representation.
 
         Args:
             species_string (str): A string representation of a dummy

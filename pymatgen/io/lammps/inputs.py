@@ -89,7 +89,7 @@ class LammpsInputFile(InputFile):
 
     @property
     def nstages(self) -> int:
-        """Returns the number of stages in the current LammpsInputFile."""
+        """Get the number of stages in the current LammpsInputFile."""
         return len(self.stages)
 
     @property

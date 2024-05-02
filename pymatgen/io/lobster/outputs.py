@@ -1407,7 +1407,7 @@ class Fatband:
         self.label_dict = label_dict
 
     def get_bandstructure(self):
-        """Returns a LobsterBandStructureSymmLine object which can be plotted with a normal BSPlotter."""
+        """Get a LobsterBandStructureSymmLine object which can be plotted with a normal BSPlotter."""
         return LobsterBandStructureSymmLine(
             kpoints=self.kpoints_array,
             eigenvals=self.eigenvals,

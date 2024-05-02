@@ -145,7 +145,7 @@ class Site(collections.abc.Hashable, MSONable):
         return float(np.linalg.norm(other.coords - self.coords))
 
     def distance_from_point(self, pt) -> float:
-        """Returns distance between the site and a point in space.
+        """Get distance between the site and a point in space.
 
         Args:
             pt: Cartesian coordinates of point.
@@ -456,7 +456,7 @@ class PeriodicSite(Site, MSONable):
         return PeriodicSite(self.species, frac_coords, self.lattice, properties=self.properties, label=self.label)
 
     def is_periodic_image(self, other: PeriodicSite, tolerance: float = 1e-8, check_lattice: bool = True) -> bool:
-        """Returns True if sites are periodic images of each other.
+        """Get True if sites are periodic images of each other.
 
         Args:
             other (PeriodicSite): Other site

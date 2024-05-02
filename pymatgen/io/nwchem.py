@@ -366,7 +366,7 @@ class NwInput(MSONable):
 
     @property
     def molecule(self):
-        """Returns molecule associated with this GaussianInput."""
+        """Molecule associated with this GaussianInput."""
         return self._mol
 
     def __str__(self):

@@ -692,7 +692,7 @@ class AbstractInput(MutableMapping, abc.ABC):
 
     @abc.abstractmethod
     def to_str(self):
-        """Returns a string with the input."""
+        """Get a string with the input."""
 
 
 class BasicAbinitInputError(Exception):

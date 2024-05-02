@@ -249,7 +249,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         return processed_entry_list
 
     def get_adjustments(self, entry, mixing_state_data: pd.DataFrame | None = None):
-        """Returns the corrections applied to a particular entry. Note that get_adjustments is not
+        """Get the corrections applied to a particular entry. Note that get_adjustments is not
         intended to be called directly in the R2SCAN mixing scheme. Call process_entries instead,
         and it will pass the required arguments to get_adjustments.
 

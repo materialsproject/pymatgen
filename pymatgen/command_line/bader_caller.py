@@ -319,7 +319,7 @@ class BaderAnalysis:
         return self.data[atom_index]["charge"]
 
     def get_charge_transfer(self, atom_index: int, nelect: int | None = None) -> float:
-        """Returns the charge transferred for a particular atom. A positive value means
+        """Get the charge transferred for a particular atom. A positive value means
         that the site has gained electron density (i.e. exhibits anionic character)
         whereas a negative value means the site has lost electron density (i.e. exhibits
         cationic character). If the arg nelect is not supplied, then POTCAR must be
@@ -357,7 +357,7 @@ class BaderAnalysis:
         return -self.get_charge_transfer(atom_index, nelect)
 
     def get_charge_decorated_structure(self) -> Structure:
-        """Returns a charge decorated structure.
+        """Get a charge decorated structure.
 
         Note, this assumes that the Bader analysis was correctly performed on a file
         with electron densities
@@ -368,7 +368,7 @@ class BaderAnalysis:
         return struct
 
     def get_oxidation_state_decorated_structure(self, nelects: list[int] | None = None) -> Structure:
-        """Returns an oxidation state decorated structure based on bader analysis results.
+        """Get an oxidation state decorated structure based on bader analysis results.
         Each site is assigned a charge based on the computed partial atomic charge from bader.
 
         Note, this assumes that the Bader analysis was correctly performed on a file

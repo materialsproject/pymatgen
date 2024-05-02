@@ -337,7 +337,7 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
 
     @property
     def uniquely_determines_coordination_environments(self):
-        """Returns True if the strategy leads to a unique coordination environment."""
+        """True if the strategy leads to a unique coordination environment."""
         raise NotImplementedError
 
     @abc.abstractmethod

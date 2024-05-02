@@ -164,7 +164,7 @@ class Lattice(MSONable):
         return np.dot(self._matrix, self._matrix.T)
 
     def get_cartesian_coords(self, fractional_coords: ArrayLike) -> np.ndarray:
-        """Returns the Cartesian coordinates given fractional coordinates.
+        """Get the Cartesian coordinates given fractional coordinates.
 
         Args:
             fractional_coords (3x1 array): Fractional coords.
@@ -175,7 +175,7 @@ class Lattice(MSONable):
         return np.dot(fractional_coords, self._matrix)
 
     def get_fractional_coords(self, cart_coords: ArrayLike) -> np.ndarray:
-        """Returns the fractional coordinates given Cartesian coordinates.
+        """Get the fractional coordinates given Cartesian coordinates.
 
         Args:
             cart_coords (3x1 array): Cartesian coords.
@@ -186,7 +186,7 @@ class Lattice(MSONable):
         return np.dot(cart_coords, self.inv_matrix)
 
     def get_vector_along_lattice_directions(self, cart_coords: ArrayLike) -> np.ndarray:
-        """Returns the coordinates along lattice directions given Cartesian coordinates.
+        """Get the coordinates along lattice directions given Cartesian coordinates.
 
         Note, this is different than a projection of the Cartesian vector along the
         lattice parameters. It is simply the fractional coordinates multiplied by the
@@ -205,7 +205,7 @@ class Lattice(MSONable):
         return self.lengths * self.get_fractional_coords(cart_coords)  # type: ignore
 
     def d_hkl(self, miller_index: ArrayLike) -> float:
-        """Returns the distance between the hkl plane and the origin.
+        """Get the distance between the hkl plane and the origin.
 
         Args:
             miller_index ([h,k,l]): Miller index of plane
@@ -433,7 +433,7 @@ class Lattice(MSONable):
 
     @property
     def parameters(self) -> tuple[float, float, float, float, float, float]:
-        """Returns 6-tuple of floats (a, b, c, alpha, beta, gamma)."""
+        """Get 6-tuple of floats (a, b, c, alpha, beta, gamma)."""
         return (*self.lengths, *self.angles)
 
     @property
@@ -455,7 +455,7 @@ class Lattice(MSONable):
 
     @property
     def reciprocal_lattice_crystallographic(self) -> Self:
-        """Returns the *crystallographic* reciprocal lattice, i.e. no factor of 2 * pi."""
+        """Get the *crystallographic* reciprocal lattice, i.e. no factor of 2 * pi."""
         cls = type(self)
         return cls(self.reciprocal_lattice.matrix / (2 * np.pi))
 
@@ -480,7 +480,7 @@ class Lattice(MSONable):
 
     @property
     def selling_vector(self) -> np.ndarray:
-        """Returns the (1,6) array of Selling Scalars."""
+        """Get the (1,6) array of Selling Scalars."""
         a, b, c = self.matrix
         d = -(a + b + c)
         tol = 1e-10
@@ -546,7 +546,7 @@ class Lattice(MSONable):
         return selling_vector
 
     def selling_dist(self, other):
-        """Returns the minimum Selling distance between two lattices."""
+        """Get the minimum Selling distance between two lattices."""
         vcp_matrices = [
             [
                 [-1, 0, 0, 0, 0, 0],
@@ -1212,7 +1212,7 @@ class Lattice(MSONable):
         return type(self)(versors * (new_c * ratios), pbc=self.pbc)
 
     def get_wigner_seitz_cell(self) -> list[list[np.ndarray]]:
-        """Returns the Wigner-Seitz cell for the given lattice.
+        """Get the Wigner-Seitz cell for the given lattice.
 
         Returns:
             A list of list of coordinates.
@@ -1235,7 +1235,7 @@ class Lattice(MSONable):
         return out
 
     def get_brillouin_zone(self) -> list[list[np.ndarray]]:
-        """Returns the Wigner-Seitz cell for the reciprocal lattice, aka the
+        """Get the Wigner-Seitz cell for the reciprocal lattice, aka the
         Brillouin Zone.
 
         Returns:
@@ -1500,7 +1500,7 @@ class Lattice(MSONable):
         frac_coords1: ArrayLike,
         frac_coords2: ArrayLike,
     ) -> np.ndarray:
-        """Returns the distances between two lists of coordinates taking into
+        """Get the distances between two lists of coordinates taking into
         account periodic boundary conditions and the lattice. Note that this
         computes an MxN array of distances (i.e. the distance between each
         point in frac_coords1 and every coordinate in frac_coords2). This is

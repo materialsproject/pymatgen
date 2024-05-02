@@ -1128,7 +1128,7 @@ class HungarianOrderMatcher(KabschMatcher):
 
     @staticmethod
     def rotation_matrix_vectors(v1, v2):
-        """Returns the rotation matrix that rotates v1 onto v2 using
+        """Get the rotation matrix that rotates v1 onto v2 using
         Rodrigues' rotation formula.
 
         See more: https://math.stackexchange.com/a/476311

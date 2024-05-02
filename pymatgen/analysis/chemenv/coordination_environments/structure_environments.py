@@ -172,40 +172,36 @@ class StructureEnvironments(MSONable):
             }
 
         def distance_plateau(self):
-            """Returns the distances plateau's for this NeighborsSet."""
+            """Get the distances plateau's for this NeighborsSet."""
             all_nbs_normalized_distances_sorted = sorted(
                 (nb["normalized_distance"] for nb in self.voronoi), reverse=True
             )
-            maxdist = np.max(self.normalized_distances)
+            max_dist = np.max(self.normalized_distances)
             plateau = None
-            for idist, dist in enumerate(all_nbs_normalized_distances_sorted):
-                if np.isclose(
-                    dist,
-                    maxdist,
-                    rtol=0.0,
-                    atol=self.detailed_voronoi.normalized_distance_tolerance,
-                ):
-                    plateau = np.inf if idist == 0 else all_nbs_normalized_distances_sorted[idist - 1] - maxdist
+            abs_tol = self.detailed_voronoi.normalized_distance_tolerance
+            for idx, dist in enumerate(all_nbs_normalized_distances_sorted):
+                if np.isclose(dist, max_dist, rtol=0.0, atol=abs_tol):
+                    plateau = np.inf if idx == 0 else all_nbs_normalized_distances_sorted[idx - 1] - max_dist
                     break
             if plateau is None:
                 raise ValueError("Plateau not found ...")
             return plateau
 
         def angle_plateau(self):
-            """Returns the angles plateau's for this NeighborsSet."""
+            """Get the angles plateau's for this NeighborsSet."""
             all_nbs_normalized_angles_sorted = sorted(nb["normalized_angle"] for nb in self.voronoi)
-            minang = np.min(self.normalized_angles)
+            min_ang = np.min(self.normalized_angles)
             for nb in self.voronoi:
                 print(nb)
             plateau = None
             for iang, ang in enumerate(all_nbs_normalized_angles_sorted):
                 if np.isclose(
                     ang,
-                    minang,
+                    min_ang,
                     rtol=0.0,
                     atol=self.detailed_voronoi.normalized_angle_tolerance,
                 ):
-                    plateau = minang if iang == 0 else minang - all_nbs_normalized_angles_sorted[iang - 1]
+                    plateau = min_ang if iang == 0 else min_ang - all_nbs_normalized_angles_sorted[iang - 1]
                     break
             if plateau is None:
                 raise ValueError("Plateau not found ...")
