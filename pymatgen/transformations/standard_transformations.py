@@ -396,7 +396,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
 
     @property
     def is_one_to_many(self) -> bool:
-        """Returns: True."""
+        """Transform one structure to many."""
         return True
 
     def __repr__(self):
@@ -581,7 +581,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
 
     @property
     def is_one_to_many(self) -> bool:
-        """Returns: True."""
+        """Transform one structure to many."""
         return True
 
     @property

@@ -90,10 +90,6 @@ class ChargeBalanceTransformation(AbstractTransformation):
     def __repr__(self):
         return f"Charge Balance Transformation : Species to remove = {self.charge_balance_sp}"
 
-    def inverse(self):
-        """Returns: None."""
-        return
-
 
 class SuperTransformation(AbstractTransformation):
     """This is a transformation that is inherently one-to-many. It is constructed
@@ -144,7 +140,7 @@ class SuperTransformation(AbstractTransformation):
 
     @property
     def is_one_to_many(self) -> bool:
-        """Returns: True."""
+        """Transform one structure to many."""
         return True
 
 
@@ -239,7 +235,7 @@ class MultipleSubstitutionTransformation:
 
     @property
     def is_one_to_many(self) -> bool:
-        """Returns: True."""
+        """Transform one structure to many."""
         return True
 
 
@@ -473,7 +469,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
 
     @property
     def is_one_to_many(self) -> bool:
-        """Returns: True."""
+        """Transform one structure to many."""
         return True
 
 
@@ -533,7 +529,7 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
 
     @property
     def is_one_to_many(self) -> bool:
-        """Returns: True."""
+        """Transform one structure to many."""
         return True
 
 
@@ -892,20 +888,9 @@ class MagOrderingTransformation(AbstractTransformation):
 
         return self._all_structures[0:num_to_return]  # type: ignore
 
-    def __str__(self) -> str:
-        return "MagOrderingTransformation"
-
-    def __repr__(self) -> str:
-        return str(self)
-
-    @property
-    def inverse(self) -> None:
-        """Returns: None."""
-        return
-
     @property
     def is_one_to_many(self) -> bool:
-        """Returns: True."""
+        """Transform one structure to many."""
         return True
 
 
@@ -1125,7 +1110,7 @@ class DopingTransformation(AbstractTransformation):
 
     @property
     def is_one_to_many(self) -> bool:
-        """Returns: True."""
+        """Transform one structure to many."""
         return True
 
 
@@ -1253,7 +1238,7 @@ class DisorderOrderedTransformation(AbstractTransformation):
 
     @property
     def is_one_to_many(self) -> bool:
-        """Returns: True."""
+        """Transform one structure to many."""
         return True
 
     @staticmethod
@@ -1645,7 +1630,7 @@ class AddAdsorbateTransformation(AbstractTransformation):
 
     @property
     def is_one_to_many(self) -> bool:
-        """Returns: True."""
+        """Transform one structure to many."""
         return True
 
 
@@ -1799,7 +1784,7 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
 
     @property
     def is_one_to_many(self) -> bool:
-        """Returns: True."""
+        """Transform one structure to many."""
         return True
 
 
@@ -2077,7 +2062,7 @@ class SQSTransformation(AbstractTransformation):
 
     @property
     def is_one_to_many(self) -> bool:
-        """Returns: True."""
+        """Transform one structure to many."""
         return True
 
 
