@@ -47,7 +47,7 @@ class PotcarScrambler:
 
     def _rand_float_from_str_with_prec(self, input_str: str, bloat: float = 1.5) -> float:
         n_prec = len(input_str.split(".")[1])
-        bd = max(1, bloat * abs(float(input_str)))
+        bd = max(1, bloat * abs(float(input_str)))  # ensure we don't get 0
         return round(bd * np.random.rand(1)[0], n_prec)
 
     def _read_fortran_str_and_scramble(self, input_str: str, bloat: float = 1.5):

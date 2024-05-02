@@ -138,15 +138,8 @@ class GrainBoundary(Structure):
             properties=properties,
         )
 
-    def copy(self):
-        """
-        Convenience method to get a copy of the structure, with options to add
-        site properties.
-
-        Returns:
-            A copy of the Structure, with optionally new site_properties and
-            optionally sanitized.
-        """
+    def copy(self) -> Self:  # type: ignore[override]
+        """Make a copy of the GrainBoundary object."""
         return GrainBoundary(
             self.lattice,
             self.species_and_occu,
@@ -398,7 +391,7 @@ class GrainBoundaryGenerator:
         tol_coi=1.0e-8,
         rm_ratio=0.7,
         quick_gen=False,
-    ):
+    ) -> GrainBoundary:
         """
         Args:
             rotation_axis (list): Rotation axis of GB in the form of a list of integer
@@ -2486,11 +2479,8 @@ class Interface(Structure):
         """A pymatgen Structure for just the film."""
         return Structure.from_sites(self.film_sites)
 
-    def copy(self):
-        """
-        Returns:
-            Interface: A copy of the Interface.
-        """
+    def copy(self) -> Self:  # type: ignore[override]
+        """Make a copy of the Interface."""
         return Interface.from_dict(self.as_dict())
 
     def get_sorted_structure(self, key=None, reverse=False) -> Structure:

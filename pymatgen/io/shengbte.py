@@ -261,7 +261,7 @@ class Control(MSONable, dict):
         return Structure(cell, species, self["positions"])
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return dict(self)
 
 

@@ -401,7 +401,7 @@ class EwaldSummation(MSONable):
 
     @property
     def eta(self):
-        """Returns: eta value used in Ewald summation."""
+        """Eta value used in Ewald summation."""
         return self._eta
 
     def __str__(self):
@@ -694,17 +694,17 @@ class EwaldMinimizer:
 
     @property
     def best_m_list(self):
-        """Returns: Best m_list found."""
+        """The best manipulation list found."""
         return self._best_m_list
 
     @property
     def minimized_sum(self):
-        """Returns: Minimized sum."""
+        """The minimized Ewald sum."""
         return self._minimized_sum
 
     @property
     def output_lists(self):
-        """Returns: output lists."""
+        """Output lists."""
         return self._output_lists
 
 

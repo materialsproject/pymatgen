@@ -388,8 +388,8 @@ class CriticalPoint(MSONable):
         self.field_hessian = field_hessian
 
     @property
-    def type(self):
-        """Returns: Instance of CriticalPointType."""
+    def type(self) -> CriticalPointType:
+        """Instance of CriticalPointType."""
         return CriticalPointType(self._type)
 
     def __str__(self):
@@ -397,7 +397,7 @@ class CriticalPoint(MSONable):
 
     @property
     def laplacian(self) -> float:
-        """Returns: The Laplacian of the field at the critical point."""
+        """The Laplacian of the field at the critical point."""
         return np.trace(self.field_hessian)
 
     @property

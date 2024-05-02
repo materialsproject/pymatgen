@@ -66,7 +66,7 @@ class VaspDoc:
 
     @classmethod
     def get_incar_tags(cls) -> list[str]:
-        """Returns: All incar tags."""
+        """Get a list of all INCAR tags from the VASP wiki."""
         tags = []
         for page in [
             "https://www.vasp.at/wiki/index.php/Category:INCAR",

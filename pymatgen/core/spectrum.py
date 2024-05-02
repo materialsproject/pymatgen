@@ -15,6 +15,7 @@ from pymatgen.util.coord import get_linear_interpolated_value
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
 
 def lorentzian(x, x_0: float = 0, sigma: float = 1.0):
@@ -133,7 +134,7 @@ class Spectrum(MSONable):
             return get_linear_interpolated_value(self.x, self.y, x)
         return [get_linear_interpolated_value(self.x, self.y[:, k], x) for k in range(self.ydim[1])]
 
-    def copy(self):
+    def copy(self) -> Self:
         """
         Returns:
             Copy of Spectrum object.

@@ -219,7 +219,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         self._sites = list(sites) if is_mutable else tuple(sites)
 
     @abstractmethod
-    def copy(self) -> SiteCollection:
+    def copy(self) -> Self:
         """Returns a copy of itself. Concrete subclasses should implement this
         method.
         """
@@ -2169,7 +2169,7 @@ class IStructure(SiteCollection, MSONable):
         site_properties: dict[str, Any] | None = None,
         sanitize: bool = False,
         properties: dict[str, Any] | None = None,
-    ) -> Structure:
+    ) -> Self:
         """Convenience method to get a copy of the structure, with options to add
         site properties.
 
@@ -2208,25 +2208,23 @@ class IStructure(SiteCollection, MSONable):
                 properties=props,
             )
         reduced_latt = self._lattice.get_lll_reduced_lattice()
-        new_sites = []
+        new_sites: list[PeriodicSite] = []
         for idx, site in enumerate(self):
             frac_coords = reduced_latt.get_fractional_coords(site.coords)
             site_props = {}
             for prop, val in new_site_props.items():
                 site_props[prop] = val[idx]
-            new_sites.append(
-                PeriodicSite(
-                    site.species,
-                    frac_coords,
-                    reduced_latt,
-                    to_unit_cell=True,
-                    properties=site_props,
-                    label=site.label,
-                    skip_checks=True,
-                )
+            new_site = PeriodicSite(
+                site.species,
+                frac_coords,
+                reduced_latt,
+                to_unit_cell=True,
+                properties=site_props,
+                label=site.label,
+                skip_checks=True,
             )
-        new_sites = sorted(new_sites)
-        return type(self).from_sites(new_sites, charge=self._charge, properties=props)
+            new_sites.append(new_site)
+        return type(self).from_sites(sorted(new_sites), charge=self._charge, properties=props)
 
     def interpolate(
         self,
@@ -3187,7 +3185,7 @@ class IMolecule(SiteCollection, MSONable):
             total_weight += wt
         return center / total_weight
 
-    def copy(self) -> IMolecule | Molecule:
+    def copy(self) -> Self:
         """Convenience method to get a copy of the molecule.
 
         Returns:

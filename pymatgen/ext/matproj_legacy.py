@@ -289,7 +289,7 @@ class _MPResterLegacy:
         dct = self._make_request("/api_check")
         return dct["version"]["db"]
 
-    def get_materials_id_from_task_id(self, task_id):
+    def get_materials_id_from_task_id(self, task_id) -> str:
         """Returns a new MP materials id from a task id (which can be
         equivalent to an old materials id).
 

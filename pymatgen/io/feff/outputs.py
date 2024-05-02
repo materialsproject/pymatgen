@@ -400,13 +400,13 @@ class Eels(MSONable):
         return self.data[:, 1]
 
     @property
-    def atomic_background(self):
-        """Returns: atomic background."""
+    def atomic_background(self) -> np.ndarray:
+        """The atomic background of EELS."""
         return self.data[:, 2]
 
     @property
-    def fine_structure(self):
-        """Returns: Fine structure of EELS."""
+    def fine_structure(self) -> np.ndarray:
+        """The fine structure of EELS."""
         return self.data[:, 3]
 
     @classmethod

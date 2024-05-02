@@ -494,7 +494,7 @@ class SurfaceEnergyPlotter:
         symprec=1e-5,
         no_clean=False,
         no_doped=False,
-    ):
+    ) -> WulffShape:
         """
         Method to get the Wulff shape at a specific chemical potential.
 
@@ -1290,7 +1290,7 @@ class SurfaceEnergyPlotter:
         return all_delu_dict
 
 
-def entry_dict_from_list(all_slab_entries):
+def entry_dict_from_list(all_slab_entries) -> dict:
     """
     Converts a list of SlabEntry to an appropriate dictionary. It is
     assumed that if there is no adsorbate, then it is a clean SlabEntry
@@ -1304,7 +1304,7 @@ def entry_dict_from_list(all_slab_entries):
             key to a dictionary with a clean SlabEntry as the key to a
             list of adsorbed SlabEntry.
     """
-    entry_dict = {}
+    entry_dict: dict[tuple, dict] = {}
 
     for entry in all_slab_entries:
         hkl = tuple(entry.miller_index)

@@ -914,7 +914,7 @@ class KSampling(AbivarAble, MSONable):
         )
 
     @classmethod
-    def path_from_structure(cls, ndivsm, structure):
+    def path_from_structure(cls, ndivsm, structure) -> Self:
         """See _path for the meaning of the variables."""
         return cls._path(
             ndivsm,

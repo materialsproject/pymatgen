@@ -87,7 +87,7 @@ class LammpsDump(MSONable):
         return cls(**items)
 
     def as_dict(self) -> dict[str, Any]:
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         dct: dict[str, Any] = {}
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__

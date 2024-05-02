@@ -587,7 +587,7 @@ class Hint:
         return cls(**{k: v for k, v in dct.items() if not k.startswith("@")})
 
 
-def _dict_from_lines(lines, key_nums, sep=None):
+def _dict_from_lines(lines, key_nums, sep=None) -> dict:
     """
     Helper function to parse formatted text structured like:
 
@@ -620,10 +620,9 @@ def _dict_from_lines(lines, key_nums, sep=None):
         line = lines[idx]
 
         tokens = [tok.strip() for tok in line.split()]
-        values, keys = tokens[:nk], "".join(tokens[nk:])
+        values = tokens[:nk]
         # Sanitize keys: In some case we might get strings in the form: foo[,bar]
-        keys.replace("[", "").replace("]", "")
-        keys = keys.split(",")
+        keys = "".join(tokens[nk:]).replace("[", "").replace("]", "").split(",")
 
         if sep is not None:
             check = keys[0][0]

@@ -397,7 +397,7 @@ class ChemicalPotentialDiagram(MSONable):
         elem_indices: list[int],
         element_padding: float,
         default_min_limit: float,
-    ):
+    ) -> list[float]:
         """Get new minimum limits for each element by subtracting specified padding
         from the minimum for each axis found in any of the domains.
         """

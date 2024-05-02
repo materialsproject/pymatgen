@@ -622,7 +622,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             eig[:, nq] = eigq[order[nq]]
 
     def as_dict(self) -> dict:
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         dct = super().as_dict()
         # remove nac_frequencies and nac_eigendisplacements as they are reconstructed
         # in the __init__ when the dict is deserialized

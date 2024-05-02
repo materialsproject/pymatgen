@@ -14,11 +14,10 @@ TEST_DIR = f"{TEST_FILES_DIR}/core/grain_boundary"
 
 
 class TestGrainBoundary(PymatgenTest):
-    @classmethod
-    def setUpClass(cls):
-        cls.Cu_conv = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif")
-        GB_Cu_conv = GrainBoundaryGenerator(cls.Cu_conv)
-        cls.Cu_GB1 = GB_Cu_conv.gb_from_parameters(
+    def setUp(self):
+        self.Cu_conv = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif")
+        GB_Cu_conv = GrainBoundaryGenerator(self.Cu_conv)
+        self.Cu_GB1 = GB_Cu_conv.gb_from_parameters(
             [1, 2, 3],
             123.74898859588858,
             expand_times=4,
@@ -27,7 +26,7 @@ class TestGrainBoundary(PymatgenTest):
             plane=[1, 3, 1],
             rm_ratio=0.0,
         )
-        cls.Cu_GB2 = GB_Cu_conv.gb_from_parameters(
+        self.Cu_GB2 = GB_Cu_conv.gb_from_parameters(
             [1, 2, 3],
             123.74898859588858,
             expand_times=4,
@@ -48,6 +47,8 @@ class TestGrainBoundary(PymatgenTest):
 
     def test_copy(self):
         Cu_GB1_copy = self.Cu_GB1.copy()
+        assert Cu_GB1_copy is not self.Cu_GB1
+        assert Cu_GB1_copy == self.Cu_GB1
         assert Cu_GB1_copy.sigma == approx(self.Cu_GB1.sigma)
         assert Cu_GB1_copy.rotation_angle == approx(self.Cu_GB1.rotation_angle)
         assert Cu_GB1_copy.rotation_axis == self.Cu_GB1.rotation_axis

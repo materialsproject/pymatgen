@@ -57,7 +57,7 @@ def get_phonopy_structure(pmg_structure: Structure) -> PhonopyAtoms:
     )
 
 
-def get_structure_from_dict(dct):
+def get_structure_from_dict(dct) -> Structure:
     """Extracts a structure from the dictionary extracted from the output
     files of phonopy like phonopy.yaml or band.yaml.
     Adds "phonopy_masses" in the site_properties of the structures.
@@ -103,7 +103,7 @@ def eigvec_to_eigdispl(eig_vec, q, frac_coords, mass):
     return c * eig_vec
 
 
-def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
+def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None) -> PhononBandStructureSymmLine:
     r"""
     Creates a pymatgen PhononBandStructure object from the dictionary
     extracted by the band.yaml file produced by phonopy. The labels
@@ -121,6 +121,9 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
             --nac option. Default False.
         labels_dict: dict that links a qpoint in frac coords to a label.
             Its value will replace the data contained in the band.yaml.
+
+    Returns:
+        PhononBandStructure: the phonon band structure
     """
     structure = get_structure_from_dict(bands_dict)
 

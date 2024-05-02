@@ -187,7 +187,7 @@ $theory_spec
         return output
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -394,7 +394,7 @@ class NwInput(MSONable):
             file.write(str(self))
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "mol": self._mol.as_dict(),
             "tasks": [task.as_dict() for task in self.tasks],
