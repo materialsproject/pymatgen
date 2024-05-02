@@ -243,25 +243,22 @@ class BandStructure:
             returns an empty dict
         """
         result = {}
-        structure = self.structure
         for spin, v in self.projections.items():
             result[spin] = [[defaultdict(float) for i in range(len(self.kpoints))] for j in range(self.nb_bands)]
             for i, j, k in itertools.product(
                 range(self.nb_bands),
                 range(len(self.kpoints)),
-                range(len(structure)),
+                range(len(self.structure)),
             ):
-                result[spin][i][j][str(structure[k].specie)] += np.sum(v[i, j, :, k])
+                result[spin][i][j][str(self.structure[k].specie)] += np.sum(v[i, j, :, k])
         return result
 
-    def get_projections_on_elements_and_orbitals(self, el_orb_spec):
-        """Method returning a dictionary of projections on elements and specific
-        orbitals.
+    def get_projections_on_elements_and_orbitals(self, el_orb_spec: dict[str, list[str]]):
+        """Method returning a dictionary of projections on elements and specific orbitals.
 
         Args:
-            el_orb_spec: A dictionary of Elements and Orbitals for which we want
-                to have projections on. It is given as: {Element:[orbitals]},
-                e.g. {'Cu':['d','s']}
+            el_orb_spec (dict[str, list[str]]): A dictionary of elements and orbitals which
+                to project onto. Format is {Element: [orbitals]}, e.g. {'Cu':['d','s']}.
 
         Returns:
             A dictionary of projections on elements in the
@@ -269,24 +266,25 @@ class BandStructure:
             Spin.down:[][{Element:{orb:values}}]} format
             if there is no projections in the band structure returns an empty dict.
         """
-        result = {}
-        structure = self.structure
-        el_orb_spec = {get_el_sp(el): orbs for el, orbs in el_orb_spec.items()}
+        if self.structure is None:
+            raise ValueError("Structure is required for this method")
+        result: dict[Spin, list] = {}
+        species_orb_spec = {get_el_sp(el): orbs for el, orbs in el_orb_spec.items()}
         for spin, v in self.projections.items():
             result[spin] = [
-                [{str(e): defaultdict(float) for e in el_orb_spec} for i in range(len(self.kpoints))]
+                [{str(e): defaultdict(float) for e in species_orb_spec} for i in range(len(self.kpoints))]
                 for j in range(self.nb_bands)
             ]
 
             for i, j, k in itertools.product(
                 range(self.nb_bands),
                 range(len(self.kpoints)),
-                range(len(structure)),
+                range(len(self.structure)),
             ):
-                sp = structure[k].specie
+                sp = self.structure[k].specie
                 for orb_i in range(len(v[i][j])):
                     o = Orbital(orb_i).name[0]
-                    if sp in el_orb_spec and o in el_orb_spec[sp]:
+                    if sp in species_orb_spec and o in species_orb_spec[sp]:
                         result[spin][i][j][str(sp)][o] += v[i][j][orb_i][k]
         return result
 
@@ -812,13 +810,13 @@ class BandStructureSymmLine(BandStructure, MSONable):
         """
         to_return = []
         for idx in self.get_equivalent_kpoints(index):
-            for b in self.branches:
-                if b["start_index"] <= idx <= b["end_index"]:
+            for branch in self.branches:
+                if branch["start_index"] <= idx <= branch["end_index"]:
                     to_return.append(
                         {
-                            "name": b["name"],
-                            "start_index": b["start_index"],
-                            "end_index": b["end_index"],
+                            "name": branch["name"],
+                            "start_index": branch["start_index"],
+                            "end_index": branch["end_index"],
                             "index": idx,
                         }
                     )

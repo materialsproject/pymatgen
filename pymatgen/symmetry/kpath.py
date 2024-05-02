@@ -85,17 +85,17 @@ class KPathBase(abc.ABC):
         """Get kpoints along the path in Cartesian coordinates together with the critical-point labels."""
         list_k_points = []
         sym_point_labels = []
-        for b in self.kpath["path"]:
-            for i in range(1, len(b)):
-                start = np.array(self.kpath["kpoints"][b[i - 1]])
-                end = np.array(self.kpath["kpoints"][b[i]])
+        for k_path in self.kpath["path"]:
+            for path_step in range(1, len(k_path)):
+                start = np.array(self.kpath["kpoints"][k_path[path_step - 1]])
+                end = np.array(self.kpath["kpoints"][k_path[path_step]])
                 distance = np.linalg.norm(
                     self._rec_lattice.get_cartesian_coords(start) - self._rec_lattice.get_cartesian_coords(end)
                 )
                 nb = int(ceil(distance * line_density))
                 if nb == 0:
                     continue
-                sym_point_labels.extend([b[i - 1]] + [""] * (nb - 1) + [b[i]])
+                sym_point_labels.extend([k_path[path_step - 1]] + [""] * (nb - 1) + [k_path[path_step]])
                 list_k_points += [
                     self._rec_lattice.get_cartesian_coords(start)
                     + float(i)

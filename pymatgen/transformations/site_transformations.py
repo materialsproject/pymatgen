@@ -338,7 +338,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
         all_combis = [list(itertools.combinations(ind, num)) for ind, num in num_remove_dict.items()]
 
-        for idx, all_indices in enumerate(itertools.product(*all_combis), 1):
+        for idx, all_indices in enumerate(itertools.product(*all_combis), start=1):
             sites_to_remove = []
             indices_list = []
             for indices in all_indices:

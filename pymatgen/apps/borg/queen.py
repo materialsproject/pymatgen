@@ -79,7 +79,7 @@ class BorgQueen:
             valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
         data: list[str] = []
         total = len(valid_paths)
-        for idx, path in enumerate(valid_paths, 1):
+        for idx, path in enumerate(valid_paths, start=1):
             new_data = self._drone.assimilate(path)
             self._data.append(new_data)
             logger.info(f"{idx}/{total} ({idx / total:.1%}) done")
