@@ -23,10 +23,9 @@ if TYPE_CHECKING:
 
 
 def lattice_from_abivars(cls=None, *args, **kwargs):
-    """
-    Returns a `Lattice` object from a dictionary
-    with the Abinit variables `acell` and either `rprim` in Bohr or `angdeg`
-    If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr.
+    """Get a `Lattice` object from a dictionary with the Abinit variables `acell`
+    and either `rprim` in Bohr or `angdeg`. If acell is not given, the Abinit default
+    of [1, 1, 1] Bohr is used.
 
     Args:
         cls: Lattice class to be instantiated. Defaults to pymatgen.core.Lattice.

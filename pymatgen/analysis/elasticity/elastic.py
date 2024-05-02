@@ -1008,8 +1008,7 @@ def generate_pseudo(strain_states, order=3):
 
 
 def get_symbol_list(rank, dim=6):
-    """
-    Returns a symbolic representation of the Voigt-notation
+    """Get a symbolic representation of the Voigt-notation
     tensor that places identical symbols for entries related
     by index transposition, i. e. C_1121 = C_1211 etc.
 
@@ -1019,9 +1018,8 @@ def get_symbol_list(rank, dim=6):
         rank (int): rank of tensor, e.g. 3 for third-order ECs
 
     Returns:
-        c_vec (array): array representing distinct indices
-        c_arr (array): array representing tensor with equivalent
-            indices assigned as above
+        tuple[np.array, np.array]: tuple of arrays representing the distinct
+            indices and the tensor with equivalent indices assigned as above
     """
     indices = list(itertools.combinations_with_replacement(range(dim), r=rank))
     c_vec = np.zeros(len(indices), dtype=object)

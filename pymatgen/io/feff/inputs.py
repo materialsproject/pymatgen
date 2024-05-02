@@ -966,9 +966,7 @@ class FeffParseError(ParseError):
 
 
 def get_atom_map(structure, absorbing_atom=None):
-    """
-    Returns a dict that maps each atomic symbol to a unique integer starting
-    from 1.
+    """Get a dict that maps each atomic symbol to a unique integer starting from 1.
 
     Args:
         structure (Structure)

@@ -523,8 +523,7 @@ def anticlockwise_sort(pps):
 
 
 def anticlockwise_sort_indices(pps):
-    """
-    Returns the indices that would sort a list of 2D points in anticlockwise order
+    """Get the indices that would sort a list of 2D points in anticlockwise order
 
     Args:
         pps: List of points to be sorted
