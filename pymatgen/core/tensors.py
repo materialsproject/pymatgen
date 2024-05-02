@@ -158,12 +158,11 @@ class Tensor(np.ndarray, MSONable):
             float: scalar value corresponding to the projection of
                 the tensor into the vector
         """
-        n = get_uvec(n)
-        return self.einsum_sequence([n] * self.rank)
+        unit_vec = get_uvec(n)
+        return self.einsum_sequence([unit_vec] * self.rank)
 
     def average_over_unit_sphere(self, quad=None):
-        """Method for averaging the tensor projection over the unit
-        with option for custom quadrature.
+        """Average the tensor projection over the unit with option for custom quadrature.
 
         Args:
             quad (dict): quadrature for integration, should be
@@ -952,7 +951,7 @@ class SquareTensor(Tensor):
         return polar(self, side=side)
 
 
-def get_uvec(vec):
+def get_uvec(vec: np.ndarray) -> np.ndarray:
     """Get a unit vector parallel to input vector."""
     norm = np.linalg.norm(vec)
     if norm < 1e-8:
@@ -961,7 +960,7 @@ def get_uvec(vec):
 
 
 def symmetry_reduce(tensors, structure: Structure, tol: float = 1e-8, **kwargs):
-    """Function that converts a list of tensors corresponding to a structure
+    """Convert a list of tensors corresponding to a structure
     and returns a dictionary consisting of unique tensor keys with SymmOp
     values corresponding to transformations that will result in derivative
     tensors from the original list.

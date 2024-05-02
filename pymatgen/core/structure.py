@@ -1509,8 +1509,7 @@ class IStructure(SiteCollection, MSONable):
         include_image: bool = False,
     ) -> list[PeriodicNeighbor]:
         """Find all sites within a sphere from the point, including a site (if any)
-        sitting on the point itself. This includes sites in other periodic
-        images.
+        sitting on the point itself. This includes sites in other periodic images.
 
         Algorithm:
 
@@ -1518,7 +1517,7 @@ class IStructure(SiteCollection, MSONable):
            (parallelepiped) which would contain a sphere of radius r. for this
            we need the projection of a_1 on a unit vector perpendicular
            to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
-           determine how many a_1"s it will take to contain the sphere.
+           determine how many a_1's it will take to contain the sphere.
 
            Nxmax = r * length_of_b_1 / (2 Pi)
 
@@ -4506,7 +4505,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     @classmethod
     def from_prototype(cls, prototype: str, species: Sequence, **kwargs) -> Self:
-        """Method to rapidly construct common prototype structures.
+        """Rapidly construct common prototype structures.
 
         Args:
             prototype: Name of prototype. e.g. cubic, rocksalt, perovksite etc.

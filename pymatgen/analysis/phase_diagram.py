@@ -2958,15 +2958,12 @@ class PDPlotter:
         Creates stable and unstable marker plots for overlaying on the phase diagram.
 
         Returns:
-            Tuple of Plotly go.Scatter (unary, binary), go.Scatterternary(ternary_2d),
-            or go.Scatter3d (ternary_3d, quaternary) objects in order:
-            (stable markers, unstable markers)
+            tuple[go.Scatter]: Plotly Scatter objects (unary, binary), go.Scatterternary(ternary_2d),
+            or go.Scatter3d (ternary_3d, quaternary) objects in order: (stable markers, unstable markers)
         """
 
         def get_marker_props(coords, entries):
-            """Method for getting marker locations, hovertext, and error bars
-            from pd_plot_data.
-            """
+            """Get marker locations, hovertext, and error bars from pd_plot_data."""
             x, y, z, texts, energies, uncertainties = [], [], [], [], [], []
 
             is_stable = [entry in self._pd.stable_entries for entry in entries]

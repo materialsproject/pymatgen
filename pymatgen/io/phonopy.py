@@ -653,21 +653,23 @@ def get_gruneisen_ph_bs_symm_line(gruneisen_path, structure=None, structure_path
 def get_thermal_displacement_matrices(
     thermal_displacements_yaml="thermal_displacement_matrices.yaml", structure_path="POSCAR"
 ):
-    """Function to read "thermal_displacement_matrices.yaml" from phonopy and return a list of
+    """Read "thermal_displacement_matrices.yaml" from phonopy and return a list of
     ThermalDisplacementMatrices objects
+
     Args:
         thermal_displacements_yaml: path to thermal_displacement_matrices.yaml
         structure_path: path to POSCAR.
 
     Returns:
+        list[ThermalDisplacementMatrices]
     """
     thermal_displacements_dict = loadfn(thermal_displacements_yaml)
 
     structure = Structure.from_file(structure_path)
 
-    thermal_displacement_objects_list = []
+    thermal_displacement_objects = []
     for matrix in thermal_displacements_dict["thermal_displacement_matrices"]:
-        thermal_displacement_objects_list.append(
+        thermal_displacement_objects.append(
             ThermalDisplacementMatrices(
                 thermal_displacement_matrix_cart=matrix["displacement_matrices"],
                 temperature=matrix["temperature"],
@@ -676,4 +678,4 @@ def get_thermal_displacement_matrices(
             )
         )
 
-    return thermal_displacement_objects_list
+    return thermal_displacement_objects

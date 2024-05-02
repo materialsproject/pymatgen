@@ -315,7 +315,7 @@ class BSPlotter:
         return True
 
     def add_bs(self, bs: BandStructureSymmLine | list[BandStructureSymmLine]) -> None:
-        """Method to add bands objects to the BSPlotter."""
+        """Add bands objects to the BSPlotter."""
         if not isinstance(bs, list):
             bs = [bs]
 
@@ -364,7 +364,7 @@ class BSPlotter:
 
     @staticmethod
     def _get_branch_steps(branches):
-        """Method to find discontinuous branches."""
+        """Find discontinuous branches."""
         steps = [0]
         for b1, b2 in zip(branches[:-1], branches[1:]):
             if b2["name"].split("-")[0] != b1["name"].split("-")[-1]:
@@ -374,7 +374,7 @@ class BSPlotter:
 
     @staticmethod
     def _rescale_distances(bs_ref, bs):
-        """Method to rescale distances of bs to distances in bs_ref.
+        """Rescale distances of bs to distances in bs_ref.
         This is used for plotting two bandstructures (same k-path)
         of different materials.
         """
@@ -511,10 +511,9 @@ class BSPlotter:
 
     @staticmethod
     def _interpolate_bands(distances, energies, smooth_tol=0, smooth_k=3, smooth_np=100):
-        """Method that interpolates the provided energies using B-splines as
-        implemented in scipy.interpolate. Distances and energies has to provided
-        already split into pieces (branches work good, for longer segments
-        the interpolation may fail).
+        """Interpolate the provided energies using B-splines as implemented in scipy.interpolate.
+        Distances and energies has to provided already split into pieces (branches work good,
+        for longer segments the interpolation may fail).
 
         Interpolation failure can be caused by trying to fit an entire
         band with one spline rather than fitting with piecewise splines
@@ -1565,12 +1564,11 @@ class BSPlotterProjected(BSPlotter):
         w_h_size=(12, 8),
         num_column=None,
     ):
-        """Method returns a plot composed of subplots for different atoms and
-        orbitals (subshell orbitals such as 's', 'p', 'd' and 'f' defined by
-        azimuthal quantum numbers l = 0, 1, 2 and 3, respectively or
-        individual orbitals like 'px', 'py' and 'pz' defined by magnetic
-        quantum numbers m = -1, 1 and 0, respectively).
-        This is an extension of "get_projected_plots_dots" method.
+        """Return a plot composed of subplots for different atoms and orbitals (subshell
+        orbitals such as 's', 'p', 'd' and 'f' defined by azimuthal quantum numbers l = 0,
+        1, 2 and 3, respectively or individual orbitals like 'px', 'py' and 'pz' defined
+        by magnetic quantum numbers m = -1, 1 and 0, respectively). This is an extension
+        of "get_projected_plots_dots" method.
 
         Args:
             dictio: The elements and the orbitals you need to project on. The

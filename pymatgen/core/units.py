@@ -356,7 +356,7 @@ class FloatWithUnit(float):
         return FloatWithUnit(super().__neg__(), unit_type=self._unit_type, unit=self._unit)
 
     def __getnewargs__(self):
-        """Function used by pickle to recreate object."""
+        """Used by pickle to recreate object."""
         # TODO There's a problem with _unit_type if we try to unpickle objects from file.
         # since self._unit_type might not be defined. I think this is due to
         # the use of decorators (property and unitized). In particular I have problems with "amu"

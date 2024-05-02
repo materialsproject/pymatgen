@@ -1306,7 +1306,7 @@ class Lattice(MSONable):
            (parallelepiped) which would contain a sphere of radius r. for this
            we need the projection of a_1 on a unit vector perpendicular
            to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
-           determine how many a_1"s it will take to contain the sphere.
+           determine how many a_1's it will take to contain the sphere.
 
            Nxmax = r * length_of_b_1 / (2 Pi)
 
@@ -1366,7 +1366,7 @@ class Lattice(MSONable):
            (parallelepiped) which would contain a sphere of radius r. for this
            we need the projection of a_1 on a unit vector perpendicular
            to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
-           determine how many a_1"s it will take to contain the sphere.
+           determine how many a_1's it will take to contain the sphere.
 
            Nxmax = r * length_of_b_1 / (2 Pi)
 
@@ -1423,7 +1423,7 @@ class Lattice(MSONable):
            (parallelepiped) which would contain a sphere of radius r. for this
            we need the projection of a_1 on a unit vector perpendicular
            to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
-           determine how many a_1"s it will take to contain the sphere.
+           determine how many a_1's it will take to contain the sphere.
 
            Nxmax = r * length_of_b_1 / (2 Pi)
 
