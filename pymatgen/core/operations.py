@@ -233,10 +233,10 @@ class SymmOp(MSONable):
         return SymmOp(new_matrix)
 
     @property
-    def inverse(self) -> SymmOp:
+    def inverse(self) -> Self:
         """Returns inverse of transformation."""
         inverse = np.linalg.inv(self.affine_matrix)
-        return SymmOp(inverse)
+        return type(self)(inverse)
 
     @staticmethod
     def from_axis_angle_and_translation(

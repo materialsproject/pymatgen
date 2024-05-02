@@ -1,7 +1,5 @@
-"""
-Developer script to convert yaml periodic table to json format.
-Created on Nov 15, 2011.
-"""
+"""Developer script to convert YAML periodic table to JSON format.
+Created on 2011-11-15."""
 
 from __future__ import annotations
 

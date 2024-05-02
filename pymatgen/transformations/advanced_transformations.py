@@ -90,15 +90,9 @@ class ChargeBalanceTransformation(AbstractTransformation):
     def __repr__(self):
         return f"Charge Balance Transformation : Species to remove = {self.charge_balance_sp}"
 
-    @property
     def inverse(self):
         """Returns: None."""
         return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns: False."""
-        return False
 
 
 class SuperTransformation(AbstractTransformation):
@@ -147,11 +141,6 @@ class SuperTransformation(AbstractTransformation):
 
     def __repr__(self):
         return f"Super Transformation : Transformations = {' '.join(map(str, self._transformations))}"
-
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -247,11 +236,6 @@ class MultipleSubstitutionTransformation:
 
     def __repr__(self):
         return f"Multiple Substitution Transformation : Substitution on {self.sp_to_replace}"
-
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -488,11 +472,6 @@ class EnumerateStructureTransformation(AbstractTransformation):
         return "EnumerateStructureTransformation"
 
     @property
-    def inverse(self):
-        """Returns: None."""
-        return
-
-    @property
     def is_one_to_many(self) -> bool:
         """Returns: True."""
         return True
@@ -551,11 +530,6 @@ class SubstitutionPredictorTransformation(AbstractTransformation):
 
     def __repr__(self):
         return "SubstitutionPredictorTransformation"
-
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -1150,11 +1124,6 @@ class DopingTransformation(AbstractTransformation):
         return all_structures[0]["structure"]
 
     @property
-    def inverse(self):
-        """Returns: None."""
-        return
-
-    @property
     def is_one_to_many(self) -> bool:
         """Returns: True."""
         return True
@@ -1231,16 +1200,6 @@ class SlabTransformation(AbstractTransformation):
         )
         return sg.get_slab(self.shift, self.tol)
 
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns: False."""
-        return False
-
 
 class DisorderOrderedTransformation(AbstractTransformation):
     """Not to be confused with OrderDisorderedTransformation,
@@ -1291,11 +1250,6 @@ class DisorderOrderedTransformation(AbstractTransformation):
         if len(disordered_structures) > return_ranked_list:
             disordered_structures = disordered_structures[0:return_ranked_list]
         return disordered_structures
-
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -1480,16 +1434,6 @@ class GrainBoundaryTransformation(AbstractTransformation):
             quick_gen=self.quick_gen,
         )
 
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns: False."""
-        return False
-
 
 class CubicSupercellTransformation(AbstractTransformation):
     """A transformation that aims to generate a nearly cubic supercell structure
@@ -1621,16 +1565,6 @@ class CubicSupercellTransformation(AbstractTransformation):
                 )
         raise AttributeError("Unable to find cubic supercell")
 
-    @property
-    def inverse(self):
-        """Returns None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns False."""
-        return False
-
 
 class AddAdsorbateTransformation(AbstractTransformation):
     """Create adsorbate structures."""
@@ -1708,11 +1642,6 @@ class AddAdsorbateTransformation(AbstractTransformation):
         if not return_ranked_list:
             return structures[0]
         return [{"structure": structure} for structure in structures[:return_ranked_list]]
-
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -1867,11 +1796,6 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
         if not return_ranked_list:
             return structures[0]
         return [{"structure": structure} for structure in structures[:return_ranked_list]]
-
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
 
     @property
     def is_one_to_many(self) -> bool:
@@ -2152,11 +2076,6 @@ class SQSTransformation(AbstractTransformation):
         return to_return
 
     @property
-    def inverse(self):
-        """Returns: None."""
-        return
-
-    @property
     def is_one_to_many(self) -> bool:
         """Returns: True."""
         return True
@@ -2230,13 +2149,3 @@ class MonteCarloRattleTransformation(AbstractTransformation):
 
     def __repr__(self):
         return f"{__name__} : rattle_std = {self.rattle_std}"
-
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns: False."""
-        return False

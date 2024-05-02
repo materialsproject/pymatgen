@@ -70,16 +70,6 @@ class InsertSitesTransformation(AbstractTransformation):
     def __repr__(self):
         return f"InsertSiteTransformation : species {self.species}, coords {self.coords}"
 
-    @property
-    def inverse(self):
-        """Returns None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns False."""
-        return False
-
 
 class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     """This transformation substitutes certain sites with certain species."""
@@ -116,16 +106,6 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
             [f"{key}->{val}" + val for key, val in self.indices_species_map.items()]
         )
 
-    @property
-    def inverse(self):
-        """Returns None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns False."""
-        return False
-
 
 class RemoveSitesTransformation(AbstractTransformation):
     """Remove certain sites in a structure."""
@@ -153,16 +133,6 @@ class RemoveSitesTransformation(AbstractTransformation):
 
     def __repr__(self):
         return "RemoveSitesTransformation :" + ", ".join(map(str, self.indices_to_remove))
-
-    @property
-    def inverse(self):
-        """Returns None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns False."""
-        return False
 
 
 class TranslateSitesTransformation(AbstractTransformation):
@@ -213,11 +183,6 @@ class TranslateSitesTransformation(AbstractTransformation):
     def inverse(self) -> TranslateSitesTransformation:
         """TranslateSitesTransformation with the reverse translation."""
         return TranslateSitesTransformation(self.indices_to_move, -self.translation_vector, self.vector_in_frac_coords)
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns False."""
-        return False
 
     def as_dict(self):
         """JSON-serializable dict representation."""
@@ -518,16 +483,6 @@ class AddSitePropertyTransformation(AbstractTransformation):
             new_struct.add_site_property(prop, self.site_properties[prop])
         return new_struct
 
-    @property
-    def inverse(self):
-        """Returns None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns False."""
-        return False
-
 
 class RadialSiteDistortionTransformation(AbstractTransformation):
     """Radially perturbs atoms around a site. Can be used to create spherical distortion due to a
@@ -590,13 +545,6 @@ class RadialSiteDistortionTransformation(AbstractTransformation):
                 kwargs["frac_coords"] = False
             structure.translate_sites(**kwargs)
         return structure
-
-    @property
-    def inverse(self):
-        """Returns the inverse transformation if available.
-        Otherwise, should return None.
-        """
-        return False
 
     @property
     def is_one_to_many(self) -> bool:
