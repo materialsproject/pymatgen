@@ -1042,6 +1042,10 @@ class BSPlotterProjected(BSPlotter):
                                     * marker_size,
                                 )
 
+                # Set x range
+                ax.set_xlim(np.min(data["distances"]), np.max(data["distances"]))
+
+                # Set y range
                 if ylim is None:
                     if self._bs.is_metal():
                         if zero_to_efermi:
