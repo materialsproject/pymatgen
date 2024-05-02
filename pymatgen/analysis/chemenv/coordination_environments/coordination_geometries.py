@@ -658,12 +658,12 @@ class CoordinationGeometry:
 
     @property
     def coordination_number(self):
-        """Returns the coordination number of this coordination geometry."""
+        """The coordination number of this coordination geometry."""
         return self.coordination
 
     @property
     def pauling_stability_ratio(self):
-        """Returns the theoretical Pauling stability ratio (rC/rA) for this environment."""
+        """The theoretical Pauling stability ratio (rC/rA) for this environment."""
         if self._pauling_stability_ratio is None:
             if self.ce_symbol in ["S:1", "L:2"]:
                 self._pauling_stability_ratio = 0.0
@@ -683,49 +683,49 @@ class CoordinationGeometry:
 
     @property
     def mp_symbol(self) -> str:
-        """Returns the MP symbol of this coordination geometry."""
+        """Get the MP symbol of this coordination geometry."""
         return self._mp_symbol
 
     @property
     def ce_symbol(self) -> str:
-        """Returns the symbol of this coordination geometry. Same as the MP symbol."""
+        """Get the symbol of this coordination geometry. Same as the MP symbol."""
         return self._mp_symbol
 
     def get_coordination_number(self) -> int:
-        """Returns the coordination number of this coordination geometry."""
+        """Get the coordination number of this coordination geometry."""
         return self.coordination
 
     def is_implemented(self) -> bool:
-        """Returns True if this coordination geometry is implemented."""
+        """Get True if this coordination geometry is implemented."""
         return bool(self.points)
 
     def get_name(self) -> str:
-        """Returns the name of this coordination geometry."""
+        """Get the name of this coordination geometry."""
         return self.name
 
     @property
     def IUPAC_symbol(self) -> str:
-        """Returns the IUPAC symbol of this coordination geometry."""
+        """Get the IUPAC symbol of this coordination geometry."""
         return self.IUPACsymbol
 
     @property
     def IUPAC_symbol_str(self) -> str:
-        """Returns a string representation of the IUPAC symbol of this coordination geometry."""
+        """Get a string representation of the IUPAC symbol of this coordination geometry."""
         return str(self.IUPACsymbol)
 
     @property
     def IUCr_symbol(self) -> str:
-        """Returns the IUCr symbol of this coordination geometry."""
+        """Get the IUCr symbol of this coordination geometry."""
         return self.IUCrsymbol
 
     @property
     def IUCr_symbol_str(self):
-        """Returns a string representation of the IUCr symbol of this coordination geometry."""
+        """A string representation of the IUCr symbol of this coordination geometry."""
         return str(self.IUCrsymbol)
 
     @property
     def number_of_permutations(self):
-        """Returns the number of permutations of this coordination geometry."""
+        """The number of permutations of this coordination geometry."""
         if self.permutations_safe_override:
             return factorial(self.coordination)
         if self.permutations is None:
@@ -751,11 +751,11 @@ class CoordinationGeometry:
 
     @property
     def algorithms(self):
-        """Returns the list of algorithms that are used to identify this coordination geometry."""
+        """The list of algorithms that are used to identify this coordination geometry."""
         return self._algorithms
 
     def get_central_site(self):
-        """Returns the central site of this coordination geometry."""
+        """Get the central site of this coordination geometry."""
         return self.central_site
 
     def faces(self, sites, permutation=None):
@@ -793,7 +793,7 @@ class CoordinationGeometry:
         return [self._solid_angles[ii] for ii in permutation]
 
     def get_pmeshes(self, sites, permutation=None):
-        """Returns the pmesh strings used for jmol to show this geometry."""
+        """Get the pmesh strings used for jmol to show this geometry."""
         p_meshes = []
         # _vertices = [site.coords for site in sites]
         _vertices = [site.coords for site in sites] if permutation is None else [sites[ii].coords for ii in permutation]
@@ -906,7 +906,7 @@ class AllCoordinationGeometries(dict):
             return False
 
     def __repr__(self):
-        """Returns a string with the list of coordination geometries."""
+        """Get a string with the list of coordination geometries."""
         outs = [
             "",
             "#=================================#",
@@ -920,7 +920,7 @@ class AllCoordinationGeometries(dict):
         return "\n".join(outs)
 
     def __str__(self):
-        """Returns a string with the list of coordination geometries that are implemented."""
+        """Get a string with the list of coordination geometries that are implemented."""
         outs = [
             "",
             "#=======================================================#",

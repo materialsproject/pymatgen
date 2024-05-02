@@ -88,7 +88,7 @@ class BabelMolAdaptor:
 
     @property
     def pymatgen_mol(self) -> Molecule:
-        """Returns pymatgen Molecule object."""
+        """Get pymatgen Molecule object."""
         sp = []
         coords = []
         for atom in openbabel.OBMolAtomIter(self._ob_mol):
@@ -98,7 +98,7 @@ class BabelMolAdaptor:
 
     @property
     def openbabel_mol(self):
-        """Returns OpenBabel's OBMol."""
+        """OpenBabel's OBMol."""
         return self._ob_mol
 
     def localopt(self, forcefield: str = "mmff94", steps: int = 500) -> None:
@@ -295,7 +295,7 @@ class BabelMolAdaptor:
 
     @property
     def pybel_mol(self) -> Molecule:
-        """Returns Pybel's Molecule object."""
+        """Get Pybel's Molecule object."""
         return pybel.Molecule(self._ob_mol)
 
     def write_file(self, filename: str, file_format: str = "xyz") -> None:

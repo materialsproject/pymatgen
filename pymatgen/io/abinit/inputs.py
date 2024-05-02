@@ -267,8 +267,7 @@ def gs_input(
     charge=0.0,
     scf_algorithm=None,
 ):
-    """
-    Returns a BasicAbinitInput for ground-state calculation.
+    """Get a BasicAbinitInput for ground-state calculation.
 
     Args:
         structure: |Structure| object.
@@ -319,8 +318,7 @@ def ebands_input(
     scf_algorithm=None,
     dos_kppa=None,
 ):
-    """
-    Returns a |BasicMultiDataset| object for band structure calculations.
+    """Get a |BasicMultiDataset| object for band structure calculations.
 
     Args:
         structure: |Structure| object.
@@ -423,8 +421,7 @@ def ion_ioncell_relax_input(
     scf_algorithm=None,
     shift_mode="Monkhorst-pack",
 ):
-    """
-    Returns a |BasicMultiDataset| for a structural relaxation. The first dataset optimizes the
+    """Get a |BasicMultiDataset| for a structural relaxation. The first dataset optimizes the
     atomic positions at fixed unit cell. The second datasets optimizes both ions and unit cell parameters.
 
     Args:
@@ -571,19 +568,18 @@ def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
     return np.reshape(shiftk, (-1, 3))
 
 
-def num_valence_electrons(structure, pseudos):
-    """
-    Returns the number of valence electrons.
+def num_valence_electrons(structure, pseudos) -> float:
+    """Get the number of valence electrons.
 
     Args:
         pseudos: List of |Pseudo| objects or list of filenames.
     """
-    nval, table = 0, PseudoTable.as_table(pseudos)
+    n_val, table = 0, PseudoTable.as_table(pseudos)
     for site in structure:
         pseudo = table.pseudo_with_symbol(site.specie.symbol)
-        nval += pseudo.Z_val
+        n_val += pseudo.Z_val
 
-    return int(nval) if int(nval) == nval else nval
+    return int(n_val) if int(n_val) == n_val else n_val
 
 
 class AbstractInput(MutableMapping, abc.ABC):
@@ -696,7 +692,7 @@ class AbstractInput(MutableMapping, abc.ABC):
 
     @abc.abstractmethod
     def to_str(self):
-        """Returns a string with the input."""
+        """Get a string with the input."""
 
 
 class BasicAbinitInputError(Exception):

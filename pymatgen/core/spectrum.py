@@ -122,7 +122,7 @@ class Spectrum(MSONable):
             self.y *= total / np.sum(self.y, axis=0)  # renormalize to maintain the same integrated sum as before.
 
     def get_interpolated_value(self, x: float) -> float | list[float]:
-        """Returns an interpolated y value for a particular x value.
+        """Get an interpolated y value for a particular x value.
 
         Args:
             x: x value to return the y value for
@@ -208,11 +208,11 @@ class Spectrum(MSONable):
     __div__ = __truediv__
 
     def __str__(self) -> str:
-        """Returns a string containing values and labels of spectrum object for
+        """Get a string containing values and labels of spectrum object for
         plotting.
         """
         return f"{type(self).__name__}\n{self.XLABEL}: {self.x}\n{self.YLABEL}: {self.y}"
 
     def __repr__(self) -> str:
-        """Returns a printable representation of the class."""
+        """Get a printable representation of the class."""
         return str(self)

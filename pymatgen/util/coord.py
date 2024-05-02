@@ -121,7 +121,7 @@ def coord_list_mapping_pbc(subset, superset, atol: float = 1e-8, pbc: PbcLike = 
 
 
 def get_linear_interpolated_value(x_values: ArrayLike, y_values: ArrayLike, x: float) -> float:
-    """Returns an interpolated value by linear interpolation between two values.
+    """Get an interpolated value by linear interpolation between two values.
     This method is written to avoid dependency on scipy, which causes issues on
     threading servers.
 
@@ -148,7 +148,7 @@ def get_linear_interpolated_value(x_values: ArrayLike, y_values: ArrayLike, x: f
 
 
 def all_distances(coords1: ArrayLike, coords2: ArrayLike) -> np.ndarray:
-    """Returns the distances between two lists of coordinates.
+    """Get the distances between two lists of coordinates.
 
     Args:
         coords1: First set of Cartesian coordinates.
@@ -165,7 +165,7 @@ def all_distances(coords1: ArrayLike, coords2: ArrayLike) -> np.ndarray:
 
 
 def pbc_diff(frac_coords1: ArrayLike, frac_coords2: ArrayLike, pbc: PbcLike = (True, True, True)):
-    """Returns the 'fractional distance' between two coordinates taking into
+    """Get the 'fractional distance' between two coordinates taking into
     account periodic boundary conditions.
 
     Args:
@@ -187,7 +187,7 @@ def pbc_diff(frac_coords1: ArrayLike, frac_coords2: ArrayLike, pbc: PbcLike = (T
 
 
 def pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask=None, return_d2: bool = False):
-    """Returns the shortest vectors between two lists of coordinates taking into
+    """Get the shortest vectors between two lists of coordinates taking into
     account periodic boundary conditions and the lattice.
 
     Args:
@@ -273,7 +273,7 @@ def is_coord_subset_pbc(subset, superset, atol: float = 1e-8, mask=None, pbc: Pb
 
 
 def lattice_points_in_supercell(supercell_matrix):
-    """Returns the list of points on the original lattice contained in the
+    """Get the list of points on the original lattice contained in the
     supercell in fractional coordinates (with the supercell basis).
     e.g. [[2,0,0],[0,1,0],[0,0,1]] returns [[0,0,0],[0.5,0,0]].
 
@@ -465,5 +465,5 @@ class Simplex(MSONable):
 
     @property
     def coords(self) -> np.ndarray:
-        """Returns a copy of the vertex coordinates in the simplex."""
+        """Get a copy of the vertex coordinates in the simplex."""
         return self._coords.copy()

@@ -49,7 +49,7 @@ class XYZ:
 
     @property
     def all_molecules(self) -> list[Molecule]:
-        """Returns all the frames of molecule associated with this XYZ."""
+        """Get all the frames of molecule associated with this XYZ."""
         return self._mols  # type: ignore[return-value]
 
     @staticmethod

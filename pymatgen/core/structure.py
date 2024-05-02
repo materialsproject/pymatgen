@@ -112,7 +112,7 @@ class Neighbor(Site):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Returns a Neighbor from a dict.
+        """Get a Neighbor from a dict.
 
         Args:
             dct: MSONable dict format.
@@ -184,7 +184,7 @@ class PeriodicNeighbor(PeriodicSite):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:  # type: ignore[override]
-        """Returns a PeriodicNeighbor from a dict.
+        """Get a PeriodicNeighbor from a dict.
 
         Args:
             dct: MSONable dict format.
@@ -208,7 +208,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @property
     def sites(self) -> list[Site]:
-        """Returns an iterator for the sites in the Structure."""
+        """Get an iterator for the sites in the Structure."""
         return self._sites  # type: ignore[has-type]
 
     @sites.setter
@@ -220,14 +220,14 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @abstractmethod
     def copy(self) -> Self:
-        """Returns a copy of itself. Concrete subclasses should implement this
+        """Get a copy of itself. Concrete subclasses should implement this
         method.
         """
         raise NotImplementedError
 
     @abstractmethod
     def get_distance(self, i: int, j: int) -> float:
-        """Returns distance between sites at index i and j.
+        """Get distance between sites at index i and j.
 
         Args:
             i: 1st site index
@@ -240,7 +240,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @property
     def distance_matrix(self) -> np.ndarray:
-        """Returns the distance matrix between all sites in the structure. For
+        """Get the distance matrix between all sites in the structure. For
         periodic structures, this is overwritten to return the nearest image
         distance.
         """
@@ -300,7 +300,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
                     yield site
 
     def indices_from_symbol(self, symbol: str) -> tuple[int, ...]:
-        """Returns a tuple with the sequential indices of the sites
+        """Get a tuple with the sequential indices of the sites
         that contain an element with the given chemical symbol.
         """
         return tuple((idx for idx, specie in enumerate(self.species) if specie.symbol == symbol))
@@ -386,32 +386,32 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @property
     def cart_coords(self) -> np.ndarray:
-        """Returns an np.array of the Cartesian coordinates of sites in the structure."""
+        """Get an np.array of the Cartesian coordinates of sites in the structure."""
         return np.array([site.coords for site in self])
 
     @property
     def formula(self) -> str:
-        """Returns the formula as a string."""
+        """Get the formula as a string."""
         return self.composition.formula
 
     @property
     def alphabetical_formula(self) -> str:
-        """Returns the formula as a string."""
+        """Get the formula as a string."""
         return self.composition.alphabetical_formula
 
     @property
     def reduced_formula(self) -> str:
-        """Returns the reduced formula as a string."""
+        """Get the reduced formula as a string."""
         return self.composition.reduced_formula
 
     @property
     def elements(self) -> list[Element | Species | DummySpecies]:
-        """Returns the elements in the structure as a list of Element objects."""
+        """Get the elements in the structure as a list of Element objects."""
         return self.composition.elements
 
     @property
     def composition(self) -> Composition:
-        """Returns the structure's corresponding Composition object."""
+        """Get the structure's corresponding Composition object."""
         elem_map: dict[Species, float] = defaultdict(float)
         for site in self:
             for species, occu in site.species.items():
@@ -420,7 +420,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @property
     def charge(self) -> float:
-        """Returns the net charge of the structure based on oxidation states. If
+        """Get the net charge of the structure based on oxidation states. If
         Elements are found, a charge of 0 is assumed.
         """
         charge = 0
@@ -438,7 +438,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return all(site.is_ordered for site in self)
 
     def get_angle(self, i: int, j: int, k: int) -> float:
-        """Returns angle specified by three sites.
+        """Get angle specified by three sites.
 
         Args:
             i: 1st site index
@@ -453,7 +453,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return get_angle(vec_1, vec_2, units="degrees")
 
     def get_dihedral(self, i: int, j: int, k: int, l: int) -> float:  # noqa: E741
-        """Returns dihedral angle specified by four sites.
+        """Get dihedral angle specified by four sites.
 
         Args:
             i (int): 1st site index
@@ -1328,7 +1328,7 @@ class IStructure(SiteCollection, MSONable):
 
     @property
     def distance_matrix(self) -> np.ndarray:
-        """Returns the distance matrix between all sites in the structure. For
+        """Get the distance matrix between all sites in the structure. For
         periodic structures, this should return the nearest image distance.
         """
         return self.lattice.get_all_distances(self.frac_coords, self.frac_coords)
@@ -1340,13 +1340,13 @@ class IStructure(SiteCollection, MSONable):
 
     @property
     def density(self) -> float:
-        """Returns the density in units of g/cm^3."""
+        """Get the density in units of g/cm^3."""
         mass = Mass(self.composition.weight, "amu")
         return mass.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
     @property
     def pbc(self) -> tuple[bool, bool, bool]:
-        """Returns the periodicity of the structure."""
+        """Get the periodicity of the structure."""
         return self._lattice.pbc
 
     @property
@@ -1478,7 +1478,7 @@ class IStructure(SiteCollection, MSONable):
 
     @property
     def volume(self) -> float:
-        """Returns the volume of the structure in Angstrom^3."""
+        """Get the volume of the structure in Angstrom^3."""
         return self._lattice.volume
 
     def get_distance(self, i: int, j: int, jimage=None) -> float:
@@ -2099,7 +2099,7 @@ class IStructure(SiteCollection, MSONable):
     def get_neighbors_in_shell(
         self, origin: ArrayLike, r: float, dr: float, include_index: bool = False, include_image: bool = False
     ) -> list[PeriodicNeighbor]:
-        """Returns all sites in a shell centered on origin (coords) between radii
+        """Get all sites in a shell centered on origin (coords) between radii
         r-dr and r+dr.
 
         Args:
@@ -2421,7 +2421,7 @@ class IStructure(SiteCollection, MSONable):
         super_ftol_2 = super_ftol * 2
 
         def pbc_coord_intersection(fc1, fc2, tol):
-            """Returns the fractional coords in fc1 that have coordinates
+            """Get the fractional coords in fc1 that have coordinates
             within tolerance to some coordinate in fc2.
             """
             dist = fc1[:, None, :] - fc2[None, :, :]
@@ -2439,7 +2439,7 @@ class IStructure(SiteCollection, MSONable):
                 min_vecs = pbc_coord_intersection(min_vecs, group - frac_coords, super_ftol_2)
 
         def get_hnf(fu):
-            """Returns all possible distinct supercell matrices given a
+            """Get all possible distinct supercell matrices given a
             number of formula units in the supercell. Batches the matrices
             by the values in the diagonal (for less numpy overhead).
             Computational complexity is O(n^3), and difficult to improve.
@@ -2613,7 +2613,7 @@ class IStructure(SiteCollection, MSONable):
         return "\n".join(outs)
 
     def get_orderings(self, mode: Literal["enum", "sqs"] = "enum", **kwargs) -> list[Structure]:
-        """Returns list of orderings for a disordered structure. If structure
+        """Get list of orderings for a disordered structure. If structure
         does not contain disorder, the default structure is returned.
 
         Args:
@@ -3022,7 +3022,7 @@ class IStructure(SiteCollection, MSONable):
     CellType = Literal["primitive", "conventional"]
 
     def to_cell(self, cell_type: IStructure.CellType, **kwargs) -> Structure:
-        """Returns a cell based on the current structure.
+        """Get a cell based on the current structure.
 
         Args:
             cell_type ("primitive" | "conventional"): Whether to return a primitive or conventional cell.
@@ -3045,7 +3045,7 @@ class IStructure(SiteCollection, MSONable):
         return getattr(sga, f"get_{cell_type}_standard_structure")(**method_kwargs)
 
     def to_primitive(self, **kwargs) -> Structure:
-        """Returns a primitive cell based on the current structure.
+        """Get a primitive cell based on the current structure.
 
         Args:
             kwargs: Any keyword supported by pymatgen.symmetry.analyzer.SpacegroupAnalyzer such as
@@ -3057,7 +3057,7 @@ class IStructure(SiteCollection, MSONable):
         return self.to_cell("primitive", **kwargs)
 
     def to_conventional(self, **kwargs) -> Structure:
-        """Returns a conventional cell based on the current structure.
+        """Get a conventional cell based on the current structure.
 
         Args:
             kwargs: Any keyword supported by pymatgen.symmetry.analyzer.SpacegroupAnalyzer such as
@@ -3244,7 +3244,7 @@ class IMolecule(SiteCollection, MSONable):
         )
 
     def break_bond(self, ind1: int, ind2: int, tol: float = 0.2) -> tuple[IMolecule | Molecule, ...]:
-        """Returns two molecules based on breaking the bond between atoms at index
+        """Get two molecules based on breaking the bond between atoms at index
         ind1 and ind2.
 
         Args:
@@ -3317,7 +3317,7 @@ class IMolecule(SiteCollection, MSONable):
         return all(site in other for site in self)
 
     def get_zmatrix(self):
-        """Returns a z-matrix representation of the molecule."""
+        """Get a z-matrix representation of the molecule."""
         # TODO: allow more z-matrix conventions for element/site description
 
         output = []
@@ -3346,7 +3346,7 @@ class IMolecule(SiteCollection, MSONable):
         return "\n".join(output) + "\n\n" + "\n".join(output_var)
 
     def _find_nn_pos_before_site(self, site_idx):
-        """Returns index of nearest neighbor atoms."""
+        """Get index of nearest neighbor atoms."""
         all_dist = [(self.get_distance(site_idx, idx), idx) for idx in range(site_idx)]
         all_dist = sorted(all_dist, key=lambda x: x[0])
         return [d[1] for d in all_dist]
@@ -3446,7 +3446,7 @@ class IMolecule(SiteCollection, MSONable):
         return [nn for nn in nns if nn != site]
 
     def get_neighbors_in_shell(self, origin: ArrayLike, r: float, dr: float) -> list[Neighbor]:
-        """Returns all sites in a shell centered on origin (coords) between radii
+        """Get all sites in a shell centered on origin (coords) between radii
         r-dr and r+dr.
 
         Args:
@@ -3582,7 +3582,7 @@ class IMolecule(SiteCollection, MSONable):
         )
 
     def get_centered_molecule(self) -> IMolecule | Molecule:
-        """Returns a Molecule centered at the center of mass.
+        """Get a Molecule centered at the center of mass.
 
         Returns:
             Molecule centered with center of mass at origin.

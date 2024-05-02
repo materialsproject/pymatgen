@@ -23,10 +23,9 @@ if TYPE_CHECKING:
 
 
 def lattice_from_abivars(cls=None, *args, **kwargs):
-    """
-    Returns a `Lattice` object from a dictionary
-    with the Abinit variables `acell` and either `rprim` in Bohr or `angdeg`
-    If acell is not given, the Abinit default is used i.e. [1,1,1] Bohr.
+    """Get a `Lattice` object from a dictionary with the Abinit variables `acell`
+    and either `rprim` in Bohr or `angdeg`. If acell is not given, the Abinit default
+    of [1, 1, 1] Bohr is used.
 
     Args:
         cls: Lattice class to be instantiated. Defaults to pymatgen.core.Lattice.
@@ -313,7 +312,7 @@ class AbivarAble(abc.ABC):
 
     @abc.abstractmethod
     def to_abivars(self):
-        """Returns a dictionary with the abinit variables."""
+        """Get a dictionary with the abinit variables."""
 
     # @abc.abstractmethod
     # def from_abivars(cls, vars):
@@ -1083,7 +1082,7 @@ class RelaxationMethod(AbivarAble, MSONable):
         return self.abivars.optcell != 0
 
     def to_abivars(self):
-        """Returns a dictionary with the abinit variables."""
+        """Get a dictionary with the abinit variables."""
         # These variables are always present.
         out_vars = {
             "ionmov": self.abivars.ionmov,
@@ -1271,7 +1270,7 @@ class HilbertTransform(AbivarAble):
         self.nfreqim = nfreqim
 
     def to_abivars(self):
-        """Returns a dictionary with the abinit variables."""
+        """Get a dictionary with the abinit variables."""
         return {
             # Spectral function
             "nomegasf": self.nomegasf,
@@ -1375,7 +1374,7 @@ class Screening(AbivarAble):
     #    return dig1.strip() + dig0.strip()
 
     def to_abivars(self):
-        """Returns a dictionary with the abinit variables."""
+        """Get a dictionary with the abinit variables."""
         abivars = {
             "ecuteps": self.ecuteps,
             "ecutwfn": self.ecutwfn,
@@ -1492,7 +1491,7 @@ class SelfEnergy(AbivarAble):
 
     @property
     def gwcalctyp(self):
-        """Returns the value of the gwcalctyp input variable."""
+        """The value of the gwcalctyp input variable."""
         dig0 = str(self._SIGMA_TYPES[self.type])
         dig1 = str(self._SC_MODES[self.sc_mode])
         return dig1.strip() + dig0.strip()
@@ -1503,7 +1502,7 @@ class SelfEnergy(AbivarAble):
         return 1 if self.sc_mode == "one_shot" else 0
 
     def to_abivars(self):
-        """Returns a dictionary with the abinit variables."""
+        """Get a dictionary with the abinit variables."""
         abivars = {
             "gwcalctyp": self.gwcalctyp,
             "ecuteps": self.ecuteps,
@@ -1637,7 +1636,7 @@ class ExcHamiltonian(AbivarAble):
         return self.algo == "direct_diago"
 
     def to_abivars(self):
-        """Returns a dictionary with the abinit variables."""
+        """Get a dictionary with the abinit variables."""
         abivars = {
             "bs_calctype": 1,
             "bs_loband": self.bs_loband,

@@ -115,7 +115,7 @@ class DosPlotter:
             self.add_dos(label, dos_dict[label])
 
     def get_dos_dict(self):
-        """Returns the added doses as a json-serializable dict. Note that if you
+        """Get the added doses as a json-serializable dict. Note that if you
         have specified smearing for the DOS plot, the densities returned will
         be the smeared densities, not the original densities.
 
@@ -3719,7 +3719,7 @@ class CohpPlotter:
             self.add_cohp(label, cohp_dict[label])
 
     def get_cohp_dict(self):
-        """Returns the added COHPs as a json-serializable dict. Note that if you
+        """Get the added COHPs as a json-serializable dict. Note that if you
         have specified smearing for the COHP plot, the populations returned
         will be the smeared and not the original populations.
 

@@ -366,7 +366,7 @@ class NwInput(MSONable):
 
     @property
     def molecule(self):
-        """Returns molecule associated with this GaussianInput."""
+        """Molecule associated with this GaussianInput."""
         return self._mol
 
     def __str__(self):
@@ -744,17 +744,15 @@ class NwOutput:
                     lattice = []
                     parse_geom = False
                 else:
-                    match = coord_patt.search(line)
-                    if match:
+                    if match := coord_patt.search(line):
                         species.append(match.group(1).capitalize())
                         coords.append([float(match.group(2)), float(match.group(3)), float(match.group(4))])
-                    match = lat_vector_patt.search(line)
-                    if match:
+
+                    if match := lat_vector_patt.search(line):
                         lattice.append([float(match.group(1)), float(match.group(2)), float(match.group(3))])
 
             if parse_force:
-                match = force_patt.search(line)
-                if match:
+                if match := force_patt.search(line):
                     forces.extend(map(float, match.groups()[5:]))
                 elif len(forces) > 0:
                     all_forces.append(forces)
@@ -836,25 +834,21 @@ class NwOutput:
                         parse_proj_hess = False
 
             else:
-                match = energy_patt.search(line)
-                if match:
+                if match := energy_patt.search(line):
                     energies.append(Energy(match.group(1), "Ha").to("eV"))
                     parse_time = True
                     continue
 
-                match = energy_gas_patt.search(line)
-                if match:
+                if match := energy_gas_patt.search(line):
                     cosmo_scf_energy = energies[-1]
                     energies[-1] = {}
                     energies[-1]["cosmo scf"] = cosmo_scf_energy
                     energies[-1].update({"gas phase": Energy(match.group(1), "Ha").to("eV")})
 
-                match = energy_sol_patt.search(line)
-                if match:
+                if match := energy_sol_patt.search(line):
                     energies[-1].update({"sol phase": Energy(match.group(1), "Ha").to("eV")})
 
-                match = preamble_patt.search(line)
-                if match:
+                if match := preamble_patt.search(line):
                     try:
                         val = int(match.group(2))
                     except ValueError:
@@ -896,10 +890,8 @@ class NwOutput:
                     job_type = line.strip()
                     if job_type == "NWChem DFT Module" and "COSMO solvation results" in output:
                         job_type += " COSMO"
-                else:
-                    match = corrections_patt.search(line)
-                    if match:
-                        corrections[match.group(1)] = FloatWithUnit(match.group(2), "kJ mol^-1").to("eV atom^-1")
+                elif match := corrections_patt.search(line):
+                    corrections[match.group(1)] = FloatWithUnit(match.group(2), "kJ mol^-1").to("eV atom^-1")
 
         if frequencies:
             for _freq, mode in frequencies:

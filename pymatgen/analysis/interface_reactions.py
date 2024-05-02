@@ -271,7 +271,7 @@ class InterfacialReactivity(MSONable):
         return self.pd.get_hull_energy(self.comp1 * x + self.comp2 * (1 - x)) - self.e1 * x - self.e2 * (1 - x)
 
     def _get_reactants(self, x: float) -> list[Composition]:
-        """Returns a list of relevant reactant compositions given an x coordinate."""
+        """Get a list of relevant reactant compositions given an x coordinate."""
         # Uses original composition for reactants.
         if np.isclose(x, 0):
             reactants = [self.c2_original]
@@ -324,7 +324,7 @@ class InterfacialReactivity(MSONable):
         return sum(rxn.get_el_amount(e) for e in self.pd.elements)
 
     def _get_plotly_figure(self) -> Figure:
-        """Returns a Plotly figure of reaction kinks diagram."""
+        """Get a Plotly figure of reaction kinks diagram."""
         kinks = map(list, zip(*self.get_kinks()))
         _, x, energy, reactions, _ = kinks
 
@@ -387,7 +387,7 @@ class InterfacialReactivity(MSONable):
         return Figure(data=data, layout=layout)
 
     def _get_matplotlib_figure(self) -> plt.Figure:
-        """Returns a matplotlib figure of reaction kinks diagram."""
+        """Get a matplotlib figure of reaction kinks diagram."""
         ax = pretty_plot(8, 5)
         plt.xlim([-0.05, 1.05])  # plot boundary is 5% wider on each side
 
@@ -421,7 +421,7 @@ class InterfacialReactivity(MSONable):
         return fig
 
     def _get_xaxis_title(self, latex: bool = True) -> str:
-        """Returns the formatted title of the x axis (using either html/latex)."""
+        """Get the formatted title of the x axis (using either html/latex)."""
         if latex:
             f1 = latexify(self.c1.reduced_formula)
             f2 = latexify(self.c2.reduced_formula)
@@ -435,7 +435,7 @@ class InterfacialReactivity(MSONable):
 
     @staticmethod
     def _get_plotly_annotations(x: list[float], y: list[float], reactions: list[Reaction]):
-        """Returns dictionary of annotations for the Plotly figure layout."""
+        """Get dictionary of annotations for the Plotly figure layout."""
         annotations = []
         for x_coord, y_coord, rxn in zip(x, y, reactions):
             products = ", ".join(
@@ -679,7 +679,7 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
         ]
 
     def _get_reactants(self, x: float) -> list[Composition]:
-        """Returns a list of relevant reactant compositions given an x coordinate."""
+        """Get a list of relevant reactant compositions given an x coordinate."""
         reactants = super()._get_reactants(x)
         reactants += [Composition(entry.symbol) for entry in self.pd.chempots]
 

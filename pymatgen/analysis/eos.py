@@ -125,7 +125,7 @@ class EOSBase(ABC):
 
     @property
     def e0(self) -> float:
-        """Returns the min energy."""
+        """Get the min energy."""
         return self._params[0]
 
     @property
@@ -140,12 +140,12 @@ class EOSBase(ABC):
 
     @property
     def b1(self):
-        """Returns the derivative of bulk modulus w.r.t. pressure(dimensionless)."""
+        """The derivative of bulk modulus w.r.t. pressure(dimensionless)."""
         return self._params[2]
 
     @property
     def v0(self):
-        """Returns the minimum or the reference volume in Ang^3."""
+        """The minimum or the reference volume in Ang^3."""
         return self._params[3]
 
     @property

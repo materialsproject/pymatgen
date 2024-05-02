@@ -90,7 +90,7 @@ class ValenceIonicRadiusEvaluator:
 
     @property
     def structure(self):
-        """Returns oxidation state decorated structure."""
+        """Oxidation state decorated structure."""
         return self._structure.copy()
 
     def _get_ionic_radii(self):
@@ -1956,11 +1956,9 @@ def vol_tetra(vt1, vt2, vt3, vt4):
 
 
 def get_okeeffe_params(el_symbol):
-    """
-    Returns the elemental parameters related to atom size and
-    electronegativity which are used for estimating bond-valence
-    parameters (bond length) of pairs of atoms on the basis of data
-    provided in 'Atoms Sizes and Bond Lengths in Molecules and Crystals'
+    """Get the elemental parameters related to atom size and electronegativity which are
+    used for estimating bond-valence parameters (bond length) of pairs of atoms on the
+    basis of data provided in 'Atoms Sizes and Bond Lengths in Molecules and Crystals'
     (O'Keeffe & Brese, 1991).
 
     Args:
@@ -1980,8 +1978,7 @@ def get_okeeffe_params(el_symbol):
 
 
 def get_okeeffe_distance_prediction(el1, el2):
-    """
-    Returns an estimate of the bond valence parameter (bond length) using
+    """Get an estimate of the bond valence parameter (bond length) using
     the derived parameters from 'Atoms Sizes and Bond Lengths in Molecules
     and Crystals' (O'Keeffe & Brese, 1991). The estimate is based on two
     experimental parameters: r and c. The value for r  is based off radius,
@@ -2007,9 +2004,7 @@ def get_okeeffe_distance_prediction(el1, el2):
 
 
 def get_neighbors_of_site_with_index(struct, n, approach="min_dist", delta=0.1, cutoff=10):
-    """
-    Returns the neighbors of a given site using a specific neighbor-finding
-    method.
+    """Get the neighbors of a given site using a specific neighbor-finding method.
 
     Args:
         struct (Structure): input structure.
@@ -2040,8 +2035,7 @@ def get_neighbors_of_site_with_index(struct, n, approach="min_dist", delta=0.1, 
 
 
 def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, cutoff=10, thresh=None):
-    """
-    Returns the motif type of the site with index n in structure struct;
+    """Get the motif type of the site with index n in structure struct;
     currently featuring "tetrahedral", "octahedral", "bcc", and "cp"
     (close-packed: fcc and hcp) as well as "square pyramidal" and
     "trigonal bipyramidal". If the site is not recognized,
@@ -2109,8 +2103,7 @@ def site_is_of_motif_type(struct, n, approach="min_dist", delta=0.1, cutoff=10, 
 
 
 def gramschmidt(vin, uin):
-    """
-    Returns that part of the first input vector
+    """Get that part of the first input vector
     that is orthogonal to the second input vector.
     The output vector is not normalized.
 
@@ -3720,8 +3713,8 @@ def _get_fictive_ionic_radius(site: Site, neighbor: PeriodicNeighbor) -> float:
     150.1-4 (1979): 23-52.
 
     Args:
-        site: The central site.
-        neighbor neighboring site.
+        site (Site): The central site.
+        neighbor (PeriodicNeighbor): The neighboring site.
 
     Returns:
         Hoppe's fictive ionic radius.
@@ -3741,8 +3734,7 @@ def _get_mean_fictive_ionic_radius(
     fictive_ionic_radii: list[float],
     minimum_fir: float | None = None,
 ) -> float:
-    """
-    Returns the mean fictive ionic radius.
+    """Get the mean fictive ionic radius.
 
     Follows equation 2:
 

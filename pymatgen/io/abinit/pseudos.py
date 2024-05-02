@@ -51,7 +51,7 @@ __maintainer__ = "Matteo Giantomassi"
 
 
 def straceback():
-    """Returns a string with the traceback."""
+    """Get a string with the traceback."""
 
     return "\n".join((traceback.format_exc(), str(sys.exc_info()[0])))
 

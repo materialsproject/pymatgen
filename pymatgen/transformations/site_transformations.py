@@ -449,12 +449,12 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
     @property
     def inverse(self) -> None:
-        """Returns None."""
+        """Get None."""
         return
 
     @property
     def is_one_to_many(self) -> bool:
-        """Returns True."""
+        """Get True."""
         return True
 
 

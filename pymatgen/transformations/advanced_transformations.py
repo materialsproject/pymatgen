@@ -322,7 +322,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
     def apply_transformation(
         self, structure: Structure, return_ranked_list: bool | int = False
     ) -> Structure | list[dict]:
-        """Returns either a single ordered structure or a sequence of all ordered
+        """Get either a single ordered structure or a sequence of all ordered
         structures.
 
         Args:
@@ -1660,7 +1660,7 @@ def _round_and_make_arr_singular(arr: np.ndarray) -> np.ndarray:
     """
 
     def round_away_from_zero(x):
-        """Returns 'x' rounded to the next integer away from 0.
+        """Get 'x' rounded to the next integer away from 0.
         If 'x' is zero, then returns zero.
         E.g. -1.2 rounds to -2.0. 1.2 rounds to 2.0.
         """
@@ -1789,7 +1789,7 @@ class SubstituteSurfaceSiteTransformation(AbstractTransformation):
 
 
 def _proj(b, a):
-    """Returns vector projection (np.ndarray) of vector b (np.ndarray)
+    """Get vector projection (np.ndarray) of vector b (np.ndarray)
     onto vector a (np.ndarray).
     """
     return (b.T @ (a / np.linalg.norm(a))) * (a / np.linalg.norm(a))

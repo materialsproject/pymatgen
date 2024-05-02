@@ -87,7 +87,7 @@ class BorgQueen:
             self._data.append(json.loads(json_str, cls=MontyDecoder))
 
     def get_data(self):
-        """Returns an list of assimilated objects."""
+        """Get an list of assimilated objects."""
         return self._data
 
     def save_data(self, filename: str | Path) -> None:

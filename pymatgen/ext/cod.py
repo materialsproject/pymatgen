@@ -75,8 +75,7 @@ class COD:
         text = self.query(sql).split("\n")
         cod_ids = []
         for line in text:
-            match = re.search(r"(\d+)", line)
-            if match:
+            if match := re.search(r"(\d+)", line):
                 cod_ids.append(int(match.group(1)))
         return cod_ids
 

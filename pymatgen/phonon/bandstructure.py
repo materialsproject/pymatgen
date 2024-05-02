@@ -144,7 +144,7 @@ class PhononBandStructure(MSONable):
                 self.nac_eigendisplacements.append(([idx / np.linalg.norm(freq[0]) for idx in freq[0]], freq[1]))
 
     def get_gamma_point(self) -> Kpoint | None:
-        """Returns the Gamma q-point as a Kpoint object (or None if not found)."""
+        """Get the Gamma q-point as a Kpoint object (or None if not found)."""
         for q_point in self.qpoints:
             if np.allclose(q_point.frac_coords, (0, 0, 0)):
                 return q_point
@@ -152,19 +152,19 @@ class PhononBandStructure(MSONable):
         return None
 
     def min_freq(self) -> tuple[Kpoint, float]:
-        """Returns the q-point where the minimum frequency is reached and its value."""
+        """Get the q-point where the minimum frequency is reached and its value."""
         idx = np.unravel_index(np.argmin(self.bands), self.bands.shape)
 
         return self.qpoints[idx[1]], self.bands[idx]
 
     def max_freq(self) -> tuple[Kpoint, float]:
-        """Returns the q-point where the maximum frequency is reached and its value."""
+        """Get the q-point where the maximum frequency is reached and its value."""
         idx = np.unravel_index(np.argmax(self.bands), self.bands.shape)
 
         return self.qpoints[idx[1]], self.bands[idx]
 
     def width(self, with_imaginary: bool = False) -> float:
-        """Returns the difference between the maximum and minimum frequencies anywhere in the
+        """Get the difference between the maximum and minimum frequencies anywhere in the
         band structure, not necessarily at identical same q-points. If with_imaginary is False,
         only positive frequencies are considered.
         """
@@ -212,7 +212,7 @@ class PhononBandStructure(MSONable):
         return len(self.eigendisplacements) > 0
 
     def get_nac_frequencies_along_dir(self, direction: Sequence) -> np.ndarray | None:
-        """Returns the nac_frequencies for the given direction (not necessarily a versor).
+        """Get the nac_frequencies for the given direction (not necessarily a versor).
         None if the direction is not present or nac_frequencies has not been calculated.
 
         Args:
@@ -230,7 +230,7 @@ class PhononBandStructure(MSONable):
         return None
 
     def get_nac_eigendisplacements_along_dir(self, direction) -> np.ndarray | None:
-        """Returns the nac_eigendisplacements for the given direction (not necessarily a versor).
+        """Get the nac_eigendisplacements for the given direction (not necessarily a versor).
         None if the direction is not present or nac_eigendisplacements has not been calculated.
 
         Args:
@@ -248,7 +248,7 @@ class PhononBandStructure(MSONable):
         return None
 
     def asr_breaking(self, tol_eigendisplacements: float = 1e-5) -> np.ndarray | None:
-        """Returns the breaking of the acoustic sum rule for the three acoustic modes,
+        """Get the breaking of the acoustic sum rule for the three acoustic modes,
         if Gamma is present. None otherwise.
         If eigendisplacements are available they are used to determine the acoustic
         modes: selects the bands corresponding  to the eigendisplacements that
@@ -457,7 +457,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             self.nac_eigendisplacements = np.array(nac_eigendisplacements, dtype=object)
 
     def get_equivalent_qpoints(self, index: int) -> list[int]:
-        """Returns the list of qpoint indices equivalent (meaning they are the
+        """Get the list of qpoint indices equivalent (meaning they are the
         same frac coords) to the given one.
 
         Args:
@@ -483,7 +483,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         return list_index_qpoints
 
     def get_branch(self, index: int) -> list[dict[str, str | int]]:
-        r"""Returns in what branch(es) is the qpoint. There can be several branches.
+        r"""Get in what branch(es) is the qpoint. There can be several branches.
 
         Args:
             index (int): the qpoint index

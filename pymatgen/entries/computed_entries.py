@@ -530,7 +530,7 @@ class ComputedEntry(Entry):
         return super().__hash__()
 
     def copy(self) -> ComputedEntry:
-        """Returns a copy of the ComputedEntry."""
+        """Get a copy of the ComputedEntry."""
         return ComputedEntry(
             composition=self.composition,
             energy=self.uncorrected_energy,
@@ -668,7 +668,7 @@ class ComputedStructureEntry(ComputedEntry):
         return entry
 
     def copy(self) -> ComputedStructureEntry:
-        """Returns a copy of the ComputedStructureEntry."""
+        """Get a copy of the ComputedStructureEntry."""
         return ComputedStructureEntry(
             structure=self.structure.copy(),
             energy=self.uncorrected_energy,

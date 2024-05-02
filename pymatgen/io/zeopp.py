@@ -124,11 +124,10 @@ class ZeoCssr(Cssr):
         coords = []
         charge = []
         for line in lines[4:]:
-            match = re.match(
+            if match := re.match(
                 r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+(?:0\s+){8}([0-9\-\.]+)",
                 line.strip(),
-            )
-            if match:
+            ):
                 sp.append(match.group(1))
                 # coords.append([float(m.group(i)) for i in xrange(2, 5)])
                 # Zeo++ takes x-axis along a and pymatgen takes z-axis along c

@@ -71,7 +71,7 @@ class Correction(abc.ABC):
 
     @abc.abstractmethod
     def get_correction(self, entry: AnyComputedEntry) -> EnergyAdjustment:
-        """Returns correction and uncertainty for a single entry.
+        """Get correction and uncertainty for a single entry.
 
         Args:
             entry: A ComputedEntry object.
@@ -680,7 +680,7 @@ class CorrectionsList(Compatibility):
         return adjustment_list
 
     def get_corrections_dict(self, entry: AnyComputedEntry) -> tuple[dict[str, float], dict[str, float]]:
-        """Returns the correction values and uncertainties applied to a particular entry.
+        """Get the correction values and uncertainties applied to a particular entry.
 
         Args:
             entry: A ComputedEntry object.
@@ -1276,7 +1276,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         super().__init__()
 
     def get_adjustments(self, entry: ComputedEntry) -> list[EnergyAdjustment]:
-        """Returns the corrections applied to a particular entry.
+        """Get the corrections applied to a particular entry.
 
         Args:
             entry: A ComputedEntry object.

@@ -1085,7 +1085,7 @@ class Vasprun(MSONable):
         return self.efermi
 
     def get_potcars(self, path: str | Path | bool) -> Potcar | None:
-        """Returns the POTCAR from the specified path.
+        """Get the POTCAR from the specified path.
 
         Args:
             path (str | Path | bool): If a str or Path, the path to search for POTCARs.
@@ -4283,22 +4283,22 @@ class Dynmat:
 
     @property
     def nspecs(self):
-        """Returns the number of species."""
+        """The number of species."""
         return self._nspecs
 
     @property
     def natoms(self):
-        """Returns the number of atoms."""
+        """The number of atoms."""
         return self._natoms
 
     @property
     def ndisps(self):
-        """Returns the number of displacements."""
+        """The number of displacements."""
         return self._ndisps
 
     @property
     def masses(self):
-        """Returns the list of atomic masses."""
+        """The list of atomic masses."""
         return list(self._masses)
 
 
@@ -5091,17 +5091,17 @@ class Waveder(MSONable):
 
     @property
     def nspin(self):
-        """Returns the number of spin channels."""
+        """The number of spin channels."""
         return self.cder_real.shape[3]
 
     @property
     def nkpoints(self):
-        """Returns the number of k-points."""
+        """The number of k-points."""
         return self.cder_real.shape[2]
 
     @property
     def nbands(self):
-        """Returns the number of bands."""
+        """The number of bands."""
         return self.cder_real.shape[0]
 
     def get_orbital_derivative_between_states(self, band_i, band_j, kpoint, spin, cart_dir):

@@ -647,13 +647,12 @@ class LammpsData(MSONable):
         header_pattern["tilt"] = r"^\s*{}$".format(r"\s+".join([float_group] * 3 + ["xy xz yz"]))
 
         header: dict[str, Any] = {"counts": {}, "types": {}}
-        bounds = {}
+        bounds: dict[str, list[float]] = {}
         for line in clean_lines(parts[0][1:]):  # skip the 1st line
             match = None
             key = None
             for key, val in header_pattern.items():  # noqa: B007
-                match = re.match(val, line)
-                if match:
+                if match := re.match(val, line):
                     break
             if match and key in {"counts", "types"}:
                 header[key][match[2]] = int(match[1])
@@ -719,11 +718,13 @@ class LammpsData(MSONable):
         err_msg += "Nos. of {} do not match between header and {} section"
         assert len(body["Masses"]) == header["types"]["atom"], err_msg.format("atom types", "Masses")
         atom_sections = ["Atoms", "Velocities"] if "Velocities" in body else ["Atoms"]
-        for s in atom_sections:
-            assert len(body[s]) == header["counts"]["atoms"], err_msg.format("atoms", s)
-        for s in SECTION_KEYWORDS["topology"]:
-            if header["counts"].get(s.lower(), 0) > 0:
-                assert len(body[s]) == header["counts"][s.lower()], err_msg.format(s.lower(), s)
+        for atom_sec in atom_sections:
+            assert len(body[atom_sec]) == header["counts"]["atoms"], err_msg.format("atoms", atom_sec)
+        for atom_sec in SECTION_KEYWORDS["topology"]:
+            if header["counts"].get(atom_sec.lower(), 0) > 0:
+                assert len(body[atom_sec]) == header["counts"][atom_sec.lower()], err_msg.format(
+                    atom_sec.lower(), atom_sec
+                )
 
         items = {k.lower(): body[k] for k in ["Masses", "Atoms"]}
         items["velocities"] = body.get("Velocities")

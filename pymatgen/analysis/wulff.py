@@ -315,7 +315,7 @@ class WulffShape:
         self.get_plot(*args, **kwargs).show()
 
     def get_line_in_facet(self, facet):
-        """Returns the sorted pts in a facet used to draw a line."""
+        """Get the sorted pts in a facet used to draw a line."""
         lines = list(facet.outer_lines)
         pt = []
         prev = line = None
@@ -626,12 +626,12 @@ class WulffShape:
 
     @property
     def miller_area_dict(self) -> dict[tuple, float]:
-        """Returns {hkl: area_hkl on wulff}."""
+        """Get {hkl: area_hkl on wulff}."""
         return dict(zip(self.miller_list, self.color_area))
 
     @property
     def miller_energy_dict(self) -> dict[tuple, float]:
-        """Returns {hkl: surface energy_hkl}."""
+        """Get {hkl: surface energy_hkl}."""
         return dict(zip(self.miller_list, self.e_surf_list))
 
     @property

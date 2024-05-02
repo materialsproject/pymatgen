@@ -65,11 +65,11 @@ class AflowPrototypeMatcher:
     @staticmethod
     def _match_prototype(structure_matcher, structure):
         tags = []
-        for d in AFLOW_PROTOTYPE_LIBRARY:
-            struct = d["snl"].structure
+        for dct in AFLOW_PROTOTYPE_LIBRARY:
+            struct = dct["snl"].structure
             match = structure_matcher.fit_anonymous(struct, structure)
             if match:
-                tags.append(d)
+                tags.append(dct)
         return tags
 
     def _match_single_prototype(self, structure: Structure):

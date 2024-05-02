@@ -70,7 +70,7 @@ class RotationTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Returns inverse Transformation."""
+        """Inverse Transformation."""
         return RotationTransformation(self.axis, -self.angle, self.angle_in_radians)
 
 
@@ -305,7 +305,7 @@ class SubstitutionTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Returns inverse Transformation."""
+        """Inverse Transformation."""
         inverse_map = {v: k for k, v in self._species_map.items()}
         return SubstitutionTransformation(inverse_map)
 
@@ -607,7 +607,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
         self.tolerance = tolerance
 
     def apply_transformation(self, structure):
-        """Returns most primitive cell for structure.
+        """Get most primitive cell for structure.
 
         Args:
             structure: A structure
@@ -638,7 +638,7 @@ class ConventionalCellTransformation(AbstractTransformation):
         self.international_monoclinic = international_monoclinic
 
     def apply_transformation(self, structure):
-        """Returns most primitive cell for structure.
+        """Get most primitive cell for structure.
 
         Args:
             structure: A structure
@@ -719,7 +719,7 @@ class DeformStructureTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Returns inverse Transformation."""
+        """Inverse Transformation."""
         return DeformStructureTransformation(self._deform.inv)
 
 
@@ -850,7 +850,7 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
         self.species_map = species_map
 
     def apply_transformation(self, structure):
-        """Returns a copy of structure with lattice parameters
+        """Get a copy of structure with lattice parameters
         and sites scaled to the same degree as the relaxed_structure.
 
         Args:
