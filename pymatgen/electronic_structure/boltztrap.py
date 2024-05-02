@@ -2277,7 +2277,7 @@ def seebeck_spb(eta, Lambda=0.5):
     )
 
 
-def eta_from_seebeck(seeb, Lambda):
+def eta_from_seebeck(seeb, Lambda) -> float:
     """It takes a value of seebeck and adjusts the analytic seebeck until it's equal.
 
     Returns:
@@ -2287,7 +2287,7 @@ def eta_from_seebeck(seeb, Lambda):
     return out[0][0]
 
 
-def seebeck_eff_mass_from_carr(eta, n, T, Lambda):
+def seebeck_eff_mass_from_carr(eta, n, T, Lambda) -> float:
     """Calculate seebeck effective mass at a certain carrier concentration
     eta in kB*T units, n in cm-3, T in K, returns mass in m0 units.
     """
@@ -2303,7 +2303,7 @@ def seebeck_eff_mass_from_carr(eta, n, T, Lambda):
     )
 
 
-def seebeck_eff_mass_from_seebeck_carr(seeb, n, T, Lambda):
+def seebeck_eff_mass_from_seebeck_carr(seeb, n, T, Lambda) -> float:
     """Find the chemical potential where analytic and calculated seebeck are identical
     and then calculate the seebeck effective mass at that chemical potential and
     a certain carrier concentration n.

@@ -532,7 +532,7 @@ class ChargemolAnalysis:
         return summary
 
     @staticmethod
-    def _get_data_from_xyz(xyz_path):
+    def _get_data_from_xyz(xyz_path) -> list[float]:
         """Internal command to process Chargemol XYZ files.
 
         Args:
@@ -556,7 +556,7 @@ class ChargemolAnalysis:
         return props
 
     @staticmethod
-    def _get_cm5_data_from_output(ddec_analysis_path):
+    def _get_cm5_data_from_output(ddec_analysis_path) -> list[float]:
         """Internal command to process Chargemol CM5 data.
 
         Args:

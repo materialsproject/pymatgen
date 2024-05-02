@@ -682,16 +682,16 @@ class CoordinationGeometry:
         return self._pauling_stability_ratio
 
     @property
-    def mp_symbol(self):
+    def mp_symbol(self) -> str:
         """Returns the MP symbol of this coordination geometry."""
         return self._mp_symbol
 
     @property
-    def ce_symbol(self):
-        """Returns the symbol of this coordination geometry."""
+    def ce_symbol(self) -> str:
+        """Returns the symbol of this coordination geometry. Same as the MP symbol."""
         return self._mp_symbol
 
-    def get_coordination_number(self):
+    def get_coordination_number(self) -> int:
         """Returns the coordination number of this coordination geometry."""
         return self.coordination
 
@@ -699,22 +699,22 @@ class CoordinationGeometry:
         """Returns True if this coordination geometry is implemented."""
         return bool(self.points)
 
-    def get_name(self):
+    def get_name(self) -> str:
         """Returns the name of this coordination geometry."""
         return self.name
 
     @property
-    def IUPAC_symbol(self):
+    def IUPAC_symbol(self) -> str:
         """Returns the IUPAC symbol of this coordination geometry."""
         return self.IUPACsymbol
 
     @property
-    def IUPAC_symbol_str(self):
+    def IUPAC_symbol_str(self) -> str:
         """Returns a string representation of the IUPAC symbol of this coordination geometry."""
         return str(self.IUPACsymbol)
 
     @property
-    def IUCr_symbol(self):
+    def IUCr_symbol(self) -> str:
         """Returns the IUCr symbol of this coordination geometry."""
         return self.IUCrsymbol
 
@@ -848,7 +848,7 @@ class AllCoordinationGeometries(dict):
             only_symbols: Whether to restrict the list of environments to be identified.
         """
         dict.__init__(self)
-        self.cg_list = []
+        self.cg_list: list[CoordinationGeometry] = []
         if only_symbols is None:
             with open(f"{module_dir}/coordination_geometries_files/allcg.txt") as file:
                 data = file.readlines()
@@ -943,18 +943,18 @@ class AllCoordinationGeometries(dict):
         """
         geom = []
         if coordination is None:
-            for gg in self.cg_list:
+            for coord_geom in self.cg_list:
                 if returned == "cg":
-                    geom.append(gg)
+                    geom.append(coord_geom)
                 elif returned == "mp_symbol":
-                    geom.append(gg.mp_symbol)
+                    geom.append(coord_geom.mp_symbol)
         else:
-            for gg in self.cg_list:
-                if gg.get_coordination_number() == coordination:
+            for coord_geom in self.cg_list:
+                if coord_geom.get_coordination_number() == coordination:
                     if returned == "cg":
-                        geom.append(gg)
+                        geom.append(coord_geom)
                     elif returned == "mp_symbol":
-                        geom.append(gg.mp_symbol)
+                        geom.append(coord_geom.mp_symbol)
         return geom
 
     def get_symbol_name_mapping(self, coordination=None):
@@ -969,12 +969,12 @@ class AllCoordinationGeometries(dict):
         """
         geom = {}
         if coordination is None:
-            for gg in self.cg_list:
-                geom[gg.mp_symbol] = gg.name
+            for coord_geom in self.cg_list:
+                geom[coord_geom.mp_symbol] = coord_geom.name
         else:
-            for gg in self.cg_list:
-                if gg.get_coordination_number() == coordination:
-                    geom[gg.mp_symbol] = gg.name
+            for coord_geom in self.cg_list:
+                if coord_geom.get_coordination_number() == coordination:
+                    geom[coord_geom.mp_symbol] = coord_geom.name
         return geom
 
     def get_symbol_cn_mapping(self, coordination=None):
@@ -989,12 +989,12 @@ class AllCoordinationGeometries(dict):
         """
         geom = {}
         if coordination is None:
-            for gg in self.cg_list:
-                geom[gg.mp_symbol] = gg.coordination_number
+            for coord_geom in self.cg_list:
+                geom[coord_geom.mp_symbol] = coord_geom.coordination_number
         else:
-            for gg in self.cg_list:
-                if gg.get_coordination_number() == coordination:
-                    geom[gg.mp_symbol] = gg.coordination_number
+            for coord_geom in self.cg_list:
+                if coord_geom.get_coordination_number() == coordination:
+                    geom[coord_geom.mp_symbol] = coord_geom.coordination_number
         return geom
 
     def get_implemented_geometries(self, coordination=None, returned="cg", include_deactivated=False):
@@ -1008,23 +1008,23 @@ class AllCoordinationGeometries(dict):
         """
         geom = []
         if coordination is None:
-            for gg in self.cg_list:
-                if gg.points is not None and ((not gg.deactivate) or include_deactivated):
+            for coord_geom in self.cg_list:
+                if coord_geom.points is not None and ((not coord_geom.deactivate) or include_deactivated):
                     if returned == "cg":
-                        geom.append(gg)
+                        geom.append(coord_geom)
                     elif returned == "mp_symbol":
-                        geom.append(gg.mp_symbol)
+                        geom.append(coord_geom.mp_symbol)
         else:
-            for gg in self.cg_list:
+            for coord_geom in self.cg_list:
                 if (
-                    gg.get_coordination_number() == coordination
-                    and gg.points is not None
-                    and ((not gg.deactivate) or include_deactivated)
+                    coord_geom.get_coordination_number() == coordination
+                    and coord_geom.points is not None
+                    and ((not coord_geom.deactivate) or include_deactivated)
                 ):
                     if returned == "cg":
-                        geom.append(gg)
+                        geom.append(coord_geom)
                     elif returned == "mp_symbol":
-                        geom.append(gg.mp_symbol)
+                        geom.append(coord_geom.mp_symbol)
         return geom
 
     def get_not_implemented_geometries(self, coordination=None, returned="mp_symbol"):
@@ -1037,63 +1037,63 @@ class AllCoordinationGeometries(dict):
         """
         geom = []
         if coordination is None:
-            for gg in self.cg_list:
-                if gg.points is None:
+            for coord_geom in self.cg_list:
+                if coord_geom.points is None:
                     if returned == "cg":
-                        geom.append(gg)
+                        geom.append(coord_geom)
                     elif returned == "mp_symbol":
-                        geom.append(gg.mp_symbol)
+                        geom.append(coord_geom.mp_symbol)
         else:
-            for gg in self.cg_list:
-                if gg.get_coordination_number() == coordination and gg.points is None:
+            for coord_geom in self.cg_list:
+                if coord_geom.get_coordination_number() == coordination and coord_geom.points is None:
                     if returned == "cg":
-                        geom.append(gg)
+                        geom.append(coord_geom)
                     elif returned == "mp_symbol":
-                        geom.append(gg.mp_symbol)
+                        geom.append(coord_geom.mp_symbol)
         return geom
 
-    def get_geometry_from_name(self, name):
+    def get_geometry_from_name(self, name: str) -> CoordinationGeometry:
         """Get the coordination geometry of the given name.
 
         Args:
             name: The name of the coordination geometry.
         """
-        for gg in self.cg_list:
-            if gg.name == name or name in gg.alternative_names:
-                return gg
+        for coord_geom in self.cg_list:
+            if coord_geom.name == name or name in coord_geom.alternative_names:
+                return coord_geom
         raise LookupError(f"No coordination geometry found with name {name!r}")
 
-    def get_geometry_from_IUPAC_symbol(self, IUPAC_symbol):
+    def get_geometry_from_IUPAC_symbol(self, IUPAC_symbol: str) -> CoordinationGeometry:
         """Get the coordination geometry of the given IUPAC symbol.
 
         Args:
             IUPAC_symbol: The IUPAC symbol of the coordination geometry.
         """
-        for gg in self.cg_list:
-            if gg.IUPAC_symbol == IUPAC_symbol:
-                return gg
+        for coord_geom in self.cg_list:
+            if coord_geom.IUPAC_symbol == IUPAC_symbol:
+                return coord_geom
         raise LookupError(f"No coordination geometry found with IUPAC symbol {IUPAC_symbol!r}")
 
-    def get_geometry_from_IUCr_symbol(self, IUCr_symbol):
+    def get_geometry_from_IUCr_symbol(self, IUCr_symbol: str) -> CoordinationGeometry:
         """Get the coordination geometry of the given IUCr symbol.
 
         Args:
             IUCr_symbol: The IUCr symbol of the coordination geometry.
         """
-        for gg in self.cg_list:
-            if gg.IUCr_symbol == IUCr_symbol:
-                return gg
+        for coord_geom in self.cg_list:
+            if coord_geom.IUCr_symbol == IUCr_symbol:
+                return coord_geom
         raise LookupError(f"No coordination geometry found with IUCr symbol {IUCr_symbol!r}")
 
-    def get_geometry_from_mp_symbol(self, mp_symbol):
+    def get_geometry_from_mp_symbol(self, mp_symbol: str) -> CoordinationGeometry:
         """Get the coordination geometry of the given mp_symbol.
 
         Args:
             mp_symbol: The mp_symbol of the coordination geometry.
         """
-        for gg in self.cg_list:
-            if gg.mp_symbol == mp_symbol:
-                return gg
+        for coord_geom in self.cg_list:
+            if coord_geom.mp_symbol == mp_symbol:
+                return coord_geom
         raise LookupError(f"No coordination geometry found with mp_symbol {mp_symbol!r}")
 
     def is_a_valid_coordination_geometry(

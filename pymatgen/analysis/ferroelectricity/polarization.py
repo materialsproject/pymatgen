@@ -69,7 +69,7 @@ __status__ = "Development"
 __date__ = "April 15, 2017"
 
 
-def zval_dict_from_potcar(potcar):
+def zval_dict_from_potcar(potcar) -> dict[str, float]:
     """
     Creates zval_dictionary for calculating the ionic polarization from
     Potcar object.

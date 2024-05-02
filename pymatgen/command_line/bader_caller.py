@@ -497,7 +497,7 @@ class BaderAnalysis:
         )
 
 
-def bader_analysis_from_path(path: str, suffix: str = ""):
+def bader_analysis_from_path(path: str, suffix: str = "") -> dict[str, Any]:
     """Convenience method to run Bader analysis on a folder containing
     typical VASP output files.
 
@@ -560,7 +560,7 @@ def bader_analysis_from_objects(
     potcar: Potcar | None = None,
     aeccar0: Chgcar | None = None,
     aeccar2: Chgcar | None = None,
-):
+) -> dict[str, Any]:
     """Convenience method to run Bader analysis from a set
     of pymatgen Chgcar and Potcar objects.
 

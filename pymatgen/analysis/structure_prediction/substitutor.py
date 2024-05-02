@@ -76,7 +76,7 @@ class Substitutor(MSONable):
         structures_list,
         remove_duplicates=True,
         remove_existing=False,
-    ):
+    ) -> list[TransformedStructure]:
         """
         Performs a structure prediction targeting compounds containing all of
         the target_species, based on a list of structure (those structures
@@ -168,11 +168,11 @@ class Substitutor(MSONable):
         return abs(sum(site.specie.oxi_state for site in struct)) < Substitutor.charge_balanced_tol
 
     @staticmethod
-    def _is_from_chemical_system(chemical_system, struct):
+    def _is_from_chemical_system(chemical_system, struct) -> bool:
         """Check if the structure object is from the given chemical system."""
         return {sp.symbol for sp in struct.composition} == set(chemical_system)
 
-    def pred_from_list(self, species_list):
+    def pred_from_list(self, species_list) -> list[dict]:
         """
         There are an exceptionally large number of substitutions to
         look at (260^n), where n is the number of species in the
@@ -225,20 +225,20 @@ class Substitutor(MSONable):
         logging.info(f"{len(output)} substitutions found")
         return output
 
-    def pred_from_comp(self, composition):
+    def pred_from_comp(self, composition) -> list[dict]:
         """Similar to pred_from_list except this method returns a list after
         checking that compositions are charge balanced.
         """
         output = []
         predictions = self.pred_from_list(composition.elements)
-        for p in predictions:
-            subs = p["substitutions"]
+        for pred in predictions:
+            subs = pred["substitutions"]
             charge = 0
             for i_el in composition.elements:
                 f_el = subs[i_el]
                 charge += f_el.oxi_state * composition[i_el]
             if charge == 0:
-                output.append(p)
+                output.append(pred)
         logging.info(f"{len(output)} charge balanced compositions found")
         return output
 

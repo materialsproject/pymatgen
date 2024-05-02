@@ -742,15 +742,14 @@ class ElasticTensorExpansion(TensorCollection):
             ce_exp.append(temp)
         return TensorCollection(ce_exp)
 
-    def get_strain_from_stress(self, stress):
-        """Get the strain from a stress state according
-        to the compliance expansion corresponding to the
-        tensor expansion.
+    def get_strain_from_stress(self, stress) -> float:
+        """Get the strain from a stress state according to the compliance
+        expansion corresponding to the tensor expansion.
         """
         compl_exp = self.get_compliance_expansion()
         strain = 0
-        for n, compl in enumerate(compl_exp, start=1):
-            strain += compl.einsum_sequence([stress] * (n)) / factorial(n)
+        for idx, compl in enumerate(compl_exp, start=1):
+            strain += compl.einsum_sequence([stress] * (idx)) / factorial(idx)
         return strain
 
     def get_effective_ecs(self, strain, order=2):

@@ -10,7 +10,9 @@ from pymatgen.analysis.structure_prediction.substitution_probability import Subs
 from pymatgen.core import Element, Species
 
 
-def get_dopants_from_substitution_probabilities(structure, num_dopants=5, threshold=0.001, match_oxi_sign=False):
+def get_dopants_from_substitution_probabilities(
+    structure, num_dopants=5, threshold=0.001, match_oxi_sign=False
+) -> dict:
     """
     Get dopant suggestions based on substitution probabilities.
 
@@ -123,7 +125,7 @@ def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_si
     return _get_dopants(possible_dopants, num_dopants, match_oxi_sign)
 
 
-def _get_dopants(substitutions, num_dopants, match_oxi_sign):
+def _get_dopants(substitutions, num_dopants, match_oxi_sign) -> dict:
     """Utility method to get n- and p-type dopants from a list of substitutions."""
     n_type = [
         pred
