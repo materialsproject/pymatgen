@@ -1075,31 +1075,31 @@ class BSPlotterProjected(BSPlotter):
             self._make_ticks(ax)
             ax.set_title(str(el))
 
-            for band_idx in range(len(data["distances"])):
+            for b in range(len(data["distances"])):
                 for band_idx in range(self._nb_bands):
                     ax.plot(
-                        data["distances"][band_idx],
-                        data["energy"][str(Spin.up)][band_idx][band_idx],
+                        data["distances"][b],
+                        data["energy"][str(Spin.up)][b][band_idx],
                         "-",
                         color=[192 / 255, 192 / 255, 192 / 255],
                         linewidth=band_linewidth,
                     )
                     if self._bs.is_spin_polarized:
                         ax.plot(
-                            data["distances"][band_idx],
-                            data["energy"][str(Spin.down)][band_idx][band_idx],
+                            data["distances"][b],
+                            data["energy"][str(Spin.down)][b][band_idx],
                             "--",
                             color=[128 / 255, 128 / 255, 128 / 255],
                             linewidth=band_linewidth,
                         )
                         for j in range(len(data["energy"][str(Spin.up)][band_idx][band_idx])):
                             markerscale = sum(
-                                proj[band_idx][str(Spin.down)][band_idx][j][str(el)][o]
-                                for o in proj[band_idx][str(Spin.down)][band_idx][j][str(el)]
+                                proj[b][str(Spin.down)][band_idx][j][str(el)][o]
+                                for o in proj[b][str(Spin.down)][band_idx][j][str(el)]
                             )
                             ax.plot(
-                                data["distances"][band_idx][j],
-                                data["energy"][str(Spin.down)][band_idx][band_idx][j],
+                                data["distances"][b][j],
+                                data["energy"][str(Spin.down)][b][band_idx][j],
                                 "bo",
                                 markersize=markerscale * 15.0,
                                 color=[
@@ -1108,14 +1108,14 @@ class BSPlotterProjected(BSPlotter):
                                     0.4 * markerscale,
                                 ],
                             )
-                    for j in range(len(data["energy"][str(Spin.up)][band_idx][band_idx])):
+                    for j in range(len(data["energy"][str(Spin.up)][b][band_idx])):
                         markerscale = sum(
-                            proj[band_idx][str(Spin.up)][band_idx][j][str(el)][o]
-                            for o in proj[band_idx][str(Spin.up)][band_idx][j][str(el)]
+                            proj[b][str(Spin.up)][band_idx][j][str(el)][o]
+                            for o in proj[b][str(Spin.up)][band_idx][j][str(el)]
                         )
                         ax.plot(
-                            data["distances"][band_idx][j],
-                            data["energy"][str(Spin.up)][band_idx][band_idx][j],
+                            data["distances"][b][j],
+                            data["energy"][str(Spin.up)][b][band_idx][j],
                             "o",
                             markersize=markerscale * 15.0,
                             color=[markerscale, 0.3 * markerscale, 0.4 * markerscale],
