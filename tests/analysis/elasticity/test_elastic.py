@@ -196,13 +196,13 @@ class TestElasticTensor(PymatgenTest):
 
     def test_from_pseudoinverse(self):
         strain_list = [Strain.from_deformation(def_matrix) for def_matrix in self.def_stress_dict["deformations"]]
-        stress_list = list(self.def_stress_dict["stresses"])
+        stresses = list(self.def_stress_dict["stresses"])
         with pytest.warns(
             UserWarning,
             match="Pseudo-inverse fitting of Strain/Stress lists may yield questionable results from "
             "vasp data, use with caution",
         ):
-            et_fl = -0.1 * ElasticTensor.from_pseudoinverse(strain_list, stress_list).voigt
+            et_fl = -0.1 * ElasticTensor.from_pseudoinverse(strain_list, stresses).voigt
             assert_allclose(
                 et_fl.round(2),
                 [

@@ -639,8 +639,8 @@ class LobsterNeighbors(NearNeighbors):
         summed_icohps = 0.0
         list_icohps = []
         number_bonds = 0
-        label_list = []
-        atoms_list = []
+        labels = []
+        atoms = []
         for isite in isites:
             for in_site, n_site in enumerate(self.list_neighsite[isite]):
                 for in_site2, n_site2 in enumerate(self.list_neighsite[isite]):
@@ -680,8 +680,8 @@ class LobsterNeighbors(NearNeighbors):
                                         summed_icohps += icohp.summed_icohp
                                         list_icohps.append(icohp.summed_icohp)
                                         number_bonds += 1
-                                        label_list.append(label)
-                                        atoms_list.append(
+                                        labels.append(label)
+                                        atoms.append(
                                             [
                                                 self.Icohpcollection._list_atom1[int(label) - 1],
                                                 self.Icohpcollection._list_atom2[int(label) - 1],
@@ -699,8 +699,8 @@ class LobsterNeighbors(NearNeighbors):
                                         summed_icohps += icohp.summed_icohp
                                         list_icohps.append(icohp.summed_icohp)
                                         number_bonds += 1
-                                        label_list.append(label)
-                                        atoms_list.append(
+                                        labels.append(label)
+                                        atoms.append(
                                             [
                                                 self.Icohpcollection._list_atom1[int(label) - 1],
                                                 self.Icohpcollection._list_atom2[int(label) - 1],
@@ -708,7 +708,7 @@ class LobsterNeighbors(NearNeighbors):
                                         )
                                         done = True
 
-        return ICOHPNeighborsInfo(summed_icohps, list_icohps, number_bonds, label_list, atoms_list, None)
+        return ICOHPNeighborsInfo(summed_icohps, list_icohps, number_bonds, labels, atoms, None)
 
     def _evaluate_ce(
         self,

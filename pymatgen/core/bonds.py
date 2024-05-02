@@ -151,22 +151,22 @@ def get_bond_order(sp1, sp2, dist: float, tol: float = 0.2, default_bl: float | 
         Float value of bond order. For example, for C-C bond in benzene,
         return 1.7.
     """
-    all_lengths = obtain_all_bond_lengths(sp1, sp2, default_bl)
+    all_lens = obtain_all_bond_lengths(sp1, sp2, default_bl)
     # Transform bond lengths dict to list assuming bond data is successive
     # and add an imaginary bond 0 length
-    lengths_list = [all_lengths[1] * (1 + tol)] + [all_lengths[idx + 1] for idx in range(len(all_lengths))]
+    lens = [all_lens[1] * (1 + tol)] + [all_lens[idx + 1] for idx in range(len(all_lens))]
     trial_bond_order = 0
-    while trial_bond_order < len(lengths_list):
-        if lengths_list[trial_bond_order] < dist:
+    while trial_bond_order < len(lens):
+        if lens[trial_bond_order] < dist:
             if trial_bond_order == 0:
                 return trial_bond_order
-            low_bl = lengths_list[trial_bond_order]
-            high_bl = lengths_list[trial_bond_order - 1]
+            low_bl = lens[trial_bond_order]
+            high_bl = lens[trial_bond_order - 1]
             return trial_bond_order - (dist - low_bl) / (high_bl - low_bl)
         trial_bond_order += 1
     # Distance shorter than the shortest bond length stored,
     # check if the distance is too short
-    if dist < lengths_list[-1] * (1 - tol):  # too short
+    if dist < lens[-1] * (1 - tol):  # too short
         warnings.warn(f"{dist:.2f} angstrom distance is too short for {sp1} and {sp2}")
     # return the highest bond order
     return trial_bond_order - 1

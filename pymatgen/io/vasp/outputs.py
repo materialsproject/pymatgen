@@ -1135,8 +1135,8 @@ class Vasprun(MSONable):
         from pymatgen.core.trajectory import Trajectory
 
         structs = []
-        steps_list = self.md_data or self.ionic_steps
-        for step in steps_list:
+        steps = self.md_data or self.ionic_steps
+        for step in steps:
             struct = step["structure"].copy()
             struct.add_site_property("forces", step["forces"])
             structs.append(struct)

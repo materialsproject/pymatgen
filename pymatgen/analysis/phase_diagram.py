@@ -2583,18 +2583,18 @@ class PDPlotter:
         Returns:
             Dictionary with Plotly figure layout settings.
         """
-        annotations_list = None
+        annotations = None
         layout = {}
 
         if label_stable:
-            annotations_list = self._create_plotly_element_annotations()
+            annotations = self._create_plotly_element_annotations()
 
         if self._dim == 1:
             layout = plotly_layouts["default_unary_layout"].copy()
         if self._dim == 2:
             layout = plotly_layouts["default_binary_layout"].copy()
             layout["xaxis"]["title"] = f"Composition (Fraction {self._pd.elements[1]})"
-            layout["annotations"] = annotations_list
+            layout["annotations"] = annotations
         elif self._dim == 3 and self.ternary_style == "2d":
             layout = plotly_layouts["default_ternary_2d_layout"].copy()
             for el, axis in zip(self._pd.elements, ["a", "b", "c"]):
@@ -2609,10 +2609,10 @@ class PDPlotter:
                 }
         elif self._dim == 3 and self.ternary_style == "3d":
             layout = plotly_layouts["default_ternary_3d_layout"].copy()
-            layout["scene"]["annotations"] = annotations_list
+            layout["scene"]["annotations"] = annotations
         elif self._dim == 4:
             layout = plotly_layouts["default_quaternary_layout"].copy()
-            layout["scene"]["annotations"] = annotations_list
+            layout["scene"]["annotations"] = annotations
 
         return layout
 

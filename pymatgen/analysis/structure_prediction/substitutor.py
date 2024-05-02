@@ -73,7 +73,7 @@ class Substitutor(MSONable):
     def pred_from_structures(
         self,
         target_species,
-        structures_list,
+        structures,
         remove_duplicates=True,
         remove_existing=False,
     ) -> list[TransformedStructure]:
@@ -119,7 +119,7 @@ class Substitutor(MSONable):
             raise ValueError("the species in target_species are not allowed for the probability model you are using")
 
         for permutation in itertools.permutations(target_species):
-            for dct in structures_list:
+            for dct in structures:
                 # check if: species are in the domain,
                 # and the probability of subst. is above the threshold
                 els = dct["structure"].elements
@@ -154,12 +154,10 @@ class Substitutor(MSONable):
             # Make the list of structures from structures_list that corresponds to the
             # target species
             chemsys = {sp.symbol for sp in target_species}
-            structures_list_target = [
-                st["structure"]
-                for st in structures_list
-                if Substitutor._is_from_chemical_system(chemsys, st["structure"])
+            structures_target = [
+                st["structure"] for st in structures if Substitutor._is_from_chemical_system(chemsys, st["structure"])
             ]
-            transmuter.apply_filter(RemoveExistingFilter(structures_list_target, symprec=self._symprec))
+            transmuter.apply_filter(RemoveExistingFilter(structures_target, symprec=self._symprec))
         return transmuter.transformed_structures
 
     @staticmethod

@@ -282,12 +282,12 @@ class BSPlotter:
 
         self.add_bs(bs)
 
-    def _check_bs_kpath(self, bs_list: list[BandStructureSymmLine]) -> Literal[True]:
+    def _check_bs_kpath(self, band_structs: list[BandStructureSymmLine]) -> Literal[True]:
         """Helper method that check all the band objs in bs_list are
         BandStructureSymmLine objs and they all have the same kpath.
         """
         # check obj type
-        for bs in bs_list:
+        for bs in band_structs:
             if not isinstance(bs, BandStructureSymmLine):
                 raise ValueError(
                     "BSPlotter only works with BandStructureSymmLine objects. "
@@ -296,15 +296,15 @@ class BSPlotter:
                 )
 
         # check the kpath
-        if len(bs_list) == 1 and not self._bs:
+        if len(band_structs) == 1 and not self._bs:
             return True
 
-        if not self._bs:
-            kpath_ref = [br["name"] for br in bs_list[0].branches]
-        else:
+        if self._bs:
             kpath_ref = [br["name"] for br in self._bs[0].branches]
+        else:
+            kpath_ref = [br["name"] for br in band_structs[0].branches]
 
-        for bs in bs_list:
+        for bs in band_structs:
             if kpath_ref != [br["name"] for br in bs.branches]:
                 msg = (
                     f"BSPlotter only works with BandStructureSymmLine "
