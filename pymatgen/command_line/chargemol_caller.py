@@ -425,7 +425,7 @@ class ChargemolAnalysis:
                 if start and line.strip() == "":
                     break
                 if idx >= 2:
-                    dipoles.append([float(d) for d in line.strip().split()[7:10]])
+                    dipoles.append([float(d) for d in line.strip().split()[6:9]])
                 if start:
                     idx += 1
 
