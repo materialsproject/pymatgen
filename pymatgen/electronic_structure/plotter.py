@@ -957,6 +957,7 @@ class BSPlotterProjected(BSPlotter):
         ylim: tuple[float, float] | None = None,
         vbm_cbm_marker: bool = False,
         band_linewidth: float = 1.0,
+        marker_size: float = 15.0,
     ) -> plt.Axes:
         """Generate a plot with subplots for each element-orbital pair.
 
@@ -976,6 +977,7 @@ class BSPlotterProjected(BSPlotter):
             ylim: The y-axis limits. Defaults to None.
             vbm_cbm_marker (bool): Add markers for the VBM and CBM. Defaults to False.
             band_linewidth (float): The width of the lines. Defaults to 1.0.
+            marker_size (float): The size of the markers. Defaults to 15.0.
 
         Returns:
             plt.Axes
@@ -1014,6 +1016,16 @@ class BSPlotterProjected(BSPlotter):
                             "b-",
                             linewidth=band_linewidth,
                         )
+                        for j in range(len(data["energy"][str(Spin.up)][k_path_idx][band_idx])):
+                            ax.plot(
+                                data["distances"][k_path_idx][j],
+                                data["energy"][str(Spin.up)][k_path_idx][band_idx][j],
+                                "bo",
+                                markersize=proj[k_path_idx][str(Spin.up)][band_idx][j][str(element)][orbital]
+                                * marker_size,
+                            )
+
+                        # Plot spin-down if spin polarized
                         if self._bs.is_spin_polarized:
                             ax.plot(
                                 data["distances"][k_path_idx],
@@ -1027,15 +1039,9 @@ class BSPlotterProjected(BSPlotter):
                                     data["energy"][str(Spin.down)][k_path_idx][band_idx][j],
                                     "ro",
                                     markersize=proj[k_path_idx][str(Spin.down)][band_idx][j][str(element)][orbital]
-                                    * 15.0,
+                                    * marker_size,
                                 )
-                        for j in range(len(data["energy"][str(Spin.up)][k_path_idx][band_idx])):
-                            ax.plot(
-                                data["distances"][k_path_idx][j],
-                                data["energy"][str(Spin.up)][k_path_idx][band_idx][j],
-                                "bo",
-                                markersize=proj[k_path_idx][str(Spin.up)][band_idx][j][str(element)][orbital] * 15.0,
-                            )
+
                 if ylim is None:
                     if self._bs.is_metal():
                         if zero_to_efermi:
