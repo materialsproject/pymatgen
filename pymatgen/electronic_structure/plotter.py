@@ -990,7 +990,6 @@ class BSPlotterProjected(BSPlotter):
 
         for col_idx, element in enumerate(dictio):
             for row_idx in range(n_rows):
-
                 ax = axs[col_idx] if n_rows == 1 else axs[row_idx, col_idx]
 
                 # Skip empty orbitals
@@ -1003,7 +1002,7 @@ class BSPlotterProjected(BSPlotter):
                 self._make_ticks(ax)
 
                 # Set title (with orbital name as subscript)
-                ax.set_title(rf"${{\mathrm{{{element}}}}}_{{\mathrm{{{orbital}}}}}$")
+                ax.set_title(rf"${{\mathrm{{{element}}}}}_{{\mathrm{{{orbital}}}}}$", fontsize=18)
 
                 # Walk through high symmetry points of the band structure
                 # (Gamma->X, X->M, ...)
