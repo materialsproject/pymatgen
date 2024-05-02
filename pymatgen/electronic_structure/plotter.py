@@ -994,7 +994,6 @@ class BSPlotterProjected(BSPlotter):
 
         for col_idx, element in enumerate(dictio):
             for row_idx, orbital in enumerate(dictio[element]):
-
                 ax = axs[col_idx] if n_rows == 1 else axs[row_idx, col_idx]
                 ax.set_visible(True)
 
@@ -1025,7 +1024,8 @@ class BSPlotterProjected(BSPlotter):
                                     data["distances"][k_path_idx][j],
                                     data["energy"][str(Spin.down)][k_path_idx][band_idx][j],
                                     "ro",
-                                    markersize=proj[k_path_idx][str(Spin.down)][band_idx][j][str(element)][orbital] * 15.0,
+                                    markersize=proj[k_path_idx][str(Spin.down)][band_idx][j][str(element)][orbital]
+                                    * 15.0,
                                 )
                         for j in range(len(data["energy"][str(Spin.up)][k_path_idx][band_idx])):
                             ax.plot(
