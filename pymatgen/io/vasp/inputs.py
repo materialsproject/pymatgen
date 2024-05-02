@@ -1483,7 +1483,8 @@ class Kpoints(MSONable):
             num_kpts=divisions,
         )
 
-    def copy(self):
+    def copy(self) -> Self:
+        """Make a copy of the Kpoints object."""
         return self.from_dict(self.as_dict())
 
     @classmethod

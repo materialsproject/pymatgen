@@ -252,8 +252,8 @@ class Slab(Structure):
         dct["energy"] = self.energy
         return dct
 
-    def copy(self, site_properties: dict[str, Any] | None = None) -> Slab:  # type: ignore[override]
-        """Get a copy of the structure, with options to update site properties.
+    def copy(self, site_properties: dict[str, Any] | None = None) -> Self:  # type: ignore[override]
+        """Get a copy of the Slab, with options to update site properties.
 
         Args:
             site_properties (dict): Properties to update. The

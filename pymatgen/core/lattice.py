@@ -131,8 +131,8 @@ class Lattice(MSONable):
             fmt = "{} {} {}\n{} {} {}\n{} {} {}"
         return fmt.format(*(format(c, fmt_spec) for row in matrix for c in row))
 
-    def copy(self):
-        """Deep copy of self."""
+    def copy(self) -> Self:
+        """Make a copy of this lattice."""
         return type(self)(self.matrix.copy(), pbc=self.pbc)
 
     @property
