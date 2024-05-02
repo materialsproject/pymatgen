@@ -416,8 +416,8 @@ class ChargemolAnalysis:
         idx = 0
         start = False
         dipoles = []
-        with open(filepath) as r:
-            for line in r:
+        with open(filepath) as file:
+            for line in file:
                 if "The following XYZ" in line:
                     start = True
                     idx += 1
@@ -425,7 +425,7 @@ class ChargemolAnalysis:
                 if start and line.strip() == "":
                     break
                 if idx >= 2:
-                    dipoles.append([float(d) for d in line.strip().split()[6:9]])
+                    dipoles.append(list(map(float, line.strip().split()[6:9])))
                 if start:
                     idx += 1
 
@@ -441,9 +441,9 @@ class ChargemolAnalysis:
         # Get where relevant info for each atom starts
         bond_order_info = {}
 
-        with open(filename, encoding="utf-8") as r:
+        with open(filename, encoding="utf-8") as file:
             start_idx = 0
-            for line in r:
+            for line in file:
                 split = line.strip().split()
                 if "Printing BOs" in line:
                     start_idx = int(split[5]) - 1
@@ -543,8 +543,8 @@ class ChargemolAnalysis:
         """
         props = []
         if os.path.isfile(xyz_path):
-            with open(xyz_path) as r:
-                for idx, line in enumerate(r):
+            with open(xyz_path) as file:
+                for idx, line in enumerate(file):
                     if idx <= 1:
                         continue
                     if line.strip() == "":
@@ -568,8 +568,8 @@ class ChargemolAnalysis:
         props = []
         if os.path.isfile(ddec_analysis_path):
             start = False
-            with open(ddec_analysis_path) as r:
-                for line in r:
+            with open(ddec_analysis_path) as file:
+                for line in file:
                     if "computed CM5" in line:
                         start = True
                         continue
