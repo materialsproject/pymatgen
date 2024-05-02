@@ -1012,8 +1012,7 @@ class _MPResterLegacy:
                     )
                     break
                 except MPRestError as exc:
-                    match = re.search(r"error status code (\d+)", str(exc))
-                    if match:
+                    if match := re.search(r"error status code (\d+)", str(exc)):
                         if not match.group(1).startswith("5"):
                             raise exc
                         n_tries += 1

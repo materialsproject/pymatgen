@@ -683,8 +683,7 @@ class AdfOutput:
                     break
 
                 if self.run_type is None:
-                    match = run_type_patt.search(line)
-                    if match:
+                    if match := run_type_patt.search(line):
                         if match.group(1) == "FREQUENCIES":
                             self.freq_type = "Numerical"
                             self.run_type = "NumericalFreq"
@@ -698,18 +697,14 @@ class AdfOutput:
                             raise AdfOutputError("Undefined Runtype!")
 
                 elif self.run_type == "SinglePoint":
-                    match = coord_patt.search(line)
-                    if match:
+                    if match := coord_patt.search(line):
                         sites.append([match.groups()[0], list(map(float, match.groups()[2:]))])
-                    else:
-                        match = final_energy_patt.search(line)
-                        if match:
-                            self.final_energy = float(match.group(1))
-                            self.final_structure = self._sites_to_mol(sites)
+                    elif match := final_energy_patt.search(line):
+                        self.final_energy = float(match.group(1))
+                        self.final_structure = self._sites_to_mol(sites)
 
                 elif self.run_type == "GeometryOptimization":
-                    match = cycle_patt.search(line)
-                    if match:
+                    if match := cycle_patt.search(line):
                         cycle = int(match.group(1))
                         if cycle <= 0:
                             raise AdfOutputError(f"Wrong {cycle=}")
@@ -719,20 +714,16 @@ class AdfOutput:
                         else:
                             parse_final = True
                     elif parse_cycle:
-                        match = coord_patt.search(line)
-                        if match:
+                        if match := coord_patt.search(line):
                             sites.append([match.groups()[1], list(map(float, match.groups()[2:]))])
-                        else:
-                            match = energy_patt.search(line)
-                            if match:
-                                self.energies.append(float(match.group(1)))
-                                mol = self._sites_to_mol(sites)
-                                self.structures.append(mol)
-                                parse_cycle = False
-                                sites = []
+                        elif match := energy_patt.search(line):
+                            self.energies.append(float(match.group(1)))
+                            mol = self._sites_to_mol(sites)
+                            self.structures.append(mol)
+                            parse_cycle = False
+                            sites = []
                     elif parse_final:
-                        match = final_energy_patt.search(line)
-                        if match:
+                        if match := final_energy_patt.search(line):
                             self.final_energy = float(match.group(1))
 
                 elif self.run_type == "NumericalFreq":
@@ -783,15 +774,13 @@ class AdfOutput:
                     if not parse_coord:
                         if match := coord_on_patt.search(line):
                             parse_coord = True
-                    else:
-                        match = coord_patt.search(line)
-                        if match:
-                            sites.append([match.group(2), list(map(float, match.groups()[2:5]))])
-                            n_strike += 1
-                        elif n_strike > 0:
-                            find_structure = False
-                            self.final_structure = self._sites_to_mol(sites)
-                            n_atoms = len(self.final_structure)
+                    elif match := coord_patt.search(line):
+                        sites.append([match.group(2), list(map(float, match.groups()[2:5]))])
+                        n_strike += 1
+                    elif n_strike > 0:
+                        find_structure = False
+                        self.final_structure = self._sites_to_mol(sites)
+                        n_atoms = len(self.final_structure)
 
                 elif self.freq_type is None:
                     if numerical_freq_patt.search(line):
@@ -815,17 +804,15 @@ class AdfOutput:
                         for _ in range(n_next):
                             self.normal_modes.append([])
 
-                elif parse_mode:
-                    match = mode_patt.search(line)
-                    if match:
-                        v = list(chunks(map(float, match.group(3).split()), 3))
-                        if len(v) != n_next:
-                            raise AdfOutputError("Odd Error!")
-                        for i, k in enumerate(range(-n_next, 0)):
-                            self.normal_modes[k].extend(v[i])
-                        if int(match.group(1)) == n_atoms:
-                            parse_freq = True
-                            parse_mode = False
+                elif parse_mode and (match := mode_patt.search(line)):
+                    v = list(chunks(map(float, match.group(3).split()), 3))
+                    if len(v) != n_next:
+                        raise AdfOutputError("Odd Error!")
+                    for i, k in enumerate(range(-n_next, 0)):
+                        self.normal_modes[k].extend(v[i])
+                    if int(match.group(1)) == n_atoms:
+                        parse_freq = True
+                        parse_mode = False
         if isinstance(self.final_structure, list):
             self.final_structure = self._sites_to_mol(self.final_structure)
 

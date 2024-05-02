@@ -359,9 +359,7 @@ class IonEntry(PDEntry):
 
 
 def ion_or_solid_comp_object(formula):
-    """
-    Returns either an ion object or composition object given
-    a formula.
+    """Get an Ion or Composition object given a formula.
 
     Args:
         formula: String formula. Eg. of ion: NaOH(aq), Na[+];
@@ -370,8 +368,7 @@ def ion_or_solid_comp_object(formula):
     Returns:
         Composition/Ion object
     """
-    match = re.search(r"\[([^\[\]]+)\]|\(aq\)", formula)
-    if match:
+    if re.match(r"\[([^\[\]]+)\]|\(aq\)", formula):
         comp_obj = Ion.from_formula(formula)
     elif re.search(r"\(s\)", formula):
         comp_obj = Composition(formula[:-3])

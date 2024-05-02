@@ -1071,10 +1071,8 @@ class Species(MSONable, Stringify):
         # 3rd group: ([+\-])          --> +
         # 4th group: (.*)             --> everything else, ",spin=5"
 
-        match = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
-        if match:
-            # parse symbol
-            sym = match.group(1)
+        if match := re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-]*)(.*)", species_string):
+            sym = match.group(1)  # parse symbol
 
             # parse oxidation state (optional)
             if not match.group(2) and not match.group(3):

@@ -647,13 +647,12 @@ class LammpsData(MSONable):
         header_pattern["tilt"] = r"^\s*{}$".format(r"\s+".join([float_group] * 3 + ["xy xz yz"]))
 
         header: dict[str, Any] = {"counts": {}, "types": {}}
-        bounds = {}
+        bounds: dict[str, list[float]] = {}
         for line in clean_lines(parts[0][1:]):  # skip the 1st line
             match = None
             key = None
             for key, val in header_pattern.items():  # noqa: B007
-                match = re.match(val, line)
-                if match:
+                if re.match(val, line):
                     break
             if match and key in {"counts", "types"}:
                 header[key][match[2]] = int(match[1])

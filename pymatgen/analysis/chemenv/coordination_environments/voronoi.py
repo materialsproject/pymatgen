@@ -34,8 +34,7 @@ __date__ = "Feb 20, 2016"
 
 
 def from_bson_voronoi_list2(bson_nb_voro_list2: list[PeriodicSite], structure: Structure):
-    """
-    Returns the voronoi_list needed for the VoronoiContainer object from a bson-encoded voronoi_list.
+    """Get the voronoi_list needed for the VoronoiContainer object from a BSON-encoded voronoi_list.
 
     Args:
         bson_nb_voro_list2: List of periodic sites involved in the Voronoi.
