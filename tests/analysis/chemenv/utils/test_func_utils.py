@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 import pytest
 from pytest import approx
@@ -15,7 +13,7 @@ from pymatgen.analysis.chemenv.utils.func_utils import (
 __author__ = "waroquiers"
 
 
-class TestFuncUtils(unittest.TestCase):
+class TestFuncUtils:
     def test_csm_finite_ratio_function(self):
         max_csm = 8
         alpha = 1

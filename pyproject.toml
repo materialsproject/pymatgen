@@ -23,36 +23,38 @@ repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest
 target-version = "py39"
 line-length = 120
 lint.select = [
-  "B",      # flake8-bugbear
-  "C4",     # flake8-comprehensions
-  "D",      # pydocstyle
-  "E",      # pycodestyle error
-  "EXE",    # flake8-executable
-  "F",      # pyflakes
-  "FA",     # flake8-future-annotations
-  "FBT003", # boolean-positional-value-in-call
-  "FLY",    # flynt
-  "I",      # isort
-  "ICN",    # flake8-import-conventions
-  "ISC",    # flake8-implicit-str-concat
-  "PD",     # pandas-vet
-  "PERF",   # perflint
-  "PIE",    # flake8-pie
-  "PL",     # pylint
-  "PT",     # flake8-pytest-style
-  "PYI",    # flakes8-pyi
-  "Q",      # flake8-quotes
-  "RET",    # flake8-return
-  "RSE",    # flake8-raise
-  "RUF",    # Ruff-specific rules
-  "SIM",    # flake8-simplify
-  "SLOT",   # flake8-slots
-  "TCH",    # flake8-type-checking
-  "TID",    # tidy imports
-  "TID",    # flake8-tidy-imports
-  "UP",     # pyupgrade
-  "W",      # pycodestyle warning
-  "YTT",    # flake8-2020
+  "B",       # flake8-bugbear
+  "C4",      # flake8-comprehensions
+  "D",       # pydocstyle
+  "E",       # pycodestyle error
+  "EXE",     # flake8-executable
+  "F",       # pyflakes
+  "FA",      # flake8-future-annotations
+  "FBT003",  # boolean-positional-value-in-call
+  "FLY",     # flynt
+  "I",       # isort
+  "ICN",     # flake8-import-conventions
+  "ISC",     # flake8-implicit-str-concat
+  "PD",      # pandas-vet
+  "PERF",    # perflint
+  "PIE",     # flake8-pie
+  "PL",      # pylint
+  "PLR0402",
+  "PLR1714",
+  "PLR5501",
+  "PT",      # flake8-pytest-style
+  "PYI",     # flakes8-pyi
+  "Q",       # flake8-quotes
+  "RET",     # flake8-return
+  "RSE",     # flake8-raise
+  "RUF",     # Ruff-specific rules
+  "SIM",     # flake8-simplify
+  "SLOT",    # flake8-slots
+  "TCH",     # flake8-type-checking
+  "TID",     # flake8-tidy-imports
+  "UP",      # pyupgrade
+  "W",       # pycodestyle warning
+  "YTT",     # flake8-2020
 ]
 lint.ignore = [
   "B023",    # Function definition does not bind loop variable
@@ -70,7 +72,6 @@ lint.ignore = [
   "PERF401", # manual-list-comprehension (TODO fix these or wait for autofix)
   "PLC1901", # can be simplified to ... as empty is falsey
   "PLR",     # pylint refactor
-  "PLW1514", # open() without explicit encoding argument
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
   "PT013",   # pytest-incorrect-pytest-import
   "PTH",     # prefer pathlib to os.path
@@ -142,3 +143,12 @@ rute,reson,titels,ges,scalr,strat,struc,hda,nin,ons,pres,kno,loos,lamda,lew,atom
 """
 skip = "pymatgen/analysis/aflow_prototypes.json"
 check-filenames = true
+
+[tool.pyright]
+typeCheckingMode = "off"
+reportPossiblyUnboundVariable = true
+reportUnboundVariable = true
+reportMissingImports = false
+reportMissingModuleSource = false
+reportInvalidTypeForm = false
+exclude = ["**/tests"]

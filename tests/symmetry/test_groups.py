@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 import pytest
 from pytest import approx
@@ -34,7 +32,7 @@ ORDERED_SYMBOLS = (
 ).split()
 
 
-class TestPointGroup(unittest.TestCase):
+class TestPointGroup:
     def test_order(self):
         orders = {"mmm": 8, "432": 24, "-6m2": 12}
         for key, val in orders.items():
@@ -64,7 +62,7 @@ class TestPointGroup(unittest.TestCase):
         assert not pg_m3m.is_supergroup(pg_6mmm)
 
 
-class TestSpaceGroup(unittest.TestCase):
+class TestSpaceGroup:
     def test_renamed_e_symbols(self):
         assert SpaceGroup.from_int_number(64).symbol == "Cmce"
 
@@ -85,11 +83,11 @@ class TestSpaceGroup(unittest.TestCase):
     def test_point_group_is_set(self):
         for num in range(1, 231):
             sg = SpaceGroup.from_int_number(num)
-            assert hasattr(sg, "point_group")
+            assert isinstance(sg.point_group, str)
 
         for symbol in SYMM_DATA["space_group_encoding"]:
             sg = SpaceGroup(symbol)
-            assert hasattr(sg, "point_group")
+            assert isinstance(sg.point_group, str)
 
     def test_full_symbols(self):
         sg = SpaceGroup("P2/m2/m2/m")
@@ -123,18 +121,18 @@ class TestSpaceGroup(unittest.TestCase):
 
     def test_get_orbit(self):
         sg = SpaceGroup("Fm-3m")
-        p = np.random.randint(0, 100 + 1, size=(3,)) / 100
-        assert len(sg.get_orbit(p)) <= sg.order
+        rand_percent = np.random.randint(0, 100 + 1, size=(3,)) / 100
+        assert len(sg.get_orbit(rand_percent)) <= sg.order
 
     def test_get_orbit_and_generators(self):
         sg = SpaceGroup("Fm-3m")
-        p = np.random.randint(0, 100 + 1, size=(3,)) / 100
-        orbit, generators = sg.get_orbit_and_generators(p)
+        rand_percent = np.random.randint(0, 100 + 1, size=(3,)) / 100
+        orbit, generators = sg.get_orbit_and_generators(rand_percent)
         assert len(orbit) <= sg.order
         pp = generators[0].operate(orbit[0])
-        assert p[0] == approx(pp[0])
-        assert p[1] == approx(pp[1])
-        assert p[2] == approx(pp[2])
+        assert rand_percent[0] == approx(pp[0])
+        assert rand_percent[1] == approx(pp[1])
+        assert rand_percent[2] == approx(pp[2])
 
     def test_is_compatible(self):
         cubic = Lattice.cubic(1)

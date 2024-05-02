@@ -60,7 +60,7 @@ class AbstractEnvironmentNode(MSONable):
         return self.isite < other.isite
 
     def everything_equal(self, other):
-        """Checks equality with respect to another AbstractEnvironmentNode using the index of the central site
+        """Check equality with respect to another AbstractEnvironmentNode using the index of the central site
         as well as the central site itself.
         """
         return self == other and self.central_site == other.central_site

@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 from pymatgen.util.io_utils import micro_pyawk
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import VASP_OUT_DIR, PymatgenTest
 
 
 class TestFunc(PymatgenTest):
     def test_micro_pyawk(self):
-        filename = f"{TEST_FILES_DIR}/OUTCAR"
         data = []
 
         def f(_x, y):
@@ -15,5 +14,5 @@ class TestFunc(PymatgenTest):
         def f2(_x, y):
             return y
 
-        micro_pyawk(filename, [["POTCAR:(.*)", f2, f]])
+        micro_pyawk(f"{VASP_OUT_DIR}/OUTCAR.gz", [["POTCAR:(.*)", f2, f]])
         assert len(data) == 6

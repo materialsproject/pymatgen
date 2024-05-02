@@ -6,10 +6,9 @@ from __future__ import annotations
 
 import itertools
 import warnings
-from collections.abc import Iterator, Sequence
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Any, Union
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
@@ -19,13 +18,17 @@ from pymatgen.core.structure import Composition, DummySpecies, Element, Lattice,
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.vasp.outputs import Vasprun, Xdatcar
 
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from typing_extensions import Self
+
+    from pymatgen.util.typing import Matrix3D, SitePropsType, Vector3D
+
+
 __author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen, Evan Spotte-Smith"
 __version__ = "0.1"
 __date__ = "Jun 29, 2022"
-
-Vector3D = tuple[float, float, float]
-Matrix3D = tuple[Vector3D, Vector3D, Vector3D]
-SitePropsType = Union[list[dict[Any, Sequence[Any]]], dict[Any, Sequence[Any]]]
 
 
 class Trajectory(MSONable):
@@ -58,8 +61,8 @@ class Trajectory(MSONable):
                 input, including:
                 i.  A sequence of element / species specified either as string
                     symbols, e.g. ["Li", "Fe2+", "P", ...] or atomic numbers,
-                    e.g., (3, 56, ...) or actual Element or Species objects.
-                ii. List of dict of elements/species and occupancies, e.g.,
+                    e.g. (3, 56, ...) or actual Element or Species objects.
+                ii. List of dict of elements/species and occupancies, e.g.
                     [{"Fe" : 0.5, "Mn":0.5}, ...]. This allows the setup of
                     disordered structures.
             coords: shape (M, N, 3). fractional coordinates of the sites.
@@ -201,7 +204,7 @@ class Trajectory(MSONable):
         self.coords_are_displacement = False
 
     def to_displacements(self) -> None:
-        """Converts positions of trajectory into displacements between consecutive frames.
+        """Convert positions of trajectory into displacements between consecutive frames.
 
         `base_positions` and `coords` should both be in fractional coords. Does
         not work for absolute coords because the atoms are to be wrapped into the
@@ -306,7 +309,7 @@ class Trajectory(MSONable):
         Args:
             frames: Indices of the trajectory to return.
 
-        Return:
+        Returns:
             Subset of trajectory
         """
         # Convert to position mode if not already
@@ -318,10 +321,14 @@ class Trajectory(MSONable):
                 raise IndexError(f"Frame index {frames} out of range.")
 
             if self.lattice is None:
+                charge = 0
                 if self.charge is not None:
                     charge = int(self.charge)
+
+                spin = None
                 if self.spin_multiplicity is not None:
                     spin = int(self.spin_multiplicity)
+
                 return Molecule(
                     self.species,
                     self.coords[frames],
@@ -395,7 +402,7 @@ class Trajectory(MSONable):
         system: str | None = None,
         significant_figures: int = 6,
     ) -> None:
-        """Writes to Xdatcar file.
+        """Write to Xdatcar file.
 
         The supported kwargs are the same as those for the
         Xdatcar_from_structs.get_str method and are passed through directly.
@@ -467,7 +474,7 @@ class Trajectory(MSONable):
         }
 
     @classmethod
-    def from_structures(cls, structures: list[Structure], constant_lattice: bool = True, **kwargs) -> Trajectory:
+    def from_structures(cls, structures: list[Structure], constant_lattice: bool = True, **kwargs) -> Self:
         """Create trajectory from a list of structures.
 
         Note: Assumes no atoms removed during simulation.
@@ -500,7 +507,7 @@ class Trajectory(MSONable):
         )
 
     @classmethod
-    def from_molecules(cls, molecules: list[Molecule], **kwargs) -> Trajectory:
+    def from_molecules(cls, molecules: list[Molecule], **kwargs) -> Self:
         """Create trajectory from a list of molecules.
 
         Note: Assumes no atoms removed during simulation.
@@ -526,7 +533,7 @@ class Trajectory(MSONable):
         )
 
     @classmethod
-    def from_file(cls, filename: str | Path, constant_lattice: bool = True, **kwargs) -> Trajectory:
+    def from_file(cls, filename: str | Path, constant_lattice: bool = True, **kwargs) -> Self:
         """Create trajectory from XDATCAR, vasprun.xml file, or ASE trajectory (.traj) file.
 
         Args:
@@ -540,11 +547,15 @@ class Trajectory(MSONable):
         """
         filename = str(Path(filename).expanduser().resolve())
         is_mol = False
+        molecules = []
+        structures = []
 
         if fnmatch(filename, "*XDATCAR*"):
             structures = Xdatcar(filename).structures
+
         elif fnmatch(filename, "vasprun*.xml*"):
             structures = Vasprun(filename).structures
+
         elif fnmatch(filename, "*.traj"):
             try:
                 from ase.io.trajectory import Trajectory as AseTrajectory
@@ -567,6 +578,7 @@ class Trajectory(MSONable):
 
         if is_mol:
             return cls.from_molecules(molecules, **kwargs)
+
         return cls.from_structures(structures, constant_lattice=constant_lattice, **kwargs)
 
     @staticmethod

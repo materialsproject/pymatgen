@@ -11,12 +11,18 @@ from __future__ import annotations
 
 import re
 from math import fabs
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 __author__ = "Nils Edvin Richard Zimmermann"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -50,15 +56,15 @@ class Xr:
         ]
         # There are actually 10 more fields per site
         # in a typical xr file from GULP, for example.
-        for idx, site in enumerate(self.structure):
-            output.append(f"{idx + 1} {site.specie} {site.x:.4f} {site.y:.4f} {site.z:.4f}")
+        for idx, site in enumerate(self.structure, start=1):
+            output.append(f"{idx } {site.specie} {site.x:.4f} {site.y:.4f} {site.z:.4f}")
         mat = self.structure.lattice.matrix
         for _ in range(2):
             for j in range(3):
                 output.append(f"{mat[j][0]:.4f} {mat[j][1]:.4f} {mat[j][2]:.4f}")
         return "\n".join(output)
 
-    def write_file(self, filename):
+    def write_file(self, filename: str | Path) -> None:
         """
         Write out an xr file.
 
@@ -69,7 +75,7 @@ class Xr:
             file.write(str(self) + "\n")
 
     @classmethod
-    def from_str(cls, string, use_cores=True, thresh=1.0e-4):
+    def from_str(cls, string: str, use_cores: bool = True, thresh: float = 1.0e-4) -> Self:
         """
         Creates an Xr object from a string representation.
 
@@ -118,12 +124,11 @@ class Xr:
         sp = []
         coords = []
         for j in range(n_sites):
-            m = re.match(
+            if match := re.match(
                 r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)",
                 lines[4 + j].strip(),
-            )
-            if m:
-                tmp_sp = m.group(1)
+            ):
+                tmp_sp = match.group(1)
                 if use_cores and tmp_sp[len(tmp_sp) - 2 :] == "_s":
                     continue
                 if not use_cores and tmp_sp[len(tmp_sp) - 2 :] == "_c":
@@ -132,11 +137,11 @@ class Xr:
                     sp.append(tmp_sp[0 : len(tmp_sp) - 2])
                 else:
                     sp.append(tmp_sp)
-                coords.append([float(m.group(i)) for i in range(2, 5)])
+                coords.append([float(match.group(i)) for i in range(2, 5)])
         return cls(Structure(lattice, sp, coords, coords_are_cartesian=True))
 
     @classmethod
-    def from_file(cls, filename, use_cores=True, thresh=1.0e-4):
+    def from_file(cls, filename: str | Path, use_cores: bool = True, thresh: float = 1.0e-4) -> Self:
         """
         Reads an xr-formatted file to create an Xr object.
 

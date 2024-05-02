@@ -62,33 +62,33 @@ class AbinitTimerParser(collections.abc.Iterable):
 
     @classmethod
     def walk(cls, top=".", ext=".abo"):
-        """
-        Scan directory tree starting from top, look for files with extension `ext` and
+        """Scan directory tree starting from top, look for files with extension `ext` and
         parse timing data.
 
-        Return: (parser, paths, okfiles)
-            where `parser` is the new object, `paths` is the list of files found and `okfiles`
-            is the list of files that have been parsed successfully.
-            (okfiles == paths) if all files have been parsed.
+        Returns:
+            parser: the new object
+            paths: the list of files found
+            ok_files: list of files that have been parsed successfully.
+                (ok_files == paths) if all files have been parsed.
         """
         paths = []
         for root, _dirs, files in os.walk(top):
-            for f in files:
-                if f.endswith(ext):
-                    paths.append(os.path.join(root, f))
+            for file in files:
+                if file.endswith(ext):
+                    paths.append(os.path.join(root, file))
 
         parser = cls()
-        okfiles = parser.parse(paths)
-        return parser, paths, okfiles
+        ok_files = parser.parse(paths)
+        return parser, paths, ok_files
 
     def __init__(self):
         """Initialize object."""
         # List of files that have been parsed.
-        self._filenames = []
+        self._filenames: list = []
 
         # timers[filename][mpi_rank]
         # contains the timer extracted from the file filename associated to the MPI rank mpi_rank.
-        self._timers = {}
+        self._timers: dict = {}
 
     def __iter__(self):
         return iter(self._timers)
@@ -106,7 +106,8 @@ class AbinitTimerParser(collections.abc.Iterable):
         Read and parse a filename or a list of filenames.
         Files that cannot be opened are ignored. A single filename may also be given.
 
-        Return: list of successfully read files.
+        Returns:
+            list of successfully read files.
         """
         if isinstance(filenames, str):
             filenames = [filenames]
@@ -251,7 +252,8 @@ class AbinitTimerParser(collections.abc.Iterable):
         """
         Analyze the parallel efficiency.
 
-        Return: ParallelEfficiency object.
+        Returns:
+            ParallelEfficiency object.
         """
         timers = self.timers()
 
@@ -724,8 +726,7 @@ class AbinitTimer:
         return values
 
     def names_and_values(self, key, minval=None, minfract=None, sorted=True):
-        """
-        Select the entries whose value[key] is >= minval or whose fraction[key] is >= minfract
+        """Select the entries whose value[key] is >= minval or whose fraction[key] is >= minfract
         Return the names of the sections and the corresponding values.
         """
         values = self.get_values(key)
@@ -737,12 +738,12 @@ class AbinitTimer:
         if minval is not None:
             assert minfract is None
 
-            for n, v in zip(names, values):
-                if v >= minval:
-                    new_names.append(n)
-                    new_values.append(v)
+            for name, val in zip(names, values):
+                if val >= minval:
+                    new_names.append(name)
+                    new_values.append(val)
                 else:
-                    other_val += v
+                    other_val += val
 
             new_names.append(f"below minval {minval}")
             new_values.append(other_val)
@@ -752,12 +753,12 @@ class AbinitTimer:
 
             total = self.sum_sections(key)
 
-            for n, v in zip(names, values):
-                if v / total >= minfract:
-                    new_names.append(n)
-                    new_values.append(v)
+            for name, val in zip(names, values):
+                if val / total >= minfract:
+                    new_names.append(name)
+                    new_values.append(val)
                 else:
-                    other_val += v
+                    other_val += val
 
             new_names.append(f"below minfract {minfract}")
             new_values.append(other_val)
@@ -798,8 +799,7 @@ class AbinitTimer:
         """
         ax, fig = get_ax_fig(ax=ax)
 
-        nk = len(self.sections)
-        ind = np.arange(nk)  # the x locations for the groups
+        ind = np.arange(len(self.sections))  # the x locations for the groups
         width = 0.35  # the width of the bars
 
         cpu_times = self.get_values("cpu_time")
@@ -843,8 +843,7 @@ class AbinitTimer:
 
     @add_fig_kwargs
     def scatter_hist(self, ax: plt.Axes = None, **kwargs):
-        """
-        Scatter plot + histogram.
+        """Scatter plot + histogram.
 
         Args:
             ax: matplotlib Axes or None if a new figure should be created.

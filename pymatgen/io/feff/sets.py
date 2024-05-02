@@ -14,6 +14,7 @@ import os
 import sys
 import warnings
 from copy import deepcopy
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -22,6 +23,9 @@ from monty.serialization import loadfn
 
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Kiran Mathew"
 __credits__ = "Alan Dozier, Anubhav Jain, Shyue Ping Ong"
@@ -40,7 +44,7 @@ sh.setFormatter(formatter)
 logger.addHandler(sh)
 
 
-class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
+class AbstractFeffInputSet(MSONable, abc.ABC):
     """
     Abstract base class representing a set of Feff input parameters.
     The idea is that using a FeffInputSet, a complete set of input files
@@ -55,8 +59,7 @@ class AbstractFeffInputSet(MSONable, metaclass=abc.ABCMeta):
     @property
     @abc.abstractmethod
     def atoms(self):
-        """
-        Returns Atoms string from a structure that goes in feff.inp file.
+        """Get Atoms string from a structure that goes in feff.inp file.
 
         Returns:
             Atoms object.
@@ -159,7 +162,7 @@ class FEFFDictSet(AbstractFeffInputSet):
 
                     being written to the input file.
             spacegroup_analyzer_settings (dict): parameters passed to SpacegroupAnalyzer.
-                E.g., {"symprec": 0.01, "angle_tolerance": 4}
+                e.g. {"symprec": 0.01, "angle_tolerance": 4}
         """
         self.absorbing_atom = absorbing_atom
         self.user_tag_settings = user_tag_settings or {}
@@ -229,8 +232,7 @@ class FEFFDictSet(AbstractFeffInputSet):
 
     @property
     def tags(self) -> Tags:
-        """
-        FEFF job parameters.
+        """FEFF job parameters.
 
         Returns:
             Tags
@@ -257,8 +259,7 @@ class FEFFDictSet(AbstractFeffInputSet):
 
     @property
     def potential(self) -> Potential:
-        """
-        FEFF potential.
+        """FEFF potential.
 
         Returns:
             Potential
@@ -282,15 +283,15 @@ class FEFFDictSet(AbstractFeffInputSet):
         return "\n".join(output)
 
     @classmethod
-    def from_directory(cls, input_dir):
+    def from_directory(cls, input_dir: str) -> Self:
         """
         Read in a set of FEFF input files from a directory, which is
         useful when existing FEFF input needs some adjustment.
         """
-        sub_d = {}
-        for fname, ftype in [("HEADER", Header), ("PARAMETERS", Tags)]:
-            full_zpath = zpath(os.path.join(input_dir, fname))
-            sub_d[fname.lower()] = ftype.from_file(full_zpath)
+        sub_d: dict = {
+            "header": Header.from_file(zpath(os.path.join(input_dir, "HEADER"))),
+            "parameters": Tags.from_file(zpath(os.path.join(input_dir, "PARAMETERS"))),
+        }
 
         # Generation of FEFFDict set requires absorbing atom, need to search
         # the index of absorption atom in the structure according to the

@@ -19,15 +19,16 @@ from pymatgen.phonon.dos import PhononDos
 try:
     import phonopy
     from phonopy.phonon.dos import TotalDos
-except ImportError as exc:
-    print(exc)
+except ImportError:
     phonopy = None
+    TotalDos = None
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Literal
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
 __author__ = "A. Bonkowski, J. George, G. Petretto"
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -73,11 +74,11 @@ class GruneisenParameter(MSONable):
         squared: bool = True,
         limit_frequencies: Literal["debye", "acoustic"] | None = None,
     ) -> float:
-        """Calculates the average of the Gruneisen based on the values on the regular grid.
-        If squared is True the average will use the squared value of the Gruneisen and a squared root
+        """Calculate the average of the Gruneisen based on the values on the regular grid.
+        If squared is True, the average will use the squared value of the Gruneisen and a squared root
         is performed on the final result.
-        Values associated to negative frequencies will be ignored.
-        See Scripta Materialia 129, 88 for definitions.
+        Values associated with negative frequencies will be ignored.
+        See Nath et al. _Scripta Materialia_ **2017**, _129_, 88 for the definitions.
         Adapted from classes in abipy that have been written by Guido Petretto (UCLouvain).
 
         Args:
@@ -133,7 +134,7 @@ class GruneisenParameter(MSONable):
         theta_d: float | None = None,
         t: float | None = None,
     ) -> float:
-        """Calculates the thermal conductivity at the acoustic Debye temperature with the Slack formula,
+        """Calculate the thermal conductivity at the acoustic Debye temperature with the Slack formula,
         using the average Gruneisen.
         Adapted from abipy.
 
@@ -291,7 +292,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
     def as_dict(self) -> dict:
         """
         Returns:
-            MSONable (dict).
+            dict[str, Any]: MSONable dict.
         """
         dct = {
             "@module": type(self).__module__,
@@ -312,7 +313,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> GruneisenPhononBandStructure:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -393,10 +394,10 @@ class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononB
         )
 
     @classmethod
-    def from_dict(cls, dct: dict) -> GruneisenPhononBandStructureSymmLine:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            dct: Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             GruneisenPhononBandStructureSymmLine

@@ -1,4 +1,5 @@
 """Tests the band structure input set generator"""
+
 from __future__ import annotations
 
 from pathlib import Path

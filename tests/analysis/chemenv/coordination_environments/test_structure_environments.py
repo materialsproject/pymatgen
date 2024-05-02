@@ -21,12 +21,12 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-struct_env_dir = f"{TEST_FILES_DIR}/chemenv/structure_environments"
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments"
 
 
 class TestStructureEnvironments(PymatgenTest):
     def test_structure_environments(self):
-        with open(f"{struct_env_dir}/se_mp-7000.json") as file:
+        with open(f"{TEST_DIR}/se_mp-7000.json") as file:
             dct = json.load(file)
 
         struct_envs = StructureEnvironments.from_dict(dct)
@@ -38,19 +38,19 @@ class TestStructureEnvironments(PymatgenTest):
 
         _envs_fig, envs_ax = struct_envs.get_environments_figure(isite=isite)
         assert_allclose(
-            np.array(envs_ax.patches[0].get_xy()),
+            envs_ax.patches[0].get_xy(),
             [[1, 1], [1, 0.99301365], [1.00179228, 0.99301365], [1.00179228, 1], [1, 1]],
         )
         assert_allclose(
-            np.array(envs_ax.patches[1].get_xy()),
+            envs_ax.patches[1].get_xy(),
             [[1, 0.99301365], [1, 0], [1.00179228, 0], [1.00179228, 0.99301365], [1, 0.99301365]],
         )
         assert_allclose(
-            np.array(envs_ax.patches[2].get_xy()),
+            envs_ax.patches[2].get_xy(),
             [[1.00179228, 1], [1.00179228, 0.99301365], [2.25, 0.99301365], [2.25, 1], [1.00179228, 1]],
         )
         assert_allclose(
-            np.array(envs_ax.patches[3].get_xy()),
+            envs_ax.patches[3].get_xy(),
             [
                 [1.00179228, 0.99301365],
                 [1.00179228, 0],
@@ -63,13 +63,13 @@ class TestStructureEnvironments(PymatgenTest):
             atol=1e-8,
         )
         assert_allclose(
-            np.array(envs_ax.patches[4].get_xy()),
+            envs_ax.patches[4].get_xy(),
             [[2.22376156, 0.0060837], [2.22376156, 0], [2.25, 0], [2.25, 0.0060837], [2.22376156, 0.0060837]],
             atol=1e-8,
         )
 
         struct_envs.save_environments_figure(isite=isite, imagename="image.png")
-        assert os.path.exists("image.png")
+        assert os.path.isfile("image.png")
 
         assert len(struct_envs.differences_wrt(struct_envs)) == 0
 
@@ -119,7 +119,7 @@ class TestStructureEnvironments(PymatgenTest):
         assert ce != ce2
 
     def test_light_structure_environments(self):
-        with open(f"{struct_env_dir}/se_mp-7000.json") as file:
+        with open(f"{TEST_DIR}/se_mp-7000.json") as file:
             dct = json.load(file)
 
         struct_envs = StructureEnvironments.from_dict(dct)
@@ -162,10 +162,10 @@ class TestStructureEnvironments(PymatgenTest):
         stats = lse.get_statistics()
 
         neighbors = lse.strategy.get_site_neighbors(site=lse.structure[isite])
-        assert_allclose(neighbors[0].coords, np.array([0.2443798, 1.80409653, -1.13218359]))
-        assert_allclose(neighbors[1].coords, np.array([1.44020353, 1.11368738, 1.13218359]))
-        assert_allclose(neighbors[2].coords, np.array([2.75513098, 2.54465207, -0.70467298]))
-        assert_allclose(neighbors[3].coords, np.array([0.82616785, 3.65833945, 0.70467298]))
+        assert_allclose(neighbors[0].coords, [0.2443798, 1.80409653, -1.13218359])
+        assert_allclose(neighbors[1].coords, [1.44020353, 1.11368738, 1.13218359])
+        assert_allclose(neighbors[2].coords, [2.75513098, 2.54465207, -0.70467298])
+        assert_allclose(neighbors[3].coords, [0.82616785, 3.65833945, 0.70467298])
 
         site_idx, d_equiv_site, d_this_site, sym = lse.strategy.equivalent_site_index_and_transform(neighbors[0])
         assert site_idx == 0
@@ -220,8 +220,7 @@ class TestStructureEnvironments(PymatgenTest):
 
     def test_from_structure_environments(self):
         # https://github.com/materialsproject/pymatgen/issues/2756
-        mp_id = "mp-554015"
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/{mp_id}.json.gz")
+        struct = Structure.from_file(f"{TEST_DIR}/mp-554015.json.gz")
         strategy = SimplestChemenvStrategy(distance_cutoff=1.4, angle_cutoff=0.3)
         local_geom_finder = LocalGeometryFinder()
         local_geom_finder.setup_structure(structure=struct)

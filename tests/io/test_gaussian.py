@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import pytest
 from pytest import approx
@@ -10,10 +10,10 @@ from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.gaussian import GaussianInput, GaussianOutput
 from pymatgen.util.testing import TEST_FILES_DIR
 
-TEST_DIR = f"{TEST_FILES_DIR}/molecules"
+TEST_DIR = f"{TEST_FILES_DIR}/io/gaussian"
 
 
-class TestGaussianInput(unittest.TestCase):
+class TestGaussianInput(TestCase):
     def setUp(self):
         coords = [
             [0, 0, 0],
@@ -251,7 +251,7 @@ H 0
         assert input_str == gau_str
 
 
-class TestGaussianOutput(unittest.TestCase):
+class TestGaussianOutput(TestCase):
     # TODO: Add unittest for PCM type output.
 
     def setUp(self):

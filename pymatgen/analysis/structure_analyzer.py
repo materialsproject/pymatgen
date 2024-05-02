@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import collections
 import itertools
+from collections import defaultdict
 from math import acos, pi
 from typing import TYPE_CHECKING
 from warnings import warn
@@ -190,8 +190,7 @@ class RelaxationAnalyzer:
         self.final = final_structure
 
     def get_percentage_volume_change(self) -> float:
-        """
-        Returns the percentage volume change.
+        """Get the percentage volume change.
 
         Returns:
             float: Volume change in percent. 0.055 means a 5.5% increase.
@@ -199,11 +198,10 @@ class RelaxationAnalyzer:
         return self.final.volume / self.initial.volume - 1
 
     def get_percentage_lattice_parameter_changes(self) -> dict[str, float]:
-        """
-        Returns the percentage lattice parameter changes.
+        """Get the percentage lattice parameter changes.
 
         Returns:
-            dict[str, float]: Percent changes in lattice parameter, e.g.,
+            dict[str, float]: Percent changes in lattice parameter, e.g.
                 {'a': 0.012, 'b': 0.021, 'c': -0.031} implies a change of 1.2%,
                 2.1% and -3.1% in the a, b and c lattice parameters respectively.
         """
@@ -212,8 +210,7 @@ class RelaxationAnalyzer:
         return {length: getattr(final_latt, length) / getattr(initial_latt, length) - 1 for length in ["a", "b", "c"]}
 
     def get_percentage_bond_dist_changes(self, max_radius: float = 3.0) -> dict[int, dict[int, float]]:
-        """
-        Returns the percentage bond distance changes for each site up to a
+        """Get the percentage bond distance changes for each site up to a
         maximum radius for nearest neighbors.
 
         Args:
@@ -227,13 +224,13 @@ class RelaxationAnalyzer:
                 between site1 and site_n is the same as bonding between site_n and site1, there is no
                 reason to duplicate the information or computation.
         """
-        data: dict[int, dict[int, float]] = collections.defaultdict(dict)
-        for inds in itertools.combinations(list(range(len(self.initial))), 2):
-            (i, j) = sorted(inds)
-            initial_dist = self.initial[i].distance(self.initial[j])
+        data: dict[int, dict[int, float]] = defaultdict(dict)
+        for indices in itertools.combinations(list(range(len(self.initial))), 2):
+            ii, jj = sorted(indices)
+            initial_dist = self.initial[ii].distance(self.initial[jj])
             if initial_dist < max_radius:
-                final_dist = self.final[i].distance(self.final[j])
-                data[i][j] = final_dist / initial_dist - 1
+                final_dist = self.final[ii].distance(self.final[jj])
+                data[ii][jj] = final_dist / initial_dist - 1
         return data
 
 
@@ -262,15 +259,10 @@ class VoronoiConnectivity:
 
     @property
     def connectivity_array(self):
-        """
-        Provides connectivity array.
-
-        Returns:
-            connectivity: An array of shape [atom_i, atom_j, image_j]. atom_i is
-            the index of the atom in the input structure. Since the second
-            atom can be outside of the unit cell, it must be described
-            by both an atom index and an image index. Array data is the
-            solid angle of polygon between atom_i and image_j of atom_j
+        """The connectivity array of shape [atom_i, atom_j, image_j]. atom_i is the index of the
+        atom in the input structure. Since the second atom can be outside of the unit cell, it
+        must be described by both an atom index and an image index. Array data is the solid
+        angle of polygon between atom_i and image_j of atom_j.
         """
         # shape = [site, axis]
         cart_coords = np.array(self.structure.cart_coords)
@@ -307,15 +299,13 @@ class VoronoiConnectivity:
 
     @property
     def max_connectivity(self):
-        """
-        Returns the 2d array [site_i, site_j] that represents the maximum connectivity of
+        """The 2d array [site_i, site_j] that represents the maximum connectivity of
         site i to any periodic image of site j.
         """
         return np.max(self.connectivity_array, axis=2)
 
     def get_connections(self):
-        """
-        Returns a list of site pairs that are Voronoi Neighbors, along
+        """Get a list of site pairs that are Voronoi Neighbors, along
         with their real-space distances.
         """
         con = []
@@ -330,8 +320,8 @@ class VoronoiConnectivity:
     def get_sitej(self, site_index, image_index):
         """
         Assuming there is some value in the connectivity array at indices
-        (1, 3, 12). sitei can be obtained directly from the input structure
-        (structure[1]). sitej can be obtained by passing 3, 12 to this function.
+        (1, 3, 12). site_i can be obtained directly from the input structure
+        (structure[1]). site_j can be obtained by passing 3, 12 to this function.
 
         Args:
             site_index (int): index of the site (3 in the example)
@@ -355,16 +345,16 @@ def solid_angle(center, coords):
         float: The solid angle.
     """
     origin = np.array(center)
-    r = [np.array(c) - origin for c in coords]
-    r.append(r[0])
-    n = [np.cross(r[i + 1], r[i]) for i in range(len(r) - 1)]
-    n.append(np.cross(r[1], r[0]))
+    radii = [np.array(c) - origin for c in coords]
+    radii.append(radii[0])
+    n = [np.cross(radii[i + 1], radii[i]) for i in range(len(radii) - 1)]
+    n.append(np.cross(radii[1], radii[0]))
     vals = []
     for i in range(len(n) - 1):
         v = -np.dot(n[i], n[i + 1]) / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
         vals.append(acos(np.clip(v, -1, 1)))
     phi = sum(vals)
-    return phi + (3 - len(r)) * pi
+    return phi + (3 - len(radii)) * pi
 
 
 def get_max_bond_lengths(structure, el_radius_updates=None):
@@ -380,14 +370,14 @@ def get_max_bond_lengths(structure, el_radius_updates=None):
         dict[(Element1, Element2)], float]: The two elements are ordered by Z.
     """
     # jmc = JMolCoordFinder(el_radius_updates)
-    jmnn = JmolNN(el_radius_updates=el_radius_updates)
+    jm_nn = JmolNN(el_radius_updates=el_radius_updates)
 
     bonds_lens = {}
     els = sorted(structure.elements, key=lambda x: x.Z)
 
     for i1, el1 in enumerate(els):
         for i2 in range(len(els) - i1):
-            bonds_lens[el1, els[i1 + i2]] = jmnn.get_max_bond_distance(el1.symbol, els[i1 + i2].symbol)
+            bonds_lens[el1, els[i1 + i2]] = jm_nn.get_max_bond_distance(el1.symbol, els[i1 + i2].symbol)
 
     return bonds_lens
 
@@ -429,9 +419,8 @@ class OxideType:
         Determines if an oxide is a peroxide/superoxide/ozonide/normal oxide.
 
         Returns:
-            oxide_type (str): Type of oxide
-            ozonide/peroxide/superoxide/hydroxide/None.
-            nbonds (int): Number of peroxide/superoxide/hydroxide bonds in structure.
+            tuple[str, int]: Type of oxide (ozonide/peroxide/superoxide/hydroxide/None) and number of
+                peroxide/superoxide/hydroxide bonds in structure.
         """
         structure = self.structure
         relative_cutoff = self.relative_cutoff
@@ -442,11 +431,14 @@ class OxideType:
         if isinstance(structure.elements[0], Element):
             comp = structure.composition
         elif isinstance(structure.elements[0], Species):
-            elem_map: dict[Element, float] = collections.defaultdict(float)
+            elem_map: dict[Element, float] = defaultdict(float)
             for site in structure:
                 for species, occu in site.species.items():
                     elem_map[species.element] += occu
             comp = Composition(elem_map)
+        else:
+            raise TypeError("Invalid type for element.")
+
         if Element("O") not in comp or comp.is_element:
             return "None", 0
 
@@ -466,6 +458,7 @@ class OxideType:
         is_superoxide = False
         is_peroxide = False
         is_ozonide = False
+        bond_atoms = []
         if np.any(dist_matrix < relative_cutoff * 1.35):
             bond_atoms = np.where(dist_matrix < relative_cutoff * 1.35)[0]
             is_superoxide = True
@@ -475,10 +468,9 @@ class OxideType:
         if is_superoxide and len(bond_atoms) > len(set(bond_atoms)):
             is_superoxide = False
             is_ozonide = True
-        try:
-            n_bonds = len(set(bond_atoms))
-        except UnboundLocalError:
-            n_bonds = 0
+
+        n_bonds = len(set(bond_atoms))
+
         if is_ozonide:
             str_oxide = "ozonide"
         elif is_superoxide:
@@ -518,7 +510,7 @@ def sulfide_type(structure):
         structure (Structure): Input structure.
 
     Returns:
-        (str) sulfide/polysulfide or None if structure is a sulfate.
+        str: sulfide/polysulfide or None if structure is a sulfate.
     """
     structure = structure.copy().remove_oxidation_states()
     sulphur = Element("S")
@@ -549,7 +541,7 @@ def sulfide_type(structure):
         neighbors = sorted(neighbors, key=lambda n: n.nn_distance)
         dist = neighbors[0].nn_distance
         coord_elements = [nn.specie for nn in neighbors if nn.nn_distance < dist + 0.4][:4]
-        avg_electroneg = np.mean([e.X for e in coord_elements])
+        avg_electroneg = np.mean([elem.X for elem in coord_elements])
         if avg_electroneg > sulphur.X:
             return "sulfate"
         if avg_electroneg == sulphur.X and sulphur in coord_elements:

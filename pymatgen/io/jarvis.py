@@ -18,8 +18,7 @@ class JarvisAtomsAdaptor:
 
     @staticmethod
     def get_atoms(structure):
-        """
-        Returns JARVIS Atoms object from pymatgen structure.
+        """Get JARVIS Atoms object from pymatgen structure.
 
         Args:
             structure: pymatgen Structure
@@ -42,8 +41,7 @@ class JarvisAtomsAdaptor:
 
     @staticmethod
     def get_structure(atoms):
-        """
-        Returns pymatgen structure from JARVIS Atoms.
+        """Get pymatgen structure from JARVIS Atoms.
 
         Args:
             atoms: JARVIS Atoms object

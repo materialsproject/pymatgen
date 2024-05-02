@@ -24,19 +24,20 @@ class ConnectivityFinder:
         """
         Constructor for the ConnectivityFinder.
 
-        :param multiple_environments_choice: defines the procedure to apply when
-        the environment of a given site is described as a "mix" of more than one
-        coordination environments.
+        Args:
+            multiple_environments_choice: defines the procedure to apply when
+            the environment of a given site is described as a "mix" of more than one
+            coordination environments.
         """
         self.setup_parameters(multiple_environments_choice=multiple_environments_choice)
 
     def get_structure_connectivity(self, light_structure_environments):
-        """
-        Get the structure connectivity from the coordination environments provided
+        """Get the structure connectivity from the coordination environments provided
         as an input.
 
-        :param light_structure_environments: LightStructureEnvironments with the
-        relevant coordination environments in the structure
+        Args:
+            light_structure_environments: LightStructureEnvironments with the
+            relevant coordination environments in the structure
 
         Returns:
             a StructureConnectivity object describing the connectivity of
@@ -67,6 +68,6 @@ class ConnectivityFinder:
 
     def setup_parameters(self, multiple_environments_choice):
         """Setup of the parameters for the connectivity finder."""
-        if multiple_environments_choice is not None and multiple_environments_choice not in ["TAKE_HIGHEST_FRACTION"]:
+        if multiple_environments_choice is not None and multiple_environments_choice != "TAKE_HIGHEST_FRACTION":
             raise ValueError(f"Option {multiple_environments_choice!r} for multiple_environments_choice is not allowed")
         self.multiple_environments_choice = multiple_environments_choice

@@ -332,8 +332,7 @@ class JahnTellerAnalyzer:
 
     @staticmethod
     def _get_number_of_d_electrons(species: Species) -> float:
-        """
-        Get number of d electrons of a species.
+        """Get number of d electrons of a species.
 
         Args:
             species: Species object
@@ -354,8 +353,7 @@ class JahnTellerAnalyzer:
         return n_electrons
 
     def get_magnitude_of_effect_from_species(self, species: str | Species, spin_state: str, motif: str) -> str:
-        """
-        Get magnitude of Jahn-Teller effect from provided species, spin state and motif.
+        """Get magnitude of Jahn-Teller effect from provided species, spin state and motif.
 
         Args:
             species: e.g. Fe2+
@@ -452,7 +450,7 @@ class JahnTellerAnalyzer:
 
     @staticmethod
     def mu_so(species: str | Species, motif: Literal["oct", "tet"], spin_state: Literal["high", "low"]) -> float | None:
-        """Calculates the spin-only magnetic moment for a
+        """Calculate the spin-only magnetic moment for a
         given species. Only supports transition metals.
 
         Args:

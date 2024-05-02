@@ -1,4 +1,5 @@
 """The test of input sets generating from restart information"""
+
 from __future__ import annotations
 
 from pathlib import Path

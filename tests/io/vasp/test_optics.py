@@ -13,10 +13,12 @@ __author__ = "Jimmy-Xuan Shen"
 __copyright__ = "Copyright 2022, The Materials Project"
 __email__ = "jmmshn@gmail.com"
 
+TEST_DIR = f"{TEST_FILES_DIR}/io/vasp"
+
 
 class TestVasprun(PymatgenTest):
     def test_optics(self):
-        eps_data_path = f"{TEST_FILES_DIR}/reproduce_eps"
+        eps_data_path = f"{TEST_DIR}/fixtures/reproduce_eps"
         vrun = Vasprun(f"{eps_data_path}/vasprun.xml")
         dfc = DielectricFunctionCalculator.from_directory(eps_data_path)
         egrid, eps = dfc.get_epsilon(0, 0)

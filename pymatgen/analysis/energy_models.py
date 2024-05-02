@@ -15,18 +15,21 @@ from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core import Structure
 
 __version__ = "0.1"
 
 
-class EnergyModel(MSONable, metaclass=abc.ABCMeta):
+class EnergyModel(MSONable, abc.ABC):
     """Abstract structure filter class."""
 
     @abc.abstractmethod
     def get_energy(self, structure) -> float:
         """
-        :param structure: Structure
+        Args:
+            structure: Structure
 
         Returns:
             Energy value
@@ -34,7 +37,7 @@ class EnergyModel(MSONable, metaclass=abc.ABCMeta):
         return 0.0
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -49,8 +52,7 @@ class EwaldElectrostaticModel(EnergyModel):
     """Wrapper around EwaldSum to calculate the electrostatic energy."""
 
     def __init__(self, real_space_cut=None, recip_space_cut=None, eta=None, acc_factor=8.0):
-        """
-        Initializes the model. Args have the same definitions as in
+        """Initialize the model. Args have the same definitions as in
         pymatgen.analysis.ewald.EwaldSummation.
 
         Args:
@@ -73,7 +75,8 @@ class EwaldElectrostaticModel(EnergyModel):
 
     def get_energy(self, structure: Structure):
         """
-        :param structure: Structure
+        Args:
+            structure: Structure
 
         Returns:
             Energy value
@@ -121,7 +124,8 @@ class SymmetryModel(EnergyModel):
 
     def get_energy(self, structure: Structure):
         """
-        :param structure: Structure
+        Args:
+            structure: Structure
 
         Returns:
             Energy value
@@ -156,7 +160,8 @@ class IsingModel(EnergyModel):
 
     def get_energy(self, structure: Structure):
         """
-        :param structure: Structure
+        Args:
+            structure: Structure
 
         Returns:
             Energy value
@@ -188,7 +193,8 @@ class NsitesModel(EnergyModel):
 
     def get_energy(self, structure: Structure):
         """
-        :param structure: Structure
+        Args:
+            structure: Structure
 
         Returns:
             Energy value

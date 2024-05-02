@@ -7,9 +7,9 @@ from __future__ import annotations
 import abc
 from collections import namedtuple
 from collections.abc import Iterable
-from enum import Enum
+from enum import Enum, unique
 from pprint import pformat
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.collections import AttrDict
@@ -17,6 +17,9 @@ from monty.design_patterns import singleton
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 
 from pymatgen.core import ArrayWithUnit, Lattice, Species, Structure, units
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 def lattice_from_abivars(cls=None, *args, **kwargs):
@@ -303,7 +306,7 @@ def contract(string):
     return " ".join(f"{c}*{t}" for c, t in count)
 
 
-class AbivarAble(metaclass=abc.ABCMeta):
+class AbivarAble(abc.ABC):
     """
     An AbivarAble object provides a method to_abivars that returns a dictionary with the abinit variables.
     """
@@ -360,7 +363,7 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
 
     @classmethod
     def as_spinmode(cls, obj):
-        """Converts obj into a `SpinMode` instance."""
+        """Convert obj into a `SpinMode` instance."""
         if isinstance(obj, cls):
             return obj
 
@@ -381,9 +384,9 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
         return out
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """Build object from dict."""
-        return cls(**{k: d[k] for k in d if k in cls._fields})
+        return cls(**{key: dct[key] for key in dct if key in cls._fields})
 
 
 # An handy Multiton
@@ -495,10 +498,10 @@ class Smearing(AbivarAble, MSONable):
             "tsmear": self.tsmear,
         }
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, dct: dict) -> Self:
         """Build object from dict."""
-        return Smearing(d["occopt"], d["tsmear"])
+        return cls(dct["occopt"], dct["tsmear"])
 
 
 class ElectronsAlgorithm(dict, AbivarAble, MSONable):
@@ -535,12 +538,12 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
         return {"@module": type(self).__module__, "@class": type(self).__name__, **self.copy()}
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """Build object from dict."""
-        d = d.copy()
-        d.pop("@module", None)
-        d.pop("@class", None)
-        return cls(**d)
+        dct = dct.copy()
+        dct.pop("@module", None)
+        dct.pop("@class", None)
+        return cls(**dct)
 
 
 class Electrons(AbivarAble, MSONable):
@@ -574,7 +577,7 @@ class Electrons(AbivarAble, MSONable):
         self.algorithm = algorithm
 
     @property
-    def nsppol(self):
+    def nsppol(self) -> int:
         """Number of independent spin polarizations."""
         return self.spin_mode.nsppol
 
@@ -603,15 +606,14 @@ class Electrons(AbivarAble, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """Build object from dictionary."""
         dct = dct.copy()
         dct.pop("@module", None)
         dct.pop("@class", None)
-        dec = MontyDecoder()
-        dct["spin_mode"] = dec.process_decoded(dct["spin_mode"])
-        dct["smearing"] = dec.process_decoded(dct["smearing"])
-        dct["algorithm"] = dec.process_decoded(dct["algorithm"]) if dct["algorithm"] else None
+        dct["spin_mode"] = MontyDecoder().process_decoded(dct["spin_mode"])
+        dct["smearing"] = MontyDecoder().process_decoded(dct["smearing"])
+        dct["algorithm"] = MontyDecoder().process_decoded(dct["algorithm"]) if dct["algorithm"] else None
         return cls(**dct)
 
     def to_abivars(self):
@@ -636,6 +638,7 @@ class Electrons(AbivarAble, MSONable):
         return abivars
 
 
+@unique
 class KSamplingModes(Enum):
     """Enum if the different samplings of the BZ."""
 
@@ -681,7 +684,7 @@ class KSampling(AbivarAble, MSONable):
                 Not used for the other modes
             kpts: Number of divisions. Even when only a single specification is
                 required, e.g. in the automatic scheme, the kpts should still
-                be specified as a 2D array. e.g., [[20]] or [[2,2,2]].
+                be specified as a 2D array. e.g. [[20]] or [[2,2,2]].
             kpt_shifts: Shifts for Kpoints.
             use_symmetries: False if spatial symmetries should not be used
                 to reduce the number of independent k-points.
@@ -719,11 +722,11 @@ class KSampling(AbivarAble, MSONable):
 
             if use_symmetries and use_time_reversal:
                 kptopt = 1
-            if not use_symmetries and use_time_reversal:
+            elif not use_symmetries and use_time_reversal:
                 kptopt = 2
-            if not use_symmetries and not use_time_reversal:
+            elif not use_symmetries and not use_time_reversal:
                 kptopt = 3
-            if use_symmetries and not use_time_reversal:
+            else:  # use_symmetries and not use_time_reversal
                 kptopt = 4
 
             abivars.update(
@@ -775,7 +778,7 @@ class KSampling(AbivarAble, MSONable):
     @property
     def is_homogeneous(self) -> bool:
         """Homogeneous sampling."""
-        return self.mode not in ["path"]
+        return self.mode != "path"
 
     @classmethod
     def gamma_only(cls):
@@ -876,8 +879,7 @@ class KSampling(AbivarAble, MSONable):
 
     @classmethod
     def _path(cls, ndivsm, structure=None, kpath_bounds=None, comment=None):
-        """
-        Static constructor for path in k-space.
+        """Static constructor for path in k-space.
 
         Args:
             structure: Structure object.
@@ -935,8 +937,7 @@ class KSampling(AbivarAble, MSONable):
         use_time_reversal=True,
         shifts=(0.5, 0.5, 0.5),
     ):
-        """
-        Returns an automatic Kpoint object based on a structure and a kpoint
+        """Get an automatic Kpoint object based on a structure and a kpoint
         density. Uses Gamma centered meshes for hexagonal cells and Monkhorst-Pack grids otherwise.
 
         Algorithm:
@@ -993,14 +994,13 @@ class KSampling(AbivarAble, MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """Build object from dict."""
-        d = d.copy()
-        d.pop("@module", None)
-        d.pop("@class", None)
-        dec = MontyDecoder()
-        d["kpts"] = dec.process_decoded(d["kpts"])
-        return cls(**d)
+        dct = dct.copy()
+        dct.pop("@module", None)
+        dct.pop("@class", None)
+        dct["kpts"] = MontyDecoder().process_decoded(dct["kpts"])
+        return cls(**dct)
 
 
 class Constraints(AbivarAble):
@@ -1123,15 +1123,16 @@ class RelaxationMethod(AbivarAble, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """Build object from dictionary."""
-        d = d.copy()
-        d.pop("@module", None)
-        d.pop("@class", None)
+        dct = dct.copy()
+        dct.pop("@module", None)
+        dct.pop("@class", None)
 
-        return cls(**d)
+        return cls(**dct)
 
 
+@unique
 class PPModelModes(Enum):
     """Different kind of plasmon-pole models."""
 
@@ -1225,10 +1226,10 @@ class PPModel(AbivarAble, MSONable):
             "@class": type(self).__name__,
         }
 
-    @staticmethod
-    def from_dict(d):
+    @classmethod
+    def from_dict(cls, dct: dict) -> Self:
         """Build object from dictionary."""
-        return PPModel(mode=d["mode"], plasmon_freq=d["plasmon_freq"])
+        return cls(mode=dct["mode"], plasmon_freq=dct["plasmon_freq"])
 
 
 class HilbertTransform(AbivarAble):
@@ -1455,7 +1456,7 @@ class SelfEnergy(AbivarAble):
         self.gwpara = gwpara
 
         if ppmodel is not None:
-            assert not screening.use_hilbert
+            assert screening.use_hilbert is False
             self.ppmodel = PPModel.as_ppmodel(ppmodel)
 
         self.ecuteps = ecuteps if ecuteps is not None else screening.ecuteps

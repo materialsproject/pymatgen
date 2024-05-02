@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 
 from pytest import approx
 
@@ -10,7 +9,7 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "Zihan Xu, Richard Tran, Balachandran Radhakrishnan"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"
@@ -19,12 +18,12 @@ __maintainer__ = "Zihan Xu"
 __email__ = "zix009@eng.ucsd.edu"
 __date__ = "May 05 2016"
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/wulff"
 
 
 class TestWulffShape(PymatgenTest):
     def setUp(self):
-        with open(f"{module_dir}/surface_samples.json") as data_file:
+        with open(f"{TEST_DIR}/surface_samples.json") as data_file:
             surface_properties = json.load(data_file)
 
         surface_energies, miller_indices = {}, {}
@@ -75,9 +74,12 @@ class TestWulffShape(PymatgenTest):
 
         # Basic test to check figure contains a single Axes3D object
         for wulff in (self.wulff_Nb, self.wulff_Ir, self.wulff_Ti):
-            plt = wulff.get_plot()
-            assert len(plt.gcf().get_axes()) == 1
-            assert isinstance(plt.gcf().get_axes()[0], Axes3D)
+            ax_3d = wulff.get_plot()
+            assert isinstance(ax_3d, Axes3D)
+            assert len(ax_3d.collections) in (24, 74, 110)
+            assert ax_3d.get_title() == ""
+            assert ax_3d.get_xlabel() == "x"
+            assert ax_3d.get_ylabel() == "y"
 
     def test_get_plotly(self):
         # Basic test, not really a unittest.
@@ -86,9 +88,8 @@ class TestWulffShape(PymatgenTest):
         self.wulff_Ir.get_plotly()
 
     def symm_check(self, ucell, wulff_vertices):
-        """
-        # Checks if the point group of the Wulff shape matches
-        # the point group of its conventional unit cell.
+        """Check if the point group of the Wulff shape matches
+        the point group of its conventional unit cell.
 
         Args:
             ucell (str): Unit cell that the Wulff shape is based on.
@@ -96,7 +97,8 @@ class TestWulffShape(PymatgenTest):
                 shape. Use wulff.wulff_pt_list to obtain the list
                 (see wulff_generator.py).
 
-        return (bool)
+        Returns:
+            bool: True if the point group of the Wulff shape matches
         """
         space_group_analyzer = SpacegroupAnalyzer(ucell)
         symm_ops = space_group_analyzer.get_point_group_operations(cartesian=True)

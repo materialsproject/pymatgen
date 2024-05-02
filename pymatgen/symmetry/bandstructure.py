@@ -1,4 +1,4 @@
-"""Provides a class for interacting with KPath classes to
+"""A class for interacting with KPath classes to
 generate high-symmetry k-paths using different conventions.
 """
 
@@ -140,38 +140,29 @@ class HighSymmKpath(KPathBase):
 
     @property
     def path_type(self):
-        """
-        Returns:
-            The type of kpath chosen.
-        """
+        """The type of kpath chosen."""
         return self._path_type
 
     @property
     def label_index(self):
-        """
-        Returns:
-            The correspondence between numbers and kpoint symbols for the
+        """The correspondence between numbers and kpoint symbols for the
         combined kpath generated when path_type = 'all'. None otherwise.
         """
         return self._label_index
 
     @property
     def equiv_labels(self):
-        """
-        Returns:
-            The correspondence between the kpoint symbols in the Latimer and
-            Munro convention, Setyawan and Curtarolo, and Hinuma
-            conventions respectively. Only generated when path_type = 'all'.
+        """The correspondence between the kpoint symbols in the Latimer and
+        Munro convention, Setyawan and Curtarolo, and Hinuma
+        conventions respectively. Only generated when path_type = 'all'.
         """
         return self._equiv_labels
 
     @property
     def path_lengths(self):
-        """
-        Returns:
-            List of lengths of the Latimer and Munro, Setyawan and Curtarolo, and Hinuma
-            conventions in the combined HighSymmKpath object when path_type = 'all' respectively.
-            None otherwise.
+        """List of lengths of the Latimer and Munro, Setyawan and Curtarolo, and Hinuma
+        conventions in the combined HighSymmKpath object when path_type = 'all' respectively.
+        None otherwise.
         """
         return self._path_lengths
 
@@ -221,7 +212,7 @@ class HighSymmKpath(KPathBase):
     def _get_klabels(self, lm_bs, sc_bs, hin_bs, rpg):
         """
         Returns:
-            labels (dict): Dictionary of equivalent labels for paths if 'all' is chosen.
+            dict[str, dict[str, dict[str, str]]]: equivalent labels for paths if 'all' is chosen.
             If an exact kpoint match cannot be found, symmetric equivalency will be
             searched for and indicated with an asterisk in the equivalent label.
             If an equivalent label can still not be found, or the point is not in
@@ -270,6 +261,8 @@ class HighSymmKpath(KPathBase):
                     unlabeled[label_a] = coord_a
 
             for label_a, coord_a in unlabeled.items():
+                key = None
+
                 for op in rpg:
                     coord_a_t = np.dot(op, coord_a)
                     key = [
@@ -333,20 +326,20 @@ class HighSymmKpath(KPathBase):
         new_bands = {spin: [np.array([]) for _ in range(bandstructure.nb_bands)] for spin in spins}
         new_projections = {spin: [[] for _ in range(bandstructure.nb_bands)] for spin in spins}
 
-        num_branches = len(bandstructure.branches)
+        n_branches = len(bandstructure.branches)
         new_branches = []
 
         # This ensures proper format of bandstructure.branches
         processed = []
-        for ind in range(num_branches):
-            branch = bandstructure.branches[ind]
+        for idx in range(n_branches):
+            branch = bandstructure.branches[idx]
 
             if branch["name"] not in processed:
                 if tuple(branch["name"].split("-")) in plot_axis:
                     new_branches.append(branch)
                     processed.append(branch["name"])
                 else:
-                    next_branch = bandstructure.branches[ind + 1]
+                    next_branch = bandstructure.branches[idx + 1]
                     combined = {
                         "start_index": branch["start_index"],
                         "end_index": next_branch["end_index"],
@@ -385,7 +378,7 @@ class HighSymmKpath(KPathBase):
         for spin in spins:
             new_projections[spin] = np.array(new_projections[spin])
 
-        new_labels_dict = {label: point.frac_coords for label, point in bandstructure.labels_dict.items()}
+        new_labels_dict = {key: point.frac_coords for key, point in bandstructure.labels_dict.items()}
 
         return BandStructureSymmLine(
             kpoints=new_kpoints,

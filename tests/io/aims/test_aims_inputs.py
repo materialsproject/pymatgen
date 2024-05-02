@@ -24,8 +24,8 @@ TEST_DIR = Path(__file__).parent / "input_files"
 def test_read_write_si_in(tmp_path: Path):
     si = AimsGeometryIn.from_file(TEST_DIR / "geometry.in.si.gz")
 
-    in_lattice = np.array([[0.0, 2.715, 2.716], [2.717, 0.0, 2.718], [2.719, 2.720, 0.0]])
-    in_coords = np.array([[0.0, 0.0, 0.0], [0.25, 0.24, 0.26]])
+    in_lattice = np.array([[0, 2.715, 2.716], [2.717, 0, 2.718], [2.719, 2.720, 0]])
+    in_coords = np.array([[0, 0, 0], [0.25, 0.24, 0.26]])
 
     assert all(sp.symbol == "Si" for sp in si.structure.species)
     assert_allclose(si.structure.lattice.matrix, in_lattice)
@@ -50,9 +50,9 @@ def test_read_h2o_in(tmp_path: Path):
     h2o = AimsGeometryIn.from_file(TEST_DIR / "geometry.in.h2o.gz")
 
     in_coords = [
-        [0.0, 0.0, 0.119262],
-        [0.0, 0.763239, -0.477047],
-        [0.0, -0.763239, -0.477047],
+        [0, 0, 0.119262],
+        [0, 0.763239, -0.477047],
+        [0, -0.763239, -0.477047],
     ]
 
     assert all(sp.symbol == symb for sp, symb in zip(h2o.structure.species, ["O", "H", "H"]))
@@ -107,12 +107,12 @@ def test_aims_cube():
         AimsCube(type=ALLOWED_AIMS_CUBE_TYPES[0], origin=[0])
 
     with pytest.raises(ValueError, match="Only three cube edges can be passed"):
-        AimsCube(type=ALLOWED_AIMS_CUBE_TYPES[0], edges=[[0.0, 0.0, 0.1]])
+        AimsCube(type=ALLOWED_AIMS_CUBE_TYPES[0], edges=[[0, 0, 0.1]])
 
     with pytest.raises(ValueError, match="Each cube edge must have 3 components"):
         AimsCube(
             type=ALLOWED_AIMS_CUBE_TYPES[0],
-            edges=[[0.0, 0.0, 0.1], [0.1, 0.0, 0.0], [0.1, 0.0]],
+            edges=[[0, 0, 0.1], [0.1, 0, 0], [0.1, 0]],
         )
 
     with pytest.raises(ValueError, match="elf_type is only used when the cube type is elf. Otherwise it must be None"):
@@ -124,7 +124,7 @@ def test_aims_cube():
     test_cube = AimsCube(
         type="elf",
         origin=[0, 0, 0],
-        edges=[[0.01, 0, 0], [0.0, 0.01, 0], [0.0, 0, 0.01]],
+        edges=[[0.01, 0, 0], [0, 0.01, 0], [0, 0, 0.01]],
         points=[100, 100, 100],
         spin_state=1,
         kpoint=1,

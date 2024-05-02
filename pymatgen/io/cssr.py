@@ -3,11 +3,17 @@
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING
 
 from monty.io import zopen
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -41,8 +47,8 @@ class Cssr:
             f"{len(self.structure)} 0",
             f"0 {self.structure.formula}",
         ]
-        for idx, site in enumerate(self.structure):
-            output.append(f"{idx + 1} {site.specie} {site.a:.4f} {site.b:.4f} {site.c:.4f}")
+        for idx, site in enumerate(self.structure, start=1):
+            output.append(f"{idx} {site.specie} {site.a:.4f} {site.b:.4f} {site.c:.4f}")
         return "\n".join(output)
 
     def write_file(self, filename):
@@ -56,7 +62,7 @@ class Cssr:
             file.write(str(self) + "\n")
 
     @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """
         Reads a string representation to a Cssr object.
 
@@ -71,18 +77,17 @@ class Cssr:
         lengths = [float(tok) for tok in tokens]
         tokens = lines[1].split()
         angles = [float(tok) for tok in tokens[0:3]]
-        latt = Lattice.from_parameters(*lengths, *angles)
-        sp = []
-        coords = []
+        lattice = Lattice.from_parameters(*lengths, *angles)
+        sp, coords = [], []
         for line in lines[4:]:
-            m = re.match(r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)", line.strip())
-            if m:
-                sp.append(m.group(1))
-                coords.append([float(m.group(i)) for i in range(2, 5)])
-        return cls(Structure(latt, sp, coords))
+            match = re.match(r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)", line.strip())
+            if match:
+                sp.append(match.group(1))
+                coords.append([float(match.group(i)) for i in range(2, 5)])
+        return cls(Structure(lattice, sp, coords))
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Reads a CSSR file to a Cssr object.
 

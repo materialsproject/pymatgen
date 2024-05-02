@@ -3,10 +3,15 @@
 from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from pymatgen.core.tensors import Tensor
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -20,7 +25,7 @@ __date__ = "Feb, 2016"
 class PiezoTensor(Tensor):
     """This class describes the 3x6 piezo tensor in Voigt notation."""
 
-    def __new__(cls, input_array, tol: float = 1e-3):
+    def __new__(cls, input_array: ArrayLike, tol: float = 1e-3) -> Self:
         """
         Create an PiezoTensor object. The constructor throws an error if
         the shape of the input_matrix argument is not 3x3x3, i. e. in true
@@ -38,7 +43,7 @@ class PiezoTensor(Tensor):
         return obj.view(cls)
 
     @classmethod
-    def from_vasp_voigt(cls, input_vasp_array):
+    def from_vasp_voigt(cls, input_vasp_array: ArrayLike) -> Self:
         """
         Args:
             input_vasp_array (nd.array): Voigt form of tensor.

@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import pymatgen.phonon as ph
 import pymatgen.phonon.bandstructure as bs
-import pymatgen.phonon.dos as dos
 import pymatgen.phonon.gruneisen as gru
-import pymatgen.phonon.plotter as plotter
+from pymatgen.phonon import dos, plotter
 
 
 def test_convenience_imports():

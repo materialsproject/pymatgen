@@ -7,7 +7,7 @@ and PDEntry inherit from this class.
 
 from __future__ import annotations
 
-from abc import ABCMeta, abstractmethod
+from abc import ABC, ABCMeta, abstractmethod
 from typing import TYPE_CHECKING, Literal
 
 import numpy as np
@@ -28,7 +28,7 @@ __status__ = "Production"
 __date__ = "Mar 03, 2020"
 
 
-class Entry(MSONable, metaclass=ABCMeta):
+class Entry(MSONable, ABC):
     """A lightweight object containing the energy associated with
     a specific chemical composition. This base class is not
     intended to be instantiated directly. Note that classes
@@ -36,7 +36,7 @@ class Entry(MSONable, metaclass=ABCMeta):
     """
 
     def __init__(self, composition: Composition | str | dict[str, float], energy: float) -> None:
-        """Initializes an Entry.
+        """Initialize an Entry.
 
         Args:
             composition (Composition): Composition of the entry. For

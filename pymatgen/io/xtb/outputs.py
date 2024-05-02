@@ -36,8 +36,8 @@ class CRESTOutput(MSONable):
         self.path = path
         self.filename = output_filename
 
-        self.cmd_options = {}
-        self.sorted_structures_energies = []
+        self.cmd_options: dict = {}
+        self.sorted_structures_energies: list = []
         self.properly_terminated = False
         self._parse_crest_output()
 
@@ -56,7 +56,7 @@ class CRESTOutput(MSONable):
 
         # Get CREST command
         crest_cmd = None
-        with open(output_filepath) as xtbout_file:
+        with open(output_filepath, encoding="utf-8") as xtbout_file:
             for line in xtbout_file:
                 if "> crest" in line:
                     crest_cmd = line.strip()[8:]
@@ -72,12 +72,12 @@ class CRESTOutput(MSONable):
             print(f"Input file {split_cmd[0]} not found")
 
         # Get CREST input flags
-        for i, entry in enumerate(split_cmd):
+        for i, entry in enumerate(split_cmd, start=1):
             value = None
             if entry and "-" in entry:
                 option = entry[1:]
-                if i + 1 < len(split_cmd) and "-" not in split_cmd[i + 1]:
-                    value = split_cmd[i + 1]
+                if i < len(split_cmd) and "-" not in split_cmd[i]:
+                    value = split_cmd[i]
                 self.cmd_options[option] = value
         # Get input charge for decorating parsed molecules
         chg = 0
@@ -112,7 +112,7 @@ class CRESTOutput(MSONable):
             )
             conformer_degeneracies = []
             energies = []
-            with open(output_filepath) as xtbout_file:
+            with open(output_filepath, encoding="utf-8") as xtbout_file:
                 for line in xtbout_file:
                     conformer_match = conformer_pattern.match(line)
                     rotamer_match = rotamer_pattern.match(line)
@@ -127,12 +127,12 @@ class CRESTOutput(MSONable):
                 final_rotamer_filename = "crest_rotamers.xyz"
             else:
                 n_rot_files = []
-                for f in os.listdir(self.path):
-                    if "crest_rotamers" in f:
-                        n_rot_file = int(os.path.splitext(f)[0].split("_")[2])
+                for filename in os.listdir(self.path):
+                    if "crest_rotamers" in filename:
+                        n_rot_file = int(os.path.splitext(filename)[0].split("_")[2])
                         n_rot_files.append(n_rot_file)
-                if len(n_rot_files) > 0:
-                    final_rotamer_filename = f"crest_rotamers_{max(n_rot_files)}.xyz"
+                final_rotamer_filename = f"crest_rotamers_{max(n_rot_files)}.xyz" if len(n_rot_files) > 0 else ""
+
             try:
                 rotamers_path = os.path.join(self.path, final_rotamer_filename)
                 rotamer_structures = XYZ.from_file(rotamers_path).all_molecules

@@ -101,7 +101,7 @@ class TestTensor(PymatgenTest):
         )
 
         self.structure = self.get_structure("BaNiO3")
-        ieee_file_path = f"{TEST_FILES_DIR}/ieee_conversion_data.json"
+        ieee_file_path = f"{TEST_FILES_DIR}/core/tensors/ieee_conversion_data.json"
         self.ones = Tensor(np.ones((3, 3)))
         self.ieee_data = loadfn(ieee_file_path)
 
@@ -283,7 +283,7 @@ class TestTensor(PymatgenTest):
         assert empty[tkey] == 1
 
     def test_populate(self):
-        test_data = loadfn(f"{TEST_FILES_DIR}/test_toec_data.json")
+        test_data = loadfn(f"{TEST_FILES_DIR}/analysis/elasticity/test_toec_data.json")
 
         sn = self.get_structure("Sn")
         vtens = np.zeros((6, 6))
@@ -369,7 +369,7 @@ class TestTensorCollection(PymatgenTest):
         self.rand_tc = TensorCollection(list(np.random.random((4, 3, 3))))
         self.diff_rank = TensorCollection([np.ones([3] * i) for i in range(2, 5)])
         self.struct = self.get_structure("Si")
-        ieee_file_path = f"{TEST_FILES_DIR}/ieee_conversion_data.json"
+        ieee_file_path = f"{TEST_FILES_DIR}/core/tensors/ieee_conversion_data.json"
         self.ieee_data = loadfn(ieee_file_path)
 
     def list_based_function_check(self, attribute, coll, *args, **kwargs):
@@ -543,9 +543,9 @@ class TestSquareTensor(PymatgenTest):
         assert self.non_symm.get_scaled(10) == approx(SquareTensor([[1, 2, 3], [4, 5, 6], [2, 5, 5]]))
 
     def test_polar_decomposition(self):
-        u, p = self.rand_sqtensor.polar_decomposition()
-        assert_allclose(np.dot(u, p), self.rand_sqtensor)
-        assert_allclose(np.eye(3), np.dot(u, np.conjugate(np.transpose(u))), atol=1e-9)
+        u_mat, p_mat = self.rand_sqtensor.polar_decomposition()
+        assert_allclose(np.dot(u_mat, p_mat), self.rand_sqtensor)
+        assert_allclose(np.eye(3), np.dot(u_mat, np.conjugate(np.transpose(u_mat))), atol=1e-9)
 
     def test_serialization(self):
         # Test base serialize-deserialize

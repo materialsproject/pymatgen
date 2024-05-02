@@ -17,6 +17,7 @@ import itertools
 import logging
 import math
 import re
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
@@ -31,7 +32,10 @@ try:
 
     from pymatgen.io.babel import BabelMolAdaptor
 except ImportError:
-    openbabel = None
+    openbabel = BabelMolAdaptor = None  # type: ignore[misc]
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 __author__ = "Xiaohui Qu, Adam Fekete"
@@ -41,7 +45,7 @@ __email__ = "xhqu1981@gmail.com"
 logger = logging.getLogger(__name__)
 
 
-class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
+class AbstractMolAtomMapper(MSONable, abc.ABC):
     """
     Abstract molecular atom order mapping class. A mapping will be able to
     find the uniform atom order of two molecules that can pair the
@@ -80,7 +84,7 @@ class AbstractMolAtomMapper(MSONable, metaclass=abc.ABCMeta):
         """
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -154,8 +158,8 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
             if elements1 != elements2:
                 continue
             vmol2 = openbabel.OBMol()
-            for i in label2:
-                vmol2.AddAtom(ob_mol2.GetAtom(i))
+            for idx in label2:
+                vmol2.AddAtom(ob_mol2.GetAtom(idx))
             aligner.SetTargetMol(vmol2)
             aligner.Align()
             rmsd = aligner.GetRMSD()
@@ -166,17 +170,17 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
 
     def get_molecule_hash(self, mol):
         """Return inchi as molecular hash."""
-        obconv = openbabel.OBConversion()
-        obconv.SetOutFormat("inchi")
-        obconv.AddOption("X", openbabel.OBConversion.OUTOPTIONS, "DoNotAddH")
-        inchi_text = obconv.WriteString(mol)
+        ob_conv = openbabel.OBConversion()
+        ob_conv.SetOutFormat("inchi")
+        ob_conv.AddOption("X", openbabel.OBConversion.OUTOPTIONS, "DoNotAddH")
+        inchi_text = ob_conv.WriteString(mol)
         match = re.search(r"InChI=(?P<inchi>.+)\n", inchi_text)
         return match.group("inchi")
 
     def as_dict(self):
         """
         Returns:
-            Jsonable dict.
+            JSON-able dict.
         """
         return {
             "version": __version__,
@@ -185,10 +189,10 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             IsomorphismMolAtomMapper
@@ -220,20 +224,19 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict Representation.
+            dct (dict): Dict Representation.
 
         Returns:
             InchiMolAtomMapper
         """
-        return cls(angle_tolerance=d["angle_tolerance"])
+        return cls(angle_tolerance=dct["angle_tolerance"])
 
     @staticmethod
     def _inchi_labels(mol):
-        """
-        Get the inchi canonical labels of the heavy atoms in the molecule.
+        """Get the inchi canonical labels of the heavy atoms in the molecule.
 
         Args:
             mol: The molecule. OpenBabel OBMol object
@@ -255,11 +258,11 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         inchi = match.group("inchi")
         label_text = match.group("labels")
         eq_atom_text = match.group("eq_atoms")
-        heavy_atom_labels = tuple(int(i) for i in label_text.replace(";", ",").split(","))
+        heavy_atom_labels = tuple(int(idx) for idx in label_text.replace(";", ",").split(","))
         eq_atoms = []
         if eq_atom_text is not None:
             eq_tokens = re.findall(r"\(((?:[0-9]+,)+[0-9]+)\)", eq_atom_text.replace(";", ","))
-            eq_atoms = tuple(tuple(int(i) for i in t.split(",")) for t in eq_tokens)
+            eq_atoms = tuple(tuple(int(idx) for idx in t.split(",")) for t in eq_tokens)
         return heavy_atom_labels, eq_atoms, inchi
 
     @staticmethod
@@ -275,16 +278,16 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             Centroid. Tuple (x, y, z)
         """
         c1x, c1y, c1z = 0.0, 0.0, 0.0
-        for i in group_atoms:
-            orig_idx = ilabels[i - 1]
+        for idx in group_atoms:
+            orig_idx = ilabels[idx - 1]
             oa1 = mol.GetAtom(orig_idx)
             c1x += float(oa1.x())
             c1y += float(oa1.y())
             c1z += float(oa1.z())
-        num_atoms = len(group_atoms)
-        c1x /= num_atoms
-        c1y /= num_atoms
-        c1z /= num_atoms
+        n_atoms = len(group_atoms)
+        c1x /= n_atoms
+        c1y /= n_atoms
+        c1z /= n_atoms
         return c1x, c1y, c1z
 
     def _virtual_molecule(self, mol, ilabels, eq_atoms):
@@ -299,7 +302,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             farthest_group_idx: The equivalent atom group index in which
                 there is the farthest atom to the centroid
 
-        Return:
+        Returns:
             The virtual molecule
         """
         vmol = openbabel.OBMol()
@@ -309,8 +312,8 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         unique_atom_labels = sorted(all_atoms - non_unique_atoms)
 
         # try to align molecules using unique atoms
-        for i in unique_atom_labels:
-            orig_idx = ilabels[i - 1]
+        for idx in unique_atom_labels:
+            orig_idx = ilabels[idx - 1]
             oa1 = mol.GetAtom(orig_idx)
             a1 = vmol.NewAtom()
             a1.SetAtomicNum(oa1.GetAtomicNum())
@@ -321,8 +324,8 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             for symm in eq_atoms:
                 c1x, c1y, c1z = self._group_centroid(mol, ilabels, symm)
                 min_distance = float("inf")
-                for i in range(1, vmol.NumAtoms() + 1):
-                    va = vmol.GetAtom(i)
+                for idx in range(1, vmol.NumAtoms() + 1):
+                    va = vmol.GetAtom(idx)
                     distance = math.sqrt((c1x - va.x()) ** 2 + (c1y - va.y()) ** 2 + (c1z - va.z()) ** 2)
                     if distance < min_distance:
                         min_distance = distance
@@ -350,7 +353,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             ilabel2: inchi label map of the second molecule
             eq_atoms: equivalent atom labels
 
-        Return:
+        Returns:
             corrected inchi labels of heavy atoms of the second molecule
         """
         n_virtual = vmol1.NumAtoms()
@@ -423,7 +426,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             heavy_indices1: inchi label map of the first molecule
             heavy_indices2: label map of the second molecule
 
-        Return:
+        Returns:
             corrected label map of all atoms of the second molecule
         """
         num_atoms = mol2.NumAtoms()
@@ -434,14 +437,14 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         label2 = heavy_indices2 + tuple(hydrogen_atoms2)
 
         cmol1 = openbabel.OBMol()
-        for i in label1:
-            oa1 = mol1.GetAtom(i)
+        for idx in label1:
+            oa1 = mol1.GetAtom(idx)
             a1 = cmol1.NewAtom()
             a1.SetAtomicNum(oa1.GetAtomicNum())
             a1.SetVector(oa1.GetVector())
         cmol2 = openbabel.OBMol()
-        for i in label2:
-            oa2 = mol2.GetAtom(i)
+        for idx in label2:
+            oa2 = mol2.GetAtom(idx)
             a2 = cmol2.NewAtom()
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
@@ -489,7 +492,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         Returns:
             Elements. List of integers.
         """
-        return [int(mol.GetAtom(i).GetAtomicNum()) for i in label]
+        return [int(mol.GetAtom(idx).GetAtomicNum()) for idx in label]
 
     def _is_molecule_linear(self, mol):
         """
@@ -505,8 +508,8 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             return True
         a1 = mol.GetAtom(1)
         a2 = mol.GetAtom(2)
-        for i in range(3, mol.NumAtoms() + 1):
-            angle = float(mol.GetAtom(i).GetAngle(a2, a1))
+        for idx in range(3, mol.NumAtoms() + 1):
+            angle = float(mol.GetAtom(idx).GetAngle(a2, a1))
             if angle < 0.0:
                 angle = -angle
             if angle > 90.0:
@@ -534,7 +537,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             return None, None  # Topologically different
 
         if iequal_atom1 != iequal_atom2:
-            raise Exception("Design Error! Equivalent atoms are inconsistent")
+            raise RuntimeError("Design Error! Equivalent atoms are inconsistent")
 
         vmol1 = self._virtual_molecule(ob_mol1, ilabel1, iequal_atom1)
         vmol2 = self._virtual_molecule(ob_mol2, ilabel2, iequal_atom2)
@@ -586,8 +589,7 @@ class MoleculeMatcher(MSONable):
         self._mapper = mapper or InchiMolAtomMapper()
 
     def fit(self, mol1, mol2):
-        """
-        Fit two molecules.
+        """Fit two molecules.
 
         Args:
             mol1: First molecule. OpenBabel OBMol or pymatgen Molecule object
@@ -599,8 +601,7 @@ class MoleculeMatcher(MSONable):
         return self.get_rmsd(mol1, mol2) < self._tolerance
 
     def get_rmsd(self, mol1, mol2):
-        """
-        Get RMSD between two molecule with arbitrary atom order.
+        """Get RMSD between two molecule with arbitrary atom order.
 
         Returns:
             RMSD if topology of the two molecules are the same
@@ -633,14 +634,14 @@ class MoleculeMatcher(MSONable):
         ob_mol2 = BabelMolAdaptor(mol2).openbabel_mol
 
         cmol1 = openbabel.OBMol()
-        for i in clabel1:
-            oa1 = ob_mol1.GetAtom(i)
+        for idx in clabel1:
+            oa1 = ob_mol1.GetAtom(idx)
             a1 = cmol1.NewAtom()
             a1.SetAtomicNum(oa1.GetAtomicNum())
             a1.SetVector(oa1.GetVector())
         cmol2 = openbabel.OBMol()
-        for i in clabel2:
-            oa2 = ob_mol2.GetAtom(i)
+        for idx in clabel2:
+            oa2 = ob_mol2.GetAtom(idx)
             a2 = cmol2.NewAtom()
             a2.SetAtomicNum(oa2.GetAtomicNum())
             a2.SetVector(oa2.GetVector())
@@ -663,7 +664,7 @@ class MoleculeMatcher(MSONable):
             Assumption: if s1=s2 and s2=s3, then s1=s3
             This may not be true for small tolerances.
         """
-        mol_hash = [(i, self._mapper.get_molecule_hash(m)) for i, m in enumerate(mol_list)]
+        mol_hash = [(idx, self._mapper.get_molecule_hash(mol)) for idx, mol in enumerate(mol_list)]
         mol_hash.sort(key=lambda x: x[1])
 
         # Use molecular hash to pre-group molecules.
@@ -691,7 +692,7 @@ class MoleculeMatcher(MSONable):
                 group_indices.append(sorted(current_group))
 
         group_indices.sort(key=lambda x: (len(x), -x[0]), reverse=True)
-        return [[mol_list[i] for i in g] for g in group_indices]
+        return [[mol_list[idx] for idx in g] for g in group_indices]
 
     def as_dict(self):
         """
@@ -707,17 +708,17 @@ class MoleculeMatcher(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             MoleculeMatcher
         """
         return cls(
-            tolerance=d["tolerance"],
-            mapper=AbstractMolAtomMapper.from_dict(d["mapper"]),
+            tolerance=dct["tolerance"],
+            mapper=AbstractMolAtomMapper.from_dict(dct["mapper"]),
         )
 
 
@@ -890,6 +891,8 @@ class BruteForceOrderMatcher(KabschMatcher):
         rmsd = np.inf
 
         # Generate all permutation grouped/sorted by the elements
+        p_inds = []
+        U = np.empty(0)
         for p_inds_test in self.permutations(p_atoms):
             p_centroid_test = p_centroid[p_inds_test]
             U_test = self.kabsch(p_centroid_test, q_centroid)
@@ -925,7 +928,7 @@ class BruteForceOrderMatcher(KabschMatcher):
         """
         inds, U, V, rmsd = self.match(p, ignore_warning=ignore_warning)
 
-        p_prime = Molecule.from_sites([p[i] for i in inds])
+        p_prime = Molecule.from_sites([p[idx] for idx in inds])
         for site in p_prime:
             site.coords = np.dot(site.coords, U) + V
 
@@ -933,7 +936,7 @@ class BruteForceOrderMatcher(KabschMatcher):
 
     @staticmethod
     def permutations(atoms):
-        """Generates all the possible permutations of atom order. To achieve better
+        """Generate all the possible permutations of atom order. To achieve better
         performance all the cases where the atoms are different has been ignored.
         """
         element_iterators = [itertools.permutations(np.where(atoms == element)[0]) for element in np.unique(atoms)]
@@ -943,7 +946,7 @@ class BruteForceOrderMatcher(KabschMatcher):
 
 
 class HungarianOrderMatcher(KabschMatcher):
-    """This method pre-aligns the molecules based on their principal inertia
+    """Pre-align the molecules based on their principal inertia
     axis and then re-orders the input atom list using the Hungarian method.
 
     Notes:
@@ -987,6 +990,8 @@ class HungarianOrderMatcher(KabschMatcher):
         rmsd = np.inf
 
         # Generate all permutation grouped/sorted by the elements
+        inds = []
+        U = np.empty(0)
         for p_inds_test in self.permutations(p_atoms, p_centroid, p_weights, q_atoms, q_centroid, q_weights):
             p_centroid_test = p_centroid[p_inds_test]
             U_test = self.kabsch(p_centroid_test, q_centroid)
@@ -1016,7 +1021,7 @@ class HungarianOrderMatcher(KabschMatcher):
         inds, U, V, rmsd = self.match(p)
 
         # Translate and rotate `mol1` unto `mol2` using Kabsch algorithm.
-        p_prime = Molecule.from_sites([p[i] for i in inds])
+        p_prime = Molecule.from_sites([p[idx] for idx in inds])
         for site in p_prime:
             site.coords = np.dot(site.coords, U) + V
 
@@ -1024,8 +1029,8 @@ class HungarianOrderMatcher(KabschMatcher):
 
     @staticmethod
     def permutations(p_atoms, p_centroid, p_weights, q_atoms, q_centroid, q_weights):
-        """Generates two possible permutations of atom order. This method uses the principle component
-        of the inertia tensor to prealign the molecules and hungarian method to determine the order.
+        """Generate two possible permutations of atom order. This method uses the principle component
+        of the inertia tensor to pre-align the molecules and hungarian method to determine the order.
         There are always two possible permutation depending on the way to pre-aligning the molecules.
 
         Args:
@@ -1204,7 +1209,7 @@ class GeneticOrderMatcher(KabschMatcher):
         out = []
         for inds in self.permutations(p):
             p_prime = p.copy()
-            p_prime._sites = [p_prime[i] for i in inds]
+            p_prime._sites = [p_prime[idx] for idx in inds]
 
             U, V, rmsd = super().match(p_prime)
 
@@ -1220,14 +1225,14 @@ class GeneticOrderMatcher(KabschMatcher):
             p: a `Molecule` object what will be matched with the target one.
 
         Returns:
-            Array of the possible matches where the elements are:
+            list[tuple[Molecule, float]]: possible matches where the elements are:
                 p_prime: Rotated and translated of the `p` `Molecule` object
                 rmsd: Root-mean-square-deviation between `p_prime` and the `target`
         """
-        out = []
+        out: list[tuple[Molecule, float]] = []
         for inds in self.permutations(p):
             p_prime = p.copy()
-            p_prime._sites = [p_prime[i] for i in inds]
+            p_prime._sites = [p_prime[idx] for idx in inds]
 
             U, V, rmsd = super().match(p_prime)
 
@@ -1236,12 +1241,12 @@ class GeneticOrderMatcher(KabschMatcher):
             for site in p_prime:
                 site.coords = np.dot(site.coords, U) + V
 
-            out.append((p_prime, rmsd))
+            out += [(p_prime, rmsd)]
 
         return out
 
     def permutations(self, p: Molecule):
-        """Generates all of possible permutations of atom order according the threshold.
+        """Generate all of possible permutations of atom order according the threshold.
 
         Args:
             p: a `Molecule` object what will be matched with the target one.
@@ -1258,6 +1263,7 @@ class GeneticOrderMatcher(KabschMatcher):
 
         # starting matches (only based on element)
         partial_matches = [[j] for j in range(self.N) if p_atoms[j] == q_atoms[0]]
+        matches: list = []
 
         for idx in range(1, self.N):
             # extending the target fragment with then next atom

@@ -3811,7 +3811,7 @@ nav_order: 6
           * [`KeywordList.get_string()`](pymatgen.io.cp2k.md#pymatgen.io.cp2k.inputs.KeywordList.get_string)
           * [`KeywordList.verbosity()`](pymatgen.io.cp2k.md#pymatgen.io.cp2k.inputs.KeywordList.verbosity)
         * [`Kind`](pymatgen.io.cp2k.md#pymatgen.io.cp2k.inputs.Kind)
-        * [`Kpoint_Set`](pymatgen.io.cp2k.md#pymatgen.io.cp2k.inputs.Kpoint_Set)
+        * [`KpointSet`](pymatgen.io.cp2k.md#pymatgen.io.cp2k.inputs.KpointSet)
         * [`Kpoints`](pymatgen.io.cp2k.md#pymatgen.io.cp2k.inputs.Kpoints)
           * [`Kpoints.from_kpoints()`](pymatgen.io.cp2k.md#pymatgen.io.cp2k.inputs.Kpoints.from_kpoints)
         * [`LDOS`](pymatgen.io.cp2k.md#pymatgen.io.cp2k.inputs.LDOS)

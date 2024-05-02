@@ -104,6 +104,14 @@ pymatgen.io.gaussian module
    :undoc-members:
    :show-inheritance:
 
+pymatgen.io.icet module
+-----------------------
+
+.. automodule:: pymatgen.io.icet
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pymatgen.io.jarvis module
 -------------------------
 

@@ -16,7 +16,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-json_dir = f"{TEST_FILES_DIR}/chemenv/json"
+json_dir = f"{TEST_FILES_DIR}/analysis/chemenv/json"
 
 
 class TestCoordinationGeometryFinder(PymatgenTest):
@@ -88,9 +88,9 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         assert self.lgf.indices == [4, 6, 3, 1, 2, 5]
 
         LiFePO4_struct = self.get_structure("LiFePO4")
-        isite = 10
-        envs_LiFePO4 = self.lgf.compute_coordination_environments(structure=LiFePO4_struct, indices=[isite])
-        assert envs_LiFePO4[isite][0]["csm"] == approx(0.140355832317)
+        site_idx = 10
+        envs_LiFePO4 = self.lgf.compute_coordination_environments(structure=LiFePO4_struct, indices=[site_idx])
+        assert envs_LiFePO4[site_idx][0]["csm"] == approx(0.140355832317)
         nbs_coords = [
             np.array([6.16700437, -4.55194317, -5.89031356]),
             np.array([4.71588167, -4.54248093, -3.75553856]),
@@ -104,16 +104,16 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         self.lgf.compute_structure_environments(voronoi_distance_cutoff=25)
 
         self.lgf.setup_structure(LiFePO4_struct)
-        self.lgf.setup_local_geometry(isite, coords=nbs_coords)
+        self.lgf.setup_local_geometry(site_idx, coords=nbs_coords)
 
         perfect_tet = AbstractGeometry.from_cg(
             cg=cg_tet, centering_type="centroid", include_central_site_in_centroid=False
         )
         points_perfect_tet = perfect_tet.points_wcs_ctwcc()
-        res = self.lgf.coordination_geometry_symmetry_measures_fallback_random(
-            coordination_geometry=cg_tet, NRANDOM=5, points_perfect=points_perfect_tet
+        result = self.lgf.coordination_geometry_symmetry_measures_fallback_random(
+            coordination_geometry=cg_tet, n_random=5, points_perfect=points_perfect_tet
         )
-        permutations_symmetry_measures, _permutations, _algos, _local2perfect_maps, _perfect2local_maps = res
+        permutations_symmetry_measures, _permutations, _algos, _local2perfect_maps, _perfect2local_maps = result
         for perm_csm_dict in permutations_symmetry_measures:
             assert perm_csm_dict["symmetry_measure"] == approx(0.140355832317)
 

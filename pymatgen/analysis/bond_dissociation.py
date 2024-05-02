@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import logging
+import warnings
+from typing import cast
 
 import networkx as nx
 from monty.json import MSONable
@@ -42,13 +44,12 @@ class BondDissociationEnergies(MSONable):
         allow_additional_charge_separation: bool = False,
         multibreak: bool = False,
     ) -> None:
-        """
-        Note that the entries passed by the user must have the following keys: formula_pretty, initial_molecule,
+        """The provided entries must have the following keys: formula_pretty, initial_molecule,
         final_molecule. If a PCM is present, all entries should also have a pcm_dielectric key.
 
         Args:
             molecule_entry (dict): Entry for the principle molecule. Should have the keys mentioned above.
-            fragment_entries (list of dicts): List of fragment entries. Each should have the keys mentioned above.
+            fragment_entries (list[dict]): Fragment entries. Each should have the keys mentioned above.
             allow_additional_charge_separation (bool): If True, consider larger than normal charge separation
                 among fragments. Defaults to False. See the definition of self.expected_charges below for more
                 specific information.
@@ -73,7 +74,8 @@ class BondDissociationEnergies(MSONable):
                     raise RuntimeError(f"{key=} must be present in all fragment entries! Exiting...")
 
         # Define expected charges
-        final_charge = int(molecule_entry["final_molecule"]["charge"])  # type: ignore[index]
+        final_mol = cast(dict, molecule_entry["final_molecule"])
+        final_charge = int(final_mol["charge"])  # type: ignore[index]
         if not allow_additional_charge_separation:
             if final_charge == 0:
                 self.expected_charges = [-1, 0, 1]
@@ -89,22 +91,20 @@ class BondDissociationEnergies(MSONable):
             self.expected_charges = [final_charge - 2, final_charge - 1, final_charge, final_charge + 1]
 
         # Build principle molecule graph
-        self.mol_graph = MoleculeGraph.with_local_env_strategy(
-            Molecule.from_dict(molecule_entry["final_molecule"]), OpenBabelNN()
-        )
+        self.mol_graph = MoleculeGraph.from_local_env_strategy(Molecule.from_dict(final_mol), OpenBabelNN())
         # Loop through bonds, aka graph edges, and fragment and process:
         for bond in self.mol_graph.graph.edges:
             bonds = [(bond[0], bond[1])]
             self.fragment_and_process(bonds)
         # If multibreak, loop through pairs of ring bonds.
         if multibreak:
-            print(
+            warnings.warn(
                 "Breaking pairs of ring bonds. WARNING: Structure changes much more likely, meaning dissociation values"
                 " are less reliable! This is a bad idea!"
             )
             self.bond_pairs = []
-            for ii, bond in enumerate(self.ring_bonds):
-                for jj in range(ii + 1, len(self.ring_bonds)):
+            for ii, bond in enumerate(self.ring_bonds, start=1):
+                for jj in range(ii, len(self.ring_bonds)):
                     bond_pair = [bond, self.ring_bonds[jj]]
                     self.bond_pairs += [bond_pair]
             for bond_pair in self.bond_pairs:
@@ -117,9 +117,11 @@ class BondDissociationEnergies(MSONable):
             bonds (list): bonds to process.
         """
         # Try to split the principle:
+        fragments: list[MoleculeGraph] = []
         try:
-            frags = self.mol_graph.split_molecule_subgraphs(bonds, allow_reverse=True)
+            fragments = self.mol_graph.split_molecule_subgraphs(bonds, allow_reverse=True)
             frag_success = True
+
         except MolGraphSplitError:
             # If split is unsuccessful, then we have encountered a ring bond
             if len(bonds) == 1:
@@ -152,41 +154,41 @@ class BondDissociationEnergies(MSONable):
                         pb_mol = bb.pybel_mol
                         smiles = pb_mol.write("smi").split()[0]
                         specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
-                        print(
+                        warnings.warn(
                             f"Missing ring opening fragment resulting from the breakage of {specie[bonds[0][0]]} "
                             f"{specie[bonds[0][1]]} bond {bonds[0][0]} {bonds[0][1]} which would yield a "
                             f"molecule with this SMILES string: {smiles}"
                         )
                     elif len(good_entries) == 1:
-                        # If we have only one good entry, format it and add it to the list that will eventually return:
+                        # If we have only one good entry, format it and add it to the list that will eventually return
                         self.bond_dissociation_energies += [self.build_new_entry(good_entries, bonds)]
                     else:
                         # We shouldn't ever encounter more than one good entry.
                         raise RuntimeError("There should only be one valid ring opening fragment! Exiting...")
             elif len(bonds) == 2:
-                raise RuntimeError("Should only be trying to break two bonds if multibreak is true! Exiting...")
+                raise RuntimeError("Should only be trying to break two bonds if multibreak=True! Exiting...")
             else:
-                print("No reason to try and break more than two bonds at once! Exiting...")
-                raise ValueError
+                raise ValueError("No reason to try and break more than two bonds at once! Exiting...")
             frag_success = False
+
         if frag_success:
             # If the principle did successfully split, then we aren't dealing with a ring bond.
             # As above, we begin by making sure we haven't already encountered an identical pair of fragments:
             frags_done = False
             for frag_pair in self.done_frag_pairs:
-                if frag_pair[0].isomorphic_to(frags[0]):
-                    if frag_pair[1].isomorphic_to(frags[1]):
+                if frag_pair[0].isomorphic_to(fragments[0]):
+                    if frag_pair[1].isomorphic_to(fragments[1]):
                         frags_done = True
                         break
-                elif frag_pair[1].isomorphic_to(frags[0]) and frag_pair[0].isomorphic_to(frags[1]):
+                elif frag_pair[1].isomorphic_to(fragments[0]) and frag_pair[0].isomorphic_to(fragments[1]):
                     frags_done = True
                     break
             if not frags_done:
                 # If we haven't, we save this pair and search for the relevant fragment entries:
-                self.done_frag_pairs += [frags]
+                self.done_frag_pairs += [fragments]
                 n_entries_for_this_frag_pair = 0
-                frag1_entries = self.search_fragment_entries(frags[0])
-                frag2_entries = self.search_fragment_entries(frags[1])
+                frag1_entries = self.search_fragment_entries(fragments[0])
+                frag2_entries = self.search_fragment_entries(fragments[1])
                 frag1_charges_found = []
                 frag2_charges_found = []
                 # We then check for our expected charges of each fragment:
@@ -198,19 +200,19 @@ class BondDissociationEnergies(MSONable):
                         frag2_charges_found += [frag2["initial_molecule"]["charge"]]
                 # If we're missing some of either, tell the user:
                 if len(frag1_charges_found) < len(self.expected_charges):
-                    bb = BabelMolAdaptor(frags[0].molecule)
+                    bb = BabelMolAdaptor(fragments[0].molecule)
                     pb_mol = bb.pybel_mol
                     smiles = pb_mol.write("smi").split()[0]
                     for charge in self.expected_charges:
                         if charge not in frag1_charges_found:
-                            print(f"Missing {charge=} for fragment {smiles}")
+                            warnings.warn(f"Missing {charge=} for fragment {smiles}")
                 if len(frag2_charges_found) < len(self.expected_charges):
-                    bb = BabelMolAdaptor(frags[1].molecule)
+                    bb = BabelMolAdaptor(fragments[1].molecule)
                     pb_mol = bb.pybel_mol
                     smiles = pb_mol.write("smi").split()[0]
                     for charge in self.expected_charges:
                         if charge not in frag2_charges_found:
-                            print(f"Missing {charge=} for fragment {smiles}")
+                            warnings.warn(f"Missing {charge=} for fragment {smiles}")
                 # Now we attempt to pair fragments with the right total charge, starting with only fragments with no
                 # structural change:
                 for frag1 in frag1_entries[0]:  # 0 -> no structural change
@@ -241,12 +243,11 @@ class BondDissociationEnergies(MSONable):
                                 self.bond_dissociation_energies += [self.build_new_entry([frag1, frag2], bonds)]
                                 n_entries_for_this_frag_pair += 1
 
-    def search_fragment_entries(self, frag):
-        """
-        Search all fragment entries for those isomorphic to the given fragment.
-        We distinguish between entries where both initial and final molgraphs are isomorphic to the
-        given fragment (entries) vs those where only the initial molgraph is isomorphic to the given
-        fragment (initial_entries) vs those where only the final molgraph is isomorphic (final_entries).
+    def search_fragment_entries(self, frag) -> list:
+        """Search all fragment entries for those isomorphic to the given fragment.
+        We distinguish between entries where both initial and final MoleculeGraphs are isomorphic to the
+        given fragment (entries) vs those where only the initial MoleculeGraph is isomorphic to the given
+        fragment (initial_entries) vs those where only the final MoleculeGraph is isomorphic (final_entries).
 
         Args:
             frag: Fragment
@@ -263,13 +264,13 @@ class BondDissociationEnergies(MSONable):
                 final_entries += [entry]
         return [entries, initial_entries, final_entries]
 
-    def filter_fragment_entries(self, fragment_entries):
-        """
-        Filter the fragment entries.
+    def filter_fragment_entries(self, fragment_entries: list) -> None:
+        """Filter the fragment entries.
 
-        :param fragment_entries:
+        Args:
+            fragment_entries (List): Fragment entries to be filtered.
         """
-        self.filtered_entries = []
+        self.filtered_entries: list = []
         for entry in fragment_entries:
             # Check and make sure that PCM dielectric is consistent with principle:
             if "pcm_dielectric" in self.molecule_entry:
@@ -284,10 +285,10 @@ class BondDissociationEnergies(MSONable):
                     raise RuntimeError(err_msg.replace("[[placeholder]]", "a different"))
 
             # Build initial and final molgraphs:
-            entry["initial_molgraph"] = MoleculeGraph.with_local_env_strategy(
+            entry["initial_molgraph"] = MoleculeGraph.from_local_env_strategy(
                 Molecule.from_dict(entry["initial_molecule"]), OpenBabelNN()
             )
-            entry["final_molgraph"] = MoleculeGraph.with_local_env_strategy(
+            entry["final_molgraph"] = MoleculeGraph.from_local_env_strategy(
                 Molecule.from_dict(entry["final_molecule"]), OpenBabelNN()
             )
             # Classify any potential structural change that occurred during optimization:
@@ -305,8 +306,9 @@ class BondDissociationEnergies(MSONable):
                 else:
                     entry["structure_change"] = "bond_change"
             found_similar_entry = False
+
             # Check for uniqueness
-            for ii, filtered_entry in enumerate(self.filtered_entries):
+            for idx, filtered_entry in enumerate(self.filtered_entries):
                 if filtered_entry["formula_pretty"] == entry["formula_pretty"] and (
                     filtered_entry["initial_molgraph"].isomorphic_to(entry["initial_molgraph"])
                     and filtered_entry["final_molgraph"].isomorphic_to(entry["final_molgraph"])
@@ -316,19 +318,22 @@ class BondDissociationEnergies(MSONable):
                     # If two entries are found that pass the above similarity check, take the one with the lower
                     # energy:
                     if entry["final_energy"] < filtered_entry["final_energy"]:
-                        self.filtered_entries[ii] = entry
+                        self.filtered_entries[idx] = entry
                     # Note that this will essentially choose between singlet and triplet entries assuming both have
                     # the same structural details
                     break
             if not found_similar_entry:
                 self.filtered_entries += [entry]
 
-    def build_new_entry(self, frags, bonds):
-        """
-        Simple function to format a bond dissociation entry that will eventually be returned to the user.
+    def build_new_entry(self, frags: list, bonds: list) -> list:
+        """Build a new entry for bond dissociation that will be returned to the user.
 
-        :param frags:
-        :param bonds:
+        Args:
+            frags (list): Fragments involved in the bond dissociation.
+            bonds (list): Bonds broken in the dissociation process.
+
+        Returns:
+            list: Formatted bond dissociation entries.
         """
         specie = nx.get_node_attributes(self.mol_graph.graph, "specie")
         if len(frags) == 2:
@@ -348,6 +353,7 @@ class BondDissociationEnergies(MSONable):
                 frags[1]["initial_molecule"]["spin_multiplicity"],
                 frags[1]["final_energy"],
             ]
+
         else:
             new_entry = [
                 self.molecule_entry["final_energy"] - frags[0]["final_energy"],
@@ -360,4 +366,5 @@ class BondDissociationEnergies(MSONable):
                 frags[0]["initial_molecule"]["spin_multiplicity"],
                 frags[0]["final_energy"],
             ]
+
         return new_entry

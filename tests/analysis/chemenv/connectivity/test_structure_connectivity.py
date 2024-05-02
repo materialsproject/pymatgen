@@ -11,17 +11,12 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-try:
-    import bson
-except ModuleNotFoundError:
-    bson = None  # type: ignore
-
 __author__ = "waroquiers"
 
 
 class TestStructureConnectivity(PymatgenTest):
     def test_serialization(self):
-        BaTiO3_se_fpath = f"{TEST_FILES_DIR}/chemenv/structure_environments/se_mp-5020.json"
+        BaTiO3_se_fpath = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments/se_mp-5020.json"
         with open(BaTiO3_se_fpath) as file:
             dd = json.load(file)
         struct_envs = StructureEnvironments.from_dict(dd)
@@ -40,9 +35,8 @@ class TestStructureConnectivity(PymatgenTest):
         assert set(sc._graph.nodes()) == set(sc_from_json._graph.nodes())
         assert set(sc._graph.edges()) == set(sc_from_json._graph.edges())
 
-        if bson is not None:
-            bson_data = bson.BSON.encode(sc.as_dict())
-            sc_from_bson = StructureConnectivity.from_dict(bson_data.decode())
-            assert sc.light_structure_environments == sc_from_bson.light_structure_environments
-            assert set(sc._graph.nodes()) == set(sc_from_bson._graph.nodes())
-            assert set(sc._graph.edges()) == set(sc_from_bson._graph.edges())
+        json_str = self.assert_msonable(sc)
+        sc_from_json = StructureConnectivity.from_dict(json.loads(json_str))
+        assert sc.light_structure_environments == sc_from_json.light_structure_environments
+        assert set(sc._graph.nodes()) == set(sc_from_json._graph.nodes())
+        assert set(sc._graph.edges()) == set(sc_from_json._graph.edges())

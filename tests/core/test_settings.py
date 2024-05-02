@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from pymatgen.core import _load_pmg_settings
+
 if TYPE_CHECKING:
     from pathlib import Path
 
     from pytest import MonkeyPatch
 
-from pymatgen.core import _load_pmg_settings
 
 __author__ = "Janosh Riebesell"
 __date__ = "2022-10-21"

@@ -11,7 +11,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 __author__ = "waroquiers"
 
-img_files_dir = f"{TEST_FILES_DIR}/chemenv/images"
+img_files_dir = f"{TEST_FILES_DIR}/analysis/chemenv/images"
 
 
 class TestVoronoiContainer(PymatgenTest):

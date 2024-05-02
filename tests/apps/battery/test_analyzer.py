@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-
 import pytest
 from pytest import approx
 
@@ -12,7 +10,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 class TestBatteryAnalyzer(PymatgenTest):
     def load_from_cif(self, filename, oxidations, working_ion="Li"):
-        struct = Structure.from_file(os.path.join(TEST_FILES_DIR, filename))
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/cif/{filename}")
         struct.add_oxidation_state_by_element(oxidations)
         return BatteryAnalyzer(struct, working_ion)
 

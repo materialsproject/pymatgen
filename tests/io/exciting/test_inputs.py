@@ -21,11 +21,14 @@ __email__ = "vorwerk@physik.hu-berlin.de"
 __date__ = "Dec 01, 2016"
 
 
+TEST_DIR = f"{TEST_FILES_DIR}/io/exciting"
+
+
 class TestExcitingInput(PymatgenTest):
     def test_fromfile(self):
         # Test for the import of a structure directly from an exciting
         # input file
-        filepath = f"{TEST_FILES_DIR}/input_exciting1.xml"
+        filepath = f"{TEST_DIR}/input_exciting1.xml"
         exc_input = ExcitingInput.from_file(filepath)
         lattice = [[0.0, 2.81, 2.81], [2.81, 0.0, 2.81], [2.81, 2.81, 0.0]]
         atoms = ["Na", "Cl"]
@@ -77,7 +80,7 @@ class TestExcitingInput(PymatgenTest):
                 assert l1.strip() == l2.strip()
 
     def test_writebandstr(self):
-        filepath = f"{TEST_FILES_DIR}/CsI3Pb.cif"
+        filepath = f"{TEST_FILES_DIR}/cif/CsI3Pb.cif"
         structure = Structure.from_file(filepath)
         excin = ExcitingInput(structure)
         string = excin.write_string("primitive", bandstr=True)
@@ -158,7 +161,7 @@ class TestExcitingInput(PymatgenTest):
         test_string = test_input.write_string("unchanged", **paradir)
 
         # read reference file
-        filepath = f"{TEST_FILES_DIR}/input_exciting2.xml"
+        filepath = f"{TEST_DIR}/input_exciting2.xml"
         tree = ElementTree.parse(filepath)
         root = tree.getroot()
         ref_string = ElementTree.tostring(root, encoding="unicode")

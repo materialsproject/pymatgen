@@ -16,7 +16,7 @@ def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
 
     Args:
         text_str (str): the input string to search for patterns
-        patterns (dict): A dict of patterns, e.g.,
+        patterns (dict): A dict of patterns, e.g.
             {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"}.
         terminate_on_match (bool): Whether to terminate when there is at
             least one match in each key in pattern.
@@ -53,7 +53,7 @@ def read_matrix_pattern(header_pattern, footer_pattern, elements_pattern, text, 
     elements = re.findall(elements_pattern, text_between_header_and_footer)
 
     # Apply postprocessing to all the elements
-    return [postprocess(e) for e in elements]
+    return [postprocess(elem) for elem in elements]
 
 
 def read_table_pattern(
@@ -133,7 +133,7 @@ def lower_and_check_unique(dict_to_check):
         dict_to_check (dict): The dictionary to check and standardize
 
     Returns:
-        to_return (dict): An identical dictionary but with all keys made
+        dict: An identical dictionary but with all keys made
             lower case and no identical keys present.
     """
     if dict_to_check is None:

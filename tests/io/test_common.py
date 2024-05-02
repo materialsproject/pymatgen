@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 def test_cube_io_faithful(tmp_path: Path) -> None:
-    in_path = f"{TEST_FILES_DIR}/cube-gh-2817.xyz"
+    in_path = f"{TEST_FILES_DIR}/io/cube-gh-2817.xyz"
 
     cube_file = VolumetricData.from_cube(in_path)
     out_path = f"{tmp_path}/cube-gh-2817.xyz"

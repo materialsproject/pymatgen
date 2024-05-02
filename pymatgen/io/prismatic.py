@@ -9,8 +9,7 @@ if TYPE_CHECKING:
 
 
 class Prismatic:
-    """
-    Class to write Prismatic  (http://prism-em.com/) input files.
+    """Write Prismatic  (http://prism-em.com) input files.
     This is designed for STEM image simulation.
     """
 

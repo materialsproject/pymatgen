@@ -18,9 +18,11 @@ if TYPE_CHECKING:
 
 
 def lorentzian(x, x_0: float = 0, sigma: float = 1.0):
-    """:param x: x values
-    :param x_0: Center
-    :param sigma: FWHM
+    """
+    Args:
+        x: x values
+        x_0: Center
+        sigma: FWHM.
 
     Returns:
         Value of lorentzian at x.
@@ -50,7 +52,7 @@ class Spectrum(MSONable):
             y (ndarray): A ndarray of N x k values. The first dimension must be
                 the same as that of x. Each of the k values are interpreted as separate.
             *args: All subclasses should provide args other than x and y
-                when calling super, e.g., super().__init__(
+                when calling super, e.g. super().__init__(
                 x, y, arg1, arg2, kwarg1=val1, ..). This guarantees the +, -, *,
                 etc. operators work properly.
             **kwargs: Same as that for *args.
@@ -78,7 +80,7 @@ class Spectrum(MSONable):
 
         Args:
             mode ("max" | "sum"): Normalization mode. "max" sets the max y value to value,
-                e.g., in XRD patterns. "sum" sets the sum of y to a value, i.e., like a
+                e.g. in XRD patterns. "sum" sets the sum of y to a value, i.e., like a
                 probability density.
             value (float): Value to normalize to. Defaults to 1.
         """

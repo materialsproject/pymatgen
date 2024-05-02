@@ -13,6 +13,7 @@ import csv
 import itertools
 import os
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 import scipy.constants as const
 from monty.design_patterns import singleton
@@ -20,6 +21,9 @@ from monty.design_patterns import singleton
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.core import Composition, Element
 from pymatgen.util.provenance import is_valid_bibtex
+
+if TYPE_CHECKING:
+    from pymatgen.util.typing import CompositionLike
 
 __author__ = "Anubhav Jain"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -56,7 +60,7 @@ class CostEntry(PDEntry):
         return f"CostEntry : {self.composition} with cost = {self.energy:.4f}"
 
 
-class CostDB(metaclass=abc.ABCMeta):
+class CostDB(abc.ABC):
     """
     Abstract class for representing a Cost database.
     Can be extended, e.g. for file-based or REST-based databases.
@@ -64,8 +68,7 @@ class CostDB(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def get_entries(self, chemsys):
-        """
-        For a given chemical system, return an array of CostEntries.
+        """For a given chemical system, return an array of CostEntries.
 
         Args:
             chemsys:
@@ -101,8 +104,7 @@ class CostDBCSV(CostDB):
                 self._chemsys_entries[chemsys].append(pde)
 
     def get_entries(self, chemsys):
-        """
-        For a given chemical system, return an array of CostEntries.
+        """For a given chemical system, return an array of CostEntries.
 
         Args:
             chemsys:
@@ -120,7 +122,6 @@ class CostDBElements(CostDBCSV):
     """Singleton object that provides the cost data for elements."""
 
     def __init__(self):
-        """Init."""
         CostDBCSV.__init__(self, f"{module_dir}/costdb_elements.csv")
 
 
@@ -135,8 +136,7 @@ class CostAnalyzer:
         self.costdb = costdb
 
     def get_lowest_decomposition(self, composition):
-        """
-        Get the decomposition leading to lowest cost.
+        """Get the decomposition leading to lowest cost.
 
         Args:
             composition:
@@ -149,7 +149,7 @@ class CostAnalyzer:
         elements = [e.symbol for e in composition.elements]
         for idx in range(len(elements)):
             for combi in itertools.combinations(elements, idx + 1):
-                chemsys = [Element(e) for e in combi]
+                chemsys = [Element(el) for el in combi]
                 x = self.costdb.get_entries(chemsys)
                 entries_list.extend(x)
         try:
@@ -158,31 +158,27 @@ class CostAnalyzer:
         except IndexError:
             raise ValueError("Error during PD building; most likely, cost data does not exist!")
 
-    def get_cost_per_mol(self, comp):
-        """
-        Get best estimate of minimum cost/mol based on known data.
+    def get_cost_per_mol(self, comp: CompositionLike) -> float:
+        """Get best estimate of minimum cost/mol based on known data.
 
         Args:
-            comp:
-                Composition as a pymatgen.core.structure.Composition
+            comp (CompositionLike): chemical formula
 
         Returns:
-            float of cost/mol
+            float: energy cost/mol
         """
-        comp = comp if isinstance(comp, Composition) else Composition(comp)
+        comp = Composition(comp)
         decomp = self.get_lowest_decomposition(comp)
-        return sum(k.energy_per_atom * v * comp.num_atoms for k, v in decomp.items())
+        return sum(elem.energy_per_atom * val * comp.num_atoms for elem, val in decomp.items())
 
     def get_cost_per_kg(self, comp):
-        """
-        Get best estimate of minimum cost/kg based on known data.
+        """Get best estimate of minimum cost/kg based on known data.
 
         Args:
-            comp:
-                Composition as a pymatgen.core.structure.Composition
+            comp (CompositionLike): chemical formula
 
         Returns:
-            float of cost/kg
+            float: energy cost/kg
         """
         comp = comp if isinstance(comp, Composition) else Composition(comp)
         return self.get_cost_per_mol(comp) / (comp.weight.to("kg") * const.N_A)

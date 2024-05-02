@@ -77,7 +77,7 @@ class Movement(MSONable):
         Returns:
             list[Structure]: List of Structure objects for the structure at each ionic step.
         """
-        return [step["atom_config"] for _, step in enumerate(self.ionic_steps)]
+        return [step["atom_config"] for step in self.ionic_steps]
 
     @property
     def e_tots(self) -> np.ndarray:
@@ -87,7 +87,7 @@ class Movement(MSONable):
             np.ndarray: Total energy of of each ionic step structure,
                 with shape of (n_ionic_steps,).
         """
-        return np.array([step["e_tot"] for _, step in enumerate(self.ionic_steps)])
+        return np.array([step["e_tot"] for step in self.ionic_steps])
 
     @property
     def atom_forces(self) -> np.ndarray:
@@ -97,19 +97,18 @@ class Movement(MSONable):
             np.ndarray: The forces on atoms of each ionic step structure,
                 with shape of (n_ionic_steps, n_atoms, 3).
         """
-        return np.array([step["atom_forces"] for _, step in enumerate(self.ionic_steps)])
+        return np.array([step["atom_forces"] for step in self.ionic_steps])
 
     @property
     def e_atoms(self) -> np.ndarray:
-        """
-        Returns individual energies of atoms in each ionic step structures
+        """Get individual energies of atoms in each ionic step structures
         contained in MOVEMENT.
 
         Returns:
             np.ndarray: The individual energy of atoms in each ionic step structure,
                 with shape of (n_ionic_steps, n_atoms).
         """
-        return np.array([step["eatoms"] for _, step in enumerate(self.ionic_steps) if ("eatoms" in step)])
+        return np.array([step["eatoms"] for step in self.ionic_steps if ("eatoms" in step)])
 
     @property
     def virials(self) -> np.ndarray:
@@ -119,7 +118,7 @@ class Movement(MSONable):
             np.ndarray: The virial tensor of each ionic step structure,
                 with shape of (n_ionic_steps, 3, 3)
         """
-        return np.array([step["virial"] for _, step in enumerate(self.ionic_steps) if ("virial" in step)])
+        return np.array([step["virial"] for step in self.ionic_steps if ("virial" in step)])
 
     def _parse_sefv(self) -> list[dict]:
         """
@@ -198,11 +197,12 @@ class Report(MSONable):
         and the number of bands.
 
         Returns:
-            spin (int): Whether turn on spin or not
-                1: turn down the spin
-                2: turn on the spin.
-            num_kpts (int): The number of kpoints.
-            num_bands (int): The number of bands.
+            tuple[int, int, int]: containing:
+                spin (int): Whether turn on spin or not
+                    1: turn down the spin
+                    2: turn on the spin.
+                num_kpts (int): The number of kpoints.
+                num_bands (int): The number of bands.
         """
         content: str = "SPIN"
         row_idx: int = LineLocator.locate_all_lines(file_path=self.filename, content=content)[0]
