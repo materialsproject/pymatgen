@@ -400,7 +400,7 @@ class BSPlotter:
         """Get the data nicely formatted for a plot.
 
         Args:
-            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
+            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E_f).
                 Defaults to True.
             bs: the bandstructure to get the data from. If not provided, the first
                 one in the self._bs list will be used.
@@ -585,7 +585,7 @@ class BSPlotter:
         same high symm path.
 
         Args:
-            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
+            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E_f).
                 Defaults to True.
             ylim: Specify the y-axis (energy) limits; by default None let
                 the code choose. It is vbm-4 and cbm+4 if insulator
@@ -722,8 +722,8 @@ class BSPlotter:
         """Show the plot using matplotlib.
 
         Args:
-            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
-                Defaults to True.
+            zero_to_efermi: Set the Fermi level as the plot's origin
+                (i.e. subtract E_f). Defaults to True.
             ylim: Specify the y-axis (energy) limits; by default None let
                 the code choose. It is vbm-4 and cbm+4 if insulator
                 efermi-10 and efermi+10 if metal
@@ -893,7 +893,7 @@ class BSPlotter:
 
 
 class BSPlotterProjected(BSPlotter):
-    """Plot or get data to facilitate the plotting of projected
+    """Plot or get data to facilitate plotting of projected
     band structure along orbitals, elements or sites.
     """
 
@@ -960,16 +960,15 @@ class BSPlotterProjected(BSPlotter):
     ) -> plt.Axes:
         """Generate a plot with subplots for different elements and orbitals.
 
+        The orbitals are named as in the FATBAND file, e.g. "2p" or "2p_x".
+
         Args:
             dictio: The element and orbitals you want a projection on. The
                 format is {Element: [*Orbitals]} for instance
                 {"Cu":["d", "s"], "O":["p"]} will give projections for Cu on
                 d and s orbitals and oxygen on p.
-                If you use this class to plot LobsterBandStructureSymmLine,
-                the orbitals are named as in the FATBAND filename,
-                e.g. "2p" or "2p_x"
             zero_to_efermi: Set the Fermi level as the plot's origin
-                (i.e. subtract E - E_f). Defaults to True.
+                (i.e. subtract E_f). Defaults to True.
             ylim: Specify the y-axis limits. Defaults to None.
             vbm_cbm_marker: Add markers for the VBM and CBM. Defaults to False.
             band_linewidth (float): The width of the lines. Defaults to 1.0.
@@ -993,7 +992,11 @@ class BSPlotterProjected(BSPlotter):
                 ax = axs[col_idx] if n_rows == 1 else axs[row_idx, col_idx]
 
                 self._make_ticks(ax)
-                # loop symmetry line segments of the band structure (Gamma->X, X->M, ...)
+
+                ax.set_title(f"{el} {key}")
+
+                # Walk through high symmetry points of the band structure
+                # (Gamma->X, X->M, ...)
                 for k_path_idx in range(len(data["distances"])):
                     for band_idx in range(self._nb_bands):
                         ax.plot(
@@ -1040,7 +1043,6 @@ class BSPlotterProjected(BSPlotter):
                         ax.set_ylim(data["vbm"][0][1] + e_min, data["cbm"][0][1] + e_max)
                 else:
                     ax.set_ylim(*ylim)
-                ax.set_title(f"{el} {key}")
 
         return fig.axes
 
@@ -1092,7 +1094,7 @@ class BSPlotterProjected(BSPlotter):
                             color=[128 / 255, 128 / 255, 128 / 255],
                             linewidth=band_linewidth,
                         )
-                        for j in range(len(data["energy"][str(Spin.up)][band_idx][band_idx])):
+                        for j in range(len(data["energy"][str(Spin.up)][b][band_idx])):
                             markerscale = sum(
                                 proj[b][str(Spin.down)][band_idx][j][str(el)][o]
                                 for o in proj[b][str(Spin.down)][band_idx][j][str(el)]
@@ -1147,19 +1149,20 @@ class BSPlotterProjected(BSPlotter):
         zero_to_efermi: bool = True,
         elt_ordered: list | None = None,
         band_linewidth: float = 3,
-    ):
-        """Returns a pyplot plot object with one plot where the band structure
-        line color depends on the character of the band (along different
-        elements). Each element is associated with red, green or blue
-        and the corresponding rgb color depending on the character of the band
-        is used. The method can only deal with binary and ternary compounds.
+    ) -> plt.Axes:
+        """Generate a pyplot plot where the band structure
+        line color depends on the element of the band. where each
+        element is associated with red, green or blue.
+
+        The method can only deal with binary and ternary compounds.
 
         Spin up and spin down are differentiated by a '-' and a '--' line.
 
         Args:
-            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
-                Defaults to True.
-            elt_ordered: A list of Element ordered. The first one is red, second green, last blue.
+            zero_to_efermi: set the Fermi level as the plot's origin
+                (i.e. subtract E_f). Defaults to True.
+            elt_ordered: A list of ordered Elements.
+                The first one is red, second green, last blue.
             band_linewidth (float): width of the line.
 
         Raises:
@@ -1311,7 +1314,7 @@ class BSPlotterProjected(BSPlotter):
                                     edict[f"{elt}{anum}"][morb] = proj[Spin.up][band_idx][j][setos[morb]][anum - 1]
                         proj_br[-1][str(Spin.down)][band_idx].append(edict)
 
-        # Adjusting  projections for plot
+        # Adjust projections for plot
         dictio_d, dictpa_d = self._summarize_keys_for_plot(dictio, dictpa, sum_atoms, sum_morbs)
 
         if (sum_atoms is None) and (sum_morbs is None):
@@ -1570,7 +1573,7 @@ class BSPlotterProjected(BSPlotter):
                 for instance: {'Cu': ['dxy', 'dxz'], 'O': ['px', 'py']} means summing projections
                 over 'dxy' and 'dxz' of Cu and 'px' and 'py' of O. If you do not want to use this
                 functional, just turn it off by setting sum_morbs = None.
-            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
+            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E_f).
                 Defaults to True.
             ylim: The y-axis limit. Defaults to None.
             vbm_cbm_marker: Whether to plot points to indicate valence band maxima and conduction
