@@ -489,8 +489,7 @@ class LocalGeometryFinder:
                 self.symmetrized_structure = self.spg_analyzer_refined.get_symmetrized_structure()
 
     def get_structure(self):
-        """
-        Returns the pymatgen Structure that has been setup for the identification of geometries (the initial one
+        """Get the pymatgen Structure that has been setup for the identification of geometries (the initial one
         might have been refined/symmetrized using the SpaceGroupAnalyzer).
 
         Returns:
@@ -1152,8 +1151,7 @@ class LocalGeometryFinder:
         self.indices = [ii + 1 for ii in explicit_indices]
 
     def get_coordination_symmetry_measures(self, only_minimum=True, all_csms=True, optimization=None):
-        """
-        Returns the continuous symmetry measures of the current local geometry in a dictionary.
+        """Get the continuous symmetry measures of the current local geometry in a dictionary.
 
         Returns:
             the continuous symmetry measures of the current local geometry in a dictionary.
@@ -1281,8 +1279,7 @@ class LocalGeometryFinder:
     def get_coordination_symmetry_measures_optim(
         self, only_minimum=True, all_csms=True, nb_set=None, optimization=None
     ):
-        """
-        Returns the continuous symmetry measures of the current local geometry in a dictionary.
+        """Get the continuous symmetry measures of the current local geometry in a dictionary.
 
         Returns:
             the continuous symmetry measures of the current local geometry in a dictionary.
@@ -1428,8 +1425,7 @@ class LocalGeometryFinder:
     def coordination_geometry_symmetry_measures_standard(
         self, coordination_geometry, algo, points_perfect=None, optimization=None
     ):
-        """
-        Returns the symmetry measures for a set of permutations (whose setup depends on the coordination geometry)
+        """Get the symmetry measures for a set of permutations (whose setup depends on the coordination geometry)
         for the coordination geometry "coordination_geometry". Standard implementation looking for the symmetry
         measures of each permutation
 
@@ -1510,8 +1506,7 @@ class LocalGeometryFinder:
         tested_permutations=False,
         points_perfect=None,
     ):
-        """
-        Returns the symmetry measures of the given coordination geometry "coordination_geometry" using separation
+        """Get the symmetry measures of the given coordination geometry "coordination_geometry" using separation
         facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3POINTS and other ...
 
         Args:
@@ -1614,8 +1609,7 @@ class LocalGeometryFinder:
         nb_set=None,
         optimization=None,
     ):
-        """
-        Returns the symmetry measures of the given coordination geometry "coordination_geometry" using separation
+        """Get the symmetry measures of the given coordination geometry "coordination_geometry" using separation
         facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3POINTS and other ...
 
         Args:
@@ -2035,8 +2029,7 @@ class LocalGeometryFinder:
     def coordination_geometry_symmetry_measures_fallback_random(
         self, coordination_geometry, n_random=10, points_perfect=None, **kwargs
     ):
-        """
-        Returns the symmetry measures for a random set of permutations for the coordination geometry
+        """Get the symmetry measures for a random set of permutations for the coordination geometry
         "coordination_geometry". Fallback implementation for the plane separation algorithms measures
         of each permutation
 

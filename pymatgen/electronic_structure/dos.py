@@ -34,7 +34,7 @@ class DOS(Spectrum):
 
     Attributes:
         energies (Sequence[float]): The sequence of energies.
-        densities (dict[Spin, Sequence[float]]): A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}.
+        densities (dict[Spin, Sequence[float]]): A dict of spin densities, e.g. {Spin.up: [...], Spin.down: [...]}.
         efermi (float): Fermi level.
     """
 
@@ -168,7 +168,7 @@ class Dos(MSONable):
 
     Attributes:
         energies (Sequence[float]): The sequence of energies.
-        densities (dict[Spin, Sequence[float]]): A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}.
+        densities (dict[Spin, Sequence[float]]): A dict of spin densities, e.g. {Spin.up: [...], Spin.down: [...]}.
         efermi (float): Fermi level.
     """
 
@@ -1124,7 +1124,7 @@ class CompleteDos(Dos):
             ValueError: If type is not one of the accepted values {s/p/d/f/}summed_{pdos/tdos}.
 
         Returns:
-            Fingerprint(namedtuple) : The electronic density of states fingerprint
+            NamedTuple: The electronic density of states fingerprint
                 of format (energies, densities, type, n_bins)
         """
         fingerprint = namedtuple("fingerprint", "energies densities type n_bins bin_width")

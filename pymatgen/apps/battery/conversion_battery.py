@@ -56,7 +56,7 @@ class ConversionElectrode(AbstractElectrode):
         composition and a phase diagram.
 
         Args:
-            comp: Starting composition for ConversionElectrode, e.g.,
+            comp: Starting composition for ConversionElectrode, e.g.
                 Composition("FeF3")
             pd: A PhaseDiagram of the relevant system (e.g., Li-Fe-F)
             working_ion_symbol: Element symbol of working ion. Defaults to Li.
@@ -113,10 +113,10 @@ class ConversionElectrode(AbstractElectrode):
         composition and all entries in a chemical system.
 
         Args:
-            comp: Starting composition for ConversionElectrode, e.g.,
+            comp: Starting composition for ConversionElectrode, e.g.
                 Composition("FeF3")
             entries_in_chemsys: Sequence containing all entries in a
-               chemical system. E.g., all Li-Fe-F containing entries.
+               chemical system. e.g. all Li-Fe-F containing entries.
             working_ion_symbol: Element symbol of working ion. Defaults to Li.
             allow_unstable: If True, allow any composition to be used as the
                     starting point of a conversion voltage curve, this is useful

@@ -37,7 +37,7 @@ def find_in_coord_list(coord_list, coord, atol: float = 1e-8):
             array.
 
     Returns:
-        Indices of matches, e.g., [0, 1, 2, 3]. Empty list if not found.
+        Indices of matches, e.g. [0, 1, 2, 3]. Empty list if not found.
     """
     if len(coord_list) == 0:
         return []
@@ -46,7 +46,7 @@ def find_in_coord_list(coord_list, coord, atol: float = 1e-8):
 
 
 def in_coord_list(coord_list, coord, atol: float = 1e-8) -> bool:
-    """Tests if a particular coord is within a coord_list.
+    """Test if a particular coord is within a coord_list.
 
     Args:
         coord_list: List of coords to test
@@ -61,7 +61,7 @@ def in_coord_list(coord_list, coord, atol: float = 1e-8) -> bool:
 
 
 def is_coord_subset(subset: ArrayLike, superset: ArrayLike, atol: float = 1e-8) -> bool:
-    """Tests if all coords in subset are contained in superset.
+    """Test if all coords in subset are contained in superset.
     Doesn't use periodic boundary conditions.
 
     Args:
@@ -169,7 +169,7 @@ def pbc_diff(frac_coords1: ArrayLike, frac_coords2: ArrayLike, pbc: PbcLike = (T
     account periodic boundary conditions.
 
     Args:
-        frac_coords1: First set of fractional coordinates. e.g., [0.5, 0.6,
+        frac_coords1: First set of fractional coordinates. e.g. [0.5, 0.6,
             0.7] or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
             coord or any array of coords.
         frac_coords2: Second set of fractional coordinates.
@@ -192,7 +192,7 @@ def pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask=None, return_
 
     Args:
         lattice: lattice to use
-        frac_coords1: First set of fractional coordinates. e.g., [0.5, 0.6, 0.7]
+        frac_coords1: First set of fractional coordinates. e.g. [0.5, 0.6, 0.7]
             or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. It can be a single
             coord or any array of coords.
         frac_coords2: Second set of fractional coordinates.
@@ -223,7 +223,7 @@ def find_in_coord_list_pbc(
             axis of the lattice.
 
     Returns:
-        Indices of matches, e.g., [0, 1, 2, 3]. Empty list if not found.
+        Indices of matches, e.g. [0, 1, 2, 3]. Empty list if not found.
     """
     if len(frac_coord_list) == 0:
         return []
@@ -234,7 +234,7 @@ def find_in_coord_list_pbc(
 
 
 def in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc: PbcLike = (True, True, True)) -> bool:
-    """Tests if a particular fractional coord is within a fractional coord_list.
+    """Test if a particular fractional coord is within a fractional coord_list.
 
     Args:
         fcoord_list: List of fractional coords to test
@@ -250,7 +250,7 @@ def in_coord_list_pbc(fcoord_list, fcoord, atol: float = 1e-8, pbc: PbcLike = (T
 
 
 def is_coord_subset_pbc(subset, superset, atol: float = 1e-8, mask=None, pbc: PbcLike = (True, True, True)) -> bool:
-    """Tests if all fractional coords in subset are contained in superset.
+    """Test if all fractional coords in subset are contained in superset.
 
     Args:
         subset (list): List of fractional coords to test
@@ -357,7 +357,7 @@ class Simplex(MSONable):
         """Initialize a Simplex from vertex coordinates.
 
         Args:
-            coords ([[float]]): Coords of the vertices of the simplex. E.g.,
+            coords ([[float]]): Coords of the vertices of the simplex. e.g.
                 [[1, 2, 3], [2, 4, 5], [6, 7, 8], [8, 9, 10].
         """
         self._coords = np.array(coords)
@@ -417,7 +417,7 @@ class Simplex(MSONable):
         return (self.bary_coords(point) >= -tolerance).all()
 
     def line_intersection(self, point1: Sequence[float], point2: Sequence[float], tolerance: float = 1e-8):
-        """Computes the intersection points of a line with a simplex.
+        """Compute the intersection points of a line with a simplex.
 
         Args:
             point1 (Sequence[float]): 1st point to determine the line.

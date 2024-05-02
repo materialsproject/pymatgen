@@ -109,8 +109,7 @@ class ZSLGenerator(MSONable):
         self.bidirectional = bidirectional
 
     def generate_sl_transformation_sets(self, film_area, substrate_area):
-        """
-        Generates transformation sets for film/substrate pair given the
+        """Generate transformation sets for film/substrate pair given the
         area of the unit cell area for the film and substrate. The
         transformation sets map the film and substrate unit cells to super
         lattices with a maximum area

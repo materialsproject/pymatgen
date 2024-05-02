@@ -230,7 +230,7 @@ class OptimadeRester:
             nelements: Number of elements, e.g. 4 or [2, 5] for the range >=2 and <=5
             nsites: Number of sites, e.g. 4 or [2, 5] for the range >=2 and <=5
             chemical_formula_anonymous: The desired chemical formula in OPTIMADE anonymous formula format
-            (NB. The ordering is reversed from the pymatgen format, e.g., pymatgen "ABC2" should become "A2BC").
+            (NB. The ordering is reversed from the pymatgen format, e.g. pymatgen "ABC2" should become "A2BC").
             chemical_formula_hill: The desired chemical formula in the OPTIMADE take on the Hill formula format.
             (NB. Again, this is different from the pymatgen format, as the OPTIMADE version is a reduced chemical
             formula simply using the IUPAC/Hill ordering.)
@@ -271,7 +271,7 @@ class OptimadeRester:
             nelements: Number of elements, e.g. 4 or [2, 5] for the range >=2 and <=5
             nsites: Number of sites, e.g. 4 or [2, 5] for the range >=2 and <=5
             chemical_formula_anonymous: The desired chemical formula in OPTIMADE anonymous formula format
-            (NB. The ordering is reversed from the pymatgen format, e.g., pymatgen "ABC2" should become "A2BC").
+            (NB. The ordering is reversed from the pymatgen format, e.g. pymatgen "ABC2" should become "A2BC").
             chemical_formula_hill: The desired chemical formula in the OPTIMADE take on the Hill formula format.
             (NB. Again, this is different from the pymatgen format, as the OPTIMADE version is a reduced chemical
             formula simply using the IUPAC/Hill ordering.)
@@ -555,7 +555,7 @@ class OptimadeRester:
         return ",".join({*additional_response_fields, *self.mandatory_response_fields})
 
     def refresh_aliases(self, providers_url="https://providers.optimade.org/providers.json"):
-        """Updates available OPTIMADE structure resources based on the current list of OPTIMADE
+        """Update available OPTIMADE structure resources based on the current list of OPTIMADE
         providers.
         """
         json = self._get_json(providers_url)

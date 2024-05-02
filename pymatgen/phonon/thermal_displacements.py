@@ -461,7 +461,7 @@ class ThermalDisplacementMatrices(MSONable):
     def to_structure_with_site_properties_Ucif(self) -> Structure:
         """Transfers this object into a structure with site properties (Ucif).
         This is useful for sorting the atoms in the structure including site properties.
-        E.g., with code like this:
+        e.g. with code like this:
         def sort_order(site):
             return [site.specie.X, site.frac_coords[0], site.frac_coords[1], site.frac_coords[2]]
         new_structure0 = Structure.from_sites(sorted(structure0, key=sort_order)).

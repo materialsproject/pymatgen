@@ -138,8 +138,7 @@ class CovalentRadius:
 
 
 class MoleculeStructureComparator(MSONable):
-    """
-    Class to check whether the connection tables of the two molecules are the
+    """Check whether the connection tables of the two molecules are the
     same. The atom in the two molecule must be paired accordingly.
     """
 

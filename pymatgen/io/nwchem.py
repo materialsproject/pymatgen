@@ -108,7 +108,7 @@ class NwTask(MSONable):
                 which means that the spin multiplicity is set to 1 if the
                 molecule has no unpaired electrons and to 2 if there are
                 unpaired electrons.
-            basis_set: The basis set used for the task as a dict. E.g.,
+            basis_set: The basis set used for the task as a dict. e.g.
                 {"C": "6-311++G**", "H": "6-31++G**"}.
             basis_set_option: cartesian (default) | spherical,
             title: Title for the task. Defaults to None, which means a title
@@ -251,7 +251,7 @@ $theory_spec
                 which means that the spin multiplicity is set to 1 if the
                 molecule has no unpaired electrons and to 2 if there are
                 unpaired electrons.
-            basis_set: The basis set to be used as string or a dict. E.g.,
+            basis_set: The basis set to be used as string or a dict. e.g.
                 {"C": "6-311++G**", "H": "6-31++G**"} or "6-31G". If string,
                 same basis set is used for all elements.
             basis_set_option: cartesian (default) | spherical,
@@ -347,10 +347,10 @@ class NwInput(MSONable):
                 direct input to the geometry section of the Gaussian input
                 file.
             tasks: List of NwTasks.
-            directives: List of root level directives as tuple. E.g.,
+            directives: List of root level directives as tuple. e.g.
                 [("start", "water"), ("print", "high")]
             geometry_options: Additional list of options to be supplied to the
-                geometry. E.g., ["units", "angstroms", "noautoz"]. Defaults to
+                geometry. e.g. ["units", "angstroms", "noautoz"]. Defaults to
                 ("units", "angstroms").
             symmetry_options: Addition list of option to be supplied to the
                 symmetry. E.g. ["c1"] to turn off the symmetry
@@ -570,19 +570,8 @@ class NwOutput:
         Parses TDDFT roots. Adapted from nw_spectrum.py script.
 
         Returns:
-            {
-                "singlet": [
-                    {
-                        "energy": float,
-                        "osc_strength: float
-                    }
-                ],
-                "triplet": [
-                    {
-                        "energy": float
-                    }
-                ]
-            }
+            dict[str, list]: A dict of the form {"singlet": [dict, ...], "triplet": [dict, ...]} where
+                each sub-dict is of the form {"energy": float, "osc_strength": float}.
         """
         start_tag = "Convergence criterion met"
         end_tag = "Excited state energy"
@@ -621,8 +610,7 @@ class NwOutput:
         return roots
 
     def get_excitation_spectrum(self, width=0.1, npoints=2000):
-        """
-        Generate an excitation spectra from the singlet roots of TDDFT calculations.
+        """Generate an excitation spectra from the singlet roots of TDDFT calculations.
 
         Args:
             width (float): Width for Gaussian smearing.

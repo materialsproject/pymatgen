@@ -48,7 +48,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     __getitem__ is overridden to return 0 when an element is not found.
     (somewhat like a defaultdict, except it is immutable).
 
-    Also adds more convenience methods relevant to compositions, e.g.,
+    Also adds more convenience methods relevant to compositions, e.g.
     get_fraction.
 
     It should also be noted that many Composition related functionality takes
@@ -105,14 +105,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         1. A dict of either {Element/Species: amount},
 
             {string symbol:amount}, or {atomic number:amount} or any mixture
-            of these. E.g., {Element("Li"): 2, Element("O"): 1},
+            of these. e.g. {Element("Li"): 2, Element("O"): 1},
             {"Li":2, "O":1}, {3: 2, 8: 1} all result in a Li2O composition.
-        2. Keyword arg initialization, similar to a dict, e.g.,
+        2. Keyword arg initialization, similar to a dict, e.g.
 
             Composition(Li = 2, O = 1)
 
         In addition, the Composition constructor also allows a single
-        string as an input formula. E.g., Composition("Li2O").
+        string as an input formula. e.g. Composition("Li2O").
 
         Args:
             *args: Any number of 2-tuples as key-value pairs.
@@ -173,7 +173,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             raise TypeError(f"Invalid {key=} for Composition") from exc
 
     def __eq__(self, other: object) -> bool:
-        """Defines == for Compositions."""
+        """Composition equality. We consider compositions equal if they have the
+        same elements and the amounts are within Composition.amount_tolerance
+        of each other.
+
+        Args:
+            other: Composition to compare to.
+        """
         if not isinstance(other, (Composition, dict)):
             return NotImplemented
 
@@ -186,8 +192,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return all(abs(amt - other[el]) <= Composition.amount_tolerance for el, amt in self.items())
 
     def __ge__(self, other: object) -> bool:
-        """Defines >= for Compositions. Should ONLY be used for defining a sort
-        order (the behavior is probably not what you'd expect).
+        """Composition greater than or equal to. We consider compositions A >= B
+        if all elements in B are in A and the amount of each element in A is
+        greater than or equal to the amount of the element in B within
+        Composition.amount_tolerance.
+
+        Should ONLY be used for defining a sort order (the behavior is probably not what you'd expect).
         """
         if not isinstance(other, Composition):
             return NotImplemented
@@ -195,6 +205,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         for el in sorted(set(self.elements + other.elements)):
             if other[el] - self[el] >= Composition.amount_tolerance:
                 return False
+            # TODO @janosh 2024-04-29: is this a bug? why would we return True early?
             if self[el] - other[el] >= Composition.amount_tolerance:
                 return True
         return True
@@ -290,7 +301,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     @property
     def formula(self) -> str:
         """Returns a formula string, with elements sorted by electronegativity,
-        e.g., Li4 Fe4 P4 O16.
+        e.g. Li4 Fe4 P4 O16.
         """
         sym_amt = self.get_el_amt_dict()
         syms = sorted(sym_amt, key=lambda sym: get_el_sp(sym).X)
@@ -300,7 +311,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     @property
     def alphabetical_formula(self) -> str:
         """Returns a formula string, with elements sorted by alphabetically
-        e.g., Fe4 Li4 O16 P4.
+        e.g. Fe4 Li4 O16 P4.
         """
         return " ".join(sorted(self.formula.split()))
 
@@ -366,7 +377,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             A pretty normalized formula and a multiplicative factor, i.e.,
             Li4Fe4P4O16 returns (LiFePO4, 4).
         """
-        all_int = all(abs(x - round(x)) < Composition.amount_tolerance for x in self.values())
+        all_int = all(abs(val - round(val)) < Composition.amount_tolerance for val in self.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
         el_amt_dict = {key: int(round(val)) for key, val in self.get_el_amt_dict().items()}
@@ -567,7 +578,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         anonymized_formula ABC3.
         """
         reduced = self.element_composition
-        if all(x == int(x) for x in self.values()):
+        if all(val == int(val) for val in self.values()):
             reduced /= gcd(*(int(i) for i in self.values()))
 
         anon = ""
@@ -733,7 +744,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """Check if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
         integer values. Note that more num_atoms in the composition gives
-        more degrees of freedom. e.g., if possible oxidation states of
+        more degrees of freedom. e.g. if possible oxidation states of
         element X are [2,4] and Y are [-3], then XY is not charge balanced
         but X2Y2 is. Results are returned from most to least probable based
         on ICSD statistics. Use max_sites to improve performance if needed.

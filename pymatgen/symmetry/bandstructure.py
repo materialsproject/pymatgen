@@ -140,38 +140,29 @@ class HighSymmKpath(KPathBase):
 
     @property
     def path_type(self):
-        """
-        Returns:
-            The type of kpath chosen.
-        """
+        """The type of kpath chosen."""
         return self._path_type
 
     @property
     def label_index(self):
-        """
-        Returns:
-            The correspondence between numbers and kpoint symbols for the
+        """The correspondence between numbers and kpoint symbols for the
         combined kpath generated when path_type = 'all'. None otherwise.
         """
         return self._label_index
 
     @property
     def equiv_labels(self):
-        """
-        Returns:
-            The correspondence between the kpoint symbols in the Latimer and
-            Munro convention, Setyawan and Curtarolo, and Hinuma
-            conventions respectively. Only generated when path_type = 'all'.
+        """The correspondence between the kpoint symbols in the Latimer and
+        Munro convention, Setyawan and Curtarolo, and Hinuma
+        conventions respectively. Only generated when path_type = 'all'.
         """
         return self._equiv_labels
 
     @property
     def path_lengths(self):
-        """
-        Returns:
-            List of lengths of the Latimer and Munro, Setyawan and Curtarolo, and Hinuma
-            conventions in the combined HighSymmKpath object when path_type = 'all' respectively.
-            None otherwise.
+        """List of lengths of the Latimer and Munro, Setyawan and Curtarolo, and Hinuma
+        conventions in the combined HighSymmKpath object when path_type = 'all' respectively.
+        None otherwise.
         """
         return self._path_lengths
 

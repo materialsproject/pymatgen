@@ -288,11 +288,10 @@ class ACstrExtractor(ACExtractorBase):
     def get_atom_energies(self) -> np.ndarray | None:
         """Return the energies of individual atoms in material system.
 
-        Returns:
-            np.ndarray | None : The energies of individual atoms within the material system.
+        When turning on `ENERGY DEPOSITION`, PWmat will output energy per atom.
 
-        Description:
-            When turn on `ENERGY DEPOSITION`, PWmat will output energy per atom.
+        Returns:
+            np.ndarray | None: The energies of individual atoms within the material system.
         """
         energies = []
         aim_content = "Atomic-Energy, ".upper()

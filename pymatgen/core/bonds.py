@@ -31,7 +31,7 @@ bond_lengths = _load_bond_length_data()
 
 
 class CovalentBond:
-    """Defines a covalent bond between two sites."""
+    """A covalent bond between two sites."""
 
     def __init__(self, site1: Site, site2: Site) -> None:
         """Initialize a covalent bond between two sites.
@@ -63,8 +63,7 @@ class CovalentBond:
                 (bond order = 1). If None, a ValueError will be thrown.
 
         Returns:
-            Float value of bond order. For example, for C-C bond in
-            benzene, return 1.7.
+            float: value of bond order. E.g. 1.7 for C-C bond in benzene.
         """
         sp1 = next(iter(self.site1.species))
         sp2 = next(iter(self.site2.species))

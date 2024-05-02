@@ -450,7 +450,7 @@ class BoltztrapRunner(MSONable):
                 fout.write(".15                       # (efcut) energy range of chemical potential\n")
                 fout.write(f"{self.tmax} {self.tgrid}                  # Tmax, temperature grid\n")
                 fout.write("-1.  # energyrange of bands given DOS output sig_xxx and dos_xxx (xxx is band number)\n")
-                fout.write(self.dos_type + "\n")  # e.g., HISTO or TETRA
+                fout.write(self.dos_type + "\n")  # e.g. HISTO or TETRA
                 fout.write(f"{self.tauref} {self.tauexp} {self.tauen} 0 0 0\n")
                 fout.write(f"{2 * len(self.doping)}\n")
 
@@ -1668,7 +1668,7 @@ class BoltztrapAnalyzer:
 
     @staticmethod
     def parse_outputtrans(path_dir):
-        """Parses .outputtrans file.
+        """Parse .outputtrans file.
 
         Args:
             path_dir: dir containing boltztrap.outputtrans
@@ -1696,7 +1696,7 @@ class BoltztrapAnalyzer:
 
     @staticmethod
     def parse_transdos(path_dir, efermi, dos_spin=1, trim_dos=False):
-        """Parses .transdos (total DOS) and .transdos_x_y (partial DOS) files.
+        """Parse .transdos (total DOS) and .transdos_x_y (partial DOS) files.
 
         Args:
             path_dir: (str) dir containing DOS files
@@ -1771,7 +1771,7 @@ class BoltztrapAnalyzer:
 
     @staticmethod
     def parse_intrans(path_dir):
-        """Parses boltztrap.intrans mainly to extract the value of scissor applied
+        """Parse boltztrap.intrans mainly to extract the value of scissor applied
         to the bands or some other inputs.
 
         Args:
@@ -1791,7 +1791,7 @@ class BoltztrapAnalyzer:
 
     @staticmethod
     def parse_struct(path_dir):
-        """Parses boltztrap.struct file (only the volume).
+        """Parse boltztrap.struct file (only the volume).
 
         Args:
             path_dir: (str) dir containing the boltztrap.struct file
@@ -1807,7 +1807,7 @@ class BoltztrapAnalyzer:
 
     @staticmethod
     def parse_cond_and_hall(path_dir, doping_levels=None):
-        """Parses the conductivity and Hall tensors.
+        """Parse the conductivity and Hall tensors.
 
         Args:
             path_dir: Path containing .condtens / .halltens files
@@ -2151,7 +2151,6 @@ class BoltztrapAnalyzer:
 
 def read_cube_file(filename):
     """
-
     Args:
         filename: Cube filename.
 

@@ -406,7 +406,6 @@ def vectorsToMatrix(aa, bb):
 
 def matrixTimesVector(MM, aa):
     """
-
     Args:
         MM: A matrix of size 3x3
         aa: A vector of size 3
@@ -640,8 +639,7 @@ class Plane:
     )
 
     def __init__(self, coefficients, p1=None, p2=None, p3=None):
-        """
-        Initializes a plane from the 4 coefficients a, b, c and d of ax + by + cz + d = 0
+        """Initialize a plane from the 4 coefficients a, b, c and d of ax + by + cz + d = 0
 
         Args:
             coefficients: abcd coefficients of the plane.
@@ -701,11 +699,7 @@ class Plane:
             self.p3[zeros[1]] = 1.0
 
     def __str__(self):
-        """String representation of the Plane object
-
-        Returns:
-            String representation of the Plane object.
-        """
+        """String representation of the Plane."""
         return (
             f"Plane object\n  => Normal vector : {self.normal_vector}\n  => Equation of the plane"
             f" ax + by + cz + d = 0\n     with a = {self._coefficients[0]}\n          "
@@ -750,8 +744,7 @@ class Plane:
         return any(self.is_same_plane_as(plane) for plane in plane_list)
 
     def indices_separate(self, points, dist_tolerance):
-        """
-        Returns three lists containing the indices of the points lying on one side of the plane, on the plane
+        """Get three lists containing the indices of the points lying on one side of the plane, on the plane
         and on the other side of the plane. The dist_tolerance parameter controls the tolerance to which a point
         is considered to lie on the plane or not (distance to the plane)
 
@@ -870,8 +863,7 @@ class Plane:
         return [pp - np.dot(pp - self.p1, self.normal_vector) * self.normal_vector for pp in pps]
 
     def orthonormal_vectors(self):
-        """
-        Returns a list of three orthogonal vectors, the two first being parallel to the plane and the
+        """Get a list of three orthogonal vectors, the two first being parallel to the plane and the
         third one is the normal vector of the plane
 
         Returns:

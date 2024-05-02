@@ -40,11 +40,11 @@ class Stringify:
 
     def to_latex_string(self) -> str:
         """Generate a LaTeX formatted string. The mode is set by the class variable STRING_MODE, which defaults to
-        "SUBSCRIPT". E.g., Fe2O3 is transformed to Fe$_{2}$O$_{3}$. Setting STRING_MODE to "SUPERSCRIPT" creates
-        superscript, e.g., Fe2+ becomes Fe^{2+}. The initial string is obtained from the class's __str__ method.
+        "SUBSCRIPT". e.g. Fe2O3 is transformed to Fe$_{2}$O$_{3}$. Setting STRING_MODE to "SUPERSCRIPT" creates
+        superscript, e.g. Fe2+ becomes Fe^{2+}. The initial string is obtained from the class's __str__ method.
 
         Returns:
-            String for display as in LaTeX with proper superscripts and subscripts.
+            str: for LaTeX display with proper sub-/superscripts.
         """
         str_ = self.to_pretty_string()
         # First we process strings that already have _ and ^ by escaping the relevant parts.
@@ -125,7 +125,7 @@ def formula_double_format(afloat, ignore_ones=True, tol: float = 1e-8):
 
 def charge_string(charge, brackets=True, explicit_one=True):
     """Returns a string representing the charge of an Ion. By default, the
-    charge is placed in brackets with the sign preceding the magnitude, e.g.,
+    charge is placed in brackets with the sign preceding the magnitude, e.g.
     '[+2]'. For uncharged species, the string returned is '(aq)'.
 
     Args:
@@ -146,7 +146,7 @@ def charge_string(charge, brackets=True, explicit_one=True):
 
 
 def latexify(formula: str, bold: bool = False):
-    """Generate a LaTeX formatted formula. E.g., Fe2O3 is transformed to
+    """Generate a LaTeX formatted formula. e.g. Fe2O3 is transformed to
     Fe$_{2}$O$_{3}$.
 
     Note that Composition now has a to_latex_string() method that may
@@ -195,7 +195,7 @@ def unicodeify(formula: str) -> str:
 
 
 def latexify_spacegroup(spacegroup_symbol):
-    r"""Generate a latex formatted spacegroup. E.g., P2_1/c is converted to
+    r"""Generate a latex formatted spacegroup. e.g. P2_1/c is converted to
     P2$_{1}$/c and P-1 is converted to P$\\overline{1}$.
 
     Note that SymmetryGroup now has a to_latex_string() method that may
@@ -212,7 +212,7 @@ def latexify_spacegroup(spacegroup_symbol):
 
 
 def unicodeify_spacegroup(spacegroup_symbol):
-    r"""Generate a unicode formatted spacegroup. E.g., P2$_{1}$/c is converted to
+    r"""Generate a unicode formatted spacegroup. e.g. P2$_{1}$/c is converted to
     P2₁/c and P$\\overline{1}$ is converted to P̅1.
 
     Note that SymmetryGroup now has a to_unicode_string() method that

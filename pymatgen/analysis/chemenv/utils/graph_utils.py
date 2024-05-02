@@ -131,8 +131,7 @@ def _c2index_isreverse(c1, c2):
 
 
 class SimpleGraphCycle(MSONable):
-    """
-    Class used to describe a cycle in a simple graph (graph without multiple edges).
+    """Describe a cycle in a simple graph (graph without multiple edges).
 
     Note that the convention used here is the networkx convention for which simple graphs allow
     to have self-loops in a simple graph.
@@ -467,7 +466,6 @@ class MultiGraphCycle(MSONable):
 
 def get_all_elementary_cycles(graph):
     """
-
     Args:
         graph:
     """

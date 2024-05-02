@@ -301,7 +301,7 @@ class CifParser:
             site_tolerance (float): This tolerance is used to determine if two sites are sitting in the same position,
                 in which case they will be combined to a single disordered site. Defaults to 1e-4.
             frac_tolerance (float): This tolerance is used to determine is a coordinate should be rounded to an ideal
-                value. E.g., 0.6667 is rounded to 2/3. This is desired if symmetry operations are going to be applied.
+                value. e.g. 0.6667 is rounded to 2/3. This is desired if symmetry operations are going to be applied.
                 However, for very large CIF files, this may need to be set to 0.
             check_cif (bool): Whether to check that stoichiometry reported in CIF matches
                 that of resulting Structure, and whether elements are missing. Defaults to True.
@@ -571,8 +571,7 @@ class CifParser:
         lattice: Lattice | None = None,
         labels: dict[Vector3D, str] | None = None,
     ):
-        """
-        Generate unique coordinates using coord and symmetry positions
+        """Generate unique coordinates using coord and symmetry positions
         and also their corresponding magnetic moments, if supplied.
         """
         coords_out: list[np.ndarray] = []
@@ -622,8 +621,7 @@ class CifParser:
         angle_strings=("alpha", "beta", "gamma"),
         lattice_type=None,
     ):
-        """
-        Generate the lattice from the provided lattice parameters. In
+        """Generate the lattice from the provided lattice parameters. In
         the absence of all six lattice parameters, the crystal system
         and necessary parameters are parsed.
         """
