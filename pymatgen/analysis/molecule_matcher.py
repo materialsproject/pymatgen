@@ -246,7 +246,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         ob_conv.AddOption("X", openbabel.OBConversion.OUTOPTIONS, "DoNotAddH")
         inchi_text = ob_conv.WriteString(mol)
         match = re.search(
-            r"InChI=(?P<inchi>.+)\nAuxInfo=.+/N:(?P<labels>[0-9,;]+)/(E:(?P<eq_atoms>[0-9,;\\(\\)]*)/)?",
+            r"InChI=(?P<inchi>.+)\nAuxInfo=.+/N:(?P<labels>[0-9,;]+)/(E:(?P<eq_atoms>[0-9,;\(\)]*)/)?",
             inchi_text,
         )
         inchi = match.group("inchi")
@@ -255,7 +255,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         heavy_atom_labels = tuple(int(idx) for idx in label_text.replace(";", ",").split(","))
         eq_atoms = []
         if eq_atom_text is not None:
-            eq_tokens = re.findall(r"\\(((?:[0-9]+,)+[0-9]+)\\)", eq_atom_text.replace(";", ","))
+            eq_tokens = re.findall(r"\(((?:[0-9]+,)+[0-9]+)\)", eq_atom_text.replace(";", ","))
             eq_atoms = tuple(tuple(int(idx) for idx in t.split(",")) for t in eq_tokens)
         return heavy_atom_labels, eq_atoms, inchi
 
