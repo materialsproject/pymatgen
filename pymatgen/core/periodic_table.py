@@ -740,8 +740,8 @@ class ElementBase(Enum):
 
     @property
     def is_radioactive(self) -> bool:
-        """True if element is a radioactive element."""
-        return self.Z in (43, 61) or self.Z > 83
+        """True if element is radioactive."""
+        return self.Z in (43, 61) or self.Z >= 84
 
     @property
     def is_quadrupolar(self) -> bool:
