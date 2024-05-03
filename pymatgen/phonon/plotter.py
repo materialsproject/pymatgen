@@ -498,8 +498,8 @@ class PhononBSPlotter:
             ls = LineCollection(seg, colors=colors, linestyles="-", linewidths=2.5)
             ax.add_collection(ls)
         if ylim is None:
-            y_max: float = max(max(b) for b in self._bs.bands) * u.factor
-            y_min: float = min(min(b) for b in self._bs.bands) * u.factor
+            y_max: float = max(max(band) for band in self._bs.bands) * u.factor
+            y_min: float = min(min(band) for band in self._bs.bands) * u.factor
             y_margin = (y_max - y_min) * 0.05
             ylim = (y_min - y_margin, y_max + y_margin)
         ax.set_ylim(ylim)
@@ -594,9 +594,9 @@ class PhononBSPlotter:
             if point.label is not None:
                 tick_distance.append(self._bs.distance[idx])
                 this_branch = None
-                for b in self._bs.branches:
-                    if b["start_index"] <= idx <= b["end_index"]:
-                        this_branch = b["name"]
+                for branch in self._bs.branches:
+                    if branch["start_index"] <= idx <= branch["end_index"]:
+                        this_branch = branch["name"]
                         break
                 if point.label != prev_label and prev_branch != this_branch:
                     label1 = point.label
