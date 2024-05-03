@@ -237,6 +237,7 @@ class TestElement(PymatgenTest):
             ("U", "Pu"): "is_actinoid",
             ("Si", "Ge"): "is_metalloid",
             ("O", "Te"): "is_chalcogen",
+            ("Tc", "Po"): "is_radioactive",
         }
 
         for key, val in is_true.items():
