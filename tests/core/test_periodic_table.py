@@ -608,4 +608,4 @@ def test_get_el_sp():
 def test_element_type():
     assert isinstance(ElementType.actinoid, Enum)
     assert isinstance(ElementType.metalloid, Enum)
-    assert len(ElementType) == 17
+    assert len(ElementType) == 18
