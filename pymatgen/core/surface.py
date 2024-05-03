@@ -317,6 +317,103 @@ class Slab(Structure):
         dip_per_unit_area = self.dipole / self.surface_area
         return np.linalg.norm(dip_per_unit_area) > tol_dipole_per_unit_area
 
+    def center_slab(self) -> Slab:
+        """Relocate the Slab region to the center.
+
+        This makes it easier to find surface sites and apply
+        operations like doping.
+
+        TODO (@DanielYang59): need to check if the Slab is continuous
+
+        Returns:
+            Slab: The centered Slab.
+        """
+        # Calculate shift vector
+        center_of_mass = np.average(
+            self.frac_coords,
+            weights=[site.species.weight for site in self],
+            axis=0,
+        )
+        shift = 0.5 - center_of_mass[2]
+
+        # Move the slab to the center
+        self.translate_sites(
+            indices=list(range(len(self))),  # all sites
+            vector=[0, 0, shift],
+        )
+
+        return self
+
+    def get_slab_regions(
+        self,
+        blength: float = 3.5,
+    ) -> list[tuple[float, float]]:
+        """Find the z-ranges for the slab region.
+
+        Useful for discerning where the slab ends and vacuum begins
+        if the slab is not fully within the cell.
+
+        TODO (@DanielYang59): project all z coordinates to 1D?
+
+        Args:
+            blength (float): The bond length between atoms in Angstrom.
+                You generally want this value to be larger than the actual
+                bond length in order to find atoms that are part of the slab.
+        """
+        frac_coords: list = []  # TODO (@DanielYang59): zip site and coords?
+        indices: list = []
+
+        all_indices: list = []
+
+        for site in self:
+            neighbors = self.get_neighbors(site, blength)
+            for nn in neighbors:
+                # TODO (@DanielYang59): use z coordinate (z<0) to check
+                # whether a Slab being continuous is suspicious (Slab could locate
+                # entirely below z=0)
+
+                # Find sites with z < 0 (sites non-continuous within cell)
+                if nn[0].frac_coords[2] < 0:
+                    frac_coords.append(nn[0].frac_coords[2])
+                    indices.append(nn[-2])
+
+                    if nn[-2] not in all_indices:
+                        all_indices.append(nn[-2])
+
+        # If slab is non-continuous
+        if frac_coords:
+            # Locate the lowest site within the upper Slab
+            last_fcoords = []
+            last_indices = []
+            while frac_coords:
+                last_fcoords = copy.copy(frac_coords)
+                last_indices = copy.copy(indices)
+
+                site = self[indices[frac_coords.index(min(frac_coords))]]
+                neighbors = self.get_neighbors(site, blength, include_index=True, include_image=True)
+                frac_coords, indices = [], []
+                for nn in neighbors:
+                    if 1 > nn[0].frac_coords[2] > 0 and nn[0].frac_coords[2] < site.frac_coords[2]:
+                        # Sites are non-continuous within cell
+                        frac_coords.append(nn[0].frac_coords[2])
+                        indices.append(nn[-2])
+                        if nn[-2] not in all_indices:
+                            all_indices.append(nn[-2])
+
+            # Locate the highest site within the lower Slab
+            upper_fcoords: list = []
+            for site in self:
+                if all(nn.index not in all_indices for nn in self.get_neighbors(site, blength)):
+                    upper_fcoords.append(site.frac_coords[2])
+            coords: list = copy.copy(frac_coords) if frac_coords else copy.copy(last_fcoords)
+            min_top = self[last_indices[coords.index(min(coords))]].frac_coords[2]
+            return [(0, max(upper_fcoords)), (min_top, 1)]
+
+        # If the entire slab region is within the cell, just
+        # set the range as the highest and lowest site in the Slab
+        sorted_sites = sorted(self, key=lambda site: site.frac_coords[2])
+        return [(sorted_sites[0].frac_coords[2], sorted_sites[-1].frac_coords[2])]
+
     def get_surface_sites(self, tag: bool = False) -> dict[str, list]:
         """Returns the surface sites and their indices in a dictionary.
         Useful for analysis involving broken bonds and for finding adsorption sites.
@@ -732,12 +829,7 @@ class Slab(Structure):
 def center_slab(slab: Slab) -> Slab:
     """Relocate the Slab region to the center.
 
-    This makes it easier to find surface sites and apply
-    operations like doping.
-
-    TODO (@DanielYang59): need to check if the Slab is continuous
-
-    TODO (@DanielYang59): this should be a method for `Slab`?
+    Deprecated, please use the center_slab method of Slab directly.
 
     Args:
         slab (Slab): The Slab to center.
@@ -745,35 +837,18 @@ def center_slab(slab: Slab) -> Slab:
     Returns:
         Slab: The centered Slab.
     """
-    # Calculate shift vector
-    center_of_mass = np.average(
-        slab.frac_coords,
-        weights=[site.species.weight for site in slab],
-        axis=0,
-    )
-    shift = 0.5 - center_of_mass[2]
+    warnings.warn("Please use the center_slab method of Slab directly.", DeprecationWarning)
 
-    # Move the slab to the center
-    slab.translate_sites(
-        indices=list(range(len(slab))),  # all sites
-        vector=[0, 0, shift],
-    )
-
-    return slab
+    return slab.center_slab()
 
 
-def get_slab_regions(
-    slab: Slab,
-    blength: float = 3.5,
-) -> list[tuple[float, float]]:
+def get_slab_regions(slab: Slab, blength: float = 3.5) -> list[tuple[float, float]]:
     """Find the z-ranges for the slab region.
+
+    Deprecated, please use the get_slab_regions method of Slab directly.
 
     Useful for discerning where the slab ends and vacuum begins
     if the slab is not fully within the cell.
-
-    TODO (@DanielYang59): this should be a method for `Slab`?
-
-    TODO (@DanielYang59): project all z coordinates to 1D?
 
     Args:
         slab (Slab): The Slab to analyse.
@@ -781,59 +856,9 @@ def get_slab_regions(
             You generally want this value to be larger than the actual
             bond length in order to find atoms that are part of the slab.
     """
-    frac_coords: list = []  # TODO (@DanielYang59): zip site and coords?
-    indices: list = []
+    warnings.warn("Please use the get_slab_regions method of Slab directly.", DeprecationWarning)
 
-    all_indices: list = []
-
-    for site in slab:
-        neighbors = slab.get_neighbors(site, blength)
-        for nn in neighbors:
-            # TODO (@DanielYang59): use z coordinate (z<0) to check
-            # whether a Slab being continuous is suspicious (Slab could locate
-            # entirely below z=0)
-
-            # Find sites with z < 0 (sites non-continuous within cell)
-            if nn[0].frac_coords[2] < 0:
-                frac_coords.append(nn[0].frac_coords[2])
-                indices.append(nn[-2])
-
-                if nn[-2] not in all_indices:
-                    all_indices.append(nn[-2])
-
-    # If slab is non-continuous
-    if frac_coords:
-        # Locate the lowest site within the upper Slab
-        last_fcoords = []
-        last_indices = []
-        while frac_coords:
-            last_fcoords = copy.copy(frac_coords)
-            last_indices = copy.copy(indices)
-
-            site = slab[indices[frac_coords.index(min(frac_coords))]]
-            neighbors = slab.get_neighbors(site, blength, include_index=True, include_image=True)
-            frac_coords, indices = [], []
-            for nn in neighbors:
-                if 1 > nn[0].frac_coords[2] > 0 and nn[0].frac_coords[2] < site.frac_coords[2]:
-                    # Sites are non-continuous within cell
-                    frac_coords.append(nn[0].frac_coords[2])
-                    indices.append(nn[-2])
-                    if nn[-2] not in all_indices:
-                        all_indices.append(nn[-2])
-
-        # Locate the highest site within the lower Slab
-        upper_fcoords: list = []
-        for site in slab:
-            if all(nn.index not in all_indices for nn in slab.get_neighbors(site, blength)):
-                upper_fcoords.append(site.frac_coords[2])
-        coords: list = copy.copy(frac_coords) if frac_coords else copy.copy(last_fcoords)
-        min_top = slab[last_indices[coords.index(min(coords))]].frac_coords[2]
-        return [(0, max(upper_fcoords)), (min_top, 1)]
-
-    # If the entire slab region is within the cell, just
-    # set the range as the highest and lowest site in the Slab
-    sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
-    return [(sorted_sites[0].frac_coords[2], sorted_sites[-1].frac_coords[2])]
+    return slab.get_slab_regions(blength=blength)
 
 
 class SlabGenerator:
@@ -1100,6 +1125,7 @@ class SlabGenerator:
         props = {k: v * n_layers_slab for k, v in props.items()}
 
         # Generate Slab
+        # DEBUG (@DanielYang): Structure created instead of a Slab
         slab = Structure(new_lattice, species * n_layers_slab, all_coords, site_properties=props)
 
         # (Optionally) Post-process the Slab
@@ -1117,8 +1143,7 @@ class SlabGenerator:
 
         # Center the slab layer around the vacuum
         if self.center_slab:
-            c_center = np.mean([coord[2] for coord in slab.frac_coords])
-            slab.translate_sites(list(range(len(slab))), [0, 0, 0.5 - c_center])
+            slab = center_slab(slab)
 
         # Reduce to primitive cell
         if self.primitive:
@@ -1604,7 +1629,7 @@ def generate_all_slabs(
             will be in min_slab_size/math.ceil(self._proj_height/dhkl)
             multiples of oriented unit cells.
     """
-    all_slabs = []
+    all_slabs: list[Slab] = []
 
     for miller in get_symmetrically_distinct_miller_indices(structure, max_index):
         gen = SlabGenerator(
