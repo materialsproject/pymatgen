@@ -14,5 +14,5 @@ plotly==5.17.0
 uncertainties==3.1.7
 Cython==3.0.2
 pybtex==0.24.0
-tqdm==4.66.2
+tqdm==4.66.3
 joblib==1.3.2
