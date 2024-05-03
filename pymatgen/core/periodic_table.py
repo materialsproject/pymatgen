@@ -739,6 +739,11 @@ class ElementBase(Enum):
         return 88 < self.Z < 104
 
     @property
+    def is_radioactive(self) -> bool:
+        """True if element is radioactive."""
+        return self.Z in (43, 61) or self.Z >= 84
+
+    @property
     def is_quadrupolar(self) -> bool:
         """Check if this element can be quadrupolar."""
         return len(self.data.get("NMR Quadrupole Moment", {})) > 0
@@ -1512,6 +1517,7 @@ class ElementType(Enum):
     chalcogen = "chalcogen"  # O, S, Se, Te, Po
     lanthanoid = "lanthanoid"  # La-Lu
     actinoid = "actinoid"  # Ac-Lr
+    radioactive = "radioactive"  # Tc, Pm, Po-Lr
     quadrupolar = "quadrupolar"
     s_block = "s-block"
     p_block = "p-block"
