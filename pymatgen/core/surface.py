@@ -730,23 +730,12 @@ class Slab(Structure):
 
 
 def center_slab(slab: Slab) -> Slab:
-    """Relocate the Slab to the center such that its center
-    (the slab region) is close to z=0.5.
+    """Relocate the Slab region to the center.
 
     This makes it easier to find surface sites and apply
     operations like doping.
 
-    There are two possible cases:
-
-        1. When the slab region is completely positioned between
-        two vacuum layers in the cell but is not centered, we simply
-        shift the Slab to the center along z-axis.
-
-        2. If the Slab completely resides outside the cell either
-        from the bottom or the top, we iterate through all sites that
-        spill over and shift all sites such that it is now
-        on the other side. An edge case being, either the top
-        of the Slab is at z = 0 or the bottom is at z = 1.
+    TODO (@DanielYang59): need to check if the Slab is continuous
 
     TODO (@DanielYang59): this should be a method for `Slab`?
 
@@ -756,34 +745,19 @@ def center_slab(slab: Slab) -> Slab:
     Returns:
         Slab: The centered Slab.
     """
-    # Get all site indices
-    all_indices = list(range(len(slab)))
-
-    # Get a reasonable cutoff radius to sample neighbors
-    bond_dists = sorted(nn[1] for nn in slab.get_neighbors(slab[0], 10) if nn[1] > 0)
-    # TODO (@DanielYang59): magic number for cutoff radius (would 3 be too large?)
-    cutoff_radius = bond_dists[0] * 3
-
-    # TODO (@DanielYang59): do we need the following complex method?
-    # Why don't we just calculate the center of the Slab and move it to z=0.5?
-    # Before moving we need to ensure there is only one Slab layer though
-
-    # If structure is case 2, shift all the sites
-    # to the other side until it is case 1
-    for site in slab:  # DEBUG (@DanielYang59): Slab position changes during loop?
-        # DEBUG (@DanielYang59): sites below z=0 is not considered (only check coord > c)
-        if any(nn[1] >= slab.lattice.c for nn in slab.get_neighbors(site, cutoff_radius)):
-            # TODO (@DanielYang59): the magic offset "0.05" seems unnecessary,
-            # as the Slab would be centered later anyway
-            shift = 1 - site.frac_coords[2] + 0.05
-            slab.translate_sites(all_indices, [0, 0, shift])
-
-    # Now the slab is case 1, move it to the center
-    weights = [site.species.weight for site in slab]
-    center_of_mass = np.average(slab.frac_coords, weights=weights, axis=0)
+    # Calculate shift vector
+    center_of_mass = np.average(
+        slab.frac_coords,
+        weights=[site.species.weight for site in slab],
+        axis=0,
+    )
     shift = 0.5 - center_of_mass[2]
 
-    slab.translate_sites(all_indices, [0, 0, shift])
+    # Move the slab to the center
+    slab.translate_sites(
+        indices=list(range(len(slab))),  # all sites
+        vector=[0, 0, shift],
+    )
 
     return slab
 
@@ -799,7 +773,7 @@ def get_slab_regions(
 
     TODO (@DanielYang59): this should be a method for `Slab`?
 
-    TODO (@DanielYang59): maybe project all z coordinates to 1D?
+    TODO (@DanielYang59): project all z coordinates to 1D?
 
     Args:
         slab (Slab): The Slab to analyse.
@@ -816,10 +790,10 @@ def get_slab_regions(
         neighbors = slab.get_neighbors(site, blength)
         for nn in neighbors:
             # TODO (@DanielYang59): use z coordinate (z<0) to check
-            # if a Slab is contiguous is suspicious (Slab could locate
+            # whether a Slab being continuous is suspicious (Slab could locate
             # entirely below z=0)
 
-            # Find sites with z < 0 (sites noncontiguous within cell)
+            # Find sites with z < 0 (sites non-continuous within cell)
             if nn[0].frac_coords[2] < 0:
                 frac_coords.append(nn[0].frac_coords[2])
                 indices.append(nn[-2])
@@ -827,7 +801,7 @@ def get_slab_regions(
                 if nn[-2] not in all_indices:
                     all_indices.append(nn[-2])
 
-    # If slab is noncontiguous
+    # If slab is non-continuous
     if frac_coords:
         # Locate the lowest site within the upper Slab
         last_fcoords = []
@@ -841,7 +815,7 @@ def get_slab_regions(
             frac_coords, indices = [], []
             for nn in neighbors:
                 if 1 > nn[0].frac_coords[2] > 0 and nn[0].frac_coords[2] < site.frac_coords[2]:
-                    # Sites are noncontiguous within cell
+                    # Sites are non-continuous within cell
                     frac_coords.append(nn[0].frac_coords[2])
                     indices.append(nn[-2])
                     if nn[-2] not in all_indices:
