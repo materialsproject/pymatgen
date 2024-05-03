@@ -300,7 +300,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def formula(self) -> str:
-        """Get a formula string, with elements sorted by electronegativity,
+        """A formula string, with elements sorted by electronegativity,
         e.g. Li4 Fe4 P4 O16.
         """
         sym_amt = self.get_el_amt_dict()
@@ -310,14 +310,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def alphabetical_formula(self) -> str:
-        """Get a formula string, with elements sorted by alphabetically
+        """A formula string, with elements sorted by alphabetically
         e.g. Fe4 Li4 O16 P4.
         """
         return " ".join(sorted(self.formula.split()))
 
     @property
     def iupac_formula(self) -> str:
-        """Get a formula string, with elements sorted by the iupac
+        """A formula string, with elements sorted by the iupac
         electronegativity ordering defined in Table VI of "Nomenclature of
         Inorganic Chemistry (IUPAC Recommendations 2005)". This ordering
         effectively follows the groups and rows of the periodic table, except
@@ -332,12 +332,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def element_composition(self) -> Composition:
-        """Get the composition replacing any species by the corresponding element."""
+        """The composition replacing any species by the corresponding element."""
         return Composition(self.get_el_amt_dict(), allow_negative=self.allow_negative)
 
     @property
     def fractional_composition(self) -> Composition:
-        """Get the normalized composition in which the amounts of each species sum to
+        """The normalized composition in which the amounts of each species sum to
         1.
         E.g. "Fe2 O3".fractional_composition = "Fe0.4 O0.6".
         """
@@ -345,7 +345,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def reduced_composition(self) -> Composition:
-        """Get the reduced composition, i.e. amounts normalized by greatest common denominator.
+        """The reduced composition, i.e. amounts normalized by greatest common denominator.
         E.g. "Fe4 P4 O16".reduced_composition = "Fe P O4".
         """
         return self.get_reduced_composition_and_factor()[0]
@@ -422,7 +422,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def reduced_formula(self) -> str:
-        """Get a pretty normalized formula, i.e., LiFePO4 instead of
+        """A pretty normalized formula, i.e., LiFePO4 instead of
         Li4Fe4P4O16.
         """
         return self.get_reduced_formula_and_factor()[0]
@@ -453,7 +453,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def elements(self) -> list[Element | Species | DummySpecies]:
-        """Get list of elements in Composition."""
+        """List of elements in Composition."""
         return list(self)
 
     def __str__(self) -> str:
@@ -594,7 +594,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def chemical_system(self) -> str:
-        """Get the chemical system of a Composition, for example "O-Si" for
+        """The chemical system of a Composition, for example "O-Si" for
         SiO2. Chemical system is a string of a list of elements
         sorted alphabetically and joined by dashes, by convention for use
         in database keys.
@@ -603,7 +603,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def valid(self) -> bool:
-        """Get True if Composition contains valid elements or species and
+        """True if Composition contains valid elements or species and
         False if the Composition contains any dummy species.
         """
         return not any(isinstance(el, DummySpecies) for el in self.elements)

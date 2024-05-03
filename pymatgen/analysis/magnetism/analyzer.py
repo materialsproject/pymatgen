@@ -417,7 +417,7 @@ class CollinearMagneticStructureAnalyzer:
 
     @property
     def magnetic_species_and_magmoms(self) -> dict[str, Any]:
-        """Get a dict of magnetic species and the magnitude of
+        """A dict of magnetic species and the magnitude of
         their associated magmoms. Will return a list if there are
         multiple magmoms per species.
 

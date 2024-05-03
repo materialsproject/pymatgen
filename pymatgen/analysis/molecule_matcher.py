@@ -178,10 +178,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         return match.group("inchi")
 
     def as_dict(self):
-        """
-        Returns:
-            JSON-able dict.
-        """
+        """Get MSONable dict."""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -212,10 +209,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         self._assistant_mapper = IsomorphismMolAtomMapper()
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dict.
-        """
+        """Get MSONable dict."""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -694,10 +688,7 @@ class MoleculeMatcher(MSONable):
         return [[mol_list[idx] for idx in g] for g in group_indices]
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dict.
-        """
+        """Get MSONable dict."""
         return {
             "version": __version__,
             "@module": type(self).__module__,

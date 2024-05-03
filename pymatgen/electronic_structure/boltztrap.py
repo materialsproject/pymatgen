@@ -844,14 +844,13 @@ class BoltztrapAnalyzer:
         self.fermi_surface_data = fermi_surface_data
 
     def get_symm_bands(self, structure: Structure, efermi, kpt_line=None, labels_dict=None):
-        """Function useful to read bands from Boltztrap output and get a
-        BandStructureSymmLine object comparable with that one from a DFT
-        calculation (if the same kpt_line is provided). Default kpt_line
-        and labels_dict is the standard path of high symmetry k-point for
-        the specified structure. They could be extracted from the
-        BandStructureSymmLine object that you want to compare with. efermi
-        variable must be specified to create the BandStructureSymmLine
-        object (usually it comes from DFT or Boltztrap calc).
+        """Useful to read bands from Boltztrap output and get a BandStructureSymmLine object
+        comparable with that one from a DFT calculation (if the same kpt_line is
+        provided). Default kpt_line and labels_dict is the standard path of high symmetry
+        k-point for the specified structure. They could be extracted from the
+        BandStructureSymmLine object that you want to compare with. efermi variable must
+        be specified to create the BandStructureSymmLine object (usually it comes from DFT
+        or Boltztrap calc).
         """
         try:
             if kpt_line is None:

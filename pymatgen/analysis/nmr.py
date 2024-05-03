@@ -185,8 +185,8 @@ class ElectricFieldGradient(SquareTensor):
         return np.abs((V[1] - V[0]) / V[2])
 
     def coupling_constant(self, specie):
-        """
-        Computes the coupling constant C_q as defined in:
+        """Compute the coupling constant C_q as defined in:
+
             Wasylishen R E, Ashbrook S E, Wimperis S. NMR of quadrupolar nuclei
             in solid materials[M]. John Wiley & Sons, 2012. (Chapter 3.2).
 

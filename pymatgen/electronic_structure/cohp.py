@@ -1279,14 +1279,14 @@ class IcohpCollection(MSONable):
 def get_integrated_cohp_in_energy_range(
     cohp, label, orbital=None, energy_range=None, relative_E_Fermi=True, summed_spin_channels=True
 ):
-    """Method that can integrate completecohp objects which include data on integrated COHPs
+    """Integrate CompleteCohp objects which include data on integrated COHPs
     Args:
-        cohp: CompleteCOHP object
+        cohp: CompleteCohp object
         label: label of the COHP data
         orbital: If not None, a orbital resolved integrated COHP will be returned
-        energy_range:   if None, returns icohp value at Fermi level;
-                        if float, integrates from this float up to the Fermi level;
-                        if [float,float], will integrate in between
+        energy_range: If None, returns icohp value at Fermi level.
+            If float, integrates from this float up to the Fermi level.
+            If [float,float], will integrate in between.
         relative_E_Fermi: if True, energy scale with E_Fermi at 0 eV is chosen
         summed_spin_channels: if True, Spin channels will be summed.
 

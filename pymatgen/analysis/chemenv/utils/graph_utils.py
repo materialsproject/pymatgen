@@ -17,8 +17,7 @@ __author__ = "waroquiers"
 
 
 def get_delta(node1, node2, edge_data):
-    """
-    Get the delta.
+    """Get the delta.
 
     Args:
         node1:
@@ -33,8 +32,7 @@ def get_delta(node1, node2, edge_data):
 
 
 def get_all_simple_paths_edges(graph, source, target, cutoff=None, data=True):
-    """
-    Get all the simple path and edges.
+    """Get all the simple path and edges.
 
     Args:
         graph:

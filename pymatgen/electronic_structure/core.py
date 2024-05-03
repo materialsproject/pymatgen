@@ -311,7 +311,7 @@ class Magmom(MSONable):
 
     @staticmethod
     def get_consistent_set_and_saxis(magmoms, saxis=None):
-        """Method to ensure a list of magmoms use the same spin axis.
+        """Ensure a list of magmoms use the same spin axis.
         Returns a tuple of a list of Magmoms and their global spin axis.
 
         Args:
@@ -355,8 +355,7 @@ class Magmom(MSONable):
 
     @staticmethod
     def are_collinear(magmoms) -> bool:
-        """Method checks to see if a set of magnetic moments are collinear
-        with each other.
+        """Check to see if a set of magnetic moments are collinear with each other.
 
         Args:
             magmoms: list of magmoms (Magmoms, scalars or vectors).

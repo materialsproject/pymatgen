@@ -973,7 +973,7 @@ def get_atom_map(structure, absorbing_atom=None):
         absorbing_atom (str): symbol
 
     Returns:
-        dict
+        dict[str, int]: mapping of atomic symbol to integer starting from 1
     """
     unique_pot_atoms = sorted({site.specie.symbol for site in structure})
 
@@ -983,14 +983,13 @@ def get_atom_map(structure, absorbing_atom=None):
         unique_pot_atoms.remove(absorbing_atom)
 
     atom_map = {}
-    for i, atom in enumerate(unique_pot_atoms, start=1):
-        atom_map[atom] = i
+    for idx, atom in enumerate(unique_pot_atoms, start=1):
+        atom_map[atom] = idx
     return atom_map
 
 
 def get_absorbing_atom_symbol_index(absorbing_atom, structure):
-    """
-    Return the absorbing atom symbol and site index in the given structure.
+    """Get the absorbing atom symbol and site index in the given structure.
 
     Args:
         absorbing_atom (str/int): symbol or site index

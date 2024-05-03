@@ -78,7 +78,7 @@ class Ion(Composition, MSONable, Stringify):
 
     @property
     def formula(self) -> str:
-        """Get a formula string with appended charge. The
+        """A formula string with appended charge. The
         charge is written with the sign preceding the magnitude, e.g.
         'Ca1 +2'. Uncharged species have "(aq)" appended, e.g. "O2 (aq)".
         """
@@ -181,7 +181,7 @@ class Ion(Composition, MSONable, Stringify):
 
     @property
     def reduced_formula(self) -> str:
-        """Get a reduced formula string with appended charge. The
+        """A reduced formula string with appended charge. The
         charge is placed in brackets with the sign preceding the magnitude, e.g.
         'Ca[+2]'. Uncharged species have "(aq)" appended, e.g. "O2(aq)".
         """
@@ -192,7 +192,7 @@ class Ion(Composition, MSONable, Stringify):
 
     @property
     def alphabetical_formula(self) -> str:
-        """Get a formula string, with elements sorted by alphabetically and
+        """A formula string, with elements sorted by alphabetically and
         appended charge.
         """
         alph_formula = self.composition.alphabetical_formula

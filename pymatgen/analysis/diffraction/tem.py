@@ -303,7 +303,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             "Film radius",
             "Interplanar Spacing",
         ]
-        rows_list = []
+        rows = []
         for dot in tem_dots:
             dict1 = {
                 "Position": dot.position,
@@ -312,8 +312,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 "Film radius": dot.film_radius,
                 "Interplanar Spacing": dot.d_spacing,
             }
-            rows_list.append(dict1)
-        return pd.DataFrame(rows_list, columns=field_names)
+            rows.append(dict1)
+        return pd.DataFrame(rows, columns=field_names)
 
     def normalized_cell_intensity(
         self, structure: Structure, bragg_angles: dict[tuple[int, int, int], float]

@@ -21,19 +21,10 @@ if TYPE_CHECKING:
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
 
-def is_numeric(s) -> bool:
-    """
-    Return True is the string ``s`` is a numeric string.
-
-    Args:
-        s (str): A string
-
-    Returns:
-        bool: If True, ``s`` is a numeric string and can be converted to an int or a
-            float. Otherwise False will be returned.
-    """
+def is_numeric(string) -> bool:
+    """True if input string is numeric and can be converted to an int or a float."""
     try:
-        float(s)
+        float(string)
     except ValueError:
         return False
     else:
@@ -130,8 +121,7 @@ class AdfKey(MSONable):
         return self.name
 
     def __str__(self):
-        """
-        Return the string representation of this ``AdfKey``.
+        """Get the string representation of this ``AdfKey``.
 
         Notes:
             If this key is 'Atoms' and the coordinates are in Cartesian form,
@@ -166,13 +156,11 @@ class AdfKey(MSONable):
 
     def has_subkey(self, subkey: str | AdfKey) -> bool:
         """
-        Return True if this AdfKey contains the given subkey.
-
         Args:
-            subkey (str or AdfKey): A key name or an AdfKey object.
+            subkey (str | AdfKey): A key name or AdfKey object.
 
         Returns:
-            bool: Whether this key contains the given key.
+            bool: True if this key contains the given subkey.
         """
         if isinstance(subkey, str):
             key = subkey
@@ -254,13 +242,11 @@ class AdfKey(MSONable):
 
     def has_option(self, option: str) -> bool:
         """
-        Return True if the option is included in this key.
-
         Args:
             option (str): The option.
 
         Returns:
-            bool: Whether the option can be found.
+            bool: True if this AdfKey has the given option.
         """
         if len(self.options) == 0:
             return False
@@ -635,8 +621,7 @@ class AdfOutput:
 
     @staticmethod
     def _sites_to_mol(sites):
-        """
-        Return a ``Molecule`` object given a list of sites.
+        """Get a ``Molecule`` object given a list of sites.
 
         Args:
             sites : A list of sites.

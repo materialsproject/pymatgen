@@ -201,7 +201,7 @@ class AimsOutHeaderChunk(AimsOutChunk):
 
     @property
     def linked_against(self) -> list[str]:
-        """Get all libraries used to link the FHI-aims executable."""
+        """All libraries used to link the FHI-aims executable."""
         line_start = self.reverse_search_for(["Linking against:"])
         if line_start == LINE_NOT_FOUND:
             return []

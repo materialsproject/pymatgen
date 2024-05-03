@@ -125,7 +125,7 @@ class EOSBase(ABC):
 
     @property
     def e0(self) -> float:
-        """Get the min energy."""
+        """The min energy."""
         return self._params[0]
 
     @property

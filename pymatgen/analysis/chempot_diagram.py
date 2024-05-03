@@ -593,7 +593,7 @@ class ChemicalPotentialDiagram(MSONable):
 
     @property
     def lims(self) -> np.ndarray:
-        """Get array of limits used in constructing hyperplanes."""
+        """Array of limits used in constructing hyperplanes."""
         lims = np.array([[self.default_min_limit, 0]] * self.dim)
         for idx, elem in enumerate(self.elements):
             if self.limits and elem in self.limits:
@@ -607,27 +607,27 @@ class ChemicalPotentialDiagram(MSONable):
 
     @property
     def hyperplanes(self) -> np.ndarray:
-        """Get array of hyperplane data."""
+        """Array of hyperplane data."""
         return self._hyperplanes
 
     @property
     def hyperplane_entries(self) -> list[PDEntry]:
-        """Get list of entries corresponding to hyperplanes."""
+        """List of entries corresponding to hyperplanes."""
         return self._hyperplane_entries
 
     @property
     def border_hyperplanes(self) -> np.ndarray:
-        """Get bordering hyperplanes."""
+        """Bordering hyperplanes."""
         return self._border_hyperplanes
 
     @property
     def el_refs(self) -> dict[Element, PDEntry]:
-        """Get a dictionary of elements and reference entries."""
+        """A dictionary of elements and reference entries."""
         return self._el_refs
 
     @property
     def chemical_system(self) -> str:
-        """Get the chemical system (A-B-C-...) of diagram object."""
+        """The chemical system (A-B-C-...) of diagram object."""
         return "-".join(sorted(e.symbol for e in self.elements))
 
     def __repr__(self):

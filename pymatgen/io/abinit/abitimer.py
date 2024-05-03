@@ -210,8 +210,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         return [self._timers[filename][mpi_rank] for filename in self._filenames]
 
     def section_names(self, ordkey="wall_time"):
-        """
-        Return the names of sections ordered by ordkey.
+        """Get the names of sections ordered by ordkey.
         For the time being, the values are taken from the first timer.
         """
         section_names = []
@@ -233,8 +232,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         return section_names
 
     def get_sections(self, section_name):
-        """
-        Return the list of sections stored in self.timers() given `section_name`
+        """Get the list of sections stored in self.timers() given `section_name`
         A fake section is returned if the timer does not have section_name.
         """
         sections = []
@@ -524,8 +522,7 @@ class ParallelEfficiency(dict):
         return tuple(sect_name for (sect_name, e) in data)
 
     def totable(self, stop=None, reverse=True):
-        """
-        Return table (list of lists) with timing results.
+        """Get table (list of lists) with timing results.
 
         Args:
             stop: Include results up to stop. None for all

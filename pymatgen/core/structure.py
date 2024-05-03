@@ -208,7 +208,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @property
     def sites(self) -> list[Site]:
-        """Get an iterator for the sites in the Structure."""
+        """An iterator for the sites in the Structure."""
         return self._sites  # type: ignore[has-type]
 
     @sites.setter
@@ -240,7 +240,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @property
     def distance_matrix(self) -> np.ndarray:
-        """Get the distance matrix between all sites in the structure. For
+        """The distance matrix between all sites in the structure. For
         periodic structures, this is overwritten to return the nearest image
         distance.
         """
@@ -386,32 +386,32 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @property
     def cart_coords(self) -> np.ndarray:
-        """Get an np.array of the Cartesian coordinates of sites in the structure."""
+        """An np.array of the Cartesian coordinates of sites in the structure."""
         return np.array([site.coords for site in self])
 
     @property
     def formula(self) -> str:
-        """Get the formula as a string."""
+        """The formula as a string."""
         return self.composition.formula
 
     @property
     def alphabetical_formula(self) -> str:
-        """Get the formula as a string."""
+        """The formula as a string."""
         return self.composition.alphabetical_formula
 
     @property
     def reduced_formula(self) -> str:
-        """Get the reduced formula as a string."""
+        """The reduced formula as a string."""
         return self.composition.reduced_formula
 
     @property
     def elements(self) -> list[Element | Species | DummySpecies]:
-        """Get the elements in the structure as a list of Element objects."""
+        """The elements in the structure as a list of Element objects."""
         return self.composition.elements
 
     @property
     def composition(self) -> Composition:
-        """Get the structure's corresponding Composition object."""
+        """The structure's corresponding Composition object."""
         elem_map: dict[Species, float] = defaultdict(float)
         for site in self:
             for species, occu in site.species.items():
@@ -420,7 +420,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @property
     def charge(self) -> float:
-        """Get the net charge of the structure based on oxidation states. If
+        """The net charge of the structure based on oxidation states. If
         Elements are found, a charge of 0 is assumed.
         """
         charge = 0
@@ -1328,7 +1328,7 @@ class IStructure(SiteCollection, MSONable):
 
     @property
     def distance_matrix(self) -> np.ndarray:
-        """Get the distance matrix between all sites in the structure. For
+        """The distance matrix between all sites in the structure. For
         periodic structures, this should return the nearest image distance.
         """
         return self.lattice.get_all_distances(self.frac_coords, self.frac_coords)
@@ -1340,13 +1340,13 @@ class IStructure(SiteCollection, MSONable):
 
     @property
     def density(self) -> float:
-        """Get the density in units of g/cm^3."""
+        """The density in units of g/cm^3."""
         mass = Mass(self.composition.weight, "amu")
         return mass.to("g") / (self.volume * Length(1, "ang").to("cm") ** 3)
 
     @property
     def pbc(self) -> tuple[bool, bool, bool]:
-        """Get the periodicity of the structure."""
+        """The periodicity of the structure."""
         return self._lattice.pbc
 
     @property
@@ -1478,7 +1478,7 @@ class IStructure(SiteCollection, MSONable):
 
     @property
     def volume(self) -> float:
-        """Get the volume of the structure in Angstrom^3."""
+        """The volume of the structure in Angstrom^3."""
         return self._lattice.volume
 
     def get_distance(self, i: int, j: int, jimage=None) -> float:
@@ -1509,8 +1509,7 @@ class IStructure(SiteCollection, MSONable):
         include_image: bool = False,
     ) -> list[PeriodicNeighbor]:
         """Find all sites within a sphere from the point, including a site (if any)
-        sitting on the point itself. This includes sites in other periodic
-        images.
+        sitting on the point itself. This includes sites in other periodic images.
 
         Algorithm:
 
@@ -1518,7 +1517,7 @@ class IStructure(SiteCollection, MSONable):
            (parallelepiped) which would contain a sphere of radius r. for this
            we need the projection of a_1 on a unit vector perpendicular
            to a_2 & a_3 (i.e. the unit vector in the direction b_1) to
-           determine how many a_1"s it will take to contain the sphere.
+           determine how many a_1's it will take to contain the sphere.
 
            Nxmax = r * length_of_b_1 / (2 Pi)
 
@@ -4506,7 +4505,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
     @classmethod
     def from_prototype(cls, prototype: str, species: Sequence, **kwargs) -> Self:
-        """Method to rapidly construct common prototype structures.
+        """Rapidly construct common prototype structures.
 
         Args:
             prototype: Name of prototype. e.g. cubic, rocksalt, perovksite etc.

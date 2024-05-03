@@ -88,7 +88,7 @@ class BabelMolAdaptor:
 
     @property
     def pymatgen_mol(self) -> Molecule:
-        """Get pymatgen Molecule object."""
+        """Pymatgen Molecule object."""
         sp = []
         coords = []
         for atom in openbabel.OBMolAtomIter(self._ob_mol):
@@ -295,7 +295,7 @@ class BabelMolAdaptor:
 
     @property
     def pybel_mol(self) -> Molecule:
-        """Get Pybel's Molecule object."""
+        """Pybel's Molecule object."""
         return pybel.Molecule(self._ob_mol)
 
     def write_file(self, filename: str, file_format: str = "xyz") -> None:

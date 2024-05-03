@@ -234,7 +234,7 @@ class BandStructure:
         self.is_spin_polarized = len(self.bands) == 2
 
     def get_projection_on_elements(self):
-        """Method returning a dictionary of projections on elements.
+        """Get a dictionary of projections on elements.
 
         Returns:
             a dictionary in the {Spin.up:[][{Element: [values]}],
@@ -254,7 +254,7 @@ class BandStructure:
         return result
 
     def get_projections_on_elements_and_orbitals(self, el_orb_spec: dict[str, list[str]]):
-        """Method returning a dictionary of projections on elements and specific orbitals.
+        """Get a dictionary of projections on elements and specific orbitals.
 
         Args:
             el_orb_spec (dict[str, list[str]]): A dictionary of elements and orbitals which
@@ -1005,8 +1005,8 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         )
 
     def get_projection_on_elements(self):
-        """Method returning a dictionary of projections on elements.
-        It sums over all available orbitals for each element.
+        """Get a dictionary of projections on elements. It sums over all available orbitals
+        for each element.
 
         Returns:
             a dictionary in the {Spin.up:[][{Element:values}],
@@ -1025,8 +1025,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         return result
 
     def get_projections_on_elements_and_orbitals(self, el_orb_spec):
-        """Method returning a dictionary of projections on elements and specific
-        orbitals.
+        """Return a dictionary of projections on elements and specific orbitals.
 
         Args:
             el_orb_spec: A dictionary of Elements and Orbitals for which we want

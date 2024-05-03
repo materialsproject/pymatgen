@@ -497,12 +497,12 @@ class StructureEnvironments(MSONable):
                         "ac_name": self.AC.CONDITION_DESCRIPTION[ac],
                     }
                     site_voronoi_indices = [
-                        inb
-                        for inb, _voro_nb_dict in enumerate(site_voronoi)
+                        idx
+                        for idx in range(len(site_voronoi))
                         if (
-                            distance_conditions[idp][inb]
-                            and angle_conditions[iap][inb]
-                            and precomputed_additional_conditions[ac][inb]
+                            distance_conditions[idp][idx]
+                            and angle_conditions[iap][idx]
+                            and precomputed_additional_conditions[ac][idx]
                         )
                     ]
                     nb_set = self.NeighborsSet(
@@ -1036,8 +1036,7 @@ class StructureEnvironments(MSONable):
         fig.savefig(imagename)
 
     def differences_wrt(self, other):
-        """
-        Return differences found in the current StructureEnvironments with respect to another StructureEnvironments.
+        """Get differences found in the current StructureEnvironments with respect to another StructureEnvironments.
 
         Args:
             other: A StructureEnvironments object.
@@ -1932,8 +1931,7 @@ class LightStructureEnvironments(MSONable):
         return False
 
     def environments_identified(self):
-        """
-        Return the set of environments identified in this structure.
+        """Get the set of environments identified in this structure.
 
         Returns:
             set: environments identified in this structure.

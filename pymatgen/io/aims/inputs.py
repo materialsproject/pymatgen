@@ -336,7 +336,7 @@ class AimsCube(MSONable):
 
     @property
     def control_block(self) -> str:
-        """Get the block of text for the control.in file of the Cube"""
+        """The block of text for the control.in file of the Cube"""
         cb = f"output cube {self.type}\n"
         cb += f"    cube origin {self.origin[0]: .12e} {self.origin[1]: .12e} {self.origin[2]: .12e}\n"
         for idx in range(3):

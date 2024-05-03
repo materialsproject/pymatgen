@@ -72,7 +72,7 @@ class Movement(MSONable):
 
     @property
     def atom_configs(self) -> list[Structure]:
-        """Get AtomConfig object for structures contained in MOVEMENT.
+        """AtomConfig object for structures contained in MOVEMENT.
 
         Returns:
             list[Structure]: List of Structure objects for the structure at each ionic step.
@@ -81,7 +81,7 @@ class Movement(MSONable):
 
     @property
     def e_tots(self) -> np.ndarray:
-        """Get total energies of each ionic step structures contained in MOVEMENT.
+        """Total energies of each ionic step structures contained in MOVEMENT.
 
         Returns:
             np.ndarray: Total energy of of each ionic step structure,
@@ -91,7 +91,7 @@ class Movement(MSONable):
 
     @property
     def atom_forces(self) -> np.ndarray:
-        """Get forces on atoms in each structures contained in MOVEMENT.
+        """Forces on atoms in each structures contained in MOVEMENT.
 
         Returns:
             np.ndarray: The forces on atoms of each ionic step structure,
@@ -101,7 +101,7 @@ class Movement(MSONable):
 
     @property
     def e_atoms(self) -> np.ndarray:
-        """Get individual energies of atoms in each ionic step structures
+        """Individual energies of atoms in each ionic step structures
         contained in MOVEMENT.
 
         Returns:
@@ -112,7 +112,7 @@ class Movement(MSONable):
 
     @property
     def virials(self) -> np.ndarray:
-        """Get virial tensor of each ionic step structure contained in MOVEMENT.
+        """Virial tensor of each ionic step structure contained in MOVEMENT.
 
         Returns:
             np.ndarray: The virial tensor of each ionic step structure,
@@ -169,7 +169,7 @@ class OutFermi(MSONable):
 
     @property
     def e_fermi(self) -> float:
-        """Get the fermi energy level.
+        """The fermi energy level.
 
         Returns:
             float: Fermi energy level.
@@ -271,7 +271,7 @@ class Report(MSONable):
 
     @property
     def spin(self) -> int:
-        """Return the spin switches.
+        """The spin switches.
 
         Returns:
             int: Spin switches. 1 represents turn on spin, 2 represents turn down spin.
@@ -280,17 +280,17 @@ class Report(MSONable):
 
     @property
     def n_kpoints(self) -> int:
-        """Get the number of k-points."""
+        """The number of k-points."""
         return self._num_kpts
 
     @property
     def n_bands(self) -> int:
-        """Get the number of bands."""
+        """The number of bands."""
         return self._num_bands
 
     @property
     def eigenvalues(self) -> np.ndarray:
-        """Get the eigenvalues.
+        """The eigenvalues.
 
         Returns:
             np.ndarray: The first index represents spin, the second index
@@ -300,22 +300,18 @@ class Report(MSONable):
 
     @property
     def kpoints(self) -> np.ndarray:
-        """Get the fractional coordinates of kpoints."""
+        """The fractional coordinates of kpoints."""
         return self._kpts
 
     @property
     def kpoints_weight(self) -> np.ndarray:
-        """Get the weight of kpoints."""
+        """The weight of kpoints."""
         return self._kpts_weight
 
     @property
     def hsps(self) -> dict[str, np.ndarray]:
-        """Return the high symmetry points.
-
-        Returns:
-            dict[str, np.ndarray]: The label and fractional coordinate of
-                high symmetry points. Return empty dict when task is not
-                line-mode kpath.
+        """The labels and fractional coordinates of high symmetry points as dict[str, np.ndarray].
+        Empty dict when task is not line-mode kpath.
         """
         return self._hsps
 
@@ -349,12 +345,12 @@ class DosSpin(MSONable):
 
     @property
     def labels(self) -> list[str]:
-        """Get the name of the partial density of states"""
+        """The name of the partial density of states"""
         return self._labels
 
     @property
     def dos(self) -> np.ndarray:
-        """Get value of density of state."""
+        """Value of density of state."""
         return self._dos
 
     def get_partial_dos(self, part: str) -> np.ndarray:

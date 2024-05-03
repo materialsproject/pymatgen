@@ -266,8 +266,7 @@ class WulffShape:
         Assign colors according to the surface energies of on_wulff facets.
 
         Returns:
-            tuple: color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff,
-            e_surf_on_wulff_list
+            tuple: color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff_list
         """
 
         color_list = [off_color] * len(self.hkl_list)
@@ -626,12 +625,12 @@ class WulffShape:
 
     @property
     def miller_area_dict(self) -> dict[tuple, float]:
-        """Get {hkl: area_hkl on wulff}."""
+        """{hkl: area_hkl on wulff}."""
         return dict(zip(self.miller_list, self.color_area))
 
     @property
     def miller_energy_dict(self) -> dict[tuple, float]:
-        """Get {hkl: surface energy_hkl}."""
+        """{hkl: surface energy_hkl}."""
         return dict(zip(self.miller_list, self.e_surf_list))
 
     @property

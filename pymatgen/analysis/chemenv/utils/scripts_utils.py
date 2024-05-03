@@ -176,7 +176,6 @@ def visualize(cg, zoom=None, vis=None, factor=1.0, view_index=True, faces_color_
     coords = [cc * factor for cc in coords]
     structure = Molecule(species=species, coords=coords)
     vis.set_structure(structure=structure, reset_camera=True)
-    # neighbors_list = coords[1:]
     draw_cg(
         vis,
         site=structure[0],

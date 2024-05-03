@@ -210,7 +210,7 @@ class GrainBoundary(Structure):
 
     @property
     def top_grain(self) -> Structure:
-        """Return the top grain (Structure) of the GB."""
+        """The top grain (Structure) of the GB."""
         top_sites = []
         for i, tag in enumerate(self.site_properties["grain_label"]):
             if "top" in tag:
@@ -219,7 +219,7 @@ class GrainBoundary(Structure):
 
     @property
     def bottom_grain(self) -> Structure:
-        """Return the bottom grain (Structure) of the GB."""
+        """The bottom grain (Structure) of the GB."""
         bottom_sites = []
         for i, tag in enumerate(self.site_properties["grain_label"]):
             if "bottom" in tag:
@@ -228,7 +228,7 @@ class GrainBoundary(Structure):
 
     @property
     def coincidents(self) -> list[Site]:
-        """Return the a list of coincident sites."""
+        """The a list of coincident sites."""
         coincident_sites = []
         for idx, tag in enumerate(self.site_properties["grain_label"]):
             if "incident" in tag:
@@ -2471,7 +2471,7 @@ class Interface(Structure):
 
     @property
     def film_sites(self) -> list[Site]:
-        """Return the film sites of the interface."""
+        """The film sites of the interface."""
         return [site for site, tag in zip(self, self.site_properties["interface_label"]) if "film" in tag]
 
     @property

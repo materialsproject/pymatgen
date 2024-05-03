@@ -1609,7 +1609,7 @@ class CifWriter:
 
     @property
     def cif_file(self) -> CifFile:
-        """Get CifFile associated with the CifWriter."""
+        """CifFile associated with the CifWriter."""
         return self._cf
 
     def __str__(self):

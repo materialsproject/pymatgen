@@ -260,7 +260,7 @@ class ElementBase(Enum):
 
     @property
     def atomic_orbitals_eV(self) -> dict[str, float]:
-        """Get the LDA energies in eV for neutral atoms, by orbital.
+        """The LDA energies in eV for neutral atoms, by orbital.
 
         This property contains the same info as `self.atomic_orbitals`,
         but uses eV for units, per matsci issue https://matsci.org/t/unit-of-atomic-orbitals-energy/54325
@@ -271,7 +271,7 @@ class ElementBase(Enum):
 
     @property
     def data(self) -> dict[str, Any]:
-        """Get dict of data for element."""
+        """Dict of data for element."""
         return self._data.copy()
 
     @property
@@ -607,7 +607,7 @@ class ElementBase(Enum):
 
     @property
     def row(self) -> int:
-        """Get the periodic table row of the element.
+        """The periodic table row of the element.
         Note: For lanthanoids and actinoids, the row is always 6 or 7,
         respectively.
         """
@@ -625,7 +625,7 @@ class ElementBase(Enum):
 
     @property
     def group(self) -> int:
-        """Get the periodic table group of the element.
+        """The periodic table group of the element.
         Note: For lanthanoids and actinoids, the group is always 3.
         """
         z = self.Z
@@ -657,7 +657,7 @@ class ElementBase(Enum):
 
     @property
     def block(self) -> str:
-        """Return the block character "s,p,d,f"."""
+        """The block character "s,p,d,f"."""
         if (self.is_actinoid or self.is_lanthanoid) and self.Z not in [71, 103]:
             return "f"
         if self.is_actinoid or self.is_lanthanoid:
@@ -750,7 +750,7 @@ class ElementBase(Enum):
 
     @property
     def nmr_quadrupole_moment(self) -> dict[str, FloatWithUnit]:
-        """Get a dictionary the nuclear electric quadrupole moment in units of
+        """A dictionary the nuclear electric quadrupole moment in units of
         e*millibarns for various isotopes.
         """
         return {k: FloatWithUnit(v, "mbarn") for k, v in self.data.get("NMR Quadrupole Moment", {}).items()}

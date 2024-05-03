@@ -180,12 +180,12 @@ class Cp2kOutput:
 
     @property
     def charge(self) -> float:
-        """Get charge from the input file."""
+        """Charge from the input file."""
         return self.input["FORCE_EVAL"]["DFT"].get("CHARGE", Keyword("", 0)).values[0]  # noqa: PD011
 
     @property
     def multiplicity(self) -> int:
-        """Get the spin multiplicity from input file."""
+        """The spin multiplicity from input file."""
         return self.input["FORCE_EVAL"]["DFT"].get("Multiplicity", Keyword("")).values[0]  # noqa: PD011
 
     @property
@@ -203,7 +203,7 @@ class Cp2kOutput:
 
     @property
     def is_hubbard(self) -> bool:
-        """Get True if hubbard +U correction was used."""
+        """True if hubbard +U correction was used."""
         for val in self.data.get("atomic_kind_info", {}).values():
             if val.get("DFT_PLUS_U", {}).get("U_MINUS_J", 0) > 0:
                 return True
@@ -1256,12 +1256,12 @@ class Cp2kOutput:
 
     @property
     def complete_dos(self) -> CompleteDos | None:
-        """Get complete dos object if it has been parsed."""
+        """Complete dos object if it has been parsed."""
         return self.data.get("cdos")
 
     @property
     def band_structure(self) -> BandStructure | None:
-        """Get band structure object if it has been parsed."""
+        """Band structure object if it has been parsed."""
         return self.data.get("band_structure")
 
     def parse_bandstructure(self, bandstructure_filename=None) -> None:

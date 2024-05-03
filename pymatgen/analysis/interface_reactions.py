@@ -258,8 +258,7 @@ class InterfacialReactivity(MSONable):
         return c1_coeff * 1 / (c1_coeff + c2_coeff)
 
     def _get_energy(self, x):
-        """
-        Computes reaction energy in eV/atom at mixing ratio x : (1-x) for
+        """Compute reaction energy in eV/atom at mixing ratio x : (1-x) for
         self.comp1 : self.comp2.
 
         Args:
@@ -310,8 +309,7 @@ class InterfacialReactivity(MSONable):
         return reaction
 
     def _get_elem_amt_in_rxn(self, rxn: Reaction) -> float:
-        """
-        Computes total number of atoms in a reaction formula for elements
+        """Compute total number of atoms in a reaction formula for elements
         not in external reservoir. This method is used in the calculation
         of reaction energy per mol of reaction formula.
 
@@ -475,9 +473,7 @@ class InterfacialReactivity(MSONable):
 
     @staticmethod
     def _convert(x: float, factor1: float, factor2: float):
-        """
-        Converts mixing ratio x in comp1 - comp2 tie line to that in
-        c1 - c2 tie line.
+        """Convert mixing ratio x in comp1 - comp2 tie line to that in c1 - c2 tie line.
 
         Args:
             x: Mixing ratio x in comp1 - comp2 tie line, a float
@@ -495,9 +491,7 @@ class InterfacialReactivity(MSONable):
 
     @staticmethod
     def _reverse_convert(x: float, factor1: float, factor2: float):
-        """
-        Converts mixing ratio x in c1 - c2 tie line to that in
-        comp1 - comp2 tie line.
+        """Convert mixing ratio x in c1 - c2 tie line to that in comp1 - comp2 tie line.
 
         Args:
             x: Mixing ratio x in c1 - c2 tie line, a float between
@@ -574,12 +568,8 @@ class InterfacialReactivity(MSONable):
 
     @property
     def minimum(self):
-        """Find the minimum reaction energy E_min and corresponding
-        mixing ratio x_min.
-
-        Returns:
-            tuple[float, float]: (x_min, E_min).
-        """
+        """The minimum reaction energy E_min and corresponding mixing ratio x_min
+        as tuple[float, float]: (x_min, E_min)."""
         return min(((x, energy) for _, x, energy, _, _ in self.get_kinks()), key=lambda tup: tup[1])
 
     @property
@@ -686,9 +676,7 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
         return reactants
 
     def _get_grand_potential(self, composition: Composition) -> float:
-        """
-        Computes the grand potential Phi at a given composition and
-        chemical potential(s).
+        """Compute the grand potential Phi at a given composition and chemical potential(s).
 
         Args:
             composition: Composition object.
