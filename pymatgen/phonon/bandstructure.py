@@ -490,9 +490,8 @@ class PhononBandStructureSymmLine(PhononBandStructure):
 
         Returns:
             list[dict[str, str | int]]: [{"name","start_index","end_index","index"}]
-                indicating all branches in which the qpoint is. It takes into
-                account the fact that one qpoint (e.g., \\Gamma) can be in several
-                branches
+                indicating all branches in which the qpoint is. It takes into account
+                the fact that one qpoint (e.g., \\Gamma) can be in several branches
         """
         lst = []
         for pt_idx in self.get_equivalent_qpoints(index):

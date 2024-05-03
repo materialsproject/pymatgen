@@ -266,8 +266,7 @@ class WulffShape:
         Assign colors according to the surface energies of on_wulff facets.
 
         Returns:
-            tuple: color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff,
-            e_surf_on_wulff_list
+            tuple: color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff_list
         """
 
         color_list = [off_color] * len(self.hkl_list)

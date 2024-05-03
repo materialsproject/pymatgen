@@ -86,7 +86,7 @@ class XPS(Spectrum):
             sigma: Smearing for Gaussian.
 
         Returns:
-            XPS
+            XPS: X-ray photoelectron spectrum.
         """
         total = np.zeros(dos.energies.shape)
         for el in dos.structure.composition:

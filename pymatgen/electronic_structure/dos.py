@@ -1432,7 +1432,7 @@ def _get_orb_type(orb) -> OrbitalType:
 
 
 def f0(E, fermi, T) -> float:
-    """Return the equilibrium fermi-dirac.
+    """Fermi-Dirac distribution function.
 
     Args:
         E (float): energy in eV
@@ -1440,7 +1440,7 @@ def f0(E, fermi, T) -> float:
         T (float): the temperature in kelvin
 
     Returns:
-        float
+        float: the Fermi-Dirac occupation probability at energy E
     """
     return 1.0 / (1.0 + np.exp((E - fermi) / (_cd("Boltzmann constant in eV/K") * T)))
 

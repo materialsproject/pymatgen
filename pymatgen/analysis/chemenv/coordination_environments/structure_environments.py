@@ -497,12 +497,12 @@ class StructureEnvironments(MSONable):
                         "ac_name": self.AC.CONDITION_DESCRIPTION[ac],
                     }
                     site_voronoi_indices = [
-                        inb
-                        for inb, _voro_nb_dict in enumerate(site_voronoi)
+                        idx
+                        for idx in range(len(site_voronoi))
                         if (
-                            distance_conditions[idp][inb]
-                            and angle_conditions[iap][inb]
-                            and precomputed_additional_conditions[ac][inb]
+                            distance_conditions[idp][idx]
+                            and angle_conditions[iap][idx]
+                            and precomputed_additional_conditions[ac][idx]
                         )
                     ]
                     nb_set = self.NeighborsSet(
