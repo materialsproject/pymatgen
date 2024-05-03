@@ -433,7 +433,7 @@ class Lattice(MSONable):
 
     @property
     def parameters(self) -> tuple[float, float, float, float, float, float]:
-        """Get 6-tuple of floats (a, b, c, alpha, beta, gamma)."""
+        """6-tuple of floats (a, b, c, alpha, beta, gamma)."""
         return (*self.lengths, *self.angles)
 
     @property
@@ -443,7 +443,7 @@ class Lattice(MSONable):
 
     @property
     def reciprocal_lattice(self) -> Self:
-        """Return the reciprocal lattice. Note that this is the standard
+        """The reciprocal lattice. Note that this is the standard
         reciprocal lattice used for solid state physics with a factor of 2 *
         pi. If you are looking for the crystallographic reciprocal lattice,
         use the reciprocal_lattice_crystallographic property.
@@ -455,7 +455,7 @@ class Lattice(MSONable):
 
     @property
     def reciprocal_lattice_crystallographic(self) -> Self:
-        """Get the *crystallographic* reciprocal lattice, i.e. no factor of 2 * pi."""
+        """The *crystallographic* reciprocal lattice, i.e. no factor of 2 * pi."""
         cls = type(self)
         return cls(self.reciprocal_lattice.matrix / (2 * np.pi))
 
@@ -480,7 +480,7 @@ class Lattice(MSONable):
 
     @property
     def selling_vector(self) -> np.ndarray:
-        """Get the (1,6) array of Selling Scalars."""
+        """The (1,6) array of Selling Scalars."""
         a, b, c = self.matrix
         d = -(a + b + c)
         tol = 1e-10

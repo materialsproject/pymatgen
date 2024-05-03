@@ -1036,8 +1036,7 @@ class StructureEnvironments(MSONable):
         fig.savefig(imagename)
 
     def differences_wrt(self, other):
-        """
-        Return differences found in the current StructureEnvironments with respect to another StructureEnvironments.
+        """Get differences found in the current StructureEnvironments with respect to another StructureEnvironments.
 
         Args:
             other: A StructureEnvironments object.
@@ -1932,8 +1931,7 @@ class LightStructureEnvironments(MSONable):
         return False
 
     def environments_identified(self):
-        """
-        Return the set of environments identified in this structure.
+        """Get the set of environments identified in this structure.
 
         Returns:
             set: environments identified in this structure.

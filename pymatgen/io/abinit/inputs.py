@@ -971,8 +971,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return all(p.isnc for p in self.pseudos)
 
     def new_with_vars(self, *args, **kwargs):
-        """
-        Return a new input with the given variables.
+        """Get a new input with the given variables.
 
         Example:
             new = input.new_with_vars(ecut=20)

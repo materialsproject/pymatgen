@@ -184,8 +184,7 @@ class LammpsBox(MSONable):
         return np.inner(i, self._matrix.T)
 
     def to_lattice(self) -> Lattice:
-        """
-        Converts the simulation box to a more powerful Lattice backend.
+        """Convert the simulation box to a more powerful Lattice backend.
         Note that Lattice is always periodic in 3D space while a
         simulation box is not necessarily periodic in all dimensions.
 
@@ -206,7 +205,7 @@ def lattice_2_lmpbox(lattice: Lattice, origin: Sequence = (0, 0, 0)) -> tuple[La
             simulation box. Default to (0, 0, 0).
 
     Returns:
-        LammpsBox, SymmOp
+        tuple[LammpsBox, SymmOp]
     """
     a, b, c = lattice.abc
     xlo, ylo, zlo = origin

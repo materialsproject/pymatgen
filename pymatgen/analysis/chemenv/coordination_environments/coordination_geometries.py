@@ -683,12 +683,12 @@ class CoordinationGeometry:
 
     @property
     def mp_symbol(self) -> str:
-        """Get the MP symbol of this coordination geometry."""
+        """The MP symbol of this coordination geometry."""
         return self._mp_symbol
 
     @property
     def ce_symbol(self) -> str:
-        """Get the symbol of this coordination geometry. Same as the MP symbol."""
+        """The symbol of this coordination geometry. Same as the MP symbol."""
         return self._mp_symbol
 
     def get_coordination_number(self) -> int:
@@ -705,17 +705,17 @@ class CoordinationGeometry:
 
     @property
     def IUPAC_symbol(self) -> str:
-        """Get the IUPAC symbol of this coordination geometry."""
+        """The IUPAC symbol of this coordination geometry."""
         return self.IUPACsymbol
 
     @property
     def IUPAC_symbol_str(self) -> str:
-        """Get a string representation of the IUPAC symbol of this coordination geometry."""
+        """A string representation of the IUPAC symbol of this coordination geometry."""
         return str(self.IUPACsymbol)
 
     @property
     def IUCr_symbol(self) -> str:
-        """Get the IUCr symbol of this coordination geometry."""
+        """The IUCr symbol of this coordination geometry."""
         return self.IUCrsymbol
 
     @property
@@ -958,8 +958,7 @@ class AllCoordinationGeometries(dict):
         return geom
 
     def get_symbol_name_mapping(self, coordination=None):
-        """
-        Return a dictionary mapping the symbol of a CoordinationGeometry to its name.
+        """Get a dictionary mapping the symbol of a CoordinationGeometry to its name.
 
         Args:
             coordination: Whether to restrict the dictionary to a given coordination.
@@ -978,8 +977,7 @@ class AllCoordinationGeometries(dict):
         return geom
 
     def get_symbol_cn_mapping(self, coordination=None):
-        """
-        Return a dictionary mapping the symbol of a CoordinationGeometry to its coordination.
+        """Get a dictionary mapping the symbol of a CoordinationGeometry to its coordination.
 
         Args:
             coordination: Whether to restrict the dictionary to a given coordination.
@@ -1145,8 +1143,7 @@ class AllCoordinationGeometries(dict):
         raise RuntimeError("Should not be here!")
 
     def pretty_print(self, type="implemented_geometries", maxcn=8, additional_info=None):
-        """
-        Return a string with a list of the Coordination Geometries.
+        """Get a string with a list of the Coordination Geometries.
 
         Args:
             type: Type of string to be returned (all_geometries, all_geometries_latex_images, all_geometries_latex,

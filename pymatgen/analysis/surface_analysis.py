@@ -1616,12 +1616,10 @@ class NanoscaleStability:
         self.symprec = symprec
 
     def solve_equilibrium_point(self, analyzer1, analyzer2, delu_dict=None, delu_default=0, units="nanometers"):
-        """
-        Gives the radial size of two particles where equilibrium is reached
-            between both particles. NOTE: the solution here is not the same
-            as the solution visualized in the plot because solving for r
-            requires that both the total surface area and volume of the
-            particles are functions of r.
+        """Get the radial size of two particles where equilibrium is reached between both
+        particles. NOTE: the solution here is not the same as the solution visualized in
+        the plot because solving for r requires that both the total surface area and
+        volume of the particles are functions of r.
 
         Args:
             analyzer1 (SurfaceEnergyPlotter): Analyzer associated with the
@@ -1635,7 +1633,7 @@ class NanoscaleStability:
             units (str): Can be nanometers or Angstrom
 
         Returns:
-            Particle radius in nm
+            float: Particle radius in nm or Angstrom
         """
         # Set up
         wulff1 = analyzer1.wulff_from_chempot(

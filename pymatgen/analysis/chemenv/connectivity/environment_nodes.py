@@ -157,8 +157,7 @@ class EnvironmentNode(AbstractEnvironmentNode):
 
 
 def get_environment_node(central_site, i_central_site, ce_symbol):
-    """
-    Get the EnvironmentNode class or subclass for the given site and symbol.
+    """Get the EnvironmentNode class or subclass for the given site and symbol.
 
     Args:
         central_site (Site or subclass of Site): Central site of the environment.

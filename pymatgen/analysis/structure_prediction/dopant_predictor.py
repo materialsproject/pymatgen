@@ -13,8 +13,7 @@ from pymatgen.core import Element, Species
 def get_dopants_from_substitution_probabilities(
     structure, num_dopants=5, threshold=0.001, match_oxi_sign=False
 ) -> dict:
-    """
-    Get dopant suggestions based on substitution probabilities.
+    """Get dopant suggestions based on substitution probabilities.
 
     Args:
         structure (Structure): A pymatgen structure decorated with
@@ -59,8 +58,7 @@ def get_dopants_from_substitution_probabilities(
 
 
 def get_dopants_from_shannon_radii(bonded_structure, num_dopants=5, match_oxi_sign=False):
-    """
-    Get dopant suggestions based on Shannon radii differences.
+    """Get dopant suggestions based on Shannon radii differences.
 
     Args:
         bonded_structure (StructureGraph): A pymatgen structure graph

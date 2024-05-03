@@ -97,8 +97,7 @@ def calc_ionic(site: PeriodicSite, structure: Structure, zval: float) -> np.ndar
 
 
 def get_total_ionic_dipole(structure, zval_dict):
-    """
-    Get the total ionic dipole moment for a structure.
+    """Get the total ionic dipole moment for a structure.
 
     structure: pymatgen Structure
     zval_dict: specie, zval dictionary pairs

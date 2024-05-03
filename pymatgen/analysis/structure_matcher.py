@@ -441,9 +441,7 @@ class StructureMatcher(MSONable):
                 yield latt, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):
-        """
-        Computes all supercells of one structure close to the lattice of the
-        other
+        """Compute all supercells of one structure close to the lattice of the other
         if s1_supercell is True, it makes the supercells of struct1, otherwise
         it makes them of s2.
 

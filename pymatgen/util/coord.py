@@ -465,5 +465,5 @@ class Simplex(MSONable):
 
     @property
     def coords(self) -> np.ndarray:
-        """Get a copy of the vertex coordinates in the simplex."""
+        """A copy of the vertex coordinates in the simplex."""
         return self._coords.copy()

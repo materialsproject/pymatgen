@@ -577,9 +577,8 @@ class LocalGeometryFinder:
         recompute=None,
         optimization=PRESETS["DEFAULT"]["optimization"],
     ):
-        """
-        Computes and returns the StructureEnvironments object containing all the information about the coordination
-        environments in the structure
+        """Compute and returns the StructureEnvironments object containing all the information
+        about the coordination environments in the structure
 
         Args:
             excluded_atoms: Atoms for which the coordination geometries does not have to be identified

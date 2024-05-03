@@ -281,8 +281,7 @@ class LobsterNeighbors(NearNeighbors):
         return self.sg_list[n]  # type: ignore[return-value]
 
     def get_light_structure_environment(self, only_cation_environments=False, only_indices=None):
-        """
-        Return a LobsterLightStructureEnvironments object
+        """Get a LobsterLightStructureEnvironments object
         if the structure only contains coordination environments smaller 13.
 
         Args:
@@ -497,8 +496,7 @@ class LobsterNeighbors(NearNeighbors):
         per_bond: bool = True,
         summed_spin_channels: bool = False,
     ):
-        """
-        Return info about the cohps (coops or cobis) as a summed cohp object and a label
+        """Get info about the cohps (coops or cobis) as a summed cohp object and a label
         from all sites mentioned in isites with neighbors.
 
         Args:
@@ -615,8 +613,7 @@ class LobsterNeighbors(NearNeighbors):
         return label
 
     def get_info_icohps_between_neighbors(self, isites=None, onlycation_isites=True):
-        """
-        Return infos about interactions between neighbors of a certain atom.
+        """Get infos about interactions between neighbors of a certain atom.
 
         Args:
             isites: list of site ids, if isite==None, all isites will be used
@@ -1102,8 +1099,7 @@ class LobsterNeighbors(NearNeighbors):
 
     @staticmethod
     def _get_atomnumber(atomstring) -> int:
-        """
-        Return the number of the atom within the initial POSCAR (e.g., Return 0 for "Na1").
+        """Get the number of the atom within the initial POSCAR (e.g., Return 0 for "Na1").
 
         Args:
             atomstring: string such as "Na1"
@@ -1161,8 +1157,7 @@ class LobsterNeighbors(NearNeighbors):
         adapt_extremum_to_add_cond=False,
         additional_condition=0,
     ):
-        """
-        Return limits for the evaluation of the icohp values from an icohpcollection
+        """Get limits for the evaluation of the icohp values from an icohpcollection
         Return -float("inf"), min(max_icohp*0.15,-0.1). Currently only works for ICOHPs.
 
         Args:

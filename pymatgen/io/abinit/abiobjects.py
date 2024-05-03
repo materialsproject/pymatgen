@@ -164,8 +164,7 @@ def structure_from_abivars(cls=None, *args, **kwargs) -> Structure:
 
 
 def species_by_znucl(structure: Structure) -> list[Species]:
-    """
-    Return list of unique specie found in structure **ordered according to sites**.
+    """Get list of unique specie found in structure **ordered according to sites**.
 
     Example:
         Site0: 0.5 0 0 O

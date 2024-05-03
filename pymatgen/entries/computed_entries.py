@@ -70,12 +70,12 @@ class EnergyAdjustment(MSONable):
 
     @property
     def value(self):
-        """Return the value of the energy correction in eV."""
+        """The value of the energy correction in eV."""
         return self._value
 
     @property
     def uncertainty(self):
-        """Return the uncertainty in the value of the energy adjustment in eV."""
+        """The uncertainty in the value of the energy adjustment in eV."""
         return self._uncertainty
 
     @abc.abstractmethod
@@ -129,7 +129,7 @@ class ConstantEnergyAdjustment(EnergyAdjustment):
 
     @property
     def explain(self):
-        """Return an explanation of how the energy adjustment is calculated."""
+        """An explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self.value:.3f} eV)"
 
     def normalize(self, factor: float) -> None:
@@ -191,17 +191,17 @@ class CompositionEnergyAdjustment(EnergyAdjustment):
 
     @property
     def value(self):
-        """Return the value of the energy adjustment in eV."""
+        """The value of the energy adjustment in eV."""
         return self._adj_per_atom * self.n_atoms
 
     @property
     def uncertainty(self):
-        """Return the value of the energy adjustment in eV."""
+        """The value of the energy adjustment in eV."""
         return self.uncertainty_per_atom * self.n_atoms
 
     @property
     def explain(self):
-        """Return an explanation of how the energy adjustment is calculated."""
+        """An explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self._adj_per_atom:.3f} eV/atom x {self.n_atoms} atoms)"
 
     def normalize(self, factor: float) -> None:
@@ -252,17 +252,17 @@ class TemperatureEnergyAdjustment(EnergyAdjustment):
 
     @property
     def value(self):
-        """Return the value of the energy correction in eV."""
+        """The value of the energy correction in eV."""
         return self._adj_per_deg * self.temp * self.n_atoms
 
     @property
     def uncertainty(self):
-        """Return the value of the energy adjustment in eV."""
+        """The value of the energy adjustment in eV."""
         return self.uncertainty_per_deg * self.temp * self.n_atoms
 
     @property
     def explain(self):
-        """Return an explanation of how the energy adjustment is calculated."""
+        """An explanation of how the energy adjustment is calculated."""
         return f"{self.description} ({self._adj_per_deg:.4f} eV/K/atom x {self.temp} K x {self.n_atoms} atoms)"
 
     def normalize(self, factor: float) -> None:

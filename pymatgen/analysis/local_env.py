@@ -94,8 +94,7 @@ class ValenceIonicRadiusEvaluator:
         return self._structure.copy()
 
     def _get_ionic_radii(self):
-        """
-        Computes ionic radii of elements for all sites in the structure.
+        """Compute ionic radii of elements for all sites in the structure.
         If valence is zero, atomic radius is used.
         """
         radii = []
@@ -720,8 +719,7 @@ class VoronoiNN(NearNeighbors):
         return False
 
     def get_voronoi_polyhedra(self, structure: Structure, n: int):
-        """
-        Gives a weighted polyhedra around a site.
+        """Get a weighted polyhedra around a site.
 
         See ref: A Proposed Rigorous Definition of Coordination Number,
         M. O'Keeffe, Acta Cryst. (1979). A35, 772-775
@@ -1164,8 +1162,7 @@ def _is_in_targets(site, targets):
 
 
 def _get_elements(site):
-    """
-    Get the list of elements for a Site.
+    """Get the list of elements for a Site.
 
     Args:
         site (Site): Site to assess
@@ -2364,10 +2361,8 @@ class LocalStructOrderParams:
         return len(self._last_nneigh)
 
     def compute_trigonometric_terms(self, thetas, phis):
-        """
-        Computes trigonometric terms that are required to
-        calculate bond orientational order parameters using
-        internal variables.
+        """Compute trigonometric terms that are required to calculate
+        bond orientational order parameters using internal variables.
 
         Args:
             thetas ([float]): polar angles of all neighbors in radians.
@@ -2740,8 +2735,7 @@ class LocalStructOrderParams:
         return sqrt(4 * pi * acc / (13 * float(n_nn * n_nn)))
 
     def get_type(self, index):
-        """
-        Return type of order parameter at the index provided and
+        """Get type of order parameter at the index provided and
         represented by a short string.
 
         Args:
@@ -3703,8 +3697,7 @@ class EconNN(NearNeighbors):
 
 
 def _get_fictive_ionic_radius(site: Site, neighbor: PeriodicNeighbor) -> float:
-    """
-    Get fictive ionic radius.
+    """Get fictive ionic radius.
 
     Follows equation 1 of:
 

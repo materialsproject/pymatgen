@@ -625,12 +625,12 @@ class WulffShape:
 
     @property
     def miller_area_dict(self) -> dict[tuple, float]:
-        """Get {hkl: area_hkl on wulff}."""
+        """{hkl: area_hkl on wulff}."""
         return dict(zip(self.miller_list, self.color_area))
 
     @property
     def miller_energy_dict(self) -> dict[tuple, float]:
-        """Get {hkl: surface energy_hkl}."""
+        """{hkl: surface energy_hkl}."""
         return dict(zip(self.miller_list, self.e_surf_list))
 
     @property

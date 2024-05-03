@@ -234,7 +234,7 @@ class PourbaixEntry(MSONable, Stringify):
 
     @property
     def num_atoms(self):
-        """Return number of atoms in current formula. Useful for normalization."""
+        """Number of atoms in current formula. Useful for normalization."""
         return self.composition.num_atoms
 
     def to_pretty_string(self) -> str:
@@ -858,19 +858,16 @@ class PourbaixDiagram(MSONable):
 
     @property
     def all_entries(self):
-        """Return all entries used to generate the Pourbaix diagram."""
+        """All entries used to generate the Pourbaix diagram."""
         return self._processed_entries
 
     @property
     def unprocessed_entries(self):
-        """Return unprocessed entries."""
+        """Unprocessed entries."""
         return self._unprocessed_entries
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dict.
-        """
+        """Get MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

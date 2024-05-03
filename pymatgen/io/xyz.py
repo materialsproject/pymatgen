@@ -42,14 +42,14 @@ class XYZ:
 
     @property
     def molecule(self) -> Molecule:
-        """Get molecule associated with this XYZ. In case of multi-frame
+        """Molecule associated with this XYZ. In case of multi-frame
         XYZ, returns the last frame.
         """
         return self._mols[-1]  # type: ignore[return-value]
 
     @property
     def all_molecules(self) -> list[Molecule]:
-        """Get all the frames of molecule associated with this XYZ."""
+        """All the frames of molecule associated with this XYZ."""
         return self._mols  # type: ignore[return-value]
 
     @staticmethod

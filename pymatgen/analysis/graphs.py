@@ -523,8 +523,7 @@ class StructureGraph(MSONable):
                     raise RuntimeError("Some edges are invalid.")
 
     def set_node_attributes(self) -> None:
-        """
-        Gives each node a "specie" and a "coords" attribute, updated with the
+        """Get each node a "specie" and a "coords" attribute, updated with the
         current species and coordinates.
         """
         species = {}

@@ -448,13 +448,8 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         return f"PartialRemoveSitesTransformation : Indices and fraction to remove = {self.indices}, ALGO = {self.algo}"
 
     @property
-    def inverse(self) -> None:
-        """Get None."""
-        return
-
-    @property
     def is_one_to_many(self) -> bool:
-        """Get True."""
+        """Transform one structure to many."""
         return True
 
 

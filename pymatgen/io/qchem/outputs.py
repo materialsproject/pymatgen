@@ -2166,10 +2166,7 @@ class QCOutput(MSONable):
             self.data["errors"] += ["unknown_error"]
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dict.
-        """
+        """Get MSONable dict representation of QCOutput."""
         dct = {}
         dct["data"] = self.data
         dct["text"] = self.text
@@ -2254,7 +2251,7 @@ def jump_to_header(lines: list[str], header: str) -> list[str]:
         Truncated lines.
 
     Raises:
-        RuntimeError
+        RuntimeError: If the header is not found.
     """
     # Search for the header
     for idx, line in enumerate(lines):
@@ -2322,7 +2319,7 @@ def parse_natural_populations(lines: list[str]) -> list[pd.DataFrame]:
         Data frame of formatted output.
 
     Raises:
-        RuntimeError
+        RuntimeError: If the header is not found.
     """
     no_failures = True
     pop_dfs = []
@@ -2382,7 +2379,7 @@ def parse_hyperbonds(lines: list[str]) -> list[pd.DataFrame]:
         Data frame of formatted output.
 
     Raises:
-        RuntimeError
+        RuntimeError: If the header is not found.
     """
     no_failures = True
     hyperbond_dfs = []
@@ -2463,7 +2460,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
         Data frames of formatted output.
 
     Raises:
-        RuntimeError
+        RuntimeError: If the header is not found.
     """
     # Orbitals
     orbitals = ["s", "p", "d", "f"]
@@ -2696,7 +2693,7 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
         Data frame of formatted output.
 
     Raises:
-        RuntimeError
+        RuntimeError: If the header is not found.
     """
     no_failures = True
     e2_dfs = []
@@ -2845,7 +2842,7 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
         Data frames of formatted output.
 
     Raises:
-        RuntimeError
+        RuntimeError: If a section cannot be found.
     """
     # Open the lines
     with zopen(filename, mode="rt", encoding="ISO-8859-1") as file:

@@ -94,10 +94,7 @@ class PDEntry(Entry):
         return self._energy
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dictionary representation of PDEntry.
-        """
+        """Get MSONable dict representation of PDEntry."""
         return_dict = super().as_dict()
         return_dict.update({"name": self.name, "attribute": self.attribute})
         return return_dict
@@ -181,10 +178,7 @@ class GrandPotPDEntry(PDEntry):
         return "".join(output)
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dictionary representation of GrandPotPDEntry.
-        """
+        """Get MSONable dict representation of GrandPotPDEntry."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -267,10 +261,7 @@ class TransformedPDEntry(PDEntry):
         return "".join(output)
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dictionary representation of TransformedPDEntry.
-        """
+        """Get MSONable dict representation of TransformedPDEntry."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -390,10 +381,7 @@ class PhaseDiagram(MSONable):
         self._stable_spaces = tuple(frozenset(e.elements) for e in self._stable_entries)
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dictionary representation of PhaseDiagram.
-        """
+        """Get MSONable dict representation of PhaseDiagram."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -1426,10 +1414,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         return "".join(output)
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dictionary representation of GrandPotentialPhaseDiagram.
-        """
+        """Get MSONable dict representation of GrandPotentialPhaseDiagram."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -1527,10 +1512,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         return new_entries, sp_mapping
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dictionary representation of CompoundPhaseDiagram.
-        """
+        """Get MSONable dict representation of CompoundPhaseDiagram."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

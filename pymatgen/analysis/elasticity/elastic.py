@@ -159,24 +159,24 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @property
     def k_voigt(self) -> float:
-        """Get the K_v bulk modulus (in eV/A^3)."""
+        """The K_v bulk modulus (in eV/A^3)."""
         return self.voigt[:3, :3].mean()
 
     @property
     def g_voigt(self) -> float:
-        """Get the G_v shear modulus (in eV/A^3)."""
+        """The G_v shear modulus (in eV/A^3)."""
         return (
             2 * self.voigt[:3, :3].trace() - np.triu(self.voigt[:3, :3]).sum() + 3 * self.voigt[3:, 3:].trace()
         ) / 15.0
 
     @property
     def k_reuss(self) -> float:
-        """Get the K_r bulk modulus (in eV/A^3)."""
+        """The K_r bulk modulus (in eV/A^3)."""
         return 1 / self.compliance_tensor.voigt[:3, :3].sum()
 
     @property
     def g_reuss(self) -> float:
-        """Get the G_r shear modulus (in eV/A^3)."""
+        """The G_r shear modulus (in eV/A^3)."""
         return 15 / (
             8 * self.compliance_tensor.voigt[:3, :3].trace()
             - 4 * np.triu(self.compliance_tensor.voigt[:3, :3]).sum()
@@ -185,12 +185,12 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @property
     def k_vrh(self) -> float:
-        """Get the K_vrh (Voigt-Reuss-Hill) average bulk modulus (in eV/A^3)."""
+        """The K_vrh (Voigt-Reuss-Hill) average bulk modulus (in eV/A^3)."""
         return 0.5 * (self.k_voigt + self.k_reuss)
 
     @property
     def g_vrh(self) -> float:
-        """Get the G_vrh (Voigt-Reuss-Hill) average shear modulus (in eV/A^3)."""
+        """The G_vrh (Voigt-Reuss-Hill) average shear modulus (in eV/A^3)."""
         return 0.5 * (self.g_voigt + self.g_reuss)
 
     @property
@@ -394,12 +394,12 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @property
     def universal_anisotropy(self) -> float:
-        """Get the universal anisotropy value."""
+        """The universal anisotropy value."""
         return 5 * self.g_voigt / self.g_reuss + self.k_voigt / self.k_reuss - 6.0
 
     @property
     def homogeneous_poisson(self) -> float:
-        """Get the homogeneous poisson ratio."""
+        """The homogeneous poisson ratio."""
         return (1 - 2 / 3 * self.g_vrh / self.k_vrh) / (2 + 2 / 3 * self.g_vrh / self.k_vrh)
 
     def green_kristoffel(self, u) -> float:

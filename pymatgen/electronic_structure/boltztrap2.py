@@ -477,13 +477,7 @@ class BztInterpolator:
         """
         if bands:
             dumpfn(
-                [
-                    self.equivalences,
-                    [self.coeffs.real, self.coeffs.imag],
-                    self.eband,
-                    self.vvband,
-                    self.cband,
-                ],
+                [self.equivalences, [self.coeffs.real, self.coeffs.imag], self.eband, self.vvband, self.cband],
                 fname,
             )
         else:

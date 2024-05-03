@@ -89,12 +89,12 @@ class LammpsInputFile(InputFile):
 
     @property
     def nstages(self) -> int:
-        """Get the number of stages in the current LammpsInputFile."""
+        """The number of stages in the current LammpsInputFile."""
         return len(self.stages)
 
     @property
     def ncomments(self) -> int:
-        """Get the number of comments in the current LammpsInputFile. Includes the blocks of comments as well
+        """The number of comments in the current LammpsInputFile. Includes the blocks of comments as well
         as inline comments (comment lines within blocks of LAMMPS commands).
         """
         n_comments = 0

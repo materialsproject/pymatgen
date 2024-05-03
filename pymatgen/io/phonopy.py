@@ -300,8 +300,7 @@ def get_phonon_dos_from_fc(
     num_dos_steps: int = 200,
     **kwargs,
 ) -> CompletePhononDos:
-    """
-    Get a projected phonon density of states from phonopy force constants.
+    """Get a projected phonon density of states from phonopy force constants.
 
     Args:
         structure: A structure.
@@ -349,8 +348,7 @@ def get_phonon_band_structure_from_fc(
     mesh_density: float = 100.0,
     **kwargs,
 ) -> PhononBandStructure:
-    """
-    Get a uniform phonon band structure from phonopy force constants.
+    """Get a uniform phonon band structure from phonopy force constants.
 
     Args:
         structure: A structure.
@@ -382,8 +380,7 @@ def get_phonon_band_structure_symm_line_from_fc(
     symprec: float = 0.01,
     **kwargs,
 ) -> PhononBandStructureSymmLine:
-    """
-    Get a phonon band structure along a high symmetry path from phonopy force
+    """Get a phonon band structure along a high symmetry path from phonopy force
     constants.
 
     Args:
@@ -416,8 +413,7 @@ def get_phonon_band_structure_symm_line_from_fc(
 
 
 def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) -> GruneisenParameter:
-    """
-    Get Gruneisen object from gruneisen.yaml file, as obtained from phonopy (Frequencies in THz!).
+    """Get Gruneisen object from gruneisen.yaml file, as obtained from phonopy (Frequencies in THz!).
     The order is structure > structure path > structure from gruneisen dict.
     Newer versions of phonopy include the structure in the yaml file,
     the structure/structure_path is kept for compatibility.
