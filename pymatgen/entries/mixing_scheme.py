@@ -118,7 +118,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         self,
         entries: AnyComputedEntry | list[AnyComputedEntry],
         clean: bool = True,
-        verbose: bool = True,
+        verbose: bool = False,
         inplace: bool = True,
         mixing_state_data=None,
     ) -> list[AnyComputedEntry]:
@@ -136,7 +136,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             clean (bool): Whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Default is True.
-            verbose (bool): Whether to print verbose error messages about the mixing scheme. Default is True.
+            verbose (bool): Whether to print verbose error messages about the mixing scheme. Default is False.
             inplace (bool): Whether to adjust input entries in place. Default is True.
             mixing_state_data: A DataFrame containing information about which Entries
                 correspond to the same materials, which are stable on the phase diagrams of
@@ -563,7 +563,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         mixing_state_data = pd.DataFrame(row_list, columns=columns)
         return mixing_state_data.sort_values(["formula", "energy_1", "spacegroup", "num_sites"], ignore_index=True)
 
-    def _filter_and_sort_entries(self, entries, verbose=True):
+    def _filter_and_sort_entries(self, entries, verbose=False):
         """Given a single list of entries, separate them by run_type and return two lists, one containing
         only entries of each run_type.
         """
