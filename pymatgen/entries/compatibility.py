@@ -842,6 +842,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         self,
         compat_type: str = "Advanced",
         correct_peroxide: bool = True,
+        strict_anions: bool = True,
         check_potcar: bool = True,
         check_potcar_hash: bool = False,
         config_file: str | None = None,
@@ -868,6 +869,12 @@ class MaterialsProject2020Compatibility(Compatibility):
             correct_peroxide: Specify whether peroxide/superoxide/ozonide
                 corrections are to be applied or not. If false, all oxygen-containing
                 compounds are assigned the 'oxide' correction. Default: True
+            strict_anions: only apply the anion corrections to anions. Here, an anion
+                is defined as any species with an oxidation state value of <= -1.
+                This prevents the anion correction from being applied to unrealistic
+                hypothetical structures containing large proportions of very electronegative
+                elements, thus artificially over-stabilizing the compound. Set to False
+                to restore the behavior described in the associated publication. Default: True
             check_potcar (bool): Check that the POTCARs used in the calculation are consistent
                 with the Materials Project parameters. False bypasses this check altogether. Default: True
                 Can also be disabled globally by running `pmg config --add PMG_POTCAR_CHECKS false`.
@@ -892,6 +899,7 @@ class MaterialsProject2020Compatibility(Compatibility):
 
         self.compat_type = compat_type
         self.correct_peroxide = correct_peroxide
+        self.strict_anions = strict_anions
         self.check_potcar = check_potcar
         self.check_potcar_hash = check_potcar_hash
 
@@ -1050,10 +1058,20 @@ class MaterialsProject2020Compatibility(Compatibility):
         for anion in "Br I Se Si Sb Te H N F Cl".split():
             if Element(anion) in comp and anion in self.comp_correction:
                 apply_correction = False
+                oxidation_state = entry.data["oxidation_states"].get(anion, 0)
                 # if the oxidation_states key is not populated, only apply the correction if the anion
                 # is the most electronegative element
-                if entry.data["oxidation_states"].get(anion, 0) < 0:
+                if oxidation_state < 0:
                     apply_correction = True
+                    if self.strict_anions and oxidation_state > -1:
+                        # This is not an anion. Noting that the rare case of a fractional
+                        # oxidation state in range [-1, 0] might be considered an anionic.
+                        # This could include suboxides or metal-rich pnictides, chalcogenides etc.
+                        # However! these cases are not included in the experimental fitting data
+                        # used for the correction scheme, and so there is no information for
+                        # whether the corrections are appropriate in this instance, and likely
+                        # may.
+                        apply_correction = False
                 else:
                     most_electroneg = elements[-1].symbol
                     if anion == most_electroneg:
