@@ -2624,38 +2624,23 @@ class Outcar:
                 results.er_ev[Spin.down] = results.er_ev[Spin.up]
                 results.context = 2
 
-            search.append(
-                [
-                    r"^ *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
-                    None,
-                    er_ev,
-                ]
-            )
+            er_ev_pattern = r"^ *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)"
+            search.append([er_ev_pattern, None, er_ev])
 
             def er_bp(results, match):
                 results.er_bp[Spin.up] = np.array([float(match.group(i)) for i in range(1, 4)]) / 2
                 results.er_bp[Spin.down] = results.er_bp[Spin.up]
 
-            search.append(
-                [
-                    r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
-                    lambda results, _line: results.context == 2,
-                    er_bp,
-                ]
-            )
+            er_bp_pattern = r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)"
+            search.append([er_bp_pattern, lambda results, _line: results.context == 2, er_bp])
 
             # Spin cases
             def er_ev_up(results, match):
                 results.er_ev[Spin.up] = np.array([float(match.group(i)) for i in range(1, 4)])
                 results.context = Spin.up
 
-            search.append(
-                [
-                    r"^.*Spin component 1 *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
-                    None,
-                    er_ev_up,
-                ]
-            )
+            spin1_ev_pattern = r"^.*Spin component 1 *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)"
+            search.append([spin1_ev_pattern, None, er_ev_up])
 
             def er_bp_up(results, match):
                 results.er_bp[Spin.up] = np.array(
@@ -2666,13 +2651,8 @@ class Outcar:
                     ]
                 )
 
-            search.append(
-                [
-                    r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
-                    lambda results, _line: results.context == Spin.up,
-                    er_bp_up,
-                ]
-            )
+            spin_bp_pattern = r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)"
+            search.append([spin_bp_pattern, lambda results, _line: results.context == Spin.up, er_bp_up])
 
             def er_ev_dn(results, match):
                 results.er_ev[Spin.down] = np.array(
@@ -2684,49 +2664,31 @@ class Outcar:
                 )
                 results.context = Spin.down
 
-            search.append(
-                [
-                    r"^.*Spin component 2 *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
-                    None,
-                    er_ev_dn,
-                ]
-            )
+            spin2_pattern = r"^.*Spin component 2 *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)"
+            search.append([spin2_pattern, None, er_ev_dn])
 
             def er_bp_dn(results, match):
                 results.er_bp[Spin.down] = np.array([float(match.group(i)) for i in range(1, 4)])
 
-            search.append(
-                [
-                    r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
-                    lambda results, _line: results.context == Spin.down,
-                    er_bp_dn,
-                ]
-            )
+            e_r_bp_pattern = r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)"
+            search.append([e_r_bp_pattern, lambda results, _line: results.context == Spin.down, er_bp_dn])
 
             # Always present spin/non-spin
             def p_elc(results, match):
                 results.p_elc = np.array([float(match.group(i)) for i in range(1, 4)])
 
-            search.append(
-                [
-                    r"^.*Total electronic dipole moment: "
-                    r"*p\[elc\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
-                    r"*([-0-9.Ee+]*) *\)",
-                    None,
-                    p_elc,
-                ]
+            elec_dipole_moment_pattern = (
+                r"^.*Total electronic dipole moment: *p\[elc\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)"
             )
+            search.append([elec_dipole_moment_pattern, None, p_elc])
 
             def p_ion(results, match):
                 results.p_ion = np.array([float(match.group(i)) for i in range(1, 4)])
 
-            search.append(
-                [
-                    r"^.*ionic dipole moment: *p\[ion\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
-                    None,
-                    p_ion,
-                ]
+            ionic_dipole_moment_pattern = (
+                r"^.*ionic dipole moment: *p\[ion\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)"
             )
+            search.append([ionic_dipole_moment_pattern, None, p_ion])
 
             self.context = None
             self.er_ev = {Spin.up: None, Spin.down: None}
