@@ -10,6 +10,9 @@ from pymatgen.analysis.interfaces.zsl import ZSLGenerator, ZSLMatch, reduce_vect
 from pymatgen.core.surface import SlabGenerator, get_symmetrically_distinct_miller_indices
 
 if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+    from typing_extensions import Self
+
     from pymatgen.core import Structure
 
 
@@ -37,7 +40,7 @@ class SubstrateMatch(ZSLMatch):
         substrate_miller,
         elasticity_tensor=None,
         ground_state_energy=0,
-    ):
+    ) -> Self:
         """Generate a substrate match from a ZSL match plus metadata."""
         # Get the appropriate surface structure
         struct = SlabGenerator(film, film_miller, 20, 15, primitive=False).get_slab().oriented_unit_cell
@@ -91,15 +94,14 @@ class SubstrateAnalyzer(ZSLGenerator):
     """
 
     def __init__(self, film_max_miller=1, substrate_max_miller=1, **kwargs):
-        """
-        Initializes the substrate analyzer
+        """Initialize the substrate analyzer
 
         Args:
-            zslgen(ZSLGenerator): Defaults to a ZSLGenerator with standard
+            zslgen (ZSLGenerator): Defaults to a ZSLGenerator with standard
                 tolerances, but can be fed one with custom tolerances
-            film_max_miller(int): maximum miller index to generate for film
+            film_max_miller (int): maximum miller index to generate for film
                 surfaces
-            substrate_max_miller(int): maximum miller index to generate for
+            substrate_max_miller (int): maximum miller index to generate for
                 substrate surfaces.
         """
         self.film_max_miller = film_max_miller
@@ -107,74 +109,76 @@ class SubstrateAnalyzer(ZSLGenerator):
         self.kwargs = kwargs
         super().__init__(**kwargs)
 
-    def generate_surface_vectors(self, film_millers, substrate_millers):
-        """
-        Generates the film/substrate slab combinations for a set of given
+    def generate_surface_vectors(
+        self, film: Structure, substrate: Structure, film_millers: ArrayLike, substrate_millers: ArrayLike
+    ):
+        """Generate the film/substrate slab combinations for a set of given
         miller indices.
 
         Args:
-            film_millers(array): all miller indices to generate slabs for
+            film (Structure): film structure
+            substrate (Structure): substrate structure
+            film_millers (array): all miller indices to generate slabs for
                 film
-            substrate_millers(array): all miller indices to generate slabs
+            substrate_millers (array): all miller indices to generate slabs
                 for substrate
         """
         vector_sets = []
 
-        for f in film_millers:
-            film_slab = SlabGenerator(self.film, f, 20, 15, primitive=False).get_slab()
-            film_vectors = reduce_vectors(film_slab.lattice.matrix[0], film_slab.lattice.matrix[1])
+        for f_miller in film_millers:
+            film_slab = SlabGenerator(film, f_miller, 20, 15, primitive=False).get_slab()
+            film_vectors = reduce_vectors(
+                film_slab.oriented_unit_cell.lattice.matrix[0], film_slab.oriented_unit_cell.lattice.matrix[1]
+            )
 
-            for s in substrate_millers:
-                substrate_slab = SlabGenerator(self.substrate, s, 20, 15, primitive=False).get_slab()
-                substrate_vectors = reduce_vectors(substrate_slab.lattice.matrix[0], substrate_slab.lattice.matrix[1])
+            for s_miller in substrate_millers:
+                substrate_slab = SlabGenerator(substrate, s_miller, 20, 15, primitive=False).get_slab()
+                substrate_vectors = reduce_vectors(
+                    substrate_slab.oriented_unit_cell.lattice.matrix[0],
+                    substrate_slab.oriented_unit_cell.lattice.matrix[1],
+                )
 
-                vector_sets.append((film_vectors, substrate_vectors, f, s))
+                vector_sets.append((film_vectors, substrate_vectors, f_miller, s_miller))
 
         return vector_sets
 
     def calculate(
         self,
-        film,
-        substrate,
+        film: Structure,
+        substrate: Structure,
         elasticity_tensor=None,
-        film_millers=None,
-        substrate_millers=None,
+        film_millers: ArrayLike = None,
+        substrate_millers: ArrayLike = None,
         ground_state_energy=0,
         lowest=False,
     ):
-        """
-        Finds all topological matches for the substrate and calculates elastic
+        """Find all topological matches for the substrate and calculates elastic
         strain energy and total energy for the film if elasticity tensor and
         ground state energy are provided:
 
         Args:
-            film(Structure): conventional standard structure for the film
-            substrate(Structure): conventional standard structure for the
+            film (Structure): conventional standard structure for the film
+            substrate (Structure): conventional standard structure for the
                 substrate
-            elasticity_tensor(ElasticTensor): elasticity tensor for the film
+            elasticity_tensor (ElasticTensor): elasticity tensor for the film
                 in the IEEE orientation
-            film_millers(array): film facets to consider in search as defined by
+            film_millers (array): film facets to consider in search as defined by
                 miller indices
-            substrate_millers(array): substrate facets to consider in search as
+            substrate_millers (array): substrate facets to consider in search as
                 defined by miller indices
-            ground_state_energy(float): ground state energy for the film
-            lowest(bool): only consider lowest matching area for each surface
+            ground_state_energy (float): ground state energy for the film
+            lowest (bool): only consider lowest matching area for each surface
         """
-        self.film = film
-        self.substrate = substrate
-
         # Generate miller indices if none specified for film
         if film_millers is None:
-            film_millers = sorted(get_symmetrically_distinct_miller_indices(self.film, self.film_max_miller))
+            film_millers = sorted(get_symmetrically_distinct_miller_indices(film, self.film_max_miller))
 
         # Generate miller indices if none specified for substrate
         if substrate_millers is None:
-            substrate_millers = sorted(
-                get_symmetrically_distinct_miller_indices(self.substrate, self.substrate_max_miller)
-            )
+            substrate_millers = sorted(get_symmetrically_distinct_miller_indices(substrate, self.substrate_max_miller))
 
         # Check each miller index combination
-        surface_vector_sets = self.generate_surface_vectors(film_millers, substrate_millers)
+        surface_vector_sets = self.generate_surface_vectors(film, substrate, film_millers, substrate_millers)
         for [
             film_vectors,
             substrate_vectors,

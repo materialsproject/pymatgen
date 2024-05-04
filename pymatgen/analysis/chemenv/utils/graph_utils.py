@@ -4,20 +4,25 @@ from __future__ import annotations
 
 import itertools
 import operator
+from typing import TYPE_CHECKING
 
 import networkx as nx
 import numpy as np
 from monty.json import MSONable
 
+if TYPE_CHECKING:
+    from typing_extensions import Self
+
 __author__ = "waroquiers"
 
 
 def get_delta(node1, node2, edge_data):
-    """
-    Get the delta.
-    :param node1:
-    :param node2:
-    :param edge_data:
+    """Get the delta.
+
+    Args:
+        node1:
+        node2:
+        edge_data:
     """
     if node1.isite == edge_data["start"] and node2.isite == edge_data["end"]:
         return np.array(edge_data["delta"], dtype=int)
@@ -27,13 +32,14 @@ def get_delta(node1, node2, edge_data):
 
 
 def get_all_simple_paths_edges(graph, source, target, cutoff=None, data=True):
-    """
-    Get all the simple path and edges.
-    :param graph:
-    :param source:
-    :param target:
-    :param cutoff:
-    :param data:
+    """Get all the simple path and edges.
+
+    Args:
+        graph:
+        source:
+        target:
+        cutoff:
+        data:
     """
     edge_paths = []
     if not graph.is_multigraph():
@@ -123,8 +129,7 @@ def _c2index_isreverse(c1, c2):
 
 
 class SimpleGraphCycle(MSONable):
-    """
-    Class used to describe a cycle in a simple graph (graph without multiple edges).
+    """Describe a cycle in a simple graph (graph without multiple edges).
 
     Note that the convention used here is the networkx convention for which simple graphs allow
     to have self-loops in a simple graph.
@@ -136,9 +141,10 @@ class SimpleGraphCycle(MSONable):
 
     def __init__(self, nodes, validate=True, ordered=None):
         """
-        :param nodes:
-        :param validate:
-        :param ordered:
+        Args:
+            nodes:
+            validate:
+            ordered:
         """
         self.nodes = tuple(nodes)
         if validate:
@@ -176,15 +182,13 @@ class SimpleGraphCycle(MSONable):
                 raise
             res = all(i < j for i, j in zip(sorted_nodes, sorted_nodes[1:]))
             if not res:
-                return (
-                    False,
-                    "The list of nodes in the cycle cannot be strictly ordered.",
-                )
+                return False, "The list of nodes in the cycle cannot be strictly ordered."
         return True, ""
 
     def validate(self, check_strict_ordering=False):
         """
-        :param check_strict_ordering:
+        Args:
+            check_strict_ordering:
         """
         is_valid, msg = self._is_valid(check_strict_ordering=check_strict_ordering)
         if not is_valid:
@@ -225,7 +229,7 @@ class SimpleGraphCycle(MSONable):
             self.ordered = False
             return
 
-        min_index, min_node = min(enumerate(self.nodes), key=operator.itemgetter(1))
+        min_index, _min_node = min(enumerate(self.nodes), key=operator.itemgetter(1))
         reverse = self.nodes[(min_index - 1) % len(self.nodes)] < self.nodes[(min_index + 1) % len(self.nodes)]
         if reverse:
             self.nodes = self.nodes[min_index::-1] + self.nodes[:min_index:-1]
@@ -252,8 +256,8 @@ class SimpleGraphCycle(MSONable):
         return self.nodes == other.nodes
 
     @classmethod
-    def from_edges(cls, edges, edges_are_ordered=True):
-        """Constructs SimpleGraphCycle from a list edges.
+    def from_edges(cls, edges, edges_are_ordered: bool = True) -> Self:
+        """Construct SimpleGraphCycle from a list edges.
 
         By default, the edges list is supposed to be ordered as it will be
         much faster to construct the cycle. If edges_are_ordered is set to
@@ -261,7 +265,7 @@ class SimpleGraphCycle(MSONable):
         order in the list.
         """
         if edges_are_ordered:
-            nodes = [e[0] for e in edges]
+            nodes = [edge[0] for edge in edges]
             if not all(e1e2[0][1] == e1e2[1][0] for e1e2 in zip(edges, edges[1:])) or edges[-1][1] != edges[0][0]:
                 raise ValueError("Could not construct a cycle from edges.")
         else:
@@ -285,7 +289,7 @@ class SimpleGraphCycle(MSONable):
             nodes.pop()
         return cls(nodes)
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """MSONable dict"""
         dct = MSONable.as_dict(self)
         # Transforming tuple object to a list to allow BSON and MongoDB
@@ -293,17 +297,18 @@ class SimpleGraphCycle(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, d, validate=False):
+    def from_dict(cls, dct: dict, validate: bool = False) -> Self:
+        """Serialize from dict.
+
+        Args:
+            dct (dict): Dict representation.
+            validate: If True, will validate the cycle.
         """
-        Serialize from dict.
-        :param d:
-        :param validate:
-        """
-        return cls(nodes=d["nodes"], validate=validate, ordered=d["ordered"])
+        return cls(nodes=dct["nodes"], validate=validate, ordered=dct["ordered"])
 
 
 class MultiGraphCycle(MSONable):
-    """Class used to describe a cycle in a multigraph.
+    """Describe a cycle in a multigraph.
 
     nodes are the nodes of the cycle and edge_indices are the indices of the edges in the cycle.
     The nth index in edge_indices corresponds to the edge index between the nth node in nodes and
@@ -317,10 +322,11 @@ class MultiGraphCycle(MSONable):
 
     def __init__(self, nodes, edge_indices, validate=True, ordered=None):
         """
-        :param nodes:
-        :param edge_indices:
-        :param validate:
-        :param ordered:
+        Args:
+            nodes: List of nodes in the cycle.
+            edge_indices: List of edge indices in the cycle.
+            validate: If True, will validate the cycle.
+            ordered: If True, will order the cycle.
         """
         self.nodes = tuple(nodes)
         self.edge_indices = tuple(edge_indices)
@@ -362,23 +368,21 @@ class MultiGraphCycle(MSONable):
                 if "'<' not supported between instances of" in msg:
                     return False, "The nodes are not sortable."
                 raise
-            res = all(i < j for i, j in zip(sorted_nodes, sorted_nodes[1:]))
-            if not res:
-                return (
-                    False,
-                    "The list of nodes in the cycle cannot be strictly ordered.",
-                )
+            is_ordered = all(node1 < node2 for node1, node2 in zip(sorted_nodes, sorted_nodes[1:]))
+            if not is_ordered:
+                return False, "The list of nodes in the cycle cannot be strictly ordered."
         return True, ""
 
     def validate(self, check_strict_ordering=False):
         """
-        :param check_strict_ordering:
+        Args:
+            check_strict_ordering:
         """
         is_valid, msg = self._is_valid(check_strict_ordering=check_strict_ordering)
         if not is_valid:
             raise ValueError(f"MultiGraphCycle is not valid : {msg}")
 
-    def order(self, raise_on_fail=True):
+    def order(self, raise_on_fail: bool = True):
         """Orders the SimpleGraphCycle.
 
         The ordering is performed such that the first node is the "lowest" one
@@ -386,7 +390,8 @@ class MultiGraphCycle(MSONable):
         first node. If raise_on_fail is set to True a RuntimeError will be
         raised if the ordering fails.
 
-        :param raise_on_fail: If set to True, will raise a RuntimeError if the ordering fails.
+        Args:
+            raise_on_fail: If set to True, will raise a RuntimeError if the ordering fails.
         """
         # always validate the cycle if it needs to be ordered
         # also validates that the nodes can be strictly ordered
@@ -413,7 +418,7 @@ class MultiGraphCycle(MSONable):
             self.ordered = False
             return
 
-        min_index, min_node = min(enumerate(self.nodes), key=operator.itemgetter(1))
+        min_index, _min_node = min(enumerate(self.nodes), key=operator.itemgetter(1))
 
         # Special case when number of nodes is 2 because the two
         # edge_indices refer to the same pair of nodes
@@ -459,7 +464,8 @@ class MultiGraphCycle(MSONable):
 
 def get_all_elementary_cycles(graph):
     """
-    :param graph:
+    Args:
+        graph:
     """
     if not isinstance(graph, nx.Graph):
         raise TypeError("graph should be a networkx Graph object.")
@@ -479,8 +485,8 @@ def get_all_elementary_cycles(graph):
         edge_idx += 1
     cycles_matrix = np.zeros(shape=(len(cycle_basis), edge_idx), dtype=bool)
     for icycle, cycle in enumerate(cycle_basis):
-        for in1, n1 in enumerate(cycle):
-            n2 = cycle[(in1 + 1) % len(cycle)]
+        for in1, n1 in enumerate(cycle, start=1):
+            n2 = cycle[(in1) % len(cycle)]
             iedge = all_edges_dict[(n1, n2)]
             cycles_matrix[icycle, iedge] = True
 

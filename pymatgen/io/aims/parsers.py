@@ -1,10 +1,11 @@
 """AIMS output parser, taken from ASE with modifications."""
+
 from __future__ import annotations
 
 import gzip
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
@@ -15,7 +16,7 @@ if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
     from io import TextIOWrapper
 
-    from emmet.core.math import Matrix3D, Vector3D
+    from pymatgen.util.typing import Matrix3D, Vector3D
 
 __author__ = "Thomas A. R. Purcell and Andrey Sobolev"
 __version__ = "1.0"
@@ -79,9 +80,9 @@ class AimsOutChunk:
         Returns:
             The last time one of the keys appears in self.lines
         """
-        for ll, line in enumerate(self.lines[line_start:][::-1]):
+        for idx, line in enumerate(self.lines[line_start:][::-1]):
             if any(key in line for key in keys):
-                return len(self.lines) - ll - 1
+                return len(self.lines) - idx - 1
 
         return LINE_NOT_FOUND
 
@@ -200,7 +201,7 @@ class AimsOutHeaderChunk(AimsOutChunk):
 
     @property
     def linked_against(self) -> list[str]:
-        """Get all libraries used to link the FHI-aims executable."""
+        """All libraries used to link the FHI-aims executable."""
         line_start = self.reverse_search_for(["Linking against:"])
         if line_start == LINE_NOT_FOUND:
             return []
@@ -565,9 +566,9 @@ class AimsOutCalcChunk(AimsOutChunk):
             elif "atom   " in line:
                 line_split = line.split()
                 species.append(line_split[4])
-                coords.append([float(inp) for inp in line_split[1:4]])
+                coords.append(cast(tuple[float, float, float], tuple(float(inp) for inp in line_split[1:4])))
             elif "velocity   " in line:
-                velocities.append([float(inp) for inp in line.split()[1:]])
+                velocities.append(cast(tuple[float, float, float], tuple(float(inp) for inp in line.split()[1:4])))
 
         lattice = Lattice(lattice_vectors) if len(lattice_vectors) == 3 else None
         return species, coords, velocities, lattice
@@ -576,48 +577,36 @@ class AimsOutCalcChunk(AimsOutChunk):
     def species(self) -> list[str]:
         """The list of atomic symbols for all atoms in the structure"""
         if "species" not in self._cache:
-            (
-                self._cache["species"],
-                self._cache["coords"],
-                self._cache["velocities"],
-                self._cache["lattice"],
-            ) = self._parse_lattice_atom_pos()
+            self._cache["species"], self._cache["coords"], self._cache["velocities"], self._cache["lattice"] = (
+                self._parse_lattice_atom_pos()
+            )
         return self._cache["species"]
 
     @property
     def coords(self) -> list[Vector3D]:
         """The cartesian coordinates of the atoms"""
         if "coords" not in self._cache:
-            (
-                self._cache["species"],
-                self._cache["coords"],
-                self._cache["velocities"],
-                self._cache["lattice"],
-            ) = self._parse_lattice_atom_pos()
+            self._cache["species"], self._cache["coords"], self._cache["velocities"], self._cache["lattice"] = (
+                self._parse_lattice_atom_pos()
+            )
         return self._cache["coords"]
 
     @property
     def velocities(self) -> list[Vector3D]:
         """The velocities of the atoms"""
         if "velocities" not in self._cache:
-            (
-                self._cache["species"],
-                self._cache["coords"],
-                self._cache["velocities"],
-                self._cache["lattice"],
-            ) = self._parse_lattice_atom_pos()
+            self._cache["species"], self._cache["coords"], self._cache["velocities"], self._cache["lattice"] = (
+                self._parse_lattice_atom_pos()
+            )
         return self._cache["velocities"]
 
     @property
     def lattice(self) -> Lattice:
         """The Lattice object for the structure"""
         if "lattice" not in self._cache:
-            (
-                self._cache["species"],
-                self._cache["coords"],
-                self._cache["velocities"],
-                self._cache["lattice"],
-            ) = self._parse_lattice_atom_pos()
+            self._cache["species"], self._cache["coords"], self._cache["velocities"], self._cache["lattice"] = (
+                self._parse_lattice_atom_pos()
+            )
         return self._cache["lattice"]
 
     @property
@@ -1015,7 +1004,7 @@ def get_aims_out_chunks(content: str | TextIOWrapper, header_chunk: AimsOutHeade
     # If SCF is not converged then do not treat the next chunk_end_line as a
     # new chunk until after the SCF is re-initialized
     ignore_chunk_end_line = False
-    line_iter = lines.__iter__()
+    line_iter = iter(lines)
     while True:
         try:
             line = next(line_iter).strip()  # Raises StopIteration on empty file
@@ -1095,11 +1084,11 @@ def read_aims_header_info(
         if not path.exists():
             continue
         if path.suffix == ".gz":
-            with gzip.open(filename, "rt") as fd:
-                content = fd.read()
+            with gzip.open(filename, mode="rt") as file:
+                content = file.read()
         else:
-            with open(filename) as fd:
-                content = fd.read()
+            with open(filename) as file:
+                content = file.read()
 
     if content is None:
         raise FileNotFoundError(f"The requested output file {filename} does not exist.")
@@ -1155,11 +1144,11 @@ def read_aims_output(
         if not path.exists():
             continue
         if path.suffix == ".gz":
-            with gzip.open(path, "rt") as fd:
-                content = fd.read()
+            with gzip.open(path, mode="rt") as file:
+                content = file.read()
         else:
-            with open(path) as fd:
-                content = fd.read()
+            with open(path) as file:
+                content = file.read()
 
     if content is None:
         raise FileNotFoundError(f"The requested output file {filename} does not exist.")

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-import unittest
+from unittest import TestCase
 
 import pytest
 from pytest import approx
@@ -16,7 +16,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 pybel = pytest.importorskip("openbabel.pybel")
 
 
-class TestBabelMolAdaptor(unittest.TestCase):
+class TestBabelMolAdaptor(TestCase):
     def setUp(self):
         coords = [
             [0.000000, 0.000000, 0.000000],
@@ -40,27 +40,27 @@ class TestBabelMolAdaptor(unittest.TestCase):
         assert adaptor.pymatgen_mol.formula == "H4 C1"
 
     def test_from_file(self):
-        adaptor = BabelMolAdaptor.from_file(f"{TEST_FILES_DIR}/molecules/Ethane_e.pdb", "pdb")
+        adaptor = BabelMolAdaptor.from_file(f"{TEST_FILES_DIR}/io/babel/Ethane_e.pdb", "pdb")
         mol = adaptor.pymatgen_mol
         assert mol.formula == "H6 C2"
 
     def test_from_file_return_all_molecules(self):
         adaptors = BabelMolAdaptor.from_file(
-            f"{TEST_FILES_DIR}/multiple_frame_xyz.xyz",
+            f"{TEST_FILES_DIR}/io/xyz/multiple_frame.xyz",
             "xyz",
             return_all_molecules=True,
         )
         assert len(adaptors) == 302
 
     def test_from_molecule_graph(self):
-        graph = MoleculeGraph.with_empty_graph(self.mol)
+        graph = MoleculeGraph.from_empty_graph(self.mol)
         adaptor = BabelMolAdaptor.from_molecule_graph(graph)
         ob_mol = adaptor.openbabel_mol
         assert ob_mol.NumAtoms() == 5
         mol = adaptor.pymatgen_mol
         assert mol.formula == "H4 C1"
 
-    def test_from_string(self):
+    def test_from_str(self):
         xyz = XYZ(self.mol)
         adaptor = BabelMolAdaptor.from_str(str(xyz), "xyz")
         mol = adaptor.pymatgen_mol

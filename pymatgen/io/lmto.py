@@ -4,11 +4,10 @@ LMTO-ASA code. It will primarily be used to generate a pymatgen
 Structure object in the pymatgen.electronic_structure.cohp.py module.
 """
 
-
 from __future__ import annotations
 
 import re
-from typing import no_type_check
+from typing import TYPE_CHECKING, no_type_check
 
 import numpy as np
 from monty.io import zopen
@@ -19,6 +18,11 @@ from pymatgen.electronic_structure.core import Spin
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.num import round_to_sigfigs
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
+
 __author__ = "Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.1"
@@ -28,8 +32,7 @@ __date__ = "Nov 30, 2017"
 
 
 class LMTOCtrl:
-    """
-    Class for parsing CTRL files from the Stuttgart LMTO-ASA code.
+    """Parse CTRL files from the Stuttgart LMTO-ASA code.
     Currently, only HEADER, VERS and the structure can be used.
     """
 
@@ -58,13 +61,8 @@ class LMTOCtrl:
         """String representation of the CTRL file."""
         return self.get_str()
 
-    @np.deprecate(message="Use get_str instead")
-    def get_string(self, *args, **kwargs) -> str:
-        return self.get_str(*args, **kwargs)
-
     def get_str(self, sigfigs=8) -> str:
-        """
-        Generates the string representation of the CTRL file. This is
+        """Generate the string representation of the CTRL file. This is
         the minimal CTRL file necessary to execute lmhart.run.
         """
         ctrl_dict = self.as_dict()
@@ -92,8 +90,7 @@ class LMTOCtrl:
         return "\n".join(lines) + "\n"
 
     def as_dict(self):
-        """
-        Returns the CTRL as a dictionary. "SITE" and "CLASS" are of
+        """Get the CTRL as a dictionary. "SITE" and "CLASS" are of
         the form {'CATEGORY': {'TOKEN': value}}, the rest is of the
         form 'TOKEN'/'CATEGORY': value. It gets the conventional standard
         structure because primitive cells use the conventional
@@ -137,11 +134,11 @@ class LMTOCtrl:
         Writes a CTRL file with structure, HEADER, and VERS that can be
         used as input for lmhart.run.
         """
-        with zopen(filename, "wt") as f:
-            f.write(self.get_str(**kwargs))
+        with zopen(filename, mode="wt") as file:
+            file.write(self.get_str(**kwargs))
 
     @classmethod
-    def from_file(cls, filename="CTRL", **kwargs):
+    def from_file(cls, filename: str | Path = "CTRL", **kwargs) -> Self:
         """
         Creates a CTRL file object from an existing file.
 
@@ -151,18 +148,13 @@ class LMTOCtrl:
         Returns:
             An LMTOCtrl object.
         """
-        with zopen(filename, "rt") as f:
-            contents = f.read()
-        return LMTOCtrl.from_str(contents, **kwargs)
-
-    @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
+        with zopen(filename, mode="rt") as file:
+            contents = file.read()
+        return cls.from_str(contents, **kwargs)
 
     @classmethod
     @no_type_check
-    def from_str(cls, data: str, sigfigs: int = 8) -> LMTOCtrl:
+    def from_str(cls, data: str, sigfigs: int = 8) -> Self:
         """
         Creates a CTRL file object from a string. This will mostly be
         used to read an LMTOCtrl object from a CTRL file. Empty spheres
@@ -191,13 +183,13 @@ class LMTOCtrl:
 
         for cat in ["STRUC", "CLASS", "SITE"]:
             fields = struct_lines[cat].split("=")
-            for f, field in enumerate(fields):
+            for idx, field in enumerate(fields, start=1):
                 token = field.split()[-1]
                 if token == "ALAT":
-                    alat = round(float(fields[f + 1].split()[0]), sigfigs)
-                    structure_tokens["ALAT"] = alat
+                    a_lat = round(float(fields[idx].split()[0]), sigfigs)
+                    structure_tokens["ALAT"] = a_lat
                 elif token == "ATOM":
-                    atom = fields[f + 1].split()[0]
+                    atom = fields[idx].split()[0]
                     if not bool(re.match("E[0-9]*$", atom)):
                         if cat == "CLASS":
                             structure_tokens["CLASS"].append(atom)
@@ -207,9 +199,9 @@ class LMTOCtrl:
                         pass
                 elif token in ["PLAT", "POS"]:
                     try:
-                        arr = np.array([round(float(i), sigfigs) for i in fields[f + 1].split()])
+                        arr = np.array([round(float(i), sigfigs) for i in fields[idx].split()])
                     except ValueError:
-                        arr = np.array([round(float(i), sigfigs) for i in fields[f + 1].split()[:-1]])
+                        arr = np.array([round(float(i), sigfigs) for i in fields[idx].split()[:-1]])
                     if token == "PLAT":
                         structure_tokens["PLAT"] = arr.reshape([3, 3])
                     elif not bool(re.match("E[0-9]*$", atom)):
@@ -219,9 +211,9 @@ class LMTOCtrl:
                 else:
                     pass
         try:
-            spcgrp_index = struct_lines["SYMGRP"].index("SPCGRP")
-            spcgrp = struct_lines["SYMGRP"][spcgrp_index : spcgrp_index + 12]
-            structure_tokens["SPCGRP"] = spcgrp.split("=")[1].split()[0]
+            spc_grp_index = struct_lines["SYMGRP"].index("SPCGRP")
+            spc_grp = struct_lines["SYMGRP"][spc_grp_index : spc_grp_index + 12]
+            structure_tokens["SPCGRP"] = spc_grp.split("=")[1].split()[0]
         except ValueError:
             pass
 
@@ -234,7 +226,7 @@ class LMTOCtrl:
         return LMTOCtrl.from_dict(structure_tokens)
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Creates a CTRL file object from a dictionary. The dictionary
         must contain the items "ALAT", PLAT" and "SITE".
@@ -281,13 +273,13 @@ class LMTOCtrl:
 
 
 class LMTOCopl:
-    """Class for reading COPL files, which contain COHP data.
+    """Read COPL files, which contain COHP data.
 
     Attributes:
         cohp_data (dict): Contains the COHP data of the form:
             {bond: {"COHP": {Spin.up: cohps, Spin.down:cohps},
-                    "ICOHP": {Spin.up: icohps, Spin.down: icohps},
-                    "length": bond length}
+                "ICOHP": {Spin.up: icohps, Spin.down: icohps},
+                "length": bond length}
         efermi (float): The Fermi energy in Ry or eV.
         energies (list): Sequence of energies in Ry or eV.
         is_spin_polarized (bool): Boolean to indicate if the calculation is spin polarized.
@@ -301,8 +293,8 @@ class LMTOCopl:
               eV, set to True. Defaults to False for energies in Ry.
         """
         # COPL files have an extra trailing blank line
-        with zopen(filename, "rt") as f:
-            contents = f.read().split("\n")[:-1]
+        with zopen(filename, mode="rt") as file:
+            contents = file.read().split("\n")[:-1]
         # The parameters line is the second line in a COPL file. It
         # contains all parameters that are needed to map the file.
         parameters = contents[1].split()
@@ -354,8 +346,7 @@ class LMTOCopl:
 
     @staticmethod
     def _get_bond_data(line):
-        """
-        Subroutine to extract bond label, site indices, and length from
+        """Subroutine to extract bond label, site indices, and length from
         a COPL header line. The site indices are zero-based, so they
         can be easily used with a Structure object.
 

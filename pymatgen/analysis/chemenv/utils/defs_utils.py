@@ -42,7 +42,7 @@ due.cite(
 
 
 class AdditionalConditions:
-    """Class for additional conditions."""
+    """Additional conditions that can be used to filter coordination environments."""
 
     NO_ADDITIONAL_CONDITION = 0
     ONLY_ANION_CATION_BONDS = 1
@@ -70,9 +70,10 @@ class AdditionalConditions:
 
     def check_condition(self, condition, structure: Structure, parameters):
         """
-        :param condition:
-        :param structure:
-        :param parameters:
+        Args:
+            condition:
+            structure:
+            parameters:
         """
         if condition == self.NONE:
             return True

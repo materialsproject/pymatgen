@@ -13,7 +13,8 @@ import logging
 import os
 from collections import namedtuple
 from collections.abc import Mapping, MutableMapping, Sequence
-from enum import Enum
+from enum import Enum, unique
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.collections import AttrDict
@@ -24,6 +25,9 @@ from pymatgen.io.abinit import abiobjects as aobj
 from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
 from pymatgen.io.abinit.variable import InputVariable
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 logger = logging.getLogger(__file__)
 
@@ -124,9 +128,9 @@ def as_structure(obj):
     raise TypeError(f"Don't know how to convert {type(obj)} into a structure")
 
 
+@unique
 class ShiftMode(Enum):
-    """
-    Class defining the mode to be used for the shifts.
+    """Mode used to generate the shifts for the k-point sampling.
     G: Gamma centered
     M: Monkhorst-Pack ((0.5, 0.5, 0.5))
     S: Symmetric. Respects the chksymbreak with multiple shifts
@@ -140,9 +144,8 @@ class ShiftMode(Enum):
     OneSymmetric = "O"
 
     @classmethod
-    def from_object(cls, obj):
-        """
-        Returns an instance of ShiftMode based on the type of object passed. Converts strings to ShiftMode depending
+    def from_object(cls, obj) -> Self:
+        """Get an instance of ShiftMode based on the type of object passed. Converts strings to ShiftMode depending
         on the initial letter of the string. G for GammaCentered, M for MonkhorstPack,
         S for Symmetric, O for OneSymmetric.
         Case insensitive.
@@ -174,6 +177,7 @@ def _stopping_criterion(run_level, accuracy):
 def _find_ecut_pawecutdg(ecut, pawecutdg, pseudos, accuracy):
     """Return a |AttrDict| with the value of ecut and pawecutdg."""
     # Get ecut and pawecutdg from the pseudo hints.
+    has_hints = False
     if ecut is None or (pawecutdg is None and any(p.ispaw for p in pseudos)):
         has_hints = all(p.has_hints for p in pseudos)
 
@@ -192,19 +196,19 @@ def _find_ecut_pawecutdg(ecut, pawecutdg, pseudos, accuracy):
     return AttrDict(ecut=ecut, pawecutdg=pawecutdg)
 
 
-def _find_scf_nband(structure, pseudos, electrons, spinat=None):
+def _find_scf_nband(structure, pseudos, electrons: aobj.Electrons, spinat=None):
     """Find the value of nband."""
     if electrons.nband is not None:
         return electrons.nband
 
-    nsppol, smearing = electrons.nsppol, electrons.smearing
+    n_sp_pol, smearing = electrons.nsppol, electrons.smearing
 
     # Number of valence electrons including possible extra charge
     n_val_elec = num_valence_electrons(structure, pseudos)
     n_val_elec -= electrons.charge
 
     # First guess (semiconductors)
-    nband = n_val_elec // 2
+    n_band = n_val_elec // 2
 
     # TODO: Find better algorithm
     # If nband is too small we may kill the job, increase nband and restart
@@ -212,15 +216,15 @@ def _find_scf_nband(structure, pseudos, electrons, spinat=None):
     # if the change is not propagated e.g. phonons in metals.
 
     # metallic occupation
-    nband = max(np.ceil(nband * 1.2), nband + 10) if smearing else max(np.ceil(nband * 1.1), nband + 4)
+    n_band = max(np.ceil(n_band * 1.2), n_band + 10) if smearing else max(np.ceil(n_band * 1.1), n_band + 4)
 
     # Increase number of bands based on the starting magnetization
-    if nsppol == 2 and spinat is not None:
-        nband += np.ceil(max(np.sum(spinat, axis=0)) / 2.0)
+    if n_sp_pol == 2 and spinat is not None:
+        n_band += np.ceil(max(np.sum(spinat, axis=0)) / 2.0)
 
     # Force even nband (easier to divide among procs, mandatory if nspinor == 2)
-    nband += nband % 2
-    return int(nband)
+    n_band += n_band % 2
+    return int(n_band)
 
 
 def _get_shifts(shift_mode, structure):
@@ -263,8 +267,7 @@ def gs_input(
     charge=0.0,
     scf_algorithm=None,
 ):
-    """
-    Returns a |BasicAbinitInput| for ground-state calculation.
+    """Get a BasicAbinitInput for ground-state calculation.
 
     Args:
         structure: |Structure| object.
@@ -315,8 +318,7 @@ def ebands_input(
     scf_algorithm=None,
     dos_kppa=None,
 ):
-    """
-    Returns a |BasicMultiDataset| object for band structure calculations.
+    """Get a |BasicMultiDataset| object for band structure calculations.
 
     Args:
         structure: |Structure| object.
@@ -419,8 +421,7 @@ def ion_ioncell_relax_input(
     scf_algorithm=None,
     shift_mode="Monkhorst-pack",
 ):
-    """
-    Returns a |BasicMultiDataset| for a structural relaxation. The first dataset optimizes the
+    """Get a |BasicMultiDataset| for a structural relaxation. The first dataset optimizes the
     atomic positions at fixed unit cell. The second datasets optimizes both ions and unit cell parameters.
 
     Args:
@@ -473,41 +474,40 @@ def ion_ioncell_relax_input(
 
 
 def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
-    """
-    Find the values of shiftk and nshiftk appropriated for the sampling of the Brillouin zone.
+    """Find the values of shiftk and nshiftk appropriated for the sampling of the Brillouin zone.
 
     When the primitive vectors of the lattice do NOT form a FCC or a BCC lattice,
     the usual (shifted) Monkhorst-Pack grids are formed by using nshiftk=1 and shiftk 0.5 0.5 0.5 .
     This is often the preferred k point sampling. For a non-shifted Monkhorst-Pack grid,
     use `nshiftk=1` and `shiftk 0.0 0.0 0.0`, but there is little reason to do that.
 
-    When the primitive vectors of the lattice form a FCC lattice, with rprim::
+    When the primitive vectors of the lattice form a FCC lattice, with rprim:
 
             0.0 0.5 0.5
             0.5 0.0 0.5
             0.5 0.5 0.0
 
-    the (very efficient) usual Monkhorst-Pack sampling will be generated by using nshiftk= 4 and shiftk::
+    the (very efficient) usual Monkhorst-Pack sampling will be generated by using nshiftk= 4 and shiftk:
 
         0.5 0.5 0.5
         0.5 0.0 0.0
         0.0 0.5 0.0
         0.0 0.0 0.5
 
-    When the primitive vectors of the lattice form a BCC lattice, with rprim::
+    When the primitive vectors of the lattice form a BCC lattice, with rprim:
 
            -0.5  0.5  0.5
             0.5 -0.5  0.5
             0.5  0.5 -0.5
 
-    the usual Monkhorst-Pack sampling will be generated by using nshiftk= 2 and shiftk::
+    the usual Monkhorst-Pack sampling will be generated by using nshiftk= 2 and shiftk:
 
             0.25  0.25  0.25
            -0.25 -0.25 -0.25
 
     However, the simple sampling nshiftk=1 and shiftk 0.5 0.5 0.5 is excellent.
 
-    For hexagonal lattices with hexagonal axes, e.g. rprim::
+    For hexagonal lattices with hexagonal axes, e.g. rprim:
 
             1.0  0.0       0.0
            -0.5  sqrt(3)/2 0.0
@@ -545,10 +545,10 @@ def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
 
         elif lattice_type == "hexagonal":
             # Find the hexagonal axis and set the shift along it.
-            for i, angle in enumerate(structure.lattice.angles):
+            for i, angle in enumerate(structure.lattice.angles, start=1):
                 if abs(angle - 120) < 1.0:
-                    j = (i + 1) % 3
-                    k = (i + 2) % 3
+                    j = i % 3
+                    k = (i + 1) % 3
                     hex_ax = next(ax for ax in range(3) if ax not in [j, k])
                     break
             else:
@@ -568,22 +568,21 @@ def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
     return np.reshape(shiftk, (-1, 3))
 
 
-def num_valence_electrons(structure, pseudos):
-    """
-    Returns the number of valence electrons.
+def num_valence_electrons(structure, pseudos) -> float:
+    """Get the number of valence electrons.
 
     Args:
         pseudos: List of |Pseudo| objects or list of filenames.
     """
-    nval, table = 0, PseudoTable.as_table(pseudos)
+    n_val, table = 0, PseudoTable.as_table(pseudos)
     for site in structure:
         pseudo = table.pseudo_with_symbol(site.specie.symbol)
-        nval += pseudo.Z_val
+        n_val += pseudo.Z_val
 
-    return int(nval) if int(nval) == nval else nval
+    return int(n_val) if int(n_val) == n_val else n_val
 
 
-class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
+class AbstractInput(MutableMapping, abc.ABC):
     """Abstract class defining the methods that must be implemented by Input objects."""
 
     # ABC protocol: __delitem__, __getitem__, __iter__, __len__, __setitem__
@@ -615,16 +614,15 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         os.makedirs(dirname, exist_ok=True)
 
         # Write the input file.
-        with open(filepath, "w") as fh:
-            fh.write(str(self))
+        with open(filepath, mode="w") as file:
+            file.write(str(self))
 
     def deepcopy(self):
         """Deep copy of the input."""
         return copy.deepcopy(self)
 
     def set_vars(self, *args, **kwargs):
-        """
-        Set the value of the variables.
+        """Set the value of the variables.
         Return dict with the variables added to the input.
 
         Example:
@@ -636,8 +634,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
         return kwargs
 
     def set_vars_ifnotin(self, *args, **kwargs):
-        """
-        Set the value of the variables but only if the variable is not already present.
+        """Set the value of the variables but only if the variable is not already present.
         Return dict with the variables added to the input.
 
         Example:
@@ -695,7 +692,7 @@ class AbstractInput(MutableMapping, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def to_str(self):
-        """Returns a string with the input."""
+        """Get a string with the input."""
 
 
 class BasicAbinitInputError(Exception):
@@ -750,7 +747,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
 
         if pseudo_dir is not None:
             pseudo_dir = os.path.abspath(pseudo_dir)
-            if not os.path.exists(pseudo_dir):
+            if not os.path.isdir(pseudo_dir):
                 raise self.Error(f"Directory {pseudo_dir} does not exist")
             pseudos = [os.path.join(pseudo_dir, p) for p in pseudos]
 
@@ -786,10 +783,10 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return self._vars
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """JSON interface used in pymatgen for easier serialization."""
-        pseudos = [Pseudo.from_file(p["filepath"]) for p in d["pseudos"]]
-        return cls(d["structure"], pseudos, comment=d["comment"], abi_args=d["abi_args"])
+        pseudos = [Pseudo.from_file(p["filepath"]) for p in dct["pseudos"]]
+        return cls(dct["structure"], pseudos, comment=dct["comment"], abi_args=dct["abi_args"])
 
     def add_abiobjects(self, *abi_objects):
         """
@@ -804,7 +801,11 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return dct
 
     def __setitem__(self, key, value):
-        if key in _TOLVARS_SCF and hasattr(self, "_vars") and any(t in self._vars and t != key for t in _TOLVARS_SCF):
+        if (
+            key in _TOLVARS_SCF
+            and hasattr(self, "_vars")
+            and any(tol in self._vars and tol != key for tol in _TOLVARS_SCF)
+        ):
             logger.info(f"Replacing previously set tolerance variable: {self.remove_vars(_TOLVARS_SCF, strict=False)}.")
 
         return super().__setitem__(key, value)
@@ -816,13 +817,8 @@ class BasicAbinitInput(AbstractInput, MSONable):
                 "Use Structure objects to prepare the input file."
             )
 
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
-
     def to_str(self, post=None, with_structure=True, with_pseudos=True, exclude=None):
-        """
-        String representation.
+        """String representation.
 
         Args:
             post: String that will be appended to the name of the variables
@@ -837,10 +833,9 @@ class BasicAbinitInput(AbstractInput, MSONable):
             exclude: List of variable names that should be ignored.
         """
         lines = []
-        app = lines.append
 
         if self.comment:
-            app("# " + self.comment.replace("\n", "\n#"))
+            lines.append("# " + self.comment.replace("\n", "\n#"))
 
         post = post if post is not None else ""
         exclude = set(exclude) if exclude is not None else set()
@@ -849,27 +844,27 @@ class BasicAbinitInput(AbstractInput, MSONable):
         keys = sorted(k for k, v in self.items() if k not in exclude and v is not None)
 
         # Extract the items from the dict and add the geo variables at the end
-        items = [(k, self[k]) for k in keys]
+        items = [(key, self[key]) for key in keys]
         if with_structure:
             items.extend(list(aobj.structure_to_abivars(self.structure).items()))
 
         for name, value in items:
             # Build variable, convert to string and append it
             vname = name + post
-            app(str(InputVariable(vname, value)))
+            lines.append(str(InputVariable(vname, value)))
 
-        s = "\n".join(lines)
+        out = "\n".join(lines)
         if not with_pseudos:
-            return s
+            return out
 
         # Add JSON section with pseudo potentials.
         ppinfo = ["\n\n\n#<JSON>"]
-        d = {"pseudos": [p.as_dict() for p in self.pseudos]}
-        ppinfo.extend(json.dumps(d, indent=4).splitlines())
+        psp_dict = {"pseudos": [pseudo.as_dict() for pseudo in self.pseudos]}
+        ppinfo.extend(json.dumps(psp_dict, indent=4).splitlines())
         ppinfo.append("</JSON>")
 
-        s += "\n#".join(ppinfo)
-        return s
+        out += "\n#".join(ppinfo)
+        return out
 
     @property
     def comment(self):
@@ -893,16 +888,15 @@ class BasicAbinitInput(AbstractInput, MSONable):
         self._structure = as_structure(structure)
 
         # Check volume
-        m = self.structure.lattice.matrix
-        if np.dot(np.cross(m[0], m[1]), m[2]) <= 0:
+        matrix = self.structure.lattice.matrix
+        if np.dot(np.cross(matrix[0], matrix[1]), matrix[2]) <= 0:
             raise self.Error("The triple product of the lattice vector is negative. Use structure.abi_sanitize.")
 
         return self._structure
 
     # Helper functions to facilitate the specification of several variables.
     def set_kmesh(self, ngkpt, shiftk, kptopt=1):
-        """
-        Set the variables for the sampling of the BZ.
+        """Set the variables for the sampling of the BZ.
 
         Args:
             ngkpt: Monkhorst-Pack divisions
@@ -917,8 +911,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return self.set_kmesh(ngkpt=(1, 1, 1), shiftk=(0, 0, 0))
 
     def set_kpath(self, ndivsm, kptbounds=None, iscf=-2):
-        """
-        Set the variables for the computation of the electronic band structure.
+        """Set the variables for the computation of the electronic band structure.
 
         Args:
             ndivsm: Number of divisions for the smallest segment.
@@ -945,8 +938,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return self.set_vars(kptbounds=kptbounds, kptopt=-(len(kptbounds) - 1), ndivsm=ndivsm, iscf=iscf)
 
     def set_spin_mode(self, spin_mode):
-        """
-        Set the variables used to the treat the spin degree of freedom.
+        """Set the variables used to the treat the spin degree of freedom.
         Return dictionary with the variables that have been removed.
 
         Args:
@@ -979,8 +971,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return all(p.isnc for p in self.pseudos)
 
     def new_with_vars(self, *args, **kwargs):
-        """
-        Return a new input with the given variables.
+        """Get a new input with the given variables.
 
         Example:
             new = input.new_with_vars(ecut=20)
@@ -1007,11 +998,11 @@ class BasicAbinitInput(AbstractInput, MSONable):
 
 class BasicMultiDataset:
     """
-    This object is essentially a list of BasicAbinitInput objects.
+    This object is essentially a list of BasicAbinitInputs.
     that provides an easy-to-use interface to apply global changes to the
     the inputs stored in the objects.
 
-    Let's assume for example that multi contains two BasicAbinitInput objects and we
+    Let's assume for example that multi contains two BasicAbinitInputs and we
     want to set `ecut` to 1 in both dictionaries. The direct approach would be:
 
         for inp in multi:
@@ -1035,8 +1026,7 @@ class BasicMultiDataset:
 
             multi.get("paral_kgb", 0)
 
-    .. warning::
-
+    Warning:
         BasicMultiDataset does not support calculations done with different sets of pseudopotentials.
         The inputs can have different crystalline structures (as long as the atom types are equal)
         but each input in BasicMultiDataset must have the same set of pseudopotentials.
@@ -1044,9 +1034,49 @@ class BasicMultiDataset:
 
     Error = BasicAbinitInputError
 
+    def __init__(self, structure: Structure | Sequence[Structure], pseudos, pseudo_dir="", ndtset=1):
+        """
+        Args:
+            structure: file with the structure, |Structure| object or dictionary with ABINIT geo variable
+                Accepts also list of objects that can be converted to Structure object.
+                In this case, however, ndtset must be equal to the length of the list.
+            pseudos: String or list of string with the name of the pseudopotential files.
+            pseudo_dir: Name of the directory where the pseudopotential files are located.
+            ndtset: Number of datasets.
+        """
+        # Setup of the pseudopotential files.
+        if isinstance(pseudos, Pseudo):
+            pseudos = [pseudos]
+
+        elif all(isinstance(p, Pseudo) for p in pseudos):
+            pseudos = PseudoTable(pseudos)
+
+        else:
+            # String(s)
+            if isinstance(pseudos, str):
+                pseudos = [pseudos]
+            pseudo_dir = os.path.abspath(pseudo_dir)
+            pseudo_paths = [os.path.join(pseudo_dir, p) for p in pseudos]
+
+            missing = [p for p in pseudo_paths if not os.path.isfile(p)]
+            if missing:
+                raise self.Error(f"Cannot find the following pseudopotential files:\n{missing}")
+
+            pseudos = PseudoTable(pseudo_paths)
+
+        # Build the list of BasicAbinitInputs.
+        if ndtset <= 0:
+            raise ValueError(f"{ndtset=} cannot be <=0")
+
+        if not isinstance(structure, (list, tuple)):
+            self._inputs = [BasicAbinitInput(structure=structure, pseudos=pseudos) for i in range(ndtset)]
+        else:
+            assert len(structure) == ndtset
+            self._inputs = [BasicAbinitInput(structure=s, pseudos=pseudos) for s in structure]
+
     @classmethod
-    def from_inputs(cls, inputs):
-        """Build object from a list of BasicAbinitInput objects."""
+    def from_inputs(cls, inputs: list[BasicAbinitInput]) -> Self:
+        """Build object from a list of BasicAbinitInputs."""
         for inp in inputs:
             if any(p1 != p2 for p1, p2 in zip(inputs[0].pseudos, inp.pseudos)):
                 raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
@@ -1073,46 +1103,6 @@ class BasicMultiDataset:
             inp.set_vars(**input)
 
         return multi
-
-    def __init__(self, structure: Structure, pseudos, pseudo_dir="", ndtset=1):
-        """
-        Args:
-            structure: file with the structure, |Structure| object or dictionary with ABINIT geo variable
-                Accepts also list of objects that can be converted to Structure object.
-                In this case, however, ndtset must be equal to the length of the list.
-            pseudos: String or list of string with the name of the pseudopotential files.
-            pseudo_dir: Name of the directory where the pseudopotential files are located.
-            ndtset: Number of datasets.
-        """
-        # Setup of the pseudopotential files.
-        if isinstance(pseudos, Pseudo):
-            pseudos = [pseudos]
-
-        elif all(isinstance(p, Pseudo) for p in pseudos):
-            pseudos = PseudoTable(pseudos)
-
-        else:
-            # String(s)
-            if isinstance(pseudos, str):
-                pseudos = [pseudos]
-            pseudo_dir = os.path.abspath(pseudo_dir)
-            pseudo_paths = [os.path.join(pseudo_dir, p) for p in pseudos]
-
-            missing = [p for p in pseudo_paths if not os.path.exists(p)]
-            if missing:
-                raise self.Error(f"Cannot find the following pseudopotential files:\n{missing}")
-
-            pseudos = PseudoTable(pseudo_paths)
-
-        # Build the list of BasicAbinitInput objects.
-        if ndtset <= 0:
-            raise ValueError(f"{ndtset=} cannot be <=0")
-
-        if not isinstance(structure, (list, tuple)):
-            self._inputs = [BasicAbinitInput(structure=structure, pseudos=pseudos) for i in range(ndtset)]
-        else:
-            assert len(structure) == ndtset
-            self._inputs = [BasicAbinitInput(structure=s, pseudos=pseudos) for s in structure]
 
     @property
     def ndtset(self):
@@ -1144,7 +1134,7 @@ class BasicMultiDataset:
         return iter(self._inputs)
 
     def __getattr__(self, name):
-        _inputs = object.__getattribute__(self, "_inputs")
+        _inputs = self.__getattribute__("_inputs")
         m = getattr(_inputs[0], name)
         if m is None:
             raise AttributeError(
@@ -1192,14 +1182,14 @@ class BasicMultiDataset:
             raise NotImplementedError("Operation not supported")
 
     def append(self, abinit_input):
-        """Add a |BasicAbinitInput| to the list."""
+        """Add a BasicAbinitInput to the list."""
         assert isinstance(abinit_input, BasicAbinitInput)
         if any(p1 != p2 for p1, p2 in zip(abinit_input.pseudos, abinit_input.pseudos)):
             raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
         self._inputs.append(abinit_input)
 
     def extend(self, abinit_inputs):
-        """Extends self with a list of |BasicAbinitInput| objects."""
+        """Extends self with a list of BasicAbinitInputs."""
         assert all(isinstance(inp, BasicAbinitInput) for inp in abinit_inputs)
         for inp in abinit_inputs:
             if any(p1 != p2 for p1, p2 in zip(self[0].pseudos, inp.pseudos)):
@@ -1211,7 +1201,7 @@ class BasicMultiDataset:
         self.append(self[dtindex].deepcopy())
 
     def split_datasets(self):
-        """Return list of |BasicAbinitInput| objects.."""
+        """Return list of BasicAbinitInputs."""
         return self._inputs
 
     def deepcopy(self):
@@ -1226,13 +1216,8 @@ class BasicMultiDataset:
     def __str__(self):
         return self.to_str()
 
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
-
     def to_str(self, with_pseudos=True):
-        """
-        String representation i.e. the input file read by Abinit.
+        """String representation i.e. the input file read by Abinit.
 
         Args:
             with_pseudos: False if JSON section with pseudo data should not be added.

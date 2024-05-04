@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from monty.json import MSONable
 
 from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.analysis.thermochemistry import ThermoData
 from pymatgen.core.composition import Composition
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -48,17 +53,19 @@ class ExpEntry(PDEntry, MSONable):
         super().__init__(comp, enthalpy)
 
     def __repr__(self):
-        return f"ExpEntry {self.composition.formula}, Energy = {self.energy:.4f}"
+        return f"ExpEntry {self.formula}, Energy = {self.energy:.4f}"
 
     @classmethod
-    def from_dict(cls, d):
-        """:param d: Dict representation.
+    def from_dict(cls, dct: dict) -> Self:
+        """
+        Args:
+           dct (dict): Dict representation.
 
         Returns:
             ExpEntry
         """
-        thermodata = [ThermoData.from_dict(td) for td in d["thermodata"]]
-        return cls(d["composition"], thermodata, d["temperature"])
+        thermodata = [ThermoData.from_dict(td) for td in dct["thermodata"]]
+        return cls(dct["composition"], thermodata, dct["temperature"])
 
     def as_dict(self):
         """MSONable dict."""

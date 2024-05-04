@@ -47,8 +47,8 @@ WAVELENGTHS = {
     "AgKb1": 0.497082,
 }
 
-with open(os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json")) as f:
-    ATOMIC_SCATTERING_PARAMS = json.load(f)
+with open(os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json")) as file:
+    ATOMIC_SCATTERING_PARAMS = json.load(file)
 
 
 class XRDCalculator(AbstractDiffractionPatternCalculator):
@@ -98,8 +98,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
     AVAILABLE_RADIATION = tuple(WAVELENGTHS)
 
     def __init__(self, wavelength="CuKa", symprec: float = 0, debye_waller_factors=None):
-        """
-        Initializes the XRD calculator with a given radiation.
+        """Initialize the XRD calculator with a given radiation.
 
         Args:
             wavelength (str/float): The wavelength can be specified as either a
@@ -140,15 +139,15 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 sphere of radius 2 / wavelength.
 
         Returns:
-            (XRDPattern)
+            DiffractionPattern: XRD pattern
         """
         if self.symprec:
             finder = SpacegroupAnalyzer(structure, symprec=self.symprec)
             structure = finder.get_refined_structure()
 
         wavelength = self.wavelength
-        latt = structure.lattice
-        is_hex = latt.is_hexagonal()
+        lattice = structure.lattice
+        is_hex = lattice.is_hexagonal()
 
         # Obtained from Bragg condition. Note that reciprocal lattice
         # vector length is 1 / d_hkl.
@@ -159,20 +158,20 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         )
 
         # Obtain crystallographic reciprocal lattice points within range
-        recip_latt = latt.reciprocal_lattice_crystallographic
-        recip_pts = recip_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], max_r)
+        recip_lattice = lattice.reciprocal_lattice_crystallographic
+        recip_pts = recip_lattice.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], max_r)
         if min_r:
             recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
 
-        # Create a flattened array of zs, coeffs, fcoords and occus. This is used to perform
+        # Create a flattened array of zs, coeffs, frac_coords and occus. This is used to perform
         # vectorized computation of atomic scattering factors later. Note that these are not
         # necessarily the same size as the structure as each partially occupied specie occupies its
         # own position in the flattened array.
         _zs = []
         _coeffs = []
-        _fcoords = []
+        _frac_coords = []
         _occus = []
-        _dwfactors = []
+        _dw_factors = []
 
         for site in structure:
             for sp, occu in site.species.items():
@@ -184,15 +183,15 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                         f"Unable to calculate XRD pattern as there is no scattering coefficients for {sp.symbol}."
                     )
                 _coeffs.append(c)
-                _dwfactors.append(self.debye_waller_factors.get(sp.symbol, 0))
-                _fcoords.append(site.frac_coords)
+                _dw_factors.append(self.debye_waller_factors.get(sp.symbol, 0))
+                _frac_coords.append(site.frac_coords)
                 _occus.append(occu)
 
         zs = np.array(_zs)
         coeffs = np.array(_coeffs)
-        fcoords = np.array(_fcoords)
+        frac_coords = np.array(_frac_coords)
         occus = np.array(_occus)
-        dwfactors = np.array(_dwfactors)
+        dw_factors = np.array(_dw_factors)
         peaks: dict[float, list[float | list[tuple[int, ...]]]] = {}
         two_thetas: list[float] = []
 
@@ -212,10 +211,10 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
 
                 # Vectorized computation of g.r for all fractional coords and
                 # hkl.
-                g_dot_r = np.dot(fcoords, np.transpose([hkl])).T[0]
+                g_dot_r = np.dot(frac_coords, np.transpose([hkl])).T[0]
 
                 # Highly vectorized computation of atomic scattering factors.
-                # Equivalent non-vectorized code is::
+                # Equivalent non-vectorized code is:
                 #
                 #   for site in structure:
                 #      el = site.specie
@@ -227,7 +226,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                     axis=1,  # type: ignore
                 )
 
-                dw_correction = np.exp(-dwfactors * s2)
+                dw_correction = np.exp(-dw_factors * s2)
 
                 # Structure factor = sum of atomic scattering factors (with
                 # position factor exp(2j * pi * g.r and occupancies).

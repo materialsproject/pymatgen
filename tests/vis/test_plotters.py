@@ -11,10 +11,8 @@ from pymatgen.analysis.xas.spectrum import XAS
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 from pymatgen.vis.plotters import SpectrumPlotter
 
-test_dir = f"{TEST_FILES_DIR}/spectrum_test"
-
-with open(f"{test_dir}/LiCoO2_k_xanes.json") as fp:
-    spect_data_dict = json.load(fp, cls=MontyDecoder)
+with open(f"{TEST_FILES_DIR}/analysis/spectrum_test/LiCoO2_k_xanes.json") as file:
+    spect_data_dict = json.load(file, cls=MontyDecoder)
 
 
 class TestSpectrumPlotter(PymatgenTest):
@@ -43,3 +41,19 @@ class TestSpectrumPlotter(PymatgenTest):
         ax = self.plotter.get_plot()
         assert isinstance(ax, plt.Axes)
         assert len(ax.lines) == 0
+
+    def test_get_plot_with_add_spectrum(self):
+        # create spectra_dict
+        spectra_dict = {"LiCoO2": self.xanes}
+        xanes = self.xanes.copy()
+        xanes.y += np.random.randn(len(xanes.y)) * 0.005
+        spectra_dict["LiCoO2 + noise"] = spectra_dict["LiCoO2 - replot"] = xanes
+
+        self.plotter = SpectrumPlotter(yshift=0.2)
+        self.plotter.add_spectra(spectra_dict)
+        ax = self.plotter.get_plot()
+        assert isinstance(ax, plt.Axes)
+        assert len(ax.lines) == 3
+        img_path = f"{self.tmp_path}/spectrum_plotter_test2.pdf"
+        self.plotter.save_plot(img_path)
+        assert os.path.isfile(img_path)

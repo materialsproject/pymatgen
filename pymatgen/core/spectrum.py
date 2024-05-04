@@ -15,12 +15,15 @@ from pymatgen.util.coord import get_linear_interpolated_value
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
 
 def lorentzian(x, x_0: float = 0, sigma: float = 1.0):
-    """:param x: x values
-    :param x_0: Center
-    :param sigma: FWHM
+    """
+    Args:
+        x: x values
+        x_0: Center
+        sigma: FWHM.
 
     Returns:
         Value of lorentzian at x.
@@ -43,14 +46,14 @@ class Spectrum(MSONable):
     XLABEL = "x"
     YLABEL = "y"
 
-    def __init__(self, x: ArrayLike, y: ArrayLike, *args, **kwargs):
+    def __init__(self, x: ArrayLike, y: ArrayLike, *args, **kwargs) -> None:
         """
         Args:
             x (ndarray): A ndarray of N values.
             y (ndarray): A ndarray of N x k values. The first dimension must be
                 the same as that of x. Each of the k values are interpreted as separate.
             *args: All subclasses should provide args other than x and y
-                when calling super, e.g., super().__init__(
+                when calling super, e.g. super().__init__(
                 x, y, arg1, arg2, kwarg1=val1, ..). This guarantees the +, -, *,
                 etc. operators work properly.
             **kwargs: Same as that for *args.
@@ -70,15 +73,15 @@ class Spectrum(MSONable):
             return self.y
         raise AttributeError(f"Invalid attribute {name=}")
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.ydim[0]
 
-    def normalize(self, mode: Literal["max", "sum"] = "max", value: float = 1.0):
+    def normalize(self, mode: Literal["max", "sum"] = "max", value: float = 1.0) -> None:
         """Normalize the spectrum with respect to the sum of intensity.
 
         Args:
             mode ("max" | "sum"): Normalization mode. "max" sets the max y value to value,
-                e.g., in XRD patterns. "sum" sets the sum of y to a value, i.e., like a
+                e.g. in XRD patterns. "sum" sets the sum of y to a value, i.e., like a
                 probability density.
             value (float): Value to normalize to. Defaults to 1.
         """
@@ -91,7 +94,7 @@ class Spectrum(MSONable):
 
         self.y /= factor / value
 
-    def smear(self, sigma: float = 0.0, func: str | Callable = "gaussian"):
+    def smear(self, sigma: float = 0.0, func: str | Callable = "gaussian") -> None:
         """Apply Gaussian/Lorentzian smearing to spectrum y value.
 
         Args:
@@ -119,7 +122,7 @@ class Spectrum(MSONable):
             self.y *= total / np.sum(self.y, axis=0)  # renormalize to maintain the same integrated sum as before.
 
     def get_interpolated_value(self, x: float) -> float | list[float]:
-        """Returns an interpolated y value for a particular x value.
+        """Get an interpolated y value for a particular x value.
 
         Args:
             x: x value to return the y value for
@@ -131,12 +134,12 @@ class Spectrum(MSONable):
             return get_linear_interpolated_value(self.x, self.y, x)
         return [get_linear_interpolated_value(self.x, self.y[:, k], x) for k in range(self.ydim[1])]
 
-    def copy(self):
+    def copy(self) -> Self:
         """
         Returns:
             Copy of Spectrum object.
         """
-        return self.__class__(self.x, self.y, *self._args, **self._kwargs)
+        return type(self)(self.x, self.y, *self._args, **self._kwargs)
 
     def __add__(self, other):
         """Add two Spectrum object together. Checks that x scales are the same.
@@ -150,7 +153,7 @@ class Spectrum(MSONable):
         """
         if not all(np.equal(self.x, other.x)):
             raise ValueError("X axis values are not compatible!")
-        return self.__class__(self.x, self.y + other.y, *self._args, **self._kwargs)
+        return type(self)(self.x, self.y + other.y, *self._args, **self._kwargs)
 
     def __sub__(self, other):
         """Subtract one Spectrum object from another. Checks that x scales are
@@ -165,7 +168,7 @@ class Spectrum(MSONable):
         """
         if not all(np.equal(self.x, other.x)):
             raise ValueError("X axis values are not compatible!")
-        return self.__class__(self.x, self.y - other.y, *self._args, **self._kwargs)
+        return type(self)(self.x, self.y - other.y, *self._args, **self._kwargs)
 
     def __mul__(self, other):
         """Scale the Spectrum's y values.
@@ -176,7 +179,7 @@ class Spectrum(MSONable):
         Returns:
             Spectrum object with y values scaled
         """
-        return self.__class__(self.x, other * self.y, *self._args, **self._kwargs)
+        return type(self)(self.x, other * self.y, *self._args, **self._kwargs)
 
     __rmul__ = __mul__
 
@@ -189,7 +192,7 @@ class Spectrum(MSONable):
         Returns:
             Spectrum object with y values divided
         """
-        return self.__class__(self.x, self.y.__truediv__(other), *self._args, **self._kwargs)
+        return type(self)(self.x, self.y.__truediv__(other), *self._args, **self._kwargs)
 
     def __floordiv__(self, other):
         """True division of y.
@@ -200,16 +203,16 @@ class Spectrum(MSONable):
         Returns:
             Spectrum object with y values divided
         """
-        return self.__class__(self.x, self.y.__floordiv__(other), *self._args, **self._kwargs)
+        return type(self)(self.x, self.y.__floordiv__(other), *self._args, **self._kwargs)
 
     __div__ = __truediv__
 
-    def __str__(self):
-        """Returns a string containing values and labels of spectrum object for
+    def __str__(self) -> str:
+        """Get a string containing values and labels of spectrum object for
         plotting.
         """
         return f"{type(self).__name__}\n{self.XLABEL}: {self.x}\n{self.YLABEL}: {self.y}"
 
-    def __repr__(self):
-        """Returns a printable representation of the class."""
+    def __repr__(self) -> str:
+        """Get a printable representation of the class."""
         return str(self)

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import json
-import unittest
 from shutil import which
+from unittest import TestCase
 
+import pytest
 from monty.serialization import loadfn
 from pytest import approx
 
@@ -22,22 +23,24 @@ try:
 except ImportError:
     fdint = None
 
+TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/boltztrap"
+
 x_trans = which("x_trans")
 
 
-@unittest.skipIf(not x_trans, "No x_trans.")
-class TestBoltztrapAnalyzer(unittest.TestCase):
+@pytest.mark.skipif(not x_trans, reason="No x_trans.")
+class TestBoltztrapAnalyzer(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.bz = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/transp/")
-        cls.bz_bands = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/bands/")
-        cls.bz_up = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/dos_up/", dos_spin=1)
-        cls.bz_dw = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/dos_dw/", dos_spin=-1)
-        cls.bz_fermi = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/fermi/")
+        cls.bz = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/transp/")
+        cls.bz_bands = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/bands/")
+        cls.bz_up = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/dos_up/", dos_spin=1)
+        cls.bz_dw = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/dos_dw/", dos_spin=-1)
+        cls.bz_fermi = BoltztrapAnalyzer.from_files(f"{TEST_DIR}/fermi/")
 
-        with open(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json") as file:
-            d = json.load(file)
-            cls.bs = BandStructure.from_dict(d)
+        with open(f"{TEST_FILES_DIR}/electronic_structure/bandstructure/Cu2O_361_bandstructure.json") as file:
+            dct = json.load(file)
+            cls.bs = BandStructure.from_dict(dct)
             cls.btr = BoltztrapRunner(cls.bs, 1)
 
     def test_properties(self):
@@ -83,7 +86,7 @@ class TestBoltztrapAnalyzer(unittest.TestCase):
         assert self.bz_fermi.fermi_surface_data.shape == approx((121, 121, 65))
         assert self.bz_fermi.fermi_surface_data[21][79][19] == approx(-1.8831911809439161, abs=1e-5)
 
-    @unittest.skipIf(not fdint, "No FDINT")
+    @pytest.mark.skipif(not fdint, reason="No FDINT")
     def test_get_seebeck_eff_mass(self):
         ref = [1.956090529381193, 2.0339311618566343, 1.1529383757896965]
         ref2 = [4258.4072823354145, 4597.0351887125289, 4238.1262696392705]
@@ -92,14 +95,13 @@ class TestBoltztrapAnalyzer(unittest.TestCase):
         sbk_mass_avg_mu = self.bz.get_seebeck_eff_mass(output="average", doping_levels=False, temp=300)[3]
         sbk_mass_avg_dop = self.bz.get_seebeck_eff_mass(output="average", doping_levels=True, temp=300)["n"][2]
 
-        for i in range(3):
-            assert sbk_mass_tens_mu[i] == approx(ref2[i], abs=1e-1)
-            assert sbk_mass_tens_dop[i] == approx(ref[i], abs=1e-4)
+        assert sbk_mass_tens_mu == approx(ref2, abs=1e-1)
+        assert sbk_mass_tens_dop == approx(ref, abs=1e-4)
 
         assert sbk_mass_avg_mu == approx(4361.4744008038842, abs=1e-1)
         assert sbk_mass_avg_dop == approx(1.661553842105382, abs=1e-4)
 
-    @unittest.skipIf(not fdint, "No FDINT")
+    @pytest.mark.skipif(not fdint, reason="No FDINT")
     def test_get_complexity_factor(self):
         ref = [2.7658776815227828, 2.9826088215568403, 0.28881335881640308]
         ref2 = [0.0112022048620205, 0.0036001049607186602, 0.0083028947173193028]
@@ -108,52 +110,40 @@ class TestBoltztrapAnalyzer(unittest.TestCase):
         sbk_mass_avg_mu = self.bz.get_complexity_factor(output="average", doping_levels=False, temp=300)[3]
         sbk_mass_avg_dop = self.bz.get_complexity_factor(output="average", doping_levels=True, temp=300)["n"][2]
 
-        for i in range(3):
-            assert sbk_mass_tens_mu[i] == approx(ref2[i], abs=1e-4)
-            assert sbk_mass_tens_dop[i] == approx(ref[i], abs=1e-4)
+        assert sbk_mass_tens_mu == approx(ref2, abs=1e-4)
+        assert sbk_mass_tens_dop == approx(ref, abs=1e-4)
 
         assert sbk_mass_avg_mu == approx(0.00628677029221, abs=1e-4)
         assert sbk_mass_avg_dop == approx(1.12322832119, abs=1e-4)
 
     def test_get_seebeck(self):
         ref = [-768.99078999999995, -724.43919999999991, -686.84682999999973]
-        for i in range(3):
-            assert self.bz.get_seebeck()["n"][800][3][i] == approx(ref[i])
+        assert self.bz.get_seebeck()["n"][800][3] == approx(ref)
         assert self.bz.get_seebeck(output="average")["p"][800][3] == approx(697.608936667)
         assert self.bz.get_seebeck(output="average", doping_levels=False)[500][520] == approx(1266.7056)
-        assert self.bz.get_seebeck(output="average", doping_levels=False)[300][65] == approx(
-            -36.2459389333
-        )  # TODO: this was originally "eigs"
+        assert self.bz.get_seebeck(output="average", doping_levels=False)[300][65] == approx(-36.2459389333)
 
     def test_get_conductivity(self):
         ref = [5.9043185000000022, 17.855599000000002, 26.462935000000002]
-        for i in range(3):
-            assert self.bz.get_conductivity()["p"][600][2][i] == approx(ref[i])
+        assert self.bz.get_conductivity()["p"][600][2] == approx(ref)
         assert self.bz.get_conductivity(output="average")["n"][700][1] == approx(1.58736609667)
         assert self.bz.get_conductivity(output="average", doping_levels=False)[300][457] == approx(2.87163566667)
-        assert self.bz.get_conductivity(
-            output="average",
-            doping_levels=False,
-            # TODO: this was originally "eigs"
-            relaxation_time=1e-15,
-        )[200][63] == approx(16573.0536667)
+        assert self.bz.get_conductivity(output="average", doping_levels=False, relaxation_time=1e-15)[200][
+            63
+        ] == approx(16573.0536667)
 
     def test_get_power_factor(self):
         ref = [6.2736602345523362, 17.900184232304138, 26.158282220458144]
-        for i in range(3):
-            assert self.bz.get_power_factor()["p"][200][2][i] == approx(ref[i])
+        assert self.bz.get_power_factor()["p"][200][2] == approx(ref)
         assert self.bz.get_power_factor(output="average")["n"][600][4] == approx(411.230962976)
         assert self.bz.get_power_factor(output="average", doping_levels=False, relaxation_time=1e-15)[500][
             459
         ] == approx(6.59277148467)
-        assert self.bz.get_power_factor(output="average", doping_levels=False)[800][61] == approx(
-            2022.67064134
-        )  # TODO: this was originally "eigs"
+        assert self.bz.get_power_factor(output="average", doping_levels=False)[800][61] == approx(2022.67064134)
 
     def test_get_thermal_conductivity(self):
         ref = [2.7719565628862623e-05, 0.00010048046886793946, 0.00015874549392499391]
-        for i in range(3):
-            assert self.bz.get_thermal_conductivity()["p"][300][2][i] == approx(ref[i])
+        assert self.bz.get_thermal_conductivity()["p"][300][2] == approx(ref)
         assert self.bz.get_thermal_conductivity(output="average", relaxation_time=1e-15)["n"][500][0] == approx(
             1.74466575612e-07
         )
@@ -169,27 +159,23 @@ class TestBoltztrapAnalyzer(unittest.TestCase):
 
     def test_get_zt(self):
         ref = [0.097408810215, 0.29335112354, 0.614673998089]
-        for i in range(3):
-            assert self.bz.get_zt()["n"][800][4][i] == approx(ref[i])
+        assert self.bz.get_zt()["n"][800][4] == approx(ref)
         assert self.bz.get_zt(output="average", k_l=0.5)["p"][700][2] == approx(0.0170001879916)
         assert self.bz.get_zt(output="average", doping_levels=False, relaxation_time=1e-15)[300][240] == approx(
             0.0041923533238348342
         )
 
-        eigs = self.bz.get_zt(output="eigs", doping_levels=False)[700][65]
-        ref_eigs = [0.082420053399668847, 0.29408035502671648, 0.40822061215079392]
-        for idx, val in enumerate(ref_eigs):
-            assert eigs[idx] == approx(val, abs=1e-5)
+        eig_vals = self.bz.get_zt(output="eigs", doping_levels=False)[700][65]
+        ref_eig_vals = [0.082420053399668847, 0.29408035502671648, 0.40822061215079392]
+        assert eig_vals == approx(ref_eig_vals, abs=1e-5)
 
     def test_get_average_eff_mass(self):
         ref = [0.76045816788363574, 0.96181142990667101, 2.9428428773308628]
-        for i in range(3):
-            assert self.bz.get_average_eff_mass()["p"][300][2][i] == approx(ref[i])
+        assert self.bz.get_average_eff_mass()["p"][300][2] == approx(ref)
         ref = [1.1295783824744523, 1.3898454041924351, 5.2459984671977935]
         ref2 = [6.6648842712692078, 31.492540105738343, 37.986369302138954]
-        for i in range(3):
-            assert self.bz.get_average_eff_mass()["n"][600][1][i] == approx(ref[i])
-            assert self.bz.get_average_eff_mass(doping_levels=False)[300][200][i] == approx(ref2[i])
+        assert self.bz.get_average_eff_mass()["n"][600][1] == approx(ref)
+        assert self.bz.get_average_eff_mass(doping_levels=False)[300][200] == approx(ref2)
         ref = [
             [9.61811430e-01, -8.25159596e-19, -4.70319444e-19],
             [-8.25159596e-19, 2.94284288e00, 3.00368916e-18],
@@ -201,12 +187,8 @@ class TestBoltztrapAnalyzer(unittest.TestCase):
             [-1.36897140e-17, 8.74169648e-17, 2.21151980e01],
         ]
 
-        for i in range(3):
-            for j in range(3):
-                assert self.bz.get_average_eff_mass(output="tensor")["p"][300][2][i][j] == approx(ref[i][j], abs=1e-4)
-                assert self.bz.get_average_eff_mass(output="tensor", doping_levels=False)[300][500][i][j] == approx(
-                    ref2[i][j], 4
-                )
+        assert self.bz.get_average_eff_mass(output="tensor")["p"][300][2] == approx(ref, abs=1e-4)
+        assert self.bz.get_average_eff_mass(output="tensor", doping_levels=False)[300][500] == approx(ref2, 4)
         assert self.bz.get_average_eff_mass(output="average")["n"][300][2] == approx(1.53769093989, abs=1e-4)
 
     def test_get_carrier_concentration(self):
@@ -218,8 +200,8 @@ class TestBoltztrapAnalyzer(unittest.TestCase):
         assert self.bz.get_hall_carrier_concentration()[500][892] / 1e21 == approx(-9.136803845741777, abs=1e-4)
 
     def test_get_symm_bands(self):
-        structure = loadfn(f"{TEST_FILES_DIR}/boltztrap/structure_mp-12103.json")
-        sbs = loadfn(f"{TEST_FILES_DIR}/boltztrap/dft_bs_sym_line.json")
+        structure = loadfn(f"{TEST_DIR}/structure_mp-12103.json")
+        sbs = loadfn(f"{TEST_DIR}/dft_bs_sym_line.json")
         kpoints = [kp.frac_coords for kp in sbs.kpoints]
         labels_dict = {k: sbs.labels_dict[k].frac_coords for k in sbs.labels_dict}
         for kpt_line, label_dict in zip([None, sbs.kpoints, kpoints], [None, sbs.labels_dict, labels_dict]):
@@ -228,8 +210,8 @@ class TestBoltztrapAnalyzer(unittest.TestCase):
             assert len(sbs_bzt.bands[Spin.up][1]) == approx(143)
 
     # def test_check_acc_bzt_bands(self):
-    #     structure = loadfn(f"{TEST_FILES_DIR}/boltztrap/structure_mp-12103.json")
-    #     sbs = loadfn(f"{TEST_FILES_DIR}/boltztrap/dft_bs_sym_line.json")
+    #     structure = loadfn(f"{TEST_DIR}/structure_mp-12103.json")
+    #     sbs = loadfn(f"{TEST_DIR}/dft_bs_sym_line.json")
     #     sbs_bzt = self.bz_bands.get_symm_bands(structure, -5.25204548)
     #     corr, werr_vbm, werr_cbm, warn = BoltztrapAnalyzer.check_acc_bzt_bands(sbs_bzt, sbs)
     #     assert corr[2] == 9.16851750e-05
@@ -238,7 +220,7 @@ class TestBoltztrapAnalyzer(unittest.TestCase):
     #     assert not warn
 
     def test_get_complete_dos(self):
-        structure = loadfn(f"{TEST_FILES_DIR}/boltztrap/structure_mp-12103.json")
+        structure = loadfn(f"{TEST_DIR}/structure_mp-12103.json")
         cdos = self.bz_up.get_complete_dos(structure, self.bz_dw)
         spins = list(cdos.densities)
         assert Spin.down in spins

@@ -155,7 +155,7 @@ class BatteryAnalyzer:
         return self._get_max_cap_ah(remove, insert) * 1000 * 1e24 / (vol * const.N_A)
 
     def get_removals_int_oxid(self):
-        """Returns a set of ion removal steps, e.g. set([1 2 4]) etc. in order to
+        """Get a set of ion removal steps, e.g. set([1 2 4]) etc. in order to
         produce integer oxidation states of the redox metals.
         If multiple redox metals are present, all combinations of reduction/oxidation are tested.
         Note that having more than 3 redox metals will likely slow down the algorithm.

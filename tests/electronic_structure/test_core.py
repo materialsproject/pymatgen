@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import unittest
-
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
@@ -10,7 +8,7 @@ from pymatgen.core import Lattice
 from pymatgen.electronic_structure.core import Magmom, Orbital, Spin
 
 
-class TestSpin(unittest.TestCase):
+class TestSpin:
     def test_init(self):
         assert int(Spin.up) == 1
         assert int(Spin.down) == -1
@@ -25,7 +23,7 @@ class TestSpin(unittest.TestCase):
         assert id(Spin(1)) == id(Spin.up)
 
 
-class TestOrbital(unittest.TestCase):
+class TestOrbital:
     def test_init(self):
         for orb in Orbital:
             assert Orbital(orb.value) == orb
@@ -36,7 +34,7 @@ class TestOrbital(unittest.TestCase):
         assert id(Orbital(0)) == id(Orbital.s)
 
 
-class TestMagmom(unittest.TestCase):
+class TestMagmom:
     def test_init(self):
         # backwards compatibility for scalar-like magmoms
         magmom = Magmom(2.0)
@@ -88,16 +86,16 @@ class TestMagmom(unittest.TestCase):
             assert_allclose(magmom3.moment, magmom1.moment)
 
     def test_is_collinear(self):
-        magmoms_list = [
+        magmoms = [
             [0, 0, 0],
             [1, 1, 1],
-            [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
+            np.zeros((3, 3)),
             [[0, 0, 1], [0, 0, 1], [0, 0, 1]],
             [[0, 0, -1], [0, 0, 1], [0, 0, 1]],
             [[2, 2, 2], [-2, -2, -2], [2, 2, 2]],
         ]
-        for magmoms in magmoms_list:
-            assert Magmom.are_collinear(magmoms)
+        for magmom in magmoms:
+            assert Magmom.are_collinear(magmom)
         ncl_magmoms = [[[0, 0, 1], [0, 0, 1], [1, 2, 3]]]
         assert Magmom.are_collinear(ncl_magmoms) is False
 

@@ -429,17 +429,16 @@ class TestEOS(PymatgenTest):
         assert_allclose(birch_eos_fit.func(birch_eos_fit.v0), birch_eos_fit.e0)
 
         fig = birch_eos_fit.plot_ax(ax=None, show=False, fontsize=8, title="birch eos")
-        assert hasattr(fig, "savefig")
+        assert callable(fig.savefig)
 
     def test_eos_func_call(self):
         # eos_fit_obj.func(volume) == eos_fit_obj(volume)
         assert_allclose(self.num_eos_fit.func(0.0), self.num_eos_fit(0.0))
 
     def test_summary_dict(self):
-        d = {
+        assert self.num_eos_fit.results == {
             "e0": self.num_eos_fit.e0,
             "b0": self.num_eos_fit.b0,
             "b1": self.num_eos_fit.b1,
             "v0": self.num_eos_fit.v0,
         }
-        assert self.num_eos_fit.results == d

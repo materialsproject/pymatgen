@@ -14,7 +14,7 @@ from pymatgen.io.vasp.outputs import Wavecar
 
 class SOCSpillage:
     """
-    Spin-orbit spillage criteria to predict whether a material is topologically non-trival.
+    Spin-orbit spillage criteria to predict whether a material is topologically non-trivial.
     The spillage criteria physically signifies number of band-inverted electrons.
     A non-zero, high value (generally >0.5) suggests non-trivial behavior.
     """
@@ -38,42 +38,45 @@ class SOCSpillage:
     @staticmethod
     def orth(A):
         """Helper function to create orthonormal basis."""
-        u, s, vh = np.linalg.svd(A, full_matrices=False)
-        M, N = A.shape
+        u, s, _vh = np.linalg.svd(A, full_matrices=False)
+        n_rows, n_cols = A.shape
         eps = np.finfo(float).eps
-        tol = max(M, N) * np.amax(s) * eps
+        tol = max(n_rows, n_cols) * np.amax(s) * eps
         num = np.sum(s > tol, dtype=int)
-        Q = u[:, :num]
-        return Q, num
+        orthonormal_basis = u[:, :num]
+        return orthonormal_basis, num
 
     def overlap_so_spinpol(self):
         """Main function to calculate SOC spillage."""
-        noso = Wavecar(self.wf_noso)
+        no_so = Wavecar(self.wf_noso)
         so = Wavecar(self.wf_so)
 
-        bcell = np.linalg.inv(noso.a).T
-        tmp = np.linalg.norm(np.dot(np.diff(noso.kpoints, axis=0), bcell), axis=1)
+        b_cell = np.linalg.inv(no_so.a).T
+        tmp = np.linalg.norm(np.dot(np.diff(no_so.kpoints, axis=0), b_cell), axis=1)
         noso_k = np.concatenate(([0], np.cumsum(tmp)))
-        noso_bands = np.array(noso.band_energy)[:, :, :, 0]
-        noso_kvecs = np.array(noso.kpoints)
-        noso_occs = np.array(noso.band_energy)[:, :, :, 2]
-        noso_nkpts = len(noso_k)
+        noso_bands = np.array(no_so.band_energy)[:, :, :, 0]
+        noso_kvecs = np.array(no_so.kpoints)
+        noso_occs = np.array(no_so.band_energy)[:, :, :, 2]
+        n_kpts_noso = len(noso_k)
 
-        bcell = np.linalg.inv(so.a).T
-        tmp = np.linalg.norm(np.dot(np.diff(so.kpoints, axis=0), bcell), axis=1)
+        b_cell = np.linalg.inv(so.a).T
+        tmp = np.linalg.norm(np.dot(np.diff(so.kpoints, axis=0), b_cell), axis=1)
         so_k = np.concatenate(([0], np.cumsum(tmp)))
         so_bands = np.array([np.array(so.band_energy)[:, :, 0]])
         so_kvecs = np.array(so.kpoints)
         # so_occs = np.array([np.array(so.band_energy)[:, :, 2]])
         so_nkpts = len(so_k)
 
-        nelec_list = []
-        for nk1 in range(1, noso_nkpts + 1):  # no spin orbit kpoints loop
-            knoso = noso_kvecs[nk1 - 1, :]
+        n_elec_list: list[list[int]] = []
+        cup = cdn = 0
+        for nk1 in range(1, n_kpts_noso + 1):  # no spin orbit kpoints loop
+            k_no_spin_orbit = noso_kvecs[nk1 - 1, :]
             for nk2 in range(1, so_nkpts + 1):  # spin orbit
                 kso = so_kvecs[nk2 - 1, :]
                 if (
-                    self.isclose(kso[0], knoso[0]) and self.isclose(kso[1], knoso[1]) and self.isclose(kso[2], knoso[2])
+                    self.isclose(kso[0], k_no_spin_orbit[0])
+                    and self.isclose(kso[1], k_no_spin_orbit[1])
+                    and self.isclose(kso[2], k_no_spin_orbit[2])
                 ):  # do kpoints match?
                     for c, e in enumerate(noso_occs[0, nk1 - 1, :]):
                         if e < 0.5:
@@ -84,14 +87,14 @@ class SOCSpillage:
                             cdn = c
                             break
 
-                    nelec_list.append([cup, cdn, cup + cdn])
-        n_arr = np.array(nelec_list)
+                    n_elec_list.append([cup, cdn, cup + cdn])
+        n_arr = np.array(n_elec_list)
 
         n_up = int(round(np.mean(n_arr[:, 0])))
         n_dn = int(round(np.mean(n_arr[:, 1])))
         n_tot = int(round(np.mean(n_arr[:, 2])))
 
-        nelec = int(n_tot)
+        n_elec = int(n_tot)
 
         # noso_homo_up = np.max(noso_bands[0, :, n_up - 1])
         # noso_lumo_up = np.min(noso_bands[0, :, n_up])
@@ -99,13 +102,13 @@ class SOCSpillage:
         # noso_homo_dn = np.max(noso_bands[1, :, n_dn - 1])
         # noso_lumo_dn = np.min(noso_bands[1, :, n_dn])
 
-        so_homo = np.max(so_bands[0, :, nelec - 1])
-        so_lumo = np.min(so_bands[0, :, nelec])
+        so_homo = np.max(so_bands[0, :, n_elec - 1])
+        so_lumo = np.min(so_bands[0, :, n_elec])
 
         # noso_direct_up = np.min(noso_bands[0, :, n_up] - noso_bands[0, :, n_up - 1])
         # noso_direct_dn = np.min(noso_bands[1, :, n_dn] - noso_bands[1, :, n_dn - 1])
 
-        so_direct = np.min(so_bands[0, :, nelec] - so_bands[0, :, nelec - 1])
+        so_direct = np.min(so_bands[0, :, n_elec] - so_bands[0, :, n_elec - 1])
 
         noso_direct = 1000000.0
         noso_homo = -10000000.0
@@ -126,12 +129,14 @@ class SOCSpillage:
         y = []
 
         nelec_tot = 0.0
-        for nk1 in range(1, noso_nkpts + 1):  # no spin orbit kpoints loop
-            knoso = noso_kvecs[nk1 - 1, :]
+        for nk1 in range(1, n_kpts_noso + 1):  # no spin orbit kpoints loop
+            k_no_spin_orbit = noso_kvecs[nk1 - 1, :]
             for nk2 in range(1, so_nkpts + 1):  # spin orbit
                 kso = so_kvecs[nk2 - 1, :]
                 if (
-                    self.isclose(kso[0], knoso[0]) and self.isclose(kso[1], knoso[1]) and self.isclose(kso[2], knoso[2])
+                    self.isclose(kso[0], k_no_spin_orbit[0])
+                    and self.isclose(kso[1], k_no_spin_orbit[1])
+                    and self.isclose(kso[2], k_no_spin_orbit[2])
                 ):  # do kpoints match?
                     # changes section 2
                     nelec_up = n_arr[nk1 - 1, 0]
@@ -141,11 +146,11 @@ class SOCSpillage:
                     kpoints.append(kso)
                     Mmn = 0.0
                     vnoso = np.array(
-                        noso.coeffs[0][nk1 - 1][0]
+                        no_so.coeffs[0][nk1 - 1][0]
                     )  # noso.readBandCoeff(ispin=1, ikpt=nk1, iband=1, norm=False)
                     n_noso1 = vnoso.shape[0]
                     vnoso = np.array(
-                        noso.coeffs[1][nk1 - 1][0]
+                        no_so.coeffs[1][nk1 - 1][0]
                     )  # noso.readBandCoeff(ispin=2, ikpt=nk1, iband=1, norm=False)
                     # n_noso2 = vnoso.shape[0]
                     vso = so.coeffs[nk1 - 1][0].flatten()  # so.readBandCoeff(ispin=1, ikpt=nk2, iband=1, norm=False)
@@ -155,22 +160,22 @@ class SOCSpillage:
                     Vnoso = np.zeros((vs, nelec_tot), dtype=complex)
                     Vso = np.zeros((vs, nelec_tot), dtype=complex)
 
-                    if np.array(noso.coeffs[1][nk1 - 1]).shape[1] == vs // 2:
+                    if np.array(no_so.coeffs[1][nk1 - 1]).shape[1] == vs // 2:
                         # if nk1==10 and nk2==10:
                         # prepare matrices
                         for n1 in range(1, nelec_up + 1):
-                            Vnoso[0 : vs // 2, n1 - 1] = np.array(noso.coeffs[0][nk1 - 1][n1 - 1])[0 : vs // 2]
+                            Vnoso[0 : vs // 2, n1 - 1] = np.array(no_so.coeffs[0][nk1 - 1][n1 - 1])[0 : vs // 2]
                         for n1 in range(1, nelec_dn + 1):
-                            Vnoso[vs // 2 : vs, n1 - 1 + nelec_up] = np.array(noso.coeffs[1][nk1 - 1][n1 - 1])[
+                            Vnoso[vs // 2 : vs, n1 - 1 + nelec_up] = np.array(no_so.coeffs[1][nk1 - 1][n1 - 1])[
                                 0 : vs // 2
                             ]
                         for n1 in range(1, nelec_tot + 1):
                             t = so.coeffs[nk2 - 1][n1 - 1].flatten()
                             Vso[0 : vs // 2, n1 - 1] = t[0 : vs // 2]
                             Vso[vs // 2 : vs, n1 - 1] = t[n_so // 2 : n_so // 2 + vs // 2]
-                        Qnoso, num_noso = self.orth(Vnoso)  # make orthonormal basis?
+                        Qnoso, _num_noso = self.orth(Vnoso)  # make orthonormal basis?
 
-                        Qso, num_so = self.orth(Vso)
+                        Qso, _num_so = self.orth(Vso)
 
                         gamma_k.append(nelec_tot)
                         a = []
@@ -193,14 +198,14 @@ class SOCSpillage:
                                 nk1,
                                 nk2,
                                 kso,
-                                knoso,
+                                k_no_spin_orbit,
                                 np.real(gamma_k[-1]),
                                 "!!!!!!!!!!",
                             )
 
-        gmax = max(np.real(gamma_k))
-        nkmax = np.argmax(np.real(gamma_k))
-        kmax = kpoints[nkmax]
+        gamma_max = max(np.real(gamma_k))
+        n_kmax = np.argmax(np.real(gamma_k))
+        k_max = kpoints[n_kmax]
 
         print("------------------------------------")
         print("\n                   INDIRECT DIRECT      HOMO/LUMO (eV)")
@@ -218,5 +223,5 @@ class SOCSpillage:
             "   ",
             [so_homo, so_lumo],
         )
-        print("gamma max", np.real(gmax), " at k =  ", kmax)
-        return gmax
+        print("gamma max", np.real(gamma_max), " at k =  ", k_max)
+        return gamma_max

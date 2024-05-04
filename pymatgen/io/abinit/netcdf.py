@@ -7,6 +7,7 @@ from __future__ import annotations
 import logging
 import os.path
 import warnings
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.collections import AttrDict
@@ -17,6 +18,9 @@ from monty.string import marquee
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.xcfunc import XcFunc
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 try:
     import netCDF4
@@ -91,9 +95,9 @@ class NetcdfReader:
         # Slicing a ncvar returns a MaskedArrray and this is really annoying
         # because it can lead to unexpected behavior in e.g. calls to np.matmul!
         # See also https://github.com/Unidata/netcdf4-python/issues/785
-        self.rootgrp.set_auto_mask(False)  # noqa: FBT003
+        self.rootgrp.set_auto_mask(False)
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         """Activated when used in the with statement."""
         return self
 
@@ -128,8 +132,7 @@ class NetcdfReader:
                 print(child)
 
     def read_dimvalue(self, dimname, path="/", default=NO_DEFAULT):
-        """
-        Returns the value of a dimension.
+        """Get the value of a dimension.
 
         Args:
             dimname: Name of the variable
@@ -153,8 +156,7 @@ class NetcdfReader:
         return list(group.variables)
 
     def read_value(self, varname, path="/", cmode=None, default=NO_DEFAULT):
-        """
-        Returns the values of variable with name varname in the group specified by path.
+        """Get the values of variable with name varname in the group specified by path.
 
         Args:
             varname: Name of the variable
@@ -188,7 +190,7 @@ class NetcdfReader:
         raise ValueError(f"Wrong value for {cmode=}")
 
     def read_variable(self, varname, path="/"):
-        """Returns the variable with name varname in the group specified by path."""
+        """Get the variable with name varname in the group specified by path."""
         return self._read_variables(varname, path=path)[0]
 
     def _read_dimensions(self, *dim_names, **kwargs):
@@ -218,19 +220,19 @@ class NetcdfReader:
         Read a list of variables/dimensions from file. If a key is not present the corresponding
         entry in the output dictionary is set to None.
         """
-        od = dict_cls()
-        for k in keys:
+        dct = dict_cls()
+        for key in keys:
             try:
                 # Try to read a variable.
-                od[k] = self.read_value(k, path=path)
+                dct[key] = self.read_value(key, path=path)
             except self.Error:
                 try:
                     # Try to read a dimension.
-                    od[k] = self.read_dimvalue(k, path=path)
+                    dct[key] = self.read_dimvalue(key, path=path)
                 except self.Error:
-                    od[k] = None
+                    dct[key] = None
 
-        return od
+        return dct
 
 
 class EtsfReader(NetcdfReader):
@@ -252,11 +254,11 @@ class EtsfReader(NetcdfReader):
         return symbols
 
     def type_idx_from_symbol(self, symbol):
-        """Returns the type index from the chemical symbol. Note python convention."""
+        """Get the type index from the chemical symbol. Note python convention."""
         return self.chemical_symbols.index(symbol)
 
     def read_structure(self, cls=Structure):
-        """Returns the crystalline structure stored in the rootgrp."""
+        """Get the crystalline structure stored in the rootgrp."""
         return structure_from_ncdata(self, cls=cls)
 
     def read_abinit_xcfunc(self):
@@ -308,7 +310,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     lattice = ArrayWithUnit(ncdata.read_value("primitive_vectors"), "bohr").to("ang")
 
     red_coords = ncdata.read_value("reduced_atom_positions")
-    natom = len(red_coords)
+    n_atom = len(red_coords)
 
     znucl_type = ncdata.read_value("atomic_numbers")
 
@@ -316,8 +318,8 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     type_atom = ncdata.read_value("atom_species")
 
     # Fortran to C index and float --> int conversion.
-    species = natom * [None]
-    for atom in range(natom):
+    species = n_atom * [None]
+    for atom in range(n_atom):
         type_idx = type_atom[atom] - 1
         species[atom] = int(znucl_type[type_idx])
 
@@ -344,7 +346,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
 
 
 class _H:
-    __slots__ = ("name", "doc", "etsf_name")
+    __slots__ = ("doc", "etsf_name", "name")
 
     def __init__(self, name, doc, etsf_name=None):
         self.name, self.doc, self.etsf_name = name, doc, etsf_name
@@ -457,13 +459,8 @@ class AbinitHeader(AttrDict):
     def __str__(self):
         return self.to_str()
 
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
-
     def to_str(self, verbose=0, title=None, **kwargs):
-        """
-        String representation. kwargs are passed to `pprint.pformat`.
+        """String representation. kwargs are passed to `pprint.pformat`.
 
         Args:
             verbose: Verbosity level
@@ -471,7 +468,11 @@ class AbinitHeader(AttrDict):
         """
         from pprint import pformat
 
-        s = pformat(self, **kwargs)
+        header_str = pformat(self, **kwargs)
         if title is not None:
-            return "\n".join([marquee(title, mark="="), s])
-        return s
+            return "\n".join([marquee(title, mark="="), header_str])
+        return header_str
+
+    # to_string alias required for backwards compatibility
+    # PLEASE DO NOT REMOVE THIS LINE AS THIS API HAS BEEN AROUND FOR SEVERAL YEARS
+    to_string = to_str

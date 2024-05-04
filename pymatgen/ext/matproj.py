@@ -27,8 +27,12 @@ from pymatgen.core import __version__ as PMG_VERSION
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
+    from mp_api.client import MPRester as _MPResterNew
+    from typing_extensions import Self
+
     from pymatgen.core.structure import Structure
     from pymatgen.entries.computed_entries import ComputedStructureEntry
+    from pymatgen.ext.matproj_legacy import _MPResterLegacy
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +98,7 @@ class _MPResterBasic:
                 "used by 80% of users. If you are looking for the full functionality MPRester, pls install the mp-api ."
             )
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         """Support for "with" context."""
         return self
 
@@ -150,11 +154,10 @@ class _MPResterBasic:
         return self.request(f"materials/summary/?{get}", payload=criteria)
 
     def get_summary(self, criteria: dict, fields: list | None = None) -> list[dict]:
-        """
-        Get a data corresponding to a criteria.
+        """Get  a data corresponding to a criteria.
 
         Args:
-            criteria (dict): Materials Project ID (e.g. mp-1234), e.g., {"formula": "Fe2O3,FeO"}
+            criteria (dict): Materials Project ID (e.g. mp-1234), e.g. {"formula": "Fe2O3,FeO"}
             fields (list): Fields to query for. If None (the default), all fields are returned.
 
         Returns:
@@ -164,8 +167,7 @@ class _MPResterBasic:
         return self.request(f"materials/summary/?{get}", payload=criteria)
 
     def get_summary_by_material_id(self, material_id: str, fields: list | None = None) -> dict:
-        """
-        Get a data corresponding to a material_id.
+        """Get  a data corresponding to a material_id.
 
         Args:
             material_id (str): Materials Project ID (e.g. mp-1234).
@@ -180,8 +182,7 @@ class _MPResterBasic:
     get_doc = get_summary_by_material_id
 
     def get_material_ids(self, formula):
-        """
-        Get all materials ids for a formula.
+        """Get  all materials ids for a formula.
 
         Args:
             formula (str): A formula (e.g., Fe2O3).
@@ -208,13 +209,12 @@ class _MPResterBasic:
         """
         query = f"chemsys={chemsys_formula}" if "-" in chemsys_formula else f"formula={chemsys_formula}"
         prop = "structure" if final else "initial_structure"
-        resp = self.request(f"materials/summary/?{query}&_all_fields=false&_fields={prop}")
+        response = self.request(f"materials/summary/?{query}&_all_fields=false&_fields={prop}")
 
-        return [d[prop] for d in resp]
+        return [dct[prop] for dct in response]
 
     def get_structure_by_material_id(self, material_id: str, conventional_unit_cell: bool = False) -> Structure:
-        """
-        Get a Structure corresponding to a material_id.
+        """Get  a Structure corresponding to a material_id.
 
         Args:
             material_id (str): Materials Project ID (e.g. mp-1234).
@@ -226,8 +226,8 @@ class _MPResterBasic:
             Structure object.
         """
         prop = "structure"
-        resp = self.request(f"materials/summary/{material_id}/?_fields={prop}")
-        structure = resp[0][prop]
+        response = self.request(f"materials/summary/{material_id}/?_fields={prop}")
+        structure = response[0][prop]
         if conventional_unit_cell:
             return SpacegroupAnalyzer(structure).get_conventional_standard_structure()
         return structure
@@ -235,8 +235,7 @@ class _MPResterBasic:
     def get_initial_structures_by_material_id(
         self, material_id: str, conventional_unit_cell: bool = False
     ) -> list[Structure]:
-        """
-        Get a Structure corresponding to a material_id.
+        """Get  a Structure corresponding to a material_id.
 
         Args:
             material_id (str): Materials Project ID (e.g. mp-1234).
@@ -248,8 +247,8 @@ class _MPResterBasic:
             Structure object.
         """
         prop = "initial_structures"
-        resp = self.request(f"materials/summary/{material_id}/?_fields={prop}")
-        structures = resp[0][prop]
+        response = self.request(f"materials/summary/{material_id}/?_fields={prop}")
+        structures = response[0][prop]
         if conventional_unit_cell:
             return [SpacegroupAnalyzer(s).get_conventional_standard_structure() for s in structures]  # type: ignore
         return structures
@@ -263,8 +262,7 @@ class _MPResterBasic:
         conventional_unit_cell=False,
         sort_by_e_above_hull=False,
     ):
-        """
-        Get a list of ComputedEntries or ComputedStructureEntries corresponding
+        """Get  a list of ComputedEntries or ComputedStructureEntries corresponding
         to a chemical system, formula, or materials_id or full criteria.
 
         Args:
@@ -299,9 +297,9 @@ class _MPResterBasic:
             query = f"formula={criteria}"
 
         entries = []
-        r = self.request(f"materials/thermo/?_fields=entries&{query}")
-        for d in r:
-            entries.extend(d["entries"].values())
+        response = self.request(f"materials/thermo/?_fields=entries&{query}")
+        for dct in response:
+            entries.extend(dct["entries"].values())
 
         if compatible_only:
             from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
@@ -313,12 +311,11 @@ class _MPResterBasic:
         return list(set(entries))
 
     def get_entry_by_material_id(self, material_id: str, *args, **kwargs) -> ComputedStructureEntry:
-        r"""
-        Get a ComputedEntry corresponding to a material_id.
+        r"""Get  a ComputedEntry corresponding to a material_id.
 
         Args:
             material_id (str): Materials Project material_id (a string,
-                e.g., mp-1234).
+                e.g. mp-1234).
             *args: Pass-through to get_entries.
             **kwargs: Pass-through to get_entries.
 
@@ -335,8 +332,8 @@ class _MPResterBasic:
 
         Args:
             elements (str or [str]): Chemical system string comprising element
-                symbols separated by dashes, e.g., "Li-Fe-O" or List of element
-                symbols, e.g., ["Li", "Fe", "O"].
+                symbols separated by dashes, e.g. "Li-Fe-O" or List of element
+                symbols, e.g. ["Li", "Fe", "O"].
             *args: Pass-through to get_entries.
             **kwargs: Pass-through to get_entries.
 
@@ -372,8 +369,8 @@ class MPRester:
     for which API to use.
     """
 
-    def __new__(cls, *args, **kwargs):
-        r"""
+    def __new__(cls, *args, **kwargs) -> _MPResterNew | _MPResterBasic | _MPResterLegacy:  # type: ignore[misc]
+        """
         Args:
            *args: Pass through to either legacy or new MPRester.
            **kwargs: Pass through to either legacy or new MPRester.

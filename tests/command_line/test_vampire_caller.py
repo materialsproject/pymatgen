@@ -1,23 +1,23 @@
 from __future__ import annotations
 
-import unittest
 from shutil import which
 
 import pandas as pd
+import pytest
 from pytest import approx
 
 from pymatgen.command_line.vampire_caller import VampireCaller
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = f"{TEST_FILES_DIR}/magnetic_orderings"
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/magnetic_orderings"
 
 
-@unittest.skipIf(not which("vampire-serial"), "vampire executable not present")
+@pytest.mark.skipif(not which("vampire-serial"), reason="vampire executable not present")
 class TestVampireCaller(PymatgenTest):
     @classmethod
     def setUpClass(cls):
-        cls.Mn3Al = pd.read_json(f"{test_dir}/Mn3Al.json")
+        cls.Mn3Al = pd.read_json(f"{TEST_DIR}/Mn3Al.json")
 
         cls.compounds = [cls.Mn3Al]
 
@@ -44,6 +44,4 @@ class TestVampireCaller(PymatgenTest):
                 user_input_settings=settings,
             )
 
-            voutput = vc.output
-            critical_temp = voutput.critical_temp
-            assert approx(critical_temp) == 400
+            assert approx(vc.output.critical_temp) == 400

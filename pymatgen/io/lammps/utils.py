@@ -18,15 +18,16 @@ from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.io.packmol import PackmolBoxGen
 from pymatgen.util.coord import get_angle
 
+try:
+    from openbabel import pybel
+except ImportError:
+    pybel = None
+
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from numpy.typing import ArrayLike
 
-try:
-    from openbabel import pybel
-except ImportError:
-    pybel = None
 
 __author__ = "Kiran Mathew, Brandon Wood, Michael Humbert"
 __email__ = "kmathew@lbl.gov"
@@ -119,10 +120,10 @@ class Polymer:
 
     def _next_move_direction(self) -> np.ndarray:
         """Pick a move at random from the list of moves."""
-        nmoves = len(self.moves)
-        move = np.random.randint(1, nmoves + 1)
-        while self.prev_move == (move + 3) % nmoves:
-            move = np.random.randint(1, nmoves + 1)
+        n_moves = len(self.moves)
+        move = np.random.randint(1, n_moves + 1)
+        while self.prev_move == (move + 3) % n_moves:
+            move = np.random.randint(1, n_moves + 1)
         self.prev_move = move
         return np.array(self.moves[move])
 
@@ -159,13 +160,13 @@ class Polymer:
             self._align_monomer(monomer, mon_vector, move_direction)
         # add monomer if there are no crossings
         does_cross = False
-        for i, site in enumerate(monomer):
+        for idx, site in enumerate(monomer):
             try:
                 self.molecule.append(site.specie, site.coords, properties=site.properties)
             except Exception:
                 does_cross = True
                 polymer_length = len(self.molecule)
-                self.molecule.remove_sites(range(polymer_length - i, polymer_length))
+                self.molecule.remove_sites(range(polymer_length - idx, polymer_length))
                 break
         if not does_cross:
             self.length += 1
@@ -237,15 +238,10 @@ class PackmolRunner:
 
     @staticmethod
     def _format_param_val(param_val) -> str:
-        """
-        Internal method to format values in the packmol parameter dictionaries.
+        """Internal method to format values in the packmol parameter dictionaries.
 
         Args:
-            param_val:
-                Some object to turn into String
-
-        Returns:
-            String representation of the object
+            param_val (Any): Some object to turn into string
         """
         if isinstance(param_val, list):
             return " ".join(str(x) for x in param_val)
@@ -268,9 +264,9 @@ class PackmolRunner:
         Args:
             input_dir (str): path to the input directory
         """
-        with open(os.path.join(input_dir, self.input_file), "w", encoding="utf-8") as inp:
-            for k, v in self.control_params.items():
-                inp.write(f"{k} {self._format_param_val(v)}\n")
+        with open(f"{input_dir}/{self.input_file}", mode="w", encoding="utf-8") as inp:
+            for key, val in self.control_params.items():
+                inp.write(f"{key} {self._format_param_val(val)}\n")
             # write the structures of the constituent molecules to file and set
             # the molecule id and the corresponding filename in the packmol
             # input file.
@@ -291,8 +287,8 @@ class PackmolRunner:
 
                 inp.write("\n")
                 inp.write(f"structure {os.path.join(input_dir, str(idx))}.{self.control_params['filetype']}\n")
-                for k, v in self.param_list[idx].items():
-                    inp.write(f"  {k} {self._format_param_val(v)}\n")
+                for key, val in self.param_list[idx].items():
+                    inp.write(f"  {key} {self._format_param_val(val)}\n")
                 inp.write("end structure\n")
 
     def run(self, site_property: str | None = None) -> Molecule:
@@ -309,9 +305,10 @@ class PackmolRunner:
         """
         with tempfile.TemporaryDirectory() as scratch_dir:
             self._write_input(input_dir=scratch_dir)
-            with open(os.path.join(scratch_dir, self.input_file)) as packmol_input, Popen(
-                self.packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE
-            ) as proc:
+            with (
+                open(os.path.join(scratch_dir, self.input_file)) as packmol_input,
+                Popen(self.packmol_bin, stdin=packmol_input, stdout=PIPE, stderr=PIPE) as proc,
+            ):
                 stdout, stderr = proc.communicate()
             output_file = self.control_params["output"]
             if os.path.isfile(output_file):
@@ -390,9 +387,9 @@ class PackmolRunner:
             assert ref.formula == mol.formula
 
             # the packed molecules have the atoms in the same order..sigh!
-            for i, site in enumerate(mol):
-                assert site.specie.symbol == ref[i].specie.symbol
-                props.append(getattr(ref[i], site_property))
+            for idx, site in enumerate(mol):
+                assert site.specie.symbol == ref[idx].specie.symbol
+                props.append(getattr(ref[idx], site_property))
 
             mol.add_site_property(site_property, props)
 
@@ -416,7 +413,7 @@ class PackmolRunner:
         bma = BabelMolAdaptor.from_file(filename, "pdb")
         pbm = pybel.Molecule(bma._ob_mol)
 
-        assert len(pbm.residues) == sum(x["number"] for x in self.param_list)
+        assert len(pbm.residues) == sum(param["number"] for param in self.param_list)
 
         packed_mol = self.convert_obatoms_to_molecule(
             pbm.residues[0].atoms,
@@ -492,4 +489,4 @@ if __name__ == "__main__":
         auto_box=False,
         output_file="cocktail.xyz",
     )
-    s = pmr.run()
+    mol = pmr.run()

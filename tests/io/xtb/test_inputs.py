@@ -8,8 +8,8 @@ __author__ = "Alex Epstein"
 __copyright__ = "Copyright 2020, The Materials Project"
 __version__ = "0.1"
 
-test_dir = f"{TEST_FILES_DIR}/xtb/sample_CREST_output"
-expected_dir = f"{TEST_FILES_DIR}/xtb/expected_output"
+TEST_DIR = f"{TEST_FILES_DIR}/io/xtb/sample_CREST_output"
+EXPECTED_DIR = f"{TEST_FILES_DIR}/io/xtb/expected_output"
 
 
 class TestCRESTInput(PymatgenTest):
@@ -32,10 +32,10 @@ class TestCRESTInput(PymatgenTest):
 
     def test_constraints_file(self):
         constraints = {"atoms": [8, 1, 2], "force_constant": 0.5}
-        mol = Molecule.from_file(f"{test_dir}/crest_in.xyz")
+        mol = Molecule.from_file(f"{TEST_DIR}/crest_in.xyz")
         cin = CRESTInput(molecule=mol, constraints=constraints)
-        with open(f"{expected_dir}/expected_constrains.txt") as f:
-            exp_con = f.read()
+        with open(f"{EXPECTED_DIR}/expected_constrains.txt") as file:
+            exp_con = file.read()
             assert (
                 exp_con.strip()
                 == cin.constrains_template(molecule=mol, reference_fnm="crest_in.xyz", constraints=constraints).strip()

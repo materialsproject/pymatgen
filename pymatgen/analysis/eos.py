@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 import warnings
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
@@ -27,7 +27,7 @@ __credits__ = "Cormac Toher"
 logger = logging.getLogger(__file__)
 
 
-class EOSBase(metaclass=ABCMeta):
+class EOSBase(ABC):
     """
     Abstract class that must be subclassed by all equation of state
     implementations.
@@ -54,7 +54,7 @@ class EOSBase(metaclass=ABCMeta):
         Quadratic fit to get an initial guess for the parameters.
 
         Returns:
-            tuple: (e0, b0, b1, v0)
+            tuple: 4 floats for (e0, b0, b1, v0)
         """
         a, b, c = np.polyfit(self.volumes, self.energies, 2)
         self.eos_params = [a, b, c]
@@ -124,45 +124,33 @@ class EOSBase(metaclass=ABCMeta):
         return self.func(volume)
 
     @property
-    def e0(self):
-        """Returns the min energy."""
+    def e0(self) -> float:
+        """The min energy."""
         return self._params[0]
 
     @property
-    def b0(self):
-        """
-        Returns the bulk modulus.
-        Note: the units for the bulk modulus: unit of energy/unit of volume^3.
-        """
+    def b0(self) -> float:
+        """The bulk modulus in units of energy/unit of volume^3."""
         return self._params[1]
 
     @property
-    def b0_GPa(self):
-        """
-        Returns the bulk modulus in GPa.
-        Note: This assumes that the energy and volumes are in eV and Ang^3
-            respectively.
-        """
+    def b0_GPa(self) -> FloatWithUnit:
+        """The bulk modulus in GPa. This assumes the energy and volumes are in eV and Ang^3."""
         return FloatWithUnit(self.b0, "eV ang^-3").to("GPa")
 
     @property
     def b1(self):
-        """Returns the derivative of bulk modulus w.r.t. pressure(dimensionless)."""
+        """The derivative of bulk modulus w.r.t. pressure(dimensionless)."""
         return self._params[2]
 
     @property
     def v0(self):
-        """Returns the minimum or the reference volume in Ang^3."""
+        """The minimum or the reference volume in Ang^3."""
         return self._params[3]
 
     @property
     def results(self):
-        """
-        Returns a summary dict.
-
-        Returns:
-            dict
-        """
+        """A summary dict."""
         return {"e0": self.e0, "b0": self.b0, "b1": self.b1, "v0": self.v0}
 
     def plot(self, width=8, height=None, ax: plt.Axes = None, dpi=None, **kwargs):
@@ -285,8 +273,7 @@ class Birch(EOSBase):
     """Birch EOS."""
 
     def _func(self, volume, params):
-        """
-        From Intermetallic compounds: Principles and Practice, Vol. I:
+        """From Intermetallic compounds: Principles and Practice, Vol. I:
         Principles Chapter 9 pages 195-210 by M. Mehl. B. Klein,
         D. Papaconstantopoulos.
         case where n=0.
@@ -310,7 +297,7 @@ class BirchMurnaghan(EOSBase):
 
 
 class PourierTarantola(EOSBase):
-    """PourierTarantola EOS."""
+    """Pourier-Tarantola EOS."""
 
     def _func(self, volume, params):
         """Pourier-Tarantola equation from PRB 70, 224107."""
@@ -414,8 +401,7 @@ class NumericalEOS(PolynomialEOS):
     """A numerical EOS."""
 
     def fit(self, min_ndata_factor=3, max_poly_order_factor=5, min_poly_order=2):
-        """
-        Fit the input data to the 'numerical eos', the equation of state employed
+        """Fit the input data to the 'numerical eos', the equation of state employed
         in the quasiharmonic Debye model described in the paper:
         10.1103/PhysRevB.90.174107.
 
@@ -439,12 +425,12 @@ class NumericalEOS(PolynomialEOS):
 
         # list of (energy, volume) tuples
         e_v = list(zip(self.energies, self.volumes))
-        ndata = len(e_v)
+        n_data = len(e_v)
         # minimum number of data points used for fitting
-        ndata_min = max(ndata - 2 * min_ndata_factor, min_poly_order + 1)
+        n_data_min = max(n_data - 2 * min_ndata_factor, min_poly_order + 1)
         rms_min = np.inf
         # number of data points available for fit in each iteration
-        ndata_fit = ndata
+        n_data_fit = n_data
         # store the fit polynomial coefficients and the rms in a dict,
         # where the key=(polynomial order, number of data points used for
         # fitting)
@@ -465,42 +451,42 @@ class NumericalEOS(PolynomialEOS):
         e_v_work = deepcopy(e_v)
 
         # loop over the data points.
-        while (ndata_fit >= ndata_min) and (e_min in e_v_work):
-            max_poly_order = ndata_fit - max_poly_order_factor
-            e = [ei[0] for ei in e_v_work]
-            v = [ei[1] for ei in e_v_work]
+        while (n_data_fit >= n_data_min) and (e_min in e_v_work):
+            max_poly_order = n_data_fit - max_poly_order_factor
+            energies = [ei[0] for ei in e_v_work]
+            volumes = [ei[1] for ei in e_v_work]
             # loop over polynomial order
             for idx in range(min_poly_order, max_poly_order + 1):
-                coeffs = np.polyfit(v, e, idx)
-                pder = np.polyder(coeffs)
-                a = np.poly1d(pder)(v_before)
-                b = np.poly1d(pder)(v_after)
+                coeffs = np.polyfit(volumes, energies, idx)
+                polyder = np.polyder(coeffs)
+                a = np.poly1d(polyder)(v_before)
+                b = np.poly1d(polyder)(v_after)
                 if a * b < 0:
-                    rms = get_rms(e, np.poly1d(coeffs)(v))
-                    rms_min = min(rms_min, rms * idx / ndata_fit)
-                    all_coeffs[(idx, ndata_fit)] = [coeffs.tolist(), rms]
+                    rms = get_rms(energies, np.poly1d(coeffs)(volumes))
+                    rms_min = min(rms_min, rms * idx / n_data_fit)
+                    all_coeffs[(idx, n_data_fit)] = [coeffs.tolist(), rms]
                     # store the fit coefficients small to large,
                     # i.e a0, a1, .. an
-                    all_coeffs[(idx, ndata_fit)][0].reverse()
+                    all_coeffs[(idx, n_data_fit)][0].reverse()
             # remove 1 data point from each end.
             e_v_work.pop()
             e_v_work.pop(0)
-            ndata_fit = len(e_v_work)
+            n_data_fit = len(e_v_work)
 
         logger.info(f"total number of polynomials: {len(all_coeffs)}")
 
         norm = 0.0
-        fit_poly_order = ndata
+        fit_poly_order = n_data
         # weight average polynomial coefficients.
         weighted_avg_coeffs = np.zeros((fit_poly_order,))
 
         # combine all the filtered polynomial candidates to get the final fit.
-        for k, v in all_coeffs.items():
+        for key, val in all_coeffs.items():
             # weighted rms = rms * polynomial order / rms_min / ndata_fit
-            weighted_rms = v[1] * k[0] / rms_min / k[1]
+            weighted_rms = val[1] * key[0] / rms_min / key[1]
             weight = np.exp(-(weighted_rms**2))
             norm += weight
-            coeffs = np.array(v[0])
+            coeffs = np.array(val[0])
             # pad the coefficient array with zeros
             coeffs = np.lib.pad(coeffs, (0, max(fit_poly_order - len(coeffs), 0)), "constant")
             weighted_avg_coeffs += weight * coeffs
@@ -522,7 +508,7 @@ class EOS:
 
     Fit equation of state for bulk systems.
 
-    The following equations are supported::
+    The following equations are supported:
 
         murnaghan: PRB 28, 5480 (1983)
 
@@ -539,7 +525,7 @@ class EOS:
 
         numerical_eos: 10.1103/PhysRevB.90.174107.
 
-    Usage::
+    Usage:
 
        eos = EOS(eos_name='murnaghan')
        eos_fit = eos.fit(volumes, energies)
@@ -570,8 +556,7 @@ class EOS:
         self.model = self.MODELS[eos_name]
 
     def fit(self, volumes, energies):
-        """
-        Fit energies as function of volumes.
+        """Fit energies as function of volumes.
 
         Args:
             volumes (list/np.array)

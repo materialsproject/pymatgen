@@ -19,13 +19,13 @@ __email__ = "esters@uoregon.edu"
 __date__ = "Nov 30, 2017"
 
 
-test_dir = f"{TEST_FILES_DIR}/cohp"
+TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestCtrl(PymatgenTest):
     def setUp(self):
-        os.chdir(test_dir)
+        os.chdir(TEST_DIR)
         self.ref_bise = LMTOCtrl.from_file(filename="CTRL.BiSe")
         self.ref_fe = LMTOCtrl.from_file()
 
@@ -49,7 +49,7 @@ class TestCtrl(PymatgenTest):
 
 class TestCopl(PymatgenTest):
     def setUp(self):
-        os.chdir(test_dir)
+        os.chdir(TEST_DIR)
         self.copl_bise = LMTOCopl("COPL.BiSe")
         self.copl_bise_eV = LMTOCopl(filename="COPL.BiSe", to_eV=True)
         self.copl_fe = LMTOCopl()

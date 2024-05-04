@@ -26,7 +26,7 @@ from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
-    skip_mprester_tests = requests.get("https://materialsproject.org").status_code != 200
+    skip_mprester_tests = requests.get("https://materialsproject.org", timeout=600).status_code != 200
 
 except (ModuleNotFoundError, ImportError, requests.exceptions.ConnectionError):
     # Skip all MPRester tests if some downstream problem on the website, mp-api or whatever.
@@ -42,9 +42,6 @@ PMG_MAPI_KEY = SETTINGS.get("PMG_MAPI_KEY", "")
 class TestMPResterOld(PymatgenTest):
     def setUp(self):
         self.rester = _MPResterLegacy()
-
-    def tearDown(self):
-        self.rester.session.close()
 
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_materials_ids("Al2O3")
@@ -79,7 +76,7 @@ class TestMPResterOld(PymatgenTest):
             "total_magnetization",
         }
         mp_id = "mp-1143"
-        vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/")
+        vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=600)
         expected_vals = vals.json()
 
         for prop in props:
@@ -111,7 +108,7 @@ class TestMPResterOld(PymatgenTest):
             assert set(Composition(d["unit_cell_formula"]).elements).issubset(elements)
 
         with pytest.raises(MPRestError, match="REST query returned with error status code 404"):
-            self.rester.get_data("Fe2O3", "badmethod")
+            self.rester.get_data("Fe2O3", "bad-method")
 
     def test_get_materials_id_from_task_id(self):
         assert self.rester.get_materials_id_from_task_id("mp-540081") == "mp-19017"
@@ -123,7 +120,7 @@ class TestMPResterOld(PymatgenTest):
 
     def test_find_structure(self):
         mpr = _MPResterLegacy()
-        cif_file = f"{TEST_FILES_DIR}/Fe3O4.cif"
+        cif_file = f"{TEST_FILES_DIR}/cif/Fe3O4.cif"
         data = mpr.find_structure(str(cif_file))
         assert len(data) > 1
         struct = Structure.from_file(cif_file, primitive=True)
@@ -136,12 +133,12 @@ class TestMPResterOld(PymatgenTest):
         entries = self.rester.get_entries_in_chemsys(syms)
         entries2 = self.rester.get_entries_in_chemsys(syms2)
         elements = {Element(sym) for sym in syms}
-        for e in entries:
-            assert isinstance(e, ComputedEntry)
-            assert set(e.elements).issubset(elements)
+        for entry in entries:
+            assert isinstance(entry, ComputedEntry)
+            assert set(entry.elements).issubset(elements)
 
-        e1 = {i.entry_id for i in entries}
-        e2 = {i.entry_id for i in entries2}
+        e1 = {ent.entry_id for ent in entries}
+        e2 = {ent.entry_id for ent in entries2}
         assert e1 == e2
 
         stable_entries = self.rester.get_entries_in_chemsys(syms, additional_criteria={"e_above_hull": {"$lte": 0.001}})
@@ -166,7 +163,7 @@ class TestMPResterOld(PymatgenTest):
     def test_get_entry_by_material_id(self):
         entry = self.rester.get_entry_by_material_id("mp-19017")
         assert isinstance(entry, ComputedEntry)
-        assert entry.composition.reduced_formula == "LiFePO4"
+        assert entry.reduced_formula == "LiFePO4"
 
         with pytest.raises(MPRestError, match="material_id = 'mp-2022' does not exist"):
             self.rester.get_entry_by_material_id("mp-2022")  # "mp-2022" does not exist
@@ -221,12 +218,12 @@ class TestMPResterOld(PymatgenTest):
         entries = self.rester.get_entries("TiO2")
         assert len(entries) > 1
         for entry in entries:
-            assert entry.composition.reduced_formula == "TiO2"
+            assert entry.reduced_formula == "TiO2"
 
         entries = self.rester.get_entries("TiO2", inc_structure=True)
         assert len(entries) > 1
         for entry in entries:
-            assert entry.structure.composition.reduced_formula == "TiO2"
+            assert entry.structure.reduced_formula == "TiO2"
 
         # all_entries = self.rester.get_entries("Fe", compatible_only=False)
         # entries = self.rester.get_entries("Fe", compatible_only=True)
@@ -283,10 +280,10 @@ class TestMPResterOld(PymatgenTest):
         for pbx_entry in pbx_entries:
             assert isinstance(pbx_entry, PourbaixEntry)
 
-        # fe_two_plus = [e for e in pbx_entries if e.entry_id == "ion-0"][0]
+        # fe_two_plus = next(entry for entry in pbx_entries if entry.entry_id == "ion-0")
         # assert fe_two_plus.energy == approx(-1.12369, abs=1e-3)
 
-        # feo2 = [e for e in pbx_entries if e.entry_id == "mp-25332"][0]
+        # feo2 = next(entry for entry in pbx_entries if entry.entry_id == "mp-25332")
         # assert feo2.energy == approx(3.56356, abs=1e-3)
 
         # # Test S, which has Na in reference solids
@@ -302,11 +299,11 @@ class TestMPResterOld(PymatgenTest):
         assert entry.energy == -825.5
 
     # def test_submit_query_delete_snl(self):
-    #     struct = Structure([[5, 0, 0], [0, 5, 0], [0, 0, 5]], ["Fe"], [[0, 0, 0]])
-    #     d = self.rester.submit_snl(
+    #     struct = Structure(np.eye(3) * 5, ["Fe"], [[0, 0, 0]])
+    #     submission_ids = self.rester.submit_snl(
     #         [struct, struct], remarks=["unittest"], authors="Test User <test@materialsproject.com>"
     #     )
-    #     assert len(d) == 2
+    #     assert len(submission_ids) == 2
     #     data = self.rester.query_snl({"about.remarks": "unittest"})
     #     assert len(data) == 2
     #     snl_ids = [d["_id"] for d in data]
@@ -324,7 +321,7 @@ class TestMPResterOld(PymatgenTest):
                 entry_id=f"mod_{entry.entry_id}",
             )
             for entry in entries
-            if entry.composition.reduced_formula == "Fe2O3"
+            if entry.reduced_formula == "Fe2O3"
         ]
         rester_ehulls = self.rester.get_stability(modified_entries)
         all_entries = entries + modified_entries
@@ -463,11 +460,11 @@ class TestMPResterOld(PymatgenTest):
         )
         headers = self.rester.session.headers
         assert "user-agent" in headers, "Include user-agent header by default"
-        m = re.match(
+        match = re.match(
             r"pymatgen/(\d+)\.(\d+)\.(\d+)\.?(\d+)? \(Python/(\d+)\.(\d)+\.(\d+) ([^\/]*)/([^\)]*)\)",
             headers["user-agent"],
         )
-        assert m is not None, f"Unexpected user-agent value {headers['user-agent']}"
+        assert match is not None, f"Unexpected user-agent value {headers['user-agent']}"
         self.rester = _MPResterLegacy(include_user_agent=False)
         assert "user-agent" not in self.rester.session.headers, "user-agent header unwanted"
 
@@ -477,11 +474,11 @@ class TestMPResterOld(PymatgenTest):
 
         assert isinstance(db_version, str)
         yaml = YAML()
-        with open(MP_LOG_FILE) as f:
-            d = yaml.load(f)
+        with open(MP_LOG_FILE) as file:
+            dct = yaml.load(file)
 
-        assert d["MAPI_DB_VERSION"]["LAST_ACCESSED"] == db_version
-        assert isinstance(d["MAPI_DB_VERSION"]["LOG"][db_version], int)
+        assert dct["MAPI_DB_VERSION"]["LAST_ACCESSED"] == db_version
+        assert isinstance(dct["MAPI_DB_VERSION"]["LOG"][db_version], int)
 
     def test_pourbaix_heavy(self):
         entries = self.rester.get_pourbaix_entries(["Na", "Ca", "Nd", "Y", "Ho", "F"])
@@ -573,7 +570,7 @@ class TestMPResterNewBasic:
     #         "total_magnetization",
     #     }
     #     mp_id = "mp-1143"
-    #     vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/")
+    #     vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=600)
     #     expected_vals = vals.json()
     #
     #     for prop in props:
@@ -630,15 +627,15 @@ class TestMPResterNewBasic:
         entries = self.rester.get_entries_in_chemsys(syms)
         entries2 = self.rester.get_entries(syms2)
         elements = {Element(sym) for sym in syms}
-        for e in entries:
-            assert isinstance(e, ComputedEntry)
-            assert set(e.elements).issubset(elements)
+        for entry in entries:
+            assert isinstance(entry, ComputedEntry)
+            assert set(entry.elements).issubset(elements)
 
         assert len(entries) > 1000
 
-        for e in entries2:
-            assert isinstance(e, ComputedEntry)
-            assert set(e.elements).issubset(elements)
+        for entry in entries2:
+            assert isinstance(entry, ComputedEntry)
+            assert set(entry.elements).issubset(elements)
         assert len(entries2) < 1000
 
         e1 = {i.entry_id for i in entries}
@@ -652,7 +649,7 @@ class TestMPResterNewBasic:
     def test_get_entry_by_material_id(self):
         entry = self.rester.get_entry_by_material_id("mp-19017")
         assert isinstance(entry, ComputedEntry)
-        assert entry.composition.reduced_formula == "LiFePO4"
+        assert entry.reduced_formula == "LiFePO4"
 
         with pytest.raises(IndexError, match="list index out of range"):
             self.rester.get_entry_by_material_id("mp-2022")  # "mp-2022" does not exist
@@ -699,12 +696,12 @@ class TestMPResterNewBasic:
     #     entries = self.rester.get_entries("TiO2")
     #     assert len(entries) > 1
     #     for entry in entries:
-    #         assert entry.composition.reduced_formula == "TiO2"
+    #         assert entry.reduced_formula == "TiO2"
     #
     #     entries = self.rester.get_entries("TiO2", inc_structure=True)
     #     assert len(entries) > 1
     #     for entry in entries:
-    #         assert entry.structure.composition.reduced_formula == "TiO2"
+    #         assert entry.structure.reduced_formula == "TiO2"
 
     # # all_entries = self.rester.get_entries("Fe", compatible_only=False)
     # # entries = self.rester.get_entries("Fe", compatible_only=True)
@@ -765,7 +762,7 @@ class TestMPResterNewBasic:
     #             entry_id=f"mod_{entry.entry_id}",
     #         )
     #         for entry in entries
-    #         if entry.composition.reduced_formula == "Fe2O3"
+    #         if entry.reduced_formula == "Fe2O3"
     #     ]
     #     rester_ehulls = self.rester.get_stability(modified_entries)
     #     all_entries = entries + modified_entries

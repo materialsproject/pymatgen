@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import copy
 import json
-import unittest
 from collections import defaultdict
+from unittest import TestCase
 
 import pytest
 from monty.json import MontyDecoder
@@ -22,10 +22,11 @@ from pymatgen.entries.computed_entries import (
     TemperatureEnergyAdjustment,
 )
 from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR
 
-filepath = f"{TEST_FILES_DIR}/vasprun.xml"
-vasp_run = Vasprun(filepath)
+TEST_DIR = f"{TEST_FILES_DIR}/entries"
+
+vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.xml.gz")
 
 
 def test_energy_adjustment():
@@ -90,7 +91,7 @@ def test_temp_energy_adjustment():
     assert str(ea_dct) == str(ea2.as_dict())
 
 
-class TestComputedEntry(unittest.TestCase):
+class TestComputedEntry(TestCase):
     def setUp(self):
         self.entry = ComputedEntry(
             vasp_run.final_structure.composition,
@@ -112,9 +113,9 @@ class TestComputedEntry(unittest.TestCase):
         assert self.entry3.energy_per_atom == approx(2.3 / 5)
 
     def test_composition(self):
-        assert self.entry.composition.reduced_formula == "LiFe4(PO4)4"
-        assert self.entry2.composition.reduced_formula == "Fe2O3"
-        assert self.entry5.composition.reduced_formula == "Fe2O3"
+        assert self.entry.reduced_formula == "LiFe4(PO4)4"
+        assert self.entry2.reduced_formula == "Fe2O3"
+        assert self.entry5.reduced_formula == "Fe2O3"
         assert self.entry5.composition.get_reduced_formula_and_factor()[1] == 3
 
     def test_per_atom_props(self):
@@ -132,13 +133,13 @@ class TestComputedEntry(unittest.TestCase):
     def test_normalize(self):
         entry = ComputedEntry("Fe6O9", 6.9, correction=1)
         entry_formula = entry.normalize()
-        assert entry_formula.composition.formula == "Fe2 O3"
+        assert entry_formula.formula == "Fe2 O3"
         assert entry_formula.uncorrected_energy == approx(6.9 / 3)
         assert entry_formula.correction == approx(1 / 3)
         assert entry_formula.energy * 3 == approx(6.9 + 1)
         assert entry_formula.energy_adjustments[0].value == approx(1 / 3)
         entry_atom = entry.normalize("atom")
-        assert entry_atom.composition.formula == "Fe0.4 O0.6"
+        assert entry_atom.formula == "Fe0.4 O0.6"
         assert entry_atom.uncorrected_energy == approx(6.9 / 15)
         assert entry_atom.correction == approx(1 / 15)
         assert entry_atom.energy * 15 == approx(6.9 + 1)
@@ -200,8 +201,7 @@ class TestComputedEntry(unittest.TestCase):
         assert len(entry.energy_adjustments) == 1
 
     def test_conflicting_correction_adjustment(self):
-        """
-        Should raise a ValueError if a user tries to manually set both the correction
+        """Should raise a ValueError if a user tries to manually set both the correction
         and energy_adjustment, even if the values match.
         """
         ea = ConstantEnergyAdjustment(-10, name="Dummy adjustment")
@@ -239,7 +239,7 @@ class TestComputedEntry(unittest.TestCase):
             assert str(entry) == str(copy)
 
 
-class TestComputedStructureEntry(unittest.TestCase):
+class TestComputedStructureEntry(TestCase):
     def setUp(self):
         self.entry = ComputedStructureEntry(vasp_run.final_structure, vasp_run.final_energy, parameters=vasp_run.incar)
 
@@ -249,7 +249,7 @@ class TestComputedStructureEntry(unittest.TestCase):
         assert self.entry.energy == approx(-268.38319884)
 
     def test_composition(self):
-        assert self.entry.composition.reduced_formula == "LiFe4(PO4)4"
+        assert self.entry.reduced_formula == "LiFe4(PO4)4"
 
     def test_as_from_dict(self):
         dct = self.entry.as_dict()
@@ -436,7 +436,7 @@ class TestComputedStructureEntry(unittest.TestCase):
         assert copy3 != copy1
 
 
-class TestGibbsComputedStructureEntry(unittest.TestCase):
+class TestGibbsComputedStructureEntry(TestCase):
     def setUp(self):
         self.temps = [300, 600, 900, 1200, 1500, 1800]
         self.struct = vasp_run.final_structure
@@ -453,10 +453,10 @@ class TestGibbsComputedStructureEntry(unittest.TestCase):
             for temp in self.temps
         }
 
-        with open(f"{TEST_FILES_DIR}/Mn-O_entries.json") as f:
-            data = json.load(f)
-        with open(f"{TEST_FILES_DIR}/structure_CO2.json") as f:
-            self.co2_struct = MontyDecoder().process_decoded(json.load(f))
+        with open(f"{TEST_DIR}/Mn-O_entries.json") as file:
+            data = json.load(file)
+        with open(f"{TEST_DIR}/structure_CO2.json") as file:
+            self.co2_struct = MontyDecoder().process_decoded(json.load(file))
 
         self.mp_entries = [MontyDecoder().process_decoded(d) for d in data]
 
@@ -469,8 +469,8 @@ class TestGibbsComputedStructureEntry(unittest.TestCase):
             1500: -37.793417248809774,
             1800: -32.32513382051749,
         }
-        for t in self.temps:
-            assert self.entries_with_temps[t].energy == approx(energies[t])
+        for temp in self.temps:
+            assert self.entries_with_temps[temp].energy == approx(energies[temp])
 
     def test_interpolation(self):
         temp = 450
@@ -500,7 +500,7 @@ class TestGibbsComputedStructureEntry(unittest.TestCase):
         assert test_entry == entry
         assert entry.energy == approx(test_entry.energy)
 
-    def test_str(self):
+    def test_repr(self):
         assert str(self.entries_with_temps[300]).startswith(
             "GibbsComputedStructureEntry test - Li1 Fe4 P4 O16\nGibbs Free Energy (Formation) = -56.2127"
         )

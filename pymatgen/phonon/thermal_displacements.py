@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from functools import partial
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 from monty.json import MSONable
@@ -15,16 +15,16 @@ from pymatgen.io.cif import CifFile, CifParser, CifWriter, str2float
 from pymatgen.symmetry.groups import SYMM_DATA
 from pymatgen.util.due import Doi, due
 
+try:
+    import phonopy
+except ImportError:
+    phonopy = None
+
 if TYPE_CHECKING:
     from os import PathLike
 
     from numpy.typing import ArrayLike
-
-try:
-    import phonopy
-except ImportError as exc:
-    print(exc)
-    phonopy = None
+    from typing_extensions import Self
 
 __author__ = "J. George"
 __copyright__ = "Copyright 2022, The Materials Project"
@@ -40,7 +40,7 @@ space_groups = {sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]}  # t
 
 
 class ThermalDisplacementMatrices(MSONable):
-    """Class to handle thermal displacement matrices
+    """Handle thermal displacement matrices
     This class stores thermal displacement matrices in Ucart format.
 
     An earlier implementation based on Matlab can be found here:
@@ -208,16 +208,16 @@ class ThermalDisplacementMatrices(MSONable):
         return U1U2U3
 
     def write_cif(self, filename: str) -> None:
-        """Writes a cif including thermal displacements.
+        """Write a cif including thermal displacements.
 
         Args:
             filename: name of the cif file
         """
-        w = CifWriter(self.structure)
-        w.write_file(filename)
+        writer = CifWriter(self.structure)
+        writer.write_file(filename)
         # This will simply append the thermal displacement part to the cif from the CifWriter
         # In the long run, CifWriter could be extended to handle thermal displacement matrices
-        with open(filename, "a") as file:
+        with open(filename, mode="a") as file:
             file.write("loop_ \n")
             file.write("_atom_site_aniso_label\n")
             file.write("_atom_site_aniso_U_11\n")
@@ -228,13 +228,11 @@ class ThermalDisplacementMatrices(MSONable):
             file.write("_atom_site_aniso_U_12\n")
             file.write(f"# Additional Data for U_Aniso: {self.temperature}\n")
 
-            count = 0
-            for site, matrix in zip(self.structure, self.Ucif):
+            for idx, (site, matrix) in enumerate(zip(self.structure, self.Ucif)):
                 file.write(
-                    f"{site.specie.symbol}{count} {matrix[0][0]} {matrix[1][1]} {matrix[2][2]}"
+                    f"{site.specie.symbol}{idx} {matrix[0][0]} {matrix[1][1]} {matrix[2][2]}"
                     f" {matrix[1][2]} {matrix[0][2]} {matrix[0][1]}\n"
                 )
-                count += 1
 
     @staticmethod
     def _angle_dot(a: ArrayLike, b: ArrayLike) -> float:
@@ -308,7 +306,7 @@ class ThermalDisplacementMatrices(MSONable):
         self,
         other: ThermalDisplacementMatrices,
         filename: str | PathLike = "visualization.vesta",
-        which_structure: int = 0,
+        which_structure: Literal[0, 1] = 0,
     ) -> None:
         """Will create a VESTA file for visualization of the directionality criterion.
 
@@ -330,45 +328,47 @@ class ThermalDisplacementMatrices(MSONable):
             structure = self.structure
         elif which_structure == 1:
             structure = other.structure
+        else:
+            raise ValueError("Illegal which_structure value.")
 
-        with open(filename, "w") as f:
+        with open(filename, mode="w", encoding="utf-8") as file:
             #
-            f.write("#VESTA_FORMAT_VERSION 3.5.4\n \n \n")
-            f.write("CRYSTAL\n\n")
-            f.write("TITLE\n")
-            f.write("Directionality Criterion\n\n")
-            f.write("GROUP\n")
-            f.write("1 1 P 1\n\n")
-            f.write("CELLP\n")
-            f.write(
+            file.write("#VESTA_FORMAT_VERSION 3.5.4\n \n \n")
+            file.write("CRYSTAL\n\n")
+            file.write("TITLE\n")
+            file.write("Directionality Criterion\n\n")
+            file.write("GROUP\n")
+            file.write("1 1 P 1\n\n")
+            file.write("CELLP\n")
+            file.write(
                 f"{structure.lattice.a} {structure.lattice.b} {structure.lattice.c} "
                 f"{structure.lattice.alpha} {structure.lattice.beta} {structure.lattice.gamma}\n"
             )
-            f.write("  0.000000   0.000000   0.000000   0.000000   0.000000   0.000000\n")  # error on parameters
-            f.write("STRUC\n")
+            file.write("  0.000000   0.000000   0.000000   0.000000   0.000000   0.000000\n")  # error on parameters
+            file.write("STRUC\n")
 
-            for isite, site in enumerate(structure):
-                f.write(
-                    f"{isite + 1} {site.species_string} {site.species_string}{isite + 1} 1.0000 {site.frac_coords[0]} "
+            for isite, site in enumerate(structure, start=1):
+                file.write(
+                    f"{isite} {site.species_string} {site.species_string}{isite} 1.0000 {site.frac_coords[0]} "
                     f"{site.frac_coords[1]} {site.frac_coords[2]} 1a 1\n"
                 )
-                f.write(" 0.000000 0.000000 0.000000 0.00\n")  # error on positions - zero here
+                file.write(" 0.000000 0.000000 0.000000 0.00\n")  # error on positions - zero here
 
             # now we iterate over the whole structure and write down the fractional coordinates (with errors)
-            f.write("  0 0 0 0 0 0 0\n")
-            f.write("THERT 0\n")
-            f.write("THERM\n")
+            file.write("  0 0 0 0 0 0 0\n")
+            file.write("THERT 0\n")
+            file.write("THERM\n")
             # print all U11s (make sure they are in the correct order)
             counter = 1
             # VESTA order: _U_12    _U_13    _atom_site_aniso_U_23
             for atom_therm, site in zip(matrix_cif, structure):
-                f.write(
+                file.write(
                     f"{counter} {site.species_string}{counter} {atom_therm[0]} "
                     f"{atom_therm[1]} {atom_therm[2]} {atom_therm[5]} {atom_therm[4]} {atom_therm[3]}\n"
                 )
                 counter += 1
-            f.write("  0 0 0 0 0 0 0 0\n")
-            f.write("VECTR\n")
+            file.write("  0 0 0 0 0 0 0 0\n")
+            file.write("VECTR\n")
             vector_count = 1
             site_count = 1
             for vectors in result:
@@ -379,29 +379,29 @@ class ThermalDisplacementMatrices(MSONable):
                 vector1_y = vectors["vector1"][1]
                 vector1_z = vectors["vector1"][2]
 
-                f.write(f"    {vector_count} {vector0_x} {vector0_y} {vector0_z} 0\n")
-                f.write(f"    {site_count} 0 0 0 0\n")
+                file.write(f"    {vector_count} {vector0_x} {vector0_y} {vector0_z} 0\n")
+                file.write(f"    {site_count} 0 0 0 0\n")
 
-                f.write(" 0 0 0 0 0\n")
+                file.write(" 0 0 0 0 0\n")
                 vector_count += 1
-                f.write(f"    {vector_count} {vector1_x} {vector1_y} {vector1_z} 0\n")
-                f.write(f"    {site_count} 0 0 0 0\n")
+                file.write(f"    {vector_count} {vector1_x} {vector1_y} {vector1_z} 0\n")
+                file.write(f"    {site_count} 0 0 0 0\n")
                 vector_count += 1
                 site_count += 1
-                f.write(" 0 0 0 0 0\n")
+                file.write(" 0 0 0 0 0\n")
 
-            f.write(" 0 0 0 0 0\n")
-            f.write("VECTT\n")
+            file.write(" 0 0 0 0 0\n")
+            file.write("VECTT\n")
 
             counter = 1
             # two vectors per atom
             for _i in range(len(result)):
-                f.write(f"{counter} 0.2 255 0 0 1\n")
+                file.write(f"{counter} 0.2 255 0 0 1\n")
                 counter += 1
-                f.write(f"{counter} 0.2 0 0 255 1\n")
+                file.write(f"{counter} 0.2 0 0 255 1\n")
                 counter += 1
 
-            f.write(" 0 0 0 0 0\n")
+            file.write(" 0 0 0 0 0\n")
 
     @property
     def ratio_prolate(self) -> np.ndarray:
@@ -412,10 +412,13 @@ class ThermalDisplacementMatrices(MSONable):
 
         return np.array(ratios)
 
-    @staticmethod
+    @classmethod
     def from_Ucif(
-        thermal_displacement_matrix_cif: ArrayLike[ArrayLike], structure: Structure, temperature: float | None = None
-    ) -> ThermalDisplacementMatrices:
+        cls,
+        thermal_displacement_matrix_cif: ArrayLike[ArrayLike],
+        structure: Structure,
+        temperature: float | None = None,
+    ) -> Self:
         """Starting from a numpy array, it will convert Ucif values into Ucart values and initialize the class.
 
         Args:
@@ -448,7 +451,7 @@ class ThermalDisplacementMatrices(MSONable):
 
         # get ThermalDisplacementMatrices Object
 
-        return ThermalDisplacementMatrices(
+        return cls(
             thermal_displacement_matrix_cart=thermal_displacement_matrix_cart,
             thermal_displacement_matrix_cif=thermal_displacement_matrix_cif,
             structure=structure,
@@ -458,7 +461,7 @@ class ThermalDisplacementMatrices(MSONable):
     def to_structure_with_site_properties_Ucif(self) -> Structure:
         """Transfers this object into a structure with site properties (Ucif).
         This is useful for sorting the atoms in the structure including site properties.
-        E.g., with code like this:
+        e.g. with code like this:
         def sort_order(site):
             return [site.specie.X, site.frac_coords[0], site.frac_coords[1], site.frac_coords[2]]
         new_structure0 = Structure.from_sites(sorted(structure0, key=sort_order)).
@@ -490,9 +493,7 @@ class ThermalDisplacementMatrices(MSONable):
         return self.structure.copy(site_properties=site_properties)
 
     @classmethod
-    def from_structure_with_site_properties_Ucif(
-        cls, structure: Structure, temperature: float | None = None
-    ) -> ThermalDisplacementMatrices:
+    def from_structure_with_site_properties_Ucif(cls, structure: Structure, temperature: float | None = None) -> Self:
         """Will create this object with the help of a structure with site properties.
 
         Args:

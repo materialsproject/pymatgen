@@ -5,7 +5,7 @@ from __future__ import annotations
 import collections
 import collections.abc
 import string
-from collections.abc import Iterable
+from collections.abc import Sequence
 
 import numpy as np
 
@@ -23,7 +23,7 @@ _UNITS = {
 class InputVariable:
     """An Abinit input variable."""
 
-    def __init__(self, name, value, units="", valperline=3):
+    def __init__(self, name: str, value, units: str = "", valperline: int = 3) -> None:
         """
         Args:
             name: Name of the variable.
@@ -35,12 +35,11 @@ class InputVariable:
         self.value = value
         self._units = units
 
-        # Maximum number of values per line.
-        self.valperline = valperline
+        self.valperline = valperline  # Maximum number of values per line.
         if name == "bdgw":
             self.valperline = 2
 
-        if isinstance(self.value, Iterable) and isinstance(self.value[-1], str) and self.value[-1] in _UNITS:
+        if isinstance(self.value, Sequence) and isinstance(self.value[-1], str) and self.value[-1] in _UNITS:
             self.value = list(self.value)
             self._units = self.value.pop(-1)
 
@@ -57,18 +56,18 @@ class InputVariable:
 
     @property
     def basename(self):
-        """Return the name trimmed of any dataset index."""
+        """The name trimmed of any dataset index."""
         basename = self.name
         return basename.rstrip(_DATASET_INDICES)
 
     @property
     def dataset(self):
-        """Return the dataset index in string form."""
+        """The dataset index in string form."""
         return self.name.split(self.basename)[-1]
 
     @property
     def units(self):
-        """Return the units."""
+        """The units."""
         return self._units
 
     def __str__(self):
@@ -119,8 +118,7 @@ class InputVariable:
 
     @staticmethod
     def format_scalar(val, float_decimal=0):
-        """
-        Format a single numerical value into a string
+        """Format a single numerical value into a string
         with the appropriate number of decimal.
         """
         str_val = str(val)
@@ -187,16 +185,15 @@ class InputVariable:
         return line.rstrip("\n")
 
     def format_list(self, values, float_decimal=0):
-        """
-        Format a list of values into a string.
+        """Format a list of values into a string.
         The result might be spread among several lines.
         """
         line = ""
 
         # Format the line declaring the value
-        for i, val in enumerate(values):
-            line += " " + self.format_scalar(val, float_decimal)
-            if self.valperline is not None and (i + 1) % self.valperline == 0:
+        for i, val in enumerate(values, start=1):
+            line += f" {self.format_scalar(val, float_decimal)}"
+            if self.valperline is not None and i % self.valperline == 0:
                 line += "\n"
 
         # Add a carriage return in case of several lines

@@ -12,6 +12,8 @@ from pymatgen.core.structure import PeriodicSite, Structure
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from typing_extensions import Self
+
     from pymatgen.symmetry.analyzer import SpacegroupOperations
 
 
@@ -65,9 +67,9 @@ class SymmetrizedStructure(Structure):
         self.wyckoff_letters = wyckoff_letters
         self.wyckoff_symbols = [f"{len(symb)}{symb[0]}" for symb in wyckoff_symbols]
 
-    def copy(self):
-        """Copy of structure."""
-        return SymmetrizedStructure(
+    def copy(self) -> Self:  # type: ignore[override]
+        """Make a copy of the SymmetrizedStructure."""
+        return type(self)(
             self,
             spacegroup=self.spacegroup,
             equivalent_positions=self.site_labels,
@@ -75,7 +77,7 @@ class SymmetrizedStructure(Structure):
         )
 
     def find_equivalent_sites(self, site: PeriodicSite) -> list[PeriodicSite]:
-        """Finds all symmetrically equivalent sites for a particular site.
+        """Find all symmetrically equivalent sites for a particular site.
 
         Args:
             site (PeriodicSite): A site in the structure
@@ -96,16 +98,13 @@ class SymmetrizedStructure(Structure):
         return str(self)
 
     def __str__(self) -> str:
-        def to_str(x):
-            return f"{x:>10.6f}"
-
         outs = [
             "SymmetrizedStructure",
-            f"Full Formula ({self.composition.formula})",
-            f"Reduced Formula: {self.composition.reduced_formula}",
+            f"Full Formula ({self.formula})",
+            f"Reduced Formula: {self.reduced_formula}",
             f"Spacegroup: {self.spacegroup.int_symbol} ({self.spacegroup.int_number})",
-            f"abc   : {' '.join(to_str(val) for val in self.lattice.abc)}",
-            f"angles: {' '.join(to_str(val) for val in self.lattice.angles)}",
+            f"abc   : {' '.join(f'{val:>10.6f}' for val in self.lattice.abc)}",
+            f"angles: {' '.join(f'{val:>10.6f}' for val in self.lattice.angles)}",
         ]
 
         if self._charge:
@@ -117,10 +116,10 @@ class SymmetrizedStructure(Structure):
         for idx, sites in enumerate(self.equivalent_sites):
             site = sites[0]
             row = [str(idx), site.species_string]
-            row.extend([to_str(j) for j in site.frac_coords])
+            row.extend([f"{j:>10.6f}" for j in site.frac_coords])
             row.append(self.wyckoff_symbols[idx])
-            for k in keys:
-                row.append(props[k][idx])
+            for key in keys:
+                row.append(props[key][idx])
             data.append(row)
         outs.append(tabulate(data, headers=["#", "SP", "a", "b", "c", "Wyckoff", *keys]))
         return "\n".join(outs)
@@ -136,7 +135,7 @@ class SymmetrizedStructure(Structure):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:  # type: ignore[override]
         """
         Args:
             dct (dict): Dict representation.

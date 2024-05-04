@@ -47,17 +47,18 @@ class COD:
     def query(self, sql: str) -> str:
         """Perform a query.
 
-        :param sql: SQL string
+        Args:
+            sql: SQL string
 
         Returns:
             Response from SQL query.
         """
-        r = subprocess.check_output(["mysql", "-u", "cod_reader", "-h", self.url, "-e", sql, "cod"])
-        return r.decode("utf-8")
+        response = subprocess.check_output(["mysql", "-u", "cod_reader", "-h", self.url, "-e", sql, "cod"])
+        return response.decode("utf-8")
 
     @requires(which("mysql"), "mysql must be installed to use this query.")
-    def get_cod_ids(self, formula):
-        """Queries the COD for all cod ids associated with a formula. Requires
+    def get_cod_ids(self, formula) -> list[int]:
+        """Query the COD for all cod ids associated with a formula. Requires
         mysql executable to be in the path.
 
         Args:
@@ -74,34 +75,32 @@ class COD:
         text = self.query(sql).split("\n")
         cod_ids = []
         for line in text:
-            match = re.search(r"(\d+)", line)
-            if match:
+            if match := re.search(r"(\d+)", line):
                 cod_ids.append(int(match.group(1)))
         return cod_ids
 
-    def get_structure_by_id(self, cod_id, **kwargs):
-        """Queries the COD for a structure by id.
+    def get_structure_by_id(self, cod_id: int, timeout: int = 600, **kwargs) -> Structure:
+        """Query the COD for a structure by id.
 
         Args:
             cod_id (int): COD id.
-            kwargs: All kwargs supported by
-                :func:`pymatgen.core.structure.Structure.from_str`.
+            timeout (int): Timeout for the request in seconds. Default = 600.
+            kwargs: All kwargs supported by Structure.from_str.
 
         Returns:
             A Structure.
         """
-        r = requests.get(f"http://{self.url}/cod/{cod_id}.cif")
-        return Structure.from_str(r.text, fmt="cif", **kwargs)
+        response = requests.get(f"http://{self.url}/cod/{cod_id}.cif", timeout=timeout)
+        return Structure.from_str(response.text, fmt="cif", **kwargs)
 
     @requires(which("mysql"), "mysql must be installed to use this query.")
     def get_structure_by_formula(self, formula: str, **kwargs) -> list[dict[str, str | int | Structure]]:
-        """Queries the COD for structures by formula. Requires mysql executable to
+        """Query the COD for structures by formula. Requires mysql executable to
         be in the path.
 
         Args:
             formula (str): Chemical formula.
-            kwargs: All kwargs supported by
-                :func:`pymatgen.core.structure.Structure.from_str`.
+            kwargs: All kwargs supported by Structure.from_str.
 
         Returns:
             A list of dict of the format [{"structure": Structure, "cod_id": int, "sg": "P n m a"}]
@@ -113,12 +112,12 @@ class COD:
         for line in text:
             if line.strip():
                 cod_id, sg = line.split("\t")
-                r = requests.get(f"http://www.crystallography.net/cod/{cod_id.strip()}.cif")
+                response = requests.get(f"http://www.crystallography.net/cod/{cod_id.strip()}.cif", timeout=600)
                 try:
-                    struct = Structure.from_str(r.text, fmt="cif", **kwargs)
+                    struct = Structure.from_str(response.text, fmt="cif", **kwargs)
                     structures.append({"structure": struct, "cod_id": int(cod_id), "sg": sg})
                 except Exception:
-                    warnings.warn(f"\nStructure.from_str failed while parsing CIF file:\n{r.text}")
+                    warnings.warn(f"\nStructure.from_str failed while parsing CIF file:\n{response.text}")
                     raise
 
         return structures

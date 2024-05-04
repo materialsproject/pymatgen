@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import pytest
 
@@ -10,7 +10,7 @@ from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core.structure import Molecule
 from pymatgen.util.testing import TEST_FILES_DIR
 
-test_dir = f"{TEST_FILES_DIR}/functional_groups"
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/functional_groups"
 
 pytest.importorskip("openbabel")
 pytest.importorskip("networkx")
@@ -24,12 +24,12 @@ __date__ = "July 2018"
 __credit__ = "Peiyuan Yu"
 
 
-class TestFunctionalGroupExtractor(unittest.TestCase):
+class TestFunctionalGroupExtractor(TestCase):
     def setUp(self):
-        self.file = f"{test_dir}/func_group_test.mol"
+        self.file = f"{TEST_DIR}/func_group_test.mol"
         self.mol = Molecule.from_file(self.file)
         self.strategy = OpenBabelNN()
-        self.mg = MoleculeGraph.with_local_env_strategy(self.mol, self.strategy)
+        self.mg = MoleculeGraph.from_local_env_strategy(self.mol, self.strategy)
         self.extractor = FunctionalGroupExtractor(self.mg)
 
     def test_init(self):
@@ -44,17 +44,17 @@ class TestFunctionalGroupExtractor(unittest.TestCase):
         assert extractor_str.species == extractor_mg.species
 
         # Test optimization
-        file_no_h = f"{test_dir}/func_group_test_no_h.mol"
+        file_no_h = f"{TEST_DIR}/func_group_test_no_h.mol"
         extractor_no_h = FunctionalGroupExtractor(file_no_h, optimize=True)
 
         assert len(extractor_no_h.molecule) == len(extractor_mol.molecule)
         assert extractor_no_h.species == extractor_mol.species
 
     def test_get_heteroatoms(self):
-        heteroatoms = self.extractor.get_heteroatoms()
-        hetero_species = [self.extractor.species[x] for x in heteroatoms]
+        hetero_atoms = self.extractor.get_heteroatoms()
+        hetero_species = [self.extractor.species[x] for x in hetero_atoms]
 
-        assert len(heteroatoms) == 3
+        assert len(hetero_atoms) == 3
         assert sorted(hetero_species) == ["N", "O", "O"]
 
         # Test with limitation

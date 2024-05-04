@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-import unittest
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -17,7 +17,7 @@ class TestCoordUtils:
         x_vals = [0, 1, 2, 3, 4, 5]
         y_vals = [3, 6, 7, 8, 10, 12]
         assert coord.get_linear_interpolated_value(x_vals, y_vals, 3.6) == 9.2
-        with pytest.raises(ValueError, match="x is out of range of provided x_values"):
+        with pytest.raises(ValueError, match=r"x=6 is out of range of provided x_values \(0, 5\)"):
             coord.get_linear_interpolated_value(x_vals, y_vals, 6)
 
     def test_in_coord_list(self):
@@ -236,7 +236,7 @@ class TestCoordUtils:
         assert coord.get_angle(v1, v2, units="radians") == approx(0.9553166181245092)
 
 
-class TestSimplex(unittest.TestCase):
+class TestSimplex(TestCase):
     def setUp(self):
         coords = [[0, 0, 0], [0, 1, 0], [0, 0, 1], [1, 0, 0]]
         self.simplex = coord.Simplex(coords)
@@ -273,19 +273,19 @@ class TestSimplex(unittest.TestCase):
         assert repr(self.simplex).startswith("3-simplex in 4D space")
 
     def test_bary_coords(self):
-        s = coord.Simplex([[0, 2], [3, 1], [1, 0]])
+        simplex = coord.Simplex([[0, 2], [3, 1], [1, 0]])
         point = [0.7, 0.5]
-        bc = s.bary_coords(point)
+        bc = simplex.bary_coords(point)
         assert_allclose(bc, [0.26, -0.02, 0.76])
-        new_point = s.point_from_bary_coords(bc)
+        new_point = simplex.point_from_bary_coords(bc)
         assert_allclose(point, new_point)
 
     def test_intersection(self):
         # simple test, with 2 intersections at faces
-        s = coord.Simplex([[0, 2], [3, 1], [1, 0]])
+        simplex = coord.Simplex([[0, 2], [3, 1], [1, 0]])
         point1 = [0.7, 0.5]
         point2 = [0.5, 0.7]
-        intersections = s.line_intersection(point1, point2)
+        intersections = simplex.line_intersection(point1, point2)
         expected = np.array([[1.13333333, 0.06666667], [0.8, 0.4]])
         assert_allclose(intersections, expected)
 
@@ -293,14 +293,14 @@ class TestSimplex(unittest.TestCase):
         point1 = [0, 2]  # simplex point
         point2 = [1, 1]  # inside simplex
         expected = np.array([[1.66666667, 0.33333333], [0, 2]])
-        intersections = s.line_intersection(point1, point2)
+        intersections = simplex.line_intersection(point1, point2)
         assert_allclose(intersections, expected)
 
         # intersection through point only
         point1 = [0, 2]  # simplex point
         point2 = [0.5, 0.7]
         expected = np.array([[0, 2]])
-        intersections = s.line_intersection(point1, point2)
+        intersections = simplex.line_intersection(point1, point2)
         assert_allclose(intersections, expected)
 
         # 3d intersection through edge and face
@@ -321,21 +321,21 @@ class TestSimplex(unittest.TestCase):
         point1 = [-1, 2]
         point2 = [0, 0]
         expected = np.array([])
-        intersections = s.line_intersection(point1, point2)
+        intersections = simplex.line_intersection(point1, point2)
         assert_allclose(intersections, expected)
 
         # coplanar to face (with intersection line)
         point1 = [0, 2]  # simplex point
         point2 = [1, 0]
         expected = np.array([[1, 0], [0, 2]])
-        intersections = s.line_intersection(point1, point2)
+        intersections = simplex.line_intersection(point1, point2)
         assert_allclose(intersections, expected)
 
         # coplanar to face (with intersection points)
         point1 = [0.1, 2]
         point2 = [1.1, 0]
         expected = np.array([[1.08, 0.04], [0.12, 1.96]])
-        intersections = s.line_intersection(point1, point2)
+        intersections = simplex.line_intersection(point1, point2)
         assert_allclose(intersections, expected)
 
     def test_to_json(self):

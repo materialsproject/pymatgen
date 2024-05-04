@@ -8,6 +8,7 @@ import itertools
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from monty.json import MontyDecoder
 from scipy.constants import N_A
 
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
@@ -18,6 +19,8 @@ from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEn
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+    from typing_extensions import Self
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -39,7 +42,7 @@ class InsertionElectrode(AbstractElectrode):
         entries: Iterable[ComputedEntry | ComputedStructureEntry],
         working_ion_entry: ComputedEntry | ComputedStructureEntry | PDEntry,
         strip_structures: bool = False,
-    ):
+    ) -> Self:
         """Create a new InsertionElectrode.
 
         Args:
@@ -129,7 +132,7 @@ class InsertionElectrode(AbstractElectrode):
         return list_copy if charge_to_discharge else list_copy.reverse()
 
     def get_unstable_entries(self, charge_to_discharge=True):
-        """Returns the unstable entries for the electrode.
+        """Get the unstable entries for the electrode.
 
         Args:
             charge_to_discharge: Order from most charge to most discharged
@@ -345,8 +348,8 @@ class InsertionElectrode(AbstractElectrode):
         return dct
 
     def __repr__(self):
-        chg_form = self.fully_charged_entry.composition.reduced_formula
-        dischg_form = self.fully_discharged_entry.composition.reduced_formula
+        chg_form = self.fully_charged_entry.reduced_formula
+        dischg_form = self.fully_discharged_entry.reduced_formula
         return (
             f"InsertionElectrode with endpoints at {chg_form} and {dischg_form}\n"
             f"Avg. volt. = {self.get_average_voltage()} V\n"
@@ -355,24 +358,21 @@ class InsertionElectrode(AbstractElectrode):
         )
 
     @classmethod
-    def from_dict_legacy(cls, d):
+    def from_dict_legacy(cls, dct) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             InsertionElectrode
         """
-        from monty.json import MontyDecoder
-
-        dec = MontyDecoder()
         return InsertionElectrode(
-            dec.process_decoded(d["entries"]),
-            dec.process_decoded(d["working_ion_entry"]),
+            MontyDecoder().process_decoded(dct["entries"]),
+            MontyDecoder().process_decoded(dct["working_ion_entry"]),
         )
 
     def as_dict_legacy(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -383,13 +383,13 @@ class InsertionElectrode(AbstractElectrode):
 
 @dataclass
 class InsertionVoltagePair(AbstractVoltagePair):
-    """Defines an Insertion Voltage Pair."""
+    """A voltage pair for an insertion battery, e.g. LiFePO4 -> FePO4."""
 
     entry_charge: ComputedEntry
     entry_discharge: ComputedEntry
 
     @classmethod
-    def from_entries(cls, entry1, entry2, working_ion_entry):
+    def from_entries(cls, entry1, entry2, working_ion_entry) -> Self:
         """
         Args:
             entry1: Entry corresponding to one of the entries in the voltage step.
@@ -405,7 +405,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
         if entry_charge.composition.get_atomic_fraction(working_element) > entry2.composition.get_atomic_fraction(
             working_element
         ):
-            (entry_charge, entry_discharge) = (entry_discharge, entry_charge)
+            entry_charge, entry_discharge = entry_discharge, entry_charge
 
         comp_charge = entry_charge.composition
         comp_discharge = entry_discharge.composition
@@ -500,7 +500,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
     def __repr__(self):
         output = [
-            f"Insertion voltage pair with working ion {self.working_ion_entry.composition.reduced_formula}",
+            f"Insertion voltage pair with working ion {self.working_ion_entry.reduced_formula}",
             f"V = {self.voltage}, mAh = {self.mAh}",
             f"mass_charge = {self.mass_charge}, mass_discharge = {self.mass_discharge}",
             f"vol_charge = {self.vol_charge}, vol_discharge = {self.vol_discharge}",

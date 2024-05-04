@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="./">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.exciting package &mdash; pymatgen 2023.10.4 documentation</title>
-      <link rel="stylesheet" href="assets/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="assets/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="assets/css/custom.css" type="text/css" />
+  <title>pymatgen.io.exciting package &mdash; pymatgen 2024.3.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
+
+  
     <link rel="canonical" href="https://pymatgen.orgpymatgen.io.exciting.html"/>
   <!--[if lt IE 9]>
     <script src="assets/js/html5shiv.min.js"></script>
@@ -15,7 +17,7 @@
   
         <script src="assets/jquery.js?v=5d32c60e"></script>
         <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="assets/documentation_options.js?v=b21dff6d"></script>
+        <script src="assets/documentation_options.js?v=df55f829"></script>
         <script src="assets/doctools.js?v=888ff710"></script>
         <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
     <script src="assets/js/theme.js"></script>
@@ -35,7 +37,7 @@
             
           </a>
               <div class="version">
-                2023.10.4
+                2024.3.1
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -57,7 +59,6 @@
 <li><a class="reference internal" href="#pymatgen.io.exciting.inputs.ExcitingInput.bohr2ang"><code class="docutils literal notranslate"><span class="pre">ExcitingInput.bohr2ang</span></code></a></li>
 <li><a class="reference internal" href="#pymatgen.io.exciting.inputs.ExcitingInput.from_file"><code class="docutils literal notranslate"><span class="pre">ExcitingInput.from_file()</span></code></a></li>
 <li><a class="reference internal" href="#pymatgen.io.exciting.inputs.ExcitingInput.from_str"><code class="docutils literal notranslate"><span class="pre">ExcitingInput.from_str()</span></code></a></li>
-<li><a class="reference internal" href="#pymatgen.io.exciting.inputs.ExcitingInput.from_string"><code class="docutils literal notranslate"><span class="pre">ExcitingInput.from_string()</span></code></a></li>
 <li><a class="reference internal" href="#id0"><code class="docutils literal notranslate"><span class="pre">ExcitingInput.lockxyz</span></code></a></li>
 <li><a class="reference internal" href="#pymatgen.io.exciting.inputs.ExcitingInput.write_etree"><code class="docutils literal notranslate"><span class="pre">ExcitingInput.write_etree()</span></code></a></li>
 <li><a class="reference internal" href="#pymatgen.io.exciting.inputs.ExcitingInput.write_file"><code class="docutils literal notranslate"><span class="pre">ExcitingInput.write_file()</span></code></a></li>
@@ -106,13 +107,13 @@ code package.</p>
 <p>Classes for reading/manipulating/writing exciting input files.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.exciting.inputs.ExcitingInput">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ExcitingInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lockxyz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../io/exciting/inputs.py#L27-L369"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ExcitingInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lockxyz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/exciting/inputs.py#L25-L361"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Object for representing the data stored in the structure part of the
 exciting input.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.exciting.inputs.ExcitingInput.structure">
-<span class="sig-name descname"><span class="pre">structure</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/io/exciting/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.structure" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">structure</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/exciting/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.structure" title="Link to this definition"></a></dt>
 <dd><p>Associated Structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -123,7 +124,7 @@ exciting input.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.exciting.inputs.ExcitingInput.title">
-<span class="sig-name descname"><span class="pre">title</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/io/exciting/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.title" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">title</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/exciting/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.title" title="Link to this definition"></a></dt>
 <dd><p>Optional title string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -134,7 +135,7 @@ exciting input.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.exciting.inputs.ExcitingInput.lockxyz">
-<span class="sig-name descname"><span class="pre">lockxyz</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/io/exciting/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.lockxyz" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">lockxyz</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/exciting/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.lockxyz" title="Link to this definition"></a></dt>
 <dd><p>Lockxyz attribute for each site if available. A Nx3 array of booleans.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -156,12 +157,12 @@ where N is number of sites. Defaults to None.</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pymatgen.io.exciting.inputs.ExcitingInput.bohr2ang">
-<span class="sig-name descname"><span class="pre">bohr2ang</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5291692998219677</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/io/exciting/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.bohr2ang" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">bohr2ang</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.5291692998219677</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/exciting/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.bohr2ang" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.exciting.inputs.ExcitingInput.from_file">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../io/exciting/inputs.py#L142-L152"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.from_file" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/exciting/inputs.py#L135-L146"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.from_file" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> – Filename</p>
@@ -174,26 +175,19 @@ where N is number of sites. Defaults to None.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.exciting.inputs.ExcitingInput.from_str">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../io/exciting/inputs.py#L73-L140"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.from_str" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/exciting/inputs.py#L66-L133"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.from_str" title="Link to this definition"></a></dt>
 <dd><p>Reads the exciting input from a string.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pymatgen.io.exciting.inputs.ExcitingInput.from_string">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../../../../miniconda3/envs/mavrl/lib/python3.11/site-packages/numpy/lib/utils.py#L68-L71"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.from_string" title="Link to this definition"></a></dt>
-<dd><p><cite>from_string</cite> is deprecated!
-Use from_str instead</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="id0">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lockxyz</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/io/exciting/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lockxyz</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/exciting/inputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
 <dd><p>Selective dynamics site properties.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.exciting.inputs.ExcitingInput.write_etree">
-<span class="sig-name descname"><span class="pre">write_etree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">celltype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandstr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../io/exciting/inputs.py#L154-L260"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.write_etree" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">write_etree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">celltype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandstr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/exciting/inputs.py#L148-L251"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.write_etree" title="Link to this definition"></a></dt>
 <dd><p>Writes the exciting input parameters to an xml object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -220,7 +214,7 @@ celltype is set to “primitive”. Default is False.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.exciting.inputs.ExcitingInput.write_file">
-<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">celltype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandstr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../io/exciting/inputs.py#L297-L330"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.write_file" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">celltype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandstr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/exciting/inputs.py#L288-L321"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.write_file" title="Link to this definition"></a></dt>
 <dd><p>Writes exciting input file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -246,7 +240,7 @@ celltype is set to “primitive”. Default is False.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.exciting.inputs.ExcitingInput.write_string">
-<span class="sig-name descname"><span class="pre">write_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">celltype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandstr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.10.4/pymatgen/core/../io/exciting/inputs.py#L262-L295"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.write_string" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">write_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">celltype</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cartesian</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandstr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle_tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/exciting/inputs.py#L253-L286"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.exciting.inputs.ExcitingInput.write_string" title="Link to this definition"></a></dt>
 <dd><p>Writes exciting input.xml as a string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

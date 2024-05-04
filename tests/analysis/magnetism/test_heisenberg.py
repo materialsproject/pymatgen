@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import pandas as pd
 
@@ -8,16 +8,16 @@ from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR
 
-test_dir = f"{TEST_FILES_DIR}/magnetic_orderings"
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/magnetic_orderings"
 
 
-class TestHeisenbergMapper(unittest.TestCase):
+class TestHeisenbergMapper(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.df = pd.read_json(f"{test_dir}/mag_orderings_test_cases.json")
+        cls.df = pd.read_json(f"{TEST_DIR}/mag_orderings_test_cases.json")
 
         # Good tests
-        cls.Mn3Al = pd.read_json(f"{test_dir}/Mn3Al.json")
+        cls.Mn3Al = pd.read_json(f"{TEST_DIR}/Mn3Al.json")
 
         cls.compounds = [cls.Mn3Al]
 
@@ -31,13 +31,10 @@ class TestHeisenbergMapper(unittest.TestCase):
             hm = HeisenbergMapper(ordered_structures, energies, cutoff=5.0, tol=0.02)
             cls.hms.append(hm)
 
-    def setUp(self):
-        pass
-
     def test_graphs(self):
         for hm in self.hms:
-            sgraphs = hm.sgraphs
-            assert len(sgraphs) == 7
+            struct_graphs = hm.sgraphs
+            assert len(struct_graphs) == 7
 
     def test_sites(self):
         for hm in self.hms:
@@ -46,8 +43,8 @@ class TestHeisenbergMapper(unittest.TestCase):
 
     def test_nn_interactions(self):
         for hm in self.hms:
-            num_interacts = len(hm.nn_interactions)
-            assert num_interacts == 3
+            n_interacts = len(hm.nn_interactions)
+            assert n_interacts == 3
 
             dists = hm.dists
             assert dists["nn"] == 2.51

@@ -23,6 +23,7 @@ if TYPE_CHECKING:
 
     from matplotlib.axes import Axes
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
 __author__ = "Henrique Miranda, Guido Petretto, Matteo Giantomassi"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -33,7 +34,7 @@ __date__ = "Oct 31, 2018"
 
 
 class IRDielectricTensor(MSONable):
-    """Class to handle the Ionic Dielectric Tensor
+    """Handle the Ionic Dielectric Tensor
     The implementation is adapted from Abipy
     See the definitions Eq.(53-54) in :cite:`Gonze1997` PRB55, 10355 (1997).
     """
@@ -59,8 +60,8 @@ class IRDielectricTensor(MSONable):
         self.epsilon_infinity = np.array(epsilon_infinity)
 
     @classmethod
-    def from_dict(cls, dct: dict) -> IRDielectricTensor:
-        """Returns IRDielectricTensor from dict representation."""
+    def from_dict(cls, dct: dict) -> Self:
+        """Get IRDielectricTensor from dict representation."""
         structure = Structure.from_dict(dct["structure"])
         oscillator_strength = dct["oscillator_strength"]
         ph_freqs_gamma = dct["ph_freqs_gamma"]
@@ -90,8 +91,8 @@ class IRDielectricTensor(MSONable):
 
     def write_json(self, filename: str | PathLike) -> None:
         """Save a json file with this data."""
-        with open(filename, "w") as f:
-            json.dump(self.as_dict(), f)
+        with open(filename, mode="w") as file:
+            json.dump(self.as_dict(), file)
 
     def get_ir_spectra(
         self, broad: list | float = 0.00005, emin: float = 0, emax: float | None = None, divs: int = 500

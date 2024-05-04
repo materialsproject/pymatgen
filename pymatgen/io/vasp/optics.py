@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import itertools
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 import numpy as np
 import scipy.constants
@@ -16,25 +16,26 @@ from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.vasp.outputs import Vasprun, Waveder
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from numpy.typing import ArrayLike, NDArray
+    from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Jimmy-Xuan Shen"
 __copyright__ = "Copyright 2022, The Materials Project"
 __maintainer__ = "Jimmy-Xuan Shen"
 __email__ = "jmmshn@gmail.com"
 
-au2ang = scipy.constants.physical_constants["atomic unit of length"][0] / 1e-10
-ryd2ev = scipy.constants.physical_constants["Rydberg constant times hc in eV"][0]
-edeps = 4 * np.pi * 2 * ryd2ev * au2ang  # from constant.inc in VASP
+au2ang: float = scipy.constants.physical_constants["atomic unit of length"][0] / 1e-10
+ryd2ev: float = scipy.constants.physical_constants["Rydberg constant times hc in eV"][0]
+edeps: float = 4 * np.pi * 2 * ryd2ev * au2ang  # from constant.inc in VASP
 
-KB = scipy.constants.physical_constants["Boltzmann constant in eV/K"][0]
+KB: float = scipy.constants.physical_constants["Boltzmann constant in eV/K"][0]
 
 
 @dataclass
 class DielectricFunctionCalculator(MSONable):
-    """Class for postprocessing VASP optical properties calculations.
+    """Post-process VASP optical properties calculations.
 
     This objects helps load the different parameters from the vasprun.xml file but allows users to override
     them as needed.
@@ -70,7 +71,7 @@ class DielectricFunctionCalculator(MSONable):
     volume: float
 
     @classmethod
-    def from_vasp_objects(cls, vrun: Vasprun, waveder: Waveder):
+    def from_vasp_objects(cls, vrun: Vasprun, waveder: Waveder) -> Self:
         """Construct a DielectricFunction from Vasprun, Kpoint, and Waveder objects.
 
         Args:
@@ -94,7 +95,7 @@ class DielectricFunctionCalculator(MSONable):
         if vrun.parameters["ISYM"] != 0:
             raise NotImplementedError("ISYM != 0 is not implemented yet")
 
-        return DielectricFunctionCalculator(
+        return cls(
             cder_real=waveder.cder_real,
             cder_imag=waveder.cder_imag,
             eigs=eigs,
@@ -110,18 +111,20 @@ class DielectricFunctionCalculator(MSONable):
         )
 
     @classmethod
-    def from_directory(cls, directory: Path | str):
-        """Construct a DielectricFunction from a directory containing vasprun.xml and WAVEDER files."""
+    def from_directory(cls, directory: PathLike) -> Self:
+        """Construct a DielectricFunction from a directory containing
+        vasprun.xml and WAVEDER files.
+        """
 
         def _try_reading(dtypes):
             """Return None if failed."""
             for dtype in dtypes:
                 try:
                     return Waveder.from_binary(f"{directory}/WAVEDER", data_type=dtype)
-                except ValueError as e:
-                    if "reshape" in str(e):
+                except ValueError as exc:
+                    if "reshape" in str(exc):
                         continue
-                    raise e
+                    raise exc
             return None
 
         vrun = Vasprun(f"{directory}/vasprun.xml")
@@ -162,37 +165,51 @@ class DielectricFunctionCalculator(MSONable):
             mask: Mask for the bands/kpoint/spin index to include in the calculation
         """
 
-        def _use_default(param, default):
+        @overload
+        def _use_default(param: int | None, default: int) -> int:
+            pass
+
+        @overload
+        def _use_default(param: float | None, default: float) -> float:
+            pass
+
+        def _use_default(param: float | None, default: float) -> float:
             return param if param is not None else default
 
-        efermi = _use_default(efermi, self.efermi)
-        nedos = _use_default(nedos, self.nedos)
-        deltae = _use_default(deltae, self.deltae)
-        ismear = _use_default(ismear, self.ismear)
-        sigma = _use_default(sigma, self.sigma)
-        cshift = _use_default(cshift, self.cshift)
+        _efermi = _use_default(efermi, self.efermi)
+        _nedos = _use_default(nedos, self.nedos)
+        _deltae = _use_default(deltae, self.deltae)
+        _ismear = _use_default(ismear, self.ismear)
+        _sigma = _use_default(sigma, self.sigma)
+        _cshift = _use_default(cshift, self.cshift)
 
-        egrid, eps_imag = epsilon_imag(  # type: ignore
+        egrid, eps_imag = epsilon_imag(
             cder=self.cder,
             eigs=self.eigs,
             kweights=self.kweights,
-            efermi=efermi,  # type: ignore
-            nedos=nedos,  # type: ignore
-            deltae=deltae,  # type: ignore
-            ismear=ismear,  # type: ignore
-            sigma=sigma,  # type: ignore
+            efermi=_efermi,
+            nedos=_nedos,
+            deltae=_deltae,
+            ismear=_ismear,
+            sigma=_sigma,
             idir=idir,
             jdir=jdir,
             mask=mask,
         )
         # scaling constant: edeps * np.pi / structure.volume
         eps_in = eps_imag * edeps * np.pi / self.volume
-        eps = kramers_kronig(eps_in, nedos=nedos, deltae=deltae, cshift=cshift)  # type: ignore
+        eps = kramers_kronig(eps_in, nedos=_nedos, deltae=_deltae, cshift=_cshift)
         if idir == jdir:
             eps += 1.0 + 0.0j
         return egrid, eps
 
-    def plot_weighted_transition_data(self, idir: int, jdir: int, mask: NDArray | None = None, min_val: float = 0.0):
+    def plot_weighted_transition_data(
+        self,
+        idir: int,
+        jdir: int,
+        mask: NDArray | None = None,
+        min_val: float = 0.0,
+    ):
         """Data for plotting the weight matrix elements as a scatter plot.
 
         Since the computation of the final spectrum (especially the smearing part)
@@ -213,10 +230,12 @@ class DielectricFunctionCalculator(MSONable):
         norm_kweights = np.array(self.kweights) / np.sum(self.kweights)
         eigs_shifted = self.eigs - self.efermi
         rspin = 3 - cderm.shape[3]
-        # limit the first two indices based on the mask
+
+        # Limit the first two indices based on the mask
         try:
             min_band0, max_band0 = np.min(np.where(cderm)[0]), np.max(np.where(cderm)[0])
             min_band1, max_band1 = np.min(np.where(cderm)[1]), np.max(np.where(cderm)[1])
+
         except ValueError as exc:
             if "zero-size array" in str(exc):
                 raise ValueError("No matrix elements found. Check the mask.")
@@ -247,7 +266,7 @@ class DielectricFunctionCalculator(MSONable):
         return x_val, y_val, text
 
 
-def delta_methfessel_paxton(x, n):
+def delta_methfessel_paxton(x: NDArray, n: int) -> NDArray:
     """
     D_n (x) = exp -x^2 * sum_i=0^n A_i H_2i(x)
     where H is a Hermite polynomial and
@@ -259,7 +278,7 @@ def delta_methfessel_paxton(x, n):
     return np.exp(-(x * x)) * np.dot(A, H.T)
 
 
-def step_methfessel_paxton(x, n):
+def step_methfessel_paxton(x: NDArray, n: int) -> NDArray:
     """
     S_n (x) = (1 + erf x)/2 - exp -x^2 * sum_i=1^n A_i H_{2i-1}(x)
     where H is a Hermite polynomial and
@@ -271,7 +290,7 @@ def step_methfessel_paxton(x, n):
     return (1.0 + scipy.special.erf(x)) / 2.0 - np.exp(-(x * x)) * np.dot(A, H.T)
 
 
-def delta_func(x, ismear):
+def delta_func(x: NDArray, ismear: int) -> NDArray:
     """Replication of VASP's delta function."""
     if ismear < -1:
         raise ValueError("Delta function not implemented for ismear < -1")
@@ -282,7 +301,7 @@ def delta_func(x, ismear):
     return delta_methfessel_paxton(x, ismear)
 
 
-def step_func(x, ismear):
+def step_func(x: NDArray, ismear: int) -> NDArray:
     """Replication of VASP's step function."""
     if ismear < -1:
         raise ValueError("Delta function not implemented for ismear < -1")
@@ -293,7 +312,7 @@ def step_func(x, ismear):
     return step_methfessel_paxton(x, ismear)
 
 
-def get_delta(x0: float, sigma: float, nx: int, dx: float, ismear: int = 3):
+def get_delta(x0: float, sigma: float, nx: int, dx: float, ismear: int = 3) -> NDArray:
     """Get the smeared delta function to be added to form the spectrum.
 
     This replaces the `SLOT` function from VASP. Uses finite differences instead of
@@ -306,7 +325,7 @@ def get_delta(x0: float, sigma: float, nx: int, dx: float, ismear: int = 3):
         dx: The gridspacing of the output grid.
         ismear: The smearing parameter used by the ``step_func``.
 
-    Return:
+    Returns:
         np.array: Array of size `nx` with delta function on the desired outputgrid.
     """
     xgrid = np.linspace(0, nx * dx, nx, endpoint=False)
@@ -318,7 +337,7 @@ def get_delta(x0: float, sigma: float, nx: int, dx: float, ismear: int = 3):
     return dfun
 
 
-def get_step(x0, sigma, nx, dx, ismear):
+def get_step(x0: float, sigma: float, nx: int, dx: float, ismear: int) -> float:
     """Get the smeared step function to be added to form the spectrum.
 
     This replaces the `SLOT` function from VASP.
@@ -330,7 +349,7 @@ def get_step(x0, sigma, nx, dx, ismear):
         dx: The gridspacing of the output grid.
         ismear: The smearing parameter used by the ``step_func``.
 
-    Return:
+    Returns:
         np.array: Array of size `nx` with step function on the desired outputgrid.
     """
     xgrid = np.linspace(0, nx * dx, nx, endpoint=False)
@@ -351,7 +370,7 @@ def epsilon_imag(
     idir: int,
     jdir: int,
     mask: NDArray | None = None,
-):
+) -> tuple[NDArray, NDArray]:
     """Replicate the EPSILON_IMAG function of VASP.
 
     Args:
@@ -367,7 +386,7 @@ def epsilon_imag(
         jdir: The second direction of the dielectric tensor
         mask: Mask for the bands/kpoint/spin index to include in the calculation
 
-    Return:
+    Returns:
         np.array: Array of size `nedos` with the imaginary part of the dielectric function.
     """
     norm_kweights = np.array(kweights) / np.sum(kweights)
@@ -376,7 +395,7 @@ def epsilon_imag(
     # np.subtract.outer results in a matrix of shape (nband, nband)
     rspin = 3 - cder.shape[3]
 
-    # for the transition between two bands at one kpoint the contributions is:
+    # For the transition between two bands at one kpoint the contributions is:
     #  (fermi[band_i] - fermi[band_j]) * rspin * normalized_kpoint_weight
     cderm = cder * mask if mask is not None else cder
 
@@ -386,10 +405,10 @@ def epsilon_imag(
     try:
         min_band0, max_band0 = np.min(np.where(cderm)[0]), np.max(np.where(cderm)[0])
         min_band1, max_band1 = np.min(np.where(cderm)[1]), np.max(np.where(cderm)[1])
-    except ValueError as e:
-        if "zero-size array" in str(e):
-            return egrid, np.zeros_like(egrid, dtype=np.complex_)
-        raise e
+    except ValueError as exc:
+        if "zero-size array" in str(exc):
+            return egrid, np.zeros_like(egrid, dtype=np.complex128)
+        raise exc
     _, _, nk, nspin = cderm.shape[:4]
     iter_idx = [
         range(min_band0, max_band0 + 1),
@@ -415,7 +434,7 @@ def epsilon_imag(
 
 
 def kramers_kronig(
-    eps: np.ndarray,
+    eps: NDArray,
     nedos: int,
     deltae: float,
     cshift: float = 0.1,
@@ -428,12 +447,13 @@ def kramers_kronig(
     The output should be the complex dielectric function.
 
     Args:
-        eps: The dielectric function with the imaginary part stored as the real part and nothing in the imaginary part.
+        eps: The dielectric function with the imaginary part stored as the real part
+            and nothing in the imaginary part.
         nedos: The sampling of the energy values
         deltae: The energy grid spacing
         cshift: The shift of the imaginary part of the dielectric function.
 
-    Return:
+    Returns:
         np.array: Array of size `nedos` with the complex dielectric function.
     """
     egrid = np.linspace(0, deltae * nedos, nedos)
@@ -442,5 +462,3 @@ def kramers_kronig(
     csum = np.add.outer(egrid, egrid) + csfhit
     vals = -0.5 * ((eps / cdiff) - (np.conj(eps) / csum))
     return np.sum(vals, axis=1) * 2 / np.pi * deltae
-
-    # loop over that

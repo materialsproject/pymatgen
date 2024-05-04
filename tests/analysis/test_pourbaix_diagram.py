@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import multiprocessing
-import unittest
+from unittest import TestCase
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,6 +14,8 @@ from pymatgen.core.composition import Composition
 from pymatgen.core.ion import Ion
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/pourbaix_diagram"
 
 logger = logging.getLogger(__name__)
 
@@ -49,12 +51,12 @@ class TestPourbaixEntry(PymatgenTest):
         assert self.px_sol.nH2O == 3, "Wrong nH2O!"
 
     def test_as_from_dict(self):
-        d = self.px_ion.as_dict()
-        ion_entry = self.px_ion.from_dict(d)
+        dct = self.px_ion.as_dict()
+        ion_entry = self.px_ion.from_dict(dct)
         assert ion_entry.entry.name == "MnO4[-1]", "Wrong Entry!"
 
-        d = self.px_sol.as_dict()
-        sol_entry = self.px_sol.from_dict(d)
+        dct = self.px_sol.as_dict()
+        sol_entry = self.px_sol.from_dict(dct)
         assert sol_entry.name == "Mn2O3(s)", "Wrong Entry!"
         assert sol_entry.energy == self.px_sol.energy, "as_dict and from_dict energies unequal"
 
@@ -98,15 +100,15 @@ class TestPourbaixEntry(PymatgenTest):
         assert pb_entry.get_element_fraction("Mn") == approx(0.4)
 
 
-class TestPourbaixDiagram(unittest.TestCase):
+class TestPourbaixDiagram(TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.test_data = loadfn(f"{TEST_FILES_DIR}/pourbaix_test_data.json")
+        cls.test_data = loadfn(f"{TEST_DIR}/pourbaix_test_data.json")
         cls.pbx = PourbaixDiagram(cls.test_data["Zn"], filter_solids=True)
         cls.pbx_no_filter = PourbaixDiagram(cls.test_data["Zn"], filter_solids=False)
 
     def test_pourbaix_diagram(self):
-        assert {e.name for e in self.pbx.stable_entries} == {
+        assert {entry.name for entry in self.pbx.stable_entries} == {
             "ZnO(s)",
             "Zn[2+]",
             "ZnHO2[-]",
@@ -114,7 +116,7 @@ class TestPourbaixDiagram(unittest.TestCase):
             "Zn(s)",
         }, "List of stable entries does not match"
 
-        assert {e.name for e in self.pbx_no_filter.stable_entries} == {
+        assert {entry.name for entry in self.pbx_no_filter.stable_entries} == {
             "ZnO(s)",
             "Zn[2+]",
             "ZnHO2[-]",
@@ -124,8 +126,8 @@ class TestPourbaixDiagram(unittest.TestCase):
             "ZnH(s)",
         }, "List of stable entries for unfiltered pbx does not match"
 
-        pbx_lowconc = PourbaixDiagram(self.test_data["Zn"], conc_dict={"Zn": 1e-8}, filter_solids=True)
-        assert {e.name for e in pbx_lowconc.stable_entries} == {
+        pbx_low_conc = PourbaixDiagram(self.test_data["Zn"], conc_dict={"Zn": 1e-8}, filter_solids=True)
+        assert {entry.name for entry in pbx_low_conc.stable_entries} == {
             "Zn(HO)2(aq)",
             "Zn[2+]",
             "ZnHO2[-]",
@@ -138,9 +140,9 @@ class TestPourbaixDiagram(unittest.TestCase):
 
     def test_multicomponent(self):
         # Assure no ions get filtered at high concentration
-        ag_n = [e for e in self.test_data["Ag-Te-N"] if "Te" not in e.composition]
+        ag_n = [entry for entry in self.test_data["Ag-Te-N"] if "Te" not in entry.composition]
         highconc = PourbaixDiagram(ag_n, filter_solids=True, conc_dict={"Ag": 1e-5, "N": 1})
-        entry_sets = [set(e.entry_id) for e in highconc.stable_entries]
+        entry_sets = [set(entry.entry_id) for entry in highconc.stable_entries]
         assert {"mp-124", "ion-17"} in entry_sets
 
         # Binary system
@@ -256,7 +258,7 @@ class TestPourbaixDiagram(unittest.TestCase):
     def test_serialization(self):
         dct = self.pbx.as_dict()
         new = PourbaixDiagram.from_dict(dct)
-        assert {e.name for e in new.stable_entries} == {
+        assert {entry.name for entry in new.stable_entries} == {
             "ZnO(s)",
             "Zn[2+]",
             "ZnHO2[-]",
@@ -268,7 +270,7 @@ class TestPourbaixDiagram(unittest.TestCase):
         # previously filtered entries being included
         dct = self.pbx_no_filter.as_dict()
         new = PourbaixDiagram.from_dict(dct)
-        assert {e.name for e in new.stable_entries} == {
+        assert {entry.name for entry in new.stable_entries} == {
             "ZnO(s)",
             "Zn[2+]",
             "ZnHO2[-]",
@@ -288,9 +290,9 @@ class TestPourbaixDiagram(unittest.TestCase):
         assert len(pd_binary.stable_entries) == len(new_binary.stable_entries)
 
 
-class TestPourbaixPlotter(unittest.TestCase):
+class TestPourbaixPlotter(TestCase):
     def setUp(self):
-        self.test_data = loadfn(f"{TEST_FILES_DIR}/pourbaix_test_data.json")
+        self.test_data = loadfn(f"{TEST_DIR}/pourbaix_test_data.json")
         self.pd = PourbaixDiagram(self.test_data["Zn"])
         self.plotter = PourbaixPlotter(self.pd)
 

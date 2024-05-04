@@ -65,11 +65,11 @@ class AflowPrototypeMatcher:
     @staticmethod
     def _match_prototype(structure_matcher, structure):
         tags = []
-        for d in AFLOW_PROTOTYPE_LIBRARY:
-            struct = d["snl"].structure
+        for dct in AFLOW_PROTOTYPE_LIBRARY:
+            struct = dct["snl"].structure
             match = structure_matcher.fit_anonymous(struct, structure)
             if match:
-                tags.append(d)
+                tags.append(dct)
         return tags
 
     def _match_single_prototype(self, structure: Structure):
@@ -89,8 +89,7 @@ class AflowPrototypeMatcher:
         return tags
 
     def get_prototypes(self, structure: Structure) -> list | None:
-        """
-        Get prototype(s) structures for a given input structure. If you use this method in
+        """Get prototype(s) structures for a given input structure. If you use this method in
         your work, please cite the appropriate AFLOW publication:
 
         Mehl, M. J., Hicks, D., Toher, C., Levy, O., Hanson, R. M., Hart, G., & Curtarolo,
@@ -100,10 +99,11 @@ class AflowPrototypeMatcher:
         Args:
             structure: structure to match
 
-        Returns (list): A list of dicts with keys 'snl' for the matched prototype and
-            'tags', a dict of tags ('mineral', 'strukturbericht' and 'aflow') of that
-            prototype. This should be a list containing just a single entry, but it is
-            possible a material can match multiple prototypes.
+        Returns:
+            list | None: A list of dicts with keys 'snl' for the matched prototype and
+                'tags', a dict of tags ('mineral', 'strukturbericht' and 'aflow') of that
+                prototype. This should be a list containing just a single entry, but it is
+                possible a material can match multiple prototypes.
         """
         tags = self._match_single_prototype(structure)
 

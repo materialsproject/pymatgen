@@ -16,23 +16,27 @@ class AbstractChemenvError(Exception):
 
     def __init__(self, cls, method, msg):
         """
-        :param cls:
-        :param method:
-        :param msg:
+        Args:
+            cls:
+            method:
+            msg:
         """
         self.cls = cls
         self.method = method
         self.msg = msg
 
     def __str__(self):
-        return str(self.cls) + ": " + self.method + "\n" + repr(self.msg)
+        return f"{self.cls}: {self.method}\n{self.msg!r}"
 
 
 class NeighborsNotComputedChemenvError(AbstractChemenvError):
     """Neighbors not computed error."""
 
     def __init__(self, site):
-        """:param site:"""
+        """
+        Args:
+            site:
+        """
         self.site = site
 
     def __str__(self):
@@ -43,7 +47,10 @@ class EquivalentSiteSearchError(AbstractChemenvError):
     """Equivalent site search error."""
 
     def __init__(self, site):
-        """:param site:"""
+        """
+        Args:
+            site:
+        """
         self.site = site
 
     def __str__(self):
@@ -54,7 +61,10 @@ class SolidAngleError(AbstractChemenvError):
     """Solid angle error."""
 
     def __init__(self, cosinus):
-        """:param cosinus:"""
+        """
+        Args:
+            cosinus:
+        """
         self.cosinus = cosinus
 
     def __str__(self):
@@ -66,9 +76,10 @@ class ChemenvError(Exception):
 
     def __init__(self, cls: str, method: str, msg: str):
         """
-        :param cls:
-        :param method:
-        :param msg:
+        Args:
+            cls:
+            method:
+            msg:
         """
         self.cls = cls
         self.method = method

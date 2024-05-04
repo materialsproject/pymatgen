@@ -1,4 +1,5 @@
 """A representation of FHI-aims output (based on ASE output parser)."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -17,9 +18,10 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
 
-    from emmet.core.math import Matrix3D, Vector3D
+    from typing_extensions import Self
 
     from pymatgen.core import Molecule, Structure
+    from pymatgen.util.typing import Matrix3D, Vector3D
 
 __author__ = "Andrey Sobolev and Thomas A. R. Purcell"
 __version__ = "1.0"
@@ -52,18 +54,15 @@ class AimsOutput(MSONable):
 
     def as_dict(self) -> dict[str, Any]:
         """Create a dict representation of the outputs for MSONable."""
-        d: dict[str, Any] = {
-            "@module": self.__class__.__module__,
-            "@class": self.__class__.__name__,
-        }
+        dct: dict[str, Any] = {"@module": type(self).__module__, "@class": type(self).__name__}
 
-        d["results"] = self._results
-        d["metadata"] = self._metadata
-        d["structure_summary"] = self._structure_summary
-        return d
+        dct["results"] = self._results
+        dct["metadata"] = self._metadata
+        dct["structure_summary"] = self._structure_summary
+        return dct
 
     @classmethod
-    def from_outfile(cls, outfile: str | Path) -> AimsOutput:
+    def from_outfile(cls, outfile: str | Path) -> Self:
         """Construct an AimsOutput from an output file.
 
         Args:
@@ -78,7 +77,7 @@ class AimsOutput(MSONable):
         return cls(results, metadata, structure_summary)
 
     @classmethod
-    def from_str(cls, content: str) -> AimsOutput:
+    def from_str(cls, content: str) -> Self:
         """Construct an AimsOutput from an output file.
 
         Args:
@@ -93,16 +92,16 @@ class AimsOutput(MSONable):
         return cls(results, metadata, structure_summary)
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> AimsOutput:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """Construct an AimsOutput from a dictionary.
 
         Args:
-            d (dict[str, Any]): The dictionary used to create AimsOutput
+            dct (dict[str, Any]): The dictionary used to create AimsOutput
 
         Returns:
-            The AimsOutput for d
+            AimsOutput
         """
-        decoded = {k: MontyDecoder().process_decoded(v) for k, v in d.items() if not k.startswith("@")}
+        decoded = {k: MontyDecoder().process_decoded(v) for k, v in dct.items() if not k.startswith("@")}
         for struct in decoded["results"]:
             struct.properties = {k: MontyDecoder().process_decoded(v) for k, v in struct.properties.items()}
 

@@ -50,9 +50,9 @@ def run_mcsqs(
         clusters (dict): Dictionary of cluster interactions with entries in the form
             number of atoms: cutoff in angstroms
         scaling (int or list): Scaling factor to determine supercell. Two options are possible:
-                a. (preferred) Scales number of atoms, e.g., for a structure with 8 atoms,
+                a. (preferred) Scales number of atoms, e.g. for a structure with 8 atoms,
                    scaling=4 would lead to a 32 atom supercell
-                b. A sequence of three scaling factors, e.g., [2, 1, 1], which
+                b. A sequence of three scaling factors, e.g. [2, 1, 1], which
                    specifies that the supercell should have dimensions 2a x b x c
             Defaults to 1.
         search_time (float): Time spent looking for the ideal SQS in minutes (default: 60)
@@ -71,7 +71,7 @@ def run_mcsqs(
         tuple: Pymatgen structure SQS of the input structure, the mcsqs objective function,
             list of all SQS structures, and the directory where calculations are run
     """
-    num_atoms = len(structure)
+    n_atoms = len(structure)
 
     if structure.is_ordered:
         raise ValueError("Pick a disordered structure")
@@ -87,14 +87,14 @@ def run_mcsqs(
     if isinstance(scaling, (int, float)):
         if scaling % 1 != 0:
             raise ValueError(f"{scaling=} should be an integer")
-        mcsqs_find_sqs_cmd = ["mcsqs", f"-n {scaling * num_atoms}"]
+        mcsqs_find_sqs_cmd = ["mcsqs", f"-n {scaling * n_atoms}"]
 
     else:
         # Set supercell to identity (will make supercell with pymatgen)
-        with open("sqscell.out", "w") as f:
-            f.write("1\n1 0 0\n0 1 0\n0 0 1\n")
+        with open("sqscell.out", mode="w") as file:
+            file.write("1\n1 0 0\n0 1 0\n0 0 1\n")
         structure = structure * scaling
-        mcsqs_find_sqs_cmd = ["mcsqs", "-rc", f"-n {num_atoms}"]
+        mcsqs_find_sqs_cmd = ["mcsqs", "-rc", f"-n {n_atoms}"]
 
     structure.to(filename="rndstr.in")
 
@@ -132,7 +132,7 @@ def run_mcsqs(
             process = Popen(["mcsqs", "-best"])
             process.communicate()
 
-        if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
+        if os.path.isfile("bestsqs.out") and os.path.isfile("bestcorr.out"):
             return _parse_sqs_path(".")
 
         raise RuntimeError("mcsqs exited before timeout reached")
@@ -144,7 +144,7 @@ def run_mcsqs(
 
         # Find the best sqs structures
         if instances and instances > 1:
-            if not os.path.exists("bestcorr1.out"):
+            if not os.path.isfile("bestcorr1.out"):
                 raise RuntimeError(
                     "mcsqs did not generate output files, "
                     "is search_time sufficient or are number of instances too high?"
@@ -153,7 +153,7 @@ def run_mcsqs(
             process = Popen(["mcsqs", "-best"])
             process.communicate()
 
-        if os.path.exists("bestsqs.out") and os.path.exists("bestcorr.out"):
+        if os.path.isfile("bestsqs.out") and os.path.isfile("bestcorr.out"):
             return _parse_sqs_path(".")
 
         os.chdir(original_directory)
@@ -183,8 +183,8 @@ def _parse_sqs_path(path) -> Sqs:
         best_sqs = Structure.from_file(path / "bestsqs.out")
 
     # Get best SQS objective function
-    with open(path / "bestcorr.out") as f:
-        lines = f.readlines()
+    with open(path / "bestcorr.out") as file:
+        lines = file.readlines()
 
     objective_function_str = lines[-1].split("=")[-1].strip()
     objective_function: float | str
@@ -193,15 +193,15 @@ def _parse_sqs_path(path) -> Sqs:
     # Get all SQS structures and objective functions
     all_sqs = []
 
-    for i in range(detected_instances):
-        sqs_out = f"bestsqs{i + 1}.out"
-        sqs_cif = f"bestsqs{i + 1}.cif"
-        corr_out = f"bestcorr{i + 1}.out"
+    for idx in range(detected_instances):
+        sqs_out = f"bestsqs{idx + 1}.out"
+        sqs_cif = f"bestsqs{idx + 1}.cif"
+        corr_out = f"bestcorr{idx + 1}.out"
         with Popen(f"str2cif < {sqs_out} > {sqs_cif}", shell=True, cwd=path) as p:
             p.communicate()
         sqs = Structure.from_file(path / sqs_out)
-        with open(path / corr_out) as f:
-            lines = f.readlines()
+        with open(path / corr_out) as file:
+            lines = file.readlines()
 
         objective_function_str = lines[-1].split("=")[-1].strip()
         obj: float | str
@@ -234,8 +234,8 @@ def _parse_clusters(filename):
                 num_possible_species: int
                 cluster_function: float
     """
-    with open(filename) as f:
-        lines = f.readlines()
+    with open(filename) as file:
+        lines = file.readlines()
 
     clusters = []
     cluster_block = []

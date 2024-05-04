@@ -40,7 +40,7 @@ class CorrectionCalculator:
         allow_unstable: float | bool = 0.1,
         exclude_polyanions: list[str] | None = None,
     ) -> None:
-        """Initializes a CorrectionCalculator.
+        """Initialize a CorrectionCalculator.
 
         Args:
             species: list of species to calculate corrections for
@@ -81,7 +81,7 @@ class CorrectionCalculator:
         if "S" in self.species:
             self.sulfides: list[str] = []
 
-    def compute_from_files(self, exp_gz: str, comp_gz: str):
+    def compute_from_files(self, exp_gz: str, comp_gz: str) -> dict:
         """
         Args:
             exp_gz: name of .json.gz file that contains experimental data
@@ -97,12 +97,14 @@ class CorrectionCalculator:
         return self.compute_corrections(exp_entries, calc_entries)
 
     def compute_corrections(self, exp_entries: list, calc_entries: dict) -> dict:
-        """Computes the corrections and fills in correction, corrections_std_error, and corrections_dict.
+        """Compute the corrections and fills in correction, corrections_std_error, and corrections_dict.
 
         Args:
-            exp_entries: list of dictionary objects with the following keys/values:
-                    {"formula": chemical formula, "exp energy": formation energy in eV/formula unit,
-                    "uncertainty": uncertainty in formation energy}
+            exp_entries: list of dictionary objects with the following keys/values: {
+                    "formula": chemical formula,
+                    "exp energy": formation energy in eV/formula unit,
+                    "uncertainty": uncertainty in formation energy
+                }
             calc_entries: dictionary of computed entries, of the form {chemical formula: ComputedEntry}
 
         Raises:
@@ -231,11 +233,11 @@ class CorrectionCalculator:
 
         if np.isnan(mean_uncert):
             # no uncertainty values for any compounds, don't try to weight
-            popt, self.pcov = curve_fit(
+            p_opt, self.pcov = curve_fit(
                 lambda x, *m: np.dot(x, m), self.coeff_mat, self.diffs, p0=np.ones(len(self.species))
             )
         else:
-            popt, self.pcov = curve_fit(
+            p_opt, self.pcov = curve_fit(
                 lambda x, *m: np.dot(x, m),
                 self.coeff_mat,
                 self.diffs,
@@ -243,12 +245,12 @@ class CorrectionCalculator:
                 sigma=sigma,
                 absolute_sigma=True,
             )
-        self.corrections = popt.tolist()
+        self.corrections = p_opt.tolist()
         self.corrections_std_error = np.sqrt(np.diag(self.pcov)).tolist()
-        for i, v in enumerate(self.species):
-            self.corrections_dict[v] = (
-                round(self.corrections[i], 3),
-                round(self.corrections_std_error[i], 4),
+        for idx, specie in enumerate(self.species):
+            self.corrections_dict[specie] = (
+                round(self.corrections[idx], 3),
+                round(self.corrections_std_error[idx], 4),
             )
 
         # set ozonide correction to 0 so that this species does not receive a correction
@@ -266,10 +268,10 @@ class CorrectionCalculator:
         labels_graph = self.names.copy()
         abs_errors, labels_graph = (list(t) for t in zip(*sorted(zip(abs_errors, labels_graph))))  # sort by error
 
-        num = len(abs_errors)
+        n_err = len(abs_errors)
         fig = go.Figure(
             data=go.Scatter(
-                x=np.linspace(1, num, num),
+                x=np.linspace(1, n_err, n_err),
                 y=abs_errors,
                 mode="markers",
                 text=labels_graph,
@@ -306,7 +308,7 @@ class CorrectionCalculator:
         abs_errors = [abs(i) for i in self.diffs - np.dot(self.coeff_mat, self.corrections)]
         labels_species = self.names.copy()
         diffs_cpy = self.diffs.copy()
-        num = len(labels_species)
+        n_species = len(labels_species)
 
         if specie in ("oxide", "peroxide", "superoxide", "S"):
             if specie == "oxide":
@@ -317,23 +319,25 @@ class CorrectionCalculator:
                 compounds = self.superoxides
             else:
                 compounds = self.sulfides
-            for idx in range(num):
-                if labels_species[num - idx - 1] not in compounds:
-                    del labels_species[num - idx - 1]
-                    del abs_errors[num - idx - 1]
-                    del diffs_cpy[num - idx - 1]
+            for idx in range(n_species):
+                if labels_species[n_species - idx - 1] not in compounds:
+                    del labels_species[n_species - idx - 1]
+                    del abs_errors[n_species - idx - 1]
+                    del diffs_cpy[n_species - idx - 1]
         else:
-            for idx in range(num):
-                if not Composition(labels_species[num - idx - 1])[specie]:
-                    del labels_species[num - idx - 1]
-                    del abs_errors[num - idx - 1]
-                    del diffs_cpy[num - idx - 1]
-        abs_errors, labels_species = (list(t) for t in zip(*sorted(zip(abs_errors, labels_species))))  # sort by error
+            for idx in range(n_species):
+                if not Composition(labels_species[n_species - idx - 1])[specie]:
+                    del labels_species[n_species - idx - 1]
+                    del abs_errors[n_species - idx - 1]
+                    del diffs_cpy[n_species - idx - 1]
+        abs_errors, labels_species = (
+            list(tup) for tup in zip(*sorted(zip(abs_errors, labels_species)))
+        )  # sort by error
 
-        num = len(abs_errors)
+        n_err = len(abs_errors)
         fig = go.Figure(
             data=go.Scatter(
-                x=np.linspace(1, num, num),
+                x=np.linspace(1, n_err, n_err),
                 y=abs_errors,
                 mode="markers",
                 text=labels_species,
@@ -356,7 +360,7 @@ class CorrectionCalculator:
         return fig
 
     def make_yaml(self, name: str = "MP2020", dir: str | None = None) -> None:
-        """Creates the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityUncertainties.yaml
+        """Create the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityUncertainties.yaml
         for correction uncertainties.
 
         Args:
@@ -404,7 +408,7 @@ class CorrectionCalculator:
                 F:
             CompositionCorrections:
         """
-        fn = name + "Compatibility.yaml"
+        fn = f"{name}Compatibility.yaml"
         path = os.path.join(dir, fn) if dir else fn
 
         yml = yaml.YAML()
@@ -434,5 +438,5 @@ class CorrectionCalculator:
         contents["Uncertainties"].yaml_set_start_comment(
             "Uncertainties corresponding to each energy correction (eV/atom)", indent=2
         )
-        with open(path, "w") as file:
+        with open(path, mode="w") as file:
             yml.dump(contents, file)

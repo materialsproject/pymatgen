@@ -29,11 +29,11 @@ def postprocessor(data: str) -> str | float | bool | None:
     """
     data = data.strip().replace(" ", "_")  # remove leading/trailing whitespace, replace spaces with _
 
-    if data.lower() in ("false", "no", "f"):
+    if data.lower() in {"false", "no", "f"}:
         return False
     if data.lower() == "none":
         return None
-    if data.lower() in ("true", "yes", "t"):
+    if data.lower() in {"true", "yes", "t"}:
         return True
     if re.match(r"^-?\d+$", data):
         try:
@@ -46,7 +46,7 @@ def postprocessor(data: str) -> str | float | bool | None:
         except ValueError as exc:
             raise ValueError(f"Error parsing {data!r} as float in CP2K file.") from exc
     if re.match(r"\*+", data):
-        return np.NaN
+        return np.nan
     return data
 
 
@@ -79,15 +79,15 @@ def preprocessor(data: str, dir: str = ".") -> str:
         assert len(inc) == 2  # @include filename
         inc = inc[1].strip("'")
         inc = inc.strip('"')
-        with zopen(os.path.join(dir, inc)) as f:
-            data = re.sub(rf"{incl}", f.read(), data)
+        with zopen(os.path.join(dir, inc)) as file:
+            data = re.sub(rf"{incl}", file.read(), data)
     variable_sets = re.findall(r"(@SET.+)", data, re.IGNORECASE)
     for match in variable_sets:
         v = match.split()
         assert len(v) == 3  # @SET VAR value
         var, value = v[1:]
         data = re.sub(rf"{match}", "", data)
-        data = re.sub(r"\${?" + var + "}?", value, data)
+        data = re.sub(rf"\${{?{var}}}?", value, data)
 
     c1 = re.findall(r"@IF", data, re.IGNORECASE)
     c2 = re.findall(r"@ELIF", data, re.IGNORECASE)
@@ -120,9 +120,8 @@ def natural_keys(text: str):
     return [atoi(c) for c in re.split(r"_(\d+)", text)]
 
 
-def get_unique_site_indices(structure: Structure | Molecule):
-    """
-    Get unique site indices for a structure according to site properties. Whatever site-property
+def get_unique_site_indices(struct: Structure | Molecule):
+    """Get unique site indices for a structure according to site properties. Whatever site-property
     has the most unique values is used for indexing.
 
     For example, if you have magnetic CoO with half Co atoms having a positive moment, and the
@@ -147,31 +146,27 @@ def get_unique_site_indices(structure: Structure | Molecule):
         "aux_basis",
     }
 
-    for site in structure:
+    for site in struct:
         for sp in site.species:
             oxi_states.append(getattr(sp, "oxi_state", 0))
             spins.append(getattr(sp, "_properties", {}).get("spin", 0))
 
-    structure.add_site_property("oxi_state", oxi_states)
-    structure.add_site_property("spin", spins)
-    structure.remove_oxidation_states()
+    struct.add_site_property("oxi_state", oxi_states)
+    struct.add_site_property("spin", spins)
+    struct.remove_oxidation_states()
     items = [
         (
             site.species_string,
-            *[
-                structure.site_properties[k][i]
-                for k in structure.site_properties
-                if k.lower() in parsable_site_properties
-            ],
+            *[struct.site_properties[k][idx] for k in struct.site_properties if k.lower() in parsable_site_properties],
         )
-        for i, site in enumerate(structure)
+        for idx, site in enumerate(struct)
     ]
     unique_itms = list(set(items))
     _sites: dict[tuple, list] = {u: [] for u in unique_itms}
     for i, itm in enumerate(items):
         _sites[itm].append(i)
     sites = {}
-    nums = {s: 1 for s in structure.symbol_set}
+    nums = dict.fromkeys(struct.symbol_set, 1)
     for s in _sites:
         sites[f"{s[0]}_{nums[s[0]]}"] = _sites[s]
         nums[s[0]] += 1

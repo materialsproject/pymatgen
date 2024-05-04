@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import unittest
-
 import matplotlib.pyplot as plt
+import pytest
 from pytest import approx
 
 from pymatgen.io.phonopy import get_gruneisen_ph_bs_symm_line, get_gruneisenparameter
@@ -17,12 +16,14 @@ except ImportError as exc:
     print(exc)
     phonopy = TotalDos = None
 
+TEST_DIR = f"{TEST_FILES_DIR}/phonon/gruneisen"
+
 
 class TestGruneisenPhononBandStructureSymmLine(PymatgenTest):
     def setUp(self) -> None:
         self.bs_symm_line = get_gruneisen_ph_bs_symm_line(
-            gruneisen_path=f"{TEST_FILES_DIR}/gruneisen/gruneisen_eq_plus_minus_InP.yaml",
-            structure_path=f"{TEST_FILES_DIR}/gruneisen/eq/POSCAR_InP",
+            gruneisen_path=f"{TEST_DIR}/gruneisen_eq_plus_minus_InP.yaml",
+            structure_path=f"{TEST_DIR}/eq/POSCAR_InP",
             fit=True,
         )
 
@@ -39,20 +40,20 @@ class TestGruneisenPhononBandStructureSymmLine(PymatgenTest):
         assert isinstance(ax, plt.Axes)
 
 
-@unittest.skipIf(TotalDos is None, "Phonopy not present")
+@pytest.mark.skipif(TotalDos is None, reason="Phonopy not present")
 class TestGruneisenParameter(PymatgenTest):
     def setUp(self) -> None:
         self.gruneisen_obj = get_gruneisenparameter(
-            f"{TEST_FILES_DIR}/gruneisen/gruneisen_mesh_InP.yaml",
-            structure_path=f"{TEST_FILES_DIR}/gruneisen/eq/POSCAR_InP",
+            f"{TEST_DIR}/gruneisen_mesh_InP.yaml",
+            structure_path=f"{TEST_DIR}/eq/POSCAR_InP",
         )
         self.gruneisen_obj_small = get_gruneisenparameter(
-            f"{TEST_FILES_DIR}/gruneisen/gruneisen_mesh_only_one_q_InP.yaml",
-            structure_path=f"{TEST_FILES_DIR}/gruneisen/eq/POSCAR_InP",
+            f"{TEST_DIR}/gruneisen_mesh_only_one_q_InP.yaml",
+            structure_path=f"{TEST_DIR}/eq/POSCAR_InP",
         )
         self.gruneisen_obj_Si = get_gruneisenparameter(
-            f"{TEST_FILES_DIR}/gruneisen/gruneisen_mesh_Si.yaml",
-            structure_path=f"{TEST_FILES_DIR}/gruneisen/eq/POSCAR_Si",
+            f"{TEST_DIR}/gruneisen_mesh_Si.yaml",
+            structure_path=f"{TEST_DIR}/eq/POSCAR_Si",
         )
 
     def test_plot(self):
@@ -60,7 +61,7 @@ class TestGruneisenParameter(PymatgenTest):
         ax = plotter.get_plot(units="mev")
         assert isinstance(ax, plt.Axes)
 
-    def test_fromdict_asdict(self):
+    def test_as_from_dict(self):
         new_dict = self.gruneisen_obj.as_dict()
         self.gruneisen_obj2 = GruneisenParameter.from_dict(new_dict)
 

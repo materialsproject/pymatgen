@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import numpy as np
-from monty.dev import deprecated
 
 from pymatgen.core import Lattice, Structure, get_el_sp
 
@@ -27,10 +26,6 @@ class Mcsqs:
             Structure: input Structure.
         """
         self.structure = structure
-
-    @deprecated(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
 
     def to_str(self):
         """
@@ -59,17 +54,14 @@ class Mcsqs:
 
         return "\n".join(output)
 
-    @deprecated(message="Use from_str instead")
-    def structure_from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
-
     @staticmethod
     def structure_from_str(data):
         """
         Parses a rndstr.in, lat.in or bestsqs.out file into pymatgen's
         Structure format.
 
-        :param data: contents of a rndstr.in, lat.in or bestsqs.out file
+        Args:
+            data: contents of a rndstr.in, lat.in or bestsqs.out file
 
         Returns:
             Structure object
@@ -134,7 +126,7 @@ class Mcsqs:
                     species_occ = [species_occ[0], 1.0]
 
                 if "_" in species_occ[0]:
-                    # see to_string() method in this file, since , and = are not valid
+                    # see to_str() method in this file, since , and = are not valid
                     # species names in AT-AT we replace "," with "__" and "=" with "___",
                     # for pymatgen to parse these back correctly we have to replace them back
                     species_occ[0] = species_occ[0].replace("___", "=").replace("__", ",")

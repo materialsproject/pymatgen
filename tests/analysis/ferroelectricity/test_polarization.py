@@ -15,12 +15,12 @@ from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Outcar
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir = f"{TEST_FILES_DIR}/BTO_221_99_polarization"
+TEST_DIR = f"{TEST_FILES_DIR}/io/vasp/fixtures/BTO_221_99_polarization"
 bto_folders = ["nonpolar_polarization"]
-bto_folders += [f"interpolation_{i}_polarization" for i in range(1, 9)][::-1]
+bto_folders += [f"interpolation_{idx}_polarization" for idx in range(8, 0, -1)]
 bto_folders += ["polar_polarization"]
 
-structures = [Structure.from_file(test_dir + "/" + folder + "/POSCAR") for folder in bto_folders]
+structures = [Structure.from_file(f"{TEST_DIR}/{folder}/POSCAR") for folder in bto_folders]
 
 ions = np.array(
     [
@@ -40,7 +40,7 @@ ions = np.array(
 
 class TestUtils(PymatgenTest):
     def setUp(self):
-        self.potcar = Potcar.from_file(test_dir + "/POTCAR")
+        self.potcar = Potcar.from_file(f"{TEST_DIR}/POTCAR")
         self.zval_dict = {"Ba": 10, "Ti": 10, "O": 6}
         self.ions = ions
         self.structures = structures
@@ -131,7 +131,7 @@ class TestPolarization(PymatgenTest):
         # We do not use the p_ions values from Outcar.
         # We calculate using calc_ionic_from_zval because it is more reliable.
         self.polarization = Polarization(self.p_elecs, self.p_ions, self.structures)
-        self.outcars = [Outcar(test_dir + "/" + folder + "/OUTCAR") for folder in bto_folders]
+        self.outcars = [Outcar(f"{TEST_DIR}/{folder}/OUTCAR") for folder in bto_folders]
         self.change = np.array([[-5.79448738e-03, -4.41226597e-03, 4.62887522e01]])
         self.change_norm = 46.288752795325244
         self.max_jumps = [
@@ -270,4 +270,4 @@ class TestEnergyTrend(PymatgenTest):
 
     def test_endpoints_minima(self):
         endpoints = self.energy_trend.endpoints_minima(slope_cutoff=1e-2)
-        assert {"polar": True, "nonpolar": True} == endpoints
+        assert endpoints == {"polar": True, "nonpolar": True}

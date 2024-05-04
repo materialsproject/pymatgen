@@ -4,15 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import numpy as np
-
 if TYPE_CHECKING:
     from pymatgen.core import Structure
 
 
 class Prismatic:
-    """
-    Class to write Prismatic  (http://prism-em.com/) input files.
+    """Write Prismatic  (http://prism-em.com) input files.
     This is designed for STEM image simulation.
     """
 
@@ -24,10 +21,6 @@ class Prismatic:
         """
         self.structure = structure
         self.comment = comment
-
-    @np.deprecate(message="Use to_str instead")
-    def to_string(cls, *args, **kwargs):
-        return cls.to_str(*args, **kwargs)
 
     def to_str(self) -> str:
         """

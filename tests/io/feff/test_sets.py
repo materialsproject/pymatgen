@@ -11,6 +11,8 @@ from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 from pymatgen.io.feff.sets import FEFFDictSet, MPELNESSet, MPEXAFSSet, MPXANESSet
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+FEFF_TEST_DIR = f"{TEST_FILES_DIR}/io/feff"
+
 
 class TestFeffInputSet(PymatgenTest):
     @classmethod
@@ -28,7 +30,7 @@ TITLE sites: 4
 * 2 Co     0.666667     0.333333     0.003676
 * 3 O     0.333333     0.666667     0.121324
 * 4 O     0.666667     0.333333     0.621325"""
-        cif_file = f"{TEST_FILES_DIR}/CoO19128.cif"
+        cif_file = f"{TEST_FILES_DIR}/cif/CoO19128.cif"
         cls.structure = Structure.from_file(cif_file, primitive=True)
         cls.absorbing_atom = "O"
         cls.mp_xanes = MPXANESSet(cls.absorbing_atom, cls.structure)
@@ -43,8 +45,7 @@ TITLE sites: 4
             if idx < 9:
                 assert line == ref[idx]
             else:
-                s = " ".join(line.split()[2:])
-                assert s in last4
+                assert " ".join(line.split()[2:]) in last4
 
     def test_get_feff_tags(self):
         tags = self.mp_xanes.tags.as_dict()
@@ -52,7 +53,7 @@ TITLE sites: 4
 
     def test_get_feff_pot(self):
         potential = str(self.mp_xanes.potential)
-        dct, dr = Potential.pot_dict_from_string(potential)
+        dct, dr = Potential.pot_dict_from_str(potential)
         assert dct["Co"] == 1, "Wrong symbols read in for Potential"
         assert dr == {0: "O", 1: "Co", 2: "O"}
 
@@ -119,7 +120,7 @@ TITLE sites: 4
     def test_charged_structure(self):
         # one Zn+2, 9 triflate, plus water
         # Molecule, net charge of -7
-        xyz = f"{TEST_FILES_DIR}/feff_radial_shell.xyz"
+        xyz = f"{FEFF_TEST_DIR}/feff_radial_shell.xyz"
         mol = Molecule.from_file(xyz)
         mol.set_charge_and_spin(-7)
         # Zn should not appear in the pot_dict
@@ -172,7 +173,7 @@ TITLE sites: 4
         assert elnes.tags["KMESH"] == [12, 12, 7]
 
     def test_large_systems(self):
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/La4Fe4O12.cif")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/cif/La4Fe4O12.cif")
         user_tag_settings = {"RECIPROCAL": "", "KMESH": "1000"}
         elnes = MPELNESSet("Fe", struct, user_tag_settings=user_tag_settings)
         assert "RECIPROCAL" not in elnes.tags
@@ -220,13 +221,13 @@ TITLE sites: 4
         assert struct_orig == struct_reci
 
     def test_post_dist_diff(self):
-        feff_dict_input = FEFFDictSet.from_directory(f"{TEST_FILES_DIR}/feff_dist_test")
-        assert feff_dict_input.tags == Tags.from_file(f"{TEST_FILES_DIR}/feff_dist_test/feff.inp")
-        assert str(feff_dict_input.header()) == str(Header.from_file(f"{TEST_FILES_DIR}/feff_dist_test/HEADER"))
+        feff_dict_input = FEFFDictSet.from_directory(f"{FEFF_TEST_DIR}/feff_dist_test")
+        assert feff_dict_input.tags == Tags.from_file(f"{FEFF_TEST_DIR}/feff_dist_test/feff.inp")
+        assert str(feff_dict_input.header()) == str(Header.from_file(f"{FEFF_TEST_DIR}/feff_dist_test/HEADER"))
         feff_dict_input.write_input(f"{self.tmp_path}/feff_dist_regen")
-        origin_tags = Tags.from_file(f"{TEST_FILES_DIR}/feff_dist_test/PARAMETERS")
+        origin_tags = Tags.from_file(f"{FEFF_TEST_DIR}/feff_dist_test/PARAMETERS")
         output_tags = Tags.from_file(f"{self.tmp_path}/feff_dist_regen/PARAMETERS")
-        origin_mole = Atoms.cluster_from_file(f"{TEST_FILES_DIR}/feff_dist_test/feff.inp")
+        origin_mole = Atoms.cluster_from_file(f"{FEFF_TEST_DIR}/feff_dist_test/feff.inp")
         output_mole = Atoms.cluster_from_file(f"{self.tmp_path}/feff_dist_regen/feff.inp")
         original_mole_dist = np.array(origin_mole.distance_matrix[0, :])
         output_mole_dist = np.array(output_mole.distance_matrix[0, :])
@@ -261,7 +262,7 @@ TITLE sites: 4
 
     def test_cluster_index(self):
         # https://github.com/materialsproject/pymatgen/pull/3256
-        cif_file = f"{TEST_FILES_DIR}/Fe3O4.cif"
+        cif_file = f"{TEST_FILES_DIR}/cif/Fe3O4.cif"
         structure = Structure.from_file(cif_file)
         for idx in range(len(structure.species)):
             assert Atoms(structure, idx, 3).cluster

@@ -80,7 +80,7 @@ class EnumlibAdaptor:
         check_ordered_symmetry=True,
         timeout=None,
     ):
-        """Initializes the adapter with a structure and some parameters.
+        """Initialize the adapter with a structure and some parameters.
 
         Args:
             structure: An input structure.
@@ -151,8 +151,7 @@ class EnumlibAdaptor:
             f"Spacegroup {fitter.get_space_group_symbol()} ({fitter.get_space_group_number()}) "
             f"with {len(symmetrized_structure.equivalent_sites)} distinct sites"
         )
-        """
-        Enumlib doesn"t work when the number of species get too large. To
+        """Enumlib doesn"t work when the number of species get too large. To
         simplify matters, we generate the input file only with disordered sites
         and exclude the ordered sites from the enumeration. The fact that
         different disordered sites with the exact same species may belong to
@@ -243,8 +242,8 @@ class EnumlibAdaptor:
             n_disordered
             * lcm(
                 *(
-                    f.limit_denominator(n_disordered * self.max_cell_size).denominator
-                    for f in map(fractions.Fraction, index_amounts)
+                    fraction.limit_denominator(n_disordered * self.max_cell_size).denominator
+                    for fraction in map(fractions.Fraction, index_amounts)
                 )
             )
         )
@@ -256,7 +255,7 @@ class EnumlibAdaptor:
         # enumeration. See Cu7Te5.cif test file.
         base *= 10
 
-        # base = n_disordered # 10 ** int(math.ceil(math.log10(n_disordered)))
+        # base = n_disordered # 10 ** math.ceil(math.log10(n_disordered))
         # To get a reasonable number of structures, we fix concentrations to the
         # range expected in the original structure.
         total_amounts = sum(index_amounts)
@@ -266,12 +265,12 @@ class EnumlibAdaptor:
             if abs(conc * base - round(conc * base)) < 1e-5:
                 output.append(f"{int(round(conc * base))} {int(round(conc * base))} {base}")
             else:
-                min_conc = int(math.floor(conc * base))
+                min_conc = math.floor(conc * base)
                 output.append(f"{min_conc - 1} {min_conc + 1} {base}")
         output.append("")
         logger.debug("Generated input file:\n" + "\n".join(output))
-        with open("struct_enum.in", "w") as f:
-            f.write("\n".join(output))
+        with open("struct_enum.in", mode="w") as file:
+            file.write("\n".join(output))
 
     def _run_multienum(self):
         with subprocess.Popen([enum_cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as p:
@@ -317,7 +316,7 @@ class EnumlibAdaptor:
             stdin=subprocess.PIPE,
             close_fds=True,
         ) as rs:
-            stdout, stderr = rs.communicate()
+            _stdout, stderr = rs.communicate()
         if stderr:
             logger.warning(stderr.decode())
 
@@ -353,8 +352,8 @@ class EnumlibAdaptor:
             inv_org_latt = None
 
         for file in glob("vasp.*"):
-            with open(file) as f:
-                data = f.read()
+            with open(file) as file:
+                data = file.read()
                 data = re.sub(r"scale factor", "1", data)
                 data = re.sub(r"(\d+)-(\d+)", r"\1 -\2", data)
                 poscar = Poscar.from_str(data, self.index_species)

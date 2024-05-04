@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import unittest
 from shutil import which
+from unittest import TestCase
 
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 
-from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.transformations.site_transformations import (
     AddSitePropertyTransformation,
@@ -38,34 +37,32 @@ class TestTranslateSitesTransformation(PymatgenTest):
             [0.75, 0.75, 0.75],
         ]
 
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
     def test_apply_transformation(self):
         trafo = TranslateSitesTransformation([0, 1], [0.1, 0.2, 0.3])
-        s = trafo.apply_transformation(self.struct)
-        assert_allclose(s[0].frac_coords, [0.1, 0.2, 0.3])
-        assert_allclose(s[1].frac_coords, [0.475, 0.575, 0.675])
+        struct = trafo.apply_transformation(self.struct)
+        assert_allclose(struct[0].frac_coords, [0.1, 0.2, 0.3])
+        assert_allclose(struct[1].frac_coords, [0.475, 0.575, 0.675])
         inv_t = trafo.inverse
-        s = inv_t.apply_transformation(s)
-        assert s[0].distance_and_image_from_frac_coords([0, 0, 0])[0] == 0
-        assert_allclose(s[1].frac_coords, [0.375, 0.375, 0.375])
+        struct = inv_t.apply_transformation(struct)
+        assert struct[0].distance_and_image_from_frac_coords([0, 0, 0])[0] == 0
+        assert_allclose(struct[1].frac_coords, [0.375, 0.375, 0.375])
 
     def test_apply_transformation_site_by_site(self):
         trafo = TranslateSitesTransformation([0, 1], [[0.1, 0.2, 0.3], [-0.075, -0.075, -0.075]])
-        s = trafo.apply_transformation(self.struct)
-        assert_allclose(s[0].frac_coords, [0.1, 0.2, 0.3])
-        assert_allclose(s[1].frac_coords, [0.3, 0.3, 0.3])
+        struct = trafo.apply_transformation(self.struct)
+        assert_allclose(struct[0].frac_coords, [0.1, 0.2, 0.3])
+        assert_allclose(struct[1].frac_coords, [0.3, 0.3, 0.3])
         inv_t = trafo.inverse
-        s = inv_t.apply_transformation(s)
-        assert s[0].distance_and_image_from_frac_coords([0, 0, 0])[0] == 0
-        assert_allclose(s[1].frac_coords, [0.375, 0.375, 0.375])
+        struct = inv_t.apply_transformation(struct)
+        assert struct[0].distance_and_image_from_frac_coords([0, 0, 0])[0] == 0
+        assert_allclose(struct[1].frac_coords, [0.375, 0.375, 0.375])
 
     def test_as_from_dict(self):
         d1 = TranslateSitesTransformation([0], [0.1, 0.2, 0.3]).as_dict()
@@ -81,7 +78,7 @@ class TestTranslateSitesTransformation(PymatgenTest):
         str(t2)
 
 
-class TestReplaceSiteSpeciesTransformation(unittest.TestCase):
+class TestReplaceSiteSpeciesTransformation(TestCase):
     def setUp(self):
         coords = [
             [0, 0, 0],
@@ -94,28 +91,26 @@ class TestReplaceSiteSpeciesTransformation(unittest.TestCase):
             [0.75, 0.75, 0.75],
         ]
 
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
     def test_apply_transformation(self):
         trafo = ReplaceSiteSpeciesTransformation({0: "Na"})
-        s = trafo.apply_transformation(self.struct)
-        assert s.formula == "Na1 Li3 O4"
+        struct = trafo.apply_transformation(self.struct)
+        assert struct.formula == "Na1 Li3 O4"
 
     def test_as_from_dict(self):
-        d = ReplaceSiteSpeciesTransformation({0: "Na"}).as_dict()
-        trafo = ReplaceSiteSpeciesTransformation.from_dict(d)
-        s = trafo.apply_transformation(self.struct)
-        assert s.formula == "Na1 Li3 O4"
+        dct = ReplaceSiteSpeciesTransformation({0: "Na"}).as_dict()
+        trafo = ReplaceSiteSpeciesTransformation.from_dict(dct)
+        struct = trafo.apply_transformation(self.struct)
+        assert struct.formula == "Na1 Li3 O4"
 
 
-class TestRemoveSitesTransformation(unittest.TestCase):
+class TestRemoveSitesTransformation(TestCase):
     def setUp(self):
         coords = [
             [0, 0, 0],
@@ -128,28 +123,26 @@ class TestRemoveSitesTransformation(unittest.TestCase):
             [0.75, 0.75, 0.75],
         ]
 
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
     def test_apply_transformation(self):
         trafo = RemoveSitesTransformation(range(2))
-        s = trafo.apply_transformation(self.struct)
-        assert s.formula == "Li2 O4"
+        struct = trafo.apply_transformation(self.struct)
+        assert struct.formula == "Li2 O4"
 
     def test_as_from_dict(self):
-        d = RemoveSitesTransformation(range(2)).as_dict()
-        trafo = RemoveSitesTransformation.from_dict(d)
-        s = trafo.apply_transformation(self.struct)
-        assert s.formula == "Li2 O4"
+        dct = RemoveSitesTransformation(range(2)).as_dict()
+        trafo = RemoveSitesTransformation.from_dict(dct)
+        struct = trafo.apply_transformation(self.struct)
+        assert struct.formula == "Li2 O4"
 
 
-class TestInsertSitesTransformation(unittest.TestCase):
+class TestInsertSitesTransformation(TestCase):
     def setUp(self):
         coords = [
             [0, 0, 0],
@@ -162,19 +155,17 @@ class TestInsertSitesTransformation(unittest.TestCase):
             [0.75, 0.75, 0.75],
         ]
 
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
     def test_apply_transformation(self):
         trafo = InsertSitesTransformation(["Fe", "Mn"], [[0.0, 0.5, 0], [0.5, 0.2, 0.2]])
-        s = trafo.apply_transformation(self.struct)
-        assert s.formula == "Li4 Mn1 Fe1 O4"
+        struct = trafo.apply_transformation(self.struct)
+        assert struct.formula == "Li4 Mn1 Fe1 O4"
         trafo = InsertSitesTransformation(["Fe", "Mn"], [[0.001, 0, 0], [0.1, 0.2, 0.2]])
 
         # Test validate proximity
@@ -182,13 +173,13 @@ class TestInsertSitesTransformation(unittest.TestCase):
             trafo.apply_transformation(self.struct)
 
     def test_as_from_dict(self):
-        d = InsertSitesTransformation(["Fe", "Mn"], [[0.5, 0, 0], [0.1, 0.5, 0.2]]).as_dict()
-        trafo = InsertSitesTransformation.from_dict(d)
-        s = trafo.apply_transformation(self.struct)
-        assert s.formula == "Li4 Mn1 Fe1 O4"
+        dct = InsertSitesTransformation(["Fe", "Mn"], [[0.5, 0, 0], [0.1, 0.5, 0.2]]).as_dict()
+        trafo = InsertSitesTransformation.from_dict(dct)
+        struct = trafo.apply_transformation(self.struct)
+        assert struct.formula == "Li4 Mn1 Fe1 O4"
 
 
-class TestPartialRemoveSitesTransformation(unittest.TestCase):
+class TestPartialRemoveSitesTransformation(TestCase):
     def setUp(self):
         coords = [
             [0, 0, 0],
@@ -201,13 +192,11 @@ class TestPartialRemoveSitesTransformation(unittest.TestCase):
             [0.75, 0.75, 0.75],
         ]
 
-        lattice = Lattice(
-            [
-                [3.8401979337, 0.00, 0.00],
-                [1.9200989668, 3.3257101909, 0.00],
-                [0.00, -2.2171384943, 3.1355090603],
-            ]
-        )
+        lattice = [
+            [3.8401979337, 0.00, 0.00],
+            [1.9200989668, 3.3257101909, 0.00],
+            [0.00, -2.2171384943, 3.1355090603],
+        ]
         self.struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
 
     def test_apply_transformation_complete(self):
@@ -216,22 +205,22 @@ class TestPartialRemoveSitesTransformation(unittest.TestCase):
             [0.5, 0.5],
             PartialRemoveSitesTransformation.ALGO_COMPLETE,
         )
-        s = trafo.apply_transformation(self.struct)
-        assert s.formula == "Li2 O2"
-        s = trafo.apply_transformation(self.struct, 12)
-        assert len(s) == 12
+        struct = trafo.apply_transformation(self.struct)
+        assert struct.formula == "Li2 O2"
+        struct = trafo.apply_transformation(self.struct, 12)
+        assert len(struct) == 12
 
-    @unittest.skipIf(not enumlib_present, "enum_lib not present.")
+    @pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
     def test_apply_transformation_enumerate(self):
         trafo = PartialRemoveSitesTransformation(
             [tuple(range(4)), tuple(range(4, 8))],
             [0.5, 0.5],
             PartialRemoveSitesTransformation.ALGO_ENUMERATE,
         )
-        s = trafo.apply_transformation(self.struct)
-        assert s.formula == "Li2 O2"
-        s = trafo.apply_transformation(self.struct, 12)
-        assert len(s) == 12
+        struct = trafo.apply_transformation(self.struct)
+        assert struct.formula == "Li2 O2"
+        struct = trafo.apply_transformation(self.struct, 12)
+        assert len(struct) == 12
 
     def test_apply_transformation_best_first(self):
         trafo = PartialRemoveSitesTransformation(
@@ -239,8 +228,8 @@ class TestPartialRemoveSitesTransformation(unittest.TestCase):
             [0.5, 0.5],
             PartialRemoveSitesTransformation.ALGO_BEST_FIRST,
         )
-        s = trafo.apply_transformation(self.struct)
-        assert s.formula == "Li2 O2"
+        struct = trafo.apply_transformation(self.struct)
+        assert struct.formula == "Li2 O2"
 
     def test_apply_transformation_fast(self):
         trafo = PartialRemoveSitesTransformation(
@@ -248,18 +237,18 @@ class TestPartialRemoveSitesTransformation(unittest.TestCase):
             [0.5, 0.5],
             PartialRemoveSitesTransformation.ALGO_FAST,
         )
-        s = trafo.apply_transformation(self.struct)
-        assert s.formula == "Li2 O2"
+        struct = trafo.apply_transformation(self.struct)
+        assert struct.formula == "Li2 O2"
         trafo = PartialRemoveSitesTransformation([tuple(range(8))], [0.5], PartialRemoveSitesTransformation.ALGO_FAST)
-        s = trafo.apply_transformation(self.struct)
-        assert s.formula == "Li2 O2"
+        struct = trafo.apply_transformation(self.struct)
+        assert struct.formula == "Li2 O2"
 
     def test_as_from_dict(self):
         dct = PartialRemoveSitesTransformation([tuple(range(4))], [0.5]).as_dict()
         assert {*dct} == {"@module", "@class", "@version", "algo", "indices", "fractions"}
         trafo = PartialRemoveSitesTransformation.from_dict(dct)
-        s = trafo.apply_transformation(self.struct)
-        assert s.formula == "Li2 O4"
+        struct = trafo.apply_transformation(self.struct)
+        assert struct.formula == "Li2 O4"
 
     def test_str(self):
         trafo = PartialRemoveSitesTransformation([tuple(range(4))], [0.5])
@@ -320,7 +309,7 @@ class TestRadialSiteDistortionTransformation(PymatgenTest):
                 [0, -3, 0],
                 [0, 0, -3],
             ],
-            lattice=[[10, 0, 0], [0, 10, 0], [0, 0, 10]],
+            lattice=np.eye(3) * 10,
             coords_are_cartesian=True,
         )
 
@@ -350,6 +339,6 @@ class TestRadialSiteDistortionTransformation(PymatgenTest):
 
     def test_second_nn(self):
         trafo = RadialSiteDistortionTransformation(0, 1, nn_only=False)
-        s = trafo.apply_transformation(self.molecule)
-        for c1, c2 in zip(self.molecule[7:], s[7:]):
+        struct = trafo.apply_transformation(self.molecule)
+        for c1, c2 in zip(self.molecule[7:], struct[7:]):
             assert abs(round(sum(c2.coords - c1.coords), 2)) == 0.33

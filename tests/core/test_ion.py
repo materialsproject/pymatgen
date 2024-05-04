@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-import unittest
+from unittest import TestCase
 
 import pytest
 
@@ -9,7 +9,7 @@ from pymatgen.core import Composition, Element
 from pymatgen.core.ion import Ion
 
 
-class TestIon(unittest.TestCase):
+class TestIon(TestCase):
     def setUp(self):
         self.comp = []
         self.comp.append(Ion.from_formula("Li+"))
@@ -23,12 +23,12 @@ class TestIon(unittest.TestCase):
         self.comp.append(Ion.from_formula("NaOH(aq)"))
 
     def test_init(self):
-        c = Composition({"Fe": 4, "O": 16, "P": 4})
+        comp = Composition({"Fe": 4, "O": 16, "P": 4})
         charge = 4
-        assert Ion(c, charge).formula == "Fe4 P4 O16 +4"
-        f = {1: 1, 8: 1}
+        assert Ion(comp, charge).formula == "Fe4 P4 O16 +4"
+        formula_dict = {1: 1, 8: 1}
         charge = -1
-        assert Ion(Composition(f), charge).formula == "H1 O1 -1"
+        assert Ion(Composition(formula_dict), charge).formula == "H1 O1 -1"
         assert Ion(Composition(S=2, O=3), -2).formula == "S2 O3 -2"
 
     def test_charge_from_formula(self):
@@ -108,9 +108,9 @@ class TestIon(unittest.TestCase):
         assert comp.formula == "Li8 Fe6 (aq)"
 
     def test_oxi_state_guesses(self):
-        i = Ion.from_formula("SO4-2")
-        assert i.oxi_state_guesses()[0].get("S") == 6
-        assert i.oxi_state_guesses()[0].get("O") == -2
+        ion = Ion.from_formula("SO4-2")
+        assert ion.oxi_state_guesses()[0].get("S") == 6
+        assert ion.oxi_state_guesses()[0].get("O") == -2
 
     def test_alphabetical_formula(self):
         correct_formulas = [
@@ -129,8 +129,8 @@ class TestIon(unittest.TestCase):
 
     def test_num_atoms(self):
         correct_num_atoms = [1, 5, 1, 4, 13, 13, 72, 1, 3]
-        all_natoms = [c.num_atoms for c in self.comp]
-        assert all_natoms == correct_num_atoms
+        all_n_atoms = [c.num_atoms for c in self.comp]
+        assert all_n_atoms == correct_num_atoms
 
     def test_anonymized_formula(self):
         expected_formulas = [
@@ -144,23 +144,23 @@ class TestIon(unittest.TestCase):
             "A+2",
             "ABC(aq)",
         ]
-        for i, _ in enumerate(self.comp):
-            assert self.comp[i].anonymized_formula == expected_formulas[i]
+        for idx, expected in enumerate(expected_formulas):
+            assert self.comp[idx].anonymized_formula == expected
 
     def test_from_dict(self):
         sym_dict = {"P": 1, "O": 4, "charge": -2}
         assert Ion.from_dict(sym_dict).reduced_formula == "PO4[-2]", "Creation form sym_amount dictionary failed!"
 
     def test_as_dict(self):
-        c = Ion.from_dict({"Mn": 1, "O": 4, "charge": -1})
-        d = c.as_dict()
+        ion = Ion.from_dict({"Mn": 1, "O": 4, "charge": -1})
+        dct = ion.as_dict()
         correct_dict = {"Mn": 1.0, "O": 4.0, "charge": -1.0}
-        assert d == correct_dict
-        assert d["charge"] == correct_dict["charge"]
+        assert dct == correct_dict
+        assert dct["charge"] == correct_dict["charge"]
         correct_dict = {"Mn": 1.0, "O": 4.0, "charge": -1}
-        d = c.to_reduced_dict
-        assert d == correct_dict
-        assert d["charge"] == correct_dict["charge"]
+        dct = ion.to_reduced_dict
+        assert dct == correct_dict
+        assert dct["charge"] == correct_dict["charge"]
 
     def test_equals(self):
         random_z = random.randint(1, 92)

@@ -282,8 +282,8 @@ class JahnTellerAnalyzer:
                 op_threshold=op_threshold,
             )
             active = analysis["active"]
-        except Exception as e:
-            warnings.warn(f"Error analyzing {structure.composition.reduced_formula}: {e}")
+        except Exception as exc:
+            warnings.warn(f"Error analyzing {structure.reduced_formula}: {exc}")
 
         return active
 
@@ -326,14 +326,13 @@ class JahnTellerAnalyzer:
                         jt_sites[index] = True
                         structure.add_site_property("possible_jt_active", jt_sites)
             return structure
-        except Exception as e:
-            warnings.warn(f"Error analyzing {structure.composition.reduced_formula}: {e}")
+        except Exception as exc:
+            warnings.warn(f"Error analyzing {structure.reduced_formula}: {exc}")
             return structure
 
     @staticmethod
     def _get_number_of_d_electrons(species: Species) -> float:
-        """
-        Get number of d electrons of a species.
+        """Get number of d electrons of a species.
 
         Args:
             species: Species object
@@ -354,8 +353,7 @@ class JahnTellerAnalyzer:
         return n_electrons
 
     def get_magnitude_of_effect_from_species(self, species: str | Species, spin_state: str, motif: str) -> str:
-        """
-        Get magnitude of Jahn-Teller effect from provided species, spin state and motif.
+        """Get magnitude of Jahn-Teller effect from provided species, spin state and motif.
 
         Args:
             species: e.g. Fe2+
@@ -452,7 +450,7 @@ class JahnTellerAnalyzer:
 
     @staticmethod
     def mu_so(species: str | Species, motif: Literal["oct", "tet"], spin_state: Literal["high", "low"]) -> float | None:
-        """Calculates the spin-only magnetic moment for a
+        """Calculate the spin-only magnetic moment for a
         given species. Only supports transition metals.
 
         Args:

@@ -13,11 +13,15 @@ import math
 import os
 from collections import defaultdict
 from operator import mul
+from typing import TYPE_CHECKING
 
 from monty.design_patterns import cached_class
 
 from pymatgen.core import Species, get_el_sp
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -58,8 +62,8 @@ class SubstitutionProbability:
         else:
             module_dir = os.path.dirname(__file__)
             json_file = f"{module_dir}/data/lambda.json"
-            with open(json_file) as f:
-                self._lambda_table = json.load(f)
+            with open(json_file) as file:
+                self._lambda_table = json.load(file)
 
         # build map of specie pairs to lambdas
         self.alpha = alpha
@@ -75,7 +79,7 @@ class SubstitutionProbability:
 
         # create Z and px
         self.Z = 0
-        self._px = defaultdict(float)
+        self._px: dict[Species, float] = defaultdict(float)
         for s1, s2 in itertools.product(self.species, repeat=2):
             value = math.exp(self.get_lambda(s1, s2))
             self._px[s1] += value / 2
@@ -105,8 +109,7 @@ class SubstitutionProbability:
         return self._px[get_el_sp(sp)]
 
     def prob(self, s1, s2):
-        """
-        Gets the probability of 2 species substitution. Not used by the
+        """Get the probability of 2 species substitution. Not used by the
         structure predictor.
 
         Returns:
@@ -139,8 +142,7 @@ class SubstitutionProbability:
         return math.exp(self.get_lambda(s1, s2)) * self.Z / (self.get_px(s1) * self.get_px(s2))
 
     def cond_prob_list(self, l1, l2):
-        """
-        Find the probabilities of 2 lists. These should include ALL species.
+        """Find the probabilities of 2 lists. These should include ALL species.
         This is the probability conditional on l2.
 
         Args:
@@ -158,7 +160,7 @@ class SubstitutionProbability:
         return p
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "name": type(self).__name__,
             "version": __version__,
@@ -168,7 +170,7 @@ class SubstitutionProbability:
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -248,8 +250,7 @@ class SubstitutionPredictor:
         return output
 
     def composition_prediction(self, composition, to_this_composition=True):
-        """
-        Returns charged balanced substitutions from a starting or ending
+        """Get charged balanced substitutions from a starting or ending
         composition.
 
         Args:

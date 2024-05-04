@@ -61,7 +61,7 @@ def analyze_localenv(args):
         print(f"Analyzing {filename}...")
         data = []
         struct = Structure.from_file(filename)
-        for i, site in enumerate(struct):
+        for idx, site in enumerate(struct):
             for species, dist in bonds.items():
                 if species[0] in [sp.symbol for sp in site.species]:
                     dists = [
@@ -70,7 +70,7 @@ def analyze_localenv(args):
                         if species[1] in [sp.symbol for sp in nn.species]
                     ]
                     dists = ", ".join(f"{d:.3f}" for d in sorted(dists))
-                    data.append([i, species[0], species[1], dists])
+                    data.append([idx, species[0], species[1], dists])
         print(tabulate(data, headers=["#", "Center", "Ligand", "Dists"]))
 
 
@@ -89,8 +89,8 @@ def compare_structures(args):
         print("Error converting file. Are they in the right format?")
         raise SystemExit(exc)
 
-    m = StructureMatcher() if args.group == "species" else StructureMatcher(comparator=ElementComparator())
-    for idx, grp in enumerate(m.group_structures(structures)):
+    matcher = StructureMatcher() if args.group == "species" else StructureMatcher(comparator=ElementComparator())
+    for idx, grp in enumerate(matcher.group_structures(structures)):
         print(f"Group {idx}: ")
         for s in grp:
             print(f"- {filenames[structures.index(s)]} ({s.formula})")

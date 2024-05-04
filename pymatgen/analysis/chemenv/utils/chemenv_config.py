@@ -19,11 +19,10 @@ __date__ = "Feb 20, 2016"
 
 
 class ChemEnvConfig:
-    """
-    Class used to store the configuration of the chemenv package :
-     - Materials project access
-     - ICSD database access
-     - Default options (strategies, ...).
+    """Store the configuration of the chemenv package:
+    - Materials project access
+    - ICSD database access
+    - Default options (strategies, ...).
     """
 
     DEFAULT_PACKAGE_OPTIONS = dict(
@@ -42,7 +41,10 @@ class ChemEnvConfig:
     )
 
     def __init__(self, package_options=None):
-        """:param package_options:"""
+        """
+        Args:
+            package_options:
+        """
         if SETTINGS.get("PMG_MAPI_KEY"):
             self.materials_project_configuration = SETTINGS.get("PMG_MAPI_KEY")
         else:
@@ -75,18 +77,15 @@ class ChemEnvConfig:
                 break
             elif test == "S":
                 config_file = self.save()
+                print(f"Configuration has been saved to file {config_file!r}")
                 break
             else:
                 print(" ... wrong key, try again ...")
             print()
-        if test == "S":
-            print(f"Configuration has been saved to file {config_file!r}")
 
     @property
     def has_materials_project_access(self):
-        """
-        Whether MP access is enabled.
-        """
+        """Whether MP access is enabled."""
         return self.materials_project_configuration is not None
 
     def setup_package_options(self):
@@ -94,7 +93,7 @@ class ChemEnvConfig:
         self.package_options = self.DEFAULT_PACKAGE_OPTIONS
         print("Choose between the following strategies : ")
         strategies = list(strategies_class_lookup)
-        for idx, strategy in enumerate(strategies, 1):
+        for idx, strategy in enumerate(strategies, start=1):
             print(f" <{idx}> : {strategy}")
         test = input(" ... ")
         self.package_options["default_strategy"] = {
@@ -133,9 +132,10 @@ class ChemEnvConfig:
         return out
 
     def save(self, root_dir=None):
-        """
-        Save the options.
-        :param root_dir:
+        """Save the options.
+
+        Args:
+            root_dir:
         """
         if root_dir is None:
             home = expanduser("~")
@@ -149,8 +149,8 @@ class ChemEnvConfig:
             if test != "Y":
                 print("Configuration not saved")
                 return config_file
-        with open(config_file, "w") as f:
-            json.dump(config_dict, f)
+        with open(config_file, mode="w") as file:
+            json.dump(config_dict, file)
         print("Configuration saved")
         return config_file
 
@@ -158,15 +158,17 @@ class ChemEnvConfig:
     def auto_load(cls, root_dir=None):
         """
         Autoload options.
-        :param root_dir:
+
+        Args:
+            root_dir:
         """
         if root_dir is None:
             home = expanduser("~")
             root_dir = f"{home}/.chemenv"
         config_file = f"{root_dir}/config.json"
         try:
-            with open(config_file) as f:
-                config_dict = json.load(f)
+            with open(config_file) as file:
+                config_dict = json.load(file)
             return ChemEnvConfig(package_options=config_dict["package_options"])
 
         except OSError:

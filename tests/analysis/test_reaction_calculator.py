@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import unittest
 from collections import defaultdict
 from math import isnan
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -13,7 +13,7 @@ from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 
 
-class TestReaction(unittest.TestCase):
+class TestReaction:
     def test_init(self):
         reactants = [Composition("Fe"), Composition("O2")]
         products = [Composition("Fe2O3")]
@@ -21,8 +21,8 @@ class TestReaction(unittest.TestCase):
         assert str(rxn) == "2 Fe + 1.5 O2 -> Fe2O3"
         assert rxn.normalized_repr == "4 Fe + 3 O2 -> 2 Fe2O3"
 
-        d = rxn.as_dict()
-        rxn = Reaction.from_dict(d)
+        dct = rxn.as_dict()
+        rxn = Reaction.from_dict(dct)
         repr_str, factor = rxn.normalized_repr_and_factor()
         assert repr_str == "4 Fe + 3 O2 -> 2 Fe2O3"
         assert factor == approx(2)
@@ -237,8 +237,8 @@ class TestReaction(unittest.TestCase):
         reactants = [Composition("Fe"), Composition("O2")]
         products = [Composition("Fe2O3")]
         rxn = Reaction(reactants, products)
-        d = rxn.as_dict()
-        rxn = Reaction.from_dict(d)
+        dct = rxn.as_dict()
+        rxn = Reaction.from_dict(dct)
         assert rxn.normalized_repr == "4 Fe + 3 O2 -> 2 Fe2O3"
 
     def test_underdetermined(self):
@@ -287,53 +287,54 @@ class TestReaction(unittest.TestCase):
         assert str(rxn) == "LiMnCl3 + 3 LiCl + MnCl2 -> 2 Li2MnCl4"
 
 
-class TestBalancedReaction(unittest.TestCase):
+class TestBalancedReaction(TestCase):
+    def setUp(self) -> None:
+        rct = {"K2SO4": 3, "Na2S": 1, "Li": 24}
+        prod = {"KNaS": 2, "K2S": 2, "Li2O": 12}
+        self.rxn = BalancedReaction(rct, prod)
+
     def test_init(self):
-        rct = {Composition("K2SO4"): 3, Composition("Na2S"): 1, Composition("Li"): 24}
-        prod = {Composition("KNaS"): 2, Composition("K2S"): 2, Composition("Li2O"): 12}
-        rxn = BalancedReaction(rct, prod)
-        assert str(rxn) == "24 Li + Na2S + 3 K2SO4 -> 2 KNaS + 2 K2S + 12 Li2O"
+        assert str(self.rxn) == "24 Li + Na2S + 3 K2SO4 -> 2 KNaS + 2 K2S + 12 Li2O"
 
         # Test unbalanced exception
-        rct = {Composition("K2SO4"): 1, Composition("Na2S"): 1, Composition("Li"): 24}
-        prod = {Composition("KNaS"): 2, Composition("K2S"): 2, Composition("Li2O"): 12}
+        rct = {"K2SO4": 1, "Na2S": 1, "Li": 24}
+        prod = {"KNaS": 2, "K2S": 2, "Li2O": 12}
         with pytest.raises(ReactionError, match="Reaction is unbalanced"):
             BalancedReaction(rct, prod)
 
     def test_as_from_dict(self):
-        rct = {Composition("K2SO4"): 3, Composition("Na2S"): 1, Composition("Li"): 24}
-        prod = {Composition("KNaS"): 2, Composition("K2S"): 2, Composition("Li2O"): 12}
+        rct = {"K2SO4": 3, "Na2S": 1, "Li": 24}
+        prod = {"KNaS": 2, "K2S": 2, "Li2O": 12}
         rxn = BalancedReaction(rct, prod)
-        d = rxn.as_dict()
-        new_rxn = BalancedReaction.from_dict(d)
+        dct = rxn.as_dict()
+        new_rxn = BalancedReaction.from_dict(dct)
         for comp in new_rxn.all_comp:
             assert new_rxn.get_coeff(comp) == rxn.get_coeff(comp)
 
     def test_from_str(self):
-        rxn = BalancedReaction({Composition("Li"): 4, Composition("O2"): 1}, {Composition("Li2O"): 2})
+        rxn = BalancedReaction({"Li": 4, "O2": 1}, {"Li2O": 2})
         assert rxn == BalancedReaction.from_str("4 Li + O2 -> 2Li2O")
 
         rxn = BalancedReaction(
-            {Composition("Li(NiO2)3"): 1},
-            {
-                Composition("O2"): 0.5,
-                Composition("Li(NiO2)2"): 1,
-                Composition("NiO"): 1,
-            },
+            {"Li(NiO2)3": 1},
+            {"O2": 0.5, "Li(NiO2)2": 1, "NiO": 1},
         )
 
         assert rxn == BalancedReaction.from_str("1.000 Li(NiO2)3 -> 0.500 O2 + 1.000 Li(NiO2)2 + 1.000 NiO")
 
     def test_remove_spectator_species(self):
         rxn = BalancedReaction(
-            {Composition("Li"): 4, Composition("O2"): 1, Composition("Na"): 1},
-            {Composition("Li2O"): 2, Composition("Na"): 1},
+            {"Li": 4, "O2": 1, "Na": 1},
+            {"Li2O": 2, "Na": 1},
         )
 
-        assert Composition("Na") not in rxn.all_comp
+        assert "Na" not in rxn.all_comp
+
+    def test_hash(self):
+        assert hash(self.rxn) == 4774511606373046513
 
 
-class TestComputedReaction(unittest.TestCase):
+class TestComputedReaction(TestCase):
     def setUp(self):
         dct = [
             {
@@ -366,12 +367,12 @@ class TestComputedReaction(unittest.TestCase):
             },
         ]
         entries = [ComputedEntry.from_dict(entry) for entry in dct]
-        reactants = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries))
-        prods = list(filter(lambda e: e.composition.reduced_formula == "Li2O2", entries))
+        reactants = list(filter(lambda e: e.reduced_formula in ["Li", "O2"], entries))
+        prods = list(filter(lambda e: e.reduced_formula == "Li2O2", entries))
 
         self.rxn = ComputedReaction(reactants, prods)
 
-    def test_calculated_reaction_energy(self):
+    def test_nd_reaction_energy(self):
         assert self.rxn.calculated_reaction_energy == approx(-5.60748821935)
 
     def test_calculated_reaction_energy_uncertainty(self):
@@ -431,9 +432,9 @@ class TestComputedReaction(unittest.TestCase):
                 "correction": -1.864,
             },
         ]
-        entries = [ComputedEntry.from_dict(e) for e in d]
-        reactants = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries))
-        prods = list(filter(lambda e: e.composition.reduced_formula == "Li2O2", entries))
+        entries = [ComputedEntry.from_dict(entry) for entry in d]
+        reactants = list(filter(lambda e: e.reduced_formula in ["Li", "O2"], entries))
+        prods = list(filter(lambda e: e.reduced_formula == "Li2O2", entries))
 
         rxn_with_uncertainty = ComputedReaction(reactants, prods)
         assert rxn_with_uncertainty.calculated_reaction_energy_uncertainty == approx(0.5 * 0.0744)
@@ -446,7 +447,7 @@ class TestComputedReaction(unittest.TestCase):
     def test_calculated_reaction_energy_uncertainty_for_nan(self):
         # test that reaction_energy_uncertainty property is nan when the uncertainty
         # for any product/reactant is nan
-        d = [
+        dicts = [
             {
                 "correction": 0,
                 "data": {},
@@ -502,9 +503,9 @@ class TestComputedReaction(unittest.TestCase):
                 "correction": -1.864,
             },
         ]
-        entries = [ComputedEntry.from_dict(e) for e in d]
-        reactants = list(filter(lambda e: e.composition.reduced_formula in ["Li", "O2"], entries))
-        prods = list(filter(lambda e: e.composition.reduced_formula == "Li2O2", entries))
+        entries = [ComputedEntry.from_dict(entry) for entry in dicts]
+        reactants = list(filter(lambda e: e.reduced_formula in ["Li", "O2"], entries))
+        prods = list(filter(lambda e: e.reduced_formula == "Li2O2", entries))
 
         rxn_with_uncertainty = ComputedReaction(reactants, prods)
         assert isnan(rxn_with_uncertainty.calculated_reaction_energy_uncertainty)
@@ -513,12 +514,12 @@ class TestComputedReaction(unittest.TestCase):
         assert str(self.rxn) == "2 Li + O2 -> Li2O2"
 
     def test_as_from_dict(self):
-        d = self.rxn.as_dict()
-        new_rxn = ComputedReaction.from_dict(d)
+        dct = self.rxn.as_dict()
+        new_rxn = ComputedReaction.from_dict(dct)
         assert str(new_rxn) == "2 Li + O2 -> Li2O2"
 
     def test_all_entries(self):
-        for c, e in zip(self.rxn.coeffs, self.rxn.all_entries):
-            if c > 0:
-                assert e.composition.reduced_formula == "Li2O2"
-                assert e.energy == approx(-959.64693323)
+        for coeff, entry in zip(self.rxn.coeffs, self.rxn.all_entries):
+            if coeff > 0:
+                assert entry.reduced_formula == "Li2O2"
+                assert entry.energy == approx(-959.64693323)

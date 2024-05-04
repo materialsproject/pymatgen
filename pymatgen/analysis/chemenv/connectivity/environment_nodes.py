@@ -60,7 +60,7 @@ class AbstractEnvironmentNode(MSONable):
         return self.isite < other.isite
 
     def everything_equal(self, other):
-        """Checks equality with respect to another AbstractEnvironmentNode using the index of the central site
+        """Check equality with respect to another AbstractEnvironmentNode using the index of the central site
         as well as the central site itself.
         """
         return self == other and self.central_site == other.central_site
@@ -97,7 +97,7 @@ class AbstractEnvironmentNode(MSONable):
 
 
 class EnvironmentNode(AbstractEnvironmentNode):
-    """Class used to define an environment as a node in a graph."""
+    """Define an environment as a node in a graph."""
 
     def __init__(self, central_site, i_central_site, ce_symbol) -> None:
         """
@@ -157,8 +157,7 @@ class EnvironmentNode(AbstractEnvironmentNode):
 
 
 def get_environment_node(central_site, i_central_site, ce_symbol):
-    """
-    Get the EnvironmentNode class or subclass for the given site and symbol.
+    """Get the EnvironmentNode class or subclass for the given site and symbol.
 
     Args:
         central_site (Site or subclass of Site): Central site of the environment.

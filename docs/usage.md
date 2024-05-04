@@ -188,8 +188,8 @@ example, to read a POSCAR and write a cif::
     from pymatgen.io.vasp import Poscar
     from pymatgen.io.cif import CifWriter
 
-    p = Poscar.from_file('POSCAR')
-    w = CifWriter(p.structure)
+    poscar = Poscar.from_file('POSCAR')
+    w = CifWriter(poscar.structure)
     w.write_file('mystructure.cif')
 
 For molecules, pymatgen has in-built support for XYZ and Gaussian input and
@@ -227,6 +227,7 @@ If you need guarantees of immutability for Structure/Molecule,
 you should use the IStructure and IMolecule classes instead.
 
 Modifying Structures or Molecules
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Pymatgen supports a highly Pythonic interface for modifying Structures and
@@ -463,7 +464,7 @@ with infinite undo. The main classes are:
 
 1. :class:`pymatgen.alchemy.materials.TransformedStructure` - Standard object
    representing a TransformedStructure. Takes in an input structure and a list
-   of transformations as an input. Can also be generated from cifs and POSCARs.
+   of transformations as an input. Can also be generated from CIFs and POSCARs.
 2. :class:`pymatgen.alchemy.transmuters.StandardTransmuter` - An example of
    a Transmuter class, which takes a list of structures, and apply a sequence
    of transformations on all of them.
@@ -473,10 +474,8 @@ Usage example - replace Fe with Mn and remove all Li in all structures::
    from pymatgen.alchemy.transmuters import CifTransmuter
    from pymatgen.transformations.standard_transformations import SubstitutionTransformation, RemoveSpeciesTransformation
 
-   trans = []
-   trans.append(SubstitutionTransformation({"Fe":"Mn"}))
-   trans.append(RemoveSpecieTransformation(["Lu"]))
-   transmuter = CifTransmuter.from_filenames(["MultiStructure.cif"], trans)
+   trafos = [SubstitutionTransformation({"Fe":"Mn"}), RemoveSpecieTransformation(["Lu"])]
+   transmuter = CifTransmuter.from_filenames(["MultiStructure.cif"], trafos)
    structures = transmuter.transformed_structures
 
 pymatgen.ext.matproj - Integration with the Materials Project REST API

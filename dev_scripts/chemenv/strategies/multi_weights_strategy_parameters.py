@@ -37,23 +37,22 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 
-allcg = AllCoordinationGeometries()
+all_cg = AllCoordinationGeometries()
 
 
 class CoordinationEnvironmentMorphing:
-    """Class to morph a coordination environment into another one."""
+    """Morph a coordination environment into another one."""
 
     def __init__(self, initial_environment_symbol, expected_final_environment_symbol, morphing_description):
         self.initial_environment_symbol = initial_environment_symbol
         self.expected_final_environment_symbol = expected_final_environment_symbol
         self.morphing_description = morphing_description
-        self.coordination_geometry = allcg.get_geometry_from_mp_symbol(initial_environment_symbol)
+        self.coordination_geometry = all_cg.get_geometry_from_mp_symbol(initial_environment_symbol)
         self.abstract_geometry = AbstractGeometry.from_cg(self.coordination_geometry)
 
     @classmethod
     def simple_expansion(cls, initial_environment_symbol, expected_final_environment_symbol, neighbors_indices):
-        """
-        Simple expansion of a coordination environment.
+        """Simple expansion of a coordination environment.
 
         Args:
             initial_environment_symbol (str): The initial coordination environment symbol.
@@ -74,12 +73,12 @@ class CoordinationEnvironmentMorphing:
         )
 
     def figure_fractions(self, weights_options: dict, morphing_factors: Sequence[float] | None = None) -> None:
-        """
-        Plot the fractions of the initial and final coordination environments as a function of the morphing factor.
+        """Plot the fractions of the initial and final coordination environments as a
+        function of the morphing factor.
 
         Args:
-            weights_options (dict): The weights options.
-            morphing_factors (list): The morphing factors.
+            weights_options (dict): The weights options. morphing_factors (list): The
+            morphing factors.
         """
         if morphing_factors is None:
             morphing_factors = np.linspace(1.0, 2.0, 21)
@@ -151,16 +150,17 @@ class CoordinationEnvironmentMorphing:
 
         coords = copy.deepcopy(self.abstract_geometry.points_wcs_ctwcc())
         bare_points = self.abstract_geometry.bare_points_with_centre
+        origin = None
 
         for morphing in self.morphing_description:
-            if morphing["site_type"] == "neighbor":
-                i_site = morphing["ineighbor"] + 1
-                if morphing["expansion_origin"] == "central_site":
-                    origin = bare_points[0]
-                vector = bare_points[i_site] - origin
-                coords[i_site] += vector * (morphing_factor - 1.0)
-            else:
+            if morphing["site_type"] != "neighbor":
                 raise ValueError(f"Key \"site_type\" is {morphing['site_type']} while it can only be neighbor")
+
+            i_site = morphing["ineighbor"] + 1
+            if morphing["expansion_origin"] == "central_site":
+                origin = bare_points[0]
+            vector = bare_points[i_site] - origin
+            coords[i_site] += vector * (morphing_factor - 1.0)
 
         return Structure(lattice=lattice, species=species, coords=coords, coords_are_cartesian=True)
 
@@ -269,8 +269,8 @@ if __name__ == "__main__":
         "+-------------------------------------------------------------+\n"
     )
 
-    with open("ce_pairs.json") as f:
-        ce_pairs = json.load(f)
+    with open("ce_pairs.json", encoding="utf-8") as file:
+        ce_pairs = json.load(file)
     self_weight_max_csms: dict[str, list[float]] = {}
     self_weight_max_csms_per_cn: dict[str, list[float]] = {}
     all_self_max_csms = []
@@ -288,11 +288,11 @@ if __name__ == "__main__":
         ce1 = ce_pair_dict["initial_environment_symbol"]
         ce2 = ce_pair_dict["expected_final_environment_symbol"]
         cn_pair = f"{ce2.split(':')[1]}_{ce1.split(':')[1]}"
-        nb_indices = ce_pair_dict["neighbors_indices"]
+        n_indices = ce_pair_dict["neighbors_indices"]
         min_dist = ce_pair_dict["dist_factor_min"]
         max_dist = ce_pair_dict["dist_factor_max"]
         morph = CoordinationEnvironmentMorphing.simple_expansion(
-            initial_environment_symbol=ce1, expected_final_environment_symbol=ce2, neighbors_indices=nb_indices
+            initial_environment_symbol=ce1, expected_final_environment_symbol=ce2, neighbors_indices=n_indices
         )
         params = morph.estimate_parameters(dist_factor_min=min_dist, dist_factor_max=max_dist)
         print(f"For pair {ce1} to {ce2}, parameters are : ")

@@ -1,24 +1,24 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
-from pymatgen.core import Molecule, PeriodicSite, Species, Structure
+from pymatgen.core import Molecule, PeriodicSite, Site, Species, Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import PointGroupAnalyzer, SpacegroupAnalyzer, cluster_sites, iterative_symmetrize
 from pymatgen.symmetry.structure import SymmetrizedStructure
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
-test_dir_mol = f"{TEST_FILES_DIR}/molecules"
+TEST_DIR = f"{TEST_FILES_DIR}/symmetry/analyzer"
 
 
 class TestSpacegroupAnalyzer(PymatgenTest):
     def setUp(self):
-        self.structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         self.sg = SpacegroupAnalyzer(self.structure, 0.001)
         self.disordered_structure = self.get_structure("Li10GeP2S12")
         self.disordered_sg = SpacegroupAnalyzer(self.disordered_structure, 0.001)
@@ -122,7 +122,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
     def test_init_cell(self):
         # see https://github.com/materialsproject/pymatgen/pull/3179
-        li2o = Structure.from_file(f"{TEST_FILES_DIR}/Li2O.cif")
+        li2o = Structure.from_file(f"{TEST_FILES_DIR}/cif/Li2O.cif")
 
         # test that magmoms are not included in spacegroup analyzer when species have no spin
         # or no magmom site properties are set
@@ -138,7 +138,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert sga._cell[3] == 12 * (0,)
 
         # now set spin for O only
-        li2o = Structure.from_file(f"{TEST_FILES_DIR}/Li2O.cif")
+        li2o = Structure.from_file(f"{TEST_FILES_DIR}/cif/Li2O.cif")
         li2o.replace_species({"O2-": Species("O", oxidation_state=-2, spin=1)})
         assert not all(species.spin is None for species in li2o.types_of_species)
         sga = SpacegroupAnalyzer(li2o)
@@ -147,7 +147,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
     def test_get_symmetry(self):
         # see discussion in https://github.com/materialsproject/pymatgen/pull/2724
-        Co8 = Structure.from_file(f"{TEST_FILES_DIR}/Co8.cif")
+        Co8 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Co8.cif")
         symprec = 1e-1
 
         sga = SpacegroupAnalyzer(Co8, symprec=symprec)
@@ -208,15 +208,15 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
         # Check copying
         assert symm_struct.copy() == symm_struct
-        d = symm_struct.as_dict()
+        dct = symm_struct.as_dict()
 
-        ss = SymmetrizedStructure.from_dict(d)
+        ss = SymmetrizedStructure.from_dict(dct)
         assert ss.wyckoff_symbols[0] == "16h"
         assert str(ss).startswith("SymmetrizedStructure\nFull Formula (Li20.2 Ge2.06 P3.94 S24)\nReduced Formula: ")
 
     def test_find_primitive(self):
         """F mol -3 mol Li2O testing of converting to primitive cell."""
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/Li2O.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/Li2O.cif")
         spga = SpacegroupAnalyzer(structure)
         primitive_structure = spga.find_primitive()
         assert primitive_structure.formula == "Li2 O1"
@@ -256,14 +256,14 @@ class TestSpacegroupAnalyzer(PymatgenTest):
             assert full_grid[idx][2] == approx(grid[_][0][2])
 
     def test_get_conventional_standard_structure(self):
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/bcc_1927.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/bcc_1927.cif")
         assert structure == structure
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == (90, 90, 90)
         assert conv.lattice.lengths == approx([9.1980270633769461] * 3)
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/btet_1915.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/btet_1915.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == (90, 90, 90)
@@ -271,7 +271,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert conv.lattice.b == approx(5.0615106678044235)
         assert conv.lattice.c == approx(4.2327080177761687)
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/orci_1010.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/orci_1010.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == (90, 90, 90)
@@ -279,7 +279,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert conv.lattice.b == approx(4.6330325651443296)
         assert conv.lattice.c == approx(5.373703587040775)
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/orcc_1003.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/orcc_1003.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == (90, 90, 90)
@@ -287,24 +287,26 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert conv.lattice.b == approx(31.437979757624728)
         assert conv.lattice.c == approx(3.99648651)
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/orac_632475.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/orac_632475.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == (90, 90, 90)
         assert conv.lattice.lengths == approx([3.1790663399999999, 9.9032878699999998, 3.5372412099999999])
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/monoc_1028.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/monoc_1028.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == approx([90, 117.53832420192903, 90])
         assert conv.lattice.lengths == approx([14.033435583000625, 3.96052850731, 6.8743926325200002])
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/hex_1170.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/hex_1170.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == approx([90, 90, 120])
         assert conv.lattice.lengths == approx([3.699919902005897, 3.699919902005897, 6.9779585500000003])
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/tric_684654.json")
+        STRUCTURE = f"{TEST_FILES_DIR}/symmetry/analyzer/tric_684654.json"
+
+        structure = Structure.from_file(STRUCTURE)
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.alpha == approx(74.09581916308757)
@@ -314,13 +316,13 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert conv.lattice.b == approx(3.9883228679270686)
         assert conv.lattice.c == approx(7.288495840048958)
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/tric_684654.json")
+        structure = Structure.from_file(STRUCTURE)
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure(keep_site_properties=True)
         assert conv.site_properties["magmom"] == [1.0] * len(conv)
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/tric_684654.json")
+        structure = Structure.from_file(STRUCTURE)
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure(keep_site_properties=False)
@@ -337,19 +339,19 @@ class TestSpacegroupAnalyzer(PymatgenTest):
             ("hex_1170.cif", [90, 90, 120], [3.699919902005897, 3.699919902005897, 6.9779585500000003]),
             ("rhomb_3478_conv.cif", [28.0491861, 28.049186140, 28.049186140], [5.93526274, 5.9352627428, 5.9352627428]),
         ]:
-            structure = Structure.from_file(f"{TEST_FILES_DIR}/{file_name}")
+            structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/{file_name}")
             spga = SpacegroupAnalyzer(structure, symprec=1e-2)
             prim = spga.get_primitive_standard_structure()
             assert prim.lattice.angles == approx(expected_angles)
             assert prim.lattice.abc == approx(expected_abc)
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/rhomb_3478_conv.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/rhomb_3478_conv.cif")
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = spga.get_primitive_standard_structure(keep_site_properties=True)
         assert prim.site_properties["magmom"] == [1.0] * len(prim)
 
-        structure = Structure.from_file(f"{TEST_FILES_DIR}/rhomb_3478_conv.cif")
+        structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/rhomb_3478_conv.cif")
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         prim = spga.get_primitive_standard_structure(keep_site_properties=False)
@@ -358,27 +360,27 @@ class TestSpacegroupAnalyzer(PymatgenTest):
     def test_tricky_structure(self):
         # for some reason this structure kills spglib1.9
         # 1.7 can't find symmetry either, but at least doesn't kill python
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.tricky_symmetry")
-        sa = SpacegroupAnalyzer(struct, 0.1)
-        assert sa.get_space_group_symbol() == "I4/mmm"
-        assert sa.get_space_group_number() == 139
-        assert sa.get_point_group_symbol() == "4/mmm"
-        assert sa.get_crystal_system() == "tetragonal"
-        assert sa.get_hall() == "-I 4 2"
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_tricky_symmetry")
+        spg_analyzer = SpacegroupAnalyzer(struct, 0.1)
+        assert spg_analyzer.get_space_group_symbol() == "I4/mmm"
+        assert spg_analyzer.get_space_group_number() == 139
+        assert spg_analyzer.get_point_group_symbol() == "4/mmm"
+        assert spg_analyzer.get_crystal_system() == "tetragonal"
+        assert spg_analyzer.get_hall() == "-I 4 2"
 
 
-class TestSpacegroup(unittest.TestCase):
+class TestSpacegroup(TestCase):
     def setUp(self):
-        self.structure = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR")
+        self.structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR")
         self.sg1 = SpacegroupAnalyzer(self.structure, 0.001).get_space_group_operations()
 
     def test_are_symmetrically_equivalent(self):
-        sites1 = [self.structure[i] for i in [0, 1]]
-        sites2 = [self.structure[i] for i in [2, 3]]
+        sites1 = [self.structure[idx] for idx in [0, 1]]
+        sites2 = [self.structure[idx] for idx in [2, 3]]
         assert self.sg1.are_symmetrically_equivalent(sites1, sites2, 1e-3)
 
-        sites1 = [self.structure[i] for i in [0, 1]]
-        sites2 = [self.structure[i] for i in [0, 2]]
+        sites1 = [self.structure[idx] for idx in [0, 1]]
+        sites2 = [self.structure[idx] for idx in [0, 2]]
         assert not self.sg1.are_symmetrically_equivalent(sites1, sites2, 1e-3)
 
 
@@ -471,7 +473,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
         pg_analyzer = PointGroupAnalyzer(PF6)
         assert pg_analyzer.sch_symbol == "Oh"
         assert len(pg_analyzer.get_pointgroup()) == 48
-        mol = Molecule.from_file(f"{test_dir_mol}/c60.xyz")
+        mol = Molecule.from_file(f"{TEST_DIR}/c60.xyz")
         pg_analyzer = PointGroupAnalyzer(mol)
         assert pg_analyzer.sch_symbol == "Ih"
 
@@ -492,7 +494,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
         assert pg_analyzer.sch_symbol == "Oh"
 
     def test_tricky(self):
-        mol = Molecule.from_file(f"{test_dir_mol}/dh.xyz")
+        mol = Molecule.from_file(f"{TEST_DIR}/dh.xyz")
         pg_analyzer = PointGroupAnalyzer(mol, 0.1)
         assert pg_analyzer.sch_symbol == "D*h"
 
@@ -546,7 +548,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
         pg_analyzer = PointGroupAnalyzer(NH3)
         assert pg_analyzer.sch_symbol == "C3v"
         assert len(pg_analyzer.get_pointgroup()) == 6
-        cs2 = Molecule.from_file(f"{test_dir_mol}/Carbon_Disulfide.xyz")
+        cs2 = Molecule.from_file(f"{TEST_DIR}/Carbon_Disulfide.xyz")
         pg_analyzer = PointGroupAnalyzer(cs2, eigen_tolerance=0.001)
         assert pg_analyzer.sch_symbol == "C2v"
 
@@ -557,7 +559,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
         pg_analyzer = PointGroupAnalyzer(BF3)
         assert pg_analyzer.sch_symbol == "D3h"
         assert len(pg_analyzer.get_pointgroup()) == 12
-        mol = Molecule.from_file(f"{test_dir_mol}/b12h12.xyz")
+        mol = Molecule.from_file(f"{TEST_DIR}/b12h12.xyz")
         pg_analyzer = PointGroupAnalyzer(mol)
         assert pg_analyzer.sch_symbol == "Ih"
 
@@ -573,10 +575,10 @@ class TestPointGroupAnalyzer(PymatgenTest):
         assert {2, 3, 4, 5} in eq_sets.values()
 
         coords = sym_mol.cart_coords
-        for i, eq_set in eq_sets.items():
+        for idx, eq_set in eq_sets.items():
             for j in eq_set:
-                _ = np.dot(ops[i][j], coords[i])
-                assert_allclose(np.dot(ops[i][j], coords[i]), coords[j])
+                _ = np.dot(ops[idx][j], coords[idx])
+                assert_allclose(np.dot(ops[idx][j], coords[idx]), coords[j])
 
     def test_symmetrize_molecule2(self):
         np.random.seed(77)
@@ -597,8 +599,8 @@ class TestPointGroupAnalyzer(PymatgenTest):
             ir_mesh = spga.get_ir_reciprocal_mesh((4, 4, 4))
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
-            for i, w in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
-                assert i == approx(w)
+            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
+                assert weight == approx(expected)
 
         for name in ["SrTiO3", "LiFePO4", "Graphite"]:
             struct = PymatgenTest.get_structure(name)
@@ -606,10 +608,10 @@ class TestPointGroupAnalyzer(PymatgenTest):
             ir_mesh = spga.get_ir_reciprocal_mesh((1, 2, 3))
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
-            for i, w in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
-                assert i == approx(w)
+            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
+                assert weight == approx(expected)
 
-        vasp_run = Vasprun(f"{TEST_FILES_DIR}/vasprun.xml")
+        vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.xml.gz")
         spga = SpacegroupAnalyzer(vasp_run.final_structure)
         wts = spga.get_kpoint_weights(vasp_run.actual_kpoints)
 
@@ -623,11 +625,12 @@ class TestPointGroupAnalyzer(PymatgenTest):
             spga.get_kpoint_weights(kpts)
 
 
-class TestFunc(unittest.TestCase):
+class TestFunc(TestCase):
     def test_cluster_sites(self):
-        o, c = cluster_sites(CH4, 0.1)
-        assert o.specie.symbol == "C"
-        assert len(c) == 1
-        o, c = cluster_sites(C2H2F2Br2.get_centered_molecule(), 0.1)
-        assert o is None
-        assert len(c) == 4
+        site, cluster = cluster_sites(CH4, 0.1)
+        assert isinstance(site, Site)
+        assert site.specie.symbol == "C"
+        assert len(cluster) == 1
+        site, cluster = cluster_sites(C2H2F2Br2.get_centered_molecule(), 0.1)
+        assert site is None
+        assert len(cluster) == 4

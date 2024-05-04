@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 from shutil import which
 
 import pytest
@@ -15,16 +14,16 @@ __maintainer__ = "Handong Ling, Rachel Woods-Robinson"
 __email__ = "handongling@berkeley.edu, rwoodsrobinson@lbl.gov"
 
 
-test_dir = f"{TEST_FILES_DIR}/mcsqs"
+TEST_DIR = f"{TEST_FILES_DIR}/io/atat/mcsqs"
 
 
-@unittest.skipIf(not (which("mcsqs") and which("str2cif")), "mcsqs executable not present")
+@pytest.mark.skipif(not (which("mcsqs") and which("str2cif")), reason="mcsqs executable not present")
 class TestMcsqsCaller(PymatgenTest):
     def setUp(self):
-        self.pzt_structs = loadfn(f"{test_dir}/pztstructs.json")
-        self.pzt_structs2 = loadfn(f"{test_dir}/pztstructs2.json")
+        self.pzt_structs = loadfn(f"{TEST_DIR}/pzt-structs.json")
+        self.pzt_structs2 = loadfn(f"{TEST_DIR}/pzt-structs-2.json")
         self.struct = self.get_structure("Pb2TiZrO6")
-        self.perfect_match_zzn_rs = loadfn(f"{test_dir}/perfect_match_zzn_rs.json")
+        self.perfect_match_zzn_rs = loadfn(f"{TEST_DIR}/perfect_match_zzn_rs.json")
 
     def test_mcsqs_caller_supercell(self):
         struct = self.struct.copy()

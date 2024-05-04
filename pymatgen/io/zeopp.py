@@ -26,8 +26,8 @@ from __future__ import annotations
 
 import os
 import re
+from typing import TYPE_CHECKING
 
-import numpy as np
 from monty.dev import requires
 from monty.io import zopen
 from monty.tempfile import ScratchDir
@@ -44,6 +44,12 @@ try:
     zeo_found = True
 except ImportError:
     zeo_found = False
+    AtomNetwork = prune_voronoi_network_close_node = None
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 __author__ = "Bharat Medasani"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -92,12 +98,7 @@ class ZeoCssr(Cssr):
         return "\n".join(output)
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
-
-    @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """
         Reads a string representation to a ZeoCssr object.
 
@@ -118,24 +119,24 @@ class ZeoCssr(Cssr):
         alpha = angles.pop(-1)
         angles.insert(0, alpha)
         lattice = Lattice.from_parameters(*lengths, *angles)
+
         sp = []
         coords = []
         charge = []
         for line in lines[4:]:
-            m = re.match(
+            if match := re.match(
                 r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+(?:0\s+){8}([0-9\-\.]+)",
                 line.strip(),
-            )
-            if m:
-                sp.append(m.group(1))
+            ):
+                sp.append(match.group(1))
                 # coords.append([float(m.group(i)) for i in xrange(2, 5)])
                 # Zeo++ takes x-axis along a and pymatgen takes z-axis along c
-                coords.append([float(m.group(i)) for i in [3, 4, 2]])
-                charge.append(m.group(5))
+                coords.append([float(match.group(i)) for i in [3, 4, 2]])
+                charge.append(match.group(5))
         return cls(Structure(lattice, sp, coords, site_properties={"charge": charge}))
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Reads a CSSR file to a ZeoCssr object.
 
@@ -145,13 +146,12 @@ class ZeoCssr(Cssr):
         Returns:
             ZeoCssr object.
         """
-        with zopen(filename, "r") as f:
-            return cls.from_str(f.read())
+        with zopen(filename, mode="r") as file:
+            return cls.from_str(file.read())
 
 
 class ZeoVoronoiXYZ(XYZ):
-    """
-    Class to read Voronoi Nodes from XYZ file written by Zeo++.
+    """Read Voronoi Nodes from XYZ file written by Zeo++.
     The sites have an additional column representing the voronoi node radius.
     The voronoi node radius is represented by the site property voronoi_radius.
     """
@@ -164,7 +164,7 @@ class ZeoVoronoiXYZ(XYZ):
         super().__init__(mol)
 
     @classmethod
-    def from_str(cls, contents):
+    def from_str(cls, contents: str) -> Self:
         """
         Creates Zeo++ Voronoi XYZ object from a string.
         from_string method of XYZ class is being redefined.
@@ -176,22 +176,21 @@ class ZeoVoronoiXYZ(XYZ):
             ZeoVoronoiXYZ object
         """
         lines = contents.split("\n")
-        num_sites = int(lines[0])
+        n_sites = int(lines[0])
         coords = []
         sp = []
         prop = []
         coord_patt = re.compile(r"(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)")
-        for i in range(2, 2 + num_sites):
-            m = coord_patt.search(lines[i])
-            if m:
-                sp.append(m.group(1))  # this is 1-indexed
+        for idx in range(2, 2 + n_sites):
+            if match := coord_patt.search(lines[idx]):
+                sp.append(match.group(1))  # this is 1-indexed
                 # coords.append(map(float, m.groups()[1:4]))  # this is 0-indexed
-                coords.append([float(j) for j in [m.group(i) for i in [3, 4, 2]]])
-                prop.append(float(m.group(5)))
+                coords.append([float(j) for j in [match.group(i) for i in [3, 4, 2]]])
+                prop.append(float(match.group(5)))
         return cls(Molecule(sp, coords, site_properties={"voronoi_radius": prop}))
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Creates XYZ object from a file.
 
@@ -201,11 +200,11 @@ class ZeoVoronoiXYZ(XYZ):
         Returns:
             XYZ object
         """
-        with zopen(filename) as f:
-            return cls.from_str(f.read())
+        with zopen(filename) as file:
+            return cls.from_str(file.read())
 
     def __str__(self) -> str:
-        output = [str(len(self._mols[0])), self._mols[0].composition.formula]
+        output = [str(len(self._mols[0])), self._mols[0].formula]
         prec = self.precision
         for site in self._mols[0]:
             x, y, z = site.coords
@@ -225,7 +224,7 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
     Calls Zeo++ for Voronoi decomposition.
 
     Args:
-        structure: pymatgen.core.structure.Structure
+        structure: pymatgen Structure
         rad_dict (optional): Dictionary of radii of elements in structure.
             If not given, Zeo++ default values are used.
             Note: Zeo++ uses atomic radii of elements.
@@ -234,29 +233,28 @@ def get_voronoi_nodes(structure, rad_dict=None, probe_rad=0.1):
             0.1 A
 
     Returns:
-        voronoi nodes as pymatgen.core.structure.Structure within the
-        unit cell defined by the lattice of input structure
-        voronoi face centers as pymatgen.core.structure.Structure within the
-        unit cell defined by the lattice of input structure
+        voronoi nodes as pymatgen Structure within the unit cell defined by the lattice of
+        input structure voronoi face centers as pymatgen Structure within the unit cell
+        defined by the lattice of input structure
     """
     with ScratchDir("."):
         name = "temp_zeo1"
-        zeo_inp_filename = name + ".cssr"
+        zeo_inp_filename = f"{name}.cssr"
         ZeoCssr(structure).write_file(zeo_inp_filename)
         rad_file = None
         rad_flag = False
 
         if rad_dict:
-            rad_file = name + ".rad"
+            rad_file = f"{name}.rad"
             rad_flag = True
-            with open(rad_file, "w+") as fp:
+            with open(rad_file, "w+", encoding="utf-8") as file:
                 for el in rad_dict:
-                    fp.write(f"{el} {rad_dict[el].real}\n")
+                    file.write(f"{el} {rad_dict[el].real}\n")
 
         atom_net = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         vor_net, vor_edge_centers, vor_face_centers = atom_net.perform_voronoi_decomposition()
         vor_net.analyze_writeto_XYZ(name, probe_rad, atom_net)
-        voro_out_filename = name + "_voro.xyz"
+        voro_out_filename = f"{name}_voro.xyz"
         voro_node_mol = ZeoVoronoiXYZ.from_file(voro_out_filename).molecule
 
     species = ["X"] * len(voro_node_mol)
@@ -312,7 +310,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
     Calls Zeo++ for Voronoi decomposition.
 
     Args:
-        structure: pymatgen.core.structure.Structure
+        structure: pymatgen Structure
         rad_dict (optional): Dictionary of radii of elements in structure.
             If not given, Zeo++ default values are used.
             Note: Zeo++ uses atomic radii of elements.
@@ -321,9 +319,9 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
             Default is 0.1 A
 
     Returns:
-        voronoi nodes as pymatgen.core.structure.Structure within the
+        voronoi nodes as pymatgen Structure within the
         unit cell defined by the lattice of input structure
-        voronoi face centers as pymatgen.core.structure.Structure within the
+        voronoi face centers as pymatgen Structure within the
         unit cell defined by the lattice of input structure
     """
     with ScratchDir("."):
@@ -331,10 +329,10 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         zeo_inp_filename = f"{name}.cssr"
         ZeoCssr(structure).write_file(zeo_inp_filename)
         rad_flag = True
-        rad_file = name + ".rad"
-        with open(rad_file, "w+") as fp:
+        rad_file = f"{name}.rad"
+        with open(rad_file, "w+", encoding="utf-8") as file:
             for el in rad_dict:
-                print(f"{el} {rad_dict[el].real}", file=fp)
+                print(f"{el} {rad_dict[el].real}", file=file)
 
         atom_net = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         # vornet, vor_edge_centers, vor_face_centers = atom_net.perform_voronoi_decomposition()
@@ -342,7 +340,7 @@ def get_high_accuracy_voronoi_nodes(structure, rad_dict, probe_rad=0.1):
         # generate_simplified_highaccuracy_voronoi_network(atom_net)
         # get_nearest_largest_diameter_highaccuracy_vornode(atom_net)
         red_ha_vornet.analyze_writeto_XYZ(name, probe_rad, atom_net)
-        voro_out_filename = name + "_voro.xyz"
+        voro_out_filename = f"{name}_voro.xyz"
         voro_node_mol = ZeoVoronoiXYZ.from_file(voro_out_filename).molecule
 
     species = ["X"] * len(voro_node_mol)
@@ -374,7 +372,7 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
     Calls Zeo++ for Voronoi decomposition.
 
     Args:
-        structure: pymatgen.core.structure.Structure
+        structure: pymatgen Structure
         rad_dict (optional): Dictionary of radii of elements in structure.
             If not given, Zeo++ default values are used.
             Note: Zeo++ uses atomic radii of elements.
@@ -383,39 +381,39 @@ def get_free_sphere_params(structure, rad_dict=None, probe_rad=0.1):
             0.1 A
 
     Returns:
-        voronoi nodes as pymatgen.core.structure.Structure within the
+        voronoi nodes as pymatgen Structure within the
         unit cell defined by the lattice of input structure
-        voronoi face centers as pymatgen.core.structure.Structure within the
+        voronoi face centers as pymatgen Structure within the
         unit cell defined by the lattice of input structure
     """
     with ScratchDir("."):
         name = "temp_zeo1"
-        zeo_inp_filename = name + ".cssr"
+        zeo_inp_filename = f"{name}.cssr"
         ZeoCssr(structure).write_file(zeo_inp_filename)
         rad_file = None
         rad_flag = False
 
         if rad_dict:
-            rad_file = name + ".rad"
+            rad_file = f"{name}.rad"
             rad_flag = True
-            with open(rad_file, "w+") as fp:
+            with open(rad_file, "w+", encoding="utf-8") as file:
                 for el in rad_dict:
-                    fp.write(f"{el} {rad_dict[el].real}\n")
+                    file.write(f"{el} {rad_dict[el].real}\n")
 
         atom_net = AtomNetwork.read_from_CSSR(zeo_inp_filename, rad_flag=rad_flag, rad_file=rad_file)
         out_file = "temp.res"
         atom_net.calculate_free_sphere_parameters(out_file)
         if os.path.isfile(out_file) and os.path.getsize(out_file) > 0:
-            with open(out_file) as fp:
-                output = fp.readline()
+            with open(out_file, encoding="utf-8") as file:
+                output = file.readline()
         else:
             output = ""
     fields = [val.strip() for val in output.split()][1:4]
     if len(fields) == 3:
         fields = [float(field) for field in fields]
-        free_sphere_params = {
+        return {
             "inc_sph_max_dia": fields[0],
             "free_sph_max_dia": fields[1],
             "inc_sph_along_free_sph_path_max_dia": fields[2],
         }
-    return free_sphere_params
+    return None

@@ -9,9 +9,13 @@ import json
 import logging
 import os
 from multiprocessing import Manager, Pool
+from typing import TYPE_CHECKING
 
 from monty.io import zopen
 from monty.json import MontyDecoder, MontyEncoder
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = logging.getLogger("BorgQueen")
 
@@ -40,7 +44,7 @@ class BorgQueen:
         """
         self._drone = drone
         self._num_drones = number_of_drones
-        self._data = []
+        self._data: list = []
 
         if rootpath:
             if number_of_drones > 1:
@@ -60,35 +64,33 @@ class BorgQueen:
         status["count"] = 0
         status["total"] = len(valid_paths)
         logger.info(f"{len(valid_paths)} valid paths found.")
-        with Pool(self._num_drones) as p:
-            p.map(
+        with Pool(self._num_drones) as pool:
+            pool.map(
                 order_assimilation,
                 ((path, self._drone, data, status) for path in valid_paths),
             )
-            for d in data:
-                self._data.append(json.loads(d, cls=MontyDecoder))
+            for string in data:
+                self._data.append(json.loads(string, cls=MontyDecoder))
 
-    def serial_assimilate(self, rootpath):
+    def serial_assimilate(self, root: str | Path) -> None:
         """Assimilate the entire subdirectory structure in rootpath serially."""
         valid_paths = []
-        for parent, subdirs, files in os.walk(rootpath):
+        for parent, subdirs, files in os.walk(root):
             valid_paths.extend(self._drone.get_valid_paths((parent, subdirs, files)))
-        data = []
-        count = 0
+        data: list[str] = []
         total = len(valid_paths)
-        for path in valid_paths:
-            newdata = self._drone.assimilate(path)
-            self._data.append(newdata)
-            count += 1
-            logger.info(f"{count}/{total} ({count / total:.2%}) done")
-        for d in data:
-            self._data.append(json.loads(d, cls=MontyDecoder))
+        for idx, path in enumerate(valid_paths, start=1):
+            new_data = self._drone.assimilate(path)
+            self._data.append(new_data)
+            logger.info(f"{idx}/{total} ({idx / total:.1%}) done")
+        for json_str in data:
+            self._data.append(json.loads(json_str, cls=MontyDecoder))
 
     def get_data(self):
-        """Returns an list of assimilated objects."""
+        """Get an list of assimilated objects."""
         return self._data
 
-    def save_data(self, filename):
+    def save_data(self, filename: str | Path) -> None:
         """Save the assimilated data to a file.
 
         Args:
@@ -96,21 +98,21 @@ class BorgQueen:
                 that if the filename ends with gz or bz2, the relevant gzip
                 or bz2 compression will be applied.
         """
-        with zopen(filename, "wt") as f:
-            json.dump(list(self._data), f, cls=MontyEncoder)
+        with zopen(filename, mode="wt") as file:
+            json.dump(list(self._data), file, cls=MontyEncoder)
 
     def load_data(self, filename):
         """Load assimilated data from a file."""
-        with zopen(filename, "rt") as f:
-            self._data = json.load(f, cls=MontyDecoder)
+        with zopen(filename, mode="rt") as file:
+            self._data = json.load(file, cls=MontyDecoder)
 
 
 def order_assimilation(args):
     """Internal helper method for BorgQueen to process assimilation."""
-    (path, drone, data, status) = args
-    newdata = drone.assimilate(path)
-    if newdata:
-        data.append(json.dumps(newdata, cls=MontyEncoder))
+    path, drone, data, status = args
+    new_data = drone.assimilate(path)
+    if new_data:
+        data.append(json.dumps(new_data, cls=MontyEncoder))
     status["count"] += 1
     count = status["count"]
     total = status["total"]

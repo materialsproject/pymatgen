@@ -209,7 +209,7 @@ if __name__ == "__main__":
             # Definition of the facets
             all_planes_point_indices = [algo.plane_points]
             if algo.other_plane_points is not None:
-                all_planes_point_indices.extend(algo.other_plane_points)
+                all_planes_point_indices += algo.other_plane_points
 
             # Loop on the facets
             explicit_permutations_per_plane = []
@@ -279,7 +279,7 @@ if __name__ == "__main__":
                 f"Get the explicit optimized permutations for geometry {cg.name!r} (symbol : "
                 f'{cg_symbol!r}) ? ("y" to confirm, "q" to quit)\n'
             )
-            if test not in ["y", "q"]:
+            if test not in ("y", "q"):
                 print("Wrong key, try again")
                 continue
             if test == "y":
@@ -305,7 +305,7 @@ if __name__ == "__main__":
             # Definition of the facets
             all_planes_point_indices = [algo.plane_points]
             if algo.other_plane_points is not None:
-                all_planes_point_indices.extend(algo.other_plane_points)
+                all_planes_point_indices += algo.other_plane_points
 
             # Setup of the permutations to be used for this algorithm
 
@@ -432,5 +432,5 @@ if __name__ == "__main__":
         if test == "y":
             new_geom_dir = "new_geometry_files"
             os.makedirs(new_geom_dir, exist_ok=True)
-            with open(f"{new_geom_dir}/{cg_symbol}.json", "w") as file:
+            with open(f"{new_geom_dir}/{cg_symbol}.json", mode="w") as file:
                 json.dump(cg.as_dict(), file)

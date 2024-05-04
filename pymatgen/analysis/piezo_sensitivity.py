@@ -15,7 +15,7 @@ try:
     from phonopy import Phonopy
     from phonopy.harmonic import dynmat_to_fc as dyntofc
 except ImportError:
-    Phonopy = None
+    Phonopy = dyntofc = None
 
 
 if TYPE_CHECKING:
@@ -52,8 +52,7 @@ class BornEffectiveCharge:
             warnings.warn("Input born effective charge tensor does not satisfy charge neutrality")
 
     def get_BEC_operations(self, eigtol=1e-5, opstol=1e-3):
-        """
-        Returns the symmetry operations which maps the tensors
+        """Get the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
         [site index 1, site index 2, [Symmops mapping from site
         index 1 to site index 2]].
@@ -64,7 +63,7 @@ class BornEffectiveCharge:
             opstol (float): tolerance for determining if a symmetry
             operation relates two sites
 
-        Return:
+        Returns:
             list of symmetry operations mapping equivalent sites and
             the indexes of those sites.
         """
@@ -82,7 +81,7 @@ class BornEffectiveCharge:
         relations = []
         for site, val in enumerate(bec):
             unique = 1
-            eig1, vecs1 = np.linalg.eig(val)
+            eig1, _vecs1 = np.linalg.eig(val)
             index = np.argsort(eig1)
             new_eig = np.real([eig1[index[0]], eig1[index[1]], eig1[index[2]]])
             for index, p in enumerate(passed):
@@ -110,14 +109,13 @@ class BornEffectiveCharge:
         return BEC_operations
 
     def get_rand_BEC(self, max_charge=1):
-        """
-        Generate a random born effective charge tensor which obeys a structure's
+        """Generate a random born effective charge tensor which obeys a structure's
         symmetry and the acoustic sum rule.
 
         Args:
             max_charge (float): maximum born effective charge value
 
-        Return:
+        Returns:
             np.array Born effective charge tensor
         """
         n_atoms = len(self.structure)
@@ -187,8 +185,7 @@ class InternalStrainTensor:
             warnings.warn("Input internal strain tensor does not satisfy standard symmetries")
 
     def get_IST_operations(self, opstol=1e-3):
-        """
-        Returns the symmetry operations which maps the tensors
+        """Get the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
         [site index 1, site index 2, [Symmops mapping from site
         index 1 to site index 2]].
@@ -197,7 +194,7 @@ class InternalStrainTensor:
             opstol (float): tolerance for determining if a symmetry
             operation relates two sites
 
-        Return:
+        Returns:
             list of symmetry operations mapping equivalent sites and
             the indexes of those sites.
         """
@@ -224,15 +221,14 @@ class InternalStrainTensor:
         self.IST_operations = IST_operations
 
     def get_rand_IST(self, max_force=1):
-        """
-        Generate a random internal strain tensor which obeys a structure's
+        """Generate a random internal strain tensor which obeys a structure's
         symmetry and the acoustic sum rule.
 
         Args:
-            max_force(float): maximum born effective charge value
+            max_force (float): maximum born effective charge value
 
-        Return:
-            InternalStrainTensor object
+        Returns:
+            InternalStrainTensor
         """
         n_atoms = len(self.structure)
         IST = np.zeros((n_atoms, 3, 3, 3))
@@ -277,8 +273,7 @@ class ForceConstantMatrix:
         self.FCM_operations = None
 
     def get_FCM_operations(self, eigtol=1e-5, opstol=1e-5):
-        """
-        Returns the symmetry operations which maps the tensors
+        """Get the symmetry operations which maps the tensors
         belonging to equivalent sites onto each other in the form
         [site index 1a, site index 1b, site index 2a, site index 2b,
         [Symmops mapping from site index 1a, 1b to site index 2a, 2b]].
@@ -289,7 +284,7 @@ class ForceConstantMatrix:
             opstol (float): tolerance for determining if a symmetry
             operation relates two sites
 
-        Return:
+        Returns:
             list of symmetry operations mapping equivalent sites and
             the indexes of those sites.
         """
@@ -351,13 +346,12 @@ class ForceConstantMatrix:
         return FCM_operations
 
     def get_unstable_FCM(self, max_force=1):
-        """
-        Generate an unsymmeterized force constant matrix.
+        """Generate an unsymmetrized force constant matrix.
 
         Args:
             max_charge (float): maximum born effective charge value
 
-        Return:
+        Returns:
             numpy array representing the force constant matrix
         """
         struct = self.structure
@@ -377,9 +371,9 @@ class ForceConstantMatrix:
                 D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = np.zeros([3, 3])
 
                 for symop in op[4]:
-                    tempfcm = D[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
-                    tempfcm = symop.transform_tensor(tempfcm)
-                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += tempfcm
+                    temp_fcm = D[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
+                    temp_fcm = symop.transform_tensor(temp_fcm)
+                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += temp_fcm
 
                 if len(op[4]) != 0:
                     D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = D[
@@ -410,18 +404,16 @@ class ForceConstantMatrix:
         return D
 
     def get_symmetrized_FCM(self, unsymmetrized_fcm, max_force=1):
-        """
-        Generate a symmeterized force constant matrix from an unsymmeterized matrix.
+        """Generate a symmetrized force constant matrix from an unsymmetrized matrix.
 
         Args:
-            unsymmetrized_fcm (numpy array): unsymmeterized force constant matrix
+            unsymmetrized_fcm (numpy array): unsymmetrized force constant matrix
             max_charge (float): maximum born effective charge value
 
-        Return:
+        Returns:
             3Nx3N numpy array representing the force constant matrix
         """
         operations = self.FCM_operations
-        D = unsymmetrized_fcm
         for op in operations:
             same = 0
             transpose = 0
@@ -430,24 +422,24 @@ class ForceConstantMatrix:
             if op[0] == op[3] and op[1] == op[2]:
                 transpose = 1
             if transpose == 0 and same == 0:
-                D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = np.zeros([3, 3])
+                unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = np.zeros([3, 3])
 
                 for symop in op[4]:
-                    tempfcm = D[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
+                    tempfcm = unsymmetrized_fcm[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
                     tempfcm = symop.transform_tensor(tempfcm)
 
-                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += tempfcm
+                    unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += tempfcm
 
                 if len(op[4]) != 0:
-                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = D[
+                    unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = unsymmetrized_fcm[
                         3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
                     ] / len(op[4])
-                D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = D[
+                unsymmetrized_fcm[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = unsymmetrized_fcm[
                     3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
                 ].T
                 continue
 
-            temp_tensor = Tensor(D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3])
+            temp_tensor = Tensor(unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3])
             temp_tensor_sum = sum(temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]])
             if len(self.sharedops[op[0]][op[1]]) != 0:
                 temp_tensor_sum = temp_tensor_sum / (len(self.sharedops[op[0]][op[1]]))
@@ -462,40 +454,39 @@ class ForceConstantMatrix:
             else:
                 temp_tensor_sum = (temp_tensor_sum + temp_tensor_sum.T) / 2
 
-            D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = temp_tensor_sum
-            D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = temp_tensor_sum.T
+            unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = temp_tensor_sum
+            unsymmetrized_fcm[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = temp_tensor_sum.T
 
-        return D
+        return unsymmetrized_fcm
 
     def get_stable_FCM(self, fcm, fcmasum=10):
-        """
-        Generate a symmeterized force constant matrix that obeys the objects symmetry
+        """Generate a symmetrized force constant matrix that obeys the objects symmetry
         constraints, has no unstable modes and also obeys the acoustic sum rule through an
         iterative procedure.
 
         Args:
-            fcm (numpy array): unsymmeterized force constant matrix
+            fcm (numpy array): unsymmetrized force constant matrix
             fcmasum (int): number of iterations to attempt to obey the acoustic sum
                 rule
 
-        Return:
+        Returns:
             3Nx3N numpy array representing the force constant matrix
         """
         check = 0
         count = 0
         while check == 0:
-            # if resymmetrizing brings back unstable modes 20 times, the method breaks
+            # if re-symmetrizing brings back unstable modes 20 times, the method breaks
             if count > 20:
                 check = 1
                 break
 
             eigs, vecs = np.linalg.eig(fcm)
 
-            maxeig = np.max(-1 * eigs)
-            eigsort = np.argsort(np.abs(eigs))
-            for i in range(3, len(eigs)):
-                if eigs[eigsort[i]] > 1e-6:
-                    eigs[eigsort[i]] = -1 * maxeig * np.random.rand()
+            max_eig = np.max(-1 * eigs)
+            eig_sort = np.argsort(np.abs(eigs))
+            for idx in range(3, len(eigs)):
+                if eigs[eig_sort[idx]] > 1e-6:
+                    eigs[eig_sort[idx]] = -1 * max_eig * np.random.rand()
             diag = np.real(np.eye(len(fcm)) * eigs)
 
             fcm = np.real(np.matmul(np.matmul(vecs, diag), vecs.T))
@@ -503,9 +494,9 @@ class ForceConstantMatrix:
             fcm = self.get_asum_FCM(fcm)
             eigs, vecs = np.linalg.eig(fcm)
             unstable_modes = 0
-            eigsort = np.argsort(np.abs(eigs))
-            for i in range(3, len(eigs)):
-                if eigs[eigsort[i]] > 1e-6:
+            eig_sort = np.argsort(np.abs(eigs))
+            for idx in range(3, len(eigs)):
+                if eigs[eig_sort[idx]] > 1e-6:
                     unstable_modes = 1
             if unstable_modes == 1:
                 count = count + 1
@@ -517,16 +508,15 @@ class ForceConstantMatrix:
     # acoustic sum
 
     def get_asum_FCM(self, fcm: np.ndarray, numiter: int = 15):
-        """
-        Generate a symmeterized force constant matrix that obeys the objects symmetry
+        """Generate a symmetrized force constant matrix that obeys the objects symmetry
         constraints and obeys the acoustic sum rule through an iterative procedure.
 
         Args:
-            fcm (numpy array): 3Nx3N unsymmeterized force constant matrix
+            fcm (numpy array): 3Nx3N unsymmetrized force constant matrix
             numiter (int): number of iterations to attempt to obey the acoustic sum
                 rule
 
-        Return:
+        Returns:
             numpy array representing the force constant matrix
         """
         # set max force in reciprocal space
@@ -607,8 +597,7 @@ class ForceConstantMatrix:
 
     @requires(Phonopy, "phonopy not installed!")
     def get_rand_FCM(self, asum=15, force=10):
-        """
-        Generate a symmeterized force constant matrix from an unsymmeterized matrix
+        """Generate a symmetrized force constant matrix from an unsymmetrized matrix
         that has no unstable modes and also obeys the acoustic sum rule through an
         iterative procedure.
 
@@ -617,7 +606,7 @@ class ForceConstantMatrix:
             asum (int): number of iterations to attempt to obey the acoustic sum
                 rule
 
-        Return:
+        Returns:
             NxNx3x3 np.array representing the force constant matrix
         """
         from pymatgen.io.phonopy import get_phonopy_structure
@@ -664,13 +653,13 @@ def get_piezo(BEC, IST, FCM, rcond=0.0001):
         FCM (numpy array): NxNx3x3 array representing the born effective charge tensor
         rcondy (float): condition for excluding eigenvalues in the pseudoinverse
 
-    Return:
+    Returns:
         3x3x3 calculated Piezo tensor
     """
     n_sites = len(BEC)
     temp_fcm = np.reshape(np.swapaxes(FCM, 1, 2), (n_sites * 3, n_sites * 3))
 
-    eigs, vecs = np.linalg.eig(temp_fcm)
+    eigs, _vecs = np.linalg.eig(temp_fcm)
     K = np.linalg.pinv(
         -temp_fcm,
         rcond=np.abs(eigs[np.argsort(np.abs(eigs))[2]]) / np.abs(eigs[np.argsort(np.abs(eigs))[-1]]) + rcond,
@@ -694,7 +683,8 @@ def rand_piezo(struct, pointops, sharedops, BEC, IST, FCM, anumiter=10):
         IST (numpy array): Nx3x3x3 array representing the internal strain tensor
         FCM (numpy array): NxNx3x3 array representing the born effective charge tensor
         anumiter (int): number of iterations for acoustic sum rule convergence
-    Return:
+
+    Returns:
         list in the form of [Nx3x3 random born effective charge tenosr,
         Nx3x3x3 random internal strain tensor, NxNx3x3 random force constant matrix, 3x3x3 piezo tensor]
     """

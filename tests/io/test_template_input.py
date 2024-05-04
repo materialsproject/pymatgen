@@ -7,42 +7,44 @@ import pytest
 from pymatgen.io.template import TemplateInputGen
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/io"
+
 
 class TestTemplateInputGen(PymatgenTest):
     def test_write_inputs(self):
-        tis = TemplateInputGen().get_input_set(
-            template=f"{TEST_FILES_DIR}/template_input_file.txt",
+        input_set = TemplateInputGen().get_input_set(
+            template=f"{TEST_DIR}/template_input_file.txt",
             variables={"TEMPERATURE": 298},
             filename="hello_world.in",
         )
-        tis.write_input(self.tmp_path)
-        with open(os.path.join(self.tmp_path, "hello_world.in")) as f:
-            assert "298" in f.read()
+        input_set.write_input(self.tmp_path)
+        with open(f"{self.tmp_path}/hello_world.in") as file:
+            assert "298" in file.read()
 
         with pytest.raises(FileNotFoundError, match="No such file or directory:"):
-            tis.write_input(os.path.join(self.tmp_path, "temp"), make_dir=False)
+            input_set.write_input(f"{self.tmp_path}/temp", make_dir=False)
 
-        tis.write_input(os.path.join(self.tmp_path, "temp"), make_dir=True)
+        input_set.write_input(f"{self.tmp_path}/temp", make_dir=True)
 
-        tis = TemplateInputGen().get_input_set(
-            template=f"{TEST_FILES_DIR}/template_input_file.txt",
+        input_set = TemplateInputGen().get_input_set(
+            template=f"{TEST_DIR}/template_input_file.txt",
             variables={"TEMPERATURE": 400},
             filename="hello_world.in",
         )
 
         # test len, iter, getitem
-        assert len(tis.inputs) == 1
-        assert len(list(tis.inputs)) == 1
-        assert isinstance(tis.inputs["hello_world.in"], str)
+        assert len(input_set.inputs) == 1
+        assert len(list(input_set.inputs)) == 1
+        assert isinstance(input_set.inputs["hello_world.in"], str)
 
         with pytest.raises(FileExistsError, match="hello_world.in"):
-            tis.write_input(self.tmp_path, overwrite=False)
+            input_set.write_input(self.tmp_path, overwrite=False)
 
-        tis.write_input(self.tmp_path, overwrite=True)
+        input_set.write_input(self.tmp_path, overwrite=True)
 
-        with open(os.path.join(self.tmp_path, "hello_world.in")) as f:
-            assert "400" in f.read()
+        with open(f"{self.tmp_path}/hello_world.in") as file:
+            assert "400" in file.read()
 
-        tis.write_input(self.tmp_path, zip_inputs=True)
+        input_set.write_input(self.tmp_path, zip_inputs=True)
 
         assert "InputSet.zip" in list(os.listdir(self.tmp_path))

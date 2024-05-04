@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import numpy as np
 from pytest import approx
 
 from pymatgen.core.lattice import Lattice
@@ -7,7 +8,7 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.kpath import KPathSetyawanCurtarolo
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-test_dir_structs = f"{TEST_FILES_DIR}/space_group_structs"
+TEST_DIR = f"{TEST_FILES_DIR}/symmetry/space_group_structs"
 
 
 class TestBandStructureSC(PymatgenTest):
@@ -22,10 +23,10 @@ class TestBandStructureSC(PymatgenTest):
 
         species = ["K", "La", "Ti"]
         coords = [[0.345, 5, 0.77298], [0.1345, 5.1, 0.77298], [0.7, 0.8, 0.9]]
-        for i in range(230):
-            sg_num = i + 1
+        for idx in range(230):
+            sg_num = idx + 1
             if sg_num in triclinic:
-                lattice = Lattice([[3.0233057319441246, 0, 0], [0, 7.9850357844548681, 0], [0, 0, 8.1136762279561818]])
+                lattice = Lattice(np.diag((3.0233057319441246, 7.9850357844548681, 8.1136762279561818)))
             elif sg_num in monoclinic:
                 lattice = Lattice.monoclinic(2, 9, 1, 99)
             elif sg_num in orthorhombic:
@@ -42,7 +43,7 @@ class TestBandStructureSC(PymatgenTest):
             struct = Structure.from_spacegroup(sg_num, lattice, species, coords)
             _ = KPathSetyawanCurtarolo(struct)  # Throws error if something doesn't work, causing test to fail.
 
-        struct_file_path = f"{test_dir_structs}/ICSD_170.cif"
+        struct_file_path = f"{TEST_DIR}/ICSD_170.cif"
         struct = Structure.from_file(struct_file_path)
         hkp = KPathSetyawanCurtarolo(struct)
         assert hkp.name == "MCLC5"

@@ -1,6 +1,5 @@
 """This module contains some script utils that are used in the chemenv package."""
 
-
 from __future__ import annotations
 
 import re
@@ -30,10 +29,8 @@ from pymatgen.io.cif import CifParser
 try:
     from pymatgen.vis.structure_vtk import StructureVis
 
-    no_vis = False
 except ImportError:
-    StructureVis = None  # type: ignore
-    no_vis = True
+    StructureVis = None  # type: ignore[misc]
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -67,19 +64,22 @@ def draw_cg(
     """
     Draw cg.
 
-    :param vis:
-    :param site:
-    :param neighbors:
-    :param cg:
-    :param perm:
-    :param perfect2local_map:
-    :param show_perfect:
-    :param csm_info:
-    :param symmetry_measure_type:
-    :param perfect_radius:
-    :param show_distorted:
-    :param faces_color_override:
+    Args:
+        site:
+        vis:
+        neighbors:
+        cg:
+        perm:
+        perfect2local_map:
+        show_perfect:
+        csm_info:
+        symmetry_measure_type:
+        perfect_radius:
+        show_distorted:
+        faces_color_override:
     """
+    csm_suffix = ""
+    perf_radius = 0
     if show_perfect:
         if csm_info is None:
             raise ValueError("Not possible to show perfect environment without csm_info")
@@ -157,14 +157,15 @@ def draw_cg(
 def visualize(cg, zoom=None, vis=None, factor=1.0, view_index=True, faces_color_override=None):
     """
     Visualizing a coordination geometry
-    :param cg:
-    :param zoom:
-    :param vis:
-    :param factor:
-    :param view_index:
-    :param faces_color_override:
+    Args:
+        cg:
+        zoom:
+        vis:
+        factor:
+        view_index:
+        faces_color_override:
     """
-    if vis is None:
+    if vis is None and StructureVis is not None:
         vis = StructureVis(show_polyhedron=False, show_unit_cell=False)
     species = ["O"] * (cg.coordination_number + 1)
     species[0] = "Cu"
@@ -175,7 +176,6 @@ def visualize(cg, zoom=None, vis=None, factor=1.0, view_index=True, faces_color_
     coords = [cc * factor for cc in coords]
     structure = Molecule(species=species, coords=coords)
     vis.set_structure(structure=structure, reset_camera=True)
-    # neighbors_list = coords[1:]
     draw_cg(
         vis,
         site=structure[0],
@@ -195,7 +195,8 @@ def compute_environments(chemenv_configuration):
     """
     Compute the environments.
 
-    :param chemenv_configuration:
+    Args:
+        chemenv_configuration:
     """
     string_sources = {
         "cif": {"string": "a Cif file", "regexp": r".*\.cif$"},
@@ -219,6 +220,7 @@ def compute_environments(chemenv_configuration):
             for key_character, qq in questions.items():
                 print(f" - <{key_character}> for a structure from {string_sources[qq]['string']}")
             test = input(" ... ")
+            source_type = ""
             if test == "q":
                 break
             if test not in list(questions):
@@ -231,16 +233,22 @@ def compute_environments(chemenv_configuration):
                     continue
             else:
                 source_type = questions[test]
+
         else:
             found = False
             source_type = next(iter(questions.values()))
+
+        input_source = ""
         if found and len(questions) > 1:
-            input_source = test
+            input_source = test  # type: ignore[reportPossiblyUnboundVariable]
+
+        structure = None
         if source_type == "cif":
             if not found:
                 input_source = input("Enter path to CIF file : ")
             parser = CifParser(input_source)
             structure = parser.parse_structures(primitive=True)[0]
+
         elif source_type == "mp":
             if not found:
                 input_source = input('Enter materials project id (e.g. "mp-1902") : ')
@@ -248,8 +256,9 @@ def compute_environments(chemenv_configuration):
 
             with MPRester() as mpr:
                 structure = mpr.get_structure_by_material_id(input_source)
+
         lgf.setup_structure(structure)
-        print(f"Computing environments for {structure.composition.reduced_formula} ... ")
+        print(f"Computing environments for {structure.reduced_formula} ... ")
         se = lgf.compute_structure_environments(maximum_distance_factor=max_dist_factor)
         print("Computing environments finished")
         while True:
@@ -258,7 +267,7 @@ def compute_environments(chemenv_configuration):
                 '("y" or "n", "d" with details, "g" to see the grid) : '
             )
             strategy = default_strategy
-            if test in ["y", "d", "g"]:
+            if test in {"y", "d", "g"}:
                 strategy.set_structure_environments(se)
                 for equiv_list in se.equivalent_sites:
                     site = equiv_list[0]
@@ -277,6 +286,7 @@ def compute_environments(chemenv_configuration):
                     comp = site.species
                     # ce = strategy.get_site_coordination_environment(site)
                     reduced_formula = comp.get_reduced_formula_and_factor()[0]
+                    the_cg = None
                     if strategy.uniquely_determines_coordination_environments:
                         ce = ces[0]
                         if ce is None:
@@ -322,7 +332,7 @@ def compute_environments(chemenv_configuration):
                     except IndexError:
                         print("This site is out of the site range")
 
-            if no_vis:
+            if StructureVis is None:
                 test = input('Go to next structure ? ("y" to do so)')
                 if test == "y":
                     break
@@ -345,10 +355,13 @@ def compute_environments(chemenv_configuration):
                             print("Not a valid multiplicity")
                 else:
                     deltas = [np.zeros(3, float)]
-                if first_time:
+                if first_time and StructureVis is not None:
                     vis = StructureVis(show_polyhedron=False, show_unit_cell=True)
                     vis.show_help = False
                     first_time = False
+                else:
+                    vis = None  # TODO: following code logic seems buggy
+
                 vis.set_structure(se.structure)
                 strategy.set_structure_environments(se)
                 for site in se.structure:

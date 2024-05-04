@@ -20,6 +20,8 @@ from pymatgen.io.lammps.data import LammpsBox
 if TYPE_CHECKING:
     from typing import Any
 
+    from typing_extensions import Self
+
 __author__ = "Kiran Mathew, Zhi Deng"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
 __version__ = "1.0"
@@ -47,12 +49,7 @@ class LammpsDump(MSONable):
         self.data = data
 
     @classmethod
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs) -> LammpsDump:
-        return cls.from_str(*args, **kwargs)
-
-    @classmethod
-    def from_str(cls, string: str) -> LammpsDump:
+    def from_str(cls, string: str) -> Self:
         """
         Constructor from string parsing.
 
@@ -60,7 +57,7 @@ class LammpsDump(MSONable):
             string (str): Input string.
         """
         lines = string.split("\n")
-        timestep = int(lines[1])
+        time_step = int(lines[1])
         n_atoms = int(lines[3])
         box_arr = np.loadtxt(StringIO("\n".join(lines[5:8])))
         bounds = box_arr[:, :2]
@@ -73,24 +70,24 @@ class LammpsDump(MSONable):
         box = LammpsBox(bounds, tilt)
         data_head = lines[8].replace("ITEM: ATOMS", "").split()
         data = pd.read_csv(StringIO("\n".join(lines[9:])), names=data_head, delim_whitespace=True)
-        return cls(timestep, n_atoms, box, data)
+        return cls(time_step, n_atoms, box, data)
 
     @classmethod
-    def from_dict(cls, d: dict) -> LammpsDump:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             LammpsDump
         """
-        items = {"timestep": d["timestep"], "natoms": d["natoms"]}
-        items["box"] = LammpsBox.from_dict(d["box"])
-        items["data"] = pd.read_json(d["data"], orient="split")
+        items = {"timestep": dct["timestep"], "natoms": dct["natoms"]}
+        items["box"] = LammpsBox.from_dict(dct["box"])
+        items["data"] = pd.read_json(dct["data"], orient="split")
         return cls(**items)
 
     def as_dict(self) -> dict[str, Any]:
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         dct: dict[str, Any] = {}
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
@@ -116,12 +113,12 @@ def parse_lammps_dumps(file_pattern):
     files = glob(file_pattern)
     if len(files) > 1:
         pattern = file_pattern.replace("*", "([0-9]+)").replace("\\", "\\\\")
-        files = sorted(files, key=lambda f: int(re.match(pattern, f).group(1)))
+        files = sorted(files, key=lambda f: int(re.match(pattern, f)[1]))
 
-    for fname in files:
-        with zopen(fname, "rt") as f:
+    for filename in files:
+        with zopen(filename, mode="rt") as file:
             dump_cache = []
-            for line in f:
+            for line in file:
                 if line.startswith("ITEM: TIMESTEP"):
                     if len(dump_cache) > 0:
                         yield LammpsDump.from_str("".join(dump_cache))
@@ -148,8 +145,8 @@ def parse_lammps_log(filename: str = "log.lammps") -> list[pd.DataFrame]:
     Returns:
         [pd.DataFrame] containing thermo data for each completed run.
     """
-    with zopen(filename, "rt") as f:
-        lines = f.readlines()
+    with zopen(filename, mode="rt") as file:
+        lines = file.readlines()
     begin_flag = (
         "Memory usage per processor =",
         "Per MPI rank memory allocation (min/avg/max) =",
@@ -174,7 +171,7 @@ def parse_lammps_log(filename: str = "log.lammps") -> list[pd.DataFrame]:
                 data = {}
                 step = re.match(multi_pattern, ts[0])
                 assert step is not None
-                data["Step"] = int(step.group(1))
+                data["Step"] = int(step[1])
                 data.update({k: float(v) for k, v in re.findall(kv_pattern, "".join(ts[1:]))})
                 dicts.append(data)
             df = pd.DataFrame(dicts)

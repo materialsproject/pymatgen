@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import collections
 import functools
 import operator
 import os
+from collections import defaultdict
 from math import exp, sqrt
 from typing import TYPE_CHECKING
 
@@ -36,8 +36,7 @@ PRIOR_PROB = {Species.from_str(sp): data for sp, data in all_data["occurrence"].
 
 
 def calculate_bv_sum(site, nn_list, scale_factor=1.0):
-    """
-    Calculates the BV sum of a site.
+    """Calculate the BV sum of a site.
 
     Args:
         site (PeriodicSite): The central site to calculate the bond valence
@@ -63,8 +62,7 @@ def calculate_bv_sum(site, nn_list, scale_factor=1.0):
 
 
 def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
-    """
-    Calculates the BV sum of a site for unordered structures.
+    """Calculate the BV sum of a site for unordered structures.
 
     Args:
         site (PeriodicSite): The central site to calculate the bond valence
@@ -82,7 +80,7 @@ def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
     # site "site" is obtained as :
     # \sum_{nn} \sum_j^N \sum_k^{N_{nn}} f_{site}_j f_{nn_i}_k vij_full
     # where vij_full is the valence bond of the fully occupied bond
-    bvsum = 0
+    bv_sum = 0
     for specie1, occu1 in site.species.items():
         el1 = Element(specie1.symbol)
         for nn in nn_list:
@@ -95,8 +93,8 @@ def calculate_bv_sum_unordered(site, nn_list, scale_factor=1):
                     c2 = BV_PARAMS[el2]["c"]
                     R = r1 + r2 - r1 * r2 * (sqrt(c1) - sqrt(c2)) ** 2 / (c1 * r1 + c2 * r2)
                     vij = exp((R - nn.nn_distance * scale_factor) / 0.31)
-                    bvsum += occu1 * occu2 * vij * (1 if el1.X < el2.X else -1)
-    return bvsum
+                    bv_sum += occu1 * occu2 * vij * (1 if el1.X < el2.X else -1)
+    return bv_sum
 
 
 class BVAnalyzer:
@@ -128,8 +126,7 @@ class BVAnalyzer:
         charge_neutrality_tolerance=CHARGE_NEUTRALITY_TOLERANCE,
         forbidden_species=None,
     ):
-        """
-        Initializes the BV analyzer, with useful defaults.
+        """Initialize the BV analyzer, with useful defaults.
 
         Args:
             symm_tol:
@@ -181,7 +178,7 @@ class BVAnalyzer:
         try:
             prob = {k: v / sum(prob.values()) for k, v in prob.items()}
         except ZeroDivisionError:
-            prob = {key: 0 for key in prob}
+            prob = dict.fromkeys(prob, 0)
         return prob
 
     def _calc_site_probabilities_unordered(self, site, nn):
@@ -202,20 +199,19 @@ class BVAnalyzer:
             try:
                 prob[el] = {k: v / sum(prob[el].values()) for k, v in prob[el].items()}
             except ZeroDivisionError:
-                prob[el] = {key: 0 for key in prob[el]}
+                prob[el] = dict.fromkeys(prob[el], 0)
         return prob
 
     def get_valences(self, structure: Structure):
-        """
-        Returns a list of valences for each site in the structure.
+        """Get a list of valences for each site in the structure.
 
         Args:
             structure: Structure to analyze
 
         Returns:
             A list of valences for each site in the structure (for an ordered structure),
-            e.g., [1, 1, -2] or a list of lists with the valences for each fractional
-            element of each site in the structure (for an unordered structure), e.g., [[2,
+            e.g. [1, 1, -2] or a list of lists with the valences for each fractional
+            element of each site in the structure (for an unordered structure), e.g. [[2,
             4], [3], [-2], [-2], [-2]]
 
         Raises:
@@ -270,6 +266,7 @@ class BVAnalyzer:
                 valences.append(vals)
 
         # make variables needed for recursion
+        attrib = []
         if structure.is_ordered:
             n_sites = np.array(list(map(len, equi_sites)))
             valence_min = np.array(list(map(min, valences)))
@@ -280,13 +277,13 @@ class BVAnalyzer:
             self._best_vset = None
 
             def evaluate_assignment(v_set):
-                el_oxi = collections.defaultdict(list)
+                el_oxi = defaultdict(list)
                 for idx, sites in enumerate(equi_sites):
                     el_oxi[sites[0].specie.symbol].append(v_set[idx])
                 max_diff = max(max(v) - min(v) for v in el_oxi.values())
                 if max_diff > 1:
                     return
-                score = functools.reduce(operator.mul, [all_prob[i][v] for i, v in enumerate(v_set)])
+                score = functools.reduce(operator.mul, [all_prob[idx][val] for idx, val in enumerate(v_set)])
                 if score > self._best_score:
                     self._best_vset = v_set
                     self._best_score = score
@@ -326,12 +323,11 @@ class BVAnalyzer:
         else:
             n_sites = np.array([len(sites) for sites in equi_sites])
             tmp = []
-            attrib = []
             for idx, n_site in enumerate(n_sites):
                 for _ in valences[idx]:
                     tmp.append(n_site)
                     attrib.append(idx)
-            new_nsites = np.array(tmp)
+            new_n_sites = np.array(tmp)
             fractions = []
             elements = []
             for sites in equi_sites:
@@ -340,15 +336,15 @@ class BVAnalyzer:
                     fractions.append(occu)
             fractions = np.array(fractions, float)  # type: ignore[assignment]
             new_valences = [val for vals in valences for val in vals]
-            valence_min = np.array([min(i) for i in new_valences], float)
-            valence_max = np.array([max(i) for i in new_valences], float)
+            valence_min = np.array([min(val) for val in new_valences], float)
+            valence_max = np.array([max(val) for val in new_valences], float)
 
             self._n = 0
             self._best_score = 0
             self._best_vset = None
 
             def evaluate_assignment(v_set):
-                el_oxi = collections.defaultdict(list)
+                el_oxi = defaultdict(list)
                 jj = 0
                 for sites in equi_sites:
                     for specie, _ in get_z_ordered_elmap(sites[0].species):
@@ -377,13 +373,13 @@ class BVAnalyzer:
                 i = len(assigned)
                 highest = valence_max.copy()
                 highest[:i] = assigned
-                highest *= new_nsites
+                highest *= new_n_sites
                 highest *= fractions
                 highest = np.sum(highest)
 
                 lowest = valence_min.copy()
                 lowest[:i] = assigned
-                lowest *= new_nsites
+                lowest *= new_n_sites
                 lowest *= fractions
                 lowest = np.sum(lowest)
 
@@ -426,8 +422,7 @@ class BVAnalyzer:
         raise ValueError("Valences cannot be assigned!")
 
     def get_oxi_state_decorated_structure(self, structure: Structure):
-        """
-        Get an oxidation state decorated structure. This currently works only
+        """Get an oxidation state decorated structure. This currently works only
         for ordered structures only.
 
         Args:
@@ -472,11 +467,11 @@ def add_oxidation_state_by_site_fraction(structure, oxidation_states):
     Args:
         oxidation_states (list): List of list of oxidation states for each
             site fraction for each site.
-            E.g., [[2, 4], [3], [-2], [-2], [-2]]
+            e.g. [[2, 4], [3], [-2], [-2], [-2]]
     """
     try:
         for idx, site in enumerate(structure):
-            new_sp = collections.defaultdict(float)
+            new_sp = defaultdict(float)
             for j, (el, occu) in enumerate(get_z_ordered_elmap(site.species)):
                 specie = Species(el.symbol, oxidation_states[idx][j])
                 new_sp[specie] += occu

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import pandas as pd
 import pytest
@@ -9,10 +9,10 @@ from pytest import approx
 from pymatgen.core import Structure
 from pymatgen.core.structure import Molecule
 from pymatgen.io.xyz import XYZ
-from pymatgen.util.testing import TEST_FILES_DIR
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
 
-class TestXYZ(unittest.TestCase):
+class TestXYZ(TestCase):
     def setUp(self):
         coords = [
             [0, 0, 0],
@@ -55,7 +55,7 @@ H 9.487 9.111 9.637
 H 9.487 10.889 9.637"""
         assert mxyz_text == ans_multi
 
-    def test_from_string(self):
+    def test_from_str(self):
         expected = """5
 H4 C1
 C 0.000000 0.000000 0.000000
@@ -66,10 +66,10 @@ H -0.513360 0.889165 -0.363000"""
         xyz = XYZ.from_str(expected)
         mol = xyz.molecule
         sp = ["C", "H", "H", "H", "H"]
-        for i, site in enumerate(mol):
-            assert site.species_string == sp[i]
+        for idx, site in enumerate(mol):
+            assert site.species_string == sp[idx]
             assert len(site.coords) == 3
-            if i == 0:
+            if idx == 0:
                 assert all(c == 0 for c in site.coords)
 
         mol_str = """2
@@ -122,7 +122,7 @@ C32-C2-1
         assert mol[3].z == approx(-0.13790)
 
     def test_from_file(self):
-        filepath = f"{TEST_FILES_DIR}/multiple_frame_xyz.xyz"
+        filepath = f"{TEST_FILES_DIR}/io/xyz/multiple_frame.xyz"
         mxyz = XYZ.from_file(filepath)
         assert len(mxyz.all_molecules) == 302
         assert list(mxyz.all_molecules[0].cart_coords[0]) == [
@@ -134,7 +134,7 @@ C32-C2-1
         assert list(mxyz.molecule.cart_coords[-1]) == [5.5355550720000002, 0.0282305931, -0.30993102189999999]
 
     def test_init_from_structure(self):
-        filepath = f"{TEST_FILES_DIR}/POSCAR"
+        filepath = f"{VASP_IN_DIR}/POSCAR"
         struct = Structure.from_file(filepath)
         xyz = XYZ(struct)
         expected = """24

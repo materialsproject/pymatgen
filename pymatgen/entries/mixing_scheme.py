@@ -118,7 +118,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         self,
         entries: AnyComputedEntry | list[AnyComputedEntry],
         clean: bool = True,
-        verbose: bool = True,
+        verbose: bool = False,
         inplace: bool = True,
         mixing_state_data=None,
     ) -> list[AnyComputedEntry]:
@@ -136,7 +136,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             clean (bool): Whether to remove any previously-applied energy adjustments.
                 If True, all EnergyAdjustment are removed prior to processing the Entry.
                 Default is True.
-            verbose (bool): Whether to print verbose error messages about the mixing scheme. Default is True.
+            verbose (bool): Whether to print verbose error messages about the mixing scheme. Default is False.
             inplace (bool): Whether to adjust input entries in place. Default is True.
             mixing_state_data: A DataFrame containing information about which Entries
                 correspond to the same materials, which are stable on the phase diagrams of
@@ -249,7 +249,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         return processed_entry_list
 
     def get_adjustments(self, entry, mixing_state_data: pd.DataFrame | None = None):
-        """Returns the corrections applied to a particular entry. Note that get_adjustments is not
+        """Get the corrections applied to a particular entry. Note that get_adjustments is not
         intended to be called directly in the R2SCAN mixing scheme. Call process_entries instead,
         and it will pass the required arguments to get_adjustments.
 
@@ -296,7 +296,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             entry.entry_id not in mixing_state_data["entry_id_2"].values  # noqa: PD011
         ):
             raise CompatibilityError(
-                f"WARNING! Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                f"WARNING! Discarding {run_type} entry {entry.entry_id} for {entry.formula} "
                 f"because it was not found in the mixing state data. This can occur when there are duplicate "
                 "structures. In such cases, only the lowest energy entry with that structure appears in the "
                 "mixing state data."
@@ -307,7 +307,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             entry.energy_per_atom not in mixing_state_data["energy_2"].values  # noqa: PD011
         ):
             raise CompatibilityError(
-                f"WARNING! Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                f"WARNING! Discarding {run_type} entry {entry.entry_id} for {entry.formula} "
                 "because it's energy has been modified since the mixing state data was generated."
             )
 
@@ -331,13 +331,13 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 if df_slice["is_stable_1"].item():
                     # this is a GGA ground state.
                     raise CompatibilityError(
-                        f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                        f"Discarding {run_type} entry {entry.entry_id} for {entry.formula} "
                         f"because it is a {self.run_type_1} ground state that matches a {self.run_type_2} "
                         "material."
                     )
 
                 raise CompatibilityError(
-                    f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                    f"Discarding {run_type} entry {entry.entry_id} for {entry.formula} "
                     f"because there is a matching {self.run_type_2} material."
                 )
 
@@ -370,13 +370,13 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                     if df_slice["is_stable_1"].item():
                         # this is a GGA ground state.
                         raise CompatibilityError(
-                            f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                            f"Discarding {run_type} entry {entry.entry_id} for {entry.formula} "
                             f"because it is a {self.run_type_1} ground state that matches a {self.run_type_2} "
                             "material."
                         )
 
                     raise CompatibilityError(
-                        f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                        f"Discarding {run_type} entry {entry.entry_id} for {entry.formula} "
                         f"because there is a matching {self.run_type_2} material"
                     )
 
@@ -384,7 +384,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 return adjustments
 
             # for run_type_2, determine whether there is a run_type_2 ground state at this composition
-            df_slice = mixing_state_data[mixing_state_data["formula"] == entry.composition.reduced_formula]
+            df_slice = mixing_state_data[mixing_state_data["formula"] == entry.reduced_formula]
 
             if any(df_slice[df_slice["is_stable_1"]]["entry_id_2"].notna()):
                 # there is a run_type_2 entry corresponding to the run_type_1 ground state
@@ -423,7 +423,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
             # there is no run_type_1 entry that matches this material, and no ground state. Discard.
             raise CompatibilityError(
-                f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                f"Discarding {run_type} entry {entry.entry_id} for {entry.formula} "
                 f"because there is no matching {self.run_type_1} entry and no {self.run_type_2} "
                 "ground state at this composition."
             )
@@ -437,7 +437,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
 
             # for run_type_2, discard the entry
             raise CompatibilityError(
-                f"Discarding {run_type} entry {entry.entry_id} for {entry.composition.formula} "
+                f"Discarding {run_type} entry {entry.entry_id} for {entry.formula} "
                 f"because there are no {self.run_type_2} ground states at this composition."
             )
 
@@ -563,7 +563,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
         mixing_state_data = pd.DataFrame(row_list, columns=columns)
         return mixing_state_data.sort_values(["formula", "energy_1", "spacegroup", "num_sites"], ignore_index=True)
 
-    def _filter_and_sort_entries(self, entries, verbose=True):
+    def _filter_and_sort_entries(self, entries, verbose=False):
         """Given a single list of entries, separate them by run_type and return two lists, one containing
         only entries of each run_type.
         """
@@ -586,7 +586,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 )
                 continue
 
-            formula = entry.composition.reduced_formula
+            formula = entry.reduced_formula
             if entry_id is None:
                 warnings.warn(
                     f"{entry_id=} for {formula=}. Unique entry_ids are required for every ComputedStructureEntry."
@@ -718,7 +718,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
     @staticmethod
     def display_entries(entries):
         """Generate a pretty printout of key properties of a list of ComputedEntry."""
-        entries = sorted(entries, key=lambda e: (e.composition.reduced_formula, e.energy_per_atom))
+        entries = sorted(entries, key=lambda e: (e.reduced_formula, e.energy_per_atom))
         try:
             pd = PhaseDiagram(entries)
         except ValueError:
@@ -728,10 +728,10 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             f"{'entry_id':<12}{'formula':<12}{'spacegroup':<12}{'run_type':<10}{'eV/atom':<8}"
             f"{'corr/atom':<9} {'e_above_hull':<9}"
         )
-        for e in entries:
+        for entry in entries:
             print(
-                f"{e.entry_id:<12}{e.composition.reduced_formula:<12}{e.structure.get_space_group_info()[0]:<12}"
-                f"{e.parameters['run_type']:<10}{e.energy_per_atom:<8.3f}"
-                f"{e.correction / e.composition.num_atoms:<9.3f} {pd.get_e_above_hull(e):<9.3f}"
+                f"{entry.entry_id:<12}{entry.reduced_formula:<12}{entry.structure.get_space_group_info()[0]:<12}"
+                f"{entry.parameters['run_type']:<10}{entry.energy_per_atom:<8.3f}"
+                f"{entry.correction / entry.composition.num_atoms:<9.3f} {pd.get_e_above_hull(entry):<9.3f}"
             )
         return

@@ -121,12 +121,12 @@ class TestPeriodicSite(PymatgenTest):
         other_site = PeriodicSite("Fe", np.array([1, 1, 1]), self.lattice)
         distance, image = self.site.distance_and_image(other_site)
         assert distance == approx(6.22494979899)
-        assert ([-1, -1, -1] == image).all()
+        assert (image == [-1, -1, -1]).all()
         distance, image = self.site.distance_and_image(other_site, [1, 0, 0])
         assert distance == approx(19.461500456028563)
         # Test that old and new distance algo give the same ans for
         # "standard lattices"
-        lattice = Lattice([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        lattice = Lattice(np.eye(3))
         site1 = PeriodicSite("Fe", np.array([0.01, 0.02, 0.03]), lattice)
         site2 = PeriodicSite("Fe", np.array([0.99, 0.98, 0.97]), lattice)
         assert get_distance_and_image_old(site1, site2)[0] == approx(site1.distance_and_image(site2)[0])
@@ -141,9 +141,9 @@ class TestPeriodicSite(PymatgenTest):
         assert (
             not (abs(dist_old - dist_new) < 1e-8) ^ (jimage_old == jimage_new).all()
         ), "If old dist == new dist, images must be the same!"
-        latt = Lattice.from_parameters(3.0, 3.1, 10.0, 2.96, 2.0, 1.0)
-        site = PeriodicSite("Fe", [0.1, 0.1, 0.1], latt)
-        site2 = PeriodicSite("Fe", [0.99, 0.99, 0.99], latt)
+        lattice = Lattice.from_parameters(3.0, 3.1, 10.0, 2.96, 2.0, 1.0)
+        site = PeriodicSite("Fe", [0.1, 0.1, 0.1], lattice)
+        site2 = PeriodicSite("Fe", [0.99, 0.99, 0.99], lattice)
         dist, img = site.distance_and_image(site2)
         assert dist == approx(0.15495358379511573)
         assert list(img) == [-11, 6, 0]
@@ -226,7 +226,7 @@ class TestPeriodicSite(PymatgenTest):
 
     def test_str(self):
         assert str(self.site) == "[2.5 3.5 4.5] Fe"
-        assert str(self.site2) == "[0. 0. 0.] Si:0.500"
+        assert str(self.site2) == "[0. 0. 0.] Si:0.5"
         assert str(self.propertied_site) == "[2.5 3.5 4.5] Fe2+"
         assert str(self.labeled_site) == "[2.5 3.5 4.5] Fe"
 
@@ -245,13 +245,12 @@ def get_distance_and_image_old(site1, site2, jimage=None):
             other site to get distance from.
         jimage:
             specific periodic image in terms of lattice translations,
-            e.g., [1,0,0] implies to take periodic image that is one
+            e.g. [1,0,0] implies to take periodic image that is one
             a-lattice vector away. If jimage is None, the image that is
             nearest to the site is found.
 
     Returns:
-        (distance, jimage):
-            distance and periodic lattice translations of the other site
+        tuple[float, np.array]: distance and periodic lattice translations of the other site
             for which the distance applies.
 
     Note:
