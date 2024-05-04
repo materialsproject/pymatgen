@@ -35,7 +35,7 @@ KB: float = scipy.constants.physical_constants["Boltzmann constant in eV/K"][0]
 
 @dataclass
 class DielectricFunctionCalculator(MSONable):
-    """Class for postprocessing VASP optical properties calculations.
+    """Post-process VASP optical properties calculations.
 
     This objects helps load the different parameters from the vasprun.xml file but allows users to override
     them as needed.

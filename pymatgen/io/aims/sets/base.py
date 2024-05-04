@@ -91,17 +91,17 @@ class AimsInputSet(InputSet):
 
     @property
     def control_in(self) -> str | slice | InputFile:
-        """Get the control.in file contents."""
+        """The control.in file contents."""
         return self[CONTROL_FILE_NAME]
 
     @property
     def geometry_in(self) -> str | slice | InputFile:
-        """Get the geometry.in file contents."""
+        """The geometry.in file contents."""
         return self[GEOMETRY_FILE_NAME]
 
     @property
     def params_json(self) -> str | slice | InputFile:
-        """Get the JSON representation of the parameters dict."""
+        """The JSON representation of the parameters dict."""
         return self[PARAMS_JSON_FILE_NAME]
 
     def set_parameters(self, *args, **kwargs) -> dict[str, Any]:

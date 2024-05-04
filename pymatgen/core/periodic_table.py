@@ -260,7 +260,7 @@ class ElementBase(Enum):
 
     @property
     def atomic_orbitals_eV(self) -> dict[str, float]:
-        """Get the LDA energies in eV for neutral atoms, by orbital.
+        """The LDA energies in eV for neutral atoms, by orbital.
 
         This property contains the same info as `self.atomic_orbitals`,
         but uses eV for units, per matsci issue https://matsci.org/t/unit-of-atomic-orbitals-energy/54325
@@ -271,7 +271,7 @@ class ElementBase(Enum):
 
     @property
     def data(self) -> dict[str, Any]:
-        """Returns dict of data for element."""
+        """Dict of data for element."""
         return self._data.copy()
 
     @property
@@ -560,7 +560,7 @@ class ElementBase(Enum):
 
     @staticmethod
     def from_row_and_group(row: int, group: int) -> Element:
-        """Returns an element from a row and group number.
+        """Get an element from a row and group number.
         Important Note: For lanthanoids and actinoids, the row number must
         be 8 and 9, respectively, and the group number must be
         between 3 (La, Ac) and 17 (Lu, Lr). This is different than the
@@ -595,7 +595,7 @@ class ElementBase(Enum):
 
     @staticmethod
     def is_valid_symbol(symbol: str) -> bool:
-        """Returns true if symbol is a valid element symbol.
+        """Get true if symbol is a valid element symbol.
 
         Args:
             symbol (str): Element symbol
@@ -607,7 +607,7 @@ class ElementBase(Enum):
 
     @property
     def row(self) -> int:
-        """Returns the periodic table row of the element.
+        """The periodic table row of the element.
         Note: For lanthanoids and actinoids, the row is always 6 or 7,
         respectively.
         """
@@ -625,7 +625,7 @@ class ElementBase(Enum):
 
     @property
     def group(self) -> int:
-        """Returns the periodic table group of the element.
+        """The periodic table group of the element.
         Note: For lanthanoids and actinoids, the group is always 3.
         """
         z = self.Z
@@ -657,7 +657,7 @@ class ElementBase(Enum):
 
     @property
     def block(self) -> str:
-        """Return the block character "s,p,d,f"."""
+        """The block character "s,p,d,f"."""
         if (self.is_actinoid or self.is_lanthanoid) and self.Z not in [71, 103]:
             return "f"
         if self.is_actinoid or self.is_lanthanoid:
@@ -739,13 +739,18 @@ class ElementBase(Enum):
         return 88 < self.Z < 104
 
     @property
+    def is_radioactive(self) -> bool:
+        """True if element is radioactive."""
+        return self.Z in (43, 61) or self.Z >= 84
+
+    @property
     def is_quadrupolar(self) -> bool:
         """Check if this element can be quadrupolar."""
         return len(self.data.get("NMR Quadrupole Moment", {})) > 0
 
     @property
     def nmr_quadrupole_moment(self) -> dict[str, FloatWithUnit]:
-        """Get a dictionary the nuclear electric quadrupole moment in units of
+        """A dictionary the nuclear electric quadrupole moment in units of
         e*millibarns for various isotopes.
         """
         return {k: FloatWithUnit(v, "mbarn") for k, v in self.data.get("NMR Quadrupole Moment", {}).items()}
@@ -1053,7 +1058,7 @@ class Species(MSONable, Stringify):
 
     @classmethod
     def from_str(cls, species_string: str) -> Self:
-        """Returns a Species from a string representation.
+        """Get a Species from a string representation.
 
         Args:
             species_string (str): A typical string representation of a
@@ -1071,10 +1076,8 @@ class Species(MSONable, Stringify):
         # 3rd group: ([+\-])          --> +
         # 4th group: (.*)             --> everything else, ",spin=5"
 
-        match = re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-]*)(.*)", species_string)
-        if match:
-            # parse symbol
-            sym = match.group(1)
+        if match := re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-]*)(.*)", species_string):
+            sym = match.group(1)  # parse symbol
 
             # parse oxidation state (optional)
             if not match.group(2) and not match.group(3):
@@ -1369,7 +1372,7 @@ class DummySpecies(Species):
 
     @classmethod
     def from_str(cls, species_string: str) -> Self:
-        """Returns a Dummy from a string representation.
+        """Get a Dummy from a string representation.
 
         Args:
             species_string (str): A string representation of a dummy
@@ -1514,6 +1517,7 @@ class ElementType(Enum):
     chalcogen = "chalcogen"  # O, S, Se, Te, Po
     lanthanoid = "lanthanoid"  # La-Lu
     actinoid = "actinoid"  # Ac-Lr
+    radioactive = "radioactive"  # Tc, Pm, Po-Lr
     quadrupolar = "quadrupolar"
     s_block = "s-block"
     p_block = "p-block"

@@ -137,7 +137,7 @@ class SlabEntry(ComputedStructureEntry):
         )
 
     def as_dict(self):
-        """Returns dict which contains Slab Entry data."""
+        """Get dict which contains Slab Entry data."""
         dct = {"@module": type(self).__module__, "@class": type(self).__name__}
         dct["structure"] = self.structure
         dct["energy"] = self.energy
@@ -246,12 +246,12 @@ class SlabEntry(ComputedStructureEntry):
 
     @property
     def Nads_in_slab(self):
-        """Returns the TOTAL number of adsorbates in the slab on BOTH sides."""
+        """The TOTAL number of adsorbates in the slab on BOTH sides."""
         return sum(self.composition.as_dict()[a] for a in self.ads_entries_dict)
 
     @property
     def Nsurfs_ads_in_slab(self):
-        """Returns the TOTAL number of adsorbed surfaces in the slab."""
+        """The TOTAL number of adsorbed surfaces in the slab."""
         struct = self.structure
         weights = [s.species.weight for s in struct]
         center_of_mass = np.average(struct.frac_coords, weights=weights, axis=0)
@@ -272,7 +272,7 @@ class SlabEntry(ComputedStructureEntry):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Returns a SlabEntry by reading in an dictionary."""
+        """Get a SlabEntry by reading in an dictionary."""
         structure = SlabEntry.from_dict(dct["structure"])
         energy = SlabEntry.from_dict(dct["energy"])
         miller_index = dct["miller_index"]
@@ -297,7 +297,7 @@ class SlabEntry(ComputedStructureEntry):
 
     @property
     def cleaned_up_slab(self):
-        """Returns a slab with the adsorbates removed."""
+        """A slab with the adsorbates removed."""
         ads_strs = list(self.ads_entries_dict)
         cleaned = self.structure.copy()
         cleaned.remove_species(ads_strs)
@@ -305,7 +305,7 @@ class SlabEntry(ComputedStructureEntry):
 
     @property
     def create_slab_label(self):
-        """Returns a label (str) for this particular slab based on composition, coverage and Miller index."""
+        """A label (str) for this particular slab based on composition, coverage and Miller index."""
         if "label" in self.data:
             return self.data["label"]
 
@@ -325,7 +325,7 @@ class SlabEntry(ComputedStructureEntry):
     def from_computed_structure_entry(
         cls, entry, miller_index, label=None, adsorbates=None, clean_entry=None, **kwargs
     ) -> Self:
-        """Returns SlabEntry from a ComputedStructureEntry."""
+        """Get SlabEntry from a ComputedStructureEntry."""
         return cls(
             entry.structure,
             entry.energy,
@@ -494,7 +494,7 @@ class SurfaceEnergyPlotter:
         symprec=1e-5,
         no_clean=False,
         no_doped=False,
-    ):
+    ) -> WulffShape:
         """
         Method to get the Wulff shape at a specific chemical potential.
 
@@ -1290,7 +1290,7 @@ class SurfaceEnergyPlotter:
         return all_delu_dict
 
 
-def entry_dict_from_list(all_slab_entries):
+def entry_dict_from_list(all_slab_entries) -> dict:
     """
     Converts a list of SlabEntry to an appropriate dictionary. It is
     assumed that if there is no adsorbate, then it is a clean SlabEntry
@@ -1304,7 +1304,7 @@ def entry_dict_from_list(all_slab_entries):
             key to a dictionary with a clean SlabEntry as the key to a
             list of adsorbed SlabEntry.
     """
-    entry_dict = {}
+    entry_dict: dict[tuple, dict] = {}
 
     for entry in all_slab_entries:
         hkl = tuple(entry.miller_index)
@@ -1616,12 +1616,10 @@ class NanoscaleStability:
         self.symprec = symprec
 
     def solve_equilibrium_point(self, analyzer1, analyzer2, delu_dict=None, delu_default=0, units="nanometers"):
-        """
-        Gives the radial size of two particles where equilibrium is reached
-            between both particles. NOTE: the solution here is not the same
-            as the solution visualized in the plot because solving for r
-            requires that both the total surface area and volume of the
-            particles are functions of r.
+        """Get the radial size of two particles where equilibrium is reached between both
+        particles. NOTE: the solution here is not the same as the solution visualized in
+        the plot because solving for r requires that both the total surface area and
+        volume of the particles are functions of r.
 
         Args:
             analyzer1 (SurfaceEnergyPlotter): Analyzer associated with the
@@ -1635,7 +1633,7 @@ class NanoscaleStability:
             units (str): Can be nanometers or Angstrom
 
         Returns:
-            Particle radius in nm
+            float: Particle radius in nm or Angstrom
         """
         # Set up
         wulff1 = analyzer1.wulff_from_chempot(

@@ -17,8 +17,7 @@ __author__ = "waroquiers"
 
 
 def get_delta(node1, node2, edge_data):
-    """
-    Get the delta.
+    """Get the delta.
 
     Args:
         node1:
@@ -33,8 +32,7 @@ def get_delta(node1, node2, edge_data):
 
 
 def get_all_simple_paths_edges(graph, source, target, cutoff=None, data=True):
-    """
-    Get all the simple path and edges.
+    """Get all the simple path and edges.
 
     Args:
         graph:
@@ -310,7 +308,7 @@ class SimpleGraphCycle(MSONable):
 
 
 class MultiGraphCycle(MSONable):
-    """Class used to describe a cycle in a multigraph.
+    """Describe a cycle in a multigraph.
 
     nodes are the nodes of the cycle and edge_indices are the indices of the edges in the cycle.
     The nth index in edge_indices corresponds to the edge index between the nth node in nodes and
@@ -325,10 +323,10 @@ class MultiGraphCycle(MSONable):
     def __init__(self, nodes, edge_indices, validate=True, ordered=None):
         """
         Args:
-            nodes:
-            edge_indices:
-            validate:
-            ordered:
+            nodes: List of nodes in the cycle.
+            edge_indices: List of edge indices in the cycle.
+            validate: If True, will validate the cycle.
+            ordered: If True, will order the cycle.
         """
         self.nodes = tuple(nodes)
         self.edge_indices = tuple(edge_indices)
@@ -370,8 +368,8 @@ class MultiGraphCycle(MSONable):
                 if "'<' not supported between instances of" in msg:
                     return False, "The nodes are not sortable."
                 raise
-            res = all(i < j for i, j in zip(sorted_nodes, sorted_nodes[1:]))
-            if not res:
+            is_ordered = all(node1 < node2 for node1, node2 in zip(sorted_nodes, sorted_nodes[1:]))
+            if not is_ordered:
                 return False, "The list of nodes in the cycle cannot be strictly ordered."
         return True, ""
 

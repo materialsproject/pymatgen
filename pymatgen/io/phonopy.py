@@ -57,7 +57,7 @@ def get_phonopy_structure(pmg_structure: Structure) -> PhonopyAtoms:
     )
 
 
-def get_structure_from_dict(dct):
+def get_structure_from_dict(dct) -> Structure:
     """Extracts a structure from the dictionary extracted from the output
     files of phonopy like phonopy.yaml or band.yaml.
     Adds "phonopy_masses" in the site_properties of the structures.
@@ -103,7 +103,7 @@ def eigvec_to_eigdispl(eig_vec, q, frac_coords, mass):
     return c * eig_vec
 
 
-def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
+def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None) -> PhononBandStructureSymmLine:
     r"""
     Creates a pymatgen PhononBandStructure object from the dictionary
     extracted by the band.yaml file produced by phonopy. The labels
@@ -121,6 +121,9 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None):
             --nac option. Default False.
         labels_dict: dict that links a qpoint in frac coords to a label.
             Its value will replace the data contained in the band.yaml.
+
+    Returns:
+        PhononBandStructure: the phonon band structure
     """
     structure = get_structure_from_dict(bands_dict)
 
@@ -297,8 +300,7 @@ def get_phonon_dos_from_fc(
     num_dos_steps: int = 200,
     **kwargs,
 ) -> CompletePhononDos:
-    """
-    Get a projected phonon density of states from phonopy force constants.
+    """Get a projected phonon density of states from phonopy force constants.
 
     Args:
         structure: A structure.
@@ -346,8 +348,7 @@ def get_phonon_band_structure_from_fc(
     mesh_density: float = 100.0,
     **kwargs,
 ) -> PhononBandStructure:
-    """
-    Get a uniform phonon band structure from phonopy force constants.
+    """Get a uniform phonon band structure from phonopy force constants.
 
     Args:
         structure: A structure.
@@ -379,8 +380,7 @@ def get_phonon_band_structure_symm_line_from_fc(
     symprec: float = 0.01,
     **kwargs,
 ) -> PhononBandStructureSymmLine:
-    """
-    Get a phonon band structure along a high symmetry path from phonopy force
+    """Get a phonon band structure along a high symmetry path from phonopy force
     constants.
 
     Args:
@@ -413,8 +413,7 @@ def get_phonon_band_structure_symm_line_from_fc(
 
 
 def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) -> GruneisenParameter:
-    """
-    Get Gruneisen object from gruneisen.yaml file, as obtained from phonopy (Frequencies in THz!).
+    """Get Gruneisen object from gruneisen.yaml file, as obtained from phonopy (Frequencies in THz!).
     The order is structure > structure path > structure from gruneisen dict.
     Newer versions of phonopy include the structure in the yaml file,
     the structure/structure_path is kept for compatibility.
@@ -650,21 +649,23 @@ def get_gruneisen_ph_bs_symm_line(gruneisen_path, structure=None, structure_path
 def get_thermal_displacement_matrices(
     thermal_displacements_yaml="thermal_displacement_matrices.yaml", structure_path="POSCAR"
 ):
-    """Function to read "thermal_displacement_matrices.yaml" from phonopy and return a list of
+    """Read "thermal_displacement_matrices.yaml" from phonopy and return a list of
     ThermalDisplacementMatrices objects
+
     Args:
         thermal_displacements_yaml: path to thermal_displacement_matrices.yaml
         structure_path: path to POSCAR.
 
     Returns:
+        list[ThermalDisplacementMatrices]
     """
     thermal_displacements_dict = loadfn(thermal_displacements_yaml)
 
     structure = Structure.from_file(structure_path)
 
-    thermal_displacement_objects_list = []
+    thermal_displacement_objects = []
     for matrix in thermal_displacements_dict["thermal_displacement_matrices"]:
-        thermal_displacement_objects_list.append(
+        thermal_displacement_objects.append(
             ThermalDisplacementMatrices(
                 thermal_displacement_matrix_cart=matrix["displacement_matrices"],
                 temperature=matrix["temperature"],
@@ -673,4 +674,4 @@ def get_thermal_displacement_matrices(
             )
         )
 
-    return thermal_displacement_objects_list
+    return thermal_displacement_objects

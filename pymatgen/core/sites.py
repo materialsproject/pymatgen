@@ -145,7 +145,7 @@ class Site(collections.abc.Hashable, MSONable):
         return float(np.linalg.norm(other.coords - self.coords))
 
     def distance_from_point(self, pt) -> float:
-        """Returns distance between the site and a point in space.
+        """Get distance between the site and a point in space.
 
         Args:
             pt: Cartesian coordinates of point.
@@ -238,16 +238,16 @@ class Site(collections.abc.Hashable, MSONable):
 
     def as_dict(self) -> dict:
         """JSON-serializable dict representation for Site."""
-        species_list = []
+        species = []
         for spec, occu in self.species.items():
             spec_dct = spec.as_dict()
             del spec_dct["@module"]
             del spec_dct["@class"]
             spec_dct["occu"] = occu
-            species_list.append(spec_dct)
+            species.append(spec_dct)
         dct = {
             "name": self.species_string,
-            "species": species_list,
+            "species": species,
             "xyz": [float(c) for c in self.coords],
             "properties": self.properties,
             "@module": type(self).__module__,
@@ -456,7 +456,7 @@ class PeriodicSite(Site, MSONable):
         return PeriodicSite(self.species, frac_coords, self.lattice, properties=self.properties, label=self.label)
 
     def is_periodic_image(self, other: PeriodicSite, tolerance: float = 1e-8, check_lattice: bool = True) -> bool:
-        """Returns True if sites are periodic images of each other.
+        """Get True if sites are periodic images of each other.
 
         Args:
             other (PeriodicSite): Other site
@@ -564,16 +564,16 @@ class PeriodicSite(Site, MSONable):
             verbosity (int): Verbosity level. Default of 0 only includes the matrix
                 representation. Set to 1 for more details such as Cartesian coordinates, etc.
         """
-        species_list = []
+        species = []
         for spec, occu in self._species.items():
             dct = spec.as_dict()
             del dct["@module"]
             del dct["@class"]
             dct["occu"] = occu
-            species_list.append(dct)
+            species.append(dct)
 
         dct = {
-            "species": species_list,
+            "species": species,
             "abc": [float(c) for c in self._frac_coords],  # type: ignore
             "lattice": self._lattice.as_dict(verbosity=verbosity),
             "@module": type(self).__module__,

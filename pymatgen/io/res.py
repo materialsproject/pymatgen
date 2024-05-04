@@ -592,7 +592,7 @@ class AirssProvider(ResProvider):
 
     @property
     def entry(self) -> ComputedStructureEntry:
-        """Get this res file as a ComputedStructureEntry."""
+        """This res file as a ComputedStructureEntry."""
         return ComputedStructureEntry(self.structure, self.energy, data={"rems": self.rems})
 
     def as_dict(self, verbose: bool = True) -> dict[str, Any]:

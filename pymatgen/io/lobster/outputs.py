@@ -506,7 +506,7 @@ class Icohplist(MSONable):
 
     @property
     def icohplist(self) -> dict[Any, dict[str, Any]]:
-        """Returns: icohplist compatible with older version of this class."""
+        """The ICOHP list compatible with older version of this class."""
         icohp_dict = {}
         for key, value in self._icohpcollection._icohplist.items():
             icohp_dict[key] = {
@@ -520,7 +520,7 @@ class Icohplist(MSONable):
 
     @property
     def icohpcollection(self):
-        """Returns: IcohpCollection object."""
+        """The IcohpCollection object."""
         return self._icohpcollection
 
 
@@ -1004,44 +1004,44 @@ class Lobsterout(MSONable):
         else:
             raise ValueError("must provide either filename or kwargs to initialize Lobsterout")
 
-    def get_doc(self):
-        """Returns: LobsterDict with all the information stored in lobsterout."""
-        LobsterDict = {}
+    def get_doc(self) -> dict[str, Any]:
+        """Get the LobsterDict with all the information stored in lobsterout."""
+        lobster_dict: dict[str, Any] = {}
         # check if Lobster starts from a projection
-        LobsterDict["restart_from_projection"] = self.is_restart_from_projection
-        LobsterDict["lobster_version"] = self.lobster_version
-        LobsterDict["threads"] = self.number_of_threads
-        LobsterDict["dft_program"] = self.dft_program
+        lobster_dict["restart_from_projection"] = self.is_restart_from_projection
+        lobster_dict["lobster_version"] = self.lobster_version
+        lobster_dict["threads"] = self.number_of_threads
+        lobster_dict["dft_program"] = self.dft_program
 
-        LobsterDict["charge_spilling"] = self.charge_spilling
-        LobsterDict["total_spilling"] = self.total_spilling
+        lobster_dict["charge_spilling"] = self.charge_spilling
+        lobster_dict["total_spilling"] = self.total_spilling
 
-        LobsterDict["elements"] = self.elements
-        LobsterDict["basis_type"] = self.basis_type
-        LobsterDict["basis_functions"] = self.basis_functions
+        lobster_dict["elements"] = self.elements
+        lobster_dict["basis_type"] = self.basis_type
+        lobster_dict["basis_functions"] = self.basis_functions
 
-        LobsterDict["timing"] = self.timing
+        lobster_dict["timing"] = self.timing
 
-        LobsterDict["warning_lines"] = self.warning_lines
+        lobster_dict["warning_lines"] = self.warning_lines
 
-        LobsterDict["info_orthonormalization"] = self.info_orthonormalization
+        lobster_dict["info_orthonormalization"] = self.info_orthonormalization
 
-        LobsterDict["info_lines"] = self.info_lines
+        lobster_dict["info_lines"] = self.info_lines
 
-        LobsterDict["has_doscar"] = self.has_doscar
-        LobsterDict["has_doscar_lso"] = self.has_doscar_lso
-        LobsterDict["has_cohpcar"] = self.has_cohpcar
-        LobsterDict["has_coopcar"] = self.has_coopcar
-        LobsterDict["has_cobicar"] = self.has_cobicar
-        LobsterDict["has_charge"] = self.has_charge
-        LobsterDict["has_madelung"] = self.has_madelung
-        LobsterDict["has_projection"] = self.has_projection
-        LobsterDict["has_bandoverlaps"] = self.has_bandoverlaps
-        LobsterDict["has_fatbands"] = self.has_fatbands
-        LobsterDict["has_grosspopulation"] = self.has_grosspopulation
-        LobsterDict["has_density_of_energies"] = self.has_density_of_energies
+        lobster_dict["has_doscar"] = self.has_doscar
+        lobster_dict["has_doscar_lso"] = self.has_doscar_lso
+        lobster_dict["has_cohpcar"] = self.has_cohpcar
+        lobster_dict["has_coopcar"] = self.has_coopcar
+        lobster_dict["has_cobicar"] = self.has_cobicar
+        lobster_dict["has_charge"] = self.has_charge
+        lobster_dict["has_madelung"] = self.has_madelung
+        lobster_dict["has_projection"] = self.has_projection
+        lobster_dict["has_bandoverlaps"] = self.has_bandoverlaps
+        lobster_dict["has_fatbands"] = self.has_fatbands
+        lobster_dict["has_grosspopulation"] = self.has_grosspopulation
+        lobster_dict["has_density_of_energies"] = self.has_density_of_energies
 
-        return LobsterDict
+        return lobster_dict
 
     def as_dict(self):
         """MSONable dict"""
@@ -1407,7 +1407,7 @@ class Fatband:
         self.label_dict = label_dict
 
     def get_bandstructure(self):
-        """Returns a LobsterBandStructureSymmLine object which can be plotted with a normal BSPlotter."""
+        """Get a LobsterBandStructureSymmLine object which can be plotted with a normal BSPlotter."""
         return LobsterBandStructureSymmLine(
             kpoints=self.kpoints_array,
             eigenvals=self.eigenvals,

@@ -168,7 +168,7 @@ class GaussianInput:
 
     @property
     def molecule(self):
-        """Returns molecule associated with this GaussianInput."""
+        """Molecule associated with this GaussianInput."""
         return self._mol
 
     @staticmethod
@@ -368,7 +368,7 @@ class GaussianInput:
             return cls.from_str(file.read())
 
     def get_zmatrix(self):
-        """Returns a z-matrix representation of the molecule."""
+        """Get a z-matrix representation of the molecule."""
         return self._mol.get_zmatrix()
 
     def get_cart_coords(self) -> str:

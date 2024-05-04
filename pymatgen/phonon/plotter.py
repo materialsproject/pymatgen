@@ -66,7 +66,7 @@ def freq_units(units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"]) -> Fre
 
 
 class PhononDosPlotter:
-    """Class for plotting phonon DOSs. The interface is extremely flexible given there are many
+    """Plot phonon DOSs. The interface is very flexible to accommodate the many
     different ways in which people want to view DOS.
     Typical usage is:
         # Initializes plotter with some optional args. Defaults are usually fine
@@ -120,7 +120,7 @@ class PhononDosPlotter:
             self.add_dos(label, dos_dict[label])
 
     def get_dos_dict(self) -> dict:
-        """Returns the added doses as a json-serializable dict. Note that if you
+        """Get the added doses as a json-serializable dict. Note that if you
         have specified smearing for the DOS plot, the densities returned will
         be the smeared densities, not the original densities.
 
@@ -279,7 +279,7 @@ class PhononDosPlotter:
 
 
 class PhononBSPlotter:
-    """Class to plot or get data to facilitate the plot of band structure objects."""
+    """Plot or get data to facilitate the plot of band structure objects."""
 
     def __init__(self, bs: PhononBandStructureSymmLine, label: str | None = None) -> None:
         """
@@ -922,13 +922,13 @@ class ThermoPlotter:
 
 
 class GruneisenPlotter:
-    """Class to plot Gruneisenparameter Object."""
+    """Plot GruneisenParameter."""
 
     def __init__(self, gruneisen: GruneisenParameter) -> None:
-        """Class to plot information from Gruneisenparameter Object.
+        """Plot information from GruneisenParameter.
 
         Args:
-            gruneisen: GruneisenParameter Object.
+            gruneisen (GruneisenParameter): containing the data to plot.
         """
         self._gruneisen = gruneisen
 
@@ -948,19 +948,19 @@ class GruneisenPlotter:
         Returns:
             plt.Axes: matplotlib axes object
         """
-        u = freq_units(units)
+        freq_unit = freq_units(units)
 
-        xs = self._gruneisen.frequencies.flatten() * u.factor
+        xs = self._gruneisen.frequencies.flatten() * freq_unit.factor
         ys = self._gruneisen.gruneisen.flatten()
 
         ax = pretty_plot(12, 8)
 
-        ax.set_xlabel(rf"$\mathrm{{Frequency\ ({u.label})}}$")
+        ax.set_xlabel(rf"$\mathrm{{Frequency\ ({freq_unit.label})}}$")
         ax.set_ylabel(r"$\mathrm{Grüneisen\ parameter}$")
 
-        n = len(ys) - 1
+        n_points = len(ys) - 1
         for idx, (xi, yi) in enumerate(zip(xs, ys)):
-            color = (1.0 / n * idx, 0, 1.0 / n * (n - idx))
+            color = (1.0 / n_points * idx, 0, 1.0 / n_points * (n_points - idx))
 
             ax.plot(xi, yi, marker, color=color, markersize=markersize)
 
@@ -995,7 +995,7 @@ class GruneisenPlotter:
 
 
 class GruneisenPhononBSPlotter(PhononBSPlotter):
-    """Class to plot or get data to facilitate the plot of band structure objects."""
+    """Plot or get data to facilitate the plot of band structure objects."""
 
     def __init__(self, bs: GruneisenPhononBandStructureSymmLine) -> None:
         """

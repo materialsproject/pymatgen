@@ -166,7 +166,7 @@ class VaspToComputedEntryDrone(AbstractDrone):
         return " VaspToComputedEntryDrone"
 
     def as_dict(self):
-        """Returns: MSONABle dict."""
+        """Get MSONable dict."""
         return {
             "init_args": {
                 "inc_structure": self._inc_structure,
@@ -278,7 +278,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
         return "SimpleVaspToComputedEntryDrone"
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "init_args": {"inc_structure": self._inc_structure},
             "@module": type(self).__module__,
@@ -392,7 +392,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
         return " GaussianToComputedEntryDrone"
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "init_args": {
                 "inc_structure": self._inc_structure,

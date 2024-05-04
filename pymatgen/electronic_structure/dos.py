@@ -150,7 +150,7 @@ class DOS(Spectrum):
         return max(cbm - vbm, 0.0)
 
     def __str__(self) -> str:
-        """Returns a string which can be easily plotted (using gnuplot)."""
+        """Get a string which can be easily plotted (using gnuplot)."""
         if Spin.down in self.densities:
             str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
@@ -191,7 +191,7 @@ class Dos(MSONable):
         self.densities = {k: np.array(d) / vol for k, d in densities.items()}
 
     def get_densities(self, spin: Spin | None = None):
-        """Returns the density of states for a particular spin.
+        """Get the density of states for a particular spin.
 
         Args:
             spin: Spin
@@ -212,7 +212,7 @@ class Dos(MSONable):
         return result
 
     def get_smeared_densities(self, sigma: float):
-        """Returns the Dict representation of the densities, {Spin: densities},
+        """Get the Dict representation of the densities, {Spin: densities},
         but with a Gaussian smearing of std dev sigma.
 
         Args:
@@ -244,7 +244,7 @@ class Dos(MSONable):
         return Dos(self.efermi, self.energies, densities)
 
     def get_interpolated_value(self, energy: float) -> dict[Spin, float]:
-        """Returns interpolated density for a particular energy.
+        """Get interpolated density for a particular energy.
 
         Args:
             energy (float): Energy to return the density for.
@@ -345,7 +345,7 @@ class Dos(MSONable):
         return max(cbm - vbm, 0.0)
 
     def __str__(self) -> str:
-        """Returns a string which can be easily plotted (using gnuplot)."""
+        """Get a string which can be easily plotted (using gnuplot)."""
         if Spin.down in self.densities:
             str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
@@ -358,7 +358,7 @@ class Dos(MSONable):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Returns Dos object from dict representation of Dos."""
+        """Get Dos object from dict representation of Dos."""
         return cls(
             dct["efermi"],
             dct["energies"],
@@ -571,7 +571,7 @@ class FermiDos(Dos, MSONable):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Returns Dos object from dict representation of Dos."""
+        """Get Dos object from dict representation of Dos."""
         dos = Dos(
             dct["efermi"],
             dct["energies"],
@@ -630,7 +630,7 @@ class CompleteDos(Dos):
         self.structure = structure
 
     def get_normalized(self) -> CompleteDos:
-        """Returns a normalized version of the CompleteDos."""
+        """Get a normalized version of the CompleteDos."""
         if self.norm_vol is not None:
             return self
         return CompleteDos(
@@ -1251,7 +1251,7 @@ class CompleteDos(Dos):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Returns CompleteDos object from dict representation."""
+        """Get CompleteDos object from dict representation."""
         tdos = Dos.from_dict(dct)
         struct = Structure.from_dict(dct["structure"])
         pdoss = {}
@@ -1432,7 +1432,7 @@ def _get_orb_type(orb) -> OrbitalType:
 
 
 def f0(E, fermi, T) -> float:
-    """Return the equilibrium fermi-dirac.
+    """Fermi-Dirac distribution function.
 
     Args:
         E (float): energy in eV
@@ -1440,7 +1440,7 @@ def f0(E, fermi, T) -> float:
         T (float): the temperature in kelvin
 
     Returns:
-        float
+        float: the Fermi-Dirac occupation probability at energy E
     """
     return 1.0 / (1.0 + np.exp((E - fermi) / (_cd("Boltzmann constant in eV/K") * T)))
 

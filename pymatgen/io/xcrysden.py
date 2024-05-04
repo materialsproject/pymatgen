@@ -16,7 +16,7 @@ __maintainer__ = "Matteo Giantomassi"
 
 
 class XSF:
-    """Class for parsing XCrysden files."""
+    """Parse XCrysden files."""
 
     def __init__(self, structure: Structure):
         """

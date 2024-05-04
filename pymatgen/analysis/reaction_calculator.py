@@ -185,7 +185,7 @@ class BalancedReaction(MSONable):
         return [self._all_comp[i] for i in range(len(self._all_comp)) if self._coeffs[i] > 0]
 
     def get_coeff(self, comp: Composition) -> float:
-        """Returns coefficient for a particular composition."""
+        """Get coefficient for a particular composition."""
         return self._coeffs[self._all_comp.index(comp)]
 
     def normalized_repr_and_factor(self) -> tuple[str, float]:
@@ -374,7 +374,7 @@ class Reaction(BalancedReaction):
         return np.squeeze(best_soln)
 
     def copy(self) -> Self:
-        """Returns a copy of the Reaction object."""
+        """Get a copy of the Reaction object."""
         return Reaction(self.reactants, self.products)
 
     def as_dict(self) -> dict:

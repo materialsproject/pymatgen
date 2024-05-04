@@ -51,7 +51,7 @@ __maintainer__ = "Matteo Giantomassi"
 
 
 def straceback():
-    """Returns a string with the traceback."""
+    """Get a string with the traceback."""
 
     return "\n".join((traceback.format_exc(), str(sys.exc_info()[0])))
 
@@ -587,7 +587,7 @@ class Hint:
         return cls(**{k: v for k, v in dct.items() if not k.startswith("@")})
 
 
-def _dict_from_lines(lines, key_nums, sep=None):
+def _dict_from_lines(lines, key_nums, sep=None) -> dict:
     """
     Helper function to parse formatted text structured like:
 
@@ -620,10 +620,9 @@ def _dict_from_lines(lines, key_nums, sep=None):
         line = lines[idx]
 
         tokens = [tok.strip() for tok in line.split()]
-        values, keys = tokens[:nk], "".join(tokens[nk:])
+        values = tokens[:nk]
         # Sanitize keys: In some case we might get strings in the form: foo[,bar]
-        keys.replace("[", "").replace("]", "")
-        keys = keys.split(",")
+        keys = "".join(tokens[nk:]).replace("[", "").replace("]", "").split(",")
 
         if sep is not None:
             check = keys[0][0]
@@ -1243,8 +1242,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
             self.rad_grids[gid] = self._eval_grid(grid_params)
 
     def __getstate__(self):
-        """
-        Return state is pickled as the contents for the instance.
+        """Get state is pickled as the contents for the instance.
 
         In this case we just remove the XML root element process since Element object cannot be pickled.
         """
@@ -1526,16 +1524,11 @@ class PseudoTable(collections.abc.Sequence, MSONable):
 
     For example, the following all retrieve iron:
 
-    print elements[26]
-    Fe
-    print elements.Fe
-    Fe
-    print elements.symbol('Fe')
-    Fe
-    print elements.name('iron')
-    Fe
-    print elements.isotope('Fe')
-    Fe
+    print(elements[26])
+    print(elements.Fe)
+    print(elements.symbol('Fe'))
+    print(elements.name('iron'))
+    print(elements.isotope('Fe'))
     """
 
     @classmethod
@@ -1691,8 +1684,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         return all(self[z] for z in range(1, zmax))
 
     def all_combinations_for_elements(self, element_symbols):
-        """
-        Return a list with all the possible combination of pseudos
+        """Get a list with all the possible combination of pseudos
         for the given list of element_symbols.
         Each item is a list of pseudopotential objects.
 
@@ -1708,8 +1700,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         return list(product(*dct.values()))
 
     def pseudo_with_symbol(self, symbol, allow_multi=False):
-        """
-        Return the pseudo with the given chemical symbol.
+        """Get the pseudo with the given chemical symbol.
 
         Args:
             symbols: String with the chemical symbol of the element
@@ -1726,8 +1717,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         return pseudos if allow_multi else pseudos[0]
 
     def pseudos_with_symbols(self, symbols):
-        """
-        Return the pseudos with the given chemical symbols.
+        """Get the pseudos with the given chemical symbols.
 
         Raises:
             ValueError if one of the symbols is not found or multiple occurrences are present.
@@ -1744,8 +1734,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         return pseudos
 
     def select_symbols(self, symbols, ret_list=False):
-        """
-        Return a PseudoTable with the pseudopotentials with the given list of chemical symbols.
+        """Get a PseudoTable with the pseudopotentials with the given list of chemical symbols.
 
         Args:
             symbols: str or list of symbols
@@ -1778,8 +1767,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         return type(self)(pseudos)
 
     def get_pseudos_for_structure(self, structure: Structure):
-        """
-        Return the list of Pseudo objects to be used for this Structure.
+        """Get the list of Pseudo objects to be used for this Structure.
 
         Args:
             structure: pymatgen Structure.
@@ -1854,8 +1842,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         return self.select(condition=lambda p: p.has_dojo_report)
 
     def select_rows(self, rows):
-        """
-        Return new class:`PseudoTable` object with pseudos in the given rows of the periodic table.
+        """Get new class:`PseudoTable` object with pseudos in the given rows of the periodic table.
         rows can be either a int or a list of integers.
         """
         if not isinstance(rows, (list, tuple)):

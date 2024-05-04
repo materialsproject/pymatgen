@@ -100,7 +100,7 @@ class SymmetryGroup(Sequence, Stringify, ABC):
 
 @cached_class
 class PointGroup(SymmetryGroup):
-    """Class representing a Point Group, with generators and symmetry operations.
+    """A Point Group, with generators and symmetry operations.
 
     Attributes:
         symbol (str): Full International or Hermann-Mauguin Symbol.
@@ -145,7 +145,7 @@ class PointGroup(SymmetryGroup):
         return symm_ops
 
     def get_orbit(self, p: ArrayLike, tol: float = 1e-5) -> list[np.ndarray]:
-        """Returns the orbit for a point.
+        """Get the orbit for a point.
 
         Args:
             p: Point as a 3x1 array.
@@ -166,7 +166,7 @@ class PointGroup(SymmetryGroup):
 
 @cached_class
 class SpaceGroup(SymmetryGroup):
-    """Class representing a SpaceGroup.
+    """A SpaceGroup.
 
     Attributes:
         symbol (str): Full International or Hermann-Mauguin Symbol.
@@ -281,7 +281,7 @@ class SpaceGroup(SymmetryGroup):
 
     @classmethod
     def get_settings(cls, int_symbol: str) -> set[str]:
-        """Returns all the settings for a particular international symbol.
+        """Get all the settings for a particular international symbol.
 
         Args:
             int_symbol (str): Full International (e.g., "P2/m2/m2/m") or
@@ -328,7 +328,7 @@ class SpaceGroup(SymmetryGroup):
         return self._symmetry_ops
 
     def get_orbit(self, p: ArrayLike, tol: float = 1e-5) -> list[np.ndarray]:
-        """Returns the orbit for a point.
+        """Get the orbit for a point.
 
         Args:
             p: Point as a 3x1 array.
@@ -348,7 +348,7 @@ class SpaceGroup(SymmetryGroup):
         return orbit
 
     def get_orbit_and_generators(self, p: ArrayLike, tol: float = 1e-5) -> tuple[list[np.ndarray], list[SymmOp]]:
-        """Returns the orbit and its generators for a point.
+        """Get the orbit and its generators for a point.
 
         Args:
             p: Point as a 3x1 array.

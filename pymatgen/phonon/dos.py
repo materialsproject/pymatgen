@@ -35,7 +35,7 @@ class PhononDos(MSONable):
         self.densities = np.array(densities)
 
     def get_smeared_densities(self, sigma: float) -> np.ndarray:
-        """Returns the densities, but with a Gaussian smearing of
+        """Get the densities, but with a Gaussian smearing of
         std dev sigma applied.
 
         Args:
@@ -120,7 +120,7 @@ class PhononDos(MSONable):
         return f"{type(self).__name__}({frequencies=}, {densities=}, {n_positive_freqs=})"
 
     def get_interpolated_value(self, frequency) -> float:
-        """Returns interpolated density for a particular frequency.
+        """Get interpolated density for a particular frequency.
 
         Args:
             frequency: frequency to return the density for.
@@ -128,7 +128,7 @@ class PhononDos(MSONable):
         return get_linear_interpolated_value(self.frequencies, self.densities, frequency)
 
     def __str__(self) -> str:
-        """Returns a string which can be easily plotted (using gnuplot)."""
+        """Get a string which can be easily plotted (using gnuplot)."""
         str_arr = [f"#{'Frequency':30s} {'Density':30s}"]
         for idx, freq in enumerate(self.frequencies):
             str_arr.append(f"{freq:.5f} {self.densities[idx]:.5f}")
@@ -136,7 +136,7 @@ class PhononDos(MSONable):
 
     @classmethod
     def from_dict(cls, dct: dict[str, Sequence]) -> Self:
-        """Returns PhononDos object from dict representation of PhononDos."""
+        """Get PhononDos object from dict representation of PhononDos."""
         return cls(dct["frequencies"], dct["densities"])
 
     def as_dict(self) -> dict:
@@ -461,7 +461,7 @@ class CompletePhononDos(PhononDos):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Returns CompleteDos object from dict representation."""
+        """Get CompleteDos object from dict representation."""
         total_dos = PhononDos.from_dict(dct)
         struct = Structure.from_dict(dct["structure"])
         ph_doses = dict(zip(struct, dct["pdos"]))

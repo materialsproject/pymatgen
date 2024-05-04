@@ -72,7 +72,7 @@ class ChemicalShielding(SquareTensor):
 
     @property
     def haeberlen_values(self):
-        """Returns: the Chemical shielding tensor in Haeberlen Notation."""
+        """The Chemical shielding tensor in Haeberlen Notation."""
         pas = self.principal_axis_system
         sigma_iso = pas.trace() / 3
         sigmas = np.diag(pas)
@@ -85,7 +85,7 @@ class ChemicalShielding(SquareTensor):
 
     @property
     def mehring_values(self):
-        """Returns: the Chemical shielding tensor in Mehring Notation."""
+        """The Chemical shielding tensor in Mehring Notation."""
         pas = self.principal_axis_system
         sigma_iso = pas.trace() / 3
         sigma_11, sigma_22, sigma_33 = np.diag(pas)
@@ -93,7 +93,7 @@ class ChemicalShielding(SquareTensor):
 
     @property
     def maryland_values(self):
-        """Returns: the Chemical shielding tensor in Maryland Notation."""
+        """The Chemical shielding tensor in Maryland Notation."""
         pas = self.principal_axis_system
         sigma_iso = pas.trace() / 3
         omega = np.diag(pas)[2] - np.diag(pas)[0]
@@ -161,19 +161,19 @@ class ElectricFieldGradient(SquareTensor):
 
     @property
     def V_xx(self):
-        """Returns: First diagonal element."""
+        """First diagonal element."""
         diags = np.diag(self.principal_axis_system)
         return min(diags, key=np.abs)
 
     @property
     def V_yy(self):
-        """Returns: Second diagonal element."""
+        """Second diagonal element."""
         diags = np.diag(self.principal_axis_system)
         return sorted(diags, key=np.abs)[1]
 
     @property
     def V_zz(self):
-        """Returns: Third diagonal element."""
+        """Third diagonal element."""
         diags = np.diag(self.principal_axis_system)
         return sorted(diags, key=np.abs)[2]
 
@@ -185,8 +185,8 @@ class ElectricFieldGradient(SquareTensor):
         return np.abs((V[1] - V[0]) / V[2])
 
     def coupling_constant(self, specie):
-        """
-        Computes the coupling constant C_q as defined in:
+        """Compute the coupling constant C_q as defined in:
+
             Wasylishen R E, Ashbrook S E, Wimperis S. NMR of quadrupolar nuclei
             in solid materials[M]. John Wiley & Sons, 2012. (Chapter 3.2).
 

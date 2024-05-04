@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class CRESTOutput(MSONable):
-    """Class to parse CREST output files."""
+    """Parse CREST output files."""
 
     def __init__(self, output_filename, path="."):
         """

@@ -94,10 +94,7 @@ class PDEntry(Entry):
         return self._energy
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dictionary representation of PDEntry.
-        """
+        """Get MSONable dict representation of PDEntry."""
         return_dict = super().as_dict()
         return_dict.update({"name": self.name, "attribute": self.attribute})
         return return_dict
@@ -181,10 +178,7 @@ class GrandPotPDEntry(PDEntry):
         return "".join(output)
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dictionary representation of GrandPotPDEntry.
-        """
+        """Get MSONable dict representation of GrandPotPDEntry."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -267,10 +261,7 @@ class TransformedPDEntry(PDEntry):
         return "".join(output)
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dictionary representation of TransformedPDEntry.
-        """
+        """Get MSONable dict representation of TransformedPDEntry."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -390,10 +381,7 @@ class PhaseDiagram(MSONable):
         self._stable_spaces = tuple(frozenset(e.elements) for e in self._stable_entries)
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dictionary representation of PhaseDiagram.
-        """
+        """Get MSONable dict representation of PhaseDiagram."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -1426,10 +1414,7 @@ class GrandPotentialPhaseDiagram(PhaseDiagram):
         return "".join(output)
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dictionary representation of GrandPotentialPhaseDiagram.
-        """
+        """Get MSONable dict representation of GrandPotentialPhaseDiagram."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -1527,10 +1512,7 @@ class CompoundPhaseDiagram(PhaseDiagram):
         return new_entries, sp_mapping
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dictionary representation of CompoundPhaseDiagram.
-        """
+        """Get MSONable dict representation of CompoundPhaseDiagram."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -2583,18 +2565,18 @@ class PDPlotter:
         Returns:
             Dictionary with Plotly figure layout settings.
         """
-        annotations_list = None
+        annotations = None
         layout = {}
 
         if label_stable:
-            annotations_list = self._create_plotly_element_annotations()
+            annotations = self._create_plotly_element_annotations()
 
         if self._dim == 1:
             layout = plotly_layouts["default_unary_layout"].copy()
         if self._dim == 2:
             layout = plotly_layouts["default_binary_layout"].copy()
             layout["xaxis"]["title"] = f"Composition (Fraction {self._pd.elements[1]})"
-            layout["annotations"] = annotations_list
+            layout["annotations"] = annotations
         elif self._dim == 3 and self.ternary_style == "2d":
             layout = plotly_layouts["default_ternary_2d_layout"].copy()
             for el, axis in zip(self._pd.elements, ["a", "b", "c"]):
@@ -2609,10 +2591,10 @@ class PDPlotter:
                 }
         elif self._dim == 3 and self.ternary_style == "3d":
             layout = plotly_layouts["default_ternary_3d_layout"].copy()
-            layout["scene"]["annotations"] = annotations_list
+            layout["scene"]["annotations"] = annotations
         elif self._dim == 4:
             layout = plotly_layouts["default_quaternary_layout"].copy()
-            layout["scene"]["annotations"] = annotations_list
+            layout["scene"]["annotations"] = annotations
 
         return layout
 
@@ -2958,15 +2940,12 @@ class PDPlotter:
         Creates stable and unstable marker plots for overlaying on the phase diagram.
 
         Returns:
-            Tuple of Plotly go.Scatter (unary, binary), go.Scatterternary(ternary_2d),
-            or go.Scatter3d (ternary_3d, quaternary) objects in order:
-            (stable markers, unstable markers)
+            tuple[go.Scatter]: Plotly Scatter objects (unary, binary), go.Scatterternary(ternary_2d),
+            or go.Scatter3d (ternary_3d, quaternary) objects in order: (stable markers, unstable markers)
         """
 
         def get_marker_props(coords, entries):
-            """Method for getting marker locations, hovertext, and error bars
-            from pd_plot_data.
-            """
+            """Get marker locations, hovertext, and error bars from pd_plot_data."""
             x, y, z, texts, energies, uncertainties = [], [], [], [], [], []
 
             is_stable = [entry in self._pd.stable_entries for entry in entries]

@@ -158,8 +158,7 @@ class MixingState:
 
 @pytest.fixture()
 def mixing_scheme_no_compat():
-    """
-    Return an instance of MaterialsProjectDFTMixingScheme with no additional
+    """Get an instance of MaterialsProjectDFTMixingScheme with no additional
     compatibility schemes (e.g., compat_1=None). Used by most of the tests where
     we are manually supplying energies.
     """

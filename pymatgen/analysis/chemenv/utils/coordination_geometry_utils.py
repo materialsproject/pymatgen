@@ -523,8 +523,7 @@ def anticlockwise_sort(pps):
 
 
 def anticlockwise_sort_indices(pps):
-    """
-    Returns the indices that would sort a list of 2D points in anticlockwise order
+    """Get the indices that would sort a list of 2D points in anticlockwise order
 
     Args:
         pps: List of points to be sorted
@@ -612,7 +611,7 @@ def is_anion_cation_bond(valences, ii, jj) -> bool:
 
 
 class Plane:
-    """Class used to describe a plane."""
+    """Describe a plane."""
 
     TEST_2D_POINTS = (
         np.array([0, 0], float),
@@ -770,8 +769,7 @@ class Plane:
         return [side1, inplane, side2]
 
     def distance_to_point(self, point):
-        """
-        Computes the absolute distance from the plane to the point
+        """Compute the absolute distance from the plane to the point
 
         Args:
             point: Point for which distance is computed
@@ -782,9 +780,8 @@ class Plane:
         return np.abs(np.dot(self.normal_vector, point) + self.d)
 
     def distances(self, points):
-        """
-        Computes the distances from the plane to each of the points. Positive distances are on the side of the
-        normal of the plane while negative distances are on the other side
+        """Compute the distances from the plane to each of the points. Positive distances are on
+        the side of the normal of the plane while negative distances are on the other side.
 
         Args:
             points: Points for which distances are computed
@@ -796,10 +793,9 @@ class Plane:
         return [np.dot(self.normal_vector, pp) + self.d for pp in points]
 
     def distances_indices_sorted(self, points, sign=False):
-        """
-        Computes the distances from the plane to each of the points. Positive distances are on the side of the
-        normal of the plane while negative distances are on the other side. Indices sorting the points from closest
-        to furthest is also computed.
+        """Compute the distances from the plane to each of the points. Positive distances are
+        on the side of the normal of the plane while negative distances are on the other
+        side. Indices sorting the points from closest to furthest is also computed.
 
         Args:
             points: Points for which distances are computed
@@ -817,8 +813,7 @@ class Plane:
         return distances, indices
 
     def distances_indices_groups(self, points, delta=None, delta_factor=0.05, sign=False):
-        """
-        Computes the distances from the plane to each of the points. Positive distances are on the side of the
+        """Compute the distances from the plane to each of the points. Positive distances are on the side of the
         normal of the plane while negative distances are on the other side. Indices sorting the points from closest
         to furthest is also computed. Grouped indices are also given, for which indices of the distances that are
         separated by less than delta are grouped together. The delta parameter is either set explicitly or taken as
@@ -959,26 +954,13 @@ class Plane:
 
     @property
     def coefficients(self):
-        """Return a copy of the plane coefficients.
-
-        Returns:
-            Plane coefficients as a numpy array.
-        """
+        """A copy of the plane coefficients as a numpy array."""
         return np.copy(self._coefficients)
 
     @property
     def abcd(self):
-        """Return a tuple with the plane coefficients.
-
-        Returns:
-            Tuple with the plane coefficients.
-        """
-        return (
-            self._coefficients[0],
-            self._coefficients[1],
-            self._coefficients[2],
-            self._coefficients[3],
-        )
+        """A tuple with the plane coefficients."""
+        return tuple(self._coefficients[0:4])
 
     @property
     def a(self):

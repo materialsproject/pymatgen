@@ -126,7 +126,7 @@ class SpeciesComparator(AbstractComparator):
         return sp1 == sp2
 
     def get_hash(self, composition: Composition):
-        """Returns: Fractional composition."""
+        """Get the fractional composition."""
         return composition.fractional_composition
 
 
@@ -165,7 +165,7 @@ class SpinComparator(AbstractComparator):
         return True
 
     def get_hash(self, composition):
-        """Returns: Fractional composition."""
+        """Get the fractional composition."""
         return composition.fractional_composition
 
 
@@ -195,7 +195,7 @@ class ElementComparator(AbstractComparator):
         return comp1.get_el_amt_dict() == comp2.get_el_amt_dict()
 
     def get_hash(self, composition):
-        """Returns: Fractional element composition."""
+        """Get the fractional element composition."""
         return composition.element_composition.fractional_composition
 
 
@@ -245,7 +245,7 @@ class OrderDisorderElementComparator(AbstractComparator):
         return set1.issubset(set2) or set2.issubset(set1)
 
     def get_hash(self, composition):
-        """Returns: Fractional composition."""
+        """Get the fractional composition."""
         return composition.fractional_composition
 
 
@@ -441,9 +441,7 @@ class StructureMatcher(MSONable):
                 yield latt, scale_m
 
     def _get_supercells(self, struct1, struct2, fu, s1_supercell):
-        """
-        Computes all supercells of one structure close to the lattice of the
-        other
+        """Compute all supercells of one structure close to the lattice of the other
         if s1_supercell is True, it makes the supercells of struct1, otherwise
         it makes them of s2.
 

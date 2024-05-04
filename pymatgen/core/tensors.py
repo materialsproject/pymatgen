@@ -101,7 +101,7 @@ class Tensor(np.ndarray, MSONable):
         return f"{type(self).__name__}({self})"
 
     def zeroed(self, tol: float = 1e-3):
-        """Returns the matrix with all entries below a certain threshold (i.e. tol) set to zero."""
+        """Get the matrix with all entries below a certain threshold (i.e. tol) set to zero."""
         new_tensor = self.copy()
         new_tensor[abs(new_tensor) < tol] = 0
         return new_tensor
@@ -158,12 +158,11 @@ class Tensor(np.ndarray, MSONable):
             float: scalar value corresponding to the projection of
                 the tensor into the vector
         """
-        n = get_uvec(n)
-        return self.einsum_sequence([n] * self.rank)
+        unit_vec = get_uvec(n)
+        return self.einsum_sequence([unit_vec] * self.rank)
 
     def average_over_unit_sphere(self, quad=None):
-        """Method for averaging the tensor projection over the unit
-        with option for custom quadrature.
+        """Average the tensor projection over the unit with option for custom quadrature.
 
         Args:
             quad (dict): quadrature for integration, should be
@@ -263,7 +262,7 @@ class Tensor(np.ndarray, MSONable):
 
     @property
     def symmetrized(self):
-        """Returns a generally symmetrized tensor, calculated by taking
+        """A generally symmetrized tensor, calculated by taking
         the sum of the tensor and its transpose with respect to all
         possible permutations of indices.
         """
@@ -272,7 +271,7 @@ class Tensor(np.ndarray, MSONable):
 
     @property
     def voigt_symmetrized(self):
-        """Returns a "voigt"-symmetrized tensor, i. e. a Voigt-notation
+        """A "voigt"-symmetrized tensor, i. e. a Voigt-notation
         tensor such that it is invariant w.r.t. permutation of indices.
         """
         if not (self.rank % 2 == 0 and self.rank >= 2):
@@ -293,7 +292,7 @@ class Tensor(np.ndarray, MSONable):
         return (self - self.symmetrized < tol).all()
 
     def fit_to_structure(self, structure: Structure, symprec: float = 0.1):
-        """Returns a tensor that is invariant with respect to symmetry
+        """Get a tensor that is invariant with respect to symmetry
         operations corresponding to a structure.
 
         Args:
@@ -320,7 +319,7 @@ class Tensor(np.ndarray, MSONable):
 
     @property
     def voigt(self):
-        """Returns the tensor in Voigt notation."""
+        """The tensor in Voigt notation."""
         v_matrix = np.zeros(self._vscale.shape, dtype=self.dtype)
         this_voigt_map = self.get_voigt_dict(self.rank)
         for ind, v in this_voigt_map.items():
@@ -347,7 +346,7 @@ class Tensor(np.ndarray, MSONable):
 
     @staticmethod
     def get_voigt_dict(rank):
-        """Returns a dictionary that maps indices in the tensor to those
+        """Get a dictionary that maps indices in the tensor to those
         in a voigt representation based on input rank.
 
         Args:
@@ -941,7 +940,7 @@ class SquareTensor(Tensor):
 
     @property
     def principal_invariants(self):
-        """Returns a list of principal invariants for the tensor,
+        """A list of principal invariants for the tensor,
         which are the values of the coefficients of the characteristic
         polynomial for the matrix.
         """
@@ -952,7 +951,7 @@ class SquareTensor(Tensor):
         return polar(self, side=side)
 
 
-def get_uvec(vec):
+def get_uvec(vec: np.ndarray) -> np.ndarray:
     """Get a unit vector parallel to input vector."""
     norm = np.linalg.norm(vec)
     if norm < 1e-8:
@@ -961,7 +960,7 @@ def get_uvec(vec):
 
 
 def symmetry_reduce(tensors, structure: Structure, tol: float = 1e-8, **kwargs):
-    """Function that converts a list of tensors corresponding to a structure
+    """Convert a list of tensors corresponding to a structure
     and returns a dictionary consisting of unique tensor keys with SymmOp
     values corresponding to transformations that will result in derivative
     tensors from the original list.

@@ -88,7 +88,7 @@ class VoltageProfilePlotter:
         return x, y
 
     def get_plot(self, width: float = 8, height: float = 8, term_zero: bool = True, ax: plt.Axes = None) -> plt.Axes:
-        """Returns a plot object.
+        """Get a plot object.
 
         Args:
             width: Width of the plot. Defaults to 8 in.

@@ -61,10 +61,10 @@ logger = logging.getLogger(__name__)
 
 
 class Slab(Structure):
-    """Class to hold information for a Slab, with additional
-    attributes pertaining to slabs, but does not actually create a slab.
-    Also has additional methods for a Slab such as the surface area,
-    normal, and adsorbate atoms.
+    """Hold information for a Slab, with additional
+    attributes pertaining to slabs, but the init method does not
+    actually create a slab. Also has additional methods that returns other information
+    about a Slab such as the surface area, normal, and atom adsorption.
 
     Note that all Slabs have the surface normal oriented perpendicular to the
     a and b lattice vectors. This means the lattice vectors a and b are in the
@@ -252,8 +252,8 @@ class Slab(Structure):
         dct["energy"] = self.energy
         return dct
 
-    def copy(self, site_properties: dict[str, Any] | None = None) -> Slab:  # type: ignore[override]
-        """Get a copy of the structure, with options to update site properties.
+    def copy(self, site_properties: dict[str, Any] | None = None) -> Self:  # type: ignore[override]
+        """Get a copy of the Slab, with options to update site properties.
 
         Args:
             site_properties (dict): Properties to update. The
@@ -415,7 +415,7 @@ class Slab(Structure):
         return [(sorted_sites[0].frac_coords[2], sorted_sites[-1].frac_coords[2])]
 
     def get_surface_sites(self, tag: bool = False) -> dict[str, list]:
-        """Returns the surface sites and their indices in a dictionary.
+        """Get the surface sites and their indices in a dictionary.
         Useful for analysis involving broken bonds and for finding adsorption sites.
 
         The oriented unit cell of the slab will determine the

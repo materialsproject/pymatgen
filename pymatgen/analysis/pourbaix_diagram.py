@@ -141,7 +141,7 @@ class PourbaixEntry(MSONable, Stringify):
 
     @property
     def elements(self):
-        """Returns elements in the entry."""
+        """Elements in the entry."""
         return self.entry.elements
 
     def energy_at_conditions(self, pH, V):
@@ -229,12 +229,12 @@ class PourbaixEntry(MSONable, Stringify):
 
     @property
     def composition(self):
-        """Returns composition."""
+        """Composition."""
         return self.entry.composition
 
     @property
     def num_atoms(self):
-        """Return number of atoms in current formula. Useful for normalization."""
+        """Number of atoms in current formula. Useful for normalization."""
         return self.composition.num_atoms
 
     def to_pretty_string(self) -> str:
@@ -297,7 +297,7 @@ class MultiEntry(PourbaixEntry):
         return f"Pourbaix{cls_name}({energy=:.4f}, {npH=}, {nPhi=}, {nH2O=}, {entry_id=}, {species=})"
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -347,7 +347,7 @@ class IonEntry(PDEntry):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Returns an IonEntry object from a dict."""
+        """Get an IonEntry object from a dict."""
         return cls(Ion.from_dict(dct["ion"]), dct["energy"], dct.get("name"), dct.get("attribute"))
 
     def as_dict(self):
@@ -359,9 +359,7 @@ class IonEntry(PDEntry):
 
 
 def ion_or_solid_comp_object(formula):
-    """
-    Returns either an ion object or composition object given
-    a formula.
+    """Get an Ion or Composition object given a formula.
 
     Args:
         formula: String formula. Eg. of ion: NaOH(aq), Na[+];
@@ -370,8 +368,7 @@ def ion_or_solid_comp_object(formula):
     Returns:
         Composition/Ion object
     """
-    match = re.search(r"\[([^\[\]]+)\]|\(aq\)", formula)
-    if match:
+    if re.match(r"\[([^\[\]]+)\]|\(aq\)", formula):
         comp_obj = Ion.from_formula(formula)
     elif re.search(r"\(s\)", formula):
         comp_obj = Composition(formula[:-3])
@@ -392,7 +389,7 @@ ELEMENTS_HO = {Element("H"), Element("O")}
 # TODO: invocation from a MultiEntry entry list could be a bit more robust
 # TODO: serialization is still a bit rough around the edges
 class PourbaixDiagram(MSONable):
-    """Class to create a Pourbaix diagram from entries."""
+    """Create a Pourbaix diagram from entries."""
 
     def __init__(
         self,
@@ -851,29 +848,26 @@ class PourbaixDiagram(MSONable):
 
     @property
     def stable_entries(self):
-        """Returns the stable entries in the Pourbaix diagram."""
+        """The stable entries in the Pourbaix diagram."""
         return list(self._stable_domains)
 
     @property
     def unstable_entries(self):
-        """Returns all unstable entries in the Pourbaix diagram."""
+        """All unstable entries in the Pourbaix diagram."""
         return [entry for entry in self.all_entries if entry not in self.stable_entries]
 
     @property
     def all_entries(self):
-        """Return all entries used to generate the Pourbaix diagram."""
+        """All entries used to generate the Pourbaix diagram."""
         return self._processed_entries
 
     @property
     def unprocessed_entries(self):
-        """Return unprocessed entries."""
+        """Unprocessed entries."""
         return self._unprocessed_entries
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dict.
-        """
+        """Get MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

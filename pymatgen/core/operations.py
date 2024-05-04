@@ -226,17 +226,17 @@ class SymmOp(MSONable):
         return self.affine_matrix[0:3][:, 3]
 
     def __mul__(self, other):
-        """Returns a new SymmOp which is equivalent to apply the "other" SymmOp
+        """Get a new SymmOp which is equivalent to apply the "other" SymmOp
         followed by this one.
         """
         new_matrix = np.dot(self.affine_matrix, other.affine_matrix)
         return SymmOp(new_matrix)
 
     @property
-    def inverse(self) -> SymmOp:
-        """Returns inverse of transformation."""
+    def inverse(self) -> Self:
+        """Inverse of transformation."""
         inverse = np.linalg.inv(self.affine_matrix)
-        return SymmOp(inverse)
+        return type(self)(inverse)
 
     @staticmethod
     def from_axis_angle_and_translation(
@@ -341,7 +341,7 @@ class SymmOp(MSONable):
 
     @staticmethod
     def reflection(normal: ArrayLike, origin: ArrayLike = (0, 0, 0)) -> SymmOp:
-        """Returns reflection symmetry operation.
+        """Get reflection symmetry operation.
 
         Args:
             normal (3x1 array): Vector of the normal to the plane of
@@ -390,7 +390,7 @@ class SymmOp(MSONable):
 
     @staticmethod
     def rotoreflection(axis: ArrayLike, angle: float, origin: ArrayLike = (0, 0, 0)) -> SymmOp:
-        """Returns a roto-reflection symmetry operation.
+        """Get a roto-reflection symmetry operation.
 
         Args:
             axis (3x1 array): Axis of rotation / mirror normal
@@ -416,7 +416,7 @@ class SymmOp(MSONable):
         }
 
     def as_xyz_str(self) -> str:
-        """Returns a string of the form 'x, y, z', '-x, -y, z', '-y+1/2, x+1/2, z+1/2', etc.
+        """Get a string of the form 'x, y, z', '-x, -y, z', '-y+1/2, x+1/2, z+1/2', etc.
         Only works for integer rotation matrices.
         """
         # test for invalid rotation matrix
@@ -599,7 +599,7 @@ class MagSymmOp(SymmOp):
         return cls.from_symmop(symm_op, time_reversal)
 
     def as_xyzt_str(self) -> str:
-        """Returns a string of the form 'x, y, z, +1', '-x, -y, z, -1',
+        """Get a string of the form 'x, y, z, +1', '-x, -y, z, -1',
         '-y+1/2, x+1/2, z+1/2, +1', etc. Only works for integer rotation matrices.
         """
         xyzt_string = SymmOp.as_xyz_str(self)

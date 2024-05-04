@@ -69,7 +69,7 @@ __status__ = "Development"
 __date__ = "April 15, 2017"
 
 
-def zval_dict_from_potcar(potcar):
+def zval_dict_from_potcar(potcar) -> dict[str, float]:
     """
     Creates zval_dictionary for calculating the ionic polarization from
     Potcar object.
@@ -97,8 +97,7 @@ def calc_ionic(site: PeriodicSite, structure: Structure, zval: float) -> np.ndar
 
 
 def get_total_ionic_dipole(structure, zval_dict):
-    """
-    Get the total ionic dipole moment for a structure.
+    """Get the total ionic dipole moment for a structure.
 
     structure: pymatgen Structure
     zval_dict: specie, zval dictionary pairs
@@ -417,7 +416,7 @@ class Polarization:
 
 
 class EnergyTrend:
-    """Class for fitting trends to energies."""
+    """Analyze the trend in energy across a distortion path."""
 
     def __init__(self, energies):
         """

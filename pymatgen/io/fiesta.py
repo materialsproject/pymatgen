@@ -1,11 +1,9 @@
 """
 This module implements input and output for Fiesta (http://perso.neel.cnrs.fr/xavier.blase/fiesta/index.html).
 
-and
-
--Nwchem2Fiesta class: to create the input files needed for a Fiesta run
--Fiesta_run: run gw_fiesta and bse_fiesta
--Localised Basis set reader
+- Nwchem2Fiesta: create the input files needed for a Fiesta run
+- FiestaRun: run gw_fiesta and bse_fiesta
+- Localized BasisSetReader
 """
 
 from __future__ import annotations
@@ -35,8 +33,7 @@ __date__ = "24/5/15"
 
 
 class Nwchem2Fiesta(MSONable):
-    """
-    To run NWCHEM2FIESTA inside python:
+    """To run NWCHEM2FIESTA inside python:
 
     If nwchem.nw is the input, nwchem.out the output, and structure.movecs the
     "movecs" file, the syntax to run NWCHEM2FIESTA is: NWCHEM2FIESTA
@@ -45,11 +42,10 @@ class Nwchem2Fiesta(MSONable):
 
     def __init__(self, folder, filename="nwchem", log_file="log_n2f"):
         """
-        folder: where are stored the nwchem
-        filename: name of nwchem files read by NWCHEM2FIESTA (filename.nw, filename.nwout and filename.movecs)
-        logfile: logfile of NWCHEM2FIESTA.
-
-        the run method launches NWCHEM2FIESTA
+        Args:
+            folder: where are stored the nwchem
+            filename: name of nwchem files read by NWCHEM2FIESTA (filename.nw, filename.nwout and filename.movecs)
+            logfile: logfile of NWCHEM2FIESTA.
         """
         self.folder = folder
         self.filename = filename
@@ -412,7 +408,7 @@ class FiestaInput(MSONable):
 
     @property
     def infos_on_system(self):
-        """Returns infos on initial parameters as in the log file of Fiesta."""
+        """Infos on initial parameters as in the log file of Fiesta."""
         lst = [
             "=========================================",
             "Reading infos on system:",
@@ -464,7 +460,7 @@ class FiestaInput(MSONable):
 
     @property
     def molecule(self):
-        """Returns molecule associated with this FiestaInput."""
+        """Molecule associated with this FiestaInput."""
         return self._mol
 
     def __str__(self):

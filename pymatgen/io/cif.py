@@ -75,7 +75,7 @@ class CifBlock:
         return self.data[key]
 
     def __str__(self) -> str:
-        """Returns the cif string for the data block."""
+        """Get the cif string for the data block."""
         out = [f"data_{self.header}"]
         keys = list(self.data)
         written = []
@@ -1608,12 +1608,12 @@ class CifWriter:
         self._cf = CifFile(dct)
 
     @property
-    def cif_file(self):
-        """Returns: CifFile associated with the CifWriter."""
+    def cif_file(self) -> CifFile:
+        """CifFile associated with the CifWriter."""
         return self._cf
 
     def __str__(self):
-        """Returns the CIF as a string."""
+        """Get the CIF as a string."""
         return str(self._cf)
 
     def write_file(self, filename: str | Path, mode: Literal["w", "a", "wt", "at"] = "w") -> None:

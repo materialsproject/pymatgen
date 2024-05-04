@@ -781,8 +781,7 @@ class Incar(dict, MSONable):
         return type(self)(self)
 
     def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
-        """
-        Return a string representation of the INCAR. Differ from the
+        """Get a string representation of the INCAR. Differ from the
         __str__ method to provide options for pretty printing.
 
         Args:
@@ -1483,7 +1482,8 @@ class Kpoints(MSONable):
             num_kpts=divisions,
         )
 
-    def copy(self):
+    def copy(self) -> Self:
+        """Make a copy of the Kpoints object."""
         return self.from_dict(self.as_dict())
 
     @classmethod
@@ -2615,7 +2615,7 @@ class Potcar(list, MSONable):
 
     @property
     def symbols(self) -> list[str]:
-        """Get the atomic symbols of all the atoms in the POTCAR file."""
+        """The atomic symbols of all the atoms in the POTCAR file."""
         return [psingle.symbol for psingle in self]
 
     @symbols.setter
@@ -2624,7 +2624,7 @@ class Potcar(list, MSONable):
 
     @property
     def spec(self) -> list[dict]:
-        """Get the atomic symbols and hash of all the atoms in the POTCAR file."""
+        """The atomic symbols and hash of all the atoms in the POTCAR file."""
         return [{"symbol": psingle.symbol, "hash": psingle.md5_computed_file_hash} for psingle in self]
 
     def as_dict(self) -> dict:
@@ -2718,7 +2718,7 @@ class UnknownPotcarWarning(UserWarning):
 
 
 class VaspInput(dict, MSONable):
-    """Class to contain a set of vasp input objects corresponding to a run."""
+    """Contain a set of vasp input objects corresponding to a run."""
 
     def __init__(
         self,

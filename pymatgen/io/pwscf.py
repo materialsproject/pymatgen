@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from monty.io import zopen
 from monty.re import regrep
@@ -520,7 +520,7 @@ class PWOutput:
             filename (str): Filename.
         """
         self.filename = filename
-        self.data: dict[str, list[float] | float] = defaultdict(list)
+        self.data: dict[str, Any] = defaultdict(list)
         self.read_pattern(PWOutput.patterns)
         for k, v in self.data.items():
             if k == "energies":
@@ -574,11 +574,11 @@ class PWOutput:
         return self.data[f"celldm{idx}"]
 
     @property
-    def final_energy(self):
-        """Returns: Final energy."""
+    def final_energy(self) -> float:
+        """The final energy from the PW output."""
         return self.data["energies"][-1]
 
     @property
-    def lattice_type(self):
-        """Returns: Lattice type."""
+    def lattice_type(self) -> int:
+        """The lattice type."""
         return self.data["lattice_type"]

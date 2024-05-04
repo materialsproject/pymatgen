@@ -32,7 +32,7 @@ _logger.setLevel(logging.WARNING)
     description="OPTIMADE, an API for exchanging materials data",
 )
 class OptimadeRester:
-    """Class to call OPTIMADE-compliant APIs, see https://optimade.org and [1].
+    """Call OPTIMADE-compliant APIs, see https://optimade.org and [1].
 
     This class is ready to use but considered in-development and subject to change.
 

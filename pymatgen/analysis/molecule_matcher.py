@@ -178,10 +178,7 @@ class IsomorphismMolAtomMapper(AbstractMolAtomMapper):
         return match.group("inchi")
 
     def as_dict(self):
-        """
-        Returns:
-            JSON-able dict.
-        """
+        """Get MSONable dict."""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -212,10 +209,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
         self._assistant_mapper = IsomorphismMolAtomMapper()
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dict.
-        """
+        """Get MSONable dict."""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -569,13 +563,12 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
 
 
 class MoleculeMatcher(MSONable):
-    """Class to match molecules and identify whether molecules are the same."""
+    """Match molecules and identify whether molecules are the same."""
 
     @requires(
         openbabel,
-        "BabelMolAdaptor requires openbabel to be installed with "
-        "Python bindings. Please get it at http://openbabel.org "
-        "(version >=3.0.0).",
+        "BabelMolAdaptor requires openbabel to be installed with Python "
+        "bindings. Please get it at http://openbabel.org (version >=3.0.0).",
     )
     def __init__(self, tolerance: float = 0.01, mapper=None) -> None:
         """
@@ -695,10 +688,7 @@ class MoleculeMatcher(MSONable):
         return [[mol_list[idx] for idx in g] for g in group_indices]
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dict.
-        """
+        """Get MSONable dict."""
         return {
             "version": __version__,
             "@module": type(self).__module__,
@@ -1128,7 +1118,7 @@ class HungarianOrderMatcher(KabschMatcher):
 
     @staticmethod
     def rotation_matrix_vectors(v1, v2):
-        """Returns the rotation matrix that rotates v1 onto v2 using
+        """Get the rotation matrix that rotates v1 onto v2 using
         Rodrigues' rotation formula.
 
         See more: https://math.stackexchange.com/a/476311

@@ -115,7 +115,7 @@ class DosPlotter:
             self.add_dos(label, dos_dict[label])
 
     def get_dos_dict(self):
-        """Returns the added doses as a json-serializable dict. Note that if you
+        """Get the added doses as a json-serializable dict. Note that if you
         have specified smearing for the DOS plot, the densities returned will
         be the smeared densities, not the original densities.
 
@@ -282,12 +282,12 @@ class BSPlotter:
 
         self.add_bs(bs)
 
-    def _check_bs_kpath(self, bs_list: list[BandStructureSymmLine]) -> Literal[True]:
+    def _check_bs_kpath(self, band_structs: list[BandStructureSymmLine]) -> Literal[True]:
         """Helper method that check all the band objs in bs_list are
         BandStructureSymmLine objs and they all have the same kpath.
         """
         # check obj type
-        for bs in bs_list:
+        for bs in band_structs:
             if not isinstance(bs, BandStructureSymmLine):
                 raise ValueError(
                     "BSPlotter only works with BandStructureSymmLine objects. "
@@ -296,15 +296,15 @@ class BSPlotter:
                 )
 
         # check the kpath
-        if len(bs_list) == 1 and not self._bs:
+        if len(band_structs) == 1 and not self._bs:
             return True
 
-        if not self._bs:
-            kpath_ref = [br["name"] for br in bs_list[0].branches]
-        else:
+        if self._bs:
             kpath_ref = [br["name"] for br in self._bs[0].branches]
+        else:
+            kpath_ref = [br["name"] for br in band_structs[0].branches]
 
-        for bs in bs_list:
+        for bs in band_structs:
             if kpath_ref != [br["name"] for br in bs.branches]:
                 msg = (
                     f"BSPlotter only works with BandStructureSymmLine "
@@ -315,7 +315,7 @@ class BSPlotter:
         return True
 
     def add_bs(self, bs: BandStructureSymmLine | list[BandStructureSymmLine]) -> None:
-        """Method to add bands objects to the BSPlotter."""
+        """Add bands objects to the BSPlotter."""
         if not isinstance(bs, list):
             bs = [bs]
 
@@ -364,7 +364,7 @@ class BSPlotter:
 
     @staticmethod
     def _get_branch_steps(branches):
-        """Method to find discontinuous branches."""
+        """Find discontinuous branches."""
         steps = [0]
         for b1, b2 in zip(branches[:-1], branches[1:]):
             if b2["name"].split("-")[0] != b1["name"].split("-")[-1]:
@@ -374,7 +374,7 @@ class BSPlotter:
 
     @staticmethod
     def _rescale_distances(bs_ref, bs):
-        """Method to rescale distances of bs to distances in bs_ref.
+        """Rescale distances of bs to distances in bs_ref.
         This is used for plotting two bandstructures (same k-path)
         of different materials.
         """
@@ -511,10 +511,9 @@ class BSPlotter:
 
     @staticmethod
     def _interpolate_bands(distances, energies, smooth_tol=0, smooth_k=3, smooth_np=100):
-        """Method that interpolates the provided energies using B-splines as
-        implemented in scipy.interpolate. Distances and energies has to provided
-        already split into pieces (branches work good, for longer segments
-        the interpolation may fail).
+        """Interpolate the provided energies using B-splines as implemented in scipy.interpolate.
+        Distances and energies has to provided already split into pieces (branches work good,
+        for longer segments the interpolation may fail).
 
         Interpolation failure can be caused by trying to fit an entire
         band with one spline rather than fitting with piecewise splines
@@ -1565,12 +1564,11 @@ class BSPlotterProjected(BSPlotter):
         w_h_size=(12, 8),
         num_column=None,
     ):
-        """Method returns a plot composed of subplots for different atoms and
-        orbitals (subshell orbitals such as 's', 'p', 'd' and 'f' defined by
-        azimuthal quantum numbers l = 0, 1, 2 and 3, respectively or
-        individual orbitals like 'px', 'py' and 'pz' defined by magnetic
-        quantum numbers m = -1, 1 and 0, respectively).
-        This is an extension of "get_projected_plots_dots" method.
+        """Return a plot composed of subplots for different atoms and orbitals (subshell
+        orbitals such as 's', 'p', 'd' and 'f' defined by azimuthal quantum numbers l = 0,
+        1, 2 and 3, respectively or individual orbitals like 'px', 'py' and 'pz' defined
+        by magnetic quantum numbers m = -1, 1 and 0, respectively). This is an extension
+        of "get_projected_plots_dots" method.
 
         Args:
             dictio: The elements and the orbitals you need to project on. The
@@ -2791,7 +2789,7 @@ class BSDOSPlotter:
 
 class BoltztrapPlotter:
     # TODO: We need a unittest for this. Come on folks.
-    """class containing methods to plot the data from Boltztrap."""
+    """Plot Boltztrap data."""
 
     def __init__(self, bz) -> None:
         """
@@ -3667,9 +3665,8 @@ class BoltztrapPlotter:
 
 
 class CohpPlotter:
-    """Class for plotting crystal orbital Hamilton populations (COHPs) or
-    crystal orbital overlap populations (COOPs). It is modeled after the
-    DosPlotter object.
+    """Plot crystal orbital Hamilton populations (COHPs) or crystal orbital overlap
+    populations (COOPs). It is modeled after the DosPlotter object.
     """
 
     def __init__(self, zero_at_efermi=True, are_coops=False, are_cobis=False) -> None:
@@ -3719,7 +3716,7 @@ class CohpPlotter:
             self.add_cohp(label, cohp_dict[label])
 
     def get_cohp_dict(self):
-        """Returns the added COHPs as a json-serializable dict. Note that if you
+        """Get the added COHPs as a json-serializable dict. Note that if you
         have specified smearing for the COHP plot, the populations returned
         will be the smeared and not the original populations.
 

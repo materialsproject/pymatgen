@@ -130,10 +130,7 @@ class EwaldSummation(MSONable):
         )
 
     def compute_partial_energy(self, removed_indices):
-        """
-        Gives total Ewald energy for certain sites being removed, i.e. zeroed
-        out.
-        """
+        """Get total Ewald energy for certain sites being removed, i.e. zeroed out."""
         total_energy_matrix = self.total_energy_matrix.copy()
         for idx in removed_indices:
             total_energy_matrix[idx, :] = 0
@@ -141,8 +138,7 @@ class EwaldSummation(MSONable):
         return sum(sum(total_energy_matrix))
 
     def compute_sub_structure(self, sub_structure, tol: float = 1e-3):
-        """
-        Gives total Ewald energy for an sub structure in the same
+        """Get total Ewald energy for an sub structure in the same
         lattice. The sub_structure must be a subset of the original
         structure, with possible different charges.
 
@@ -401,7 +397,7 @@ class EwaldSummation(MSONable):
 
     @property
     def eta(self):
-        """Returns: eta value used in Ewald summation."""
+        """Eta value used in Ewald summation."""
         return self._eta
 
     def __str__(self):
@@ -570,8 +566,7 @@ class EwaldMinimizer:
             self._current_minimum = self._output_lists[-1][0]
 
     def best_case(self, matrix, m_list, indices_left):
-        """
-        Computes a best case given a matrix and manipulation list.
+        """Compute a best case given a matrix and manipulation list.
 
         Args:
             matrix: the current matrix (with some permutations already
@@ -694,17 +689,17 @@ class EwaldMinimizer:
 
     @property
     def best_m_list(self):
-        """Returns: Best m_list found."""
+        """The best manipulation list found."""
         return self._best_m_list
 
     @property
     def minimized_sum(self):
-        """Returns: Minimized sum."""
+        """The minimized Ewald sum."""
         return self._minimized_sum
 
     @property
     def output_lists(self):
-        """Returns: output lists."""
+        """Output lists."""
         return self._output_lists
 
 

@@ -160,7 +160,7 @@ class SubstitutionProbability:
         return p
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "name": type(self).__name__,
             "version": __version__,

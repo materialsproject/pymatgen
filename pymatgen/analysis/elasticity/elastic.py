@@ -159,24 +159,24 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @property
     def k_voigt(self) -> float:
-        """Returns the K_v bulk modulus (in eV/A^3)."""
+        """The K_v bulk modulus (in eV/A^3)."""
         return self.voigt[:3, :3].mean()
 
     @property
     def g_voigt(self) -> float:
-        """Returns the G_v shear modulus (in eV/A^3)."""
+        """The G_v shear modulus (in eV/A^3)."""
         return (
             2 * self.voigt[:3, :3].trace() - np.triu(self.voigt[:3, :3]).sum() + 3 * self.voigt[3:, 3:].trace()
         ) / 15.0
 
     @property
     def k_reuss(self) -> float:
-        """Returns the K_r bulk modulus (in eV/A^3)."""
+        """The K_r bulk modulus (in eV/A^3)."""
         return 1 / self.compliance_tensor.voigt[:3, :3].sum()
 
     @property
     def g_reuss(self) -> float:
-        """Returns the G_r shear modulus (in eV/A^3)."""
+        """The G_r shear modulus (in eV/A^3)."""
         return 15 / (
             8 * self.compliance_tensor.voigt[:3, :3].trace()
             - 4 * np.triu(self.compliance_tensor.voigt[:3, :3]).sum()
@@ -185,12 +185,12 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @property
     def k_vrh(self) -> float:
-        """Returns the K_vrh (Voigt-Reuss-Hill) average bulk modulus (in eV/A^3)."""
+        """The K_vrh (Voigt-Reuss-Hill) average bulk modulus (in eV/A^3)."""
         return 0.5 * (self.k_voigt + self.k_reuss)
 
     @property
     def g_vrh(self) -> float:
-        """Returns the G_vrh (Voigt-Reuss-Hill) average shear modulus (in eV/A^3)."""
+        """The G_vrh (Voigt-Reuss-Hill) average shear modulus (in eV/A^3)."""
         return 0.5 * (self.g_voigt + self.g_reuss)
 
     @property
@@ -394,21 +394,21 @@ class ElasticTensor(NthOrderElasticTensor):
 
     @property
     def universal_anisotropy(self) -> float:
-        """Returns the universal anisotropy value."""
+        """The universal anisotropy value."""
         return 5 * self.g_voigt / self.g_reuss + self.k_voigt / self.k_reuss - 6.0
 
     @property
     def homogeneous_poisson(self) -> float:
-        """Returns the homogeneous poisson ratio."""
+        """The homogeneous poisson ratio."""
         return (1 - 2 / 3 * self.g_vrh / self.k_vrh) / (2 + 2 / 3 * self.g_vrh / self.k_vrh)
 
     def green_kristoffel(self, u) -> float:
-        """Returns the Green-Kristoffel tensor for a second-order tensor."""
+        """Get the Green-Kristoffel tensor for a second-order tensor."""
         return self.einsum_sequence([u, u], "ijkl,i,l")
 
     @property
     def property_dict(self):
-        """Returns a dictionary of properties derived from the elastic tensor."""
+        """A dictionary of properties derived from the elastic tensor."""
         props = (
             "k_voigt",
             "k_reuss",
@@ -742,15 +742,14 @@ class ElasticTensorExpansion(TensorCollection):
             ce_exp.append(temp)
         return TensorCollection(ce_exp)
 
-    def get_strain_from_stress(self, stress):
-        """Get the strain from a stress state according
-        to the compliance expansion corresponding to the
-        tensor expansion.
+    def get_strain_from_stress(self, stress) -> float:
+        """Get the strain from a stress state according to the compliance
+        expansion corresponding to the tensor expansion.
         """
         compl_exp = self.get_compliance_expansion()
         strain = 0
-        for n, compl in enumerate(compl_exp, start=1):
-            strain += compl.einsum_sequence([stress] * (n)) / factorial(n)
+        for idx, compl in enumerate(compl_exp, start=1):
+            strain += compl.einsum_sequence([stress] * (idx)) / factorial(idx)
         return strain
 
     def get_effective_ecs(self, strain, order=2):
@@ -1009,8 +1008,7 @@ def generate_pseudo(strain_states, order=3):
 
 
 def get_symbol_list(rank, dim=6):
-    """
-    Returns a symbolic representation of the Voigt-notation
+    """Get a symbolic representation of the Voigt-notation
     tensor that places identical symbols for entries related
     by index transposition, i. e. C_1121 = C_1211 etc.
 
@@ -1020,9 +1018,8 @@ def get_symbol_list(rank, dim=6):
         rank (int): rank of tensor, e.g. 3 for third-order ECs
 
     Returns:
-        c_vec (array): array representing distinct indices
-        c_arr (array): array representing tensor with equivalent
-            indices assigned as above
+        tuple[np.array, np.array]: tuple of arrays representing the distinct
+            indices and the tensor with equivalent indices assigned as above
     """
     indices = list(itertools.combinations_with_replacement(range(dim), r=rank))
     c_vec = np.zeros(len(indices), dtype=object)

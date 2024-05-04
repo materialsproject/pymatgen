@@ -288,7 +288,7 @@ class IcetSQS:
 
         return list(working_list)
 
-    def _get_best_sqs_from_list(self, structures: list[Atoms], output_list: list[dict]) -> None:
+    def _get_best_sqs_from_list(self, structures: list[Atoms], output_list: list[dict]) -> dict[str, Any]:
         """Find best SQS structure from list of SQS structures.
 
         Args:
@@ -303,6 +303,8 @@ class IcetSQS:
             if objective < best_sqs["objective_function"]:
                 best_sqs = {"structure": structure, "objective_function": objective}
         output_list.append(best_sqs)
+
+        return best_sqs
 
     def _single_monte_carlo_sqs_run(self):
         """Run a single Monte Carlo SQS search with Icet."""

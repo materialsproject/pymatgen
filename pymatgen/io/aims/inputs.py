@@ -230,7 +230,7 @@ ALLOWED_AIMS_CUBE_FORMATS = (
 
 @dataclass
 class AimsCube(MSONable):
-    """Class representing the FHI-aims cubes
+    """The FHI-aims cubes
 
     Attributes:
         type (str): The value to be outputted as a cube file
@@ -336,7 +336,7 @@ class AimsCube(MSONable):
 
     @property
     def control_block(self) -> str:
-        """Get the block of text for the control.in file of the Cube"""
+        """The block of text for the control.in file of the Cube"""
         cb = f"output cube {self.type}\n"
         cb += f"    cube origin {self.origin[0]: .12e} {self.origin[1]: .12e} {self.origin[2]: .12e}\n"
         for idx in range(3):
@@ -390,7 +390,7 @@ class AimsCube(MSONable):
 
 @dataclass
 class AimsControlIn(MSONable):
-    """Class representing and FHI-aims control.in file
+    """An FHI-aims control.in file.
 
     Attributes:
         _parameters (dict[str, Any]): The parameters dictionary containing all input

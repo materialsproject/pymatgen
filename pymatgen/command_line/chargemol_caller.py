@@ -142,7 +142,7 @@ class ChargemolAnalysis:
 
     @staticmethod
     def _get_filepath(path, filename, suffix=""):
-        """Returns the full path to the filename in the path. Works even if the file has
+        """Get the full path to the filename in the path. Works even if the file has
         a .gz extension.
 
         Args:
@@ -253,7 +253,7 @@ class ChargemolAnalysis:
             self.cm5_charges = None
 
     def get_charge_transfer(self, atom_index, charge_type="ddec"):
-        """Returns the charge transferred for a particular atom. A positive value means
+        """Get the charge transferred for a particular atom. A positive value means
         that the site has gained electron density (i.e. exhibits anionic character)
         whereas a negative value means the site has lost electron density (i.e. exhibits
         cationic character). This is the same thing as the negative of the partial atomic
@@ -416,8 +416,8 @@ class ChargemolAnalysis:
         idx = 0
         start = False
         dipoles = []
-        with open(filepath) as r:
-            for line in r:
+        with open(filepath) as file:
+            for line in file:
                 if "The following XYZ" in line:
                     start = True
                     idx += 1
@@ -425,7 +425,7 @@ class ChargemolAnalysis:
                 if start and line.strip() == "":
                     break
                 if idx >= 2:
-                    dipoles.append([float(d) for d in line.strip().split()[7:10]])
+                    dipoles.append(list(map(float, line.strip().split()[6:9])))
                 if start:
                     idx += 1
 
@@ -441,9 +441,9 @@ class ChargemolAnalysis:
         # Get where relevant info for each atom starts
         bond_order_info = {}
 
-        with open(filename, encoding="utf-8") as r:
+        with open(filename, encoding="utf-8") as file:
             start_idx = 0
-            for line in r:
+            for line in file:
                 split = line.strip().split()
                 if "Printing BOs" in line:
                     start_idx = int(split[5]) - 1
@@ -491,7 +491,7 @@ class ChargemolAnalysis:
 
     @property
     def summary(self):
-        """Returns a dictionary summary of the Chargemol analysis
+        """A dictionary summary of the Chargemol analysis
         {
             "ddec": {
                 "partial_charges": list[float],
@@ -532,7 +532,7 @@ class ChargemolAnalysis:
         return summary
 
     @staticmethod
-    def _get_data_from_xyz(xyz_path):
+    def _get_data_from_xyz(xyz_path) -> list[float]:
         """Internal command to process Chargemol XYZ files.
 
         Args:
@@ -543,8 +543,8 @@ class ChargemolAnalysis:
         """
         props = []
         if os.path.isfile(xyz_path):
-            with open(xyz_path) as r:
-                for idx, line in enumerate(r):
+            with open(xyz_path) as file:
+                for idx, line in enumerate(file):
                     if idx <= 1:
                         continue
                     if line.strip() == "":
@@ -556,7 +556,7 @@ class ChargemolAnalysis:
         return props
 
     @staticmethod
-    def _get_cm5_data_from_output(ddec_analysis_path):
+    def _get_cm5_data_from_output(ddec_analysis_path) -> list[float]:
         """Internal command to process Chargemol CM5 data.
 
         Args:
@@ -568,8 +568,8 @@ class ChargemolAnalysis:
         props = []
         if os.path.isfile(ddec_analysis_path):
             start = False
-            with open(ddec_analysis_path) as r:
-                for line in r:
+            with open(ddec_analysis_path) as file:
+                for line in file:
                     if "computed CM5" in line:
                         start = True
                         continue

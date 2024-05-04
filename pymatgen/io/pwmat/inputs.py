@@ -404,7 +404,7 @@ class AtomConfig(MSONable):
 
     @classmethod
     def from_file(cls, filename: PathLike, mag: bool = False) -> Self:
-        """Returns a AtomConfig from a file
+        """Get a AtomConfig from a file
 
         Args:
             filename (PathLike): File name containing AtomConfig data
@@ -418,7 +418,7 @@ class AtomConfig(MSONable):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Returns a AtomConfig object from a dictionary.
+        """Get a AtomConfig object from a dictionary.
 
         Args:
             dct: dict containing atom.config data
@@ -534,7 +534,7 @@ class GenKpt(MSONable):
         return cls(rec_lattice, kpts, path, density * 2 * np.pi)
 
     def get_str(self):
-        """Returns a string to be written as a gen.kpt file."""
+        """Get a string to be written as a gen.kpt file."""
 
         def calc_distance(hsp1: str, hsp2: str) -> float:
             """Calculate the distance between two high symmetry points.
@@ -617,7 +617,7 @@ class HighSymmetryPoint(MSONable):
         return cls(reciprocal_lattice, gen_kpt.kpath["kpoints"], gen_kpt.kpath["path"], density * 2 * np.pi)
 
     def get_str(self) -> str:
-        """Returns a string describing high symmetry points in HIGH_SYMMETRY_POINTS format."""
+        """Get a string describing high symmetry points in HIGH_SYMMETRY_POINTS format."""
 
         def calc_distance(hsp1: str, hsp2: str) -> float:
             """Calculate the distance of two high symmetry points.
