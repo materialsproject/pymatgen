@@ -29,7 +29,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 if TYPE_CHECKING:
     from typing_extensions import Self
 
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 
 
 # List of Abinit variables used to specify the structure.
