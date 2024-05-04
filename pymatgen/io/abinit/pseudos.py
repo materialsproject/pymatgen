@@ -140,13 +140,15 @@ class Pseudo(MSONable, abc.ABC):
         """String representation."""
 
         lines: list[str] = []
-        lines.append(f"<{type(self).__name__}: {self.basename}>")
-        lines.append("  summary: " + self.summary.strip())
-        lines.append(f"  number of valence electrons: {self.Z_val}")
-        lines.append(f"  maximum angular momentum: {l2str(self.l_max)}")
-        lines.append(f"  angular momentum for local part: {l2str(self.l_local)}")
-        lines.append(f"  XC correlation: {self.xc}")
-        lines.append(f"  supports spin-orbit: {self.supports_soc}")
+        lines += (
+            f"<{type(self).__name__}: {self.basename}>",
+            "  summary: " + self.summary.strip(),
+            f"  number of valence electrons: {self.Z_val}",
+            f"  maximum angular momentum: {l2str(self.l_max)}",
+            f"  angular momentum for local part: {l2str(self.l_local)}",
+            f"  XC correlation: {self.xc}",
+            f"  supports spin-orbit: {self.supports_soc}",
+        )
 
         if self.isnc:
             lines.append(f"  radius for non-linear core correction: {self.nlcc_radius}")

@@ -289,10 +289,7 @@ class AimsCube(MSONable):
         if self.filename != other.filename:
             return False
 
-        if self.elf_type != other.elf_type:
-            return False
-
-        return True
+        return self.elf_type == other.elf_type
 
     def __post_init__(self) -> None:
         """Check the inputted variables to make sure they are correct

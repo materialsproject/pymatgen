@@ -328,7 +328,7 @@ class ACstrExtractor(ACExtractorBase):
         Returns:
             np.ndarray | None: Virial tensor of shape=(9,)
         """
-        virial_tensor = []
+        virial_tensor: list[float] = []
         aim_content = "LATTICE"
         aim_idx = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)[0]
 
@@ -344,9 +344,7 @@ class ACstrExtractor(ACExtractorBase):
         for tmp_idx in [aim_idx + 1, aim_idx + 2, aim_idx + 3]:
             # tmp_str_lst = ['0.120972E+02', '0.483925E+01', '0.242063E+01']
             tmp_str_lst = self.strs_lst[tmp_idx].split()[-3:]
-            virial_tensor.append(float(tmp_str_lst[0]))
-            virial_tensor.append(float(tmp_str_lst[1]))
-            virial_tensor.append(float(tmp_str_lst[2]))
+            virial_tensor += (float(tmp_str_lst[0]), float(tmp_str_lst[1]), float(tmp_str_lst[2]))
 
         return np.array(virial_tensor)
 
@@ -441,17 +439,18 @@ class AtomConfig(MSONable):
             lattice = Lattice(-lattice.matrix)
 
         lines: list[str] = []
-        lines.append(f"\t{self.structure.num_sites} atoms\n")
-        lines.append("Lattice vector\n")
-        for ii in range(3):
-            lines.append(f"{lattice.matrix[ii][0]:>15f}{lattice.matrix[ii][1]:>15f}{lattice.matrix[ii][2]:>15f}\n")
+        lines += (f"\t{self.structure.num_sites} atoms\n", "Lattice vector\n")
+        for idx in range(3):
+            lines.append(f"{lattice.matrix[idx][0]:>15f}{lattice.matrix[idx][1]:>15f}{lattice.matrix[idx][2]:>15f}\n")
         lines.append("Position, move_x, move_y, move_z\n")
-        for ii in range(self.structure.num_sites):
-            lines.append(f"{int(self.structure.species[ii].Z):>4d}")
-            lines.append(f"{self.structure.frac_coords[ii][0]:>15f}")
-            lines.append(f"{self.structure.frac_coords[ii][1]:>15f}")
-            lines.append(f"{self.structure.frac_coords[ii][2]:>15f}")
-            lines.append("   1   1   1\n")
+        for site_idx in range(len(self.structure)):
+            lines += (
+                f"{int(self.structure.species[site_idx].Z):>4d}",
+                f"{self.structure.frac_coords[site_idx][0]:>15f}",
+                f"{self.structure.frac_coords[site_idx][1]:>15f}",
+                f"{self.structure.frac_coords[site_idx][2]:>15f}",
+                "   1   1   1\n",
+            )
         if "magmom" in self.structure.sites[0].properties:
             lines.append("MAGNETIC\n")
             for _, tmp_site in enumerate(self.structure.sites):

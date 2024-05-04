@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 __author__ = "Kiran Mathew, gmatteo"
 __credits__ = "Cormac Toher"
 
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 
 
 class EOSBase(ABC):
