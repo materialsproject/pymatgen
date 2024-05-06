@@ -330,7 +330,7 @@ class Cp2kOutput:
         with zopen(self.filename, mode="rt") as file:
             while True:
                 line = file.readline()
-                if "Atom  Kind  Element       X           Y           Z          Z(eff)       Mass" in line:
+                if re.search(r"Atom\s+Kind\s+Element\s+X\s+Y\s+Z\s+Z\(eff\)\s+Mass", line):
                     for _ in range(self.data["num_atoms"][0][0]):
                         line = file.readline().split()
                         if line == []:
