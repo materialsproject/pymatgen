@@ -1,0 +1,10 @@
+COHPstartEnergy -10.0
+COHPendEnergy 5.0
+basisSet pbeVaspFit2015
+cohpGenerator from 0.1 to 5.0 neighbor orbitalwise
+gaussianSmearingWidth 0.1
+saveProjectionToFile
+basisfunctions Ga 3d 4s 4p 4f
+basisfunctions As 4s 4p 4d 4f
+createFatband Ga 3d 4s 4p 4f
+createFatband As 4s 4p 4d 4f

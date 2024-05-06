@@ -1,0 +1,28 @@
+ALGO   = Normal
+PREC   = Accurate
+ISPIN  = 1
+IBRION = 2
+
+
+ENCUT = 520
+NPAR = 4
+
+ISIF   = 3
+NSW    = 0
+NELMIN = 4
+NELM = 200
+
+LWAVE = .True.
+LCHARG = .FALSE.
+
+ISYM   = -1
+
+ISMEAR = 0
+SIGMA = 0.1
+
+EDIFF = 1e-07
+EDIFFG = 1e-05
+POTIM = 0.5
+
+LORBIT=11
+NBANDS=32
