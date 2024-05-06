@@ -318,8 +318,7 @@ class Cp2kOutput:
 
     def parse_initial_structure(self):
         """Parse the initial structure from the main cp2k output file."""
-        pattern = re.compile(r"- Atoms:\s+(\d+)")
-        patterns = {"num_atoms": pattern}
+        patterns = {"num_atoms": re.compile(r"- Atoms:\s+(\d+)")}
         self.read_pattern(
             patterns=patterns,
             reverse=False,
@@ -340,36 +339,33 @@ class Cp2kOutput:
                     break
 
         lattice = self.parse_cell_params()
-        gs = {}
+        ghost_atoms = {}
         self.data["atomic_kind_list"] = []
-        for v in self.data["atomic_kind_info"].values():
-            if v["pseudo_potential"].upper() == "NONE":
-                gs[v["kind_number"]] = True
-            else:
-                gs[v["kind_number"]] = False
+        for val in self.data["atomic_kind_info"].values():
+            ghost_atoms[val["kind_number"]] = val["pseudo_potential"].upper() == "NONE"
 
-        for c in coord_table:
-            for k, v in self.data["atomic_kind_info"].items():
-                if int(v["kind_number"]) == int(c[1]):
-                    v["element"] = c[2]
-                    self.data["atomic_kind_list"].append(k)
+        for coord in coord_table:
+            for key, val in self.data["atomic_kind_info"].items():
+                if int(val["kind_number"]) == int(coord[1]):
+                    val["element"] = coord[2]
+                    self.data["atomic_kind_list"].append(key)
                     break
 
         if self.is_molecule:
             self.initial_structure = Molecule(
-                species=[i[2] for i in coord_table],
+                species=[coord[2] for coord in coord_table],
                 coords=[[float(i[4]), float(i[5]), float(i[6])] for i in coord_table],
-                site_properties={"ghost": [gs.get(int(i[1])) for i in coord_table]},
+                site_properties={"ghost": [ghost_atoms.get(int(i[1])) for i in coord_table]},
                 charge=self.charge,
                 spin_multiplicity=self.multiplicity,
             )
         else:
             self.initial_structure = Structure(
                 lattice,
-                species=[i[2] for i in coord_table],
+                species=[coord[2] for coord in coord_table],
                 coords=[[float(i[4]), float(i[5]), float(i[6])] for i in coord_table],
                 coords_are_cartesian=True,
-                site_properties={"ghost": [gs.get(int(i[1])) for i in coord_table]},
+                site_properties={"ghost": [ghost_atoms.get(int(i[1])) for i in coord_table]},
                 charge=self.charge,
             )
 
