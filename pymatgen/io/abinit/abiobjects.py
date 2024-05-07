@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import abc
+from collections import namedtuple
 from collections.abc import Iterable
 from enum import Enum, unique
 from pprint import pformat
-from typing import TYPE_CHECKING, NamedTuple, cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.collections import AttrDict
@@ -16,7 +17,7 @@ from monty.json import MontyDecoder, MontyEncoder, MSONable
 from pymatgen.core import ArrayWithUnit, Lattice, Species, Structure, units
 
 if TYPE_CHECKING:
-    from typing import Any, ClassVar
+    from typing import ClassVar
 
     from typing_extensions import Self
 
@@ -343,7 +344,7 @@ MANDATORY = MandatoryVariable()
 DEFAULT = DefaultVariable()
 
 
-class SpinMode(NamedTuple, AbivarAble, MSONable):
+class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble, MSONable):  # noqa: PYI024
     """
     Different configurations of the electron density as implemented in abinit:
     One can use as_spinmode to construct the object via SpinMode.as_spinmode
@@ -356,10 +357,7 @@ class SpinMode(NamedTuple, AbivarAble, MSONable):
         - spinor_nomag (non-collinear, no magnetism)
     """
 
-    mode: Any
-    nsppol: Any
-    nspinor: Any
-    nspden: Any
+    __slots__ = ()
 
     @classmethod
     def as_spinmode(cls, obj):

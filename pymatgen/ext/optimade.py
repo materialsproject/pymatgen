@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import logging
 import sys
-from collections import namedtuple
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 from urllib.parse import urljoin, urlparse
 
 import requests
@@ -20,13 +19,20 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-# TODO: import optimade-python-tool's data structures will make more sense
-Provider = namedtuple("Provider", ["name", "base_url", "description", "homepage", "prefix"])
-
 _logger = logging.getLogger(__name__)
 _handler = logging.StreamHandler(sys.stdout)
 _logger.addHandler(_handler)
 _logger.setLevel(logging.WARNING)
+
+
+class Provider(NamedTuple):
+    """TODO: Import optimade-python-tool's data structures will make more sense."""
+
+    name: str
+    base_url: str
+    description: str
+    homepage: str
+    prefix: str
 
 
 @due.dcite(
