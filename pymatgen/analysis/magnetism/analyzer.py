@@ -8,9 +8,8 @@ from __future__ import annotations
 import logging
 import os
 import warnings
-from collections import namedtuple
 from enum import Enum, unique
-from typing import TYPE_CHECKING, Any, no_type_check
+from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
 from monty.serialization import loadfn
@@ -27,6 +26,8 @@ from pymatgen.transformations.standard_transformations import AutoOxiStateDecora
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from numpy.typing import ArrayLike
 
 __author__ = "Matthew Horton"
@@ -281,7 +282,6 @@ class CollinearMagneticStructureAnalyzer:
         self.structure = structure
         self.threshold_ordering = threshold_ordering
 
-    @no_type_check  # ignore seemingly false mypy errors
     @staticmethod
     def _round_magmoms(magmoms: ArrayLike, round_magmoms_mode: float) -> np.ndarray:
         """If round_magmoms_mode is an integer, simply round to that number
@@ -1048,7 +1048,9 @@ class MagneticStructureEnumerator:
         return ordered_structures, ordered_structures_origins
 
 
-MagneticDeformation = namedtuple("MagneticDeformation", "type deformation")
+class MagneticDeformation(NamedTuple):
+    deformation: float
+    type: str
 
 
 @due.dcite(

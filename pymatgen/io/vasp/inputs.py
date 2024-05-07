@@ -1714,14 +1714,14 @@ def _parse_list(string: str) -> list[float]:
 
 class Orbital(NamedTuple):
     n: int
-    l: int
+    l: int  # noqa: E741
     j: float
     E: float
     occ: float
 
 
 class OrbitalDescription(NamedTuple):
-    l: int
+    l: int  # noqa: E741
     E: float
     Type: int
     Rcut: float

@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from collections import namedtuple
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
 
@@ -13,6 +12,8 @@ from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from typing_extensions import Self
 
 __author__ = "Shyam Dwaraknath"
@@ -36,9 +37,22 @@ class ChemicalShielding(SquareTensor):
     Authors: Shyam Dwaraknath, Xiaohui Qu
     """
 
-    HaeberlenNotation = namedtuple("HaeberlenNotation", "sigma_iso, delta_sigma_iso, zeta, eta")
-    MehringNotation = namedtuple("MehringNotation", "sigma_iso, sigma_11, sigma_22, sigma_33")
-    MarylandNotation = namedtuple("MarylandNotation", "sigma_iso, omega, kappa")
+    class HaeberlenNotation(NamedTuple):
+        sigma_iso: Any
+        delta_sigma_iso: Any
+        zeta: Any
+        eta: Any
+
+    class MehringNotation(NamedTuple):
+        sigma_iso: Any
+        sigma_11: Any
+        sigma_22: Any
+        sigma_33: Any
+
+    class MarylandNotation(NamedTuple):
+        sigma_iso: Any
+        omega: Any
+        kappa: Any
 
     def __new__(cls, cs_matrix, vscale=None) -> Self | None:  # type: ignore[misc]
         """

@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from collections import namedtuple
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from monty.functools import lazy_property
 from monty.json import MSONable
@@ -11,7 +10,7 @@ from monty.json import MSONable
 from pymatgen.core.libxcfunc import LibxcFunc
 
 if TYPE_CHECKING:
-    from typing import ClassVar
+    from typing import ClassVar, Literal
 
     from typing_extensions import Self
 
@@ -75,7 +74,11 @@ class XcFunc(MSONable):
     GGA     BLYP    GGA_X_B88+GGA_C_LYP          Becke, PRA 38, 3098 (1988); Lee, Yang, Parr, PRB 37, 785
     """
 
-    type_name = namedtuple("type_name", "type, name")
+    class type_name(NamedTuple):
+        """Type and name of the XcFunc."""
+
+        type: Literal["LDA", "GGA"]
+        name: str
 
     xcf = LibxcFunc
     defined_aliases: ClassVar = {

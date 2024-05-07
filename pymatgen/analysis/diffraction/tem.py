@@ -1,12 +1,11 @@
-"""This module implements a TEM pattern calculator."""
+"""TEM pattern calculator."""
 
 from __future__ import annotations
 
 import json
 import os
-from collections import namedtuple
 from fractions import Fraction
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 import numpy as np
 import pandas as pd
@@ -18,6 +17,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.string import latexify_spacegroup, unicodeify_spacegroup
 
 if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
     from pymatgen.core import Structure
 
 __author__ = "Frank Wan, Jason Liang"
@@ -29,13 +30,13 @@ __date__ = "03/31/2020"
 
 
 module_dir = os.path.dirname(__file__)
-with open(f"{module_dir}/atomic_scattering_params.json") as file:
+with open(f"{module_dir}/atomic_scattering_params.json", encoding="utf-8") as file:
     ATOMIC_SCATTERING_PARAMS = json.load(file)
 
 
 class TEMCalculator(AbstractDiffractionPatternCalculator):
     """
-    Computes the TEM pattern of a crystal structure for multiple Laue zones.
+    Compute the TEM pattern of a crystal structure for multiple Laue zones.
     Code partially inspired from XRD calculation implementation. X-ray factor to electron factor
         conversion based on the International Table of Crystallography.
     #TODO: Could add "number of iterations", "magnification", "critical value of beam",
@@ -520,13 +521,20 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         Returns:
             list of TEM_dots
         """
+
+        class dot(NamedTuple):
+            position: NDArray
+            hkl: tuple[int, int, int]
+            intensity: float
+            film_radius: float
+            d_spacing: float
+
         dots = []
         interplanar_spacings = self.get_interplanar_spacings(structure, points)
         bragg_angles = self.bragg_angles(interplanar_spacings)
         cell_intensity = self.normalized_cell_intensity(structure, bragg_angles)
         positions = self.get_positions(structure, points)
         for hkl, intensity in cell_intensity.items():
-            dot = namedtuple("dot", ["position", "hkl", "intensity", "film_radius", "d_spacing"])
             position = positions[hkl]
             film_radius = 0.91 * (10**-3 * self.cs * self.wavelength_rel() ** 3) ** Fraction("1/4")
             d_spacing = interplanar_spacings[hkl]
