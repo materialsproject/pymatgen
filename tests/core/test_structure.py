@@ -1790,6 +1790,7 @@ Sites (8)
         assert isinstance(atoms, Atoms)
         assert len(atoms) == len(self.struct)
         assert AseAtomsAdaptor.get_structure(atoms) == self.struct
+        assert Structure.from_ase_atoms(atoms) == self.struct
 
     def test_struct_with_isotope(self):
         struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
