@@ -201,7 +201,7 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
     """
 
     AC = AdditionalConditions()
-    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = dict()
+    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = {}
     STRATEGY_DESCRIPTION: str | None = None
     STRATEGY_INFO_FIELDS: ClassVar[list] = []
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"

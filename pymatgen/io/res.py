@@ -259,7 +259,7 @@ class ResWriter:
     def _sfac_from_sites(cls, sites: list[PeriodicSite]) -> ResSFAC:
         """Produce a SFAC block from a list of pymatgen PeriodicSite."""
         ions: list[Ion] = []
-        species: list[str] = list()
+        species: list[str] = []
 
         for site in sites:
             for specie, occ in site.species.items():

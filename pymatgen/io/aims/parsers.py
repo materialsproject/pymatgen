@@ -488,7 +488,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         """
         species, coords, velocities, lattice = self._parse_lattice_atom_pos()
 
-        site_properties: dict[str, Sequence[Any]] = dict()
+        site_properties: dict[str, Sequence[Any]] = {}
         if len(velocities) > 0:
             site_properties["velocity"] = np.array(velocities)
 
