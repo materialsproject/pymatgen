@@ -7,11 +7,11 @@ import logging
 import os.path
 import subprocess
 import warnings
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from itertools import combinations
 from operator import itemgetter
 from shutil import which
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 import networkx as nx
 import networkx.algorithms.isomorphism as iso
@@ -55,7 +55,13 @@ __email__ = "mkhorton@lbl.gov"
 __status__ = "Production"
 __date__ = "August 2017"
 
-ConnectedSite = namedtuple("ConnectedSite", "site, jimage, index, weight, dist")
+
+class ConnectedSite(NamedTuple):
+    site: PeriodicSite
+    jimage: tuple[int, int, int]
+    index: Any  # TODO: use more specific type
+    weight: float
+    dist: float
 
 
 def _compare(g1, g2, i1, i2) -> bool:

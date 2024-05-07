@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import logging
-from collections import namedtuple
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, NamedTuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -31,7 +30,12 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-FreqUnits = namedtuple("FreqUnits", ["factor", "label"])
+
+class FreqUnits(NamedTuple):
+    """Conversion factor from THz to the required units and the label."""
+
+    factor: float
+    label: str
 
 
 def freq_units(units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"]) -> FreqUnits:
@@ -40,7 +44,7 @@ def freq_units(units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"]) -> Fre
         units: str, accepted values: thz, ev, mev, ha, cm-1, cm^-1.
 
     Returns:
-        Conversion factor from THz to the required units and the label in the form of a namedtuple
+        Conversion factor from THz to the required units and the label in the form of a namedtuple.
     """
     dct = {
         "thz": FreqUnits(1, "THz"),

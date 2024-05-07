@@ -19,6 +19,8 @@ from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
     import matplotlib.pyplot as plt
 
 __author__ = "Kiran Mathew, gmatteo"
@@ -532,7 +534,7 @@ class EOS:
        eos_fit.plot()
     """
 
-    MODELS = dict(
+    MODELS: ClassVar = dict(
         murnaghan=Murnaghan,
         birch=Birch,
         birch_murnaghan=BirchMurnaghan,

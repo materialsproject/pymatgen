@@ -15,6 +15,7 @@ from pymatgen.core.structure import Molecule
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+    from typing import ClassVar
 
     from typing_extensions import Self
 
@@ -369,7 +370,7 @@ class AdfTask(MSONable):
         ADF does not support calculating force/gradient.
     """
 
-    operations = dict(
+    operations: ClassVar = dict(
         energy="Evaluate the single point energy.",
         optimize="Minimize the energy by varying the molecular structure.",
         frequencies="Compute second derivatives and print out an analysis of molecular vibrations.",

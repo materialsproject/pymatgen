@@ -36,6 +36,7 @@ from pymatgen.core.units import Energy, FloatWithUnit
 
 if TYPE_CHECKING:
     from pathlib import Path
+    from typing import ClassVar
 
     from typing_extensions import Self
 
@@ -47,7 +48,7 @@ if os.getenv("NWCHEM_BASIS_LIBRARY"):
 class NwTask(MSONable):
     """Base task for Nwchem."""
 
-    theories = {
+    theories: ClassVar = {
         "g3gn": "some description",
         "scf": "Hartree-Fock",
         "dft": "DFT",
@@ -68,7 +69,7 @@ class NwTask(MSONable):
         "tddft": "Time Dependent DFT",
     }
 
-    operations = {
+    operations: ClassVar = {
         "energy": "Evaluate the single point energy.",
         "gradient": "Evaluate the derivative of the energy with respect to nuclear coordinates.",
         "optimize": "Minimize the energy by varying the molecular structure.",
