@@ -940,7 +940,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return AseAtomsAdaptor.get_atoms(self, **kwargs)
 
     def from_ase_atoms(self, **kwargs) -> Structure:
-        """Converts the ase.Atoms object to pymatgen Structure.
+        """Convert ase.Atoms to pymatgen Structure.
 
         Args:
             kwargs: Passed to AseAtomsAdaptor.get_structure.
