@@ -71,7 +71,6 @@ lint.ignore = [
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
   "PT013",   # pytest-incorrect-pytest-import
   "PTH",     # prefer pathlib to os.path
-  "PYI024",  # collections-named-tuple (TODO should maybe fix these)
   "SIM105",  # Use contextlib.suppress() instead of try-except-pass
 ]
 lint.pydocstyle.convention = "google"

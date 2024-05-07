@@ -15,12 +15,11 @@ import os
 import re
 import subprocess
 import warnings
-from collections import namedtuple
 from collections.abc import Sequence
 from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 import numpy as np
 import scipy.constants as const
@@ -1713,13 +1712,26 @@ def _parse_list(string: str) -> list[float]:
     return [float(y) for y in re.split(r"\s+", string.strip()) if not y.isalpha()]
 
 
-Orbital = namedtuple("Orbital", ["n", "l", "j", "E", "occ"])
-OrbitalDescription = namedtuple("OrbitalDescription", ["l", "E", "Type", "Rcut", "Type2", "Rcut2"])
+class Orbital(NamedTuple):
+    n: int
+    l: int
+    j: float
+    E: float
+    occ: float
 
 
-# hashes computed from the full POTCAR file contents by pymatgen (not 1st-party VASP hashes)
+class OrbitalDescription(NamedTuple):
+    l: int
+    E: float
+    Type: int
+    Rcut: float
+    Type2: int | None
+    Rcut2: float | None
+
+
+# Hashes computed from the full POTCAR file contents by pymatgen (not 1st-party VASP hashes)
 PYMATGEN_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_pymatgen_hashes.json")
-# written to some newer POTCARs by VASP
+# Written to some newer POTCARs by VASP
 VASP_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
 POTCAR_STATS_PATH: str = os.path.join(module_dir, "potcar-summary-stats.json.bz2")
 

@@ -14,8 +14,8 @@ import shutil
 import sys
 import tempfile
 import traceback
-from collections import defaultdict, namedtuple
-from typing import TYPE_CHECKING
+from collections import defaultdict
+from typing import TYPE_CHECKING, NamedTuple
 from xml.etree import ElementTree as Et
 
 import numpy as np
@@ -33,9 +33,10 @@ from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
-    from typing import ClassVar
+    from typing import Any, ClassVar
 
     import matplotlib.pyplot as plt
+    from numpy.typing import NDArray
     from typing_extensions import Self
 
     from pymatgen.core import Structure
@@ -1008,8 +1009,13 @@ class PseudoParser:
 
     Error = PseudoParseError
 
-    # Supported values of pspcod
-    ppdesc = namedtuple("ppdesc", "pspcod name psp_type format")
+    class ppdesc(NamedTuple):
+        """Supported values of pspcod."""
+
+        pspcod: int
+        name: str
+        psp_type: str
+        format: None
 
     # TODO Recheck
     _PSPCODES: ClassVar = {
@@ -1169,11 +1175,14 @@ class PseudoParser:
         return pseudo
 
 
-# TODO use RadialFunction from pseudo_dojo.
-class RadialFunction(namedtuple("RadialFunction", "mesh values")):
-    """Radial Function class."""
+class RadialFunction(NamedTuple):
+    """Radial Function class.
 
-    __slots__ = ()
+    TODO: use RadialFunction from pseudo_dojo.
+    """
+
+    mesh: Any
+    values: NDArray
 
 
 class PawXmlSetup(Pseudo, PawPseudo):
