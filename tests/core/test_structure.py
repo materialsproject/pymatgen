@@ -2331,7 +2331,7 @@ class TestMolecule(PymatgenTest):
             mol_valid.set_charge_and_spin(0, 1)
 
     def test_set_charge_and_spin(self):
-        mol = Molecule.from_dict(self.mol.as_dict() | dict(charge=0, spin_multiplicity=1, charge_spin_check=False))
+        mol = Molecule.from_dict(self.mol.as_dict() | {"charge": 0, "spin_multiplicity": 1, "charge_spin_check": False})
         assert mol.spin_multiplicity == 1
         assert mol.charge == 0
         returned = mol.set_charge_and_spin(0, 3)

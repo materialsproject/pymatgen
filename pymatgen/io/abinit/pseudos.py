@@ -674,20 +674,20 @@ def _int_from_str(string):
 class NcAbinitHeader(AbinitHeader):
     """The abinit header found in the NC pseudopotential files."""
 
-    _VARS: ClassVar = dict(
-        zatom=(None, _int_from_str),
-        zion=(None, float),
-        pspdat=(None, float),
-        pspcod=(None, int),
-        pspxc=(None, int),
-        lmax=(None, int),
-        lloc=(None, int),
-        r2well=(None, float),
-        mmax=(None, float),
-        rchrg=(0.0, float),
-        fchrg=(0.0, float),
-        qchrg=(0.0, float),
-    )
+    _VARS: ClassVar = {
+        "zatom": (None, _int_from_str),
+        "zion": (None, float),
+        "pspdat": (None, float),
+        "pspcod": (None, int),
+        "pspxc": (None, int),
+        "lmax": (None, int),
+        "lloc": (None, int),
+        "r2well": (None, float),
+        "mmax": (None, float),
+        "rchrg": (0.0, float),
+        "fchrg": (0.0, float),
+        "qchrg": (0.0, float),
+    }
 
     def __init__(self, summary, **kwargs):
         super().__init__()
@@ -870,26 +870,26 @@ class NcAbinitHeader(AbinitHeader):
 class PawAbinitHeader(AbinitHeader):
     """The abinit header found in the PAW pseudopotential files."""
 
-    _VARS: ClassVar = dict(
-        zatom=(None, _int_from_str),
-        zion=(None, float),
-        pspdat=(None, float),
-        pspcod=(None, int),
-        pspxc=(None, int),
-        lmax=(None, int),
-        lloc=(None, int),
-        mmax=(None, int),
-        r2well=(None, float),
-        pspfmt=(None, str),
-        creatorID=(None, int),
-        basis_size=(None, int),
-        lmn_size=(None, int),
-        orbitals=(None, list),
-        number_of_meshes=(None, int),
-        r_cut=(None, float),  # r_cut(PAW) in the header
-        shape_type=(None, int),
-        rshape=(None, float),
-    )
+    _VARS: ClassVar = {
+        "zatom": (None, _int_from_str),
+        "zion": (None, float),
+        "pspdat": (None, float),
+        "pspcod": (None, int),
+        "pspxc": (None, int),
+        "lmax": (None, int),
+        "lloc": (None, int),
+        "mmax": (None, int),
+        "r2well": (None, float),
+        "pspfmt": (None, str),
+        "creatorID": (None, int),
+        "basis_size": (None, int),
+        "lmn_size": (None, int),
+        "orbitals": (None, list),
+        "number_of_meshes": (None, int),
+        "r_cut": (None, float),  # r_cut(PAW) in the header
+        "shape_type": (None, int),
+        "rshape": (None, float),
+    }
 
     def __init__(self, summary, **kwargs):
         super().__init__()

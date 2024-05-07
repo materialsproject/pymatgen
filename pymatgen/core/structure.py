@@ -820,7 +820,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         # UIP=universal interatomic potential
         run_uip = isinstance(calculator, str) and calculator.lower() in ("m3gnet", "chgnet")
 
-        calc_params = {} if is_molecule else dict(stress_weight=stress_weight)
+        calc_params = {} if is_molecule else {"stress_weight": stress_weight}
         calculator = self._prep_calculator(calculator, **calc_params)
 
         # check str is valid optimizer key

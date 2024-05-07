@@ -370,13 +370,13 @@ class AdfTask(MSONable):
         ADF does not support calculating force/gradient.
     """
 
-    operations: ClassVar = dict(
-        energy="Evaluate the single point energy.",
-        optimize="Minimize the energy by varying the molecular structure.",
-        frequencies="Compute second derivatives and print out an analysis of molecular vibrations.",
-        freq="Same as frequencies.",
-        numerical_frequencies="Compute molecular frequencies using numerical method.",
-    )
+    operations: ClassVar = {
+        "energy": "Evaluate the single point energy.",
+        "optimize": "Minimize the energy by varying the molecular structure.",
+        "frequencies": "Compute second derivatives and print out an analysis of molecular vibrations.",
+        "freq": "Same as frequencies.",
+        "numerical_frequencies": "Compute molecular frequencies using numerical method.",
+    }
 
     def __init__(
         self,

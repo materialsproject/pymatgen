@@ -29,8 +29,8 @@ class ChemEnvConfig:
     - Default options (strategies, ...).
     """
 
-    DEFAULT_PACKAGE_OPTIONS: ClassVar = dict(
-        default_strategy={
+    DEFAULT_PACKAGE_OPTIONS: ClassVar = {
+        "default_strategy": {
             "strategy": "SimplestChemenvStrategy",
             "strategy_options": {
                 "distance_cutoff": strategies_class_lookup["SimplestChemenvStrategy"].DEFAULT_DISTANCE_CUTOFF,
@@ -41,8 +41,8 @@ class ChemEnvConfig:
                 ].DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF,
             },
         },
-        default_max_distance_factor=1.5,
-    )
+        "default_max_distance_factor": 1.5,
+    }
 
     def __init__(self, package_options=None):
         """

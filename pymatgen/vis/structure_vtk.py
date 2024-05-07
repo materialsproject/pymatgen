@@ -880,12 +880,12 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
 class MultiStructuresVis(StructureVis):
     """Visualization for multiple structures."""
 
-    DEFAULT_ANIMATED_MOVIE_OPTIONS: ClassVar = dict(
-        time_between_frames=0.1,
-        looping_type="restart",
-        number_of_loops=1,
-        time_between_loops=1.0,
-    )
+    DEFAULT_ANIMATED_MOVIE_OPTIONS: ClassVar = {
+        "time_between_frames": 0.1,
+        "looping_type": "restart",
+        "number_of_loops": 1,
+        "time_between_loops": 1.0,
+    }
 
     def __init__(
         self,

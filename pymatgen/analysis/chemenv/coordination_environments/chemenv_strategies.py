@@ -201,7 +201,7 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
     """
 
     AC = AdditionalConditions()
-    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = dict()
+    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = {}
     STRATEGY_DESCRIPTION: str | None = None
     STRATEGY_INFO_FIELDS: ClassVar[list] = []
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
@@ -508,28 +508,28 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     DEFAULT_ANGLE_CUTOFF = 0.3
     DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = dict(  # type: ignore
-        distance_cutoff=dict(
-            type=DistanceCutoffFloat,
-            internal="_distance_cutoff",
-            default=DEFAULT_DISTANCE_CUTOFF,
-        ),
-        angle_cutoff=dict(
-            type=AngleCutoffFloat,
-            internal="_angle_cutoff",
-            default=DEFAULT_ANGLE_CUTOFF,
-        ),
-        additional_condition=dict(
-            type=AdditionalConditionInt,
-            internal="_additional_condition",
-            default=DEFAULT_ADDITIONAL_CONDITION,
-        ),
-        continuous_symmetry_measure_cutoff=dict(
-            type=CSMFloat,
-            internal="_continuous_symmetry_measure_cutoff",
-            default=DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF,
-        ),
-    )
+    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = {  # type: ignore
+        "distance_cutoff": {
+            "type": DistanceCutoffFloat,
+            "internal": "_distance_cutoff",
+            "default": DEFAULT_DISTANCE_CUTOFF,
+        },
+        "angle_cutoff": {
+            "type": AngleCutoffFloat,
+            "internal": "_angle_cutoff",
+            "default": DEFAULT_ANGLE_CUTOFF,
+        },
+        "additional_condition": {
+            "type": AdditionalConditionInt,
+            "internal": "_additional_condition",
+            "default": DEFAULT_ADDITIONAL_CONDITION,
+        },
+        "continuous_symmetry_measure_cutoff": {
+            "type": CSMFloat,
+            "internal": "_continuous_symmetry_measure_cutoff",
+            "default": DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF,
+        },
+    }
 
     STRATEGY_DESCRIPTION = (
         "Simplest ChemenvStrategy using fixed angle and distance parameters \n"
@@ -893,14 +893,14 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
 
     DEFAULT_MAX_DIST = 2.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = dict(  # type: ignore
-        surface_calculation_type={},
-        additional_condition=dict(
-            type=AdditionalConditionInt,
-            internal="_additional_condition",
-            default=DEFAULT_ADDITIONAL_CONDITION,
-        ),
-    )
+    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = {  # type: ignore
+        "surface_calculation_type": {},
+        "additional_condition": {
+            "type": AdditionalConditionInt,
+            "internal": "_additional_condition",
+            "default": DEFAULT_ADDITIONAL_CONDITION,
+        },
+    }
     STRATEGY_DESCRIPTION = (
         'Simple Abundance ChemenvStrategy using the most "abundant" neighbors map \n'
         "for the definition of neighbors in the Voronoi approach. \n"
@@ -1640,14 +1640,14 @@ class SelfCSMNbSetWeight(NbSetWeight):
 
     SHORT_NAME = "SelfCSMWeight"
 
-    DEFAULT_EFFECTIVE_CSM_ESTIMATOR: ClassVar = dict(
-        function="power2_inverse_decreasing",
-        options={"max_csm": 8.0},
-    )
-    DEFAULT_WEIGHT_ESTIMATOR: ClassVar = dict(
-        function="power2_decreasing_exp",
-        options={"max_csm": 8.0, "alpha": 1},
-    )
+    DEFAULT_EFFECTIVE_CSM_ESTIMATOR: ClassVar = {
+        "function": "power2_inverse_decreasing",
+        "options": {"max_csm": 8.0},
+    }
+    DEFAULT_WEIGHT_ESTIMATOR: ClassVar = {
+        "function": "power2_decreasing_exp",
+        "options": {"max_csm": 8.0, "alpha": 1},
+    }
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
 
     def __init__(
@@ -1743,15 +1743,15 @@ class DeltaCSMNbSetWeight(NbSetWeight):
 
     SHORT_NAME = "DeltaCSMWeight"
 
-    DEFAULT_EFFECTIVE_CSM_ESTIMATOR: ClassVar = dict(
-        function="power2_inverse_decreasing",
-        options={"max_csm": 8.0},
-    )
+    DEFAULT_EFFECTIVE_CSM_ESTIMATOR: ClassVar = {
+        "function": "power2_inverse_decreasing",
+        "options": {"max_csm": 8.0},
+    }
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
-    DEFAULT_WEIGHT_ESTIMATOR: ClassVar = dict(
-        function="smootherstep",
-        options={"delta_csm_min": 0.5, "delta_csm_max": 3.0},
-    )
+    DEFAULT_WEIGHT_ESTIMATOR: ClassVar = {
+        "function": "smootherstep",
+        "options": {"delta_csm_min": 0.5, "delta_csm_max": 3.0},
+    }
 
     def __init__(
         self,
@@ -2121,11 +2121,11 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
     SHORT_NAME = "DistAngleAreaWeight"
 
     AC = AdditionalConditions()
-    DEFAULT_SURFACE_DEFINITION: ClassVar = dict(
-        type="standard_elliptic",
-        distance_bounds={"lower": 1.2, "upper": 1.8},
-        angle_bounds={"lower": 0.1, "upper": 0.8},
-    )
+    DEFAULT_SURFACE_DEFINITION: ClassVar = {
+        "type": "standard_elliptic",
+        "distance_bounds": {"lower": 1.2, "upper": 1.8},
+        "angle_bounds": {"lower": 0.1, "upper": 0.8},
+    }
 
     def __init__(
         self,
@@ -2644,10 +2644,10 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
     """WeightedNbSetChemenvStrategy."""
 
     STRATEGY_DESCRIPTION = "    WeightedNbSetChemenvStrategy"
-    DEFAULT_CE_ESTIMATOR: ClassVar = dict(
-        function="power2_inverse_power2_decreasing",
-        options={"max_csm": 8.0},
-    )
+    DEFAULT_CE_ESTIMATOR: ClassVar = {
+        "function": "power2_inverse_power2_decreasing",
+        "options": {"max_csm": 8.0},
+    }
 
     def __init__(
         self,
@@ -2948,10 +2948,10 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
     #                         'cn_map_delta_csm', 'cn_map_delta_csms_cn_map2', 'cn_map_delta_csm_weight',
     #                         'cn_map_cn_weight',
     #                         'cn_map_fraction', 'cn_map_ce_fraction', 'ce_fraction']
-    DEFAULT_CE_ESTIMATOR: ClassVar = dict(
-        function="power2_inverse_power2_decreasing",
-        options={"max_csm": 8.0},
-    )
+    DEFAULT_CE_ESTIMATOR: ClassVar = {
+        "function": "power2_inverse_power2_decreasing",
+        "options": {"max_csm": 8.0},
+    }
 
     def __init__(
         self,

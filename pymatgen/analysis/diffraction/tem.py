@@ -584,11 +584,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 showlegend=False,
             ),
         ]
-        layout = dict(
-            title="2D Diffraction Pattern<br>Beam Direction: " + "".join(map(str, self.beam_direction)),
-            font={"size": 14, "color": "#7f7f7f"},
-            hovermode="closest",
-            xaxis={
+        layout = {
+            "title": "2D Diffraction Pattern<br>Beam Direction: " + "".join(map(str, self.beam_direction)),
+            "font": {"size": 14, "color": "#7f7f7f"},
+            "hovermode": "closest",
+            "xaxis": {
                 "range": [-4, 4],
                 "showgrid": False,
                 "zeroline": False,
@@ -596,7 +596,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 "ticks": "",
                 "showticklabels": False,
             },
-            yaxis={
+            "yaxis": {
                 "range": [-4, 4],
                 "showgrid": False,
                 "zeroline": False,
@@ -604,11 +604,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 "ticks": "",
                 "showticklabels": False,
             },
-            width=550,
-            height=550,
-            paper_bgcolor="rgba(100,110,110,0.5)",
-            plot_bgcolor="black",
-        )
+            "width": 550,
+            "height": 550,
+            "paper_bgcolor": "rgba(100,110,110,0.5)",
+            "plot_bgcolor": "black",
+        }
         return go.Figure(data=data, layout=layout)
 
     def get_plot_2d_concise(self, structure: Structure) -> go.Figure:
@@ -653,8 +653,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 showlegend=False,
             )
         ]
-        layout = dict(
-            xaxis={
+        layout = {
+            "xaxis": {
                 "range": [-4, 4],
                 "showgrid": False,
                 "zeroline": False,
@@ -662,7 +662,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 "ticks": "",
                 "showticklabels": False,
             },
-            yaxis={
+            "yaxis": {
                 "range": [-4, 4],
                 "showgrid": False,
                 "zeroline": False,
@@ -670,11 +670,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
                 "ticks": "",
                 "showticklabels": False,
             },
-            plot_bgcolor="black",
-            margin={"l": 0, "r": 0, "t": 0, "b": 0},
-            width=121,
-            height=121,
-        )
+            "plot_bgcolor": "black",
+            "margin": {"l": 0, "r": 0, "t": 0, "b": 0},
+            "width": 121,
+            "height": 121,
+        }
         fig = go.Figure(data=data, layout=layout)
         fig.layout.update(showlegend=False)
         return fig

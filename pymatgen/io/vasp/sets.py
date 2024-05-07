@@ -1626,7 +1626,7 @@ class MPHSEBSSet(DictSet):
     @property
     def incar_updates(self) -> dict:
         """Updates to the INCAR config for this calculation type."""
-        updates = dict(NSW=0, ISMEAR=0, SIGMA=0.05, ISYM=3, LCHARG=False, NELMIN=5)
+        updates = {"NSW": 0, "ISMEAR": 0, "SIGMA": 0.05, "ISYM": 3, "LCHARG": False, "NELMIN": 5}
 
         if self.mode == "uniform" and len(self.added_kpoints) == 0:
             # automatic setting of nedos using the energy range and the energy step
@@ -2216,7 +2216,15 @@ class MVLGBSet(DictSet):
         """Updates to the INCAR config for this calculation type."""
         # The default incar setting is used for metallic system, for
         # insulator or semiconductor, ISMEAR need to be changed.
-        updates = dict(LCHARG=False, NELM=60, PREC="Normal", EDIFFG=-0.02, ICHARG=0, NSW=200, EDIFF=0.0001)
+        updates = {
+            "LCHARG": False,
+            "NELM": 60,
+            "PREC": "Normal",
+            "EDIFFG": -0.02,
+            "ICHARG": 0,
+            "NSW": 200,
+            "EDIFF": 0.0001,
+        }
 
         if self.is_metal:
             updates["ISMEAR"] = 1
