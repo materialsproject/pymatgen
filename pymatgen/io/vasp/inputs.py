@@ -40,7 +40,7 @@ from pymatgen.util.typing import Kpoint, Vector3D
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from pathlib import Path
-    from typing import Any, Literal
+    from typing import Any, ClassVar, Literal
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self
@@ -1744,7 +1744,7 @@ class PotcarSingle:
     #     in the PSCTR/header field.
     # We indicate the older release in `functional_dir` as PBE_52, PBE_54, LDA_52, LDA_54.
     # The newer release is indicated as PBE_52_W_HASH, etc.
-    functional_dir = {
+    functional_dir: ClassVar = {
         "PBE": "POT_GGA_PAW_PBE",
         "PBE_52": "POT_GGA_PAW_PBE_52",
         "PBE_52_W_HASH": "POTPAW_PBE_52",
@@ -1763,7 +1763,7 @@ class PotcarSingle:
         "Perdew_Zunger81": "POT_LDA_PAW",
     }
 
-    functional_tags = {
+    functional_tags: ClassVar = {
         "pe": {"name": "PBE", "class": "GGA"},
         "91": {"name": "PW91", "class": "GGA"},
         "rp": {"name": "revPBE", "class": "GGA"},
@@ -1777,7 +1777,7 @@ class PotcarSingle:
         "wi": {"name": "Wigner Interpolation", "class": "LDA"},
     }
 
-    parse_functions = {
+    parse_functions: ClassVar = {
         "LULTRA": _parse_bool,
         "LUNSCR": _parse_bool,
         "LCOR": _parse_bool,

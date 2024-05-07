@@ -33,6 +33,7 @@ from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
+    from typing import ClassVar
 
     import matplotlib.pyplot as plt
     from typing_extensions import Self
@@ -673,7 +674,7 @@ def _int_from_str(string):
 class NcAbinitHeader(AbinitHeader):
     """The abinit header found in the NC pseudopotential files."""
 
-    _VARS = dict(
+    _VARS: ClassVar = dict(
         zatom=(None, _int_from_str),
         zion=(None, float),
         pspdat=(None, float),
@@ -869,7 +870,7 @@ class NcAbinitHeader(AbinitHeader):
 class PawAbinitHeader(AbinitHeader):
     """The abinit header found in the PAW pseudopotential files."""
 
-    _VARS = dict(
+    _VARS: ClassVar = dict(
         zatom=(None, _int_from_str),
         zion=(None, float),
         pspdat=(None, float),
@@ -1011,7 +1012,7 @@ class PseudoParser:
     ppdesc = namedtuple("ppdesc", "pspcod name psp_type format")
 
     # TODO Recheck
-    _PSPCODES = {
+    _PSPCODES: ClassVar = {
         1: ppdesc(1, "TM", "NC", None),
         2: ppdesc(2, "GTH", "NC", None),
         3: ppdesc(3, "HGH", "NC", None),

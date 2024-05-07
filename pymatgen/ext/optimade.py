@@ -16,9 +16,11 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.provenance import StructureNL
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
     from typing_extensions import Self
 
-# TODO: importing optimade-python-tool's data structures will make more sense
+# TODO: import optimade-python-tool's data structures will make more sense
 Provider = namedtuple("Provider", ["name", "base_url", "description", "homepage", "prefix"])
 
 _logger = logging.getLogger(__name__)
@@ -50,7 +52,7 @@ class OptimadeRester:
 
     # regenerate on-demand from official providers.json using OptimadeRester.refresh_aliases()
     # these aliases are provided as a convenient shortcut for users of the OptimadeRester class
-    aliases = {
+    aliases: ClassVar = {
         "aflow": "http://aflow.org/API/optimade/",
         "alexandria": "https://alexandria.icams.rub.de/pbe",
         "alexandria.pbe": "https://alexandria.icams.rub.de/pbe",

@@ -49,6 +49,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
     from typing_extensions import Self
 
 __author__ = "David Waroquiers"
@@ -362,19 +364,19 @@ class LocalGeometryFinder:
     """Main class used to find the local environments in a structure."""
 
     DEFAULT_BVA_DISTANCE_SCALE_FACTOR = 1.0
-    BVA_DISTANCE_SCALE_FACTORS = dict(
+    BVA_DISTANCE_SCALE_FACTORS: ClassVar = dict(
         experimental=1.0,
         GGA_relaxed=1.015,
         LDA_relaxed=0.995,
     )
-    DEFAULT_SPG_ANALYZER_OPTIONS = dict(symprec=1e-3, angle_tolerance=5)
+    DEFAULT_SPG_ANALYZER_OPTIONS: ClassVar = dict(symprec=1e-3, angle_tolerance=5)
     STRUCTURE_REFINEMENT_NONE = "none"
     STRUCTURE_REFINEMENT_REFINED = "refined"
     STRUCTURE_REFINEMENT_SYMMETRIZED = "symmetrized"
 
     DEFAULT_STRATEGY = MultiWeightsChemenvStrategy.stats_article_weights_parameters()
 
-    PRESETS = {
+    PRESETS: ClassVar = {
         "DEFAULT": {
             "maximum_distance_factor": 2.0,
             "minimum_angle_factor": 0.05,
