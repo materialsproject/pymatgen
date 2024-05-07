@@ -364,12 +364,12 @@ class LocalGeometryFinder:
     """Main class used to find the local environments in a structure."""
 
     DEFAULT_BVA_DISTANCE_SCALE_FACTOR = 1.0
-    BVA_DISTANCE_SCALE_FACTORS: ClassVar = {
-        "experimental": 1.0,
-        "GGA_relaxed": 1.015,
-        "LDA_relaxed": 0.995,
-    }
-    DEFAULT_SPG_ANALYZER_OPTIONS: ClassVar = {"symprec": 1e-3, "angle_tolerance": 5}
+    BVA_DISTANCE_SCALE_FACTORS: ClassVar = dict(
+        experimental=1.0,
+        GGA_relaxed=1.015,
+        LDA_relaxed=0.995,
+    )
+    DEFAULT_SPG_ANALYZER_OPTIONS: ClassVar = dict(symprec=1e-3, angle_tolerance=5)
     STRUCTURE_REFINEMENT_NONE = "none"
     STRUCTURE_REFINEMENT_REFINED = "refined"
     STRUCTURE_REFINEMENT_SYMMETRIZED = "symmetrized"

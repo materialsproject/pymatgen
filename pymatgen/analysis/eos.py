@@ -534,15 +534,15 @@ class EOS:
        eos_fit.plot()
     """
 
-    MODELS: ClassVar = {
-        "murnaghan": Murnaghan,
-        "birch": Birch,
-        "birch_murnaghan": BirchMurnaghan,
-        "pourier_tarantola": PourierTarantola,
-        "vinet": Vinet,
-        "deltafactor": DeltaFactor,
-        "numerical_eos": NumericalEOS,
-    }
+    MODELS: ClassVar = dict(
+        murnaghan=Murnaghan,
+        birch=Birch,
+        birch_murnaghan=BirchMurnaghan,
+        pourier_tarantola=PourierTarantola,
+        vinet=Vinet,
+        deltafactor=DeltaFactor,
+        numerical_eos=NumericalEOS,
+    )
 
     def __init__(self, eos_name="murnaghan"):
         """

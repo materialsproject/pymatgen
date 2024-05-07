@@ -116,15 +116,15 @@ class AbstractRatioFunction:
 class RatioFunction(AbstractRatioFunction):
     """Concrete implementation of a series of ratio functions."""
 
-    ALLOWED_FUNCTIONS: ClassVar = {
-        "power2_decreasing_exp": ["max", "alpha"],
-        "smoothstep": ["lower", "upper"],
-        "smootherstep": ["lower", "upper"],
-        "inverse_smoothstep": ["lower", "upper"],
-        "inverse_smootherstep": ["lower", "upper"],
-        "power2_inverse_decreasing": ["max"],
-        "power2_inverse_power2_decreasing": ["max"],
-    }
+    ALLOWED_FUNCTIONS: ClassVar = dict(
+        power2_decreasing_exp=["max", "alpha"],
+        smoothstep=["lower", "upper"],
+        smootherstep=["lower", "upper"],
+        inverse_smoothstep=["lower", "upper"],
+        inverse_smootherstep=["lower", "upper"],
+        power2_inverse_decreasing=["max"],
+        power2_inverse_power2_decreasing=["max"],
+    )
 
     def power2_decreasing_exp(self, vals):
         """Get the evaluation of the ratio function f(x)=exp(-a*x)*(x-1)^2.
@@ -229,11 +229,11 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
     D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).
     """
 
-    ALLOWED_FUNCTIONS: ClassVar = {
-        "power2_decreasing_exp": ["max_csm", "alpha"],
-        "smoothstep": ["lower_csm", "upper_csm"],
-        "smootherstep": ["lower_csm", "upper_csm"],
-    }
+    ALLOWED_FUNCTIONS: ClassVar = dict(
+        power2_decreasing_exp=["max_csm", "alpha"],
+        smoothstep=["lower_csm", "upper_csm"],
+        smootherstep=["lower_csm", "upper_csm"],
+    )
 
     def power2_decreasing_exp(self, vals):
         """Get the evaluation of the ratio function f(x)=exp(-a*x)*(x-1)^2.
@@ -330,10 +330,10 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
     D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).
     """
 
-    ALLOWED_FUNCTIONS: ClassVar = {
-        "power2_inverse_decreasing": ["max_csm"],
-        "power2_inverse_power2_decreasing": ["max_csm"],
-    }
+    ALLOWED_FUNCTIONS: ClassVar = dict(
+        power2_inverse_decreasing=["max_csm"],
+        power2_inverse_power2_decreasing=["max_csm"],
+    )
 
     def power2_inverse_decreasing(self, vals):
         """Get the evaluation of the ratio function f(x)=(x-1)^2 / x.
@@ -421,7 +421,7 @@ class DeltaCSMRatioFunction(AbstractRatioFunction):
     D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).
     """
 
-    ALLOWED_FUNCTIONS: ClassVar = {"smootherstep": ["delta_csm_min", "delta_csm_max"]}
+    ALLOWED_FUNCTIONS: ClassVar = dict(smootherstep=["delta_csm_min", "delta_csm_max"])
 
     def smootherstep(self, vals):
         """Get the evaluation of the smootherstep ratio function: f(x)=6*x^5-15*x^4+10*x^3.

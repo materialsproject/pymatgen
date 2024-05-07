@@ -915,7 +915,7 @@ class CompleteDos(Dos):
         Returns:
             float: orbital-projected skewness (dimensionless)
         """
-        kwds: dict = {"elements": elements, "sites": sites, "band": band, "spin": spin, "erange": erange}
+        kwds: dict = dict(elements=elements, sites=sites, band=band, spin=spin, erange=erange)
         return self.get_n_moment(3, **kwds) / self.get_n_moment(2, **kwds) ** (3 / 2)
 
     def get_band_kurtosis(
@@ -945,7 +945,7 @@ class CompleteDos(Dos):
         Returns:
             float: orbital-projected kurtosis (dimensionless)
         """
-        kwds: dict = {"elements": elements, "sites": sites, "band": band, "spin": spin, "erange": erange}
+        kwds: dict = dict(elements=elements, sites=sites, band=band, spin=spin, erange=erange)
         return self.get_n_moment(4, **kwds) / self.get_n_moment(2, **kwds) ** 2
 
     def get_n_moment(

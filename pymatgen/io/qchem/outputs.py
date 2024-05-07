@@ -977,7 +977,7 @@ class QCOutput(MSONable):
                         dipole[ii][jj] = temp_dipole[ii][jj]
                 self.data["dipoles"]["dipole"] = dipole
 
-        self.data["multipoles"] = {}
+        self.data["multipoles"] = dict()
 
         quad_mom_pat = (
             r"\s*Quadrupole Moments \(Debye\-Ang\)\s+XX\s+([\-\.0-9]+)\s+XY\s+([\-\.0-9]+)\s+YY"
@@ -991,7 +991,7 @@ class QCOutput(MSONable):
                     key: float(temp_quadrupole_moment[0][idx]) for idx, key in enumerate(keys)
                 }
             else:
-                self.data["multipoles"]["quadrupole"] = []
+                self.data["multipoles"]["quadrupole"] = list()
                 for qpole in temp_quadrupole_moment:
                     self.data["multipoles"]["quadrupole"].append(
                         {key: float(qpole[idx]) for idx, key in enumerate(keys)}
@@ -1010,7 +1010,7 @@ class QCOutput(MSONable):
                     key: float(temp_octopole_moment[0][idx]) for idx, key in enumerate(keys)
                 }
             else:
-                self.data["multipoles"]["octopole"] = []
+                self.data["multipoles"]["octopole"] = list()
                 for opole in temp_octopole_moment:
                     self.data["multipoles"]["octopole"].append({key: float(opole[idx]) for idx, key in enumerate(keys)})
 
@@ -1046,7 +1046,7 @@ class QCOutput(MSONable):
                     key: float(temp_hexadecapole_moment[0][idx]) for idx, key in enumerate(keys)
                 }
             else:
-                self.data["multipoles"]["hexadecapole"] = []
+                self.data["multipoles"]["hexadecapole"] = list()
                 for hpole in temp_hexadecapole_moment:
                     self.data["multipoles"]["hexadecapole"].append(
                         {key: float(hpole[idx]) for idx, key in enumerate(keys)}

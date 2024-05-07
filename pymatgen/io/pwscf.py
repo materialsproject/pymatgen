@@ -502,18 +502,18 @@ class PWInputError(BaseException):
 class PWOutput:
     """Parser for PWSCF output file."""
 
-    patterns: ClassVar = {
-        "energies": r"total energy\s+=\s+([\d\.\-]+)\sRy",
-        "ecut": r"kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry",
-        "lattice_type": r"bravais\-lattice index\s+=\s+(\d+)",
-        "celldm1": r"celldm\(1\)=\s+([\d\.]+)\s",
-        "celldm2": r"celldm\(2\)=\s+([\d\.]+)\s",
-        "celldm3": r"celldm\(3\)=\s+([\d\.]+)\s",
-        "celldm4": r"celldm\(4\)=\s+([\d\.]+)\s",
-        "celldm5": r"celldm\(5\)=\s+([\d\.]+)\s",
-        "celldm6": r"celldm\(6\)=\s+([\d\.]+)\s",
-        "nkpts": r"number of k points=\s+([\d]+)",
-    }
+    patterns: ClassVar = dict(
+        energies=r"total energy\s+=\s+([\d\.\-]+)\sRy",
+        ecut=r"kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry",
+        lattice_type=r"bravais\-lattice index\s+=\s+(\d+)",
+        celldm1=r"celldm\(1\)=\s+([\d\.]+)\s",
+        celldm2=r"celldm\(2\)=\s+([\d\.]+)\s",
+        celldm3=r"celldm\(3\)=\s+([\d\.]+)\s",
+        celldm4=r"celldm\(4\)=\s+([\d\.]+)\s",
+        celldm5=r"celldm\(5\)=\s+([\d\.]+)\s",
+        celldm6=r"celldm\(6\)=\s+([\d\.]+)\s",
+        nkpts=r"number of k points=\s+([\d]+)",
+    )
 
     def __init__(self, filename):
         """

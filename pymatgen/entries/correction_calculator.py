@@ -276,7 +276,7 @@ class CorrectionCalculator:
                 mode="markers",
                 text=labels_graph,
             ),
-            layout={"title": "Residual Errors", "yaxis": {"title": "Residual Error (eV/atom)"}},
+            layout=dict(title="Residual Errors", yaxis=dict(title="Residual Error (eV/atom)")),
         )
 
         print("Residual Error:")
@@ -342,10 +342,10 @@ class CorrectionCalculator:
                 mode="markers",
                 text=labels_species,
             ),
-            layout={
-                "title": {"text": f"Residual Errors for {specie}"},
-                "yaxis": {"title": "Residual Error (eV/atom)"},
-            },
+            layout=dict(
+                title=dict(text=f"Residual Errors for {specie}"),
+                yaxis=dict(title="Residual Error (eV/atom)"),
+            ),
         )
 
         print("Residual Error:")

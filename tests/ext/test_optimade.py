@@ -57,7 +57,7 @@ class TestOptimade(PymatgenTest):
 
     @pytest.mark.skipif(website_down, reason="MP OPTIMADE is down.")
     def test_get_snls_mp(self):
-        base_query = {"elements": ["Ga", "N"], "nelements": 2, "nsites": [2, 6]}
+        base_query = dict(elements=["Ga", "N"], nelements=2, nsites=[2, 6])
         with OptimadeRester("mp") as optimade:
             structs = optimade.get_snls(**base_query)
 
