@@ -29,6 +29,7 @@ Todo:
 from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -43,11 +44,17 @@ from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.vasp import Vasprun
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
+
 try:
     from BoltzTraP2 import bandlib as BL
     from BoltzTraP2 import fite, sphere, units
 except ImportError:
     raise BoltztrapError("BoltzTraP2 has to be installed and working")
+
 
 __author__ = "Francesco Ricci"
 __copyright__ = "Copyright 2018, The Materials Project"
@@ -101,10 +108,7 @@ class VasprunBSLoader:
 
         self.is_spin_polarized = bs_obj.is_spin_polarized
 
-        if bs_obj.is_spin_polarized:
-            self.dosweight = 1.0
-        else:
-            self.dosweight = 2.0
+        self.dosweight = 1.0 if bs_obj.is_spin_polarized else 2.0
 
         self.lattvec = self.atoms.get_cell().T * units.Angstrom
         self.mommat_all = None  # not implemented yet
@@ -131,7 +135,7 @@ class VasprunBSLoader:
             raise BoltztrapError("nelect must be given.")
 
     @classmethod
-    def from_file(cls, vasprun_file):
+    def from_file(cls, vasprun_file: str | Path) -> Self:
         """Get a vasprun.xml file and return a VasprunBSLoader."""
         vrun_obj = Vasprun(vasprun_file, parse_projected_eigen=True)
         return cls(vrun_obj)
@@ -165,7 +169,7 @@ class VasprunBSLoader:
         self.proj = {}
         if self.proj_all:
             if len(self.proj_all) == 2:
-                h = int(len(accepted) / 2)
+                h = len(accepted) // 2
                 self.proj[Spin.up] = self.proj_all[Spin.up][:, accepted[:h], :, :]
                 self.proj[Spin.down] = self.proj_all[Spin.down][:, accepted[h:], :, :]
             elif len(self.proj_all) == 1:
@@ -203,10 +207,7 @@ class BandstructureLoader:
 
         self.kpoints = np.array([kp.frac_coords for kp in bs_obj.kpoints])
 
-        if structure is None:
-            self.structure = bs_obj.structure
-        else:
-            self.structure = structure
+        self.structure = bs_obj.structure if structure is None else structure
 
         self.atoms = AseAtomsAdaptor.get_atoms(self.structure)
         self.proj_all = None
@@ -219,10 +220,7 @@ class BandstructureLoader:
 
         self.is_spin_polarized = bs_obj.is_spin_polarized
 
-        if bs_obj.is_spin_polarized:
-            self.dosweight = 1.0
-        else:
-            self.dosweight = 2.0
+        self.dosweight = 1.0 if bs_obj.is_spin_polarized else 2.0
 
         self.lattvec = self.atoms.get_cell().T * units.Angstrom
         self.mommat_all = mommat  # not implemented yet
@@ -263,7 +261,7 @@ class BandstructureLoader:
         self.proj = {}
         if self.proj_all:
             if len(self.proj_all) == 2:
-                h = int(len(accepted) / 2)
+                h = len(accepted) // 2
                 self.proj[Spin.up] = self.proj_all[Spin.up][:, accepted[:h], :, :]
                 self.proj[Spin.down] = self.proj_all[Spin.down][:, accepted[h:], :, :]
             elif len(self.proj) == 1:
@@ -347,10 +345,10 @@ class VasprunLoader:
                 self.cbm = self.fermi
 
     @classmethod
-    def from_file(cls, vasprun_file):
+    def from_file(cls, vasprun_file: str | Path) -> Self:
         """Get a vasprun.xml file and return a VasprunLoader."""
         vrun_obj = Vasprun(vasprun_file, parse_projected_eigen=True)
-        return VasprunLoader(vrun_obj)
+        return cls(vrun_obj)
 
     def get_lattvec(self):
         """Lattice vectors."""
@@ -479,13 +477,7 @@ class BztInterpolator:
         """
         if bands:
             dumpfn(
-                [
-                    self.equivalences,
-                    [self.coeffs.real, self.coeffs.imag],
-                    self.eband,
-                    self.vvband,
-                    self.cband,
-                ],
+                [self.equivalences, [self.coeffs.real, self.coeffs.imag], self.eband, self.vvband, self.cband],
                 fname,
             )
         else:
@@ -508,9 +500,9 @@ class BztInterpolator:
         if isinstance(kpaths, list) and isinstance(kpoints_lbls_dict, dict):
             kpoints = []
             for kpath in kpaths:
-                for idx, k_pt in enumerate(kpath[:-1]):
+                for idx, k_pt in enumerate(kpath[:-1], start=1):
                     sta = kpoints_lbls_dict[k_pt]
-                    end = kpoints_lbls_dict[kpath[idx + 1]]
+                    end = kpoints_lbls_dict[kpath[idx]]
                     kpoints.append(np.linspace(sta, end, density))
             kpoints = np.concatenate(kpoints)
         else:
@@ -562,6 +554,7 @@ class BztInterpolator:
             vvband_ud = [self.vvband]
             spins = [Spin.up]
 
+        energies = []
         for spin, eb, vvb in zip(spins, eband_ud, vvband_ud):
             energies, densities, _vvdos, _cdos = BL.BTPDOS(eb, vvb, npts=npts_mu, erange=enr)
 
@@ -593,14 +586,17 @@ class BztInterpolator:
         pdoss = {}
         if progress:
             n_iter = np.prod(np.sum([np.array(i.shape)[2:] for i in self.data.proj.values()]))
-            t = tqdm(total=n_iter * 2)
+            bar = tqdm(total=n_iter * 2)
+        else:
+            bar = None
+
         for spin, eb in zip(spins, eband_ud):
             for idx, site in enumerate(self.data.structure):
                 if site not in pdoss:
                     pdoss[site] = {}
                 for iorb, orb in enumerate(Orbital):
                     if progress:
-                        t.update()
+                        bar.update()
                     if iorb == self.data.proj[spin].shape[-1]:
                         break
 
@@ -849,19 +845,23 @@ class BztTransportProperties:
         self.mu_doping_eV = {k: v / units.eV - self.efermi for k, v in mu_doping.items()}
         self.contain_props_doping = True
 
-    # def find_mu_doping(self, epsilon, dos, N0, T, dosweight=2.):
+    # def find_mu_doping(self, epsilon, dos, N0, T, dosweight=2.0):
     #     """
-    #     Find the mu.
+    #     Find the chemical potential (mu).
 
-    #     :param epsilon:
-    #     :param dos:
-    #     :param N0:
-    #     :param T:
-    #     :param dosweight:
+    #     Args:
+    #         epsilon (np.array): Array of energy values.
+    #         dos (np.array): Array of density of states values.
+    #         N0 (float): Background carrier concentration.
+    #         T (float): Temperature in Kelvin.
+    #         dosweight (float, optional): Weighting factor for the density of states. Default is 2.0.
+
+    #     Returns:
+    #         float: The chemical potential (mu) value.
     #     """
     #     delta = np.empty_like(epsilon)
-    #     for i, e in enumerate(epsilon):
-    #         delta[i] = BL.calc_N(epsilon, dos, e, T, dosweight) + N0
+    #     for idx, eps in enumerate(epsilon):
+    #         delta[idx] = BL.calc_N(epsilon, dos, eps, T, dosweight) + N0
     #     delta = np.abs(delta)
     #     # Find the position optimizing this distance
     #     pos = np.abs(delta).argmin()
@@ -950,8 +950,13 @@ class BztPlotter:
     """
 
     def __init__(self, bzt_transP=None, bzt_interp=None) -> None:
-        """:param bzt_transP:
-        :param bzt_interp:
+        """Placeholder.
+
+        TODO: missing docstrings for __init__
+
+        Args:
+            bzt_transP (_type_, optional): _description_. Defaults to None.
+            bzt_interp (_type_, optional): _description_. Defaults to None.
         """
         self.bzt_transP = bzt_transP
         self.bzt_interp = bzt_interp
@@ -968,7 +973,7 @@ class BztPlotter:
         xlim=(-2, 2),
         ax: plt.Axes = None,
     ):
-        """Function to plot the transport properties.
+        """Plot the transport properties.
 
         Args:
             prop_y: property to plot among ("Conductivity","Seebeck","Kappa","Carrier_conc",
@@ -986,6 +991,9 @@ class BztPlotter:
                 when prop_z='temp'
             xlim: chemical potential range in eV, useful when prop_x='mu'
             ax: figure.axes where to plot. If None, a new figure is produced.
+
+        Returns:
+            plt.Axes: matplotlib Axes object
 
         Example:
             bztPlotter.plot_props('S','mu','temp',temps=[600,900,1200]).show()
@@ -1038,9 +1046,9 @@ class BztPlotter:
         mu = self.bzt_transP.mu_r_eV
 
         if prop_z == "doping" and prop_x == "temp":
-            p_array = eval(f"self.bzt_transP.{props[idx_prop]}_{prop_z}")
+            p_array = getattr(self.bzt_transP, f"{props[idx_prop]}_doping")
         else:
-            p_array = eval(f"self.bzt_transP.{props[idx_prop]}_{prop_x}")
+            p_array = getattr(self.bzt_transP, f"{props[idx_prop]}_{prop_x}")
 
         if ax is None:
             plt.figure(figsize=(10, 8))
@@ -1049,6 +1057,7 @@ class BztPlotter:
         if temps is None:
             temps = self.bzt_transP.temp_r.tolist()
 
+        doping_all = []
         if isinstance(self.bzt_transP.doping, np.ndarray):
             doping_all = self.bzt_transP.doping.tolist()
             if doping is None:
@@ -1077,11 +1086,11 @@ class BztPlotter:
                 if output == "avg_eigs":
                     plt.plot(mu, prop_out.mean(axis=1), label=f"{temp} K")
                 elif output == "eigs":
-                    for i in range(3):
+                    for idx in range(3):
                         plt.plot(
                             mu,
-                            prop_out[:, i],
-                            label=f"eig {i} {temp} K",
+                            prop_out[:, idx],
+                            label=f"eig {idx} {temp} K",
                         )
 
             plt.xlabel(r"$\mu$ (eV)", fontsize=30)
@@ -1094,20 +1103,20 @@ class BztPlotter:
                 if output == "avg_eigs":
                     plt.semilogx(doping_all, prop_out.mean(axis=1), "s-", label=f"{temp} K")
                 elif output == "eigs":
-                    for i in range(3):
+                    for idx in range(3):
                         plt.plot(
                             doping_all,
-                            prop_out[:, i],
+                            prop_out[:, idx],
                             "s-",
-                            label=f"eig {i} {temp} K",
+                            label=f"eig {idx} {temp} K",
                         )
             plt.xlabel(r"Carrier conc. $cm^{-3}$", fontsize=30)
-            leg_title = dop_type + "-type"
+            leg_title = f"{dop_type}-type"
 
         elif prop_z == "doping" and prop_x == "temp":
             for dop in doping:
-                di = doping_all.index(dop)
-                prop_out = np.linalg.eigh(p_array[dop_type][:, di])[0]
+                dop_idx = doping_all.index(dop)
+                prop_out = np.linalg.eigh(p_array[dop_type][:, dop_idx])[0]
                 if output == "avg_eigs":
                     plt.plot(
                         temps_all,
@@ -1116,12 +1125,12 @@ class BztPlotter:
                         label=f"{dop} $cm^{-3}$",
                     )
                 elif output == "eigs":
-                    for i in range(3):
+                    for idx in range(3):
                         plt.plot(
                             temps_all,
-                            prop_out[:, i],
+                            prop_out[:, idx],
                             "s-",
-                            label=f"eig {i} {dop} $cm^{{-3}}$",
+                            label=f"eig {idx} {dop} $cm^{{-3}}$",
                         )
 
             plt.xlabel(r"Temperature (K)", fontsize=30)
@@ -1133,7 +1142,7 @@ class BztPlotter:
         plt.legend(title=leg_title if leg_title != "" else "", fontsize=15)
         plt.tight_layout()
         plt.grid()
-        return plt
+        return ax
 
     def plot_bands(self):
         """Plot a band structure on symmetry line using BSPlotter()."""
@@ -1160,10 +1169,11 @@ def merge_up_down_doses(dos_up, dos_dn):
     """Merge the up and down DOSs.
 
     Args:
-    dos_up: Up DOS.
-    dos_dn: Down DOS
-    Return:
-    CompleteDos object
+        dos_up: Up DOS.
+        dos_dn: Down DOS
+
+    Returns:
+        CompleteDos object
     """
     warnings.warn("This function is not useful anymore. VasprunBSLoader deals with spin case.")
     cdos = Dos(

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import unittest
 import warnings
 from shutil import which
 from unittest.mock import patch
@@ -12,10 +11,12 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.command_line.bader_caller import BaderAnalysis, bader_analysis_from_path
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+
+TEST_DIR = f"{TEST_FILES_DIR}/command_line/bader"
 
 
-@unittest.skipIf(not which("bader"), "bader executable not present")
+@pytest.mark.skipif(not which("bader"), reason="bader executable not present")
 class TestBaderAnalysis(PymatgenTest):
     def setUp(self):
         warnings.catch_warnings()
@@ -23,9 +24,9 @@ class TestBaderAnalysis(PymatgenTest):
     def test_init(self):
         # test with reference file
         analysis = BaderAnalysis(
-            chgcar_filename=f"{TEST_FILES_DIR}/CHGCAR.Fe3O4",
-            potcar_filename=f"{TEST_FILES_DIR}/POTCAR.Fe3O4",
-            chgref_filename=f"{TEST_FILES_DIR}/CHGCAR.Fe3O4_ref",
+            chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz",
+            potcar_filename=f"{VASP_IN_DIR}/POTCAR_Fe3O4.gz",
+            chgref_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4_ref.gz",
         )
         assert len(analysis.data) == 14
         assert analysis.data[0]["charge"] == approx(6.6136782, abs=1e-3)
@@ -55,17 +56,16 @@ class TestBaderAnalysis(PymatgenTest):
         assert struct[0].specie.oxi_state == approx(1.3863218, abs=1e-3)
 
         # make sure bader still runs without reference file
-        analysis = BaderAnalysis(chgcar_filename=f"{TEST_FILES_DIR}/CHGCAR.Fe3O4")
+        analysis = BaderAnalysis(chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz")
         assert len(analysis.data) == 14
 
         # Test Cube file format parsing
-        TEST_DIR = f"{TEST_FILES_DIR}/bader"
+
         copy_r(TEST_DIR, self.tmp_path)
         analysis = BaderAnalysis(cube_filename=f"{TEST_DIR}/elec.cube.gz")
         assert len(analysis.data) == 9
 
     def test_from_path(self):
-        TEST_DIR = f"{TEST_FILES_DIR}/bader"
         # we need to create two copies of input files since monty decompressing files
         # deletes the compressed version which can't happen twice in same directory
         copy_r(TEST_DIR, direct_dir := f"{self.tmp_path}/direct")
@@ -84,7 +84,7 @@ class TestBaderAnalysis(PymatgenTest):
                 assert_allclose(val, val_from_path, atol=1e-5)
 
     def test_bader_analysis_from_path(self):
-        summary = bader_analysis_from_path(f"{TEST_FILES_DIR}/bader")
+        summary = bader_analysis_from_path(TEST_DIR)
         """
         Reference summary dict (with bader 1.0)
         summary_ref = {
@@ -118,9 +118,9 @@ class TestBaderAnalysis(PymatgenTest):
     def test_atom_parsing(self):
         # test with reference file
         analysis = BaderAnalysis(
-            chgcar_filename=f"{TEST_FILES_DIR}/CHGCAR.Fe3O4",
-            potcar_filename=f"{TEST_FILES_DIR}/POTCAR.Fe3O4",
-            chgref_filename=f"{TEST_FILES_DIR}/CHGCAR.Fe3O4_ref",
+            chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz",
+            potcar_filename=f"{VASP_IN_DIR}/POTCAR_Fe3O4.gz",
+            chgref_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4_ref.gz",
             parse_atomic_densities=True,
         )
 
@@ -139,4 +139,4 @@ class TestBaderAnalysis(PymatgenTest):
                 RuntimeError, match="BaderAnalysis requires the executable bader be in the PATH or the full path "
             ),
         ):
-            BaderAnalysis(chgcar_filename=f"{TEST_FILES_DIR}/CHGCAR.Fe3O4", bader_path="")
+            BaderAnalysis(chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz", bader_exe_path="")

@@ -6,6 +6,157 @@ nav_order: 4
 
 # Changelog
 
+## v2024.5.1
+
+### 🐛 Bug Fixes
+
+* Fix OPTIMADE rester URL contruction and improve testing by @ml-evs in https://github.com/materialsproject/pymatgen/pull/3756
+* Add fix for SFAC writer by @stefsmeets in https://github.com/materialsproject/pymatgen/pull/3779
+* Fix LobsterSet by @naik-aakash in https://github.com/materialsproject/pymatgen/pull/3771
+* Update `vasprun.converged_ionic` logic when `EDIFFG=0`, REDO of PR #3765 by @matthewkuner in https://github.com/materialsproject/pymatgen/pull/3783
+* Fix for incorrect file path in `tests/io/test_zeopp.py` by @AntObi in https://github.com/materialsproject/pymatgen/pull/3784
+* Fix for writing non-unique site labels in `CifWriter` by @stefsmeets in https://github.com/materialsproject/pymatgen/pull/3767
+* Homogenize return type of `Lattice.get_points_in_sphere` to always be `np.array`(s) by @janosh in https://github.com/materialsproject/pymatgen/pull/3797
+
+### 📖 Documentation
+
+* Add note to documentation for usage of CrystalNN by @JaGeo in https://github.com/materialsproject/pymatgen/pull/3764
+* Update to average Grüneisen documentation by @JaGeo in https://github.com/materialsproject/pymatgen/pull/3773
+* Format doc strings by @janosh in https://github.com/materialsproject/pymatgen/pull/3790
+* Imperative doc strings by @janosh in https://github.com/materialsproject/pymatgen/pull/3792
+
+### 🧹 House-Keeping
+
+* `pyright` fixes for `ext/io/phonon/symmetry/transformations/util/vis/dev_scripts` and improve `io.lobster` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3757
+* Separate test files by modules and collect test files `csv/cif` into folders  by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3746
+
+### 🚧 CI
+
+* Officially support Python 3.12 and test in CI by @janosh in https://github.com/materialsproject/pymatgen/pull/3685
+
+### 🏥 Package Health
+
+* Remove `gulp` from package data, code base and CI tests by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3789
+
+### 🏷️ Type Hints
+
+* Add type annotations for `io.vasp.inputs/optics` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3740
+* `pyright` fixes by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3777
+* Convert `kpts` in `Kpoints` to `Sequence[tuple]` and set it as `property` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3758
+
+### 🤷‍♂️ Other Changes
+
+* add `get_string->get_str` alias for `Poscar` by @timurbazhirov in https://github.com/materialsproject/pymatgen/pull/3763
+* Fix `ruff` FURB192 by @janosh in https://github.com/materialsproject/pymatgen/pull/3785
+
+## New Contributors
+
+* @timurbazhirov made their first contribution in https://github.com/materialsproject/pymatgen/pull/3763
+* @AntObi made their first contribution in https://github.com/materialsproject/pymatgen/pull/3784
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.4.13...2024.5.1
+
+## v2024.4.13
+
+Hot fix release for [v2024.4.12](#v2024412) to be yanked on PyPI due to https://github.com/materialsproject/pymatgen/issues/3751.
+
+### 🐛 Bug Fixes
+
+* Revert mistaken `Cohp.has_antibnd_states_below_efermi` rename by @JaGeo in https://github.com/materialsproject/pymatgen/pull/3750
+* Fix `typing_extension` `ImportError` in downstream packages by @janosh in https://github.com/materialsproject/pymatgen/pull/3752
+* Update some of the OPTIMADE aliases by @ml-evs in https://github.com/materialsproject/pymatgen/pull/3754
+
+### 🧹 House-Keeping
+
+* Remove duplicate ruff rule in `pyproject.toml` by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3755
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.4.12...v2024.4.13
+
+## v2024.4.12
+
+### 🎉 New Features
+
+* Add `pymatgen.io.openff` module by @orionarcher in https://github.com/materialsproject/pymatgen/pull/3729
+
+### 🐛 Bug Fixes
+
+* Fix blank line bug in `io.res.ResWriter` by @stefsmeets in https://github.com/materialsproject/pymatgen/pull/3671
+* Reset label for sites changed by `Structure.replace_species()` by @stefsmeets in https://github.com/materialsproject/pymatgen/pull/3672
+* Fix `phonopy.get_pmg_structure` `site_properties` key for magmoms by @JonathanSchmidt1 in https://github.com/materialsproject/pymatgen/pull/3679
+* Improve Bandoverlaps parser by @naik-aakash in https://github.com/materialsproject/pymatgen/pull/3689
+* Convert some `staticmethod` to `classmethod` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3710
+* Correct units of Element.atomic_orbitals by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3714
+* Add a fix for if a parameter is None in AimsControlIn by @tpurcell90 in https://github.com/materialsproject/pymatgen/pull/3727
+* Replace general `raise Exception` and add missing `raise` keyword by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3728
+* Fix `ChemicalPotentialDiagram` 2D plot not respecting `formal_chempots` setting by @uliaschauer in https://github.com/materialsproject/pymatgen/pull/3734
+* Update ENCUT type to float in  incar_parameters.json by @yuuukuma in https://github.com/materialsproject/pymatgen/pull/3741
+* Clean up `core.surface` comments and docstrings by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3691
+* Fix `io.cp2k.input.DataFile` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3745
+
+### 🛠 Enhancements
+
+* Ensure `MSONAtoms` is indeed `MSONable` when `Atoms.info` is loaded with goodies by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3670
+* Generalize fatband plots from Lobster by @JaGeo in https://github.com/materialsproject/pymatgen/pull/3688
+* Plotting of Multicenter COBIs by @JaGeo in https://github.com/materialsproject/pymatgen/pull/2926
+* Support appending vectors to positions in XSF format by @mturiansky in https://github.com/materialsproject/pymatgen/pull/3704
+* Define `needs_u_correction(comp: CompositionLike) -> set[str]` utility function by @janosh in https://github.com/materialsproject/pymatgen/pull/3703
+* Add more flexibility to `PhononDOSPlotter` and `PhononBSPlotter` by @ab5424 in https://github.com/materialsproject/pymatgen/pull/3700
+* Define `ElementType` enum in `core/periodic_table.py` by @janosh in https://github.com/materialsproject/pymatgen/pull/3726
+
+### 🚧 CI
+
+* Migrate CI dependency installation from `pip` to `uv` by @janosh in https://github.com/materialsproject/pymatgen/pull/3675
+* Prevent GitHub Actions from running docs-related CI on forks by @lan496 in https://github.com/materialsproject/pymatgen/pull/3697
+
+### 📖 Documentation
+
+* Reformat docstrings to Google style and add type annotations by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3694
+* Breaking: all plot methods return `plt.Axes` by @janosh in https://github.com/materialsproject/pymatgen/pull/3749
+
+### 🧹 House-Keeping
+
+* Clean up test files: VASP outputs by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3653
+* Clean up test files: VASP inputs by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3674
+* Clean up test files: dedicated VASP directories, `xyz`, `mcif`, `cssr`, `exciting`, `wannier90` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3681
+* Remove exception printing when importing phonopy by @lan496 in https://github.com/materialsproject/pymatgen/pull/3696
+* Standardize test names: e.g. `LatticeTestCase` -> `TestLattice` by @janosh in https://github.com/materialsproject/pymatgen/pull/3693
+* Clean up tests by @janosh in https://github.com/materialsproject/pymatgen/pull/3713
+* Fix import order for `if TYPE_CHECKING:` block by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3711
+* Use `Self` type in Method Signatures by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3705
+* Remove deprecated `analysis.interface`, rename classes to PascalCase and rename `with_*` to `from_*` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3725
+* Test `EntrySet.ground_states` and CIF writing in `NEBSet.write_input` by @janosh in https://github.com/materialsproject/pymatgen/pull/3732
+
+### 🚀 Performance
+
+* Dynamic `__hash__` for `BalancedReaction` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3676
+
+### 🧪 Tests
+
+* Clean up tests 2 by @janosh in https://github.com/materialsproject/pymatgen/pull/3716
+* Remove unnecessary `unittest.TestCase` subclassing by @janosh in https://github.com/materialsproject/pymatgen/pull/3718
+
+### 🔒 Security Fixes
+
+* Avoid using `exec` in code by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3736
+* Avoid using `eval`, replace manual offset in `enumerate` and rename single letter variables by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3739
+
+### 🏷️ Type Hints
+
+* `Self` return type on `from_dict` methods by @janosh in https://github.com/materialsproject/pymatgen/pull/3702
+* Return `self` from `Structure` methods `replace`, `substitute`, `remove_species`, `remove_sites` by @janosh in https://github.com/materialsproject/pymatgen/pull/3706
+* `Self` return type on `Lattice` methods by @janosh in https://github.com/materialsproject/pymatgen/pull/3707
+
+### 🤷‍♂️ Other Changes
+
+* `os.path.(exists->isfile)` by @janosh in https://github.com/materialsproject/pymatgen/pull/3690
+
+## New Contributors
+
+* @JonathanSchmidt1 made their first contribution in https://github.com/materialsproject/pymatgen/pull/3679
+* @uliaschauer made their first contribution in https://github.com/materialsproject/pymatgen/pull/3734
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.3.1...v2024.4.12
+
 ## v2024.3.1
 
 ## What's Changed

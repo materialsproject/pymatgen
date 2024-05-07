@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, Any, no_type_check
 
 import numpy as np
 from monty.serialization import loadfn
+from ruamel.yaml.error import MarkedYAMLError
 from scipy.signal import argrelextrema
 from scipy.stats import gaussian_kde
 
@@ -40,10 +41,9 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 try:
     DEFAULT_MAGMOMS = loadfn(f"{MODULE_DIR}/default_magmoms.yaml")
-except Exception:
+except (FileNotFoundError, MarkedYAMLError):
     warnings.warn("Could not load default_magmoms.yaml, falling back to VASPIncarBase.yaml")
-    DEFAULT_MAGMOMS = loadfn(f"{MODULE_DIR}/../../io/vasp/VASPIncarBase.yaml")
-    DEFAULT_MAGMOMS = DEFAULT_MAGMOMS["MAGMOM"]
+    DEFAULT_MAGMOMS = loadfn(f"{MODULE_DIR}/../../io/vasp/VASPIncarBase.yaml")["INCAR"]["MAGMOM"]
 
 
 @unique
@@ -63,8 +63,9 @@ class OverwriteMagmomMode(Enum):
 
     none = "none"
     respect_sign = "respect_sign"
-    respect_zero = "respect_zeros"
+    respect_zeros = "respect_zeros"
     replace_all = "replace_all"
+    replace_all_if_undefined = "replace_all_if_undefined"
     normalize = "normalize"
 
 
@@ -77,7 +78,7 @@ class CollinearMagneticStructureAnalyzer:
     def __init__(
         self,
         structure: Structure,
-        overwrite_magmom_mode: OverwriteMagmomMode | str = "none",
+        overwrite_magmom_mode: str | OverwriteMagmomMode = OverwriteMagmomMode.none,
         round_magmoms: bool = False,
         detect_valences: bool = False,
         make_primitive: bool = True,
@@ -137,6 +138,8 @@ class CollinearMagneticStructureAnalyzer:
                 in Bohr magneton) below which total magnetization is treated as zero
                 when defining magnetic ordering. Defaults to 1e-8.
         """
+        OverwriteMagmomMode(overwrite_magmom_mode)  # raises ValueError on invalid mode
+
         if default_magmoms:
             self.default_magmoms = default_magmoms
         else:
@@ -177,15 +180,13 @@ class CollinearMagneticStructureAnalyzer:
             raise ValueError(
                 "Structure contains magnetic moments on both "
                 "magmom site properties and spin species "
-                "properties. This is ambiguous. Remove one or "
-                "the other."
+                "properties. This is ambiguous. Remove one or the other."
             )
         if has_magmoms:
             if None in structure.site_properties["magmom"]:
                 warnings.warn(
-                    "Be careful with mixing types in your magmom "
-                    "site properties. Any 'None' magmoms have been "
-                    "replaced with zero."
+                    "Be careful with mixing types in your magmom site properties. "
+                    "Any 'None' magmoms have been replaced with zero."
                 )
             magmoms = [m or 0 for m in structure.site_properties["magmom"]]
         elif has_spin:
@@ -209,8 +210,7 @@ class CollinearMagneticStructureAnalyzer:
                 "give useful results, but use with caution."
             )
 
-        # this is for collinear structures only, make sure magmoms
-        # are all floats
+        # this is for collinear structures only, make sure magmoms are all floats
         magmoms = list(map(float, magmoms))
 
         # set properties that should be done /before/ we process input magmoms
@@ -229,16 +229,6 @@ class CollinearMagneticStructureAnalyzer:
         ]
 
         # overwrite existing magmoms with default_magmoms
-        if overwrite_magmom_mode not in (
-            "none",
-            "respect_sign",
-            "respect_zeros",
-            "replace_all",
-            "replace_all_if_undefined",
-            "normalize",
-        ):
-            raise ValueError("Unsupported mode.")
-
         for idx, site in enumerate(structure):
             if site.species_string in self.default_magmoms:
                 # look for species first, e.g. Fe2+
@@ -252,8 +242,7 @@ class CollinearMagneticStructureAnalyzer:
             # overwrite_magmom_mode = "respect_sign" will change magnitude of
             # existing moments only, and keep zero magmoms as
             # zero: it will keep the magnetic ordering intact
-
-            if overwrite_magmom_mode == "respect_sign":
+            if overwrite_magmom_mode == OverwriteMagmomMode.respect_sign.value:
                 set_net_positive = False
                 if magmoms[idx] > 0:
                     magmoms[idx] = default_magmom
@@ -262,21 +251,18 @@ class CollinearMagneticStructureAnalyzer:
 
             # overwrite_magmom_mode = "respect_zeros" will give a ferromagnetic
             # structure but will keep zero magmoms as zero
-
-            elif overwrite_magmom_mode == "respect_zeros":
+            elif overwrite_magmom_mode == OverwriteMagmomMode.respect_zeros.value:
                 if magmoms[idx] != 0:
                     magmoms[idx] = default_magmom
 
             # overwrite_magmom_mode = "replace_all" will ignore input magmoms
             # and give a ferromagnetic structure with magnetic
             # moments on *all* atoms it thinks could be magnetic
-
-            elif overwrite_magmom_mode == "replace_all":
+            elif overwrite_magmom_mode == OverwriteMagmomMode.replace_all.value:
                 magmoms[idx] = default_magmom
 
             # overwrite_magmom_mode = "normalize" set magmoms magnitude to 1
-
-            elif overwrite_magmom_mode == "normalize" and magmoms[idx] != 0:
+            elif overwrite_magmom_mode == OverwriteMagmomMode.normalize.value and magmoms[idx] != 0:
                 magmoms[idx] = int(magmoms[idx] / abs(magmoms[idx]))
 
         # round magmoms, used to smooth out computational data
@@ -315,11 +301,11 @@ class CollinearMagneticStructureAnalyzer:
                 kernel = gaussian_kde(magmoms, bw_method=round_magmoms_mode)
 
                 # with a linearly spaced grid 1000x finer than width
-                xgrid = np.linspace(-range_m, range_m, int(1000 * range_m / round_magmoms_mode))
+                x_grid = np.linspace(-range_m, range_m, int(1000 * range_m / round_magmoms_mode))
 
                 # and evaluate the kde on this grid, extracting the maxima of the kde peaks
-                kernel_m = kernel.evaluate(xgrid)
-                extrema = xgrid[argrelextrema(kernel_m, comparator=np.greater)]
+                kernel_m = kernel.evaluate(x_grid)
+                extrema = x_grid[argrelextrema(kernel_m, comparator=np.greater)]
 
                 # round magmoms to these extrema
                 magmoms = [extrema[(np.abs(extrema - m)).argmin()] for m in magmoms]
@@ -330,13 +316,13 @@ class CollinearMagneticStructureAnalyzer:
                 warnings.warn(str(exc))
 
             # and finally round roughly to the number of significant figures in our kde width
-            num_decimals = len(str(round_magmoms_mode).split(".")[1]) + 1
-            magmoms = np.around(magmoms, decimals=num_decimals)
+            n_decimals = len(str(round_magmoms_mode).split(".")[1]) + 1
+            magmoms = np.around(magmoms, decimals=n_decimals)
 
         return np.array(magmoms)
 
     def get_structure_with_spin(self) -> Structure:
-        """Returns a Structure with species decorated with spin values instead
+        """Get a Structure with species decorated with spin values instead
         of using magmom site properties.
         """
         structure = self.structure.copy()
@@ -346,7 +332,7 @@ class CollinearMagneticStructureAnalyzer:
         return structure
 
     def get_structure_with_only_magnetic_atoms(self, make_primitive: bool = True) -> Structure:
-        """Returns a Structure with only magnetic atoms present.
+        """Get a Structure with only magnetic atoms present.
 
         Args:
             make_primitive: Whether to make structure primitive after
@@ -365,7 +351,7 @@ class CollinearMagneticStructureAnalyzer:
         return structure
 
     def get_nonmagnetic_structure(self, make_primitive: bool = True) -> Structure:
-        """Returns a Structure without magnetic moments defined.
+        """Get a Structure without magnetic moments defined.
 
         Args:
             make_primitive: Whether to make structure primitive after
@@ -383,7 +369,7 @@ class CollinearMagneticStructureAnalyzer:
         return structure
 
     def get_ferromagnetic_structure(self, make_primitive: bool = True) -> Structure:
-        """Returns a Structure with all magnetic moments positive
+        """Get a Structure with all magnetic moments positive
         or zero.
 
         Args:
@@ -414,8 +400,7 @@ class CollinearMagneticStructureAnalyzer:
 
     @property
     def types_of_magnetic_species(self) -> tuple[Element | Species | DummySpecies, ...]:
-        """Equivalent to Structure.types_of_specie but only returns
-        magnetic species.
+        """Equivalent to Structure.types_of_specie but only returns magnetic species.
 
         Returns:
             tuple: types of Species
@@ -432,7 +417,7 @@ class CollinearMagneticStructureAnalyzer:
 
     @property
     def magnetic_species_and_magmoms(self) -> dict[str, Any]:
-        """Returns a dict of magnetic species and the magnitude of
+        """A dict of magnetic species and the magnitude of
         their associated magmoms. Will return a list if there are
         multiple magmoms per species.
 
@@ -485,7 +470,7 @@ class CollinearMagneticStructureAnalyzer:
 
     @property
     def ordering(self) -> Ordering:
-        """Applies heuristics to return a magnetic ordering for a collinear
+        """Apply heuristics to return a magnetic ordering for a collinear
         magnetic structure. Result is not guaranteed to be correct, just a best
         guess. Tolerance for minimum total magnetization to be considered
         ferro/ferrimagnetic is self.threshold_ordering and defaults to 1e-8.
@@ -522,7 +507,7 @@ class CollinearMagneticStructureAnalyzer:
         return Ordering.NM
 
     def get_exchange_group_info(self, symprec: float = 1e-2, angle_tolerance: float = 5) -> tuple[str, int]:
-        """Returns the information on the symmetry of the Hamiltonian
+        """Get the information on the symmetry of the Hamiltonian
         describing the exchange energy of the system, taking into
         account relative direction of magnetic moments but not their
         absolute direction.
@@ -552,7 +537,7 @@ class CollinearMagneticStructureAnalyzer:
         Returns:
             bool: True if magnetic orderings match, False otherwise
         """
-        a = CollinearMagneticStructureAnalyzer(
+        cmag_analyzer = CollinearMagneticStructureAnalyzer(
             self.structure, overwrite_magmom_mode="normalize"
         ).get_structure_with_spin()
 
@@ -572,11 +557,10 @@ class CollinearMagneticStructureAnalyzer:
         b_positive = b_positive.get_structure_with_spin()
         analyzer = analyzer.get_structure_with_spin()
 
-        return a.matches(b_positive) or a.matches(analyzer)
+        return cmag_analyzer.matches(b_positive) or cmag_analyzer.matches(analyzer)
 
     def __str__(self):
-        """
-        Sorts a Structure (by fractional coordinate), and
+        """Sorts a Structure (by fractional coordinate), and
         prints sites with magnetic information. This is
         useful over Structure.__str__ because sites are in
         a consistent order, which makes visual comparison between
@@ -1039,8 +1023,8 @@ class MagneticStructureEnumerator:
                 f"Removing {len(ordered_structures) - len(structs_to_keep)} low symmetry ordered structures"
             )
 
-            ordered_structures = [ordered_structures[i] for i, _ in structs_to_keep]
-            ordered_structures_origins = [ordered_structures_origins[i] for i, _ in structs_to_keep]
+            ordered_structures = [ordered_structures[idx] for idx, _struct in structs_to_keep]
+            ordered_structures_origins = [ordered_structures_origins[idx] for idx, _struct in structs_to_keep]
 
             # and ensure fm is always at index 0
             fm_index = ordered_structures_origins.index("fm")
@@ -1072,7 +1056,7 @@ MagneticDeformation = namedtuple("MagneticDeformation", "type deformation")
     description="A Simple Computational Proxy for Screening Magnetocaloric Compounds",
 )
 def magnetic_deformation(structure_A: Structure, structure_B: Structure) -> MagneticDeformation:
-    """Calculates 'magnetic deformation proxy',
+    """Calculate 'magnetic deformation proxy',
     a measure of deformation (norm of finite strain)
     between 'non-magnetic' (non-spin-polarized) and
     ferromagnetic structures.

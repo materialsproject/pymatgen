@@ -15,12 +15,15 @@ from pymatgen.util.coord import get_linear_interpolated_value
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
 
 def lorentzian(x, x_0: float = 0, sigma: float = 1.0):
-    """:param x: x values
-    :param x_0: Center
-    :param sigma: FWHM
+    """
+    Args:
+        x: x values
+        x_0: Center
+        sigma: FWHM.
 
     Returns:
         Value of lorentzian at x.
@@ -50,7 +53,7 @@ class Spectrum(MSONable):
             y (ndarray): A ndarray of N x k values. The first dimension must be
                 the same as that of x. Each of the k values are interpreted as separate.
             *args: All subclasses should provide args other than x and y
-                when calling super, e.g., super().__init__(
+                when calling super, e.g. super().__init__(
                 x, y, arg1, arg2, kwarg1=val1, ..). This guarantees the +, -, *,
                 etc. operators work properly.
             **kwargs: Same as that for *args.
@@ -78,7 +81,7 @@ class Spectrum(MSONable):
 
         Args:
             mode ("max" | "sum"): Normalization mode. "max" sets the max y value to value,
-                e.g., in XRD patterns. "sum" sets the sum of y to a value, i.e., like a
+                e.g. in XRD patterns. "sum" sets the sum of y to a value, i.e., like a
                 probability density.
             value (float): Value to normalize to. Defaults to 1.
         """
@@ -119,7 +122,7 @@ class Spectrum(MSONable):
             self.y *= total / np.sum(self.y, axis=0)  # renormalize to maintain the same integrated sum as before.
 
     def get_interpolated_value(self, x: float) -> float | list[float]:
-        """Returns an interpolated y value for a particular x value.
+        """Get an interpolated y value for a particular x value.
 
         Args:
             x: x value to return the y value for
@@ -131,7 +134,7 @@ class Spectrum(MSONable):
             return get_linear_interpolated_value(self.x, self.y, x)
         return [get_linear_interpolated_value(self.x, self.y[:, k], x) for k in range(self.ydim[1])]
 
-    def copy(self):
+    def copy(self) -> Self:
         """
         Returns:
             Copy of Spectrum object.
@@ -205,11 +208,11 @@ class Spectrum(MSONable):
     __div__ = __truediv__
 
     def __str__(self) -> str:
-        """Returns a string containing values and labels of spectrum object for
+        """Get a string containing values and labels of spectrum object for
         plotting.
         """
         return f"{type(self).__name__}\n{self.XLABEL}: {self.x}\n{self.YLABEL}: {self.y}"
 
     def __repr__(self) -> str:
-        """Returns a printable representation of the class."""
+        """Get a printable representation of the class."""
         return str(self)

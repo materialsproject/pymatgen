@@ -45,9 +45,8 @@ def prepare_band_input(structure: Structure, density: float = 20):
                 current_segment["length"] += 1
                 lines_and_labels.append(current_segment)
                 current_segment = None
-        else:
-            if current_segment is not None:
-                current_segment["length"] += 1
+        elif current_segment is not None:
+            current_segment["length"] += 1
 
     bands = []
     for segment in lines_and_labels:
@@ -88,9 +87,8 @@ class BandStructureSetGenerator(AimsInputGenerator):
         prev_parameters: Dict[str, Any]
             The previous parameters
 
-        Returns
-        -------
-        The updated for the parameters for the output section of FHI-aims
+        Returns:
+            dict: The updated for the parameters for the output section of FHI-aims
         """
         if isinstance(structure, Molecule):
             raise ValueError("BandStructures can not be made for non-periodic systems")
@@ -126,9 +124,8 @@ class GWSetGenerator(AimsInputGenerator):
         prev_parameters: Dict[str, Any]
             The previous parameters
 
-        Returns
-        -------
-        The updated for the parameters for the output section of FHI-aims
+        Returns:
+            dict: The updated for the parameters for the output section of FHI-aims
         """
         updates = {"anacon_type": "two-pole"}
         current_output = prev_parameters.get("output", [])

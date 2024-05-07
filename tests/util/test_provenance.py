@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime
-import unittest
+from unittest import TestCase
 
 import numpy as np
 import pytest
@@ -22,7 +22,7 @@ __email__ = "ajain@lbl.gov"
 __date__ = "2/14/13"
 
 
-class StructureNLCase(unittest.TestCase):
+class StructureNLCase(TestCase):
     def setUp(self):
         # set up a Structure
         self.struct = Structure(np.eye(3, 3) * 3, ["Fe"], [[0, 0, 0]])

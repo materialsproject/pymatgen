@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.util.typing import SpeciesLike
@@ -33,7 +34,7 @@ class DOS(Spectrum):
 
     Attributes:
         energies (Sequence[float]): The sequence of energies.
-        densities (dict[Spin, Sequence[float]]): A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}.
+        densities (dict[Spin, Sequence[float]]): A dict of spin densities, e.g. {Spin.up: [...], Spin.down: [...]}.
         efermi (float): Fermi level.
     """
 
@@ -64,8 +65,7 @@ class DOS(Spectrum):
                 Down - finds the gap in the down spin channel.
 
         Returns:
-            (gap, cbm, vbm):
-                Tuple of floats in eV corresponding to the gap, cbm and vbm.
+            tuple[float, float, float]: Energies in eV corresponding to the band gap, cbm and vbm.
         """
         if spin is None:
             tdos = self.y if len(self.ydim) == 1 else np.sum(self.y, axis=1)
@@ -92,7 +92,7 @@ class DOS(Spectrum):
         end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
         return end - start, end, start
 
-    def get_cbm_vbm(self, tol: float = 0.001, abs_tol: bool = False, spin=None):
+    def get_cbm_vbm(self, tol: float = 0.001, abs_tol: bool = False, spin=None) -> tuple[float, float]:
         """Expects a DOS object and finds the cbm and vbm.
 
         Args:
@@ -103,7 +103,7 @@ class DOS(Spectrum):
                 Down - finds the gap in the down spin channel.
 
         Returns:
-            (cbm, vbm): float in eV corresponding to the gap
+            tuple[float, float]: Energies in eV corresponding to the cbm and vbm.
         """
         # determine tolerance
         if spin is None:
@@ -150,7 +150,7 @@ class DOS(Spectrum):
         return max(cbm - vbm, 0.0)
 
     def __str__(self) -> str:
-        """Returns a string which can be easily plotted (using gnuplot)."""
+        """Get a string which can be easily plotted (using gnuplot)."""
         if Spin.down in self.densities:
             str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
@@ -168,7 +168,7 @@ class Dos(MSONable):
 
     Attributes:
         energies (Sequence[float]): The sequence of energies.
-        densities (dict[Spin, Sequence[float]]): A dict of spin densities, e.g., {Spin.up: [...], Spin.down: [...]}.
+        densities (dict[Spin, Sequence[float]]): A dict of spin densities, e.g. {Spin.up: [...], Spin.down: [...]}.
         efermi (float): Fermi level.
     """
 
@@ -191,7 +191,7 @@ class Dos(MSONable):
         self.densities = {k: np.array(d) / vol for k, d in densities.items()}
 
     def get_densities(self, spin: Spin | None = None):
-        """Returns the density of states for a particular spin.
+        """Get the density of states for a particular spin.
 
         Args:
             spin: Spin
@@ -212,7 +212,7 @@ class Dos(MSONable):
         return result
 
     def get_smeared_densities(self, sigma: float):
-        """Returns the Dict representation of the densities, {Spin: densities},
+        """Get the Dict representation of the densities, {Spin: densities},
         but with a Gaussian smearing of std dev sigma.
 
         Args:
@@ -229,7 +229,7 @@ class Dos(MSONable):
         return smeared_dens
 
     def __add__(self, other):
-        """Adds two DOS together. Checks that energy scales are the same.
+        """Add two DOS together. Checks that energy scales are the same.
         Otherwise, a ValueError is thrown.
 
         Args:
@@ -244,7 +244,7 @@ class Dos(MSONable):
         return Dos(self.efermi, self.energies, densities)
 
     def get_interpolated_value(self, energy: float) -> dict[Spin, float]:
-        """Returns interpolated density for a particular energy.
+        """Get interpolated density for a particular energy.
 
         Args:
             energy (float): Energy to return the density for.
@@ -257,7 +257,9 @@ class Dos(MSONable):
             energies[spin] = get_linear_interpolated_value(self.energies, self.densities[spin], energy)
         return energies
 
-    def get_interpolated_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
+    def get_interpolated_gap(
+        self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None
+    ) -> tuple[float, float, float]:
         """Expects a DOS object and finds the gap.
 
         Args:
@@ -269,7 +271,7 @@ class Dos(MSONable):
                 Down - finds the gap in the down spin channel.
 
         Returns:
-            (gap, cbm, vbm): Tuple of floats in eV corresponding to the gap, cbm and vbm.
+            tuple[float, float, float]: Energies in eV corresponding to the band gap, cbm and vbm.
         """
         tdos = self.get_densities(spin)
         if not abs_tol:
@@ -291,7 +293,7 @@ class Dos(MSONable):
         end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
         return end - start, end, start
 
-    def get_cbm_vbm(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
+    def get_cbm_vbm(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
         """Expects a DOS object and finds the cbm and vbm.
 
         Args:
@@ -302,7 +304,7 @@ class Dos(MSONable):
                 Down - finds the gap in the down spin channel.
 
         Returns:
-            (cbm, vbm): float in eV corresponding to the gap
+            tuple[float, float]: Energies in eV corresponding to the cbm and vbm.
         """
         # determine tolerance
         tdos = self.get_densities(spin)
@@ -339,11 +341,11 @@ class Dos(MSONable):
         Returns:
             gap in eV
         """
-        (cbm, vbm) = self.get_cbm_vbm(tol, abs_tol, spin)
+        cbm, vbm = self.get_cbm_vbm(tol, abs_tol, spin)
         return max(cbm - vbm, 0.0)
 
     def __str__(self) -> str:
-        """Returns a string which can be easily plotted (using gnuplot)."""
+        """Get a string which can be easily plotted (using gnuplot)."""
         if Spin.down in self.densities:
             str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for i, energy in enumerate(self.energies):
@@ -355,12 +357,12 @@ class Dos(MSONable):
         return "\n".join(str_arr)
 
     @classmethod
-    def from_dict(cls, d) -> Dos:
-        """Returns Dos object from dict representation of Dos."""
-        return Dos(
-            d["efermi"],
-            d["energies"],
-            {Spin(int(k)): v for k, v in d["densities"].items()},
+    def from_dict(cls, dct: dict) -> Self:
+        """Get Dos object from dict representation of Dos."""
+        return cls(
+            dct["efermi"],
+            dct["energies"],
+            {Spin(int(k)): v for k, v in dct["densities"].items()},
         )
 
     def as_dict(self) -> dict:
@@ -532,7 +534,7 @@ class FermiDos(Dos, MSONable):
         step: float = 0.1,
         precision: int = 8,
     ) -> float:
-        """Finds the Fermi level at which the doping concentration at the given
+        """Find the Fermi level at which the doping concentration at the given
         temperature (T) is equal to concentration. A greedy algorithm is used
         where the relative error is minimized by calculating the doping at a
         grid which continually becomes finer.
@@ -557,10 +559,10 @@ class FermiDos(Dos, MSONable):
         fermi = self.efermi  # initialize target fermi
         relative_error = [float("inf")]
         for _ in range(precision):
-            f_range = np.arange(-nstep, nstep + 1) * step + fermi
-            calc_doping = np.array([self.get_doping(f, temperature) for f in f_range])
+            fermi_range = np.arange(-nstep, nstep + 1) * step + fermi
+            calc_doping = np.array([self.get_doping(fermi_lvl, temperature) for fermi_lvl in fermi_range])
             relative_error = np.abs(calc_doping / concentration - 1.0)  # type: ignore
-            fermi = f_range[np.argmin(relative_error)]
+            fermi = fermi_range[np.argmin(relative_error)]
             step /= 10.0
 
         if min(relative_error) > rtol:
@@ -568,14 +570,14 @@ class FermiDos(Dos, MSONable):
         return fermi
 
     @classmethod
-    def from_dict(cls, d) -> FermiDos:
-        """Returns Dos object from dict representation of Dos."""
+    def from_dict(cls, dct: dict) -> Self:
+        """Get Dos object from dict representation of Dos."""
         dos = Dos(
-            d["efermi"],
-            d["energies"],
-            {Spin(int(k)): v for k, v in d["densities"].items()},
+            dct["efermi"],
+            dct["energies"],
+            {Spin(int(k)): v for k, v in dct["densities"].items()},
         )
-        return FermiDos(dos, structure=Structure.from_dict(d["structure"]), nelecs=d["nelecs"])
+        return cls(dos, structure=Structure.from_dict(dct["structure"]), nelecs=dct["nelecs"])
 
     def as_dict(self) -> dict:
         """JSON-serializable dict representation of Dos."""
@@ -628,7 +630,7 @@ class CompleteDos(Dos):
         self.structure = structure
 
     def get_normalized(self) -> CompleteDos:
-        """Returns a normalized version of the CompleteDos."""
+        """Get a normalized version of the CompleteDos."""
         if self.norm_vol is not None:
             return self
         return CompleteDos(
@@ -759,7 +761,7 @@ class CompleteDos(Dos):
 
     @property
     def spin_polarization(self) -> float | None:
-        """Calculates spin polarization at Fermi level. If the
+        """Calculate spin polarization at Fermi level. If the
         calculation is not spin-polarized, None will be returned.
 
         See Sanvito et al., doi: 10.1126/sciadv.1602241 for an example usage.
@@ -1035,14 +1037,14 @@ class CompleteDos(Dos):
 
         densities: Mapping[Spin, ArrayLike] = {}
         if elements:
-            for i, el in enumerate(elements):
+            for idx, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
-                densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
+                densities = spd_dos.densities if idx == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         elif sites:
-            for i, site in enumerate(sites):
+            for idx, site in enumerate(sites):
                 spd_dos = self.get_site_spd_dos(site)[band]
-                densities = spd_dos.densities if i == 0 else add_densities(densities, spd_dos.densities)
+                densities = spd_dos.densities if idx == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
         else:
             dos = self.get_spd_dos()[band]
@@ -1100,7 +1102,7 @@ class CompleteDos(Dos):
         n_bins: int = 256,
         normalize: bool = True,
     ) -> NamedTuple:
-        """Generates the DOS fingerprint.
+        """Generate the DOS fingerprint.
 
         Based on work of:
 
@@ -1122,7 +1124,7 @@ class CompleteDos(Dos):
             ValueError: If type is not one of the accepted values {s/p/d/f/}summed_{pdos/tdos}.
 
         Returns:
-            Fingerprint(namedtuple) : The electronic density of states fingerprint
+            NamedTuple: The electronic density of states fingerprint
                 of format (energies, densities, type, n_bins)
         """
         fingerprint = namedtuple("fingerprint", "energies densities type n_bins bin_width")
@@ -1182,7 +1184,7 @@ class CompleteDos(Dos):
 
     @staticmethod
     def fp_to_dict(fp: NamedTuple) -> dict:
-        """Converts a fingerprint into a dictionary.
+        """Convert a fingerprint into a dictionary.
 
         Args:
             fp: The DOS fingerprint to be converted into a dictionary
@@ -1204,7 +1206,7 @@ class CompleteDos(Dos):
         normalize: bool = False,
         tanimoto: bool = False,
     ) -> float:
-        """Calculates the similarity index (dot product) of two fingerprints.
+        """Calculate the similarity index (dot product) of two fingerprints.
 
         Args:
             fp1 (NamedTuple): The 1st dos fingerprint object
@@ -1248,19 +1250,19 @@ class CompleteDos(Dos):
         )
 
     @classmethod
-    def from_dict(cls, d) -> CompleteDos:
-        """Returns CompleteDos object from dict representation."""
-        tdos = Dos.from_dict(d)
-        struct = Structure.from_dict(d["structure"])
+    def from_dict(cls, dct: dict) -> Self:
+        """Get CompleteDos object from dict representation."""
+        tdos = Dos.from_dict(dct)
+        struct = Structure.from_dict(dct["structure"])
         pdoss = {}
-        for i in range(len(d["pdos"])):
-            at = struct[i]
+        for idx in range(len(dct["pdos"])):
+            at = struct[idx]
             orb_dos = {}
-            for orb_str, odos in d["pdos"][i].items():
+            for orb_str, odos in dct["pdos"][idx].items():
                 orb = Orbital[orb_str]
                 orb_dos[orb] = {Spin(int(k)): v for k, v in odos["densities"].items()}
             pdoss[at] = orb_dos
-        return CompleteDos(struct, tdos, pdoss)
+        return cls(struct, tdos, pdoss)
 
     def as_dict(self) -> dict:
         """JSON-serializable dict representation of CompleteDos."""
@@ -1394,19 +1396,19 @@ class LobsterCompleteDos(CompleteDos):
         return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in el_dos.items()}  # type: ignore
 
     @classmethod
-    def from_dict(cls, d) -> LobsterCompleteDos:
+    def from_dict(cls, dct: dict) -> Self:
         """Hydrate CompleteDos object from dict representation."""
-        tdos = Dos.from_dict(d)
-        struct = Structure.from_dict(d["structure"])
+        tdos = Dos.from_dict(dct)
+        struct = Structure.from_dict(dct["structure"])
         pdoss = {}
-        for i in range(len(d["pdos"])):
+        for i in range(len(dct["pdos"])):
             at = struct[i]
             orb_dos = {}
-            for orb_str, odos in d["pdos"][i].items():
+            for orb_str, odos in dct["pdos"][i].items():
                 orb = orb_str
                 orb_dos[orb] = {Spin(int(k)): v for k, v in odos["densities"].items()}
             pdoss[at] = orb_dos
-        return LobsterCompleteDos(struct, tdos, pdoss)
+        return cls(struct, tdos, pdoss)
 
 
 def add_densities(density1: Mapping[Spin, ArrayLike], density2: Mapping[Spin, ArrayLike]) -> dict[Spin, np.ndarray]:
@@ -1430,7 +1432,7 @@ def _get_orb_type(orb) -> OrbitalType:
 
 
 def f0(E, fermi, T) -> float:
-    """Return the equilibrium fermi-dirac.
+    """Fermi-Dirac distribution function.
 
     Args:
         E (float): energy in eV
@@ -1438,7 +1440,7 @@ def f0(E, fermi, T) -> float:
         T (float): the temperature in kelvin
 
     Returns:
-        float
+        float: the Fermi-Dirac occupation probability at energy E
     """
     return 1.0 / (1.0 + np.exp((E - fermi) / (_cd("Boltzmann constant in eV/K") * T)))
 

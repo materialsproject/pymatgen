@@ -44,21 +44,20 @@ class HHIModel:
                     self.symbol_hhip_hhir[symbol] = float(hhi_production), float(hhi_reserve)
 
     def _get_hhi_el(self, el_or_symbol):
-        """Returns the tuple of HHI_production, HHI reserve for a single element only."""
+        """Get the tuple of HHI_production, HHI reserve for a single element only."""
         if isinstance(el_or_symbol, Element):
             el_or_symbol = el_or_symbol.symbol
 
         return self.symbol_hhip_hhir[el_or_symbol][0], self.symbol_hhip_hhir[el_or_symbol][1]
 
     def get_hhi(self, comp_or_form):
-        """
-        Gets the reserve and production HHI for a compound.
+        """Get the reserve and production HHI for a compound.
 
         Args:
-            comp_or_form (Composition or String): A Composition or String formula
+            comp_or_form (CompositionLike): A Composition or String formula
 
         Returns:
-            A tuple representing the (HHI_production, HHI_reserve)
+            tuple[float, float]: HHI_production, HHI_reserve
         """
         try:
             if not isinstance(comp_or_form, Composition):
@@ -78,8 +77,7 @@ class HHIModel:
             return None, None
 
     def get_hhi_production(self, comp_or_form):
-        """
-        Gets the production HHI for a compound.
+        """Get the production HHI for a compound.
 
         Args:
             comp_or_form (Composition or String): A Composition or String formula
@@ -90,8 +88,7 @@ class HHIModel:
         return self.get_hhi(comp_or_form)[0]
 
     def get_hhi_reserve(self, comp_or_form):
-        """
-        Gets the reserve HHI for a compound.
+        """Get the reserve HHI for a compound.
 
         Args:
             comp_or_form (Composition or String): A Composition or String formula
@@ -103,8 +100,7 @@ class HHIModel:
 
     @staticmethod
     def get_hhi_designation(hhi):
-        """
-        Gets a designation for low, medium, high HHI, as specified in "U.S.
+        """Get a designation for low, medium, high HHI, as specified in "U.S.
         Department of Justice and the Federal Trade Commission, Horizontal
         merger guidelines; 2010.".
 

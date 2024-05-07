@@ -6,6 +6,7 @@ import itertools
 import json
 import warnings
 from copy import deepcopy
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
@@ -15,6 +16,11 @@ from scipy.interpolate import RegularGridInterpolator
 from pymatgen.core import Element, Site, Structure
 from pymatgen.core.units import ang_to_bohr, bohr_to_angstrom
 from pymatgen.electronic_structure.core import Spin
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 
 class VolumetricData(MSONable):
@@ -34,7 +40,11 @@ class VolumetricData(MSONable):
     """
 
     def __init__(
-        self, structure: Structure, data: np.ndarray, distance_matrix: np.ndarray = None, data_aug: np.ndarray = None
+        self,
+        structure: Structure,
+        data: dict[str, np.ndarray],
+        distance_matrix: np.ndarray | None = None,
+        data_aug: np.ndarray | None = None,
     ) -> None:
         """
         Typically, this constructor is not used directly and the static
@@ -43,8 +53,7 @@ class VolumetricData(MSONable):
 
         Args:
             structure (Structure): associated with the volumetric data
-            data (np.array): Actual volumetric data. If the data is provided as in list format,
-                it will be converted into an np.array automatically
+            data (dict[str, np.array]): Actual volumetric data.
             distance_matrix (np.array): A pre-computed distance matrix if available.
                 Useful so pass distance_matrices between sums,
                 short-circuiting an otherwise expensive operation.
@@ -61,7 +70,7 @@ class VolumetricData(MSONable):
         self.ngridpts = self.dim[0] * self.dim[1] * self.dim[2]
         # lazy init the spin data since this is not always needed.
         self._spin_data: dict[Spin, float] = {}
-        self._distance_matrix = distance_matrix if distance_matrix else {}
+        self._distance_matrix = distance_matrix or {}
         self.xpoints = np.linspace(0.0, 1.0, num=self.dim[0])
         self.ypoints = np.linspace(0.0, 1.0, num=self.dim[1])
         self.zpoints = np.linspace(0.0, 1.0, num=self.dim[2])
@@ -74,8 +83,7 @@ class VolumetricData(MSONable):
 
     @property
     def spin_data(self):
-        """
-        The data decomposed into actual spin data as {spin: data}.
+        """The data decomposed into actual spin data as {spin: data}.
         Essentially, this provides the actual Spin.up and Spin.down data
         instead of the total and diff. Note that by definition, a
         non-spin-polarized run would have Spin.up data == Spin.down data.
@@ -88,8 +96,7 @@ class VolumetricData(MSONable):
         return self._spin_data
 
     def get_axis_grid(self, ind):
-        """
-        Returns the grid for a particular axis.
+        """Get the grid for a particular axis.
 
         Args:
             ind (int): Axis index.
@@ -105,8 +112,8 @@ class VolumetricData(MSONable):
     def __sub__(self, other):
         return self.linear_add(other, -1.0)
 
-    def copy(self):
-        """Copy of Volumetric object"""
+    def copy(self) -> Self:
+        """Make a copy of VolumetricData object"""
         return VolumetricData(
             self.structure,
             {k: v.copy() for k, v in self.data.items()},
@@ -148,8 +155,7 @@ class VolumetricData(MSONable):
             self.data[k] = np.multiply(self.data[k], factor)
 
     def value_at(self, x, y, z):
-        """
-        Get a data value from self.data at a given point (x, y, z) in terms
+        """Get a data value from self.data at a given point (x, y, z) in terms
         of fractional lattice parameters. Will be interpolated using a
         RegularGridInterpolator on self.data if (x, y, z) is not in the original
         set of data points.
@@ -166,8 +172,7 @@ class VolumetricData(MSONable):
         return self.interpolator([x, y, z])[0]
 
     def linear_slice(self, p1, p2, n=100):
-        """
-        Get a linear slice of the volumetric data with n data points from
+        """Get a linear slice of the volumetric data with n data points from
         point p1 to point p2, in the form of a list.
 
         Args:
@@ -189,8 +194,7 @@ class VolumetricData(MSONable):
         return [self.value_at(xpts[i], ypts[i], zpts[i]) for i in range(n)]
 
     def get_integrated_diff(self, ind, radius, nbins=1):
-        """
-        Get integrated difference of atom index ind up to radius. This can be
+        """Get integrated difference of atom index ind up to radius. This can be
         an extremely computationally intensive process, depending on how many
         grid points are in the VolumetricData.
 
@@ -204,7 +208,7 @@ class VolumetricData(MSONable):
 
         Returns:
             Differential integrated charge as a np array of [[radius, value],
-            ...]. Format is for ease of plotting. E.g., plt.plot(data[:,0],
+            ...]. Format is for ease of plotting. e.g. plt.plot(data[:,0],
             data[:,1])
         """
         # For non-spin-polarized runs, this is zero by definition.
@@ -241,8 +245,7 @@ class VolumetricData(MSONable):
         return data
 
     def get_average_along_axis(self, ind):
-        """
-        Get the averaged total of the volumetric data a certain axis direction.
+        """Get the averaged total of the volumetric data a certain axis direction.
         For example, useful for visualizing Hartree Potentials from a LOCPOT
         file.
 
@@ -252,14 +255,14 @@ class VolumetricData(MSONable):
         Returns:
             Average total along axis
         """
-        m = self.data["total"]
+        total_spin_dens = self.data["total"]
         ng = self.dim
         if ind == 0:
-            total = np.sum(np.sum(m, axis=1), 1)
+            total = np.sum(np.sum(total_spin_dens, axis=1), 1)
         elif ind == 1:
-            total = np.sum(np.sum(m, axis=0), 1)
+            total = np.sum(np.sum(total_spin_dens, axis=0), 1)
         else:
-            total = np.sum(np.sum(m, axis=0), 0)
+            total = np.sum(np.sum(total_spin_dens, axis=0), 0)
         return total / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
 
     def to_hdf5(self, filename):
@@ -299,11 +302,12 @@ class VolumetricData(MSONable):
             file.attrs["structure_json"] = json.dumps(self.structure.as_dict())
 
     @classmethod
-    def from_hdf5(cls, filename, **kwargs):
+    def from_hdf5(cls, filename: str, **kwargs) -> Self:
         """
         Reads VolumetricData from HDF5 file.
 
-        :param filename: Filename
+        Args:
+            filename: Filename
 
         Returns:
             VolumetricData
@@ -318,7 +322,7 @@ class VolumetricData(MSONable):
             structure = Structure.from_dict(json.loads(file.attrs["structure_json"]))
             return cls(structure, data=data, data_aug=data_aug, **kwargs)
 
-    def to_cube(self, filename, comment=None):
+    def to_cube(self, filename, comment: str = ""):
         """
         Write the total volumetric data to a cube file format, which consists of two comment lines,
         a header section defining the structure IN BOHR, and the data.
@@ -329,7 +333,7 @@ class VolumetricData(MSONable):
         """
         with zopen(filename, mode="wt") as file:
             file.write(f"# Cube file for {self.structure.formula} generated by Pymatgen\n")
-            file.write(f"# {comment if comment else ''}\n")
+            file.write(f"# {comment}\n")
             file.write(f"\t {len(self.structure)} 0.000000 0.000000 0.000000\n")
 
             for idx in range(3):
@@ -346,13 +350,13 @@ class VolumetricData(MSONable):
                     f"{ang_to_bohr * site.coords[2]} \n"
                 )
 
-            for idx, dat in enumerate(self.data["total"].flatten()):
+            for idx, dat in enumerate(self.data["total"].flatten(), start=1):
                 file.write(f"{' ' if dat > 0 else ''}{dat:.6e} ")
-                if (idx + 1) % 6 == 0:
+                if idx % 6 == 0:
                     file.write("\n")
 
     @classmethod
-    def from_cube(cls, filename):
+    def from_cube(cls, filename: str | Path) -> Self:
         """
         Initialize the cube object and store the data as data.
 
@@ -367,7 +371,7 @@ class VolumetricData(MSONable):
 
         # number of atoms followed by the position of the origin of the volumetric data
         line = file.readline().split()
-        natoms = int(line[0])
+        n_atoms = int(line[0])
 
         # The number of voxels along each axis (x, y, z) followed by the axis vector.
         line = file.readline().split()
@@ -386,7 +390,7 @@ class VolumetricData(MSONable):
         # the first is the atom number, second is charge,
         # the last three are the x,y,z coordinates of the atom center.
         sites = []
-        for _ in range(natoms):
+        for _ in range(n_atoms):
             line = file.readline().split()
             sites.append(Site(line[0], np.multiply(bohr_to_angstrom, list(map(float, line[2:])))))
 

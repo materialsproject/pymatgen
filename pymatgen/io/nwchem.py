@@ -24,6 +24,7 @@ import os
 import re
 import warnings
 from string import Template
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
@@ -32,6 +33,11 @@ from monty.json import MSONable
 from pymatgen.analysis.excitation import ExcitationSpectrum
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.units import Energy, FloatWithUnit
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 NWCHEM_BASIS_LIBRARY = None
 if os.getenv("NWCHEM_BASIS_LIBRARY"):
@@ -102,7 +108,7 @@ class NwTask(MSONable):
                 which means that the spin multiplicity is set to 1 if the
                 molecule has no unpaired electrons and to 2 if there are
                 unpaired electrons.
-            basis_set: The basis set used for the task as a dict. E.g.,
+            basis_set: The basis set used for the task as a dict. e.g.
                 {"C": "6-311++G**", "H": "6-31++G**"}.
             basis_set_option: cartesian (default) | spherical,
             title: Title for the task. Defaults to None, which means a title
@@ -181,7 +187,7 @@ $theory_spec
         return output
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -197,24 +203,24 @@ $theory_spec
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             NwTask
         """
-        return NwTask(
-            charge=d["charge"],
-            spin_multiplicity=d["spin_multiplicity"],
-            title=d["title"],
-            theory=d["theory"],
-            operation=d["operation"],
-            basis_set=d["basis_set"],
-            basis_set_option=d["basis_set_option"],
-            theory_directives=d["theory_directives"],
-            alternate_directives=d["alternate_directives"],
+        return cls(
+            charge=dct["charge"],
+            spin_multiplicity=dct["spin_multiplicity"],
+            title=dct["title"],
+            theory=dct["theory"],
+            operation=dct["operation"],
+            basis_set=dct["basis_set"],
+            basis_set_option=dct["basis_set_option"],
+            theory_directives=dct["theory_directives"],
+            alternate_directives=dct["alternate_directives"],
         )
 
     @classmethod
@@ -230,7 +236,7 @@ $theory_spec
         operation="optimize",
         theory_directives=None,
         alternate_directives=None,
-    ):
+    ) -> Self:
         """
         Very flexible arguments to support many types of potential setups.
         Users should use more friendly static methods unless they need the
@@ -245,7 +251,7 @@ $theory_spec
                 which means that the spin multiplicity is set to 1 if the
                 molecule has no unpaired electrons and to 2 if there are
                 unpaired electrons.
-            basis_set: The basis set to be used as string or a dict. E.g.,
+            basis_set: The basis set to be used as string or a dict. e.g.
                 {"C": "6-311++G**", "H": "6-31++G**"} or "6-31G". If string,
                 same basis set is used for all elements.
             basis_set_option: cartesian (default) | spherical,
@@ -278,7 +284,7 @@ $theory_spec
         if isinstance(basis_set, str):
             basis_set = dict.fromkeys(elements, basis_set)
 
-        return NwTask(
+        return cls(
             charge,
             spin_multiplicity,
             basis_set,
@@ -341,10 +347,10 @@ class NwInput(MSONable):
                 direct input to the geometry section of the Gaussian input
                 file.
             tasks: List of NwTasks.
-            directives: List of root level directives as tuple. E.g.,
+            directives: List of root level directives as tuple. e.g.
                 [("start", "water"), ("print", "high")]
             geometry_options: Additional list of options to be supplied to the
-                geometry. E.g., ["units", "angstroms", "noautoz"]. Defaults to
+                geometry. e.g. ["units", "angstroms", "noautoz"]. Defaults to
                 ("units", "angstroms").
             symmetry_options: Addition list of option to be supplied to the
                 symmetry. E.g. ["c1"] to turn off the symmetry
@@ -360,7 +366,7 @@ class NwInput(MSONable):
 
     @property
     def molecule(self):
-        """Returns molecule associated with this GaussianInput."""
+        """Molecule associated with this GaussianInput."""
         return self._mol
 
     def __str__(self):
@@ -388,7 +394,7 @@ class NwInput(MSONable):
             file.write(str(self))
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "mol": self._mol.as_dict(),
             "tasks": [task.as_dict() for task in self.tasks],
@@ -399,25 +405,25 @@ class NwInput(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             NwInput
         """
-        return NwInput(
-            Molecule.from_dict(d["mol"]),
-            tasks=[NwTask.from_dict(dt) for dt in d["tasks"]],
-            directives=[tuple(li) for li in d["directives"]],
-            geometry_options=d["geometry_options"],
-            symmetry_options=d["symmetry_options"],
-            memory_options=d["memory_options"],
+        return cls(
+            Molecule.from_dict(dct["mol"]),
+            tasks=[NwTask.from_dict(dt) for dt in dct["tasks"]],
+            directives=[tuple(li) for li in dct["directives"]],
+            geometry_options=dct["geometry_options"],
+            symmetry_options=dct["symmetry_options"],
+            memory_options=dct["memory_options"],
         )
 
     @classmethod
-    def from_str(cls, string_input):
+    def from_str(cls, string_input: str) -> Self:
         """
         Read an NwInput from a string. Currently tested to work with
         files generated from this class itself.
@@ -432,8 +438,10 @@ class NwInput(MSONable):
         tasks = []
         charge = spin_multiplicity = title = basis_set = None
         basis_set_option = None
-        theory_directives = {}
+        mol = None
+        theory_directives: dict[str, dict[str, str]] = {}
         geom_options = symmetry_options = memory_options = None
+
         lines = string_input.strip().split("\n")
         while len(lines) > 0:
             line = lines.pop(0).strip()
@@ -501,7 +509,7 @@ class NwInput(MSONable):
             else:
                 directives.append(line.strip().split())
 
-        return NwInput(
+        return cls(
             mol,
             tasks=tasks,
             directives=directives,
@@ -511,7 +519,7 @@ class NwInput(MSONable):
         )
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Read an NwInput from a file. Currently tested to work with
         files generated from this class itself.
@@ -562,19 +570,8 @@ class NwOutput:
         Parses TDDFT roots. Adapted from nw_spectrum.py script.
 
         Returns:
-            {
-                "singlet": [
-                    {
-                        "energy": float,
-                        "osc_strength: float
-                    }
-                ],
-                "triplet": [
-                    {
-                        "energy": float
-                    }
-                ]
-            }
+            dict[str, list]: A dict of the form {"singlet": [dict, ...], "triplet": [dict, ...]} where
+                each sub-dict is of the form {"energy": float, "osc_strength": float}.
         """
         start_tag = "Convergence criterion met"
         end_tag = "Excited state energy"
@@ -613,9 +610,7 @@ class NwOutput:
         return roots
 
     def get_excitation_spectrum(self, width=0.1, npoints=2000):
-        """
-        Generate an excitation spectra from the singlet roots of TDDFT
-        calculations.
+        """Generate an excitation spectra from the singlet roots of TDDFT calculations.
 
         Args:
             width (float): Width for Gaussian smearing.
@@ -623,8 +618,7 @@ class NwOutput:
                 curve.
 
         Returns:
-            (ExcitationSpectrum) which can be plotted using
-                pymatgen.vis.plotters.SpectrumPlotter.
+            ExcitationSpectrum: can be plotted using pymatgen.vis.plotters.SpectrumPlotter.
         """
         roots = self.parse_tddft()
         data = roots["singlet"]
@@ -736,11 +730,9 @@ class NwOutput:
             for e, v in error_defs.items():
                 if line.find(e) != -1:
                     errors.append(v)
-            if parse_time:
-                m = time_patt.search(line)
-                if m:
-                    time = m.group(1)
-                    parse_time = False
+            if parse_time and (match := time_patt.search(line)):
+                time = match.group(1)
+                parse_time = False
             if parse_geom:
                 if line.strip() == "Atomic Mass":
                     if lattice:
@@ -752,18 +744,16 @@ class NwOutput:
                     lattice = []
                     parse_geom = False
                 else:
-                    m = coord_patt.search(line)
-                    if m:
-                        species.append(m.group(1).capitalize())
-                        coords.append([float(m.group(2)), float(m.group(3)), float(m.group(4))])
-                    m = lat_vector_patt.search(line)
-                    if m:
-                        lattice.append([float(m.group(1)), float(m.group(2)), float(m.group(3))])
+                    if match := coord_patt.search(line):
+                        species.append(match.group(1).capitalize())
+                        coords.append([float(match.group(2)), float(match.group(3)), float(match.group(4))])
+
+                    if match := lat_vector_patt.search(line):
+                        lattice.append([float(match.group(1)), float(match.group(2)), float(match.group(3))])
 
             if parse_force:
-                m = force_patt.search(line)
-                if m:
-                    forces.extend(map(float, m.groups()[5:]))
+                if match := force_patt.search(line):
+                    forces.extend(map(float, match.groups()[5:]))
                 elif len(forces) > 0:
                     all_forces.append(forces)
                     forces = []
@@ -776,8 +766,8 @@ class NwOutput:
                     parse_freq = False
                 else:
                     vibs = [float(vib) for vib in line.strip().split()[1:]]
-                    num_vibs = len(vibs)
-                    for mode, dis in zip(normal_frequencies[-num_vibs:], vibs):
+                    n_vibs = len(vibs)
+                    for mode, dis in zip(normal_frequencies[-n_vibs:], vibs):
                         mode[1].append(dis)
 
             elif parse_projected_freq:
@@ -787,8 +777,8 @@ class NwOutput:
                     parse_projected_freq = False
                 else:
                     vibs = [float(vib) for vib in line.strip().split()[1:]]
-                    num_vibs = len(vibs)
-                    for mode, dis in zip(frequencies[-num_vibs:], vibs):
+                    n_vibs = len(vibs)
+                    for mode, dis in zip(frequencies[-n_vibs:], vibs):
                         mode[1].append(dis)
 
             elif parse_bset:
@@ -844,30 +834,26 @@ class NwOutput:
                         parse_proj_hess = False
 
             else:
-                m = energy_patt.search(line)
-                if m:
-                    energies.append(Energy(m.group(1), "Ha").to("eV"))
+                if match := energy_patt.search(line):
+                    energies.append(Energy(match.group(1), "Ha").to("eV"))
                     parse_time = True
                     continue
 
-                m = energy_gas_patt.search(line)
-                if m:
+                if match := energy_gas_patt.search(line):
                     cosmo_scf_energy = energies[-1]
                     energies[-1] = {}
                     energies[-1]["cosmo scf"] = cosmo_scf_energy
-                    energies[-1].update({"gas phase": Energy(m.group(1), "Ha").to("eV")})
+                    energies[-1].update({"gas phase": Energy(match.group(1), "Ha").to("eV")})
 
-                m = energy_sol_patt.search(line)
-                if m:
-                    energies[-1].update({"sol phase": Energy(m.group(1), "Ha").to("eV")})
+                if match := energy_sol_patt.search(line):
+                    energies[-1].update({"sol phase": Energy(match.group(1), "Ha").to("eV")})
 
-                m = preamble_patt.search(line)
-                if m:
+                if match := preamble_patt.search(line):
                     try:
-                        val = int(m.group(2))
+                        val = int(match.group(2))
                     except ValueError:
-                        val = m.group(2)
-                    k = m.group(1).replace("No. of ", "n").replace(" ", "_")
+                        val = match.group(2)
+                    k = match.group(1).replace("No. of ", "n").replace(" ", "_")
                     data[k.lower()] = val
                 elif line.find('Geometry "geometry"') != -1:
                     parse_geom = True
@@ -904,10 +890,8 @@ class NwOutput:
                     job_type = line.strip()
                     if job_type == "NWChem DFT Module" and "COSMO solvation results" in output:
                         job_type += " COSMO"
-                else:
-                    m = corrections_patt.search(line)
-                    if m:
-                        corrections[m.group(1)] = FloatWithUnit(m.group(2), "kJ mol^-1").to("eV atom^-1")
+                elif match := corrections_patt.search(line):
+                    corrections[match.group(1)] = FloatWithUnit(match.group(2), "kJ mol^-1").to("eV atom^-1")
 
         if frequencies:
             for _freq, mode in frequencies:
@@ -916,15 +900,15 @@ class NwOutput:
             for _freq, mode in normal_frequencies:
                 mode[:] = zip(*[iter(mode)] * 3)
         if hessian:
-            n = len(hessian)
-            for i in range(n):
-                for j in range(i + 1, n):
-                    hessian[i].append(hessian[j][i])
+            len_hess = len(hessian)
+            for ii in range(len_hess):
+                for jj in range(ii + 1, len_hess):
+                    hessian[ii].append(hessian[jj][ii])
         if projected_hessian:
-            n = len(projected_hessian)
-            for i in range(n):
-                for j in range(i + 1, n):
-                    projected_hessian[i].append(projected_hessian[j][i])
+            len_hess = len(projected_hessian)
+            for ii in range(len_hess):
+                for jj in range(ii + 1, len_hess):
+                    projected_hessian[ii].append(projected_hessian[jj][ii])
 
         data.update(
             {

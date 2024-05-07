@@ -9,7 +9,7 @@ from pymatgen.io.shengbte import Control
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 f90nml = pytest.importorskip("f90nml")
-TEST_DIR = f"{TEST_FILES_DIR}/shengbte"
+TEST_DIR = f"{TEST_FILES_DIR}/io/shengbte"
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -84,7 +84,7 @@ class TestShengBTE(PymatgenTest):
             reference_string = reference_file.read()
         assert test_string == reference_string
 
-    def test_msonable_implementation(self):
+    def test_as_from_dict(self):
         # tests as dict and from dict methods
         ctrl_from_file = Control.from_file(self.filename)
         control_from_dict = Control.from_dict(ctrl_from_file.as_dict())

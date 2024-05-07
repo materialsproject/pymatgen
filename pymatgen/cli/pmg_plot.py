@@ -29,8 +29,8 @@ def get_dos_plot(args):
     structure = vasp_run.final_structure
 
     if args.site:
-        for i, site in enumerate(structure):
-            all_dos[f"Site {i} {site.specie.symbol}"] = dos.get_site_dos(site)
+        for idx, site in enumerate(structure):
+            all_dos[f"Site {idx} {site.specie.symbol}"] = dos.get_site_dos(site)
 
     if args.element:
         syms = [tok.strip() for tok in args.element[0].split(",")]

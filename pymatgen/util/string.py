@@ -39,12 +39,12 @@ class Stringify:
         return str(self)
 
     def to_latex_string(self) -> str:
-        """Generates a LaTeX formatted string. The mode is set by the class variable STRING_MODE, which defaults to
-        "SUBSCRIPT". E.g., Fe2O3 is transformed to Fe$_{2}$O$_{3}$. Setting STRING_MODE to "SUPERSCRIPT" creates
-        superscript, e.g., Fe2+ becomes Fe^{2+}. The initial string is obtained from the class's __str__ method.
+        """Generate a LaTeX formatted string. The mode is set by the class variable STRING_MODE, which defaults to
+        "SUBSCRIPT". e.g. Fe2O3 is transformed to Fe$_{2}$O$_{3}$. Setting STRING_MODE to "SUPERSCRIPT" creates
+        superscript, e.g. Fe2+ becomes Fe^{2+}. The initial string is obtained from the class's __str__ method.
 
         Returns:
-            String for display as in LaTeX with proper superscripts and subscripts.
+            str: for LaTeX display with proper sub-/superscripts.
         """
         str_ = self.to_pretty_string()
         # First we process strings that already have _ and ^ by escaping the relevant parts.
@@ -57,7 +57,7 @@ class Stringify:
         return str_
 
     def to_html_string(self) -> str:
-        """Generates a HTML formatted string. This uses the output from to_latex_string to generate a HTML output.
+        """Generate a HTML formatted string. This uses the output from to_latex_string to generate a HTML output.
 
         Returns:
             HTML formatted string.
@@ -100,7 +100,7 @@ def str_delimited(results, header=None, delimiter="\t"):
     """
     out = ""
     if header is not None:
-        out += delimiter.join(header) + "\n"
+        out += f"{delimiter.join(header)}\n"
     return out + "\n".join(delimiter.join([str(m) for m in result]) for result in results)
 
 
@@ -124,8 +124,8 @@ def formula_double_format(afloat, ignore_ones=True, tol: float = 1e-8):
 
 
 def charge_string(charge, brackets=True, explicit_one=True):
-    """Returns a string representing the charge of an Ion. By default, the
-    charge is placed in brackets with the sign preceding the magnitude, e.g.,
+    """Get a string representing the charge of an Ion. By default, the
+    charge is placed in brackets with the sign preceding the magnitude, e.g.
     '[+2]'. For uncharged species, the string returned is '(aq)'.
 
     Args:
@@ -146,7 +146,7 @@ def charge_string(charge, brackets=True, explicit_one=True):
 
 
 def latexify(formula: str, bold: bool = False):
-    """Generates a LaTeX formatted formula. E.g., Fe2O3 is transformed to
+    """Generate a LaTeX formatted formula. e.g. Fe2O3 is transformed to
     Fe$_{2}$O$_{3}$.
 
     Note that Composition now has a to_latex_string() method that may
@@ -162,26 +162,28 @@ def latexify(formula: str, bold: bool = False):
     return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1$_{\\mathbf{\2}}$" if bold else r"\1$_{\2}$", formula)
 
 
-def htmlify(formula):
-    """Generates a HTML formatted formula, e.g. Fe2O3 is transformed to
+def htmlify(formula: str) -> str:
+    """Generate a HTML formatted formula, e.g. Fe2O3 is transformed to
     Fe<sub>2</sub>O</sub>3</sub>.
 
     Note that Composition now has a to_html_string() method that may
     be used instead.
 
-    :param formula:
+    Args:
+        formula: The string to format.
     """
     return re.sub(r"([A-Za-z\(\)])([\d\.]+)", r"\1<sub>\2</sub>", formula)
 
 
-def unicodeify(formula):
-    """Generates a formula with unicode subscripts, e.g. Fe2O3 is transformed
+def unicodeify(formula: str) -> str:
+    """Generate a formula with unicode subscripts, e.g. Fe2O3 is transformed
     to Fe₂O₃. Does not support formulae with decimal points.
 
     Note that Composition now has a to_unicode_string() method that may
     be used instead.
 
-    :param formula:
+    Args:
+        formula: The string to format.
     """
     if "." in formula:
         raise ValueError("No unicode character exists for subscript period.")
@@ -193,7 +195,7 @@ def unicodeify(formula):
 
 
 def latexify_spacegroup(spacegroup_symbol):
-    r"""Generates a latex formatted spacegroup. E.g., P2_1/c is converted to
+    r"""Generate a latex formatted spacegroup. e.g. P2_1/c is converted to
     P2$_{1}$/c and P-1 is converted to P$\\overline{1}$.
 
     Note that SymmetryGroup now has a to_latex_string() method that may
@@ -210,7 +212,7 @@ def latexify_spacegroup(spacegroup_symbol):
 
 
 def unicodeify_spacegroup(spacegroup_symbol):
-    r"""Generates a unicode formatted spacegroup. E.g., P2$_{1}$/c is converted to
+    r"""Generate a unicode formatted spacegroup. e.g. P2$_{1}$/c is converted to
     P2₁/c and P$\\overline{1}$ is converted to P̅1.
 
     Note that SymmetryGroup now has a to_unicode_string() method that
@@ -241,7 +243,7 @@ def unicodeify_spacegroup(spacegroup_symbol):
 
 
 def unicodeify_species(specie_string):
-    """Generates a unicode formatted species string, with appropriate
+    """Generate a unicode formatted species string, with appropriate
     superscripts for oxidation states.
 
     Note that Species now has a to_unicode_string() method that
@@ -296,11 +298,11 @@ def transformation_to_string(matrix, translation_vec=(0, 0, 0), components=("x",
     parts = []
     for idx in range(3):
         string = ""
-        m = matrix[idx]
+        mat = matrix[idx]
         offset = translation_vec[idx]
         for j, dim in enumerate(components):
-            if m[j] != 0:
-                f = Fraction(m[j]).limit_denominator()
+            if mat[j] != 0:
+                f = Fraction(mat[j]).limit_denominator()
                 if string != "" and f >= 0:
                     string += "+"
                 if abs(f.numerator) != 1:
@@ -319,7 +321,7 @@ def transformation_to_string(matrix, translation_vec=(0, 0, 0), components=("x",
 
 
 def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
-    """Returns a formula of a form like AxB1-x (x=0.5)
+    """Get a formula of a form like AxB1-x (x=0.5)
     for disordered structures. Will only return a
     formula for disordered structures with one
     kind of disordered site at present.
@@ -332,7 +334,8 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
         species more symbols will need to be added
         fmt (str): 'plain', 'HTML' or 'LaTeX'
 
-    Returns (str): a disordered formula string
+    Returns:
+        str: a disordered formula string
     """
     # this is in string utils and not in Composition because we need to have access to
     # site occupancies to calculate this, so have to pass the full structure as an
@@ -395,7 +398,10 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
     elif fmt == "HTML":
         sub_start = "<sub>"
         sub_end = "</sub>"
-    elif fmt != "plain":
+    elif fmt == "plain":
+        sub_start = ""
+        sub_end = ""
+    else:
         raise ValueError("Unsupported output format, choose from: LaTeX, HTML, plain")
 
     disordered_formula = []

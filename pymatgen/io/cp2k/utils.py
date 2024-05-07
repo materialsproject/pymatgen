@@ -29,11 +29,11 @@ def postprocessor(data: str) -> str | float | bool | None:
     """
     data = data.strip().replace(" ", "_")  # remove leading/trailing whitespace, replace spaces with _
 
-    if data.lower() in ("false", "no", "f"):
+    if data.lower() in {"false", "no", "f"}:
         return False
     if data.lower() == "none":
         return None
-    if data.lower() in ("true", "yes", "t"):
+    if data.lower() in {"true", "yes", "t"}:
         return True
     if re.match(r"^-?\d+$", data):
         try:
@@ -87,7 +87,7 @@ def preprocessor(data: str, dir: str = ".") -> str:
         assert len(v) == 3  # @SET VAR value
         var, value = v[1:]
         data = re.sub(rf"{match}", "", data)
-        data = re.sub(r"\${?" + var + "}?", value, data)
+        data = re.sub(rf"\${{?{var}}}?", value, data)
 
     c1 = re.findall(r"@IF", data, re.IGNORECASE)
     c2 = re.findall(r"@ELIF", data, re.IGNORECASE)
@@ -121,8 +121,7 @@ def natural_keys(text: str):
 
 
 def get_unique_site_indices(struct: Structure | Molecule):
-    """
-    Get unique site indices for a structure according to site properties. Whatever site-property
+    """Get unique site indices for a structure according to site properties. Whatever site-property
     has the most unique values is used for indexing.
 
     For example, if you have magnetic CoO with half Co atoms having a positive moment, and the
@@ -158,9 +157,9 @@ def get_unique_site_indices(struct: Structure | Molecule):
     items = [
         (
             site.species_string,
-            *[struct.site_properties[k][i] for k in struct.site_properties if k.lower() in parsable_site_properties],
+            *[struct.site_properties[k][idx] for k in struct.site_properties if k.lower() in parsable_site_properties],
         )
-        for i, site in enumerate(struct)
+        for idx, site in enumerate(struct)
     ]
     unique_itms = list(set(items))
     _sites: dict[tuple, list] = {u: [] for u in unique_itms}

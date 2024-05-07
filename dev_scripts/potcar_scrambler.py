@@ -4,6 +4,7 @@ import os
 import shutil
 import warnings
 from glob import glob
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.os.path import zpath
@@ -12,6 +13,10 @@ from monty.serialization import zopen
 from pymatgen.core import SETTINGS
 from pymatgen.io.vasp import Potcar, PotcarSingle
 from pymatgen.io.vasp.sets import _load_yaml_config
+from pymatgen.util.testing import VASP_IN_DIR
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 class PotcarScrambler:
@@ -33,26 +38,22 @@ class PotcarScrambler:
     from existing POTCAR `input_filename`
     """
 
-    def __init__(self, potcars: Potcar | PotcarSingle):
-        if isinstance(potcars, PotcarSingle):
-            self.PSP_list = [potcars]
-        else:
-            self.PSP_list = potcars
+    def __init__(self, potcars: Potcar | PotcarSingle) -> None:
+        self.PSP_list = [potcars] if isinstance(potcars, PotcarSingle) else potcars
         self.scrambled_potcars_str = ""
         for psp in self.PSP_list:
             scrambled_potcar_str = self.scramble_single_potcar(psp)
             self.scrambled_potcars_str += scrambled_potcar_str
-        return
 
-    def _rand_float_from_str_with_prec(self, input_str: str, bloat: float = 1.5):
+    def _rand_float_from_str_with_prec(self, input_str: str, bloat: float = 1.5) -> float:
         n_prec = len(input_str.split(".")[1])
-        bd = max(1, bloat * abs(float(input_str)))
+        bd = max(1, bloat * abs(float(input_str)))  # ensure we don't get 0
         return round(bd * np.random.rand(1)[0], n_prec)
 
     def _read_fortran_str_and_scramble(self, input_str: str, bloat: float = 1.5):
         input_str = input_str.strip()
 
-        if input_str.lower() in ("t", "f", "true", "false"):
+        if input_str.lower() in {"t", "f", "true", "false"}:
             return bool(np.random.randint(2))
 
         if input_str.upper() == input_str.lower() and input_str[0].isnumeric():
@@ -67,9 +68,8 @@ class PotcarScrambler:
         except ValueError:
             return input_str
 
-    def scramble_single_potcar(self, potcar: PotcarSingle):
-        """
-        Scramble the body of a POTCAR, retain the PSCTR header information.
+    def scramble_single_potcar(self, potcar: PotcarSingle) -> str:
+        """Scramble the body of a POTCAR, retain the PSCTR header information.
 
         To the best of my (ADK) knowledge, in the OUTCAR file,
         almost all information from the POTCAR in the "PSCTR" block
@@ -83,8 +83,7 @@ class PotcarScrambler:
         is included. This information is not scrambled below.
         """
         scrambled_potcar_str = ""
-        needs_sha256 = False
-        scramble_values = False
+        needs_sha256 = scramble_values = False
         og_sha_str = "SHA256 = None\n"
         for line in potcar.data.split("\n")[:-1]:
             single_line_rows = line.split(";")
@@ -123,12 +122,12 @@ class PotcarScrambler:
             )
         return scrambled_potcar_str
 
-    def to_file(self, filename: str):
+    def to_file(self, filename: str) -> None:
         with zopen(filename, mode="wt") as file:
             file.write(self.scrambled_potcars_str)
 
     @classmethod
-    def from_file(cls, input_filename: str, output_filename: str | None = None):
+    def from_file(cls, input_filename: str, output_filename: str | None = None) -> Self:
         psp = Potcar.from_file(input_filename)
         psp_scrambled = cls(psp)
         if output_filename:
@@ -136,7 +135,7 @@ class PotcarScrambler:
         return psp_scrambled
 
 
-def generate_fake_potcar_libraries():
+def generate_fake_potcar_libraries() -> None:
     """
     To test the `_gen_potcar_summary_stats` function in `pymatgen.io.vasp.inputs`,
     need a library of fake POTCARs which do not violate copyright
@@ -172,15 +171,14 @@ def generate_fake_potcar_libraries():
                     break
 
 
-def potcar_cleanser():
-    """
-    Function to replace copyrighted POTCARs used in io.vasp.sets testing
+def potcar_cleanser() -> None:
+    """Replace copyrighted POTCARs used in io.vasp.sets testing
     with dummy POTCARs that have scrambled PSP and kinetic energy values
     (but retain the original header information which is also found in OUTCARs
     and freely shared by VASP)
     """
 
-    search_dir = "../tests/files/fake_potcars/real_potcars/"
+    search_dir = f"{VASP_IN_DIR}/fake_potcars/real_potcars/"
     rebase_dir = search_dir.replace("real", "fake")
     potcars_to_cleanse = glob(f"{search_dir}/**/POTCAR*", recursive=True)
 

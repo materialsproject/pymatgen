@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import re
 from copy import deepcopy
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 
 from pymatgen.core.composition import Composition, reduce_formula
 from pymatgen.util.string import Stringify, charge_string, formula_double_format
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 
 class Ion(Composition, MSONable, Stringify):
@@ -19,7 +23,7 @@ class Ion(Composition, MSONable, Stringify):
     Mn[+2]. Note the order of the sign and magnitude in each representation.
     """
 
-    def __init__(self, composition, charge=0.0, _properties=None) -> None:
+    def __init__(self, composition: Composition, charge: float = 0.0) -> None:
         """Flexible Ion construction, similar to Composition.
         For more information, please see pymatgen.core.Composition.
         """
@@ -27,57 +31,55 @@ class Ion(Composition, MSONable, Stringify):
         self._charge = charge
 
     @classmethod
-    def from_formula(cls, formula: str) -> Ion:
-        """Creates Ion from formula. The net charge can either be represented as
+    def from_formula(cls, formula: str) -> Self:
+        """Create Ion from formula. The net charge can either be represented as
         Mn++, Mn+2, Mn[2+], Mn[++], or Mn[+2]. Note the order of the sign and
         magnitude in each representation.
 
         Also note that (aq) can be included in the formula, e.g. "NaOH (aq)".
 
-        :param formula:
+        Args:
+            formula (str): The formula to create ion from.
 
         Returns:
             Ion
         """
         charge = 0.0
-        f = formula
         # strip (aq), if present
-        m = re.search(r"\(aq\)", f)
-        if m:
-            f = f.replace(m.group(), "", 1)
+        if match := re.search(r"\(aq\)", formula):
+            formula = formula.replace(match.group(), "", 1)
         # check for charge in brackets
-        m = re.search(r"\[([^\[\]]+)\]", f)
-        if m:
-            m_chg = re.search(r"([\.\d]*)([+-]*)([\.\d]*)", m.group(1))
+        if match := re.search(r"\[([^\[\]]+)\]", formula):
+            m_chg = re.search(r"([\.\d]*)([+-]*)([\.\d]*)", match.group(1))
             if m_chg:
                 if m_chg.group(1) != "":
                     if m_chg.group(3) != "":
                         raise ValueError("Invalid formula")
-                    charge += float(m_chg.group(1)) * (float(m_chg.group(2) + "1"))
+                    charge += float(m_chg.group(1)) * (float(f"{m_chg.group(2)}1"))
                 elif m_chg.group(3) != "":
-                    charge += float(m_chg.group(3)) * (float(m_chg.group(2) + "1"))
+                    charge += float(m_chg.group(3)) * (float(f"{m_chg.group(2)}1"))
                 else:
-                    for i in re.findall("[+-]", m_chg.group(2)):
-                        charge += float(i + "1")
+                    for val in re.findall("[+-]", m_chg.group(2)):
+                        charge += float(f"{val}1")
 
-            f = f.replace(m.group(), "", 1)
+            formula = formula.replace(match.group(), "", 1)
 
         # if no brackets, parse trailing +/-
-        for m_chg in re.finditer(r"([+-])([\.\d]*)", f):
+        for m_chg in re.finditer(r"([+-])([\.\d]*)", formula):
             sign = m_chg.group(1)
-            sgn = float(str(sign + "1"))
+            sgn = float(f"{sign}1")
             if m_chg.group(2).strip() != "":
                 charge += float(m_chg.group(2)) * sgn
             else:
                 charge += sgn
-            f = f.replace(m_chg.group(), "", 1)
-        composition = Composition(f)
+            formula = formula.replace(m_chg.group(), "", 1)
+        composition = Composition(formula)
         return cls(composition, charge)
 
     @property
     def formula(self) -> str:
-        """Returns a formula string with appended charge. The
-        charge is written with the sign preceding the magnitude, e.g.,
+        """A formula string with appended charge. The
+        charge is written with the sign preceding the magnitude, e.g.
         'Ca1 +2'. Uncharged species have "(aq)" appended, e.g. "O2 (aq)".
         """
         formula = super().formula
@@ -93,7 +95,7 @@ class Ion(Composition, MSONable, Stringify):
         return anon_formula + chg_str
 
     def get_reduced_formula_and_factor(self, iupac_ordering: bool = False, hydrates: bool = False) -> tuple[str, float]:
-        """Calculates a reduced formula and factor.
+        """Calculate a reduced formula and factor.
 
         Similar to Composition.get_reduced_formula_and_factor except that O-H formulas
         receive special handling to differentiate between hydrogen peroxide and OH-.
@@ -119,10 +121,10 @@ class Ion(Composition, MSONable, Stringify):
                 Ions containing metals.
 
         Returns:
-            A pretty normalized formula and a multiplicative factor, i.e.,
-            H4O4 returns ('H2O2', 2.0).
+            tuple[str, float]: A pretty normalized formula and a multiplicative factor, i.e.,
+                H4O4 returns ('H2O2', 2.0).
         """
-        all_int = all(abs(x - round(x)) < Composition.amount_tolerance for x in self.values())
+        all_int = all(abs(val - round(val)) < Composition.amount_tolerance for val in self.values())
         if not all_int:
             return self.formula.replace(" ", ""), 1
 
@@ -137,7 +139,7 @@ class Ion(Composition, MSONable, Stringify):
                 comp = self.composition - nH2O * Composition("H2O")
 
         el_amt_dict = {k: int(round(v)) for k, v in comp.get_el_amt_dict().items()}
-        (formula, factor) = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
+        formula, factor = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
 
         if self.composition.get("H") == self.composition.get("O") is not None:
             formula = formula.replace("HO", "OH")
@@ -179,8 +181,8 @@ class Ion(Composition, MSONable, Stringify):
 
     @property
     def reduced_formula(self) -> str:
-        """Returns a reduced formula string with appended charge. The
-        charge is placed in brackets with the sign preceding the magnitude, e.g.,
+        """A reduced formula string with appended charge. The
+        charge is placed in brackets with the sign preceding the magnitude, e.g.
         'Ca[+2]'. Uncharged species have "(aq)" appended, e.g. "O2(aq)".
         """
         formula, factor = self.get_reduced_formula_and_factor()
@@ -190,7 +192,7 @@ class Ion(Composition, MSONable, Stringify):
 
     @property
     def alphabetical_formula(self) -> str:
-        """Returns a formula string, with elements sorted by alphabetically and
+        """A formula string, with elements sorted by alphabetically and
         appended charge.
         """
         alph_formula = self.composition.alphabetical_formula
@@ -211,8 +213,8 @@ class Ion(Composition, MSONable, Stringify):
         return dct
 
     @classmethod
-    def from_dict(cls, dct) -> Ion:
-        """Generates an ion object from a dict created by as_dict().
+    def from_dict(cls, dct: dict) -> Self:
+        """Generate an ion object from a dict created by as_dict().
 
         Args:
             dct: {symbol: amount} dict.
@@ -226,7 +228,7 @@ class Ion(Composition, MSONable, Stringify):
     def to_reduced_dict(self) -> dict:
         """
         Returns:
-            dict with element symbol and reduced amount e.g.,
+            dict with element symbol and reduced amount e.g.
         {"Fe": 2.0, "O":3.0}.
         """
         dct = self.composition.to_reduced_dict
@@ -244,10 +246,10 @@ class Ion(Composition, MSONable, Stringify):
         all_oxi_states: bool = False,
         max_sites: int | None = None,
     ) -> list[dict[str, float]]:
-        """Checks if the composition is charge-balanced and returns back all
+        """Check if the composition is charge-balanced and returns back all
         charge-balanced oxidation state combinations. Composition must have
         integer values. Note that more num_atoms in the composition gives
-        more degrees of freedom. e.g., if possible oxidation states of
+        more degrees of freedom. e.g. if possible oxidation states of
         element X are [2,4] and Y are [-3], then XY is not charge balanced
         but X2Y2 is. Results are returned from most to least probable based
         on ICSD statistics. Use max_sites to improve performance if needed.

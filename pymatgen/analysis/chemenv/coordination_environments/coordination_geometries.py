@@ -13,10 +13,14 @@ import abc
 import itertools
 import json
 import os
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
 from scipy.special import factorial
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -34,7 +38,7 @@ EXPLICIT_PERMUTATIONS = "EXPLICIT_PERMUTATIONS"
 SEPARATION_PLANE = "SEPARATION_PLANE"
 
 
-class AbstractChemenvAlgorithm(MSONable, metaclass=abc.ABCMeta):
+class AbstractChemenvAlgorithm(MSONable, abc.ABC):
     """
     Base class used to define a Chemenv algorithm used to identify the correct permutation for the computation
     of the Continuous Symmetry Measure.
@@ -50,17 +54,12 @@ class AbstractChemenvAlgorithm(MSONable, metaclass=abc.ABCMeta):
         self._algorithm_type = algorithm_type
 
     @abc.abstractmethod
-    def as_dict(self):
+    def as_dict(self) -> dict[str, Any]:
         """A JSON-serializable dict representation of the algorithm."""
 
     @property
-    def algorithm_type(self):
-        """
-        Return the type of algorithm.
-
-        Returns:
-            str: Type of the algorithm
-        """
+    def algorithm_type(self) -> str:
+        """The type of algorithm."""
         return self._algorithm_type
 
     @abc.abstractmethod
@@ -69,13 +68,12 @@ class AbstractChemenvAlgorithm(MSONable, metaclass=abc.ABCMeta):
 
 
 class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
-    """
-    Class representing the algorithm doing the explicit permutations for the calculation of
+    """Algorithm doing the explicit permutations for the calculation of
     the Continuous Symmetry Measure.
     """
 
     def __init__(self, permutations):
-        """Initializes a separation plane for a given perfect coordination geometry.
+        """Initialize a separation plane for a given perfect coordination geometry.
 
         Args:
             permutations: Permutations used for this algorithm.
@@ -87,21 +85,12 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
         return self.algorithm_type
 
     @property
-    def permutations(self):
-        """
-        Return the permutations to be performed for this algorithm.
-
-        Returns:
-            list: Permutations to be performed.
-        """
+    def permutations(self) -> list[list[int]]:
+        """Permutations to be performed for this algorithm."""
         return self._permutations
 
-    @property
     def as_dict(self):
-        """
-        Returns:
-            dict: JSON-serializable representation of this ExplicitPermutationsAlgorithm
-        """
+        """JSON-serializable representation of this ExplicitPermutationsAlgorithm."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -109,7 +98,7 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstruct ExplicitPermutationsAlgorithm from its JSON-serializable dict representation.
         """
@@ -117,8 +106,7 @@ class ExplicitPermutationsAlgorithm(AbstractChemenvAlgorithm):
 
 
 class SeparationPlane(AbstractChemenvAlgorithm):
-    """
-    Class representing the algorithm using separation planes for the calculation of
+    """Algorithm using separation planes for the calculation of
     the Continuous Symmetry Measure.
     """
 
@@ -136,7 +124,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         multiplicity=None,
         other_plane_points=None,
     ):
-        """Initializes a separation plane for a given perfect coordination geometry.
+        """Initialize a separation plane for a given perfect coordination geometry.
 
         Args:
             plane_points: Indices of the points that are in the plane in the perfect structure (and should be
@@ -192,39 +180,27 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         )
 
     @property
-    def permutations(self):
-        """
-        Permutations used for this separation plane algorithm.
-
-        Returns:
-            list[Permutations]: to be performed.
-        """
+    def permutations(self) -> list[list[int]]:
+        """List of permutations to be performed for this separation plane algorithm."""
         return self._permutations
 
     @property
-    def ref_separation_perm(self):
-        """
-        Ordered indices of the separation plane.
+    def ref_separation_perm(self) -> list[int]:
+        """Ordered indices of the separation plane.
 
         Examples:
             For a separation plane of type 2|4|3, with plane_points indices [0, 3, 5, 8] and
             point_groups indices [1, 4] and [2, 7, 6], the list of ordered indices is :
             [0, 3, 5, 8, 1, 4, 2, 7, 6].
-
-        Returns:
-            list[int]: of ordered indices of this separation plane.
         """
         return self._ref_separation_perm
 
     @property
-    def argsorted_ref_separation_perm(self):
+    def argsorted_ref_separation_perm(self) -> list[int]:
         """
         "Arg sorted" ordered indices of the separation plane.
 
         This is used in the identification of the final permutation to be used.
-
-        Returns:
-            list[int]: "arg sorted" ordered indices of the separation plane.
         """
         return self._argsorted_ref_separation_perm
 
@@ -241,7 +217,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
                 number of permutations.
             add_opposite: Whether to add the permutations from the second group before the first group as well.
 
-        Returns
+        Returns:
             list[int]: safe permutations.
         """
         s0 = list(range(len(self.point_groups[0])))
@@ -296,13 +272,10 @@ class SeparationPlane(AbstractChemenvAlgorithm):
                             self._safe_permutations.append(perm)
         return self._safe_permutations
 
-    @property
     def as_dict(self):
         """
-        Return the JSON-serializable dict representation of this SeparationPlane algorithm.
-
         Returns:
-            dict: JSON-serializable representation of this SeparationPlane algorithm.
+            dict: JSON-serializable dict representation of this SeparationPlane algorithm.
         """
         return {
             "@module": type(self).__module__,
@@ -324,7 +297,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the SeparationPlane algorithm from its JSON-serializable dict representation.
 
@@ -357,7 +330,7 @@ class SeparationPlane(AbstractChemenvAlgorithm):
 
 
 class CoordinationGeometry:
-    """Class used to store the ideal representation of a chemical environment or "coordination geometry"."""
+    """Store the ideal representation of a chemical environment or "coordination geometry"."""
 
     # Default value of continuous symmetry measure beyond which no further
     # search is performed for the separation plane algorithms
@@ -497,8 +470,8 @@ class CoordinationGeometry:
             return {"hints_type": self.hints_type, "options": self.options}
 
         @classmethod
-        def from_dict(cls, dct):
-            """Reconstructs the NeighborsSetsHints from its JSON-serializable dict representation."""
+        def from_dict(cls, dct: dict) -> Self:
+            """Reconstruct the NeighborsSetsHints from a JSON-serializable dict."""
             return cls(hints_type=dct["hints_type"], options=dct["options"])
 
     def __init__(
@@ -520,8 +493,7 @@ class CoordinationGeometry:
         equivalent_indices=None,
         neighbors_sets_hints=None,
     ):
-        """
-        Initializes one "coordination geometry" according to [Pure Appl. Chem., Vol. 79, No. 10, pp. 1779--1799, 2007]
+        """Initialize one "coordination geometry" according to [Pure Appl. Chem., Vol. 79, No. 10, pp. 1779--1799, 2007]
         and [Acta Cryst. A, Vol. 46, No. 1, pp. 1--11, 1990].
 
         Args:
@@ -592,7 +564,7 @@ class CoordinationGeometry:
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Reconstructs the CoordinationGeometry from its JSON-serializable dict representation.
 
@@ -602,7 +574,6 @@ class CoordinationGeometry:
         Returns:
             CoordinationGeometry
         """
-        dec = MontyDecoder()
         return cls(
             mp_symbol=dct["mp_symbol"],
             name=dct["name"],
@@ -620,7 +591,7 @@ class CoordinationGeometry:
             deactivate=dct["deactivate"],
             faces=dct["_faces"],
             edges=dct["_edges"],
-            algorithms=[dec.process_decoded(algo_d) for algo_d in dct["_algorithms"]]
+            algorithms=[MontyDecoder().process_decoded(algo_d) for algo_d in dct["_algorithms"]]
             if dct["_algorithms"] is not None
             else None,
             equivalent_indices=dct.get("equivalent_indices"),
@@ -687,12 +658,12 @@ class CoordinationGeometry:
 
     @property
     def coordination_number(self):
-        """Returns the coordination number of this coordination geometry."""
+        """The coordination number of this coordination geometry."""
         return self.coordination
 
     @property
     def pauling_stability_ratio(self):
-        """Returns the theoretical Pauling stability ratio (rC/rA) for this environment."""
+        """The theoretical Pauling stability ratio (rC/rA) for this environment."""
         if self._pauling_stability_ratio is None:
             if self.ce_symbol in ["S:1", "L:2"]:
                 self._pauling_stability_ratio = 0.0
@@ -711,50 +682,50 @@ class CoordinationGeometry:
         return self._pauling_stability_ratio
 
     @property
-    def mp_symbol(self):
-        """Returns the MP symbol of this coordination geometry."""
+    def mp_symbol(self) -> str:
+        """The MP symbol of this coordination geometry."""
         return self._mp_symbol
 
     @property
-    def ce_symbol(self):
-        """Returns the symbol of this coordination geometry."""
+    def ce_symbol(self) -> str:
+        """The symbol of this coordination geometry. Same as the MP symbol."""
         return self._mp_symbol
 
-    def get_coordination_number(self):
-        """Returns the coordination number of this coordination geometry."""
+    def get_coordination_number(self) -> int:
+        """Get the coordination number of this coordination geometry."""
         return self.coordination
 
     def is_implemented(self) -> bool:
-        """Returns True if this coordination geometry is implemented."""
+        """Get True if this coordination geometry is implemented."""
         return bool(self.points)
 
-    def get_name(self):
-        """Returns the name of this coordination geometry."""
+    def get_name(self) -> str:
+        """Get the name of this coordination geometry."""
         return self.name
 
     @property
-    def IUPAC_symbol(self):
-        """Returns the IUPAC symbol of this coordination geometry."""
+    def IUPAC_symbol(self) -> str:
+        """The IUPAC symbol of this coordination geometry."""
         return self.IUPACsymbol
 
     @property
-    def IUPAC_symbol_str(self):
-        """Returns a string representation of the IUPAC symbol of this coordination geometry."""
+    def IUPAC_symbol_str(self) -> str:
+        """A string representation of the IUPAC symbol of this coordination geometry."""
         return str(self.IUPACsymbol)
 
     @property
-    def IUCr_symbol(self):
-        """Returns the IUCr symbol of this coordination geometry."""
+    def IUCr_symbol(self) -> str:
+        """The IUCr symbol of this coordination geometry."""
         return self.IUCrsymbol
 
     @property
     def IUCr_symbol_str(self):
-        """Returns a string representation of the IUCr symbol of this coordination geometry."""
+        """A string representation of the IUCr symbol of this coordination geometry."""
         return str(self.IUCrsymbol)
 
     @property
     def number_of_permutations(self):
-        """Returns the number of permutations of this coordination geometry."""
+        """The number of permutations of this coordination geometry."""
         if self.permutations_safe_override:
             return factorial(self.coordination)
         if self.permutations is None:
@@ -762,8 +733,7 @@ class CoordinationGeometry:
         return len(self.permutations)
 
     def ref_permutation(self, permutation):
-        """
-        Returns the reference permutation for a set of equivalent permutations.
+        """Get the reference permutation for a set of equivalent permutations.
 
         Can be useful to skip permutations that have already been performed.
 
@@ -781,41 +751,41 @@ class CoordinationGeometry:
 
     @property
     def algorithms(self):
-        """Returns the list of algorithms that are used to identify this coordination geometry."""
+        """The list of algorithms that are used to identify this coordination geometry."""
         return self._algorithms
 
     def get_central_site(self):
-        """Returns the central site of this coordination geometry."""
+        """Get the central site of this coordination geometry."""
         return self.central_site
 
     def faces(self, sites, permutation=None):
-        """
-        Returns the list of faces of this coordination geometry. Each face is given as a
+        """Get the list of faces of this coordination geometry. Each face is given as a
         list of its vertices coordinates.
         """
         coords = [site.coords for site in sites] if permutation is None else [sites[ii].coords for ii in permutation]
-        return [[coords[ii] for ii in f] for f in self._faces]
+        return [[coords[ii] for ii in face] for face in self._faces]
 
     def edges(self, sites, permutation=None, input="sites"):
-        """
-        Returns the list of edges of this coordination geometry. Each edge is given as a
+        """Get the list of edges of this coordination geometry. Each edge is given as a
         list of its end vertices coordinates.
         """
         if input == "sites":
             coords = [site.coords for site in sites]
         elif input == "coords":
             coords = sites
+        else:
+            raise RuntimeError("Invalid input for edges.")
+
         # if permutation is None:
         #     coords = [site.coords for site in sites]
         # else:
         #     coords = [sites[ii].coords for ii in permutation]
         if permutation is not None:
             coords = [coords[ii] for ii in permutation]
-        return [[coords[ii] for ii in e] for e in self._edges]
+        return [[coords[ii] for ii in edge] for edge in self._edges]
 
     def solid_angles(self, permutation=None):
-        """
-        Returns the list of "perfect" solid angles Each edge is given as a
+        """Get the list of "perfect" solid angles Each edge is given as a
         list of its end vertices coordinates.
         """
         if permutation is None:
@@ -823,8 +793,8 @@ class CoordinationGeometry:
         return [self._solid_angles[ii] for ii in permutation]
 
     def get_pmeshes(self, sites, permutation=None):
-        """Returns the pmesh strings used for jmol to show this geometry."""
-        pmeshes = []
+        """Get the pmesh strings used for jmol to show this geometry."""
+        p_meshes = []
         # _vertices = [site.coords for site in sites]
         _vertices = [site.coords for site in sites] if permutation is None else [sites[ii].coords for ii in permutation]
         _face_centers = []
@@ -851,36 +821,34 @@ class CoordinationGeometry:
             elif len(face) == 4:
                 out += "5\n"
             else:
-                for ii, f in enumerate(face):
+                for ii, f in enumerate(face, start=1):
                     out += "4\n"
                     out += f"{len(_vertices) + iface}\n"
                     out += f"{f}\n"
-                    out += f"{face[np.mod(ii + 1, len(face))]}\n"
+                    out += f"{face[np.mod(ii, len(face))]}\n"
                     out += f"{len(_vertices) + iface}\n"
             if len(face) in [3, 4]:
                 for face_vertex in face:
                     out += f"{face_vertex}\n"
                 out += f"{face[0]}\n"
-        pmeshes.append({"pmesh_string": out})
-        return pmeshes
+        p_meshes.append({"pmesh_string": out})
+        return p_meshes
 
 
 class AllCoordinationGeometries(dict):
-    """
-    Class used to store all the reference "coordination geometries" (list with instances of the CoordinationGeometry
-    classes).
+    """Store all the reference "coordination geometries" (list with instances
+    of the CoordinationGeometry classes).
     """
 
     def __init__(self, permutations_safe_override=False, only_symbols=None):
-        """
-        Initializes the list of Coordination Geometries.
+        """Initialize the list of Coordination Geometries.
 
         Args:
             permutations_safe_override: Whether to use safe permutations.
             only_symbols: Whether to restrict the list of environments to be identified.
         """
         dict.__init__(self)
-        self.cg_list = []
+        self.cg_list: list[CoordinationGeometry] = []
         if only_symbols is None:
             with open(f"{module_dir}/coordination_geometries_files/allcg.txt") as file:
                 data = file.readlines()
@@ -905,7 +873,7 @@ class AllCoordinationGeometries(dict):
 
         self.minpoints = {}
         self.maxpoints = {}
-        self.separations_cg = {}
+        self.separations_cg: dict[int, dict] = {}
         for cn in range(6, 21):
             for cg in self.get_implemented_geometries(coordination=cn):
                 if only_symbols is not None and cg.ce_symbol not in only_symbols:
@@ -938,7 +906,7 @@ class AllCoordinationGeometries(dict):
             return False
 
     def __repr__(self):
-        """Returns a string with the list of coordination geometries."""
+        """Get a string with the list of coordination geometries."""
         outs = [
             "",
             "#=================================#",
@@ -952,7 +920,7 @@ class AllCoordinationGeometries(dict):
         return "\n".join(outs)
 
     def __str__(self):
-        """Returns a string with the list of coordination geometries that are implemented."""
+        """Get a string with the list of coordination geometries that are implemented."""
         outs = [
             "",
             "#=======================================================#",
@@ -967,8 +935,7 @@ class AllCoordinationGeometries(dict):
         return "\n".join(outs)
 
     def get_geometries(self, coordination=None, returned="cg"):
-        """
-        Returns a list of coordination geometries with the given coordination number.
+        """Get a list of coordination geometries with the given coordination number.
 
         Args:
             coordination: The coordination number of which the list of coordination geometries are returned.
@@ -976,23 +943,22 @@ class AllCoordinationGeometries(dict):
         """
         geom = []
         if coordination is None:
-            for gg in self.cg_list:
+            for coord_geom in self.cg_list:
                 if returned == "cg":
-                    geom.append(gg)
+                    geom.append(coord_geom)
                 elif returned == "mp_symbol":
-                    geom.append(gg.mp_symbol)
+                    geom.append(coord_geom.mp_symbol)
         else:
-            for gg in self.cg_list:
-                if gg.get_coordination_number() == coordination:
+            for coord_geom in self.cg_list:
+                if coord_geom.get_coordination_number() == coordination:
                     if returned == "cg":
-                        geom.append(gg)
+                        geom.append(coord_geom)
                     elif returned == "mp_symbol":
-                        geom.append(gg.mp_symbol)
+                        geom.append(coord_geom.mp_symbol)
         return geom
 
     def get_symbol_name_mapping(self, coordination=None):
-        """
-        Return a dictionary mapping the symbol of a CoordinationGeometry to its name.
+        """Get a dictionary mapping the symbol of a CoordinationGeometry to its name.
 
         Args:
             coordination: Whether to restrict the dictionary to a given coordination.
@@ -1002,17 +968,16 @@ class AllCoordinationGeometries(dict):
         """
         geom = {}
         if coordination is None:
-            for gg in self.cg_list:
-                geom[gg.mp_symbol] = gg.name
+            for coord_geom in self.cg_list:
+                geom[coord_geom.mp_symbol] = coord_geom.name
         else:
-            for gg in self.cg_list:
-                if gg.get_coordination_number() == coordination:
-                    geom[gg.mp_symbol] = gg.name
+            for coord_geom in self.cg_list:
+                if coord_geom.get_coordination_number() == coordination:
+                    geom[coord_geom.mp_symbol] = coord_geom.name
         return geom
 
     def get_symbol_cn_mapping(self, coordination=None):
-        """
-        Return a dictionary mapping the symbol of a CoordinationGeometry to its coordination.
+        """Get a dictionary mapping the symbol of a CoordinationGeometry to its coordination.
 
         Args:
             coordination: Whether to restrict the dictionary to a given coordination.
@@ -1022,17 +987,16 @@ class AllCoordinationGeometries(dict):
         """
         geom = {}
         if coordination is None:
-            for gg in self.cg_list:
-                geom[gg.mp_symbol] = gg.coordination_number
+            for coord_geom in self.cg_list:
+                geom[coord_geom.mp_symbol] = coord_geom.coordination_number
         else:
-            for gg in self.cg_list:
-                if gg.get_coordination_number() == coordination:
-                    geom[gg.mp_symbol] = gg.coordination_number
+            for coord_geom in self.cg_list:
+                if coord_geom.get_coordination_number() == coordination:
+                    geom[coord_geom.mp_symbol] = coord_geom.coordination_number
         return geom
 
     def get_implemented_geometries(self, coordination=None, returned="cg", include_deactivated=False):
-        """
-        Returns a list of the implemented coordination geometries with the given coordination number.
+        """Get a list of the implemented coordination geometries with the given coordination number.
 
         Args:
             coordination: The coordination number of which the list of implemented coordination geometries
@@ -1042,28 +1006,27 @@ class AllCoordinationGeometries(dict):
         """
         geom = []
         if coordination is None:
-            for gg in self.cg_list:
-                if gg.points is not None and ((not gg.deactivate) or include_deactivated):
+            for coord_geom in self.cg_list:
+                if coord_geom.points is not None and ((not coord_geom.deactivate) or include_deactivated):
                     if returned == "cg":
-                        geom.append(gg)
+                        geom.append(coord_geom)
                     elif returned == "mp_symbol":
-                        geom.append(gg.mp_symbol)
+                        geom.append(coord_geom.mp_symbol)
         else:
-            for gg in self.cg_list:
+            for coord_geom in self.cg_list:
                 if (
-                    gg.get_coordination_number() == coordination
-                    and gg.points is not None
-                    and ((not gg.deactivate) or include_deactivated)
+                    coord_geom.get_coordination_number() == coordination
+                    and coord_geom.points is not None
+                    and ((not coord_geom.deactivate) or include_deactivated)
                 ):
                     if returned == "cg":
-                        geom.append(gg)
+                        geom.append(coord_geom)
                     elif returned == "mp_symbol":
-                        geom.append(gg.mp_symbol)
+                        geom.append(coord_geom.mp_symbol)
         return geom
 
     def get_not_implemented_geometries(self, coordination=None, returned="mp_symbol"):
-        """
-        Returns a list of the implemented coordination geometries with the given coordination number.
+        """Get a list of the implemented coordination geometries with the given coordination number.
 
         Args:
             coordination: The coordination number of which the list of implemented coordination geometries
@@ -1072,67 +1035,63 @@ class AllCoordinationGeometries(dict):
         """
         geom = []
         if coordination is None:
-            for gg in self.cg_list:
-                if gg.points is None:
+            for coord_geom in self.cg_list:
+                if coord_geom.points is None:
                     if returned == "cg":
-                        geom.append(gg)
+                        geom.append(coord_geom)
                     elif returned == "mp_symbol":
-                        geom.append(gg.mp_symbol)
+                        geom.append(coord_geom.mp_symbol)
         else:
-            for gg in self.cg_list:
-                if gg.get_coordination_number() == coordination and gg.points is None:
+            for coord_geom in self.cg_list:
+                if coord_geom.get_coordination_number() == coordination and coord_geom.points is None:
                     if returned == "cg":
-                        geom.append(gg)
+                        geom.append(coord_geom)
                     elif returned == "mp_symbol":
-                        geom.append(gg.mp_symbol)
+                        geom.append(coord_geom.mp_symbol)
         return geom
 
-    def get_geometry_from_name(self, name):
-        """
-        Returns the coordination geometry of the given name.
+    def get_geometry_from_name(self, name: str) -> CoordinationGeometry:
+        """Get the coordination geometry of the given name.
 
         Args:
             name: The name of the coordination geometry.
         """
-        for gg in self.cg_list:
-            if gg.name == name or name in gg.alternative_names:
-                return gg
+        for coord_geom in self.cg_list:
+            if coord_geom.name == name or name in coord_geom.alternative_names:
+                return coord_geom
         raise LookupError(f"No coordination geometry found with name {name!r}")
 
-    def get_geometry_from_IUPAC_symbol(self, IUPAC_symbol):
-        """
-        Returns the coordination geometry of the given IUPAC symbol.
+    def get_geometry_from_IUPAC_symbol(self, IUPAC_symbol: str) -> CoordinationGeometry:
+        """Get the coordination geometry of the given IUPAC symbol.
 
         Args:
             IUPAC_symbol: The IUPAC symbol of the coordination geometry.
         """
-        for gg in self.cg_list:
-            if gg.IUPAC_symbol == IUPAC_symbol:
-                return gg
+        for coord_geom in self.cg_list:
+            if coord_geom.IUPAC_symbol == IUPAC_symbol:
+                return coord_geom
         raise LookupError(f"No coordination geometry found with IUPAC symbol {IUPAC_symbol!r}")
 
-    def get_geometry_from_IUCr_symbol(self, IUCr_symbol):
-        """
-        Returns the coordination geometry of the given IUCr symbol.
+    def get_geometry_from_IUCr_symbol(self, IUCr_symbol: str) -> CoordinationGeometry:
+        """Get the coordination geometry of the given IUCr symbol.
 
         Args:
             IUCr_symbol: The IUCr symbol of the coordination geometry.
         """
-        for gg in self.cg_list:
-            if gg.IUCr_symbol == IUCr_symbol:
-                return gg
+        for coord_geom in self.cg_list:
+            if coord_geom.IUCr_symbol == IUCr_symbol:
+                return coord_geom
         raise LookupError(f"No coordination geometry found with IUCr symbol {IUCr_symbol!r}")
 
-    def get_geometry_from_mp_symbol(self, mp_symbol):
-        """
-        Returns the coordination geometry of the given mp_symbol.
+    def get_geometry_from_mp_symbol(self, mp_symbol: str) -> CoordinationGeometry:
+        """Get the coordination geometry of the given mp_symbol.
 
         Args:
             mp_symbol: The mp_symbol of the coordination geometry.
         """
-        for gg in self.cg_list:
-            if gg.mp_symbol == mp_symbol:
-                return gg
+        for coord_geom in self.cg_list:
+            if coord_geom.mp_symbol == mp_symbol:
+                return coord_geom
         raise LookupError(f"No coordination geometry found with mp_symbol {mp_symbol!r}")
 
     def is_a_valid_coordination_geometry(
@@ -1163,9 +1122,7 @@ class AllCoordinationGeometries(dict):
                     return False
                 if IUCr_symbol is not None and IUCr_symbol != cg.IUCr_symbol:
                     return False
-                if cn is not None and int(cn) != int(cg.coordination_number):
-                    return False
-                return True
+                return not (cn is not None and int(cn) != int(cg.coordination_number))
             except LookupError:
                 return False
         elif IUPAC_symbol is not None:
@@ -1173,24 +1130,20 @@ class AllCoordinationGeometries(dict):
                 cg = self.get_geometry_from_IUPAC_symbol(IUPAC_symbol)
                 if IUCr_symbol is not None and IUCr_symbol != cg.IUCr_symbol:
                     return False
-                if cn is not None and cn != cg.coordination_number:
-                    return False
-                return True
+                return not (cn is not None and cn != cg.coordination_number)
             except LookupError:
                 return False
         elif IUCr_symbol is not None:
             try:
                 cg = self.get_geometry_from_IUCr_symbol(IUCr_symbol)
-                if cn is not None and cn != cg.coordination_number:
-                    return False
-                return True
+                return not (cn is not None and cn != cg.coordination_number)
             except LookupError:
                 return True
-        raise Exception("Should not be here !")
+        # TODO give a more helpful error message that suggests possible reasons and solutions
+        raise RuntimeError("Should not be here!")
 
     def pretty_print(self, type="implemented_geometries", maxcn=8, additional_info=None):
-        """
-        Return a string with a list of the Coordination Geometries.
+        """Get a string with a list of the Coordination Geometries.
 
         Args:
             type: Type of string to be returned (all_geometries, all_geometries_latex_images, all_geometries_latex,

@@ -4,10 +4,10 @@ Molecule analysis.
 
 from __future__ import annotations
 
-import collections
 import json
 import os
 import warnings
+from collections import defaultdict
 from typing import TYPE_CHECKING
 
 from pymatgen.core import Element
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 def _load_bond_length_data():
     """Loads bond length data from json file."""
     with open(os.path.join(os.path.dirname(__file__), "bond_lengths.json")) as file:
-        data = collections.defaultdict(dict)
+        data = defaultdict(dict)
         for row in json.load(file):
             els = sorted(row["elements"])
             data[tuple(els)][row["bond_order"]] = row["length"]
@@ -31,10 +31,10 @@ bond_lengths = _load_bond_length_data()
 
 
 class CovalentBond:
-    """Defines a covalent bond between two sites."""
+    """A covalent bond between two sites."""
 
     def __init__(self, site1: Site, site2: Site) -> None:
-        """Initializes a covalent bond between two sites.
+        """Initialize a covalent bond between two sites.
 
         Args:
             site1 (Site): First site.
@@ -63,8 +63,7 @@ class CovalentBond:
                 (bond order = 1). If None, a ValueError will be thrown.
 
         Returns:
-            Float value of bond order. For example, for C-C bond in
-            benzene, return 1.7.
+            float: value of bond order. E.g. 1.7 for C-C bond in benzene.
         """
         sp1 = next(iter(self.site1.species))
         sp2 = next(iter(self.site2.species))
@@ -117,7 +116,7 @@ def obtain_all_bond_lengths(sp1, sp2, default_bl: float | None = None):
             bond length as a default value (bond order = 1).
             If None, a ValueError will be thrown.
 
-    Return:
+    Returns:
         A dict mapping bond order to bond length in angstrom
     """
     if isinstance(sp1, Element):
@@ -152,22 +151,22 @@ def get_bond_order(sp1, sp2, dist: float, tol: float = 0.2, default_bl: float | 
         Float value of bond order. For example, for C-C bond in benzene,
         return 1.7.
     """
-    all_lengths = obtain_all_bond_lengths(sp1, sp2, default_bl)
+    all_lens = obtain_all_bond_lengths(sp1, sp2, default_bl)
     # Transform bond lengths dict to list assuming bond data is successive
     # and add an imaginary bond 0 length
-    lengths_list = [all_lengths[1] * (1 + tol)] + [all_lengths[idx + 1] for idx in range(len(all_lengths))]
+    lens = [all_lens[1] * (1 + tol)] + [all_lens[idx + 1] for idx in range(len(all_lens))]
     trial_bond_order = 0
-    while trial_bond_order < len(lengths_list):
-        if lengths_list[trial_bond_order] < dist:
+    while trial_bond_order < len(lens):
+        if lens[trial_bond_order] < dist:
             if trial_bond_order == 0:
                 return trial_bond_order
-            low_bl = lengths_list[trial_bond_order]
-            high_bl = lengths_list[trial_bond_order - 1]
+            low_bl = lens[trial_bond_order]
+            high_bl = lens[trial_bond_order - 1]
             return trial_bond_order - (dist - low_bl) / (high_bl - low_bl)
         trial_bond_order += 1
     # Distance shorter than the shortest bond length stored,
     # check if the distance is too short
-    if dist < lengths_list[-1] * (1 - tol):  # too short
+    if dist < lens[-1] * (1 - tol):  # too short
         warnings.warn(f"{dist:.2f} angstrom distance is too short for {sp1} and {sp2}")
     # return the highest bond order
     return trial_bond_order - 1

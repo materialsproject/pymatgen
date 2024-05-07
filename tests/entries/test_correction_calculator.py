@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 import pytest
 
 from pymatgen.entries.correction_calculator import CorrectionCalculator
 from pymatgen.util.testing import TEST_FILES_DIR
 
-TEST_DIR = f"{TEST_FILES_DIR}/correction_calculator"
+TEST_DIR = f"{TEST_FILES_DIR}/entries/correction_calculator"
 
 
-class TestCorrectionCalculator(unittest.TestCase):
+class TestCorrectionCalculator(TestCase):
     def setUp(self):
         self.exclude_polyanions = ["SO4", "CO3", "NO3", "OCl3", "SiO4", "SeO3", "TiO3", "TiO4"]
 

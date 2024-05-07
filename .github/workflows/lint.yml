@@ -22,16 +22,16 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install --upgrade ruff mypy
+          pip install --upgrade ruff mypy pyright
 
       - name: ruff
         run: |
           ruff --version
-          ruff .
+          ruff check .
           ruff format --check .
 
       - name: mypy
-        run: |
-          mypy --version
-          rm -rf .mypy_cache
-          mypy ${{ github.event.repository.name }}
+        run: mypy ${{ github.event.repository.name }}
+
+      - name: pyright
+        run: pyright

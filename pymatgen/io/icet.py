@@ -16,7 +16,9 @@ try:
     from icet.tools.structure_generation import _get_sqs_cluster_vector, _validate_concentrations, generate_sqs
     from mchammer.calculators import compare_cluster_vectors
 except ImportError:
-    ClusterSpace = None
+    ClusterSpace = _validate_concentrations = _get_sqs_cluster_vector = compare_cluster_vectors = generate_sqs = (
+        enumerate_structures
+    ) = None
 
 
 if TYPE_CHECKING:
@@ -173,12 +175,11 @@ class IcetSQS:
         )
 
     def _get_site_composition(self) -> None:
-        """
-        Get Icet-format composition from structure.
+        """Get Icet-format composition from structure.
 
         Returns:
             Dict with sublattice compositions specified by uppercase letters,
-                e.g., In_x Ga_1-x As becomes:
+                e.g. In_x Ga_1-x As becomes:
                 {
                     "A": {"In": x, "Ga": 1 - x},
                     "B": {"As": 1}
@@ -199,17 +200,14 @@ class IcetSQS:
         return ClusterSpace(structure=self._ordered_atoms, cutoffs=self.cutoffs_list, chemical_symbols=chemical_symbols)
 
     def get_icet_sqs_obj(self, material: Atoms | Structure, cluster_space: _ClusterSpace | None = None) -> float:
-        """
-        Get the SQS objective function.
+        """Get the SQS objective function.
 
         Args:
-            material (ase Atoms or pymatgen Structure) : structure to
-                compute SQS objective function.
-        Kwargs:
-            cluster_space (ClusterSpace) : ClusterSpace of the SQS search.
+            material (pymatgen.Structure | ase.Atoms): structure to compute SQS objective function for.
+            cluster_space (ClusterSpace): ClusterSpace of the SQS search.
 
         Returns:
-            float : the SQS objective function
+            float: the SQS objective function
         """
         if isinstance(material, Structure):
             material = AseAtomsAdaptor.get_atoms(material)
@@ -223,17 +221,16 @@ class IcetSQS:
         )
 
     def enumerate_sqs_structures(self, cluster_space: _ClusterSpace | None = None) -> list:
-        """
-        Generate an SQS by enumeration of all possible arrangements.
+        """Generate an SQS by enumeration of all possible arrangements.
 
         Adapted from icet.tools.structure_generation.generate_sqs_by_enumeration
         to accommodate multiprocessing.
 
-        Kwargs:
+        Args:
             cluster_space (ClusterSpace) : ClusterSpace of the SQS search.
 
         Returns:
-            list : a list of dicts of the form: {
+            list: dicts of the form: {
                     "structure": SQS structure,
                     "objective_function": SQS objective function,
                 }
@@ -291,9 +288,8 @@ class IcetSQS:
 
         return list(working_list)
 
-    def _get_best_sqs_from_list(self, structures: list[Atoms], output_list: list[dict]) -> None:
-        """
-        Find best SQS structure from list of SQS structures.
+    def _get_best_sqs_from_list(self, structures: list[Atoms], output_list: list[dict]) -> dict[str, Any]:
+        """Find best SQS structure from list of SQS structures.
 
         Args:
             structures (list of ase Atoms) : list of SQS structures
@@ -307,6 +303,8 @@ class IcetSQS:
             if objective < best_sqs["objective_function"]:
                 best_sqs = {"structure": structure, "objective_function": objective}
         output_list.append(best_sqs)
+
+        return best_sqs
 
     def _single_monte_carlo_sqs_run(self):
         """Run a single Monte Carlo SQS search with Icet."""

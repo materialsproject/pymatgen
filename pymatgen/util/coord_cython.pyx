@@ -21,10 +21,10 @@ from libc.math cimport fabs, round
 from libc.stdlib cimport free, malloc
 
 #create images, 2d array of all length 3 combinations of [-1,0,1]
-r = np.arange(-1, 2, dtype=np.float_)
-arange = r[:, None] * np.array([1, 0, 0])[None, :]
-brange = r[:, None] * np.array([0, 1, 0])[None, :]
-crange = r[:, None] * np.array([0, 0, 1])[None, :]
+rng = np.arange(-1, 2, dtype=np.float_)
+arange = rng[:, None] * np.array([1, 0, 0])[None, :]
+brange = rng[:, None] * np.array([0, 1, 0])[None, :]
+crange = rng[:, None] * np.array([0, 0, 1])[None, :]
 images_t = arange[:, None, None] + brange[None, :, None] + \
     crange[None, None, :]
 images = images_t.reshape((27, 3))
@@ -65,8 +65,7 @@ cdef void dot_2d_mod(np.float_t[:, ::1] a, np.float_t[:, ::1] b, np.float_t[:, :
 @cython.wraparound(False)
 @cython.initializedcheck(False)
 def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False, lll_frac_tol=None):
-    """
-    Returns the shortest vectors between two lists of coordinates taking into
+    """Get the shortest vectors between two lists of coordinates taking into
     account periodic boundary conditions and the lattice.
 
     Args:
@@ -82,8 +81,8 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
             Can speed up calculation considerably for large structures.
 
     Returns:
-        array of displacement vectors from fcoords1 to fcoords2
-        first index is fcoords1 index, second is fcoords2 index
+        np.array: of displacement vectors from fcoords1 to fcoords2
+            first index is fcoords1 index, second is fcoords2 index
     """
 
     #ensure correct shape
@@ -126,9 +125,9 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     cdef np.float_t[:, ::1] cart_im = <np.float_t[:n_pbc_im, :3]> malloc(3 * n_pbc_im * sizeof(np.float_t))
 
     cdef bint has_mask = mask is not None
-    cdef np.int_t[:, :] m
+    cdef np.int_t[:, :] mask_arr
     if has_mask:
-        m = np.array(mask, dtype=np.int_, copy=False, order="C")
+        mask_arr = np.array(mask, dtype=np.int_, copy=False, order="C")
 
     cdef bint has_ftol = (lll_frac_tol is not None)
     cdef np.float_t[:] ftol
@@ -151,7 +150,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     for i in range(I):
         for j in range(J):
             within_frac = False
-            if (not has_mask) or (m[i, j] == 0):
+            if (not has_mask) or (mask_arr[i, j] == 0):
                 within_frac = True
                 if has_ftol:
                     for l in range(3):

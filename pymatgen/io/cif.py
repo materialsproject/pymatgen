@@ -8,9 +8,8 @@ import re
 import textwrap
 import warnings
 from collections import defaultdict, deque
-from datetime import datetime
 from functools import partial
-from inspect import getfullargspec as getargspec
+from inspect import getfullargspec
 from io import StringIO
 from itertools import groupby
 from pathlib import Path
@@ -31,7 +30,9 @@ from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
 
 if TYPE_CHECKING:
-    from pymatgen.core.trajectory import Vector3D
+    from typing_extensions import Self
+
+    from pymatgen.util.typing import Vector3D
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 
@@ -74,7 +75,7 @@ class CifBlock:
         return self.data[key]
 
     def __str__(self) -> str:
-        """Returns the cif string for the data block."""
+        """Get the cif string for the data block."""
         out = [f"data_{self.header}"]
         keys = list(self.data)
         written = []
@@ -104,10 +105,10 @@ class CifBlock:
             line = "\n"
             for val in map(self._format_field, fields):
                 if val[0] == ";":
-                    out += line + "\n" + val
+                    out += f"{line}\n{val}"
                     line = "\n"
                 elif len(line) + len(val) + 2 < self.max_len:
-                    line += "  " + val
+                    line += f"  {val}"
                 else:
                     out += line
                     line = "\n  " + val
@@ -118,8 +119,9 @@ class CifBlock:
         val = str(val).strip()
         if len(val) > self.max_len:
             return f";\n{textwrap.fill(val, self.max_len)}\n;"
+
         # add quotes if necessary
-        if val == "":
+        if not val:
             return '""'
         if (
             (" " in val or val[0] == "_")
@@ -168,43 +170,44 @@ class CifBlock:
         return deq
 
     @classmethod
-    def from_str(cls, string):
+    def from_str(cls, string: str) -> Self:
         """
         Reads CifBlock from string.
 
-        :param string: String representation.
+        Args:
+            string: String representation.
 
         Returns:
             CifBlock
         """
-        q = cls._process_string(string)
-        header = q.popleft()[0][5:]
-        data = {}
+        deq = cls._process_string(string)
+        header = deq.popleft()[0][5:]
+        data: dict = {}
         loops = []
-        while q:
-            s = q.popleft()
+        while deq:
+            s = deq.popleft()
             # cif keys aren't in quotes, so show up in s[0]
             if s[0] == "_eof":
                 break
             if s[0].startswith("_"):
                 try:
-                    data[s[0]] = "".join(q.popleft())
+                    data[s[0]] = "".join(deq.popleft())
                 except IndexError:
                     data[s[0]] = ""
             elif s[0].startswith("loop_"):
                 columns = []
                 items = []
-                while q:
-                    s = q[0]
+                while deq:
+                    s = deq[0]
                     if s[0].startswith("loop_") or not s[0].startswith("_"):
                         break
-                    columns.append("".join(q.popleft()))
+                    columns.append("".join(deq.popleft()))
                     data[columns[-1]] = []
-                while q:
-                    s = q[0]
+                while deq:
+                    s = deq[0]
                     if s[0].startswith(("loop_", "_")):
                         break
-                    items.append("".join(q.popleft()))
+                    items.append("".join(deq.popleft()))
                 n = len(items) // len(columns)
                 assert len(items) % n == 0
                 loops.append(columns)
@@ -234,10 +237,11 @@ class CifFile:
         return f"{self.comment}\n{out}\n"
 
     @classmethod
-    def from_str(cls, string) -> CifFile:
+    def from_str(cls, string: str) -> Self:
         """Reads CifFile from a string.
 
-        :param string: String representation.
+        Args:
+            string: String representation.
 
         Returns:
             CifFile
@@ -260,11 +264,12 @@ class CifFile:
         return cls(dct, string)
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> CifFile:
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Reads CifFile from a filename.
 
-        :param filename: Filename
+        Args:
+            filename: Filename
 
         Returns:
             CifFile
@@ -296,7 +301,7 @@ class CifParser:
             site_tolerance (float): This tolerance is used to determine if two sites are sitting in the same position,
                 in which case they will be combined to a single disordered site. Defaults to 1e-4.
             frac_tolerance (float): This tolerance is used to determine is a coordinate should be rounded to an ideal
-                value. E.g., 0.6667 is rounded to 2/3. This is desired if symmetry operations are going to be applied.
+                value. e.g. 0.6667 is rounded to 2/3. This is desired if symmetry operations are going to be applied.
                 However, for very large CIF files, this may need to be set to 0.
             check_cif (bool): Whether to check that stoichiometry reported in CIF matches
                 that of resulting Structure, and whether elements are missing. Defaults to True.
@@ -324,7 +329,7 @@ class CifParser:
         self.warnings: list[str] = []
 
         def is_magcif() -> bool:
-            """Checks to see if file appears to be a magCIF file (heuristic)."""
+            """Check to see if file appears to be a magCIF file (heuristic)."""
             # Doesn't seem to be a canonical way to test if file is magCIF or
             # not, so instead check for magnetic symmetry datanames
             prefixes = ["_space_group_magn", "_atom_site_moment", "_space_group_symop_magn"]
@@ -362,7 +367,7 @@ class CifParser:
             self._cif.data[key] = self._sanitize_data(self._cif.data[key])
 
     @classmethod
-    def from_str(cls, cif_string: str, **kwargs) -> CifParser:
+    def from_str(cls, cif_string: str, **kwargs) -> Self:
         """
         Creates a CifParser from a string.
 
@@ -377,23 +382,22 @@ class CifParser:
         return cls(stream, **kwargs)
 
     def _sanitize_data(self, data):
-        """
-        Some CIF files do not conform to spec. This function corrects
+        """Some CIF files do not conform to spec. This function corrects
         known issues, particular in regards to Springer materials/
         Pauling files.
 
         This function is here so that CifParser can assume its
         input conforms to spec, simplifying its implementation.
-        :param data: CifBlock
+
+        Args:
+            data: CifBlock
 
         Returns:
             data CifBlock
         """
-        """
-        This part of the code deals with handling formats of data as found in
-        CIF files extracted from the Springer Materials/Pauling File
-        databases, and that are different from standard ICSD formats.
-        """
+        # This part of the code deals with handling formats of data as found in
+        # CIF files extracted from the Springer Materials/Pauling File
+        # databases, and that are different from standard ICSD formats.
         # check for implicit hydrogens, warn if any present
         if "_atom_site_attached_hydrogens" in data.data:
             attached_hydrogens = [str2float(x) for x in data.data["_atom_site_attached_hydrogens"] if str2float(x) != 0]
@@ -567,8 +571,7 @@ class CifParser:
         lattice: Lattice | None = None,
         labels: dict[Vector3D, str] | None = None,
     ):
-        """
-        Generate unique coordinates using coord and symmetry positions
+        """Generate unique coordinates using coord and symmetry positions
         and also their corresponding magnetic moments, if supplied.
         """
         coords_out: list[np.ndarray] = []
@@ -587,6 +590,8 @@ class CifParser:
                         # Up to this point, magmoms have been defined relative
                         # to crystal axis. Now convert to Cartesian and into
                         # a Magmom object.
+                        if lattice is None:
+                            raise ValueError("Lattice cannot be None.")
                         magmom = Magmom.from_moment_relative_to_crystal_axes(
                             op.operate_magmom(tmp_magmom), lattice=lattice
                         )
@@ -616,8 +621,7 @@ class CifParser:
         angle_strings=("alpha", "beta", "gamma"),
         lattice_type=None,
     ):
-        """
-        Generate the lattice from the provided lattice parameters. In
+        """Generate the lattice from the provided lattice parameters. In
         the absence of all six lattice parameters, the crystal system
         and necessary parameters are parsed.
         """
@@ -632,7 +636,7 @@ class CifParser:
                 if data.data.get(lattice_label):
                     lattice_type = data.data.get(lattice_label).lower()
                     try:
-                        required_args = getargspec(getattr(Lattice, lattice_type)).args
+                        required_args = getfullargspec(getattr(Lattice, lattice_type)).args
 
                         lengths = (length for length in length_strings if length in required_args)
                         angles = (a for a in angle_strings if a in required_args)
@@ -661,8 +665,8 @@ class CifParser:
         Returns:
             Lattice object
         """
-        lengths = [str2float(data["_cell_length_" + i]) for i in length_strings]
-        angles = [str2float(data["_cell_angle_" + i]) for i in angle_strings]
+        lengths = [str2float(data[f"_cell_length_{i}"]) for i in length_strings]
+        angles = [str2float(data[f"_cell_angle_{i}"]) for i in angle_strings]
         if not lattice_type:
             return Lattice.from_parameters(*lengths, *angles)
         return getattr(Lattice, lattice_type)(*(lengths + angles))
@@ -767,8 +771,7 @@ class CifParser:
         return sym_ops
 
     def get_magsymops(self, data):
-        """
-        Equivalent to get_symops except for magnetic symmetry groups.
+        """Equivalent to get_symops except for magnetic symmetry groups.
         Separate function since additional operation for time reversal symmetry
         (which changes magnetic moments on sites) needs to be returned.
         """
@@ -806,7 +809,7 @@ class CifParser:
 
         # else check to see if it specifies a magnetic space group
         elif bns_name or bns_num:
-            label = bns_name if bns_name else list(map(int, (bns_num.split("."))))
+            label = bns_name or list(map(int, (bns_num.split("."))))
 
             if data.data.get("_space_group_magn.transform_BNS_Pp_abc") != "a,b,c;0,0,0":
                 jonas_faithful = data.data.get("_space_group_magn.transform_BNS_Pp_abc")
@@ -848,7 +851,8 @@ class CifParser:
     def parse_magmoms(data, lattice=None):
         """Parse atomic magnetic moments from data dictionary."""
         if lattice is None:
-            raise Exception("Magmoms given in terms of crystal axes in magCIF spec.")
+            raise ValueError("Magmoms given in terms of crystal axes in magCIF spec.")
+
         try:
             magmoms = {
                 data["_atom_site_moment_label"][i]: np.array(
@@ -897,10 +901,8 @@ class CifParser:
             parsed_sym = sym[:2].title()
         elif Element.is_valid_symbol(sym[0].upper()):
             parsed_sym = sym[0].upper()
-        else:
-            m = re.match(r"w?[A-Z][a-z]*", sym)
-            if m:
-                parsed_sym = m.group()
+        elif match := re.match(r"w?[A-Z][a-z]*", sym):
+            parsed_sym = match.group()
 
         if parsed_sym is not None and (m_sp or not re.match(rf"{parsed_sym}\d*", sym)):
             msg = f"{sym} parsed as {parsed_sym}"
@@ -1016,6 +1018,7 @@ class CifParser:
             self.warnings.append(msg)
 
         all_species = []
+        all_species_noedit = []
         all_coords = []
         all_magmoms = []
         all_hydrogens = []
@@ -1091,13 +1094,13 @@ class CifParser:
             if self.feature_flags["magcif"]:
                 site_properties["magmom"] = all_magmoms
 
-            if len(site_properties) == 0:
-                site_properties = None  # type: ignore
+            if not site_properties:
+                site_properties = None  # type: ignore[assignment]
 
             if any(all_labels):
                 assert len(all_labels) == len(all_species)
             else:
-                all_labels = None  # type: ignore
+                all_labels = None  # type: ignore[assignment]
 
             struct = Structure(lattice, all_species, all_coords, site_properties=site_properties, labels=all_labels)
 
@@ -1185,12 +1188,6 @@ class CifParser:
         Returns:
             list[Structure]: All structures in CIF file.
         """
-        if (
-            os.getenv("CI")
-            and os.getenv("GITHUB_REPOSITORY") == "materialsproject/pymatgen"
-            and datetime.now() > datetime(2024, 10, 1)
-        ):  # pragma: no cover
-            raise RuntimeError("remove the warning about changing default primitive=True to False on 2023-10-24")
         if primitive is None:
             primitive = False
             warnings.warn(
@@ -1210,8 +1207,7 @@ class CifParser:
         structures = []
         for idx, dct in enumerate(self._cif.data.values()):
             try:
-                struct = self._get_structure(dct, primitive, symmetrized, check_occu=check_occu)
-                if struct:
+                if struct := self._get_structure(dct, primitive, symmetrized, check_occu=check_occu):
                     structures.append(struct)
             except (KeyError, ValueError) as exc:
                 # A user reported a problem with cif files produced by Avogadro
@@ -1232,10 +1228,11 @@ class CifParser:
             raise ValueError("Invalid CIF file with no structures!")
         return structures
 
-    def get_bibtex_string(self):
-        """
-        Get BibTeX reference from CIF file.
-        :param data:
+    def get_bibtex_string(self) -> str:
+        """Get BibTeX reference from CIF file.
+
+        args:
+            data:
 
         Returns:
             BibTeX string.
@@ -1465,9 +1462,9 @@ class CifWriter:
         if symprec is None:
             block["_symmetry_equiv_pos_site_id"] = ["1"]
             block["_symmetry_equiv_pos_as_xyz"] = ["x, y, z"]
+
         else:
             spg_analyzer = SpacegroupAnalyzer(struct, symprec)
-
             symm_ops: list[SymmOp] = []
             for op in spg_analyzer.get_symmetry_operations():
                 v = op.translation_vector
@@ -1535,14 +1532,12 @@ class CifWriter:
                             atom_site_properties[key].append(format_str.format(val))
 
                     count += 1
+
         else:
             # The following just presents a deterministic ordering.
             unique_sites = [
-                (
-                    sorted(sites, key=lambda s: tuple(abs(x) for x in s.frac_coords))[0],
-                    len(sites),
-                )
-                for sites in spg_analyzer.get_symmetrized_structure().equivalent_sites
+                (min(sites, key=lambda site: tuple(abs(x) for x in site.frac_coords)), len(sites))
+                for sites in spg_analyzer.get_symmetrized_structure().equivalent_sites  # type: ignore[reportPossiblyUnboundVariable]
             ]
             for site, mult in sorted(
                 unique_sites,
@@ -1564,6 +1559,14 @@ class CifWriter:
                     atom_site_label.append(site_label)
                     atom_site_occupancy.append(str(occu))
                     count += 1
+
+        if len(set(atom_site_label)) != len(atom_site_label):
+            warnings.warn(
+                "Site labels are not unique, which is not compliant with the CIF spec "
+                "(https://www.iucr.org/__data/iucr/cifdic_html/1/cif_core.dic/Iatom_site_label.html):"
+                f"`{atom_site_label}`.",
+                UserWarning,
+            )
 
         block["_atom_site_type_symbol"] = atom_site_type_symbol
         block["_atom_site_label"] = atom_site_label
@@ -1605,12 +1608,12 @@ class CifWriter:
         self._cf = CifFile(dct)
 
     @property
-    def cif_file(self):
-        """Returns: CifFile associated with the CifWriter."""
+    def cif_file(self) -> CifFile:
+        """CifFile associated with the CifWriter."""
         return self._cf
 
     def __str__(self):
-        """Returns the CIF as a string."""
+        """Get the CIF as a string."""
         return str(self._cf)
 
     def write_file(self, filename: str | Path, mode: Literal["w", "a", "wt", "at"] = "w") -> None:

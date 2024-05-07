@@ -74,7 +74,7 @@ class VampireCaller:
                 If False, attempt to use NN, NNN, etc. interactions.
             user_input_settings (dict): optional commands for VAMPIRE Monte Carlo
 
-        Parameters:
+        Attributes:
             sgraph (StructureGraph): Ground state graph.
             unique_site_ids (dict): Maps each site to its unique identifier
             nn_interactions (dict): {i: j} pairs of NN interactions
@@ -131,13 +131,13 @@ class VampireCaller:
 
         # Call Vampire
         with subprocess.Popen(["vampire-serial"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
-            stdout, stderr = process.communicate()
-            stdout = stdout.decode()
+            _stdout, stderr = process.communicate()
+            stdout: str = _stdout.decode()
 
         if stderr:
-            vanhelsing = stderr.decode()
-            if len(vanhelsing) > 27:  # Suppress blank warning msg
-                logging.warning(vanhelsing)
+            van_helsing = stderr.decode()
+            if len(van_helsing) > 27:  # Suppress blank warning msg
+                logging.warning(van_helsing)
 
         if process.returncode != 0:
             raise RuntimeError(f"Vampire exited with return code {process.returncode}.")
@@ -146,9 +146,9 @@ class VampireCaller:
         self._stderr = stderr
 
         # Process output
-        nmats = max(self.mat_id_dict.values())
-        parsed_out, critical_temp = VampireCaller.parse_stdout("output", nmats)
-        self.output = VampireOutput(parsed_out, nmats, critical_temp)
+        n_mats = max(self.mat_id_dict.values())
+        parsed_out, critical_temp = VampireCaller.parse_stdout("output", n_mats)
+        self.output = VampireOutput(parsed_out, n_mats, critical_temp)
 
     def _create_mat(self):
         structure = self.structure
@@ -158,43 +158,41 @@ class VampireCaller:
         # Maps sites to material id for vampire inputs
         mat_id_dict = {}
 
-        nmats = 0
+        n_mats = 0
         for key in self.unique_site_ids:
             spin_up, spin_down = False, False
-            nmats += 1  # at least 1 mat for each unique site
+            n_mats += 1  # at least 1 mat for each unique site
 
             # Check which spin sublattices exist for this site id
             for site in key:
-                m = magmoms[site]
-                if m > 0:
+                if magmoms[site] > 0:
                     spin_up = True
-                if m < 0:
+                if magmoms[site] < 0:
                     spin_down = True
 
             # Assign material id for each site
             for site in key:
-                m = magmoms[site]
                 if spin_up and not spin_down:
-                    mat_id_dict[site] = nmats
+                    mat_id_dict[site] = n_mats
                 if spin_down and not spin_up:
-                    mat_id_dict[site] = nmats
+                    mat_id_dict[site] = n_mats
                 if spin_up and spin_down:
                     # Check if spin up or down shows up first
                     m0 = magmoms[key[0]]
-                    if m > 0 and m0 > 0:
-                        mat_id_dict[site] = nmats
-                    if m < 0 and m0 < 0:
-                        mat_id_dict[site] = nmats
-                    if m > 0 > m0:
-                        mat_id_dict[site] = nmats + 1
-                    if m < 0 < m0:
-                        mat_id_dict[site] = nmats + 1
+                    if magmoms[site] > 0 and m0 > 0:
+                        mat_id_dict[site] = n_mats
+                    if magmoms[site] < 0 and m0 < 0:
+                        mat_id_dict[site] = n_mats
+                    if magmoms[site] > 0 > m0:
+                        mat_id_dict[site] = n_mats + 1
+                    if magmoms[site] < 0 < m0:
+                        mat_id_dict[site] = n_mats + 1
 
             # Increment index if two sublattices
             if spin_up and spin_down:
-                nmats += 1
+                n_mats += 1
 
-        mat_file = [f"material:num-materials={nmats}"]
+        mat_file = [f"material:num-materials={n_mats}"]
 
         for key in self.unique_site_ids:
             i = self.unique_site_ids[key]  # unique site id
@@ -207,8 +205,10 @@ class VampireCaller:
 
                 if magmoms[site] > 0:
                     spin = 1
-                if magmoms[site] < 0:
+                elif magmoms[site] < 0:
                     spin = -1
+                else:
+                    spin = 0
 
                 atom = structure[i].species.reduced_formula
 
@@ -221,7 +221,7 @@ class VampireCaller:
                 ]
 
         mat_file = "\n".join(mat_file)
-        mat_file_name = mat_name + ".mat"
+        mat_file_name = f"{mat_name}.mat"
 
         self.mat_id_dict = mat_id_dict
 
@@ -230,7 +230,7 @@ class VampireCaller:
 
     def _create_input(self):
         structure = self.structure
-        mcbs = self.mc_box_size
+        mc_box_size = self.mc_box_size
         equil_timesteps = self.equil_timesteps
         mc_timesteps = self.mc_timesteps
         mat_name = self.mat_name
@@ -255,9 +255,9 @@ class VampireCaller:
 
         # System size in nm
         input_script += [
-            f"dimensions:system-size-x = {mcbs:.1f} !nm",
-            f"dimensions:system-size-y = {mcbs:.1f} !nm",
-            f"dimensions:system-size-z = {mcbs:.1f} !nm",
+            f"dimensions:system-size-x = {mc_box_size:.1f} !nm",
+            f"dimensions:system-size-y = {mc_box_size:.1f} !nm",
+            f"dimensions:system-size-z = {mc_box_size:.1f} !nm",
         ]
 
         # Critical temperature Monte Carlo calculation
@@ -361,7 +361,7 @@ class VampireCaller:
                 iid += 1
 
         ucf = "\n".join(ucf)
-        ucf_file_name = mat_name + ".ucf"
+        ucf_file_name = f"{mat_name}.ucf"
 
         with open(ucf_file_name, mode="w") as file:
             file.write(ucf)

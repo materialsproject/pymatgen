@@ -7,6 +7,7 @@ from __future__ import annotations
 import logging
 import os.path
 import warnings
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.collections import AttrDict
@@ -17,6 +18,9 @@ from monty.string import marquee
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import ArrayWithUnit
 from pymatgen.core.xcfunc import XcFunc
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 try:
     import netCDF4
@@ -93,7 +97,7 @@ class NetcdfReader:
         # See also https://github.com/Unidata/netcdf4-python/issues/785
         self.rootgrp.set_auto_mask(False)
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         """Activated when used in the with statement."""
         return self
 
@@ -128,8 +132,7 @@ class NetcdfReader:
                 print(child)
 
     def read_dimvalue(self, dimname, path="/", default=NO_DEFAULT):
-        """
-        Returns the value of a dimension.
+        """Get the value of a dimension.
 
         Args:
             dimname: Name of the variable
@@ -153,8 +156,7 @@ class NetcdfReader:
         return list(group.variables)
 
     def read_value(self, varname, path="/", cmode=None, default=NO_DEFAULT):
-        """
-        Returns the values of variable with name varname in the group specified by path.
+        """Get the values of variable with name varname in the group specified by path.
 
         Args:
             varname: Name of the variable
@@ -188,7 +190,7 @@ class NetcdfReader:
         raise ValueError(f"Wrong value for {cmode=}")
 
     def read_variable(self, varname, path="/"):
-        """Returns the variable with name varname in the group specified by path."""
+        """Get the variable with name varname in the group specified by path."""
         return self._read_variables(varname, path=path)[0]
 
     def _read_dimensions(self, *dim_names, **kwargs):
@@ -252,11 +254,11 @@ class EtsfReader(NetcdfReader):
         return symbols
 
     def type_idx_from_symbol(self, symbol):
-        """Returns the type index from the chemical symbol. Note python convention."""
+        """Get the type index from the chemical symbol. Note python convention."""
         return self.chemical_symbols.index(symbol)
 
     def read_structure(self, cls=Structure):
-        """Returns the crystalline structure stored in the rootgrp."""
+        """Get the crystalline structure stored in the rootgrp."""
         return structure_from_ncdata(self, cls=cls)
 
     def read_abinit_xcfunc(self):
@@ -308,7 +310,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     lattice = ArrayWithUnit(ncdata.read_value("primitive_vectors"), "bohr").to("ang")
 
     red_coords = ncdata.read_value("reduced_atom_positions")
-    natom = len(red_coords)
+    n_atom = len(red_coords)
 
     znucl_type = ncdata.read_value("atomic_numbers")
 
@@ -316,8 +318,8 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
     type_atom = ncdata.read_value("atom_species")
 
     # Fortran to C index and float --> int conversion.
-    species = natom * [None]
-    for atom in range(natom):
+    species = n_atom * [None]
+    for atom in range(n_atom):
         type_idx = type_atom[atom] - 1
         species[atom] = int(znucl_type[type_idx])
 
@@ -458,8 +460,7 @@ class AbinitHeader(AttrDict):
         return self.to_str()
 
     def to_str(self, verbose=0, title=None, **kwargs):
-        """
-        String representation. kwargs are passed to `pprint.pformat`.
+        """String representation. kwargs are passed to `pprint.pformat`.
 
         Args:
             verbose: Verbosity level

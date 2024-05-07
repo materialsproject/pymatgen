@@ -17,7 +17,9 @@ from __future__ import annotations
 import itertools
 import logging
 import time
+import warnings
 from random import shuffle
+from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.linalg import norm, svd
@@ -46,6 +48,9 @@ from pymatgen.core import Lattice, Species, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
 
+if TYPE_CHECKING:
+    from typing_extensions import Self
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Geoffroy Hautier"
@@ -68,7 +73,7 @@ due.cite(
 
 
 class AbstractGeometry:
-    """Class used to describe a geometry (perfect or distorted)."""
+    """Describe a geometry (perfect or distorted)."""
 
     def __init__(
         self,
@@ -80,12 +85,16 @@ class AbstractGeometry:
     ):
         """
         Constructor for the abstract geometry
-        :param central_site: Coordinates of the central site
-        :param bare_coords: Coordinates of the neighbors of the central site
-        :param centering_type: How to center the abstract geometry
-        :param include_central_site_in_centroid: When the centering is on the centroid, the central site is included
-            if this parameter is set to True.
-        :raise: ValueError if the parameters are not consistent.
+
+        Args:
+            central_site: Coordinates of the central site
+            bare_coords: Coordinates of the neighbors of the central site
+            centering_type: How to center the abstract geometry
+            include_central_site_in_centroid: When the centering is on the centroid,
+                the central site is included if this parameter is set to True.
+
+        Raises:
+            ValueError if the parameters are not consistent.
         """
         bcoords = np.array(bare_coords)
         self.bare_centre = np.array(central_site)
@@ -148,8 +157,7 @@ class AbstractGeometry:
         self.bare_coords = self._bare_coords
 
     def __str__(self):
-        """
-        String representation of the AbstractGeometry
+        """String representation of the AbstractGeometry
 
         Returns:
             str: String representation of the AbstractGeometry.
@@ -185,11 +193,12 @@ class AbstractGeometry:
         return "\n".join(outs)
 
     @classmethod
-    def from_cg(cls, cg, centering_type="standard", include_central_site_in_centroid=False):
+    def from_cg(cls, cg, centering_type="standard", include_central_site_in_centroid=False) -> Self:
         """
-        :param cg:
-        :param centering_type:
-        :param include_central_site_in_centroid:
+        Args:
+            cg:
+            centering_type:
+            include_central_site_in_centroid:
         """
         central_site = cg.get_central_site()
         bare_coords = [np.array(pt, float) for pt in cg.points]
@@ -202,7 +211,8 @@ class AbstractGeometry:
 
     def points_wcs_csc(self, permutation=None):
         """
-        :param permutation:
+        Args:
+            permutation:
         """
         if permutation is None:
             return self._points_wcs_csc
@@ -210,7 +220,8 @@ class AbstractGeometry:
 
     def points_wocs_csc(self, permutation=None):
         """
-        :param permutation:
+        Args:
+            permutation:
         """
         if permutation is None:
             return self._points_wocs_csc
@@ -218,7 +229,8 @@ class AbstractGeometry:
 
     def points_wcs_ctwcc(self, permutation=None):
         """
-        :param permutation:
+        Args:
+            permutation:
         """
         if permutation is None:
             return self._points_wcs_ctwcc
@@ -231,7 +243,8 @@ class AbstractGeometry:
 
     def points_wocs_ctwcc(self, permutation=None):
         """
-        :param permutation:
+        Args:
+            permutation:
         """
         if permutation is None:
             return self._points_wocs_ctwcc
@@ -239,7 +252,8 @@ class AbstractGeometry:
 
     def points_wcs_ctwocc(self, permutation=None):
         """
-        :param permutation:
+        Args:
+            permutation:
         """
         if permutation is None:
             return self._points_wcs_ctwocc
@@ -252,7 +266,8 @@ class AbstractGeometry:
 
     def points_wocs_ctwocc(self, permutation=None):
         """
-        :param permutation:
+        Args:
+            permutation:
         """
         if permutation is None:
             return self._points_wocs_ctwocc
@@ -273,10 +288,13 @@ def symmetry_measure(points_distorted, points_perfect):
     """
     Computes the continuous symmetry measure of the (distorted) set of points "points_distorted" with respect to the
     (perfect) set of points "points_perfect".
-    :param points_distorted: List of points describing a given (distorted) polyhedron for which the symmetry measure
-        has to be computed with respect to the model polyhedron described by the list of points
-        "points_perfect".
-    :param points_perfect: List of "perfect" points describing a given model polyhedron.
+
+    Args:
+        points_distorted: List of points describing a given (distorted) polyhedron for which the symmetry measure
+            has to be computed with respect to the model polyhedron described by the list of points
+            "points_perfect".
+        points_perfect: List of "perfect" points describing a given model polyhedron.
+
     Returns:
         The continuous symmetry measure of the distorted polyhedron with respect to the perfect polyhedron.
     """
@@ -306,9 +324,12 @@ def find_rotation(points_distorted, points_perfect):
     """
     This finds the rotation matrix that aligns the (distorted) set of points "points_distorted" with respect to the
     (perfect) set of points "points_perfect" in a least-square sense.
-    :param points_distorted: List of points describing a given (distorted) polyhedron for which the rotation that
-        aligns these points in a least-square sense to the set of perfect points "points_perfect"
-    :param points_perfect: List of "perfect" points describing a given model polyhedron.
+
+    Args:
+        points_distorted: List of points describing a given (distorted) polyhedron for which the rotation that
+            aligns these points in a least-square sense to the set of perfect points "points_perfect"
+        points_perfect: List of "perfect" points describing a given model polyhedron.
+
     Returns:
         The rotation matrix.
     """
@@ -321,10 +342,12 @@ def find_scaling_factor(points_distorted, points_perfect, rot):
     """
     This finds the scaling factor between the (distorted) set of points "points_distorted" and the
     (perfect) set of points "points_perfect" in a least-square sense.
-    :param points_distorted: List of points describing a given (distorted) polyhedron for which the scaling factor has
-                             to be obtained.
-    :param points_perfect: List of "perfect" points describing a given model polyhedron.
-    :param rot: The rotation matrix
+
+    Args:
+        points_distorted: List of points describing a given (distorted) polyhedron for
+            which the scaling factor has to be obtained.
+        points_perfect: List of "perfect" points describing a given model polyhedron.
+        rot: The rotation matrix
 
     Returns:
         The scaling factor between the two structures and the rotated set of (distorted) points.
@@ -398,20 +421,21 @@ class LocalGeometryFinder:
         structure_refinement=STRUCTURE_REFINEMENT_REFINED,
         spg_analyzer_options=None,
     ):
-        """
-        Setup of the parameters for the coordination geometry finder. A reference point for the geometries has to be
+        """Setup of the parameters for the coordination geometry finder. A reference point for the geometries has to be
         chosen. This can be the centroid of the structure (including or excluding the atom for which the coordination
         geometry is looked for) or the atom itself. In the 'standard' centering_type, the reference point is the central
         atom for coordination numbers 1, 2, 3 and 4 and the centroid for coordination numbers > 4.
-        :param centering_type: Type of the reference point (centering) 'standard', 'centroid' or 'central_site'
-        :param include_central_site_in_centroid: In case centering_type is 'centroid', the central site is included if
-            this value is set to True.
-        :param bva_distance_scale_factor: Scaling factor for the bond valence analyzer (this might be different whether
-            the structure is an experimental one, an LDA or a GGA relaxed one, or any other relaxation scheme (where
-            under- or over-estimation of bond lengths is known).
-        :param structure_refinement: Refinement of the structure. Can be "none", "refined" or "symmetrized".
-        :param spg_analyzer_options: Options for the SpaceGroupAnalyzer (dictionary specifying "symprec"
-            and "angle_tolerance". See pymatgen's SpaceGroupAnalyzer for more information.
+
+        Args:
+            centering_type: Type of the reference point (centering) 'standard', 'centroid' or 'central_site'
+            include_central_site_in_centroid: In case centering_type is 'centroid', the central site is included if
+                this value is set to True.
+            bva_distance_scale_factor: Scaling factor for the bond valence analyzer (this might be different whether
+                the structure is an experimental one, an LDA or a GGA relaxed one, or any other relaxation scheme (where
+                under- or over-estimation of bond lengths is known).
+            structure_refinement: Refinement of the structure. Can be "none", "refined" or "symmetrized".
+            spg_analyzer_options: Options for the SpaceGroupAnalyzer (dictionary specifying "symprec"
+                and "angle_tolerance". See pymatgen's SpaceGroupAnalyzer for more information.
         """
         self.centering_type = centering_type
         self.include_central_site_in_centroid = include_central_site_in_centroid
@@ -426,19 +450,21 @@ class LocalGeometryFinder:
             self.spg_analyzer_options = spg_analyzer_options
 
     def setup_parameter(self, parameter, value):
-        """
-        Setup of one specific parameter to the given value. The other parameters are unchanged. See setup_parameters
+        """Setup of one specific parameter to the given value. The other parameters are unchanged. See setup_parameters
         method for the list of possible parameters
-        :param parameter: Parameter to setup/update
-        :param value: Value of the parameter.
+
+        Args:
+            parameter: Parameter to setup/update
+            value: Value of the parameter.
         """
         self.__dict__[parameter] = value
 
     def setup_structure(self, structure: Structure):
-        """
-        Sets up the structure for which the coordination geometries have to be identified. The structure is analyzed
+        """Set up the structure for which the coordination geometries have to be identified. The structure is analyzed
         with the space group analyzer and a refined structure is used
-        :param structure: A pymatgen Structure.
+
+        Args:
+            structure: A pymatgen Structure.
         """
         self.initial_structure = structure.copy()
         if self.structure_refinement == self.STRUCTURE_REFINEMENT_NONE:
@@ -463,8 +489,7 @@ class LocalGeometryFinder:
                 self.symmetrized_structure = self.spg_analyzer_refined.get_symmetrized_structure()
 
     def get_structure(self):
-        """
-        Returns the pymatgen Structure that has been setup for the identification of geometries (the initial one
+        """Get the pymatgen Structure that has been setup for the identification of geometries (the initial one
         might have been refined/symmetrized using the SpaceGroupAnalyzer).
 
         Returns:
@@ -474,13 +499,14 @@ class LocalGeometryFinder:
         return self.structure
 
     def set_structure(self, lattice: Lattice, species, coords, coords_are_cartesian):
-        """
-        Sets up the pymatgen structure for which the coordination geometries have to be identified starting from the
+        """Set up the pymatgen structure for which the coordination geometries have to be identified starting from the
         lattice, the species and the coordinates
-        :param lattice: The lattice of the structure
-        :param species: The species on the sites
-        :param coords: The coordinates of the sites
-        :param coords_are_cartesian: If set to True, the coordinates are given in Cartesian coordinates.
+
+        Args:
+            lattice: The lattice of the structure
+            species: The species on the sites
+            coords: The coordinates of the sites
+            coords_are_cartesian: If set to True, the coordinates are given in Cartesian coordinates.
         """
         self.setup_structure(Structure(lattice, species, coords, coords_are_cartesian))
 
@@ -494,12 +520,13 @@ class LocalGeometryFinder:
         initial_structure_environments=None,
     ):
         """
-        :param structure:
-        :param indices:
-        :param only_cations:
-        :param strategy:
-        :param valences:
-        :param initial_structure_environments:
+        Args:
+            structure:
+            indices:
+            only_cations:
+            strategy:
+            valences:
+            initial_structure_environments:
         """
         self.setup_structure(structure=structure)
         if valences == "bond-valence-analysis":
@@ -550,37 +577,38 @@ class LocalGeometryFinder:
         recompute=None,
         optimization=PRESETS["DEFAULT"]["optimization"],
     ):
-        """
-        Computes and returns the StructureEnvironments object containing all the information about the coordination
-        environments in the structure
-        :param excluded_atoms: Atoms for which the coordination geometries does not have to be identified
-        :param only_atoms: If not set to None, atoms for which the coordination geometries have to be identified
-        :param only_cations: If set to True, will only compute environments for cations
-        :param only_indices: If not set to None, will only compute environments the atoms of the given indices
-        :param maximum_distance_factor: If not set to None, neighbors beyond
-            maximum_distance_factor*closest_neighbor_distance are not considered
-        :param minimum_angle_factor: If not set to None, neighbors for which the angle is lower than
-            minimum_angle_factor*largest_angle_neighbor are not considered
-        :param max_cn: maximum coordination number to be considered
-        :param min_cn: minimum coordination number to be considered
-        :param only_symbols: if not set to None, consider only coordination environments with the given symbols
-        :param valences: valences of the atoms
-        :param additional_conditions: additional conditions to be considered in the bonds (example : only bonds
-            between cation and anion
-        :param info: additional info about the calculation
-        :param timelimit: time limit (in secs) after which the calculation of the StructureEnvironments object stops
-        :param initial_structure_environments: initial StructureEnvironments object (most probably incomplete)
-        :param get_from_hints: whether to add neighbors sets from "hints" (e.g. capped environment => test the
-            neighbors without the cap)
-        :param voronoi_normalized_distance_tolerance: tolerance for the normalized distance used to distinguish
-            neighbors sets
-        :param voronoi_normalized_angle_tolerance: tolerance for the normalized angle used to distinguish
-            neighbors sets
-        :param voronoi_distance_cutoff: determines distance of considered neighbors. Especially important to increase it
-            for molecules in a box.
-        :param recompute: whether to recompute the sites already computed (when initial_structure_environments
-            is not None)
-        :param optimization: optimization algorithm
+        """Compute and returns the StructureEnvironments object containing all the information
+        about the coordination environments in the structure
+
+        Args:
+            excluded_atoms: Atoms for which the coordination geometries does not have to be identified
+            only_atoms: If not set to None, atoms for which the coordination geometries have to be identified
+            only_cations: If set to True, will only compute environments for cations
+            only_indices: If not set to None, will only compute environments the atoms of the given indices
+            maximum_distance_factor: If not set to None, neighbors beyond
+                maximum_distance_factor*closest_neighbor_distance are not considered
+            minimum_angle_factor: If not set to None, neighbors for which the angle is lower than
+                minimum_angle_factor*largest_angle_neighbor are not considered
+            max_cn: maximum coordination number to be considered
+            min_cn: minimum coordination number to be considered
+            only_symbols: if not set to None, consider only coordination environments with the given symbols
+            valences: valences of the atoms
+            additional_conditions: additional conditions to be considered in the bonds (example : only bonds
+                between cation and anion
+            info: additional info about the calculation
+            timelimit: time limit (in secs) after which the calculation of the StructureEnvironments object stops
+            initial_structure_environments: initial StructureEnvironments object (most probably incomplete)
+            get_from_hints: whether to add neighbors sets from "hints" (e.g. capped environment => test the
+                neighbors without the cap)
+            voronoi_normalized_distance_tolerance: tolerance for the normalized distance used to distinguish
+                neighbors sets
+            voronoi_normalized_angle_tolerance: tolerance for the normalized angle used to distinguish
+                neighbors sets
+            voronoi_distance_cutoff: determines distance of considered neighbors. Especially important to increase it
+                for molecules in a box.
+            recompute: whether to recompute the sites already computed (when initial_structure_environments
+                is not None)
+            optimization: optimization algorithm
 
         Returns:
             The StructureEnvironments object containing all the information about the coordination
@@ -741,6 +769,7 @@ class LocalGeometryFinder:
 
             to_add_from_hints = []
             nb_sets_info = {}
+            cn = 0
 
             for cn, nb_sets in struct_envs.neighbors_sets[isite].items():
                 if cn not in all_cns:
@@ -848,13 +877,14 @@ class LocalGeometryFinder:
 
     def update_nb_set_environments(self, se, isite, cn, inb_set, nb_set, recompute=False, optimization=None):
         """
-        :param se:
-        :param isite:
-        :param cn:
-        :param inb_set:
-        :param nb_set:
-        :param recompute:
-        :param optimization:
+        Args:
+            se:
+            isite:
+            cn:
+            inb_set:
+            nb_set:
+            recompute:
+            optimization:
         """
         ce = se.get_coordination_environments(isite=isite, cn=cn, nb_set=nb_set)
         if ce is not None and not recompute:
@@ -913,10 +943,11 @@ class LocalGeometryFinder:
         return ce
 
     def setup_local_geometry(self, isite, coords, optimization=None):
-        """
-        Sets up the AbstractGeometry for the local geometry of site with index isite.
-        :param isite: Index of the site for which the local geometry has to be set up
-        :param coords: The coordinates of the (local) neighbors.
+        """Set up the AbstractGeometry for the local geometry of site with index isite.
+
+        Args:
+            isite: Index of the site for which the local geometry has to be set up
+            coords: The coordinates of the (local) neighbors.
         """
         self.local_geometry = AbstractGeometry(
             central_site=self.structure.cart_coords[isite],
@@ -939,15 +970,16 @@ class LocalGeometryFinder:
         points=None,
     ):
         """
-        :param symbol:
-        :param randomness:
-        :param max_random_dist:
-        :param symbol_type:
-        :param indices:
-        :param random_translation:
-        :param random_rotation:
-        :param random_scale:
-        :param points:
+        Args:
+            symbol:
+            randomness:
+            max_random_dist:
+            symbol_type:
+            indices:
+            random_translation:
+            random_rotation:
+            random_scale:
+            points:
         """
         if symbol_type == "IUPAC":
             cg = self.allcg.get_geometry_from_IUPAC_symbol(symbol)
@@ -1070,9 +1102,10 @@ class LocalGeometryFinder:
         self.perfect_geometry = AbstractGeometry.from_cg(cg=cg)
 
     def setup_random_structure(self, coordination):
-        """
-        Sets up a purely random structure with a given coordination.
-        :param coordination: coordination number for the random structure.
+        """Set up a purely random structure with a given coordination.
+
+        Args:
+            coordination: coordination number for the random structure.
         """
         aa = 0.4
         bb = -0.2
@@ -1088,34 +1121,36 @@ class LocalGeometryFinder:
         self.setup_random_indices_local_geometry(coordination)
 
     def setup_random_indices_local_geometry(self, coordination):
-        """
-        Sets up random indices for the local geometry, for testing purposes
-        :param coordination: coordination of the local geometry.
+        """Set up random indices for the local geometry, for testing purposes
+
+        Args:
+            coordination: coordination of the local geometry.
         """
         self.icentral_site = 0
         self.indices = list(range(1, coordination + 1))
         np.random.shuffle(self.indices)
 
     def setup_ordered_indices_local_geometry(self, coordination):
-        """
-        Sets up ordered indices for the local geometry, for testing purposes
-        :param coordination: coordination of the local geometry.
+        """Set up ordered indices for the local geometry, for testing purposes
+
+        Args:
+            coordination: coordination of the local geometry.
         """
         self.icentral_site = 0
         self.indices = list(range(1, coordination + 1))
 
     def setup_explicit_indices_local_geometry(self, explicit_indices):
-        """
-        Sets up explicit indices for the local geometry, for testing purposes
-        :param explicit_indices: explicit indices for the neighbors (set of numbers
+        """Set up explicit indices for the local geometry, for testing purposes
+
+        Args:
+            explicit_indices: explicit indices for the neighbors (set of numbers
         from 0 to CN-1 in a given order).
         """
         self.icentral_site = 0
         self.indices = [ii + 1 for ii in explicit_indices]
 
     def get_coordination_symmetry_measures(self, only_minimum=True, all_csms=True, optimization=None):
-        """
-        Returns the continuous symmetry measures of the current local geometry in a dictionary.
+        """Get the continuous symmetry measures of the current local geometry in a dictionary.
 
         Returns:
             the continuous symmetry measures of the current local geometry in a dictionary.
@@ -1243,8 +1278,7 @@ class LocalGeometryFinder:
     def get_coordination_symmetry_measures_optim(
         self, only_minimum=True, all_csms=True, nb_set=None, optimization=None
     ):
-        """
-        Returns the continuous symmetry measures of the current local geometry in a dictionary.
+        """Get the continuous symmetry measures of the current local geometry in a dictionary.
 
         Returns:
             the continuous symmetry measures of the current local geometry in a dictionary.
@@ -1302,11 +1336,12 @@ class LocalGeometryFinder:
         points_perfect=None,
         optimization=None,
     ):
-        """Returns the symmetry measures of a given coordination_geometry for a set of
+        """Get the symmetry measures of a given coordination_geometry for a set of
         permutations depending on the permutation setup. Depending on the parameters of
         the LocalGeometryFinder and on the coordination geometry, different methods are called.
 
-        :param coordination_geometry: Coordination geometry for which the symmetry measures are looked for
+        Args:
+            coordination_geometry: Coordination geometry for which the symmetry measures are looked for
 
         Raises:
             NotImplementedError: if the permutation_setup does not exist
@@ -1350,11 +1385,12 @@ class LocalGeometryFinder:
     def coordination_geometry_symmetry_measures_sepplane_optim(
         self, coordination_geometry, points_perfect=None, nb_set=None, optimization=None
     ):
-        """Returns the symmetry measures of a given coordination_geometry for a set of
+        """Get the symmetry measures of a given coordination_geometry for a set of
         permutations depending on the permutation setup. Depending on the parameters of
         the LocalGeometryFinder and on the coordination geometry, different methods are called.
 
-        :param coordination_geometry: Coordination geometry for which the symmetry measures are looked for
+        Args:
+            coordination_geometry: Coordination geometry for which the symmetry measures are looked for
 
         Raises:
             NotImplementedError: if the permutation_setup does not exist
@@ -1388,11 +1424,12 @@ class LocalGeometryFinder:
     def coordination_geometry_symmetry_measures_standard(
         self, coordination_geometry, algo, points_perfect=None, optimization=None
     ):
-        """
-        Returns the symmetry measures for a set of permutations (whose setup depends on the coordination geometry)
+        """Get the symmetry measures for a set of permutations (whose setup depends on the coordination geometry)
         for the coordination geometry "coordination_geometry". Standard implementation looking for the symmetry
         measures of each permutation
-        :param coordination_geometry: The coordination geometry to be investigated
+
+        Args:
+            coordination_geometry: The coordination geometry to be investigated
 
         Returns:
             The symmetry measures for the given coordination geometry for each permutation investigated.
@@ -1468,10 +1505,11 @@ class LocalGeometryFinder:
         tested_permutations=False,
         points_perfect=None,
     ):
-        """
-        Returns the symmetry measures of the given coordination geometry "coordination_geometry" using separation
+        """Get the symmetry measures of the given coordination geometry "coordination_geometry" using separation
         facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3POINTS and other ...
-        :param coordination_geometry: The coordination geometry to be investigated
+
+        Args:
+            coordination_geometry: The coordination geometry to be investigated
 
         Returns:
             The symmetry measures for the given coordination geometry for each plane and permutation investigated.
@@ -1482,8 +1520,7 @@ class LocalGeometryFinder:
         algos = []
         perfect2local_maps = []
         local2perfect_maps = []
-        if testing:
-            separation_permutations = []
+        separation_permutations = []
         nplanes = 0
         for npoints in range(
             separation_plane_algo.minimum_number_of_points,
@@ -1571,8 +1608,7 @@ class LocalGeometryFinder:
         nb_set=None,
         optimization=None,
     ):
-        """
-        Returns the symmetry measures of the given coordination geometry "coordination_geometry" using separation
+        """Get the symmetry measures of the given coordination geometry "coordination_geometry" using separation
         facets to reduce the complexity of the system. Caller to the refined 2POINTS, 3POINTS and other ...
 
         Args:
@@ -1741,9 +1777,10 @@ class LocalGeometryFinder:
         plane_found = False
         permutations = []
         permutations_symmetry_measures = []
-        if testing:
-            separation_permutations = []
+        separation_permutations = []
         dist_tolerances = dist_tolerances or DIST_TOLERANCES
+        algo = ""
+
         for dist_tolerance in dist_tolerances:
             algo = "NOT_FOUND"
             separation = local_plane.indices_separate(self.local_geometry._coords, dist_tolerance)
@@ -1989,24 +2026,28 @@ class LocalGeometryFinder:
         return [], [], [], stop_search
 
     def coordination_geometry_symmetry_measures_fallback_random(
-        self, coordination_geometry, NRANDOM=10, points_perfect=None
+        self, coordination_geometry, n_random=10, points_perfect=None, **kwargs
     ):
-        """
-        Returns the symmetry measures for a random set of permutations for the coordination geometry
+        """Get the symmetry measures for a random set of permutations for the coordination geometry
         "coordination_geometry". Fallback implementation for the plane separation algorithms measures
         of each permutation
-        :param coordination_geometry: The coordination geometry to be investigated
-        :param NRANDOM: Number of random permutations to be tested
+
+        Args:
+            coordination_geometry: The coordination geometry to be investigated
+            n_random: Number of random permutations to be tested
 
         Returns:
             The symmetry measures for the given coordination geometry for each permutation investigated.
         """
-        permutations_symmetry_measures = [None] * NRANDOM
+        if "NRANDOM" in kwargs:
+            warnings.warn("NRANDOM is deprecated, use n_random instead", category=DeprecationWarning)
+            n_random = kwargs.pop("NRANDOM")
+        permutations_symmetry_measures = [None] * n_random
         permutations = []
         algos = []
         perfect2local_maps = []
         local2perfect_maps = []
-        for idx in range(NRANDOM):
+        for idx in range(n_random):
             perm = np.random.permutation(coordination_geometry.coordination_number)
             permutations.append(perm)
             p2l = {}

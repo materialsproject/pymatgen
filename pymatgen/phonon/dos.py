@@ -8,13 +8,15 @@ import numpy as np
 import scipy.constants as const
 from monty.functools import lazy_property
 from monty.json import MSONable
-from scipy.ndimage.filters import gaussian_filter1d
+from scipy.ndimage import gaussian_filter1d
 
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_linear_interpolated_value
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+
+    from typing_extensions import Self
 
 BOLTZ_THZ_PER_K = const.value("Boltzmann constant in Hz/K") / const.tera  # Boltzmann constant in THz/K
 THZ_TO_J = const.value("hertz-joule relationship") * const.tera
@@ -33,7 +35,7 @@ class PhononDos(MSONable):
         self.densities = np.array(densities)
 
     def get_smeared_densities(self, sigma: float) -> np.ndarray:
-        """Returns the densities, but with a Gaussian smearing of
+        """Get the densities, but with a Gaussian smearing of
         std dev sigma applied.
 
         Args:
@@ -51,7 +53,7 @@ class PhononDos(MSONable):
         return gaussian_filter1d(self.densities, sigma / avg_diff)
 
     def __add__(self, other: PhononDos) -> PhononDos:
-        """Adds two DOS together. Pads densities with zeros to make frequencies matching.
+        """Add two DOS together. Pads densities with zeros to make frequencies matching.
 
         Args:
             other: Another DOS object.
@@ -118,7 +120,7 @@ class PhononDos(MSONable):
         return f"{type(self).__name__}({frequencies=}, {densities=}, {n_positive_freqs=})"
 
     def get_interpolated_value(self, frequency) -> float:
-        """Returns interpolated density for a particular frequency.
+        """Get interpolated density for a particular frequency.
 
         Args:
             frequency: frequency to return the density for.
@@ -126,15 +128,15 @@ class PhononDos(MSONable):
         return get_linear_interpolated_value(self.frequencies, self.densities, frequency)
 
     def __str__(self) -> str:
-        """Returns a string which can be easily plotted (using gnuplot)."""
+        """Get a string which can be easily plotted (using gnuplot)."""
         str_arr = [f"#{'Frequency':30s} {'Density':30s}"]
         for idx, freq in enumerate(self.frequencies):
             str_arr.append(f"{freq:.5f} {self.densities[idx]:.5f}")
         return "\n".join(str_arr)
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Sequence]) -> PhononDos:
-        """Returns PhononDos object from dict representation of PhononDos."""
+    def from_dict(cls, dct: dict[str, Sequence]) -> Self:
+        """Get PhononDos object from dict representation of PhononDos."""
         return cls(dct["frequencies"], dct["densities"])
 
     def as_dict(self) -> dict:
@@ -458,8 +460,8 @@ class CompletePhononDos(PhononDos):
         return {el: PhononDos(self.frequencies, densities) for el, densities in el_dos.items()}
 
     @classmethod
-    def from_dict(cls, dct: dict) -> CompletePhononDos:
-        """Returns CompleteDos object from dict representation."""
+    def from_dict(cls, dct: dict) -> Self:
+        """Get CompleteDos object from dict representation."""
         total_dos = PhononDos.from_dict(dct)
         struct = Structure.from_dict(dct["structure"])
         ph_doses = dict(zip(struct, dct["pdos"]))

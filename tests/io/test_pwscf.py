@@ -8,6 +8,8 @@ from pytest import approx
 from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
+TEST_DIR = f"{TEST_FILES_DIR}/io/pwscf"
+
 
 class TestPWInput(PymatgenTest):
     def test_init(self):
@@ -364,25 +366,25 @@ CELL_PARAMETERS angstrom
             ]
         )
 
-        pwin = PWInput.from_str(string)
+        pw_in = PWInput.from_str(string)
 
         # generate list of coords
-        pw_sites = np.array([list(site.coords) for site in pwin.structure])
+        pw_sites = np.array([list(site.coords) for site in pw_in.structure])
 
         assert_allclose(sites, pw_sites)
 
-        assert_allclose(lattice, pwin.structure.lattice.matrix)
-        assert pwin.sections["system"]["smearing"] == "cold"
+        assert_allclose(lattice, pw_in.structure.lattice.matrix)
+        assert pw_in.sections["system"]["smearing"] == "cold"
 
 
 class TestPWOuput(PymatgenTest):
     def setUp(self):
-        self.pwout = PWOutput(f"{TEST_FILES_DIR}/Si.pwscf.out")
+        self.pw_out = PWOutput(f"{TEST_DIR}/Si.pwscf.out")
 
     def test_properties(self):
-        assert self.pwout.final_energy == approx(-93.45259708)
+        assert self.pw_out.final_energy == approx(-93.45259708)
 
     def test_get_celldm(self):
-        assert self.pwout.get_celldm(1) == approx(10.323)
+        assert self.pw_out.get_celldm(1) == approx(10.323)
         for i in range(2, 7):
-            assert self.pwout.get_celldm(i) == approx(0)
+            assert self.pw_out.get_celldm(i) == approx(0)

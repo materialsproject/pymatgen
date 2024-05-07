@@ -56,6 +56,8 @@ from pymatgen.core.structure import Structure
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from typing_extensions import Self
+
     from pymatgen.core.sites import PeriodicSite
 
 
@@ -67,7 +69,7 @@ __status__ = "Development"
 __date__ = "April 15, 2017"
 
 
-def zval_dict_from_potcar(potcar):
+def zval_dict_from_potcar(potcar) -> dict[str, float]:
     """
     Creates zval_dictionary for calculating the ionic polarization from
     Potcar object.
@@ -95,8 +97,7 @@ def calc_ionic(site: PeriodicSite, structure: Structure, zval: float) -> np.ndar
 
 
 def get_total_ionic_dipole(structure, zval_dict):
-    """
-    Get the total ionic dipole moment for a structure.
+    """Get the total ionic dipole moment for a structure.
 
     structure: pymatgen Structure
     zval_dict: specie, zval dictionary pairs
@@ -123,8 +124,8 @@ def get_nearest_site(struct: Structure, coords: Sequence[float], site: PeriodicS
         Closest site and distance.
     """
     index = struct.index(site)
-    r = r or np.linalg.norm(np.sum(struct.lattice.matrix, axis=0))
-    ns = struct.get_sites_in_sphere(coords, r, include_index=True)
+    radius = r or np.linalg.norm(np.sum(struct.lattice.matrix, axis=0))
+    ns = struct.get_sites_in_sphere(coords, radius, include_index=True)
     # Get sites with identical index to site
     ns = [n for n in ns if n[2] == index]
     # Sort by distance to coords
@@ -134,8 +135,7 @@ def get_nearest_site(struct: Structure, coords: Sequence[float], site: PeriodicS
 
 
 class Polarization:
-    """
-    Class for recovering the same branch polarization for a set of polarization
+    """Recover the same branch polarization for a set of polarization
     calculations along the nonpolar - polar distortion path of a ferroelectric.
 
     p_elecs, p_ions, and structures lists should be given in order
@@ -172,7 +172,7 @@ class Polarization:
         self.structures = structures
 
     @classmethod
-    def from_outcars_and_structures(cls, outcars, structures, calc_ionic_from_zval=False):
+    def from_outcars_and_structures(cls, outcars, structures, calc_ionic_from_zval=False) -> Self:
         """
         Create Polarization object from list of Outcars and Structures in order
         of nonpolar to polar.
@@ -193,8 +193,7 @@ class Polarization:
         return cls(p_elecs, p_ions, structures)
 
     def get_pelecs_and_pions(self, convert_to_muC_per_cm2=False):
-        """
-        Get the electronic and ionic dipole moments / polarizations.
+        """Get the electronic and ionic dipole moments / polarizations.
 
         convert_to_muC_per_cm2: Convert from electron * Angstroms to microCoulomb
             per centimeter**2
@@ -222,8 +221,7 @@ class Polarization:
         return None
 
     def get_same_branch_polarization_data(self, convert_to_muC_per_cm2=True, all_in_polar=True):
-        r"""
-        Get same branch dipole moment (convert_to_muC_per_cm2=False)
+        r"""Get same branch dipole moment (convert_to_muC_per_cm2=False)
         or polarization for given polarization data (convert_to_muC_per_cm2=True).
 
         Polarization is a lattice vector, meaning it is only defined modulo the
@@ -316,8 +314,7 @@ class Polarization:
         return np.array(adjust_pol)
 
     def get_lattice_quanta(self, convert_to_muC_per_cm2=True, all_in_polar=True):
-        """
-        Returns the dipole / polarization quanta along a, b, and c for
+        """Get the dipole / polarization quanta along a, b, and c for
         all structures.
         """
         lattices = [s.lattice for s in self.structures]
@@ -357,8 +354,7 @@ class Polarization:
         return (tot[-1] - tot[0]).reshape((1, 3))
 
     def get_polarization_change_norm(self, convert_to_muC_per_cm2=True, all_in_polar=True):
-        """
-        Get magnitude of difference between nonpolar and polar same branch
+        """Get magnitude of difference between nonpolar and polar same branch
         polarization.
         """
         polar = self.structures[-1]
@@ -370,8 +366,7 @@ class Polarization:
         return np.linalg.norm(a * P[0] + b * P[1] + c * P[2])
 
     def same_branch_splines(self, convert_to_muC_per_cm2=True, all_in_polar=True):
-        """
-        Fit splines to same branch polarization. This is used to assess any jumps
+        """Fit splines to same branch polarization. This is used to assess any jumps
         in the same branch polarization.
         """
         tot = self.get_same_branch_polarization_data(
@@ -421,10 +416,13 @@ class Polarization:
 
 
 class EnergyTrend:
-    """Class for fitting trends to energies."""
+    """Analyze the trend in energy across a distortion path."""
 
     def __init__(self, energies):
-        """:param energies: Energies"""
+        """
+        Args:
+            energies: Energies
+        """
         self.energies = energies
 
     def spline(self):

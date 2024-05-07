@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import unittest
+from unittest import TestCase
 
 from pytest import approx
 
@@ -12,7 +12,7 @@ from pymatgen.analysis.structure_prediction.dopant_predictor import (
 from pymatgen.core import Species, Structure
 
 
-class TestDopantPrediction(unittest.TestCase):
+class TestDopantPrediction(TestCase):
     def setUp(self):
         self.tin_dioxide = Structure(
             [3.24, 0, 0, 0, 4.83, 0, 0, 0, 4.84],

@@ -49,8 +49,7 @@ def find_points_in_spheres(
         const double[:, ::1] lattice,
         const double tol=1e-8,
         const double min_r=1.0):
-    """
-    For each point in `center_coords`, get all the neighboring points in `all_coords`
+    """For each point in `center_coords`, get all the neighboring points in `all_coords`
     that are within the cutoff radius `r`. All the coordinates should be Cartesian.
 
     Args:
@@ -110,12 +109,12 @@ def find_points_in_spheres(
         double[:, ::1] reciprocal_lattice = reciprocal_lattice_arr
 
         int count = 0
-        int natoms = n_total
-        double *offsets_p_temp = <double*> safe_malloc(natoms * 3 * sizeof(double))
+        int n_atoms = n_total
+        double *offsets_p_temp = <double*> safe_malloc(n_atoms * 3 * sizeof(double))
         double *expanded_coords_p_temp = <double*> safe_malloc(
-            natoms * 3 * sizeof(double)
+            n_atoms * 3 * sizeof(double)
         )
-        long *indices_p_temp = <long*> safe_malloc(natoms * sizeof(long))
+        long *indices_p_temp = <long*> safe_malloc(n_atoms * sizeof(long))
         double coord_temp[3]
         long ncube[3]
 
@@ -194,16 +193,16 @@ def find_points_in_spheres(
                         expanded_coords_p_temp[3*count+1] = coord_temp[1]
                         expanded_coords_p_temp[3*count+2] = coord_temp[2]
                         count += 1
-                        if count >= natoms:  # exceeding current memory
-                            natoms += natoms
+                        if count >= n_atoms:  # exceeding current memory
+                            n_atoms += n_atoms
                             offsets_p_temp = <double*> realloc(
-                                offsets_p_temp, natoms * 3 * sizeof(double)
+                                offsets_p_temp, n_atoms * 3 * sizeof(double)
                             )
                             expanded_coords_p_temp = <double*> realloc(
-                                expanded_coords_p_temp, natoms * 3 * sizeof(double)
+                                expanded_coords_p_temp, n_atoms * 3 * sizeof(double)
                             )
                             indices_p_temp = <long*> realloc(
-                                indices_p_temp, natoms * sizeof(long)
+                                indices_p_temp, n_atoms * sizeof(long)
                             )
                         if (
                                 offset_final is NULL or
@@ -248,7 +247,7 @@ def find_points_in_spheres(
         return (np.array([], dtype=int), np.array([], dtype=int),
             np.array([[], [], []], dtype=float).T, np.array([], dtype=float))
 
-    natoms = count
+    n_atoms = count
     cdef:
         # Delete those beyond (min_center_coords - r, max_center_coords + r)
         double *offsets_p = <double*> safe_realloc(
@@ -266,11 +265,11 @@ def find_points_in_spheres(
         long[::1] indices = <long[:count]> indices_p
 
         # Construct linked cell list
-        long[:, ::1] all_indices3 = <long[:natoms, :3]> safe_malloc(
-            natoms * 3 * sizeof(long)
+        long[:, ::1] all_indices3 = <long[:n_atoms, :3]> safe_malloc(
+            n_atoms * 3 * sizeof(long)
         )
-        long[::1] all_indices1 = <long[:natoms]> safe_malloc(
-            natoms * sizeof(long)
+        long[::1] all_indices1 = <long[:n_atoms]> safe_malloc(
+            n_atoms * sizeof(long)
         )
 
     for i in range(3):
@@ -282,16 +281,16 @@ def find_points_in_spheres(
     cdef:
         long nb_cubes = ncube[0] * ncube[1] * ncube[2]
         long *head = <long*> safe_malloc(nb_cubes*sizeof(long))
-        long *atom_indices = <long*> safe_malloc(natoms*sizeof(long))
+        long *atom_indices = <long*> safe_malloc(n_atoms*sizeof(long))
         long[:, ::1] neighbor_map = <long[:nb_cubes, :27]> safe_malloc(
             nb_cubes * 27 * sizeof(long)
         )
 
     memset(<void*>head, -1, nb_cubes*sizeof(long))
-    memset(<void*>atom_indices, -1, natoms*sizeof(long))
+    memset(<void*>atom_indices, -1, n_atoms*sizeof(long))
 
     get_cube_neighbors(ncube, neighbor_map)
-    for i in range(natoms):
+    for i in range(n_atoms):
         atom_indices[i] = head[all_indices1[i]]
         head[all_indices1[i]] = i
 
@@ -497,8 +496,7 @@ cdef double distance2(
         long index2,
         long size
     ) nogil:
-    """
-    Faster way to compute the distance squared by not using slice but providing indices
+    """Faster way to compute the distance squared by not using slice but providing indices
     in each matrix
     """
     cdef:

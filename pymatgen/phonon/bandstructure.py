@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from os import PathLike
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
 
 def get_reasonable_repetitions(n_atoms: int) -> tuple[int, int, int]:
@@ -44,6 +45,7 @@ def estimate_band_connection(prev_eigvecs, eigvecs, prev_band_order) -> list[int
     connection_order = []
     for overlaps in metric:
         max_val = 0
+        max_idx = 0
         for idx in reversed(range(len(metric))):
             val = overlaps[idx]
             if idx in connection_order:
@@ -142,7 +144,7 @@ class PhononBandStructure(MSONable):
                 self.nac_eigendisplacements.append(([idx / np.linalg.norm(freq[0]) for idx in freq[0]], freq[1]))
 
     def get_gamma_point(self) -> Kpoint | None:
-        """Returns the Gamma q-point as a Kpoint object (or None if not found)."""
+        """Get the Gamma q-point as a Kpoint object (or None if not found)."""
         for q_point in self.qpoints:
             if np.allclose(q_point.frac_coords, (0, 0, 0)):
                 return q_point
@@ -150,19 +152,19 @@ class PhononBandStructure(MSONable):
         return None
 
     def min_freq(self) -> tuple[Kpoint, float]:
-        """Returns the q-point where the minimum frequency is reached and its value."""
+        """Get the q-point where the minimum frequency is reached and its value."""
         idx = np.unravel_index(np.argmin(self.bands), self.bands.shape)
 
         return self.qpoints[idx[1]], self.bands[idx]
 
     def max_freq(self) -> tuple[Kpoint, float]:
-        """Returns the q-point where the maximum frequency is reached and its value."""
+        """Get the q-point where the maximum frequency is reached and its value."""
         idx = np.unravel_index(np.argmax(self.bands), self.bands.shape)
 
         return self.qpoints[idx[1]], self.bands[idx]
 
     def width(self, with_imaginary: bool = False) -> float:
-        """Returns the difference between the maximum and minimum frequencies anywhere in the
+        """Get the difference between the maximum and minimum frequencies anywhere in the
         band structure, not necessarily at identical same q-points. If with_imaginary is False,
         only positive frequencies are considered.
         """
@@ -181,7 +183,7 @@ class PhononBandStructure(MSONable):
         return self.min_freq()[1] + tol < 0
 
     def has_imaginary_gamma_freq(self, tol: float = 0.01) -> bool:
-        """Checks if there are imaginary modes at the gamma point and all close points.
+        """Check if there are imaginary modes at the gamma point and all close points.
 
         Args:
             tol: Tolerance for determining if a frequency is imaginary. Defaults to 0.01.
@@ -210,7 +212,7 @@ class PhononBandStructure(MSONable):
         return len(self.eigendisplacements) > 0
 
     def get_nac_frequencies_along_dir(self, direction: Sequence) -> np.ndarray | None:
-        """Returns the nac_frequencies for the given direction (not necessarily a versor).
+        """Get the nac_frequencies for the given direction (not necessarily a versor).
         None if the direction is not present or nac_frequencies has not been calculated.
 
         Args:
@@ -228,7 +230,7 @@ class PhononBandStructure(MSONable):
         return None
 
     def get_nac_eigendisplacements_along_dir(self, direction) -> np.ndarray | None:
-        """Returns the nac_eigendisplacements for the given direction (not necessarily a versor).
+        """Get the nac_eigendisplacements for the given direction (not necessarily a versor).
         None if the direction is not present or nac_eigendisplacements has not been calculated.
 
         Args:
@@ -246,7 +248,7 @@ class PhononBandStructure(MSONable):
         return None
 
     def asr_breaking(self, tol_eigendisplacements: float = 1e-5) -> np.ndarray | None:
-        """Returns the breaking of the acoustic sum rule for the three acoustic modes,
+        """Get the breaking of the acoustic sum rule for the three acoustic modes,
         if Gamma is present. None otherwise.
         If eigendisplacements are available they are used to determine the acoustic
         modes: selects the bands corresponding  to the eigendisplacements that
@@ -304,7 +306,7 @@ class PhononBandStructure(MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> PhononBandStructure:
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct (dict): Dict representation of PhononBandStructure.
@@ -455,7 +457,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             self.nac_eigendisplacements = np.array(nac_eigendisplacements, dtype=object)
 
     def get_equivalent_qpoints(self, index: int) -> list[int]:
-        """Returns the list of qpoint indices equivalent (meaning they are the
+        """Get the list of qpoint indices equivalent (meaning they are the
         same frac coords) to the given one.
 
         Args:
@@ -481,16 +483,15 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         return list_index_qpoints
 
     def get_branch(self, index: int) -> list[dict[str, str | int]]:
-        r"""Returns in what branch(es) is the qpoint. There can be several branches.
+        r"""Get in what branch(es) is the qpoint. There can be several branches.
 
         Args:
             index (int): the qpoint index
 
         Returns:
             list[dict[str, str | int]]: [{"name","start_index","end_index","index"}]
-                indicating all branches in which the qpoint is. It takes into
-                account the fact that one qpoint (e.g., \\Gamma) can be in several
-                branches
+                indicating all branches in which the qpoint is. It takes into account
+                the fact that one qpoint (e.g., \\Gamma) can be in several branches
         """
         lst = []
         for pt_idx in self.get_equivalent_qpoints(index):
@@ -620,7 +621,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
             eig[:, nq] = eigq[order[nq]]
 
     def as_dict(self) -> dict:
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         dct = super().as_dict()
         # remove nac_frequencies and nac_eigendisplacements as they are reconstructed
         # in the __init__ when the dict is deserialized
@@ -630,10 +631,10 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         return dct
 
     @classmethod
-    def from_dict(cls, dct: dict) -> PhononBandStructureSymmLine:
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            dct: Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             PhononBandStructureSymmLine

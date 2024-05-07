@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from pymatgen.core.composition import Composition
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -40,7 +45,7 @@ class ThermoData:
                 Fe2O3.
             phaseinfo (str): Denoting the phase. For example, "solid", "liquid",
                 "gas" or "tetragonal".
-            formula (str): A proper string formula, e.g., Fe2O3
+            formula (str): A proper string formula, e.g. Fe2O3
             value (float): The value of the data.
             ref (str): A reference, if any, for the data.
             method (str): The method by which the data was determined,
@@ -63,28 +68,28 @@ class ThermoData:
         self.uncertainty = uncertainty
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             ThermoData
         """
-        return ThermoData(
-            d["type"],
-            d["compound_name"],
-            d["phaseinfo"],
-            d["formula"],
-            d["value"],
-            d["ref"],
-            d["method"],
-            d["temp_range"],
-            d.get("uncertainty"),
+        return cls(
+            dct["type"],
+            dct["compound_name"],
+            dct["phaseinfo"],
+            dct["formula"],
+            dct["value"],
+            dct["ref"],
+            dct["method"],
+            dct["temp_range"],
+            dct.get("uncertainty"),
         )
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

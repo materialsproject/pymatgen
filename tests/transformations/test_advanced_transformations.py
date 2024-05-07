@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import unittest
 from shutil import which
 
 import numpy as np
@@ -33,7 +32,7 @@ from pymatgen.transformations.advanced_transformations import (
     SubstituteSurfaceSiteTransformation,
     SubstitutionPredictorTransformation,
     SuperTransformation,
-    _find_codopant,
+    find_codopant,
 )
 from pymatgen.transformations.standard_transformations import (
     AutoOxiStateDecorationTransformation,
@@ -41,7 +40,7 @@ from pymatgen.transformations.standard_transformations import (
     OxidationStateDecorationTransformation,
     SubstitutionTransformation,
 )
-from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
 
 try:
     import hiphive
@@ -55,12 +54,11 @@ except ImportError:
 
 
 def get_table():
-    """
-    Loads a lightweight lambda table for use in unit tests to reduce
+    """Loads a lightweight lambda table for use in unit tests to reduce
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """
-    json_path = f"{TEST_FILES_DIR}/struct_predictor/test_lambda.json"
+    json_path = f"{TEST_FILES_DIR}/analysis/struct_predictor/test_lambda.json"
     with open(json_path) as file:
         return json.load(file)
 
@@ -71,7 +69,7 @@ mcsqs_cmd = which("mcsqs")
 enumlib_present = enum_cmd and makestr_cmd
 
 
-class TestSuperTransformation(unittest.TestCase):
+class TestSuperTransformation:
     def test_apply_transformation(self):
         trafo = SuperTransformation(
             [SubstitutionTransformation({"Li+": "Na+"}), SubstitutionTransformation({"Li+": "K+"})]
@@ -93,32 +91,32 @@ class TestSuperTransformation(unittest.TestCase):
             [0.00, -2.2171384943, 3.1355090603],
         ]
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
-        s = trafo.apply_transformation(struct, return_ranked_list=True)
+        struct_trafo = trafo.apply_transformation(struct, return_ranked_list=True)
 
-        for s_and_t in s:
+        for s_and_t in struct_trafo:
             assert s_and_t["transformation"].apply_transformation(struct) == s_and_t["structure"]
 
-    @unittest.skipIf(not enumlib_present, "enum_lib not present.")
+    @pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
     def test_apply_transformation_mult(self):
         # Test returning multiple structures from each transformation.
-        disord = Structure(
+        disordered = Structure(
             np.eye(3) * 4.209,
             [{"Cs+": 0.5, "K+": 0.5}, "Cl-"],
             [[0, 0, 0], [0.5, 0.5, 0.5]],
         )
-        disord.make_supercell([2, 2, 1])
+        disordered.make_supercell([2, 2, 1])
 
         tl = [
             EnumerateStructureTransformation(),
             OrderDisorderedStructureTransformation(),
         ]
         trafo = SuperTransformation(tl, nstructures_per_trans=10)
-        assert len(trafo.apply_transformation(disord, return_ranked_list=20)) == 8
+        assert len(trafo.apply_transformation(disordered, return_ranked_list=20)) == 8
         trafo = SuperTransformation(tl)
-        assert len(trafo.apply_transformation(disord, return_ranked_list=20)) == 2
+        assert len(trafo.apply_transformation(disordered, return_ranked_list=20)) == 2
 
 
-class TestMultipleSubstitutionTransformation(unittest.TestCase):
+class TestMultipleSubstitutionTransformation:
     def test_apply_transformation(self):
         sub_dict = {1: ["Na", "K"]}
         trafo = MultipleSubstitutionTransformation("Li+", 0.5, sub_dict, None)
@@ -132,7 +130,7 @@ class TestMultipleSubstitutionTransformation(unittest.TestCase):
         assert len(trafo.apply_transformation(struct, return_ranked_list=True)) == 2
 
 
-class TestChargeBalanceTransformation(unittest.TestCase):
+class TestChargeBalanceTransformation:
     def test_apply_transformation(self):
         trafo = ChargeBalanceTransformation("Li+")
         coords = [
@@ -152,58 +150,60 @@ class TestChargeBalanceTransformation(unittest.TestCase):
             [0.00, -2.2171384943, 3.1355090603],
         ]
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
-        s = trafo.apply_transformation(struct)
+        struct_trafo = trafo.apply_transformation(struct)
 
-        assert s.charge == approx(0, abs=1e-5)
+        assert struct_trafo.charge == approx(0, abs=1e-5)
 
 
-@unittest.skipIf(not enumlib_present, "enum_lib not present.")
-class TestEnumerateStructureTransformation(unittest.TestCase):
+@pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
+class TestEnumerateStructureTransformation:
     def test_apply_transformation(self):
         enum_trans = EnumerateStructureTransformation(refine_structure=True)
         enum_trans2 = EnumerateStructureTransformation(refine_structure=True, sort_criteria="nsites")
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         expected = [1, 3, 1]
         for idx, frac in enumerate([0.25, 0.5, 0.75]):
             trans = SubstitutionTransformation({"Fe": {"Fe": frac}})
-            s = trans.apply_transformation(struct)
+            struct_trafo = trans.apply_transformation(struct)
             oxi_trans = OxidationStateDecorationTransformation({"Li": 1, "Fe": 2, "P": 5, "O": -2})
-            s = oxi_trans.apply_transformation(s)
-            alls = enum_trans.apply_transformation(s, 100)
+            struct_trafo = oxi_trans.apply_transformation(struct_trafo)
+            alls = enum_trans.apply_transformation(struct_trafo, 100)
             assert len(alls) == expected[idx]
-            assert isinstance(trans.apply_transformation(s), Structure)
+            assert isinstance(trans.apply_transformation(struct_trafo), Structure)
             for ss in alls:
                 assert "energy" in ss
-            alls = enum_trans2.apply_transformation(s, 100)
+            alls = enum_trans2.apply_transformation(struct_trafo, 100)
             assert len(alls) == expected[idx]
-            assert isinstance(trans.apply_transformation(s), Structure)
+            assert isinstance(trans.apply_transformation(struct_trafo), Structure)
             for ss in alls:
                 assert "num_sites" in ss
 
         # make sure it works for non-oxidation state decorated structure
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5}})
-        s = trans.apply_transformation(struct)
-        alls = enum_trans.apply_transformation(s, 100)
+        struct_trafo = trans.apply_transformation(struct)
+        alls = enum_trans.apply_transformation(struct_trafo, 100)
         assert len(alls) == 3
-        assert isinstance(trans.apply_transformation(s), Structure)
-        for s in alls:
-            assert "energy" not in s
+        assert isinstance(trans.apply_transformation(struct_trafo), Structure)
+        for struct_trafo in alls:
+            assert "energy" not in struct_trafo
 
+    @pytest.mark.skip("TODO remove skip once https://github.com/materialsvirtuallab/matgl/issues/238 is resolved")
     def test_m3gnet(self):
         pytest.importorskip("matgl")
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria="m3gnet_relax")
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
-        s = trans.apply_transformation(struct)
-        alls = enum_trans.apply_transformation(s, 100)
+        struct_trafo = trans.apply_transformation(struct)
+        alls = enum_trans.apply_transformation(struct_trafo, 100)
         assert len(alls) == 3
-        assert isinstance(trans.apply_transformation(s), Structure)
+        assert isinstance(trans.apply_transformation(struct_trafo), Structure)
         for ss in alls:
             assert "energy" in ss
 
         # Check ordering of energy/atom
         assert alls[0]["energy"] / alls[0]["num_sites"] <= alls[-1]["energy"] / alls[-1]["num_sites"]
 
+    @pytest.mark.skip("TODO remove skip once https://github.com/materialsvirtuallab/matgl/issues/238 is resolved")
     def test_callable_sort_criteria(self):
         matgl = pytest.importorskip("matgl")
         from matgl.ext.ase import Relaxer
@@ -212,18 +212,18 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
 
         m3gnet_model = Relaxer(potential=pot)
 
-        def sort_criteria(s):
-            relax_results = m3gnet_model.relax(s)
+        def sort_criteria(struct: Structure) -> tuple[Structure, float]:
+            relax_results = m3gnet_model.relax(struct)
             energy = float(relax_results["trajectory"].energies[-1])
             return relax_results["final_structure"], energy
 
         enum_trans = EnumerateStructureTransformation(refine_structure=True, sort_criteria=sort_criteria)
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         trans = SubstitutionTransformation({"Fe": {"Fe": 0.5, "Mn": 0.5}})
-        s = trans.apply_transformation(struct)
-        alls = enum_trans.apply_transformation(s, 100)
+        struct_trafo = trans.apply_transformation(struct)
+        alls = enum_trans.apply_transformation(struct_trafo, 100)
         assert len(alls) == 3
-        assert isinstance(trans.apply_transformation(s), Structure)
+        assert isinstance(trans.apply_transformation(struct_trafo), Structure)
         for ss in alls:
             assert "energy" in ss
 
@@ -249,7 +249,7 @@ class TestEnumerateStructureTransformation(unittest.TestCase):
         assert trans.symm_prec == 0.1
 
 
-class TestSubstitutionPredictorTransformation(unittest.TestCase):
+class TestSubstitutionPredictorTransformation:
     def test_apply_transformation(self):
         trafo = SubstitutionPredictorTransformation(threshold=1e-3, alpha=-5, lambda_table=get_table())
         coords = [[0, 0, 0], [0.75, 0.75, 0.75], [0.5, 0.5, 0.5]]
@@ -271,35 +271,35 @@ class TestSubstitutionPredictorTransformation(unittest.TestCase):
         assert trafo._substitutor.p.alpha == -2, "incorrect alpha passed through dict"
 
 
-@unittest.skipIf(not enumlib_present, "enum_lib not present.")
+@pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
 class TestMagOrderingTransformation(PymatgenTest):
     def setUp(self):
-        latt = Lattice.cubic(4.17)
+        lattice = Lattice.cubic(4.17)
         species = ["Ni", "O"]
         coords = [[0, 0, 0], [0.5, 0.5, 0.5]]
-        self.NiO = Structure.from_spacegroup(225, latt, species, coords)
+        self.NiO = Structure.from_spacegroup(225, lattice, species, coords)
 
-        latt = Lattice([[2.085, 2.085, 0.0], [0.0, -2.085, -2.085], [-2.085, 2.085, -4.17]])
+        lattice = Lattice([[2.085, 2.085, 0.0], [0.0, -2.085, -2.085], [-2.085, 2.085, -4.17]])
         species = ["Ni", "Ni", "O", "O"]
         coords = [[0.5, 0, 0.5], [0, 0, 0], [0.25, 0.5, 0.25], [0.75, 0.5, 0.75]]
-        self.NiO_AFM_111 = Structure(latt, species, coords)
+        self.NiO_AFM_111 = Structure(lattice, species, coords)
         self.NiO_AFM_111.add_spin_by_site([-5, 5, 0, 0])
 
-        latt = Lattice([[2.085, 2.085, 0], [0, 0, -4.17], [-2.085, 2.085, 0]])
+        lattice = Lattice([[2.085, 2.085, 0], [0, 0, -4.17], [-2.085, 2.085, 0]])
         species = ["Ni", "Ni", "O", "O"]
         coords = [[0.5, 0.5, 0.5], [0, 0, 0], [0, 0.5, 0], [0.5, 0, 0.5]]
-        self.NiO_AFM_001 = Structure(latt, species, coords)
+        self.NiO_AFM_001 = Structure(lattice, species, coords)
         self.NiO_AFM_001.add_spin_by_site([-5, 5, 0, 0])
 
-        self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif")
+        self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe3O4.cif")
         trans = AutoOxiStateDecorationTransformation()
         self.Fe3O4_oxi = trans.apply_transformation(self.Fe3O4)
 
-        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif").remove_oxidation_states()
+        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Li8Fe2NiCoO8.cif").remove_oxidation_states()
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         alls = trans.apply_transformation(struct, 10)
         assert len(alls) == 3
         spg_analyzer = SpacegroupAnalyzer(alls[0]["structure"], 0.1)
@@ -329,7 +329,7 @@ class TestMagOrderingTransformation(PymatgenTest):
 
     def test_ferrimagnetic(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75, max_cell_size=1)
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/POSCAR.LiFePO4")
+        struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
         spg_analyzer = SpacegroupAnalyzer(struct, 0.1)
         struct = spg_analyzer.get_refined_structure()
         alls = trans.apply_transformation(struct, 10)
@@ -483,7 +483,7 @@ class TestMagOrderingTransformation(PymatgenTest):
         assert len(alls) == 6
 
 
-@unittest.skipIf(not enumlib_present, "enum_lib not present.")
+@pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")
 class TestDopingTransformation(PymatgenTest):
     def test_apply_transformation(self):
         structure = PymatgenTest.get_structure("LiFePO4")
@@ -543,8 +543,8 @@ class TestDopingTransformation(PymatgenTest):
         assert trans.max_structures_per_enum == 1
 
     def test_find_codopant(self):
-        assert _find_codopant(Species("Fe", 2), 1) == Species("Cu", 1)
-        assert _find_codopant(Species("Fe", 2), 3) == Species("In", 3)
+        assert find_codopant(Species("Fe", 2), 1) == Species("Cu", 1)
+        assert find_codopant(Species("Fe", 2), 3) == Species("In", 3)
 
 
 class TestSlabTransformation(PymatgenTest):
@@ -598,7 +598,7 @@ class TestDisorderedOrderedTransformation(PymatgenTest):
         assert output[-1].species.as_dict() == {"Ni": 0.5, "Ba": 0.5}
 
 
-@unittest.skipIf(not mcsqs_cmd, "mcsqs not present.")
+@pytest.mark.skipif(not mcsqs_cmd, reason="mcsqs not present.")
 class TestSQSTransformation(PymatgenTest):
     def test_apply_transformation(self):
         pzt_structs = loadfn(f"{TEST_FILES_DIR}/mcsqs/pzt-structs.json")
@@ -644,9 +644,9 @@ class TestSQSTransformation(PymatgenTest):
         assert "Ti0+,spin=5" in struct_out_specie_strings
 
 
-@unittest.skipIf(ClusterSpace is None, "icet not installed.")
+@pytest.mark.skipif(ClusterSpace is None, reason="icet not installed.")
 class TestSQSTransformationIcet(PymatgenTest):
-    stored_run: dict = loadfn(f"{TEST_FILES_DIR}/icet-sqs-fcc-Mg_75-Al_25-scaling_8.json.gz")
+    stored_run: dict = loadfn(f"{TEST_FILES_DIR}/transformations/icet-sqs-fcc-Mg_75-Al_25-scaling_8.json.gz")
     scaling: int = 8
 
     def test_icet_import(self):
@@ -702,9 +702,9 @@ class TestCubicSupercellTransformation(PymatgenTest):
         supercell_generator = CubicSupercellTransformation(min_atoms=min_atoms, max_atoms=max_atoms, min_length=13.0)
         superstructure = supercell_generator.apply_transformation(structure)
 
-        num_atoms = len(superstructure)
-        assert num_atoms >= min_atoms
-        assert num_atoms <= max_atoms
+        n_atoms = len(superstructure)
+        assert n_atoms >= min_atoms
+        assert n_atoms <= max_atoms
         assert_allclose(
             superstructure.lattice.matrix[0],
             [1.49656087e01, -1.11448000e-03, 9.04924836e00],
@@ -779,7 +779,7 @@ class TestSubstituteSurfaceSiteTransformation(PymatgenTest):
         assert out.reduced_formula == "Pt3Au"
 
 
-@unittest.skipIf(not hiphive, "hiphive not present. Skipping...")
+@pytest.mark.skipif(not hiphive, reason="hiphive not present")
 class TestMonteCarloRattleTransformation(PymatgenTest):
     def test_apply_transformation(self):
         struct = self.get_structure("Si")

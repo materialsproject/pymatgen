@@ -1,4 +1,4 @@
-"""Defines an abstract base class contract for Transformation object."""
+"""Abstract base class for structure transformations."""
 
 from __future__ import annotations
 
@@ -18,12 +18,12 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Sep 23, 2011"
 
 
-class AbstractTransformation(MSONable, metaclass=abc.ABCMeta):
+class AbstractTransformation(MSONable, abc.ABC):
     """Abstract transformation class."""
 
     @abc.abstractmethod
     def apply_transformation(self, structure: Structure):
-        """Applies the transformation to a structure. Depending on whether a
+        """Apply the transformation to a structure. Depending on whether a
         transformation is one-to-many, there may be an option to return a
         ranked list of structures.
 
@@ -49,20 +49,18 @@ class AbstractTransformation(MSONable, metaclass=abc.ABCMeta):
         return
 
     @property
-    @abc.abstractmethod
     def inverse(self) -> AbstractTransformation | None:
-        """Returns the inverse transformation if available.
-        Otherwise, should return None.
+        """The inverse transformation if available.
+        Otherwise, should return None. Defaults to None, so only need to
+        override if applicable.
         """
 
     @property
-    @abc.abstractmethod
     def is_one_to_many(self) -> bool:
-        """Determines if a Transformation is a one-to-many transformation. If a
-        Transformation is a one-to-many transformation, the
-        apply_transformation method should have a keyword arg
-        "return_ranked_list" which allows for the transformed structures to be
-        returned as a ranked list.
+        """Determine if a Transformation is a one-to-many transformation. In that case, the
+        apply_transformation method should have a keyword arg "return_ranked_list" which
+        allows for the transformed structures to be returned as a ranked list.
+        Defaults to False, so only need to override if True.
         """
         return False
 

@@ -31,8 +31,8 @@ class InsertSitesTransformation(AbstractTransformation):
     def __init__(self, species, coords, coords_are_cartesian=False, validate_proximity=True):
         """
         Args:
-            species: A list of species. e.g., ["Li", "Fe"]
-            coords: A list of coords corresponding to those species. e.g.,
+            species: A list of species. e.g. ["Li", "Fe"]
+            coords: A list of coords corresponding to those species. e.g.
                 [[0,0,0],[0.5,0.5,0.5]].
             coords_are_cartesian (bool): Set to True if coords are given in
                 Cartesian coords. Defaults to False.
@@ -49,12 +49,12 @@ class InsertSitesTransformation(AbstractTransformation):
     def apply_transformation(self, structure: Structure):
         """Apply the transformation.
 
-        Arg:
+        Args:
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
-        Return:
-            Returns a copy of structure with sites inserted.
+        Returns:
+            A copy of structure with sites inserted.
         """
         struct = structure.copy()
         for idx, sp in enumerate(self.species):
@@ -70,16 +70,6 @@ class InsertSitesTransformation(AbstractTransformation):
     def __repr__(self):
         return f"InsertSiteTransformation : species {self.species}, coords {self.coords}"
 
-    @property
-    def inverse(self):
-        """Return: None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Return: False."""
-        return False
-
 
 class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     """This transformation substitutes certain sites with certain species."""
@@ -88,7 +78,7 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
         """
         Args:
             indices_species_map: A dict containing the species mapping in
-                int-string pairs. E.g., { 1:"Na"} or {2:"Mn2+"}. Multiple
+                int-string pairs. e.g. { 1:"Na"} or {2:"Mn2+"}. Multiple
                 substitutions can be done. Overloaded to accept sp_and_occu
                 dictionary. E.g. {1: {"Ge":0.75, "C":0.25} }, which
                 substitutes a single species with multiple species to generate a
@@ -99,32 +89,22 @@ class ReplaceSiteSpeciesTransformation(AbstractTransformation):
     def apply_transformation(self, structure: Structure):
         """Apply the transformation.
 
-        Arg:
+        Args:
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
-        Return:
-            Returns a copy of structure with sites replaced.
+        Returns:
+            A copy of structure with sites replaced.
         """
         struct = structure.copy()
-        for i, sp in self.indices_species_map.items():
-            struct[int(i)] = sp
+        for idx, sp in self.indices_species_map.items():
+            struct[int(idx)] = sp
         return struct
 
     def __repr__(self):
         return "ReplaceSiteSpeciesTransformation :" + ", ".join(
-            [f"{k}->{v}" + v for k, v in self.indices_species_map.items()]
+            [f"{key}->{val}" + val for key, val in self.indices_species_map.items()]
         )
-
-    @property
-    def inverse(self):
-        """Return: None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Return: False."""
-        return False
 
 
 class RemoveSitesTransformation(AbstractTransformation):
@@ -133,19 +113,19 @@ class RemoveSitesTransformation(AbstractTransformation):
     def __init__(self, indices_to_remove):
         """
         Args:
-            indices_to_remove: List of indices to remove. E.g., [0, 1, 2].
+            indices_to_remove: List of indices to remove. e.g. [0, 1, 2].
         """
         self.indices_to_remove = indices_to_remove
 
     def apply_transformation(self, structure: Structure):
         """Apply the transformation.
 
-        Arg:
+        Args:
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
-        Return:
-            Returns a copy of structure with sites removed.
+        Returns:
+            A copy of structure with sites removed.
         """
         struct = structure.copy()
         struct.remove_sites(self.indices_to_remove)
@@ -153,16 +133,6 @@ class RemoveSitesTransformation(AbstractTransformation):
 
     def __repr__(self):
         return "RemoveSitesTransformation :" + ", ".join(map(str, self.indices_to_remove))
-
-    @property
-    def inverse(self):
-        """Return: None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Return: False."""
-        return False
 
 
 class TranslateSitesTransformation(AbstractTransformation):
@@ -187,12 +157,12 @@ class TranslateSitesTransformation(AbstractTransformation):
     def apply_transformation(self, structure: Structure):
         """Apply the transformation.
 
-        Arg:
+        Args:
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
-        Return:
-            Returns a copy of structure with sites translated.
+        Returns:
+            A copy of structure with sites translated.
         """
         struct = structure.copy()
         if self.translation_vector.shape == (len(self.indices_to_move), 3):
@@ -210,17 +180,9 @@ class TranslateSitesTransformation(AbstractTransformation):
         )
 
     @property
-    def inverse(self):
-        """
-        Returns:
-            TranslateSitesTransformation with the reverse translation.
-        """
+    def inverse(self) -> TranslateSitesTransformation:
+        """TranslateSitesTransformation with the reverse translation."""
         return TranslateSitesTransformation(self.indices_to_move, -self.translation_vector, self.vector_in_frac_coords)
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Return: False."""
-        return False
 
     def as_dict(self):
         """JSON-serializable dict representation."""
@@ -279,7 +241,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
                 A list of list of indices, e.g. [[0, 1], [2, 3, 4, 5]].
             fractions:
                 The corresponding fractions to remove. Must be same length as
-                indices. e.g., [0.5, 0.25]
+                indices. e.g. [0.5, 0.25]
             algo:
                 This parameter allows you to choose the algorithm to perform
                 ordering. Use one of PartialRemoveSpecieTransformation.ALGO_*
@@ -341,7 +303,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
 
         all_combis = [list(itertools.combinations(ind, num)) for ind, num in num_remove_dict.items()]
 
-        for idx, all_indices in enumerate(itertools.product(*all_combis), 1):
+        for idx, all_indices in enumerate(itertools.product(*all_combis), start=1):
             sites_to_remove = []
             indices_list = []
             for indices in all_indices:
@@ -372,7 +334,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         return sorted(all_structures, key=lambda s: s["energy"])
 
     def _fast_ordering(self, structure: Structure, num_remove_dict, num_to_return=1):
-        """This method uses the matrix form of Ewald sum to calculate the ewald
+        """Use the matrix form of Ewald sum to calculate the Ewald
         sums of the potential structures. This is on the order of 4 orders of
         magnitude faster when there are large numbers of permutations to
         consider. There are further optimizations possible (doing a smarter
@@ -447,15 +409,15 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         """
         num_remove_dict = {}
         total_combos = 0
-        for indices, frac in zip(self.indices, self.fractions):
-            num_to_remove = len(indices) * frac
-            if abs(num_to_remove - int(round(num_to_remove))) > 1e-3:
+        for idx, frac in zip(self.indices, self.fractions):
+            n_to_remove = len(idx) * frac
+            if abs(n_to_remove - int(round(n_to_remove))) > 1e-3:
                 raise ValueError("Fraction to remove must be consistent with integer amounts in structure.")
-            num_to_remove = int(round(num_to_remove))
-            num_remove_dict[tuple(indices)] = num_to_remove
-            n = len(indices)
+            n_to_remove = int(round(n_to_remove))
+            num_remove_dict[tuple(idx)] = n_to_remove
+            n = len(idx)
             total_combos += int(
-                round(math.factorial(n) / math.factorial(num_to_remove) / math.factorial(n - num_to_remove))
+                round(math.factorial(n) / math.factorial(n_to_remove) / math.factorial(n - n_to_remove))
             )
 
         self.logger.debug(f"Total combinations = {total_combos}")
@@ -486,13 +448,8 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         return f"PartialRemoveSitesTransformation : Indices and fraction to remove = {self.indices}, ALGO = {self.algo}"
 
     @property
-    def inverse(self) -> None:
-        """Return: None."""
-        return
-
-    @property
     def is_one_to_many(self) -> bool:
-        """Return: True."""
+        """Transform one structure to many."""
         return True
 
 
@@ -509,27 +466,17 @@ class AddSitePropertyTransformation(AbstractTransformation):
     def apply_transformation(self, structure: Structure):
         """Apply the transformation.
 
-        Arg:
+        Args:
             structure (Structure): A structurally similar structure in
                 regards to crystal and site positions.
 
-        Return:
-            Returns a copy of structure with sites properties added.
+        Returns:
+            A copy of structure with sites properties added.
         """
         new_struct = structure.copy()
         for prop in self.site_properties:
             new_struct.add_site_property(prop, self.site_properties[prop])
         return new_struct
-
-    @property
-    def inverse(self):
-        """Return: None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Return: False."""
-        return False
 
 
 class RadialSiteDistortionTransformation(AbstractTransformation):
@@ -595,15 +542,8 @@ class RadialSiteDistortionTransformation(AbstractTransformation):
         return structure
 
     @property
-    def inverse(self):
-        """Returns the inverse transformation if available.
-        Otherwise, should return None.
-        """
-        return False
-
-    @property
     def is_one_to_many(self) -> bool:
-        """Determines if a Transformation is a one-to-many transformation. If a
+        """Determine if a Transformation is a one-to-many transformation. If a
         Transformation is a one-to-many transformation, the
         apply_transformation method should have a keyword arg
         "return_ranked_list" which allows for the transformed structures to be
