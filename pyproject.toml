@@ -61,7 +61,6 @@ lint.ignore = [
   "B028",    # No explicit stacklevel keyword argument found
   "B904",    # Within an except clause, raise exceptions with ...
   "C408",    # unnecessary-collection-call
-  "COM812",  # missing trailing comma
   "D105",    # Missing docstring in magic method
   "D205",    # 1 blank line required between summary line and description
   "D212",    # Multi-line docstring summary should start at the first line
