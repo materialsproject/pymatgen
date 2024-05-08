@@ -132,44 +132,6 @@ class ElementBase(Enum):
         self.long_name = data["Name"]
         self._data = data
 
-    @property
-    def X(self) -> float:
-        """Pauling electronegativity of element. Note that if an element does not
-        have an Pauling electronegativity, a NaN float is returned.
-        """
-        if X := self._data.get("X"):
-            return X
-        warnings.warn(
-            f"No Pauling electronegativity for {self.symbol}. Setting to NaN. This has no physical meaning, "
-            "and is mainly done to avoid errors caused by the code expecting a float."
-        )
-        return float("NaN")
-
-    @property
-    def atomic_radius(self) -> FloatWithUnit | None:
-        """
-        Returns:
-            float | None: The atomic radius of the element in Ångstroms. Can be None for
-            some elements like noble gases.
-        """
-        return self._atomic_radius
-
-    @property
-    def atomic_mass(self) -> FloatWithUnit:
-        """
-        Returns:
-            float: The atomic mass of the element in amu.
-        """
-        return self._atomic_mass
-
-    @property
-    def atomic_mass_number(self) -> FloatWithUnit | None:
-        """
-        Returns:
-            float: The atomic mass of the element in amu.
-        """
-        return self._atomic_mass_number
-
     def __getattr__(self, item: str) -> Any:
         """Key access to available element data.
 
@@ -179,7 +141,7 @@ class ElementBase(Enum):
         Raises:
             AttributeError: If item not in _pt_data.
         """
-        if item in [
+        if item in {
             "mendeleev_no",
             "electrical_resistivity",
             "velocity_of_sound",
@@ -209,7 +171,7 @@ class ElementBase(Enum):
             "ground_level",
             "ionization_energies",
             "metallic_radius",
-        ]:
+        }:
             kstr = item.capitalize().replace("_", " ")
             val = self._data.get(kstr)
             if val is None or str(val).startswith("no data"):
@@ -257,6 +219,76 @@ class ElementBase(Enum):
                         return float(match[0])
             return val
         raise AttributeError(f"Element has no attribute {item}!")
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(self, Element) and isinstance(other, Element) and self.Z == other.Z and self.A == other.A
+
+    def __hash__(self) -> int:
+        # multiply Z by 1000 to avoid hash collisions of element N with isotopes of elements N+/-1,2,3...
+        return self.Z * 1000 + self.A if self._is_named_isotope else self.Z
+
+    def __repr__(self) -> str:
+        return f"Element {self.symbol}"
+
+    def __str__(self) -> str:
+        return self.symbol
+
+    def __lt__(self, other):
+        """Set a default sort order for atomic species by Pauling electronegativity. Very
+        useful for getting correct formulas. For example, FeO4PLi is
+        automatically sorted into LiFePO4.
+        """
+        if not hasattr(other, "X") or not hasattr(other, "symbol"):
+            return NotImplemented
+        x1 = float("inf") if self.X != self.X else self.X
+        x2 = float("inf") if other.X != other.X else other.X
+        if x1 != x2:
+            return x1 < x2
+
+        # There are cases where the Pauling electronegativity are exactly equal.
+        # We then sort by symbol.
+        return self.symbol < other.symbol
+
+    def __deepcopy__(self, memo) -> Element:
+        return Element(self.symbol)
+
+    @property
+    def X(self) -> float:
+        """Pauling electronegativity of element. Note that if an element does not
+        have an Pauling electronegativity, a NaN float is returned.
+        """
+        if X := self._data.get("X"):
+            return X
+        warnings.warn(
+            f"No Pauling electronegativity for {self.symbol}. Setting to NaN. This has no physical meaning, "
+            "and is mainly done to avoid errors caused by the code expecting a float."
+        )
+        return float("NaN")
+
+    @property
+    def atomic_radius(self) -> FloatWithUnit | None:
+        """
+        Returns:
+            float | None: The atomic radius of the element in Ångstroms. Can be None for
+            some elements like noble gases.
+        """
+        return self._atomic_radius
+
+    @property
+    def atomic_mass(self) -> FloatWithUnit:
+        """
+        Returns:
+            float: The atomic mass of the element in amu.
+        """
+        return self._atomic_mass
+
+    @property
+    def atomic_mass_number(self) -> FloatWithUnit | None:
+        """
+        Returns:
+            float: The atomic mass of the element in amu.
+        """
+        return self._atomic_mass_number
 
     @property
     def atomic_orbitals_eV(self) -> dict[str, float]:
@@ -493,35 +525,6 @@ class ElementBase(Enum):
         if v_e <= (2 * L + 1):
             return J_sorted_terms[0][0]
         return J_sorted_terms[-1][0]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(self, Element) and isinstance(other, Element) and self.Z == other.Z and self.A == other.A
-
-    def __hash__(self) -> int:
-        # multiply Z by 1000 to avoid hash collisions of element N with isotopes of elements N+/-1,2,3...
-        return self.Z * 1000 + self.A if self._is_named_isotope else self.Z
-
-    def __repr__(self) -> str:
-        return "Element " + self.symbol
-
-    def __str__(self) -> str:
-        return self.symbol
-
-    def __lt__(self, other):
-        """Set a default sort order for atomic species by Pauling electronegativity. Very
-        useful for getting correct formulas. For example, FeO4PLi is
-        automatically sorted into LiFePO4.
-        """
-        if not hasattr(other, "X") or not hasattr(other, "symbol"):
-            return NotImplemented
-        x1 = float("inf") if self.X != self.X else self.X
-        x2 = float("inf") if other.X != other.X else other.X
-        if x1 != x2:
-            return x1 < x2
-
-        # There are cases where the Pauling electronegativity are exactly equal.
-        # We then sort by symbol.
-        return self.symbol < other.symbol
 
     @staticmethod
     def from_Z(Z: int, A: int | None = None) -> Element:
@@ -763,9 +766,6 @@ class ElementBase(Enum):
         and hydrogen.
         """
         return self._data["IUPAC ordering"]
-
-    def __deepcopy__(self, memo) -> Element:
-        return Element(self.symbol)
 
     def as_dict(self) -> dict[Literal["element", "@module", "@class"], str]:
         """Serialize to MSONable dict representation e.g. to write to disk as JSON."""
