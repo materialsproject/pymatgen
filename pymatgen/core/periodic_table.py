@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
     from pymatgen.util.typing import SpeciesLike
 
-# Loads element data from json file
+# Load element data from json file
 with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
     _pt_data = json.load(ptable_json)
 
@@ -319,7 +319,7 @@ class ElementBase(Enum):
         return FloatWithUnit(0.0, "ang")
 
     @property
-    def average_anionic_radius(self) -> float:
+    def average_anionic_radius(self) -> FloatWithUnit:
         """Average anionic radius for element (with units). The average is
         taken over all negative oxidation states of the element for which
         data is present.
@@ -331,7 +331,7 @@ class ElementBase(Enum):
         return FloatWithUnit(0.0, "ang")
 
     @property
-    def ionic_radii(self) -> dict[int, float]:
+    def ionic_radii(self) -> dict[int, FloatWithUnit]:
         """All ionic radii of the element as a dict of
         {oxidation state: ionic radii}. Radii are given in angstrom.
         """
@@ -561,6 +561,7 @@ class ElementBase(Enum):
     @staticmethod
     def from_row_and_group(row: int, group: int) -> Element:
         """Get an element from a row and group number.
+
         Important Note: For lanthanoids and actinoids, the row number must
         be 8 and 9, respectively, and the group number must be
         between 3 (La, Ac) and 17 (Lu, Lr). This is different than the
@@ -595,13 +596,13 @@ class ElementBase(Enum):
 
     @staticmethod
     def is_valid_symbol(symbol: str) -> bool:
-        """Get true if symbol is a valid element symbol.
+        """Check if symbol (e.g., "H") is a valid element symbol.
 
         Args:
             symbol (str): Element symbol
 
         Returns:
-            bool: True if symbol is a valid element (e.g., "H").
+            bool: True if symbol is a valid element.
         """
         return symbol in Element.__members__
 
@@ -657,18 +658,17 @@ class ElementBase(Enum):
 
     @property
     def block(self) -> str:
-        """The block character "s,p,d,f"."""
+        """The block character "s, p, d, f"."""
         if (self.is_actinoid or self.is_lanthanoid) and self.Z not in [71, 103]:
             return "f"
-        if self.is_actinoid or self.is_lanthanoid:
+        if self.is_actinoid or self.is_lanthanoid or self.group in range(3, 13):
             return "d"
         if self.group in [1, 2]:
             return "s"
         if self.group in range(13, 19):
             return "p"
-        if self.group in range(3, 13):
-            return "d"
-        raise ValueError("unable to determine block")
+
+        raise ValueError("Unable to determine block.")
 
     @property
     def is_noble_gas(self) -> bool:
@@ -764,7 +764,7 @@ class ElementBase(Enum):
         """
         return self._data["IUPAC ordering"]
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo) -> Element:
         return Element(self.symbol)
 
     def as_dict(self) -> dict[Literal["element", "@module", "@class"], str]:
