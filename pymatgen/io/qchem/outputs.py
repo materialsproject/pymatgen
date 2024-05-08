@@ -977,7 +977,7 @@ class QCOutput(MSONable):
                         dipole[ii][jj] = temp_dipole[ii][jj]
                 self.data["dipoles"]["dipole"] = dipole
 
-        self.data["multipoles"] = dict()
+        self.data["multipoles"] = {}
 
         quad_mom_pat = (
             r"\s*Quadrupole Moments \(Debye\-Ang\)\s+XX\s+([\-\.0-9]+)\s+XY\s+([\-\.0-9]+)\s+YY"
@@ -991,7 +991,7 @@ class QCOutput(MSONable):
                     key: float(temp_quadrupole_moment[0][idx]) for idx, key in enumerate(keys)
                 }
             else:
-                self.data["multipoles"]["quadrupole"] = list()
+                self.data["multipoles"]["quadrupole"] = []
                 for qpole in temp_quadrupole_moment:
                     self.data["multipoles"]["quadrupole"].append(
                         {key: float(qpole[idx]) for idx, key in enumerate(keys)}
@@ -1010,7 +1010,7 @@ class QCOutput(MSONable):
                     key: float(temp_octopole_moment[0][idx]) for idx, key in enumerate(keys)
                 }
             else:
-                self.data["multipoles"]["octopole"] = list()
+                self.data["multipoles"]["octopole"] = []
                 for opole in temp_octopole_moment:
                     self.data["multipoles"]["octopole"].append({key: float(opole[idx]) for idx, key in enumerate(keys)})
 
@@ -1023,30 +1023,14 @@ class QCOutput(MSONable):
         )
         temp_hexadecapole_moment = read_pattern(self.text, {"key": hexadeca_mom_pat}).get("key")
         if temp_hexadecapole_moment is not None:
-            keys = (
-                "XXXX",
-                "XXXY",
-                "XXYY",
-                "XYYY",
-                "YYYY",
-                "XXXZ",
-                "XXYZ",
-                "XYYZ",
-                "YYYZ",
-                "XXZZ",
-                "XYZZ",
-                "YYZZ",
-                "XZZZ",
-                "YZZZ",
-                "ZZZZ",
-            )
+            keys = "XXXX XXXY XXYY XYYY YYYY XXXZ XXYZ XYYZ YYYZ XXZZ XYZZ YYZZ XZZZ YZZZ ZZZZ".split()
 
             if len(temp_hexadecapole_moment) == 1:
                 self.data["multipoles"]["hexadecapole"] = {
                     key: float(temp_hexadecapole_moment[0][idx]) for idx, key in enumerate(keys)
                 }
             else:
-                self.data["multipoles"]["hexadecapole"] = list()
+                self.data["multipoles"]["hexadecapole"] = []
                 for hpole in temp_hexadecapole_moment:
                     self.data["multipoles"]["hexadecapole"].append(
                         {key: float(hpole[idx]) for idx, key in enumerate(keys)}

@@ -15,12 +15,11 @@ import os
 import re
 import subprocess
 import warnings
-from collections import namedtuple
 from collections.abc import Sequence
 from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 import numpy as np
 import scipy.constants as const
@@ -40,7 +39,7 @@ from pymatgen.util.typing import Kpoint, Vector3D
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from pathlib import Path
-    from typing import Any, Literal
+    from typing import Any, ClassVar, Literal
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self
@@ -1713,13 +1712,26 @@ def _parse_list(string: str) -> list[float]:
     return [float(y) for y in re.split(r"\s+", string.strip()) if not y.isalpha()]
 
 
-Orbital = namedtuple("Orbital", ["n", "l", "j", "E", "occ"])
-OrbitalDescription = namedtuple("OrbitalDescription", ["l", "E", "Type", "Rcut", "Type2", "Rcut2"])
+class Orbital(NamedTuple):
+    n: int
+    l: int  # noqa: E741
+    j: float
+    E: float
+    occ: float
 
 
-# hashes computed from the full POTCAR file contents by pymatgen (not 1st-party VASP hashes)
+class OrbitalDescription(NamedTuple):
+    l: int  # noqa: E741
+    E: float
+    Type: int
+    Rcut: float
+    Type2: int | None
+    Rcut2: float | None
+
+
+# Hashes computed from the full POTCAR file contents by pymatgen (not 1st-party VASP hashes)
 PYMATGEN_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_pymatgen_hashes.json")
-# written to some newer POTCARs by VASP
+# Written to some newer POTCARs by VASP
 VASP_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
 POTCAR_STATS_PATH: str = os.path.join(module_dir, "potcar-summary-stats.json.bz2")
 
@@ -1744,7 +1756,7 @@ class PotcarSingle:
     #     in the PSCTR/header field.
     # We indicate the older release in `functional_dir` as PBE_52, PBE_54, LDA_52, LDA_54.
     # The newer release is indicated as PBE_52_W_HASH, etc.
-    functional_dir = {
+    functional_dir: ClassVar = {
         "PBE": "POT_GGA_PAW_PBE",
         "PBE_52": "POT_GGA_PAW_PBE_52",
         "PBE_52_W_HASH": "POTPAW_PBE_52",
@@ -1763,7 +1775,7 @@ class PotcarSingle:
         "Perdew_Zunger81": "POT_LDA_PAW",
     }
 
-    functional_tags = {
+    functional_tags: ClassVar = {
         "pe": {"name": "PBE", "class": "GGA"},
         "91": {"name": "PW91", "class": "GGA"},
         "rp": {"name": "revPBE", "class": "GGA"},
@@ -1777,7 +1789,7 @@ class PotcarSingle:
         "wi": {"name": "Wigner Interpolation", "class": "LDA"},
     }
 
-    parse_functions = {
+    parse_functions: ClassVar = {
         "LULTRA": _parse_bool,
         "LUNSCR": _parse_bool,
         "LCOR": _parse_bool,

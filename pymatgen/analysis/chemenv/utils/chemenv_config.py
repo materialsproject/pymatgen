@@ -5,9 +5,13 @@ from __future__ import annotations
 import json
 from os import makedirs
 from os.path import exists, expanduser
+from typing import TYPE_CHECKING
 
 from pymatgen.analysis.chemenv.utils.scripts_utils import strategies_class_lookup
 from pymatgen.core import SETTINGS
+
+if TYPE_CHECKING:
+    from typing import ClassVar
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -25,7 +29,7 @@ class ChemEnvConfig:
     - Default options (strategies, ...).
     """
 
-    DEFAULT_PACKAGE_OPTIONS = dict(
+    DEFAULT_PACKAGE_OPTIONS: ClassVar = dict(
         default_strategy={
             "strategy": "SimplestChemenvStrategy",
             "strategy_options": {

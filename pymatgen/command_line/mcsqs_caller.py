@@ -7,24 +7,27 @@ from __future__ import annotations
 import os
 import tempfile
 import warnings
-from collections import namedtuple
 from pathlib import Path
 from shutil import which
 from subprocess import Popen, TimeoutExpired
+from typing import TYPE_CHECKING, NamedTuple
 
 from monty.dev import requires
 
 from pymatgen.core.structure import Structure
 
-Sqs = namedtuple("Sqs", "bestsqs objective_function allsqs clusters directory")
-"""
-Return type for run_mcsqs.
-bestsqs: Structure
-objective_function: float | str
-allsqs: List
-clusters: List
-directory: str
-"""
+if TYPE_CHECKING:
+    from pymatgen.core.structure import IStructure
+
+
+class Sqs(NamedTuple):
+    """Return type for run_mcsqs."""
+
+    bestsqs: Structure | IStructure
+    objective_function: float | str
+    allsqs: list
+    clusters: list | str
+    directory: str
 
 
 @requires(

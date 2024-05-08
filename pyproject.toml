@@ -61,23 +61,17 @@ lint.ignore = [
   "B028",    # No explicit stacklevel keyword argument found
   "B904",    # Within an except clause, raise exceptions with ...
   "C408",    # unnecessary-collection-call
-  "COM812",  # missing trailing comma
   "D105",    # Missing docstring in magic method
   "D205",    # 1 blank line required between summary line and description
   "D212",    # Multi-line docstring summary should start at the first line
-  "ISC001",
-  "NPY002",  # replace legacy numpy.random with numpy.random.Generator
   "PD901",   # pandas-df-variable-name
   "PERF203", # try-except-in-loop
   "PERF401", # manual-list-comprehension (TODO fix these or wait for autofix)
-  "PLC1901", # can be simplified to ... as empty is falsey
   "PLR",     # pylint refactor
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
   "PT013",   # pytest-incorrect-pytest-import
   "PTH",     # prefer pathlib to os.path
-  "PYI024",  # collections-named-tuple (TODO should maybe fix these)
-  "RUF012",  # Disable checks for mutable class args. This is a non-problem.
-  "SIM105",  # Use contextlib.suppress(OSError) instead of try-except-pass
+  "SIM105",  # Use contextlib.suppress() instead of try-except-pass
 ]
 lint.pydocstyle.convention = "google"
 lint.isort.required-imports = ["from __future__ import annotations"]

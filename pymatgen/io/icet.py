@@ -22,7 +22,7 @@ except ImportError:
 
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from _icet import _ClusterSpace
     from ase import Atoms
@@ -34,7 +34,7 @@ class IcetSQS:
     https://icet.materialsmodeling.org
     """
 
-    sqs_kwarg_names: dict[str, tuple[str, ...]] = {
+    sqs_kwarg_names: ClassVar[dict[str, tuple[str, ...]]] = {
         "monte_carlo": (
             "include_smaller_cells",
             "pbc",
@@ -47,7 +47,7 @@ class IcetSQS:
         ),
         "enumeration": ("include_smaller_cells", "pbc", "optimality_weight", "tol"),
     }
-    _sqs_kwarg_defaults: dict[str, Any] = {
+    _sqs_kwarg_defaults: ClassVar[dict[str, Any]] = {
         "optimality_weight": None,
         "tol": 1.0e-5,
         "include_smaller_cells": False,  # for consistency with ATAT

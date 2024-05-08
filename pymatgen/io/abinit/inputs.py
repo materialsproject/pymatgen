@@ -11,10 +11,9 @@ import copy
 import json
 import logging
 import os
-from collections import namedtuple
 from collections.abc import Mapping, MutableMapping, Sequence
 from enum import Enum, unique
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
 from monty.collections import AttrDict
@@ -90,9 +89,14 @@ _IRDVARS = (
 )
 
 
-# Tolerances for the different levels of accuracy.
+class T(NamedTuple):
+    """Tolerances for the different levels of accuracy."""
 
-T = namedtuple("T", "low normal high")
+    low: float
+    normal: float
+    high: float
+
+
 _tolerances = {
     "toldfe": T(1.0e-7, 1.0e-8, 1.0e-9),
     "tolvrs": T(1.0e-7, 1.0e-8, 1.0e-9),
