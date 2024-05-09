@@ -509,18 +509,19 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             category (str): one of "noble_gas", "transition_metal",
                 "post_transition_metal", "rare_earth_metal", "metal", "metalloid",
                 "alkali", "alkaline", "halogen", "chalcogen", "lanthanoid",
-                "actinoid", "radioactive", "quadrupolar", "s-block", "p-block", "d-block", "f-block"
+                "actinoid", "radioactive", "quadrupolar", "s-block", "p-block", "d-block", "f-block".
 
         Returns:
-            bool: True if any elements in Composition match category, otherwise False
+            bool: Whether any elements in Composition match category.
         """
-        allowed_categories = [category.value for category in ElementType]
+        allowed_categories = [element.value for element in ElementType]
 
         if category not in allowed_categories:
             raise ValueError(f"Invalid {category=}, pick from {allowed_categories}")
 
         if "block" in category:
-            return any(category[0] in el.block for el in self.elements)
+            return category[0] in [el.block for el in self.elements]
+
         return any(getattr(el, f"is_{category}") for el in self.elements)
 
     def _parse_formula(self, formula: str, strict: bool = True) -> dict[str, float]:
