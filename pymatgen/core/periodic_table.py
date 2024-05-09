@@ -689,7 +689,7 @@ class ElementBase(Enum):
     @property
     def is_rare_earth_metal(self) -> bool:
         """True if element is a rare earth metal."""
-        return self.is_lanthanoid or self.is_actinoid
+        return self.is_lanthanoid or self.is_actinoid or self.symbol in {"Sc", "Y"}
 
     @property
     def is_metal(self) -> bool:
