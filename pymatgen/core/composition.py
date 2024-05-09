@@ -205,7 +205,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         try:
             return all(
-                self[el] - other[el] >= Composition.amount_tolerance for el in set(self.elements + other.elements)
+                other[el] - self[el] < Composition.amount_tolerance for el in set(self.elements + other.elements)
             )
 
         # If any Element is in only one of the two Compositions
