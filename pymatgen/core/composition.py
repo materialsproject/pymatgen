@@ -203,14 +203,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if not isinstance(other, Composition):
             return NotImplemented
 
-        try:
-            return all(
-                other[el] - self[el] < Composition.amount_tolerance for el in set(self.elements + other.elements)
-            )
-
-        # If any Element is in only one of the two Compositions
-        except IndexError:
-            return False
+        for el in sorted(set(self.elements + other.elements)):
+            if other[el] - self[el] >= Composition.amount_tolerance:
+                return False
+            # TODO @janosh 2024-04-29: is this a bug? why would we return True early?
+            if self[el] - other[el] >= Composition.amount_tolerance:
+                return True
+        return True
 
     def __add__(self, other: object) -> Composition:
         """Add two compositions. For example, an Fe2O3 composition + an FeO
