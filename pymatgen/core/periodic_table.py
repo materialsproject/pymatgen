@@ -1027,6 +1027,25 @@ class Species(MSONable, Stringify):
 
         return False
 
+    def __repr__(self) -> str:
+        return f"Species {self}"
+
+    def __str__(self) -> str:
+        output = self.name if hasattr(self, "name") else self.symbol
+        if self.oxi_state is not None:
+            abs_charge = formula_double_format(abs(self.oxi_state))
+            if isinstance(abs_charge, float):
+                abs_charge = f"{abs_charge:.2f}"
+            output += f"{abs_charge}{'+' if self.oxi_state >= 0 else '-'}"
+
+        if self._spin is not None:
+            spin = self._spin
+            output += f",{spin=}"
+        return output
+
+    def __deepcopy__(self, memo) -> Species:
+        return Species(self.symbol, self.oxi_state, spin=self._spin)
+
     @property
     def element(self) -> Element:
         """Underlying element object."""
@@ -1102,22 +1121,6 @@ class Species(MSONable, Stringify):
 
             return cls(sym, 0 if oxi is None else oxi, **properties)
         raise ValueError("Invalid species string")
-
-    def __repr__(self) -> str:
-        return f"Species {self}"
-
-    def __str__(self) -> str:
-        output = self.name if hasattr(self, "name") else self.symbol
-        if self.oxi_state is not None:
-            abs_charge = formula_double_format(abs(self.oxi_state))
-            if isinstance(abs_charge, float):
-                abs_charge = f"{abs_charge:.2f}"
-            output += f"{abs_charge}{'+' if self.oxi_state >= 0 else '-'}"
-
-        if self._spin is not None:
-            spin = self._spin
-            output += f",{spin=}"
-        return output
 
     def to_pretty_string(self) -> str:
         """String without properties."""
@@ -1239,9 +1242,6 @@ class Species(MSONable, Stringify):
             return None
         return None
 
-    def __deepcopy__(self, memo) -> Species:
-        return Species(self.symbol, self.oxi_state, spin=self._spin)
-
     def as_dict(self) -> dict:
         """JSON-able dictionary representation."""
         return {
@@ -1330,6 +1330,21 @@ class DummySpecies(Species):
         other_oxi = 0 if isinstance(other, Element) else other.oxi_state
         return self.oxi_state < other_oxi
 
+    def __repr__(self) -> str:
+        return f"DummySpecies {self}"
+
+    def __str__(self) -> str:
+        output = self.symbol
+        if self.oxi_state is not None:
+            output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
+        if self._spin is not None:
+            spin = self._spin
+            output += f",{spin=}"
+        return output
+
+    def __deepcopy__(self, memo):
+        return DummySpecies(self.symbol, self._oxi_state)
+
     @property
     def Z(self) -> int:
         """
@@ -1368,9 +1383,6 @@ class DummySpecies(Species):
     def symbol(self) -> str:
         """Symbol for DummySpecies."""
         return self._symbol
-
-    def __deepcopy__(self, memo):
-        return DummySpecies(self.symbol, self._oxi_state)
 
     @classmethod
     def from_str(cls, species_string: str) -> Self:
@@ -1420,18 +1432,6 @@ class DummySpecies(Species):
             DummySpecies
         """
         return cls(dct["element"], dct["oxidation_state"], spin=dct.get("spin"))
-
-    def __repr__(self) -> str:
-        return f"DummySpecies {self}"
-
-    def __str__(self) -> str:
-        output = self.symbol
-        if self.oxi_state is not None:
-            output += f"{formula_double_format(abs(self.oxi_state))}{'+' if self.oxi_state >= 0 else '-'}"
-        if self._spin is not None:
-            spin = self._spin
-            output += f",{spin=}"
-        return output
 
 
 @functools.total_ordering
