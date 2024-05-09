@@ -412,14 +412,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             Li0.5O0.25 returns (Li2O, 0.25). O0.25 returns (O2, 0.125)
         """
         el_amt = self.get_el_amt_dict()
-        gcd = gcd_float(list(el_amt.values()), 1 / max_denominator)
+        _gcd = gcd_float(list(el_amt.values()), 1 / max_denominator)
 
-        dct = {key: round(val / gcd) for key, val in el_amt.items()}
+        dct = {key: round(val / _gcd) for key, val in el_amt.items()}
         formula, factor = reduce_formula(dct, iupac_ordering=iupac_ordering)
         if formula in Composition.special_formulas:
             formula = Composition.special_formulas[formula]
             factor /= 2
-        return formula, factor * gcd
+        return formula, factor * _gcd
 
     @property
     def reduced_formula(self) -> str:
@@ -1084,15 +1084,16 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """
         m_dict = m_dict or {}
 
-        def _parse_chomp_and_rank(m, f, m_dict, m_points):
+        def _parse_chomp_and_rank(match, formula: str, m_dict: dict[str, float], m_points: int) -> tuple:
             """A helper method for formula parsing that helps in interpreting and
-            ranking indeterminate formulas
+            ranking indeterminate formulas.
+
             Author: Anubhav Jain.
 
             Args:
-                m: A regex match, with the first group being the element and
+                match: A regex match, with the first group being the element and
                     the second group being the amount
-                f: The formula part containing the match
+                formula: The formula part containing the match
                 m_dict: A symbol:amt dictionary from the previously parsed
                     formula
                 m_points: Number of points gained from the previously parsed
@@ -1114,10 +1115,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             points_second_lowercase = 100
 
             # get element and amount from regex match
-            el = m.group(1)
+            el = match[1]
             if len(el) > 2 or len(el) < 1:
                 raise ValueError("Invalid element symbol entered!")
-            amt = float(m.group(2)) if m.group(2).strip() != "" else 1
+            amt = float(match.group(2)) if match.group(2).strip() != "" else 1
 
             # convert the element string to proper [uppercase,lowercase] format
             # and award points if it is already in that format
@@ -1137,7 +1138,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                     m_dict[el] += amt * factor
                 else:
                     m_dict[el] = amt * factor
-                return f.replace(m.group(), "", 1), m_dict, m_points + points
+                return formula.replace(match.group(), "", 1), m_dict, m_points + points
 
             # else return None
             return None, None, None
@@ -1198,8 +1199,8 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                         yield match
 
 
-def reduce_formula(sym_amt, iupac_ordering: bool = False) -> tuple[str, float]:
-    """Helper method to reduce a sym_amt dict to a reduced formula and factor.
+def reduce_formula(sym_amt: dict[str, float] | dict[str, int], iupac_ordering: bool = False) -> tuple[str, float]:
+    """Helper function to reduce a sym_amt dict to a reduced formula and factor.
 
     Args:
         sym_amt (dict): {symbol: amount}.
@@ -1288,6 +1289,9 @@ class ChemicalPotential(dict, MSONable):
             return ChemicalPotential({e: self.get(e, 0) + other.get(e, 0) for e in els})
         return NotImplemented
 
+    def __repr__(self) -> str:
+        return f"ChemPots: {super()!r}"
+
     def get_energy(self, composition: Composition, strict: bool = True) -> float:
         """Calculate the energy of a composition.
 
@@ -1298,9 +1302,6 @@ class ChemicalPotential(dict, MSONable):
         if strict and (missing := set(composition) - set(self)):
             raise ValueError(f"Potentials not specified for {missing}")
         return sum(self.get(key, 0) * val for key, val in composition.items())
-
-    def __repr__(self) -> str:
-        return f"ChemPots: {super()!r}"
 
 
 class CompositionError(Exception):
