@@ -418,7 +418,7 @@ class ElementBase(Enum):
 
         def parse_orbital(orb_str):
             if match := re.match(r"(\d+)([spdfg]+)(\d+)", orb_str):
-                return int(match.group(1)), match.group(2), int(match.group(3))
+                return int(match[1]), match[2], int(match[3])
             return orb_str
 
         data = [parse_orbital(s) for s in e_str.split(".")]
@@ -1116,7 +1116,7 @@ class Species(MSONable, Stringify):
                 properties = {tokens[0]: ast.literal_eval(tokens[1])}
 
             # But we need either an oxidation state or a property
-            if oxi is None and properties == {}:
+            if oxi is None and not properties:
                 raise ValueError("Invalid species string")
 
             return cls(sym, 0 if oxi is None else oxi, **properties)
@@ -1314,10 +1314,10 @@ class DummySpecies(Species):
         self._oxi_state = oxidation_state
         self._spin = spin
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> None:
         raise AttributeError
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         """Set a default sort order for atomic species by Pauling electronegativity,
         followed by oxidation state.
         """
@@ -1342,7 +1342,7 @@ class DummySpecies(Species):
             output += f",{spin=}"
         return output
 
-    def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo) -> Self:
         return DummySpecies(self.symbol, self._oxi_state)
 
     @property
@@ -1399,15 +1399,15 @@ class DummySpecies(Species):
             ValueError if species_string cannot be interpreted.
         """
         if match := re.search(r"([A-ZAa-z]*)([0-9.]*)([+\-]*)(.*)", species_string):
-            sym = match.group(1)
-            if match.group(2) == match.group(3) == "":
+            sym = match[1]
+            if match[2] == match[3] == "":
                 oxi = 0.0
             else:
-                oxi = 1.0 if match.group(2) == "" else float(match.group(2))
-                oxi = -oxi if match.group(3) == "-" else oxi
+                oxi = 1.0 if match[2] == "" else float(match[2])
+                oxi = -oxi if match[3] == "-" else oxi
             properties = {}
-            if match.group(4):  # has Spin property
-                tokens = match.group(4).split("=")
+            if match[4]:  # has Spin property
+                tokens = match[4].split("=")
                 properties = {tokens[0]: float(tokens[1])}
             return cls(sym, oxi, **properties)
         raise ValueError("Invalid DummySpecies String")
