@@ -545,17 +545,17 @@ class MagSymmOp(SymmOp):
         return Magmom.from_global_moment_and_saxis(transformed_moment, magmom.saxis)
 
     @classmethod
-    def from_symmop(cls, symm_op: SymmOp, time_reversal) -> Self:
+    def from_symmop(cls, symmop: SymmOp, time_reversal) -> Self:
         """Initialize a MagSymmOp from a SymmOp and time reversal operator.
 
         Args:
-            symm_op (SymmOp): SymmOp
+            symmop (SymmOp): SymmOp
             time_reversal (int): Time reversal operator, +1 or -1.
 
         Returns:
             MagSymmOp object
         """
-        return cls(symm_op.affine_matrix, time_reversal, symm_op.tol)
+        return cls(symmop.affine_matrix, time_reversal, symmop.tol)
 
     @staticmethod
     def from_rotation_and_translation_and_time_reversal(
