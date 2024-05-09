@@ -428,13 +428,15 @@ class ElementBase(Enum):
         return data
 
     @property
-    def valence(self):
-        """From full electron config obtain valence subshell angular moment (L) and number of valence e- (v_e)."""
+    def valence(self) -> tuple[int | np.nan, int]:
+        """Valence subshell angular moment (L) and number of valence e- (v_e),
+        obtained from full electron config.
+        """
         if self.group == 18:
             return np.nan, 0  # The number of valence of noble gas is 0
 
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
-        valence = []
+        valence: list[tuple[int, int]] = []
         full_electron_config = self.full_electronic_structure
         last_orbital = full_electron_config[-1]
         for n, l_symbol, ne in full_electron_config:
@@ -496,8 +498,8 @@ class ElementBase(Enum):
         return term_symbols
 
     @property
-    def ground_state_term_symbol(self):
-        """Ground state term symbol
+    def ground_state_term_symbol(self) -> str:
+        """Ground state term symbol.
         Selected based on Hund's Rule.
         """
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
@@ -512,19 +514,17 @@ class ElementBase(Enum):
             for term in sum(term_symbols, [])  # noqa: RUF017
         }
 
-        multi = [int(item["multiplicity"]) for terms, item in term_symbol_flat.items()]
+        multi = [int(item["multiplicity"]) for _terms, item in term_symbol_flat.items()]
         max_multi_terms = {
             symbol: item for symbol, item in term_symbol_flat.items() if item["multiplicity"] == max(multi)
         }
 
-        Ls = [item["L"] for terms, item in max_multi_terms.items()]
+        Ls = [item["L"] for _terms, item in max_multi_terms.items()]
         max_L_terms = {symbol: item for symbol, item in term_symbol_flat.items() if item["L"] == max(Ls)}
 
         J_sorted_terms = sorted(max_L_terms.items(), key=lambda k: k[1]["J"])
         L, v_e = self.valence
-        if v_e <= (2 * L + 1):
-            return J_sorted_terms[0][0]
-        return J_sorted_terms[-1][0]
+        return J_sorted_terms[0][0] if v_e <= (2 * L + 1) else J_sorted_terms[-1][0]
 
     @staticmethod
     def from_Z(Z: int, A: int | None = None) -> Element:
@@ -541,6 +541,7 @@ class ElementBase(Enum):
             atomic_mass_num = data.get("Atomic mass no") if A else None
             if data["Atomic no"] == Z and atomic_mass_num == A:
                 return Element(sym)
+
         raise ValueError(f"Unexpected atomic number {Z=}")
 
     @staticmethod
@@ -553,12 +554,14 @@ class ElementBase(Enum):
         Returns:
             Element with the name 'name'
         """
-        # to accommodate the British-english-speaking world
+        # Accommodate the British-English world
         uk_to_us = {"aluminium": "aluminum", "caesium": "cesium"}
         name = uk_to_us.get(name.lower(), name)
+
         for sym, data in _pt_data.items():
             if data["Name"] == name.capitalize():
                 return Element(sym)
+
         raise ValueError(f"No element with the {name=}")
 
     @staticmethod
@@ -595,6 +598,7 @@ class ElementBase(Enum):
                 el_pseudogroup = el.group
             if el_pseudorow == row and el_pseudogroup == group:
                 return el
+
         raise ValueError("No element with this row and group!")
 
     @staticmethod
@@ -759,7 +763,7 @@ class ElementBase(Enum):
         return {k: FloatWithUnit(v, "mbarn") for k, v in self.data.get("NMR Quadrupole Moment", {}).items()}
 
     @property
-    def iupac_ordering(self):
+    def iupac_ordering(self) -> int:
         """Ordering according to Table VI of "Nomenclature of Inorganic Chemistry
         (IUPAC Recommendations 2005)". This ordering effectively follows the
         groups and rows of the periodic table, except the Lanthanides, Actinides
@@ -1077,22 +1081,22 @@ class Species(MSONable, Stringify):
         # 4th group: (.*)             --> everything else, ",spin=5"
 
         if match := re.search(r"([A-Z][a-z]*)([0-9.]*)([+\-]*)(.*)", species_string):
-            sym = match.group(1)  # parse symbol
+            sym = match[1]  # parse symbol
 
-            # parse oxidation state (optional)
-            if not match.group(2) and not match.group(3):
+            # Parse oxidation state (optional)
+            if not match[2] and not match[3]:
                 oxi = None
             else:
-                oxi = 1 if match.group(2) == "" else float(match.group(2))
-                oxi = -oxi if match.group(3) == "-" else oxi
+                oxi = 1 if match[2] == "" else float(match[2])
+                oxi = -oxi if match[3] == "-" else oxi
 
-            # parse properties (optional)
+            # Parse properties (optional)
             properties = {}
-            if match.group(4):  # has Spin properties
-                tokens = match.group(4).replace(",", "").split("=")
+            if match[4]:  # has Spin properties
+                tokens = match[4].replace(",", "").split("=")
                 properties = {tokens[0]: ast.literal_eval(tokens[1])}
 
-            # but we need either an oxidation state or a property
+            # But we need either an oxidation state or a property
             if oxi is None and properties == {}:
                 raise ValueError("Invalid species string")
 
@@ -1212,9 +1216,7 @@ class Species(MSONable, Stringify):
             raise AttributeError(f"Invalid oxidation state {self.oxi_state} for element {self.symbol}")
 
         if spin_config == "high":
-            if n_electrons <= 5:
-                return n_electrons
-            return 10 - n_electrons
+            return n_electrons if n_electrons <= 5 else 10 - n_electrons
 
         if spin_config == "low":
             if coordination == "oct":
