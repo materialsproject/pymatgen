@@ -912,7 +912,11 @@ class CifParser:
         return parsed_sym
 
     def _get_structure(
-        self, data: dict[str, Any], primitive: bool, symmetrized: bool, check_occu: bool = False
+        self,
+        data: dict[str, Any],
+        primitive: bool,
+        symmetrized: bool,
+        check_occu: bool = False,
     ) -> Structure | None:
         """Generate structure from part of the cif."""
 
@@ -1167,10 +1171,10 @@ class CifParser:
         """Return list of structures in CIF file.
 
         Args:
-            primitive (bool): Set to True to return primitive unit cells.
+            primitive (bool): Whether to return primitive unit cells.
                 Defaults to False. With magnetic CIF files, True will return primitive
                 magnetic cell which may be larger than nuclear primitive cell.
-            symmetrized (bool): If True, return a SymmetrizedStructure which will
+            symmetrized (bool): Whether to return a SymmetrizedStructure which will
                 include the equivalent indices and symmetry operations used to
                 create the Structure as provided by the CIF (if explicit symmetry
                 operations are included in the CIF) or generated from information
@@ -1178,12 +1182,12 @@ class CifParser:
                 currently Wyckoff labels and space group labels or numbers are
                 not included in the generated SymmetrizedStructure, these will be
                 notated as "Not Parsed" or -1 respectively.
-            check_occu (bool): If False, site occupancy will not be checked, allowing unphysical
+            check_occu (bool): Whether to check site occupancy, allowing unphysical
                 occupancy != 1. Useful for experimental results in which occupancy was allowed
                 to refine to unphysical values. Warning: unphysical site occupancies are incompatible
                 with many pymatgen features. Defaults to True.
-            on_error ('ignore' | 'warn' | 'raise'): What to do in case of KeyError or ValueError
-                while parsing CIF file. Defaults to 'warn'.
+            on_error ("ignore" | "warn" | "raise"): What to do in case of KeyError or ValueError
+                while parsing CIF file. Defaults to "warn".
 
         Returns:
             list[Structure]: All structures in CIF file.
@@ -1198,6 +1202,7 @@ class CifParser:
             )
         if not check_occu:  # added in https://github.com/materialsproject/pymatgen/pull/2836
             warnings.warn("Structures with unphysical site occupancies are not compatible with many pymatgen features.")
+
         if primitive and symmetrized:
             raise ValueError(
                 "Using both 'primitive' and 'symmetrized' arguments is not currently supported "
@@ -1209,6 +1214,7 @@ class CifParser:
             try:
                 if struct := self._get_structure(dct, primitive, symmetrized, check_occu=check_occu):
                     structures.append(struct)
+
             except (KeyError, ValueError) as exc:
                 # A user reported a problem with cif files produced by Avogadro
                 # in which the atomic coordinates are in Cartesian coords.
@@ -1218,13 +1224,8 @@ class CifParser:
                 if on_error == "warn":
                     warnings.warn(msg)
                 self.warnings.append(msg)
-                # continue silently if on_error == "ignore"
 
-        # if on_error == "raise" we don't get to here so no need to check
-        if self.warnings and on_error == "warn":
-            warnings.warn("Issues encountered while parsing CIF: " + "\n".join(self.warnings))
-
-        if len(structures) == 0:
+        if not structures:
             raise ValueError("Invalid CIF file with no structures!")
         return structures
 
