@@ -13,7 +13,7 @@ from inspect import getfullargspec
 from io import StringIO
 from itertools import groupby
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import deprecated
@@ -30,6 +30,8 @@ from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
 
 if TYPE_CHECKING:
+    from typing import Any, Literal
+
     from typing_extensions import Self
 
     from pymatgen.util.typing import Vector3D
@@ -120,14 +122,10 @@ class CifBlock:
         if len(val) > self.max_len:
             return f";\n{textwrap.fill(val, self.max_len)}\n;"
 
-        # add quotes if necessary
+        # Add quotes if necessary
         if not val:
             return '""'
-        if (
-            (" " in val or val[0] == "_")
-            and not (val[0] == "'" and val[-1] == "'")
-            and not (val[0] == '"' and val[-1] == '"')
-        ):
+        if (" " in val or val[0] == "_") and (val[0] != "'" or val[-1] != "'") and (val[0] != '"' or val[-1] != '"'):
             quote = '"' if "'" in val else "'"
             val = quote + val + quote
         return val
@@ -172,7 +170,7 @@ class CifBlock:
     @classmethod
     def from_str(cls, string: str) -> Self:
         """
-        Reads CifBlock from string.
+        Read CifBlock from string.
 
         Args:
             string: String representation.
@@ -219,9 +217,14 @@ class CifBlock:
 
 
 class CifFile:
-    """Reads and parses CifBlocks from a .cif file or string."""
+    """Read and parse CifBlocks from a .cif file or string."""
 
-    def __init__(self, data: dict, orig_string: str | None = None, comment: str | None = None) -> None:
+    def __init__(
+        self,
+        data: dict,
+        orig_string: str | None = None,
+        comment: str | None = None,
+    ) -> None:
         """
         Args:
             data (dict): Of CifBlock objects.
@@ -238,7 +241,7 @@ class CifFile:
 
     @classmethod
     def from_str(cls, string: str) -> Self:
-        """Reads CifFile from a string.
+        """Read CifFile from a string.
 
         Args:
             string: String representation.
@@ -266,7 +269,7 @@ class CifFile:
     @classmethod
     def from_file(cls, filename: str | Path) -> Self:
         """
-        Reads CifFile from a filename.
+        Read CifFile from a filename.
 
         Args:
             filename: Filename
@@ -280,7 +283,7 @@ class CifFile:
 
 class CifParser:
     """
-    Parses a CIF file. Attempts to fix CIFs that are out-of-spec, but will issue warnings
+    CIF file parser. Attempt to fix CIFs that are out-of-spec, but will issue warnings
     if corrections applied. These are also stored in the CifParser's errors attribute.
     """
 
@@ -329,7 +332,7 @@ class CifParser:
         self.warnings: list[str] = []
 
         def is_magcif() -> bool:
-            """Check to see if file appears to be a magCIF file (heuristic)."""
+            """Check if a file appears to be a magCIF file (heuristic)."""
             # Doesn't seem to be a canonical way to test if file is magCIF or
             # not, so instead check for magnetic symmetry datanames
             prefixes = ["_space_group_magn", "_atom_site_moment", "_space_group_symop_magn"]
@@ -344,7 +347,7 @@ class CifParser:
 
         def is_magcif_incommensurate() -> bool:
             """
-            Checks to see if file contains an incommensurate magnetic
+            Check if a file contains an incommensurate magnetic
             structure (heuristic).
             """
             # Doesn't seem to be a canonical way to test if magCIF file
@@ -369,7 +372,7 @@ class CifParser:
     @classmethod
     def from_str(cls, cif_string: str, **kwargs) -> Self:
         """
-        Creates a CifParser from a string.
+        Create a CifParser from a string.
 
         Args:
             cif_string (str): String representation of a CIF.
@@ -930,6 +933,7 @@ class CifParser:
         # else standard CIF, and use empty magmom dict
         if self.feature_flags["magcif_incommensurate"]:
             raise NotImplementedError("Incommensurate structures not currently supported.")
+
         if self.feature_flags["magcif"]:
             self.symmetry_operations = self.get_magsymops(data)
             magmoms = self.parse_magmoms(data, lattice=lattice)
@@ -939,7 +943,7 @@ class CifParser:
 
         oxi_states = self.parse_oxi_states(data)
 
-        coord_to_species = {}  # type: ignore
+        coord_to_species: dict[Vector3D, Composition] = {}
         coord_to_magmoms = {}
         labels = {}
 
@@ -988,7 +992,7 @@ class CifParser:
                 occu = 1
             # If check_occu is True or the occupancy is greater than 0, create comp_d
             if not check_occu or occu > 0:
-                coord = (x, y, z)
+                coord: Vector3D = (x, y, z)
                 match = get_matching_coord(coord)
                 comp_dict = {el: max(occu, 1e-8)}
 
@@ -1029,7 +1033,7 @@ class CifParser:
         equivalent_indices = []
         all_labels = []
 
-        # check to see if magCIF file is disordered
+        # Check if a magCIF file is disordered
         if self.feature_flags["magcif"]:
             for v in coord_to_magmoms.values():
                 if v is None:
@@ -1122,7 +1126,11 @@ class CifParser:
             if not check_occu:
                 for idx in range(len(struct)):
                     struct[idx] = PeriodicSite(
-                        all_species_noedit[idx], all_coords[idx], lattice, properties=site_properties, skip_checks=True
+                        all_species_noedit[idx],
+                        all_coords[idx],
+                        lattice,
+                        properties=site_properties,
+                        skip_checks=True,
                     )
 
             if symmetrized or not check_occu:
@@ -1299,9 +1307,9 @@ class CifParser:
 
         return BibliographyData(entries).to_string(bib_format="bibtex")
 
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """MSONable dict"""
-        dct = {}
+        dct: dict = {}
         for k, v in self._cif.data.items():
             dct[k] = {}
             for k2, v2 in v.data.items():
@@ -1309,7 +1317,7 @@ class CifParser:
         return dct
 
     @property
-    def has_errors(self):
+    def has_errors(self) -> bool:
         """Whether there are errors/warnings detected in CIF parsing."""
         return len(self.warnings) > 0
 
@@ -1449,9 +1457,9 @@ class CifWriter:
         no_oxi_comp = comp.element_composition
         block["_symmetry_space_group_name_H-M"] = spacegroup[0]
         for cell_attr in ["a", "b", "c"]:
-            block["_cell_length_" + cell_attr] = format_str.format(getattr(lattice, cell_attr))
+            block[f"_cell_length_{cell_attr}"] = format_str.format(getattr(lattice, cell_attr))
         for cell_attr in ["alpha", "beta", "gamma"]:
-            block["_cell_angle_" + cell_attr] = format_str.format(getattr(lattice, cell_attr))
+            block[f"_cell_angle_{cell_attr}"] = format_str.format(getattr(lattice, cell_attr))
         block["_symmetry_Int_Tables_number"] = spacegroup[1]
         block["_chemical_formula_structural"] = no_oxi_comp.reduced_formula
         block["_chemical_formula_sum"] = no_oxi_comp.formula
@@ -1613,25 +1621,31 @@ class CifWriter:
         """CifFile associated with the CifWriter."""
         return self._cf
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Get the CIF as a string."""
         return str(self._cf)
 
-    def write_file(self, filename: str | Path, mode: Literal["w", "a", "wt", "at"] = "w") -> None:
+    def write_file(
+        self,
+        filename: str | Path,
+        mode: Literal["w", "a", "wt", "at"] = "w",
+    ) -> None:
         """Write the CIF file."""
         with zopen(filename, mode=mode) as file:
             file.write(str(self))
 
 
-def str2float(text):
+def str2float(text) -> float:
     """Remove uncertainty brackets from strings and return the float."""
     try:
         # Note that the ending ) is sometimes missing. That is why the code has
         # been modified to treat it as optional. Same logic applies to lists.
         return float(re.sub(r"\(.+\)*", "", text))
+
     except TypeError:
         if isinstance(text, list) and len(text) == 1:
             return float(re.sub(r"\(.+\)*", "", text[0]))
+
     except ValueError as exc:
         if text.strip() == ".":
             return 0
