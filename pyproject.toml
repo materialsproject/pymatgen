@@ -22,7 +22,9 @@ repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest
 [tool.ruff]
 target-version = "py39"
 line-length = 120
-lint.select = [
+
+[tool.ruff.lint]
+select = [
   "B",       # flake8-bugbear
   "C4",      # flake8-comprehensions
   "D",       # pydocstyle
@@ -56,7 +58,7 @@ lint.select = [
   "W",       # pycodestyle warning
   "YTT",     # flake8-2020
 ]
-lint.ignore = [
+ignore = [
   "B023",    # Function definition does not bind loop variable
   "B028",    # No explicit stacklevel keyword argument found
   "B904",    # Within an except clause, raise exceptions with ...
@@ -73,9 +75,12 @@ lint.ignore = [
   "PTH",     # prefer pathlib to os.path
   "SIM105",  # Use contextlib.suppress() instead of try-except-pass
 ]
-lint.pydocstyle.convention = "google"
-lint.isort.required-imports = ["from __future__ import annotations"]
-lint.isort.split-on-trailing-comma = false
+pydocstyle.convention = "google"
+isort.required-imports = ["from __future__ import annotations"]
+isort.split-on-trailing-comma = false
+
+[tool.ruff.format]
+docstring-code-format = true
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
