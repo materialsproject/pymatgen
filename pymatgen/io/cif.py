@@ -14,7 +14,6 @@ from io import StringIO
 from itertools import groupby
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
-from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import deprecated
@@ -1021,8 +1020,8 @@ class CifParser:
             except (KeyError, ValueError):
                 occu = 1
 
-            # If the occupancy is greater than 0, create comp_dict
-            if occu > 0:
+            # If check_occu is True or the occupancy is greater than 0, create comp_d
+            if not check_occu or occu > 0:
                 # Create site coordinate
                 x = str2float(data["_atom_site_fract_x"][idx])
                 y = str2float(data["_atom_site_fract_y"][idx])
@@ -1137,7 +1136,6 @@ class CifParser:
             for idx, species in enumerate(all_species):
                 total_occu = sum(species.values())
                 if total_occu > 1 + self._occupancy_tolerance:
-                    print(f"Hello: {total_occu}")
                     all_species[idx] = species / total_occu
 
         if all_species and len(all_species) == len(all_coords) and len(all_species) == len(all_magmoms):
