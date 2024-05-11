@@ -287,7 +287,7 @@ class CifParser:
     def __init__(
         self,
         filename: str | StringIO,
-        occupancy_tolerance: float = 1.0,
+        occupancy_tolerance: float = 0.0,
         site_tolerance: float = 1e-4,
         frac_tolerance: float = 1e-4,
         check_cif: bool = True,
@@ -296,7 +296,7 @@ class CifParser:
         """
         Args:
             filename (str): CIF filename, gzipped or bzipped CIF files are fine too.
-            occupancy_tolerance (float): If total occupancy of a site is between 1 and occupancy_tolerance, the
+            occupancy_tolerance (float): If total occupancy of a site is between 1 and 1 + occupancy_tolerance, the
                 occupancies will be scaled down to 1.
             site_tolerance (float): This tolerance is used to determine if two sites are sitting in the same position,
                 in which case they will be combined to a single disordered site. Defaults to 1e-4.
@@ -1082,8 +1082,10 @@ class CifParser:
             all_species_noedit = all_species.copy()  # save copy before scaling in case of check_occu=False, used below
             for idx, species in enumerate(all_species):
                 total_occu = sum(species.values())
-                if 1 < total_occu <= self._occupancy_tolerance:
+                if 1 < total_occu <= 1 + self._occupancy_tolerance:
                     all_species[idx] = species / total_occu
+                elif total_occu > 1 + self._occupancy_tolerance:
+                    raise ValueError(f"Occupancy {total_occu} exceeded tolerance.")
 
         if all_species and len(all_species) == len(all_coords) and len(all_species) == len(all_magmoms):
             site_properties = {}
