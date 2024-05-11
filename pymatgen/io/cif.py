@@ -1082,10 +1082,15 @@ class CifParser:
             all_species_noedit = all_species.copy()  # save copy before scaling in case of check_occu=False, used below
             for idx, species in enumerate(all_species):
                 total_occu = sum(species.values())
-                if 1 < total_occu <= 1 + self._occupancy_tolerance:
+                if check_occu:
+                    if 1 < total_occu <= 1 + self._occupancy_tolerance:
+                        all_species[idx] = species / total_occu
+                    elif total_occu > 1 + self._occupancy_tolerance:
+                        raise ValueError(f"Occupancy {total_occu} exceeded tolerance.")
+
+                elif total_occu > 1:
                     all_species[idx] = species / total_occu
-                elif total_occu > 1 + self._occupancy_tolerance:
-                    raise ValueError(f"Occupancy {total_occu} exceeded tolerance.")
+                    self.warnings.append(f"Occupancy {total_occu} greater than 1.")
 
         if all_species and len(all_species) == len(all_coords) and len(all_species) == len(all_magmoms):
             site_properties = {}
