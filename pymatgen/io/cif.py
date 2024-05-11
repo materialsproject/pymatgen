@@ -1203,8 +1203,7 @@ class CifParser:
                 "in the CIF file as is. If you want the primitive cell, please set primitive=True explicitly.",
                 UserWarning,
             )
-        if not check_occu:  # added in https://github.com/materialsproject/pymatgen/pull/2836
-            warnings.warn("Structures with unphysical site occupancies are not compatible with many pymatgen features.")
+
         if primitive and symmetrized:
             raise ValueError(
                 "Using both 'primitive' and 'symmetrized' arguments is not currently supported "
