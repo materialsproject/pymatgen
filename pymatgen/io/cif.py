@@ -994,8 +994,8 @@ class CifParser:
             except (KeyError, ValueError):
                 occu = 1
 
-            # If check_occu and the occupancy is greater than 0, create comp_dict
-            if check_occu and occu > 0:
+            # If the occupancy is greater than 0, create comp_dict
+            if occu > 0:
                 # Create site coordinate
                 x = str2float(data["_atom_site_fract_x"][idx])
                 y = str2float(data["_atom_site_fract_y"][idx])
@@ -1027,21 +1027,21 @@ class CifParser:
                     labels[match] = label
 
         # Check occupanciess
-        # TODO (DanielYang59): should the following be guarded by "if check_occu:"?
-        _sum_occupancies: list[float] = [
-            sum(comp.values())
-            for comp in coord_to_species.values()
-            if set(comp.elements) != {Element("O"), Element("H")}
-        ]
+        if check_occu:
+            _sum_occupancies: list[float] = [
+                sum(comp.values())
+                for comp in coord_to_species.values()
+                if set(comp.elements) != {Element("O"), Element("H")}
+            ]
 
-        if any(occu > 1 for occu in _sum_occupancies):
-            msg = (
-                f"Some occupancies ({_sum_occupancies}) sum to > 1! If they are within "
-                "the occupancy_tolerance, they will be rescaled. "
-                f"The current occupancy_tolerance is set to: {self._occupancy_tolerance}"
-            )
-            warnings.warn(msg)
-            self.warnings.append(msg)
+            if any(occu > 1 for occu in _sum_occupancies):
+                msg = (
+                    f"Some occupancies ({_sum_occupancies}) sum to > 1! If they are within "
+                    "the occupancy_tolerance, they will be rescaled. "
+                    f"The current occupancy_tolerance is set to: {self._occupancy_tolerance}"
+                )
+                warnings.warn(msg)
+                self.warnings.append(msg)
 
         # Collect info for building Structure
         all_species: list[Composition] = []
@@ -1105,11 +1105,12 @@ class CifParser:
                 all_magmoms.extend(magmoms)
                 all_labels.extend(new_labels)
 
-            # Rescale occupancies if necessary
+            # Scale occupancies if necessary
             all_species_noedit = all_species.copy()  # save copy before scaling in case of check_occu=False, used below
             for idx, species in enumerate(all_species):
                 total_occu = sum(species.values())
-                if 1 < total_occu <= self._occupancy_tolerance:
+                if total_occu > 1 + self._occupancy_tolerance:
+                    print(f"Hello: {total_occu}")
                     all_species[idx] = species / total_occu
 
         if all_species and len(all_species) == len(all_coords) and len(all_species) == len(all_magmoms):
@@ -1243,9 +1244,10 @@ class CifParser:
             )
 
         structures = []
-        for idx, dct in enumerate(self._cif.data.values()):
+        for idx, data in enumerate(self._cif.data.values()):
             try:
-                if struct := self._get_structure(dct, primitive, symmetrized, check_occu=check_occu):
+                print(self._get_structure(data, primitive, symmetrized, check_occu=check_occu))
+                if struct := self._get_structure(data, primitive, symmetrized, check_occu=check_occu):
                     structures.append(struct)
 
             except (KeyError, ValueError) as exc:
