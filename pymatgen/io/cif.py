@@ -982,8 +982,8 @@ class CifParser:
                 occu = str2float(data["_atom_site_occupancy"][idx])
             except (KeyError, ValueError):
                 occu = 1
-            # If check_occu is True or the occupancy is greater than 0, create comp_d
-            if not check_occu or occu > 0:
+            # If the occupancy is greater than 0, create comp_d
+            if occu > 0:
                 coord = (x, y, z)
                 match = get_matching_coord(coord)
                 comp_dict = {el: max(occu, 1e-8)}
@@ -1005,6 +1005,8 @@ class CifParser:
                     # disordered magnetic not currently supported
                     coord_to_magmoms[match] = None
                     labels[match] = label
+
+        # Check occupancy
         sum_occu = [
             sum(c.values()) for c in coord_to_species.values() if set(c.elements) != {Element("O"), Element("H")}
         ]
@@ -1078,19 +1080,15 @@ class CifParser:
                 all_magmoms.extend(magmoms)
                 all_labels.extend(new_labels)
 
-            # rescale occupancies if necessary
+            # Scale occupancies if necessary
             all_species_noedit = all_species.copy()  # save copy before scaling in case of check_occu=False, used below
             for idx, species in enumerate(all_species):
                 total_occu = sum(species.values())
-                if check_occu:
-                    if 1 < total_occu <= 1 + self._occupancy_tolerance:
-                        all_species[idx] = species / total_occu
-                    elif total_occu > 1 + self._occupancy_tolerance:
-                        raise ValueError(f"Occupancy {total_occu} exceeded tolerance.")
+                if check_occu and total_occu > 1 + self._occupancy_tolerance:
+                    raise ValueError(f"Occupancy {total_occu} exceeded tolerance.")
 
-                elif total_occu > 1:
+                if total_occu > 1:
                     all_species[idx] = species / total_occu
-                    self.warnings.append(f"Occupancy {total_occu} greater than 1.")
 
         if all_species and len(all_species) == len(all_coords) and len(all_species) == len(all_magmoms):
             site_properties = {}
