@@ -735,10 +735,10 @@ loop_
         filepath = f"{TEST_FILES_DIR}/cif/bad_occu.cif"
         parser = CifParser(filepath)
         with pytest.raises(
-            ValueError, match="No structure parsed for section 1 in CIF.\nSpecies occupancies sum to more than 1!"
+            ValueError, match="No structure parsed for section 1 in CIF.\nOccupancy 1.556 exceeded tolerance."
         ):
             parser.parse_structures(on_error="raise")
-        parser = CifParser(filepath, occupancy_tolerance=2)
+        parser = CifParser(filepath, occupancy_tolerance=1.0)
         struct = parser.parse_structures()[0]
         assert struct[0].species["Al3+"] == approx(0.778)
 
@@ -851,7 +851,7 @@ Si1 Si 0 0 0 1 0.0
             # should fail without setting custom occupancy tolerance
             CifParser.from_str(cif_str).parse_structures()
 
-        for tol in (1.5, 10):
+        for tol in (0.5, 9):
             parser = CifParser.from_str(cif_str, occupancy_tolerance=tol)
             structs = parser.parse_structures(primitive=False, check_occu=False)[0]
             assert structs[0].species.as_dict()["Te"] == 1.5
