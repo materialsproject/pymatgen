@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import functools
 import warnings
-from collections import namedtuple
 from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
@@ -21,7 +20,7 @@ from pymatgen.util.coord import get_linear_interpolated_value
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from numpy.typing import ArrayLike
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
@@ -1127,7 +1126,14 @@ class CompleteDos(Dos):
             NamedTuple: The electronic density of states fingerprint
                 of format (energies, densities, type, n_bins)
         """
-        fingerprint = namedtuple("fingerprint", "energies densities type n_bins bin_width")
+
+        class fingerprint(NamedTuple):
+            energies: NDArray
+            densities: NDArray
+            type: str
+            n_bins: int
+            bin_width: float
+
         energies = self.energies - self.efermi
 
         if max_e is None:

@@ -9,7 +9,6 @@ https://materialsproject.org/dashboard.
 
 from __future__ import annotations
 
-import collections
 import itertools
 import json
 import logging
@@ -17,7 +16,7 @@ import os
 import platform
 import sys
 import warnings
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 import requests
 from monty.json import MontyDecoder
@@ -27,6 +26,8 @@ from pymatgen.core import __version__ as PMG_VERSION
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
+    from typing import Callable
+
     from mp_api.client import MPRester as _MPResterNew
     from typing_extensions import Self
 
@@ -88,7 +89,9 @@ class _MPResterBasic:
             self.session.headers["user-agent"] = f"{pymatgen_info} ({python_info} {platform_info})"
 
         # This is a hack, but it fakes most of the functionality of mp-api's summary.search.
-        Summary = collections.namedtuple("Summary", "search")
+        class Summary(NamedTuple):
+            search: Callable
+
         self.summary = Summary(self.summary_search)
 
     def __getattr__(self, item):

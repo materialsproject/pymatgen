@@ -25,6 +25,7 @@ from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
+    from typing import ClassVar
 
     from typing_extensions import Self
 
@@ -80,7 +81,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     # Special formula handling for peroxides and certain elements. This is so
     # that formula output does not write LiO instead of Li2O2 for example.
-    special_formulas = dict(
+    special_formulas: ClassVar = dict(
         LiO="Li2O2",
         NaO="Na2O2",
         KO="K2O2",

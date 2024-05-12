@@ -605,9 +605,11 @@ class Tags(dict):
                         # no cross terms for orientation averaged spectrum
                         beam_energy_list[2] = str(0)
                         lines.append([self._stringify_val(beam_energy_list)])
-                    lines.append([self._stringify_val(self[key]["ANGLES"])])
-                    lines.append([self._stringify_val(self[key]["MESH"])])
-                    lines.append([self._stringify_val(self[key]["POSITION"])])
+                    lines += (
+                        [self._stringify_val(self[key]["ANGLES"])],
+                        [self._stringify_val(self[key]["MESH"])],
+                        [self._stringify_val(self[key]["POSITION"])],
+                    )
             else:
                 lines.append([key, self._stringify_val(self[key])])
         if pretty:

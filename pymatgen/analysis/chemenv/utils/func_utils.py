@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
 import numpy as np
 
@@ -15,6 +15,8 @@ from pymatgen.analysis.chemenv.utils.math_utils import (
 )
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
     from typing_extensions import Self
 
 __author__ = "David Waroquiers"
@@ -114,7 +116,7 @@ class AbstractRatioFunction:
 class RatioFunction(AbstractRatioFunction):
     """Concrete implementation of a series of ratio functions."""
 
-    ALLOWED_FUNCTIONS = dict(
+    ALLOWED_FUNCTIONS: ClassVar = dict(
         power2_decreasing_exp=["max", "alpha"],
         smoothstep=["lower", "upper"],
         smootherstep=["lower", "upper"],
@@ -227,7 +229,7 @@ class CSMFiniteRatioFunction(AbstractRatioFunction):
     D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).
     """
 
-    ALLOWED_FUNCTIONS = dict(
+    ALLOWED_FUNCTIONS: ClassVar = dict(
         power2_decreasing_exp=["max_csm", "alpha"],
         smoothstep=["lower_csm", "upper_csm"],
         smootherstep=["lower_csm", "upper_csm"],
@@ -328,7 +330,7 @@ class CSMInfiniteRatioFunction(AbstractRatioFunction):
     D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).
     """
 
-    ALLOWED_FUNCTIONS = dict(
+    ALLOWED_FUNCTIONS: ClassVar = dict(
         power2_inverse_decreasing=["max_csm"],
         power2_inverse_power2_decreasing=["max_csm"],
     )
@@ -419,7 +421,7 @@ class DeltaCSMRatioFunction(AbstractRatioFunction):
     D. Waroquiers et al., Acta Cryst. B 76, 683 (2020).
     """
 
-    ALLOWED_FUNCTIONS = dict(smootherstep=["delta_csm_min", "delta_csm_max"])
+    ALLOWED_FUNCTIONS: ClassVar = dict(smootherstep=["delta_csm_min", "delta_csm_max"])
 
     def smootherstep(self, vals):
         """Get the evaluation of the smootherstep ratio function: f(x)=6*x^5-15*x^4+10*x^3.

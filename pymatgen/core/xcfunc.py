@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from collections import namedtuple
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from monty.functools import lazy_property
 from monty.json import MSONable
@@ -11,6 +10,8 @@ from monty.json import MSONable
 from pymatgen.core.libxcfunc import LibxcFunc
 
 if TYPE_CHECKING:
+    from typing import ClassVar, Literal
+
     from typing_extensions import Self
 
 __author__ = "Matteo Giantomassi"
@@ -73,10 +74,14 @@ class XcFunc(MSONable):
     GGA     BLYP    GGA_X_B88+GGA_C_LYP          Becke, PRA 38, 3098 (1988); Lee, Yang, Parr, PRB 37, 785
     """
 
-    type_name = namedtuple("type_name", "type, name")
+    class type_name(NamedTuple):
+        """Type and name of the XcFunc."""
+
+        type: Literal["LDA", "GGA"]
+        name: str
 
     xcf = LibxcFunc
-    defined_aliases = {
+    defined_aliases: ClassVar = {
         # (x, c) --> type_name
         # LDAs
         (xcf.LDA_X, xcf.LDA_C_PW): type_name("LDA", "PW"),  # ixc 7
@@ -102,7 +107,7 @@ class XcFunc(MSONable):
     # see: http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#ixc
     # and 42_libpaw/m_pawpsp.F90 for the implementation.
     # Fortunately, all the other cases are handled with libxc.
-    abinitixc_to_libxc = {
+    abinitixc_to_libxc: ClassVar = {
         1: {"xc": xcf.LDA_XC_TETER93},
         2: {"x": xcf.LDA_X, "c": xcf.LDA_C_PZ},  # PZ  001009
         4: {"x": xcf.LDA_X, "c": xcf.LDA_C_WIGNER},  # W

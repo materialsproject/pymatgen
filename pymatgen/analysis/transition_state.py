@@ -235,12 +235,10 @@ class NEBAnalysis(MSONable):
 
         # Setup the search sequence for the OUTCARs for the terminal
         # directories.
-        terminal_dirs = []
-        if relaxation_dirs is not None:
-            terminal_dirs.append(relaxation_dirs)
-        terminal_dirs.append((neb_dirs[0][1], neb_dirs[-1][1]))
-        terminal_dirs.append([os.path.join(root_dir, d) for d in ["start", "end"]])
-        terminal_dirs.append([os.path.join(root_dir, d) for d in ["initial", "final"]])
+        terminal_dirs = [] if relaxation_dirs is None else [relaxation_dirs]
+        terminal_dirs += [(neb_dirs[0][1], neb_dirs[-1][1])]
+        terminal_dirs += [[os.path.join(root_dir, folder) for folder in ["start", "end"]]]
+        terminal_dirs += [[os.path.join(root_dir, folder) for folder in ["initial", "final"]]]
 
         for idx, neb_dir in neb_dirs:
             outcar = glob(f"{neb_dir}/OUTCAR*")

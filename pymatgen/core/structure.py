@@ -939,6 +939,19 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
         return AseAtomsAdaptor.get_atoms(self, **kwargs)
 
+    def from_ase_atoms(self, **kwargs) -> Structure:
+        """Convert ase.Atoms to pymatgen Structure.
+
+        Args:
+            kwargs: Passed to AseAtomsAdaptor.get_structure.
+
+        Returns:
+            Structure
+        """
+        from pymatgen.io.ase import AseAtomsAdaptor
+
+        return AseAtomsAdaptor.get_structure(self, **kwargs)
+
 
 class IStructure(SiteCollection, MSONable):
     """Basic immutable Structure object with periodicity. Essentially a sequence

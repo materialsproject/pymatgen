@@ -14,8 +14,8 @@ import shutil
 import sys
 import tempfile
 import traceback
-from collections import defaultdict, namedtuple
-from typing import TYPE_CHECKING
+from collections import defaultdict
+from typing import TYPE_CHECKING, NamedTuple
 from xml.etree import ElementTree as Et
 
 import numpy as np
@@ -33,8 +33,10 @@ from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
+    from typing import Any, ClassVar
 
     import matplotlib.pyplot as plt
+    from numpy.typing import NDArray
     from typing_extensions import Self
 
     from pymatgen.core import Structure
@@ -140,13 +142,15 @@ class Pseudo(MSONable, abc.ABC):
         """String representation."""
 
         lines: list[str] = []
-        lines.append(f"<{type(self).__name__}: {self.basename}>")
-        lines.append("  summary: " + self.summary.strip())
-        lines.append(f"  number of valence electrons: {self.Z_val}")
-        lines.append(f"  maximum angular momentum: {l2str(self.l_max)}")
-        lines.append(f"  angular momentum for local part: {l2str(self.l_local)}")
-        lines.append(f"  XC correlation: {self.xc}")
-        lines.append(f"  supports spin-orbit: {self.supports_soc}")
+        lines += (
+            f"<{type(self).__name__}: {self.basename}>",
+            "  summary: " + self.summary.strip(),
+            f"  number of valence electrons: {self.Z_val}",
+            f"  maximum angular momentum: {l2str(self.l_max)}",
+            f"  angular momentum for local part: {l2str(self.l_local)}",
+            f"  XC correlation: {self.xc}",
+            f"  supports spin-orbit: {self.supports_soc}",
+        )
 
         if self.isnc:
             lines.append(f"  radius for non-linear core correction: {self.nlcc_radius}")
@@ -671,7 +675,7 @@ def _int_from_str(string):
 class NcAbinitHeader(AbinitHeader):
     """The abinit header found in the NC pseudopotential files."""
 
-    _VARS = dict(
+    _VARS: ClassVar = dict(
         zatom=(None, _int_from_str),
         zion=(None, float),
         pspdat=(None, float),
@@ -867,7 +871,7 @@ class NcAbinitHeader(AbinitHeader):
 class PawAbinitHeader(AbinitHeader):
     """The abinit header found in the PAW pseudopotential files."""
 
-    _VARS = dict(
+    _VARS: ClassVar = dict(
         zatom=(None, _int_from_str),
         zion=(None, float),
         pspdat=(None, float),
@@ -1005,11 +1009,16 @@ class PseudoParser:
 
     Error = PseudoParseError
 
-    # Supported values of pspcod
-    ppdesc = namedtuple("ppdesc", "pspcod name psp_type format")
+    class ppdesc(NamedTuple):
+        """Supported values of pspcod."""
+
+        pspcod: int
+        name: str
+        psp_type: str
+        format: None
 
     # TODO Recheck
-    _PSPCODES = {
+    _PSPCODES: ClassVar = {
         1: ppdesc(1, "TM", "NC", None),
         2: ppdesc(2, "GTH", "NC", None),
         3: ppdesc(3, "HGH", "NC", None),
@@ -1166,11 +1175,14 @@ class PseudoParser:
         return pseudo
 
 
-# TODO use RadialFunction from pseudo_dojo.
-class RadialFunction(namedtuple("RadialFunction", "mesh values")):
-    """Radial Function class."""
+class RadialFunction(NamedTuple):
+    """Radial Function class.
 
-    __slots__ = ()
+    TODO: use RadialFunction from pseudo_dojo.
+    """
+
+    mesh: Any
+    values: NDArray
 
 
 class PawXmlSetup(Pseudo, PawPseudo):

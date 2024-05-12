@@ -229,9 +229,7 @@ class Site(collections.abc.Hashable, MSONable):
             return True
         if self.species.average_electroneg > other.species.average_electroneg:
             return False
-        if self.species_string < other.species_string:
-            return True
-        return False
+        return self.species_string < other.species_string
 
     def __str__(self) -> str:
         return f"{self.coords} {self.species_string}"

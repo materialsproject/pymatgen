@@ -157,14 +157,11 @@ class Lobsterin(UserDict, MSONable):
         return self.data[normalized_key]
 
     def __contains__(self, key) -> bool:
-        """Implements getitem from dict to avoid problems with cases."""
+        """Implements getitem from dict to avoid problems with different key casing."""
         normalized_key = next((k for k in self if key.strip().lower() == k.lower()), key)
 
         key_is_unknown = normalized_key.lower() not in map(str.lower, Lobsterin.AVAILABLE_KEYWORDS)
-        if key_is_unknown or normalized_key not in self.data:
-            return False
-
-        return True
+        return not key_is_unknown and normalized_key in self.data
 
     def __delitem__(self, key):
         new_key = next((key_here for key_here in self if key.strip().lower() == key_here.lower()), key)

@@ -24,8 +24,9 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
-    # don't import at runtime to avoid circular import
     from pymatgen.core.lattice import Lattice
+
+    # Don't import at runtime to avoid circular import
     from pymatgen.core.operations import SymmOp  # noqa: TCH004
 
 
@@ -187,8 +188,8 @@ class SpaceGroup(SymmetryGroup):
     # POINT_GROUP_ENC = SYMM_DATA["point_group_encoding"]
     sg_encoding = SYMM_DATA["space_group_encoding"]
     abbrev_sg_mapping = SYMM_DATA["abbreviated_spacegroup_symbols"]
-    translations = {k: Fraction(v) for k, v in SYMM_DATA["translations"].items()}
-    full_sg_mapping = {v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()}
+    translations: ClassVar = {k: Fraction(v) for k, v in SYMM_DATA["translations"].items()}
+    full_sg_mapping: ClassVar = {v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()}
 
     def __init__(self, int_symbol: str) -> None:
         """Initialize a Space Group from its full or abbreviated international
