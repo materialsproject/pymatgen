@@ -748,20 +748,34 @@ def center_slab(slab: Structure) -> Structure:
 
     TODO (@DanielYang59): this should be a method for `Slab`?
     """
-    # Calculate shift vector
-    center_of_mass = np.average(
-        slab.frac_coords,
-        weights=[site.species.weight for site in slab],
-        axis=0,
-    )
+    # Get all site indices
+    all_indices = list(range(len(slab)))
+
+    # Get a reasonable cutoff radius to sample neighbors
+    bond_dists = sorted(nn[1] for nn in slab.get_neighbors(slab[0], 10) if nn[1] > 0)
+    # TODO (@DanielYang59): magic number for cutoff radius (would 3 be too large?)
+    cutoff_radius = bond_dists[0] * 3
+
+    # TODO (@DanielYang59): do we need the following complex method?
+    # Why don't we just calculate the center of the Slab and move it to z=0.5?
+    # Before moving we need to ensure there is only one Slab layer though
+
+    # If structure is case 2, shift all the sites
+    # to the other side until it is case 1
+    for site in slab:  # DEBUG (@DanielYang59): Slab position changes during loop?
+        # DEBUG (@DanielYang59): sites below z=0 is not considered (only check coord > c)
+        if any(nn[1] >= slab.lattice.c for nn in slab.get_neighbors(site, cutoff_radius)):
+            # TODO (@DanielYang59): the magic offset "0.05" seems unnecessary,
+            # as the Slab would be centered later anyway
+            shift = 1 - site.frac_coords[2] + 0.05
+            slab.translate_sites(all_indices, [0, 0, shift])
+
+    # Now the slab is case 1, move it to the center
+    weights = [site.species.weight for site in slab]
+    center_of_mass = np.average(slab.frac_coords, weights=weights, axis=0)
     shift = 0.5 - center_of_mass[2]
 
-    # Move the slab to the center
-    slab.translate_sites(
-        indices=list(range(len(slab))),  # all sites
-        vector=[0, 0, shift],
-    )
-
+    slab.translate_sites(all_indices, [0, 0, shift])
     return slab
 
 
