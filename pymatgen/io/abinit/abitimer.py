@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 def alternate(*iterables):
     """
     [a[0], b[0], ... , a[1], b[1], ..., a[n], b[n] ...]
-    >>> alternate([1,4], [2,5], [3,6])
+    >>> alternate([1, 4], [2, 5], [3, 6])
     [1, 2, 3, 4, 5, 6].
     """
     items = []
