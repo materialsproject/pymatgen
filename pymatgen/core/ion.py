@@ -178,8 +178,7 @@ class Ion(Composition, MSONable, Stringify):
         el_amt_dict = {k: int(round(v)) for k, v in comp.get_el_amt_dict().items()}
         formula, factor = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
 
-        # DEBUG (@DanielYang59): what does the following condition check?
-        if self.composition.get("H") == self.composition.get("O") is not None:
+        if (self.composition.get("H") and self.composition.get("O")) is not None:
             formula = formula.replace("HO", "OH")
 
         if nH2O > 0:
