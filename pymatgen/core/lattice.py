@@ -106,7 +106,7 @@ class Lattice(MSONable):
         return np.allclose(self.matrix, other.matrix) and self.pbc == other.pbc
 
     def __hash__(self) -> int:
-        return 7  # DEBUG (DanielYang): magic hash number
+        return hash((self.lengths, self.angles, self.pbc))
 
     def __str__(self) -> str:
         return "\n".join(" ".join([f"{i:.6f}" for i in row]) for row in self._matrix)
