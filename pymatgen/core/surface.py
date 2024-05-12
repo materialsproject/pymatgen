@@ -747,6 +747,12 @@ def center_slab(slab: Structure) -> Structure:
         of the Slab is at z = 0 or the bottom is at z = 1.
 
     TODO (@DanielYang59): this should be a method for `Slab`?
+
+    Args:
+        slab (Structure): The Slab to center.
+
+    Returns:
+        Slab: The centered Slab.
     """
     # Get all site indices
     all_indices = list(range(len(slab)))
@@ -776,6 +782,7 @@ def center_slab(slab: Structure) -> Structure:
     shift = 0.5 - center_of_mass[2]
 
     slab.translate_sites(all_indices, [0, 0, shift])
+
     return slab
 
 
@@ -1134,7 +1141,10 @@ class SlabGenerator:
 
         # Center the slab layer around the vacuum
         if self.center_slab:
-            slab = center_slab(slab)
+            # TODO: (DanielYang59): use following center_slab
+            # slab = center_slab(slab)
+            c_center = np.mean([coord[2] for coord in slab.frac_coords])
+            slab.translate_sites(list(range(len(slab))), [0, 0, 0.5 - c_center])
 
         # Reduce to primitive cell
         if self.primitive:
@@ -1263,7 +1273,9 @@ class SlabGenerator:
 
             return sorted(shifts)
 
-        def get_z_ranges(bonds: dict[tuple[Species | Element, Species | Element], float]) -> list[tuple[float, float]]:
+        def get_z_ranges(
+            bonds: dict[tuple[Species | Element, Species | Element], float],
+        ) -> list[tuple[float, float]]:
             """Collect occupied z ranges where each z_range is a (lower_z, upper_z) tuple.
 
             This method examines all sites in the oriented unit cell (OUC)
