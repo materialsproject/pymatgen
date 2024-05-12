@@ -40,9 +40,10 @@ class Lattice(MSONable):
     """Essentially a matrix with conversion matrices. In general,
     it is assumed that lengths are in Angstrom and angles are in
     degrees unless otherwise stated.
+
+    Properties lazily generated for efficiency.
     """
 
-    # Properties lazily generated for efficiency.
     def __init__(
         self,
         matrix: ArrayLike,
@@ -73,10 +74,7 @@ class Lattice(MSONable):
         self._lll_matrix_mappings: dict[float, tuple[np.ndarray, np.ndarray]] = {}
         self._lll_inverse = None
 
-        if len(pbc) != 3 or any(item not in {True, False} for item in pbc):
-            raise ValueError(f"pbc must be a tuple of three True/False values, got {pbc}")
-
-        self._pbc = pbc
+        self.pbc = pbc
 
     def __repr__(self) -> str:
         return "\n".join(
@@ -88,7 +86,7 @@ class Lattice(MSONable):
                 f"      A : {' '.join(map(repr, self._matrix[0]))}",
                 f"      B : {' '.join(map(repr, self._matrix[1]))}",
                 f"      C : {' '.join(map(repr, self._matrix[2]))}",
-                f"    pbc : {' '.join(map(repr, self._pbc))}",
+                f"    pbc : {' '.join(map(repr, self.pbc))}",
             ]
         )
 
@@ -180,10 +178,17 @@ class Lattice(MSONable):
         """Tuple defining the periodicity of the Lattice."""
         return self._pbc
 
+    @pbc.setter
+    def pbc(self, pbc: PbcLike) -> None:
+        if len(pbc) != 3 or any(item not in {True, False} for item in pbc):
+            raise ValueError(f"pbc must be a tuple of three True/False values, got {pbc}")
+
+        self._pbc = tuple(pbc)
+
     @property
     def is_3d_periodic(self) -> bool:
         """True if the Lattice is periodic in all directions."""
-        return all(self._pbc)
+        return all(self.pbc)
 
     @property
     def inv_matrix(self) -> np.ndarray:
@@ -882,7 +887,7 @@ class Lattice(MSONable):
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "matrix": self._matrix.tolist(),
-            "pbc": self._pbc,
+            "pbc": self.pbc,
         }
         if verbosity > 0:
             dct |= self.params_dict
