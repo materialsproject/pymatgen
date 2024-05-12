@@ -3,7 +3,6 @@ layout: default
 title: Compatibility
 nav_order: 3
 ---
-
 # Compatibility
 
 Pymatgen is a tool used for academic research and is actively developed by
@@ -66,6 +65,10 @@ continuous integration testing on GitHub. We currently test `pymatgen` on Mac,
 Windows and Linux.
 
 ## Recent Breaking Changes
+
+## v2024.xx.xx
+
+Scandium (Sc) and Yttrium (Y) would be included into `is_rare_earth_metal` property for `Element` in [#3817](https://github.com/materialsproject/pymatgen/pull/3817).
 
 ## v2024.1.26
 
