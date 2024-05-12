@@ -17,12 +17,10 @@ from monty.json import MontyEncoder
 if TYPE_CHECKING:
     from typing_extensions import Self
 
-# The libxc version used to generate this file!
-libxc_version = "3.0.0"
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2016, The Materials Project"
-__version__ = libxc_version
+__version__ = "3.0.0"  # The libxc version used to generate this file
 __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo@gmail.com"
 __status__ = "Production"
