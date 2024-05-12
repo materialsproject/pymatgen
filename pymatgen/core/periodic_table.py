@@ -588,15 +588,15 @@ class ElementBase(Enum):
         for sym in _pt_data:
             el = Element(sym)
             if 57 <= el.Z <= 71:
-                el_pseudorow = 8
-                el_pseudogroup = (el.Z - 54) % 32
+                el_pseudo_row = 8
+                el_pseudo_group = (el.Z - 54) % 32
             elif 89 <= el.Z <= 103:
-                el_pseudorow = 9
-                el_pseudogroup = (el.Z - 54) % 32
+                el_pseudo_row = 9
+                el_pseudo_group = (el.Z - 54) % 32
             else:
-                el_pseudorow = el.row
-                el_pseudogroup = el.group
-            if el_pseudorow == row and el_pseudogroup == group:
+                el_pseudo_row = el.row
+                el_pseudo_group = el.group
+            if el_pseudo_row == row and el_pseudo_group == group:
                 return el
 
         raise ValueError("No element with this row and group!")
@@ -625,10 +625,10 @@ class ElementBase(Enum):
             return 6
         if 89 <= z <= 103:
             return 7
-        for i, size in enumerate(_pt_row_sizes, start=1):
+        for idx, size in enumerate(_pt_row_sizes, start=1):
             total += size
             if total >= z:
-                return i
+                return idx
         return 8
 
     @property

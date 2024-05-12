@@ -4162,7 +4162,20 @@ class Structure(IStructure, collections.abc.MutableSequence):
         Returns:
             Structure: post-operation structure
         """
-        if not fractional:
+        if fractional:
+            new_latt = np.dot(symm_op.rotation_matrix, self._lattice.matrix)
+            self._lattice = Lattice(new_latt)
+
+            def operate_site(site):
+                return PeriodicSite(
+                    site.species,
+                    symm_op.operate(site.frac_coords),
+                    self._lattice,
+                    properties=site.properties,
+                    skip_checks=True,
+                    label=site.label,
+                )
+        else:
             self._lattice = Lattice([symm_op.apply_rotation_only(row) for row in self._lattice.matrix])
 
             def operate_site(site):
@@ -4171,20 +4184,6 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 return PeriodicSite(
                     site.species,
                     new_frac,
-                    self._lattice,
-                    properties=site.properties,
-                    skip_checks=True,
-                    label=site.label,
-                )
-
-        else:
-            new_latt = np.dot(symm_op.rotation_matrix, self._lattice.matrix)
-            self._lattice = Lattice(new_latt)
-
-            def operate_site(site):
-                return PeriodicSite(
-                    site.species,
-                    symm_op.operate(site.frac_coords),
                     self._lattice,
                     properties=site.properties,
                     skip_checks=True,
