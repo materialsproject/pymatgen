@@ -386,8 +386,7 @@ class LobsterNeighbors(NearNeighbors):
         return lse
 
     def get_info_icohps_to_neighbors(self, isites=None, onlycation_isites=True):
-        """
-        This method returns information on the icohps of neighbors for certain sites as identified by their site id.
+        """Get information on the icohps of neighbors for certain sites as identified by their site id.
         This is useful for plotting the relevant cohps of a site in the structure.
         (could be ICOOPLIST.lobster or ICOHPLIST.lobster or ICOBILIST.lobster)
 

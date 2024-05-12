@@ -411,8 +411,7 @@ class Eels(MSONable):
 
     @classmethod
     def from_file(cls, eels_dat_file: str = "eels.dat") -> Self:
-        """
-        Parse eels spectrum.
+        """Parse eels spectrum.
 
         Args:
             eels_dat_file (str): filename and path for eels.dat
