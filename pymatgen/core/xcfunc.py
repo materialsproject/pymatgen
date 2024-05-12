@@ -10,7 +10,7 @@ from monty.json import MSONable
 from pymatgen.core.libxcfunc import LibxcFunc
 
 if TYPE_CHECKING:
-    from typing import ClassVar, Literal
+    from typing import Any, ClassVar, Literal
 
     from typing_extensions import Self
 
@@ -198,7 +198,7 @@ class XcFunc(MSONable):
 
     def as_dict(self) -> dict:
         """Serialize to MSONable dict representation e.g. to write to disk as JSON."""
-        dct = {"@module": type(self).__module__, "@class": type(self).__name__}
+        dct: dict[str, Any] = {"@module": type(self).__module__, "@class": type(self).__name__}
         if self.x is not None:
             dct["x"] = self.x.as_dict()
         if self.c is not None:
