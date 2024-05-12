@@ -39,10 +39,6 @@ if TYPE_CHECKING:
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 
-sub_space_group = partial(re.sub, r"[\s_]", "")
-
-space_groups = {sub_space_group(key): key for key in SYMM_DATA["space_group_encoding"]}
-
 
 class CifBlock:
     """
@@ -715,6 +711,10 @@ class CifParser:
                     break
                 except ValueError:
                     continue
+
+        sub_space_group = partial(re.sub, r"[\s_]", "")
+
+        space_groups = {sub_space_group(key): key for key in SYMM_DATA["space_group_encoding"]}
 
         if not sym_ops:
             # Try to parse symbol
