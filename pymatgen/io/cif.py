@@ -867,7 +867,7 @@ class CifParser:
         return mag_symm_ops
 
     @staticmethod
-    def _parse_oxi_states(data: dict) -> dict[str, float]:
+    def _parse_oxi_states(data: dict) -> dict[str, float] | None:
         """Parse oxidation states from data."""
         try:
             oxi_states = {
@@ -880,7 +880,7 @@ class CifParser:
                 oxi_states[re.sub(r"\d?[\+,\-]?$", "", symbol)] = str2float(data["_atom_type_oxidation_number"][idx])
 
         except (ValueError, KeyError):
-            oxi_states = {}
+            oxi_states = None
         return oxi_states
 
     @staticmethod
