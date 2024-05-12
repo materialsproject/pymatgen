@@ -73,38 +73,39 @@ class Lattice(MSONable):
         self._lll_matrix_mappings: dict[float, tuple[np.ndarray, np.ndarray]] = {}
         self._lll_inverse = None
 
-        if len(pbc) != 3:
-            raise ValueError(f"pbc must be a tuple of three, got {pbc}.")
-        if any(item not in {True, False} for item in pbc):
-            raise ValueError(f"pbc must only contain booleans, got {pbc}.")
+        if len(pbc) != 3 or any(item not in {True, False} for item in pbc):
+            raise ValueError(f"pbc must be a tuple of three True/False values, got {pbc}")
 
         self._pbc = pbc
 
     def __repr__(self) -> str:
-        outs = [
-            "Lattice",
-            f"    abc : {' '.join(map(repr, self.lengths))}",
-            f" angles : {' '.join(map(repr, self.angles))}",
-            f" volume : {self.volume!r}",
-            f"      A : {' '.join(map(repr, self._matrix[0]))}",
-            f"      B : {' '.join(map(repr, self._matrix[1]))}",
-            f"      C : {' '.join(map(repr, self._matrix[2]))}",
-            f"    pbc : {' '.join(map(repr, self._pbc))}",
-        ]
-        return "\n".join(outs)
+        return "\n".join(
+            [
+                "Lattice",
+                f"    abc : {' '.join(map(repr, self.lengths))}",
+                f" angles : {' '.join(map(repr, self.angles))}",
+                f" volume : {self.volume!r}",
+                f"      A : {' '.join(map(repr, self._matrix[0]))}",
+                f"      B : {' '.join(map(repr, self._matrix[1]))}",
+                f"      C : {' '.join(map(repr, self._matrix[2]))}",
+                f"    pbc : {' '.join(map(repr, self._pbc))}",
+            ]
+        )
 
     def __eq__(self, other: object) -> bool:
         """A lattice is considered to be equal to another if the internal matrix
-        representation satisfies np.allclose(matrix1, matrix2) to be True and
+        representation satisfies np.allclose(matrix1, matrix2) and
         share the same periodicity.
         """
         if not hasattr(other, "matrix") or not hasattr(other, "pbc"):
             return NotImplemented
-        # shortcut the np.allclose if the memory addresses are the same
+
+        # Shortcut the np.allclose if the memory addresses are the same
         # (very common in Structure.from_sites)
         if self is other:
             return True
-        return np.allclose(self.matrix, other.matrix) and self.pbc == other.pbc  # type: ignore
+
+        return np.allclose(self.matrix, other.matrix) and self.pbc == other.pbc
 
     def __hash__(self) -> int:
         return 7  # DEBUG (DanielYang): magic hash number
@@ -136,6 +137,7 @@ class Lattice(MSONable):
             matrix = (self.lengths, self.angles)
         else:
             fmt = "{} {} {}\n{} {} {}\n{} {} {}"
+
         return fmt.format(*(format(c, fmt_spec) for row in matrix for c in row))
 
     @property
