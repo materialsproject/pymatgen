@@ -157,10 +157,12 @@ class CifBlock:
         deq: deque = deque()
         multiline: bool = False
         lines: list[str] = []
+
         # This regex splits on spaces, except when in quotes. Starting quotes must not be
         # preceded by non-whitespace (these get eaten by the first expression). Ending
         # quotes must not be followed by non-whitespace.
         pattern = re.compile(r"""([^'"\s][\S]*)|'(.*?)'(?!\S)|"(.*?)"(?!\S)""")
+
         for line in string.splitlines():
             if multiline:
                 if line.startswith(";"):
@@ -171,6 +173,7 @@ class CifBlock:
                 else:
                     lines.append(line)
                     continue
+
             if line.startswith(";"):
                 multiline = True
                 lines.append(line[1:].strip())
@@ -197,7 +200,7 @@ class CifBlock:
 
         while deq:
             _string = deq.popleft()
-            # cif keys aren't in quotes, so show up in s[0]
+            # cif keys aren't in quotes, so show up as _string[0]
             if _string[0] == "_eof":
                 break
 
@@ -222,6 +225,7 @@ class CifBlock:
                     if _string[0].startswith(("loop_", "_")):
                         break
                     items.append("".join(deq.popleft()))
+
                 n = len(items) // len(columns)
                 assert len(items) % n == 0
                 loops.append(columns)
@@ -246,12 +250,12 @@ class CifFile:
         """
         Args:
             data (dict): Of CifBlock objects.
-            orig_string (str): The original cif string.
-            comment (str): Comment string.
+            orig_string (str): The original cif.
+            comment (str): Comment.
         """
         self.data = data
         self.orig_string = orig_string
-        self.comment = comment or "# generated using pymatgen"
+        self.comment: str = comment or "# generated using pymatgen"
 
     def __str__(self) -> str:
         out = "\n".join(map(str, self.data.values()))
