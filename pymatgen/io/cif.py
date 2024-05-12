@@ -1219,7 +1219,8 @@ class CifParser:
         default primitive=False in parse_structures.
         So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().
         """
-        if len(args) > 0:  # extract primitive if passed as arg
+        # Extract primitive if passed as arg
+        if len(args) > 0:
             kwargs["primitive"] = args[0]
             args = args[1:]
         kwargs.setdefault("primitive", True)
@@ -1273,7 +1274,7 @@ class CifParser:
                 "since unexpected behavior might result."
             )
 
-        structures = []
+        structures: list[Structure] = []
         for idx, data in enumerate(self._cif.data.values()):
             try:
                 if struct := self._get_structure(data, primitive, symmetrized, check_occu=check_occu):
@@ -1308,7 +1309,7 @@ class CifParser:
         except ImportError:
             raise RuntimeError("Bibliographic data extraction requires pybtex.")
 
-        bibtex_keys = {
+        bibtex_keys: dict[str, tuple[str, str]] = {
             "author": ("_publ_author_name", "_citation_author_name"),
             "title": ("_publ_section_title", "_citation_title"),
             "journal": (
@@ -1325,13 +1326,13 @@ class CifParser:
             "doi": ("_journal_DOI", "_citation_DOI"),
         }
 
-        entries = {}
+        entries: dict[str, Entry] = {}
 
         # TODO: parse '_publ_section_references' when it exists?
         # TODO: CIF specification supports multiple citations.
 
         for idx, data in enumerate(self._cif.data.values()):
-            # convert to lower-case keys, some cif files inconsistent
+            # Convert to lower-case keys, some cif files inconsistent
             data = {k.lower(): v for k, v in data.data.items()}
 
             bibtex_entry = {}
@@ -1344,7 +1345,7 @@ class CifParser:
                         else:
                             bibtex_entry[field] = data[tag]
 
-            # convert to bibtex author format ('and' delimited)
+            # Convert to bibtex author format ('and' delimited)
             if "author" in bibtex_entry:
                 # separate out semicolon authors
                 if isinstance(bibtex_entry["author"], str) and ";" in bibtex_entry["author"]:
@@ -1353,7 +1354,7 @@ class CifParser:
                 if isinstance(bibtex_entry["author"], list):
                     bibtex_entry["author"] = " and ".join(bibtex_entry["author"])
 
-            # convert to bibtex page range format, use empty string if not specified
+            # Convert to bibtex page range format, use empty string if not specified
             if ("page_first" in bibtex_entry) or ("page_last" in bibtex_entry):
                 bibtex_entry["pages"] = bibtex_entry.get("page_first", "") + "--" + bibtex_entry.get("page_last", "")
                 bibtex_entry.pop("page_first", None)  # and remove page_first, page_list if present
@@ -1367,10 +1368,10 @@ class CifParser:
     def as_dict(self) -> dict:
         """MSONable dict"""
         dct: dict = {}
-        for k, v in self._cif.data.items():
-            dct[k] = {}
-            for k2, v2 in v.data.items():
-                dct[k][k2] = v2
+        for key, val in self._cif.data.items():
+            dct[key] = {}
+            for sub_key, sub_val in val.data.items():
+                dct[key][sub_key] = sub_val
         return dct
 
     @property
@@ -1392,11 +1393,11 @@ class CifParser:
                 composition (LiFeO)4, this check passes.
 
         Args:
-            structure (Structure) : structure created from CIF
+            structure (Structure) : structure created from CIF.
 
         Returns:
-            str | None: If any check fails, on output, returns a human-readable str for the
-                reason why (e.g., which elements are missing). Returns None if all checks pass.
+            str | None: If any check fails, return a human-readable str for the
+                reason (e.g., which elements are missing). None if all checks pass.
         """
         cif_as_dict = self.as_dict()
         head_key = next(iter(cif_as_dict))
@@ -1427,22 +1428,21 @@ class CifParser:
 
         orig_comp_elts = {str(elt) for elt in orig_comp}
         struct_comp_elts = {str(elt) for elt in struct_comp}
-        failure_reason = None
+        failure_reason: str | None = None
 
+        # Hard failure: missing elements
         if orig_comp_elts != struct_comp_elts:
-            # hard failure - missing elements
-
             missing = set(orig_comp_elts).difference(set(struct_comp_elts))
             addendum = "from PMG structure composition"
-            if len(missing) == 0:
+            if not missing:
                 addendum = "from CIF-reported composition"
                 missing = set(struct_comp_elts).difference(set(orig_comp_elts))
             missing_str = ", ".join([str(x) for x in missing])
             failure_reason = f"Missing elements {missing_str} {addendum}"
 
         elif not all(struct_comp[elt] - orig_comp[elt] == 0 for elt in orig_comp):
+            # Check that CIF/PMG stoichiometry has same relative ratios of elements
             if check_stoichiometry:
-                # Check that CIF/PMG stoichiometry has same relative ratios of elements
                 ratios = {elt: struct_comp[elt] / orig_comp[elt] for elt in orig_comp_elts}
 
                 same_stoich = all(
@@ -1459,8 +1459,26 @@ class CifParser:
         return failure_reason
 
 
+def str2float(text: str) -> float:
+    """Remove uncertainty brackets from strings and return the float."""
+    try:
+        # Note that the ending ) is sometimes missing. That is why the code has
+        # been modified to treat it as optional. Same logic applies to lists.
+        return float(re.sub(r"\(.+\)*", "", text))
+
+    except TypeError:
+        if isinstance(text, list) and len(text) == 1:
+            return float(re.sub(r"\(.+\)*", "", text[0]))
+
+    except ValueError as exc:
+        if text.strip() == ".":
+            return 0
+        raise exc
+    raise ValueError(f"{text} cannot be converted to float")
+
+
 class CifWriter:
-    """A wrapper around CifFile to write CIF files from pymatgen structures."""
+    """A wrapper around CifFile to write CIF files from pymatgen Structure."""
 
     def __init__(
         self,
@@ -1474,7 +1492,7 @@ class CifWriter:
     ) -> None:
         """
         Args:
-            struct (Structure): structure to write
+            struct (Structure): structure to write.
             symprec (float): If not none, finds the symmetry of the structure
                 and writes the cif with symmetry information. Passes symprec
                 to the SpacegroupAnalyzer. See also refine_struct.
@@ -1504,7 +1522,7 @@ class CifWriter:
             spacegroup = (spg_analyzer.get_space_group_symbol(), spg_analyzer.get_space_group_number())
 
             if refine_struct:
-                # Needs the refined structure when using symprec. This converts
+                # Need the refined structure when using symprec. This converts
                 # primitive to conventional structures, the standard for CIF.
                 struct = spg_analyzer.get_refined_structure()
 
@@ -1688,21 +1706,3 @@ class CifWriter:
         """Write the CIF file."""
         with zopen(filename, mode=mode) as file:
             file.write(str(self))
-
-
-def str2float(text: str) -> float:
-    """Remove uncertainty brackets from strings and return the float."""
-    try:
-        # Note that the ending ) is sometimes missing. That is why the code has
-        # been modified to treat it as optional. Same logic applies to lists.
-        return float(re.sub(r"\(.+\)*", "", text))
-
-    except TypeError:
-        if isinstance(text, list) and len(text) == 1:
-            return float(re.sub(r"\(.+\)*", "", text[0]))
-
-    except ValueError as exc:
-        if text.strip() == ".":
-            return 0
-        raise exc
-    raise ValueError(f"{text} cannot be converted to float")
