@@ -884,7 +884,7 @@ class CifParser:
         return oxi_states
 
     @staticmethod
-    def parse_magmoms(data: dict, lattice: Lattice | None=None) -> dict[str, NDArray]:
+    def parse_magmoms(data: dict, lattice: Lattice | None = None) -> dict[str, NDArray]:
         """Parse atomic magnetic moments from data."""
         # DEBUG (DanielYang59): suspicious usage lattice argument
         if lattice is None:
