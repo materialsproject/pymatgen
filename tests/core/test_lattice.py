@@ -39,12 +39,9 @@ class TestLattice(PymatgenTest):
                 assert lattice.matrix[ii][jj] == lattice2.matrix[ii][jj], "Inconsistent matrix from two inits!"
         assert_array_equal(self.cubic_partial_pbc.pbc, (True, True, False))
 
-        for bad_pbc in [(True, True), (True, True, True, True)]:
-            with pytest.raises(ValueError, match="pbc must be a tuple of three"):
+        for bad_pbc in [(True, True), (True, True, True, True), (True, True, 2)]:
+            with pytest.raises(ValueError, match="pbc must be a tuple of three True/False values, got"):
                 Lattice(np.eye(3), pbc=bad_pbc)
-
-        with pytest.raises(ValueError, match="pbc must only contain booleans"):
-            Lattice(np.eye(3), pbc=(True, True, 2))
 
     def test_equal(self):
         assert self.cubic == self.cubic
