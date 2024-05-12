@@ -187,16 +187,12 @@ class GrainBoundary(Structure):
 
     @property
     def sigma(self) -> int:
-        """
-        This method returns the sigma value of the GB.
-        If using 'quick_gen' to generate GB, this value is not valid.
-        """
+        """The sigma value of the GB. If using 'quick_gen' to generate GB, this value is not valid."""
         return int(round(self.oriented_unit_cell.volume / self.init_cell.volume))
 
     @property
     def sigma_from_site_prop(self) -> int:
-        """
-        This method returns the sigma value of the GB from site properties.
+        """The sigma value of the GB from site properties.
         If the GB structure merge some atoms due to the atoms too closer with
         each other, this property will not work.
         """
