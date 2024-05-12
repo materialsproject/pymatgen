@@ -29,7 +29,7 @@ setup(
     python_requires=">=3.9",
     install_requires=[
         "matplotlib>=1.5",
-        "monty>=2024.2.2",
+        "git+https://github.com/materialsvirtuallab/monty.git@refs/pull/670/merge",
         "networkx>=2.2",
         "numpy>=1.25.0",
         "palettable>=3.1.1",
