@@ -11,7 +11,7 @@ import warnings
 from collections import defaultdict
 from fractions import Fraction
 from functools import reduce
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.dev import deprecated
@@ -20,6 +20,7 @@ from scipy.spatial import Voronoi
 
 from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.util.due import Doi, due
+from pymatgen.util.typing import PbcLike
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -28,7 +29,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.operations import SymmOp
-    from pymatgen.util.typing import PbcLike, Vector3D
+    from pymatgen.util.typing import Vector3D
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -183,7 +184,7 @@ class Lattice(MSONable):
         if len(pbc) != 3 or any(item not in {True, False} for item in pbc):
             raise ValueError(f"pbc must be a tuple of three True/False values, got {pbc}")
 
-        self._pbc = tuple(pbc)
+        self._pbc = cast(PbcLike, tuple(pbc))
 
     @property
     def is_3d_periodic(self) -> bool:
