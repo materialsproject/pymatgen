@@ -539,7 +539,7 @@ class CifParser:
             for correct_key, original_key in changes_to_make.items():
                 data.data[correct_key] = data.data[original_key]
 
-            # Renamed_keys maps interim_keys to final_keys
+            # renamed_keys maps interim_keys to final_keys
             renamed_keys = {
                 "_magnetic_space_group.transform_to_standard_Pp_abc": "_space_group_magn.transform_BNS_Pp_abc"
             }
@@ -958,16 +958,6 @@ class CifParser:
                     return coords[indices[0]]
             return False
 
-        def get_matching_coord(coord):
-            keys = list(coord_to_species)
-            coords = np.array(keys)
-            for op in self.symmetry_operations:
-                frac_coord = op.operate(coord)
-                indices = find_in_coord_list_pbc(coords, frac_coord, atol=self._site_tolerance)
-                if len(indices) > 0:
-                    return keys[indices[0]]
-            return False
-
         lattice = self.get_lattice(data)
 
         # If magCIF, get magnetic symmetry moments and magmoms
@@ -1052,22 +1042,21 @@ class CifParser:
                     coord_to_magmoms[match] = None
                     labels[match] = label
 
-        # Check occupanciess
-        if check_occu:
-            _sum_occupancies: list[float] = [
-                sum(comp.values())
-                for comp in coord_to_species.values()
-                if set(comp.elements) != {Element("O"), Element("H")}
-            ]
+        # Check occupancy
+        _sum_occupancies: list[float] = [
+            sum(comp.values())
+            for comp in coord_to_species.values()
+            if set(comp.elements) != {Element("O"), Element("H")}
+        ]
 
-            if any(occu > 1 for occu in _sum_occupancies):
-                msg = (
-                    f"Some occupancies ({_sum_occupancies}) sum to > 1! If they are within "
-                    "the occupancy_tolerance, they will be rescaled. "
-                    f"The current occupancy_tolerance is set to: {self._occupancy_tolerance}"
-                )
-                warnings.warn(msg)
-                self.warnings.append(msg)
+        if any(occu > 1 for occu in _sum_occupancies):
+            msg = (
+                f"Some occupancies ({_sum_occupancies}) sum to > 1! If they are within "
+                "the occupancy_tolerance, they will be rescaled. "
+                f"The current occupancy_tolerance is set to: {self._occupancy_tolerance}"
+            )
+            warnings.warn(msg)
+            self.warnings.append(msg)
 
         # Collect info for building Structure
         all_species: list[Composition] = []
@@ -1135,7 +1124,7 @@ class CifParser:
             all_species_noedit = all_species.copy()  # save copy before scaling in case of check_occu=False, used below
             for idx, species in enumerate(all_species):
                 total_occu = sum(species.values())
-                if total_occu > 1 + self._occupancy_tolerance:
+                if 1 < total_occu <= self._occupancy_tolerance:
                     all_species[idx] = species / total_occu
 
         if all_species and len(all_species) == len(all_coords) and len(all_species) == len(all_magmoms):
@@ -1271,20 +1260,19 @@ class CifParser:
         structures = []
         for idx, data in enumerate(self._cif.data.values()):
             try:
-                print(self._get_structure(data, primitive, symmetrized, check_occu=check_occu))
                 if struct := self._get_structure(data, primitive, symmetrized, check_occu=check_occu):
                     structures.append(struct)
 
             except (KeyError, ValueError) as exc:
-                # TODO (@DanielYang59): the following comment doesn't relate to code
-                # A user reported a problem with cif files produced by Avogadro
-                # in which the atomic coordinates are in Cartesian coords.
                 msg = f"No structure parsed for section {idx + 1} in CIF.\n{exc}"
                 if on_error == "raise":
                     raise ValueError(msg) from exc
                 if on_error == "warn":
                     warnings.warn(msg)
                 self.warnings.append(msg)
+
+        if self.warnings and on_error == "warn":
+            warnings.warn("Issues encountered while parsing CIF: " + "\n".join(self.warnings))
 
         if not structures:
             raise ValueError("Invalid CIF file with no structures!")
