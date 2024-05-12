@@ -10,7 +10,6 @@ import warnings
 from fractions import Fraction
 from functools import reduce
 from itertools import chain, combinations, product
-from math import gcd
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -527,9 +526,9 @@ class GrainBoundaryGenerator:
                 w = w1 - 2 * v1 - u1
                 rotation_axis = [u, v, w]
 
-        # make sure gcd(rotation_axis)==1
-        if reduce(gcd, rotation_axis) != 1:
-            rotation_axis = [round(x / reduce(gcd, rotation_axis)) for x in rotation_axis]
+        # make sure math.gcd(rotation_axis)==1
+        if reduce(math.gcd, rotation_axis) != 1:
+            rotation_axis = [round(x / reduce(math.gcd, rotation_axis)) for x in rotation_axis]
         # transform four index notation to three index notation for plane
         if plane is not None and len(plane) == 4:
             u1, v1, w1 = plane[0], plane[1], plane[3]
@@ -567,8 +566,8 @@ class GrainBoundaryGenerator:
                 least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
                 plane = [round(x * least_mul) for x in plane]
 
-        if reduce(gcd, plane) != 1:
-            index = reduce(gcd, plane)
+        if reduce(math.gcd, plane) != 1:
+            index = reduce(math.gcd, plane)
             plane = [round(x / index) for x in plane]
 
         t1, t2 = self.get_trans_mat(
@@ -939,8 +938,8 @@ class GrainBoundaryGenerator:
                 r_axis = [u, v, w]
 
         # make sure gcd(r_axis)==1
-        if reduce(gcd, r_axis) != 1:
-            r_axis = [round(x / reduce(gcd, r_axis)) for x in r_axis]
+        if reduce(math.gcd, r_axis) != 1:
+            r_axis = [round(x / reduce(math.gcd, r_axis)) for x in r_axis]
 
         if surface is not None and len(surface) == 4:
             u1 = surface[0]
@@ -986,8 +985,8 @@ class GrainBoundaryGenerator:
                 least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
                 surface = [round(x * least_mul) for x in surface]
 
-        if reduce(gcd, surface) != 1:
-            index = reduce(gcd, surface)
+        if reduce(math.gcd, surface) != 1:
+            index = reduce(math.gcd, surface)
             surface = [round(x / index) for x in surface]
 
         lam = None
@@ -1002,8 +1001,8 @@ class GrainBoundaryGenerator:
                     raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
             else:
                 mu, mv = ratio
-            if gcd(mu, mv) != 1:
-                temp = gcd(mu, mv)
+            if math.gcd(mu, mv) != 1:
+                temp = math.gcd(mu, mv)
                 mu = round(mu / temp)
                 mv = round(mv / temp)
             d = (u**2 + v**2 - u * v) * mv + w**2 * mu
@@ -1044,7 +1043,7 @@ class GrainBoundaryGenerator:
             m = -1 * m
             F = 3 * mu * m**2 + d * n**2
             all_list = r_list + r_list_inv + [F]
-            com_fac = reduce(gcd, all_list)
+            com_fac = reduce(math.gcd, all_list)
             sigma = F / com_fac
             r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
 
@@ -1061,8 +1060,8 @@ class GrainBoundaryGenerator:
                     )
             else:
                 mu, mv = ratio
-            if gcd(mu, mv) != 1:
-                temp = gcd(mu, mv)
+            if math.gcd(mu, mv) != 1:
+                temp = math.gcd(mu, mv)
                 mu = round(mu / temp)
                 mv = round(mv / temp)
             d = (u**2 + v**2 + w**2) * (mu - 2 * mv) + 2 * mv * (v * w + w * u + u * v)
@@ -1119,7 +1118,7 @@ class GrainBoundaryGenerator:
             m = -1 * m
             F = mu * m**2 + d * n**2
             all_list = r_list_inv + r_list + [F]
-            com_fac = reduce(gcd, all_list)
+            com_fac = reduce(math.gcd, all_list)
             sigma = F / com_fac
             r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
 
@@ -1173,8 +1172,8 @@ class GrainBoundaryGenerator:
                         mv = 1
 
             # make sure mu, lambda, mv are coprime integers.
-            if reduce(gcd, [mu, lam, mv]) != 1:
-                temp = reduce(gcd, [mu, lam, mv])
+            if reduce(math.gcd, [mu, lam, mv]) != 1:
+                temp = reduce(math.gcd, [mu, lam, mv])
                 mu = round(mu / temp)
                 mv = round(mv / temp)
                 lam = round(lam / temp)
@@ -1212,7 +1211,7 @@ class GrainBoundaryGenerator:
             m = -1 * m
             F = mu * lam * m**2 + d * n**2
             all_list = r_list + r_list_inv + [F]
-            com_fac = reduce(gcd, all_list)
+            com_fac = reduce(math.gcd, all_list)
             sigma = F / com_fac
             r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
 
@@ -1223,12 +1222,12 @@ class GrainBoundaryGenerator:
         fractions = [Fraction(x).limit_denominator() for x in surface]
         least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
         surface = [round(x * least_mul) for x in surface]
-        if reduce(gcd, surface) != 1:
-            index = reduce(gcd, surface)
+        if reduce(math.gcd, surface) != 1:
+            index = reduce(math.gcd, surface)
             surface = [round(x / index) for x in surface]
         r_axis = np.rint(np.matmul(r_axis, np.linalg.inv(trans_cry))).astype(int)
-        if reduce(gcd, r_axis) != 1:
-            r_axis = [round(x / reduce(gcd, r_axis)) for x in r_axis]
+        if reduce(math.gcd, r_axis) != 1:
+            r_axis = [round(x / reduce(math.gcd, r_axis)) for x in r_axis]
         r_matrix = np.dot(np.dot(np.linalg.inv(trans_cry.T), r_matrix), trans_cry.T)
         # set one vector of the basis to the rotation axis direction, and
         # obtain the corresponding transform matrix
@@ -1314,9 +1313,9 @@ class GrainBoundaryGenerator:
                 result in equivalent microstructures.
         """
         sigmas = {}
-        # make sure gcd(r_axis)==1
-        if reduce(gcd, r_axis) != 1:
-            r_axis = [round(x / reduce(gcd, r_axis)) for x in r_axis]
+        # make sure math.gcd(r_axis)==1
+        if reduce(math.gcd, r_axis) != 1:
+            r_axis = [round(x / reduce(math.gcd, r_axis)) for x in r_axis]
 
         # count the number of odds in r_axis
         odd_r = len(list(filter(lambda x: x % 2 == 1, r_axis)))
@@ -1333,7 +1332,7 @@ class GrainBoundaryGenerator:
             n = n_loop
             m_max = int(np.sqrt(cutoff * a_max - n**2 * sum(np.array(r_axis) ** 2)))
             for m in range(m_max + 1):
-                if gcd(m, n) == 1 or m == 0:
+                if math.gcd(m, n) == 1 or m == 0:
                     n = 1 if m == 0 else n_loop
                     # construct the quadruple [m, U,V,W], count the number of odds in
                     # quadruple to determine the parameter a, refer to the reference
@@ -1391,9 +1390,9 @@ class GrainBoundaryGenerator:
                 result in equivalent microstructures.
         """
         sigmas = {}
-        # make sure gcd(r_axis)==1
-        if reduce(gcd, r_axis) != 1:
-            r_axis = [round(x / reduce(gcd, r_axis)) for x in r_axis]
+        # make sure math.gcd(r_axis)==1
+        if reduce(math.gcd, r_axis) != 1:
+            r_axis = [round(x / reduce(math.gcd, r_axis)) for x in r_axis]
         # transform four index notation to three index notation
         if len(r_axis) == 4:
             u1 = r_axis[0]
@@ -1412,8 +1411,8 @@ class GrainBoundaryGenerator:
                 raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
         else:
             mu, mv = c2_a2_ratio
-            if gcd(mu, mv) != 1:
-                temp = gcd(mu, mv)
+            if math.gcd(mu, mv) != 1:
+                temp = math.gcd(mu, mv)
                 mu = round(mu / temp)
                 mv = round(mv / temp)
 
@@ -1430,7 +1429,7 @@ class GrainBoundaryGenerator:
             else:
                 m_max = int(np.sqrt((cutoff * 12 * mu * mv - n**2 * d) / (3 * mu)))
             for m in range(m_max + 1):
-                if gcd(m, n) == 1 or m == 0:
+                if math.gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
                         (u**2 * mv - v**2 * mv - w**2 * mu) * n**2 + 2 * w * mu * m * n + 3 * mu * m**2,
@@ -1461,7 +1460,7 @@ class GrainBoundaryGenerator:
                     all_list = R_list_inv + R_list + [F]
                     # Compute the max common factors for the elements of the rotation matrix
                     # and its inverse.
-                    com_fac = reduce(gcd, all_list)
+                    com_fac = reduce(math.gcd, all_list)
                     sigma = round((3 * mu * m**2 + d * n**2) / com_fac)
                     if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas):
@@ -1515,9 +1514,9 @@ class GrainBoundaryGenerator:
             v = v1 + w1 - u1
             w = w1 - 2 * v1 - u1
             r_axis = [u, v, w]
-        # make sure gcd(r_axis)==1
-        if reduce(gcd, r_axis) != 1:
-            r_axis = [round(x / reduce(gcd, r_axis)) for x in r_axis]
+        # make sure math.(r_axis)==1
+        if reduce(math.gcd, r_axis) != 1:
+            r_axis = [round(x / reduce(math.gcd, r_axis)) for x in r_axis]
         u, v, w = r_axis
         # make sure mu, mv are coprime integers.
         if ratio_alpha is None:
@@ -1526,8 +1525,8 @@ class GrainBoundaryGenerator:
                 raise RuntimeError("For irrational ratio_alpha, CSL only exist for [1,1,1] or [u, v, -(u+v)] and m =0")
         else:
             mu, mv = ratio_alpha
-            if gcd(mu, mv) != 1:
-                temp = gcd(mu, mv)
+            if math.gcd(mu, mv) != 1:
+                temp = math.gcd(mu, mv)
                 mu = round(mu / temp)
                 mv = round(mv / temp)
 
@@ -1543,7 +1542,7 @@ class GrainBoundaryGenerator:
             else:
                 m_max = int(np.sqrt((cutoff * abs(4 * mu * (mu - 3 * mv)) - n**2 * d) / (mu)))
             for m in range(m_max + 1):
-                if gcd(m, n) == 1 or m == 0:
+                if math.gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
                         (mu - 2 * mv) * (u**2 - v**2 - w**2) * n**2
@@ -1591,7 +1590,7 @@ class GrainBoundaryGenerator:
                     F = mu * m**2 + d * n**2
                     all_list = R_list_inv + R_list + [F]
                     # Compute the max common factors for the elements of the rotation matrix and its inverse.
-                    com_fac = reduce(gcd, all_list)
+                    com_fac = reduce(math.gcd, all_list)
                     sigma = round(abs(F / com_fac))
                     if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas):
@@ -1631,9 +1630,9 @@ class GrainBoundaryGenerator:
                 angles may result in equivalent microstructures.
         """
         sigmas = {}
-        # make sure gcd(r_axis)==1
-        if reduce(gcd, r_axis) != 1:
-            r_axis = [round(x / reduce(gcd, r_axis)) for x in r_axis]
+        # make sure math.gcd(r_axis)==1
+        if reduce(math.gcd, r_axis) != 1:
+            r_axis = [round(x / reduce(math.gcd, r_axis)) for x in r_axis]
 
         u, v, w = r_axis
 
@@ -1644,8 +1643,8 @@ class GrainBoundaryGenerator:
                 raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
         else:
             mu, mv = c2_a2_ratio
-            if gcd(mu, mv) != 1:
-                temp = gcd(mu, mv)
+            if math.gcd(mu, mv) != 1:
+                temp = math.gcd(mu, mv)
                 mu = round(mu / temp)
                 mv = round(mv / temp)
 
@@ -1659,7 +1658,7 @@ class GrainBoundaryGenerator:
         for n in range(1, n_max + 1):
             m_max = 0 if c2_a2_ratio is None and w == 0 else int(np.sqrt((cutoff * 4 * mu * mv - n**2 * d) / mu))
             for m in range(m_max + 1):
-                if gcd(m, n) == 1 or m == 0:
+                if math.gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
                         (u**2 * mv - v**2 * mv - w**2 * mu) * n**2 + mu * m**2,
@@ -1690,7 +1689,7 @@ class GrainBoundaryGenerator:
                     all_list = R_list + R_list_inv + [F]
                     # Compute the max common factors for the elements of the rotation matrix
                     #  and its inverse.
-                    com_fac = reduce(gcd, all_list)
+                    com_fac = reduce(math.gcd, all_list)
                     sigma = round((mu * m**2 + d * n**2) / com_fac)
                     if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas):
@@ -1732,9 +1731,9 @@ class GrainBoundaryGenerator:
                 angles may result in equivalent microstructures.
         """
         sigmas = {}
-        # make sure gcd(r_axis)==1
-        if reduce(gcd, r_axis) != 1:
-            r_axis = [round(x / reduce(gcd, r_axis)) for x in r_axis]
+        # make sure math.gcd(r_axis)==1
+        if reduce(math.gcd, r_axis) != 1:
+            r_axis = [round(x / reduce(math.gcd, r_axis)) for x in r_axis]
 
         u, v, w = r_axis
         # make sure mu, lambda, mv are coprime integers.
@@ -1744,8 +1743,8 @@ class GrainBoundaryGenerator:
             if len(non_none) < 2:
                 raise RuntimeError("No CSL exist for two irrational numbers")
             non1, non2 = non_none
-            if reduce(gcd, non_none) != 1:
-                temp = reduce(gcd, non_none)
+            if reduce(math.gcd, non_none) != 1:
+                temp = reduce(math.gcd, non_none)
                 non1 = round(non1 / temp)
                 non2 = round(non2 / temp)
             if mu is None:
@@ -1768,8 +1767,8 @@ class GrainBoundaryGenerator:
                     raise RuntimeError("For irrational a2, CSL only exist for [1,0,0] or [0,v,w] and m = 0")
         else:
             mu, lam, mv = c2_b2_a2_ratio
-            if reduce(gcd, c2_b2_a2_ratio) != 1:
-                temp = reduce(gcd, c2_b2_a2_ratio)
+            if reduce(math.gcd, c2_b2_a2_ratio) != 1:
+                temp = reduce(math.gcd, c2_b2_a2_ratio)
                 mu = round(mu / temp)
                 mv = round(mv / temp)
                 lam = round(lam / temp)
@@ -1792,7 +1791,7 @@ class GrainBoundaryGenerator:
             else:
                 m_max = int(np.sqrt((cutoff * 4 * mu * mv * lam * mv - n**2 * d) / mu / lam))
             for m in range(m_max + 1):
-                if gcd(m, n) == 1 or m == 0:
+                if math.gcd(m, n) == 1 or m == 0:
                     # construct the rotation matrix, refer to the reference
                     R_list = [
                         (u**2 * mv * mv - lam * v**2 * mv - w**2 * mu * mv) * n**2 + lam * mu * m**2,
@@ -1823,7 +1822,7 @@ class GrainBoundaryGenerator:
                     all_list = R_list + R_list_inv + [F]
                     # Compute the max common factors for the elements of the rotation matrix
                     #  and its inverse.
-                    com_fac = reduce(gcd, all_list)
+                    com_fac = reduce(math.gcd, all_list)
                     sigma = round((mu * lam * m**2 + d * n**2) / com_fac)
                     if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas):
@@ -1877,7 +1876,7 @@ class GrainBoundaryGenerator:
         miller = np.array(combination)
         miller = miller[np.argsort(np.linalg.norm(miller, axis=1))]
         for val in miller:
-            if reduce(gcd, val) == 1:
+            if reduce(math.gcd, val) == 1:
                 matrix = GrainBoundaryGenerator.get_trans_mat(r_axis, r_angle, surface=val, quick_gen=True)
                 vec = np.cross(matrix[1][0], matrix[1][1])
                 miller2 = GrainBoundaryGenerator.vec_to_surface(vec)
@@ -2018,8 +2017,8 @@ class GrainBoundaryGenerator:
         ab_vector = []
         # obtain the miller index of surface in terms of csl.
         miller = np.matmul(surface, csl.T)
-        if reduce(gcd, miller) != 1:
-            miller = [round(x / reduce(gcd, miller)) for x in miller]
+        if reduce(math.gcd, miller) != 1:
+            miller = [round(x / reduce(math.gcd, miller)) for x in miller]
         miller_nonzero = []
         # quickly generate a supercell, normal is not work in this way
         if quick_gen:
@@ -2062,7 +2061,7 @@ class GrainBoundaryGenerator:
             lcm_miller = []
             for ii in range(index_len):
                 for jj in range(ii + 1, index_len):
-                    com_gcd = gcd(miller_nonzero[ii], miller_nonzero[jj])
+                    com_gcd = math.gcd(miller_nonzero[ii], miller_nonzero[jj])
                     mil1 = round(miller_nonzero[ii] / com_gcd)
                     mil2 = round(miller_nonzero[jj] / com_gcd)
                     lcm_miller.append(max(abs(mil1), abs(mil2)))
@@ -2104,7 +2103,7 @@ class GrainBoundaryGenerator:
                 new_i[np.nonzero(ii)[0][0]] = -1 * new_i[np.nonzero(ii)[0][0]]
                 combination.append(new_i)
         for ii in combination:
-            if reduce(gcd, ii) == 1:
+            if reduce(math.gcd, ii) == 1:
                 temp = np.dot(np.array(ii), csl)
                 if abs(np.dot(temp, surface) - 0) < 1.0e-8:
                     ab_vector.append(temp)
@@ -2152,7 +2151,7 @@ class GrainBoundaryGenerator:
                         new_i[np.nonzero(ii)[0][0]] = -1 * new_i[np.nonzero(ii)[0][0]]
                         combination.append(new_i)
                 for ii in combination:
-                    if reduce(gcd, ii) == 1:
+                    if reduce(math.gcd, ii) == 1:
                         temp = np.dot(np.array(ii), csl)
                         if abs(np.dot(temp, surface) - 0) > 1.0e-8:
                             c_cross = np.cross(np.matmul(temp, trans), np.matmul(surface, ctrans))
