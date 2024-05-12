@@ -1,4 +1,4 @@
-"""This module implements definitions for various kinds of bonds. Typically used in
+"""This class implements definitions for various kinds of bonds. Typically used in
 Molecule analysis.
 """
 
@@ -17,13 +17,10 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import SpeciesLike
 
 
-def _load_bond_length_data() -> dict[tuple[str, ...], dict[float, float]]:
-    """Load bond length data from bond_lengths.json file."""
-    with open(
-        os.path.join(os.path.dirname(__file__), "bond_lengths.json"),
-        encoding="utf-8",
-    ) as file:
-        data: dict[tuple, dict] = defaultdict(dict)
+def _load_bond_length_data():
+    """Loads bond length data from json file."""
+    with open(os.path.join(os.path.dirname(__file__), "bond_lengths.json")) as file:
+        data = defaultdict(dict)
         for row in json.load(file):
             els = sorted(row["elements"])
             data[tuple(els)][row["bond_order"]] = row["length"]
@@ -46,19 +43,12 @@ class CovalentBond:
         self.site1 = site1
         self.site2 = site2
 
-    def __repr__(self) -> str:
-        return f"Covalent bond between {self.site1} and {self.site2}"
-
     @property
     def length(self) -> float:
         """Length of the bond."""
         return self.site1.distance(self.site2)
 
-    def get_bond_order(
-        self,
-        tol: float = 0.2,
-        default_bl: float | None = None,
-    ) -> float:
+    def get_bond_order(self, tol: float = 0.2, default_bl: float | None = None) -> float:
         """The bond order according the distance between the two sites.
 
         Args:
@@ -81,14 +71,8 @@ class CovalentBond:
         return get_bond_order(sp1, sp2, dist, tol, default_bl)
 
     @staticmethod
-    def is_bonded(
-        site1: Site,
-        site2: Site,
-        tol: float = 0.2,
-        bond_order: float | None = None,
-        default_bl: float | None = None,
-    ) -> bool:
-        """Check if two sites are bonded, up to a certain limit.
+    def is_bonded(site1, site2, tol: float = 0.2, bond_order: float | None = None, default_bl: float | None = None):
+        """Test if two sites are bonded, up to a certain limit.
 
         Args:
             site1 (Site): First site
@@ -103,7 +87,7 @@ class CovalentBond:
                 bond length. If None, a ValueError will be thrown.
 
         Returns:
-            bool: whether two sites are bonded.
+            Boolean indicating whether two sites are bonded.
         """
         sp1 = next(iter(site1.species))
         sp2 = next(iter(site2.species))
@@ -118,12 +102,11 @@ class CovalentBond:
             return dist < (1 + tol) * default_bl
         raise ValueError(f"No bond data for elements {syms[0]} - {syms[1]}")
 
+    def __repr__(self) -> str:
+        return f"Covalent bond between {self.site1} and {self.site2}"
 
-def obtain_all_bond_lengths(
-    sp1: SpeciesLike,
-    sp2: SpeciesLike,
-    default_bl: float | None = None,
-) -> dict[float, float]:
+
+def obtain_all_bond_lengths(sp1, sp2, default_bl: float | None = None):
     """Obtain bond lengths for all bond orders from bond length database.
 
     Args:
@@ -144,23 +127,17 @@ def obtain_all_bond_lengths(
     if syms in bond_lengths:
         return bond_lengths[syms].copy()
     if default_bl is not None:
-        return {1.0: default_bl}
+        return {1: default_bl}
     raise ValueError(f"No bond data for elements {syms[0]} - {syms[1]}")
 
 
-def get_bond_order(
-    sp1: SpeciesLike,
-    sp2: SpeciesLike,
-    dist: float,
-    tol: float = 0.2,
-    default_bl: float | None = None,
-) -> float:
+def get_bond_order(sp1, sp2, dist: float, tol: float = 0.2, default_bl: float | None = None):
     """Calculate the bond order given the distance of 2 species.
 
     Args:
         sp1 (Species): First specie.
         sp2 (Species): Second specie.
-        dist (float): Distance in angstrom
+        dist: Their distance in angstrom
         tol (float): Relative tolerance to test. Basically, the code
             checks if the distance between the sites is larger than
             (1 + tol) * the longest bond distance or smaller than
@@ -171,7 +148,8 @@ def get_bond_order(
             bond length (bond order = 1). If None, a ValueError will be thrown.
 
     Returns:
-        float: Bond order. For example, 1.7 for C-C bond in benzene.
+        Float value of bond order. For example, for C-C bond in benzene,
+        return 1.7.
     """
     all_lens = obtain_all_bond_lengths(sp1, sp2, default_bl)
     # Transform bond lengths dict to list assuming bond data is successive
@@ -194,11 +172,7 @@ def get_bond_order(
     return trial_bond_order - 1
 
 
-def get_bond_length(
-    sp1: SpeciesLike,
-    sp2: SpeciesLike,
-    bond_order: float = 1,
-) -> float:
+def get_bond_length(sp1: SpeciesLike, sp2: SpeciesLike, bond_order: float = 1) -> float:
     """Get the bond length between two species.
 
     Args:
@@ -210,8 +184,8 @@ def get_bond_length(
             C-C bond length, this should be set to 2. Defaults to 1.
 
     Returns:
-        float: Bond length in Angstrom. If no data is available,
-            the sum of the atomic radius is used.
+        Bond length in Angstrom. If no data is available, the sum of the atomic
+        radius is used.
     """
     sp1 = Element(sp1) if isinstance(sp1, str) else sp1
     sp2 = Element(sp2) if isinstance(sp2, str) else sp2

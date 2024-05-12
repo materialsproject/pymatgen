@@ -16,7 +16,8 @@ if TYPE_CHECKING:
 
 
 class Ion(Composition, MSONable, Stringify):
-    """Just a Composition object with an additional variable to store charge.
+    """Ion object. Just a Composition object with an additional variable to store
+    charge.
 
     The net charge can either be represented as Mn++, Mn+2, Mn[2+], Mn[++], or
     Mn[+2]. Note the order of the sign and magnitude in each representation.
@@ -28,40 +29,6 @@ class Ion(Composition, MSONable, Stringify):
         """
         super().__init__(composition)
         self._charge = charge
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Ion):
-            return NotImplemented
-        if self.composition != other.composition:
-            return False
-        return self.charge == other.charge
-
-    def __add__(self, other) -> Self:
-        """Addition of two ions."""
-        new_composition = self.composition + other.composition
-        new_charge = self.charge + other.charge
-        return type(self)(new_composition, new_charge)
-
-    def __sub__(self, other) -> Self:
-        """Subtraction of two ions."""
-        new_composition = self.composition - other.composition
-        new_charge = self.charge - other.charge
-        return type(self)(new_composition, new_charge)
-
-    def __mul__(self, other) -> Self:
-        """Multiplication of an Ion with a factor."""
-        new_composition = self.composition * other
-        new_charge = self.charge * other
-        return type(self)(new_composition, new_charge)
-
-    def __hash__(self) -> int:
-        return hash((self.composition, self.charge))
-
-    def __str__(self) -> str:
-        return self.formula
-
-    def __repr__(self) -> str:
-        return f"Ion: {self.formula}"
 
     @classmethod
     def from_formula(cls, formula: str) -> Self:
@@ -77,27 +44,27 @@ class Ion(Composition, MSONable, Stringify):
         Returns:
             Ion
         """
-        # Strip (aq), if present
+        charge = 0.0
+        # strip (aq), if present
         if match := re.search(r"\(aq\)", formula):
             formula = formula.replace(match.group(), "", 1)
-
-        # Check for charge in brackets
-        charge = 0.0
+        # check for charge in brackets
         if match := re.search(r"\[([^\[\]]+)\]", formula):
-            if m_chg := re.search(r"([\.\d]*)([+-]*)([\.\d]*)", match[1]):
-                if m_chg[1] != "":
-                    if m_chg[3] != "":
+            m_chg = re.search(r"([\.\d]*)([+-]*)([\.\d]*)", match.group(1))
+            if m_chg:
+                if m_chg.group(1) != "":
+                    if m_chg.group(3) != "":
                         raise ValueError("Invalid formula")
-                    charge += float(m_chg[1]) * (float(f"{m_chg[2]}1"))
-                elif m_chg[3] != "":
-                    charge += float(m_chg[3]) * (float(f"{m_chg[2]}1"))
+                    charge += float(m_chg.group(1)) * (float(f"{m_chg.group(2)}1"))
+                elif m_chg.group(3) != "":
+                    charge += float(m_chg.group(3)) * (float(f"{m_chg.group(2)}1"))
                 else:
-                    for val in re.findall("[+-]", m_chg[2]):
+                    for val in re.findall("[+-]", m_chg.group(2)):
                         charge += float(f"{val}1")
 
             formula = formula.replace(match.group(), "", 1)
 
-        # If no brackets, parse trailing +/-
+        # if no brackets, parse trailing +/-
         for m_chg in re.finditer(r"([+-])([\.\d]*)", formula):
             sign = m_chg.group(1)
             sgn = float(f"{sign}1")
@@ -106,8 +73,8 @@ class Ion(Composition, MSONable, Stringify):
             else:
                 charge += sgn
             formula = formula.replace(m_chg.group(), "", 1)
-
-        return cls(Composition(formula), charge)
+        composition = Composition(formula)
+        return cls(composition, charge)
 
     @property
     def formula(self) -> str:
@@ -127,11 +94,7 @@ class Ion(Composition, MSONable, Stringify):
         chg_str = charge_string(self._charge, brackets=False)
         return anon_formula + chg_str
 
-    def get_reduced_formula_and_factor(
-        self,
-        iupac_ordering: bool = False,
-        hydrates: bool = False,
-    ) -> tuple[str, float]:
+    def get_reduced_formula_and_factor(self, iupac_ordering: bool = False, hydrates: bool = False) -> tuple[str, float]:
         """Calculate a reduced formula and factor.
 
         Similar to Composition.get_reduced_formula_and_factor except that O-H formulas
@@ -178,13 +141,13 @@ class Ion(Composition, MSONable, Stringify):
         el_amt_dict = {k: int(round(v)) for k, v in comp.get_el_amt_dict().items()}
         formula, factor = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
 
-        if (self.composition.get("H") and self.composition.get("O")) is not None:
+        if self.composition.get("H") == self.composition.get("O") is not None:
             formula = formula.replace("HO", "OH")
 
         if nH2O > 0:
             formula += f".{nH2O}H2O"
 
-        # Special handling of peroxide, acetic acid / acetate, and small alcohols
+        # special handling of peroxide, acetic acid / acetate, and small alcohols
         if formula == "OH" and self.charge == 0:
             formula = "H2O2"
             factor /= 2
@@ -210,7 +173,7 @@ class Ion(Composition, MSONable, Stringify):
         elif formula == "O" and factor % 3 == 0:
             formula = "O3"
             factor /= 3
-        elif formula in {"O", "N", "F", "Cl", "H"} and factor % 2 == 0:
+        elif formula in ["O", "N", "F", "Cl", "H"] and factor % 2 == 0:
             formula += "2"
             factor /= 2
 
@@ -266,7 +229,7 @@ class Ion(Composition, MSONable, Stringify):
         """
         Returns:
             dict with element symbol and reduced amount e.g.
-                {"Fe": 2.0, "O":3.0}.
+        {"Fe": 2.0, "O":3.0}.
         """
         dct = self.composition.to_reduced_dict
         dct["charge"] = self.charge
@@ -277,7 +240,7 @@ class Ion(Composition, MSONable, Stringify):
         """Composition of ion."""
         return Composition(self._data)
 
-    def oxi_state_guesses(  # type: ignore[override]
+    def oxi_state_guesses(  # type: ignore
         self,
         oxi_states_override: dict | None = None,
         all_oxi_states: bool = False,
@@ -314,9 +277,43 @@ class Ion(Composition, MSONable, Stringify):
         """
         return self._get_oxi_state_guesses(all_oxi_states, max_sites, oxi_states_override, self.charge)[0]
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Ion):
+            return NotImplemented
+        if self.composition != other.composition:
+            return False
+        return self.charge == other.charge
+
+    def __add__(self, other):
+        """Addition of two ions."""
+        new_composition = self.composition + other.composition
+        new_charge = self.charge + other.charge
+        return Ion(new_composition, new_charge)
+
+    def __sub__(self, other):
+        """Subtraction of two ions."""
+        new_composition = self.composition - other.composition
+        new_charge = self.charge - other.charge
+        return Ion(new_composition, new_charge)
+
+    def __mul__(self, other):
+        """Multiplication of an Ion with a factor."""
+        new_composition = self.composition * other
+        new_charge = self.charge * other
+        return Ion(new_composition, new_charge)
+
+    def __hash__(self) -> int:
+        return hash((self.composition, self.charge))
+
+    def __str__(self) -> str:
+        return self.formula
+
+    def __repr__(self) -> str:
+        return "Ion: " + self.formula
+
     def to_pretty_string(self) -> str:
         """Pretty string with proper superscripts."""
-        _str = super().reduced_formula
+        str_ = super().reduced_formula
         if val := formula_double_format(self.charge, ignore_ones=False):
-            _str += f"^{val:+}"
-        return _str
+            str_ += f"^{val:+}"
+        return str_
