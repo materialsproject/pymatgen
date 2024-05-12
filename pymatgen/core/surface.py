@@ -317,33 +317,6 @@ class Slab(Structure):
         dip_per_unit_area = self.dipole / self.surface_area
         return np.linalg.norm(dip_per_unit_area) > tol_dipole_per_unit_area
 
-    def center_slab(self) -> Slab:
-        """Relocate the Slab region to the center.
-
-        This makes it easier to find surface sites and apply
-        operations like doping.
-
-        TODO (@DanielYang59): need to check if the Slab is continuous
-
-        Returns:
-            Slab: The centered Slab.
-        """
-        # Calculate shift vector
-        center_of_mass = np.average(
-            self.frac_coords,
-            weights=[site.species.weight for site in self],
-            axis=0,
-        )
-        shift = 0.5 - center_of_mass[2]
-
-        # Move the slab to the center
-        self.translate_sites(
-            indices=list(range(len(self))),  # all sites
-            vector=[0, 0, shift],
-        )
-
-        return self
-
     def get_slab_regions(
         self,
         blength: float = 3.5,
@@ -826,23 +799,38 @@ class Slab(Structure):
             warnings.warn("Equivalent sites could not be found for some indices. Surface unchanged.")
 
 
-def center_slab(slab: Slab) -> Slab:
+def center_slab(slab: Structure) -> Structure:
     """Relocate the Slab region to the center.
 
     Deprecated, please use the center_slab method of Slab directly.
 
     Args:
-        slab (Slab): The Slab to center.
+        slab (Structure): The Slab to center.
 
     Returns:
-        Slab: The centered Slab.
+        Structure: The centered Slab.
     """
-    warnings.warn("Please use the center_slab method of Slab directly.", DeprecationWarning)
+    # Calculate shift vector
+    center_of_mass = np.average(
+        slab.frac_coords,
+        weights=[site.species.weight for site in slab],
+        axis=0,
+    )
+    shift = 0.5 - center_of_mass[2]
 
-    return slab.center_slab()
+    # Move the slab to the center
+    slab.translate_sites(
+        indices=list(range(len(slab))),  # all sites
+        vector=[0, 0, shift],
+    )
+
+    return slab
 
 
-def get_slab_regions(slab: Slab, blength: float = 3.5) -> list[tuple[float, float]]:
+def get_slab_regions(
+    slab: Slab,
+    blength: float = 3.5,
+) -> list[tuple[float, float]]:
     """Find the z-ranges for the slab region.
 
     Deprecated, please use the get_slab_regions method of Slab directly.
