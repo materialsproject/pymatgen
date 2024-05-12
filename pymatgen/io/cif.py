@@ -43,8 +43,6 @@ sub_space_group = partial(re.sub, r"[\s_]", "")
 
 space_groups = {sub_space_group(key): key for key in SYMM_DATA["space_group_encoding"]}
 
-space_groups.update({sub_space_group(key): key for key in SYMM_DATA["space_group_encoding"]})
-
 
 class CifBlock:
     """
@@ -650,7 +648,7 @@ class CifParser:
             # Missing Key search for cell setting
             for lattice_label in ["_symmetry_cell_setting", "_space_group_crystal_system"]:
                 if data.data.get(lattice_label):
-                    lattice_type = data.data.get(lattice_label).lower()
+                    lattice_type = data.data.get(lattice_label, "").lower()
                     try:
                         required_args = getfullargspec(getattr(Lattice, lattice_type)).args
 
@@ -1653,8 +1651,7 @@ class CifWriter:
                     "_atom_site_moment_crystalaxis_z",
                 ]
             )
-        dct = {}
-        dct[comp.reduced_formula] = CifBlock(block, loops, comp.reduced_formula)
+        dct = {comp.reduced_formula: CifBlock(block, loops, comp.reduced_formula)}
         self._cf = CifFile(dct)
 
     @property
@@ -1676,7 +1673,7 @@ class CifWriter:
             file.write(str(self))
 
 
-def str2float(text) -> float:
+def str2float(text: str) -> float:
     """Remove uncertainty brackets from strings and return the float."""
     try:
         # Note that the ending ) is sometimes missing. That is why the code has
