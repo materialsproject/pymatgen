@@ -39,6 +39,9 @@ class LibxcFunc(Enum):
     but use the API provided by Xcfunc.
     """
 
+    # Warning: the following header is required by `regen_libxcfunc.py`
+
+    # begin_include_dont_touch
     LDA_C_1D_CSC = 18
     LDA_C_1D_LOOS = 26
     LDA_C_2D_AMGB = 15
@@ -401,6 +404,8 @@ class LibxcFunc(Enum):
     HYB_MGGA_X_MS2H = 224
     HYB_MGGA_X_SCAN0 = 264
     HYB_MGGA_XC_WB97M_V = 531
+
+    # end_include_dont_touch
 
     def __init__(self, _num: int) -> None:
         """
