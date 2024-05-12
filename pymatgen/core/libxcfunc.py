@@ -499,3 +499,8 @@ class LibxcFunc(Enum):
     def to_json(self) -> str:
         """Get a json string representation of the LibxcFunc."""
         return json.dumps(self.as_dict(), cls=MontyEncoder)
+
+
+if __name__ == "__main__":
+    for xc in LibxcFunc:
+        print(xc)
