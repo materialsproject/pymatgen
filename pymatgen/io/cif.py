@@ -884,11 +884,7 @@ class CifParser:
         return oxi_states
 
     @staticmethod
-<<<<<<< Updated upstream
-    def parse_magmoms(data: dict, lattice: Lattice | None = None) -> dict[str, NDArray]:
-=======
     def _parse_magmoms(data: dict) -> dict[str, NDArray]:
->>>>>>> Stashed changes
         """Parse atomic magnetic moments from data."""
         try:
             magmoms = {
