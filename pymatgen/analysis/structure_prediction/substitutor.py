@@ -45,9 +45,7 @@ class Substitutor(MSONable):
     charge_balanced_tol: float = 1e-9
 
     def __init__(self, threshold=1e-3, symprec: float = 0.1, **kwargs):
-        """
-        This substitutor uses the substitution probability class to
-        find good substitutions for a given chemistry or structure.
+        """Use the substitution probability class to find good substitutions for a given chemistry or structure.
 
         Args:
             threshold:

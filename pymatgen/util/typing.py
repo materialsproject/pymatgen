@@ -49,3 +49,6 @@ SitePropsType = Union[list[dict[Any, Sequence[Any]]], dict[Any, Sequence[Any]]]
 
 # Types specific to io.vasp
 Kpoint = Union[tuple[float, float, float], tuple[int,]]
+
+# Miller index
+MillerIndex = tuple[int, int, int]

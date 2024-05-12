@@ -144,8 +144,7 @@ VALID_FEFF_TAGS = (
 
 
 class Header(MSONable):
-    """
-    Creates Header for the FEFF input file.
+    """Create Header for the FEFF input file.
 
     Has the following format:
 
@@ -450,8 +449,7 @@ class Atoms(MSONable):
 
     @staticmethod
     def cluster_from_file(filename):
-        """
-        Parse the feff input file and return the atomic cluster as a Molecule
+        """Parse the feff input file and return the atomic cluster as a Molecule
         object.
 
         Args:
