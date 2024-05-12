@@ -195,30 +195,30 @@ class CifBlock:
         loops: list[list[str]] = []
 
         while deq:
-            string = deq.popleft()
+            _string = deq.popleft()
             # cif keys aren't in quotes, so show up in s[0]
-            if string[0] == "_eof":
+            if _string[0] == "_eof":
                 break
 
-            if string[0].startswith("_"):
+            if _string[0].startswith("_"):
                 try:
-                    data[string[0]] = "".join(deq.popleft())
+                    data[_string[0]] = "".join(deq.popleft())
                 except IndexError:
-                    data[string[0]] = ""
+                    data[_string[0]] = ""
 
-            elif string[0].startswith("loop_"):
+            elif _string[0].startswith("loop_"):
                 columns: list[str] = []
                 items: list[str] = []
                 while deq:
-                    string = deq[0]
-                    if string[0].startswith("loop_") or not string[0].startswith("_"):
+                    _string = deq[0]
+                    if _string[0].startswith("loop_") or not _string[0].startswith("_"):
                         break
                     columns.append("".join(deq.popleft()))
                     data[columns[-1]] = []
 
                 while deq:
-                    string = deq[0]
-                    if string[0].startswith(("loop_", "_")):
+                    _string = deq[0]
+                    if _string[0].startswith(("loop_", "_")):
                         break
                     items.append("".join(deq.popleft()))
                 n = len(items) // len(columns)
@@ -227,7 +227,7 @@ class CifBlock:
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
 
-            elif issue := "".join(string).strip():
+            elif issue := "".join(_string).strip():
                 warnings.warn(f"Possible issue in CIF file at line: {issue}")
 
         return cls(data, loops, header)
@@ -867,7 +867,7 @@ class CifParser:
         return mag_symm_ops
 
     @staticmethod
-    def parse_oxi_states(data: dict) -> dict[str, float]:
+    def _parse_oxi_states(data: dict) -> dict[str, float]:
         """Parse oxidation states from data."""
         try:
             oxi_states = {
@@ -884,12 +884,12 @@ class CifParser:
         return oxi_states
 
     @staticmethod
+<<<<<<< Updated upstream
     def parse_magmoms(data: dict, lattice: Lattice | None = None) -> dict[str, NDArray]:
+=======
+    def _parse_magmoms(data: dict) -> dict[str, NDArray]:
+>>>>>>> Stashed changes
         """Parse atomic magnetic moments from data."""
-        # DEBUG (DanielYang59): suspicious usage lattice argument
-        if lattice is None:
-            raise ValueError("Magmoms given in terms of crystal axes in magCIF spec.")
-
         try:
             magmoms = {
                 data["_atom_site_moment_label"][idx]: np.array(
@@ -983,13 +983,16 @@ class CifParser:
             raise NotImplementedError("Incommensurate structures not currently supported.")
 
         if self.feature_flags["magcif"]:
+            if lattice is None:
+                raise ValueError("Magmoms given in terms of crystal axes in magCIF spec.")
             self.symmetry_operations = self.get_magsymops(data)
-            magmoms = self.parse_magmoms(data, lattice=lattice)
+            magmoms = self._parse_magmoms(data)
+
         else:
             self.symmetry_operations = self.get_symops(data)
             magmoms = {}
 
-        oxi_states = self.parse_oxi_states(data)
+        oxi_states = self._parse_oxi_states(data)
 
         coord_to_species: dict[Vector3D, Composition] = {}
         coord_to_magmoms: dict[Vector3D, NDArray] = {}
