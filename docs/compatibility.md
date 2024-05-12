@@ -3,6 +3,7 @@ layout: default
 title: Compatibility
 nav_order: 3
 ---
+
 # Compatibility
 
 Pymatgen is a tool used for academic research and is actively developed by
