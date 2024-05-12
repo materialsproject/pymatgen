@@ -650,7 +650,7 @@ class CifParser:
             # Missing Key search for cell setting
             for lattice_label in ["_symmetry_cell_setting", "_space_group_crystal_system"]:
                 if data.data.get(lattice_label):
-                    lattice_type = data.data.get(lattice_label, "").lower()
+                    lattice_type = data.data.get(lattice_label).lower()
                     try:
                         required_args = getfullargspec(getattr(Lattice, lattice_type)).args
 
@@ -737,7 +737,8 @@ class CifParser:
                 sg = data.data.get(symmetry_label)
                 msg_template = "No _symmetry_equiv_pos_as_xyz type key found. Spacegroup from {} used."
 
-                if sg := sub_space_group(sg):
+                if sg:
+                    sg = sub_space_group(sg)
                     try:
                         if spg := space_groups.get(sg):
                             sym_ops = list(SpaceGroup(spg).symmetry_ops)
@@ -752,9 +753,9 @@ class CifParser:
                         cod_data = loadfn(
                             os.path.join(os.path.dirname(os.path.dirname(__file__)), "symmetry", "symm_ops.json")
                         )
-                        for data in cod_data:
-                            if sg == re.sub(r"\s+", "", data["hermann_mauguin"]):
-                                xyz = data["symops"]
+                        for _data in cod_data:
+                            if sg == re.sub(r"\s+", "", _data["hermann_mauguin"]):
+                                xyz = _data["symops"]
                                 sym_ops = [SymmOp.from_xyz_str(s) for s in xyz]
                                 msg = msg_template.format(symmetry_label)
                                 warnings.warn(msg)
