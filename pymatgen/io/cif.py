@@ -979,10 +979,11 @@ class CifParser:
             magmom = magmoms.get(label, np.array([0, 0, 0]))
 
             try:
-                occu = str2float(data["_atom_site_occupancy"][idx])
+                occu: float = str2float(data["_atom_site_occupancy"][idx])
             except (KeyError, ValueError):
                 occu = 1
-            # If the occupancy is greater than 0, create comp_d
+
+            # If the occupancy is greater than 0, create comp_dict
             if occu > 0:
                 coord = (x, y, z)
                 match = get_matching_coord(coord)
