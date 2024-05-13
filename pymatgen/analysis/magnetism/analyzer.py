@@ -161,7 +161,7 @@ class CollinearMagneticStructureAnalyzer:
             except ValueError:
                 warnings.warn(f"Could not assign valences for {structure.reduced_formula}")
 
-        # check to see if structure has magnetic moments
+        # Check if structure has magnetic moments
         # on site properties or species spin properties,
         # prioritize site properties
 

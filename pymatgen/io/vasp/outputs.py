@@ -2036,7 +2036,7 @@ class Outcar:
             self.dfpt = True
             self.read_internal_strain_tensor()
 
-        # Check to see if LEPSILON is true and read piezo data if so
+        # Check if LEPSILON is True and read piezo data if so
         self.lepsilon = False
         self.read_pattern({"epsilon": "LEPSILON=     T"})
         if self.data.get("epsilon", []):
@@ -2046,7 +2046,7 @@ class Outcar:
             if self.dfpt:
                 self.read_lepsilon_ionic()
 
-        # Check to see if LCALCPOL is true and read polarization data if so
+        # Check if LCALCPOL is True and read polarization data if so
         self.lcalcpol = False
         self.read_pattern({"calcpol": "LCALCPOL   =     T"})
         if self.data.get("calcpol", []):
