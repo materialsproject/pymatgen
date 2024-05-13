@@ -1123,18 +1123,17 @@ class SlabGenerator:
         props = {k: v * n_layers_slab for k, v in props.items()}
 
         # Generate Slab
-        # DEBUG (@DanielYang): Structure created instead of a Slab
-        slab = Structure(new_lattice, species * n_layers_slab, all_coords, site_properties=props)
+        struct: Structure = Structure(new_lattice, species * n_layers_slab, all_coords, site_properties=props)
 
         # (Optionally) Post-process the Slab
         # Orthogonalize the structure (through LLL lattice basis reduction)
         if self.lll_reduce:
             # Sanitize Slab (LLL reduction + site sorting + map frac_coords)
-            lll_slab = slab.copy(sanitize=True)
-            slab = lll_slab
+            lll_slab = struct.copy(sanitize=True)
+            struct = lll_slab
 
             # Apply reduction on the scaling factor
-            mapping = lll_slab.lattice.find_mapping(slab.lattice)
+            mapping = lll_slab.lattice.find_mapping(struct.lattice)
             if mapping is None:
                 raise RuntimeError("LLL reduction has failed")
             scale_factor = np.dot(mapping[2], scale_factor)
@@ -1143,22 +1142,22 @@ class SlabGenerator:
         if self.center_slab:
             # TODO: (DanielYang59): use following center_slab
             # slab = center_slab(slab)
-            c_center = np.mean([coord[2] for coord in slab.frac_coords])
-            slab.translate_sites(list(range(len(slab))), [0, 0, 0.5 - c_center])
+            c_center = np.mean([coord[2] for coord in struct.frac_coords])
+            struct.translate_sites(list(range(len(struct))), [0, 0, 0.5 - c_center])
 
         # Reduce to primitive cell
         if self.primitive:
-            prim_slab = slab.get_primitive_structure(tolerance=tol)
-            slab = prim_slab
+            prim_slab = struct.get_primitive_structure(tolerance=tol)
+            struct = prim_slab
 
             if energy is not None:
-                energy *= prim_slab.volume / slab.volume
+                energy *= prim_slab.volume / struct.volume
 
         # Reorient the lattice to get the correctly reduced cell
         ouc = self.oriented_unit_cell.copy()
         if self.primitive:
             # Find a reduced OUC
-            slab_l = slab.lattice
+            slab_l = struct.lattice
             ouc = ouc.get_primitive_structure(
                 constrain_latt={
                     "a": slab_l.a,
@@ -1173,15 +1172,15 @@ class SlabGenerator:
             ouc = ouc if (slab_l.a == ouc.lattice.a and slab_l.b == ouc.lattice.b) else self.oriented_unit_cell
 
         return Slab(
-            slab.lattice,
-            slab.species_and_occu,
-            slab.frac_coords,
+            struct.lattice,
+            struct.species_and_occu,
+            struct.frac_coords,
             self.miller_index,
             ouc,
             shift,
             scale_factor,
             reorient_lattice=self.reorient_lattice,
-            site_properties=slab.site_properties,
+            site_properties=struct.site_properties,
             energy=energy,
         )
 
