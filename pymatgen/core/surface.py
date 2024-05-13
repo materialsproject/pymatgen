@@ -1230,12 +1230,10 @@ class SlabGenerator:
             frac_coords = self.oriented_unit_cell.frac_coords
             n_atoms: int = len(frac_coords)
 
-            # Clustering does not work when there is only one atom
+            # Skip clusterring when there is only one atom
             if n_atoms == 1:
                 shift = -frac_coords[0][2] + 0.5  # shift to center
-                return [
-                    shift,
-                ]
+                return [shift]
 
             # Compute a Cartesian z-coordinate distance matrix
             # TODO (@DanielYang59): account for periodic boundary condition
@@ -1268,8 +1266,8 @@ class SlabGenerator:
                 else:
                     shift = (possible_clst[idx] + possible_clst[idx + 1]) * 0.5
 
-                # TODO (@DanielYang59): clarify the need for the minus sign below
-                shifts.append(-(shift - math.floor(shift)))
+                # Wrap shift to [0, 1) range
+                shifts.append(shift - math.floor(shift))
 
             return sorted(shifts)
 
@@ -1323,8 +1321,7 @@ class SlabGenerator:
             # position fall within the z_range occupied by a bond)
             bonds_broken = 0
             for z_range in z_ranges:
-                # TODO (@DanielYang59): clarify the need for the minus sign below
-                if z_range[0] <= -shift <= z_range[1]:
+                if z_range[0] <= shift <= z_range[1]:
                     bonds_broken += 1
 
             # DEBUG(@DanielYang59): number of bonds broken passed to energy
