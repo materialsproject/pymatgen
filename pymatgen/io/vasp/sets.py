@@ -781,7 +781,7 @@ class DictSet(VaspInputSet):
             elif ismear == 0 and sigma > 0.05:
                 msg = f"ISMEAR = 0 with a small SIGMA ({sigma}) detected."
             warnings.warn(
-                f"{msg} See VASP recommendations on ISMEAR for metals (" "https://www.vasp.at/wiki/index.php/ISMEAR).",
+                f"{msg} See VASP recommendations on ISMEAR for metals (https://www.vasp.at/wiki/index.php/ISMEAR).",
                 BadInputSetWarning,
                 stacklevel=1,
             )
