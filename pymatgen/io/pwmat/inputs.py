@@ -49,7 +49,7 @@ class ListLocator(MSONable):
     """Find the element indices (starts from 0) of a certain paragraph of text from the list."""
 
     @staticmethod
-    def locate_all_lines(strs_lst: list[str], content: str, exclusion: str | None = None ) -> list[int]:
+    def locate_all_lines(strs_lst: list[str], content: str, exclusion: str | None = None) -> list[int]:
         """Locate the elements in list where a certain paragraph of text is located (return all indices)
 
         Args:
