@@ -115,8 +115,8 @@ class Slab(Structure):
                 you should supply the conventional structure.
             oriented_unit_cell (Structure): The oriented_unit_cell from which
                 this Slab is created (by scaling in the c-direction).
-            shift (float): The shift in the c-direction applied to get the
-                termination.
+            shift (float): The NEGATIVE of shift in the c-direction applied
+                to get the termination.
             scale_factor (np.ndarray): scale_factor Final computed scale factor
                 that brings the parent cell to the surface cell.
             reorient_lattice (bool): reorients the lattice parameters such that
@@ -125,7 +125,8 @@ class Slab(Structure):
                 that are less than 0.01 Ang apart. Defaults to False.
             reconstruction (str): Type of reconstruction. Defaults to None if
                 the slab is not reconstructed.
-            to_unit_cell (bool): Translates fractional coordinates into the unit cell. Defaults to False.
+            to_unit_cell (bool): Translates fractional coordinates into the
+                unit cell. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in Cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
