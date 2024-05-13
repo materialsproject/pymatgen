@@ -5,10 +5,38 @@ from monty.io import zopen
 from numpy.testing import assert_allclose
 
 from pymatgen.core import Composition, Structure
-from pymatgen.io.pwmat.inputs import ACExtractor, ACstrExtractor, AtomConfig, GenKpt, HighSymmetryPoint
+from pymatgen.io.pwmat.inputs import (
+    ACExtractor,
+    ACstrExtractor,
+    AtomConfig,
+    GenKpt,
+    HighSymmetryPoint,
+    LineLocator,
+    ListLocator,
+)
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/pwmat"
+
+
+@pytest.mark.parametrize(
+    ("exclusion", "expected_idx"),
+    [("", 1), ("average", 163), ("AVERAGE", 163)],
+)
+def test_line_locator(exclusion: str, expected_idx: int):
+    filepath = f"{TEST_DIR}/MOVEMENT.lzma"
+    aim_idx = LineLocator.locate_all_lines(file_path=filepath, content="FORCE", exclusion=exclusion)[0]
+    assert aim_idx == expected_idx
+
+
+@pytest.mark.parametrize(
+    ("exclusion", "expected_idx"),
+    [("", 0), ("average", 1), ("AVERAGE", 1)],
+)
+def test_list_locator(exclusion: str, expected_idx: int):
+    strs_lst = ["Average Force=  0.12342E+01", "Force"]
+    aim_idx = ListLocator.locate_all_lines(strs_lst=strs_lst, content="FORCE", exclusion=exclusion)[0]
+    assert aim_idx == expected_idx
 
 
 class TestACstrExtractor(PymatgenTest):
