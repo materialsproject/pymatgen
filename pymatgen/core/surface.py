@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
-    from numpy.typing import ArrayLike
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
     from pymatgen.core.composition import Element, Species
@@ -1107,7 +1107,7 @@ class SlabGenerator:
         # Shift all atoms
         frac_coords = self.oriented_unit_cell.frac_coords
         frac_coords = np.array(frac_coords) + np.array([0, 0, shift])[None, :]
-        frac_coords -= np.floor(frac_coords)  # wrap frac_coords to the [0, 1) range
+        frac_coords -= np.floor(frac_coords)  # wrap to the [0, 1) range
 
         # Scale down z-coordinate by the number of layers
         frac_coords[:, 2] = frac_coords[:, 2] / n_layers
@@ -1195,7 +1195,7 @@ class SlabGenerator:
         repair: bool = False,
     ) -> list[Slab]:
         """Generate slabs with shift values calculated from the internal
-        calculate_possible_shifts method. If the user decide to avoid breaking
+        gen_possible_shifts method. If the user decide to avoid breaking
         any polyhedral bond (by setting `bonds`), any shift value that do so
         would be filtered out.
 
@@ -1228,7 +1228,7 @@ class SlabGenerator:
                     two atoms are on the same plane.
             """
             frac_coords = self.oriented_unit_cell.frac_coords
-            n_atoms = len(frac_coords)
+            n_atoms: int = len(frac_coords)
 
             # Clustering does not work when there is only one atom
             if n_atoms == 1:
@@ -1238,7 +1238,7 @@ class SlabGenerator:
 
             # Compute a Cartesian z-coordinate distance matrix
             # TODO (@DanielYang59): account for periodic boundary condition
-            dist_matrix = np.zeros((n_atoms, n_atoms))
+            dist_matrix: NDArray = np.zeros((n_atoms, n_atoms))
             for i, j in itertools.combinations(list(range(n_atoms)), 2):
                 if i != j:
                     z_dist = frac_coords[i][2] - frac_coords[j][2]
@@ -1250,34 +1250,32 @@ class SlabGenerator:
             z_matrix = linkage(squareform(dist_matrix))
             clusters = fcluster(z_matrix, ftol, criterion="distance")
 
-            # Generate a cluster to z coordinate mapping
-            clst_loc = {c: frac_coords[i][2] for i, c in enumerate(clusters)}
+            # Generate cluster to z-coordinate mapping
+            clst_loc: dict[Any, float] = {clst: frac_coords[idx][2] for idx, clst in enumerate(clusters)}
 
             # Wrap all clusters into the unit cell ([0, 1) range)
-            possible_clst = [coord - math.floor(coord) for coord in sorted(clst_loc.values())]
+            possible_clst: list[float] = [coord - math.floor(coord) for coord in sorted(clst_loc.values())]
 
             # Calculate shifts
-            n_shifts = len(possible_clst)
-            shifts = []
-            for i in range(n_shifts):
-                # Handle the special case for the first-last
-                # z coordinate (because of periodic boundary condition)
-                if i == n_shifts - 1:
-                    # TODO (@DanielYang59): Why calculate the "center" of the
-                    # two clusters, which is not actually the shift?
-                    shift = (possible_clst[0] + 1 + possible_clst[i]) * 0.5
+            n_shifts: int = len(possible_clst)
+            shifts: list[float] = []
+            for idx in range(n_shifts):
+                # Handle the special case for the first-last pair of
+                # z coordinates (because of periodic boundary condition)
+                if idx == n_shifts - 1:
+                    shift = (possible_clst[0] + 1 + possible_clst[idx]) * 0.5
 
                 else:
-                    shift = (possible_clst[i] + possible_clst[i + 1]) * 0.5
+                    shift = (possible_clst[idx] + possible_clst[idx + 1]) * 0.5
 
-                shifts.append(shift - math.floor(shift))
+                shifts.append(-(shift - math.floor(shift)))
 
             return sorted(shifts)
 
         def get_z_ranges(
             bonds: dict[tuple[Species | Element, Species | Element], float],
         ) -> list[tuple[float, float]]:
-            """Collect occupied z ranges where each z_range is a (lower_z, upper_z) tuple.
+            """Collect occupied z ranges where each range is a (lower_z, upper_z) tuple.
 
             This method examines all sites in the oriented unit cell (OUC)
             and considers all neighboring sites within the specified bond distance
@@ -1324,7 +1322,7 @@ class SlabGenerator:
             # position fall within the z_range occupied by a bond)
             bonds_broken = 0
             for z_range in z_ranges:
-                if z_range[0] <= shift <= z_range[1]:
+                if z_range[0] <= -shift <= z_range[1]:
                     bonds_broken += 1
 
             # DEBUG(@DanielYang59): number of bonds broken passed to energy
