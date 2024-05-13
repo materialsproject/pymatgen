@@ -946,7 +946,7 @@ class SlabGenerator:
                 the c direction is parallel to the third lattice vector
         """
 
-        def reduce_vector(vector: tuple[int, int, int]) -> tuple[int, int, int]:
+        def reduce_vector(vector: MillerIndex) -> MillerIndex:
             """Helper function to reduce vectors."""
             divisor = abs(reduce(gcd, vector))  # type: ignore[arg-type]
             return cast(tuple[int, int, int], tuple(int(idx / divisor) for idx in vector))
@@ -1351,7 +1351,7 @@ class SlabGenerator:
         # Filter out surfaces that might be the same
         matcher = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
 
-        final_slabs = []
+        final_slabs: list[Slab] = []
         for group in matcher.group_structures(slabs):
             # For each unique slab, symmetrize the
             # surfaces by removing sites from the bottom
@@ -1366,7 +1366,7 @@ class SlabGenerator:
             matcher_sym = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
             final_slabs = [group[0] for group in matcher_sym.group_structures(final_slabs)]
 
-        return sorted(final_slabs, key=lambda slab: slab.energy)  # type: ignore[return-value, arg-type]
+        return cast(list[Slab], sorted(final_slabs, key=lambda slab: slab.energy))
 
     def repair_broken_bonds(
         self,
@@ -2128,7 +2128,7 @@ def hkl_transformation(
     if len([i for i in transf_hkl if i < 0]) > 1:
         transf_hkl *= -1
 
-    return tuple(transf_hkl)  # type: ignore[return-value]
+    return tuple(transf_hkl)
 
 
 def miller_index_from_sites(
