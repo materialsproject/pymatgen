@@ -39,8 +39,9 @@ class LineLocator(MSONable):
         with zopen(file_path, mode="rt") as file:
             for row_content in file:
                 row_no += 1
-                if content.upper() in row_content.upper() and \
-                        (not exclusion or exclusion.upper() not in row_content.upper()):
+                if content.upper() in row_content.upper() and (
+                    not exclusion or exclusion.upper() not in row_content.upper()
+                ):
                     row_idxs.append(row_no)
         return row_idxs
 
