@@ -1231,7 +1231,8 @@ class SlabGenerator:
 
             # Clustering does not work when there is only one atom
             if n_atoms == 1:
-                shift = -frac_coords[0][2] + 0.5  # shift to center
+                # DEBUG (DanielYang59): missing minus sign below
+                shift = frac_coords[0][2] + 0.5  # shift to center
                 return [shift - math.floor(shift)]
 
             # Compute a Cartesian z-coordinate distance matrix
