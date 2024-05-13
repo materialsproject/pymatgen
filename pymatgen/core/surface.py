@@ -1114,7 +1114,7 @@ class SlabGenerator:
 
         species = self.oriented_unit_cell.species_and_occu
 
-        # Shift all atoms
+        # Shift all atoms to the termination
         frac_coords = self.oriented_unit_cell.frac_coords
         frac_coords = np.array(frac_coords) + np.array([0, 0, -termination])[None, :]
         frac_coords -= np.floor(frac_coords)  # wrap to the [0, 1) range
@@ -1206,7 +1206,7 @@ class SlabGenerator:
         repair: bool = False,
     ) -> list[Slab]:
         """Generate slabs with shift values calculated from the internal
-        gen_possible_shifts method. If the user decide to avoid breaking
+        gen_possible_terminations method. If the user decide to avoid breaking
         any polyhedral bond (by setting `bonds`), any shift value that do so
         would be filtered out.
 
