@@ -1067,23 +1067,33 @@ class SlabGenerator:
         _a, _b, c = self.oriented_unit_cell.lattice.matrix
         self._proj_height = abs(np.dot(normal, c))
 
-    def get_slab(self, shift: float = 0, tol: float = 0.1, energy: float | None = None) -> Slab:
-        """Generate a slab based on a given shift value along the lattice c direction.
+    def get_slab(
+        self,
+        termination: float = 0,
+        tol: float = 0.1,
+        energy: float | None = None,
+        shift: float | None = None,  # TODO: remove after 2025-05-13
+    ) -> Slab:
+        """[Private method] Generate a slab based on a given termination coordinate
+            along the lattice c direction.
 
-        Note:
-            You should rarely use this (private) method directly, which is
-            intended for other generation methods.
+        You should NOT use this method directly.
 
         Args:
-            shift (float): The shift value along the lattice c direction
-                in fractional coordinates.
+            termination (float): The termination coordinate
+                along the lattice c direction in fractional coordinates.
             tol (float): Tolerance to determine primitive cell.
             energy (float): The energy to assign to the slab.
+            shift (float): Deprecated, confusing. The termination coordinate
+                along the lattice c direction in fractional coordinates.
 
         Returns:
             Slab: from a shifted oriented unit cell.
         """
-        scale_factor = self.slab_scale_factor
+        # Check for usage of deprecated arg "shift"
+        if shift is not None:
+            termination = shift
+            warnings.warn("shift is deprecated in get_slab, please use termination.")
 
         # Calculate total number of layers
         height = self._proj_height
@@ -1106,7 +1116,7 @@ class SlabGenerator:
 
         # Shift all atoms
         frac_coords = self.oriented_unit_cell.frac_coords
-        frac_coords = np.array(frac_coords) + np.array([0, 0, -shift])[None, :]
+        frac_coords = np.array(frac_coords) + np.array([0, 0, -termination])[None, :]
         frac_coords -= np.floor(frac_coords)  # wrap to the [0, 1) range
 
         # Scale down z-coordinate by the number of layers
@@ -1128,6 +1138,7 @@ class SlabGenerator:
 
         # (Optionally) Post-process the Slab
         # Orthogonalize the structure (through LLL lattice basis reduction)
+        scale_factor = self.slab_scale_factor
         if self.lll_reduce:
             # Sanitize Slab (LLL reduction + site sorting + map frac_coords)
             lll_slab = struct.copy(sanitize=True)
@@ -1178,7 +1189,7 @@ class SlabGenerator:
             struct.frac_coords,
             self.miller_index,
             ouc,
-            shift,
+            termination,
             scale_factor,
             reorient_lattice=self.reorient_lattice,
             site_properties=struct.site_properties,
@@ -1220,8 +1231,8 @@ class SlabGenerator:
                 sorted by the number of bonds broken.
         """
 
-        def gen_possible_shifts(ftol: float) -> list[float]:
-            """Generate possible shifts by clustering z coordinates.
+        def gen_possible_terminations(ftol: float) -> list[float]:
+            """Generate possible terminations by clustering z coordinates.
 
             Args:
                 ftol (float): Threshold for fcluster to check if
@@ -1232,8 +1243,8 @@ class SlabGenerator:
 
             # Skip clusterring when there is only one atom
             if n_atoms == 1:
-                shift = -frac_coords[0][2] + 0.5  # shift to center
-                return [shift]
+                # TODO (DanielYang59): why the magic number 0.5?
+                return [frac_coords[0][2] + 0.5]
 
             # Compute a Cartesian z-coordinate distance matrix
             # TODO (@DanielYang59): account for periodic boundary condition
@@ -1255,21 +1266,21 @@ class SlabGenerator:
             # Wrap all clusters into the unit cell ([0, 1) range)
             possible_clst: list[float] = [coord - math.floor(coord) for coord in sorted(clst_loc.values())]
 
-            # Calculate shifts
-            n_shifts: int = len(possible_clst)
-            shifts: list[float] = []
-            for idx in range(n_shifts):
+            # Calculate terminations
+            n_terms: int = len(possible_clst)
+            terminations: list[float] = []
+            for idx in range(n_terms):
                 # Handle the special case for the first-last pair of
                 # z coordinates (because of periodic boundary condition)
-                if idx == n_shifts - 1:
-                    shift = (possible_clst[0] + 1 + possible_clst[idx]) * 0.5
+                if idx == n_terms - 1:
+                    termination = (possible_clst[0] + 1 + possible_clst[idx]) * 0.5
                 else:
-                    shift = (possible_clst[idx] + possible_clst[idx + 1]) * 0.5
+                    termination = (possible_clst[idx] + possible_clst[idx + 1]) * 0.5
 
-                # Wrap shift to [0, 1) range
-                shifts.append(shift - math.floor(shift))
+                # Wrap termination to [0, 1) range
+                terminations.append(termination - math.floor(termination))
 
-            return sorted(shifts)
+            return sorted(terminations)
 
         def get_z_ranges(
             bonds: dict[tuple[Species | Element, Species | Element], float],
@@ -1316,19 +1327,19 @@ class SlabGenerator:
         z_ranges = [] if bonds is None else get_z_ranges(bonds)
 
         slabs = []
-        for shift in gen_possible_shifts(ftol=ftol):
-            # Calculate total number of bonds broken (how often the shift
-            # position fall within the z_range occupied by a bond)
+        for termination in gen_possible_terminations(ftol=ftol):
+            # Calculate total number of bonds broken (how often the
+            # termination fall within the z_range occupied by a bond)
             bonds_broken = 0
             for z_range in z_ranges:
-                if z_range[0] <= shift <= z_range[1]:
+                if z_range[0] <= termination <= z_range[1]:
                     bonds_broken += 1
 
             # DEBUG(@DanielYang59): number of bonds broken passed to energy
             # As per the docstring this is to sort final Slabs by number
             # of bonds broken, but this may very likely lead to errors
             # if the "energy" is used literally (Maybe reset energy to None?)
-            slab = self.get_slab(shift=shift, tol=tol, energy=bonds_broken)
+            slab = self.get_slab(termination=termination, tol=tol, energy=bonds_broken)
 
             if bonds_broken <= max_broken_bonds:
                 slabs.append(slab)

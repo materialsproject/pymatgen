@@ -78,8 +78,8 @@ class CoherentInterfaceBuilder:
             reorient_lattice=False,  # This is necessary to not screw up the lattice
         )
 
-        film_slab = film_sg.get_slab(shift=0)
-        sub_slab = sub_sg.get_slab(shift=0)
+        film_slab = film_sg.get_slab(termination=0)
+        sub_slab = sub_sg.get_slab(termination=0)
 
         film_vectors = film_slab.lattice.matrix
         substrate_vectors = sub_slab.lattice.matrix
@@ -194,8 +194,8 @@ class CoherentInterfaceBuilder:
 
         film_shift, sub_shift = self._terminations[termination]
 
-        film_slab = film_sg.get_slab(shift=film_shift)
-        sub_slab = sub_sg.get_slab(shift=sub_shift)
+        film_slab = film_sg.get_slab(termination=film_shift)
+        sub_slab = sub_sg.get_slab(termination=sub_shift)
 
         for match in self.zsl_matches:
             # Build film superlattice
