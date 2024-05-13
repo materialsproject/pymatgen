@@ -1282,7 +1282,10 @@ class SlabGenerator:
 
             return sorted(shifts)
 
-        def get_z_ranges(bonds: dict[tuple[Species | Element, Species | Element], float]) -> list[tuple[float, float]]:
+        def get_z_ranges(
+            bonds: dict[tuple[Species | Element, Species | Element], float],
+            tol: float,
+        ) -> list[tuple[float, float]]:
             """Collect occupied z ranges where each z_range is a (lower_z, upper_z) tuple.
 
             This method examines all sites in the oriented unit cell (OUC)
@@ -1315,15 +1318,13 @@ class SlabGenerator:
                                     z_ranges.extend([(0, z_range[1]), (z_range[0] + 1, 1)])
 
                                 # Neglect overlapping positions
-                                elif z_range[0] != z_range[1]:
-                                    # TODO (@DanielYang59): use the following for equality check
-                                    # elif not isclose(z_range[0], z_range[1], abs_tol=tol):
+                                elif not isclose(z_range[0], z_range[1], abs_tol=tol):
                                     z_ranges.append(z_range)
 
             return z_ranges
 
         # Get occupied z_ranges
-        z_ranges = [] if bonds is None else get_z_ranges(bonds)
+        z_ranges = [] if bonds is None else get_z_ranges(bonds, tol)
 
         slabs = []
         for shift in gen_possible_shifts(ftol=ftol):
