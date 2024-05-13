@@ -19,22 +19,24 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 TEST_DIR = f"{TEST_FILES_DIR}/io/pwmat"
 
 
-class TestLineLocator(PymatgenTest):
-    def test_locate(self):
-        filepath = f"{TEST_DIR}/MOVEMENT.lzma"
-        aim_idx = LineLocator.locate_all_lines(file_path=filepath, content="FORCE")[0]
-        assert aim_idx == 1
-        aim_idx = LineLocator.locate_all_lines(file_path=filepath, content="FORCE", exclusion="AVERAGE")[0]
-        assert aim_idx == 163
+@pytest.mark.parametrize(
+    ("exclusion", "expected_idx"),
+    [("", 1), ("average", 163), ("AVERAGE", 163)],
+)
+def test_line_locator(exclusion: str, expected_idx: int):
+    filepath = f"{TEST_DIR}/MOVEMENT.lzma"
+    aim_idx = LineLocator.locate_all_lines(file_path=filepath, content="FORCE", exclusion=exclusion)[0]
+    assert aim_idx == expected_idx
 
 
-class TestListLocator(PymatgenTest):
-    def test_locate(self):
-        strs_lst = ["Average Force=  0.12342E+01", "Force"]
-        aim_idx = ListLocator.locate_all_lines(strs_lst=strs_lst, content="FORCE")[0]
-        assert aim_idx == 0
-        aim_idx = ListLocator.locate_all_lines(strs_lst=strs_lst, content="FORCE", exclusion="AVERAGE")[0]
-        assert aim_idx == 1
+@pytest.mark.parametrize(
+    ("exclusion", "expected_idx"),
+    [("", 0), ("average", 1), ("AVERAGE", 1)],
+)
+def test_list_locator(exclusion: str, expected_idx: int):
+    strs_lst = ["Average Force=  0.12342E+01", "Force"]
+    aim_idx = ListLocator.locate_all_lines(strs_lst=strs_lst, content="FORCE", exclusion=exclusion)[0]
+    assert aim_idx == expected_idx
 
 
 class TestACstrExtractor(PymatgenTest):
