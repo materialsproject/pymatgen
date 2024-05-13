@@ -1081,8 +1081,8 @@ class SlabGenerator:
         You should NOT use this method directly.
 
         Args:
-            termination (float): The termination coordinate
-                along the lattice c direction in fractional coordinates.
+            termination (float): The coordinate along the lattice c
+                direction in fractional coordinates.
             tol (float): Tolerance to determine primitive cell.
             energy (float): The energy to assign to the slab.
             shift (float): Deprecated, confusing. The termination coordinate
