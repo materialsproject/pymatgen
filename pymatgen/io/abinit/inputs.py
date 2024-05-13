@@ -793,10 +793,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return cls(dct["structure"], pseudos, comment=dct["comment"], abi_args=dct["abi_args"])
 
     def add_abiobjects(self, *abi_objects):
-        """
-        This function receive a list of AbiVarable objects and add
-        the corresponding variables to the input.
-        """
+        """For a list of AbiVarable objects, add the corresponding variables to the input."""
         dct = {}
         for obj in abi_objects:
             if not hasattr(obj, "to_abivars"):

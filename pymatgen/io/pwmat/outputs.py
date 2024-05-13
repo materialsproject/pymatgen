@@ -121,8 +121,7 @@ class Movement(MSONable):
         return np.array([step["virial"] for step in self.ionic_steps if ("virial" in step)])
 
     def _parse_sefv(self) -> list[dict]:
-        """
-        Parse the MOVEMENT file, return information ionic step structure containing
+        """Parse the MOVEMENT file, return information ionic step structure containing
         structures, energies, forces on atoms and virial tensor.
 
         Returns:
@@ -192,8 +191,7 @@ class Report(MSONable):
         self._kpts, self._kpts_weight, self._hsps = self._parse_kpt()
 
     def _parse_band(self) -> tuple[int, int, int]:
-        """
-        Parse REPORT file to obtain spin switches, the number of kpoints
+        """Parse REPORT file to obtain spin switches, the number of kpoints
         and the number of bands.
 
         Returns:

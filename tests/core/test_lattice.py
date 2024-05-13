@@ -33,6 +33,8 @@ class TestLattice(PymatgenTest):
         lattice = Lattice.cubic(len_a)
         assert lattice is not None, "Initialization from new_cubic failed"
         assert_array_equal(lattice.pbc, (True, True, True))
+        assert hash(lattice) == -6887896986157825384
+
         lattice2 = Lattice(np.eye(3) * len_a)
         for ii in range(3):
             for jj in range(3):

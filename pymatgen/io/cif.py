@@ -869,8 +869,7 @@ class CifParser:
         return magmoms
 
     def _parse_symbol(self, sym):
-        """
-        Parse a string with a symbol to extract a string representing an element.
+        """Parse a string with a symbol to extract a string representing an element.
 
         Args:
             sym (str): A symbol to be parsed.
