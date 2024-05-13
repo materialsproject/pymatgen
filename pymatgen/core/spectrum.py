@@ -4,7 +4,7 @@ x y value pairs.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -14,6 +14,8 @@ from scipy.ndimage import convolve1d
 from pymatgen.util.coord import get_linear_interpolated_value
 
 if TYPE_CHECKING:
+    from typing import Callable, Literal
+
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
