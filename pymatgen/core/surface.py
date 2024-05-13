@@ -1244,8 +1244,9 @@ class SlabGenerator:
 
             # Skip clusterring when there is only one atom
             if n_atoms == 1:
-                # TODO (DanielYang59): why the magic number 0.5?
-                return [frac_coords[0][2] + 0.5]
+                # Put the atom to the center
+                termination = frac_coords[0][2] + 0.5
+                return [termination - math.floor(termination)]
 
             # Compute a Cartesian z-coordinate distance matrix
             # TODO (@DanielYang59): account for periodic boundary condition
