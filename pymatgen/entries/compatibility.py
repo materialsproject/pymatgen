@@ -9,7 +9,7 @@ import copy
 import os
 import warnings
 from collections import defaultdict
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 import numpy as np
 from monty.design_patterns import cached_class
@@ -33,11 +33,10 @@ from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Literal, Union
+    from typing import Literal
 
     from pymatgen.util.typing import CompositionLike
 
-    AnyComputedEntry = Union[ComputedEntry, ComputedStructureEntry]
 
 __author__ = "Amanda Wang, Ryan Kingsbury, Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
 __copyright__ = "Copyright 2012-2020, The Materials Project"
@@ -55,6 +54,8 @@ assert (  # ping @janosh @rkingsbury on GitHub if this fails
     MP2020_COMPAT_CONFIG["Corrections"]["GGAUMixingCorrections"]["O"]
     == MP2020_COMPAT_CONFIG["Corrections"]["GGAUMixingCorrections"]["F"]
 ), "MP2020Compatibility.yaml expected to have the same Hubbard U corrections for O and F"
+
+AnyComputedEntry = Union[ComputedEntry, ComputedStructureEntry]
 
 
 class CompatibilityError(Exception):
