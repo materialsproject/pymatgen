@@ -343,6 +343,16 @@ class DictSet(VaspInputSet):
             SIGMA=0.2; if the system is an insulator, then ISMEAR=-5 (tetrahedron
             smearing). Note, this only works when generating the input set from a
             previous VASP directory.
+        auto_ispin (bool) = False:
+            If generating input set from a previous calculation, this controls whether
+            to disable magnetisation (ISPIN = 1) if the absolute value of all magnetic
+            moments are less than 0.02.
+        auto_lreal (bool) = False:
+            If True, automatically use the VASP recommended LREAL based on cell size.
+        auto_metal_kpoints
+            If true and the system is metallic, try and use ``reciprocal_density_metal``
+            instead of ``reciprocal_density`` for metallic systems. Note, this only works
+            if the bandgap is not None.
         bandgap_tol (float): Tolerance for determining if a system is metallic when
             KSPACING is set to "auto". If the bandgap is less than this value, the
             system is considered metallic. Defaults to 1e-4 (eV).
@@ -373,6 +383,9 @@ class DictSet(VaspInputSet):
     validate_magmom: bool = True
     inherit_incar: bool | list[str] = False
     auto_ismear: bool = False
+    auto_ispin: bool = False
+    auto_lreal: bool = False
+    auto_metal_kpoints: bool = False
     bandgap_tol: float = 1e-4
     bandgap: float | None = None
     prev_incar: str | dict | None = None
@@ -405,9 +418,9 @@ class DictSet(VaspInputSet):
 
         if self.vdw:
             vdw_par = loadfn(MODULE_DIR / "vdW_parameters.yaml")
-            try:
-                self._config_dict["INCAR"].update(vdw_par[self.vdw])
-            except KeyError:
+            if vdw_param := vdw_par.get(self.vdw):
+                self._config_dict["INCAR"].update(vdw_param)
+            else:
                 raise KeyError(
                     f"Invalid or unsupported van-der-Waals functional. Supported functionals are {', '.join(vdw_par)}."
                 )
@@ -721,6 +734,9 @@ class DictSet(VaspInputSet):
             else:
                 auto_updates.update(ISMEAR=-5, SIGMA=0.05)  # insulator
 
+        if self.auto_lreal:
+            auto_updates.update(LREAL=_get_recommended_lreal(structure))
+
         kpoints = self.kpoints
         if kpoints is not None:
             # unset KSPACING as we are using a KPOINTS file
@@ -759,14 +775,13 @@ class DictSet(VaspInputSet):
             and incar.get("NSW", 0) > 0
             and (ismear < 0 or (ismear == 0 and sigma > 0.05))
         ):
-            ismear_docs = "https://www.vasp.at/wiki/index.php/ISMEAR"
             msg = ""
             if ismear < 0:
                 msg = f"Relaxation of likely metal with ISMEAR < 0 ({ismear})."
             elif ismear == 0 and sigma > 0.05:
                 msg = f"ISMEAR = 0 with a small SIGMA ({sigma}) detected."
             warnings.warn(
-                f"{msg} See VASP recommendations on ISMEAR for metals ({ismear_docs}).",
+                f"{msg} See VASP recommendations on ISMEAR for metals (" "https://www.vasp.at/wiki/index.php/ISMEAR).",
                 BadInputSetWarning,
                 stacklevel=1,
             )
@@ -3056,6 +3071,11 @@ def _get_ispin(vasprun: Vasprun | None, outcar: Outcar | None) -> int:
     if vasprun is not None:
         return 2 if vasprun.is_spin else 1
     return 2
+
+
+def _get_recommended_lreal(structure: Structure) -> str | bool:
+    """Get recommended LREAL flag based on the structure."""
+    return "Auto" if structure.num_sites > 16 else False
 
 
 def _combine_kpoints(*kpoints_objects: Kpoints) -> Kpoints:
