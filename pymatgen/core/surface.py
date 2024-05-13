@@ -45,6 +45,7 @@ if TYPE_CHECKING:
 
     from pymatgen.core.composition import Element, Species
     from pymatgen.symmetry.groups import CrystalSystem
+    from pymatgen.util.typing import MillerIndex
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
 
@@ -77,7 +78,7 @@ class Slab(Structure):
         lattice: Lattice | np.ndarray,
         species: Sequence[Any],
         coords: np.ndarray,
-        miller_index: tuple[int, int, int],
+        miller_index: MillerIndex,
         oriented_unit_cell: Structure,
         shift: float,
         scale_factor: np.ndarray,
@@ -108,7 +109,7 @@ class Slab(Structure):
                     [{"Fe": 0.5, "Mn": 0.5}, ...]. This allows the setup of
                     disordered structures.
             coords (Nx3 array): list of fractional/cartesian coordinates of each species.
-            miller_index (tuple[h, k, l]): Miller index of plane parallel to
+            miller_index (MillerIndex): Miller index of plane parallel to
                 surface. Note that this is referenced to the input structure. If
                 you need this to be based on the conventional cell,
                 you should supply the conventional structure.
@@ -880,7 +881,7 @@ class SlabGenerator:
     def __init__(
         self,
         initial_structure: Structure,
-        miller_index: tuple[int, int, int],
+        miller_index: MillerIndex,
         min_slab_size: float,
         min_vacuum_size: float,
         lll_reduce: bool = False,
@@ -1959,7 +1960,7 @@ def get_symmetrically_equivalent_miller_indices(
     """
     # Convert to hkl if hkil, because in_coord_list only handles tuples of 3
     if len(miller_index) >= 3:
-        _miller_index: tuple[int, int, int] = (miller_index[0], miller_index[1], miller_index[-1])
+        _miller_index: MillerIndex = (miller_index[0], miller_index[1], miller_index[-1])
     else:
         _miller_index = (miller_index[0], miller_index[1], miller_index[2])
 
@@ -2071,15 +2072,15 @@ def get_symmetrically_distinct_miller_indices(
 
 
 def _is_in_miller_family(
-    miller_index: tuple[int, int, int],
-    miller_list: list[tuple[int, int, int]],
+    miller_index: MillerIndex,
+    miller_list: list[MillerIndex],
     symm_ops: list,
 ) -> bool:
     """Helper function to check if the given Miller index belongs
     to the same family of any index in the provided list.
 
     Args:
-        miller_index (tuple): The Miller index to analyze.
+        miller_index (MillerIndex): The Miller index to analyze.
         miller_list (list): List of Miller indices.
         symm_ops (list): Symmetry operations for a lattice,
             used to define the indices family.
@@ -2089,13 +2090,13 @@ def _is_in_miller_family(
 
 def hkl_transformation(
     transf: np.ndarray,
-    miller_index: tuple[int, int, int],
+    miller_index: MillerIndex,
 ) -> tuple[int, int, int]:
     """Transform the Miller index from setting A to B with a transformation matrix.
 
     Args:
         transf (3x3 array): The matrix that transforms a lattice from A to B.
-        miller_index (tuple[int, int, int]): The Miller index [h, k, l] to transform.
+        miller_index (MillerIndex): The Miller index [h, k, l] to transform.
     """
 
     def math_lcm(a: int, b: int) -> int:

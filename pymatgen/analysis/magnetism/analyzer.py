@@ -604,9 +604,7 @@ class MagneticStructureEnumerator:
         truncate_by_symmetry: bool = True,
         transformation_kwargs: dict | None = None,
     ):
-        """
-        This class will try generated different collinear
-        magnetic orderings for a given input structure.
+        """Generate different collinear magnetic orderings for a given input structure.
 
         If the input structure has magnetic moments defined, it
         is possible to use these as a hint as to which elements are

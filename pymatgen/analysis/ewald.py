@@ -541,8 +541,7 @@ class EwaldMinimizer:
         self._minimized_sum = self._output_lists[0][0]
 
     def minimize_matrix(self):
-        """
-        This method finds and returns the permutations that produce the lowest
+        """Get the permutations that produce the lowest
         Ewald sum calls recursive function to iterate through permutations.
         """
         if self._algo in (EwaldMinimizer.ALGO_FAST, EwaldMinimizer.ALGO_BEST_FIRST):
@@ -550,8 +549,7 @@ class EwaldMinimizer:
         return None
 
     def add_m_list(self, matrix_sum, m_list):
-        """
-        This adds an m_list to the output_lists and updates the current
+        """Add an m_list to the output_lists and updates the current
         minimum if the list is full.
         """
         if self._output_lists is None:
@@ -629,9 +627,7 @@ class EwaldMinimizer:
         return indices[sums.argmax(axis=0)] if f < 1 else indices[sums.argmin(axis=0)]
 
     def _recurse(self, matrix, m_list, indices, output_m_list=None):
-        """
-        This method recursively finds the minimal permutations using a binary
-        tree search strategy.
+        """Find the minimal permutations using a binary tree search strategy.
 
         Args:
             matrix: The current matrix (with some permutations already

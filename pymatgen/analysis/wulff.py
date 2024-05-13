@@ -671,8 +671,7 @@ class WulffShape:
 
     @property
     def shape_factor(self) -> float:
-        """
-        This is useful for determining the critical nucleus size.
+        """Determine the critical nucleus size.
         A large shape factor indicates great anisotropy.
         See Ballufi, R. W., Allen, S. M. & Carter, W. C. Kinetics
             of Materials. (John Wiley & Sons, 2005), p.461.
@@ -685,10 +684,10 @@ class WulffShape:
     @property
     def effective_radius(self) -> float:
         """
-        Radius of the WulffShape when the WulffShape is approximated as a sphere.
+        Radius of the WulffShape (in Angstroms) when the WulffShape is approximated as a sphere.
 
         Returns:
-            float: radius.
+            float: radius R_eff
         """
         return ((3 / 4) * (self.volume / np.pi)) ** (1 / 3)
 
