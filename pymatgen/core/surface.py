@@ -730,7 +730,7 @@ class Slab(Structure):
 
 
 def center_slab(slab: Structure) -> Structure:
-    """Relocate the Slab to the center such that its center
+    """Relocate the slab to the center such that its center
     (the slab region) is close to z=0.5.
 
     This makes it easier to find surface sites and apply
@@ -739,20 +739,20 @@ def center_slab(slab: Structure) -> Structure:
     There are two possible cases:
         1. When the slab region is completely positioned between
         two vacuum layers in the cell but is not centered, we simply
-        shift the Slab to the center along z-axis.
-        2. If the Slab completely resides outside the cell either
+        shift the slab to the center along z-axis.
+        2. If the slab completely resides outside the cell either
         from the bottom or the top, we iterate through all sites that
         spill over and shift all sites such that it is now
         on the other side. An edge case being, either the top
-        of the Slab is at z = 0 or the bottom is at z = 1.
+        of the slab is at z = 0 or the bottom is at z = 1.
 
     TODO (@DanielYang59): this should be a method for `Slab`?
 
     Args:
-        slab (Structure): The Slab to center.
+        slab (Structure): The slab to center.
 
     Returns:
-        Slab: The centered Slab.
+        Structure: The centered slab.
     """
     # Get all site indices
     all_indices = list(range(len(slab)))
