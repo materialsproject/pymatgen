@@ -57,9 +57,6 @@ jobs:
         run: |
           micromamba create -n pmg python=${{ matrix.python-version }} --yes
 
-      - name: Install uv
-        run: micromamba run -n pmg pip install uv
-
       - name: Install ubuntu-only conda dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -68,11 +65,10 @@ jobs:
       - name: Install pymatgen and dependencies
         run: |
           micromamba activate pmg
+          pip install uv
 
           uv pip install numpy cython
-
           uv pip install --editable '.[dev,optional]'
-
           # TODO remove next line installing ase from main branch when FrechetCellFilter is released
           uv pip install --upgrade 'git+https://gitlab.com/ase/ase'
 
