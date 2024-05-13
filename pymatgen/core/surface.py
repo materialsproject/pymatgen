@@ -1106,7 +1106,7 @@ class SlabGenerator:
 
         # Shift all atoms
         frac_coords = self.oriented_unit_cell.frac_coords
-        frac_coords = np.array(frac_coords) + np.array([0, 0, shift])[None, :]
+        frac_coords = np.array(frac_coords) + np.array([0, 0, -shift])[None, :]
         frac_coords -= np.floor(frac_coords)  # wrap to the [0, 1) range
 
         # Scale down z-coordinate by the number of layers

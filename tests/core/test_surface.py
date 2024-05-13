@@ -363,7 +363,7 @@ class TestSlabGenerator(PymatgenTest):
     def test_get_slab(self):
         struct = self.get_structure("LiFePO4")
         gen = SlabGenerator(struct, [0, 0, 1], 10, 10)
-        struct = gen.get_slab(-0.25)
+        struct = gen.get_slab(0.25)
         assert struct.lattice.abc[2] == approx(20.820740000000001)
 
         fcc = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])

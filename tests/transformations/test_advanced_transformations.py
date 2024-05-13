@@ -550,9 +550,9 @@ class TestDopingTransformation(PymatgenTest):
 class TestSlabTransformation(PymatgenTest):
     def test_apply_transformation(self):
         struct = self.get_structure("LiFePO4")
-        trans = SlabTransformation([0, 0, 1], 10, 10, shift=-0.25)
+        trans = SlabTransformation([0, 0, 1], 10, 10, shift=0.25)
         gen = SlabGenerator(struct, [0, 0, 1], 10, 10)
-        slab_from_gen = gen.get_slab(-0.25)
+        slab_from_gen = gen.get_slab(0.25)
         slab_from_trans = trans.apply_transformation(struct)
         assert_allclose(slab_from_gen.lattice.matrix, slab_from_trans.lattice.matrix)
         assert_allclose(slab_from_gen.cart_coords, slab_from_trans.cart_coords)

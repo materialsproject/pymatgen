@@ -194,8 +194,8 @@ class CoherentInterfaceBuilder:
 
         film_shift, sub_shift = self._terminations[termination]
 
-        film_slab = film_sg.get_slab(shift=-film_shift)
-        sub_slab = sub_sg.get_slab(shift=-sub_shift)
+        film_slab = film_sg.get_slab(shift=film_shift)
+        sub_slab = sub_sg.get_slab(shift=sub_shift)
 
         for match in self.zsl_matches:
             # Build film superlattice
