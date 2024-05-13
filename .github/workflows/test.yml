@@ -68,7 +68,9 @@ jobs:
           pip install uv
 
           uv pip install numpy cython
-          uv pip install --editable '.[dev,optional]'
+          uv pip install --editable '.[dev]'
+          # TODO remove next line once uv could reliable install torch
+          pip install --no-deps --no-install '.[optional]'
           # TODO remove next line installing ase from main branch when FrechetCellFilter is released
           uv pip install --upgrade 'git+https://gitlab.com/ase/ase'
 
