@@ -1232,9 +1232,10 @@ class SlabGenerator:
 
             # Clustering does not work when there is only one atom
             if n_atoms == 1:
-                # DEBUG (DanielYang59): missing minus sign below
-                shift = frac_coords[0][2] + 0.5  # shift to center
-                return [shift - math.floor(shift)]
+                shift = -frac_coords[0][2] + 0.5  # shift to center
+                return [
+                    shift,
+                ]
 
             # Compute a Cartesian z-coordinate distance matrix
             # TODO (@DanielYang59): account for periodic boundary condition
@@ -1264,7 +1265,6 @@ class SlabGenerator:
                 # z coordinates (because of periodic boundary condition)
                 if idx == n_shifts - 1:
                     shift = (possible_clst[0] + 1 + possible_clst[idx]) * 0.5
-
                 else:
                     shift = (possible_clst[idx] + possible_clst[idx + 1]) * 0.5
 
