@@ -26,19 +26,21 @@ class LineLocator(MSONable):
     """Find the line indices (starts from 1) of a certain paragraph of text from the file."""
 
     @staticmethod
-    def locate_all_lines(file_path: PathLike, content: str) -> list[int]:
+    def locate_all_lines(file_path: PathLike, content: str, exclusion: str | None = None) -> list[int]:
         """Locate the line in file where a certain paragraph of text is located (return all indices)
 
         Args:
             file_path (PathLike): Absolute path to file.
             content (str): Certain paragraph of text that needs to be located.
+            exclusion (str): Certain paragraph of text that is excluded.
         """
         row_idxs: list[int] = []  # starts from 1 to be compatible with linecache package
         row_no: int = 0
         with zopen(file_path, mode="rt") as file:
             for row_content in file:
                 row_no += 1
-                if content.upper() in row_content.upper():
+                if content.upper() in row_content.upper() and \
+                        (not exclusion or exclusion.upper() not in row_content.upper()):
                     row_idxs.append(row_no)
         return row_idxs
 
