@@ -1268,6 +1268,7 @@ class SlabGenerator:
                 else:
                     shift = (possible_clst[idx] + possible_clst[idx + 1]) * 0.5
 
+                # TODO (@DanielYang59): clarify the need for the minus sign below
                 shifts.append(-(shift - math.floor(shift)))
 
             return sorted(shifts)
@@ -1322,6 +1323,7 @@ class SlabGenerator:
             # position fall within the z_range occupied by a bond)
             bonds_broken = 0
             for z_range in z_ranges:
+                # TODO (@DanielYang59): clarify the need for the minus sign below
                 if z_range[0] <= -shift <= z_range[1]:
                     bonds_broken += 1
 
