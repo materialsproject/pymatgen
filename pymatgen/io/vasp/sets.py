@@ -1507,8 +1507,7 @@ class MatPESStaticSet(DictSet):
 
 @dataclass
 class MPScanStaticSet(MPScanRelaxSet):
-    """
-    Creates input files for a static calculation using the accurate and numerically
+    """Create input files for a static calculation using the accurate and numerically
     efficient r2SCAN variant of the Strongly Constrained and Appropriately Normed
     (SCAN) metaGGA functional.
 

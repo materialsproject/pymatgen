@@ -1122,8 +1122,7 @@ class Vasprun(MSONable):
         return None
 
     def get_trajectory(self):
-        """
-        This method returns a Trajectory object, which is an alternative
+        """Get a Trajectory object, which is an alternative
         representation of self.structures into a single object. Forces are
         added to the Trajectory as site properties.
 
@@ -2152,8 +2151,7 @@ class Outcar:
         last_one_only=True,
         first_one_only=False,
     ):
-        r"""
-        Parse table-like data. A table composes of three parts: header,
+        r"""Parse table-like data. A table composes of three parts: header,
         main body, footer. All the data matches "row pattern" in the main body
         will be returned.
 
@@ -2318,8 +2316,7 @@ class Outcar:
         self.dielectric_tensor_function = np.array(data["REAL"]) + 1j * np.array(data["IMAGINARY"])
 
     def read_chemical_shielding(self):
-        """
-        Parse the NMR chemical shieldings data. Only the second part "absolute, valence and core"
+        """Parse the NMR chemical shieldings data. Only the second part "absolute, valence and core"
         will be parsed. And only the three right most field (ISO_SHIELDING, SPAN, SKEW) will be retrieved.
 
         Returns:
@@ -2352,8 +2349,7 @@ class Outcar:
         }
 
     def read_cs_g0_contribution(self):
-        """
-        Parse the  G0 contribution of NMR chemical shielding.
+        """Parse the  G0 contribution of NMR chemical shielding.
 
         Returns:
             G0 contribution matrix as list of list.
@@ -2376,8 +2372,7 @@ class Outcar:
         )
 
     def read_cs_core_contribution(self):
-        """
-        Parse the core contribution of NMR chemical shielding.
+        """Parse the core contribution of NMR chemical shielding.
 
         Returns:
             list[list]: G0 contribution matrix.
@@ -2397,8 +2392,7 @@ class Outcar:
         self.data["cs_core_contribution"] = core_contrib
 
     def read_cs_raw_symmetrized_tensors(self):
-        """
-        Parse the matrix form of NMR tensor before corrected to table.
+        """Parse the matrix form of NMR tensor before corrected to table.
 
         Returns:
             nsymmetrized tensors list in the order of atoms.
@@ -2452,8 +2446,7 @@ class Outcar:
         return tensors
 
     def read_nmr_efg(self):
-        """
-        Parse the NMR Electric Field Gradient interpreted values.
+        """Parse the NMR Electric Field Gradient interpreted values.
 
         Returns:
             Electric Field Gradient tensors as a list of dict in the order of atoms from OUTCAR.
@@ -2482,8 +2475,7 @@ class Outcar:
         )
 
     def read_elastic_tensor(self):
-        """
-        Parse the elastic tensor data.
+        """Parse the elastic tensor data.
 
         Returns:
             6x6 array corresponding to the elastic tensor from the OUTCAR.
@@ -2503,8 +2495,7 @@ class Outcar:
         self.data["piezo_tensor"] = pt_table
 
     def read_onsite_density_matrices(self):
-        """
-        Parse the onsite density matrices, returns list with index corresponding
+        """Parse the onsite density matrices, returns list with index corresponding
         to atom index in Structure.
         """
         # matrix size will vary depending on if d or f orbitals are present

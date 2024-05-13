@@ -914,8 +914,7 @@ def find_eq_stress(strains, stresses, tol: float = 1e-10):
 
 
 def get_strain_state_dict(strains, stresses, eq_stress=None, tol: float = 1e-10, add_eq=True, sort=True):
-    """
-    Creates a dictionary of voigt notation stress-strain sets
+    """Create a dictionary of voigt notation stress-strain sets
     keyed by "strain state", i. e. a tuple corresponding to
     the non-zero entries in ratios to the lowest nonzero value,
     e.g. [0, 0.1, 0, 0.2, 0, 0] -> (0,1,0,2,0,0)

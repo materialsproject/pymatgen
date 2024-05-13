@@ -859,8 +859,7 @@ class QCInput(InputFile):
 
     @staticmethod
     def read_rem(string: str) -> dict:
-        """
-        Parse rem from string.
+        """Parse rem from string.
 
         Args:
             string (str): String

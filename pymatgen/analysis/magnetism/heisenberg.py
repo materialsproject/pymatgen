@@ -669,10 +669,8 @@ class HeisenbergScreener:
     """Clean and screen magnetic orderings."""
 
     def __init__(self, structures, energies, screen=False):
-        """
-        This class pre-processes magnetic orderings and energies for
-        HeisenbergMapper. It prioritizes low-energy orderings with large and
-        localized magnetic moments.
+        """Pre-processes magnetic orderings and energies for HeisenbergMapper.
+        It prioritizes low-energy orderings with large and localized magnetic moments.
 
         Args:
             structures (list): Structure objects with magnetic moments.
