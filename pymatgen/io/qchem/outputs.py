@@ -2409,7 +2409,7 @@ def parse_hyperbonds(lines: list[str]) -> list[pd.DataFrame]:
 
                 # Extract the values
                 entry: dict[str, str | float] = {}
-                entry["hyperbond index"] = int(line[0:4].strip())
+                entry["hyperbond index"] = int(line[:4].strip())
                 entry["bond atom 1 symbol"] = str(line[5:8].strip())
                 entry["bond atom 1 index"] = int(line[8:11].strip())
                 entry["bond atom 2 symbol"] = str(line[13:15].strip())
@@ -2492,7 +2492,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
                 # Lone pair
                 if "LP" in line or "LV" in line:
                     LPentry: dict[str, str | float] = dict.fromkeys(orbitals, 0.0)
-                    LPentry["bond index"] = line[0:4].strip()
+                    LPentry["bond index"] = line[:4].strip()
                     LPentry["occupancy"] = line[7:14].strip()
                     LPentry["type"] = line[16:19].strip()
                     LPentry["orbital index"] = line[20:22].strip()
@@ -2521,7 +2521,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
                     BDentry: dict[str, str | float] = {
                         f"atom {i} {orbital}": 0.0 for orbital in orbitals for i in range(1, 3)
                     }
-                    BDentry["bond index"] = line[0:4].strip()
+                    BDentry["bond index"] = line[:4].strip()
                     BDentry["occupancy"] = line[7:14].strip()
                     BDentry["type"] = line[16:19].strip()
                     BDentry["orbital index"] = line[20:22].strip()
@@ -2581,7 +2581,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
                     TCentry: dict[str, str | float] = {
                         f"atom {i} {orbital}": 0.0 for orbital in orbitals for i in range(1, 4)
                     }
-                    TCentry["bond index"] = line[0:4].strip()
+                    TCentry["bond index"] = line[:4].strip()
                     TCentry["occupancy"] = line[7:14].strip()
                     TCentry["type"] = line[16:19].strip()
                     TCentry["orbital index"] = line[20:22].strip()
@@ -2725,7 +2725,7 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                     second_3C = True
 
                 if line[4] == ".":
-                    entry["donor bond index"] = int(line[0:4].strip())
+                    entry["donor bond index"] = int(line[:4].strip())
                     entry["donor type"] = str(line[5:9].strip())
                     entry["donor orbital index"] = int(line[10:12].strip())
                     entry["donor atom 1 symbol"] = str(line[13:15].strip())
@@ -2743,7 +2743,7 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                     entry["energy difference"] = float(line[62:70].strip())
                     entry["fock matrix element"] = float(line[70:79].strip())
                 elif line[5] == ".":
-                    entry["donor bond index"] = int(line[0:5].strip())
+                    entry["donor bond index"] = int(line[:5].strip())
                     entry["donor type"] = str(line[6:10].strip())
                     entry["donor orbital index"] = int(line[11:13].strip())
 
