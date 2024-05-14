@@ -321,7 +321,14 @@ class Lattice(MSONable):
         return cls.from_parameters(a, b, c, 90, 90, 90, pbc=pbc)
 
     @classmethod
-    def monoclinic(cls, a: float, b: float, c: float, beta: float, pbc: PbcLike = (True, True, True)) -> Self:
+    def monoclinic(
+        cls,
+        a: float,
+        b: float,
+        c: float,
+        beta: float,
+        pbc: PbcLike = (True, True, True),
+    ) -> Self:
         """Convenience constructor for a monoclinic lattice.
 
         Args:
@@ -1040,8 +1047,8 @@ class Lattice(MSONable):
         b[:, 0] = a[:, 0]
         m[0] = np.dot(b[:, 0], b[:, 0])
         for i in range(1, 3):
-            u[i, 0:i] = np.dot(a[:, i].T, b[:, 0:i]) / m[0:i]
-            b[:, i] = a[:, i] - np.dot(b[:, 0:i], u[i, 0:i].T)
+            u[i, :i] = np.dot(a[:, i].T, b[:, :i]) / m[:i]
+            b[:, i] = a[:, i] - np.dot(b[:, :i], u[i, :i].T)
             m[i] = np.dot(b[:, i], b[:, i])
 
         k = 2
@@ -1078,8 +1085,8 @@ class Lattice(MSONable):
 
                 # Update the Gram-Schmidt coefficients
                 for s in range(k - 1, k + 1):
-                    u[s - 1, 0 : (s - 1)] = np.dot(a[:, s - 1].T, b[:, 0 : (s - 1)]) / m[0 : (s - 1)]
-                    b[:, s - 1] = a[:, s - 1] - np.dot(b[:, 0 : (s - 1)], u[s - 1, 0 : (s - 1)].T)
+                    u[s - 1, : (s - 1)] = np.dot(a[:, s - 1].T, b[:, : (s - 1)]) / m[: (s - 1)]
+                    b[:, s - 1] = a[:, s - 1] - np.dot(b[:, : (s - 1)], u[s - 1, : (s - 1)].T)
                     m[s - 1] = np.dot(b[:, s - 1], b[:, s - 1])
 
                 if k > 2:
@@ -1110,7 +1117,7 @@ class Lattice(MSONable):
         Doi("10.1107/S010876730302186X"),
         description="Numerically stable algorithms for the computation of reduced unit cells",
     )
-    def get_niggli_reduced_lattice(self, tol: float = 1e-5) -> Lattice:
+    def get_niggli_reduced_lattice(self, tol: float = 1e-5) -> Self:
         """Get the Niggli reduced lattice using the numerically stable algo
         proposed by R. W. Grosse-Kunstleve, N. K. Sauter, & P. D. Adams,
         Acta Crystallographica Section A Foundations of Crystallography, 2003,
@@ -1215,13 +1222,13 @@ class Lattice(MSONable):
         alpha = math.acos(E / 2 / b / c) / math.pi * 180
         beta = math.acos(N / 2 / a / c) / math.pi * 180
         gamma = math.acos(Y / 2 / a / b) / math.pi * 180
-        lattice = Lattice.from_parameters(a, b, c, alpha, beta, gamma)
+        lattice = type(self).from_parameters(a, b, c, alpha, beta, gamma)
 
         mapped = self.find_mapping(lattice, e, skip_rotation_matrix=True)
         if mapped is not None:
             if np.linalg.det(mapped[0].matrix) > 0:
                 return mapped[0]
-            return Lattice(-mapped[0].matrix)
+            return type(self)(-mapped[0].matrix)
 
         raise ValueError("can't find niggli")
 
@@ -1824,7 +1831,7 @@ def get_points_in_spheres(
                 valid_coords.append(coords[valid_index_bool])
                 valid_images.append(np.tile(image, [np.sum(valid_index_bool), 1]) - image_offsets[valid_index_bool])
                 valid_indices.extend([k for k in ind if valid_index_bool[k]])
-        if len(valid_coords) < 1:
+        if not valid_coords:
             return [[]] * len(center_coords)
         valid_coords = np.concatenate(valid_coords, axis=0)
         valid_images = np.concatenate(valid_images, axis=0)

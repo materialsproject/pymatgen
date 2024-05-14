@@ -261,7 +261,7 @@ def _parse_clusters(filename):
         for point in range(cluster_dict["num_points_in_cluster"]):
             line = cluster[3 + point].split(" ")
             point_dict = {}
-            point_dict["coordinates"] = [float(line) for line in line[0:3]]
+            point_dict["coordinates"] = [float(line) for line in line[:3]]
             point_dict["num_possible_species"] = int(line[3]) + 2  # see ATAT manual for why +2
             point_dict["cluster_function"] = float(line[4])  # see ATAT manual for what "function" is
             points.append(point_dict)

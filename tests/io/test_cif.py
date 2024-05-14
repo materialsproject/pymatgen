@@ -1100,7 +1100,7 @@ def test_cif_writer_non_unique_labels(capsys):
     parser = CifParser(f"{TEST_FILES_DIR}/cif/garnet.cif")
     struct = parser.parse_structures()[0]
 
-    assert struct.labels[0:3] == ["Ca1", "Ca1", "Ca1"]
+    assert struct.labels[:3] == ["Ca1", "Ca1", "Ca1"]
     assert len(set(struct.labels)) != len(struct.labels)
 
     # This should raise a warning
@@ -1108,7 +1108,7 @@ def test_cif_writer_non_unique_labels(capsys):
         CifWriter(struct)
 
     struct.relabel_sites()
-    assert struct.labels[0:3] == ["Ca1_1", "Ca1_2", "Ca1_3"]
+    assert struct.labels[:3] == ["Ca1_1", "Ca1_2", "Ca1_3"]
 
     _ = capsys.readouterr()
     # This should not raise a warning
