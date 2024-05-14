@@ -12,7 +12,7 @@ import warnings
 from copy import deepcopy
 from functools import cmp_to_key, partial
 from multiprocessing import Pool
-from typing import TYPE_CHECKING, Any, no_type_check
+from typing import TYPE_CHECKING, no_type_check
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
@@ -31,6 +31,8 @@ from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
+    from typing import Any
+
     import matplotlib.pyplot as plt
     from typing_extensions import Self
 

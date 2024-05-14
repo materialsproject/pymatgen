@@ -5,7 +5,7 @@ from __future__ import annotations
 import gzip
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
@@ -15,6 +15,7 @@ from pymatgen.core.tensors import Tensor
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
     from io import TextIOWrapper
+    from typing import Any
 
     from pymatgen.util.typing import Matrix3D, Vector3D
 

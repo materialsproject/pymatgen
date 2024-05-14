@@ -237,7 +237,7 @@ class TestArrayWithFloatWithUnit(PymatgenTest):
             ene_ha * time_s,
             ene_ha / ene_ev,
             ene_ha.copy(),
-            ene_ha[0:1],
+            ene_ha[:1],
             e1,
             e2,
             e3,

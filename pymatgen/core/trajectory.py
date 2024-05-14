@@ -158,6 +158,112 @@ class Trajectory(MSONable):
         self._check_frame_props(frame_properties)
         self.frame_properties = frame_properties
 
+    def __iter__(self) -> Iterator[Structure | Molecule]:
+        """Iterator of the trajectory, yielding a pymatgen Structure or Molecule for each frame."""
+        for idx in range(len(self)):
+            yield self[idx]
+
+    def __len__(self) -> int:
+        """Number of frames in the trajectory."""
+        return len(self.coords)
+
+    def __getitem__(self, frames: int | slice | list[int]) -> Molecule | Structure | Self:
+        """Get a subset of the trajectory.
+
+        The output depends on the type of the input `frames`. If an int is given, return
+        a pymatgen Molecule or Structure at the specified frame. If a list or a slice, return a new
+        trajectory with a subset of frames.
+
+        Args:
+            frames: Indices of the trajectory to return.
+
+        Returns:
+            Subset of trajectory
+        """
+        # Convert to position mode if not already
+        self.to_positions()
+
+        # For integer input, return the structure at that frame
+        if isinstance(frames, int):
+            if frames >= len(self):
+                raise IndexError(f"Frame index {frames} out of range.")
+
+            if self.lattice is None:
+                charge = 0
+                if self.charge is not None:
+                    charge = int(self.charge)
+
+                spin = None
+                if self.spin_multiplicity is not None:
+                    spin = int(self.spin_multiplicity)
+
+                return Molecule(
+                    self.species,
+                    self.coords[frames],
+                    charge=charge,
+                    spin_multiplicity=spin,
+                    site_properties=self._get_site_props(frames),  # type: ignore
+                )
+
+            lattice = self.lattice if self.constant_lattice else self.lattice[frames]  # type: ignore
+
+            return Structure(
+                Lattice(lattice),
+                self.species,
+                self.coords[frames],
+                site_properties=self._get_site_props(frames),  # type: ignore
+                to_unit_cell=True,
+            )
+
+        # For slice input, return a trajectory
+        if isinstance(frames, (slice, list, np.ndarray)):
+            if isinstance(frames, slice):
+                start, stop, step = frames.indices(len(self))
+                selected = list(range(start, stop, step))
+            else:
+                # Get rid of frames that exceed trajectory length
+                selected = [i for i in frames if i < len(self)]
+
+                if len(selected) < len(frames):
+                    bad_frames = [i for i in frames if i > len(self)]
+                    raise IndexError(f"Frame index {bad_frames} out of range.")
+
+            coords = self.coords[selected]
+            if self.frame_properties is not None:
+                frame_properties = [self.frame_properties[i] for i in selected]
+            else:
+                frame_properties = None
+
+            if self.lattice is None:
+                return type(self)(
+                    species=self.species,
+                    coords=coords,
+                    charge=self.charge,
+                    spin_multiplicity=self.spin_multiplicity,
+                    site_properties=self._get_site_props(selected),
+                    frame_properties=frame_properties,
+                    time_step=self.time_step,
+                    coords_are_displacement=False,
+                    base_positions=self.base_positions,
+                )
+
+            lattice = self.lattice if self.constant_lattice else self.lattice[selected]  # type: ignore
+
+            return type(self)(
+                species=self.species,
+                coords=coords,
+                lattice=lattice,
+                site_properties=self._get_site_props(selected),
+                frame_properties=frame_properties,
+                constant_lattice=self.constant_lattice,
+                time_step=self.time_step,
+                coords_are_displacement=False,
+                base_positions=self.base_positions,
+            )
+
+        supported = [int, slice, list or np.ndarray]
+        raise ValueError(f"Expect the type of frames be one of {supported}; {type(frames)}.")
+
     def get_structure(self, idx: int) -> Structure:
         """Get structure at specified index.
 
@@ -290,112 +396,6 @@ class Trajectory(MSONable):
         # len(self) is used there.
         self.coords = np.concatenate((self.coords, trajectory.coords))
 
-    def __iter__(self) -> Iterator[Structure | Molecule]:
-        """Iterator of the trajectory, yielding a pymatgen Structure or Molecule for each frame."""
-        for idx in range(len(self)):
-            yield self[idx]
-
-    def __len__(self) -> int:
-        """Number of frames in the trajectory."""
-        return len(self.coords)
-
-    def __getitem__(self, frames: int | slice | list[int]) -> Molecule | Structure | Trajectory:
-        """Get a subset of the trajectory.
-
-        The output depends on the type of the input `frames`. If an int is given, return
-        a pymatgen Molecule or Structure at the specified frame. If a list or a slice, return a new
-        trajectory with a subset of frames.
-
-        Args:
-            frames: Indices of the trajectory to return.
-
-        Returns:
-            Subset of trajectory
-        """
-        # Convert to position mode if not already
-        self.to_positions()
-
-        # For integer input, return the structure at that frame
-        if isinstance(frames, int):
-            if frames >= len(self):
-                raise IndexError(f"Frame index {frames} out of range.")
-
-            if self.lattice is None:
-                charge = 0
-                if self.charge is not None:
-                    charge = int(self.charge)
-
-                spin = None
-                if self.spin_multiplicity is not None:
-                    spin = int(self.spin_multiplicity)
-
-                return Molecule(
-                    self.species,
-                    self.coords[frames],
-                    charge=charge,
-                    spin_multiplicity=spin,
-                    site_properties=self._get_site_props(frames),  # type: ignore
-                )
-
-            lattice = self.lattice if self.constant_lattice else self.lattice[frames]  # type: ignore
-
-            return Structure(
-                Lattice(lattice),
-                self.species,
-                self.coords[frames],
-                site_properties=self._get_site_props(frames),  # type: ignore
-                to_unit_cell=True,
-            )
-
-        # For slice input, return a trajectory
-        if isinstance(frames, (slice, list, np.ndarray)):
-            if isinstance(frames, slice):
-                start, stop, step = frames.indices(len(self))
-                selected = list(range(start, stop, step))
-            else:
-                # Get rid of frames that exceed trajectory length
-                selected = [i for i in frames if i < len(self)]
-
-                if len(selected) < len(frames):
-                    bad_frames = [i for i in frames if i > len(self)]
-                    raise IndexError(f"Frame index {bad_frames} out of range.")
-
-            coords = self.coords[selected]
-            if self.frame_properties is not None:
-                frame_properties = [self.frame_properties[i] for i in selected]
-            else:
-                frame_properties = None
-
-            if self.lattice is None:
-                return Trajectory(
-                    species=self.species,
-                    coords=coords,
-                    charge=self.charge,
-                    spin_multiplicity=self.spin_multiplicity,
-                    site_properties=self._get_site_props(selected),
-                    frame_properties=frame_properties,
-                    time_step=self.time_step,
-                    coords_are_displacement=False,
-                    base_positions=self.base_positions,
-                )
-
-            lattice = self.lattice if self.constant_lattice else self.lattice[selected]  # type: ignore
-
-            return Trajectory(
-                species=self.species,
-                coords=coords,
-                lattice=lattice,
-                site_properties=self._get_site_props(selected),
-                frame_properties=frame_properties,
-                constant_lattice=self.constant_lattice,
-                time_step=self.time_step,
-                coords_are_displacement=False,
-                base_positions=self.base_positions,
-            )
-
-        supported = [int, slice, list or np.ndarray]
-        raise ValueError(f"Expect the type of frames be one of {supported}; {type(frames)}.")
-
     def write_Xdatcar(
         self,
         filename: str | Path = "XDATCAR",
@@ -474,7 +474,12 @@ class Trajectory(MSONable):
         }
 
     @classmethod
-    def from_structures(cls, structures: list[Structure], constant_lattice: bool = True, **kwargs) -> Self:
+    def from_structures(
+        cls,
+        structures: list[Structure],
+        constant_lattice: bool = True,
+        **kwargs,
+    ) -> Self:
         """Create trajectory from a list of structures.
 
         Note: Assumes no atoms removed during simulation.
@@ -533,7 +538,12 @@ class Trajectory(MSONable):
         )
 
     @classmethod
-    def from_file(cls, filename: str | Path, constant_lattice: bool = True, **kwargs) -> Self:
+    def from_file(
+        cls,
+        filename: str | Path,
+        constant_lattice: bool = True,
+        **kwargs,
+    ) -> Self:
         """Create trajectory from XDATCAR, vasprun.xml file, or ASE trajectory (.traj) file.
 
         Args:
@@ -582,7 +592,12 @@ class Trajectory(MSONable):
         return cls.from_structures(structures, constant_lattice=constant_lattice, **kwargs)
 
     @staticmethod
-    def _combine_lattice(lat1: np.ndarray, lat2: np.ndarray, len1: int, len2: int) -> tuple[np.ndarray, bool]:
+    def _combine_lattice(
+        lat1: np.ndarray,
+        lat2: np.ndarray,
+        len1: int,
+        len2: int,
+    ) -> tuple[np.ndarray, bool]:
         """Helper function to combine trajectory lattice."""
         if lat1.ndim == lat2.ndim == 2:
             constant_lat = True
@@ -599,23 +614,24 @@ class Trajectory(MSONable):
 
     @staticmethod
     def _combine_site_props(
-        prop1: SitePropsType | None, prop2: SitePropsType | None, len1: int, len2: int
+        prop1: SitePropsType | None,
+        prop2: SitePropsType | None,
+        len1: int,
+        len2: int,
     ) -> SitePropsType | None:
         """Combine site properties.
 
         Either one of prop1 or prop2 can be None, dict, or a list of dict. All
         possibilities of combining them are considered.
         """
-        # special cases
-
+        # Special cases
         if prop1 is prop2 is None:
             return None
 
         if isinstance(prop1, dict) and prop1 == prop2:
             return prop1
 
-        # general case
-
+        # General case
         assert prop1 is None or isinstance(prop1, (list, dict))
         assert prop2 is None or isinstance(prop2, (list, dict))
 
@@ -635,7 +651,12 @@ class Trajectory(MSONable):
         return p1_selected + p2_selected
 
     @staticmethod
-    def _combine_frame_props(prop1: list[dict] | None, prop2: list[dict] | None, len1: int, len2: int) -> list | None:
+    def _combine_frame_props(
+        prop1: list[dict] | None,
+        prop2: list[dict] | None,
+        len1: int,
+        len2: int,
+    ) -> list | None:
         """Combine frame properties."""
         if prop1 is prop2 is None:
             return None
