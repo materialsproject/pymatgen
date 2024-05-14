@@ -16,11 +16,11 @@ from pymatgen.util.coord import get_linear_interpolated_value
 if TYPE_CHECKING:
     from typing import Callable, Literal
 
-    from numpy.typing import ArrayLike
+    from numpy.typing import NDArray
     from typing_extensions import Self
 
 
-def lorentzian(x: ArrayLike, x_0: float = 0, sigma: float = 1.0) -> ArrayLike:
+def lorentzian(x: NDArray, x_0: float = 0, sigma: float = 1.0) -> NDArray:
     """The Lorentzian smearing function.
 
     Args:
@@ -49,7 +49,7 @@ class Spectrum(MSONable):
     XLABEL = "x"
     YLABEL = "y"
 
-    def __init__(self, x: ArrayLike, y: ArrayLike, *args, **kwargs) -> None:
+    def __init__(self, x: NDArray, y: NDArray, *args, **kwargs) -> None:
         """
         Args:
             x (ndarray): A ndarray of N values.
@@ -69,7 +69,7 @@ class Spectrum(MSONable):
         self._args = args
         self._kwargs = kwargs
 
-    def __getattr__(self, name: str) -> ArrayLike:
+    def __getattr__(self, name: str) -> NDArray:
         if name == self.XLABEL.lower():
             return self.x
         if name == self.YLABEL.lower():
