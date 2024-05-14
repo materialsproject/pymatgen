@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from pymatgen.core import Structure
 from pymatgen.io.aims.sets.base import AimsInputGenerator
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from pymatgen.core import Molecule
 
 

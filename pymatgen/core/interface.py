@@ -8,7 +8,7 @@ from fractions import Fraction
 from functools import reduce
 from itertools import chain, combinations, product
 from math import cos, floor, gcd
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.fractions import lcm
@@ -25,6 +25,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self
