@@ -841,7 +841,7 @@ class TensorCollection(collections.abc.Sequence, MSONable):
         self,
         structure: Structure,
         initial_fit: bool = True,
-        refine_rotation=True,
+        refine_rotation: bool = True,
     ) -> Self:
         """Convert all tensors to IEEE.
 
