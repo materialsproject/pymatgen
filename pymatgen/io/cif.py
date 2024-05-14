@@ -13,7 +13,7 @@ from inspect import getfullargspec
 from io import StringIO
 from itertools import groupby
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import deprecated
@@ -30,6 +30,8 @@ from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
 
 if TYPE_CHECKING:
+    from typing import Any, Literal
+
     from typing_extensions import Self
 
     from pymatgen.util.typing import Vector3D

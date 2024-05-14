@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -15,6 +15,7 @@ from pymatgen.electronic_structure.bandstructure import Kpoint
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from os import PathLike
+    from typing import Any
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self

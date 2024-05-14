@@ -15,7 +15,7 @@ import os
 import re
 import warnings
 from collections import UserDict
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 import spglib
@@ -30,6 +30,8 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from typing_extensions import Self
 
     from pymatgen.core.composition import Composition

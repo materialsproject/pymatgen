@@ -13,7 +13,7 @@ from __future__ import annotations
 import re
 import sys
 import warnings
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -29,6 +29,8 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.num import round_to_sigfigs
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from typing_extensions import Self
 
 __author__ = "Marco Esters, Janine George"

@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from glob import glob
 from io import StringIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import reverse_readfile, zopen
@@ -43,6 +43,8 @@ from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.util.num import make_symmetric_matrix_from_upper_tri
 
 if TYPE_CHECKING:
+    from typing import Literal
+
     from typing_extensions import Self
 
 logger = logging.getLogger(__name__)
