@@ -70,7 +70,7 @@ class CifBlock:
         self.header = header[:74]
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, CifBlock):
+        if not isinstance(other, type(self)):
             return NotImplemented
         return self.loops == other.loops and self.data == other.data and self.header == other.header
 
@@ -1034,10 +1034,11 @@ class CifParser:
             # If check_occu is True or the occupancy is greater than 0, create comp_d
             if not check_occu or occu > 0:
                 # Create site coordinate
-                x = str2float(data["_atom_site_fract_x"][idx])
-                y = str2float(data["_atom_site_fract_y"][idx])
-                z = str2float(data["_atom_site_fract_z"][idx])
-                coord: Vector3D = (x, y, z)
+                coord: Vector3D = (
+                    str2float(data["_atom_site_fract_x"][idx]),
+                    str2float(data["_atom_site_fract_y"][idx]),
+                    str2float(data["_atom_site_fract_z"][idx]),
+                )
 
                 # Create Composition
                 comp_dict: dict[Species | str, float] = {el: max(occu, 1e-8)}
