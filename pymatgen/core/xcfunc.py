@@ -120,7 +120,12 @@ class XcFunc(MSONable):
 
     del xcf
 
-    def __init__(self, xc: LibxcFunc | None = None, x: LibxcFunc | None = None, c: LibxcFunc | None = None) -> None:
+    def __init__(
+        self,
+        xc: LibxcFunc | None = None,
+        x: LibxcFunc | None = None,
+        c: LibxcFunc | None = None,
+    ) -> None:
         """
         Args:
             xc: LibxcFunc for XC functional.
@@ -143,9 +148,9 @@ class XcFunc(MSONable):
         return hash(self.name)
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, (str, XcFunc)):
+        if not isinstance(other, (str, type(self))):
             return NotImplemented
-        if isinstance(other, XcFunc):
+        if isinstance(other, type(self)):
             return self.name == other.name
         # assume other is a string
         return self.name == other
