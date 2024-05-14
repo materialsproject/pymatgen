@@ -590,7 +590,7 @@ class Tensor(np.ndarray, MSONable):
         verbose: bool = False,
         precond: bool = True,
         vsym: bool = True,
-    ) -> Tensor:
+    ) -> Self:
         """Takes a partially populated tensor, and populates the non-zero
         entries according to the following procedure, iterated until
         the desired convergence (specified via prec) is achieved.
@@ -613,7 +613,7 @@ class Tensor(np.ndarray, MSONable):
         Returns:
             Tensor: Populated tensor
         """
-        guess = Tensor(np.zeros(self.shape))
+        guess = type(self)(np.zeros(self.shape))
         mask = None
         if precond:
             # Generate the guess from populated
@@ -644,7 +644,7 @@ class Tensor(np.ndarray, MSONable):
                 for perm in perms:
                     vtrans = np.transpose(v, perm)
                     merge(v, vtrans)
-                guess = Tensor.from_voigt(v)
+                guess = type(self).from_voigt(v)
 
         assert guess.shape == self.shape, "Guess must have same shape"
         converged = False
