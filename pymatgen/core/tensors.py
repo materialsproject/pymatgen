@@ -1,6 +1,6 @@
-"""This module provides a base class for tensor-like objects and methods for
-basic tensor manipulation. It also provides a class, SquareTensor,
-that provides basic methods for creating and manipulating rank 2 tensors.
+"""This module provides a base class Tensor for tensor-like objects and
+methods for basic tensor manipulation. It also provides SquareTensor,
+which provides basic methods for creating and manipulating rank 2 tensors.
 """
 
 from __future__ import annotations
@@ -34,9 +34,6 @@ if TYPE_CHECKING:
 __author__ = "Joseph Montoya"
 __credits__ = "Maarten de Jong, Shyam Dwaraknath, Wei Chen, Mark Asta, Anubhav Jain, Terence Lew"
 
-
-voigt_map = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
-reverse_voigt_map = np.array([[0, 5, 4], [5, 1, 3], [4, 3, 2]])
 
 DEFAULT_QUAD = loadfn(os.path.join(os.path.dirname(__file__), "quad_data.json"))
 
@@ -371,6 +368,8 @@ class Tensor(np.ndarray, MSONable):
         Args:
             rank (int): Tensor rank to generate the voigt map
         """
+        reverse_voigt_map = np.array([[0, 5, 4], [5, 1, 3], [4, 3, 2]])
+
         voigt_dict = {}
         for ind in itertools.product(*[range(3)] * rank):
             v_ind = ind[: rank % 2]
