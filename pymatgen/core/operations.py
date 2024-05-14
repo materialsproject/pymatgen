@@ -64,7 +64,7 @@ class SymmOp(MSONable):
         return np.allclose(self.affine_matrix, other.affine_matrix, atol=self.tol)
 
     def __hash__(self) -> int:
-        return 7  # DEBUG (DanielYang59): magic hash
+        return hash((tuple(map(tuple, self.affine_matrix)), self.tol))
 
     def __repr__(self) -> str:
         affine_matrix = self.affine_matrix

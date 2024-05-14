@@ -12,6 +12,9 @@ class TestSymmOp(PymatgenTest):
     def setUp(self):
         self.op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 30, translation_vec=[0, 0, 1])
 
+    def test_hash(self):
+        assert hash(self.op) == 2248719638412467238
+
     def test_properties(self):
         rot = self.op.rotation_matrix
         vec = self.op.translation_vector
