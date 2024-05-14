@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
@@ -17,6 +17,7 @@ from pymatgen.io.aims.parsers import (
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from pathlib import Path
+    from typing import Any
 
     from typing_extensions import Self
 

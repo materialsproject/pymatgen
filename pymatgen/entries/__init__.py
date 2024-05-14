@@ -7,8 +7,8 @@ and PDEntry inherit from this class.
 
 from __future__ import annotations
 
-from abc import ABC, ABCMeta, abstractmethod
-from typing import TYPE_CHECKING, Literal
+from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -16,6 +16,8 @@ from monty.json import MSONable
 from pymatgen.core.composition import Composition
 
 if TYPE_CHECKING:
+    from typing import Literal
+
     from pymatgen.core import DummySpecies, Element, Species
 
 

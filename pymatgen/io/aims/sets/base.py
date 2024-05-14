@@ -180,12 +180,11 @@ class AimsInputGenerator(InputGenerator):
     """
     A class to generate Aims input sets.
 
-    Parameters
-    ----------
-    user_params: dict[str, Any]
-        Updates the default parameters for the FHI-aims calculator
-    user_kpoints_settings: dict[str, Any]
-        The settings used to create the k-grid parameters for FHI-aims
+    Attributes:
+        user_params (dict[str, Any]): Updates the default
+            parameters for the FHI-aims calculator
+        user_kpoints_settings (dict[str, Any]):  The settings
+            used to create the k-grid parameters for FHI-aims
     """
 
     user_params: dict[str, Any] = field(default_factory=dict)
@@ -199,14 +198,11 @@ class AimsInputGenerator(InputGenerator):
     ) -> AimsInputSet:
         """Generate an AimsInputSet object.
 
-        Parameters
-        ----------
-        structure : Structure or Molecule
-            Structure or Molecule to generate the input set for.
-        prev_dir: str or Path
-            Path to the previous working directory
-        properties: list[str]
-            System properties that are being calculated
+        Args:
+            structure (Structure or Molecule): Structure or
+                Molecule to generate the input set for.
+            prev_dir (str or Path): Path to the previous working directory
+            properties (list[str]): System properties that are being calculated
 
         Returns:
             AimsInputSet: The input set for the calculation of structure
@@ -229,10 +225,8 @@ class AimsInputGenerator(InputGenerator):
     ) -> tuple[Structure | Molecule | None, dict[str, Any], dict[str, Any]]:
         """Read in previous results.
 
-        Parameters
-        ----------
-        prev_dir: str or Path
-            The previous directory for the calculation
+        Args:
+            prev_dir (str or Path): The previous directory for the calculation
         """
         prev_structure: Structure | Molecule | None = None
         prev_parameters = {}
@@ -266,12 +260,9 @@ class AimsInputGenerator(InputGenerator):
     ) -> list[str]:
         """Get the properties to calculate.
 
-        Parameters
-        ----------
-        properties: list[str]
-            The currently requested properties
-        parameters: dict[str, Any]
-            The parameters for this calculation
+        Args:
+            properties (list[str]): The currently requested properties
+            parameters (dict[str, Any]): The parameters for this calculation
 
         Returns:
             list[str]: The list of properties to calculate
@@ -301,12 +292,11 @@ class AimsInputGenerator(InputGenerator):
     ) -> dict[str, Any]:
         """Create the input parameters.
 
-        Parameters
-        ----------
-        structure: Structure | Molecule
-            The structure or molecule for the system
-        prev_parameters: dict[str, Any]
-            The previous calculation's calculation parameters
+        Args:
+            structure (Structure | Molecule): The structure
+                or molecule for the system
+            prev_parameters (dict[str, Any]): The previous
+                calculation's calculation parameters
 
         Returns:
             dict: The input object
@@ -353,12 +343,9 @@ class AimsInputGenerator(InputGenerator):
     def get_parameter_updates(self, structure: Structure | Molecule, prev_parameters: dict[str, Any]) -> dict[str, Any]:
         """Update the parameters for a given calculation type.
 
-        Parameters
-        ----------
-        structure : Structure or Molecule
-            The system to run
-        prev_parameters: dict[str, Any]
-            Previous calculation parameters.
+        Args:
+            structure (Structure or Molecule): The system to run
+            prev_parameters (dict[str, Any]): Previous calculation parameters.
 
         Returns:
             dict: A dictionary of updates to apply.
@@ -375,14 +362,13 @@ class AimsInputGenerator(InputGenerator):
 
         inspired by [ase.calculators.calculator.kptdensity2monkhorstpack]
 
-        Parameters
-        ----------
-        structure: Structure
-            Contains unit cell and information about boundary conditions.
-        kptdensity: float or list of floats
-            Required k-point density.  Default value is 5.0 point per Ang^-1.
-        even: bool
-            Round up to even numbers.
+        Args:
+
+            structure (Structure): Contains unit cell and
+                information about boundary conditions.
+            kptdensity (float | list[float]): Required k-point
+                density.  Default value is 5.0 point per Ang^-1.
+            even (bool): Round up to even numbers.
 
         Returns:
             dict: Monkhorst-Pack grid size in all directions
@@ -393,12 +379,11 @@ class AimsInputGenerator(InputGenerator):
     def k2d(self, structure: Structure, k_grid: np.ndarray[int]):
         """Generate the kpoint density in each direction from given k_grid.
 
-        Parameters
-        ----------
-        structure: Structure
-            Contains unit cell and information about boundary conditions.
-        k_grid: np.ndarray[int]
-            k_grid that was used.
+        Args:
+            structure: Structure
+                Contains unit cell and information about boundary conditions.
+            k_grid: np.ndarray[int]
+                k_grid that was used.
 
         Returns:
             dict: Density of kpoints in each direction. result.mean() computes average density
@@ -416,16 +401,13 @@ class AimsInputGenerator(InputGenerator):
     ) -> Sequence[int]:
         """Convert k-point density to Monkhorst-Pack grid size.
 
-        Parameters
-        ----------
-        recipcell: Cell
-            The reciprocal cell
-        pbc: Sequence[bool]
-            If element of pbc is True then system is periodic in that direction
-        kptdensity: float or list[floats]
-            Required k-point density.  Default value is 3.5 point per Ang^-1.
-        even: bool
-            Round up to even numbers.
+        Args:
+            recipcell (Cell): The reciprocal cell
+            pbc (Sequence[bool]): If element of pbc is True
+                then system is periodic in that direction
+            kptdensity (float or list[floats]): Required k-point
+                density.  Default value is 3.5 point per Ang^-1.
+        even(bool): Round up to even numbers.
 
         Returns:
             dict: Monkhorst-Pack grid size in all directions
@@ -449,16 +431,14 @@ def recursive_update(dct: dict, up: dict) -> dict:
     """
     Update a dictionary recursively and return it.
 
-    Parameters
-    ----------
-    dct (dict): Input dictionary to modify
-    up (dict): updates to apply
+    Args:
+        dct (dict): Input dictionary to modify
+        up (dict): updates to apply
 
     Returns:
         dict: The updated dictionary.
 
-    Example
-    -------
+    Example:
         d = {'activate_hybrid': {"hybrid_functional": "HSE06"}}
         u = {'activate_hybrid': {"cutoff_radius": 8}}
 
