@@ -1023,9 +1023,7 @@ class Species(MSONable, Stringify):
             other_oxi = 0 if (isinstance(other, Element) or other.oxi_state is None) else other.oxi_state
             return self.oxi_state < other_oxi
         if self.spin is not None:
-            if other.spin is not None:
-                return self.spin < other.spin
-            return False
+            return self.spin < other.spin if other.spin is not None else False
 
         return False
 
@@ -1045,8 +1043,8 @@ class Species(MSONable, Stringify):
             output += f",{spin=}"
         return output
 
-    def __deepcopy__(self, memo) -> Species:
-        return Species(self.symbol, self.oxi_state, spin=self._spin)
+    def __deepcopy__(self, memo) -> Self:
+        return type(self)(self.symbol, self.oxi_state, spin=self._spin)
 
     @property
     def element(self) -> Element:
@@ -1345,7 +1343,7 @@ class DummySpecies(Species):
         return output
 
     def __deepcopy__(self, memo) -> Self:
-        return DummySpecies(self.symbol, self._oxi_state)
+        return type(self)(self.symbol, self._oxi_state)
 
     @property
     def Z(self) -> int:

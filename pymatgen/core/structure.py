@@ -103,7 +103,7 @@ class Neighbor(Site):
         """Make neighbor Tuple-like to retain backwards compatibility."""
         return 3
 
-    def __getitem__(self, idx: int):
+    def __getitem__(self, idx: int) -> Self | float:  # type: ignore[override]
         """Make neighbor Tuple-like to retain backwards compatibility."""
         return (self, self.nn_distance, self.index)[idx]
 
@@ -166,18 +166,18 @@ class PeriodicNeighbor(PeriodicSite):
         self.image = image
         self._label = label
 
-    @property  # type: ignore
-    def coords(self) -> np.ndarray:  # type: ignore
-        """Cartesian coords."""
-        return self._lattice.get_cartesian_coords(self._frac_coords)
-
     def __len__(self) -> int:
         """Make neighbor Tuple-like to retain backwards compatibility."""
         return 4
 
-    def __getitem__(self, idx: int | slice):
+    def __getitem__(self, idx: int | slice):  # type: ignore[override]
         """Make neighbor Tuple-like to retain backwards compatibility."""
         return (self, self.nn_distance, self.index, self.image)[idx]
+
+    @property  # type: ignore
+    def coords(self) -> np.ndarray:  # type: ignore
+        """Cartesian coords."""
+        return self._lattice.get_cartesian_coords(self._frac_coords)
 
     def as_dict(self) -> dict:  # type: ignore[override]
         """Note that method calls the super of Site, which is MSONable itself."""
@@ -206,6 +206,23 @@ class SiteCollection(collections.abc.Sequence, ABC):
     # Tolerance in Angstrom for determining if sites are too close.
     DISTANCE_TOLERANCE = 0.5
     _properties: dict
+
+    def __contains__(self, site: object) -> bool:
+        return site in self.sites
+
+    def __iter__(self) -> Iterator[Site]:
+        return iter(self.sites)
+
+    # TODO return type needs fixing (can be list[Site] but raises lots of mypy errors)
+    def __getitem__(self, ind: int | slice) -> Site:
+        return self.sites[ind]  # type: ignore[return-value]
+
+    def __len__(self) -> int:
+        return len(self.sites)
+
+    def __hash__(self) -> int:
+        # for now, just use the composition hash code.
+        return hash(self.composition)
 
     @property
     def sites(self) -> list[Site]:
@@ -362,23 +379,6 @@ class SiteCollection(collections.abc.Sequence, ABC):
                 site.label = f"{label}_{idx + 1}"
 
         return self
-
-    def __contains__(self, site: object) -> bool:
-        return site in self.sites
-
-    def __iter__(self) -> Iterator[Site]:
-        return iter(self.sites)
-
-    # TODO return type needs fixing (can be list[Site] but raises lots of mypy errors)
-    def __getitem__(self, ind: int | slice) -> Site:
-        return self.sites[ind]  # type: ignore[return-value]
-
-    def __len__(self) -> int:
-        return len(self.sites)
-
-    def __hash__(self) -> int:
-        # for now, just use the composition hash code.
-        return hash(self.composition)
 
     @property
     def num_sites(self) -> int:
@@ -1047,6 +1047,124 @@ class IStructure(SiteCollection, MSONable):
         self._charge = charge
         self._properties = properties or {}
 
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("lattice", "sites", "properties")
+
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            # return NotImplemented as in https://docs.python.org/3/library/functools.html#functools.total_ordering
+            return NotImplemented
+
+        other = cast(Structure, other)  # make mypy happy
+
+        if other is self:
+            return True
+        if len(self) != len(other):
+            return False
+        if self.lattice != other.lattice:
+            return False
+        if self.properties != other.properties:
+            return False
+        return all(site in other for site in self)
+
+    def __hash__(self) -> int:
+        # For now, just use the composition hash code.
+        return hash(self.composition)
+
+    def __mul__(self, scaling_matrix: int | Sequence[int] | Sequence[Sequence[int]]) -> Structure:
+        """Make a supercell. Allowing to have sites outside the unit cell.
+
+        Args:
+            scaling_matrix: A scaling matrix for transforming the lattice
+                vectors. Has to be all integers. Several options are possible:
+
+                a. A full 3x3 scaling matrix defining the linear combination
+                   of the old lattice vectors. e.g. [[2,1,0],[0,3,0],[0,0,
+                   1]] generates a new structure with lattice vectors a' =
+                   2a + b, b' = 3b, c' = c where a, b, and c are the lattice
+                   vectors of the original structure.
+                b. A sequence of three scaling factors. e.g. [2, 1, 1]
+                   specifies that the supercell should have dimensions 2a x b x
+                   c.
+                c. A number, which simply scales all lattice vectors by the
+                   same factor.
+
+        Returns:
+            Supercell structure. Note that a Structure is always returned,
+            even if the input structure is a subclass of Structure. This is
+            to avoid different arguments signatures from causing problems. If
+            you prefer a subclass to return its own type, you need to override
+            this method in the subclass.
+        """
+        scale_matrix = np.array(scaling_matrix, int)
+        if scale_matrix.shape != (3, 3):
+            scale_matrix = scale_matrix * np.eye(3)
+        new_lattice = Lattice(np.dot(scale_matrix, self.lattice.matrix))
+
+        frac_lattice = lattice_points_in_supercell(scale_matrix)
+        cart_lattice = new_lattice.get_cartesian_coords(frac_lattice)
+
+        new_sites = []
+        for site in self:
+            for vec in cart_lattice:
+                periodic_site = PeriodicSite(
+                    site.species,
+                    site.coords + vec,
+                    new_lattice,
+                    properties=site.properties,
+                    coords_are_cartesian=True,
+                    to_unit_cell=False,
+                    skip_checks=True,
+                    label=site.label,
+                )
+                new_sites.append(periodic_site)
+
+        new_charge = self._charge * np.linalg.det(scale_matrix) if self._charge else None
+        return Structure.from_sites(new_sites, charge=new_charge, to_unit_cell=True)
+
+    def __rmul__(self, scaling_matrix):
+        """Similar to __mul__ to preserve commutativeness."""
+        return self * scaling_matrix
+
+    def __repr__(self) -> str:
+        outs = ["Structure Summary", repr(self.lattice)]
+        if self._charge:
+            outs.append(f"Overall Charge: {self._charge:+}")
+        for site in self:
+            outs.append(repr(site))
+        return "\n".join(outs)
+
+    def __str__(self) -> str:
+        def to_str(x) -> str:
+            return f"{x:>10.6f}"
+
+        outs = [
+            f"Full Formula ({self.composition.formula})",
+            f"Reduced Formula: {self.composition.reduced_formula}",
+            f"abc   : {' '.join(to_str(i) for i in self.lattice.abc)}",
+            f"angles: {' '.join(to_str(i) for i in self.lattice.angles)}",
+            f"pbc   : {' '.join(str(p).rjust(10) for p in self.lattice.pbc)}",
+        ]
+
+        if self._charge:
+            outs.append(f"Overall Charge: {self._charge:+}")
+        outs.append(f"Sites ({len(self)})")
+        data = []
+        props = self.site_properties
+        keys = sorted(props)
+        for idx, site in enumerate(self):
+            row = [str(idx), site.species_string]
+            row.extend([to_str(j) for j in site.frac_coords])
+            for key in keys:
+                row.append(props[key][idx])
+            data.append(row)
+        outs.append(
+            tabulate(
+                data,
+                headers=["#", "SP", "a", "b", "c", *keys],
+            )
+        )
+        return "\n".join(outs)
+
     @classmethod
     def from_sites(
         cls,
@@ -1406,84 +1524,6 @@ class IStructure(SiteCollection, MSONable):
         if anonymous:
             return matcher.fit_anonymous(self, other)
         return matcher.fit(self, other)
-
-    def __eq__(self, other: object) -> bool:
-        needed_attrs = ("lattice", "sites", "properties")
-
-        if not all(hasattr(other, attr) for attr in needed_attrs):
-            # return NotImplemented as in https://docs.python.org/3/library/functools.html#functools.total_ordering
-            return NotImplemented
-
-        other = cast(Structure, other)  # make mypy happy
-
-        if other is self:
-            return True
-        if len(self) != len(other):
-            return False
-        if self.lattice != other.lattice:
-            return False
-        if self.properties != other.properties:
-            return False
-        return all(site in other for site in self)
-
-    def __hash__(self) -> int:
-        # For now, just use the composition hash code.
-        return hash(self.composition)
-
-    def __mul__(self, scaling_matrix: int | Sequence[int] | Sequence[Sequence[int]]) -> Structure:
-        """Make a supercell. Allowing to have sites outside the unit cell.
-
-        Args:
-            scaling_matrix: A scaling matrix for transforming the lattice
-                vectors. Has to be all integers. Several options are possible:
-
-                a. A full 3x3 scaling matrix defining the linear combination
-                   of the old lattice vectors. e.g. [[2,1,0],[0,3,0],[0,0,
-                   1]] generates a new structure with lattice vectors a' =
-                   2a + b, b' = 3b, c' = c where a, b, and c are the lattice
-                   vectors of the original structure.
-                b. A sequence of three scaling factors. e.g. [2, 1, 1]
-                   specifies that the supercell should have dimensions 2a x b x
-                   c.
-                c. A number, which simply scales all lattice vectors by the
-                   same factor.
-
-        Returns:
-            Supercell structure. Note that a Structure is always returned,
-            even if the input structure is a subclass of Structure. This is
-            to avoid different arguments signatures from causing problems. If
-            you prefer a subclass to return its own type, you need to override
-            this method in the subclass.
-        """
-        scale_matrix = np.array(scaling_matrix, int)
-        if scale_matrix.shape != (3, 3):
-            scale_matrix = scale_matrix * np.eye(3)
-        new_lattice = Lattice(np.dot(scale_matrix, self.lattice.matrix))
-
-        frac_lattice = lattice_points_in_supercell(scale_matrix)
-        cart_lattice = new_lattice.get_cartesian_coords(frac_lattice)
-
-        new_sites = []
-        for site in self:
-            for vec in cart_lattice:
-                periodic_site = PeriodicSite(
-                    site.species,
-                    site.coords + vec,
-                    new_lattice,
-                    properties=site.properties,
-                    coords_are_cartesian=True,
-                    to_unit_cell=False,
-                    skip_checks=True,
-                    label=site.label,
-                )
-                new_sites.append(periodic_site)
-
-        new_charge = self._charge * np.linalg.det(scale_matrix) if self._charge else None
-        return Structure.from_sites(new_sites, charge=new_charge, to_unit_cell=True)
-
-    def __rmul__(self, scaling_matrix):
-        """Similar to __mul__ to preserve commutativeness."""
-        return self * scaling_matrix
 
     @property
     def frac_coords(self):
@@ -2585,46 +2625,6 @@ class IStructure(SiteCollection, MSONable):
 
         return self.copy()
 
-    def __repr__(self) -> str:
-        outs = ["Structure Summary", repr(self.lattice)]
-        if self._charge:
-            outs.append(f"Overall Charge: {self._charge:+}")
-        for site in self:
-            outs.append(repr(site))
-        return "\n".join(outs)
-
-    def __str__(self) -> str:
-        def to_str(x) -> str:
-            return f"{x:>10.6f}"
-
-        outs = [
-            f"Full Formula ({self.composition.formula})",
-            f"Reduced Formula: {self.composition.reduced_formula}",
-            f"abc   : {' '.join(to_str(i) for i in self.lattice.abc)}",
-            f"angles: {' '.join(to_str(i) for i in self.lattice.angles)}",
-            f"pbc   : {' '.join(str(p).rjust(10) for p in self.lattice.pbc)}",
-        ]
-
-        if self._charge:
-            outs.append(f"Overall Charge: {self._charge:+}")
-        outs.append(f"Sites ({len(self)})")
-        data = []
-        props = self.site_properties
-        keys = sorted(props)
-        for idx, site in enumerate(self):
-            row = [str(idx), site.species_string]
-            row.extend([to_str(j) for j in site.frac_coords])
-            for key in keys:
-                row.append(props[key][idx])
-            data.append(row)
-        outs.append(
-            tabulate(
-                data,
-                headers=["#", "SP", "a", "b", "c", *keys],
-            )
-        )
-        return "\n".join(outs)
-
     def get_orderings(self, mode: Literal["enum", "sqs"] = "enum", **kwargs) -> list[Structure]:
         """Get list of orderings for a disordered structure. If structure
         does not contain disorder, the default structure is returned.
@@ -3166,6 +3166,42 @@ class IMolecule(SiteCollection, MSONable):
             self._spin_multiplicity = 1 if n_electrons % 2 == 0 else 2
         self.properties = properties or {}
 
+    def __eq__(self, other: object) -> bool:
+        needed_attrs = ("charge", "spin_multiplicity", "sites", "properties")
+
+        if not all(hasattr(other, attr) for attr in needed_attrs):
+            return NotImplemented
+
+        other = cast(IMolecule, other)
+
+        if len(self) != len(other):
+            return False
+        if self.charge != other.charge:
+            return False
+        if self.spin_multiplicity != other.spin_multiplicity:
+            return False
+        if self.properties != other.properties:
+            return False
+        return all(site in other for site in self)
+
+    def __hash__(self) -> int:
+        # For now, just use the composition hash code.
+        return hash(self.composition)
+
+    def __repr__(self) -> str:
+        return "Molecule Summary\n" + "\n".join(map(repr, self))
+
+    def __str__(self) -> str:
+        outs = [
+            f"Full Formula ({self.composition.formula})",
+            "Reduced Formula: " + self.composition.reduced_formula,
+            f"Charge = {self._charge}, Spin Mult = {self._spin_multiplicity}",
+            f"Sites ({len(self)})",
+        ]
+        for idx, site in enumerate(self):
+            outs.append(f"{idx} {site.species_string} {' '.join([f'{coord:0.6f}'.rjust(12) for coord in site.coords])}")
+        return "\n".join(outs)
+
     @property
     def charge(self) -> float:
         """Charge of molecule."""
@@ -3311,24 +3347,6 @@ class IMolecule(SiteCollection, MSONable):
                 bonds.append(CovalentBond(site1, site2))
         return bonds
 
-    def __eq__(self, other: object) -> bool:
-        needed_attrs = ("charge", "spin_multiplicity", "sites", "properties")
-
-        if not all(hasattr(other, attr) for attr in needed_attrs):
-            return NotImplemented
-
-        other = cast(IMolecule, other)
-
-        if len(self) != len(other):
-            return False
-        if self.charge != other.charge:
-            return False
-        if self.spin_multiplicity != other.spin_multiplicity:
-            return False
-        if self.properties != other.properties:
-            return False
-        return all(site in other for site in self)
-
     def get_zmatrix(self):
         """Get a z-matrix representation of the molecule."""
         # TODO: allow more z-matrix conventions for element/site description
@@ -3363,24 +3381,6 @@ class IMolecule(SiteCollection, MSONable):
         all_dist = [(self.get_distance(site_idx, idx), idx) for idx in range(site_idx)]
         all_dist = sorted(all_dist, key=lambda x: x[0])
         return [d[1] for d in all_dist]
-
-    def __hash__(self) -> int:
-        # For now, just use the composition hash code.
-        return hash(self.composition)
-
-    def __repr__(self) -> str:
-        return "Molecule Summary\n" + "\n".join(map(repr, self))
-
-    def __str__(self) -> str:
-        outs = [
-            f"Full Formula ({self.composition.formula})",
-            "Reduced Formula: " + self.composition.reduced_formula,
-            f"Charge = {self._charge}, Spin Mult = {self._spin_multiplicity}",
-            f"Sites ({len(self)})",
-        ]
-        for idx, site in enumerate(self):
-            outs.append(f"{idx} {site.species_string} {' '.join([f'{coord:0.6f}'.rjust(12) for coord in site.coords])}")
-        return "\n".join(outs)
 
     def as_dict(self):
         """JSON-serializable dict representation of Molecule."""

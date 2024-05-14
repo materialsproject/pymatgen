@@ -29,10 +29,10 @@ import itertools
 import os
 import re
 import textwrap
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, no_type_check
+from typing import TYPE_CHECKING
 
 from monty.dev import deprecated
 from monty.io import zopen
@@ -2395,7 +2395,6 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         """Number of exponents."""
         return [len(exp) for exp in self.exponents]
 
-    @no_type_check
     def get_str(self) -> str:
         """Get standard cp2k GTO formatted string."""
         if (  # written verbosely so mypy can perform type narrowing
