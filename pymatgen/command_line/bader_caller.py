@@ -22,7 +22,7 @@ from glob import glob
 from pathlib import Path
 from shutil import which
 from tempfile import TemporaryDirectory
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import deprecated
@@ -34,6 +34,8 @@ from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from typing_extensions import Self
 
     from pymatgen.core import Structure

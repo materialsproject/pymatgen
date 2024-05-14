@@ -9,7 +9,7 @@ from __future__ import annotations
 import itertools
 import math
 import warnings
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 import sympy as sp
@@ -25,6 +25,7 @@ from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Literal
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self

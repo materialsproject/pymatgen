@@ -7,7 +7,7 @@ import math
 import os
 import subprocess
 import time
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
@@ -26,6 +26,7 @@ except ImportError:
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import ClassVar
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 EL_COLORS = loadfn(f"{module_dir}/ElementColorSchemes.yaml")
