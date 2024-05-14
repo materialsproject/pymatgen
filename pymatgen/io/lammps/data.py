@@ -20,7 +20,7 @@ import re
 import warnings
 from io import StringIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -35,7 +35,7 @@ from pymatgen.util.io_utils import clean_lines
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any
+    from typing import Any, Literal
 
     from typing_extensions import Self
 

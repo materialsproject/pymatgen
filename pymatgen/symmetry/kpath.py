@@ -5,7 +5,7 @@ from __future__ import annotations
 import abc
 import itertools
 from math import ceil, cos, e, pi, sin, tan
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from warnings import warn
 
 import networkx as nx
@@ -23,6 +23,8 @@ except ImportError:
     get_path = None
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from pymatgen.core import Structure
     from pymatgen.util.typing import SpeciesLike
 
@@ -92,7 +94,7 @@ class KPathBase(abc.ABC):
                 distance = np.linalg.norm(
                     self._rec_lattice.get_cartesian_coords(start) - self._rec_lattice.get_cartesian_coords(end)
                 )
-                nb = int(ceil(distance * line_density))
+                nb = ceil(distance * line_density)
                 if nb == 0:
                     continue
                 sym_point_labels.extend([k_path[path_step - 1]] + [""] * (nb - 1) + [k_path[path_step]])

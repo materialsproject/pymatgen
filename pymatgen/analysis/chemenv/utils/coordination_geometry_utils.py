@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.linalg import norm
@@ -14,6 +14,8 @@ from scipy.spatial import ConvexHull
 from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
 
 if TYPE_CHECKING:
+    from typing import Callable
+
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 

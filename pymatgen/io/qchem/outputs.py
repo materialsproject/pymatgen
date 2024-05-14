@@ -9,7 +9,7 @@ import os
 import re
 import struct
 import warnings
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import networkx as nx
 import numpy as np
@@ -34,6 +34,8 @@ except ImportError:
     openbabel = None
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from numpy.typing import NDArray
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"

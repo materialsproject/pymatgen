@@ -13,7 +13,7 @@ from inspect import getfullargspec
 from io import StringIO
 from itertools import groupby
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, cast
 
 import numpy as np
 from monty.dev import deprecated
@@ -30,7 +30,7 @@ from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.coord import find_in_coord_list_pbc, in_coord_list_pbc
 
 if TYPE_CHECKING:
-    from typing import Any, Literal
+    from typing import Any
 
     from numpy.typing import NDArray
     from typing_extensions import Self
@@ -839,11 +839,12 @@ class CifParser:
                             i - np.floor(i) for i in op.translation_vector + centering_op.translation_vector
                         ]
                         new_time_reversal = op.time_reversal * centering_op.time_reversal
+
                         all_ops.append(
                             MagSymmOp.from_rotation_and_translation_and_time_reversal(
                                 rotation_matrix=op.rotation_matrix,
                                 translation_vec=new_translation,
-                                time_reversal=new_time_reversal,
+                                time_reversal=cast(Literal[-1, 1], new_time_reversal),
                             )
                         )
                 mag_symm_ops = all_ops

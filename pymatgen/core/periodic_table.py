@@ -11,7 +11,7 @@ from collections import Counter
 from enum import Enum, unique
 from itertools import combinations, product
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -20,6 +20,8 @@ from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Ha_to_eV, L
 from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
+    from typing import Any, Callable, Literal
+
     from typing_extensions import Self
 
     from pymatgen.util.typing import SpeciesLike
