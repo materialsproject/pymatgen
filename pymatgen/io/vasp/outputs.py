@@ -3556,7 +3556,7 @@ class VolumetricData(BaseVolumetricData):
 
 
 class Locpot(VolumetricData):
-    """Simple object for reading a LOCPOT file."""
+    """Read a LOCPOT file."""
 
     def __init__(self, poscar: Poscar, data: np.ndarray, **kwargs):
         """
@@ -3582,7 +3582,7 @@ class Locpot(VolumetricData):
 
 
 class Chgcar(VolumetricData):
-    """Simple object for reading a CHGCAR file."""
+    """Read a CHGCAR file."""
 
     def __init__(self, poscar, data, data_aug=None) -> None:
         """

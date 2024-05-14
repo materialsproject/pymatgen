@@ -681,9 +681,8 @@ class BandStructure:
 
 
 class BandStructureSymmLine(BandStructure, MSONable):
-    r"""This object stores band structures along selected (symmetry) lines in the
-    Brillouin zone. We call the different symmetry lines (ex: \\Gamma to Z)
-    "branches".
+    r"""Store band structures along selected (symmetry) lines in the Brillouin zone.
+    We call the different symmetry lines (ex: \\Gamma to Z) "branches".
     """
 
     def __init__(

@@ -89,17 +89,17 @@ class VaspInputSet(InputGenerator, abc.ABC):
     @property
     @abc.abstractmethod
     def incar(self):
-        """Incar object."""
+        """The input set's INCAR."""
 
     @property
     @abc.abstractmethod
     def kpoints(self):
-        """Kpoints object."""
+        """The input set's KPOINTS."""
 
     @property
     @abc.abstractmethod
     def poscar(self):
-        """Poscar object."""
+        """The input set's POSCAR."""
 
     @property
     def potcar_symbols(self):
@@ -120,7 +120,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
     @property
     def potcar(self) -> Potcar:
-        """Potcar object."""
+        """The input set's POTCAR."""
         user_potcar_functional = self.user_potcar_functional
         potcar = Potcar(self.potcar_symbols, functional=user_potcar_functional)
 
@@ -947,7 +947,7 @@ class DictSet(VaspInputSet):
 
     @property
     def potcar(self) -> Potcar:
-        """Potcar object"""
+        """The input set's POTCAR."""
         if self.structure is None:
             raise RuntimeError("No structure is associated with the input set!")
         return super().potcar

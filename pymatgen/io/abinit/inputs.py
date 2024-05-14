@@ -705,7 +705,7 @@ class BasicAbinitInputError(Exception):
 
 
 class BasicAbinitInput(AbstractInput, MSONable):
-    """This object stores the ABINIT variables for a single dataset."""
+    """Store the ABINIT variables for a single dataset."""
 
     Error = BasicAbinitInputError
 
@@ -1078,7 +1078,7 @@ class BasicMultiDataset:
 
     @classmethod
     def from_inputs(cls, inputs: list[BasicAbinitInput]) -> Self:
-        """Build object from a list of BasicAbinitInputs."""
+        """Construct a multidataset from a list of BasicAbinitInputs."""
         for inp in inputs:
             if any(p1 != p2 for p1, p2 in zip(inputs[0].pseudos, inp.pseudos)):
                 raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
@@ -1113,7 +1113,7 @@ class BasicMultiDataset:
 
     @property
     def pseudos(self):
-        """Pseudopotential objects."""
+        """Abinit pseudopotentials."""
         return self[0].pseudos
 
     @property
