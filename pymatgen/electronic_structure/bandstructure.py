@@ -7,7 +7,7 @@ import math
 import re
 import warnings
 from collections import defaultdict
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -18,6 +18,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import pbc_diff
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from typing_extensions import Self
 
 __author__ = "Geoffroy Hautier, Shyue Ping Ong, Michael Kocher"

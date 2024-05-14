@@ -32,7 +32,7 @@ import textwrap
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING
 
 from monty.dev import deprecated
 from monty.io import zopen
@@ -45,6 +45,9 @@ from pymatgen.io.vasp.inputs import KpointsSupportedModes
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import Any, Literal
+
     from typing_extensions import Self
 
     from pymatgen.core.lattice import Lattice

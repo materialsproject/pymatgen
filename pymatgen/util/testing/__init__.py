@@ -11,7 +11,7 @@ import json
 import pickle  # use pickle, not cPickle so that we get the traceback in case of errors
 import string
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING
 from unittest import TestCase
 
 import pytest
@@ -22,6 +22,7 @@ from pymatgen.core import ROOT, SETTINGS, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any, ClassVar
 
 MODULE_DIR = Path(__file__).absolute().parent
 STRUCTURES_DIR = MODULE_DIR / ".." / "structures"

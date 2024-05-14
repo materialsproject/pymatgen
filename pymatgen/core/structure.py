@@ -22,7 +22,7 @@ from collections import defaultdict
 from fnmatch import fnmatch
 from inspect import isclass
 from io import StringIO
-from typing import TYPE_CHECKING, Any, Callable, Literal, SupportsIndex, cast, get_args
+from typing import TYPE_CHECKING, Literal, cast, get_args
 
 import numpy as np
 from monty.dev import deprecated
@@ -50,6 +50,7 @@ from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supe
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
     from pathlib import Path
+    from typing import Any, Callable, SupportsIndex
 
     from ase import Atoms
     from ase.calculators.calculator import Calculator
@@ -2460,12 +2461,12 @@ class IStructure(SiteCollection, MSONable):
         sites = sorted(self._sites, key=site_label)
 
         grouped_sites = [list(a[1]) for a in itertools.groupby(sites, key=site_label)]
-        grouped_fcoords = [np.array([s.frac_coords for s in g]) for g in grouped_sites]
+        grouped_frac_coords = [np.array([s.frac_coords for s in g]) for g in grouped_sites]
 
         # min_vecs are approximate periodicities of the cell. The exact
         # periodicities from the supercell matrices are checked against these
         # first
-        min_fcoords = min(grouped_fcoords, key=len)
+        min_fcoords = min(grouped_frac_coords, key=len)
         min_vecs = min_fcoords - min_fcoords[0]
 
         # fractional tolerance in the supercell
@@ -2486,7 +2487,7 @@ class IStructure(SiteCollection, MSONable):
         # reduction.
         # This reduction is O(n^3) so usually is an improvement. Using double
         # the tolerance because both vectors are approximate
-        for group in sorted(grouped_fcoords, key=len):
+        for group in sorted(grouped_frac_coords, key=len):
             for frac_coords in group:
                 min_vecs = pbc_coord_intersection(min_vecs, group - frac_coords, super_ftol_2)
 
@@ -2522,8 +2523,8 @@ class IStructure(SiteCollection, MSONable):
 
         # we can't let sites match to their neighbors in the supercell
         grouped_non_nbrs = []
-        for gfcoords in grouped_fcoords:
-            fdist = gfcoords[None, :, :] - gfcoords[:, None, :]
+        for gf_coords in grouped_frac_coords:
+            fdist = gf_coords[None, :, :] - gf_coords[:, None, :]
             fdist -= np.round(fdist)
             np.abs(fdist, fdist)
             non_nbrs = np.any(fdist > 2 * super_ftol[None, None, :], axis=-1)
@@ -2543,7 +2544,7 @@ class IStructure(SiteCollection, MSONable):
             any_close = np.any(is_close, axis=-1)
             inds = np.all(any_close, axis=-1)
 
-            for inv_m, m in zip(inv_ms[inds], ms[inds]):
+            for inv_m, latt_mat in zip(inv_ms[inds], ms[inds]):
                 new_m = np.dot(inv_m, self.lattice.matrix)
                 ftol = np.divide(tolerance, np.sqrt(np.sum(new_m**2, axis=1)))
 
@@ -2552,8 +2553,8 @@ class IStructure(SiteCollection, MSONable):
                 new_sp = []
                 new_props = defaultdict(list)
                 new_labels = []
-                for gsites, gfcoords, non_nbrs in zip(grouped_sites, grouped_fcoords, grouped_non_nbrs):
-                    all_frac = np.dot(gfcoords, m)
+                for gsites, gf_coords, non_nbrs in zip(grouped_sites, grouped_frac_coords, grouped_non_nbrs):
+                    all_frac = np.dot(gf_coords, latt_mat)
 
                     # calculate grouping of equivalent sites, represented by
                     # adjacency matrix
@@ -2578,14 +2579,14 @@ class IStructure(SiteCollection, MSONable):
                     # add the new sites, averaging positions
                     added = np.zeros(len(gsites))
                     new_fcoords = all_frac % 1
-                    for i, group in enumerate(groups):
-                        if not added[i]:
+                    for grp_idx, group in enumerate(groups):
+                        if not added[grp_idx]:
                             added[group] = True
                             inds = np.where(group)[0]
                             coords = new_fcoords[inds[0]]
-                            for n, j in enumerate(inds[1:]):
-                                offset = new_fcoords[j] - coords
-                                coords += (offset - np.round(offset)) / (n + 2)
+                            for inner_idx, ind in enumerate(inds[1:]):
+                                offset = new_fcoords[ind] - coords
+                                coords += (offset - np.round(offset)) / (inner_idx + 2)
                             new_sp.append(gsites[inds[0]].species)
                             for k in gsites[inds[0]].properties:
                                 new_props[k].append(gsites[inds[0]].properties[k])
@@ -2593,7 +2594,7 @@ class IStructure(SiteCollection, MSONable):
                             new_coords.append(coords)
 
                 if valid:
-                    inv_m = np.linalg.inv(m)
+                    inv_m = np.linalg.inv(latt_mat)
                     new_latt = Lattice(np.dot(inv_m, self.lattice.matrix))
                     struct = Structure(
                         new_latt,
@@ -2605,22 +2606,22 @@ class IStructure(SiteCollection, MSONable):
                     )
 
                     # Default behavior
-                    p = struct.get_primitive_structure(
+                    primitive = struct.get_primitive_structure(
                         tolerance=tolerance, use_site_props=use_site_props, constrain_latt=constrain_latt
                     ).get_reduced_structure()
                     if not constrain_latt:
-                        return p
+                        return primitive
 
                     # Only return primitive structures that
                     # satisfy the restriction condition
-                    prim_latt, self_latt = p.lattice, self.lattice
+                    prim_latt, self_latt = primitive.lattice, self.lattice
                     keys = tuple(constrain_latt)
                     is_dict = isinstance(constrain_latt, dict)
                     if np.allclose(
                         [getattr(prim_latt, key) for key in keys],
                         [constrain_latt[key] if is_dict else getattr(self_latt, key) for key in keys],
                     ):
-                        return p
+                        return primitive
 
         return self.copy()
 
