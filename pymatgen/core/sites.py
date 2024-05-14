@@ -479,7 +479,7 @@ class PeriodicSite(Site, MSONable):
         if in_place:
             self.frac_coords = np.array(frac_coords)
             return None
-        return PeriodicSite(self.species, frac_coords, self.lattice, properties=self.properties, label=self.label)
+        return type(self)(self.species, frac_coords, self.lattice, properties=self.properties, label=self.label)
 
     def is_periodic_image(
         self,

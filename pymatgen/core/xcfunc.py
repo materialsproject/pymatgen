@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2016, The Materials Project"
-__version__ = "3.0.0"  # The libxc version used to generate this file!
+__version__ = "3.0.0"  # The libxc version used to generate this file
 __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo@gmail.com"
 __status__ = "Production"
@@ -152,7 +152,7 @@ class XcFunc(MSONable):
             return NotImplemented
         if isinstance(other, type(self)):
             return self.name == other.name
-        # assume other is a string
+        # Assume other is a string
         return self.name == other
 
     @classmethod
@@ -162,12 +162,12 @@ class XcFunc(MSONable):
 
     @classmethod
     def asxc(cls, obj) -> Self:
-        """Convert object into Xcfunc."""
+        """Convert object into XcFunc."""
         if isinstance(obj, cls):
             return obj
         if isinstance(obj, str):
             return cls.from_name(obj)
-        raise TypeError(f"Don't know how to convert <{type(obj)}:{obj}> to Xcfunc")
+        raise TypeError(f"Don't know how to convert <{type(obj)}:{obj}> to XcFunc")
 
     @classmethod
     def from_abinit_ixc(cls, ixc: int) -> Self | None:
@@ -177,7 +177,8 @@ class XcFunc(MSONable):
         if ixc > 0:
             return cls(**cls.abinitixc_to_libxc[ixc])
 
-        # libxc notation employed in Abinit: a six-digit number in the form XXXCCC or CCCXXX
+        # libxc notation employed in Abinit: a six-digit number
+        # in the form XXXCCC or CCCXXX
         ixc = abs(ixc)
         first = ixc // 1000
         last = ixc - first * 1000
@@ -196,7 +197,7 @@ class XcFunc(MSONable):
     @classmethod
     def from_type_name(cls, typ: str | None, name: str) -> Self:
         """Build the object from (type, name)."""
-        # Try aliases first.
+        # Try aliases first
         for k, nt in cls.defined_aliases.items():
             if typ is not None and typ != nt.type:
                 continue
