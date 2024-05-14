@@ -724,8 +724,7 @@ class Cp2kOutput:
         return lattices[0]
 
     def parse_atomic_kind_info(self):
-        """
-        Parse info on what atomic kinds are present and what basis/pseudopotential is describing
+        """Parse info on what atomic kinds are present and what basis/pseudopotential is describing
         each of them.
         """
         kinds = re.compile(r"Atomic kind: (\w+)")
@@ -931,9 +930,7 @@ class Cp2kOutput:
         )
 
     def parse_mulliken(self):
-        """
-        Parse the mulliken population analysis info for each step
-        """
+        """Parse the mulliken population analysis info for each step"""
         header = r"Mulliken Population Analysis.+Net charge"
         pattern = r"\s+(\d)\s+(\w+)\s+(\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
         footer = r".+Total charge"
@@ -999,8 +996,7 @@ class Cp2kOutput:
                 self.structures[i].add_site_property("hirshfield", hirshfeld)
 
     def parse_mo_eigenvalues(self):
-        """
-        Parse the MO eigenvalues from the cp2k output file. Will get the eigenvalues (and band gap)
+        """Parse the MO eigenvalues from the cp2k output file. Will get the eigenvalues (and band gap)
         at each ionic step (if more than one exist).
 
         Everything is decomposed by spin channel. If calculation was performed without spin
@@ -1174,8 +1170,7 @@ class Cp2kOutput:
         self.band_gap = (bg[Spin.up][-1] + bg[Spin.down][-1]) / 2 if bg[Spin.up] and bg[Spin.down] else None
 
     def parse_dos(self, dos_file=None, pdos_files=None, ldos_files=None):
-        """
-        Parse the dos files produced by cp2k calculation. CP2K produces different files based
+        """Parse the dos files produced by cp2k calculation. CP2K produces different files based
         on the input file rather than assimilating them all into one file.
 
         One file type is the overall DOS file, which is used for k-point calculations. For
@@ -1261,8 +1256,7 @@ class Cp2kOutput:
         return self.data.get("band_structure")
 
     def parse_bandstructure(self, bandstructure_filename=None) -> None:
-        """
-        Parse a CP2K bandstructure file.
+        """Parse a CP2K bandstructure file.
 
         Args:
             bandstructure_filename: Filename containing bandstructure info. If
@@ -1278,7 +1272,7 @@ class Cp2kOutput:
         with open(bandstructure_filename, encoding="utf-8") as file:
             lines = file.read().split("\n")
 
-        data = np.loadtxt(bandstructure_filename)
+        bands_data = np.loadtxt(bandstructure_filename)
         nkpts = int(lines[0].split()[6])
         nbands = int(lines[0].split()[-2])
         rec_lat = (
@@ -1311,18 +1305,18 @@ class Cp2kOutput:
 
         eigenvals = {}
         if self.spin_polarized:
-            up = data.reshape(-1, nbands * 2, data.shape[1])[:, :nbands].reshape(-1, data.shape[1])
-            down = data.reshape(-1, nbands * 2, data.shape[1])[:, nbands:].reshape(-1, data.shape[1])
+            up = bands_data.reshape(-1, nbands * 2, bands_data.shape[1])[:, :nbands].reshape(-1, bands_data.shape[1])
+            down = bands_data.reshape(-1, nbands * 2, bands_data.shape[1])[:, nbands:].reshape(-1, bands_data.shape[1])
             eigenvals = {
                 Spin.up: up[:, 1].reshape((nkpts, nbands)).T.tolist(),
                 Spin.down: down[:, 1].reshape((nkpts, nbands)).T.tolist(),
             }
         else:
-            eigenvals = {Spin.up: data.reshape((nbands, nkpts))}
+            eigenvals = {Spin.up: bands_data.reshape((nbands, nkpts))}
 
-        occ = data[:, 1][data[:, -1] != 0.0]
+        occ = bands_data[:, 1][bands_data[:, -1] != 0.0]
         homo = np.max(occ)
-        unocc = data[:, 1][data[:, -1] == 0.0]
+        unocc = bands_data[:, 1][bands_data[:, -1] == 0.0]
         lumo = np.min(unocc)
         efermi = (lumo + homo) / 2
         self.efermi = efermi
@@ -1482,8 +1476,7 @@ class Cp2kOutput:
         return dct
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False, postprocess=str):
-        r"""
-        This function originally comes from pymatgen.io.vasp.outputs Outcar class.
+        r"""Originally from pymatgen.io.vasp.outputs.Outcar.
 
         General pattern reading. Uses monty's regrep method. Takes the same
         arguments.
@@ -1526,8 +1519,7 @@ class Cp2kOutput:
         last_one_only=True,
         strip=None,
     ):
-        r"""
-        This function originally comes from pymatgen.io.vasp.outputs Outcar class.
+        r"""This function originated in pymatgen.io.vasp.outputs.Outcar.
 
         Parse table-like data. A table composes of three parts: header,
         main body, footer. All the data matches "row pattern" in the main body

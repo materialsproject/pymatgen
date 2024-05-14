@@ -10,13 +10,13 @@ from monty.json import MSONable
 from pymatgen.core.libxcfunc import LibxcFunc
 
 if TYPE_CHECKING:
-    from typing import ClassVar, Literal
+    from typing import Any, ClassVar, Literal
 
     from typing_extensions import Self
 
 __author__ = "Matteo Giantomassi"
 __copyright__ = "Copyright 2016, The Materials Project"
-__version__ = "3.0.0"  # The libxc version used to generate this file!
+__version__ = "3.0.0"  # The libxc version used to generate this file
 __maintainer__ = "Matteo Giantomassi"
 __email__ = "gmatteo@gmail.com"
 __status__ = "Production"
@@ -120,7 +120,12 @@ class XcFunc(MSONable):
 
     del xcf
 
-    def __init__(self, xc: LibxcFunc | None = None, x: LibxcFunc | None = None, c: LibxcFunc | None = None) -> None:
+    def __init__(
+        self,
+        xc: LibxcFunc | None = None,
+        x: LibxcFunc | None = None,
+        c: LibxcFunc | None = None,
+    ) -> None:
         """
         Args:
             xc: LibxcFunc for XC functional.
@@ -136,6 +141,20 @@ class XcFunc(MSONable):
 
         self.xc, self.x, self.c = xc, x, c
 
+    def __repr__(self) -> str:
+        return str(self.name)
+
+    def __hash__(self) -> int:
+        return hash(self.name)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, (str, type(self))):
+            return NotImplemented
+        if isinstance(other, type(self)):
+            return self.name == other.name
+        # Assume other is a string
+        return self.name == other
+
     @classmethod
     def aliases(cls) -> list[str]:
         """List of registered names."""
@@ -143,12 +162,12 @@ class XcFunc(MSONable):
 
     @classmethod
     def asxc(cls, obj) -> Self:
-        """Convert object into Xcfunc."""
+        """Convert object into XcFunc."""
         if isinstance(obj, cls):
             return obj
         if isinstance(obj, str):
             return cls.from_name(obj)
-        raise TypeError(f"Don't know how to convert <{type(obj)}:{obj}> to Xcfunc")
+        raise TypeError(f"Don't know how to convert <{type(obj)}:{obj}> to XcFunc")
 
     @classmethod
     def from_abinit_ixc(cls, ixc: int) -> Self | None:
@@ -158,7 +177,8 @@ class XcFunc(MSONable):
         if ixc > 0:
             return cls(**cls.abinitixc_to_libxc[ixc])
 
-        # libxc notation employed in Abinit: a six-digit number in the form XXXCCC or CCCXXX
+        # libxc notation employed in Abinit: a six-digit number
+        # in the form XXXCCC or CCCXXX
         ixc = abs(ixc)
         first = ixc // 1000
         last = ixc - first * 1000
@@ -177,7 +197,7 @@ class XcFunc(MSONable):
     @classmethod
     def from_type_name(cls, typ: str | None, name: str) -> Self:
         """Build the object from (type, name)."""
-        # Try aliases first.
+        # Try aliases first
         for k, nt in cls.defined_aliases.items():
             if typ is not None and typ != nt.type:
                 continue
@@ -198,7 +218,7 @@ class XcFunc(MSONable):
 
     def as_dict(self) -> dict:
         """Serialize to MSONable dict representation e.g. to write to disk as JSON."""
-        dct = {"@module": type(self).__module__, "@class": type(self).__name__}
+        dct: dict[str, Any] = {"@module": type(self).__module__, "@class": type(self).__name__}
         if self.x is not None:
             dct["x"] = self.x.as_dict()
         if self.c is not None:
@@ -250,17 +270,3 @@ class XcFunc(MSONable):
             return f"{self.x.name}+{self.c.name}"
 
         return None
-
-    def __repr__(self) -> str:
-        return str(self.name)
-
-    def __hash__(self) -> int:
-        return hash(self.name)
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, (str, XcFunc)):
-            return NotImplemented
-        if isinstance(other, XcFunc):
-            return self.name == other.name
-        # assume other is a string
-        return self.name == other

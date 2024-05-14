@@ -236,10 +236,8 @@ class LammpsData(MSONable):
         topology: dict[str, pd.DataFrame] | None = None,
         atom_style: str = "full",
     ) -> None:
-        """
-        This is a low level constructor designed to work with parsed
-        data or other bridging objects (ForceField and Topology). Not
-        recommended to use directly.
+        """Low level constructor designed to work with parsed data or other bridging
+        objects (ForceField and Topology). Not recommended to use directly.
 
         Args:
             box (LammpsBox): Simulation box.

@@ -198,8 +198,7 @@ H 0
         assert gau.to_str(cart_coords=False) == gau_str
 
     def test_multiple_parameters(self):
-        """
-        This test makes sure that input files with multi-parameter keywords
+        """Check that input files with multi-parameter keywords
         and route cards with multiple lines can be parsed accurately.
         """
         filepath = f"{TEST_DIR}/l-cysteine.inp"
@@ -437,8 +436,7 @@ class TestGaussianOutput(TestCase):
         assert transitions[0] == approx((3.9281, 315.64, 0.0054))
 
     def test_multiple_parameters(self):
-        """
-        This test makes sure that input files with multi-parameter keywords
+        """Check that input files with multi-parameter keywords
         and route cards with multiple lines can be parsed accurately.
         """
         filepath = f"{TEST_DIR}/l-cysteine.out"
@@ -457,9 +455,8 @@ class TestGaussianOutput(TestCase):
         assert gout.spin_multiplicity == 1
 
     def test_multiple_parameters_with_multiple_completed_lines(self):
-        """
-        This test makes sure that input files with multi-parameter keywords
-        and route cards with multiple completed lines which are split by line break parse correctly.
+        """Check that input files with multi-parameter keywords and route cards with multiple
+        completed lines which are split by line break parse correctly.
         """
         filepath = f"{TEST_DIR}/EC.log.gz"
         route_params = {

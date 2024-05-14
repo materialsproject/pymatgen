@@ -29,7 +29,6 @@ import itertools
 import os
 import re
 import textwrap
-import typing
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -2393,7 +2392,6 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         """Number of exponents."""
         return [len(exp) for exp in self.exponents]
 
-    @typing.no_type_check
     def get_str(self) -> str:
         """Get standard cp2k GTO formatted string."""
         if (  # written verbosely so mypy can perform type narrowing
