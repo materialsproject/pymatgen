@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import collections
 import json
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -63,20 +63,22 @@ class Site(collections.abc.Hashable, MSONable):
         if not skip_checks:
             if not isinstance(species, Composition):
                 try:
-                    species = Composition({get_el_sp(species): 1})
+                    species = Composition({get_el_sp(species): 1})  # type: ignore[arg-type]
                 except TypeError:
                     species = Composition(species)
             total_occu = species.num_atoms
             if total_occu > 1 + Composition.amount_tolerance:
                 raise ValueError("Species occupancies sum to more than 1!")
             coords = np.array(coords)
-        self._species: Composition = species
+
+        self._species = species
         self.coords: np.ndarray = coords
         self.properties: dict = properties or {}
         self._label = label
 
     def __getattr__(self, attr: str) -> Any:
-        # Override getattr doesn't play nicely with pickle, so we can't use self._properties
+        # Override getattr doesn't play nicely with pickle,
+        # so we can't use self._properties
         props = self.__getattribute__("properties")
         if attr in props:
             return props[attr]
@@ -100,7 +102,7 @@ class Site(collections.abc.Hashable, MSONable):
             and self.properties == other.properties
         )
 
-    def __hash__(self) -> int:
+    def __hash__(self) -> int:  # type: ignore[override]
         """Minimally effective hash function that just distinguishes between Sites
         with different elements.
         """
@@ -134,19 +136,21 @@ class Site(collections.abc.Hashable, MSONable):
     @property
     def species(self) -> Composition:
         """The species on the site as a composition, e.g. Fe0.5Mn0.5."""
-        return self._species
+        return cast(Composition, self._species)
 
     @species.setter
     def species(self, species: SpeciesLike | CompositionLike) -> None:
         if not isinstance(species, Composition):
             try:
-                species = Composition({get_el_sp(species): 1})
+                species = Composition({get_el_sp(species): 1})  # type: ignore[arg-type]
             except TypeError:
                 species = Composition(species)
+
         total_occu = species.num_atoms
         if total_occu > 1 + Composition.amount_tolerance:
             raise ValueError("Species occupancies sum to more than 1!")
-        self._species = species
+
+        self._species = cast(Composition, species)
 
     @property
     def label(self) -> str:
@@ -331,7 +335,7 @@ class PeriodicSite(Site, MSONable):
             frac_coords = np.array(frac_coords)
             if not isinstance(species, Composition):
                 try:
-                    species = Composition({get_el_sp(species): 1})
+                    species = Composition({get_el_sp(species): 1})  # type: ignore[arg-type]
                 except TypeError:
                     species = Composition(species)
 
@@ -341,7 +345,7 @@ class PeriodicSite(Site, MSONable):
 
         self._lattice: Lattice = lattice
         self._frac_coords: np.ndarray = np.asarray(frac_coords)
-        self._species: Composition = species  #
+        self._species: Composition = cast(Composition, species)
         self._coords: np.ndarray | None = None
         self.properties: dict = properties or {}
         self._label = label
@@ -483,7 +487,7 @@ class PeriodicSite(Site, MSONable):
         tolerance: float = 1e-8,
         check_lattice: bool = True,
     ) -> bool:
-        """Get True if sites are periodic images of each other.
+        """Check if sites are periodic images of each other.
 
         Args:
             other (PeriodicSite): Other site
@@ -625,6 +629,7 @@ class PeriodicSite(Site, MSONable):
             else:
                 sp = Element(sp_occu["element"])
             species[sp] = sp_occu["occu"]
+
         props = dct.get("properties")
         if props is not None:
             for key in props:

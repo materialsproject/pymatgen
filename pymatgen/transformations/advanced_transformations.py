@@ -9,7 +9,7 @@ from fractions import Fraction
 from itertools import groupby, product
 from math import gcd
 from string import ascii_lowercase
-from typing import TYPE_CHECKING, Callable, Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -47,7 +47,7 @@ except ImportError:
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
-    from typing import Any
+    from typing import Any, Callable, Literal
 
 
 __author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, Alex Ganose"
@@ -861,8 +861,8 @@ class MagOrderingTransformation(AbstractTransformation):
             alls = self._add_spin_magnitudes(alls)  # type: ignore[arg-type]
         else:
             for idx in range(len(alls)):
-                alls[idx]["structure"] = self._remove_dummy_species(alls[idx]["structure"])
-                alls[idx]["structure"] = self._add_spin_magnitudes(alls[idx]["structure"])
+                alls[idx]["structure"] = self._remove_dummy_species(alls[idx]["structure"])  # type: ignore[index]
+                alls[idx]["structure"] = self._add_spin_magnitudes(alls[idx]["structure"])  # type: ignore[index, arg-type]
 
         try:
             num_to_return = int(return_ranked_list)
@@ -870,7 +870,7 @@ class MagOrderingTransformation(AbstractTransformation):
             num_to_return = 1
 
         if num_to_return == 1 or not return_ranked_list:
-            return alls[0]["structure"] if num_to_return else alls  # type: ignore[return-value]
+            return alls[0]["structure"] if num_to_return else alls  # type: ignore[return-value, index]
 
         # remove duplicate structures and group according to energy model
         matcher = StructureMatcher(comparator=SpinComparator())
@@ -879,7 +879,7 @@ class MagOrderingTransformation(AbstractTransformation):
             return SpacegroupAnalyzer(struct, 0.1).get_space_group_number()
 
         out = []
-        for _, group in groupby(sorted((dct["structure"] for dct in alls), key=key), key):
+        for _, group in groupby(sorted((dct["structure"] for dct in alls), key=key), key):  # type: ignore[arg-type, index]
             group = list(group)  # type: ignore
             grouped = matcher.group_structures(group)
             out.extend([{"structure": g[0], "energy": self.energy_model.get_energy(g[0])} for g in grouped])
