@@ -254,7 +254,7 @@ class PhononBandStructure(MSONable):
         modes: selects the bands corresponding  to the eigendisplacements that
         represent to a translation within tol_eigendisplacements. If these are not
         identified or eigendisplacements are missing the first 3 modes will be used
-        (indices [0:3]).
+        (indices [:3]).
         """
         for idx in range(self.nb_qpoints):
             if np.allclose(self.qpoints[idx].frac_coords, (0, 0, 0)):
