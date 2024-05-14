@@ -67,19 +67,16 @@ class SymmOp(MSONable):
         return 7
 
     def __repr__(self) -> str:
-        affine_matrix = self.affine_matrix
-        return f"{type(self).__name__}({affine_matrix=})"
+        return f"{type(self).__name__}({self.affine_matrix=})"
 
     def __str__(self) -> str:
-        output = ["Rot:", str(self.affine_matrix[:3][:, :3]), "tau", str(self.affine_matrix[:3][:, 3])]
-        return "\n".join(output)
+        return "\n".join(["Rot:", str(self.affine_matrix[:3][:, :3]), "tau", str(self.affine_matrix[:3][:, 3])])
 
-    def __mul__(self, other):
+    def __mul__(self, other) -> Self:
         """Get a new SymmOp which is equivalent to apply the "other" SymmOp
         followed by this one.
         """
-        new_matrix = np.dot(self.affine_matrix, other.affine_matrix)
-        return SymmOp(new_matrix)
+        return type(self)(np.dot(self.affine_matrix, other.affine_matrix))
 
     @classmethod
     def from_rotation_and_translation(
@@ -435,7 +432,11 @@ class SymmOp(MSONable):
         if not np.all(np.isclose(self.rotation_matrix, np.round(self.rotation_matrix))):
             warnings.warn("Rotation matrix should be integer")
 
-        return transformation_to_string(self.rotation_matrix, translation_vec=self.translation_vector, delim=", ")
+        return transformation_to_string(
+            self.rotation_matrix,
+            translation_vec=self.translation_vector,
+            delim=", ",
+        )
 
     @classmethod
     def from_xyz_str(cls, xyz_str: str) -> Self:
@@ -502,14 +503,14 @@ class MagSymmOp(SymmOp):
             time_reversal (int): 1 or -1
             tol (float): Tolerance for determining if matrices are equal.
         """
-        SymmOp.__init__(self, affine_transformation_matrix, tol=tol)
+        super().__init__(affine_transformation_matrix, tol=tol)
         if time_reversal in {-1, 1}:
             self.time_reversal = time_reversal
         else:
             raise RuntimeError(f"Invalid {time_reversal=}, must be 1 or -1")
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, SymmOp):
+        if not isinstance(other, type(self)):
             return NotImplemented
         return np.allclose(self.affine_matrix, other.affine_matrix, atol=self.tol) and (
             self.time_reversal == other.time_reversal
@@ -625,7 +626,7 @@ class MagSymmOp(SymmOp):
         """Get a string of the form 'x, y, z, +1', '-x, -y, z, -1',
         '-y+1/2, x+1/2, z+1/2, +1', etc. Only works for integer rotation matrices.
         """
-        xyzt_string = SymmOp.as_xyz_str(self)
+        xyzt_string = super().as_xyz_str()
         return f"{xyzt_string}, {self.time_reversal:+}"
 
     def as_dict(self) -> dict[str, Any]:
