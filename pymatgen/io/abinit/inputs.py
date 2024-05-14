@@ -686,7 +686,8 @@ class AbstractInput(MutableMapping, abc.ABC):
 
         return removed
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def vars(self):
         """Dictionary with the input variables. Used to implement dict-like interface."""
 
