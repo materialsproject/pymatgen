@@ -100,7 +100,7 @@ class Neighbor(Site):
 
     def __len__(self) -> Literal[3]:
         """Make neighbor Tuple-like to retain backwards compatibility."""
-        return 3  # DEBUG (DanielYang59): magic length
+        return 3
 
     def __getitem__(self, idx: int) -> Self | float:  # type: ignore[override]
         """Make neighbor Tuple-like to retain backwards compatibility."""
@@ -167,7 +167,7 @@ class PeriodicNeighbor(PeriodicSite):
 
     def __len__(self) -> int:
         """Make neighbor Tuple-like to retain backwards compatibility."""
-        return 4  # DEBUG (DanielYang59): magic length
+        return 4
 
     def __getitem__(self, idx: int | slice):  # type: ignore[override]
         """Make neighbor Tuple-like to retain backwards compatibility."""
