@@ -1046,6 +1046,9 @@ class TensorMapping(collections.abc.MutableMapping):
     def __iter__(self):
         yield from self._tensor_list
 
+    def __contains__(self, item) -> bool:
+        return self._get_item_index(item) is not None
+
     def values(self):
         """Values in mapping."""
         return self._value_list
@@ -1053,9 +1056,6 @@ class TensorMapping(collections.abc.MutableMapping):
     def items(self):
         """Items in mapping."""
         return zip(self._tensor_list, self._value_list)
-
-    def __contains__(self, item) -> bool:
-        return self._get_item_index(item) is not None
 
     def _get_item_index(self, item):
         if len(self._tensor_list) == 0:

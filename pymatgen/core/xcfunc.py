@@ -136,6 +136,20 @@ class XcFunc(MSONable):
 
         self.xc, self.x, self.c = xc, x, c
 
+    def __repr__(self) -> str:
+        return str(self.name)
+
+    def __hash__(self) -> int:
+        return hash(self.name)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, (str, XcFunc)):
+            return NotImplemented
+        if isinstance(other, XcFunc):
+            return self.name == other.name
+        # assume other is a string
+        return self.name == other
+
     @classmethod
     def aliases(cls) -> list[str]:
         """List of registered names."""
@@ -250,17 +264,3 @@ class XcFunc(MSONable):
             return f"{self.x.name}+{self.c.name}"
 
         return None
-
-    def __repr__(self) -> str:
-        return str(self.name)
-
-    def __hash__(self) -> int:
-        return hash(self.name)
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, (str, XcFunc)):
-            return NotImplemented
-        if isinstance(other, XcFunc):
-            return self.name == other.name
-        # assume other is a string
-        return self.name == other
