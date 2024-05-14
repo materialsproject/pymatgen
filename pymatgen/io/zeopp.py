@@ -112,7 +112,7 @@ class ZeoCssr(Cssr):
         tokens = lines[0].split()
         lengths = [float(i) for i in tokens]
         tokens = lines[1].split()
-        angles = [float(i) for i in tokens[0:3]]
+        angles = [float(i) for i in tokens[:3]]
         # Zeo++ takes x-axis along a and pymatgen takes z-axis along c
         a = lengths.pop(-1)
         lengths.insert(0, a)
