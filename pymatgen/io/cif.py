@@ -298,9 +298,9 @@ class CifParser:
         """
         Args:
             filename (str): CIF filename, gzipped or bzipped CIF files are fine too.
-            occupancy_tolerance (float): If total occupancy of a site is between 1 and 1 + occupancy_tolerance, the
-                occupancies will be scaled down to 1.
-            site_tolerance (float): This tolerance is used to determine if two sites are sitting in the same position,
+            occupancy_tolerance (float): If total occupancy of a site is in
+                [1, 1 + occupancy_tolerance] range, it will be scaled down to 1.
+            site_tolerance (float): This tolerance is used to determine if two sites are at the same position,
                 in which case they will be combined to a single disordered site. Defaults to 1e-4.
             frac_tolerance (float): This tolerance is used to determine is a coordinate should be rounded to an ideal
                 value. e.g. 0.6667 is rounded to 2/3. This is desired if symmetry operations are going to be applied.
@@ -1154,9 +1154,10 @@ class CifParser:
     )
     def get_structures(self, *args, **kwargs) -> list[Structure]:
         """
-        Deprecated. Use parse_structures instead. Only difference between the two methods is the
-        default primitive=False in parse_structures.
-        So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().
+        Deprecated, use parse_structures instead. Only difference between
+        these two methods is the default primitive=False in parse_structures.
+        So parse_structures(primitive=True) is equivalent to the default
+        behaviour of get_structures().
         """
         if len(args) > 0:  # extract primitive if passed as arg
             kwargs["primitive"] = args[0]
@@ -1175,7 +1176,7 @@ class CifParser:
 
         Args:
             primitive (bool): Set to True to return primitive unit cells.
-                Defaults to False. With magnetic CIF files, True will return primitive
+                Defaults to False. With magnetic CIF files, will return primitive
                 magnetic cell which may be larger than nuclear primitive cell.
             symmetrized (bool): If True, return a SymmetrizedStructure which will
                 include the equivalent indices and symmetry operations used to
@@ -1185,12 +1186,12 @@ class CifParser:
                 currently Wyckoff labels and space group labels or numbers are
                 not included in the generated SymmetrizedStructure, these will be
                 notated as "Not Parsed" or -1 respectively.
-            check_occu (bool): If False, site occupancy will not be checked, allowing unphysical
-                occupancy != 1. Useful for experimental results in which occupancy was allowed
-                to refine to unphysical values. Warning: unphysical site occupancies are incompatible
-                with many pymatgen features. Defaults to True.
-            on_error ('ignore' | 'warn' | 'raise'): What to do in case of KeyError or ValueError
-                while parsing CIF file. Defaults to 'warn'.
+            check_occu (bool): Whether to check site for unphysical occupancy > 1.
+                Useful for experimental results in which occupancy was allowed to
+                refine to unphysical values. Warning: unphysical occupancies are
+                incompatible with many pymatgen features. Defaults to True.
+            on_error ("ignore" | "warn" | "raise"): What to do in case of KeyError
+                or ValueError while parsing CIF file. Defaults to "warn".
 
         Returns:
             list[Structure]: All structures in CIF file.
