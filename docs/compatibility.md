@@ -69,7 +69,7 @@ Windows and Linux.
 
 ## v2024.xx.xx
 
-Scandium (Sc) and Yttrium (Y) would be included into `is_rare_earth_metal` property for `Element` in [#3817](https://github.com/materialsproject/pymatgen/pull/3817).
+Scandium (Sc) and Yttrium (Y) would be included into `is_rare_earth_metal` property for `Element` after 2025-05-15, in [#3817](https://github.com/materialsproject/pymatgen/pull/3817).
 
 ## v2024.1.26
 
