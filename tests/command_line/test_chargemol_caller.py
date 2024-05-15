@@ -1,12 +1,36 @@
 from __future__ import annotations
 
+import os
+import subprocess
+import zipfile
 from unittest.mock import patch
+from urllib.request import urlretrieve
 
 import pytest
 
 from pymatgen.command_line.chargemol_caller import ChargemolAnalysis
 from pymatgen.core import Element, Structure
 from pymatgen.util.testing import TEST_FILES_DIR
+
+ddec_url = "https://sourceforge.net/projects/ddec/files/latest/download"
+download_path = TEST_FILES_DIR / "command_line" / "chargemol" / "ddec-latest.gz"
+extract_path = TEST_FILES_DIR / "command_line" / "chargemol"
+
+if not os.path.exists(download_path):
+    urlretrieve(ddec_url, download_path)
+
+if not os.path.exists(extract_path / "chargemol_09_26_2017"):
+    with zipfile.ZipFile(download_path, "r") as zip_ref:
+        zip_ref.extractall(extract_path)
+
+exe_path = extract_path / "chargemol_09_26_2017/chargemol_FORTRAN_09_26_2017/compiled_binaries/linux"
+
+current_path = os.environ.get("PATH", "")
+if str(exe_path) not in current_path:
+    os.environ["PATH"] = str(exe_path) + os.pathsep + current_path
+
+subprocess.call(["chmod", "+x", str(exe_path / "Chargemol_09_26_2017_linux_serial")])
+subprocess.call(["chmod", "+x", str(exe_path / "Chargemol_09_26_2017_linux_parallel")])
 
 
 class TestChargemolAnalysis:
@@ -72,3 +96,11 @@ class TestChargemolAnalysis:
             OSError, match="ChargemolAnalysis requires the Chargemol executable to be in PATH. Please download"
         ):
             ChargemolAnalysis(path=test_dir, run_chargemol=True)
+
+    def test_chargemol_custom_path(self):
+        chg_mol = ChargemolAnalysis(
+            path=TEST_FILES_DIR / "command_line" / "bader",
+            atomic_densities_path=extract_path / "chargemol_09_26_2017" / "atomic_densities",
+            run_chargemol=True,
+        )
+        print(chg_mol.ddec_charges)
