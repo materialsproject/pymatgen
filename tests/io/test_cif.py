@@ -742,14 +742,16 @@ loop_
         struct = parser.parse_structures()[0]
         assert struct[0].species["Al3+"] == approx(0.778)
 
+    def test_not_check_occu(self):
         # Test large occupancy with check_occu turned off
         with open(f"{TEST_FILES_DIR}/cif/site_type_symbol_test.cif") as cif_file:
             cif_str = cif_file.read()
-        cif_str = cif_str.replace("Te    Te 1.0000", "Te    Te 100.0", 1)
+        cif_str = cif_str.replace("Te    Te 1.0000", "Te_label    Te 10.0", 1)
 
         structs = CifParser.from_str(cif_str).parse_structures(check_occu=False)
 
         assert len(structs) > 0
+        assert set(structs[0].labels) == {"Te_label", "Ge"}
 
     def test_one_line_symm(self):
         cif_file = f"{TEST_FILES_DIR}/cif/OneLineSymmP1.cif"
