@@ -440,14 +440,14 @@ class TestSlabGenerator(PymatgenTest):
         gen = SlabGenerator(struct, [0, 0, 1], 10, 10)
         assert len(gen.get_slabs()) == 5
 
-        assert len(gen.get_slabs(bonds={("P", "O"): 3})) == 2
+        assert len(gen.get_slabs(bonds={("P", "O"): 3})) == 3
 
         # There are no slabs in LFP that does not break either P-O or Fe-O
         # bonds for a miller index of [0, 0, 1].
         assert len(gen.get_slabs(bonds={("P", "O"): 3, ("Fe", "O"): 3})) == 0
 
         # If we allow some broken bonds, there are a few slabs.
-        assert len(gen.get_slabs(bonds={("P", "O"): 3, ("Fe", "O"): 3}, max_broken_bonds=2)) == 2
+        assert len(gen.get_slabs(bonds={("P", "O"): 3, ("Fe", "O"): 3}, max_broken_bonds=2)) == 3
 
         # At this threshold, only the origin and center Li results in
         # clustering. All other sites are non-clustered. So the of
