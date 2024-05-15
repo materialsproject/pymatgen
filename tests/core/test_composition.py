@@ -446,7 +446,7 @@ class TestComposition(PymatgenTest):
         assert (self.comps[3] + {"Fe": 4, "O": 4}).formula == "Li4 Fe4 O8", "Incorrect composition after addition!"
 
         Fe = Element("Fe")
-        assert (self.comps[0] + Fe) == NotImplemented
+        assert self.comps[0].__add__(Fe) == NotImplemented
 
     def test_sub(self):
         assert (
@@ -463,7 +463,7 @@ class TestComposition(PymatgenTest):
         assert len((c1 - c2).elements) == 1
 
         Fe = Element("Fe")
-        assert (self.comps[0] + Fe) == NotImplemented
+        assert self.comps[0].__add__(Fe) == NotImplemented
 
     def test_mul(self):
         assert (self.comps[0] * 4).formula == "Li12 Fe8 P12 O48"
