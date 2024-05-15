@@ -222,7 +222,7 @@ class QCOutput(MSONable):
         else:
             self.data["gap_info"] = None
 
-        # Check to see if PCM or SMD are present
+        # Check if PCM or SMD are present
         self.data["solvent_method"] = self.data["solvent_data"] = None
 
         if read_pattern(self.text, {"key": r"solvent_method\s*=?\s*pcm"}, terminate_on_match=True).get("key") == [[]]:
@@ -1432,7 +1432,7 @@ class QCOutput(MSONable):
                     self.data["molecule_from_last_geometry"],
                 )
             # Then, if no optimized geometry or z-matrix is found, and no errors have been previously
-            # identified, check to see if the optimization failed to converge or if Lambda wasn't able
+            # identified, check if the optimization failed to converge or if Lambda wasn't able
             # to be determined or if a back transform error was encountered.
             if (
                 len(self.data.get("errors")) == 0

@@ -2038,7 +2038,7 @@ class Outcar:
             self.dfpt = True
             self.read_internal_strain_tensor()
 
-        # Check to see if LEPSILON is true and read piezo data if so
+        # Check if LEPSILON is True and read piezo data if so
         self.lepsilon = False
         self.read_pattern({"epsilon": "LEPSILON=     T"})
         if self.data.get("epsilon", []):
@@ -2048,7 +2048,7 @@ class Outcar:
             if self.dfpt:
                 self.read_lepsilon_ionic()
 
-        # Check to see if LCALCPOL is true and read polarization data if so
+        # Check if LCALCPOL is True and read polarization data if so
         self.lcalcpol = False
         self.read_pattern({"calcpol": "LCALCPOL   =     T"})
         if self.data.get("calcpol", []):
@@ -3556,7 +3556,7 @@ class VolumetricData(BaseVolumetricData):
 
 
 class Locpot(VolumetricData):
-    """Simple object for reading a LOCPOT file."""
+    """Read a LOCPOT file."""
 
     def __init__(self, poscar: Poscar, data: np.ndarray, **kwargs):
         """
@@ -3582,7 +3582,7 @@ class Locpot(VolumetricData):
 
 
 class Chgcar(VolumetricData):
-    """Simple object for reading a CHGCAR file."""
+    """Read a CHGCAR file."""
 
     def __init__(self, poscar, data, data_aug=None) -> None:
         """

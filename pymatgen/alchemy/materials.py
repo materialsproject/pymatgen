@@ -30,8 +30,7 @@ if TYPE_CHECKING:
 
 
 class TransformedStructure(MSONable):
-    """Container object for new structures that include history of
-    transformations.
+    """Container for new structures that include history of transformations.
 
     Each transformed structure is made up of a sequence of structures with
     associated transformation history.

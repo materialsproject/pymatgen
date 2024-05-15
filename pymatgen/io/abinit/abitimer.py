@@ -82,7 +82,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         return parser, paths, ok_files
 
     def __init__(self):
-        """Initialize object."""
         # List of files that have been parsed.
         self._filenames: list = []
 
@@ -595,11 +594,11 @@ class AbinitTimerSection:
         self.gflops = float(gflops)
 
     def to_tuple(self):
-        """Convert object to tuple."""
+        """Get the values as a tuple."""
         return tuple(self.__dict__[at] for at in AbinitTimerSection.FIELDS)
 
     def to_dict(self):
-        """Convert object to dictionary."""
+        """Get the values as a dictionary."""
         return {at: self.__dict__[at] for at in AbinitTimerSection.FIELDS}
 
     def to_csvline(self, with_header=False):
