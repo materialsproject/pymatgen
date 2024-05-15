@@ -1223,7 +1223,7 @@ class SlabGenerator:
             repair (bool): Whether to repair terminations with broken bonds (True)
                 or just omit them (False). Default to False as repairing terminations
                 can lead to many more possible slabs.
-            ztol (float): Fractional tolerance for determine overlapping positions,
+            ztol (float): Fractional tolerance for determine overlapping z-ranges,
                 smaller ztol might result in more possible Slabs.
 
         Returns:
