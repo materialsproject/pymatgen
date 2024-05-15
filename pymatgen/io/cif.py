@@ -1125,7 +1125,12 @@ class CifParser:
             if not check_occu:
                 for idx in range(len(struct)):
                     struct[idx] = PeriodicSite(
-                        all_species_noedit[idx], all_coords[idx], lattice, properties=site_properties, skip_checks=True
+                        all_species_noedit[idx],
+                        all_coords[idx],
+                        lattice,
+                        properties=site_properties,
+                        label=all_labels[idx],
+                        skip_checks=True,
                     )
 
             if symmetrized or not check_occu:
