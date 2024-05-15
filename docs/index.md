@@ -40,7 +40,7 @@ reports. The following are resources for pymatgen:
 - Code contributions via pull requests are welcome.
 - For questions that are not bugs or feature requests, please use the [pymatgen MatSci forum] or open a [GitHub
   discussion].
-- [matgenb] provides some example Jupyter notebooks that demonstrate how to use pymatgen functionality.
+- **Examples**: [matgenb] provides Jupyter notebooks that demonstrate pymatgen functionality.
 - Follow us on [Twitter](https://twitter.com/pymatgen) to get news and tips.
 
 ## Why use pymatgen?
@@ -66,7 +66,7 @@ reports. The following are resources for pymatgen:
 
     *The code is mightier than the pen.*
 
-## Matgenie & Examples
+## Examples
 
 The [Materials Virtual Lab] has created a [matgenb] repository of Jupyter notebooks for
 common and advanced use cases. One of the ways you can contribute is to fork the matgenb repo and add your own examples.
