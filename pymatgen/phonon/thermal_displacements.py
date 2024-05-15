@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from functools import partial
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -22,6 +22,7 @@ except ImportError:
 
 if TYPE_CHECKING:
     from os import PathLike
+    from typing import Literal
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self

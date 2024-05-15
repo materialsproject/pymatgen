@@ -938,7 +938,7 @@ class TestStructure(PymatgenTest):
 
         # Test slice replacement.
         struct = PymatgenTest.get_structure("Li2O")
-        struct[0:2] = "S"
+        struct[:2] = "S"
         assert struct.formula == "Li1 S2"
 
     def test_not_hashable(self):
@@ -1559,7 +1559,7 @@ class TestStructure(PymatgenTest):
         assert struct.formula == "Si1 C1"
         struct[(0, 1)] = "Ge"
         assert struct.formula == "Ge2"
-        struct[0:2] = "Sn"
+        struct[:2] = "Sn"
         assert struct.formula == "Sn2"
 
         struct = self.struct.copy()
@@ -1891,7 +1891,7 @@ class TestIMolecule(PymatgenTest):
         assert mol.formula == "Si1 H4"
         mol[(0, 1)] = "Ge"
         assert mol.formula == "Ge2 H3"
-        mol[0:2] = "Sn"
+        mol[:2] = "Sn"
         assert mol.formula == "Sn2 H3"
 
         mol = self.mol.copy()

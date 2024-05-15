@@ -17,7 +17,7 @@ import os
 import re
 import warnings
 from collections import defaultdict
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
@@ -32,6 +32,8 @@ from pymatgen.io.vasp.outputs import Vasprun, VolumetricData
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from pymatgen.core.structure import IStructure
 
 __author__ = "Janine George, Marco Esters"
