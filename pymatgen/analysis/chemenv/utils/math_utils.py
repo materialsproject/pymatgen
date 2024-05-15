@@ -5,9 +5,13 @@ from __future__ import annotations
 import operator
 from functools import reduce
 from math import sqrt
+from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.special import erf
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -18,7 +22,7 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 ##############################################################
-# Cartesian product of lists ##################################
+# Cartesian product of lists #################################
 ##############################################################
 
 
@@ -115,27 +119,27 @@ def get_center_of_arc(p1, p2, radius):
     return (p1[0] + p2[0]) / 2 - tt * dy, (p1[1] + p2[1]) / 2 + tt * dx
 
 
-def get_linearly_independent_vectors(vectors_list):
+def get_linearly_independent_vectors(vectors: list[ArrayLike]) -> list[np.ndarray]:
     """
     Args:
-        vectors_list:
+        vectors (list[ArrayLike]): List of vectors
     """
-    independent_vectors_list = []
-    for vector in vectors_list:
+    independent_vectors: list[np.ndarray] = []
+    for vector in vectors:
         if np.any(vector != 0):
-            if len(independent_vectors_list) == 0:
-                independent_vectors_list.append(np.array(vector))
-            elif len(independent_vectors_list) == 1:
-                rank = np.linalg.matrix_rank(np.array([independent_vectors_list[0], vector, [0, 0, 0]]))
+            if len(independent_vectors) == 0:
+                independent_vectors.append(np.array(vector))
+            elif len(independent_vectors) == 1:
+                rank = np.linalg.matrix_rank(np.array([independent_vectors[0], vector, [0, 0, 0]]))
                 if rank == 2:
-                    independent_vectors_list.append(np.array(vector))
-            elif len(independent_vectors_list) == 2:
-                mm = np.array([independent_vectors_list[0], independent_vectors_list[1], vector])
+                    independent_vectors.append(np.array(vector))
+            elif len(independent_vectors) == 2:
+                mm = np.array([independent_vectors[0], independent_vectors[1], vector])
                 if np.linalg.det(mm) != 0:
-                    independent_vectors_list.append(np.array(vector))
-        if len(independent_vectors_list) == 3:
+                    independent_vectors.append(np.array(vector))
+        if len(independent_vectors) == 3:
             break
-    return independent_vectors_list
+    return independent_vectors
 
 
 def scale_and_clamp(xx, edge0, edge1, clamp0, clamp1):

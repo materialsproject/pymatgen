@@ -86,7 +86,7 @@ class TestMagmom:
             assert_allclose(magmom3.moment, magmom1.moment)
 
     def test_is_collinear(self):
-        magmoms_list = [
+        magmoms = [
             [0, 0, 0],
             [1, 1, 1],
             np.zeros((3, 3)),
@@ -94,8 +94,8 @@ class TestMagmom:
             [[0, 0, -1], [0, 0, 1], [0, 0, 1]],
             [[2, 2, 2], [-2, -2, -2], [2, 2, 2]],
         ]
-        for magmoms in magmoms_list:
-            assert Magmom.are_collinear(magmoms)
+        for magmom in magmoms:
+            assert Magmom.are_collinear(magmom)
         ncl_magmoms = [[[0, 0, 1], [0, 0, 1], [1, 2, 3]]]
         assert Magmom.are_collinear(ncl_magmoms) is False
 

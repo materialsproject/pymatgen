@@ -44,7 +44,7 @@ class Stringify:
         superscript, e.g. Fe2+ becomes Fe^{2+}. The initial string is obtained from the class's __str__ method.
 
         Returns:
-            String for display as in LaTeX with proper superscripts and subscripts.
+            str: for LaTeX display with proper sub-/superscripts.
         """
         str_ = self.to_pretty_string()
         # First we process strings that already have _ and ^ by escaping the relevant parts.
@@ -84,8 +84,8 @@ class Stringify:
 
 def str_delimited(results, header=None, delimiter="\t"):
     r"""Given a tuple of tuples, generate a delimited string form.
-    >>> results = [["a","b","c"],["d","e","f"],[1,2,3]]
-    >>> print(str_delimited(results,delimiter=","))
+    >>> results = [["a", "b", "c"], ["d", "e", "f"], [1, 2, 3]]
+    >>> print(str_delimited(results, delimiter=","))
     a,b,c
     d,e,f
     1,2,3.
@@ -124,7 +124,7 @@ def formula_double_format(afloat, ignore_ones=True, tol: float = 1e-8):
 
 
 def charge_string(charge, brackets=True, explicit_one=True):
-    """Returns a string representing the charge of an Ion. By default, the
+    """Get a string representing the charge of an Ion. By default, the
     charge is placed in brackets with the sign preceding the magnitude, e.g.
     '[+2]'. For uncharged species, the string returned is '(aq)'.
 
@@ -321,7 +321,7 @@ def transformation_to_string(matrix, translation_vec=(0, 0, 0), components=("x",
 
 
 def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
-    """Returns a formula of a form like AxB1-x (x=0.5)
+    """Get a formula of a form like AxB1-x (x=0.5)
     for disordered structures. Will only return a
     formula for disordered structures with one
     kind of disordered site at present.

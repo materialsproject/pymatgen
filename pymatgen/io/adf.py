@@ -15,25 +15,17 @@ from pymatgen.core.structure import Molecule
 
 if TYPE_CHECKING:
     from collections.abc import Generator
+    from typing import ClassVar
 
     from typing_extensions import Self
 
 __author__ = "Xin Chen, chenxin13@mails.tsinghua.edu.cn"
 
 
-def is_numeric(s) -> bool:
-    """
-    Return True is the string ``s`` is a numeric string.
-
-    Args:
-        s (str): A string
-
-    Returns:
-        bool: If True, ``s`` is a numeric string and can be converted to an int or a
-            float. Otherwise False will be returned.
-    """
+def is_numeric(string) -> bool:
+    """True if input string is numeric and can be converted to an int or a float."""
     try:
-        float(s)
+        float(string)
     except ValueError:
         return False
     else:
@@ -130,8 +122,7 @@ class AdfKey(MSONable):
         return self.name
 
     def __str__(self):
-        """
-        Return the string representation of this ``AdfKey``.
+        """Get the string representation of this ``AdfKey``.
 
         Notes:
             If this key is 'Atoms' and the coordinates are in Cartesian form,
@@ -166,13 +157,11 @@ class AdfKey(MSONable):
 
     def has_subkey(self, subkey: str | AdfKey) -> bool:
         """
-        Return True if this AdfKey contains the given subkey.
-
         Args:
-            subkey (str or AdfKey): A key name or an AdfKey object.
+            subkey (str | AdfKey): A key name or AdfKey object.
 
         Returns:
-            bool: Whether this key contains the given key.
+            bool: True if this key contains the given subkey.
         """
         if isinstance(subkey, str):
             key = subkey
@@ -254,13 +243,11 @@ class AdfKey(MSONable):
 
     def has_option(self, option: str) -> bool:
         """
-        Return True if the option is included in this key.
-
         Args:
             option (str): The option.
 
         Returns:
-            bool: Whether the option can be found.
+            bool: True if this AdfKey has the given option.
         """
         if len(self.options) == 0:
             return False
@@ -383,7 +370,7 @@ class AdfTask(MSONable):
         ADF does not support calculating force/gradient.
     """
 
-    operations = dict(
+    operations: ClassVar = dict(
         energy="Evaluate the single point energy.",
         optimize="Minimize the energy by varying the molecular structure.",
         frequencies="Compute second derivatives and print out an analysis of molecular vibrations.",
@@ -428,27 +415,27 @@ class AdfTask(MSONable):
 
     @staticmethod
     def get_default_basis_set():
-        """Returns: Default basis set."""
+        """Get Default basis set."""
         return AdfKey.from_str("Basis\ntype DZ\ncore small\nEND")
 
     @staticmethod
     def get_default_scf():
-        """Returns: ADF using default SCF."""
+        """Get ADF using default SCF."""
         return AdfKey.from_str("SCF\niterations 300\nEND")
 
     @staticmethod
     def get_default_geo():
-        """Returns: ADFKey using default geometry."""
+        """Get ADFKey using default geometry."""
         return AdfKey.from_str("GEOMETRY SinglePoint\nEND")
 
     @staticmethod
     def get_default_xc():
-        """Returns: ADFKey using default XC."""
+        """Get ADFKey using default XC."""
         return AdfKey.from_str("XC\nGGA PBE\nEND")
 
     @staticmethod
     def get_default_units():
-        """Returns: Default units."""
+        """Get Default units."""
         return AdfKey.from_str("Units\nlength angstrom\nangle degree\nEnd")
 
     def _setup_task(self, geo_subkeys):
@@ -606,8 +593,7 @@ class AdfOutput:
         self._parse()
 
     def _parse(self):
-        """
-        Parse the ADF outputs. There are two files: one is 'logfile', the other
+        """Parse the ADF outputs. There are two files: one is 'logfile', the other
         is the ADF output file. The final energy and structures are parsed from
         the 'logfile'. Frequencies and normal modes are parsed from the ADF
         output file.
@@ -635,8 +621,7 @@ class AdfOutput:
 
     @staticmethod
     def _sites_to_mol(sites):
-        """
-        Return a ``Molecule`` object given a list of sites.
+        """Get a ``Molecule`` object given a list of sites.
 
         Args:
             sites : A list of sites.
@@ -683,8 +668,7 @@ class AdfOutput:
                     break
 
                 if self.run_type is None:
-                    match = run_type_patt.search(line)
-                    if match:
+                    if match := run_type_patt.search(line):
                         if match.group(1) == "FREQUENCIES":
                             self.freq_type = "Numerical"
                             self.run_type = "NumericalFreq"
@@ -698,18 +682,14 @@ class AdfOutput:
                             raise AdfOutputError("Undefined Runtype!")
 
                 elif self.run_type == "SinglePoint":
-                    match = coord_patt.search(line)
-                    if match:
+                    if match := coord_patt.search(line):
                         sites.append([match.groups()[0], list(map(float, match.groups()[2:]))])
-                    else:
-                        match = final_energy_patt.search(line)
-                        if match:
-                            self.final_energy = float(match.group(1))
-                            self.final_structure = self._sites_to_mol(sites)
+                    elif match := final_energy_patt.search(line):
+                        self.final_energy = float(match.group(1))
+                        self.final_structure = self._sites_to_mol(sites)
 
                 elif self.run_type == "GeometryOptimization":
-                    match = cycle_patt.search(line)
-                    if match:
+                    if match := cycle_patt.search(line):
                         cycle = int(match.group(1))
                         if cycle <= 0:
                             raise AdfOutputError(f"Wrong {cycle=}")
@@ -719,20 +699,16 @@ class AdfOutput:
                         else:
                             parse_final = True
                     elif parse_cycle:
-                        match = coord_patt.search(line)
-                        if match:
+                        if match := coord_patt.search(line):
                             sites.append([match.groups()[1], list(map(float, match.groups()[2:]))])
-                        else:
-                            match = energy_patt.search(line)
-                            if match:
-                                self.energies.append(float(match.group(1)))
-                                mol = self._sites_to_mol(sites)
-                                self.structures.append(mol)
-                                parse_cycle = False
-                                sites = []
+                        elif match := energy_patt.search(line):
+                            self.energies.append(float(match.group(1)))
+                            mol = self._sites_to_mol(sites)
+                            self.structures.append(mol)
+                            parse_cycle = False
+                            sites = []
                     elif parse_final:
-                        match = final_energy_patt.search(line)
-                        if match:
+                        if match := final_energy_patt.search(line):
                             self.final_energy = float(match.group(1))
 
                 elif self.run_type == "NumericalFreq":
@@ -783,15 +759,13 @@ class AdfOutput:
                     if not parse_coord:
                         if match := coord_on_patt.search(line):
                             parse_coord = True
-                    else:
-                        match = coord_patt.search(line)
-                        if match:
-                            sites.append([match.group(2), list(map(float, match.groups()[2:5]))])
-                            n_strike += 1
-                        elif n_strike > 0:
-                            find_structure = False
-                            self.final_structure = self._sites_to_mol(sites)
-                            n_atoms = len(self.final_structure)
+                    elif match := coord_patt.search(line):
+                        sites.append([match.group(2), list(map(float, match.groups()[2:5]))])
+                        n_strike += 1
+                    elif n_strike > 0:
+                        find_structure = False
+                        self.final_structure = self._sites_to_mol(sites)
+                        n_atoms = len(self.final_structure)
 
                 elif self.freq_type is None:
                     if numerical_freq_patt.search(line):
@@ -815,17 +789,15 @@ class AdfOutput:
                         for _ in range(n_next):
                             self.normal_modes.append([])
 
-                elif parse_mode:
-                    match = mode_patt.search(line)
-                    if match:
-                        v = list(chunks(map(float, match.group(3).split()), 3))
-                        if len(v) != n_next:
-                            raise AdfOutputError("Odd Error!")
-                        for i, k in enumerate(range(-n_next, 0)):
-                            self.normal_modes[k].extend(v[i])
-                        if int(match.group(1)) == n_atoms:
-                            parse_freq = True
-                            parse_mode = False
+                elif parse_mode and (match := mode_patt.search(line)):
+                    v = list(chunks(map(float, match.group(3).split()), 3))
+                    if len(v) != n_next:
+                        raise AdfOutputError("Odd Error!")
+                    for i, k in enumerate(range(-n_next, 0)):
+                        self.normal_modes[k].extend(v[i])
+                    if int(match.group(1)) == n_atoms:
+                        parse_freq = True
+                        parse_mode = False
         if isinstance(self.final_structure, list):
             self.final_structure = self._sites_to_mol(self.final_structure)
 

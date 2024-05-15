@@ -44,7 +44,7 @@ class HHIModel:
                     self.symbol_hhip_hhir[symbol] = float(hhi_production), float(hhi_reserve)
 
     def _get_hhi_el(self, el_or_symbol):
-        """Returns the tuple of HHI_production, HHI reserve for a single element only."""
+        """Get the tuple of HHI_production, HHI reserve for a single element only."""
         if isinstance(el_or_symbol, Element):
             el_or_symbol = el_or_symbol.symbol
 

@@ -364,7 +364,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         return [self.jf.transform_symmop(op) for op in ops]
 
     def get_orbit(self, p, magmom, tol: float = 1e-5):
-        """Returns the orbit for a point and its associated magnetic moment.
+        """Get the orbit for a point and its associated magnetic moment.
 
         Args:
             p: Point as a 3x1 array.

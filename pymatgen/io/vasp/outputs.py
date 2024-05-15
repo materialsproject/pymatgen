@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from glob import glob
 from io import StringIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import reverse_readfile, zopen
@@ -43,6 +43,8 @@ from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.util.num import make_symmetric_matrix_from_upper_tri
 
 if TYPE_CHECKING:
+    from typing import Literal
+
     from typing_extensions import Self
 
 logger = logging.getLogger(__name__)
@@ -1085,7 +1087,7 @@ class Vasprun(MSONable):
         return self.efermi
 
     def get_potcars(self, path: str | Path | bool) -> Potcar | None:
-        """Returns the POTCAR from the specified path.
+        """Get the POTCAR from the specified path.
 
         Args:
             path (str | Path | bool): If a str or Path, the path to search for POTCARs.
@@ -1122,8 +1124,7 @@ class Vasprun(MSONable):
         return None
 
     def get_trajectory(self):
-        """
-        This method returns a Trajectory object, which is an alternative
+        """Get a Trajectory object, which is an alternative
         representation of self.structures into a single object. Forces are
         added to the Trajectory as site properties.
 
@@ -1135,8 +1136,8 @@ class Vasprun(MSONable):
         from pymatgen.core.trajectory import Trajectory
 
         structs = []
-        steps_list = self.md_data or self.ionic_steps
-        for step in steps_list:
+        steps = self.md_data or self.ionic_steps
+        for step in steps:
             struct = step["structure"].copy()
             struct.add_site_property("forces", step["forces"])
             structs.append(struct)
@@ -2037,7 +2038,7 @@ class Outcar:
             self.dfpt = True
             self.read_internal_strain_tensor()
 
-        # Check to see if LEPSILON is true and read piezo data if so
+        # Check if LEPSILON is True and read piezo data if so
         self.lepsilon = False
         self.read_pattern({"epsilon": "LEPSILON=     T"})
         if self.data.get("epsilon", []):
@@ -2047,7 +2048,7 @@ class Outcar:
             if self.dfpt:
                 self.read_lepsilon_ionic()
 
-        # Check to see if LCALCPOL is true and read polarization data if so
+        # Check if LCALCPOL is True and read polarization data if so
         self.lcalcpol = False
         self.read_pattern({"calcpol": "LCALCPOL   =     T"})
         if self.data.get("calcpol", []):
@@ -2152,8 +2153,7 @@ class Outcar:
         last_one_only=True,
         first_one_only=False,
     ):
-        r"""
-        Parse table-like data. A table composes of three parts: header,
+        r"""Parse table-like data. A table composes of three parts: header,
         main body, footer. All the data matches "row pattern" in the main body
         will be returned.
 
@@ -2318,8 +2318,7 @@ class Outcar:
         self.dielectric_tensor_function = np.array(data["REAL"]) + 1j * np.array(data["IMAGINARY"])
 
     def read_chemical_shielding(self):
-        """
-        Parse the NMR chemical shieldings data. Only the second part "absolute, valence and core"
+        """Parse the NMR chemical shieldings data. Only the second part "absolute, valence and core"
         will be parsed. And only the three right most field (ISO_SHIELDING, SPAN, SKEW) will be retrieved.
 
         Returns:
@@ -2352,8 +2351,7 @@ class Outcar:
         }
 
     def read_cs_g0_contribution(self):
-        """
-        Parse the  G0 contribution of NMR chemical shielding.
+        """Parse the  G0 contribution of NMR chemical shielding.
 
         Returns:
             G0 contribution matrix as list of list.
@@ -2376,8 +2374,7 @@ class Outcar:
         )
 
     def read_cs_core_contribution(self):
-        """
-        Parse the core contribution of NMR chemical shielding.
+        """Parse the core contribution of NMR chemical shielding.
 
         Returns:
             list[list]: G0 contribution matrix.
@@ -2397,8 +2394,7 @@ class Outcar:
         self.data["cs_core_contribution"] = core_contrib
 
     def read_cs_raw_symmetrized_tensors(self):
-        """
-        Parse the matrix form of NMR tensor before corrected to table.
+        """Parse the matrix form of NMR tensor before corrected to table.
 
         Returns:
             nsymmetrized tensors list in the order of atoms.
@@ -2452,8 +2448,7 @@ class Outcar:
         return tensors
 
     def read_nmr_efg(self):
-        """
-        Parse the NMR Electric Field Gradient interpreted values.
+        """Parse the NMR Electric Field Gradient interpreted values.
 
         Returns:
             Electric Field Gradient tensors as a list of dict in the order of atoms from OUTCAR.
@@ -2482,8 +2477,7 @@ class Outcar:
         )
 
     def read_elastic_tensor(self):
-        """
-        Parse the elastic tensor data.
+        """Parse the elastic tensor data.
 
         Returns:
             6x6 array corresponding to the elastic tensor from the OUTCAR.
@@ -2503,8 +2497,7 @@ class Outcar:
         self.data["piezo_tensor"] = pt_table
 
     def read_onsite_density_matrices(self):
-        """
-        Parse the onsite density matrices, returns list with index corresponding
+        """Parse the onsite density matrices, returns list with index corresponding
         to atom index in Structure.
         """
         # matrix size will vary depending on if d or f orbitals are present
@@ -2624,38 +2617,23 @@ class Outcar:
                 results.er_ev[Spin.down] = results.er_ev[Spin.up]
                 results.context = 2
 
-            search.append(
-                [
-                    r"^ *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
-                    None,
-                    er_ev,
-                ]
-            )
+            er_ev_pattern = r"^ *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)"
+            search.append([er_ev_pattern, None, er_ev])
 
             def er_bp(results, match):
                 results.er_bp[Spin.up] = np.array([float(match.group(i)) for i in range(1, 4)]) / 2
                 results.er_bp[Spin.down] = results.er_bp[Spin.up]
 
-            search.append(
-                [
-                    r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
-                    lambda results, _line: results.context == 2,
-                    er_bp,
-                ]
-            )
+            er_bp_pattern = r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)"
+            search.append([er_bp_pattern, lambda results, _line: results.context == 2, er_bp])
 
             # Spin cases
             def er_ev_up(results, match):
                 results.er_ev[Spin.up] = np.array([float(match.group(i)) for i in range(1, 4)])
                 results.context = Spin.up
 
-            search.append(
-                [
-                    r"^.*Spin component 1 *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
-                    None,
-                    er_ev_up,
-                ]
-            )
+            spin1_ev_pattern = r"^.*Spin component 1 *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)"
+            search.append([spin1_ev_pattern, None, er_ev_up])
 
             def er_bp_up(results, match):
                 results.er_bp[Spin.up] = np.array(
@@ -2666,13 +2644,8 @@ class Outcar:
                     ]
                 )
 
-            search.append(
-                [
-                    r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
-                    lambda results, _line: results.context == Spin.up,
-                    er_bp_up,
-                ]
-            )
+            spin_bp_pattern = r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)"
+            search.append([spin_bp_pattern, lambda results, _line: results.context == Spin.up, er_bp_up])
 
             def er_ev_dn(results, match):
                 results.er_ev[Spin.down] = np.array(
@@ -2684,49 +2657,31 @@ class Outcar:
                 )
                 results.context = Spin.down
 
-            search.append(
-                [
-                    r"^.*Spin component 2 *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
-                    None,
-                    er_ev_dn,
-                ]
-            )
+            spin2_pattern = r"^.*Spin component 2 *e<r>_ev=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)"
+            search.append([spin2_pattern, None, er_ev_dn])
 
             def er_bp_dn(results, match):
                 results.er_bp[Spin.down] = np.array([float(match.group(i)) for i in range(1, 4)])
 
-            search.append(
-                [
-                    r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
-                    lambda results, _line: results.context == Spin.down,
-                    er_bp_dn,
-                ]
-            )
+            e_r_bp_pattern = r"^ *e<r>_bp=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)"
+            search.append([e_r_bp_pattern, lambda results, _line: results.context == Spin.down, er_bp_dn])
 
             # Always present spin/non-spin
             def p_elc(results, match):
                 results.p_elc = np.array([float(match.group(i)) for i in range(1, 4)])
 
-            search.append(
-                [
-                    r"^.*Total electronic dipole moment: "
-                    r"*p\[elc\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) "
-                    r"*([-0-9.Ee+]*) *\)",
-                    None,
-                    p_elc,
-                ]
+            elec_dipole_moment_pattern = (
+                r"^.*Total electronic dipole moment: *p\[elc\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)"
             )
+            search.append([elec_dipole_moment_pattern, None, p_elc])
 
             def p_ion(results, match):
                 results.p_ion = np.array([float(match.group(i)) for i in range(1, 4)])
 
-            search.append(
-                [
-                    r"^.*ionic dipole moment: *p\[ion\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)",
-                    None,
-                    p_ion,
-                ]
+            ionic_dipole_moment_pattern = (
+                r"^.*ionic dipole moment: *p\[ion\]=\( *([-0-9.Ee+]*) *([-0-9.Ee+]*) *([-0-9.Ee+]*) *\)"
             )
+            search.append([ionic_dipole_moment_pattern, None, p_ion])
 
             self.context = None
             self.er_ev = {Spin.up: None, Spin.down: None}
@@ -3601,7 +3556,7 @@ class VolumetricData(BaseVolumetricData):
 
 
 class Locpot(VolumetricData):
-    """Simple object for reading a LOCPOT file."""
+    """Read a LOCPOT file."""
 
     def __init__(self, poscar: Poscar, data: np.ndarray, **kwargs):
         """
@@ -3627,7 +3582,7 @@ class Locpot(VolumetricData):
 
 
 class Chgcar(VolumetricData):
-    """Simple object for reading a CHGCAR file."""
+    """Read a CHGCAR file."""
 
     def __init__(self, poscar, data, data_aug=None) -> None:
         """
@@ -4191,7 +4146,7 @@ class Xdatcar:
         if np.linalg.det(lattice.matrix) < 0:
             lattice = Lattice(-lattice.matrix)
         lines = [self.comment, "1.0", str(lattice)]
-        lines.extend((" ".join(self.site_symbols), " ".join(str(x) for x in self.natoms)))
+        lines.extend((" ".join(self.site_symbols), " ".join(map(str, self.natoms))))
         format_str = f"{{:.{significant_figures}f}}"
         ionicstep_cnt = 1
         output_cnt = 1
@@ -4283,22 +4238,22 @@ class Dynmat:
 
     @property
     def nspecs(self):
-        """Returns the number of species."""
+        """The number of species."""
         return self._nspecs
 
     @property
     def natoms(self):
-        """Returns the number of atoms."""
+        """The number of atoms."""
         return self._natoms
 
     @property
     def ndisps(self):
-        """Returns the number of displacements."""
+        """The number of displacements."""
         return self._ndisps
 
     @property
     def masses(self):
-        """Returns the list of atomic masses."""
+        """The list of atomic masses."""
         return list(self._masses)
 
 
@@ -5081,7 +5036,7 @@ class Waveder(MSONable):
 
     @property
     def cder(self):
-        """Return the complex derivative of the orbitals with respect to k."""
+        """The complex derivative of the orbitals with respect to k."""
         if self.cder_real.shape[0] != self.cder_real.shape[1]:  # pragma: no cover
             warnings.warn(
                 "Not all band pairs are present in the WAVEDER file."
@@ -5091,17 +5046,17 @@ class Waveder(MSONable):
 
     @property
     def nspin(self):
-        """Returns the number of spin channels."""
+        """The number of spin channels."""
         return self.cder_real.shape[3]
 
     @property
     def nkpoints(self):
-        """Returns the number of k-points."""
+        """The number of k-points."""
         return self.cder_real.shape[2]
 
     @property
     def nbands(self):
-        """Returns the number of bands."""
+        """The number of bands."""
         return self.cder_real.shape[0]
 
     def get_orbital_derivative_between_states(self, band_i, band_j, kpoint, spin, cart_dir):

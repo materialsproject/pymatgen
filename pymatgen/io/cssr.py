@@ -76,12 +76,11 @@ class Cssr:
         tokens = lines[0].split()
         lengths = [float(tok) for tok in tokens]
         tokens = lines[1].split()
-        angles = [float(tok) for tok in tokens[0:3]]
+        angles = [float(tok) for tok in tokens[:3]]
         lattice = Lattice.from_parameters(*lengths, *angles)
         sp, coords = [], []
         for line in lines[4:]:
-            match = re.match(r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)", line.strip())
-            if match:
+            if match := re.match(r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)", line.strip()):
                 sp.append(match.group(1))
                 coords.append([float(match.group(i)) for i in range(2, 5)])
         return cls(Structure(lattice, sp, coords))

@@ -22,7 +22,7 @@ except ImportError:
 
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, ClassVar
 
     from _icet import _ClusterSpace
     from ase import Atoms
@@ -34,7 +34,7 @@ class IcetSQS:
     https://icet.materialsmodeling.org
     """
 
-    sqs_kwarg_names: dict[str, tuple[str, ...]] = {
+    sqs_kwarg_names: ClassVar[dict[str, tuple[str, ...]]] = {
         "monte_carlo": (
             "include_smaller_cells",
             "pbc",
@@ -47,7 +47,7 @@ class IcetSQS:
         ),
         "enumeration": ("include_smaller_cells", "pbc", "optimality_weight", "tol"),
     }
-    _sqs_kwarg_defaults: dict[str, Any] = {
+    _sqs_kwarg_defaults: ClassVar[dict[str, Any]] = {
         "optimality_weight": None,
         "tol": 1.0e-5,
         "include_smaller_cells": False,  # for consistency with ATAT
@@ -203,13 +203,11 @@ class IcetSQS:
         """Get the SQS objective function.
 
         Args:
-            material (ase Atoms or pymatgen Structure) : structure to
-                compute SQS objective function.
-        Kwargs:
-            cluster_space (ClusterSpace) : ClusterSpace of the SQS search.
+            material (pymatgen.Structure | ase.Atoms): structure to compute SQS objective function for.
+            cluster_space (ClusterSpace): ClusterSpace of the SQS search.
 
         Returns:
-            float : the SQS objective function
+            float: the SQS objective function
         """
         if isinstance(material, Structure):
             material = AseAtomsAdaptor.get_atoms(material)
@@ -228,11 +226,11 @@ class IcetSQS:
         Adapted from icet.tools.structure_generation.generate_sqs_by_enumeration
         to accommodate multiprocessing.
 
-        Kwargs:
+        Args:
             cluster_space (ClusterSpace) : ClusterSpace of the SQS search.
 
         Returns:
-            list : a list of dicts of the form: {
+            list: dicts of the form: {
                     "structure": SQS structure,
                     "objective_function": SQS objective function,
                 }
@@ -290,7 +288,7 @@ class IcetSQS:
 
         return list(working_list)
 
-    def _get_best_sqs_from_list(self, structures: list[Atoms], output_list: list[dict]) -> None:
+    def _get_best_sqs_from_list(self, structures: list[Atoms], output_list: list[dict]) -> dict[str, Any]:
         """Find best SQS structure from list of SQS structures.
 
         Args:
@@ -305,6 +303,8 @@ class IcetSQS:
             if objective < best_sqs["objective_function"]:
                 best_sqs = {"structure": structure, "objective_function": objective}
         output_list.append(best_sqs)
+
+        return best_sqs
 
     def _single_monte_carlo_sqs_run(self):
         """Run a single Monte Carlo SQS search with Icet."""

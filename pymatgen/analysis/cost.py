@@ -13,6 +13,7 @@ import csv
 import itertools
 import os
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 import scipy.constants as const
 from monty.design_patterns import singleton
@@ -20,6 +21,9 @@ from monty.design_patterns import singleton
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.core import Composition, Element
 from pymatgen.util.provenance import is_valid_bibtex
+
+if TYPE_CHECKING:
+    from pymatgen.util.typing import CompositionLike
 
 __author__ = "Anubhav Jain"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -37,15 +41,11 @@ class CostEntry(PDEntry):
     def __init__(self, composition, cost, name, reference):
         """
         Args:
-            composition:
-                Composition as a pymatgen.core.structure.Composition
-            cost:
-                Cost (per mol, NOT per kg) of the full Composition
-            name:
-                Optional parameter to name the entry. Defaults to the reduced
+            composition (Composition): chemical composition of the entry
+            cost (float): per mol, NOT per kg of the full Composition
+            name (str): Optional parameter to name the entry. Defaults to the reduced
                 chemical formula as in PDEntry.
-            reference:
-                Reference data as BiBTeX string.
+            reference (str): Reference data as BiBTeX string.
         """
         super().__init__(composition, cost, name)
         if reference and not is_valid_bibtex(reference):
@@ -67,13 +67,11 @@ class CostDB(abc.ABC):
         """For a given chemical system, return an array of CostEntries.
 
         Args:
-            chemsys:
-                array of Elements defining the chemical system.
+            chemsys (list[SpeciesLike]): Elements defining the chemical system.
 
         Returns:
-            array of CostEntries
+            list[CostEntries]
         """
-        return
 
 
 class CostDBCSV(CostDB):
@@ -103,8 +101,7 @@ class CostDBCSV(CostDB):
         """For a given chemical system, return an array of CostEntries.
 
         Args:
-            chemsys:
-                array of Elements defining the chemical system.
+            chemsys (list[Element]): Elements defining the chemical system.
 
         Returns:
             array of CostEntries
@@ -115,7 +112,7 @@ class CostDBCSV(CostDB):
 
 @singleton
 class CostDBElements(CostDBCSV):
-    """Singleton object that provides the cost data for elements."""
+    """Singleton that provides the cost data for elements."""
 
     def __init__(self):
         CostDBCSV.__init__(self, f"{module_dir}/costdb_elements.csv")
@@ -141,42 +138,40 @@ class CostAnalyzer:
         Returns:
             Decomposition as a dict of {Entry: amount}
         """
-        entries_list = []
+        entries = []
         elements = [e.symbol for e in composition.elements]
         for idx in range(len(elements)):
             for combi in itertools.combinations(elements, idx + 1):
-                chemsys = [Element(e) for e in combi]
+                chemsys = [Element(el) for el in combi]
                 x = self.costdb.get_entries(chemsys)
-                entries_list.extend(x)
+                entries.extend(x)
         try:
-            pd = PhaseDiagram(entries_list)
+            pd = PhaseDiagram(entries)
             return pd.get_decomposition(composition)
         except IndexError:
             raise ValueError("Error during PD building; most likely, cost data does not exist!")
 
-    def get_cost_per_mol(self, comp):
+    def get_cost_per_mol(self, comp: CompositionLike) -> float:
         """Get best estimate of minimum cost/mol based on known data.
 
         Args:
-            comp:
-                Composition as a pymatgen.core.structure.Composition
+            comp (CompositionLike): chemical formula
 
         Returns:
-            float of cost/mol
+            float: energy cost/mol
         """
-        comp = comp if isinstance(comp, Composition) else Composition(comp)
+        comp = Composition(comp)
         decomp = self.get_lowest_decomposition(comp)
-        return sum(k.energy_per_atom * v * comp.num_atoms for k, v in decomp.items())
+        return sum(elem.energy_per_atom * val * comp.num_atoms for elem, val in decomp.items())
 
     def get_cost_per_kg(self, comp):
         """Get best estimate of minimum cost/kg based on known data.
 
         Args:
-            comp:
-                Composition as a pymatgen.core.structure.Composition
+            comp (CompositionLike): chemical formula
 
         Returns:
-            float of cost/kg
+            float: energy cost/kg
         """
         comp = comp if isinstance(comp, Composition) else Composition(comp)
         return self.get_cost_per_mol(comp) / (comp.weight.to("kg") * const.N_A)

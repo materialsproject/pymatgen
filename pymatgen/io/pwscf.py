@@ -14,6 +14,7 @@ from pymatgen.util.io_utils import clean_lines
 
 if TYPE_CHECKING:
     from pathlib import Path
+    from typing import Any, ClassVar
 
     from typing_extensions import Self
 
@@ -501,7 +502,7 @@ class PWInputError(BaseException):
 class PWOutput:
     """Parser for PWSCF output file."""
 
-    patterns = dict(
+    patterns: ClassVar = dict(
         energies=r"total energy\s+=\s+([\d\.\-]+)\sRy",
         ecut=r"kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry",
         lattice_type=r"bravais\-lattice index\s+=\s+(\d+)",
@@ -520,7 +521,7 @@ class PWOutput:
             filename (str): Filename.
         """
         self.filename = filename
-        self.data: dict[str, list[float] | float] = defaultdict(list)
+        self.data: dict[str, Any] = defaultdict(list)
         self.read_pattern(PWOutput.patterns)
         for k, v in self.data.items():
             if k == "energies":
@@ -574,11 +575,11 @@ class PWOutput:
         return self.data[f"celldm{idx}"]
 
     @property
-    def final_energy(self):
-        """Returns: Final energy."""
+    def final_energy(self) -> float:
+        """The final energy from the PW output."""
         return self.data["energies"][-1]
 
     @property
-    def lattice_type(self):
-        """Returns: Lattice type."""
+    def lattice_type(self) -> int:
+        """The lattice type."""
         return self.data["lattice_type"]

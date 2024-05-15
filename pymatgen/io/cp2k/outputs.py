@@ -117,7 +117,7 @@ class Cp2kOutput:
 
     @property
     def calculation_type(self):
-        """Returns the calculation type (what io.vasp.outputs calls run_type)."""
+        """The calculation type (what io.vasp.outputs calls run_type)."""
         LDA_TYPES = {"LDA", "PADE", "BECKE88", "BECKE88_LR", "BECKE88_LR_ADIABATIC", "BECKE97"}
 
         GGA_TYPES = {"PBE", "PW92"}
@@ -180,12 +180,12 @@ class Cp2kOutput:
 
     @property
     def charge(self) -> float:
-        """Get charge from the input file."""
+        """Charge from the input file."""
         return self.input["FORCE_EVAL"]["DFT"].get("CHARGE", Keyword("", 0)).values[0]  # noqa: PD011
 
     @property
     def multiplicity(self) -> int:
-        """Get the spin multiplicity from input file."""
+        """The spin multiplicity from input file."""
         return self.input["FORCE_EVAL"]["DFT"].get("Multiplicity", Keyword("")).values[0]  # noqa: PD011
 
     @property
@@ -203,7 +203,7 @@ class Cp2kOutput:
 
     @property
     def is_hubbard(self) -> bool:
-        """Returns True if hubbard +U correction was used."""
+        """True if hubbard +U correction was used."""
         for val in self.data.get("atomic_kind_info", {}).values():
             if val.get("DFT_PLUS_U", {}).get("U_MINUS_J", 0) > 0:
                 return True
@@ -318,8 +318,7 @@ class Cp2kOutput:
 
     def parse_initial_structure(self):
         """Parse the initial structure from the main cp2k output file."""
-        pattern = re.compile(r"- Atoms:\s+(\d+)")
-        patterns = {"num_atoms": pattern}
+        patterns = {"num_atoms": re.compile(r"- Atoms:\s+(\d+)")}
         self.read_pattern(
             patterns=patterns,
             reverse=False,
@@ -331,7 +330,7 @@ class Cp2kOutput:
         with zopen(self.filename, mode="rt") as file:
             while True:
                 line = file.readline()
-                if "Atom  Kind  Element       X           Y           Z          Z(eff)       Mass" in line:
+                if re.search(r"Atom\s+Kind\s+Element\s+X\s+Y\s+Z\s+Z\(eff\)\s+Mass", line):
                     for _ in range(self.data["num_atoms"][0][0]):
                         line = file.readline().split()
                         if line == []:
@@ -340,36 +339,33 @@ class Cp2kOutput:
                     break
 
         lattice = self.parse_cell_params()
-        gs = {}
+        ghost_atoms = {}
         self.data["atomic_kind_list"] = []
-        for v in self.data["atomic_kind_info"].values():
-            if v["pseudo_potential"].upper() == "NONE":
-                gs[v["kind_number"]] = True
-            else:
-                gs[v["kind_number"]] = False
+        for val in self.data["atomic_kind_info"].values():
+            ghost_atoms[val["kind_number"]] = val["pseudo_potential"].upper() == "NONE"
 
-        for c in coord_table:
-            for k, v in self.data["atomic_kind_info"].items():
-                if int(v["kind_number"]) == int(c[1]):
-                    v["element"] = c[2]
-                    self.data["atomic_kind_list"].append(k)
+        for coord in coord_table:
+            for key, val in self.data["atomic_kind_info"].items():
+                if int(val["kind_number"]) == int(coord[1]):
+                    val["element"] = coord[2]
+                    self.data["atomic_kind_list"].append(key)
                     break
 
         if self.is_molecule:
             self.initial_structure = Molecule(
-                species=[i[2] for i in coord_table],
+                species=[coord[2] for coord in coord_table],
                 coords=[[float(i[4]), float(i[5]), float(i[6])] for i in coord_table],
-                site_properties={"ghost": [gs.get(int(i[1])) for i in coord_table]},
+                site_properties={"ghost": [ghost_atoms.get(int(i[1])) for i in coord_table]},
                 charge=self.charge,
                 spin_multiplicity=self.multiplicity,
             )
         else:
             self.initial_structure = Structure(
                 lattice,
-                species=[i[2] for i in coord_table],
+                species=[coord[2] for coord in coord_table],
                 coords=[[float(i[4]), float(i[5]), float(i[6])] for i in coord_table],
                 coords_are_cartesian=True,
-                site_properties={"ghost": [gs.get(int(i[1])) for i in coord_table]},
+                site_properties={"ghost": [ghost_atoms.get(int(i[1])) for i in coord_table]},
                 charge=self.charge,
             )
 
@@ -728,8 +724,7 @@ class Cp2kOutput:
         return lattices[0]
 
     def parse_atomic_kind_info(self):
-        """
-        Parse info on what atomic kinds are present and what basis/pseudopotential is describing
+        """Parse info on what atomic kinds are present and what basis/pseudopotential is describing
         each of them.
         """
         kinds = re.compile(r"Atomic kind: (\w+)")
@@ -935,9 +930,7 @@ class Cp2kOutput:
         )
 
     def parse_mulliken(self):
-        """
-        Parse the mulliken population analysis info for each step
-        """
+        """Parse the mulliken population analysis info for each step"""
         header = r"Mulliken Population Analysis.+Net charge"
         pattern = r"\s+(\d)\s+(\w+)\s+(\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
         footer = r".+Total charge"
@@ -1003,8 +996,7 @@ class Cp2kOutput:
                 self.structures[i].add_site_property("hirshfield", hirshfeld)
 
     def parse_mo_eigenvalues(self):
-        """
-        Parse the MO eigenvalues from the cp2k output file. Will get the eigenvalues (and band gap)
+        """Parse the MO eigenvalues from the cp2k output file. Will get the eigenvalues (and band gap)
         at each ionic step (if more than one exist).
 
         Everything is decomposed by spin channel. If calculation was performed without spin
@@ -1178,8 +1170,7 @@ class Cp2kOutput:
         self.band_gap = (bg[Spin.up][-1] + bg[Spin.down][-1]) / 2 if bg[Spin.up] and bg[Spin.down] else None
 
     def parse_dos(self, dos_file=None, pdos_files=None, ldos_files=None):
-        """
-        Parse the dos files produced by cp2k calculation. CP2K produces different files based
+        """Parse the dos files produced by cp2k calculation. CP2K produces different files based
         on the input file rather than assimilating them all into one file.
 
         One file type is the overall DOS file, which is used for k-point calculations. For
@@ -1256,17 +1247,16 @@ class Cp2kOutput:
 
     @property
     def complete_dos(self) -> CompleteDos | None:
-        """Returns complete dos object if it has been parsed."""
+        """Complete dos object if it has been parsed."""
         return self.data.get("cdos")
 
     @property
     def band_structure(self) -> BandStructure | None:
-        """Returns band structure object if it has been parsed."""
+        """Band structure object if it has been parsed."""
         return self.data.get("band_structure")
 
     def parse_bandstructure(self, bandstructure_filename=None) -> None:
-        """
-        Parse a CP2K bandstructure file.
+        """Parse a CP2K bandstructure file.
 
         Args:
             bandstructure_filename: Filename containing bandstructure info. If
@@ -1282,7 +1272,7 @@ class Cp2kOutput:
         with open(bandstructure_filename, encoding="utf-8") as file:
             lines = file.read().split("\n")
 
-        data = np.loadtxt(bandstructure_filename)
+        bands_data = np.loadtxt(bandstructure_filename)
         nkpts = int(lines[0].split()[6])
         nbands = int(lines[0].split()[-2])
         rec_lat = (
@@ -1315,18 +1305,18 @@ class Cp2kOutput:
 
         eigenvals = {}
         if self.spin_polarized:
-            up = data.reshape(-1, nbands * 2, data.shape[1])[:, :nbands].reshape(-1, data.shape[1])
-            down = data.reshape(-1, nbands * 2, data.shape[1])[:, nbands:].reshape(-1, data.shape[1])
+            up = bands_data.reshape(-1, nbands * 2, bands_data.shape[1])[:, :nbands].reshape(-1, bands_data.shape[1])
+            down = bands_data.reshape(-1, nbands * 2, bands_data.shape[1])[:, nbands:].reshape(-1, bands_data.shape[1])
             eigenvals = {
                 Spin.up: up[:, 1].reshape((nkpts, nbands)).T.tolist(),
                 Spin.down: down[:, 1].reshape((nkpts, nbands)).T.tolist(),
             }
         else:
-            eigenvals = {Spin.up: data.reshape((nbands, nkpts))}
+            eigenvals = {Spin.up: bands_data.reshape((nbands, nkpts))}
 
-        occ = data[:, 1][data[:, -1] != 0.0]
+        occ = bands_data[:, 1][bands_data[:, -1] != 0.0]
         homo = np.max(occ)
-        unocc = data[:, 1][data[:, -1] == 0.0]
+        unocc = bands_data[:, 1][bands_data[:, -1] == 0.0]
         lumo = np.min(unocc)
         efermi = (lumo + homo) / 2
         self.efermi = efermi
@@ -1486,8 +1476,7 @@ class Cp2kOutput:
         return dct
 
     def read_pattern(self, patterns, reverse=False, terminate_on_match=False, postprocess=str):
-        r"""
-        This function originally comes from pymatgen.io.vasp.outputs Outcar class.
+        r"""Originally from pymatgen.io.vasp.outputs.Outcar.
 
         General pattern reading. Uses monty's regrep method. Takes the same
         arguments.
@@ -1530,8 +1519,7 @@ class Cp2kOutput:
         last_one_only=True,
         strip=None,
     ):
-        r"""
-        This function originally comes from pymatgen.io.vasp.outputs Outcar class.
+        r"""This function originated in pymatgen.io.vasp.outputs.Outcar.
 
         Parse table-like data. A table composes of three parts: header,
         main body, footer. All the data matches "row pattern" in the main body

@@ -81,7 +81,7 @@ def read_route_line(route):
 
 
 class GaussianInput:
-    """An object representing a Gaussian input file."""
+    """A Gaussian input file."""
 
     # Commonly used regex patterns
     _zmat_patt = re.compile(r"^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
@@ -168,7 +168,7 @@ class GaussianInput:
 
     @property
     def molecule(self):
-        """Returns molecule associated with this GaussianInput."""
+        """Molecule associated with this GaussianInput."""
         return self._mol
 
     @staticmethod
@@ -368,7 +368,7 @@ class GaussianInput:
             return cls.from_str(file.read())
 
     def get_zmatrix(self):
-        """Returns a z-matrix representation of the molecule."""
+        """Get a z-matrix representation of the molecule."""
         return self._mol.get_zmatrix()
 
     def get_cart_coords(self) -> str:
@@ -997,8 +997,7 @@ class GaussianOutput:
             warnings.warn(f"\n{self.filename}: Termination error or bad Gaussian output file !")
 
     def _parse_hessian(self, file, structure):
-        """
-        Parse the hessian matrix in the output file.
+        """Parse the hessian matrix in the output file.
 
         Args:
             file: file object
@@ -1292,7 +1291,7 @@ class GaussianOutput:
         are the same as GaussianInput class.
 
         Returns:
-            gaunip (GaussianInput) : the gaussian input object
+            GaussianInput: the gaussian input object
         """
         if not mol:
             mol = self.final_structure

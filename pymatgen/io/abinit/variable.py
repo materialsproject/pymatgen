@@ -56,18 +56,18 @@ class InputVariable:
 
     @property
     def basename(self):
-        """Return the name trimmed of any dataset index."""
+        """The name trimmed of any dataset index."""
         basename = self.name
         return basename.rstrip(_DATASET_INDICES)
 
     @property
     def dataset(self):
-        """Return the dataset index in string form."""
+        """The dataset index in string form."""
         return self.name.split(self.basename)[-1]
 
     @property
     def units(self):
-        """Return the units."""
+        """The units."""
         return self._units
 
     def __str__(self):

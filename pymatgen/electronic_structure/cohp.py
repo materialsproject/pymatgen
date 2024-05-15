@@ -13,7 +13,7 @@ from __future__ import annotations
 import re
 import sys
 import warnings
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -29,6 +29,8 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.num import round_to_sigfigs
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from typing_extensions import Self
 
 __author__ = "Marco Esters, Janine George"
@@ -69,7 +71,7 @@ class Cohp(MSONable):
         self.icohp = icohp
 
     def __repr__(self) -> str:
-        """Returns a string that can be easily plotted (e.g. using gnuplot)."""
+        """Get a string that can be easily plotted (e.g. using gnuplot)."""
         if self.are_coops:
             cohp_str = "COOP"
         elif self.are_cobis or self.are_multi_center_cobis:
@@ -112,7 +114,7 @@ class Cohp(MSONable):
         return dct
 
     def get_cohp(self, spin=None, integrated=False):
-        """Returns the COHP or ICOHP for a particular spin.
+        """Get the COHP or ICOHP for a particular spin.
 
         Args:
             spin: Spin. Can be parsed as spin object, integer (-1/1)
@@ -141,7 +143,7 @@ class Cohp(MSONable):
         return self.get_cohp(spin=spin, integrated=True)
 
     def get_interpolated_value(self, energy, integrated=False):
-        """Returns the COHP for a particular energy.
+        """Get the COHP for a particular energy.
 
         Args:
             energy: Energy to return the COHP value for.
@@ -158,12 +160,12 @@ class Cohp(MSONable):
         return inter
 
     def has_antibnd_states_below_efermi(self, spin=None, limit=0.01):
-        """Returns dict indicating if there are antibonding states below the Fermi level depending on the spin
+        """Get dict indicating if there are antibonding states below the Fermi level depending on the spin
         spin: Spin
         limit: -COHP smaller -limit will be considered.
         """
         populations = self.cohp
-        n_energies_below_efermi = len([x for x in self.energies if x <= self.efermi])
+        n_energies_below_efermi = len([energy for energy in self.energies if energy <= self.efermi])
 
         if populations is None:
             return None
@@ -189,7 +191,7 @@ class Cohp(MSONable):
 
     @classmethod
     def from_dict(cls, dct: dict[str, Any]) -> Self:
-        """Returns a COHP object from a dict representation of the COHP."""
+        """Get a COHP object from a dict representation of the COHP."""
         icohp = {Spin(int(key)): np.array(val) for key, val in dct["ICOHP"].items()} if "ICOHP" in dct else None
         are_cobis = dct.get("are_cobis", False)
         are_multi_center_cobis = dct.get("are_multi_center_cobis", False)
@@ -367,7 +369,7 @@ class CompleteCohp(Cohp):
         )
 
     def get_summed_cohp_by_label_list(self, label_list, divisor=1, summed_spin_channels=False):
-        """Returns a COHP object that includes a summed COHP divided by divisor.
+        """Get a COHP object that includes a summed COHP divided by divisor.
 
         Args:
             label_list: list of labels for the COHP that should be included in the summed cohp
@@ -422,7 +424,7 @@ class CompleteCohp(Cohp):
     def get_summed_cohp_by_label_and_orbital_list(
         self, label_list, orbital_list, divisor=1, summed_spin_channels=False
     ):
-        """Returns a COHP object that includes a summed COHP divided by divisor.
+        """Get a COHP object that includes a summed COHP divided by divisor.
 
         Args:
             label_list: list of labels for the COHP that should be included in the summed cohp
@@ -546,7 +548,7 @@ class CompleteCohp(Cohp):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Returns CompleteCohp object from dict representation."""
+        """Get CompleteCohp object from dict representation."""
         # TODO: clean that mess up?
         cohp_dict = {}
         efermi = dct["efermi"]
@@ -854,7 +856,7 @@ class CompleteCohp(Cohp):
 
 
 class IcohpValue(MSONable):
-    """Class to store information on an ICOHP or ICOOP value.
+    """Store information on an ICOHP or ICOOP value.
 
     Attributes:
         energies (ndarray): Energy values for the COHP/ICOHP/COOP/ICOOP.
@@ -985,7 +987,7 @@ class IcohpValue(MSONable):
 
         return self._icohp[spin]
 
-    def icohpvalue_orbital(self, orbitals, spin=Spin.up):
+    def icohpvalue_orbital(self, orbitals, spin=Spin.up) -> float:
         """
         Args:
             orbitals: List of Orbitals or "str(Orbital1)-str(Orbital2)"
@@ -1020,10 +1022,10 @@ class IcohpValue(MSONable):
 
     @property
     def summed_orbital_icohp(self):
-        """Sums orbitals-resolved ICOHPs of both spin channels for spin-plarized compounds.
+        """Sums orbital-resolved ICOHPs of both spin channels for spin-polarized compounds.
 
         Returns:
-            {"str(Orbital1)-str(Ortibal2)": icohp value in eV}.
+            dict[str, float]: "str(Orbital1)-str(Ortibal2)" mapped to ICOHP value in eV.
         """
         orbital_icohp = {}
         for orb, item in self._orbitals.items():
@@ -1034,7 +1036,7 @@ class IcohpValue(MSONable):
 
 
 class IcohpCollection(MSONable):
-    """Class to store IcohpValues.
+    """Store IcohpValues.
 
     Attributes:
         are_coops (bool): Boolean to indicate if these are ICOOPs.
@@ -1107,7 +1109,7 @@ class IcohpCollection(MSONable):
             joinstr.append(str(value))
         return "\n".join(joinstr)
 
-    def get_icohp_by_label(self, label, summed_spin_channels=True, spin=Spin.up, orbitals=None):
+    def get_icohp_by_label(self, label, summed_spin_channels=True, spin=Spin.up, orbitals=None) -> float:
         """Get an icohp value for a certain bond as indicated by the label (bond labels starting by "1" as in
         ICOHPLIST/ICOOPLIST).
 
@@ -1118,9 +1120,9 @@ class IcohpCollection(MSONable):
             orbitals: List of Orbital or "str(Orbital1)-str(Orbital2)"
 
         Returns:
-            float describing ICOHP/ICOOP value
+            float: ICOHP/ICOOP value
         """
-        icohp_here = self._icohplist[label]
+        icohp_here: IcohpValue = self._icohplist[label]
         if orbitals is None:
             if summed_spin_channels:
                 return icohp_here.summed_icohp
@@ -1133,7 +1135,7 @@ class IcohpCollection(MSONable):
 
         return icohp_here.icohpvalue_orbital(spin=spin, orbitals=orbitals)
 
-    def get_summed_icohp_by_label_list(self, label_list, divisor=1.0, summed_spin_channels=True, spin=Spin.up):
+    def get_summed_icohp_by_label_list(self, label_list, divisor=1.0, summed_spin_channels=True, spin=Spin.up) -> float:
         """Get the sum of several ICOHP values that are indicated by a list of labels
         (labels of the bonds are the same as in ICOHPLIST/ICOOPLIST).
 
@@ -1144,7 +1146,7 @@ class IcohpCollection(MSONable):
             spin: if summed_spin_channels is equal to False, this spin indicates which spin channel should be returned
 
         Returns:
-            float that is a sum of all ICOHPs/ICOOPs as indicated with label_list
+            float: sum of all ICOHPs/ICOOPs as indicated with label_list
         """
         sum_icohp = 0
         for label in label_list:
@@ -1279,14 +1281,14 @@ class IcohpCollection(MSONable):
 def get_integrated_cohp_in_energy_range(
     cohp, label, orbital=None, energy_range=None, relative_E_Fermi=True, summed_spin_channels=True
 ):
-    """Method that can integrate completecohp objects which include data on integrated COHPs
+    """Integrate CompleteCohp objects which include data on integrated COHPs
     Args:
-        cohp: CompleteCOHP object
+        cohp: CompleteCohp object
         label: label of the COHP data
         orbital: If not None, a orbital resolved integrated COHP will be returned
-        energy_range:   if None, returns icohp value at Fermi level;
-                        if float, integrates from this float up to the Fermi level;
-                        if [float,float], will integrate in between
+        energy_range: If None, returns icohp value at Fermi level.
+            If float, integrates from this float up to the Fermi level.
+            If [float,float], will integrate in between.
         relative_E_Fermi: if True, energy scale with E_Fermi at 0 eV is chosen
         summed_spin_channels: if True, Spin channels will be summed.
 

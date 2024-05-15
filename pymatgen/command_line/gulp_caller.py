@@ -278,7 +278,7 @@ class GulpIO:
                 written.
 
         Returns:
-            string containing structure for GULP input
+            str: containing structure for GULP input
         """
         gin = ""
         if cell_flg:
@@ -313,8 +313,7 @@ class GulpIO:
 
     @staticmethod
     def specie_potential_lines(structure, potential, **kwargs):
-        """Generate GULP input specie and potential string for pymatgen
-        structure.
+        """Generate GULP input species and potential string for pymatgen structure.
 
         Args:
             structure: pymatgen Structure object
@@ -331,10 +330,9 @@ class GulpIO:
                 cation_shell_chrg=float
 
         Returns:
-            string containing specie and potential specification for gulp
-            input.
+            str: containing species and potential for GULP input
         """
-        raise NotImplementedError("gulp_specie_potential not yet implemented.\nUse library_line instead")
+        raise NotImplementedError("gulp_specie_potential not yet implemented. Use library_line instead")
 
     @staticmethod
     def library_line(file_name):
@@ -587,7 +585,7 @@ class GulpIO:
                 # read the site coordinates in the following lines
                 idx += 6
                 line = output_lines[idx]
-                while line[0:2] != "--":
+                while line[:2] != "--":
                     structure_lines.append(line)
                     idx += 1
                     line = output_lines[idx]
@@ -632,7 +630,7 @@ class GulpIO:
 
 
 class GulpCaller:
-    """Class to run gulp from command line."""
+    """Run gulp from command line."""
 
     def __init__(self, cmd="gulp"):
         """Initialize with the executable if not in the standard path.

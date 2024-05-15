@@ -5896,7 +5896,7 @@ nav_order: 6
       * [`StructureVis.add_text()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.StructureVis.add_text)
       * [`StructureVis.add_triangle()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.StructureVis.add_triangle)
       * [`StructureVis.display_help()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.StructureVis.display_help)
-      * [`StructureVis.orthongonalize_structure()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.StructureVis.orthongonalize_structure)
+      * [`StructureVis.orthogonalize_structure()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.StructureVis.orthogonalize_structure)
       * [`StructureVis.redraw()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.StructureVis.redraw)
       * [`StructureVis.rotate_view()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.StructureVis.rotate_view)
       * [`StructureVis.set_structure()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.StructureVis.set_structure)

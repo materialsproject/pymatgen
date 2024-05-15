@@ -13,12 +13,14 @@ import re
 from collections import defaultdict
 from functools import partial
 from numbers import Number
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy.constants as const
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Matteo Giantomassi"
@@ -248,7 +250,7 @@ class Unit(collections.abc.Mapping):
         return {k: v for k, v in b.items() if v != 0}, factor
 
     def get_conversion_factor(self, new_unit):
-        """Returns a conversion factor between this unit and a new unit.
+        """Get a conversion factor between this unit and a new unit.
         Compound units are supported, but must have the same powers in each
         unit type.
 
@@ -356,7 +358,7 @@ class FloatWithUnit(float):
         return FloatWithUnit(super().__neg__(), unit_type=self._unit_type, unit=self._unit)
 
     def __getnewargs__(self):
-        """Function used by pickle to recreate object."""
+        """Used by pickle to recreate object."""
         # TODO There's a problem with _unit_type if we try to unpickle objects from file.
         # since self._unit_type might not be defined. I think this is due to
         # the use of decorators (property and unitized). In particular I have problems with "amu"
@@ -430,7 +432,7 @@ class FloatWithUnit(float):
 
     @property
     def as_base_units(self):
-        """Returns this FloatWithUnit in base SI units, including derived units.
+        """This FloatWithUnit in base SI units, including derived units.
 
         Returns:
             A FloatWithUnit object in base SI units
@@ -586,7 +588,7 @@ class ArrayWithUnit(np.ndarray):
 
     @property
     def as_base_units(self):
-        """Returns this ArrayWithUnit in base SI units, including derived units.
+        """This ArrayWithUnit in base SI units, including derived units.
 
         Returns:
             An ArrayWithUnit object in base SI units
@@ -601,7 +603,7 @@ class ArrayWithUnit(np.ndarray):
 
     # TODO abstract base class method?
     def conversions(self):
-        """Returns a string showing the available conversions.
+        """Get a string showing the available conversions.
         Useful tool in interactive mode.
         """
         return "\n".join(str(self.to(unit)) for unit in self.supported_units)
@@ -694,7 +696,7 @@ Args:
 
 
 def obj_with_unit(obj: Any, unit: str) -> FloatWithUnit | ArrayWithUnit | dict[str, FloatWithUnit | ArrayWithUnit]:
-    """Returns a FloatWithUnit instance if obj is scalar, a dictionary of
+    """Get a FloatWithUnit instance if obj is scalar, a dictionary of
     objects with units if obj is a dict, else an instance of
     ArrayWithFloatWithUnit.
 

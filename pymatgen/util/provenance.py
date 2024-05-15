@@ -6,9 +6,8 @@ import datetime
 import json
 import re
 import sys
-from collections import namedtuple
 from io import StringIO
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from monty.json import MontyDecoder, MontyEncoder
 
@@ -54,7 +53,7 @@ def is_valid_bibtex(reference: str) -> bool:
     return len(bib_data.entries) > 0
 
 
-class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
+class HistoryNode(NamedTuple):
     """A HistoryNode represents a step in the chain of events that lead to a
     Structure. HistoryNodes leave 'breadcrumbs' so that you can trace back how
     a Structure was created. For example, a HistoryNode might represent pulling
@@ -68,13 +67,15 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
     Attributes:
         name (str): The name of a code or resource that this Structure encountered in its history.
         url (str): The URL of that code/resource.
-        description (dict): A free-form description of how the code/resource is related to the Structure.
+        description (str): A free-form description of how the code/resource is related to the Structure.
     """
 
-    __slots__ = ()
+    name: str
+    url: str
+    description: str
 
     def as_dict(self) -> dict[str, str]:
-        """Returns: Dict."""
+        """Get MSONable dict."""
         return {"name": self.name, "url": self.url, "description": self.description}
 
     @classmethod
@@ -106,19 +107,20 @@ class HistoryNode(namedtuple("HistoryNode", ["name", "url", "description"])):
         return cls(h_node[0], h_node[1], h_node[2])
 
 
-class Author(namedtuple("Author", ["name", "email"])):
+class Author(NamedTuple):
     """An Author contains two fields: name and email. It is meant to represent
     the author of a Structure or the author of a code that was applied to a Structure.
     """
 
-    __slots__ = ()
+    name: str
+    email: str
 
     def __str__(self):
         """String representation of an Author."""
         return f"{self.name} <{self.email}>"
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {"name": self.name, "email": self.email}
 
     @classmethod
@@ -257,7 +259,7 @@ class StructureNL:
         self.created_at = created_at or datetime.datetime.utcnow()
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         dct = self.structure.as_dict()
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
@@ -371,6 +373,7 @@ class StructureNL:
         )
 
     def __eq__(self, other: object) -> bool:
+        """Check for equality between two StructureNL objects."""
         needed_attrs = ("structure", "authors", "projects", "references", "remarks", "data", "history", "created_at")
 
         if not all(hasattr(other, attr) for attr in needed_attrs):

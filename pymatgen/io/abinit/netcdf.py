@@ -190,7 +190,7 @@ class NetcdfReader:
         raise ValueError(f"Wrong value for {cmode=}")
 
     def read_variable(self, varname, path="/"):
-        """Returns the variable with name varname in the group specified by path."""
+        """Get the variable with name varname in the group specified by path."""
         return self._read_variables(varname, path=path)[0]
 
     def _read_dimensions(self, *dim_names, **kwargs):
@@ -254,11 +254,11 @@ class EtsfReader(NetcdfReader):
         return symbols
 
     def type_idx_from_symbol(self, symbol):
-        """Returns the type index from the chemical symbol. Note python convention."""
+        """Get the type index from the chemical symbol. Note python convention."""
         return self.chemical_symbols.index(symbol)
 
     def read_structure(self, cls=Structure):
-        """Returns the crystalline structure stored in the rootgrp."""
+        """Get the crystalline structure stored in the rootgrp."""
         return structure_from_ncdata(self, cls=cls)
 
     def read_abinit_xcfunc(self):

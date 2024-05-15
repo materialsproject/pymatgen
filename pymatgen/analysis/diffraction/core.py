@@ -198,8 +198,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
 
 
 def get_unique_families(hkls):
-    """
-    Returns unique families of Miller indices. Families must be permutations
+    """Get unique families of Miller indices. Families must be permutations
     of each other.
 
     Args:

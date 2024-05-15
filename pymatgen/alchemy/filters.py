@@ -19,23 +19,20 @@ if TYPE_CHECKING:
 
 
 class AbstractStructureFilter(MSONable, abc.ABC):
-    """AbstractStructureFilter that defines an API to perform testing of
-    Structures. Structures that return True to a test are retained during
-    transmutation while those that return False are removed.
+    """Structures that return True when passed to the test() method are retained during
+    transmutation. Those that return False are removed.
     """
 
     @abc.abstractmethod
     def test(self, structure: Structure):
-        """Method to execute the test.
+        """Structures that return true are kept in the Transmuter object during filtering.
 
         Args:
             structure (Structure): Input structure to test
 
         Returns:
-            bool: Structures that return true are kept in the Transmuter
-                object during filtering.
+            bool: True if structure passes filter.
         """
-        return
 
 
 class ContainsSpecieFilter(AbstractStructureFilter):
@@ -59,11 +56,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         self._exclude = exclude
 
     def test(self, structure: Structure):
-        """Method to execute the test.
-
-        Returns:
-            bool: True if structure does not contain specified species.
-        """
+        """True if structure does not contain specified species."""
         # set up lists to compare
         if not self._strict:
             # compare by atomic number
@@ -95,7 +88,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
         )
 
     def as_dict(self) -> dict:
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -120,9 +113,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
 
 
 class SpecieProximityFilter(AbstractStructureFilter):
-    """This filter removes structures that have certain species that are too close
-    together.
-    """
+    """This filter removes structures that have certain species that are too close together."""
 
     def __init__(self, specie_and_min_dist_dict):
         """
@@ -137,14 +128,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
         self.specie_and_min_dist = {get_el_sp(k): v for k, v in specie_and_min_dist_dict.items()}
 
     def test(self, structure: Structure):
-        """Method to execute the test.
-
-        Args:
-            structure (Structure): Input structure to test
-
-        Returns:
-            bool: True if structure does not contain species within specified distances.
-        """
+        """True if structure does not contain species within specified distances."""
         all_species = set(self.specie_and_min_dist)
         for site in structure:
             species = set(site.species)
@@ -159,7 +143,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
         return True
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -252,14 +236,7 @@ class RemoveExistingFilter(AbstractStructureFilter):
             self.structure_matcher = structure_matcher or StructureMatcher(comparator=ElementComparator())
 
     def test(self, structure: Structure):
-        """Method to execute the test.
-
-        Args:
-            structure (Structure): Input structure to test
-
-        Returns:
-            bool: True if structure is not in existing list.
-        """
+        """True if structure is not in existing list."""
 
         def get_sg(s):
             finder = SpacegroupAnalyzer(s, symprec=self.symprec)
@@ -280,7 +257,7 @@ class RemoveExistingFilter(AbstractStructureFilter):
         return True
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -299,14 +276,7 @@ class ChargeBalanceFilter(AbstractStructureFilter):
         """No args required."""
 
     def test(self, structure: Structure):
-        """Method to execute the test.
-
-        Args:
-            structure (Structure): Input structure to test
-
-        Returns:
-            bool: True if structure is neutral.
-        """
+        """True if structure is neutral."""
         return structure.charge == 0.0
 
 
@@ -332,15 +302,7 @@ class SpeciesMaxDistFilter(AbstractStructureFilter):
         self.max_dist = max_dist
 
     def test(self, structure: Structure):
-        """Method to execute the test.
-
-        Args:
-            structure (Structure): Input structure to test
-
-        Returns:
-            bool: True if structure does not contain the two species are distances
-                greater than max_dist.
-        """
+        """True if structure contains the two species but their distance is greater than max_dist."""
         sp1_indices = [idx for idx, site in enumerate(structure) if site.specie == self.sp1]
         sp2_indices = [idx for idx, site in enumerate(structure) if site.specie == self.sp2]
         frac_coords1 = structure.frac_coords[sp1_indices, :]

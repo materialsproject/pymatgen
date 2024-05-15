@@ -8,7 +8,7 @@ from fractions import Fraction
 from functools import reduce
 from itertools import chain, combinations, product
 from math import cos, floor, gcd
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.fractions import lcm
@@ -25,6 +25,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self
@@ -138,15 +139,8 @@ class GrainBoundary(Structure):
             properties=properties,
         )
 
-    def copy(self):
-        """
-        Convenience method to get a copy of the structure, with options to add
-        site properties.
-
-        Returns:
-            A copy of the Structure, with optionally new site_properties and
-            optionally sanitized.
-        """
+    def copy(self) -> Self:  # type: ignore[override]
+        """Make a copy of the GrainBoundary object."""
         return GrainBoundary(
             self.lattice,
             self.species_and_occu,
@@ -194,16 +188,12 @@ class GrainBoundary(Structure):
 
     @property
     def sigma(self) -> int:
-        """
-        This method returns the sigma value of the GB.
-        If using 'quick_gen' to generate GB, this value is not valid.
-        """
+        """The sigma value of the GB. If using 'quick_gen' to generate GB, this value is not valid."""
         return int(round(self.oriented_unit_cell.volume / self.init_cell.volume))
 
     @property
     def sigma_from_site_prop(self) -> int:
-        """
-        This method returns the sigma value of the GB from site properties.
+        """The sigma value of the GB from site properties.
         If the GB structure merge some atoms due to the atoms too closer with
         each other, this property will not work.
         """
@@ -217,7 +207,7 @@ class GrainBoundary(Structure):
 
     @property
     def top_grain(self) -> Structure:
-        """Return the top grain (Structure) of the GB."""
+        """The top grain (Structure) of the GB."""
         top_sites = []
         for i, tag in enumerate(self.site_properties["grain_label"]):
             if "top" in tag:
@@ -226,7 +216,7 @@ class GrainBoundary(Structure):
 
     @property
     def bottom_grain(self) -> Structure:
-        """Return the bottom grain (Structure) of the GB."""
+        """The bottom grain (Structure) of the GB."""
         bottom_sites = []
         for i, tag in enumerate(self.site_properties["grain_label"]):
             if "bottom" in tag:
@@ -235,7 +225,7 @@ class GrainBoundary(Structure):
 
     @property
     def coincidents(self) -> list[Site]:
-        """Return the a list of coincident sites."""
+        """The a list of coincident sites."""
         coincident_sites = []
         for idx, tag in enumerate(self.site_properties["grain_label"]):
             if "incident" in tag:
@@ -398,7 +388,7 @@ class GrainBoundaryGenerator:
         tol_coi=1.0e-8,
         rm_ratio=0.7,
         quick_gen=False,
-    ):
+    ) -> GrainBoundary:
         """
         Args:
             rotation_axis (list): Rotation axis of GB in the form of a list of integer
@@ -2478,7 +2468,7 @@ class Interface(Structure):
 
     @property
     def film_sites(self) -> list[Site]:
-        """Return the film sites of the interface."""
+        """The film sites of the interface."""
         return [site for site, tag in zip(self, self.site_properties["interface_label"]) if "film" in tag]
 
     @property
@@ -2486,11 +2476,8 @@ class Interface(Structure):
         """A pymatgen Structure for just the film."""
         return Structure.from_sites(self.film_sites)
 
-    def copy(self):
-        """
-        Returns:
-            Interface: A copy of the Interface.
-        """
+    def copy(self) -> Self:  # type: ignore[override]
+        """Make a copy of the Interface."""
         return Interface.from_dict(self.as_dict())
 
     def get_sorted_structure(self, key=None, reverse=False) -> Structure:

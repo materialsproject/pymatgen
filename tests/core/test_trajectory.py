@@ -89,8 +89,8 @@ class TestTrajectory(PymatgenTest):
         else:
             raise AssertionError
 
-        sliced_traj = self.traj_mols[0:2]
-        sliced_traj_from_mols = Trajectory.from_molecules(self.molecules[0:2])
+        sliced_traj = self.traj_mols[:2]
+        sliced_traj_from_mols = Trajectory.from_molecules(self.molecules[:2])
 
         if len(sliced_traj) == len(sliced_traj_from_mols):
             assert all(sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj)))

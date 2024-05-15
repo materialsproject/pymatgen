@@ -40,7 +40,7 @@ from dataclasses import dataclass, field
 from glob import glob
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, Union, cast
+from typing import TYPE_CHECKING, cast
 from zipfile import ZipFile
 
 import numpy as np
@@ -60,11 +60,15 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.typing import Kpoint
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, Literal, Union
 
     from typing_extensions import Self
 
     from pymatgen.util.typing import Vector3D
+
+    UserPotcarFunctional = Union[
+        Literal["PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"], None
+    ]
 
 MODULE_DIR = Path(__file__).resolve().parent
 # TODO (janosh): replace with following line once PMG is py3.9+ only
@@ -85,17 +89,17 @@ class VaspInputSet(InputGenerator, abc.ABC):
     @property
     @abc.abstractmethod
     def incar(self):
-        """Incar object."""
+        """The input set's INCAR."""
 
     @property
     @abc.abstractmethod
     def kpoints(self):
-        """Kpoints object."""
+        """The input set's KPOINTS."""
 
     @property
     @abc.abstractmethod
     def poscar(self):
-        """Poscar object."""
+        """The input set's POSCAR."""
 
     @property
     def potcar_symbols(self):
@@ -116,7 +120,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
     @property
     def potcar(self) -> Potcar:
-        """Potcar object."""
+        """The input set's POTCAR."""
         user_potcar_functional = self.user_potcar_functional
         potcar = Potcar(self.potcar_symbols, functional=user_potcar_functional)
 
@@ -221,7 +225,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             excluded.
 
         Returns:
-            MSONable dict
+            dict: MSONable VaspInputSet representation.
         """
         dct = MSONable.as_dict(self)
         if verbosity == 1:
@@ -245,11 +249,6 @@ def _load_yaml_config(fname):
                 v_new.update(v)
                 config[k] = v_new
     return config
-
-
-UserPotcarFunctional = Union[
-    Literal["PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"], None
-]
 
 
 @dataclass
@@ -538,12 +537,12 @@ class DictSet(VaspInputSet):
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         return {}
 
     @property
     def kpoints_updates(self) -> dict | Kpoints:
-        """Get updates to the kpoints configuration for this calculation type.
+        """Updates to the kpoints configuration for this calculation type.
 
         Note, these updates will be ignored if the user has set user_kpoint_settings.
 
@@ -572,7 +571,7 @@ class DictSet(VaspInputSet):
 
     @property
     def incar(self) -> Incar:
-        """Get the INCAR."""
+        """The INCAR."""
         if self.structure is None:
             raise RuntimeError("No structure is associated with the input set!")
 
@@ -782,12 +781,12 @@ class DictSet(VaspInputSet):
 
     @property
     def potcar_functional(self) -> UserPotcarFunctional:
-        """Returns the functional used for POTCAR generation."""
+        """The functional used for POTCAR generation."""
         return self.user_potcar_functional
 
     @property
     def nelect(self) -> float:
-        """Get the default number of electrons for a given structure."""
+        """The default number of electrons for a given structure."""
         if self.structure is None:
             raise RuntimeError("No structure is associated with the input set!")
 
@@ -802,7 +801,7 @@ class DictSet(VaspInputSet):
 
     @property
     def kpoints(self) -> Kpoints | None:
-        """Get the kpoints file."""
+        """The kpoints file."""
         if self.structure is None:
             raise RuntimeError("No structure is associated with the input set!")
 
@@ -948,7 +947,7 @@ class DictSet(VaspInputSet):
 
     @property
     def potcar(self) -> Potcar:
-        """Potcar object"""
+        """The input set's POTCAR."""
         if self.structure is None:
             raise RuntimeError("No structure is associated with the input set!")
         return super().potcar
@@ -1153,8 +1152,7 @@ class DictSet(VaspInputSet):
 
 # Helper functions to determine valid FFT grids for VASP
 def next_num_with_prime_factors(n: int, max_prime_factor: int, must_inc_2: bool = True) -> int:
-    """
-    Return the next number greater than or equal to n that only has the desired prime factors.
+    """Get the next number greater than or equal to n that only has the desired prime factors.
 
     Args:
         n (int): Initial guess at the grid density
@@ -1320,7 +1318,7 @@ class MPScanRelaxSet(DictSet):
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         return {"KSPACING": "auto"}  # enable automatic KSPACING based on band gap
 
 
@@ -1336,12 +1334,12 @@ class MPMetalRelaxSet(DictSet):
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         return {"ISMEAR": 1, "SIGMA": 0.2}
 
     @property
     def kpoints_updates(self) -> dict | Kpoints:
-        """Get updates to the kpoints configuration for this calculation type."""
+        """Updates to the kpoints configuration for this calculation type."""
         return {"reciprocal_density": 200}
 
 
@@ -1380,7 +1378,7 @@ class MPStaticSet(DictSet):
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         updates: dict[str, Any] = {"NSW": 0, "ISMEAR": -5, "LCHARG": True, "LORBIT": 11, "LREAL": False}
         if self.lepsilon:
             # LPEAD=T: numerical evaluation of overlap integral prevents LRF_COMMUTATOR
@@ -1394,7 +1392,7 @@ class MPStaticSet(DictSet):
 
     @property
     def kpoints_updates(self) -> dict | Kpoints:
-        """Get updates to the kpoints configuration for this calculation type."""
+        """Updates to the kpoints configuration for this calculation type."""
         factor = 1.0
         if self.bandgap is not None and self.small_gap_multiply and self.bandgap <= self.small_gap_multiply[0]:
             factor = self.small_gap_multiply[1]
@@ -1482,7 +1480,7 @@ class MatPESStaticSet(DictSet):
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         updates: dict[str, Any] = {}
         if self.xc_functional.upper() == "R2SCAN":
             updates.update({"METAGGA": "R2SCAN", "ALGO": "ALL", "GGA": None})
@@ -1493,8 +1491,7 @@ class MatPESStaticSet(DictSet):
 
 @dataclass
 class MPScanStaticSet(MPScanRelaxSet):
-    """
-    Creates input files for a static calculation using the accurate and numerically
+    """Create input files for a static calculation using the accurate and numerically
     efficient r2SCAN variant of the Strongly Constrained and Appropriately Normed
     (SCAN) metaGGA functional.
 
@@ -1514,7 +1511,7 @@ class MPScanStaticSet(MPScanRelaxSet):
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         updates: dict[str, Any] = {
             "LREAL": False,
             "NSW": 0,
@@ -1603,7 +1600,7 @@ class MPHSEBSSet(DictSet):
 
     @property
     def kpoints_updates(self) -> dict:
-        """Get updates to the kpoints configuration for this calculation type."""
+        """Updates to the kpoints configuration for this calculation type."""
         kpoints: dict[str, Any] = {"reciprocal_density": self.reciprocal_density, "explicit": True}
 
         if self.mode == "line":
@@ -1626,7 +1623,7 @@ class MPHSEBSSet(DictSet):
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         updates = dict(NSW=0, ISMEAR=0, SIGMA=0.05, ISYM=3, LCHARG=False, NELMIN=5)
 
         if self.mode == "uniform" and len(self.added_kpoints) == 0:
@@ -1723,7 +1720,7 @@ class MPNonSCFSet(DictSet):
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         updates: dict[str, Any] = {"LCHARG": False, "LORBIT": 11, "LWAVE": False, "NSW": 0, "ISYM": 0, "ICHARG": 11}
 
         if self.prev_vasprun is not None:
@@ -1759,7 +1756,7 @@ class MPNonSCFSet(DictSet):
 
     @property
     def kpoints_updates(self) -> dict:
-        """Get updates to the kpoints configuration for this calculation type."""
+        """Updates to the kpoints configuration for this calculation type."""
         factor = 1.0
         if self.bandgap is not None and self.small_gap_multiply and self.bandgap <= self.small_gap_multiply[0]:
             factor = self.small_gap_multiply[1]
@@ -1821,7 +1818,7 @@ class MPSOCSet(DictSet):
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         updates = {
             "ISYM": -1,
             "LSORBIT": "T",
@@ -1851,7 +1848,7 @@ class MPSOCSet(DictSet):
 
     @property
     def kpoints_updates(self) -> dict:
-        """Get updates to the kpoints configuration for this calculation type."""
+        """Updates to the kpoints configuration for this calculation type."""
         factor = 1.0
         if self.bandgap is not None and self.small_gap_multiply and self.bandgap <= self.small_gap_multiply[0]:
             factor = self.small_gap_multiply[1]
@@ -1907,7 +1904,7 @@ class MPNMRSet(DictSet):
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         updates: dict[str, Any] = {"NSW": 0, "ISMEAR": -5, "LCHARG": True, "LORBIT": 11, "LREAL": False}
         if self.mode.lower() == "cs":
             updates.update(
@@ -1942,7 +1939,7 @@ class MPNMRSet(DictSet):
 
     @property
     def kpoints_updates(self) -> dict:
-        """Get updates to the kpoints configuration for this calculation type."""
+        """Updates to the kpoints configuration for this calculation type."""
         factor = 1.0
         if self.bandgap is not None and self.small_gap_multiply and self.bandgap <= self.small_gap_multiply[0]:
             factor = self.small_gap_multiply[1]
@@ -1981,7 +1978,7 @@ class MVLElasticSet(DictSet):
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         return {"IBRION": 6, "NFREE": 2, "POTIM": self.potim, "NPAR": None}
 
 
@@ -2045,14 +2042,14 @@ class MVLGWSet(DictSet):
 
     @property
     def kpoints_updates(self) -> dict:
-        """Get updates to the kpoints configuration for this calculation type."""
+        """Updates to the kpoints configuration for this calculation type."""
         # Generate gamma center k-points mesh grid for GW calc, which is requested
         # by GW calculation.
         return {"reciprocal_density": self.reciprocal_density}
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         updates = {}
         nbands = int(self.prev_vasprun.parameters["NBANDS"]) if self.prev_vasprun is not None else None
 
@@ -2118,7 +2115,7 @@ class MVLSlabSet(DictSet):
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         updates = {"EDIFF": 1e-4, "EDIFFG": -0.02, "ENCUT": 400, "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3}
         if not self.bulk:
             updates.update({"ISIF": 2, "LVTOT": True, "NELMIN": 8})
@@ -2162,7 +2159,7 @@ class MVLSlabSet(DictSet):
             verbosity (int): Verbosity of dict. e.g. whether to include Structure.
 
         Returns:
-            MSONable dict
+            dict: MSONable MVLGBSet representation.
         """
         dct = MSONable.as_dict(self)
         if verbosity == 1:
@@ -2214,7 +2211,7 @@ class MVLGBSet(DictSet):
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         # The default incar setting is used for metallic system, for
         # insulator or semiconductor, ISMEAR need to be changed.
         updates = dict(LCHARG=False, NELM=60, PREC="Normal", EDIFFG=-0.02, ICHARG=0, NSW=200, EDIFF=0.0001)
@@ -2423,7 +2420,7 @@ class MITMDSet(DictSet):
 
     @property
     def kpoints_updates(self) -> Kpoints | dict:
-        """Get updates to the kpoints configuration for this calculation type."""
+        """Updates to the kpoints configuration for this calculation type."""
         return Kpoints.gamma_automatic()
 
 
@@ -2464,7 +2461,7 @@ class MPMDSet(DictSet):
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         updates = {
             "TEBEG": self.start_temp,
             "TEEND": self.end_temp,
@@ -2508,7 +2505,7 @@ class MPMDSet(DictSet):
 
     @property
     def kpoints_updates(self) -> dict | Kpoints:
-        """Get updates to the kpoints configuration for this calculation type."""
+        """Updates to the kpoints configuration for this calculation type."""
         return Kpoints.gamma_automatic()
 
 
@@ -2530,7 +2527,7 @@ class MVLNPTMDSet(DictSet):
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         # NPT-AIMD default settings
         updates = {
             "ALGO": "Fast",
@@ -2572,7 +2569,7 @@ class MVLNPTMDSet(DictSet):
 
     @property
     def kpoints_updates(self) -> Kpoints | dict:
-        """Get updates to the kpoints configuration for this calculation type."""
+        """Updates to the kpoints configuration for this calculation type."""
         return Kpoints.gamma_automatic()
 
 
@@ -2613,7 +2610,7 @@ class MVLScanRelaxSet(DictSet):
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         updates = {
             "ADDGRID": True,
             "EDIFF": 1e-5,
@@ -2674,13 +2671,13 @@ class LobsterSet(DictSet):
 
     @property
     def kpoints_updates(self) -> dict | Kpoints:
-        """Get updates to the kpoints configuration for this calculation type."""
+        """Updates to the kpoints configuration for this calculation type."""
         # test, if this is okay
         return {"reciprocal_density": self.reciprocal_density or 310}
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         from pymatgen.io.lobster import Lobsterin
 
         potcar_symbols = self.potcar_symbols
@@ -2721,8 +2718,7 @@ class LobsterSet(DictSet):
 
 
 def get_vasprun_outcar(path: str | Path, parse_dos: bool = True, parse_eigen: bool = True) -> tuple[Vasprun, Outcar]:
-    """
-    Get a Vasprun and Outcar from a directory.
+    """Get a Vasprun and Outcar from a directory.
 
     Args:
         path: Path to get the vasprun.xml and OUTCAR.
@@ -2790,8 +2786,7 @@ def get_structure_from_prev_run(vasprun, outcar=None) -> Structure:
 
 
 def standardize_structure(structure, sym_prec=0.1, international_monoclinic=True):
-    """
-    Get the symmetrically standardized structure.
+    """Get the symmetrically standardized structure.
 
     Args:
         structure (Structure): The structure.
@@ -3002,7 +2997,7 @@ class MPAbsorptionSet(DictSet):
 
     @property
     def kpoints_updates(self) -> dict | Kpoints:
-        """Get updates to the kpoints configuration for this calculation type.
+        """Updates to the kpoints configuration for this calculation type.
 
         Generate gamma center k-points mesh grid for optical calculation. It is not
         mandatory for 'ALGO = Exact', but is requested by 'ALGO = CHI' calculation.
@@ -3011,7 +3006,7 @@ class MPAbsorptionSet(DictSet):
 
     @property
     def incar_updates(self) -> dict:
-        """Get updates to the INCAR config for this calculation type."""
+        """Updates to the INCAR config for this calculation type."""
         updates = {
             "ALGO": "Exact",
             "EDIFF": 1.0e-8,

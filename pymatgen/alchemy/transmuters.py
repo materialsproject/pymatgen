@@ -12,13 +12,14 @@ from __future__ import annotations
 import os
 import re
 from multiprocessing import Pool
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.io.vasp.sets import MPRelaxSet, VaspInputSet
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Callable
 
     from typing_extensions import Self
 
@@ -73,15 +74,15 @@ class StandardTransmuter:
         return self.transformed_structures[index]
 
     def __getattr__(self, name):
-        return [getattr(x, name) for x in self.transformed_structures]
+        return [getattr(ts, name) for ts in self.transformed_structures]
 
     def __len__(self):
         return len(self.transformed_structures)
 
     def __str__(self):
         output = ["Current structures", "------------"]
-        for x in self.transformed_structures:
-            output.append(str(x.final_structure))
+        for ts in self.transformed_structures:
+            output.append(str(ts.final_structure))
         return "\n".join(output)
 
     def undo_last_change(self) -> None:
@@ -90,8 +91,8 @@ class StandardTransmuter:
         Raises:
             IndexError if already at the oldest change.
         """
-        for x in self.transformed_structures:
-            x.undo_last_change()
+        for ts in self.transformed_structures:
+            ts.undo_last_change()
 
     def redo_next_change(self) -> None:
         """Redo the last undone transformation in the TransformedStructure.
@@ -99,8 +100,8 @@ class StandardTransmuter:
         Raises:
             IndexError if already at the latest change.
         """
-        for x in self.transformed_structures:
-            x.redo_next_change()
+        for ts in self.transformed_structures:
+            ts.redo_next_change()
 
     def append_transformation(self, transformation, extend_collection=False, clear_redo=True):
         """Append a transformation to all TransformedStructures.
@@ -122,15 +123,15 @@ class StandardTransmuter:
         if self.ncores and transformation.use_multiprocessing:
             with Pool(self.ncores) as p:
                 # need to condense arguments into single tuple to use map
-                z = ((x, transformation, extend_collection, clear_redo) for x in self.transformed_structures)
+                z = ((ts, transformation, extend_collection, clear_redo) for ts in self.transformed_structures)
                 trafo_new_structs = p.map(_apply_transformation, z, 1)
                 self.transformed_structures = []
                 for ts in trafo_new_structs:
                     self.transformed_structures.extend(ts)
         else:
             new_structures = []
-            for x in self.transformed_structures:
-                new = x.append_transformation(transformation, extend_collection, clear_redo=clear_redo)
+            for ts in self.transformed_structures:
+                new = ts.append_transformation(transformation, extend_collection, clear_redo=clear_redo)
                 if new is not None:
                     new_structures += new
             self.transformed_structures += new_structures
@@ -187,13 +188,11 @@ class StandardTransmuter:
         self.set_parameter("tags", tags)
 
     def append_transformed_structures(self, trafo_structs_or_transmuter):
-        """Method is overloaded to accept either a list of transformed structures
-        or transmuter, it which case it appends the second transmuter"s
-        structures.
+        """Overloaded to accept either a list of transformed structures
+        or transmuter, it which case it appends the second transmuter's structures.
 
         Args:
-            trafo_structs_or_transmuter: A list of transformed structures or a
-                transmuter.
+            trafo_structs_or_transmuter: A list of transformed structures or a transmuter.
         """
         if isinstance(trafo_structs_or_transmuter, self.__class__):
             self.transformed_structures += trafo_structs_or_transmuter.transformed_structures

@@ -13,7 +13,7 @@ from __future__ import annotations
 import datetime
 import re
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable, Literal
+from typing import TYPE_CHECKING
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -26,6 +26,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
     from datetime import date
     from pathlib import Path
+    from typing import Any, Callable, Literal
 
     from typing_extensions import Self
 
@@ -259,7 +260,7 @@ class ResWriter:
     def _sfac_from_sites(cls, sites: list[PeriodicSite]) -> ResSFAC:
         """Produce a SFAC block from a list of pymatgen PeriodicSite."""
         ions: list[Ion] = []
-        species: list[str] = list()
+        species: list[str] = []
 
         for site in sites:
             for specie, occ in site.species.items():
@@ -592,7 +593,7 @@ class AirssProvider(ResProvider):
 
     @property
     def entry(self) -> ComputedStructureEntry:
-        """Get this res file as a ComputedStructureEntry."""
+        """This res file as a ComputedStructureEntry."""
         return ComputedStructureEntry(self.structure, self.energy, data={"rems": self.rems})
 
     def as_dict(self, verbose: bool = True) -> dict[str, Any]:

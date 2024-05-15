@@ -40,7 +40,7 @@ __date__ = "Apr 11, 2021"
 
 
 class GruneisenParameter(MSONable):
-    """Class for Grueneisen parameters on a regular grid."""
+    """Store the Gruneisen parameter for a single q-point on a regular grid."""
 
     def __init__(
         self,
@@ -135,11 +135,10 @@ class GruneisenParameter(MSONable):
         t: float | None = None,
     ) -> float:
         """Calculate the thermal conductivity at the acoustic Debye temperature with the Slack formula,
-        using the average Gruneisen.
-        Adapted from abipy.
+        using the average Gruneisen. Adapted from abipy.
 
         Args:
-            squared (bool): if True the average is performed on the squared values of the Gruenisen
+            squared (bool): if True the average is performed on the squared values of the Gruneisen
             limit_frequencies: if None (default) no limit on the frequencies will be applied.
                 Possible values are "debye" (only modes with frequencies lower than the acoustic Debye
                 temperature) and "acoustic" (only the acoustic modes, i.e. the first three modes).
@@ -163,12 +162,12 @@ class GruneisenParameter(MSONable):
         f1 = 0.849 * 3 * (4 ** (1 / 3)) / (20 * np.pi**3 * (1 - 0.514 * mean_g**-1 + 0.228 * mean_g**-2))
         f2 = (const.k * theta_d / const.hbar) ** 2
         f3 = const.k * average_mass * self.structure.volume ** (1 / 3) * 1e-10 / (const.hbar * mean_g**2)
-        k = f1 * f2 * f3
+        thermal_cond = f1 * f2 * f3
 
         if t is not None:
-            k *= theta_d / t
+            thermal_cond *= theta_d / t
 
-        return k
+        return thermal_cond
 
     @property  # type: ignore
     @requires(phonopy, "This method requires phonopy to be installed")
@@ -179,18 +178,18 @@ class GruneisenParameter(MSONable):
         class TempMesh:
             """Temporary Class."""
 
-        a = TempMesh()
-        a.frequencies = np.transpose(self.frequencies)
-        a.weights = self.multiplicities
+        tmp_mesh = TempMesh()
+        tmp_mesh.frequencies = np.transpose(self.frequencies)
+        tmp_mesh.weights = self.multiplicities
 
-        b = TotalDos(a)
-        b.run()
+        dos_tot = TotalDos(tmp_mesh)
+        dos_tot.run()
 
-        return b
+        return dos_tot
 
     @property
     def phdos(self) -> PhononDos:
-        """Returns: PhononDos object."""
+        """The phonon DOS (re)constructed from the gruneisen.yaml file."""
         return PhononDos(self.tdos.frequency_points, self.tdos.dos)
 
     @property
@@ -338,7 +337,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
 
 
 class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononBandStructureSymmLine):
-    """This object stores a GruneisenPhononBandStructureSymmLine together with Grueneisen parameters
+    """Store a GruneisenPhononBandStructureSymmLine together with Grueneisen parameters
     for every frequency.
     """
 

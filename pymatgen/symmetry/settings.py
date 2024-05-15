@@ -140,10 +140,10 @@ class JonesFaithfulTransformation:
         return self._p
 
     @property
-    def inverse(self) -> JonesFaithfulTransformation:
+    def inverse(self) -> Self:
         """JonesFaithfulTransformation."""
         P_inv = np.linalg.inv(self.P)
-        return JonesFaithfulTransformation(P_inv, -np.matmul(P_inv, self.p))
+        return type(self)(P_inv, -np.matmul(P_inv, self.p))
 
     @property
     def transformation_string(self) -> str:

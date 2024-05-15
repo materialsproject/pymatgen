@@ -166,7 +166,7 @@ class Fragmenter(MSONable):
         """
         Perform one step of iterative fragmentation on a list of molecule graphs. Loop through the graphs,
         then loop through each graph's edges and attempt to remove that edge in order to obtain two
-        disconnected subgraphs, aka two new fragments. If successful, check to see if the new fragments
+        disconnected subgraphs, aka two new fragments. If successful, check if the new fragments
         are already present in self.unique_fragments, and append them if not. If unsuccessful, we know
         that edge belongs to a ring. If we are opening rings, do so with that bond, and then again
         check if the resulting fragment is present in self.unique_fragments and add it if it is not.
@@ -295,8 +295,8 @@ class Fragmenter(MSONable):
 
 
 def open_ring(mol_graph: MoleculeGraph, bond: list, opt_steps: int) -> MoleculeGraph:
-    """Function to actually open a ring using OpenBabel's local opt. Given a molecule
-    graph and a bond, convert the molecule graph into an OpenBabel molecule, remove
+    """Open a ring using OpenBabel's local opt. Given a molecule graph and a bond,
+    convert the molecule graph into an OpenBabel molecule, remove
     the given bond, perform the local opt with the number of steps determined by
     self.steps, and then convert the resulting structure back into a molecule graph
     to be returned.

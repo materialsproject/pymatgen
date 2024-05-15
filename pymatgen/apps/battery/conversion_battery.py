@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
 @dataclass
 class ConversionElectrode(AbstractElectrode):
-    """Class representing a ConversionElectrode, since it is dataclass
+    """A ConversionElectrode, since it is dataclass
     this object can be constructed for the attributes.
     However, it is usually easier to construct a ConversionElectrode using one of the classmethod
     constructors provided.

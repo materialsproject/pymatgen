@@ -477,13 +477,7 @@ class BztInterpolator:
         """
         if bands:
             dumpfn(
-                [
-                    self.equivalences,
-                    [self.coeffs.real, self.coeffs.imag],
-                    self.eband,
-                    self.vvband,
-                    self.cband,
-                ],
+                [self.equivalences, [self.coeffs.real, self.coeffs.imag], self.eband, self.vvband, self.cband],
                 fname,
             )
         else:
@@ -979,7 +973,7 @@ class BztPlotter:
         xlim=(-2, 2),
         ax: plt.Axes = None,
     ):
-        """Function to plot the transport properties.
+        """Plot the transport properties.
 
         Args:
             prop_y: property to plot among ("Conductivity","Seebeck","Kappa","Carrier_conc",

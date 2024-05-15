@@ -51,18 +51,18 @@ __date__ = "Mar 8, 2012"
 class MSONAtoms(Atoms, MSONable):
     """A custom subclass of ASE Atoms that is MSONable, including `.as_dict()` and `.from_dict()` methods."""
 
-    def as_dict(atoms: Atoms) -> dict[str, Any]:
+    def as_dict(self: Atoms) -> dict[str, Any]:
         # Normally, we would want to this to be a wrapper around atoms.todict() with @module and
         # @class key-value pairs inserted. However, atoms.todict()/atoms.fromdict() is not meant
         # to be used in a round-trip fashion and does not work properly with constraints.
         # See ASE issue #1387.
-        atoms_no_info = atoms.copy()
+        atoms_no_info = self.copy()
         atoms_no_info.info = {}
         return {
             "@module": "pymatgen.io.ase",
             "@class": "MSONAtoms",
             "atoms_json": encode(atoms_no_info),
-            "atoms_info": jsanitize(atoms.info, strict=True),
+            "atoms_info": jsanitize(self.info, strict=True),
         }
 
     @classmethod

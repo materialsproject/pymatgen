@@ -201,7 +201,7 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
     """
 
     AC = AdditionalConditions()
-    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = dict()
+    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = {}
     STRATEGY_DESCRIPTION: str | None = None
     STRATEGY_INFO_FIELDS: ClassVar[list] = []
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
@@ -337,7 +337,7 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
 
     @property
     def uniquely_determines_coordination_environments(self):
-        """Returns True if the strategy leads to a unique coordination environment."""
+        """True if the strategy leads to a unique coordination environment."""
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -1265,7 +1265,7 @@ class TargetedPenaltiedAbundanceChemenvStrategy(SimpleAbundanceChemenvStrategy):
 
 
 class NbSetWeight(MSONable, abc.ABC):
-    """Abstract object for neighbors sets weights estimations."""
+    """Abstract base class for neighbor set weight estimations."""
 
     @abc.abstractmethod
     def as_dict(self):
@@ -1282,7 +1282,7 @@ class NbSetWeight(MSONable, abc.ABC):
             additional_info: Additional information.
 
         Returns:
-            Weight of the neighbors set.
+            float: Weight of the neighbors set.
         """
 
 
@@ -1313,7 +1313,7 @@ class AngleNbSetWeight(NbSetWeight):
             additional_info: Additional information.
 
         Returns:
-            Weight of the neighbors set.
+            float: Weight of the neighbors set.
         """
         return self.aw(nb_set=nb_set)
 
@@ -1534,7 +1534,7 @@ class NormalizedAngleDistanceNbSetWeight(NbSetWeight):
             additional_info: Additional information.
 
         Returns:
-            Weight of the neighbors set.
+            float: Weight of the neighbors set.
         """
         fda_list = self.fda(nb_set=nb_set)
         return self.eval(fda_list=fda_list)
@@ -1640,11 +1640,11 @@ class SelfCSMNbSetWeight(NbSetWeight):
 
     SHORT_NAME = "SelfCSMWeight"
 
-    DEFAULT_EFFECTIVE_CSM_ESTIMATOR = dict(
+    DEFAULT_EFFECTIVE_CSM_ESTIMATOR: ClassVar = dict(
         function="power2_inverse_decreasing",
         options={"max_csm": 8.0},
     )
-    DEFAULT_WEIGHT_ESTIMATOR = dict(
+    DEFAULT_WEIGHT_ESTIMATOR: ClassVar = dict(
         function="power2_decreasing_exp",
         options={"max_csm": 8.0, "alpha": 1},
     )
@@ -1680,7 +1680,7 @@ class SelfCSMNbSetWeight(NbSetWeight):
             additional_info: Additional information.
 
         Returns:
-            Weight of the neighbors set.
+            float: Weight of the neighbors set.
         """
         effective_csm = get_effective_csm(
             nb_set=nb_set,
@@ -1743,12 +1743,12 @@ class DeltaCSMNbSetWeight(NbSetWeight):
 
     SHORT_NAME = "DeltaCSMWeight"
 
-    DEFAULT_EFFECTIVE_CSM_ESTIMATOR = dict(
+    DEFAULT_EFFECTIVE_CSM_ESTIMATOR: ClassVar = dict(
         function="power2_inverse_decreasing",
         options={"max_csm": 8.0},
     )
     DEFAULT_SYMMETRY_MEASURE_TYPE = "csm_wcs_ctwcc"
-    DEFAULT_WEIGHT_ESTIMATOR = dict(
+    DEFAULT_WEIGHT_ESTIMATOR: ClassVar = dict(
         function="smootherstep",
         options={"delta_csm_min": 0.5, "delta_csm_max": 3.0},
     )
@@ -1791,7 +1791,7 @@ class DeltaCSMNbSetWeight(NbSetWeight):
             additional_info: Additional information.
 
         Returns:
-            Weight of the neighbors set.
+            float: Weight of the neighbors set.
         """
         effcsm = get_effective_csm(
             nb_set=nb_set,
@@ -2006,7 +2006,7 @@ class CNBiasNbSetWeight(NbSetWeight):
             additional_info: Additional information.
 
         Returns:
-            Weight of the neighbors set.
+            float: Weight of the neighbors set.
         """
         return self.cn_weights[len(nb_set)]
 
@@ -2121,7 +2121,7 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
     SHORT_NAME = "DistAngleAreaWeight"
 
     AC = AdditionalConditions()
-    DEFAULT_SURFACE_DEFINITION = dict(
+    DEFAULT_SURFACE_DEFINITION: ClassVar = dict(
         type="standard_elliptic",
         distance_bounds={"lower": 1.2, "upper": 1.8},
         angle_bounds={"lower": 0.1, "upper": 0.8},
@@ -2186,7 +2186,7 @@ class DistanceAngleAreaNbSetWeight(NbSetWeight):
             additional_info: Additional information.
 
         Returns:
-            Weight of the neighbors set.
+            float: Weight of the neighbors set.
         """
         return self.area_weight(
             nb_set=nb_set,
@@ -2379,7 +2379,7 @@ class DistancePlateauNbSetWeight(NbSetWeight):
             additional_info: Additional information.
 
         Returns:
-            Weight of the neighbors set.
+            float: Weight of the neighbors set.
         """
         return self.weight_rf.eval(nb_set.distance_plateau())
 
@@ -2446,7 +2446,7 @@ class AnglePlateauNbSetWeight(NbSetWeight):
             additional_info: Additional information.
 
         Returns:
-            Weight of the neighbors set.
+            float: Weight of the neighbors set.
         """
         return self.weight_rf.eval(nb_set.angle_plateau())
 
@@ -2509,7 +2509,7 @@ class DistanceNbSetWeight(NbSetWeight):
             additional_info: Additional information.
 
         Returns:
-            Weight of the neighbors set.
+            float: Weight of the neighbors set.
         """
         cn = cn_map[0]
         isite = nb_set.isite
@@ -2590,7 +2590,7 @@ class DeltaDistanceNbSetWeight(NbSetWeight):
             additional_info: Additional information.
 
         Returns:
-            Weight of the neighbors set.
+            float: Weight of the neighbors set.
         """
         cn = cn_map[0]
         isite = nb_set.isite
@@ -2644,7 +2644,7 @@ class WeightedNbSetChemenvStrategy(AbstractChemenvStrategy):
     """WeightedNbSetChemenvStrategy."""
 
     STRATEGY_DESCRIPTION = "    WeightedNbSetChemenvStrategy"
-    DEFAULT_CE_ESTIMATOR = dict(
+    DEFAULT_CE_ESTIMATOR: ClassVar = dict(
         function="power2_inverse_power2_decreasing",
         options={"max_csm": 8.0},
     )
@@ -2948,7 +2948,7 @@ class MultiWeightsChemenvStrategy(WeightedNbSetChemenvStrategy):
     #                         'cn_map_delta_csm', 'cn_map_delta_csms_cn_map2', 'cn_map_delta_csm_weight',
     #                         'cn_map_cn_weight',
     #                         'cn_map_fraction', 'cn_map_ce_fraction', 'ce_fraction']
-    DEFAULT_CE_ESTIMATOR = dict(
+    DEFAULT_CE_ESTIMATOR: ClassVar = dict(
         function="power2_inverse_power2_decreasing",
         options={"max_csm": 8.0},
     )
