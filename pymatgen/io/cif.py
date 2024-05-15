@@ -1487,7 +1487,7 @@ def str2float(text: str) -> float:
         if text.strip() == ".":
             return 0
         raise exc
-    raise ValueError(f"{text} cannot be converted to float")
+    raise ValueError(f"{text!s} cannot be converted to float")
 
 
 class CifWriter:

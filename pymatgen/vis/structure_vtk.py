@@ -174,7 +174,7 @@ class StructureVis:
 
         self.ren_win.Render()
 
-    def orthongonalize_structure(self):
+    def orthogonalize_structure(self):
         """Orthogonalize the structure."""
         if self.structure is not None:
             self.set_structure(self.structure.copy(sanitize=True))
