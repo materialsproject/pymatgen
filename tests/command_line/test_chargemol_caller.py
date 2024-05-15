@@ -11,7 +11,7 @@ from pymatgen.util.testing import TEST_FILES_DIR
 
 class TestChargemolAnalysis:
     def test_parse_chargemol(self):
-        test_dir = f"{TEST_FILES_DIR}/chargemol/spin_unpolarized"
+        test_dir = f"{TEST_FILES_DIR}/command_line/chargemol/spin_unpolarized"
         chg_mol = ChargemolAnalysis(path=test_dir, run_chargemol=False)
         assert chg_mol.ddec_charges == [0.8432, -0.8432]
         assert chg_mol.get_partial_charge(0) == 0.8432
@@ -55,7 +55,7 @@ class TestChargemolAnalysis:
         assert struct_partial_charge == chg_mol.ddec_charges
 
     def test_parse_chargemol2(self):
-        test_dir = f"{TEST_FILES_DIR}/chargemol/spin_polarized"
+        test_dir = f"{TEST_FILES_DIR}/command_line/chargemol/spin_polarized"
         chg_mol = ChargemolAnalysis(path=test_dir, run_chargemol=False)
         assert chg_mol.ddec_spin_moments == [0.201595, 0.399203, 0.399203]
         assert chg_mol.summary["ddec"]["bond_order_dict"][0]["bonded_to"][0]["spin_polarization"] == 0.0490
@@ -67,7 +67,7 @@ class TestChargemolAnalysis:
         # monkeypatch CHARGEMOL_EXE to raise in ChargemolAnalysis.__init__
         patch.dict("os.environ", {"CHARGEMOL_EXE": "non_existent"})
 
-        test_dir = f"{TEST_FILES_DIR}/chargemol/spin_unpolarized"
+        test_dir = f"{TEST_FILES_DIR}/command_line/chargemol/spin_unpolarized"
         with pytest.raises(
             OSError, match="ChargemolAnalysis requires the Chargemol executable to be in PATH. Please download"
         ):
