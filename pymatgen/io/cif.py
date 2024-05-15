@@ -1227,9 +1227,10 @@ class CifParser:
     )
     def get_structures(self, *args, **kwargs) -> list[Structure]:
         """
-        Deprecated. Use parse_structures instead. Only difference between the two methods is the
-        default primitive=False in parse_structures.
-        So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().
+        Deprecated, use parse_structures instead. Only difference between
+        these two methods is the default primitive=False in parse_structures.
+        So parse_structures(primitive=True) is equivalent to the default
+        behaviour of get_structures().
         """
         # Extract primitive if passed as arg
         if len(args) > 0:
@@ -1249,7 +1250,7 @@ class CifParser:
 
         Args:
             primitive (bool): Whether to return primitive unit cells.
-                Defaults to False. With magnetic CIF files, True will return primitive
+                Defaults to False. With magnetic CIF files, will return primitive
                 magnetic cell which may be larger than nuclear primitive cell.
             symmetrized (bool): Whether to return a SymmetrizedStructure which will
                 include the equivalent indices and symmetry operations used to
@@ -1259,12 +1260,12 @@ class CifParser:
                 currently Wyckoff labels and space group labels or numbers are
                 not included in the generated SymmetrizedStructure, these will be
                 notated as "Not Parsed" or -1 respectively.
-            check_occu (bool): Whether to check site occupancy, allowing unphysical
-                occupancy != 1. Useful for experimental results in which occupancy was allowed
-                to refine to unphysical values. Warning: unphysical site occupancies are incompatible
-                with many pymatgen features. Defaults to True.
-            on_error ("ignore" | "warn" | "raise"): What to do in case of KeyError or ValueError
-                while parsing CIF file. Defaults to "warn".
+            check_occu (bool): Whether to check site for unphysical occupancy > 1.
+                Useful for experimental results in which occupancy was allowed to
+                refine to unphysical values. Warning: unphysical occupancies are
+                incompatible with many pymatgen features. Defaults to True.
+            on_error ("ignore" | "warn" | "raise"): What to do in case of KeyError
+                or ValueError while parsing CIF file. Defaults to "warn".
 
         Returns:
             list[Structure]: All structures in CIF file.
