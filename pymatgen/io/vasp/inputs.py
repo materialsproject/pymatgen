@@ -2737,8 +2737,8 @@ class VaspInput(dict, MSONable):
         incar: dict | Incar,
         kpoints: Kpoints | None,
         poscar: Poscar,
-        potcar: Potcar | list[str] | None,
-        potcar_spec : bool = False,
+        potcar: Potcar | str | None,
+        potcar_spec: bool = False,
         optional_files: dict[PathLike, object] | None = None,
         **kwargs,
     ) -> None:
@@ -2749,7 +2749,7 @@ class VaspInput(dict, MSONable):
             incar (Incar): The Incar object.
             kpoints (Kpoints): The Kpoints object.
             poscar (Poscar): The Poscar object.
-            potcar (Potcar or list[str]): The Potcar object.
+            potcar (Potcar or str): The Potcar object.
             potcar_spec (bool = False) : used to share POTCAR info without license issues.
                 True --> POTCAR is a list of symbols, write POTCAR.spec
                 False --> POTCAR is a VASP POTCAR, write POTCAR

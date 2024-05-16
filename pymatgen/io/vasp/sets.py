@@ -385,7 +385,7 @@ class DictSet(VaspInputSet):
     international_monoclinic: bool = True
     validate_magmom: bool = True
     inherit_incar: bool | list[str] = False
-    auto_kspacing : bool = False
+    auto_kspacing: bool = False
     auto_ismear: bool = False
     auto_ispin: bool = False
     auto_lreal: bool = False
@@ -414,7 +414,7 @@ class DictSet(VaspInputSet):
             # self.user_kpoints_settings will never be `None` because it is set to
             # an empty dict if it is `None`.
             warnings.warn(
-                f"You have specified KSPACING and also supplied KPOINTS "
+                "You have specified KSPACING and also supplied KPOINTS "
                 "settings. KSPACING only has effect when there is no "
                 "KPOINTS file. Since both settings were given, pymatgen"
                 "will generate a KPOINTS file and ignore KSPACING."
@@ -553,8 +553,8 @@ class DictSet(VaspInputSet):
             incar=self.incar,
             kpoints=self.kpoints,
             poscar=self.poscar,
-            potcar= "\n".join(self.potcar_symbols) if potcar_spec else self.potcar,
-            potcar_spec = potcar_spec
+            potcar="\n".join(self.potcar_symbols) if potcar_spec else self.potcar,
+            potcar_spec=potcar_spec,
         )
 
     @property
@@ -615,7 +615,7 @@ class DictSet(VaspInputSet):
 
         # breaking change - order in which settings applied inconsistent with atomate2
         # apply updates from input set generator to SETTINGS
-        #_apply_incar_updates(settings, incar_updates)
+        # _apply_incar_updates(settings, incar_updates)
 
         # apply user incar settings to SETTINGS not to INCAR
         _apply_incar_updates(settings, self.user_incar_settings)
@@ -633,7 +633,7 @@ class DictSet(VaspInputSet):
             if key == "MAGMOM":
                 mag = []
                 for site in structure:
-                    if uic_magmom := self.user_incar_settings.get("MAGMOM",{}).get(site.species_string):
+                    if uic_magmom := self.user_incar_settings.get("MAGMOM", {}).get(site.species_string):
                         mag.append(uic_magmom)
                     elif hasattr(site, "magmom"):
                         mag.append(site.magmom)
@@ -740,7 +740,7 @@ class DictSet(VaspInputSet):
                 "Hybrid functionals only support Algo = All, Damped, or Normal.",
                 BadInputSetWarning,
             )
-        
+
         if self.auto_ismear:
             if self.bandgap is None:
                 # don't know if we are a metal or insulator so set ISMEAR and SIGMA to
@@ -821,11 +821,9 @@ class DictSet(VaspInputSet):
         site_properties = self.structure.site_properties
         return Poscar(
             self.structure,
-            velocities = site_properties.get("velocities"),
+            velocities=site_properties.get("velocities"),
             predictor_corrector=site_properties.get("predictor_corrector"),
-            predictor_corrector_preamble = self.structure.properties.get(
-                "predictor_corrector_preamble"
-            ),
+            predictor_corrector_preamble=self.structure.properties.get("predictor_corrector_preamble"),
             lattice_velocities=self.structure.properties.get("lattice_velocities"),
         )
 
@@ -1350,7 +1348,7 @@ class MPScanRelaxSet(DictSet):
     """
 
     bandgap: float | None = None
-    auto_kspacing : bool = True
+    auto_kspacing: bool = True
     user_potcar_functional: UserPotcarFunctional = "PBE_54"
     auto_ismear: bool = True
     CONFIG = _load_yaml_config("MPSCANRelaxSet")
@@ -1364,6 +1362,7 @@ class MPScanRelaxSet(DictSet):
             vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
             for k in vdw_par[self.vdw]:
                 self._config_dict["INCAR"].pop(k, None)
+
 
 @dataclass
 class MPMetalRelaxSet(DictSet):
@@ -1526,6 +1525,7 @@ class MatPESStaticSet(DictSet):
         if self.xc_functional.upper().endswith("+U"):
             self._config_dict["INCAR"]["LDAU"] = True
 
+
 @dataclass
 class MPScanStaticSet(MPScanRelaxSet):
     """Create input files for a static calculation using the accurate and numerically
@@ -1545,7 +1545,7 @@ class MPScanStaticSet(MPScanRelaxSet):
     lepsilon: bool = False
     lcalcpol: bool = False
     inherit_incar: bool = True
-    auto_kspacing : bool = True
+    auto_kspacing: bool = True
 
     @property
     def incar_updates(self) -> dict:
