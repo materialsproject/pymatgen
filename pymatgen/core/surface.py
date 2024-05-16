@@ -1153,10 +1153,7 @@ class SlabGenerator:
 
         # Center the slab layer around the vacuum
         if self.center_slab:
-            # TODO: (DanielYang59): use following center_slab
-            # slab = center_slab(slab)
-            c_center = np.mean([coord[2] for coord in struct.frac_coords])
-            struct.translate_sites(list(range(len(struct))), [0, 0, 0.5 - c_center])
+            struct = center_slab(struct)
 
         # Reduce to primitive cell
         if self.primitive:
@@ -1207,7 +1204,7 @@ class SlabGenerator:
         repair: bool = False,
     ) -> list[Slab]:
         """Generate slabs with shift values calculated from the internal
-        gen_possible_terminations method. If the user decide to avoid breaking
+        gen_possible_terminations func. If the user decide to avoid breaking
         any polyhedral bond (by setting `bonds`), any shift value that do so
         would be filtered out.
 
@@ -1242,7 +1239,7 @@ class SlabGenerator:
             frac_coords = self.oriented_unit_cell.frac_coords
             n_atoms: int = len(frac_coords)
 
-            # Skip clusterring when there is only one atom
+            # Skip clustering when there is only one atom
             if n_atoms == 1:
                 # Put the atom to the center
                 termination = frac_coords[0][2] + 0.5
