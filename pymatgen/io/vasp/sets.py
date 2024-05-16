@@ -266,13 +266,14 @@ class DictSet(VaspInputSet):
     structure and the configuration settings. The order in which the magmom is
     determined is as follows:
 
-    1. If the site itself has a magmom setting (i.e. site.properties["magmom"] = float),
+    1. If the site is specified in user_incar_settings, use that setting.
+    2. If the site itself has a magmom setting (i.e. site.properties["magmom"] = float),
         that is used. This can be set with structure.add_site_property().
-    2. If the species of the site has a spin setting, that is used. This can be set
+    3. If the species of the site has a spin setting, that is used. This can be set
         with structure.add_spin_by_element().
-    3. If the species itself has a particular setting in the config file, that
+    4. If the species itself has a particular setting in the config file, that
        is used, e.g. Mn3+ may have a different magmom than Mn4+.
-    4. Lastly, the element symbol itself is checked in the config file. If
+    5. Lastly, the element symbol itself is checked in the config file. If
        there are no settings, a default value of 0.6 is used.
 
     Args:
@@ -336,6 +337,8 @@ class DictSet(VaspInputSet):
             calculation. This might be useful to port Custodian fixes to child jobs but
             can also be dangerous e.g. when switching from GGA to meta-GGA or relax to
             static jobs. Defaults to True.
+        auto_kspacing (bool): If true, determines the value of KSPACING from the bandgap
+            of a previous calculation.
         auto_ismear (bool): If true, the values for ISMEAR and SIGMA will be set
             automatically depending on the bandgap of the system. If the bandgap is not
             known (e.g., there is no previous VASP directory) then ISMEAR=0 and
@@ -382,6 +385,7 @@ class DictSet(VaspInputSet):
     international_monoclinic: bool = True
     validate_magmom: bool = True
     inherit_incar: bool | list[str] = False
+    auto_kspacing : bool = False
     auto_ismear: bool = False
     auto_ispin: bool = False
     auto_lreal: bool = False
@@ -406,9 +410,11 @@ class DictSet(VaspInputSet):
         self.user_kpoints_settings = self.user_kpoints_settings or {}
 
         self.vdw = self.vdw.lower() if isinstance(self.vdw, str) else self.vdw
-        if self.user_incar_settings.get("KSPACING") and self.user_kpoints_settings is not None:
+        if self.user_incar_settings.get("KSPACING") and self.user_kpoints_settings:
+            # self.user_kpoints_settings will never be `None` because it is set to
+            # an empty dict if it is `None`.
             warnings.warn(
-                "You have specified KSPACING and also supplied kpoints "
+                f"You have specified KSPACING and also supplied KPOINTS "
                 "settings. KSPACING only has effect when there is no "
                 "KPOINTS file. Since both settings were given, pymatgen"
                 "will generate a KPOINTS file and ignore KSPACING."
@@ -467,6 +473,7 @@ class DictSet(VaspInputSet):
 
         self.prev_vasprun = None
         self.prev_outcar = None
+        self._ispin = None
 
     @property  # type: ignore
     def structure(self) -> Structure:
@@ -546,7 +553,8 @@ class DictSet(VaspInputSet):
             incar=self.incar,
             kpoints=self.kpoints,
             poscar=self.poscar,
-            potcar=self.potcar_symbols if potcar_spec else self.potcar,
+            potcar= "\n".join(self.potcar_symbols) if potcar_spec else self.potcar,
+            potcar_spec = potcar_spec
         )
 
     @property
@@ -581,6 +589,10 @@ class DictSet(VaspInputSet):
 
             bs = vasprun.get_band_structure(efermi="smart")
             self.bandgap = 0 if bs.is_metal() else bs.get_band_gap()["energy"]
+            if self.auto_ispin:
+                # turn off spin when magmom for every site is smaller than 0.02.
+                self._ispin = _get_ispin(vasprun, outcar)
+
             self.structure = get_structure_from_prev_run(vasprun, outcar)
 
     @property
@@ -598,9 +610,12 @@ class DictSet(VaspInputSet):
         incar_updates = self.incar_updates
         settings = dict(self._config_dict["INCAR"])
         auto_updates = {}
+        if self.auto_ispin and (self._ispin is not None):
+            auto_updates["ISPIN"] = self._ispin
 
+        # breaking change - order in which settings applied inconsistent with atomate2
         # apply updates from input set generator to SETTINGS
-        _apply_incar_updates(settings, incar_updates)
+        #_apply_incar_updates(settings, incar_updates)
 
         # apply user incar settings to SETTINGS not to INCAR
         _apply_incar_updates(settings, self.user_incar_settings)
@@ -618,7 +633,9 @@ class DictSet(VaspInputSet):
             if key == "MAGMOM":
                 mag = []
                 for site in structure:
-                    if hasattr(site, "magmom"):
+                    if uic_magmom := self.user_incar_settings.get("MAGMOM",{}).get(site.species_string):
+                        mag.append(uic_magmom)
+                    elif hasattr(site, "magmom"):
                         mag.append(site.magmom)
                     elif getattr(site.specie, "spin", None) is not None:
                         mag.append(site.specie.spin)
@@ -658,7 +675,7 @@ class DictSet(VaspInputSet):
                     incar["EDIFF"] = float(setting) * len(structure)
                 else:
                     incar["EDIFF"] = float(settings["EDIFF"])
-            elif key == "KSPACING" and setting == "auto":
+            elif key == "KSPACING" and self.auto_kspacing:
                 # default to metal if no prev calc available
                 bandgap = 0 if self.bandgap is None else self.bandgap
                 incar[key] = auto_kspacing(bandgap, self.bandgap_tol)
@@ -723,12 +740,12 @@ class DictSet(VaspInputSet):
                 "Hybrid functionals only support Algo = All, Damped, or Normal.",
                 BadInputSetWarning,
             )
-
+        
         if self.auto_ismear:
             if self.bandgap is None:
                 # don't know if we are a metal or insulator so set ISMEAR and SIGMA to
                 # be safe with the most general settings
-                auto_updates.update(ISMEAR=2, SIGMA=0.2)
+                auto_updates.update(ISMEAR=0, SIGMA=0.2)
             elif self.bandgap <= self.bandgap_tol:
                 auto_updates.update(ISMEAR=2, SIGMA=0.2)  # metal
             else:
@@ -736,6 +753,20 @@ class DictSet(VaspInputSet):
 
         if self.auto_lreal:
             auto_updates.update(LREAL=_get_recommended_lreal(structure))
+
+        # apply updates from auto options, careful not to override user_incar_settings
+        _apply_incar_updates(incar, auto_updates, skip=list(self.user_incar_settings))
+
+        # apply updates from input set generator to INCAR
+        _apply_incar_updates(incar, incar_updates, skip=list(self.user_incar_settings))
+
+        # Finally, re-apply `self.user_incar_settings` to make sure any accidentally
+        # overwritten settings are changed back to the intended values.
+        # skip dictionary parameters to avoid dictionaries appearing in the INCAR
+        _apply_incar_updates(incar, self.user_incar_settings, skip=["LDAUU", "LDAUJ", "LDAUL", "MAGMOM"])
+
+        # Remove unused INCAR parameters
+        _remove_unused_incar_params(incar, skip=list(self.user_incar_settings))
 
         kpoints = self.kpoints
         if kpoints is not None:
@@ -746,12 +777,6 @@ class DictSet(VaspInputSet):
             # TODO: Is that we actually want to do? Copied from current pymatgen inputsets
             incar["KSPACING"] = prev_incar["KSPACING"]
 
-        # apply updates from auto options, careful not to override user_incar_settings
-        _apply_incar_updates(incar, auto_updates, skip=list(self.user_incar_settings))
-
-        # Remove unused INCAR parameters
-        _remove_unused_incar_params(incar, skip=list(self.user_incar_settings))
-
         # Ensure adequate number of KPOINTS are present for the tetrahedron method
         # (ISMEAR=-5). If KSPACING is in the INCAR file the number of kpoints is not
         # known before calling VASP, but a warning is raised when the KSPACING value is
@@ -760,7 +785,7 @@ class DictSet(VaspInputSet):
         if kpoints is not None and np.prod(kpoints.kpts) < 4 and incar.get("ISMEAR", 0) == -5:
             incar["ISMEAR"] = 0
 
-        if self.user_incar_settings.get("KSPACING", 0) > 0.5 and incar.get("ISMEAR", 0) == -5:
+        if incar.get("KSPACING", 0) > 0.5 and incar.get("ISMEAR", 0) == -5:
             warnings.warn(
                 "Large KSPACING value detected with ISMEAR = -5. Ensure that VASP "
                 "generates an adequate number of KPOINTS, lower KSPACING, or "
@@ -793,7 +818,16 @@ class DictSet(VaspInputSet):
         """Poscar"""
         if self.structure is None:
             raise RuntimeError("No structure is associated with the input set!")
-        return Poscar(self.structure)
+        site_properties = self.structure.site_properties
+        return Poscar(
+            self.structure,
+            velocities = site_properties.get("velocities"),
+            predictor_corrector=site_properties.get("predictor_corrector"),
+            predictor_corrector_preamble = self.structure.properties.get(
+                "predictor_corrector_preamble"
+            ),
+            lattice_velocities=self.structure.properties.get("lattice_velocities"),
+        )
 
     @property
     def potcar_functional(self) -> UserPotcarFunctional:
@@ -811,9 +845,7 @@ class DictSet(VaspInputSet):
             num_atoms * n_electrons_by_element[el.symbol] for el, num_atoms in self.structure.composition.items()
         )
 
-        if self.use_structure_charge:
-            return n_elect - self.structure.charge
-        return n_elect
+        return n_elect - (self.structure.charge if self.use_structure_charge else 0)
 
     @property
     def kpoints(self) -> Kpoints | None:
@@ -1318,6 +1350,7 @@ class MPScanRelaxSet(DictSet):
     """
 
     bandgap: float | None = None
+    auto_kspacing : bool = True
     user_potcar_functional: UserPotcarFunctional = "PBE_54"
     auto_ismear: bool = True
     CONFIG = _load_yaml_config("MPSCANRelaxSet")
@@ -1331,12 +1364,6 @@ class MPScanRelaxSet(DictSet):
             vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
             for k in vdw_par[self.vdw]:
                 self._config_dict["INCAR"].pop(k, None)
-
-    @property
-    def incar_updates(self) -> dict:
-        """Updates to the INCAR config for this calculation type."""
-        return {"KSPACING": "auto"}  # enable automatic KSPACING based on band gap
-
 
 @dataclass
 class MPMetalRelaxSet(DictSet):
@@ -1487,23 +1514,17 @@ class MatPESStaticSet(DictSet):
                 f"Supported exchange-correlation functionals are {valid_xc_functionals}"
             )
 
-        default_potcars = self.CONFIG["PARENT"].replace("PBE", "PBE_").replace("BASE", "")  # PBE64BASE -> PBE_64
+        default_potcars = self.CONFIG["PARENT"].replace("PBE", "PBE_").replace("Base", "")  # PBE64Base -> PBE_64
         self.user_potcar_functional = self.user_potcar_functional or default_potcars
         if self.user_potcar_functional.upper() != default_potcars:
             warnings.warn(
                 f"{self.user_potcar_functional=} is inconsistent with the recommended {default_potcars}.", UserWarning
             )
 
-    @property
-    def incar_updates(self) -> dict:
-        """Updates to the INCAR config for this calculation type."""
-        updates: dict[str, Any] = {}
         if self.xc_functional.upper() == "R2SCAN":
-            updates.update({"METAGGA": "R2SCAN", "ALGO": "ALL", "GGA": None})
+            self._config_dict["INCAR"].update({"METAGGA": "R2SCAN", "ALGO": "ALL", "GGA": None})
         if self.xc_functional.upper().endswith("+U"):
-            updates["LDAU"] = True
-        return updates
-
+            self._config_dict["INCAR"]["LDAU"] = True
 
 @dataclass
 class MPScanStaticSet(MPScanRelaxSet):
@@ -1524,6 +1545,7 @@ class MPScanStaticSet(MPScanRelaxSet):
     lepsilon: bool = False
     lcalcpol: bool = False
     inherit_incar: bool = True
+    auto_kspacing : bool = True
 
     @property
     def incar_updates(self) -> dict:
@@ -1534,7 +1556,6 @@ class MPScanStaticSet(MPScanRelaxSet):
             "LORBIT": 11,
             "LVHAR": True,
             "ISMEAR": -5,
-            "KSPACING": "auto",
         }
 
         if self.lepsilon:

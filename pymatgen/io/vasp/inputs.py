@@ -2737,7 +2737,8 @@ class VaspInput(dict, MSONable):
         incar: dict | Incar,
         kpoints: Kpoints | None,
         poscar: Poscar,
-        potcar: Potcar | None,
+        potcar: Potcar | list[str] | None,
+        potcar_spec : bool = False,
         optional_files: dict[PathLike, object] | None = None,
         **kwargs,
     ) -> None:
@@ -2748,14 +2749,18 @@ class VaspInput(dict, MSONable):
             incar (Incar): The Incar object.
             kpoints (Kpoints): The Kpoints object.
             poscar (Poscar): The Poscar object.
-            potcar (Potcar): The Potcar object.
+            potcar (Potcar or list[str]): The Potcar object.
+            potcar_spec (bool = False) : used to share POTCAR info without license issues.
+                True --> POTCAR is a list of symbols, write POTCAR.spec
+                False --> POTCAR is a VASP POTCAR, write POTCAR
             optional_files (dict): Other input files supplied as a dict of {filename: object}.
                 The object should follow standard pymatgen conventions in implementing a
                 as_dict() and from_dict method.
             **kwargs: Additional keyword arguments to be stored in the VaspInput object.
         """
         super().__init__(**kwargs)
-        self.update({"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, "POTCAR": potcar})
+        potcar_filename = "POTCAR" + (".spec" if potcar_spec else "")
+        self.update({"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, potcar_filename: potcar})
         if optional_files is not None:
             self.update(optional_files)
 

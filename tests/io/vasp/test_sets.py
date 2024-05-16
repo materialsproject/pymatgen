@@ -228,7 +228,9 @@ class TestMITMPRelaxSet(PymatgenTest):
         ) as warns_kspacing:
             vis = self.set(structure, user_incar_settings={"KSPACING": 1, "ISMEAR": -5})
             _ = vis.incar
-        assert len(warns_kspacing) == 3
+            for warn in warns_kspacing:
+                print("scoots:", warn.message)
+        assert len(warns_kspacing) == 2
 
     def test_poscar(self):
         structure = Structure(self.lattice, ["Fe", "Mn"], self.coords)
@@ -1631,9 +1633,9 @@ class TestMPScanRelaxSet(PymatgenTest):
         assert incar["ENAUG"] == 1360
         assert incar["ENCUT"] == 680
         assert incar["NSW"] == 500
-        # the default POTCAR contains metals
+        # the default POTCAR contains metals, but no prev calc set --> bandgap unknown
         assert incar["KSPACING"] == 0.22
-        assert incar["ISMEAR"] == 2
+        assert incar["ISMEAR"] == 0
         assert incar["SIGMA"] == 0.2
 
         # https://github.com/materialsproject/pymatgen/pull/3036
