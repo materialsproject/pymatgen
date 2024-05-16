@@ -748,8 +748,6 @@ def center_slab(slab: Structure) -> Structure:
         on the other side. An edge case being, either the top
         of the slab is at z = 0 or the bottom is at z = 1.
 
-    TODO (@DanielYang59): this should be a method for `Slab`?
-
     Args:
         slab (Structure): The slab to center.
 
