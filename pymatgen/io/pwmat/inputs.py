@@ -479,7 +479,7 @@ class AtomConfig(MSONable):
 
 
 class GenKpt(MSONable):
-    """GenKpt object for reading and writing gen.kpt. This file just generate line-mode kpoints."""
+    """Read and write gen.kpt. This file just generates line-mode kpoints."""
 
     def __init__(
         self,
@@ -487,7 +487,7 @@ class GenKpt(MSONable):
         kpoints: dict[str, np.ndarray],
         path: list[list[str]],
         density: float = 0.01,
-    ):
+    ) -> None:
         """Initialization function.
 
         Args:
@@ -507,7 +507,7 @@ class GenKpt(MSONable):
         """Obtain a AtomConfig object from Structure object.
 
         Args:
-            strutcure (Structure): A structure object.
+            structure (Structure): A structure object.
             dim (int): The dimension of the material system (2 or 3).
             density (float): Kpoints mesh without factor with 2*pi. Program will
                 automatically convert it with 2*pi.
@@ -587,7 +587,7 @@ class GenKpt(MSONable):
 
 
 class HighSymmetryPoint(MSONable):
-    """HighSymmetryPoint object for reading and writing HIGH_SYMMETRY_POINTS file which generate line-mode kpoints."""
+    """Read and write HIGH_SYMMETRY_POINTS file which generate line-mode kpoints."""
 
     def __init__(self, reciprocal_lattice: np.ndarray, kpts: dict[str, list], path: list[list[str]], density: float):
         """Initialization function.
