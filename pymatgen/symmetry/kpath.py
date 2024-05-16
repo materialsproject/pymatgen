@@ -1028,7 +1028,7 @@ class KPathLatimerMunro(KPathBase):
         """
         super().__init__(structure, symprec=symprec, angle_tolerance=angle_tolerance, atol=atol)
 
-        # Check to see if input cell is reducible. Ref: B Gruber in Acta. Cryst. Vol. A29,
+        # Check if input cell is reducible. Ref: B Gruber in Acta. Cryst. Vol. A29,
         # pp. 433-440 ('The Relationship between Reduced Cells in a General Bravais lattice').
         # The correct BZ will still be obtained if the lattice vectors are reducible by any
         # linear combination of themselves with coefficients of absolute value less than 2,

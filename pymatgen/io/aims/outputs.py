@@ -39,8 +39,7 @@ class AimsOutput(MSONable):
         metadata: dict[str, Any],
         structure_summary: dict[str, Any],
     ) -> None:
-        """AimsOutput object constructor.
-
+        """
         Args:
             results (Molecule or Structure or Sequence[Molecule or Structure]):  A list
                 of all images in an output file

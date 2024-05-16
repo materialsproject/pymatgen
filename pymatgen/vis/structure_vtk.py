@@ -33,7 +33,7 @@ EL_COLORS = loadfn(f"{module_dir}/ElementColorSchemes.yaml")
 
 
 class StructureVis:
-    """Structure object visualization using VTK."""
+    """Structure visualization using VTK."""
 
     @requires(vtk, "Visualization requires the installation of VTK with Python bindings.")
     def __init__(
@@ -174,7 +174,7 @@ class StructureVis:
 
         self.ren_win.Render()
 
-    def orthongonalize_structure(self):
+    def orthogonalize_structure(self):
         """Orthogonalize the structure."""
         if self.structure is not None:
             self.set_structure(self.structure.copy(sanitize=True))

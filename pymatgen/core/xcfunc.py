@@ -24,7 +24,7 @@ __date__ = "May 16, 2016"
 
 
 class XcFunc(MSONable):
-    """This object stores information about the XC correlation functional.
+    """Store information about the XC correlation functional.
 
     Client code usually creates the object by calling the class methods:
 
@@ -162,7 +162,7 @@ class XcFunc(MSONable):
 
     @classmethod
     def asxc(cls, obj) -> Self:
-        """Convert object into XcFunc."""
+        """Convert to XcFunc."""
         if isinstance(obj, cls):
             return obj
         if isinstance(obj, str):

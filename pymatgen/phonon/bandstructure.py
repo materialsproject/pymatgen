@@ -338,9 +338,8 @@ class PhononBandStructure(MSONable):
 
 
 class PhononBandStructureSymmLine(PhononBandStructure):
-    r"""This object stores phonon band structures along selected (symmetry) lines in the
-    Brillouin zone. We call the different symmetry lines (ex: \\Gamma to Z)
-    "branches".
+    r"""Store phonon band structures along selected (symmetry) lines in the Brillouin zone.
+    We call the different symmetry lines (ex: \\Gamma to Z) "branches".
     """
 
     def __init__(
