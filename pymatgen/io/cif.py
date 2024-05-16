@@ -1031,8 +1031,8 @@ class CifParser:
             except (KeyError, ValueError):
                 occu = 1
 
-            # If the occupancy is greater than 0, create comp_dict
-            if occu > 0:
+            # If don't check_occu or the occupancy is greater than 0, create comp_dict
+            if not check_occu or occu > 0:
                 # Create site coordinate
                 coord: Vector3D = (
                     str2float(data["_atom_site_fract_x"][idx]),
