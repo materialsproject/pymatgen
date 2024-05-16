@@ -20,7 +20,7 @@ from collections.abc import Sequence
 from fractions import Fraction
 from functools import lru_cache
 from math import cos, sin
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy.cluster
@@ -34,13 +34,16 @@ from pymatgen.util.coord import find_in_coord_list, pbc_diff
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing import Any, Literal
+
     from pymatgen.core import Element, Species
     from pymatgen.core.sites import Site
     from pymatgen.symmetry.groups import CrystalSystem
 
+    LatticeType = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "rhombohedral", "tetragonal", "triclinic"]
+
 logger = logging.getLogger(__name__)
 
-LatticeType = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "rhombohedral", "tetragonal", "triclinic"]
 
 cite_conventional_cell_algo = due.dcite(
     Doi("10.1016/j.commatsci.2010.05.010"),

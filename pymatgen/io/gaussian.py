@@ -81,7 +81,7 @@ def read_route_line(route):
 
 
 class GaussianInput:
-    """An object representing a Gaussian input file."""
+    """A Gaussian input file."""
 
     # Commonly used regex patterns
     _zmat_patt = re.compile(r"^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
