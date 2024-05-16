@@ -7,7 +7,6 @@ import string
 import warnings
 from math import cos, pi, sin, sqrt
 from typing import TYPE_CHECKING, Literal, cast
-from typing import TYPE_CHECKING, Literal, cast
 
 import numpy as np
 from monty.json import MSONable
