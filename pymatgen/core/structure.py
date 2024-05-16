@@ -4056,7 +4056,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             fgroup = func_group
 
         else:
-            # Check to see whether the functional group is in database.
+            # Check whether the functional group is in database.
             if func_group not in FunctionalGroups:
                 raise ValueError(
                     f"Can't find functional group {func_group!r} in list. Provide explicit coordinates instead"
@@ -4949,7 +4949,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         if isinstance(func_group, Molecule):
             functional_group = func_group
         else:
-            # Check to see whether the functional group is in database.
+            # Check whether the functional group is in database.
             if func_group not in FunctionalGroups:
                 raise RuntimeError("Can't find functional group in list. Provide explicit coordinate instead")
             functional_group = FunctionalGroups[func_group]

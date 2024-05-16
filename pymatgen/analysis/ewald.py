@@ -638,7 +638,7 @@ class EwaldMinimizer:
             indices: Set of indices which haven't had a permutation
                 performed on them.
         """
-        # check to see if we've found all the solutions that we need
+        # Check if we've found all the solutions that we need
         if self._finished:
             return
 

@@ -229,7 +229,7 @@ class TestSlab(PymatgenTest):
         assert len(all_non_laue_slabs) > 0
 
     def test_get_symmetric_sites(self):
-        # Check to see if we get an equivalent site on one
+        # Check if we get an equivalent site on one
         # surface if we add a new site to the other surface
 
         all_Ti_slabs = generate_all_slabs(
@@ -261,7 +261,7 @@ class TestSlab(PymatgenTest):
             assert sg.is_laue()
 
     def test_oriented_unit_cell(self):
-        # Check to see if we get the fully reduced oriented unit
+        # Check if we get the fully reduced oriented unit
         # cell. This will also ensure that the constrain_latt
         # parameter for get_primitive_structure is working properly
 
