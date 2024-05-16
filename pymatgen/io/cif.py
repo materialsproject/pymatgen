@@ -1023,7 +1023,7 @@ class CifParser:
                 except Exception:
                     el = DummySpecies(symbol, o_s)
             else:
-                el = get_el_sp(symbol)  # type: ignore
+                el = get_el_sp(symbol)  # type: ignore[assignment]
 
             # Get occupancy
             try:
@@ -1063,8 +1063,6 @@ class CifParser:
                     # Disordered magnetic currently not supported
                     coord_to_magmoms[match] = None
                     labels[match] = label
-
-        # Check occupancy
 
         # Check occupancy
         _sum_occupancies: list[float] = [
@@ -1255,7 +1253,7 @@ class CifParser:
         """Return list of structures in CIF file.
 
         Args:
-            primitive (bool): Set to True to return primitive unit cells.
+            primitive (bool): Whether to return primitive unit cells.
                 Defaults to False. With magnetic CIF files, will return primitive
                 magnetic cell which may be larger than nuclear primitive cell.
             symmetrized (bool): Whether to return a SymmetrizedStructure which will
@@ -1266,12 +1264,6 @@ class CifParser:
                 currently Wyckoff labels and space group labels or numbers are
                 not included in the generated SymmetrizedStructure, these will be
                 notated as "Not Parsed" or -1 respectively.
-            check_occu (bool): Whether to check site for unphysical occupancy > 1.
-                Useful for experimental results in which occupancy was allowed to
-                refine to unphysical values. Warning: unphysical occupancies are
-                incompatible with many pymatgen features. Defaults to True.
-            on_error ("ignore" | "warn" | "raise"): What to do in case of KeyError
-                or ValueError while parsing CIF file. Defaults to "warn".
             check_occu (bool): Whether to check site for unphysical occupancy > 1.
                 Useful for experimental results in which occupancy was allowed to
                 refine to unphysical values. Warning: unphysical occupancies are
