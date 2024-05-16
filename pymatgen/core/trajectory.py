@@ -124,7 +124,7 @@ class Trajectory(MSONable):
             if isinstance(lattice, Lattice):
                 lattice = lattice.matrix
             elif isinstance(lattice, list) and isinstance(lattice[0], Lattice):
-                lattice = [x.matrix for x in lattice]  # type: ignore
+                lattice = [cast(Lattice, x).matrix for x in lattice]
             lattice = np.asarray(lattice)
 
             if not constant_lattice and lattice.shape == (3, 3):
