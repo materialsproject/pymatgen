@@ -314,7 +314,7 @@ class CifParser:
     def __init__(
         self,
         filename: PathLike | StringIO,
-        occupancy_tolerance: float = 0.0,
+        occupancy_tolerance: float = 1.0,
         site_tolerance: float = 1e-4,
         frac_tolerance: float = 1e-4,
         check_cif: bool = True,
@@ -324,7 +324,7 @@ class CifParser:
         Args:
             filename (PathLike): CIF filename, gzipped or bzipped CIF files are fine too.
             occupancy_tolerance (float): If total occupancy of a site is in
-                [1, 1 + occupancy_tolerance] range, it will be scaled down to 1.
+                [1, occupancy_tolerance] range, it will be scaled down to 1.
             site_tolerance (float): This tolerance is used to determine if two sites are at the same position,
                 in which case they will be combined to a single disordered site. Defaults to 1e-4.
             frac_tolerance (float): This tolerance is used to determine is a coordinate should be rounded to an ideal
@@ -1149,7 +1149,7 @@ class CifParser:
             all_species_noedit = all_species.copy()  # save copy before scaling in case of check_occu=False, used below
             for idx, species in enumerate(all_species):
                 total_occu = sum(species.values())
-                if check_occu and total_occu > 1 + self._occupancy_tolerance:
+                if check_occu and total_occu > self._occupancy_tolerance:
                     raise ValueError(f"Occupancy {total_occu} exceeded tolerance.")
 
                 if total_occu > 1:
