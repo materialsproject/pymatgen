@@ -33,13 +33,12 @@ __date__ = "June 23, 2016"
 
 
 class Xr:
-    """Basic object for working with xr files."""
+    """For working with XR files."""
 
     def __init__(self, structure: Structure):
         """
         Args:
-            structure (Structure/IStructure): Structure object to create the
-                    Xr object.
+            structure (Structure/IStructure): Structure object to create the Xr object.
         """
         if not structure.is_ordered:
             raise ValueError("Xr file can only be constructed from ordered structure")

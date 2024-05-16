@@ -72,7 +72,7 @@ class Movement(MSONable):
 
     @property
     def atom_configs(self) -> list[Structure]:
-        """AtomConfig object for structures contained in MOVEMENT.
+        """AtomConfig for structures contained in MOVEMENT file.
 
         Returns:
             list[Structure]: List of Structure objects for the structure at each ionic step.
