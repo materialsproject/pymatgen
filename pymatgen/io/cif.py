@@ -322,9 +322,9 @@ class CifParser:
     ) -> None:
         """
         Args:
-            filename (PathLike): CIF filename, gzipped or bzipped CIF files are fine too.
-            occupancy_tolerance (float): If total occupancy of a site is in
-                [1, occupancy_tolerance] range, it will be scaled down to 1.
+            filename (PathLike): CIF file, gzipped or bzipped CIF files are fine too.
+            occupancy_tolerance (float): If total occupancy of a site is between
+                1 and occupancy_tolerance, it will be scaled down to 1.
             site_tolerance (float): This tolerance is used to determine if two sites are at the same position,
                 in which case they will be combined to a single disordered site. Defaults to 1e-4.
             frac_tolerance (float): This tolerance is used to determine is a coordinate should be rounded to an ideal
