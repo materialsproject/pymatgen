@@ -1123,7 +1123,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         return ng_vec, [ng_ * finer_g_scale for ng_ in ng_vec]
 
     @staticmethod
-    def from_directory(directory: str | Path, optional_files: dict = None) -> VaspInput:
+    def from_directory(directory: str | Path, optional_files: dict | None = None) -> VaspInput:
         """Load a set of VASP inputs from a directory.
 
         Note that only the standard INCAR, POSCAR, POTCAR and KPOINTS files are read
