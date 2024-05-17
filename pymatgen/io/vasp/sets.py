@@ -1143,7 +1143,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         inputs = {}
         for name, obj in objs.items():
             if (directory / name).exists():
-                inputs[name.upper()] = obj.from_file(directory / name)
+                inputs[name.upper()] = obj.from_file(directory / name)  # type: ignore[attr-defined]
             else:
                 # handle the case where there is no KPOINTS file
                 inputs[name.upper()] = None
@@ -1151,14 +1151,14 @@ class VaspInputSet(InputGenerator, abc.ABC):
         optional_inputs = {}
         if optional_files is not None:
             for name, obj in optional_files.items():
-                optional_inputs[name] = obj.from_file(directory / name)
+                optional_inputs[str(name)] = obj.from_file(directory / name)  # type: ignore[attr-defined]
 
         return VaspInput(
             incar=inputs["INCAR"],
             kpoints=inputs["KPOINTS"],
             poscar=inputs["POSCAR"],
             potcar=inputs["POTCAR"],
-            optional_files=optional_inputs,
+            optional_files=optional_inputs,  # type: ignore[arg-type]
         )
 
     def _get_nedos(self, dedos: float) -> int:
