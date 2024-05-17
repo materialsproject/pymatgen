@@ -151,8 +151,8 @@ class UnitError(BaseException):
 
 
 class Unit(collections.abc.Mapping):
-    """Represents a unit, e.g. "m" for meters, etc. Supports compound units.
-    Only integer powers are supported for units.
+    """Represent a unit, e.g. "m" for meters, etc. Supports compound units.
+    Only integer powers are supported.
     """
 
     def __init__(self, unit_def: str | dict[str, int]) -> None:
@@ -254,20 +254,22 @@ class Unit(collections.abc.Mapping):
                 factor *= f**v
         return {k: v for k, v in base_units.items() if v != 0}, factor
 
-    def get_conversion_factor(self, new_unit: str) -> float:
-        """Get a conversion factor between this unit and a new unit.
+    def get_conversion_factor(self, new_unit: str | Unit) -> float:
+        """Get the conversion factor between this unit and a new unit.
         Compound units are supported, but must have the same powers in each
         unit type.
 
         Args:
-            new_unit: The new unit.
+            new_unit (str | Unit): The new unit.
         """
+        _new_unit: str = repr(new_unit) if isinstance(new_unit, Unit) else new_unit
+
         old_base, old_factor = self.as_base_units
-        new_base, new_factor = type(self)(new_unit).as_base_units
+        new_base, new_factor = type(self)(_new_unit).as_base_units
 
         units_new = sorted(new_base.items(), key=lambda d: _UNAME2UTYPE[d[0]])
         units_old = sorted(old_base.items(), key=lambda d: _UNAME2UTYPE[d[0]])
-        factor = old_factor / new_factor
+        factor: float = old_factor / new_factor
 
         for old, new in zip(units_old, units_new):
             if old[1] != new[1]:
@@ -282,46 +284,52 @@ class FloatWithUnit(float):
     pre-defined unit type subclasses such as Energy, Length, etc. instead of
     using FloatWithUnit directly.
 
-    Supports conversion, addition and subtraction of the same unit type. e.g.
+    Support conversion, addition and subtraction of the same unit type. e.g.
     1 m + 20 cm will be automatically converted to 1.2 m (units follow the
     leftmost quantity). Note that FloatWithUnit does not override the eq
     method for float, i.e., units are not checked when testing for equality.
     The reason is to allow this class to be used transparently wherever floats
     are expected.
 
-    >>> e = Energy(1.1, "Ha")
-    >>> a = Energy(1.1, "Ha")
-    >>> b = Energy(3, "eV")
-    >>> c = a + b
-    >>> print(c)
-    1.2102479761938871 Ha
-    >>> c.to("eV")
-    32.932522246000005 eV
+    Example usage:
+        >>> e = Energy(1.1, "Ha")
+        >>> a = Energy(1.1, "Ha")
+        >>> b = Energy(3, "eV")
+        >>> c = a + b
+        >>> print(c)
+        1.2102479761938871 Ha
+        >>> c.to("eV")
+        32.932522246000005 eV
     """
 
     def __init__(
         self,
         val: float | Number,
-        unit: str,
+        unit: str | Unit,
         unit_type: str | None = None,
     ) -> None:
         """Initialize a float with unit.
 
         Args:
             val (float): Value
-            unit (str): A unit. e.g. "C".
+            unit (str | Unit): A unit. e.g. "C".
             unit_type (str): A type of unit. e.g. "charge"
         """
         if unit_type is not None and str(unit) not in ALL_UNITS[unit_type]:
             raise UnitError(f"{unit} is not a supported unit for {unit_type}")
 
-        self._unit = Unit(unit)
+        self._unit = unit if isinstance(unit, Unit) else Unit(unit)
         self._unit_type = unit_type
 
-    def __new__(cls, val, unit, unit_type=None) -> Self:
-        """Overrides __new__ since we are subclassing a Python primitive."""
+    def __new__(
+        cls,
+        val,
+        unit: str | Unit,
+        unit_type: str | None = None,
+    ) -> Self:
+        """Override __new__."""
         new = float.__new__(cls, val)
-        new._unit = Unit(unit)
+        new._unit = unit if isinstance(unit, Unit) else Unit(unit)
         new._unit_type = unit_type
         return new
 
@@ -431,8 +439,10 @@ class FloatWithUnit(float):
 
     @classmethod
     def from_str(cls, string: str) -> Self:
-        """Parse string to FloatWithUnit.
-        Example: Memory.from_str("1. Mb").
+        """Convert string to FloatWithUnit.
+
+        Example usage:
+            Memory.from_str("1. Mb").
         """
         # Extract num and unit string.
         string = string.strip()
@@ -449,15 +459,15 @@ class FloatWithUnit(float):
                 return cls(num, unit, unit_type=unit_type)
         return cls(num, unit, unit_type=None)
 
-    def to(self, new_unit: str) -> Self:
+    def to(self, new_unit: str | Unit) -> Self:
         """Convert to a new unit. Right now, only support
         1 to 1 mapping of units of each type.
 
         Args:
-            new_unit: New unit type.
+            new_unit (str | Unit): New unit type.
 
         Returns:
-            A FloatWithUnit in the new unit.
+            FloatWithUnit in the new unit.
 
         Example usage:
         >>> energy = Energy(1.1, "eV")
@@ -476,7 +486,7 @@ class FloatWithUnit(float):
         """This FloatWithUnit in base SI units, including derived units.
 
         Returns:
-            A FloatWithUnit object in base SI units
+            FloatWithUnit in base SI units
         """
         return self.to(self.unit.as_base_units[0])
 
@@ -498,19 +508,19 @@ class ArrayWithUnit(np.ndarray):
     1 m + 20 cm will be automatically converted to 1.2 m (units follow the
     leftmost quantity).
 
-    >>> a = EnergyArray([1, 2], "Ha")
-    >>> b = EnergyArray([1, 2], "eV")
-    >>> c = a + b
-    >>> print(c)
+    >>> energy_arr_a = EnergyArray([1, 2], "Ha")
+    >>> energy_arr_b = EnergyArray([1, 2], "eV")
+    >>> energy_arr_c = energy_arr_a + energy_arr_b
+    >>> print(energy_arr_c)
     [ 1.03674933  2.07349865] Ha
-    >>> c.to("eV")
+    >>> energy_arr_c.to("eV")
     array([ 28.21138386,  56.42276772]) eV
     """
 
     def __new__(
         cls,
         input_array: NDArray,
-        unit: str,
+        unit: str | Unit,
         unit_type: str | None = None,
     ) -> Self:
         """Override __new__."""
@@ -518,7 +528,7 @@ class ArrayWithUnit(np.ndarray):
         # We first cast to be our class type
         obj = np.asarray(input_array).view(cls)
         # Add the new attributes to the created instance
-        obj._unit = Unit(unit)
+        obj._unit = unit if isinstance(unit, Unit) else Unit(unit)
         obj._unit_type = unit_type
         return obj
 
@@ -631,14 +641,14 @@ class ArrayWithUnit(np.ndarray):
         """The unit, e.g. "eV"."""
         return cast(Unit, self._unit)
 
-    def to(self, new_unit: str) -> Self:
+    def to(self, new_unit: str | Unit) -> Self:
         """Convert to a new unit.
 
         Args:
-            new_unit: New unit type.
+            new_unit (str | Unit): New unit type.
 
         Returns:
-            A ArrayWithUnit object in the new unit.
+            ArrayWithUnit in the new unit.
 
         Example usage:
         >>> energy = EnergyArray([1, 1.1], "Ha")
@@ -656,7 +666,7 @@ class ArrayWithUnit(np.ndarray):
         """This ArrayWithUnit in base SI units, including derived units.
 
         Returns:
-            An ArrayWithUnit object in base SI units
+            ArrayWithUnit in base SI units
         """
         return self.to(self.unit.as_base_units[0])
 
