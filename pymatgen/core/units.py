@@ -467,7 +467,7 @@ class FloatWithUnit(float):
         """
         return type(self)(
             self * self.unit.get_conversion_factor(new_unit),
-            unit_type=self.unit_type,
+            unit_type=self._unit_type,
             unit=str(new_unit),
         )
 
