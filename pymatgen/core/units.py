@@ -460,7 +460,7 @@ class FloatWithUnit(float):
 class ArrayWithUnit(np.ndarray):
     """Subclasses numpy.ndarray to attach a unit type. Typically, you should
     use the pre-defined unit type subclasses such as EnergyArray,
-    LengthArray, etc. instead of using ArrayWithFloatWithUnit directly.
+    LengthArray, etc. instead of using ArrayWithUnit directly.
 
     Support conversion, addition and subtraction of the same unit type. e.g.
     1 m + 20 cm will be automatically converted to 1.2 m (units follow the
@@ -536,7 +536,7 @@ class ArrayWithUnit(np.ndarray):
 
     def __mul__(self, other):
         # TODO Here we have the most important difference between FloatWithUnit and
-        # ArrayWithFloatWithUnit:
+        # ArrayWithUnit:
         # If other does not have units, I return an object with the same units
         # as self.
         # if other *has* units, I return an object *without* units since
@@ -590,7 +590,7 @@ class ArrayWithUnit(np.ndarray):
                 New unit type.
 
         Returns:
-            A ArrayWithFloatWithUnit object in the new units.
+            A ArrayWithUnit object in the new units.
 
         Example usage:
         >>> e = EnergyArray([1, 1.1], "Ha")
@@ -715,7 +715,7 @@ Args:
 def obj_with_unit(obj: Any, unit: str) -> FloatWithUnit | ArrayWithUnit | dict[str, FloatWithUnit | ArrayWithUnit]:
     """Get a FloatWithUnit instance if obj is scalar, a dictionary of
     objects with units if obj is a dict, else an instance of
-    ArrayWithFloatWithUnit.
+    ArrayWithUnit.
 
     Args:
         obj (Any): Object to be given a unit.
