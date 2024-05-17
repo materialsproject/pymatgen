@@ -10,7 +10,7 @@ Read the following carefully before implementing new input sets:
    various input sets. Unless there is an extremely good reason to add a new set, **do not** add one. e.g. if you want
    to turn the Hubbard U off, just set "LDAU": False as a user_incar_setting.
 2. All derivative input sets should inherit appropriate configurations (e.g., from MPRelaxSet), and more often than
-   not, DictSet should be the superclass. Proper superclass delegation should be used where possible. In particular,
+   not, VaspInputSet should be the superclass. Superclass delegation should be used where possible. In particular,
    you are not supposed to implement your own as_dict or from_dict for derivative sets unless you know what you are
    doing. Improper overriding the as_dict and from_dict protocols is the major cause of implementation headaches. If
    you need an example, look at how the MPStaticSet is initialized.
@@ -77,166 +77,6 @@ MODULE_DIR = Path(__file__).resolve().parent
 # MODULE_DIR = os.path.dirname(__file__)
 
 
-class VaspInputSet(InputGenerator, abc.ABC):
-    """
-    Base class representing a set of VASP input parameters with a structure
-    supplied as init parameters. Typically, you should not inherit from this
-    class. Start from DictSet or MPRelaxSet or MITRelaxSet.
-    """
-
-    _valid_potcars: Sequence[str] | None = None
-
-    @property
-    @abc.abstractmethod
-    def incar(self):
-        """The input set's INCAR."""
-
-    @property
-    @abc.abstractmethod
-    def kpoints(self):
-        """The input set's KPOINTS."""
-
-    @property
-    @abc.abstractmethod
-    def poscar(self):
-        """The input set's POSCAR."""
-
-    @property
-    def potcar_symbols(self):
-        """List of POTCAR symbols."""
-
-        elements = self.poscar.site_symbols
-        potcar_symbols = []
-        settings = self._config_dict["POTCAR"]
-
-        if isinstance(settings[elements[-1]], dict):
-            for el in elements:
-                potcar_symbols.append(settings[el]["symbol"] if el in settings else el)
-        else:
-            for el in elements:
-                potcar_symbols.append(settings.get(el, el))
-
-        return potcar_symbols
-
-    @property
-    def potcar(self) -> Potcar:
-        """The input set's POTCAR."""
-        user_potcar_functional = self.user_potcar_functional
-        potcar = Potcar(self.potcar_symbols, functional=user_potcar_functional)
-
-        # warn if the selected POTCARs do not correspond to the chosen user_potcar_functional
-        for p_single in potcar:
-            if user_potcar_functional not in p_single.identify_potcar()[0]:
-                warnings.warn(
-                    f"POTCAR data with symbol {p_single.symbol} is not known by pymatgen to "
-                    f"correspond with the selected {user_potcar_functional=}. This POTCAR "
-                    f"is known to correspond with functionals {p_single.identify_potcar(mode='data')[0]}. "
-                    "Please verify that you are using the right POTCARs!",
-                    BadInputSetWarning,
-                )
-
-        return potcar
-
-    @deprecated(message="get_vasp_input will be removed in a future version of pymatgen. Use get_input_set instead.")
-    def get_vasp_input(self, structure=None) -> VaspInput:
-        """Get a VaspInput object.
-
-        Returns:
-            VaspInput.
-        """
-        return self.get_input_set(structure=structure)
-
-    def get_input_set(self, structure=None) -> VaspInput:
-        """Get a VaspInput object.
-
-        Returns:
-            VaspInput.
-        """
-        if structure is not None:
-            self.structure = structure
-        return VaspInput(incar=self.incar, kpoints=self.kpoints, poscar=self.poscar, potcar=self.potcar)
-
-    def write_input(
-        self,
-        output_dir: str,
-        make_dir_if_not_present: bool = True,
-        include_cif: bool = False,
-        potcar_spec: bool = False,
-        zip_output: bool = False,
-    ) -> None:
-        """
-        Writes a set of VASP input to a directory.
-
-        Args:
-            output_dir (str): Directory to output the VASP input files
-            make_dir_if_not_present (bool): Set to True if you want the
-                directory (and the whole path) to be created if it is not
-                present.
-            include_cif (bool): Whether to write a CIF file in the output
-                directory for easier opening by VESTA.
-            potcar_spec (bool): Instead of writing the POTCAR, write a "POTCAR.spec".
-                This is intended to help sharing an input set with people who might
-                not have a license to specific Potcar files. Given a "POTCAR.spec",
-                the specific POTCAR file can be re-generated using pymatgen with the
-                "generate_potcar" function in the pymatgen CLI.
-            zip_output (bool): If True, output will be zipped into a file with the
-                same name as the InputSet (e.g., MPStaticSet.zip)
-        """
-        if potcar_spec:
-            vasp_input = None
-            if make_dir_if_not_present:
-                os.makedirs(output_dir, exist_ok=True)
-
-            with zopen(f"{output_dir}/POTCAR.spec", mode="wt") as file:
-                file.write("\n".join(self.potcar_symbols))
-
-            for key in ["INCAR", "POSCAR", "KPOINTS"]:
-                if (val := getattr(self, key.lower())) is not None:
-                    with zopen(os.path.join(output_dir, key), mode="wt") as file:
-                        file.write(str(val))
-        else:
-            vasp_input = self.get_input_set()
-            vasp_input.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
-
-        cif_name = ""
-        if include_cif and vasp_input is not None:
-            struct = vasp_input["POSCAR"].structure
-            cif_name = f"{output_dir}/{struct.formula.replace(' ', '')}.cif"
-            struct.to(filename=cif_name)
-
-        if zip_output:
-            filename = f"{type(self).__name__}.zip"
-            with ZipFile(os.path.join(output_dir, filename), mode="w") as zip_file:
-                for file in ["INCAR", "POSCAR", "KPOINTS", "POTCAR", "POTCAR.spec", cif_name]:
-                    try:
-                        zip_file.write(os.path.join(output_dir, file), arcname=file)
-                    except FileNotFoundError:
-                        pass
-
-                    try:
-                        os.remove(os.path.join(output_dir, file))
-                    except (FileNotFoundError, PermissionError, IsADirectoryError):
-                        pass
-
-    def as_dict(self, verbosity=2):
-        """
-        Args:
-            verbosity: Verbosity for generated dict. If 1, structure is
-            excluded.
-
-        Returns:
-            dict: MSONable VaspInputSet representation.
-        """
-        dct = MSONable.as_dict(self)
-        if verbosity == 1:
-            dct.pop("structure", None)
-        return dct
-
-
-# create VaspInputGenerator alias to follow atomate2 terminology
-VaspInputGenerator = VaspInputSet
-
-
 def _load_yaml_config(fname):
     config = loadfn(MODULE_DIR / (f"{fname}.yaml"))
     if "PARENT" in config:
@@ -252,10 +92,11 @@ def _load_yaml_config(fname):
 
 
 @dataclass
-class DictSet(VaspInputSet):
+class VaspInputSet(InputGenerator, abc.ABC):
     """
-    Concrete implementation of VaspInputSet that is initialized from a dict
-    settings. This allows arbitrary settings to be input. In general,
+    Base class representing a set of VASP input parameters with a structure
+    supplied as init parameters and initialized from a dict of settings.
+    This allows arbitrary settings to be input. In general,
     this is rarely used directly unless there is a source of settings in yaml
     format (e.g., from a REST interface). It is typically used by other
     VaspInputSets for initialization.
@@ -393,11 +234,13 @@ class DictSet(VaspInputSet):
     bandgap: float | None = None
     prev_incar: str | dict | None = None
     prev_kpoints: str | Kpoints | None = None
+    _valid_potcars: Sequence[str] | None = None
 
     def __post_init__(self):
         """Perform validation"""
-        if (valid_potcars := self._valid_potcars) and self.user_potcar_functional not in valid_potcars:
-            raise ValueError(f"Invalid {self.user_potcar_functional=}, must be one of {valid_potcars}")
+        user_potcar_functional = self.user_potcar_functional
+        if (valid_potcars := self._valid_potcars) and user_potcar_functional not in valid_potcars:
+            raise ValueError(f"Invalid {user_potcar_functional=}, must be one of {valid_potcars}")
 
         if hasattr(self, "CONFIG"):
             self.config_dict = self.CONFIG
@@ -474,6 +317,95 @@ class DictSet(VaspInputSet):
         self.prev_outcar = None
         self._ispin = None
 
+    @deprecated(message="get_vasp_input will be removed in a future version of pymatgen. Use get_input_set instead.")
+    def get_vasp_input(self, structure=None) -> VaspInput:
+        """Get a VaspInput object.
+
+        Returns:
+            VaspInput.
+        """
+        return self.get_input_set(structure=structure)
+
+    def write_input(
+        self,
+        output_dir: str,
+        make_dir_if_not_present: bool = True,
+        include_cif: bool = False,
+        potcar_spec: bool = False,
+        zip_output: bool = False,
+    ) -> None:
+        """
+        Writes a set of VASP input to a directory.
+
+        Args:
+            output_dir (str): Directory to output the VASP input files
+            make_dir_if_not_present (bool): Set to True if you want the
+                directory (and the whole path) to be created if it is not
+                present.
+            include_cif (bool): Whether to write a CIF file in the output
+                directory for easier opening by VESTA.
+            potcar_spec (bool): Instead of writing the POTCAR, write a "POTCAR.spec".
+                This is intended to help sharing an input set with people who might
+                not have a license to specific Potcar files. Given a "POTCAR.spec",
+                the specific POTCAR file can be re-generated using pymatgen with the
+                "generate_potcar" function in the pymatgen CLI.
+            zip_output (bool): If True, output will be zipped into a file with the
+                same name as the InputSet (e.g., MPStaticSet.zip)
+        """
+        if potcar_spec:
+            vasp_input = None
+            if make_dir_if_not_present:
+                os.makedirs(output_dir, exist_ok=True)
+
+            with zopen(f"{output_dir}/POTCAR.spec", mode="wt") as file:
+                file.write("\n".join(self.potcar_symbols))
+
+            for key in ["INCAR", "POSCAR", "KPOINTS"]:
+                if (val := getattr(self, key.lower())) is not None:
+                    with zopen(os.path.join(output_dir, key), mode="wt") as file:
+                        file.write(str(val))
+        else:
+            vasp_input = self.get_input_set()
+            vasp_input.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
+
+        cif_name = ""
+        if include_cif and vasp_input is not None:
+            struct = vasp_input["POSCAR"].structure
+            cif_name = f"{output_dir}/{struct.formula.replace(' ', '')}.cif"
+            struct.to(filename=cif_name)
+
+        if zip_output:
+            filename = f"{type(self).__name__}.zip"
+            with ZipFile(os.path.join(output_dir, filename), mode="w") as zip_file:
+                for file in ["INCAR", "POSCAR", "KPOINTS", "POTCAR", "POTCAR.spec", cif_name]:
+                    try:
+                        zip_file.write(os.path.join(output_dir, file), arcname=file)
+                    except FileNotFoundError:
+                        pass
+
+                    try:
+                        os.remove(os.path.join(output_dir, file))
+                    except (FileNotFoundError, PermissionError, IsADirectoryError):
+                        pass
+
+        for key, val in self.files_to_transfer.items():
+            with zopen(val, "rb") as fin, zopen(str(Path(output_dir) / key), "wb") as fout:
+                shutil.copyfileobj(fin, fout)
+
+    def as_dict(self, verbosity=2):
+        """
+        Args:
+            verbosity: Verbosity for generated dict. If 1, structure is
+            excluded.
+
+        Returns:
+            dict: MSONable VaspInputSet representation.
+        """
+        dct = MSONable.as_dict(self)
+        if verbosity == 1:
+            dct.pop("structure", None)
+        return dct
+
     @property  # type: ignore
     def structure(self) -> Structure:
         """Structure"""
@@ -541,7 +473,7 @@ class DictSet(VaspInputSet):
             VaspInput: A VASP input object.
         """
         if structure is None and prev_dir is None and self.structure is None:
-            raise ValueError("Either structure or prev_dir must be set.")
+            raise ValueError("Either structure or prev_dir must be set")
 
         self._set_previous(prev_dir)
 
@@ -995,7 +927,39 @@ class DictSet(VaspInputSet):
         """The input set's POTCAR."""
         if self.structure is None:
             raise RuntimeError("No structure is associated with the input set!")
-        return super().potcar
+
+        user_potcar_functional = self.user_potcar_functional
+        potcar = Potcar(self.potcar_symbols, functional=user_potcar_functional)
+
+        # warn if the selected POTCARs do not correspond to the chosen user_potcar_functional
+        for p_single in potcar:
+            if user_potcar_functional not in p_single.identify_potcar()[0]:
+                warnings.warn(
+                    f"POTCAR data with symbol {p_single.symbol} is not known by pymatgen to "
+                    f"correspond with the selected {user_potcar_functional=}. This POTCAR "
+                    f"is known to correspond with functionals {p_single.identify_potcar(mode='data')[0]}. "
+                    "Please verify that you are using the right POTCARs!",
+                    BadInputSetWarning,
+                )
+
+        return potcar
+
+    @property
+    def potcar_symbols(self):
+        """List of POTCAR symbols."""
+
+        elements = self.poscar.site_symbols
+        potcar_symbols = []
+        settings = self._config_dict["POTCAR"]
+
+        if isinstance(settings[elements[-1]], dict):
+            for el in elements:
+                potcar_symbols.append(settings[el]["symbol"] if el in settings else el)
+        else:
+            for el in elements:
+                potcar_symbols.append(settings.get(el, el))
+
+        return potcar_symbols
 
     def estimate_nbands(self) -> int:
         """Estimate the number of bands that VASP will initialize a
@@ -1092,42 +1056,6 @@ class DictSet(VaspInputSet):
     def __repr__(self) -> str:
         return type(self).__name__
 
-    def write_input(
-        self,
-        output_dir: str,
-        make_dir_if_not_present: bool = True,
-        include_cif: bool = False,
-        potcar_spec: bool = False,
-        zip_output: bool = False,
-    ):
-        """
-        Writes out all input to a directory.
-
-        Args:
-            output_dir (str): Directory to output the VASP input files
-            make_dir_if_not_present (bool): Set to True if you want the
-                directory (and the whole path) to be created if it is not
-                present.
-            include_cif (bool): Whether to write a CIF file in the output
-                directory for easier opening by VESTA.
-            potcar_spec (bool): Instead of writing the POTCAR, write a "POTCAR.spec".
-                This is intended to help sharing an input set with people who might
-                not have a license to specific Potcar files. Given a "POTCAR.spec",
-                the specific POTCAR file can be re-generated using pymatgen with the
-                "generate_potcar" function in the pymatgen CLI.
-            zip_output (bool): Whether to zip each VASP input file written to the output directory.
-        """
-        super().write_input(
-            output_dir=output_dir,
-            make_dir_if_not_present=make_dir_if_not_present,
-            include_cif=include_cif,
-            potcar_spec=potcar_spec,
-            zip_output=zip_output,
-        )
-        for k, v in self.files_to_transfer.items():
-            with zopen(v, "rb") as fin, zopen(str(Path(output_dir) / k), "wb") as fout:
-                shutil.copyfileobj(fin, fout)
-
     def calculate_ng(
         self,
         max_prime_factor: int = 7,
@@ -1195,6 +1123,15 @@ class DictSet(VaspInputSet):
         return ng_vec, [ng_ * finer_g_scale for ng_ in ng_vec]
 
 
+# create VaspInputGenerator alias to follow atomate2 terminology
+VaspInputGenerator = VaspInputSet
+
+
+@deprecated(replacement=VaspInputSet, deadline=(2025, 12, 31))
+class DictSet(VaspInputSet):
+    pass
+
+
 # Helper functions to determine valid FFT grids for VASP
 def next_num_with_prime_factors(n: int, max_prime_factor: int, must_inc_2: bool = True) -> int:
     """Get the next number greater than or equal to n that only has the desired prime factors.
@@ -1239,7 +1176,7 @@ def primes_less_than(max_val: int) -> list[int]:
     description="A high-throughput infrastructure for density functional theory calculations",
 )
 @dataclass
-class MITRelaxSet(DictSet):
+class MITRelaxSet(VaspInputSet):
     """
     Standard implementation of VaspInputSet utilizing parameters in the MIT
     High-throughput project.
@@ -1250,7 +1187,7 @@ class MITRelaxSet(DictSet):
         structure (Structure): The Structure to create inputs for. If None, the input
             set is initialized without a Structure but one must be set separately before
             the inputs are generated.
-        **kwargs: Same as those supported by DictSet.
+        **kwargs: Keywords supported by VaspInputSet.
 
     Please refer::
 
@@ -1264,7 +1201,7 @@ class MITRelaxSet(DictSet):
 
 
 @dataclass
-class MPRelaxSet(DictSet):
+class MPRelaxSet(VaspInputSet):
     """
     Implementation of VaspInputSet utilizing parameters in the public
     Materials Project. Typically, the pseudopotentials chosen contain more
@@ -1276,7 +1213,7 @@ class MPRelaxSet(DictSet):
         structure (Structure): The Structure to create inputs for. If None, the input
             set is initialized without a Structure but one must be set separately before
             the inputs are generated.
-        **kwargs: Same as those supported by DictSet.
+        **kwargs: Keywords supported by VaspInputSet.
     """
 
     CONFIG = _load_yaml_config("MPRelaxSet")
@@ -1295,7 +1232,7 @@ class MPRelaxSet(DictSet):
     description="Efficient generation of generalized Monkhorst-Pack grids through the use of informatics",
 )
 @dataclass
-class MPScanRelaxSet(DictSet):
+class MPScanRelaxSet(VaspInputSet):
     """Write a relaxation input set using the accurate and numerically
     efficient r2SCAN variant of the Strongly Constrained and Appropriately Normed
     (SCAN) metaGGA density functional.
@@ -1333,7 +1270,7 @@ class MPScanRelaxSet(DictSet):
             van der Waals density functional by combing the SCAN functional
             with the rVV10 non-local correlation functional. rvv10 is the only
             dispersion correction available for SCAN at this time.
-        **kwargs: Same as those supported by DictSet.
+        **kwargs: Keywords supported by VaspInputSet.
 
         References:
             [1] P. Wisesa, K.A. McGill, T. Mueller, Efficient generation of
@@ -1351,7 +1288,7 @@ class MPScanRelaxSet(DictSet):
     user_potcar_functional: UserPotcarFunctional = "PBE_54"
     auto_ismear: bool = True
     CONFIG = _load_yaml_config("MPSCANRelaxSet")
-    _valid_potcars = ("PBE_52", "PBE_54")
+    _valid_potcars: Sequence[str] | None = ("PBE_52", "PBE_54")
 
     def __post_init__(self):
         super().__post_init__()
@@ -1364,7 +1301,7 @@ class MPScanRelaxSet(DictSet):
 
 
 @dataclass
-class MPMetalRelaxSet(DictSet):
+class MPMetalRelaxSet(VaspInputSet):
     """
     Implementation of VaspInputSet utilizing parameters in the public
     Materials Project, but with tuning for metals. Key things are a denser
@@ -1385,14 +1322,14 @@ class MPMetalRelaxSet(DictSet):
 
 
 @dataclass
-class MPHSERelaxSet(DictSet):
+class MPHSERelaxSet(VaspInputSet):
     """Same as the MPRelaxSet, but with HSE parameters."""
 
     CONFIG = _load_yaml_config("MPHSERelaxSet")
 
 
 @dataclass
-class MPStaticSet(DictSet):
+class MPStaticSet(VaspInputSet):
     """Create input files for a static calculation.
 
     Args:
@@ -1407,7 +1344,7 @@ class MPStaticSet(DictSet):
         small_gap_multiply ([float, float]): If the gap is less than
             1st index, multiply the default reciprocal_density by the 2nd
             index.
-        **kwargs: kwargs supported by MPRelaxSet.
+        **kwargs: Keywords supported by MPRelaxSet.
     """
 
     lepsilon: bool = False
@@ -1452,7 +1389,7 @@ class MPStaticSet(DictSet):
 
 
 @dataclass
-class MatPESStaticSet(DictSet):
+class MatPESStaticSet(VaspInputSet):
     """Create input files for a MatPES static calculation.
 
     The goal of MatPES is to generate potential energy surface data. This is a distinctly different
@@ -1470,7 +1407,7 @@ class MatPESStaticSet(DictSet):
             set is initialized without a Structure but one must be set separately before
             the inputs are generated.
         xc_functional ('R2SCAN'|'PBE'): Exchange-correlation functional to use. Defaults to 'PBE'.
-        **kwargs: Same as those supported by DictSet.
+        **kwargs: Keywords supported by VaspInputSet.
     """
 
     xc_functional: Literal["R2SCAN", "PBE", "PBE+U"] = "PBE"
@@ -1538,7 +1475,7 @@ class MPScanStaticSet(MPScanRelaxSet):
         lepsilon (bool): Whether to add static dielectric calculation
         lcalcpol (bool): Whether to turn on evaluation of the Berry phase approximations
             for electronic polarization.
-        **kwargs: kwargs supported by MPScanRelaxSet.
+        **kwargs: Keywords supported by MPScanRelaxSet.
     """
 
     lepsilon: bool = False
@@ -1570,7 +1507,7 @@ class MPScanStaticSet(MPScanRelaxSet):
 
 
 @dataclass
-class MPHSEBSSet(DictSet):
+class MPHSEBSSet(VaspInputSet):
     """
     Implementation of a VaspInputSet for HSE band structure computations.
 
@@ -1608,7 +1545,7 @@ class MPHSEBSSet(DictSet):
         nbands_factor (float): Multiplicative factor for NBANDS when starting from a
             previous calculation. Choose a higher number if you are doing an LOPTICS
             calculation.
-        **kwargs (dict): Any other parameters to pass into DictSet.
+        **kwargs: Keywords supported by VaspInputSet.
     """
 
     added_kpoints: list[Vector3D] = field(default_factory=list)
@@ -1691,7 +1628,7 @@ class MPHSEBSSet(DictSet):
 
 
 @dataclass
-class MPNonSCFSet(DictSet):
+class MPNonSCFSet(VaspInputSet):
     """
     Init a MPNonSCFSet. Typically, you would use the classmethod
     from_prev_calc to initialize from a previous SCF run.
@@ -1715,7 +1652,7 @@ class MPNonSCFSet(DictSet):
         small_gap_multiply ([float, float]): When starting from a previous
             calculation, if the gap is less than 1st index, multiply the default
             reciprocal_density by the 2nd index.
-        **kwargs: kwargs supported by MPRelaxSet.
+        **kwargs: Keywords supported by MPRelaxSet.
     """
 
     mode: str = "line"
@@ -1807,7 +1744,7 @@ class MPNonSCFSet(DictSet):
 
 
 @dataclass
-class MPSOCSet(DictSet):
+class MPSOCSet(VaspInputSet):
     """An input set for running spin-orbit coupling (SOC) calculations.
 
     Args:
@@ -1826,7 +1763,7 @@ class MPSOCSet(DictSet):
         lcalcpol (bool): Whether to turn on evaluation of the Berry phase approximations
             for electronic polarization
         magmom (list[list[float]]): Override for the structure magmoms.
-        **kwargs: kwargs supported by DictSet.
+        **kwargs: Keywords supported by VaspInputSet.
     """
 
     saxis: tuple[int, int, int] = (0, 0, 1)
@@ -1890,7 +1827,7 @@ class MPSOCSet(DictSet):
             factor = self.small_gap_multiply[1]
         return {"reciprocal_density": self.reciprocal_density * factor}
 
-    @DictSet.structure.setter  # type: ignore
+    @VaspInputSet.structure.setter  # type: ignore
     def structure(self, structure: Structure | None) -> None:
         if structure is not None:
             if self.magmom:
@@ -1904,11 +1841,11 @@ class MPSOCSet(DictSet):
             else:
                 raise ValueError("Neither the previous structure has magmom property nor magmom provided")
 
-        DictSet.structure.fset(self, structure)  # type: ignore
+        VaspInputSet.structure.fset(self, structure)  # type: ignore
 
 
 @dataclass
-class MPNMRSet(DictSet):
+class MPNMRSet(VaspInputSet):
     """Init a MPNMRSet.
 
     Args:
@@ -1928,7 +1865,7 @@ class MPNMRSet(DictSet):
         small_gap_multiply ([float, float]): If the gap is less than
             1st index, multiply the default reciprocal_density by the 2nd
             index.
-        **kwargs: kwargs supported by MPRelaxSet.
+        **kwargs: Keywords supported by MPRelaxSet.
     """
 
     mode: Literal["cs", "efg"] = "cs"
@@ -1986,7 +1923,7 @@ class MPNMRSet(DictSet):
     Doi("10.1149/2.0061602jes"),
     description="Elastic Properties of Alkali Superionic Conductor Electrolytes from First Principles Calculations",
 )
-class MVLElasticSet(DictSet):
+class MVLElasticSet(VaspInputSet):
     """
     MVL denotes VASP input sets that are implemented by the Materials Virtual
     Lab (http://materialsvirtuallab.org) for various research.
@@ -2019,7 +1956,7 @@ class MVLElasticSet(DictSet):
 
 
 @dataclass
-class MVLGWSet(DictSet):
+class MVLGWSet(VaspInputSet):
     """
     MVL denotes VASP input sets that are implemented by the Materials Virtual
     Lab (http://materialsvirtuallab.org) for various research. This is a
@@ -2053,7 +1990,7 @@ class MVLGWSet(DictSet):
         ncores (int): Numbers of cores used for the calculation. VASP will alter
             NBANDS if it was not dividable by ncores. Only applies if
             mode=="DIAG".
-        **kwargs: All kwargs supported by DictSet. Typically,
+        **kwargs: All kwargs supported by VaspInputSet. Typically,
             user_incar_settings is a commonly used option.
     """
 
@@ -2128,7 +2065,7 @@ class MVLGWSet(DictSet):
 
 
 @dataclass
-class MVLSlabSet(DictSet):
+class MVLSlabSet(VaspInputSet):
     """Write a set of slab vasp runs, including both slabs (along the c direction)
     and orient unit cells (bulk), to ensure the same KPOINTS, POTCAR and INCAR criterion.
 
@@ -2140,7 +2077,7 @@ class MVLSlabSet(DictSet):
         auto_dipole:
         set_mix:
         sort_structure:
-        **kwargs: Other kwargs supported by DictSet.
+        **kwargs: Other kwargs supported by VaspInputSet.
     """
 
     k_product: int = 50
@@ -2204,7 +2141,7 @@ class MVLSlabSet(DictSet):
 
 
 @dataclass
-class MVLGBSet(DictSet):
+class MVLGBSet(VaspInputSet):
     """Write a vasp input files for grain boundary calculations, slab or bulk.
 
     Args:
@@ -2266,7 +2203,7 @@ class MVLGBSet(DictSet):
 
 
 @dataclass
-class MVLRelax52Set(DictSet):
+class MVLRelax52Set(VaspInputSet):
     """
     Implementation of VaspInputSet utilizing the public Materials Project
     parameters for INCAR & KPOINTS and VASP's recommended PAW potentials for
@@ -2283,15 +2220,15 @@ class MVLRelax52Set(DictSet):
     Args:
         structure (Structure): input structure.
         user_potcar_functional (str): choose from "PBE_52" and "PBE_54".
-        **kwargs: Other kwargs supported by DictSet.
+        **kwargs: Other kwargs supported by VaspInputSet.
     """
 
     user_potcar_functional: UserPotcarFunctional = "PBE_52"
     CONFIG = _load_yaml_config("MVLRelax52Set")
-    _valid_potcars = ("PBE_52", "PBE_54")
+    _valid_potcars: Sequence[str] | None = ("PBE_52", "PBE_54")
 
 
-class MITNEBSet(DictSet):
+class MITNEBSet(VaspInputSet):
     """Write NEB inputs.
 
     Note that EDIFF is not on a per atom basis for this input set.
@@ -2302,7 +2239,7 @@ class MITNEBSet(DictSet):
         Args:
             structures: List of Structure objects.
             unset_encut (bool): Whether to unset ENCUT.
-            **kwargs: Other kwargs supported by DictSet.
+            **kwargs: Other kwargs supported by VaspInputSet.
         """
         if len(structures) < 3:
             raise ValueError(f"You need at least 3 structures for an NEB, got {len(structures)}")
@@ -2398,7 +2335,7 @@ class MITNEBSet(DictSet):
 
 
 @dataclass
-class MITMDSet(DictSet):
+class MITMDSet(VaspInputSet):
     """Write a VASP MD run. This DOES NOT do multiple stage runs.
 
     Args:
@@ -2410,7 +2347,7 @@ class MITMDSet(DictSet):
             parameter. Defaults to 2fs.
         spin_polarized (bool): Whether to do spin polarized calculations.
             The ISPIN parameter. Defaults to False.
-        **kwargs: Other kwargs supported by DictSet.
+        **kwargs: Other kwargs supported by VaspInputSet.
     """
 
     structure: Structure | None = None
@@ -2461,7 +2398,7 @@ class MITMDSet(DictSet):
 
 
 @dataclass
-class MPMDSet(DictSet):
+class MPMDSet(VaspInputSet):
     """
     This a modified version of the old MITMDSet pre 2018/03/12.
 
@@ -2485,7 +2422,7 @@ class MPMDSet(DictSet):
             for hydrogen containing structures.
         spin_polarized (bool): Whether to do spin polarized calculations.
             The ISPIN parameter. Defaults to False.
-        **kwargs: Other kwargs supported by DictSet.
+        **kwargs: Other kwargs supported by VaspInputSet.
     """
 
     start_temp: float = 0.0
@@ -2546,7 +2483,7 @@ class MPMDSet(DictSet):
 
 
 @dataclass
-class MVLNPTMDSet(DictSet):
+class MVLNPTMDSet(VaspInputSet):
     """Write a VASP MD run in NPT ensemble.
 
     Notes:
@@ -2610,7 +2547,7 @@ class MVLNPTMDSet(DictSet):
 
 
 @dataclass
-class MVLScanRelaxSet(DictSet):
+class MVLScanRelaxSet(VaspInputSet):
     """Write a relax input set using Strongly Constrained and
     Appropriately Normed (SCAN) semilocal density functional.
 
@@ -2632,17 +2569,17 @@ class MVLScanRelaxSet(DictSet):
         vdw (str): set "rVV10" to enable SCAN+rVV10, which is a versatile
             van der Waals density functional by combing the SCAN functional
             with the rVV10 non-local correlation functional.
-        **kwargs: Other kwargs supported by DictSet.
+        **kwargs: Other kwargs supported by VaspInputSet.
     """
 
     user_potcar_functional: UserPotcarFunctional = "PBE_52"
-    _valid_potcars = ("PBE_52", "PBE_54")
+    _valid_potcars: Sequence[str] | None = ("PBE_52", "PBE_54")
     CONFIG = MPRelaxSet.CONFIG
 
     def __post_init__(self):
         super().__post_init__()
         if self.user_potcar_functional not in ("PBE_52", "PBE_54"):
-            raise ValueError("SCAN calculations required PBE_52 or PBE_54!")
+            raise ValueError("SCAN calculations require PBE_52 or PBE_54!")
 
     @property
     def incar_updates(self) -> dict:
@@ -2662,7 +2599,7 @@ class MVLScanRelaxSet(DictSet):
 
 
 @dataclass
-class LobsterSet(DictSet):
+class LobsterSet(VaspInputSet):
     """Input set to prepare VASP runs that can be digested by Lobster (See cohp.de).
 
     Args:
@@ -2678,7 +2615,7 @@ class LobsterSet(DictSet):
         user_potcar_settings (dict): dict including potcar settings for all elements in
             structure, e.g. {"Fe": "Fe_pv", "O": "O"}; if not supplied, a standard basis
             is used.
-        **kwargs: Other kwargs supported by DictSet.
+        **kwargs: Other kwargs supported by VaspInputSet.
     """
 
     isym: int = 0
@@ -2692,7 +2629,7 @@ class LobsterSet(DictSet):
     user_potcar_functional: UserPotcarFunctional = "PBE_54"
 
     CONFIG = MPRelaxSet.CONFIG
-    _valid_potcars = ("PBE_52", "PBE_54")
+    _valid_potcars: Sequence[str] | None = ("PBE_52", "PBE_54")
 
     def __post_init__(self):
         super().__post_init__()
@@ -2979,7 +2916,7 @@ def get_valid_magmom_struct(structure: Structure, inplace: bool = True, spin_mod
 
 
 @dataclass
-class MPAbsorptionSet(DictSet):
+class MPAbsorptionSet(VaspInputSet):
     """
     MP input set for generating frequency dependent dielectrics.
 
@@ -3006,7 +2943,7 @@ class MPAbsorptionSet(DictSet):
         nkred: the reduced number of kpoints to calculate, equal to the k-mesh.
             Only applies in "RPA" mode because of the q->0 limit.
         nedos: the density of DOS, default: 2001.
-        **kwargs: All kwargs supported by DictSet. Typically, user_incar_settings is a
+        **kwargs: All kwargs supported by VaspInputSet. Typically, user_incar_settings is a
             commonly used option.
     """
 

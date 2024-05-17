@@ -2412,7 +2412,7 @@ class PotcarSingle:
             potcar_functionals (list): List of potcar functionals associated with
                 the PotcarSingle
         """
-        # Dict to translate the sets in the .json file to the keys used in DictSet
+        # Dict to translate the sets in the .json file to the keys used in VaspInputSet
         mapping_dict = {
             "potUSPP_GGA": {
                 "pymatgen_key": "PW91_US",
