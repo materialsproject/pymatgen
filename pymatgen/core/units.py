@@ -1,9 +1,10 @@
-"""This module implements FloatWithUnit, a subclass of float. It
-also defines supported units for commonly used units for energy, length,
-temperature, time and charge. FloatWithUnit also support conversion to
-another, and additions and subtractions perform automatic conversion if
-units are detected. An ArrayWithUnit is also implemented, a subclass
-of numpy's ndarray with similar unit features.
+"""This module defines supported units for commonly used units
+for energy, length, temperature, time and charge.
+
+- FloatWithUnit, a subclass of float, which supports
+conversion to another, and additions and subtractions perform
+automatic conversion if units are detected.
+- ArrayWithUnit, a subclass of numpy's ndarray with similar unit features.
 """
 
 from __future__ import annotations
@@ -13,7 +14,7 @@ import re
 from collections import defaultdict
 from functools import partial
 from numbers import Number
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 import scipy.constants as const
@@ -251,7 +252,7 @@ class Unit(collections.abc.Mapping):
                 factor *= f**v
         return {k: v for k, v in base_units.items() if v != 0}, factor
 
-    def get_conversion_factor(self, new_unit: str) -> float:
+    def get_conversion_factor(self, new_unit: str | Unit) -> float:
         """Get a conversion factor between this unit and a new unit.
         Compound units are supported, but must have the same powers in each
         unit type.
@@ -260,11 +261,12 @@ class Unit(collections.abc.Mapping):
             new_unit: The new unit.
         """
         old_base, old_factor = self.as_base_units
-        new_base, new_factor = type(self)(new_unit).as_base_units
+        new_base, new_factor = type(self)(str(new_unit)).as_base_units
+
         units_new = sorted(new_base.items(), key=lambda d: _UNAME2UTYPE[d[0]])
         units_old = sorted(old_base.items(), key=lambda d: _UNAME2UTYPE[d[0]])
-
         factor = old_factor / new_factor
+
         for old, new in zip(units_old, units_new):
             if old[1] != new[1]:
                 raise UnitError(f"Units {old} and {new} are not compatible!")
@@ -298,20 +300,20 @@ class FloatWithUnit(float):
     def __init__(
         self,
         val: float | Number,
-        unit: str,
+        unit: str | Unit,
         unit_type: str | None = None,
     ) -> None:
         """Initialize a float with unit.
 
         Args:
             val (float): Value
-            unit (str): A unit. e.g. "C".
+            unit (str | Unit): A unit. e.g. "C".
             unit_type (str): A type of unit. e.g. "charge"
         """
         if unit_type is not None and str(unit) not in ALL_UNITS[unit_type]:
             raise UnitError(f"{unit} is not a supported unit for {unit_type}")
 
-        self._unit = Unit(unit)
+        self._unit = Unit(str(unit))
         self._unit_type = unit_type
 
     def __new__(cls, val, unit, unit_type=None) -> Self:
@@ -332,7 +334,11 @@ class FloatWithUnit(float):
         val = other
         if other.unit != self._unit:
             val = other.to(self._unit)
-        return type(self)(float(self) + val, unit_type=self._unit_type, unit=self._unit)
+        return type(self)(
+            float(self) + val,
+            unit_type=self._unit_type,
+            unit=self._unit,
+        )
 
     def __sub__(self, other):
         if not hasattr(other, "unit_type"):
@@ -342,17 +348,37 @@ class FloatWithUnit(float):
         val = other
         if other.unit != self._unit:
             val = other.to(self._unit)
-        return type(self)(float(self) - val, unit_type=self._unit_type, unit=self._unit)
+        return type(self)(
+            float(self) - val,
+            unit_type=self._unit_type,
+            unit=self._unit,
+        )
 
     def __mul__(self, other):
         if not isinstance(other, type(self)):
-            return type(self)(float(self) * other, unit_type=self._unit_type, unit=self._unit)
-        return type(self)(float(self) * other, unit_type=None, unit=self._unit * other._unit)
+            return type(self)(
+                float(self) * other,
+                unit_type=self._unit_type,
+                unit=self._unit,
+            )
+        return type(self)(
+            float(self) * other,
+            unit_type=None,
+            unit=self._unit * other._unit,
+        )
 
     def __rmul__(self, other):
         if not isinstance(other, type(self)):
-            return type(self)(float(self) * other, unit_type=self._unit_type, unit=self._unit)
-        return type(self)(float(self) * other, unit_type=None, unit=self._unit * other._unit)
+            return type(self)(
+                float(self) * other,
+                unit_type=self._unit_type,
+                unit=self._unit,
+            )
+        return type(self)(
+            float(self) * other,
+            unit_type=None,
+            unit=self._unit * other._unit,
+        )
 
     def __pow__(self, i):
         return type(self)(float(self) ** i, unit_type=None, unit=self._unit**i)
@@ -364,7 +390,11 @@ class FloatWithUnit(float):
         return type(self)(val, unit_type=None, unit=self._unit / other._unit)
 
     def __neg__(self):
-        return type(self)(super().__neg__(), unit_type=self._unit_type, unit=self._unit)
+        return type(self)(
+            super().__neg__(),
+            unit_type=self._unit_type,
+            unit=self._unit,
+        )
 
     def __getnewargs__(self):
         """Used by pickle to recreate object."""
@@ -417,15 +447,15 @@ class FloatWithUnit(float):
                 return cls(num, unit, unit_type=unit_type)
         return cls(num, unit, unit_type=None)
 
-    def to(self, new_unit: str) -> Self:
-        """Conversion to a new_unit. Right now, only supports
+    def to(self, new_unit: str | Unit) -> Self:
+        """Convert to a new unit. Right now, only support
         1 to 1 mapping of units of each type.
 
         Args:
             new_unit: New unit type.
 
         Returns:
-            A FloatWithUnit in the new units.
+            A FloatWithUnit in the new unit.
 
         Example usage:
         >>> energy = Energy(1.1, "eV")
@@ -444,7 +474,7 @@ class FloatWithUnit(float):
         """This FloatWithUnit in base SI units, including derived units.
 
         Returns:
-            A FloatWithUnit in base SI units
+            A FloatWithUnit object in base SI units
         """
         return self.to(self.unit.as_base_units[0])
 
@@ -478,7 +508,7 @@ class ArrayWithUnit(np.ndarray):
     def __new__(
         cls,
         input_array: NDArray,
-        unit: str,
+        unit: str | Unit,
         unit_type: str | None = None,
     ) -> Self:
         """Override __new__."""
@@ -486,7 +516,7 @@ class ArrayWithUnit(np.ndarray):
         # We first cast to be our class type
         obj = np.asarray(input_array).view(cls)
         # Add the new attributes to the created instance
-        obj._unit = Unit(unit)
+        obj._unit = Unit(str(Unit))
         obj._unit_type = unit_type
         return obj
 
@@ -532,14 +562,18 @@ class ArrayWithUnit(np.ndarray):
             if other.unit != self.unit:
                 other = other.to(self.unit)
 
-        return type(self)(np.array(self) - np.array(other), unit_type=self.unit_type, unit=self.unit)
+        return type(self)(
+            np.array(self) - np.array(other),
+            unit_type=self.unit_type,
+            unit=self.unit,
+        )
 
     def __mul__(self, other):
-        # TODO Here we have the most important difference between FloatWithUnit and
-        # ArrayWithUnit:
-        # If other does not have units, I return an object with the same units
+        # TODO Here we have the most important difference between
+        # FloatWithUnit and ArrayWithUnit:
+        # If other does not have units, return an object with the same units
         # as self.
-        # if other *has* units, I return an object *without* units since
+        # If other *has* units, return an object *without* units since
         # taking into account all the possible derived quantities would be
         # too difficult.
         # Moreover Energy(1.0) * Time(1.0, "s") returns 1.0 Ha that is a
@@ -553,7 +587,10 @@ class ArrayWithUnit(np.ndarray):
             )
         # Cannot use super since it returns an instance of self.__class__
         # while here we want a bare numpy array.
-        return type(self)(np.array(self).__mul__(np.array(other)), unit=self.unit * other.unit)
+        return type(self)(
+            np.array(self).__mul__(np.array(other)),
+            unit=self.unit * other.unit,
+        )
 
     def __rmul__(self, other):
         if not hasattr(other, "unit_type"):
@@ -562,12 +599,22 @@ class ArrayWithUnit(np.ndarray):
                 unit_type=self._unit_type,
                 unit=self._unit,
             )
-        return type(self)(np.array(self) * np.array(other), unit=self.unit * other.unit)
+        return type(self)(
+            np.array(self) * np.array(other),
+            unit=self.unit * other.unit,
+        )
 
     def __truediv__(self, other):
         if not hasattr(other, "unit_type"):
-            return type(self)(np.array(self) / np.array(other), unit_type=self._unit_type, unit=self._unit)
-        return type(self)(np.array(self) / np.array(other), unit=self.unit / other.unit)
+            return type(self)(
+                np.array(self) / np.array(other),
+                unit_type=self._unit_type,
+                unit=self._unit,
+            )
+        return type(self)(
+            np.array(self) / np.array(other),
+            unit=self.unit / other.unit,
+        )
 
     def __neg__(self):
         return type(self)(-np.array(self), unit_type=self.unit_type, unit=self.unit)
@@ -580,17 +627,16 @@ class ArrayWithUnit(np.ndarray):
     @property
     def unit(self) -> Unit:
         """The unit, e.g. "eV"."""
-        return self._unit
+        return cast(Unit, self._unit)
 
-    def to(self, new_unit: str) -> Self:
-        """Conversion to a new_unit.
+    def to(self, new_unit: str | Unit) -> Self:
+        """Convert to a new unit.
 
         Args:
-            new_unit:
-                New unit type.
+            new_unit: New unit type.
 
         Returns:
-            A ArrayWithUnit object in the new units.
+            A ArrayWithUnit object in the new unit.
 
         Example usage:
         >>> e = EnergyArray([1, 1.1], "Ha")
@@ -616,6 +662,9 @@ class ArrayWithUnit(np.ndarray):
     @property
     def supported_units(self) -> dict:
         """Supported units for specific unit type."""
+        if self.unit_type is None:
+            raise RuntimeError("Cannot get supported unit for None.")
+
         return ALL_UNITS[self.unit_type]
 
     # TODO abstract base class method?
@@ -712,7 +761,10 @@ Args:
 """
 
 
-def obj_with_unit(obj: Any, unit: str) -> FloatWithUnit | ArrayWithUnit | dict[str, FloatWithUnit | ArrayWithUnit]:
+def obj_with_unit(
+    obj: Any,
+    unit: str,
+) -> FloatWithUnit | ArrayWithUnit | dict[str, FloatWithUnit | ArrayWithUnit]:
     """Get a FloatWithUnit instance if obj is scalar, a dictionary of
     objects with units if obj is a dict, else an instance of
     ArrayWithUnit.
@@ -733,7 +785,7 @@ def obj_with_unit(obj: Any, unit: str) -> FloatWithUnit | ArrayWithUnit | dict[s
 
 
 def unitized(unit):
-    """Useful decorator to assign units to the output of a function. You can also
+    """Decorator to assign units to the output of a function. You can also
     use it to standardize the output units of a function that already returns
     a FloatWithUnit or ArrayWithUnit. For sequences, all values in the sequences
     are assigned the same unit. It works with Python sequences only. The creation
