@@ -364,13 +364,14 @@ class FloatWithUnit(float):
         )
 
     def __mul__(self, other):
-        if not isinstance(other, type(self)):
-            return type(self)(
+        cls = type(self)
+        if not isinstance(other, cls):
+            return cls(
                 float(self) * other,
                 unit_type=self._unit_type,
                 unit=self._unit,
             )
-        return type(self)(
+        return cls(
             float(self) * other,
             unit_type=None,
             unit=self._unit * other._unit,
@@ -474,11 +475,8 @@ class FloatWithUnit(float):
         >>> energy.to("eV")
         29.932522246 eV
         """
-        return type(self)(
-            self * self.unit.get_conversion_factor(new_unit),
-            unit_type=self._unit_type,
-            unit=new_unit,
-        )
+        new_value = self * self.unit.get_conversion_factor(new_unit)
+        return type(self)(new_value, unit_type=self._unit_type, unit=new_unit)
 
     @property
     def as_base_units(self):
