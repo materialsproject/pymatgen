@@ -1127,9 +1127,10 @@ class VaspInputSet(InputGenerator, abc.ABC):
 VaspInputGenerator = VaspInputSet
 
 
-@deprecated(replacement=VaspInputSet, deadline=(2025, 12, 31))
 class DictSet(VaspInputSet):
-    pass
+    @deprecated(replacement=VaspInputSet, deadline=(2025, 12, 31))
+    def __init__(self):
+        super().__init__()
 
 
 # Helper functions to determine valid FFT grids for VASP
