@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import abc
 import itertools
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -16,6 +16,7 @@ from pymatgen.util.coord_cython import is_coord_subset_pbc, pbc_shortest_vectors
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
+    from typing import Literal
 
     from typing_extensions import Self
 

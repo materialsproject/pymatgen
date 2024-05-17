@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 from pymatgen.core import Molecule, Structure
 from pymatgen.io.aims.sets.base import AimsInputGenerator
@@ -11,6 +11,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
 
 
 class _SegmentDict(TypedDict):
@@ -22,12 +23,9 @@ class _SegmentDict(TypedDict):
 def prepare_band_input(structure: Structure, density: float = 20):
     """Prepare the band information needed for the FHI-aims control.in file.
 
-    Parameters
-    ----------
-    structure: Structure
-        The structure for which the band path is calculated
-    density: float
-        Number of kpoints per Angstrom.
+    Args:
+        structure (Structure): The structure for which the band path is calculated
+        density (float): Number of kpoints per Angstrom.
     """
     bp = HighSymmKpath(structure)
     points, labels = bp.get_kpoints(line_density=density, coords_are_cartesian=False)
@@ -64,12 +62,9 @@ def prepare_band_input(structure: Structure, density: float = 20):
 class BandStructureSetGenerator(AimsInputGenerator):
     """A generator for the band structure calculation input set.
 
-    Parameters
-    ----------
-    calc_type: str
-        The type of calculations
-    k_point_density: float
-        The number of k_points per angstrom
+    Attributes:
+        calc_type (str): The type of calculations
+        k_point_density (float): The number of k_points per angstrom
     """
 
     calc_type: str = "bands"
@@ -80,12 +75,9 @@ class BandStructureSetGenerator(AimsInputGenerator):
     ) -> dict[str, Sequence[str]]:
         """Get the parameter updates for the calculation.
 
-        Parameters
-        ----------
-        structure: Structure
-            The structure to calculate the bands for
-        prev_parameters: Dict[str, Any]
-            The previous parameters
+        Args:
+            structure (Structure): The structure to calculate the bands for
+            prev_parameters (Dict[str, Any]): The previous parameters
 
         Returns:
             dict: The updated for the parameters for the output section of FHI-aims
@@ -103,12 +95,9 @@ class GWSetGenerator(AimsInputGenerator):
     """
     A generator for the input set for calculations employing GW self-energy correction.
 
-    Parameters
-    ----------
-    calc_type: str
-        The type of calculations
-    k_point_density: float
-        The number of k_points per angstrom
+    Attributes:
+        calc_type (str): The type of calculations
+        k_point_density (float): The number of k_points per angstrom
     """
 
     calc_type: str = "GW"
@@ -117,12 +106,9 @@ class GWSetGenerator(AimsInputGenerator):
     def get_parameter_updates(self, structure: Structure | Molecule, prev_parameters: dict[str, Any]) -> dict[str, Any]:
         """Get the parameter updates for the calculation.
 
-        Parameters
-        ----------
-        structure: Structure or Molecule
-            The structure to calculate the bands for
-        prev_parameters: Dict[str, Any]
-            The previous parameters
+        Args:
+            structure (Structure or Molecule): The structure to calculate the bands for
+            prev_parameters (Dict[str, Any]): The previous parameters
 
         Returns:
             dict: The updated for the parameters for the output section of FHI-aims

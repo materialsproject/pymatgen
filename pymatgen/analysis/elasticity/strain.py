@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import collections
 import itertools
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy
@@ -18,6 +18,7 @@ from pymatgen.core.tensors import SquareTensor, symmetry_reduce
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Literal
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self

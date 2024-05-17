@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import collections
 import json
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -15,10 +15,12 @@ from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_
 from pymatgen.util.coord import pbc_diff
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
-    from pymatgen.util.typing import CompositionLike, SpeciesLike
+    from pymatgen.util.typing import CompositionLike, SpeciesLike, Vector3D
 
 
 class Site(collections.abc.Hashable, MSONable):
@@ -61,41 +63,94 @@ class Site(collections.abc.Hashable, MSONable):
         if not skip_checks:
             if not isinstance(species, Composition):
                 try:
-                    species = Composition({get_el_sp(species): 1})  # type: ignore
+                    species = Composition({get_el_sp(species): 1})  # type: ignore[arg-type]
                 except TypeError:
                     species = Composition(species)
             total_occu = species.num_atoms
             if total_occu > 1 + Composition.amount_tolerance:
                 raise ValueError("Species occupancies sum to more than 1!")
             coords = np.array(coords)
-        self._species: Composition = species  # type: ignore
-        self.coords: np.ndarray = coords  # type: ignore
+
+        self._species = species
+        self.coords: np.ndarray = coords
         self.properties: dict = properties or {}
         self._label = label
 
-    def __getattr__(self, attr):
-        # overriding getattr doesn't play nicely with pickle, so we can't use self._properties
+    def __getattr__(self, attr: str) -> Any:
+        # Override getattr doesn't play nicely with pickle,
+        # so we can't use self._properties
         props = self.__getattribute__("properties")
         if attr in props:
             return props[attr]
         raise AttributeError(f"{attr=} not found on {type(self).__name__}")
 
+    def __getitem__(self, el: Element) -> float:  # type: ignore[override]
+        """Get the occupancy for element."""
+        return self.species[el]
+
+    def __eq__(self, other: object) -> bool:
+        """Site is equal to another site if the species and occupancies are the
+        same, and the coordinates are the same to some tolerance.  numpy
+        function `allclose` is used to determine if coordinates are close.
+        """
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return (
+            self.species == other.species
+            and np.allclose(self.coords, other.coords, atol=type(self).position_atol)
+            and self.properties == other.properties
+        )
+
+    def __hash__(self) -> int:  # type: ignore[override]
+        """Minimally effective hash function that just distinguishes between Sites
+        with different elements.
+        """
+        return sum(el.Z for el in self.species)
+
+    def __contains__(self, el: Element) -> bool:
+        return el in self.species
+
+    def __repr__(self) -> str:
+        name = self.species_string
+
+        if self.label != name:
+            name = f"{self.label} ({name})"
+
+        return f"Site: {name} ({self.coords[0]:.4f}, {self.coords[1]:.4f}, {self.coords[2]:.4f})"
+
+    def __lt__(self, other: Site) -> bool:
+        """Set a default sort order for atomic species by electronegativity. Very
+        useful for getting correct formulas. For example, FeO4PLi is
+        automatically sorted in LiFePO4.
+        """
+        if self.species.average_electroneg < other.species.average_electroneg:
+            return True
+        if self.species.average_electroneg > other.species.average_electroneg:
+            return False
+        return self.species_string < other.species_string
+
+    def __str__(self) -> str:
+        return f"{self.coords} {self.species_string}"
+
     @property
     def species(self) -> Composition:
         """The species on the site as a composition, e.g. Fe0.5Mn0.5."""
-        return self._species
+        return cast(Composition, self._species)
 
     @species.setter
     def species(self, species: SpeciesLike | CompositionLike) -> None:
         if not isinstance(species, Composition):
             try:
-                species = Composition({get_el_sp(species): 1})  # type: ignore
+                species = Composition({get_el_sp(species): 1})  # type: ignore[arg-type]
             except TypeError:
                 species = Composition(species)
+
         total_occu = species.num_atoms
         if total_occu > 1 + Composition.amount_tolerance:
             raise ValueError("Species occupancies sum to more than 1!")
-        self._species = species
+
+        self._species = cast(Composition, species)
 
     @property
     def label(self) -> str:
@@ -133,7 +188,7 @@ class Site(collections.abc.Hashable, MSONable):
     def z(self, z: float) -> None:
         self.coords[2] = z
 
-    def distance(self, other) -> float:
+    def distance(self, other: Site) -> float:
         """Get distance between two sites.
 
         Args:
@@ -144,7 +199,7 @@ class Site(collections.abc.Hashable, MSONable):
         """
         return float(np.linalg.norm(other.coords - self.coords))
 
-    def distance_from_point(self, pt) -> float:
+    def distance_from_point(self, pt: Vector3D) -> float:
         """Get distance between the site and a point in space.
 
         Args:
@@ -185,55 +240,6 @@ class Site(collections.abc.Hashable, MSONable):
         total_occu = self.species.num_atoms
         return total_occu == len(self.species) == 1
 
-    def __getitem__(self, el):
-        """Get the occupancy for element."""
-        return self.species[el]
-
-    def __eq__(self, other: object) -> bool:
-        """Site is equal to another site if the species and occupancies are the
-        same, and the coordinates are the same to some tolerance.  numpy
-        function `allclose` is used to determine if coordinates are close.
-        """
-        if not isinstance(other, type(self)):
-            return NotImplemented
-
-        return (
-            self.species == other.species
-            and np.allclose(self.coords, other.coords, atol=Site.position_atol)
-            and self.properties == other.properties
-        )
-
-    def __hash__(self) -> int:
-        """Minimally effective hash function that just distinguishes between Sites
-        with different elements.
-        """
-        return sum(el.Z for el in self.species)
-
-    def __contains__(self, el) -> bool:
-        return el in self.species
-
-    def __repr__(self) -> str:
-        name = self.species_string
-
-        if self.label != name:
-            name = f"{self.label} ({name})"
-
-        return f"Site: {name} ({self.coords[0]:.4f}, {self.coords[1]:.4f}, {self.coords[2]:.4f})"
-
-    def __lt__(self, other):
-        """Set a default sort order for atomic species by electronegativity. Very
-        useful for getting correct formulas. For example, FeO4PLi is
-        automatically sorted in LiFePO4.
-        """
-        if self.species.average_electroneg < other.species.average_electroneg:
-            return True
-        if self.species.average_electroneg > other.species.average_electroneg:
-            return False
-        return self.species_string < other.species_string
-
-    def __str__(self) -> str:
-        return f"{self.coords} {self.species_string}"
-
     def as_dict(self) -> dict:
         """JSON-serializable dict representation for Site."""
         species = []
@@ -264,11 +270,11 @@ class Site(collections.abc.Hashable, MSONable):
         atoms_n_occu = {}
         for sp_occu in dct["species"]:
             if "oxidation_state" in sp_occu and Element.is_valid_symbol(sp_occu["element"]):
-                sp = Species.from_dict(sp_occu)
+                sp: Species | DummySpecies | Element = Species.from_dict(sp_occu)
             elif "oxidation_state" in sp_occu:
                 sp = DummySpecies.from_dict(sp_occu)
             else:
-                sp = Element(sp_occu["element"])  # type: ignore
+                sp = Element(sp_occu["element"])
             atoms_n_occu[sp] = sp_occu["occu"]
         props = dct.get("properties")
         if props is not None:
@@ -323,13 +329,13 @@ class PeriodicSite(Site, MSONable):
         frac_coords = lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
 
         if to_unit_cell:
-            frac_coords = np.array([np.mod(f, 1) if p else f for p, f in zip(lattice.pbc, frac_coords)])  # type: ignore
+            frac_coords = np.array([np.mod(f, 1) if p else f for p, f in zip(lattice.pbc, frac_coords)])
 
         if not skip_checks:
             frac_coords = np.array(frac_coords)
             if not isinstance(species, Composition):
                 try:
-                    species = Composition({get_el_sp(species): 1})  # type: ignore
+                    species = Composition({get_el_sp(species): 1})  # type: ignore[arg-type]
                 except TypeError:
                     species = Composition(species)
 
@@ -339,7 +345,7 @@ class PeriodicSite(Site, MSONable):
 
         self._lattice: Lattice = lattice
         self._frac_coords: np.ndarray = np.asarray(frac_coords)
-        self._species: Composition = species  # type: ignore
+        self._species: Composition = cast(Composition, species)
         self._coords: np.ndarray | None = None
         self.properties: dict = properties or {}
         self._label = label
@@ -349,6 +355,28 @@ class PeriodicSite(Site, MSONable):
         with different elements.
         """
         return sum(el.Z for el in self.species)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, type(self)):
+            return NotImplemented
+
+        return (
+            self.species == other.species
+            and self.lattice == other.lattice
+            and np.allclose(self.coords, other.coords, atol=Site.position_atol)
+            and self.properties == other.properties
+        )
+
+    def __repr__(self) -> str:
+        name = self.species_string
+
+        if self.label != name:
+            name = f"{self.label} ({name})"
+
+        x, y, z = self.coords
+        x_frac, y_frac, z_frac = map(float, self.frac_coords)
+        cls_name = type(self).__name__
+        return f"{cls_name}: {name} ({x:.4}, {y:.4}, {z:.4}) [{x_frac:.4}, {y_frac:.4}, {z_frac:.4}]"
 
     @property
     def lattice(self) -> Lattice:
@@ -369,7 +397,7 @@ class PeriodicSite(Site, MSONable):
         return self._coords
 
     @coords.setter
-    def coords(self, coords) -> None:
+    def coords(self, coords: np.ndarray) -> None:
         """Set Cartesian coordinates."""
         self._coords = np.array(coords)
         self._frac_coords = self._lattice.get_fractional_coords(self._coords)
@@ -380,7 +408,7 @@ class PeriodicSite(Site, MSONable):
         return self._frac_coords
 
     @frac_coords.setter
-    def frac_coords(self, frac_coords) -> None:
+    def frac_coords(self, frac_coords: np.ndarray) -> None:
         """Set fractional coordinates."""
         self._frac_coords = np.array(frac_coords)
         self._coords = self._lattice.get_cartesian_coords(self._frac_coords)
@@ -445,16 +473,21 @@ class PeriodicSite(Site, MSONable):
         self.coords[2] = z
         self._frac_coords = self._lattice.get_fractional_coords(self.coords)
 
-    def to_unit_cell(self, in_place=False) -> PeriodicSite | None:
+    def to_unit_cell(self, in_place: bool = False) -> PeriodicSite | None:
         """Move frac coords to within the unit cell."""
         frac_coords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, self.frac_coords)]
         if in_place:
             self.frac_coords = np.array(frac_coords)
             return None
-        return PeriodicSite(self.species, frac_coords, self.lattice, properties=self.properties, label=self.label)
+        return type(self)(self.species, frac_coords, self.lattice, properties=self.properties, label=self.label)
 
-    def is_periodic_image(self, other: PeriodicSite, tolerance: float = 1e-8, check_lattice: bool = True) -> bool:
-        """Get True if sites are periodic images of each other.
+    def is_periodic_image(
+        self,
+        other: PeriodicSite,
+        tolerance: float = 1e-8,
+        check_lattice: bool = True,
+    ) -> bool:
+        """Check if sites are periodic images of each other.
 
         Args:
             other (PeriodicSite): Other site
@@ -473,19 +506,10 @@ class PeriodicSite(Site, MSONable):
         frac_diff = pbc_diff(self.frac_coords, other.frac_coords, self.lattice.pbc)
         return np.allclose(frac_diff, [0, 0, 0], atol=tolerance)
 
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Site):
-            return NotImplemented
-
-        return (
-            self.species == other.species
-            and self.lattice == other.lattice
-            and np.allclose(self.coords, other.coords, atol=Site.position_atol)
-            and self.properties == other.properties
-        )
-
     def distance_and_image_from_frac_coords(
-        self, fcoords: ArrayLike, jimage: ArrayLike | None = None
+        self,
+        fcoords: ArrayLike,
+        jimage: ArrayLike | None = None,
     ) -> tuple[float, np.ndarray]:
         """Get distance between site and a fractional coordinate assuming
         periodic boundary conditions. If the index jimage of two sites atom j
@@ -508,7 +532,11 @@ class PeriodicSite(Site, MSONable):
         """
         return self.lattice.get_distance_and_image(self.frac_coords, fcoords, jimage=jimage)
 
-    def distance_and_image(self, other: PeriodicSite, jimage: ArrayLike | None = None) -> tuple[float, np.ndarray]:
+    def distance_and_image(
+        self,
+        other: PeriodicSite,
+        jimage: ArrayLike | None = None,
+    ) -> tuple[float, np.ndarray]:
         """Get distance and instance between two sites assuming periodic boundary
         conditions. If the index jimage of two sites atom j is not specified it
         selects the j image nearest to the i atom and returns the distance and
@@ -529,7 +557,11 @@ class PeriodicSite(Site, MSONable):
         """
         return self.distance_and_image_from_frac_coords(other.frac_coords, jimage)
 
-    def distance(self, other: PeriodicSite, jimage: ArrayLike | None = None):
+    def distance(
+        self,
+        other: PeriodicSite,
+        jimage: ArrayLike | None = None,
+    ) -> float:
         """Get distance between two sites assuming periodic boundary conditions.
 
         Args:
@@ -543,17 +575,6 @@ class PeriodicSite(Site, MSONable):
             float: distance between the two sites.
         """
         return self.distance_and_image(other, jimage)[0]
-
-    def __repr__(self) -> str:
-        name = self.species_string
-
-        if self.label != name:
-            name = f"{self.label} ({name})"
-
-        x, y, z = self.coords
-        x_frac, y_frac, z_frac = map(float, self.frac_coords)
-        cls_name = type(self).__name__
-        return f"{cls_name}: {name} ({x:.4}, {y:.4}, {z:.4}) [{x_frac:.4}, {y_frac:.4}, {z_frac:.4}]"
 
     def as_dict(self, verbosity: int = 0) -> dict:
         """JSON-serializable dict representation of PeriodicSite.
@@ -572,7 +593,7 @@ class PeriodicSite(Site, MSONable):
 
         dct = {
             "species": species,
-            "abc": [float(c) for c in self._frac_coords],  # type: ignore
+            "abc": [float(c) for c in self._frac_coords],
             "lattice": self._lattice.as_dict(verbosity=verbosity),
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -587,7 +608,7 @@ class PeriodicSite(Site, MSONable):
         return dct
 
     @classmethod
-    def from_dict(cls, dct, lattice=None) -> Self:
+    def from_dict(cls, dct: dict, lattice: Lattice | None = None) -> Self:
         """Create PeriodicSite from dict representation.
 
         Args:
@@ -602,12 +623,13 @@ class PeriodicSite(Site, MSONable):
         species = {}
         for sp_occu in dct["species"]:
             if "oxidation_state" in sp_occu and Element.is_valid_symbol(sp_occu["element"]):
-                sp = Species.from_dict(sp_occu)
+                sp: Species | DummySpecies | Element = Species.from_dict(sp_occu)
             elif "oxidation_state" in sp_occu:
                 sp = DummySpecies.from_dict(sp_occu)
             else:
-                sp = Element(sp_occu["element"])  # type: ignore
+                sp = Element(sp_occu["element"])
             species[sp] = sp_occu["occu"]
+
         props = dct.get("properties")
         if props is not None:
             for key in props:

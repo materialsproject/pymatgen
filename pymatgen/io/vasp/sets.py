@@ -40,7 +40,7 @@ from dataclasses import dataclass, field
 from glob import glob
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, Union, cast
+from typing import TYPE_CHECKING, cast
 from zipfile import ZipFile
 
 import numpy as np
@@ -60,11 +60,15 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.typing import Kpoint
 
 if TYPE_CHECKING:
-    from typing import Any
+    from typing import Any, Literal, Union
 
     from typing_extensions import Self
 
     from pymatgen.util.typing import Vector3D
+
+    UserPotcarFunctional = Union[
+        Literal["PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"], None
+    ]
 
 MODULE_DIR = Path(__file__).resolve().parent
 # TODO (janosh): replace with following line once PMG is py3.9+ only
@@ -85,17 +89,17 @@ class VaspInputSet(InputGenerator, abc.ABC):
     @property
     @abc.abstractmethod
     def incar(self):
-        """Incar object."""
+        """The input set's INCAR."""
 
     @property
     @abc.abstractmethod
     def kpoints(self):
-        """Kpoints object."""
+        """The input set's KPOINTS."""
 
     @property
     @abc.abstractmethod
     def poscar(self):
-        """Poscar object."""
+        """The input set's POSCAR."""
 
     @property
     def potcar_symbols(self):
@@ -116,7 +120,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
     @property
     def potcar(self) -> Potcar:
-        """Potcar object."""
+        """The input set's POTCAR."""
         user_potcar_functional = self.user_potcar_functional
         potcar = Potcar(self.potcar_symbols, functional=user_potcar_functional)
 
@@ -245,11 +249,6 @@ def _load_yaml_config(fname):
                 v_new.update(v)
                 config[k] = v_new
     return config
-
-
-UserPotcarFunctional = Union[
-    Literal["PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"], None
-]
 
 
 @dataclass
@@ -948,7 +947,7 @@ class DictSet(VaspInputSet):
 
     @property
     def potcar(self) -> Potcar:
-        """Potcar object"""
+        """The input set's POTCAR."""
         if self.structure is None:
             raise RuntimeError("No structure is associated with the input set!")
         return super().potcar

@@ -9,7 +9,7 @@ import copy
 import os
 import warnings
 from collections import defaultdict
-from typing import TYPE_CHECKING, Literal, Union
+from typing import TYPE_CHECKING, Union
 
 import numpy as np
 from monty.design_patterns import cached_class
@@ -33,8 +33,10 @@ from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Literal
 
     from pymatgen.util.typing import CompositionLike
+
 
 __author__ = "Amanda Wang, Ryan Kingsbury, Shyue Ping Ong, Anubhav Jain, Stephen Dacek, Sai Jayaraman"
 __copyright__ = "Copyright 2012-2020, The Materials Project"
@@ -1352,7 +1354,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # TODO - detection of embedded water molecules is not very sophisticated
         # Should be replaced with some kind of actual structure detection
 
-        # For any compound except water, check to see if it is a hydrate (contains
+        # For any compound except water, check if it is a hydrate (contains
         # H2O in its structure). If so, adjust the energy to remove MU_H2O eV per
         # embedded water molecule.
         # in other words, we assume that the DFT energy of such a compound is really
