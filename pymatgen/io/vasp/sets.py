@@ -1122,6 +1122,54 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
         return ng_vec, [ng_ * finer_g_scale for ng_ in ng_vec]
 
+    @staticmethod
+    def from_directory(directory: str | Path, optional_files: dict = None) -> VaspInput:
+        """Load a set of VASP inputs from a directory.
+
+        Note that only the standard INCAR, POSCAR, POTCAR and KPOINTS files are read
+        unless optional_filenames is specified.
+
+        Parameters
+        ----------
+        directory
+            Directory to read VASP inputs from.
+        optional_files
+            Optional files to read in as well as a dict of {filename: Object class}.
+            Object class must have a static/class method from_file.
+        """
+        directory = Path(directory)
+        objs = {"INCAR": Incar, "KPOINTS": Kpoints, "POSCAR": Poscar, "POTCAR": Potcar}
+
+        inputs = {}
+        for name, obj in objs.items():
+            if (directory / name).exists():
+                inputs[name.upper()] = obj.from_file(directory / name)
+            else:
+                # handle the case where there is no KPOINTS file
+                inputs[name.upper()] = None
+
+        optional_inputs = {}
+        if optional_files is not None:
+            for name, obj in optional_files.items():
+                optional_inputs[name] = obj.from_file(directory / name)
+
+        return VaspInput(
+            incar=inputs["INCAR"],
+            kpoints=inputs["KPOINTS"],
+            poscar=inputs["POSCAR"],
+            potcar=inputs["POTCAR"],
+            optional_files=optional_inputs,
+        )
+
+    def _get_nedos(self, dedos: float) -> int:
+        """Automatic setting of nedos using the energy range and the energy step."""
+        if self.prev_vasprun is None:
+            return 2000
+
+        emax = max(eigs.max() for eigs in self.prev_vasprun.eigenvalues.values())
+        emin = min(eigs.min() for eigs in self.prev_vasprun.eigenvalues.values())
+        return int((emax - emin) / dedos)
+
 
 # create VaspInputGenerator alias to follow atomate2 terminology
 VaspInputGenerator = VaspInputSet

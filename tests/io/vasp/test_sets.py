@@ -648,6 +648,32 @@ class TestMITMPRelaxSet(PymatgenTest):
             )
             vis.incar.items()
 
+    def test_write_input_and_from_directory(self):
+        structure = Structure.from_spacegroup("Fm-3m",Lattice.cubic(4.),["Fe"],[[0.,0.,0.]])
+
+        vis = self.set(structure=structure)
+        input_set = vis.get_input_set()
+
+        vis.write_input(output_dir=".")
+        assert all(
+            os.path.isfile(file) for file in ("INCAR","KPOINTS","POSCAR","POTCAR")
+        )
+        input_set_from_dir = self.set().from_directory(".")
+
+        assert all(
+            input_set_from_dir[k] == input_set[k] for k in ("INCAR","KPOINTS","POTCAR")
+        )
+        # for some reason the POSCARs are not identical, but their structures and as_dict()'s are
+        assert input_set_from_dir["POSCAR"].structure == input_set["POSCAR"].structure
+        assert input_set_from_dir["POSCAR"].as_dict() == input_set["POSCAR"].as_dict()
+
+    def test_get_nedos(self):
+        vrun = Vasprun(f"{VASP_OUT_DIR}/vasprun.pbesol.xml.gz")    
+        vis = self.set(structure=vrun.structures[-1])
+        # no `prev_vasprun` --> default value of NEDOS
+        assert vis._get_nedos(0.1) == 2000
+        vis.prev_vasprun = vrun
+        assert vis._get_nedos(0.1) == pytest.approx(741,abs=1)
 
 class TestMPStaticSet(PymatgenTest):
     def setUp(self):
