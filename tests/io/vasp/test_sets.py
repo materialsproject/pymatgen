@@ -128,7 +128,7 @@ class TestSetChangeCheck(PymatgenTest):
             assert hashes[input_set] == known_hashes[input_set], f"{input_set=}\n{msg}"
 
 
-class TestDictSet(PymatgenTest):
+class TestVaspInputSet(PymatgenTest):
     @classmethod
     def setUpClass(cls):
         filepath = f"{VASP_IN_DIR}/POSCAR"
@@ -136,7 +136,7 @@ class TestDictSet(PymatgenTest):
 
     def test_as_dict(self):
         # https://github.com/materialsproject/pymatgen/pull/3031
-        dict_set = DictSet(self.structure, config_dict={"INCAR": {}}, user_potcar_functional="PBE_54")
+        dict_set = VaspInputSet(self.structure, config_dict={"INCAR": {}}, user_potcar_functional="PBE_54")
         assert {*dict_set.as_dict()} >= {
             "@class",
             "@module",
@@ -1580,7 +1580,7 @@ class TestMVLScanRelaxSet(PymatgenTest):
         assert input_set.potcar.functional == "PBE_52"
 
         with pytest.raises(
-            ValueError, match=r"Invalid self.user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
         ):
             MVLScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
@@ -1597,7 +1597,7 @@ class TestMVLScanRelaxSet(PymatgenTest):
     #
     #     # https://github.com/materialsproject/pymatgen/pull/3022
     #     # same test also in MITMPRelaxSetTest above (for redundancy,
-    #     # should apply to all classes inheriting from DictSet)
+    #     # should apply to all classes inheriting from VaspInputSet)
     #     for user_potcar_settings in [{"Fe": "Fe_pv"}, {"W": "W_pv"}, None]:
     #         for species in [("W", "W"), ("Fe", "W"), ("Fe", "Fe")]:
     #             struct = Structure(lattice=Lattice.cubic(3), species=species, coords=[[0, 0, 0], [0.5, 0.5, 0.5]])
@@ -1710,7 +1710,7 @@ class TestMPScanRelaxSet(PymatgenTest):
         assert input_set.potcar.functional == "PBE_54"
 
         with pytest.raises(
-            ValueError, match=r"Invalid self.user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
         ):
             MPScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
@@ -1880,7 +1880,7 @@ class TestMVLRelax52Set(PymatgenTest):
         assert test_potcar_set_1.potcar.functional == "PBE_52"
 
         with pytest.raises(
-            ValueError, match=r"Invalid self.user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
         ):
             self.set(self.struct, user_potcar_functional="PBE")
 
@@ -2094,3 +2094,11 @@ class TestMPAbsorptionSet(PymatgenTest):
 
 def test_vasp_input_set_alias():
     assert VaspInputSet is VaspInputGenerator
+
+
+def test_dict_set_alias():
+    assert isinstance(DictSet(), VaspInputSet)
+    with pytest.warns(
+        FutureWarning, match="DictSet is deprecated, and will be removed on 2025-12-31\n; use VaspInputSet"
+    ):
+        DictSet()
