@@ -240,7 +240,7 @@ def compute_environments(chemenv_configuration):
 
         input_source = ""
         if found and len(questions) > 1:
-            input_source = test  # type: ignore[reportPossiblyUnboundVariable]
+            input_source = test
 
         structure = None
         if source_type == "cif":

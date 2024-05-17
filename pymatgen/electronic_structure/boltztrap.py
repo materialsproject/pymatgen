@@ -318,7 +318,7 @@ class BoltztrapRunner(MSONable):
 
         with open(output_file, mode="w") as file:
             if self._symprec is not None:
-                file.write(f"{self._bs.structure.formula} {sym.get_space_group_symbol()}\n")  # type: ignore[reportPossiblyUnboundVariable]
+                file.write(f"{self._bs.structure.formula} {sym.get_space_group_symbol()}\n")
             elif self._symprec is None:
                 file.write(f"{self._bs.structure.formula} symmetries disabled\n")
 
@@ -331,12 +331,12 @@ class BoltztrapRunner(MSONable):
             )
 
             if self._symprec is not None:
-                ops = sym.get_symmetry_dataset()["rotations"]  # type: ignore[reportPossiblyUnboundVariable]
+                ops = sym.get_symmetry_dataset()["rotations"]
             elif self._symprec is None:
                 ops = [np.eye(3)]
-            file.write(f"{len(ops)}\n")  # type: ignore[reportPossiblyUnboundVariable]
+            file.write(f"{len(ops)}\n")
 
-            for op in ops:  # type: ignore[reportPossiblyUnboundVariable]
+            for op in ops:
                 for row in op:
                     file.write(f"{' '.join(map(str, row))}\n")
 
