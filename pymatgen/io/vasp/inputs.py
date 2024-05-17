@@ -2892,20 +2892,20 @@ class VaspInput(dict, MSONable):
 
     @property
     def incar(self) -> Incar:
-        """ INCAR object. """
-        return Incar(self["INCAR"]) if isinstance(self["INCAR"],dict) else self["INCAR"]
+        """INCAR object."""
+        return Incar(self["INCAR"]) if isinstance(self["INCAR"], dict) else self["INCAR"]
 
     @property
     def kpoints(self) -> Kpoints | None:
-        """ KPOINTS object. """
+        """KPOINTS object."""
         return self["KPOINTS"]
-    
+
     @property
     def poscar(self) -> Poscar:
-        """ POSCAR object. """
+        """POSCAR object."""
         return self["POSCAR"]
-    
+
     @property
     def potcar(self) -> Potcar | str | None:
-        """ POTCAR or POTCAR.spec object. """
+        """POTCAR or POTCAR.spec object."""
         return self[self._potcar_filename]

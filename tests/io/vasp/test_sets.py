@@ -671,6 +671,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         vis.prev_vasprun = vrun
         assert vis._get_nedos(0.1) == pytest.approx(741, abs=1)
 
+
 class TestMPStaticSet(PymatgenTest):
     def setUp(self):
         self.set = MPStaticSet
