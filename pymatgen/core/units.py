@@ -1,10 +1,10 @@
-"""This module defines supported units for commonly used units
+"""This module defines commonly used units
 for energy, length, temperature, time and charge.
 
 Also defines the following classes:
 - FloatWithUnit, a subclass of float, which supports
-conversion to another, and additions and subtractions perform
-automatic conversion if units are detected.
+    conversion to another, and additions and subtractions
+    perform automatic conversion if units are detected.
 - ArrayWithUnit, a subclass of numpy's ndarray with similar unit features.
 """
 
