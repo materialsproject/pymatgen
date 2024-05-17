@@ -1128,9 +1128,15 @@ VaspInputGenerator = VaspInputSet
 
 
 class DictSet(VaspInputSet):
-    @deprecated(replacement=VaspInputSet, deadline=(2025, 12, 31))
-    def __init__(self):
-        super().__init__()
+    """Alias for VaspInputSet."""
+
+    def __post_init__(self):
+        super().__post_init__()
+        warnings.warn(
+            "DictSet is deprecated, and will be removed on 2025-12-31\n; use VaspInputSet",
+            category=FutureWarning,
+            stacklevel=2,
+        )
 
 
 # Helper functions to determine valid FFT grids for VASP

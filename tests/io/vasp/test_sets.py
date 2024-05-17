@@ -2097,8 +2097,8 @@ def test_vasp_input_set_alias():
 
 
 def test_dict_set_alias():
-    assert isinstance(DictSet(), VaspInputSet)
     with pytest.warns(
         FutureWarning, match="DictSet is deprecated, and will be removed on 2025-12-31\n; use VaspInputSet"
     ):
         DictSet()
+    assert isinstance(DictSet(), VaspInputSet)
