@@ -639,8 +639,8 @@ class ArrayWithUnit(np.ndarray):
             A ArrayWithUnit object in the new unit.
 
         Example usage:
-        >>> e = EnergyArray([1, 1.1], "Ha")
-        >>> e.to("eV")
+        >>> energy = EnergyArray([1, 1.1], "Ha")
+        >>> energy.to("eV")
         array([ 27.21138386,  29.93252225]) eV
         """
         return type(self)(
@@ -658,17 +658,17 @@ class ArrayWithUnit(np.ndarray):
         """
         return self.to(self.unit.as_base_units[0])
 
-    # TODO abstract base class property?
     @property
     def supported_units(self) -> dict:
+        # TODO abstract base class property?
         """Supported units for specific unit type."""
         if self.unit_type is None:
             raise RuntimeError("Cannot get supported unit for None.")
 
         return ALL_UNITS[self.unit_type]
 
-    # TODO abstract base class method?
     def conversions(self) -> str:
+        # TODO abstract base class method?
         """Get a string showing the available conversions.
         Useful tool in interactive mode.
         """
