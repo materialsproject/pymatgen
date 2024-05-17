@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import copy
+import re
 
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
 
 from pymatgen.core.lattice import Lattice
@@ -480,3 +482,11 @@ class TestTrajectory(PymatgenTest):
 
         # Check composition of the first frame of the trajectory
         assert traj[0].formula == "Li2 Mn2 O4"
+
+    def test_index_error(self):
+        with pytest.raises(IndexError, match="index=100 out of range, trajectory only has 100 frames"):
+            self.traj[100]
+        with pytest.raises(
+            TypeError, match=re.escape("bad index='test', expected one of [int, slice, list[int], numpy.ndarray]")
+        ):
+            self.traj["test"]
