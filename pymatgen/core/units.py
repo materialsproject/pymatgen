@@ -1,6 +1,7 @@
 """This module defines supported units for commonly used units
 for energy, length, temperature, time and charge.
 
+Also defines the following classes:
 - FloatWithUnit, a subclass of float, which supports
 conversion to another, and additions and subtractions perform
 automatic conversion if units are detected.
@@ -145,24 +146,8 @@ SUPPORTED_UNIT_NAMES = tuple(i for d in ALL_UNITS.values() for i in d)
 _UNAME2UTYPE = {uname: utype for utype, dct in ALL_UNITS.items() for uname in dct}
 
 
-def _get_si_unit(unit):
-    unit_type = _UNAME2UTYPE[unit]
-    si_unit = filter(lambda k: BASE_UNITS[unit_type][k] == 1, BASE_UNITS[unit_type])
-    return next(iter(si_unit)), BASE_UNITS[unit_type][unit]
-
-
 class UnitError(BaseException):
     """Exception class for unit errors."""
-
-
-def _check_mappings(u):
-    for v in DERIVED_UNITS.values():
-        for k2, v2 in v.items():
-            if all(v2.get(ku, 0) == vu for ku, vu in u.items()) and all(
-                u.get(kv2, 0) == vv2 for kv2, vv2 in v2.items()
-            ):
-                return {k2: 1}
-    return u
 
 
 class Unit(collections.abc.Mapping):
@@ -179,6 +164,16 @@ class Unit(collections.abc.Mapping):
                 format uses "^" as the power operator and all units must be
                 space-separated.
         """
+
+        def check_mappings(u):
+            for v in DERIVED_UNITS.values():
+                for k2, v2 in v.items():
+                    if all(v2.get(ku, 0) == vu for ku, vu in u.items()) and all(
+                        u.get(kv2, 0) == vv2 for kv2, vv2 in v2.items()
+                    ):
+                        return {k2: 1}
+            return u
+
         if isinstance(unit_def, str):
             unit: dict[str, int] = defaultdict(int)
 
@@ -189,7 +184,8 @@ class Unit(collections.abc.Mapping):
                 unit[key] += val
         else:
             unit = {k: v for k, v in dict(unit_def).items() if v != 0}
-        self._unit = _check_mappings(unit)
+
+        self._unit = check_mappings(unit)
 
     def __mul__(self, other: Self) -> Self:
         new_units: defaultdict = defaultdict(int)
@@ -233,6 +229,12 @@ class Unit(collections.abc.Mapping):
             tuple[dict, float]: (base_units_dict, scaling factor). base_units_dict will not
                 contain any constants, which are gathered in the scaling factor.
         """
+
+        def get_si_unit(unit):
+            unit_type = _UNAME2UTYPE[unit]
+            si_unit = filter(lambda k: BASE_UNITS[unit_type][k] == 1, BASE_UNITS[unit_type])
+            return next(iter(si_unit)), BASE_UNITS[unit_type][unit]
+
         base_units: defaultdict = defaultdict(int)
         factor: float = 1
         for k, v in self.items():
@@ -247,7 +249,7 @@ class Unit(collections.abc.Mapping):
                     derived = True
                     break
             if not derived:
-                si, f = _get_si_unit(k)
+                si, f = get_si_unit(k)
                 base_units[si] += v
                 factor *= f**v
         return {k: v for k, v in base_units.items() if v != 0}, factor
@@ -466,7 +468,7 @@ class FloatWithUnit(float):
         return type(self)(
             self * self.unit.get_conversion_factor(new_unit),
             unit_type=self.unit_type,
-            unit=new_unit,
+            unit=str(new_unit),
         )
 
     @property
@@ -516,7 +518,7 @@ class ArrayWithUnit(np.ndarray):
         # We first cast to be our class type
         obj = np.asarray(input_array).view(cls)
         # Add the new attributes to the created instance
-        obj._unit = Unit(str(Unit))
+        obj._unit = Unit(str(unit))
         obj._unit_type = unit_type
         return obj
 
@@ -646,7 +648,7 @@ class ArrayWithUnit(np.ndarray):
         return type(self)(
             np.array(self) * self.unit.get_conversion_factor(new_unit),
             unit_type=self.unit_type,
-            unit=new_unit,
+            unit=str(new_unit),
         )
 
     @property
