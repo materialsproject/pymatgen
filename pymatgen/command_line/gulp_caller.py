@@ -585,7 +585,7 @@ class GulpIO:
                 # read the site coordinates in the following lines
                 idx += 6
                 line = output_lines[idx]
-                while line[0:2] != "--":
+                while line[:2] != "--":
                     structure_lines.append(line)
                     idx += 1
                     line = output_lines[idx]

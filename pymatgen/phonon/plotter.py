@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Callable, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,7 +19,7 @@ from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from os import PathLike
-    from typing import Any, Literal
+    from typing import Any, Callable, Literal
 
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure

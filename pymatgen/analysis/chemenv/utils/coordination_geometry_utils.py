@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import math
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.linalg import norm
@@ -14,6 +14,8 @@ from scipy.spatial import ConvexHull
 from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
 
 if TYPE_CHECKING:
+    from typing import Callable
+
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
@@ -901,7 +903,7 @@ class Plane:
         xypps = []
         for pp in proj:
             xyzpp = np.dot(pp, PP)
-            xypps.append(xyzpp[0:2])
+            xypps.append(xyzpp[:2])
         if str(plane_center) == "mean":
             mean = np.zeros(2, float)
             for pp in xypps:
@@ -910,7 +912,7 @@ class Plane:
             xypps = [pp - mean for pp in xypps]
         elif plane_center is not None:
             projected_plane_center = self.projectionpoints([plane_center])[0]
-            xy_projected_plane_center = np.dot(projected_plane_center, PP)[0:2]
+            xy_projected_plane_center = np.dot(projected_plane_center, PP)[:2]
             xypps = [pp - xy_projected_plane_center for pp in xypps]
         return xypps
 
@@ -960,7 +962,7 @@ class Plane:
     @property
     def abcd(self):
         """A tuple with the plane coefficients."""
-        return tuple(self._coefficients[0:4])
+        return tuple(self._coefficients[:4])
 
     @property
     def a(self):

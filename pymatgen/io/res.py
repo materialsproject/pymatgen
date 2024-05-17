@@ -13,7 +13,7 @@ from __future__ import annotations
 import datetime
 import re
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable, Literal
+from typing import TYPE_CHECKING
 
 from monty.io import zopen
 from monty.json import MSONable
@@ -26,6 +26,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
     from datetime import date
     from pathlib import Path
+    from typing import Any, Callable, Literal
 
     from typing_extensions import Self
 

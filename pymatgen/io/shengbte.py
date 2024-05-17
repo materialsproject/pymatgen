@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
@@ -12,13 +12,15 @@ from monty.json import MSONable
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Kpoints
 
-if TYPE_CHECKING:
-    from typing_extensions import Self
-
 try:
     import f90nml
 except ImportError:
     f90nml = None
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from typing_extensions import Self
 
 __author__ = "Rees Chang, Alex Ganose"
 __copyright__ = "Copyright 2019, The Materials Project"

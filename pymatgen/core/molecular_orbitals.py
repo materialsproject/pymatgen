@@ -5,9 +5,13 @@ solids. Useful for predicting PDOS character from structural information.
 from __future__ import annotations
 
 from itertools import chain, combinations
+from typing import TYPE_CHECKING
 
 from pymatgen.core import Element
 from pymatgen.core.composition import Composition
+
+if TYPE_CHECKING:
+    from typing import Any
 
 
 class MolecularOrbitals:
@@ -28,7 +32,7 @@ class MolecularOrbitals:
     # gives {'HOMO':['O','2p',-0.338381], 'LUMO':['Ti','3d',-0.17001], 'metal':False}
     """
 
-    def __init__(self, formula) -> None:
+    def __init__(self, formula: str) -> None:
         """
         Args:
             formula (str): Chemical formula. Must have integer subscripts. Ex: 'SrTiO3'.
@@ -52,18 +56,18 @@ class MolecularOrbitals:
         self.aos = {str(el): [[str(el), k, v] for k, v in Element(el).atomic_orbitals.items()] for el in self.elements}
         self.band_edges = self.obtain_band_edges()
 
-    def max_electronegativity(self):
+    def max_electronegativity(self) -> float:
         """
         Returns:
             The maximum pairwise electronegativity difference.
         """
-        maximum = 0
+        maximum: float = 0.0
         for e1, e2 in combinations(self.elements, 2):
             if abs(Element(e1).X - Element(e2).X) > maximum:
                 maximum = abs(Element(e1).X - Element(e2).X)
         return maximum
 
-    def aos_as_list(self):
+    def aos_as_list(self) -> list[tuple[str, str, float]]:
         """The orbitals energies in eV are represented as
         [['O', '1s', -18.758245], ['O', '2s', -0.871362], ['O', '2p', -0.338381]]
         Data is obtained from
@@ -73,11 +77,11 @@ class MolecularOrbitals:
             A list of atomic orbitals, sorted from lowest to highest energy.
         """
         return sorted(
-            chain.from_iterable([self.aos[el] * int(self.composition[el]) for el in self.elements]),
+            chain.from_iterable([self.aos[el] * int(self.composition[el]) for el in self.elements]),  # type: ignore[misc]
             key=lambda x: x[2],
         )
 
-    def obtain_band_edges(self):
+    def obtain_band_edges(self) -> dict[str, Any]:
         """Fill up the atomic orbitals with available electrons.
 
         Returns:

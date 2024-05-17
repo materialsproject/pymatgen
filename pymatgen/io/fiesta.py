@@ -686,7 +686,7 @@ $geometry
         while i != 0:
             line = lines.pop(0).strip()
             tokens = line.split()
-            coords.append([float(j) for j in tokens[0:3]])
+            coords.append([float(j) for j in tokens[:3]])
             species.append(atname[int(tokens[3]) - 1])
             i -= 1
 

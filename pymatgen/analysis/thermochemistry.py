@@ -20,7 +20,7 @@ STANDARD_TEMP = 298.0
 
 
 class ThermoData:
-    """A object container for an experimental Thermochemical Data."""
+    """Container for experimental thermo-chemical data."""
 
     def __init__(
         self,

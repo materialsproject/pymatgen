@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -15,6 +15,7 @@ from pymatgen.electronic_structure.bandstructure import Kpoint
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from os import PathLike
+    from typing import Any
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self
@@ -254,7 +255,7 @@ class PhononBandStructure(MSONable):
         modes: selects the bands corresponding  to the eigendisplacements that
         represent to a translation within tol_eigendisplacements. If these are not
         identified or eigendisplacements are missing the first 3 modes will be used
-        (indices [0:3]).
+        (indices [:3]).
         """
         for idx in range(self.nb_qpoints):
             if np.allclose(self.qpoints[idx].frac_coords, (0, 0, 0)):
@@ -337,9 +338,8 @@ class PhononBandStructure(MSONable):
 
 
 class PhononBandStructureSymmLine(PhononBandStructure):
-    r"""This object stores phonon band structures along selected (symmetry) lines in the
-    Brillouin zone. We call the different symmetry lines (ex: \\Gamma to Z)
-    "branches".
+    r"""Store phonon band structures along selected (symmetry) lines in the Brillouin zone.
+    We call the different symmetry lines (ex: \\Gamma to Z) "branches".
     """
 
     def __init__(

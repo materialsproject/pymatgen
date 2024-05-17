@@ -13,13 +13,15 @@ import abc
 import itertools
 import json
 import os
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
 from scipy.special import factorial
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from typing_extensions import Self
 
 __author__ = "David Waroquiers"

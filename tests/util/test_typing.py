@@ -7,13 +7,16 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 from types import GenericAlias
-from typing import Any, get_args
+from typing import TYPE_CHECKING, get_args
 
 import pytest
 
 from pymatgen.core import Composition, DummySpecies, Element, Species
 from pymatgen.entries import Entry
 from pymatgen.util.typing import CompositionLike, EntryLike, PathLike, PbcLike, SpeciesLike
+
+if TYPE_CHECKING:
+    from typing import Any
 
 __author__ = "Janosh Riebesell"
 __date__ = "2022-10-20"

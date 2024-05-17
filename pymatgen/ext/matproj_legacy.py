@@ -16,7 +16,7 @@ import sys
 import warnings
 from enum import Enum, unique
 from time import sleep
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
@@ -34,6 +34,7 @@ from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any, Literal
 
     from typing_extensions import Self
 

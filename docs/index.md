@@ -26,22 +26,19 @@ of the main features:
 4. Electronic structure analyses, such as density of states and band structure.
 5. Integration with the Materials Project REST API, Crystallography Open Database and other external data sources.
 
-As of 2022, pymatgen only supports Python 3.9 and above. Our support schedule follows closely that of the Scientific
-Python software stack, i.e., when packages such as numpy drops support for Python versions, we will drop support for
-newer versions. Similarly, support for new Python versions will be adopted only when most of the core dependencies
-support the new Python versions.
-
-Pymatgen is free to use. However, we also welcome your help to improve this library by making your own contributions.
-These contributions can be in the form of additional tools or modules you develop, or feature requests and bug
-reports. The following are resources for pymatgen:
+## Important Resources
 
 - [Official documentation](https://pymatgen.org)
-- Bug reports or feature requests: Please submit an issue on [Github Issues].
-- Code contributions via pull requests are welcome.
-- For questions that are not bugs or feature requests, please use the [pymatgen MatSci forum] or open a [GitHub
-  discussion].
-- [matgenb] provides some example Jupyter notebooks that demonstrate how to use pymatgen functionality.
+- [matgenb] provides example Jupyter notebooks that demonstrate pymatgen functionality. Examples are shown below.
+- [pymatgen MatSci forum] or [GitHub discussion]: for questions that are not bug reports or feature requests.
 - Follow us on [Twitter](https://twitter.com/pymatgen) to get news and tips.
+- Bug reports or feature requests: Please submit an issue on [Github Issues].
+
+![Examples](assets/phase_diagram.png)
+*Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
+Bottom left: Calculated bandstructure plot using pymatgen's parsing and
+plotting utilities. Bottom right: Arrhenius plot using pymatgen's
+DiffusionAnalyzer.*
 
 ## Why use pymatgen?
 
@@ -66,18 +63,12 @@ reports. The following are resources for pymatgen:
 
     *The code is mightier than the pen.*
 
-## Matgenie & Examples
+As of 2022, pymatgen supports Python 3.9 and above. Our support schedule follows closely that of the Scientific
+Python software stack, i.e., when packages such as numpy drops support for Python versions, we will drop support for
+newer versions. Similarly, support for new Python versions will be adopted only when most of the core dependencies
+support the new Python versions.
 
-The [Materials Virtual Lab] has created a [matgenb] repository of Jupyter notebooks for
-common and advanced use cases. One of the ways you can contribute is to fork the matgenb repo and add your own examples.
 
-Below are a quick look at some of the graphical output possible.
-
-![Examples](assets/phase_diagram.png)
-*Top: (left) Phase and (right) Pourbaix diagram from the Materials API.
-Bottom left: Calculated bandstructure plot using pymatgen's parsing and
-plotting utilities. Bottom right: Arrhenius plot using pymatgen's
-DiffusionAnalyzer.*
 
 ## Getting pymatgen
 

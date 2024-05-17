@@ -6,7 +6,7 @@ import importlib
 import math
 from functools import wraps
 from string import ascii_letters
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -17,6 +17,7 @@ from pymatgen.core import Element
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Literal
 
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure

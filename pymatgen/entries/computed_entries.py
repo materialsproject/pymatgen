@@ -13,7 +13,7 @@ import math
 import os
 import warnings
 from itertools import combinations
-from typing import TYPE_CHECKING, Literal, cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -25,6 +25,8 @@ from pymatgen.entries import Entry
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing import Literal
+
     from typing_extensions import Self
 
     from pymatgen.core import Structure

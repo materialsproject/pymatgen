@@ -355,7 +355,7 @@ class Magmom(MSONable):
 
     @staticmethod
     def are_collinear(magmoms) -> bool:
-        """Check to see if a set of magnetic moments are collinear with each other.
+        """Check if a set of magnetic moments are collinear with each other.
 
         Args:
             magmoms: list of magmoms (Magmoms, scalars or vectors).

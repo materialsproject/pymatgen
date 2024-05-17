@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 import os
 import warnings
-from typing import Literal
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -22,6 +22,9 @@ from pymatgen.core.composition import Composition
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
+
+if TYPE_CHECKING:
+    from typing import Literal
 
 __author__ = "Yihan Xiao, Matthew McDermott"
 __maintainer__ = "Matthew McDermott"

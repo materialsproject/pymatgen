@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from fractions import Fraction
 from itertools import product
-from typing import TYPE_CHECKING, ClassVar, Literal, overload
+from typing import TYPE_CHECKING, overload
 
 import numpy as np
 from monty.design_patterns import cached_class
@@ -21,6 +21,8 @@ from monty.serialization import loadfn
 from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
+    from typing import ClassVar, Literal
+
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
@@ -29,9 +31,10 @@ if TYPE_CHECKING:
     # Don't import at runtime to avoid circular import
     from pymatgen.core.operations import SymmOp  # noqa: TCH004
 
+    CrystalSystem = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "tetragonal", "triclinic", "trigonal"]
+
 
 SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.json"))
-CrystalSystem = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "tetragonal", "triclinic", "trigonal"]
 
 
 class SymmetryGroup(Sequence, Stringify, ABC):

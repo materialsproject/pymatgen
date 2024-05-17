@@ -11,7 +11,7 @@ import re
 import warnings
 from collections import defaultdict
 from functools import lru_cache
-from typing import TYPE_CHECKING, Any, Literal, no_type_check
+from typing import TYPE_CHECKING, no_type_check
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -38,6 +38,7 @@ from pymatgen.util.string import htmlify, latexify
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterator, Sequence
     from io import StringIO
+    from typing import Any, Literal
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self

@@ -99,12 +99,8 @@ class Ion(Composition, MSONable, Stringify):
 
         # If no brackets, parse trailing +/-
         for m_chg in re.finditer(r"([+-])([\.\d]*)", formula):
-            sign = m_chg.group(1)
-            sgn = float(f"{sign}1")
-            if m_chg.group(2).strip() != "":
-                charge += float(m_chg.group(2)) * sgn
-            else:
-                charge += sgn
+            sgn = float(f"{m_chg[1]}1")
+            charge += float(m_chg[2]) * sgn if m_chg[2].strip() != "" else sgn
             formula = formula.replace(m_chg.group(), "", 1)
 
         return cls(Composition(formula), charge)
@@ -259,7 +255,7 @@ class Ion(Composition, MSONable, Stringify):
         dct_copy = deepcopy(dct)
         charge = dct_copy.pop("charge")
         composition = Composition(dct_copy)
-        return Ion(composition, charge)
+        return cls(composition, charge)
 
     @property
     def to_reduced_dict(self) -> dict:
@@ -312,7 +308,7 @@ class Ion(Composition, MSONable, Stringify):
                 oxidation state across all sites in that composition. If the
                 composition is not charge balanced, an empty list is returned.
         """
-        return self._get_oxi_state_guesses(all_oxi_states, max_sites, oxi_states_override, self.charge)[0]
+        return self._get_oxi_state_guesses(all_oxi_states, max_sites, oxi_states_override, self.charge)[0]  # type: ignore[return-value]
 
     def to_pretty_string(self) -> str:
         """Pretty string with proper superscripts."""

@@ -29,11 +29,10 @@ import itertools
 import os
 import re
 import textwrap
-import typing
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING
 
 from monty.dev import deprecated
 from monty.io import zopen
@@ -46,6 +45,9 @@ from pymatgen.io.vasp.inputs import KpointsSupportedModes
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import Any, Literal
+
     from typing_extensions import Self
 
     from pymatgen.core.lattice import Lattice
@@ -2393,7 +2395,6 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         """Number of exponents."""
         return [len(exp) for exp in self.exponents]
 
-    @typing.no_type_check
     def get_str(self) -> str:
         """Get standard cp2k GTO formatted string."""
         if (  # written verbosely so mypy can perform type narrowing

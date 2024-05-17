@@ -26,19 +26,22 @@ class LineLocator(MSONable):
     """Find the line indices (starts from 1) of a certain paragraph of text from the file."""
 
     @staticmethod
-    def locate_all_lines(file_path: PathLike, content: str) -> list[int]:
+    def locate_all_lines(file_path: PathLike, content: str, exclusion: str = "") -> list[int]:
         """Locate the line in file where a certain paragraph of text is located (return all indices)
 
         Args:
             file_path (PathLike): Absolute path to file.
             content (str): Certain paragraph of text that needs to be located.
+            exclusion (str): Certain paragraph of text that is excluded.
         """
         row_idxs: list[int] = []  # starts from 1 to be compatible with linecache package
         row_no: int = 0
         with zopen(file_path, mode="rt") as file:
             for row_content in file:
                 row_no += 1
-                if content.upper() in row_content.upper():
+                if content.upper() in row_content.upper() and (
+                    not exclusion or exclusion.upper() not in row_content.upper()
+                ):
                     row_idxs.append(row_no)
         return row_idxs
 
@@ -47,18 +50,19 @@ class ListLocator(MSONable):
     """Find the element indices (starts from 0) of a certain paragraph of text from the list."""
 
     @staticmethod
-    def locate_all_lines(strs_lst: list[str], content: str) -> list[int]:
+    def locate_all_lines(strs_lst: list[str], content: str, exclusion: str = "") -> list[int]:
         """Locate the elements in list where a certain paragraph of text is located (return all indices)
 
         Args:
             strs_lst (list[str]): List of strings.
             content (str): Certain paragraph of text that needs to be located.
+            exclusion (str): Certain paragraph of text that is excluded.
         """
         str_idxs: list[int] = []  # starts from 0 to be compatible with list
         str_no: int = -1
         for tmp_str in strs_lst:
             str_no += 1
-            if content.upper() in tmp_str.upper():
+            if (content.upper() in tmp_str.upper()) and (not exclusion or exclusion.upper() not in tmp_str.upper()):
                 str_idxs.append(str_no)
         return str_idxs
 
@@ -277,13 +281,13 @@ class ACstrExtractor(ACExtractorBase):
         """
         # strs_lst:
         #   [' 216 atoms', 'Iteration (fs) =    0.3000000000E+01',
-        #    ' Etot', 'Ep', 'Ek (eV) =   -0.2831881714E+05  -0.2836665392E+05   0.4783678177E+02',
+        #    ' Etot', 'Ep', 'Ek =   -0.2831881714E+05  -0.2836665392E+05   0.4783678177E+02',
         #    ' SCF =     7']
         strs_lst = self.strs_lst[0].split(",")
-        aim_index = ListLocator.locate_all_lines(strs_lst=strs_lst, content="EK (EV) =")[0]
+        aim_index = ListLocator.locate_all_lines(strs_lst=strs_lst, content="EK")[0]
         # strs_lst[aim_index].split() :
         #   ['Ek', '(eV)', '=', '-0.2831881714E+05', '-0.2836665392E+05', '0.4783678177E+02']
-        return np.array([float(strs_lst[aim_index].split()[3].strip())])
+        return np.array([float(strs_lst[aim_index].split("=")[1].split()[0].strip())])
 
     def get_atom_energies(self) -> np.ndarray | None:
         """Return the energies of individual atoms in material system.
@@ -315,8 +319,7 @@ class ACstrExtractor(ACExtractorBase):
         """
         forces = []
         aim_content = "Force".upper()
-        aim_idx = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content)[0]
-
+        aim_idx = ListLocator.locate_all_lines(strs_lst=self.strs_lst, content=aim_content, exclusion="average")[0]
         for line in self.strs_lst[aim_idx + 1 : aim_idx + self.num_atoms + 1]:
             # ['14', '0.089910342901203', '0.077164252174742', '0.254144099204679']
             forces.append([float(val) for val in line.split()[1:4]])
@@ -476,7 +479,7 @@ class AtomConfig(MSONable):
 
 
 class GenKpt(MSONable):
-    """GenKpt object for reading and writing gen.kpt. This file just generate line-mode kpoints."""
+    """Read and write gen.kpt. This file just generates line-mode kpoints."""
 
     def __init__(
         self,
@@ -484,7 +487,7 @@ class GenKpt(MSONable):
         kpoints: dict[str, np.ndarray],
         path: list[list[str]],
         density: float = 0.01,
-    ):
+    ) -> None:
         """Initialization function.
 
         Args:
@@ -504,7 +507,7 @@ class GenKpt(MSONable):
         """Obtain a AtomConfig object from Structure object.
 
         Args:
-            strutcure (Structure): A structure object.
+            structure (Structure): A structure object.
             dim (int): The dimension of the material system (2 or 3).
             density (float): Kpoints mesh without factor with 2*pi. Program will
                 automatically convert it with 2*pi.
@@ -584,7 +587,7 @@ class GenKpt(MSONable):
 
 
 class HighSymmetryPoint(MSONable):
-    """HighSymmetryPoint object for reading and writing HIGH_SYMMETRY_POINTS file which generate line-mode kpoints."""
+    """Read and write HIGH_SYMMETRY_POINTS file which generate line-mode kpoints."""
 
     def __init__(self, reciprocal_lattice: np.ndarray, kpts: dict[str, list], path: list[list[str]], density: float):
         """Initialization function.

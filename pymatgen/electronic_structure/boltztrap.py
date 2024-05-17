@@ -25,7 +25,7 @@ import subprocess
 import tempfile
 import time
 from shutil import which
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
@@ -44,6 +44,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 if TYPE_CHECKING:
+    from typing import Literal
+
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 

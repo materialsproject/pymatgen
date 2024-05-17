@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 class BalancedReaction(MSONable):
-    """An object representing a complete chemical reaction."""
+    """Represent a complete chemical reaction."""
 
     # Tolerance for determining if a particular component fraction is > 0.
     TOLERANCE = 1e-6

@@ -8,7 +8,7 @@ from __future__ import annotations
 import datetime
 import json
 import re
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from warnings import warn
 
 from monty.json import MSONable, jsanitize
@@ -22,6 +22,7 @@ from pymatgen.util.provenance import StructureNL
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any
 
     from typing_extensions import Self
 
@@ -29,8 +30,7 @@ if TYPE_CHECKING:
 
 
 class TransformedStructure(MSONable):
-    """Container object for new structures that include history of
-    transformations.
+    """Container for new structures that include history of transformations.
 
     Each transformed structure is made up of a sequence of structures with
     associated transformation history.

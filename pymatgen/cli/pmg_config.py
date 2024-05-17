@@ -8,7 +8,7 @@ import os
 import shutil
 import subprocess
 from glob import glob
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 from urllib.request import urlretrieve
 
 from monty.json import jsanitize
@@ -21,6 +21,7 @@ from pymatgen.io.cp2k.utils import chunk
 
 if TYPE_CHECKING:
     from argparse import Namespace
+    from typing import Literal
 
 
 def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
