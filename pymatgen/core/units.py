@@ -254,7 +254,7 @@ class Unit(collections.abc.Mapping):
                 factor *= f**v
         return {k: v for k, v in base_units.items() if v != 0}, factor
 
-    def get_conversion_factor(self, new_unit: str | Unit) -> float:
+    def get_conversion_factor(self, new_unit: str) -> float:
         """Get a conversion factor between this unit and a new unit.
         Compound units are supported, but must have the same powers in each
         unit type.
@@ -263,7 +263,7 @@ class Unit(collections.abc.Mapping):
             new_unit: The new unit.
         """
         old_base, old_factor = self.as_base_units
-        new_base, new_factor = type(self)(str(new_unit)).as_base_units
+        new_base, new_factor = type(self)(new_unit).as_base_units
 
         units_new = sorted(new_base.items(), key=lambda d: _UNAME2UTYPE[d[0]])
         units_old = sorted(old_base.items(), key=lambda d: _UNAME2UTYPE[d[0]])
@@ -302,20 +302,20 @@ class FloatWithUnit(float):
     def __init__(
         self,
         val: float | Number,
-        unit: str | Unit,
+        unit: str,
         unit_type: str | None = None,
     ) -> None:
         """Initialize a float with unit.
 
         Args:
             val (float): Value
-            unit (str | Unit): A unit. e.g. "C".
+            unit (str): A unit. e.g. "C".
             unit_type (str): A type of unit. e.g. "charge"
         """
         if unit_type is not None and str(unit) not in ALL_UNITS[unit_type]:
             raise UnitError(f"{unit} is not a supported unit for {unit_type}")
 
-        self._unit = Unit(str(unit))
+        self._unit = Unit(unit)
         self._unit_type = unit_type
 
     def __new__(cls, val, unit, unit_type=None) -> Self:
@@ -449,7 +449,7 @@ class FloatWithUnit(float):
                 return cls(num, unit, unit_type=unit_type)
         return cls(num, unit, unit_type=None)
 
-    def to(self, new_unit: str | Unit) -> Self:
+    def to(self, new_unit: str) -> Self:
         """Convert to a new unit. Right now, only support
         1 to 1 mapping of units of each type.
 
@@ -468,7 +468,7 @@ class FloatWithUnit(float):
         return type(self)(
             self * self.unit.get_conversion_factor(new_unit),
             unit_type=self._unit_type,
-            unit=str(new_unit),
+            unit=new_unit,
         )
 
     @property
@@ -510,7 +510,7 @@ class ArrayWithUnit(np.ndarray):
     def __new__(
         cls,
         input_array: NDArray,
-        unit: str | Unit,
+        unit: str,
         unit_type: str | None = None,
     ) -> Self:
         """Override __new__."""
@@ -518,7 +518,7 @@ class ArrayWithUnit(np.ndarray):
         # We first cast to be our class type
         obj = np.asarray(input_array).view(cls)
         # Add the new attributes to the created instance
-        obj._unit = Unit(str(unit))
+        obj._unit = Unit(unit)
         obj._unit_type = unit_type
         return obj
 
@@ -631,7 +631,7 @@ class ArrayWithUnit(np.ndarray):
         """The unit, e.g. "eV"."""
         return cast(Unit, self._unit)
 
-    def to(self, new_unit: str | Unit) -> Self:
+    def to(self, new_unit: str) -> Self:
         """Convert to a new unit.
 
         Args:
@@ -648,7 +648,7 @@ class ArrayWithUnit(np.ndarray):
         return type(self)(
             np.array(self) * self.unit.get_conversion_factor(new_unit),
             unit_type=self.unit_type,
-            unit=str(new_unit),
+            unit=new_unit,
         )
 
     @property
