@@ -292,13 +292,12 @@ class FloatWithUnit(float):
     are expected.
 
     Example usage:
-        >>> e = Energy(1.1, "Ha")
-        >>> a = Energy(1.1, "Ha")
-        >>> b = Energy(3, "eV")
-        >>> c = a + b
-        >>> print(c)
+        >>> energy_a = Energy(1.1, "Ha")
+        >>> energy_b = Energy(3, "eV")
+        >>> energy_c = energy_a + energy_b
+        >>> print(energy_c)
         1.2102479761938871 Ha
-        >>> c.to("eV")
+        >>> energy_c.to("eV")
         32.932522246000005 eV
     """
 
