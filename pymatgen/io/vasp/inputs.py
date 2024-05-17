@@ -2759,8 +2759,8 @@ class VaspInput(dict, MSONable):
             **kwargs: Additional keyword arguments to be stored in the VaspInput object.
         """
         super().__init__(**kwargs)
-        potcar_filename = "POTCAR" + (".spec" if potcar_spec else "")
-        self.update({"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, potcar_filename: potcar})
+        self._potcar_filename = "POTCAR" + (".spec" if potcar_spec else "")
+        self.update({"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, self._potcar_filename: potcar})
         if optional_files is not None:
             self.update(optional_files)
 
@@ -2889,3 +2889,23 @@ class VaspInput(dict, MSONable):
             open(err_file, mode="w", encoding="utf-8", buffering=1) as stderr_file,
         ):
             subprocess.check_call(vasp_cmd, stdout=stdout_file, stderr=stderr_file)
+
+    @property
+    def incar(self) -> Incar:
+        """ INCAR object. """
+        return Incar(self["INCAR"]) if isinstance(self["INCAR"],dict) else self["INCAR"]
+
+    @property
+    def kpoints(self) -> Kpoints | None:
+        """ KPOINTS object. """
+        return self["KPOINTS"]
+    
+    @property
+    def poscar(self) -> Poscar:
+        """ POSCAR object. """
+        return self["POSCAR"]
+    
+    @property
+    def potcar(self) -> Potcar | str | None:
+        """ POTCAR or POTCAR.spec object. """
+        return self[self._potcar_filename]

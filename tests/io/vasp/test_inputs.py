@@ -1364,6 +1364,24 @@ class TestVaspInput(PymatgenTest):
         vasp_input = VaspInput.from_dict(vi.as_dict())
         assert "CONTCAR_Li2O" in vasp_input
 
+    def test_input_attr(self):
+        assert all(
+            v == getattr(self.vasp_input, k.lower()) for k, v in self.vasp_input.items()
+        )
+
+        vis_potcar_spec = VaspInput(
+            self.vasp_input.incar,
+            self.vasp_input.kpoints,
+            self.vasp_input.poscar,
+            "\n".join(self.vasp_input.potcar.symbols),
+            potcar_spec = True
+        )
+        assert all(k in vis_potcar_spec for k in ("INCAR","KPOINTS","POSCAR","POTCAR.spec"))
+        assert all(
+            self.vasp_input[k] == getattr(vis_potcar_spec, k.lower()) 
+            for k in ("INCAR","KPOINTS","POSCAR")
+        )
+        assert isinstance(vis_potcar_spec.potcar, str)
 
 def test_potcar_summary_stats() -> None:
     potcar_summary_stats = loadfn(POTCAR_STATS_PATH)
