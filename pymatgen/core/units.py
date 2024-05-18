@@ -87,9 +87,6 @@ BASE_UNITS: dict[str, dict] = {
     },
 }
 
-# Accept kb, mb, gb ... as well.
-BASE_UNITS["memory"].update({k.lower(): v for k, v in BASE_UNITS["memory"].items()})
-
 # This current list are supported derived units defined in terms of powers of
 # SI base units and constants.
 DERIVED_UNITS: dict[str, dict] = {
