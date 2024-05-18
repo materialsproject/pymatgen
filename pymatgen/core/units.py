@@ -316,7 +316,7 @@ class FloatWithUnit(float):
         # TODO: remove after 2025-01-01
         if unit_type == "memory" and str(unit) in {"Kb", "kb", "Mb", "mb", "Gb", "gb", "Tb", "tb"}:
             warnings.warn(
-                f"{unit!s} is deprecated, please use {str(unit).upper()} instead", DeprecationWarning, stacklevel=2
+                f"Unit {unit!s} is deprecated, please use {str(unit).upper()} instead", DeprecationWarning, stacklevel=2
             )
             unit = str(unit).upper()
 

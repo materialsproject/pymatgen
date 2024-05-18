@@ -110,7 +110,7 @@ class TestFloatWithUnit(PymatgenTest):
     def test_deprecated_memory(self):
         # TODO: remove after 2025-01-01
         for unit in ("mb", "Mb"):
-            with pytest.warns(DeprecationWarning, match=f"{unit} is deprecated"):
+            with pytest.warns(DeprecationWarning, match=f"Unit {unit!s} is deprecated"):
                 Memory(1, unit)
 
     def test_unitized(self):
