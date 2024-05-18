@@ -1305,8 +1305,6 @@ class SlabGenerator:
                                     z_ranges.extend([(0, z_range[1]), (z_range[0] + 1, 1)])
 
                                 # Neglect overlapping positions
-                                # TODO (@DanielYang59): use the following for equality check
-                                # elif not isclose(z_range[0], z_range[1], abs_tol=tol):
                                 elif z_range[0] != z_range[1]:
                                     z_ranges.append(z_range)
 
