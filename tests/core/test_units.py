@@ -95,14 +95,17 @@ class TestFloatWithUnit(PymatgenTest):
         assert str(y.unit) == "ang^3"
 
     def test_memory(self):
-        mega = Memory(1, "MB")
-        assert mega.to("byte") == 1024**2
+        mega_0 = Memory(1, "MB")
+        assert mega_0.to("byte") == 1024**2
 
-        same_mega = Memory.from_str("1 MB")
-        assert same_mega.unit_type == "memory"
+        mega_1 = Memory.from_str("1 MB")
+        assert mega_1.unit_type == "memory"
 
-        other_mega = Memory.from_str("+1.0 MB")
-        assert mega == other_mega
+        mega_2 = Memory.from_str("1MB")
+        assert mega_2.unit_type == "memory"
+
+        mega_3 = Memory.from_str("+1.0 MB")
+        assert mega_0 == mega_1 == mega_2 == mega_3
 
     def test_deprecated_memory(self):
         # TODO: remove after 2025-01-01
