@@ -442,7 +442,7 @@ class FloatWithUnit(float):
         """Convert string to FloatWithUnit.
 
         Example usage:
-            Memory.from_str("1. Mb").
+            Memory.from_str("1. MB").
         """
         # Extract num and unit string.
         string = string.strip()
@@ -765,7 +765,7 @@ A float with a memory unit.
 
 Args:
     val (float): Value
-    unit (Unit): e.g. Kb, Mb, Gb, Tb. Must be valid unit or UnitError
+    unit (Unit): e.g. KB, MB, GB, TB. Must be valid unit or UnitError
         is raised.
 """
 
