@@ -1,5 +1,6 @@
-"""This module provides classes used to define a non-periodic molecule and a
-periodic structure.
+"""This module provides classes to define non-periodic Molecule
+and periodic Structure, along with their immutable counterparts
+IMolecule and IStructure.
 """
 
 from __future__ import annotations
