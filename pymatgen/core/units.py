@@ -444,7 +444,7 @@ class FloatWithUnit(float):
         Example usage:
             Memory.from_str("1. MB").
         """
-        # Extract num and unit string.
+        # Extract num and unit string
         string = string.strip().replace(" ", "")
         for _idx, char in enumerate(string):
             if char.isalpha() or char.isspace():

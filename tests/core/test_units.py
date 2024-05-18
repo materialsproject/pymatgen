@@ -99,7 +99,7 @@ class TestFloatWithUnit(PymatgenTest):
         assert mega == Memory(1, "mb")
 
         same_mega = Memory.from_str("1 MB")
-        assert same_mega.unit_type == "memory", same_mega.unit_type
+        assert same_mega.unit_type == "memory"
 
         other_mega = Memory.from_str("+1.0 mb")
         assert mega == other_mega
