@@ -883,11 +883,11 @@ class SiteCollection(collections.abc.Sequence, ABC):
         if return_trajectory:
             if run_uip:
                 # Save properties of the Atoms during the relaxation
-                traj_observer()
+                traj_observer()  # type: ignore[reportPossiblyUnboundVariable]
             else:
                 traj_file = opt_kwargs["trajectory"]
                 traj_observer = read(traj_file, index=":")
-            return system, traj_observer
+            return system, traj_observer  # type: ignore[reportPossiblyUnboundVariable]
 
         return system
 
@@ -2186,7 +2186,7 @@ class IStructure(SiteCollection, MSONable):
                 for i in indices[within_r]:
                     item = []
                     if include_site:
-                        item.append(nnsite)
+                        item.append(nnsite)  # type: ignore[reportPossiblyUnboundVariable]
                     item.append(d[i])
                     if include_index:
                         item.append(j)
@@ -2444,7 +2444,7 @@ class IStructure(SiteCollection, MSONable):
 
         for x in images:
             if interpolate_lattices:
-                l_a = np.dot(np.identity(3) + x * lvec, lstart).T
+                l_a = np.dot(np.identity(3) + x * lvec, lstart).T  # type: ignore[reportPossiblyUnboundVariable]
                 lattice = Lattice(l_a)
             else:
                 lattice = self.lattice

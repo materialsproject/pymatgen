@@ -313,13 +313,11 @@ class BoltztrapRunner(MSONable):
         """
         if self._symprec is not None:
             sym = SpacegroupAnalyzer(self._bs.structure, symprec=self._symprec)
-        elif self._symprec is None:
-            pass
 
-        with open(output_file, mode="w") as file:
+        with open(output_file, mode="w", encoding="utf-8") as file:
             if self._symprec is not None:
-                file.write(f"{self._bs.structure.formula} {sym.get_space_group_symbol()}\n")
-            elif self._symprec is None:
+                file.write(f"{self._bs.structure.formula} {sym.get_space_group_symbol()}\n")  # type: ignore[reportPossiblyUnboundVariable]
+            else:
                 file.write(f"{self._bs.structure.formula} symmetries disabled\n")
 
             file.write(
@@ -331,9 +329,10 @@ class BoltztrapRunner(MSONable):
             )
 
             if self._symprec is not None:
-                ops = sym.get_symmetry_dataset()["rotations"]
-            elif self._symprec is None:
+                ops = sym.get_symmetry_dataset()["rotations"]  # type: ignore[reportPossiblyUnboundVariable]
+            else:
                 ops = [np.eye(3)]
+
             file.write(f"{len(ops)}\n")
 
             for op in ops:
