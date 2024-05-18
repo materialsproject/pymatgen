@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
+from monty.dev import deprecated
 from monty.json import MSONable
 
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Ha_to_eV, Length, Mass, Unit
@@ -696,20 +697,20 @@ class ElementBase(Enum):
         return self.symbol in ("Al", "Ga", "In", "Tl", "Sn", "Pb", "Bi")
 
     @property
+    @deprecated(message="Please use is_rare_earth instead, which is corrected to include Y and Sc.")
     def is_rare_earth_metal(self) -> bool:
         """True if element is a rare earth metal, Lanthanides (La) series and Actinides (Ac) series.
 
-        WARNING: This property would be updated to include Scandium (Sc) and
-        Yttrium (Y) after 2025-05-15.
-
-        Reference: https://en.wikipedia.org/wiki/Rare-earth_element.
+        This property is Deprecated, and scheduled for removal after 2025-01-01.
         """
-        warnings.warn(
-            "Y and Sc would be considered rare earth metal after 2025-05-15.",
-            stacklevel=2,
-        )
+        return self.is_lanthanoid or self.is_actinoid
 
-        return self.is_lanthanoid or self.is_actinoid  # or self.symbol in {"Sc", "Y"}
+    @property
+    def is_rare_earth(self) -> bool:
+        """True if element is a rare earth element, including Lanthanides (La)
+        series, Actinides (Ac) series, Scandium (Sc) and Yttrium (Y).
+        """
+        return self.is_lanthanoid or self.is_actinoid or self.symbol in {"Sc", "Y"}
 
     @property
     def is_metal(self) -> bool:

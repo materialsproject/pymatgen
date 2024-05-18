@@ -67,10 +67,6 @@ Windows and Linux.
 
 ## Recent Breaking Changes
 
-## v2024.xx.xx
-
-Scandium (Sc) and Yttrium (Y) would be included into `is_rare_earth_metal` property for `Element` after 2025-05-15, in [#3817](https://github.com/materialsproject/pymatgen/pull/3817).
-
 ## v2024.1.26
 
 The mixture of `(get|from)_str` and `(get|from)_string` methods on various `pymatgen` classes were migrated to a consistent `(get|from)_str` everywhere in [#3158](https://github.com/materialsproject/pymatgen/pull/3158) and several follow-up PRs. The deprecation release was [v2023.8.10](https://github.com/materialsproject/pymatgen/releases/tag/v2023.8.10) and the removal release resulting in a breaking change was [v2024.1.26](https://github.com/materialsproject/pymatgen/releases/tag/v2024.1.26). Migration to the new API in all cases is to replace:
