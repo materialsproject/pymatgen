@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import collections
 import re
+import warnings
 from collections import defaultdict
 from functools import partial
 from numbers import Number
@@ -311,6 +312,14 @@ class FloatWithUnit(float):
             unit (str | Unit): A unit. e.g. "C".
             unit_type (str): A type of unit. e.g. "charge"
         """
+        # Check deprecated memory unit
+        # TODO: remove after 2025-01-01
+        if unit_type == "memory" and str(unit) in {"Kb", "kb", "Mb", "mb", "Gb", "gb", "Tb", "tb"}:
+            warnings.warn(
+                f"{unit!s} is deprecated, please use {str(unit).upper()} instead", DeprecationWarning, stacklevel=2
+            )
+            unit = str(unit).upper()
+
         if unit_type is not None and str(unit) not in ALL_UNITS[unit_type]:
             raise UnitError(f"{unit} is not a supported unit for {unit_type}")
 

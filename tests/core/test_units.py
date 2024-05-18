@@ -89,6 +89,7 @@ class TestFloatWithUnit(PymatgenTest):
         assert x.to("cm") == approx(4.2e-08)
         assert x.to("pm") == 420
         assert str(x / 2) == "2.1 ang"
+
         y = x**3
         assert y == approx(74.088)
         assert str(y.unit) == "ang^3"
@@ -102,6 +103,12 @@ class TestFloatWithUnit(PymatgenTest):
 
         other_mega = Memory.from_str("+1.0 MB")
         assert mega == other_mega
+
+    def test_deprecated_memory(self):
+        # TODO: remove after 2025-01-01
+        for unit in ("mb", "Mb"):
+            with pytest.warns(DeprecationWarning, match=f"{unit} is deprecated"):
+                Memory(1, unit)
 
     def test_unitized(self):
         @unitized("eV")
