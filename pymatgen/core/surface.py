@@ -1068,32 +1068,24 @@ class SlabGenerator:
 
     def get_slab(
         self,
-        termination: float = 0,
+        shift: float = 0,
         tol: float = 0.1,
         energy: float | None = None,
-        shift: float | None = None,  # TODO: remove after 2025-05-13
     ) -> Slab:
-        """[Private method] Generate a slab based on a given termination coordinate
-            along the lattice c direction.
+        """[Private method] Generate a slab based on a given termination
+            coordinate along the lattice c direction.
 
-        You should NOT use this method directly.
+        You should RARELY use this method directly.
 
         Args:
-            termination (float): The coordinate along the lattice c
+            shift (float): The termination coordinate along the lattice c
                 direction in fractional coordinates.
             tol (float): Tolerance to determine primitive cell.
             energy (float): The energy to assign to the slab.
-            shift (float): Deprecated, confusing. The termination coordinate
-                along the lattice c direction in fractional coordinates.
 
         Returns:
             Slab: from a shifted oriented unit cell.
         """
-        # Check for usage of deprecated arg "shift"
-        if shift is not None:
-            termination = shift
-            warnings.warn("shift is deprecated in get_slab, please use termination.")
-
         # Calculate total number of layers
         height = self._proj_height
         height_per_layer = round(height / self.parent.lattice.d_hkl(self.miller_index), 8)
@@ -1115,7 +1107,7 @@ class SlabGenerator:
 
         # Shift all atoms to the termination
         frac_coords = self.oriented_unit_cell.frac_coords
-        frac_coords = np.array(frac_coords) + np.array([0, 0, -termination])[None, :]
+        frac_coords = np.array(frac_coords) + np.array([0, 0, -shift])[None, :]
         frac_coords -= np.floor(frac_coords)  # wrap to the [0, 1) range
 
         # Scale down z-coordinate by the number of layers
@@ -1185,7 +1177,7 @@ class SlabGenerator:
             struct.frac_coords,
             self.miller_index,
             ouc,
-            termination,
+            shift,
             scale_factor,
             reorient_lattice=self.reorient_lattice,
             site_properties=struct.site_properties,
@@ -1336,7 +1328,7 @@ class SlabGenerator:
             # As per the docstring this is to sort final Slabs by number
             # of bonds broken, but this may very likely lead to errors
             # if the "energy" is used literally (Maybe reset energy to None?)
-            slab = self.get_slab(termination=termination, tol=tol, energy=bonds_broken)
+            slab = self.get_slab(shift=termination, tol=tol, energy=bonds_broken)
 
             if bonds_broken <= max_broken_bonds:
                 slabs.append(slab)
