@@ -697,7 +697,9 @@ class ElementBase(Enum):
         return self.symbol in ("Al", "Ga", "In", "Tl", "Sn", "Pb", "Bi")
 
     @property
-    @deprecated(message="Please use is_rare_earth instead, which is corrected to include Y and Sc.")
+    @deprecated(
+        message="Please use is_rare_earth instead, which is corrected to include Y and Sc.", deadline=(2025, 1, 1)
+    )
     def is_rare_earth_metal(self) -> bool:
         """True if element is a rare earth metal, Lanthanides (La) series and Actinides (Ac) series.
 
