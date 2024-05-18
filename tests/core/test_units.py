@@ -169,9 +169,9 @@ class TestFloatWithUnit(PymatgenTest):
         assert FloatWithUnit(-5, "MPa") == -x
 
 
-class TestArrayWithFloatWithUnit(PymatgenTest):
+class TestArrayWithUnit(PymatgenTest):
     def test_energy(self):
-        """Similar to FloatWithUnitTest.test_energy.
+        """Similar to TestFloatWithUnit.test_energy.
         Check whether EnergyArray and FloatWithUnit have same behavior.
 
         # TODO
