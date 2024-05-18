@@ -451,13 +451,13 @@ class FloatWithUnit(float):
             Memory.from_str("1. MB").
         """
         # Extract num and unit string
-        string = string.replace(" ", "")
+        string = string.strip()
         for _idx, char in enumerate(string):
             if char.isalpha() or char.isspace():
                 break
         else:
             raise ValueError(f"Unit is missing in string {string}")
-        num, unit = float(string[:_idx]), string[_idx:]
+        num, unit = float(string[:_idx]), string[_idx:].strip()
 
         # Find unit type (set it to None if it cannot be detected)
         for unit_type, dct in BASE_UNITS.items():
