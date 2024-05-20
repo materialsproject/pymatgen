@@ -360,6 +360,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             make_dir_if_not_present=make_dir_if_not_present,
             cif_name=cif_name,
             zip_name=f"{type(self).__name__}.zip" if zip_output else None,
+            files_to_transfer=self.files_to_transfer,
         )
 
     def as_dict(self, verbosity=2):

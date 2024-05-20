@@ -19,6 +19,8 @@ from collections.abc import Sequence
 from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
+from pathlib import Path
+from shutil import copyfileobj
 from typing import TYPE_CHECKING, NamedTuple, cast
 from zipfile import ZipFile
 
@@ -39,7 +41,6 @@ from pymatgen.util.typing import Kpoint, Vector3D
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-    from pathlib import Path
     from typing import Any, ClassVar, Literal
 
     from numpy.typing import ArrayLike
@@ -2801,6 +2802,7 @@ class VaspInput(dict, MSONable):
         make_dir_if_not_present: bool = True,
         cif_name: str | None = None,
         zip_name: str | None = None,
+        files_to_transfer: dict | None = None,
     ) -> None:
         """
         Write VASP inputs to a directory.
@@ -2813,7 +2815,11 @@ class VaspInput(dict, MSONable):
             cif_name (str or None): If a str, the name of the CIF file
                 to write the POSCAR to (the POSCAR will also be written).
             zip_name (str or None): If a str, the name of the zip to
-                archive the vasp input set to.
+                archive the VASP input set to.
+            files_to_transfer (dict) : A dictionary of
+                    { < input filename >: < output filepath >}.
+                This allows the transfer of < input filename > files from
+                a previous calculation to < output filepath >.
         """
         if not os.path.isdir(output_dir) and make_dir_if_not_present:
             os.makedirs(output_dir)
@@ -2839,6 +2845,11 @@ class VaspInput(dict, MSONable):
                         os.remove(os.path.join(output_dir, file))
                     except (FileNotFoundError, PermissionError, IsADirectoryError):
                         pass
+
+        files_to_transfer = files_to_transfer or {}
+        for key, val in files_to_transfer.items():
+            with zopen(val, "rb") as fin, zopen(str(Path(output_dir) / key), "wb") as fout:
+                copyfileobj(fin, fout)
 
     @classmethod
     def from_directory(
