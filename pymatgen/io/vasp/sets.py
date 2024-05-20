@@ -30,9 +30,7 @@ from __future__ import annotations
 
 import abc
 import itertools
-import os
 import re
-import shutil
 import warnings
 from collections.abc import Sequence
 from copy import deepcopy
@@ -41,11 +39,9 @@ from glob import glob
 from itertools import chain
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
-from zipfile import ZipFile
 
 import numpy as np
 from monty.dev import deprecated
-from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
 
@@ -330,9 +326,9 @@ class VaspInputSet(InputGenerator, abc.ABC):
         self,
         output_dir: str,
         make_dir_if_not_present: bool = True,
-        include_cif: bool = False,
+        include_cif: bool | str = False,
         potcar_spec: bool = False,
-        zip_output: bool = False,
+        zip_output: bool | str = False,
     ) -> None:
         """
         Writes a set of VASP input to a directory.
@@ -350,47 +346,21 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 the specific POTCAR file can be re-generated using pymatgen with the
                 "generate_potcar" function in the pymatgen CLI.
             zip_output (bool): If True, output will be zipped into a file with the
-                same name as the InputSet (e.g., MPStaticSet.zip)
+                same name as the InputSet (e.g., MPStaticSet.zip).
         """
-        if potcar_spec:
-            vasp_input = None
-            if make_dir_if_not_present:
-                os.makedirs(output_dir, exist_ok=True)
+        vasp_input = self.get_input_set(potcar_spec=potcar_spec)
 
-            with zopen(f"{output_dir}/POTCAR.spec", mode="wt") as file:
-                file.write("\n".join(self.potcar_symbols))
-
-            for key in ["INCAR", "POSCAR", "KPOINTS"]:
-                if (val := getattr(self, key.lower())) is not None:
-                    with zopen(os.path.join(output_dir, key), mode="wt") as file:
-                        file.write(str(val))
-        else:
-            vasp_input = self.get_input_set()
-            vasp_input.write_input(output_dir, make_dir_if_not_present=make_dir_if_not_present)
-
-        cif_name = ""
-        if include_cif and vasp_input is not None:
+        cif_name = None
+        if include_cif:
             struct = vasp_input["POSCAR"].structure
             cif_name = f"{output_dir}/{struct.formula.replace(' ', '')}.cif"
-            struct.to(filename=cif_name)
 
-        if zip_output:
-            filename = f"{type(self).__name__}.zip"
-            with ZipFile(os.path.join(output_dir, filename), mode="w") as zip_file:
-                for file in ["INCAR", "POSCAR", "KPOINTS", "POTCAR", "POTCAR.spec", cif_name]:
-                    try:
-                        zip_file.write(os.path.join(output_dir, file), arcname=file)
-                    except FileNotFoundError:
-                        pass
-
-                    try:
-                        os.remove(os.path.join(output_dir, file))
-                    except (FileNotFoundError, PermissionError, IsADirectoryError):
-                        pass
-
-        for key, val in self.files_to_transfer.items():
-            with zopen(val, "rb") as fin, zopen(str(Path(output_dir) / key), "wb") as fout:
-                shutil.copyfileobj(fin, fout)
+        vasp_input.write_input(
+            output_dir,
+            make_dir_if_not_present=make_dir_if_not_present,
+            cif_name=cif_name,
+            zip_name=f"{type(self).__name__}.zip" if zip_output else None,
+        )
 
     def as_dict(self, verbosity=2):
         """

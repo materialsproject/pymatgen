@@ -20,6 +20,7 @@ from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
 from typing import TYPE_CHECKING, NamedTuple, cast
+from zipfile import ZipFile
 
 import numpy as np
 import scipy.constants as const
@@ -2798,6 +2799,8 @@ class VaspInput(dict, MSONable):
         self,
         output_dir: PathLike = ".",
         make_dir_if_not_present: bool = True,
+        cif_name : str | None = None,
+        zip_name : str | None = None,
     ) -> None:
         """
         Write VASP inputs to a directory.
@@ -2807,6 +2810,10 @@ class VaspInput(dict, MSONable):
                 Defaults to current directory (".").
             make_dir_if_not_present (bool): Create the directory if not
                 present. Defaults to True.
+            cif_name (str or None): If a str, the name of the CIF file
+                to write the POSCAR to (the POSCAR will also be written).
+            zip_name (str or None): If a str, the name of the zip to
+                archive the vasp input set to.
         """
         if not os.path.isdir(output_dir) and make_dir_if_not_present:
             os.makedirs(output_dir)
@@ -2815,6 +2822,23 @@ class VaspInput(dict, MSONable):
             if value is not None:
                 with zopen(os.path.join(output_dir, key), mode="wt") as file:
                     file.write(str(value))
+
+        if cif_name:
+            self["POSCAR"].structure.to(filename=cif_name)
+
+        if zip_name:
+            files_to_zip = list(self) + ([cif_name] if cif_name else [])
+            with ZipFile(os.path.join(output_dir, zip_name), mode="w") as zip_file:
+                for file in files_to_zip:
+                    try:
+                        zip_file.write(os.path.join(output_dir, file), arcname=file)
+                    except FileNotFoundError:
+                        pass
+
+                    try:
+                        os.remove(os.path.join(output_dir, file))
+                    except (FileNotFoundError, PermissionError, IsADirectoryError):
+                        pass
 
     @classmethod
     def from_directory(
