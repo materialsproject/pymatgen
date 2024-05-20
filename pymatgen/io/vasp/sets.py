@@ -356,7 +356,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             cif_name = f"{output_dir}/{struct.formula.replace(' ', '')}.cif"
 
         vasp_input.write_input(
-            output_dir,
+            output_dir=output_dir,
             make_dir_if_not_present=make_dir_if_not_present,
             cif_name=cif_name,
             zip_name=f"{type(self).__name__}.zip" if zip_output else None,
