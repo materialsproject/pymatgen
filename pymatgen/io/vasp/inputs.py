@@ -2799,8 +2799,8 @@ class VaspInput(dict, MSONable):
         self,
         output_dir: PathLike = ".",
         make_dir_if_not_present: bool = True,
-        cif_name : str | None = None,
-        zip_name : str | None = None,
+        cif_name: str | None = None,
+        zip_name: str | None = None,
     ) -> None:
         """
         Write VASP inputs to a directory.
