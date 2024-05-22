@@ -20,6 +20,7 @@ import sys
 import warnings
 from abc import ABC, abstractmethod
 from collections import defaultdict
+from collections.abc import MutableSequence
 from fnmatch import fnmatch
 from io import StringIO
 from typing import TYPE_CHECKING, Literal, cast, get_args
@@ -35,6 +36,7 @@ from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.linalg import expm, polar
 from scipy.spatial.distance import squareform
 from tabulate import tabulate
+from typing_extensions import Self
 
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
@@ -58,7 +60,6 @@ if TYPE_CHECKING:
     from ase.optimize.optimize import Optimizer
     from matgl.ext.ase import TrajectoryObserver
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
 
     from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
 
@@ -209,11 +210,11 @@ class SiteCollection(collections.abc.Sequence, ABC):
     def __contains__(self, site: object) -> bool:
         return site in self.sites
 
-    def __iter__(self) -> Iterator[Site]:
+    def __iter__(self) -> Iterator[PeriodicSite]:
         return iter(self.sites)
 
-    # TODO return type needs fixing (can be list[Site] but raises lots of mypy errors)
-    def __getitem__(self, ind: int | slice) -> Site:
+    # TODO return type needs fixing (can be Sequence[PeriodicSite] but raises lots of mypy errors)
+    def __getitem__(self, ind: int | slice) -> PeriodicSite:
         return self.sites[ind]
 
     def __len__(self) -> int:
@@ -224,16 +225,16 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return hash(self.composition)
 
     @property
-    def sites(self) -> list[Site]:
-        """An iterator for the sites in the Structure."""
+    def sites(self) -> list[PeriodicSite] | tuple[PeriodicSite, ...]:
+        """The sites in the Structure."""
         return self._sites
 
     @sites.setter
     def sites(self, sites: Sequence[PeriodicSite]) -> None:
         """Set the sites in the Structure."""
         # If self is mutable Structure or Molecule, set _sites as list
-        is_mutable = isinstance(self._sites, list)
-        self._sites = list(sites) if is_mutable else tuple(sites)
+        is_mutable = isinstance(self._sites, MutableSequence)
+        self._sites: list[PeriodicSite] | tuple[PeriodicSite, ...] = list(sites) if is_mutable else tuple(sites)
 
     @abstractmethod
     def copy(self) -> Self:
@@ -558,9 +559,9 @@ class SiteCollection(collections.abc.Sequence, ABC):
         species_mapping: dict[SpeciesLike, SpeciesLike | dict[SpeciesLike, float]],
         in_place: bool = True,
     ) -> Self:
-        """Swap species.
+        """Replace species.
 
-        Note that this clears the label of any affected site.
+        Note that this reset the label of any affected site to species_string.
 
         Args:
             species_mapping (dict): Species to swap. Species can be elements too. e.g.
@@ -593,7 +594,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
                     except Exception:
                         comp += {new_sp: amt}
                 site.species = comp
-                site.label = None  # DEBUG (DanielYang59): incompatible type
+                site.label = None  # type: ignore[assignment]
 
         return site_coll
 
@@ -1300,7 +1301,7 @@ class IStructure(SiteCollection, MSONable):
             num = int(sg)
             spg = SpaceGroup.from_int_number(num)
         except ValueError:
-            spg = SpaceGroup(sg)
+            spg = SpaceGroup(str(sg))
 
         lattice = lattice if isinstance(lattice, Lattice) else Lattice(lattice)
 
@@ -1771,7 +1772,10 @@ class IStructure(SiteCollection, MSONable):
         try:
             from pymatgen.optimization.neighbors import find_points_in_spheres
         except ImportError:
-            return self._get_neighbor_list_py(r, sites, exclude_self=exclude_self)
+            if sites is None:
+                return self._get_neighbor_list_py(r, None, exclude_self=exclude_self)
+            return self._get_neighbor_list_py(r, list(sites), exclude_self=exclude_self)
+
         else:
             if sites is None:
                 sites = self.sites
@@ -2161,7 +2165,7 @@ class IStructure(SiteCollection, MSONable):
         all_ranges = list(itertools.starmap(np.arange, zip(nmin, nmax)))
         lattice = self._lattice
         matrix = lattice.matrix
-        neighbors = [[] for _ in range(len(self))]
+        neighbors: list[list] = [[] for _ in range(len(self))]
         all_fcoords = np.mod(self.frac_coords, 1)
         coords_in_cell = np.dot(all_fcoords, matrix)
         site_coords = self.cart_coords
@@ -2185,7 +2189,7 @@ class IStructure(SiteCollection, MSONable):
                     )
 
                 for i in indices[within_r]:
-                    item = []
+                    item: list[Any] = []
                     if include_site:
                         item.append(nnsite)  # type: ignore[reportPossiblyUnboundVariable]
                     item.append(d[i])
@@ -2194,6 +2198,7 @@ class IStructure(SiteCollection, MSONable):
                     # Add the image, if requested
                     if include_image:
                         item.append(image)
+
                     neighbors[i].append(item)
         return neighbors
 
@@ -2868,7 +2873,7 @@ class IStructure(SiteCollection, MSONable):
         if fmt == "cif" or fnmatch(filename.lower(), "*.cif*"):
             from pymatgen.io.cif import CifWriter
 
-            writer = CifWriter(self, **kwargs)
+            writer: Any = CifWriter(self, **kwargs)
         elif fmt == "mcif" or fnmatch(filename.lower(), "*.mcif*"):
             from pymatgen.io.cif import CifWriter
 
@@ -3383,9 +3388,14 @@ class IMolecule(SiteCollection, MSONable):
             properties=properties,
         )
 
-    def break_bond(self, ind1: int, ind2: int, tol: float = 0.2) -> tuple[Self, Self]:
-        """Get two molecules based on breaking the bond between atoms at index
-        ind1 and ind2.
+    def break_bond(
+        self,
+        ind1: int,
+        ind2: int,
+        tol: float = 0.2,
+    ) -> tuple[Self, Self]:
+        """Get two molecules based on breaking the bond between atoms
+        at index ind1 and ind2.
 
         Args:
             ind1 (int): 1st site index
@@ -3399,7 +3409,7 @@ class IMolecule(SiteCollection, MSONable):
             Two IMolecule representing the clusters formed from
             breaking the bond.
         """
-        clusters = [[self[ind1]], [self[ind2]]]
+        clusters = ([self[ind1]], [self[ind2]])
 
         sites = [site for idx, site in enumerate(self) if idx not in (ind1, ind2)]
 
@@ -3407,7 +3417,7 @@ class IMolecule(SiteCollection, MSONable):
             return any(CovalentBond.is_bonded(site, test_site, tol=tol) for test_site in cluster)
 
         while len(sites) > 0:
-            unmatched = []
+            unmatched: list[PeriodicSite] = []
             for site in sites:
                 for cluster in clusters:
                     if belongs_to_cluster(site, cluster):
@@ -3420,7 +3430,7 @@ class IMolecule(SiteCollection, MSONable):
                 raise ValueError("Not all sites are matched!")
             sites = unmatched
 
-        return tuple(type(self).from_sites(cluster) for cluster in clusters)
+        return cast(tuple[Self, Self], tuple(type(self).from_sites(cluster) for cluster in clusters))
 
     def get_covalent_bonds(self, tol: float = 0.2) -> list[CovalentBond]:
         """Determine the covalent bonds in a molecule.
@@ -3487,7 +3497,7 @@ class IMolecule(SiteCollection, MSONable):
             site_dict = site.as_dict()
             del site_dict["@module"]
             del site_dict["@class"]
-            dct["sites"].append(site_dict)
+            cast(list, dct["sites"]).append(site_dict)
         return dct
 
     @classmethod
