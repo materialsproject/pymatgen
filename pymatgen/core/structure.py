@@ -173,7 +173,7 @@ class PeriodicNeighbor(PeriodicSite):
         """Make neighbor Tuple-like to retain backwards compatibility."""
         return (self, self.nn_distance, self.index, self.image)[idx]
 
-    @property
+    @property  # type: ignore[misc]
     def coords(self) -> NDArray:
         """Cartesian coords."""
         return self._lattice.get_cartesian_coords(self._frac_coords)
@@ -202,7 +202,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
     periodicity). Not meant to be instantiated directly.
     """
 
-    # Tolerance in Angstrom for determining if sites are too close.
+    # Tolerance in Angstrom for determining if sites are too close
     DISTANCE_TOLERANCE = 0.5
     _properties: dict
 
@@ -295,18 +295,19 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     @property
     def types_of_species(self) -> tuple[Element | Species | DummySpecies]:
-        """List of types of specie."""
-        # Cannot use set since we want a deterministic algorithm.
+        """List of types of species."""
         types: list[Element | Species | DummySpecies] = []
         for site in self:
             for sp, amt in site.species.items():
                 if amt != 0:
                     types.append(sp)
+
+        # Cannot use set since we want a deterministic algorithm
         return tuple(sorted(set(types)))
 
     @property
     def types_of_specie(self) -> tuple[Element | Species | DummySpecies]:
-        """Specie->Species rename. Maintained for backwards compatibility."""
+        """Specie -> Species rename, to maintain backwards compatibility."""
         return self.types_of_species
 
     def group_by_types(self) -> Iterator[Site | PeriodicSite]:
@@ -349,7 +350,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return {key: [site.properties.get(key) for site in self] for key in prop_keys}
 
     @property
-    def labels(self) -> list[str]:
+    def labels(self) -> list[str | None]:
         """Site labels as a list."""
         return [site.label for site in self]
 
@@ -592,7 +593,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
                     except Exception:
                         comp += {new_sp: amt}
                 site.species = comp
-                site.label = None
+                site.label = None  # DEBUG (DanielYang59): incompatible type
 
         return site_coll
 
@@ -2495,7 +2496,7 @@ class IStructure(SiteCollection, MSONable):
         find the smallest possible one, so this method is recursively called
         until it is unable to find a smaller cell.
 
-        NOTE: If the tolerance is greater than 1/2 the minimum inter-site
+        NOTE: If the tolerance is greater than 1/2 of the minimum inter-site
         distance in the primitive cell, the algorithm will reject this lattice.
 
         Args:
@@ -4525,7 +4526,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         Args:
             tol (float): Tolerance for distance to merge sites.
-            mode ('sum' | 'delete' | 'average'): "delete" means duplicate sites are
+            mode ("sum" | "delete" | "average"): "delete" means duplicate sites are
                 deleted. "sum" means the occupancies are summed for the sites.
                 "average" means that the site is deleted but the properties are averaged
                 Only first letter is considered.
@@ -4537,8 +4538,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
         np.fill_diagonal(dist_mat, 0)
         clusters = fcluster(linkage(squareform((dist_mat + dist_mat.T) / 2)), tol, "distance")
         sites = []
-        for c in np.unique(clusters):
-            inds = np.where(clusters == c)[0]
+        for cluster in np.unique(clusters):
+            inds = np.where(clusters == cluster)[0]
             species = self[inds[0]].species
             coords = self[inds[0]].frac_coords
             props = self[inds[0]].properties
