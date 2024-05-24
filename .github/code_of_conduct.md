@@ -69,7 +69,7 @@ members of the project's leadership.
 
 This Code of Conduct is adapted from the [Contributor Covenant][contrib-cov], version 1.4.
 
-For answers to common questions about this code of conduct, see
-[https://contributor-covenant.org/faq](https://contributor-covenant.org/faq)
-
 [contrib-cov]: https://www.contributor-covenant.org/version/1/4/code-of-conduct.html
+
+For answers to common questions about this code of conduct, see
+<https://contributor-covenant.org/faq>
