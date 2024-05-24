@@ -23,7 +23,7 @@ from collections import defaultdict
 from collections.abc import MutableSequence
 from fnmatch import fnmatch
 from io import StringIO
-from typing import TYPE_CHECKING, Literal, cast, get_args
+from typing import TYPE_CHECKING, Literal, Union, cast, get_args
 
 import numpy as np
 from monty.dev import deprecated
@@ -304,7 +304,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
                     types.append(sp)
 
         # Cannot use set since we want a deterministic algorithm
-        return cast(tuple[Element | Species | DummySpecies, ...], tuple(sorted(set(types))))
+        return cast(tuple[Union[Element, Species, DummySpecies], ...], tuple(sorted(set(types))))
 
     @property
     def types_of_specie(self) -> tuple[Element | Species | DummySpecies, ...]:
