@@ -2430,7 +2430,7 @@ class IStructure(SiteCollection, MSONable):
 
             if len(unmapped_start_ind) == 1:
                 idx = unmapped_start_ind[0]
-                j = next(iter(set(range(len(start_coords))) - set(matched)))
+                j = next(iter(set(range(len(start_coords))) - set(matched)))  # type: ignore[arg-type]
                 sorted_end_coords[idx] = end_coords[j]
 
             end_coords = sorted_end_coords
@@ -3671,7 +3671,8 @@ class IMolecule(SiteCollection, MSONable):
                     if x_max > a or x_min < 0 or y_max > b or y_min < 0 or z_max > c or z_min < 0:
                         raise ValueError("Molecule crosses boundary of box")
             all_coords.extend(new_coords)
-        sprops = {k: v * nimages for k, v in self.site_properties.items()}
+
+        site_props = {key: sequence * nimages for key, sequence in self.site_properties.items()}  # type: ignore[operator]
 
         if cls is None:
             cls = Structure
@@ -3682,7 +3683,7 @@ class IMolecule(SiteCollection, MSONable):
                 self.species * nimages,
                 all_coords,
                 coords_are_cartesian=True,
-                site_properties=sprops,
+                site_properties=site_props,
                 labels=self.labels * nimages,
             ).get_sorted_structure()
 
@@ -3691,7 +3692,7 @@ class IMolecule(SiteCollection, MSONable):
             self.species * nimages,
             coords,
             coords_are_cartesian=True,
-            site_properties=sprops,
+            site_properties=site_props,
             labels=self.labels * nimages,
         )
 
@@ -3771,7 +3772,9 @@ class IMolecule(SiteCollection, MSONable):
 
     @classmethod
     def from_str(  # type: ignore[override]
-        cls, input_string: str, fmt: Literal["xyz", "gjf", "g03", "g09", "com", "inp", "json", "yaml"]
+        cls,
+        input_string: str,
+        fmt: Literal["xyz", "gjf", "g03", "g09", "com", "inp", "json", "yaml"],
     ) -> Self | Molecule:
         """Reads the molecule from a string.
 
@@ -3786,7 +3789,8 @@ class IMolecule(SiteCollection, MSONable):
         Returns:
             IMolecule or Molecule.
         """
-        fmt = fmt.lower()
+        fmt = cast(Literal["xyz", "gjf", "g03", "g09", "com", "inp", "json", "yaml"], fmt.lower())
+
         if fmt == "xyz":
             from pymatgen.io.xyz import XYZ
 
@@ -3847,7 +3851,7 @@ class IMolecule(SiteCollection, MSONable):
         from pymatgen.io.babel import BabelMolAdaptor
 
         if match := re.search(r"\.(pdb|mol|mdl|sdf|sd|ml2|sy2|mol2|cml|mrv)", filename.lower()):
-            new = BabelMolAdaptor.from_file(filename, match.group(1)).pymatgen_mol
+            new = BabelMolAdaptor.from_file(filename, match[1]).pymatgen_mol
             new.__class__ = cls
             return new
         raise ValueError("Cannot determine file type.")
@@ -3856,7 +3860,7 @@ class IMolecule(SiteCollection, MSONable):
 class Structure(IStructure, collections.abc.MutableSequence):
     """Mutable version of structure."""
 
-    __hash__ = None
+    __hash__ = None  # type: ignore[assignment]
 
     def __init__(
         self,
@@ -3924,7 +3928,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             properties=properties,
         )
 
-        self._sites: list[PeriodicSite] = list(self._sites)
+        self._sites: list[PeriodicSite] = list(self._sites)  # type: ignore[assignment]
 
     def __setitem__(  # type: ignore[override]
         self,
@@ -4075,7 +4079,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 if site.distance(new_site) < self.DISTANCE_TOLERANCE:
                     raise ValueError("New site is too close to an existing site!")
 
-        self.sites.insert(idx, new_site)
+        cast(list[PeriodicSite], self.sites).insert(idx, new_site)
 
         return self
 
@@ -4112,7 +4116,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             frac_coords = coords
 
         new_site = PeriodicSite(species, frac_coords, self._lattice, properties=properties, label=label)
-        self.sites[idx] = new_site
+        cast(list[PeriodicSite], self.sites)[idx] = new_site
 
         return self
 
@@ -4895,7 +4899,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             for site in self:
                 if site.distance(new_site) < self.DISTANCE_TOLERANCE:
                     raise ValueError("New site is too close to an existing site!")
-        self.sites.insert(idx, new_site)
+        cast(list[PeriodicSite], self.sites).insert(idx, new_site)
 
         return self
 
