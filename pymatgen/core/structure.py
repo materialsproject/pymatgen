@@ -215,7 +215,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
     # TODO return type needs fixing (can be Sequence[PeriodicSite] but raises lots of mypy errors)
     def __getitem__(self, ind: int | slice) -> PeriodicSite:
-        return self.sites[ind]
+        return self.sites[ind]  # type: ignore[return-value]
 
     def __len__(self) -> int:
         return len(self.sites)
@@ -295,8 +295,8 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return len(self.types_of_species)
 
     @property
-    def types_of_species(self) -> tuple[Element | Species | DummySpecies]:
-        """List of types of species."""
+    def types_of_species(self) -> tuple[Element | Species | DummySpecies, ...]:
+        """Tuple of types of species."""
         types: list[Element | Species | DummySpecies] = []
         for site in self:
             for sp, amt in site.species.items():
@@ -304,10 +304,10 @@ class SiteCollection(collections.abc.Sequence, ABC):
                     types.append(sp)
 
         # Cannot use set since we want a deterministic algorithm
-        return tuple(sorted(set(types)))
+        return cast(tuple[Element | Species | DummySpecies, ...], tuple(sorted(set(types))))
 
     @property
-    def types_of_specie(self) -> tuple[Element | Species | DummySpecies]:
+    def types_of_specie(self) -> tuple[Element | Species | DummySpecies, ...]:
         """Specie -> Species rename, to maintain backwards compatibility."""
         return self.types_of_species
 
@@ -3973,7 +3973,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         if isinstance(idx, int):
             indices = [idx]
         elif isinstance(idx, (str, Element, Species)):
-            self.replace_species({idx: site})
+            self.replace_species({idx: site})  # type: ignore[dict-item]
             return
         elif isinstance(idx, slice):
             to_mod = self[idx]
@@ -3988,14 +3988,16 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 if len(indices) != 1:
                     raise ValueError("Site assignments makes sense only for single int indices!")
                 self._sites[ii] = site
+
             elif isinstance(site, str) or (not isinstance(site, collections.abc.Sequence)):
-                self._sites[ii].species = site
+                self._sites[ii].species = site  # type: ignore[assignment]
+
             else:
-                self._sites[ii].species = site[0]
+                self._sites[ii].species = site[0]  # type: ignore[assignment, index]
                 if len(site) > 1:
-                    self._sites[ii].frac_coords = site[1]
+                    self._sites[ii].frac_coords = site[1]  # type: ignore[index]
                 if len(site) > 2:
-                    self._sites[ii].properties = site[2]
+                    self._sites[ii].properties = site[2]  # type: ignore[assignment, index]
 
     def __delitem__(self, idx: SupportsIndex | slice) -> None:
         """Delete a site from the Structure."""
@@ -4712,7 +4714,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
     and allows a user to perform edits on the molecule.
     """
 
-    __hash__ = None
+    __hash__ = None  # type: ignore[assignment]
 
     def __init__(
         self,
@@ -4786,12 +4788,15 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         """
         if isinstance(idx, int):
             indices = [idx]
+
         elif isinstance(idx, (str, Element, Species)):
-            self.replace_species({idx: site})
+            self.replace_species({idx: site})  # type: ignore[dict-item]
             return
+
         elif isinstance(idx, slice):
             to_mod = self[idx]
             indices = [idx for idx, site in enumerate(self._sites) if site in to_mod]
+
         else:
             indices = list(idx)
 
@@ -4799,13 +4804,13 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             if isinstance(site, Site):
                 self._sites[ii] = site
             elif isinstance(site, str) or not isinstance(site, collections.abc.Sequence):
-                self._sites[ii].species = site
+                self._sites[ii].species = site  # type: ignore[assignment]
             else:
-                self._sites[ii].species = site[0]
+                self._sites[ii].species = site[0]  # type: ignore[assignment, index]
                 if len(site) > 1:
-                    self._sites[ii].coords = site[1]
+                    self._sites[ii].coords = site[1]  # type: ignore[assignment, index]
                 if len(site) > 2:
-                    self._sites[ii].properties = site[2]
+                    self._sites[ii].properties = site[2]  # type: ignore[assignment, index]
 
     def __delitem__(self, idx: SupportsIndex | slice) -> None:
         """Deletes a site from the Structure."""
