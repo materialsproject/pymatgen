@@ -1,1 +1,1 @@
-"""Modules for prediciting topological properties."""
+"""Module for predicting topological properties."""
