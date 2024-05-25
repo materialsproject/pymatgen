@@ -761,7 +761,7 @@ class GrainBoundaryGenerator:
                 sites_away_gb.append(site)
         if len(sites_near_gb) >= 1:
             s_near_gb = Structure.from_sites(sites_near_gb)
-            s_near_gb.merge_sites(tol=bond_length * rm_ratio, mode="d")
+            s_near_gb.merge_sites(tol=bond_length * rm_ratio, mode="delete")
             all_sites = sites_away_gb + s_near_gb.sites  # type: ignore
             gb_with_vac = Structure.from_sites(all_sites)
 

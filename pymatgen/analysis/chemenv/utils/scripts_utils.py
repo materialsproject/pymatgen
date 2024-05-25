@@ -213,6 +213,7 @@ def compute_environments(chemenv_configuration):
     default_strategy.setup_options(chemenv_configuration.package_options["default_strategy"]["strategy_options"])
     max_dist_factor = chemenv_configuration.package_options["default_max_distance_factor"]
     first_time = True
+    test = None
     while True:
         if len(questions) > 1:
             found = False
@@ -240,7 +241,7 @@ def compute_environments(chemenv_configuration):
 
         input_source = ""
         if found and len(questions) > 1:
-            input_source = test  # type: ignore[reportPossiblyUnboundVariable]
+            input_source = test
 
         structure = None
         if source_type == "cif":

@@ -1,1 +1,1 @@
-"""Modules for prediciting theoretical solar-cell efficiency."""
+"""Module for predicting theoretical solar-cell efficiency."""
