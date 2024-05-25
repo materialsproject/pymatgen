@@ -284,7 +284,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return [site.species for site in self]
 
     @property
-    @deprecated(message="Use n_type_sp instead.")
+    @deprecated(message="Use n_type_sp instead")
     def ntypesp(self) -> int:
         """Number of types of atoms."""
         return len(self.types_of_species)
@@ -561,7 +561,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
     ) -> Self:
         """Replace species.
 
-        Note that this reset the label of any affected site to species_string.
+        Note that this resets the label of any affected site to species_string.
 
         Args:
             species_mapping (dict): Species to swap. Species can be elements too. e.g.
@@ -598,10 +598,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
         return site_coll
 
-    def add_oxidation_state_by_element(
-        self,
-        oxidation_states: dict[str, float],
-    ) -> Self:
+    def add_oxidation_state_by_element(self, oxidation_states: dict[str, float]) -> Self:
         """Add oxidation states.
 
         Args:
@@ -750,11 +747,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
             others = new_others
         return cluster
 
-    def _calculate(
-        self,
-        calculator: str | Calculator,
-        verbose: bool = False,
-    ) -> Calculator:
+    def _calculate(self, calculator: str | Calculator, verbose: bool = False) -> Calculator:
         """Perform an ASE calculation.
 
         Args:
@@ -770,7 +763,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         from pymatgen.io.ase import AseAtomsAdaptor
 
         if isinstance(self, Molecule) and isinstance(calculator, str) and calculator.lower() in ("chgnet", "m3gnet"):
-            raise ValueError(f"Can't use {calculator=} for a Molecule.")
+            raise ValueError(f"Can't use {calculator=} for a Molecule")
         calculator = self._prep_calculator(calculator)
 
         # Get Atoms object
@@ -868,7 +861,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         with contextlib.redirect_stdout(stream):
             if relax_cell:
                 if is_molecule:
-                    raise ValueError("Can't relax cell for a Molecule.")
+                    raise ValueError("Can't relax cell for a Molecule")
                 ecf = ExpCellFilter(atoms)
                 dyn = opt_class(ecf, **opt_kwargs)
             else:
@@ -893,16 +886,11 @@ class SiteCollection(collections.abc.Sequence, ABC):
 
         return system
 
-    def _prep_calculator(
-        self,
-        calculator: Literal["m3gnet", "gfn2-xtb"] | Calculator,
-        **params,
-    ) -> Calculator:
+    def _prep_calculator(self, calculator: Literal["m3gnet", "gfn2-xtb"] | Calculator, **params) -> Calculator:
         """Convert string name of special ASE calculators into ASE calculator objects.
 
         Args:
-            calculator: An ASE Calculator or a string from the following
-                options: "m3gnet", "gfn2-xtb".
+            calculator: An ASE Calculator or a string from the following options: "m3gnet", "gfn2-xtb".
             **params: Parameters for the calculator.
 
         Returns:
@@ -1086,10 +1074,7 @@ class IStructure(SiteCollection, MSONable):
         """Use the composition hash for now."""
         return hash(self.composition)
 
-    def __mul__(
-        self,
-        scaling_matrix: int | Sequence[int] | Sequence[Sequence[int]],
-    ) -> Structure:
+    def __mul__(self, scaling_matrix: int | Sequence[int] | Sequence[Sequence[int]]) -> Structure:
         """Make a supercell. Allow sites outside the unit cell.
 
         Args:
@@ -1148,7 +1133,7 @@ class IStructure(SiteCollection, MSONable):
         outs = ["Structure Summary", repr(self.lattice)]
         if self._charge:
             outs.append(f"Overall Charge: {self._charge:+}")
-        outs.extend(repr(site) for site in self)
+        outs.extend(map(repr, self))
         return "\n".join(outs)
 
     def __str__(self) -> str:
@@ -1430,9 +1415,9 @@ class IStructure(SiteCollection, MSONable):
         all_magmoms: list[float] = []
         all_site_properties: dict[str, list] = defaultdict(list)
         all_labels: list[str | None] = []
-        for idx, (sp, c, m) in enumerate(zip(species, frac_coords, magmoms)):
-            cc, mm = msg.get_orbit(c, m, tol=tol)
-            all_sp.extend([sp] * len(cc))
+        for idx, (spec, f_coord, magmom) in enumerate(zip(species, frac_coords, magmoms)):
+            cc, mm = msg.get_orbit(f_coord, magmom, tol=tol)
+            all_sp.extend([spec] * len(cc))
             all_coords.extend(cc)
             all_magmoms.extend(mm)
             label = labels[idx] if labels else None
@@ -1443,13 +1428,7 @@ class IStructure(SiteCollection, MSONable):
 
         all_site_properties["magmom"] = all_magmoms
 
-        return cls(
-            lattice,
-            all_sp,
-            all_coords,
-            site_properties=all_site_properties,
-            labels=all_labels,
-        )
+        return cls(lattice, all_sp, all_coords, site_properties=all_site_properties, labels=all_labels)
 
     def unset_charge(self) -> None:
         """Reset the charge to None. E.g. to compute it dynamically based on oxidation states."""
@@ -1795,7 +1774,7 @@ class IStructure(SiteCollection, MSONable):
             if exclude_self:
                 self_pair = (center_indices == points_indices) & (distances <= numerical_tol)
                 cond = ~self_pair
-            return (center_indices[cond], points_indices[cond], images[cond], distances[cond])
+            return center_indices[cond], points_indices[cond], images[cond], distances[cond]
 
     def get_symmetric_neighbor_list(
         self,
@@ -2081,9 +2060,7 @@ class IStructure(SiteCollection, MSONable):
                 ok in most instances.
 
         Returns:
-            list[list[PeriodicNeighbor]]: a list of list of neighbors
-                for each site in structure.
-
+            list[list[PeriodicNeighbor]]: Neighbors for each site in structure.
         """
         if sites is None:
             sites = self.sites
@@ -2152,8 +2129,7 @@ class IStructure(SiteCollection, MSONable):
                 data. Defaults to True.
 
         Returns:
-            PeriodicNeighbor: a list of list of neighbors for each
-                site in structure.
+            list[list[PeriodicNeighbor]]: Neighbors for each site in structure.
         """
         # Use same algorithm as get_sites_in_sphere to determine supercell but
         # loop over all atoms in crystal
@@ -2245,10 +2221,7 @@ class IStructure(SiteCollection, MSONable):
         sites = sorted(self, key=key, reverse=reverse)
         return type(self).from_sites(sites, charge=self._charge, properties=self.properties)
 
-    def get_reduced_structure(
-        self,
-        reduction_algo: Literal["niggli", "LLL"] = "niggli",
-    ) -> Self:
+    def get_reduced_structure(self, reduction_algo: Literal["niggli", "LLL"] = "niggli") -> Self:
         """Get a reduced structure.
 
         Args:
@@ -2338,11 +2311,7 @@ class IStructure(SiteCollection, MSONable):
                 skip_checks=True,
             )
             new_sites.append(new_site)
-        return type(self).from_sites(
-            sorted(new_sites),
-            charge=self._charge,
-            properties=props,
-        )
+        return type(self).from_sites(sorted(new_sites), charge=self._charge, properties=props)
 
     def interpolate(
         self,
@@ -2564,7 +2533,7 @@ class IStructure(SiteCollection, MSONable):
             for frac_coords in group:
                 min_vecs = pbc_coord_intersection(min_vecs, group - frac_coords, super_ftol_2)
 
-        def get_hnf(fu):
+        def get_hnf(form_units):
             """Get all possible distinct supercell matrices given a
             number of formula units in the supercell. Batches the matrices
             by the values in the diagonal (for less numpy overhead).
@@ -2578,21 +2547,20 @@ class IStructure(SiteCollection, MSONable):
                     if n % idx == 0:
                         yield idx
 
-            for det in factors(fu):
+            for det in factors(form_units):
                 if det == 1:
                     continue
                 for a in factors(det):
                     for e in factors(det // a):
                         g = det // a // e
-                        yield (
-                            det,
-                            np.array(
-                                [
-                                    [[a, b, c], [0, e, f], [0, 0, g]]
-                                    for b, c, f in itertools.product(range(a), range(a), range(e))
-                                ]
-                            ),
+                        supercell_matrices = np.array(
+                            [
+                                [[a, b, c], [0, e, f], [0, 0, g]]
+                                for b, c, f in itertools.product(range(a), range(a), range(e))
+                            ]
                         )
+
+                        yield det, supercell_matrices
 
         # We can't let sites match to their neighbors in the supercell
         grouped_non_nbrs = []
@@ -3268,7 +3236,7 @@ class IMolecule(SiteCollection, MSONable):
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
-        other = cast(IMolecule, other)  # TODO (DanielYang59): fix type
+        other = cast(IMolecule, other)  # TODO @DanielYang59: fix type
 
         if len(self) != len(other):
             return False
@@ -3388,12 +3356,7 @@ class IMolecule(SiteCollection, MSONable):
             properties=properties,
         )
 
-    def break_bond(
-        self,
-        ind1: int,
-        ind2: int,
-        tol: float = 0.2,
-    ) -> tuple[Self, Self]:
+    def break_bond(self, ind1: int, ind2: int, tol: float = 0.2) -> tuple[Self, Self]:
         """Get two molecules based on breaking the bond between atoms
         at index ind1 and ind2.
 
@@ -3430,7 +3393,7 @@ class IMolecule(SiteCollection, MSONable):
                 raise ValueError("Not all sites are matched!")
             sites = unmatched
 
-        return cast(tuple[Self, Self], tuple(type(self).from_sites(cluster) for cluster in clusters))
+        return cast(tuple[Self, Self], tuple(map(type(self).from_sites, clusters)))
 
     def get_covalent_bonds(self, tol: float = 0.2) -> list[CovalentBond]:
         """Determine the covalent bonds in a molecule.
@@ -4163,7 +4126,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                     break
 
         if not all_non_terminal_nn:
-            raise RuntimeError("Can't find a non-terminal neighbor to attach functional group to.")
+            raise RuntimeError("Can't find a non-terminal neighbor to attach functional group to")
 
         non_terminal_nn = min(all_non_terminal_nn, key=lambda d: d[1])[0]
 
@@ -4532,11 +4495,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         return self
 
-    def merge_sites(
-        self,
-        tol: float = 0.01,
-        mode: Literal["sum", "delete", "average"] = "sum",
-    ) -> Self:
+    def merge_sites(self, tol: float = 0.01, mode: Literal["sum", "delete", "average"] = "sum") -> Self:
         """Merges sites (adding occupancies) within tol of each other.
         Removes site properties.
 
@@ -4938,11 +4897,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         self.sites = [self[idx] for idx in range(len(self)) if idx not in indices]
         return self
 
-    def translate_sites(
-        self,
-        indices: Sequence[int] | None = None,
-        vector: ArrayLike | None = None,
-    ) -> Self:
+    def translate_sites(self, indices: Sequence[int] | None = None, vector: ArrayLike | None = None) -> Self:
         """Translate specific sites by some vector, keeping the sites within the
         unit cell.
 
@@ -5088,7 +5043,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
                     break
 
         if not all_non_terminal_nn:
-            raise RuntimeError("Can't find a non-terminal neighbor to attach functional group to.")
+            raise RuntimeError("Can't find a non-terminal neighbor to attach functional group to")
 
         non_terminal_nn = min(all_non_terminal_nn, key=lambda nn: nn.nn_distance)
 
@@ -5182,11 +5137,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             verbose=verbose,
         )
 
-    def calculate(
-        self,
-        calculator: Literal["gfn2-xtb"] | Calculator = "gfn2-xtb",
-        verbose: bool = False,
-    ) -> Calculator:
+    def calculate(self, calculator: Literal["gfn2-xtb"] | Calculator = "gfn2-xtb", verbose: bool = False) -> Calculator:
         """Perform an ASE calculation.
 
         Args:
