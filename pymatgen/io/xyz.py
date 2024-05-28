@@ -119,7 +119,7 @@ class XYZ:
         """
         lines = str(self)
         sio = StringIO(lines)
-        df_xyz = pd.read_csv(sio, header=None, skiprows=(0, 1), comment="#", sep="\s+", names=("atom", "x", "y", "z"))
+        df_xyz = pd.read_csv(sio, header=None, skiprows=(0, 1), comment="#", sep=r"\s+", names=("atom", "x", "y", "z"))
         df_xyz.index += 1
         return df_xyz
 

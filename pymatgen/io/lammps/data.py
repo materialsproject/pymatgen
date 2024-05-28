@@ -667,14 +667,14 @@ class LammpsData(MSONable):
             sio = StringIO("".join(sec_lines[2:]))  # skip the 2nd line
             if kw.endswith("Coeffs") and not kw.startswith("PairIJ"):
                 df_list = [
-                    pd.read_csv(StringIO(line), header=None, comment="#", sep="\s+")
+                    pd.read_csv(StringIO(line), header=None, comment="#", sep=r"\s+")
                     for line in sec_lines[2:]
                     if line.strip()
                 ]
                 df = pd.concat(df_list, ignore_index=True)
                 names = ["id"] + [f"coeff{i}" for i in range(1, df.shape[1])]
             else:
-                df = pd.read_csv(sio, header=None, comment="#", sep="\s+")
+                df = pd.read_csv(sio, header=None, comment="#", sep=r"\s+")
                 if kw == "PairIJ Coeffs":
                     names = ["id1", "id2"] + [f"coeff{i}" for i in range(1, df.shape[1] - 1)]
                     df.index.name = None
@@ -1386,7 +1386,7 @@ class CombinedData(LammpsData):
             sio,
             header=None,
             comment="#",
-            sep="\s+",
+            sep=r"\s+",
             names=["atom", "x", "y", "z"],
         )
         df.index += 1
