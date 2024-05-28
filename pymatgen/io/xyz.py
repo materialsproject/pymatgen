@@ -118,8 +118,10 @@ class XYZ:
             pandas.DataFrame
         """
         lines = str(self)
-        sio = StringIO(lines)
-        df_xyz = pd.read_csv(sio, header=None, skiprows=(0, 1), comment="#", sep=r"\s+", names=("atom", "x", "y", "z"))
+        str_io = StringIO(lines)
+        df_xyz = pd.read_csv(
+            str_io, header=None, skiprows=(0, 1), comment="#", sep=r"\s+", names=("atom", "x", "y", "z")
+        )
         df_xyz.index += 1
         return df_xyz
 
