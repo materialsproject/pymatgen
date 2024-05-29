@@ -1320,7 +1320,7 @@ class Vasprun(MSONable):
             eigen = {str(spin): v.tolist() for spin, v in self.eigenvalues.items()}
             vout["eigenvalues"] = eigen
             gap, cbm, vbm, is_direct = self.eigenvalue_band_properties
-            vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
+            vout |= {"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct}
 
             if self.projected_eigenvalues:
                 vout["projected_eigenvalues"] = {
@@ -1335,7 +1335,7 @@ class Vasprun(MSONable):
             vout["eigenvalues_kpoints_opt"] = eigen
             # TODO: implement kpoints_opt eigenvalue_band_proprties.
             # gap, cbm, vbm, is_direct = self.eigenvalue_band_properties
-            # vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
+            # vout |= {"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct}
 
             if kpt_opt_props.projected_eigenvalues:
                 vout["projected_eigenvalues_kpoints_opt"] = {
@@ -1810,7 +1810,7 @@ class BSVasprun(Vasprun):
                     eigen[idx][str(spin)] = val
             vout["eigenvalues"] = eigen
             gap, cbm, vbm, is_direct = self.eigenvalue_band_properties
-            vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
+            vout.update |= {"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct}
 
             if self.projected_eigenvalues:
                 peigen = [{} for _ in eigen]
@@ -1825,7 +1825,7 @@ class BSVasprun(Vasprun):
             vout["eigenvalues_kpoints_opt"] = eigen
             # TODO: implement kpoints_opt eigenvalue_band_proprties.
             # gap, cbm, vbm, is_direct = self.eigenvalue_band_properties
-            # vout.update({"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct})
+            # vout |= {"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct}
 
             if kpt_opt_props.projected_eigenvalues:
                 vout["projected_eigenvalues_kpoints_opt"] = {
@@ -3321,27 +3321,25 @@ class Outcar:
         }
 
         if self.lepsilon:
-            dct.update(
-                {
-                    "piezo_tensor": self.piezo_tensor,
-                    "dielectric_tensor": self.dielectric_tensor,
-                    "born": self.born,
-                }
-            )
+            dct |= {
+                "piezo_tensor": self.piezo_tensor,
+                "dielectric_tensor": self.dielectric_tensor,
+                "born": self.born,
+            }
 
         if self.dfpt:
             dct["internal_strain_tensor"] = self.internal_strain_tensor
 
         if self.dfpt and self.lepsilon:
-            dct.update(
-                piezo_ionic_tensor=self.piezo_ionic_tensor,
-                dielectric_ionic_tensor=self.dielectric_ionic_tensor,
-            )
+            dct |= {
+                "piezo_ionic_tensor": self.piezo_ionic_tensor,
+                "dielectric_ionic_tensor": self.dielectric_ionic_tensor,
+            }
 
         if self.lcalcpol:
-            dct.update({"p_elec": self.p_elec, "p_ion": self.p_ion})
+            dct |= {"p_elec": self.p_elec, "p_ion": self.p_ion}
             if self.spin and not self.noncollinear:
-                dct.update({"p_sp1": self.p_sp1, "p_sp2": self.p_sp2})
+                dct.update |= {"p_sp1": self.p_sp1, "p_sp2": self.p_sp2}
             dct["zval_dict"] = self.zval_dict
 
         if self.nmr_cs:
