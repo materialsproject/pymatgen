@@ -1801,16 +1801,16 @@ class BSVasprun(Vasprun):
         vin["lattice_rec"] = self.final_structure.lattice.reciprocal_lattice.as_dict()
         dct["input"] = vin
 
-        vout = {"crystal": self.final_structure.as_dict(), "efermi": self.efermi}
+        vout: dict[str, Any] = {"crystal": self.final_structure.as_dict(), "efermi": self.efermi}
 
         if self.eigenvalues:
-            eigen = defaultdict(dict)
+            eigen: defaultdict = defaultdict(dict)
             for spin, values in self.eigenvalues.items():
                 for idx, val in enumerate(values):
                     eigen[idx][str(spin)] = val
             vout["eigenvalues"] = eigen
             gap, cbm, vbm, is_direct = self.eigenvalue_band_properties
-            vout.update |= {"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct}
+            vout |= {"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct}
 
             if self.projected_eigenvalues:
                 peigen = [{} for _ in eigen]
@@ -2360,7 +2360,7 @@ class Outcar:
         read_plasma = False
         read_dielectric = False
         energies = []
-        data = {"REAL": [], "IMAGINARY": []}
+        data: dict[str, Any] = {"REAL": [], "IMAGINARY": []}
         count = 0
         component = "IMAGINARY"
         with zopen(self.filename, mode="rt") as file:
@@ -2965,7 +2965,7 @@ class Outcar:
             )
 
             self.born_ion = None
-            self.born = []
+            self.born: list | np.ndarray = []
 
             micro_pyawk(self.filename, search, self)
 
@@ -3204,7 +3204,7 @@ class Outcar:
                 zvals = match[1]
                 results.zvals = map(float, re.findall(r"-?\d+\.\d*", zvals))
 
-            search = []
+            search: list[list] = []
             search.extend((["(?<=VRHFIN =)(.*)(?=:)", None, atom_symbols], ["^\\s+ZVAL.*=(.*)", None, zvals]))
 
             micro_pyawk(self.filename, search, self)
@@ -3235,7 +3235,7 @@ class Outcar:
         """
         with zopen(self.filename, mode="rt") as foutcar:
             line = foutcar.readline()
-            cl = []
+            cl: list[dict] = []
 
             while line != "":
                 line = foutcar.readline()
@@ -3277,11 +3277,11 @@ class Outcar:
         """
         with zopen(self.filename, mode="rt") as foutcar:
             line = foutcar.readline()
-            aps = []
+            aps: list[list[float]] = []
             while line != "":
                 line = foutcar.readline()
                 if "the norm of the test charge is" in line:
-                    ap = []
+                    ap: list[float] = []
                     while line != "":
                         line = foutcar.readline()
                         # don't know number of lines to parse without knowing
@@ -3801,14 +3801,13 @@ class Procar:
             done = False
             spin = Spin.down
 
-            weights = None
             n_kpoints = None
             n_bands = None
             n_ions = None
             weights: list[float] = []
             headers = None
-            data = None
-            phase_factors = None
+            data: dict[Spin, np.ndarray] | None = None
+            phase_factors: dict[Spin, np.ndarray] | None = None
 
             for line in file_handle:
                 line = line.strip()
@@ -3830,11 +3829,9 @@ class Procar:
                     headers.pop(0)
                     headers.pop(-1)
 
-                    data: dict[Spin, np.ndarray] = defaultdict(
-                        lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers)))
-                    )
+                    data = defaultdict(lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers))))
 
-                    phase_factors: dict[Spin, np.ndarray] = defaultdict(
+                    phase_factors = defaultdict(
                         lambda: np.full((n_kpoints, n_bands, n_ions, len(headers)), np.nan, dtype=np.complex128)
                     )
 
@@ -4191,7 +4188,7 @@ class Xdatcar:
             has the same lattice structure and atoms as the Xdatcar class.
         """
         preamble = None
-        coords_str = []
+        coords_str: list[str] = []
         structures = self.structures
         preamble_done = False
         if ionicstep_start < 1:
