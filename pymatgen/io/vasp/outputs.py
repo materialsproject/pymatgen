@@ -3339,7 +3339,7 @@ class Outcar:
         if self.lcalcpol:
             dct |= {"p_elec": self.p_elec, "p_ion": self.p_ion}
             if self.spin and not self.noncollinear:
-                dct.update |= {"p_sp1": self.p_sp1, "p_sp2": self.p_sp2}
+                dct |= {"p_sp1": self.p_sp1, "p_sp2": self.p_sp2}
             dct["zval_dict"] = self.zval_dict
 
         if self.nmr_cs:
