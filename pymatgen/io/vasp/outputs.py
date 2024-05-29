@@ -1813,7 +1813,7 @@ class BSVasprun(Vasprun):
             vout |= {"bandgap": gap, "cbm": cbm, "vbm": vbm, "is_gap_direct": is_direct}
 
             if self.projected_eigenvalues:
-                peigen = [{} for _ in eigen]
+                peigen: list[dict] = [{} for _ in eigen]
                 for spin, val in self.projected_eigenvalues.items():
                     for kpoint_index, vv in enumerate(val):
                         if str(spin) not in peigen[kpoint_index]:
@@ -2136,7 +2136,9 @@ class Outcar:
             self.read_pseudo_zval()
 
         # Read electrostatic potential
-        self.electrostatic_potential = self.ngf = self.sampling_radii = None
+        self.electrostatic_potential: list[float] | None = None
+        self.ngf = None
+        self.sampling_radii: list[float] | None = None
         self.read_pattern({"electrostatic": r"average \(electrostatic\) potential at core"})
         if self.data.get("electrostatic", []):
             self.read_electrostatic_potential()
@@ -2319,10 +2321,10 @@ class Outcar:
         table_pattern = r"((?:\s+\d+\s*[\.\-\d]+)+)"
         footer_pattern = r"\s+E-fermi :"
 
-        pots = self.read_table_pattern(header_pattern, table_pattern, footer_pattern)
-        pots = "".join(itertools.chain.from_iterable(pots))
+        pots: list = self.read_table_pattern(header_pattern, table_pattern, footer_pattern)
+        _pots: str = "".join(itertools.chain.from_iterable(pots))
 
-        pots = re.findall(r"\s+\d+\s*([\.\-\d]+)+", pots)
+        pots = re.findall(r"\s+\d+\s*([\.\-\d]+)+", _pots)
 
         self.electrostatic_potential = [*map(float, pots)]
 
@@ -3210,16 +3212,17 @@ class Outcar:
             micro_pyawk(self.filename, search, self)
 
             zval_dict = {}
+            # DEBUG (DanielYang59): no atom_symbols/zvals from Outcar
             for x, y in zip(self.atom_symbols, self.zvals):
                 zval_dict[x] = y
             self.zval_dict = zval_dict
 
-            # Clean-up
+            # Clean up
             del self.atom_symbols
             del self.zvals
 
-        except Exception:
-            raise RuntimeError("ZVAL dict could not be parsed.")
+        except Exception as exc:
+            raise RuntimeError("ZVAL dict could not be parsed.") from exc
 
     def read_core_state_eigen(self) -> list[dict]:
         """Read the core state eigenenergies at each ionic step.
@@ -3681,7 +3684,7 @@ class Chgcar(VolumetricData):
         if isinstance(poscar, Poscar):
             struct = poscar.structure
             self.poscar = poscar
-            self.name: str = poscar.comment
+            self.name: str | None = poscar.comment  # type: ignore[assignment]
         elif isinstance(poscar, Structure):
             struct = poscar
             self.poscar = Poscar(poscar)
@@ -3912,7 +3915,7 @@ class Procar:
         """
         orbital_index = self.orbitals.index(orbital)
         return {
-            spin: np.sum(data[:, :, atom_index, orbital_index] * self.weights[:, None])
+            spin: np.sum(data[:, :, atom_index, orbital_index] * self.weights[:, None])  # type: ignore[call-overload]
             for spin, data in self.data.items()
         }
 
@@ -3943,7 +3946,7 @@ class Oszicar:
             filename (PathLike): The file to parse.
         """
 
-        def smart_convert(header: str, num: float) -> float | str:
+        def smart_convert(header: str, num: float | str) -> float | str:
             try:
                 return int(num) if header in {"N", "ncg"} else float(num)
 
@@ -4558,7 +4561,9 @@ class Wavecar:
             self.Gpoints = [None for _ in range(self.nk)]
             self.kpoints = []
             if spin == 2:
-                self.coeffs = [[[None for _ in range(self.nb)] for _ in range(self.nk)] for _ in range(spin)]
+                self.coeffs: list[list[list[None]]] | list[list[None]] = [
+                    [[None for _ in range(self.nb)] for _ in range(self.nk)] for _ in range(spin)
+                ]
                 self.band_energy: list = [[] for _ in range(spin)]
             else:
                 self.coeffs = [[None for _ in range(self.nb)] for _ in range(self.nk)]
@@ -4644,12 +4649,12 @@ class Wavecar:
                                 extra_coeffs.append(np.conj(data[G_ind]))
 
                         if spin == 2:
-                            self.coeffs[i_spin][i_nk][inb] = np.array(list(data) + extra_coeffs, dtype=np.complex64)
+                            self.coeffs[i_spin][i_nk][inb] = np.array(list(data) + extra_coeffs, dtype=np.complex64)  # type: ignore[index]
                         else:
                             self.coeffs[i_nk][inb] = np.array(list(data) + extra_coeffs, dtype=np.complex128)
 
                         if self.vasp_type.lower()[0] == "n":
-                            self.coeffs[i_nk][inb].shape = (2, nplane // 2)
+                            self.coeffs[i_nk][inb].shape = (2, nplane // 2)  # type: ignore[union-attr]
 
     def _generate_nbmax(self) -> None:
         """Helper function to determine maximum number of b vectors for
@@ -4775,9 +4780,9 @@ class Wavecar:
         u = np.dot(np.dot(v, self.b), r)
 
         if self.vasp_type.lower()[0] == "n":
-            c = self.coeffs[kpoint][band][spinor, :]  # type: ignore[call-overload]
+            c = self.coeffs[kpoint][band][spinor, :]  # type: ignore[call-overload, index]
         elif self.spin == 2:
-            c = self.coeffs[spin][kpoint][band]
+            c = self.coeffs[spin][kpoint][band]  # type: ignore[index]
         else:
             c = self.coeffs[kpoint][band]
         return np.sum(np.dot(c, np.exp(1j * u, dtype=np.complex64))) / np.sqrt(self.vol)
@@ -4817,9 +4822,9 @@ class Wavecar:
             raise RuntimeError("vasp_type cannot be None.")
 
         if self.vasp_type.lower()[0] == "n":
-            tcoeffs = self.coeffs[kpoint][band][spinor, :]  # type: ignore[call-overload]
+            tcoeffs = self.coeffs[kpoint][band][spinor, :]  # type: ignore[call-overload, index]
         elif self.spin == 2:
-            tcoeffs = self.coeffs[spin][kpoint][band]
+            tcoeffs = self.coeffs[spin][kpoint][band]  # type: ignore[index]
         else:
             tcoeffs = self.coeffs[kpoint][band]
 
