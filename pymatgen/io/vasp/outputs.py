@@ -747,6 +747,7 @@ class Vasprun(MSONable):
         }
 
         IVDW_TYPES = {
+            0: "no-correction",
             1: "DFT-D2",
             10: "DFT-D2",
             11: "DFT-D3",
@@ -789,7 +790,7 @@ class Vasprun(MSONable):
         if self.parameters.get("LUSE_VDW", False):
             run_type += "+rVV10"
         elif self.incar.get("IVDW") in IVDW_TYPES:
-            run_type += f"+vdW-{IVDW_TYPES[self.incar.get('IVDW')]}"
+            run_type += f"+vdW-{IVDW_TYPES[self.incar.get('IVDW', 0)]}"
         elif self.incar.get("IVDW"):
             run_type += "+vdW-unknown"
 
