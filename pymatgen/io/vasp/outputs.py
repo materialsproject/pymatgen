@@ -1362,7 +1362,7 @@ class Vasprun(MSONable):
                     # Delete duplicate fields from "response functions",
                     # which overrides the values in the root params.
                     p = {k: v for k, v in p.items() if k not in params}
-                params.update(p)
+                params |= p
             else:
                 ptype = c.attrib.get("type", "")
                 val = c.text.strip() if c.text else ""
@@ -1403,9 +1403,9 @@ class Vasprun(MSONable):
 
         for a in elem.findall("array"):
             if a.attrib["name"] == "atoms":
-                atomic_symbols = [rc.find("c").text.strip() for rc in a.find("set")]
+                atomic_symbols = [rc.find("c").text.strip() for rc in a.find("set")]  # type: ignore[union-attr]
             elif a.attrib["name"] == "atomtypes":
-                potcar_symbols = [rc.findall("c")[4].text.strip() for rc in a.find("set")]
+                potcar_symbols = [rc.findall("c")[4].text.strip() for rc in a.find("set")]  # type: ignore[union-attr]
 
         elem.clear()
         return [parse_atomic_symbol(sym) for sym in atomic_symbols], potcar_symbols
@@ -1415,13 +1415,13 @@ class Vasprun(MSONable):
         """Parse Kpoints."""
         e = elem if elem.find("generation") is None else elem.find("generation")
         kpoint = Kpoints("Kpoints from vasprun.xml")
-        kpoint.style = Kpoints.supported_modes.from_str(e.attrib.get("param", "Reciprocal"))
+        kpoint.style = Kpoints.supported_modes.from_str(e.attrib.get("param", "Reciprocal"))  # type: ignore[union-attr]
 
-        for v in e.findall("v"):
-            name = v.attrib.get("name")
-            tokens = v.text.split()
+        for v in e.findall("v"):  # type: ignore[union-attr]
+            name = v.attrib.get("name")  # type: ignore[union-attr]
+            tokens = v.text.split()  # type: ignore[union-attr]
             if name == "divisions":
-                kpoint.kpts = [tuple([int(i) for i in tokens])]
+                kpoint.kpts = [tuple(int(i) for i in tokens)]
             elif name == "usershift":
                 kpoint.kpts_shift = [float(i) for i in tokens]
             elif name in {"genvec1", "genvec2", "genvec3", "shift"}:
@@ -1449,7 +1449,7 @@ class Vasprun(MSONable):
 
     def _parse_structure(self, elem: XML_Element) -> Structure:
         """Parse Structure with lattice, positions and selective dynamics info."""
-        lattice = _parse_vasp_array(elem.find("crystal").find("varray"))
+        lattice = _parse_vasp_array(elem.find("crystal").find("varray"))  # type: ignore[union-attr]
         pos = _parse_vasp_array(elem.find("varray"))
         struct = Structure(lattice, self.atomic_symbols, pos)
 
@@ -1461,12 +1461,12 @@ class Vasprun(MSONable):
     def _parse_diel(elem: XML_Element) -> tuple[list, list, list]:
         """Parse dielectric properties."""
         imag = [
-            [_vasprun_float(line) for line in r.text.split()]
-            for r in elem.find("imag").find("array").find("set").findall("r")
+            [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
+            for r in elem.find("imag").find("array").find("set").findall("r")  # type: ignore[union-attr]
         ]
         real = [
-            [_vasprun_float(line) for line in r.text.split()]
-            for r in elem.find("real").find("array").find("set").findall("r")
+            [_vasprun_float(line) for line in r.text.split()]  # type: ignore[union-attr]
+            for r in elem.find("real").find("array").find("set").findall("r")  # type: ignore[union-attr]
         ]
         elem.clear()
         return [e[0] for e in imag], [e[1:] for e in real], [e[1:] for e in imag]
@@ -1499,7 +1499,7 @@ class Vasprun(MSONable):
         calculation.append(istep)
         for scstep in elem.findall("scstep"):
             try:
-                e_steps_dict = {i.attrib["name"]: _vasprun_float(i.text) for i in scstep.find("energy").findall("i")}
+                e_steps_dict = {i.attrib["name"]: _vasprun_float(i.text) for i in scstep.find("energy").findall("i")}  # type: ignore[union-attr]
                 cur_ene = e_steps_dict["e_fr_energy"]
                 min_steps = 1 if len(calculation) >= 1 else self.parameters.get("NELMIN", 5)
                 if len(calculation[-1]["electronic_steps"]) <= min_steps:
@@ -1518,14 +1518,14 @@ class Vasprun(MSONable):
     def _parse_ionic_step(self, elem: XML_Element) -> dict[str, float]:
         """Parse an ionic step."""
         try:
-            ion_step = {i.attrib["name"]: _vasprun_float(i.text) for i in elem.find("energy").findall("i")}
+            ion_step = {i.attrib["name"]: _vasprun_float(i.text) for i in elem.find("energy").findall("i")}  # type: ignore[union-attr, arg-type]
         except AttributeError:  # not all calculations have an energy
             ion_step = {}
 
         elec_steps = []
         for scstep in elem.findall("scstep"):
             try:
-                e_step_dict = {i.attrib["name"]: _vasprun_float(i.text) for i in scstep.find("energy").findall("i")}
+                e_step_dict = {i.attrib["name"]: _vasprun_float(i.text) for i in scstep.find("energy").findall("i")}  # type: ignore[union-attr, arg-type]
                 elec_steps.append(e_step_dict)
             except AttributeError:  # not all calculations have an energy
                 pass
@@ -1545,12 +1545,12 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_dos(elem: XML_Element) -> tuple[Dos, Dos, list[dict]]:
         """Parse density of states (DOS)."""
-        efermi = float(elem.find("i").text)
+        efermi = float(elem.find("i").text)  # type: ignore[union-attr]
         energies = None
         tdensities = {}
         idensities = {}
 
-        for s in elem.find("total").find("array").find("set").findall("set"):
+        for s in elem.find("total").find("array").find("set").findall("set"):  # type: ignore[union-attr]
             data = np.array(_parse_vasp_array(s))
             energies = data[:, 0]
             spin = Spin.up if s.attrib["comment"] == "spin 1" else Spin.down
@@ -1560,10 +1560,10 @@ class Vasprun(MSONable):
         pdoss = []
         partial = elem.find("partial")
         if partial is not None:
-            orbs = [ss.text for ss in partial.find("array").findall("field")]
+            orbs = [ss.text for ss in partial.find("array").findall("field")]  # type: ignore[union-attr]
             orbs.pop(0)
             lm = any("x" in s for s in orbs)
-            for s in partial.find("array").find("set").findall("set"):
+            for s in partial.find("array").find("set").findall("set"):  # type: ignore[union-attr]
                 pdos: dict[Orbital | OrbitalType, dict[Spin, np.ndarray]] = defaultdict(dict)
 
                 for ss in s.findall("set"):
@@ -1581,7 +1581,7 @@ class Vasprun(MSONable):
     def _parse_eigen(elem: XML_Element) -> dict[Spin, NDArray]:
         """Parse eigenvalues."""
         eigenvalues = defaultdict(list)
-        for s in elem.find("array").find("set").findall("set"):
+        for s in elem.find("array").find("set").findall("set"):  # type: ignore[union-attr]
             spin = Spin.up if s.attrib["comment"] == "spin 1" else Spin.down
             for ss in s.findall("set"):
                 eigenvalues[spin].append(_parse_vasp_array(ss))
@@ -1592,9 +1592,9 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_projected_eigen(elem: XML_Element) -> tuple[dict[Spin, NDArray], NDArray | None]:
         """Parse projected eigenvalues."""
-        root = elem.find("array").find("set")
+        root = elem.find("array").find("set")  # type: ignore[union-attr]
         proj_eigen = defaultdict(list)
-        for s in root.findall("set"):
+        for s in root.findall("set"):  # type: ignore[union-attr]
             spin = int(re.match(r"spin(\d+)", s.attrib["comment"])[1])
 
             # Force spin to be +1 or -1
@@ -1628,16 +1628,16 @@ class Vasprun(MSONable):
 
         for v in elem.findall("v"):
             if v.attrib["name"] == "eigenvalues":
-                eigenvalues = [float(i) for i in v.text.split()]
+                eigenvalues = [float(i) for i in v.text.split()]  # type: ignore[union-attr]
 
         for va in elem.findall("varray"):
             if va.attrib["name"] == "hessian":
                 for v in va.findall("v"):
-                    hessian.append([float(i) for i in v.text.split()])
+                    hessian.append([float(i) for i in v.text.split()])  # type: ignore[union-attr]
 
             elif va.attrib["name"] == "eigenvectors":
                 for v in va.findall("v"):
-                    eigenvectors.append([float(i) for i in v.text.split()])
+                    eigenvectors.append([float(i) for i in v.text.split()])  # type: ignore[union-attr]
 
         return hessian, eigenvalues, eigenvectors
 
@@ -1756,6 +1756,7 @@ class BSVasprun(Vasprun):
             "has_vasp_completed": True,
             "nsites": len(self.final_structure),
         }
+
         comp = self.final_structure.composition
         dct["unit_cell_formula"] = comp.as_dict()
         dct["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
