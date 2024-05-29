@@ -3092,9 +3092,13 @@ class Outcar:
     def read_lcalcpol(self) -> None:
         """Read the LCALCPOL.
 
-        # TODO: Document the actual variables.
+        TODO: Document the actual variables.
         """
-        self.p_elec = self.p_sp1 = self.p_sp2 = self.p_ion = None
+        self.p_elec: int | None = None
+        self.p_sp1: int | None = None
+        self.p_sp2: int | None = None
+        self.p_ion: int | None = None
+
         try:
             search = []
 
@@ -3181,14 +3185,13 @@ class Outcar:
             results = micro_pyawk(self.filename, search, [])
 
             if "|e|" in results[0]:
-                self.p_elec *= -1
-                self.p_ion *= -1
+                self.p_elec *= -1  # type: ignore[operator]
+                self.p_ion *= -1  # type: ignore[operator]
                 if self.spin and not self.noncollinear:
-                    self.p_sp1 *= -1
-                    self.p_sp2 *= -1
+                    self.p_sp1 *= -1  # type: ignore[operator]
+                    self.p_sp2 *= -1  # type: ignore[operator]
 
         except Exception as exc:
-            print(exc.args)
             raise RuntimeError("LCALCPOL OUTCAR could not be parsed.") from exc
 
     def read_pseudo_zval(self) -> None:
@@ -3883,6 +3886,9 @@ class Procar:
         Returns:
             A dict as {Spin.up: [k index][b index][{Element: values}]].
         """
+        if self.data is None:
+            raise RuntimeError("Data cannot be None.")
+
         dico: dict[Spin, list] = {}
         for spin in self.data:
             dico[spin] = [[defaultdict(float) for _ in range(self.nkpoints)] for _ in range(self.nbands)]
@@ -3978,14 +3984,14 @@ class Oszicar:
         self.ionic_steps = ionic_steps
 
     @property
-    def all_energies(self) -> tuple[list]:
+    def all_energies(self) -> tuple[tuple[float | str, ...], ...]:
         """Compilation of all energies from all electronic steps and ionic steps
         as a tuple of list of energies, e.g.
         ((4507.24605593, 143.824705755, -512.073149912, ...), ...).
         """
-        all_energies = []
+        all_energies: list[tuple] = []
         for i in range(len(self.electronic_steps)):
-            energies = [step["E"] for step in self.electronic_steps[i]]
+            energies: list[float | str] = [step["E"] for step in self.electronic_steps[i]]
             energies.append(self.ionic_steps[i]["F"])
             all_energies.append(tuple(energies))
         return tuple(all_energies)
@@ -4337,7 +4343,7 @@ class Dynmat:
         """
         frequencies = []
         for k, v0 in self.data.items():
-            for v1 in v0.itervalues():
+            for v1 in v0.values():
                 vec = map(abs, v1["dynmat"][k - 1])
                 frequency = math.sqrt(sum(vec)) * 2.0 * math.pi * 15.633302  # THz
                 frequencies.append(frequency)
