@@ -1420,10 +1420,11 @@ class Vasprun(MSONable):
         for v in e.findall("v"):  # type: ignore[union-attr]
             name = v.attrib.get("name")  # type: ignore[union-attr]
             tokens = v.text.split()  # type: ignore[union-attr]
+
             if name == "divisions":
-                kpoint.kpts = [tuple(int(i) for i in tokens)]
+                kpoint.kpts = cast(tuple[int, int, int], tuple(int(i) for i in tokens))
             elif name == "usershift":
-                kpoint.kpts_shift = [float(i) for i in tokens]
+                kpoint.kpts_shift = cast(tuple[float, float, float], tuple(float(i) for i in tokens))
             elif name in {"genvec1", "genvec2", "genvec3", "shift"}:
                 setattr(kpoint, name, [float(i) for i in tokens])
 
@@ -1487,7 +1488,7 @@ class Vasprun(MSONable):
     def _parse_chemical_shielding(self, elem: XML_Element) -> list[dict[str, Any]]:
         """Parse NMR chemical shielding."""
         calculation = []
-        istep = {}
+        istep: dict[str, Any] = {}
         try:
             struct = self._parse_structure(elem.find("structure"))
         except AttributeError:  # not all calculations have a structure
@@ -1499,13 +1500,13 @@ class Vasprun(MSONable):
         calculation.append(istep)
         for scstep in elem.findall("scstep"):
             try:
-                e_steps_dict = {i.attrib["name"]: _vasprun_float(i.text) for i in scstep.find("energy").findall("i")}  # type: ignore[union-attr]
+                e_steps_dict = {i.attrib["name"]: _vasprun_float(i.text) for i in scstep.find("energy").findall("i")}  # type: ignore[union-attr, arg-type]
                 cur_ene = e_steps_dict["e_fr_energy"]
                 min_steps = 1 if len(calculation) >= 1 else self.parameters.get("NELMIN", 5)
                 if len(calculation[-1]["electronic_steps"]) <= min_steps:
                     calculation[-1]["electronic_steps"].append(e_steps_dict)
                 else:
-                    last_ene = calculation[-1]["electronic_steps"][-1]["e_fr_energy"]
+                    last_ene = calculation[-1]["electronic_steps"][-1]["e_fr_energy"]  # type: ignore[call-overload]
                     if abs(cur_ene - last_ene) < 1.0:
                         calculation[-1]["electronic_steps"].append(e_steps_dict)
                     else:
@@ -1518,7 +1519,9 @@ class Vasprun(MSONable):
     def _parse_ionic_step(self, elem: XML_Element) -> dict[str, float]:
         """Parse an ionic step."""
         try:
-            ion_step = {i.attrib["name"]: _vasprun_float(i.text) for i in elem.find("energy").findall("i")}  # type: ignore[union-attr, arg-type]
+            ion_step: dict[str, Any] = {
+                i.attrib["name"]: _vasprun_float(i.text) for i in elem.find("energy").findall("i")
+            }  # type: ignore[union-attr, arg-type]
         except AttributeError:  # not all calculations have an energy
             ion_step = {}
 
@@ -1545,7 +1548,7 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_dos(elem: XML_Element) -> tuple[Dos, Dos, list[dict]]:
         """Parse density of states (DOS)."""
-        efermi = float(elem.find("i").text)  # type: ignore[union-attr]
+        efermi = float(elem.find("i").text)  # type: ignore[union-attr, arg-type]
         energies = None
         tdensities = {}
         idensities = {}
@@ -1580,7 +1583,7 @@ class Vasprun(MSONable):
     @staticmethod
     def _parse_eigen(elem: XML_Element) -> dict[Spin, NDArray]:
         """Parse eigenvalues."""
-        eigenvalues = defaultdict(list)
+        eigenvalues: dict[Spin, np.ndarray] = defaultdict(list)
         for s in elem.find("array").find("set").findall("set"):  # type: ignore[union-attr]
             spin = Spin.up if s.attrib["comment"] == "spin 1" else Spin.down
             for ss in s.findall("set"):
@@ -1593,9 +1596,9 @@ class Vasprun(MSONable):
     def _parse_projected_eigen(elem: XML_Element) -> tuple[dict[Spin, NDArray], NDArray | None]:
         """Parse projected eigenvalues."""
         root = elem.find("array").find("set")  # type: ignore[union-attr]
-        proj_eigen = defaultdict(list)
+        proj_eigen: dict[int | Spin, np.ndarray] = defaultdict(list)
         for s in root.findall("set"):  # type: ignore[union-attr]
-            spin = int(re.match(r"spin(\d+)", s.attrib["comment"])[1])
+            spin: Literal[-1, 1] = int(re.match(r"spin(\d+)", s.attrib["comment"])[1])
 
             # Force spin to be +1 or -1
             for ss in s.findall("set"):
@@ -1610,7 +1613,7 @@ class Vasprun(MSONable):
             # non-collinear magentism (also spin-orbit coupling) enabled, last three
             # "spin channels" are the projected magnetization of the orbitals in the
             # x, y, and z Cartesian coordinates
-            proj_mag = np.stack([proj_eigen.pop(i) for i in range(2, 5)], axis=-1)
+            proj_mag = np.stack([proj_eigen.pop(i) for i in range(2, 5)], axis=-1)  # type: ignore[call-overload]
             proj_eigen = {Spin.up: proj_eigen[1]}
         else:
             proj_eigen = {Spin.up if k == 1 else Spin.down: v for k, v in proj_eigen.items()}
@@ -1770,7 +1773,7 @@ class BSVasprun(Vasprun):
 
         dct["run_type"] = self.run_type
 
-        vin = {
+        vin: dict[str, Any] = {
             "incar": dict(self.incar),
             "crystal": self.final_structure.as_dict(),
             "kpoints": self.kpoints.as_dict(),
@@ -1804,7 +1807,7 @@ class BSVasprun(Vasprun):
         vout: dict[str, Any] = {"crystal": self.final_structure.as_dict(), "efermi": self.efermi}
 
         if self.eigenvalues:
-            eigen: defaultdict = defaultdict(dict)
+            eigen: dict[Any, Any] = defaultdict(dict)
             for spin, values in self.eigenvalues.items():
                 for idx, val in enumerate(values):
                     eigen[idx][str(spin)] = val
@@ -2295,7 +2298,7 @@ class Outcar:
                     continue
                 d = ml.groupdict()
                 if len(d) > 0:
-                    processed_line = {k: postprocess(v) for k, v in d.items()}
+                    processed_line: dict | list = {k: postprocess(v) for k, v in d.items()}
                 else:
                     processed_line = [postprocess(v) for v in ml.groups()]
                 table_contents.append(processed_line)
@@ -2359,7 +2362,7 @@ class Outcar:
         )
         row_pattern = r"\s+".join([r"([\.\-\d]+)"] * 3)
         plasma_frequencies = defaultdict(list)
-        read_plasma = False
+        read_plasma: str | bool = False
         read_dielectric = False
         energies = []
         data: dict[str, Any] = {"REAL": [], "IMAGINARY": []}
@@ -2702,7 +2705,8 @@ class Outcar:
         self.er_bp = {}  # will  be  dics (Spin.up/down) of array(3*float)
         self.er_ev_tot = None  # will be array(3*float)
         self.er_bp_tot = None  # will be array(3*float)
-        self.p_elec = self.p_ion = None
+        self.p_elec: int | None = None
+        self.p_ion: int | None = None
         try:
             search = []
 
@@ -3094,10 +3098,10 @@ class Outcar:
 
         TODO: Document the actual variables.
         """
-        self.p_elec: int | None = None
+        self.p_elec = None
         self.p_sp1: int | None = None
         self.p_sp2: int | None = None
-        self.p_ion: int | None = None
+        self.p_ion = None
 
         try:
             search = []
