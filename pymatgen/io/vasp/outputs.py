@@ -3212,14 +3212,13 @@ class Outcar:
             micro_pyawk(self.filename, search, self)
 
             zval_dict = {}
-            # DEBUG (DanielYang59): no atom_symbols/zvals from Outcar
-            for x, y in zip(self.atom_symbols, self.zvals):
+            for x, y in zip(self.atom_symbols, self.zvals):  # type: ignore[attr-defined]
                 zval_dict[x] = y
             self.zval_dict = zval_dict
 
             # Clean up
-            del self.atom_symbols
-            del self.zvals
+            del self.atom_symbols  # type: ignore[attr-defined]
+            del self.zvals  # type: ignore[attr-defined]
 
         except Exception as exc:
             raise RuntimeError("ZVAL dict could not be parsed.") from exc
