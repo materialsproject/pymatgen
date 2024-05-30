@@ -177,9 +177,8 @@ class Lobsterin(UserDict, MSONable):
         del self.data[key.lower().strip()]
 
     def diff(self, other: Self) -> dict[str, dict[str, Any]]:
-        """
-        Diff function for Lobsterin. Compare two Lobsterin and find
-        which parameters are the same. Similar to the diff method of Incar.
+        """Compare two Lobsterin and find which parameters are the same.
+        Similar to the diff method of Incar.
 
         Args:
             other (Lobsterin): Lobsterin object to compare to.

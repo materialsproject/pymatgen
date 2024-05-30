@@ -1578,14 +1578,17 @@ class TestLobsterin(TestCase):
         # test if comments are correctly removed
         assert self.Lobsterin == self.Lobsterin2
 
-    def test_getitem(self):
-        """Test __getitem__, should be case independent."""
+    def test_magic_methods(self):
+        """Test __getitem__, __setitem__ and __contains__,
+        should be case independent.
+        """
         assert self.Lobsterin["COHPSTARTENERGY"] == approx(-15.0)
 
-    def test_setitem(self):
-        """Test __setitem__."""
         self.Lobsterin["skipCOHP"] = False
         assert self.Lobsterin["skipcohp"] is False
+
+        assert "COHPSTARTENERGY" in self.Lobsterin
+        assert "cohpstartenergy" in self.Lobsterin
 
     def test_update(self):
         """Test case sensitivity of update operation."""
