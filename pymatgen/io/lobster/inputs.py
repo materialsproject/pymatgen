@@ -153,7 +153,7 @@ class Lobsterin(UserDict, MSONable):
         """
         new_key = key.strip().lower()
 
-        if new_key not in self.AVAILABLE_KEYWORDS:
+        if new_key not in type(self).AVAILABLE_KEYWORDS:
             raise KeyError(f"Key {new_key} is currently not available")
 
         super().__setitem__(new_key, val.strip() if isinstance(val, str) else val)
@@ -234,15 +234,14 @@ class Lobsterin(UserDict, MSONable):
         path: PathLike = "lobsterin",
         overwritedict: dict | None = None,
     ) -> None:
-        """Write a lobsterin file, and recover key to Camel case.
+        """Write a lobsterin file, and recover keys to Camel case.
 
         Args:
             path (str): filename of the output lobsterin file
-            overwritedict (dict): dict that can be used to overwrite lobsterin, e.g. {"skipdos": True}
+            overwritedict (dict): dict that can be used to update lobsterin, e.g. {"skipdos": True}
         """
-        # Overwrite previous entries
-        if overwritedict is not None:
-            self.data |= overwritedict
+        # Update previous entries
+        self.data |= {} if overwritedict is None else overwritedict
 
         with open(path, mode="w", encoding="utf-8") as file:
             for key in self:
@@ -571,41 +570,43 @@ class Lobsterin(UserDict, MSONable):
             Lobsterin object
         """
         with zopen(lobsterin, mode="rt") as file:
-            data = file.read().split("\n")
-        if len(data) == 0:
+            lines = file.read().split("\n")
+        if not lines:
             raise RuntimeError("lobsterin file contains no data.")
 
-        # TODO: (@DanielYang59) simplify method (separate parser and checker)
         lobsterin_dict: dict[str, Any] = {}
-        for datum in data:
-            # Remove all comments
-            if not datum.startswith(("!", "#", "//")):  # TODO: (@DanielYang59) remove leading whitespace
-                pattern = r"\b[^!#//]+"  # exclude comments after commands
-                if matched_pattern := re.findall(pattern, datum):
-                    raw_datum = matched_pattern[0].replace(
-                        "\t", " "
-                    )  # handle tab in between and end of command  # TODO: (@DanielYang59) use strip()
-                    key_word = raw_datum.strip().split(" ")  # extract keyword
-                    if len(key_word) > 1:
-                        # check which type of keyword this is, handle accordingly
-                        if key_word[0].lower() not in [datum2.lower() for datum2 in cls.LIST_KEYWORDS]:
-                            if key_word[0].lower() not in [datum2.lower() for datum2 in cls.FLOAT_KEYWORDS]:
-                                if key_word[0].lower() not in lobsterin_dict:
-                                    lobsterin_dict[key_word[0].lower()] = " ".join(key_word[1:])
-                                else:
-                                    # TODO (@DanielYang59): repeated duplicate check, move to __setitem__
-                                    raise ValueError(f"Same keyword {key_word[0].lower()} twice!")
-                            elif key_word[0].lower() not in lobsterin_dict:
-                                lobsterin_dict[key_word[0].lower()] = float(key_word[1])
+        for line in lines:
+            # Remove comment lines
+            if not line.strip().startswith(("!", "#", "//")):
+                # Remove in-line comments
+                pattern = r"\b[^!#//]+"
+                if matched_pattern := re.findall(pattern, line):
+                    # Extract keywords (and values)
+                    line_parts = matched_pattern[0].replace("\t", " ").strip().split(" ")
+                    key = line_parts[0].lower()
+
+                    # Check types of keyword
+                    if key in cls.BOOLEAN_KEYWORDS:
+                        lobsterin_dict[key] = True
+
+                    elif len(line_parts) > 1:
+                        if key in cls.LIST_KEYWORDS:
+                            if key in lobsterin_dict:
+                                lobsterin_dict[key].append(" ".join(line_parts[1:]))
                             else:
-                                # TODO (@DanielYang59): repeated duplicate check, move to __setitem__
-                                raise ValueError(f"Same keyword {key_word[0].lower()} twice!")
-                        elif key_word[0].lower() not in lobsterin_dict:
-                            lobsterin_dict[key_word[0].lower()] = [" ".join(key_word[1:])]
-                        else:
-                            lobsterin_dict[key_word[0].lower()].append(" ".join(key_word[1:]))
-                    elif len(key_word) > 0:
-                        lobsterin_dict[key_word[0].lower()] = True
+                                lobsterin_dict[key] = [" ".join(line_parts[1:])]
+
+                        elif key in cls.FLOAT_KEYWORDS:
+                            if key in lobsterin_dict:
+                                raise ValueError(f"Same keyword {key} twice!")
+
+                            lobsterin_dict[key] = float(line_parts[1])
+
+                        else:  # STRING_KEYWORDS
+                            if key in lobsterin_dict:
+                                raise ValueError(f"Same keyword {key} twice!")
+
+                            lobsterin_dict[key] = " ".join(line_parts[1:])
 
         return cls(lobsterin_dict)
 
@@ -624,7 +625,7 @@ class Lobsterin(UserDict, MSONable):
             if pot.potential_type != "PAW":
                 raise ValueError("Lobster only works with PAW! Use different POTCARs")
 
-        # Warning about a bug in lobster-4.1.0
+        # Warning about a bug in LOBSTER-4.1.0
         with zopen(POTCAR_input, mode="r") as file:
             data = file.read()
 
