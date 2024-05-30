@@ -217,7 +217,7 @@ class Lobsterin(UserDict, MSONable):
 
         # Check other
         for k2, v2 in other.items():
-            if k2 not in self:
+            if k2 not in self and k2 not in diff_params:
                 diff_params[k2] = {"lobsterin1": None, "lobsterin2": v2}
 
         return {"Same": same_params, "Different": diff_params}
