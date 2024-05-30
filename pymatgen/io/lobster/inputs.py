@@ -254,18 +254,18 @@ class Lobsterin(UserDict, MSONable):
         filename = path
 
         with open(filename, mode="w", encoding="utf-8") as file:
-            for key in self.AVAILABLE_KEYWORDS:
+            for key in type(self).AVAILABLE_KEYWORDS:
                 if key.lower() in [element.lower() for element in self]:
-                    if key.lower() in [element.lower() for element in self.FLOAT_KEYWORDS]:
+                    if key.lower() in [element.lower() for element in type(self).FLOAT_KEYWORDS]:
                         file.write(f"{key} {self.get(key)}\n")
-                    elif key.lower() in [element.lower() for element in self.BOOLEAN_KEYWORDS]:
+                    elif key.lower() in [element.lower() for element in type(self).BOOLEAN_KEYWORDS]:
                         # checks if entry is True or False
                         for key_here in self:
                             if key.lower() == key_here.lower():
                                 file.write(f"{key}\n")
-                    elif key.lower() in [element.lower() for element in Lobsterin.STRING_KEYWORDS]:
+                    elif key.lower() in [element.lower() for element in type(self).STRING_KEYWORDS]:
                         file.write(f"{key} {self.get(key)}\n")
-                    elif key.lower() in [element.lower() for element in self.LIST_KEYWORDS]:
+                    elif key.lower() in [element.lower() for element in type(self).LIST_KEYWORDS]:
                         for entry in self.get(key):
                             file.write(f"{key} {entry}\n")
 
@@ -339,7 +339,7 @@ class Lobsterin(UserDict, MSONable):
     def _get_nbands(self, structure: Structure) -> int:
         """Get number of bands."""
         if self.get("basisfunctions") is None:
-            raise ValueError("No basis functions are provided. The program cannot calculate nbands")
+            raise ValueError("No basis functions are provided. The program cannot calculate nbands.")
 
         basis_functions: list[str] = []
         for string_basis in self["basisfunctions"]:
@@ -625,48 +625,7 @@ class Lobsterin(UserDict, MSONable):
 
         kpoint_object.write_file(filename=KPOINTS_output)
 
-    @classmethod
-    def from_file(cls, lobsterin: str) -> Self:
-        """
-        Args:
-            lobsterin (str): path to lobsterin.
 
-        Returns:
-            Lobsterin object
-        """
-        with zopen(lobsterin, mode="rt") as file:
-            data = file.read().split("\n")
-        if len(data) == 0:
-            raise RuntimeError("lobsterin file contains no data.")
-        lobsterin_dict: dict[str, Any] = {}
-
-        for datum in data:
-            if datum.startswith(("!", "#", "//")):
-                continue  # ignore comments
-            pattern = r"\b[^!#//]+"  # exclude comments after commands
-            if matched_pattern := re.findall(pattern, datum):
-                raw_datum = matched_pattern[0].replace("\t", " ")  # handle tab in between and end of command
-                key_word = raw_datum.strip().split(" ")  # extract keyword
-                key = key_word[0].lower()
-                if len(key_word) > 1:
-                    # check which type of keyword this is, handle accordingly
-                    if key not in [datum2.lower() for datum2 in Lobsterin.LISTKEYWORDS]:
-                        if key not in [datum2.lower() for datum2 in Lobsterin.FLOAT_KEYWORDS]:
-                            if key in lobsterin_dict:
-                                raise ValueError(f"Same keyword {key} twice!")
-                            lobsterin_dict[key] = " ".join(key_word[1:])
-                        elif key in lobsterin_dict:
-                            raise ValueError(f"Same keyword {key} twice!")
-                        else:
-                            lobsterin_dict[key] = float("nan" if key_word[1].strip() == "None" else key_word[1])
-                    elif key not in lobsterin_dict:
-                        lobsterin_dict[key] = [" ".join(key_word[1:])]
-                    else:
-                        lobsterin_dict[key].append(" ".join(key_word[1:]))
-                elif len(key_word) > 0:
-                    lobsterin_dict[key] = True
-
-        return cls(lobsterin_dict)
 
     @staticmethod
     def _get_potcar_symbols(POTCAR_input: str) -> list[str]:
