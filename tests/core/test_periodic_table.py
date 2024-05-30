@@ -73,8 +73,8 @@ class TestElement(PymatgenTest):
                 (2, "p", 6),
                 (3, "s", 2),
                 (3, "p", 6),
-                (3, "d", 6),
                 (4, "s", 2),
+                (3, "d", 6),
             ],
             "Li": [(1, "s", 2), (2, "s", 1)],
             "U": [
@@ -83,25 +83,25 @@ class TestElement(PymatgenTest):
                 (2, "p", 6),
                 (3, "s", 2),
                 (3, "p", 6),
-                (3, "d", 10),
                 (4, "s", 2),
+                (3, "d", 10),
                 (4, "p", 6),
-                (4, "d", 10),
                 (5, "s", 2),
+                (4, "d", 10),
                 (5, "p", 6),
+                (6, "s", 2),
                 (4, "f", 14),
                 (5, "d", 10),
-                (6, "s", 2),
                 (6, "p", 6),
+                (7, "s", 2),
                 (5, "f", 3),
                 (6, "d", 1),
-                (7, "s", 2),
             ],
         }
         for k, v in cases.items():
             assert Element(k).full_electronic_structure == v
 
-        assert Element.Ac.electronic_structure == "[Rn].6d1.7s2"
+        assert Element.Ac.electronic_structure == "[Rn].7s2.6d1"
 
     def test_group(self):
         cases = {
@@ -591,13 +591,18 @@ class TestDummySpecies:
         )
         assert sp.spin == 5
 
-    def test_not_implemented(self):
-        with pytest.raises(NotImplementedError):
-            _ = Species("Fe", 2).full_electronic_structure
-        with pytest.raises(NotImplementedError):
-            _ = Species("Fe", 2).electronic_structure
-        with pytest.raises(NotImplementedError):
-            _ = Species("Fe", 2).valence
+    def test_species_electron_config(self):
+        assert Species("Fe", 3).full_electronic_structure == [
+            (1, "s", 2),
+            (2, "s", 2),
+            (2, "p", 6),
+            (3, "s", 2),
+            (3, "p", 6),
+            (4, "s", 2),
+            (3, "d", 3),
+        ]
+        assert Species("Fe", 3).electronic_structure == "[Ar].4s2.3d3"
+        assert Species("Fe", 3).valence == (2, 3)
 
 
 def test_get_el_sp():

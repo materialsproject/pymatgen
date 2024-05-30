@@ -1063,20 +1063,65 @@ class Species(MSONable, Stringify):
 
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
-        """Full electronic structure as tuple. Not implemented for Species as of now."""
-        raise NotImplementedError
+        """
+        Full electronic structure as tuple.
+
+        If the oxidation state is non-zero, it is assumed that the Species adopts
+        the same electronic configuration as the element with the same number of total
+        electrons as the Species. For example, Fe+3 would have the same electronic
+        structure as V, which has 23 electrons (26 for Fe minus 3 to get the +3 oxidation
+        state)
+        """
+        if self.oxi_state != 0:
+            # adopt the electronic configuration of the element with the same atomic number
+            # as this element, +/- the associated number of electrons
+            return Element.from_Z(self.element.Z - self.oxi_state).full_electronic_structure
+
+        return self.element.full_electronic_structure
 
     @property
-    def electronic_structure(self) -> list[tuple[int, str, int]]:
-        """Electronic structure as tuple. Not implemented for Species as of now."""
-        raise NotImplementedError
+    def electronic_structure(self) -> str:
+        """
+        Electronic structure as string, with only valence electrons.
+        e.g. The electronic structure for Fe+3 is represented as '[Ar].4s2.3d3'.
+
+        If the oxidation state is non-zero, it is assumed that the Species adopts
+        the same electronic configuration as the element with the same number of total
+        electrons as the Species. For example, Fe+3 would have the same electronic
+        structure as V, which has 23 electrons (26 for Fe minus 3 to get the +3 oxidation
+        state)
+        """
+        if self.oxi_state != 0:
+            # adopt the electronic configuration of the element with the same atomic number
+            # as this element, +/- the associated number of electrons
+            return Element.from_Z(self.element.Z - self.oxi_state).electronic_structure
+
+        return self.element.electronic_structure
 
     @property
     def valence(self) -> tuple[int | np.nan, int]:
         """Valence subshell angular moment (L) and number of valence e- (v_e),
-        obtained from full electron config. Not implemented for Species as of now.
+        obtained from full electron config.
+
+        L=0 for s orbital, 1 for p, 2 for d, and 3 for 4.
         """
-        raise NotImplementedError
+        if self.group == 18:
+            return np.nan, 0  # The number of valence of noble gas is 0
+
+        L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
+        valence: list[tuple[int, int]] = []
+        full_electron_config = self.full_electronic_structure
+        last_orbital = full_electron_config[-1]
+        for n, l_symbol, ne in full_electron_config:
+            idx = L_symbols.lower().index(l_symbol)
+            if ne < (2 * idx + 1) * 2 or (
+                (n, l_symbol, ne) == last_orbital and ne == (2 * idx + 1) * 2 and len(valence) == 0
+            ):  # check for full last shell (e.g. column 2)
+                valence.append((idx, ne))
+        if len(valence) > 1:
+            raise ValueError(f"{self} has ambiguous valence")
+
+        return valence[0]
 
     @property
     def ionic_radius(self) -> float | None:
