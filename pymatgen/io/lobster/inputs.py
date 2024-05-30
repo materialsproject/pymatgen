@@ -590,21 +590,21 @@ class Lobsterin(UserDict, MSONable):
                 if (key in cls.FLOAT_KEYWORDS or key in cls.STRING_KEYWORDS) and key in lobsterin_dict:
                     raise ValueError(f"Duplicate keyword {key}!")
 
-                # Parse by types of keyword
+                # Parse by keyword type
                 if key in cls.BOOLEAN_KEYWORDS:
                     lobsterin_dict[key] = True
-
-                elif key in cls.LIST_KEYWORDS:
-                    if key in lobsterin_dict:
-                        lobsterin_dict[key].append(" ".join(line_parts[1:]))
-                    else:
-                        lobsterin_dict[key] = [" ".join(line_parts[1:])]
 
                 elif key in cls.FLOAT_KEYWORDS:
                     lobsterin_dict[key] = float(line_parts[1])
 
                 elif key in cls.STRING_KEYWORDS:
                     lobsterin_dict[key] = " ".join(line_parts[1:])
+
+                elif key in cls.LIST_KEYWORDS:
+                    if key in lobsterin_dict:
+                        lobsterin_dict[key].append(" ".join(line_parts[1:]))
+                    else:
+                        lobsterin_dict[key] = [" ".join(line_parts[1:])]
 
                 else:
                     raise ValueError(f"Invalid keyword {key}.")
