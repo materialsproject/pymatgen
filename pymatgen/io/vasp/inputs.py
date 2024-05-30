@@ -2014,8 +2014,8 @@ class PotcarSingle:
     @property
     def hash_sha256_from_file(self) -> str | None:
         """SHA256 hash of the POTCAR file as read from the file. None if no SHA256 hash is found."""
-        if sha256 := getattr(self, "SHA256", None):
-            return sha256.split()[0]
+        if _sha256 := getattr(self, "SHA256", None):
+            return _sha256.split()[0]
         return None
 
     @property
