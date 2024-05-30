@@ -31,7 +31,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from typing import Any, Literal
+    from typing import Any, ClassVar, Literal
 
     from typing_extensions import Self
 
@@ -62,11 +62,9 @@ class Lobsterin(UserDict, MSONable):
     """
 
     # Reminder: LOBSTER is not case sensitive
-    # TODO (@DanielYang59): use {lowered: original} dict with internal lowered keys
-    # to handle case-insensitivity
 
     # Keyword + float can be used in file
-    FLOAT_KEYWORDS = (
+    _FLOAT_KEYWORDS = (
         "COHPstartEnergy",
         "COHPendEnergy",
         "gaussianSmearingWidth",
@@ -74,7 +72,7 @@ class Lobsterin(UserDict, MSONable):
         "COHPSteps",
     )
     # One of these keywords + string can be used in file
-    STRING_KEYWORDS = (
+    _STRING_KEYWORDS = (
         "basisSet",
         "cohpGenerator",
         "realspaceHamiltonian",
@@ -85,7 +83,7 @@ class Lobsterin(UserDict, MSONable):
         "EwaldSum",
     )
     # The keywords alone will turn on or off a function
-    BOOLEAN_KEYWORDS = (
+    _BOOLEAN_KEYWORDS = (
         "saveProjectionToFile",
         "skipdos",
         "skipcohp",
@@ -119,10 +117,16 @@ class Lobsterin(UserDict, MSONable):
         "LSODOS",
     )
     # These keywords + ending can be used in a lobsterin file
-    LIST_KEYWORDS = ("basisfunctions", "cohpbetween", "createFatband")
+    _LIST_KEYWORDS = ("basisfunctions", "cohpbetween", "createFatband")
+
+    # Regenerate {lowered: original} mappings
+    FLOAT_KEYWORDS: ClassVar = {key.lower(): key for key in _FLOAT_KEYWORDS}
+    STRING_KEYWORDS: ClassVar = {key.lower(): key for key in _STRING_KEYWORDS}
+    BOOLEAN_KEYWORDS: ClassVar = {key.lower(): key for key in _BOOLEAN_KEYWORDS}
+    LIST_KEYWORDS: ClassVar = {key.lower(): key for key in _LIST_KEYWORDS}
 
     # All keywords known so far
-    AVAILABLE_KEYWORDS = FLOAT_KEYWORDS + STRING_KEYWORDS + BOOLEAN_KEYWORDS + LIST_KEYWORDS
+    AVAILABLE_KEYWORDS: ClassVar = {**FLOAT_KEYWORDS, **STRING_KEYWORDS, **BOOLEAN_KEYWORDS, **LIST_KEYWORDS}
 
     def __init__(self, settingsdict: dict) -> None:
         """
@@ -131,52 +135,44 @@ class Lobsterin(UserDict, MSONable):
         """
         super().__init__()
 
-        # Check for duplicates
-        # TODO (@DanielYang59): repeated duplicate check, move to __setitem__
-        keys = [key.lower() for key in settingsdict]
+        # Check for duplicates from case sensitivity
+        keys = tuple(map(str.lower, settingsdict.keys()))
         if len(keys) != len(set(keys)):
             raise KeyError("There are duplicates for the keywords!")
 
         self.update(settingsdict)
 
-    def __setitem__(self, key, val) -> None:
+    def __setitem__(self, key, val: Any) -> None:
         """
         Add key-value pairs. Necessary due to the missing
-        case sensitivity of LOBSTER. Also cleans the keys
+        case sensitivity of LOBSTER. Also clean the keys
         and values by stripping leading and trailing white spaces.
 
         Raises:
             KeyError: if parameter is not available.
         """
-        new_key = next((key_here for key_here in self if key.strip().lower() == key_here.lower()), key)
+        new_key = key.strip().lower()
 
-        if new_key.lower() not in [element.lower() for element in self.AVAILABLE_KEYWORDS]:
-            raise KeyError("Key is currently not available")
+        if new_key not in self.AVAILABLE_KEYWORDS:
+            raise KeyError(f"Key {new_key} is currently not available")
 
         super().__setitem__(new_key, val.strip() if isinstance(val, str) else val)
 
     def __getitem__(self, key) -> Any:
-        """Implements getitem from dict to avoid problems with cases."""
-        normalized_key = next((k for k in self if key.strip().lower() == k.lower()), key)
+        """To avoid cases sensitivity problems."""
+        try:
+            return self.data[key.strip().lower()]
 
-        key_is_unknown = normalized_key.lower() not in map(str.lower, Lobsterin.AVAILABLE_KEYWORDS)
-        if key_is_unknown or normalized_key not in self.data:
-            raise KeyError(f"{key=} is not available")
-
-        return self.data[normalized_key]
+        except KeyError as exc:
+            raise KeyError(f"{key=} is not available") from exc
 
     def __contains__(self, key) -> bool:
-        """Implements getitem from dict to avoid problems with different key casing."""
-        normalized_key = next((k for k in self if key.strip().lower() == k.lower()), key)
+        """To avoid cases sensitivity problems."""
+        return key.lower().strip() in self.data
 
-        key_is_unknown = normalized_key.lower() not in map(str.lower, Lobsterin.AVAILABLE_KEYWORDS)
-        return not key_is_unknown and normalized_key in self.data
-
-    def __delitem__(self, key) -> None:
-        """Implemented to avoid cases sensitivity problems."""
-        new_key = next((key_here for key_here in self if key.strip().lower() == key_here.lower()), key)
-
-        del self.data[new_key]
+    def __delitem__(self, key: str) -> None:
+        """To avoid cases sensitivity problems."""
+        del self.data[key.lower().strip()]
 
     def diff(self, other: Self) -> dict[str, dict]:
         """
@@ -193,7 +189,7 @@ class Lobsterin(UserDict, MSONable):
 
         similar_param = {}
         different_param = {}
-        key_list_others = [element.lower() for element in other]
+        key_list_others = [key.lower() for key in other]
 
         for k1, v1 in self.items():
             k1_lower = k1.lower()
@@ -323,9 +319,8 @@ class Lobsterin(UserDict, MSONable):
         isym: Literal[-1, 0] = -1,
         further_settings: dict | None = None,
     ) -> None:
-        """Write INCAR file. Will only make the run static,
-        insert NBANDS, set ISYM=-1, LWAVE=True and
-        you have to check for the rest.
+        """Write INCAR file. Will only make the run static,insert NBANDS,
+        set ISYM=-1, LWAVE=True and you have to check for the rest.
 
         Args:
             incar_input (PathLike): path to input INCAR
