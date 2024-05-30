@@ -122,13 +122,13 @@ class Lobsterin(UserDict, MSONable):
         "createFatband",
     )
 
-    # Regenerate {lowered: original} mappings
+    # Generate {lowered: original} mappings
     FLOAT_KEYWORDS: ClassVar = {key.lower(): key for key in _FLOAT_KEYWORDS}
     STRING_KEYWORDS: ClassVar = {key.lower(): key for key in _STRING_KEYWORDS}
     BOOLEAN_KEYWORDS: ClassVar = {key.lower(): key for key in _BOOLEAN_KEYWORDS}
     LIST_KEYWORDS: ClassVar = {key.lower(): key for key in _LIST_KEYWORDS}
 
-    # All keywords known
+    # All known keywords
     AVAILABLE_KEYWORDS: ClassVar = {**FLOAT_KEYWORDS, **STRING_KEYWORDS, **BOOLEAN_KEYWORDS, **LIST_KEYWORDS}
 
     def __init__(self, settingsdict: dict) -> None:
@@ -176,60 +176,51 @@ class Lobsterin(UserDict, MSONable):
         """To avoid cases sensitivity problems."""
         del self.data[key.lower().strip()]
 
-    def diff(self, other: Self) -> dict[str, dict]:
+    def diff(self, other: Self) -> dict[str, dict[str, Any]]:
         """
-        Diff function for Lobsterin. Compares two Lobsterin and indicates
-        which parameters are the same. Similar to the diff method in INCAR.
+        Diff function for Lobsterin. Compare two Lobsterin and find
+        which parameters are the same. Similar to the diff method of Incar.
 
         Args:
-            other (Lobsterin): Lobsterin object to compare to
+            other (Lobsterin): Lobsterin object to compare to.
 
         Returns:
-            dict with differences and similarities
+            dict: {"Same": same_params, "Different": diff_params}
         """
-        # TODO (@DanielYang59): use set to calculate diff and intersection
+        same_params = {}
+        diff_params = {}
 
-        similar_param = {}
-        different_param = {}
-        key_list_others = [key.lower() for key in other]
-
+        # Check self
         for k1, v1 in self.items():
-            k1_lower = k1.lower()
-            k1_in_other = next((key_here for key_here in other if key_here.lower() == k1_lower), k1_lower)
-            if k1_lower not in key_list_others:
-                different_param[k1.lower()] = {"lobsterin1": v1, "lobsterin2": None}
+            if k1 not in other:
+                diff_params[k1] = {"lobsterin1": v1, "lobsterin2": None}
+
+            # String keywords
             elif isinstance(v1, str):
-                if v1.strip().lower() != other[k1_lower].strip().lower():
-                    different_param[k1.lower()] = {
-                        "lobsterin1": v1,
-                        "lobsterin2": other[k1_in_other],
-                    }
+                if v1 != other[k1]:
+                    diff_params[k1] = {"lobsterin1": v1, "lobsterin2": other[k1]}
                 else:
-                    similar_param[k1.lower()] = v1
+                    same_params[k1] = v1
+
+            # List keywords
             elif isinstance(v1, list):
                 new_set1 = {element.strip().lower() for element in v1}
-                new_set2 = {element.strip().lower() for element in other[k1_in_other]}
+                new_set2 = {element.strip().lower() for element in other[k1]}
                 if new_set1 != new_set2:
-                    different_param[k1.lower()] = {
-                        "lobsterin1": v1,
-                        "lobsterin2": other[k1_in_other],
-                    }
-            elif v1 != other[k1_lower]:
-                different_param[k1.lower()] = {
-                    "lobsterin1": v1,
-                    "lobsterin2": other[k1_in_other],
-                }
-            else:
-                similar_param[k1.lower()] = v1
+                    diff_params[k1] = {"lobsterin1": v1, "lobsterin2": other[k1]}
 
+            # Float/boolean keywords
+            elif v1 != other[k1]:
+                diff_params[k1] = {"lobsterin1": v1, "lobsterin2": other[k1]}
+            else:
+                same_params[k1] = v1
+
+        # Check other
         for k2, v2 in other.items():
-            if (
-                k2.lower() not in similar_param
-                and k2.lower() not in different_param
-                and k2.lower() not in [key.lower() for key in self]
-            ):
-                different_param[k2.lower()] = {"lobsterin1": None, "lobsterin2": v2}
-        return {"Same": similar_param, "Different": different_param}
+            if k2 not in self:
+                diff_params[k2] = {"lobsterin1": None, "lobsterin2": v2}
+
+        return {"Same": same_params, "Different": diff_params}
 
     def write_lobsterin(
         self,
