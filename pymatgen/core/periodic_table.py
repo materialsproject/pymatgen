@@ -1072,6 +1072,13 @@ class Species(MSONable, Stringify):
         raise NotImplementedError
 
     @property
+    def valence(self) -> tuple[int | np.nan, int]:
+        """Valence subshell angular moment (L) and number of valence e- (v_e),
+        obtained from full electron config. Not implemented for Species as of now.
+        """
+        raise NotImplementedError
+
+    @property
     def ionic_radius(self) -> float | None:
         """Ionic radius of specie. Returns None if data is not present."""
         if self._oxi_state in self.ionic_radii:
