@@ -1099,8 +1099,8 @@ class TestPotcarSingle(TestCase):
         assert self.psingle_Fe.nelectrons == 8
 
     def test_electron_config(self):
-        assert self.psingle_Mn_pv.electron_configuration == [(4, "s", 2), (3, "d", 5), (3, "p", 6)]
-        assert self.psingle_Fe.electron_configuration == [(4, "s", 2), (3, "d", 6)]
+        assert self.psingle_Mn_pv.electron_configuration == [(3, "d", 5), (4, "s", 2), (3, "p", 6)]
+        assert self.psingle_Fe.electron_configuration == [(3, "d", 6), (4, "s", 2)]
 
     def test_attributes(self):
         for key, val in self.Mn_pv_attrs.items():
