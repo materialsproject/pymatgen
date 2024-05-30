@@ -31,7 +31,6 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
     from typing import Any, Literal
 
     from typing_extensions import Self
