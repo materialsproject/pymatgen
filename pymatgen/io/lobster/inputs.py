@@ -56,7 +56,7 @@ due.cite(
 
 class Lobsterin(UserDict, MSONable):
     """
-    This class can handle and generate lobsterin files
+    Handle and generate lobsterin files
     Furthermore, it can also modify INCAR files for lobster, generate KPOINTS files for fatband calculations in Lobster,
     and generate the standard primitive cells in a POSCAR file that are needed for the fatband calculations.
     There are also several standard lobsterin files that can be easily generated.
@@ -181,8 +181,8 @@ class Lobsterin(UserDict, MSONable):
 
     def diff(self, other: Lobsterin) -> dict[str, dict]:
         """
-        Diff function for Lobsterin. Compares two Lobsterin and indicates which parameters are the same.
-        Similar to the diff method in INCAR.
+        Diff function for Lobsterin. Compares two Lobsterin and indicates
+        which parameters are the same. Similar to the diff method in INCAR.
 
         Args:
             other (Lobsterin): Lobsterin object to compare to
@@ -234,16 +234,19 @@ class Lobsterin(UserDict, MSONable):
                 different_param[k2.lower()] = {"lobsterin1": None, "lobsterin2": v2}
         return {"Same": similar_param, "Different": different_param}
 
-    def write_lobsterin(self, path: PathLike = "lobsterin", overwritedict: dict | None = None) -> None:
-        """
-        Write a lobsterin file.
+    def write_lobsterin(
+        self,
+        path: PathLike = "lobsterin",
+        overwritedict: dict | None = None,
+    ) -> None:
+        """Write a lobsterin file.
 
         Args:
             path (str): filename of the output lobsterin file
             overwritedict (dict): dict that can be used to overwrite lobsterin, e.g. {"skipdos": True}
         """
-        # will overwrite previous entries
-        # has to search first if entry is already in Lobsterindict (due to case insensitivity)
+        # Will overwrite previous entries
+        # Have to search first if entry is already in Lobsterindict (due to case insensitivity)
         if overwritedict is not None:
             for key, entry in overwritedict.items():
                 self[key] = entry
@@ -259,14 +262,14 @@ class Lobsterin(UserDict, MSONable):
                     if key.lower() in [element.lower() for element in type(self).FLOAT_KEYWORDS]:
                         file.write(f"{key} {self.get(key)}\n")
                     elif key.lower() in [element.lower() for element in type(self).BOOLEAN_KEYWORDS]:
-                        # checks if entry is True or False
+                        # Check if entry is True or False
                         for key_here in self:
                             if key.lower() == key_here.lower():
                                 file.write(f"{key}\n")
                     elif key.lower() in [element.lower() for element in type(self).STRING_KEYWORDS]:
                         file.write(f"{key} {self.get(key)}\n")
                     elif key.lower() in [element.lower() for element in type(self).LIST_KEYWORDS]:
-                        for entry in self.get(key):
+                        for entry in self.get(key):  # type: ignore[union-attr]
                             file.write(f"{key} {entry}\n")
 
     def as_dict(self) -> dict:
@@ -286,55 +289,6 @@ class Lobsterin(UserDict, MSONable):
             Lobsterin
         """
         return cls({k: v for k, v in dct.items() if k not in ["@module", "@class"]})
-
-    @classmethod
-    def from_file(cls, lobsterin: str) -> Self:
-        """
-        Args:
-            lobsterin (str): path to lobsterin.
-
-        Returns:
-            Lobsterin object
-        """
-        with zopen(lobsterin, mode="rt") as file:
-            data = file.read().split("\n")
-        if len(data) == 0:
-            raise RuntimeError("lobsterin file contains no data.")
-        lobsterin_dict: dict[str, Any] = {}
-
-        # TODO: (@DanielYang59) simplify method (separate parser and checker)
-
-        for datum in data:
-            # Remove all comments
-            if not datum.startswith(("!", "#", "//")):  # TODO: (@DanielYang59) remove leading whitespace
-                pattern = r"\b[^!#//]+"  # exclude comments after commands
-                if matched_pattern := re.findall(pattern, datum):
-                    raw_datum = matched_pattern[0].replace(
-                        "\t", " "
-                    )  # handle tab in between and end of command  # TODO: (@DanielYang59) use strip()
-                    key_word = raw_datum.strip().split(" ")  # extract keyword
-                    if len(key_word) > 1:
-                        # check which type of keyword this is, handle accordingly
-                        if key_word[0].lower() not in [datum2.lower() for datum2 in cls.LIST_KEYWORDS]:
-                            if key_word[0].lower() not in [datum2.lower() for datum2 in cls.FLOAT_KEYWORDS]:
-                                if key_word[0].lower() not in lobsterin_dict:
-                                    lobsterin_dict[key_word[0].lower()] = " ".join(key_word[1:])
-                                else:
-                                    # TODO (@DanielYang59): repeated duplicate check, move to __setitem__
-                                    raise ValueError(f"Same keyword {key_word[0].lower()} twice!")
-                            elif key_word[0].lower() not in lobsterin_dict:
-                                lobsterin_dict[key_word[0].lower()] = float(key_word[1])
-                            else:
-                                # TODO (@DanielYang59): repeated duplicate check, move to __setitem__
-                                raise ValueError(f"Same keyword {key_word[0].lower()} twice!")
-                        elif key_word[0].lower() not in lobsterin_dict:
-                            lobsterin_dict[key_word[0].lower()] = [" ".join(key_word[1:])]
-                        else:
-                            lobsterin_dict[key_word[0].lower()].append(" ".join(key_word[1:]))
-                    elif len(key_word) > 0:
-                        lobsterin_dict[key_word[0].lower()] = True
-
-        return cls(lobsterin_dict)
 
     def _get_nbands(self, structure: Structure) -> int:
         """Get number of bands."""
@@ -381,7 +335,7 @@ class Lobsterin(UserDict, MSONable):
             isym (int): ISYM equals -1 or 0 are possible. Current LOBSTER version only allow -1.
             further_settings (dict): A dict can be used to include further settings, e.g. {"ISMEAR":-5}
         """
-        # reads old incar from file, this one will be modified
+        # Read old INCAR from file, this one will be modified
         incar = Incar.from_file(incar_input)
         warnings.warn("Please check your incar_input before using it. This method only changes three settings!")
         if isym == -1:
@@ -394,7 +348,7 @@ class Lobsterin(UserDict, MSONable):
         incar["NSW"] = 0
         incar["LWAVE"] = True
 
-        # Get nbands from _get_nbands (use basis set that is inserted)
+        # Get NBANDS from _get_nbands (use basis set that is inserted)
         incar["NBANDS"] = self._get_nbands(Structure.from_file(poscar_input))
         if further_settings is not None:
             for key, item in further_settings.items():
@@ -510,7 +464,7 @@ class Lobsterin(UserDict, MSONable):
         symprec: float = 0.01,
     ) -> None:
         """
-        Writes a gamma-centered KPOINTS file for LOBSTER (only ISYM=-1/0 are
+        Write a gamma-centered KPOINTS file for LOBSTER (only ISYM=-1/0 are
         possible).
 
         Args:
@@ -561,7 +515,7 @@ class Lobsterin(UserDict, MSONable):
         # TODO: what about this shift?
         mapping, grid = spglib.get_ir_reciprocal_mesh(mesh, cell, is_shift=[0, 0, 0])
 
-        # get the kpoints for the grid
+        # Get the kpoints for the grid
         if isym == -1:
             kpts = []
             weights = []
@@ -571,7 +525,7 @@ class Lobsterin(UserDict, MSONable):
                 weights.append(float(1))
                 all_labels.append("")
         elif isym == 0:
-            # time reversal symmetry: k and -k are equivalent
+            # Time reversal symmetry: k and -k are equivalent
             kpts = []
             weights = []
             all_labels = []
@@ -597,7 +551,7 @@ class Lobsterin(UserDict, MSONable):
         else:
             raise ValueError(f"Got {isym=}, must be -1 or 0")
 
-        # line mode
+        # Line mode
         if line_mode:
             kpath = HighSymmKpath(structure, symprec=symprec)
             if not np.allclose(kpath.prim.lattice.matrix, structure.lattice.matrix):
@@ -625,10 +579,58 @@ class Lobsterin(UserDict, MSONable):
 
         kpoint_object.write_file(filename=KPOINTS_output)
 
+    @classmethod
+    def from_file(cls, lobsterin: str) -> Self:
+        """
+        Args:
+            lobsterin (str): path to lobsterin.
+
+        Returns:
+            Lobsterin object
+        """
+        with zopen(lobsterin, mode="rt") as file:
+            data = file.read().split("\n")
+        if len(data) == 0:
+            raise RuntimeError("lobsterin file contains no data.")
+        lobsterin_dict: dict[str, Any] = {}
+
+        # TODO: (@DanielYang59) simplify method (separate parser and checker)
+
+        for datum in data:
+            # Remove all comments
+            if not datum.startswith(("!", "#", "//")):  # TODO: (@DanielYang59) remove leading whitespace
+                pattern = r"\b[^!#//]+"  # exclude comments after commands
+                if matched_pattern := re.findall(pattern, datum):
+                    raw_datum = matched_pattern[0].replace(
+                        "\t", " "
+                    )  # handle tab in between and end of command  # TODO: (@DanielYang59) use strip()
+                    key_word = raw_datum.strip().split(" ")  # extract keyword
+                    if len(key_word) > 1:
+                        # check which type of keyword this is, handle accordingly
+                        if key_word[0].lower() not in [datum2.lower() for datum2 in cls.LIST_KEYWORDS]:
+                            if key_word[0].lower() not in [datum2.lower() for datum2 in cls.FLOAT_KEYWORDS]:
+                                if key_word[0].lower() not in lobsterin_dict:
+                                    lobsterin_dict[key_word[0].lower()] = " ".join(key_word[1:])
+                                else:
+                                    # TODO (@DanielYang59): repeated duplicate check, move to __setitem__
+                                    raise ValueError(f"Same keyword {key_word[0].lower()} twice!")
+                            elif key_word[0].lower() not in lobsterin_dict:
+                                lobsterin_dict[key_word[0].lower()] = float(key_word[1])
+                            else:
+                                # TODO (@DanielYang59): repeated duplicate check, move to __setitem__
+                                raise ValueError(f"Same keyword {key_word[0].lower()} twice!")
+                        elif key_word[0].lower() not in lobsterin_dict:
+                            lobsterin_dict[key_word[0].lower()] = [" ".join(key_word[1:])]
+                        else:
+                            lobsterin_dict[key_word[0].lower()].append(" ".join(key_word[1:]))
+                    elif len(key_word) > 0:
+                        lobsterin_dict[key_word[0].lower()] = True
+
+        return cls(lobsterin_dict)
+
     @staticmethod
     def _get_potcar_symbols(POTCAR_input: str) -> list[str]:
-        """
-        Get the name of the species in the POTCAR.
+        """Get the name of the species in the POTCAR.
 
         Args:
             POTCAR_input (str): path to potcar file
@@ -672,8 +674,7 @@ class Lobsterin(UserDict, MSONable):
         dict_for_basis: dict | None = None,
         option: str = "standard",
     ) -> Self:
-        """
-        Generate Lobsterin with standard settings.
+        """Generate Lobsterin with standard settings.
 
         Args:
             POSCAR_input (str): path to POSCAR
@@ -719,9 +720,9 @@ class Lobsterin(UserDict, MSONable):
             raise ValueError("The option is not valid!")
 
         lobsterin_dict: dict[str, Any] = {
-            # this basis set covers most elements
+            # This basis set covers most elements
             "basisSet": "pbeVaspFit2015",
-            # energies around e-fermi
+            # Energies around e-fermi
             "COHPstartEnergy": -35.0,
             "COHPendEnergy": 5.0,
         }
@@ -736,9 +737,9 @@ class Lobsterin(UserDict, MSONable):
             "onlycohpcoopcobi",
             "standard_with_fatband",
         }:
-            # every interaction with a distance of 6.0 is checked
+            # Every interaction with a distance of 6.0 Å is checked
             lobsterin_dict["cohpGenerator"] = "from 0.1 to 6.0 orbitalwise"
-            # the projection is saved
+            # Save the projection
             lobsterin_dict["saveProjectionToFile"] = True
 
         if option == "standard_from_projection":
@@ -840,7 +841,7 @@ class Lobsterin(UserDict, MSONable):
             # will just insert this basis and not check with poscar
             basis = [f"{key} {value}" for key, value in dict_for_basis.items()]
         elif POTCAR_input is not None:
-            # get basis from POTCAR
+            # Get basis from POTCAR
             potcar_names = cls._get_potcar_symbols(POTCAR_input=POTCAR_input)
 
             basis = cls.get_basis(structure=Structure.from_file(POSCAR_input), potcar_symbols=potcar_names)
@@ -856,8 +857,7 @@ class Lobsterin(UserDict, MSONable):
 
 
 def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> list[list[str]]:
-    """
-    Get all possible basis combinations.
+    """Get all possible basis combinations.
 
     Args:
         min_basis: list of basis entries: e.g., ["Si 3p 3s"]
@@ -869,7 +869,7 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
     max_basis_lists = [x.split() for x in max_basis]
     min_basis_lists = [x.split() for x in min_basis]
 
-    # get all possible basis functions
+    # Get all possible basis functions
     basis_dict: dict[str, dict] = {}
     for iel, el in enumerate(max_basis_lists):
         basis_dict[el[0]] = {"fixed": [], "variable": [], "combinations": []}
@@ -884,7 +884,7 @@ def get_all_possible_basis_combinations(min_basis: list, max_basis: list) -> lis
 
     list_basis = [item["combinations"] for item in basis_dict.values()]
 
-    # get all combinations
+    # Get all combinations
     start_basis = list_basis[0]
     if len(list_basis) > 1:
         for el in list_basis[1:]:
