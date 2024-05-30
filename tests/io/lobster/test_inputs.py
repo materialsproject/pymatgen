@@ -1579,12 +1579,20 @@ class TestLobsterin(TestCase):
         assert self.Lobsterin == self.Lobsterin2
 
     def test_getitem(self):
-        # tests implementation of getitem, should be case independent
+        """Test __getitem__, should be case independent."""
         assert self.Lobsterin["COHPSTARTENERGY"] == approx(-15.0)
 
     def test_setitem(self):
-        # test implementation of setitem
+        """Test __setitem__."""
         self.Lobsterin["skipCOHP"] = False
+        assert self.Lobsterin["skipcohp"] is False
+
+    def test_update(self):
+        """Test case sensitivity of update operation."""
+        self.Lobsterin |= {"skipCOHP": True}  # Camel case
+        assert self.Lobsterin["skipcohp"] is True
+
+        self.Lobsterin |= {"skipcohp": False}  # lower case
         assert self.Lobsterin["skipcohp"] is False
 
     def test_initialize_from_dict(self):

@@ -234,38 +234,27 @@ class Lobsterin(UserDict, MSONable):
         path: PathLike = "lobsterin",
         overwritedict: dict | None = None,
     ) -> None:
-        """Write a lobsterin file.
+        """Write a lobsterin file, and recover key to Camel case.
 
         Args:
             path (str): filename of the output lobsterin file
             overwritedict (dict): dict that can be used to overwrite lobsterin, e.g. {"skipdos": True}
         """
-        # Will overwrite previous entries
-        # Have to search first if entry is already in Lobsterindict (due to case insensitivity)
+        # Overwrite previous entries
         if overwritedict is not None:
-            for key, entry in overwritedict.items():
-                self[key] = entry
-                for key2 in self:
-                    if key.lower() == key2.lower():
-                        self[key2] = entry
+            self.data |= overwritedict
 
-        filename = path
+        with open(path, mode="w", encoding="utf-8") as file:
+            for key in self:
+                if key in type(self).FLOAT_KEYWORDS or key in type(self).STRING_KEYWORDS:
+                    file.write(f"{self.AVAILABLE_KEYWORDS[key]} {self.get(key)}\n")
 
-        with open(filename, mode="w", encoding="utf-8") as file:
-            for key in type(self).AVAILABLE_KEYWORDS:
-                if key.lower() in [element.lower() for element in self]:
-                    if key.lower() in [element.lower() for element in type(self).FLOAT_KEYWORDS]:
-                        file.write(f"{key} {self.get(key)}\n")
-                    elif key.lower() in [element.lower() for element in type(self).BOOLEAN_KEYWORDS]:
-                        # Check if entry is True or False
-                        for key_here in self:
-                            if key.lower() == key_here.lower():
-                                file.write(f"{key}\n")
-                    elif key.lower() in [element.lower() for element in type(self).STRING_KEYWORDS]:
-                        file.write(f"{key} {self.get(key)}\n")
-                    elif key.lower() in [element.lower() for element in type(self).LIST_KEYWORDS]:
-                        for entry in self.get(key):  # type: ignore[union-attr]
-                            file.write(f"{key} {entry}\n")
+                elif key in type(self).BOOLEAN_KEYWORDS:
+                    file.write(f"{self.BOOLEAN_KEYWORDS[key]}\n")
+
+                elif key in type(self).LIST_KEYWORDS:
+                    for value in self.get(key):  # type: ignore[union-attr]
+                        file.write(f"{self.LIST_KEYWORDS[key]} {value}\n")
 
     def as_dict(self) -> dict:
         """MSONable dict"""
