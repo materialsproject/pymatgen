@@ -580,7 +580,7 @@ class Lobsterin(UserDict, MSONable):
             # Remove comment lines and in-line comments
             if line := re.split(r"[!#//]", line)[0].strip():
                 # Extract keywords
-                line_parts = line.replace("\t", " ").strip().split(" ")
+                line_parts = line.replace("\t", " ").strip().split()
                 if line_parts:
                     key = line_parts[0].lower()
                 else:
