@@ -287,7 +287,7 @@ class Lobsterin(UserDict, MSONable):
         Returns:
             Lobsterin
         """
-        return cls({k: v for k, v in dct.items() if k not in ["@module", "@class"]})
+        return cls({k: v for k, v in dct.items() if k not in {"@module", "@class"}})
 
     def _get_nbands(self, structure: Structure) -> int:
         """Get number of bands."""
@@ -700,7 +700,7 @@ class Lobsterin(UserDict, MSONable):
             "Always check and test the provided basis functions. The spilling of your Lobster calculation might help"
         )
 
-        if option not in [
+        if option not in {
             "standard",
             "standard_from_projection",
             "standard_with_fatband",
@@ -713,7 +713,7 @@ class Lobsterin(UserDict, MSONable):
             "onlycohpcoop",
             "onlycohpcoopcobi",
             "onlymadelung",
-        ]:
+        }:
             raise ValueError("The option is not valid!")
 
         lobsterin_dict: dict[str, Any] = {
