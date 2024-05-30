@@ -34,7 +34,7 @@ __date__ = "Oct 31, 2018"
 
 
 class IRDielectricTensor(MSONable):
-    """Class to handle the Ionic Dielectric Tensor
+    """Handle the Ionic Dielectric Tensor
     The implementation is adapted from Abipy
     See the definitions Eq.(53-54) in :cite:`Gonze1997` PRB55, 10355 (1997).
     """
@@ -61,7 +61,7 @@ class IRDielectricTensor(MSONable):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Returns IRDielectricTensor from dict representation."""
+        """Get IRDielectricTensor from dict representation."""
         structure = Structure.from_dict(dct["structure"])
         oscillator_strength = dct["oscillator_strength"]
         ph_freqs_gamma = dct["ph_freqs_gamma"]

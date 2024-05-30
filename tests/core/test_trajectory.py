@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import copy
+import re
 
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
 
 from pymatgen.core.lattice import Lattice
@@ -89,8 +91,8 @@ class TestTrajectory(PymatgenTest):
         else:
             raise AssertionError
 
-        sliced_traj = self.traj_mols[0:2]
-        sliced_traj_from_mols = Trajectory.from_molecules(self.molecules[0:2])
+        sliced_traj = self.traj_mols[:2]
+        sliced_traj_from_mols = Trajectory.from_molecules(self.molecules[:2])
 
         if len(sliced_traj) == len(sliced_traj_from_mols):
             assert all(sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj)))
@@ -480,3 +482,11 @@ class TestTrajectory(PymatgenTest):
 
         # Check composition of the first frame of the trajectory
         assert traj[0].formula == "Li2 Mn2 O4"
+
+    def test_index_error(self):
+        with pytest.raises(IndexError, match="index=100 out of range, trajectory only has 100 frames"):
+            self.traj[100]
+        with pytest.raises(
+            TypeError, match=re.escape("bad index='test', expected one of [int, slice, list[int], numpy.ndarray]")
+        ):
+            self.traj["test"]

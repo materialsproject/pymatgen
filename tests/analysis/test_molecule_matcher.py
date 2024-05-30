@@ -161,7 +161,7 @@ class TestMoleculeMatcher:
     def test_group_molecules(self):
         mol_matcher = MoleculeMatcher(tolerance=0.001)
         with open(f"{TEST_DIR}/mol_list.txt") as file:
-            filename_list = [line.strip() for line in file.readlines()]
+            filename_list = [line.strip() for line in file]
         mol_list = [Molecule.from_file(f"{TEST_DIR}/{file}") for file in filename_list]
         mol_groups = mol_matcher.group_molecules(mol_list)
         filename_groups = [[filename_list[mol_list.index(m)] for m in g] for g in mol_groups]

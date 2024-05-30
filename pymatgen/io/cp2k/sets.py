@@ -1178,7 +1178,7 @@ class DftSet(Cp2kInput):
         self["FORCE_EVAL"]["DFT"]["XC"].insert(vdw)
 
     def activate_fast_minimization(self, on) -> None:
-        """Method to modify the set to use fast SCF minimization."""
+        """Modify the set to use fast SCF minimization."""
         if on:
             ot = OrbitalTransformation(
                 minimizer="DIIS",
@@ -1189,7 +1189,7 @@ class DftSet(Cp2kInput):
             self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
 
     def activate_robust_minimization(self) -> None:
-        """Method to modify the set to use more robust SCF minimization technique."""
+        """Modify the set to use more robust SCF minimization technique."""
         ot = OrbitalTransformation(
             minimizer="CG",
             preconditioner="FULL_ALL",

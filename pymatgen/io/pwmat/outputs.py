@@ -72,7 +72,7 @@ class Movement(MSONable):
 
     @property
     def atom_configs(self) -> list[Structure]:
-        """Returns AtomConfig object for structures contained in MOVEMENT.
+        """AtomConfig for structures contained in MOVEMENT file.
 
         Returns:
             list[Structure]: List of Structure objects for the structure at each ionic step.
@@ -81,7 +81,7 @@ class Movement(MSONable):
 
     @property
     def e_tots(self) -> np.ndarray:
-        """Returns total energies of each ionic step structures contained in MOVEMENT.
+        """Total energies of each ionic step structures contained in MOVEMENT.
 
         Returns:
             np.ndarray: Total energy of of each ionic step structure,
@@ -91,7 +91,7 @@ class Movement(MSONable):
 
     @property
     def atom_forces(self) -> np.ndarray:
-        """Returns forces on atoms in each structures contained in MOVEMENT.
+        """Forces on atoms in each structures contained in MOVEMENT.
 
         Returns:
             np.ndarray: The forces on atoms of each ionic step structure,
@@ -101,7 +101,7 @@ class Movement(MSONable):
 
     @property
     def e_atoms(self) -> np.ndarray:
-        """Get individual energies of atoms in each ionic step structures
+        """Individual energies of atoms in each ionic step structures
         contained in MOVEMENT.
 
         Returns:
@@ -112,7 +112,7 @@ class Movement(MSONable):
 
     @property
     def virials(self) -> np.ndarray:
-        """Returns virial tensor of each ionic step structure contained in MOVEMENT.
+        """Virial tensor of each ionic step structure contained in MOVEMENT.
 
         Returns:
             np.ndarray: The virial tensor of each ionic step structure,
@@ -121,8 +121,7 @@ class Movement(MSONable):
         return np.array([step["virial"] for step in self.ionic_steps if ("virial" in step)])
 
     def _parse_sefv(self) -> list[dict]:
-        """
-        Parse the MOVEMENT file, return information ionic step structure containing
+        """Parse the MOVEMENT file, return information ionic step structure containing
         structures, energies, forces on atoms and virial tensor.
 
         Returns:
@@ -169,7 +168,7 @@ class OutFermi(MSONable):
 
     @property
     def e_fermi(self) -> float:
-        """Returns the fermi energy level.
+        """The fermi energy level.
 
         Returns:
             float: Fermi energy level.
@@ -192,8 +191,7 @@ class Report(MSONable):
         self._kpts, self._kpts_weight, self._hsps = self._parse_kpt()
 
     def _parse_band(self) -> tuple[int, int, int]:
-        """
-        Parse REPORT file to obtain spin switches, the number of kpoints
+        """Parse REPORT file to obtain spin switches, the number of kpoints
         and the number of bands.
 
         Returns:
@@ -271,7 +269,7 @@ class Report(MSONable):
 
     @property
     def spin(self) -> int:
-        """Return the spin switches.
+        """The spin switches.
 
         Returns:
             int: Spin switches. 1 represents turn on spin, 2 represents turn down spin.
@@ -280,17 +278,17 @@ class Report(MSONable):
 
     @property
     def n_kpoints(self) -> int:
-        """Returns the number of k-points."""
+        """The number of k-points."""
         return self._num_kpts
 
     @property
     def n_bands(self) -> int:
-        """Returns the number of bands."""
+        """The number of bands."""
         return self._num_bands
 
     @property
     def eigenvalues(self) -> np.ndarray:
-        """Returns the eigenvalues.
+        """The eigenvalues.
 
         Returns:
             np.ndarray: The first index represents spin, the second index
@@ -300,22 +298,18 @@ class Report(MSONable):
 
     @property
     def kpoints(self) -> np.ndarray:
-        """Returns the fractional coordinates of kpoints."""
+        """The fractional coordinates of kpoints."""
         return self._kpts
 
     @property
     def kpoints_weight(self) -> np.ndarray:
-        """Returns the weight of kpoints."""
+        """The weight of kpoints."""
         return self._kpts_weight
 
     @property
     def hsps(self) -> dict[str, np.ndarray]:
-        """Return the high symmetry points.
-
-        Returns:
-            dict[str, np.ndarray]: The label and fractional coordinate of
-                high symmetry points. Return empty dict when task is not
-                line-mode kpath.
+        """The labels and fractional coordinates of high symmetry points as dict[str, np.ndarray].
+        Empty dict when task is not line-mode kpath.
         """
         return self._hsps
 
@@ -349,12 +343,12 @@ class DosSpin(MSONable):
 
     @property
     def labels(self) -> list[str]:
-        """Returns the name of the partial density of states"""
+        """The name of the partial density of states"""
         return self._labels
 
     @property
     def dos(self) -> np.ndarray:
-        """Returns value of density of state."""
+        """Value of density of state."""
         return self._dos
 
     def get_partial_dos(self, part: str) -> np.ndarray:

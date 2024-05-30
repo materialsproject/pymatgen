@@ -20,7 +20,7 @@ from collections.abc import Sequence
 from fractions import Fraction
 from functools import lru_cache
 from math import cos, sin
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy.cluster
@@ -34,13 +34,16 @@ from pymatgen.util.coord import find_in_coord_list, pbc_diff
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing import Any, Literal
+
     from pymatgen.core import Element, Species
     from pymatgen.core.sites import Site
     from pymatgen.symmetry.groups import CrystalSystem
 
+    LatticeType = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "rhombohedral", "tetragonal", "triclinic"]
+
 logger = logging.getLogger(__name__)
 
-LatticeType = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "rhombohedral", "tetragonal", "triclinic"]
 
 cite_conventional_cell_algo = due.dcite(
     Doi("10.1016/j.commatsci.2010.05.010"),
@@ -150,7 +153,7 @@ class SpacegroupAnalyzer:
         )
 
     def get_hall(self) -> str:
-        """Returns Hall symbol for structure.
+        """Get Hall symbol for structure.
 
         Returns:
             str: Hall symbol
@@ -219,7 +222,7 @@ class SpacegroupAnalyzer:
         return system
 
     def get_symmetry_dataset(self):
-        """Returns the symmetry dataset as a dict.
+        """Get the symmetry dataset as a dict.
 
         Returns:
             dict: With the following properties:
@@ -1148,7 +1151,7 @@ class PointGroupAnalyzer:
         return mirror_type
 
     def _get_smallest_set_not_on_axis(self, axis):
-        """Returns the smallest list of atoms with the same species and distance from
+        """Get the smallest list of atoms with the same species and distance from
         origin AND does not lie on the specified axis.
 
         This maximal set limits the possible rotational symmetry operations, since atoms
@@ -1275,7 +1278,7 @@ class PointGroupAnalyzer:
                 break
 
     def get_pointgroup(self):
-        """Returns a PointGroup object for the molecule."""
+        """Get a PointGroup object for the molecule."""
         return PointGroupOperations(self.sch_symbol, self.symmops, self.mat_tol)
 
     def get_symmetry_operations(self):
@@ -1409,7 +1412,7 @@ class PointGroupAnalyzer:
         return {"eq_sets": equiv_sets, "sym_ops": ops}
 
     def get_equivalent_atoms(self):
-        """Returns sets of equivalent atoms with symmetry operations.
+        """Get sets of equivalent atoms with symmetry operations.
 
         Returns:
             dict: with two possible keys:
@@ -1422,7 +1425,7 @@ class PointGroupAnalyzer:
         return self._combine_eq_sets(eq["eq_sets"], eq["sym_ops"])
 
     def symmetrize_molecule(self):
-        """Returns a symmetrized molecule.
+        """Get a symmetrized molecule.
 
         The equivalent atoms obtained via
         :meth:`~pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms`
@@ -1457,7 +1460,7 @@ class PointGroupAnalyzer:
 
 
 def iterative_symmetrize(mol, max_n=10, tolerance=0.3, epsilon=1e-2):
-    """Returns a symmetrized molecule.
+    """Get a symmetrized molecule.
 
     The equivalent atoms obtained via
     :meth:`~pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms`

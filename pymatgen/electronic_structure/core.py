@@ -78,7 +78,7 @@ class Orbital(Enum):
 
     @property
     def orbital_type(self):
-        """Returns OrbitalType of an orbital."""
+        """OrbitalType of an orbital."""
         return OrbitalType[self.name[0]]
 
 
@@ -246,7 +246,7 @@ class Magmom(MSONable):
         return np.dot(self.moment, self.saxis)
 
     def get_xyz_magmom_with_001_saxis(self):
-        """Returns a Magmom in the default setting of saxis = [0, 0, 1] and
+        """Get a Magmom in the default setting of saxis = [0, 0, 1] and
         the magnetic moment rotated as required.
 
         Returns:
@@ -311,7 +311,7 @@ class Magmom(MSONable):
 
     @staticmethod
     def get_consistent_set_and_saxis(magmoms, saxis=None):
-        """Method to ensure a list of magmoms use the same spin axis.
+        """Ensure a list of magmoms use the same spin axis.
         Returns a tuple of a list of Magmoms and their global spin axis.
 
         Args:
@@ -355,8 +355,7 @@ class Magmom(MSONable):
 
     @staticmethod
     def are_collinear(magmoms) -> bool:
-        """Method checks to see if a set of magnetic moments are collinear
-        with each other.
+        """Check if a set of magnetic moments are collinear with each other.
 
         Args:
             magmoms: list of magmoms (Magmoms, scalars or vectors).
@@ -447,7 +446,7 @@ class Magmom(MSONable):
         return hash(tuple(self.moment) + tuple(self.saxis))
 
     def __float__(self) -> float:
-        """Returns magnitude of magnetic moment with a sign with respect to
+        """Get magnitude of magnetic moment with a sign with respect to
         an arbitrary direction.
 
         Should give unsurprising output if Magmom is treated like a

@@ -9,7 +9,7 @@ import math
 import typing
 import warnings
 from collections import Counter
-from typing import TYPE_CHECKING, cast, no_type_check
+from typing import TYPE_CHECKING, cast
 
 import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
@@ -51,7 +51,7 @@ __date__ = "May 1, 2012"
 
 
 class DosPlotter:
-    """Class for plotting phonon DOSs. The interface is extremely flexible given there are many
+    """Plot DOSs. The interface is extremely flexible given there are many
     different ways in which people want to view DOS.
     Typical usage is:
         # Initializes plotter with some optional args. Defaults are usually fine
@@ -85,10 +85,10 @@ class DosPlotter:
         ] = {}
 
     def add_dos(self, label: str, dos: Dos) -> None:
-        """Add a dos for plotting.
+        """Add a DOS for plotting.
 
         Args:
-            label: label for the DOS. Must be unique.
+            label: a unique label for the DOS.
             dos: Dos object
         """
         if dos.norm_vol is None:
@@ -103,8 +103,8 @@ class DosPlotter:
         }
 
     def add_dos_dict(self, dos_dict, key_sort_func=None) -> None:
-        """Add a dictionary of doses, with an optional sorting function for the
-        keys.
+        """Add a dictionary of DOSs, with an optional sorting
+        function for the keys.
 
         Args:
             dos_dict: dict of {label: Dos}
@@ -115,7 +115,7 @@ class DosPlotter:
             self.add_dos(label, dos_dict[label])
 
     def get_dos_dict(self):
-        """Returns the added doses as a json-serializable dict. Note that if you
+        """Get the added doses as a json-serializable dict. Note that if you
         have specified smearing for the DOS plot, the densities returned will
         be the smeared densities, not the original densities.
 
@@ -270,7 +270,7 @@ class DosPlotter:
 
 
 class BSPlotter:
-    """Class to plot or get data to facilitate the plot of band structure objects."""
+    """Plot or get data to facilitate the plotting of band structure."""
 
     def __init__(self, bs: BandStructureSymmLine) -> None:
         """
@@ -282,12 +282,12 @@ class BSPlotter:
 
         self.add_bs(bs)
 
-    def _check_bs_kpath(self, bs_list: list[BandStructureSymmLine]) -> Literal[True]:
+    def _check_bs_kpath(self, band_structs: list[BandStructureSymmLine]) -> Literal[True]:
         """Helper method that check all the band objs in bs_list are
         BandStructureSymmLine objs and they all have the same kpath.
         """
         # check obj type
-        for bs in bs_list:
+        for bs in band_structs:
             if not isinstance(bs, BandStructureSymmLine):
                 raise ValueError(
                     "BSPlotter only works with BandStructureSymmLine objects. "
@@ -296,15 +296,15 @@ class BSPlotter:
                 )
 
         # check the kpath
-        if len(bs_list) == 1 and not self._bs:
+        if len(band_structs) == 1 and not self._bs:
             return True
 
-        if not self._bs:
-            kpath_ref = [br["name"] for br in bs_list[0].branches]
-        else:
+        if self._bs:
             kpath_ref = [br["name"] for br in self._bs[0].branches]
+        else:
+            kpath_ref = [br["name"] for br in band_structs[0].branches]
 
-        for bs in bs_list:
+        for bs in band_structs:
             if kpath_ref != [br["name"] for br in bs.branches]:
                 msg = (
                     f"BSPlotter only works with BandStructureSymmLine "
@@ -315,7 +315,7 @@ class BSPlotter:
         return True
 
     def add_bs(self, bs: BandStructureSymmLine | list[BandStructureSymmLine]) -> None:
-        """Method to add bands objects to the BSPlotter."""
+        """Add bands objects to the BSPlotter."""
         if not isinstance(bs, list):
             bs = [bs]
 
@@ -364,7 +364,7 @@ class BSPlotter:
 
     @staticmethod
     def _get_branch_steps(branches):
-        """Method to find discontinuous branches."""
+        """Find discontinuous branches."""
         steps = [0]
         for b1, b2 in zip(branches[:-1], branches[1:]):
             if b2["name"].split("-")[0] != b1["name"].split("-")[-1]:
@@ -374,7 +374,7 @@ class BSPlotter:
 
     @staticmethod
     def _rescale_distances(bs_ref, bs):
-        """Method to rescale distances of bs to distances in bs_ref.
+        """Rescale distances of bs to distances in bs_ref.
         This is used for plotting two bandstructures (same k-path)
         of different materials.
         """
@@ -400,7 +400,7 @@ class BSPlotter:
         """Get the data nicely formatted for a plot.
 
         Args:
-            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
+            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E_f).
                 Defaults to True.
             bs: the bandstructure to get the data from. If not provided, the first
                 one in the self._bs list will be used.
@@ -511,10 +511,9 @@ class BSPlotter:
 
     @staticmethod
     def _interpolate_bands(distances, energies, smooth_tol=0, smooth_k=3, smooth_np=100):
-        """Method that interpolates the provided energies using B-splines as
-        implemented in scipy.interpolate. Distances and energies has to provided
-        already split into pieces (branches work good, for longer segments
-        the interpolation may fail).
+        """Interpolate the provided energies using B-splines as implemented in scipy.interpolate.
+        Distances and energies has to provided already split into pieces (branches work good,
+        for longer segments the interpolation may fail).
 
         Interpolation failure can be caused by trying to fit an entire
         band with one spline rather than fitting with piecewise splines
@@ -585,7 +584,7 @@ class BSPlotter:
         same high symm path.
 
         Args:
-            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
+            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E_f).
                 Defaults to True.
             ylim: Specify the y-axis (energy) limits; by default None let
                 the code choose. It is vbm-4 and cbm+4 if insulator
@@ -684,7 +683,7 @@ class BSPlotter:
             if zero_to_efermi:
                 ax.set_ylim(e_min, e_max if one_is_metal else max(cbm_max) + e_max)
             else:
-                all_efermi = [b.efermi for b in self._bs]
+                all_efermi = [band_struct.efermi for band_struct in self._bs]
                 ll = min([min(vbm_min), min(all_efermi)])
                 hh = max([max(cbm_max), max(all_efermi)])
                 ax.set_ylim(ll + e_min, hh + e_max)
@@ -722,8 +721,8 @@ class BSPlotter:
         """Show the plot using matplotlib.
 
         Args:
-            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
-                Defaults to True.
+            zero_to_efermi: Set the Fermi level as the plot's origin
+                (i.e. subtract E_f). Defaults to True.
             ylim: Specify the y-axis (energy) limits; by default None let
                 the code choose. It is vbm-4 and cbm+4 if insulator
                 efermi-10 and efermi+10 if metal
@@ -893,31 +892,33 @@ class BSPlotter:
 
 
 class BSPlotterProjected(BSPlotter):
-    """Class to plot or get data to facilitate the plot of band structure objects
-    projected along orbitals, elements or sites.
+    """Plot or get data to facilitate plotting of projected
+    band structure along orbitals, elements or sites.
     """
 
-    def __init__(self, bs) -> None:
+    def __init__(self, bs: BandStructureSymmLine) -> None:
         """
         Args:
-            bs: A BandStructureSymmLine object with projections.
+            bs: A BandStructureSymmLine object with projections
+            e.g. from a VASP calculation.
         """
         if isinstance(bs, list):
             warnings.warn(
-                "Multiple bands are not handled by BSPlotterProjected. The first band in the list will be considered"
+                "Multiple band structures are not handled by BSPlotterProjected. "
+                "Only the first in the list will be considered"
             )
             bs = bs[0]
 
         if len(bs.projections) == 0:
-            raise ValueError("try to plot projections on a band structure without any")
+            raise ValueError("Can't plot projections on a band structure without projections data")
 
-        self._bs = bs
-        self._nb_bands = bs.nb_bands
+        self._bs: BandStructureSymmLine = bs
+        self._nb_bands: int = bs.nb_bands  # type: ignore[assignment]
 
-    def _get_projections_by_branches(self, dictio):
-        proj = self._bs.get_projections_on_elements_and_orbitals(dictio)
+    def _get_projections_by_branches(self, project_onto):
+        proj = self._bs.get_projections_on_elements_and_orbitals(project_onto)
         proj_br = []
-        for b in self._bs.branches:
+        for branch in self._bs.branches:
             if self._bs.is_spin_polarized:
                 proj_br.append(
                     {
@@ -928,91 +929,127 @@ class BSPlotterProjected(BSPlotter):
             else:
                 proj_br.append({str(Spin.up): [[] for _ in range(self._nb_bands)]})
 
-            for i in range(self._nb_bands):
-                for j in range(b["start_index"], b["end_index"] + 1):
-                    proj_br[-1][str(Spin.up)][i].append(
-                        {e: {o: proj[Spin.up][i][j][e][o] for o in proj[Spin.up][i][j][e]} for e in proj[Spin.up][i][j]}
+            for band_idx in range(self._nb_bands):
+                for j in range(branch["start_index"], branch["end_index"] + 1):
+                    proj_br[-1][str(Spin.up)][band_idx].append(
+                        {
+                            e: {o: proj[Spin.up][band_idx][j][e][o] for o in proj[Spin.up][band_idx][j][e]}
+                            for e in proj[Spin.up][band_idx][j]
+                        }
                     )
             if self._bs.is_spin_polarized:
-                for b in self._bs.branches:
-                    for i in range(self._nb_bands):
-                        for j in range(b["start_index"], b["end_index"] + 1):
-                            proj_br[-1][str(Spin.down)][i].append(
+                for branch in self._bs.branches:
+                    for band_idx in range(self._nb_bands):
+                        for j in range(branch["start_index"], branch["end_index"] + 1):
+                            proj_br[-1][str(Spin.down)][band_idx].append(
                                 {
-                                    e: {o: proj[Spin.down][i][j][e][o] for o in proj[Spin.down][i][j][e]}
-                                    for e in proj[Spin.down][i][j]
+                                    e: {o: proj[Spin.down][band_idx][j][e][o] for o in proj[Spin.down][band_idx][j][e]}
+                                    for e in proj[Spin.down][band_idx][j]
                                 }
                             )
         return proj_br
 
-    def get_projected_plots_dots(self, dictio, zero_to_efermi=True, ylim=None, vbm_cbm_marker=False):
-        """Method returning a plot composed of subplots along different elements
-        and orbitals.
+    def get_projected_plots_dots(
+        self,
+        dictio: dict[str, list],
+        zero_to_efermi: bool = True,
+        ylim: tuple[float, float] | None = None,
+        vbm_cbm_marker: bool = False,
+        band_linewidth: float = 1.0,
+        marker_size: float = 15.0,
+    ) -> plt.Axes:
+        """Generate a plot with subplots for each element-orbital pair.
+
+        The orbitals are named as in the FATBAND file, e.g. "2p" or "2p_x".
+
+        he blue and red colors are for spin up and spin down
+        The size of the dot in the plot corresponds to the value
+        for the specific point.
 
         Args:
             dictio: The element and orbitals you want a projection on. The
-                format is {Element:[Orbitals]} for instance
-                {'Cu':['d','s'],'O':['p']} will give projections for Cu on
-                d and s orbitals and on oxygen p.
-                If you use this class to plot LobsterBandStructureSymmLine,
-                the orbitals are named as in the FATBAND filename, e.g.
-                "2p" or "2p_x"
-            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
-                Defaults to True.
-            ylim: Specify the y-axis limits. Defaults to None.
-            vbm_cbm_marker: Add markers for the VBM and CBM. Defaults to False.
+                format is {Element: [*Orbitals]} for instance
+                {"Cu":["d", "s"], "O":["p"]} will yield projections for
+                Cu on d and s orbitals and oxygen on p.
+            zero_to_efermi: Set the Fermi level as the plot's origin
+                (i.e. subtract E_f). Defaults to True.
+            ylim: The y-axis limits. Defaults to None.
+            vbm_cbm_marker (bool): Add markers for the VBM and CBM. Defaults to False.
+            band_linewidth (float): The width of the lines. Defaults to 1.0.
+            marker_size (float): The size of the markers. Defaults to 15.0.
 
         Returns:
-            list[plt.Axes]: A list with different subfigures for each projection
-            The blue and red colors are for spin up and spin down.
-            The bigger the red or blue dot in the band structure the higher
-            character for the corresponding element and orbital.
+            plt.Axes
         """
-        band_linewidth = 1.0
-        fig_cols = len(dictio) * 100
-        fig_rows = max(len(v) for v in dictio.values()) * 10
+        n_rows = max(map(len, dictio.values()))  # largest number of orbitals for an element
+        n_cols = len(dictio)  # number of elements
         proj = self._get_projections_by_branches(dictio)
         data = self.bs_plot_data(zero_to_efermi)
-        ax = pretty_plot(12, 8)
-        e_min = -4
-        e_max = 4
-        if self._bs.is_metal():
-            e_min = -10
-            e_max = 10
+        e_min, e_max = (-10, 10) if self._bs.is_metal() else (-4, 4)
 
-        for el in dictio:
-            for idx, key in enumerate(dictio[el], 1):
-                ax = plt.subplot(fig_rows + fig_cols + idx)
+        fig, axs = plt.subplots(n_rows, n_cols, figsize=(12, 8), constrained_layout=True)
+
+        for col_idx, element in enumerate(dictio):
+            for row_idx in range(n_rows):
+                if n_cols == 1 and n_cols == 1:
+                    ax = axs
+                elif n_rows == 1:
+                    ax = axs[col_idx]
+                else:
+                    ax = axs[row_idx, col_idx]
+
+                # Skip empty orbitals
+                try:
+                    orbital = dictio[element][row_idx]
+                except IndexError:
+                    ax.set_visible(False)
+                    continue
+
                 self._make_ticks(ax)
-                for b in range(len(data["distances"])):
-                    for i in range(self._nb_bands):
+
+                # Set title (with orbital name as subscript)
+                ax.set_title(rf"${{\mathrm{{{element}}}}}_{{\mathrm{{{orbital}}}}}$", fontsize=18)
+
+                # Walk through high symmetry points of the band structure
+                # (Gamma->X, X->M, ...)
+                for k_path_idx in range(len(data["distances"])):
+                    for band_idx in range(self._nb_bands):
                         ax.plot(
-                            data["distances"][b],
-                            data["energy"][str(Spin.up)][b][i],
+                            data["distances"][k_path_idx],
+                            data["energy"][str(Spin.up)][k_path_idx][band_idx],
                             "b-",
                             linewidth=band_linewidth,
                         )
+                        for j in range(len(data["energy"][str(Spin.up)][k_path_idx][band_idx])):
+                            ax.plot(
+                                data["distances"][k_path_idx][j],
+                                data["energy"][str(Spin.up)][k_path_idx][band_idx][j],
+                                "bo",
+                                markersize=proj[k_path_idx][str(Spin.up)][band_idx][j][str(element)][orbital]
+                                * marker_size,
+                            )
+
+                        # Plot spin-down if spin polarized
                         if self._bs.is_spin_polarized:
                             ax.plot(
-                                data["distances"][b],
-                                data["energy"][str(Spin.down)][b][i],
+                                data["distances"][k_path_idx],
+                                data["energy"][str(Spin.down)][k_path_idx][band_idx],
                                 "r--",
                                 linewidth=band_linewidth,
                             )
-                            for j in range(len(data["energy"][str(Spin.up)][b][i])):
+                            for j in range(len(data["energy"][str(Spin.up)][k_path_idx][band_idx])):
                                 ax.plot(
-                                    data["distances"][b][j],
-                                    data["energy"][str(Spin.down)][b][i][j],
+                                    data["distances"][k_path_idx][j],
+                                    data["energy"][str(Spin.down)][k_path_idx][band_idx][j],
                                     "ro",
-                                    markersize=proj[b][str(Spin.down)][i][j][str(el)][key] * 15.0,
+                                    markersize=proj[k_path_idx][str(Spin.down)][band_idx][j][str(element)][orbital]
+                                    * marker_size,
                                 )
-                        for j in range(len(data["energy"][str(Spin.up)][b][i])):
-                            ax.plot(
-                                data["distances"][b][j],
-                                data["energy"][str(Spin.up)][b][i][j],
-                                "bo",
-                                markersize=proj[b][str(Spin.up)][i][j][str(el)][key] * 15.0,
-                            )
+
+                # Set x range
+                ax.set_xlim(np.min(data["distances"]), np.max(data["distances"]))
+
+                # Set y range
                 if ylim is None:
                     if self._bs.is_metal():
                         if zero_to_efermi:
@@ -1029,31 +1066,41 @@ class BSPlotterProjected(BSPlotter):
 
                         ax.set_ylim(data["vbm"][0][1] + e_min, data["cbm"][0][1] + e_max)
                 else:
-                    ax.set_ylim(ylim)
-                ax.set_title(f"{el} {key}")
-        return plt.gcf().axes
+                    ax.set_ylim(*ylim)
 
-    @no_type_check
-    def get_elt_projected_plots(self, zero_to_efermi: bool = True, ylim=None, vbm_cbm_marker: bool = False) -> plt.Axes:
-        """Method returning a plot composed of subplots along different elements.
+        return fig.axes
+
+    def get_elt_projected_plots(
+        self,
+        zero_to_efermi: bool = True,
+        ylim: tuple[float, float] | None = None,
+        vbm_cbm_marker: bool = False,
+        band_linewidth: float = 1.0,
+    ) -> plt.Axes:
+        """Generate a plot with subplots for different elements.
+
+        The blue and red colors are for spin up and spin down
+        The size of the dot in the plot corresponds to the value
+        for the specific point.
 
         Returns:
-            np.ndarray[plt.Axes]: 2x2 array of plt.Axes with different subfigures for each projection
-                The blue and red colors are for spin up and spin down
-                The bigger the red or blue dot in the band structure the higher
-                character for the corresponding element and orbital
+            np.ndarray[plt.Axes]: 2x2 array of plt.Axes with different
+                subplots for each projection.
         """
-        band_linewidth = 1.0
-        proj = self._get_projections_by_branches({e.symbol: ["s", "p", "d"] for e in self._bs.structure.elements})
+        if self._bs.structure is None:
+            raise RuntimeError("Band structure cannot be None.")
+        proj = self._get_projections_by_branches({el.symbol: ["s", "p", "d"] for el in self._bs.structure.elements})
+
         data = self.bs_plot_data(zero_to_efermi)
         _fig, axs = plt.subplots(2, 2, figsize=(12, 8))  # Adjust the layout as needed
-        ax = pretty_plot(12, 8, ax=axs[0][0])
-        e_min, e_max = -4, 4
-        if self._bs.is_metal():
-            e_min, e_max = -10, 10
-        for idx, el in enumerate(self._bs.structure.elements, start=1):
-            ax = plt.subplot(220 + idx)
+        e_min, e_max = (-10, 10) if self._bs.is_metal() else (-4, 4)
+
+        for idx, el in enumerate(self._bs.structure.elements):
+            ax = pretty_plot(12, 8, ax=axs.flat[idx])
+
             self._make_ticks(ax)
+            ax.set_title(str(el))
+
             for b in range(len(data["distances"])):
                 for band_idx in range(self._nb_bands):
                     ax.plot(
@@ -1099,6 +1146,8 @@ class BSPlotterProjected(BSPlotter):
                             markersize=markerscale * 15.0,
                             color=[markerscale, 0.3 * markerscale, 0.4 * markerscale],
                         )
+
+            # Set ylim
             if ylim is None:
                 if self._bs.is_metal():
                     if zero_to_efermi:
@@ -1116,31 +1165,40 @@ class BSPlotterProjected(BSPlotter):
                     ax.set_ylim(data["vbm"][0][1] + e_min, data["cbm"][0][1] + e_max)
             else:
                 ax.set_ylim(ylim)
-            ax.set_title(str(el))
 
         return axs
 
-    def get_elt_projected_plots_color(self, zero_to_efermi=True, elt_ordered=None):
-        """Returns a pyplot plot object with one plot where the band structure
-        line color depends on the character of the band (along different
-        elements). Each element is associated with red, green or blue
-        and the corresponding rgb color depending on the character of the band
-        is used. The method can only deal with binary and ternary compounds.
+    def get_elt_projected_plots_color(
+        self,
+        zero_to_efermi: bool = True,
+        elt_ordered: list | None = None,
+        band_linewidth: float = 3,
+    ) -> plt.Axes:
+        """Generate a pyplot plot where the band structure
+        line color depends on the element of the band. where each
+        element is associated with red, green or blue.
+
+        The method can only deal with binary and ternary compounds.
 
         Spin up and spin down are differentiated by a '-' and a '--' line.
 
         Args:
-            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
-                Defaults to True.
-            elt_ordered: A list of Element ordered. The first one is red, second green, last blue.
+            zero_to_efermi: set the Fermi level as the plot's origin
+                (i.e. subtract E_f). Defaults to True.
+            elt_ordered: A list of ordered Elements.
+                The first one is red, second green, last blue.
+            band_linewidth (float): width of the line.
 
         Raises:
+            RuntimeError: if the band structure is None.
             ValueError: if the number of elements is not 2 or 3.
 
         Returns:
             a pyplot object
         """
-        band_linewidth = 3
+        if self._bs.structure is None:
+            raise RuntimeError("Band structure cannot be None.")
+
         n_elems = len(self._bs.structure.elements)
         if n_elems > 3:
             raise ValueError(f"Can only plot binary and ternary compounds, got {n_elems} elements")
@@ -1179,9 +1237,9 @@ class BSPlotterProjected(BSPlotter):
                             color.append(0.0)
                             color[2] = color[1]
                             color[1] = 0.0
-                        sign = "-"
-                        if spin == Spin.down:
-                            sign = "--"
+
+                        sign = "--" if spin == Spin.down else "-"
+
                         ax.plot(
                             [data["distances"][b][j], data["distances"][b][j + 1]],
                             [data["energy"][str(spin)][b][band_idx][j], data["energy"][str(spin)][b][band_idx][j + 1]],
@@ -1280,7 +1338,7 @@ class BSPlotterProjected(BSPlotter):
                                     edict[f"{elt}{anum}"][morb] = proj[Spin.up][band_idx][j][setos[morb]][anum - 1]
                         proj_br[-1][str(Spin.down)][band_idx].append(edict)
 
-        # Adjusting  projections for plot
+        # Adjust projections for plot
         dictio_d, dictpa_d = self._summarize_keys_for_plot(dictio, dictpa, sum_atoms, sum_morbs)
 
         if (sum_atoms is None) and (sum_morbs is None):
@@ -1506,12 +1564,11 @@ class BSPlotterProjected(BSPlotter):
         w_h_size=(12, 8),
         num_column=None,
     ):
-        """Method returns a plot composed of subplots for different atoms and
-        orbitals (subshell orbitals such as 's', 'p', 'd' and 'f' defined by
-        azimuthal quantum numbers l = 0, 1, 2 and 3, respectively or
-        individual orbitals like 'px', 'py' and 'pz' defined by magnetic
-        quantum numbers m = -1, 1 and 0, respectively).
-        This is an extension of "get_projected_plots_dots" method.
+        """Return a plot composed of subplots for different atoms and orbitals (subshell
+        orbitals such as 's', 'p', 'd' and 'f' defined by azimuthal quantum numbers l = 0,
+        1, 2 and 3, respectively or individual orbitals like 'px', 'py' and 'pz' defined
+        by magnetic quantum numbers m = -1, 1 and 0, respectively). This is an extension
+        of "get_projected_plots_dots" method.
 
         Args:
             dictio: The elements and the orbitals you need to project on. The
@@ -1539,7 +1596,7 @@ class BSPlotterProjected(BSPlotter):
                 for instance: {'Cu': ['dxy', 'dxz'], 'O': ['px', 'py']} means summing projections
                 over 'dxy' and 'dxz' of Cu and 'px' and 'py' of O. If you do not want to use this
                 functional, just turn it off by setting sum_morbs = None.
-            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E - E_f).
+            zero_to_efermi: Automatically set the Fermi level as the plot's origin (i.e. subtract E_f).
                 Defaults to True.
             ylim: The y-axis limit. Defaults to None.
             vbm_cbm_marker: Whether to plot points to indicate valence band maxima and conduction
@@ -2732,7 +2789,7 @@ class BSDOSPlotter:
 
 class BoltztrapPlotter:
     # TODO: We need a unittest for this. Come on folks.
-    """class containing methods to plot the data from Boltztrap."""
+    """Plot Boltztrap data."""
 
     def __init__(self, bz) -> None:
         """
@@ -3608,9 +3665,8 @@ class BoltztrapPlotter:
 
 
 class CohpPlotter:
-    """Class for plotting crystal orbital Hamilton populations (COHPs) or
-    crystal orbital overlap populations (COOPs). It is modeled after the
-    DosPlotter object.
+    """Plot crystal orbital Hamilton populations (COHPs) or crystal orbital overlap
+    populations (COOPs). It is modeled after the DosPlotter object.
     """
 
     def __init__(self, zero_at_efermi=True, are_coops=False, are_cobis=False) -> None:
@@ -3660,7 +3716,7 @@ class CohpPlotter:
             self.add_cohp(label, cohp_dict[label])
 
     def get_cohp_dict(self):
-        """Returns the added COHPs as a json-serializable dict. Note that if you
+        """Get the added COHPs as a json-serializable dict. Note that if you
         have specified smearing for the COHP plot, the populations returned
         will be the smeared and not the original populations.
 
@@ -3920,7 +3976,7 @@ def plot_fermi_surface(
     if transparency_factor is None:
         transparency_factor = [1] * n_surfaces
 
-    fig = mlab_figure if mlab_figure else None
+    fig = mlab_figure or None
 
     if kpoints_dict is None:
         kpoints_dict = {}

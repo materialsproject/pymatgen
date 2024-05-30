@@ -111,11 +111,11 @@ def main():
     del lines[start + 1 : stop]
 
     # [2] write new py module
-    with open(xc_funcpy_path, mode="w") as file:
+    with open(xc_funcpy_path, mode="w", encoding="utf-8") as file:
         file.writelines(lines)
 
     print("Files have been regenerated")
-    print("Remember to update libxc_version in libxcfuncs.py!")
+    print("Remember to update __version__ in libxcfuncs.py!")
 
     return 0
 

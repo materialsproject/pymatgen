@@ -19,12 +19,14 @@ from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
     import matplotlib.pyplot as plt
 
 __author__ = "Kiran Mathew, gmatteo"
 __credits__ = "Cormac Toher"
 
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 
 
 class EOSBase(ABC):
@@ -125,7 +127,7 @@ class EOSBase(ABC):
 
     @property
     def e0(self) -> float:
-        """Returns the min energy."""
+        """The min energy."""
         return self._params[0]
 
     @property
@@ -140,12 +142,12 @@ class EOSBase(ABC):
 
     @property
     def b1(self):
-        """Returns the derivative of bulk modulus w.r.t. pressure(dimensionless)."""
+        """The derivative of bulk modulus w.r.t. pressure(dimensionless)."""
         return self._params[2]
 
     @property
     def v0(self):
-        """Returns the minimum or the reference volume in Ang^3."""
+        """The minimum or the reference volume in Ang^3."""
         return self._params[3]
 
     @property
@@ -532,7 +534,7 @@ class EOS:
        eos_fit.plot()
     """
 
-    MODELS = dict(
+    MODELS: ClassVar = dict(
         murnaghan=Murnaghan,
         birch=Birch,
         birch_murnaghan=BirchMurnaghan,

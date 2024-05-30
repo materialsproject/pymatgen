@@ -429,7 +429,7 @@ class AdsorbateSiteFinder:
         reorient=True,
         find_args=None,
     ):
-        """Function that generates all adsorption structures for a given
+        """Generate all adsorption structures for a given
         molecular adsorbate. Can take repeat argument or minimum length/width
         of precursor slab as an input.
 
@@ -473,7 +473,7 @@ class AdsorbateSiteFinder:
         reorient=True,
         find_args=None,
     ):
-        """Function that generates all adsorption structures for a given
+        """Generate all adsorption structures for a given
         molecular adsorbate on both surfaces of a slab. This is useful for
         calculating surface energy where both surfaces need to be equivalent or
         if we want to calculate nonpolar systems.
@@ -535,7 +535,7 @@ class AdsorbateSiteFinder:
         range_tol=1e-2,
         dist_from_surf=0,
     ):
-        """Function that performs substitution-type doping on the surface and
+        """Perform substitution-type doping on the surface and
         returns all possible configurations where one dopant is substituted per
         surface. Can substitute one surface or both.
 
@@ -644,8 +644,7 @@ def plot_slab(
     adsorption_sites=True,
     inverse=False,
 ):
-    """Function that helps visualize the slab in a 2-D plot, for convenient
-    viewing of output of AdsorbateSiteFinder.
+    """Help visualize the slab in a 2-D plot, for convenient viewing of output of AdsorbateSiteFinder.
 
     Args:
         slab (slab): Slab object to be visualized

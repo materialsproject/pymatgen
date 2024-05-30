@@ -70,13 +70,8 @@ class RotationTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Returns inverse Transformation."""
+        """Inverse Transformation."""
         return RotationTransformation(self.axis, -self.angle, self.angle_in_radians)
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns: False."""
-        return False
 
 
 class OxidationStateDecorationTransformation(AbstractTransformation):
@@ -102,16 +97,6 @@ class OxidationStateDecorationTransformation(AbstractTransformation):
         struct = structure.copy()
         struct.add_oxidation_state_by_element(self.oxidation_states)
         return struct
-
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns: False."""
-        return False
 
 
 class AutoOxiStateDecorationTransformation(AbstractTransformation):
@@ -157,16 +142,6 @@ class AutoOxiStateDecorationTransformation(AbstractTransformation):
         """
         return self.analyzer.get_oxi_state_decorated_structure(structure)
 
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns: False."""
-        return False
-
 
 class OxidationStateRemovalTransformation(AbstractTransformation):
     """This transformation removes oxidation states from a structure."""
@@ -184,16 +159,6 @@ class OxidationStateRemovalTransformation(AbstractTransformation):
             Non-oxidation state decorated Structure.
         """
         return structure.copy().remove_oxidation_states()
-
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns: False."""
-        return False
 
 
 class SupercellTransformation(AbstractTransformation):
@@ -295,11 +260,6 @@ class SupercellTransformation(AbstractTransformation):
         """Raises: NotImplementedError."""
         raise NotImplementedError
 
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns: False."""
-        return False
-
 
 class SubstitutionTransformation(AbstractTransformation):
     """This transformation substitutes species for one another."""
@@ -345,14 +305,9 @@ class SubstitutionTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Returns inverse Transformation."""
+        """Inverse Transformation."""
         inverse_map = {v: k for k, v in self._species_map.items()}
         return SubstitutionTransformation(inverse_map)
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns: False."""
-        return False
 
 
 class RemoveSpeciesTransformation(AbstractTransformation):
@@ -381,16 +336,6 @@ class RemoveSpeciesTransformation(AbstractTransformation):
 
     def __repr__(self):
         return "Remove Species Transformation :" + ", ".join(self.species_to_remove)
-
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns: False."""
-        return False
 
 
 class PartialRemoveSpecieTransformation(AbstractTransformation):
@@ -451,7 +396,7 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
 
     @property
     def is_one_to_many(self) -> bool:
-        """Returns: True."""
+        """Transform one structure to many."""
         return True
 
     def __repr__(self):
@@ -459,11 +404,6 @@ class PartialRemoveSpecieTransformation(AbstractTransformation):
         fraction_to_remove = self.fraction_to_remove
         algo = self.algo
         return f"PartialRemoveSpecieTransformation({species=}, {fraction_to_remove=}, {algo=})"
-
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
 
 
 class OrderDisorderedStructureTransformation(AbstractTransformation):
@@ -640,13 +580,8 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         return "Order disordered structure transformation"
 
     @property
-    def inverse(self):
-        """Returns: None."""
-        return
-
-    @property
     def is_one_to_many(self) -> bool:
-        """Returns: True."""
+        """Transform one structure to many."""
         return True
 
     @property
@@ -672,7 +607,7 @@ class PrimitiveCellTransformation(AbstractTransformation):
         self.tolerance = tolerance
 
     def apply_transformation(self, structure):
-        """Returns most primitive cell for structure.
+        """Get most primitive cell for structure.
 
         Args:
             structure: A structure
@@ -685,16 +620,6 @@ class PrimitiveCellTransformation(AbstractTransformation):
 
     def __repr__(self):
         return "Primitive cell transformation"
-
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns: False."""
-        return False
 
 
 class ConventionalCellTransformation(AbstractTransformation):
@@ -713,7 +638,7 @@ class ConventionalCellTransformation(AbstractTransformation):
         self.international_monoclinic = international_monoclinic
 
     def apply_transformation(self, structure):
-        """Returns most primitive cell for structure.
+        """Get most primitive cell for structure.
 
         Args:
             structure: A structure
@@ -726,16 +651,6 @@ class ConventionalCellTransformation(AbstractTransformation):
 
     def __repr__(self):
         return "Conventional cell transformation"
-
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns: False."""
-        return False
 
 
 class PerturbStructureTransformation(AbstractTransformation):
@@ -776,16 +691,6 @@ class PerturbStructureTransformation(AbstractTransformation):
     def __repr__(self):
         return f"PerturbStructureTransformation : Min_distance = {self.min_distance}"
 
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns: False."""
-        return False
-
 
 class DeformStructureTransformation(AbstractTransformation):
     """This transformation deforms a structure by a deformation gradient matrix."""
@@ -814,13 +719,8 @@ class DeformStructureTransformation(AbstractTransformation):
 
     @property
     def inverse(self):
-        """Returns inverse Transformation."""
+        """Inverse Transformation."""
         return DeformStructureTransformation(self._deform.inv)
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns: False."""
-        return False
 
 
 class DiscretizeOccupanciesTransformation(AbstractTransformation):
@@ -878,16 +778,6 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
     def __repr__(self):
         return "DiscretizeOccupanciesTransformation"
 
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns: False."""
-        return False
-
 
 class ChargedCellTransformation(AbstractTransformation):
     """The ChargedCellTransformation applies a charge to a structure (or defect
@@ -922,11 +812,6 @@ class ChargedCellTransformation(AbstractTransformation):
     def inverse(self):
         """Raises: NotImplementedError."""
         raise NotImplementedError
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns: False."""
-        return False
 
 
 class ScaleToRelaxedTransformation(AbstractTransformation):
@@ -965,7 +850,7 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
         self.species_map = species_map
 
     def apply_transformation(self, structure):
-        """Returns a copy of structure with lattice parameters
+        """Get a copy of structure with lattice parameters
         and sites scaled to the same degree as the relaxed_structure.
 
         Args:
@@ -992,13 +877,3 @@ class ScaleToRelaxedTransformation(AbstractTransformation):
 
     def __repr__(self):
         return "ScaleToRelaxedTransformation"
-
-    @property
-    def inverse(self):
-        """Returns: None."""
-        return
-
-    @property
-    def is_one_to_many(self) -> bool:
-        """Returns: False."""
-        return False

@@ -42,14 +42,14 @@ class XYZ:
 
     @property
     def molecule(self) -> Molecule:
-        """Get molecule associated with this XYZ. In case of multi-frame
+        """Molecule associated with this XYZ. In case of multi-frame
         XYZ, returns the last frame.
         """
         return self._mols[-1]  # type: ignore[return-value]
 
     @property
     def all_molecules(self) -> list[Molecule]:
-        """Returns all the frames of molecule associated with this XYZ."""
+        """All the frames of molecule associated with this XYZ."""
         return self._mols  # type: ignore[return-value]
 
     @staticmethod
@@ -118,9 +118,9 @@ class XYZ:
             pandas.DataFrame
         """
         lines = str(self)
-        sio = StringIO(lines)
+        str_io = StringIO(lines)
         df_xyz = pd.read_csv(
-            sio, header=None, skiprows=(0, 1), comment="#", delim_whitespace=True, names=("atom", "x", "y", "z")
+            str_io, header=None, skiprows=(0, 1), comment="#", sep=r"\s+", names=("atom", "x", "y", "z")
         )
         df_xyz.index += 1
         return df_xyz

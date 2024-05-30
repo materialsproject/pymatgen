@@ -49,6 +49,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
     from typing_extensions import Self
 
 __author__ = "David Waroquiers"
@@ -73,7 +75,7 @@ due.cite(
 
 
 class AbstractGeometry:
-    """Class used to describe a geometry (perfect or distorted)."""
+    """Describe a geometry (perfect or distorted)."""
 
     def __init__(
         self,
@@ -216,7 +218,7 @@ class AbstractGeometry:
         """
         if permutation is None:
             return self._points_wcs_csc
-        return np.concatenate((self._points_wcs_csc[0:1], self._points_wocs_csc.take(permutation, axis=0)))
+        return np.concatenate((self._points_wcs_csc[:1], self._points_wocs_csc.take(permutation, axis=0)))
 
     def points_wocs_csc(self, permutation=None):
         """
@@ -236,7 +238,7 @@ class AbstractGeometry:
             return self._points_wcs_ctwcc
         return np.concatenate(
             (
-                self._points_wcs_ctwcc[0:1],
+                self._points_wcs_ctwcc[:1],
                 self._points_wocs_ctwcc.take(permutation, axis=0),
             )
         )
@@ -259,7 +261,7 @@ class AbstractGeometry:
             return self._points_wcs_ctwocc
         return np.concatenate(
             (
-                self._points_wcs_ctwocc[0:1],
+                self._points_wcs_ctwocc[:1],
                 self._points_wocs_ctwocc.take(permutation, axis=0),
             )
         )
@@ -362,19 +364,19 @@ class LocalGeometryFinder:
     """Main class used to find the local environments in a structure."""
 
     DEFAULT_BVA_DISTANCE_SCALE_FACTOR = 1.0
-    BVA_DISTANCE_SCALE_FACTORS = dict(
+    BVA_DISTANCE_SCALE_FACTORS: ClassVar = dict(
         experimental=1.0,
         GGA_relaxed=1.015,
         LDA_relaxed=0.995,
     )
-    DEFAULT_SPG_ANALYZER_OPTIONS = dict(symprec=1e-3, angle_tolerance=5)
+    DEFAULT_SPG_ANALYZER_OPTIONS: ClassVar = dict(symprec=1e-3, angle_tolerance=5)
     STRUCTURE_REFINEMENT_NONE = "none"
     STRUCTURE_REFINEMENT_REFINED = "refined"
     STRUCTURE_REFINEMENT_SYMMETRIZED = "symmetrized"
 
     DEFAULT_STRATEGY = MultiWeightsChemenvStrategy.stats_article_weights_parameters()
 
-    PRESETS = {
+    PRESETS: ClassVar = {
         "DEFAULT": {
             "maximum_distance_factor": 2.0,
             "minimum_angle_factor": 0.05,
@@ -577,9 +579,8 @@ class LocalGeometryFinder:
         recompute=None,
         optimization=PRESETS["DEFAULT"]["optimization"],
     ):
-        """
-        Computes and returns the StructureEnvironments object containing all the information about the coordination
-        environments in the structure
+        """Compute and returns the StructureEnvironments object containing all the information
+        about the coordination environments in the structure
 
         Args:
             excluded_atoms: Atoms for which the coordination geometries does not have to be identified
@@ -1337,7 +1338,7 @@ class LocalGeometryFinder:
         points_perfect=None,
         optimization=None,
     ):
-        """Returns the symmetry measures of a given coordination_geometry for a set of
+        """Get the symmetry measures of a given coordination_geometry for a set of
         permutations depending on the permutation setup. Depending on the parameters of
         the LocalGeometryFinder and on the coordination geometry, different methods are called.
 
@@ -1386,7 +1387,7 @@ class LocalGeometryFinder:
     def coordination_geometry_symmetry_measures_sepplane_optim(
         self, coordination_geometry, points_perfect=None, nb_set=None, optimization=None
     ):
-        """Returns the symmetry measures of a given coordination_geometry for a set of
+        """Get the symmetry measures of a given coordination_geometry for a set of
         permutations depending on the permutation setup. Depending on the parameters of
         the LocalGeometryFinder and on the coordination geometry, different methods are called.
 

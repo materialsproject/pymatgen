@@ -5,7 +5,7 @@ from __future__ import annotations
 import gzip
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 
@@ -15,6 +15,7 @@ from pymatgen.core.tensors import Tensor
 if TYPE_CHECKING:
     from collections.abc import Generator, Sequence
     from io import TextIOWrapper
+    from typing import Any
 
     from pymatgen.util.typing import Matrix3D, Vector3D
 
@@ -201,7 +202,7 @@ class AimsOutHeaderChunk(AimsOutChunk):
 
     @property
     def linked_against(self) -> list[str]:
-        """Get all libraries used to link the FHI-aims executable."""
+        """All libraries used to link the FHI-aims executable."""
         line_start = self.reverse_search_for(["Linking against:"])
         if line_start == LINE_NOT_FOUND:
             return []
@@ -488,7 +489,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         """
         species, coords, velocities, lattice = self._parse_lattice_atom_pos()
 
-        site_properties: dict[str, Sequence[Any]] = dict()
+        site_properties: dict[str, Sequence[Any]] = {}
         if len(velocities) > 0:
             site_properties["velocity"] = np.array(velocities)
 

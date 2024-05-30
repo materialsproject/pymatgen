@@ -9,7 +9,7 @@ import os
 import re
 import struct
 import warnings
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import networkx as nx
 import numpy as np
@@ -34,6 +34,8 @@ except ImportError:
     openbabel = None
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from numpy.typing import NDArray
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
@@ -47,7 +49,7 @@ logger = logging.getLogger(__name__)
 
 
 class QCOutput(MSONable):
-    """Class to parse QChem output files."""
+    """Parse QChem output files."""
 
     def __init__(self, filename: str):
         """
@@ -220,7 +222,7 @@ class QCOutput(MSONable):
         else:
             self.data["gap_info"] = None
 
-        # Check to see if PCM or SMD are present
+        # Check if PCM or SMD are present
         self.data["solvent_method"] = self.data["solvent_data"] = None
 
         if read_pattern(self.text, {"key": r"solvent_method\s*=?\s*pcm"}, terminate_on_match=True).get("key") == [[]]:
@@ -977,7 +979,7 @@ class QCOutput(MSONable):
                         dipole[ii][jj] = temp_dipole[ii][jj]
                 self.data["dipoles"]["dipole"] = dipole
 
-        self.data["multipoles"] = dict()
+        self.data["multipoles"] = {}
 
         quad_mom_pat = (
             r"\s*Quadrupole Moments \(Debye\-Ang\)\s+XX\s+([\-\.0-9]+)\s+XY\s+([\-\.0-9]+)\s+YY"
@@ -991,7 +993,7 @@ class QCOutput(MSONable):
                     key: float(temp_quadrupole_moment[0][idx]) for idx, key in enumerate(keys)
                 }
             else:
-                self.data["multipoles"]["quadrupole"] = list()
+                self.data["multipoles"]["quadrupole"] = []
                 for qpole in temp_quadrupole_moment:
                     self.data["multipoles"]["quadrupole"].append(
                         {key: float(qpole[idx]) for idx, key in enumerate(keys)}
@@ -1010,7 +1012,7 @@ class QCOutput(MSONable):
                     key: float(temp_octopole_moment[0][idx]) for idx, key in enumerate(keys)
                 }
             else:
-                self.data["multipoles"]["octopole"] = list()
+                self.data["multipoles"]["octopole"] = []
                 for opole in temp_octopole_moment:
                     self.data["multipoles"]["octopole"].append({key: float(opole[idx]) for idx, key in enumerate(keys)})
 
@@ -1023,30 +1025,14 @@ class QCOutput(MSONable):
         )
         temp_hexadecapole_moment = read_pattern(self.text, {"key": hexadeca_mom_pat}).get("key")
         if temp_hexadecapole_moment is not None:
-            keys = (
-                "XXXX",
-                "XXXY",
-                "XXYY",
-                "XYYY",
-                "YYYY",
-                "XXXZ",
-                "XXYZ",
-                "XYYZ",
-                "YYYZ",
-                "XXZZ",
-                "XYZZ",
-                "YYZZ",
-                "XZZZ",
-                "YZZZ",
-                "ZZZZ",
-            )
+            keys = "XXXX XXXY XXYY XYYY YYYY XXXZ XXYZ XYYZ YYYZ XXZZ XYZZ YYZZ XZZZ YZZZ ZZZZ".split()
 
             if len(temp_hexadecapole_moment) == 1:
                 self.data["multipoles"]["hexadecapole"] = {
                     key: float(temp_hexadecapole_moment[0][idx]) for idx, key in enumerate(keys)
                 }
             else:
-                self.data["multipoles"]["hexadecapole"] = list()
+                self.data["multipoles"]["hexadecapole"] = []
                 for hpole in temp_hexadecapole_moment:
                     self.data["multipoles"]["hexadecapole"].append(
                         {key: float(hpole[idx]) for idx, key in enumerate(keys)}
@@ -1446,7 +1432,7 @@ class QCOutput(MSONable):
                     self.data["molecule_from_last_geometry"],
                 )
             # Then, if no optimized geometry or z-matrix is found, and no errors have been previously
-            # identified, check to see if the optimization failed to converge or if Lambda wasn't able
+            # identified, check if the optimization failed to converge or if Lambda wasn't able
             # to be determined or if a back transform error was encountered.
             if (
                 len(self.data.get("errors")) == 0
@@ -2166,10 +2152,7 @@ class QCOutput(MSONable):
             self.data["errors"] += ["unknown_error"]
 
     def as_dict(self):
-        """
-        Returns:
-            MSONable dict.
-        """
+        """Get MSONable dict representation of QCOutput."""
         dct = {}
         dct["data"] = self.data
         dct["text"] = self.text
@@ -2254,7 +2237,7 @@ def jump_to_header(lines: list[str], header: str) -> list[str]:
         Truncated lines.
 
     Raises:
-        RuntimeError
+        RuntimeError: If the header is not found.
     """
     # Search for the header
     for idx, line in enumerate(lines):
@@ -2322,7 +2305,7 @@ def parse_natural_populations(lines: list[str]) -> list[pd.DataFrame]:
         Data frame of formatted output.
 
     Raises:
-        RuntimeError
+        RuntimeError: If the header is not found.
     """
     no_failures = True
     pop_dfs = []
@@ -2382,7 +2365,7 @@ def parse_hyperbonds(lines: list[str]) -> list[pd.DataFrame]:
         Data frame of formatted output.
 
     Raises:
-        RuntimeError
+        RuntimeError: If the header is not found.
     """
     no_failures = True
     hyperbond_dfs = []
@@ -2428,7 +2411,7 @@ def parse_hyperbonds(lines: list[str]) -> list[pd.DataFrame]:
 
                 # Extract the values
                 entry: dict[str, str | float] = {}
-                entry["hyperbond index"] = int(line[0:4].strip())
+                entry["hyperbond index"] = int(line[:4].strip())
                 entry["bond atom 1 symbol"] = str(line[5:8].strip())
                 entry["bond atom 1 index"] = int(line[8:11].strip())
                 entry["bond atom 2 symbol"] = str(line[13:15].strip())
@@ -2463,7 +2446,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
         Data frames of formatted output.
 
     Raises:
-        RuntimeError
+        RuntimeError: If the header is not found.
     """
     # Orbitals
     orbitals = ["s", "p", "d", "f"]
@@ -2511,7 +2494,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
                 # Lone pair
                 if "LP" in line or "LV" in line:
                     LPentry: dict[str, str | float] = dict.fromkeys(orbitals, 0.0)
-                    LPentry["bond index"] = line[0:4].strip()
+                    LPentry["bond index"] = line[:4].strip()
                     LPentry["occupancy"] = line[7:14].strip()
                     LPentry["type"] = line[16:19].strip()
                     LPentry["orbital index"] = line[20:22].strip()
@@ -2540,7 +2523,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
                     BDentry: dict[str, str | float] = {
                         f"atom {i} {orbital}": 0.0 for orbital in orbitals for i in range(1, 3)
                     }
-                    BDentry["bond index"] = line[0:4].strip()
+                    BDentry["bond index"] = line[:4].strip()
                     BDentry["occupancy"] = line[7:14].strip()
                     BDentry["type"] = line[16:19].strip()
                     BDentry["orbital index"] = line[20:22].strip()
@@ -2600,7 +2583,7 @@ def parse_hybridization_character(lines: list[str]) -> list[pd.DataFrame]:
                     TCentry: dict[str, str | float] = {
                         f"atom {i} {orbital}": 0.0 for orbital in orbitals for i in range(1, 4)
                     }
-                    TCentry["bond index"] = line[0:4].strip()
+                    TCentry["bond index"] = line[:4].strip()
                     TCentry["occupancy"] = line[7:14].strip()
                     TCentry["type"] = line[16:19].strip()
                     TCentry["orbital index"] = line[20:22].strip()
@@ -2696,7 +2679,7 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
         Data frame of formatted output.
 
     Raises:
-        RuntimeError
+        RuntimeError: If the header is not found.
     """
     no_failures = True
     e2_dfs = []
@@ -2744,7 +2727,7 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                     second_3C = True
 
                 if line[4] == ".":
-                    entry["donor bond index"] = int(line[0:4].strip())
+                    entry["donor bond index"] = int(line[:4].strip())
                     entry["donor type"] = str(line[5:9].strip())
                     entry["donor orbital index"] = int(line[10:12].strip())
                     entry["donor atom 1 symbol"] = str(line[13:15].strip())
@@ -2762,7 +2745,7 @@ def parse_perturbation_energy(lines: list[str]) -> list[pd.DataFrame]:
                     entry["energy difference"] = float(line[62:70].strip())
                     entry["fock matrix element"] = float(line[70:79].strip())
                 elif line[5] == ".":
-                    entry["donor bond index"] = int(line[0:5].strip())
+                    entry["donor bond index"] = int(line[:5].strip())
                     entry["donor type"] = str(line[6:10].strip())
                     entry["donor orbital index"] = int(line[11:13].strip())
 
@@ -2845,7 +2828,7 @@ def nbo_parser(filename: str) -> dict[str, list[pd.DataFrame]]:
         Data frames of formatted output.
 
     Raises:
-        RuntimeError
+        RuntimeError: If a section cannot be found.
     """
     # Open the lines
     with zopen(filename, mode="rt", encoding="ISO-8859-1") as file:

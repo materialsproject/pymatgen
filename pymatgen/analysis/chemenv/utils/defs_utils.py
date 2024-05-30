@@ -8,6 +8,8 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import is_anion
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
     from pymatgen.core import Structure
 
 
@@ -42,7 +44,7 @@ due.cite(
 
 
 class AdditionalConditions:
-    """Class for additional conditions."""
+    """Additional conditions that can be used to filter coordination environments."""
 
     NO_ADDITIONAL_CONDITION = 0
     ONLY_ANION_CATION_BONDS = 1
@@ -57,7 +59,7 @@ class AdditionalConditions:
     ONLY_ACB_AND_NO_E2SEB = ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS
     ONLY_E2OB = ONLY_ELEMENT_TO_OXYGEN_BONDS
     # Dictionary mapping of integer for the condition and its "description"
-    CONDITION_DESCRIPTION = {
+    CONDITION_DESCRIPTION: ClassVar = {
         NO_ADDITIONAL_CONDITION: "No additional condition",
         ONLY_ANION_CATION_BONDS: "Only anion-cation bonds",
         NO_ELEMENT_TO_SAME_ELEMENT_BONDS: "No element-element bonds (same elements)",

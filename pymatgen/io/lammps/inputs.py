@@ -59,7 +59,7 @@ class LammpsInputFile(InputFile):
     ```
     stages = [
         {"stage_name": "Stage 1", "commands": [(cmd1, args1), (cmd2, args2)]},
-        {"stage_name": "Stage 2", "commands": [(cmd3, args3)]}
+        {"stage_name": "Stage 2", "commands": [(cmd3, args3)]},
     ]
     ```
     where cmd's are the LAMMPS command names (e.g., "units", or "pair_coeff")
@@ -89,12 +89,12 @@ class LammpsInputFile(InputFile):
 
     @property
     def nstages(self) -> int:
-        """Returns the number of stages in the current LammpsInputFile."""
+        """The number of stages in the current LammpsInputFile."""
         return len(self.stages)
 
     @property
     def ncomments(self) -> int:
-        """Get the number of comments in the current LammpsInputFile. Includes the blocks of comments as well
+        """The number of comments in the current LammpsInputFile. Includes the blocks of comments as well
         as inline comments (comment lines within blocks of LAMMPS commands).
         """
         n_comments = 0
@@ -206,7 +206,7 @@ class LammpsInputFile(InputFile):
             ```
             your_input_file.add_stage(
                 commands=["pair_coeff 1 1 morse 0.0580 3.987 3.404", "pair_coeff 1 4 morse 0.0408 1.399 3.204"],
-                stage_name="Definition of the force field"
+                stage_name="Definition of the force field",
             )
             ```
             or
@@ -216,7 +216,7 @@ class LammpsInputFile(InputFile):
                     "stage_name": "Definition of the force field",
                     "commands": [
                         ("pair_coeff", "1 1 morse 0.0580 3.987 3.404"),
-                        ("pair_coeff", "1 4 morse 0.0408 1.399 3.204")
+                        ("pair_coeff", "1 4 morse 0.0408 1.399 3.204"),
                     ],
                 }
             )
@@ -230,7 +230,7 @@ class LammpsInputFile(InputFile):
                 "min_style cg",
                 "fix 1 all box/relax iso 0.0 vmax 0.001",
                 "minimize 1.0e-16 1.0e-16 5000 10000",
-                "write_data run.data"
+                "write_data run.data",
             ]
             ```
             or a dictionary such as `{"thermo": 1, ...}`, or a string with a single command (e.g., "units atomic").
@@ -367,19 +367,18 @@ class LammpsInputFile(InputFile):
             to the stage "Definition of the potential", simply use
             ```
             your_input_file.add_commands(
-                stage_name="Definition of the potential",
-                commands="pair_coeff 1 1 morse 0.0580 3.987 3.404"
+                stage_name="Definition of the potential", commands="pair_coeff 1 1 morse 0.0580 3.987 3.404"
             )
             ```
             To add multiple commands, use a dict or a list, e.g.
             ```
             your_input_file.add_commands(
                 stage_name="Definition of the potential",
-                commands=["pair_coeff 1 1 morse 0.0580 3.987 3.404", "units atomic"]
+                commands=["pair_coeff 1 1 morse 0.0580 3.987 3.404", "units atomic"],
             )
             your_input_file.add_commands(
                 stage_name="Definition of the potential",
-                commands={"pair_coeff": "1 1 morse 0.0580 3.987 3.404", "units": "atomic"}
+                commands={"pair_coeff": "1 1 morse 0.0580 3.987 3.404", "units": "atomic"},
             )
             ```
 
@@ -694,16 +693,13 @@ class LammpsInputFile(InputFile):
             to the stage "Definition of the potential", simply use
             ```
             your_input_file._add_command(
-                stage_name="Definition of the potential",
-                command="pair_coeff 1 1 morse 0.0580 3.987 3.404"
+                stage_name="Definition of the potential", command="pair_coeff 1 1 morse 0.0580 3.987 3.404"
             )
             ```
             or
             ```
             your_input_file._add_command(
-                stage_name="Definition of the potential",
-                command="pair_coeff",
-                args="1 1 morse 0.0580 3.987 3.404"
+                stage_name="Definition of the potential", command="pair_coeff", args="1 1 morse 0.0580 3.987 3.404"
             )
             ```
 
@@ -928,8 +924,7 @@ class LammpsRun(MSONable):
 
 
 class LammpsTemplateGen(TemplateInputGen):
-    """
-    Creates an InputSet object for a LAMMPS run based on a template file.
+    """Create an InputSet object for a LAMMPS run based on a template file.
     The input script is constructed by substituting variables into placeholders
     in the template file using python's Template.safe_substitute() function.
     The data file containing coordinates and topology information can be provided
@@ -1027,10 +1022,9 @@ def write_lammps_inputs(
         ... timestep        0.005
         ...
         ... run             $nsteps'''
-        >>> write_lammps_inputs('.', eam_template, settings={'temperature': 1600.0, 'nsteps': 100})
-        >>> with open('in.lammps') as file:
+        >>> write_lammps_inputs(".", eam_template, settings={"temperature": 1600.0, "nsteps": 100})
+        >>> with open("in.lammps") as file:
         ...     script = file.read()
-        ...
         >>> print(script)
         units           metal
         atom_style      atomic
