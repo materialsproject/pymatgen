@@ -3828,13 +3828,13 @@ class Procar:
                 line = line.strip()
                 if band_expr.match(line):
                     match = band_expr.match(line)
-                    current_band = int(match[1]) - 1
+                    current_band = int(match[1]) - 1  # type: ignore[index]
                     done = False
 
                 elif kpoint_expr.match(line):
                     match = kpoint_expr.match(line)
-                    current_kpoint = int(match[1]) - 1
-                    weights[current_kpoint] = float(match[2])
+                    current_kpoint = int(match[1]) - 1  # type: ignore[index]
+                    weights[current_kpoint] = float(match[2])  # type: ignore[index]
                     if current_kpoint == 0:
                         spin = Spin.up if spin == Spin.down else Spin.down
                     done = False
@@ -3853,9 +3853,14 @@ class Procar:
                 elif expr.match(line):
                     tokens = line.split()
                     index = int(tokens.pop(0)) - 1
+                    assert headers is not None
                     num_data = np.array([float(t) for t in tokens[: len(headers)]])
+                    assert phase_factors is not None
+
                     if not done:
+                        assert data is not None
                         data[spin][current_kpoint, current_band, index, :] = num_data
+
                     elif len(tokens) > len(headers):
                         # New format of PROCAR (VASP 5.4.4)
                         num_data = np.array([float(t) for t in tokens[: 2 * len(headers)]])
@@ -3874,6 +3879,7 @@ class Procar:
 
                 elif preamble_expr.match(line):
                     match = preamble_expr.match(line)
+                    assert match is not None
                     n_kpoints = int(match[1])
                     n_bands = int(match[2])
                     n_ions = int(match[3])
@@ -3896,8 +3902,10 @@ class Procar:
         Returns:
             A dict as {Spin.up: [k index][b index][{Element: values}]].
         """
-        if self.data is None:
-            raise RuntimeError("Data cannot be None.")
+        assert self.data is not None, "Data cannot be None."
+        assert self.nkpoints is not None
+        assert self.nbands is not None
+        assert self.nions is not None
 
         dico: dict[Spin, list] = {}
         for spin in self.data:
@@ -3928,7 +3936,10 @@ class Procar:
         Returns:
             Sum occupation of orbital of atom.
         """
+        assert self.orbitals is not None
         orbital_index = self.orbitals.index(orbital)
+
+        assert self.data is not None
         return {
             spin: np.sum(data[:, :, atom_index, orbital_index] * self.weights[:, None])  # type: ignore[call-overload]
             for spin, data in self.data.items()
@@ -4159,11 +4170,13 @@ class Xdatcar:
                     coords_str = []
                 else:
                     coords_str.append(line)
+
+            assert preamble is not None
             poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
             if (
                 ionicstep_end is None
                 and ionicstep_cnt >= ionicstep_start
-                or ionicstep_start <= ionicstep_cnt < ionicstep_end
+                or ionicstep_start <= ionicstep_cnt < ionicstep_end  # type: ignore[operator]
             ):
                 structures.append(poscar.structure)
 
@@ -4244,12 +4257,14 @@ class Xdatcar:
                     coords_str = []
                 else:
                     coords_str.append(line)
+
+            assert preamble is not None
             poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
 
             if (
                 ionicstep_end is None
                 and ionicstep_cnt >= ionicstep_start
-                or ionicstep_start <= ionicstep_cnt < ionicstep_end
+                or ionicstep_start <= ionicstep_cnt < ionicstep_end  # type: ignore[operator]
             ):
                 structures.append(poscar.structure)
         self.structures = structures
@@ -4277,6 +4292,7 @@ class Xdatcar:
             lattice = Lattice(-lattice.matrix)
         lines = [self.comment, "1.0", str(lattice)]
         lines.extend((" ".join(self.site_symbols), " ".join(map(str, self.natoms))))
+
         format_str = f"{{:.{significant_figures}f}}"
         ionicstep_cnt = 1
         output_cnt = 1
@@ -4285,7 +4301,7 @@ class Xdatcar:
             if (
                 ionicstep_end is None
                 and ionicstep_cnt >= ionicstep_start
-                or ionicstep_start <= ionicstep_cnt < ionicstep_end
+                or ionicstep_start <= ionicstep_cnt < ionicstep_end  # type: ignore[operator]
             ):
                 lines.append(f"Direct configuration={' ' * (7 - len(str(output_cnt)))}{output_cnt}")
                 for site in structure:
@@ -4341,9 +4357,9 @@ class Dynmat:
                         self.data[atom][disp] = {}
                     self.data[atom][disp]["dispvec"] = v[2:]
                 else:
-                    if "dynmat" not in self.data[atom][disp]:
-                        self.data[atom][disp]["dynmat"] = []
-                    self.data[atom][disp]["dynmat"].append(v)
+                    if "dynmat" not in self.data[atom][disp]:  # type: ignore[index]
+                        self.data[atom][disp]["dynmat"] = []  # type: ignore[index]
+                    self.data[atom][disp]["dynmat"].append(v)  # type: ignore[index]
 
     def get_phonon_frequencies(self) -> list:
         """Calculate phonon frequencies.
@@ -4618,13 +4634,13 @@ class Wavecar:
                         self.Gpoints[i_nk], extra_gpoints, extra_coeff_inds = self._generate_G_points(  # type: ignore[call-overload]
                             kpoint, gamma=True
                         )
-                        if len(self.Gpoints[i_nk]) == nplane:
+                        if len(self.Gpoints[i_nk]) == nplane:  # type: ignore[arg-type]
                             self.vasp_type = "gam"
                         else:
                             self.Gpoints[i_nk], extra_gpoints, extra_coeff_inds = self._generate_G_points(  # type: ignore[call-overload]
                                 kpoint, gamma=False
                             )
-                            self.vasp_type = "std" if len(self.Gpoints[i_nk]) == nplane else "ncl"
+                            self.vasp_type = "std" if len(self.Gpoints[i_nk]) == nplane else "ncl"  # type: ignore[arg-type]
 
                         if verbose:
                             print(f"\ndetermined {self.vasp_type = }\n")
@@ -4633,13 +4649,13 @@ class Wavecar:
                             kpoint, gamma=self.vasp_type.lower()[0] == "g"
                         )
 
-                    if len(self.Gpoints[i_nk]) != nplane and 2 * len(self.Gpoints[i_nk]) != nplane:
+                    if len(self.Gpoints[i_nk]) != nplane and 2 * len(self.Gpoints[i_nk]) != nplane:  # type: ignore[arg-type]
                         raise ValueError(
                             f"Incorrect {vasp_type=}. Please open an issue if you are certain this WAVECAR"
                             " was generated with the given vasp_type."
                         )
 
-                    self.Gpoints[i_nk] = np.array(self.Gpoints[i_nk] + extra_gpoints, dtype=np.float64)
+                    self.Gpoints[i_nk] = np.array(self.Gpoints[i_nk] + extra_gpoints, dtype=np.float64)  # type: ignore[arg-type, operator]
 
                     # Extract coefficients
                     for inb in range(self.nb):
