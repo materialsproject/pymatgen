@@ -1411,7 +1411,7 @@ class Vasprun(MSONable):
         return [parse_atomic_symbol(sym) for sym in atomic_symbols], potcar_symbols
 
     @staticmethod
-    def _parse_kpoints(elem: XML_Element) -> tuple[Kpoints, list[list[float]], list[float]]:
+    def _parse_kpoints(elem: XML_Element) -> tuple[Kpoints, list[tuple[float, float, float]], list[float]]:
         """Parse Kpoints."""
         e = elem if elem.find("generation") is None else elem.find("generation")
         kpoint = Kpoints("Kpoints from vasprun.xml")
@@ -1422,7 +1422,9 @@ class Vasprun(MSONable):
             tokens = v.text.split()  # type: ignore[union-attr]
 
             if name == "divisions":
-                kpoint.kpts = cast(tuple[int, int, int], tuple(int(i) for i in tokens))
+                kpoint.kpts = [
+                    cast(tuple[int, int, int], tuple(int(i) for i in tokens)),
+                ]
             elif name == "usershift":
                 kpoint.kpts_shift = cast(tuple[float, float, float], tuple(float(i) for i in tokens))
             elif name in {"genvec1", "genvec2", "genvec3", "shift"}:
@@ -1433,7 +1435,7 @@ class Vasprun(MSONable):
         for va in elem.findall("varray"):
             name = va.attrib["name"]
             if name == "kpointlist":
-                actual_kpoints = _parse_vasp_array(va)
+                actual_kpoints = cast(list[tuple[float, float, float]], list(map(tuple, _parse_vasp_array(va))))
             elif name == "weights":
                 weights = [i[0] for i in _parse_vasp_array(va)]
         elem.clear()
@@ -1489,10 +1491,10 @@ class Vasprun(MSONable):
         """Parse NMR chemical shielding."""
         calculation = []
         istep: dict[str, Any] = {}
-        try:
-            struct = self._parse_structure(elem.find("structure"))
-        except AttributeError:  # not all calculations have a structure
-            struct = None
+        # not all calculations have a structure
+        _struct = elem.find("structure")
+        struct = None if _struct is None else self._parse_structure(_struct)
+
         for va in elem.findall("varray"):
             istep[va.attrib["name"]] = _parse_vasp_array(va)
         istep["structure"] = struct
@@ -1520,9 +1522,11 @@ class Vasprun(MSONable):
         """Parse an ionic step."""
         try:
             ion_step: dict[str, Any] = {
-                i.attrib["name"]: _vasprun_float(i.text) for i in elem.find("energy").findall("i")
-            }  # type: ignore[union-attr, arg-type]
-        except AttributeError:  # not all calculations have an energy
+                i.attrib["name"]: _vasprun_float(i.text)  # type: ignore[arg-type]
+                for i in elem.find("energy").findall("i")  # type: ignore[union-attr]
+            }
+        # Not all calculations have an energy
+        except AttributeError:
             ion_step = {}
 
         elec_steps = []
@@ -1530,11 +1534,12 @@ class Vasprun(MSONable):
             try:
                 e_step_dict = {i.attrib["name"]: _vasprun_float(i.text) for i in scstep.find("energy").findall("i")}  # type: ignore[union-attr, arg-type]
                 elec_steps.append(e_step_dict)
-            except AttributeError:  # not all calculations have an energy
+            # Not all calculations have an energy
+            except AttributeError:
                 pass
 
         try:
-            struct = self._parse_structure(elem.find("structure"))
+            struct = self._parse_structure(elem.find("structure"))  # type: ignore[arg-type]
         except AttributeError:  # not all calculations have a structure
             struct = None
 
@@ -1565,7 +1570,7 @@ class Vasprun(MSONable):
         if partial is not None:
             orbs = [ss.text for ss in partial.find("array").findall("field")]  # type: ignore[union-attr]
             orbs.pop(0)
-            lm = any("x" in s for s in orbs)
+            lm = any("x" in s for s in orbs if s is not None)
             for s in partial.find("array").find("set").findall("set"):  # type: ignore[union-attr]
                 pdos: dict[Orbital | OrbitalType, dict[Spin, np.ndarray]] = defaultdict(dict)
 
@@ -1596,9 +1601,9 @@ class Vasprun(MSONable):
     def _parse_projected_eigen(elem: XML_Element) -> tuple[dict[Spin, NDArray], NDArray | None]:
         """Parse projected eigenvalues."""
         root = elem.find("array").find("set")  # type: ignore[union-attr]
-        proj_eigen: dict[int | Spin, np.ndarray] = defaultdict(list)
+        _proj_eigen: dict[int, np.ndarray] = defaultdict(list)
         for s in root.findall("set"):  # type: ignore[union-attr]
-            spin: Literal[-1, 1] = int(re.match(r"spin(\d+)", s.attrib["comment"])[1])
+            spin: int = int(re.match(r"spin(\d+)", s.attrib["comment"])[1])  # type: ignore[index]
 
             # Force spin to be +1 or -1
             for ss in s.findall("set"):
@@ -1606,17 +1611,17 @@ class Vasprun(MSONable):
                 for sss in ss.findall("set"):
                     db = _parse_vasp_array(sss)
                     dk.append(db)
-                proj_eigen[spin].append(dk)
-        proj_eigen = {spin: np.array(v) for spin, v in proj_eigen.items()}
+                _proj_eigen[spin].append(dk)
+        _proj_eigen = {spin: np.array(v) for spin, v in _proj_eigen.items()}
 
-        if len(proj_eigen) > 2:
+        if len(_proj_eigen) > 2:
             # non-collinear magentism (also spin-orbit coupling) enabled, last three
             # "spin channels" are the projected magnetization of the orbitals in the
             # x, y, and z Cartesian coordinates
-            proj_mag = np.stack([proj_eigen.pop(i) for i in range(2, 5)], axis=-1)  # type: ignore[call-overload]
-            proj_eigen = {Spin.up: proj_eigen[1]}
+            proj_mag = np.stack([_proj_eigen.pop(i) for i in range(2, 5)], axis=-1)  # type: ignore[call-overload]
+            proj_eigen: dict[Spin, np.ndarray] = {Spin.up: _proj_eigen[1]}
         else:
-            proj_eigen = {Spin.up if k == 1 else Spin.down: v for k, v in proj_eigen.items()}
+            proj_eigen = {Spin.up if k == 1 else Spin.down: v for k, v in _proj_eigen.items()}
             proj_mag = None
 
         elem.clear()
@@ -2287,13 +2292,13 @@ class Outcar:
         table_pattern_text = header_pattern + r"\s*^(?P<table_body>(?:\s+" + row_pattern + r")+)\s+" + footer_pattern
         table_pattern = re.compile(table_pattern_text, re.MULTILINE | re.DOTALL)
         rp = re.compile(row_pattern)
-        tables = []
+        tables: list[list] = []
         for mt in table_pattern.finditer(text):
             table_body_text = mt.group("table_body")
             table_contents = []
             for line in table_body_text.split("\n"):
                 ml = rp.search(line)
-                # skip empty lines
+                # Skip empty lines
                 if not ml:
                     continue
                 d = ml.groupdict()
@@ -2305,7 +2310,7 @@ class Outcar:
             tables.append(table_contents)
             if first_one_only:
                 break
-        retained_data = tables[-1] if last_one_only or first_one_only else tables
+        retained_data: list = tables[-1] if last_one_only or first_one_only else tables
         if attribute_name is not None:
             self.data[attribute_name] = retained_data
         return retained_data
@@ -2511,6 +2516,7 @@ class Outcar:
                 tensor_matrix = []
                 for line in table_body_text.rstrip().split("\n"):
                     ml = row_pat.search(line)
+                    assert ml is not None
                     processed_line = [float(v) for v in ml.groups()]
                     tensor_matrix.append(processed_line)
                 unsym_tensors.append(tensor_matrix)
@@ -2777,10 +2783,10 @@ class Outcar:
             micro_pyawk(self.filename, search, self)
 
             if self.er_ev[Spin.up] is not None and self.er_ev[Spin.down] is not None:
-                self.er_ev_tot = self.er_ev[Spin.up] + self.er_ev[Spin.down]
+                self.er_ev_tot = self.er_ev[Spin.up] + self.er_ev[Spin.down]  # type: ignore[operator]
 
             if self.er_bp[Spin.up] is not None and self.er_bp[Spin.down] is not None:
-                self.er_bp_tot = self.er_bp[Spin.up] + self.er_bp[Spin.down]
+                self.er_bp_tot = self.er_bp[Spin.up] + self.er_bp[Spin.down]  # type: ignore[operator]
 
         except Exception:
             raise RuntimeError("IGPAR OUTCAR could not be parsed.")
@@ -4641,7 +4647,7 @@ class Wavecar:
                             data = np.fromfile(file, dtype=np.complex64, count=nplane)
                             np.fromfile(file, dtype=np.float64, count=recl8 - nplane)
                         elif rtag in (45210, 53310):
-                            # TODO: This should handle double precision coefficients
+                            # TODO: This should handle double precision coefficients,
                             # but I don't have a WAVECAR to test it with
                             data = np.fromfile(file, dtype=np.complex128, count=nplane)
                             np.fromfile(file, dtype=np.float64, count=recl8 - 2 * nplane)
@@ -4652,8 +4658,8 @@ class Wavecar:
                         if len(extra_coeff_inds) > 0:
                             # Reconstruct extra coefficients missing from gamma-only executable WAVECAR
                             for G_ind in extra_coeff_inds:
-                                # No idea where this factor of sqrt(2) comes from, but empirically
-                                # it appears to be necessary
+                                # No idea where this factor of sqrt(2) comes from,
+                                # but empirically it appears to be necessary
                                 data[G_ind] /= np.sqrt(2)
                                 extra_coeffs.append(np.conj(data[G_ind]))
 
@@ -4706,7 +4712,7 @@ class Wavecar:
         kpoint: np.ndarray,
         gamma: bool = False,
     ) -> tuple[list, list, list]:
-        """Helper function to generate G-points based on nbmax.
+        """Helper method to generate G-points based on nbmax.
 
         This function iterates over possible G-point values and determines
         if the energy is less than G_{cut}. Valid values are appended to
@@ -4893,7 +4899,7 @@ class Wavecar:
         if phase and not np.all(self.kpoints[kpoint] == 0.0):
             warnings.warn("phase is True should only be used for the Gamma kpoint! I hope you know what you're doing!")
 
-        # scaling of ng for the fft grid, need to restore value at the end
+        # Scaling of ng for the fft grid, need to restore value at the end
         temp_ng = self.ng
         self.ng = self.ng * scale
         N = np.prod(self.ng)
