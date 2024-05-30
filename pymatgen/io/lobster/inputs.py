@@ -1,6 +1,5 @@
-"""
-Module for reading Lobster input files. For more information
-on LOBSTER see www.cohp.de.
+"""Module for reading Lobster input files.
+For more information on LOBSTER see www.cohp.de.
 
 If you use this module, please cite:
 J. George, G. Petretto, A. Naik, M. Esters, A. J. Jackson, R. Nelson, R. Dronskowski, G.-M. Rignanese, G. Hautier,
@@ -59,20 +58,20 @@ class Lobsterin(UserDict, MSONable):
     Furthermore, it can also modify INCAR files for LOBSTER, generate KPOINTS files for fatband calculations in Lobster,
     and generate the standard primitive cells in a POSCAR file that are needed for the fatband calculations.
     There are also several standard lobsterin files that can be easily generated.
+
+    Reminder: LOBSTER is not case sensitive.
     """
 
-    # Reminder: LOBSTER is not case sensitive
-
-    # Keyword + float can be used in file
-    _FLOAT_KEYWORDS = (
+    # Keyword + float
+    _FLOAT_KEYWORDS: tuple[str, ...] = (
         "COHPstartEnergy",
         "COHPendEnergy",
         "gaussianSmearingWidth",
         "useDecimalPlaces",
         "COHPSteps",
     )
-    # One of these keywords + string can be used in file
-    _STRING_KEYWORDS = (
+    # One of these keywords + string
+    _STRING_KEYWORDS: tuple[str, ...] = (
         "basisSet",
         "cohpGenerator",
         "realspaceHamiltonian",
@@ -83,7 +82,7 @@ class Lobsterin(UserDict, MSONable):
         "EwaldSum",
     )
     # The keywords alone will turn on or off a function
-    _BOOLEAN_KEYWORDS = (
+    _BOOLEAN_KEYWORDS: tuple[str, ...] = (
         "saveProjectionToFile",
         "skipdos",
         "skipcohp",
@@ -117,7 +116,11 @@ class Lobsterin(UserDict, MSONable):
         "LSODOS",
     )
     # These keywords + ending can be used in a lobsterin file
-    _LIST_KEYWORDS = ("basisfunctions", "cohpbetween", "createFatband")
+    _LIST_KEYWORDS: tuple[str, ...] = (
+        "basisfunctions",
+        "cohpbetween",
+        "createFatband",
+    )
 
     # Regenerate {lowered: original} mappings
     FLOAT_KEYWORDS: ClassVar = {key.lower(): key for key in _FLOAT_KEYWORDS}
