@@ -1219,7 +1219,7 @@ class GaussianOutput:
 
         Returns:
             A dict: {"energies": values, "lambda": values, "xas": values}
-                    where values are lists of abscissa (energies, lamba) and
+                    where values are lists of abscissa (energies, lambda) and
                     the sum of gaussian functions (xas).
             A matplotlib plot.
         """

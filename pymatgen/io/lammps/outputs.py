@@ -69,7 +69,7 @@ class LammpsDump(MSONable):
             bounds -= np.array([[min(x), max(x)], [min(y), max(y)], [0, 0]])
         box = LammpsBox(bounds, tilt)
         data_head = lines[8].replace("ITEM: ATOMS", "").split()
-        data = pd.read_csv(StringIO("\n".join(lines[9:])), names=data_head, delim_whitespace=True)
+        data = pd.read_csv(StringIO("\n".join(lines[9:])), names=data_head, sep=r"\s+")
         return cls(time_step, n_atoms, box, data)
 
     @classmethod
@@ -180,7 +180,7 @@ def parse_lammps_log(filename: str = "log.lammps") -> list[pd.DataFrame]:
             df = df[columns]
         # one line thermo data
         else:
-            df = pd.read_csv(StringIO("".join(lines)), delim_whitespace=True)
+            df = pd.read_csv(StringIO("".join(lines)), sep=r"\s+")
         return df
 
     runs = []

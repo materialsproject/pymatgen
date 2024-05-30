@@ -1062,6 +1062,23 @@ class Species(MSONable, Stringify):
         return self._spin
 
     @property
+    def full_electronic_structure(self) -> list[tuple[int, str, int]]:
+        """Full electronic structure as tuple. Not implemented for Species as of now."""
+        raise NotImplementedError
+
+    @property
+    def electronic_structure(self) -> list[tuple[int, str, int]]:
+        """Electronic structure as tuple. Not implemented for Species as of now."""
+        raise NotImplementedError
+
+    @property
+    def valence(self) -> tuple[int | np.nan, int]:
+        """Valence subshell angular moment (L) and number of valence e- (v_e),
+        obtained from full electron config. Not implemented for Species as of now.
+        """
+        raise NotImplementedError
+
+    @property
     def ionic_radius(self) -> float | None:
         """Ionic radius of specie. Returns None if data is not present."""
         if self._oxi_state in self.ionic_radii:
@@ -1210,11 +1227,11 @@ class Species(MSONable, Stringify):
         if coordination not in ("oct", "tet") or spin_config not in ("high", "low"):
             raise ValueError("Invalid coordination or spin config")
 
-        elec = self.full_electronic_structure
+        elec = self.element.full_electronic_structure
         if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
             raise AttributeError(f"Invalid element {self.symbol} for crystal field calculation")
 
-        n_electrons = elec[-1][2] + elec[-2][2] - self.oxi_state
+        n_electrons = elec[-1][2] + elec[-2][2] - self.oxi_state  # type: ignore
         if n_electrons < 0 or n_electrons > 10:
             raise AttributeError(f"Invalid oxidation state {self.oxi_state} for element {self.symbol}")
 

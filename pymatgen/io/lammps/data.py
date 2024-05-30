@@ -664,17 +664,17 @@ class LammpsData(MSONable):
         def parse_section(sec_lines) -> tuple[str, pd.DataFrame]:
             title_info = sec_lines[0].split("#", 1)
             kw = title_info[0].strip()
-            sio = StringIO("".join(sec_lines[2:]))  # skip the 2nd line
+            str_io = StringIO("".join(sec_lines[2:]))  # skip the 2nd line
             if kw.endswith("Coeffs") and not kw.startswith("PairIJ"):
                 df_list = [
-                    pd.read_csv(StringIO(line), header=None, comment="#", delim_whitespace=True)
+                    pd.read_csv(StringIO(line), header=None, comment="#", sep=r"\s+")
                     for line in sec_lines[2:]
                     if line.strip()
                 ]
                 df = pd.concat(df_list, ignore_index=True)
                 names = ["id"] + [f"coeff{i}" for i in range(1, df.shape[1])]
             else:
-                df = pd.read_csv(sio, header=None, comment="#", delim_whitespace=True)
+                df = pd.read_csv(str_io, header=None, comment="#", sep=r"\s+")
                 if kw == "PairIJ Coeffs":
                     names = ["id1", "id2"] + [f"coeff{i}" for i in range(1, df.shape[1] - 1)]
                     df.index.name = None
@@ -1381,12 +1381,12 @@ class CombinedData(LammpsData):
         with zopen(filename, mode="rt") as file:
             lines = file.readlines()
 
-        sio = StringIO("".join(lines[2:]))  # skip the 2nd line
+        str_io = StringIO("".join(lines[2:]))  # skip the 2nd line
         df = pd.read_csv(
-            sio,
+            str_io,
             header=None,
             comment="#",
-            delim_whitespace=True,
+            sep=r"\s+",
             names=["atom", "x", "y", "z"],
         )
         df.index += 1

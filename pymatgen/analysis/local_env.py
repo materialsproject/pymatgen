@@ -828,7 +828,7 @@ class VoronoiNN(NearNeighbors):
         del indices  # Save memory (tessellations can be costly)
 
         # Run the tessellation
-        qvoronoi_input = [s.coords for s in sites]
+        qvoronoi_input = [s.coords for s in sites if s is not None]
         voro = Voronoi(qvoronoi_input)
 
         # Get the information for each neighbor
