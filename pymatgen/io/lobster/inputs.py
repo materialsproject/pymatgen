@@ -125,7 +125,7 @@ class Lobsterin(UserDict, MSONable):
     BOOLEAN_KEYWORDS: ClassVar = {key.lower(): key for key in _BOOLEAN_KEYWORDS}
     LIST_KEYWORDS: ClassVar = {key.lower(): key for key in _LIST_KEYWORDS}
 
-    # All keywords known so far
+    # All keywords known
     AVAILABLE_KEYWORDS: ClassVar = {**FLOAT_KEYWORDS, **STRING_KEYWORDS, **BOOLEAN_KEYWORDS, **LIST_KEYWORDS}
 
     def __init__(self, settingsdict: dict) -> None:
@@ -144,19 +144,18 @@ class Lobsterin(UserDict, MSONable):
 
     def __setitem__(self, key, val: Any) -> None:
         """
-        Add key-value pairs. Necessary due to the missing
-        case sensitivity of LOBSTER. Also clean the keys
-        and values by stripping leading and trailing white spaces.
+        Necessary due to the missing case sensitivity of LOBSTER.
+        Also clean the keys and values by stripping white spaces.
 
         Raises:
             KeyError: if parameter is not available.
         """
-        new_key = key.strip().lower()
+        key = key.strip().lower()
 
-        if new_key not in type(self).AVAILABLE_KEYWORDS:
-            raise KeyError(f"Key {new_key} is currently not available")
+        if key not in type(self).AVAILABLE_KEYWORDS:
+            raise KeyError(f"Key {key} is currently not available")
 
-        super().__setitem__(new_key, val.strip() if isinstance(val, str) else val)
+        super().__setitem__(key, val.strip() if isinstance(val, str) else val)
 
     def __getitem__(self, key) -> Any:
         """To avoid cases sensitivity problems."""
@@ -271,7 +270,7 @@ class Lobsterin(UserDict, MSONable):
         Returns:
             Lobsterin
         """
-        return cls({k: v for k, v in dct.items() if k not in {"@module", "@class"}})
+        return cls({key: val for key, val in dct.items() if key not in {"@module", "@class"}})
 
     def _get_nbands(self, structure: Structure) -> int:
         """Get number of bands."""
