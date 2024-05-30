@@ -47,6 +47,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
+    from pymatgen.util.typing import PathLike
+
 logger = logging.getLogger(__name__)
 
 
@@ -224,7 +226,7 @@ class Vasprun(MSONable):
 
     def __init__(
         self,
-        filename: str | Path,
+        filename: PathLike,
         ionic_step_skip: int | None = None,
         ionic_step_offset: int = 0,
         parse_dos: bool = True,

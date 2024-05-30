@@ -55,8 +55,7 @@ due.cite(
 
 
 class Lobsterin(UserDict, MSONable):
-    """
-    Handle and generate lobsterin files
+    """Handle and generate lobsterin files.
     Furthermore, it can also modify INCAR files for lobster, generate KPOINTS files for fatband calculations in Lobster,
     and generate the standard primitive cells in a POSCAR file that are needed for the fatband calculations.
     There are also several standard lobsterin files that can be easily generated.
@@ -173,13 +172,13 @@ class Lobsterin(UserDict, MSONable):
         key_is_unknown = normalized_key.lower() not in map(str.lower, Lobsterin.AVAILABLE_KEYWORDS)
         return not key_is_unknown and normalized_key in self.data
 
-    def __delitem__(self, key):
+    def __delitem__(self, key) -> None:
         """Implemented to avoid cases sensitivity problems."""
         new_key = next((key_here for key_here in self if key.strip().lower() == key_here.lower()), key)
 
         del self.data[new_key]
 
-    def diff(self, other: Lobsterin) -> dict[str, dict]:
+    def diff(self, other: Self) -> dict[str, dict]:
         """
         Diff function for Lobsterin. Compares two Lobsterin and indicates
         which parameters are the same. Similar to the diff method in INCAR.
@@ -318,9 +317,9 @@ class Lobsterin(UserDict, MSONable):
 
     def write_INCAR(
         self,
-        incar_input: str = "INCAR",
-        incar_output: str = "INCAR.lobster",
-        poscar_input: str = "POSCAR",
+        incar_input: PathLike = "INCAR",
+        incar_output: PathLike = "INCAR.lobster",
+        poscar_input: PathLike = "POSCAR",
         isym: Literal[-1, 0] = -1,
         further_settings: dict | None = None,
     ) -> None:
@@ -329,9 +328,9 @@ class Lobsterin(UserDict, MSONable):
         you have to check for the rest.
 
         Args:
-            incar_input (str): path to input INCAR
-            incar_output (str): path to output INCAR
-            poscar_input (str): path to input POSCAR
+            incar_input (PathLike): path to input INCAR
+            incar_output (PathLike): path to output INCAR
+            poscar_input (PathLike): path to input POSCAR
             isym (int): ISYM equals -1 or 0 are possible. Current LOBSTER version only allow -1.
             further_settings (dict): A dict can be used to include further settings, e.g. {"ISMEAR":-5}
         """
@@ -396,8 +395,8 @@ class Lobsterin(UserDict, MSONable):
     def get_all_possible_basis_functions(
         structure: Structure,
         potcar_symbols: list[str],
-        address_basis_file_min: str | None = None,
-        address_basis_file_max: str | None = None,
+        address_basis_file_min: PathLike | None = None,
+        address_basis_file_max: PathLike | None = None,
     ) -> list[dict]:
         """
         Args:
@@ -433,17 +432,16 @@ class Lobsterin(UserDict, MSONable):
 
     @staticmethod
     def write_POSCAR_with_standard_primitive(
-        POSCAR_input: str = "POSCAR",
-        POSCAR_output: str = "POSCAR.lobster",
+        POSCAR_input: PathLike = "POSCAR",
+        POSCAR_output: PathLike = "POSCAR.lobster",
         symprec: float = 0.01,
     ) -> None:
-        """
-        Writes a POSCAR with the standard primitive cell.
+        """Write a POSCAR with the standard primitive cell.
         This is needed to arrive at the correct kpath.
 
         Args:
-            POSCAR_input (str): filename of input POSCAR
-            POSCAR_output (str): filename of output POSCAR
+            POSCAR_input (PathLike): Input POSCAR file
+            POSCAR_output (PathLike): Output POSCAR file
             symprec (float): precision to find symmetry
         """
         structure = Structure.from_file(POSCAR_input)
@@ -453,10 +451,10 @@ class Lobsterin(UserDict, MSONable):
 
     @staticmethod
     def write_KPOINTS(
-        POSCAR_input: str = "POSCAR",
-        KPOINTS_output: str = "KPOINTS.lobster",
+        POSCAR_input: PathLike = "POSCAR",
+        KPOINTS_output: PathLike = "KPOINTS.lobster",
         reciprocal_density: int = 100,
-        isym: int = -1,
+        isym: Literal[-1, 0] = -1,
         from_grid: bool = False,
         input_grid: tuple[int, int, int] = (5, 5, 5),
         line_mode: bool = True,
@@ -468,8 +466,8 @@ class Lobsterin(UserDict, MSONable):
         possible).
 
         Args:
-            POSCAR_input (str): path to POSCAR
-            KPOINTS_output (str): path to output KPOINTS
+            POSCAR_input (PathLike): path to POSCAR
+            KPOINTS_output (PathLike): path to output KPOINTS
             reciprocal_density (int): Grid density
             isym (int): either -1 or 0. Current Lobster versions only allow -1.
             from_grid (bool): If True KPOINTS will be generated with the help of a grid given in input_grid.
@@ -486,8 +484,8 @@ class Lobsterin(UserDict, MSONable):
         else:
             mesh = input_grid
 
-        # The following code is taken from: SpacegroupAnalyzer
-        # we need to switch off symmetry here
+        # The following code is taken from SpacegroupAnalyzer
+        # We need to switch off symmetry here
         matrix = structure.lattice.matrix
         positions = structure.frac_coords
         unique_species: list[Composition] = []
@@ -510,12 +508,12 @@ class Lobsterin(UserDict, MSONable):
             else:
                 magmoms.append(0)
 
-        # For now, we are setting magmom to zero. (Taken from INCAR class)
+        # For now, we are setting MAGMOM to zero. (Taken from INCAR class)
         cell = matrix, positions, zs, magmoms
         # TODO: what about this shift?
         mapping, grid = spglib.get_ir_reciprocal_mesh(mesh, cell, is_shift=[0, 0, 0])
 
-        # Get the kpoints for the grid
+        # Get the KPOINTS for the grid
         if isym == -1:
             kpts = []
             weights = []
@@ -568,7 +566,7 @@ class Lobsterin(UserDict, MSONable):
                 all_labels.append(labels[k])
         comment = f"{isym=}, grid: {mesh} plus kpoint path" if line_mode else f"{isym=}, grid: {mesh}"
 
-        kpoint_object = Kpoints(
+        kpoints_instance = Kpoints(
             comment=comment,
             style=Kpoints.supported_modes.Reciprocal,
             num_kpts=len(kpts),
@@ -577,7 +575,7 @@ class Lobsterin(UserDict, MSONable):
             labels=all_labels,
         )
 
-        kpoint_object.write_file(filename=KPOINTS_output)
+        kpoints_instance.write_file(filename=KPOINTS_output)
 
     @classmethod
     def from_file(cls, lobsterin: str) -> Self:
@@ -629,14 +627,14 @@ class Lobsterin(UserDict, MSONable):
         return cls(lobsterin_dict)
 
     @staticmethod
-    def _get_potcar_symbols(POTCAR_input: str) -> list[str]:
+    def _get_potcar_symbols(POTCAR_input: PathLike) -> list[str]:
         """Get the name of the species in the POTCAR.
 
         Args:
-            POTCAR_input (str): path to potcar file
+            POTCAR_input (PathLike): path to potcar file
 
         Returns:
-            list of the names of the species in string format
+            list[str]: names of the species
         """
         potcar = Potcar.from_file(POTCAR_input)
         for pot in potcar:
@@ -667,22 +665,22 @@ class Lobsterin(UserDict, MSONable):
     @classmethod
     def standard_calculations_from_vasp_files(
         cls,
-        POSCAR_input: str = "POSCAR",
-        INCAR_input: str = "INCAR",
-        POTCAR_input: str | None = None,
-        Vasprun_output: str = "vasprun.xml",
+        POSCAR_input: PathLike = "POSCAR",
+        INCAR_input: PathLike = "INCAR",
+        POTCAR_input: PathLike | None = None,
+        Vasprun_output: PathLike = "vasprun.xml",
         dict_for_basis: dict | None = None,
         option: str = "standard",
     ) -> Self:
         """Generate Lobsterin with standard settings.
 
         Args:
-            POSCAR_input (str): path to POSCAR
-            INCAR_input (str): path to INCAR
-            POTCAR_input (str): path to POTCAR
+            POSCAR_input (PathLike): path to POSCAR
+            INCAR_input (PathLike): path to INCAR
+            POTCAR_input (PathLike): path to POTCAR
+            Vasprun_output (PathLike): path to vasprun.xml
             dict_for_basis (dict): can be provided: it should look the following:
                 dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'} and will overwrite all settings from POTCAR_input
-
             option (str): 'standard' will start a normal LOBSTER run where COHPs, COOPs, DOS, CHARGE etc. will be
                 calculated
                 'standard_with_energy_range_from_vasprun' will start a normal LOBSTER run for entire energy range
@@ -696,7 +694,7 @@ class Lobsterin(UserDict, MSONable):
                 'onlycohpcoop' will only calculate cohp and coop
 
         Returns:
-            Lobsterin Object with standard settings
+            Lobsterin with standard settings
         """
 
         warnings.warn(
@@ -756,13 +754,13 @@ class Lobsterin(UserDict, MSONable):
             )
             lobsterin_dict["COHPSteps"] = len(vasp_run.complete_dos.energies)
 
-        # TODO: add cobi here! might be relevant lobster version
+        # TODO: add COBI here! might be relevant LOBSTER version
         if option == "onlycohp":
             lobsterin_dict["skipdos"] = True
             lobsterin_dict["skipcoop"] = True
             lobsterin_dict["skipPopulationAnalysis"] = True
             lobsterin_dict["skipGrossPopulation"] = True
-            # lobster-4.1.0
+            # LOBSTER-4.1.0
             lobsterin_dict["skipcobi"] = True
             lobsterin_dict["skipMadelungEnergy"] = True
 
@@ -771,7 +769,7 @@ class Lobsterin(UserDict, MSONable):
             lobsterin_dict["skipcohp"] = True
             lobsterin_dict["skipPopulationAnalysis"] = True
             lobsterin_dict["skipGrossPopulation"] = True
-            # lobster-4.1.0
+            # LOBSTER-4.1.0
             lobsterin_dict["skipcobi"] = True
             lobsterin_dict["skipMadelungEnergy"] = True
 
@@ -779,7 +777,7 @@ class Lobsterin(UserDict, MSONable):
             lobsterin_dict["skipdos"] = True
             lobsterin_dict["skipPopulationAnalysis"] = True
             lobsterin_dict["skipGrossPopulation"] = True
-            # lobster-4.1.0
+            # LOBSTER-4.1.0
             lobsterin_dict["skipcobi"] = True
             lobsterin_dict["skipMadelungEnergy"] = True
 
@@ -794,7 +792,7 @@ class Lobsterin(UserDict, MSONable):
             lobsterin_dict["skipcoop"] = True
             lobsterin_dict["skipPopulationAnalysis"] = True
             lobsterin_dict["skipGrossPopulation"] = True
-            # lobster-4.1.0
+            # LOBSTER-4.1.0
             lobsterin_dict["skipcobi"] = True
             lobsterin_dict["skipMadelungEnergy"] = True
 
@@ -805,7 +803,7 @@ class Lobsterin(UserDict, MSONable):
             lobsterin_dict["skipPopulationAnalysis"] = True
             lobsterin_dict["skipGrossPopulation"] = True
             lobsterin_dict["saveProjectionToFile"] = True
-            # lobster-4.1.0
+            # LOBSTER-4.1.0
             lobsterin_dict["skipcobi"] = True
             lobsterin_dict["skipMadelungEnergy"] = True
 
@@ -814,7 +812,7 @@ class Lobsterin(UserDict, MSONable):
             lobsterin_dict["skipcohp"] = True
             lobsterin_dict["skipPopulationAnalysis"] = True
             lobsterin_dict["skipGrossPopulation"] = True
-            # lobster-4.1.0
+            # LOBSTER-4.1.0
             lobsterin_dict["skipcobi"] = True
             lobsterin_dict["skipMadelungEnergy"] = True
 
@@ -825,7 +823,7 @@ class Lobsterin(UserDict, MSONable):
             lobsterin_dict["skipPopulationAnalysis"] = True
             lobsterin_dict["skipGrossPopulation"] = True
             lobsterin_dict["saveProjectionToFile"] = True
-            # lobster-4.1.0
+            # LOBSTER-4.1.0
             lobsterin_dict["skipcobi"] = True
 
         incar = Incar.from_file(INCAR_input)
@@ -837,8 +835,8 @@ class Lobsterin(UserDict, MSONable):
             raise ValueError("ISMEAR has to be 0 for a fatband calculation with Lobster")
 
         if dict_for_basis is not None:
-            # dict_for_basis={"Fe":'3p 3d 4s 4f', "C": '2s 2p'}
-            # will just insert this basis and not check with poscar
+            # dict_for_basis = {"Fe":"3p 3d 4s 4f", "C": "2s 2p"}
+            # Will just insert this basis and not check with poscar
             basis = [f"{key} {value}" for key, value in dict_for_basis.items()]
         elif POTCAR_input is not None:
             # Get basis from POTCAR

@@ -1629,12 +1629,11 @@ class Kpoints(MSONable):
             labels=labels,
         )
 
-    def write_file(self, filename: str) -> None:
-        """
-        Write Kpoints to a file.
+    def write_file(self, filename: PathLike) -> None:
+        """Write Kpoints to a file.
 
         Args:
-            filename (str): Filename to write to.
+            filename (PathLike): Filename to write to.
         """
         with zopen(filename, mode="wt") as file:
             file.write(str(self))
