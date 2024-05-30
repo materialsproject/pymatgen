@@ -625,8 +625,6 @@ class Lobsterin(UserDict, MSONable):
 
         kpoint_object.write_file(filename=KPOINTS_output)
 
-
-
     @staticmethod
     def _get_potcar_symbols(POTCAR_input: str) -> list[str]:
         """
