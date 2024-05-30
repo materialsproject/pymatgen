@@ -204,8 +204,8 @@ class Lobsterin(UserDict, MSONable):
 
             # List keywords
             elif isinstance(v1, list):
-                new_set1 = {element.strip().lower() for element in v1}
-                new_set2 = {element.strip().lower() for element in other[k1]}
+                new_set1 = {value.strip().lower() for value in v1}
+                new_set2 = {value.strip().lower() for value in other[k1]}
                 if new_set1 != new_set2:
                     diff_params[k1] = {"lobsterin1": v1, "lobsterin2": other[k1]}
 
