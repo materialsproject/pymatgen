@@ -56,7 +56,7 @@ due.cite(
 
 class Lobsterin(UserDict, MSONable):
     """Handle and generate lobsterin files.
-    Furthermore, it can also modify INCAR files for lobster, generate KPOINTS files for fatband calculations in Lobster,
+    Furthermore, it can also modify INCAR files for LOBSTER, generate KPOINTS files for fatband calculations in Lobster,
     and generate the standard primitive cells in a POSCAR file that are needed for the fatband calculations.
     There are also several standard lobsterin files that can be easily generated.
     """
@@ -578,10 +578,10 @@ class Lobsterin(UserDict, MSONable):
         kpoints_instance.write_file(filename=KPOINTS_output)
 
     @classmethod
-    def from_file(cls, lobsterin: str) -> Self:
+    def from_file(cls, lobsterin: PathLike) -> Self:
         """
         Args:
-            lobsterin (str): path to lobsterin.
+            lobsterin (PathLike): path to lobsterin.
 
         Returns:
             Lobsterin object
@@ -590,10 +590,9 @@ class Lobsterin(UserDict, MSONable):
             data = file.read().split("\n")
         if len(data) == 0:
             raise RuntimeError("lobsterin file contains no data.")
-        lobsterin_dict: dict[str, Any] = {}
 
         # TODO: (@DanielYang59) simplify method (separate parser and checker)
-
+        lobsterin_dict: dict[str, Any] = {}
         for datum in data:
             # Remove all comments
             if not datum.startswith(("!", "#", "//")):  # TODO: (@DanielYang59) remove leading whitespace
@@ -744,7 +743,7 @@ class Lobsterin(UserDict, MSONable):
             lobsterin_dict["cohpGenerator"] = "from 0.1 to 6.0 orbitalwise"
             lobsterin_dict["loadProjectionFromFile"] = True
 
-        if option == "standard_with_energy_range_from_vasprun":
+        elif option == "standard_with_energy_range_from_vasprun":
             vasp_run = Vasprun(Vasprun_output)
             lobsterin_dict["COHPstartEnergy"] = round(
                 min(vasp_run.complete_dos.energies - vasp_run.complete_dos.efermi), 4
@@ -755,7 +754,7 @@ class Lobsterin(UserDict, MSONable):
             lobsterin_dict["COHPSteps"] = len(vasp_run.complete_dos.energies)
 
         # TODO: add COBI here! might be relevant LOBSTER version
-        if option == "onlycohp":
+        elif option == "onlycohp":
             lobsterin_dict["skipdos"] = True
             lobsterin_dict["skipcoop"] = True
             lobsterin_dict["skipPopulationAnalysis"] = True
@@ -764,7 +763,7 @@ class Lobsterin(UserDict, MSONable):
             lobsterin_dict["skipcobi"] = True
             lobsterin_dict["skipMadelungEnergy"] = True
 
-        if option == "onlycoop":
+        elif option == "onlycoop":
             lobsterin_dict["skipdos"] = True
             lobsterin_dict["skipcohp"] = True
             lobsterin_dict["skipPopulationAnalysis"] = True
@@ -773,7 +772,7 @@ class Lobsterin(UserDict, MSONable):
             lobsterin_dict["skipcobi"] = True
             lobsterin_dict["skipMadelungEnergy"] = True
 
-        if option == "onlycohpcoop":
+        elif option == "onlycohpcoop":
             lobsterin_dict["skipdos"] = True
             lobsterin_dict["skipPopulationAnalysis"] = True
             lobsterin_dict["skipGrossPopulation"] = True
@@ -781,13 +780,13 @@ class Lobsterin(UserDict, MSONable):
             lobsterin_dict["skipcobi"] = True
             lobsterin_dict["skipMadelungEnergy"] = True
 
-        if option == "onlycohpcoopcobi":
+        elif option == "onlycohpcoopcobi":
             lobsterin_dict["skipdos"] = True
             lobsterin_dict["skipPopulationAnalysis"] = True
             lobsterin_dict["skipGrossPopulation"] = True
             lobsterin_dict["skipMadelungEnergy"] = True
 
-        if option == "onlydos":
+        elif option == "onlydos":
             lobsterin_dict["skipcohp"] = True
             lobsterin_dict["skipcoop"] = True
             lobsterin_dict["skipPopulationAnalysis"] = True
@@ -796,7 +795,7 @@ class Lobsterin(UserDict, MSONable):
             lobsterin_dict["skipcobi"] = True
             lobsterin_dict["skipMadelungEnergy"] = True
 
-        if option == "onlyprojection":
+        elif option == "onlyprojection":
             lobsterin_dict["skipdos"] = True
             lobsterin_dict["skipcohp"] = True
             lobsterin_dict["skipcoop"] = True
@@ -807,7 +806,7 @@ class Lobsterin(UserDict, MSONable):
             lobsterin_dict["skipcobi"] = True
             lobsterin_dict["skipMadelungEnergy"] = True
 
-        if option == "onlycobi":
+        elif option == "onlycobi":
             lobsterin_dict["skipdos"] = True
             lobsterin_dict["skipcohp"] = True
             lobsterin_dict["skipPopulationAnalysis"] = True
@@ -816,7 +815,7 @@ class Lobsterin(UserDict, MSONable):
             lobsterin_dict["skipcobi"] = True
             lobsterin_dict["skipMadelungEnergy"] = True
 
-        if option == "onlymadelung":
+        elif option == "onlymadelung":
             lobsterin_dict["skipdos"] = True
             lobsterin_dict["skipcohp"] = True
             lobsterin_dict["skipcoop"] = True
