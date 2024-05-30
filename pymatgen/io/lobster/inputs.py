@@ -562,7 +562,8 @@ class Lobsterin(UserDict, MSONable):
 
     @classmethod
     def from_file(cls, lobsterin: PathLike) -> Self:
-        """
+        """Create Lobsterin from lobsterin file.
+
         Args:
             lobsterin (PathLike): path to lobsterin.
 
@@ -577,32 +578,36 @@ class Lobsterin(UserDict, MSONable):
         lobsterin_dict: dict[str, Any] = {}
         for line in lines:
             # Remove comment lines and in-line comments
-            if not line.strip().startswith(("!", "#", "//")):  # noqa: SIM102
-                if line := re.split(r"[!#//]", line)[0].strip():
-                    # Extract keywords
-                    line_parts = line.replace("\t", " ").strip().split(" ")
+            if line := re.split(r"[!#//]", line)[0].strip():
+                # Extract keywords
+                line_parts = line.replace("\t", " ").strip().split(" ")
+                if line_parts:
                     key = line_parts[0].lower()
+                else:
+                    continue
 
-                    # Avoid duplicates for float/string keywords
-                    if (key in cls.FLOAT_KEYWORDS or key in cls.STRING_KEYWORDS) and key in lobsterin_dict:
-                        raise ValueError(f"Duplicate keyword {key}!")
+                # Avoid duplicates for float/string keywords
+                if (key in cls.FLOAT_KEYWORDS or key in cls.STRING_KEYWORDS) and key in lobsterin_dict:
+                    raise ValueError(f"Duplicate keyword {key}!")
 
-                    # Check types of keyword
-                    if key in cls.BOOLEAN_KEYWORDS:
-                        lobsterin_dict[key] = True
+                # Parse by types of keyword
+                if key in cls.BOOLEAN_KEYWORDS:
+                    lobsterin_dict[key] = True
 
-                    elif len(line_parts) > 1:
-                        if key in cls.LIST_KEYWORDS:
-                            if key in lobsterin_dict:
-                                lobsterin_dict[key].append(" ".join(line_parts[1:]))
-                            else:
-                                lobsterin_dict[key] = [" ".join(line_parts[1:])]
+                elif key in cls.LIST_KEYWORDS:
+                    if key in lobsterin_dict:
+                        lobsterin_dict[key].append(" ".join(line_parts[1:]))
+                    else:
+                        lobsterin_dict[key] = [" ".join(line_parts[1:])]
 
-                        elif key in cls.FLOAT_KEYWORDS:
-                            lobsterin_dict[key] = float(line_parts[1])
+                elif key in cls.FLOAT_KEYWORDS:
+                    lobsterin_dict[key] = float(line_parts[1])
 
-                        else:  # STRING_KEYWORDS
-                            lobsterin_dict[key] = " ".join(line_parts[1:])
+                elif key in cls.STRING_KEYWORDS:
+                    lobsterin_dict[key] = " ".join(line_parts[1:])
+
+                else:
+                    raise ValueError(f"Invliad keyword {key}.")
 
         return cls(lobsterin_dict)
 
