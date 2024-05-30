@@ -245,14 +245,14 @@ class Lobsterin(UserDict, MSONable):
         with open(path, mode="w", encoding="utf-8") as file:
             for key in self:
                 if key in type(self).FLOAT_KEYWORDS or key in type(self).STRING_KEYWORDS:
-                    file.write(f"{self.AVAILABLE_KEYWORDS[key]} {self.get(key)}\n")
+                    file.write(f"{type(self).AVAILABLE_KEYWORDS[key]} {self.get(key)}\n")
 
                 elif key in type(self).BOOLEAN_KEYWORDS:
-                    file.write(f"{self.BOOLEAN_KEYWORDS[key]}\n")
+                    file.write(f"{type(self).BOOLEAN_KEYWORDS[key]}\n")
 
                 elif key in type(self).LIST_KEYWORDS:
                     for value in self.get(key):  # type: ignore[union-attr]
-                        file.write(f"{self.LIST_KEYWORDS[key]} {value}\n")
+                        file.write(f"{type(self).LIST_KEYWORDS[key]} {value}\n")
 
     def as_dict(self) -> dict:
         """MSONable dict"""
