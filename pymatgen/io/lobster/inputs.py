@@ -576,14 +576,16 @@ class Lobsterin(UserDict, MSONable):
 
         lobsterin_dict: dict[str, Any] = {}
         for line in lines:
-            # Remove comment lines
-            if not line.strip().startswith(("!", "#", "//")):
-                # Remove in-line comments
-                pattern = r"\b[^!#//]+"
-                if matched_pattern := re.findall(pattern, line):
-                    # Extract keywords (and values)
-                    line_parts = matched_pattern[0].replace("\t", " ").strip().split(" ")
+            # Remove comment lines and in-line comments
+            if not line.strip().startswith(("!", "#", "//")):  # noqa: SIM102
+                if line := re.split(r"[!#//]", line)[0].strip():
+                    # Extract keywords
+                    line_parts = line.replace("\t", " ").strip().split(" ")
                     key = line_parts[0].lower()
+
+                    # Avoid duplicates for float/string keywords
+                    if (key in cls.FLOAT_KEYWORDS or key in cls.STRING_KEYWORDS) and key in lobsterin_dict:
+                        raise ValueError(f"Duplicate keyword {key}!")
 
                     # Check types of keyword
                     if key in cls.BOOLEAN_KEYWORDS:
@@ -597,15 +599,9 @@ class Lobsterin(UserDict, MSONable):
                                 lobsterin_dict[key] = [" ".join(line_parts[1:])]
 
                         elif key in cls.FLOAT_KEYWORDS:
-                            if key in lobsterin_dict:
-                                raise ValueError(f"Same keyword {key} twice!")
-
                             lobsterin_dict[key] = float(line_parts[1])
 
                         else:  # STRING_KEYWORDS
-                            if key in lobsterin_dict:
-                                raise ValueError(f"Same keyword {key} twice!")
-
                             lobsterin_dict[key] = " ".join(line_parts[1:])
 
         return cls(lobsterin_dict)
