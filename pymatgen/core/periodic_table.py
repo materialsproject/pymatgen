@@ -1070,7 +1070,7 @@ class Species(MSONable, Stringify):
         the same electronic configuration as the element with the same number of total
         electrons as the Species. For example, Fe+3 would have the same electronic
         structure as V, which has 23 electrons (26 for Fe minus 3 to get the +3 oxidation
-        state)
+        state).
         """
         if self.oxi_state != 0:
             # adopt the electronic configuration of the element with the same atomic number
@@ -1273,7 +1273,7 @@ class Species(MSONable, Stringify):
             raise ValueError("Invalid coordination or spin config")
 
         elec = self.element.full_electronic_structure
-        if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
+        if len(elec) < 4 or elec[-2][1] != "s" or elec[-1][1] != "d":
             raise AttributeError(f"Invalid element {self.symbol} for crystal field calculation")
 
         n_electrons = elec[-1][2] + elec[-2][2] - self.oxi_state  # type: ignore
