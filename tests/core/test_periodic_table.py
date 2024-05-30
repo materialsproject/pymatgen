@@ -591,6 +591,14 @@ class TestDummySpecies:
         )
         assert sp.spin == 5
 
+    def test_not_implemented(self):
+        with pytest.raises(NotImplementedError):
+            _ = Species("Fe", 2).full_electronic_structure
+        with pytest.raises(NotImplementedError):
+            _ = Species("Fe", 2).electronic_structure
+        with pytest.raises(NotImplementedError):
+            _ = Species("Fe", 2).valence
+
 
 def test_get_el_sp():
     assert get_el_sp("Fe2+") == Species("Fe", 2)
