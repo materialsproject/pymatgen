@@ -1625,14 +1625,6 @@ class TestLobsterin(TestCase):
 
         assert "helloworld" not in self.Lobsterin
 
-    def test_update(self):
-        """Test case sensitivity of update operation."""
-        self.Lobsterin |= {"skipCOHP": True}  # Camel case
-        assert self.Lobsterin["skipcohp"] is True
-
-        self.Lobsterin |= {"skipcohp": False}  # lower case
-        assert self.Lobsterin["skipcohp"] is False
-
     def test_initialize_from_dict(self):
         # initialize from dict
         lobsterin = Lobsterin(
@@ -1817,6 +1809,7 @@ class TestLobsterin(TestCase):
         for key in ("COHPstartEnergy", "COHPstartEnergy", "COhPstartenergy"):
             start_energy = self.Lobsterin.get(key)
             assert start_energy == -15.0, f"{start_energy=}, {key=}"
+
         lobsterin_copy = self.Lobsterin.copy()
         lobsterin_copy.update({"cohpstarteNergy": -10.00})
         assert lobsterin_copy["cohpstartenergy"] == -10.0
@@ -1827,9 +1820,17 @@ class TestLobsterin(TestCase):
         assert lobsterin_copy["cohpsteps"] == 100
         len_before = len(lobsterin_copy.items())
         assert len_before == 9, f"{len_before=}"
+
         lobsterin_copy.popitem()
         len_after = len(lobsterin_copy.items())
         assert len_after == len_before - 1
+
+        # Test case sensitivity of |= operator
+        self.Lobsterin |= {"skipCOHP": True}  # Camel case
+        assert self.Lobsterin["skipcohp"] is True
+
+        self.Lobsterin |= {"skipcohp": False}  # lower case
+        assert self.Lobsterin["skipcohp"] is False
 
     def test_read_write_lobsterin(self):
         outfile_path = tempfile.mkstemp()[1]
