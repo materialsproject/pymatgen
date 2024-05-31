@@ -580,7 +580,7 @@ class Lobsterin(UserDict, MSONable):
 
                 # Avoid duplicates for float/string keywords
                 if (key in cls.FLOAT_KEYWORDS or key in cls.STRING_KEYWORDS) and key in lobsterin_dict:
-                    raise ValueError(f"Duplicate keyword {key}!")
+                    raise ValueError(f"Same keyword {key} twice!")
 
                 # Parse by keyword type
                 if key in cls.BOOLEAN_KEYWORDS:
