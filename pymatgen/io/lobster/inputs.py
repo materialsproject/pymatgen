@@ -145,7 +145,7 @@ class Lobsterin(UserDict, MSONable):
 
         self.update(settingsdict)
 
-    def __setitem__(self, key, val: Any) -> None:
+    def __setitem__(self, key: str, val: Any) -> None:
         """
         Necessary due to the missing case sensitivity of LOBSTER.
         Also clean the keys and values by stripping white spaces.
@@ -160,21 +160,21 @@ class Lobsterin(UserDict, MSONable):
 
         super().__setitem__(key, val.strip() if isinstance(val, str) else val)
 
-    def __getitem__(self, key) -> Any:
+    def __getitem__(self, key: str) -> Any:
         """To avoid cases sensitivity problems."""
         try:
-            return self.data[key.strip().lower()]
+            return super().__getitem__(key.strip().lower())
 
         except KeyError as exc:
             raise KeyError(f"{key=} is not available") from exc
 
-    def __contains__(self, key) -> bool:
+    def __contains__(self, key: str) -> bool:  # type: ignore[override]
         """To avoid cases sensitivity problems."""
-        return key.lower().strip() in self.data
+        return super().__contains__(key.lower().strip())
 
     def __delitem__(self, key: str) -> None:
         """To avoid cases sensitivity problems."""
-        del self.data[key.lower().strip()]
+        super().__delitem__(key.lower().strip())
 
     def diff(self, other: Self) -> dict[str, dict[str, Any]]:
         """Compare two Lobsterin and find which parameters are the same.
