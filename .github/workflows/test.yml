@@ -76,9 +76,6 @@ jobs:
 
           uv pip install --editable '.[dev,optional]'
 
-          # TODO remove next line installing ase from main branch when FrechetCellFilter is released
-          uv pip install --upgrade 'git+https://gitlab.com/ase/ase'
-
       - name: pytest split ${{ matrix.split }}
         run: |
           micromamba activate pmg

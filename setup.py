@@ -47,7 +47,7 @@ setup(
         "joblib",
     ],
     extras_require={
-        "ase": ["ase>=3.3"],
+        "ase": ["ase>=3.23.0"],
         # don't depend on tblite above 3.11 since unsupported https://github.com/tblite/tblite/issues/175
         "tblite": ["tblite[ase]>=0.3.0; python_version<'3.12'"],
         "vis": ["vtk>=6.0.0"],
@@ -69,7 +69,7 @@ setup(
             "doc2dash",
         ],
         "optional": [
-            "ase>=3.22.1",
+            "ase>=3.23.0",
             # TODO restore BoltzTraP2 when install fixed, hopefully following merge of
             # https://gitlab.com/sousaw/BoltzTraP2/-/merge_requests/18
             # caused CI failure due to ModuleNotFoundError: No module named 'packaging'
