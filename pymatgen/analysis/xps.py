@@ -72,7 +72,7 @@ CROSS_SECTIONS = _load_cross_sections(Path(__file__).parent / "atomic_subshell_p
 
 
 class XPS(Spectrum):
-    """Class representing an X-ray photoelectron spectra."""
+    """An X-ray photoelectron spectra."""
 
     XLABEL = "Binding Energy (eV)"
     YLABEL = "Intensity"
@@ -86,7 +86,7 @@ class XPS(Spectrum):
             sigma: Smearing for Gaussian.
 
         Returns:
-            XPS
+            XPS: X-ray photoelectron spectrum.
         """
         total = np.zeros(dos.energies.shape)
         for el in dos.structure.composition:

@@ -25,7 +25,7 @@ import subprocess
 import tempfile
 import time
 from shutil import which
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
@@ -44,6 +44,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 if TYPE_CHECKING:
+    from typing import Literal
+
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
@@ -311,13 +313,11 @@ class BoltztrapRunner(MSONable):
         """
         if self._symprec is not None:
             sym = SpacegroupAnalyzer(self._bs.structure, symprec=self._symprec)
-        elif self._symprec is None:
-            pass
 
-        with open(output_file, mode="w") as file:
+        with open(output_file, mode="w", encoding="utf-8") as file:
             if self._symprec is not None:
                 file.write(f"{self._bs.structure.formula} {sym.get_space_group_symbol()}\n")  # type: ignore[reportPossiblyUnboundVariable]
-            elif self._symprec is None:
+            else:
                 file.write(f"{self._bs.structure.formula} symmetries disabled\n")
 
             file.write(
@@ -328,13 +328,11 @@ class BoltztrapRunner(MSONable):
                 + "\n"
             )
 
-            if self._symprec is not None:
-                ops = sym.get_symmetry_dataset()["rotations"]  # type: ignore[reportPossiblyUnboundVariable]
-            elif self._symprec is None:
-                ops = [np.eye(3)]
-            file.write(f"{len(ops)}\n")  # type: ignore[reportPossiblyUnboundVariable]
+            ops = [np.eye(3)] if self._symprec is None else sym.get_symmetry_dataset()["rotations"]  # type: ignore[reportPossiblyUnboundVariable]
 
-            for op in ops:  # type: ignore[reportPossiblyUnboundVariable]
+            file.write(f"{len(ops)}\n")
+
+            for op in ops:
                 for row in op:
                     file.write(f"{' '.join(map(str, row))}\n")
 
@@ -715,7 +713,7 @@ class BoltztrapError(Exception):
 
 
 class BoltztrapAnalyzer:
-    """Class used to store all the data from a boltztrap run."""
+    """Store all the data from a boltztrap run."""
 
     def __init__(
         self,
@@ -844,14 +842,13 @@ class BoltztrapAnalyzer:
         self.fermi_surface_data = fermi_surface_data
 
     def get_symm_bands(self, structure: Structure, efermi, kpt_line=None, labels_dict=None):
-        """Function useful to read bands from Boltztrap output and get a
-        BandStructureSymmLine object comparable with that one from a DFT
-        calculation (if the same kpt_line is provided). Default kpt_line
-        and labels_dict is the standard path of high symmetry k-point for
-        the specified structure. They could be extracted from the
-        BandStructureSymmLine object that you want to compare with. efermi
-        variable must be specified to create the BandStructureSymmLine
-        object (usually it comes from DFT or Boltztrap calc).
+        """Useful to read bands from Boltztrap output and get a BandStructureSymmLine object
+        comparable with that one from a DFT calculation (if the same kpt_line is
+        provided). Default kpt_line and labels_dict is the standard path of high symmetry
+        k-point for the specified structure. They could be extracted from the
+        BandStructureSymmLine object that you want to compare with. efermi variable must
+        be specified to create the BandStructureSymmLine object (usually it comes from DFT
+        or Boltztrap calc).
         """
         try:
             if kpt_line is None:
@@ -2277,7 +2274,7 @@ def seebeck_spb(eta, Lambda=0.5):
     )
 
 
-def eta_from_seebeck(seeb, Lambda):
+def eta_from_seebeck(seeb, Lambda) -> float:
     """It takes a value of seebeck and adjusts the analytic seebeck until it's equal.
 
     Returns:
@@ -2287,7 +2284,7 @@ def eta_from_seebeck(seeb, Lambda):
     return out[0][0]
 
 
-def seebeck_eff_mass_from_carr(eta, n, T, Lambda):
+def seebeck_eff_mass_from_carr(eta, n, T, Lambda) -> float:
     """Calculate seebeck effective mass at a certain carrier concentration
     eta in kB*T units, n in cm-3, T in K, returns mass in m0 units.
     """
@@ -2303,7 +2300,7 @@ def seebeck_eff_mass_from_carr(eta, n, T, Lambda):
     )
 
 
-def seebeck_eff_mass_from_seebeck_carr(seeb, n, T, Lambda):
+def seebeck_eff_mass_from_seebeck_carr(seeb, n, T, Lambda) -> float:
     """Find the chemical potential where analytic and calculated seebeck are identical
     and then calculate the seebeck effective mass at that chemical potential and
     a certain carrier concentration n.

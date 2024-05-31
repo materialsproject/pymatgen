@@ -26,13 +26,14 @@ except ImportError:
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import ClassVar
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 EL_COLORS = loadfn(f"{module_dir}/ElementColorSchemes.yaml")
 
 
 class StructureVis:
-    """Structure object visualization using VTK."""
+    """Structure visualization using VTK."""
 
     @requires(vtk, "Visualization requires the installation of VTK with Python bindings.")
     def __init__(
@@ -173,7 +174,7 @@ class StructureVis:
 
         self.ren_win.Render()
 
-    def orthongonalize_structure(self):
+    def orthogonalize_structure(self):
         """Orthogonalize the structure."""
         if self.structure is not None:
             self.set_structure(self.structure.copy(sanitize=True))
@@ -880,7 +881,7 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
 class MultiStructuresVis(StructureVis):
     """Visualization for multiple structures."""
 
-    DEFAULT_ANIMATED_MOVIE_OPTIONS = dict(
+    DEFAULT_ANIMATED_MOVIE_OPTIONS: ClassVar = dict(
         time_between_frames=0.1,
         looping_type="restart",
         number_of_loops=1,

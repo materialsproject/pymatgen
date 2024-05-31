@@ -20,7 +20,7 @@ STANDARD_TEMP = 298.0
 
 
 class ThermoData:
-    """A object container for an experimental Thermochemical Data."""
+    """Container for experimental thermo-chemical data."""
 
     def __init__(
         self,
@@ -89,7 +89,7 @@ class ThermoData:
         )
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,

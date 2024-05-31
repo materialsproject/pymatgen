@@ -15,12 +15,14 @@ import os
 import re
 import subprocess
 import warnings
-from collections import namedtuple
 from collections.abc import Sequence
 from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
-from typing import TYPE_CHECKING, cast
+from pathlib import Path
+from shutil import copyfileobj
+from typing import TYPE_CHECKING, NamedTuple, cast
+from zipfile import ZipFile
 
 import numpy as np
 import scipy.constants as const
@@ -39,8 +41,7 @@ from pymatgen.util.typing import Kpoint, Vector3D
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-    from pathlib import Path
-    from typing import Any, Literal
+    from typing import Any, ClassVar, Literal
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self
@@ -781,8 +782,7 @@ class Incar(dict, MSONable):
         return type(self)(self)
 
     def get_str(self, sort_keys: bool = False, pretty: bool = False) -> str:
-        """
-        Return a string representation of the INCAR. Differ from the
+        """Get a string representation of the INCAR. Differ from the
         __str__ method to provide options for pretty printing.
 
         Args:
@@ -1483,7 +1483,8 @@ class Kpoints(MSONable):
             num_kpts=divisions,
         )
 
-    def copy(self):
+    def copy(self) -> Self:
+        """Make a copy of the Kpoints object."""
         return self.from_dict(self.as_dict())
 
     @classmethod
@@ -1713,13 +1714,26 @@ def _parse_list(string: str) -> list[float]:
     return [float(y) for y in re.split(r"\s+", string.strip()) if not y.isalpha()]
 
 
-Orbital = namedtuple("Orbital", ["n", "l", "j", "E", "occ"])
-OrbitalDescription = namedtuple("OrbitalDescription", ["l", "E", "Type", "Rcut", "Type2", "Rcut2"])
+class Orbital(NamedTuple):
+    n: int
+    l: int  # noqa: E741
+    j: float
+    E: float
+    occ: float
 
 
-# hashes computed from the full POTCAR file contents by pymatgen (not 1st-party VASP hashes)
+class OrbitalDescription(NamedTuple):
+    l: int  # noqa: E741
+    E: float
+    Type: int
+    Rcut: float
+    Type2: int | None
+    Rcut2: float | None
+
+
+# Hashes computed from the full POTCAR file contents by pymatgen (not 1st-party VASP hashes)
 PYMATGEN_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_pymatgen_hashes.json")
-# written to some newer POTCARs by VASP
+# Written to some newer POTCARs by VASP
 VASP_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
 POTCAR_STATS_PATH: str = os.path.join(module_dir, "potcar-summary-stats.json.bz2")
 
@@ -1744,7 +1758,7 @@ class PotcarSingle:
     #     in the PSCTR/header field.
     # We indicate the older release in `functional_dir` as PBE_52, PBE_54, LDA_52, LDA_54.
     # The newer release is indicated as PBE_52_W_HASH, etc.
-    functional_dir = {
+    functional_dir: ClassVar = {
         "PBE": "POT_GGA_PAW_PBE",
         "PBE_52": "POT_GGA_PAW_PBE_52",
         "PBE_52_W_HASH": "POTPAW_PBE_52",
@@ -1763,7 +1777,7 @@ class PotcarSingle:
         "Perdew_Zunger81": "POT_LDA_PAW",
     }
 
-    functional_tags = {
+    functional_tags: ClassVar = {
         "pe": {"name": "PBE", "class": "GGA"},
         "91": {"name": "PW91", "class": "GGA"},
         "rp": {"name": "revPBE", "class": "GGA"},
@@ -1777,7 +1791,7 @@ class PotcarSingle:
         "wi": {"name": "Wigner Interpolation", "class": "LDA"},
     }
 
-    parse_functions = {
+    parse_functions: ClassVar = {
         "LULTRA": _parse_bool,
         "LUNSCR": _parse_bool,
         "LCOR": _parse_bool,
@@ -2400,7 +2414,7 @@ class PotcarSingle:
             potcar_functionals (list): List of potcar functionals associated with
                 the PotcarSingle
         """
-        # Dict to translate the sets in the .json file to the keys used in DictSet
+        # Dict to translate the sets in the .json file to the keys used in VaspInputSet
         mapping_dict = {
             "potUSPP_GGA": {
                 "pymatgen_key": "PW91_US",
@@ -2615,7 +2629,7 @@ class Potcar(list, MSONable):
 
     @property
     def symbols(self) -> list[str]:
-        """Get the atomic symbols of all the atoms in the POTCAR file."""
+        """The atomic symbols of all the atoms in the POTCAR file."""
         return [psingle.symbol for psingle in self]
 
     @symbols.setter
@@ -2624,7 +2638,7 @@ class Potcar(list, MSONable):
 
     @property
     def spec(self) -> list[dict]:
-        """Get the atomic symbols and hash of all the atoms in the POTCAR file."""
+        """The atomic symbols and hash of all the atoms in the POTCAR file."""
         return [{"symbol": psingle.symbol, "hash": psingle.md5_computed_file_hash} for psingle in self]
 
     def as_dict(self) -> dict:
@@ -2718,14 +2732,15 @@ class UnknownPotcarWarning(UserWarning):
 
 
 class VaspInput(dict, MSONable):
-    """Class to contain a set of vasp input objects corresponding to a run."""
+    """Contain a set of vasp input objects corresponding to a run."""
 
     def __init__(
         self,
         incar: dict | Incar,
         kpoints: Kpoints | None,
         poscar: Poscar,
-        potcar: Potcar | None,
+        potcar: Potcar | str | None,
+        potcar_spec: bool = False,
         optional_files: dict[PathLike, object] | None = None,
         **kwargs,
     ) -> None:
@@ -2736,14 +2751,18 @@ class VaspInput(dict, MSONable):
             incar (Incar): The Incar object.
             kpoints (Kpoints): The Kpoints object.
             poscar (Poscar): The Poscar object.
-            potcar (Potcar): The Potcar object.
+            potcar (Potcar or str): The Potcar object.
+            potcar_spec (bool = False) : used to share POTCAR info without license issues.
+                True --> POTCAR is a list of symbols, write POTCAR.spec
+                False --> POTCAR is a VASP POTCAR, write POTCAR
             optional_files (dict): Other input files supplied as a dict of {filename: object}.
                 The object should follow standard pymatgen conventions in implementing a
                 as_dict() and from_dict method.
             **kwargs: Additional keyword arguments to be stored in the VaspInput object.
         """
         super().__init__(**kwargs)
-        self.update({"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, "POTCAR": potcar})
+        self._potcar_filename = "POTCAR" + (".spec" if potcar_spec else "")
+        self.update({"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, self._potcar_filename: potcar})
         if optional_files is not None:
             self.update(optional_files)
 
@@ -2781,6 +2800,9 @@ class VaspInput(dict, MSONable):
         self,
         output_dir: PathLike = ".",
         make_dir_if_not_present: bool = True,
+        cif_name: str | None = None,
+        zip_name: str | None = None,
+        files_to_transfer: dict | None = None,
     ) -> None:
         """
         Write VASP inputs to a directory.
@@ -2790,6 +2812,14 @@ class VaspInput(dict, MSONable):
                 Defaults to current directory (".").
             make_dir_if_not_present (bool): Create the directory if not
                 present. Defaults to True.
+            cif_name (str or None): If a str, the name of the CIF file
+                to write the POSCAR to (the POSCAR will also be written).
+            zip_name (str or None): If a str, the name of the zip to
+                archive the VASP input set to.
+            files_to_transfer (dict) : A dictionary of
+                    { < input filename >: < output filepath >}.
+                This allows the transfer of < input filename > files from
+                a previous calculation to < output filepath >.
         """
         if not os.path.isdir(output_dir) and make_dir_if_not_present:
             os.makedirs(output_dir)
@@ -2798,6 +2828,28 @@ class VaspInput(dict, MSONable):
             if value is not None:
                 with zopen(os.path.join(output_dir, key), mode="wt") as file:
                     file.write(str(value))
+
+        if cif_name:
+            self["POSCAR"].structure.to(filename=cif_name)
+
+        if zip_name:
+            files_to_zip = list(self) + ([cif_name] if cif_name else [])
+            with ZipFile(os.path.join(output_dir, zip_name), mode="w") as zip_file:
+                for file in files_to_zip:
+                    try:
+                        zip_file.write(os.path.join(output_dir, file), arcname=file)
+                    except FileNotFoundError:
+                        pass
+
+                    try:
+                        os.remove(os.path.join(output_dir, file))
+                    except (FileNotFoundError, PermissionError, IsADirectoryError):
+                        pass
+
+        files_to_transfer = files_to_transfer or {}
+        for key, val in files_to_transfer.items():
+            with zopen(val, "rb") as fin, zopen(str(Path(output_dir) / key), "wb") as fout:
+                copyfileobj(fin, fout)
 
     @classmethod
     def from_directory(
@@ -2872,3 +2924,23 @@ class VaspInput(dict, MSONable):
             open(err_file, mode="w", encoding="utf-8", buffering=1) as stderr_file,
         ):
             subprocess.check_call(vasp_cmd, stdout=stdout_file, stderr=stderr_file)
+
+    @property
+    def incar(self) -> Incar:
+        """INCAR object."""
+        return Incar(self["INCAR"]) if isinstance(self["INCAR"], dict) else self["INCAR"]
+
+    @property
+    def kpoints(self) -> Kpoints | None:
+        """KPOINTS object."""
+        return self["KPOINTS"]
+
+    @property
+    def poscar(self) -> Poscar:
+        """POSCAR object."""
+        return self["POSCAR"]
+
+    @property
+    def potcar(self) -> Potcar | str | None:
+        """POTCAR or POTCAR.spec object."""
+        return self[self._potcar_filename]

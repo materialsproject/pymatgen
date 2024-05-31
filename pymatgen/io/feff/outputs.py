@@ -225,7 +225,7 @@ class LDos(MSONable):
         return cht
 
     def charge_transfer_to_str(self):
-        """Returns charge transfer as string."""
+        """Get charge transfer as string."""
         ch = self.charge_transfer
         chts = ["\nCharge Transfer\n\nabsorbing atom"]
         for i in range(len(ch)):
@@ -312,7 +312,7 @@ class Xmu(MSONable):
 
     @property
     def energies(self):
-        """Returns the absolute energies in eV."""
+        """The absolute energies in eV."""
         return self.data[:, 0]
 
     @property
@@ -330,37 +330,37 @@ class Xmu(MSONable):
 
     @property
     def mu(self):
-        """Returns the total absorption cross-section."""
+        """The total absorption cross-section."""
         return self.data[:, 3]
 
     @property
     def mu0(self):
-        """Returns the embedded atomic background absorption."""
+        """The embedded atomic background absorption."""
         return self.data[:, 4]
 
     @property
     def chi(self):
-        """Returns the normalized fine structure."""
+        """The normalized fine structure."""
         return self.data[:, 5]
 
     @property
     def e_fermi(self):
-        """Returns the Fermi level in eV."""
+        """The Fermi level in eV."""
         return self.energies[0] - self.relative_energies[0]
 
     @property
     def source(self):
-        """Returns source identification from Header file."""
+        """Source identification from Header file."""
         return self.header.source
 
     @property
     def calc(self):
-        """Returns type of Feff calculation, XANES or EXAFS."""
+        """Type of Feff calculation, XANES or EXAFS."""
         return "XANES" if "XANES" in self.parameters else "EXAFS"
 
     @property
     def material_formula(self):
-        """Returns chemical formula of material from feff.inp file."""
+        """Chemical formula of material from feff.inp file."""
         try:
             form = self.header.formula
         except IndexError:
@@ -369,11 +369,11 @@ class Xmu(MSONable):
 
     @property
     def edge(self):
-        """Returns excitation edge."""
+        """Excitation edge."""
         return self.parameters["EDGE"]
 
     def as_dict(self):
-        """Returns dict representations of Xmu object."""
+        """Get dict representations of Xmu object."""
         dct = MSONable.as_dict(self)
         dct["data"] = self.data.tolist()
         return dct
@@ -391,28 +391,27 @@ class Eels(MSONable):
 
     @property
     def energies(self):
-        """Returns the energies in eV."""
+        """The energies in eV."""
         return self.data[:, 0]
 
     @property
     def total_spectrum(self):
-        """Returns the total eels spectrum."""
+        """The total eels spectrum."""
         return self.data[:, 1]
 
     @property
-    def atomic_background(self):
-        """Returns: atomic background."""
+    def atomic_background(self) -> np.ndarray:
+        """The atomic background of EELS."""
         return self.data[:, 2]
 
     @property
-    def fine_structure(self):
-        """Returns: Fine structure of EELS."""
+    def fine_structure(self) -> np.ndarray:
+        """The fine structure of EELS."""
         return self.data[:, 3]
 
     @classmethod
     def from_file(cls, eels_dat_file: str = "eels.dat") -> Self:
-        """
-        Parse eels spectrum.
+        """Parse eels spectrum.
 
         Args:
             eels_dat_file (str): filename and path for eels.dat
@@ -424,7 +423,7 @@ class Eels(MSONable):
         return cls(data)
 
     def as_dict(self) -> dict:
-        """Returns dict representations of Xmu object."""
+        """Get dict representations of Xmu object."""
         dct = MSONable.as_dict(self)
         dct["data"] = self.data.tolist()
         return dct

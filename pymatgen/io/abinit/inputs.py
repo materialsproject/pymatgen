@@ -11,10 +11,9 @@ import copy
 import json
 import logging
 import os
-from collections import namedtuple
 from collections.abc import Mapping, MutableMapping, Sequence
 from enum import Enum, unique
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
 from monty.collections import AttrDict
@@ -29,7 +28,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 if TYPE_CHECKING:
     from typing_extensions import Self
 
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 
 
 # List of Abinit variables used to specify the structure.
@@ -90,9 +89,14 @@ _IRDVARS = (
 )
 
 
-# Tolerances for the different levels of accuracy.
+class T(NamedTuple):
+    """Tolerances for the different levels of accuracy."""
 
-T = namedtuple("T", "low normal high")
+    low: float
+    normal: float
+    high: float
+
+
 _tolerances = {
     "toldfe": T(1.0e-7, 1.0e-8, 1.0e-9),
     "tolvrs": T(1.0e-7, 1.0e-8, 1.0e-9),
@@ -267,8 +271,7 @@ def gs_input(
     charge=0.0,
     scf_algorithm=None,
 ):
-    """
-    Returns a BasicAbinitInput for ground-state calculation.
+    """Get a BasicAbinitInput for ground-state calculation.
 
     Args:
         structure: |Structure| object.
@@ -319,8 +322,7 @@ def ebands_input(
     scf_algorithm=None,
     dos_kppa=None,
 ):
-    """
-    Returns a |BasicMultiDataset| object for band structure calculations.
+    """Get a |BasicMultiDataset| object for band structure calculations.
 
     Args:
         structure: |Structure| object.
@@ -423,8 +425,7 @@ def ion_ioncell_relax_input(
     scf_algorithm=None,
     shift_mode="Monkhorst-pack",
 ):
-    """
-    Returns a |BasicMultiDataset| for a structural relaxation. The first dataset optimizes the
+    """Get a |BasicMultiDataset| for a structural relaxation. The first dataset optimizes the
     atomic positions at fixed unit cell. The second datasets optimizes both ions and unit cell parameters.
 
     Args:
@@ -571,19 +572,18 @@ def calc_shiftk(structure, symprec: float = 0.01, angle_tolerance=5):
     return np.reshape(shiftk, (-1, 3))
 
 
-def num_valence_electrons(structure, pseudos):
-    """
-    Returns the number of valence electrons.
+def num_valence_electrons(structure, pseudos) -> float:
+    """Get the number of valence electrons.
 
     Args:
         pseudos: List of |Pseudo| objects or list of filenames.
     """
-    nval, table = 0, PseudoTable.as_table(pseudos)
+    n_val, table = 0, PseudoTable.as_table(pseudos)
     for site in structure:
         pseudo = table.pseudo_with_symbol(site.specie.symbol)
-        nval += pseudo.Z_val
+        n_val += pseudo.Z_val
 
-    return int(nval) if int(nval) == nval else nval
+    return int(n_val) if int(n_val) == n_val else n_val
 
 
 class AbstractInput(MutableMapping, abc.ABC):
@@ -686,7 +686,8 @@ class AbstractInput(MutableMapping, abc.ABC):
 
         return removed
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def vars(self):
         """Dictionary with the input variables. Used to implement dict-like interface."""
 
@@ -696,7 +697,7 @@ class AbstractInput(MutableMapping, abc.ABC):
 
     @abc.abstractmethod
     def to_str(self):
-        """Returns a string with the input."""
+        """Get a string with the input."""
 
 
 class BasicAbinitInputError(Exception):
@@ -704,7 +705,7 @@ class BasicAbinitInputError(Exception):
 
 
 class BasicAbinitInput(AbstractInput, MSONable):
-    """This object stores the ABINIT variables for a single dataset."""
+    """Store the ABINIT variables for a single dataset."""
 
     Error = BasicAbinitInputError
 
@@ -793,10 +794,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return cls(dct["structure"], pseudos, comment=dct["comment"], abi_args=dct["abi_args"])
 
     def add_abiobjects(self, *abi_objects):
-        """
-        This function receive a list of AbiVarable objects and add
-        the corresponding variables to the input.
-        """
+        """For a list of AbiVarable objects, add the corresponding variables to the input."""
         dct = {}
         for obj in abi_objects:
             if not hasattr(obj, "to_abivars"):
@@ -975,8 +973,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
         return all(p.isnc for p in self.pseudos)
 
     def new_with_vars(self, *args, **kwargs):
-        """
-        Return a new input with the given variables.
+        """Get a new input with the given variables.
 
         Example:
             new = input.new_with_vars(ecut=20)
@@ -1081,7 +1078,7 @@ class BasicMultiDataset:
 
     @classmethod
     def from_inputs(cls, inputs: list[BasicAbinitInput]) -> Self:
-        """Build object from a list of BasicAbinitInputs."""
+        """Construct a multidataset from a list of BasicAbinitInputs."""
         for inp in inputs:
             if any(p1 != p2 for p1, p2 in zip(inputs[0].pseudos, inp.pseudos)):
                 raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
@@ -1116,7 +1113,7 @@ class BasicMultiDataset:
 
     @property
     def pseudos(self):
-        """Pseudopotential objects."""
+        """Abinit pseudopotentials."""
         return self[0].pseudos
 
     @property

@@ -81,7 +81,7 @@ class CorrectionCalculator:
         if "S" in self.species:
             self.sulfides: list[str] = []
 
-    def compute_from_files(self, exp_gz: str, comp_gz: str):
+    def compute_from_files(self, exp_gz: str, comp_gz: str) -> dict:
         """
         Args:
             exp_gz: name of .json.gz file that contains experimental data
@@ -100,9 +100,11 @@ class CorrectionCalculator:
         """Compute the corrections and fills in correction, corrections_std_error, and corrections_dict.
 
         Args:
-            exp_entries: list of dictionary objects with the following keys/values:
-                    {"formula": chemical formula, "exp energy": formation energy in eV/formula unit,
-                    "uncertainty": uncertainty in formation energy}
+            exp_entries: list of dictionary objects with the following keys/values: {
+                    "formula": chemical formula,
+                    "exp energy": formation energy in eV/formula unit,
+                    "uncertainty": uncertainty in formation energy
+                }
             calc_entries: dictionary of computed entries, of the form {chemical formula: ComputedEntry}
 
         Raises:

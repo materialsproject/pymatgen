@@ -54,7 +54,7 @@ class AbstractFeffInputSet(MSONable, abc.ABC):
 
     @abc.abstractmethod
     def header(self):
-        """Returns header to be used in feff.inp file from a pymatgen structure."""
+        """Get header to be used in feff.inp file from a pymatgen structure."""
 
     @property
     @abc.abstractmethod
@@ -68,16 +68,16 @@ class AbstractFeffInputSet(MSONable, abc.ABC):
     @property
     @abc.abstractmethod
     def tags(self):
-        """Returns standard calculation parameters."""
+        """Get standard calculation parameters."""
         return
 
     @property
     @abc.abstractmethod
     def potential(self):
-        """Returns POTENTIAL section used in feff.inp from a structure."""
+        """Get POTENTIAL section used in feff.inp from a structure."""
 
     def all_input(self):
-        """Returns all input files as a dict of {filename: feffio object}."""
+        """Get all input files as a dict of {filename: feffio object}."""
         dct = {"HEADER": self.header(), "PARAMETERS": self.tags}
 
         if "RECIPROCAL" not in self.tags:

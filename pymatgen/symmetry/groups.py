@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Sequence
 from fractions import Fraction
 from itertools import product
-from typing import TYPE_CHECKING, ClassVar, Literal, overload
+from typing import TYPE_CHECKING, overload
 
 import numpy as np
 from monty.design_patterns import cached_class
@@ -21,16 +21,20 @@ from monty.serialization import loadfn
 from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
+    from typing import ClassVar, Literal
+
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
-    # don't import at runtime to avoid circular import
     from pymatgen.core.lattice import Lattice
+
+    # Don't import at runtime to avoid circular import
     from pymatgen.core.operations import SymmOp  # noqa: TCH004
+
+    CrystalSystem = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "tetragonal", "triclinic", "trigonal"]
 
 
 SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.json"))
-CrystalSystem = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "tetragonal", "triclinic", "trigonal"]
 
 
 class SymmetryGroup(Sequence, Stringify, ABC):
@@ -100,7 +104,7 @@ class SymmetryGroup(Sequence, Stringify, ABC):
 
 @cached_class
 class PointGroup(SymmetryGroup):
-    """Class representing a Point Group, with generators and symmetry operations.
+    """A Point Group, with generators and symmetry operations.
 
     Attributes:
         symbol (str): Full International or Hermann-Mauguin Symbol.
@@ -145,7 +149,7 @@ class PointGroup(SymmetryGroup):
         return symm_ops
 
     def get_orbit(self, p: ArrayLike, tol: float = 1e-5) -> list[np.ndarray]:
-        """Returns the orbit for a point.
+        """Get the orbit for a point.
 
         Args:
             p: Point as a 3x1 array.
@@ -166,7 +170,7 @@ class PointGroup(SymmetryGroup):
 
 @cached_class
 class SpaceGroup(SymmetryGroup):
-    """Class representing a SpaceGroup.
+    """A SpaceGroup.
 
     Attributes:
         symbol (str): Full International or Hermann-Mauguin Symbol.
@@ -187,8 +191,8 @@ class SpaceGroup(SymmetryGroup):
     # POINT_GROUP_ENC = SYMM_DATA["point_group_encoding"]
     sg_encoding = SYMM_DATA["space_group_encoding"]
     abbrev_sg_mapping = SYMM_DATA["abbreviated_spacegroup_symbols"]
-    translations = {k: Fraction(v) for k, v in SYMM_DATA["translations"].items()}
-    full_sg_mapping = {v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()}
+    translations: ClassVar = {k: Fraction(v) for k, v in SYMM_DATA["translations"].items()}
+    full_sg_mapping: ClassVar = {v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()}
 
     def __init__(self, int_symbol: str) -> None:
         """Initialize a Space Group from its full or abbreviated international
@@ -281,7 +285,7 @@ class SpaceGroup(SymmetryGroup):
 
     @classmethod
     def get_settings(cls, int_symbol: str) -> set[str]:
-        """Returns all the settings for a particular international symbol.
+        """Get all the settings for a particular international symbol.
 
         Args:
             int_symbol (str): Full International (e.g., "P2/m2/m2/m") or
@@ -328,7 +332,7 @@ class SpaceGroup(SymmetryGroup):
         return self._symmetry_ops
 
     def get_orbit(self, p: ArrayLike, tol: float = 1e-5) -> list[np.ndarray]:
-        """Returns the orbit for a point.
+        """Get the orbit for a point.
 
         Args:
             p: Point as a 3x1 array.
@@ -348,7 +352,7 @@ class SpaceGroup(SymmetryGroup):
         return orbit
 
     def get_orbit_and_generators(self, p: ArrayLike, tol: float = 1e-5) -> tuple[list[np.ndarray], list[SymmOp]]:
-        """Returns the orbit and its generators for a point.
+        """Get the orbit and its generators for a point.
 
         Args:
             p: Point as a 3x1 array.

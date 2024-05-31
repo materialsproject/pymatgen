@@ -13,7 +13,7 @@ import logging
 import multiprocessing as mp
 import re
 from collections import defaultdict
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 
@@ -23,6 +23,7 @@ from pymatgen.core import Composition, Element
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+    from typing import Literal
 
     from typing_extensions import Self
 
@@ -260,7 +261,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         return entry in self.ground_states
 
     def get_subset_in_chemsys(self, chemsys: list[str]):
-        """Returns an EntrySet containing only the set of entries belonging to
+        """Get an EntrySet containing only the set of entries belonging to
         a particular chemical system (in this definition, it includes all sub
         systems). For example, if the entries are from the
         Li-Fe-P-O system, and chemsys=["Li", "O"], only the Li, O,
@@ -286,7 +287,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         return EntrySet(subset)
 
     def as_dict(self) -> dict[Literal["entries"], list[Entry]]:
-        """Returns MSONable dict."""
+        """Get MSONable dict."""
         return {"entries": list(self.entries)}
 
     def to_csv(self, filename: str, latexify_names: bool = False) -> None:

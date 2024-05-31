@@ -86,10 +86,7 @@ def mol_graph_from_openff_mol(molecule: tk.Molecule) -> MoleculeGraph:
     Returns:
         MoleculeGraph: The converted MoleculeGraph.
     """
-    mol_graph = MoleculeGraph.with_empty_graph(
-        Molecule([], []),
-        name="none",
-    )
+    mol_graph = MoleculeGraph.with_empty_graph(Molecule([], []), name="none")
     p_table = {el.Z: str(el) for el in Element}
     total_charge = 0
     cum_atoms = 0
@@ -267,8 +264,7 @@ def create_openff_mol(
     partial_charges: list[float] | None = None,
     backup_charge_method: str = "am1bcc",
 ) -> tk.Molecule:
-    """
-    Create an OpenFF Molecule from a SMILES string and optional geometry.
+    """Create an OpenFF Molecule from a SMILES string and optional geometry.
 
     Constructs an OpenFF Molecule from the provided SMILES
     string, adds conformers based on the provided geometry (if

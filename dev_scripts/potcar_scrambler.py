@@ -47,7 +47,7 @@ class PotcarScrambler:
 
     def _rand_float_from_str_with_prec(self, input_str: str, bloat: float = 1.5) -> float:
         n_prec = len(input_str.split(".")[1])
-        bd = max(1, bloat * abs(float(input_str)))
+        bd = max(1, bloat * abs(float(input_str)))  # ensure we don't get 0
         return round(bd * np.random.rand(1)[0], n_prec)
 
     def _read_fortran_str_and_scramble(self, input_str: str, bloat: float = 1.5):
@@ -172,7 +172,7 @@ def generate_fake_potcar_libraries() -> None:
 
 
 def potcar_cleanser() -> None:
-    """Function to replace copyrighted POTCARs used in io.vasp.sets testing
+    """Replace copyrighted POTCARs used in io.vasp.sets testing
     with dummy POTCARs that have scrambled PSP and kinetic energy values
     (but retain the original header information which is also found in OUTCARs
     and freely shared by VASP)

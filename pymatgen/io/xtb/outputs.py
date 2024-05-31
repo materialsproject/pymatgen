@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class CRESTOutput(MSONable):
-    """Class to parse CREST output files."""
+    """Parse CREST output files."""
 
     def __init__(self, output_filename, path="."):
         """
@@ -42,8 +42,7 @@ class CRESTOutput(MSONable):
         self._parse_crest_output()
 
     def _parse_crest_output(self):
-        """
-        Parse output file and directory to extract all command line inputs
+        """Parse output file and directory to extract all command line inputs
             and output files.
         Sets the attributes:
             cmd_options: Dict of type {flag: value}

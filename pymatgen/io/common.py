@@ -112,8 +112,8 @@ class VolumetricData(MSONable):
     def __sub__(self, other):
         return self.linear_add(other, -1.0)
 
-    def copy(self):
-        """Copy of Volumetric object"""
+    def copy(self) -> Self:
+        """Make a copy of VolumetricData object"""
         return VolumetricData(
             self.structure,
             {k: v.copy() for k, v in self.data.items()},

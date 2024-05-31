@@ -4,8 +4,7 @@ from __future__ import annotations
 
 import logging
 import sys
-from collections import namedtuple
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 from urllib.parse import urljoin, urlparse
 
 import requests
@@ -16,10 +15,9 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.provenance import StructureNL
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import ClassVar
 
-# TODO: importing optimade-python-tool's data structures will make more sense
-Provider = namedtuple("Provider", ["name", "base_url", "description", "homepage", "prefix"])
+    from typing_extensions import Self
 
 _logger = logging.getLogger(__name__)
 _handler = logging.StreamHandler(sys.stdout)
@@ -27,12 +25,22 @@ _logger.addHandler(_handler)
 _logger.setLevel(logging.WARNING)
 
 
+class Provider(NamedTuple):
+    """TODO: Import optimade-python-tool's data structures will make more sense."""
+
+    name: str
+    base_url: str
+    description: str
+    homepage: str
+    prefix: str
+
+
 @due.dcite(
     Doi("10.1038/s41597-021-00974-z"),
     description="OPTIMADE, an API for exchanging materials data",
 )
 class OptimadeRester:
-    """Class to call OPTIMADE-compliant APIs, see https://optimade.org and [1].
+    """Call OPTIMADE-compliant APIs, see https://optimade.org and [1].
 
     This class is ready to use but considered in-development and subject to change.
 
@@ -50,7 +58,7 @@ class OptimadeRester:
 
     # regenerate on-demand from official providers.json using OptimadeRester.refresh_aliases()
     # these aliases are provided as a convenient shortcut for users of the OptimadeRester class
-    aliases = {
+    aliases: ClassVar = {
         "aflow": "http://aflow.org/API/optimade/",
         "alexandria": "https://alexandria.icams.rub.de/pbe",
         "alexandria.pbe": "https://alexandria.icams.rub.de/pbe",

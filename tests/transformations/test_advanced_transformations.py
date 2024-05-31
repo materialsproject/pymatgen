@@ -54,8 +54,7 @@ except ImportError:
 
 
 def get_table():
-    """
-    Loads a lightweight lambda table for use in unit tests to reduce
+    """Loads a lightweight lambda table for use in unit tests to reduce
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """

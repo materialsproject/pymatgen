@@ -585,7 +585,7 @@ class GulpIO:
                 # read the site coordinates in the following lines
                 idx += 6
                 line = output_lines[idx]
-                while line[0:2] != "--":
+                while line[:2] != "--":
                     structure_lines.append(line)
                     idx += 1
                     line = output_lines[idx]
@@ -630,7 +630,7 @@ class GulpIO:
 
 
 class GulpCaller:
-    """Class to run gulp from command line."""
+    """Run gulp from command line."""
 
     def __init__(self, cmd="gulp"):
         """Initialize with the executable if not in the standard path.

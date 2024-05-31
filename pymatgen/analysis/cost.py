@@ -41,15 +41,11 @@ class CostEntry(PDEntry):
     def __init__(self, composition, cost, name, reference):
         """
         Args:
-            composition:
-                Composition as a pymatgen.core.structure.Composition
-            cost:
-                Cost (per mol, NOT per kg) of the full Composition
-            name:
-                Optional parameter to name the entry. Defaults to the reduced
+            composition (Composition): chemical composition of the entry
+            cost (float): per mol, NOT per kg of the full Composition
+            name (str): Optional parameter to name the entry. Defaults to the reduced
                 chemical formula as in PDEntry.
-            reference:
-                Reference data as BiBTeX string.
+            reference (str): Reference data as BiBTeX string.
         """
         super().__init__(composition, cost, name)
         if reference and not is_valid_bibtex(reference):
@@ -71,13 +67,11 @@ class CostDB(abc.ABC):
         """For a given chemical system, return an array of CostEntries.
 
         Args:
-            chemsys:
-                array of Elements defining the chemical system.
+            chemsys (list[SpeciesLike]): Elements defining the chemical system.
 
         Returns:
-            array of CostEntries
+            list[CostEntries]
         """
-        return
 
 
 class CostDBCSV(CostDB):
@@ -107,8 +101,7 @@ class CostDBCSV(CostDB):
         """For a given chemical system, return an array of CostEntries.
 
         Args:
-            chemsys:
-                array of Elements defining the chemical system.
+            chemsys (list[Element]): Elements defining the chemical system.
 
         Returns:
             array of CostEntries
@@ -119,7 +112,7 @@ class CostDBCSV(CostDB):
 
 @singleton
 class CostDBElements(CostDBCSV):
-    """Singleton object that provides the cost data for elements."""
+    """Singleton that provides the cost data for elements."""
 
     def __init__(self):
         CostDBCSV.__init__(self, f"{module_dir}/costdb_elements.csv")
@@ -145,15 +138,15 @@ class CostAnalyzer:
         Returns:
             Decomposition as a dict of {Entry: amount}
         """
-        entries_list = []
+        entries = []
         elements = [e.symbol for e in composition.elements]
         for idx in range(len(elements)):
             for combi in itertools.combinations(elements, idx + 1):
                 chemsys = [Element(el) for el in combi]
                 x = self.costdb.get_entries(chemsys)
-                entries_list.extend(x)
+                entries.extend(x)
         try:
-            pd = PhaseDiagram(entries_list)
+            pd = PhaseDiagram(entries)
             return pd.get_decomposition(composition)
         except IndexError:
             raise ValueError("Error during PD building; most likely, cost data does not exist!")

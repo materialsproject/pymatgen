@@ -22,7 +22,7 @@ from glob import glob
 from pathlib import Path
 from shutil import which
 from tempfile import TemporaryDirectory
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import deprecated
@@ -34,6 +34,8 @@ from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from typing_extensions import Self
 
     from pymatgen.core import Structure
@@ -319,7 +321,7 @@ class BaderAnalysis:
         return self.data[atom_index]["charge"]
 
     def get_charge_transfer(self, atom_index: int, nelect: int | None = None) -> float:
-        """Returns the charge transferred for a particular atom. A positive value means
+        """Get the charge transferred for a particular atom. A positive value means
         that the site has gained electron density (i.e. exhibits anionic character)
         whereas a negative value means the site has lost electron density (i.e. exhibits
         cationic character). If the arg nelect is not supplied, then POTCAR must be
@@ -357,7 +359,7 @@ class BaderAnalysis:
         return -self.get_charge_transfer(atom_index, nelect)
 
     def get_charge_decorated_structure(self) -> Structure:
-        """Returns a charge decorated structure.
+        """Get a charge decorated structure.
 
         Note, this assumes that the Bader analysis was correctly performed on a file
         with electron densities
@@ -368,7 +370,7 @@ class BaderAnalysis:
         return struct
 
     def get_oxidation_state_decorated_structure(self, nelects: list[int] | None = None) -> Structure:
-        """Returns an oxidation state decorated structure based on bader analysis results.
+        """Get an oxidation state decorated structure based on bader analysis results.
         Each site is assigned a charge based on the computed partial atomic charge from bader.
 
         Note, this assumes that the Bader analysis was correctly performed on a file
@@ -497,7 +499,7 @@ class BaderAnalysis:
         )
 
 
-def bader_analysis_from_path(path: str, suffix: str = ""):
+def bader_analysis_from_path(path: str, suffix: str = "") -> dict[str, Any]:
     """Convenience method to run Bader analysis on a folder containing
     typical VASP output files.
 
@@ -560,7 +562,7 @@ def bader_analysis_from_objects(
     potcar: Potcar | None = None,
     aeccar0: Chgcar | None = None,
     aeccar2: Chgcar | None = None,
-):
+) -> dict[str, Any]:
     """Convenience method to run Bader analysis from a set
     of pymatgen Chgcar and Potcar objects.
 

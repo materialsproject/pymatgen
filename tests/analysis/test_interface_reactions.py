@@ -4,7 +4,7 @@ from unittest import TestCase
 
 import numpy as np
 import pytest
-from matplotlib.figure import Figure as mpl_figure
+from matplotlib.figure import Figure as MplFigure
 from numpy.testing import assert_allclose
 from pandas import DataFrame
 from plotly.graph_objects import Figure
@@ -392,7 +392,7 @@ class TestInterfaceReaction(TestCase):
     def test_plot(self):
         for ir in self.irs:
             fig = ir.plot(backend="matplotlib")
-            assert fig, isinstance(fig, mpl_figure)
+            assert fig, isinstance(fig, MplFigure)
 
             fig = ir.plot(backend="plotly")
             assert isinstance(fig, Figure)

@@ -266,8 +266,7 @@ class WulffShape:
         Assign colors according to the surface energies of on_wulff facets.
 
         Returns:
-            tuple: color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff,
-            e_surf_on_wulff_list
+            tuple: color_list, color_proxy, color_proxy_on_wulff, miller_on_wulff, e_surf_on_wulff_list
         """
 
         color_list = [off_color] * len(self.hkl_list)
@@ -315,7 +314,7 @@ class WulffShape:
         self.get_plot(*args, **kwargs).show()
 
     def get_line_in_facet(self, facet):
-        """Returns the sorted pts in a facet used to draw a line."""
+        """Get the sorted pts in a facet used to draw a line."""
         lines = list(facet.outer_lines)
         pt = []
         prev = line = None
@@ -626,12 +625,12 @@ class WulffShape:
 
     @property
     def miller_area_dict(self) -> dict[tuple, float]:
-        """Returns {hkl: area_hkl on wulff}."""
+        """{hkl: area_hkl on wulff}."""
         return dict(zip(self.miller_list, self.color_area))
 
     @property
     def miller_energy_dict(self) -> dict[tuple, float]:
-        """Returns {hkl: surface energy_hkl}."""
+        """{hkl: surface energy_hkl}."""
         return dict(zip(self.miller_list, self.e_surf_list))
 
     @property
@@ -672,8 +671,7 @@ class WulffShape:
 
     @property
     def shape_factor(self) -> float:
-        """
-        This is useful for determining the critical nucleus size.
+        """Determine the critical nucleus size.
         A large shape factor indicates great anisotropy.
         See Ballufi, R. W., Allen, S. M. & Carter, W. C. Kinetics
             of Materials. (John Wiley & Sons, 2005), p.461.
@@ -686,10 +684,10 @@ class WulffShape:
     @property
     def effective_radius(self) -> float:
         """
-        Radius of the WulffShape when the WulffShape is approximated as a sphere.
+        Radius of the WulffShape (in Angstroms) when the WulffShape is approximated as a sphere.
 
         Returns:
-            float: radius.
+            float: radius R_eff
         """
         return ((3 / 4) * (self.volume / np.pi)) ** (1 / 3)
 

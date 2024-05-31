@@ -35,7 +35,7 @@ KB: float = scipy.constants.physical_constants["Boltzmann constant in eV/K"][0]
 
 @dataclass
 class DielectricFunctionCalculator(MSONable):
-    """Class for postprocessing VASP optical properties calculations.
+    """Post-process VASP optical properties calculations.
 
     This objects helps load the different parameters from the vasprun.xml file but allows users to override
     them as needed.
@@ -215,7 +215,7 @@ class DielectricFunctionCalculator(MSONable):
         Since the computation of the final spectrum (especially the smearing part)
         is still fairly expensive.  This function can be used to check the values
         of some portion of the spectrum (defined by the mask).
-        In a sense, we are lookin at the imaginary part of the dielectric function
+        In a sense, we are looking at the imaginary part of the dielectric function
         before the smearing is applied.
 
         Args:

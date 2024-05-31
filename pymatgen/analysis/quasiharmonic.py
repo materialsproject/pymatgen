@@ -340,7 +340,7 @@ class QuasiHarmonicDebyeApprox:
         return kappa * theta_a**2 * volume ** (1 / 3) * 1e-10
 
     def get_summary_dict(self):
-        """Returns a dict with a summary of the computed properties."""
+        """Get a dict with a summary of the computed properties."""
         dct = defaultdict(list)
         dct["pressure"] = self.pressure
         dct["poisson"] = self.poisson

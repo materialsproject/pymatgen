@@ -7,7 +7,7 @@ import math
 import re
 import warnings
 from collections import defaultdict
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
@@ -18,6 +18,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import pbc_diff
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from typing_extensions import Self
 
 __author__ = "Geoffroy Hautier, Shyue Ping Ong, Michael Kocher"
@@ -30,7 +32,7 @@ __date__ = "March 14, 2012"
 
 
 class Kpoint(MSONable):
-    """Class to store kpoint objects. A kpoint is defined with a lattice and frac
+    """Store kpoint objects. A kpoint is defined with a lattice and frac
     or Cartesian coordinates syntax similar than the site object in
     pymatgen.core.structure.
     """
@@ -108,7 +110,7 @@ class Kpoint(MSONable):
         return self._frac_coords[2]
 
     def __str__(self) -> str:
-        """Returns a string with fractional, Cartesian coordinates and label."""
+        """Get a string with fractional, Cartesian coordinates and label."""
         return f"{self.frac_coords} {self.cart_coords} {self.label}"
 
     def __eq__(self, other: object) -> bool:
@@ -234,7 +236,7 @@ class BandStructure:
         self.is_spin_polarized = len(self.bands) == 2
 
     def get_projection_on_elements(self):
-        """Method returning a dictionary of projections on elements.
+        """Get a dictionary of projections on elements.
 
         Returns:
             a dictionary in the {Spin.up:[][{Element: [values]}],
@@ -243,25 +245,22 @@ class BandStructure:
             returns an empty dict
         """
         result = {}
-        structure = self.structure
         for spin, v in self.projections.items():
             result[spin] = [[defaultdict(float) for i in range(len(self.kpoints))] for j in range(self.nb_bands)]
             for i, j, k in itertools.product(
                 range(self.nb_bands),
                 range(len(self.kpoints)),
-                range(len(structure)),
+                range(len(self.structure)),
             ):
-                result[spin][i][j][str(structure[k].specie)] += np.sum(v[i, j, :, k])
+                result[spin][i][j][str(self.structure[k].specie)] += np.sum(v[i, j, :, k])
         return result
 
-    def get_projections_on_elements_and_orbitals(self, el_orb_spec):
-        """Method returning a dictionary of projections on elements and specific
-        orbitals.
+    def get_projections_on_elements_and_orbitals(self, el_orb_spec: dict[str, list[str]]):
+        """Get a dictionary of projections on elements and specific orbitals.
 
         Args:
-            el_orb_spec: A dictionary of Elements and Orbitals for which we want
-                to have projections on. It is given as: {Element:[orbitals]},
-                e.g. {'Cu':['d','s']}
+            el_orb_spec (dict[str, list[str]]): A dictionary of elements and orbitals which
+                to project onto. Format is {Element: [orbitals]}, e.g. {'Cu':['d','s']}.
 
         Returns:
             A dictionary of projections on elements in the
@@ -269,24 +268,25 @@ class BandStructure:
             Spin.down:[][{Element:{orb:values}}]} format
             if there is no projections in the band structure returns an empty dict.
         """
-        result = {}
-        structure = self.structure
-        el_orb_spec = {get_el_sp(el): orbs for el, orbs in el_orb_spec.items()}
+        if self.structure is None:
+            raise ValueError("Structure is required for this method")
+        result: dict[Spin, list] = {}
+        species_orb_spec = {get_el_sp(el): orbs for el, orbs in el_orb_spec.items()}
         for spin, v in self.projections.items():
             result[spin] = [
-                [{str(e): defaultdict(float) for e in el_orb_spec} for i in range(len(self.kpoints))]
+                [{str(e): defaultdict(float) for e in species_orb_spec} for i in range(len(self.kpoints))]
                 for j in range(self.nb_bands)
             ]
 
             for i, j, k in itertools.product(
                 range(self.nb_bands),
                 range(len(self.kpoints)),
-                range(len(structure)),
+                range(len(self.structure)),
             ):
-                sp = structure[k].specie
+                sp = self.structure[k].specie
                 for orb_i in range(len(v[i][j])):
                     o = Orbital(orb_i).name[0]
-                    if sp in el_orb_spec and o in el_orb_spec[sp]:
+                    if sp in species_orb_spec and o in species_orb_spec[sp]:
                         result[spin][i][j][str(sp)][o] += v[i][j][orb_i][k]
         return result
 
@@ -304,7 +304,7 @@ class BandStructure:
         return False
 
     def get_vbm(self):
-        """Returns data about the VBM.
+        """Get data about the VBM.
 
         Returns:
             dict: With keys "band_index", "kpoint_index", "kpoint", "energy"
@@ -368,7 +368,7 @@ class BandStructure:
         }
 
     def get_cbm(self):
-        """Returns data about the CBM.
+        """Get data about the CBM.
 
         Returns:
             dict[str, Any]: with keys band_index, kpoint_index, kpoint, energy.
@@ -434,7 +434,7 @@ class BandStructure:
         }
 
     def get_band_gap(self):
-        r"""Returns band gap data.
+        r"""Get band gap data.
 
         Returns:
             A dict {"energy","direct","transition"}:
@@ -465,7 +465,7 @@ class BandStructure:
         return result
 
     def get_direct_band_gap_dict(self):
-        """Returns a dictionary of information about the direct
+        """Get a dictionary of information about the direct
         band gap.
 
         Returns:
@@ -494,7 +494,7 @@ class BandStructure:
         return direct_gap_dict
 
     def get_direct_band_gap(self):
-        """Returns the direct band gap.
+        """Get the direct band gap.
 
         Returns:
             the value of the direct band gap
@@ -505,7 +505,7 @@ class BandStructure:
         return min(v["value"] for v in dg.values())
 
     def get_sym_eq_kpoints(self, kpoint, cartesian=False, tol: float = 1e-2):
-        """Returns a list of unique symmetrically equivalent k-points.
+        """Get a list of unique symmetrically equivalent k-points.
 
         Args:
             kpoint (1x3 array): coordinate of the k-point
@@ -530,7 +530,7 @@ class BandStructure:
         return np.delete(points, rm_list, axis=0)
 
     def get_kpoint_degeneracy(self, kpoint, cartesian=False, tol: float = 1e-2):
-        """Returns degeneracy of a given k-point based on structure symmetry.
+        """Get degeneracy of a given k-point based on structure symmetry.
 
         Args:
             kpoint (1x3 array): coordinate of the k-point
@@ -681,9 +681,8 @@ class BandStructure:
 
 
 class BandStructureSymmLine(BandStructure, MSONable):
-    r"""This object stores band structures along selected (symmetry) lines in the
-    Brillouin zone. We call the different symmetry lines (ex: \\Gamma to Z)
-    "branches".
+    r"""Store band structures along selected (symmetry) lines in the Brillouin zone.
+    We call the different symmetry lines (ex: \\Gamma to Z) "branches".
     """
 
     def __init__(
@@ -772,7 +771,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
             self.is_spin_polarized = True
 
     def get_equivalent_kpoints(self, index):
-        """Returns the list of kpoint indices equivalent (meaning they are the
+        """Get the list of kpoint indices equivalent (meaning they are the
         same frac coords) to the given one.
 
         Args:
@@ -798,7 +797,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         return list_index_kpoints
 
     def get_branch(self, index):
-        r"""Returns in what branch(es) is the kpoint. There can be several
+        r"""Get in what branch(es) is the kpoint. There can be several
         branches.
 
         Args:
@@ -812,13 +811,13 @@ class BandStructureSymmLine(BandStructure, MSONable):
         """
         to_return = []
         for idx in self.get_equivalent_kpoints(index):
-            for b in self.branches:
-                if b["start_index"] <= idx <= b["end_index"]:
+            for branch in self.branches:
+                if branch["start_index"] <= idx <= branch["end_index"]:
                     to_return.append(
                         {
-                            "name": b["name"],
-                            "start_index": b["start_index"],
-                            "end_index": b["end_index"],
+                            "name": branch["name"],
+                            "start_index": branch["start_index"],
+                            "end_index": branch["end_index"],
                             "index": idx,
                         }
                     )
@@ -1007,8 +1006,8 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         )
 
     def get_projection_on_elements(self):
-        """Method returning a dictionary of projections on elements.
-        It sums over all available orbitals for each element.
+        """Get a dictionary of projections on elements. It sums over all available orbitals
+        for each element.
 
         Returns:
             a dictionary in the {Spin.up:[][{Element:values}],
@@ -1027,8 +1026,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         return result
 
     def get_projections_on_elements_and_orbitals(self, el_orb_spec):
-        """Method returning a dictionary of projections on elements and specific
-        orbitals.
+        """Return a dictionary of projections on elements and specific orbitals.
 
         Args:
             el_orb_spec: A dictionary of Elements and Orbitals for which we want

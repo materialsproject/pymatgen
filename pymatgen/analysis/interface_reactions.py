@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 import os
 import warnings
-from typing import Literal
+from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -22,6 +22,9 @@ from pymatgen.core.composition import Composition
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
+
+if TYPE_CHECKING:
+    from typing import Literal
 
 __author__ = "Yihan Xiao, Matthew McDermott"
 __maintainer__ = "Matthew McDermott"
@@ -258,8 +261,7 @@ class InterfacialReactivity(MSONable):
         return c1_coeff * 1 / (c1_coeff + c2_coeff)
 
     def _get_energy(self, x):
-        """
-        Computes reaction energy in eV/atom at mixing ratio x : (1-x) for
+        """Compute reaction energy in eV/atom at mixing ratio x : (1-x) for
         self.comp1 : self.comp2.
 
         Args:
@@ -271,7 +273,7 @@ class InterfacialReactivity(MSONable):
         return self.pd.get_hull_energy(self.comp1 * x + self.comp2 * (1 - x)) - self.e1 * x - self.e2 * (1 - x)
 
     def _get_reactants(self, x: float) -> list[Composition]:
-        """Returns a list of relevant reactant compositions given an x coordinate."""
+        """Get a list of relevant reactant compositions given an x coordinate."""
         # Uses original composition for reactants.
         if np.isclose(x, 0):
             reactants = [self.c2_original]
@@ -310,8 +312,7 @@ class InterfacialReactivity(MSONable):
         return reaction
 
     def _get_elem_amt_in_rxn(self, rxn: Reaction) -> float:
-        """
-        Computes total number of atoms in a reaction formula for elements
+        """Compute total number of atoms in a reaction formula for elements
         not in external reservoir. This method is used in the calculation
         of reaction energy per mol of reaction formula.
 
@@ -324,7 +325,7 @@ class InterfacialReactivity(MSONable):
         return sum(rxn.get_el_amount(e) for e in self.pd.elements)
 
     def _get_plotly_figure(self) -> Figure:
-        """Returns a Plotly figure of reaction kinks diagram."""
+        """Get a Plotly figure of reaction kinks diagram."""
         kinks = map(list, zip(*self.get_kinks()))
         _, x, energy, reactions, _ = kinks
 
@@ -387,7 +388,7 @@ class InterfacialReactivity(MSONable):
         return Figure(data=data, layout=layout)
 
     def _get_matplotlib_figure(self) -> plt.Figure:
-        """Returns a matplotlib figure of reaction kinks diagram."""
+        """Get a matplotlib figure of reaction kinks diagram."""
         ax = pretty_plot(8, 5)
         plt.xlim([-0.05, 1.05])  # plot boundary is 5% wider on each side
 
@@ -421,7 +422,7 @@ class InterfacialReactivity(MSONable):
         return fig
 
     def _get_xaxis_title(self, latex: bool = True) -> str:
-        """Returns the formatted title of the x axis (using either html/latex)."""
+        """Get the formatted title of the x axis (using either html/latex)."""
         if latex:
             f1 = latexify(self.c1.reduced_formula)
             f2 = latexify(self.c2.reduced_formula)
@@ -435,7 +436,7 @@ class InterfacialReactivity(MSONable):
 
     @staticmethod
     def _get_plotly_annotations(x: list[float], y: list[float], reactions: list[Reaction]):
-        """Returns dictionary of annotations for the Plotly figure layout."""
+        """Get dictionary of annotations for the Plotly figure layout."""
         annotations = []
         for x_coord, y_coord, rxn in zip(x, y, reactions):
             products = ", ".join(
@@ -475,9 +476,7 @@ class InterfacialReactivity(MSONable):
 
     @staticmethod
     def _convert(x: float, factor1: float, factor2: float):
-        """
-        Converts mixing ratio x in comp1 - comp2 tie line to that in
-        c1 - c2 tie line.
+        """Convert mixing ratio x in comp1 - comp2 tie line to that in c1 - c2 tie line.
 
         Args:
             x: Mixing ratio x in comp1 - comp2 tie line, a float
@@ -495,9 +494,7 @@ class InterfacialReactivity(MSONable):
 
     @staticmethod
     def _reverse_convert(x: float, factor1: float, factor2: float):
-        """
-        Converts mixing ratio x in c1 - c2 tie line to that in
-        comp1 - comp2 tie line.
+        """Convert mixing ratio x in c1 - c2 tie line to that in comp1 - comp2 tie line.
 
         Args:
             x: Mixing ratio x in c1 - c2 tie line, a float between
@@ -574,12 +571,8 @@ class InterfacialReactivity(MSONable):
 
     @property
     def minimum(self):
-        """Find the minimum reaction energy E_min and corresponding
-        mixing ratio x_min.
-
-        Returns:
-            tuple[float, float]: (x_min, E_min).
-        """
+        """The minimum reaction energy E_min and corresponding mixing ratio x_min
+        as tuple[float, float]: (x_min, E_min)."""
         return min(((x, energy) for _, x, energy, _, _ in self.get_kinks()), key=lambda tup: tup[1])
 
     @property
@@ -679,16 +672,14 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
         ]
 
     def _get_reactants(self, x: float) -> list[Composition]:
-        """Returns a list of relevant reactant compositions given an x coordinate."""
+        """Get a list of relevant reactant compositions given an x coordinate."""
         reactants = super()._get_reactants(x)
         reactants += [Composition(entry.symbol) for entry in self.pd.chempots]
 
         return reactants
 
     def _get_grand_potential(self, composition: Composition) -> float:
-        """
-        Computes the grand potential Phi at a given composition and
-        chemical potential(s).
+        """Compute the grand potential Phi at a given composition and chemical potential(s).
 
         Args:
             composition: Composition object.

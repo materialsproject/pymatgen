@@ -36,7 +36,7 @@ try:
     from ase.calculators.calculator import Calculator
     from ase.calculators.emt import EMT
 except ImportError:
-    ase = None
+    ase = Atoms = Calculator = EMT = None
 
 
 enum_cmd = which("enum.x") or which("multienum.x")
@@ -938,7 +938,7 @@ class TestStructure(PymatgenTest):
 
         # Test slice replacement.
         struct = PymatgenTest.get_structure("Li2O")
-        struct[0:2] = "S"
+        struct[:2] = "S"
         assert struct.formula == "Li1 S2"
 
     def test_not_hashable(self):
@@ -1559,7 +1559,7 @@ class TestStructure(PymatgenTest):
         assert struct.formula == "Si1 C1"
         struct[(0, 1)] = "Ge"
         assert struct.formula == "Ge2"
-        struct[0:2] = "Sn"
+        struct[:2] = "Sn"
         assert struct.formula == "Sn2"
 
         struct = self.struct.copy()
@@ -1848,6 +1848,13 @@ Sites (8)
         assert isinstance(atoms, Atoms)
         assert len(atoms) == len(self.struct)
         assert AseAtomsAdaptor.get_structure(atoms) == self.struct
+        assert Structure.from_ase_atoms(atoms) == self.struct
+
+        labeled_atoms = self.labeled_structure.to_ase_atoms()
+        assert Structure.from_ase_atoms(labeled_atoms) == self.labeled_structure
+
+        with pytest.raises(ValueError, match="ASE Atoms only supports ordered structures"):
+            self.disordered.to_ase_atoms()
 
     def test_struct_with_isotope(self):
         struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
@@ -1884,7 +1891,7 @@ class TestIMolecule(PymatgenTest):
         assert mol.formula == "Si1 H4"
         mol[(0, 1)] = "Ge"
         assert mol.formula == "Ge2 H3"
-        mol[0:2] = "Sn"
+        mol[:2] = "Sn"
         assert mol.formula == "Sn2 H3"
 
         mol = self.mol.copy()

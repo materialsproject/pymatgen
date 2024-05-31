@@ -45,6 +45,7 @@ if TYPE_CHECKING:
 
     from pymatgen.core.composition import Element, Species
     from pymatgen.symmetry.groups import CrystalSystem
+    from pymatgen.util.typing import MillerIndex
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
 
@@ -61,7 +62,7 @@ logger = logging.getLogger(__name__)
 
 
 class Slab(Structure):
-    """Class to hold information for a Slab, with additional
+    """Hold information for a Slab, with additional
     attributes pertaining to slabs, but the init method does not
     actually create a slab. Also has additional methods that returns other information
     about a Slab such as the surface area, normal, and atom adsorption.
@@ -77,7 +78,7 @@ class Slab(Structure):
         lattice: Lattice | np.ndarray,
         species: Sequence[Any],
         coords: np.ndarray,
-        miller_index: tuple[int, int, int],
+        miller_index: MillerIndex,
         oriented_unit_cell: Structure,
         shift: float,
         scale_factor: np.ndarray,
@@ -108,7 +109,7 @@ class Slab(Structure):
                     [{"Fe": 0.5, "Mn": 0.5}, ...]. This allows the setup of
                     disordered structures.
             coords (Nx3 array): list of fractional/cartesian coordinates of each species.
-            miller_index (tuple[h, k, l]): Miller index of plane parallel to
+            miller_index (MillerIndex): Miller index of plane parallel to
                 surface. Note that this is referenced to the input structure. If
                 you need this to be based on the conventional cell,
                 you should supply the conventional structure.
@@ -252,8 +253,8 @@ class Slab(Structure):
         dct["energy"] = self.energy
         return dct
 
-    def copy(self, site_properties: dict[str, Any] | None = None) -> Slab:  # type: ignore[override]
-        """Get a copy of the structure, with options to update site properties.
+    def copy(self, site_properties: dict[str, Any] | None = None) -> Self:  # type: ignore[override]
+        """Get a copy of the Slab, with options to update site properties.
 
         Args:
             site_properties (dict): Properties to update. The
@@ -318,7 +319,7 @@ class Slab(Structure):
         return np.linalg.norm(dip_per_unit_area) > tol_dipole_per_unit_area
 
     def get_surface_sites(self, tag: bool = False) -> dict[str, list]:
-        """Returns the surface sites and their indices in a dictionary.
+        """Get the surface sites and their indices in a dictionary.
         Useful for analysis involving broken bonds and for finding adsorption sites.
 
         The oriented unit cell of the slab will determine the
@@ -889,7 +890,7 @@ class SlabGenerator:
     def __init__(
         self,
         initial_structure: Structure,
-        miller_index: tuple[int, int, int],
+        miller_index: MillerIndex,
         min_slab_size: float,
         min_vacuum_size: float,
         lll_reduce: bool = False,
@@ -945,7 +946,7 @@ class SlabGenerator:
                 the c direction is parallel to the third lattice vector
         """
 
-        def reduce_vector(vector: tuple[int, int, int]) -> tuple[int, int, int]:
+        def reduce_vector(vector: MillerIndex) -> MillerIndex:
             """Helper function to reduce vectors."""
             divisor = abs(reduce(gcd, vector))  # type: ignore[arg-type]
             return cast(tuple[int, int, int], tuple(int(idx / divisor) for idx in vector))
@@ -1200,6 +1201,7 @@ class SlabGenerator:
         max_broken_bonds: int = 0,
         symmetrize: bool = False,
         repair: bool = False,
+        ztol: float = 0,
     ) -> list[Slab]:
         """Generate slabs with shift values calculated from the internal
         calculate_possible_shifts method. If the user decide to avoid breaking
@@ -1221,6 +1223,8 @@ class SlabGenerator:
             repair (bool): Whether to repair terminations with broken bonds (True)
                 or just omit them (False). Default to False as repairing terminations
                 can lead to many more possible slabs.
+            ztol (float): Fractional tolerance for determine overlapping z-ranges,
+                smaller ztol might result in more possible Slabs.
 
         Returns:
             list[Slab]: All possible Slabs of a particular surface,
@@ -1281,7 +1285,10 @@ class SlabGenerator:
 
             return sorted(shifts)
 
-        def get_z_ranges(bonds: dict[tuple[Species | Element, Species | Element], float]) -> list[tuple[float, float]]:
+        def get_z_ranges(
+            bonds: dict[tuple[Species | Element, Species | Element], float],
+            ztol: float,
+        ) -> list[tuple[float, float]]:
             """Collect occupied z ranges where each z_range is a (lower_z, upper_z) tuple.
 
             This method examines all sites in the oriented unit cell (OUC)
@@ -1291,7 +1298,7 @@ class SlabGenerator:
 
             Args:
                 bonds (dict): A {(species1, species2): max_bond_dist} dict.
-                tol (float): Fractional tolerance for determine overlapping positions.
+                ztol (float): Fractional tolerance for determine overlapping z-ranges.
             """
             # Sanitize species in dict keys
             bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in bonds.items()}
@@ -1314,15 +1321,13 @@ class SlabGenerator:
                                     z_ranges.extend([(0, z_range[1]), (z_range[0] + 1, 1)])
 
                                 # Neglect overlapping positions
-                                elif z_range[0] != z_range[1]:
-                                    # TODO (@DanielYang59): use the following for equality check
-                                    # elif not isclose(z_range[0], z_range[1], abs_tol=tol):
+                                elif not isclose(z_range[0], z_range[1], abs_tol=ztol):
                                     z_ranges.append(z_range)
 
             return z_ranges
 
         # Get occupied z_ranges
-        z_ranges = [] if bonds is None else get_z_ranges(bonds)
+        z_ranges = [] if bonds is None else get_z_ranges(bonds, ztol)
 
         slabs = []
         for shift in gen_possible_shifts(ftol=ftol):
@@ -1349,7 +1354,7 @@ class SlabGenerator:
         # Filter out surfaces that might be the same
         matcher = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
 
-        final_slabs = []
+        final_slabs: list[Slab] = []
         for group in matcher.group_structures(slabs):
             # For each unique slab, symmetrize the
             # surfaces by removing sites from the bottom
@@ -1364,7 +1369,7 @@ class SlabGenerator:
             matcher_sym = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
             final_slabs = [group[0] for group in matcher_sym.group_structures(final_slabs)]
 
-        return sorted(final_slabs, key=lambda slab: slab.energy)  # type: ignore[return-value, arg-type]
+        return cast(list[Slab], sorted(final_slabs, key=lambda slab: slab.energy))
 
     def repair_broken_bonds(
         self,
@@ -1970,7 +1975,7 @@ def get_symmetrically_equivalent_miller_indices(
     """
     # Convert to hkl if hkil, because in_coord_list only handles tuples of 3
     if len(miller_index) >= 3:
-        _miller_index: tuple[int, int, int] = (miller_index[0], miller_index[1], miller_index[-1])
+        _miller_index: MillerIndex = (miller_index[0], miller_index[1], miller_index[-1])
     else:
         _miller_index = (miller_index[0], miller_index[1], miller_index[2])
 
@@ -2082,15 +2087,15 @@ def get_symmetrically_distinct_miller_indices(
 
 
 def _is_in_miller_family(
-    miller_index: tuple[int, int, int],
-    miller_list: list[tuple[int, int, int]],
+    miller_index: MillerIndex,
+    miller_list: list[MillerIndex],
     symm_ops: list,
 ) -> bool:
     """Helper function to check if the given Miller index belongs
     to the same family of any index in the provided list.
 
     Args:
-        miller_index (tuple): The Miller index to analyze.
+        miller_index (MillerIndex): The Miller index to analyze.
         miller_list (list): List of Miller indices.
         symm_ops (list): Symmetry operations for a lattice,
             used to define the indices family.
@@ -2100,13 +2105,13 @@ def _is_in_miller_family(
 
 def hkl_transformation(
     transf: np.ndarray,
-    miller_index: tuple[int, int, int],
+    miller_index: MillerIndex,
 ) -> tuple[int, int, int]:
     """Transform the Miller index from setting A to B with a transformation matrix.
 
     Args:
         transf (3x3 array): The matrix that transforms a lattice from A to B.
-        miller_index (tuple[int, int, int]): The Miller index [h, k, l] to transform.
+        miller_index (MillerIndex): The Miller index [h, k, l] to transform.
     """
 
     def math_lcm(a: int, b: int) -> int:
@@ -2126,7 +2131,7 @@ def hkl_transformation(
     if len([i for i in transf_hkl if i < 0]) > 1:
         transf_hkl *= -1
 
-    return tuple(transf_hkl)  # type: ignore[return-value]
+    return tuple(transf_hkl)
 
 
 def miller_index_from_sites(

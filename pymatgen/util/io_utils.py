@@ -42,7 +42,7 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
 
     'file' is file to search through.
     'search' is the "search program", a list of lists/tuples with 3 elements;
-    i.e. [[regex,test,run],[regex,test,run],...]
+    i.e. [[regex, test, run], [regex, test, run], ...]
     'results' is a an object that your search program will have access to for
     storing results.
 
@@ -51,7 +51,7 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
 
     This function goes through each line in filename, and if regex matches that
     line *and* test(results,line)==True (or test is None) we execute
-    run(results,match),where match is the match object from running
+    run(results,match), where match is the match object from running
     Regex.match.
 
     The default results is an empty dictionary. Passing a results object let
@@ -61,12 +61,12 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
     Author: Rickard Armiento, Ioannis Petousis
 
     Returns:
-        results
+        dict[str, Any]: The results dictionary.
     """
     if results is None:
         results = {}
 
-    # Compile strings into regexs
+    # Compile regex strings
     for entry in search:
         entry[0] = re.compile(entry[0])
 

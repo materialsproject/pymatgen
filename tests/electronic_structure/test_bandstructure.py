@@ -360,7 +360,8 @@ class TestLobsterBandStructureSymmLine(PymatgenTest):
         axs = BSPlotterProjected(self.bs_spin).get_projected_plots_dots({"Si": ["3s"]})
         assert isinstance(axs, list)
         assert len(axs) == 1
-        assert axs[0].get_title() == "Si 3s"
+        print(axs[0].get_title())
+        assert axs[0].get_title() == r"${\mathrm{Si}}_{\mathrm{3s}}$"
 
     def test_get_branch(self):
         branch = self.bs_p.get_branch(0)[0]
