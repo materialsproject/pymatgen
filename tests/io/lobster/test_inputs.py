@@ -1562,7 +1562,7 @@ class TestLobsterin(TestCase):
         self.Lobsterin4 = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.4.gz")
 
     def test_from_file(self):
-        # test read from file
+        # Test read from file
         assert self.Lobsterin["cohpstartenergy"] == approx(-15.0)
         assert self.Lobsterin["cohpendenergy"] == approx(5.0)
         assert self.Lobsterin["basisset"] == "pbeVaspFit2015"
@@ -1575,20 +1575,55 @@ class TestLobsterin(TestCase):
         assert self.Lobsterin["skippopulationanalysis"]
         assert self.Lobsterin["skipgrosspopulation"]
 
-        # test if comments are correctly removed
+        # Test if comments are correctly removed
         assert self.Lobsterin == self.Lobsterin2
+
+    def test_duplicates_from_file(self):
+        with open(f"{TEST_DIR}/lobsterin.1") as file:
+            original_file = file.readlines()
+
+        # String and float keywords does not allow duplicates
+        float_dup_file = original_file.copy()
+        float_dup_file.append("cohpstartenergy -15.0")
+        with tempfile.NamedTemporaryFile("w+", delete=False) as temp_file:
+            temp_file.writelines(float_dup_file)
+            float_temp_file_path = temp_file.name
+
+        with pytest.raises(ValueError, match="Same keyword cohpstartenergy twice!"):
+            _ = Lobsterin.from_file(float_temp_file_path)
+
+        # Boolean and list keywords allow duplicates
+        bool_dup_file = original_file.copy()
+        bool_dup_file.append("skipdos")
+
+        with tempfile.NamedTemporaryFile("w+", delete=False) as temp_file:
+            temp_file.writelines(bool_dup_file)
+            bool_temp_file_path = temp_file.name
+        _ = Lobsterin.from_file(bool_temp_file_path)  # no error should be raised
 
     def test_magic_methods(self):
         """Test __getitem__, __setitem__ and __contains__,
         should be case independent.
         """
+        # Test __setitem__
         assert self.Lobsterin["COHPSTARTENERGY"] == approx(-15.0)
 
+        with pytest.raises(KeyError, match="Key hello is currently not available"):
+            self.Lobsterin["HELLO"] = True
+
+        # Test __getitem__
         self.Lobsterin["skipCOHP"] = False
         assert self.Lobsterin["skipcohp"] is False
+        assert self.Lobsterin.get("skipCOHP") is False
 
+        with pytest.raises(KeyError, match="key='World' is not available"):
+            _ = self.Lobsterin["World"]
+
+        # Test __contains__
         assert "COHPSTARTENERGY" in self.Lobsterin
         assert "cohpstartenergy" in self.Lobsterin
+
+        assert "helloworld" not in self.Lobsterin
 
     def test_update(self):
         """Test case sensitivity of update operation."""
