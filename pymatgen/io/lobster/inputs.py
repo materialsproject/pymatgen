@@ -151,7 +151,7 @@ class Lobsterin(UserDict, MSONable):
         Also clean the keys and values by stripping white spaces.
 
         Raises:
-            KeyError: if parameter is not available.
+            KeyError: if keyword is not available.
         """
         key = key.strip().lower()
 
