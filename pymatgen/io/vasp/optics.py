@@ -72,7 +72,7 @@ class DielectricFunctionCalculator(MSONable):
 
     @classmethod
     def from_vasp_objects(cls, vrun: Vasprun, waveder: Waveder) -> Self:
-        """Construct a DielectricFunction from Vasprun, Kpoint, and Waveder objects.
+        """Construct a DielectricFunction from Vasprun, Kpoint, and Waveder.
 
         Args:
             vrun: Vasprun object
@@ -80,6 +80,9 @@ class DielectricFunctionCalculator(MSONable):
             waveder: Waveder object
         """
         bands = vrun.eigenvalues
+        if bands is None:
+            raise RuntimeError("eigenvalues cannot be None.")
+
         sspins = [Spin.up, Spin.down]
         eigs = np.stack([bands[spin] for spin in sspins[: vrun.parameters["ISPIN"]]], axis=2)[..., 0]
         eigs = np.swapaxes(eigs, 0, 1)
@@ -94,6 +97,9 @@ class DielectricFunctionCalculator(MSONable):
         volume = vrun.final_structure.volume
         if vrun.parameters["ISYM"] != 0:
             raise NotImplementedError("ISYM != 0 is not implemented yet")
+
+        if efermi is None:
+            raise ValueError("efermi cannot be None.")
 
         return cls(
             cder_real=waveder.cder_real,
