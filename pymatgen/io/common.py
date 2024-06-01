@@ -322,8 +322,7 @@ class VolumetricData(MSONable):
             return cls(structure, data=data, data_aug=data_aug, **kwargs)
 
     def to_cube(self, filename, comment: str = ""):
-        """
-        Write the total volumetric data to a cube file format, which consists of two comment lines,
+        """Write the total volumetric data to a cube file format, which consists of two comment lines,
         a header section defining the structure IN BOHR, and the data.
 
         Args:

@@ -506,8 +506,7 @@ class Atoms(MSONable):
         return f"ATOMS\n{atom_list}\nEND\n"
 
     def write_file(self, filename="ATOMS"):
-        """
-        Write Atoms list to file.
+        """Write Atoms list to file.
 
         Args:
             filename: path for file to be written
@@ -626,8 +625,7 @@ class Tags(dict):
         return self.get_str()
 
     def write_file(self, filename="PARAMETERS"):
-        """
-        Write Tags to a Feff parameter tag file.
+        """Write Tags to a Feff parameter tag file.
 
         Args:
             filename: filename and path to write to.
@@ -907,8 +905,7 @@ class Potential(MSONable):
         return f"POTENTIALS \n{ipotlist}"
 
     def write_file(self, filename="POTENTIALS"):
-        """
-        Write to file.
+        """Write to file.
 
         Args:
             filename: filename and path to write potential file to.

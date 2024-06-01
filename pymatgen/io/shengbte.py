@@ -152,8 +152,7 @@ class Control(MSONable, dict):
 
     @classmethod
     def from_dict(cls, control_dict: dict) -> Self:
-        """
-        Write a CONTROL file from a Python dictionary. Description and default
+        """Write a CONTROL file from a Python dictionary. Description and default
         parameters can be found at
         https://bitbucket.org/sousaw/shengbte/src/master/.
         Note some parameters are mandatory. Optional parameters default here to
