@@ -1645,34 +1645,34 @@ class TestProcar(PymatgenTest):
         assert d2[Spin.up][2][2] == approx({"Na": 0.688, "Li": 0.042})
 
 
-class TestXdatcar(PymatgenTest):
+class TestXdatcar:
     def test_init(self):
         filepath = f"{VASP_OUT_DIR}/XDATCAR_4"
-        x = Xdatcar(filepath)
-        structures = x.structures
+        xdatcar = Xdatcar(filepath)
+        structures = xdatcar.structures
         assert len(structures) == 4
         for struct in structures:
             assert struct.formula == "Li2 O1"
 
         filepath = f"{VASP_OUT_DIR}/XDATCAR_5"
-        x = Xdatcar(filepath)
-        structures = x.structures
+        xdatcar = Xdatcar(filepath)
+        structures = xdatcar.structures
         assert len(structures) == 4
         for struct in structures:
             assert struct.formula == "Li2 O1"
 
-        x.concatenate(f"{VASP_OUT_DIR}/XDATCAR_4")
-        assert len(x.structures) == 8
-        assert x.get_str() is not None
+        xdatcar.concatenate(f"{VASP_OUT_DIR}/XDATCAR_4")
+        assert len(xdatcar.structures) == 8
+        assert xdatcar.get_str() is not None
 
         filepath = f"{VASP_OUT_DIR}/XDATCAR_6"
-        x = Xdatcar(filepath)
-        structures = x.structures
+        xdatcar = Xdatcar(filepath)
+        structures = xdatcar.structures
 
         assert structures[0].lattice != structures[-1].lattice
 
 
-class TestDynmat(PymatgenTest):
+class TestDynmat:
     def test_init(self):
         filepath = f"{VASP_OUT_DIR}/DYNMAT"
         dct = Dynmat(filepath)
@@ -1687,7 +1687,7 @@ class TestDynmat(PymatgenTest):
         # TODO: test get_phonon_frequencies once cross-checked
 
 
-class TestWavecar(PymatgenTest):
+class TestWavecar:
     def setUp(self):
         a = np.array(np.eye(3) * 10, dtype=float)  # lattice vectors
         self.vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))  # unit cell volume
