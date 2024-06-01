@@ -936,7 +936,7 @@ class SlabGenerator:
                 the c direction is parallel to the third lattice vector
         """
 
-        def reduce_vector(vector: tuple[int, int, int]) -> tuple[int, int, int]:
+        def reduce_vector(vector: MillerIndex) -> MillerIndex:
             """Helper function to reduce vectors."""
             divisor = abs(reduce(gcd, vector))  # type: ignore[arg-type]
             return cast(tuple[int, int, int], tuple(int(idx / divisor) for idx in vector))
@@ -1192,6 +1192,7 @@ class SlabGenerator:
         max_broken_bonds: int = 0,
         symmetrize: bool = False,
         repair: bool = False,
+        ztol: float = 0,
     ) -> list[Slab]:
         """Generate slabs with shift values calculated from the internal
         gen_possible_terminations func. If the user decide to avoid breaking
@@ -1213,6 +1214,8 @@ class SlabGenerator:
             repair (bool): Whether to repair terminations with broken bonds (True)
                 or just omit them (False). Default to False as repairing terminations
                 can lead to many more possible slabs.
+            ztol (float): Fractional tolerance for determine overlapping z-ranges,
+                smaller ztol might result in more possible Slabs.
 
         Returns:
             list[Slab]: All possible Slabs of a particular surface,
@@ -1273,6 +1276,7 @@ class SlabGenerator:
 
         def get_z_ranges(
             bonds: dict[tuple[Species | Element, Species | Element], float],
+            ztol: float,
         ) -> list[tuple[float, float]]:
             """Collect occupied z ranges where each range is a (lower_z, upper_z) tuple.
 
@@ -1283,6 +1287,7 @@ class SlabGenerator:
 
             Args:
                 bonds (dict): A {(species1, species2): max_bond_dist} dict.
+                ztol (float): Fractional tolerance for determine overlapping z-ranges.
             """
             # Sanitize species in dict keys
             bonds = {(get_el_sp(s1), get_el_sp(s2)): dist for (s1, s2), dist in bonds.items()}
@@ -1305,13 +1310,13 @@ class SlabGenerator:
                                     z_ranges.extend([(0, z_range[1]), (z_range[0] + 1, 1)])
 
                                 # Neglect overlapping positions
-                                elif z_range[0] != z_range[1]:
+                                elif not isclose(z_range[0], z_range[1], abs_tol=ztol):
                                     z_ranges.append(z_range)
 
             return z_ranges
 
         # Get occupied z_ranges
-        z_ranges = [] if bonds is None else get_z_ranges(bonds)
+        z_ranges = [] if bonds is None else get_z_ranges(bonds, ztol)
 
         slabs = []
         for termination in gen_possible_terminations(ftol=ftol):
@@ -1338,7 +1343,7 @@ class SlabGenerator:
         # Filter out surfaces that might be the same
         matcher = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
 
-        final_slabs = []
+        final_slabs: list[Slab] = []
         for group in matcher.group_structures(slabs):
             # For each unique slab, symmetrize the
             # surfaces by removing sites from the bottom
@@ -1353,7 +1358,7 @@ class SlabGenerator:
             matcher_sym = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
             final_slabs = [group[0] for group in matcher_sym.group_structures(final_slabs)]
 
-        return sorted(final_slabs, key=lambda slab: slab.energy)  # type: ignore[return-value, arg-type]
+        return cast(list[Slab], sorted(final_slabs, key=lambda slab: slab.energy))
 
     def repair_broken_bonds(
         self,
@@ -2111,7 +2116,7 @@ def hkl_transformation(
     if len([i for i in transf_hkl if i < 0]) > 1:
         transf_hkl *= -1
 
-    return tuple(transf_hkl)  # type: ignore[return-value]
+    return tuple(transf_hkl)
 
 
 def miller_index_from_sites(
