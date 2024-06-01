@@ -14,7 +14,7 @@ extra_link_args = ["-Wl,--allow-multiple-definition"] if is_win_64 else []
 with open("README.md") as file:
     long_description = file.read()
 
-# unlike GitHub readme's, PyPI doesn't support <picture> tags used for responsive images
+# unlike GitHub readmes, PyPI doesn't support <picture> tags used for responsive images
 # (i.e. adaptive to OS light/dark mode)
 # NOTE this manual fix won't work once we migrate to pyproject.toml
 logo_url = "https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen.svg"
@@ -33,18 +33,18 @@ setup(
         "networkx>=2.2",
         "numpy>=1.25.0",
         "palettable>=3.1.1",
-        "pandas",
+        "pandas>=2",
         "plotly>=4.5.0",
-        "pybtex",
-        "requests",
+        "pybtex>=0.24.0",
+        "requests>=2.20",
         "ruamel.yaml>=0.17.0",
         "scipy>=1.5.0",
         "spglib>=2.0.2",
-        "sympy",
-        "tabulate",
-        "tqdm",
+        "sympy>=1.2",
+        "tabulate>=0.9",
+        "tqdm>=4.60",
         "uncertainties>=3.1.4",
-        "joblib",
+        "joblib>=1",
     ],
     extras_require={
         "ase": ["ase>=3.23.0"],
@@ -55,13 +55,13 @@ setup(
         "relaxation": ["matgl", "chgnet>=0.3.0"],
         "electronic_structure": ["fdint>=2.0.2"],
         "dev": [
-            "mypy",
-            "pre-commit",
-            "pytest-cov",
-            "pytest-split",
-            "pytest",
-            "ruff",
-            "typing-extensions",
+            "mypy>=1.10.0",
+            "pre-commit>=3",
+            "pytest-cov>=4",
+            "pytest-split>=0.8",
+            "pytest>8",
+            "ruff>=0.4",
+            "typing-extensions>=4",
         ],
         "docs": [
             "sphinx",
@@ -80,7 +80,7 @@ setup(
             "galore>=0.6.1",
             "h5py>=3.8.0",
             "jarvis-tools>=2020.7.14",
-            "matgl",
+            "matgl>=1.1.1",
             "netCDF4>=1.5.8",
             "phonopy>=2.4.2",
             "seekpath>=1.9.4",
