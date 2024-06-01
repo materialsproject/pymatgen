@@ -924,8 +924,7 @@ class LammpsRun(MSONable):
 
 
 class LammpsTemplateGen(TemplateInputGen):
-    """
-    Creates an InputSet object for a LAMMPS run based on a template file.
+    """Create an InputSet object for a LAMMPS run based on a template file.
     The input script is constructed by substituting variables into placeholders
     in the template file using python's Template.safe_substitute() function.
     The data file containing coordinates and topology information can be provided

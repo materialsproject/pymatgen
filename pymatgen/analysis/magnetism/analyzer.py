@@ -161,7 +161,7 @@ class CollinearMagneticStructureAnalyzer:
             except ValueError:
                 warnings.warn(f"Could not assign valences for {structure.reduced_formula}")
 
-        # check to see if structure has magnetic moments
+        # Check if structure has magnetic moments
         # on site properties or species spin properties,
         # prioritize site properties
 
@@ -604,9 +604,7 @@ class MagneticStructureEnumerator:
         truncate_by_symmetry: bool = True,
         transformation_kwargs: dict | None = None,
     ):
-        """
-        This class will try generated different collinear
-        magnetic orderings for a given input structure.
+        """Generate different collinear magnetic orderings for a given input structure.
 
         If the input structure has magnetic moments defined, it
         is possible to use these as a hint as to which elements are
@@ -1013,7 +1011,7 @@ class MagneticStructureEnumerator:
 
             # ...and decide which ones to keep
             if len(max_symmetries) > self.truncate_by_symmetry:
-                max_symmetries = max_symmetries[0:5]
+                max_symmetries = max_symmetries[:5]
             structs_to_keep = [(idx, num) for idx, num in enumerate(num_sym_ops) if num in max_symmetries]
 
             # sort so that highest symmetry structs are first

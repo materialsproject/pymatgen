@@ -70,8 +70,7 @@ __date__ = "April 15, 2017"
 
 
 def zval_dict_from_potcar(potcar) -> dict[str, float]:
-    """
-    Creates zval_dictionary for calculating the ionic polarization from
+    """Create zval_dictionary for calculating the ionic polarization from
     Potcar object.
 
     potcar: Potcar object
@@ -131,7 +130,7 @@ def get_nearest_site(struct: Structure, coords: Sequence[float], site: PeriodicS
     # Sort by distance to coords
     ns.sort(key=lambda x: x[1])
     # Return PeriodicSite and distance of closest image
-    return ns[0][0:2]
+    return ns[0][:2]
 
 
 class Polarization:

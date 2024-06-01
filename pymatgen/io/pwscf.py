@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from monty.io import zopen
 from monty.re import regrep
@@ -14,7 +14,7 @@ from pymatgen.util.io_utils import clean_lines
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import ClassVar
+    from typing import Any, ClassVar
 
     from typing_extensions import Self
 

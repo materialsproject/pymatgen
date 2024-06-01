@@ -11,7 +11,7 @@ import json
 import pickle  # use pickle, not cPickle so that we get the traceback in case of errors
 import string
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING
 from unittest import TestCase
 
 import pytest
@@ -22,10 +22,10 @@ from pymatgen.core import ROOT, SETTINGS, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from typing import Any, ClassVar
 
-MODULE_DIR = Path(__file__).absolute().parent
-STRUCTURES_DIR = MODULE_DIR / ".." / "structures"
 TEST_FILES_DIR = Path(SETTINGS.get("PMG_TEST_FILES_DIR", f"{ROOT}/tests/files"))
+STRUCTURES_DIR = TEST_FILES_DIR / "structures"
 VASP_IN_DIR = f"{TEST_FILES_DIR}/io/vasp/inputs"
 VASP_OUT_DIR = f"{TEST_FILES_DIR}/io/vasp/outputs"
 # fake POTCARs have original header information, meaning properties like number of electrons,

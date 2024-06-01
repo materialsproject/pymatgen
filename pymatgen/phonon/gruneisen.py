@@ -337,7 +337,7 @@ class GruneisenPhononBandStructure(PhononBandStructure):
 
 
 class GruneisenPhononBandStructureSymmLine(GruneisenPhononBandStructure, PhononBandStructureSymmLine):
-    """This object stores a GruneisenPhononBandStructureSymmLine together with Grueneisen parameters
+    """Store a GruneisenPhononBandStructureSymmLine together with Grueneisen parameters
     for every frequency.
     """
 

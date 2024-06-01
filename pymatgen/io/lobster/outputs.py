@@ -17,7 +17,7 @@ import os
 import re
 import warnings
 from collections import defaultdict
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
@@ -32,6 +32,8 @@ from pymatgen.io.vasp.outputs import Vasprun, VolumetricData
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from pymatgen.core.structure import IStructure
 
 __author__ = "Janine George, Marco Esters"
@@ -1378,14 +1380,14 @@ class Fatband:
                     iband = 0
                 if line.split()[0] != "#":
                     if linenumber < self.nbands:
-                        if ifilename == 0:
+                        if ifilename == 0 and self.efermi is not None:
                             eigenvals[Spin.up][iband][idx_kpt] = float(line.split()[1]) + self.efermi
 
                         p_eigenvals[Spin.up][iband][idx_kpt][atom_names[ifilename]][orbital_names[ifilename]] = float(
                             line.split()[2]
                         )
                     if linenumber >= self.nbands and self.is_spinpolarized:
-                        if ifilename == 0:
+                        if ifilename == 0 and self.efermi is not None:
                             eigenvals[Spin.down][iband][idx_kpt] = float(line.split()[1]) + self.efermi
                         p_eigenvals[Spin.down][iband][idx_kpt][atom_names[ifilename]][orbital_names[ifilename]] = float(
                             line.split()[2]

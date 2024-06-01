@@ -1,4 +1,4 @@
-"""Low-level objects providing an abstraction for the objects involved in the calculation."""
+"""Low-level classes and functions to work with Abinit input files."""
 
 from __future__ import annotations
 
@@ -376,14 +376,14 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
         return {"nsppol": self.nsppol, "nspinor": self.nspinor, "nspden": self.nspden}
 
     def as_dict(self):
-        """Convert object to dict."""
+        """JSON-friendly dict representation of SpinMode."""
         out = {k: getattr(self, k) for k in self._fields}
         out.update({"@module": type(self).__module__, "@class": type(self).__name__})
         return out
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Build object from dict."""
+        """Build from dict."""
         return cls(**{key: dct[key] for key in dct if key in cls._fields})
 
 
@@ -403,7 +403,7 @@ class Smearing(AbivarAble, MSONable):
     a `Smearing` object is via the class method Smearing.as_smearing(string).
     """
 
-    # Map string_mode --> occopt
+    # Map string_mode to occopt
     _mode2occopt: ClassVar = dict(
         nosmearing=1,
         fermi_dirac=3,
@@ -414,7 +414,11 @@ class Smearing(AbivarAble, MSONable):
     )
 
     def __init__(self, occopt, tsmear):
-        """Build object with occopt and tsmear."""
+        """
+        Args:
+            occopt: Integer specifying the smearing technique.
+            tsmear: Smearing parameter in Hartree units.
+        """
         self.occopt = occopt
         self.tsmear = tsmear
 
@@ -478,7 +482,7 @@ class Smearing(AbivarAble, MSONable):
 
     @staticmethod
     def nosmearing():
-        """Build object for calculations without smearing."""
+        """For calculations without smearing."""
         return Smearing(1, 0.0)
 
     def to_abivars(self):
@@ -498,7 +502,7 @@ class Smearing(AbivarAble, MSONable):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Build object from dict."""
+        """Build from dict."""
         return cls(dct["occopt"], dct["tsmear"])
 
 
@@ -520,7 +524,19 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
     )
 
     def __init__(self, *args, **kwargs):
-        """Initialize object."""
+        """
+        Args:
+            iprcell: 1 if the cell is fixed, 2 if the cell is relaxed.
+            iscf: SCF algorithm.
+            diemac: Macroscopic dielectric constant.
+            diemix: Mixing parameter for the electric field.
+            diemixmag: Mixing parameter for the magnetic field.
+            dielam: Damping factor for the electric field.
+            diegap: Energy gap for the dielectric function.
+            dielng: Length of the electric field.
+            diecut: Cutoff for the dielectric function.
+            nstep: Maximum number of SCF iterations.
+        """
         super().__init__(*args, **kwargs)
 
         for key in self:
@@ -532,12 +548,12 @@ class ElectronsAlgorithm(dict, AbivarAble, MSONable):
         return self.copy()
 
     def as_dict(self):
-        """Convert object to dict."""
+        """Get JSON-able dict representation."""
         return {"@module": type(self).__module__, "@class": type(self).__name__, **self.copy()}
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Build object from dict."""
+        """Build from dict."""
         dct = dct.copy()
         dct.pop("@module", None)
         dct.pop("@class", None)
@@ -605,7 +621,7 @@ class Electrons(AbivarAble, MSONable):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Build object from dictionary."""
+        """Build from dict."""
         dct = dct.copy()
         dct.pop("@module", None)
         dct.pop("@class", None)
@@ -975,7 +991,7 @@ class KSampling(AbivarAble, MSONable):
         return self.abivars
 
     def as_dict(self):
-        """Convert object to dict."""
+        """Get JSON-able dict representation."""
         enc = MontyEncoder()
         return {
             "mode": self.mode.name,
@@ -993,7 +1009,7 @@ class KSampling(AbivarAble, MSONable):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Build object from dict."""
+        """Build from dict."""
         dct = dct.copy()
         dct.pop("@module", None)
         dct.pop("@class", None)
@@ -1002,7 +1018,7 @@ class KSampling(AbivarAble, MSONable):
 
 
 class Constraints(AbivarAble):
-    """This object defines the constraints for structural relaxation."""
+    """Define the constraints for structural relaxation."""
 
     def to_abivars(self):
         """Dictionary with Abinit variables."""
@@ -1035,7 +1051,18 @@ class RelaxationMethod(AbivarAble, MSONable):
     OPTCELL_DEFAULT = 2
 
     def __init__(self, *args, **kwargs):
-        """Initialize object."""
+        """
+        Args:
+            ionmov: The type of relaxation for the ions.
+            optcell: The type of relaxation for the unit cell.
+            ntime: Maximum number of iterations.
+            dilatmx: Maximum allowed cell volume change.
+            ecutsm: Energy convergence criterion.
+            strfact: Stress convergence criterion.
+            tolmxf: Force convergence criterion.
+            strtarget: Target stress.
+            atoms_constraints: Constraints for the atoms.
+        """
         # Initialize abivars with the default values.
         self.abivars = {**self._default_vars}
 
@@ -1114,7 +1141,7 @@ class RelaxationMethod(AbivarAble, MSONable):
         return out_vars
 
     def as_dict(self):
-        """Convert object to dict."""
+        """Convert to dictionary."""
         dct = dict(self._default_vars)
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
@@ -1122,7 +1149,7 @@ class RelaxationMethod(AbivarAble, MSONable):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Build object from dictionary."""
+        """Build from dictionary."""
         dct = dct.copy()
         dct.pop("@module", None)
         dct.pop("@class", None)
@@ -1216,7 +1243,7 @@ class PPModel(AbivarAble, MSONable):
         return cls(mode="noppmodel", plasmon_freq=None)
 
     def as_dict(self):
-        """Convert object to dictionary."""
+        """Get JSON-able dict representation."""
         return {
             "mode": self.mode.name,
             "plasmon_freq": self.plasmon_freq,
@@ -1226,7 +1253,7 @@ class PPModel(AbivarAble, MSONable):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Build object from dictionary."""
+        """Build from dict."""
         return cls(mode=dct["mode"], plasmon_freq=dct["plasmon_freq"])
 
 
@@ -1395,7 +1422,7 @@ class Screening(AbivarAble):
 
 
 class SelfEnergy(AbivarAble):
-    """This object defines the parameters used for the computation of the self-energy."""
+    """Define the parameters used for the computation of the self-energy."""
 
     _SIGMA_TYPES: ClassVar = dict(
         gw=0,

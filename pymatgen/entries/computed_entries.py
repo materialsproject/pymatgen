@@ -13,7 +13,7 @@ import math
 import os
 import warnings
 from itertools import combinations
-from typing import TYPE_CHECKING, Literal, cast
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
@@ -25,6 +25,8 @@ from pymatgen.entries import Entry
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing import Literal
+
     from typing_extensions import Self
 
     from pymatgen.core import Structure
@@ -289,7 +291,7 @@ class ComputedEntry(Entry):
         energy_adjustments: list | None = None,
         parameters: dict | None = None,
         data: dict | None = None,
-        entry_id: object | None = None,
+        entry_id: str | None = None,
     ):
         """Initialize a ComputedEntry.
 
@@ -555,7 +557,7 @@ class ComputedStructureEntry(ComputedEntry):
         energy_adjustments: list | None = None,
         parameters: dict | None = None,
         data: dict | None = None,
-        entry_id: object | None = None,
+        entry_id: str | None = None,
     ) -> None:
         """Initialize a ComputedStructureEntry.
 
@@ -645,7 +647,10 @@ class ComputedStructureEntry(ComputedEntry):
             entry_id=dct.get("entry_id"),
         )
 
-    def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> ComputedStructureEntry:
+    def normalize(
+        self,
+        mode: Literal["formula_unit", "atom"] = "formula_unit",
+    ) -> ComputedStructureEntry:
         """Normalize the entry's composition and energy. The structure remains unchanged.
 
         Args:
@@ -696,7 +701,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         energy_adjustments: list | None = None,
         parameters: dict | None = None,
         data: dict | None = None,
-        entry_id: object | None = None,
+        entry_id: str | None = None,
     ):
         """
         Args:

@@ -104,8 +104,7 @@ def eigvec_to_eigdispl(eig_vec, q, frac_coords, mass):
 
 
 def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None) -> PhononBandStructureSymmLine:
-    r"""
-    Creates a pymatgen PhononBandStructure object from the dictionary
+    r"""Create a pymatgen PhononBandStructure object from the dictionary
     extracted by the band.yaml file produced by phonopy. The labels
     will be extracted from the dictionary, if present. If the 'eigenvector'
     key is found the eigendisplacements will be calculated according to the
@@ -181,8 +180,7 @@ def get_ph_bs_symm_line_from_dict(bands_dict, has_nac=False, labels_dict=None) -
 
 
 def get_ph_bs_symm_line(bands_path, has_nac=False, labels_dict=None):
-    r"""
-    Creates a pymatgen PhononBandStructure from a band.yaml file.
+    r"""Create a pymatgen PhononBandStructure from a band.yaml file.
     The labels will be extracted from the dictionary, if present.
     If the 'eigenvector'  key is found the eigendisplacements will be
     calculated according to the formula:
@@ -199,19 +197,17 @@ def get_ph_bs_symm_line(bands_path, has_nac=False, labels_dict=None):
 
 
 def get_ph_dos(total_dos_path):
-    """
-    Creates a pymatgen PhononDos from a total_dos.dat file.
+    """Create a pymatgen PhononDos from a total_dos.dat file.
 
     Args:
         total_dos_path: path to the total_dos.dat file.
     """
-    a = np.loadtxt(total_dos_path)
-    return PhononDos(a[:, 0], a[:, 1])
+    arr = np.loadtxt(total_dos_path)
+    return PhononDos(arr[:, 0], arr[:, 1])
 
 
 def get_complete_ph_dos(partial_dos_path, phonopy_yaml_path):
-    """
-    Creates a pymatgen CompletePhononDos from a partial_dos.dat and
+    """Create a pymatgen CompletePhononDos from a partial_dos.dat and
     phonopy.yaml files.
     The second is produced when generating a Dos and is needed to extract
     the structure.
@@ -472,8 +468,7 @@ def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) 
 def get_gs_ph_bs_symm_line_from_dict(
     gruneisen_dict, structure=None, structure_path=None, labels_dict=None, fit=False
 ) -> GruneisenPhononBandStructureSymmLine:
-    r"""
-    Creates a pymatgen GruneisenPhononBandStructure object from the dictionary
+    r"""Create a pymatgen GruneisenPhononBandStructure object from the dictionary
     extracted by the gruneisen.yaml file produced by phonopy. The labels
     will be extracted from the dictionary, if present. If the 'eigenvector'
     key is found the eigendisplacements will be calculated according to the
@@ -623,8 +618,7 @@ def _extrapolate_grun(b, distance, gruneisenparameter, gruneisenband, i, pa):
 
 
 def get_gruneisen_ph_bs_symm_line(gruneisen_path, structure=None, structure_path=None, labels_dict=None, fit=False):
-    r"""
-    Creates a pymatgen GruneisenPhononBandStructure from a band.yaml file.
+    r"""Create a pymatgen GruneisenPhononBandStructure from a band.yaml file.
     The labels will be extracted from the dictionary, if present.
     If the 'eigenvector' key is found the eigendisplacements will be
     calculated according to the formula:

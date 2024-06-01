@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import bisect
+import math
 from copy import copy, deepcopy
 from datetime import datetime
-from math import log, pi, sqrt
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from warnings import warn
 
 import numpy as np
@@ -18,6 +18,8 @@ from pymatgen.core.structure import Structure
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, William Davidson Richard"
@@ -55,7 +57,7 @@ class EwaldSummation(MSONable):
     """
 
     # Converts unit of q*q/r into eV
-    CONV_FACT = 1e10 * constants.e / (4 * pi * constants.epsilon_0)
+    CONV_FACT = 1e10 * constants.e / (4 * math.pi * constants.epsilon_0)
 
     def __init__(
         self,
@@ -102,12 +104,12 @@ class EwaldSummation(MSONable):
 
         self._acc_factor = acc_factor
         # set screening length
-        self._eta = eta or (len(structure) * w / (self._vol**2)) ** (1 / 3) * pi
-        self._sqrt_eta = sqrt(self._eta)
+        self._eta = eta or (len(structure) * w / (self._vol**2)) ** (1 / 3) * math.pi
+        self._sqrt_eta = math.sqrt(self._eta)
 
         # acc factor used to automatically determine the optimal real and
         # reciprocal space cutoff radii
-        self._accf = sqrt(log(10**acc_factor))
+        self._accf = math.sqrt(math.log(10**acc_factor))
 
         self._rmax = real_space_cut or self._accf / self._sqrt_eta
         self._gmax = recip_space_cut or 2 * self._sqrt_eta * self._accf
@@ -307,7 +309,7 @@ class EwaldSummation(MSONable):
         This method is heavily vectorized to utilize numpy's C backend for speed.
         """
         n_sites = len(self._struct)
-        prefactor = 2 * pi / self._vol
+        prefactor = 2 * math.pi / self._vol
         e_recip = np.zeros((n_sites, n_sites), dtype=np.float64)
         forces = np.zeros((n_sites, 3), dtype=np.float64)
         coords = self._coords
@@ -332,7 +334,7 @@ class EwaldSummation(MSONable):
 
         for g, g2, gr, exp_val, s_real, s_imag in zip(gs, g2s, grs, exp_vals, s_reals, s_imags):
             # Uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
-            m = np.sin((gr[None, :] + pi / 4) - gr[:, None])
+            m = np.sin((gr[None, :] + math.pi / 4) - gr[:, None])
             m *= exp_val / g2
 
             e_recip += m
@@ -350,7 +352,7 @@ class EwaldSummation(MSONable):
     def _calc_real_and_point(self):
         """Determine the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2."""
         frac_coords = self._struct.frac_coords
-        force_pf = 2 * self._sqrt_eta / sqrt(pi)
+        force_pf = 2 * self._sqrt_eta / math.sqrt(math.pi)
         coords = self._coords
         n_sites = len(self._struct)
         e_real = np.empty((n_sites, n_sites), dtype=np.float64)
@@ -359,7 +361,7 @@ class EwaldSummation(MSONable):
 
         qs = np.array(self._oxi_states)
 
-        e_point = -(qs**2) * sqrt(self._eta / pi)
+        e_point = -(qs**2) * math.sqrt(self._eta / math.pi)
 
         for idx in range(n_sites):
             nf_coords, rij, js, _ = self._struct.lattice.get_points_in_sphere(
@@ -541,8 +543,7 @@ class EwaldMinimizer:
         self._minimized_sum = self._output_lists[0][0]
 
     def minimize_matrix(self):
-        """
-        This method finds and returns the permutations that produce the lowest
+        """Get the permutations that produce the lowest
         Ewald sum calls recursive function to iterate through permutations.
         """
         if self._algo in (EwaldMinimizer.ALGO_FAST, EwaldMinimizer.ALGO_BEST_FIRST):
@@ -550,8 +551,7 @@ class EwaldMinimizer:
         return None
 
     def add_m_list(self, matrix_sum, m_list):
-        """
-        This adds an m_list to the output_lists and updates the current
+        """Add an m_list to the output_lists and updates the current
         minimum if the list is full.
         """
         if self._output_lists is None:
@@ -629,9 +629,7 @@ class EwaldMinimizer:
         return indices[sums.argmax(axis=0)] if f < 1 else indices[sums.argmin(axis=0)]
 
     def _recurse(self, matrix, m_list, indices, output_m_list=None):
-        """
-        This method recursively finds the minimal permutations using a binary
-        tree search strategy.
+        """Find the minimal permutations using a binary tree search strategy.
 
         Args:
             matrix: The current matrix (with some permutations already
@@ -640,7 +638,7 @@ class EwaldMinimizer:
             indices: Set of indices which haven't had a permutation
                 performed on them.
         """
-        # check to see if we've found all the solutions that we need
+        # Check if we've found all the solutions that we need
         if self._finished:
             return
 

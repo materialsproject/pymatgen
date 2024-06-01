@@ -8,7 +8,7 @@ import itertools
 import warnings
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union, cast
 
 import numpy as np
 from monty.io import zopen
@@ -16,19 +16,21 @@ from monty.json import MSONable
 
 from pymatgen.core.structure import Composition, DummySpecies, Element, Lattice, Molecule, Species, Structure
 from pymatgen.io.ase import AseAtomsAdaptor
-from pymatgen.io.vasp.outputs import Vasprun, Xdatcar
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from typing import Any
 
     from typing_extensions import Self
 
-    from pymatgen.util.typing import Matrix3D, SitePropsType, Vector3D
+    from pymatgen.util.typing import Matrix3D, PathLike, SitePropsType, Vector3D
 
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen, Evan Spotte-Smith"
 __version__ = "0.1"
 __date__ = "Jun 29, 2022"
+
+ValidIndex = Union[int, slice, list[int], np.ndarray]
 
 
 class Trajectory(MSONable):
@@ -123,7 +125,7 @@ class Trajectory(MSONable):
             if isinstance(lattice, Lattice):
                 lattice = lattice.matrix
             elif isinstance(lattice, list) and isinstance(lattice[0], Lattice):
-                lattice = [x.matrix for x in lattice]  # type: ignore
+                lattice = [cast(Lattice, x).matrix for x in lattice]
             lattice = np.asarray(lattice)
 
             if not constant_lattice and lattice.shape == (3, 3):
@@ -157,6 +159,105 @@ class Trajectory(MSONable):
 
         self._check_frame_props(frame_properties)
         self.frame_properties = frame_properties
+
+    def __iter__(self) -> Iterator[Structure | Molecule]:
+        """Iterator of the trajectory, yielding a pymatgen Structure or Molecule for each frame."""
+        for idx in range(len(self)):
+            yield self[idx]
+
+    def __len__(self) -> int:
+        """Number of frames in the trajectory."""
+        return len(self.coords)
+
+    def __getitem__(self, frames: ValidIndex) -> Molecule | Structure | Self:
+        """Get a subset of the trajectory.
+
+        The output depends on the type of the input `frames`. If an int is given, return
+        a pymatgen Molecule or Structure at the specified frame. If a list or a slice, return a new
+        trajectory with a subset of frames.
+
+        Args:
+            frames: Indices of the trajectory to return.
+
+        Returns:
+            Subset of trajectory
+        """
+        # Convert to position mode if not already
+        self.to_positions()
+
+        # For integer input, return the structure at that frame
+        if isinstance(frames, int):
+            if frames >= len(self):
+                raise IndexError(f"index={frames} out of range, trajectory only has {len(self)} frames")
+
+            if self.lattice is None:
+                charge = 0 if self.charge is None else int(self.charge)
+                spin = None if self.spin_multiplicity is None else int(self.spin_multiplicity)
+
+                return Molecule(
+                    self.species,
+                    self.coords[frames],
+                    charge=charge,
+                    spin_multiplicity=spin,
+                    site_properties=self._get_site_props(frames),  # type: ignore[arg-type]
+                )
+
+            lattice = self.lattice if self.constant_lattice else self.lattice[frames]
+
+            return Structure(
+                Lattice(lattice),
+                self.species,
+                self.coords[frames],
+                site_properties=self._get_site_props(frames),  # type: ignore[arg-type]
+                to_unit_cell=True,
+            )
+
+        # For slice input, return a trajectory
+        if isinstance(frames, (slice, list, np.ndarray)):
+            if isinstance(frames, slice):
+                start, stop, step = frames.indices(len(self))
+                selected = list(range(start, stop, step))
+            else:
+                # Get rid of frames that exceed trajectory length
+                selected = [idx for idx in frames if idx < len(self)]
+
+                if len(selected) < len(frames):
+                    bad_frames = [idx for idx in frames if idx > len(self)]
+                    raise IndexError(f"index={bad_frames} out of range, trajectory only has {len(self)} frames")
+
+            coords = self.coords[selected]
+            frame_properties = (
+                None if self.frame_properties is None else [self.frame_properties[idx] for idx in selected]
+            )
+
+            if self.lattice is None:
+                return type(self)(
+                    species=self.species,
+                    coords=coords,
+                    charge=self.charge,
+                    spin_multiplicity=self.spin_multiplicity,
+                    site_properties=self._get_site_props(selected),
+                    frame_properties=frame_properties,
+                    time_step=self.time_step,
+                    coords_are_displacement=False,
+                    base_positions=self.base_positions,
+                )
+
+            lattice = self.lattice if self.constant_lattice else self.lattice[selected]
+
+            return type(self)(
+                species=self.species,
+                coords=coords,
+                lattice=lattice,
+                site_properties=self._get_site_props(selected),
+                frame_properties=frame_properties,
+                constant_lattice=self.constant_lattice,
+                time_step=self.time_step,
+                coords_are_displacement=False,
+                base_positions=self.base_positions,
+            )
+
+        raise TypeError(f"bad index={frames!r}, expected one of {str(ValidIndex).split('Union')[1]}")
 
     def get_structure(self, idx: int) -> Structure:
         """Get structure at specified index.
@@ -290,115 +391,9 @@ class Trajectory(MSONable):
         # len(self) is used there.
         self.coords = np.concatenate((self.coords, trajectory.coords))
 
-    def __iter__(self) -> Iterator[Structure | Molecule]:
-        """Iterator of the trajectory, yielding a pymatgen Structure or Molecule for each frame."""
-        for idx in range(len(self)):
-            yield self[idx]
-
-    def __len__(self) -> int:
-        """Number of frames in the trajectory."""
-        return len(self.coords)
-
-    def __getitem__(self, frames: int | slice | list[int]) -> Molecule | Structure | Trajectory:
-        """Get a subset of the trajectory.
-
-        The output depends on the type of the input `frames`. If an int is given, return
-        a pymatgen Molecule or Structure at the specified frame. If a list or a slice, return a new
-        trajectory with a subset of frames.
-
-        Args:
-            frames: Indices of the trajectory to return.
-
-        Returns:
-            Subset of trajectory
-        """
-        # Convert to position mode if not already
-        self.to_positions()
-
-        # For integer input, return the structure at that frame
-        if isinstance(frames, int):
-            if frames >= len(self):
-                raise IndexError(f"Frame index {frames} out of range.")
-
-            if self.lattice is None:
-                charge = 0
-                if self.charge is not None:
-                    charge = int(self.charge)
-
-                spin = None
-                if self.spin_multiplicity is not None:
-                    spin = int(self.spin_multiplicity)
-
-                return Molecule(
-                    self.species,
-                    self.coords[frames],
-                    charge=charge,
-                    spin_multiplicity=spin,
-                    site_properties=self._get_site_props(frames),  # type: ignore
-                )
-
-            lattice = self.lattice if self.constant_lattice else self.lattice[frames]  # type: ignore
-
-            return Structure(
-                Lattice(lattice),
-                self.species,
-                self.coords[frames],
-                site_properties=self._get_site_props(frames),  # type: ignore
-                to_unit_cell=True,
-            )
-
-        # For slice input, return a trajectory
-        if isinstance(frames, (slice, list, np.ndarray)):
-            if isinstance(frames, slice):
-                start, stop, step = frames.indices(len(self))
-                selected = list(range(start, stop, step))
-            else:
-                # Get rid of frames that exceed trajectory length
-                selected = [i for i in frames if i < len(self)]
-
-                if len(selected) < len(frames):
-                    bad_frames = [i for i in frames if i > len(self)]
-                    raise IndexError(f"Frame index {bad_frames} out of range.")
-
-            coords = self.coords[selected]
-            if self.frame_properties is not None:
-                frame_properties = [self.frame_properties[i] for i in selected]
-            else:
-                frame_properties = None
-
-            if self.lattice is None:
-                return Trajectory(
-                    species=self.species,
-                    coords=coords,
-                    charge=self.charge,
-                    spin_multiplicity=self.spin_multiplicity,
-                    site_properties=self._get_site_props(selected),
-                    frame_properties=frame_properties,
-                    time_step=self.time_step,
-                    coords_are_displacement=False,
-                    base_positions=self.base_positions,
-                )
-
-            lattice = self.lattice if self.constant_lattice else self.lattice[selected]  # type: ignore
-
-            return Trajectory(
-                species=self.species,
-                coords=coords,
-                lattice=lattice,
-                site_properties=self._get_site_props(selected),
-                frame_properties=frame_properties,
-                constant_lattice=self.constant_lattice,
-                time_step=self.time_step,
-                coords_are_displacement=False,
-                base_positions=self.base_positions,
-            )
-
-        supported = [int, slice, list or np.ndarray]
-        raise ValueError(f"Expect the type of frames be one of {supported}; {type(frames)}.")
-
     def write_Xdatcar(
         self,
-        filename: str | Path = "XDATCAR",
+        filename: PathLike = "XDATCAR",
         system: str | None = None,
         significant_figures: int = 6,
     ) -> None:
@@ -408,7 +403,7 @@ class Trajectory(MSONable):
         Xdatcar_from_structs.get_str method and are passed through directly.
 
         Args:
-            filename: Name of file to write.  It's prudent to end the filename with
+            filename: File to write. It's prudent to end the filename with
                 'XDATCAR', as most visualization and analysis software require this
                 for autodetection.
             system: Description of system (e.g. 2D MoS2).
@@ -435,7 +430,7 @@ class Trajectory(MSONable):
             if idx == 0 or not self.constant_lattice:
                 lines.extend([system, "1.0"])
 
-                _lattice = self.lattice if self.constant_lattice else self.lattice[idx]  # type: ignore
+                _lattice = self.lattice if self.constant_lattice else self.lattice[idx]
 
                 for latt_vec in _lattice:
                     lines.append(f'{" ".join(map(str, latt_vec))}')
@@ -448,10 +443,10 @@ class Trajectory(MSONable):
                 line = f'{" ".join(format_str.format(c) for c in coord)} {specie}'
                 lines.append(line)
 
-        xdatcar_string = "\n".join(lines) + "\n"
+        xdatcar_str = "\n".join(lines) + "\n"
 
         with zopen(filename, mode="wt") as file:
-            file.write(xdatcar_string)
+            file.write(xdatcar_str)
 
     def as_dict(self) -> dict:
         """Return the trajectory as a MSONable dict."""
@@ -493,15 +488,15 @@ class Trajectory(MSONable):
         else:
             lattice = np.array([structure.lattice.matrix for structure in structures])
 
-        species = structures[0].species
+        species: list[Element | Species] = structures[0].species
         coords = [structure.frac_coords for structure in structures]
         site_properties = [structure.site_properties for structure in structures]
 
         return cls(
-            species=species,  # type: ignore
+            species=species,  # type: ignore[arg-type]
             coords=coords,
             lattice=lattice,
-            site_properties=site_properties,  # type: ignore
+            site_properties=site_properties,
             constant_lattice=constant_lattice,
             **kwargs,
         )
@@ -524,11 +519,11 @@ class Trajectory(MSONable):
         site_properties = [mol.site_properties for mol in molecules]
 
         return cls(
-            species=species,  # type: ignore
+            species=species,  # type: ignore[arg-type]
             coords=coords,
             charge=int(molecules[0].charge),
             spin_multiplicity=int(molecules[0].spin_multiplicity),
-            site_properties=site_properties,  # type: ignore
+            site_properties=site_properties,
             **kwargs,
         )
 
@@ -551,9 +546,13 @@ class Trajectory(MSONable):
         structures = []
 
         if fnmatch(filename, "*XDATCAR*"):
+            from pymatgen.io.vasp.outputs import Xdatcar
+
             structures = Xdatcar(filename).structures
 
         elif fnmatch(filename, "vasprun*.xml*"):
+            from pymatgen.io.vasp.outputs import Vasprun
+
             structures = Vasprun(filename).structures
 
         elif fnmatch(filename, "*.traj"):
@@ -561,7 +560,7 @@ class Trajectory(MSONable):
                 from ase.io.trajectory import Trajectory as AseTrajectory
 
                 ase_traj = AseTrajectory(filename)
-                # periodic boundary conditions should be the same for all frames so just check the first
+                # Periodic boundary conditions should be the same for all frames so just check the first
                 pbc = ase_traj[0].pbc
                 if any(pbc):
                     structures = [AseAtomsAdaptor.get_structure(atoms) for atoms in ase_traj]
@@ -582,7 +581,12 @@ class Trajectory(MSONable):
         return cls.from_structures(structures, constant_lattice=constant_lattice, **kwargs)
 
     @staticmethod
-    def _combine_lattice(lat1: np.ndarray, lat2: np.ndarray, len1: int, len2: int) -> tuple[np.ndarray, bool]:
+    def _combine_lattice(
+        lat1: np.ndarray,
+        lat2: np.ndarray,
+        len1: int,
+        len2: int,
+    ) -> tuple[np.ndarray, bool]:
         """Helper function to combine trajectory lattice."""
         if lat1.ndim == lat2.ndim == 2:
             constant_lat = True
@@ -599,51 +603,57 @@ class Trajectory(MSONable):
 
     @staticmethod
     def _combine_site_props(
-        prop1: SitePropsType | None, prop2: SitePropsType | None, len1: int, len2: int
+        prop1: SitePropsType | None,
+        prop2: SitePropsType | None,
+        len1: int,
+        len2: int,
     ) -> SitePropsType | None:
         """Combine site properties.
 
         Either one of prop1 or prop2 can be None, dict, or a list of dict. All
         possibilities of combining them are considered.
         """
-        # special cases
-
+        # Special cases
         if prop1 is prop2 is None:
             return None
 
         if isinstance(prop1, dict) and prop1 == prop2:
             return prop1
 
-        # general case
-
+        # General case
         assert prop1 is None or isinstance(prop1, (list, dict))
         assert prop2 is None or isinstance(prop2, (list, dict))
 
-        p1_candidates = {
+        p1_candidates: dict[str, Any] = {
             "NoneType": [None] * len1,
             "dict": [prop1] * len1,
             "list": prop1,
         }
-        p2_candidates = {
+        p2_candidates: dict[str, Any] = {
             "NoneType": [None] * len2,
             "dict": [prop2] * len2,
             "list": prop2,
         }
-        p1_selected: list = p1_candidates[type(prop1).__name__]  # type: ignore
-        p2_selected: list = p2_candidates[type(prop2).__name__]  # type: ignore
+        p1_selected: list = p1_candidates[type(prop1).__name__]
+        p2_selected: list = p2_candidates[type(prop2).__name__]
 
         return p1_selected + p2_selected
 
     @staticmethod
-    def _combine_frame_props(prop1: list[dict] | None, prop2: list[dict] | None, len1: int, len2: int) -> list | None:
+    def _combine_frame_props(
+        prop1: list[dict] | None,
+        prop2: list[dict] | None,
+        len1: int,
+        len2: int,
+    ) -> list | None:
         """Combine frame properties."""
         if prop1 is prop2 is None:
             return None
         if prop1 is None:
-            return [None] * len1 + list(prop2)  # type: ignore
+            return [None] * len1 + list(cast(list[dict], prop2))
         if prop2 is None:
-            return list(prop1) + [None] * len2  # type: ignore
-        return list(prop1) + list(prop2)  # type:ignore
+            return list(prop1) + [None] * len2
+        return list(prop1) + list(prop2)
 
     def _check_site_props(self, site_props: SitePropsType | None) -> None:
         """Check data shape of site properties.
@@ -660,10 +670,10 @@ class Trajectory(MSONable):
 
         if isinstance(site_props, dict):
             site_props = [site_props]
-        else:
-            assert len(site_props) == len(
-                self
-            ), f"Size of the site properties {len(site_props)} does not equal to the number of frames {len(self)}."
+        elif len(site_props) != len(self):
+            raise AssertionError(
+                f"Size of the site properties {len(site_props)} does not equal to the number of frames {len(self)}"
+            )
 
         n_sites = len(self.coords[0])
         for dct in site_props:
@@ -678,11 +688,12 @@ class Trajectory(MSONable):
         if frame_props is None:
             return
 
-        assert len(frame_props) == len(
-            self
-        ), f"Size of the frame properties {len(frame_props)} does not equal to the number of frames {len(self)}."
+        if len(frame_props) != len(self):
+            raise AssertionError(
+                f"Size of the frame properties {len(frame_props)} does not equal to the number of frames {len(self)}"
+            )
 
-    def _get_site_props(self, frames: int | list[int]) -> SitePropsType | None:
+    def _get_site_props(self, frames: ValidIndex) -> SitePropsType | None:
         """Slice site properties."""
         if self.site_properties is None:
             return None
@@ -692,6 +703,6 @@ class Trajectory(MSONable):
             if isinstance(frames, int):
                 return self.site_properties[frames]
             if isinstance(frames, list):
-                return [self.site_properties[i] for i in frames]
+                return [self.site_properties[idx] for idx in frames]
             raise ValueError("Unexpected frames type.")
         raise ValueError("Unexpected site_properties type.")

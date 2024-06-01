@@ -593,8 +593,7 @@ class AdfOutput:
         self._parse()
 
     def _parse(self):
-        """
-        Parse the ADF outputs. There are two files: one is 'logfile', the other
+        """Parse the ADF outputs. There are two files: one is 'logfile', the other
         is the ADF output file. The final energy and structures are parsed from
         the 'logfile'. Frequencies and normal modes are parsed from the ADF
         output file.

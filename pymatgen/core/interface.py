@@ -216,17 +216,13 @@ class GrainBoundary(Structure):
 
     @property
     def sigma(self) -> int:
-        """
-        The sigma value of the GB.
-        If using 'quick_gen' to generate GB, this value is not valid.
-        """
-        return round(self.oriented_unit_cell.volume / self.init_cell.volume)
+        """The sigma value of the GB. If using 'quick_gen' to generate GB, this value is not valid."""
+        return int(round(self.oriented_unit_cell.volume / self.init_cell.volume))
 
     @property
     def sigma_from_site_prop(self) -> int:
-        """
-        The sigma value of the GB from site properties.
-        If the GB structure merge some atoms due to the atoms too close with
+        """The sigma value of the GB from site properties.
+        If the GB structure merge some atoms due to the atoms too closer with
         each other, this property will not work.
         """
         if None in self.site_properties["grain_label"]:
@@ -774,7 +770,7 @@ class GrainBoundaryGenerator:
                 sites_away_gb.append(site)
         if len(sites_near_gb) >= 1:
             s_near_gb = Structure.from_sites(sites_near_gb)
-            s_near_gb.merge_sites(tol=bond_length * rm_ratio, mode="d")
+            s_near_gb.merge_sites(tol=bond_length * rm_ratio, mode="delete")
             all_sites = sites_away_gb + s_near_gb.sites  # type: ignore
             gb_with_vac = Structure.from_sites(all_sites)
 

@@ -81,7 +81,7 @@ def read_route_line(route):
 
 
 class GaussianInput:
-    """An object representing a Gaussian input file."""
+    """A Gaussian input file."""
 
     # Commonly used regex patterns
     _zmat_patt = re.compile(r"^(\w+)*([\s,]+(\w+)[\s,]+(\w+))*[\-\.\s,\w]*$")
@@ -997,8 +997,7 @@ class GaussianOutput:
             warnings.warn(f"\n{self.filename}: Termination error or bad Gaussian output file !")
 
     def _parse_hessian(self, file, structure):
-        """
-        Parse the hessian matrix in the output file.
+        """Parse the hessian matrix in the output file.
 
         Args:
             file: file object
@@ -1220,7 +1219,7 @@ class GaussianOutput:
 
         Returns:
             A dict: {"energies": values, "lambda": values, "xas": values}
-                    where values are lists of abscissa (energies, lamba) and
+                    where values are lists of abscissa (energies, lambda) and
                     the sum of gaussian functions (xas).
             A matplotlib plot.
         """
