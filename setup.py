@@ -51,7 +51,7 @@ setup(
         # don't depend on tblite above 3.11 since unsupported https://github.com/tblite/tblite/issues/175
         "tblite": ["tblite[ase]>=0.3.0; python_version<'3.12'"],
         "vis": ["vtk>=6.0.0"],
-        "abinit": ["netcdf4"],
+        "abinit": ["netcdf4>=1.6"],
         "relaxation": ["matgl", "chgnet>=0.3.0"],
         "electronic_structure": ["fdint>=2.0.2"],
         "dev": [
