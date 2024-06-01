@@ -169,8 +169,7 @@ class Control(MSONable, dict):
         "ShengBTE Control object requires f90nml to be installed. Please get it at https://pypi.org/project/f90nml.",
     )
     def to_file(self, filename: str = "CONTROL") -> None:
-        """
-        Writes ShengBTE CONTROL file from 'Control' object.
+        """Write ShengBTE CONTROL file from 'Control' object.
 
         Args:
             filename: A file name.

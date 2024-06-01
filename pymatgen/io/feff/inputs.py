@@ -360,8 +360,7 @@ class Header(MSONable):
         return "\n".join(output)
 
     def write_file(self, filename="HEADER"):
-        """
-        Writes Header into filename on disk.
+        """Write Header to file.
 
         Args:
             filename: Filename and path for file to be written to disk

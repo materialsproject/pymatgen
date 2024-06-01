@@ -266,8 +266,7 @@ class VolumetricData(MSONable):
         return total / ng[(ind + 1) % 3] / ng[(ind + 2) % 3]
 
     def to_hdf5(self, filename):
-        """
-        Writes the VolumetricData to a HDF5 format, which is a highly optimized
+        """Write the VolumetricData to a HDF5 format, which is a highly optimized
         format for reading storing large data. The mapping of the VolumetricData
         to this file format is as follows:
 
