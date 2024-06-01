@@ -52,7 +52,7 @@ setup(
         "tblite": ["tblite[ase]>=0.3.0; python_version<'3.12'"],
         "vis": ["vtk>=6.0.0"],
         "abinit": ["netcdf4>=1.6"],
-        "relaxation": ["matgl", "chgnet==0.3.5"],
+        "relaxation": ["matgl>=1.1.1", "chgnet==0.3.5"],
         "electronic_structure": ["fdint>=2.0.2"],
         "dev": [
             "mypy>=1.10.0",
@@ -81,7 +81,7 @@ setup(
             "h5py>=3.8.0",
             "jarvis-tools>=2020.7.14",
             "matgl>=1.1.1",
-            "netCDF4>=1.5.8",
+            "netCDF4>=1.6",
             "phonopy>=2.4.2",
             "seekpath>=1.9.4",
             # don't depend on tblite above 3.11 since unsupported https://github.com/tblite/tblite/issues/175
@@ -89,7 +89,7 @@ setup(
             # "hiphive>=0.6",
             # "openbabel>=3.1.1; platform_system=='Linux'",
         ],
-        "numba": ["numba"],
+        "numba": ["numba>=0.55"],
     },
     # All package data has to be explicitly defined. Do not use automated codes like last time. It adds
     # all sorts of useless files like test files and is prone to path errors.
