@@ -51,7 +51,7 @@ setup(
         # don't depend on tblite above 3.11 since unsupported https://github.com/tblite/tblite/issues/175
         "tblite": ["tblite[ase]>=0.3.0; python_version<'3.12'"],
         "vis": ["vtk>=6.0.0"],
-        "abinit": ["netcdf4>=1.6"],
+        "abinit": ["netcdf4>=1.6.5"],
         "relaxation": ["matgl>=1.1.1", "chgnet==0.3.5"],
         "electronic_structure": ["fdint>=2.0.2"],
         "dev": [
@@ -78,7 +78,7 @@ setup(
             "chgnet==0.3.5",
             "f90nml>=1.1.2",
             "galore>=0.6.1",
-            "h5py>=3.8.0",
+            "h5py>=3.9.0",
             "jarvis-tools>=2020.7.14",
             "matgl>=1.1.1",
             "netCDF4>=1.6.5",
