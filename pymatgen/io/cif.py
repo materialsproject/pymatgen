@@ -1073,7 +1073,7 @@ class CifParser:
 
         if any(occu > 1 for occu in _sum_occupancies):
             msg = (
-                f"Some occupancies ({list(filter(lambda x: x>1, _sum_occupancies))}) sum to > 1! If they are within "
+                f"Some occupancies ({list(filter(lambda x: x > 1, _sum_occupancies))}) sum to > 1! If they are within "
                 "the occupancy_tolerance, they will be rescaled. "
                 f"The current occupancy_tolerance is set to: {self._occupancy_tolerance}"
             )

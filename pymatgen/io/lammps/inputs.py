@@ -504,7 +504,7 @@ class LammpsInputFile(InputFile):
                 # Print first the name of the stage in a comment.
                 # We print this even if ignore_comments is True.
                 if "Comment" not in stage["stage_name"] and len(self.stages) > 1:
-                    lammps_input += "\n# " + stage["stage_name"] + "\n"
+                    lammps_input += f"\n# {stage['stage_name']}\n"
 
                 # In case of a block of comment, the header is not printed (useless)
                 else:
