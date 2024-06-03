@@ -748,7 +748,10 @@ loop_
             cif_str = cif_file.read()
         cif_str = cif_str.replace("Te    Te 1.0000", "Te_label    Te 10.0", 1)
 
-        structs = CifParser.from_str(cif_str).parse_structures(check_occu=False)
+        with pytest.warns(
+            UserWarning, match=r"Issues encountered while parsing CIF: Some occupancies \(\[10\.0\]\) sum to > 1!"
+        ):
+            structs = CifParser.from_str(cif_str).parse_structures(check_occu=False)
 
         assert len(structs) > 0
         assert set(structs[0].labels) == {"Te_label", "Ge"}
