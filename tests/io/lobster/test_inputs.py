@@ -1562,7 +1562,7 @@ class TestLobsterin(TestCase):
         self.Lobsterin4 = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.4.gz")
 
     def test_from_file(self):
-        # Test read from file
+        # Test reading from file
         assert self.Lobsterin["cohpstartenergy"] == approx(-15.0)
         assert self.Lobsterin["cohpendenergy"] == approx(5.0)
         assert self.Lobsterin["basisset"] == "pbeVaspFit2015"

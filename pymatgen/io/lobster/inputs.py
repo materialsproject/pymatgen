@@ -1,4 +1,4 @@
-"""Module for reading Lobster input files.
+"""Module for reading LOBSTER input files.
 For more information on LOBSTER see www.cohp.de.
 
 If you use this module, please cite:
@@ -55,11 +55,11 @@ due.cite(
 
 class Lobsterin(UserDict, MSONable):
     """Handle and generate lobsterin files.
-    Furthermore, it can also modify INCAR files for LOBSTER, generate KPOINTS files for fatband calculations in Lobster,
+    Furthermore, it can also modify INCAR files for LOBSTER, generate KPOINTS files for fatband calculations in LOBSTER,
     and generate the standard primitive cells in a POSCAR file that are needed for the fatband calculations.
     There are also several standard lobsterin files that can be easily generated.
 
-    Reminder: LOBSTER is not case sensitive.
+    Reminder: LOBSTER input keywords are not case sensitive.
     """
 
     # Keyword + float
@@ -147,8 +147,9 @@ class Lobsterin(UserDict, MSONable):
 
     def __setitem__(self, key: str, val: Any) -> None:
         """
-        Necessary due to the missing case sensitivity of LOBSTER.
-        Also clean the keys and values by stripping white spaces.
+        Necessary due to the missing case sensitivity of input
+        keywords of LOBSTER. Also clean the keys and values by
+        stripping white spaces.
 
         Raises:
             KeyError: if keyword is not available.
@@ -335,7 +336,7 @@ class Lobsterin(UserDict, MSONable):
         potcar_symbols: list[str],
         address_basis_file: PathLike | None = None,
     ) -> list[str]:
-        """Get the basis from given potcar_symbols, e.g., ["Fe_pv", "Si"].
+        """Get the basis functions from given potcar_symbols, e.g., ["Fe_pv", "Si"].
 
         Args:
             structure (Structure): Structure object
@@ -649,7 +650,7 @@ class Lobsterin(UserDict, MSONable):
         dict_for_basis: dict | None = None,
         option: str = "standard",
     ) -> Self:
-        """Generate Lobsterin with standard settings.
+        """Generate lobsterin with standard settings.
 
         Args:
             POSCAR_input (PathLike): path to POSCAR
@@ -695,7 +696,7 @@ class Lobsterin(UserDict, MSONable):
             raise ValueError("The option is not valid!")
 
         lobsterin_dict: dict[str, Any] = {
-            # This basis set covers most elements
+            # This basis set covers elements up to Lr (Z = 103)
             "basisSet": "pbeVaspFit2015",
             # Energies around e-fermi
             "COHPstartEnergy": -35.0,
@@ -816,7 +817,7 @@ class Lobsterin(UserDict, MSONable):
             # Will just insert this basis and not check with poscar
             basis = [f"{key} {value}" for key, value in dict_for_basis.items()]
         elif POTCAR_input is not None:
-            # Get basis from POTCAR
+            # Get basis functions from POTCAR
             potcar_names = cls._get_potcar_symbols(POTCAR_input=POTCAR_input)
 
             basis = cls.get_basis(structure=Structure.from_file(POSCAR_input), potcar_symbols=potcar_names)
