@@ -370,8 +370,7 @@ class QCInput(InputFile):
 
     @staticmethod
     def write_multi_job_file(job_list: list[QCInput], filename: str):
-        """
-        Write a multijob file.
+        """Write a multijob file.
 
         Args:
             job_list (): List of jobs.

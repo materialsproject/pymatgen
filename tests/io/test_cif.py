@@ -1044,11 +1044,11 @@ Gd1 5.05 5.05 0.0"""
 
     def test_write(self):
         with open(f"{MCIF_TEST_DIR}/GdB4-writer-ref.mcif") as file:
-            cw_ref_string = file.read()
+            cw_ref_str = file.read()
         s_ncl = self.mcif_ncl.parse_structures(primitive=False)[0]
 
         cw = CifWriter(s_ncl, write_magmoms=True)
-        assert str(cw) == cw_ref_string
+        assert str(cw) == cw_ref_str
 
         # from list-type magmoms
         list_magmoms = [list(m) for m in s_ncl.site_properties["magmom"]]
@@ -1058,15 +1058,15 @@ Gd1 5.05 5.05 0.0"""
 
         s_ncl.add_site_property("magmom", list_magmoms)
         cw = CifWriter(s_ncl, write_magmoms=True)
-        assert str(cw) == cw_ref_string
+        assert str(cw) == cw_ref_str
 
         s_ncl.add_site_property("magmom", float_magmoms)
         cw = CifWriter(s_ncl, write_magmoms=True)
 
         with open(f"{MCIF_TEST_DIR}/GdB4-str-magnitudes-ref.mcif") as file:
-            cw_ref_string_magnitudes = file.read()
+            cw_ref_str_magnitudes = file.read()
 
-        assert str(cw).strip() == cw_ref_string_magnitudes.strip()
+        assert str(cw).strip() == cw_ref_str_magnitudes.strip()
         # test we're getting correct magmoms in ncl case
         s_ncl2 = self.mcif_ncl2.parse_structures()[0]
         list_magmoms = [list(m) for m in s_ncl2.site_properties["magmom"]]
