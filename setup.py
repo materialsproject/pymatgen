@@ -87,7 +87,7 @@ setup(
             "matgl>=1.1.1",
             "netCDF4>=1.6.5",
             "phonopy>=2.23",
-            "seekpath>=1.9.4",
+            "seekpath>=2.0.1",
             # don't depend on tblite above 3.11 since unsupported https://github.com/tblite/tblite/issues/175
             "tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'",
             # "hiphive>=0.6",
