@@ -330,8 +330,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         potcar_spec: bool = False,
         zip_output: bool | str = False,
     ) -> None:
-        """
-        Writes a set of VASP input to a directory.
+        """Write a set of VASP input to a directory.
 
         Args:
             output_dir (str): Directory to output the VASP input files

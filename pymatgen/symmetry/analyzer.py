@@ -1554,8 +1554,8 @@ def generate_full_symmops(symmops: Sequence[SymmOp], tol: float) -> Sequence[Sym
     # Uses an algorithm described in:
     # Gregory Butler. Fundamental Algorithms for Permutation Groups.
     # Lecture Notes in Computer Science (Book 559). Springer, 1991. page 15
-    UNIT = np.eye(4)
-    generators = [op.affine_matrix for op in symmops if not np.allclose(op.affine_matrix, UNIT)]
+    identity = np.eye(4)
+    generators = [op.affine_matrix for op in symmops if not np.allclose(op.affine_matrix, identity)]
     if not generators:
         # C1 symmetry breaks assumptions in the algorithm afterwards
         return symmops
@@ -1574,9 +1574,9 @@ def generate_full_symmops(symmops: Sequence[SymmOp], tol: float) -> Sequence[Sym
                     " and rerun with a different tolerance."
                 )
 
-    d = np.abs(full - UNIT) < tol
+    d = np.abs(full - identity) < tol
     if not np.any(np.all(np.all(d, axis=2), axis=1)):
-        full.append(UNIT)
+        full.append(identity)
     return [SymmOp(op) for op in full]
 
 

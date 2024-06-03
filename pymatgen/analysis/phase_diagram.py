@@ -2277,7 +2277,7 @@ class PDPlotter:
 
         X value is the negative value of the chemical potential reference to
         elemental chemical potential. For example, if choose Element("Li"),
-        X= -(µLi-µLi0), which corresponds to the voltage versus metal anode.
+        X= -(μLi-μLi0), which corresponds to the voltage versus metal anode.
         Y values represent for the number of element uptake in this composition
         (unit: per atom). All reactions are printed to help choosing the
         profile steps you want to show label in the plot.
