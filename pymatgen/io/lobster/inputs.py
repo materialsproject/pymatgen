@@ -126,13 +126,18 @@ class Lobsterin(UserDict, MSONable):
     )
 
     # Generate {lowered: original} mappings
-    FLOAT_KEYWORDS: ClassVar = {key.lower(): key for key in _FLOAT_KEYWORDS}
-    STRING_KEYWORDS: ClassVar = {key.lower(): key for key in _STRING_KEYWORDS}
-    BOOLEAN_KEYWORDS: ClassVar = {key.lower(): key for key in _BOOLEAN_KEYWORDS}
-    LIST_KEYWORDS: ClassVar = {key.lower(): key for key in _LIST_KEYWORDS}
+    FLOAT_KEYWORDS: ClassVar[dict[str, str]] = {key.lower(): key for key in _FLOAT_KEYWORDS}
+    STRING_KEYWORDS: ClassVar[dict[str, str]] = {key.lower(): key for key in _STRING_KEYWORDS}
+    BOOLEAN_KEYWORDS: ClassVar[dict[str, str]] = {key.lower(): key for key in _BOOLEAN_KEYWORDS}
+    LIST_KEYWORDS: ClassVar[dict[str, str]] = {key.lower(): key for key in _LIST_KEYWORDS}
 
     # All known keywords
-    AVAILABLE_KEYWORDS: ClassVar = {**FLOAT_KEYWORDS, **STRING_KEYWORDS, **BOOLEAN_KEYWORDS, **LIST_KEYWORDS}
+    AVAILABLE_KEYWORDS: ClassVar[dict[str, str]] = {
+        **FLOAT_KEYWORDS,
+        **STRING_KEYWORDS,
+        **BOOLEAN_KEYWORDS,
+        **LIST_KEYWORDS,
+    }
 
     def __init__(self, settingsdict: dict) -> None:
         """

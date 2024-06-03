@@ -1757,7 +1757,7 @@ class PotcarSingle:
     #     in the PSCTR/header field.
     # We indicate the older release in `functional_dir` as PBE_52, PBE_54, LDA_52, LDA_54.
     # The newer release is indicated as PBE_52_W_HASH, etc.
-    functional_dir: ClassVar = {
+    functional_dir: ClassVar[dict[str, str]] = {
         "PBE": "POT_GGA_PAW_PBE",
         "PBE_52": "POT_GGA_PAW_PBE_52",
         "PBE_52_W_HASH": "POTPAW_PBE_52",
@@ -1776,7 +1776,7 @@ class PotcarSingle:
         "Perdew_Zunger81": "POT_LDA_PAW",
     }
 
-    functional_tags: ClassVar = {
+    functional_tags: ClassVar[dict[str, dict[Literal["name", "class"], str]]] = {
         "pe": {"name": "PBE", "class": "GGA"},
         "91": {"name": "PW91", "class": "GGA"},
         "rp": {"name": "revPBE", "class": "GGA"},
@@ -1790,7 +1790,7 @@ class PotcarSingle:
         "wi": {"name": "Wigner Interpolation", "class": "LDA"},
     }
 
-    parse_functions: ClassVar = {
+    parse_functions: ClassVar[dict[str, Any]] = {
         "LULTRA": _parse_bool,
         "LUNSCR": _parse_bool,
         "LCOR": _parse_bool,
