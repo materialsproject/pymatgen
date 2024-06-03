@@ -90,6 +90,7 @@ class Lobsterin(UserDict, MSONable):
         "skipcobi",
         "skipMadelungEnergy",
         "loadProjectionFromFile",
+        "printTotalSpilling",
         "forceEnergyRange",
         "DensityOfEnergy",
         "BWDF",
@@ -98,6 +99,7 @@ class Lobsterin(UserDict, MSONable):
         "skipGrossPopulation",
         "userecommendedbasisfunctions",
         "skipProjection",
+        "printLmosOnAtoms",
         "writeBasisFunctions",
         "writeMatricesToFile",
         "noFFTforVisualization",
@@ -120,6 +122,7 @@ class Lobsterin(UserDict, MSONable):
         "basisfunctions",
         "cohpbetween",
         "createFatband",
+        "customSTOforAtom",
     )
 
     # Generate {lowered: original} mappings
