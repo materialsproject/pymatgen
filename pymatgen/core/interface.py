@@ -10,7 +10,7 @@ import warnings
 from fractions import Fraction
 from functools import reduce
 from itertools import chain, combinations, product
-from typing import TYPE_CHECKING, Literal, cast
+from typing import TYPE_CHECKING, Literal, Union, cast
 
 import numpy as np
 from monty.fractions import lcm
@@ -964,7 +964,7 @@ class GrainBoundaryGenerator:
         # Make sure gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
             r_axis = cast(
-                tuple[int, int, int] | tuple[int, int, int, int],
+                Union[tuple[int, int, int], tuple[int, int, int, int]],
                 tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis),
             )
 
@@ -1013,12 +1013,14 @@ class GrainBoundaryGenerator:
                 fractions = [Fraction(x).limit_denominator() for x in surface]
                 least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
                 surface = cast(
-                    tuple[int, int, int] | tuple[int, int, int, int], tuple(round(x * least_mul) for x in surface)
+                    Union[tuple[int, int, int], tuple[int, int, int, int]], tuple(round(x * least_mul) for x in surface)
                 )
 
         if reduce(math.gcd, surface) != 1:
             index = reduce(math.gcd, surface)
-            surface = cast(tuple[int, int, int] | tuple[int, int, int, int], tuple(round(x / index) for x in surface))
+            surface = cast(
+                Union[tuple[int, int, int], tuple[int, int, int, int]], tuple(round(x / index) for x in surface)
+            )
 
         lam = None
         if lat_type == "h":
@@ -1431,7 +1433,7 @@ class GrainBoundaryGenerator:
         # Make sure math.gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
             r_axis = cast(
-                tuple[int, int, int] | tuple[int, int, int, int],
+                Union[tuple[int, int, int], tuple[int, int, int, int]],
                 tuple([round(x / reduce(math.gcd, r_axis)) for x in r_axis]),
             )
 
