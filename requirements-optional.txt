@@ -5,7 +5,7 @@ chemview>=0.6
 f90nml>=1.4.3
 fdint>=2.0.2
 galore>=0.7.0
-h5py==3.9.0
+h5py==3.11.0
 # hiphive>=0.6
 icet>=2.2
 jarvis-tools>=2022.9.16
