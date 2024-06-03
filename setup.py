@@ -38,7 +38,7 @@ setup(
         "pybtex>=0.24.0",
         "requests>=2.20",
         "ruamel.yaml>=0.17.0",
-        "scipy>=1.5.0",
+        "scipy>=1.13.0",
         "spglib>=2.0.2",
         "sympy>=1.2",
         "tabulate>=0.9",
