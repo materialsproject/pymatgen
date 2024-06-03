@@ -528,8 +528,7 @@ $geometry
         )
 
     def write_file(self, filename: str | Path) -> None:
-        """
-        Write FiestaInput to a file
+        """Write FiestaInput to a file
 
         Args:
             filename: Filename.
