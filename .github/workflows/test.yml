@@ -34,13 +34,13 @@ jobs:
           - os: windows-latest
             python: "3.9"
             resolution: highest
-            extras: optional
+            extras: ci,optional
           - os: ubuntu-latest
             python: "3.12"
             resolution: lowest-direct
-            extras: optional
+            extras: ci,optional
           # test with lowest resolution and only required dependencies installed
-          - { os: macos-latest, python: "3.10", resolution: lowest, extras: "" }
+          - { os: macos-latest, python: "3.10", resolution: lowest, extras: ci }
 
         # pytest-split automatically distributes work load so parallel jobs finish in similar time
         split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
@@ -78,7 +78,7 @@ jobs:
           pip install torch
 
           uv pip install numpy cython
-          uv pip install --editable '.[ci,${{ matrix.config.extras }}]' --resolution=${{ matrix.config.resolution }}
+          uv pip install --editable '.[${{ matrix.config.extras }}]' --resolution=${{ matrix.config.resolution }}
 
       - name: pytest split ${{ matrix.split }}
         run: |
