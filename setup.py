@@ -36,7 +36,7 @@ setup(
         "pandas>=2",
         "plotly>=4.5.0",
         "pybtex>=0.24.0",
-        "requests>=2.20",
+        "requests>=2.32",
         "ruamel.yaml>=0.17.0",
         "scipy>=1.13.0",
         "spglib>=2.0.2",
