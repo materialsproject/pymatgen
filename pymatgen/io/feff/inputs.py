@@ -978,7 +978,7 @@ def get_atom_map(structure, absorbing_atom=None):
     if absorbing_atom and len(structure.indices_from_symbol(absorbing_atom)) == 1:
         unique_pot_atoms.remove(absorbing_atom)
 
-    return dict(enumerate(unique_pot_atoms, start=1))
+    return {atom: idx for idx, atom in enumerate(unique_pot_atoms, start=1)}
 
 
 def get_absorbing_atom_symbol_index(absorbing_atom, structure):
