@@ -48,7 +48,7 @@ if os.getenv("NWCHEM_BASIS_LIBRARY"):
 class NwTask(MSONable):
     """Base task for Nwchem."""
 
-    theories: ClassVar = {
+    theories: ClassVar[dict[str, str]] = {
         "g3gn": "some description",
         "scf": "Hartree-Fock",
         "dft": "DFT",
@@ -69,7 +69,7 @@ class NwTask(MSONable):
         "tddft": "Time Dependent DFT",
     }
 
-    operations: ClassVar = {
+    operations: ClassVar[dict[str, str]] = {
         "energy": "Evaluate the single point energy.",
         "gradient": "Evaluate the derivative of the energy with respect to nuclear coordinates.",
         "optimize": "Minimize the energy by varying the molecular structure.",

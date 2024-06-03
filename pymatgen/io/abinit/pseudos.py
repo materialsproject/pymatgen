@@ -1012,7 +1012,7 @@ class PseudoParser:
         format: None
 
     # TODO Recheck
-    _PSPCODES: ClassVar = {
+    _PSPCODES: ClassVar[dict[int, ppdesc]] = {
         1: ppdesc(1, "TM", "NC", None),
         2: ppdesc(2, "GTH", "NC", None),
         3: ppdesc(3, "HGH", "NC", None),
@@ -1024,7 +1024,7 @@ class PseudoParser:
         10: ppdesc(10, "HGHK", "NC", None),
     }
 
-    del ppdesc
+    # del ppdesc
 
     # renumber functionals from oncvpsp todo confirm that 3 is 2
     # _FUNCTIONALS = {1: {'n': 4, 'name': 'Wigner'},
