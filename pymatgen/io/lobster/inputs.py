@@ -59,7 +59,7 @@ class Lobsterin(UserDict, MSONable):
     and generate the standard primitive cells in a POSCAR file that are needed for the fatband calculations.
     There are also several standard lobsterin files that can be easily generated.
 
-    Reminder: LOBSTER input keywords are not case sensitive.
+    Reminder: lobsterin keywords are not case sensitive.
     """
 
     # Keyword + float
@@ -155,9 +155,8 @@ class Lobsterin(UserDict, MSONable):
 
     def __setitem__(self, key: str, val: Any) -> None:
         """
-        Necessary due to the missing case sensitivity of input
-        keywords of LOBSTER. Also clean the keys and values by
-        stripping white spaces.
+        Necessary due to the missing case sensitivity of lobsterin
+        keywords. Also clean the keys and values by stripping white spaces.
 
         Raises:
             KeyError: if keyword is not available.
