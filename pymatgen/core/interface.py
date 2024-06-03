@@ -10,7 +10,7 @@ import warnings
 from fractions import Fraction
 from functools import reduce
 from itertools import chain, combinations, product
-from typing import TYPE_CHECKING, Literal, cast, no_type_check
+from typing import TYPE_CHECKING, Literal, cast
 
 import numpy as np
 from monty.fractions import lcm
@@ -884,13 +884,12 @@ class GrainBoundaryGenerator:
         return cast(list[int], ratio)
 
     @staticmethod
-    @no_type_check  # TODO: a lot of type errors
     def get_trans_mat(
         r_axis: tuple[int, int, int] | tuple[int, int, int, int],
         angle: float,
         normal: bool = False,
         trans_cry: NDArray | None = None,
-        lat_type: Literal["c", "t", "o", "h", "r"] = "c",
+        lat_type: str = "c",
         ratio: list[int] | None = None,
         surface: tuple[int, int, int] | tuple[int, int, int, int] | None = None,
         max_search: int = 20,
@@ -944,42 +943,46 @@ class GrainBoundaryGenerator:
             t2 (3 by 3 integer array): The transformation array for the other grain
         """
         trans_cry = np.eye(3) if trans_cry is None else trans_cry
+        lat_type = lat_type.lower()
 
         # Transform four index notation to three index notation
         if len(r_axis) == 4:
             u1 = r_axis[0]
             v1 = r_axis[1]
             w1 = r_axis[3]
-            if lat_type.lower() == "h":
+            if lat_type == "h":
                 u = 2 * u1 + v1
                 v = 2 * v1 + u1
                 w = w1
-                r_axis = [u, v, w]
-            elif lat_type.lower() == "r":
+                r_axis = (u, v, w)
+            elif lat_type == "r":
                 u = 2 * u1 + v1 + w1
                 v = v1 + w1 - u1
                 w = w1 - 2 * v1 - u1
-                r_axis = [u, v, w]
+                r_axis = (u, v, w)
 
         # Make sure gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
-            r_axis = [round(x / reduce(math.gcd, r_axis)) for x in r_axis]
+            r_axis = cast(
+                tuple[int, int, int] | tuple[int, int, int, int],
+                tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis),
+            )
 
         if surface is not None and len(surface) == 4:
             u1 = surface[0]
             v1 = surface[1]
             w1 = surface[3]
-            surface = [u1, v1, w1]
+            surface = (u1, v1, w1)
 
         # Set the surface for grain boundary.
         if surface is None:
-            if lat_type.lower() == "c":
+            if lat_type == "c":
                 surface = r_axis
             else:
-                if lat_type.lower() == "h":
+                if lat_type == "h":
                     c2_a2_ratio = 1.0 if ratio is None else ratio[0] / ratio[1]
                     metric = np.array([[1, -0.5, 0], [-0.5, 1, 0], [0, 0, c2_a2_ratio]])
-                elif lat_type.lower() == "r":
+                elif lat_type == "r":
                     cos_alpha = 0.5 if ratio is None else 1.0 / (ratio[0] / ratio[1] - 2)
                     metric = np.array(
                         [
@@ -988,12 +991,13 @@ class GrainBoundaryGenerator:
                             [cos_alpha, cos_alpha, 1],
                         ]
                     )
-                elif lat_type.lower() == "t":
+                elif lat_type == "t":
                     c2_a2_ratio = 1.0 if ratio is None else ratio[0] / ratio[1]
                     metric = np.array([[1, 0, 0], [0, 1, 0], [0, 0, c2_a2_ratio]])
-                elif lat_type.lower() == "o":
+                elif lat_type == "o":
+                    assert ratio is not None, "Invalid ratio for orthorhombic system"
                     for idx in range(3):
-                        if ratio[idx] is None:
+                        if ratio is not None and ratio[idx] is None:
                             ratio[idx] = 1
                     metric = np.array(
                         [
@@ -1008,20 +1012,22 @@ class GrainBoundaryGenerator:
                 surface = np.matmul(r_axis, metric)
                 fractions = [Fraction(x).limit_denominator() for x in surface]
                 least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
-                surface = [round(x * least_mul) for x in surface]
+                surface = cast(
+                    tuple[int, int, int] | tuple[int, int, int, int], tuple(round(x * least_mul) for x in surface)
+                )
 
         if reduce(math.gcd, surface) != 1:
             index = reduce(math.gcd, surface)
-            surface = [round(x / index) for x in surface]
+            surface = cast(tuple[int, int, int] | tuple[int, int, int, int], tuple(round(x / index) for x in surface))
 
         lam = None
-        if lat_type.lower() == "h":
+        if lat_type == "h":
             # Set the values for u, v, w, mu, mv, m, n, d, x
             # Check the reference for the meaning of these parameters
-            u, v, w = r_axis
+            u, v, w = cast(tuple[int, int, int], r_axis)
             # Make sure mu, mv are coprime integers
             if ratio is None:
-                mu, mv = [1, 1]
+                mu, mv = (1, 1)
                 if w != 0 and (u != 0 or (v != 0)):
                     raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
             else:
@@ -1072,13 +1078,13 @@ class GrainBoundaryGenerator:
             sigma = F / com_fac
             r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
 
-        elif lat_type.lower() == "r":
+        elif lat_type == "r":
             # Set the values for u, v, w, mu, mv ,m, n, d
             # Check the reference for the meaning of these parameters
-            u, v, w = r_axis
+            u, v, w = cast(tuple[int, int, int], r_axis)
             # make sure mu, mv are coprime integers
             if ratio is None:
-                mu, mv = [1, 1]
+                mu, mv = (1, 1)
                 if u + v + w != 0 and (u != v or u != w):
                     raise RuntimeError(
                         "For irrational ratio_alpha, CSL only exist for [1,1,1] or [u, v, -(u+v)] and m =0"
@@ -1148,22 +1154,22 @@ class GrainBoundaryGenerator:
             r_matrix = (np.array(r_list) / com_fac / sigma).reshape(3, 3)
 
         else:
-            u, v, w = r_axis
-            mu = mv = None
-            if lat_type.lower() == "c":
+            u, v, w = cast(tuple[int, int, int], r_axis)
+            mu = mv = None  # type: ignore[assignment]
+            if lat_type == "c":
                 mu = 1
                 lam = 1
                 mv = 1
-            elif lat_type.lower() == "t":
+            elif lat_type == "t":
                 if ratio is None:
-                    mu, mv = [1, 1]
+                    mu, mv = (1, 1)
                     if w != 0 and (u != 0 or (v != 0)):
                         raise RuntimeError("For irrational c2/a2, CSL only exist for [0,0,1] or [u,v,0] and m = 0")
                 else:
                     mu, mv = ratio
                 lam = mv
-            elif lat_type.lower() == "o":
-                if None in ratio:
+            elif lat_type == "o":
+                if ratio is not None and None in ratio:
                     mu, lam, mv = ratio
                     non_none = [i for i in ratio if i is not None]
                     if len(non_none) < 2:
@@ -1188,7 +1194,7 @@ class GrainBoundaryGenerator:
                         if u != 0 and (w != 0 or (v != 0)):
                             raise RuntimeError("For irrational a2, CSL only exist for [1,0,0] or [0,v,w] and m = 0")
                 else:
-                    mu, lam, mv = ratio
+                    mu, lam, mv = cast(list[int], ratio)
                     if u == 0 and v == 0:
                         mu = 1
                     if u == 0 and w == 0:
@@ -1197,8 +1203,11 @@ class GrainBoundaryGenerator:
                         mv = 1
 
             # Make sure mu, lambda, mv are coprime integers
+            assert mu is not None
+            assert lam is not None
+            assert mv is not None
             if reduce(math.gcd, [mu, lam, mv]) != 1:
-                temp = reduce(math.gcd, [mu, lam, mv])
+                temp = cast(int, reduce(math.gcd, [mu, lam, mv]))
                 mu = round(mu / temp)
                 mv = round(mv / temp)
                 lam = round(lam / temp)
@@ -1244,15 +1253,19 @@ class GrainBoundaryGenerator:
             raise RuntimeError("Sigma >1000 too large. Are you sure what you are doing, Please check the GB if exist")
         # Transform surface, r_axis, r_matrix in terms of primitive lattice
         surface = np.matmul(surface, np.transpose(trans_cry))
+        assert surface is not None
         fractions = [Fraction(x).limit_denominator() for x in surface]
         least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
-        surface = [round(x * least_mul) for x in surface]
+        surface = cast(tuple[int, int, int], tuple(round(x * least_mul) for x in surface))
         if reduce(math.gcd, surface) != 1:
             index = reduce(math.gcd, surface)
-            surface = [round(x / index) for x in surface]
+            surface = cast(tuple[int, int, int], tuple(round(x / index) for x in surface))
         r_axis = np.rint(np.matmul(r_axis, np.linalg.inv(trans_cry))).astype(int)
         if reduce(math.gcd, r_axis) != 1:
-            r_axis = [round(x / reduce(math.gcd, r_axis)) for x in r_axis]
+            r_axis = cast(
+                tuple[int, int, int],
+                tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis),
+            )
         r_matrix = np.dot(np.dot(np.linalg.inv(trans_cry.T), r_matrix), trans_cry.T)
         # Set one vector of the basis to the rotation axis direction, and
         # obtain the corresponding transform matrix
@@ -1295,11 +1308,11 @@ class GrainBoundaryGenerator:
 
         # Now trans_cry is the transformation matrix from crystal to Cartesian coordinates.
         # for cubic, do not need to change.
-        if lat_type.lower() != "c":
-            if lat_type.lower() == "h":
-                trans_cry = np.array([[1, 0, 0], [-0.5, np.sqrt(3.0) / 2.0, 0], [0, 0, np.sqrt(mu / mv)]])
-            elif lat_type.lower() == "r":
-                c2_a2_ratio = 1.0 if ratio is None else 3.0 / (2 - 6 * mv / mu)
+        if lat_type != "c":
+            if lat_type == "h":
+                trans_cry = np.array([[1, 0, 0], [-0.5, np.sqrt(3.0) / 2.0, 0], [0, 0, np.sqrt(mu / mv)]])  # type: ignore[operator]
+            elif lat_type == "r":
+                c2_a2_ratio = 1.0 if ratio is None else 3.0 / (2 - 6 * mv / mu)  # type: ignore[operator]
                 trans_cry = np.array(
                     [
                         [0.5, np.sqrt(3.0) / 6.0, 1.0 / 3 * np.sqrt(c2_a2_ratio)],
@@ -1308,7 +1321,7 @@ class GrainBoundaryGenerator:
                     ]
                 )
             else:
-                trans_cry = np.array([[1, 0, 0], [0, np.sqrt(lam / mv), 0], [0, 0, np.sqrt(mu / mv)]])
+                trans_cry = np.array([[1, 0, 0], [0, np.sqrt(lam / mv), 0], [0, 0, np.sqrt(mu / mv)]])  # type: ignore[operator]
         t1_final = GrainBoundaryGenerator.slab_from_csl(
             csl, surface, normal, trans_cry, max_search=max_search, quick_gen=quick_gen
         )
