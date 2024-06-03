@@ -7,6 +7,7 @@ import pickle
 import re
 from shutil import copyfile
 from unittest import TestCase
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -1189,6 +1190,26 @@ class TestPotcarSingle(TestCase):
     #     potcar = PotcarSingle.from_symbol_and_functional("Fe")
     #     assert potcar.functional_class == "LDA"
     #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
+
+    def test_from_symbol_and_functional_raises(self):
+        # test FileNotFoundError on non-existent PMG_VASP_PSP_DIR in SETTINGS
+        dir_name = "missing-dir"
+        err_msg = f"PMG_VASP_PSP_DIR={dir_name!r} does not exist."
+        symbol, functional = "Fe", "PBE_64"
+        with (
+            patch.dict(SETTINGS, PMG_VASP_PSP_DIR=dir_name),
+            pytest.raises(FileNotFoundError, match=err_msg),
+        ):
+            PotcarSingle.from_symbol_and_functional(symbol, functional)
+
+        PMG_VASP_PSP_DIR = SETTINGS["PMG_VASP_PSP_DIR"]
+        err_msg = f"You do not have the right POTCAR with {functional=} and {symbol=}\nin your {PMG_VASP_PSP_DIR=}"
+
+        with (
+            patch.dict(SETTINGS, PMG_VASP_PSP_SUB_DIRS={"PBE_64": "PBE_64_FOO"}),
+            pytest.raises(FileNotFoundError, match=err_msg),
+        ):
+            PotcarSingle.from_symbol_and_functional(symbol, functional)
 
     def test_repr(self):
         assert (
