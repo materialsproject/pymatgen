@@ -675,7 +675,7 @@ def _int_from_str(string):
 class NcAbinitHeader(AbinitHeader):
     """The abinit header found in the NC pseudopotential files."""
 
-    _VARS: ClassVar = dict(
+    _VARS: ClassVar[dict[str, tuple]] = dict(
         zatom=(None, _int_from_str),
         zion=(None, float),
         pspdat=(None, float),
@@ -866,7 +866,7 @@ class NcAbinitHeader(AbinitHeader):
 class PawAbinitHeader(AbinitHeader):
     """The abinit header found in the PAW pseudopotential files."""
 
-    _VARS: ClassVar = dict(
+    _VARS: ClassVar[dict[str, tuple]] = dict(
         zatom=(None, _int_from_str),
         zion=(None, float),
         pspdat=(None, float),
