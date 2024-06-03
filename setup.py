@@ -28,7 +28,7 @@ setup(
     version="2024.5.31",
     python_requires=">=3.9",
     install_requires=[
-        "matplotlib>=1.5",
+        "matplotlib>=3.8",
         "monty>=2024.5.24",
         "networkx>=2.2",
         "numpy>=1.25.0",
