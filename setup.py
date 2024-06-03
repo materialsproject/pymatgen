@@ -61,7 +61,11 @@ setup(
             "pytest-split>=0.8",
             "pytest>8",
             "ruff>=0.4",
-            "typing-extensions>=4",
+        ],
+        "ci": [
+            "pytest>=8",
+            "pytest-cov>=4",
+            "pytest-split>=0.8",
         ],
         "docs": [
             "sphinx",
