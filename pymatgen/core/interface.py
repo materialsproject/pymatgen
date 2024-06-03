@@ -10,7 +10,7 @@ import warnings
 from fractions import Fraction
 from functools import reduce
 from itertools import chain, combinations, product
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, cast, no_type_check
 
 import numpy as np
 from monty.fractions import lcm
@@ -27,13 +27,13 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any, Callable
+    from typing import Any, Callable, Literal
 
     from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
     from pymatgen.core import Element
-    from pymatgen.util.typing import CompositionLike, Vector3D
+    from pymatgen.util.typing import CompositionLike, Matrix3D, Vector3D
 
 
 logger = logging.getLogger(__name__)
@@ -281,7 +281,7 @@ class GrainBoundary(Structure):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:  # type: ignore[override]
-        """Generate a GrainBoundary object from a dictionary created by as_dict().
+        """Generate GrainBoundary from a dict created by as_dict().
 
         Args:
             dct: dict
@@ -311,11 +311,10 @@ class GrainBoundary(Structure):
 
 class GrainBoundaryGenerator:
     """
-    Generate grain boundaries (GBs) from bulk
-    conventional cell (fcc, bcc can from the primitive cell), and works for Cubic,
-    Tetragonal, Orthorhombic, Rhombohedral, and Hexagonal systems.
-    It generate GBs from given parameters, which includes
-    GB plane, rotation axis, rotation angle.
+    Generate grain boundaries (GBs) from bulk conventional cell (FCC, BCC can
+    from the primitive cell), and works for Cubic, Tetragonal, Orthorhombic,
+    Rhombohedral, and Hexagonal systems. It generate GBs from given parameters,
+    which includes GB plane, rotation axis, rotation angle.
 
     This class works for any general GB, including twist, tilt and mixed GBs.
     The three parameters, rotation axis, GB plane and rotation angle, are
@@ -325,6 +324,7 @@ class GrainBoundaryGenerator:
     rotation angles for a specific sigma value.
     The same sigma value (with rotation axis fixed) can correspond to
     multiple rotation angles.
+
     Users can use structure matcher in pymatgen to get rid of the redundant structures.
     """
 
@@ -459,7 +459,7 @@ class GrainBoundaryGenerator:
                 find the smallest cell.
 
         Returns:
-            Grain boundary structure (GB object).
+            GrainBoundary object
         """
         lat_type = self.lat_type.lower()
         # If the initial structure is primitive cell in cubic system,
@@ -541,7 +541,7 @@ class GrainBoundaryGenerator:
 
         # Make sure math.gcd(rotation_axis) == 1
         if reduce(math.gcd, _rotation_axis) != 1:
-            _rotation_axis = tuple([round(x / reduce(math.gcd, _rotation_axis)) for x in _rotation_axis])  # type: ignore[assignment]
+            _rotation_axis = tuple(round(x / reduce(math.gcd, _rotation_axis)) for x in _rotation_axis)  # type: ignore[assignment]
 
         # Transform four index notation to three index notation for plane
         if plane is not None and len(plane) == 4:
@@ -574,7 +574,7 @@ class GrainBoundaryGenerator:
                             ratio[idx] = 1
                     metric = np.array([[1, 0, 0], [0, ratio[1] / ratio[2], 0], [0, 0, ratio[0] / ratio[2]]])
                 else:
-                    raise RuntimeError("Lattice type has not implemented.")
+                    raise RuntimeError("Lattice type is not implemented.")
 
                 _plane = np.matmul(_rotation_axis, metric)
                 fractions = [Fraction(x).limit_denominator() for x in _plane]
@@ -650,7 +650,7 @@ class GrainBoundaryGenerator:
         join_plane = self.vec_to_surface(plane_init)
 
         parent_structure = self.initial_structure.copy()
-        # Calculate the bond_length in bulk system.
+        # Calculate the bond_length in bulk system
         if len(parent_structure) == 1:
             temp_str = parent_structure.copy()
             temp_str.make_supercell([1, 1, 2])
@@ -884,16 +884,17 @@ class GrainBoundaryGenerator:
         return cast(list[int], ratio)
 
     @staticmethod
+    @no_type_check  # TODO: a lot of type errors
     def get_trans_mat(
-        r_axis,
-        angle,
-        normal=False,
-        trans_cry=None,
-        lat_type="c",
-        ratio=None,
-        surface=None,
-        max_search=20,
-        quick_gen=False,
+        r_axis: tuple[int, int, int] | tuple[int, int, int, int],
+        angle: float,
+        normal: bool = False,
+        trans_cry: Matrix3D | None = None,
+        lat_type: Literal["c", "t", "o", "h", "r"] = "c",
+        ratio: list[int] | None = None,
+        surface: tuple[int, int, int] | tuple[int, int, int, int] | None = None,
+        max_search: int = 20,
+        quick_gen: bool = False,
     ):
         """Find the two transformation matrix for each grain from given rotation axis,
         GB plane, rotation angle and corresponding ratio (see explanation for ratio
@@ -903,8 +904,8 @@ class GrainBoundaryGenerator:
         The algorithm for this code is from reference, Acta Cryst, A32,783(1976).
 
         Args:
-            r_axis (list of 3 integers, e.g. u, v, w or 4 integers, e.g. u, v, t, w for hex/rho system only): the
-                rotation axis of the grain boundary.
+            r_axis ((u, v, w) or (u, v, t, w) for hex/rho systems):
+                the rotation axis of the grain boundary.
             angle (float, in unit of degree): the rotation angle of the grain boundary
             normal (logic): determine if need to require the c axis of one grain associated with
                 the first transformation matrix perpendicular to the surface or not.
@@ -929,9 +930,9 @@ class GrainBoundaryGenerator:
                 If irrational, set it to None.
                 For hexagonal system, ratio = [mu, mv], list of two integers,
                 that is, mu/mv = c2/a2. If it is irrational, set it to none.
-            surface (list of 3 integers, e.g. h, k, l or 4 integers, e.g. h, k, i, l for hex/rho system only): The
-                miller index of grain boundary plane, with the format of [h,k,l] if surface is not given, the default
-                is perpendicular to r_axis, which is a twist grain boundary.
+            surface ((h, k, l) or (h, k, i, l) for hex/rho systems): The
+                miller index of grain boundary plane, with the format of (h, k, l) if surface
+                is not given, the default is perpendicular to r_axis, which is a twist grain boundary.
             max_search (int): max search for the GB lattice vectors that give the smallest GB
                 lattice. If normal is true, also max search the GB c vector that perpendicular
                 to the plane.
@@ -1428,7 +1429,7 @@ class GrainBoundaryGenerator:
         else:
             u, v, w = r_axis
 
-        # Make sure mu, mv are coprime integers.
+        # Make sure mu, mv are coprime integers
         if c2_a2_ratio is None:
             mu, mv = [1, 1]
             if w != 0 and (u != 0 or (v != 0)):
@@ -1632,24 +1633,26 @@ class GrainBoundaryGenerator:
         return sigmas
 
     @staticmethod
-    def enum_sigma_tet(cutoff, r_axis, c2_a2_ratio):
+    def enum_sigma_tet(
+        cutoff: int,
+        r_axis: tuple[int, int, int],
+        c2_a2_ratio: tuple[int, int],
+    ) -> dict[int, list[int]]:
         """Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in tetragonal system.
         The algorithm for this code is from reference, Acta Cryst, B46,117(1990).
 
         Args:
             cutoff (int): the cutoff of sigma values.
-            r_axis (list of 3 integers, e.g. u, v, w):
-                the rotation axis of the grain boundary, with the format of [u,v,w].
-            c2_a2_ratio (list of two integers, e.g. mu, mv):
-                mu/mv is the square of the tetragonal axial ratio with rational number.
-                if irrational, set c2_a2_ratio = None
+            r_axis ((u, v, w)): the rotation axis of the grain boundary.
+            c2_a2_ratio ((mu, mv)): mu/mv is the square of the tetragonal axial
+                ratio with rational number. If irrational, set c2_a2_ratio = None.
 
         Returns:
             dict: sigmas dictionary with keys as the possible integer sigma values
                 and values as list of the possible rotation angles to the
                 corresponding sigma values. e.g. the format as
-                {sigma1: [angle11,angle12,...], sigma2: [angle21, angle22,...],...}
+                {sigma1: [angle11, angle12, ...], sigma2: [angle21, angle22, ...], ...}
                 Note: the angles are the rotation angle of one grain respect to the
                 other grain.
                 When generate the microstructure of the grain boundary using these
@@ -1681,7 +1684,7 @@ class GrainBoundaryGenerator:
         n_max = int(np.sqrt((cutoff * 4 * mu * mv) / d))
 
         # Enumerate all possible n, m to give possible sigmas within the cutoff
-        sigmas = {}
+        sigmas: dict[int, list[int]] = {}
         for n in range(1, n_max + 1):
             m_max = 0 if c2_a2_ratio is None and w == 0 else int(np.sqrt((cutoff * 4 * mu * mv - n**2 * d) / mu))
             for m in range(m_max + 1):
@@ -1732,16 +1735,20 @@ class GrainBoundaryGenerator:
         return sigmas
 
     @staticmethod
-    def enum_sigma_ort(cutoff, r_axis, c2_b2_a2_ratio):
+    def enum_sigma_ort(
+        cutoff: int,
+        r_axis: tuple[int, int, int],
+        c2_b2_a2_ratio: tuple[float, float, float],
+    ) -> dict[int, list[int]]:
         """Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in orthorhombic system.
-        The algorithm for this code is from reference, Scipta Metallurgica 27, 291(1992).
+
+        Reference: Scipta Metallurgica 27, 291(1992).
 
         Args:
             cutoff (int): the cutoff of sigma values.
-            r_axis (list of 3 integers, e.g. u, v, w):
-                the rotation axis of the grain boundary, with the format of [u,v,w].
-            c2_b2_a2_ratio (list of 3 integers, e.g. mu,lambda, mv):
+            r_axis ((u, v, w)): the rotation axis of the grain boundary.
+            c2_b2_a2_ratio ((mu, lambda, mv)):
                 mu:lam:mv is the square of the orthorhombic axial ratio with rational
                 numbers. If irrational for one axis, set it to None.
                 e.g. mu:lam:mv = c2,None,a2, means b2 is irrational.
@@ -1811,7 +1818,7 @@ class GrainBoundaryGenerator:
         # Compute the max n we need to enumerate
         n_max = int(np.sqrt((cutoff * 4 * mu * mv * mv * lam) / d))
         # Enumerate all possible n, m to give possible sigmas within the cutoff
-        sigmas = {}
+        sigmas: dict[int, list[int]] = {}
         for n in range(1, n_max + 1):
             mu_temp, lam_temp, mv_temp = c2_b2_a2_ratio
             if (mu_temp is None and w == 0) or (lam_temp is None and v == 0) or (mv_temp is None and u == 0):
@@ -1866,19 +1873,22 @@ class GrainBoundaryGenerator:
         return sigmas
 
     @staticmethod
-    def enum_possible_plane_cubic(plane_cutoff, r_axis, r_angle):
+    def enum_possible_plane_cubic(
+        plane_cutoff: int,
+        r_axis: tuple[int, int, int],
+        r_angle: float,
+    ) -> dict[str, list[int]]:
         """Find all possible plane combinations for GBs given a rotation axis and angle for
         cubic system, and classify them to different categories, including 'Twist',
         'Symmetric tilt', 'Normal tilt', 'Mixed' GBs.
 
         Args:
             plane_cutoff (int): the cutoff of plane miller index.
-            r_axis ([u, v, w]):
-                the rotation axis of the grain boundary, with the format of [u, v, w].
+            r_axis ((u, v, w])): the rotation axis of the grain boundary.
             r_angle (float): rotation angle of the GBs.
 
         Returns:
-            dict: all combinations with keys as GB type, e.g. 'Twist', 'Symmetric tilt',etc.
+            dict: all combinations with keys as GB type, e.g. 'Twist', 'Symmetric tilt', etc.
                 and values as the combination of the two plane miller index (GB plane and joining plane).
         """
         all_combinations = {}
@@ -1931,7 +1941,12 @@ class GrainBoundaryGenerator:
         return all_combinations
 
     @staticmethod
-    def get_rotation_angle_from_sigma(sigma, r_axis, lat_type="C", ratio=None):
+    def get_rotation_angle_from_sigma(
+        sigma: int,
+        r_axis: list[int],
+        lat_type: Literal["c", "t", "o", "h", "r"] = "c",
+        ratio: list[int] | None = None,
+    ) -> list[int]:
         """Find all possible rotation angle for the given sigma value.
 
         Args:
@@ -2015,29 +2030,32 @@ class GrainBoundaryGenerator:
         return rotation_angles
 
     @staticmethod
-    def slab_from_csl(csl, surface, normal, trans_cry, max_search=20, quick_gen=False):
+    def slab_from_csl(
+        csl: Matrix3D,
+        surface: tuple[int, int, int],
+        normal: bool,
+        trans_cry: Matrix3D,
+        max_search: int = 20,
+        quick_gen: bool = False,
+    ) -> Matrix3D:
         """By linear operation of csl lattice vectors to get the best corresponding
         slab lattice. That is the area of a,b vectors (within the surface plane)
         is the smallest, the c vector first, has shortest length perpendicular
         to surface [h,k,l], second, has shortest length itself.
 
         Args:
-            csl (3 by 3 integer array):
-                    input csl lattice.
-            surface (list of 3 integers, e.g. h, k, l):
-                    the miller index of the surface, with the format of [h,k,l]
-            normal (logic):
+            csl (3 by 3 integer array): input csl lattice.
+            surface ((h, k, l)): the miller index of the surface.
                     determine if the c vector needs to perpendicular to surface
-            trans_cry (3 by 3 array):
-                    transform matrix from crystal system to orthogonal system
+            trans_cry (3 by 3 array): transform matrix from crystal system to orthogonal system.
             max_search (int): max search for the GB lattice vectors that give the smallest GB
-                lattice. If normal is true, also max search the GB c vector that perpendicular
+                lattice. If normal is True, also max search the GB c vector that perpendicular
                 to the plane.
             quick_gen (bool): whether to quickly generate a supercell, no need to find the smallest
                 cell if set to true.
 
         Returns:
-            t_matrix: a slab lattice ( 3 by 3 integer array):
+            t_matrix: a slab lattice (3 by 3 integer array)
         """
         # Set the transform matrix in real space
         trans = trans_cry
@@ -2265,7 +2283,7 @@ class GrainBoundaryGenerator:
         return mat
 
     @staticmethod
-    def vec_to_surface(vec: Vector3D):
+    def vec_to_surface(vec: Vector3D) -> list[int]:
         """Transform a float vector to a surface miller index with integers.
 
         Args:
@@ -2428,7 +2446,7 @@ class Interface(Structure):
             gap: gap between substrate and film in Angstroms; zero corresponds to
                 the original distance between substrate and film sites
             vacuum_over_film: vacuum space above the film in Angstroms. Defaults to 0.
-            interface_properties: properties associated with the interface. Defaults to None.
+            interface_properties: properties associated with the Interface. Defaults to None.
         """
         assert (
             "interface_label" in site_properties
@@ -2535,7 +2553,7 @@ class Interface(Structure):
         key: Callable | None = None,
         reverse: bool = False,
     ) -> Structure:
-        """Get a sorted structure for the interface. The parameters have the same
+        """Get a sorted structure for the Interface. The parameters have the same
         meaning as in list.sort. By default, sites are sorted by the
         electronegativity of the species.
 
@@ -2621,7 +2639,7 @@ class Interface(Structure):
         """Modify the c-direction of the lattice without changing the site
         Cartesian coordinates.
 
-        WARNING: you can mess up the interface by setting a c-length that
+        WARNING: you can mess up the Interface by setting a c-length that
         can't accommodate all the sites.
         """
         if new_c <= 0:
@@ -2683,12 +2701,12 @@ class Interface(Structure):
         interface_properties: dict | None = None,
         center_slab: bool = True,
     ) -> Self:
-        """Make an interface structure by merging a substrate and film slabs
+        """Make an Interface by merging a substrate and film slabs
         The film a- and b-vectors will be forced to be the substrate slab's
         a- and b-vectors.
 
         For now, it's suggested to use a factory method that will ensure the
-        appropriate interface structure is already met.
+        appropriate Interface is already met.
 
         Args:
             substrate_slab (Slab): slab for the substrate.
@@ -2699,7 +2717,7 @@ class Interface(Structure):
             gap (float): gap between substrate and film in Angstroms. Defaults to 1.6.
             vacuum_over_film (float): vacuum space above the film in Angstroms.
                 Defaults to 0.
-            interface_properties (dict): misc properties to assign to the interface.
+            interface_properties (dict): misc properties to assign to the Interface.
                 Defaults to None.
             center_slab (bool): center the slab. Defaults to True.
         """
