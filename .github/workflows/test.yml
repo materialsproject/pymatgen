@@ -32,14 +32,16 @@ jobs:
         # ignore mac-os, which is assumed to be similar to ubuntu.
         config:
           - os: windows-latest
-            python: 3.9
+            python: "3.9"
             resolution: highest
             extras: optional
           - os: ubuntu-latest
-            python: 3.12
+            python: "3.12"
             resolution: lowest-direct
             extras: optional
-          - { os: macos-latest, python: 3.10, resolution: lowest, extras: "" }
+          # test with lowest resolution and only required dependencies installed
+          - { os: macos-latest, python: "3.10", resolution: lowest, extras: "" }
+
         # pytest-split automatically distributes work load so parallel jobs finish in similar time
         split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
