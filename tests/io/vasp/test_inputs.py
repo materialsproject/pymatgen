@@ -1183,13 +1183,14 @@ class TestPotcarSingle(TestCase):
             else:
                 assert psingle.is_valid
 
-    # def test_default_functional(self):
-    #     potcar = PotcarSingle.from_symbol_and_functional("Fe")
-    #     assert potcar.functional_class == "GGA"
-    #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
-    #     potcar = PotcarSingle.from_symbol_and_functional("Fe")
-    #     assert potcar.functional_class == "LDA"
-    #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
+    def test_default_functional(self):
+        with patch.dict(SETTINGS, PMG_DEFAULT_FUNCTIONAL="PBE"):
+            potcar = PotcarSingle.from_symbol_and_functional("Fe")
+            assert potcar.functional_class == "GGA"
+        with patch.dict(SETTINGS, PMG_DEFAULT_FUNCTIONAL="LDA"):
+            SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
+            potcar = PotcarSingle.from_symbol_and_functional("Fe")
+            assert potcar.functional_class == "LDA"
 
     def test_from_symbol_and_functional_raises(self):
         # test FileNotFoundError on non-existent PMG_VASP_PSP_DIR in SETTINGS
