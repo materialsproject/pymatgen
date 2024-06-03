@@ -153,12 +153,12 @@ class StructureConnectivity(MSONable):
         if not isinstance(environments_symbols, collections.abc.Iterable):
             environments_symbols = [environments_symbols]
         environments_symbols = sorted(environments_symbols)
-        envs_string = "-".join(environments_symbols)
+        envs_str = "-".join(environments_symbols)
         if only_atoms is not None:
-            envs_string += "#" + "-".join(sorted(only_atoms))
+            envs_str += "#" + "-".join(sorted(only_atoms))
         # Get it directly if it was already computed
-        if envs_string in self.environment_subgraphs:
-            self._environment_subgraph = self.environment_subgraphs[envs_string]
+        if envs_str in self.environment_subgraphs:
+            self._environment_subgraph = self.environment_subgraphs[envs_str]
             return
 
         # Initialize graph for a subset of environments
@@ -248,7 +248,7 @@ class StructureConnectivity(MSONable):
                         delta=conn,
                         ligands=ligands,
                     )
-        self.environment_subgraphs[envs_string] = self._environment_subgraph
+        self.environment_subgraphs[envs_str] = self._environment_subgraph
 
     def setup_connectivity_description(self):
         pass

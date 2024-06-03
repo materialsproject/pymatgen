@@ -518,8 +518,7 @@ class LammpsInputFile(InputFile):
         return lammps_input
 
     def write_file(self, filename: str | PathLike, ignore_comments: bool = False, keep_stages: bool = True) -> None:
-        """
-        Writes the input file.
+        """Write LAMMPS input file.
 
         Args:
             filename (str or path): The filename to output to, including path.
@@ -871,8 +870,7 @@ class LammpsRun(MSONable):
         self.script_filename = script_filename
 
     def write_inputs(self, output_dir: str, **kwargs) -> None:
-        """
-        Writes all input files (input script, and data if needed).
+        """Write all input files (input script, and data if needed).
         Other supporting files are not handled at this moment.
 
         Args:
