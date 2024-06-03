@@ -10,7 +10,7 @@ import warnings
 from fractions import Fraction
 from functools import reduce
 from itertools import chain, combinations, product
-from typing import TYPE_CHECKING, cast, no_type_check
+from typing import TYPE_CHECKING, Literal, cast, no_type_check
 
 import numpy as np
 from monty.fractions import lcm
@@ -27,13 +27,13 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any, Callable, Literal
+    from typing import Any, Callable
 
     from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
     from pymatgen.core import Element
-    from pymatgen.util.typing import CompositionLike, Matrix3D, Vector3D
+    from pymatgen.util.typing import CompositionLike, Matrix3D, MillerIndex, Vector3D
 
 
 logger = logging.getLogger(__name__)
@@ -579,14 +579,14 @@ class GrainBoundaryGenerator:
                 _plane = np.matmul(_rotation_axis, metric)
                 fractions = [Fraction(x).limit_denominator() for x in _plane]
                 least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
-                _plane = cast(tuple[int, int, int], tuple([round(x * least_mul) for x in _plane]))
+                _plane = cast(tuple[int, int, int], tuple(round(x * least_mul) for x in _plane))
 
         else:
             _plane = plane
 
         if reduce(math.gcd, _plane) != 1:
             index = reduce(math.gcd, _plane)
-            _plane = cast(tuple[int, int, int], tuple([round(x / index) for x in _plane]))
+            _plane = cast(tuple[int, int, int], tuple(round(x / index) for x in _plane))
 
         t1, t2 = self.get_trans_mat(
             r_axis=_rotation_axis,
@@ -889,7 +889,7 @@ class GrainBoundaryGenerator:
         r_axis: tuple[int, int, int] | tuple[int, int, int, int],
         angle: float,
         normal: bool = False,
-        trans_cry: Matrix3D | None = None,
+        trans_cry: NDArray | None = None,
         lat_type: Literal["c", "t", "o", "h", "r"] = "c",
         ratio: list[int] | None = None,
         surface: tuple[int, int, int] | tuple[int, int, int, int] | None = None,
@@ -1316,15 +1316,17 @@ class GrainBoundaryGenerator:
         return t1_final, t2_final
 
     @staticmethod
-    def enum_sigma_cubic(cutoff: int, r_axis: list[int]) -> dict[int, list[float]]:
+    def enum_sigma_cubic(
+        cutoff: int,
+        r_axis: tuple[int, int, int],
+    ) -> dict[int, list[float]]:
         """Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in cubic system.
         The algorithm for this code is from reference, Acta Cryst, A40,108(1984).
 
         Args:
             cutoff (int): the cutoff of sigma values.
-            r_axis (list of 3 integers, e.g. u, v, w):
-                the rotation axis of the grain boundary, with the format of [u,v,w].
+            r_axis ((u, v, w)): the rotation axis of the grain boundary.
 
         Returns:
             dict: sigmas dictionary with keys as the possible integer sigma values
@@ -1339,7 +1341,7 @@ class GrainBoundaryGenerator:
         """
         # Make sure math.gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
-            r_axis = [round(x / reduce(math.gcd, r_axis)) for x in r_axis]
+            r_axis = cast(tuple[int, int, int], tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
 
         # Count the number of odds in r_axis
         odd_r = len(list(filter(lambda x: x % 2 == 1, r_axis)))
@@ -1389,8 +1391,8 @@ class GrainBoundaryGenerator:
     @staticmethod
     def enum_sigma_hex(
         cutoff: int,
-        r_axis: list[int],
-        c2_a2_ratio: list[int],
+        r_axis: tuple[int, int, int] | tuple[int, int, int, int],
+        c2_a2_ratio: tuple[int, int],
     ) -> dict[int, list[float]]:
         """Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in hexagonal system.
@@ -1398,9 +1400,8 @@ class GrainBoundaryGenerator:
 
         Args:
             cutoff (int): the cutoff of sigma values.
-            r_axis (list of 3 integers, e.g. u, v, w or 4 integers, e.g. u, v, t, w): the rotation axis of the grain
-                boundary.
-            c2_a2_ratio (list of two integers, e.g. mu, mv): mu/mv is the square of the hexagonal axial ratio,
+            r_axis ((u, v, w) or (u, v, t, w)): the rotation axis of the grain boundary.
+            c2_a2_ratio ((mu, mv)): mu/mv is the square of the hexagonal axial ratio,
                 which is rational number. If irrational, set c2_a2_ratio = None
 
         Returns:
@@ -1416,7 +1417,10 @@ class GrainBoundaryGenerator:
         """
         # Make sure math.gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
-            r_axis = [round(x / reduce(math.gcd, r_axis)) for x in r_axis]
+            r_axis = cast(
+                tuple[int, int, int] | tuple[int, int, int, int],
+                tuple([round(x / reduce(math.gcd, r_axis)) for x in r_axis]),
+            )
 
         # Transform four index notation to three index notation
         if len(r_axis) == 4:
@@ -1503,8 +1507,8 @@ class GrainBoundaryGenerator:
     @staticmethod
     def enum_sigma_rho(
         cutoff: int,
-        r_axis: list[int],
-        ratio_alpha: list[int],
+        r_axis: tuple[int, int, int] | tuple[int, int, int, int],
+        ratio_alpha: tuple[int, int],
     ) -> dict[int, list[float]]:
         """Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in rhombohedral system.
@@ -1512,11 +1516,8 @@ class GrainBoundaryGenerator:
 
         Args:
             cutoff (int): the cutoff of sigma values.
-            r_axis (list[int]): of 3 integers, e.g. u, v, w
-                    or 4 integers, e.g. u, v, t, w):
-                    the rotation axis of the grain boundary, with the format of [u,v,w]
-                    or Weber indices [u, v, t, w].
-            ratio_alpha (list of two integers, e.g. mu, mv):
+            r_axis ((u, v, w) or (u, v, t, w)): the rotation axis of the grain boundary.
+            ratio_alpha (tuple of two integers, e.g. mu, mv):
                     mu/mv is the ratio of (1+2*cos(alpha))/cos(alpha) with rational number.
                     If irrational, set ratio_alpha = None.
 
@@ -1538,11 +1539,11 @@ class GrainBoundaryGenerator:
             u = 2 * u1 + v1 + w1
             v = v1 + w1 - u1
             w = w1 - 2 * v1 - u1
-            r_axis = [u, v, w]
+            r_axis = (u, v, w)
 
         # Make sure math.(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
-            r_axis = [round(x / reduce(math.gcd, r_axis)) for x in r_axis]
+            r_axis = cast(tuple[int, int, int], tuple([round(x / reduce(math.gcd, r_axis)) for x in r_axis]))
         u, v, w = r_axis
 
         # Make sure mu, mv are coprime integers
@@ -1637,7 +1638,7 @@ class GrainBoundaryGenerator:
         cutoff: int,
         r_axis: tuple[int, int, int],
         c2_a2_ratio: tuple[int, int],
-    ) -> dict[int, list[int]]:
+    ) -> dict[int, list[float]]:
         """Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in tetragonal system.
         The algorithm for this code is from reference, Acta Cryst, B46,117(1990).
@@ -1661,7 +1662,7 @@ class GrainBoundaryGenerator:
         """
         # Make sure math.gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
-            r_axis = [round(x / reduce(math.gcd, r_axis)) for x in r_axis]
+            r_axis = cast(tuple[int, int, int], tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
 
         u, v, w = r_axis
 
@@ -1684,7 +1685,7 @@ class GrainBoundaryGenerator:
         n_max = int(np.sqrt((cutoff * 4 * mu * mv) / d))
 
         # Enumerate all possible n, m to give possible sigmas within the cutoff
-        sigmas: dict[int, list[int]] = {}
+        sigmas: dict[int, list[float]] = {}
         for n in range(1, n_max + 1):
             m_max = 0 if c2_a2_ratio is None and w == 0 else int(np.sqrt((cutoff * 4 * mu * mv - n**2 * d) / mu))
             for m in range(m_max + 1):
@@ -1739,7 +1740,7 @@ class GrainBoundaryGenerator:
         cutoff: int,
         r_axis: tuple[int, int, int],
         c2_b2_a2_ratio: tuple[float, float, float],
-    ) -> dict[int, list[int]]:
+    ) -> dict[int, list[float]]:
         """Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in orthorhombic system.
 
@@ -1766,7 +1767,7 @@ class GrainBoundaryGenerator:
         """
         # Make sure math.gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
-            r_axis = [round(x / reduce(math.gcd, r_axis)) for x in r_axis]
+            r_axis = cast(tuple[int, int, int], tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
 
         u, v, w = r_axis
 
@@ -1777,8 +1778,8 @@ class GrainBoundaryGenerator:
             if len(non_none) < 2:
                 raise RuntimeError("No CSL exist for two irrational numbers")
             non1, non2 = non_none
-            if reduce(math.gcd, non_none) != 1:
-                temp = reduce(math.gcd, non_none)
+            if reduce(math.gcd, non_none) != 1:  # type: ignore[arg-type]
+                temp = reduce(math.gcd, non_none)  # type: ignore[arg-type]
                 non1 = round(non1 / temp)
                 non2 = round(non2 / temp)
             if mu is None:
@@ -1801,8 +1802,8 @@ class GrainBoundaryGenerator:
                     raise RuntimeError("For irrational a2, CSL only exist for [1,0,0] or [0,v,w] and m = 0")
         else:
             mu, lam, mv = c2_b2_a2_ratio
-            if reduce(math.gcd, c2_b2_a2_ratio) != 1:
-                temp = reduce(math.gcd, c2_b2_a2_ratio)
+            if reduce(math.gcd, c2_b2_a2_ratio) != 1:  # type: ignore[arg-type]
+                temp = reduce(math.gcd, c2_b2_a2_ratio)  # type: ignore[arg-type]
                 mu = round(mu / temp)
                 mv = round(mv / temp)
                 lam = round(lam / temp)
@@ -1818,7 +1819,7 @@ class GrainBoundaryGenerator:
         # Compute the max n we need to enumerate
         n_max = int(np.sqrt((cutoff * 4 * mu * mv * mv * lam) / d))
         # Enumerate all possible n, m to give possible sigmas within the cutoff
-        sigmas: dict[int, list[int]] = {}
+        sigmas: dict[int, list[float]] = {}
         for n in range(1, n_max + 1):
             mu_temp, lam_temp, mv_temp = c2_b2_a2_ratio
             if (mu_temp is None and w == 0) or (lam_temp is None and v == 0) or (mv_temp is None and u == 0):
@@ -1857,7 +1858,7 @@ class GrainBoundaryGenerator:
                     all_list = R_list + R_list_inv + [F]
                     # Compute the max common factors for the elements of the rotation matrix
                     # and its inverse.
-                    com_fac = reduce(math.gcd, all_list)
+                    com_fac = reduce(math.gcd, all_list)  # type: ignore[arg-type]
                     sigma = round((mu * lam * m**2 + d * n**2) / com_fac)
                     if 1 < sigma <= cutoff:
                         if sigma not in list(sigmas):
@@ -1877,10 +1878,10 @@ class GrainBoundaryGenerator:
         plane_cutoff: int,
         r_axis: tuple[int, int, int],
         r_angle: float,
-    ) -> dict[str, list[int]]:
+    ) -> dict[Literal["Twist", "Symmetric tilt", "Normal tilt", "Mixed"], list[list]]:
         """Find all possible plane combinations for GBs given a rotation axis and angle for
-        cubic system, and classify them to different categories, including 'Twist',
-        'Symmetric tilt', 'Normal tilt', 'Mixed' GBs.
+        cubic system, and classify them to different categories, including "Twist",
+        "Symmetric tilt", "Normal tilt", "Mixed" GBs.
 
         Args:
             plane_cutoff (int): the cutoff of plane miller index.
@@ -1888,14 +1889,15 @@ class GrainBoundaryGenerator:
             r_angle (float): rotation angle of the GBs.
 
         Returns:
-            dict: all combinations with keys as GB type, e.g. 'Twist', 'Symmetric tilt', etc.
+            dict: all combinations with keys as GB type, e.g. "Twist", "Symmetric tilt", etc.
                 and values as the combination of the two plane miller index (GB plane and joining plane).
         """
-        all_combinations = {}
-        all_combinations["Symmetric tilt"] = []
-        all_combinations["Twist"] = []
-        all_combinations["Normal tilt"] = []
-        all_combinations["Mixed"] = []
+        all_combinations: dict[Literal["Twist", "Symmetric tilt", "Normal tilt", "Mixed"], list[list]] = {
+            "Symmetric tilt": [],
+            "Twist": [],
+            "Normal tilt": [],
+            "Mixed": [],
+        }
         sym_plane = symm_group_cubic([[1, 0, 0], [1, 1, 0]])
         j = np.arange(0, plane_cutoff + 1)
         combination = []
@@ -1943,15 +1945,15 @@ class GrainBoundaryGenerator:
     @staticmethod
     def get_rotation_angle_from_sigma(
         sigma: int,
-        r_axis: list[int],
-        lat_type: Literal["c", "t", "o", "h", "r"] = "c",
-        ratio: list[int] | None = None,
-    ) -> list[int]:
-        """Find all possible rotation angle for the given sigma value.
+        r_axis: tuple[int, int, int] | tuple[int, int, int, int],
+        lat_type: str = "c",
+        ratio: tuple[int, int] | tuple[int, int, int] | None = None,
+    ) -> list[float]:
+        """Find all possible rotation angles for the given sigma value.
 
         Args:
             sigma (int): sigma value provided
-            r_axis (list of 3 integers, e.g. u, v, w or 4 integers, e.g. u, v, t, w for hex/rho system only): the
+            r_axis ((u, v, w) or (u, v, t, w) for hex/rho systems): the
                 rotation axis of the grain boundary.
             lat_type (str): one character to specify the lattice type. Defaults to 'c' for cubic.
                 'c' or 'C': cubic system
@@ -1959,17 +1961,17 @@ class GrainBoundaryGenerator:
                 'o' or 'O': orthorhombic system
                 'h' or 'H': hexagonal system
                 'r' or 'R': rhombohedral system
-            ratio (list of integers): lattice axial ratio.
+            ratio (tuple[int, ...]): lattice axial ratio.
                 For cubic system, ratio is not needed.
-                For tetragonal system, ratio = [mu, mv], list of two integers,
+                For tetragonal system, ratio = (mu, mv), tuple of two integers,
                 that is, mu/mv = c2/a2. If it is irrational, set it to none.
-                For orthorhombic system, ratio = [mu, lam, mv], list of 3 integers,
+                For orthorhombic system, ratio = (mu, lam, mv), tuple of 3 integers,
                 that is, mu:lam:mv = c2:b2:a2. If irrational for one axis, set it to None.
                 e.g. mu:lam:mv = c2,None,a2, means b2 is irrational.
-                For rhombohedral system, ratio = [mu, mv], list of two integers,
+                For rhombohedral system, ratio = (mu, mv), tuple of two integers,
                 that is, mu/mv is the ratio of (1+2*cos(alpha)/cos(alpha).
                 If irrational, set it to None.
-                For hexagonal system, ratio = [mu, mv], list of two integers,
+                For hexagonal system, ratio = (mu, mv), tuple of two integers,
                 that is, mu/mv = c2/a2. If it is irrational, set it to none.
 
         Returns:
@@ -1977,39 +1979,59 @@ class GrainBoundaryGenerator:
             If the sigma value is not correct, return the rotation angle corresponding
             to the correct possible sigma value right smaller than the wrong sigma value provided.
         """
-        if lat_type.lower() == "c":
-            logger.info("Make sure this is for cubic system")
-            sigma_dict = GrainBoundaryGenerator.enum_sigma_cubic(cutoff=sigma, r_axis=r_axis)
+        lat_type = lat_type.lower()
 
-        elif lat_type.lower() == "t":
+        # Check r_axis length
+        if lat_type in {"c", "t"}:
+            assert len(r_axis) == 3, "r_axis length incompatible with selected lattice system"
+
+        # Check lattice axial ratio length
+        if lat_type == "o" and (ratio is None or len(ratio) != 3):
+            raise RuntimeError("Orthorhombic system needs correct c2:b2:a2 ratio")
+
+        if lat_type in {"t", "h"} and (ratio is None or len(ratio) != 2):
+            raise RuntimeError("System needs correct c2/a2 ratio.")
+
+        if lat_type == "r" and (ratio is None or len(ratio) != 2):
+            raise RuntimeError("Rhombohedral system needs correct (1+2*cos(alpha)/cos(alpha) ratio")
+
+        if lat_type == "c":
+            logger.info("Make sure this is for cubic system")
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_cubic(
+                cutoff=sigma, r_axis=cast(tuple[int, int, int], r_axis)
+            )
+
+        elif lat_type == "t":
             logger.info("Make sure this is for tetragonal system")
             if ratio is None:
                 logger.info("Make sure this is for irrational c2/a2 ratio")
-            elif len(ratio) != 2:
-                raise RuntimeError("Tetragonal system needs correct c2/a2 ratio")
-            sigma_dict = GrainBoundaryGenerator.enum_sigma_tet(cutoff=sigma, r_axis=r_axis, c2_a2_ratio=ratio)
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_tet(
+                cutoff=sigma, r_axis=cast(tuple[int, int, int], r_axis), c2_a2_ratio=cast(tuple[int, int], ratio)
+            )
 
-        elif lat_type.lower() == "o":
+        elif lat_type == "o":
             logger.info("Make sure this is for orthorhombic system")
-            if len(ratio) != 3:
-                raise RuntimeError("Orthorhombic system needs correct c2:b2:a2 ratio")
-            sigma_dict = GrainBoundaryGenerator.enum_sigma_ort(cutoff=sigma, r_axis=r_axis, c2_b2_a2_ratio=ratio)
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_ort(
+                cutoff=sigma,
+                r_axis=cast(tuple[int, int, int], r_axis),
+                c2_b2_a2_ratio=cast(tuple[int, int, int], ratio),
+            )
 
-        elif lat_type.lower() == "h":
+        elif lat_type == "h":
             logger.info("Make sure this is for hexagonal system")
             if ratio is None:
                 logger.info("Make sure this is for irrational c2/a2 ratio")
-            elif len(ratio) != 2:
-                raise RuntimeError("Hexagonal system needs correct c2/a2 ratio")
-            sigma_dict = GrainBoundaryGenerator.enum_sigma_hex(cutoff=sigma, r_axis=r_axis, c2_a2_ratio=ratio)
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_hex(
+                cutoff=sigma, r_axis=r_axis, c2_a2_ratio=cast(tuple[int, int], ratio)
+            )
 
-        elif lat_type.lower() == "r":
+        elif lat_type == "r":
             logger.info("Make sure this is for rhombohedral system")
             if ratio is None:
                 logger.info("Make sure this is for irrational (1+2*cos(alpha)/cos(alpha) ratio")
-            elif len(ratio) != 2:
-                raise RuntimeError("Rhombohedral system needs correct (1+2*cos(alpha)/cos(alpha) ratio")
-            sigma_dict = GrainBoundaryGenerator.enum_sigma_rho(cutoff=sigma, r_axis=r_axis, ratio_alpha=ratio)
+            sigma_dict = GrainBoundaryGenerator.enum_sigma_rho(
+                cutoff=sigma, r_axis=cast(tuple[int, int, int], r_axis), ratio_alpha=cast(tuple[int, int], ratio)
+            )
 
         else:
             raise RuntimeError("Lattice type not implemented")
@@ -2031,10 +2053,10 @@ class GrainBoundaryGenerator:
 
     @staticmethod
     def slab_from_csl(
-        csl: Matrix3D,
+        csl: NDArray,
         surface: tuple[int, int, int],
         normal: bool,
-        trans_cry: Matrix3D,
+        trans_cry: NDArray,
         max_search: int = 20,
         quick_gen: bool = False,
     ) -> Matrix3D:
@@ -2046,10 +2068,11 @@ class GrainBoundaryGenerator:
         Args:
             csl (3 by 3 integer array): input csl lattice.
             surface ((h, k, l)): the miller index of the surface.
-                    determine if the c vector needs to perpendicular to surface
+                    determine if the c vector needs to perpendicular to surface.
+            normal (bool): search the GB c vector that is perpendicular to the plane.
             trans_cry (3 by 3 array): transform matrix from crystal system to orthogonal system.
             max_search (int): max search for the GB lattice vectors that give the smallest GB
-                lattice. If normal is True, also max search the GB c vector that perpendicular
+                lattice. If normal is True, also max search the GB c vector that is perpendicular
                 to the plane.
             quick_gen (bool): whether to quickly generate a supercell, no need to find the smallest
                 cell if set to true.
@@ -2070,23 +2093,23 @@ class GrainBoundaryGenerator:
         if reduce(math.gcd, miller) != 1:
             miller = [round(x / reduce(math.gcd, miller)) for x in miller]
         miller_nonzero = []
-        # Quickly generate a supercell, normal is not work in this way
+        # Quickly generate a supercell, normal is not working in this way
         if quick_gen:
             scale_factor = []
             eye = np.eye(3, dtype=int)
-            for ii, jj in enumerate(miller):
-                if jj == 0:
-                    scale_factor.append(eye[ii])
+            for i, j in enumerate(miller):
+                if j == 0:
+                    scale_factor.append(eye[i])
                 else:
-                    miller_nonzero.append(ii)
+                    miller_nonzero.append(i)
             if len(scale_factor) < 2:
                 index_len = len(miller_nonzero)
-                for ii in range(index_len):
-                    for jj in range(ii + 1, index_len):
-                        lcm_miller = lcm(miller[miller_nonzero[ii]], miller[miller_nonzero[jj]])
+                for i in range(index_len):
+                    for j in range(i + 1, index_len):
+                        lcm_miller = lcm(miller[miller_nonzero[i]], miller[miller_nonzero[j]])
                         scl_factor = [0, 0, 0]
-                        scl_factor[miller_nonzero[ii]] = -round(lcm_miller / miller[miller_nonzero[ii]])
-                        scl_factor[miller_nonzero[jj]] = round(lcm_miller / miller[miller_nonzero[jj]])
+                        scl_factor[miller_nonzero[i]] = -round(lcm_miller / miller[miller_nonzero[i]])
+                        scl_factor[miller_nonzero[j]] = round(lcm_miller / miller[miller_nonzero[j]])
                         scale_factor.append(scl_factor)
                         if len(scale_factor) == 2:
                             break
@@ -2098,22 +2121,22 @@ class GrainBoundaryGenerator:
             return t_matrix
 
         c_index = 0
-        for ii, jj in enumerate(miller):
-            if jj == 0:
-                ab_vector.append(csl[ii])
+        for i, j in enumerate(miller):
+            if j == 0:
+                ab_vector.append(csl[i])
             else:
-                c_index = ii
-                miller_nonzero.append(jj)
+                c_index = i
+                miller_nonzero.append(j)
 
         if len(miller_nonzero) > 1:
             t_matrix[2] = csl[c_index]
             index_len = len(miller_nonzero)
             lcm_miller = []
-            for ii in range(index_len):
-                for jj in range(ii + 1, index_len):
-                    com_gcd = math.gcd(miller_nonzero[ii], miller_nonzero[jj])
-                    mil1 = round(miller_nonzero[ii] / com_gcd)
-                    mil2 = round(miller_nonzero[jj] / com_gcd)
+            for i in range(index_len):
+                for j in range(i + 1, index_len):
+                    com_gcd = math.gcd(miller_nonzero[i], miller_nonzero[j])
+                    mil1 = round(miller_nonzero[i] / com_gcd)
+                    mil2 = round(miller_nonzero[j] / com_gcd)
                     lcm_miller.append(max(abs(mil1), abs(mil2)))
             lcm_sorted = sorted(lcm_miller)
             max_j = lcm_sorted[0] if index_len == 2 else lcm_sorted[1]
@@ -2152,7 +2175,8 @@ class GrainBoundaryGenerator:
                 new_i = list(ii).copy()
                 new_i[np.nonzero(ii)[0][0]] = -1 * new_i[np.nonzero(ii)[0][0]]
                 combination.append(new_i)
-        for ii in combination:
+
+        for ii in combination:  # type: ignore[assignment]
             if reduce(math.gcd, ii) == 1:
                 temp = np.dot(np.array(ii), csl)
                 if abs(np.dot(temp, surface) - 0) < 1.0e-8:
@@ -2200,7 +2224,8 @@ class GrainBoundaryGenerator:
                         new_i = list(ii).copy()
                         new_i[np.nonzero(ii)[0][0]] = -1 * new_i[np.nonzero(ii)[0][0]]
                         combination.append(new_i)
-                for ii in combination:
+
+                for ii in combination:  # type: ignore[assignment]
                     if reduce(math.gcd, ii) == 1:
                         temp = np.dot(np.array(ii), csl)
                         if abs(np.dot(temp, surface) - 0) > 1.0e-8:
@@ -2283,7 +2308,7 @@ class GrainBoundaryGenerator:
         return mat
 
     @staticmethod
-    def vec_to_surface(vec: Vector3D) -> list[int]:
+    def vec_to_surface(vec: Vector3D) -> MillerIndex:
         """Transform a float vector to a surface miller index with integers.
 
         Args:
@@ -2299,6 +2324,7 @@ class GrainBoundaryGenerator:
                 miller[idx] = 0
             else:
                 index.append(idx)
+
         if len(index) == 1:
             miller[index[0]] = 1
         else:
@@ -2316,7 +2342,7 @@ class GrainBoundaryGenerator:
                 miller[true_index] = com_lcm
                 miller[index[0]] = frac[0].numerator * round(com_lcm / frac[0].denominator)
                 miller[index[1]] = frac[1].numerator * round(com_lcm / frac[1].denominator)
-        return miller
+        return cast(tuple[int, int, int], miller)
 
 
 def fix_pbc(structure: Structure, matrix: NDArray = None) -> Structure:
