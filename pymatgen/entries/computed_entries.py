@@ -470,11 +470,8 @@ class ComputedEntry(Entry):
         if not math.isclose(self.energy, other.energy):
             return False
 
-        if self.composition != other.composition:
-            return False
-
         # assumes that data, parameters are equivalent
-        return True
+        return self.composition == other.composition
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:

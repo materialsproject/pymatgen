@@ -614,7 +614,7 @@ class MagneticStructureEnumerator:
         Args:
             structure: input structure
             default_magmoms: (optional, defaults provided) dict of
-                magnetic elements to their initial magnetic moments in µB, generally
+                magnetic elements to their initial magnetic moments in μB, generally
                 these are chosen to be high-spin since they can relax to a low-spin
                 configuration during a DFT electronic configuration
             strategies: different ordering strategies to use, choose from:

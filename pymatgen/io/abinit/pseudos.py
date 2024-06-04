@@ -144,7 +144,7 @@ class Pseudo(MSONable, abc.ABC):
         lines: list[str] = []
         lines += (
             f"<{type(self).__name__}: {self.basename}>",
-            "  summary: " + self.summary.strip(),
+            f"  summary: {self.summary.strip()}",
             f"  number of valence electrons: {self.Z_val}",
             f"  maximum angular momentum: {l2str(self.l_max)}",
             f"  angular momentum for local part: {l2str(self.l_local)}",
@@ -1512,7 +1512,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    ax.annotate("$r_c$", xy=(self.paw_radius + 0.1, 0.1))
 
     #    for state, rfunc in self.potentials.items():
-    #        ax.plot(rfunc.mesh, rfunc.values, label="TPROJ: " + state)
+    #        ax.plot(rfunc.mesh, rfunc.values, label=f"TPROJ: {state}")
 
     #    ax.legend(loc="best")
 
