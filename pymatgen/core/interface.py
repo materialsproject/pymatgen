@@ -542,9 +542,12 @@ class GrainBoundaryGenerator:
             _rotation_axis = tuple(round(x / reduce(math.gcd, _rotation_axis)) for x in _rotation_axis)  # type: ignore[assignment]
 
         # Transform four index notation to three index notation for plane
-        if plane is not None and len(plane) == 4:
-            u1, v1, w1 = plane[0], plane[1], plane[3]
-            plane = (u1, v1, w1)
+        if plane is not None:
+            if len(plane) == 4:
+                u1, v1, w1 = plane[0], plane[1], plane[3]
+                plane = (u1, v1, w1)
+            elif len(plane) == 3:
+                plane = cast(tuple[int, int, int], tuple(plane))
 
         # Set the plane for grain boundary when plane is None
         if plane is None:
