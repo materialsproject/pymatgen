@@ -1024,8 +1024,6 @@ class PseudoParser:
         10: ppdesc(10, "HGHK", "NC", None),
     }
 
-    # del ppdesc
-
     # renumber functionals from oncvpsp todo confirm that 3 is 2
     # _FUNCTIONALS = {1: {'n': 4, 'name': 'Wigner'},
     #                2: {'n': 5, 'name': 'HL'},

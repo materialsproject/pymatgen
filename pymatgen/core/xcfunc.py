@@ -101,8 +101,6 @@ class XcFunc(MSONable):
         (xcf.GGA_X_B88, xcf.GGA_C_LYP): type_name("GGA", "BLYP"),
     }
 
-    # del type_name
-
     # Correspondence between Abinit ixc notation and libxc notation.
     # see: http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#ixc
     # and 42_libpaw/m_pawpsp.F90 for the implementation.
@@ -117,8 +115,6 @@ class XcFunc(MSONable):
         14: {"x": xcf.GGA_X_PBE_R, "c": xcf.GGA_C_PBE},  # revPBE
         15: {"x": xcf.GGA_X_RPBE, "c": xcf.GGA_C_PBE},  # RPBE
     }
-
-    del xcf
 
     def __init__(
         self,
