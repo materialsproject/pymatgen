@@ -52,8 +52,7 @@ class Cssr:
         return "\n".join(output)
 
     def write_file(self, filename):
-        """
-        Write out a CSSR file.
+        """Write out a CSSR file.
 
         Args:
             filename (str): Filename to write to.

@@ -152,8 +152,7 @@ class Control(MSONable, dict):
 
     @classmethod
     def from_dict(cls, control_dict: dict) -> Self:
-        """
-        Write a CONTROL file from a Python dictionary. Description and default
+        """Write a CONTROL file from a Python dictionary. Description and default
         parameters can be found at
         https://bitbucket.org/sousaw/shengbte/src/master/.
         Note some parameters are mandatory. Optional parameters default here to
@@ -169,8 +168,7 @@ class Control(MSONable, dict):
         "ShengBTE Control object requires f90nml to be installed. Please get it at https://pypi.org/project/f90nml.",
     )
     def to_file(self, filename: str = "CONTROL") -> None:
-        """
-        Writes ShengBTE CONTROL file from 'Control' object.
+        """Write ShengBTE CONTROL file from 'Control' object.
 
         Args:
             filename: A file name.
