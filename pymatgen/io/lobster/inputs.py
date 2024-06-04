@@ -308,7 +308,7 @@ class Lobsterin(UserDict, MSONable):
         incar_input: PathLike = "INCAR",
         incar_output: PathLike = "INCAR.lobster",
         poscar_input: PathLike = "POSCAR",
-        isym: Literal[-1, 0] = -1,
+        isym: Literal[-1, 0] | None = None,
         further_settings: dict | None = None,
     ) -> None:
         """Write INCAR file. Will only make the run static, insert NBANDS,
@@ -321,6 +321,12 @@ class Lobsterin(UserDict, MSONable):
             isym (Literal[-1, 0]): ISYM value.
             further_settings (dict): A dict can be used to include further settings, e.g. {"ISMEAR":-5}
         """
+        # Warning: default ISYM changed from -1 to 0
+        # TODO: remove this warning after 2025-01-01
+        if isym is None:
+            warnings.warn("Default ISYM has been changed from -1 to 0.", stacklevel=2)
+            isym = 0
+
         # Read INCAR from file, which will be modified
         incar = Incar.from_file(incar_input)
         warnings.warn("Please check your incar_input before using it. This method only changes three settings!")
@@ -439,7 +445,7 @@ class Lobsterin(UserDict, MSONable):
         POSCAR_input: PathLike = "POSCAR",
         KPOINTS_output: PathLike = "KPOINTS.lobster",
         reciprocal_density: int = 100,
-        isym: Literal[-1, 0] = -1,
+        isym: Literal[-1, 0] | None = None,
         from_grid: bool = False,
         input_grid: tuple[int, int, int] = (5, 5, 5),
         line_mode: bool = True,
@@ -460,6 +466,12 @@ class Lobsterin(UserDict, MSONable):
             kpoints_line_density (int): density of the lines in the band structure
             symprec (float): precision to determine symmetry
         """
+        # Warning: default ISYM changed from -1 to 0
+        # TODO: remove this warning after 2025-01-01
+        if isym is None:
+            warnings.warn("Default ISYM has been changed from -1 to 0.", stacklevel=2)
+            isym = 0
+
         structure = Structure.from_file(POSCAR_input)
         if not from_grid:
             kpoint_grid = Kpoints.automatic_density_by_vol(structure, reciprocal_density).kpts
