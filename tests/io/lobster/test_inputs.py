@@ -1920,6 +1920,7 @@ class TestLobsterin(TestCase):
             f"{VASP_IN_DIR}/INCAR.lobster3",
             outfile_path,
             f"{VASP_IN_DIR}/POSCAR_Fe3O4",
+            isym=-1,
         )
 
         incar1 = Incar.from_file(f"{VASP_IN_DIR}/INCAR.lobster3")
@@ -1946,6 +1947,7 @@ class TestLobsterin(TestCase):
             POSCAR_input=outfile_path2,
             KPOINTS_output=outfile_path,
             kpoints_line_density=58,
+            isym=-1,
         )
         kpoint = Kpoints.from_file(outfile_path)
         assert kpoint.num_kpts == 562
@@ -1981,7 +1983,7 @@ class TestLobsterin(TestCase):
         assert labels == labels2
 
         # without line mode
-        lobsterin1.write_KPOINTS(POSCAR_input=outfile_path2, KPOINTS_output=outfile_path, line_mode=False)
+        lobsterin1.write_KPOINTS(POSCAR_input=outfile_path2, KPOINTS_output=outfile_path, line_mode=False, isym=-1)
         kpoint = Kpoints.from_file(outfile_path)
         kpoint2 = Kpoints.from_file(f"{VASP_OUT_DIR}/IBZKPT.lobster")
 
@@ -1999,6 +2001,7 @@ class TestLobsterin(TestCase):
             line_mode=False,
             from_grid=True,
             input_grid=[6, 6, 3],
+            isym=-1,
         )
         kpoint = Kpoints.from_file(outfile_path)
         kpoint2 = Kpoints.from_file(f"{VASP_OUT_DIR}/IBZKPT.lobster")
