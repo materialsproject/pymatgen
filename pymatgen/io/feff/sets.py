@@ -86,8 +86,7 @@ class AbstractFeffInputSet(MSONable, abc.ABC):
         return dct
 
     def write_input(self, output_dir=".", make_dir_if_not_present=True):
-        """
-        Writes a set of FEFF input to a directory.
+        """Write a FEFF input set to a directory.
 
         Args:
             output_dir: Directory to output the FEFF input files

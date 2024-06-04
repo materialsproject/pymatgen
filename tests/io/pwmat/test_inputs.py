@@ -80,6 +80,7 @@ class TestAtomConfig(PymatgenTest):
 
 class TestGenKpt(PymatgenTest):
     def test_from_structure(self):
+        pytest.importorskip("seekpath")
         filepath = f"{TEST_DIR}/atom.config"
         structure = Structure.from_file(filepath)
         gen_kpt = GenKpt.from_structure(structure, dim=2, density=0.01)
@@ -88,6 +89,7 @@ class TestGenKpt(PymatgenTest):
         assert gen_kpt.kpath["path"] == [["GAMMA", "M", "K", "GAMMA"]]
 
     def test_write_file(self):
+        pytest.importorskip("seekpath")
         filepath = f"{TEST_DIR}/atom.config"
         structure = Structure.from_file(filepath)
         dim = 2
@@ -103,6 +105,7 @@ class TestGenKpt(PymatgenTest):
 
 class TestHighSymmetryPoint(PymatgenTest):
     def test_from_structure(self):
+        pytest.importorskip("seekpath")
         filepath = f"{TEST_DIR}/atom.config"
         structure = Structure.from_file(filepath)
         high_symmetry_points = HighSymmetryPoint.from_structure(structure, dim=2, density=0.01)
@@ -112,6 +115,7 @@ class TestHighSymmetryPoint(PymatgenTest):
         assert high_symmetry_points.reciprocal_lattice.shape == (3, 3)
 
     def test_write_file(self):
+        pytest.importorskip("seekpath")
         filepath = f"{TEST_DIR}/atom.config"
         structure = Structure.from_file(filepath)
         dim = 2
@@ -123,3 +127,12 @@ class TestHighSymmetryPoint(PymatgenTest):
         with zopen(tmp_filepath, "rt") as file:
             tmp_high_symmetry_points_str = file.read()
         assert tmp_high_symmetry_points_str == high_symmetry_points.get_str()
+
+
+# simulate and test error message when seekpath is not installed
+def test_err_msg_on_seekpath_not_installed(monkeypatch):
+    try:
+        import seekpath  # noqa: F401
+    except ImportError:
+        with pytest.raises(RuntimeError, match="SeeK-path needs to be installed to use the convention of Hinuma et al"):
+            GenKpt.from_structure(Structure.from_file(f"{TEST_DIR}/atom.config"), dim=2, density=0.01)

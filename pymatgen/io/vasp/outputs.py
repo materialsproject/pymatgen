@@ -3224,10 +3224,7 @@ class Outcar:
 
             micro_pyawk(self.filename, search, self)
 
-            zval_dict = {}
-            for x, y in zip(self.atom_symbols, self.zvals):  # type: ignore[attr-defined]
-                zval_dict[x] = y
-            self.zval_dict = zval_dict
+            self.zval_dict = dict(zip(self.atom_symbols, self.zvals))  # type: ignore[attr-defined]
 
             # Clean up
             del self.atom_symbols  # type: ignore[attr-defined]
@@ -4174,8 +4171,7 @@ class Xdatcar:
             assert preamble is not None
             poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
             if (
-                ionicstep_end is None
-                and ionicstep_cnt >= ionicstep_start
+                (ionicstep_end is None and ionicstep_cnt >= ionicstep_start)
                 or ionicstep_start <= ionicstep_cnt < ionicstep_end  # type: ignore[operator]
             ):
                 structures.append(poscar.structure)
@@ -4248,10 +4244,8 @@ class Xdatcar:
                 elif line == "" or "Direct configuration=" in line:
                     poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
                     if (
-                        ionicstep_end is None
-                        and ionicstep_cnt >= ionicstep_start
-                        or ionicstep_start <= ionicstep_cnt < ionicstep_end
-                    ):
+                        ionicstep_end is None and ionicstep_cnt >= ionicstep_start
+                    ) or ionicstep_start <= ionicstep_cnt < ionicstep_end:
                         structures.append(poscar.structure)
                     ionicstep_cnt += 1
                     coords_str = []
@@ -4262,8 +4256,7 @@ class Xdatcar:
             poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
 
             if (
-                ionicstep_end is None
-                and ionicstep_cnt >= ionicstep_start
+                (ionicstep_end is None and ionicstep_cnt >= ionicstep_start)
                 or ionicstep_start <= ionicstep_cnt < ionicstep_end  # type: ignore[operator]
             ):
                 structures.append(poscar.structure)
@@ -4299,8 +4292,7 @@ class Xdatcar:
         for cnt, structure in enumerate(self.structures, start=1):
             ionicstep_cnt = cnt
             if (
-                ionicstep_end is None
-                and ionicstep_cnt >= ionicstep_start
+                (ionicstep_end is None and ionicstep_cnt >= ionicstep_start)
                 or ionicstep_start <= ionicstep_cnt < ionicstep_end  # type: ignore[operator]
             ):
                 lines.append(f"Direct configuration={' ' * (7 - len(str(output_cnt)))}{output_cnt}")

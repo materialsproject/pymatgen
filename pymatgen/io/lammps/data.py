@@ -451,8 +451,7 @@ class LammpsData(MSONable):
         return file_template.format(stats=stats, box=box, body=body)
 
     def write_file(self, filename: str, distance: int = 6, velocity: int = 8, charge: int = 4) -> None:
-        """
-        Writes LammpsData to file.
+        """Write LammpsData to file.
 
         Args:
             filename (str): Filename.

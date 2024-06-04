@@ -619,8 +619,7 @@ class Poscar(MSONable):
     get_string = get_str
 
     def write_file(self, filename: PathLike, **kwargs) -> None:
-        """
-        Write POSCAR to a file. The supported kwargs are the same as those for
+        """Write POSCAR to a file. The supported kwargs are the same as those for
         the Poscar.get_str method and are passed through directly.
         """
         with zopen(filename, mode="wt") as file:
@@ -1630,8 +1629,7 @@ class Kpoints(MSONable):
         )
 
     def write_file(self, filename: str) -> None:
-        """
-        Write Kpoints to a file.
+        """Write Kpoints to a file.
 
         Args:
             filename (str): Filename to write to.
@@ -2690,8 +2688,7 @@ class Potcar(list, MSONable):
         return potcar
 
     def write_file(self, filename: PathLike) -> None:
-        """
-        Write Potcar to a file.
+        """Write Potcar to a file.
 
         Args:
             filename (PathLike): filename to write to.
@@ -2804,8 +2801,7 @@ class VaspInput(dict, MSONable):
         zip_name: str | None = None,
         files_to_transfer: dict | None = None,
     ) -> None:
-        """
-        Write VASP inputs to a directory.
+        """Write VASP inputs to a directory.
 
         Args:
             output_dir (PathLike): Directory to write to.
@@ -2900,8 +2896,7 @@ class VaspInput(dict, MSONable):
         output_file: PathLike = "vasp.out",
         err_file: PathLike = "vasp.err",
     ) -> None:
-        """
-        Write input files and run VASP.
+        """Write input files and run VASP.
 
         Args:
             run_dir: Where to write input files and do the run.

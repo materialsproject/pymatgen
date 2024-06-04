@@ -64,7 +64,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "pymatgen"
-copyright = "2011, " + __author__
+copyright = f"2011, {__author__}"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

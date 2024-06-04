@@ -72,7 +72,7 @@ PRIMCOORD
         even if the atomic symbol / number convention
         is different.
         """
-        test_string = """
+        test_str = """
 CRYSTAL
 PRIMVEC
        11.45191956     0.00000000     0.00000000
@@ -82,7 +82,7 @@ PRIMCOORD
 1 1
 H     -0.71644986    -0.41364333     1.19898200     0.00181803     0.00084718     0.00804832
 """
-        structure = XSF.from_str(test_string).structure
+        structure = XSF.from_str(test_str).structure
         assert str(structure.species[0]) == "H"
         test_string2 = """
 CRYSTAL

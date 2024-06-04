@@ -127,8 +127,7 @@ class Unk:
         return cls(ik, data)
 
     def write_file(self, filename: str) -> None:
-        """
-        Write the UNK file.
+        """Write the UNK file.
 
         Args:
             filename (str): path to UNK file to write, the name should have the

@@ -373,7 +373,7 @@ class NwInput(MSONable):
     def __str__(self):
         out = []
         if self.memory_options:
-            out.append("memory " + self.memory_options)
+            out.append(f"memory {self.memory_options}")
         for d in self.directives:
             out.append(f"{d[0]} {d[1]}")
         out.append("geometry " + " ".join(self.geometry_options))

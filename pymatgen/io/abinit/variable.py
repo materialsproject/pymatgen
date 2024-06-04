@@ -112,7 +112,7 @@ class InputVariable:
 
         # Add units
         if self.units:
-            line += " " + self.units
+            line += f" {self.units}"
 
         return line
 

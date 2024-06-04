@@ -1645,34 +1645,34 @@ class TestProcar(PymatgenTest):
         assert d2[Spin.up][2][2] == approx({"Na": 0.688, "Li": 0.042})
 
 
-class TestXdatcar(PymatgenTest):
+class TestXdatcar:
     def test_init(self):
         filepath = f"{VASP_OUT_DIR}/XDATCAR_4"
-        x = Xdatcar(filepath)
-        structures = x.structures
+        xdatcar = Xdatcar(filepath)
+        structures = xdatcar.structures
         assert len(structures) == 4
         for struct in structures:
             assert struct.formula == "Li2 O1"
 
         filepath = f"{VASP_OUT_DIR}/XDATCAR_5"
-        x = Xdatcar(filepath)
-        structures = x.structures
+        xdatcar = Xdatcar(filepath)
+        structures = xdatcar.structures
         assert len(structures) == 4
         for struct in structures:
             assert struct.formula == "Li2 O1"
 
-        x.concatenate(f"{VASP_OUT_DIR}/XDATCAR_4")
-        assert len(x.structures) == 8
-        assert x.get_str() is not None
+        xdatcar.concatenate(f"{VASP_OUT_DIR}/XDATCAR_4")
+        assert len(xdatcar.structures) == 8
+        assert xdatcar.get_str() is not None
 
         filepath = f"{VASP_OUT_DIR}/XDATCAR_6"
-        x = Xdatcar(filepath)
-        structures = x.structures
+        xdatcar = Xdatcar(filepath)
+        structures = xdatcar.structures
 
         assert structures[0].lattice != structures[-1].lattice
 
 
-class TestDynmat(PymatgenTest):
+class TestDynmat:
     def test_init(self):
         filepath = f"{VASP_OUT_DIR}/DYNMAT"
         dct = Dynmat(filepath)
@@ -1689,12 +1689,16 @@ class TestDynmat(PymatgenTest):
 
 class TestWavecar(PymatgenTest):
     def setUp(self):
-        a = np.array(np.eye(3) * 10, dtype=float)  # lattice vectors
-        self.vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))  # unit cell volume
+        latt_mat = np.array(np.eye(3) * 10, dtype=float)  # lattice vectors
+        self.vol = np.dot(latt_mat[0, :], np.cross(latt_mat[1, :], latt_mat[2, :]))  # unit cell volume
         # reciprocal lattice vectors
-        b = np.array([np.cross(a[1, :], a[2, :]), np.cross(a[2, :], a[0, :]), np.cross(a[0, :], a[1, :])])
-        self.b = 2 * np.pi * b / self.vol
-        self.a = a
+        recip_latt_mat = [
+            np.cross(latt_mat[1, :], latt_mat[2, :]),
+            np.cross(latt_mat[2, :], latt_mat[0, :]),
+            np.cross(latt_mat[0, :], latt_mat[1, :]),
+        ]
+        self.recip_latt_mat = 2 * np.pi * np.array(recip_latt_mat) / self.vol
+        self.latt_mat = latt_mat
         self.wavecar = Wavecar(f"{VASP_OUT_DIR}/WAVECAR.N2")
         self.wH2 = Wavecar(f"{VASP_OUT_DIR}/WAVECAR.H2_low_symm")
         self.wH2_gamma = Wavecar(f"{VASP_OUT_DIR}/WAVECAR.H2_low_symm.gamma")
@@ -1758,8 +1762,8 @@ class TestWavecar(PymatgenTest):
         assert wavecar.encut == 25.0
         assert wavecar.nb == 9
         assert wavecar.nk == 1
-        assert_allclose(wavecar.a, self.a)
-        assert_allclose(wavecar.b, self.b)
+        assert_allclose(wavecar.a, self.latt_mat)
+        assert_allclose(wavecar.b, self.recip_latt_mat)
         assert wavecar.vol == approx(self.vol)
         assert len(wavecar.kpoints) == wavecar.nk
         assert len(wavecar.coeffs) == wavecar.nk

@@ -251,8 +251,7 @@ class Lobsterin(UserDict, MSONable):
         return int(no_basis_functions)
 
     def write_lobsterin(self, path="lobsterin", overwritedict=None):
-        """
-        Writes a lobsterin file.
+        """Write a lobsterin file.
 
         Args:
             path (str): filename of the lobsterin file that will be written
@@ -418,8 +417,7 @@ class Lobsterin(UserDict, MSONable):
     def write_POSCAR_with_standard_primitive(
         POSCAR_input="POSCAR", POSCAR_output="POSCAR.lobster", symprec: float = 0.01
     ):
-        """
-        Writes a POSCAR with the standard primitive cell.
+        """Write a POSCAR with the standard primitive cell.
         This is needed to arrive at the correct kpath.
 
         Args:
@@ -444,8 +442,7 @@ class Lobsterin(UserDict, MSONable):
         kpoints_line_density: int = 20,
         symprec: float = 0.01,
     ):
-        """
-        Writes a KPOINT file for lobster (only ISYM=-1 and ISYM=0 are possible), grids are gamma centered.
+        """Write a KPOINT file for lobster (only ISYM=-1 and ISYM=0 are possible), grids are Gamma-centered.
 
         Args:
             POSCAR_input (str): path to POSCAR

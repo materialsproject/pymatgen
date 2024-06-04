@@ -436,8 +436,7 @@ class GaussianInput:
         return "\n".join(output)
 
     def write_file(self, filename, cart_coords=False):
-        """
-        Write the input string into a file.
+        """Write the input string into a file.
 
         Option: see __str__ method
         """

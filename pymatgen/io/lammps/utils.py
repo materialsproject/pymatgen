@@ -258,8 +258,7 @@ class PackmolRunner:
             self.param_list[idx]["inside box"] = f"0.0 0.0 0.0 {length} {length} {length}"
 
     def _write_input(self, input_dir: str = ".") -> None:
-        """
-        Write the packmol input file to the input directory.
+        """Write the packmol input file to the input directory.
 
         Args:
             input_dir (str): path to the input directory
@@ -292,8 +291,7 @@ class PackmolRunner:
                 inp.write("end structure\n")
 
     def run(self, site_property: str | None = None) -> Molecule:
-        """
-        Write the input file to the scratch directory, run packmol and return
+        """Write the input file to the scratch directory, run packmol and return
         the packed molecule to the current working directory.
 
         Args:

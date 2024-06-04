@@ -1286,8 +1286,7 @@ class BasicMultiDataset:
         return self[0].to_str(with_pseudos=with_pseudos)
 
     def write(self, filepath="run.abi"):
-        """
-        Write ndset input files to disk. The name of the file
+        """Write ndset input files to disk. The name of the file
         is constructed from the dataset index e.g. run0.abi.
         """
         root, ext = os.path.splitext(filepath)

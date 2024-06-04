@@ -569,7 +569,7 @@ class Trajectory(MSONable):
                     is_mol = True
 
             except ImportError as exc:
-                raise exc
+                raise ImportError("ASE is required to read .traj files. pip install ase") from exc
 
         else:
             supported_file_types = ("XDATCAR", "vasprun.xml", "*.traj")

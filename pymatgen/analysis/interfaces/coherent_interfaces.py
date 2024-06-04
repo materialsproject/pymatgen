@@ -133,11 +133,11 @@ class CoherentInterfaceBuilder:
         film_slabs = film_sg.get_slabs()
         sub_slabs = sub_sg.get_slabs()
 
-        film_shifts = [s.shift for s in film_slabs]
-        film_terminations = [label_termination(s) for s in film_slabs]
+        film_shifts = [slab.shift for slab in film_slabs]
+        film_terminations = [label_termination(slab) for slab in film_slabs]
 
-        sub_shifts = [s.shift for s in sub_slabs]
-        sub_terminations = [label_termination(s) for s in sub_slabs]
+        sub_shifts = [slab.shift for slab in sub_slabs]
+        sub_terminations = [label_termination(slab) for slab in sub_slabs]
 
         self._terminations = {
             (film_label, sub_label): (film_shift, sub_shift)

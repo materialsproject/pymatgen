@@ -214,8 +214,7 @@ class PWInput:
         )
 
     def write_file(self, filename):
-        """
-        Write the PWSCF input file.
+        """Write the PWSCF input file.
 
         Args:
             filename (str): The string filename to output to.

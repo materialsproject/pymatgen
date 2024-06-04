@@ -533,8 +533,7 @@ class AdfInput:
         self.task = task
 
     def write_file(self, molecule, inp_file):
-        """
-        Write an ADF input file.
+        """Write an ADF input file.
 
         Args:
             molecule (Molecule): The molecule for this task.

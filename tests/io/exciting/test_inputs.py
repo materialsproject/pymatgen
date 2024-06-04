@@ -132,11 +132,11 @@ class TestExcitingInput(PymatgenTest):
         assert label == label_ref
         assert coord == coord_ref
 
-    def test_paramdict(self):
+    def test_param_dict(self):
         coords = [[0.0, 0.0, 0.0], [0.75, 0.5, 0.75]]
         lattice = Lattice.from_parameters(a=3.84, b=3.84, c=3.84, alpha=120, beta=90, gamma=60)
         struct = Structure(lattice, ["Si", "Si"], coords)
-        paradir = {
+        param_dict = {
             "grst": {
                 "do": "fromscratch",
                 "ngridk": "8 8 8",
@@ -158,12 +158,12 @@ class TestExcitingInput(PymatgenTest):
         }
 
         test_input = ExcitingInput(struct)
-        test_string = test_input.write_string("unchanged", **paradir)
+        test_str = test_input.write_string("unchanged", **param_dict)
 
         # read reference file
         filepath = f"{TEST_DIR}/input_exciting2.xml"
         tree = ElementTree.parse(filepath)
         root = tree.getroot()
-        ref_string = ElementTree.tostring(root, encoding="unicode")
+        ref_str = ElementTree.tostring(root, encoding="unicode")
 
-        assert ref_string.strip() == test_string.strip()
+        assert ref_str.strip() == test_str.strip()

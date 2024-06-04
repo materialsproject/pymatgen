@@ -64,8 +64,7 @@ class InputFile(MSONable):
         """Return a string representation of an entire input file."""
 
     def write_file(self, filename: str | PathLike) -> None:
-        """
-        Write the input file.
+        """Write the input file.
 
         Args:
             filename: The filename to output to, including path.
@@ -186,8 +185,7 @@ class InputSet(MSONable, MutableMapping):
         overwrite: bool = True,
         zip_inputs: bool = False,
     ):
-        """
-        Write Inputs to one or more files.
+        """Write Inputs to one or more files.
 
         Args:
             directory: Directory to write input files to

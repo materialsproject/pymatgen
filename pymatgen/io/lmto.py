@@ -130,8 +130,7 @@ class LMTOCtrl:
         return {**ctrl_dict, **update}
 
     def write_file(self, filename="CTRL", **kwargs):
-        """
-        Writes a CTRL file with structure, HEADER, and VERS that can be
+        """Write a CTRL file with structure, HEADER, and VERS that can be
         used as input for lmhart.run.
         """
         with zopen(filename, mode="wt") as file:

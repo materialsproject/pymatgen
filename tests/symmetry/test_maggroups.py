@@ -169,7 +169,7 @@ x+1/2, y, z, -1
     def test_str(self):
         msg = MagneticSpaceGroup([4, 11])
 
-        ref_string = """BNS: 4.11 P_b2_1
+        ref_str = """BNS: 4.11 P_b2_1
 Operators: (1|0,0,0) (2y|0,1/2,0) (1|0,1/2,0)' (2y|0,0,0)'
 Wyckoff Positions:
 4e  (x,y,z;mx,my,mz) (-x,y+1/2,-z;-mx,my,-mz) (x,y+1/2,z;-mx,-my,-mz)
@@ -180,7 +180,7 @@ Wyckoff Positions:
 2a  (0,y,0;mx,0,mz) (0,y+1/2,0;-mx,0,-mz)
 Alternative OG setting exists for this space group."""
 
-        ref_string_all = """BNS: 4.11 P_b2_1		OG: 3.7.14 P_2b2'
+        ref_str_all = """BNS: 4.11 P_b2_1		OG: 3.7.14 P_2b2'
 OG-BNS Transform: (a,2b,c;0,0,0)
 Operators (BNS): (1|0,0,0) (2y|0,1/2,0) (1|0,1/2,0)' (2y|0,0,0)'
 Wyckoff Positions (BNS):
@@ -199,5 +199,5 @@ Wyckoff Positions (OG): (1,0,0)+ (0,2,0)+ (0,0,1)+
 2b  (0,y,1/2;mx,0,mz) (0,y+1,-1/2;-mx,0,-mz)
 2a  (0,y,0;mx,0,mz) (0,y+1,0;-mx,0,-mz)"""
 
-        self.assert_str_content_equal(str(msg), ref_string)
-        self.assert_str_content_equal(msg.data_str(), ref_string_all)
+        self.assert_str_content_equal(str(msg), ref_str)
+        self.assert_str_content_equal(msg.data_str(), ref_str_all)

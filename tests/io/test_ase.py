@@ -359,6 +359,6 @@ def test_no_ase_err():
 
     import pymatgen.io.ase
 
-    expected_msg = str(pymatgen.io.ase.no_ase_err)
+    expected_msg = str(pymatgen.io.ase.NO_ASE_ERR)
     with pytest.raises(PackageNotFoundError, match=expected_msg):
         pymatgen.io.ase.MSONAtoms()
