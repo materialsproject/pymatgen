@@ -69,6 +69,7 @@ class Lobsterin(UserDict, MSONable):
         "gaussianSmearingWidth",
         "useDecimalPlaces",
         "COHPSteps",
+        "basisRotation",
     )
 
     # These keywords need an additional string suffix
@@ -118,6 +119,8 @@ class Lobsterin(UserDict, MSONable):
         "bandwiseSpilling",
         "kpointwiseSpilling",
         "LSODOS",
+        "autoRotate",
+        "doNotOrthogonalizeBasis",
     )
 
     # These keywords need additional string suffixes.
@@ -127,6 +130,7 @@ class Lobsterin(UserDict, MSONable):
         "cohpbetween",
         "createFatband",
         "customSTOforAtom",
+        "cobiBetween",
     )
 
     # Generate {lowered: original} mappings
