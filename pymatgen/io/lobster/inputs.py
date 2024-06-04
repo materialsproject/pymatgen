@@ -62,7 +62,7 @@ class Lobsterin(UserDict, MSONable):
     Reminder: lobsterin keywords are not case sensitive.
     """
 
-    # Keyword + float
+    # These keywords need an additional float suffix
     _FLOAT_KEYWORDS: tuple[str, ...] = (
         "COHPstartEnergy",
         "COHPendEnergy",
@@ -70,7 +70,8 @@ class Lobsterin(UserDict, MSONable):
         "useDecimalPlaces",
         "COHPSteps",
     )
-    # One of these keywords + string
+
+    # These keywords need an additional string suffix
     _STRING_KEYWORDS: tuple[str, ...] = (
         "basisSet",
         "cohpGenerator",
@@ -81,7 +82,8 @@ class Lobsterin(UserDict, MSONable):
         "kSpaceCOHP",
         "EwaldSum",
     )
-    # The keywords alone will turn on or off a function
+
+    # The keywords themselves (without suffix) can trigger additional functionalities
     _BOOLEAN_KEYWORDS: tuple[str, ...] = (
         "saveProjectionToFile",
         "skipdos",
@@ -117,7 +119,9 @@ class Lobsterin(UserDict, MSONable):
         "kpointwiseSpilling",
         "LSODOS",
     )
-    # These keywords + ending can be used in a lobsterin file
+
+    # These keywords need additional string suffixes.
+    # They could be used multiple times within one lobsterin.
     _LIST_KEYWORDS: tuple[str, ...] = (
         "basisfunctions",
         "cohpbetween",
@@ -307,14 +311,14 @@ class Lobsterin(UserDict, MSONable):
         isym: Literal[-1, 0] = -1,
         further_settings: dict | None = None,
     ) -> None:
-        """Write INCAR file. Will only make the run static,insert NBANDS,
-        set ISYM=-1, LWAVE=True and you have to check for the rest.
+        """Write INCAR file. Will only make the run static, insert NBANDS,
+        set ISYM=0, LWAVE=True and you have to check for the rest.
 
         Args:
             incar_input (PathLike): path to input INCAR
             incar_output (PathLike): path to output INCAR
             poscar_input (PathLike): path to input POSCAR
-            isym (int): ISYM equals -1 or 0 are possible. Current LOBSTER version only allow -1.
+            isym (Literal[-1, 0]): Supported ISYM values.
             further_settings (dict): A dict can be used to include further settings, e.g. {"ISMEAR":-5}
         """
         # Read old INCAR from file, this one will be modified
