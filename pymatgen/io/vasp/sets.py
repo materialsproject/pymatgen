@@ -330,8 +330,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         potcar_spec: bool = False,
         zip_output: bool | str = False,
     ) -> None:
-        """
-        Writes a set of VASP input to a directory.
+        """Write a set of VASP input to a directory.
 
         Args:
             output_dir (str): Directory to output the VASP input files
@@ -3138,9 +3137,14 @@ def _remove_unused_incar_params(incar, skip: Sequence[str] = ()) -> None:
 
 
 def _get_nedos(vasprun: Vasprun | None, dedos: float) -> int:
-    """Automatic setting of nedos using the energy range and the energy step."""
+    """Get NEDOS using the energy range and the energy step,
+    defaults to 2000.
+    """
     if vasprun is None:
         return 2000
+
+    if vasprun.eigenvalues is None:
+        raise RuntimeError("eigenvalues cannot be None.")
 
     emax = max(eigs.max() for eigs in vasprun.eigenvalues.values())
     emin = min(eigs.min() for eigs in vasprun.eigenvalues.values())
@@ -3148,7 +3152,7 @@ def _get_nedos(vasprun: Vasprun | None, dedos: float) -> int:
 
 
 def auto_kspacing(bandgap, bandgap_tol):
-    """Automatically set kspacing based on the bandgap"""
+    """Set kspacing based on the bandgap"""
     if bandgap is None or bandgap <= bandgap_tol:  # metallic
         return 0.22
 

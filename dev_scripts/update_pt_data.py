@@ -82,7 +82,7 @@ def parse_ionic_radii():
                 ionic_radii[int(header[tok_idx])] = float(match.group(1))
 
         if el in data:
-            data[el]["Ionic_radii" + suffix] = ionic_radii
+            data[el][f"Ionic_radii{suffix}"] = ionic_radii
             if suffix == "_hs":
                 data[el]["Ionic_radii"] = ionic_radii
         else:

@@ -64,7 +64,7 @@ class TestPoscar(PymatgenTest):
         assert comp == Composition("Fe4P4O16")
 
         # VASP 4 type with symbols at the end.
-        poscar_string = """Test1
+        poscar_str = """Test1
 1.0
 3.840198 0.000000 0.000000
 1.920099 3.325710 0.000000
@@ -74,15 +74,15 @@ direct
 0.000000 0.000000 0.000000 Si
 0.750000 0.500000 0.750000 F
 """
-        poscar = Poscar.from_str(poscar_string)
+        poscar = Poscar.from_str(poscar_str)
         assert poscar.structure.composition == Composition("SiF")
 
-        poscar_string = ""
+        poscar_str = ""
         with pytest.raises(ValueError, match="Empty POSCAR"):
-            Poscar.from_str(poscar_string)
+            Poscar.from_str(poscar_str)
 
         # VASP 4 style file with default names, i.e. no element symbol found.
-        poscar_string = """Test2
+        poscar_str = """Test2
 1.0
 3.840198 0.000000 0.000000
 1.920099 3.325710 0.000000
@@ -92,10 +92,10 @@ direct
 0.000000 0.000000 0.000000
 0.750000 0.500000 0.750000
 """
-        poscar = Poscar.from_str(poscar_string)
+        poscar = Poscar.from_str(poscar_str)
         assert poscar.structure.composition == Composition("HHe")
         # VASP 4 style file with default names, i.e. no element symbol found.
-        poscar_string = """Test3
+        poscar_str = """Test3
 1.0
 3.840198 0.000000 0.000000
 1.920099 3.325710 0.000000
@@ -106,7 +106,7 @@ direct
 0.000000 0.000000 0.000000 T T T Si
 0.750000 0.500000 0.750000 F F F O
 """
-        poscar = Poscar.from_str(poscar_string)
+        poscar = Poscar.from_str(poscar_str)
         selective_dynamics = [list(x) for x in poscar.selective_dynamics]
 
         assert selective_dynamics == [[True, True, True], [False, False, False]]
@@ -173,7 +173,7 @@ direct
         assert [site.specie.symbol for site in poscar.structure] == ordered_expected_elements
 
     def test_as_from_dict(self):
-        poscar_string = """Test3
+        poscar_str = """Test3
 1.0
 3.840198 0.000000 0.000000
 1.920099 3.325710 0.000000
@@ -184,7 +184,7 @@ direct
 0.000000 0.000000 0.000000 T T T Si
 0.750000 0.500000 0.750000 F F F O
 """
-        poscar = Poscar.from_str(poscar_string)
+        poscar = Poscar.from_str(poscar_str)
         dct = poscar.as_dict()
         poscar2 = Poscar.from_dict(dct)
         assert poscar2.comment == "Test3"
@@ -192,7 +192,7 @@ direct
         assert not all(poscar2.selective_dynamics[1])
 
     def test_cart_scale(self):
-        poscar_string = """Test1
+        poscar_str = """Test1
 1.1
 3.840198 0.000000 0.000000
 1.920099 3.325710 0.000000
@@ -203,7 +203,7 @@ cart
 0.000000   0.00000000   0.00000000
 3.840198   1.50000000   2.35163175
 """
-        poscar = Poscar.from_str(poscar_string)
+        poscar = Poscar.from_str(poscar_str)
         site = poscar.structure[1]
         assert_allclose(site.coords, np.array([3.840198, 1.5, 2.35163175]) * 1.1)
 
@@ -261,7 +261,7 @@ direct
         assert str(poscar) == expected_str, "Wrong POSCAR output!"
 
         # VASP 4 type with symbols at the end.
-        poscar_string = """Test1
+        poscar_str = """Test1
 1.0
 -3.840198 0.000000 0.000000
 1.920099 3.325710 0.000000
@@ -283,7 +283,7 @@ direct
    0.0000000000000000    0.0000000000000000    0.0000000000000000 Si
    0.7500000000000000    0.5000000000000000    0.7500000000000000 F
 """
-        poscar = Poscar.from_str(poscar_string)
+        poscar = Poscar.from_str(poscar_str)
         assert str(poscar) == expected
 
     def test_from_md_run(self):

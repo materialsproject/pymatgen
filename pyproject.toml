@@ -68,7 +68,7 @@ ignore = [
   "D212",    # Multi-line docstring summary should start at the first line
   "PD901",   # pandas-df-variable-name
   "PERF203", # try-except-in-loop
-  "PERF401", # manual-list-comprehension (TODO fix these or wait for autofix)
+  "PERF401", # manual-list-comprehension
   "PLR",     # pylint refactor
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
   "PT013",   # pytest-incorrect-pytest-import
@@ -137,8 +137,9 @@ ignore_missing_imports = true
 
 [tool.codespell]
 ignore-words-list = """
-titel,alls,ans,nd,mater,nwo,te,hart,ontop,ist,ot,fo,nax,coo,coul,ser,leary,thre,fase,
-rute,reson,titels,ges,scalr,strat,struc,hda,nin,ons,pres,kno,loos,lamda,lew,atomate
+titel,alls,ans,nd,mater,nwo,te,hart,ontop,ist,ot,fo,nax,coo,
+coul,ser,leary,thre,fase,rute,reson,titels,ges,scalr,strat,
+struc,hda,nin,ons,pres,kno,loos,lamda,lew,atomate,nempty
 """
 skip = "pymatgen/analysis/aflow_prototypes.json"
 check-filenames = true

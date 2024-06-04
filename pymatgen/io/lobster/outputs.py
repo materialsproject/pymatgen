@@ -1380,14 +1380,14 @@ class Fatband:
                     iband = 0
                 if line.split()[0] != "#":
                     if linenumber < self.nbands:
-                        if ifilename == 0:
+                        if ifilename == 0 and self.efermi is not None:
                             eigenvals[Spin.up][iband][idx_kpt] = float(line.split()[1]) + self.efermi
 
                         p_eigenvals[Spin.up][iband][idx_kpt][atom_names[ifilename]][orbital_names[ifilename]] = float(
                             line.split()[2]
                         )
                     if linenumber >= self.nbands and self.is_spinpolarized:
-                        if ifilename == 0:
+                        if ifilename == 0 and self.efermi is not None:
                             eigenvals[Spin.down][iband][idx_kpt] = float(line.split()[1]) + self.efermi
                         p_eigenvals[Spin.down][iband][idx_kpt][atom_names[ifilename]][orbital_names[ifilename]] = float(
                             line.split()[2]
