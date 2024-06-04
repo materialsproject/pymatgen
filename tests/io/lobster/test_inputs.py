@@ -1805,6 +1805,21 @@ class TestLobsterin(TestCase):
             == self.Lobsterin3.diff(self.Lobsterin)["Different"]["skipcohp"]["lobsterin2"]
         )
 
+    def test_diff_case_insensitivity(self):
+        """Test case-insensitivity of diff method."""
+        with open(f"{TEST_DIR}/lobsterin.1", encoding="utf-8") as file:
+            lobsterin_content = file.read()
+
+        lobsterin_content.replace("COHPstartEnergy -15.0", "cohpSTARTEnergy -15.0")
+        lobsterin_content.replace("skipcohp", "skipCOHP")
+
+        with tempfile.NamedTemporaryFile(delete=False, mode="w+", encoding="utf-8") as temp_file:
+            temp_file.write(lobsterin_content)
+            temp_file_path = temp_file.name
+
+        lobsterin_diff_case = Lobsterin.from_file(temp_file_path)
+        assert self.Lobsterin.diff(lobsterin_diff_case)["Different"] == {}
+
     def test_dict_functionality(self):
         for key in ("COHPstartEnergy", "COHPstartEnergy", "COhPstartenergy"):
             start_energy = self.Lobsterin.get(key)
