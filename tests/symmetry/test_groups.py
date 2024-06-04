@@ -18,17 +18,17 @@ __date__ = "4/10/14"
 ORDERED_SYMBOLS = (
     "P1 P-1 P121 P12_11 C121 P1m1 P1c1 C1m1 C1c1 P12/m1 P12_1/m1 C12/m1 P12/c1 P12_1/c1 C12/c1 P222 P222_1"
     " P2_12_12 P2_12_121 C222_1 C222 F222 I222 I2_12_121 Pmm2 Pmc2_1 Pcc2 Pma2 Pca2_1 Pnc2 Pmn2_1 Pba2 Pna2_1 Pnn2 "
-    "Cmm2 Cmc2_1 Ccc2 Amm2 Aem2 Ama2 Aea2 Fmm2 Fdd2 Imm2 Iba2 Ima2 Pmmm Pnnn1 Pccm Pban1 Pmma Pnna Pmna Pcca Pbam "
-    "Pccn Pbcm Pnnm Pmmn1 Pbcn Pbca Pnma Cmcm Cmce Cmmm Cccm Cmme Ccce1 Fmmm Fddd1 Immm Ibam Ibca Imma P4 P4_1 P4_2 "
-    "P4_3 I4 I4_1 P-4 I-4 P4/m P4_2/m P4/n1 P4_2/n I4/m I4_1/a P422 P42_12 P4_122 P4_12_12 P4_222 P4_22_12 P4_322 "
+    "Cmm2 Cmc2_1 Ccc2 Amm2 Aem2 Ama2 Aea2 Fmm2 Fdd2 Imm2 Iba2 Ima2 Pmmm Pnnn Pccm Pban Pmma Pnna Pmna Pcca Pbam "
+    "Pccn Pbcm Pnnm Pmmn Pbcn Pbca Pnma Cmcm Cmce Cmmm Cccm Cmme Ccce Fmmm Fddd Immm Ibam Ibca Imma P4 P4_1 P4_2 "
+    "P4_3 I4 I4_1 P-4 I-4 P4/m P4_2/m P4/n P4_2/n I4/m I4_1/a P422 P42_12 P4_122 P4_12_12 P4_222 P4_22_12 P4_322 "
     "P4_32_12 I422 I4_122 P4mm P4bm P4_2cm P4_2nm P4cc P4nc P4_2mc P4_2bc I4mm I4cm I4_1md I4_1cd P-42m P-42c P-42_1m "
-    "P-42_1c P-4m2 P-4c2 P-4b2 P-4n2 I-4m2 I-4c2 I-42m I-42d P4/mmm P4/mcc P4/nbm1 P4/nnc1 P4/mbm P4/mnc P4/nmm1 "
-    "P4/ncc1 P4_2/mmc P4_2/mcm P4_2/nbc P4_2/nnm P4_2/mbc P4_2/mnm P4_2/nmc P4_2/ncm I4/mmm I4/mcm I4_1/amd I4_1/acd "
+    "P-42_1c P-4m2 P-4c2 P-4b2 P-4n2 I-4m2 I-4c2 I-42m I-42d P4/mmm P4/mcc P4/nbm P4/nnc P4/mbm P4/mnc P4/nmm "
+    "P4/ncc P4_2/mmc P4_2/mcm P4_2/nbc P4_2/nnm P4_2/mbc P4_2/mnm P4_2/nmc P4_2/ncm I4/mmm I4/mcm I4_1/amd I4_1/acd "
     "P3 P3_1 P3_2 R3H P-3 R-3H P312 P321 P3_112 P3_121 P3_212 P3_221 R32H P3m1 P31m P3c1 P31c R3mH R3cH P-31m P-31c "
     "P-3m1 P-3c1 R-3mH R-3cH P6 P6_1 P6_5 P6_2 P6_4 P6_3 P-6 P6/m P6_3/m P622 P6_122 P6_522 P6_222 P6_422 P6_322 "
     "P6mm P6cc P6_3cm P6_3mc P-6m2 P-6c2 P-62m P-62c P6/mmm P6/mcc P6_3/mcm P6_3/mmc P23 F23 I23 P2_13 I2_13 Pm-3 "
-    "Pn-31 Fm-3 Fd-31 Im-3 Pa-3 Ia-3 P432 P4_232 F432 F4_132 I432 P4_332 P4_132 I4_132 P-43m F-43m I-43m P-43n F-43c "
-    "I-43d Pm-3m Pn-3n1 Pm-3n Pn-3m1 Fm-3m Fm-3c Fd-3m1 Fd-3c1 Im-3m Ia-3d"
+    "Pn-3 Fm-3 Fd-3 Im-3 Pa-3 Ia-3 P432 P4_232 F432 F4_132 I432 P4_332 P4_132 I4_132 P-43m F-43m I-43m P-43n F-43c "
+    "I-43d Pm-3m Pn-3n Pm-3n Pn-3m Fm-3m Fm-3c Fd-3m Fd-3c Im-3m Ia-3d"
 ).split()
 
 
@@ -150,6 +150,13 @@ class TestSpaceGroup:
         assert sg.is_compatible(cubic)
         assert sg.is_compatible(rhom)
         assert not sg.is_compatible(hexagonal)
+        sg = SpaceGroup("R-3m", hexagonal=True)
+        assert not sg.is_compatible(cubic)
+        assert sg.is_compatible(hexagonal)
+        sg = SpaceGroup("R-3m", hexagonal=False)
+        assert sg.is_compatible(cubic)
+        assert sg.is_compatible(rhom)
+        assert not sg.is_compatible(hexagonal)
         sg = SpaceGroup("Pnma")
         assert sg.is_compatible(cubic)
         assert sg.is_compatible(tet)
@@ -198,14 +205,9 @@ class TestSpaceGroup:
         assert SpaceGroup("Pma2").is_subgroup(SpaceGroup("Pccm"))
         assert not SpaceGroup.from_int_number(229).is_subgroup(SpaceGroup.from_int_number(230))
 
-    def test_hexagonal(self):
-        for num in (146, 148, 155, 160, 161, 166, 167):
-            sg = SpaceGroup.from_int_number(num, hexagonal=False)
-            assert not sg.symbol.endswith("H")
-
     def test_string(self):
         sg = SpaceGroup("R-3c")
-        assert sg.to_latex_string() == r"R$\overline{3}$cH"
+        assert sg.to_latex_string() == r"R$\overline{3}$c"
         sg = SpaceGroup("P6/mmm")
         assert sg.to_latex_string() == "P6/mmm"
         sg = SpaceGroup("P4_1")
@@ -216,6 +218,11 @@ class TestSpaceGroup:
             sg = SpaceGroup.from_int_number(num)
             symbol = ORDERED_SYMBOLS[num - 1]
             assert repr(sg) in f"SpaceGroup({symbol=})"
+
+    def test_valid_symbol(self):  # Added after issue #3845
+        for num in range(1, 231):
+            symbol = SpaceGroup.from_int_number(num).symbol
+            assert SpaceGroup(symbol).int_number == num
 
     def test_raises_on_bad_int_number(self):
         for num in (-5, 0, 231, 1000):
