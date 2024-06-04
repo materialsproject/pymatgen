@@ -323,8 +323,15 @@ class ElementBase(Enum):
 
     @property
     def electronic_structure(self) -> str:
-        """Electronic structure as string, with only valence electrons.
-        e.g. The electronic structure for Fe is represented as '[Ar].3d6.4s2'.
+        """Electronic structure as string, with only valence electrons. The
+        electrons are listed in order of increasing energy level,
+        e.g., The electronic structure for Fe is represented as '[Ar].4s2.3d6'
+        since the 3d electrons are higher in energy than the 4s.
+
+        References:
+            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST Atomic Spectra Database (ver. 5.11).
+            https://physics.nist.gov/asd [2024, June 3]. National Institute of Standards and Technology, Gaithersburg,
+            MD. DOI: https://doi.org/10.18434/T4W30F
         """
         return re.sub("</*sup>", "", self._data["Electronic structure"])
 
@@ -411,10 +418,14 @@ class ElementBase(Enum):
 
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
-        """Full electronic structure as tuple.
-        e.g. The electronic structure for Fe is represented as:
-        [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
-        (3, "d", 6), (4, "s", 2)].
+        """Full electronic structure as list of tuples, in order of increasing energy level. E.g. The electronic
+        structure for Fe is represented as: [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
+        (4, "s", 2), (3, "d", 6)].
+
+        References:
+            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST Atomic Spectra Database (ver. 5.11).
+            https://physics.nist.gov/asd [2024, June 3]. National Institute of Standards and Technology, Gaithersburg,
+            MD. DOI: https://doi.org/10.18434/T4W30F
         """
         e_str = self.electronic_structure
 
@@ -1064,7 +1075,7 @@ class Species(MSONable, Stringify):
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
         """
-        Full electronic structure as tuple.
+        Full electronic structure as list of tuples, in order of increasing energy level.
 
         If the oxidation state is non-zero, it is assumed that the Species adopts
         the same electronic configuration as the element with the same number of total
