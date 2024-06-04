@@ -20,7 +20,6 @@ if TYPE_CHECKING:  # needed to avoid circular imports
 
 # Commonly used composite types
 Tuple3Ints = tuple[int, int, int]
-Tuple4Ints = tuple[int, int, int, int]
 Tuple3Floats = tuple[float, float, float]
 
 PathLike = Union[str, OsPathLike]
