@@ -37,7 +37,7 @@ from pymatgen.core import SETTINGS, Element, Lattice, Structure, get_el_sp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
-from pymatgen.util.typing import Kpoint, Vector3D
+from pymatgen.util.typing import Kpoint, Tuple3Ints, Vector3D
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -1316,9 +1316,7 @@ class Kpoints(MSONable):
         ngrid = kppa / len(structure)
         mult: float = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
-        num_div: tuple[int, int, int] = cast(
-            tuple[int, int, int], [math.floor(max(mult / length, 1)) for length in lengths]
-        )
+        num_div: Tuple3Ints = cast(Tuple3Ints, [math.floor(max(mult / length, 1)) for length in lengths])
 
         is_hexagonal: bool = lattice.is_hexagonal()
         is_face_centered: bool = structure.get_space_group_info()[0][0] == "F"
@@ -1371,7 +1369,7 @@ class Kpoints(MSONable):
             comment,
             n_kpts,
             style,
-            [cast(tuple[int, int, int], tuple(n_div))],
+            [cast(Tuple3Ints, tuple(n_div))],
             (0, 0, 0),
         )
 
@@ -1424,7 +1422,7 @@ class Kpoints(MSONable):
         lattice = structure.lattice
 
         abc = lattice.abc
-        num_div: tuple[int, int, int] = tuple(np.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))
+        num_div: Tuple3Ints = tuple(np.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))
 
         is_hexagonal: bool = lattice.is_hexagonal()
         is_face_centered: bool = structure.get_space_group_info()[0][0] == "F"

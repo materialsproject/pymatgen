@@ -20,8 +20,10 @@ if TYPE_CHECKING:
     from numpy.typing import ArrayLike
     from typing_extensions import Self
 
+    from pymatgen.util.typing import Tuple3Ints
 
-def get_reasonable_repetitions(n_atoms: int) -> tuple[int, int, int]:
+
+def get_reasonable_repetitions(n_atoms: int) -> Tuple3Ints:
     """Choose the number of repetitions in a supercell
     according to the number of atoms in the system.
     """

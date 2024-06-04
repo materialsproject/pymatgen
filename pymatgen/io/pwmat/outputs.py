@@ -13,7 +13,7 @@ from pymatgen.io.pwmat.inputs import ACstrExtractor, AtomConfig, LineLocator
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
-    from pymatgen.util.typing import PathLike
+    from pymatgen.util.typing import PathLike, Tuple3Ints
 
 
 __author__ = "Hanyu Liu"
@@ -190,12 +190,12 @@ class Report(MSONable):
         self._eigenvalues = self._parse_eigen()
         self._kpts, self._kpts_weight, self._hsps = self._parse_kpt()
 
-    def _parse_band(self) -> tuple[int, int, int]:
+    def _parse_band(self) -> Tuple3Ints:
         """Parse REPORT file to obtain spin switches, the number of kpoints
         and the number of bands.
 
         Returns:
-            tuple[int, int, int]: containing:
+            Tuple3Ints: containing:
                 spin (int): Whether turn on spin or not
                     1: turn down the spin
                     2: turn on the spin.
