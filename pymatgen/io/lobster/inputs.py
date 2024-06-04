@@ -318,16 +318,14 @@ class Lobsterin(UserDict, MSONable):
             incar_input (PathLike): path to input INCAR
             incar_output (PathLike): path to output INCAR
             poscar_input (PathLike): path to input POSCAR
-            isym (Literal[-1, 0]): Supported ISYM values.
+            isym (Literal[-1, 0]): ISYM value.
             further_settings (dict): A dict can be used to include further settings, e.g. {"ISMEAR":-5}
         """
-        # Read old INCAR from file, this one will be modified
+        # Read INCAR from file, which will be modified
         incar = Incar.from_file(incar_input)
         warnings.warn("Please check your incar_input before using it. This method only changes three settings!")
-        if isym == -1:
-            incar["ISYM"] = -1
-        elif isym == 0:
-            incar["ISYM"] = 0
+        if isym in {-1, 0}:
+            incar["ISYM"] = isym
         else:
             raise ValueError(f"Got {isym=}, must be -1 or 0")
 
@@ -448,15 +446,13 @@ class Lobsterin(UserDict, MSONable):
         kpoints_line_density: int = 20,
         symprec: float = 0.01,
     ) -> None:
-        """
-        Write a gamma-centered KPOINTS file for LOBSTER (only ISYM=-1/0 are
-        possible).
+        """Write a gamma-centered KPOINTS file for LOBSTER.
 
         Args:
             POSCAR_input (PathLike): path to POSCAR
             KPOINTS_output (PathLike): path to output KPOINTS
             reciprocal_density (int): Grid density
-            isym (int): either -1 or 0. Current Lobster versions only allow -1.
+            isym (Literal[-1, 0]): ISYM value.
             from_grid (bool): If True KPOINTS will be generated with the help of a grid given in input_grid.
                 Otherwise, they will be generated from the reciprocal_density
             input_grid (tuple): grid to generate the KPOINTS file
@@ -509,8 +505,9 @@ class Lobsterin(UserDict, MSONable):
                 kpts.append(gp.astype(float) / mesh)
                 weights.append(float(1))
                 all_labels.append("")
+
+        # Time reversal symmetry: k and -k are equivalent
         elif isym == 0:
-            # Time reversal symmetry: k and -k are equivalent
             kpts = []
             weights = []
             all_labels = []
