@@ -64,8 +64,7 @@ class Xr:
         return "\n".join(output)
 
     def write_file(self, filename: str | Path) -> None:
-        """
-        Write out an xr file.
+        """Write out an xr file.
 
         Args:
             filename (str): name of the file to write to.
