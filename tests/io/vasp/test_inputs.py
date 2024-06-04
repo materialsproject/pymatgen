@@ -1194,30 +1194,32 @@ class TestPotcarSingle(TestCase):
 
     def test_from_symbol_and_functional_raises(self):
         # test FileNotFoundError on non-existent PMG_VASP_PSP_DIR in SETTINGS
-        dir_name = "missing-dir"
-        err_msg = f"PMG_VASP_PSP_DIR={dir_name!r} does not exist."
+        PMG_VASP_PSP_DIR = "missing-dir"
         symbol, functional = "Fe", "PBE_64"
         with (
-            patch.dict(SETTINGS, PMG_VASP_PSP_DIR=dir_name),
-            pytest.raises(FileNotFoundError, match=err_msg),
+            patch.dict(SETTINGS, PMG_VASP_PSP_DIR=PMG_VASP_PSP_DIR),
+            pytest.raises(FileNotFoundError, match=f"{PMG_VASP_PSP_DIR=} does not exist."),
         ):
             PotcarSingle.from_symbol_and_functional(symbol, functional)
 
+        # test different FileNotFoundError on non-existent POTCAR sub-directory
         PMG_VASP_PSP_DIR = SETTINGS["PMG_VASP_PSP_DIR"]
         err_msg = f"You do not have the right POTCAR with {functional=} and {symbol=}\nin your {PMG_VASP_PSP_DIR=}"
 
         with (
             patch.dict(SETTINGS, PMG_VASP_PSP_SUB_DIRS={"PBE_64": "PBE_64_FOO"}),
-            pytest.raises(FileNotFoundError, match=err_msg),
+            pytest.raises(FileNotFoundError) as exc_info,
         ):
             PotcarSingle.from_symbol_and_functional(symbol, functional)
 
+        assert err_msg in str(exc_info.value)
+
     def test_repr(self):
-        assert (
-            repr(self.psingle_Mn_pv)
-            == "PotcarSingle(symbol='Mn_pv', functional='PBE', TITEL='PAW_PBE Mn_pv 07Sep2000', "
+        expected_repr = (
+            "PotcarSingle(symbol='Mn_pv', functional='PBE', TITEL='PAW_PBE Mn_pv 07Sep2000', "
             "VRHFIN='Mn: 3p4s3d', n_valence_elec=13)"
         )
+        assert repr(self.psingle_Mn_pv) == expected_repr
 
     def test_hash(self):
         assert self.psingle_Mn_pv.md5_header_hash == "b45747d8ceeee91c3b27e8484db32f5a"
