@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from pymatgen.util.typing import Tuple3Ints
+    from pymatgen.util.typing import Tuple3Floats, Tuple3Ints
 
 __author__ = "Thomas A. R. Purcell"
 __version__ = "1.0"
@@ -237,7 +237,7 @@ class AimsCube(MSONable):
 
     Attributes:
         type (str): The value to be outputted as a cube file
-        origin (Sequence[float] or tuple[float, float, float]): The origin of the cube
+        origin (Sequence[float] or Tuple3Floats): The origin of the cube
         edges (Sequence[Sequence[float]]): Specifies the edges of a cube: dx, dy, dz
             dx (float): The length of the step in the x direction
             dy (float): The length of the step in the y direction
@@ -254,7 +254,7 @@ class AimsCube(MSONable):
     """
 
     type: str = field(default_factory=str)
-    origin: Sequence[float] | tuple[float, float, float] = field(default_factory=lambda: [0.0, 0.0, 0.0])
+    origin: Sequence[float] | Tuple3Floats = field(default_factory=lambda: [0.0, 0.0, 0.0])
     edges: Sequence[Sequence[float]] = field(default_factory=lambda: 0.1 * np.eye(3))
     points: Sequence[int] | Tuple3Ints = field(default_factory=lambda: [0, 0, 0])
     format: str = "cube"

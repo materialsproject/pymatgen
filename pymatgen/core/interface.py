@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core import Element
-    from pymatgen.util.typing import CompositionLike, Matrix3D, MillerIndex, Vector3D
+    from pymatgen.util.typing import CompositionLike, Matrix3D, MillerIndex, Tuple3Floats, Vector3D
 
 Tuple4Ints = tuple[int, int, int, int]
 logger = logging.getLogger(__name__)
@@ -1752,7 +1752,7 @@ class GrainBoundaryGenerator:
     def enum_sigma_ort(
         cutoff: int,
         r_axis: Tuple3Ints,
-        c2_b2_a2_ratio: tuple[float, float, float],
+        c2_b2_a2_ratio: Tuple3Floats,
     ) -> dict[int, list[float]]:
         """Find all possible sigma values and corresponding rotation angles
         within a sigma value cutoff with known rotation axis in orthorhombic system.

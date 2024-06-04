@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
-    from pymatgen.util.typing import SpeciesLike
+    from pymatgen.util.typing import SpeciesLike, Tuple3Floats
 
 
 class DOS(Spectrum):
@@ -64,7 +64,7 @@ class DOS(Spectrum):
                 Down - finds the gap in the down spin channel.
 
         Returns:
-            tuple[float, float, float]: Energies in eV corresponding to the band gap, cbm and vbm.
+            Tuple3Floats: Energies in eV corresponding to the band gap, cbm and vbm.
         """
         if spin is None:
             tdos = self.y if len(self.ydim) == 1 else np.sum(self.y, axis=1)
@@ -256,9 +256,7 @@ class Dos(MSONable):
             energies[spin] = get_linear_interpolated_value(self.energies, self.densities[spin], energy)
         return energies
 
-    def get_interpolated_gap(
-        self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None
-    ) -> tuple[float, float, float]:
+    def get_interpolated_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None) -> Tuple3Floats:
         """Expects a DOS object and finds the gap.
 
         Args:
@@ -270,7 +268,7 @@ class Dos(MSONable):
                 Down - finds the gap in the down spin channel.
 
         Returns:
-            tuple[float, float, float]: Energies in eV corresponding to the band gap, cbm and vbm.
+            Tuple3Floats: Energies in eV corresponding to the band gap, cbm and vbm.
         """
         tdos = self.get_densities(spin)
         if not abs_tol:
