@@ -24,7 +24,7 @@ from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import Slab
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from pymatgen.util.typing import Tuple3Ints, Tuple4Ints
+from pymatgen.util.typing import Tuple3Ints
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from pymatgen.core import Element
     from pymatgen.util.typing import CompositionLike, Matrix3D, MillerIndex, Vector3D
 
-
+Tuple4Ints = tuple[int, int, int, int]
 logger = logging.getLogger(__name__)
 
 
