@@ -390,7 +390,7 @@ class GrainBoundaryGenerator:
 
     def gb_from_parameters(
         self,
-        rotation_axis: list[int],
+        rotation_axis: tuple[int, int, int],
         rotation_angle: float,
         expand_times: int = 4,
         vacuum_thickness: float = 0.0,
@@ -405,13 +405,12 @@ class GrainBoundaryGenerator:
     ) -> GrainBoundary:
         """
         Args:
-            rotation_axis (list): Rotation axis of GB in the form of a list of integer
-                e.g.: [1, 1, 0]
+            rotation_axis (tuple of 3): Rotation axis of GB e.g.: (1, 1, 0).
             rotation_angle (float, in unit of degree): rotation angle used to generate GB.
                 Make sure the angle is accurate enough. You can use the enum* functions
                 in this class to extract the accurate angle.
                 e.g.: The rotation angle of sigma 3 twist GB with the rotation axis
-                [1, 1, 1] and GB plane (1, 1, 1) can be 60 degree.
+                (1, 1, 1) and GB plane (1, 1, 1) can be 60 degree.
                 If you do not know the rotation angle, but know the sigma value, we have
                 provide the function get_rotation_angle_from_sigma which is able to return
                 all the rotation angles of sigma value you provided.
@@ -421,12 +420,11 @@ class GrainBoundaryGenerator:
             vacuum_thickness (float, in angstrom): The thickness of vacuum that you want to insert
                 between two grains of the GB. Default to 0.
             ab_shift (list of float, in unit of a, b vectors of Gb): in plane shift of two grains
-            normal (logic):
+            normal (bool):
                 determine if need to require the c axis of top grain (first transformation matrix)
                 perpendicular to the surface or not.
                 default to false.
-            ratio (list of integers):
-                lattice axial ratio.
+            ratio (list[int]): lattice axial ratio.
                 For cubic system, ratio is not needed.
                 For tetragonal system, ratio = [mu, mv], list of two integers,
                 that is, mu/mv = c2/a2. If it is irrational, set it to none.
@@ -551,7 +549,7 @@ class GrainBoundaryGenerator:
         # Set the plane for grain boundary when plane is None
         if plane is None:
             if lat_type == "c" and len(_rotation_axis) == 3:
-                _plane: tuple[int, int, int] = _rotation_axis
+                _plane = _rotation_axis
             else:
                 if lat_type == "h":
                     c2_a2_ratio = 1.0 if ratio is None else ratio[0] / ratio[1]
@@ -906,7 +904,7 @@ class GrainBoundaryGenerator:
             r_axis ((u, v, w) or (u, v, t, w) for hex/rho systems):
                 the rotation axis of the grain boundary.
             angle (float, in unit of degree): the rotation angle of the grain boundary
-            normal (logic): determine if need to require the c axis of one grain associated with
+            normal (bool): determine if need to require the c axis of one grain associated with
                 the first transformation matrix perpendicular to the surface or not.
                 default to false.
             trans_cry (np.array): shape 3x3. If the structure given are primitive cell in cubic system, e.g.
@@ -918,7 +916,7 @@ class GrainBoundaryGenerator:
                 'o' or 'O': orthorhombic system
                 'h' or 'H': hexagonal system
                 'r' or 'R': rhombohedral system
-            ratio (list of integers): lattice axial ratio.
+            ratio (list[int]): lattice axial ratio.
                 For cubic system, ratio is not needed.
                 For tetragonal system, ratio = [mu, mv], list of two integers, that is, mu/mv = c2/a2. If it is
                 irrational, set it to none.
