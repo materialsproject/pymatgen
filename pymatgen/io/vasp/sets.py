@@ -61,7 +61,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from pymatgen.util.typing import Vector3D
+    from pymatgen.util.typing import PathLike, Vector3D
 
     UserPotcarFunctional = Union[
         Literal["PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"], None
@@ -229,8 +229,8 @@ class VaspInputSet(InputGenerator, abc.ABC):
     prev_kpoints: str | Kpoints | None = None
     _valid_potcars: Sequence[str] | None = None
 
-    def __post_init__(self):
-        """Perform validation"""
+    def __post_init__(self) -> None:
+        """Perform validation."""
         user_potcar_functional = self.user_potcar_functional
         if (valid_potcars := self._valid_potcars) and user_potcar_functional not in valid_potcars:
             raise ValueError(f"Invalid {user_potcar_functional=}, must be one of {valid_potcars}")
@@ -240,7 +240,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
         self._config_dict = deepcopy(self.config_dict)
 
-        # these have been left to stay consistent with previous API
+        # These have been left to stay consistent with previous API
         self.user_incar_settings = self.user_incar_settings or {}
         self.user_kpoints_settings = self.user_kpoints_settings or {}
 
@@ -270,7 +270,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             "POTCAR_FUNCTIONAL", "PBE"
         )
 
-        # warn if a user is overriding POTCAR_FUNCTIONAL
+        # Warn if a user is overriding POTCAR_FUNCTIONAL
         if self.user_potcar_functional != self._config_dict.get("POTCAR_FUNCTIONAL", "PBE"):
             warnings.warn(
                 "Overriding the POTCAR functional is generally not recommended "
@@ -296,7 +296,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 self._config_dict["POTCAR"][key] = val
 
         if not isinstance(self.structure, Structure):
-            self._structure = None
+            self._structure: Structure | None = None
         else:
             self.structure = self.structure
 
@@ -306,12 +306,18 @@ class VaspInputSet(InputGenerator, abc.ABC):
         if isinstance(self.prev_kpoints, (Path, str)):
             self.prev_kpoints = Kpoints.from_file(self.prev_kpoints)
 
-        self.prev_vasprun = None
-        self.prev_outcar = None
-        self._ispin = None
+        self.prev_vasprun: Vasprun | None = None
+        self.prev_outcar: Outcar | None = None
+        self._ispin: int | None = None
+
+    def __str__(self) -> str:
+        return type(self).__name__
+
+    def __repr__(self) -> str:
+        return type(self).__name__
 
     @deprecated(message="get_vasp_input will be removed in a future version of pymatgen. Use get_input_set instead.")
-    def get_vasp_input(self, structure=None) -> Self:
+    def get_vasp_input(self, structure: Structure | None = None) -> Self:
         """Get a VaspInput object.
 
         Returns:
@@ -359,7 +365,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             files_to_transfer=self.files_to_transfer,
         )
 
-    def as_dict(self, verbosity=2):
+    def as_dict(self, verbosity: int = 2) -> dict:  # TODO: redefine verbosity?
         """
         Args:
             verbosity: Verbosity for generated dict. If 1, structure is
@@ -373,9 +379,9 @@ class VaspInputSet(InputGenerator, abc.ABC):
             dct.pop("structure", None)
         return dct
 
-    @property  # type: ignore
-    def structure(self) -> Structure:
-        """Structure"""
+    @property  # type: ignore[no-redef]
+    def structure(self) -> Structure | None:
+        """Structure."""
         return self._structure
 
     @structure.setter
@@ -418,7 +424,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
     def get_input_set(
         self,
         structure: Structure | None = None,
-        prev_dir: str | Path | None = None,
+        prev_dir: PathLike | None = None,
         potcar_spec: bool = False,
     ) -> VaspInput:
         """Get a VASP input set.
@@ -428,7 +434,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
         Args:
             structure (Structure): A structure.
-            prev_dir (str or Path): A previous directory to generate the input set from.
+            prev_dir (PathLike): A previous directory to generate the input set from.
             potcar_spec (bool): Instead of generating a Potcar object, use a list of
                 potcar symbols. This will be written as a "POTCAR.spec" file. This is
                 intended to help sharing an input set with people who might not have a
@@ -461,7 +467,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         return {}
 
     @property
-    def kpoints_updates(self) -> dict | Kpoints:
+    def kpoints_updates(self) -> dict:
         """Updates to the kpoints configuration for this calculation type.
 
         Note, these updates will be ignored if the user has set user_kpoint_settings.
@@ -472,7 +478,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         """
         return {}
 
-    def _set_previous(self, prev_dir: str | Path | None = None):
+    def _set_previous(self, prev_dir: PathLike | None = None) -> None:
         """Load previous calculation outputs."""
         if prev_dir is not None:
             vasprun, outcar = get_vasprun_outcar(prev_dir)
@@ -488,7 +494,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             bs = vasprun.get_band_structure(efermi="smart")
             self.bandgap = 0 if bs.is_metal() else bs.get_band_gap()["energy"]
             if self.auto_ispin:
-                # turn off spin when magmom for every site is smaller than 0.02.
+                # Turn off spin when magmom for every site is smaller than 0.02.
                 self._ispin = _get_ispin(vasprun, outcar)
 
             self.structure = get_structure_from_prev_run(vasprun, outcar)
@@ -501,24 +507,24 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
         prev_incar: dict[str, Any] = {}
         if self.inherit_incar is True and self.prev_incar:
-            prev_incar = self.prev_incar  # type: ignore
+            prev_incar = self.prev_incar
         elif isinstance(self.inherit_incar, (list, tuple)) and self.prev_incar:
-            prev_incar = {k: self.prev_incar[k] for k in self.inherit_incar if k in self.prev_incar}  # type: ignore
+            prev_incar = {k: self.prev_incar[k] for k in self.inherit_incar if k in self.prev_incar}
 
         incar_updates = self.incar_updates
         settings = dict(self._config_dict["INCAR"])
-        auto_updates = {}
+        auto_updates: dict[str, Any] = {}
         if self.auto_ispin and (self._ispin is not None):
             auto_updates["ISPIN"] = self._ispin
 
-        # breaking change - order in which settings applied inconsistent with atomate2
+        # Breaking change - order in which settings applied inconsistent with atomate2
         # apply updates from input set generator to SETTINGS
         # _apply_incar_updates(settings, incar_updates)
 
-        # apply user incar settings to SETTINGS not to INCAR
+        # Apply user incar settings to SETTINGS not to INCAR
         _apply_incar_updates(settings, self.user_incar_settings)
 
-        # generate incar
+        # Generate INCAR
         structure = self.structure
         comp = structure.composition
         elements = sorted((el for el in comp.elements if comp[el] > 0), key=lambda e: e.X)
@@ -554,31 +560,36 @@ class VaspInputSet(InputGenerator, abc.ABC):
                             )
                         mag.append(setting.get(site.specie.symbol, 0.6))
                 incar[key] = mag
-            elif key in ("LDAUU", "LDAUJ", "LDAUL"):
+
+            elif key in {"LDAUU", "LDAUJ", "LDAUL"}:
                 if hubbard_u:
                     if hasattr(structure[0], key.lower()):
                         m = {site.specie.symbol: getattr(site, key.lower()) for site in structure}
                         incar[key] = [m[sym] for sym in poscar.site_symbols]
-                        # lookup specific LDAU if specified for most_electroneg atom
+                        # Lookup specific LDAU if specified for most_electroneg atom
                     elif most_electro_neg in setting and isinstance(setting[most_electro_neg], dict):
                         incar[key] = [setting[most_electro_neg].get(sym, 0) for sym in poscar.site_symbols]
-                        # else, use fallback LDAU value if it exists
+                        # Else, use fallback LDAU value if it exists
                     else:
                         incar[key] = [
                             setting.get(sym, 0) if isinstance(setting.get(sym, 0), (float, int)) else 0
                             for sym in poscar.site_symbols
                         ]
+
             elif key.startswith("EDIFF") and key != "EDIFFG":
                 if "EDIFF" not in settings and key == "EDIFF_PER_ATOM":
                     incar["EDIFF"] = float(setting) * len(structure)
                 else:
                     incar["EDIFF"] = float(settings["EDIFF"])
+
             elif key == "KSPACING" and self.auto_kspacing:
-                # default to metal if no prev calc available
+                # Default to metal if no prev calc available
                 bandgap = 0 if self.bandgap is None else self.bandgap
                 incar[key] = auto_kspacing(bandgap, self.bandgap_tol)
+
             else:
                 incar[key] = setting
+
         has_u = hubbard_u and sum(incar["LDAUU"]) > 0
         if not has_u:
             for key in list(incar):
@@ -641,7 +652,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
         if self.auto_ismear:
             if self.bandgap is None:
-                # don't know if we are a metal or insulator so set ISMEAR and SIGMA to
+                # Don't know if we are a metal or insulator so set ISMEAR and SIGMA to
                 # be safe with the most general settings
                 auto_updates.update(ISMEAR=0, SIGMA=0.2)
             elif self.bandgap <= self.bandgap_tol:
@@ -652,10 +663,10 @@ class VaspInputSet(InputGenerator, abc.ABC):
         if self.auto_lreal:
             auto_updates.update(LREAL=_get_recommended_lreal(structure))
 
-        # apply updates from auto options, careful not to override user_incar_settings
+        # Apply updates from auto options, careful not to override user_incar_settings
         _apply_incar_updates(incar, auto_updates, skip=list(self.user_incar_settings))
 
-        # apply updates from input set generator to INCAR
+        # Apply updates from input set generator to INCAR
         _apply_incar_updates(incar, incar_updates, skip=list(self.user_incar_settings))
 
         # Finally, re-apply `self.user_incar_settings` to make sure any accidentally
@@ -668,10 +679,11 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
         kpoints = self.kpoints
         if kpoints is not None:
-            # unset KSPACING as we are using a KPOINTS file
+            # Unset KSPACING as we are using a KPOINTS file
             incar.pop("KSPACING", None)
+
         elif "KSPACING" in incar and "KSPACING" not in self.user_incar_settings and "KSPACING" in prev_incar:
-            # prefer to inherit KSPACING from previous INCAR if it exists
+            # Prefer to inherit KSPACING from previous INCAR if it exists
             # TODO: Is that we actually want to do? Copied from current pymatgen inputsets
             incar["KSPACING"] = prev_incar["KSPACING"]
 
@@ -713,9 +725,10 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
     @property
     def poscar(self) -> Poscar:
-        """Poscar"""
+        """Poscar."""
         if self.structure is None:
             raise RuntimeError("No structure is associated with the input set!")
+
         site_properties = self.structure.site_properties
         return Poscar(
             self.structure,
@@ -745,7 +758,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
     @property
     def kpoints(self) -> Kpoints | None:
-        """The kpoints file."""
+        """The KPOINTS file."""
         if self.structure is None:
             raise RuntimeError("No structure is associated with the input set!")
 
@@ -757,7 +770,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             # If KSPACING specified then always use this over k-points
             return None
 
-        # use user setting if set otherwise default to base config settings
+        # Use user setting if set otherwise default to base config settings
         kpoints_updates = self.kpoints_updates
         if self.user_kpoints_settings != {}:
             kconfig = deepcopy(self.user_kpoints_settings)
@@ -777,7 +790,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             or "zero_weighted_reciprocal_density" in kconfig
             or "zero_weighted_line_density" in kconfig
         )
-        # handle length generation first as this doesn't support any additional options
+        # Handle length generation first as this doesn't support any additional options
         if kconfig.get("length"):
             if explicit:
                 raise ValueError(
@@ -789,7 +802,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
         base_kpoints = None
         if kconfig.get("line_density"):
-            # handle line density generation
+            # Handle line density generation
             kpath = HighSymmKpath(self.structure, **kconfig.get("kpath_kwargs", {}))
             frac_k_points, k_points_labels = kpath.get_kpoints(
                 line_density=kconfig["line_density"], coords_are_cartesian=False
@@ -802,8 +815,9 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 labels=k_points_labels,
                 kpts_weights=[1] * len(frac_k_points),
             )
+
         elif kconfig.get("grid_density") or kconfig.get("reciprocal_density"):
-            # handle regular weighted k-point grid generation
+            # Handle regular weighted k-point grid generation
             if kconfig.get("grid_density"):
                 base_kpoints = Kpoints.automatic_density(self.structure, int(kconfig["grid_density"]), self.force_gamma)
             elif kconfig.get("reciprocal_density"):
@@ -811,7 +825,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 base_kpoints = Kpoints.automatic_density_by_vol(self.structure, density, self.force_gamma)
             if explicit:
                 sga = SpacegroupAnalyzer(self.structure, symprec=self.sym_prec)
-                mesh = sga.get_ir_reciprocal_mesh(base_kpoints.kpts[0])  # type: ignore
+                mesh = sga.get_ir_reciprocal_mesh(base_kpoints.kpts[0])
                 base_kpoints = Kpoints(
                     comment="Uniform grid",
                     style=Kpoints.supported_modes.Reciprocal,
@@ -856,7 +870,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
         added_kpoints = None
         if kconfig.get("added_kpoints"):
-            points: list = kconfig.get("added_kpoints")  # type: ignore
+            points: list = kconfig.get("added_kpoints")
             added_kpoints = Kpoints(
                 comment="Specified k-points only",
                 style=Kpoints.supported_modes.Reciprocal,
@@ -871,7 +885,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         if added_kpoints and not (base_kpoints or zero_weighted_kpoints):
             return added_kpoints
 
-        # do some sanity checking
+        # Sanity check
         if "line_density" in kconfig and zero_weighted_kpoints:
             raise ValueError("Cannot combine line_density and zero weighted k-points options")
         if zero_weighted_kpoints and not base_kpoints:
@@ -887,7 +901,10 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 " or 'zero_weighted_line_density' for a zero weighted line mode mesh."
             )
 
-        return _combine_kpoints(base_kpoints, zero_weighted_kpoints, added_kpoints)  # type: ignore
+        assert base_kpoints is not None
+        assert zero_weighted_kpoints is not None
+        assert added_kpoints is not None
+        return _combine_kpoints(base_kpoints, zero_weighted_kpoints, added_kpoints)
 
     @property
     def potcar(self) -> Potcar:
@@ -898,7 +915,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         user_potcar_functional = self.user_potcar_functional
         potcar = Potcar(self.potcar_symbols, functional=user_potcar_functional)
 
-        # warn if the selected POTCARs do not correspond to the chosen user_potcar_functional
+        # Warn if the selected POTCARs do not correspond to the chosen user_potcar_functional
         for p_single in potcar:
             if user_potcar_functional not in p_single.identify_potcar()[0]:
                 warnings.warn(
@@ -912,7 +929,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         return potcar
 
     @property
-    def potcar_symbols(self):
+    def potcar_symbols(self) -> list[str]:
         """List of POTCAR symbols."""
 
         elements = self.poscar.site_symbols
@@ -941,9 +958,12 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
         n_ions = len(self.structure)
 
-        if self.incar["ISPIN"] == 1:  # per the VASP source, if non-spin polarized ignore n_mag
+        # As per the VASP source, if non-spin polarized ignore n_mag
+        if self.incar["ISPIN"] == 1:
             n_mag = 0
-        else:  # otherwise set equal to sum of total magmoms
+
+        # Otherwise set equal to sum of total magmoms
+        else:
             n_mag = sum(self.incar["MAGMOM"])
             n_mag = np.floor((n_mag + 1) / 2)
 
@@ -960,9 +980,8 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
         return int(n_bands)
 
-    def override_from_prev_calc(self, prev_calc_dir="."):
-        """
-        Update the input set to include settings from a previous calculation.
+    def override_from_prev_calc(self, prev_calc_dir: str = ".") -> Self:
+        """Update the input set to include settings from a previous calculation.
 
         Args:
             prev_calc_dir (str): The path to the previous calculation directory.
@@ -1017,12 +1036,6 @@ class VaspInputSet(InputGenerator, abc.ABC):
         input_set = cls(_dummy_structure, **kwargs)
         return input_set.override_from_prev_calc(prev_calc_dir=prev_calc_dir)
 
-    def __str__(self) -> str:
-        return type(self).__name__
-
-    def __repr__(self) -> str:
-        return type(self).__name__
-
     def calculate_ng(
         self,
         max_prime_factor: int = 7,
@@ -1031,7 +1044,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         custom_prec: str | None = None,
     ) -> tuple:
         """
-        Calculates the NGX, NGY, and NGZ values using the information available in the INCAR and POTCAR
+        Calculate the NGX, NGY, and NGZ values using the information available in the INCAR and POTCAR
         This is meant to help with making initial guess for the FFT grid so we can interact with the Charge density API.
 
         Args:
@@ -1090,19 +1103,16 @@ class VaspInputSet(InputGenerator, abc.ABC):
         return ng_vec, [ng_ * finer_g_scale for ng_ in ng_vec]
 
     @staticmethod
-    def from_directory(directory: str | Path, optional_files: dict | None = None) -> VaspInput:
+    def from_directory(directory: PathLike, optional_files: dict | None = None) -> VaspInput:
         """Load a set of VASP inputs from a directory.
 
         Note that only the standard INCAR, POSCAR, POTCAR and KPOINTS files are read
         unless optional_filenames is specified.
 
-        Parameters
-        ----------
-        directory
-            Directory to read VASP inputs from.
-        optional_files
-            Optional files to read in as well as a dict of {filename: Object class}.
-            Object class must have a static/class method from_file.
+        Args:
+            directory: Directory to read VASP inputs from.
+            optional_files: Optional files to read in as well as a dict of {filename: Object class}.
+                Object class must have a static/class method from_file.
         """
         directory = Path(directory)
         objs = {"INCAR": Incar, "KPOINTS": Kpoints, "POSCAR": Poscar, "POTCAR": Potcar}
@@ -1112,7 +1122,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             if (directory / name).exists():
                 inputs[name.upper()] = obj.from_file(directory / name)  # type: ignore[attr-defined]
             else:
-                # handle the case where there is no KPOINTS file
+                # Handle the case where there is no KPOINTS file
                 inputs[name.upper()] = None
 
         optional_inputs = {}
@@ -3047,7 +3057,7 @@ class MPAbsorptionSet(VaspInputSet):
             # for cubic lattices, but using NKREDX, NKREDY, NKREDZ are more sensible for
             # other lattices.
             self.nkred = self.prev_vasprun.kpoints.kpts[0] if self.nkred is None else self.nkred
-            updates.update({"NKREDX": self.nkred[0], "NKREDY": self.nkred[1], "NKREDZ": self.nkred[2]})
+            updates |= {"NKREDX": self.nkred[0], "NKREDY": self.nkred[1], "NKREDZ": self.nkred[2]}
 
         return updates
 
