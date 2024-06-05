@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import abc
 import itertools
+import os
 import re
 import warnings
 from collections.abc import Sequence
@@ -66,11 +67,7 @@ if TYPE_CHECKING:
         Literal["PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"], None
     ]
 
-MODULE_DIR = Path(__file__).resolve().parent
-# TODO (janosh): replace with following line once PMG is py3.9+ only
-# which guarantees absolute path to __file__
-# reason: faster and shorter than pathlib (slow import and less OOP overhead)
-# MODULE_DIR = os.path.dirname(__file__)
+MODULE_DIR = os.path.dirname(__file__)
 
 
 def _load_yaml_config(fname):
@@ -314,7 +311,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         self._ispin = None
 
     @deprecated(message="get_vasp_input will be removed in a future version of pymatgen. Use get_input_set instead.")
-    def get_vasp_input(self, structure=None) -> VaspInput:
+    def get_vasp_input(self, structure=None) -> Self:
         """Get a VaspInput object.
 
         Returns:
@@ -1523,7 +1520,7 @@ class MPScanStaticSet(MPScanRelaxSet):
             # LPEAD=T: numerical evaluation of overlap integral prevents
             # LRF_COMMUTATOR errors and can lead to better expt. agreement
             # but produces slightly different results
-            updates.update({"IBRION": 8, "LEPSILON": True, "LPEAD": True, "NSW": 1, "NPAR": None})
+            updates |= {"IBRION": 8, "LEPSILON": True, "LPEAD": True, "NSW": 1, "NPAR": None}
 
         if self.lcalcpol:
             updates["LCALCPOL"] = True
@@ -1629,12 +1626,12 @@ class MPHSEBSSet(VaspInputSet):
             nedos = _get_nedos(self.prev_vasprun, self.dedos)
 
             # use tetrahedron method for DOS and optics calculations
-            updates.update({"ISMEAR": -5, "NEDOS": nedos})
+            updates |= {"ISMEAR": -5, "NEDOS": nedos}
 
         else:
             # if line mode or explicit k-points (gap) can't use ISMEAR=-5
             # use small sigma to avoid partial occupancies for small band gap materials
-            updates.update({"ISMEAR": 0, "SIGMA": 0.01})
+            updates |= {"ISMEAR": 0, "SIGMA": 0.01}
 
         if self.prev_vasprun is not None:
             # set nbands
@@ -1643,7 +1640,7 @@ class MPHSEBSSet(VaspInputSet):
 
         if self.optics:
             # LREAL not supported with LOPTICS
-            updates.update({"LOPTICS": True, "LREAL": False, "CSHIFT": 1e-5})
+            updates |= {"LOPTICS": True, "LREAL": False, "CSHIFT": 1e-5}
 
         if self.prev_vasprun is not None and self.prev_outcar is not None:
             # turn off spin when magmom for every site is smaller than 0.02.
@@ -1731,19 +1728,19 @@ class MPNonSCFSet(VaspInputSet):
 
         if self.mode == "uniform":
             # use tetrahedron method for DOS and optics calculations
-            updates.update({"ISMEAR": -5, "ISYM": 2, "NEDOS": nedos})
+            updates |= {"ISMEAR": -5, "ISYM": 2, "NEDOS": nedos}
 
         elif self.mode in ("line", "boltztrap"):
             # if line mode or explicit k-points (boltztrap) can't use ISMEAR=-5
             # use small sigma to avoid partial occupancies for small band gap materials
             # use a larger sigma if the material is a metal
             sigma = 0.2 if self.bandgap == 0 or self.bandgap is None else 0.01
-            updates.update({"ISMEAR": 0, "SIGMA": sigma})
+            updates |= {"ISMEAR": 0, "SIGMA": sigma}
 
         if self.optics:
             # LREAL not supported with LOPTICS = True; automatic NEDOS usually
             # underestimates, so set it explicitly
-            updates.update({"LOPTICS": True, "LREAL": False, "CSHIFT": 1e-5, "NEDOS": nedos})
+            updates |= {"LOPTICS": True, "LREAL": False, "CSHIFT": 1e-5, "NEDOS": nedos}
 
         if self.prev_vasprun is not None and self.prev_outcar is not None:
             # turn off spin when magmom for every site is smaller than 0.02.
@@ -1833,7 +1830,7 @@ class MPSOCSet(VaspInputSet):
             # LPEAD=T: numerical evaluation of overlap integral prevents LRF_COMMUTATOR
             # errors and can lead to better expt. agreement but produces slightly
             # different results
-            updates.update({"IBRION": 8, "LEPSILON": True, "LPEAD": True, "NSW": 1})
+            updates |= {"IBRION": 8, "LEPSILON": True, "LPEAD": True, "NSW": 1}
 
         if self.lcalcpol:
             updates["LCALCPOL"] = True
@@ -2048,23 +2045,30 @@ class MVLGWSet(VaspInputSet):
     @property
     def incar_updates(self) -> dict:
         """Updates to the INCAR config for this calculation type."""
-        updates = {}
+        updates: dict[str, Any] = {}
         nbands = int(self.prev_vasprun.parameters["NBANDS"]) if self.prev_vasprun is not None else None
 
         if self.mode == "DIAG":
             # Default parameters for diagonalization calculation.
-            updates.update({"ALGO": "Exact", "NELM": 1, "LOPTICS": True, "LPEAD": True})
+            updates |= {"ALGO": "Exact", "NELM": 1, "LOPTICS": True, "LPEAD": True}
             if nbands:
                 nbands = int(np.ceil(nbands * self.nbands_factor / self.ncores) * self.ncores)
 
         elif self.mode == "GW":
             # Default parameters for GW calculation.
-            updates.update(
-                {"ALGO": "GW0", "NELM": 1, "NOMEGA": 80, "ENCUTGW": 250, "EDIFF": None, "LOPTICS": None, "LPEAD": None}
-            )
+            updates |= {
+                "ALGO": "GW0",
+                "NELM": 1,
+                "NOMEGA": 80,
+                "ENCUTGW": 250,
+                "EDIFF": None,
+                "LOPTICS": None,
+                "LPEAD": None,
+            }
+
         elif self.mode == "BSE":
             # Default parameters for BSE calculation.
-            updates.update({"ALGO": "BSE", "ANTIRES": 0, "NBANDSO": 20, "NBANDSV": 20})
+            updates |= {"ALGO": "BSE", "ANTIRES": 0, "NBANDSO": 20, "NBANDSV": 20}
 
         if nbands:
             updates["NBANDS"] = nbands
@@ -2116,13 +2120,13 @@ class MVLSlabSet(VaspInputSet):
         """Updates to the INCAR config for this calculation type."""
         updates = {"EDIFF": 1e-4, "EDIFFG": -0.02, "ENCUT": 400, "ISMEAR": 0, "SIGMA": 0.05, "ISIF": 3}
         if not self.bulk:
-            updates.update({"ISIF": 2, "LVTOT": True, "NELMIN": 8})
+            updates |= {"ISIF": 2, "LVTOT": True, "NELMIN": 8}
             if self.set_mix:
-                updates.update({"AMIN": 0.01, "AMIX": 0.2, "BMIX": 0.001})
+                updates |= {"AMIN": 0.01, "AMIX": 0.2, "BMIX": 0.001}
             if self.auto_dipole:
                 weights = [s.species.weight for s in self.structure]  # type: ignore
                 center_of_mass = np.average(self.structure.frac_coords, weights=weights, axis=0)  # type: ignore
-                updates.update({"IDIPOL": 3, "LDIPOL": True, "DIPOL": center_of_mass})
+                updates |= {"IDIPOL": 3, "LDIPOL": True, "DIPOL": center_of_mass}
         return updates
 
     @property
@@ -2151,7 +2155,7 @@ class MVLSlabSet(VaspInputSet):
 
         return Kpoints(comment="Generated by pymatgen's MVLGBSet", style=Kpoints.supported_modes.Gamma, kpts=[kpt_calc])
 
-    def as_dict(self, verbosity=2):
+    def as_dict(self, verbosity: int = 2) -> dict:
         """
         Args:
             verbosity (int): Verbosity of dict. e.g. whether to include Structure.
@@ -2190,12 +2194,12 @@ class MVLGBSet(VaspInputSet):
     CONFIG = MPRelaxSet.CONFIG
 
     @property
-    def kpoints_updates(self):
+    def kpoints_updates(self) -> Kpoints:
         """k_product is kpoint number * length for a & b directions, also for c direction
         in bulk calculations Automatic mesh & Gamma is the default setting.
         """
         # use k_product to calculate kpoints, k_product = kpts[0][0] * a
-        lengths = self.structure.lattice.abc
+        lengths = self.structure.lattice.abc  # type: ignore[union-attr]
         kpt_calc = [
             int(self.k_product / lengths[0] + 0.5),
             int(self.k_product / lengths[1] + 0.5),
@@ -2205,7 +2209,11 @@ class MVLGBSet(VaspInputSet):
         if self.slab_mode:
             kpt_calc[2] = 1
 
-        return Kpoints(comment="Generated by pymatgen's MVLGBSet", style=Kpoints.supported_modes.Gamma, kpts=[kpt_calc])
+        return Kpoints(
+            comment="Generated by pymatgen's MVLGBSet",
+            style=Kpoints.supported_modes.Gamma,
+            kpts=[cast(Kpoint, tuple(kpt_calc))],
+        )
 
     @property
     def incar_updates(self) -> dict:
@@ -2259,7 +2267,7 @@ class MITNEBSet(VaspInputSet):
     Note that EDIFF is not on a per atom basis for this input set.
     """
 
-    def __init__(self, structures, unset_encut=False, **kwargs) -> None:
+    def __init__(self, structures: list[Structure], unset_encut: bool = False, **kwargs) -> None:
         """
         Args:
             structures: List of Structure objects.
@@ -2284,12 +2292,12 @@ class MITNEBSet(VaspInputSet):
         self._config_dict["INCAR"].update(defaults)
 
     @property
-    def poscar(self):
+    def poscar(self) -> Poscar:
         """Poscar for structure of first end point."""
         return Poscar(self.structures[0])
 
     @property
-    def poscars(self):
+    def poscars(self) -> list[Poscar]:
         """List of Poscars."""
         return [Poscar(s) for s in self.structures]
 
@@ -2493,7 +2501,7 @@ class MPMDSet(VaspInputSet):
 
         if self.time_step is None:
             if Element("H") in self.structure.species:  # type: ignore
-                updates.update({"POTIM": 0.5, "NSW": self.nsteps * 4})
+                updates |= {"POTIM": 0.5, "NSW": self.nsteps * 4}
             else:
                 updates["POTIM"] = 2.0
         else:
@@ -2682,16 +2690,16 @@ class LobsterSet(VaspInputSet):
 
         # predefined basis! Check if the basis is okay! (charge spilling and bandoverlaps!)
         if self.user_supplied_basis is None and self.address_basis_file is None:
-            basis = Lobsterin.get_basis(structure=self.structure, potcar_symbols=potcar_symbols)  # type: ignore
+            basis = Lobsterin.get_basis(structure=self.structure, potcar_symbols=potcar_symbols)  # type: ignore[arg-type]
         elif self.address_basis_file is not None:
             basis = Lobsterin.get_basis(
-                structure=self.structure,  # type: ignore
+                structure=self.structure,  # type: ignore[arg-type]
                 potcar_symbols=potcar_symbols,
                 address_basis_file=self.address_basis_file,
             )
         elif self.user_supplied_basis is not None:
             # test if all elements from structure are in user_supplied_basis
-            for atom_type in self.structure.symbol_set:  # type: ignore
+            for atom_type in self.structure.symbol_set:  # type: ignore[union-attr]
                 if atom_type not in self.user_supplied_basis:
                     raise ValueError(f"There are no basis functions for the atom type {atom_type}")
             basis = [f"{key} {value}" for key, value in self.user_supplied_basis.items()]
@@ -2699,7 +2707,7 @@ class LobsterSet(VaspInputSet):
             basis = None
 
         lobsterin = Lobsterin(settingsdict={"basisfunctions": basis})
-        nbands = lobsterin._get_nbands(structure=self.structure)  # type: ignore
+        nbands = lobsterin._get_nbands(structure=self.structure)  # type: ignore[arg-type]
 
         return {
             "EDIFF": 1e-6,
@@ -2730,8 +2738,9 @@ def get_vasprun_outcar(path: str | Path, parse_dos: bool = True, parse_eigen: bo
     vruns = list(glob(str(path / "vasprun.xml*")))
     outcars = list(glob(str(path / "OUTCAR*")))
 
-    if len(vruns) == 0 or len(outcars) == 0:
+    if not vruns or not outcars:
         raise ValueError(f"Unable to get vasprun.xml/OUTCAR from prev calculation in {path}")
+
     vsfile_fullpath = str(path / "vasprun.xml")
     outcarfile_fullpath = str(path / "OUTCAR.gz")
     vsfile = vsfile_fullpath if vsfile_fullpath in vruns else max(vruns)
@@ -2776,7 +2785,7 @@ def get_structure_from_prev_run(vasprun, outcar=None) -> Structure:
                     s += 1
                 l_val.append(m[site.specie.symbol])
             if len(l_val) == len(structure):
-                site_properties.update({key.lower(): l_val})
+                site_properties |= {key.lower(): l_val}
             else:
                 raise ValueError(f"length of list {l_val} not the same as structure")
 
@@ -2990,8 +2999,8 @@ class MPAbsorptionSet(VaspInputSet):
         """Validate settings"""
         super().__post_init__()
         self.mode = self.mode.upper()
-        if self.mode not in MPAbsorptionSet.SUPPORTED_MODES:
-            raise ValueError(f"{self.mode} not one of the support modes : {MPAbsorptionSet.SUPPORTED_MODES}")
+        if self.mode not in type(self).SUPPORTED_MODES:
+            raise ValueError(f"{self.mode} not one of the support modes : {type(self).SUPPORTED_MODES}")
 
     @property
     def kpoints_updates(self) -> dict | Kpoints:
@@ -3024,7 +3033,7 @@ class MPAbsorptionSet(VaspInputSet):
         if self.mode == "RPA":
             # Default parameters for the response function calculation. NELM has to be
             # set to 1. NOMEGA is set to 1000 in order to get smooth spectrum
-            updates.update({"ALGO": "CHI", "NELM": 1, "NOMEGA": 1000, "EDIFF": None, "LOPTICS": None, "LWAVE": None})
+            updates |= {"ALGO": "CHI", "NELM": 1, "NOMEGA": 1000, "EDIFF": None, "LOPTICS": None, "LWAVE": None}
 
         if self.prev_vasprun is not None and self.mode == "IPA":
             prev_nbands = int(self.prev_vasprun.parameters["NBANDS"]) if self.nbands is None else self.nbands
@@ -3118,19 +3127,19 @@ def _remove_unused_incar_params(incar, skip: Sequence[str] = ()) -> None:
         skip (list of str): Keys to skip.
     """
     # Turn off IBRION/ISIF/POTIM if NSW = 0
-    opt_flags = ["EDIFFG", "IBRION", "ISIF", "POTIM"]
     if incar.get("NSW", 0) == 0:
+        opt_flags = ("EDIFFG", "IBRION", "ISIF", "POTIM")
         for opt_flag in opt_flags:
             if opt_flag not in skip:
                 incar.pop(opt_flag, None)
 
-    # Remove MAGMOMs if they aren't used
+    # Remove MAGMOM if they aren't used
     if incar.get("ISPIN", 1) == 1 and "MAGMOM" not in skip:
         incar.pop("MAGMOM", None)
 
     # Turn off +U flags if +U is not even used
-    ldau_flags = ["LDAUU", "LDAUJ", "LDAUL", "LDAUTYPE"]
     if incar.get("LDAU", False) is False:
+        ldau_flags = ("LDAUU", "LDAUJ", "LDAUL", "LDAUTYPE")
         for ldau_flag in ldau_flags:
             if ldau_flag not in skip:
                 incar.pop(ldau_flag, None)
