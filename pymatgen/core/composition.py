@@ -317,7 +317,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     def copy(self) -> Self:
         """A copy of the composition."""
-        return type(self)(self, allow_negative=self.allow_negative)
+        return Composition(self, allow_negative=self.allow_negative)
 
     @property
     def formula(self) -> str:
@@ -354,7 +354,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     @property
     def element_composition(self) -> Self:
         """The composition replacing any species by the corresponding element."""
-        return type(self)(self.get_el_amt_dict(), allow_negative=self.allow_negative)
+        return Composition(self.get_el_amt_dict(), allow_negative=self.allow_negative)
 
     @property
     def fractional_composition(self) -> Self:
