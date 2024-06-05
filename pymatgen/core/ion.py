@@ -30,7 +30,7 @@ class Ion(Composition, MSONable, Stringify):
         self._charge = charge
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Ion):
+        if not isinstance(other, type(self)):
             return NotImplemented
         if self.composition != other.composition:
             return False
@@ -164,7 +164,7 @@ class Ion(Composition, MSONable, Stringify):
         comp = self.composition
         nH2O = 0
         if hydrates:
-            # detect hydrated metal complexes
+            # Detect hydrated metal complexes
             nH = comp.get("H", 0)
             nO = comp.get("O", 0)
             if nO > 0 and any(e.is_metal for e in comp):

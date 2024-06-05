@@ -59,7 +59,7 @@ class SymmOp(MSONable):
         self.tol = tol
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, SymmOp):
+        if not isinstance(other, type(self)):
             return NotImplemented
         return np.allclose(self.affine_matrix, other.affine_matrix, atol=self.tol)
 
