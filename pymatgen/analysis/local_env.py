@@ -133,7 +133,7 @@ class ValenceIonicRadiusEvaluator:
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)
                 radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
             except KeyError:
-                new_coord_no = coord_no + 1 if vnn.get_cn(self._structure, idx) - coord_no > 0 else coord_no - 1
+                new_coord_no = coord_no + (1 if vnn.get_cn(self._structure, idx) - coord_no > 0 else -1)
                 try:
                     radius = _ion_radii[el][str(oxi_state)][str(new_coord_no)]
                     coord_no = new_coord_no
@@ -144,7 +144,7 @@ class ValenceIonicRadiusEvaluator:
                     for val in tab_coords:
                         if val > coord_no:
                             break
-                        idx = idx + 1
+                        idx += 1
                     if idx == len(tab_coords):
                         key = str(tab_coords[-1])
                         radius = _ion_radii[el][str(oxi_state)][key]
@@ -2887,7 +2887,7 @@ class LocalStructOrderParams:
                         if k > j:
                             distjk_unique.append(distjk[j][kk])
                         rjknorm[j].append(rjk[j][kk] / distjk[j][kk])
-                        kk = kk + 1
+                        kk += 1
         # Initialize OP list and, then, calculate OPs.
         ops = [0.0 for t in self._types]
         # norms = [[[] for j in range(nneigh)] for t in self._types]
