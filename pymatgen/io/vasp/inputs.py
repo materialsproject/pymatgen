@@ -2124,13 +2124,8 @@ class PotcarSingle:
                 if self.TITEL.replace(" ", "") == titel_no_spc:
                     for potcar_subvariant in self._potcar_summary_stats[func][titel_no_spc]:
                         if self.VRHFIN.replace(" ", "") == potcar_subvariant["VRHFIN"]:
-                            possible_potcar_matches.append(
-                                {
-                                    "POTCAR_FUNCTIONAL": func,
-                                    "TITEL": titel_no_spc,
-                                    **potcar_subvariant,
-                                }
-                            )
+                            possible_match = {"POTCAR_FUNCTIONAL": func, "TITEL": titel_no_spc, **potcar_subvariant}
+                            possible_potcar_matches.append(possible_match)
 
         def parse_fortran_style_str(input_str: str) -> str | bool | float | int:
             """Parse any input string as bool, int, float, or failing that, str.
@@ -2282,26 +2277,29 @@ class PotcarSingle:
         if functional is None:
             raise ValueError("Cannot get functional.")
 
-        funcdir = cls.functional_dir[functional]
+        functional_subdir = SETTINGS.get("PMG_VASP_PSP_SUB_DIRS", {}).get(functional, cls.functional_dir[functional])
         PMG_VASP_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR")
         if PMG_VASP_PSP_DIR is None:
             raise ValueError(
                 f"No POTCAR for {symbol} with {functional=} found. Please set the PMG_VASP_PSP_DIR in .pmgrc.yaml."
             )
+        if not os.path.isdir(PMG_VASP_PSP_DIR):
+            raise FileNotFoundError(f"{PMG_VASP_PSP_DIR=} does not exist.")
 
         paths_to_try: list[str] = [
-            os.path.join(PMG_VASP_PSP_DIR, funcdir, f"POTCAR.{symbol}"),
-            os.path.join(PMG_VASP_PSP_DIR, funcdir, symbol, "POTCAR"),
+            os.path.join(PMG_VASP_PSP_DIR, functional_subdir, f"POTCAR.{symbol}"),
+            os.path.join(PMG_VASP_PSP_DIR, functional_subdir, symbol, "POTCAR"),
         ]
+        path = paths_to_try[0]
         for path in paths_to_try:
             path = os.path.expanduser(path)
             path = zpath(path)
             if os.path.isfile(path):
                 return cls.from_file(path)
 
-        raise RuntimeError(
-            f"You do not have the right POTCAR with {functional=} and {symbol=} "
-            f"in your {PMG_VASP_PSP_DIR=}. Paths tried: {paths_to_try}"
+        raise FileNotFoundError(
+            f"You do not have the right POTCAR with {functional=} and {symbol=}\n"
+            f"in your {PMG_VASP_PSP_DIR=}.\nPaths tried:\n- " + "\n- ".join(paths_to_try)
         )
 
     def verify_potcar(self) -> tuple[bool, bool]:
