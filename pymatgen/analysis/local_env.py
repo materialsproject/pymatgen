@@ -102,13 +102,13 @@ class ValenceIonicRadiusEvaluator:
         vnn = VoronoiNN()
 
         def nearest_key(sorted_vals: list[int], skey: int) -> int:
-            n = bisect_left(sorted_vals, skey)
-            if n == len(sorted_vals):
+            idx = bisect_left(sorted_vals, skey)
+            if idx == len(sorted_vals):
                 return sorted_vals[-1]
-            if n == 0:
+            if idx == 0:
                 return sorted_vals[0]
-            before = sorted_vals[n - 1]
-            after = sorted_vals[n]
+            before = sorted_vals[idx - 1]
+            after = sorted_vals[idx]
             if after - skey < skey - before:
                 return after
             return before
