@@ -71,7 +71,7 @@ MODULE_DIR = os.path.dirname(__file__)
 
 
 def _load_yaml_config(fname):
-    config = loadfn(MODULE_DIR / (f"{fname}.yaml"))
+    config = loadfn(f"{MODULE_DIR}/{fname}.yaml")
     if "PARENT" in config:
         parent_config = _load_yaml_config(config["PARENT"])
         for k, v in parent_config.items():
@@ -258,7 +258,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             )
 
         if self.vdw:
-            vdw_par = loadfn(MODULE_DIR / "vdW_parameters.yaml")
+            vdw_par = loadfn(f"{MODULE_DIR}/vdW_parameters.yaml")
             if vdw_param := vdw_par.get(self.vdw):
                 self._config_dict["INCAR"].update(vdw_param)
             else:
@@ -1317,7 +1317,7 @@ class MPScanRelaxSet(VaspInputSet):
         if self.vdw and self.vdw != "rvv10":
             warnings.warn("Use of van der waals functionals other than rVV10 with SCAN is not supported at this time. ")
             # delete any vdw parameters that may have been added to the INCAR
-            vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
+            vdw_par = loadfn(f"{MODULE_DIR}/vdW_parameters.yaml")
             for k in vdw_par[self.vdw]:
                 self._config_dict["INCAR"].pop(k, None)
 
