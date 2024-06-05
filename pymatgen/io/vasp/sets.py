@@ -1030,7 +1030,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
         Args:
             prev_calc_dir (PathLike): Directory containing the outputs(
-                vasprun.xml and OUTCAR) of previous vasp run.
+                vasprun.xml and OUTCAR) of previous VASP run.
             **kwargs: All kwargs supported by MPStaticSet, other than prev_incar
                 and prev_structure and prev_kpoints which are determined from
                 the prev_calc_dir.
@@ -2095,7 +2095,7 @@ class MVLGWSet(VaspInputSet):
 
         Args:
             prev_calc_dir (PathLike): The directory contains the outputs(
-                vasprun.xml of previous vasp run.
+                vasprun.xml of previous VASP run.
             mode (str): Supported modes are "STATIC", "DIAG" (default), "GW",
                 and "BSE".
             **kwargs: All kwargs supported by MVLGWSet, other than structure,
@@ -2108,7 +2108,7 @@ class MVLGWSet(VaspInputSet):
 
 @dataclass
 class MVLSlabSet(VaspInputSet):
-    """Write a set of slab vasp runs, including both slabs (along the c direction)
+    """Write a set of slab VASP runs, including both slabs (along the c direction)
     and orient unit cells (bulk), to ensure the same KPOINTS, POTCAR and INCAR criterion.
 
     Args:
@@ -2261,7 +2261,7 @@ class MVLRelax52Set(VaspInputSet):
     POTCAR.
 
     Keynotes from VASP manual:
-        1. Recommended potentials for calculations using vasp.5.2+
+        1. Recommended potentials for calculations using VASP.5.2+
         2. If dimers with short bonds are present in the compound (O2, CO,
             N2, F2, P2, S2, Cl2), it is recommended to use the h potentials.
             Specifically, C_h, O_h, N_h, F_h, P_h, S_h, Cl_h
@@ -2868,13 +2868,13 @@ def batch_write_input(
     **kwargs,
 ):
     """
-    Batch write vasp input for a sequence of structures to
+    Batch write VASP input for a sequence of structures to
     output_dir, following the format output_dir/{group}/{formula}_{number}.
 
     Args:
         structures ([Structure]): Sequence of Structures.
         vasp_input_set (VaspInputSet): VaspInputSet class that creates
-            vasp input files from structures. Note that a class should be
+            VASP input files from structures. Note that a class should be
             supplied. Defaults to MPRelaxSet.
         output_dir (str): Directory to output files. Defaults to current
             directory ".".
