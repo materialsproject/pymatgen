@@ -102,13 +102,13 @@ class ValenceIonicRadiusEvaluator:
         vnn = VoronoiNN()
 
         def nearest_key(sorted_vals: list[int], skey: int) -> int:
-            n = bisect_left(sorted_vals, skey)
-            if n == len(sorted_vals):
+            idx = bisect_left(sorted_vals, skey)
+            if idx == len(sorted_vals):
                 return sorted_vals[-1]
-            if n == 0:
+            if idx == 0:
                 return sorted_vals[0]
-            before = sorted_vals[n - 1]
-            after = sorted_vals[n]
+            before = sorted_vals[idx - 1]
+            after = sorted_vals[idx]
             if after - skey < skey - before:
                 return after
             return before
@@ -133,7 +133,7 @@ class ValenceIonicRadiusEvaluator:
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)
                 radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
             except KeyError:
-                new_coord_no = coord_no + 1 if vnn.get_cn(self._structure, idx) - coord_no > 0 else coord_no - 1
+                new_coord_no = coord_no + (1 if vnn.get_cn(self._structure, idx) - coord_no > 0 else -1)
                 try:
                     radius = _ion_radii[el][str(oxi_state)][str(new_coord_no)]
                     coord_no = new_coord_no
@@ -144,7 +144,7 @@ class ValenceIonicRadiusEvaluator:
                     for val in tab_coords:
                         if val > coord_no:
                             break
-                        idx = idx + 1
+                        idx += 1
                     if idx == len(tab_coords):
                         key = str(tab_coords[-1])
                         radius = _ion_radii[el][str(oxi_state)][key]
@@ -2887,7 +2887,7 @@ class LocalStructOrderParams:
                         if k > j:
                             distjk_unique.append(distjk[j][kk])
                         rjknorm[j].append(rjk[j][kk] / distjk[j][kk])
-                        kk = kk + 1
+                        kk += 1
         # Initialize OP list and, then, calculate OPs.
         ops = [0.0 for t in self._types]
         # norms = [[[] for j in range(nneigh)] for t in self._types]

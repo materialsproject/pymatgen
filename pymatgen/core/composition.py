@@ -462,6 +462,20 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """List of elements in Composition."""
         return list(self)
 
+    @property
+    def chemical_system_set(self) -> set[str]:
+        """The set of elements in the Composition. E.g. {"O", "Si"} for SiO2."""
+        return {el.symbol for el in self.elements}
+
+    @property
+    def chemical_system(self) -> str:
+        """The chemical system of a Composition, for example "O-Si" for
+        SiO2. Chemical system is a string of a list of elements
+        sorted alphabetically and joined by dashes, by convention for use
+        in database keys.
+        """
+        return "-".join(sorted(el.symbol for el in self.elements))
+
     def __str__(self) -> str:
         return " ".join(f"{key}{formula_double_format(val, ignore_ones=False)}" for key, val in self.as_dict().items())
 
@@ -598,15 +612,6 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 amt_str = str(amt)
             anon += f"{elem}{amt_str}"
         return anon
-
-    @property
-    def chemical_system(self) -> str:
-        """The chemical system of a Composition, for example "O-Si" for
-        SiO2. Chemical system is a string of a list of elements
-        sorted alphabetically and joined by dashes, by convention for use
-        in database keys.
-        """
-        return "-".join(sorted(el.symbol for el in self.elements))
 
     @property
     def valid(self) -> bool:

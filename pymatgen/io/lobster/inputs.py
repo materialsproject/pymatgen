@@ -240,7 +240,7 @@ class Lobsterin(UserDict, MSONable):
         no_basis_functions = 0
         for basis in basis_functions:
             if "s" in basis:
-                no_basis_functions = no_basis_functions + 1
+                no_basis_functions += 1
             elif "p" in basis:
                 no_basis_functions = no_basis_functions + 3
             elif "d" in basis:
