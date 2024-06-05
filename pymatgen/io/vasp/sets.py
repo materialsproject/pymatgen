@@ -901,9 +901,6 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 " or 'zero_weighted_line_density' for a zero weighted line mode mesh."
             )
 
-        assert base_kpoints is not None
-        assert zero_weighted_kpoints is not None
-        assert added_kpoints is not None
         return _combine_kpoints(base_kpoints, zero_weighted_kpoints, added_kpoints)
 
     @property
@@ -3078,7 +3075,7 @@ def _get_recommended_lreal(structure: Structure) -> str | bool:
     return "Auto" if structure.num_sites > 16 else False
 
 
-def _combine_kpoints(*kpoints_objects: Kpoints) -> Kpoints:
+def _combine_kpoints(*kpoints_objects: Kpoints | None) -> Kpoints:
     """Combine multiple Kpoints objects."""
     _labels: list[list[str]] = []
     _kpoints: list[Sequence[Kpoint]] = []
