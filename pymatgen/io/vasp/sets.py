@@ -39,7 +39,7 @@ from dataclasses import dataclass, field
 from glob import glob
 from itertools import chain
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 from monty.dev import deprecated
@@ -57,7 +57,7 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.typing import Kpoint
 
 if TYPE_CHECKING:
-    from typing import Any, Literal, Union
+    from typing import Literal, Union
 
     from typing_extensions import Self
 
@@ -507,9 +507,11 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
         prev_incar: dict[str, Any] = {}
         if self.inherit_incar is True and self.prev_incar:
-            prev_incar = self.prev_incar
+            prev_incar = cast(dict[str, Any], self.prev_incar)
         elif isinstance(self.inherit_incar, (list, tuple)) and self.prev_incar:
-            prev_incar = {k: self.prev_incar[k] for k in self.inherit_incar if k in self.prev_incar}
+            prev_incar = {
+                k: cast(dict[str, Any], self.prev_incar)[k] for k in self.inherit_incar if k in self.prev_incar
+            }
 
         incar_updates = self.incar_updates
         settings = dict(self._config_dict["INCAR"])
@@ -823,7 +825,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             elif kconfig.get("reciprocal_density"):
                 density = kconfig["reciprocal_density"]
                 base_kpoints = Kpoints.automatic_density_by_vol(self.structure, density, self.force_gamma)
-            if explicit:
+            if explicit and base_kpoints is not None:
                 sga = SpacegroupAnalyzer(self.structure, symprec=self.sym_prec)
                 mesh = sga.get_ir_reciprocal_mesh(base_kpoints.kpts[0])
                 base_kpoints = Kpoints(
@@ -870,7 +872,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
         added_kpoints = None
         if kconfig.get("added_kpoints"):
-            points: list = kconfig.get("added_kpoints")
+            points: list = kconfig.get("added_kpoints", [])
             added_kpoints = Kpoints(
                 comment="Specified k-points only",
                 style=Kpoints.supported_modes.Reciprocal,
@@ -1137,7 +1139,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
     def _get_nedos(self, dedos: float) -> int:
         """Automatic setting of nedos using the energy range and the energy step."""
-        if self.prev_vasprun is None:
+        if self.prev_vasprun is None or self.prev_vasprun.eigenvalues is None:
             return 2000
 
         emax = max(eigs.max() for eigs in self.prev_vasprun.eigenvalues.values())
@@ -2506,8 +2508,8 @@ class MPMDSet(VaspInputSet):
         if not self.spin_polarized:
             updates["MAGMOM"] = None
 
-        if self.time_step is None:
-            if Element("H") in self.structure.species:  # type: ignore
+        if self.time_step is None and self.structure is not None:
+            if Element("H") in self.structure.species:
                 updates |= {"POTIM": 0.5, "NSW": self.nsteps * 4}
             else:
                 updates["POTIM"] = 2.0
@@ -2542,10 +2544,11 @@ class MVLNPTMDSet(VaspInputSet):
     def incar_updates(self) -> dict:
         """Updates to the INCAR config for this calculation type."""
         # NPT-AIMD default settings
+        assert self.structure is not None
         updates = {
             "ALGO": "Fast",
             "ISIF": 3,
-            "LANGEVIN_GAMMA": [10] * self.structure.ntypesp,  # type: ignore
+            "LANGEVIN_GAMMA": [10] * self.structure.ntypesp,
             "LANGEVIN_GAMMA_L": 1,
             "MDALGO": 3,
             "PMASS": 10,
@@ -2576,7 +2579,7 @@ class MVLNPTMDSet(VaspInputSet):
             "LDAU": False,
         }
         # Set NPT-AIMD ENCUT = 1.5 * VASP_default
-        enmax = [self.potcar[i].keywords["ENMAX"] for i in range(self.structure.ntypesp)]  # type: ignore
+        enmax = [self.potcar[i].keywords["ENMAX"] for i in range(self.structure.ntypesp)]
         updates["ENCUT"] = max(enmax) * 1.5
         return updates
 
@@ -2730,7 +2733,7 @@ class LobsterSet(VaspInputSet):
         }
 
 
-def get_vasprun_outcar(path: str | Path, parse_dos: bool = True, parse_eigen: bool = True) -> tuple[Vasprun, Outcar]:
+def get_vasprun_outcar(path: PathLike, parse_dos: bool = True, parse_eigen: bool = True) -> tuple[Vasprun, Outcar]:
     """Get a Vasprun and Outcar from a directory.
 
     Args:
@@ -3053,7 +3056,9 @@ class MPAbsorptionSet(VaspInputSet):
             # work by factor of 1/nkredx*nkredy*nkredz. An isotropic NKRED can be used
             # for cubic lattices, but using NKREDX, NKREDY, NKREDZ are more sensible for
             # other lattices.
-            self.nkred = self.prev_vasprun.kpoints.kpts[0] if self.nkred is None else self.nkred
+            self.nkred = (
+                cast(tuple[int, int, int], self.prev_vasprun.kpoints.kpts[0]) if self.nkred is None else self.nkred
+            )
             updates |= {"NKREDX": self.nkred[0], "NKREDY": self.nkred[1], "NKREDZ": self.nkred[2]}
 
         return updates
