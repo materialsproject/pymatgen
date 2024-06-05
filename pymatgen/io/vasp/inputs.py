@@ -647,7 +647,7 @@ class Poscar(MSONable):
         Returns:
             Poscar
         """
-        return Poscar(
+        return cls(
             Structure.from_dict(dct["structure"]),
             comment=dct["comment"],
             selective_dynamics=dct["selective_dynamics"],
@@ -715,11 +715,11 @@ class Incar(dict, MSONable):
         Create an Incar object.
 
         Args:
-            params (dict): A set of input parameters as a dictionary.
+            params (dict): Input parameters as a dictionary.
         """
         super().__init__()
         if params is not None:
-            # if Incar contains vector-like magmoms given as a list
+            # If INCAR contains vector-like MAGMOMS given as a list
             # of floats, convert to a list of lists
             if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], (int, float))) and (
                 params.get("LSORBIT") or params.get("LNONCOLLINEAR")
@@ -739,13 +739,13 @@ class Incar(dict, MSONable):
         """
         super().__setitem__(
             key.strip(),
-            Incar.proc_val(key.strip(), val.strip()) if isinstance(val, str) else val,
+            type(self).proc_val(key.strip(), val.strip()) if isinstance(val, str) else val,
         )
 
     def __str__(self) -> str:
         return self.get_str(sort_keys=True, pretty=False)
 
-    def __add__(self, other: Incar) -> Incar:
+    def __add__(self, other: Self) -> Self:
         """
         Add all the values of another INCAR object to this object.
         Facilitate the use of "standard" INCARs.
@@ -755,7 +755,7 @@ class Incar(dict, MSONable):
             if key in self and val != self[key]:
                 raise ValueError(f"INCARs have conflicting values for {key}: {self[key]} != {val}")
             params[key] = val
-        return Incar(params)
+        return type(self)(params)
 
     def as_dict(self) -> dict:
         """MSONable dict."""
@@ -775,7 +775,7 @@ class Incar(dict, MSONable):
         """
         if dct.get("MAGMOM") and isinstance(dct["MAGMOM"][0], dict):
             dct["MAGMOM"] = [Magmom.from_dict(m) for m in dct["MAGMOM"]]
-        return Incar({k: v for k, v in dct.items() if k not in ("@module", "@class")})
+        return cls({k: v for k, v in dct.items() if k not in ("@module", "@class")})
 
     def copy(self) -> Self:
         return type(self)(self)
@@ -856,7 +856,7 @@ class Incar(dict, MSONable):
                 if match := re.match(r"(\w+)\s*=\s*(.*)", sline.strip()):
                     key: str = match[1].strip()
                     val: Any = match[2].strip()
-                    params[key] = Incar.proc_val(key, val)
+                    params[key] = cls.proc_val(key, val)
         return cls(params)
 
     @staticmethod
@@ -982,7 +982,7 @@ class Incar(dict, MSONable):
 
         return val.strip().capitalize()
 
-    def diff(self, other: Incar) -> dict[str, dict[str, Any]]:
+    def diff(self, other: Self) -> dict[str, dict[str, Any]]:
         """
         Diff function for Incar. Compare two Incars and indicate which
         parameters are the same and which are not. Useful for checking whether
@@ -1148,7 +1148,7 @@ class Kpoints(MSONable):
         self.tet_connections = tet_connections
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Kpoints):
+        if not isinstance(other, type(self)):
             return NotImplemented
         return self.as_dict() == other.as_dict()
 
@@ -1219,11 +1219,15 @@ class Kpoints(MSONable):
             style: Style
         """
         if isinstance(style, str):
-            style = Kpoints.supported_modes.from_str(style)
+            style = type(self).supported_modes.from_str(style)
 
         if (
             style
-            in {Kpoints.supported_modes.Automatic, Kpoints.supported_modes.Gamma, Kpoints.supported_modes.Monkhorst}
+            in {
+                type(self).supported_modes.Automatic,
+                type(self).supported_modes.Gamma,
+                type(self).supported_modes.Monkhorst,
+            }
             and len(self.kpts) > 1
         ):
             raise ValueError(
@@ -1252,7 +1256,7 @@ class Kpoints(MSONable):
         return cls(
             "Fully automatic kpoint scheme",
             0,
-            style=Kpoints.supported_modes.Automatic,
+            style=cls.supported_modes.Automatic,
             kpts=[
                 (subdivisions,),
             ],
@@ -1271,7 +1275,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        return cls("Automatic kpoint scheme", 0, Kpoints.supported_modes.Gamma, kpts=[kpts], kpts_shift=shift)
+        return cls("Automatic kpoint scheme", 0, cls.supported_modes.Gamma, kpts=[kpts], kpts_shift=shift)
 
     @classmethod
     def monkhorst_automatic(cls, kpts: Kpoint = (2, 2, 2), shift: Vector3D = (0, 0, 0)) -> Self:
@@ -1287,7 +1291,7 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
-        return cls("Automatic kpoint scheme", 0, Kpoints.supported_modes.Monkhorst, kpts=[kpts], kpts_shift=shift)
+        return cls("Automatic kpoint scheme", 0, cls.supported_modes.Monkhorst, kpts=[kpts], kpts_shift=shift)
 
     @classmethod
     def automatic_density(cls, structure: Structure, kppa: float, force_gamma: bool = False) -> Self:
@@ -1324,9 +1328,9 @@ class Kpoints(MSONable):
         is_face_centered: bool = structure.get_space_group_info()[0][0] == "F"
         has_odd: bool = any(idx % 2 == 1 for idx in num_div)
         if has_odd or is_hexagonal or is_face_centered or force_gamma:
-            style = Kpoints.supported_modes.Gamma
+            style = cls.supported_modes.Gamma
         else:
-            style = Kpoints.supported_modes.Monkhorst
+            style = cls.supported_modes.Monkhorst
 
         return cls(
             comment,
@@ -1362,7 +1366,7 @@ class Kpoints(MSONable):
         # VASP documentation recommends to use even grids for n <= 8 and odd grids for n > 8.
         n_div = [idx + idx % 2 if idx <= 8 else idx - idx % 2 + 1 for idx in n_div]
 
-        style = Kpoints.supported_modes.Gamma
+        style = cls.supported_modes.Gamma
 
         comment = f"pymatgen with grid density = {kppa:.0f} / number of atoms"
 
@@ -1430,9 +1434,9 @@ class Kpoints(MSONable):
         is_face_centered: bool = structure.get_space_group_info()[0][0] == "F"
         has_odd: bool = any(idx % 2 == 1 for idx in num_div)
         if has_odd or is_hexagonal or is_face_centered or force_gamma:
-            style = Kpoints.supported_modes.Gamma
+            style = cls.supported_modes.Gamma
         else:
-            style = Kpoints.supported_modes.Monkhorst
+            style = cls.supported_modes.Monkhorst
 
         return cls(
             comment,
@@ -1475,7 +1479,7 @@ class Kpoints(MSONable):
 
         return cls(
             "Line_mode KPOINTS file",
-            style=Kpoints.supported_modes.Line_mode,
+            style=cls.supported_modes.Line_mode,
             coord_type="Reciprocal",
             kpts=kpoints,
             labels=labels,
@@ -1640,6 +1644,8 @@ class Kpoints(MSONable):
     def as_dict(self) -> dict:
         """MSONable dict."""
         dct = {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
             "comment": self.comment,
             "nkpoints": self.num_kpts,
             "generation_style": self.style.name,
@@ -1653,12 +1659,10 @@ class Kpoints(MSONable):
             "tet_connections": self.tet_connections,
         }
 
-        optional_paras = ["genvec1", "genvec2", "genvec3", "shift"]
+        optional_paras = ("genvec1", "genvec2", "genvec3", "shift")
         for para in optional_paras:
             if para in self.__dict__:
                 dct[para] = self.__dict__[para]
-        dct["@module"] = type(self).__module__
-        dct["@class"] = type(self).__name__
         return dct
 
     @classmethod
@@ -1921,7 +1925,7 @@ class PotcarSingle:
             )
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, PotcarSingle):
+        if not isinstance(other, type(self)):
             return NotImplemented
         return self.data == other.data and self.keywords == other.keywords
 
@@ -2229,13 +2233,13 @@ class PotcarSingle:
         with zopen(filename, mode="wt") as file:
             file.write(str(self))
 
-    def copy(self) -> PotcarSingle:
+    def copy(self) -> Self:
         """Return a copy of the PotcarSingle.
 
         Returns:
             PotcarSingle
         """
-        return PotcarSingle(self.data, symbol=self.symbol)
+        return type(self)(self.data, symbol=self.symbol)
 
     @classmethod
     def from_file(cls, filename: PathLike) -> Self:
@@ -2863,12 +2867,12 @@ class VaspInput(dict, MSONable):
                 from_file method.
         """
         sub_dct = {}
-        for fname, ftype in [
+        for fname, ftype in (
             ("INCAR", Incar),
             ("KPOINTS", Kpoints),
             ("POSCAR", Poscar),
             ("POTCAR", Potcar),
-        ]:
+        ):
             try:
                 full_zpath = zpath(os.path.join(input_dir, fname))
                 sub_dct[fname.lower()] = ftype.from_file(full_zpath)  # type: ignore[attr-defined]
@@ -2881,7 +2885,7 @@ class VaspInput(dict, MSONable):
 
         return cls(**sub_dct)
 
-    def copy(self, deep: bool = True) -> VaspInput:
+    def copy(self, deep: bool = True) -> Self:
         """Deep copy of VaspInput."""
         if deep:
             return self.from_dict(self.as_dict())
