@@ -1590,7 +1590,7 @@ class VHartreeCube(Section):
         )
 
 
-@deprecated(VHartreeCube, "Deprecated on 2024-03-29, to be removed on 2025-03-29.")
+@deprecated(VHartreeCube, "Deprecated on 2024-03-29.", deadline=(2025, 3, 29))
 class V_Hartree_Cube(VHartreeCube):
     pass
 
@@ -1634,7 +1634,7 @@ class MOCubes(Section):
         )
 
 
-@deprecated(MOCubes, "Deprecated on 2024-03-29, to be removed on 2025-03-29.")
+@deprecated(MOCubes, "Deprecated on 2024-03-29.", deadline=(2025, 3, 29))
 class MO_Cubes(MOCubes):
     pass
 
@@ -1659,7 +1659,7 @@ class EDensityCube(Section):
         )
 
 
-@deprecated(EDensityCube, "Deprecated on 2024-03-29, to be removed on 2025-03-29.")
+@deprecated(EDensityCube, "Deprecated on 2024-03-29.", deadline=(2025, 3, 29))
 class E_Density_Cube(EDensityCube):
     pass
 
@@ -1858,7 +1858,7 @@ class XCFunctional(Section):
         )
 
 
-@deprecated(XCFunctional, "Deprecated on 2024-03-29, to be removed on 2025-03-29.")
+@deprecated(XCFunctional, "Deprecated on 2024-03-29.", deadline=(2025, 3, 29))
 class Xc_Functional(XCFunctional):
     pass
 
@@ -2089,7 +2089,7 @@ class KpointSet(Section):
         )
 
 
-@deprecated(KpointSet, "Kpoint_Set has been deprecated in favor of KpointSet on 2024-03-16")
+@deprecated(KpointSet, "Kpoint_Set has been deprecated in favor of KpointSet on 2024-03-16", deadline=(2025, 3, 16))
 class Kpoint_Set(KpointSet):
     pass
 
@@ -2173,7 +2173,7 @@ class BandStructure(Section):
         return cls(kpoint_sets=kpoint_sets, filename="BAND.bs")
 
 
-@deprecated(BandStructure, "Deprecated on 2024-03-29, to be removed on 2025-03-29.")
+@deprecated(BandStructure, "Deprecated on 2024-03-29.", deadline=(2025, 3, 29))
 class Band_Structure(BandStructure):
     pass
 

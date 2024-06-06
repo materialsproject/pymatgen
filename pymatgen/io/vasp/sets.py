@@ -316,7 +316,9 @@ class VaspInputSet(InputGenerator, abc.ABC):
     def __repr__(self) -> str:
         return type(self).__name__
 
-    @deprecated(message="get_vasp_input will be removed in a future version of pymatgen. Use get_input_set instead.")
+    @deprecated(
+        message="get_vasp_input will be removed in 2026-06-06. Use get_input_set instead.", deadline=(2026, 6, 6)
+    )
     def get_vasp_input(self, structure: Structure | None = None) -> Self:
         """Get a VaspInput object.
 
@@ -1154,16 +1156,9 @@ class VaspInputSet(InputGenerator, abc.ABC):
 VaspInputGenerator = VaspInputSet
 
 
+@deprecated(replacement=VaspInputSet, deadline=(2025, 12, 31))
 class DictSet(VaspInputSet):
     """Alias for VaspInputSet."""
-
-    def __post_init__(self) -> None:
-        super().__post_init__()
-        warnings.warn(
-            "DictSet is deprecated, and will be removed on 2025-12-31\n; use VaspInputSet",
-            category=FutureWarning,
-            stacklevel=2,
-        )
 
 
 # Helper functions to determine valid FFT grids for VASP
