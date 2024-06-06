@@ -81,7 +81,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     # Special formula handling for peroxides and certain elements. This is so
     # that formula output does not write LiO instead of Li2O2 for example.
-    special_formulas: ClassVar = dict(
+    special_formulas: ClassVar[dict[str, str]] = dict(
         LiO="Li2O2",
         NaO="Na2O2",
         KO="K2O2",

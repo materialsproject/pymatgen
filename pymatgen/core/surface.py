@@ -35,6 +35,7 @@ from pymatgen.core import Lattice, PeriodicSite, Structure, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
 from pymatgen.util.due import Doi, due
+from pymatgen.util.typing import Tuple3Ints
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -939,7 +940,7 @@ class SlabGenerator:
         def reduce_vector(vector: MillerIndex) -> MillerIndex:
             """Helper function to reduce vectors."""
             divisor = abs(reduce(gcd, vector))  # type: ignore[arg-type]
-            return cast(tuple[int, int, int], tuple(int(idx / divisor) for idx in vector))
+            return cast(Tuple3Ints, tuple(int(idx / divisor) for idx in vector))
 
         def add_site_types() -> None:
             """Add Wyckoff symbols and equivalent sites to the initial structure."""
@@ -1985,7 +1986,7 @@ def get_symmetrically_equivalent_miller_indices(
     else:
         symm_ops = structure.lattice.get_recp_symmetry_operation()
 
-    equivalent_millers: list[tuple[int, int, int]] = [_miller_index]
+    equivalent_millers: list[Tuple3Ints] = [_miller_index]
     for miller in itertools.product(idx_range, idx_range, idx_range):
         if miller == _miller_index:
             continue
@@ -2038,7 +2039,7 @@ def get_symmetrically_distinct_miller_indices(
     spg_analyzer = SpacegroupAnalyzer(structure)
     if spg_analyzer.get_crystal_system() == "trigonal":
         transf = spg_analyzer.get_conventional_to_primitive_transformation_matrix()
-        miller_list: list[tuple[int, int, int]] = [hkl_transformation(transf, hkl) for hkl in conv_hkl_list]
+        miller_list: list[Tuple3Ints] = [hkl_transformation(transf, hkl) for hkl in conv_hkl_list]
         prim_structure = SpacegroupAnalyzer(structure).get_primitive_standard_structure()
         symm_ops = prim_structure.lattice.get_recp_symmetry_operation()
 
@@ -2051,7 +2052,7 @@ def get_symmetrically_distinct_miller_indices(
 
     for idx, miller in enumerate(miller_list):
         denom = abs(reduce(gcd, miller))  # type: ignore[arg-type]
-        miller = cast(tuple[int, int, int], tuple(int(idx / denom) for idx in miller))
+        miller = cast(Tuple3Ints, tuple(int(idx / denom) for idx in miller))
         if not _is_in_miller_family(miller, unique_millers, symm_ops):
             if spg_analyzer.get_crystal_system() == "trigonal":
                 # Now we find the distinct primitive hkls using
@@ -2091,7 +2092,7 @@ def _is_in_miller_family(
 def hkl_transformation(
     transf: np.ndarray,
     miller_index: MillerIndex,
-) -> tuple[int, int, int]:
+) -> Tuple3Ints:
     """Transform the Miller index from setting A to B with a transformation matrix.
 
     Args:
@@ -2125,7 +2126,7 @@ def miller_index_from_sites(
     coords_are_cartesian: bool = True,
     round_dp: int = 4,
     verbose: bool = True,
-) -> tuple[int, int, int]:
+) -> Tuple3Ints:
     """Get the Miller index of a plane, determined by a given set of coordinates.
 
     A minimum of 3 sets of coordinates are required. If more than 3

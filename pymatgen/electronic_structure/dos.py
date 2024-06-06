@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
-    from pymatgen.util.typing import SpeciesLike
+    from pymatgen.util.typing import SpeciesLike, Tuple3Floats
 
 
 class DOS(Spectrum):
@@ -256,9 +256,7 @@ class Dos(MSONable):
             energies[spin] = get_linear_interpolated_value(self.energies, self.densities[spin], energy)
         return energies
 
-    def get_interpolated_gap(
-        self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None
-    ) -> tuple[float, float, float]:
+    def get_interpolated_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None) -> Tuple3Floats:
         """Expects a DOS object and finds the gap.
 
         Args:
