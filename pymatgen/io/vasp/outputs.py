@@ -42,7 +42,7 @@ from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.util.num import make_symmetric_matrix_from_upper_tri
-from pymatgen.util.typing import Tuple3Floats, Tuple3Ints
+from pymatgen.util.typing import Kpoint, Tuple3Floats, Vector3D
 
 if TYPE_CHECKING:
     from typing import Any, Callable, Literal
@@ -1424,10 +1424,10 @@ class Vasprun(MSONable):
 
             if name == "divisions":
                 kpoint.kpts = [
-                    cast(Tuple3Ints, tuple(int(i) for i in tokens)),
+                    cast(Kpoint, tuple(int(i) for i in tokens)),
                 ]
             elif name == "usershift":
-                kpoint.kpts_shift = cast(Tuple3Floats, tuple(float(i) for i in tokens))
+                kpoint.kpts_shift = cast(Vector3D, tuple(float(i) for i in tokens))
             elif name in {"genvec1", "genvec2", "genvec3", "shift"}:
                 setattr(kpoint, name, [float(i) for i in tokens])
 

@@ -1194,7 +1194,7 @@ class Kpoints(MSONable):
             return cast(Sequence[Kpoint], list(map(tuple, self._kpts)))  # type: ignore[arg-type]
 
         if all(isinstance(point, (int, float)) for point in self._kpts) and len(self._kpts) == 3:
-            return [cast(Tuple3Floats, tuple(self._kpts))]
+            return [cast(Kpoint, tuple(self._kpts))]
 
         raise ValueError(f"Invalid Kpoint {self._kpts}.")
 
@@ -1566,7 +1566,7 @@ class Kpoints(MSONable):
                 "Cartesian" if lines[3].lower()[0] in "ck" else "Reciprocal"
             )
             _style = cls.supported_modes.Line_mode
-            _kpts: list[Tuple3Floats] = []
+            _kpts: list[Kpoint] = []
             labels = []
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for idx in range(4, len(lines)):
@@ -1595,7 +1595,7 @@ class Kpoints(MSONable):
 
         for idx in range(3, 3 + num_kpts):
             tokens = lines[idx].split()
-            kpts.append(cast(Tuple3Floats, tuple(float(i) for i in tokens[:3])))
+            kpts.append(cast(Kpoint, tuple(float(i) for i in tokens[:3])))
             kpts_weights.append(float(tokens[3]))
             if len(tokens) > 4:
                 labels.append(tokens[4])
