@@ -284,10 +284,10 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return [site.species for site in self]
 
     @property
-    @deprecated(message="Use n_elems instead")
+    @deprecated(message="Use n_type_sp instead")
     def ntypesp(self) -> int:
         """Number of types of atoms."""
-        return self.n_elems
+        return len(self.types_of_species)
 
     @property
     def n_elems(self) -> int:
