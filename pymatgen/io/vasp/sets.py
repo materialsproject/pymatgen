@@ -365,7 +365,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             files_to_transfer=self.files_to_transfer,
         )
 
-    def as_dict(self, verbosity: int = 2) -> dict:  # TODO: redefine verbosity?
+    def as_dict(self, verbosity: int = 2) -> dict:
         """
         Args:
             verbosity: Verbosity for generated dict. If 1, structure is
