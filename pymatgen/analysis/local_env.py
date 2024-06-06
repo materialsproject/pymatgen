@@ -38,6 +38,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.composition import SpeciesLike
+    from pymatgen.util.typing import Tuple3Ints
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman, "
@@ -540,7 +541,7 @@ class NearNeighbors:
         return list(all_sites.values())
 
     @staticmethod
-    def _get_image(structure: Structure, site: Site) -> tuple[int, int, int]:
+    def _get_image(structure: Structure, site: Site) -> Tuple3Ints:
         """Private convenience method for get_nn_info,
         gives lattice image from provided PeriodicSite and Structure.
 
