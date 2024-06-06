@@ -375,12 +375,12 @@ class TestSpacegroup(TestCase):
         self.sg1 = SpacegroupAnalyzer(self.structure, 0.001).get_space_group_operations()
 
     def test_are_symmetrically_equivalent(self):
-        sites1 = [self.structure[idx] for idx in [0, 1]]
-        sites2 = [self.structure[idx] for idx in [2, 3]]
+        sites1 = [self.structure[idx] for idx in (0, 1)]
+        sites2 = [self.structure[idx] for idx in (2, 3)]
         assert self.sg1.are_symmetrically_equivalent(sites1, sites2, 1e-3)
 
-        sites1 = [self.structure[idx] for idx in [0, 1]]
-        sites2 = [self.structure[idx] for idx in [0, 2]]
+        sites1 = [self.structure[idx] for idx in (0, 1)]
+        sites2 = [self.structure[idx] for idx in (0, 2)]
         assert not self.sg1.are_symmetrically_equivalent(sites1, sites2, 1e-3)
 
 
@@ -593,7 +593,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
         assert pa3.get_pointgroup().sch_symbol == "Ci"
 
     def test_get_kpoint_weights(self):
-        for name in ["SrTiO3", "LiFePO4", "Graphite"]:
+        for name in ("SrTiO3", "LiFePO4", "Graphite"):
             struct = PymatgenTest.get_structure(name)
             spga = SpacegroupAnalyzer(struct)
             ir_mesh = spga.get_ir_reciprocal_mesh((4, 4, 4))
@@ -602,7 +602,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
             for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
                 assert weight == approx(expected)
 
-        for name in ["SrTiO3", "LiFePO4", "Graphite"]:
+        for name in ("SrTiO3", "LiFePO4", "Graphite"):
             struct = PymatgenTest.get_structure(name)
             spga = SpacegroupAnalyzer(struct)
             ir_mesh = spga.get_ir_reciprocal_mesh((1, 2, 3))
