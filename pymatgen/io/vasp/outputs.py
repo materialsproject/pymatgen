@@ -1219,7 +1219,7 @@ class Vasprun(MSONable):
         """
         potcar = self.get_potcars(path)
 
-        if potcar and self.incar.get("ALGO", "") not in {"GW0", "G0W0", "GW", "BSE"}:
+        if potcar and self.incar.get("ALGO", "").upper() not in {"GW0", "G0W0", "GW", "BSE"}:
             nelect = self.parameters["NELECT"]
             if len(potcar) == len(self.initial_structure.composition.element_composition):
                 potcar_nelect = sum(
