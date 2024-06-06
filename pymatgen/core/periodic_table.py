@@ -5,6 +5,7 @@ from __future__ import annotations
 import ast
 import functools
 import json
+import operator
 import re
 import warnings
 from collections import Counter
@@ -461,8 +462,6 @@ class ElementBase(Enum):
         if self.is_noble_gas:
             return [["1S0"]]
 
-        L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
-
         L, v_e = self.valence
 
         # for one electron in subshell L
@@ -483,6 +482,7 @@ class ElementBase(Enum):
         comb_counter = Counter(zip(TL, TS))
 
         term_symbols = []
+        L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
         while sum(comb_counter.values()) > 0:
             # Start from the lowest freq combination,
             # which corresponds to largest abs(L) and smallest abs(S)
@@ -508,13 +508,13 @@ class ElementBase(Enum):
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
 
         term_symbols = self.term_symbols
-        term_symbol_flat = {
+        term_symbol_flat = {  # type: ignore[var-annotated]
             term: {
                 "multiplicity": int(term[0]),
                 "L": L_symbols.index(term[1]),
                 "J": float(term[2:]),
             }
-            for term in sum(term_symbols, [])  # noqa: RUF017
+            for term in functools.reduce(operator.iadd, term_symbols, [])
         }
 
         multi = [int(item["multiplicity"]) for _terms, item in term_symbol_flat.items()]
@@ -729,27 +729,27 @@ class ElementBase(Enum):
     @property
     def is_metalloid(self) -> bool:
         """True if element is a metalloid."""
-        return self.symbol in ("B", "Si", "Ge", "As", "Sb", "Te", "Po")
+        return self.symbol in {"B", "Si", "Ge", "As", "Sb", "Te", "Po"}
 
     @property
     def is_alkali(self) -> bool:
         """True if element is an alkali metal."""
-        return self.Z in (3, 11, 19, 37, 55, 87)
+        return self.Z in {3, 11, 19, 37, 55, 87}
 
     @property
     def is_alkaline(self) -> bool:
         """True if element is an alkaline earth metal (group II)."""
-        return self.Z in (4, 12, 20, 38, 56, 88)
+        return self.Z in {4, 12, 20, 38, 56, 88}
 
     @property
     def is_halogen(self) -> bool:
         """True if element is a halogen."""
-        return self.Z in (9, 17, 35, 53, 85)
+        return self.Z in {9, 17, 35, 53, 85}
 
     @property
     def is_chalcogen(self) -> bool:
         """True if element is a chalcogen."""
-        return self.Z in (8, 16, 34, 52, 84)
+        return self.Z in {8, 16, 34, 52, 84}
 
     @property
     def is_lanthanoid(self) -> bool:
@@ -764,7 +764,7 @@ class ElementBase(Enum):
     @property
     def is_radioactive(self) -> bool:
         """True if element is radioactive."""
-        return self.Z in (43, 61) or self.Z >= 84
+        return self.Z in {43, 61} or self.Z >= 84
 
     @property
     def is_quadrupolar(self) -> bool:
@@ -1443,7 +1443,7 @@ class DummySpecies(Species):
             return cls(sym, oxi, **properties)
         raise ValueError("Invalid DummySpecies String")
 
-    def as_dict(self) -> dict:
+    def as_dict(self) -> dict[str, Any]:
         """MSONable dict representation."""
         return {
             "@module": type(self).__module__,
