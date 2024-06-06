@@ -421,6 +421,18 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return Composition(elem_map)
 
     @property
+    def chemical_system(self) -> str:
+        """The chemical system of the structure."""
+        return self.composition.chemical_system
+
+    @property
+    def chemical_system_set(self) -> set[str]:
+        """The set of chemical systems in the structure. E.g. {"Al", "Ga", "In", "N"} for
+        a AlGaInN quaternary.
+        """
+        return self.composition.chemical_system_set
+
+    @property
     def charge(self) -> float:
         """The net charge of the structure based on oxidation states. If
         Elements are found, a charge of 0 is assumed.

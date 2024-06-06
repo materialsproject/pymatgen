@@ -1231,7 +1231,7 @@ class Species(MSONable, Stringify):
             spin_config ("low" | "high"): Whether the species is in a high or low spin state
 
         Returns:
-            Crystal field spin in Bohr magneton.
+            float: Crystal field spin in Bohr magneton.
 
         Raises:
             AttributeError if species is not a valid transition metal or has
