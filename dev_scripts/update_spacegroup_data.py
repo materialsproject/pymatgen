@@ -76,9 +76,8 @@ for spg_idx, spg in enumerate(SYMM_OPS):
         SYMM_OPS[spg_idx]["hermann_mauguin"] = spg["hermann_mauguin"].split("(")[0]
 
     short_h_m = remove_identity_from_full_hermann_mauguin(SYMM_OPS[spg_idx]["hermann_mauguin"])
-    SYMM_OPS[spg_idx]["hermann_mauguin"] = convert_symmops_to_sg_encoding(spg["hermann_mauguin"])
-    SYMM_OPS[spg_idx]["universal_h_m"] = convert_symmops_to_sg_encoding(spg["universal_h_m"])
     SYMM_OPS[spg_idx]["short_h_m"] = convert_symmops_to_sg_encoding(short_h_m)
+    SYMM_OPS[spg_idx]["hermann_mauguin_u"] = convert_symmops_to_sg_encoding(spg["hermann_mauguin"])
 
 for spg_idx, spg in enumerate(SYMM_OPS):
     try:

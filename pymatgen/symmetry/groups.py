@@ -286,9 +286,9 @@ class SpaceGroup(SymmetryGroup):
         self._symmetry_ops: set[SymmOp] | None
 
         for spg in SpaceGroup.SYMM_OPS:
-            if int_symbol in [spg["hermann_mauguin"], spg["universal_h_m"]]:
+            if int_symbol in [spg["hermann_mauguin"], spg["universal_h_m"], spg["hermann_mauguin_u"]]:
                 ops = [SymmOp.from_xyz_str(s) for s in spg["symops"]]
-                self.symbol = spg["hermann_mauguin"]
+                self.symbol = spg["hermann_mauguin_u"]
                 if int_symbol in SpaceGroup.sg_encoding:
                     self.full_symbol = SpaceGroup.sg_encoding[int_symbol]["full_symbol"]
                     self.point_group = SpaceGroup.sg_encoding[int_symbol]["point_group"]
