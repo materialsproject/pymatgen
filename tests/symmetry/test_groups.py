@@ -226,9 +226,10 @@ class TestSpaceGroup:
         assert sg.to_latex_string() == "P6/mmm"
         sg = SpaceGroup("P4_1")
         assert sg.to_unicode_string() == "P4₁"
-        # TODO add after fix
-        # sg = SpaceGroup("P21ma")  # Added after issue #3862
-        # assert sg.to_unicode_string() == "P2₁ma"
+        sg = SpaceGroup("P21ma")  # Added after issue #3862
+        assert sg.to_unicode_string() == "P2₁ma"
+        sg = SpaceGroup("P2_1ma")
+        assert sg.to_unicode_string() == "P2₁ma"
 
     def test_repr(self):
         for num in range(1, 231):

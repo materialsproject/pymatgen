@@ -292,8 +292,11 @@ class SpaceGroup(SymmetryGroup):
                 if int_symbol in SpaceGroup.sg_encoding:
                     self.full_symbol = SpaceGroup.sg_encoding[int_symbol]["full_symbol"]
                     self.point_group = SpaceGroup.sg_encoding[int_symbol]["point_group"]
+                elif self.symbol in SpaceGroup.sg_encoding:
+                    self.full_symbol = SpaceGroup.sg_encoding[self.symbol]["full_symbol"]
+                    self.point_group = SpaceGroup.sg_encoding[self.symbol]["point_group"]
                 else:
-                    self.full_symbol = spg["hermann_mauguin"]  # TODO full symbol not available from spg->warning?
+                    self.full_symbol = spg["hermann_mauguin_u"]
                     self.point_group = spg["point_group"]
                 self.int_number = spg["number"]
                 self.order = len(ops)
