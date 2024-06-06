@@ -8,9 +8,16 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.serialization import loadfn
 
-from pymatgen.core import MODULE_DIR, Element, Species, Structure
+from pymatgen.core import Element, Species, Structure
 from pymatgen.io.vasp.inputs import Kpoints
-from pymatgen.io.vasp.sets.base import UserPotcarFunctional, VaspInputSet, _get_ispin, _get_nedos, _load_yaml_config
+from pymatgen.io.vasp.sets.base import (
+    MODULE_DIR,
+    UserPotcarFunctional,
+    VaspInputSet,
+    _get_ispin,
+    _get_nedos,
+    _load_yaml_config,
+)
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
@@ -113,11 +120,11 @@ class MPScanRelaxSet(VaspInputSet):
     def __post_init__(self):
         super().__post_init__()
         if self.vdw and self.vdw != "rvv10":
-            warnings.warn("Use of van der waals functionals other than rVV10 with SCAN is not supported at this time. ")
+            warnings.warn("Use of van der waals functionals other than rVV10 with SCAN is not supported at this time")
             # delete any vdw parameters that may have been added to the INCAR
             vdw_par = loadfn(str(MODULE_DIR / "vdW_parameters.yaml"))
-            for k in vdw_par[self.vdw]:
-                self._config_dict["INCAR"].pop(k, None)
+            for key in vdw_par[self.vdw]:
+                self._config_dict["INCAR"].pop(key, None)
 
 
 @dataclass
