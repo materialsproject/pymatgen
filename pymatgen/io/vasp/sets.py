@@ -316,9 +316,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
     def __repr__(self) -> str:
         return type(self).__name__
 
-    @deprecated(
-        message="get_vasp_input will be removed in 2026-06-06. Use get_input_set instead.", deadline=(2026, 6, 6)
-    )
+    @deprecated(message="Use get_input_set instead.", deadline=(2026, 6, 6))
     def get_vasp_input(self, structure: Structure | None = None) -> Self:
         """Get a VaspInput object.
 
