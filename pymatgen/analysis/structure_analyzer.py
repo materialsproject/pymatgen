@@ -347,11 +347,13 @@ def solid_angle(center, coords):
     origin = np.array(center)
     radii = [np.array(c) - origin for c in coords]
     radii.append(radii[0])
-    n = [np.cross(radii[i + 1], radii[i]) for i in range(len(radii) - 1)]
-    n.append(np.cross(radii[1], radii[0]))
+    cross_products = [np.cross(radii[i + 1], radii[i]) for i in range(len(radii) - 1)]
+    cross_products.append(np.cross(radii[1], radii[0]))
     vals = []
-    for i in range(len(n) - 1):
-        v = -np.dot(n[i], n[i + 1]) / (np.linalg.norm(n[i]) * np.linalg.norm(n[i + 1]))
+    for i in range(len(cross_products) - 1):
+        v = -np.dot(cross_products[i], cross_products[i + 1]) / (
+            np.linalg.norm(cross_products[i]) * np.linalg.norm(cross_products[i + 1])
+        )
         vals.append(acos(np.clip(v, -1, 1)))
     phi = sum(vals)
     return phi + (3 - len(radii)) * pi
