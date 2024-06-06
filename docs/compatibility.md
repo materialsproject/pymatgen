@@ -67,7 +67,7 @@ Windows and Linux.
 
 ## Recent Breaking Changes
 
-## v2025.?.?
+### v2025.?.?
 The `symbol` attribute of `SpaceGroup` now always refers to its Hermann-Mauguin symbol 
 (see [#3859](https://github.com/materialsproject/pymatgen/pull/3859)). In order to replace
 the old symbol, run

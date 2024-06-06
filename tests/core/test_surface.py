@@ -380,7 +380,7 @@ class TestSlabGenerator(PymatgenTest):
             if sg.crystal_system == "hexagonal" or (
                 sg.crystal_system == "trigonal"
                 and (
-                    sg.symbol.endswith("H")
+                    sg.hexagonal
                     or sg.int_number
                     in [143, 144, 145, 147, 149, 150, 151, 152, 153, 154, 156, 157, 158, 159, 162, 163, 164, 165]
                 )
