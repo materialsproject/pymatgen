@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from pymatgen.util.typing import Vector3D
+    from pymatgen.util.typing import Tuple3Ints, Vector3D
 
 
 @dataclass(frozen=True)
@@ -488,7 +488,7 @@ class AirssProvider(ResProvider):
         self._raise_or_none(ResParseError("Could not find line with cut-off energy."))
         return None
 
-    def get_mpgrid_offset_nkpts_spacing(self) -> tuple[tuple[int, int, int], Vector3D, int, float] | None:
+    def get_mpgrid_offset_nkpts_spacing(self) -> tuple[Tuple3Ints, Vector3D, int, float] | None:
         """
         Retrieves the MP grid, the grid offsets, number of kpoints, and maximum kpoint spacing.
 

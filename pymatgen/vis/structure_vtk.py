@@ -673,13 +673,12 @@ class StructureVis:
         """
         points = vtk.vtkPoints()
         points.InsertPoint(0, center.x, center.y, center.z)
-        n = len(neighbors)
         lines = vtk.vtkCellArray()
-        for i in range(n):
-            points.InsertPoint(i + 1, neighbors[i].coords)
+        for idx, neighbor in enumerate(neighbors):
+            points.InsertPoint(idx + 1, neighbor.coords)
             lines.InsertNextCell(2)
             lines.InsertCellPoint(0)
-            lines.InsertCellPoint(i + 1)
+            lines.InsertCellPoint(idx + 1)
         pd = vtk.vtkPolyData()
         pd.SetPoints(points)
         pd.SetLines(lines)
@@ -881,7 +880,7 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
 class MultiStructuresVis(StructureVis):
     """Visualization for multiple structures."""
 
-    DEFAULT_ANIMATED_MOVIE_OPTIONS: ClassVar = dict(
+    DEFAULT_ANIMATED_MOVIE_OPTIONS: ClassVar[dict[str, str | float]] = dict(
         time_between_frames=0.1,
         looping_type="restart",
         number_of_loops=1,

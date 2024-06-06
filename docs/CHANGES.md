@@ -6,6 +6,27 @@ nav_order: 4
 
 # Changelog
 
+## v2024.6.4
+
+### 🐛 Bug Fixes
+
+* Run CI with two different `uv` resolution strategies: `highest` and `lowest-direct` by @janosh in https://github.com/materialsproject/pymatgen/pull/3852
+* Fix filter condition for warn msg of unphysical site occupancy in `io.cif` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3853
+
+### 🛠 Enhancements
+
+* Add new `.pmgrc.yaml` setting `PMG_VASP_PSP_SUB_DIRS: dict[str, str]` by @janosh in https://github.com/materialsproject/pymatgen/pull/3858
+
+### 📖 Documentation
+
+* Clarify argument `shift` for `SlabGenerator.get_slab` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3748
+
+### 🚧 CI
+
+* Add CI run without `'optional'` deps installed by @janosh in https://github.com/materialsproject/pymatgen/pull/3857
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.5.31...v2024.6.4
+
 ## 2024.5.31
 
 ### 🐛 Bug Fixes
@@ -23,7 +44,7 @@ nav_order: 4
 * Add `is_radioactive` property to Element class by @AntObi in https://github.com/materialsproject/pymatgen/pull/3804
 * Add a `from_ase_atoms()` method to `Structure` by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3812
 * Adapt to the latest version of PWmat output file by @lhycms in https://github.com/materialsproject/pymatgen/pull/3823
-* Update VASP sets to transition atomate2 to use pymatgen input sets exclusively by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3835
+* Update VASP sets to transition atomate2 to use pymatgen input sets exclusively by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3835 (slightly breaking, see [#3860](https://github.com/materialsproject/pymatgen/issues/3860) for details)
 
 ### 📖 Documentation
 

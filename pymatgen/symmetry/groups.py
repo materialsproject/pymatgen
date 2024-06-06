@@ -224,7 +224,7 @@ class SpaceGroup(SymmetryGroup):
 
     SYMM_OPS = loadfn(os.path.join(os.path.dirname(__file__), "symm_ops.json"))
     # TODO this is not used anywhere, remove?
-    SG_SYMBOLS: ClassVar[set] = set(SYMM_DATA["space_group_encoding"])
+    SG_SYMBOLS: ClassVar[set[str]] = set(SYMM_DATA["space_group_encoding"])
     for op in SYMM_OPS:
         op["hermann_mauguin"] = re.sub(r" ", "", op["hermann_mauguin"])
         op["universal_h_m"] = re.sub(r" ", "", op["universal_h_m"])
@@ -235,8 +235,10 @@ class SpaceGroup(SymmetryGroup):
     # POINT_GROUP_ENC = SYMM_DATA["point_group_encoding"]
     sg_encoding = SYMM_DATA["space_group_encoding"]
     abbrev_sg_mapping = SYMM_DATA["abbreviated_spacegroup_symbols"]
-    translations: ClassVar = {k: Fraction(v) for k, v in SYMM_DATA["translations"].items()}
-    full_sg_mapping: ClassVar = {v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()}
+    translations: ClassVar[dict[str, Fraction]] = {k: Fraction(v) for k, v in SYMM_DATA["translations"].items()}
+    full_sg_mapping: ClassVar[dict[str, str]] = {
+        v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()
+    }
 
     def __init__(self, int_symbol: str, hexagonal: bool = True) -> None:
         """Initialize a Space Group from its full or abbreviated international

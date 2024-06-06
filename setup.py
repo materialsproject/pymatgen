@@ -25,7 +25,7 @@ long_description = (
 setup(
     name="pymatgen",
     packages=find_namespace_packages(include=["pymatgen.*", "pymatgen.**.*"]),
-    version="2024.5.31",
+    version="2024.6.4",
     python_requires=">=3.9",
     install_requires=[
         "matplotlib>=3.8",
@@ -52,7 +52,7 @@ setup(
         "tblite": ["tblite[ase]>=0.3.0; python_version<'3.12'"],
         "vis": ["vtk>=6.0.0"],
         "abinit": ["netcdf4>=1.6.5"],
-        "relaxation": ["matgl>=1.1.1", "chgnet==0.3.5"],
+        "relaxation": ["matgl>=1.1.1", "chgnet>=0.3.8"],
         "electronic_structure": ["fdint>=2.0.2"],
         "dev": [
             "mypy>=1.10.0",
@@ -79,7 +79,7 @@ setup(
             # caused CI failure due to ModuleNotFoundError: No module named 'packaging'
             # "BoltzTraP2>=22.3.2; platform_system!='Windows'",
             "chemview>=0.6",
-            "chgnet==0.3.5",
+            "chgnet>=0.3.8",
             "f90nml>=1.1.2",
             "galore>=0.6.1",
             "h5py>=3.11.0",
