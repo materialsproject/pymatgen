@@ -3248,7 +3248,7 @@ class IMolecule(SiteCollection, MSONable):
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
-        other = cast((IMolecule | Molecule), other)
+        other = cast(Union[IMolecule, Molecule], other)
 
         if len(self) != len(other):
             return False
