@@ -237,7 +237,7 @@ class AimsCube(MSONable):
 
     Attributes:
         type (str): The value to be outputted as a cube file
-        origin (Sequence[float] or Tuple3Floats): The origin of the cube
+        origin (Sequence[float] or tuple[float, float, float]): The origin of the cube
         edges (Sequence[Sequence[float]]): Specifies the edges of a cube: dx, dy, dz
             dx (float): The length of the step in the x direction
             dy (float): The length of the step in the y direction

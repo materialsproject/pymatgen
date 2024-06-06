@@ -195,7 +195,7 @@ class Report(MSONable):
         and the number of bands.
 
         Returns:
-            Tuple3Ints: containing:
+            tuple[int, int, int]: containing:
                 spin (int): Whether turn on spin or not
                     1: turn down the spin
                     2: turn on the spin.
