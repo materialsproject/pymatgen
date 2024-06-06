@@ -61,6 +61,13 @@ class TestPointGroup:
         assert pg_3m.is_subgroup(pg_6mmm)
         assert not pg_m3m.is_supergroup(pg_6mmm)
 
+    def test_from_space_group(self):
+        assert PointGroup.from_space_group("P 2_1/n2_1/m2_1/a").symbol == "mmm"
+        assert PointGroup.from_space_group("F d d d").symbol == "mmm"
+        assert PointGroup.from_space_group("I -4").symbol == "-4"
+        assert PointGroup.from_space_group("P4_32_12_1").symbol == "422"
+        assert PointGroup.from_space_group("F4_1/d-32/m").symbol == "m-3m"
+
 
 class TestSpaceGroup:
     def test_renamed_e_symbols(self):
@@ -219,6 +226,9 @@ class TestSpaceGroup:
         assert sg.to_latex_string() == "P6/mmm"
         sg = SpaceGroup("P4_1")
         assert sg.to_unicode_string() == "P4₁"
+        # TODO add after fix
+        # sg = SpaceGroup("P21ma")  # Added after issue #3862
+        # assert sg.to_unicode_string() == "P2₁ma"
 
     def test_repr(self):
         for num in range(1, 231):

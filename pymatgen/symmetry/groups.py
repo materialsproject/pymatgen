@@ -114,6 +114,7 @@ class PointGroup(SymmetryGroup):
 
     def __init__(self, int_symbol: str) -> None:
         """Initialize a Point Group from its international symbol.
+        Please note that only the 32 crystal classes are supported right now.
 
         Args:
             int_symbol (str): International or Hermann-Mauguin Symbol.
@@ -167,6 +168,41 @@ class PointGroup(SymmetryGroup):
                 orbit.append(pp)
         return orbit
 
+    @classmethod
+    def from_space_group(cls, sg_symbol: str) -> PointGroup | AssertionError:
+        """Instantiate one of the 32 crystal classes from a space group symbol in
+        Hermann Mauguin notation (int symbol or full symbol).
+
+        Args:
+            sg_symbol: space group symbol in Hermann Mauguin notation.
+
+        Raises:
+            AssertionError if a valid crystal class cannot be created
+        Returns:
+            crystal class in Hermann-Mauguin notation.
+        """
+        abbrev_map = {
+            "2/m2/m2/m": "mmm",
+            "4/m2/m2/m": "4/mmm",
+            "-32/m": "-3m",
+            "6/m2/m2/m": "6/mmm",
+            "2/m-3": "m-3",
+            "4/m-32/m": "m-3m",
+        }
+        symbol = re.sub(r" ", "", sg_symbol)
+        assert symbol[0].isupper(), f"Invalid sg_symbol {sg_symbol}"
+        assert not symbol[1:].isupper(), f"Invalid sg_symbol {sg_symbol}"
+
+        symbol = symbol[1:]  # Remove centering
+        symbol = symbol.translate(str.maketrans("abcden", "mmmmmm"))  # Remove translation from glide planes
+        symbol = re.sub(r"_.", "", symbol)  # Remove translation from screw axes
+        symbol = abbrev_map.get(symbol, symbol)
+
+        assert (
+            symbol in SYMM_DATA["point_group_encoding"]
+        ), f"Could not create a valid crystal class ({symbol}) from sg_symbol {sg_symbol}"
+        return cls(symbol)
+
 
 @cached_class
 class SpaceGroup(SymmetryGroup):
@@ -180,6 +216,7 @@ class SpaceGroup(SymmetryGroup):
     """
 
     SYMM_OPS = loadfn(os.path.join(os.path.dirname(__file__), "symm_ops.json"))
+    # TODO this is not used anywhere, remove?
     SG_SYMBOLS: ClassVar[set] = set(SYMM_DATA["space_group_encoding"])
     for op in SYMM_OPS:
         op["hermann_mauguin"] = re.sub(r" ", "", op["hermann_mauguin"])
@@ -225,7 +262,9 @@ class SpaceGroup(SymmetryGroup):
         else:
             self.hexagonal = hexagonal
 
-        int_symbol = re.sub(r" ", "", int_symbol)
+        # TODO input checks of underscores?
+
+        int_symbol = re.sub(r" ", "", int_symbol).split(":")[0]
         if int_symbol in SpaceGroup.abbrev_sg_mapping:
             int_symbol = SpaceGroup.abbrev_sg_mapping[int_symbol]
         elif int_symbol in SpaceGroup.full_sg_mapping:
