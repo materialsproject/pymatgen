@@ -22,11 +22,11 @@ class Ion(Composition, MSONable, Stringify):
     Mn[+2]. Note the order of the sign and magnitude in each representation.
     """
 
-    def __init__(self, composition: Composition, charge: float = 0.0) -> None:
+    def __init__(self, composition: Composition, charge: float = 0.0, **kwargs) -> None:
         """Flexible Ion construction, similar to Composition.
         For more information, please see pymatgen.core.Composition.
         """
-        super().__init__(composition)
+        super().__init__(composition, **kwargs)
         self._charge = charge
 
     def __eq__(self, other: object) -> bool:

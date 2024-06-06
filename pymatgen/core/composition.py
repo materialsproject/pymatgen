@@ -317,7 +317,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     def copy(self) -> Self:
         """A copy of the composition."""
-        return Composition(self, allow_negative=self.allow_negative)
+        return type(self)(self, allow_negative=self.allow_negative)
 
     @property
     def formula(self) -> str:
@@ -338,7 +338,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def iupac_formula(self) -> str:
-        """A formula string, with elements sorted by the iupac
+        """A formula string, with elements sorted by the IUPAC
         electronegativity ordering defined in Table VI of "Nomenclature of
         Inorganic Chemistry (IUPAC Recommendations 2005)". This ordering
         effectively follows the groups and rows of the periodic table, except
@@ -354,7 +354,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     @property
     def element_composition(self) -> Self:
         """The composition replacing any species by the corresponding element."""
-        return Composition(self.get_el_amt_dict(), allow_negative=self.allow_negative)
+        return type(self)(self.get_el_amt_dict(), allow_negative=self.allow_negative)
 
     @property
     def fractional_composition(self) -> Self:
