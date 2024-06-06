@@ -169,7 +169,7 @@ class PointGroup(SymmetryGroup):
         return orbit
 
     @classmethod
-    def from_space_group(cls, sg_symbol: str) -> PointGroup | AssertionError:
+    def from_space_group(cls, sg_symbol: str) -> PointGroup:
         """Instantiate one of the 32 crystal classes from a space group symbol in
         Hermann Mauguin notation (int symbol or full symbol).
 
@@ -189,6 +189,12 @@ class PointGroup(SymmetryGroup):
             "2/m-3": "m-3",
             "4/m-32/m": "m-3m",
         }
+        non_standard_map = {
+            "m2m": "mm2",
+            "2mm": "mm2",
+            "-4m2": "-42m",  # technically not non-standard
+            "-62m": "-6m2",  # technically not non-standard
+        }
         symbol = re.sub(r" ", "", sg_symbol)
         assert symbol[0].isupper(), f"Invalid sg_symbol {sg_symbol}"
         assert not symbol[1:].isupper(), f"Invalid sg_symbol {sg_symbol}"
@@ -197,6 +203,7 @@ class PointGroup(SymmetryGroup):
         symbol = symbol.translate(str.maketrans("abcden", "mmmmmm"))  # Remove translation from glide planes
         symbol = re.sub(r"_.", "", symbol)  # Remove translation from screw axes
         symbol = abbrev_map.get(symbol, symbol)
+        symbol = non_standard_map.get(symbol, symbol)
 
         assert (
             symbol in SYMM_DATA["point_group_encoding"]
@@ -257,14 +264,18 @@ class SpaceGroup(SymmetryGroup):
 
         if int_symbol.endswith("H"):
             self.hexagonal = True
+            if not int_symbol.endswith(":H"):
+                int_symbol = int_symbol[:-1] + ":H"
         elif int_symbol.endswith("R"):
             self.hexagonal = False
+            if not int_symbol.endswith(":R"):
+                int_symbol = int_symbol[:-1] + ":R"
         else:
             self.hexagonal = hexagonal
 
         # TODO input checks of underscores?
 
-        int_symbol = re.sub(r" ", "", int_symbol).split(":")[0]
+        int_symbol = re.sub(r" ", "", int_symbol)
         if int_symbol in SpaceGroup.abbrev_sg_mapping:
             int_symbol = SpaceGroup.abbrev_sg_mapping[int_symbol]
         elif int_symbol in SpaceGroup.full_sg_mapping:
@@ -280,8 +291,8 @@ class SpaceGroup(SymmetryGroup):
                     self.full_symbol = SpaceGroup.sg_encoding[int_symbol]["full_symbol"]
                     self.point_group = SpaceGroup.sg_encoding[int_symbol]["point_group"]
                 else:
-                    self.full_symbol = spg["hermann_mauguin"]  # TODO full symbol not available from spg->maybe not add?
-                    self.point_group = spg["schoenflies"].split("^")[0]  # TODO map onto Hermann Mauguin notation?
+                    self.full_symbol = spg["hermann_mauguin"]  # TODO full symbol not available from spg->warning?
+                    self.point_group = spg["point_group"]
                 self.int_number = spg["number"]
                 self.order = len(ops)
                 self._symmetry_ops = {*ops}

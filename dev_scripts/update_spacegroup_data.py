@@ -1,0 +1,92 @@
+"""Script to update symm_ops.json and symm_data.yaml in symmetry module due to issues #3845 and #3862.
+symm_ops.json:
+- adds Hermann_mauguin point group key and short Hermann Mauguin space group symbol
+- converts screw axis notation to symm_data standard
+symm_data.json
+- removes mapping of rhombohedral space group types onto symbol + appended H
+- replaces I/P2_12_121 key with I/P2_12_12_1
+"""
+
+from __future__ import annotations
+
+from monty.serialization import dumpfn, loadfn
+
+from pymatgen.symmetry.groups import PointGroup
+
+SYMM_OPS = loadfn("../pymatgen/symmetry/symm_ops.json")
+SYMM_DATA = loadfn("../pymatgen/symmetry/symm_data.json")
+
+
+def convert_symmops_to_sg_encoding(symbol: str) -> str:
+    """
+    Utility function to convert SYMMOPS space group type symbol notation
+    into SYMM_DATA["space_group_encoding"] key notation with underscores before
+    translational part of screw axes.
+    Args:
+        symbol (str): "hermann_mauguin" or "universal_h_m" key of symmops.json
+    Returns:
+        symbol in the format of SYMM_DATA["space_group_encoding"] keys
+    """
+    symbol_representation = symbol.split(":")
+    representation = ":" + "".join(symbol_representation[1].split(" ")) if len(symbol_representation) > 1 else ""
+
+    blickrichtungen = symbol_representation[0].split(" ")
+    blickrichtungen_new = []
+    for b in blickrichtungen:
+        if len(b) > 1 and b[0].isdigit() and b[1].isdigit():
+            blickrichtungen_new.append(b[0] + "_" + b[1:])
+        else:
+            blickrichtungen_new.append(b)
+    return "".join(blickrichtungen_new) + representation
+
+
+def remove_identity_from_full_hermann_mauguin(symbol: str) -> str:
+    """
+    Utility function to remove identity along blickrichtung (except in P1).
+    Args:
+        symbol (str): "hermann_mauguin" key of symmops.json
+    Returns:
+        short "hermann_mauguin" key
+    """
+    if symbol in ("P 1", "C 1", "P 1 "):
+        return symbol
+    blickrichtungen = symbol.split(" ")
+    blickrichtungen_new = []
+    for b in blickrichtungen:
+        if b != "1":
+            blickrichtungen_new.append(b + " ")
+    return "".join(blickrichtungen_new)
+
+
+new_symm_data = {}
+for k, v in SYMM_DATA["space_group_encoding"].items():
+    if k.endswith("H"):
+        new_symm_data[k.removesuffix("H")] = v
+    elif k == "I2_12_121":
+        new_symm_data["I2_12_12_1"] = v
+    elif k == "P2_12_121":
+        new_symm_data["P2_12_12_1"] = v
+    else:
+        new_symm_data[k] = v
+
+SYMM_DATA["space_group_encoding"] = new_symm_data
+
+for spg_idx, spg in enumerate(SYMM_OPS):
+    if "(" in spg["hermann_mauguin"]:
+        SYMM_OPS[spg_idx]["hermann_mauguin"] = spg["hermann_mauguin"].split("(")[0]
+
+    short_h_m = remove_identity_from_full_hermann_mauguin(SYMM_OPS[spg_idx]["hermann_mauguin"])
+    SYMM_OPS[spg_idx]["hermann_mauguin"] = convert_symmops_to_sg_encoding(spg["hermann_mauguin"])
+    SYMM_OPS[spg_idx]["universal_h_m"] = convert_symmops_to_sg_encoding(spg["universal_h_m"])
+    SYMM_OPS[spg_idx]["short_h_m"] = convert_symmops_to_sg_encoding(short_h_m)
+
+for spg_idx, spg in enumerate(SYMM_OPS):
+    try:
+        pg = PointGroup.from_space_group(spg["short_h_m"])
+    except AssertionError as e:
+        print(spg, str(e))
+        exit(1)
+    SYMM_OPS[spg_idx]["point_group"] = pg.symbol
+
+dumpfn(SYMM_DATA, "../pymatgen/symmetry/symm_data.json")
+dumpfn(SYMM_OPS, "../pymatgen/symmetry/symm_ops.json")
