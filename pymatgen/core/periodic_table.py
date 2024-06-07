@@ -984,7 +984,7 @@ class Species(MSONable, Stringify):
             )
         if isinstance(symbol, str) and symbol.endswith(("+", "-")):
             # Extract oxidation state from symbol
-            symbol, oxi = re.match(r"([A-Za-z]+)([0-9]*[\+\-])", symbol).groups()  # type: ignore[union-attr]
+            symbol, oxi = re.match(r"([A-Za-z]+)([0-9\.0-9]*[\+\-])", symbol).groups()  # type: ignore[union-attr]
             self._oxi_state: float | None = (1 if "+" in oxi else -1) * float(oxi[:-1] or 1)
         else:
             self._oxi_state = oxidation_state
