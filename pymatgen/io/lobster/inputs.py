@@ -35,6 +35,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.composition import Composition
+    from pymatgen.util.typing import Tuple3Ints
 
 
 __author__ = "Janine George, Marco Esters"
@@ -240,7 +241,7 @@ class Lobsterin(UserDict, MSONable):
         no_basis_functions = 0
         for basis in basis_functions:
             if "s" in basis:
-                no_basis_functions = no_basis_functions + 1
+                no_basis_functions += 1
             elif "p" in basis:
                 no_basis_functions = no_basis_functions + 3
             elif "d" in basis:
@@ -437,7 +438,7 @@ class Lobsterin(UserDict, MSONable):
         reciprocal_density: int = 100,
         isym: int = -1,
         from_grid: bool = False,
-        input_grid: tuple[int, int, int] = (5, 5, 5),
+        input_grid: Tuple3Ints = (5, 5, 5),
         line_mode: bool = True,
         kpoints_line_density: int = 20,
         symprec: float = 0.01,

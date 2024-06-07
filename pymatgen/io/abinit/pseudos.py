@@ -675,7 +675,7 @@ def _int_from_str(string):
 class NcAbinitHeader(AbinitHeader):
     """The abinit header found in the NC pseudopotential files."""
 
-    _VARS: ClassVar = dict(
+    _VARS: ClassVar[dict[str, tuple]] = dict(
         zatom=(None, _int_from_str),
         zion=(None, float),
         pspdat=(None, float),
@@ -866,7 +866,7 @@ class NcAbinitHeader(AbinitHeader):
 class PawAbinitHeader(AbinitHeader):
     """The abinit header found in the PAW pseudopotential files."""
 
-    _VARS: ClassVar = dict(
+    _VARS: ClassVar[dict[str, tuple]] = dict(
         zatom=(None, _int_from_str),
         zion=(None, float),
         pspdat=(None, float),
@@ -1012,7 +1012,7 @@ class PseudoParser:
         format: None
 
     # TODO Recheck
-    _PSPCODES: ClassVar = {
+    _PSPCODES: ClassVar[dict[int, ppdesc]] = {
         1: ppdesc(1, "TM", "NC", None),
         2: ppdesc(2, "GTH", "NC", None),
         3: ppdesc(3, "HGH", "NC", None),
@@ -1023,8 +1023,6 @@ class PseudoParser:
         8: ppdesc(8, "ONCVPSP", "NC", None),
         10: ppdesc(10, "HGHK", "NC", None),
     }
-
-    del ppdesc
 
     # renumber functionals from oncvpsp todo confirm that 3 is 2
     # _FUNCTIONALS = {1: {'n': 4, 'name': 'Wigner'},
