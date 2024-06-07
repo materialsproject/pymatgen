@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.composition import Composition
-    from pymatgen.util.typing import PathLike
+    from pymatgen.util.typing import PathLike, Tuple3Ints
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -445,7 +445,7 @@ class Lobsterin(UserDict, MSONable):
         reciprocal_density: int = 100,
         isym: Literal[-1, 0] = 0,
         from_grid: bool = False,
-        input_grid: tuple[int, int, int] = (5, 5, 5),
+        input_grid: Tuple3Ints = (5, 5, 5),
         line_mode: bool = True,
         kpoints_line_density: int = 20,
         symprec: float = 0.01,

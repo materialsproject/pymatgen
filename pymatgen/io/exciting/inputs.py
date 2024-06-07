@@ -249,7 +249,7 @@ class ExcitingInput(MSONable):
                     coord = f"{coord2[0]:16.8f} {coord2[1]:16.8f} {coord2[2]:16.8f}"
 
                 # write atomic positions
-                index = index + 1
+                index += 1
                 _ = ET.SubElement(species, "atom", coord=coord)
 
         # write bandstructure if needed
