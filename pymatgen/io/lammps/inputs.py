@@ -963,7 +963,7 @@ class LammpsTemplateGen(TemplateInputGen):
         return input_set
 
 
-@deprecated(LammpsTemplateGen)
+@deprecated(LammpsTemplateGen, "This function will be removed in the future.")
 def write_lammps_inputs(
     output_dir: str,
     script_template: str,
