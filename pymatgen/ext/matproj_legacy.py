@@ -1276,16 +1276,16 @@ class _MPResterLegacy:
             Cohesive energy (eV).
         """
         entry = self.get_entry_by_material_id(material_id)
-        ebulk = entry.energy / entry.composition.get_integer_formula_and_factor()[1]
+        e_bulk = entry.energy / entry.composition.get_integer_formula_and_factor()[1]
         comp_dict = entry.composition.reduced_composition.as_dict()
 
-        isolated_atom_e_sum, n = 0, 0
+        isolated_atom_e_sum = 0
         for el in comp_dict:
-            e = self._make_request(f"/element/{el}/tasks/isolated_atom", mp_decode=False)[0]
-            isolated_atom_e_sum += e["output"]["final_energy_per_atom"] * comp_dict[el]
-            n += comp_dict[el]
-        ecoh_per_formula = isolated_atom_e_sum - ebulk
-        return ecoh_per_formula / n if per_atom else ecoh_per_formula
+            ent = self._make_request(f"/element/{el}/tasks/isolated_atom", mp_decode=False)[0]
+            isolated_atom_e_sum += ent["output"]["final_energy_per_atom"] * comp_dict[el]
+        e_coh_per_formula = isolated_atom_e_sum - e_bulk
+        n_atoms = entry.composition.num_atoms
+        return e_coh_per_formula / n_atoms if per_atom else e_coh_per_formula
 
     def get_reaction(self, reactants, products):
         """Get a reaction from the Materials Project.

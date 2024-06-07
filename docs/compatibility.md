@@ -67,7 +67,28 @@ Windows and Linux.
 
 ## Recent Breaking Changes
 
-## v2024.1.26
+### v2024.5.31
+
+* Update VASP sets to transition `atomate2` to use `pymatgen` input sets exclusively by @esoteric-ephemera in [#3835](https://github.com/materialsproject/pymatgen/pull/3835)
+
+  Before [#3835](https://github.com/materialsproject/pymatgen/pull/3835), VASP input sets had a `"POTCAR"` key
+
+  ```py
+  vasp_input = MPRelaxSet().get_input_set(structure=struct, potcar_spec=True)
+  vasp_input["POTCAR"]
+  >>> ["Mg_pv", "O"]
+  ```
+
+  [#3835](https://github.com/materialsproject/pymatgen/pull/3835) renamed that to `"POTCAR.spec"` which is formatted differently:
+
+  ```py
+  vasp_input["POTCAR.spec"]
+  >>> "Mg_pv\nO"
+  ```
+
+  See [#3860](https://github.com/materialsproject/pymatgen/issues/3860) for details.
+
+### v2024.1.26
 
 The mixture of `(get|from)_str` and `(get|from)_string` methods on various `pymatgen` classes were migrated to a consistent `(get|from)_str` everywhere in [#3158](https://github.com/materialsproject/pymatgen/pull/3158) and several follow-up PRs. The deprecation release was [v2023.8.10](https://github.com/materialsproject/pymatgen/releases/tag/v2023.8.10) and the removal release resulting in a breaking change was [v2024.1.26](https://github.com/materialsproject/pymatgen/releases/tag/v2024.1.26). Migration to the new API in all cases is to replace:
 

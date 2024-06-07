@@ -213,9 +213,9 @@ class SpacegroupAnalyzer:
         Returns:
             str: Lattice type for structure
         """
-        n = self._space_group_data["number"]
+        spg_num = self._space_group_data["number"]
         system = self.get_crystal_system()
-        if n in [146, 148, 155, 160, 161, 166, 167]:
+        if spg_num in (146, 148, 155, 160, 161, 166, 167):
             return "rhombohedral"
         if system == "trigonal":
             return "hexagonal"

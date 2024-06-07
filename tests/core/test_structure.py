@@ -169,6 +169,16 @@ class TestIStructure(PymatgenTest):
         assert self.struct.elements == [Element("Si")]
         assert self.propertied_structure.elements == [Element("Si")]
 
+    def test_chemical_system(self):
+        assert self.struct.chemical_system == "Si"
+        assert self.propertied_structure.chemical_system == "Si"
+        assert self.V2O3.chemical_system == "O-V"
+
+    def test_chemical_system_set(self):
+        assert self.struct.chemical_system_set == {"Si"}
+        assert self.propertied_structure.chemical_system_set == {"Si"}
+        assert self.V2O3.chemical_system_set == {"O", "V"}
+
     def test_specie_init(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
         struct = IStructure(self.lattice, [{Species("O", -2): 1.0}, {Species("Mg", 2): 0.8}], coords)
@@ -1965,6 +1975,12 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         )
         assert propertied_mol[0].magmom == 0.5
         assert propertied_mol[1].magmom == -0.5
+
+    def test_chemical_system(self):
+        assert self.mol.chemical_system == "C-H"
+
+    def test_chemical_system_set(self):
+        assert self.mol.chemical_system_set == {"C", "H"}
 
     def test_get_boxed_structure(self):
         struct = self.mol.get_boxed_structure(9, 9, 9)

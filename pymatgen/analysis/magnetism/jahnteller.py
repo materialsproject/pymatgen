@@ -452,8 +452,7 @@ class JahnTellerAnalyzer:
 
     @staticmethod
     def mu_so(species: str | Species, motif: Literal["oct", "tet"], spin_state: Literal["high", "low"]) -> float | None:
-        """Calculate the spin-only magnetic moment for a
-        given species. Only supports transition metals.
+        """Calculate the spin-only magnetic moment for a given species. Only supports transition metals.
 
         Args:
             species: Species
@@ -466,8 +465,8 @@ class JahnTellerAnalyzer:
         """
         try:
             sp = get_el_sp(species)
-            n = sp.get_crystal_field_spin(coordination=motif, spin_config=spin_state)
+            unpaired_spins = sp.get_crystal_field_spin(coordination=motif, spin_config=spin_state)
             # calculation spin-only magnetic moment for this number of unpaired spins
-            return np.sqrt(n * (n + 2))
+            return np.sqrt(unpaired_spins * (unpaired_spins + 2))
         except AttributeError:
             return None

@@ -851,8 +851,8 @@ class TestMatPESStaticSet(PymatgenTest):
 
         assert input_set.potcar_functional == "PBE_64"  # test POTCARs default to PBE_64
         assert input_set.kpoints is None
-        # only runs if POTCAR files to compare against are available
-        if os.path.isdir(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_64"):
+        if os.path.isdir(f"{FAKE_POTCAR_DIR}/POT_PAW_PBE_64"):
+            # this part only runs if POTCAR files are available
             assert str(input_set.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE_64"))
 
     def test_with_prev_incar(self):
@@ -1980,12 +1980,13 @@ class TestLobsterSet(PymatgenTest):
     @skip_if_no_psp_dir
     def test_potcar(self):
         # PBE_54 is preferred at the moment
-        assert self.lobsterset1.user_potcar_functional == "PBE_54"
+        functional, symbol = "PBE_54", "K_sv"
+        assert self.lobsterset1.user_potcar_functional == functional
         # test if potcars selected are consistent with PBE_54
         assert self.lobsterset2.potcar.symbols == ["Fe_pv", "P", "O"]
         # test if error raised contains correct potcar symbol for K element as PBE_54 set
         with pytest.raises(
-            RuntimeError, match="You do not have the right POTCAR with functional='PBE_54' and symbol='K_sv'"
+            FileNotFoundError, match=f"You do not have the right POTCAR with {functional=} and {symbol=}"
         ):
             _ = self.lobsterset9.potcar.symbols
 

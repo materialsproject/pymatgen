@@ -60,7 +60,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 
-    from pymatgen.util.typing import Vector3D
+    from pymatgen.util.typing import Tuple3Ints, Vector3D
 
     UserPotcarFunctional = Union[
         Literal["PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"], None
@@ -1791,7 +1791,7 @@ class MPSOCSet(VaspInputSet):
         **kwargs: Keywords supported by VaspInputSet.
     """
 
-    saxis: tuple[int, int, int] = (0, 0, 1)
+    saxis: Tuple3Ints = (0, 0, 1)
     nbands_factor: float = 1.2
     lepsilon: bool = False
     lcalcpol: bool = False
@@ -2978,7 +2978,7 @@ class MPAbsorptionSet(VaspInputSet):
     copy_wavecar: bool = True
     nbands_factor: float = 2
     reciprocal_density: float = 400
-    nkred: tuple[int, int, int] | None = None
+    nkred: Tuple3Ints | None = None
     nedos: int = 2001
     inherit_incar: bool = True
     force_gamma: bool = True

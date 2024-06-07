@@ -17,7 +17,7 @@ from monty.json import MontyDecoder, MontyEncoder, MSONable
 from pymatgen.core import ArrayWithUnit, Lattice, Species, Structure, units
 
 if TYPE_CHECKING:
-    from typing import ClassVar
+    from typing import Any, ClassVar
 
     from typing_extensions import Self
 
@@ -404,7 +404,7 @@ class Smearing(AbivarAble, MSONable):
     """
 
     # Map string_mode to occopt
-    _mode2occopt: ClassVar = dict(
+    _mode2occopt: ClassVar[dict[str, int]] = dict(
         nosmearing=1,
         fermi_dirac=3,
         marzari4=4,
@@ -509,8 +509,8 @@ class Smearing(AbivarAble, MSONable):
 class ElectronsAlgorithm(dict, AbivarAble, MSONable):
     """Variables controlling the SCF/NSCF algorithm."""
 
-    # None indicates that we use abinit defaults.
-    _DEFAULT: ClassVar = dict(
+    # None indicates that we use abinit defaults
+    _DEFAULT: ClassVar[dict[str, int | None]] = dict(
         iprcell=None,
         iscf=None,
         diemac=None,
@@ -1035,7 +1035,7 @@ class RelaxationMethod(AbivarAble, MSONable):
     The set of variables are constructed in to_abivars depending on ionmov and optcell.
     """
 
-    _default_vars: ClassVar = dict(
+    _default_vars: ClassVar[dict[str, Any]] = dict(
         ionmov=MANDATORY,
         optcell=MANDATORY,
         ntime=80,
@@ -1337,10 +1337,14 @@ class Screening(AbivarAble):
     """
 
     # Approximations used for W
-    _WTYPES: ClassVar = dict(RPA=0)
+    _WTYPES: ClassVar[dict[str, int]] = dict(RPA=0)
 
-    # Self-consistecy modes
-    _SC_MODES: ClassVar = dict(one_shot=0, energy_only=1, wavefunctions=2)
+    # Self-consistency modes
+    _SC_MODES: ClassVar[dict[str, int]] = dict(
+        one_shot=0,
+        energy_only=1,
+        wavefunctions=2,
+    )
 
     def __init__(
         self,
@@ -1424,7 +1428,7 @@ class Screening(AbivarAble):
 class SelfEnergy(AbivarAble):
     """Define the parameters used for the computation of the self-energy."""
 
-    _SIGMA_TYPES: ClassVar = dict(
+    _SIGMA_TYPES: ClassVar[dict[str, int]] = dict(
         gw=0,
         hartree_fock=5,
         sex=6,
@@ -1433,7 +1437,7 @@ class SelfEnergy(AbivarAble):
         model_gw_cd=9,
     )
 
-    _SC_MODES: ClassVar = dict(
+    _SC_MODES: ClassVar[dict[str, int]] = dict(
         one_shot=0,
         energy_only=1,
         wavefunctions=2,
@@ -1558,14 +1562,18 @@ class ExcHamiltonian(AbivarAble):
     """Contain parameters for the solution of the Bethe-Salpeter equation."""
 
     # Types of excitonic Hamiltonian.
-    _EXC_TYPES: ClassVar = dict(
+    _EXC_TYPES: ClassVar[dict[str, int]] = dict(
         TDA=0,  # Tamm-Dancoff approximation.
         coupling=1,  # Calculation with coupling.
     )
 
     # Algorithms used to compute the macroscopic dielectric function
     # and/or the exciton wavefunctions.
-    _ALGO2VAR: ClassVar = dict(direct_diago=1, haydock=2, cg=3)
+    _ALGO2VAR: ClassVar[dict[str, int]] = dict(
+        direct_diago=1,
+        haydock=2,
+        cg=3,
+    )
 
     # Options specifying the treatment of the Coulomb term.
     _COULOMB_MODES = ("diago", "full", "model_df")

@@ -370,14 +370,19 @@ def solid_angle(center, coords):
     origin = np.array(center)
     r = [np.array(c) - origin for c in coords]
     r.append(r[0])
-    n = [np.cross(r[i + 1], r[i]) for i in range(len(r) - 1)]
-    n.append(np.cross(r[1], r[0]))
+    cross_products = [np.cross(r[i + 1], r[i]) for i in range(len(r) - 1)]
+    cross_products.append(np.cross(r[1], r[0]))
     phi = 0.0
-    for idx in range(len(n) - 1):
+    for idx in range(len(cross_products) - 1):
         try:
-            value = math.acos(-np.dot(n[idx], n[idx + 1]) / (np.linalg.norm(n[idx]) * np.linalg.norm(n[idx + 1])))
+            value = math.acos(
+                -np.dot(cross_products[idx], cross_products[idx + 1])
+                / (np.linalg.norm(cross_products[idx]) * np.linalg.norm(cross_products[idx + 1]))
+            )
         except ValueError:
-            cos = -np.dot(n[idx], n[idx + 1]) / (np.linalg.norm(n[idx]) * np.linalg.norm(n[idx + 1]))
+            cos = -np.dot(cross_products[idx], cross_products[idx + 1]) / (
+                np.linalg.norm(cross_products[idx]) * np.linalg.norm(cross_products[idx + 1])
+            )
             if 0.999999999999 < cos < 1.000000000001:
                 value = math.acos(1.0)
             elif -0.999999999999 > cos > -1.000000000001:

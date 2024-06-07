@@ -18,6 +18,9 @@ if TYPE_CHECKING:  # needed to avoid circular imports
     from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry, GibbsComputedStructureEntry
     from pymatgen.entries.exp_entries import ExpEntry
 
+# Commonly used composite types
+Tuple3Ints = tuple[int, int, int]
+Tuple3Floats = tuple[float, float, float]
 
 PathLike = Union[str, OsPathLike]
 PbcLike = tuple[bool, bool, bool]
@@ -42,13 +45,13 @@ EntryLike = Union[
     "GibbsComputedStructureEntry",
 ]
 
-Vector3D = tuple[float, float, float]
+Vector3D = Tuple3Floats
 Matrix3D = tuple[Vector3D, Vector3D, Vector3D]
 
 SitePropsType = Union[list[dict[Any, Sequence[Any]]], dict[Any, Sequence[Any]]]
 
 # Types specific to io.vasp
-Kpoint = Union[tuple[float, float, float], tuple[int,]]
+Kpoint = Union[Tuple3Floats, tuple[int,]]
 
 # Miller index
-MillerIndex = tuple[int, int, int]
+MillerIndex = Tuple3Ints

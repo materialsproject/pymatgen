@@ -37,7 +37,7 @@ from pymatgen.core import SETTINGS, Element, Lattice, Structure, get_el_sp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
-from pymatgen.util.typing import Kpoint, Vector3D
+from pymatgen.util.typing import Kpoint, Tuple3Floats, Tuple3Ints, Vector3D
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -1194,7 +1194,7 @@ class Kpoints(MSONable):
             return cast(Sequence[Kpoint], list(map(tuple, self._kpts)))  # type: ignore[arg-type]
 
         if all(isinstance(point, (int, float)) for point in self._kpts) and len(self._kpts) == 3:
-            return [cast(tuple[float, float, float], tuple(self._kpts))]
+            return [cast(Kpoint, tuple(self._kpts))]
 
         raise ValueError(f"Invalid Kpoint {self._kpts}.")
 
@@ -1316,9 +1316,7 @@ class Kpoints(MSONable):
         ngrid = kppa / len(structure)
         mult: float = (ngrid * lengths[0] * lengths[1] * lengths[2]) ** (1 / 3)
 
-        num_div: tuple[int, int, int] = cast(
-            tuple[int, int, int], [math.floor(max(mult / length, 1)) for length in lengths]
-        )
+        num_div: Tuple3Ints = cast(Tuple3Ints, [math.floor(max(mult / length, 1)) for length in lengths])
 
         is_hexagonal: bool = lattice.is_hexagonal()
         is_face_centered: bool = structure.get_space_group_info()[0][0] == "F"
@@ -1371,7 +1369,7 @@ class Kpoints(MSONable):
             comment,
             n_kpts,
             style,
-            [cast(tuple[int, int, int], tuple(n_div))],
+            [cast(Tuple3Ints, tuple(n_div))],
             (0, 0, 0),
         )
 
@@ -1424,7 +1422,7 @@ class Kpoints(MSONable):
         lattice = structure.lattice
 
         abc = lattice.abc
-        num_div: tuple[int, int, int] = tuple(np.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))
+        num_div: Tuple3Ints = tuple(np.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))
 
         is_hexagonal: bool = lattice.is_hexagonal()
         is_face_centered: bool = structure.get_space_group_info()[0][0] == "F"
@@ -1528,7 +1526,7 @@ class Kpoints(MSONable):
             _kpt: list[float] = [float(i) for i in lines[3].split()]
             if len(_kpt) != 3:
                 raise ValueError("Invalid Kpoint length.")
-            kpt: tuple[float, float, float] = cast(tuple[float, float, float], tuple(_kpt))
+            kpt: Tuple3Floats = cast(Tuple3Floats, tuple(_kpt))
 
             kpts_shift: Vector3D = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
@@ -1568,7 +1566,7 @@ class Kpoints(MSONable):
                 "Cartesian" if lines[3].lower()[0] in "ck" else "Reciprocal"
             )
             _style = cls.supported_modes.Line_mode
-            _kpts: list[tuple[float, float, float]] = []
+            _kpts: list[Kpoint] = []
             labels = []
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for idx in range(4, len(lines)):
@@ -1597,7 +1595,7 @@ class Kpoints(MSONable):
 
         for idx in range(3, 3 + num_kpts):
             tokens = lines[idx].split()
-            kpts.append(cast(tuple[float, float, float], tuple(float(i) for i in tokens[:3])))
+            kpts.append(cast(Kpoint, tuple(float(i) for i in tokens[:3])))
             kpts_weights.append(float(tokens[3]))
             if len(tokens) > 4:
                 labels.append(tokens[4])
@@ -2126,13 +2124,8 @@ class PotcarSingle:
                 if self.TITEL.replace(" ", "") == titel_no_spc:
                     for potcar_subvariant in self._potcar_summary_stats[func][titel_no_spc]:
                         if self.VRHFIN.replace(" ", "") == potcar_subvariant["VRHFIN"]:
-                            possible_potcar_matches.append(
-                                {
-                                    "POTCAR_FUNCTIONAL": func,
-                                    "TITEL": titel_no_spc,
-                                    **potcar_subvariant,
-                                }
-                            )
+                            possible_match = {"POTCAR_FUNCTIONAL": func, "TITEL": titel_no_spc, **potcar_subvariant}
+                            possible_potcar_matches.append(possible_match)
 
         def parse_fortran_style_str(input_str: str) -> str | bool | float | int:
             """Parse any input string as bool, int, float, or failing that, str.
@@ -2284,26 +2277,29 @@ class PotcarSingle:
         if functional is None:
             raise ValueError("Cannot get functional.")
 
-        funcdir = cls.functional_dir[functional]
+        functional_subdir = SETTINGS.get("PMG_VASP_PSP_SUB_DIRS", {}).get(functional, cls.functional_dir[functional])
         PMG_VASP_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR")
         if PMG_VASP_PSP_DIR is None:
             raise ValueError(
                 f"No POTCAR for {symbol} with {functional=} found. Please set the PMG_VASP_PSP_DIR in .pmgrc.yaml."
             )
+        if not os.path.isdir(PMG_VASP_PSP_DIR):
+            raise FileNotFoundError(f"{PMG_VASP_PSP_DIR=} does not exist.")
 
         paths_to_try: list[str] = [
-            os.path.join(PMG_VASP_PSP_DIR, funcdir, f"POTCAR.{symbol}"),
-            os.path.join(PMG_VASP_PSP_DIR, funcdir, symbol, "POTCAR"),
+            os.path.join(PMG_VASP_PSP_DIR, functional_subdir, f"POTCAR.{symbol}"),
+            os.path.join(PMG_VASP_PSP_DIR, functional_subdir, symbol, "POTCAR"),
         ]
+        path = paths_to_try[0]
         for path in paths_to_try:
             path = os.path.expanduser(path)
             path = zpath(path)
             if os.path.isfile(path):
                 return cls.from_file(path)
 
-        raise RuntimeError(
-            f"You do not have the right POTCAR with {functional=} and {symbol=} "
-            f"in your {PMG_VASP_PSP_DIR=}. Paths tried: {paths_to_try}"
+        raise FileNotFoundError(
+            f"You do not have the right POTCAR with {functional=} and {symbol=}\n"
+            f"in your {PMG_VASP_PSP_DIR=}.\nPaths tried:\n- " + "\n- ".join(paths_to_try)
         )
 
     def verify_potcar(self) -> tuple[bool, bool]:

@@ -155,7 +155,7 @@ class MagneticSpaceGroup(SymmetryGroup):
                 return None
             raw_symops = [b[i : i + 6] for i in range(0, len(b), 6)]
 
-            symops = []
+            symm_ops = []
 
             for r in raw_symops:
                 point_operator = _get_point_operator(r[0])
@@ -173,9 +173,9 @@ class MagneticSpaceGroup(SymmetryGroup):
                 )
                 if time_reversal == -1:
                     seitz += "'"
-                symops.append({"op": op, "str": seitz})
+                symm_ops.append({"op": op, "str": seitz})
 
-            return symops
+            return symm_ops
 
         def _parse_wyckoff(b):
             """Parse compact binary representation into list of Wyckoff sites."""

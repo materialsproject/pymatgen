@@ -28,8 +28,7 @@ jobs:
         # maximize CI coverage of different platforms and python versions while minimizing the
         # total number of jobs. We run all pytest splits with the oldest supported python
         # version (currently 3.9) on windows (seems most likely to surface errors) and with
-        # newest version (currently 3.12) on ubuntu (to get complete coverage on unix). We
-        # ignore mac-os, which is assumed to be similar to ubuntu.
+        # newest version (currently 3.12) on ubuntu (to get complete coverage on unix).
         config:
           - os: windows-latest
             python: "3.9"
@@ -39,13 +38,13 @@ jobs:
             python: "3.12"
             resolution: lowest-direct
             extras: ci,optional
-          # test with lowest resolution and only required dependencies installed
           - os: macos-latest
             python: "3.10"
             resolution: lowest-direct
-            extras: ci
+            extras: ci # test with only required dependencies installed
 
         # pytest-split automatically distributes work load so parallel jobs finish in similar time
+        # update durations file with `pytest --store-durations --durations-path tests/files/.pytest-split-durations`
         split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     runs-on: ${{ matrix.config.os }}

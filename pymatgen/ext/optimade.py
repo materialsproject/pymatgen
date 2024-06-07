@@ -58,7 +58,7 @@ class OptimadeRester:
 
     # regenerate on-demand from official providers.json using OptimadeRester.refresh_aliases()
     # these aliases are provided as a convenient shortcut for users of the OptimadeRester class
-    aliases: ClassVar = {
+    aliases: ClassVar[dict[str, str]] = {
         "aflow": "http://aflow.org/API/optimade/",
         "alexandria": "https://alexandria.icams.rub.de/pbe",
         "alexandria.pbe": "https://alexandria.icams.rub.de/pbe",

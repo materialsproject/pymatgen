@@ -65,8 +65,7 @@ class CifBlock:
         """
         self.loops = loops
         self.data = data
-        # AJ (@computron) says: CIF Block names cannot be
-        # more than 75 characters or you get an Exception
+        # AJ (@computron) says: CIF Block names can't be more than 75 characters or you get an Exception
         self.header = header[:74]
 
     def __eq__(self, other: object) -> bool:
@@ -199,30 +198,30 @@ class CifBlock:
         loops: list[list[str]] = []
 
         while deq:
-            _string = deq.popleft()
-            # cif keys aren't in quotes, so show up as _string[0]
-            if _string[0] == "_eof":
+            _str = deq.popleft()
+            # cif keys aren't in quotes, so show up as _str[0]
+            if _str[0] == "_eof":
                 break
 
-            if _string[0].startswith("_"):
+            if _str[0].startswith("_"):
                 try:
-                    data[_string[0]] = "".join(deq.popleft())
+                    data[_str[0]] = "".join(deq.popleft())
                 except IndexError:
-                    data[_string[0]] = ""
+                    data[_str[0]] = ""
 
-            elif _string[0].startswith("loop_"):
+            elif _str[0].startswith("loop_"):
                 columns: list[str] = []
                 items: list[str] = []
                 while deq:
-                    _string = deq[0]
-                    if _string[0].startswith("loop_") or not _string[0].startswith("_"):
+                    _str = deq[0]
+                    if _str[0].startswith("loop_") or not _str[0].startswith("_"):
                         break
                     columns.append("".join(deq.popleft()))
                     data[columns[-1]] = []
 
                 while deq:
-                    _string = deq[0]
-                    if _string[0].startswith(("loop_", "_")):
+                    _str = deq[0]
+                    if _str[0].startswith(("loop_", "_")):
                         break
                     items.append("".join(deq.popleft()))
 
@@ -232,7 +231,7 @@ class CifBlock:
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
 
-            elif issue := "".join(_string).strip():
+            elif issue := "".join(_str).strip():
                 warnings.warn(f"Possible issue in CIF file at line: {issue}")
 
         return cls(data, loops, header)

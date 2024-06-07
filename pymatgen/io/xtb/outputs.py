@@ -55,8 +55,8 @@ class CRESTOutput(MSONable):
 
         # Get CREST command
         crest_cmd = None
-        with open(output_filepath, encoding="utf-8") as xtbout_file:
-            for line in xtbout_file:
+        with open(output_filepath, encoding="utf-8") as xtb_out_file:
+            for line in xtb_out_file:
                 if "> crest" in line:
                     crest_cmd = line.strip()[8:]
                     break
@@ -88,11 +88,11 @@ class CRESTOutput(MSONable):
             chg = int(str_chg) if "-" in str_chg else int(str_chg[-1])
 
         # Check for proper termination
-        with open(output_filepath, "rb+") as xtbout_file:
-            xtbout_file.seek(-2, 2)
-            while xtbout_file.read(1) != b"\n":
-                xtbout_file.seek(-2, 1)
-            end_bstring = xtbout_file.read()
+        with open(output_filepath, "rb+") as xtb_out_file:
+            xtb_out_file.seek(-2, 2)
+            while xtb_out_file.read(1) != b"\n":
+                xtb_out_file.seek(-2, 1)
+            end_bstring = xtb_out_file.read()
             if b"CREST terminated normally." in end_bstring:
                 self.properly_terminated = True
 
@@ -111,8 +111,8 @@ class CRESTOutput(MSONable):
             )
             conformer_degeneracies = []
             energies = []
-            with open(output_filepath, encoding="utf-8") as xtbout_file:
-                for line in xtbout_file:
+            with open(output_filepath, encoding="utf-8") as xtb_out_file:
+                for line in xtb_out_file:
                     conformer_match = conformer_pattern.match(line)
                     rotamer_match = rotamer_pattern.match(line)
                     if conformer_match:
@@ -148,19 +148,19 @@ class CRESTOutput(MSONable):
                 print(f"{final_rotamer_filename} not found, no rotamer list processed")
 
             # Get lowest energy conformer from 'crest_best.xyz'
-            crestbest_path = os.path.join(self.path, "crest_best.xyz")
+            crest_best_path = os.path.join(self.path, "crest_best.xyz")
             try:
-                lowest_e_struct = Molecule.from_file(crestbest_path)
+                lowest_e_struct = Molecule.from_file(crest_best_path)
                 lowest_e_struct.set_charge_and_spin(charge=chg)
                 self.lowest_energy_structure = lowest_e_struct
             except FileNotFoundError:
-                print(f"{crestbest_path} not found")
+                print(f"{crest_best_path} not found")
 
         else:
-            crestbest_path = os.path.join(self.path, "crest_best.xyz")
+            crest_best_path = os.path.join(self.path, "crest_best.xyz")
             try:
-                lowest_e_struct = Molecule.from_file(crestbest_path)
+                lowest_e_struct = Molecule.from_file(crest_best_path)
                 lowest_e_struct.set_charge_and_spin(charge=chg)
                 self.lowest_energy_structure = lowest_e_struct
             except FileNotFoundError:
-                print(f"{crestbest_path} not found")
+                print(f"{crest_best_path} not found")

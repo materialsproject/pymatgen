@@ -2421,7 +2421,7 @@ class PDPlotter:
             comp = entry.composition
             is_x = comp.get_atomic_fraction(el0) < 0.01
             is_y = comp.get_atomic_fraction(el1) < 0.01
-            n = len(coords)
+            n_coords = len(coords)
             if not (is_x and is_y):
                 if is_x:
                     coords = sorted(coords, key=lambda c: c[1])
@@ -2439,11 +2439,11 @@ class PDPlotter:
                         plt.plot(x, y, "k")
                         center_x += coords[idx][0]
                         center_y += min(ylim)
-                xy = (center_x / (n + 2), center_y / (n + 2))
+                xy = (center_x / (n_coords + 2), center_y / (n_coords + 2))
             else:
                 center_x = sum(coord[0] for coord in coords) + xlim[0]
                 center_y = sum(coord[1] for coord in coords) + ylim[0]
-                xy = (center_x / (n + 1), center_y / (n + 1))
+                xy = (center_x / (n_coords + 1), center_y / (n_coords + 1))
 
             ax.annotate(
                 latexify(entry.name),

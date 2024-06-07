@@ -257,27 +257,29 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
             Equivalent site in the unit cell, translations and symmetry transformation.
         """
         # Get the index of the site in the unit cell of which the PeriodicSite psite is a replica.
-        isite = 0
+        site_idx = 0
         try:
-            isite = self.structure_environments.structure.index(psite)
+            site_idx = self.structure_environments.structure.index(psite)
         except ValueError:
             try:
                 uc_psite = psite.to_unit_cell()
-                isite = self.structure_environments.structure.index(uc_psite)
+                site_idx = self.structure_environments.structure.index(uc_psite)
             except ValueError:
                 for isite2, site2 in enumerate(self.structure_environments.structure):
                     if psite.is_periodic_image(site2):
-                        isite = isite2
+                        site_idx = isite2
                         break
         # Get the translation between psite and its corresponding site in the unit cell (Translation I)
-        this_site = self.structure_environments.structure[isite]
-        dthis_site = psite.frac_coords - this_site.frac_coords
+        this_site = self.structure_environments.structure[site_idx]
+        dist_this_site = psite.frac_coords - this_site.frac_coords
         # Get the translation between the equivalent site for which the neighbors have been computed and the site in
         # the unit cell that corresponds to psite (Translation II)
-        equiv_site = self.structure_environments.structure[self.structure_environments.sites_map[isite]].to_unit_cell()
+        equiv_site = self.structure_environments.structure[
+            self.structure_environments.sites_map[site_idx]
+        ].to_unit_cell()
         # equivsite = self.structure_environments.structure[self.structure_environments.sites_map[isite]]
-        dequivsite = (
-            self.structure_environments.structure[self.structure_environments.sites_map[isite]].frac_coords
+        dist_equiv_site = (
+            self.structure_environments.structure[self.structure_environments.sites_map[site_idx]].frac_coords
             - equiv_site.frac_coords
         )
         found = False
@@ -317,7 +319,9 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
                 break
         if not found:
             raise EquivalentSiteSearchError(psite)
-        return self.structure_environments.sites_map[isite], dequivsite, dthis_site + d_this_site2, sym_trafo
+
+        equivalent_site_map = self.structure_environments.sites_map[site_idx]
+        return equivalent_site_map, dist_equiv_site, dist_this_site + d_this_site2, sym_trafo
 
     @abc.abstractmethod
     def get_site_neighbors(self, site):
@@ -408,19 +412,19 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
             The list of neighbors of the site. For complex strategies, where one allows multiple solutions, this
         can return a list of list of neighbors.
         """
-        isite, dequivsite, dthissite, mysym = self.equivalent_site_index_and_transform(site)
+        site_idx, dist_equiv_site, dist_this_site, mysym = self.equivalent_site_index_and_transform(site)
         geoms_and_maps_list = self.get_site_coordination_environments_fractions(
             site=site,
-            isite=isite,
-            dequivsite=dequivsite,
-            dthissite=dthissite,
+            isite=site_idx,
+            dequivsite=dist_equiv_site,
+            dthissite=dist_this_site,
             mysym=mysym,
             return_maps=True,
             return_strategy_dict_info=True,
         )
         if geoms_and_maps_list is None:
             return None
-        site_nbs_sets = self.structure_environments.neighbors_sets[isite]
+        site_nbs_sets = self.structure_environments.neighbors_sets[site_idx]
         ce_and_neighbors = []
         for fractions_dict in geoms_and_maps_list:
             ce_map = fractions_dict["ce_map"]

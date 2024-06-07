@@ -499,7 +499,7 @@ class ForceConstantMatrix:
                 if eigs[eig_sort[idx]] > 1e-6:
                     unstable_modes = 1
             if unstable_modes == 1:
-                count = count + 1
+                count += 1
                 continue
             check = 1
 

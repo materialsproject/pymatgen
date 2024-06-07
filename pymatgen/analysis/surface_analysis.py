@@ -58,6 +58,8 @@ from pymatgen.util.plotting import pretty_plot
 if TYPE_CHECKING:
     from typing_extensions import Self
 
+    from pymatgen.util.typing import Tuple3Ints
+
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
 __author__ = "Richard Tran"
@@ -156,10 +158,12 @@ class SlabEntry(ComputedStructureEntry):
                 (True) or the binding energy (False) which is just
                 adsorption energy normalized by number of adsorbates.
         """
-        n = self.get_unit_primitive_area
+        surface_area = self.get_unit_primitive_area
         n_ads = self.Nads_in_slab
 
-        BE = (self.energy - n * self.clean_entry.energy) / n_ads - sum(ads.energy_per_atom for ads in self.adsorbates)
+        BE = (self.energy - surface_area * self.clean_entry.energy) / n_ads - sum(
+            ads.energy_per_atom for ads in self.adsorbates
+        )
         return BE * n_ads if eads else BE
 
     def surface_energy(self, ucell_entry, ref_entries=None):
@@ -564,7 +568,7 @@ class SurfaceEnergyPlotter:
         all_chempots = np.linspace(min(chempot_range), max(chempot_range), increments)
 
         # initialize a dictionary of lists of fractional areas for each hkl
-        hkl_area_dict: dict[tuple[int, int, int], list[float]] = {}
+        hkl_area_dict: dict[Tuple3Ints, list[float]] = {}
         for hkl in self.all_slab_entries:
             hkl_area_dict[hkl] = []
 
