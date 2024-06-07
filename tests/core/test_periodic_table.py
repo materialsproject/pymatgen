@@ -529,14 +529,14 @@ class TestSpecies(PymatgenTest):
         ("P5+", "P", 5),
         ("Na0+", "Na", 0),
         ("Na0-", "Na", 0),
-        ("C0.53-","C",-0.53),
-        ("Tc3.498+","Tc",3.498)
+        ("C0.53-", "C", -0.53),
+        ("Tc3.498+", "Tc", 3.498),
     ],
 )
 def test_symbol_oxi_state_str(symbol_oxi, expected_element, expected_oxi_state):
     species = Species(symbol_oxi)
     assert species._el.symbol == expected_element
-    assert species._oxi_state == pytest.approx(expected_oxi_state,rel=1.e-6)
+    assert species._oxi_state == pytest.approx(expected_oxi_state, rel=1.0e-6)
 
 
 class TestDummySpecies:
