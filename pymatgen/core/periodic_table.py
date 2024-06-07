@@ -65,7 +65,7 @@ class ElementBase(Enum):
                 Data is obtained from http://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
             van_der_waals_radius (float): Van der Waals radius for the element. This is the empirical value determined
                 from critical reviews of X-ray diffraction, gas kinetic collision cross-section, and other experimental
-                data by Bondi and later workers. The uncertainty in these values is on the order of 0.1 Å.
+                data by Bondi and later workers. The uncertainty in these values is on the order of 0.1 Å.
                 Data are obtained from "Atomic Radii of the Elements" in CRC Handbook of Chemistry and Physics,
                 91st Ed.; Haynes, W.M., Ed.; CRC Press: Boca Raton, FL, 2010.
             mendeleev_no (int): Mendeleev number from definition given by Pettifor, D. G. (1984). A chemical scale
@@ -1231,7 +1231,7 @@ class Species(MSONable, Stringify):
             spin_config ("low" | "high"): Whether the species is in a high or low spin state
 
         Returns:
-            Crystal field spin in Bohr magneton.
+            float: Crystal field spin in Bohr magneton.
 
         Raises:
             AttributeError if species is not a valid transition metal or has

@@ -36,7 +36,6 @@ from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.linalg import expm, polar
 from scipy.spatial.distance import squareform
 from tabulate import tabulate
-from typing_extensions import Self
 
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
@@ -60,6 +59,7 @@ if TYPE_CHECKING:
     from ase.optimize.optimize import Optimizer
     from matgl.ext.ase import TrajectoryObserver
     from numpy.typing import ArrayLike, NDArray
+    from typing_extensions import Self
 
     from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
 
@@ -419,6 +419,18 @@ class SiteCollection(collections.abc.Sequence, ABC):
             for species, occu in site.species.items():
                 elem_map[species] += occu
         return Composition(elem_map)
+
+    @property
+    def chemical_system(self) -> str:
+        """The chemical system of the structure."""
+        return self.composition.chemical_system
+
+    @property
+    def chemical_system_set(self) -> set[str]:
+        """The set of chemical systems in the structure. E.g. {"Al", "Ga", "In", "N"} for
+        a AlGaInN quaternary.
+        """
+        return self.composition.chemical_system_set
 
     @property
     def charge(self) -> float:
@@ -3363,14 +3375,12 @@ class IMolecule(SiteCollection, MSONable):
         Args:
             ind1 (int): 1st site index
             ind2 (int): 2nd site index
-            tol (float): Relative tolerance to test. Basically, the code
-                checks if the distance between the sites is less than (1 +
-                tol) * typical bond distances. Defaults to 0.2, i.e.,
-                20% longer.
+            tol (float): Relative tolerance to test. Basically, the code checks if the distance
+                between the sites is less than (1 + tol) * typical bond distances.
+                Defaults to 0.2, i.e. 20% longer.
 
         Returns:
-            Two IMolecule representing the clusters formed from
-            breaking the bond.
+            tuple[IMolecule, IMolecule]: The clusters formed from breaking the bond.
         """
         clusters = ([self[ind1]], [self[ind2]])
 
@@ -3393,7 +3403,8 @@ class IMolecule(SiteCollection, MSONable):
                 raise ValueError("Not all sites are matched!")
             sites = unmatched
 
-        return cast(tuple[Self, Self], tuple(map(type(self).from_sites, clusters)))
+        from_sites = type(self).from_sites
+        return from_sites(clusters[0]), from_sites(clusters[1])
 
     def get_covalent_bonds(self, tol: float = 0.2) -> list[CovalentBond]:
         """Determine the covalent bonds in a molecule.

@@ -114,8 +114,8 @@ class AseAtomsAdaptor:
         if msonable:
             atoms = MSONAtoms(atoms)
 
-        if "tags" in structure.site_properties:
-            atoms.set_tags(structure.site_properties["tags"])
+        if tags := structure.site_properties.get("tags"):
+            atoms.set_tags(tags)
 
         # Set the site magmoms in the ASE Atoms object
         # Note: ASE distinguishes between initial and converged

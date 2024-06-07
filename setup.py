@@ -14,7 +14,7 @@ extra_link_args = ["-Wl,--allow-multiple-definition"] if is_win_64 else []
 with open("README.md") as file:
     long_description = file.read()
 
-# unlike GitHub readme's, PyPI doesn't support <picture> tags used for responsive images
+# unlike GitHub readmes, PyPI doesn't support <picture> tags used for responsive images
 # (i.e. adaptive to OS light/dark mode)
 # NOTE this manual fix won't work once we migrate to pyproject.toml
 logo_url = "https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen.svg"
@@ -25,43 +25,47 @@ long_description = (
 setup(
     name="pymatgen",
     packages=find_namespace_packages(include=["pymatgen.*", "pymatgen.**.*"]),
-    version="2024.5.31",
+    version="2024.6.4",
     python_requires=">=3.9",
     install_requires=[
-        "matplotlib>=1.5",
-        "monty>=2024.2.2",
+        "matplotlib>=3.8",
+        "monty>=2024.5.24",
         "networkx>=2.2",
         "numpy>=1.25.0",
         "palettable>=3.1.1",
-        "pandas",
+        "pandas>=2",
         "plotly>=4.5.0",
-        "pybtex",
-        "requests",
+        "pybtex>=0.24.0",
+        "requests>=2.32",
         "ruamel.yaml>=0.17.0",
-        "scipy>=1.5.0",
+        "scipy>=1.13.0",
         "spglib>=2.0.2",
-        "sympy",
-        "tabulate",
-        "tqdm",
+        "sympy>=1.2",
+        "tabulate>=0.9",
+        "tqdm>=4.60",
         "uncertainties>=3.1.4",
-        "joblib",
+        "joblib>=1",
     ],
     extras_require={
-        "ase": ["ase>=3.3"],
+        "ase": ["ase>=3.23.0"],
         # don't depend on tblite above 3.11 since unsupported https://github.com/tblite/tblite/issues/175
         "tblite": ["tblite[ase]>=0.3.0; python_version<'3.12'"],
         "vis": ["vtk>=6.0.0"],
-        "abinit": ["netcdf4"],
-        "relaxation": ["matgl", "chgnet>=0.3.0"],
+        "abinit": ["netcdf4>=1.6.5"],
+        "relaxation": ["matgl>=1.1.1", "chgnet>=0.3.8"],
         "electronic_structure": ["fdint>=2.0.2"],
         "dev": [
-            "mypy",
-            "pre-commit",
-            "pytest-cov",
-            "pytest-split",
-            "pytest",
-            "ruff",
-            "typing-extensions",
+            "mypy>=1.10.0",
+            "pre-commit>=3",
+            "pytest-cov>=4",
+            "pytest-split>=0.8",
+            "pytest>8",
+            "ruff>=0.4",
+        ],
+        "ci": [
+            "pytest>=8",
+            "pytest-cov>=4",
+            "pytest-split>=0.8",
         ],
         "docs": [
             "sphinx",
@@ -69,27 +73,27 @@ setup(
             "doc2dash",
         ],
         "optional": [
-            "ase>=3.22.1",
+            "ase>=3.23.0",
             # TODO restore BoltzTraP2 when install fixed, hopefully following merge of
             # https://gitlab.com/sousaw/BoltzTraP2/-/merge_requests/18
             # caused CI failure due to ModuleNotFoundError: No module named 'packaging'
             # "BoltzTraP2>=22.3.2; platform_system!='Windows'",
             "chemview>=0.6",
-            "chgnet>=0.3.0",
+            "chgnet>=0.3.8",
             "f90nml>=1.1.2",
             "galore>=0.6.1",
-            "h5py>=3.8.0",
+            "h5py>=3.11.0",
             "jarvis-tools>=2020.7.14",
-            "matgl",
-            "netCDF4>=1.5.8",
-            "phonopy>=2.4.2",
-            "seekpath>=1.9.4",
+            "matgl>=1.1.1",
+            "netCDF4>=1.6.5",
+            "phonopy>=2.23",
+            "seekpath>=2.0.1",
             # don't depend on tblite above 3.11 since unsupported https://github.com/tblite/tblite/issues/175
             "tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'",
             # "hiphive>=0.6",
             # "openbabel>=3.1.1; platform_system=='Linux'",
         ],
-        "numba": ["numba"],
+        "numba": ["numba>=0.55"],
     },
     # All package data has to be explicitly defined. Do not use automated codes like last time. It adds
     # all sorts of useless files like test files and is prone to path errors.

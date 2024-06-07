@@ -35,12 +35,13 @@ from pymatgen.core import Lattice, PeriodicSite, Structure, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
 from pymatgen.util.due import Doi, due
+from pymatgen.util.typing import Tuple3Ints
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
-    from numpy.typing import ArrayLike
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
 
     from pymatgen.core.composition import Element, Species
@@ -67,8 +68,8 @@ class Slab(Structure):
     actually create a slab. Also has additional methods that returns other information
     about a Slab such as the surface area, normal, and atom adsorption.
 
-    Note that all Slabs have the surface normal oriented perpendicular to the a
-    and b lattice vectors. This means the lattice vectors a and b are in the
+    Note that all Slabs have the surface normal oriented perpendicular to the
+    a and b lattice vectors. This means the lattice vectors a and b are in the
     surface plane and the c vector is out of the surface plane (though not
     necessarily perpendicular to the surface).
     """
@@ -115,8 +116,8 @@ class Slab(Structure):
                 you should supply the conventional structure.
             oriented_unit_cell (Structure): The oriented_unit_cell from which
                 this Slab is created (by scaling in the c-direction).
-            shift (float): The shift in the c-direction applied to get the
-                termination.
+            shift (float): The NEGATIVE of shift in the c-direction applied
+                to get the termination.
             scale_factor (np.ndarray): scale_factor Final computed scale factor
                 that brings the parent cell to the surface cell.
             reorient_lattice (bool): reorients the lattice parameters such that
@@ -125,7 +126,8 @@ class Slab(Structure):
                 that are less than 0.01 Ang apart. Defaults to False.
             reconstruction (str): Type of reconstruction. Defaults to None if
                 the slab is not reconstructed.
-            to_unit_cell (bool): Translates fractional coordinates into the unit cell. Defaults to False.
+            to_unit_cell (bool): Translates fractional coordinates into the
+                unit cell. Defaults to False.
             coords_are_cartesian (bool): Set to True if you are providing
                 coordinates in Cartesian coordinates. Defaults to False.
             site_properties (dict): Properties associated with the sites as a
@@ -222,7 +224,7 @@ class Slab(Structure):
             dct: dict.
 
         Returns:
-            Creates slab from dict.
+            Slab: Created from dict.
         """
         lattice = Lattice.from_dict(dct["lattice"])
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in dct["sites"]]
@@ -330,8 +332,8 @@ class Slab(Structure):
         site as well. This will only work for single-element systems for now.
 
         Args:
-            tag (bool): Option to adds site attribute "is_surfsite" (bool)
-                to all sites of slab. Defaults to False
+            tag (bool): Add attribute "is_surf_site" (bool)
+                to all sites of the Slab. Defaults to False.
 
         Returns:
             A dictionary grouping sites on top and bottom of the slab together.
@@ -406,8 +408,6 @@ class Slab(Structure):
         symmetric properties of a slab when creating adsorbed
         structures or symmetric reconstructions.
 
-        TODO (@DanielYang59): use "site" over "point" as arg name for consistency
-
         Args:
             point (ArrayLike): Fractional coordinate of the original site.
             cartesian (bool): Use Cartesian coordinates.
@@ -425,7 +425,7 @@ class Slab(Structure):
         for op in ops:
             slab = self.copy()
             site_other = op.operate(point)
-            if f"{site_other[2]:.6f}" == f"{point[2]:.6f}":
+            if isclose(site_other[2], point[2], abs_tol=1e-6):
                 continue
 
             # Add dummy sites to check if the overall structure is symmetric
@@ -643,10 +643,8 @@ class Slab(Structure):
         specie: str | Element | Species | None = None,
         coords_are_cartesian: bool = False,
     ) -> None:
-        """Add a species at a specified site in a slab. Will also add an
-        equivalent site on the other side of the slab to maintain symmetry.
-
-        TODO (@DanielYang59): use "site" over "point" as arg name for consistency
+        """Add a species at a selected site in a Slab. Will also add an
+        equivalent site on the other side to maintain symmetry.
 
         Args:
             species (str | Element | Species): The species to add.
@@ -654,8 +652,6 @@ class Slab(Structure):
             specie: Deprecated argument name in #3691. Use 'species' instead.
             coords_are_cartesian (bool): If the site is in Cartesian coordinates.
         """
-        # For now just use the species of the surface atom as the element to add
-
         # Check if deprecated argument is used
         if specie is not None:
             warnings.warn("The argument 'specie' is deprecated. Use 'species' instead.", DeprecationWarning)
@@ -736,32 +732,28 @@ class Slab(Structure):
             warnings.warn("Equivalent sites could not be found for some indices. Surface unchanged.")
 
 
-def center_slab(slab: Slab) -> Slab:
-    """Relocate the Slab to the center such that its center
+def center_slab(slab: Structure) -> Structure:
+    """Relocate the slab to the center such that its center
     (the slab region) is close to z=0.5.
 
     This makes it easier to find surface sites and apply
     operations like doping.
 
     There are two possible cases:
-
         1. When the slab region is completely positioned between
         two vacuum layers in the cell but is not centered, we simply
-        shift the Slab to the center along z-axis.
-
-        2. If the Slab completely resides outside the cell either
+        shift the slab to the center along z-axis.
+        2. If the slab completely resides outside the cell either
         from the bottom or the top, we iterate through all sites that
         spill over and shift all sites such that it is now
         on the other side. An edge case being, either the top
-        of the Slab is at z = 0 or the bottom is at z = 1.
-
-    TODO (@DanielYang59): this should be a method for `Slab`?
+        of the slab is at z = 0 or the bottom is at z = 1.
 
     Args:
-        slab (Slab): The Slab to center.
+        slab (Structure): The slab to center.
 
     Returns:
-        Slab: The centered Slab.
+        Structure: The centered slab.
     """
     # Get all site indices
     all_indices = list(range(len(slab)))
@@ -804,15 +796,14 @@ def get_slab_regions(
     Useful for discerning where the slab ends and vacuum begins
     if the slab is not fully within the cell.
 
-    TODO (@DanielYang59): this should be a method for `Slab`?
-
-    TODO (@DanielYang59): maybe project all z coordinates to 1D?
-
     Args:
         slab (Slab): The Slab to analyse.
         blength (float): The bond length between atoms in Angstrom.
             You generally want this value to be larger than the actual
             bond length in order to find atoms that are part of the slab.
+
+    TODO (@DanielYang59): this should be a method for `Slab`?
+    TODO (@DanielYang59): maybe project all z coordinates to 1D?
     """
     frac_coords: list = []  # TODO (@DanielYang59): zip site and coords?
     indices: list = []
@@ -949,7 +940,7 @@ class SlabGenerator:
         def reduce_vector(vector: MillerIndex) -> MillerIndex:
             """Helper function to reduce vectors."""
             divisor = abs(reduce(gcd, vector))  # type: ignore[arg-type]
-            return cast(tuple[int, int, int], tuple(int(idx / divisor) for idx in vector))
+            return cast(Tuple3Ints, tuple(int(idx / divisor) for idx in vector))
 
         def add_site_types() -> None:
             """Add Wyckoff symbols and equivalent sites to the initial structure."""
@@ -1076,23 +1067,26 @@ class SlabGenerator:
         _a, _b, c = self.oriented_unit_cell.lattice.matrix
         self._proj_height = abs(np.dot(normal, c))
 
-    def get_slab(self, shift: float = 0, tol: float = 0.1, energy: float | None = None) -> Slab:
-        """Generate a slab based on a given shift value along the lattice c direction.
+    def get_slab(
+        self,
+        shift: float = 0,
+        tol: float = 0.1,
+        energy: float | None = None,
+    ) -> Slab:
+        """[Private method] Generate a slab based on a given termination
+            coordinate along the lattice c direction.
 
-        Note:
-            You should rarely use this (private) method directly, which is
-            intended for other generation methods.
+        You should RARELY use this method directly.
 
         Args:
-            shift (float): The shift value along the lattice c direction in Angstrom.
+            shift (float): The termination coordinate along the lattice c
+                direction in fractional coordinates.
             tol (float): Tolerance to determine primitive cell.
             energy (float): The energy to assign to the slab.
 
         Returns:
             Slab: from a shifted oriented unit cell.
         """
-        scale_factor = self.slab_scale_factor
-
         # Calculate total number of layers
         height = self._proj_height
         height_per_layer = round(height / self.parent.lattice.d_hkl(self.miller_index), 8)
@@ -1112,12 +1106,10 @@ class SlabGenerator:
 
         species = self.oriented_unit_cell.species_and_occu
 
-        # Shift all atoms
-        # DEBUG(@DanielYang59): shift value in Angstrom inconsistent with frac_coordis
+        # Shift all atoms to the termination
         frac_coords = self.oriented_unit_cell.frac_coords
-        # DEBUG(@DanielYang59): suspicious shift direction (positive for downwards shift)
         frac_coords = np.array(frac_coords) + np.array([0, 0, -shift])[None, :]
-        frac_coords -= np.floor(frac_coords)  # wrap frac_coords to the [0, 1) range
+        frac_coords -= np.floor(frac_coords)  # wrap to the [0, 1) range
 
         # Scale down z-coordinate by the number of layers
         frac_coords[:, 2] = frac_coords[:, 2] / n_layers
@@ -1134,39 +1126,39 @@ class SlabGenerator:
         props = {k: v * n_layers_slab for k, v in props.items()}
 
         # Generate Slab
-        slab = Structure(new_lattice, species * n_layers_slab, all_coords, site_properties=props)
+        struct: Structure = Structure(new_lattice, species * n_layers_slab, all_coords, site_properties=props)
 
         # (Optionally) Post-process the Slab
         # Orthogonalize the structure (through LLL lattice basis reduction)
+        scale_factor = self.slab_scale_factor
         if self.lll_reduce:
             # Sanitize Slab (LLL reduction + site sorting + map frac_coords)
-            lll_slab = slab.copy(sanitize=True)
-            slab = lll_slab
+            lll_slab = struct.copy(sanitize=True)
+            struct = lll_slab
 
             # Apply reduction on the scaling factor
-            mapping = lll_slab.lattice.find_mapping(slab.lattice)
+            mapping = lll_slab.lattice.find_mapping(struct.lattice)
             if mapping is None:
                 raise RuntimeError("LLL reduction has failed")
             scale_factor = np.dot(mapping[2], scale_factor)
 
         # Center the slab layer around the vacuum
         if self.center_slab:
-            c_center = np.mean([coord[2] for coord in slab.frac_coords])
-            slab.translate_sites(list(range(len(slab))), [0, 0, 0.5 - c_center])
+            struct = center_slab(struct)
 
         # Reduce to primitive cell
         if self.primitive:
-            prim_slab = slab.get_primitive_structure(tolerance=tol)
-            slab = prim_slab
+            prim_slab = struct.get_primitive_structure(tolerance=tol)
+            struct = prim_slab
 
             if energy is not None:
-                energy *= prim_slab.volume / slab.volume
+                energy *= prim_slab.volume / struct.volume
 
         # Reorient the lattice to get the correctly reduced cell
         ouc = self.oriented_unit_cell.copy()
         if self.primitive:
             # Find a reduced OUC
-            slab_l = slab.lattice
+            slab_l = struct.lattice
             ouc = ouc.get_primitive_structure(
                 constrain_latt={
                     "a": slab_l.a,
@@ -1181,15 +1173,15 @@ class SlabGenerator:
             ouc = ouc if (slab_l.a == ouc.lattice.a and slab_l.b == ouc.lattice.b) else self.oriented_unit_cell
 
         return Slab(
-            slab.lattice,
-            slab.species_and_occu,
-            slab.frac_coords,
+            struct.lattice,
+            struct.species_and_occu,
+            struct.frac_coords,
             self.miller_index,
             ouc,
             shift,
             scale_factor,
             reorient_lattice=self.reorient_lattice,
-            site_properties=slab.site_properties,
+            site_properties=struct.site_properties,
             energy=energy,
         )
 
@@ -1204,7 +1196,7 @@ class SlabGenerator:
         ztol: float = 0,
     ) -> list[Slab]:
         """Generate slabs with shift values calculated from the internal
-        calculate_possible_shifts method. If the user decide to avoid breaking
+        gen_possible_terminations func. If the user decide to avoid breaking
         any polyhedral bond (by setting `bonds`), any shift value that do so
         would be filtered out.
 
@@ -1231,25 +1223,25 @@ class SlabGenerator:
                 sorted by the number of bonds broken.
         """
 
-        def gen_possible_shifts(ftol: float) -> list[float]:
-            """Generate possible shifts by clustering z coordinates.
+        def gen_possible_terminations(ftol: float) -> list[float]:
+            """Generate possible terminations by clustering z coordinates.
 
             Args:
                 ftol (float): Threshold for fcluster to check if
                     two atoms are on the same plane.
             """
             frac_coords = self.oriented_unit_cell.frac_coords
-            n_atoms = len(frac_coords)
+            n_atoms: int = len(frac_coords)
 
-            # Clustering does not work when there is only one atom
+            # Skip clustering when there is only one atom
             if n_atoms == 1:
-                # TODO (@DanielYang59): why this magic number 0.5?
-                shift = frac_coords[0][2] + 0.5
-                return [shift - math.floor(shift)]
+                # Put the atom to the center
+                termination = frac_coords[0][2] + 0.5
+                return [termination - math.floor(termination)]
 
             # Compute a Cartesian z-coordinate distance matrix
             # TODO (@DanielYang59): account for periodic boundary condition
-            dist_matrix = np.zeros((n_atoms, n_atoms))
+            dist_matrix: NDArray = np.zeros((n_atoms, n_atoms))
             for i, j in itertools.combinations(list(range(n_atoms)), 2):
                 if i != j:
                     z_dist = frac_coords[i][2] - frac_coords[j][2]
@@ -1261,35 +1253,33 @@ class SlabGenerator:
             z_matrix = linkage(squareform(dist_matrix))
             clusters = fcluster(z_matrix, ftol, criterion="distance")
 
-            # Generate a cluster to z coordinate mapping
-            clst_loc = {c: frac_coords[i][2] for i, c in enumerate(clusters)}
+            # Generate cluster to z-coordinate mapping
+            clst_loc: dict[Any, float] = {clst: frac_coords[idx][2] for idx, clst in enumerate(clusters)}
 
             # Wrap all clusters into the unit cell ([0, 1) range)
-            possible_clst = [coord - math.floor(coord) for coord in sorted(clst_loc.values())]
+            possible_clst: list[float] = [coord - math.floor(coord) for coord in sorted(clst_loc.values())]
 
-            # Calculate shifts
-            n_shifts = len(possible_clst)
-            shifts = []
-            for i in range(n_shifts):
-                # Handle the special case for the first-last
-                # z coordinate (because of periodic boundary condition)
-                if i == n_shifts - 1:
-                    # TODO (@DanielYang59): Why calculate the "center" of the
-                    # two clusters, which is not actually the shift?
-                    shift = (possible_clst[0] + 1 + possible_clst[i]) * 0.5
-
+            # Calculate terminations
+            n_terms: int = len(possible_clst)
+            terminations: list[float] = []
+            for idx in range(n_terms):
+                # Handle the special case for the first-last pair of
+                # z coordinates (because of periodic boundary condition)
+                if idx == n_terms - 1:
+                    termination = (possible_clst[0] + 1 + possible_clst[idx]) * 0.5
                 else:
-                    shift = (possible_clst[i] + possible_clst[i + 1]) * 0.5
+                    termination = (possible_clst[idx] + possible_clst[idx + 1]) * 0.5
 
-                shifts.append(shift - math.floor(shift))
+                # Wrap termination to [0, 1) range
+                terminations.append(termination - math.floor(termination))
 
-            return sorted(shifts)
+            return sorted(terminations)
 
         def get_z_ranges(
             bonds: dict[tuple[Species | Element, Species | Element], float],
             ztol: float,
         ) -> list[tuple[float, float]]:
-            """Collect occupied z ranges where each z_range is a (lower_z, upper_z) tuple.
+            """Collect occupied z ranges where each range is a (lower_z, upper_z) tuple.
 
             This method examines all sites in the oriented unit cell (OUC)
             and considers all neighboring sites within the specified bond distance
@@ -1330,19 +1320,19 @@ class SlabGenerator:
         z_ranges = [] if bonds is None else get_z_ranges(bonds, ztol)
 
         slabs = []
-        for shift in gen_possible_shifts(ftol=ftol):
-            # Calculate total number of bonds broken (how often the shift
-            # position fall within the z_range occupied by a bond)
+        for termination in gen_possible_terminations(ftol=ftol):
+            # Calculate total number of bonds broken (how often the
+            # termination fall within the z_range occupied by a bond)
             bonds_broken = 0
             for z_range in z_ranges:
-                if z_range[0] <= shift <= z_range[1]:
+                if z_range[0] <= termination <= z_range[1]:
                     bonds_broken += 1
 
             # DEBUG(@DanielYang59): number of bonds broken passed to energy
             # As per the docstring this is to sort final Slabs by number
             # of bonds broken, but this may very likely lead to errors
             # if the "energy" is used literally (Maybe reset energy to None?)
-            slab = self.get_slab(shift=shift, tol=tol, energy=bonds_broken)
+            slab = self.get_slab(shift=termination, tol=tol, energy=bonds_broken)
 
             if bonds_broken <= max_broken_bonds:
                 slabs.append(slab)
@@ -1477,7 +1467,7 @@ class SlabGenerator:
 
         # Calculate the moving distance as the fractional height
         # of the Slab inside the cell
-        # DEBUG(@DanielYang59): the use actually sizes for slab/vac
+        # DEBUG(@DanielYang59): use actual sizes for slab/vac
         # instead of the input arg (min_slab/vac_size)
         n_layers_slab: int = math.ceil(self.min_slab_size / height)
         n_layers_vac: int = math.ceil(self.min_vac_size / height)
@@ -1643,7 +1633,7 @@ def generate_all_slabs(
             will be in min_slab_size/math.ceil(self._proj_height/dhkl)
             multiples of oriented unit cells.
     """
-    all_slabs = []
+    all_slabs: list[Slab] = []
 
     for miller in get_symmetrically_distinct_miller_indices(structure, max_index):
         gen = SlabGenerator(
@@ -1696,17 +1686,13 @@ with open(f"{module_dir}/reconstructions_archive.json", encoding="utf-8") as dat
 
 
 def get_d(slab: Slab) -> float:
-    """Determine the z-spacing between the bottom two layers for a Slab.
-
-    TODO (@DanielYang59): this should be private/internal to ReconstructionGenerator?
-    """
+    """Determine the z-spacing between the bottom two layers for a Slab."""
     # Sort all sites by z-coordinates
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
 
     distance = None
     for site, next_site in zip(sorted_sites, sorted_sites[1:]):
         if not isclose(site.frac_coords[2], next_site.frac_coords[2], abs_tol=1e-6):
-            # DEBUG (@DanielYang59): code will break if no distinguishable layers found
             distance = next_site.frac_coords[2] - site.frac_coords[2]
             break
 
@@ -2000,7 +1986,7 @@ def get_symmetrically_equivalent_miller_indices(
     else:
         symm_ops = structure.lattice.get_recp_symmetry_operation()
 
-    equivalent_millers: list[tuple[int, int, int]] = [_miller_index]
+    equivalent_millers: list[Tuple3Ints] = [_miller_index]
     for miller in itertools.product(idx_range, idx_range, idx_range):
         if miller == _miller_index:
             continue
@@ -2053,7 +2039,7 @@ def get_symmetrically_distinct_miller_indices(
     spg_analyzer = SpacegroupAnalyzer(structure)
     if spg_analyzer.get_crystal_system() == "trigonal":
         transf = spg_analyzer.get_conventional_to_primitive_transformation_matrix()
-        miller_list: list[tuple[int, int, int]] = [hkl_transformation(transf, hkl) for hkl in conv_hkl_list]
+        miller_list: list[Tuple3Ints] = [hkl_transformation(transf, hkl) for hkl in conv_hkl_list]
         prim_structure = SpacegroupAnalyzer(structure).get_primitive_standard_structure()
         symm_ops = prim_structure.lattice.get_recp_symmetry_operation()
 
@@ -2066,7 +2052,7 @@ def get_symmetrically_distinct_miller_indices(
 
     for idx, miller in enumerate(miller_list):
         denom = abs(reduce(gcd, miller))  # type: ignore[arg-type]
-        miller = cast(tuple[int, int, int], tuple(int(idx / denom) for idx in miller))
+        miller = cast(Tuple3Ints, tuple(int(idx / denom) for idx in miller))
         if not _is_in_miller_family(miller, unique_millers, symm_ops):
             if spg_analyzer.get_crystal_system() == "trigonal":
                 # Now we find the distinct primitive hkls using
@@ -2106,7 +2092,7 @@ def _is_in_miller_family(
 def hkl_transformation(
     transf: np.ndarray,
     miller_index: MillerIndex,
-) -> tuple[int, int, int]:
+) -> Tuple3Ints:
     """Transform the Miller index from setting A to B with a transformation matrix.
 
     Args:
@@ -2140,7 +2126,7 @@ def miller_index_from_sites(
     coords_are_cartesian: bool = True,
     round_dp: int = 4,
     verbose: bool = True,
-) -> tuple[int, int, int]:
+) -> Tuple3Ints:
     """Get the Miller index of a plane, determined by a given set of coordinates.
 
     A minimum of 3 sets of coordinates are required. If more than 3

@@ -91,11 +91,7 @@ class InputVariable:
             float_decimal = 0
 
         if isinstance(value, np.ndarray):
-            n = 1
-            for i in np.shape(value):
-                n *= i
-            value = np.reshape(value, n)
-            value = list(value)
+            value = list(value.flatten())
 
         # values in lists
         if isinstance(value, (list, tuple)):
@@ -112,7 +108,7 @@ class InputVariable:
 
         # Add units
         if self.units:
-            line += " " + self.units
+            line += f" {self.units}"
 
         return line
 

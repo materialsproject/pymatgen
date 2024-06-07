@@ -764,7 +764,7 @@ class GulpError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return "GulpError : " + self.msg
+        return f"GulpError : {self.msg}"
 
 
 class GulpConvergenceError(Exception):

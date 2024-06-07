@@ -52,7 +52,7 @@ if TYPE_CHECKING:
 
     from pymatgen.core.lattice import Lattice
     from pymatgen.core.structure import Molecule, Structure
-    from pymatgen.util.typing import Kpoint
+    from pymatgen.util.typing import Kpoint, Tuple3Ints
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
@@ -1786,7 +1786,7 @@ class BrokenSymmetry(Section):
         nel_beta = []
         n_alpha = []
         n_beta = []
-        unpaired_orbital: tuple[int, int, int] = (0, 0, 0)
+        unpaired_orbital: Tuple3Ints = (0, 0, 0)
         while tmp:
             tmp2 = -min((esv[0][2], tmp)) if tmp > 0 else min((f2(esv[0][1]) - esv[0][2], -tmp))
             l_alpha.append(esv[0][1])
