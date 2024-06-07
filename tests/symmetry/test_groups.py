@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from warnings import catch_warnings
+
 import numpy as np
 import pytest
 from pytest import approx
@@ -249,3 +251,14 @@ class TestSpaceGroup:
         for num in (-5, 0, 231, 1000):
             with pytest.raises(ValueError, match=f"International number must be between 1 and 230, got {num}"):
                 SpaceGroup.from_int_number(num)
+
+    def test_full_symbol_warning(self):  # Test warning is only raised for non-standard setting
+        with catch_warnings(record=True) as w:
+            SpaceGroup("Pmc2_1")
+            assert len(w) == 0
+        with catch_warnings(record=True) as w:
+            SpaceGroup("P2_1ma")
+            assert len(w) == 1
+            assert str(w[0].message) == (
+                "Full symbol not available, falling back to short Hermann Mauguin symbol P2_1ma instead."
+            )
