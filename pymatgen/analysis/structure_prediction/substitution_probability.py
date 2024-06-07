@@ -1,6 +1,5 @@
 """
-This module provides classes for representing species substitution
-probabilities.
+This module provides classes for representing species substitution probabilities.
 """
 
 from __future__ import annotations
