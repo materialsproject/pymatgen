@@ -1104,10 +1104,10 @@ class IcohpCollection(MSONable):
             )
 
     def __str__(self) -> str:
-        joinstr = []
+        lst = []
         for value in self._icohplist.values():
-            joinstr.append(str(value))
-        return "\n".join(joinstr)
+            lst.append(str(value))
+        return "\n".join(lst)
 
     def get_icohp_by_label(self, label, summed_spin_channels=True, spin=Spin.up, orbitals=None) -> float:
         """Get an icohp value for a certain bond as indicated by the label (bond labels starting by "1" as in

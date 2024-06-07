@@ -2581,10 +2581,7 @@ def _gen_potcar_summary_stats(
 
 
 class Potcar(list, MSONable):
-    """
-    Read and write POTCAR files for calculations. Consists of a
-    list of PotcarSingle.
-    """
+    """Read and write POTCAR files for calculations. Consists of a list of PotcarSingle."""
 
     FUNCTIONAL_CHOICES = tuple(PotcarSingle.functional_dir)
 

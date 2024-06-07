@@ -176,8 +176,8 @@ class ElementBase(Enum):
             "ionization_energies",
             "metallic_radius",
         }:
-            kstr = item.capitalize().replace("_", " ")
-            val = self._data.get(kstr)
+            key = item.capitalize().replace("_", " ")
+            val = self._data.get(key)
             if val is None or str(val).startswith("no data"):
                 warnings.warn(f"No data available for {item} for {self.symbol}")
                 val = None

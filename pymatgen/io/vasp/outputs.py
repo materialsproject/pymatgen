@@ -3725,8 +3725,7 @@ class Chgcar(VolumetricData):
 
 
 class Elfcar(VolumetricData):
-    """
-    Read an ELFCAR file which contains the Electron Localization Function (ELF).
+    """Read an ELFCAR file which contains the Electron Localization Function (ELF).
 
     For ELF, "total" key refers to Spin.up, and "diff" refers to Spin.down.
 
