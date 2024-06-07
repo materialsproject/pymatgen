@@ -119,7 +119,7 @@ class Site(collections.abc.Hashable, MSONable):
 
         return f"Site: {name} ({self.coords[0]:.4f}, {self.coords[1]:.4f}, {self.coords[2]:.4f})"
 
-    def __lt__(self, other: Site) -> bool:
+    def __lt__(self, other: Self) -> bool:
         """Set a default sort order for atomic species by electronegativity. Very
         useful for getting correct formulas. For example, FeO4PLi is
         automatically sorted in LiFePO4.
@@ -249,6 +249,7 @@ class Site(collections.abc.Hashable, MSONable):
             del spec_dct["@class"]
             spec_dct["occu"] = occu
             species.append(spec_dct)
+
         dct = {
             "name": self.species_string,
             "species": species,
@@ -256,11 +257,10 @@ class Site(collections.abc.Hashable, MSONable):
             "properties": self.properties,
             "@module": type(self).__module__,
             "@class": type(self).__name__,
+            "label": self.label,
         }
         if self.properties:
             dct["properties"] = self.properties
-
-        dct["label"] = self.label
 
         return dct
 
@@ -473,7 +473,7 @@ class PeriodicSite(Site, MSONable):
         self.coords[2] = z
         self._frac_coords = self._lattice.get_fractional_coords(self.coords)
 
-    def to_unit_cell(self, in_place: bool = False) -> PeriodicSite | None:
+    def to_unit_cell(self, in_place: bool = False) -> Self | None:
         """Move frac coords to within the unit cell."""
         frac_coords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, self.frac_coords)]
         if in_place:
@@ -483,7 +483,7 @@ class PeriodicSite(Site, MSONable):
 
     def is_periodic_image(
         self,
-        other: PeriodicSite,
+        other: Self,
         tolerance: float = 1e-8,
         check_lattice: bool = True,
     ) -> bool:
@@ -534,7 +534,7 @@ class PeriodicSite(Site, MSONable):
 
     def distance_and_image(
         self,
-        other: PeriodicSite,
+        other: Self,
         jimage: ArrayLike | None = None,
     ) -> tuple[float, np.ndarray]:
         """Get distance and instance between two sites assuming periodic boundary
@@ -559,7 +559,7 @@ class PeriodicSite(Site, MSONable):
 
     def distance(
         self,
-        other: PeriodicSite,
+        other: Self,
         jimage: ArrayLike | None = None,
     ) -> float:
         """Get distance between two sites assuming periodic boundary conditions.
@@ -597,13 +597,12 @@ class PeriodicSite(Site, MSONable):
             "lattice": self._lattice.as_dict(verbosity=verbosity),
             "@module": type(self).__module__,
             "@class": type(self).__name__,
+            "properties": self.properties,
+            "label": self.label,
         }
 
         if verbosity > 0:
             dct["xyz"] = [float(c) for c in self.coords]
-
-        dct["properties"] = self.properties
-        dct["label"] = self.label
 
         return dct
 

@@ -79,7 +79,7 @@ class Spectrum(MSONable):
     def __len__(self) -> int:
         return self.ydim[0]
 
-    def __add__(self, other: Spectrum) -> Self:
+    def __add__(self, other: Self) -> Self:
         """Add two Spectrum object together. Checks that x scales are the same.
         Otherwise, a ValueError is thrown.
 
@@ -94,7 +94,7 @@ class Spectrum(MSONable):
 
         return type(self)(self.x, self.y + other.y, *self._args, **self._kwargs)
 
-    def __sub__(self, other: Spectrum) -> Self:
+    def __sub__(self, other: Self) -> Self:
         """Subtract one Spectrum object from another. Checks that x scales are
         the same.
         Otherwise, a ValueError is thrown.
@@ -110,7 +110,7 @@ class Spectrum(MSONable):
 
         return type(self)(self.x, self.y - other.y, *self._args, **self._kwargs)
 
-    def __mul__(self, other: Spectrum) -> Self:
+    def __mul__(self, other: Self) -> Self:
         """Scale the Spectrum's y values.
 
         Args:
@@ -123,7 +123,7 @@ class Spectrum(MSONable):
 
     __rmul__ = __mul__
 
-    def __truediv__(self, other: Spectrum) -> Self:
+    def __truediv__(self, other: Self) -> Self:
         """True division of y.
 
         Args:
@@ -134,7 +134,7 @@ class Spectrum(MSONable):
         """
         return type(self)(self.x, self.y.__truediv__(other), *self._args, **self._kwargs)
 
-    def __floordiv__(self, other: Spectrum) -> Self:
+    def __floordiv__(self, other: Self) -> Self:
         """True division of y.
 
         Args:
