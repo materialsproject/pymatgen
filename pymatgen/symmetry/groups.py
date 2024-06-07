@@ -196,6 +196,12 @@ class PointGroup(SymmetryGroup):
             "-62m": "-6m2",  # technically not non-standard
         }
         symbol = re.sub(r" ", "", sg_symbol)
+
+        symm_ops = loadfn(os.path.join(os.path.dirname(__file__), "symm_ops.json"))  # get short symbol if possible
+        for spg in symm_ops:
+            if symbol in [spg["hermann_mauguin"], spg["universal_h_m"], spg["hermann_mauguin_u"]]:
+                symbol = spg["short_h_m"]
+
         assert symbol[0].isupper(), f"Invalid sg_symbol {sg_symbol}"
         assert not symbol[1:].isupper(), f"Invalid sg_symbol {sg_symbol}"
 
@@ -223,7 +229,6 @@ class SpaceGroup(SymmetryGroup):
     """
 
     SYMM_OPS = loadfn(os.path.join(os.path.dirname(__file__), "symm_ops.json"))
-    # TODO this is not used anywhere, remove?
     SG_SYMBOLS: ClassVar[set[str]] = set(SYMM_DATA["space_group_encoding"])
     for op in SYMM_OPS:
         op["hermann_mauguin"] = re.sub(r" ", "", op["hermann_mauguin"])
@@ -275,8 +280,6 @@ class SpaceGroup(SymmetryGroup):
         else:
             self.hexagonal = hexagonal
 
-        # TODO input checks of underscores?
-
         int_symbol = re.sub(r" ", "", int_symbol)
         if int_symbol in SpaceGroup.abbrev_sg_mapping:
             int_symbol = SpaceGroup.abbrev_sg_mapping[int_symbol]
@@ -297,6 +300,10 @@ class SpaceGroup(SymmetryGroup):
                     self.point_group = SpaceGroup.sg_encoding[self.symbol]["point_group"]
                 else:
                     self.full_symbol = spg["hermann_mauguin_u"]
+                    warnings.warn(
+                        f"Full symbol not available, falling back to short Hermann Mauguin symbol "
+                        f"{self.symbol} instead."
+                    )
                     self.point_group = spg["point_group"]
                 self.int_number = spg["number"]
                 self.order = len(ops)

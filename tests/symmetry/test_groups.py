@@ -67,6 +67,7 @@ class TestPointGroup:
         assert PointGroup.from_space_group("I -4").symbol == "-4"
         assert PointGroup.from_space_group("P4_32_12_1").symbol == "422"
         assert PointGroup.from_space_group("F4_1/d-32/m").symbol == "m-3m"
+        assert PointGroup.from_space_group("P121").symbol == "2"
 
 
 class TestSpaceGroup:
@@ -226,9 +227,11 @@ class TestSpaceGroup:
         assert sg.to_latex_string() == "P6/mmm"
         sg = SpaceGroup("P4_1")
         assert sg.to_unicode_string() == "P4₁"
+        sg = SpaceGroup("P41")  # Added after issue #3862
+        assert sg.to_unicode_string() == "P4₁"
         sg = SpaceGroup("P21ma")  # Added after issue #3862
         assert sg.to_unicode_string() == "P2₁ma"
-        sg = SpaceGroup("P2_1ma")
+        sg = SpaceGroup("P2_1ma")  # Added after issue #3862
         assert sg.to_unicode_string() == "P2₁ma"
 
     def test_repr(self):
