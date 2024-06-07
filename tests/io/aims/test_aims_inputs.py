@@ -9,12 +9,14 @@ import pytest
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose
 
+from pymatgen.core import SETTINGS
 from pymatgen.io.aims.inputs import (
     ALLOWED_AIMS_CUBE_TYPES,
     ALLOWED_AIMS_CUBE_TYPES_STATE,
     AimsControlIn,
     AimsCube,
     AimsGeometryIn,
+    AimsSpeciesFile,
 )
 from pymatgen.util.testing.aims import compare_single_files as compare_files
 
@@ -231,3 +233,10 @@ def test_aims_control_in_default_species_dir(tmp_path: Path, monkeypatch: pytest
 
     aims_control.write_file(si, directory=tmp_path, verbose_header=True, overwrite=True)
     compare_files(TEST_DIR / "control.in.si.no_sd", f"{tmp_path}/control.in")
+
+
+def test_species_defaults(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    """Tests an AimsSpeciesFile class"""
+    monkeypatch.setitem(SETTINGS, "AIMS_SPECIES_DIR", str(TEST_DIR.parent / "species_directory"))
+    species_file = AimsSpeciesFile.from_element_and_basis_name("Si", "light")
+    assert "Si" in species_file.data

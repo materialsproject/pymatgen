@@ -16,8 +16,9 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
+from monty.os.path import zpath
 
-from pymatgen.core import Lattice, Molecule, Structure
+from pymatgen.core import SETTINGS, Element, Lattice, Molecule, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -638,3 +639,98 @@ class AimsControlIn(MSONable):
         decoded = {key: MontyDecoder().process_decoded(val) for key, val in dct.items() if not key.startswith("@")}
 
         return cls(_parameters=decoded["parameters"])
+
+
+class AimsSpeciesFile:
+    """An FHI-aims single species' defaults file."""
+
+    def __init__(self, data: str, species: str | None = None) -> None:
+        """
+        Args:
+            data (str): A string of the complete species defaults file
+            species (str): A string representing the name of species
+        """
+        self.data = data
+        self.species = species
+        if self.species is None:
+            for line in data.splitlines():
+                if "species" in line:
+                    self.species = line.split()[1]
+
+    @classmethod
+    def from_file(cls, filename: str, species: str | None = None) -> AimsSpeciesFile:
+        """Initialize from file.
+
+        Args:
+            filename (str): The filename of the species' defaults file
+            species (str): A string representing the name of species
+
+        Returns:
+            The AimsSpeciesFile instance
+        """
+        with zopen(filename, mode="rt") as file:
+            return cls(file.read(), species)
+
+    @classmethod
+    def from_element_and_basis_name(cls, element: str, basis: str, species: str | None = None) -> AimsSpeciesFile:
+        """Initialize from element and basis names.
+
+        Args:
+            element (str): the element name (not to confuse with the species)
+            basis (str): the directory in which the species' defaults file is located relative to the
+                root `species_defaults` (or `species_defaults/defaults_2020`) directory.`.
+            species (str): A string representing the name of species
+
+        Returns:
+            an AimsSpeciesFile instance
+        """
+        # check if element is in the Periodic Table (+ Emptium)
+        if element != "Emptium":
+            if not hasattr(Element, element):
+                raise ValueError(f"{element} is not a valid element name.")
+            el_obj = Element(element)
+            species_file_name = f"{el_obj.Z:02}_{element}_default"
+        else:
+            species_file_name = "00_Emptium_default"
+
+        aims_species_dir = SETTINGS.get("AIMS_SPECIES_DIR")
+        if aims_species_dir is None:
+            raise ValueError(
+                f"No species` defaults file for {element} for {basis} basis set found. "
+                f"Please set the AIMS_SPECIES_DIR correctly in ~/.config/.pmgrc.yaml."
+            )
+        paths_to_try = [
+            (Path(aims_species_dir) / basis / species_file_name).expanduser().as_posix(),
+            (Path(aims_species_dir) / "defaults_2020" / basis / species_file_name).expanduser().as_posix(),
+        ]
+        for path in paths_to_try:
+            path = zpath(path)
+            if os.path.isfile(path):
+                return cls.from_file(path, species)
+
+        raise RuntimeError(
+            f"You don't have the species' defaults file for {element} in {basis} basis set. "
+            f"Paths tried: {paths_to_try}"
+        )
+
+
+class SpeciesDefaults(list, MSONable):
+    """A list containing a set of species' defaults objects with
+    methods to read and write them to files
+    """
+
+    def __init__(
+        self,
+        species: Sequence[str] | None,
+        basis_set: str | dict[str, str] | None,
+        elements: dict[str, str] | None = None,
+    ) -> None:
+        """
+        Args:
+            species ():
+            basis_set (str | dict[str, str]):
+                a name of a basis set (light, tight...) or a mapping from species to basis set names.
+                The name of a basis set can either correspond to the subfolder in `defaults_2020` folder
+                or be a full path from the `FHI-aims/species_defaults` directory.
+            elements (dict): a map from species to elements names
+        """
