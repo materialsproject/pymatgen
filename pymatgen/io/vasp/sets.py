@@ -316,15 +316,6 @@ class VaspInputSet(InputGenerator, abc.ABC):
     def __repr__(self) -> str:
         return type(self).__name__
 
-    @deprecated(message="Use get_input_set instead.", deadline=(2026, 6, 6))
-    def get_vasp_input(self, structure: Structure | None = None) -> Self:
-        """Get a VaspInput object.
-
-        Returns:
-            VaspInput.
-        """
-        return self.get_input_set(structure=structure)
-
     def write_input(
         self,
         output_dir: str,
@@ -460,6 +451,15 @@ class VaspInputSet(InputGenerator, abc.ABC):
             potcar="\n".join(self.potcar_symbols) if potcar_spec else self.potcar,
             potcar_spec=potcar_spec,
         )
+
+    @deprecated(get_input_set, deadline=(2026, 6, 6))
+    def get_vasp_input(self, structure: Structure | None = None) -> Self:
+        """Get a VaspInput object.
+
+        Returns:
+            VaspInput.
+        """
+        return self.get_input_set(structure=structure)
 
     @property
     def incar_updates(self) -> dict:
@@ -1154,7 +1154,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
 VaspInputGenerator = VaspInputSet
 
 
-@deprecated(replacement=VaspInputSet, deadline=(2025, 12, 31))
+@deprecated(VaspInputSet, deadline=(2025, 12, 31))
 class DictSet(VaspInputSet):
     """Alias for VaspInputSet."""
 

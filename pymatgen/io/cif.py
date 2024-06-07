@@ -1223,25 +1223,6 @@ class CifParser:
             return struct
         return None
 
-    @deprecated(
-        message="get_structures is deprecated and will be removed in 2024. Use parse_structures instead."
-        "The only difference is that primitive defaults to False in the new parse_structures method."
-        "So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().",
-    )
-    def get_structures(self, *args, **kwargs) -> list[Structure]:
-        """
-        Deprecated, use parse_structures instead. Only difference between
-        these two methods is the default primitive=False in parse_structures.
-        So parse_structures(primitive=True) is equivalent to the default
-        behaviour of get_structures().
-        """
-        # Extract primitive if passed as arg
-        if len(args) > 0:
-            kwargs["primitive"] = args[0]
-            args = args[1:]
-        kwargs.setdefault("primitive", True)
-        return self.parse_structures(*args, **kwargs)
-
     def parse_structures(
         self,
         primitive: bool | None = None,
@@ -1308,6 +1289,25 @@ class CifParser:
         if not structures:
             raise ValueError("Invalid CIF file with no structures!")
         return structures
+
+    @deprecated(
+        parse_structures,
+        message="The only difference is that primitive defaults to False in the new parse_structures method."
+        "So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().",
+    )
+    def get_structures(self, *args, **kwargs) -> list[Structure]:
+        """
+        Deprecated, use parse_structures instead. Only difference between
+        these two methods is the default primitive=False in parse_structures.
+        So parse_structures(primitive=True) is equivalent to the default
+        behaviour of get_structures().
+        """
+        # Extract primitive if passed as arg
+        if len(args) > 0:
+            kwargs["primitive"] = args[0]
+            args = args[1:]
+        kwargs.setdefault("primitive", True)
+        return self.parse_structures(*args, **kwargs)
 
     def get_bibtex_string(self) -> str:
         """Get BibTeX reference from CIF file.

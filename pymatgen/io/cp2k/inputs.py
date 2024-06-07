@@ -2089,7 +2089,7 @@ class KpointSet(Section):
         )
 
 
-@deprecated(KpointSet, "Kpoint_Set has been deprecated in favor of KpointSet on 2024-03-16", deadline=(2025, 3, 16))
+@deprecated(KpointSet, "Kpoint_Set has been deprecated on 2024-03-16", deadline=(2025, 3, 16))
 class Kpoint_Set(KpointSet):
     pass
 
