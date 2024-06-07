@@ -173,7 +173,7 @@ class Polymer:
             self.end += len(self.monomer)
 
 
-@deprecated(PackmolBoxGen, "PackmolRunner is being phased out in favor of the packmol I/O class.")
+@deprecated(PackmolBoxGen)
 class PackmolRunner:
     """
     Wrapper for the Packmol software that can be used to pack various types of

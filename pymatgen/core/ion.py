@@ -22,15 +22,15 @@ class Ion(Composition, MSONable, Stringify):
     Mn[+2]. Note the order of the sign and magnitude in each representation.
     """
 
-    def __init__(self, composition: Composition, charge: float = 0.0) -> None:
+    def __init__(self, composition: Composition, charge: float = 0.0, **kwargs) -> None:
         """Flexible Ion construction, similar to Composition.
         For more information, please see pymatgen.core.Composition.
         """
-        super().__init__(composition)
+        super().__init__(composition, **kwargs)
         self._charge = charge
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Ion):
+        if not isinstance(other, type(self)):
             return NotImplemented
         if self.composition != other.composition:
             return False
@@ -164,7 +164,7 @@ class Ion(Composition, MSONable, Stringify):
         comp = self.composition
         nH2O = 0
         if hydrates:
-            # detect hydrated metal complexes
+            # Detect hydrated metal complexes
             nH = comp.get("H", 0)
             nO = comp.get("O", 0)
             if nO > 0 and any(e.is_metal for e in comp):
@@ -279,7 +279,7 @@ class Ion(Composition, MSONable, Stringify):
         all_oxi_states: bool = False,
         max_sites: int | None = None,
     ) -> list[dict[str, float]]:
-        """Check if the composition is charge-balanced and returns back all
+        """Check if the composition is charge-balanced and returns all
         charge-balanced oxidation state combinations. Composition must have
         integer values. Note that more num_atoms in the composition gives
         more degrees of freedom. e.g. if possible oxidation states of
