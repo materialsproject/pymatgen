@@ -29,5 +29,4 @@ from .pseudos import (
     RadialFunction,
     l2str,
     str2l,
-    straceback,
 )

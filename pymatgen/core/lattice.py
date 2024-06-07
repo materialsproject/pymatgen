@@ -620,7 +620,7 @@ class Lattice(MSONable):
 
         return selling_vector
 
-    def selling_dist(self, other: Lattice) -> float:
+    def selling_dist(self, other: Self) -> float:
         """Get the minimum Selling distance between two lattices."""
         vcp_matrices = [
             [
@@ -904,7 +904,7 @@ class Lattice(MSONable):
 
     def find_all_mappings(
         self,
-        other_lattice: Lattice,
+        other_lattice: Self,
         ltol: float = 1e-5,
         atol: float = 1,
         skip_rotation_matrix: bool = False,
@@ -969,11 +969,11 @@ class Lattice(MSONable):
 
                 rotation_m = None if skip_rotation_matrix else np.linalg.solve(aligned_m, other_lattice.matrix)
 
-                yield Lattice(aligned_m), rotation_m, scale_m
+                yield type(self)(aligned_m), rotation_m, scale_m
 
     def find_mapping(
         self,
-        other_lattice: Lattice,
+        other_lattice: Self,
         ltol: float = 1e-5,
         atol: float = 1,
         skip_rotation_matrix: bool = False,
@@ -1042,7 +1042,7 @@ class Lattice(MSONable):
 
         b = np.zeros((3, 3))  # Vectors after the Gram-Schmidt process
         u = np.zeros((3, 3))  # Gram-Schmidt coefficients
-        m = np.zeros(3)  # These are the norm squared of each vec.
+        m = np.zeros(3)  # These are the norm squared of each vec
 
         b[:, 0] = a[:, 0]
         m[0] = np.dot(b[:, 0], b[:, 0])
@@ -1055,23 +1055,23 @@ class Lattice(MSONable):
 
         mapping = np.identity(3, dtype=np.double)
         while k <= 3:
-            # Size reduction.
+            # Size reduction
             for i in range(k - 1, 0, -1):
                 q = round(u[k - 1, i - 1])
                 if q != 0:
-                    # Reduce the k-th basis vector.
+                    # Reduce the k-th basis vector
                     a[:, k - 1] = a[:, k - 1] - q * a[:, i - 1]
                     mapping[:, k - 1] = mapping[:, k - 1] - q * mapping[:, i - 1]
                     uu = list(u[i - 1, 0 : (i - 1)])
                     uu.append(1)
-                    # Update the GS coefficients.
+                    # Update the GS coefficients
                     u[k - 1, 0:i] = u[k - 1, 0:i] - q * np.array(uu)
 
-            # Check the Lovasz condition.
+            # Check the Lovasz condition
             if np.dot(b[:, k - 1], b[:, k - 1]) >= (delta - abs(u[k - 1, k - 2]) ** 2) * np.dot(
                 b[:, (k - 2)], b[:, (k - 2)]
             ):
-                # Increment k if the Lovasz condition holds.
+                # Increment k if the Lovasz condition holds
                 k += 1
             else:
                 # If the Lovasz condition fails, swap the k-th and (k-1)-th basis vector
@@ -1092,11 +1092,11 @@ class Lattice(MSONable):
                 if k > 2:
                     k -= 1
                 else:
-                    # We have to do p/q, so do lstsq(q.T, p.T).T instead.
+                    # We have to do p/q, so do lstsq(q.T, p.T).T instead
                     p = np.dot(a[:, k:3].T, b[:, (k - 2) : k])
-                    q = np.diag(m[(k - 2) : k])  # type: ignore
+                    q = np.diag(m[(k - 2) : k])
 
-                    result = np.linalg.lstsq(q.T, p.T, rcond=None)[0].T  # type: ignore
+                    result = np.linalg.lstsq(q.T, p.T, rcond=None)[0].T
                     u[k:3, (k - 2) : k] = result
 
         return a.T, mapping.T
@@ -1885,7 +1885,7 @@ def get_points_in_spheres(
     return neighbors
 
 
-# The following internal methods are used in the get_points_in_sphere method
+# The following internal functions are used in the get_points_in_sphere method
 def _compute_cube_index(
     coords: np.ndarray,
     global_min: float,

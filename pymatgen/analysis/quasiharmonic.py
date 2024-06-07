@@ -357,9 +357,6 @@ class QuasiHarmonicDebyeApprox:
         return dct
 
 
-@deprecated(
-    replacement=QuasiHarmonicDebyeApprox,
-    message="Deprecated on 2024-03-27, to be removed on 2025-03-27.",
-)
+@deprecated(QuasiHarmonicDebyeApprox, message="Deprecated on 2024-03-27.", deadline=(2025, 3, 27))
 class QuasiharmonicDebyeApprox(QuasiHarmonicDebyeApprox):
     pass

@@ -440,7 +440,7 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         # test that van-der-Waals parameters are parsed correctly
 
-        vdw_par = loadfn(MODULE_DIR / "vdW_parameters.yaml")
+        vdw_par = loadfn(f"{MODULE_DIR}/vdW_parameters.yaml")
         with pytest.raises(
             KeyError,
             match=f"Invalid or unsupported van-der-Waals functional. Supported functionals are {', '.join(vdw_par)}.",
@@ -1118,7 +1118,7 @@ class TestMagmomLdau(PymatgenTest):
         assert magmom == magmom_ans
 
     def test_ln_magmom(self):
-        yaml_path = MODULE_DIR / "VASPIncarBase.yaml"
+        yaml_path = f"{MODULE_DIR}/VASPIncarBase.yaml"
         magmom_setting = loadfn(yaml_path)["INCAR"]["MAGMOM"]
         structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/La4Fe4O12.cif")
         structure.add_oxidation_state_by_element({"La": +3, "Fe": +3, "O": -2})
@@ -2122,7 +2122,7 @@ def test_vasp_input_set_alias():
 
 def test_dict_set_alias():
     with pytest.warns(
-        FutureWarning, match="DictSet is deprecated, and will be removed on 2025-12-31\n; use VaspInputSet"
+        FutureWarning, match="DictSet is deprecated, and will be removed on 2025-12-31\nUse VaspInputSet"
     ):
         DictSet()
     assert isinstance(DictSet(), VaspInputSet)

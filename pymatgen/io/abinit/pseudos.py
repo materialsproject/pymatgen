@@ -52,17 +52,8 @@ __maintainer__ = "Matteo Giantomassi"
 # Tools and helper functions.
 
 
-def straceback():
-    """Get a string with the traceback."""
-
-    return "\n".join((traceback.format_exc(), str(sys.exc_info()[0])))
-
-
 def _read_nlines(filename: str, n_lines: int) -> list[str]:
-    """
-    Read at most nlines lines from file filename.
-    If nlines is < 0, the entire file is read.
-    """
+    """Read at most nlines from filename. If nlines is < 0, the entire file is read."""
     if n_lines < 0:
         with open(filename, encoding="utf-8") as file:
             return file.readlines()
@@ -1155,7 +1146,9 @@ class PseudoParser:
         try:
             header = parsers[ppdesc.name](path, ppdesc)
         except Exception:
-            raise self.Error(f"{path}:\n{straceback()}")
+            str_traceback = "\n".join((traceback.format_exc(), str(sys.exc_info()[0])))
+
+            raise self.Error(f"{path}:\n{str_traceback}")
 
         if psp_type == "NC":
             pseudo = NcAbinitPseudo(path, header)

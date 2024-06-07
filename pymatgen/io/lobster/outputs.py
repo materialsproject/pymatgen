@@ -1188,8 +1188,7 @@ class Lobsterout(MSONable):
 
 
 class Fatband:
-    """
-    Reads in FATBAND_x_y.lobster files.
+    """Read in FATBAND_x_y.lobster files.
 
     Attributes:
         efermi (float): Fermi energy read in from vasprun.xml.

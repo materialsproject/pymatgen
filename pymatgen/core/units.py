@@ -34,7 +34,7 @@ __maintainer__ = "Shyue Ping Ong, Matteo Giantomassi"
 __status__ = "Production"
 __date__ = "Aug 30, 2013"
 
-"""Some conversion factors"""
+# Some conversion factors
 Ha_to_eV = 1 / const.physical_constants["electron volt-hartree relationship"][0]
 eV_to_Ha = 1 / Ha_to_eV
 Ry_to_eV = Ha_to_eV / 2
@@ -46,11 +46,9 @@ ang_to_bohr = 1 / bohr_to_ang
 kCal_to_kJ = const.calorie
 kb = const.physical_constants["Boltzmann constant in eV/K"][0]
 
-"""
-Definitions of supported units. Values below are essentially scaling and
-conversion factors. What matters is the relative values, not the absolute.
-The SI units must have factor 1.
-"""
+# Definitions of supported units. Values below are essentially scaling and
+# conversion factors. What matters is the relative values, not the absolute.
+# The SI units must have factor 1.
 BASE_UNITS: dict[str, dict] = {
     "length": {
         "m": 1,

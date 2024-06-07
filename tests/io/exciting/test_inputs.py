@@ -8,11 +8,6 @@ from pymatgen.core import Lattice, Structure
 from pymatgen.io.exciting import ExcitingInput
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
-"""
-Tests the module to parse exciting input
-Created 1st of December, 2016
-"""
-
 __author__ = "Christian Vorwerk"
 __copyright__ = "Copyright 2016"
 __version__ = "0.1"
@@ -74,17 +69,17 @@ class TestExcitingInput(PymatgenTest):
                 [0.5, 0.5, 0.5],
             ],
         )
-        excin = ExcitingInput(structure)
-        for l1, l2 in zip(input_string.split("\n"), excin.write_string("unchanged").split("\n")):
+        exc_in = ExcitingInput(structure)
+        for l1, l2 in zip(input_string.split("\n"), exc_in.write_string("unchanged").split("\n")):
             if not l1.strip().startswith("<crystal scale"):
                 assert l1.strip() == l2.strip()
 
     def test_writebandstr(self):
         filepath = f"{TEST_FILES_DIR}/cif/CsI3Pb.cif"
         structure = Structure.from_file(filepath)
-        excin = ExcitingInput(structure)
-        string = excin.write_string("primitive", bandstr=True)
-        bandstr = string.split("<properties>")[1].split("</properties>")[0]
+        exc_in = ExcitingInput(structure)
+        string = exc_in.write_string("primitive", bandstr=True)
+        band_str = string.split("<properties>")[1].split("</properties>")[0]
 
         coord = []
         label = []
@@ -106,25 +101,8 @@ class TestExcitingInput(PymatgenTest):
             [0.5, 0.5, 0.0],
             [0.5, 0.5, 0.5],
         ]
-        label_ref = [
-            "GAMMA",
-            "X",
-            "S",
-            "Y",
-            "GAMMA",
-            "Z",
-            "U",
-            "R",
-            "T",
-            "Z",
-            "Y",
-            "T",
-            "U",
-            "X",
-            "S",
-            "R",
-        ]
-        root = ElementTree.fromstring(bandstr)
+        label_ref = ["GAMMA", "X", "S", "Y", "GAMMA", "Z", "U", "R", "T", "Z", "Y", "T", "U", "X", "S", "R"]
+        root = ElementTree.fromstring(band_str)
         for plot1d in root.iter("plot1d"):
             for point in plot1d.iter("point"):
                 coord.append([float(i) for i in point.get("coord").split()])

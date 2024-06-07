@@ -1129,6 +1129,5 @@ class TensorMapping(collections.abc.MutableMapping):
         indices = np.where(mask)[0]
         if len(indices) > 1:
             raise ValueError("Tensor key collision.")
-        if len(indices) == 0:
-            return None
-        return indices[0]
+
+        return None if len(indices) == 0 else indices[0]

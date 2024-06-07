@@ -217,11 +217,11 @@ class IRDielectricTensor(MSONable):
         plotter = SpectrumPlotter()
         for component in components:
             i, j = (directions_map[direction] for direction in component)
-            for fstr in ("re", "im"):
-                if fstr in reim:
-                    label = rf"{reim_label[fstr]}{{$\epsilon_{{{'xyz'[i]}{'xyz'[j]}}}$}}"
+            for re_im in ("re", "im"):
+                if re_im in reim:
+                    label = rf"{reim_label[re_im]}{{$\epsilon_{{{'xyz'[i]}{'xyz'[j]}}}$}}"
                     spectrum = self.get_spectrum(
-                        component, fstr, broad=broad, emin=emin, emax=emax, divs=divs, **kwargs
+                        component, re_im, broad=broad, emin=emin, emax=emax, divs=divs, **kwargs
                     )
                     spectrum.XLABEL = r"Frequency (meV)"
                     spectrum.YLABEL = r"$\epsilon(\omega)$"
