@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import tempfile
 from unittest import TestCase
 
 import numpy as np
@@ -1554,7 +1553,7 @@ class TestFatband(PymatgenTest):
         assert bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064), abs=1e-2)
 
 
-class TestLobsterin(TestCase):
+class TestLobsterin(PymatgenTest):
     def setUp(self):
         self.Lobsterin = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.1")
         self.Lobsterin2 = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.2")
@@ -1585,21 +1584,21 @@ class TestLobsterin(TestCase):
         # String and float keywords does not allow duplicates
         float_dup_file = original_file.copy()
         float_dup_file.append("cohpstartenergy -15.0")
-        with tempfile.NamedTemporaryFile("w+", delete=False) as temp_file:
-            temp_file.writelines(float_dup_file)
-            float_temp_file_path = temp_file.name
+
+        float_tmp_file = self.tmp_path / "tmp_lobster_in_float"
+        float_tmp_file.write_text("\n".join(float_dup_file))
 
         with pytest.raises(ValueError, match="Same keyword cohpstartenergy twice!"):
-            _ = Lobsterin.from_file(float_temp_file_path)
+            _ = Lobsterin.from_file(float_tmp_file)
 
         # Boolean and list keywords allow duplicates
         bool_dup_file = original_file.copy()
         bool_dup_file.append("skipdos")
 
-        with tempfile.NamedTemporaryFile("w+", delete=False) as temp_file:
-            temp_file.writelines(bool_dup_file)
-            bool_temp_file_path = temp_file.name
-        _ = Lobsterin.from_file(bool_temp_file_path)  # no error should be raised
+        bool_tmp_file = self.tmp_path / "tmp_lobster_in_bool"
+        bool_tmp_file.write_text("\n".join(bool_dup_file))
+
+        _ = Lobsterin.from_file(bool_tmp_file)  # no error should be raised
 
     def test_magic_methods(self):
         """Test __getitem__, __setitem__ and __contains__,
@@ -1813,11 +1812,10 @@ class TestLobsterin(TestCase):
         lobsterin_content.replace("COHPstartEnergy -15.0", "cohpSTARTEnergy -15.0")
         lobsterin_content.replace("skipcohp", "skipCOHP")
 
-        with tempfile.NamedTemporaryFile(delete=False, mode="w+", encoding="utf-8") as temp_file:
-            temp_file.write(lobsterin_content)
-            temp_file_path = temp_file.name
+        tmp_file_path = self.tmp_path / "tmp_lobster_in"
+        tmp_file_path.write_text(lobsterin_content)
 
-        lobsterin_diff_case = Lobsterin.from_file(temp_file_path)
+        lobsterin_diff_case = Lobsterin.from_file(tmp_file_path)
         assert self.Lobsterin.diff(lobsterin_diff_case)["Different"] == {}
 
     def test_dict_functionality(self):
@@ -1841,14 +1839,14 @@ class TestLobsterin(TestCase):
         assert len_after == len_before - 1
 
         # Test case sensitivity of |= operator
-        self.Lobsterin |= {"skipCOHP": True}  # Camel case
+        self.Lobsterin["skipCOHP"] = True  # Camel case
         assert self.Lobsterin["skipcohp"] is True
 
-        self.Lobsterin |= {"skipcohp": False}  # lower case
+        self.Lobsterin["skipcohp"] = False  # lower case
         assert self.Lobsterin["skipcohp"] is False
 
     def test_read_write_lobsterin(self):
-        outfile_path = tempfile.mkstemp()[1]
+        outfile_path = self.tmp_path / "lobsterin_test"
         lobsterin1 = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.1")
         lobsterin1.write_lobsterin(outfile_path)
         lobsterin2 = Lobsterin.from_file(outfile_path)
@@ -1896,7 +1894,7 @@ class TestLobsterin(TestCase):
 
     def test_write_lobsterin(self):
         # write lobsterin, read it and compare it
-        outfile_path = tempfile.mkstemp()[1]
+        outfile_path = self.tmp_path / "lobsterin_test"
         lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
             f"{VASP_IN_DIR}/POSCAR_Fe3O4",
             f"{VASP_IN_DIR}/INCAR.lobster",
@@ -1909,7 +1907,7 @@ class TestLobsterin(TestCase):
 
     def test_write_incar(self):
         # write INCAR and compare
-        outfile_path = tempfile.mkstemp()[1]
+        outfile_path = self.tmp_path / "INCAR_test"
         lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
             f"{VASP_IN_DIR}/POSCAR_Fe3O4",
             f"{VASP_IN_DIR}/INCAR.lobster",
@@ -1935,8 +1933,8 @@ class TestLobsterin(TestCase):
 
     def test_write_kpoints(self):
         # line mode
-        outfile_path = tempfile.mkstemp()[1]
-        outfile_path2 = tempfile.mkstemp(prefix="POSCAR")[1]
+        outfile_path = self.tmp_path / "KPOINTS_test"
+        outfile_path2 = self.tmp_path / "POSCAR_test"
         lobsterin1 = Lobsterin({})
         # test writing primitive cell
         lobsterin1.write_POSCAR_with_standard_primitive(
