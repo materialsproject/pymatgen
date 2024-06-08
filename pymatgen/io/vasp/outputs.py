@@ -1231,8 +1231,8 @@ class Vasprun(MSONable):
                 potcar_nelect = sum(ps.ZVAL * num for ps, num in zip(potcar, nums))
             charge = potcar_nelect - nelect
 
-            for s in self.structures:
-                s._charge = charge
+            for struct in self.structures:
+                struct._charge = charge
             if hasattr(self, "initial_structure"):
                 self.initial_structure._charge = charge
             if hasattr(self, "final_structure"):

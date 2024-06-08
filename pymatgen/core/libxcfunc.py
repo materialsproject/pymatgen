@@ -26,7 +26,7 @@ __email__ = "gmatteo@gmail.com"
 __status__ = "Production"
 __date__ = "May 16, 2016"
 
-# Load libxc info from json file
+# Load libxc info from JSON file
 with open(os.path.join(os.path.dirname(__file__), "libxc_docs.json"), encoding="utf-8") as file:
     _all_xcfuncs = {int(k): v for k, v in json.load(file).items()}
 
@@ -497,5 +497,5 @@ class LibxcFunc(Enum):
         return cls[dct["name"]]
 
     def to_json(self) -> str:
-        """Get a json string representation of the LibxcFunc."""
+        """Get a JSON string representation of the LibxcFunc."""
         return json.dumps(self.as_dict(), cls=MontyEncoder)

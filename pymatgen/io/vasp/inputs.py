@@ -679,11 +679,11 @@ class Poscar(MSONable):
         dof = 3 * len(self.structure) - 3
 
         # Remove linear drift (net momentum)
-        velocities -= np.mean(atomic_masses[:, np.newaxis] * velocities, axis=0) / np.mean(atomic_masses)
+        velocities -= np.mean(atomic_masses[:, None] * velocities, axis=0) / np.mean(atomic_masses)
 
         # Scale velocities due to atomic masses
         # mean 0 std proportional to sqrt(1/m)
-        velocities /= atomic_masses[:, np.newaxis] ** (1 / 2)
+        velocities /= atomic_masses[:, None] ** (1 / 2)
 
         # Scale velocities to get correct temperature
         energy = np.sum(1 / 2 * atomic_masses * np.sum(velocities**2, axis=1))
