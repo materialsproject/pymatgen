@@ -1995,7 +1995,7 @@ class PotcarSingle:
 
     @property
     def potential_type(self) -> Literal["NC", "PAW", "US"]:
-        """Type of PSP: NC, US or PAW."""
+        """Type of PSP: NC (Norm-conserving), US (Ultra-soft), PAW (Projector augmented wave)."""
         if self.lultra:
             return "US"
         if self.lpaw:

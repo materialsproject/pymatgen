@@ -612,7 +612,7 @@ class Lobsterin(UserDict, MSONable):
                         lobsterin_dict[key] = [" ".join(line_parts[1:])]
 
                 else:
-                    raise ValueError(f"Invalid keyword {key}.")
+                    raise ValueError(f"Invalid {key=}.")
 
         return cls(lobsterin_dict)
 
