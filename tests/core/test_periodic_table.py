@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import pickle
+import re
 from copy import deepcopy
 from enum import Enum
 
@@ -12,6 +13,7 @@ from pytest import approx
 from pymatgen.core import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.periodic_table import ElementBase, ElementType
 from pymatgen.core.units import Ha_to_eV
+from pymatgen.io.core import ParseError
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -529,12 +531,20 @@ class TestSpecies(PymatgenTest):
         ("P5+", "P", 5),
         ("Na0+", "Na", 0),
         ("Na0-", "Na", 0),
+        ("C0.53-", "C", -0.53),
+        ("Tc3.498+", "Tc", 3.498),
     ],
 )
 def test_symbol_oxi_state_str(symbol_oxi, expected_element, expected_oxi_state):
     species = Species(symbol_oxi)
     assert species._el.symbol == expected_element
-    assert species._oxi_state == expected_oxi_state
+    assert species._oxi_state == pytest.approx(expected_oxi_state, rel=1.0e-6)
+
+
+def test_symbol_oxi_state_str_raises():
+    symbol = "Fe2.5f2123+"  # invalid oxidation state
+    with pytest.raises(ParseError, match=re.escape(f"Failed to parse {symbol=}")):
+        _ = Species(symbol)
 
 
 class TestDummySpecies:
