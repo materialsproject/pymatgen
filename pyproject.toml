@@ -25,18 +25,26 @@ line-length = 120
 
 [tool.ruff.lint]
 select = [
+  "A",       # flake8-builtins
+  # "ANN",   # flake8-annotations
   "B",       # flake8-bugbear
   "C4",      # flake8-comprehensions
+  # "COM",   # flake8-commas
   "D",       # pydocstyle
+  "DTZ",     # flake8-datetimez
   "E",       # pycodestyle error
   "EXE",     # flake8-executable
   "F",       # pyflakes
   "FA",      # flake8-future-annotations
   "FBT003",  # boolean-positional-value-in-call
   "FLY",     # flynt
+  "FURB",    # refurb
   "I",       # isort
   "ICN",     # flake8-import-conventions
+  "INT",     # flake8-gettext
   "ISC",     # flake8-implicit-str-concat
+  # "N",     # pep8-naming
+  # "NPY",   # NumPy-specific rules
   "PD",      # pandas-vet
   "PERF",    # perflint
   "PGH",     # pygrep-hooks
@@ -51,10 +59,13 @@ select = [
   "RET",     # flake8-return
   "RSE",     # flake8-raise
   "RUF",     # Ruff-specific rules
+  # "S",       # flake8-bandit
   "SIM",     # flake8-simplify
   "SLOT",    # flake8-slots
   "TCH",     # flake8-type-checking
   "TID",     # flake8-tidy-imports
+  "TRIO",    # flake8-trio
+  # "TRY",   # tryceratops
   "UP",      # pyupgrade
   "W",       # pycodestyle warning
   "YTT",     # flake8-2020
