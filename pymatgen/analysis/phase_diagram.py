@@ -2492,7 +2492,7 @@ class PDPlotter:
 
         return ax
 
-    @property  # type: ignore
+    @property
     @lru_cache(1)  # noqa: B019
     def pd_plot_data(self):
         """
