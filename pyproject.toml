@@ -59,13 +59,13 @@ select = [
   "RET",     # flake8-return
   "RSE",     # flake8-raise
   "RUF",     # Ruff-specific rules
-  # "S",       # flake8-bandit
+  # "S",     # flake8-bandit
   "SIM",     # flake8-simplify
   "SLOT",    # flake8-slots
   "TCH",     # flake8-type-checking
   "TID",     # flake8-tidy-imports
   "TRIO",    # flake8-trio
-  "TRY",   # tryceratops
+  "TRY",     # tryceratops
   "UP",      # pyupgrade
   "W",       # pycodestyle warning
   "YTT",     # flake8-2020
