@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime
 import itertools
 import logging
 import math
@@ -12,7 +13,6 @@ import xml.etree.ElementTree as ET
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
-from datetime import datetime
 from glob import glob
 from io import StringIO
 from pathlib import Path
@@ -846,7 +846,7 @@ class Vasprun(MSONable):
             ComputedStructureEntry/ComputedEntry
         """
         if entry_id is None:
-            entry_id = f"vasprun-{datetime.now()}"
+            entry_id = f"vasprun-{datetime.datetime.now(tz=datetime.timezone.utc)}"
         param_names = {
             "is_hubbard",
             "hubbards",

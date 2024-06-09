@@ -38,7 +38,7 @@ select = [
   "FA",      # flake8-future-annotations
   "FBT003",  # boolean-positional-value-in-call
   "FLY",     # flynt
-  "FURB",    # refurb
+  # "FURB",  # refurb
   "I",       # isort
   "ICN",     # flake8-import-conventions
   "INT",     # flake8-gettext

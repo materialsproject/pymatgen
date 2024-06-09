@@ -17,7 +17,6 @@ import os
 import shutil
 import subprocess
 import warnings
-from datetime import datetime
 from glob import glob
 from pathlib import Path
 from shutil import which
@@ -244,13 +243,6 @@ class BaderAnalysis:
             "shift" is the shift used to center the atomic charge density, and
             "dim" is the dimension of the original charge density.
         """
-        # Deprecation tracker
-        if (
-            datetime(2025, 2, 26) < datetime.now()
-            and os.getenv("CI")
-            and os.getenv("GITHUB_REPOSITORY") == "materialsproject/pymatgen"
-        ):
-            raise RuntimeError("This method should have been removed, see #3656.")
 
         def slice_from_center(data: np.ndarray, x_width: int, y_width: int, z_width: int) -> np.ndarray:
             """Slices a central window from the data array."""

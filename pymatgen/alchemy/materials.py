@@ -302,7 +302,7 @@ class TransformedStructure(MSONable):
             source = "uploaded cif"
         source_info = {
             "source": source,
-            "datetime": str(datetime.datetime.now()),
+            "datetime": str(datetime.datetime.now(tz=datetime.timezone.utc)),
             "original_file": raw_str,
             "cif_data": cif_dict[cif_keys[0]],
         }
@@ -330,7 +330,7 @@ class TransformedStructure(MSONable):
         struct = poscar.structure
         source_info = {
             "source": "POSCAR",
-            "datetime": str(datetime.datetime.now()),
+            "datetime": str(datetime.datetime.now(tz=datetime.timezone.utc)),
             "original_file": raw_str,
         }
         return cls(struct, transformations, history=[source_info])

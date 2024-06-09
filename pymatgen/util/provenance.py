@@ -256,7 +256,7 @@ class StructureNL:
         if not all(sys.getsizeof(h) < MAX_HNODE_SIZE for h in history):
             raise ValueError(f"One or more history nodes exceeds the maximum size limit of {MAX_HNODE_SIZE} bytes")
 
-        self.created_at = created_at or datetime.datetime.utcnow()
+        self.created_at = created_at or datetime.datetime.now(tz=datetime.timezone.utc)
 
     def as_dict(self):
         """Get MSONable dict."""
