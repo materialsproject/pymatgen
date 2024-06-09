@@ -155,7 +155,7 @@ class StructureNLCase(TestCase):
 
     def test_eq(self):
         # test basic Equal()
-        created_at = datetime.datetime.now()
+        created_at = datetime.datetime.now(tz=datetime.timezone.utc)
         struct_nl = StructureNL(
             self.struct,
             self.hulk,
@@ -179,7 +179,7 @@ class StructureNLCase(TestCase):
         assert struct_nl == struct_nl2
 
         # change the created at date, now they are no longer equal
-        created_at = datetime.datetime.now() + datetime.timedelta(days=-1)
+        created_at = datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(days=-1)
         snl_new_date = StructureNL(
             self.struct,
             self.hulk,
