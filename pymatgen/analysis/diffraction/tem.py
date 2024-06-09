@@ -15,6 +15,7 @@ import scipy.constants as sc
 from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.string import latexify_spacegroup, unicodeify_spacegroup
+from pymatgen.util.typing import Tuple3Ints
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
@@ -47,7 +48,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         self,
         symprec: float | None = None,
         voltage: float = 200,
-        beam_direction: tuple[int, int, int] = (0, 0, 1),
+        beam_direction: Tuple3Ints = (0, 0, 1),
         camera_length: int = 160,
         debye_waller_factors: dict[str, float] | None = None,
         cs: float = 1,
@@ -104,9 +105,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         points_matrix = (np.ravel(points[i]) for i in range(3))
         return np.vstack(list(points_matrix)).transpose()
 
-    def zone_axis_filter(
-        self, points: list[tuple[int, int, int]] | np.ndarray, laue_zone: int = 0
-    ) -> list[tuple[int, int, int]]:
+    def zone_axis_filter(self, points: list[Tuple3Ints] | np.ndarray, laue_zone: int = 0) -> list[Tuple3Ints]:
         """Filter out all points that exist within the specified Laue zone according to the zone axis rule.
 
         Args:
@@ -122,11 +121,11 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             return []
         filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(points)) == laue_zone)
         result = points[filtered]  # type: ignore
-        return cast(list[tuple[int, int, int]], [tuple(x) for x in result.tolist()])
+        return cast(list[Tuple3Ints], [tuple(x) for x in result.tolist()])
 
     def get_interplanar_spacings(
-        self, structure: Structure, points: list[tuple[int, int, int]] | np.ndarray
-    ) -> dict[tuple[int, int, int], float]:
+        self, structure: Structure, points: list[Tuple3Ints] | np.ndarray
+    ) -> dict[Tuple3Ints, float]:
         """
         Args:
             structure (Structure): the input structure.
@@ -142,9 +141,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         interplanar_spacings_val = np.array([structure.lattice.d_hkl(x) for x in points_filtered])
         return dict(zip(points_filtered, interplanar_spacings_val))
 
-    def bragg_angles(
-        self, interplanar_spacings: dict[tuple[int, int, int], float]
-    ) -> dict[tuple[int, int, int], float]:
+    def bragg_angles(self, interplanar_spacings: dict[Tuple3Ints, float]) -> dict[Tuple3Ints, float]:
         """Get the Bragg angles for every hkl point passed in (where n = 1).
 
         Args:
@@ -158,7 +155,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         bragg_angles_val = np.arcsin(self.wavelength_rel() / (2 * interplanar_spacings_val))
         return dict(zip(plane, bragg_angles_val))
 
-    def get_s2(self, bragg_angles: dict[tuple[int, int, int], float]) -> dict[tuple[int, int, int], float]:
+    def get_s2(self, bragg_angles: dict[Tuple3Ints, float]) -> dict[Tuple3Ints, float]:
         """
         Calculates the s squared parameter (= square of sin theta over lambda) for each hkl plane.
 
@@ -175,8 +172,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return dict(zip(plane, s2_val))
 
     def x_ray_factors(
-        self, structure: Structure, bragg_angles: dict[tuple[int, int, int], float]
-    ) -> dict[str, dict[tuple[int, int, int], float]]:
+        self, structure: Structure, bragg_angles: dict[Tuple3Ints, float]
+    ) -> dict[str, dict[Tuple3Ints, float]]:
         """
         Calculates x-ray factors, which are required to calculate atomic scattering factors. Method partially inspired
         by the equivalent process in the xrd module.
@@ -205,8 +202,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return x_ray_factors
 
     def electron_scattering_factors(
-        self, structure: Structure, bragg_angles: dict[tuple[int, int, int], float]
-    ) -> dict[str, dict[tuple[int, int, int], float]]:
+        self, structure: Structure, bragg_angles: dict[Tuple3Ints, float]
+    ) -> dict[str, dict[Tuple3Ints, float]]:
         """
         Calculates atomic scattering factors for electrons using the Mott-Bethe formula (1st order Born approximation).
 
@@ -232,8 +229,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return electron_scattering_factors
 
     def cell_scattering_factors(
-        self, structure: Structure, bragg_angles: dict[tuple[int, int, int], float]
-    ) -> dict[tuple[int, int, int], int]:
+        self, structure: Structure, bragg_angles: dict[Tuple3Ints, float]
+    ) -> dict[Tuple3Ints, int]:
         """
         Calculates the scattering factor for the whole cell.
 
@@ -258,9 +255,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             scattering_factor_curr = 0
         return cell_scattering_factors
 
-    def cell_intensity(
-        self, structure: Structure, bragg_angles: dict[tuple[int, int, int], float]
-    ) -> dict[tuple[int, int, int], float]:
+    def cell_intensity(self, structure: Structure, bragg_angles: dict[Tuple3Ints, float]) -> dict[Tuple3Ints, float]:
         """
         Calculates cell intensity for each hkl plane. For simplicity's sake, take I = |F|**2.
 
@@ -317,8 +312,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return pd.DataFrame(rows, columns=field_names)
 
     def normalized_cell_intensity(
-        self, structure: Structure, bragg_angles: dict[tuple[int, int, int], float]
-    ) -> dict[tuple[int, int, int], float]:
+        self, structure: Structure, bragg_angles: dict[Tuple3Ints, float]
+    ) -> dict[Tuple3Ints, float]:
         """
         Normalizes the cell_intensity dict to 1, for use in plotting.
 
@@ -340,8 +335,8 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
     def is_parallel(
         self,
         structure: Structure,
-        plane: tuple[int, int, int],
-        other_plane: tuple[int, int, int],
+        plane: Tuple3Ints,
+        other_plane: Tuple3Ints,
     ) -> bool:
         """
         Checks if two hkl planes are parallel in reciprocal space.
@@ -357,7 +352,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         phi = self.get_interplanar_angle(structure, plane, other_plane)
         return phi in (180, 0) or np.isnan(phi)
 
-    def get_first_point(self, structure: Structure, points: list) -> dict[tuple[int, int, int], float]:
+    def get_first_point(self, structure: Structure, points: list) -> dict[Tuple3Ints, float]:
         """Get the first point to be plotted in the 2D DP, corresponding to maximum d/minimum R.
 
         Args:
@@ -378,7 +373,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         return {max_d_plane: max_d}
 
     @staticmethod
-    def get_interplanar_angle(structure: Structure, p1: tuple[int, int, int], p2: tuple[int, int, int]) -> float:
+    def get_interplanar_angle(structure: Structure, p1: Tuple3Ints, p2: Tuple3Ints) -> float:
         """Get the interplanar angle (in degrees) between the normal of two crystal planes.
         Formulas from International Tables for Crystallography Volume C pp. 2-9.
 
@@ -432,9 +427,9 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
     @staticmethod
     def get_plot_coeffs(
-        p1: tuple[int, int, int],
-        p2: tuple[int, int, int],
-        p3: tuple[int, int, int],
+        p1: Tuple3Ints,
+        p2: Tuple3Ints,
+        p3: Tuple3Ints,
     ) -> np.ndarray:
         """
         Calculates coefficients of the vector addition required to generate positions for each DP point
@@ -454,7 +449,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         x = np.dot(a_pinv, b)
         return np.ravel(x)
 
-    def get_positions(self, structure: Structure, points: list) -> dict[tuple[int, int, int], np.ndarray]:
+    def get_positions(self, structure: Structure, points: list) -> dict[Tuple3Ints, np.ndarray]:
         """
         Calculates all the positions of each hkl point in the 2D diffraction pattern by vector addition.
         Distance in centimeters.
@@ -524,7 +519,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
 
         class dot(NamedTuple):
             position: NDArray
-            hkl: tuple[int, int, int]
+            hkl: Tuple3Ints
             intensity: float
             film_radius: float
             d_spacing: float

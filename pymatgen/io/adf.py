@@ -370,7 +370,7 @@ class AdfTask(MSONable):
         ADF does not support calculating force/gradient.
     """
 
-    operations: ClassVar = dict(
+    operations: ClassVar[dict[str, str]] = dict(
         energy="Evaluate the single point energy.",
         optimize="Minimize the energy by varying the molecular structure.",
         frequencies="Compute second derivatives and print out an analysis of molecular vibrations.",
@@ -533,8 +533,7 @@ class AdfInput:
         self.task = task
 
     def write_file(self, molecule, inp_file):
-        """
-        Write an ADF input file.
+        """Write an ADF input file.
 
         Args:
             molecule (Molecule): The molecule for this task.

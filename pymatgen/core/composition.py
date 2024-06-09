@@ -25,7 +25,7 @@ from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
-    from typing import ClassVar
+    from typing import Any, ClassVar
 
     from typing_extensions import Self
 
@@ -81,7 +81,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     # Special formula handling for peroxides and certain elements. This is so
     # that formula output does not write LiO instead of Li2O2 for example.
-    special_formulas: ClassVar = dict(
+    special_formulas: ClassVar[dict[str, str]] = dict(
         LiO="Li2O2",
         NaO="Na2O2",
         KO="K2O2",
@@ -125,20 +125,20 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         self.allow_negative = kwargs.pop("allow_negative", False)
         # it's much faster to recognize a composition and use the el_map than
         # to pass the composition to {}
-        if len(args) == 1 and isinstance(args[0], Composition):
+        if len(args) == 1 and isinstance(args[0], type(self)):
             elem_map = args[0]
         elif len(args) == 1 and isinstance(args[0], str):
             elem_map = self._parse_formula(args[0])  # type: ignore[assignment]
         elif len(args) == 1 and isinstance(args[0], float) and isnan(args[0]):
             raise ValueError("float('NaN') is not a valid Composition, did you mean 'NaN'?")
         else:
-            elem_map = dict(*args, **kwargs)  # type: ignore
+            elem_map = dict(*args, **kwargs)  # type: ignore[assignment]
         elem_amt = {}
         self._n_atoms = 0
         for key, val in elem_map.items():
-            if val < -Composition.amount_tolerance and not self.allow_negative:
+            if val < -type(self).amount_tolerance and not self.allow_negative:
                 raise ValueError("Amounts in Composition cannot be negative!")
-            if abs(val) >= Composition.amount_tolerance:
+            if abs(val) >= type(self).amount_tolerance:
                 elem_amt[get_el_sp(key)] = val
                 self._n_atoms += abs(val)
         self._data = elem_amt
@@ -263,6 +263,21 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """Hash based on the chemical system."""
         return hash(frozenset(self._data))
 
+    def __repr__(self) -> str:
+        formula = " ".join(f"{key}{':' if hasattr(key, 'oxi_state') else ''}{val:g}" for key, val in self.items())
+        cls_name = type(self).__name__
+        return f"{cls_name}({formula!r})"
+
+    def __str__(self) -> str:
+        return " ".join(f"{key}{formula_double_format(val, ignore_ones=False)}" for key, val in self.as_dict().items())
+
+    def to_pretty_string(self) -> str:
+        """
+        Returns:
+            str: Same output as __str__() but without spaces.
+        """
+        return re.sub(r"\s+", "", str(self))
+
     @property
     def average_electroneg(self) -> float:
         """Average electronegativity of the composition."""
@@ -302,7 +317,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     def copy(self) -> Self:
         """A copy of the composition."""
-        return Composition(self, allow_negative=self.allow_negative)
+        return type(self)(self, allow_negative=self.allow_negative)
 
     @property
     def formula(self) -> str:
@@ -323,7 +338,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     @property
     def iupac_formula(self) -> str:
-        """A formula string, with elements sorted by the iupac
+        """A formula string, with elements sorted by the IUPAC
         electronegativity ordering defined in Table VI of "Nomenclature of
         Inorganic Chemistry (IUPAC Recommendations 2005)". This ordering
         effectively follows the groups and rows of the periodic table, except
@@ -339,7 +354,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
     @property
     def element_composition(self) -> Self:
         """The composition replacing any species by the corresponding element."""
-        return Composition(self.get_el_amt_dict(), allow_negative=self.allow_negative)
+        return type(self)(self.get_el_amt_dict(), allow_negative=self.allow_negative)
 
     @property
     def fractional_composition(self) -> Self:
@@ -462,15 +477,19 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """List of elements in Composition."""
         return list(self)
 
-    def __str__(self) -> str:
-        return " ".join(f"{key}{formula_double_format(val, ignore_ones=False)}" for key, val in self.as_dict().items())
+    @property
+    def chemical_system_set(self) -> set[str]:
+        """The set of elements in the Composition. E.g. {"O", "Si"} for SiO2."""
+        return {el.symbol for el in self.elements}
 
-    def to_pretty_string(self) -> str:
+    @property
+    def chemical_system(self) -> str:
+        """The chemical system of a Composition, for example "O-Si" for
+        SiO2. Chemical system is a string of a list of elements
+        sorted alphabetically and joined by dashes, by convention for use
+        in database keys.
         """
-        Returns:
-            str: Same output as __str__() but without spaces.
-        """
-        return re.sub(r"\s+", "", str(self))
+        return "-".join(sorted(el.symbol for el in self.elements))
 
     @property
     def num_atoms(self) -> float:
@@ -543,12 +562,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             In the case of Metallofullerene formula (e.g. Y3N@C80),
             the @ mark will be dropped and passed to parser.
         """
-        # throw if formula contains special characters or only spaces and/or numbers
+        # Raise error if formula contains special characters or only spaces and/or numbers
         if strict and re.match(r"[\s\d.*/]*$", formula):
             raise ValueError(f"Invalid {formula=}")
-        # for Metallofullerene like "Y3N@C80"
+
+        # For Metallofullerene like "Y3N@C80"
         formula = formula.replace("@", "")
-        # square brackets are used in formulas to denote coordination complexes (gh-3583)
+        # Square brackets are used in formulas to denote coordination complexes (gh-3583)
         formula = formula.replace("[", "(")
         formula = formula.replace("]", ")")
 
@@ -600,25 +620,11 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return anon
 
     @property
-    def chemical_system(self) -> str:
-        """The chemical system of a Composition, for example "O-Si" for
-        SiO2. Chemical system is a string of a list of elements
-        sorted alphabetically and joined by dashes, by convention for use
-        in database keys.
-        """
-        return "-".join(sorted(el.symbol for el in self.elements))
-
-    @property
     def valid(self) -> bool:
         """True if Composition contains valid elements or species and
         False if the Composition contains any dummy species.
         """
         return not any(isinstance(el, DummySpecies) for el in self.elements)
-
-    def __repr__(self) -> str:
-        formula = " ".join(f"{key}{':' if hasattr(key, 'oxi_state') else ''}{val:g}" for key, val in self.items())
-        cls_name = type(self).__name__
-        return f"{cls_name}({formula!r})"
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
@@ -692,7 +698,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return {str(el): self.get_wt_fraction(el) for el in self.elements}
 
     @property
-    def to_data_dict(self) -> dict:
+    def to_data_dict(self) -> dict[str, Any]:
         """
         Returns:
             A dict with many keys and values relating to Composition/Formula,
@@ -794,7 +800,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         Returns:
             Composition: New object with elements remapped according to elem_map.
         """
-        # drop inapplicable substitutions
+        # Drop inapplicable substitutions
         invalid_elems = [key for key in elem_map if key not in self]
         if invalid_elems:
             warnings.warn(
@@ -804,13 +810,13 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         for elem in invalid_elems:
             elem_map.pop(elem)
 
-        # start with elements that remain unchanged (not in elem_map)
+        # Start with elements that remain unchanged (not in elem_map)
         new_comp = {elem: amount for elem, amount in self.as_dict().items() if elem not in elem_map}
 
         for old_elem, new_elem in elem_map.items():
             amount = self[old_elem]
 
-            # build a dictionary of substitutions to be made
+            # Build a dictionary of substitutions to be made
             subs = {}
             if isinstance(new_elem, dict):
                 for el, factor in new_elem.items():
@@ -818,14 +824,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             else:
                 subs = {new_elem: amount}
 
-            # and apply the substitutions to the new composition
+            # Apply the substitutions to the new composition
             for el, amt in subs.items():
                 if el in new_comp:
                     new_comp[el] += amt
                 else:
                     new_comp[el] = amt
 
-                # check for ambiguous input (see issue #2553)
+                # Check for ambiguous input (see issue #2553)
                 if el in self:
                     warnings.warn(
                         f"Same element ({el}) in both the keys and values of the substitution!"
@@ -934,7 +940,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 If the composition is not charge balanced, an empty list is returned.
         """
         comp = self.copy()
-        # reduce Composition if necessary
+        # Reduce Composition if necessary
         if max_sites and max_sites < 0:
             comp = self.reduced_composition
 
@@ -950,15 +956,15 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 raise ValueError(f"Composition {comp} cannot accommodate max_sites setting!")
 
         # Load prior probabilities of oxidation states, used to rank solutions
-        if not Composition.oxi_prob:
+        if not type(self).oxi_prob:
             all_data = loadfn(f"{module_dir}/../analysis/icsd_bv.yaml")
             type(self).oxi_prob = {Species.from_str(sp): data for sp, data in all_data["occurrence"].items()}
         oxi_states_override = oxi_states_override or {}
-        # assert: Composition only has integer amounts
+        # Assert Composition only has integer amounts
         if not all(amt == int(amt) for amt in comp.values()):
             raise ValueError("Charge balance analysis requires integer values in Composition!")
 
-        # for each element, determine all possible sum of oxidations
+        # For each element, determine all possible sum of oxidations
         # (taking into account nsites for that particular element)
         el_amt = comp.get_el_amt_dict()
         elements = list(el_amt)
@@ -976,7 +982,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             else:
                 oxids = Element(el).icsd_oxidation_states or Element(el).oxidation_states
 
-            # get all possible combinations of oxidation states
+            # Get all possible combinations of oxidation states
             # and sum each combination
             for oxid_combo in combinations_with_replacement(oxids, int(el_amt[el])):
                 # List this sum as a possible option
@@ -988,7 +994,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 score = sum(type(self).oxi_prob.get(Species(el, o), 0) for o in oxid_combo)  # type: ignore[union-attr]
 
                 # If it is the most probable combo for a certain sum,
-                #   store the combination
+                # store the combination
                 if oxid_sum not in el_sum_scores[idx] or score > el_sum_scores[idx].get(oxid_sum, 0):
                     el_sum_scores[idx][oxid_sum] = score
                     el_best_oxid_combo[idx][oxid_sum] = oxid_combo
@@ -999,24 +1005,24 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         all_oxid_combo = []  # will contain the best combination of oxidation states for each site
         all_scores = []  # will contain a score for each solution
         for x in product(*el_sums):
-            # each x is a trial of one possible oxidation sum for each element
+            # Each x is a trial of one possible oxidation sum for each element
             if sum(x) == target_charge:  # charge balance condition
                 el_sum_sol = dict(zip(elements, x))  # element->oxid_sum
-                # normalize oxid_sum by amount to get avg oxid state
+                # Normalize oxid_sum by amount to get avg oxid state
                 sol = {el: v / el_amt[el] for el, v in el_sum_sol.items()}
-                # add the solution to the list of solutions
+                # Add the solution to the list of solutions
                 all_sols.append(sol)
 
-                # determine the score for this solution
+                # Determine the score for this solution
                 score = 0
                 for idx, v in enumerate(x):
                     score += el_sum_scores[idx][v]
                 all_scores.append(score)
 
-                # collect the combination of oxidation states for each site
+                # Collect the combination of oxidation states for each site
                 all_oxid_combo.append({e: el_best_oxid_combo[idx][v] for idx, (e, v) in enumerate(zip(elements, x))})
 
-        # sort the solutions from highest to lowest score
+        # Sort the solutions from highest to lowest score
         if all_scores:
             all_sols, all_oxid_combo = zip(
                 *(

@@ -52,17 +52,8 @@ __maintainer__ = "Matteo Giantomassi"
 # Tools and helper functions.
 
 
-def straceback():
-    """Get a string with the traceback."""
-
-    return "\n".join((traceback.format_exc(), str(sys.exc_info()[0])))
-
-
 def _read_nlines(filename: str, n_lines: int) -> list[str]:
-    """
-    Read at most nlines lines from file filename.
-    If nlines is < 0, the entire file is read.
-    """
+    """Read at most nlines from filename. If nlines is < 0, the entire file is read."""
     if n_lines < 0:
         with open(filename, encoding="utf-8") as file:
             return file.readlines()
@@ -144,7 +135,7 @@ class Pseudo(MSONable, abc.ABC):
         lines: list[str] = []
         lines += (
             f"<{type(self).__name__}: {self.basename}>",
-            "  summary: " + self.summary.strip(),
+            f"  summary: {self.summary.strip()}",
             f"  number of valence electrons: {self.Z_val}",
             f"  maximum angular momentum: {l2str(self.l_max)}",
             f"  angular momentum for local part: {l2str(self.l_local)}",
@@ -675,7 +666,7 @@ def _int_from_str(string):
 class NcAbinitHeader(AbinitHeader):
     """The abinit header found in the NC pseudopotential files."""
 
-    _VARS: ClassVar = dict(
+    _VARS: ClassVar[dict[str, tuple]] = dict(
         zatom=(None, _int_from_str),
         zion=(None, float),
         pspdat=(None, float),
@@ -866,7 +857,7 @@ class NcAbinitHeader(AbinitHeader):
 class PawAbinitHeader(AbinitHeader):
     """The abinit header found in the PAW pseudopotential files."""
 
-    _VARS: ClassVar = dict(
+    _VARS: ClassVar[dict[str, tuple]] = dict(
         zatom=(None, _int_from_str),
         zion=(None, float),
         pspdat=(None, float),
@@ -1012,7 +1003,7 @@ class PseudoParser:
         format: None
 
     # TODO Recheck
-    _PSPCODES: ClassVar = {
+    _PSPCODES: ClassVar[dict[int, ppdesc]] = {
         1: ppdesc(1, "TM", "NC", None),
         2: ppdesc(2, "GTH", "NC", None),
         3: ppdesc(3, "HGH", "NC", None),
@@ -1023,8 +1014,6 @@ class PseudoParser:
         8: ppdesc(8, "ONCVPSP", "NC", None),
         10: ppdesc(10, "HGHK", "NC", None),
     }
-
-    del ppdesc
 
     # renumber functionals from oncvpsp todo confirm that 3 is 2
     # _FUNCTIONALS = {1: {'n': 4, 'name': 'Wigner'},
@@ -1157,7 +1146,9 @@ class PseudoParser:
         try:
             header = parsers[ppdesc.name](path, ppdesc)
         except Exception:
-            raise self.Error(f"{path}:\n{straceback()}")
+            str_traceback = "\n".join((traceback.format_exc(), str(sys.exc_info()[0])))
+
+            raise self.Error(f"{path}:\n{str_traceback}")
 
         if psp_type == "NC":
             pseudo = NcAbinitPseudo(path, header)
@@ -1512,7 +1503,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     #    ax.annotate("$r_c$", xy=(self.paw_radius + 0.1, 0.1))
 
     #    for state, rfunc in self.potentials.items():
-    #        ax.plot(rfunc.mesh, rfunc.values, label="TPROJ: " + state)
+    #        ax.plot(rfunc.mesh, rfunc.values, label=f"TPROJ: {state}")
 
     #    ax.legend(loc="best")
 

@@ -171,8 +171,7 @@ class ExcitingInput(MSONable):
         return cls.from_str(data)
 
     def write_etree(self, celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs):
-        """
-        Writes the exciting input parameters to an xml object.
+        """Write the exciting input parameters to an XML object.
 
         Args:
             celltype (str): Choice of unit cell. Can be either the unit cell
@@ -250,7 +249,7 @@ class ExcitingInput(MSONable):
                     coord = f"{coord2[0]:16.8f} {coord2[1]:16.8f} {coord2[2]:16.8f}"
 
                 # write atomic positions
-                index = index + 1
+                index += 1
                 _ = ET.SubElement(species, "atom", coord=coord)
 
         # write bandstructure if needed
@@ -278,8 +277,7 @@ class ExcitingInput(MSONable):
         return root
 
     def write_string(self, celltype, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs):
-        """
-        Writes exciting input.xml as a string.
+        """Write exciting input.xml as a string.
 
         Args:
             celltype (str): Choice of unit cell. Can be either the unit cell
@@ -315,8 +313,7 @@ class ExcitingInput(MSONable):
     def write_file(
         self, celltype, filename, cartesian=False, bandstr=False, symprec: float = 0.4, angle_tolerance=5, **kwargs
     ):
-        """
-        Writes exciting input file.
+        """Write exciting input file.
 
         Args:
             celltype (str): Choice of unit cell. Can be either the unit cell

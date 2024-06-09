@@ -52,7 +52,7 @@ if TYPE_CHECKING:
 
     from pymatgen.core.lattice import Lattice
     from pymatgen.core.structure import Molecule, Structure
-    from pymatgen.util.typing import Kpoint
+    from pymatgen.util.typing import Kpoint, Tuple3Ints
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
@@ -1590,7 +1590,7 @@ class VHartreeCube(Section):
         )
 
 
-@deprecated(VHartreeCube, "Deprecated on 2024-03-29, to be removed on 2025-03-29.")
+@deprecated(VHartreeCube, "Deprecated on 2024-03-29.", deadline=(2025, 3, 29))
 class V_Hartree_Cube(VHartreeCube):
     pass
 
@@ -1634,7 +1634,7 @@ class MOCubes(Section):
         )
 
 
-@deprecated(MOCubes, "Deprecated on 2024-03-29, to be removed on 2025-03-29.")
+@deprecated(MOCubes, "Deprecated on 2024-03-29.", deadline=(2025, 3, 29))
 class MO_Cubes(MOCubes):
     pass
 
@@ -1659,7 +1659,7 @@ class EDensityCube(Section):
         )
 
 
-@deprecated(EDensityCube, "Deprecated on 2024-03-29, to be removed on 2025-03-29.")
+@deprecated(EDensityCube, "Deprecated on 2024-03-29.", deadline=(2025, 3, 29))
 class E_Density_Cube(EDensityCube):
     pass
 
@@ -1786,7 +1786,7 @@ class BrokenSymmetry(Section):
         nel_beta = []
         n_alpha = []
         n_beta = []
-        unpaired_orbital: tuple[int, int, int] = (0, 0, 0)
+        unpaired_orbital: Tuple3Ints = (0, 0, 0)
         while tmp:
             tmp2 = -min((esv[0][2], tmp)) if tmp > 0 else min((f2(esv[0][1]) - esv[0][2], -tmp))
             l_alpha.append(esv[0][1])
@@ -1858,7 +1858,7 @@ class XCFunctional(Section):
         )
 
 
-@deprecated(XCFunctional, "Deprecated on 2024-03-29, to be removed on 2025-03-29.")
+@deprecated(XCFunctional, "Deprecated on 2024-03-29.", deadline=(2025, 3, 29))
 class Xc_Functional(XCFunctional):
     pass
 
@@ -2089,7 +2089,7 @@ class KpointSet(Section):
         )
 
 
-@deprecated(KpointSet, "Kpoint_Set has been deprecated in favor of KpointSet on 2024-03-16")
+@deprecated(KpointSet, "Kpoint_Set has been deprecated on 2024-03-16", deadline=(2025, 3, 16))
 class Kpoint_Set(KpointSet):
     pass
 
@@ -2173,7 +2173,7 @@ class BandStructure(Section):
         return cls(kpoint_sets=kpoint_sets, filename="BAND.bs")
 
 
-@deprecated(BandStructure, "Deprecated on 2024-03-29, to be removed on 2025-03-29.")
+@deprecated(BandStructure, "Deprecated on 2024-03-29.", deadline=(2025, 3, 29))
 class Band_Structure(BandStructure):
     pass
 

@@ -72,7 +72,7 @@ class MSONAtoms(Atoms, MSONable):
         # to be used in a round-trip fashion and does not work properly with constraints.
         # See ASE issue #1387.
         mson_atoms = cls(decode(dct["atoms_json"]))
-        atoms_info = MontyDecoder().process_decoded(dct["atoms_info"])
+        atoms_info = MontyDecoder().process_decoded(dct.get("atoms_info", {}))
         mson_atoms.info = atoms_info
         return mson_atoms
 
@@ -114,8 +114,8 @@ class AseAtomsAdaptor:
         if msonable:
             atoms = MSONAtoms(atoms)
 
-        if "tags" in structure.site_properties:
-            atoms.set_tags(structure.site_properties["tags"])
+        if tags := structure.site_properties.get("tags"):
+            atoms.set_tags(tags)
 
         # Set the site magmoms in the ASE Atoms object
         # Note: ASE distinguishes between initial and converged

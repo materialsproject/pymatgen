@@ -38,6 +38,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.core.composition import SpeciesLike
+    from pymatgen.util.typing import Tuple3Ints
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman, "
@@ -102,13 +103,13 @@ class ValenceIonicRadiusEvaluator:
         vnn = VoronoiNN()
 
         def nearest_key(sorted_vals: list[int], skey: int) -> int:
-            n = bisect_left(sorted_vals, skey)
-            if n == len(sorted_vals):
+            idx = bisect_left(sorted_vals, skey)
+            if idx == len(sorted_vals):
                 return sorted_vals[-1]
-            if n == 0:
+            if idx == 0:
                 return sorted_vals[0]
-            before = sorted_vals[n - 1]
-            after = sorted_vals[n]
+            before = sorted_vals[idx - 1]
+            after = sorted_vals[idx]
             if after - skey < skey - before:
                 return after
             return before
@@ -133,7 +134,7 @@ class ValenceIonicRadiusEvaluator:
                 oxi_state = nearest_key(tab_oxi_states, oxi_state)
                 radius = _ion_radii[el][str(oxi_state)][str(coord_no)]
             except KeyError:
-                new_coord_no = coord_no + 1 if vnn.get_cn(self._structure, idx) - coord_no > 0 else coord_no - 1
+                new_coord_no = coord_no + (1 if vnn.get_cn(self._structure, idx) - coord_no > 0 else -1)
                 try:
                     radius = _ion_radii[el][str(oxi_state)][str(new_coord_no)]
                     coord_no = new_coord_no
@@ -144,7 +145,7 @@ class ValenceIonicRadiusEvaluator:
                     for val in tab_coords:
                         if val > coord_no:
                             break
-                        idx = idx + 1
+                        idx += 1
                     if idx == len(tab_coords):
                         key = str(tab_coords[-1])
                         radius = _ion_radii[el][str(oxi_state)][key]
@@ -540,7 +541,7 @@ class NearNeighbors:
         return list(all_sites.values())
 
     @staticmethod
-    def _get_image(structure: Structure, site: Site) -> tuple[int, int, int]:
+    def _get_image(structure: Structure, site: Site) -> Tuple3Ints:
         """Private convenience method for get_nn_info,
         gives lattice image from provided PeriodicSite and Structure.
 
@@ -2887,7 +2888,7 @@ class LocalStructOrderParams:
                         if k > j:
                             distjk_unique.append(distjk[j][kk])
                         rjknorm[j].append(rjk[j][kk] / distjk[j][kk])
-                        kk = kk + 1
+                        kk += 1
         # Initialize OP list and, then, calculate OPs.
         ops = [0.0 for t in self._types]
         # norms = [[[] for j in range(nneigh)] for t in self._types]
@@ -3416,10 +3417,7 @@ class BrunnerNNReciprocal(NearNeighbors):
         return siw
 
 
-@deprecated(
-    BrunnerNNReciprocal,
-    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
-)
+@deprecated(BrunnerNNReciprocal, "Deprecated on 2024-03-29.", deadline=(2025, 3, 29))
 class BrunnerNN_reciprocal(BrunnerNNReciprocal):
     pass
 
@@ -3495,10 +3493,7 @@ class BrunnerNNRelative(NearNeighbors):
         return siw
 
 
-@deprecated(
-    BrunnerNNRelative,
-    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
-)
+@deprecated(BrunnerNNRelative, "Deprecated on 2024-03-29.", deadline=(2025, 3, 29))
 class BrunnerNN_relative(BrunnerNNRelative):
     pass
 
@@ -3574,10 +3569,7 @@ class BrunnerNNReal(NearNeighbors):
         return siw
 
 
-@deprecated(
-    BrunnerNNReal,
-    "Deprecated on 2024-03-29, to be removed on 2025-03-29.",
-)
+@deprecated(BrunnerNNReal, "Deprecated on 2024-03-29.", deadline=(2025, 3, 29))
 class BrunnerNN_real(BrunnerNNReal):
     pass
 

@@ -249,7 +249,7 @@ class LobsterNeighbors(NearNeighbors):
 
         return set(anion_species)
 
-    @deprecated(replacement=anion_types)
+    @deprecated(anion_types)
     def get_anion_types(self):
         return self.anion_types
 
@@ -1312,25 +1312,24 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
                 ce_dict = None
 
             if list_neighisite[isite] is not None:
-                for ineighsite, neighsite in enumerate(list_neighsite[isite]):
-                    diff = neighsite.frac_coords - structure[list_neighisite[isite][ineighsite]].frac_coords
-                    rounddiff = np.round(diff)
-                    if not np.allclose(diff, rounddiff):
+                for idx_neigh_site, neigh_site in enumerate(list_neighsite[isite]):
+                    diff = neigh_site.frac_coords - structure[list_neighisite[isite][idx_neigh_site]].frac_coords
+                    round_diff = np.round(diff)
+                    if not np.allclose(diff, round_diff):
                         raise ValueError(
                             "Weird, differences between one site in a periodic image cell is not integer ..."
                         )
-                    nb_image_cell = np.array(rounddiff, int)
+                    nb_image_cell = np.array(round_diff, int)
 
                     all_nbs_sites_indices_here.append(counter)
 
-                    all_nbs_sites.append(
-                        {
-                            "site": neighsite,
-                            "index": list_neighisite[isite][ineighsite],
-                            "image_cell": nb_image_cell,
-                        }
-                    )
-                    counter = counter + 1
+                    neighbor = {
+                        "site": neigh_site,
+                        "index": list_neighisite[isite][idx_neigh_site],
+                        "image_cell": nb_image_cell,
+                    }
+                    all_nbs_sites.append(neighbor)
+                    counter += 1
 
                 all_nbs_sites_indices.append(all_nbs_sites_indices_here)
             else:

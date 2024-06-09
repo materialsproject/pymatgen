@@ -92,7 +92,7 @@ class NetcdfReader:
         self.ngroups = len(list(self.walk_tree()))
 
         # Always return non-masked numpy arrays.
-        # Slicing a ncvar returns a MaskedArrray and this is really annoying
+        # Slicing a ncvar returns a MaskedArray and this is really annoying
         # because it can lead to unexpected behavior in e.g. calls to np.matmul!
         # See also https://github.com/Unidata/netcdf4-python/issues/785
         self.rootgrp.set_auto_mask(False)
@@ -273,30 +273,31 @@ class EtsfReader(NetcdfReader):
         Return AbinitHeader
         """
         dct = {}
-        for hvar in _HDR_VARIABLES.values():
-            ncname = hvar.etsf_name if hvar.etsf_name is not None else hvar.name
-            if ncname in self.rootgrp.variables:
-                dct[hvar.name] = self.read_value(ncname)
-            elif ncname in self.rootgrp.dimensions:
-                dct[hvar.name] = self.read_dimvalue(ncname)
+        for hdr_var in _HDR_VARIABLES.values():
+            nc_name = hdr_var.etsf_name if hdr_var.etsf_name is not None else hdr_var.name
+            if nc_name in self.rootgrp.variables:
+                dct[hdr_var.name] = self.read_value(nc_name)
+            elif nc_name in self.rootgrp.dimensions:
+                dct[hdr_var.name] = self.read_dimvalue(nc_name)
             else:
-                raise ValueError(f"Cannot find `{ncname}` in `{self.path}`")
+                raise ValueError(f"Cannot find `{nc_name}` in `{self.path}`")
             # Convert scalars to (well) scalars.
-            if hasattr(dct[hvar.name], "shape") and not dct[hvar.name].shape:
-                dct[hvar.name] = np.asarray(dct[hvar.name]).item()
-            if hvar.name in ("title", "md5_pseudos", "codvsn"):
+            if hasattr(dct[hdr_var.name], "shape") and not dct[hdr_var.name].shape:
+                dct[hdr_var.name] = np.asarray(dct[hdr_var.name]).item()
+            if hdr_var.name in ("title", "md5_pseudos", "codvsn"):
                 # Convert array of numpy bytes to list of strings
-                if hvar.name == "codvsn":
-                    dct[hvar.name] = "".join(bs.decode("utf-8").strip() for bs in dct[hvar.name])
+                if hdr_var.name == "codvsn":
+                    dct[hdr_var.name] = "".join(bs.decode("utf-8").strip() for bs in dct[hdr_var.name])
                 else:
-                    dct[hvar.name] = ["".join(bs.decode("utf-8") for bs in astr).strip() for astr in dct[hvar.name]]
+                    dct[hdr_var.name] = [
+                        "".join(bs.decode("utf-8") for bs in astr).strip() for astr in dct[hdr_var.name]
+                    ]
 
         return AbinitHeader(dct)
 
 
 def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
-    """
-    Reads and returns a pymatgen structure from a NetCDF file
+    """Read and return a pymatgen structure from a NetCDF file
     containing crystallographic data in the ETSF-IO format.
 
     Args:

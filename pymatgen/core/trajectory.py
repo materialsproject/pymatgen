@@ -331,7 +331,7 @@ class Trajectory(MSONable):
         self.coords = displacements
         self.coords_are_displacement = True
 
-    def extend(self, trajectory: Trajectory) -> None:
+    def extend(self, trajectory: Self) -> None:
         """Append a trajectory to the current one.
 
         The lattice, coords, and all other properties are combined.
@@ -569,7 +569,7 @@ class Trajectory(MSONable):
                     is_mol = True
 
             except ImportError as exc:
-                raise exc
+                raise ImportError("ASE is required to read .traj files. pip install ase") from exc
 
         else:
             supported_file_types = ("XDATCAR", "vasprun.xml", "*.traj")

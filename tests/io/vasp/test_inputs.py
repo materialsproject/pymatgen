@@ -7,6 +7,7 @@ import pickle
 import re
 from shutil import copyfile
 from unittest import TestCase
+from unittest.mock import patch
 
 import numpy as np
 import pytest
@@ -64,7 +65,7 @@ class TestPoscar(PymatgenTest):
         assert comp == Composition("Fe4P4O16")
 
         # VASP 4 type with symbols at the end.
-        poscar_string = """Test1
+        poscar_str = """Test1
 1.0
 3.840198 0.000000 0.000000
 1.920099 3.325710 0.000000
@@ -74,15 +75,15 @@ direct
 0.000000 0.000000 0.000000 Si
 0.750000 0.500000 0.750000 F
 """
-        poscar = Poscar.from_str(poscar_string)
+        poscar = Poscar.from_str(poscar_str)
         assert poscar.structure.composition == Composition("SiF")
 
-        poscar_string = ""
+        poscar_str = ""
         with pytest.raises(ValueError, match="Empty POSCAR"):
-            Poscar.from_str(poscar_string)
+            Poscar.from_str(poscar_str)
 
         # VASP 4 style file with default names, i.e. no element symbol found.
-        poscar_string = """Test2
+        poscar_str = """Test2
 1.0
 3.840198 0.000000 0.000000
 1.920099 3.325710 0.000000
@@ -92,10 +93,10 @@ direct
 0.000000 0.000000 0.000000
 0.750000 0.500000 0.750000
 """
-        poscar = Poscar.from_str(poscar_string)
+        poscar = Poscar.from_str(poscar_str)
         assert poscar.structure.composition == Composition("HHe")
         # VASP 4 style file with default names, i.e. no element symbol found.
-        poscar_string = """Test3
+        poscar_str = """Test3
 1.0
 3.840198 0.000000 0.000000
 1.920099 3.325710 0.000000
@@ -106,7 +107,7 @@ direct
 0.000000 0.000000 0.000000 T T T Si
 0.750000 0.500000 0.750000 F F F O
 """
-        poscar = Poscar.from_str(poscar_string)
+        poscar = Poscar.from_str(poscar_str)
         selective_dynamics = [list(x) for x in poscar.selective_dynamics]
 
         assert selective_dynamics == [[True, True, True], [False, False, False]]
@@ -173,7 +174,7 @@ direct
         assert [site.specie.symbol for site in poscar.structure] == ordered_expected_elements
 
     def test_as_from_dict(self):
-        poscar_string = """Test3
+        poscar_str = """Test3
 1.0
 3.840198 0.000000 0.000000
 1.920099 3.325710 0.000000
@@ -184,7 +185,7 @@ direct
 0.000000 0.000000 0.000000 T T T Si
 0.750000 0.500000 0.750000 F F F O
 """
-        poscar = Poscar.from_str(poscar_string)
+        poscar = Poscar.from_str(poscar_str)
         dct = poscar.as_dict()
         poscar2 = Poscar.from_dict(dct)
         assert poscar2.comment == "Test3"
@@ -192,7 +193,7 @@ direct
         assert not all(poscar2.selective_dynamics[1])
 
     def test_cart_scale(self):
-        poscar_string = """Test1
+        poscar_str = """Test1
 1.1
 3.840198 0.000000 0.000000
 1.920099 3.325710 0.000000
@@ -203,7 +204,7 @@ cart
 0.000000   0.00000000   0.00000000
 3.840198   1.50000000   2.35163175
 """
-        poscar = Poscar.from_str(poscar_string)
+        poscar = Poscar.from_str(poscar_str)
         site = poscar.structure[1]
         assert_allclose(site.coords, np.array([3.840198, 1.5, 2.35163175]) * 1.1)
 
@@ -261,7 +262,7 @@ direct
         assert str(poscar) == expected_str, "Wrong POSCAR output!"
 
         # VASP 4 type with symbols at the end.
-        poscar_string = """Test1
+        poscar_str = """Test1
 1.0
 -3.840198 0.000000 0.000000
 1.920099 3.325710 0.000000
@@ -283,7 +284,7 @@ direct
    0.0000000000000000    0.0000000000000000    0.0000000000000000 Si
    0.7500000000000000    0.5000000000000000    0.7500000000000000 F
 """
-        poscar = Poscar.from_str(poscar_string)
+        poscar = Poscar.from_str(poscar_str)
         assert str(poscar) == expected
 
     def test_from_md_run(self):
@@ -1182,20 +1183,43 @@ class TestPotcarSingle(TestCase):
             else:
                 assert psingle.is_valid
 
-    # def test_default_functional(self):
-    #     potcar = PotcarSingle.from_symbol_and_functional("Fe")
-    #     assert potcar.functional_class == "GGA"
-    #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
-    #     potcar = PotcarSingle.from_symbol_and_functional("Fe")
-    #     assert potcar.functional_class == "LDA"
-    #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
+    def test_default_functional(self):
+        with patch.dict(SETTINGS, PMG_DEFAULT_FUNCTIONAL="PBE"):
+            potcar = PotcarSingle.from_symbol_and_functional("Fe")
+            assert potcar.functional_class == "GGA"
+        with patch.dict(SETTINGS, PMG_DEFAULT_FUNCTIONAL="LDA"):
+            SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
+            potcar = PotcarSingle.from_symbol_and_functional("Fe")
+            assert potcar.functional_class == "LDA"
+
+    def test_from_symbol_and_functional_raises(self):
+        # test FileNotFoundError on non-existent PMG_VASP_PSP_DIR in SETTINGS
+        PMG_VASP_PSP_DIR = "missing-dir"
+        symbol, functional = "Fe", "PBE_64"
+        with (
+            patch.dict(SETTINGS, PMG_VASP_PSP_DIR=PMG_VASP_PSP_DIR),
+            pytest.raises(FileNotFoundError, match=f"{PMG_VASP_PSP_DIR=} does not exist."),
+        ):
+            PotcarSingle.from_symbol_and_functional(symbol, functional)
+
+        # test different FileNotFoundError on non-existent POTCAR sub-directory
+        PMG_VASP_PSP_DIR = SETTINGS["PMG_VASP_PSP_DIR"]
+        err_msg = f"You do not have the right POTCAR with {functional=} and {symbol=}\nin your {PMG_VASP_PSP_DIR=}"
+
+        with (
+            patch.dict(SETTINGS, PMG_VASP_PSP_SUB_DIRS={"PBE_64": "PBE_64_FOO"}),
+            pytest.raises(FileNotFoundError) as exc_info,
+        ):
+            PotcarSingle.from_symbol_and_functional(symbol, functional)
+
+        assert err_msg in str(exc_info.value)
 
     def test_repr(self):
-        assert (
-            repr(self.psingle_Mn_pv)
-            == "PotcarSingle(symbol='Mn_pv', functional='PBE', TITEL='PAW_PBE Mn_pv 07Sep2000', "
+        expected_repr = (
+            "PotcarSingle(symbol='Mn_pv', functional='PBE', TITEL='PAW_PBE Mn_pv 07Sep2000', "
             "VRHFIN='Mn: 3p4s3d', n_valence_elec=13)"
         )
+        assert repr(self.psingle_Mn_pv) == expected_repr
 
     def test_hash(self):
         assert self.psingle_Mn_pv.md5_header_hash == "b45747d8ceeee91c3b27e8484db32f5a"

@@ -42,6 +42,7 @@ from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.util.num import make_symmetric_matrix_from_upper_tri
+from pymatgen.util.typing import Kpoint, Tuple3Floats, Vector3D
 
 if TYPE_CHECKING:
     from typing import Any, Callable, Literal
@@ -721,6 +722,10 @@ class Vasprun(MSONable):
 
         Hubbard U terms and vdW corrections are detected automatically as well.
         """
+
+        # Care should be taken: if a GGA tag is not specified, VASP will default
+        # to the functional specified by the POTCAR. It is not clear how
+        # VASP handles the "--" value.
         GGA_TYPES = {
             "RE": "revPBE",
             "PE": "PBE",
@@ -1230,8 +1235,8 @@ class Vasprun(MSONable):
                 potcar_nelect = sum(ps.ZVAL * num for ps, num in zip(potcar, nums))
             charge = potcar_nelect - nelect
 
-            for s in self.structures:
-                s._charge = charge
+            for struct in self.structures:
+                struct._charge = charge
             if hasattr(self, "initial_structure"):
                 self.initial_structure._charge = charge
             if hasattr(self, "final_structure"):
@@ -1355,7 +1360,9 @@ class Vasprun(MSONable):
         """Parse INCAR parameters."""
         params: dict = {}
         for c in elem:
-            name = c.attrib.get("name", "")
+            # VASP 6.4.3 can add trailing whitespace
+            # for example, <i type="string" name="GGA    ">PE</i>
+            name = c.attrib.get("name", "").strip()
             if c.tag not in {"i", "v"}:
                 p = self._parse_params(c)
                 if name == "response functions":
@@ -1411,7 +1418,7 @@ class Vasprun(MSONable):
         return [parse_atomic_symbol(sym) for sym in atomic_symbols], potcar_symbols
 
     @staticmethod
-    def _parse_kpoints(elem: XML_Element) -> tuple[Kpoints, list[tuple[float, float, float]], list[float]]:
+    def _parse_kpoints(elem: XML_Element) -> tuple[Kpoints, list[Tuple3Floats], list[float]]:
         """Parse Kpoints."""
         e = elem if elem.find("generation") is None else elem.find("generation")
         kpoint = Kpoints("Kpoints from vasprun.xml")
@@ -1423,10 +1430,10 @@ class Vasprun(MSONable):
 
             if name == "divisions":
                 kpoint.kpts = [
-                    cast(tuple[int, int, int], tuple(int(i) for i in tokens)),
+                    cast(Kpoint, tuple(int(i) for i in tokens)),
                 ]
             elif name == "usershift":
-                kpoint.kpts_shift = cast(tuple[float, float, float], tuple(float(i) for i in tokens))
+                kpoint.kpts_shift = cast(Vector3D, tuple(float(i) for i in tokens))
             elif name in {"genvec1", "genvec2", "genvec3", "shift"}:
                 setattr(kpoint, name, [float(i) for i in tokens])
 
@@ -1435,7 +1442,7 @@ class Vasprun(MSONable):
         for va in elem.findall("varray"):
             name = va.attrib["name"]
             if name == "kpointlist":
-                actual_kpoints = cast(list[tuple[float, float, float]], list(map(tuple, _parse_vasp_array(va))))
+                actual_kpoints = cast(list[Tuple3Floats], list(map(tuple, _parse_vasp_array(va))))
             elif name == "weights":
                 weights = [i[0] for i in _parse_vasp_array(va)]
         elem.clear()
@@ -2178,7 +2185,7 @@ class Outcar:
 
         # Store the individual contributions to the final total energy
         final_energy_contribs = {}
-        for key in [
+        for key in (
             "PSCENC",
             "TEWEN",
             "DENC",
@@ -2189,7 +2196,7 @@ class Outcar:
             "EBANDS",
             "EATOM",
             "Ediel_sol",
-        ]:
+        ):
             if key == "PAW double counting":
                 self.read_pattern({key: rf"{key}\s+=\s+([\.\-\d]+)\s+([\.\-\d]+)"})
             else:
@@ -2385,14 +2392,14 @@ class Outcar:
 
                 if read_plasma and re.match(row_pattern, line):
                     plasma_frequencies[read_plasma].append([float(t) for t in line.strip().split()])
-                elif read_plasma and Outcar._parse_sci_notation(line):
-                    plasma_frequencies[read_plasma].append(Outcar._parse_sci_notation(line))
+                elif read_plasma and type(self)._parse_sci_notation(line):
+                    plasma_frequencies[read_plasma].append(type(self)._parse_sci_notation(line))
                 elif read_dielectric:
                     tokens = None
                     if re.match(row_pattern, line.strip()):
                         tokens = line.strip().split()
-                    elif Outcar._parse_sci_notation(line.strip()):
-                        tokens = Outcar._parse_sci_notation(line.strip())
+                    elif type(self)._parse_sci_notation(line.strip()):
+                        tokens = type(self)._parse_sci_notation(line.strip())
                     elif re.match(r"\s*-+\s*", line):
                         count += 1
 
@@ -2707,10 +2714,10 @@ class Outcar:
             p_ion = spin up + spin down summed.
         """
         # Variables to be filled
-        self.er_ev = {}  # will  be  dict (Spin.up/down) of array(3*float)
-        self.er_bp = {}  # will  be  dics (Spin.up/down) of array(3*float)
-        self.er_ev_tot = None  # will be array(3*float)
-        self.er_bp_tot = None  # will be array(3*float)
+        self.er_ev = {}  # dict (Spin.up/down) of array(3*float)
+        self.er_bp = {}  # dict (Spin.up/down) of array(3*float)
+        self.er_ev_tot = None  # array(3*float)
+        self.er_bp_tot = None  # array(3*float)
         self.p_elec: int | None = None
         self.p_ion: int | None = None
         try:
@@ -2788,8 +2795,8 @@ class Outcar:
             if self.er_bp[Spin.up] is not None and self.er_bp[Spin.down] is not None:
                 self.er_bp_tot = self.er_bp[Spin.up] + self.er_bp[Spin.down]  # type: ignore[operator]
 
-        except Exception:
-            raise RuntimeError("IGPAR OUTCAR could not be parsed.")
+        except Exception as exc:
+            raise RuntimeError("IGPAR OUTCAR could not be parsed.") from exc
 
     def read_internal_strain_tensor(self):
         """Read the internal strain tensor and populates
@@ -2840,7 +2847,7 @@ class Outcar:
     def read_lepsilon(self) -> None:
         """Read a LEPSILON run.
 
-        # TODO: Document the actual variables.
+        TODO: Document the actual variables.
         """
         try:
             search = []
@@ -2986,13 +2993,13 @@ class Outcar:
             self.dielectric_tensor = self.dielectric_tensor.tolist()
             self.piezo_tensor = self.piezo_tensor.tolist()
 
-        except Exception:
-            raise RuntimeError("LEPSILON OUTCAR could not be parsed.")
+        except Exception as exc:
+            raise RuntimeError("LEPSILON OUTCAR could not be parsed.") from exc
 
     def read_lepsilon_ionic(self) -> None:
         """Read the ionic component of a LEPSILON run.
 
-        # TODO: Document the actual variables.
+        TODO: Document the actual variables.
         """
         try:
             search = []
@@ -3096,8 +3103,8 @@ class Outcar:
             self.dielectric_ionic_tensor = self.dielectric_ionic_tensor.tolist()
             self.piezo_ionic_tensor = self.piezo_ionic_tensor.tolist()
 
-        except Exception:
-            raise RuntimeError("ionic part of LEPSILON OUTCAR could not be parsed.")
+        except Exception as exc:
+            raise RuntimeError("ionic part of LEPSILON OUTCAR could not be parsed.") from exc
 
     def read_lcalcpol(self) -> None:
         """Read the LCALCPOL.
@@ -3224,10 +3231,7 @@ class Outcar:
 
             micro_pyawk(self.filename, search, self)
 
-            zval_dict = {}
-            for x, y in zip(self.atom_symbols, self.zvals):  # type: ignore[attr-defined]
-                zval_dict[x] = y
-            self.zval_dict = zval_dict
+            self.zval_dict = dict(zip(self.atom_symbols, self.zvals))  # type: ignore[attr-defined]
 
             # Clean up
             del self.atom_symbols  # type: ignore[attr-defined]
@@ -3727,8 +3731,7 @@ class Chgcar(VolumetricData):
 
 
 class Elfcar(VolumetricData):
-    """
-    Read an ELFCAR file which contains the Electron Localization Function (ELF).
+    """Read an ELFCAR file which contains the Electron Localization Function (ELF).
 
     For ELF, "total" key refers to Spin.up, and "diff" refers to Spin.down.
 
@@ -4174,8 +4177,7 @@ class Xdatcar:
             assert preamble is not None
             poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
             if (
-                ionicstep_end is None
-                and ionicstep_cnt >= ionicstep_start
+                (ionicstep_end is None and ionicstep_cnt >= ionicstep_start)
                 or ionicstep_start <= ionicstep_cnt < ionicstep_end  # type: ignore[operator]
             ):
                 structures.append(poscar.structure)
@@ -4248,10 +4250,8 @@ class Xdatcar:
                 elif line == "" or "Direct configuration=" in line:
                     poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
                     if (
-                        ionicstep_end is None
-                        and ionicstep_cnt >= ionicstep_start
-                        or ionicstep_start <= ionicstep_cnt < ionicstep_end
-                    ):
+                        ionicstep_end is None and ionicstep_cnt >= ionicstep_start
+                    ) or ionicstep_start <= ionicstep_cnt < ionicstep_end:
                         structures.append(poscar.structure)
                     ionicstep_cnt += 1
                     coords_str = []
@@ -4262,8 +4262,7 @@ class Xdatcar:
             poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
 
             if (
-                ionicstep_end is None
-                and ionicstep_cnt >= ionicstep_start
+                (ionicstep_end is None and ionicstep_cnt >= ionicstep_start)
                 or ionicstep_start <= ionicstep_cnt < ionicstep_end  # type: ignore[operator]
             ):
                 structures.append(poscar.structure)
@@ -4299,8 +4298,7 @@ class Xdatcar:
         for cnt, structure in enumerate(self.structures, start=1):
             ionicstep_cnt = cnt
             if (
-                ionicstep_end is None
-                and ionicstep_cnt >= ionicstep_start
+                (ionicstep_end is None and ionicstep_cnt >= ionicstep_start)
                 or ionicstep_start <= ionicstep_cnt < ionicstep_end  # type: ignore[operator]
             ):
                 lines.append(f"Direct configuration={' ' * (7 - len(str(output_cnt)))}{output_cnt}")

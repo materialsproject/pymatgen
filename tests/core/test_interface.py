@@ -38,11 +38,11 @@ class TestGrainBoundary(PymatgenTest):
     def test_init(self):
         assert self.Cu_GB1.rotation_angle == approx(123.74898859588858)
         assert self.Cu_GB1.vacuum_thickness == approx(1.5)
-        assert self.Cu_GB2.rotation_axis == [1, 2, 3]
+        assert self.Cu_GB2.rotation_axis == (1, 2, 3)
         assert_allclose(self.Cu_GB1.ab_shift, [0.0, 0.0])
         assert_allclose(self.Cu_GB2.ab_shift, [0.2, 0.2])
-        assert self.Cu_GB1.gb_plane == [1, 3, 1]
-        assert self.Cu_GB2.gb_plane == [1, 2, 3]
+        assert self.Cu_GB1.gb_plane == (1, 3, 1)
+        assert self.Cu_GB2.gb_plane == (1, 2, 3)
         assert_allclose(self.Cu_GB1.init_cell.lattice.matrix, self.Cu_conv.lattice.matrix)
 
     def test_copy(self):

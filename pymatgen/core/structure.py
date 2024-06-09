@@ -36,7 +36,6 @@ from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.linalg import expm, polar
 from scipy.spatial.distance import squareform
 from tabulate import tabulate
-from typing_extensions import Self
 
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
@@ -60,6 +59,7 @@ if TYPE_CHECKING:
     from ase.optimize.optimize import Optimizer
     from matgl.ext.ase import TrajectoryObserver
     from numpy.typing import ArrayLike, NDArray
+    from typing_extensions import Self
 
     from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
 
@@ -284,15 +284,15 @@ class SiteCollection(collections.abc.Sequence, ABC):
         return [site.species for site in self]
 
     @property
-    @deprecated(message="Use n_type_sp instead")
-    def ntypesp(self) -> int:
+    def n_elems(self) -> int:
         """Number of types of atoms."""
         return len(self.types_of_species)
 
     @property
-    def n_elems(self) -> int:
+    @deprecated(n_elems, deadline=(2025, 6, 7))
+    def ntypesp(self) -> int:
         """Number of types of atoms."""
-        return len(self.types_of_species)
+        return self.n_elems
 
     @property
     def types_of_species(self) -> tuple[Element | Species | DummySpecies, ...]:
@@ -419,6 +419,18 @@ class SiteCollection(collections.abc.Sequence, ABC):
             for species, occu in site.species.items():
                 elem_map[species] += occu
         return Composition(elem_map)
+
+    @property
+    def chemical_system(self) -> str:
+        """The chemical system of the structure."""
+        return self.composition.chemical_system
+
+    @property
+    def chemical_system_set(self) -> set[str]:
+        """The set of chemical systems in the structure. E.g. {"Al", "Ga", "In", "N"} for
+        a AlGaInN quaternary.
+        """
+        return self.composition.chemical_system_set
 
     @property
     def charge(self) -> float:
@@ -2206,7 +2218,7 @@ class IStructure(SiteCollection, MSONable):
         inner = r - dr
         return [t for t in outer if t.nn_distance > inner]
 
-    def get_sorted_structure(self, key: Callable | None = None, reverse: bool = False) -> IStructure | Structure:
+    def get_sorted_structure(self, key: Callable | None = None, reverse: bool = False) -> Self | Structure:
         """Get a sorted copy of the structure. The parameters have the same
         meaning as in list.sort. By default, sites are sorted by the
         electronegativity of the species.
@@ -2315,7 +2327,7 @@ class IStructure(SiteCollection, MSONable):
 
     def interpolate(
         self,
-        end_structure: IStructure | Structure,
+        end_structure: Self | Structure,
         nimages: int | Iterable = 10,
         interpolate_lattices: bool = False,
         pbc: bool = True,
@@ -2929,7 +2941,7 @@ class IStructure(SiteCollection, MSONable):
         sort: bool = False,
         merge_tol: float = 0.0,
         **kwargs,
-    ) -> Structure | IStructure:
+    ) -> Structure | Self:
         """Read a structure from a string.
 
         Args:
@@ -3012,7 +3024,7 @@ class IStructure(SiteCollection, MSONable):
         sort: bool = False,
         merge_tol: float = 0.0,
         **kwargs,
-    ) -> Structure | IStructure:
+    ) -> Structure | Self:
         """Read a structure from a file. For example, anything ending in
         a "cif" is assumed to be a Crystallographic Information Format file.
         Supported formats include CIF, POSCAR/CONTCAR, CHGCAR, LOCPOT,
@@ -3111,7 +3123,7 @@ class IStructure(SiteCollection, MSONable):
         """
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
-        valid_cell_types = get_args(IStructure.CellType)
+        valid_cell_types = get_args(type(self).CellType)
         if cell_type not in valid_cell_types:
             raise ValueError(f"Invalid {cell_type=}, valid values are {valid_cell_types}")
 
@@ -3236,7 +3248,7 @@ class IMolecule(SiteCollection, MSONable):
         if not all(hasattr(other, attr) for attr in needed_attrs):
             return NotImplemented
 
-        other = cast(IMolecule, other)  # TODO @DanielYang59: fix type
+        other = cast(Union[IMolecule, Molecule], other)
 
         if len(self) != len(other):
             return False
@@ -3363,14 +3375,12 @@ class IMolecule(SiteCollection, MSONable):
         Args:
             ind1 (int): 1st site index
             ind2 (int): 2nd site index
-            tol (float): Relative tolerance to test. Basically, the code
-                checks if the distance between the sites is less than (1 +
-                tol) * typical bond distances. Defaults to 0.2, i.e.,
-                20% longer.
+            tol (float): Relative tolerance to test. Basically, the code checks if the distance
+                between the sites is less than (1 + tol) * typical bond distances.
+                Defaults to 0.2, i.e. 20% longer.
 
         Returns:
-            Two IMolecule representing the clusters formed from
-            breaking the bond.
+            tuple[IMolecule, IMolecule]: The clusters formed from breaking the bond.
         """
         clusters = ([self[ind1]], [self[ind2]])
 
@@ -3393,7 +3403,8 @@ class IMolecule(SiteCollection, MSONable):
                 raise ValueError("Not all sites are matched!")
             sites = unmatched
 
-        return cast(tuple[Self, Self], tuple(map(type(self).from_sites, clusters)))
+        from_sites = type(self).from_sites
+        return from_sites(clusters[0]), from_sites(clusters[1])
 
     def get_covalent_bonds(self, tol: float = 0.2) -> list[CovalentBond]:
         """Determine the covalent bonds in a molecule.
@@ -4629,37 +4640,33 @@ class Structure(IStructure, collections.abc.MutableSequence):
         prototype = prototype.lower()
         try:
             if prototype == "fcc":
-                return Structure.from_spacegroup("Fm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0]])
+                return cls.from_spacegroup("Fm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0]])
             if prototype == "bcc":
-                return Structure.from_spacegroup("Im-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0]])
+                return cls.from_spacegroup("Im-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0]])
             if prototype == "hcp":
-                return Structure.from_spacegroup(
+                return cls.from_spacegroup(
                     "P6_3/mmc", Lattice.hexagonal(kwargs["a"], kwargs["c"]), species, [[1 / 3, 2 / 3, 1 / 4]]
                 )
             if prototype == "diamond":
-                return Structure.from_spacegroup("Fd-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0]])
+                return cls.from_spacegroup("Fd-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0]])
             if prototype == "rocksalt":
-                return Structure.from_spacegroup(
-                    "Fm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [0.5, 0.5, 0]]
-                )
+                return cls.from_spacegroup("Fm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [0.5, 0.5, 0]])
             if prototype == "perovskite":
-                return Structure.from_spacegroup(
+                return cls.from_spacegroup(
                     "Pm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [0.5, 0.5, 0.5], [0.5, 0.5, 0]]
                 )
             if prototype == "cscl":
-                return Structure.from_spacegroup(
-                    "Pm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [0.5, 0.5, 0.5]]
-                )
+                return cls.from_spacegroup("Pm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [0.5, 0.5, 0.5]])
             if prototype in {"fluorite", "caf2"}:
-                return Structure.from_spacegroup(
+                return cls.from_spacegroup(
                     "Fm-3m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [1 / 4, 1 / 4, 1 / 4]]
                 )
             if prototype == "antifluorite":
-                return Structure.from_spacegroup(
+                return cls.from_spacegroup(
                     "Fm-3m", Lattice.cubic(kwargs["a"]), species, [[1 / 4, 1 / 4, 1 / 4], [0, 0, 0]]
                 )
             if prototype == "zincblende":
-                return Structure.from_spacegroup(
+                return cls.from_spacegroup(
                     "F-43m", Lattice.cubic(kwargs["a"]), species, [[0, 0, 0], [1 / 4, 1 / 4, 3 / 4]]
                 )
 
@@ -4802,7 +4809,11 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             properties=properties,
         )
 
-    def set_charge_and_spin(self, charge: float, spin_multiplicity: int | None = None) -> Self:
+    def set_charge_and_spin(
+        self,
+        charge: float,
+        spin_multiplicity: int | None = None,
+    ) -> Self:
         """Set the charge and spin multiplicity.
 
         Args:
@@ -4897,7 +4908,11 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         self.sites = [self[idx] for idx in range(len(self)) if idx not in indices]
         return self
 
-    def translate_sites(self, indices: Sequence[int] | None = None, vector: ArrayLike | None = None) -> Self:
+    def translate_sites(
+        self,
+        indices: Sequence[int] | None = None,
+        vector: ArrayLike | None = None,
+    ) -> Self:
         """Translate specific sites by some vector, keeping the sites within the
         unit cell.
 
@@ -5005,7 +5020,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
     def substitute(
         self,
         index: int,
-        func_group: IMolecule | Molecule | str,
+        func_group: IMolecule | Self | str,
         bond_order: int = 1,
     ) -> Self:
         """Substitute atom at index with a functional group.
@@ -5053,7 +5068,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         # Pass value of functional group--either from user-defined or from
         # functional.json
-        if isinstance(func_group, Molecule):
+        if isinstance(func_group, type(self)):
             functional_group = func_group
         else:
             # Check whether the functional group is in database.
@@ -5107,7 +5122,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         opt_kwargs: dict | None = None,
         return_trajectory: bool = False,
         verbose: bool = False,
-    ) -> Molecule | tuple[Molecule, TrajectoryObserver]:
+    ) -> Self | tuple[Self, TrajectoryObserver]:
         """Perform a molecule relaxation using an ASE calculator.
 
         Args:
@@ -5137,7 +5152,11 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
             verbose=verbose,
         )
 
-    def calculate(self, calculator: Literal["gfn2-xtb"] | Calculator = "gfn2-xtb", verbose: bool = False) -> Calculator:
+    def calculate(
+        self,
+        calculator: Literal["gfn2-xtb"] | Calculator = "gfn2-xtb",
+        verbose: bool = False,
+    ) -> Calculator:
         """Perform an ASE calculation.
 
         Args:

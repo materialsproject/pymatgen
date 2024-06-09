@@ -474,14 +474,18 @@ class TestTrajectory(PymatgenTest):
         self._check_traj_equality(self.traj, written_traj)
 
     def test_from_file(self):
-        traj = Trajectory.from_file(f"{TEST_DIR}/LiMnO2_chgnet_relax.traj")
-        assert isinstance(traj, Trajectory)
+        try:
+            traj = Trajectory.from_file(f"{TEST_DIR}/LiMnO2_chgnet_relax.traj")
+            assert isinstance(traj, Trajectory)
 
-        # Check length of the trajectory
-        assert len(traj) == 2
+            # Check length of the trajectory
+            assert len(traj) == 2
 
-        # Check composition of the first frame of the trajectory
-        assert traj[0].formula == "Li2 Mn2 O4"
+            # Check composition of the first frame of the trajectory
+            assert traj[0].formula == "Li2 Mn2 O4"
+        except ImportError:
+            with pytest.raises(ImportError, match="ASE is required to read .traj files. pip install ase"):
+                Trajectory.from_file(f"{TEST_DIR}/LiMnO2_chgnet_relax.traj")
 
     def test_index_error(self):
         with pytest.raises(IndexError, match="index=100 out of range, trajectory only has 100 frames"):

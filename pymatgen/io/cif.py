@@ -65,8 +65,7 @@ class CifBlock:
         """
         self.loops = loops
         self.data = data
-        # AJ (@computron) says: CIF Block names cannot be
-        # more than 75 characters or you get an Exception
+        # AJ (@computron) says: CIF Block names can't be more than 75 characters or you get an Exception
         self.header = header[:74]
 
     def __eq__(self, other: object) -> bool:
@@ -199,30 +198,30 @@ class CifBlock:
         loops: list[list[str]] = []
 
         while deq:
-            _string = deq.popleft()
-            # cif keys aren't in quotes, so show up as _string[0]
-            if _string[0] == "_eof":
+            _str = deq.popleft()
+            # cif keys aren't in quotes, so show up as _str[0]
+            if _str[0] == "_eof":
                 break
 
-            if _string[0].startswith("_"):
+            if _str[0].startswith("_"):
                 try:
-                    data[_string[0]] = "".join(deq.popleft())
+                    data[_str[0]] = "".join(deq.popleft())
                 except IndexError:
-                    data[_string[0]] = ""
+                    data[_str[0]] = ""
 
-            elif _string[0].startswith("loop_"):
+            elif _str[0].startswith("loop_"):
                 columns: list[str] = []
                 items: list[str] = []
                 while deq:
-                    _string = deq[0]
-                    if _string[0].startswith("loop_") or not _string[0].startswith("_"):
+                    _str = deq[0]
+                    if _str[0].startswith("loop_") or not _str[0].startswith("_"):
                         break
                     columns.append("".join(deq.popleft()))
                     data[columns[-1]] = []
 
                 while deq:
-                    _string = deq[0]
-                    if _string[0].startswith(("loop_", "_")):
+                    _str = deq[0]
+                    if _str[0].startswith(("loop_", "_")):
                         break
                     items.append("".join(deq.popleft()))
 
@@ -232,7 +231,7 @@ class CifBlock:
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
 
-            elif issue := "".join(_string).strip():
+            elif issue := "".join(_str).strip():
                 warnings.warn(f"Possible issue in CIF file at line: {issue}")
 
         return cls(data, loops, header)
@@ -1073,7 +1072,7 @@ class CifParser:
 
         if any(occu > 1 for occu in _sum_occupancies):
             msg = (
-                f"Some occupancies ({filter(lambda x: x<=1, _sum_occupancies)}) sum to > 1! If they are within "
+                f"Some occupancies ({list(filter(lambda x: x > 1, _sum_occupancies))}) sum to > 1! If they are within "
                 "the occupancy_tolerance, they will be rescaled. "
                 f"The current occupancy_tolerance is set to: {self._occupancy_tolerance}"
             )
@@ -1224,25 +1223,6 @@ class CifParser:
             return struct
         return None
 
-    @deprecated(
-        message="get_structures is deprecated and will be removed in 2024. Use parse_structures instead."
-        "The only difference is that primitive defaults to False in the new parse_structures method."
-        "So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().",
-    )
-    def get_structures(self, *args, **kwargs) -> list[Structure]:
-        """
-        Deprecated, use parse_structures instead. Only difference between
-        these two methods is the default primitive=False in parse_structures.
-        So parse_structures(primitive=True) is equivalent to the default
-        behaviour of get_structures().
-        """
-        # Extract primitive if passed as arg
-        if len(args) > 0:
-            kwargs["primitive"] = args[0]
-            args = args[1:]
-        kwargs.setdefault("primitive", True)
-        return self.parse_structures(*args, **kwargs)
-
     def parse_structures(
         self,
         primitive: bool | None = None,
@@ -1309,6 +1289,25 @@ class CifParser:
         if not structures:
             raise ValueError("Invalid CIF file with no structures!")
         return structures
+
+    @deprecated(
+        parse_structures,
+        message="The only difference is that primitive defaults to False in the new parse_structures method."
+        "So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().",
+    )
+    def get_structures(self, *args, **kwargs) -> list[Structure]:
+        """
+        Deprecated, use parse_structures instead. Only difference between
+        these two methods is the default primitive=False in parse_structures.
+        So parse_structures(primitive=True) is equivalent to the default
+        behaviour of get_structures().
+        """
+        # Extract primitive if passed as arg
+        if len(args) > 0:
+            kwargs["primitive"] = args[0]
+            args = args[1:]
+        kwargs.setdefault("primitive", True)
+        return self.parse_structures(*args, **kwargs)
 
     def get_bibtex_string(self) -> str:
         """Get BibTeX reference from CIF file.
