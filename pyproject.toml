@@ -24,66 +24,25 @@ target-version = "py39"
 line-length = 120
 
 [tool.ruff.lint]
-select = [
-  "A",       # flake8-builtins
-  # "AIR",   # The Airflow linter
-  # "ANN",   # flake8-annotations (not ready, require types for ALL args)
-  # "ARG",   # Check for unused function arguments
-  "ASYNC",   # Problems related to Trio, AnyIO, or asyncio
-  "B",       # flake8-bugbear
-  # "BLE",   # General catch of Exception
-  "C4",      # flake8-comprehensions
-  # "C90",   # Check for functions with a high McCabe complexity
-  # "CPY",   # Missing copyright notice at top of file (need preview mode)
-  "D",       # pydocstyle
-  # "DJ",    # Django (we don't use Django at all)
-  "DTZ",     # flake8-datetimez
-  "E",       # pycodestyle error
-  "EXE",     # Executable permissions and shebangs of Python files
-  "F",       # pyflakes
-  "FA",      # flake8-future-annotations
-  "FBT003",  # boolean-positional-value-in-call
-  "FLY",     # Convert old "%-formatted" to f-strings
-  # "FURB",  # refurb (need preview mode, too many preview errors)
-  # "G",     # validate logging format strings
-  "I",       # isort
-  "ICN",     # How certain packages should be imported or aliased
-  # "INP",   # Ban PEP-420 implicit namespace packages
-  "INT",     # flake8-gettext
-  "ISC",     # flake8-implicit-str-concat
-  "LOG",     # The standard library logging module
-  # "NPY",   # NumPy-specific rules (TODO: enable this)
-  "PD",      # pandas-vet
-  "PERF",    # performance anti-patterns
-  "PGH",     # A collection of fast, cheap, regex based pre-commit hooks
-  "PIE",     # flake8-pie
-  "PL",      # pylint
-  "PT",      # flake8-pytest-style
-  "PYI",     # flakes8-pyi
-  "Q",       # Encourage avoiding escaping quotes as per PEP-8
-  "RET",     # flake8-return
-  "RSE",     # flake8-raise
-  "RUF",     # Ruff-specific rules
-  # "S",     # flake8-bandit (TODO: enable this)
-  "SIM",     # flake8-simplify
-  "SLOT",    # Require __slots__ to be defined for subclasses of immutable types
-  "T10",     # Check for the presence of debugger calls and imports
-  "TCH",     # flake8-type-checking
-  "TID",     # flake8-tidy-imports
-  "TRIO",    # flake8-trio
-  "TRY",     # tryceratops
-  "UP",      # pyupgrade
-  "W",       # pycodestyle warning
-  "YTT",     # flake8-2020
-]
+select = ["ALL"]
 ignore = [
   # Rule families
+  "ANN",     # flake8-annotations (not ready, require types for ALL args)
+  "ARG",     # Check for unused function arguments
+  "BLE",     # General catch of Exception
+  "C90",     # Check for functions with a high McCabe complexity
   "COM",     # flake8-commas (conflict with line wrapper)
+  "CPY",     # Missing copyright notice at top of file (need preview mode)
   "EM",      # Format nice error messages
   "ERA",     # Check for commented-out code
-  "FIX",     # Check for FIXME, TODO and other temporary notes
+  "FIX",     # Check for FIXME, TODO and other developer notes
+  "FURB",    # refurb (need preview mode, too many preview errors)
+  "G",       # validate logging format strings
+  "INP",     # Ban PEP-420 implicit namespace packages
   "N",       # pep8-naming (many var/arg names are intended)
+  "NPY",     # NumPy-specific rules (TODO: enable this)
   "PTH",     # Prefer pathlib over os.path
+  "S",       # flake8-bandit (TODO: enable this)
   "SLF",     # Access "private" class members
   "T20",     # Check for print/pprint
   "TD",      # TODO tags related
@@ -97,6 +56,8 @@ ignore = [
   "D205",    # 1 blank line required between summary line and description
   "D212",    # Multi-line docstring summary should start at the first line
   "DTZ003",  # TODO: fix this (#3791)
+  "FBT001",  # Boolean-typed positional argument in function definition
+  "FBT002",  # Boolean default positional argument in function
   "PD901",   # pandas-df-variable-name
   "PERF203", # try-except-in-loop
   "PERF401", # manual-list-comprehension
