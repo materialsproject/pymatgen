@@ -276,7 +276,7 @@ class VolumetricData(MSONable):
             f["fcoords"]: Fractional coords
             f["lattice"]: Lattice in the pymatgen.core.Lattice matrix
                 format
-            f.attrs["structure_json"]: String of json representation
+            f.attrs["structure_json"]: String of JSON representation
 
         Args:
             filename (str): Filename to output to.
