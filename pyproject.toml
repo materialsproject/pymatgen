@@ -57,7 +57,7 @@ select = [
   "ISC",     # flake8-implicit-str-concat
   "LOG",     # The standard library logging module
   # "N",     # pep8-naming (many var/arg names are intended)
-  "NPY",     # NumPy-specific rules
+  # "NPY",   # NumPy-specific rules (TODO: enable this)
   "PD",      # pandas-vet
   "PERF",    # performance anti-patterns
   "PGH",     # A collection of fast, cheap, regex based pre-commit hooks
@@ -96,6 +96,7 @@ ignore = [
   "PD901",   # pandas-df-variable-name
   "PERF203", # try-except-in-loop
   "PERF401", # manual-list-comprehension
+  "PLR0911", # too many return statements
   "PLR0912", # too many branches
   "PLR0913", # too many arguments
   "PLR0915", # too many statements
