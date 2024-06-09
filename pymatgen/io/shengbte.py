@@ -119,7 +119,7 @@ class Control(MSONable, dict):
             self["t_max"] = temperature["max"]
             self["t_step"] = temperature["step"]
         else:
-            raise ValueError("Unsupported temperature type, must be float or dict")
+            raise TypeError("Unsupported temperature type, must be float or dict")
 
         self.update(kwargs)
 

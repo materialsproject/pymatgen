@@ -93,7 +93,7 @@ class AdfKey(MSONable):
         if len(self.subkeys) > 0:
             for k in subkeys:
                 if not isinstance(k, AdfKey):
-                    raise ValueError("Not all subkeys are ``AdfKey`` objects!")
+                    raise TypeError("Not all subkeys are ``AdfKey`` objects!")
         self._sized_op = None
         if len(self.options) > 0:
             self._sized_op = isinstance(self.options[0], (list, tuple))
@@ -168,7 +168,7 @@ class AdfKey(MSONable):
         elif isinstance(subkey, AdfKey):
             key = subkey.key
         else:
-            raise ValueError("The subkey should be an AdfKey or a string!")
+            raise TypeError("The subkey should be an AdfKey or a string!")
         return len(self.subkeys) > 0 and key in (k.key for k in self.subkeys)
 
     def add_subkey(self, subkey):
@@ -474,7 +474,7 @@ class AdfTask(MSONable):
         out += "\n"
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):
-                raise ValueError(f"{block_key} is not an AdfKey!")
+                raise TypeError(f"{block_key} is not an AdfKey!")
             out += str(block_key) + "\n"
         return out
 

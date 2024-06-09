@@ -378,7 +378,7 @@ class CifParser:
         elif isinstance(filename, StringIO):
             self._cif = CifFile.from_str(filename.read())
         else:
-            raise RuntimeError("Unsupported file format.")
+            raise TypeError("Unsupported file format.")
 
         # Options related to checking CIFs for missing elements
         # or incorrect stoichiometries
@@ -1484,10 +1484,10 @@ def str2float(text: str) -> float:
         if isinstance(text, list) and len(text) == 1:
             return float(re.sub(r"\(.+\)*", "", text[0]))
 
-    except ValueError as exc:
+    except ValueError:
         if text.strip() == ".":
             return 0
-        raise exc
+        raise
     raise ValueError(f"{text!s} cannot be converted to float")
 
 

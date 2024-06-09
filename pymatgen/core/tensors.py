@@ -139,7 +139,7 @@ class Tensor(np.ndarray, MSONable):
     ) -> NDArray:
         """Calculate the result of an einstein summation expression."""
         if not isinstance(other_arrays, list):
-            raise ValueError("other tensors must be list of tensors or tensor input")
+            raise TypeError("other tensors must be list of tensors or tensor input")
 
         other_arrays = [np.array(a) for a in other_arrays]
         if not einsum_string:

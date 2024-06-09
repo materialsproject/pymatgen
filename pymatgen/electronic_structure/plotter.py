@@ -289,7 +289,7 @@ class BSPlotter:
         # check obj type
         for bs in band_structs:
             if not isinstance(bs, BandStructureSymmLine):
-                raise ValueError(
+                raise TypeError(
                     "BSPlotter only works with BandStructureSymmLine objects. "
                     "A BandStructure object (on a uniform grid for instance and "
                     "not along symmetry lines won't work)"
@@ -1290,7 +1290,7 @@ class BSPlotterProjected(BSPlotter):
                 raise ValueError("The 'selected_branches' is empty. We cannot do anything.")
             for index in selected_branches:
                 if not isinstance(index, int):
-                    raise ValueError(
+                    raise TypeError(
                         "You do not give a correct type of index of symmetry lines. It should be 'int' type"
                     )
                 if index > n_branches or index < 1:
@@ -1777,7 +1777,7 @@ class BSPlotterProjected(BSPlotter):
                         raise ValueError(f"The dictio[{elt}] is empty. We cannot do anything")
                     for orb in dictio[elt]:
                         if not isinstance(orb, str):
-                            raise ValueError(
+                            raise TypeError(
                                 f"The invalid format of orbitals is in 'dictio[{elt}]': {orb}. They should be string."
                             )
                         if orb not in all_orbitals:
@@ -1902,8 +1902,8 @@ class BSPlotterProjected(BSPlotter):
                         raise ValueError(f"The dictpa[{elt}] is empty. We cannot do anything")
                     _sites = self._bs.structure.sites
                     indices = []
-                    for site_idx in range(len(_sites)):
-                        if next(iter(_sites[site_idx]._species)) == Element(elt):
+                    for site_idx, site in enumerate(_sites):
+                        if next(iter(site._species)) == Element(elt):
                             indices.append(site_idx + 1)
                     for number in dictpa[elt]:
                         if isinstance(number, str):
@@ -1917,7 +1917,7 @@ class BSPlotterProjected(BSPlotter):
                             if number not in indices:
                                 raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {number}.")
                         else:
-                            raise ValueError(f"You put wrong site numbers in 'dictpa[{elt}]': {number}.")
+                            raise TypeError(f"You put wrong site numbers in 'dictpa[{elt}]': {number}.")
                     nelems = Counter(dictpa[elt]).values()
                     if sum(nelems) > len(nelems):
                         raise ValueError(f"You put at least two similar site numbers into 'dictpa[{elt}]'.")
@@ -1949,8 +1949,8 @@ class BSPlotterProjected(BSPlotter):
                             raise ValueError(f"The sum_atoms[{elt}] is empty. We cannot do anything")
                         _sites = self._bs.structure.sites
                         indices = []
-                        for site_idx in range(len(_sites)):
-                            if next(iter(_sites[site_idx]._species)) == Element(elt):
+                        for site_idx, site in enumerate(_sites):
+                            if next(iter(site._species)) == Element(elt):
                                 indices.append(site_idx + 1)
                         for number in sum_atoms[elt]:
                             if isinstance(number, str):
@@ -1968,7 +1968,8 @@ class BSPlotterProjected(BSPlotter):
                                         f"mentioned in dicpta[{elt}]"
                                     )
                             else:
-                                raise ValueError(f"You put wrong site numbers in 'sum_atoms[{elt}]'.")
+                                raise TypeError(f"You put wrong site numbers in 'sum_atoms[{elt}]'.")
+
                         nelems = Counter(sum_atoms[elt]).values()
                         if sum(nelems) > len(nelems):
                             raise ValueError(f"You put at least two similar site numbers into 'sum_atoms[{elt}]'.")

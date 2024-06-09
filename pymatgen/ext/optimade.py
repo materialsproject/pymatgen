@@ -359,7 +359,9 @@ class OptimadeRester:
             except Exception as exc:
                 # TODO: manually inspect failures to either (a) correct a bug or (b) raise more appropriate error
 
-                _logger.error(f"Could not retrieve required information from provider {identifier} and {url=}: {exc}")
+                _logger.exception(
+                    f"Could not retrieve required information from provider {identifier} and {url=}: {exc}"
+                )
 
         return all_snls
 
@@ -521,7 +523,7 @@ class OptimadeRester:
             url = urljoin(provider_url, "v1/links")
             provider_link_json = self._get_json(url)
         except Exception as exc:
-            _logger.error(f"Failed to parse {url} when following links: {exc}")
+            _logger.exception(f"Failed to parse {url} when following links: {exc}")
             return {}
 
         def _parse_provider_link(provider, provider_link_json):

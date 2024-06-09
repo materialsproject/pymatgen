@@ -1015,7 +1015,7 @@ class _MPResterLegacy:
                 except MPRestError as exc:
                     if match := re.search(r"error status code (\d+)", str(exc)):
                         if not match.group(1).startswith("5"):
-                            raise exc
+                            raise
                         n_tries += 1
                         print(
                             "Unknown server error. Trying again in five "

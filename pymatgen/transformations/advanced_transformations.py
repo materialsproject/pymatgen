@@ -638,7 +638,7 @@ class MagOrderingTransformation(AbstractTransformation):
             if not any(ops):
                 raise ValueError("Order parameter not correctly defined.")
         else:
-            raise ValueError("Order parameter not correctly defined.")
+            raise ValueError("Order parameter not correctly defined.")  # noqa: TRY004
 
         self.mag_species_spin = mag_species_spin
         # store order parameter constraints as dicts to save implementing

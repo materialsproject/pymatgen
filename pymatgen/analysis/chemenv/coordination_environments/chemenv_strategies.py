@@ -236,7 +236,7 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
         """
         self.structure_environments = structure_environments
         if not isinstance(self.structure_environments.voronoi, DetailedVoronoiContainer):
-            raise ValueError('Voronoi Container not of type "DetailedVoronoiContainer"')
+            raise TypeError('Voronoi Container not of type "DetailedVoronoiContainer"')
         self.prepare_symmetries()
 
     def prepare_symmetries(self):

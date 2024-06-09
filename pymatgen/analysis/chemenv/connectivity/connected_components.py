@@ -770,7 +770,7 @@ class ConnectedComponent(MSONable):
             except ValueError:
                 return key
         else:
-            raise ValueError("Edge key in a dict of dicts representation of a graph should be either a str or an int.")
+            raise TypeError("Edge key in a dict of dicts representation of a graph should be either a str or an int.")
 
     @staticmethod
     def _retuplify_edgedata(edata):

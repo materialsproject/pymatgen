@@ -603,7 +603,7 @@ class Compatibility(MSONable, abc.ABC):
                 adjustments = self.get_adjustments(entry)
             except CompatibilityError as exc:
                 if on_error == "raise":
-                    raise exc
+                    raise
                 if on_error == "warn":
                     warnings.warn(str(exc))
                 continue

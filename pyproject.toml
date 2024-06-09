@@ -65,7 +65,7 @@ select = [
   "TCH",     # flake8-type-checking
   "TID",     # flake8-tidy-imports
   "TRIO",    # flake8-trio
-  # "TRY",   # tryceratops
+  "TRY",   # tryceratops
   "UP",      # pyupgrade
   "W",       # pycodestyle warning
   "YTT",     # flake8-2020
@@ -86,6 +86,7 @@ ignore = [
   "PT013",   # pytest-incorrect-pytest-import
   "PTH",     # prefer pathlib to os.path
   "SIM105",  # Use contextlib.suppress() instead of try-except-pass
+  "TRY003",  # Avoid specifying long messages outside the exception class
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
