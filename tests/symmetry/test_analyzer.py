@@ -263,7 +263,6 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
     def test_get_conventional_standard_structure(self):
         structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/bcc_1927.cif")
-        assert structure == structure
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conv = spga.get_conventional_standard_structure()
         assert conv.lattice.angles == (90, 90, 90)

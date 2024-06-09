@@ -948,7 +948,6 @@ Cartesian
 
     def test_eq(self):
         auto_g_kpts = Kpoints.gamma_automatic()
-        assert auto_g_kpts == auto_g_kpts
         assert auto_g_kpts == Kpoints.gamma_automatic()
         file_kpts = Kpoints.from_file(f"{VASP_IN_DIR}/KPOINTS")
         assert file_kpts == Kpoints.from_file(f"{VASP_IN_DIR}/KPOINTS")

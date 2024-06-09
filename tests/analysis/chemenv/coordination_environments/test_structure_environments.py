@@ -73,8 +73,6 @@ class TestStructureEnvironments(PymatgenTest):
 
         assert len(struct_envs.differences_wrt(struct_envs)) == 0
 
-        assert struct_envs == struct_envs
-
         ce = struct_envs.ce_list[isite][4][0]
 
         assert len(ce), 4
@@ -151,8 +149,6 @@ class TestStructureEnvironments(PymatgenTest):
         assert len(nb_set) == 4
         assert hash(nb_set) == 4
 
-        assert nb_set == nb_set
-
         assert (
             str(nb_set) == "Neighbors Set for site #6 :\n"
             " - Coordination number : 4\n"
@@ -203,7 +199,6 @@ class TestStructureEnvironments(PymatgenTest):
         assert lse.structure_contains_atom_environment(atom_symbol="Si", ce_symbol="T:4")
         assert not lse.structure_contains_atom_environment(atom_symbol="O", ce_symbol="T:4")
         assert lse.uniquely_determines_coordination_environments
-        assert lse == lse
 
         envs = lse.strategy.get_site_coordination_environments(lse.structure[6])
         assert len(envs) == 1

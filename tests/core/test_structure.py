@@ -114,7 +114,6 @@ class TestIStructure(PymatgenTest):
 
     def test_equal(self):
         struct = self.struct
-        assert struct == struct
         assert struct == struct.copy()
         assert struct != 2 * struct
 
