@@ -399,15 +399,15 @@ class LammpsData(MSONable):
         coeffs: dict[str, dict] = {}
         for style, types in coeffs_data_type.items():
             coeffs[style] = {}
-            for type, formatter in types.items():
-                coeffs[style][type] = {}
+            for typ, formatter in types.items():
+                coeffs[style][typ] = {}
                 for coeff, datatype in formatter.items():  # type: ignore[attr-defined]
                     if datatype == "int_format":
-                        coeffs[style][type][coeff] = int_format
+                        coeffs[style][typ][coeff] = int_format
                     elif datatype == "float_format_2":
-                        coeffs[style][type][coeff] = float_format_2
+                        coeffs[style][typ][coeff] = float_format_2
                     else:
-                        coeffs[style][type][coeff] = float_format
+                        coeffs[style][typ][coeff] = float_format
 
         section_template = "{kw}\n\n{df}\n"
         parts = []
