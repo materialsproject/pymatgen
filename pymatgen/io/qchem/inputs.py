@@ -15,7 +15,7 @@ from .utils import lower_and_check_unique, read_pattern, read_table_pattern
 
 if TYPE_CHECKING:
     from pathlib import Path
-    from typing import Literal
+    from typing import Any, Literal
 
     from typing_extensions import Self
 
@@ -1154,23 +1154,23 @@ class QCInput(InputFile):
             if len(const_out) == 0:
                 continue
             for const in const_out:
-                const_dict = {
+                const_dict: dict[str, Any] = {
                     "value": float(const[0]),
                     "coefficients": [],
                     "first_atoms": [],
                     "last_atoms": [],
                     "types": [],
-                }  # type: ignore
+                }
                 sub_consts = const[1].strip().split("\n")
                 for subconst in sub_consts:
                     tokens = subconst.split()
-                    const_dict["coefficients"].append(float(tokens[0]))  # type: ignore
-                    const_dict["first_atoms"].append(int(tokens[1]))  # type: ignore
-                    const_dict["last_atoms"].append(int(tokens[2]))  # type: ignore
+                    const_dict["coefficients"].append(float(tokens[0]))
+                    const_dict["first_atoms"].append(int(tokens[1]))
+                    const_dict["last_atoms"].append(int(tokens[2]))
                     if len(tokens) > 3:
-                        const_dict["types"].append(tokens[3])  # type: ignore
+                        const_dict["types"].append(tokens[3])
                     else:
-                        const_dict["types"].append(None)  # type: ignore
+                        const_dict["types"].append(None)
 
                 state_list.append(const_dict)
 
@@ -1202,7 +1202,7 @@ class QCInput(InputFile):
 
         section = section[0]
 
-        almo_coupling = [[], []]  # type: ignore
+        almo_coupling: list[list] = [[], []]
 
         state_1 = section[0]
         for line in state_1.strip().split("\n"):

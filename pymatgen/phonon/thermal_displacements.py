@@ -37,7 +37,7 @@ __date__ = "August 09, 2022"
 
 sub_spgrp = partial(re.sub, r"[\s_]", "")
 
-space_groups = {sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]}  # type: ignore
+space_groups = {sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]}
 
 
 class ThermalDisplacementMatrices(MSONable):

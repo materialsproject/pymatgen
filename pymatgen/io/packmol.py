@@ -136,7 +136,7 @@ class PackmolBoxGen(InputGenerator):
         self.tolerance = tolerance
         self.seed = seed
 
-    def get_input_set(  # type: ignore
+    def get_input_set(
         self,
         molecules: list[dict],
         box: list[float] | None = None,
@@ -186,7 +186,7 @@ class PackmolBoxGen(InputGenerator):
             # estimate the total volume of all molecules in cubic Å
             net_volume = 0.0
             for d in molecules:
-                mol = Molecule.from_file(d["coords"]) if not isinstance(d["coords"], Molecule) else d["coords"]
+                mol = d["coords"] if isinstance(d["coords"], Molecule) else Molecule.from_file(d["coords"])
 
                 if mol is None:
                     raise ValueError("Molecule cannot be None.")
@@ -226,10 +226,10 @@ class PackmolBoxGen(InputGenerator):
             file_contents += f"  inside box {box_list}\n"
             file_contents += "end structure\n\n"
 
-        mapping.update({str(self.inputfile): file_contents})
+        mapping |= {str(self.inputfile): file_contents}
 
         return PackmolSet(
-            inputs=mapping,  # type: ignore
+            inputs=mapping,  # type: ignore[arg-type]
             seed=self.seed,
             inputfile=self.inputfile,
             outputfile=self.outputfile,

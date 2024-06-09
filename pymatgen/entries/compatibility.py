@@ -9,7 +9,7 @@ import copy
 import os
 import warnings
 from collections import defaultdict
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Union, cast
 
 import numpy as np
 from monty.design_patterns import cached_class
@@ -306,7 +306,7 @@ class AnionCorrection(Correction):
                         correction += ox_corr * comp["O"]
 
                 elif hasattr(entry, "structure"):
-                    ox_type, n_bonds = oxide_type(entry.structure, 1.05, return_nbonds=True)  # type: ignore
+                    ox_type, n_bonds = cast(tuple[str, int], oxide_type(entry.structure, 1.05, return_nbonds=True))
                     if ox_type in self.oxide_correction:
                         correction += self.oxide_correction[ox_type] * n_bonds
                     elif ox_type == "hydroxide":

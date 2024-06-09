@@ -1142,7 +1142,7 @@ class CifParser:
                 all_coords.extend(coords)
                 all_species.extend(len(coords) * [species])
                 all_magmoms.extend(_magmoms)
-                all_labels.extend(new_labels)  # type: ignore
+                all_labels.extend(new_labels)
 
             # Scale occupancies if necessary
             all_species_noedit = all_species.copy()  # save copy before scaling in case of check_occu=False, used below

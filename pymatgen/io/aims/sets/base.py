@@ -195,7 +195,7 @@ class AimsInputGenerator(InputGenerator):
     user_params: dict[str, Any] = field(default_factory=dict)
     user_kpoints_settings: dict[str, Any] = field(default_factory=dict)
 
-    def get_input_set(  # type: ignore
+    def get_input_set(
         self,
         structure: Structure | Molecule | None = None,
         prev_dir: PathLike | None = None,

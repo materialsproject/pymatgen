@@ -218,7 +218,7 @@ class SupercellTransformation(AbstractTransformation):
 
         # Try to find a scaling_matrix satisfying the required boundary distance with smaller cell.
         if allow_rotation and sum(min_expand != 0) > 1:
-            min1, min2, min3 = map(int, min_expand)  # type: ignore  # map(int) just for mypy's sake
+            min1, min2, min3 = map(int, min_expand)
             scaling_matrix = [
                 [min1 or 1, 1 if min1 and min2 else 0, 1 if min1 and min3 else 0],
                 [-1 if min2 and min1 else 0, min2 or 1, 1 if min2 and min3 else 0],

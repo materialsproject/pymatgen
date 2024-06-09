@@ -860,9 +860,9 @@ class MagOrderingTransformation(AbstractTransformation):
             alls = self._remove_dummy_species(alls)
             alls = self._add_spin_magnitudes(alls)  # type: ignore[arg-type]
         else:
-            for idx in range(len(alls)):
-                alls[idx]["structure"] = self._remove_dummy_species(alls[idx]["structure"])  # type: ignore[index]
-                alls[idx]["structure"] = self._add_spin_magnitudes(alls[idx]["structure"])  # type: ignore[index, arg-type]
+            for idx, struct in enumerate(alls):
+                alls[idx]["structure"] = self._remove_dummy_species(struct["structure"])  # type: ignore[index]
+                alls[idx]["structure"] = self._add_spin_magnitudes(struct["structure"])  # type: ignore[index, arg-type]
 
         try:
             num_to_return = int(return_ranked_list)
@@ -872,7 +872,7 @@ class MagOrderingTransformation(AbstractTransformation):
         if num_to_return == 1 or not return_ranked_list:
             return alls[0]["structure"] if num_to_return else alls  # type: ignore[return-value, index]
 
-        # remove duplicate structures and group according to energy model
+        # Remove duplicate structures and group according to energy model
         matcher = StructureMatcher(comparator=SpinComparator())
 
         def key(struct: Structure) -> int:
@@ -880,13 +880,13 @@ class MagOrderingTransformation(AbstractTransformation):
 
         out = []
         for _, group in groupby(sorted((dct["structure"] for dct in alls), key=key), key):  # type: ignore[arg-type, index]
-            group = list(group)  # type: ignore
+            group = list(group)  # type: ignore[assignment]
             grouped = matcher.group_structures(group)
             out.extend([{"structure": g[0], "energy": self.energy_model.get_energy(g[0])} for g in grouped])
 
         self._all_structures = sorted(out, key=lambda dct: dct["energy"])
 
-        return self._all_structures[0:num_to_return]  # type: ignore
+        return self._all_structures[:num_to_return]  # type: ignore[return-value]
 
     @property
     def is_one_to_many(self) -> bool:
@@ -1034,13 +1034,13 @@ class DopingTransformation(AbstractTransformation):
             supercell = structure * scaling
             nsp = supercell.composition[sp]
             if sp.oxi_state == ox:
-                supercell.replace_species({sp: {sp: (nsp - 1) / nsp, self.dopant: 1 / nsp}})  # type: ignore
+                supercell.replace_species({sp: {sp: (nsp - 1) / nsp, self.dopant: 1 / nsp}})
                 logger.info(f"Doping {sp} for {self.dopant} at level {1 / nsp:.3f}")
             elif self.codopant:
-                codopant = find_codopant(sp, 2 * sp.oxi_state - ox)  # type: ignore
-                supercell.replace_species({sp: {sp: (nsp - 2) / nsp, self.dopant: 1 / nsp, codopant: 1 / nsp}})  # type: ignore
+                codopant = find_codopant(sp, 2 * sp.oxi_state - ox)  # type: ignore[arg-type, operator]
+                supercell.replace_species({sp: {sp: (nsp - 2) / nsp, self.dopant: 1 / nsp, codopant: 1 / nsp}})
                 logger.info(f"Doping {sp} for {self.dopant} + {codopant} at level {1 / nsp:.3f}")
-            elif abs(sp.oxi_state) < abs(ox):  # type: ignore
+            elif abs(sp.oxi_state) < abs(ox):  # type: ignore[arg-type]
                 # Strategy: replace the target species with a
                 # combination of dopant and vacancy.
                 # We will choose the lowest oxidation state species as a
@@ -1048,20 +1048,18 @@ class DopingTransformation(AbstractTransformation):
                 # energy
                 sp_to_remove = min(
                     (s for s in comp if s.oxi_state * ox > 0),
-                    key=lambda ss: abs(ss.oxi_state),  # type: ignore
+                    key=lambda ss: abs(ss.oxi_state),  # type: ignore[arg-type]
                 )
 
                 if sp_to_remove == sp:
-                    common_charge = lcm(int(abs(sp.oxi_state)), int(abs(ox)))  # type: ignore
+                    common_charge = lcm(int(abs(sp.oxi_state)), int(abs(ox)))  # type: ignore[arg-type]
                     n_dopant = common_charge / abs(ox)
-                    nsp_to_remove = common_charge / abs(sp.oxi_state)  # type: ignore
+                    nsp_to_remove = common_charge / abs(sp.oxi_state)  # type: ignore[arg-type]
                     logger.info(f"Doping {nsp_to_remove} {sp} with {n_dopant} {self.dopant}.")
-                    supercell.replace_species(
-                        {sp: {sp: (nsp - nsp_to_remove) / nsp, self.dopant: n_dopant / nsp}}  # type: ignore
-                    )
+                    supercell.replace_species({sp: {sp: (nsp - nsp_to_remove) / nsp, self.dopant: n_dopant / nsp}})
                 else:
                     ox_diff = int(abs(round(sp.oxi_state - ox)))
-                    vac_ox = int(abs(sp_to_remove.oxi_state)) * ox_diff  # type: ignore
+                    vac_ox = int(abs(sp_to_remove.oxi_state)) * ox_diff  # type: ignore[arg-type]
                     common_charge = lcm(vac_ox, ox_diff)
                     n_dopant = common_charge / ox_diff
                     nx_to_remove = common_charge / vac_ox
@@ -1071,11 +1069,11 @@ class DopingTransformation(AbstractTransformation):
                     )
                     supercell.replace_species(
                         {
-                            sp: {sp: (nsp - n_dopant) / nsp, self.dopant: n_dopant / nsp},  # type: ignore
-                            sp_to_remove: {sp_to_remove: (nx - nx_to_remove) / nx},  # type: ignore
+                            sp: {sp: (nsp - n_dopant) / nsp, self.dopant: n_dopant / nsp},
+                            sp_to_remove: {sp_to_remove: (nx - nx_to_remove) / nx},
                         }
                     )
-            elif abs(sp.oxi_state) > abs(ox):  # type: ignore
+            elif abs(sp.oxi_state) > abs(ox):  # type: ignore[arg-type]
                 # Strategy: replace the target species with dopant and also
                 # remove some opposite charged species for charge neutrality
                 if ox > 0:
@@ -1083,10 +1081,10 @@ class DopingTransformation(AbstractTransformation):
                 else:
                     sp_to_remove = min(supercell.composition, key=lambda el: el.X)
                 # Confirm species are of opposite oxidation states.
-                assert sp_to_remove.oxi_state * sp.oxi_state < 0  # type: ignore
+                assert sp_to_remove.oxi_state * sp.oxi_state < 0  # type: ignore[operator]
 
                 ox_diff = int(abs(round(sp.oxi_state - ox)))
-                anion_ox = int(abs(sp_to_remove.oxi_state))  # type: ignore
+                anion_ox = int(abs(sp_to_remove.oxi_state))  # type: ignore[arg-type]
                 nx = supercell.composition[sp_to_remove]
                 common_charge = lcm(anion_ox, ox_diff)
                 n_dopant = common_charge / ox_diff
@@ -1094,8 +1092,8 @@ class DopingTransformation(AbstractTransformation):
                 logger.info(f"Doping {n_dopant} {sp} with {self.dopant} and removing {nx_to_remove} {sp_to_remove}.")
                 supercell.replace_species(
                     {
-                        sp: {sp: (nsp - n_dopant) / nsp, self.dopant: n_dopant / nsp},  # type: ignore
-                        sp_to_remove: {sp_to_remove: (nx - nx_to_remove) / nx},  # type: ignore
+                        sp: {sp: (nsp - n_dopant) / nsp, self.dopant: n_dopant / nsp},
+                        sp_to_remove: {sp_to_remove: (nx - nx_to_remove) / nx},
                     }
                 )
 
@@ -1494,7 +1492,7 @@ class CubicSupercellTransformation(AbstractTransformation):
         target_sc_size = self.min_length
         while sc_not_found:
             target_sc_lat_vecs = np.eye(3, 3) * target_sc_size
-            self.transformation_matrix = target_sc_lat_vecs @ np.linalg.inv(lat_vecs)  # type: ignore
+            self.transformation_matrix = target_sc_lat_vecs @ np.linalg.inv(lat_vecs)
 
             # round the entries of T and force T to be non-singular
             self.transformation_matrix = _round_and_make_arr_singular(  # type: ignore[assignment]
