@@ -89,11 +89,11 @@ def publish(ctx: Context) -> None:
 
 @task
 def set_ver(ctx: Context, version: str):
-    with open("setup.py") as file:
+    with open("setup.py", encoding="utf-8") as file:
         contents = file.read()
         contents = re.sub(r"version=([^,]+),", f"version={version!r},", contents)
 
-    with open("setup.py", mode="w") as file:
+    with open("setup.py", mode="w", encoding="utf-8") as file:
         file.write(contents)
 
 
@@ -105,7 +105,7 @@ def release_github(ctx: Context, version: str) -> None:
     Args:
         version (str): The version.
     """
-    with open("docs/CHANGES.md") as file:
+    with open("docs/CHANGES.md", encoding="utf-8") as file:
         contents = file.read()
     tokens = re.split(r"\-+", contents)
     desc = tokens[1].strip()
@@ -123,6 +123,7 @@ def release_github(ctx: Context, version: str) -> None:
         "https://api.github.com/repos/materialsproject/pymatgen/releases",
         data=json.dumps(payload),
         headers={"Authorization": f"token {os.environ['GITHUB_RELEASES_TOKEN']}"},
+        timeout=600,
     )
     print(response.text)
 
@@ -134,7 +135,7 @@ def post_discourse(version: str) -> None:
     Args:
         version (str): The version.
     """
-    with open("CHANGES.rst") as file:
+    with open("CHANGES.rst", encoding="utf-8") as file:
         contents = file.read()
     tokens = re.split(r"\-+", contents)
     desc = tokens[1].strip()
@@ -152,6 +153,7 @@ def post_discourse(version: str) -> None:
             "api_username": os.environ["DISCOURSE_API_USERNAME"],
             "api_key": os.environ["DISCOURSE_API_KEY"],
         },
+        timeout=600,
     )
     print(response.text)
 
@@ -167,15 +169,15 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
         dry_run (bool, optional): If True, the function will only print the changes without
             updating the actual change log file. Defaults to False.
     """
-    version = version or f"{datetime.datetime.now():%Y.%-m.%-d}"
+    version = version or f"{datetime.datetime.now(tz=datetime.timezone.utc):%Y.%-m.%-d}"
     output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{__version__}..HEAD"])
     lines = []
     ignored_commits = []
     for line in output.decode("utf-8").strip().split("\n"):
         re_match = re.match(r"Merge pull request \#(\d+) from (.*)", line)
         if re_match and "materialsproject/dependabot/pip" not in line:
-            pr_number = re_match.group(1)
-            contributor, pr_name = re_match.group(2).split("/", 1)
+            pr_number = re_match[1]
+            contributor, pr_name = re_match[2].split("/", 1)
             response = requests.get(
                 f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}", timeout=600
             )
@@ -189,7 +191,7 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
                         break
                     lines += [f"    {ll}"]
         ignored_commits += [line]
-    with open("docs/CHANGES.md") as file:
+    with open("docs/CHANGES.md", encoding="utf-8") as file:
         contents = file.read()
     delim = "##"
     tokens = contents.split(delim)
@@ -197,7 +199,7 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
     if dry_run:
         print(tokens[0] + "##".join(tokens[1:]))
     else:
-        with open("docs/docs/CHANGES.md", mode="w") as file:
+        with open("docs/docs/CHANGES.md", mode="w", encoding="utf-8") as file:
             file.write(tokens[0] + "##".join(tokens[1:]))
         ctx.run("open docs/CHANGES.md")
     print("The following commit messages were not included...")
@@ -214,7 +216,7 @@ def release(ctx: Context, version: str | None = None, nodoc: bool = False) -> No
         version (str, optional): The version to release.
         nodoc (bool, optional): Whether to skip documentation generation.
     """
-    version = version or f"{datetime.datetime.now():%Y.%-m.%-d}"
+    version = version or f"{datetime.datetime.now(tz=datetime.timezone.utc):%Y.%-m.%-d}"
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx, version)
     if not nodoc:
