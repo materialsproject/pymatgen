@@ -62,17 +62,17 @@ def read_route_line(route):
 
         for tok in route.split():
             if match := scrf_patt.match(tok):
-                route_params[match.group(1)] = match.group(2)
+                route_params[match[1]] = match[2]
             elif tok.upper() in ["#", "#N", "#P", "#T"]:
                 # does not store # in route to avoid error in input
                 dieze_tag = "#N" if tok == "#" else tok
                 continue
             elif match := re.match(multi_params_patt, tok.strip("#")):
                 pars = {}
-                for par in match.group(2).split(","):
+                for par in match[2].split(","):
                     p = par.split("=")
                     pars[p[0]] = None if len(p) == 1 else p[1]
-                route_params[match.group(1)] = pars
+                route_params[match[1]] = pars
             else:
                 d = tok.strip("#").split("=")
                 route_params[d[0]] = None if len(d) == 1 else d[1]
@@ -178,7 +178,7 @@ class GaussianInput:
         var_pattern = re.compile(r"^([A-Za-z]+\S*)[\s=,]+([\d\-\.]+)$")
         for line in coord_lines:
             if match := var_pattern.match(line.strip()):
-                paras[match.group(1).strip("=")] = float(match.group(2))
+                paras[match[1].strip("=")] = float(match[2])
 
         species = []
         coords = []
@@ -191,7 +191,7 @@ class GaussianInput:
                 break
             if (not zmode) and GaussianInput._xyz_patt.match(line):
                 match = GaussianInput._xyz_patt.match(line)
-                species.append(match.group(1))
+                species.append(match[1])
                 tokens = re.split(r"[,\s]+", line.strip())
                 if len(tokens) > 4:
                     coords.append([float(i) for i in tokens[2:5]])
@@ -295,7 +295,7 @@ class GaussianInput:
             if link0_patt.match(line):
                 match = link0_patt.match(line)
                 assert match is not None
-                link0_dict[match.group(1).strip("=")] = match.group(2)
+                link0_dict[match[1].strip("=")] = match[2]
 
         route_patt = re.compile(r"^#[sSpPnN]*.*")
         route = ""
@@ -672,7 +672,7 @@ class GaussianOutput:
                         parse_stage = 1
                     elif link0_patt.match(line):
                         match = link0_patt.match(line)
-                        self.link0[match.group(1)] = match.group(2)
+                        self.link0[match[1]] = match[2]
                     elif route_patt.search(line) or route_line != "":
                         if set(line.strip()) == {"-"}:
                             params = read_route_line(route_line)
@@ -692,8 +692,8 @@ class GaussianOutput:
                         self.title = line.strip()
                     elif charge_mul_patt.search(line):
                         match = charge_mul_patt.search(line)
-                        self.charge = int(match.group(1))
-                        self.spin_multiplicity = int(match.group(2))
+                        self.charge = int(match[1])
+                        self.spin_multiplicity = int(match[2])
                         parse_stage = 2
                 elif parse_stage == 2:
                     if self.is_pcm:
@@ -701,11 +701,11 @@ class GaussianOutput:
 
                     if "freq" in route_lower and thermo_patt.search(line):
                         match = thermo_patt.search(line)
-                        if match.group(1) == "Zero-point":
-                            self.corrections["Zero-point"] = float(match.group(3))
+                        if match[1] == "Zero-point":
+                            self.corrections["Zero-point"] = float(match[3])
                         else:
-                            key = match.group(2).replace(" to ", "")
-                            self.corrections[key] = float(match.group(3))
+                            key = match[2].replace(" to ", "")
+                            self.corrections[key] = float(match[3])
 
                     if read_coord:
                         [file.readline() for i in range(3)]
@@ -751,7 +751,7 @@ class GaussianOutput:
                     # read molecular orbital coefficients
                     if (not num_basis_found) and num_basis_func_patt.search(line):
                         match = num_basis_func_patt.search(line)
-                        self.num_basis_func = int(match.group(1))
+                        self.num_basis_func = int(match[1])
                         num_basis_found = True
                     elif read_mo:
                         # build a matrix with all coefficients
@@ -775,12 +775,12 @@ class GaussianOutput:
 
                                     # identify atom and OA labels
                                     match = mo_coeff_name_patt.search(line)
-                                    if match.group(1).strip() != "":
-                                        atom_idx = int(match.group(2)) - 1
-                                        # atname = m.group(3)
-                                        self.atom_basis_labels.append([match.group(4)])
+                                    if match[1].strip() != "":
+                                        atom_idx = int(match[2]) - 1
+                                        # atname = match[3]
+                                        self.atom_basis_labels.append([match[4]])
                                     else:
-                                        self.atom_basis_labels[atom_idx].append(match.group(4))
+                                        self.atom_basis_labels[atom_idx].append(match[4])
 
                                     # MO coefficients
                                     coeffs = [float(c) for c in float_patt.findall(line)]
@@ -892,7 +892,7 @@ class GaussianOutput:
 
                     elif termination_patt.search(line):
                         match = termination_patt.search(line)
-                        if match.group(1) == "Normal":
+                        if match[1] == "Normal":
                             self.properly_terminated = True
                             terminated = True
                     elif error_patt.search(line):
@@ -901,10 +901,10 @@ class GaussianOutput:
                             "Convergence failure": "SCF convergence error",
                         }
                         match = error_patt.search(line)
-                        self.errors.append(error_defs[match.group(1)])
+                        self.errors.append(error_defs[match[1]])
                     elif num_elec_patt.search(line):
                         match = num_elec_patt.search(line)
-                        self.electrons = (int(match.group(1)), int(match.group(2)))
+                        self.electrons = (int(match[1]), int(match[2]))
                     elif (not self.is_pcm) and pcm_patt.search(line):
                         self.is_pcm = True
                         self.pcm = {}
@@ -912,13 +912,13 @@ class GaussianOutput:
                         self.stationary_type = "Saddle"
                     elif mp2_patt.search(line):
                         match = mp2_patt.search(line)
-                        self.energies.append(float(match.group(1).replace("D", "E")))
+                        self.energies.append(float(match[1].replace("D", "E")))
                     elif oniom_patt.search(line):
                         match = oniom_patt.matcher(line)
-                        self.energies.append(float(match.group(1)))
+                        self.energies.append(float(match[1]))
                     elif scf_patt.search(line):
                         match = scf_patt.search(line)
-                        self.energies.append(float(match.group(1)))
+                        self.energies.append(float(match[1]))
                     elif std_orientation_patt.search(line):
                         standard_orientation = True
                         geom_orientation = "standard"
@@ -976,7 +976,7 @@ class GaussianOutput:
                             for line in mulliken_txt:
                                 if mulliken_charge_patt.search(line):
                                     match = mulliken_charge_patt.search(line)
-                                    dic = {int(match.group(1)): [match.group(2), float(match.group(3))]}
+                                    dic = {int(match[1]): [match[2], float(match[3])]}
                                     mulliken_charges.update(dic)
                             read_mulliken = False
                             self.Mulliken_charges = mulliken_charges
@@ -1031,13 +1031,13 @@ class GaussianOutput:
 
         if energy_patt.search(line):
             match = energy_patt.search(line)
-            self.pcm[f"{match.group(1)} energy"] = float(match.group(2))
+            self.pcm[f"{match[1]} energy"] = float(match[2])
         elif total_patt.search(line):
             match = total_patt.search(line)
-            self.pcm["Total energy"] = float(match.group(1))
+            self.pcm["Total energy"] = float(match[1])
         elif parameter_patt.search(line):
             match = parameter_patt.search(line)
-            self.pcm[match.group(1)] = float(match.group(2))
+            self.pcm[match[1]] = float(match[2])
 
     def as_dict(self):
         """JSON-serializable dict representation."""

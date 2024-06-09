@@ -1135,7 +1135,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             el = match[1]
             if len(el) > 2 or len(el) < 1:
                 raise ValueError("Invalid element symbol entered!")
-            amt = float(match.group(2)) if match.group(2).strip() != "" else 1
+            amt = float(match[2]) if match[2].strip() != "" else 1
 
             # convert the element string to proper [uppercase,lowercase] format
             # and award points if it is already in that format

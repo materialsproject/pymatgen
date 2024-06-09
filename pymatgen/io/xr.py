@@ -126,16 +126,16 @@ class Xr:
                 r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)",
                 lines[4 + j].strip(),
             ):
-                tmp_sp = match.group(1)
+                tmp_sp = match[1]
                 if use_cores and tmp_sp[len(tmp_sp) - 2 :] == "_s":
                     continue
                 if not use_cores and tmp_sp[len(tmp_sp) - 2 :] == "_c":
                     continue
                 if tmp_sp[len(tmp_sp) - 2] == "_":
-                    sp.append(tmp_sp[0 : len(tmp_sp) - 2])
+                    sp.append(tmp_sp[: len(tmp_sp) - 2])
                 else:
                     sp.append(tmp_sp)
-                coords.append([float(match.group(i)) for i in range(2, 5)])
+                coords.append([float(match[i]) for i in range(2, 5)])
         return cls(Structure(lattice, sp, coords, coords_are_cartesian=True))
 
     @classmethod

@@ -62,7 +62,7 @@ class XYZ:
         coord_pattern = re.compile(r"(\w+)\s+([0-9\-\+\.*^eEdD]+)\s+([0-9\-\+\.*^eEdD]+)\s+([0-9\-\+\.*^eEdD]+)")
         for idx in range(2, 2 + n_sites):
             if match := coord_pattern.search(lines[idx]):
-                sp.append(match.group(1))  # this is 1-indexed
+                sp.append(match[1])  # this is 1-indexed
                 # this is 0-indexed
                 # in case of 0.0D+00 or 0.00d+01 old double precision writing
                 # replace d or D by e for ten power exponent,
@@ -92,7 +92,7 @@ class XYZ:
         pat = re.compile(frame_pattern_text, re.MULTILINE)
         mols = []
         for xyz_match in pat.finditer(contents):
-            xyz_text = xyz_match.group(0)
+            xyz_text = xyz_match[0]
             mols.append(XYZ._from_frame_str(xyz_text))
         return cls(mols)
 
