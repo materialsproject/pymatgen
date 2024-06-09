@@ -34,19 +34,15 @@ select = [
   # "BLE",   # General catch of Exception
   "C4",      # flake8-comprehensions
   # "C90",   # Check for functions with a high McCabe complexity
-  # "COM",   # flake8-commas (conflict with line wrapper)
   # "CPY",   # Missing copyright notice at top of file (need preview mode)
   "D",       # pydocstyle
   # "DJ",    # Django (we don't use Django at all)
   "DTZ",     # flake8-datetimez
   "E",       # pycodestyle error
-  # "EM",    # Format nice error messages
-  # "ERA"    # Check for commented-out code
   "EXE",     # Executable permissions and shebangs of Python files
   "F",       # pyflakes
   "FA",      # flake8-future-annotations
   "FBT003",  # boolean-positional-value-in-call
-  # "FIX",   # Check for FIXME, TODO and other temporary notes
   "FLY",     # Convert old "%-formatted" to f-strings
   # "FURB",  # refurb (need preview mode, too many preview errors)
   # "G",     # validate logging format strings
@@ -56,7 +52,6 @@ select = [
   "INT",     # flake8-gettext
   "ISC",     # flake8-implicit-str-concat
   "LOG",     # The standard library logging module
-  # "N",     # pep8-naming (many var/arg names are intended)
   # "NPY",   # NumPy-specific rules (TODO: enable this)
   "PD",      # pandas-vet
   "PERF",    # performance anti-patterns
@@ -64,7 +59,6 @@ select = [
   "PIE",     # flake8-pie
   "PL",      # pylint
   "PT",      # flake8-pytest-style
-  # "PTH",   # Prefer pathlib over os.path
   "PYI",     # flakes8-pyi
   "Q",       # Encourage avoiding escaping quotes as per PEP-8
   "RET",     # flake8-return
@@ -72,12 +66,9 @@ select = [
   "RUF",     # Ruff-specific rules
   # "S",     # flake8-bandit (TODO: enable this)
   "SIM",     # flake8-simplify
-  # "SLF"    # Access "private" class members
   "SLOT",    # Require __slots__ to be defined for subclasses of immutable types
   "T10",     # Check for the presence of debugger calls and imports
-  # "T20",   # Check for print/pprint
   "TCH",     # flake8-type-checking
-  # "TD",    # TODO tags related
   "TID",     # flake8-tidy-imports
   "TRIO",    # flake8-trio
   "TRY",     # tryceratops
@@ -86,6 +77,18 @@ select = [
   "YTT",     # flake8-2020
 ]
 ignore = [
+  # Rule families
+  "COM",     # flake8-commas (conflict with line wrapper)
+  "EM",      # Format nice error messages
+  "ERA",     # Check for commented-out code
+  "FIX",     # Check for FIXME, TODO and other temporary notes
+  "N",       # pep8-naming (many var/arg names are intended)
+  "PTH",     # Prefer pathlib over os.path
+  "SLF",     # Access "private" class members
+  "T20",     # Check for print/pprint
+  "TD",      # TODO tags related
+
+  # Single rules
   "B023",    # Function definition does not bind loop variable
   "B028",    # No explicit stacklevel keyword argument found
   "B904",    # Within an except clause, raise exceptions with ...
