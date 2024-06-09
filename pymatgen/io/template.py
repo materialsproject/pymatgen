@@ -5,7 +5,6 @@ used to facilitate writing large numbers of input files based on a template.
 
 from __future__ import annotations
 
-from pathlib import Path
 from string import Template
 from typing import TYPE_CHECKING
 
@@ -50,7 +49,7 @@ class TemplateInputGen(InputGenerator):
         """
         self.template = template
         self.variables = variables or {}
-        self.filename = filename
+        self.filename = str(filename)
 
         # Load the template
         with zopen(self.template, mode="r") as file:
@@ -58,4 +57,4 @@ class TemplateInputGen(InputGenerator):
 
         # Replace all variables
         self.data = Template(template_str).safe_substitute(**self.variables)
-        return InputSet({Path(self.filename): self.data})
+        return InputSet({self.filename: self.data})
