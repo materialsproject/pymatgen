@@ -27,25 +27,25 @@ line-length = 120
 select = ["ALL"]
 ignore = [
   # Rule families
-  "ANN",     # flake8-annotations (not ready, require types for ALL args)
-  "ARG",     # Check for unused function arguments
-  "BLE",     # General catch of Exception
-  "C90",     # Check for functions with a high McCabe complexity
-  "COM",     # flake8-commas (conflict with line wrapper)
-  "CPY",     # Missing copyright notice at top of file (need preview mode)
-  "EM",      # Format nice error messages
-  "ERA",     # Check for commented-out code
-  "FIX",     # Check for FIXME, TODO and other developer notes
-  "FURB",    # refurb (need preview mode, too many preview errors)
-  "G",       # validate logging format strings
-  "INP",     # Ban PEP-420 implicit namespace packages
-  "N",       # pep8-naming (many var/arg names are intended)
-  "NPY",     # NumPy-specific rules (TODO: enable this)
-  "PTH",     # Prefer pathlib over os.path
-  "S",       # flake8-bandit (TODO: enable this)
-  "SLF",     # Access "private" class members
-  "T20",     # Check for print/pprint
-  "TD",      # TODO tags related
+  "ANN",  # flake8-annotations (not ready, require types for ALL args)
+  "ARG",  # Check for unused function arguments
+  "BLE",  # General catch of Exception
+  "C90",  # Check for functions with a high McCabe complexity
+  "COM",  # flake8-commas (conflict with line wrapper)
+  "CPY",  # Missing copyright notice at top of file (need preview mode)
+  "EM",   # Format nice error messages
+  "ERA",  # Check for commented-out code
+  "FIX",  # Check for FIXME, TODO and other developer notes
+  "FURB", # refurb (need preview mode, too many preview errors)
+  "G",    # validate logging format strings
+  "INP",  # Ban PEP-420 implicit namespace packages
+  "N",    # pep8-naming (many var/arg names are intended)
+  "NPY",  # NumPy-specific rules (TODO: enable this)
+  "PTH",  # Prefer pathlib over os.path
+  "S",    # flake8-bandit (TODO: enable this)
+  "SLF",  # Access "private" class members
+  "T20",  # Check for print/pprint
+  "TD",   # TODO tags related
 
   # Single rules
   "B023",    # Function definition does not bind loop variable
@@ -70,8 +70,8 @@ ignore = [
   "PT013",   # pytest-incorrect-pytest-import
   "SIM105",  # Use contextlib.suppress() instead of try-except-pass
   "TRY003",  # Avoid specifying long messages outside the exception class
-  "TRY301",  # Checks for raise statements within try blocks
   "TRY300",  # Checks for return statements in try blocks
+  "TRY301",  # Checks for raise statements within try blocks
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
@@ -82,7 +82,7 @@ docstring-code-format = true
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
-"tests/**" = ["ANN201", "D"]
+"tests/**" = ["ANN201", "D", "PLR0124"]
 "tasks.py" = ["D"]
 "pymatgen/analysis/*" = ["D"]
 "pymatgen/io/*" = ["D"]

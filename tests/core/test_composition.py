@@ -489,6 +489,7 @@ class TestComposition(PymatgenTest):
         assert hash(comp1) == hash(comp2), "Hash equality test failed!"
 
         c1, c2 = self.comps[:2]
+        assert c1 == c1
         assert c1 != c2
 
     def test_hash_robustness(self):
