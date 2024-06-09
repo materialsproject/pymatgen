@@ -1,16 +1,17 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module provides classes for the Piezoelectric tensor."""
 
+from __future__ import annotations
 
-"""
-This module provides classes for the Piezoelectric tensor
-"""
 import warnings
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from pymatgen.core.tensors import Tensor
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -22,13 +23,11 @@ __date__ = "Feb, 2016"
 
 
 class PiezoTensor(Tensor):
-    """
-    This class describes the 3x6 piezo tensor in Voigt-notation
-    """
+    """This class describes the 3x6 piezo tensor in Voigt notation."""
 
-    def __new__(cls, input_array, tol=1e-3):
+    def __new__(cls, input_array: ArrayLike, tol: float = 1e-3) -> Self:
         """
-        Create an PiezoTensor object.  The constructor throws an error if
+        Create an PiezoTensor object. The constructor throws an error if
         the shape of the input_matrix argument is not 3x3x3, i. e. in true
         tensor notation. Note that the constructor uses __new__ rather than
         __init__ according to the standard method of subclassing numpy
@@ -40,11 +39,11 @@ class PiezoTensor(Tensor):
         """
         obj = super().__new__(cls, input_array, check_rank=3)
         if not (obj - np.transpose(obj, (0, 2, 1)) < tol).all():
-            warnings.warn("Input piezo tensor does " "not satisfy standard symmetries")
+            warnings.warn("Input piezo tensor does not satisfy standard symmetries")
         return obj.view(cls)
 
     @classmethod
-    def from_vasp_voigt(cls, input_vasp_array):
+    def from_vasp_voigt(cls, input_vasp_array: ArrayLike) -> Self:
         """
         Args:
             input_vasp_array (nd.array): Voigt form of tensor.
@@ -59,7 +58,7 @@ class PiezoTensor(Tensor):
         pt = np.zeros([rank, 3, 3])
         for dim in range(rank):
             for pos, val in enumerate(voigt_map):
-                pt[dim][voigt_map[pos]] = input_vasp_array[dim][pos]
-                pt[dim].T[voigt_map[pos]] = input_vasp_array[dim][pos]
+                pt[dim][val] = input_vasp_array[dim][pos]
+                pt[dim].T[val] = input_vasp_array[dim][pos]
 
         return cls(pt)

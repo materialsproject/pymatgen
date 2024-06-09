@@ -1,21 +1,22 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
 """
 This module provides objects for extracting timing data from the ABINIT output files
-It also provides tools to analye and to visualize the parallel efficiency.
+It also provides tools to analyze and to visualize the parallel efficiency.
 """
+
+from __future__ import annotations
 
 import collections
 import logging
 import os
 import sys
 
+import matplotlib.pyplot as plt
 import numpy as np
-from monty.string import is_string, list_strings
+import pandas as pd
+from matplotlib.gridspec import GridSpec
 
-from pymatgen.util.num import minloc
-from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt
+from pymatgen.io.core import ParseError
+from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +24,8 @@ logger = logging.getLogger(__name__)
 def alternate(*iterables):
     """
     [a[0], b[0], ... , a[1], b[1], ..., a[n], b[n] ...]
-    >>> alternate([1,4], [2,5], [3,6])
-    [1, 2, 3, 4, 5, 6]
+    >>> alternate([1, 4], [2, 5], [3, 6])
+    [1, 2, 3, 4, 5, 6].
     """
     items = []
     for tup in zip(*iterables):
@@ -32,8 +33,8 @@ def alternate(*iterables):
     return items
 
 
-class AbinitTimerParserError(Exception):
-    """Errors raised by AbinitTimerParser"""
+class AbinitTimerParseError(ParseError):
+    """Errors raised by AbinitTimerParser."""
 
 
 class AbinitTimerParser(collections.abc.Iterable):
@@ -43,11 +44,10 @@ class AbinitTimerParser(collections.abc.Iterable):
     Assume the Abinit output files have been produced with `timopt -1`.
 
     Example:
-
         parser = AbinitTimerParser()
         parser.parse(list_of_files)
 
-    To analyze all *.abo files withing top, use:
+    To analyze all *.abo files within top, use:
 
         parser, paths, okfiles = AbinitTimerParser.walk(top=".", ext=".abo")
     """
@@ -56,42 +56,41 @@ class AbinitTimerParser(collections.abc.Iterable):
     BEGIN_TAG = "-<BEGIN_TIMER"
     END_TAG = "-<END_TIMER>"
 
-    Error = AbinitTimerParserError
+    Error = AbinitTimerParseError
 
     # DEFAULT_MPI_RANK = "0"
 
     @classmethod
     def walk(cls, top=".", ext=".abo"):
-        """
-        Scan directory tree starting from top, look for files with extension `ext` and
+        """Scan directory tree starting from top, look for files with extension `ext` and
         parse timing data.
 
-        Return: (parser, paths, okfiles)
-            where `parser` is the new object, `paths` is the list of files found and `okfiles`
-            is the list of files that have been parsed successfully.
-            (okfiles == paths) if all files have been parsed.
+        Returns:
+            parser: the new object
+            paths: the list of files found
+            ok_files: list of files that have been parsed successfully.
+                (ok_files == paths) if all files have been parsed.
         """
         paths = []
-        for root, dirs, files in os.walk(top):
-            for f in files:
-                if f.endswith(ext):
-                    paths.append(os.path.join(root, f))
+        for root, _dirs, files in os.walk(top):
+            for file in files:
+                if file.endswith(ext):
+                    paths.append(os.path.join(root, file))
 
         parser = cls()
-        okfiles = parser.parse(paths)
-        return parser, paths, okfiles
+        ok_files = parser.parse(paths)
+        return parser, paths, ok_files
 
     def __init__(self):
-        """Initialize object."""
         # List of files that have been parsed.
-        self._filenames = []
+        self._filenames: list = []
 
         # timers[filename][mpi_rank]
         # contains the timer extracted from the file filename associated to the MPI rank mpi_rank.
-        self._timers = collections.OrderedDict()
+        self._timers: dict = {}
 
     def __iter__(self):
-        return self._timers.__iter__()
+        return iter(self._timers)
 
     def __len__(self):
         return len(self._timers)
@@ -106,37 +105,39 @@ class AbinitTimerParser(collections.abc.Iterable):
         Read and parse a filename or a list of filenames.
         Files that cannot be opened are ignored. A single filename may also be given.
 
-        Return: list of successfully read files.
+        Returns:
+            list of successfully read files.
         """
-        filenames = list_strings(filenames)
+        if isinstance(filenames, str):
+            filenames = [filenames]
 
         read_ok = []
-        for fname in filenames:
+        for filename in filenames:
             try:
-                fh = open(fname)
-            except IOError:
-                logger.warning("Cannot open file %s" % fname)
+                file = open(filename)  # noqa: SIM115
+            except OSError:
+                logger.warning(f"Cannot open file {filename}")
                 continue
 
             try:
-                self._read(fh, fname)
-                read_ok.append(fname)
+                self._read(file, filename)
+                read_ok.append(filename)
 
-            except self.Error as e:
-                logger.warning("exception while parsing file %s:\n%s" % (fname, str(e)))
+            except self.Error as exc:
+                logger.warning(f"exception while parsing file {filename}:\n{exc}")
                 continue
 
             finally:
-                fh.close()
+                file.close()
 
         # Add read_ok to the list of files that have been parsed.
         self._filenames.extend(read_ok)
         return read_ok
 
     def _read(self, fh, fname):
-        """Parse the TIMER section"""
+        """Parse the TIMER section."""
         if fname in self._timers:
-            raise self.Error("Cannot overwrite timer associated to: %s " % fname)
+            raise self.Error(f"Cannot overwrite timer associated to: {fname} ")
 
         def parse_line(line):
             """Parse single line."""
@@ -144,16 +145,16 @@ class AbinitTimerParser(collections.abc.Iterable):
             try:
                 ctime, cfract, wtime, wfract, ncalls, gflops = vals
             except ValueError:
-                # v8.3 Added two columns at the end [Speedup, Efficacity]
-                ctime, cfract, wtime, wfract, ncalls, gflops, speedup, eff = vals
+                # v8.3 Added two columns at the end [Speedup, Efficacy]
+                ctime, cfract, wtime, wfract, ncalls, gflops, _speedup, _eff = vals
 
             return AbinitTimerSection(name, ctime, cfract, wtime, wfract, ncalls, gflops)
 
         sections, info, cpu_time, wall_time = None, None, None, None
         data = {}
+        parser_failed = False
         inside, has_timer = 0, False
         for line in fh:
-            # print(line.strip())
             if line.startswith(self.BEGIN_TAG):
                 has_timer = True
                 sections = []
@@ -163,7 +164,7 @@ class AbinitTimerParser(collections.abc.Iterable):
 
                 info["fname"] = fname
                 for tok in line.split(","):
-                    key, val = [s.strip() for s in tok.split("=")]
+                    key, val = (s.strip() for s in tok.split("="))
                     info[key] = val
 
             elif line.startswith(self.END_TAG):
@@ -177,11 +178,11 @@ class AbinitTimerParser(collections.abc.Iterable):
                 line = line[1:].strip()
 
                 if inside == 2:
-                    d = dict()
+                    dct = {}
                     for tok in line.split(","):
-                        key, val = [s.strip() for s in tok.split("=")]
-                        d[key] = float(val)
-                    cpu_time, wall_time = d["cpu_time"], d["wall_time"]
+                        key, val = (s.strip() for s in tok.split("="))
+                        dct[key] = float(val)
+                    cpu_time, wall_time = dct["cpu_time"], dct["wall_time"]
 
                 elif inside > 5:
                     sections.append(parse_line(line))
@@ -193,38 +194,35 @@ class AbinitTimerParser(collections.abc.Iterable):
                         parser_failed = True
 
                     if not parser_failed:
-                        raise self.Error("line should be empty: " + str(inside) + line)
+                        raise self.Error(f"line should be empty: {inside}{line}")
 
         if not has_timer:
-            raise self.Error("%s: No timer section found" % fname)
+            raise self.Error(f"{fname}: No timer section found")
 
         # Add it to the dict
         self._timers[fname] = data
 
     def timers(self, filename=None, mpi_rank="0"):
-        """
-        Return the list of timers associated to the given `filename` and MPI rank mpi_rank.
-        """
+        """Return the list of timers associated to the given `filename` and MPI rank mpi_rank."""
         if filename is not None:
             return [self._timers[filename][mpi_rank]]
         return [self._timers[filename][mpi_rank] for filename in self._filenames]
 
     def section_names(self, ordkey="wall_time"):
-        """
-        Return the names of sections ordered by ordkey.
+        """Get the names of sections ordered by ordkey.
         For the time being, the values are taken from the first timer.
         """
         section_names = []
 
-        # FIXME this is not trivial
+        # TODO this is not trivial
         for idx, timer in enumerate(self.timers()):
             if idx == 0:
                 section_names = [s.name for s in timer.order_sections(ordkey)]
                 # check = section_names
-                # else:
-                #  new_set = set( [s.name for s in timer.order_sections(ordkey)])
-                #  section_names.intersection_update(new_set)
-                #  check = check.union(new_set)
+            # else:
+            #     new_set = {s.name for s in timer.order_sections(ordkey)}
+            #     section_names.intersection_update(new_set)
+            #     check = check | new_set
 
         # if check != section_names:
         #  print("sections", section_names)
@@ -233,8 +231,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         return section_names
 
     def get_sections(self, section_name):
-        """
-        Return the list of sections stored in self.timers() given `section_name`
+        """Get the list of sections stored in self.timers() given `section_name`
         A fake section is returned if the timer does not have section_name.
         """
         sections = []
@@ -252,7 +249,8 @@ class AbinitTimerParser(collections.abc.Iterable):
         """
         Analyze the parallel efficiency.
 
-        Return: :class:`ParallelEfficiency` object.
+        Returns:
+            ParallelEfficiency object.
         """
         timers = self.timers()
 
@@ -260,7 +258,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         ncpus = [timer.ncpus for timer in timers]
 
         # Find the minimum number of cpus used and its index in timers.
-        min_idx = minloc(ncpus)
+        min_idx = np.argmin(ncpus)
         min_ncpus = ncpus[min_idx]
 
         # Reference timer
@@ -279,9 +277,8 @@ class AbinitTimerParser(collections.abc.Iterable):
         peff["total"]["wall_fract"] = n * [100]
 
         for sect_name in self.section_names():
-            # print(sect_name)
             ref_sect = ref_t.get_section(sect_name)
-            sects = [t.get_section(sect_name) for t in timers]
+            sects = [timer.get_section(sect_name) for timer in timers]
             try:
                 ctime_peff = [(min_ncpus * ref_sect.cpu_time) / (s.cpu_time * ncp) for (s, ncp) in zip(sects, ncpus)]
                 wtime_peff = [(min_ncpus * ref_sect.wall_time) / (s.wall_time * ncp) for (s, ncp) in zip(sects, ncpus)]
@@ -300,44 +297,34 @@ class AbinitTimerParser(collections.abc.Iterable):
         return ParallelEfficiency(self._filenames, min_idx, peff)
 
     def summarize(self, **kwargs):
-        """
-        Return pandas DataFrame with the most important results stored in the timers.
-        """
-        import pandas as pd
+        """Return pandas DataFrame with the most important results stored in the timers."""
 
-        colnames = [
-            "fname",
-            "wall_time",
-            "cpu_time",
-            "mpi_nprocs",
-            "omp_nthreads",
-            "mpi_rank",
-        ]
+        col_names = ["fname", "wall_time", "cpu_time", "mpi_nprocs", "omp_nthreads", "mpi_rank"]
 
-        frame = pd.DataFrame(columns=colnames)
-        for i, timer in enumerate(self.timers()):
-            frame = frame.append({k: getattr(timer, k) for k in colnames}, ignore_index=True)
+        frame = pd.DataFrame(columns=col_names)
+        for timer in self.timers():
+            frame = frame.append({key: getattr(timer, key) for key in col_names}, ignore_index=True)
         frame["tot_ncpus"] = frame["mpi_nprocs"] * frame["omp_nthreads"]
 
         # Compute parallel efficiency (use the run with min number of cpus to normalize).
-        i = frame["tot_ncpus"].values.argmin()
-        ref_wtime = frame.iloc[i]["wall_time"]
-        ref_ncpus = frame.iloc[i]["tot_ncpus"]
+        idx = frame["tot_ncpus"].argmin()
+        ref_wtime = frame.iloc[idx]["wall_time"]
+        ref_ncpus = frame.iloc[idx]["tot_ncpus"]
         frame["peff"] = (ref_ncpus * ref_wtime) / (frame["wall_time"] * frame["tot_ncpus"])
 
         return frame
 
     @add_fig_kwargs
-    def plot_efficiency(self, key="wall_time", what="good+bad", nmax=5, ax=None, **kwargs):
+    def plot_efficiency(self, key="wall_time", what="good+bad", nmax=5, ax: plt.Axes = None, **kwargs):
         """
-        Plot the parallel efficiency
+        Plot the parallel efficiency.
 
         Args:
             key: Parallel efficiency is computed using the wall_time.
             what: Specifies what to plot: `good` for sections with good parallel efficiency.
                 `bad` for sections with bad efficiency. Options can be concatenated with `+`.
             nmax: Maximum number of entries in plot
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
 
         ================  ====================================================
         kwargs            Meaning
@@ -349,7 +336,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         Returns:
             `matplotlib` figure
         """
-        ax, fig, plt = get_ax_fig_plt(ax=ax)
+        ax, fig = get_ax_fig(ax=ax)
         lw = kwargs.pop("linewidth", 2.0)
         msize = kwargs.pop("markersize", 10)
         what = what.split("+")
@@ -367,7 +354,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         if "good" in what:
             good = peff.good_sections(key=key, nmax=nmax)
             for g in good:
-                # print(g, peff[g])
                 yy = peff[g][key]
                 (line,) = ax.plot(xx, yy, "-->", linewidth=lw, markersize=msize)
                 lines.append(line)
@@ -377,7 +363,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         if "bad" in what:
             bad = peff.bad_sections(key=key, nmax=nmax)
             for b in bad:
-                # print(b, peff[b])
                 yy = peff[b][key]
                 (line,) = ax.plot(xx, yy, "-.<", linewidth=lw, markersize=msize)
                 lines.append(line)
@@ -395,10 +380,10 @@ class AbinitTimerParser(collections.abc.Iterable):
         # ax.set_title(title)
         ax.set_xlabel("Total_NCPUs")
         ax.set_ylabel("Efficiency")
-        ax.grid(True)
+        ax.grid(visible=True)
 
         # Set xticks and labels.
-        labels = ["MPI=%d, OMP=%d" % (t.mpi_nprocs, t.omp_nthreads) for t in timers]
+        labels = [f"MPI={timer.mpi_nprocs}, OMP={timer.omp_nthreads}" for timer in timers]
         ax.set_xticks(xx)
         ax.set_xticklabels(labels, fontdict=None, minor=False, rotation=15)
 
@@ -420,9 +405,6 @@ class AbinitTimerParser(collections.abc.Iterable):
         n = len(timers)
 
         # Make square figures and axes
-        import matplotlib.pyplot as plt
-        from matplotlib.gridspec import GridSpec
-
         fig = plt.gcf()
         gspec = GridSpec(n, 1)
         for idx, timer in enumerate(timers):
@@ -433,21 +415,21 @@ class AbinitTimerParser(collections.abc.Iterable):
         return fig
 
     @add_fig_kwargs
-    def plot_stacked_hist(self, key="wall_time", nmax=5, ax=None, **kwargs):
+    def plot_stacked_hist(self, key="wall_time", nmax=5, ax: plt.Axes = None, **kwargs):
         """
         Plot stacked histogram of the different timers.
 
         Args:
             key: Keyword used to extract data from the timers. Only the first `nmax`
                 sections with largest value are show.
-            mmax: Maximum nuber of sections to show. Other entries are grouped together
+            nmax: Maximum number of sections to show. Other entries are grouped together
                 in the `others` section.
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
 
         Returns:
             `matplotlib` figure
         """
-        ax, fig, plt = get_ax_fig_plt(ax=ax)
+        ax, fig = get_ax_fig(ax=ax)
 
         mpi_rank = "0"
         timers = self.timers(mpi_rank=mpi_rank)
@@ -456,16 +438,16 @@ class AbinitTimerParser(collections.abc.Iterable):
         names, values = [], []
         rest = np.zeros(n)
 
-        for idx, sname in enumerate(self.section_names(ordkey=key)):
-            sections = self.get_sections(sname)
-            svals = np.asarray([s.__dict__[key] for s in sections])
+        for idx, sec_name in enumerate(self.section_names(ordkey=key)):
+            sections = self.get_sections(sec_name)
+            sec_vals = np.asarray([s.__dict__[key] for s in sections])
             if idx < nmax:
-                names.append(sname)
-                values.append(svals)
+                names.append(sec_name)
+                values.append(sec_vals)
             else:
-                rest += svals
+                rest += sec_vals
 
-        names.append("others (nmax=%d)" % nmax)
+        names.append(f"others ({nmax=})")
         values.append(rest)
 
         # The dataset is stored in values. Now create the stacked histogram.
@@ -482,10 +464,10 @@ class AbinitTimerParser(collections.abc.Iterable):
             bottom += vals
 
         ax.set_ylabel(key)
-        ax.set_title("Stacked histogram with the %d most important sections" % nmax)
+        ax.set_title(f"Stacked histogram with the {nmax} most important sections")
 
         ticks = ind + width / 2.0
-        labels = ["MPI=%d, OMP=%d" % (t.mpi_nprocs, t.omp_nthreads) for t in timers]
+        labels = [f"MPI={timer.mpi_nprocs}, OMP={timer.omp_nthreads}" for timer in timers]
         ax.set_xticks(ticks)
         ax.set_xticklabels(labels, rotation=15)
 
@@ -495,9 +477,7 @@ class AbinitTimerParser(collections.abc.Iterable):
         return fig
 
     def plot_all(self, show=True, **kwargs):
-        """
-        Call all plot methods provided by the parser.
-        """
+        """Call all plot methods provided by the parser."""
         figs = []
         app = figs.append
         app(self.plot_stacked_hist(show=show))
@@ -507,22 +487,19 @@ class AbinitTimerParser(collections.abc.Iterable):
 
 
 class ParallelEfficiency(dict):
-    """
-    Store results concerning the parallel efficiency of the job.
-    """
+    """Store results concerning the parallel efficiency of the job."""
 
     def __init__(self, filenames, ref_idx, *args, **kwargs):
         """
         Args:
-            filennames: List of filenames
-            ref_idx: Index of the Reference time (calculation done with the smallest number of cpus)
+            filenames: List of filenames
+            ref_idx: Index of the Reference time (calculation done with the smallest number of cpus).
         """
         self.update(*args, **kwargs)
         self.filenames = filenames
         self._ref_idx = ref_idx
 
     def _order_by_peff(self, key, criterion, reverse=True):
-
         self.estimator = {
             "min": min,
             "max": max,
@@ -530,11 +507,10 @@ class ParallelEfficiency(dict):
         }[criterion]
 
         data = []
-        for (sect_name, peff) in self.items():
+        for sect_name, peff in self.items():
             # Ignore values where we had a division by zero.
-            if all([v != -1 for v in peff[key]]):
+            if all(v != -1 for v in peff[key]):
                 values = peff[key][:]
-                # print(sect_name, values)
                 if len(values) > 1:
                     ref_value = values.pop(self._ref_idx)
                     assert ref_value == 1.0
@@ -542,11 +518,10 @@ class ParallelEfficiency(dict):
                 data.append((sect_name, self.estimator(values)))
 
         data.sort(key=lambda t: t[1], reverse=reverse)
-        return tuple([sect_name for (sect_name, e) in data])
+        return tuple(sect_name for (sect_name, e) in data)
 
     def totable(self, stop=None, reverse=True):
-        """
-        Return table (list of lists) with timing results.
+        """Get table (list of lists) with timing results.
 
         Args:
             stop: Include results up to stop. None for all
@@ -557,27 +532,23 @@ class ParallelEfficiency(dict):
             osects = osects[:stop]
 
         n = len(self.filenames)
-        table = [["AbinitTimerSection"] + alternate(self.filenames, n * ["%"])]
+        table = [["AbinitTimerSection", *alternate(self.filenames, n * ["%"])]]
         for sect_name in osects:
             peff = self[sect_name]["wall_time"]
             fract = self[sect_name]["wall_fract"]
             vals = alternate(peff, fract)
 
-            table.append([sect_name] + ["%.2f" % val for val in vals])
+            table.append([sect_name] + [f"{val:.2f}" for val in vals])
 
         return table
 
     def good_sections(self, key="wall_time", criterion="mean", nmax=5):
-        """
-        Return first `nmax` sections with best value of key `key` using criterion `criterion`.
-        """
+        """Return first `nmax` sections with best value of key `key` using criterion `criterion`."""
         good_sections = self._order_by_peff(key, criterion=criterion)
         return good_sections[:nmax]
 
     def bad_sections(self, key="wall_time", criterion="mean", nmax=5):
-        """
-        Return first `nmax` sections with worst value of key `key` using criterion `criterion`.
-        """
+        """Return first `nmax` sections with worst value of key `key` using criterion `criterion`."""
         bad_sections = self._order_by_peff(key, criterion=criterion, reverse=False)
         return bad_sections[:nmax]
 
@@ -585,16 +556,16 @@ class ParallelEfficiency(dict):
 class AbinitTimerSection:
     """Record with the timing results associated to a section of code."""
 
-    STR_FIELDS = ["name"]
+    STR_FIELDS = ("name",)
 
-    NUMERIC_FIELDS = [
+    NUMERIC_FIELDS = (
         "wall_time",
         "wall_fract",
         "cpu_time",
         "cpu_fract",
         "ncalls",
         "gflops",
-    ]
+    )
 
     FIELDS = tuple(STR_FIELDS + NUMERIC_FIELDS)
 
@@ -623,19 +594,19 @@ class AbinitTimerSection:
         self.gflops = float(gflops)
 
     def to_tuple(self):
-        """Convert object to tuple."""
-        return tuple([self.__dict__[at] for at in AbinitTimerSection.FIELDS])
+        """Get the values as a tuple."""
+        return tuple(self.__dict__[at] for at in AbinitTimerSection.FIELDS)
 
     def to_dict(self):
-        """Convert object to dictionary."""
+        """Get the values as a dictionary."""
         return {at: self.__dict__[at] for at in AbinitTimerSection.FIELDS}
 
     def to_csvline(self, with_header=False):
-        """Return a string with data in CSV format. Add header if `with_header`"""
+        """Return a string with data in CSV format. Add header if `with_header`."""
         string = ""
 
         if with_header:
-            string += "# " + " ".join(at for at in AbinitTimerSection.FIELDS) + "\n"
+            string += f"# {' '.join(at for at in AbinitTimerSection.FIELDS)}\n"
 
         string += ", ".join(str(v) for v in self.to_tuple()) + "\n"
         return string
@@ -644,7 +615,7 @@ class AbinitTimerSection:
         """String representation."""
         string = ""
         for a in AbinitTimerSection.FIELDS:
-            string += a + " = " + self.__dict__[a] + ","
+            string = f"{a} = {self.__dict__[a]},"
         return string[:-1]
 
 
@@ -661,7 +632,7 @@ class AbinitTimer:
         """
         # Store sections and names
         self.sections = tuple(sections)
-        self.section_names = tuple([s.name for s in self.sections])
+        self.section_names = tuple(s.name for s in self.sections)
 
         self.info = info
         self.cpu_time = float(cpu_time)
@@ -671,15 +642,9 @@ class AbinitTimer:
         self.mpi_rank = info["mpi_rank"].strip()
         self.fname = info["fname"].strip()
 
-    def __str__(self):
-        string = "file=%s, wall_time=%.1f, mpi_nprocs=%d, omp_nthreads=%d" % (
-            self.fname,
-            self.wall_time,
-            self.mpi_nprocs,
-            self.omp_nthreads,
-        )
-        # string += ", rank = " + self.mpi_rank
-        return string
+    def __repr__(self):
+        file, wall_time, mpi_nprocs, omp_nthreads = self.fname, self.wall_time, self.mpi_nprocs, self.omp_nthreads
+        return f"{type(self).__name__}({file=}, {wall_time=:.3}, {mpi_nprocs=}, {omp_nthreads=})"
 
     @property
     def ncpus(self):
@@ -698,30 +663,28 @@ class AbinitTimer:
 
     def to_csv(self, fileobj=sys.stdout):
         """Write data on file fileobj using CSV format."""
-        openclose = is_string(fileobj)
+        is_str = isinstance(fileobj, str)
 
-        if openclose:
-            fileobj = open(fileobj, "w")
+        if is_str:
+            fileobj = open(fileobj, mode="w")  # noqa: SIM115
 
         for idx, section in enumerate(self.sections):
             fileobj.write(section.to_csvline(with_header=(idx == 0)))
         fileobj.flush()
 
-        if openclose:
+        if is_str:
             fileobj.close()
 
     def to_table(self, sort_key="wall_time", stop=None):
-        """Return a table (list of lists) with timer data"""
-        table = [
-            list(AbinitTimerSection.FIELDS),
-        ]
+        """Return a table (list of lists) with timer data."""
+        table = [list(AbinitTimerSection.FIELDS)]
         ord_sections = self.order_sections(sort_key)
 
         if stop is not None:
             ord_sections = ord_sections[:stop]
 
         for osect in ord_sections:
-            row = [str(item) for item in osect.to_tuple()]
+            row = list(map(str, osect.to_tuple()))
             table.append(row)
 
         return table
@@ -730,10 +693,7 @@ class AbinitTimer:
     totable = to_table
 
     def get_dataframe(self, sort_key="wall_time", **kwargs):
-        """
-        Return a pandas DataFrame with entries sorted according to `sort_key`.
-        """
-        import pandas as pd
+        """Return a pandas DataFrame with entries sorted according to `sort_key`."""
 
         frame = pd.DataFrame(columns=AbinitTimerSection.FIELDS)
 
@@ -752,19 +712,17 @@ class AbinitTimer:
         return frame
 
     def get_values(self, keys):
-        """
-        Return a list of values associated to a particular list of keys.
-        """
-        if is_string(keys):
-            return [s.__dict__[keys] for s in self.sections]
+        """Return a list of values associated to a particular list of keys."""
+        if isinstance(keys, str):
+            return [sec.__dict__[keys] for sec in self.sections]
+
         values = []
-        for k in keys:
-            values.append([s.__dict__[k] for s in self.sections])
+        for key in keys:
+            values.append([sec.__dict__[key] for sec in self.sections])
         return values
 
     def names_and_values(self, key, minval=None, minfract=None, sorted=True):
-        """
-        Select the entries whose value[key] is >= minval or whose fraction[key] is >= minfract
+        """Select the entries whose value[key] is >= minval or whose fraction[key] is >= minfract
         Return the names of the sections and the corresponding values.
         """
         values = self.get_values(key)
@@ -776,14 +734,14 @@ class AbinitTimer:
         if minval is not None:
             assert minfract is None
 
-            for n, v in zip(names, values):
-                if v >= minval:
-                    new_names.append(n)
-                    new_values.append(v)
+            for name, val in zip(names, values):
+                if val >= minval:
+                    new_names.append(name)
+                    new_values.append(val)
                 else:
-                    other_val += v
+                    other_val += val
 
-            new_names.append("below minval " + str(minval))
+            new_names.append(f"below minval {minval}")
             new_values.append(other_val)
 
         elif minfract is not None:
@@ -791,14 +749,14 @@ class AbinitTimer:
 
             total = self.sum_sections(key)
 
-            for n, v in zip(names, values):
-                if v / total >= minfract:
-                    new_names.append(n)
-                    new_values.append(v)
+            for name, val in zip(names, values):
+                if val / total >= minfract:
+                    new_names.append(name)
+                    new_values.append(val)
                 else:
-                    other_val += v
+                    other_val += val
 
-            new_names.append("below minfract " + str(minfract))
+            new_names.append(f"below minfract {minfract}")
             new_values.append(other_val)
 
         else:
@@ -825,19 +783,19 @@ class AbinitTimer:
         return sorted(self.sections, key=lambda s: s.__dict__[key], reverse=reverse)
 
     @add_fig_kwargs
-    def cpuwall_histogram(self, ax=None, **kwargs):
+    def cpuwall_histogram(self, ax: plt.Axes = None, **kwargs):
         """
         Plot histogram with cpu- and wall-time on axis `ax`.
 
         Args:
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
 
-        Returns: `matplotlib` figure
+        Returns:
+            plt.Figure: matplotlib figure
         """
-        ax, fig, plt = get_ax_fig_plt(ax=ax)
+        ax, fig = get_ax_fig(ax=ax)
 
-        nk = len(self.sections)
-        ind = np.arange(nk)  # the x locations for the groups
+        ind = np.arange(len(self.sections))  # the x locations for the groups
         width = 0.35  # the width of the bars
 
         cpu_times = self.get_values("cpu_time")
@@ -859,18 +817,19 @@ class AbinitTimer:
         return fig
 
     @add_fig_kwargs
-    def pie(self, key="wall_time", minfract=0.05, ax=None, **kwargs):
+    def pie(self, key="wall_time", minfract=0.05, ax: plt.Axes = None, **kwargs):
         """
         Plot pie chart for this timer.
 
         Args:
             key: Keyword used to extract data from the timer.
             minfract: Don't show sections whose relative weight is less that minfract.
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
 
-        Returns: `matplotlib` figure
+        Returns:
+            plt.Figure: matplotlib figure
         """
-        ax, fig, plt = get_ax_fig_plt(ax=ax)
+        ax, fig = get_ax_fig(ax=ax)
         # Set aspect ratio to be equal so that pie is drawn as a circle.
         ax.axis("equal")
         # Don't show section whose value is less that minfract
@@ -879,18 +838,18 @@ class AbinitTimer:
         return fig
 
     @add_fig_kwargs
-    def scatter_hist(self, ax=None, **kwargs):
-        """
-        Scatter plot + histogram.
+    def scatter_hist(self, ax: plt.Axes = None, **kwargs):
+        """Scatter plot + histogram.
 
         Args:
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+            ax: matplotlib Axes or None if a new figure should be created.
 
-        Returns: `matplotlib` figure
+        Returns:
+            plt.Figure: matplotlib figure
         """
         from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-        ax, fig, plt = get_ax_fig_plt(ax=ax)
+        ax, fig = get_ax_fig(ax=ax)
 
         x = np.asarray(self.get_values("cpu_time"))
         y = np.asarray(self.get_values("wall_time"))
@@ -923,9 +882,9 @@ class AbinitTimer:
         # thus there is no need to manually adjust the xlim and ylim of these axis.
 
         # axHistx.axis["bottom"].major_ticklabels.set_visible(False)
+        axHistx.set_yticks([0, 50, 100])
         for tl in axHistx.get_xticklabels():
             tl.set_visible(False)
-            axHistx.set_yticks([0, 50, 100])
 
             # axHisty.axis["left"].major_ticklabels.set_visible(False)
             for tl in axHisty.get_yticklabels():

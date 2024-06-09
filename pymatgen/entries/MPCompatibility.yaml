@@ -19,7 +19,7 @@ Advanced:
       W:  -4.351           #Fit to WO2 and WO3 (BURP: -2.762)
       V:  -1.682           #Fit to V2O3 and V2O5 (VO2 fit is way off) (BURP: -1.764)
       Ni: -2.164           #Based on burp version as of Feb 28 2011
-  
+
   #Fit energies for elements.  Note that these must be energies per atom!
   #Document the fits PROPERLY. Fits by default are done over all alkali, alkali earth, and Al.
   #The whole set is ("Li", "Na","K","Rb", "Cs", "Mg", "Ca","Sr", "Ba","Al")

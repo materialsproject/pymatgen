@@ -1,0 +1,10 @@
+  COBI#       atomMU       atomNU     distance     translation      ICOBI (at) eF   for spin  1
+      1           O5          Ta2      1.99474       0   0  -1            0.29324 
+      1        O5_2s       Ta2_6s      1.99474       0   0  -1            0.02470
+      2           O5          Ta2      1.99474       0   0   0            0.29324 
+      2        O5_2s       Ta2_6s      1.99474       0   0   0            0.02470
+  COBI#       atomMU       atomNU     distance     translation      ICOBI (at) eF   for spin  2
+      1           O5          Ta2      1.99474       0   0  -1            0.29324 
+      1        O5_2s       Ta2_6s      1.99474       0   0  -1            0.02470 
+      2           O5          Ta2      1.99474       0   0   0            0.29324
+      2        O5_2s       Ta2_6s      1.99474       0   0   0            0.02470 

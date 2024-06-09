@@ -20,19 +20,21 @@ get_dimensionality_gorai:
     J. Mater. Chem. A 2, 4136 (2016).
 """
 
+from __future__ import annotations
+
 import copy
 import itertools
 from collections import defaultdict
 
+import networkx as nx
 import numpy as np
 from networkx.readwrite import json_graph
 
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import JmolNN
 from pymatgen.analysis.structure_analyzer import get_max_bond_lengths
+from pymatgen.core import Molecule, Species, Structure
 from pymatgen.core.lattice import get_integer_index
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -49,7 +51,7 @@ def get_dimensionality_larsen(bonded_structure):
     due to periodic boundary conditions.
 
     Requires a StructureGraph object as input. This can be generated using one
-    of the NearNeighbor classes. For example, using the CrystalNN class::
+    of the NearNeighbor classes. For example, using the CrystalNN class:
 
         bonded_structure = CrystalNN().get_bonded_structure(structure)
 
@@ -65,9 +67,9 @@ def get_dimensionality_larsen(bonded_structure):
             CrystalNN.get_bonded_structure() method.
 
     Returns:
-        (int): The dimensionality of the structure.
+        int: The dimensionality of the structure.
     """
-    return max([c["dimensionality"] for c in get_structure_components(bonded_structure)])
+    return max(c["dimensionality"] for c in get_structure_components(bonded_structure))
 
 
 def get_structure_components(
@@ -83,7 +85,7 @@ def get_structure_components(
     structure type or improper connections due to periodic boundary conditions.
 
     Requires a StructureGraph object as input. This can be generated using one
-    of the NearNeighbor classes. For example, using the CrystalNN class::
+    of the NearNeighbor classes. For example, using the CrystalNN class:
 
         bonded_structure = CrystalNN().get_bonded_structure(structure)
 
@@ -106,28 +108,26 @@ def get_structure_components(
             objects for zero-dimensional components.
 
     Returns:
-        (list of dict): Information on the components in a structure as a list
-        of dictionaries with the keys:
+        list[dict]: Information on the components in a structure as a list
+            of dictionaries with the keys:
 
-        - "structure_graph": A pymatgen StructureGraph object for the
-            component.
-        - "dimensionality": The dimensionality of the structure component as an
-            int.
-        - "orientation": If inc_orientation is `True`, the orientation of the
-            component as a tuple. E.g. (1, 1, 1)
-        - "site_ids": If inc_site_ids is `True`, the site indices of the
-            sites in the component as a tuple.
-        - "molecule_graph": If inc_molecule_graph is `True`, the site a
-            MoleculeGraph object for zero-dimensional components.
+            - "structure_graph": A pymatgen StructureGraph object for the
+                component.
+            - "dimensionality": The dimensionality of the structure component as an
+                int.
+            - "orientation": If inc_orientation is `True`, the orientation of the
+                component as a tuple. E.g. (1, 1, 1)
+            - "site_ids": If inc_site_ids is `True`, the site indices of the
+                sites in the component as a tuple.
+            - "molecule_graph": If inc_molecule_graph is `True`, the site a
+                MoleculeGraph object for zero-dimensional components.
     """
-    import networkx as nx  # optional dependency therefore not top level import
-
     comp_graphs = (bonded_structure.graph.subgraph(c) for c in nx.weakly_connected_components(bonded_structure.graph))
 
     components = []
     for graph in comp_graphs:
         dimensionality, vertices = calculate_dimensionality_of_site(
-            bonded_structure, list(graph.nodes())[0], inc_vertices=True
+            bonded_structure, next(iter(graph.nodes())), inc_vertices=True
         )
 
         component = {"dimensionality": dimensionality}
@@ -167,8 +167,7 @@ def get_structure_components(
 
 
 def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=False):
-    """
-    Calculates the dimensionality of the component containing the given site.
+    """Calculate the dimensionality of the component containing the given site.
 
     Implements directly the modified breadth-first-search algorithm described in
     Algorithm 1 of:
@@ -186,13 +185,13 @@ def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=
             images) of the component.
 
     Returns:
-        (int or tuple): If inc_vertices is False, the dimensionality of the
-        component will be returned as an int. If inc_vertices is true, the
-        function will return a tuple of (dimensionality, vertices), where
-        vertices is a list of tuples. E.g. [(0, 0, 0), (1, 1, 1)].
+        int | tuple: If inc_vertices is False, the dimensionality of the
+            component will be returned as an int. If inc_vertices is true, the
+            function will return a tuple of (dimensionality, vertices), where
+            vertices is a list of tuples. E.g. [(0, 0, 0), (1, 1, 1)].
     """
 
-    def neighbours(comp_index):
+    def neighbors(comp_index):
         return [(s.index, s.jimage) for s in bonded_structure.get_connected_sites(comp_index)]
 
     def rank(vertices):
@@ -205,10 +204,10 @@ def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=
 
     def rank_increase(seen, candidate):
         rank0 = len(seen) - 1
-        rank1 = rank(seen.union({candidate}))
+        rank1 = rank(seen | {candidate})
         return rank1 > rank0
 
-    connected_sites = {i: neighbours(i) for i in range(bonded_structure.structure.num_sites)}
+    connected_sites = {idx: neighbors(idx) for idx in range(len(bonded_structure))}
 
     seen_vertices = set()
     seen_comp_vertices = defaultdict(set)
@@ -227,7 +226,6 @@ def calculate_dimensionality_of_site(bonded_structure, site_index, inc_vertices=
         seen_comp_vertices[comp_i].add(image_i)
 
         for comp_j, image_j in connected_sites[comp_i]:
-
             image_j = tuple(np.add(image_j, image_i))
 
             if (comp_j, image_j) in seen_vertices:
@@ -259,26 +257,23 @@ def zero_d_graph_to_molecule_graph(bonded_structure, graph):
             interest.
 
     Returns:
-        (MoleculeGraph): A MoleculeGraph object of the component.
+        MoleculeGraph: A MoleculeGraph object of the component.
     """
-    import networkx as nx
-
     seen_indices = []
     sites = []
 
-    start_index = list(graph.nodes())[0]
+    start_index = next(iter(graph.nodes()))
     queue = [(start_index, (0, 0, 0), bonded_structure.structure[start_index])]
     while len(queue) > 0:
         comp_i, image_i, site_i = queue.pop(0)
 
         if comp_i in [x[0] for x in seen_indices]:
-            raise ValueError("Graph component is not 0D")
+            raise ValueError("Graph component is not zero-dimensional")
 
         seen_indices.append((comp_i, image_i))
         sites.append(site_i)
 
         for site_j in bonded_structure.get_connected_sites(comp_i, jimage=image_i):
-
             if (site_j.index, site_j.jimage) not in seen_indices and (
                 site_j.index,
                 site_j.jimage,
@@ -291,15 +286,13 @@ def zero_d_graph_to_molecule_graph(bonded_structure, graph):
     sorted_sites = np.array(sites, dtype=object)[indices_ordering]
     sorted_graph = nx.convert_node_labels_to_integers(graph, ordering="sorted")
     mol = Molecule([s.specie for s in sorted_sites], [s.coords for s in sorted_sites])
-    mol_graph = MoleculeGraph.with_edges(mol, nx.Graph(sorted_graph).edges())
-
-    return mol_graph
+    return MoleculeGraph.from_edges(mol, nx.Graph(sorted_graph).edges())
 
 
 def get_dimensionality_cheon(
     structure_raw,
     tolerance=0.45,
-    ldict=JmolNN().el_radius,
+    ldict=None,
     standardize=True,
     larger_cell=False,
 ):
@@ -329,72 +322,64 @@ def get_dimensionality_cheon(
         standardize: works with conventional standard structures if True. It is
             recommended to keep this as True.
         larger_cell: tests with 3x3x3 supercell instead of 2x2x2. Testing with
-            2x2x2 supercell is faster but misclssifies rare interpenetrated 3D
+            2x2x2 supercell is faster but misclassifies rare interpenetrated 3D
              structures. Testing with a larger cell circumvents this problem
 
     Returns:
-        (str): dimension of the largest cluster as a string. If there are ions
-        or molecules it returns 'intercalated ion/molecule'
+        str: dimension of the largest cluster as a string. If there are ions
+            or molecules it returns 'intercalated ion/molecule'
     """
+    if ldict is None:
+        ldict = JmolNN().el_radius
     if standardize:
         structure = SpacegroupAnalyzer(structure_raw).get_conventional_standard_structure()
     else:
         structure = structure_raw
     structure_save = copy.copy(structure_raw)
     connected_list1 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
-    max1, min1, clusters1 = find_clusters(structure, connected_list1)
+    max1, min1, _clusters1 = find_clusters(structure, connected_list1)
     if larger_cell:
-        structure.make_supercell([[3, 0, 0], [0, 3, 0], [0, 0, 3]])
+        structure.make_supercell(np.eye(3) * 3)
         connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
-        max3, min3, clusters3 = find_clusters(structure, connected_list3)
+        max3, min3, _clusters3 = find_clusters(structure, connected_list3)
         if min3 == min1:
-            if max3 == max1:
-                dim = "0D"
-            else:
-                dim = "intercalated molecule"
+            dim = "0D" if max3 == max1 else "intercalated molecule"
         else:
             dim = np.log2(float(max3) / max1) / np.log2(3)
             if dim == int(dim):
-                dim = str(int(dim)) + "D"
+                dim = f"{int(dim)}D"
             else:
                 return None
     else:
-        structure.make_supercell([[2, 0, 0], [0, 2, 0], [0, 0, 2]])
+        structure.make_supercell(np.eye(3) * 2)
         connected_list2 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
-        max2, min2, clusters2 = find_clusters(structure, connected_list2)
+        max2, min2, _clusters2 = find_clusters(structure, connected_list2)
         if min2 == 1:
             dim = "intercalated ion"
         elif min2 == min1:
-            if max2 == max1:
-                dim = "0D"
-            else:
-                dim = "intercalated molecule"
+            dim = "0D" if max2 == max1 else "intercalated molecule"
         else:
             dim = np.log2(float(max2) / max1)
             if dim == int(dim):
-                dim = str(int(dim)) + "D"
+                dim = f"{int(dim)}D"
             else:
                 structure = copy.copy(structure_save)
-                structure.make_supercell([[3, 0, 0], [0, 3, 0], [0, 0, 3]])
+                structure.make_supercell(np.eye(3) * 3)
                 connected_list3 = find_connected_atoms(structure, tolerance=tolerance, ldict=ldict)
-                max3, min3, clusters3 = find_clusters(structure, connected_list3)
+                max3, min3, _clusters3 = find_clusters(structure, connected_list3)
                 if min3 == min2:
-                    if max3 == max2:
-                        dim = "0D"
-                    else:
-                        dim = "intercalated molecule"
+                    dim = "0D" if max3 == max2 else "intercalated molecule"
                 else:
                     dim = np.log2(float(max3) / max1) / np.log2(3)
                     if dim == int(dim):
-                        dim = str(int(dim)) + "D"
+                        dim = f"{int(dim)}D"
                     else:
                         return None
     return dim
 
 
-def find_connected_atoms(struct, tolerance=0.45, ldict=JmolNN().el_radius):
-    """
-    Finds bonded atoms and returns a adjacency matrix of bonded atoms.
+def find_connected_atoms(struct, tolerance=0.45, ldict=None):
+    """Find bonded atoms and returns a adjacency matrix of bonded atoms.
 
     Author: "Gowoon Cheon"
     Email: "gcheon@stanford.edu"
@@ -409,47 +394,46 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=JmolNN().el_radius):
             from JMol are used as default
 
     Returns:
-        (np.ndarray): A numpy array of shape (number of atoms, number of atoms);
-        If any image of atom j is bonded to atom i with periodic boundary
-        conditions, the matrix element [atom i, atom j] is 1.
+        np.ndarray: A numpy array of shape (number of atoms, number of atoms);
+            If any image of atom j is bonded to atom i with periodic boundary
+            conditions, the matrix element [atom i, atom j] is 1.
     """
-    # pylint: disable=E1136
+    if ldict is None:
+        ldict = JmolNN().el_radius
+
     n_atoms = len(struct.species)
     fc = np.array(struct.frac_coords)
-    fc_copy = np.repeat(fc[:, :, np.newaxis], 27, axis=2)
+    fc_copy = np.repeat(fc[:, :, None], 27, axis=2)
     neighbors = np.array(list(itertools.product([0, 1, -1], [0, 1, -1], [0, 1, -1]))).T
-    neighbors = np.repeat(neighbors[np.newaxis, :, :], 1, axis=0)
+    neighbors = np.repeat(neighbors[None, :, :], 1, axis=0)
     fc_diff = fc_copy - neighbors
     species = list(map(str, struct.species))
     # in case of charged species
-    for i, item in enumerate(species):
-        if item not in ldict.keys():
-            species[i] = str(Species.from_string(item).element)
-    latmat = struct.lattice.matrix
+    for ii, item in enumerate(species):
+        if item not in ldict:
+            species[ii] = str(Species.from_str(item).element)
     connected_matrix = np.zeros((n_atoms, n_atoms))
 
-    for i in range(n_atoms):
-        for j in range(i + 1, n_atoms):
-            max_bond_length = ldict[species[i]] + ldict[species[j]] + tolerance
-            frac_diff = fc_diff[j] - fc_copy[i]
-            distance_ij = np.dot(latmat.T, frac_diff)
-            # print(np.linalg.norm(distance_ij,axis=0))
+    for ii in range(n_atoms):
+        for jj in range(ii + 1, n_atoms):
+            max_bond_length = ldict[species[ii]] + ldict[species[jj]] + tolerance
+            frac_diff = fc_diff[jj] - fc_copy[ii]
+            distance_ij = np.dot(struct.lattice.matrix.T, frac_diff)
             if sum(np.linalg.norm(distance_ij, axis=0) < max_bond_length) > 0:
-                connected_matrix[i, j] = 1
-                connected_matrix[j, i] = 1
+                connected_matrix[ii, jj] = 1
+                connected_matrix[jj, ii] = 1
     return connected_matrix
 
 
 def find_clusters(struct, connected_matrix):
-    """
-    Finds bonded clusters of atoms in the structure with periodic boundary
+    """Find bonded clusters of atoms in the structure with periodic boundary
     conditions.
 
     If there are atoms that are not bonded to anything, returns [0,1,0]. (For
     faster computation time)
 
-    Author: "Gowoon Cheon"
-    Email: "gcheon@stanford.edu"
+    Author: Gowoon Cheon
+    Email: gcheon@stanford.edu
 
     Args:
         struct (Structure): Input structure
@@ -475,7 +459,7 @@ def find_clusters(struct, connected_matrix):
 
     def visit(atom, atom_cluster):
         visited[atom] = True
-        new_cluster = set(np.where(connected_matrix[atom] != 0)[0]).union(atom_cluster)
+        new_cluster = set(np.where(connected_matrix[atom] != 0)[0]) | atom_cluster
         atom_cluster = new_cluster
         for new_atom in atom_cluster:
             if not visited[new_atom]:
@@ -483,10 +467,10 @@ def find_clusters(struct, connected_matrix):
                 atom_cluster = visit(new_atom, atom_cluster)
         return atom_cluster
 
-    for i in range(n_atoms):
-        if not visited[i]:
+    for idx in range(n_atoms):
+        if not visited[idx]:
             atom_cluster = set()
-            cluster = visit(i, atom_cluster)
+            cluster = visit(idx, atom_cluster)
             clusters.append(cluster)
             cluster_sizes.append(len(cluster))
 
@@ -520,22 +504,21 @@ def get_dimensionality_gorai(
     Note that if you pass both, el_radius_updates are ignored.
 
     Args:
-        structure: (Structure) structure to analyze dimensionality for
-        max_hkl: (int) max index of planes to look for layers
-        el_radius_updates: (dict) symbol->float to update atomic radii
-        min_slab_size: (float) internal surface construction parameter
-        min_vacuum_size: (float) internal surface construction parameter
+        structure (Structure): structure to analyze dimensionality for
+        max_hkl (int): max index of planes to look for layers
+        el_radius_updates (dict): symbol->float to update atomic radii
+        min_slab_size (float): internal surface construction parameter
+        min_vacuum_size (float): internal surface construction parameter
         standardize (bool): whether to standardize the structure before
             analysis. Set to False only if you already have the structure in a
             convention where layers / chains will be along low <hkl> indexes.
-        bonds ({(specie1, specie2): max_bond_dist}: bonds are
-                specified as a dict of tuples: float of specie1, specie2
-                and the max bonding distance. For example, PO4 groups may be
-                defined as {("P", "O"): 3}.
+        bonds (dict[tuple, float]): bonds are specified as a dict of 2-tuples of Species mapped to floats,
+            the max bonding distance. For example, PO4 groups may be
+            defined as {("P", "O"): 3}.
 
-    Returns: (int) the dimensionality of the structure - 1 (molecules/chains),
-        2 (layered), or 3 (3D)
-
+    Returns:
+        int: the dimensionality of the structure - 1 (molecules/chains),
+            2 (layered), or 3 (3D)
     """
     if standardize:
         structure = SpacegroupAnalyzer(structure).get_conventional_standard_structure()
@@ -543,19 +526,19 @@ def get_dimensionality_gorai(
     if not bonds:
         bonds = get_max_bond_lengths(structure, el_radius_updates)
 
-    num_surfaces = 0
-    for h in range(max_hkl):
-        for k in range(max_hkl):
-            for l in range(max_hkl):
-                if max([h, k, l]) > 0 and num_surfaces < 2:
+    n_surfaces = 0
+    for hh in range(max_hkl):
+        for kk in range(max_hkl):
+            for ll in range(max_hkl):
+                if max([hh, kk, ll]) > 0 and n_surfaces < 2:
                     sg = SlabGenerator(
                         structure,
-                        (h, k, l),
+                        (hh, kk, ll),
                         min_slab_size=min_slab_size,
                         min_vacuum_size=min_vacuum_size,
                     )
                     slabs = sg.get_slabs(bonds)
                     for _ in slabs:
-                        num_surfaces += 1
+                        n_surfaces += 1
 
-    return 3 - min(num_surfaces, 2)
+    return 3 - min(n_surfaces, 2)

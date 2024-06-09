@@ -106,6 +106,8 @@ POTCAR:
   W: W_sv_GW
   Xe: Xe_GW
   Y: Y_sv_GW
-  Yb: Yb_2
+  # 2023-05-02: change Yb_2 to Yb_3 as Yb_2 gives incorrect thermodynamics for most systems with Yb3+
+  # https://github.com/materialsproject/pymatgen/issues/2968
+  Yb: Yb_3
   Zn: Zn_sv_GW
   Zr: Zr_sv_GW

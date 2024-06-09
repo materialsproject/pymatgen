@@ -1,24 +1,23 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module implements an XRD pattern calculator."""
 
-"""
-This module implements an XRD pattern calculator.
-"""
+from __future__ import annotations
 
 import json
 import os
 from math import asin, cos, degrees, pi, radians, sin
+from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-
-from .core import (
+from pymatgen.analysis.diffraction.core import (
     AbstractDiffractionPatternCalculator,
     DiffractionPattern,
     get_unique_families,
 )
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from pymatgen.core import Structure
 
 # XRD wavelengths in angstroms
 WAVELENGTHS = {
@@ -48,8 +47,8 @@ WAVELENGTHS = {
     "AgKb1": 0.497082,
 }
 
-with open(os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json")) as f:
-    ATOMIC_SCATTERING_PARAMS = json.load(f)
+with open(os.path.join(os.path.dirname(__file__), "atomic_scattering_params.json")) as file:
+    ATOMIC_SCATTERING_PARAMS = json.load(file)
 
 
 class XRDCalculator(AbstractDiffractionPatternCalculator):
@@ -68,51 +67,38 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
     is as follows
 
     1. Calculate reciprocal lattice of structure. Find all reciprocal points
-       within the limiting sphere given by :math:`\\frac{2}{\\lambda}`.
+       within the limiting sphere given by \frac{2}{\lambda}.
 
-    2. For each reciprocal point :math:`\\mathbf{g_{hkl}}` corresponding to
-       lattice plane :math:`(hkl)`, compute the Bragg condition
-       :math:`\\sin(\\theta) = \\frac{\\lambda}{2d_{hkl}}`
+    2. For each reciprocal point \mathbf{g_{hkl}} corresponding to
+       lattice plane (hkl), compute the Bragg condition
+       \sin(\theta) = \frac{ \lambda}{2d_{hkl}}
 
     3. Compute the structure factor as the sum of the atomic scattering
        factors. The atomic scattering factors are given by
 
-       .. math::
+           f(s) = Z - 41.78214 \times s^2 \times \sum \limits_{i=1}^n a_i \exp(-b_is^2)
 
-           f(s) = Z - 41.78214 \\times s^2 \\times \\sum\\limits_{i=1}^n a_i \
-           \\exp(-b_is^2)
-
-       where :math:`s = \\frac{\\sin(\\theta)}{\\lambda}` and :math:`a_i`
-       and :math:`b_i` are the fitted parameters for each element. The
+       where s = \ frac{\ sin(\ theta)}{\ lambda} and a_i
+       and b_i are the fitted parameters for each element. The
        structure factor is then given by
 
-       .. math::
+           F_{hkl} = \sum \limits_{j=1}^N f_j  \exp(2 \pi i  \mathbf{g_{hkl}} \cdot  \mathbf{r})
 
-           F_{hkl} = \\sum\\limits_{j=1}^N f_j \\exp(2\\pi i \\mathbf{g_{hkl}}
-           \\cdot \\mathbf{r})
-
-    4. The intensity is then given by the modulus square of the structure
-       factor.
-
-       .. math::
+    4. The intensity is then given by the modulus square of the structure factor.
 
            I_{hkl} = F_{hkl}F_{hkl}^*
 
     5. Finally, the Lorentz polarization correction factor is applied. This
        factor is given by:
 
-       .. math::
-
-           P(\\theta) = \\frac{1 + \\cos^2(2\\theta)}
-           {\\sin^2(\\theta)\\cos(\\theta)}
+           P(\theta) = \frac{1 + \cos^2(2 \theta)}{\sin^2(\theta) \cos(\theta)}
     """
 
     # Tuple of available radiation keywords.
-    AVAILABLE_RADIATION = tuple(WAVELENGTHS.keys())
+    AVAILABLE_RADIATION = tuple(WAVELENGTHS)
 
-    def __init__(self, wavelength="CuKa", symprec=0, debye_waller_factors=None):
-        """
-        Initializes the XRD calculator with a given radiation.
+    def __init__(self, wavelength="CuKa", symprec: float = 0, debye_waller_factors=None):
+        """Initialize the XRD calculator with a given radiation.
 
         Args:
             wavelength (str/float): The wavelength can be specified as either a
@@ -128,15 +114,17 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 specification of Debye-Waller factors. Note that these
                 factors are temperature dependent.
         """
-        if isinstance(wavelength, float):
+        if isinstance(wavelength, (float, int)):
             self.wavelength = wavelength
-        else:
+        elif isinstance(wavelength, str):
             self.radiation = wavelength
             self.wavelength = WAVELENGTHS[wavelength]
+        else:
+            raise TypeError(f"{type(wavelength)=} must be either float, int or str")
         self.symprec = symprec
         self.debye_waller_factors = debye_waller_factors or {}
 
-    def get_pattern(self, structure, scaled=True, two_theta_range=(0, 90)):
+    def get_pattern(self, structure: Structure, scaled=True, two_theta_range=(0, 90)):
         """
         Calculates the diffraction pattern for a structure.
 
@@ -151,15 +139,15 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 sphere of radius 2 / wavelength.
 
         Returns:
-            (XRDPattern)
+            DiffractionPattern: XRD pattern
         """
         if self.symprec:
             finder = SpacegroupAnalyzer(structure, symprec=self.symprec)
             structure = finder.get_refined_structure()
 
         wavelength = self.wavelength
-        latt = structure.lattice
-        is_hex = latt.is_hexagonal()
+        lattice = structure.lattice
+        is_hex = lattice.is_hexagonal()
 
         # Obtained from Bragg condition. Note that reciprocal lattice
         # vector length is 1 / d_hkl.
@@ -170,53 +158,47 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         )
 
         # Obtain crystallographic reciprocal lattice points within range
-        recip_latt = latt.reciprocal_lattice_crystallographic
-        recip_pts = recip_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], max_r)
+        recip_lattice = lattice.reciprocal_lattice_crystallographic
+        recip_pts = recip_lattice.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], max_r)
         if min_r:
             recip_pts = [pt for pt in recip_pts if pt[1] >= min_r]
 
-        # Create a flattened array of zs, coeffs, fcoords and occus. This is
-        # used to perform vectorized computation of atomic scattering factors
-        # later. Note that these are not necessarily the same size as the
-        # structure as each partially occupied specie occupies its own
-        # position in the flattened array.
-        zs = []
-        coeffs = []
-        fcoords = []
-        occus = []
-        dwfactors = []
+        # Create a flattened array of zs, coeffs, frac_coords and occus. This is used to perform
+        # vectorized computation of atomic scattering factors later. Note that these are not
+        # necessarily the same size as the structure as each partially occupied specie occupies its
+        # own position in the flattened array.
+        _zs = []
+        _coeffs = []
+        _frac_coords = []
+        _occus = []
+        _dw_factors = []
 
         for site in structure:
             for sp, occu in site.species.items():
-                zs.append(sp.Z)
+                _zs.append(sp.Z)
                 try:
                     c = ATOMIC_SCATTERING_PARAMS[sp.symbol]
                 except KeyError:
                     raise ValueError(
-                        "Unable to calculate XRD pattern as "
-                        "there is no scattering coefficients for"
-                        " %s." % sp.symbol
+                        f"Unable to calculate XRD pattern as there is no scattering coefficients for {sp.symbol}."
                     )
-                coeffs.append(c)
-                dwfactors.append(self.debye_waller_factors.get(sp.symbol, 0))
-                fcoords.append(site.frac_coords)
-                occus.append(occu)
+                _coeffs.append(c)
+                _dw_factors.append(self.debye_waller_factors.get(sp.symbol, 0))
+                _frac_coords.append(site.frac_coords)
+                _occus.append(occu)
 
-        zs = np.array(zs)
-        coeffs = np.array(coeffs)
-        fcoords = np.array(fcoords)
-        occus = np.array(occus)
-        dwfactors = np.array(dwfactors)
-        peaks = {}
-        two_thetas = []
+        zs = np.array(_zs)
+        coeffs = np.array(_coeffs)
+        frac_coords = np.array(_frac_coords)
+        occus = np.array(_occus)
+        dw_factors = np.array(_dw_factors)
+        peaks: dict[float, list[float | list[tuple[int, ...]]]] = {}
+        two_thetas: list[float] = []
 
         for hkl, g_hkl, ind, _ in sorted(recip_pts, key=lambda i: (i[1], -i[0][0], -i[0][1], -i[0][2])):
             # Force miller indices to be integers.
             hkl = [int(round(i)) for i in hkl]
             if g_hkl != 0:
-
-                d_hkl = 1 / g_hkl
-
                 # Bragg condition
                 theta = asin(wavelength * g_hkl / 2)
 
@@ -225,23 +207,26 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 s = g_hkl / 2
 
                 # Store s^2 since we are using it a few times.
-                s2 = s ** 2
+                s2 = s**2
 
                 # Vectorized computation of g.r for all fractional coords and
                 # hkl.
-                g_dot_r = np.dot(fcoords, np.transpose([hkl])).T[0]
+                g_dot_r = np.dot(frac_coords, np.transpose([hkl])).T[0]
 
                 # Highly vectorized computation of atomic scattering factors.
-                # Equivalent non-vectorized code is::
+                # Equivalent non-vectorized code is:
                 #
                 #   for site in structure:
                 #      el = site.specie
                 #      coeff = ATOMIC_SCATTERING_PARAMS[el.symbol]
                 #      fs = el.Z - 41.78214 * s2 * sum(
                 #          [d[0] * exp(-d[1] * s2) for d in coeff])
-                fs = zs - 41.78214 * s2 * np.sum(coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s2), axis=1)
+                fs = zs - 41.78214 * s2 * np.sum(
+                    coeffs[:, :, 0] * np.exp(-coeffs[:, :, 1] * s2),
+                    axis=1,  # type: ignore
+                )
 
-                dw_correction = np.exp(-dwfactors * s2)
+                dw_correction = np.exp(-dw_factors * s2)
 
                 # Structure factor = sum of atomic scattering factors (with
                 # position factor exp(2j * pi * g.r and occupancies).
@@ -265,21 +250,22 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 )
                 if len(ind[0]) > 0:
                     peaks[two_thetas[ind[0][0]]][0] += i_hkl * lorentz_factor
-                    peaks[two_thetas[ind[0][0]]][1].append(tuple(hkl))
+                    peaks[two_thetas[ind[0][0]]][1].append(tuple(hkl))  # type: ignore
                 else:
+                    d_hkl = 1 / g_hkl
                     peaks[two_theta] = [i_hkl * lorentz_factor, [tuple(hkl)], d_hkl]
                     two_thetas.append(two_theta)
 
         # Scale intensities so that the max intensity is 100.
-        max_intensity = max([v[0] for v in peaks.values()])
+        max_intensity = max(v[0] for v in peaks.values())
         x = []
         y = []
         hkls = []
         d_hkls = []
-        for k in sorted(peaks.keys()):
+        for k in sorted(peaks):
             v = peaks[k]
             fam = get_unique_families(v[1])
-            if v[0] / max_intensity * 100 > AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL:
+            if v[0] / max_intensity * 100 > AbstractDiffractionPatternCalculator.SCALED_INTENSITY_TOL:  # type: ignore
                 x.append(k)
                 y.append(v[0])
                 hkls.append([{"hkl": hkl, "multiplicity": mult} for hkl, mult in fam.items()])

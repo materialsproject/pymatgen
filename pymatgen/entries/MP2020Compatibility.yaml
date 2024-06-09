@@ -6,75 +6,75 @@ Corrections:
     # and fluorides to make GGA and GGA+U energies compatible
     # when compat_type = "Advanced" (default)
     O:
-      V: -1.602
-      Cr: -1.893
-      Mn: -1.588
-      Fe: -2.182
-      Co: -1.535
-      Ni: -2.504
-      W: -4.57
-      Mo: -3.058
+      V: -1.7
+      Cr: -1.999
+      Mn: -1.668
+      Fe: -2.256
+      Co: -1.638
+      Ni: -2.541
+      W: -4.438
+      Mo: -3.202
     F:
-      V: -1.602
-      Cr: -1.893
-      Mn: -1.588
-      Fe: -2.182
-      Co: -1.535
-      Ni: -2.504
-      W: -4.57
-      Mo: -3.058
+      V: -1.7
+      Cr: -1.999
+      Mn: -1.668
+      Fe: -2.256
+      Co: -1.638
+      Ni: -2.541
+      W: -4.438
+      Mo: -3.202
   CompositionCorrections:
     # Composition-based corrections applied to any compound containing
     # these species as anions
-    oxide: -0.74
-    peroxide: -0.466
-    superoxide: -0.16
-    S: -0.639
-    F: -0.485
-    Cl: -0.593
-    Br: -0.538
-    I: -0.377
-    N: -0.344
-    Se: -0.473
-    Si: -0.406
+    oxide: -0.687
+    peroxide: -0.465
+    superoxide: -0.161
+    S: -0.503
+    F: -0.462
+    Cl: -0.614
+    Br: -0.534
+    I: -0.379
+    N: -0.361
+    Se: -0.472
+    Si: 0.071
     Sb: -0.192
-    Te: -0.419
-    H: -0.178
+    Te: -0.422
+    H: -0.179
     ozonide: 0
 Uncertainties:
   # Uncertainties corresponding to each energy correction (eV/atom)
   GGAUMixingCorrections:
     O:
-      V: 0.006
-      Cr: 0.0093
-      Mn: 0.0051
-      Fe: 0.009
-      Co: 0.0059
-      Ni: 0.0105
-      W: 0.0181
-      Mo: 0.0085
+      V: 0.0064
+      Cr: 0.0108
+      Mn: 0.0053
+      Fe: 0.0101
+      Co: 0.006
+      Ni: 0.0107
+      W: 0.0253
+      Mo: 0.0089
     F:
-      V: 0.006
-      Cr: 0.0093
-      Mn: 0.0051
-      Fe: 0.009
-      Co: 0.0059
-      Ni: 0.0105
-      W: 0.0181
-      Mo: 0.0085
+      V: 0.0064
+      Cr: 0.0108
+      Mn: 0.0053
+      Fe: 0.0101
+      Co: 0.006
+      Ni: 0.0107
+      W: 0.0253
+      Mo: 0.0089
   CompositionCorrections:
-    oxide: 0.0017
-    peroxide: 0.0186
+    oxide: 0.002
+    peroxide: 0.0172
     superoxide: 0.0075
-    S: 0.0121
-    F: 0.0025
-    Cl: 0.0016
-    Br: 0.0022
-    I: 0.0059
-    N: 0.0084
+    S: 0.0093
+    F: 0.0026
+    Cl: 0.0018
+    Br: 0.0026
+    I: 0.0055
+    N: 0.0093
     Se: 0.0341
-    Si: 0.0621
+    Si: 0.0165
     Sb: 0.0089
-    Te: 0.024
+    Te: 0.0262
     H: 0.0013
     ozonide: 0

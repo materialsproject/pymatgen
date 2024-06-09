@@ -1,15 +1,23 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
-"""
-This module defines the abstract base classes for battery-related classes.
+"""This module defines the abstract base classes for battery-related classes.
 Regardless of the kind of electrode, conversion or insertion, there are many
-common definitions and properties, e.g., average voltage, capacity, etc. which
+common definitions and properties, e.g. average voltage, capacity, etc. which
 can be defined in a general way. The Abc for battery classes implements some of
 these common definitions to allow sharing of common logic between them.
 """
+
+from __future__ import annotations
+
+from collections.abc import Sequence
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+from monty.json import MSONable
+from scipy.constants import N_A
+
+from pymatgen.core import Composition, Element
+
+if TYPE_CHECKING:
+    from pymatgen.entries.computed_entries import ComputedEntry
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -19,21 +27,10 @@ __email__ = "shyuep@gmail.com"
 __date__ = "Feb 1, 2012"
 __status__ = "Beta"
 
-from collections.abc import Sequence
-from dataclasses import dataclass
-from typing import Dict, Tuple
-
-from monty.json import MSONable
-from scipy.constants import N_A
-
-from pymatgen import Composition, Element
-from pymatgen.entries.computed_entries import ComputedEntry
-
 
 @dataclass
 class AbstractVoltagePair(MSONable):
-    """
-    An Abstract Base Class for a Voltage Pair.
+    """An Abstract Base Class for a Voltage Pair.
 
     Attributes:
         voltage : Voltage of voltage pair.
@@ -45,7 +42,7 @@ class AbstractVoltagePair(MSONable):
         frac_charge: Frac of working ion in charged pair.
         frac_discharge: Frac of working ion in discharged pair.
         working_ion_entry: Working ion as an entry.
-        framework : The compositions of one formula unit of the host material
+        framework_formula : The compositions of one formula unit of the host material
     """
 
     voltage: float
@@ -57,45 +54,37 @@ class AbstractVoltagePair(MSONable):
     frac_charge: float
     frac_discharge: float
     working_ion_entry: ComputedEntry
-    _framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
+    framework_formula: str
 
     def __post_init__(self):
-        # ensure the the frame work is a reduced composition
-        self._framework_formula = self.framework.reduced_formula
+        # ensure the frame work is a reduced composition
+        fw = Composition(self.framework_formula)
+        self.framework_formula = fw.reduced_formula
 
     @property
     def working_ion(self) -> Element:
-        """
-        working ion as pymatgen Element object
-        """
-        return self.working_ion_entry.composition.elements[0]
+        """Working ion as pymatgen Element object."""
+        return self.working_ion_entry.elements[0]
 
     @property
     def framework(self) -> Composition:
-        """
-        The composition object representing the framework
-        """
-        return Composition(self._framework_formula)
+        """The composition object representing the framework."""
+        return Composition(self.framework_formula)
 
     @property
     def x_charge(self) -> float:
-        """
-        The number of working ions per formula unit of host in the charged state
-        """
+        """The number of working ions per formula unit of host in the charged state."""
         return self.frac_charge * self.framework.num_atoms / (1 - self.frac_charge)
 
     @property
     def x_discharge(self) -> float:
-        """
-        The number of working ions per formula unit of host in the discharged state
-        """
+        """The number of working ions per formula unit of host in the discharged state."""
         return self.frac_discharge * self.framework.num_atoms / (1 - self.frac_discharge)
 
 
 @dataclass
 class AbstractElectrode(Sequence, MSONable):
-    """
-    An Abstract Base Class representing an Electrode. It is essentially a
+    """An Abstract Base Class representing an Electrode. It is essentially a
     sequence of VoltagePairs. Generally, subclasses only need to implement
     three abstract properties: voltage_pairs, working_ion and
     working_ion_entry.
@@ -130,20 +119,21 @@ class AbstractElectrode(Sequence, MSONable):
 
     Developers implementing a new battery (other than the two general ones
     already implemented) need to implement a VoltagePair and an Electrode.
+
     Attributes:
         voltage_pairs: Objects that represent each voltage step
         working_ion: Representation of the working ion that only contains element type
         working_ion_entry: Representation of the working_ion that contains the energy
-        framework: The compositions of one formula unit of the host material
+        framework_formula: The compositions of one formula unit of the host material
     """
 
-    voltage_pairs: Tuple[AbstractVoltagePair]
+    voltage_pairs: tuple[AbstractVoltagePair, ...]
     working_ion_entry: ComputedEntry
-    _framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
+    framework_formula: str  # should be made into Composition whenever the as_dict and from dict are fixed
 
     def __post_init__(self):
-        # ensure the the frame work is a reduced composition
-        self._framework_formula = self.framework.reduced_formula
+        # ensure the frame work is a reduced composition
+        self.framework_formula = self.framework.reduced_formula
 
     def __getitem__(self, index):
         return self.voltage_pairs[index]
@@ -152,75 +142,58 @@ class AbstractElectrode(Sequence, MSONable):
         return obj in self.voltage_pairs
 
     def __iter__(self):
-        return self.voltage_pairs.__iter__()
+        return iter(self.voltage_pairs)
 
     def __len__(self):
         return len(self.voltage_pairs)
 
     @property
     def working_ion(self):
-        """
-        working ion as pymatgen Element object
-        """
-        return self.working_ion_entry.composition.elements[0]
+        """Working ion as pymatgen Element object."""
+        return self.working_ion_entry.elements[0]
 
     @property
     def framework(self):
-        """
-        The composition object representing the framework
-        """
-        return Composition(self._framework_formula)
+        """The composition object representing the framework."""
+        return Composition(self.framework_formula)
 
     @property
     def x_charge(self) -> float:
-        """
-        The number of working ions per formula unit of host in the charged state
-        """
+        """The number of working ions per formula unit of host in the charged state."""
         return self.voltage_pairs[0].x_charge
 
     @property
     def x_discharge(self) -> float:
-        """
-        The number of working ions per formula unit of host in the discharged state
-        """
+        """The number of working ions per formula unit of host in the discharged state."""
         return self.voltage_pairs[-1].x_discharge
 
     @property
     def max_delta_volume(self):
-        """
-        Maximum volume change along insertion
-        """
+        """Maximum volume change along insertion."""
         vols = [v.vol_charge for v in self.voltage_pairs]
         vols.extend([v.vol_discharge for v in self.voltage_pairs])
         return max(vols) / min(vols) - 1
 
     @property
     def num_steps(self):
-        """
-        The number of distinct voltage steps in from fully charge to discharge
-        based on the stable intermediate states
+        """The number of distinct voltage steps in from fully charge to discharge
+        based on the stable intermediate states.
         """
         return len(self.voltage_pairs)
 
     @property
     def max_voltage(self):
-        """
-        Highest voltage along insertion
-        """
-        return max([p.voltage for p in self.voltage_pairs])
+        """Highest voltage along insertion."""
+        return max(p.voltage for p in self.voltage_pairs)
 
     @property
     def min_voltage(self):
-        """
-        Lowest voltage along insertion
-        """
-        return min([p.voltage for p in self.voltage_pairs])
+        """Lowest voltage along insertion."""
+        return min(p.voltage for p in self.voltage_pairs)
 
     @property
     def max_voltage_step(self):
-        """
-        Maximum absolute difference in adjacent voltage steps
-        """
+        """Maximum absolute difference in adjacent voltage steps."""
         steps = [
             self.voltage_pairs[i].voltage - self.voltage_pairs[i + 1].voltage
             for i in range(len(self.voltage_pairs) - 1)
@@ -229,25 +202,23 @@ class AbstractElectrode(Sequence, MSONable):
 
     @property
     def normalization_mass(self):
-        """
-        Returns: Mass used for normalization. This is the mass of the discharged
-            electrode of the last voltage pair.
+        """The mass used for normalization. This is the mass of the discharged
+        electrode of the last voltage pair.
         """
         return self.voltage_pairs[-1].mass_discharge
 
     @property
     def normalization_volume(self):
-        """
-        Returns: Mass used for normalization. This is the vol of the discharged
-            electrode of the last voltage pair.
+        """The mass used for normalization. This is the vol of the discharged
+        electrode of the last voltage pair.
         """
         return self.voltage_pairs[-1].vol_discharge
 
     def get_sub_electrodes(self, adjacent_only=True):
-        """
-        If this electrode contains multiple voltage steps, then it is possible
+        """If this electrode contains multiple voltage steps, then it is possible
         to use only a subset of the voltage steps to define other electrodes.
         Must be implemented for each electrode object.
+
         Args:
             adjacent_only: Only return electrodes from compounds that are
                 adjacent on the convex hull, i.e. no electrodes returned
@@ -256,14 +227,13 @@ class AbstractElectrode(Sequence, MSONable):
         Returns:
             A list of Electrode objects
         """
-        NotImplementedError(
+        raise NotImplementedError(
             "The get_sub_electrodes function must be implemented for each concrete electrode "
-            f"class {self.__class__.__name__,}"
+            f"class {type(self).__name__}"
         )
 
     def get_average_voltage(self, min_voltage=None, max_voltage=None):
-        """
-        Average voltage for path satisfying between a min and max voltage.
+        """Average voltage for path satisfying between a min and max voltage.
 
         Args:
             min_voltage (float): The minimum allowable voltage for a given
@@ -278,13 +248,12 @@ class AbstractElectrode(Sequence, MSONable):
         pairs_in_range = self._select_in_voltage_range(min_voltage, max_voltage)
         if len(pairs_in_range) == 0:
             return 0
-        total_cap_in_range = sum([p.mAh for p in pairs_in_range])
-        total_edens_in_range = sum([p.mAh * p.voltage for p in pairs_in_range])
+        total_cap_in_range = sum(p.mAh for p in pairs_in_range)
+        total_edens_in_range = sum(p.mAh * p.voltage for p in pairs_in_range)
         return total_edens_in_range / total_cap_in_range
 
     def get_capacity_grav(self, min_voltage=None, max_voltage=None, use_overall_normalization=True):
-        """
-        Get the gravimetric capacity of the electrode.
+        """Get the gravimetric capacity of the electrode.
 
         Args:
             min_voltage (float): The minimum allowable voltage for a given
@@ -306,11 +275,10 @@ class AbstractElectrode(Sequence, MSONable):
             if use_overall_normalization or len(pairs_in_range) == 0
             else pairs_in_range[-1].mass_discharge
         )
-        return sum([pair.mAh for pair in pairs_in_range]) / normalization_mass
+        return sum(pair.mAh for pair in pairs_in_range) / normalization_mass
 
     def get_capacity_vol(self, min_voltage=None, max_voltage=None, use_overall_normalization=True):
-        """
-        Get the volumetric capacity of the electrode.
+        """Get the volumetric capacity of the electrode.
 
         Args:
             min_voltage (float): The minimum allowable voltage for a given
@@ -332,11 +300,10 @@ class AbstractElectrode(Sequence, MSONable):
             if use_overall_normalization or len(pairs_in_range) == 0
             else pairs_in_range[-1].vol_discharge
         )
-        return sum([pair.mAh for pair in pairs_in_range]) / normalization_vol * 1e24 / N_A
+        return sum(pair.mAh for pair in pairs_in_range) / normalization_vol * 1e24 / N_A
 
     def get_specific_energy(self, min_voltage=None, max_voltage=None, use_overall_normalization=True):
-        """
-        Returns the specific energy of the battery in mAh/g.
+        """Get the specific energy of the battery in mAh/g.
 
         Args:
             min_voltage (float): The minimum allowable voltage for a given
@@ -377,8 +344,7 @@ class AbstractElectrode(Sequence, MSONable):
         )
 
     def _select_in_voltage_range(self, min_voltage=None, max_voltage=None):
-        """
-        Selects VoltagePairs within a certain voltage range.
+        """Selects VoltagePairs within a certain voltage range.
 
         Args:
             min_voltage (float): The minimum allowable voltage for a given
@@ -393,19 +359,17 @@ class AbstractElectrode(Sequence, MSONable):
         max_voltage = max_voltage if max_voltage is not None else self.max_voltage
         return list(filter(lambda p: min_voltage <= p.voltage <= max_voltage, self.voltage_pairs))
 
-    def get_summary_dict(self, print_subelectrodes=True) -> Dict:
-        """
-        Generate a summary dict.
+    def get_summary_dict(self, print_subelectrodes=True) -> dict:
+        """Generate a summary dict.
 
         Args:
             print_subelectrodes: Also print data on all the possible
                 subelectrodes.
 
         Returns:
-            A summary of this electrode"s properties in dict format.
+            A summary of this electrode's properties in dict format.
         """
-
-        d = {
+        dct = {
             "average_voltage": self.get_average_voltage(),
             "max_voltage": self.max_voltage,
             "min_voltage": self.min_voltage,
@@ -419,7 +383,7 @@ class AbstractElectrode(Sequence, MSONable):
             "nsteps": self.num_steps,
             "fracA_charge": self.voltage_pairs[0].frac_charge,
             "fracA_discharge": self.voltage_pairs[-1].frac_discharge,
-            "framework_formula": self._framework_formula,
+            "framework_formula": self.framework_formula,
         }
 
         if print_subelectrodes:
@@ -427,6 +391,6 @@ class AbstractElectrode(Sequence, MSONable):
             def f_dict(c):
                 return c.get_summary_dict(print_subelectrodes=False)
 
-            d["adj_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=True)))
-            d["all_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=False)))
-        return d
+            dct["adj_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=True)))
+            dct["all_pairs"] = list(map(f_dict, self.get_sub_electrodes(adjacent_only=False)))
+        return dct

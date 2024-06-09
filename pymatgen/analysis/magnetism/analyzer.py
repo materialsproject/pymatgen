@@ -1,21 +1,19 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
 """
 This module provides some useful functions for dealing with magnetic Structures
 (e.g. Structures with associated magmom tags).
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import warnings
-from collections import namedtuple
 from enum import Enum, unique
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
 from monty.serialization import loadfn
+from ruamel.yaml.error import MarkedYAMLError
 from scipy.signal import argrelextrema
 from scipy.stats import gaussian_kde
 
@@ -23,15 +21,14 @@ from pymatgen.core.structure import DummySpecies, Element, Species, Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
-from pymatgen.transformations.advanced_transformations import (
-    MagOrderingTransformation,
-    MagOrderParameterConstraint,
-)
-from pymatgen.transformations.standard_transformations import (
-    AutoOxiStateDecorationTransformation,
-)
-from pymatgen.util.typing import Vector3Like
+from pymatgen.transformations.advanced_transformations import MagOrderingTransformation, MagOrderParameterConstraint
+from pymatgen.transformations.standard_transformations import AutoOxiStateDecorationTransformation
+from pymatgen.util.due import Doi, due
 
+if TYPE_CHECKING:
+    from typing import Any
+
+    from numpy.typing import ArrayLike
 
 __author__ = "Matthew Horton"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -44,18 +41,15 @@ __date__ = "Feb 2017"
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 try:
-    DEFAULT_MAGMOMS = loadfn(os.path.join(MODULE_DIR, "default_magmoms.yaml"))
-except Exception:
+    DEFAULT_MAGMOMS = loadfn(f"{MODULE_DIR}/default_magmoms.yaml")
+except (FileNotFoundError, MarkedYAMLError):
     warnings.warn("Could not load default_magmoms.yaml, falling back to VASPIncarBase.yaml")
-    DEFAULT_MAGMOMS = loadfn(os.path.join(MODULE_DIR, "../../io/vasp/VASPIncarBase.yaml"))
-    DEFAULT_MAGMOMS = DEFAULT_MAGMOMS["MAGMOM"]
+    DEFAULT_MAGMOMS = loadfn(f"{MODULE_DIR}/../../io/vasp/VASPIncarBase.yaml")["INCAR"]["MAGMOM"]
 
 
 @unique
 class Ordering(Enum):
-    """
-    Enumeration defining possible magnetic orderings.
-    """
+    """Enumeration defining possible magnetic orderings."""
 
     FM = "FM"  # Ferromagnetic
     AFM = "AFM"  # Antiferromagnetic
@@ -66,14 +60,13 @@ class Ordering(Enum):
 
 @unique
 class OverwriteMagmomMode(Enum):
-    """
-    Enumeration defining different modes for analyzer.
-    """
+    """Enumeration defining different modes for analyzer."""
 
     none = "none"
     respect_sign = "respect_sign"
-    respect_zero = "respect_zeros"
+    respect_zeros = "respect_zeros"
     replace_all = "replace_all"
+    replace_all_if_undefined = "replace_all_if_undefined"
     normalize = "normalize"
 
 
@@ -86,16 +79,17 @@ class CollinearMagneticStructureAnalyzer:
     def __init__(
         self,
         structure: Structure,
-        overwrite_magmom_mode: Union[OverwriteMagmomMode, str] = "none",
+        overwrite_magmom_mode: str | OverwriteMagmomMode = OverwriteMagmomMode.none,
         round_magmoms: bool = False,
         detect_valences: bool = False,
         make_primitive: bool = True,
-        default_magmoms: dict = None,
+        default_magmoms: dict | None = None,
         set_net_positive: bool = True,
-        threshold: float = 0.00,
+        threshold: float = 0,
         threshold_nonmag: float = 0.1,
+        threshold_ordering: float = 1e-8,
     ):
-        r"""
+        """
         If magnetic moments are not defined, moments will be
         taken either from default_magmoms.yaml (similar to the
         default magmoms in MPRelaxSet, with a few extra definitions)
@@ -118,7 +112,7 @@ class CollinearMagneticStructureAnalyzer:
           no magmoms are defined in input structure, otherwise it will respect
           existing magmoms.
         * "normalize" will normalize magmoms to unity, but will respect sign
-          (used for comparing orderings), magmoms < theshold will be set to zero
+          (used for comparing orderings), magmoms < threshold will be set to zero
 
         Args:
             structure: input Structure object
@@ -141,7 +135,11 @@ class CollinearMagneticStructureAnalyzer:
             threshold_nonmag: number (in Bohr magneton)
                 below which nonmagnetic ions (with no magmom specified
                 in default_magmoms) will be rounded to zero
+            threshold_ordering: number (absolute of sum of all magmoms,
+                in Bohr magneton) below which total magnetization is treated as zero
+                when defining magnetic ordering. Defaults to 1e-8.
         """
+        OverwriteMagmomMode(overwrite_magmom_mode)  # raises ValueError on invalid mode
 
         if default_magmoms:
             self.default_magmoms = default_magmoms
@@ -152,16 +150,18 @@ class CollinearMagneticStructureAnalyzer:
 
         # check for disorder
         if not structure.is_ordered:
-            raise NotImplementedError("Not implemented for disordered structures, " "make ordered approximation first.")
+            raise NotImplementedError(
+                f"{type(self).__name__} not implemented for disordered structures, make ordered approximation first."
+            )
 
         if detect_valences:
             trans = AutoOxiStateDecorationTransformation()
             try:
                 structure = trans.apply_transformation(structure)
             except ValueError:
-                warnings.warn("Could not assign valences " "for {}".format(structure.composition.reduced_formula))
+                warnings.warn(f"Could not assign valences for {structure.reduced_formula}")
 
-        # check to see if structure has magnetic moments
+        # Check if structure has magnetic moments
         # on site properties or species spin properties,
         # prioritize site properties
 
@@ -169,33 +169,29 @@ class CollinearMagneticStructureAnalyzer:
 
         has_spin = False
         for comp in structure.species_and_occu:
-            for sp, occu in comp.items():
+            for sp in comp:
                 if getattr(sp, "spin", False):
                     has_spin = True
 
         # perform input sanitation ...
-        # rest of class will assume magnetic moments
-        # are stored on site properties:
-        # this is somewhat arbitrary, arguments can
-        # be made for both approaches
+        # rest of class will assume magnetic moments are stored on site properties:
+        # this is somewhat arbitrary, arguments can be made for both approaches
 
         if has_magmoms and has_spin:
             raise ValueError(
                 "Structure contains magnetic moments on both "
                 "magmom site properties and spin species "
-                "properties. This is ambiguous. Remove one or "
-                "the other."
+                "properties. This is ambiguous. Remove one or the other."
             )
         if has_magmoms:
             if None in structure.site_properties["magmom"]:
                 warnings.warn(
-                    "Be careful with mixing types in your magmom "
-                    "site properties. Any 'None' magmoms have been "
-                    "replaced with zero."
+                    "Be careful with mixing types in your magmom site properties. "
+                    "Any 'None' magmoms have been replaced with zero."
                 )
-            magmoms = [m if m else 0 for m in structure.site_properties["magmom"]]
+            magmoms = [m or 0 for m in structure.site_properties["magmom"]]
         elif has_spin:
-            magmoms = [getattr(sp, "spin", 0) for sp in structure.species]
+            magmoms = [sp.spin or 0 for sp in structure.species]
             structure.remove_spin()
         else:
             # no magmoms present, add zero magmoms for now
@@ -215,8 +211,7 @@ class CollinearMagneticStructureAnalyzer:
                 "give useful results, but use with caution."
             )
 
-        # this is for collinear structures only, make sure magmoms
-        # are all floats
+        # this is for collinear structures only, make sure magmoms are all floats
         magmoms = list(map(float, magmoms))
 
         # set properties that should be done /before/ we process input magmoms
@@ -226,27 +221,16 @@ class CollinearMagneticStructureAnalyzer:
         # round magmoms on magnetic ions below threshold to zero
         # and on non magnetic ions below threshold_nonmag
         magmoms = [
-            m
-            if abs(m) > threshold and a.species_string in self.default_magmoms
-            else m
-            if abs(m) > threshold_nonmag and a.species_string not in self.default_magmoms
+            magmom
+            if abs(magmom) > threshold and site.species_string in self.default_magmoms
+            else magmom
+            if abs(magmom) > threshold_nonmag and site.species_string not in self.default_magmoms
             else 0
-            for (m, a) in zip(magmoms, structure.sites)
+            for magmom, site in zip(magmoms, structure)
         ]
 
         # overwrite existing magmoms with default_magmoms
-        if overwrite_magmom_mode not in (
-            "none",
-            "respect_sign",
-            "respect_zeros",
-            "replace_all",
-            "replace_all_if_undefined",
-            "normalize",
-        ):
-            raise ValueError("Unsupported mode.")
-
         for idx, site in enumerate(structure):
-
             if site.species_string in self.default_magmoms:
                 # look for species first, e.g. Fe2+
                 default_magmom = self.default_magmoms[site.species_string]
@@ -259,8 +243,7 @@ class CollinearMagneticStructureAnalyzer:
             # overwrite_magmom_mode = "respect_sign" will change magnitude of
             # existing moments only, and keep zero magmoms as
             # zero: it will keep the magnetic ordering intact
-
-            if overwrite_magmom_mode == "respect_sign":
+            if overwrite_magmom_mode == OverwriteMagmomMode.respect_sign.value:
                 set_net_positive = False
                 if magmoms[idx] > 0:
                     magmoms[idx] = default_magmom
@@ -269,23 +252,19 @@ class CollinearMagneticStructureAnalyzer:
 
             # overwrite_magmom_mode = "respect_zeros" will give a ferromagnetic
             # structure but will keep zero magmoms as zero
-
-            elif overwrite_magmom_mode == "respect_zeros":
+            elif overwrite_magmom_mode == OverwriteMagmomMode.respect_zeros.value:
                 if magmoms[idx] != 0:
                     magmoms[idx] = default_magmom
 
             # overwrite_magmom_mode = "replace_all" will ignore input magmoms
             # and give a ferromagnetic structure with magnetic
             # moments on *all* atoms it thinks could be magnetic
-
-            elif overwrite_magmom_mode == "replace_all":
+            elif overwrite_magmom_mode == OverwriteMagmomMode.replace_all.value:
                 magmoms[idx] = default_magmom
 
             # overwrite_magmom_mode = "normalize" set magmoms magnitude to 1
-
-            elif overwrite_magmom_mode == "normalize":
-                if magmoms[idx] != 0:
-                    magmoms[idx] = int(magmoms[idx] / abs(magmoms[idx]))
+            elif overwrite_magmom_mode == OverwriteMagmomMode.normalize.value and magmoms[idx] != 0:
+                magmoms[idx] = int(magmoms[idx] / abs(magmoms[idx]))
 
         # round magmoms, used to smooth out computational data
         magmoms = self._round_magmoms(magmoms, round_magmoms) if round_magmoms else magmoms  # type: ignore
@@ -293,7 +272,7 @@ class CollinearMagneticStructureAnalyzer:
         if set_net_positive:
             sign = np.sum(magmoms)
             if sign < 0:
-                magmoms = -np.array(magmoms)
+                magmoms = [-x for x in magmoms]
 
         structure.add_site_property("magmom", magmoms)
 
@@ -301,23 +280,20 @@ class CollinearMagneticStructureAnalyzer:
             structure = structure.get_primitive_structure(use_site_props=True)
 
         self.structure = structure
+        self.threshold_ordering = threshold_ordering
 
     @staticmethod
-    def _round_magmoms(magmoms: Vector3Like, round_magmoms_mode: Union[int, float]) -> np.ndarray:
+    def _round_magmoms(magmoms: ArrayLike, round_magmoms_mode: float) -> np.ndarray:
         """If round_magmoms_mode is an integer, simply round to that number
         of decimal places, else if set to a float will try and round
         intelligently by grouping magmoms.
         """
-
         if isinstance(round_magmoms_mode, int):
-
             # simple rounding to number of decimal places
             magmoms = np.around(magmoms, decimals=round_magmoms_mode)
 
         elif isinstance(round_magmoms_mode, float):
-
             try:
-
                 # get range of possible magmoms, pad by 50% just to be safe
                 range_m = max([max(magmoms), abs(min(magmoms))]) * 1.5
 
@@ -325,32 +301,30 @@ class CollinearMagneticStructureAnalyzer:
                 kernel = gaussian_kde(magmoms, bw_method=round_magmoms_mode)
 
                 # with a linearly spaced grid 1000x finer than width
-                xgrid = np.linspace(-range_m, range_m, int(1000 * range_m / round_magmoms_mode))
+                x_grid = np.linspace(-range_m, range_m, int(1000 * range_m / round_magmoms_mode))
 
                 # and evaluate the kde on this grid, extracting the maxima of the kde peaks
-                kernel_m = kernel.evaluate(xgrid)
-                extrema = xgrid[argrelextrema(kernel_m, comparator=np.greater)]
+                kernel_m = kernel.evaluate(x_grid)
+                extrema = x_grid[argrelextrema(kernel_m, comparator=np.greater)]
 
                 # round magmoms to these extrema
                 magmoms = [extrema[(np.abs(extrema - m)).argmin()] for m in magmoms]
 
-            except Exception as e:
-
+            except Exception as exc:
                 # TODO: typically a singular matrix warning, investigate this
-                warnings.warn("Failed to round magmoms intelligently, " "falling back to simple rounding.")
-                warnings.warn(str(e))
+                warnings.warn("Failed to round magmoms intelligently, falling back to simple rounding.")
+                warnings.warn(str(exc))
 
             # and finally round roughly to the number of significant figures in our kde width
-            num_decimals = len(str(round_magmoms_mode).split(".")[1]) + 1
-            magmoms = np.around(magmoms, decimals=num_decimals)
+            n_decimals = len(str(round_magmoms_mode).split(".")[1]) + 1
+            magmoms = np.around(magmoms, decimals=n_decimals)
 
-        return magmoms
+        return np.array(magmoms)
 
     def get_structure_with_spin(self) -> Structure:
-        """Returns a Structure with species decorated with spin values instead
+        """Get a Structure with species decorated with spin values instead
         of using magmom site properties.
         """
-
         structure = self.structure.copy()
         structure.add_spin_by_site(structure.site_properties["magmom"])
         structure.remove_site_property("magmom")
@@ -358,15 +332,15 @@ class CollinearMagneticStructureAnalyzer:
         return structure
 
     def get_structure_with_only_magnetic_atoms(self, make_primitive: bool = True) -> Structure:
-        """Returns a Structure with only magnetic atoms present.
+        """Get a Structure with only magnetic atoms present.
 
         Args:
-          make_primitive: Whether to make structure primitive after
-            removing non-magnetic atoms (Default value = True)
+            make_primitive: Whether to make structure primitive after
+                removing non-magnetic atoms (Default value = True)
 
-        Returns: Structure
+        Returns:
+            Structure
         """
-
         sites = [site for site in self.structure if abs(site.properties["magmom"]) > 0]
 
         structure = Structure.from_sites(sites)
@@ -377,17 +351,15 @@ class CollinearMagneticStructureAnalyzer:
         return structure
 
     def get_nonmagnetic_structure(self, make_primitive: bool = True) -> Structure:
-        """Returns a Structure without magnetic moments defined.
+        """Get a Structure without magnetic moments defined.
 
         Args:
-          make_primitive: Whether to make structure primitive after
-            removing magnetic information (Default value = True)
+            make_primitive: Whether to make structure primitive after
+                removing magnetic information (Default value = True)
 
         Returns:
-          Structure
-
+            Structure
         """
-
         structure = self.structure.copy()
         structure.remove_site_property("magmom")
 
@@ -397,18 +369,16 @@ class CollinearMagneticStructureAnalyzer:
         return structure
 
     def get_ferromagnetic_structure(self, make_primitive: bool = True) -> Structure:
-        """Returns a Structure with all magnetic moments positive
+        """Get a Structure with all magnetic moments positive
         or zero.
 
         Args:
-          make_primitive: Whether to make structure primitive after
-            making all magnetic moments positive (Default value = True)
+            make_primitive: Whether to make structure primitive after
+                making all magnetic moments positive (Default value = True)
 
         Returns:
-          Structure
-
+            Structure
         """
-
         structure = self.structure.copy()
 
         structure.add_site_property("magmom", [abs(m) for m in self.magmoms])
@@ -426,57 +396,49 @@ class CollinearMagneticStructureAnalyzer:
     @property
     def magmoms(self) -> np.ndarray:
         """Convenience property, returns magmoms as a numpy array."""
-
         return np.array(self.structure.site_properties["magmom"])
 
     @property
-    def types_of_magnetic_species(
-        self,
-    ) -> Tuple[Union[Element, Species, DummySpecies], ...]:
-        """Equivalent to Structure.types_of_specie but only returns
-        magnetic species.
+    def types_of_magnetic_species(self) -> tuple[Element | Species | DummySpecies, ...]:
+        """Equivalent to Structure.types_of_specie but only returns magnetic species.
 
-        Returns: types of Species as a list
-
+        Returns:
+            tuple: types of Species
         """
         if self.number_of_magnetic_sites > 0:
             structure = self.get_structure_with_only_magnetic_atoms()
             return tuple(sorted(structure.types_of_species))
-        return tuple()
+        return ()
 
     @property
-    def types_of_magnetic_specie(
-        self,
-    ) -> Tuple[Union[Element, Species, DummySpecies], ...]:
-        """
-        Specie->Species rename. Used to maintain backwards compatibility.
-        """
+    def types_of_magnetic_specie(self) -> tuple[Element | Species | DummySpecies, ...]:
+        """Specie->Species rename. Used to maintain backwards compatibility."""
         return self.types_of_magnetic_species
 
     @property
-    def magnetic_species_and_magmoms(self) -> Dict[str, Any]:
-        """Returns a dict of magnetic species and the magnitude of
+    def magnetic_species_and_magmoms(self) -> dict[str, Any]:
+        """A dict of magnetic species and the magnitude of
         their associated magmoms. Will return a list if there are
         multiple magmoms per species.
 
-        Returns: dict of magnetic species and magmoms
+        Returns:
+            dict of magnetic species and magmoms
         """
-
         structure = self.get_ferromagnetic_structure()
 
-        magtypes: Dict = {str(site.specie): set() for site in structure if site.properties["magmom"] != 0}
+        mag_types: dict = {str(site.specie): set() for site in structure if site.properties["magmom"] != 0}
 
         for site in structure:
             if site.properties["magmom"] != 0:
-                magtypes[str(site.specie)].add(site.properties["magmom"])
+                mag_types[str(site.specie)].add(site.properties["magmom"])
 
-        for sp, magmoms in magtypes.items():
+        for sp, magmoms in mag_types.items():
             if len(magmoms) == 1:
-                magtypes[sp] = magmoms.pop()
+                mag_types[sp] = magmoms.pop()
             else:
-                magtypes[sp] = sorted(list(magmoms))
+                mag_types[sp] = sorted(magmoms)
 
-        return magtypes
+        return mag_types
 
     @property
     def number_of_magnetic_sites(self) -> int:
@@ -485,16 +447,13 @@ class CollinearMagneticStructureAnalyzer:
 
     def number_of_unique_magnetic_sites(self, symprec: float = 1e-3, angle_tolerance: float = 5) -> int:
         """
-
         Args:
-          symprec: same as in SpacegroupAnalyzer (Default value = 1e-3)
-          angle_tolerance: same as in SpacegroupAnalyzer (Default value = 5)
+            symprec: same as in SpacegroupAnalyzer (Default value = 1e-3)
+            angle_tolerance: same as in SpacegroupAnalyzer (Default value = 5).
 
-        Returns: Number of symmetrically-distinct magnetic sites present
-        in structure.
-
+        Returns:
+            int: Number of symmetrically-distinct magnetic sites present in structure.
         """
-
         structure = self.get_nonmagnetic_structure()
 
         sga = SpacegroupAnalyzer(structure, symprec=symprec, angle_tolerance=angle_tolerance)
@@ -511,13 +470,17 @@ class CollinearMagneticStructureAnalyzer:
 
     @property
     def ordering(self) -> Ordering:
-        """Applies heuristics to return a magnetic ordering for a collinear
-        magnetic structure. Result is not guaranteed for correctness.
+        """Apply heuristics to return a magnetic ordering for a collinear
+        magnetic structure. Result is not guaranteed to be correct, just a best
+        guess. Tolerance for minimum total magnetization to be considered
+        ferro/ferrimagnetic is self.threshold_ordering and defaults to 1e-8.
 
-        Returns: Ordering Enum ('FiM' is used as the abbreviation for
-        ferrimagnetic)
+        Returns:
+            Ordering: Enum  with values FM: ferromagnetic, FiM: ferrimagnetic,
+                AFM: antiferromagnetic, NM: non-magnetic or Unknown. Unknown is
+                returned if magnetic moments are not defined or structure is not collinear
+                (in which case a warning is issued).
         """
-
         if not self.is_collinear:
             warnings.warn("Detecting ordering in non-collinear structures not yet implemented.")
             return Ordering.Unknown
@@ -535,16 +498,16 @@ class CollinearMagneticStructureAnalyzer:
 
         is_potentially_ferromagnetic = np.all(magmoms >= 0) or np.all(magmoms <= 0)
 
-        if total_magnetization > 0 and is_potentially_ferromagnetic:
+        if abs(total_magnetization) > self.threshold_ordering and is_potentially_ferromagnetic:
             return Ordering.FM
-        if total_magnetization > 0:
+        if abs(total_magnetization) > self.threshold_ordering:
             return Ordering.FiM
         if max_magmom > 0:
             return Ordering.AFM
         return Ordering.NM
 
-    def get_exchange_group_info(self, symprec: float = 1e-2, angle_tolerance: float = 5.0) -> Tuple[str, int]:
-        """Returns the information on the symmetry of the Hamiltonian
+    def get_exchange_group_info(self, symprec: float = 1e-2, angle_tolerance: float = 5) -> tuple[str, int]:
+        """Get the information on the symmetry of the Hamiltonian
         describing the exchange energy of the system, taking into
         account relative direction of magnetic moments but not their
         absolute direction.
@@ -555,14 +518,12 @@ class CollinearMagneticStructureAnalyzer:
         orderings within pymatgen.
 
         Args:
-          symprec: same as SpacegroupAnalyzer (Default value = 1e-2)
-          angle_tolerance: same as SpacegroupAnalyzer (Default value = 5.0)
+            symprec: same as SpacegroupAnalyzer (Default value = 1e-2)
+            angle_tolerance: same as SpacegroupAnalyzer (Default value = 5)
 
         Returns:
-          spacegroup_symbol, international_number
-
+            spacegroup_symbol, international_number
         """
-
         structure = self.get_structure_with_spin()
 
         return structure.get_space_group_info(symprec=symprec, angle_tolerance=angle_tolerance)
@@ -571,12 +532,12 @@ class CollinearMagneticStructureAnalyzer:
         """Compares the magnetic orderings of one structure with another.
 
         Args:
-          other: Structure to compare
+            other: Structure to compare
 
-        Returns: True or False
+        Returns:
+            bool: True if magnetic orderings match, False otherwise
         """
-
-        a = CollinearMagneticStructureAnalyzer(
+        cmag_analyzer = CollinearMagneticStructureAnalyzer(
             self.structure, overwrite_magmom_mode="normalize"
         ).get_structure_with_spin()
 
@@ -587,39 +548,34 @@ class CollinearMagneticStructureAnalyzer:
         b_positive = CollinearMagneticStructureAnalyzer(other, overwrite_magmom_mode="normalize", make_primitive=False)
 
         b_negative = b_positive.structure.copy()
-        b_negative.add_site_property("magmom", np.multiply(-1, b_negative.site_properties["magmom"]))
+        b_negative.add_site_property("magmom", -np.array(b_negative.site_properties["magmom"]))
 
-        b_negative = CollinearMagneticStructureAnalyzer(
+        analyzer = CollinearMagneticStructureAnalyzer(
             b_negative, overwrite_magmom_mode="normalize", make_primitive=False
         )
 
         b_positive = b_positive.get_structure_with_spin()
-        b_negative = b_negative.get_structure_with_spin()
+        analyzer = analyzer.get_structure_with_spin()
 
-        return a.matches(b_positive) or a.matches(b_negative)
+        return cmag_analyzer.matches(b_positive) or cmag_analyzer.matches(analyzer)
 
     def __str__(self):
-        """
-        Sorts a Structure (by fractional co-ordinate), and
+        """Sorts a Structure (by fractional coordinate), and
         prints sites with magnetic information. This is
         useful over Structure.__str__ because sites are in
         a consistent order, which makes visual comparison between
         two identical Structures with different magnetic orderings
         easier.
         """
-
         frac_coords = self.structure.frac_coords
         sorted_indices = np.lexsort((frac_coords[:, 2], frac_coords[:, 1], frac_coords[:, 0]))
-        s = Structure.from_sites([self.structure[idx] for idx in sorted_indices])
+        struct = Structure.from_sites([self.structure[idx] for idx in sorted_indices])
 
         # adapted from Structure.__repr__
-        outs = ["Structure Summary", repr(s.lattice)]
+        outs = ["Structure Summary", repr(struct.lattice)]
         outs.append("Magmoms Sites")
-        for site in s:
-            if site.properties["magmom"] != 0:
-                prefix = "{:+.2f}   ".format(site.properties["magmom"])
-            else:
-                prefix = "        "
+        for site in struct:
+            prefix = f"{site.properties['magmom']:+.2f}   " if site.properties["magmom"] != 0 else "        "
             outs.append(prefix + repr(site))
         return "\n".join(outs)
 
@@ -642,18 +598,13 @@ class MagneticStructureEnumerator:
     def __init__(
         self,
         structure: Structure,
-        default_magmoms: Optional[Dict[str, float]] = None,
-        strategies: Union[List[str], Tuple[str, ...]] = (
-            "ferromagnetic",
-            "antiferromagnetic",
-        ),
+        default_magmoms: dict[str, float] | None = None,
+        strategies: list[str] | tuple[str, ...] = ("ferromagnetic", "antiferromagnetic"),
         automatic: bool = True,
         truncate_by_symmetry: bool = True,
-        transformation_kwargs: Optional[Dict] = None,
+        transformation_kwargs: dict | None = None,
     ):
-        """
-        This class will try generated different collinear
-        magnetic orderings for a given input structure.
+        """Generate different collinear magnetic orderings for a given input structure.
 
         If the input structure has magnetic moments defined, it
         is possible to use these as a hint as to which elements are
@@ -663,7 +614,7 @@ class MagneticStructureEnumerator:
         Args:
             structure: input structure
             default_magmoms: (optional, defaults provided) dict of
-                magnetic elements to their initial magnetic moments in µB, generally
+                magnetic elements to their initial magnetic moments in μB, generally
                 these are chosen to be high-spin since they can relax to a low-spin
                 configuration during a DFT electronic configuration
             strategies: different ordering strategies to use, choose from:
@@ -677,8 +628,7 @@ class MagneticStructureEnumerator:
             transformation_kwargs: keyword arguments to pass to
                 MagOrderingTransformation, to change automatic cell size limits, etc.
         """
-
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = logging.getLogger(type(self).__name__)
 
         self.structure = structure
 
@@ -710,15 +660,15 @@ class MagneticStructureEnumerator:
         # is be a list of strings in ("fm", "afm",
         # "ferrimagnetic_by_species", "ferrimagnetic_by_motif",
         # "afm_by_motif", "input_structure")
-        self.ordered_structures: List[Structure] = []
-        self.ordered_structure_origins: List[str] = []
+        self.ordered_structures: list[Structure] = []
+        self.ordered_structure_origins: list[str] = []
 
-        formula = structure.composition.reduced_formula
+        formula = structure.reduced_formula
 
         # to process disordered magnetic structures, first make an
         # ordered approximation
         if not structure.is_ordered:
-            raise ValueError("Please obtain an ordered approximation of the " "input structure ({}).".format(formula))
+            raise ValueError(f"Please obtain an ordered approximation of the input structure ({formula}).")
 
         # CollinearMagneticStructureAnalyzer is used throughout:
         # it can tell us whether the input is itself collinear (if not,
@@ -733,44 +683,47 @@ class MagneticStructureEnumerator:
         # if your input structure has vector magnetic moments, this
         # workflow is not appropriate
         if not self.input_analyzer.is_collinear:
-            raise ValueError("Input structure ({}) is non-collinear.".format(formula))
+            raise ValueError(f"Input structure ({formula}) is non-collinear.")
 
         self.sanitized_structure = self._sanitize_input_structure(structure)
 
         # we will first create a set of transformations
         # and then apply them to our input structure
         self.transformations = self._generate_transformations(self.sanitized_structure)
-        self._generate_ordered_structures(self.sanitized_structure, self.transformations)
+        ordered_structures, ordered_structures_origins = self._generate_ordered_structures(
+            self.sanitized_structure, self.transformations
+        )
+        self.ordered_structures = ordered_structures
+        self.ordered_structure_origins = ordered_structures_origins
 
     @staticmethod
-    def _sanitize_input_structure(input_structure: Structure) -> Structure:
+    def _sanitize_input_structure(struct: Structure) -> Structure:
         """Sanitize our input structure by removing magnetic information
         and making primitive.
 
         Args:
-          input_structure: Structure
+            struct: Structure
 
-        Returns: Structure
-
+        Returns:
+            Structure
         """
-
-        input_structure = input_structure.copy()
+        struct = struct.copy()
 
         # remove any annotated spin
-        input_structure.remove_spin()
+        struct.remove_spin()
 
         # sanitize input structure: first make primitive ...
-        input_structure = input_structure.get_primitive_structure(use_site_props=False)
+        struct = struct.get_primitive_structure(use_site_props=False)
 
         # ... and strip out existing magmoms, which can cause conflicts
         # with later transformations otherwise since sites would end up
         # with both magmom site properties and Species spins defined
-        if "magmom" in input_structure.site_properties:
-            input_structure.remove_site_property("magmom")
+        if "magmom" in struct.site_properties:
+            struct.remove_site_property("magmom")
 
-        return input_structure
+        return struct
 
-    def _generate_transformations(self, structure: Structure) -> Dict[str, MagOrderingTransformation]:
+    def _generate_transformations(self, structure: Structure) -> dict[str, MagOrderingTransformation]:
         """The central problem with trying to enumerate magnetic orderings is
         that we have to enumerate orderings that might plausibly be magnetic
         ground states, while not enumerating orderings that are physically
@@ -782,16 +735,13 @@ class MagneticStructureEnumerator:
         relatively robust over a wide range of magnetic structures.
 
         Args:
-          structure: A sanitized input structure (_sanitize_input_structure)
-        Returns: A dict of a transformation class instance (values) and name of
-        enumeration strategy (keys)
+            structure: A sanitized input structure (_sanitize_input_structure)
 
-        Returns: dict of Transformations keyed by strategy
-
+        Returns:
+            dict: A dict of a transformation class instance (values) and name of enumeration strategy (keys)
         """
-
-        formula = structure.composition.reduced_formula
-        transformations: Dict[str, MagOrderingTransformation] = {}
+        formula = structure.reduced_formula
+        transformations: dict[str, MagOrderingTransformation] = {}
 
         # analyzer is used to obtain information on sanitized input
         analyzer = CollinearMagneticStructureAnalyzer(
@@ -802,11 +752,11 @@ class MagneticStructureEnumerator:
 
         if not analyzer.is_magnetic:
             raise ValueError(
-                "Not detected as magnetic, add a new default magmom for the " "element you believe may be magnetic?"
+                "Not detected as magnetic, add a new default magmom for the element you believe may be magnetic?"
             )
 
         # now we can begin to generate our magnetic orderings
-        self.logger.info("Generating magnetic orderings for {}".format(formula))
+        self.logger.info(f"Generating magnetic orderings for {formula}")
 
         mag_species_spin = analyzer.magnetic_species_and_magmoms
         types_mag_species = sorted(
@@ -830,7 +780,7 @@ class MagneticStructureEnumerator:
         if "max_cell_size" not in self.transformation_kwargs:
             # TODO: change to 8 / num_mag_sites ?
             self.transformation_kwargs["max_cell_size"] = max(1, int(4 / num_mag_sites))
-        self.logger.info("Max cell size set to {}".format(self.transformation_kwargs["max_cell_size"]))
+        self.logger.info(f"Max cell size set to {self.transformation_kwargs['max_cell_size']}")
 
         # when enumerating ferrimagnetic structures, it's useful to detect
         # symmetrically distinct magnetic sites, since different
@@ -880,7 +830,7 @@ class MagneticStructureEnumerator:
             fm_structure = analyzer.get_ferromagnetic_structure()
             # store magmom as spin property, to be consistent with output from
             # other transformations
-            fm_structure.add_spin_by_site(fm_structure.site_properties["magmom"])
+            fm_structure.add_spin_by_site(fm_structure.site_properties["magmom"])  # type: ignore[arg-type]
             fm_structure.remove_site_property("magmom")
 
             # we now have our first magnetic ordering...
@@ -889,11 +839,10 @@ class MagneticStructureEnumerator:
 
         # we store constraint(s) for each strategy first,
         # and then use each to perform a transformation later
-        all_constraints: Dict[str, Any] = {}
+        all_constraints: dict[str, Any] = {}
 
         # ...to which we can add simple AFM cases first...
         if "antiferromagnetic" in self.strategies:
-
             constraint = MagOrderParameterConstraint(
                 0.5,
                 # TODO: update MagOrderParameterConstraint in
@@ -907,59 +856,56 @@ class MagneticStructureEnumerator:
                 for sp in types_mag_species:
                     constraints = [MagOrderParameterConstraint(0.5, species_constraints=str(sp))]
 
-                    all_constraints["afm_by_{}".format(sp)] = constraints
+                    all_constraints[f"afm_by_{sp}"] = constraints
 
         # ...and then we also try ferrimagnetic orderings by motif if a
         # single magnetic species is present...
         if "ferrimagnetic_by_motif" in self.strategies and len(wyckoff_symbols) > 1:
-
             # these orderings are AFM on one local environment, and FM on the rest
             for symbol in wyckoff_symbols:
                 constraints = [
                     MagOrderParameterConstraint(0.5, site_constraint_name="wyckoff", site_constraints=symbol),
                     MagOrderParameterConstraint(
-                        1.0,
+                        1,
                         site_constraint_name="wyckoff",
                         site_constraints=list(wyckoff_symbols - {symbol}),
                     ),
                 ]
 
-                all_constraints["ferri_by_motif_{}".format(symbol)] = constraints
+                all_constraints[f"ferri_by_motif_{symbol}"] = constraints
 
         # and also try ferrimagnetic when there are multiple magnetic species
         if "ferrimagnetic_by_species" in self.strategies:
-
             sp_list = [str(site.specie) for site in structure]
             num_sp = {sp: sp_list.count(str(sp)) for sp in types_mag_species}
             total_mag_sites = sum(num_sp.values())
 
             for sp in types_mag_species:
                 # attempt via a global order parameter
-                all_constraints["ferri_by_{}".format(sp)] = num_sp[sp] / total_mag_sites
+                all_constraints[f"ferri_by_{sp}"] = num_sp[sp] / total_mag_sites
 
                 # attempt via afm on sp, fm on remaining species
 
                 constraints = [
                     MagOrderParameterConstraint(0.5, species_constraints=str(sp)),
                     MagOrderParameterConstraint(
-                        1.0,
+                        1,
                         species_constraints=list(map(str, set(types_mag_species) - {sp})),
                     ),
                 ]
 
-                all_constraints["ferri_by_{}_afm".format(sp)] = constraints
+                all_constraints[f"ferri_by_{sp}_afm"] = constraints
 
         # ...and finally, we can try orderings that are AFM on one local
         # environment, and non-magnetic on the rest -- this is less common
         # but unless explicitly attempted, these states are unlikely to be found
         if "antiferromagnetic_by_motif" in self.strategies:
-
             for symbol in wyckoff_symbols:
                 constraints = [
                     MagOrderParameterConstraint(0.5, site_constraint_name="wyckoff", site_constraints=symbol)
                 ]
 
-                all_constraints["afm_by_motif_{}".format(symbol)] = constraints
+                all_constraints[f"afm_by_motif_{symbol}"] = constraints
 
         # and now construct all our transformations for each strategy
         transformations = {}
@@ -975,11 +921,12 @@ class MagneticStructureEnumerator:
     def _generate_ordered_structures(
         self,
         sanitized_input_structure: Structure,
-        transformations: Dict[str, MagOrderingTransformation],
-    ):
+        transformations: dict[str, MagOrderingTransformation],
+    ) -> tuple[list[Structure], list[str]]:
         """Apply our input structure to our list of transformations and output a list
         of ordered structures that have been pruned for duplicates and for those
-        with low symmetry (optional).
+        with low symmetry (optional). Sets self.ordered_structures
+        and self.ordered_structures_origins instance variables.
 
         Args:
             sanitized_input_structure: A sanitized input structure
@@ -988,12 +935,10 @@ class MagneticStructureEnumerator:
             enumeration strategy (key), the enumeration strategy name is just
             for record keeping
 
-        Returns: None (sets self.ordered_structures
-        and self.ordered_structures_origins instance variables)
 
-        Returns: List of Structures
+        Returns:
+            list[Structures]
         """
-
         ordered_structures = self.ordered_structures
         ordered_structures_origins = self.ordered_structure_origins
 
@@ -1005,14 +950,13 @@ class MagneticStructureEnumerator:
             by the transformation.
             """
             if structures_to_add:
-                # type conversion
                 if isinstance(structures_to_add, Structure):
                     structures_to_add = [structures_to_add]
                 structures_to_add = [s["structure"] if isinstance(s, dict) else s for s in structures_to_add]
                 # concatenation
                 ordered_structures += structures_to_add
                 ordered_structures_origins += [origin] * len(structures_to_add)
-                self.logger.info("Adding {} ordered structures: {}".format(len(structures_to_add), origin))
+                self.logger.info(f"Adding {len(structures_to_add)} ordered structures: {origin}")
 
             return ordered_structures, ordered_structures_origins
 
@@ -1029,17 +973,20 @@ class MagneticStructureEnumerator:
 
         # in case we've introduced duplicates, let's remove them
         self.logger.info("Pruning duplicate structures.")
-        structures_to_remove: List[int] = []
+        structures_to_remove: list[int] = []
         for idx, ordered_structure in enumerate(ordered_structures):
             if idx not in structures_to_remove:
                 duplicate_checker = CollinearMagneticStructureAnalyzer(ordered_structure, overwrite_magmom_mode="none")
                 for check_idx, check_structure in enumerate(ordered_structures):
-                    if check_idx not in structures_to_remove and check_idx != idx:
-                        if duplicate_checker.matches_ordering(check_structure):
-                            structures_to_remove.append(check_idx)
+                    if (
+                        check_idx not in structures_to_remove
+                        and check_idx != idx
+                        and duplicate_checker.matches_ordering(check_structure)
+                    ):
+                        structures_to_remove.append(check_idx)
 
-        if len(structures_to_remove):
-            self.logger.info("Removing {} duplicate ordered structures".format(len(structures_to_remove)))
+        if len(structures_to_remove) == 0:
+            self.logger.info(f"Removing {len(structures_to_remove)} duplicate ordered structures")
             ordered_structures = [s for idx, s in enumerate(ordered_structures) if idx not in structures_to_remove]
             ordered_structures_origins = [
                 o for idx, o in enumerate(ordered_structures_origins) if idx not in structures_to_remove
@@ -1047,7 +994,6 @@ class MagneticStructureEnumerator:
 
         # also remove low symmetry structures
         if self.truncate_by_symmetry:
-
             # by default, keep structures with 5 most symmetric space groups
             if not isinstance(self.truncate_by_symmetry, int):
                 self.truncate_by_symmetry = 5
@@ -1061,22 +1007,22 @@ class MagneticStructureEnumerator:
             num_sym_ops = [len(SpaceGroup.from_int_number(n).symmetry_ops) for n in symmetry_int_numbers]
 
             # find the largest values...
-            max_symmetries = sorted(list(set(num_sym_ops)), reverse=True)
+            max_symmetries = sorted(set(num_sym_ops), reverse=True)
 
             # ...and decide which ones to keep
             if len(max_symmetries) > self.truncate_by_symmetry:
-                max_symmetries = max_symmetries[0:5]
+                max_symmetries = max_symmetries[:5]
             structs_to_keep = [(idx, num) for idx, num in enumerate(num_sym_ops) if num in max_symmetries]
 
             # sort so that highest symmetry structs are first
             structs_to_keep = sorted(structs_to_keep, key=lambda x: (x[1], -x[0]), reverse=True)
 
             self.logger.info(
-                "Removing {} low symmetry " "ordered structures".format(len(ordered_structures) - len(structs_to_keep))
+                f"Removing {len(ordered_structures) - len(structs_to_keep)} low symmetry ordered structures"
             )
 
-            ordered_structures = [ordered_structures[i] for i, _ in structs_to_keep]
-            ordered_structures_origins = [ordered_structures_origins[i] for i, _ in structs_to_keep]
+            ordered_structures = [ordered_structures[idx] for idx, _struct in structs_to_keep]
+            ordered_structures_origins = [ordered_structures_origins[idx] for idx, _struct in structs_to_keep]
 
             # and ensure fm is always at index 0
             fm_index = ordered_structures_origins.index("fm")
@@ -1086,8 +1032,7 @@ class MagneticStructureEnumerator:
         # if our input structure isn't in our generated structures,
         # let's add it manually and also keep a note of which structure
         # is our input: this is mostly for book-keeping/benchmarking
-        self.input_index = None
-        self.input_origin = None
+        self.input_index = self.input_origin = None
         if self.input_analyzer.ordering != Ordering.NM:
             matches = [self.input_analyzer.matches_ordering(s) for s in ordered_structures]
             if not any(matches):
@@ -1095,21 +1040,23 @@ class MagneticStructureEnumerator:
                 ordered_structures_origins.append("input")
                 self.logger.info("Input structure not present in enumerated structures, adding...")
             else:
-                self.logger.info(
-                    "Input structure was found in enumerated " "structures at index {}".format(matches.index(True))
-                )
+                self.logger.info(f"Input structure was found in enumerated structures at index {matches.index(True)}")
                 self.input_index = matches.index(True)
                 self.input_origin = ordered_structures_origins[self.input_index]
-
-        self.ordered_structures = ordered_structures
-        self.ordered_structure_origins = ordered_structures_origins
+        return ordered_structures, ordered_structures_origins
 
 
-MagneticDeformation = namedtuple("MagneticDeformation", "type deformation")
+class MagneticDeformation(NamedTuple):
+    deformation: float
+    type: str
 
 
+@due.dcite(
+    Doi("10.1021/acs.chemmater.6b04729"),
+    description="A Simple Computational Proxy for Screening Magnetocaloric Compounds",
+)
 def magnetic_deformation(structure_A: Structure, structure_B: Structure) -> MagneticDeformation:
-    """Calculates 'magnetic deformation proxy',
+    """Calculate 'magnetic deformation proxy',
     a measure of deformation (norm of finite strain)
     between 'non-magnetic' (non-spin-polarized) and
     ferromagnetic structures.
@@ -1118,26 +1065,26 @@ def magnetic_deformation(structure_A: Structure, structure_B: Structure) -> Magn
     doi: 10.1021/acs.chemmater.6b04729
 
     Args:
-      structure_A: Structure
-      structure_B: Structure
+        structure_A: Structure
+        structure_B: Structure
 
-    Returns: Magnetic deformation
+    Returns:
+        MagneticDeformation
     """
-
     # retrieve orderings of both input structures
     ordering_a = CollinearMagneticStructureAnalyzer(structure_A, overwrite_magmom_mode="none").ordering
     ordering_b = CollinearMagneticStructureAnalyzer(structure_B, overwrite_magmom_mode="none").ordering
 
     # get a type string, this is either 'NM-FM' for between non-magnetic
     # and ferromagnetic, as in Bocarsly paper, or e.g. 'FM-AFM'
-    type_str = "{}-{}".format(ordering_a.value, ordering_b.value)
+    type_str = f"{ordering_a.value}-{ordering_b.value}"
 
     lattice_a = structure_A.lattice.matrix.T
     lattice_b = structure_B.lattice.matrix.T
     lattice_a_inv = np.linalg.inv(lattice_a)
     p = np.dot(lattice_a_inv, lattice_b)
     eta = 0.5 * (np.dot(p.T, p) - np.identity(3))
-    w, v = np.linalg.eig(eta)
-    deformation = 100 * (1.0 / 3.0) * np.sqrt(w[0] ** 2 + w[1] ** 2 + w[2] ** 2)
+    w, _v = np.linalg.eig(eta)
+    deformation = 100 * (1 / 3) * np.sqrt(w[0] ** 2 + w[1] ** 2 + w[2] ** 2)
 
     return MagneticDeformation(deformation=deformation, type=type_str)

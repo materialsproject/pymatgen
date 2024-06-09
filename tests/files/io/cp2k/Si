@@ -1,0 +1,195 @@
+# Test data file for cp2k
+potentials:
+  21e2f468a18404ff6119fe801da81e43:
+    '@class': GthPotential
+    '@module': pymatgen.io.cp2k.inputs
+    '@version': null
+    alias_names:
+    - GTH-GGA-q4
+    c_exp_ppl:
+    - -6.26927043053227
+    element:
+      '@class': Element
+      '@module': pymatgen.core.periodic_table
+      element: Si
+    filename: POTENTIAL_UZH
+    hprj_ppnl:
+      '0':
+        '0':
+          '0': 8.95185227086162
+          '1': -2.70627090617658
+        '1':
+          '0': 3.49378652994003
+      '1':
+        '0':
+          '0': 2.4312767590505
+    info:
+      '@class': PotentialInfo
+      '@module': pymatgen.io.cp2k.inputs
+      '@version': null
+      electrons: 4
+      nlcc: null
+      potential_type: GTH
+      xc: PBE
+    n_elecs:
+      '0': 2
+      '1': 2
+      '2': 0
+      '3': 0
+    name: GTH-PBE-q4
+    nexp_ppl: 1
+    nprj: 2
+    nprj_ppnl:
+      '0': 2
+      '1': 1
+    potential: Pseudopotential
+    r_loc: 0.43998262317118
+    radii:
+      '0': 0.43563454498612
+      '1': 0.49795764581723
+    version: null
+basis_sets:
+  30767c18f6e7e46c1b56c1d34ff6007d:
+    '@class': GaussianTypeOrbitalBasisSet
+    '@module': pymatgen.io.cp2k.inputs
+    '@version': null
+    alias_names:
+    - SZV-GTH
+    coefficients:
+    - '0':
+        '0':
+          '0': 0.3290356759
+        '1':
+          '0': 0.0474536439
+      '1':
+        '0':
+          '0': -0.2533162616
+        '1':
+          '0': -0.2594495462
+      '2':
+        '0':
+          '0': -0.7870936517
+        '1':
+          '0': -0.5440932235
+      '3':
+        '0':
+          '0': -0.1909870193
+        '1':
+          '0': -0.3623984652
+    element:
+      '@class': Element
+      '@module': pymatgen.core.periodic_table
+      element: Si
+    exponents:
+    - - 1.20324036
+      - 0.468838597
+      - 0.167985391
+      - 0.057561689
+    filename: GTH_BASIS_SETS
+    info:
+      '@class': BasisInfo
+      '@module': pymatgen.io.cp2k.inputs
+      '@version': null
+      admm: false
+      cc: false
+      contracted: null
+      core: null
+      diffuse: 0
+      electrons: 4
+      lri: false
+      molopt: false
+      pc: false
+      polarization: 0
+      sr: false
+      valence: 1
+      xc: null
+    lmax:
+    - 1
+    lmin:
+    - 0
+    n:
+    - 3
+    name: SZV-GTH-q4
+    nset: 1
+    nshell:
+    - '0': 1
+      '1': 1
+    potential: Pseudopotential
+    version: null
+  da9aa03297b93d6b497c19c7def10af0:
+    '@class': GaussianTypeOrbitalBasisSet
+    '@module': pymatgen.io.cp2k.inputs
+    '@version': null
+    alias_names: []
+    coefficients:
+    - '0':
+        '0':
+          '0': 1.0
+    - '0':
+        '0':
+          '0': -2.467978079989986
+      '1':
+        '0':
+          '0': 1.0
+    - '0':
+        '1':
+          '0': 1.0
+    - '0':
+        '1':
+          '0': 1.0
+      '1':
+        '1':
+          '0': -0.03233631711903798
+    element:
+      '@class': Element
+      '@module': pymatgen.core.periodic_table
+      element: Si
+    exponents:
+    - - 0.09648
+    - - 0.24696
+      - 1.27756
+    - - 0.08949
+    - - 0.29563
+      - 2.20247
+    filename: BASIS_ADMM
+    info:
+      '@class': BasisInfo
+      '@module': pymatgen.io.cp2k.inputs
+      '@version': null
+      admm: true
+      cc: false
+      contracted: true
+      core: null
+      diffuse: 0
+      electrons: null
+      lri: false
+      molopt: false
+      pc: false
+      polarization: 0
+      sr: false
+      valence: 3
+      xc: null
+    lmax:
+    - 0
+    - 0
+    - 1
+    - 1
+    lmin:
+    - 0
+    - 0
+    - 1
+    - 1
+    n:
+    - 1
+    - 1
+    - 1
+    - 1
+    name: cFIT3
+    nset: 4
+    nshell:
+    - '0': 1
+    - '0': 1
+    - '1': 1
+    - '1': 1
+    potential: Pseudopotential
+    version: null

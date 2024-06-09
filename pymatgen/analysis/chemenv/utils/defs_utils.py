@@ -1,11 +1,17 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module contains the definition of some objects used in the chemenv package."""
 
+from __future__ import annotations
 
-"""
-This module contains the definition of some objects used in the chemenv package.
-"""
+from typing import TYPE_CHECKING
+
+from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import is_anion_cation_bond
+from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from typing import ClassVar
+
+    from pymatgen.core import Structure
+
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -15,34 +21,30 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import (
-    is_anion_cation_bond,
+"""D. Waroquiers, X. Gonze, G.-M. Rignanese, C. Welker-Nieuwoudt, F. Rosowski,
+M. Goebel, S. Schenk, P. Degelmann, R. Andre, R. Glaum, and G. Hautier,
+"Statistical analysis of coordination environments in oxides",
+Chem. Mater., 2017, 29 (19), pp 8346-8360,
+DOI: 10.1021/acs.chemmater.7b02766
+
+D. Waroquiers, J. George, M. Horton, S. Schenk, K. A. Persson, G.-M. Rignanese, X. Gonze, G. Hautier,
+"ChemEnv: a fast and robust coordination environment identification tool",
+Acta Cryst. B 2020, 76, pp 683-695.
+DOI: 10.1107/S2052520620007994
+"""
+
+due.cite(
+    Doi("10.1021/acs.chemmater.7b02766"),
+    description="Statistical analysis of coordination environments in oxides",
 )
-
-STATS_ENV_PAPER = (
-    "David Waroquiers, Xavier Gonze, Gian-Marco Rignanese, Cathrin Welker-Nieuwoudt, Frank Rosowski,\n"
-    "Michael Goebel, Stephan Schenk, Peter Degelmann, Rute Andre, Robert Glaum, and Geoffroy Hautier,\n"
-    '"Statistical analysis of coordination environments in oxides",\n'
-    "Chem. Mater., 2017, 29 (19), pp 8346-8360,\n"
-    "DOI: 10.1021/acs.chemmater.7b02766\n"
+due.cite(
+    Doi("10.1107/S2052520620007994"),
+    description="ChemEnv: a fast and robust coordination environment identification tool",
 )
-
-
-def chemenv_citations():
-    """
-    :return:
-    """
-    out = ""
-    out += "\nIf you use the ChemEnv tool for your research, please consider citing the following reference(s) :\n"
-    out += "==================================================================================================\n"
-    out += STATS_ENV_PAPER
-    return out
 
 
 class AdditionalConditions:
-    """
-    Class for additional conditions.
-    """
+    """Additional conditions that can be used to filter coordination environments."""
 
     NO_ADDITIONAL_CONDITION = 0
     ONLY_ANION_CATION_BONDS = 1
@@ -57,24 +59,23 @@ class AdditionalConditions:
     ONLY_ACB_AND_NO_E2SEB = ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS
     ONLY_E2OB = ONLY_ELEMENT_TO_OXYGEN_BONDS
     # Dictionary mapping of integer for the condition and its "description"
-    CONDITION_DESCRIPTION = {
+    CONDITION_DESCRIPTION: ClassVar = {
         NO_ADDITIONAL_CONDITION: "No additional condition",
         ONLY_ANION_CATION_BONDS: "Only anion-cation bonds",
         NO_ELEMENT_TO_SAME_ELEMENT_BONDS: "No element-element bonds (same elements)",
         ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS: "Only anion-cation bonds and"
-        " no element-element bonds"
-        " (same elements)",
+        " no element-element bonds (same elements)",
         ONLY_ELEMENT_TO_OXYGEN_BONDS: "Only element-oxygen bonds",
     }
 
-    ALL = [NONE, ONLY_ACB, NO_E2SEB, ONLY_ACB_AND_NO_E2SEB, ONLY_E2OB]
+    ALL = (NONE, ONLY_ACB, NO_E2SEB, ONLY_ACB_AND_NO_E2SEB, ONLY_E2OB)
 
-    def check_condition(self, condition, structure, parameters):
+    def check_condition(self, condition, structure: Structure, parameters):
         """
-        :param condition:
-        :param structure:
-        :param parameters:
-        :return:
+        Args:
+            condition:
+            structure:
+            parameters:
         """
         if condition == self.NONE:
             return True
@@ -86,20 +87,20 @@ class AdditionalConditions:
         if condition == self.NO_E2SEB:
             ii = parameters["site_index"]
             jj = parameters["neighbor_index"]
-            elmts_ii = [sp.symbol for sp in structure[ii].species]
-            elmts_jj = [sp.symbol for sp in structure[jj].species]
-            return len(set(elmts_ii) & set(elmts_jj)) == 0
+            elems_ii = [sp.symbol for sp in structure[ii].species]
+            elems_jj = [sp.symbol for sp in structure[jj].species]
+            return len(set(elems_ii) & set(elems_jj)) == 0
         if condition == self.ONLY_ACB_AND_NO_E2SEB:
             valences = parameters["valences"]
             ii = parameters["site_index"]
             jj = parameters["neighbor_index"]
-            elmts_ii = [sp.symbol for sp in structure[ii].species]
-            elmts_jj = [sp.symbol for sp in structure[jj].species]
-            return len(set(elmts_ii) & set(elmts_jj)) == 0 and is_anion_cation_bond(valences, ii, jj)
+            elems_ii = [sp.symbol for sp in structure[ii].species]
+            elems_jj = [sp.symbol for sp in structure[jj].species]
+            return len(set(elems_ii) & set(elems_jj)) == 0 and is_anion_cation_bond(valences, ii, jj)
         if condition == self.ONLY_E2OB:
             ii = parameters["site_index"]
             jj = parameters["neighbor_index"]
-            elmts_ii = [sp.symbol for sp in structure[ii].species]
-            elmts_jj = [sp.symbol for sp in structure[jj].species]
-            return ("O" in elmts_jj and "O" not in elmts_ii) or ("O" in elmts_ii and "O" not in elmts_jj)
+            elems_ii = [sp.symbol for sp in structure[ii].species]
+            elems_jj = [sp.symbol for sp in structure[jj].species]
+            return ("O" in elems_jj and "O" not in elems_ii) or ("O" in elems_ii and "O" not in elems_jj)
         return None

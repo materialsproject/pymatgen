@@ -3,9 +3,9 @@ dftd2:
     IVDW: 1
 dftd3:
     IVDW: 11
-dftd3-bj: 
+dftd3-bj:
     IVDW: 12
-ts: 
+ts:
     IVDW: 2
 ts-hirshfeld:
     IVDW: 21
@@ -21,7 +21,7 @@ optpbe:
     LUSE_VDW: True
     AGGAC: 0.0
     GGA: OR
-optb88: 
+optb88:
     LUSE_VDW: True
     AGGAC: 0.0
     GGA: BO

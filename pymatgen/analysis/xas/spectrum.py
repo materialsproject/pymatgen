@@ -1,13 +1,10 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
+"""This module defines classes to represent all xas and stitching methods."""
 
-"""
-This module defines classes to represent all xas and stitching methods
-"""
+from __future__ import annotations
+
 import math
 import warnings
-from typing import List
+from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.interpolate import interp1d
@@ -15,6 +12,9 @@ from scipy.interpolate import interp1d
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
+if TYPE_CHECKING:
+    from typing import Literal
 
 __author__ = "Chen Zheng, Yiming Chen"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -36,30 +36,16 @@ class XAS(Spectrum):
         edge (str): Absorption edge associated with the spectrum
         spectrum_type (str): 'XANES' or 'EXAFS'
         absorbing_index (None or int): If None, the spectrum is assumed to be a
-         site-weighted spectrum, which is comparable to experimental one.
-         Otherwise, it indicates that the absorbing_index for a site-wise spectrum.
+            site-weighted spectrum, which is comparable to experimental one.
+            Otherwise, it indicates that the absorbing_index for a site-wise spectrum.
 
-
-    .. attribute: x
-        The sequence of energies
-
-    .. attribute: y
-        The sequence of mu(E)
-
-    .. attribute: absorbing_element
-        The absorbing_element of the spectrum
-
-    .. attribute: edge
-        The edge of the spectrum
-
-    .. attribute: spectrum_type
-        XANES or EXAFS spectrum
-
-    .. attribute: absorbing_index
-        The absorbing_index of the spectrum
-
-
-
+    Attributes:
+        x (Sequence[float]): The sequence of energies.
+        y (Sequence[float]): The sequence of mu(E).
+        absorbing_element (str): The absorbing element of the spectrum.
+        edge (str): The edge of the spectrum.
+        spectrum_type (str): The type of the spectrum (XANES or EXAFS).
+        absorbing_index (int): The absorbing index of the spectrum.
     """
 
     XLABEL = "Energy"
@@ -75,10 +61,7 @@ class XAS(Spectrum):
         spectrum_type="XANES",
         absorbing_index=None,
     ):
-        """
-        Initializes a spectrum object.
-        """
-
+        """Initialize a spectrum object."""
         super().__init__(x, y, structure, absorbing_element, edge)
         self.structure = structure
         self.absorbing_element = absorbing_element
@@ -91,20 +74,16 @@ class XAS(Spectrum):
         self.absorbing_index = absorbing_index
         # check for empty spectra and negative intensities
         if sum(1 for i in self.y if i <= 0) / len(self.y) > 0.05:
-            raise ValueError("Please double check the intensities. " "Most of them are non-positive values. ")
+            raise ValueError("Double check the intensities. Most of them are non-positive.")
 
     def __str__(self):
-        return "%s %s Edge %s for %s: %s" % (
-            self.absorbing_element,
-            self.edge,
-            self.spectrum_type,
-            self.structure.composition.reduced_formula,
-            super().__str__(),
+        return (
+            f"{self.absorbing_element} {self.edge} Edge {self.spectrum_type} "
+            f"for {self.structure.reduced_formula}: {super()}"
         )
 
-    def stitch(self, other: "XAS", num_samples: int = 500, mode: str = "XAFS") -> "XAS":
-        """
-        Stitch XAS objects to get the full XAFS spectrum or L23 edge XANES
+    def stitch(self, other: XAS, num_samples: int = 500, mode: Literal["XAFS", "L23"] = "XAFS") -> XAS:
+        """Stitch XAS objects to get the full XAFS spectrum or L23 edge XANES
         spectrum depending on the mode.
 
         1. Use XAFS mode for stitching XANES and EXAFS with same absorption edge.
@@ -119,15 +98,15 @@ class XAS(Spectrum):
 
         Args:
             other: Another XAS object.
-            num_samples(int): Number of samples for interpolation.
-            mode(str): Either XAFS mode for stitching XANES and EXAFS
-                        or L23 mode for stitching L2 and L3.
+            num_samples (int): Number of samples for interpolation.
+            mode("XAFS" | "L23"): Either XAFS mode for stitching XANES and EXAFS
+                or L23 mode for stitching L2 and L3.
 
         Returns:
             XAS object: The stitched spectrum.
         """
-        m = StructureMatcher()
-        if not m.fit(self.structure, other.structure):
+        matcher = StructureMatcher()
+        if not matcher.fit(self.structure, other.structure):
             raise ValueError("The input structures for spectra mismatch")
         if not self.absorbing_element == other.absorbing_element:
             raise ValueError("The absorbing elements for spectra are different")
@@ -136,9 +115,9 @@ class XAS(Spectrum):
 
         if mode == "XAFS":
             if not self.edge == other.edge:
-                raise ValueError("Only spectrum with the same absorption " "edge can be stitched in XAFS mode.")
+                raise ValueError("Only spectrum with the same absorption edge can be stitched in XAFS mode.")
             if self.spectrum_type == other.spectrum_type:
-                raise ValueError("Need one XANES and one EXAFS spectrum to " "stitch in XAFS mode")
+                raise ValueError("Need one XANES and one EXAFS spectrum to stitch in XAFS mode")
 
             xanes = self if self.spectrum_type == "XANES" else other
             exafs = self if self.spectrum_type == "EXAFS" else other
@@ -146,13 +125,14 @@ class XAS(Spectrum):
                 raise ValueError("Energy overlap between XANES and EXAFS is needed for stitching")
 
             # for k <= 3
-            wavenumber, mu = [], []  # type: List[float],  List[float]
+            wavenumber: list[float] = []
+            mu: list[float] = []
             idx = xanes.k.index(min(self.k, key=lambda x: (abs(x - 3), x)))
             mu.extend(xanes.y[:idx])
             wavenumber.extend(xanes.k[:idx])
 
             # for 3 < k < max(xanes.k)
-            fs = []  # type: List[float]
+            fs: list[float] = []
             ks = np.linspace(3, max(xanes.k), 50)
             for k in ks:
                 f = np.cos((math.pi / 2) * (k - 3) / (max(xanes.k) - 3)) ** 2
@@ -184,9 +164,7 @@ class XAS(Spectrum):
             f_final = interp1d(np.asarray(wavenumber), np.asarray(mu), bounds_error=False, fill_value=0)
             wavenumber_final = np.linspace(min(wavenumber), max(wavenumber), num=num_samples)
             mu_final = f_final(wavenumber_final)
-            energy_final = [
-                3.8537 * i ** 2 + xanes.e0 if i > 0 else -3.8537 * i ** 2 + xanes.e0 for i in wavenumber_final
-            ]
+            energy_final = [3.8537 * i**2 + xanes.e0 if i > 0 else -3.8537 * i**2 + xanes.e0 for i in wavenumber_final]
 
             return XAS(
                 energy_final,
@@ -199,13 +177,13 @@ class XAS(Spectrum):
 
         if mode == "L23":
             if self.spectrum_type != "XANES" or other.spectrum_type != "XANES":
-                raise ValueError("Only XANES spectrum can be stitched in " "L23 mode.")
+                raise ValueError("Only XANES spectrum can be stitched in L23 mode.")
             if self.edge not in ["L2", "L3"] or other.edge not in ["L2", "L3"] or self.edge == other.edge:
-                raise ValueError("Need one L2 and one L3 edge spectrum to stitch" "in L23 mode.")
+                raise ValueError("Need one L2 and one L3 edge spectrum to stitch in L23 mode.")
             l2_xanes = self if self.edge == "L2" else other
             l3_xanes = self if self.edge == "L3" else other
             if l2_xanes.absorbing_element.number > 30:
-                raise ValueError("Does not support L2,3-edge XANES for {} element".format(l2_xanes.absorbing_element))
+                raise ValueError(f"Does not support L2,3-edge XANES for {l2_xanes.absorbing_element} element")
 
             l2_f = interp1d(
                 l2_xanes.x,
@@ -216,12 +194,12 @@ class XAS(Spectrum):
             )
             l3_f = interp1d(l3_xanes.x, l3_xanes.y, bounds_error=True, fill_value=0, kind="cubic")
             energy = list(np.linspace(min(l3_xanes.x), max(l3_xanes.x), num=num_samples))
-            mu = [i + j for i, j in zip([0 if i < 0 else i for i in l2_f(energy)], l3_f(energy))]
+            mu = [i + j for i, j in zip([max(i, 0) for i in l2_f(energy)], l3_f(energy))]
             # check for jumps at the onset of L2-edge XANES
             idx = energy.index(min(energy, key=lambda x: (abs(x - l2_xanes.x[0]))))
             if abs(mu[idx] - mu[idx - 1]) / (mu[idx - 1]) > 0.1:
                 warnings.warn(
-                    "There might exist a jump at the L2 and " "L3-edge junction.",
+                    "There might exist a jump at the L2 and L3-edge junction.",
                     UserWarning,
                 )
 
@@ -230,7 +208,7 @@ class XAS(Spectrum):
         raise ValueError("Invalid mode. Only XAFS and L23 are supported.")
 
 
-def site_weighted_spectrum(xas_list: List["XAS"], num_samples: int = 500) -> "XAS":
+def site_weighted_spectrum(xas_list: list[XAS], num_samples: int = 500) -> XAS:
     """
     Obtain site-weighted XAS object based on site multiplicity for each
     absorbing index and its corresponding site-wise spectrum.
@@ -242,22 +220,23 @@ def site_weighted_spectrum(xas_list: List["XAS"], num_samples: int = 500) -> "XA
     Returns:
         XAS object: The site-weighted spectrum
     """
-    m = StructureMatcher()
-    groups = m.group_structures([i.structure for i in xas_list])
+    matcher = StructureMatcher()
+    groups = matcher.group_structures([i.structure for i in xas_list])
     if len(groups) > 1:
         raise ValueError("The input structures mismatch")
     if not len({i.absorbing_element for i in xas_list}) == len({i.edge for i in xas_list}) == 1:
         raise ValueError(
-            "Can only perform site-weighting for spectra with " "same absorbing element and same absorbing edge."
+            "Can only perform site-weighting for spectra with same absorbing element and same absorbing edge."
         )
     if len({i.absorbing_index for i in xas_list}) == 1 or None in {i.absorbing_index for i in xas_list}:
-        raise ValueError("Need at least two site-wise spectra to perform " "site-weighting")
+        raise ValueError("Need at least two site-wise spectra to perform site-weighting")
 
     sa = SpacegroupAnalyzer(groups[0][0])
     ss = sa.get_symmetrized_structure()
     maxes, mines = [], []
     fs = []
     multiplicities = []
+    xas = None
 
     for xas in xas_list:
         multiplicity = len(ss.find_equivalent_sites(ss[xas.absorbing_index]))

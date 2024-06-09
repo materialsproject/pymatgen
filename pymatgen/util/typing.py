@@ -1,17 +1,57 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-"""
-This module defines convenience types for type hinting purposes.
+"""This module defines convenience types for type hinting purposes.
 Type hinting is new to pymatgen, so this module is subject to
 change until best practices are established.
 """
 
-from pathlib import Path
-from typing import Union, Sequence
+from __future__ import annotations
 
-import numpy as np
+from collections.abc import Sequence
+from os import PathLike as OsPathLike
+from typing import TYPE_CHECKING, Any, Union
 
-Vector3Like = Union[Sequence[float], np.ndarray]
-PathLike = Union[str, Path]
+from pymatgen.core import Composition, DummySpecies, Element, Species
+
+if TYPE_CHECKING:  # needed to avoid circular imports
+    from pymatgen.analysis.cost import CostEntry  # type: ignore[attr-defined]
+    from pymatgen.analysis.phase_diagram import GrandPotPDEntry, PDEntry, TransformedPDEntry
+    from pymatgen.entries import Entry
+    from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry, GibbsComputedStructureEntry
+    from pymatgen.entries.exp_entries import ExpEntry
+
+# Commonly used composite types
+Tuple3Ints = tuple[int, int, int]
+Tuple3Floats = tuple[float, float, float]
+
+PathLike = Union[str, OsPathLike]
+PbcLike = tuple[bool, bool, bool]
+
+# Things that can be cast to a Species-like object using get_el_sp
+SpeciesLike = Union[str, Element, Species, DummySpecies]
+
+# Things that can be cast to a Composition
+CompositionLike = Union[str, Element, Species, DummySpecies, dict, Composition]
+
+# Entry or any of its subclasses or dicts that can be unpacked into any of them
+EntryLike = Union[
+    dict[str, Any],
+    "Entry",
+    "PDEntry",
+    "ComputedEntry",
+    "ComputedStructureEntry",
+    "ExpEntry",
+    "TransformedPDEntry",
+    "GrandPotPDEntry",
+    "CostEntry",
+    "GibbsComputedStructureEntry",
+]
+
+Vector3D = Tuple3Floats
+Matrix3D = tuple[Vector3D, Vector3D, Vector3D]
+
+SitePropsType = Union[list[dict[Any, Sequence[Any]]], dict[Any, Sequence[Any]]]
+
+# Types specific to io.vasp
+Kpoint = Union[Tuple3Floats, tuple[int,]]
+
+# Miller index
+MillerIndex = Tuple3Ints

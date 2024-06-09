@@ -9,13 +9,13 @@
   Quantity                                                       Value                 Uncertainty           Unit
 -----------------------------------------------------------------------------------------------------------------------------
 {220} lattice spacing of silicon                            192.015 5714 e-12        0.000 0032 e-12          m
-alpha particle-electron mass ratio                          7294.299 5361            0.000 0029               
+alpha particle-electron mass ratio                          7294.299 5361            0.000 0029
 alpha particle mass                                         6.644 656 75 e-27        0.000 000 29 e-27        kg
 alpha particle mass energy equivalent                       5.971 919 67 e-10        0.000 000 26 e-10        J
 alpha particle mass energy equivalent in MeV                3727.379 240             0.000 082                MeV
 alpha particle mass in u                                    4.001 506 179 125        0.000 000 000 062        u
 alpha particle molar mass                                   4.001 506 179 125 e-3    0.000 000 000 062 e-3    kg mol^-1
-alpha particle-proton mass ratio                            3.972 599 689 33         0.000 000 000 36         
+alpha particle-proton mass ratio                            3.972 599 689 33         0.000 000 000 36
 Angstrom star                                               1.000 014 95 e-10        0.000 000 90 e-10        m
 atomic mass constant                                        1.660 538 921 e-27       0.000 000 073 e-27       kg
 atomic mass constant energy equivalent                      1.492 417 954 e-10       0.000 000 066 e-10       J
@@ -69,49 +69,49 @@ conductance quantum                                         7.748 091 7346 e-5  
 conventional value of Josephson constant                    483 597.9 e9             (exact)                  Hz V^-1
 conventional value of von Klitzing constant                 25 812.807               (exact)                  ohm
 Cu x unit                                                   1.002 076 97 e-13        0.000 000 28 e-13        m
-deuteron-electron mag. mom. ratio                           -4.664 345 537 e-4       0.000 000 039 e-4        
-deuteron-electron mass ratio                                3670.482 9652            0.000 0015               
-deuteron g factor                                           0.857 438 2308           0.000 000 0072           
+deuteron-electron mag. mom. ratio                           -4.664 345 537 e-4       0.000 000 039 e-4
+deuteron-electron mass ratio                                3670.482 9652            0.000 0015
+deuteron g factor                                           0.857 438 2308           0.000 000 0072
 deuteron mag. mom.                                          0.433 073 489 e-26       0.000 000 010 e-26       J T^-1
-deuteron mag. mom. to Bohr magneton ratio                   0.466 975 4556 e-3       0.000 000 0039 e-3       
-deuteron mag. mom. to nuclear magneton ratio                0.857 438 2308           0.000 000 0072           
+deuteron mag. mom. to Bohr magneton ratio                   0.466 975 4556 e-3       0.000 000 0039 e-3
+deuteron mag. mom. to nuclear magneton ratio                0.857 438 2308           0.000 000 0072
 deuteron mass                                               3.343 583 48 e-27        0.000 000 15 e-27        kg
 deuteron mass energy equivalent                             3.005 062 97 e-10        0.000 000 13 e-10        J
 deuteron mass energy equivalent in MeV                      1875.612 859             0.000 041                MeV
 deuteron mass in u                                          2.013 553 212 712        0.000 000 000 077        u
 deuteron molar mass                                         2.013 553 212 712 e-3    0.000 000 000 077 e-3    kg mol^-1
-deuteron-neutron mag. mom. ratio                            -0.448 206 52            0.000 000 11             
-deuteron-proton mag. mom. ratio                             0.307 012 2070           0.000 000 0024           
-deuteron-proton mass ratio                                  1.999 007 500 97         0.000 000 000 18         
+deuteron-neutron mag. mom. ratio                            -0.448 206 52            0.000 000 11
+deuteron-proton mag. mom. ratio                             0.307 012 2070           0.000 000 0024
+deuteron-proton mass ratio                                  1.999 007 500 97         0.000 000 000 18
 deuteron rms charge radius                                  2.1424 e-15              0.0021 e-15              m
 electric constant                                           8.854 187 817... e-12    (exact)                  F m^-1
 electron charge to mass quotient                            -1.758 820 088 e11       0.000 000 039 e11        C kg^-1
-electron-deuteron mag. mom. ratio                           -2143.923 498            0.000 018                
-electron-deuteron mass ratio                                2.724 437 1095 e-4       0.000 000 0011 e-4       
-electron g factor                                           -2.002 319 304 361 53    0.000 000 000 000 53     
+electron-deuteron mag. mom. ratio                           -2143.923 498            0.000 018
+electron-deuteron mass ratio                                2.724 437 1095 e-4       0.000 000 0011 e-4
+electron g factor                                           -2.002 319 304 361 53    0.000 000 000 000 53
 electron gyromag. ratio                                     1.760 859 708 e11        0.000 000 039 e11        s^-1 T^-1
 electron gyromag. ratio over 2 pi                           28 024.952 66            0.000 62                 MHz T^-1
-electron-helion mass ratio                                  1.819 543 0761 e-4       0.000 000 0017 e-4       
+electron-helion mass ratio                                  1.819 543 0761 e-4       0.000 000 0017 e-4
 electron mag. mom.                                          -928.476 430 e-26        0.000 021 e-26           J T^-1
-electron mag. mom. anomaly                                  1.159 652 180 76 e-3     0.000 000 000 27 e-3     
-electron mag. mom. to Bohr magneton ratio                   -1.001 159 652 180 76    0.000 000 000 000 27     
-electron mag. mom. to nuclear magneton ratio                -1838.281 970 90         0.000 000 75             
+electron mag. mom. anomaly                                  1.159 652 180 76 e-3     0.000 000 000 27 e-3
+electron mag. mom. to Bohr magneton ratio                   -1.001 159 652 180 76    0.000 000 000 000 27
+electron mag. mom. to nuclear magneton ratio                -1838.281 970 90         0.000 000 75
 electron mass                                               9.109 382 91 e-31        0.000 000 40 e-31        kg
 electron mass energy equivalent                             8.187 105 06 e-14        0.000 000 36 e-14        J
 electron mass energy equivalent in MeV                      0.510 998 928            0.000 000 011            MeV
 electron mass in u                                          5.485 799 0946 e-4       0.000 000 0022 e-4       u
 electron molar mass                                         5.485 799 0946 e-7       0.000 000 0022 e-7       kg mol^-1
-electron-muon mag. mom. ratio                               206.766 9896             0.000 0052               
-electron-muon mass ratio                                    4.836 331 66 e-3         0.000 000 12 e-3         
-electron-neutron mag. mom. ratio                            960.920 50               0.000 23                 
-electron-neutron mass ratio                                 5.438 673 4461 e-4       0.000 000 0032 e-4       
-electron-proton mag. mom. ratio                             -658.210 6848            0.000 0054               
-electron-proton mass ratio                                  5.446 170 2178 e-4       0.000 000 0022 e-4       
-electron-tau mass ratio                                     2.875 92 e-4             0.000 26 e-4             
-electron to alpha particle mass ratio                       1.370 933 555 78 e-4     0.000 000 000 55 e-4     
-electron to shielded helion mag. mom. ratio                 864.058 257              0.000 010                
-electron to shielded proton mag. mom. ratio                 -658.227 5971            0.000 0072               
-electron-triton mass ratio                                  1.819 200 0653 e-4       0.000 000 0017 e-4       
+electron-muon mag. mom. ratio                               206.766 9896             0.000 0052
+electron-muon mass ratio                                    4.836 331 66 e-3         0.000 000 12 e-3
+electron-neutron mag. mom. ratio                            960.920 50               0.000 23
+electron-neutron mass ratio                                 5.438 673 4461 e-4       0.000 000 0032 e-4
+electron-proton mag. mom. ratio                             -658.210 6848            0.000 0054
+electron-proton mass ratio                                  5.446 170 2178 e-4       0.000 000 0022 e-4
+electron-tau mass ratio                                     2.875 92 e-4             0.000 26 e-4
+electron to alpha particle mass ratio                       1.370 933 555 78 e-4     0.000 000 000 55 e-4
+electron to shielded helion mag. mom. ratio                 864.058 257              0.000 010
+electron to shielded proton mag. mom. ratio                 -658.227 5971            0.000 0072
+electron-triton mass ratio                                  1.819 200 0653 e-4       0.000 000 0017 e-4
 electron volt                                               1.602 176 565 e-19       0.000 000 035 e-19       J
 electron volt-atomic mass unit relationship                 1.073 544 150 e-9        0.000 000 024 e-9        u
 electron volt-hartree relationship                          3.674 932 379 e-2        0.000 000 081 e-2        E_h
@@ -125,7 +125,7 @@ elementary charge over h                                    2.417 989 348 e14   
 Faraday constant                                            96 485.3365              0.0021                   C mol^-1
 Faraday constant for conventional electric current          96 485.3321              0.0043                   C_90 mol^-1
 Fermi coupling constant                                     1.166 364 e-5            0.000 005 e-5            GeV^-2
-fine-structure constant                                     7.297 352 5698 e-3       0.000 000 0024 e-3       
+fine-structure constant                                     7.297 352 5698 e-3       0.000 000 0024 e-3
 first radiation constant                                    3.741 771 53 e-16        0.000 000 17 e-16        W m^2
 first radiation constant for spectral radiance              1.191 042 869 e-16       0.000 000 053 e-16       W m^2 sr^-1
 hartree-atomic mass unit relationship                       2.921 262 3246 e-8       0.000 000 0021 e-8       u
@@ -137,17 +137,17 @@ hartree-inverse meter relationship                          2.194 746 313 708 e7
 hartree-joule relationship                                  4.359 744 34 e-18        0.000 000 19 e-18        J
 hartree-kelvin relationship                                 3.157 7504 e5            0.000 0029 e5            K
 hartree-kilogram relationship                               4.850 869 79 e-35        0.000 000 21 e-35        kg
-helion-electron mass ratio                                  5495.885 2754            0.000 0050               
-helion g factor                                             -4.255 250 613           0.000 000 050            
+helion-electron mass ratio                                  5495.885 2754            0.000 0050
+helion g factor                                             -4.255 250 613           0.000 000 050
 helion mag. mom.                                            -1.074 617 486 e-26      0.000 000 027 e-26       J T^-1
-helion mag. mom. to Bohr magneton ratio                     -1.158 740 958 e-3       0.000 000 014 e-3        
-helion mag. mom. to nuclear magneton ratio                  -2.127 625 306           0.000 000 025            
+helion mag. mom. to Bohr magneton ratio                     -1.158 740 958 e-3       0.000 000 014 e-3
+helion mag. mom. to nuclear magneton ratio                  -2.127 625 306           0.000 000 025
 helion mass                                                 5.006 412 34 e-27        0.000 000 22 e-27        kg
 helion mass energy equivalent                               4.499 539 02 e-10        0.000 000 20 e-10        J
 helion mass energy equivalent in MeV                        2808.391 482             0.000 062                MeV
 helion mass in u                                            3.014 932 2468           0.000 000 0025           u
 helion molar mass                                           3.014 932 2468 e-3       0.000 000 0025 e-3       kg mol^-1
-helion-proton mass ratio                                    2.993 152 6707           0.000 000 0025           
+helion-proton mass ratio                                    2.993 152 6707           0.000 000 0025
 hertz-atomic mass unit relationship                         4.439 821 6689 e-24      0.000 000 0031 e-24      u
 hertz-electron volt relationship                            4.135 667 516 e-15       0.000 000 091 e-15       eV
 hertz-hartree relationship                                  1.519 829 846 0045 e-16  0.000 000 000 0076 e-16  E_h
@@ -155,7 +155,7 @@ hertz-inverse meter relationship                            3.335 640 951... e-9
 hertz-joule relationship                                    6.626 069 57 e-34        0.000 000 29 e-34        J
 hertz-kelvin relationship                                   4.799 2434 e-11          0.000 0044 e-11          K
 hertz-kilogram relationship                                 7.372 496 68 e-51        0.000 000 33 e-51        kg
-inverse fine-structure constant                             137.035 999 074          0.000 000 044            
+inverse fine-structure constant                             137.035 999 074          0.000 000 044
 inverse meter-atomic mass unit relationship                 1.331 025 051 20 e-15    0.000 000 000 94 e-15    u
 inverse meter-electron volt relationship                    1.239 841 930 e-6        0.000 000 027 e-6        eV
 inverse meter-hartree relationship                          4.556 335 252 755 e-8    0.000 000 000 023 e-8    E_h
@@ -202,21 +202,21 @@ molar volume of silicon                                     12.058 833 01 e-6   
 Mo x unit                                                   1.002 099 52 e-13        0.000 000 53 e-13        m
 muon Compton wavelength                                     11.734 441 03 e-15       0.000 000 30 e-15        m
 muon Compton wavelength over 2 pi                           1.867 594 294 e-15       0.000 000 047 e-15       m
-muon-electron mass ratio                                    206.768 2843             0.000 0052               
-muon g factor                                               -2.002 331 8418          0.000 000 0013           
+muon-electron mass ratio                                    206.768 2843             0.000 0052
+muon g factor                                               -2.002 331 8418          0.000 000 0013
 muon mag. mom.                                              -4.490 448 07 e-26       0.000 000 15 e-26        J T^-1
-muon mag. mom. anomaly                                      1.165 920 91 e-3         0.000 000 63 e-3         
-muon mag. mom. to Bohr magneton ratio                       -4.841 970 44 e-3        0.000 000 12 e-3         
-muon mag. mom. to nuclear magneton ratio                    -8.890 596 97            0.000 000 22             
+muon mag. mom. anomaly                                      1.165 920 91 e-3         0.000 000 63 e-3
+muon mag. mom. to Bohr magneton ratio                       -4.841 970 44 e-3        0.000 000 12 e-3
+muon mag. mom. to nuclear magneton ratio                    -8.890 596 97            0.000 000 22
 muon mass                                                   1.883 531 475 e-28       0.000 000 096 e-28       kg
 muon mass energy equivalent                                 1.692 833 667 e-11       0.000 000 086 e-11       J
 muon mass energy equivalent in MeV                          105.658 3715             0.000 0035               MeV
 muon mass in u                                              0.113 428 9267           0.000 000 0029           u
 muon molar mass                                             0.113 428 9267 e-3       0.000 000 0029 e-3       kg mol^-1
-muon-neutron mass ratio                                     0.112 454 5177           0.000 000 0028           
-muon-proton mag. mom. ratio                                 -3.183 345 107           0.000 000 084            
-muon-proton mass ratio                                      0.112 609 5272           0.000 000 0028           
-muon-tau mass ratio                                         5.946 49 e-2             0.000 54 e-2             
+muon-neutron mass ratio                                     0.112 454 5177           0.000 000 0028
+muon-proton mag. mom. ratio                                 -3.183 345 107           0.000 000 084
+muon-proton mass ratio                                      0.112 609 5272           0.000 000 0028
+muon-tau mass ratio                                         5.946 49 e-2             0.000 54 e-2
 natural unit of action                                      1.054 571 726 e-34       0.000 000 047 e-34       J s
 natural unit of action in eV s                              6.582 119 28 e-16        0.000 000 15 e-16        eV s
 natural unit of energy                                      8.187 105 06 e-14        0.000 000 36 e-14        J
@@ -229,28 +229,28 @@ natural unit of time                                        1.288 088 668 33 e-2
 natural unit of velocity                                    299 792 458              (exact)                  m s^-1
 neutron Compton wavelength                                  1.319 590 9068 e-15      0.000 000 0011 e-15      m
 neutron Compton wavelength over 2 pi                        0.210 019 415 68 e-15    0.000 000 000 17 e-15    m
-neutron-electron mag. mom. ratio                            1.040 668 82 e-3         0.000 000 25 e-3         
-neutron-electron mass ratio                                 1838.683 6605            0.000 0011               
-neutron g factor                                            -3.826 085 45            0.000 000 90             
+neutron-electron mag. mom. ratio                            1.040 668 82 e-3         0.000 000 25 e-3
+neutron-electron mass ratio                                 1838.683 6605            0.000 0011
+neutron g factor                                            -3.826 085 45            0.000 000 90
 neutron gyromag. ratio                                      1.832 471 79 e8          0.000 000 43 e8          s^-1 T^-1
 neutron gyromag. ratio over 2 pi                            29.164 6943              0.000 0069               MHz T^-1
 neutron mag. mom.                                           -0.966 236 47 e-26       0.000 000 23 e-26        J T^-1
-neutron mag. mom. to Bohr magneton ratio                    -1.041 875 63 e-3        0.000 000 25 e-3         
-neutron mag. mom. to nuclear magneton ratio                 -1.913 042 72            0.000 000 45             
+neutron mag. mom. to Bohr magneton ratio                    -1.041 875 63 e-3        0.000 000 25 e-3
+neutron mag. mom. to nuclear magneton ratio                 -1.913 042 72            0.000 000 45
 neutron mass                                                1.674 927 351 e-27       0.000 000 074 e-27       kg
 neutron mass energy equivalent                              1.505 349 631 e-10       0.000 000 066 e-10       J
 neutron mass energy equivalent in MeV                       939.565 379              0.000 021                MeV
 neutron mass in u                                           1.008 664 916 00         0.000 000 000 43         u
 neutron molar mass                                          1.008 664 916 00 e-3     0.000 000 000 43 e-3     kg mol^-1
-neutron-muon mass ratio                                     8.892 484 00             0.000 000 22             
-neutron-proton mag. mom. ratio                              -0.684 979 34            0.000 000 16             
-neutron-proton mass difference                              2.305 573 92 e-30        0.000 000 76 e-30        
-neutron-proton mass difference energy equivalent            2.072 146 50 e-13        0.000 000 68 e-13        
-neutron-proton mass difference energy equivalent in MeV     1.293 332 17             0.000 000 42             
-neutron-proton mass difference in u                         0.001 388 449 19         0.000 000 000 45         
-neutron-proton mass ratio                                   1.001 378 419 17         0.000 000 000 45         
-neutron-tau mass ratio                                      0.528 790                0.000 048                
-neutron to shielded proton mag. mom. ratio                  -0.684 996 94            0.000 000 16             
+neutron-muon mass ratio                                     8.892 484 00             0.000 000 22
+neutron-proton mag. mom. ratio                              -0.684 979 34            0.000 000 16
+neutron-proton mass difference                              2.305 573 92 e-30        0.000 000 76 e-30
+neutron-proton mass difference energy equivalent            2.072 146 50 e-13        0.000 000 68 e-13
+neutron-proton mass difference energy equivalent in MeV     1.293 332 17             0.000 000 42
+neutron-proton mass difference in u                         0.001 388 449 19         0.000 000 000 45
+neutron-proton mass ratio                                   1.001 378 419 17         0.000 000 000 45
+neutron-tau mass ratio                                      0.528 790                0.000 048
+neutron to shielded proton mag. mom. ratio                  -0.684 996 94            0.000 000 16
 Newtonian constant of gravitation                           6.673 84 e-11            0.000 80 e-11            m^3 kg^-1 s^-2
 Newtonian constant of gravitation over h-bar c              6.708 37 e-39            0.000 80 e-39            (GeV/c^2)^-2
 nuclear magneton                                            5.050 783 53 e-27        0.000 000 11 e-27        J T^-1
@@ -271,45 +271,45 @@ Planck time                                                 5.391 06 e-44       
 proton charge to mass quotient                              9.578 833 58 e7          0.000 000 21 e7          C kg^-1
 proton Compton wavelength                                   1.321 409 856 23 e-15    0.000 000 000 94 e-15    m
 proton Compton wavelength over 2 pi                         0.210 308 910 47 e-15    0.000 000 000 15 e-15    m
-proton-electron mass ratio                                  1836.152 672 45          0.000 000 75             
-proton g factor                                             5.585 694 713            0.000 000 046            
+proton-electron mass ratio                                  1836.152 672 45          0.000 000 75
+proton g factor                                             5.585 694 713            0.000 000 046
 proton gyromag. ratio                                       2.675 222 005 e8         0.000 000 063 e8         s^-1 T^-1
 proton gyromag. ratio over 2 pi                             42.577 4806              0.000 0010               MHz T^-1
 proton mag. mom.                                            1.410 606 743 e-26       0.000 000 033 e-26       J T^-1
-proton mag. mom. to Bohr magneton ratio                     1.521 032 210 e-3        0.000 000 012 e-3        
-proton mag. mom. to nuclear magneton ratio                  2.792 847 356            0.000 000 023            
-proton mag. shielding correction                            25.694 e-6               0.014 e-6                
+proton mag. mom. to Bohr magneton ratio                     1.521 032 210 e-3        0.000 000 012 e-3
+proton mag. mom. to nuclear magneton ratio                  2.792 847 356            0.000 000 023
+proton mag. shielding correction                            25.694 e-6               0.014 e-6
 proton mass                                                 1.672 621 777 e-27       0.000 000 074 e-27       kg
 proton mass energy equivalent                               1.503 277 484 e-10       0.000 000 066 e-10       J
 proton mass energy equivalent in MeV                        938.272 046              0.000 021                MeV
 proton mass in u                                            1.007 276 466 812        0.000 000 000 090        u
 proton molar mass                                           1.007 276 466 812 e-3    0.000 000 000 090 e-3    kg mol^-1
-proton-muon mass ratio                                      8.880 243 31             0.000 000 22             
-proton-neutron mag. mom. ratio                              -1.459 898 06            0.000 000 34             
-proton-neutron mass ratio                                   0.998 623 478 26         0.000 000 000 45         
+proton-muon mass ratio                                      8.880 243 31             0.000 000 22
+proton-neutron mag. mom. ratio                              -1.459 898 06            0.000 000 34
+proton-neutron mass ratio                                   0.998 623 478 26         0.000 000 000 45
 proton rms charge radius                                    0.8775 e-15              0.0051 e-15              m
-proton-tau mass ratio                                       0.528 063                0.000 048                
+proton-tau mass ratio                                       0.528 063                0.000 048
 quantum of circulation                                      3.636 947 5520 e-4       0.000 000 0024 e-4       m^2 s^-1
 quantum of circulation times 2                              7.273 895 1040 e-4       0.000 000 0047 e-4       m^2 s^-1
 Rydberg constant                                            10 973 731.568 539       0.000 055                m^-1
 Rydberg constant times c in Hz                              3.289 841 960 364 e15    0.000 000 000 017 e15    Hz
 Rydberg constant times hc in eV                             13.605 692 53            0.000 000 30             eV
 Rydberg constant times hc in J                              2.179 872 171 e-18       0.000 000 096 e-18       J
-Sackur-Tetrode constant (1 K, 100 kPa)                      -1.151 7078              0.000 0023               
-Sackur-Tetrode constant (1 K, 101.325 kPa)                  -1.164 8708              0.000 0023               
+Sackur-Tetrode constant (1 K, 100 kPa)                      -1.151 7078              0.000 0023
+Sackur-Tetrode constant (1 K, 101.325 kPa)                  -1.164 8708              0.000 0023
 second radiation constant                                   1.438 7770 e-2           0.000 0013 e-2           m K
 shielded helion gyromag. ratio                              2.037 894 659 e8         0.000 000 051 e8         s^-1 T^-1
 shielded helion gyromag. ratio over 2 pi                    32.434 100 84            0.000 000 81             MHz T^-1
 shielded helion mag. mom.                                   -1.074 553 044 e-26      0.000 000 027 e-26       J T^-1
-shielded helion mag. mom. to Bohr magneton ratio            -1.158 671 471 e-3       0.000 000 014 e-3        
-shielded helion mag. mom. to nuclear magneton ratio         -2.127 497 718           0.000 000 025            
-shielded helion to proton mag. mom. ratio                   -0.761 766 558           0.000 000 011            
-shielded helion to shielded proton mag. mom. ratio          -0.761 786 1313          0.000 000 0033           
+shielded helion mag. mom. to Bohr magneton ratio            -1.158 671 471 e-3       0.000 000 014 e-3
+shielded helion mag. mom. to nuclear magneton ratio         -2.127 497 718           0.000 000 025
+shielded helion to proton mag. mom. ratio                   -0.761 766 558           0.000 000 011
+shielded helion to shielded proton mag. mom. ratio          -0.761 786 1313          0.000 000 0033
 shielded proton gyromag. ratio                              2.675 153 268 e8         0.000 000 066 e8         s^-1 T^-1
 shielded proton gyromag. ratio over 2 pi                    42.576 3866              0.000 0010               MHz T^-1
 shielded proton mag. mom.                                   1.410 570 499 e-26       0.000 000 035 e-26       J T^-1
-shielded proton mag. mom. to Bohr magneton ratio            1.520 993 128 e-3        0.000 000 017 e-3        
-shielded proton mag. mom. to nuclear magneton ratio         2.792 775 598            0.000 000 030            
+shielded proton mag. mom. to Bohr magneton ratio            1.520 993 128 e-3        0.000 000 017 e-3
+shielded proton mag. mom. to nuclear magneton ratio         2.792 775 598            0.000 000 030
 speed of light in vacuum                                    299 792 458              (exact)                  m s^-1
 standard acceleration of gravity                            9.806 65                 (exact)                  m s^-2
 standard atmosphere                                         101 325                  (exact)                  Pa
@@ -317,29 +317,29 @@ standard-state pressure                                     100 000             
 Stefan-Boltzmann constant                                   5.670 373 e-8            0.000 021 e-8            W m^-2 K^-4
 tau Compton wavelength                                      0.697 787 e-15           0.000 063 e-15           m
 tau Compton wavelength over 2 pi                            0.111 056 e-15           0.000 010 e-15           m
-tau-electron mass ratio                                     3477.15                  0.31                     
+tau-electron mass ratio                                     3477.15                  0.31
 tau mass                                                    3.167 47 e-27            0.000 29 e-27            kg
 tau mass energy equivalent                                  2.846 78 e-10            0.000 26 e-10            J
 tau mass energy equivalent in MeV                           1776.82                  0.16                     MeV
 tau mass in u                                               1.907 49                 0.000 17                 u
 tau molar mass                                              1.907 49 e-3             0.000 17 e-3             kg mol^-1
-tau-muon mass ratio                                         16.8167                  0.0015                   
-tau-neutron mass ratio                                      1.891 11                 0.000 17                 
-tau-proton mass ratio                                       1.893 72                 0.000 17                 
+tau-muon mass ratio                                         16.8167                  0.0015
+tau-neutron mass ratio                                      1.891 11                 0.000 17
+tau-proton mass ratio                                       1.893 72                 0.000 17
 Thomson cross section                                       0.665 245 8734 e-28      0.000 000 0013 e-28      m^2
-triton-electron mass ratio                                  5496.921 5267            0.000 0050               
-triton g factor                                             5.957 924 896            0.000 000 076            
+triton-electron mass ratio                                  5496.921 5267            0.000 0050
+triton g factor                                             5.957 924 896            0.000 000 076
 triton mag. mom.                                            1.504 609 447 e-26       0.000 000 038 e-26       J T^-1
-triton mag. mom. to Bohr magneton ratio                     1.622 393 657 e-3        0.000 000 021 e-3        
-triton mag. mom. to nuclear magneton ratio                  2.978 962 448            0.000 000 038            
+triton mag. mom. to Bohr magneton ratio                     1.622 393 657 e-3        0.000 000 021 e-3
+triton mag. mom. to nuclear magneton ratio                  2.978 962 448            0.000 000 038
 triton mass                                                 5.007 356 30 e-27        0.000 000 22 e-27        kg
 triton mass energy equivalent                               4.500 387 41 e-10        0.000 000 20 e-10        J
 triton mass energy equivalent in MeV                        2808.921 005             0.000 062                MeV
 triton mass in u                                            3.015 500 7134           0.000 000 0025           u
 triton molar mass                                           3.015 500 7134 e-3       0.000 000 0025 e-3       kg mol^-1
-triton-proton mass ratio                                    2.993 717 0308           0.000 000 0025           
+triton-proton mass ratio                                    2.993 717 0308           0.000 000 0025
 unified atomic mass unit                                    1.660 538 921 e-27       0.000 000 073 e-27       kg
 von Klitzing constant                                       25 812.807 4434          0.000 0084               ohm
-weak mixing angle                                           0.2223                   0.0021                   
+weak mixing angle                                           0.2223                   0.0021
 Wien frequency displacement law constant                    5.878 9254 e10           0.000 0053 e10           Hz K^-1
 Wien wavelength displacement law constant                   2.897 7721 e-3           0.000 0026 e-3           m K

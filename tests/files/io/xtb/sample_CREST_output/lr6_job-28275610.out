@@ -1,0 +1,18 @@
+2020-12-22 15:27:32,358 INFO Hostname/IP lookup (this will take a few seconds)
+2020-12-22 15:27:32,361 INFO Launching Rocket
+2020-12-22 15:27:34,362 INFO RUNNING fw_id: 84 in directory: /global/scratch/alex_epstein/crest_to_qchem/combined_wf/block_2020-12-22-23-27-28-506134/launcher_2020-12-22-23-27-30-210378
+2020-12-22 15:27:34,404 INFO Task started: {{atomate.xtb.firetasks.write_inputs.WriteBasicInput}}.
+2020-12-22 15:27:34,407 INFO Task completed: {{atomate.xtb.firetasks.write_inputs.WriteBasicInput}} 
+2020-12-22 15:27:34,417 INFO Task started: {{atomate.xtb.firetasks.run_calc.RunCRESTDirect}}.
+2020-12-22 15:27:34,417 INFO atomate.xtb.firetasks.run_calc Running command: crest crest_in.xyz -g H2O -c 2 > crest_out.out
+2020-12-22 15:28:13,374 INFO atomate.xtb.firetasks.run_calc Command crest crest_in.xyz -g H2O -c 2 > crest_out.out finished running with return code: 0
+2020-12-22 15:28:13,375 INFO Task completed: {{atomate.xtb.firetasks.run_calc.RunCRESTDirect}} 
+2020-12-22 15:28:13,386 INFO Task started: {{atomate.xtb.firetasks.parse_outputs.CRESTToDb}}.
+2020-12-22 15:28:13,386 INFO atomate.xtb.firetasks.parse_outputs PARSING DIRECTORY: /global/scratch/alex_epstein/crest_to_qchem/combined_wf/block_2020-12-22-23-27-28-506134/launcher_2020-12-22-23-27-30-210378
+2020-12-22 15:28:13,386 INFO atomate.xtb.drones Getting task doc for base dir :/global/scratch/alex_epstein/crest_to_qchem/combined_wf/block_2020-12-22-23-27-28-506134/launcher_2020-12-22-23-27-30-210378
+2020-12-22 15:28:13,435 WARNING atomate.xtb.drones The keys {'properly_terminated'} in root not set
+dict_keys(['initial_molecule', 'lowest_energy_structure', 'sorted_structures_energies'])
+2020-12-22 15:28:13,594 INFO atomate.utils.database Inserting /global/scratch/alex_epstein/crest_to_qchem/combined_wf/block_2020-12-22-23-27-28-506134/launcher_2020-12-22-23-27-30-210378 with taskid = 4
+2020-12-22 15:28:13,711 INFO atomate.xtb.firetasks.parse_outputs Finished parsing with task_id: 4
+2020-12-22 15:28:13,712 INFO Task completed: {{atomate.xtb.firetasks.parse_outputs.CRESTToDb}} 
+2020-12-22 15:28:13,841 INFO Rocket finished

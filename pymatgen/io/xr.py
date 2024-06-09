@@ -1,8 +1,3 @@
-# coding: utf-8
-# Copyright (c) Pymatgen Development Team.
-# Distributed under the terms of the MIT License.
-
-
 """
 This module provides input and output mechanisms
 for the xr file format, which is a modified CSSR
@@ -12,14 +7,22 @@ to remove shell positions from relaxations
 that employed core-shell models.
 """
 
+from __future__ import annotations
+
 import re
 from math import fabs
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from typing_extensions import Self
 
 __author__ = "Nils Edvin Richard Zimmermann"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -30,111 +33,100 @@ __date__ = "June 23, 2016"
 
 
 class Xr:
-    """
-    Basic object for working with xr files.
-    """
+    """For working with XR files."""
 
-    def __init__(self, structure):
+    def __init__(self, structure: Structure):
         """
         Args:
-            structure (Structure/IStructure): Structure object to create the
-                    Xr object.
+            structure (Structure/IStructure): Structure object to create the Xr object.
         """
         if not structure.is_ordered:
-            raise ValueError("Xr file can only be constructed from ordered " "structure")
+            raise ValueError("Xr file can only be constructed from ordered structure")
         self.structure = structure
 
     def __str__(self):
+        a, b, c = self.structure.lattice.abc
+        alpha, beta, gamma = self.structure.lattice.angles
         output = [
-            "pymatgen   {:.4f} {:.4f} {:.4f}".format(*self.structure.lattice.abc),
-            "{:.3f} {:.3f} {:.3f}".format(*self.structure.lattice.angles),
-            "{} 0".format(len(self.structure)),
-            "0 {}".format(self.structure.formula),
+            f"pymatgen   {a:.4f} {b:.4f} {c:.4f}",
+            f"{alpha:.3f} {beta:.3f} {gamma:.3f}",
+            f"{len(self.structure)} 0",
+            f"0 {self.structure.formula}",
         ]
         # There are actually 10 more fields per site
         # in a typical xr file from GULP, for example.
-        for i, site in enumerate(self.structure.sites):
-            output.append("{} {} {:.4f} {:.4f} {:.4f}".format(i + 1, site.specie, site.x, site.y, site.z))
+        for idx, site in enumerate(self.structure, start=1):
+            output.append(f"{idx } {site.specie} {site.x:.4f} {site.y:.4f} {site.z:.4f}")
         mat = self.structure.lattice.matrix
-        for i in range(2):
+        for _ in range(2):
             for j in range(3):
-                output.append("{:.4f} {:.4f} {:.4f}".format(mat[j][0], mat[j][1], mat[j][2]))
+                output.append(f"{mat[j][0]:.4f} {mat[j][1]:.4f} {mat[j][2]:.4f}")
         return "\n".join(output)
 
-    def write_file(self, filename):
-        """
-        Write out an xr file.
+    def write_file(self, filename: str | Path) -> None:
+        """Write out an xr file.
 
         Args:
             filename (str): name of the file to write to.
         """
-        with zopen(filename, "wt") as f:
-            f.write(str(self) + "\n")
+        with zopen(filename, mode="wt") as file:
+            file.write(str(self) + "\n")
 
-    @staticmethod
-    def from_string(string, use_cores=True, thresh=1.0e-4):
+    @classmethod
+    def from_str(cls, string: str, use_cores: bool = True, thresh: float = 1.0e-4) -> Self:
         """
         Creates an Xr object from a string representation.
 
         Args:
             string (str): string representation of an Xr object.
             use_cores (bool): use core positions and discard shell
-                    positions if set to True (default).  Otherwise,
-                    use shell positions and discard core positions.
+                positions if set to True (default). Otherwise,
+                use shell positions and discard core positions.
             thresh (float): relative threshold for consistency check
-                    between cell parameters (lengths and angles) from
-                    header information and cell vectors, respectively.
+                between cell parameters (lengths and angles) from
+                header information and cell vectors, respectively.
 
         Returns:
             xr (Xr): Xr object corresponding to the input
                     string representation.
         """
         lines = string.split("\n")
-        toks = lines[0].split()
-        lengths = [float(toks[i]) for i in range(1, len(toks))]
-        toks = lines[1].split()
-        angles = [float(i) for i in toks[0:3]]
-        toks = lines[2].split()
-        nsites = int(toks[0])
+        tokens = lines[0].split()
+        lengths = [float(tokens[i]) for i in range(1, len(tokens))]
+        tokens = lines[1].split()
+        angles = [float(i) for i in tokens[:3]]
+        tokens = lines[2].split()
+        n_sites = int(tokens[0])
         mat = np.zeros((3, 3), dtype=float)
         for i in range(3):
-            toks = lines[4 + nsites + i].split()
-            toks2 = lines[4 + nsites + i + 3].split()
-            for j, item in enumerate(toks):
-                if item != toks2[j]:
-                    raise RuntimeError("expected both matrices" " to be the same in xr file")
-            mat[i] = np.array([float(w) for w in toks])
-        lat = Lattice(mat)
+            tokens = lines[4 + n_sites + i].split()
+            tokens_2 = lines[4 + n_sites + i + 3].split()
+            for j, item in enumerate(tokens):
+                if item != tokens_2[j]:
+                    raise RuntimeError("expected both matrices to be the same in xr file")
+            mat[i] = np.array([float(w) for w in tokens])
+        lattice = Lattice(mat)
         if (
-            fabs(lat.a - lengths[0]) / fabs(lat.a) > thresh
-            or fabs(lat.b - lengths[1]) / fabs(lat.b) > thresh
-            or fabs(lat.c - lengths[2]) / fabs(lat.c) > thresh
-            or fabs(lat.alpha - angles[0]) / fabs(lat.alpha) > thresh
-            or fabs(lat.beta - angles[1]) / fabs(lat.beta) > thresh
-            or fabs(lat.gamma - angles[2]) / fabs(lat.gamma) > thresh
+            fabs(lattice.a - lengths[0]) / fabs(lattice.a) > thresh
+            or fabs(lattice.b - lengths[1]) / fabs(lattice.b) > thresh
+            or fabs(lattice.c - lengths[2]) / fabs(lattice.c) > thresh
+            or fabs(lattice.alpha - angles[0]) / fabs(lattice.alpha) > thresh
+            or fabs(lattice.beta - angles[1]) / fabs(lattice.beta) > thresh
+            or fabs(lattice.gamma - angles[2]) / fabs(lattice.gamma) > thresh
         ):
             raise RuntimeError(
-                "cell parameters in header ("
-                + str(lengths)
-                + ", "
-                + str(angles)
-                + ") are not consistent with Cartesian"
-                + " lattice vectors ("
-                + str(lat.abc)
-                + ", "
-                + str(lat.angles)
-                + ")"
+                f"cell parameters in header ({lengths}, {angles}) are not consistent with Cartesian "
+                f"lattice vectors ({lattice.abc}, {lattice.angles})"
             )
         # Ignore line w/ index 3.
         sp = []
         coords = []
-        for j in range(nsites):
-            m = re.match(
-                r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+" + r"([0-9\-\.]+)",
+        for j in range(n_sites):
+            if match := re.match(
+                r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)",
                 lines[4 + j].strip(),
-            )
-            if m:
-                tmp_sp = m.group(1)
+            ):
+                tmp_sp = match.group(1)
                 if use_cores and tmp_sp[len(tmp_sp) - 2 :] == "_s":
                     continue
                 if not use_cores and tmp_sp[len(tmp_sp) - 2 :] == "_c":
@@ -143,18 +135,18 @@ class Xr:
                     sp.append(tmp_sp[0 : len(tmp_sp) - 2])
                 else:
                     sp.append(tmp_sp)
-                coords.append([float(m.group(i)) for i in range(2, 5)])
-        return Xr(Structure(lat, sp, coords, coords_are_cartesian=True))
+                coords.append([float(match.group(i)) for i in range(2, 5)])
+        return cls(Structure(lattice, sp, coords, coords_are_cartesian=True))
 
-    @staticmethod
-    def from_file(filename, use_cores=True, thresh=1.0e-4):
+    @classmethod
+    def from_file(cls, filename: str | Path, use_cores: bool = True, thresh: float = 1.0e-4) -> Self:
         """
         Reads an xr-formatted file to create an Xr object.
 
         Args:
             filename (str): name of file to read from.
             use_cores (bool): use core positions and discard shell
-                    positions if set to True (default).  Otherwise,
+                    positions if set to True (default). Otherwise,
                     use shell positions and discard core positions.
             thresh (float): relative threshold for consistency check
                     between cell parameters (lengths and angles) from
@@ -164,5 +156,5 @@ class Xr:
             xr (Xr): Xr object corresponding to the input
                     file.
         """
-        with zopen(filename, "rt") as f:
-            return Xr.from_string(f.read(), use_cores=use_cores, thresh=thresh)
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read(), use_cores=use_cores, thresh=thresh)

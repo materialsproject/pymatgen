@@ -1,176 +1,86 @@
 """
 Pyinvoke tasks.py file for automating releases and admin stuff.
 
+To cut a new pymatgen release, use `invoke update-changelog` followed by `invoke release`.
+
 Author: Shyue Ping Ong
 """
 
+from __future__ import annotations
+
 import datetime
-import glob
 import json
 import os
 import re
 import subprocess
 import webbrowser
+from typing import TYPE_CHECKING
 
 import requests
 from invoke import task
 from monty.os import cd
 
-from pymatgen import __version__ as CURRENT_VER
+from pymatgen.core import __version__
 
-NEW_VER = datetime.datetime.today().strftime("%Y.%-m.%-d")
+if TYPE_CHECKING:
+    from invoke import Context
 
 
 @task
-def make_doc(ctx):
+def make_doc(ctx: Context) -> None:
     """
     Generate API documentation + run Sphinx.
 
-    :param ctx:
+    Args:
+        ctx (Context): The context.
     """
-    with open("CHANGES.rst") as f:
-        contents = f.read()
-
-    toks = re.split(r"\-{3,}", contents)
-    n = len(toks[0].split()[-1])
-    changes = [toks[0]]
-    changes.append("\n" + "\n".join(toks[1].strip().split("\n")[0:-1]))
-    changes = ("-" * n).join(changes)
-
-    with open("docs_rst/latest_changes.rst", "w") as f:
-        f.write(changes)
-
-    with cd("docs_rst"):
-        ctx.run("cp ../CHANGES.rst change_log.rst")
-        ctx.run("rm pymatgen.*.rst", warn=True)
-        ctx.run("sphinx-apidoc --separate -d 7 -o . -f ../pymatgen")
-        ctx.run("rm pymatgen*.tests.*rst")
-        for f in glob.glob("*.rst"):
-            if f.startswith("pymatgen") and f.endswith("rst"):
-                newoutput = []
-                suboutput = []
-                subpackage = False
-                with open(f, "r") as fid:
-                    for line in fid:
-                        clean = line.strip()
-                        if clean == "Subpackages":
-                            subpackage = True
-                        if not subpackage and not clean.endswith("tests"):
-                            newoutput.append(line)
-                        else:
-                            if not clean.endswith("tests"):
-                                suboutput.append(line)
-                            if clean.startswith("pymatgen") and not clean.endswith("tests"):
-                                newoutput.extend(suboutput)
-                                subpackage = False
-                                suboutput = []
-
-                with open(f, "w") as fid:
-                    fid.write("".join(newoutput))
-        ctx.run("make html")
-
-        ctx.run("cp _static/* ../docs/html/_static", warn=True)
-
     with cd("docs"):
-        ctx.run("rm *.html", warn=True)
-        ctx.run("cp -r html/* .", warn=True)
+        ctx.run("touch apidoc/index.rst", warn=True)
+        ctx.run("rm pymatgen.*.rst", warn=True)
+        # ctx.run("rm pymatgen.*.md", warn=True)
+        ctx.run("sphinx-apidoc --implicit-namespaces -M -d 7 -o apidoc -f ../pymatgen ../**/tests/*")
+
+        # Note: we use HTML building for the API docs to preserve search functionality.
+        ctx.run("sphinx-build -b html apidoc html")  # HTML building.
+        ctx.run("rm apidocs/*.rst", warn=True)
+        ctx.run("mv html/pymatgen*.html .")
+        ctx.run("mv html/modules.html .")
+
+        # ctx.run("cp markdown/pymatgen*.md .")
+        # ctx.run("rm pymatgen*tests*.md", warn=True)
+        # ctx.run("rm pymatgen*.html", warn=True)
+        # for filename in glob("pymatgen*.md"):
+        #     with open(filename) as file:
+        #         lines = [line.rstrip() for line in file if "Submodules" not in line]
+        #     if filename == "pymatgen.md":
+        #         preamble = ["---", "layout: default", "title: API Documentation", "nav_order: 6", "---", ""]
+        #     else:
+        #         preamble = [
+        #             "---",
+        #             "layout: default",
+        #             f"title: {filename}",
+        #             "nav_exclude: true",
+        #             "---",
+        #             "",
+        #             "1. TOC",
+        #             "{:toc}",
+        #             "",
+        #         ]
+        #     with open(filename, mode="w") as file:
+        #         file.write("\n".join(preamble + lines))
+        ctx.run("rm -r markdown", warn=True)
         ctx.run("rm -r html", warn=True)
-        ctx.run("rm -r doctrees", warn=True)
-        ctx.run("rm -r _sources", warn=True)
-        ctx.run("rm -r _build", warn=True)
-
-        # This makes sure pymatgen.org works to redirect to the Github page
-        ctx.run('echo "pymatgen.org" > CNAME')
-        # Avoid the use of jekyll so that _dir works as intended.
-        ctx.run("touch .nojekyll")
+        ctx.run('sed -I "" "s/_static/assets/g" pymatgen*.html')
+        ctx.run("rm -rf doctrees", warn=True)
 
 
 @task
-def make_dash(ctx):
-    """
-    Make customized doc version for Dash
-
-    :param ctx:
-    """
-    ctx.run("cp docs_rst/conf-docset.py docs_rst/conf.py")
-    make_doc(ctx)
-    ctx.run("rm docs/_static/pymatgen.docset.tgz", warn=True)
-    ctx.run("doc2dash docs -n pymatgen -i docs/_images/pymatgen.png -u https://pymatgen.org/")
-    plist = "pymatgen.docset/Contents/Info.plist"
-    xml = []
-    with open(plist, "rt") as f:
-        for l in f:
-            xml.append(l.strip())
-            if l.strip() == "<dict>":
-                xml.append("<key>dashIndexFilePath</key>")
-                xml.append("<string>index.html</string>")
-    with open(plist, "wt") as f:
-        f.write("\n".join(xml))
-    ctx.run('tar --exclude=".DS_Store" -cvzf pymatgen.tgz pymatgen.docset')
-    # xml = []
-    # with open("docs/pymatgen.xml") as f:
-    #     for l in f:
-    #         l = l.strip()
-    #         if l.startswith("<version>"):
-    #             xml.append("<version>%s</version>" % NEW_VER)
-    #         else:
-    #             xml.append(l)
-    # with open("docs/pymatgen.xml", "wt") as f:
-    #     f.write("\n".join(xml))
-    ctx.run("rm -r pymatgen.docset")
-    ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
-
-
-@task
-def contribute_dash(ctx):
-    make_dash(ctx)
-    ctx.run("cp pymatgen.tgz ../Dash-User-Contributions/docsets/pymatgen/pymatgen.tgz")
-    with cd("../Dash-User-Contributions/docsets/pymatgen"):
-        with open("docset.json", "rt") as f:
-            data = json.load(f)
-            data["version"] = NEW_VER
-        with open("docset.json", "wt") as f:
-            json.dump(data, f, indent=4)
-        ctx.run('git commit --no-verify -a -m "Update to v%s"' % NEW_VER)
-        ctx.run("git push")
-    ctx.run("rm pymatgen.tgz")
-
-
-@task
-def submit_dash_pr(ctx):
-    with cd("../Dash-User-Contributions/docsets/pymatgen"):
-        payload = {
-            "title": "Update pymatgen docset to v%s" % NEW_VER,
-            "body": "Update pymatgen docset to v%s" % NEW_VER,
-            "head": "Dash-User-Contributions:master",
-            "base": "master",
-        }
-        response = requests.post(
-            "https://api.github.com/repos/materialsvirtuallab/Dash-User-Contributions/pulls", data=json.dumps(payload)
-        )
-        print(response.text)
-
-
-@task
-def update_doc(ctx):
-    """
-    Update the web documentation.
-
-    :param ctx:
-    """
-    ctx.run("cp docs_rst/conf-normal.py docs_rst/conf.py")
-    make_doc(ctx)
-    ctx.run("git add .")
-    ctx.run('git commit -a -m "Update docs"')
-    ctx.run("git push")
-
-
-@task
-def publish(ctx):
+def publish(ctx: Context) -> None:
     """
     Upload release to Pypi using twine.
 
-    :param ctx:
+    Args:
+        ctx (Context): The context.
     """
     ctx.run("rm dist/*.*", warn=True)
     ctx.run("python setup.py sdist bdist_wheel")
@@ -178,53 +88,33 @@ def publish(ctx):
 
 
 @task
-def set_ver(ctx):
-    with open("pymatgen/__init__.py", "rt") as f:
-        contents = f.read()
-        contents = re.sub(r"__version__ = .*\n", '__version__ = "%s"\n' % NEW_VER, contents)
+def set_ver(ctx: Context, version: str):
+    with open("setup.py") as file:
+        contents = file.read()
+        contents = re.sub(r"version=([^,]+),", f"version={version!r},", contents)
 
-    with open("pymatgen/__init__.py", "wt") as f:
-        f.write(contents)
-
-    with open("setup.py", "rt") as f:
-        contents = f.read()
-        contents = re.sub(r"version=([^,]+),", 'version="%s",' % NEW_VER, contents)
-
-    with open("setup.py", "wt") as f:
-        f.write(contents)
+    with open("setup.py", mode="w") as file:
+        file.write(contents)
 
 
 @task
-def merge_stable(ctx):
-    """
-    Tag and merge into stable branch.
-
-    :param ctx:
-    """
-    ctx.run("git checkout stable")
-    ctx.run("git pull")
-    ctx.run("git merge master")
-    ctx.run("git push")
-    ctx.run("git checkout master")
-
-
-@task
-def release_github(ctx):
+def release_github(ctx: Context, version: str) -> None:
     """
     Release to Github using Github API.
 
-    :param ctx:
+    Args:
+        version (str): The version.
     """
-    with open("CHANGES.rst") as f:
-        contents = f.read()
-    toks = re.split(r"\-+", contents)
-    desc = toks[1].strip()
-    toks = desc.split("\n")
-    desc = "\n".join(toks[:-1]).strip()
+    with open("docs/CHANGES.md") as file:
+        contents = file.read()
+    tokens = re.split(r"\-+", contents)
+    desc = tokens[1].strip()
+    tokens = desc.split("\n")
+    desc = "\n".join(tokens[:-1]).strip()
     payload = {
-        "tag_name": "v" + NEW_VER,
+        "tag_name": f"v{version}",
         "target_commitish": "master",
-        "name": "v" + NEW_VER,
+        "name": f"v{version}",
         "body": desc,
         "draft": False,
         "prerelease": False,
@@ -232,25 +122,25 @@ def release_github(ctx):
     response = requests.post(
         "https://api.github.com/repos/materialsproject/pymatgen/releases",
         data=json.dumps(payload),
-        headers={"Authorization": "token " + os.environ["GITHUB_RELEASES_TOKEN"]},
+        headers={"Authorization": f"token {os.environ['GITHUB_RELEASES_TOKEN']}"},
     )
     print(response.text)
 
 
-@task
-def post_discourse(ctx):
+def post_discourse(version: str) -> None:
     """
     Post release announcement to http://discuss.matsci.org/c/pymatgen.
 
-    :param ctx:
+    Args:
+        version (str): The version.
     """
-    with open("CHANGES.rst") as f:
-        contents = f.read()
-    toks = re.split(r"\-+", contents)
-    desc = toks[1].strip()
-    toks = desc.split("\n")
-    desc = "\n".join(toks[:-1]).strip()
-    raw = "v" + NEW_VER + "\n\n" + desc
+    with open("CHANGES.rst") as file:
+        contents = file.read()
+    tokens = re.split(r"\-+", contents)
+    desc = tokens[1].strip()
+    tokens = desc.split("\n")
+    desc = "\n".join(tokens[:-1]).strip()
+    raw = f"v{version}\n\n{desc}"
     payload = {
         "topic_id": 36,
         "raw": raw,
@@ -258,64 +148,105 @@ def post_discourse(ctx):
     response = requests.post(
         "https://discuss.matsci.org/c/pymatgen/posts.json",
         data=payload,
-        params={"api_username": os.environ["DISCOURSE_API_USERNAME"], "api_key": os.environ["DISCOURSE_API_KEY"]},
+        params={
+            "api_username": os.environ["DISCOURSE_API_USERNAME"],
+            "api_key": os.environ["DISCOURSE_API_KEY"],
+        },
     )
     print(response.text)
 
 
 @task
-def update_changelog(ctx):
-    """
-    Create a preliminary change log using the git logs.
+def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = False) -> None:
+    """Create a preliminary change log using the git logs.
 
-    :param ctx:
+    Args:
+        ctx (invoke.Context): The context object.
+        version (str, optional): The version to use for the change log. If not provided, it will
+            use the current date in the format 'YYYY.M.D'. Defaults to None.
+        dry_run (bool, optional): If True, the function will only print the changes without
+            updating the actual change log file. Defaults to False.
     """
-    output = subprocess.check_output(["git", "log", "--pretty=format:%s", "v%s..HEAD" % CURRENT_VER])
-    lines = ["* " + l for l in output.decode("utf-8").strip().split("\n")]
-    with open("CHANGES.rst") as f:
-        contents = f.read()
-    l = "=========="
-    toks = contents.split(l)
-    head = "\n\nv%s\n" % NEW_VER + "-" * (len(NEW_VER) + 1) + "\n"
-    toks.insert(-1, head + "\n".join(lines))
-    with open("CHANGES.rst", "w") as f:
-        f.write(toks[0] + l + "".join(toks[1:]))
-    ctx.run("open CHANGES.rst")
+    version = version or f"{datetime.datetime.now():%Y.%-m.%-d}"
+    output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{__version__}..HEAD"])
+    lines = []
+    ignored_commits = []
+    for line in output.decode("utf-8").strip().split("\n"):
+        re_match = re.match(r"Merge pull request \#(\d+) from (.*)", line)
+        if re_match and "materialsproject/dependabot/pip" not in line:
+            pr_number = re_match.group(1)
+            contributor, pr_name = re_match.group(2).split("/", 1)
+            response = requests.get(
+                f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}", timeout=600
+            )
+            lines += [f"* PR #{pr_number} from @{contributor} {pr_name}"]
+            json_resp = response.json()
+            if body := json_resp["body"]:
+                for ll in map(str.strip, body.split("\n")):
+                    if ll in ("", "## Summary"):
+                        continue
+                    if ll.startswith(("## Checklist", "## TODO")):
+                        break
+                    lines += [f"    {ll}"]
+        ignored_commits += [line]
+    with open("docs/CHANGES.md") as file:
+        contents = file.read()
+    delim = "##"
+    tokens = contents.split(delim)
+    tokens.insert(1, f"## v{version}\n\n" + "\n".join(lines) + "\n")
+    if dry_run:
+        print(tokens[0] + "##".join(tokens[1:]))
+    else:
+        with open("docs/docs/CHANGES.md", mode="w") as file:
+            file.write(tokens[0] + "##".join(tokens[1:]))
+        ctx.run("open docs/CHANGES.md")
+    print("The following commit messages were not included...")
+    print("\n".join(ignored_commits))
 
 
 @task
-def release(ctx, nodoc=False):
+def release(ctx: Context, version: str | None = None, nodoc: bool = False) -> None:
     """
     Run full sequence for releasing pymatgen.
 
-    :param ctx:
-    :param notest: Whether to skip tests.
-    :param nodoc: Whether to skip doc generation.
+    Args:
+        ctx (invoke.Context): The context object.
+        version (str, optional): The version to release.
+        nodoc (bool, optional): Whether to skip documentation generation.
     """
+    version = version or f"{datetime.datetime.now():%Y.%-m.%-d}"
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
-    set_ver(ctx)
+    set_ver(ctx, version)
     if not nodoc:
         make_doc(ctx)
         ctx.run("git add .")
-        ctx.run('git commit -a -m "Update docs"')
+        ctx.run('git commit --no-verify -a -m "Update docs"')
         ctx.run("git push")
-    merge_stable(ctx)
-    release_github(ctx)
-    post_discourse(ctx, warn=True)
+    release_github(ctx, version)
+
+    ctx.run("rm -f dist/*.*", warn=True)
+    ctx.run("python setup.py sdist bdist_wheel", warn=True)
+    ctx.run("twine upload --skip-existing dist/*.whl", warn=True)
+    ctx.run("twine upload --skip-existing dist/*.tar.gz", warn=True)
+    # post_discourse(ctx, warn=True)
 
 
 @task
-def open_doc(ctx):
+def open_doc(ctx: Context) -> None:
     """
     Open local documentation in web browser.
-
-    :param ctx:
     """
     pth = os.path.abspath("docs/_build/html/index.html")
-    webbrowser.open("file://" + pth)
+    webbrowser.open(f"file://{pth}")
 
 
 @task
-def lint(ctx):
-    for cmd in ["pycodestyle", "mypy", "flake8", "pydocstyle"]:
-        ctx.run("%s pymatgen" % cmd)
+def lint(ctx: Context) -> None:
+    """
+    Run linting tools.
+
+    Args:
+        ctx (invoke.Context): The context object.
+    """
+    for cmd in ("ruff", "mypy", "ruff format"):
+        ctx.run(f"{cmd} pymatgen")
