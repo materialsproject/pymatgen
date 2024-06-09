@@ -19,6 +19,7 @@ from monty.dev import deprecated
 from monty.json import MSONable
 
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Ha_to_eV, Length, Mass, Unit
+from pymatgen.io.core import ParseError
 from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
@@ -28,7 +29,7 @@ if TYPE_CHECKING:
 
     from pymatgen.util.typing import SpeciesLike
 
-# Load element data from json file
+# Load element data from JSON file
 with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
     _pt_data = json.load(ptable_json)
 
@@ -982,8 +983,11 @@ class Species(MSONable, Stringify):
             )
         if isinstance(symbol, str) and symbol.endswith(("+", "-")):
             # Extract oxidation state from symbol
-            symbol, oxi = re.match(r"([A-Za-z]+)([0-9]*[\+\-])", symbol).groups()  # type: ignore[union-attr]
-            self._oxi_state: float | None = (1 if "+" in oxi else -1) * float(oxi[:-1] or 1)
+            try:
+                symbol, oxi = re.match(r"([A-Za-z]+)([0-9\.0-9]*[\+\-])", symbol).groups()  # type: ignore[union-attr]
+                self._oxi_state: float | None = (1 if "+" in oxi else -1) * float(oxi[:-1] or 1)
+            except AttributeError:
+                raise ParseError(f"Failed to parse {symbol=}")
         else:
             self._oxi_state = oxidation_state
 

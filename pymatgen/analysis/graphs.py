@@ -150,7 +150,7 @@ class StructureGraph(MSONable):
         self.structure = structure
         self.graph = nx.readwrite.json_graph.adjacency_graph(graph_data)
 
-        # tidy up edge attr dicts, reading to/from json duplicates information
+        # tidy up edge attr dicts, reading to/from JSON duplicates information
         for _, _, _, data in self.graph.edges(keys=True, data=True):
             for key in ("id", "key"):
                 data.pop(key, None)
@@ -1585,7 +1585,7 @@ class MoleculeGraph(MSONable):
         self.molecule = molecule
         self.graph = nx.readwrite.json_graph.adjacency_graph(graph_data)
 
-        # tidy up edge attr dicts, reading to/from json duplicates
+        # tidy up edge attr dicts, reading to/from JSON duplicates
         # information
         for _, _, _, data in self.graph.edges(keys=True, data=True):
             for key in ("id", "key"):

@@ -924,7 +924,7 @@ class TestCompleteCohp(PymatgenTest):
             assert icohp1 == approx(icohp2, abs=1e-4)
 
     def test_dict(self):
-        # The json files are dict representations of the COHPs from the LMTO
+        # The JSON files are dict representations of the COHPs from the LMTO
         # and LOBSTER calculations and should thus be the same.
 
         def is_equal(a, b):

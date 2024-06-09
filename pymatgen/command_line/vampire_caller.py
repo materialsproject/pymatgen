@@ -400,7 +400,7 @@ class VampireOutput(MSONable):
     def __init__(self, parsed_out=None, nmats=None, critical_temp=None):
         """
         Args:
-            parsed_out (json): json rep of parsed stdout DataFrame.
+            parsed_out (str): JSON rep of parsed stdout DataFrame.
             nmats (int): Number of distinct materials (1 for each specie and up/down spin).
             critical_temp (float): Monte Carlo Tc result.
         """

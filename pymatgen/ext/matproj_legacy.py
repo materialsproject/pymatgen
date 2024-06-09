@@ -364,7 +364,7 @@ class _MPResterLegacy:
             materials_id (str): e.g. mp-1143 for Al2O3
 
         Returns:
-            Dict of json document of all data that is displayed on a materials
+            Dict of JSON document of all data that is displayed on a materials
             details page.
         """
         return self._make_request(f"/materials/{materials_id}/doc", mp_decode=False)

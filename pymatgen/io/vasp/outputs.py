@@ -722,6 +722,10 @@ class Vasprun(MSONable):
 
         Hubbard U terms and vdW corrections are detected automatically as well.
         """
+
+        # Care should be taken: if a GGA tag is not specified, VASP will default
+        # to the functional specified by the POTCAR. It is not clear how
+        # VASP handles the "--" value.
         GGA_TYPES = {
             "RE": "revPBE",
             "PE": "PBE",
@@ -1231,8 +1235,8 @@ class Vasprun(MSONable):
                 potcar_nelect = sum(ps.ZVAL * num for ps, num in zip(potcar, nums))
             charge = potcar_nelect - nelect
 
-            for s in self.structures:
-                s._charge = charge
+            for struct in self.structures:
+                struct._charge = charge
             if hasattr(self, "initial_structure"):
                 self.initial_structure._charge = charge
             if hasattr(self, "final_structure"):
@@ -1356,7 +1360,9 @@ class Vasprun(MSONable):
         """Parse INCAR parameters."""
         params: dict = {}
         for c in elem:
-            name = c.attrib.get("name", "")
+            # VASP 6.4.3 can add trailing whitespace
+            # for example, <i type="string" name="GGA    ">PE</i>
+            name = c.attrib.get("name", "").strip()
             if c.tag not in {"i", "v"}:
                 p = self._parse_params(c)
                 if name == "response functions":

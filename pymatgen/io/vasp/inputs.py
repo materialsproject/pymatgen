@@ -679,11 +679,11 @@ class Poscar(MSONable):
         dof = 3 * len(self.structure) - 3
 
         # Remove linear drift (net momentum)
-        velocities -= np.mean(atomic_masses[:, np.newaxis] * velocities, axis=0) / np.mean(atomic_masses)
+        velocities -= np.mean(atomic_masses[:, None] * velocities, axis=0) / np.mean(atomic_masses)
 
         # Scale velocities due to atomic masses
         # mean 0 std proportional to sqrt(1/m)
-        velocities /= atomic_masses[:, np.newaxis] ** (1 / 2)
+        velocities /= atomic_masses[:, None] ** (1 / 2)
 
         # Scale velocities to get correct temperature
         energy = np.sum(1 / 2 * atomic_masses * np.sum(velocities**2, axis=1))
@@ -1630,11 +1630,11 @@ class Kpoints(MSONable):
             labels=labels,
         )
 
-    def write_file(self, filename: str) -> None:
+    def write_file(self, filename: PathLike) -> None:
         """Write Kpoints to a file.
 
         Args:
-            filename (str): Filename to write to.
+            filename (PathLike): Filename to write to.
         """
         with zopen(filename, mode="wt") as file:
             file.write(str(self))
@@ -1758,7 +1758,7 @@ class PotcarSingle:
     #     in the PSCTR/header field.
     # We indicate the older release in `functional_dir` as PBE_52, PBE_54, LDA_52, LDA_54.
     # The newer release is indicated as PBE_52_W_HASH, etc.
-    functional_dir: ClassVar = {
+    functional_dir: ClassVar[dict[str, str]] = {
         "PBE": "POT_GGA_PAW_PBE",
         "PBE_52": "POT_GGA_PAW_PBE_52",
         "PBE_52_W_HASH": "POTPAW_PBE_52",
@@ -1777,7 +1777,7 @@ class PotcarSingle:
         "Perdew_Zunger81": "POT_LDA_PAW",
     }
 
-    functional_tags: ClassVar = {
+    functional_tags: ClassVar[dict[str, dict[Literal["name", "class"], str]]] = {
         "pe": {"name": "PBE", "class": "GGA"},
         "91": {"name": "PW91", "class": "GGA"},
         "rp": {"name": "revPBE", "class": "GGA"},
@@ -1791,7 +1791,7 @@ class PotcarSingle:
         "wi": {"name": "Wigner Interpolation", "class": "LDA"},
     }
 
-    parse_functions: ClassVar = {
+    parse_functions: ClassVar[dict[str, Any]] = {
         "LULTRA": _parse_bool,
         "LUNSCR": _parse_bool,
         "LCOR": _parse_bool,
@@ -1995,7 +1995,7 @@ class PotcarSingle:
 
     @property
     def potential_type(self) -> Literal["NC", "PAW", "US"]:
-        """Type of PSP: NC, US or PAW."""
+        """Type of PSP: NC (Norm-conserving), US (Ultra-soft), PAW (Projector augmented wave)."""
         if self.lultra:
             return "US"
         if self.lpaw:
@@ -2015,8 +2015,8 @@ class PotcarSingle:
     @property
     def hash_sha256_from_file(self) -> str | None:
         """SHA256 hash of the POTCAR file as read from the file. None if no SHA256 hash is found."""
-        if sha256 := getattr(self, "SHA256", None):
-            return sha256.split()[0]
+        if _sha256 := getattr(self, "SHA256", None):
+            return _sha256.split()[0]
         return None
 
     @property

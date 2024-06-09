@@ -555,18 +555,18 @@ class HeisenbergMapper:
             logging.warning(warning_msg)
 
         # J_ij exchange interaction matrix
-        for i, _node in enumerate(sgraph.graph.nodes):
-            connections = sgraph.get_connected_sites(i)
+        for idx in range(len(sgraph.graph.nodes)):
+            connections = sgraph.get_connected_sites(idx)
             for c in connections:
                 jimage = c[1]  # relative integer coordinates of atom j
                 j = c[2]  # index of neighbor
                 dist = c[-1]  # i <-> j distance
 
-                j_exc = self._get_j_exc(i, j, dist)
+                j_exc = self._get_j_exc(idx, j, dist)
 
-                igraph.add_edge(i, j, to_jimage=jimage, weight=j_exc, warn_duplicates=False)
+                igraph.add_edge(idx, j, to_jimage=jimage, weight=j_exc, warn_duplicates=False)
 
-        # Save to a json file if desired
+        # Save to a JSON file if desired
         if filename:
             if not filename.endswith(".json"):
                 filename += ".json"
@@ -641,7 +641,7 @@ class HeisenbergMapper:
         hm_nni = self.nn_interactions
         hm_d = self.dists
 
-        # Exchange matrix DataFrame in json format
+        # Exchange matrix DataFrame in JSON format
         hm_em = self.ex_mat.to_json()
         hm_ep = self.get_exchange()
         hm_javg = self.estimate_exchange()
@@ -860,29 +860,27 @@ class HeisenbergModel(MSONable):
         self.igraph = igraph
 
     def as_dict(self):
-        """Because some dicts have tuple keys, some sanitization is required for json compatibility."""
-        dct = {}
-        dct["@module"] = type(self).__module__
-        dct["@class"] = type(self).__name__
-        dct["@version"] = __version__
-        dct["formula"] = self.formula
-        dct["structures"] = [s.as_dict() for s in self.structures]
-        dct["energies"] = self.energies
-        dct["cutoff"] = self.cutoff
-        dct["tol"] = self.tol
-        dct["sgraphs"] = [sgraph.as_dict() for sgraph in self.sgraphs]
-        dct["dists"] = self.dists
-        dct["ex_params"] = self.ex_params
-        dct["javg"] = self.javg
-        dct["igraph"] = self.igraph.as_dict()
-
-        # Sanitize tuple & int keys
-        dct["ex_mat"] = jsanitize(self.ex_mat)
-        dct["nn_interactions"] = jsanitize(self.nn_interactions)
-        dct["unique_site_ids"] = jsanitize(self.unique_site_ids)
-        dct["wyckoff_ids"] = jsanitize(self.wyckoff_ids)
-
-        return dct
+        """Because some dicts have tuple keys, some sanitization is required for JSON compatibility."""
+        return {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "@version": __version__,
+            "formula": self.formula,
+            "structures": [struct.as_dict() for struct in self.structures],
+            "energies": self.energies,
+            "cutoff": self.cutoff,
+            "tol": self.tol,
+            "sgraphs": [sgraph.as_dict() for sgraph in self.sgraphs],
+            "dists": self.dists,
+            "ex_params": self.ex_params,
+            "javg": self.javg,
+            "igraph": self.igraph.as_dict(),
+            # Sanitize tuple & int keys
+            "ex_mat": jsanitize(self.ex_mat),
+            "nn_interactions": jsanitize(self.nn_interactions),
+            "unique_site_ids": jsanitize(self.unique_site_ids),
+            "wyckoff_ids": jsanitize(self.wyckoff_ids),
+        }
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:

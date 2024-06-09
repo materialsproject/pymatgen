@@ -131,7 +131,7 @@ def main():
         metavar="dir_name",
         nargs=2,
         help="Initial directory where the CP2K data is located and the output directory where the "
-        "CP2K yaml data files will be written",
+        "CP2K YAML data files will be written",
     )
 
     parser_config.add_argument(

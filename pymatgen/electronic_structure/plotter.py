@@ -4062,7 +4062,7 @@ def plot_fermi_surface(
 
         polydata = cp.actor.actors[0].mapper.input
         pts = np.array(polydata.points)  # - 1
-        polydata.points = np.dot(pts, cell / np.array(data.shape)[:, np.newaxis])
+        polydata.points = np.dot(pts, cell / np.array(data.shape)[:, None])
 
         cx, cy, cz = (np.mean(np.array(polydata.points)[:, i]) for i in range(3))
 
