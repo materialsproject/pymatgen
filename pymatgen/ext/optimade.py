@@ -356,12 +356,10 @@ class OptimadeRester:
                 if structures:
                     all_snls[identifier] = structures
 
-            except Exception as exc:
+            except Exception:
                 # TODO: manually inspect failures to either (a) correct a bug or (b) raise more appropriate error
 
-                _logger.exception(
-                    f"Could not retrieve required information from provider {identifier} and {url=}: {exc}"
-                )
+                _logger.exception(f"Could not retrieve required information from provider {identifier} and {url=}")
 
         return all_snls
 
@@ -522,8 +520,8 @@ class OptimadeRester:
         try:
             url = urljoin(provider_url, "v1/links")
             provider_link_json = self._get_json(url)
-        except Exception as exc:
-            _logger.exception(f"Failed to parse {url} when following links: {exc}")
+        except Exception:
+            _logger.exception(f"Failed to parse {url} when following links")
             return {}
 
         def _parse_provider_link(provider, provider_link_json):

@@ -87,6 +87,8 @@ ignore = [
   "PTH",     # prefer pathlib to os.path
   "SIM105",  # Use contextlib.suppress() instead of try-except-pass
   "TRY003",  # Avoid specifying long messages outside the exception class
+  "TRY301",  # Checks for raise statements within try blocks
+  "TRY300",  # Checks for return statements in try blocks
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]

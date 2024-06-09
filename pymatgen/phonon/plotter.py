@@ -476,7 +476,7 @@ class PhononBSPlotter:
                     assert 0 <= idx < len(all_sites), "one or more indices in site_comb does not exist"
                     all_indices.remove(idx)
             if len(all_indices) != 0:
-                raise Exception(f"not all {len(all_sites)} indices are included in site_comb")
+                raise ValueError(f"not all {len(all_sites)} indices are included in site_comb")
             indices = site_comb  # type: ignore[assignment]
         assert rgb_labels is None or len(rgb_labels) == len(indices), "wrong number of rgb_labels"
 
