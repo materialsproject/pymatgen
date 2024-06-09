@@ -39,6 +39,7 @@ select = [
   "ISC",     # flake8-implicit-str-concat
   "PD",      # pandas-vet
   "PERF",    # perflint
+  "PGH",     # pygrep-hooks
   "PIE",     # flake8-pie
   "PL",      # pylint
   "PLR0402",
