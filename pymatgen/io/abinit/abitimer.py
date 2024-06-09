@@ -718,7 +718,7 @@ class AbinitTimer:
             values.append([sec.__dict__[key] for sec in self.sections])
         return values
 
-    def names_and_values(self, key, minval=None, minfract=None, sorted=True):
+    def names_and_values(self, key, minval=None, minfract=None, sorted=True):  # noqa: A002
         """Select the entries whose value[key] is >= minval or whose fraction[key] is >= minfract
         Return the names of the sections and the corresponding values.
         """

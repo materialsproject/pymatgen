@@ -190,7 +190,7 @@ class PackmolRunner:
         control_params: dict | None = None,
         auto_box: bool = True,
         output_file: str = "packed.xyz",
-        bin: str = "packmol",
+        bin: str = "packmol",  # noqa: A002
     ) -> None:
         """
         Args:
@@ -430,7 +430,7 @@ class PackmolRunner:
 class LammpsRunner:
     """LAMMPS wrapper."""
 
-    def __init__(self, input_filename: str = "lammps.in", bin: str = "lammps") -> None:
+    def __init__(self, input_filename: str = "lammps.in", bin: str = "lammps") -> None:  # noqa: A002
         """
         Args:
             input_filename (str): input file name

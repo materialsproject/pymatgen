@@ -1088,7 +1088,7 @@ class CompleteDos(Dos):
 
     def get_dos_fp(
         self,
-        type: str = "summed_pdos",
+        type: str = "summed_pdos",  # noqa: A002
         binning: bool = True,
         min_e: float | None = None,
         max_e: float | None = None,

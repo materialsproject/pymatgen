@@ -101,7 +101,7 @@ class NetcdfReader:
         """Activated when used in the with statement."""
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, type, value, traceback):  # noqa: A002
         """Activated at the end of the with statement. It automatically closes the file."""
         self.rootgrp.close()
 

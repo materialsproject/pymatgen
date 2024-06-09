@@ -629,7 +629,7 @@ class StructureVis:
             else:
                 raise ValueError("Number of points for a face should be >= 3")
 
-    def add_edges(self, edges, type="line", linewidth=2, color=(0.0, 0.0, 0.0)):
+    def add_edges(self, edges, type="line", linewidth=2, color=(0.0, 0.0, 0.0)):  # noqa: A002
         """
         Args:
             edges (): List of edges
