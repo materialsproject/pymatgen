@@ -1,6 +1,6 @@
-from enum import Enum
-from typing import TypeVar
+from __future__ import annotations
 
+from enum import Enum
 
 # TODO: add type annotations?
 # BlockType = TypeVar('BlockType', bound=str)

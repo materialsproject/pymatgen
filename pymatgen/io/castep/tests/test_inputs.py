@@ -1,23 +1,23 @@
+from __future__ import annotations
+
 from pymatgen.io.castep.inputs import Cell
 from pymatgen.util.testing import PymatgenTest
 
 
 class CellTest(PymatgenTest):
-
     def test_cell(self):
-
         structure = self.get_structure("Si")
         cell = Cell.from_structure(structure)
 
         # tests a round trip, embedding structure into the .cell and then extracting it again
-        self.assertEqual(cell.structure, structure)
+        assert cell.structure == structure
 
         # tests string method
         known_contents = """%block positions_frac
 Si 0.0 0.0 0.0
 Si 0.75 0.5 0.75
 %endblock positions_frac"""
-        self.assertIn(known_contents, str(cell))
+        assert known_contents in str(cell)
 
         # tests adding an unknown element
         self.assertRaises(KeyError, cell.set_block, "unknown keyword", [])
@@ -26,4 +26,4 @@ Si 0.75 0.5 0.75
         known_contents = """%block species_pot
 C19
 %endblock species_pot"""
-        self.assertIn(known_contents, str(cell))
+        assert known_contents in str(cell)

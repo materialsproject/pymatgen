@@ -1,9 +1,13 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from monty.json import MSONable
 
-from pymatgen.io.castep.inputs import Param, Cell
+if TYPE_CHECKING:
+    from pymatgen.io.castep.inputs import Cell, Param
 
 
 @dataclass
@@ -36,5 +40,3 @@ class MPStaticSet(CastepInputSet):
     This input set has not been extensively tested and is not used for
     any production calculations. Modifications are welcome.
     """
-
-
