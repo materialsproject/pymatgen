@@ -98,7 +98,7 @@ class StructureNLCase(TestCase):
 
         # An empty list should not work
         with pytest.raises(
-            ValueError,
+            TypeError,
             match="Invalid format for SNL reference! Should be empty string or BibTeX string.",
         ):
             StructureNL(self.struct, self.hulk, references=[])

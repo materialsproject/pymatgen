@@ -92,7 +92,7 @@ class InterfacialReactivity(MSONable):
         bypass_grand_warning = kwargs.get("bypass_grand_warning", False)
 
         if isinstance(pd, GrandPotentialPhaseDiagram) and not bypass_grand_warning:
-            raise ValueError(
+            raise TypeError(
                 "Please use the GrandPotentialInterfacialReactivity "
                 "class for interfacial reactions with open elements!"
             )
