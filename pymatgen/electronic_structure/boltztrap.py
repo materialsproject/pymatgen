@@ -611,14 +611,11 @@ class BoltztrapRunner(MSONable):
                         bt_exe.append("-so")
 
                     with subprocess.Popen(
-                        bt_exe,
-                        stdout=subprocess.PIPE,
-                        stdin=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
-                    ) as p:
-                        p.wait()
+                        bt_exe, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE
+                    ) as process:
+                        process.wait()
 
-                        for c in p.communicate():
+                        for c in process.communicate():
                             logging.info(c.decode())
                             if "error in factorization" in c.decode():
                                 raise BoltztrapError("error in factorization")

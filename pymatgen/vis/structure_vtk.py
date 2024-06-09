@@ -878,8 +878,8 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
         vis.write_image(filename.format(idx), 3)
     filename = f"image%0{sig_fig}d.png"
     args = ["ffmpeg", "-y", "-i", filename, "-q:v", str(quality), "-r", str(fps), "-b:v", str(bitrate), output_filename]
-    with subprocess.Popen(args) as p:
-        p.communicate()
+    with subprocess.Popen(args) as process:
+        process.communicate()
 
 
 class MultiStructuresVis(StructureVis):

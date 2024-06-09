@@ -945,7 +945,7 @@ class GaussianOutput:
                         parse_forces = True
                     elif freq_on_patt.search(line):
                         parse_freq = True
-                        _ = [file.readline() for _i in range(3)]
+                        _ = [file.readline() for _ in range(3)]
                     elif mo_coeff_patt.search(line):
                         if "Alpha" in line:
                             self.is_spin = True

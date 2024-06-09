@@ -123,9 +123,9 @@ def group_entries_by_structure(
         logging.info(f"Using {ncpus} cpus")
         manager = mp.Manager()
         groups = manager.list()
-        with mp.Pool(ncpus) as p:
+        with mp.Pool(ncpus) as pool:
             # Parallel processing only supports Python primitives and not objects.
-            p.map(
+            pool.map(
                 _perform_grouping,
                 [
                     (

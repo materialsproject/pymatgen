@@ -121,10 +121,10 @@ class StandardTransmuter:
                 describes whether the transformation altered the structure
         """
         if self.ncores and transformation.use_multiprocessing:
-            with Pool(self.ncores) as p:
+            with Pool(self.ncores) as pool:
                 # need to condense arguments into single tuple to use map
                 z = ((ts, transformation, extend_collection, clear_redo) for ts in self.transformed_structures)
-                trafo_new_structs = p.map(_apply_transformation, z, 1)
+                trafo_new_structs = pool.map(_apply_transformation, z, 1)
                 self.transformed_structures = []
                 for ts in trafo_new_structs:
                     self.transformed_structures.extend(ts)
