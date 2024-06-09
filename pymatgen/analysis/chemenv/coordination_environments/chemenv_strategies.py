@@ -512,7 +512,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
     DEFAULT_ANGLE_CUTOFF = 0.3
     DEFAULT_CONTINUOUS_SYMMETRY_MEASURE_CUTOFF = 10
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = dict(  # type: ignore
+    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = dict(
         distance_cutoff=dict(
             type=DistanceCutoffFloat,
             internal="_distance_cutoff",
@@ -598,7 +598,7 @@ class SimplestChemenvStrategy(AbstractChemenvStrategy):
         self._angle_cutoff = AngleCutoffFloat(angle_cutoff)
 
     @property
-    def additional_condition(self):
+    def additional_condition(self) -> AdditionalConditionInt:
         """Additional condition for this strategy."""
         return self._additional_condition
 
@@ -897,7 +897,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
 
     DEFAULT_MAX_DIST = 2.0
     DEFAULT_ADDITIONAL_CONDITION = AbstractChemenvStrategy.AC.ONLY_ACB
-    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = dict(  # type: ignore
+    STRATEGY_OPTIONS: ClassVar[dict[str, dict]] = dict(
         surface_calculation_type={},
         additional_condition=dict(
             type=AdditionalConditionInt,
@@ -1057,7 +1057,7 @@ class SimpleAbundanceChemenvStrategy(AbstractChemenvStrategy):
         if not isinstance(other, type(self)):
             return NotImplemented
 
-        return self._additional_condition == other.additional_condition  # type: ignore
+        return self._additional_condition == other.additional_condition  # type: ignore[has-type]
 
     def as_dict(self):
         """
@@ -1347,7 +1347,7 @@ class AngleNbSetWeight(NbSetWeight):
     def __eq__(self, other: object) -> bool:
         if not hasattr(other, "aa"):
             return NotImplemented
-        return self.aa == other.aa  # type: ignore
+        return self.aa == other.aa
 
     def as_dict(self):
         """MSONable dict."""

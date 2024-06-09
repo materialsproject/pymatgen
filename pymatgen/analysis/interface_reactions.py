@@ -338,17 +338,16 @@ class InterfacialReactivity(MSONable):
             hoverinfo="none",
         )
 
-        annotations = self._get_plotly_annotations(x, energy, reactions)  # type: ignore
+        annotations = self._get_plotly_annotations(x, energy, reactions)
 
-        min_idx = energy.index(min(energy))  # type: ignore
+        min_idx = energy.index(min(energy))
 
         x_min = x.pop(min_idx)
         e_min = energy.pop(min_idx)
         rxn_min = reactions.pop(min_idx)
 
         labels = [
-            f"{htmlify(str(r))} <br>\u0394E<sub>rxn</sub> = {round(e, 3)} eV/atom"  # type: ignore
-            for r, e in zip(reactions, energy)
+            f"{htmlify(str(r))} <br>\u0394E<sub>rxn</sub> = {round(e, 3)} eV/atom" for r, e in zip(reactions, energy)
         ]
 
         markers = Scatter(
@@ -367,7 +366,7 @@ class InterfacialReactivity(MSONable):
             hoverlabel={"bgcolor": "navy"},
         )
 
-        min_label = f"{htmlify(str(rxn_min))} <br>\u0394E<sub>rxn</sub> = {round(e_min, 3)} eV/atom"  # type: ignore
+        min_label = f"{htmlify(str(rxn_min))} <br>\u0394E<sub>rxn</sub> = {round(e_min, 3)} eV/atom"
 
         minimum = Scatter(
             x=[x_min],
