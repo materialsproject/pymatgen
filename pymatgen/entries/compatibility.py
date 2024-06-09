@@ -48,6 +48,22 @@ MU_H2O = -2.4583  # Free energy of formation of water, eV/H2O, used by Materials
 MP2020_COMPAT_CONFIG = loadfn(f"{MODULE_DIR}/MP2020Compatibility.yaml")
 MP_COMPAT_CONFIG = loadfn(f"{MODULE_DIR}/MPCompatibility.yaml")
 
+# This was compiled by cross-referencing structures in Materials Project from exp_compounds.json.gz
+# used in the fitting of the MP2020 correction scheme, and applying the BVAnalyzer algorithm to
+# determine oxidation state. O and S are not included since these are treated separately.
+MP2020_ANION_OXIDATION_STATE_RANGES = {
+    "Br": (-1, -1),
+    "Cl": (-1, -1),
+    "F": (-1, -1),
+    "H": (-1, -1),
+    "I": (-1, -1),
+    "N": (-3, -2),
+    "Sb": (-3, -2),
+    "Se": (-2, -1),
+    "Si": (-4, -1),
+    "Te": (-2, -1),
+}
+
 assert (  # ping @janosh @rkingsbury on GitHub if this fails
     MP2020_COMPAT_CONFIG["Corrections"]["GGAUMixingCorrections"]["O"]
     == MP2020_COMPAT_CONFIG["Corrections"]["GGAUMixingCorrections"]["F"]
@@ -829,6 +845,10 @@ class MaterialsProject2020Compatibility(Compatibility):
     Materials Project input set parameters (see pymatgen.io.vasp.sets.MPRelaxSet). Using
     this compatibility scheme on calculations with different parameters is not valid.
 
+    The option `strict_anions` was added due to a bug. See PR #3803 (May 2024) for
+    related discussion. This behavior may change in subsequent versions as a more comprehensive
+    fix for this issue may be found.
+
     Note: While the correction scheme is largely composition-based, the energy corrections
     applied to ComputedEntry and ComputedStructureEntry can differ for O and S-containing
     structures if entry.data['oxidation_states'] is not populated or explicitly set. This
@@ -842,7 +862,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         self,
         compat_type: str = "Advanced",
         correct_peroxide: bool = True,
-        strict_anions: bool = True,
+        strict_anions: Literal["require_exact", "require_bound", "no_check"] = "require_bound",
         check_potcar: bool = True,
         check_potcar_hash: bool = False,
         config_file: str | None = None,
@@ -869,12 +889,15 @@ class MaterialsProject2020Compatibility(Compatibility):
             correct_peroxide: Specify whether peroxide/superoxide/ozonide
                 corrections are to be applied or not. If false, all oxygen-containing
                 compounds are assigned the 'oxide' correction. Default: True
-            strict_anions: only apply the anion corrections to anions. Here, an anion
-                is defined as any species with an oxidation state value of <= -1.
+            strict_anions: only apply the anion corrections to anions. The option
+                "require_exact" will only apply anion corrections in cases where the
+                anion oxidation state is between the oxidation states used
+                in the experimental fitting data. The option "require_bound" will
+                define an anion as any species with an oxidation state value of <= -1.
                 This prevents the anion correction from being applied to unrealistic
                 hypothetical structures containing large proportions of very electronegative
-                elements, thus artificially over-stabilizing the compound. Set to False
-                to restore the behavior described in the associated publication. Default: True
+                elements, thus artificially over-stabilizing the compound. Set to "no_check"
+                to restore the original behavior described in the associated publication. Default: True
             check_potcar (bool): Check that the POTCARs used in the calculation are consistent
                 with the Materials Project parameters. False bypasses this check altogether. Default: True
                 Can also be disabled globally by running `pmg config --add PMG_POTCAR_CHECKS false`.
@@ -962,7 +985,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         comp = entry.composition
         rform = comp.reduced_formula
         # sorted list of elements, ordered by electronegativity
-        elements = sorted((el for el in comp.elements if comp[el] > 0), key=lambda el: el.X)
+        sorted_elements = sorted((el for el in comp.elements if comp[el] > 0), key=lambda el: el.X)
 
         # Skip single elements
         if len(comp) == 1:
@@ -1055,7 +1078,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                 "only the most electronegative atom."
             )
 
-        for anion in "Br I Se Si Sb Te H N F Cl".split():
+        for anion in ("Br", "I", "Se", "Si", "Sb", "Te", "H", "N", "F", "Cl"):
             if Element(anion) in comp and anion in self.comp_correction:
                 apply_correction = False
                 oxidation_state = entry.data["oxidation_states"].get(anion, 0)
@@ -1063,7 +1086,7 @@ class MaterialsProject2020Compatibility(Compatibility):
                 # is the most electronegative element
                 if oxidation_state < 0:
                     apply_correction = True
-                    if self.strict_anions and oxidation_state > -1:
+                    if self.strict_anions == "require_bound" and oxidation_state > -1:
                         # This is not an anion. Noting that the rare case of a fractional
                         # oxidation state in range [-1, 0] might be considered an anionic.
                         # This could include suboxides or metal-rich pnictides, chalcogenides etc.
@@ -1073,8 +1096,15 @@ class MaterialsProject2020Compatibility(Compatibility):
                         # may.
                         apply_correction = False
                 else:
-                    most_electroneg = elements[-1].symbol
+                    most_electroneg = sorted_elements[-1].symbol
                     if anion == most_electroneg:
+                        apply_correction = True
+
+                if self.strict_anions == "require_exact":
+                    apply_correction = False
+                    if (oxi_range := MP2020_ANION_OXIDATION_STATE_RANGES.get(anion)) and (
+                        oxi_range[0] <= oxidation_state <= oxi_range[1]
+                    ):
                         apply_correction = True
 
                 if apply_correction:
@@ -1091,7 +1121,7 @@ class MaterialsProject2020Compatibility(Compatibility):
         # GGA / GGA+U mixing scheme corrections
         calc_u = entry.parameters.get("hubbards")
         calc_u = defaultdict(int) if calc_u is None else calc_u
-        most_electroneg = elements[-1].symbol
+        most_electroneg = sorted_elements[-1].symbol
         u_corrections = self.u_corrections.get(most_electroneg, defaultdict(float))
         u_settings = self.u_settings.get(most_electroneg, defaultdict(float))
         u_errors = self.u_errors.get(most_electroneg, defaultdict(float))

@@ -1063,13 +1063,17 @@ class TestMaterialsProjectCompatibility2020(TestCase):
         assert processed_entry.energy == approx(-58.97 + -6.084)
 
     def test_many_anions(self):
-        compat = MaterialsProject2020Compatibility(strict_anions=True)
+        compat = MaterialsProject2020Compatibility(strict_anions="require_bound")
         processed_entry = compat.process_entry(self.entry_many_anions)
         assert processed_entry.energy == -1
 
-        compat = MaterialsProject2020Compatibility(strict_anions=False)
+        compat = MaterialsProject2020Compatibility(strict_anions="no_check")
         processed_entry = compat.process_entry(self.entry_many_anions)
         assert processed_entry.energy == approx(-4.411)
+
+        compat = MaterialsProject2020Compatibility(strict_anions="require_exact")
+        processed_entry = compat.process_entry(self.entry_many_anions)
+        assert processed_entry.energy == -1
 
 
 class TestMITCompatibility(TestCase):
