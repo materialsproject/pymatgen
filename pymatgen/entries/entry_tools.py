@@ -112,7 +112,7 @@ def group_entries_by_structure(
     """
     if comparator is None:
         comparator = SpeciesComparator()
-    start = datetime.datetime.now(tz=datetime.timezone.utc)
+    start = datetime.datetime.now()
     logger.info(f"Started at {start}")
     entries_host = [(entry, _get_host(entry.structure, species_to_remove)) for entry in entries]
     if ncpus:
@@ -161,8 +161,8 @@ def group_entries_by_structure(
     entry_groups = []
     for g in groups:
         entry_groups.append(json.loads(g, cls=MontyDecoder))
-    logging.info(f"Finished at {datetime.datetime.now(tz=datetime.timezone.utc)}")
-    logging.info(f"Took {datetime.datetime.now(tz=datetime.timezone.utc) - start}")
+    logging.info(f"Finished at {datetime.datetime.now()}")
+    logging.info(f"Took {datetime.datetime.now() - start}")
     return entry_groups
 
 

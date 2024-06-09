@@ -17,6 +17,7 @@ import os
 import shutil
 import subprocess
 import warnings
+from datetime import datetime
 from glob import glob
 from pathlib import Path
 from shutil import which
@@ -243,7 +244,6 @@ class BaderAnalysis:
             "shift" is the shift used to center the atomic charge density, and
             "dim" is the dimension of the original charge density.
         """
-
         def slice_from_center(data: np.ndarray, x_width: int, y_width: int, z_width: int) -> np.ndarray:
             """Slices a central window from the data array."""
             x, y, z = data.shape

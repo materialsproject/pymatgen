@@ -421,7 +421,7 @@ class AirssProvider(ResProvider):
             raise ResParseError(f"Could not parse the date from {string=}.")
 
         day, month, year, *_ = match.groups()
-        month_num = datetime.datetime.strptime(month, "%b").replace(tzinfo=datetime.timezone.utc).month
+        month_num = datetime.datetime.strptime(month, "%b").month
 
         return datetime.date(int(year), month_num, int(day))
 
