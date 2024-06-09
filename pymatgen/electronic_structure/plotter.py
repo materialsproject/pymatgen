@@ -2363,7 +2363,7 @@ class BSDOSPlotter:
             left_kpoint = bs.kpoints[branch["start_index"]].cart_coords
             right_kpoint = bs.kpoints[branch["end_index"]].cart_coords
             distance = np.linalg.norm(right_kpoint - left_kpoint)
-            xlabel_distances.append(xlabel_distances[-1] + distance)  # type: ignore
+            xlabel_distances.append(xlabel_distances[-1] + distance)
 
             # add x-coordinates for kpoint data
             npts = branch["end_index"] - branch["start_index"]
@@ -2411,7 +2411,7 @@ class BSDOSPlotter:
                 band_energies[spin] = []
                 for band in bs.bands[spin]:
                     band = cast(list[float], band)
-                    band_energies[spin].append([e - bs.efermi for e in band])  # type: ignore
+                    band_energies[spin].append([e - bs.efermi for e in band])  # type: ignore[arg-type]
 
         # renormalize the DOS energies to Fermi level
         dos_energies = [e - dos.efermi for e in dos.energies] if dos else []
@@ -2446,7 +2446,7 @@ class BSDOSPlotter:
                 if spin in dos.densities:
                     # plot the total DOS
                     dos_densities = dos.densities[spin] * int(spin)
-                    label = "total" if spin == Spin.up else None
+                    label: str | None = "total" if spin == Spin.up else None
                     dos_ax.plot(dos_densities, dos_energies, color=(0.6, 0.6, 0.6), label=label)
                     dos_ax.fill_betweenx(
                         dos_energies,
@@ -2480,7 +2480,7 @@ class BSDOSPlotter:
                         for idx, orb in enumerate([OrbitalType.s, OrbitalType.p, OrbitalType.d, OrbitalType.f]):
                             if orb in spd_dos:
                                 dos_densities = spd_dos[orb].densities[spin] * int(spin)
-                                label = orb if spin == Spin.up else None  # type: ignore
+                                label = orb if spin == Spin.up else None  # type: ignore[assignment]
                                 dos_ax.plot(
                                     dos_densities,
                                     dos_energies,

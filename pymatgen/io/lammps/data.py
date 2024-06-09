@@ -401,7 +401,7 @@ class LammpsData(MSONable):
             coeffs[style] = {}
             for type, formatter in types.items():
                 coeffs[style][type] = {}
-                for coeff, datatype in formatter.items():  # type: ignore
+                for coeff, datatype in formatter.items():  # type: ignore[attr-defined]
                     if datatype == "int_format":
                         coeffs[style][type][coeff] = int_format
                     elif datatype == "float_format_2":
@@ -830,7 +830,7 @@ class LammpsData(MSONable):
             velos = np.array(struct.site_properties["velocities"])
             rot = SymmOp.from_rotation_and_translation(symm_op.rotation_matrix)
             rot_velos = rot.operate_multi(velos)
-            site_properties["velocities"] = rot_velos  # type: ignore
+            site_properties["velocities"] = rot_velos
         boxed_s = Structure(
             box.to_lattice(),
             struct.species,

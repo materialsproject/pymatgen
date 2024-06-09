@@ -228,4 +228,4 @@ def get_bond_length(
             f"No order {bond_order} bond lengths between {sp1} and {sp2} found in "
             "database. Returning sum of atomic radius."
         )
-        return sp1.atomic_radius + sp2.atomic_radius  # type: ignore
+        return sp1.atomic_radius + sp2.atomic_radius  # type: ignore[operator]
