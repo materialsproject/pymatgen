@@ -74,9 +74,7 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
             try:
                 basis = GaussianTypeOrbitalBasisSet.from_str(chk)
                 basis.filename = os.path.basename(basis_file)
-                settings[basis.element.symbol]["basis_sets"][basis.get_hash()] = jsanitize(  # type: ignore
-                    basis, strict=True
-                )
+                settings[basis.element.symbol]["basis_sets"][basis.get_hash()] = jsanitize(basis, strict=True)  # type: ignore[union-attr]
             except ValueError:
                 # Chunk was readable, but the element is not pmg recognized
                 continue

@@ -240,10 +240,6 @@ class QCInput(InputFile):
         #   - Validity checks specific to job type?
         #   - Check OPT and PCM sections?
 
-    def get_str(self) -> str:
-        """Return a string representation of an entire input file."""
-        return str(self)
-
     def __str__(self) -> str:
         combined_list: list = []
         # molecule section
@@ -287,6 +283,10 @@ class QCInput(InputFile):
         if self.pcm_nonels:
             combined_list.append(self.pcm_nonels_template(self.pcm_nonels))
         return "\n".join(combined_list)
+
+    def get_str(self) -> str:
+        """Return a string representation of an entire input file."""
+        return str(self)
 
     @staticmethod
     def multi_job_string(job_list: list[QCInput]) -> str:

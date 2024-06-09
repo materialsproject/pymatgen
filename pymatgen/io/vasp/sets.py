@@ -1404,14 +1404,20 @@ class MPStaticSet(VaspInputSet):
             factor = self.small_gap_multiply[1]
 
         # prefer to use k-point scheme from previous run unless lepsilon = True is specified
-        if self.prev_kpoints and self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst and not self.lepsilon:  # type: ignore
+        if (
+            self.prev_kpoints
+            and isinstance(self.prev_kpoints, Kpoints)
+            and self.prev_kpoints.style == Kpoints.supported_modes.Monkhorst
+            and not self.lepsilon
+            and self.structure is not None
+        ):
             kpoints = Kpoints.automatic_density_by_vol(
-                self.structure,  # type: ignore
+                self.structure,
                 int(self.reciprocal_density * factor),
                 self.force_gamma,
             )
-            k_div = [kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]]  # type: ignore
-            return Kpoints.monkhorst_automatic(k_div)  # type: ignore
+            k_div = cast(Kpoint, tuple(kp + 1 if kp % 2 == 1 else kp for kp in kpoints.kpts[0]))
+            return Kpoints.monkhorst_automatic(k_div)
 
         return {"reciprocal_density": self.reciprocal_density * factor}
 
@@ -1919,11 +1925,11 @@ class MPNMRSet(VaspInputSet):
                 PREC="ACCURATE",
                 SIGMA=0.01,
             )
-        elif self.mode.lower() == "efg":
+        elif self.mode.lower() == "efg" and self.structure is not None:
             isotopes = {ist.split("-")[0]: ist for ist in self.isotopes}
             quad_efg = [
-                float(Species(s.name).get_nmr_quadrupole_moment(isotopes.get(s.name)))
-                for s in self.structure.species  # type: ignore
+                float(Species(sp.name).get_nmr_quadrupole_moment(isotopes.get(sp.name)))
+                for sp in self.structure.species
             ]
             updates.update(
                 ALGO="FAST",
@@ -2129,9 +2135,9 @@ class MVLSlabSet(VaspInputSet):
             updates |= {"ISIF": 2, "LVTOT": True, "NELMIN": 8}
             if self.set_mix:
                 updates |= {"AMIN": 0.01, "AMIX": 0.2, "BMIX": 0.001}
-            if self.auto_dipole:
-                weights = [s.species.weight for s in self.structure]  # type: ignore
-                center_of_mass = np.average(self.structure.frac_coords, weights=weights, axis=0)  # type: ignore
+            if self.auto_dipole and self.structure is not None:
+                weights = [struct.species.weight for struct in self.structure]
+                center_of_mass = np.average(self.structure.frac_coords, weights=weights, axis=0)
                 updates |= {"IDIPOL": 3, "LDIPOL": True, "DIPOL": center_of_mass}
         return updates
 

@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from typing import Literal
 
     from pymatgen.core.structure import Molecule
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
@@ -615,13 +616,13 @@ class QChemDictSet(QCInput):
             pcm_nonels=pcm_nonels,
         )
 
-    def write(self, input_file: str):
+    def write(self, input_file: PathLike) -> None:
         """
         Args:
-            input_file (str): Filename.
+            input_file (PathLike): Filename.
         """
         self.write_file(input_file)
-        if self.smd_solvent in ("custom", "other") and self.qchem_version == 5:
+        if self.smd_solvent in {"custom", "other"} and self.qchem_version == 5:
             with zopen(os.path.join(os.path.dirname(input_file), "solvent_data"), mode="wt") as file:
                 file.write(self.custom_smd)
 

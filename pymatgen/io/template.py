@@ -5,6 +5,7 @@ used to facilitate writing large numbers of input files based on a template.
 
 from __future__ import annotations
 
+from pathlib import Path
 from string import Template
 from typing import TYPE_CHECKING
 
@@ -13,7 +14,7 @@ from monty.io import zopen
 from pymatgen.io.core import InputGenerator, InputSet
 
 if TYPE_CHECKING:
-    from pathlib import Path
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Ryan Kingsbury"
 __email__ = "RKingsbury@lbl.gov"
@@ -31,9 +32,12 @@ class TemplateInputGen(InputGenerator):
     classes.
     """
 
-    def get_input_set(  # type: ignore
-        self, template: str | Path, variables: dict | None = None, filename: str = "input.txt"
-    ):
+    def get_input_set(
+        self,
+        template: PathLike,
+        variables: dict | None = None,
+        filename: PathLike = "input.txt",
+    ) -> InputSet:
         """
         Args:
             template: the input file template containing variable strings to be
@@ -42,16 +46,16 @@ class TemplateInputGen(InputGenerator):
                 text to replaced with the values, e.g. {"TEMPERATURE": 298} will
                 replace the text $TEMPERATURE in the template. See Python's
                 Template.safe_substitute() method documentation for more details.
-            filename: name of the file to be written.
+            filename: the file to be written.
         """
         self.template = template
         self.variables = variables or {}
         self.filename = filename
 
-        # load the template
+        # Load the template
         with zopen(self.template, mode="r") as file:
             template_str = file.read()
 
-        # replace all variables
+        # Replace all variables
         self.data = Template(template_str).safe_substitute(**self.variables)
-        return InputSet({self.filename: self.data})
+        return InputSet({Path(self.filename): self.data})

@@ -20,7 +20,8 @@ from pymatgen.io.core import InputFile, InputGenerator, InputSet
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from pathlib import Path
+
+    from pymatgen.util.typing import PathLike
 
 TMPDIR_NAME: str = "tmpdir"
 OUTPUT_FILE_NAME: str = "aims.out"
@@ -133,7 +134,11 @@ class AimsInputSet(InputSet):
 
         return self._parameters
 
-    def remove_parameters(self, keys: Iterable[str] | str, strict: bool = True) -> dict[str, Any]:
+    def remove_parameters(
+        self,
+        keys: Iterable[str] | str,
+        strict: bool = True,
+    ) -> dict[str, Any]:
         """Remove the aims parameters listed in keys.
 
         This removes the aims variables from the parameters object.
@@ -193,7 +198,7 @@ class AimsInputGenerator(InputGenerator):
     def get_input_set(  # type: ignore
         self,
         structure: Structure | Molecule | None = None,
-        prev_dir: str | Path | None = None,
+        prev_dir: PathLike | None = None,
         properties: list[str] | None = None,
     ) -> AimsInputSet:
         """Generate an AimsInputSet object.
@@ -221,7 +226,7 @@ class AimsInputGenerator(InputGenerator):
 
     @staticmethod
     def _read_previous(
-        prev_dir: str | Path | None = None,
+        prev_dir: PathLike | None = None,
     ) -> tuple[Structure | Molecule | None, dict[str, Any], dict[str, Any]]:
         """Read in previous results.
 
@@ -288,7 +293,9 @@ class AimsInputGenerator(InputGenerator):
         return properties
 
     def _get_input_parameters(
-        self, structure: Structure | Molecule, prev_parameters: dict[str, Any] | None = None
+        self,
+        structure: Structure | Molecule,
+        prev_parameters: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Create the input parameters.
 
@@ -340,7 +347,11 @@ class AimsInputGenerator(InputGenerator):
 
         return parameters
 
-    def get_parameter_updates(self, structure: Structure | Molecule, prev_parameters: dict[str, Any]) -> dict[str, Any]:
+    def get_parameter_updates(
+        self,
+        structure: Structure | Molecule,
+        prev_parameters: dict[str, Any],
+    ) -> dict[str, Any]:
         """Update the parameters for a given calculation type.
 
         Args:
