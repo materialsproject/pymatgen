@@ -2349,8 +2349,8 @@ class MITNEBSet(VaspInputSet):
             make_dir_if_not_present (bool): Set to True if you want the
                 directory (and the whole path) to be created if it is not
                 present.
-            write_cif (bool): If true, writes a cif along with each POSCAR.
-            write_path_cif (bool): If true, writes a cif for each image.
+            write_cif (bool): If true, writes a CIF along with each POSCAR.
+            write_path_cif (bool): If true, writes a CIF for each image.
             write_endpoint_inputs (bool): If true, writes input files for
                 running endpoint calculations.
         """

@@ -130,7 +130,7 @@ class SpectrumPlotter:
 
         Args:
             filename (str): Filename to write to. Must include extension to specify image format.
-            kwargs: additional kwargs.
+            kwargs: passed to get_plot.
         """
         self.get_plot(**kwargs)
         plt.savefig(filename)

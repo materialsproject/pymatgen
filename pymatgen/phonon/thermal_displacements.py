@@ -209,14 +209,14 @@ class ThermalDisplacementMatrices(MSONable):
         return U1U2U3
 
     def write_cif(self, filename: str) -> None:
-        """Write a cif including thermal displacements.
+        """Write a CIF including thermal displacements.
 
         Args:
-            filename: name of the cif file
+            filename: name of the CIF file
         """
         writer = CifWriter(self.structure)
         writer.write_file(filename)
-        # This will simply append the thermal displacement part to the cif from the CifWriter
+        # This will simply append the thermal displacement part to the CIF from the CifWriter
         # In the long run, CifWriter could be extended to handle thermal displacement matrices
         with open(filename, mode="a") as file:
             file.write("loop_ \n")
@@ -514,7 +514,7 @@ class ThermalDisplacementMatrices(MSONable):
 
     @staticmethod
     def from_cif_P1(filename: str) -> list[ThermalDisplacementMatrices]:
-        """Reads a cif with P1 symmetry including positions and ADPs.
+        """Reads a CIF with P1 symmetry including positions and ADPs.
         Currently, no check of symmetry is performed as CifParser methods cannot be easily reused.
 
         Args:

@@ -270,10 +270,10 @@ class TransformedStructure(MSONable):
         primitive: bool = True,
         occupancy_tolerance: float = 1.0,
     ) -> Self:
-        """Generate TransformedStructure from a cif string.
+        """Generate TransformedStructure from a CIF string.
 
         Args:
-            cif_string (str): Input cif string. Should contain only one
+            cif_string (str): Input CIF string. Should contain only one
                 structure. For CIFs containing multiple structures, please use
                 CifTransmuter.
             transformations (list[Transformation]): Sequence of transformations
