@@ -29,7 +29,7 @@ if TYPE_CHECKING:
 
     from pymatgen.util.typing import SpeciesLike
 
-# Load element data from json file
+# Load element data from JSON file
 with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
     _pt_data = json.load(ptable_json)
 

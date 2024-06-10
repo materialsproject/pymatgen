@@ -50,7 +50,7 @@ def _load_pmg_settings() -> dict[str, Any]:
         except Exception as exc:
             # If there are any errors, default to using environment variables
             # if present.
-            warnings.warn(f"Error loading {file_path}: {exc}.\nYou may need to reconfigure your yaml file.")
+            warnings.warn(f"Error loading {file_path}: {exc}.\nYou may need to reconfigure your YAML file.")
 
     # Override .pmgrc.yaml with env vars (if present)
     for key, val in os.environ.items():

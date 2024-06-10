@@ -29,7 +29,7 @@ BV_PARAMS = {}
 for key, val in loadfn(f"{module_dir}/bvparam_1991.yaml").items():
     BV_PARAMS[Element(key)] = val
 
-# Read in yaml containing data-mined ICSD BV data.
+# Read in YAML containing data-mined ICSD BV data.
 all_data = loadfn(f"{module_dir}/icsd_bv.yaml")
 ICSD_BV_DATA = {Species.from_str(sp): data for sp, data in all_data["bvsum"].items()}
 PRIOR_PROB = {Species.from_str(sp): data for sp, data in all_data["occurrence"].items()}
