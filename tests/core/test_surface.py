@@ -382,7 +382,7 @@ class TestSlabGenerator(PymatgenTest):
                 and (
                     sg.hexagonal
                     or sg.int_number
-                    in [143, 144, 145, 147, 149, 150, 151, 152, 153, 154, 156, 157, 158, 159, 162, 163, 164, 165]
+                    in (143, 144, 145, 147, 149, 150, 151, 152, 153, 154, 156, 157, 158, 159, 162, 163, 164, 165)
                 )
             ):
                 lattice = Lattice.hexagonal(5, 10)

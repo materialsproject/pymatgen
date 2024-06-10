@@ -108,17 +108,9 @@ class TestSpaceGroup:
 
     def test_get_settings(self):
         assert SpaceGroup.get_settings("Fm-3m") == {"Fm-3m(a-1/4,b-1/4,c-1/4)", "Fm-3m"}
-        assert SpaceGroup.get_settings("Pmmn") == {
-            "Pmmn",
-            "Pmnm:1",
-            "Pnmm:2",
-            "Pmnm:2",
-            "Pnmm",
-            "Pnmm:1",
-            "Pmmn:1",
-            "Pmnm",
-            "Pmmn:2",
-        }
+
+        pmmn_settings = {"Pmmn", "Pmnm:1", "Pnmm:2", "Pmnm:2", "Pnmm", "Pnmm:1", "Pmmn:1", "Pmnm", "Pmmn:2"}
+        assert SpaceGroup.get_settings("Pmmn") == pmmn_settings
         assert SpaceGroup.get_settings("Pmna") == {"Pnmb", "Pman", "Pncm", "Pmna", "Pcnm", "Pbmn"}
 
     def test_crystal_system(self):
@@ -249,3 +241,9 @@ class TestSpaceGroup:
         for num in (-5, 0, 231, 1000):
             with pytest.raises(ValueError, match=f"International number must be between 1 and 230, got {num}"):
                 SpaceGroup.from_int_number(num)
+
+    def test_full_symbol_warning(self):
+        warning_msg = "Full symbol not available, falling back to short Hermann Mauguin symbol P2_1ma instead"
+        with pytest.warns(Warning, match=warning_msg) as warns:
+            _ = SpaceGroup("P2_1ma")
+        assert len(warns) == 1

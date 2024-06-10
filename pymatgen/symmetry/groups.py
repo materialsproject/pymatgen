@@ -302,7 +302,7 @@ class SpaceGroup(SymmetryGroup):
                     self.full_symbol = spg["hermann_mauguin_u"]
                     warnings.warn(
                         f"Full symbol not available, falling back to short Hermann Mauguin symbol "
-                        f"{self.symbol} instead."
+                        f"{self.symbol} instead"
                     )
                     self.point_group = spg["point_group"]
                 self.int_number = spg["number"]
