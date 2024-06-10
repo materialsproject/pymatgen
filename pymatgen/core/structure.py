@@ -1522,6 +1522,11 @@ class IStructure(SiteCollection, MSONable):
 
         Returns:
             spacegroup_symbol, international_number
+
+        Raises:
+            pymatgen.symmetry.analyzer.SymmetryUndetermined if symmetry cannot
+            be determined. This can happen for numerical reasons, for example if
+            atoms are placed unphysically close together.
         """
         # Avoid circular import
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
