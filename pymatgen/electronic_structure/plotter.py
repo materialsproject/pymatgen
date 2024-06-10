@@ -51,22 +51,27 @@ __date__ = "May 1, 2012"
 
 
 class DosPlotter:
-    """Plot DOSs. The interface is extremely flexible given there are many
+    """Plot DOS. The interface is extremely flexible given there are many
     different ways in which people want to view DOS.
     Typical usage is:
-        # Initializes plotter with some optional args. Defaults are usually fine
+        # Initialize plotter with some optional args. Defaults are usually fine
         plotter = PhononDosPlotter().
 
         # Add DOS with a label
         plotter.add_dos("Total DOS", dos)
 
-        # Alternatively, you can add a dict of DOSes. This is the typical form
+        # Alternatively, you can add a dict of DOS. This is the typical form
         # returned by CompletePhononDos.get_element_dos().
         plotter.add_dos_dict({"dos1": dos1, "dos2": dos2})
         plotter.add_dos_dict(complete_dos.get_spd_dos())
     """
 
-    def __init__(self, zero_at_efermi: bool = True, stack: bool = False, sigma: float | None = None) -> None:
+    def __init__(
+        self,
+        zero_at_efermi: bool = True,
+        stack: bool = False,
+        sigma: float | None = None,
+    ) -> None:
         """
         Args:
             zero_at_efermi (bool): Whether to shift all Dos to have zero energy at the

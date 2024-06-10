@@ -245,7 +245,8 @@ class BandStructure:
             if there is no projections in the band structure
             returns an empty dict
         """
-        result = {}
+        assert self.structure is not None
+        result: dict[Spin, NDArray] = {}
         for spin, val in self.projections.items():
             result[spin] = [[defaultdict(float) for _ in range(len(self.kpoints))] for _ in range(self.nb_bands)]
             for i, j, k in itertools.product(
@@ -343,7 +344,7 @@ class BandStructure:
                     kpoint_vbm = self.kpoints[j]
 
         list_ind_kpts = []
-        if kpoint_vbm.label is not None:
+        if kpoint_vbm is not None and kpoint_vbm.label is not None:
             for idx, kpt in enumerate(self.kpoints):
                 if kpt.label == kpoint_vbm.label:
                     list_ind_kpts.append(idx)
@@ -408,7 +409,7 @@ class BandStructure:
                     kpoint_cbm = self.kpoints[j]
 
         list_index_kpoints = []
-        if kpoint_cbm.label is not None:
+        if kpoint_cbm is not None and kpoint_cbm.label is not None:
             for idx, kpt in enumerate(self.kpoints):
                 if kpt.label == kpoint_cbm.label:
                     list_index_kpoints.append(idx)
@@ -562,7 +563,7 @@ class BandStructure:
 
     def as_dict(self) -> dict[str, Any]:
         """JSON-serializable dict representation of BandStructure."""
-        dct = {
+        dct: dict[str, Any] = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "lattice_rec": self.lattice_rec.as_dict(),
@@ -599,7 +600,7 @@ class BandStructure:
             mongo_key = f" {c}" if c.startswith("$") else c
             dct["labels_dict"][mongo_key] = label.as_dict()["fcoords"]
         dct["projections"] = {}
-        if len(self.projections) != 0:
+        if len(self.projections) != 0 and self.structure is not None:
             dct["structure"] = self.structure.as_dict()
             dct["projections"] = {str(int(spin)): np.array(v).tolist() for spin, v in self.projections.items()}
         return dct
@@ -907,7 +908,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
 
     def as_dict(self) -> dict[str, Any]:
         """JSON-serializable dict representation of BandStructureSymmLine."""
-        dct = {
+        dct: dict[str, Any] = {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
             "lattice_rec": self.lattice_rec.as_dict(),
@@ -943,7 +944,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
         for c, label in self.labels_dict.items():
             mongo_key = c if not c.startswith("$") else " " + c
             dct["labels_dict"][mongo_key] = label.as_dict()["fcoords"]
-        if len(self.projections) != 0:
+        if len(self.projections) != 0 and self.structure is not None:
             dct["structure"] = self.structure.as_dict()
             dct["projections"] = {str(int(spin)): np.array(v).tolist() for spin, v in self.projections.items()}
         return dct
@@ -1033,7 +1034,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
             if there is no projections in the band structure
             returns an empty dict
         """
-        result = {}
+        result: dict[Spin, list] = {}
         for spin, v in self.projections.items():
             result[spin] = [[defaultdict(float) for _ in range(len(self.kpoints))] for _ in range(self.nb_bands)]
             for i, j in itertools.product(range(self.nb_bands), range(len(self.kpoints))):
@@ -1045,7 +1046,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
 
     def get_projections_on_elements_and_orbitals(
         self,
-        el_orb_spec: dict[Element, list],
+        el_orb_spec: dict[Element, list],  # type: ignore[override]
     ) -> dict[Spin, list]:
         """Return a dictionary of projections on elements and specific orbitals.
 
