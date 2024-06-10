@@ -32,11 +32,11 @@ def convert_symmops_to_sg_encoding(symbol: str) -> str:
 
     blickrichtungen = symbol_representation[0].split(" ")
     blickrichtungen_new = []
-    for b in blickrichtungen:
-        if len(b) > 1 and b[0].isdigit() and b[1].isdigit():
-            blickrichtungen_new.append(b[0] + "_" + b[1:])
+    for br in blickrichtungen:
+        if len(br) > 1 and br[0].isdigit() and br[1].isdigit():
+            blickrichtungen_new.append(br[0] + "_" + br[1:])
         else:
-            blickrichtungen_new.append(b)
+            blickrichtungen_new.append(br)
     return "".join(blickrichtungen_new) + representation
 
 
@@ -52,9 +52,9 @@ def remove_identity_from_full_hermann_mauguin(symbol: str) -> str:
         return symbol
     blickrichtungen = symbol.split(" ")
     blickrichtungen_new = []
-    for b in blickrichtungen:
-        if b != "1":
-            blickrichtungen_new.append(b + " ")
+    for br in blickrichtungen:
+        if br != "1":
+            blickrichtungen_new.append(br + " ")
     return "".join(blickrichtungen_new)
 
 
