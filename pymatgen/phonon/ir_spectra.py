@@ -90,7 +90,7 @@ class IRDielectricTensor(MSONable):
         }
 
     def write_json(self, filename: str | PathLike) -> None:
-        """Save a json file with this data."""
+        """Save a JSON file with this data."""
         with open(filename, mode="w") as file:
             json.dump(self.as_dict(), file)
 
@@ -120,14 +120,13 @@ class IRDielectricTensor(MSONable):
             emax = self.max_phfreq + max(broad) * 20
         frequencies = np.linspace(emin, emax, divs)
 
-        na = np.newaxis
         dielectric_tensor = np.zeros((divs, 3, 3), dtype=complex)
         for i in range(3, len(self.ph_freqs_gamma)):
             g = broad[i] * self.ph_freqs_gamma[i]
             num = self.oscillator_strength[i, :, :]
-            den = self.ph_freqs_gamma[i] ** 2 - frequencies[:, na, na] ** 2 - 1j * g
+            den = self.ph_freqs_gamma[i] ** 2 - frequencies[:, None, None] ** 2 - 1j * g
             dielectric_tensor += num / den
-        dielectric_tensor += self.epsilon_infinity[na, :, :]
+        dielectric_tensor += self.epsilon_infinity[None, :, :]
 
         return frequencies, dielectric_tensor
 
@@ -145,7 +144,7 @@ class IRDielectricTensor(MSONable):
 
         Arguments:
             components: A list with the components of the dielectric tensor to plot.
-                        Can be either two indexes or a string like 'xx' to plot the (0,0) component
+                Can be either two indexes or a string like 'xx' to plot the (0,0) component
             reim: If 're' (im) is present in the string plots the real (imaginary) part of the dielectric tensor
             show_phonon_frequencies: plot a dot where the phonon frequencies are to help identify IR inactive modes
             xlim: x-limits of the plot. Defaults to None for automatic determination.
@@ -217,11 +216,11 @@ class IRDielectricTensor(MSONable):
         plotter = SpectrumPlotter()
         for component in components:
             i, j = (directions_map[direction] for direction in component)
-            for fstr in ("re", "im"):
-                if fstr in reim:
-                    label = rf"{reim_label[fstr]}{{$\epsilon_{{{'xyz'[i]}{'xyz'[j]}}}$}}"
+            for re_im in ("re", "im"):
+                if re_im in reim:
+                    label = rf"{reim_label[re_im]}{{$\epsilon_{{{'xyz'[i]}{'xyz'[j]}}}$}}"
                     spectrum = self.get_spectrum(
-                        component, fstr, broad=broad, emin=emin, emax=emax, divs=divs, **kwargs
+                        component, re_im, broad=broad, emin=emin, emax=emax, divs=divs, **kwargs
                     )
                     spectrum.XLABEL = r"Frequency (meV)"
                     spectrum.YLABEL = r"$\epsilon(\omega)$"

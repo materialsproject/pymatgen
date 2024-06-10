@@ -150,7 +150,7 @@ class StructureGraph(MSONable):
         self.structure = structure
         self.graph = nx.readwrite.json_graph.adjacency_graph(graph_data)
 
-        # tidy up edge attr dicts, reading to/from json duplicates information
+        # tidy up edge attr dicts, reading to/from JSON duplicates information
         for _, _, _, data in self.graph.edges(keys=True, data=True):
             for key in ("id", "key"):
                 data.pop(key, None)
@@ -206,10 +206,7 @@ class StructureGraph(MSONable):
         return cls(structure, graph_data=graph_data)
 
     @classmethod
-    @deprecated(
-        from_empty_graph,
-        "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
-    )
+    @deprecated(from_empty_graph, "Deprecated on 2024-03-29.", deadline=(2025, 3, 20))
     def with_empty_graph(cls, *args, **kwargs):
         return cls.from_empty_graph(*args, **kwargs)
 
@@ -268,10 +265,7 @@ class StructureGraph(MSONable):
         return struct_graph
 
     @classmethod
-    @deprecated(
-        from_edges,
-        "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
-    )
+    @deprecated(from_edges, "Deprecated on 2024-03-29.", deadline=(2025, 3, 20))
     def with_edges(cls, *args, **kwargs):
         return cls.from_edges(*args, **kwargs)
 
@@ -313,10 +307,7 @@ class StructureGraph(MSONable):
         return struct_graph
 
     @classmethod
-    @deprecated(
-        from_local_env_strategy,
-        "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
-    )
+    @deprecated(from_local_env_strategy, "Deprecated on 2024-03-29.", deadline=(2025, 3, 20))
     def with_local_env_strategy(cls, *args, **kwargs):
         return cls.from_local_env_strategy(*args, **kwargs)
 
@@ -1594,7 +1585,7 @@ class MoleculeGraph(MSONable):
         self.molecule = molecule
         self.graph = nx.readwrite.json_graph.adjacency_graph(graph_data)
 
-        # tidy up edge attr dicts, reading to/from json duplicates
+        # tidy up edge attr dicts, reading to/from JSON duplicates
         # information
         for _, _, _, data in self.graph.edges(keys=True, data=True):
             for key in ("id", "key"):
@@ -1650,10 +1641,7 @@ class MoleculeGraph(MSONable):
         return cls(molecule, graph_data=graph_data)
 
     @classmethod
-    @deprecated(
-        from_empty_graph,
-        "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
-    )
+    @deprecated(from_empty_graph, "Deprecated on 2024-03-29.", deadline=(2025, 3, 20))
     def with_empty_graph(cls, *args, **kwargs):
         return cls.from_empty_graph(*args, **kwargs)
 
@@ -1702,10 +1690,7 @@ class MoleculeGraph(MSONable):
         return mg
 
     @classmethod
-    @deprecated(
-        from_edges,
-        "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
-    )
+    @deprecated(from_edges, "Deprecated on 2024-03-29.", deadline=(2025, 3, 20))
     def with_edges(cls, *args, **kwargs):
         return cls.from_edges(*args, **kwargs)
 
@@ -1777,10 +1762,7 @@ class MoleculeGraph(MSONable):
         return mg
 
     @classmethod
-    @deprecated(
-        from_local_env_strategy,
-        "Deprecated on 2024-03-29, to be removed on 2025-03-20.",
-    )
+    @deprecated(from_local_env_strategy, "Deprecated on 2024-03-29.", deadline=(2025, 3, 20))
     def with_local_env_strategy(cls, *args, **kwargs):
         return cls.from_local_env_strategy(*args, **kwargs)
 

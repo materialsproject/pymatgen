@@ -233,9 +233,8 @@ class BaderAnalysis:
         return data
 
     @deprecated(
-        message="parse_atomic_densities was deprecated on 2024-02-26 "
-        "and will be removed on 2025-02-26.\nSee https://"
-        "github.com/materialsproject/pymatgen/issues/3652 for details."
+        message="See issue #3652 for details.",
+        deadline=(2025, 2, 26),
     )
     def _parse_atomic_densities(self) -> list[dict]:
         """Parse atom-centered charge densities with excess zeros removed.

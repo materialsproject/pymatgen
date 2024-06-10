@@ -1,6 +1,5 @@
 """
-This module provides classes for representing species substitution
-probabilities.
+This module provides classes for representing species substitution probabilities.
 """
 
 from __future__ import annotations
@@ -51,11 +50,9 @@ class SubstitutionProbability:
     def __init__(self, lambda_table=None, alpha=-5):
         """
         Args:
-            lambda_table:
-                json table of the weight functions lambda if None,
+            lambda_table: JSON table of the weight functions lambda if None,
                 will use the default lambda.json table
-            alpha:
-                weight function for never observed substitutions.
+            alpha (float): weight function for never observed substitutions.
         """
         if lambda_table is not None:
             self._lambda_table = lambda_table
@@ -95,8 +92,8 @@ class SubstitutionProbability:
         Returns:
             Lambda values
         """
-        k = frozenset([get_el_sp(s1), get_el_sp(s2)])
-        return self._l.get(k, self.alpha)
+        key = frozenset([get_el_sp(s1), get_el_sp(s2)])
+        return self._l.get(key, self.alpha)
 
     def get_px(self, sp):
         """

@@ -230,7 +230,7 @@ class Slab(Structure):
         sites = [PeriodicSite.from_dict(sd, lattice) for sd in dct["sites"]]
         struct = Structure.from_sites(sites)
 
-        return Slab(
+        return cls(
             lattice=lattice,
             species=struct.species_and_occu,
             coords=struct.frac_coords,
@@ -270,7 +270,7 @@ class Slab(Structure):
         if site_properties:
             props.update(site_properties)
 
-        return Slab(
+        return type(self)(
             self.lattice,
             self.species_and_occu,
             self.frac_coords,
@@ -444,7 +444,7 @@ class Slab(Structure):
 
         return site_other
 
-    def get_orthogonal_c_slab(self) -> Slab:
+    def get_orthogonal_c_slab(self) -> Self:
         """Generate a Slab where the normal (c lattice vector) is
         forced to be orthogonal to the surface a and b lattice vectors.
 
@@ -461,7 +461,7 @@ class Slab(Structure):
         new_c = np.dot(c, _new_c) * _new_c
         new_latt = Lattice([a, b, new_c])
 
-        return Slab(
+        return type(self)(
             lattice=new_latt,
             species=self.species_and_occu,
             coords=self.cart_coords,
@@ -479,7 +479,7 @@ class Slab(Structure):
         self,
         tol: float = 0.01,
         same_species_only: bool = True,
-    ) -> list[Slab]:
+    ) -> list[Self]:
         """Get a list of slabs that have been Tasker 2 corrected.
 
         Args:
@@ -560,7 +560,7 @@ class Slab(Structure):
                 sp_fcoord = sorted(zip(species, frac_coords), key=lambda x: x[0])
                 species = [x[0] for x in sp_fcoord]
                 frac_coords = [x[1] for x in sp_fcoord]
-                slab = Slab(
+                slab = type(self)(
                     self.lattice,
                     species,
                     frac_coords,
@@ -575,7 +575,7 @@ class Slab(Structure):
         struct_matcher = StructureMatcher()
         return [ss[0] for ss in struct_matcher.group_structures(slabs)]
 
-    def get_sorted_structure(self, key=None, reverse: bool = False) -> Slab:
+    def get_sorted_structure(self, key=None, reverse: bool = False) -> Self:
         """Get a sorted copy of the structure. The parameters have the same
         meaning as in list.sort. By default, sites are sorted by the
         electronegativity of the species. Note that Slab has to override this
@@ -590,7 +590,7 @@ class Slab(Structure):
         """
         sites = sorted(self, key=key, reverse=reverse)
         struct = Structure.from_sites(sites)
-        return Slab(
+        return type(self)(
             struct.lattice,
             struct.species_and_occu,
             struct.frac_coords,
@@ -1679,7 +1679,7 @@ def generate_all_slabs(
     return all_slabs
 
 
-# Load the reconstructions_archive json file
+# Load the reconstructions_archive JSON file
 module_dir = os.path.dirname(os.path.abspath(__file__))
 with open(f"{module_dir}/reconstructions_archive.json", encoding="utf-8") as data_file:
     RECONSTRUCTIONS_ARCHIVE = json.load(data_file)
@@ -1715,7 +1715,7 @@ class ReconstructionGenerator:
             the reconstructed slab. Only the a and b lattice vectors are
             actually changed while the c vector remains the same.
             This matrix is what the Wood's notation is based on.
-        reconstruction_json (dict): The full json or dictionary containing
+        reconstruction_json (dict): The full JSON or dictionary containing
             the instructions for building the slab.
 
     Todo:

@@ -1,7 +1,6 @@
 """
-This module defines the Cp2k output parser along with a few other functions for parsing cp2k-related
-outputs.
-
+This module defines the CP2K output parser along with a few other functions
+for parsing CP2K-related outputs.
 """
 
 from __future__ import annotations

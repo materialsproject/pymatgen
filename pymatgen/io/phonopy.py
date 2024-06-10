@@ -241,7 +241,7 @@ def get_displaced_structures(pmg_structure, atom_disp=0.01, supercell_matrix=Non
         atom_disp (float): Atomic displacement. Default is 0.01 $\\AA$.
         supercell_matrix (3x3 array): Scaling matrix for supercell.
         yaml_fname (str): If not None, it represents the full path to
-            the outputting displacement yaml file, e.g. disp.yaml.
+            the outputting displacement YAML file, e.g. disp.yaml.
         **kwargs: Parameters used in Phonopy.generate_displacement method.
 
     Returns:
@@ -411,7 +411,7 @@ def get_phonon_band_structure_symm_line_from_fc(
 def get_gruneisenparameter(gruneisen_path, structure=None, structure_path=None) -> GruneisenParameter:
     """Get Gruneisen object from gruneisen.yaml file, as obtained from phonopy (Frequencies in THz!).
     The order is structure > structure path > structure from gruneisen dict.
-    Newer versions of phonopy include the structure in the yaml file,
+    Newer versions of phonopy include the structure in the YAML file,
     the structure/structure_path is kept for compatibility.
 
     Args:
