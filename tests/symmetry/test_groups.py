@@ -212,6 +212,17 @@ class TestSpaceGroup:
             sg = SpaceGroup.from_int_number(num, hexagonal=True)
             assert sg.hexagonal is True
 
+    def test_full_symbol_warning(self):
+        warning_msg = "Full symbol not available, falling back to short Hermann Mauguin symbol P2_1ma instead"
+        # TODO need to find a way to reset the warnings registry.
+        # by default, warnings are raised only once and the same warning being tested here is raised below by
+        # assert sg.to_unicode_string() == "P2₁ma"
+        # so don't move this test below test_string
+
+        with pytest.warns(UserWarning, match=warning_msg) as warns:
+            _ = SpaceGroup("P2_1ma")
+        assert len(warns) == 1
+
     def test_string(self):
         sg = SpaceGroup("R-3c")
         assert sg.to_latex_string() == r"R$\overline{3}$c"
@@ -241,9 +252,3 @@ class TestSpaceGroup:
         for num in (-5, 0, 231, 1000):
             with pytest.raises(ValueError, match=f"International number must be between 1 and 230, got {num}"):
                 SpaceGroup.from_int_number(num)
-
-    def test_full_symbol_warning(self):
-        warning_msg = "Full symbol not available, falling back to short Hermann Mauguin symbol P2_1ma instead"
-        with pytest.warns(Warning, match=warning_msg) as warns:
-            _ = SpaceGroup("P2_1ma")
-        assert len(warns) == 1
