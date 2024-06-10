@@ -799,7 +799,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         (in case there was a mislabel)
         """
         # If the kpoint has no label it can't have a repetition
-        # along the band structure line object
+        # along the BandStructureSymmLine object
 
         if self.kpoints[index].label is None:
             return [index]
