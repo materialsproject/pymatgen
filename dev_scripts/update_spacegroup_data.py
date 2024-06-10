@@ -13,6 +13,9 @@ from monty.serialization import dumpfn, loadfn
 
 from pymatgen.symmetry.groups import PointGroup
 
+__author__ = "Katharina Ueltzen @kaueltzen"
+__date__ = "2024-06-06"
+
 SYMM_OPS = loadfn("../pymatgen/symmetry/symm_ops.json")
 SYMM_DATA = loadfn("../pymatgen/symmetry/symm_data.json")
 
