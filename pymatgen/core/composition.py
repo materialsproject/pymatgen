@@ -81,19 +81,19 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     # Special formula handling for peroxides and certain elements. This is so
     # that formula output does not write LiO instead of Li2O2 for example.
-    special_formulas: ClassVar[dict[str, str]] = dict(
-        LiO="Li2O2",
-        NaO="Na2O2",
-        KO="K2O2",
-        HO="H2O2",
-        CsO="Cs2O2",
-        RbO="Rb2O2",
-        O="O2",
-        N="N2",
-        F="F2",
-        Cl="Cl2",
-        H="H2",
-    )
+    special_formulas: ClassVar[dict[str, str]] = {
+        "LiO": "Li2O2",
+        "NaO": "Na2O2",
+        "KO": "K2O2",
+        "HO": "H2O2",
+        "CsO": "Cs2O2",
+        "RbO": "Rb2O2",
+        "O": "O2",
+        "N": "N2",
+        "F": "F2",
+        "Cl": "Cl2",
+        "H": "H2",
+    }
 
     oxi_prob = None  # prior probability of oxidation used by oxi_state_guesses
 

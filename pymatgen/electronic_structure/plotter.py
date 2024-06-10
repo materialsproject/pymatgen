@@ -2672,7 +2672,7 @@ class BSDOSPlotter:
         inset_ax.set_ylim([-0.35, 1.00])
 
         # add the labels
-        common = dict(fontsize=13, family="Times New Roman")
+        common = {"fontsize": 13, "family": "Times New Roman"}
         inset_ax.text(0.70, -0.2, m_label, **common, color=(0, 0, 0), horizontalalignment="left")
         inset_ax.text(0.325, 0.70, c_label, **common, color=(0, 0, 0), horizontalalignment="center")
         inset_ax.text(-0.05, -0.2, y_label, **common, color=(0, 0, 0), horizontalalignment="right")

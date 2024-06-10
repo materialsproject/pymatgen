@@ -279,9 +279,9 @@ class SubstitutionTransformation(AbstractTransformation):
         """
         self.species_map = species_map
         self._species_map = dict(species_map)
-        for k, v in self._species_map.items():
-            if isinstance(v, (tuple, list)):
-                self._species_map[k] = dict(v)  # type: ignore[assignment]
+        for key, val in self._species_map.items():
+            if isinstance(val, (tuple, list)):
+                self._species_map[key] = dict(val)  # type: ignore[assignment]
 
     def apply_transformation(self, structure: Structure) -> Structure:
         """Apply the transformation.
