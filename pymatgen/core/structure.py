@@ -3938,7 +3938,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             structure[(0, 2, 3)] = "Fe"
             Replaces sites 0, 2 and 3 with Fe.
 
-            structure[0::2] = "Fe"
+            structure[::2] = "Fe"
             Replaces all even index sites with Fe.
 
             structure["Mn"] = "Fe"

@@ -461,7 +461,7 @@ class EnumerateStructureTransformation(AbstractTransformation):
         self._all_structures = sorted(all_structures, key=sort_func)
 
         if return_ranked_list:
-            return self._all_structures[0:num_to_return]
+            return self._all_structures[:num_to_return]
         return self._all_structures[0]["structure"]
 
     def __repr__(self):
@@ -1231,7 +1231,7 @@ class DisorderOrderedTransformation(AbstractTransformation):
         if not return_ranked_list:
             return disordered_structures[0]["structure"]
         if len(disordered_structures) > return_ranked_list:
-            disordered_structures = disordered_structures[0:return_ranked_list]
+            disordered_structures = disordered_structures[:return_ranked_list]
         return disordered_structures
 
     @property

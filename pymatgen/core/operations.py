@@ -367,7 +367,7 @@ class SymmOp(MSONable):
         u, v, w = normal
 
         translation = np.eye(4)
-        translation[0:3, 3] = -np.array(origin)
+        translation[:3, 3] = -np.array(origin)
 
         xx = 1 - 2 * u**2
         yy = 1 - 2 * v**2
@@ -394,7 +394,7 @@ class SymmOp(MSONable):
         """
         mat = -np.eye(4)
         mat[3, 3] = 1
-        mat[0:3, 3] = 2 * np.array(origin)
+        mat[:3, 3] = 2 * np.array(origin)
         return SymmOp(mat)
 
     @staticmethod

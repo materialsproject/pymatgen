@@ -315,7 +315,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
 
     znucl_type = ncdata.read_value("atomic_numbers")
 
-    # type_atom[0:natom] --> index Between 1 and number of atom species
+    # type_atom[:natom] --> index Between 1 and number of atom species
     type_atom = ncdata.read_value("atom_species")
 
     # Fortran to C index and float --> int conversion.

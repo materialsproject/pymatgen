@@ -271,7 +271,7 @@ def add_config_var(tokens: list[str], backup_suffix: str) -> None:
             print(f"Existing {rc_path} backed up to {rc_path}{backup_suffix}")
         dct = loadfn(rc_path)
     special_vals = {"true": True, "false": False, "none": None, "null": None}
-    for key, val in zip(tokens[0::2], tokens[1::2]):
+    for key, val in zip(tokens[::2], tokens[1::2]):
         dct[key] = special_vals.get(val.lower(), val)
     dumpfn(dct, rc_path)
     print(f"New {rc_path} written!")

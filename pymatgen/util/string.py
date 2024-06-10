@@ -416,4 +416,4 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
     disordered_formula.append(" ")
     disordered_formula += [f"{key}={formula_double_format(val)} " for key, val in variable_map.items()]
 
-    return "".join(map(str, disordered_formula))[0:-1]
+    return "".join(map(str, disordered_formula))[:-1]
