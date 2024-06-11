@@ -127,7 +127,7 @@ class Cohp(MSONable):
         self,
         spin: Spin | Literal[-1, 1, "up", "down"] | None = None,
         integrated: bool = False,
-    ) -> dict[Spin, NDArray]:
+    ) -> dict[Spin, NDArray] | None:
         """Get the COHP or ICOHP for a particular spin.
 
         Args:
@@ -155,7 +155,7 @@ class Cohp(MSONable):
     def get_icohp(
         self,
         spin: Spin | Literal[-1, 1, "up", "down"] | None = None,
-    ) -> dict[Spin, NDArray]:
+    ) -> dict[Spin, NDArray] | None:
         """Convenient wrapper to get the ICOHP for a particular spin."""
         return self.get_cohp(spin=spin, integrated=True)
 
@@ -170,15 +170,15 @@ class Cohp(MSONable):
             energy: Energy to return the COHP value for.
             integrated: Return COHP (False) or ICOHP (True)
         """
-        inter = {}
+        inters = {}
         for spin in self.cohp:
             if not integrated:
-                inter[spin] = get_linear_interpolated_value(self.energies, self.cohp[spin], energy)
+                inters[spin] = get_linear_interpolated_value(self.energies, self.cohp[spin], energy)
             elif self.icohp is not None:
-                inter[spin] = get_linear_interpolated_value(self.energies, self.icohp[spin], energy)
+                inters[spin] = get_linear_interpolated_value(self.energies, self.icohp[spin], energy)
             else:
                 raise ValueError("ICOHP is empty.")
-        return inter
+        return inters
 
     def has_antibnd_states_below_efermi(
         self,
@@ -339,7 +339,7 @@ class CompleteCohp(Cohp):
                 for bond in self.bonds
             }
         if self.orb_res_cohp:
-            orb_dict = {}
+            orb_dict: dict[str, Any] = {}
             for label in self.orb_res_cohp:
                 orb_dict[label] = {}
                 for orbs in self.orb_res_cohp[label]:
@@ -368,14 +368,17 @@ class CompleteCohp(Cohp):
             Returns the COHP object to simplify plotting
         """
         if label.lower() == "average":
-            divided_cohp = self.cohp
-            divided_icohp = self.icohp
+            divided_cohp: dict[Spin, Any] | None = self.cohp
+            divided_icohp: dict[Spin, Any] | None = self.icohp
 
         else:
             divided_cohp = self.all_cohps[label].get_cohp(spin=None, integrated=False)
             divided_icohp = self.all_cohps[label].get_icohp(spin=None)
 
+        assert divided_cohp is not None
+
         if summed_spin_channels and Spin.down in self.cohp:
+            assert divided_icohp is not None
             final_cohp = {}
             final_icohp = {}
             final_cohp[Spin.up] = np.sum([divided_cohp[Spin.up], divided_cohp[Spin.down]], axis=0)
@@ -704,7 +707,13 @@ class CompleteCohp(Cohp):
 
     @classmethod
     def from_file(
-        cls, fmt, filename=None, structure_file=None, are_coops=False, are_cobis=False, are_multi_center_cobis=False
+        cls,
+        fmt,
+        filename=None,
+        structure_file=None,
+        are_coops=False,
+        are_cobis=False,
+        are_multi_center_cobis=False,
     ) -> Self:
         """
         Create a CompleteCohp object from an output file of a COHP
