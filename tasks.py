@@ -199,7 +199,7 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
     if dry_run:
         print(tokens[0] + "##".join(tokens[1:]))
     else:
-        with open("docs/docs/CHANGES.md", mode="w", encoding="utf-8") as file:
+        with open("docs/CHANGES.md", mode="w", encoding="utf-8") as file:
             file.write(tokens[0] + "##".join(tokens[1:]))
         ctx.run("open docs/CHANGES.md")
     print("The following commit messages were not included...")
