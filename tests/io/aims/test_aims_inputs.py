@@ -17,6 +17,7 @@ from pymatgen.io.aims.inputs import (
     AimsCube,
     AimsGeometryIn,
     AimsSpeciesFile,
+    SpeciesDefaults,
 )
 from pymatgen.util.testing.aims import compare_single_files as compare_files
 
@@ -235,8 +236,27 @@ def test_aims_control_in_default_species_dir(tmp_path: Path, monkeypatch: pytest
     compare_files(TEST_DIR / "control.in.si.no_sd", f"{tmp_path}/control.in")
 
 
-def test_species_defaults(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+def test_species_file(monkeypatch: pytest.MonkeyPatch):
     """Tests an AimsSpeciesFile class"""
     monkeypatch.setitem(SETTINGS, "AIMS_SPECIES_DIR", str(TEST_DIR.parent / "species_directory"))
-    species_file = AimsSpeciesFile.from_element_and_basis_name("Si", "light")
-    assert "Si" in species_file.data
+    species_file = AimsSpeciesFile.from_element_and_basis_name("Si", "light", label="Si_surface")
+    assert species_file.label == "Si_surface"
+    assert species_file.element == "Si"
+
+
+def test_species_defaults(monkeypatch: pytest.MonkeyPatch):
+    """Tests an AimsSpeciesDefaults class"""
+    monkeypatch.setitem(SETTINGS, "AIMS_SPECIES_DIR", str(TEST_DIR.parent / "species_directory"))
+    si = AimsGeometryIn.from_file(TEST_DIR / "geometry.in.si.gz").structure
+    species_defaults = SpeciesDefaults.from_structure(si, "light")
+    assert species_defaults.labels == [
+        "Si",
+    ]
+    assert species_defaults.elements == {"Si": "Si"}
+
+    si.relabel_sites()
+    species_defaults = SpeciesDefaults.from_structure(si, "light")
+    assert species_defaults.labels == ["Si_1", "Si_2"]
+    assert species_defaults.elements == {"Si_1": "Si", "Si_2": "Si"}
+    assert "Si_1" in str(species_defaults)
+    assert "Si_2" in str(species_defaults)

@@ -718,6 +718,13 @@ class AimsSpeciesFile:
         """String representation of the species' defaults file"""
         return re.sub(r"^ *species +\w+", f"    species             {self.label}", self.data, flags=re.MULTILINE)
 
+    @property
+    def element(self) -> str:
+        match = re.search(r"^ *species +(\w+)", self.data, flags=re.MULTILINE)
+        if match is None:
+            raise ValueError("Can't find element in species' defaults file")
+        return match.group(1)
+
     def as_dict(self) -> dict[str, Any]:
         """Dictionary representation of the species' defaults file."""
         return {"label": self.label, "data": self.data, "@module": type(self).__module__, "@class": type(self).__name__}
@@ -767,9 +774,12 @@ class SpeciesDefaults(list, MSONable):
 
         for label in self.labels:
             el = self.elements[label]
-            basis_set = self.basis_set.get(label, None) if isinstance(self.basis_set, dict) else self.basis_set
-            if basis_set is None:
-                raise ValueError(f"Basis set not found for specie {label} (represented by element {el})")
+            if isinstance(self.basis_set, dict):
+                basis_set = self.basis_set.get(label, None)
+                if basis_set is None:
+                    raise ValueError(f"Basis set not found for specie {label} (represented by element {el})")
+            else:
+                basis_set = self.basis_set
             self.append(AimsSpeciesFile.from_element_and_basis_name(el, basis_set, label=label))
 
     def __str__(self):
@@ -779,3 +789,29 @@ class SpeciesDefaults(list, MSONable):
     @classmethod
     def from_structure(cls, struct: Structure | Molecule, basis_set: str | dict[str, str]):
         """Initialize species defaults from a structure."""
+        labels = []
+        elements = {}
+        for label, el in zip(struct.labels, struct.species):
+            if not isinstance(el, Element):
+                raise TypeError("FHI-aims does not support fractional compositions")
+            if (label is None) or (el is None):
+                raise ValueError("Some is terribly wrong with the structure")
+            if label not in labels:
+                labels.append(label)
+                elements[label] = el.name
+        return SpeciesDefaults(labels, basis_set, elements=elements)
+
+    def to_dict(self):
+        """Dictionary representation of the species' defaults"""
+        return {
+            "labels": self.labels,
+            "elements": self.elements,
+            "basis_set": self.basis_set,
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+        }
+
+    @classmethod
+    def from_dict(cls, dct: dict[str, Any]) -> SpeciesDefaults:
+        """Deserialization of the SpeciesDefaults object"""
+        return SpeciesDefaults(dct["labels"], dct["basis_set"], elements=dct["elements"])
