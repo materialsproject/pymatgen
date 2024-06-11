@@ -5,7 +5,6 @@ Works for aims cube objects, geometry.in and control.in
 
 from __future__ import annotations
 
-import gzip
 import os
 import re
 import time
@@ -544,8 +543,10 @@ class AimsControlIn(MSONable):
                 content += cube.control_block
 
         content += f"{lim}\n\n"
-        species_dir = self._parameters.get("species_dir", os.environ.get("AIMS_SPECIES_DIR"))
-        content += self.get_species_block(structure, species_dir)
+        species_defaults = self._parameters.get("species_dir", "")
+        if not species_defaults:
+            raise KeyError("Species' defaults not specified in the parameters")
+        content += self.get_species_block(structure, species_defaults)
 
         return content
 
@@ -591,12 +592,15 @@ class AimsControlIn(MSONable):
 
             file.write(content)
 
-    def get_species_block(self, structure: Structure | Molecule, species_dir: str | Path) -> str:
+    def get_species_block(self, structure: Structure | Molecule, basis_set: str | dict[str, str]) -> str:
         """Get the basis set information for a structure
 
         Args:
             structure (Molecule or Structure): The structure to get the basis set information for
-            species_dir (str or Pat:): The directory to find the species files in
+            basis_set (str | dict[str, str]):
+                a name of a basis set (`light`, `tight`...) or a mapping from site labels to basis set names.
+                The name of a basis set can either correspond to the subfolder in `defaults_2020` folder
+                or be a full path from the `FHI-aims/species_defaults` directory.
 
         Returns:
             The block to add to the control.in file for the species
@@ -604,20 +608,8 @@ class AimsControlIn(MSONable):
         Raises:
             ValueError: If a file for the species is not found
         """
-        block = ""
-        species = np.unique(structure.species)
-        for sp in species:
-            filename = f"{species_dir}/{sp.Z:02d}_{sp.symbol}_default"
-            if Path(filename).exists():
-                with open(filename) as sf:
-                    block += "".join(sf.readlines())
-            elif Path(f"{filename}.gz").exists():
-                with gzip.open(f"{filename}.gz", mode="rt") as sf:
-                    block += "".join(sf.readlines())
-            else:
-                raise ValueError(f"Species file for {sp.symbol} not found.")
-
-        return block
+        species_defaults = SpeciesDefaults.from_structure(structure, basis_set)
+        return str(species_defaults)
 
     def as_dict(self) -> dict[str, Any]:
         """Get a dictionary representation of the geometry.in file."""
@@ -795,7 +787,7 @@ class SpeciesDefaults(list, MSONable):
             if not isinstance(el, Element):
                 raise TypeError("FHI-aims does not support fractional compositions")
             if (label is None) or (el is None):
-                raise ValueError("Some is terribly wrong with the structure")
+                raise ValueError("Something is terribly wrong with the structure")
             if label not in labels:
                 labels.append(label)
                 elements[label] = el.name
