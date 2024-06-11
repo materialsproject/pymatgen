@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import gzip
 import os
+import re
 import time
 from copy import deepcopy
 from dataclasses import dataclass, field
@@ -644,42 +645,43 @@ class AimsControlIn(MSONable):
 class AimsSpeciesFile:
     """An FHI-aims single species' defaults file."""
 
-    def __init__(self, data: str, species: str | None = None) -> None:
+    def __init__(self, data: str, label: str | None = None) -> None:
         """
         Args:
             data (str): A string of the complete species defaults file
-            species (str): A string representing the name of species
+            label (str): A string representing the name of species
         """
         self.data = data
-        self.species = species
-        if self.species is None:
+        self.label = label
+        if self.label is None:
             for line in data.splitlines():
                 if "species" in line:
-                    self.species = line.split()[1]
+                    self.label = line.split()[1]
 
     @classmethod
-    def from_file(cls, filename: str, species: str | None = None) -> AimsSpeciesFile:
+    def from_file(cls, filename: str, label: str | None = None) -> AimsSpeciesFile:
         """Initialize from file.
 
         Args:
             filename (str): The filename of the species' defaults file
-            species (str): A string representing the name of species
+            label (str): A string representing the name of species
 
         Returns:
             The AimsSpeciesFile instance
         """
         with zopen(filename, mode="rt") as file:
-            return cls(file.read(), species)
+            return cls(file.read(), label)
 
     @classmethod
-    def from_element_and_basis_name(cls, element: str, basis: str, species: str | None = None) -> AimsSpeciesFile:
+    def from_element_and_basis_name(cls, element: str, basis: str, *, label: str | None = None) -> AimsSpeciesFile:
         """Initialize from element and basis names.
 
         Args:
             element (str): the element name (not to confuse with the species)
             basis (str): the directory in which the species' defaults file is located relative to the
                 root `species_defaults` (or `species_defaults/defaults_2020`) directory.`.
-            species (str): A string representing the name of species
+            label (str): A string representing the name of species. If not specified,
+                then equal to element
 
         Returns:
             an AimsSpeciesFile instance
@@ -706,12 +708,24 @@ class AimsSpeciesFile:
         for path in paths_to_try:
             path = zpath(path)
             if os.path.isfile(path):
-                return cls.from_file(path, species)
+                return cls.from_file(path, label)
 
         raise RuntimeError(
-            f"You don't have the species' defaults file for {element} in {basis} basis set. "
-            f"Paths tried: {paths_to_try}"
+            f"Can't find the species' defaults file for {element} in {basis} basis set. Paths tried: {paths_to_try}"
         )
+
+    def __str__(self):
+        """String representation of the species' defaults file"""
+        return re.sub(r"^ *species +\w+", f"    species             {self.label}", self.data, flags=re.MULTILINE)
+
+    def as_dict(self) -> dict[str, Any]:
+        """Dictionary representation of the species' defaults file."""
+        return {"label": self.label, "data": self.data, "@module": type(self).__module__, "@class": type(self).__name__}
+
+    @classmethod
+    def from_dict(cls, dct: dict[str, Any]) -> AimsSpeciesFile:
+        """Deserialization of the AimsSpeciesFile object"""
+        return AimsSpeciesFile(data=dct["data"], label=dct["label"])
 
 
 class SpeciesDefaults(list, MSONable):
@@ -721,16 +735,47 @@ class SpeciesDefaults(list, MSONable):
 
     def __init__(
         self,
-        species: Sequence[str] | None,
-        basis_set: str | dict[str, str] | None,
+        labels: Sequence[str],
+        basis_set: str | dict[str, str],
+        *,
         elements: dict[str, str] | None = None,
     ) -> None:
         """
         Args:
-            species ():
+            labels (list[str]): a list of labels, for which to build species' defaults
             basis_set (str | dict[str, str]):
-                a name of a basis set (light, tight...) or a mapping from species to basis set names.
+                a name of a basis set (`light`, `tight`...) or a mapping from site labels to basis set names.
                 The name of a basis set can either correspond to the subfolder in `defaults_2020` folder
                 or be a full path from the `FHI-aims/species_defaults` directory.
-            elements (dict): a map from species to elements names
+            elements (dict[str, str] | None):
+                a mapping from site labels to elements. If some label is not in this mapping,
+                it coincides with an element.
         """
+        super().__init__()
+        self.labels = labels
+        self.basis_set = basis_set
+        if elements is None:
+            elements = {}
+        self.elements = {}
+        for label in self.labels:
+            self.elements[label] = elements.get(label, label)
+        self._set_species()
+
+    def _set_species(self) -> None:
+        """Initialize species defaults from the instance data"""
+        del self[:]
+
+        for label in self.labels:
+            el = self.elements[label]
+            basis_set = self.basis_set.get(label, None) if isinstance(self.basis_set, dict) else self.basis_set
+            if basis_set is None:
+                raise ValueError(f"Basis set not found for specie {label} (represented by element {el})")
+            self.append(AimsSpeciesFile.from_element_and_basis_name(el, basis_set, label=label))
+
+    def __str__(self):
+        """String representation of the species' defaults"""
+        return "\n".join([str(x) for x in self])
+
+    @classmethod
+    def from_structure(cls, struct: Structure | Molecule, basis_set: str | dict[str, str]):
+        """Initialize species defaults from a structure."""
