@@ -136,6 +136,14 @@ pymatgen.io.nwchem module
    :undoc-members:
    :show-inheritance:
 
+pymatgen.io.openff module
+-------------------------
+
+.. automodule:: pymatgen.io.openff
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pymatgen.io.packmol module
 --------------------------
 
