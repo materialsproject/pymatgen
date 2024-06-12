@@ -473,7 +473,6 @@ class Magmom(MSONable):
         """
         # Get matrix representing unit lattice vectors
         unit_m = lattice.matrix / np.linalg.norm(lattice.matrix, axis=1)[:, None]
-        # Note np.matmul() requires numpy version >= 1.10
         moment = np.matmul(self.global_moment, np.linalg.inv(unit_m))
         # Round small values to zero
         moment[np.abs(moment) < 1e-8] = 0

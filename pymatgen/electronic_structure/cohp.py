@@ -32,15 +32,12 @@ from pymatgen.util.num import round_to_sigfigs
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from typing import Any, Literal, Union
+    from typing import Any, Literal
 
     from numpy.typing import NDArray
     from typing_extensions import Self
 
     from pymatgen.util.typing import PathLike, SpinLike, Vector3D
-
-    # TODO: double check and clarify this custom type
-    CohpLabel = Union[str, int]
 
 __author__ = "Marco Esters, Janine George"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -192,7 +189,7 @@ class Cohp(MSONable):
         """Get dict of antibonding states below the Fermi level for the spin.
 
         Args:
-            spin (SpinLike): selected spin.
+            spin (SpinLike): Selected spin.
             limit (float): Only COHP higher than this value will be considered.
         """
         populations = self.cohp
@@ -362,13 +359,13 @@ class CompleteCohp(Cohp):
 
     def get_cohp_by_label(
         self,
-        label: CohpLabel,
+        label: str,
         summed_spin_channels: bool = False,
     ) -> Cohp:
         """Get specific Cohp by label, to simplify plotting.
 
         Args:
-            label: string (for newer LOBSTER versions: int)
+            label (str): Label for the interaction.
             summed_spin_channels (bool): Sum the spin channels and return the sum as Spin.up.
 
         Returns:
@@ -525,14 +522,14 @@ class CompleteCohp(Cohp):
 
     def get_orbital_resolved_cohp(
         self,
-        label: CohpLabel,
+        label: str,
         orbitals: str | list | tuple,
         summed_spin_channels: bool = False,
     ) -> Cohp | None:
         """Get orbital-resolved COHP.
 
         Args:
-            label: bond labels as in ICOHPLIST/ICOOPLIST.lobster.
+            label (str): bond labels as in ICOHPLIST/ICOOPLIST.lobster.
             orbitals: The orbitals as a label, or list/tuple of
                 [(n1, orbital1), (n2, orbital2), ...].
                 Where each orbital can either be str, int, or Orbital.
@@ -927,7 +924,7 @@ class IcohpValue(MSONable):
 
     def __init__(
         self,
-        label: CohpLabel,
+        label: str,
         atom1: str,
         atom2: str,
         length: float,
@@ -940,7 +937,7 @@ class IcohpValue(MSONable):
     ) -> None:
         """
         Args:
-            label: label for the ICOHP.
+            label (str): Label for the ICOHP.
             atom1 (str): The first atom that contributes to the bond.
             atom2 (str): The second atom that contributes to the bond.
             length (float): Bond length.
@@ -1160,7 +1157,7 @@ class IcohpCollection(MSONable):
 
     def get_icohp_by_label(
         self,
-        label: CohpLabel,
+        label: str,
         summed_spin_channels: bool = True,
         spin: Spin = Spin.up,
         orbitals: str | list[Orbital] | None = None,  # TODO: change to tuple of 2
@@ -1169,7 +1166,7 @@ class IcohpCollection(MSONable):
         (bond labels starting from "1" as in ICOHPLIST/ICOOPLIST).
 
         Args:
-            label (str): usually the bond number in Icohplist.lobster/Icooplist.lobster.
+            label (str): The bond number in Icohplist.lobster/Icooplist.lobster.
             summed_spin_channels (bool): Whether the ICOHPs/ICOOPs of both spin channels should be summed.
             spin: If summed_spin_channels is False, this spin indicates which spin channel should be returned.
             orbitals: List of Orbital or "str(Orbital1)-str(Orbital2)".
@@ -1353,7 +1350,7 @@ class IcohpCollection(MSONable):
 
 def get_integrated_cohp_in_energy_range(
     cohp: CompleteCohp,
-    label: CohpLabel,
+    label: str,
     orbital: Orbital | None = None,
     energy_range: float | tuple[float, float] | None = None,
     relative_E_Fermi: bool = True,
@@ -1362,13 +1359,13 @@ def get_integrated_cohp_in_energy_range(
     """Integrate CompleteCohps which include data of integrated COHPs (ICOHPs).
 
     Args:
-        cohp: CompleteCohp object.
-        label: label of the COHP data.
+        cohp (CompleteCohp): CompleteCohp object.
+        label (str): Label of the COHP data.
         orbital: If not None, a orbital resolved integrated COHP will be returned.
         energy_range: If None, return the ICOHP value at Fermi level.
             If float, integrate from this value up to Fermi level.
             If (float, float), integrate in between.
-        relative_E_Fermi (bool): if True, energy scale with E_Fermi at 0 eV is chosen
+        relative_E_Fermi (bool): If True, energy scale with E_Fermi at 0 eV is chosen.
         summed_spin_channels (bool): Whether Spin channels will be summed.
 
     Returns:
