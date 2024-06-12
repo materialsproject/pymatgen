@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import warnings
+
 import pytest
 from numpy.testing import assert_array_equal
 from pytest import approx
@@ -109,8 +111,13 @@ class TestFloatWithUnit(PymatgenTest):
 
     def test_deprecated_memory(self):
         # TODO: remove after 2025-01-01
-        for unit in ("mb", "Mb"):
+        for unit in ("Kb", "kb", "Mb", "mb", "Gb", "gb", "Tb", "tb"):
             with pytest.warns(DeprecationWarning, match=f"Unit {unit} is deprecated"):
+                Memory(1, unit)
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            for unit in ("KB", "MB", "GB", "TB"):
                 Memory(1, unit)
 
     def test_unitized(self):
