@@ -79,7 +79,10 @@ from pymatgen.symmetry.groups import SpaceGroup
 try:
     new_symbol = SpaceGroup(old_symbol).symbol
 except ValueError:
-    new_symbol = SpaceGroup(old_symbol[:-1]).symbol
+    if old_symbol in ["P2_12_121", "I2_12_121"]:
+        new_symbol = SpaceGroup(old_symbol[:-1]+"_1").symbol
+    else:
+        new_symbol = SpaceGroup(old_symbol[:-1]).symbol
 ```
 
 ### v2024.5.31
