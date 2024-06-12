@@ -984,11 +984,10 @@ class IcohpValue(MSONable):
                 f"{self._icohp[Spin.up]} eV (Spin up) and {self._icohp[Spin.down]} eV (Spin down)"
             )
 
-        else:
-            return (
-                f"{header} {self._label} between {self._atom1} and {self._atom2} ({self._translation}): "
-                f"{self._icohp[Spin.up]} eV (Spin up)"
-            )
+        return (
+            f"{header} {self._label} between {self._atom1} and {self._atom2} ({self._translation}): "
+            f"{self._icohp[Spin.up]} eV (Spin up)"
+        )
 
     @property
     def num_bonds(self) -> int:
