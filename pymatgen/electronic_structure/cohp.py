@@ -970,12 +970,13 @@ class IcohpValue(MSONable):
 
     def __str__(self) -> str:
         """String representation of the ICOHP/ICOOP."""
-        if not self._are_coops and not self._are_cobis:
-            header = "ICOHP"
-        elif self._are_coops and not self._are_cobis:
+        # (are_coops and are_cobis) is never True
+        if self._are_coops:
             header = "ICOOP"
-        else:
+        elif self._are_cobis:
             header = "ICOBI"
+        else:
+            header = "ICOHP"
 
         if self._is_spin_polarized:
             return (
