@@ -860,11 +860,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 element's common oxidation states, e.g. {"V": [2, 3, 4, 5]}
             target_charge (float): the desired total charge on the structure.
                 Default is 0 signifying charge balance.
-            all_oxi_states (bool): If True, an element defaults to
-                all oxidation states in pymatgen Element.icsd_oxidation_states.
-                Otherwise, default is Element.common_oxidation_states. Note
-                that the full oxidation state list is *very* inclusive and
-                can produce nonsensical results.
+            all_oxi_states (bool): if True, all oxidation states of an element, even rare ones, are used in the search
+                for guesses. However, the full oxidation state list is *very* inclusive and can produce nonsensical
+                results. If False, the icsd_oxidation_states list is used when present, or the common_oxidation_states
+                is used when icsd_oxidation_states is not present. These oxidation states lists comprise more
+                commonly occurring oxidation states and results in more reliable guesses, albeit at the cost of
+                missing some uncommon situations. The default is False.
             max_sites (int): If possible, will reduce Compositions to at most
                 this many sites to speed up oxidation state guesses. If the
                 composition cannot be reduced to this many sites a ValueError
