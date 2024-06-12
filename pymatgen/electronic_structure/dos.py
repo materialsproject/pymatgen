@@ -1458,8 +1458,24 @@ def _get_orb_type_lobster(orb) -> OrbitalType | None:
     Returns:
         OrbitalType
     """
-    orb_labs = ("s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2", "d_xz", "d_x^2-y^2")
-    orb_labs += ("f_y(3x^2-y^2)", "f_xyz", "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)")
+    orb_labs = (
+        "s",
+        "p_y",
+        "p_z",
+        "p_x",
+        "d_xy",
+        "d_yz",
+        "d_z^2",
+        "d_xz",
+        "d_x^2-y^2",
+        "f_y(3x^2-y^2)",
+        "f_xyz",
+        "f_yz^2",
+        "f_z^3",
+        "f_xz^2",
+        "f_z(x^2-y^2)",
+        "f_x(x^2-3y^2)",
+    )
 
     try:
         orbital = Orbital(orb_labs.index(orb[1:]))
