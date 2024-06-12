@@ -429,14 +429,6 @@ class Icohplist(MSONable):
 
             labels, atoms1, atoms2, lens, translations, nums, icohps = [], [], [], [], [], [], []
 
-            # Initialize static variables
-            label = ""
-            atom1 = ""
-            atom2 = ""
-            length = None
-            num = None
-            translation: Vector3D | None = None
-
             for bond in range(n_bonds):
                 line_parts = data_without_orbitals[bond].split()
 
