@@ -429,7 +429,7 @@ class Icohplist(MSONable):
 
             labels, atoms1, atoms2, lens, translations, nums, icohps = [], [], [], [], [], [], []
 
-            # initialize static variables
+            # Initialize static variables
             label = ""
             atom1 = ""
             atom2 = ""

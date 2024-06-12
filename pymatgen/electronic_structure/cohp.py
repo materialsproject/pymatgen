@@ -531,7 +531,7 @@ class CompleteCohp(Cohp):
     def get_orbital_resolved_cohp(
         self,
         label: str,
-        orbitals: str | list[Orbital] | tuple[Orbital, ...],
+        orbitals: str | list[tuple[str, Orbital]] | tuple[tuple[str, Orbital], ...],
         summed_spin_channels: bool = False,
     ) -> Cohp | None:
         """Get orbital-resolved COHP.
@@ -541,7 +541,6 @@ class CompleteCohp(Cohp):
             orbitals: The orbitals as a label, or list/tuple of
                 [(n1, orbital1), (n2, orbital2), ...].
                 Where each orbital can either be str, int, or Orbital.
-                # TODO: DanielYang: clarify type
             summed_spin_channels (bool): Sum the spin channels and return the sum as Spin.up.
 
         Returns:
@@ -1374,7 +1373,7 @@ class IcohpCollection(MSONable):
 def get_integrated_cohp_in_energy_range(
     cohp: CompleteCohp,
     label: str,
-    orbital: CohpOrbital | None = None,  # TODO: DanielYang: fix type
+    orbital: str | None = None,
     energy_range: float | tuple[float, float] | None = None,
     relative_E_Fermi: bool = True,
     summed_spin_channels: bool = True,
@@ -1384,7 +1383,7 @@ def get_integrated_cohp_in_energy_range(
     Args:
         cohp (CompleteCohp): CompleteCohp object.
         label (str): Label of the COHP data.
-        orbital: If not None, a orbital resolved integrated COHP will be returned.
+        orbital (str): If not None, a orbital resolved integrated COHP will be returned.
         energy_range: If None, return the ICOHP value at Fermi level.
             If float, integrate from this value up to Fermi level.
             If (float, float), integrate in between.
