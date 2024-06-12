@@ -2953,7 +2953,7 @@ class IStructure(SiteCollection, MSONable):
 
             mpr = MPRester(**kwargs)
             return mpr.get_structure_by_material_id(id)  # type: ignore
-        elif source == "COD":
+        if source == "COD":
             from pymatgen.ext.cod import COD
             cod = COD()
             return cod.get_structure_by_id(id)
