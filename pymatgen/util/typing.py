@@ -7,9 +7,10 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from os import PathLike as OsPathLike
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, Literal, Union
 
 from pymatgen.core import Composition, DummySpecies, Element, Species
+from pymatgen.electronic_structure.core import Spin
 
 if TYPE_CHECKING:  # needed to avoid circular imports
     from pymatgen.analysis.cost import CostEntry  # type: ignore[attr-defined]
@@ -24,6 +25,9 @@ Tuple3Floats = tuple[float, float, float]
 
 PathLike = Union[str, OsPathLike]
 PbcLike = tuple[bool, bool, bool]
+
+# Things that can be cast to a Spin
+SpinLike = Union[Spin, Literal[-1, 1, "up", "down"]]
 
 # Things that can be cast to a Species-like object using get_el_sp
 SpeciesLike = Union[str, Element, Species, DummySpecies]
