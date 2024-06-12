@@ -2938,6 +2938,23 @@ class IStructure(SiteCollection, MSONable):
         return str(writer)
 
     @classmethod
+    def from_id(cls, id: str, source: str = "Materials Project", **kwargs):
+        """
+        Load a structure file based on an id, usually from an online source.
+
+        Args:
+            id: The id. E.g., the materials project id.
+            source: Source of the data. Defaults to "Materials Project", which is the only currently support method.
+            **kwargs: Pass-through to any API calls.
+        """
+        if source == "Materials Project":
+            from pymatgen.ext.matproj import MPRester
+
+            mpr = MPRester(**kwargs)
+            return mpr.get_structure_by_material_id(id)  # type: ignore
+        raise ValueError(f"Invalid source: {source}")
+
+    @classmethod
     def from_str(  # type: ignore[override]
         cls,
         input_string: str,
