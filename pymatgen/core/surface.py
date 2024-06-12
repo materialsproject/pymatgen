@@ -1679,7 +1679,7 @@ def generate_all_slabs(
     return all_slabs
 
 
-# Load the reconstructions_archive json file
+# Load the reconstructions_archive JSON file
 module_dir = os.path.dirname(os.path.abspath(__file__))
 with open(f"{module_dir}/reconstructions_archive.json", encoding="utf-8") as data_file:
     RECONSTRUCTIONS_ARCHIVE = json.load(data_file)
@@ -1715,7 +1715,7 @@ class ReconstructionGenerator:
             the reconstructed slab. Only the a and b lattice vectors are
             actually changed while the c vector remains the same.
             This matrix is what the Wood's notation is based on.
-        reconstruction_json (dict): The full json or dictionary containing
+        reconstruction_json (dict): The full JSON or dictionary containing
             the instructions for building the slab.
 
     Todo:

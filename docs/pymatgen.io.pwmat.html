@@ -1,15 +1,13 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="./">
+<html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.io.pwmat package &mdash; pymatgen 2024.3.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="assets/pygments.css?v=fa44fd50" />
-      <link rel="stylesheet" type="text/css" href="assets/css/theme.css?v=19f00094" />
-      <link rel="stylesheet" type="text/css" href="assets/css/custom.css" />
-
-  
+  <title>pymatgen.io.pwmat package &mdash; pymatgen 2024.6.4 documentation</title>
+      <link rel="stylesheet" href="assets/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="assets/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="assets/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.io.pwmat.html"/>
   <!--[if lt IE 9]>
     <script src="assets/js/html5shiv.min.js"></script>
@@ -17,8 +15,8 @@
   
         <script src="assets/jquery.js?v=5d32c60e"></script>
         <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-        <script src="assets/documentation_options.js?v=df55f829"></script>
-        <script src="assets/doctools.js?v=888ff710"></script>
+        <script src="assets/documentation_options.js?v=eaad03eb"></script>
+        <script src="assets/doctools.js?v=9a2dae69"></script>
         <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
     <script src="assets/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -37,7 +35,7 @@
             
           </a>
               <div class="version">
-                2024.3.1
+                2024.6.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -180,7 +178,7 @@
 <span id="pymatgen-io-pwmat-inputs-module"></span><h2>pymatgen.io.pwmat.inputs module<a class="headerlink" href="#module-pymatgen.io.pwmat.inputs" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACExtractor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ACExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L88-L183"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractor" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ACExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L94-L189"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractor" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.pwmat.inputs.ACExtractorBase" title="pymatgen.io.pwmat.inputs.ACExtractorBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">ACExtractorBase</span></code></a></p>
 <p>Extract information contained in atom.config : number of atoms, lattice, types, frac_coords, magmoms</p>
 <p>Initialization function</p>
@@ -190,7 +188,7 @@
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACExtractor.get_coords">
-<span class="sig-name descname"><span class="pre">get_coords</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L139-L158"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractor.get_coords" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_coords</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L145-L164"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractor.get_coords" title="Link to this definition"></a></dt>
 <dd><p>Return the fractional coordinates in structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -204,7 +202,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACExtractor.get_lattice">
-<span class="sig-name descname"><span class="pre">get_lattice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L109-L123"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractor.get_lattice" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_lattice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L115-L129"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractor.get_lattice" title="Link to this definition"></a></dt>
 <dd><p>Return the lattice of structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -218,7 +216,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACExtractor.get_magmoms">
-<span class="sig-name descname"><span class="pre">get_magmoms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L160-L183"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractor.get_magmoms" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_magmoms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L166-L189"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractor.get_magmoms" title="Link to this definition"></a></dt>
 <dd><p>Return the magenetic moments of atoms in structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -232,13 +230,13 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACExtractor.get_n_atoms">
-<span class="sig-name descname"><span class="pre">get_n_atoms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L104-L107"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractor.get_n_atoms" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_n_atoms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L110-L113"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractor.get_n_atoms" title="Link to this definition"></a></dt>
 <dd><p>Return the number of atoms in the structure.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACExtractor.get_types">
-<span class="sig-name descname"><span class="pre">get_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L125-L137"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractor.get_types" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L131-L143"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractor.get_types" title="Link to this definition"></a></dt>
 <dd><p>Return the atomic number of atoms in structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -254,36 +252,36 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACExtractorBase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ACExtractorBase</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L64-L85"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractorBase" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ACExtractorBase</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L70-L91"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractorBase" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <p>A parent class of ACExtractor and ACstrExtractor, ensuring that they are as consistent as possible</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACExtractorBase.get_coords">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_coords</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L79-L81"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractorBase.get_coords" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_coords</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L85-L87"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractorBase.get_coords" title="Link to this definition"></a></dt>
 <dd><p>Get fractional coordinates of atoms in structure defined by atom.config file</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACExtractorBase.get_lattice">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_lattice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L71-L73"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractorBase.get_lattice" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_lattice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L77-L79"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractorBase.get_lattice" title="Link to this definition"></a></dt>
 <dd><p>Get the lattice of structure defined by atom.config file</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACExtractorBase.get_magmoms">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_magmoms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L83-L85"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractorBase.get_magmoms" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_magmoms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L89-L91"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractorBase.get_magmoms" title="Link to this definition"></a></dt>
 <dd><p>Get atomic magmoms of atoms in structure defined by atom.config file</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACExtractorBase.get_n_atoms">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_n_atoms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L67-L69"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractorBase.get_n_atoms" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_n_atoms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L73-L75"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractorBase.get_n_atoms" title="Link to this definition"></a></dt>
 <dd><p>Get the number of atoms in structure defined by atom.config file.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACExtractorBase.get_types">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L75-L77"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractorBase.get_types" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L81-L83"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACExtractorBase.get_types" title="Link to this definition"></a></dt>
 <dd><p>Get atomic number of atoms in structure defined by atom.config file</p>
 </dd></dl>
 
@@ -291,7 +289,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACstrExtractor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ACstrExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_config_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L186-L350"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ACstrExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom_config_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L192-L352"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.io.pwmat.inputs.ACExtractorBase" title="pymatgen.io.pwmat.inputs.ACExtractorBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">ACExtractorBase</span></code></a></p>
 <p>Extract information from atom.config file. You can get str by slicing the MOVEMENT.</p>
 <p>Initialization function.</p>
@@ -302,8 +300,9 @@
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACstrExtractor.get_atom_energies">
-<span class="sig-name descname"><span class="pre">get_atom_energies</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L286-L307"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor.get_atom_energies" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_atom_energies</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L292-L312"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor.get_atom_energies" title="Link to this definition"></a></dt>
 <dd><p>Return the energies of individual atoms in material system.</p>
+<p>When turning on <cite>ENERGY DEPOSITION</cite>, PWmat will output energy per atom.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The energies of individual atoms within the material system.</p>
@@ -312,15 +311,11 @@
 <dd class="field-even"><p>np.ndarray | None</p>
 </dd>
 </dl>
-<dl class="simple">
-<dt>Description:</dt><dd><p>When turn on <cite>ENERGY DEPOSITION</cite>, PWmat will output energy per atom.</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACstrExtractor.get_atom_forces">
-<span class="sig-name descname"><span class="pre">get_atom_forces</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L309-L322"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor.get_atom_forces" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_atom_forces</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L314-L326"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor.get_atom_forces" title="Link to this definition"></a></dt>
 <dd><p>Return the force on atoms in material system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -334,7 +329,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACstrExtractor.get_coords">
-<span class="sig-name descname"><span class="pre">get_coords</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L235-L249"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor.get_coords" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_coords</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L241-L255"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor.get_coords" title="Link to this definition"></a></dt>
 <dd><p>Return the fractional coordinate of atoms in structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -348,7 +343,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACstrExtractor.get_e_tot">
-<span class="sig-name descname"><span class="pre">get_e_tot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L270-L284"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor.get_e_tot" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_e_tot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L276-L290"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor.get_e_tot" title="Link to this definition"></a></dt>
 <dd><p>Return the total energy of structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -362,7 +357,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACstrExtractor.get_lattice">
-<span class="sig-name descname"><span class="pre">get_lattice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L207-L221"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor.get_lattice" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_lattice</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L213-L227"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor.get_lattice" title="Link to this definition"></a></dt>
 <dd><p>Return the lattice of structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -376,7 +371,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACstrExtractor.get_magmoms">
-<span class="sig-name descname"><span class="pre">get_magmoms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L251-L268"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor.get_magmoms" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_magmoms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L257-L274"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor.get_magmoms" title="Link to this definition"></a></dt>
 <dd><p>Return the magnetic moments of atoms in structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -390,7 +385,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACstrExtractor.get_n_atoms">
-<span class="sig-name descname"><span class="pre">get_n_atoms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L199-L205"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor.get_n_atoms" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_n_atoms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L205-L211"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor.get_n_atoms" title="Link to this definition"></a></dt>
 <dd><p>Return the number of atoms in structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -404,7 +399,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACstrExtractor.get_types">
-<span class="sig-name descname"><span class="pre">get_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L223-L233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor.get_types" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L229-L239"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor.get_types" title="Link to this definition"></a></dt>
 <dd><p>Return the atomic number of atoms in structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -418,7 +413,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ACstrExtractor.get_virial">
-<span class="sig-name descname"><span class="pre">get_virial</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L324-L350"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor.get_virial" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_virial</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L328-L352"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ACstrExtractor.get_virial" title="Link to this definition"></a></dt>
 <dd><p>Return the virial tensor of material system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -434,7 +429,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.AtomConfig">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AtomConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L353-L475"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.AtomConfig" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">AtomConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort_structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L355-L478"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.AtomConfig" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Object for representing the data in a atom.config or final.config file.</p>
 <p>Initialization function.</p>
@@ -449,7 +444,7 @@ are not grouped properly together. Defaults to False.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.AtomConfig.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L465-L475"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.AtomConfig.as_dict" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L468-L478"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.AtomConfig.as_dict" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
@@ -459,8 +454,8 @@ are not grouped properly together. Defaults to False.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.AtomConfig.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.io.pwmat.inputs.AtomConfig" title="pymatgen.io.pwmat.inputs.AtomConfig"><span class="pre">AtomConfig</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L418-L428"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.AtomConfig.from_dict" title="Link to this definition"></a></dt>
-<dd><p>Returns a AtomConfig object from a dictionary.</p>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L420-L430"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.AtomConfig.from_dict" title="Link to this definition"></a></dt>
+<dd><p>Get a AtomConfig object from a dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>dct</strong> – dict containing atom.config data</p>
@@ -473,8 +468,8 @@ are not grouped properly together. Defaults to False.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.AtomConfig.from_file">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.io.pwmat.inputs.AtomConfig" title="pymatgen.io.pwmat.inputs.AtomConfig"><span class="pre">AtomConfig</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L404-L416"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.AtomConfig.from_file" title="Link to this definition"></a></dt>
-<dd><p>Returns a AtomConfig from a file</p>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L406-L418"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.AtomConfig.from_file" title="Link to this definition"></a></dt>
+<dd><p>Get a AtomConfig from a file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -490,7 +485,7 @@ are not grouped properly together. Defaults to False.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.AtomConfig.from_str">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.io.pwmat.inputs.AtomConfig" title="pymatgen.io.pwmat.inputs.AtomConfig"><span class="pre">AtomConfig</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L377-L402"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.AtomConfig.from_str" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L379-L404"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.AtomConfig.from_str" title="Link to this definition"></a></dt>
 <dd><p>Reads a atom.config from a string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -507,7 +502,7 @@ are not grouped properly together. Defaults to False.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.AtomConfig.get_str">
-<span class="sig-name descname"><span class="pre">get_str</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L430-L458"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.AtomConfig.get_str" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_str</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L432-L461"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.AtomConfig.get_str" title="Link to this definition"></a></dt>
 <dd><p>Return a string describing the structure in atom.config format.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -521,17 +516,17 @@ are not grouped properly together. Defaults to False.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.AtomConfig.write_file">
-<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L460-L463"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.AtomConfig.write_file" title="Link to this definition"></a></dt>
-<dd><p>Writes AtomConfig to a file.</p>
+<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L463-L466"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.AtomConfig.write_file" title="Link to this definition"></a></dt>
+<dd><p>Write AtomConfig to a file.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.GenKpt">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GenKpt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reciprocal_lattice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpoints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L478-L583"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.GenKpt" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GenKpt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reciprocal_lattice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpoints</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L481-L586"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.GenKpt" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
-<p>GenKpt object for reading and writing gen.kpt. This file just generate line-mode kpoints.</p>
+<p>Read and write gen.kpt. This file just generates line-mode kpoints.</p>
 <p>Initialization function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -545,12 +540,12 @@ are not grouped properly together. Defaults to False.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.GenKpt.from_structure">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.io.pwmat.inputs.GenKpt" title="pymatgen.io.pwmat.inputs.GenKpt"><span class="pre">GenKpt</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L502-L533"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.GenKpt.from_structure" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L505-L536"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.GenKpt.from_structure" title="Link to this definition"></a></dt>
 <dd><p>Obtain a AtomConfig object from Structure object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>strutcure</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – A structure object.</p></li>
+<li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – A structure object.</p></li>
 <li><p><strong>dim</strong> (<em>int</em>) – The dimension of the material system (2 or 3).</p></li>
 <li><p><strong>density</strong> (<em>float</em>) – Kpoints mesh without factor with 2*pi. Program will
 automatically convert it with 2*pi.</p></li>
@@ -561,14 +556,14 @@ automatically convert it with 2*pi.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.GenKpt.get_str">
-<span class="sig-name descname"><span class="pre">get_str</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L535-L574"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.GenKpt.get_str" title="Link to this definition"></a></dt>
-<dd><p>Returns a string to be written as a gen.kpt file.</p>
+<span class="sig-name descname"><span class="pre">get_str</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L538-L577"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.GenKpt.get_str" title="Link to this definition"></a></dt>
+<dd><p>Get a string to be written as a gen.kpt file.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.GenKpt.write_file">
-<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L576-L583"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.GenKpt.write_file" title="Link to this definition"></a></dt>
-<dd><p>Writes gen.kpt to a file.</p>
+<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L579-L586"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.GenKpt.write_file" title="Link to this definition"></a></dt>
+<dd><p>Write gen.kpt to a file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>filename</strong> (<em>PathLike</em>) – The absolute path of file to be written.</p>
@@ -580,9 +575,9 @@ automatically convert it with 2*pi.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.HighSymmetryPoint">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">HighSymmetryPoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reciprocal_lattice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L586-L678"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.HighSymmetryPoint" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">HighSymmetryPoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reciprocal_lattice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kpts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L589-L679"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.HighSymmetryPoint" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
-<p>HighSymmetryPoint object for reading and writing HIGH_SYMMETRY_POINTS file which generate line-mode kpoints.</p>
+<p>Read and write HIGH_SYMMETRY_POINTS file which generate line-mode kpoints.</p>
 <p>Initialization function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -596,7 +591,7 @@ automatically convert it with 2*pi.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.HighSymmetryPoint.from_structure">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#pymatgen.io.pwmat.inputs.HighSymmetryPoint" title="pymatgen.io.pwmat.inputs.HighSymmetryPoint"><span class="pre">HighSymmetryPoint</span></a></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L604-L618"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.HighSymmetryPoint.from_structure" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L607-L619"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.HighSymmetryPoint.from_structure" title="Link to this definition"></a></dt>
 <dd><p>Obtain HighSymmetry object from Structure object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -612,13 +607,13 @@ The program will automatically convert it to with factor of 2*pi.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.HighSymmetryPoint.get_str">
-<span class="sig-name descname"><span class="pre">get_str</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L620-L673"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.HighSymmetryPoint.get_str" title="Link to this definition"></a></dt>
-<dd><p>Returns a string describing high symmetry points in HIGH_SYMMETRY_POINTS format.</p>
+<span class="sig-name descname"><span class="pre">get_str</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L621-L674"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.HighSymmetryPoint.get_str" title="Link to this definition"></a></dt>
+<dd><p>Get a string describing high symmetry points in HIGH_SYMMETRY_POINTS format.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.HighSymmetryPoint.write_file">
-<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L675-L678"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.HighSymmetryPoint.write_file" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">write_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L676-L679"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.HighSymmetryPoint.write_file" title="Link to this definition"></a></dt>
 <dd><p>Write HighSymmetryPoint to a file.</p>
 </dd></dl>
 
@@ -626,18 +621,19 @@ The program will automatically convert it to with factor of 2*pi.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.LineLocator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LineLocator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L23-L41"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.LineLocator" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">LineLocator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L25-L46"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.LineLocator" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Find the line indices (starts from 1) of a certain paragraph of text from the file.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.LineLocator.locate_all_lines">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">locate_all_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L26-L41"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.LineLocator.locate_all_lines" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">locate_all_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclusion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L28-L46"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.LineLocator.locate_all_lines" title="Link to this definition"></a></dt>
 <dd><p>Locate the line in file where a certain paragraph of text is located (return all indices)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>file_path</strong> (<em>PathLike</em>) – Absolute path to file.</p></li>
 <li><p><strong>content</strong> (<em>str</em>) – Certain paragraph of text that needs to be located.</p></li>
+<li><p><strong>exclusion</strong> (<em>str</em>) – Certain paragraph of text that is excluded.</p></li>
 </ul>
 </dd>
 </dl>
@@ -647,18 +643,19 @@ The program will automatically convert it to with factor of 2*pi.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ListLocator">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ListLocator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L44-L61"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ListLocator" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ListLocator</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L49-L67"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ListLocator" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Find the element indices (starts from 0) of a certain paragraph of text from the list.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.inputs.ListLocator.locate_all_lines">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">locate_all_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strs_lst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/inputs.py#L47-L61"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ListLocator.locate_all_lines" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">locate_all_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strs_lst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclusion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/inputs.py#L52-L67"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.inputs.ListLocator.locate_all_lines" title="Link to this definition"></a></dt>
 <dd><p>Locate the elements in list where a certain paragraph of text is located (return all indices)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>strs_lst</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of strings.</p></li>
 <li><p><strong>content</strong> (<em>str</em>) – Certain paragraph of text that needs to be located.</p></li>
+<li><p><strong>exclusion</strong> (<em>str</em>) – Certain paragraph of text that is excluded.</p></li>
 </ul>
 </dd>
 </dl>
@@ -671,7 +668,7 @@ The program will automatically convert it to with factor of 2*pi.</p></li>
 <span id="pymatgen-io-pwmat-outputs-module"></span><h2>pymatgen.io.pwmat.outputs module<a class="headerlink" href="#module-pymatgen.io.pwmat.outputs" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.DosSpin">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DosSpin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/outputs.py#L323-L377"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.DosSpin" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DosSpin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/outputs.py#L317-L371"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.DosSpin" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Extract information of DOS from DOS_SPIN file:
 - DOS.totalspin, DOS.totalspin_projected
@@ -679,13 +676,13 @@ The program will automatically convert it to with factor of 2*pi.</p></li>
 - DOS.spindown, DOS.spindown_projected</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.DosSpin.dos">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.DosSpin.dos" title="Link to this definition"></a></dt>
-<dd><p>Returns value of density of state.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.DosSpin.dos" title="Link to this definition"></a></dt>
+<dd><p>Value of density of state.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.DosSpin.get_partial_dos">
-<span class="sig-name descname"><span class="pre">get_partial_dos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">part</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/outputs.py#L360-L377"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.DosSpin.get_partial_dos" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_partial_dos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">part</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/outputs.py#L354-L371"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.DosSpin.get_partial_dos" title="Link to this definition"></a></dt>
 <dd><p>Get partial dos for give element or orbital.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -710,15 +707,15 @@ e.g. ‘Energy’, ‘Total’, ‘Cr-3S’, ‘Cr-3P’,</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.DosSpin.labels">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">labels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.DosSpin.labels" title="Link to this definition"></a></dt>
-<dd><p>Returns the name of the partial density of states</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">labels</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.DosSpin.labels" title="Link to this definition"></a></dt>
+<dd><p>The name of the partial density of states</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.Movement">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Movement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ionic_step_skip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ionic_step_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/outputs.py#L24-L155"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Movement" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Movement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ionic_step_skip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ionic_step_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/outputs.py#L24-L153"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Movement" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Parser for data in MOVEMENT which records trajectory during MD.</p>
 <p>Initialization function.</p>
@@ -738,8 +735,8 @@ ionic_step_offset. Defaults to None.</p></li>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.Movement.atom_configs">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">atom_configs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Movement.atom_configs" title="Link to this definition"></a></dt>
-<dd><p>Returns AtomConfig object for structures contained in MOVEMENT.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">atom_configs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Movement.atom_configs" title="Link to this definition"></a></dt>
+<dd><p>AtomConfig for structures contained in MOVEMENT file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>List of Structure objects for the structure at each ionic step.</p>
@@ -752,8 +749,8 @@ ionic_step_offset. Defaults to None.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.Movement.atom_forces">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">atom_forces</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Movement.atom_forces" title="Link to this definition"></a></dt>
-<dd><p>Returns forces on atoms in each structures contained in MOVEMENT.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">atom_forces</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Movement.atom_forces" title="Link to this definition"></a></dt>
+<dd><p>Forces on atoms in each structures contained in MOVEMENT.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><dl class="simple">
@@ -770,8 +767,8 @@ ionic_step_offset. Defaults to None.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.Movement.e_atoms">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">e_atoms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Movement.e_atoms" title="Link to this definition"></a></dt>
-<dd><p>Returns individual energies of atoms in each ionic step structures
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">e_atoms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Movement.e_atoms" title="Link to this definition"></a></dt>
+<dd><p>Individual energies of atoms in each ionic step structures
 contained in MOVEMENT.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -789,8 +786,8 @@ contained in MOVEMENT.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.Movement.e_tots">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">e_tots</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Movement.e_tots" title="Link to this definition"></a></dt>
-<dd><p>Returns total energies of each ionic step structures contained in MOVEMENT.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">e_tots</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Movement.e_tots" title="Link to this definition"></a></dt>
+<dd><p>Total energies of each ionic step structures contained in MOVEMENT.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><dl class="simple">
@@ -807,8 +804,8 @@ contained in MOVEMENT.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.Movement.virials">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">virials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Movement.virials" title="Link to this definition"></a></dt>
-<dd><p>Returns virial tensor of each ionic step structure contained in MOVEMENT.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">virials</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Movement.virials" title="Link to this definition"></a></dt>
+<dd><p>Virial tensor of each ionic step structure contained in MOVEMENT.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><dl class="simple">
@@ -827,7 +824,7 @@ contained in MOVEMENT.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.OutFermi">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OutFermi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/outputs.py#L158-L178"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.OutFermi" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">OutFermi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/outputs.py#L156-L176"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.OutFermi" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Extract fermi energy (eV) from OUT.FERMI</p>
 <p>Initialization function</p>
@@ -838,8 +835,8 @@ contained in MOVEMENT.</p>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.OutFermi.e_fermi">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">e_fermi</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.OutFermi.e_fermi" title="Link to this definition"></a></dt>
-<dd><p>Returns the fermi energy level.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">e_fermi</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.OutFermi.e_fermi" title="Link to this definition"></a></dt>
+<dd><p>The fermi energy level.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Fermi energy level.</p>
@@ -854,7 +851,7 @@ contained in MOVEMENT.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.Report">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/core/../io/pwmat/outputs.py#L181-L320"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Report" title="Link to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PathLike</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../io/pwmat/outputs.py#L179-L314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Report" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>Extract information of spin, kpoints, bands, eigenvalues from REPORT file.</p>
 <p>Initialization function.</p>
@@ -865,8 +862,8 @@ contained in MOVEMENT.</p>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.Report.eigenvalues">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">eigenvalues</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Report.eigenvalues" title="Link to this definition"></a></dt>
-<dd><p>Returns the eigenvalues.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">eigenvalues</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Report.eigenvalues" title="Link to this definition"></a></dt>
+<dd><p>The eigenvalues.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><dl class="simple">
@@ -883,51 +880,39 @@ contained in MOVEMENT.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.Report.hsps">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hsps</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Report.hsps" title="Link to this definition"></a></dt>
-<dd><p>Return the high symmetry points.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><dl class="simple">
-<dt>The label and fractional coordinate of</dt><dd><p>high symmetry points. Return empty dict when task is not
-line-mode kpath.</p>
-</dd>
-</dl>
-</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>dict[str, np.ndarray]</p>
-</dd>
-</dl>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hsps</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Report.hsps" title="Link to this definition"></a></dt>
+<dd><p>The labels and fractional coordinates of high symmetry points as dict[str, np.ndarray].
+Empty dict when task is not line-mode kpath.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.Report.kpoints">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">kpoints</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Report.kpoints" title="Link to this definition"></a></dt>
-<dd><p>Returns the fractional coordinates of kpoints.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">kpoints</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Report.kpoints" title="Link to this definition"></a></dt>
+<dd><p>The fractional coordinates of kpoints.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.Report.kpoints_weight">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">kpoints_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Report.kpoints_weight" title="Link to this definition"></a></dt>
-<dd><p>Returns the weight of kpoints.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">kpoints_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Report.kpoints_weight" title="Link to this definition"></a></dt>
+<dd><p>The weight of kpoints.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.Report.n_bands">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_bands</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Report.n_bands" title="Link to this definition"></a></dt>
-<dd><p>Returns the number of bands.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_bands</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Report.n_bands" title="Link to this definition"></a></dt>
+<dd><p>The number of bands.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.Report.n_kpoints">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_kpoints</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Report.n_kpoints" title="Link to this definition"></a></dt>
-<dd><p>Returns the number of k-points.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_kpoints</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Report.n_kpoints" title="Link to this definition"></a></dt>
+<dd><p>The number of k-points.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="pymatgen.io.pwmat.outputs.Report.spin">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">spin</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.3.1/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Report.spin" title="Link to this definition"></a></dt>
-<dd><p>Return the spin switches.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">spin</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/io/pwmat/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.pwmat.outputs.Report.spin" title="Link to this definition"></a></dt>
+<dd><p>The spin switches.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Spin switches. 1 represents turn on spin, 2 represents turn down spin.</p>

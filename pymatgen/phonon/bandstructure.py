@@ -506,7 +506,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         return lst
 
     def write_phononwebsite(self, filename: str | PathLike) -> None:
-        """Write a json file for the phononwebsite:
+        """Write a JSON file for the phononwebsite:
         http://henriquemiranda.github.io/phononwebsite.
         """
         with open(filename, mode="w") as file:

@@ -338,7 +338,7 @@ class TestMagOrderingTransformation(PymatgenTest):
     def test_as_from_dict(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75)
         dct = trans.as_dict()
-        # Check json encodability
+        # Check JSON encodability
         _ = json.dumps(dct)
         trans = MagOrderingTransformation.from_dict(dct)
         assert trans.mag_species_spin == {"Fe": 5}
@@ -536,7 +536,7 @@ class TestDopingTransformation(PymatgenTest):
     def test_as_from_dict(self):
         trans = DopingTransformation("Al3+", min_length=5, alio_tol=1, codopant=False, max_structures_per_enum=1)
         dct = trans.as_dict()
-        # Check json encodability
+        # Check JSON encodability
         _ = json.dumps(dct)
         trans = DopingTransformation.from_dict(dct)
         assert str(trans.dopant) == "Al3+"

@@ -180,7 +180,7 @@ class Critic2Caller:
                 critical points to a file 'table.cml' in the working directory
                 useful for visualization
             write_json (bool): Whether to write out critical points
-                and YT json. YT integration will be performed with this setting.
+                and YT JSON. YT integration will be performed with this setting.
             zpsp (dict): Dict of element/symbol name to number of electrons
                 (ZVAL in VASP pseudopotential), with which to properly augment core regions
                 and calculate charge transfer. Optional.
@@ -453,8 +453,8 @@ class Critic2Analysis(MSONable):
             structure: associated Structure
             stdout: stdout from running critic2 in automatic mode
             stderr: stderr from running critic2 in automatic mode
-            cpreport: json output from CPREPORT command
-            yt: json output from YT command
+            cpreport: JSON output from CPREPORT command
+            yt: JSON output from YT command
             zpsp (dict): Dict of element/symbol name to number of electrons
                 (ZVAL in VASP pseudopotential), with which to calculate charge transfer.
                 Optional.

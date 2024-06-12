@@ -5,11 +5,17 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from pytest import approx
+from pytest import approx, raises
 
-from pymatgen.core import Molecule, PeriodicSite, Site, Species, Structure
+from pymatgen.core import Lattice, Molecule, PeriodicSite, Site, Species, Structure
 from pymatgen.io.vasp.outputs import Vasprun
-from pymatgen.symmetry.analyzer import PointGroupAnalyzer, SpacegroupAnalyzer, cluster_sites, iterative_symmetrize
+from pymatgen.symmetry.analyzer import (
+    PointGroupAnalyzer,
+    SpacegroupAnalyzer,
+    SymmetryUndetermined,
+    cluster_sites,
+    iterative_symmetrize,
+)
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 
@@ -367,6 +373,11 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert spg_analyzer.get_point_group_symbol() == "4/mmm"
         assert spg_analyzer.get_crystal_system() == "tetragonal"
         assert spg_analyzer.get_hall() == "-I 4 2"
+
+    def test_bad_structure(self):
+        struct = Structure(Lattice.cubic(5), ["H", "H"], [[0.0, 0.0, 0.0], [0.001, 0.0, 0.0]])
+        with raises(SymmetryUndetermined):
+            SpacegroupAnalyzer(struct, 0.1)
 
 
 class TestSpacegroup(TestCase):
