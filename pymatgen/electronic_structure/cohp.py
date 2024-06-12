@@ -37,7 +37,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
     from typing_extensions import Self
 
-    from pymatgen.util.typing import PathLike, SpinLike
+    from pymatgen.util.typing import PathLike, SpinLike, Vector3D
 
     # TODO: double check and clarify this custom type
     CohpLabel = Union[str, int]
@@ -932,7 +932,7 @@ class IcohpValue(MSONable):
         atom1: str,
         atom2: str,
         length: float,
-        translation,  # TODO: DanielYang: use tuple3float?
+        translation: Vector3D,
         num: int,
         icohp: dict,  # more specific type
         are_coops: bool = False,
@@ -945,7 +945,7 @@ class IcohpValue(MSONable):
             atom1 (str): The first atom that contributes to the bond.
             atom2 (str): The second atom that contributes to the bond.
             length (float): Bond length.
-            translation: translation list, e.g. [0, 0, 0].
+            translation: cell translation vector, e.g. (0, 0, 0).
             num (int): How often the bond exists.  # TODO: DanielYang: clarify this description
             icohp: dict={Spin.up: IcohpValue for spin.up, Spin.down: IcohpValue for spin.down}
             are_coops (bool): If True, this are COOPs
@@ -1102,7 +1102,7 @@ class IcohpCollection(MSONable):
         list_atom1: list[str],
         list_atom2: list[str],
         list_length: list[float],
-        list_translation: list[list],  # TODO: (DanielYang) more specific type
+        list_translation: list[Vector3D],
         list_num: list,  # TODO: more specific type
         list_icohp: list[dict[Spin, IcohpValue]],
         is_spin_polarized: bool,
@@ -1116,7 +1116,7 @@ class IcohpCollection(MSONable):
             list_atom1 (list[str]): atom names e.g. "O1".
             list_atom2 (list[str]): atom names e.g. "O1".
             list_length: list of lengths of corresponding bonds in Angstrom.
-            list_translation: list of translation list, e.g. [0, 0, 0].
+            list_translation: list of cell translation vectors.
             list_num: list of equivalent bonds, usually 1 starting from LOBSTER 3.0.0.
             list_icohp: list of dict={Spin.up: IcohpValue for spin.up, Spin.down: IcohpValue for spin.down}.
             is_spin_polarized (bool): Whether the LOBSTER calculation was done spin polarized.
@@ -1141,18 +1141,18 @@ class IcohpCollection(MSONable):
         self._list_icohp = list_icohp
         self._list_orb_icohp = list_orb_icohp
 
-        for ilist, listel in enumerate(list_labels):
-            self._icohplist[listel] = IcohpValue(
-                label=listel,
-                atom1=list_atom1[ilist],
-                atom2=list_atom2[ilist],
-                length=list_length[ilist],
-                translation=list_translation[ilist],
-                num=list_num[ilist],
-                icohp=list_icohp[ilist],
+        for idx, label in enumerate(list_labels):
+            self._icohplist[label] = IcohpValue(
+                label=label,
+                atom1=list_atom1[idx],
+                atom2=list_atom2[idx],
+                length=list_length[idx],
+                translation=list_translation[idx],
+                num=list_num[idx],
+                icohp=list_icohp[idx],
                 are_coops=are_coops,
                 are_cobis=are_cobis,
-                orbitals=None if list_orb_icohp is None else list_orb_icohp[ilist],
+                orbitals=None if list_orb_icohp is None else list_orb_icohp[idx],
             )
 
     def __str__(self) -> str:
