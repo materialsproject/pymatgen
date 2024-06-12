@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from pymatgen.core.structure import IStructure
-    from pymatgen.util.typing import PathLike
+    from pymatgen.util.typing import PathLike, Vector3D
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -388,14 +388,14 @@ class Icohplist(MSONable):
             if len(data) == 0:
                 raise RuntimeError("ICOHPLIST file contains no data.")
 
-            # Which Lobster version?
+            # Determine LOBSTER version
             if len(data[0].split()) == 8:
                 version = "3.1.1"
             elif len(data[0].split()) == 6:
                 version = "2.2.1"
-                warnings.warn("Please consider using the new Lobster version. See www.cohp.de.")
+                warnings.warn("Please consider using the new LOBSTER version. See www.cohp.de.")
             else:
-                raise ValueError
+                raise ValueError("Unsupported LOBSTER version.")
 
             # If the calculation is spin polarized, the line in the middle
             # of the file will be another header line.
@@ -435,7 +435,7 @@ class Icohplist(MSONable):
             atom2 = ""
             length = None
             num = None
-            translation = []
+            translation: Vector3D | None = None
 
             for bond in range(n_bonds):
                 line = data_without_orbitals[bond].split()
@@ -447,16 +447,16 @@ class Icohplist(MSONable):
                     length = float(line[3])
                     icohp[Spin.up] = float(line[4])
                     num = int(line[5])
-                    translation = [0, 0, 0]
+                    translation = (0, 0, 0)
                     if self.is_spin_polarized:
                         icohp[Spin.down] = float(data_without_orbitals[bond + n_bonds + 1].split()[4])
 
-                elif version == "3.1.1":
+                else:  # version == "3.1.1"
                     label = f"{line[0]}"
                     atom1 = str(line[1])
                     atom2 = str(line[2])
                     length = float(line[3])
-                    translation = [int(line[4]), int(line[5]), int(line[6])]
+                    translation = (int(line[4]), int(line[5]), int(line[6]))
                     icohp[Spin.up] = float(line[7])
                     num = 1
 
@@ -500,9 +500,9 @@ class Icohplist(MSONable):
                 list_atom1=atoms1,
                 list_atom2=atoms2,
                 list_length=lens,
-                list_translation=translations,
+                list_translation=translations,  # type: ignore[arg-type]
                 list_num=nums,
-                list_icohp=icohps,
+                list_icohp=icohps,  # DEBUG: DanielYang: inconsistent type
                 is_spin_polarized=self.is_spin_polarized,
                 list_orb_icohp=list_orb_icohp,
             )
