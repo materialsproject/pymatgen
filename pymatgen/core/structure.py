@@ -2955,8 +2955,9 @@ class IStructure(SiteCollection, MSONable):
             return mpr.get_structure_by_material_id(id)  # type: ignore
         if source == "COD":
             from pymatgen.ext.cod import COD
+
             cod = COD()
-            return cod.get_structure_by_id(id)
+            return cod.get_structure_by_id(int(id))
         raise ValueError(f"Invalid source: {source}")
 
     @classmethod
