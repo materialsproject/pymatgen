@@ -64,6 +64,7 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
 
 FileFormats = Literal["cif", "poscar", "cssr", "json", "yaml", "yml", "xsf", "mcsqs", "res", "pwmat", ""]
+StructureSources = Literal["Materials Project"]
 
 
 class Neighbor(Site):
@@ -2938,7 +2939,7 @@ class IStructure(SiteCollection, MSONable):
         return str(writer)
 
     @classmethod
-    def from_id(cls, id: str, source: str = "Materials Project", **kwargs):
+    def from_id(cls, id: str, source: StructureSources = "Materials Project", **kwargs) -> Structure:
         """
         Load a structure file based on an id, usually from an online source.
 
