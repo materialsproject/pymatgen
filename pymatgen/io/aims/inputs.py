@@ -12,12 +12,14 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
+from warnings import warn
 
 import numpy as np
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 
 from pymatgen.core import Lattice, Molecule, Structure
+from pymatgen.core.periodic_table import Element
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -138,11 +140,20 @@ class AimsGeometryIn(MSONable):
 
         charges = structure.site_properties.get("charge", np.zeros(len(structure.species)))
         magmoms = structure.site_properties.get("magmom", np.zeros(len(structure.species)))
-        for species, coord, charge, magmom in zip(structure.species, structure.cart_coords, charges, magmoms):
+
+        sp_spins = [None if isinstance(sp, Element) else sp.spin for sp in structure.species]
+        for species, coord, charge, magmom, sp_spin in zip(
+            structure.species, structure.cart_coords, charges, magmoms, sp_spins
+        ):
             content_lines.append(f"atom {coord[0]: .12e} {coord[1]: .12e} {coord[2]: .12e} {species}")
+            if (not np.isnan(sp_spin)) and (magmom == 0):
+                content_lines.append(f"     initial_moment {species.spin}")
             if charge != 0:
                 content_lines.append(f"     initial_charge {charge:.12e}")
             if magmom != 0:
+                if (not np.isnan(sp_spin)) and (sp_spin != magmom):
+                    raise ValueError("Spin and magnetic moments don't agree.")
+
                 content_lines.append(f"     initial_moment {magmom:.12e}")
 
         return cls(_content="\n".join(content_lines), _structure=structure)
@@ -500,6 +511,17 @@ class AimsControlIn(MSONable):
         if parameters["xc"] == "LDA":
             parameters["xc"] = "pw-lda"
 
+        no_spins = ["spin" not in str(site.species) for site in structure.sites]
+        magmom = structure.site_properties.get("magmom", np.zeros(structure.num_sites))
+        if (
+            parameters.get("spin", "") == "collinear"
+            and all(no_spins)
+            and np.all(magmom == 0.0)
+            and ("default_initial_moment" not in parameters)
+        ):
+            warn("Removing spin from parameters since no spin information is in the structure", RuntimeWarning)
+            parameters.pop("spin")
+
         cubes = parameters.pop("cubes", None)
 
         if verbose_header:
@@ -605,7 +627,7 @@ class AimsControlIn(MSONable):
             ValueError: If a file for the species is not found
         """
         block = ""
-        species = np.unique(structure.species)
+        species = np.unique([getattr(sp, "element", sp) for sp in structure.species])
         for sp in species:
             filename = f"{species_dir}/{sp.Z:02d}_{sp.symbol}_default"
             if Path(filename).exists():
