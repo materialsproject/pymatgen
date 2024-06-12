@@ -35,7 +35,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from pymatgen.core.structure import IStructure
-    from pymatgen.util.typing import PathLike, Vector3D
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
