@@ -690,8 +690,9 @@ class AimsSpeciesFile:
         aims_species_dir = SETTINGS.get("AIMS_SPECIES_DIR")
         if aims_species_dir is None:
             raise ValueError(
-                f"No species` defaults file for {element} for {basis} basis set found. "
-                f"Please set the AIMS_SPECIES_DIR correctly in ~/.config/.pmgrc.yaml."
+                "No AIMS_SPECIES_DIR variable found in the config file. "
+                "Please set the variable in ~/.config/.pmgrc.yaml to the root of `species_defaults` "
+                "folder in FHIaims/ directory."
             )
         paths_to_try = [
             (Path(aims_species_dir) / basis / species_file_name).expanduser().as_posix(),
@@ -708,7 +709,7 @@ class AimsSpeciesFile:
 
     def __str__(self):
         """String representation of the species' defaults file"""
-        return re.sub(r"^ *species +\w+", f"    species             {self.label}", self.data, flags=re.MULTILINE)
+        return re.sub(r"^ *species +\w+", f"  species        {self.label}", self.data, flags=re.MULTILINE)
 
     @property
     def element(self) -> str:
@@ -776,14 +777,14 @@ class SpeciesDefaults(list, MSONable):
 
     def __str__(self):
         """String representation of the species' defaults"""
-        return "\n".join([str(x) for x in self])
+        return "".join([str(x) for x in self])
 
     @classmethod
     def from_structure(cls, struct: Structure | Molecule, basis_set: str | dict[str, str]):
         """Initialize species defaults from a structure."""
         labels = []
         elements = {}
-        for label, el in zip(struct.labels, struct.species):
+        for label, el in sorted(zip(struct.labels, struct.species)):
             if not isinstance(el, Element):
                 raise TypeError("FHI-aims does not support fractional compositions")
             if (label is None) or (el is None):

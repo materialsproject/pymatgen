@@ -167,7 +167,7 @@ def test_aims_control_in(tmp_path: Path):
         "compute_forces": True,
         "relax_geometry": ["trm", "1e-3"],
         "batch_size_limit": 200,
-        "species_dir": str(TEST_DIR.parent / "species_directory/light"),
+        "species_dir": "light",
     }
 
     aims_control = AimsControlIn(parameters.copy())
@@ -205,35 +205,6 @@ def test_aims_control_in(tmp_path: Path):
 
     aims_control_from_dict.write_file(si, directory=tmp_path, verbose_header=True, overwrite=True)
     compare_files(TEST_DIR / "control.in.si", f"{tmp_path}/control.in")
-
-
-def test_aims_control_in_default_species_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("AIMS_SPECIES_DIR", str(TEST_DIR.parent / "species_directory/light"))
-
-    parameters = {
-        "cubes": [
-            AimsCube(type="eigenstate 1", points=[10, 10, 10]),
-            AimsCube(type="total_density", points=[10, 10, 10]),
-        ],
-        "xc": "LDA",
-        "smearing": ["fermi-dirac", 0.01],
-        "vdw_correction_hirshfeld": True,
-        "compute_forces": True,
-        "relax_geometry": ["trm", "1e-3"],
-        "batch_size_limit": 200,
-        "output": ["band 0 0 0 0.5 0 0.5 10 G X", "band 0 0 0 0.5 0.5 0.5 10 G L"],
-        "k_grid": [1, 1, 1],
-    }
-
-    aims_control = AimsControlIn(parameters.copy())
-
-    for key, val in parameters.items():
-        assert aims_control[key] == val
-
-    si = AimsGeometryIn.from_file(TEST_DIR / "geometry.in.si.gz").structure
-
-    aims_control.write_file(si, directory=tmp_path, verbose_header=True, overwrite=True)
-    compare_files(TEST_DIR / "control.in.si.no_sd", f"{tmp_path}/control.in")
 
 
 def test_species_file(monkeypatch: pytest.MonkeyPatch):
