@@ -410,11 +410,11 @@ class Icohplist(MSONable):
             if self.orbitalwise:
                 data_without_orbitals = []
                 data_orbitals = []
-                for line in data:
-                    if "_" not in line.split()[1]:
-                        data_without_orbitals += [line]
+                for line_parts in data:
+                    if "_" not in line_parts.split()[1]:
+                        data_without_orbitals += [line_parts]
                     else:
-                        data_orbitals += [line]
+                        data_orbitals += [line_parts]
 
             else:
                 data_without_orbitals = data
@@ -438,26 +438,24 @@ class Icohplist(MSONable):
             translation: Vector3D | None = None
 
             for bond in range(n_bonds):
-                line = data_without_orbitals[bond].split()
+                line_parts = data_without_orbitals[bond].split()
+
+                label = f"{line_parts[0]}"
+                atom1 = str(line_parts[1])
+                atom2 = str(line_parts[2])
+                length = float(line_parts[3])
+
                 icohp = {}
                 if version == "2.2.1":
-                    label = f"{line[0]}"
-                    atom1 = str(line[1])
-                    atom2 = str(line[2])
-                    length = float(line[3])
-                    icohp[Spin.up] = float(line[4])
-                    num = int(line[5])
+                    icohp[Spin.up] = float(line_parts[4])
+                    num = int(line_parts[5])
                     translation = (0, 0, 0)
                     if self.is_spin_polarized:
                         icohp[Spin.down] = float(data_without_orbitals[bond + n_bonds + 1].split()[4])
 
                 else:  # version == "3.1.1"
-                    label = f"{line[0]}"
-                    atom1 = str(line[1])
-                    atom2 = str(line[2])
-                    length = float(line[3])
-                    translation = (int(line[4]), int(line[5]), int(line[6]))
-                    icohp[Spin.up] = float(line[7])
+                    translation = (int(line_parts[4]), int(line_parts[5]), int(line_parts[6]))
+                    icohp[Spin.up] = float(line_parts[7])
                     num = 1
 
                     if self.is_spin_polarized:
@@ -479,11 +477,11 @@ class Icohplist(MSONable):
                 for i_data_orb in range(n_orbs):
                     data_orb = data_orbitals[i_data_orb]
                     icohp = {}
-                    line = data_orb.split()
-                    label = f"{line[0]}"
+                    line_parts = data_orb.split()
+                    label = f"{line_parts[0]}"
                     orbs = re.findall(r"_(.*?)(?=\s)", data_orb)
                     orb_label, orbitals = get_orb_from_str(orbs)
-                    icohp[Spin.up] = float(line[7])
+                    icohp[Spin.up] = float(line_parts[7])
 
                     if self.is_spin_polarized:
                         icohp[Spin.down] = float(data_orbitals[n_orbs + i_data_orb].split()[7])
