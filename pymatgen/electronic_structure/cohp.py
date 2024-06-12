@@ -743,7 +743,8 @@ class CompleteCohp(Cohp):
         if are_coops and are_cobis:
             raise ValueError("You cannot have info about COOPs and COBIs in the same file.")
 
-        if fmt.upper() == "LMTO":
+        fmt = fmt.upper()
+        if fmt == "LMTO":
             # TODO: LMTO COOPs and orbital-resolved COHP cannot be handled yet
             are_coops = False
             are_cobis = False
@@ -755,7 +756,7 @@ class CompleteCohp(Cohp):
 
             cohp_file: LMTOCopl | Cohpcar = LMTOCopl(filename=filename, to_eV=True)
 
-        elif fmt.upper() == "LOBSTER":
+        elif fmt == "LOBSTER":
             if (
                 (are_coops and are_cobis)
                 or (are_coops and are_multi_center_cobis)
