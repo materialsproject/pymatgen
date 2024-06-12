@@ -331,7 +331,6 @@ class CompleteCohp(Cohp):
             dct["COHP"] |= {label: {str(spin): pops.tolist() for spin, pops in self.all_cohps[label].cohp.items()}}
             icohp = self.all_cohps[label].icohp
             if icohp is not None:
-                # TODO: DanielYang59: merge two condition branches with "|=" operator?
                 if "ICOHP" not in dct:
                     dct["ICOHP"] = {label: {str(spin): pops.tolist() for spin, pops in icohp.items()}}
                 else:
@@ -467,7 +466,7 @@ class CompleteCohp(Cohp):
     def get_summed_cohp_by_label_and_orbital_list(
         self,
         label_list: list[str],
-        orbital_list: list,  # TODO (DanielYang): what is its type? Add custom type for it?
+        orbital_list: list[str],
         divisor: float = 1,
         summed_spin_channels: bool = False,
     ) -> Cohp:
@@ -475,7 +474,7 @@ class CompleteCohp(Cohp):
 
         Args:
             label_list (list[str]): Labels for the COHP that should be included.
-            orbital_list (list): Orbitals for the COHPs that should be included
+            orbital_list (list[str]): Orbitals for the COHPs that should be included
                 (same order as label_list).
             divisor (float): The summed COHP will be divided by this divisor.
             summed_spin_channels (bool): Sum the spin channels and return the sum in Spin.up.
@@ -1048,10 +1047,14 @@ class IcohpValue(MSONable):
 
         return self._icohp[spin]
 
-    def icohpvalue_orbital(self, orbitals: list[Orbital] | str, spin: Spin = Spin.up) -> float:
+    def icohpvalue_orbital(
+        self,
+        orbitals: tuple[Orbital, Orbital] | str,
+        spin: Spin = Spin.up,
+    ) -> float:
         """
         Args:
-            orbitals (list[Orbitals]): List of Orbitals or "str(Orbital1)-str(Orbital2)".
+            orbitals: tuple[Orbital, Orbital] or "str(Orbital0)-str(Orbital1)".
             spin (Spin): Spin.up or Spin.down.
 
         Returns:
@@ -1060,7 +1063,7 @@ class IcohpValue(MSONable):
         if not self.is_spin_polarized and spin == Spin.down:
             raise ValueError("The calculation was not performed with spin polarization")
 
-        if isinstance(orbitals, list):  # TODO: DanielYang: use tuple of 2
+        if isinstance(orbitals, (tuple, list)):
             orbitals = f"{orbitals[0]}-{orbitals[1]}"
 
         assert self._orbitals is not None
@@ -1177,7 +1180,7 @@ class IcohpCollection(MSONable):
         label: str,
         summed_spin_channels: bool = True,
         spin: Spin = Spin.up,
-        orbitals: str | list[Orbital] | None = None,  # TODO: DanielYang: use tuple of 2
+        orbitals: str | tuple[Orbital, Orbital] | None = None,
     ) -> float:
         """Get an ICOHP value for a certain bond indicated by the label.
 
@@ -1198,7 +1201,7 @@ class IcohpCollection(MSONable):
         if orbitals is None:
             return icohp.summed_icohp if summed_spin_channels else icohp.icohpvalue(spin)
 
-        if isinstance(orbitals, list):
+        if isinstance(orbitals, (tuple, list)):
             orbitals = f"{orbitals[0]}-{orbitals[1]}"
 
         if summed_spin_channels:
