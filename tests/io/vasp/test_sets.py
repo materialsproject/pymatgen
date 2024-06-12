@@ -440,7 +440,7 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         # test that van-der-Waals parameters are parsed correctly
 
-        vdw_par = loadfn(MODULE_DIR / "vdW_parameters.yaml")
+        vdw_par = loadfn(f"{MODULE_DIR}/vdW_parameters.yaml")
         with pytest.raises(
             KeyError,
             match=f"Invalid or unsupported van-der-Waals functional. Supported functionals are {', '.join(vdw_par)}.",
@@ -851,8 +851,8 @@ class TestMatPESStaticSet(PymatgenTest):
 
         assert input_set.potcar_functional == "PBE_64"  # test POTCARs default to PBE_64
         assert input_set.kpoints is None
-        # only runs if POTCAR files to compare against are available
-        if os.path.isdir(f"{FAKE_POTCAR_DIR}/POT_GGA_PAW_PBE_64"):
+        if os.path.isdir(f"{FAKE_POTCAR_DIR}/POT_PAW_PBE_64"):
+            # this part only runs if POTCAR files are available
             assert str(input_set.potcar[0]) == str(PotcarSingle.from_symbol_and_functional("Fe_pv", "PBE_64"))
 
     def test_with_prev_incar(self):
@@ -1118,7 +1118,7 @@ class TestMagmomLdau(PymatgenTest):
         assert magmom == magmom_ans
 
     def test_ln_magmom(self):
-        yaml_path = MODULE_DIR / "VASPIncarBase.yaml"
+        yaml_path = f"{MODULE_DIR}/VASPIncarBase.yaml"
         magmom_setting = loadfn(yaml_path)["INCAR"]["MAGMOM"]
         structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/La4Fe4O12.cif")
         structure.add_oxidation_state_by_element({"La": +3, "Fe": +3, "O": -2})
@@ -1980,12 +1980,13 @@ class TestLobsterSet(PymatgenTest):
     @skip_if_no_psp_dir
     def test_potcar(self):
         # PBE_54 is preferred at the moment
-        assert self.lobsterset1.user_potcar_functional == "PBE_54"
+        functional, symbol = "PBE_54", "K_sv"
+        assert self.lobsterset1.user_potcar_functional == functional
         # test if potcars selected are consistent with PBE_54
         assert self.lobsterset2.potcar.symbols == ["Fe_pv", "P", "O"]
         # test if error raised contains correct potcar symbol for K element as PBE_54 set
         with pytest.raises(
-            RuntimeError, match="You do not have the right POTCAR with functional='PBE_54' and symbol='K_sv'"
+            FileNotFoundError, match=f"You do not have the right POTCAR with {functional=} and {symbol=}"
         ):
             _ = self.lobsterset9.potcar.symbols
 
@@ -2121,7 +2122,7 @@ def test_vasp_input_set_alias():
 
 def test_dict_set_alias():
     with pytest.warns(
-        FutureWarning, match="DictSet is deprecated, and will be removed on 2025-12-31\n; use VaspInputSet"
+        FutureWarning, match="DictSet is deprecated, and will be removed on 2025-12-31\nUse VaspInputSet"
     ):
         DictSet()
     assert isinstance(DictSet(), VaspInputSet)

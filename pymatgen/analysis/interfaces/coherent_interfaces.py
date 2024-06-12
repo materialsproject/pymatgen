@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
     from pymatgen.core import Structure
+    from pymatgen.util.typing import Tuple3Ints
 
 
 class CoherentInterfaceBuilder:
@@ -30,8 +31,8 @@ class CoherentInterfaceBuilder:
         self,
         substrate_structure: Structure,
         film_structure: Structure,
-        film_miller: tuple[int, int, int],
-        substrate_miller: tuple[int, int, int],
+        film_miller: Tuple3Ints,
+        substrate_miller: Tuple3Ints,
         zslgen: ZSLGenerator | None = None,
     ):
         """
@@ -133,11 +134,11 @@ class CoherentInterfaceBuilder:
         film_slabs = film_sg.get_slabs()
         sub_slabs = sub_sg.get_slabs()
 
-        film_shifts = [s.shift for s in film_slabs]
-        film_terminations = [label_termination(s) for s in film_slabs]
+        film_shifts = [slab.shift for slab in film_slabs]
+        film_terminations = [label_termination(slab) for slab in film_slabs]
 
-        sub_shifts = [s.shift for s in sub_slabs]
-        sub_terminations = [label_termination(s) for s in sub_slabs]
+        sub_shifts = [slab.shift for slab in sub_slabs]
+        sub_terminations = [label_termination(slab) for slab in sub_slabs]
 
         self._terminations = {
             (film_label, sub_label): (film_shift, sub_shift)

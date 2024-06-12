@@ -345,10 +345,10 @@ class JahnTellerAnalyzer:
         # TODO: replace with more generic Hund's rule algorithm?
 
         # taken from get_crystal_field_spin
-        elec = species.full_electronic_structure
+        elec = species.element.full_electronic_structure
         if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
             raise AttributeError(f"Invalid element {species.symbol} for crystal field calculation.")
-        n_electrons = int(elec[-1][2] + elec[-2][2] - species.oxi_state)
+        n_electrons = int(elec[-1][2] + elec[-2][2] - species.oxi_state)  # type: ignore
         if n_electrons < 0 or n_electrons > 10:
             raise AttributeError(f"Invalid oxidation state {species.oxi_state} for element {species.symbol}")
 
@@ -452,8 +452,7 @@ class JahnTellerAnalyzer:
 
     @staticmethod
     def mu_so(species: str | Species, motif: Literal["oct", "tet"], spin_state: Literal["high", "low"]) -> float | None:
-        """Calculate the spin-only magnetic moment for a
-        given species. Only supports transition metals.
+        """Calculate the spin-only magnetic moment for a given species. Only supports transition metals.
 
         Args:
             species: Species
@@ -466,8 +465,8 @@ class JahnTellerAnalyzer:
         """
         try:
             sp = get_el_sp(species)
-            n = sp.get_crystal_field_spin(coordination=motif, spin_config=spin_state)
+            unpaired_spins = sp.get_crystal_field_spin(coordination=motif, spin_config=spin_state)
             # calculation spin-only magnetic moment for this number of unpaired spins
-            return np.sqrt(n * (n + 2))
+            return np.sqrt(unpaired_spins * (unpaired_spins + 2))
         except AttributeError:
             return None

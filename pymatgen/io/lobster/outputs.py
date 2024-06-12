@@ -154,7 +154,7 @@ class Cohpcar:
                 cohp = {spin: data[2 * (bond + s * (num_bonds + 1)) + 3] for s, spin in enumerate(spins)}
                 icohp = {spin: data[2 * (bond + s * (num_bonds + 1)) + 4] for s, spin in enumerate(spins)}
                 if orbs is None:
-                    bond_num = bond_num + 1
+                    bond_num += 1
                     label = str(bond_num)
                     cohp_data[label] = {
                         "COHP": cohp,
@@ -207,7 +207,7 @@ class Cohpcar:
 
                 icohp = {spin: data[2 * (bond + s * (num_bonds)) + 2] for s, spin in enumerate(spins)}
                 if orbs is None:
-                    bond_num = bond_num + 1
+                    bond_num += 1
                     label = str(bond_num)
                     cohp_data[label] = {
                         "COHP": cohp,
@@ -704,11 +704,10 @@ class Doscar:
                 pdos = defaultdict(dict)
                 data = dos[atom + 1]
                 _, ncol = data.shape
-                orbnumber = 0
-                for j in range(1, ncol):
-                    orb = orbitals[atom + 1][orbnumber]
+
+                for orb_num, j in enumerate(range(1, ncol)):
+                    orb = orbitals[atom + 1][orb_num]
                     pdos[orb][spin] = data[:, j]
-                    orbnumber = orbnumber + 1
                 pdoss += [pdos]
         else:
             tdensities[Spin.up] = doshere[:, 1]
@@ -720,13 +719,13 @@ class Doscar:
                 pdos = defaultdict(dict)
                 data = dos[atom + 1]
                 _, ncol = data.shape
-                orbnumber = 0
+                orb_num = 0
                 for j in range(1, ncol):
                     spin = Spin.down if j % 2 == 0 else Spin.up
-                    orb = orbitals[atom + 1][orbnumber]
+                    orb = orbitals[atom + 1][orb_num]
                     pdos[orb][spin] = data[:, j]
                     if j % 2 == 0:
-                        orbnumber = orbnumber + 1
+                        orb_num += 1
                 pdoss += [pdos]
 
         self._efermi = efermi
@@ -1189,8 +1188,7 @@ class Lobsterout(MSONable):
 
 
 class Fatband:
-    """
-    Reads in FATBAND_x_y.lobster files.
+    """Read in FATBAND_x_y.lobster files.
 
     Attributes:
         efermi (float): Fermi energy read in from vasprun.xml.
@@ -1380,14 +1378,14 @@ class Fatband:
                     iband = 0
                 if line.split()[0] != "#":
                     if linenumber < self.nbands:
-                        if ifilename == 0:
+                        if ifilename == 0 and self.efermi is not None:
                             eigenvals[Spin.up][iband][idx_kpt] = float(line.split()[1]) + self.efermi
 
                         p_eigenvals[Spin.up][iband][idx_kpt][atom_names[ifilename]][orbital_names[ifilename]] = float(
                             line.split()[2]
                         )
                     if linenumber >= self.nbands and self.is_spinpolarized:
-                        if ifilename == 0:
+                        if ifilename == 0 and self.efermi is not None:
                             eigenvals[Spin.down][iband][idx_kpt] = float(line.split()[1]) + self.efermi
                         p_eigenvals[Spin.down][iband][idx_kpt][atom_names[ifilename]][orbital_names[ifilename]] = float(
                             line.split()[2]

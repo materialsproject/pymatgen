@@ -183,7 +183,7 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
             json_resp = response.json()
             if body := json_resp["body"]:
                 for ll in map(str.strip, body.split("\n")):
-                    if ll in ["", "## Summary"]:
+                    if ll in ("", "## Summary"):
                         continue
                     if ll.startswith(("## Checklist", "## TODO")):
                         break
@@ -197,7 +197,7 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
     if dry_run:
         print(tokens[0] + "##".join(tokens[1:]))
     else:
-        with open("docs/docs/CHANGES.md", mode="w") as file:
+        with open("docs/CHANGES.md", mode="w") as file:
             file.write(tokens[0] + "##".join(tokens[1:]))
         ctx.run("open docs/CHANGES.md")
     print("The following commit messages were not included...")
@@ -248,5 +248,5 @@ def lint(ctx: Context) -> None:
     Args:
         ctx (invoke.Context): The context object.
     """
-    for cmd in ["ruff", "mypy", "ruff format"]:
+    for cmd in ("ruff", "mypy", "ruff format"):
         ctx.run(f"{cmd} pymatgen")

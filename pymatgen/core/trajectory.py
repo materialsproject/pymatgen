@@ -16,7 +16,6 @@ from monty.json import MSONable
 
 from pymatgen.core.structure import Composition, DummySpecies, Element, Lattice, Molecule, Species, Structure
 from pymatgen.io.ase import AseAtomsAdaptor
-from pymatgen.io.vasp.outputs import Vasprun, Xdatcar
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -332,7 +331,7 @@ class Trajectory(MSONable):
         self.coords = displacements
         self.coords_are_displacement = True
 
-    def extend(self, trajectory: Trajectory) -> None:
+    def extend(self, trajectory: Self) -> None:
         """Append a trajectory to the current one.
 
         The lattice, coords, and all other properties are combined.
@@ -547,9 +546,13 @@ class Trajectory(MSONable):
         structures = []
 
         if fnmatch(filename, "*XDATCAR*"):
+            from pymatgen.io.vasp.outputs import Xdatcar
+
             structures = Xdatcar(filename).structures
 
         elif fnmatch(filename, "vasprun*.xml*"):
+            from pymatgen.io.vasp.outputs import Vasprun
+
             structures = Vasprun(filename).structures
 
         elif fnmatch(filename, "*.traj"):
@@ -566,7 +569,7 @@ class Trajectory(MSONable):
                     is_mol = True
 
             except ImportError as exc:
-                raise exc
+                raise ImportError("ASE is required to read .traj files. pip install ase") from exc
 
         else:
             supported_file_types = ("XDATCAR", "vasprun.xml", "*.traj")

@@ -32,13 +32,13 @@ class TestJonesFaithfulTransformation(TestCase):
         ]
 
     def test_init(self):
-        for test_string, test_Pp in zip(self.test_strings, self.test_Pps):
-            jft = JonesFaithfulTransformation.from_transformation_str(test_string)
+        for test_str, test_Pp in zip(self.test_strings, self.test_Pps):
+            jft = JonesFaithfulTransformation.from_transformation_str(test_str)
             jft2 = JonesFaithfulTransformation(test_Pp[0], test_Pp[1])
             assert_allclose(jft.P, jft2.P)
             assert_allclose(jft.p, jft2.p)
-            assert test_string == jft.transformation_string
-            assert test_string == jft2.transformation_string
+            assert test_str == jft.transformation_string
+            assert test_str == jft2.transformation_string
 
     def test_inverse(self):
         for test_string in self.test_strings:

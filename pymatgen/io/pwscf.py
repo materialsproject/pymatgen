@@ -214,8 +214,7 @@ class PWInput:
         )
 
     def write_file(self, filename):
-        """
-        Write the PWSCF input file.
+        """Write the PWSCF input file.
 
         Args:
             filename (str): The string filename to output to.
@@ -502,7 +501,7 @@ class PWInputError(BaseException):
 class PWOutput:
     """Parser for PWSCF output file."""
 
-    patterns: ClassVar = dict(
+    patterns: ClassVar[dict[str, str]] = dict(
         energies=r"total energy\s+=\s+([\d\.\-]+)\sRy",
         ecut=r"kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry",
         lattice_type=r"bravais\-lattice index\s+=\s+(\d+)",

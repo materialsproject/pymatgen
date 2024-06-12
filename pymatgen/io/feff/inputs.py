@@ -360,8 +360,7 @@ class Header(MSONable):
         return "\n".join(output)
 
     def write_file(self, filename="HEADER"):
-        """
-        Writes Header into filename on disk.
+        """Write Header to file.
 
         Args:
             filename: Filename and path for file to be written to disk
@@ -507,8 +506,7 @@ class Atoms(MSONable):
         return f"ATOMS\n{atom_list}\nEND\n"
 
     def write_file(self, filename="ATOMS"):
-        """
-        Write Atoms list to file.
+        """Write Atoms list to file.
 
         Args:
             filename: path for file to be written
@@ -627,8 +625,7 @@ class Tags(dict):
         return self.get_str()
 
     def write_file(self, filename="PARAMETERS"):
-        """
-        Write Tags to a Feff parameter tag file.
+        """Write Tags to a Feff parameter tag file.
 
         Args:
             filename: filename and path to write to.
@@ -908,8 +905,7 @@ class Potential(MSONable):
         return f"POTENTIALS \n{ipotlist}"
 
     def write_file(self, filename="POTENTIALS"):
-        """
-        Write to file.
+        """Write to file.
 
         Args:
             filename: filename and path to write potential file to.
@@ -982,10 +978,7 @@ def get_atom_map(structure, absorbing_atom=None):
     if absorbing_atom and len(structure.indices_from_symbol(absorbing_atom)) == 1:
         unique_pot_atoms.remove(absorbing_atom)
 
-    atom_map = {}
-    for idx, atom in enumerate(unique_pot_atoms, start=1):
-        atom_map[atom] = idx
-    return atom_map
+    return {atom: idx for idx, atom in enumerate(unique_pot_atoms, start=1)}
 
 
 def get_absorbing_atom_symbol_index(absorbing_atom, structure):

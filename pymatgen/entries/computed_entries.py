@@ -291,7 +291,7 @@ class ComputedEntry(Entry):
         energy_adjustments: list | None = None,
         parameters: dict | None = None,
         data: dict | None = None,
-        entry_id: object | None = None,
+        entry_id: str | None = None,
     ):
         """Initialize a ComputedEntry.
 
@@ -470,11 +470,8 @@ class ComputedEntry(Entry):
         if not math.isclose(self.energy, other.energy):
             return False
 
-        if self.composition != other.composition:
-            return False
-
         # assumes that data, parameters are equivalent
-        return True
+        return self.composition == other.composition
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
@@ -557,7 +554,7 @@ class ComputedStructureEntry(ComputedEntry):
         energy_adjustments: list | None = None,
         parameters: dict | None = None,
         data: dict | None = None,
-        entry_id: object | None = None,
+        entry_id: str | None = None,
     ) -> None:
         """Initialize a ComputedStructureEntry.
 
@@ -647,7 +644,10 @@ class ComputedStructureEntry(ComputedEntry):
             entry_id=dct.get("entry_id"),
         )
 
-    def normalize(self, mode: Literal["formula_unit", "atom"] = "formula_unit") -> ComputedStructureEntry:
+    def normalize(
+        self,
+        mode: Literal["formula_unit", "atom"] = "formula_unit",
+    ) -> ComputedStructureEntry:
         """Normalize the entry's composition and energy. The structure remains unchanged.
 
         Args:
@@ -698,7 +698,7 @@ class GibbsComputedStructureEntry(ComputedStructureEntry):
         energy_adjustments: list | None = None,
         parameters: dict | None = None,
         data: dict | None = None,
-        entry_id: object | None = None,
+        entry_id: str | None = None,
     ):
         """
         Args:

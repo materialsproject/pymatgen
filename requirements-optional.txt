@@ -1,15 +1,15 @@
-ase>=3.22.1
+ase>=3.23.0
 beautifulsoup4==4.12.2
 BoltzTraP2>=22.3.2
 chemview>=0.6
 f90nml>=1.4.3
 fdint>=2.0.2
 galore>=0.7.0
-h5py==3.9.0
+h5py==3.11.0
 # hiphive>=0.6
 icet>=2.2
 jarvis-tools>=2022.9.16
-matgl==1.0.0
+matgl==1.1.1
 netCDF4>=1.5.8
-phonopy==2.20.0
+phonopy==2.23.1
 seekpath>=2.0.1

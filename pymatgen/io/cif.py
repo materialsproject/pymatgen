@@ -65,8 +65,7 @@ class CifBlock:
         """
         self.loops = loops
         self.data = data
-        # AJ (@computron) says: CIF Block names cannot be
-        # more than 75 characters or you get an Exception
+        # AJ (@computron) says: CIF Block names can't be more than 75 characters or you get an Exception
         self.header = header[:74]
 
     def __eq__(self, other: object) -> bool:
@@ -199,30 +198,30 @@ class CifBlock:
         loops: list[list[str]] = []
 
         while deq:
-            _string = deq.popleft()
-            # cif keys aren't in quotes, so show up as _string[0]
-            if _string[0] == "_eof":
+            _str = deq.popleft()
+            # cif keys aren't in quotes, so show up as _str[0]
+            if _str[0] == "_eof":
                 break
 
-            if _string[0].startswith("_"):
+            if _str[0].startswith("_"):
                 try:
-                    data[_string[0]] = "".join(deq.popleft())
+                    data[_str[0]] = "".join(deq.popleft())
                 except IndexError:
-                    data[_string[0]] = ""
+                    data[_str[0]] = ""
 
-            elif _string[0].startswith("loop_"):
+            elif _str[0].startswith("loop_"):
                 columns: list[str] = []
                 items: list[str] = []
                 while deq:
-                    _string = deq[0]
-                    if _string[0].startswith("loop_") or not _string[0].startswith("_"):
+                    _str = deq[0]
+                    if _str[0].startswith("loop_") or not _str[0].startswith("_"):
                         break
                     columns.append("".join(deq.popleft()))
                     data[columns[-1]] = []
 
                 while deq:
-                    _string = deq[0]
-                    if _string[0].startswith(("loop_", "_")):
+                    _str = deq[0]
+                    if _str[0].startswith(("loop_", "_")):
                         break
                     items.append("".join(deq.popleft()))
 
@@ -232,7 +231,7 @@ class CifBlock:
                 for k, v in zip(columns * n, items):
                     data[k].append(v.strip())
 
-            elif issue := "".join(_string).strip():
+            elif issue := "".join(_str).strip():
                 warnings.warn(f"Possible issue in CIF file at line: {issue}")
 
         return cls(data, loops, header)
@@ -323,9 +322,9 @@ class CifParser:
         """
         Args:
             filename (PathLike): CIF file, gzipped or bzipped CIF files are fine too.
-            occupancy_tolerance (float): If total occupancy of a site is between 1 and occupancy_tolerance, the
-                occupancies will be scaled down to 1.
-            site_tolerance (float): This tolerance is used to determine if two sites are in the same position,
+            occupancy_tolerance (float): If total occupancy of a site is between
+                1 and occupancy_tolerance, it will be scaled down to 1.
+            site_tolerance (float): This tolerance is used to determine if two sites are at the same position,
                 in which case they will be combined to a single disordered site. Defaults to 1e-4.
             frac_tolerance (float): This tolerance is used to determine is a coordinate should be rounded to an ideal
                 value. e.g. 0.6667 is rounded to 2/3. This is desired if symmetry operations are going to be applied.
@@ -1027,11 +1026,11 @@ class CifParser:
 
             # Get occupancy
             try:
-                occu = str2float(data["_atom_site_occupancy"][idx])
+                occu: float = str2float(data["_atom_site_occupancy"][idx])
             except (KeyError, ValueError):
                 occu = 1
 
-            # If check_occu is True or the occupancy is greater than 0, create comp_d
+            # If don't check_occu or the occupancy is greater than 0, create comp_dict
             if not check_occu or occu > 0:
                 # Create site coordinate
                 coord: Vector3D = (
@@ -1073,7 +1072,7 @@ class CifParser:
 
         if any(occu > 1 for occu in _sum_occupancies):
             msg = (
-                f"Some occupancies ({_sum_occupancies}) sum to > 1! If they are within "
+                f"Some occupancies ({list(filter(lambda x: x > 1, _sum_occupancies))}) sum to > 1! If they are within "
                 "the occupancy_tolerance, they will be rescaled. "
                 f"The current occupancy_tolerance is set to: {self._occupancy_tolerance}"
             )
@@ -1149,7 +1148,10 @@ class CifParser:
             all_species_noedit = all_species.copy()  # save copy before scaling in case of check_occu=False, used below
             for idx, species in enumerate(all_species):
                 total_occu = sum(species.values())
-                if 1 < total_occu <= self._occupancy_tolerance:
+                if check_occu and total_occu > self._occupancy_tolerance:
+                    raise ValueError(f"Occupancy {total_occu} exceeded tolerance.")
+
+                if total_occu > 1:
                     all_species[idx] = species / total_occu
 
         if all_species and len(all_species) == len(all_coords) and len(all_species) == len(all_magmoms):
@@ -1198,6 +1200,7 @@ class CifParser:
                         all_coords[idx],
                         lattice,
                         properties=site_properties,
+                        label=all_labels[idx],
                         skip_checks=True,
                     )
 
@@ -1219,25 +1222,6 @@ class CifParser:
 
             return struct
         return None
-
-    @deprecated(
-        message="get_structures is deprecated and will be removed in 2024. Use parse_structures instead."
-        "The only difference is that primitive defaults to False in the new parse_structures method."
-        "So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().",
-    )
-    def get_structures(self, *args, **kwargs) -> list[Structure]:
-        """
-        Deprecated, use parse_structures instead. Only difference between
-        these two methods is the default primitive=False in parse_structures.
-        So parse_structures(primitive=True) is equivalent to the default
-        behaviour of get_structures().
-        """
-        # Extract primitive if passed as arg
-        if len(args) > 0:
-            kwargs["primitive"] = args[0]
-            args = args[1:]
-        kwargs.setdefault("primitive", True)
-        return self.parse_structures(*args, **kwargs)
 
     def parse_structures(
         self,
@@ -1278,8 +1262,6 @@ class CifParser:
                 "in the CIF file as is. If you want the primitive cell, please set primitive=True explicitly.",
                 UserWarning,
             )
-        if not check_occu:  # added in https://github.com/materialsproject/pymatgen/pull/2836
-            warnings.warn("Structures with unphysical site occupancies are not compatible with many pymatgen features.")
 
         if primitive and symmetrized:
             raise ValueError(
@@ -1307,6 +1289,25 @@ class CifParser:
         if not structures:
             raise ValueError("Invalid CIF file with no structures!")
         return structures
+
+    @deprecated(
+        parse_structures,
+        message="The only difference is that primitive defaults to False in the new parse_structures method."
+        "So parse_structures(primitive=True) is equivalent to the old behavior of get_structures().",
+    )
+    def get_structures(self, *args, **kwargs) -> list[Structure]:
+        """
+        Deprecated, use parse_structures instead. Only difference between
+        these two methods is the default primitive=False in parse_structures.
+        So parse_structures(primitive=True) is equivalent to the default
+        behaviour of get_structures().
+        """
+        # Extract primitive if passed as arg
+        if len(args) > 0:
+            kwargs["primitive"] = args[0]
+            args = args[1:]
+        kwargs.setdefault("primitive", True)
+        return self.parse_structures(*args, **kwargs)
 
     def get_bibtex_string(self) -> str:
         """Get BibTeX reference from CIF file.

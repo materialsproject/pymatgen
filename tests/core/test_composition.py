@@ -695,9 +695,17 @@ class TestComposition(PymatgenTest):
         with pytest.raises(ValueError, match="Invalid category='invalid', pick from"):
             EuTiO3.contains_element_type("invalid")
 
+    def test_elements(self):
+        assert Composition("NaCl").elements == list(map(Element, ["Na", "Cl"]))
+        assert Composition({"Na+": 1, "Cl-": 1}).elements == list(map(Species, ["Na+", "Cl-"]))
+
     def test_chemical_system(self):
         assert Composition({"Na": 1, "Cl": 1}).chemical_system == "Cl-Na"
         assert Composition({"Na+": 1, "Cl-": 1}).chemical_system == "Cl-Na"
+
+    def test_chemical_system_set(self):
+        assert Composition({"Na": 1, "Cl": 1}).chemical_system_set == {"Cl", "Na"}
+        assert Composition({"Na+": 1, "Cl-": 1}).chemical_system_set == {"Cl", "Na"}
 
     def test_is_valid(self):
         formula = "NaCl"
@@ -791,16 +799,16 @@ class TestComposition(PymatgenTest):
 
     def test_isotopes(self):
         composition = Composition({"D": 2, "O": 1})
-        assert "Deuterium" in [x.long_name for x in composition.elements]
+        assert "Deuterium" in [elem.long_name for elem in composition.elements]
 
         # adding oxidation state removes Deuterium characteristic
         composition = composition.add_charges_from_oxi_state_guesses()
-        assert "Deuterium" not in [x.long_name for x in composition.elements]
+        assert "Deuterium" not in [elem.long_name for elem in composition.elements]
 
         # however the user can explicitly add an oxidation state to deuterium
         composition = Composition({"D+": 2, "O": 1})
         assert composition.elements[0].oxi_state == 1
-        assert "Deuterium" in [x.long_name for x in composition.elements]
+        assert "Deuterium" in [elem.long_name for elem in composition.elements]
 
 
 class TestChemicalPotential:
