@@ -427,7 +427,13 @@ class Icohplist(MSONable):
             else:
                 n_bonds = len(data_without_orbitals)
 
-            labels, atoms1, atoms2, lens, translations, nums, icohps = [], [], [], [], [], [], []
+            labels: list[str] = []
+            atoms1: list[str] = []
+            atoms2: list[str] = []
+            lens: list[float] = []
+            translations: list[tuple[int, int, int]] = []
+            nums: list[int] = []
+            icohps: list[dict[Spin, float]] = []
 
             for bond in range(n_bonds):
                 line_parts = data_without_orbitals[bond].split()
@@ -437,7 +443,7 @@ class Icohplist(MSONable):
                 atom2 = str(line_parts[2])
                 length = float(line_parts[3])
 
-                icohp = {}
+                icohp: dict[Spin, float] = {}
                 if version == "2.2.1":
                     icohp[Spin.up] = float(line_parts[4])
                     num = int(line_parts[5])
@@ -453,13 +459,13 @@ class Icohplist(MSONable):
                     if self.is_spin_polarized:
                         icohp[Spin.down] = float(data_without_orbitals[bond + n_bonds + 1].split()[7])
 
-                labels += [label]
-                atoms1 += [atom1]
-                atoms2 += [atom2]
-                lens += [length]
-                translations += [translation]
-                nums += [num]
-                icohps += [icohp]
+                labels.append(label)
+                atoms1.append(atom1)
+                atoms2.append(atom2)
+                lens.append(length)
+                translations.append(translation)
+                nums.append(num)
+                icohps.append(icohp)
 
             list_orb_icohp: list[dict] | None = None
             if self.orbitalwise:
@@ -479,7 +485,7 @@ class Icohplist(MSONable):
                         icohp[Spin.down] = float(data_orbitals[n_orbs + i_data_orb].split()[7])
 
                     if len(list_orb_icohp) < int(label):
-                        list_orb_icohp += [{orb_label: {"icohp": icohp, "orbitals": orbitals}}]
+                        list_orb_icohp.append({orb_label: {"icohp": icohp, "orbitals": orbitals}})
                     else:
                         list_orb_icohp[int(label) - 1][orb_label] = {"icohp": icohp, "orbitals": orbitals}
 
@@ -561,7 +567,7 @@ class NciCobiList:
             data_without_orbitals = []
             for line in data:
                 if "_" not in str(line.split()[3:]) and "s]" not in str(line.split()[3:]):
-                    data_without_orbitals += [line]
+                    data_without_orbitals.append(line)
         else:
             data_without_orbitals = data
 
@@ -592,11 +598,11 @@ class NciCobiList:
             if self.is_spin_polarized:
                 ncicobi[Spin.down] = float(data_without_orbitals[bond + n_bonds + 1].split()[2])
 
-            self.list_labels += [label]
-            self.list_n_atoms += [n_atoms]
-            self.list_ncicobi += [ncicobi]
-            self.list_interaction_type += [interaction_type]
-            self.list_num += [num]
+            self.list_labels.append(label)
+            self.list_n_atoms.append(n_atoms)
+            self.list_ncicobi.append(ncicobi)
+            self.list_interaction_type.append(interaction_type)
+            self.list_num.append(num)
 
         # TODO: add functions to get orbital resolved NcICOBIs
 
@@ -677,7 +683,7 @@ class Doscar:
                 for nd in range(1, ndos):
                     line = file.readline().split()
                     cdos[nd] = np.array(line)
-                dos += [cdos]
+                dos.append(cdos)
         doshere = np.array(dos[0])
         if len(doshere[0, :]) == 5:
             self._is_spin_polarized = True
@@ -699,7 +705,7 @@ class Doscar:
                 for orb_num, j in enumerate(range(1, ncol)):
                     orb = orbitals[atom + 1][orb_num]
                     pdos[orb][spin] = data[:, j]
-                pdoss += [pdos]
+                pdoss.append(pdos)
         else:
             tdensities[Spin.up] = doshere[:, 1]
             tdensities[Spin.down] = doshere[:, 2]
@@ -717,7 +723,7 @@ class Doscar:
                     pdos[orb][spin] = data[:, j]
                     if j % 2 == 0:
                         orb_num += 1
-                pdoss += [pdos]
+                pdoss.append(pdos)
 
         self._efermi = efermi
         self._pdos = pdoss
@@ -814,8 +820,8 @@ class Charge(MSONable):
                 line = data[atom].split()
                 self.atomlist += [line[1] + line[0]]
                 self.types += [line[1]]
-                self.mulliken += [float(line[2])]
-                self.loewdin += [float(line[3])]
+                self.mulliken.append(float(line[2]))
+                self.loewdin.append(float(line[3]))
 
     def get_structure_with_charges(self, structure_filename):
         """Get a Structure with Mulliken and Loewdin charges as site properties
@@ -1087,9 +1093,9 @@ class Lobsterout(MSONable):
             splitrow = row.split()
             if len(splitrow) > 2 and splitrow[2] == "spilling:":
                 if splitrow[1] == "charge":
-                    charge_spilling += [np.float64(splitrow[3].replace("%", "")) / 100.0]
+                    charge_spilling.append(np.float64(splitrow[3].replace("%", "")) / 100.0)
                 if splitrow[1] == "total":
-                    total_spilling += [np.float64(splitrow[3].replace("%", "")) / 100.0]
+                    total_spilling.append(np.float64(splitrow[3].replace("%", "")) / 100.0)
 
             if len(charge_spilling) == number_of_spins and len(total_spilling) == number_of_spins:
                 break
@@ -1156,7 +1162,7 @@ class Lobsterout(MSONable):
         for row in data:
             splitrow = row.split()
             if "orthonormalized" in splitrow:
-                orthowarning += [" ".join(splitrow[1:])]
+                orthowarning.append(" ".join(splitrow[1:]))
         return orthowarning
 
     @staticmethod
@@ -1165,7 +1171,7 @@ class Lobsterout(MSONable):
         for row in data:
             splitrow = row.split()
             if len(splitrow) > 0 and splitrow[0] == "WARNING:":
-                ws += [" ".join(splitrow[1:])]
+                ws.append(" ".join(splitrow[1:]))
         return ws
 
     @staticmethod
@@ -1174,7 +1180,7 @@ class Lobsterout(MSONable):
         for row in data:
             splitrow = row.split()
             if len(splitrow) > 0 and splitrow[0] == "INFO:":
-                infos += [" ".join(splitrow[1:])]
+                infos.append(" ".join(splitrow[1:]))
         return infos
 
 
@@ -1257,7 +1263,7 @@ class Fatband:
                 filenames = "."
             for name in os.listdir(filenames):
                 if fnmatch.fnmatch(name, "FATBAND_*.lobster"):
-                    filenames_new += [os.path.join(filenames, name)]
+                    filenames_new.append(os.path.join(filenames, name))
             filenames = filenames_new
         if len(filenames) == 0:
             raise ValueError("No FATBAND files in folder or given")
@@ -1310,7 +1316,7 @@ class Fatband:
                 linenumbers = []
                 for iline, line in enumerate(contents[1 : self.nbands * 2 + 4]):
                     if line.split()[0] == "#":
-                        linenumbers += [iline]
+                        linenumbers.append(iline)
 
                 if ifilename == 0:
                     self.is_spinpolarized = len(linenumbers) == 2
@@ -1360,7 +1366,7 @@ class Fatband:
                         ]
                     )
                     if ifilename == 0:
-                        kpoints_array += [KPOINT]
+                        kpoints_array.append(KPOINT)
 
                     linenumber = 0
                     iband = 0
@@ -1471,7 +1477,7 @@ class Bandoverlaps(MSONable):
                 kpoint_array = []
                 for kpointel in kpoint:
                     if kpointel not in {"at", "k-point", ""}:
-                        kpoint_array += [float(kpointel)]
+                        kpoint_array.append(float(kpointel))
 
             elif "maxDeviation" in line:
                 if spin not in self.band_overlaps_dict:
@@ -1483,16 +1489,16 @@ class Bandoverlaps(MSONable):
                 if "matrices" not in self.band_overlaps_dict[spin]:
                     self.band_overlaps_dict[spin]["matrices"] = []
                 maxdev = line.split(" ")[2]
-                self.band_overlaps_dict[spin]["max_deviations"] += [float(maxdev)]
+                self.band_overlaps_dict[spin]["max_deviations"].append(float(maxdev))
                 self.band_overlaps_dict[spin]["k_points"] += [kpoint_array]
-                self.max_deviation += [float(maxdev)]
+                self.max_deviation.append(float(maxdev))
                 overlaps = []
 
             else:
                 rows = []
                 for el in line.split(" "):
                     if el != "":
-                        rows += [float(el)]
+                        rows.append(float(el))
                 overlaps += [rows]
                 if len(overlaps) == len(rows):
                     self.band_overlaps_dict[spin]["matrices"] += [np.matrix(overlaps)]
@@ -1603,7 +1609,7 @@ class Grosspop(MSONable):
                     small_dict["Mulliken GP"][cleanline[0]] = float(cleanline[1])
                     small_dict["Loewdin GP"][cleanline[0]] = float(cleanline[2])
                     if "total" in cleanline[0]:
-                        self.list_dict_grosspop += [small_dict]
+                        self.list_dict_grosspop.append(small_dict)
 
     def get_structure_with_total_grosspop(self, structure_filename: str) -> Structure:
         """Get a Structure with Mulliken and Loewdin total grosspopulations as site properties
@@ -1664,9 +1670,9 @@ class Wavefunction:
             splitline = line.split()
             if len(splitline) >= 6:
                 points += [[float(splitline[0]), float(splitline[1]), float(splitline[2])]]
-                distance += [float(splitline[3])]
-                real += [float(splitline[4])]
-                imaginary += [float(splitline[5])]
+                distance.append(float(splitline[3]))
+                real.append(float(splitline[4]))
+                imaginary.append(float(splitline[5]))
 
         if len(real) != grid[0] * grid[1] * grid[2] or len(imaginary) != grid[0] * grid[1] * grid[2]:
             raise ValueError("Something went wrong while reading the file")
@@ -1712,9 +1718,9 @@ class Wavefunction:
                         "coordinates 0.0 0.0 0.0 coordinates 1.0 1.0 1.0 box bandlist 1 "
                     )
 
-                new_x += [x_here]
-                new_y += [y_here]
-                new_z += [z_here]
+                new_x.append(x_here)
+                new_y.append(y_here)
+                new_z.append(z_here)
 
                 new_real += [self.real[runner]]
                 new_imaginary += [self.imaginary[runner]]
@@ -1909,8 +1915,8 @@ class SitePotential(MSONable):
                 line = data[atom].split()
                 self.atomlist += [line[1] + str(line[0])]
                 self.types += [line[1]]
-                self.sitepotentials_mulliken += [float(line[2])]
-                self.sitepotentials_loewdin += [float(line[3])]
+                self.sitepotentials_mulliken.append(float(line[2]))
+                self.sitepotentials_loewdin.append(float(line[3]))
 
             self.madelungenergies_mulliken = float(data[self.num_atoms + 1].split()[3])
             self.madelungenergies_loewdin = float(data[self.num_atoms + 1].split()[4])
@@ -2098,21 +2104,21 @@ class LobsterMatrices:
         for idx, line in enumerate(file_data):
             line = line.strip()
             if "Real parts" in line:
-                start_inxs_real += [idx + 1]
+                start_inxs_real.append(idx + 1)
                 if idx == 1:  # ignore the first occurrence as files start with real matrices
                     pass
                 else:
-                    end_inxs_imag += [idx - 1]
+                    end_inxs_imag.append(idx - 10)
                 matches = re.search(pattern, file_data[idx - 1])
                 if matches and len(matches.groups()) == 2:
                     k_point = matches.group(2)
                     complex_matrices[k_point] = {}
             if "Imag parts" in line:
-                end_inxs_real += [idx - 1]
-                start_inxs_imag += [idx + 1]
+                end_inxs_real.append(idx - 1)
+                start_inxs_imag.append(idx + 1)
             # explicitly add the last line as files end with imaginary matrix
             if idx == len(file_data) - 1:
-                end_inxs_imag += [len(file_data)]
+                end_inxs_imag.append(len(file_data))
 
         # extract matrix data and store diagonal elements
         matrix_real = []
@@ -2133,13 +2139,13 @@ class LobsterMatrices:
 
             matches = re.search(pattern, file_data[start_inx_real - 2])
             if matches and len(matches.groups()) == 2:
-                spin = Spin.up if matches.group(1) == "1" else Spin.down
-                k_point = matches.group(2)
+                spin = Spin.up if matches[1] == "1" else Spin.down
+                k_point = matches[2]
                 complex_matrices[k_point].update({spin: comp_matrix})
             elif matches and len(matches.groups()) == 1:
-                k_point = matches.group(1)
+                k_point = matches[1]
                 complex_matrices.update({k_point: comp_matrix})
-            matrix_diagonal_values += [comp_matrix.real.diagonal() - e_fermi]
+            matrix_diagonal_values.append(comp_matrix.real.diagonal() - e_fermi)
 
         # extract elements basis functions as list
         elements_basis_functions = [
