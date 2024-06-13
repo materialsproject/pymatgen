@@ -2108,7 +2108,7 @@ class LobsterMatrices:
                 if idx == 1:  # ignore the first occurrence as files start with real matrices
                     pass
                 else:
-                    end_inxs_imag.append(idx - 10)
+                    end_inxs_imag.append(idx - 1)
                 matches = re.search(pattern, file_data[idx - 1])
                 if matches and len(matches.groups()) == 2:
                     k_point = matches.group(2)
