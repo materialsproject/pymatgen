@@ -172,7 +172,7 @@ class BandStructure:
         eigenvals: dict[Spin, NDArray],
         lattice: Lattice,
         efermi: float,
-        labels_dict: dict[Kpoint, str] | None = None,
+        labels_dict: dict[str, Kpoint] | None = None,
         coords_are_cartesian: bool = False,
         structure: Structure | None = None,
         projections: dict[Spin, NDArray] | None = None,
@@ -190,7 +190,7 @@ class BandStructure:
             lattice (Lattice): The reciprocal lattice. Pymatgen uses the physics
                 convention of reciprocal lattice vectors with a 2*pi coefficient.
             efermi (float): The Fermi level.
-            labels_dict (dict[Kpoint, str]): Dict mapping kpoint to label.
+            labels_dict (dict[str, Kpoint]): Dict mapping label to Kpoint.
             coords_are_cartesian (bool): Whether coordinates are cartesian.
             structure (Structure): The crystal structure
                 associated with the band structure. This is needed if we
@@ -705,7 +705,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
         eigenvals: dict[Spin, list],
         lattice: Lattice,
         efermi: float,
-        labels_dict: dict[Kpoint, str],
+        labels_dict: dict[str, Kpoint],
         coords_are_cartesian: bool = False,
         structure: Structure | None = None,
         projections: dict[Spin, NDArray] | None = None,
@@ -723,7 +723,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
             lattice (Lattice): The reciprocal lattice. Pymatgen uses the physics
                 convention of reciprocal lattice vectors with a 2*pi coefficient.
             efermi (float): The Fermi level.
-            labels_dict (dict[Kpoint, str]): Dict mapping kpoint to label.
+            labels_dict (dict[str, Kpoint]): Dict mapping label to Kpoint.
             coords_are_cartesian (bool): Whether coordinates are cartesian.
             structure (Structure): The crystal structure associated with the
                 band structure. This is needed if we provide projections to
@@ -791,8 +791,8 @@ class BandStructureSymmLine(BandStructure, MSONable):
         Returns:
             list[int]: Equivalent indices.
 
-        TODO: now it uses the label, we might want to use coordinates instead.
-        (in case there was a mislabel)
+        TODO: now it uses the label, we might want to use coordinates
+        instead in case there was a mislabel.
         """
         # If the kpoint has no label it can't have a repetition
         # along the BandStructureSymmLine object
@@ -1091,7 +1091,7 @@ def get_reconstructed_band_structure(
     list_bs: list[BandStructure] | list[BandStructureSymmLine],
     efermi: float | None = None,
 ) -> BandStructure | BandStructureSymmLine:
-    """Merge band structures to one single BandStructure(SymmLine) object.
+    """Merge multiple BandStructure(SymmLine) objects to a single one.
 
     This is typically useful when you split non self-consistent band
     structure runs to several independent jobs and want to merge the results.
@@ -1104,7 +1104,7 @@ def get_reconstructed_band_structure(
 
     Returns:
         A BandStructure or BandStructureSymmLine object (depending on
-        the type of the list_bs objects).
+        the type of the objects in list_bs).
     """
     if efermi is None:
         efermi = sum(b.efermi for b in list_bs) / len(list_bs)
@@ -1112,9 +1112,9 @@ def get_reconstructed_band_structure(
     rec_lattice = list_bs[0].lattice_rec
     nb_bands = min(list_bs[i].nb_bands for i in range(len(list_bs)))
 
-    kpoints = np.concatenate([[k.frac_coords for k in bs.kpoints] for bs in list_bs])
+    kpoints = np.concatenate([[kpt.frac_coords for kpt in bs.kpoints] for bs in list_bs])
     dicts = [bs.labels_dict for bs in list_bs]
-    labels_dict = {k: v.frac_coords for d in dicts for k, v in d.items()}
+    labels_dict = {key: val.frac_coords for dct in dicts for key, val in dct.items()}
 
     eigenvals = {Spin.up: np.concatenate([bs.bands[Spin.up][:nb_bands] for bs in list_bs], axis=1)}
     if list_bs[0].is_spin_polarized:

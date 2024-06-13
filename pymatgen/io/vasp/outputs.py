@@ -1034,7 +1034,7 @@ class Vasprun(MSONable):
                 eigenvals,
                 lattice_new,
                 e_fermi,
-                labels_dict,
+                labels_dict,  # type: ignore[arg-type]
                 structure=self.final_structure,
                 projections=p_eig_vals,
             )
