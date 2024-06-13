@@ -939,7 +939,7 @@ class IcohpValue(MSONable):
         length: float,
         translation: Vector3D,
         num: int,
-        icohp: dict[Spin, IcohpValue],
+        icohp: dict[Spin, float],
         are_coops: bool = False,
         are_cobis: bool = False,
         orbitals: dict[str, dict[Literal["icohp", "orbitals"], Any]] | None = None,
@@ -952,7 +952,7 @@ class IcohpValue(MSONable):
             length (float): Bond length.
             translation (Vector3D): cell translation vector, e.g. (0, 0, 0).
             num (int): The number of equivalent bonds.
-            icohp (dict): {Spin.up: IcohpValue for spin.up, Spin.down: IcohpValue for spin.down}
+            icohp (dict[Spin, float]): {Spin.up: ICOHP_up, Spin.down: ICOHP_down}
             are_coops (bool): Whether these are COOPs.
             are_cobis (bool): Whether these are COBIs.
             orbitals (dict): {[str(Orbital1)-str(Orbital2)]: {
@@ -1070,11 +1070,11 @@ class IcohpValue(MSONable):
         return self._orbitals[orbitals]["icohp"][spin]
 
     @property
-    def icohp(self) -> dict[Spin, IcohpValue]:
+    def icohp(self) -> dict[Spin, float]:
         """Dict with ICOHPs for spin up and spin down.
 
         Returns:
-            dict: {Spin.up: IcohpValue for spin.up, Spin.down: IcohpValue for spin.down}.
+            dict[Spin, float]: {Spin.up: ICOHP_up, Spin.down: ICOHP_down}.
         """
         return self._icohp
 
@@ -1120,7 +1120,7 @@ class IcohpCollection(MSONable):
         list_length: list[float],
         list_translation: list[Vector3D],
         list_num: list[int],
-        list_icohp: list[dict[Spin, IcohpValue]],
+        list_icohp: list[dict[Spin, float]],
         is_spin_polarized: bool,
         list_orb_icohp: list[dict[str, dict[Literal["icohp", "orbitals"], Any]]] | None = None,
         are_coops: bool = False,
@@ -1134,7 +1134,7 @@ class IcohpCollection(MSONable):
             list_length (list[float]): Bond lengths in Angstrom.
             list_translation (list[Vector3D]): Cell translation vectors.
             list_num (list[int]): Numbers of equivalent bonds, usually 1 starting from LOBSTER 3.0.0.
-            list_icohp (list[dict]): Dicts as {Spin.up: IcohpValue for spin.up, Spin.down: IcohpValue for spin.down}.
+            list_icohp (list[dict]): Dicts as {Spin.up: ICOHP_up, Spin.down: ICOHP_down}.
             is_spin_polarized (bool): Whether the calculation is spin polarized.
             list_orb_icohp (list[dict]): Dicts as {[str(Orbital1)-str(Orbital2)]: {
                 "icohp": {Spin.up: IcohpValue for spin.up, Spin.down: IcohpValue for spin.down},
@@ -1157,6 +1157,8 @@ class IcohpCollection(MSONable):
         self._list_icohp = list_icohp
         self._list_orb_icohp = list_orb_icohp
 
+        # TODO: DanielYang: self._icohplist name is misleading
+        # (not list), and confuses with self._list_icohp
         self._icohplist: dict[str, IcohpValue] = {}
         for idx, label in enumerate(list_labels):
             self._icohplist[label] = IcohpValue(

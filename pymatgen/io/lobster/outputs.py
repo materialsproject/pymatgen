@@ -498,7 +498,7 @@ class Icohplist(MSONable):
                 list_length=lens,
                 list_translation=translations,  # type: ignore[arg-type]
                 list_num=nums,
-                list_icohp=icohps,  # DEBUG: DanielYang: inconsistent type
+                list_icohp=icohps,
                 is_spin_polarized=self.is_spin_polarized,
                 list_orb_icohp=list_orb_icohp,
             )
