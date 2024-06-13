@@ -1,4 +1,5 @@
 ase>=3.23.0
+BoltzTraP2>=24.1.1
 beautifulsoup4==4.12.2
 BoltzTraP2>=22.3.2
 chemview>=0.6

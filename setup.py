@@ -11,7 +11,7 @@ from setuptools import Extension, find_namespace_packages, setup
 is_win_64 = sys.platform.startswith("win") and platform.machine().endswith("64")
 extra_link_args = ["-Wl,--allow-multiple-definition"] if is_win_64 else []
 
-with open("README.md") as file:
+with open("README.md", encoding="utf-8") as file:
     long_description = file.read()
 
 # unlike GitHub readmes, PyPI doesn't support <picture> tags used for responsive images
@@ -74,14 +74,12 @@ setup(
         ],
         "optional": [
             "ase>=3.23.0",
-            # TODO restore BoltzTraP2 when install fixed, hopefully following merge of
-            # https://gitlab.com/sousaw/BoltzTraP2/-/merge_requests/18
-            # caused CI failure due to ModuleNotFoundError: No module named 'packaging'
-            # "BoltzTraP2>=22.3.2; platform_system!='Windows'",
+            "BoltzTraP2>=24.1.1; platform_system!='Windows'",
             "chemview>=0.6",
             "chgnet>=0.3.8",
             "f90nml>=1.1.2",
             "galore>=0.6.1",
+            "graphviz>=0.20.3",
             "h5py>=3.11.0",
             "jarvis-tools>=2020.7.14",
             "matgl>=1.1.1",
