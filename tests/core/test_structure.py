@@ -924,6 +924,13 @@ class TestStructure(PymatgenTest):
         self.disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
         self.labeled_structure = Structure(lattice, ["Si", "Si"], coords, labels=["Si1", "Si2"])
 
+    def test_from_id(self):
+        s = Structure.from_id("mp-1143")
+        assert isinstance(s, Structure)
+        assert s.reduced_formula == "Al2O3"
+        s = Structure.from_id("1101077", source="COD")
+        assert s.reduced_formula == "LiV2O4"
+
     def test_mutable_sequence_methods(self):
         struct = self.struct
         struct[0] = "Fe"
