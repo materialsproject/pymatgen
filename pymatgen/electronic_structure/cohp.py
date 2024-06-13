@@ -39,9 +39,6 @@ if TYPE_CHECKING:
 
     from pymatgen.util.typing import PathLike, SpinLike, Vector3D
 
-    # TODO: use more specific type
-    CohpOrbital = str | int | Orbital
-
 __author__ = "Marco Esters, Janine George"
 __copyright__ = "Copyright 2017, The Materials Project"
 __version__ = "0.2"
