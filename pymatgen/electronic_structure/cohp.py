@@ -951,7 +951,7 @@ class IcohpValue(MSONable):
             atom2 (str): The second atom that contributes to the bond.
             length (float): Bond length.
             translation (Vector3D): cell translation vector, e.g. (0, 0, 0).
-            num (int): How often the bond exists.  # TODO: DanielYang: clarify this description
+            num (int): The number of equivalent bonds.
             icohp (dict): {Spin.up: IcohpValue for spin.up, Spin.down: IcohpValue for spin.down}
             are_coops (bool): Whether these are COOPs.
             are_cobis (bool): Whether these are COBIs.
