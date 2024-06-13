@@ -1,4 +1,4 @@
-"""This module provides classes to define everything related to band structures."""
+"""This module provides classes to define things related to band structures."""
 
 from __future__ import annotations
 
@@ -33,8 +33,8 @@ __date__ = "March 14, 2012"
 
 
 class Kpoint(MSONable):
-    """A kpoint is defined with a lattice and frac or Cartesian coordinates,
-    syntax similar than the Site object in pymatgen.core.structure.
+    """A kpoint defined with a lattice and frac or Cartesian coordinates,
+    similar to the Site object in pymatgen.core.structure.
     """
 
     def __init__(
@@ -287,8 +287,8 @@ class BandStructure:
         return result
 
     def is_metal(self, efermi_tol: float = 1e-4) -> bool:
-        """Check if the band structure indicates a metal by looking if the fermi
-        level crosses a band.
+        """Check if the band structure indicates a metal,
+        by looking at if the fermi level crosses a band.
 
         Returns:
             bool: True if is metal.
@@ -1109,8 +1109,6 @@ def get_reconstructed_band_structure(
     if efermi is None:
         efermi = sum(b.efermi for b in list_bs) / len(list_bs)
 
-    kpoints = []
-    labels_dict = {}
     rec_lattice = list_bs[0].lattice_rec
     nb_bands = min(list_bs[i].nb_bands for i in range(len(list_bs)))
 
