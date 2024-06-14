@@ -64,7 +64,7 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
 
 FileFormats = Literal["cif", "poscar", "cssr", "json", "yaml", "yml", "xsf", "mcsqs", "res", "pwmat", ""]
-StructureSources = Literal["Materials Project"]
+StructureSources = Literal["Materials Project", "COD"]
 
 
 class Neighbor(Site):
@@ -2945,7 +2945,7 @@ class IStructure(SiteCollection, MSONable):
 
         Args:
             id: The id. E.g., the materials project id.
-            source: Source of the data. Defaults to "Materials Project", which is the only currently support method.
+            source: Source of the data. Defaults to "Materials Project".
             **kwargs: Pass-through to any API calls.
         """
         if source == "Materials Project":
@@ -2953,6 +2953,11 @@ class IStructure(SiteCollection, MSONable):
 
             mpr = MPRester(**kwargs)
             return mpr.get_structure_by_material_id(id)  # type: ignore
+        if source == "COD":
+            from pymatgen.ext.cod import COD
+
+            cod = COD()
+            return cod.get_structure_by_id(int(id))
         raise ValueError(f"Invalid source: {source}")
 
     @classmethod

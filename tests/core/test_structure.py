@@ -928,6 +928,8 @@ class TestStructure(PymatgenTest):
         s = Structure.from_id("mp-1143")
         assert isinstance(s, Structure)
         assert s.reduced_formula == "Al2O3"
+        s = Structure.from_id("1101077", source="COD")
+        assert s.reduced_formula == "LiV2O4"
 
     def test_mutable_sequence_methods(self):
         struct = self.struct
