@@ -1003,43 +1003,42 @@ class Lobsterout(MSONable):
             raise ValueError("must provide either filename or kwargs to initialize Lobsterout")
 
     def get_doc(self) -> dict[str, Any]:
-        """Get the LobsterDict with all the information stored in lobsterout."""
-        lobster_dict: dict[str, Any] = {}
-        # check if Lobster starts from a projection
-        lobster_dict["restart_from_projection"] = self.is_restart_from_projection
-        lobster_dict["lobster_version"] = self.lobster_version
-        lobster_dict["threads"] = self.number_of_threads
-        lobster_dict["dft_program"] = self.dft_program
-
-        lobster_dict["charge_spilling"] = self.charge_spilling
-        lobster_dict["total_spilling"] = self.total_spilling
-
-        lobster_dict["elements"] = self.elements
-        lobster_dict["basis_type"] = self.basis_type
-        lobster_dict["basis_functions"] = self.basis_functions
-
-        lobster_dict["timing"] = self.timing
-
-        lobster_dict["warning_lines"] = self.warning_lines
-
-        lobster_dict["info_orthonormalization"] = self.info_orthonormalization
-
-        lobster_dict["info_lines"] = self.info_lines
-
-        lobster_dict["has_doscar"] = self.has_doscar
-        lobster_dict["has_doscar_lso"] = self.has_doscar_lso
-        lobster_dict["has_cohpcar"] = self.has_cohpcar
-        lobster_dict["has_coopcar"] = self.has_coopcar
-        lobster_dict["has_cobicar"] = self.has_cobicar
-        lobster_dict["has_charge"] = self.has_charge
-        lobster_dict["has_madelung"] = self.has_madelung
-        lobster_dict["has_projection"] = self.has_projection
-        lobster_dict["has_bandoverlaps"] = self.has_bandoverlaps
-        lobster_dict["has_fatbands"] = self.has_fatbands
-        lobster_dict["has_grosspopulation"] = self.has_grosspopulation
-        lobster_dict["has_density_of_energies"] = self.has_density_of_energies
-
-        return lobster_dict
+        """Get a dict with all the information in lobsterout."""
+        return {
+            # Check if LOBSTER starts from a projection
+            "restart_from_projection": self.is_restart_from_projection,
+            "lobster_version": self.lobster_version,
+            "threads": self.number_of_threads,
+            "dft_program": self.dft_program,
+            #
+            "charge_spilling": self.charge_spilling,
+            "total_spilling": self.total_spilling,
+            #
+            "elements": self.elements,
+            "basis_type": self.basis_type,
+            "basis_functions": self.basis_functions,
+            #
+            "timing": self.timing,
+            #
+            "warning_lines": self.warning_lines,
+            #
+            "info_orthonormalization": self.info_orthonormalization,
+            #
+            "info_lines": self.info_lines,
+            #
+            "has_doscar": self.has_doscar,
+            "has_doscar_lso": self.has_doscar_lso,
+            "has_cohpcar": self.has_cohpcar,
+            "has_coopcar": self.has_coopcar,
+            "has_cobicar": self.has_cobicar,
+            "has_charge": self.has_charge,
+            "has_madelung": self.has_madelung,
+            "has_projection": self.has_projection,
+            "has_bandoverlaps": self.has_bandoverlaps,
+            "has_fatbands": self.has_fatbands,
+            "has_grosspopulation": self.has_grosspopulation,
+            "has_density_of_energies": self.has_density_of_energies,
+        }
 
     def as_dict(self):
         """MSONable dict"""
@@ -1984,7 +1983,7 @@ def get_orb_from_str(orbs):
         list of tw Orbital objects
     """
     # TODO: also useful for plotting of DOS
-    orb_labs = [
+    orb_labs = (
         "s",
         "p_y",
         "p_z",
@@ -2001,7 +2000,7 @@ def get_orb_from_str(orbs):
         "f_xz^2",
         "f_z(x^2-y^2)",
         "f_x(x^2-3y^2)",
-    ]
+    )
     orbitals = [(int(orb[0]), Orbital(orb_labs.index(orb[1:]))) for orb in orbs]
 
     orb_label = ""
