@@ -229,7 +229,7 @@ class _MPResterBasic:
             Structure object.
         """
         prop = "structure"
-        response = self.request(f"materials/summary/{material_id}/?_fields={prop}")
+        response = self.request(f"materials/summary?material_ids={material_id}&_fields={prop}")
         structure = response[0][prop]
         if conventional_unit_cell:
             return SpacegroupAnalyzer(structure).get_conventional_standard_structure()

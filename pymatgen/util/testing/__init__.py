@@ -1,8 +1,8 @@
-"""Common test support for pymatgen test scripts.
+"""This module implements testing utilities for materials science codes.
 
-This single module should provide all the common functionality for pymatgen
-tests in a single location, so that test scripts can just import it and work
-right away.
+While the primary use is within pymatgen, the functionality is meant to be useful for external materials science
+codes as well. For instance, obtaining example crystal structures to perform tests, specialized assert methods for
+materials science, etc.
 """
 
 from __future__ import annotations
