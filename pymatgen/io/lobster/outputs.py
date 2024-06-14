@@ -816,12 +816,12 @@ class Charge(MSONable):
                 raise RuntimeError("CHARGES file contains no data.")
 
             self.num_atoms = len(data)
-            for atom in range(self.num_atoms):
-                line = data[atom].split()
-                self.atomlist += [line[1] + line[0]]
-                self.types += [line[1]]
-                self.mulliken.append(float(line[2]))
-                self.loewdin.append(float(line[3]))
+            for atom_idx in range(self.num_atoms):
+                line_parts = data[atom_idx].split()
+                self.atomlist.append(line_parts[1] + line_parts[0])
+                self.types.append(line_parts[1])
+                self.mulliken.append(float(line_parts[2]))
+                self.loewdin.append(float(line_parts[3]))
 
     def get_structure_with_charges(self, structure_filename):
         """Get a Structure with Mulliken and Loewdin charges as site properties
@@ -1111,8 +1111,8 @@ class Lobsterout(MSONable):
         basisfunctions = []
         for row in data:
             if begin and not end:
-                splitrow = row.split()
-                if splitrow[0] not in [
+                row_parts = row.split()
+                if row_parts[0] not in {
                     "INFO:",
                     "WARNING:",
                     "setting",
@@ -1121,11 +1121,11 @@ class Lobsterout(MSONable):
                     "saving",
                     "spillings",
                     "writing",
-                ]:
-                    elements += [splitrow[0]]
-                    basistype += [splitrow[1].replace("(", "").replace(")", "")]
+                }:
+                    elements.append(row_parts[0])
+                    basistype.append(row_parts[1].replace("(", "").replace(")", ""))
                     # last sign is a ''
-                    basisfunctions += [splitrow[2:]]
+                    basisfunctions += [row_parts[2:]]
                 else:
                     end = True
             if "setting up local basis functions..." in row:
@@ -1271,17 +1271,17 @@ class Fatband:
             with zopen(name, mode="rt") as file:
                 contents = file.read().split("\n")
 
-            atom_names += [os.path.split(name)[1].split("_")[1].capitalize()]
+            atom_names.append(os.path.split(name)[1].split("_")[1].capitalize())
             parameters = contents[0].split()
-            atom_type += [re.split(r"[0-9]+", parameters[3])[0].capitalize()]
-            orbital_names += [parameters[4]]
+            atom_type.append(re.split(r"[0-9]+", parameters[3])[0].capitalize())
+            orbital_names.append(parameters[4])
 
         # get atomtype orbital dict
         atom_orbital_dict = {}  # type: dict
-        for iatom, atom in enumerate(atom_names):
+        for idx, atom in enumerate(atom_names):
             if atom not in atom_orbital_dict:
                 atom_orbital_dict[atom] = []
-            atom_orbital_dict[atom] += [orbital_names[iatom]]
+            atom_orbital_dict[atom].append(orbital_names[idx])
         # test if there are the same orbitals twice or if two different formats were used or if all necessary orbitals
         # are there
         for items in atom_orbital_dict.values():
@@ -1289,9 +1289,9 @@ class Fatband:
                 raise ValueError("The are two FATBAND files for the same atom and orbital. The program will stop.")
             split = []
             for item in items:
-                split += [item.split("_")[0]]
+                split.append(item.split("_")[0])
             for number in collections.Counter(split).values():
-                if number not in (1, 3, 5, 7):
+                if number not in {1, 3, 5, 7}:
                     raise ValueError(
                         "Make sure all relevant orbitals were generated and that no duplicates (2p and 2p_x) are "
                         "present"
@@ -1621,7 +1621,6 @@ class Grosspop(MSONable):
             Structure Object with Mulliken and Loewdin total grosspopulations as site properties.
         """
         struct = Structure.from_file(structure_filename)
-        # site_properties: dict[str, Any] = {}
         mullikengp = []
         loewdingp = []
         for grosspop in self.list_dict_grosspop:
@@ -1912,11 +1911,11 @@ class SitePotential(MSONable):
             data = data[5:-1]
             self.num_atoms = len(data) - 2
             for atom in range(self.num_atoms):
-                line = data[atom].split()
-                self.atomlist += [line[1] + str(line[0])]
-                self.types += [line[1]]
-                self.sitepotentials_mulliken.append(float(line[2]))
-                self.sitepotentials_loewdin.append(float(line[3]))
+                line_parts = data[atom].split()
+                self.atomlist.append(line_parts[1] + str(line_parts[0]))
+                self.types.append(line_parts[1])
+                self.sitepotentials_mulliken.append(float(line_parts[2]))
+                self.sitepotentials_loewdin.append(float(line_parts[3]))
 
             self.madelungenergies_mulliken = float(data[self.num_atoms + 1].split()[3])
             self.madelungenergies_loewdin = float(data[self.num_atoms + 1].split()[4])
