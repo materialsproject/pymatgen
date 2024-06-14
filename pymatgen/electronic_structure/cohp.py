@@ -201,14 +201,16 @@ class Cohp(MSONable):
         dict_to_return = {}
         if spin is None:
             for sp, cohp_vals in populations.items():
-                dict_to_return[sp] = (max(cohp_vals[:n_energies_below_efermi])) > limit
+                # NOTE: Casting to bool is necessary, otherwise ended up
+                # getting "bool_" instead of "bool" from NumPy
+                dict_to_return[sp] = bool((max(cohp_vals[:n_energies_below_efermi])) > limit)
 
         else:
             if isinstance(spin, int):
                 spin = Spin(spin)
             elif isinstance(spin, str):
                 spin = Spin({"up": 1, "down": -1}[spin.lower()])
-            dict_to_return[spin] = (max(populations[spin][:n_energies_below_efermi])) > limit
+            dict_to_return[spin] = bool((max(populations[spin][:n_energies_below_efermi])) > limit)
 
         return dict_to_return
 
