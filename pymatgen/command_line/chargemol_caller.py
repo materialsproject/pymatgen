@@ -47,7 +47,7 @@ import subprocess
 import warnings
 from glob import glob
 from shutil import which
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
 from monty.tempfile import ScratchDir
@@ -97,16 +97,14 @@ class ChargemolAnalysis:
             run_chargemol (bool): Whether to run the Chargemol analysis. If False,
                 the existing Chargemol output files will be read from path. Default: True.
         """
-        path = path or os.getcwd()
+        path = os.path.abspath(path) if path else os.getcwd()
         if run_chargemol and not CHARGEMOL_EXE:
             raise OSError(
                 "ChargemolAnalysis requires the Chargemol executable to be in PATH."
                 " Please download the library at https://sourceforge.net/projects/ddec/files"
                 "and follow the instructions."
             )
-        if atomic_densities_path == "":
-            atomic_densities_path = os.getcwd()
-        self._atomic_densities_path = atomic_densities_path
+        self._atomic_densities_path = atomic_densities_path or os.getcwd()
 
         self._chgcar_path = self._get_filepath(path, "CHGCAR")
         self._potcar_path = self._get_filepath(path, "POTCAR")
@@ -171,34 +169,32 @@ class ChargemolAnalysis:
         """Internal function to run Chargemol.
 
         Args:
+            path (str): Path to the directory to run Chargemol in.
+                Default: None (current working directory).
             atomic_densities_path (str): Path to the atomic densities directory
             required by Chargemol. If None, Pymatgen assumes that this is
             defined in a "DDEC6_ATOMIC_DENSITIES_DIR" environment variable.
                 Default: None.
             job_control_kwargs: Keyword arguments for _write_jobscript_for_chargemol.
         """
-        with ScratchDir("."):
-            try:
-                os.symlink(self._chgcar_path, "./CHGCAR")
-                os.symlink(self._potcar_path, "./POTCAR")
-                os.symlink(self._aeccar0_path, "./AECCAR0")
-                os.symlink(self._aeccar2_path, "./AECCAR2")
-            except OSError as exc:
-                print(f"Error creating symbolic link: {exc}")
+        with ScratchDir(".") as temp_dir:
+            # with tempfile.TemporaryDirectory() as temp_dir:
 
-            # write job_script file:
-            self._write_jobscript_for_chargemol(**job_control_kwargs)
+            os.symlink(self._chgcar_path, "CHGCAR")
+            os.symlink(self._potcar_path, "POTCAR")
+            os.symlink(self._aeccar0_path, "AECCAR0")
+            os.symlink(self._aeccar2_path, "AECCAR2")
 
-            # Run Chargemol
-            with subprocess.Popen(CHARGEMOL_EXE, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as rs:
-                _stdout, stderr = rs.communicate()
-            if rs.returncode != 0:
-                raise RuntimeError(
-                    f"{CHARGEMOL_EXE} exit code: {rs.returncode}, error message: {stderr!s}. "
-                    "Please check your Chargemol installation."
-                )
+            lines = self._write_jobscript_for_chargemol(
+                chgcar_path=os.path.join(temp_dir, "CHGCAR"),
+                **job_control_kwargs,
+            )
+            with open(os.path.join(temp_dir, "job_control.txt"), mode="w") as file:
+                file.write(lines)
 
-            self._from_data_dir()
+            subprocess.run(CHARGEMOL_EXE, capture_output=True, check=True)
+
+            self._from_data_dir(chargemol_output_path=temp_dir)
 
     def _from_data_dir(self, chargemol_output_path=None):
         """Internal command to parse Chargemol files from a directory.
@@ -208,8 +204,7 @@ class ChargemolAnalysis:
             Chargemol output files.
                 Default: None (current working directory).
         """
-        if chargemol_output_path is None:
-            chargemol_output_path = "."
+        chargemol_output_path = chargemol_output_path or "."
 
         charge_path = f"{chargemol_output_path}/DDEC6_even_tempered_net_atomic_charges.xyz"
         self.ddec_charges = self._get_data_from_xyz(charge_path)
@@ -228,21 +223,21 @@ class ChargemolAnalysis:
         else:
             self.ddec_spin_moments = None
 
-        rsquared_path = f"{chargemol_output_path}/DDEC_atomic_Rsquared_moments.xyz"
-        if os.path.isfile(rsquared_path):
-            self.ddec_rsquared_moments = self._get_data_from_xyz(rsquared_path)
+        r2_path = f"{chargemol_output_path}/DDEC_atomic_Rsquared_moments.xyz"
+        if os.path.isfile(r2_path):
+            self.ddec_rsquared_moments = self._get_data_from_xyz(r2_path)
         else:
             self.ddec_rsquared_moments = None
 
-        rcubed_path = f"{chargemol_output_path}/DDEC_atomic_Rcubed_moments.xyz"
-        if os.path.isfile(rcubed_path):
-            self.ddec_rcubed_moments = self._get_data_from_xyz(rcubed_path)
+        r3_path = f"{chargemol_output_path}/DDEC_atomic_Rcubed_moments.xyz"
+        if os.path.isfile(r3_path):
+            self.ddec_rcubed_moments = self._get_data_from_xyz(r3_path)
         else:
             self.ddec_rcubed_moments = None
 
-        rfourth_path = f"{chargemol_output_path}/DDEC_atomic_Rfourth_moments.xyz"
-        if os.path.isfile(rfourth_path):
-            self.ddec_rfourth_moments = self._get_data_from_xyz(rfourth_path)
+        r4_path = f"{chargemol_output_path}/DDEC_atomic_Rfourth_moments.xyz"
+        if os.path.isfile(r4_path):
+            self.ddec_rfourth_moments = self._get_data_from_xyz(r4_path)
         else:
             self.ddec_rfourth_moments = None
 
@@ -252,8 +247,8 @@ class ChargemolAnalysis:
         else:
             self.cm5_charges = None
 
-    def get_charge_transfer(self, atom_index, charge_type="ddec"):
-        """Get the charge transferred for a particular atom. A positive value means
+    def get_charge_transfer(self, atom_index: int, charge_type: Literal["cm5", "ddec"] = "ddec") -> float:
+        """Returns the charge transferred for a particular atom. A positive value means
         that the site has gained electron density (i.e. exhibits anionic character)
         whereas a negative value means the site has lost electron density (i.e. exhibits
         cationic character). This is the same thing as the negative of the partial atomic
@@ -338,6 +333,7 @@ class ChargemolAnalysis:
 
     def _write_jobscript_for_chargemol(
         self,
+        chgcar_path=None,
         net_charge=0.0,
         periodicity=(True, True, True),
         method="ddec6",
@@ -346,6 +342,8 @@ class ChargemolAnalysis:
         """Write job_script.txt for Chargemol execution.
 
         Args:
+            chgcar_path (str): Path to the CHGCAR file. If None, CHGCAR is assumed to be
+                in the directory where the job_script.txt is written.
             net_charge (float): Net charge of the system.
                 Defaults to 0.0.
             periodicity (tuple[bool]): Periodicity of the system.
@@ -364,6 +362,9 @@ class ChargemolAnalysis:
         if net_charge:
             lines += f"<net charge>\n{net_charge}\n</net charge>\n"
 
+        if chgcar_path:
+            lines += f"<input filename>\n{chgcar_path}\n</input filename>\n"
+
         # Periodicity
         if periodicity:
             per_a = ".true." if periodicity[0] else ".false."
@@ -381,7 +382,7 @@ class ChargemolAnalysis:
                 "The DDEC6_ATOMIC_DENSITIES_DIR environment variable must be set or the atomic_densities_path must"
                 " be specified"
             )
-        if not os.path.isfile(atomic_densities_path):
+        if not os.path.exists(atomic_densities_path):
             raise FileNotFoundError(f"{atomic_densities_path=} does not exist")
 
         # This is to fix a Chargemol filepath nuance
@@ -403,8 +404,7 @@ class ChargemolAnalysis:
             bo = ".true." if compute_bond_orders else ".false."
             lines += f"\n<compute BOs>\n{bo}\n</compute BOs>\n"
 
-        with open("job_control.txt", mode="w") as file:
-            file.write(lines)
+        return lines
 
     @staticmethod
     def _get_dipole_info(filepath):
