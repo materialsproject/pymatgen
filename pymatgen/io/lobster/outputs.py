@@ -410,11 +410,11 @@ class Icohplist(MSONable):
             if self.orbitalwise:
                 data_without_orbitals = []
                 data_orbitals = []
-                for line_parts in data:
-                    if "_" not in line_parts.split()[1]:
-                        data_without_orbitals += [line_parts]
+                for line in data:
+                    if "_" not in line.split()[1]:
+                        data_without_orbitals.append(line)
                     else:
-                        data_orbitals += [line_parts]
+                        data_orbitals.append(line)
 
             else:
                 data_without_orbitals = data
