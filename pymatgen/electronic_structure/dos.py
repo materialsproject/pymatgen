@@ -426,6 +426,7 @@ class FermiDos(Dos, MSONable):
         ecbm, evbm = self.get_cbm_vbm()
         self.idx_vbm = int(np.argmin(abs(self.energies - evbm)))
         self.idx_cbm = int(np.argmin(abs(self.energies - ecbm)))
+        self.idx_mid_gap = int(self.idx_vbm + (self.idx_cbm - self.idx_vbm) / 2)
         self.A_to_cm = 1e-8
 
         if bandgap:
@@ -441,7 +442,8 @@ class FermiDos(Dos, MSONable):
             self.energies[idx_fermi:] += (bandgap - (ecbm - evbm)) / 2.0
 
     def get_doping(self, fermi_level: float, temperature: float) -> float:
-        """Calculate the doping (majority carrier concentration) at a given
+        """
+        Calculate the doping (majority carrier concentration) at a given
         Fermi level  and temperature. A simple Left Riemann sum is used for
         integrating the density of states over energy & equilibrium Fermi-Dirac
         distribution.
@@ -457,15 +459,15 @@ class FermiDos(Dos, MSONable):
             (p-type doping).
         """
         cb_integral = np.sum(
-            self.tdos[self.idx_cbm :]
-            * f0(self.energies[self.idx_cbm :], fermi_level, temperature)
-            * self.de[self.idx_cbm :],
+            self.tdos[self.idx_mid_gap :]
+            * f0(self.energies[self.idx_mid_gap :], fermi_level, temperature)
+            * self.de[self.idx_mid_gap :],
             axis=0,
         )
         vb_integral = np.sum(
-            self.tdos[: self.idx_vbm + 1]
-            * f0(-self.energies[: self.idx_vbm + 1], -fermi_level, temperature)
-            * self.de[: self.idx_vbm + 1],
+            self.tdos[: self.idx_mid_gap + 1]
+            * f0(-self.energies[: self.idx_mid_gap + 1], -fermi_level, temperature)
+            * self.de[: self.idx_mid_gap + 1],
             axis=0,
         )
         return (vb_integral - cb_integral) / (self.volume * self.A_to_cm**3)
