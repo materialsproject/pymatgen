@@ -13,6 +13,11 @@ name = "pymatgen"
 authors = [
     { name = "Pymatgen Development Team", email = "ongsp@ucsd.edu" },
 ]
+maintainers = [
+    { name = "Shyue Ping Ong", email = "ongsp@ucsd.edu" },
+    { name = "Matthew Horton", email = "m.k.horton@gmail.com" },
+    { name = "Janosh Riebesell", email = "janosh.riebesell@gmail.com" },
+]
 description = """
 Python Materials Genomics is a robust materials analysis code that defines core object representations for structures
 and molecules with support for many electronic structure codes. It is currently the core analysis code powering the
