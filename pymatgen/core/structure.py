@@ -2944,7 +2944,7 @@ class IStructure(SiteCollection, MSONable):
         Load a structure file based on an id, usually from an online source.
 
         Args:
-            id_: The id assicuared with the structure. E.g., the materials project id.
+            id_: The id associated with the structure. E.g., the Materials Project id.
             source: Source of the data. Defaults to "Materials Project".
             **kwargs: Pass-through to any API calls.
         """
