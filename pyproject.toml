@@ -197,6 +197,7 @@ select = [
     "I", # isort
     "ICN", # flake8-import-conventions
     "ISC", # flake8-implicit-str-concat
+    "NPY201", # numpy 2.0
     "PD", # pandas-vet
     "PERF", # perflint
     "PIE", # flake8-pie
