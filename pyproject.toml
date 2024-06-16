@@ -108,7 +108,6 @@ ci = [
 docs = [
     "sphinx",
     "sphinx_rtd_theme",
-    "doc2dash",
 ]
 optional = [
     "ase>=3.23.0",
