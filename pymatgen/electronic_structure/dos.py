@@ -1,4 +1,4 @@
-"""This module defines classes to represent the density of states, etc."""
+"""This module defines classes to represent the density of states (DOS), etc."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Literal
 
-    from numpy.typing import ArrayLike, NDArray
+    from numpy.typing import NDArray
     from typing_extensions import Self
 
     from pymatgen.core.sites import PeriodicSite
@@ -34,7 +34,7 @@ class DOS(Spectrum):
 
     Attributes:
         energies (Sequence[float]): Energies.
-        densities (dict[Spin, Sequence[float]]): Spin densities, e.g. {Spin.up: [...], Spin.down: [...]}.
+        densities (dict[Spin, NDArray]): Spin densities, e.g. {Spin.up: DOS_up, Spin.down: DOS_down}.
         efermi (float): The Fermi level.
     """
 
@@ -79,7 +79,7 @@ class DOS(Spectrum):
             tol (float): Tolerance in occupations for determining the gap.
             abs_tol (bool): Use absolute (True) or relative (False) tolerance.
             spin (Spin | None): Find the gap:
-                - None: In the summed densities.
+                - None: In the summed DOS.
                 - Up: In the spin up channel.
                 - Down: In the spin down channel.
 
@@ -125,7 +125,7 @@ class DOS(Spectrum):
             tol (float): Tolerance in occupations for determining the gap.
             abs_tol (bool): Use absolute (True) or relative (False) tolerance.
             spin (Spin | None): Find the gap:
-                - None: In the summed densities.
+                - None: In the summed DOS.
                 - Up: In the spin up channel.
                 - Down: In the spin down channel.
 
@@ -173,7 +173,7 @@ class DOS(Spectrum):
             tol (float): Tolerance in occupations for determining the gap.
             abs_tol (bool): Use absolute (True) or relative (False) tolerance.
             spin (Spin | None): Find the gap:
-                - None: In the summed densities.
+                - None: In the summed DOS.
                 - Up: In the spin up channel.
                 - Down: In the spin down channel.
 
@@ -189,7 +189,7 @@ class Dos(MSONable):
 
     Attributes:
         energies (Sequence[float]): Energies.
-        densities (dict[Spin, Sequence[float]]): Spin densities, e.g. {Spin.up: [...], Spin.down: [...]}.
+        densities (dict[Spin, NDArray): Spin densities, e.g. {Spin.up: DOS_up, Spin.down: DOS_down}.
         efermi (float): The Fermi level.
     """
 
@@ -197,15 +197,15 @@ class Dos(MSONable):
         self,
         efermi: float,
         energies: Sequence[float],
-        densities: dict[Spin, ArrayLike],
+        densities: dict[Spin, NDArray],
         norm_vol: float | None = None,
     ) -> None:
         """
         Args:
             efermi (float): The Fermi level.
             energies (Sequence[float]): Energies.
-            densities (dict[Spin: np.array]): The density of states for each Spin.
-            norm_vol (float | None): The volume used to normalize the densities.
+            densities (dict[Spin, NDArray]): The density of states for each Spin.
+            norm_vol (float | None): The volume used to normalize the DOS.
                 Defaults to 1 if None which will not perform any normalization.
                 If None, the result will be in unit of states/eV,
                 otherwise will be in states/eV/Angstrom^3.
@@ -249,13 +249,13 @@ class Dos(MSONable):
         return "\n".join(str_arr)
 
     def get_densities(self, spin: Spin | None = None) -> None | NDArray:
-        """Get the density of states for a particular spin.
+        """Get the DOS for a particular spin.
 
         Args:
             spin (Spin): Spin.
 
         Returns:
-            The density of states for the particular spin. Or the sum of both spins,
+            NDArray: The DOS for the particular spin. Or the sum of both spins,
                 if Spin is None.
         """
         if self.densities is None:
@@ -271,13 +271,13 @@ class Dos(MSONable):
         return result
 
     def get_smeared_densities(self, sigma: float) -> dict[Spin, NDArray]:
-        """Get the the densities with a Gaussian smearing.
+        """Get the the DOS with a Gaussian smearing.
 
         Args:
             sigma (float): Standard deviation of Gaussian smearing.
 
         Returns:
-            {Spin: densities}: Gaussian-smeared densities by spin.
+            {Spin: NDArray}: Gaussian-smeared DOS by spin.
         """
         diff = [self.energies[i + 1] - self.energies[i] for i in range(len(self.energies) - 1)]
         avg_diff = sum(diff) / len(diff)
@@ -309,7 +309,7 @@ class Dos(MSONable):
             tol (float): Tolerance in occupations for determining the band gap.
             abs_tol (bool): Use absolute (True) or relative (False) tolerance.
             spin (Spin | None): Find the gap:
-                None - In the summed densities.
+                None - In the summed DOS.
                 Up - In the spin up channel.
                 Down - In the spin down channel.
 
@@ -351,7 +351,7 @@ class Dos(MSONable):
             tol (float): Tolerance in occupations for determining the gap.
             abs_tol (bool): Use absolute (True) or relative (False) tolerance.
             spin (Spin | None): Find the gap:
-                None - In the summed densities.
+                None - In the summed DOS.
                 Up - In the spin up channel.
                 Down - In the spin down channel.
 
@@ -393,7 +393,7 @@ class Dos(MSONable):
             tol (float): Tolerance in occupations for determining the band gap.
             abs_tol (bool): Use absolute (True) or relative (False) tolerance.
             spin (Spin | None): Find the band gap:
-                None - In the summed densities.
+                None - In the summed DOS.
                 Up - In the spin up channel.
                 Down - In the spin down channel.
 
@@ -424,7 +424,7 @@ class Dos(MSONable):
 
 
 class FermiDos(Dos, MSONable):
-    """Help relate the density of states, doping levels
+    """Relate the density of states, doping levels
     (i.e. carrier concentrations) and corresponding Fermi levels.
 
     A negative doping concentration indicates the majority carriers are electrons
@@ -446,7 +446,7 @@ class FermiDos(Dos, MSONable):
                 of the Dos will be used. If the Dos does not have an
                 associated Structure, an ValueError will be raised.
             nelecs (float): The number of electrons included in the energy range of
-                Dos. It is used for normalizing the densities. Default None to
+                Dos. It is used for normalizing the DOS. Default None to
                 the total number of electrons in the structure.
             bandgap (float): If not None, the energy values are scissored so that
                 the electronic band gap matches this value.
@@ -548,8 +548,8 @@ class FermiDos(Dos, MSONable):
             ValueError: If the Fermi level cannot be found.
 
         Returns:
-            float: The Fermi level in eV. Note that this is different from the
-                default dos.efermi.
+            float: The Fermi level in eV. Note that this is different from
+                the default Dos.efermi.
         """
         fermi = self.efermi  # initialize target Fermi
         relative_error = [float("inf")]
@@ -642,7 +642,7 @@ class FermiDos(Dos, MSONable):
         }
 
 
-class fingerprint(NamedTuple):
+class fingerprint(NamedTuple):  # TODO: DanielYang: doesn't conform to PascalCase
     """The DOS fingerprint."""
 
     energies: NDArray
@@ -660,7 +660,7 @@ class CompleteDos(Dos):
 
     Attributes:
         structure (Structure): Structure associated with the CompleteDos.
-        pdos (dict): Projected densities as {Site: {Orbital: {Spin: Densities}}}.
+        pdos (dict[PeriodicSite, dict[Orbital, dict[Spin, NDArray]]]): PDOS.
     """
 
     def __init__(
@@ -675,8 +675,8 @@ class CompleteDos(Dos):
             structure (Structure): Structure associated with this DOS.
             total_dos (Dos): Total DOS for the structure.
             pdoss (dict): The PDOSs supplied as {Site: {Orbital: {Spin: Densities}}}.
-            normalize (bool): Whether to normalize the densities by the volume of
-                the structure. If True, the units of the densities are states/eV/Angstrom^3.
+            normalize (bool): Whether to normalize the DOS by the volume of
+                the structure. If True, the units of the DOS are states/eV/Angstrom^3.
                 Otherwise, the units are states/eV.
         """
         vol = structure.volume if normalize else None
@@ -712,7 +712,7 @@ class CompleteDos(Dos):
             orbital: Orbital in the site.
 
         Returns:
-            Dos containing densities for orbital of site.
+            Dos: for a particular orbital of a particular site.
         """
         return Dos(self.efermi, self.energies, self.pdos[site][orbital])
 
@@ -723,7 +723,7 @@ class CompleteDos(Dos):
             site (PeriodicSite): Site in Structure associated with CompleteDos.
 
         Returns:
-            Dos: DOS containing summed orbital densities for site.
+            Dos: Total DOS for a site with all orbitals.
         """
         site_dos = functools.reduce(add_densities, self.pdos[site].values())
         return Dos(self.efermi, self.energies, site_dos)
@@ -756,7 +756,7 @@ class CompleteDos(Dos):
             site (PeriodicSite): Site in Structure associated with CompleteDos.
 
         Returns:
-            dict[str, Dos]: Summed e_g and t2g DOS for the site.
+            dict[Literal["e_g", "t2g"], Dos]: Summed e_g and t2g DOS for the site.
         """
         t2g_dos = []
         eg_dos = []
@@ -876,7 +876,7 @@ class CompleteDos(Dos):
         if elements and sites:
             raise ValueError("Both element and site cannot be specified.")
 
-        densities: dict[Spin, ArrayLike] = {}
+        densities: dict[Spin, NDArray] = {}
         if elements:
             for idx, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
@@ -1062,7 +1062,7 @@ class CompleteDos(Dos):
         if elements and sites:
             raise ValueError("Both element and site cannot be specified.")
 
-        densities: dict[Spin, ArrayLike] = {}
+        densities: dict[Spin, NDArray] = {}
         if elements:
             for idx, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
@@ -1119,7 +1119,7 @@ class CompleteDos(Dos):
         if elements and sites:
             raise ValueError("Both element and site cannot be specified.")
 
-        densities: dict[Spin, ArrayLike] = {}
+        densities: dict[Spin, NDArray] = {}
         if elements:
             for idx, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
@@ -1174,7 +1174,7 @@ class CompleteDos(Dos):
         energies = transformed_dos.energies - transformed_dos.efermi
         densities = transformed_dos.get_densities(spin=spin)
 
-        # Only consider a given erange, if specified
+        # Only consider a given energy range, if specified
         if erange:
             densities = densities[(energies >= erange[0]) & (energies <= erange[1])]
             energies = energies[(energies >= erange[0]) & (energies <= erange[1])]
@@ -1199,20 +1199,20 @@ class CompleteDos(Dos):
             Copyright (c) 2020 Florian Knoop, Thomas A.R.Purcell, Matthias Scheffler, Christian Carbogno.
 
         Args:
-            type (str): The fingerprint type needed, can be "{s/p/d/f/summed}_{pdos/tdos}"
+            type (str): The fingerprint type, can be "{s/p/d/f/summed}_{pdos/tdos}"
                 (default is summed_pdos).
             binning (bool): Whether to bin the DOS fingerprint using np.linspace and n_bins.
                 Default is True.
             min_e (float): The minimum energy to include (default is None).
             max_e (float): The maximum energy to include (default is None).
-            n_bins (int): Number of bins to be used in if binning (default is 256).
+            n_bins (int): Number of bins to be used, if binning (default is 256).
             normalize (bool): Whether to normalize the integrated DOS to 1. Default is True.
 
         Raises:
             ValueError: If "type" is not one of the accepted values.
 
         Returns:
-            NamedTuple(energies, densities, type, n_bins): The DOS fingerprint.
+            fingerprint(energies, densities, type, n_bins): The DOS fingerprint.
         """
         energies = self.energies - self.efermi
 
@@ -1264,11 +1264,11 @@ class CompleteDos(Dos):
 
             return fingerprint(np.array([ener]), dos_rebin_sc, type, n_bins, bin_width)
 
-        except KeyError:
+        except KeyError as exc:
             raise ValueError(
                 "Please recheck type requested, either the orbital projections unavailable in input DOS or "
                 "there's a typo in type."
-            )
+            ) from exc
 
     @staticmethod
     def fp_to_dict(fp: fingerprint) -> dict[str, NDArray]:
@@ -1299,7 +1299,7 @@ class CompleteDos(Dos):
             col (int): The item in the fingerprints (0: energies, 1: densities)
                 to take the dot product of (default is 1).
             pt (int | "ALL") : The index of the point that the dot product is to be taken (default is All).
-            normalize (bool): Whther to normalize the scalar product to 1 (default is False).
+            normalize (bool): Whether to normalize the scalar product to 1 (default is False).
             tanimoto (bool): Whether to compute Tanimoto index (default is False).
 
         Raises:
@@ -1318,16 +1318,13 @@ class CompleteDos(Dos):
             vec1 = fp1_dict[fp1[2][pt]][col]
             vec2 = fp2_dict[fp2[2][pt]][col]
 
-        if not normalize and tanimoto:
-            rescale = np.linalg.norm(vec1) ** 2 + np.linalg.norm(vec2) ** 2 - np.dot(vec1, vec2)
+        if not normalize:
+            rescale = np.linalg.norm(vec1) ** 2 + np.linalg.norm(vec2) ** 2 - np.dot(vec1, vec2) if tanimoto else 1.0
+
             return np.dot(vec1, vec2) / rescale
 
-        if not tanimoto and normalize:
+        if not tanimoto:
             rescale = np.linalg.norm(vec1) * np.linalg.norm(vec2)
-            return np.dot(vec1, vec2) / rescale
-
-        if not tanimoto and not normalize:
-            rescale = 1.0
             return np.dot(vec1, vec2) / rescale
 
         raise ValueError(
@@ -1373,6 +1370,26 @@ class CompleteDos(Dos):
         return dct
 
 
+_lobster_orb_labs = (
+    "s",
+    "p_y",
+    "p_z",
+    "p_x",
+    "d_xy",
+    "d_yz",
+    "d_z^2",
+    "d_xz",
+    "d_x^2-y^2",
+    "f_y(3x^2-y^2)",
+    "f_xyz",
+    "f_yz^2",
+    "f_z^3",
+    "f_xz^2",
+    "f_z(x^2-y^2)",
+    "f_x(x^2-3y^2)",
+)
+
+
 class LobsterCompleteDos(CompleteDos):
     """Extended CompleteDOS for LOBSTER."""
 
@@ -1383,32 +1400,16 @@ class LobsterCompleteDos(CompleteDos):
             site (PeriodicSite): Site in Structure associated with LobsterCompleteDos.
             orbital (str): Principal quantum number and orbital, e.g. "4s".
                     Possible orbitals are: "s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2",
-                    "d_xz", "d_x^2-y^2", "f_y(3x^2-y^2)", "f_xyz",
-                    "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)".
+                        "d_xz", "d_x^2-y^2", "f_y(3x^2-y^2)", "f_xyz",
+                        "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)".
                     In contrast to the Cohpcar and the Cohplist objects, the strings from the LOBSTER files are used.
 
         Returns:
-            Dos: Densities of an orbital of a specific site.
+            Dos: DOS of an orbital of a specific site.
         """
-        if orbital[1:] not in {
-            "s",
-            "p_y",
-            "p_z",
-            "p_x",
-            "d_xy",
-            "d_yz",
-            "d_z^2",
-            "d_xz",
-            "d_x^2-y^2",
-            "f_y(3x^2-y^2)",
-            "f_xyz",
-            "f_yz^2",
-            "f_z^3",
-            "f_xz^2",
-            "f_z(x^2-y^2)",
-            "f_x(x^2-3y^2)",
-        }:
+        if orbital[1:] not in _lobster_orb_labs:
             raise ValueError("orbital is not correct")
+
         return Dos(self.efermi, self.energies, self.pdos[site][orbital])  # type: ignore
 
     def get_site_t2g_eg_resolved_dos(self, site: PeriodicSite) -> dict[Literal["e_g", "t2g"], Dos]:
@@ -1418,7 +1419,7 @@ class LobsterCompleteDos(CompleteDos):
             site (PeriodicSite): Site in Structure associated with LobsterCompleteDos.
 
         Returns:
-            {"e_g": Dos, "t2g": Dos}: Summed e_g and t2g DOS for the site.
+            dict[Literal["e_g", "t2g"], Dos]: Summed e_g and t2g DOS for the site.
         """
         warnings.warn("Are the orbitals correctly oriented? Are you sure?")  # TODO: DanielYang: unconditional warning
 
@@ -1463,7 +1464,7 @@ class LobsterCompleteDos(CompleteDos):
             el (SpeciesLike): Element associated with LobsterCompleteDos.
 
         Returns:
-            dict of {OrbitalType.s: densities, OrbitalType.p: densities, OrbitalType.d: densities}
+            dict of {OrbitalType.s: Dos, OrbitalType.p: Dos, OrbitalType.d: Dos}
         """
         el = get_el_sp(el)
         el_dos = {}
@@ -1480,7 +1481,7 @@ class LobsterCompleteDos(CompleteDos):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Get LobsterCompleteDos object from dict representation."""
+        """Get LobsterCompleteDos from dict representation."""
         tdos = Dos.from_dict(dct)
         struct = Structure.from_dict(dct["structure"])
         pdoss = {}
@@ -1495,11 +1496,11 @@ class LobsterCompleteDos(CompleteDos):
 
 
 def add_densities(density1: dict[Spin, NDArray], density2: dict[Spin, NDArray]) -> dict[Spin, NDArray]:
-    """Sum two densities.
+    """Sum two DOS along each spin channel.
 
     Args:
-        density1 (dict[Spin, NDArray]): First density.
-        density2 (dict[Spin, NDArray]): Second density.
+        density1 (dict[Spin, NDArray]): First DOS.
+        density2 (dict[Spin, NDArray]): Second DOS.
 
     Returns:
         dict[Spin, NDArray]
@@ -1507,7 +1508,8 @@ def add_densities(density1: dict[Spin, NDArray], density2: dict[Spin, NDArray]) 
     return {spin: np.array(density1[spin]) + np.array(density2[spin]) for spin in density1}
 
 
-def _get_orb_type(orb) -> OrbitalType:
+def _get_orb_type(orb: Orbital | OrbitalType) -> OrbitalType:
+    """Get OrbitalType."""
     try:
         return orb.orbital_type
     except AttributeError:
@@ -1529,69 +1531,35 @@ def f0(E: float, fermi: float, T: float) -> float:
 
 
 def _get_orb_type_lobster(orb: str) -> OrbitalType | None:
-    """
+    """Get OrbitalType from str representation of the orbital.
+
     Args:
         orb (str): String representation of the orbital.
 
     Returns:
         OrbitalType
     """
-    orb_labs = (
-        "s",
-        "p_y",
-        "p_z",
-        "p_x",
-        "d_xy",
-        "d_yz",
-        "d_z^2",
-        "d_xz",
-        "d_x^2-y^2",
-        "f_y(3x^2-y^2)",
-        "f_xyz",
-        "f_yz^2",
-        "f_z^3",
-        "f_xz^2",
-        "f_z(x^2-y^2)",
-        "f_x(x^2-3y^2)",
-    )
-
     try:
-        orbital = Orbital(orb_labs.index(orb[1:]))
+        orbital = Orbital(_lobster_orb_labs.index(orb[1:]))
         return orbital.orbital_type
+
     except AttributeError:
         print("Orb not in list")
     return None
 
 
 def _get_orb_lobster(orb: str) -> Orbital | None:
-    """
+    """Get Orbital from str representation of the orbital.
+
     Args:
         orb (str): String representation of the orbital.
 
     Returns:
         Orbital.
     """
-    orb_labs = (
-        "s",
-        "p_y",
-        "p_z",
-        "p_x",
-        "d_xy",
-        "d_yz",
-        "d_z^2",
-        "d_xz",
-        "d_x^2-y^2",
-        "f_y(3x^2-y^2)",
-        "f_xyz",
-        "f_yz^2",
-        "f_z^3",
-        "f_xz^2",
-        "f_z(x^2-y^2)",
-        "f_x(x^2-3y^2)",
-    )
-
     try:
-        return Orbital(orb_labs.index(orb[1:]))
+        return Orbital(_lobster_orb_labs.index(orb[1:]))
+
     except AttributeError:
         print("Orb not in list")
         return None

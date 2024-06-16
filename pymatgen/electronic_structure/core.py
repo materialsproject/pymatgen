@@ -137,7 +137,7 @@ class Magmom(MSONable):
         """
         # Init from another Magmom instance
         if isinstance(moment, type(self)):
-            saxis = moment.saxis  # type: ignore[has-type]
+            saxis = moment.saxis  # type: ignore[has-type]  # TODO: DanielYang: fix this
             moment = moment.moment  # type: ignore[has-type]
 
         moment = np.array(moment, dtype="d")
