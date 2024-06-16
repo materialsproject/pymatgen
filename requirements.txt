@@ -1,4 +1,4 @@
-numpy==2.0.0
+numpy==1.26.4
 sympy==1.12
 requests==2.32.3
 monty==2024.5.24
