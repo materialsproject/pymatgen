@@ -98,7 +98,7 @@ dev = [
     "pytest-cov>=4",
     "pytest-split>=0.8",
     "pytest>8",
-    "ruff>=0.4",
+    "ruff>=0.4.8",
 ]
 ci = [
     "pytest>=8",
