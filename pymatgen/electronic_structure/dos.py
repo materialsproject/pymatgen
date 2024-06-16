@@ -642,7 +642,7 @@ class FermiDos(Dos, MSONable):
         }
 
 
-class fingerprint(NamedTuple):  # TODO: DanielYang: doesn't conform to PascalCase
+class FingerPrint(NamedTuple):
     """The DOS fingerprint."""
 
     energies: NDArray
@@ -1190,8 +1190,8 @@ class CompleteDos(Dos):
         max_e: float | None = None,
         n_bins: int = 256,
         normalize: bool = True,
-    ) -> fingerprint:
-        """Generate the DOS fingerprint.
+    ) -> FingerPrint:
+        """Generate the DOS FingerPrint.
 
         Based on the work of:
             F. Knoop, T. A. r Purcell, M. Scheffler, C. Carbogno, J. Open Source Softw. 2020, 5, 2671.
@@ -1199,9 +1199,9 @@ class CompleteDos(Dos):
             Copyright (c) 2020 Florian Knoop, Thomas A.R.Purcell, Matthias Scheffler, Christian Carbogno.
 
         Args:
-            type (str): The fingerprint type, can be "{s/p/d/f/summed}_{pdos/tdos}"
+            type (str): The FingerPrint type, can be "{s/p/d/f/summed}_{pdos/tdos}"
                 (default is summed_pdos).
-            binning (bool): Whether to bin the DOS fingerprint using np.linspace and n_bins.
+            binning (bool): Whether to bin the DOS FingerPrint using np.linspace and n_bins.
                 Default is True.
             min_e (float): The minimum energy to include (default is None).
             max_e (float): The maximum energy to include (default is None).
@@ -1212,7 +1212,7 @@ class CompleteDos(Dos):
             ValueError: If "type" is not one of the accepted values.
 
         Returns:
-            fingerprint(energies, densities, type, n_bins): The DOS fingerprint.
+            FingerPrint(energies, densities, type, n_bins): The DOS fingerprint.
         """
         energies = self.energies - self.efermi
 
@@ -1237,7 +1237,7 @@ class CompleteDos(Dos):
             densities = pdos[type]
             if len(energies) < n_bins:
                 inds = np.where((energies >= min_e) & (energies <= max_e))
-                return fingerprint(energies[inds], densities[inds], type, len(energies), np.diff(energies)[0])
+                return FingerPrint(energies[inds], densities[inds], type, len(energies), np.diff(energies)[0])
 
             if binning:
                 ener_bounds = np.linspace(min_e, max_e, n_bins + 1)
@@ -1262,7 +1262,7 @@ class CompleteDos(Dos):
             else:
                 dos_rebin_sc = dos_rebin
 
-            return fingerprint(np.array([ener]), dos_rebin_sc, type, n_bins, bin_width)
+            return FingerPrint(np.array([ener]), dos_rebin_sc, type, n_bins, bin_width)
 
         except KeyError as exc:
             raise ValueError(
@@ -1271,31 +1271,31 @@ class CompleteDos(Dos):
             ) from exc
 
     @staticmethod
-    def fp_to_dict(fp: fingerprint) -> dict[str, NDArray]:
-        """Convert a DOS fingerprint into a dict.
+    def fp_to_dict(fp: FingerPrint) -> dict[str, NDArray]:
+        """Convert a DOS FingerPrint into a dict.
 
         Args:
-            fp (fingerprint): The DOS fingerprint to convert.
+            fp (FingerPrint): The DOS FingerPrint to convert.
 
         Returns:
-            dict (Keys=type, Values=np.array(energies, densities)): A dict of the DOS fingerprint.
+            dict (Keys=type, Values=np.array(energies, densities)): A dict of the DOS FingerPrint.
         """
         return {fp[2]: np.array([fp[0], fp[1]], dtype="object").T}
 
     @staticmethod
     def get_dos_fp_similarity(
-        fp1: fingerprint,
-        fp2: fingerprint,
+        fp1: FingerPrint,
+        fp2: FingerPrint,
         col: int = 1,
         pt: int | Literal["ALL"] = "All",
         normalize: bool = False,
         tanimoto: bool = False,
     ) -> float:
-        """Calculate the similarity index (dot product) of two DOS fingerprints.
+        """Calculate the similarity index (dot product) of two DOS FingerPrints.
 
         Args:
-            fp1 (fingerprint): The 1st DOS fingerprint.
-            fp2 (fingerprint): The 2nd DOS fingerprint.
+            fp1 (FingerPrint): The 1st DOS FingerPrint.
+            fp2 (FingerPrint): The 2nd DOS FingerPrint.
             col (int): The item in the fingerprints (0: energies, 1: densities)
                 to take the dot product of (default is 1).
             pt (int | "ALL") : The index of the point that the dot product is to be taken (default is All).
