@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
 from monty.json import MSONable
-from scipy.constants import value as _cd
+from scipy.constants import value as _constant
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import hilbert
 
@@ -18,7 +18,8 @@ from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.util.coord import get_linear_interpolated_value
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import Sequence
+    from typing import Any, Literal
 
     from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
@@ -28,55 +29,62 @@ if TYPE_CHECKING:
 
 
 class DOS(Spectrum):
-    """Replacement basic DOS object. All other DOS objects are extended versions
-    of this object. Work in progress.
+    """(Work in progress) Replacement of basic DOS object.
+        All other DOS objects are extended versions of this.
 
     Attributes:
-        energies (Sequence[float]): The sequence of energies.
-        densities (dict[Spin, Sequence[float]]): A dict of spin densities, e.g. {Spin.up: [...], Spin.down: [...]}.
-        efermi (float): Fermi level.
+        energies (Sequence[float]): Energies.
+        densities (dict[Spin, Sequence[float]]): Spin densities, e.g. {Spin.up: [...], Spin.down: [...]}.
+        efermi (float): The Fermi level.
     """
 
     XLABEL = "Energy"
     YLABEL = "Density"
 
-    def __init__(self, energies: ArrayLike, densities: ArrayLike, efermi: float) -> None:
+    def __init__(self, energies: Sequence[float], densities: NDArray, efermi: float) -> None:
         """
         Args:
-            energies: A sequence of energies
-            densities (ndarray): Either a Nx1 or a Nx2 array. If former, it is
+            energies (Sequence[float]): The Energies.
+            densities (NDArray): A Nx1 or Nx2 array. If former, it is
                 interpreted as a Spin.up only density. Otherwise, the first column
-                is interpreted as Spin.up and the other is Spin.down.
-            efermi: Fermi level energy.
+                is interpreted as Spin.up and the other Spin.down.
+            efermi (float): The Fermi level.
         """
         super().__init__(energies, densities, efermi)
         self.efermi = efermi
 
     def __str__(self) -> str:
-        """Get a string which can be easily plotted (using gnuplot)."""
+        """A string which can be easily plotted."""
         if Spin.down in self.densities:
             str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
             for idx, energy in enumerate(self.energies):
                 str_arr.append(f"{energy:.5f} {self.densities[Spin.up][idx]:.5f} {self.densities[Spin.down][idx]:.5f}")
+
         else:
             str_arr = [f"#{'Energy':30s} {'DensityUp':30s}"]
             for idx, energy in enumerate(self.energies):
                 str_arr.append(f"{energy:.5f} {self.densities[Spin.up][idx]:.5f}")
+
         return "\n".join(str_arr)
 
-    def get_interpolated_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
-        """Expects a DOS object and finds the gap.
+    def get_interpolated_gap(
+        self,
+        tol: float = 0.001,
+        abs_tol: bool = False,
+        spin: Spin | None = None,
+    ) -> tuple[float, float, float]:
+        """Find the interpolated band gap.
 
         Args:
-            tol: tolerance in occupations for determining the gap
-            abs_tol: Set to True for an absolute tolerance and False for a
-                relative one.
-            spin: Possible values are None - finds the gap in the summed
-                densities, Up - finds the gap in the up spin channel,
-                Down - finds the gap in the down spin channel.
+            tol (float): Tolerance in occupations for determining the gap.
+            abs_tol (bool): Use absolute (True) or relative (False) tolerance.
+            spin (Spin | None): Find the gap:
+                - None: In the summed densities.
+                - Up: In the spin up channel.
+                - Down: In the spin down channel.
 
         Returns:
-            tuple[float, float, float]: Energies in eV corresponding to the band gap, cbm and vbm.
+            tuple[float, float, float]: Energies in eV corresponding to the band gap, CBM and VBM.
         """
         if spin is None:
             tdos = self.y if len(self.ydim) == 1 else np.sum(self.y, axis=1)
@@ -87,6 +95,7 @@ class DOS(Spectrum):
 
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
+
         energies = self.x
         below_fermi = [i for i in range(len(energies)) if energies[i] < self.efermi and tdos[i] > tol]
         above_fermi = [i for i in range(len(energies)) if energies[i] > self.efermi and tdos[i] > tol]
@@ -94,6 +103,7 @@ class DOS(Spectrum):
         cbm_start = min(above_fermi)
         if vbm_start == cbm_start:
             return 0.0, self.efermi, self.efermi
+
         # Interpolate between adjacent values
         terminal_dens = tdos[vbm_start : vbm_start + 2][::-1]
         terminal_energies = energies[vbm_start : vbm_start + 2][::-1]
@@ -103,20 +113,26 @@ class DOS(Spectrum):
         end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
         return end - start, end, start
 
-    def get_cbm_vbm(self, tol: float = 0.001, abs_tol: bool = False, spin=None) -> tuple[float, float]:
-        """Expects a DOS object and finds the cbm and vbm.
+    def get_cbm_vbm(
+        self,
+        tol: float = 0.001,
+        abs_tol: bool = False,
+        spin: Spin | None = None,
+    ) -> tuple[float, float]:
+        """Find the CBM and VBM.
 
         Args:
-            tol: tolerance in occupations for determining the gap
-            abs_tol: An absolute tolerance (True) and a relative one (False)
-            spin: Possible values are None - finds the gap in the summed
-                densities, Up - finds the gap in the up spin channel,
-                Down - finds the gap in the down spin channel.
+            tol (float): Tolerance in occupations for determining the gap.
+            abs_tol (bool): Use absolute (True) or relative (False) tolerance.
+            spin (Spin | None): Find the gap:
+                - None: In the summed densities.
+                - Up: In the spin up channel.
+                - Down: In the spin down channel.
 
         Returns:
-            tuple[float, float]: Energies in eV corresponding to the cbm and vbm.
+            tuple[float, float]: Energies in eV corresponding to the CBM and VBM.
         """
-        # determine tolerance
+        # Determine tolerance
         if spin is None:
             tdos = self.y if len(self.ydim) == 1 else np.sum(self.y, axis=1)
         elif spin == Spin.up:
@@ -127,61 +143,72 @@ class DOS(Spectrum):
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
 
-        # find index of fermi energy
+        # Find index of Fermi level
         i_fermi = 0
         while self.x[i_fermi] <= self.efermi:
             i_fermi += 1
 
-        # work backwards until tolerance is reached
+        # Work backwards until tolerance is reached
         i_gap_start = i_fermi
-        while i_gap_start - 1 >= 0 and tdos[i_gap_start - 1] <= tol:
+        while i_gap_start >= 1 and tdos[i_gap_start - 1] <= tol:
             i_gap_start -= 1
 
-        # work forwards until tolerance is reached
+        # Work forwards until tolerance is reached
         i_gap_end = i_gap_start
         while i_gap_end < tdos.shape[0] and tdos[i_gap_end] <= tol:
             i_gap_end += 1
         i_gap_end -= 1
+
         return self.x[i_gap_end], self.x[i_gap_start]
 
-    def get_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
-        """Expects a DOS object and finds the gap.
+    def get_gap(
+        self,
+        tol: float = 0.001,
+        abs_tol: bool = False,
+        spin: Spin | None = None,
+    ) -> float:
+        """Find the band gap.
 
         Args:
-            tol: tolerance in occupations for determining the gap
-            abs_tol: An absolute tolerance (True) and a relative one (False)
-            spin: Possible values are None - finds the gap in the summed
-                densities, Up - finds the gap in the up spin channel,
-                Down - finds the gap in the down spin channel.
+            tol (float): Tolerance in occupations for determining the gap.
+            abs_tol (bool): Use absolute (True) or relative (False) tolerance.
+            spin (Spin | None): Find the gap:
+                - None: In the summed densities.
+                - Up: In the spin up channel.
+                - Down: In the spin down channel.
 
         Returns:
-            gap in eV
+            float: Gap in eV.
         """
         cbm, vbm = self.get_cbm_vbm(tol, abs_tol, spin)
         return max(cbm - vbm, 0.0)
 
 
 class Dos(MSONable):
-    """Basic DOS object. All other DOS objects are extended versions of this
-    object.
+    """Basic DOS object. All other DOS objects are extended versions of this.
 
     Attributes:
-        energies (Sequence[float]): The sequence of energies.
-        densities (dict[Spin, Sequence[float]]): A dict of spin densities, e.g. {Spin.up: [...], Spin.down: [...]}.
-        efermi (float): Fermi level.
+        energies (Sequence[float]): Energies.
+        densities (dict[Spin, Sequence[float]]): Spin densities, e.g. {Spin.up: [...], Spin.down: [...]}.
+        efermi (float): The Fermi level.
     """
 
     def __init__(
-        self, efermi: float, energies: ArrayLike, densities: Mapping[Spin, ArrayLike], norm_vol: float | None = None
+        self,
+        efermi: float,
+        energies: Sequence[float],
+        densities: dict[Spin, ArrayLike],
+        norm_vol: float | None = None,
     ) -> None:
         """
         Args:
-            efermi: Fermi level energy
-            energies: A sequences of energies
-            densities (dict[Spin: np.array]): representing the density of states for each Spin.
-            norm_vol: The volume used to normalize the densities. Defaults to 1 if None which will not perform any
-                normalization. If not None, the resulting density will have units of states/eV/Angstrom^3, otherwise
-                the density will be in states/eV.
+            efermi (float): The Fermi level.
+            energies (Sequence[float]): Energies.
+            densities (dict[Spin: np.array]): The density of states for each Spin.
+            norm_vol (float | None): The volume used to normalize the densities.
+                Defaults to 1 if None which will not perform any normalization.
+                If None, the result will be in unit of states/eV,
+                otherwise will be in states/eV/Angstrom^3.
         """
         self.efermi = efermi
         self.energies = np.array(energies)
@@ -190,41 +217,46 @@ class Dos(MSONable):
         self.densities = {k: np.array(d) / vol for k, d in densities.items()}
 
     def __add__(self, other):
-        """Add two DOS together. Checks that energy scales are the same.
-        Otherwise, a ValueError is thrown.
+        """Add two Dos.
 
         Args:
-            other: Another DOS object.
+            other (Dos): Another Dos object.
+
+        Raises:
+            ValueError: If energy scales are different.
 
         Returns:
-            Sum of the two DOSs.
+            Sum of the two Dos.
         """
         if not all(np.equal(self.energies, other.energies)):
             raise ValueError("Energies of both DOS are not compatible!")
+
         densities = {spin: self.densities[spin] + other.densities[spin] for spin in self.densities}
-        return Dos(self.efermi, self.energies, densities)
+        return type(self)(self.efermi, self.energies, densities)
 
     def __str__(self) -> str:
-        """Get a string which can be easily plotted (using gnuplot)."""
+        """A string which can be easily plotted."""
         if Spin.down in self.densities:
             str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
-            for i, energy in enumerate(self.energies):
-                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
+            for idx, energy in enumerate(self.energies):
+                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][idx]:.5f} {self.densities[Spin.down][idx]:.5f}")
+
         else:
             str_arr = [f"#{'Energy':30s} {'DensityUp':30s}"]
-            for i, energy in enumerate(self.energies):
-                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
+            for idx, energy in enumerate(self.energies):
+                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][idx]:.5f}")
+
         return "\n".join(str_arr)
 
-    def get_densities(self, spin: Spin | None = None):
+    def get_densities(self, spin: Spin | None = None) -> None | NDArray:
         """Get the density of states for a particular spin.
 
         Args:
-            spin: Spin
+            spin (Spin): Spin.
 
         Returns:
-            Returns the density of states for a particular spin. If Spin is
-            None, the sum of all spins is returned.
+            The density of states for the particular spin. Or the sum of both spins,
+                if Spin is None.
         """
         if self.densities is None:
             return None
@@ -238,22 +270,18 @@ class Dos(MSONable):
             result = self.densities[spin]
         return result
 
-    def get_smeared_densities(self, sigma: float):
-        """Get the Dict representation of the densities, {Spin: densities},
-        but with a Gaussian smearing of std dev sigma.
+    def get_smeared_densities(self, sigma: float) -> dict[Spin, NDArray]:
+        """Get the the densities with a Gaussian smearing.
 
         Args:
-            sigma: Std dev of Gaussian smearing function.
+            sigma (float): Standard deviation of Gaussian smearing.
 
         Returns:
-            Dict of Gaussian-smeared densities.
+            {Spin: densities}: Gaussian-smeared densities by spin.
         """
-        smeared_dens = {}
         diff = [self.energies[i + 1] - self.energies[i] for i in range(len(self.energies) - 1)]
         avg_diff = sum(diff) / len(diff)
-        for spin, dens in self.densities.items():
-            smeared_dens[spin] = gaussian_filter1d(dens, sigma / avg_diff)
-        return smeared_dens
+        return {spin: gaussian_filter1d(dens, sigma / avg_diff) for spin, dens in self.densities.items()}
 
     def get_interpolated_value(self, energy: float) -> dict[Spin, float]:
         """Get interpolated density for a particular energy.
@@ -269,23 +297,29 @@ class Dos(MSONable):
             energies[spin] = get_linear_interpolated_value(self.energies, self.densities[spin], energy)
         return energies
 
-    def get_interpolated_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None) -> Tuple3Floats:
-        """Expects a DOS object and finds the gap.
+    def get_interpolated_gap(
+        self,
+        tol: float = 0.001,
+        abs_tol: bool = False,
+        spin: Spin | None = None,
+    ) -> Tuple3Floats:
+        """Find the interpolated band gap.
 
         Args:
-            tol: tolerance in occupations for determining the gap
-            abs_tol: Set to True for an absolute tolerance and False for a
-                relative one.
-            spin: Possible values are None - finds the gap in the summed
-                densities, Up - finds the gap in the up spin channel,
-                Down - finds the gap in the down spin channel.
+            tol (float): Tolerance in occupations for determining the band gap.
+            abs_tol (bool): Use absolute (True) or relative (False) tolerance.
+            spin (Spin | None): Find the gap:
+                None - In the summed densities.
+                Up - In the spin up channel.
+                Down - In the spin down channel.
 
         Returns:
-            tuple[float, float, float]: Energies in eV corresponding to the band gap, cbm and vbm.
+            tuple[float, float, float]: Energies in eV corresponding to the band gap, CBM and VBM.
         """
         tdos = self.get_densities(spin)
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
+
         energies = self.energies
         below_fermi = [i for i in range(len(energies)) if energies[i] < self.efermi and tdos[i] > tol]
         above_fermi = [i for i in range(len(energies)) if energies[i] > self.efermi and tdos[i] > tol]
@@ -298,72 +332,87 @@ class Dos(MSONable):
         terminal_dens = tdos[vbm_start : vbm_start + 2][::-1]
         terminal_energies = energies[vbm_start : vbm_start + 2][::-1]
         start = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
+
         terminal_dens = tdos[cbm_start - 1 : cbm_start + 1]
         terminal_energies = energies[cbm_start - 1 : cbm_start + 1]
         end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
+
         return end - start, end, start
 
-    def get_cbm_vbm(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
-        """Expects a DOS object and finds the cbm and vbm.
+    def get_cbm_vbm(
+        self,
+        tol: float = 0.001,
+        abs_tol: bool = False,
+        spin: Spin | None = None,
+    ) -> tuple[float, float]:
+        """Find the conduction band minimum (CBM) and valence band maximum (VBM).
 
         Args:
-            tol: tolerance in occupations for determining the gap
-            abs_tol: An absolute tolerance (True) and a relative one (False)
-            spin: Possible values are None - finds the gap in the summed
-                densities, Up - finds the gap in the up spin channel,
-                Down - finds the gap in the down spin channel.
+            tol (float): Tolerance in occupations for determining the gap.
+            abs_tol (bool): Use absolute (True) or relative (False) tolerance.
+            spin (Spin | None): Find the gap:
+                None - In the summed densities.
+                Up - In the spin up channel.
+                Down - In the spin down channel.
 
         Returns:
-            tuple[float, float]: Energies in eV corresponding to the cbm and vbm.
+            tuple[float, float]: Energies in eV corresponding to the CBM and VBM.
         """
-        # determine tolerance
+        # Determine tolerance
         tdos = self.get_densities(spin)
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
 
-        # find index of fermi energy
+        # Find index of Fermi level
         i_fermi = 0
         while self.energies[i_fermi] <= self.efermi:
             i_fermi += 1
 
-        # work backwards until tolerance is reached
+        # Work backwards until tolerance is reached
         i_gap_start = i_fermi
-        while i_gap_start - 1 >= 0 and tdos[i_gap_start - 1] <= tol:
+        while i_gap_start >= 1 and tdos[i_gap_start - 1] <= tol:
             i_gap_start -= 1
 
-        # work forwards until tolerance is reached
+        # Work forwards until tolerance is reached
         i_gap_end = i_gap_start
         while i_gap_end < tdos.shape[0] and tdos[i_gap_end] <= tol:
             i_gap_end += 1
         i_gap_end -= 1
+
         return self.energies[i_gap_end], self.energies[i_gap_start]
 
-    def get_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
-        """Expects a DOS object and finds the gap.
+    def get_gap(
+        self,
+        tol: float = 0.001,
+        abs_tol: bool = False,
+        spin: Spin | None = None,
+    ) -> float:
+        """Find the band gap.
 
         Args:
-            tol: tolerance in occupations for determining the gap
-            abs_tol: An absolute tolerance (True) and a relative one (False)
-            spin: Possible values are None - finds the gap in the summed
-                densities, Up - finds the gap in the up spin channel,
-                Down - finds the gap in the down spin channel.
+            tol (float): Tolerance in occupations for determining the band gap.
+            abs_tol (bool): Use absolute (True) or relative (False) tolerance.
+            spin (Spin | None): Find the band gap:
+                None - In the summed densities.
+                Up - In the spin up channel.
+                Down - In the spin down channel.
 
         Returns:
-            gap in eV
+            float: Band gap in eV.
         """
         cbm, vbm = self.get_cbm_vbm(tol, abs_tol, spin)
         return max(cbm - vbm, 0.0)
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Get Dos object from dict representation of Dos."""
+        """Get Dos from a dict representation."""
         return cls(
             dct["efermi"],
             dct["energies"],
             {Spin(int(k)): v for k, v in dct["densities"].items()},
         )
 
-    def as_dict(self) -> dict:
+    def as_dict(self) -> dict[str, Any]:
         """JSON-serializable dict representation of Dos."""
         return {
             "@module": type(self).__module__,
@@ -375,11 +424,12 @@ class Dos(MSONable):
 
 
 class FermiDos(Dos, MSONable):
-    """This wrapper class helps relate the density of states, doping levels
-    (i.e. carrier concentrations) and corresponding fermi levels. A negative
-    doping concentration indicates the majority carriers are electrons
-    (n-type doping); a positive doping concentration indicates holes are the
-    majority carriers (p-type doping).
+    """Help relate the density of states, doping levels
+    (i.e. carrier concentrations) and corresponding Fermi levels.
+
+    A negative doping concentration indicates the majority carriers are electrons
+    (N-type); a positive doping concentration indicates holes are the
+    majority carriers (P-type).
     """
 
     def __init__(
@@ -391,15 +441,15 @@ class FermiDos(Dos, MSONable):
     ) -> None:
         """
         Args:
-            dos: Pymatgen Dos object.
-            structure: A structure. If not provided, the structure
-                of the dos object will be used. If the dos does not have an
-                associated structure object, an error will be thrown.
-            nelecs: The number of electrons included in the energy range of
-                dos. It is used for normalizing the densities. Default is the total
-                number of electrons in the structure.
-            bandgap: If set, the energy values are scissored so that the electronic
-                band gap matches this value.
+            dos (Dos): Pymatgen Dos object.
+            structure (Structure): A structure. If None, the Structure
+                of the Dos will be used. If the Dos does not have an
+                associated Structure, an ValueError will be raised.
+            nelecs (float): The number of electrons included in the energy range of
+                Dos. It is used for normalizing the densities. Default None to
+                the total number of electrons in the structure.
+            bandgap (float): If not None, the energy values are scissored so that
+                the electronic band gap matches this value.
         """
         super().__init__(
             dos.efermi,
@@ -420,7 +470,7 @@ class FermiDos(Dos, MSONable):
         self.energies = np.array(dos.energies)
         self.de = np.hstack((self.energies[1:], self.energies[-1])) - self.energies
 
-        # normalize total density of states based on integral at 0K
+        # Normalize total density of states based on integral at 0 K
         tdos = np.array(self.get_densities())
         self.tdos = tdos * self.nelecs / (tdos * self.de)[self.energies <= self.efermi].sum()
 
@@ -435,7 +485,7 @@ class FermiDos(Dos, MSONable):
             idx_fermi = int(np.argmin(abs(self.energies - eref)))
 
             if idx_fermi == self.idx_vbm:
-                # Fermi level and vbm should be different indices
+                # Fermi level and VBM should have different indices
                 idx_fermi += 1
 
             self.energies[:idx_fermi] -= (bandgap - (ecbm - evbm)) / 2.0
@@ -443,19 +493,19 @@ class FermiDos(Dos, MSONable):
 
     def get_doping(self, fermi_level: float, temperature: float) -> float:
         """Calculate the doping (majority carrier concentration) at a given
-        Fermi level  and temperature. A simple Left Riemann sum is used for
+        Fermi level and temperature. A simple Left Riemann sum is used for
         integrating the density of states over energy & equilibrium Fermi-Dirac
         distribution.
 
         Args:
-            fermi_level: The fermi_level level in eV.
-            temperature: The temperature in Kelvin.
+            fermi_level (float): The Fermi level in eV.
+            temperature (float): The temperature in Kelvin.
 
         Returns:
-            The doping concentration in units of 1/cm^3. Negative values
-            indicate that the majority carriers are electrons (n-type doping)
-            whereas positive values indicates the majority carriers are holes
-            (p-type doping).
+            float: The doping concentration in units of 1/cm^3. Negative values
+                indicate that the majority carriers are electrons (N-type),
+                whereas positive values indicates the majority carriers are holes
+                (P-type).
         """
         cb_integral = np.sum(
             self.tdos[self.idx_cbm :]
@@ -471,27 +521,74 @@ class FermiDos(Dos, MSONable):
         )
         return (vb_integral - cb_integral) / (self.volume * self.A_to_cm**3)
 
-    def get_fermi_interextrapolated(
-        self, concentration: float, temperature: float, warn: bool = True, c_ref: float = 1e10, **kwargs
+    def get_fermi(
+        self,
+        concentration: float,
+        temperature: float,
+        rtol: float = 0.01,
+        nstep: int = 50,
+        step: float = 0.1,
+        precision: int = 8,
     ) -> float:
-        """Similar to get_fermi except that when get_fermi fails to converge,
-        an interpolated or extrapolated fermi is returned with the assumption
-        that the Fermi level changes linearly with log(abs(concentration)).
+        """Find the Fermi level at which the doping concentration at the given
+        temperature (T) is equal to concentration. An algorithm is used
+        where the relative error is minimized by calculating the doping at a
+        grid which continually becomes finer.
 
         Args:
-            concentration: The doping concentration in 1/cm^3. Negative values
-                represent n-type doping and positive values represent p-type
-                doping.
-            temperature: The temperature in Kelvin.
-            warn: Whether to give a warning the first time the fermi cannot be
-                found.
-            c_ref: A doping concentration where get_fermi returns a
+            concentration (float): The doping concentration in 1/cm^3. Negative
+                values represent N-type doping and positive values represent P-type.
+            temperature (float): The temperature in Kelvin.
+            rtol (float): The maximum acceptable relative error.
+            nstep (int): The number of steps checked around a given Fermi level.
+            step (float): The initial Energy step length when searching.
+            precision (int): The decimal places of calculated Fermi level.
+
+        Raises:
+            ValueError: If the Fermi level cannot be found.
+
+        Returns:
+            float: The Fermi level in eV. Note that this is different from the
+                default dos.efermi.
+        """
+        fermi = self.efermi  # initialize target Fermi
+        relative_error = [float("inf")]
+        for _ in range(precision):
+            fermi_range = np.arange(-nstep, nstep + 1) * step + fermi
+            calc_doping = np.array([self.get_doping(fermi_lvl, temperature) for fermi_lvl in fermi_range])
+            relative_error = np.abs(calc_doping / concentration - 1.0)  # type: ignore
+            fermi = fermi_range[np.argmin(relative_error)]
+            step /= 10.0
+
+        if min(relative_error) > rtol:
+            raise ValueError(f"Could not find fermi within {rtol:.1%} of {concentration=}")
+        return fermi
+
+    def get_fermi_interextrapolated(
+        self,
+        concentration: float,
+        temperature: float,
+        warn: bool = True,
+        c_ref: float = 1e10,
+        **kwargs,
+    ) -> float:
+        """Similar to get_fermi method except that when it fails to converge, an
+        interpolated or extrapolated Fermi level is returned, with the assumption
+        that the Fermi level changes linearly with log(abs(concentration)),
+        and therefore must be used with caution.
+
+        Args:
+            concentration (float): The doping concentration in 1/cm^3. Negative value
+                represents N-type doping and positive value represents P-type.
+            temperature (float): The temperature in Kelvin.
+            warn (bool): Whether to give a warning the first time the Fermi level
+                cannot be found.
+            c_ref (float): A doping concentration where get_fermi returns a
                 value without error for both c_ref and -c_ref.
             **kwargs: Keyword arguments passed to the get_fermi function.
 
         Returns:
-            The Fermi level. Note, the value is possibly interpolated or
-            extrapolated and must be used with caution.
+            float: The possibly interpolated or extrapolated Fermi level.
         """
         try:
             return self.get_fermi(concentration, temperature, **kwargs)
@@ -503,8 +600,7 @@ class FermiDos(Dos, MSONable):
                 if abs(concentration) < 1e-10:
                     concentration = 1e-10
 
-                # max(10, ) is to avoid log(0<x<1) and log(1+x) both of which
-                # are slow
+                # max(10, ...) is to avoid log(0<x<1) and log(1+x) where both are slow
                 f2 = self.get_fermi_interextrapolated(
                     max(10, abs(concentration) * 10.0), temperature, warn=False, **kwargs
                 )
@@ -523,53 +619,9 @@ class FermiDos(Dos, MSONable):
             slope = (f_new - f_ref) / (c_new_log - np.sign(concentration) * 10.0)
             return f_new + slope * (clog - c_new_log)
 
-    def get_fermi(
-        self,
-        concentration: float,
-        temperature: float,
-        rtol: float = 0.01,
-        nstep: int = 50,
-        step: float = 0.1,
-        precision: int = 8,
-    ) -> float:
-        """Find the Fermi level at which the doping concentration at the given
-        temperature (T) is equal to concentration. A greedy algorithm is used
-        where the relative error is minimized by calculating the doping at a
-        grid which continually becomes finer.
-
-        Args:
-            concentration: The doping concentration in 1/cm^3. Negative values
-                represent n-type doping and positive values represent p-type
-                doping.
-            temperature: The temperature in Kelvin.
-            rtol: The maximum acceptable relative error.
-            nstep: The number of steps checked around a given Fermi level.
-            step: Initial step in energy when searching for the Fermi level.
-            precision: Essentially the decimal places of calculated Fermi level.
-
-        Raises:
-            ValueError: If the Fermi level cannot be found.
-
-        Returns:
-            The Fermi level in eV. Note that this is different from the default
-            dos.efermi.
-        """
-        fermi = self.efermi  # initialize target fermi
-        relative_error = [float("inf")]
-        for _ in range(precision):
-            fermi_range = np.arange(-nstep, nstep + 1) * step + fermi
-            calc_doping = np.array([self.get_doping(fermi_lvl, temperature) for fermi_lvl in fermi_range])
-            relative_error = np.abs(calc_doping / concentration - 1.0)  # type: ignore
-            fermi = fermi_range[np.argmin(relative_error)]
-            step /= 10.0
-
-        if min(relative_error) > rtol:
-            raise ValueError(f"Could not find fermi within {rtol:.1%} of {concentration=}")
-        return fermi
-
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Get Dos object from dict representation of Dos."""
+        """Get FermiDos object from a dict representation."""
         dos = Dos(
             dct["efermi"],
             dct["energies"],
@@ -577,8 +629,8 @@ class FermiDos(Dos, MSONable):
         )
         return cls(dos, structure=Structure.from_dict(dct["structure"]), nelecs=dct["nelecs"])
 
-    def as_dict(self) -> dict:
-        """JSON-serializable dict representation of Dos."""
+    def as_dict(self) -> dict[str, Any]:
+        """JSON-serializable dict representation of FermiDos."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -591,31 +643,31 @@ class FermiDos(Dos, MSONable):
 
 
 class CompleteDos(Dos):
-    """This wrapper class defines a total dos, and also provides a list of PDos.
-    Mainly used by pymatgen.io.vasp.Vasprun to create a complete Dos from
-    a vasprun.xml file. You are unlikely to try to generate this object
-    manually.
+    """Define total DOS, and projected DOS (PDOS).
+
+    Mainly used by pymatgen.io.vasp.Vasprun to create a complete DOS from
+    a vasprun.xml file. You are unlikely to generate this object manually.
 
     Attributes:
         structure (Structure): Structure associated with the CompleteDos.
-        pdos (dict): Dict of partial densities of the form {Site:{Orbital:{Spin:Densities}}}.
+        pdos (dict): Projected densities as {Site: {Orbital: {Spin: Densities}}}.
     """
 
     def __init__(
         self,
         structure: Structure,
         total_dos: Dos,
-        pdoss: Mapping[PeriodicSite, Mapping[Orbital, Mapping[Spin, ArrayLike]]],
+        pdoss: dict[PeriodicSite, dict[Orbital, dict[Spin, NDArray]]],
         normalize: bool = False,
     ) -> None:
         """
         Args:
-            structure: Structure associated with this particular DOS.
-            total_dos: total Dos for structure
-            pdoss: The pdoss are supplied as an {Site: {Orbital: {Spin:Densities}}}
-            normalize: Whether to normalize the densities by the volume of the structure.
-                If True, the units of the densities are states/eV/Angstrom^3. Otherwise,
-                the units are states/eV.
+            structure (Structure): Structure associated with this DOS.
+            total_dos (Dos): Total DOS for the structure.
+            pdoss (dict): The PDOSs supplied as {Site: {Orbital: {Spin: Densities}}}.
+            normalize (bool): Whether to normalize the densities by the volume of
+                the structure. If True, the units of the densities are states/eV/Angstrom^3.
+                Otherwise, the units are states/eV.
         """
         vol = structure.volume if normalize else None
         super().__init__(
@@ -630,11 +682,12 @@ class CompleteDos(Dos):
     def __str__(self) -> str:
         return f"Complete DOS for {self.structure}"
 
-    def get_normalized(self) -> CompleteDos:
-        """Get a normalized version of the CompleteDos."""
+    def get_normalized(self) -> Self:
+        """Get normalized CompleteDos."""
         if self.norm_vol is not None:
             return self
-        return CompleteDos(
+
+        return type(self)(
             structure=self.structure,
             total_dos=self,
             pdoss=self.pdos,
@@ -654,25 +707,25 @@ class CompleteDos(Dos):
         return Dos(self.efermi, self.energies, self.pdos[site][orbital])
 
     def get_site_dos(self, site: PeriodicSite) -> Dos:
-        """Get the total Dos for a site (all orbitals).
+        """Get the total DOS for a site with all orbitals.
 
         Args:
-            site: Site in Structure associated with CompleteDos.
+            site (PeriodicSite): Site in Structure associated with CompleteDos.
 
         Returns:
-            Dos containing summed orbital densities for site.
+            Dos: DOS containing summed orbital densities for site.
         """
         site_dos = functools.reduce(add_densities, self.pdos[site].values())
         return Dos(self.efermi, self.energies, site_dos)
 
     def get_site_spd_dos(self, site: PeriodicSite) -> dict[OrbitalType, Dos]:
-        """Get orbital projected Dos of a particular site.
+        """Get orbital projected DOS of a particular site.
 
         Args:
-            site: Site in Structure associated with CompleteDos.
+            site (PeriodicSite): Site in Structure associated with CompleteDos.
 
         Returns:
-            dict of {OrbitalType: Dos}, e.g. {OrbitalType.s: Dos object, ...}
+            dict[OrbitalType, Dos]
         """
         spd_dos: dict[OrbitalType, dict[Spin, np.ndarray]] = {}
         for orb, pdos in self.pdos[site].items():
@@ -683,14 +736,17 @@ class CompleteDos(Dos):
                 spd_dos[orbital_type] = pdos  # type: ignore[assignment]
         return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in spd_dos.items()}
 
-    def get_site_t2g_eg_resolved_dos(self, site: PeriodicSite) -> dict[str, Dos]:
-        """Get the t2g, eg projected DOS for a particular site.
+    def get_site_t2g_eg_resolved_dos(
+        self,
+        site: PeriodicSite,
+    ) -> dict[Literal["e_g", "t2g"], Dos]:
+        """Get the t2g/e_g projected DOS for a particular site.
 
         Args:
-            site: Site in Structure associated with CompleteDos.
+            site (PeriodicSite): Site in Structure associated with CompleteDos.
 
         Returns:
-            dict[str, Dos]: A dict {"e_g": Dos, "t2g": Dos} containing summed e_g and t2g DOS for the site.
+            dict[str, Dos]: Summed e_g and t2g DOS for the site.
         """
         t2g_dos = []
         eg_dos = []
@@ -707,10 +763,10 @@ class CompleteDos(Dos):
         }
 
     def get_spd_dos(self) -> dict[OrbitalType, Dos]:
-        """Get orbital projected Dos.
+        """Get orbital projected DOS.
 
         Returns:
-            dict[OrbitalType, Dos]: e.g. {OrbitalType.s: Dos object, ...}
+            dict[OrbitalType, Dos]
         """
         spd_dos = {}
         for atom_dos in self.pdos.values():
@@ -723,7 +779,7 @@ class CompleteDos(Dos):
         return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in spd_dos.items()}
 
     def get_element_dos(self) -> dict[SpeciesLike, Dos]:
-        """Get element projected Dos.
+        """Get element projected DOS.
 
         Returns:
             dict[Element, Dos]
@@ -732,20 +788,18 @@ class CompleteDos(Dos):
         for site, atom_dos in self.pdos.items():
             el = site.specie
             for pdos in atom_dos.values():
-                if el not in el_dos:
-                    el_dos[el] = pdos
-                else:
-                    el_dos[el] = add_densities(el_dos[el], pdos)
+                el_dos[el] = add_densities(el_dos[el], pdos) if el in el_dos else pdos
+
         return {el: Dos(self.efermi, self.energies, densities) for el, densities in el_dos.items()}
 
     def get_element_spd_dos(self, el: SpeciesLike) -> dict[OrbitalType, Dos]:
-        """Get element and spd projected Dos.
+        """Get element and orbital (spd) projected DOS.
 
         Args:
-            el: Element in Structure.composition associated with CompleteDos
+            el (SpeciesLike): Element associated with CompleteDos.
 
         Returns:
-            dict[OrbitalType, Dos]: e.g. {OrbitalType.s: Dos object, ...}
+            dict[OrbitalType, Dos]
         """
         el = get_el_sp(el)
         el_dos = {}
@@ -762,24 +816,25 @@ class CompleteDos(Dos):
 
     @property
     def spin_polarization(self) -> float | None:
-        """Calculate spin polarization at Fermi level. If the
-        calculation is not spin-polarized, None will be returned.
+        """Spin polarization at Fermi level.
 
-        See Sanvito et al., doi: 10.1126/sciadv.1602241 for an example usage.
+        Examples:
+            See Sanvito et al., DOI: 10.1126/sciadv.1602241 for an example usage.
 
         Returns:
-            float: spin polarization in range [0, 1], will also return NaN if spin
-                polarization ill-defined (e.g. for insulator).
+            float | None: Spin polarization in range [0, 1], will return NaN
+                if spin polarization is ill-defined (e.g. for insulator).
+                None if the calculation is not spin-polarized.
         """
         n_F = self.get_interpolated_value(self.efermi)
 
         n_F_up = n_F[Spin.up]
         if Spin.down not in n_F:
             return None
-        n_F_down = n_F[Spin.down]
 
+        n_F_down = n_F[Spin.down]
+        # Only well defined for metals or half-metals
         if (n_F_up + n_F_down) == 0:
-            # Only well defined for metals or half-metals
             return float("NaN")
 
         spin_polarization = (n_F_up - n_F_down) / (n_F_up + n_F_down)
@@ -796,14 +851,16 @@ class CompleteDos(Dos):
         """Compute the orbital-projected band filling, defined as the zeroth moment
         up to the Fermi level.
 
+        "elements" and "sites" cannot be used together.
+
         Args:
-            band: Orbital type to get the band center of (default is d-band)
-            elements: Elements to get the band center of (cannot be used in conjunction with site)
-            sites: Sites to get the band center of (cannot be used in conjunction with el)
-            spin: Spin channel to use. By default, the spin channels will be combined.
+            band (OrbitalType): Orbital to get the band center of (default is d-band).
+            elements (list[SpeciesLike]): Elements to get the band center of.
+            sites (list[PeriodicSite]): Sites to get the band center of.
+            spin (Spin): Spin channel to use. If None, both spin channels will be combined.
 
         Returns:
-            float: band filling in eV, often denoted f_d for the d-band
+            float: Band filling in eV, often denoted f_d for the d-band.
         """
         # Get the projected DOS
         if elements and sites:
@@ -817,6 +874,7 @@ class CompleteDos(Dos):
                     spd_dos.densities if idx == 0 else add_densities(densities, spd_dos.densities)  # type: ignore
                 )
             dos = Dos(self.efermi, self.energies, densities)
+
         elif sites:
             for idx, site in enumerate(sites):
                 spd_dos = self.get_site_spd_dos(site)[band]
@@ -824,6 +882,7 @@ class CompleteDos(Dos):
                     spd_dos.densities if idx == 0 else add_densities(densities, spd_dos.densities)  # type: ignore
                 )
             dos = Dos(self.efermi, self.energies, densities)
+
         else:
             dos = self.get_spd_dos()[band]
 
@@ -840,26 +899,29 @@ class CompleteDos(Dos):
         elements: list[SpeciesLike] | None = None,
         sites: list[PeriodicSite] | None = None,
         spin: Spin | None = None,
-        erange: list[float] | None = None,
+        erange: tuple[float, float] | None = None,
     ) -> float:
         """Compute the orbital-projected band center, defined as the first moment
-        relative to the Fermi level
-            int_{-inf}^{+inf} rho(E)*E dE/int_{-inf}^{+inf} rho(E) dE
-        based on the work of Hammer and Norskov, Surf. Sci., 343 (1995) where the
-        limits of the integration can be modified by erange and E is the set
-        of energies taken with respect to the Fermi level. Note that the band center
-        is often highly sensitive to the selected erange.
+        relative to the Fermi level as:
+            int_{-inf}^{+inf} rho(E)*E dE/int_{-inf}^{+inf} rho(E) dE.
+
+        Note that the band center is often highly sensitive to the selected energy range.
+
+        "elements" and "sites" cannot be used together.
+
+        References:
+            Hammer and Norskov, Surf. Sci., 343 (1995).
 
         Args:
-            band: Orbital type to get the band center of (default is d-band)
-            elements: Elements to get the band center of (cannot be used in conjunction with site)
-            sites: Sites to get the band center of (cannot be used in conjunction with el)
-            spin: Spin channel to use. By default, the spin channels will be combined.
-            erange: [min, max] energy range to consider, with respect to the Fermi level.
-                Default is None, which means all energies are considered.
+            band (OrbitalType): Orbital to get the band center of (default is d-band)
+            elements (list[SpeciesLike]): Elements to get the band center of.
+            sites (list[PeriodicSite]): Sites to get the band center of.
+            spin (Spin): Spin channel to use. If None, both spin channels will be combined.
+            erange (tuple(min, max)): The energy range to consider, with respect to the
+                Fermi level. Default to None for all energies.
 
         Returns:
-            float: band center in eV, often denoted epsilon_d for the d-band center
+            float: The band center in eV, often denoted epsilon_d for the d-band center.
         """
         return self.get_n_moment(1, elements=elements, sites=sites, band=band, spin=spin, erange=erange, center=False)
 
@@ -869,24 +931,26 @@ class CompleteDos(Dos):
         elements: list[SpeciesLike] | None = None,
         sites: list[PeriodicSite] | None = None,
         spin: Spin | None = None,
-        erange: list[float] | None = None,
+        erange: tuple[float, float] | None = None,
     ) -> float:
-        """Get the orbital-projected band width, defined as the square root of the second moment
+        """Get the orbital-projected band width, defined as the square root of the second moment:
             sqrt(int_{-inf}^{+inf} rho(E)*(E-E_center)^2 dE/int_{-inf}^{+inf} rho(E) dE)
-        where E_center is the orbital-projected band center, the limits of the integration can be
-        modified by erange, and E is the set of energies taken with respect to the Fermi level.
-        Note that the band width is often highly sensitive to the selected erange.
+        where E_center is the orbital-projected band center.
+
+        Note that the band width is often highly sensitive to the selected energy range.
+
+        "elements" and "sites" cannot be used together.
 
         Args:
-            band: Orbital type to get the band center of (default is d-band)
-            elements: Elements to get the band center of (cannot be used in conjunction with site)
-            sites: Sites to get the band center of (cannot be used in conjunction with el)
-            spin: Spin channel to use. By default, the spin channels will be combined.
-            erange: [min, max] energy range to consider, with respect to the Fermi level.
-                Default is None, which means all energies are considered.
+            band (OrbitalType): Orbital to get the band center of (default is d-band).
+            elements (list[SpeciesLike]): Elements to get the band center of.
+            sites (list[PeriodicSite]): Sites to get the band center of.
+            spin (Spin): Spin channel to use. By default, both spin channels will be combined.
+            erange (tuple(min, max)): The energy range to consider, with respect to the
+                Fermi level. Default to None for all energies.
 
         Returns:
-            float: Orbital-projected band width in eV
+            float: Orbital-projected band width in eV.
         """
         return np.sqrt(self.get_n_moment(2, elements=elements, sites=sites, band=band, spin=spin, erange=erange))
 
@@ -898,24 +962,26 @@ class CompleteDos(Dos):
         spin: Spin | None = None,
         erange: list[float] | None = None,
     ) -> float:
-        """Get the orbital-projected skewness, defined as the third standardized moment
+        """Get the orbital-projected skewness, defined as the third standardized moment:
             int_{-inf}^{+inf} rho(E)*(E-E_center)^3 dE/int_{-inf}^{+inf} rho(E) dE)
             /
             (int_{-inf}^{+inf} rho(E)*(E-E_center)^2 dE/int_{-inf}^{+inf} rho(E) dE))^(3/2)
-        where E_center is the orbital-projected band center, the limits of the integration can be
-        modified by erange, and E is the set of energies taken with respect to the Fermi level.
-        Note that the skewness is often highly sensitive to the selected erange.
+        where E_center is the orbital-projected band center.
+
+        Note that the skewness is often highly sensitive to the selected energy range.
+
+        "elements" and "sites" cannot be used together.
 
         Args:
-            band: Orbitals to get the band center of (default is d-band)
-            elements: Elements to get the band center of (cannot be used in conjunction with site)
-            sites: Sites to get the band center of (cannot be used in conjunction with el)
-            spin: Spin channel to use. By default, the spin channels will be combined.
-            erange: [min, max] energy range to consider, with respect to the Fermi level.
-                Default is None, which means all energies are considered.
+            band (OrbitalType): Orbitals to get the band center of (default is d-band).
+            elements (list[SpeciesLike]): Elements to get the band center of.
+            sites (list[PeriodicSite]): Sites to get the band center of.
+            spin (Spin): Spin channel to use. By default, both spin channels will be combined.
+            erange (tuple(min, max)): The energy range to consider, with respect to the
+                Fermi level. Default to None for all energies.
 
         Returns:
-            float: orbital-projected skewness (dimensionless)
+            float: The orbital-projected skewness (dimensionless).
         """
         kwds: dict = dict(elements=elements, sites=sites, band=band, spin=spin, erange=erange)
         return self.get_n_moment(3, **kwds) / self.get_n_moment(2, **kwds) ** (3 / 2)
@@ -932,20 +998,22 @@ class CompleteDos(Dos):
             int_{-inf}^{+inf} rho(E)*(E-E_center)^4 dE/int_{-inf}^{+inf} rho(E) dE)
             /
             (int_{-inf}^{+inf} rho(E)*(E-E_center)^2 dE/int_{-inf}^{+inf} rho(E) dE))^2
-        where E_center is the orbital-projected band center, the limits of the integration can be
-        modified by erange, and E is the set of energies taken with respect to the Fermi level.
-        Note that the skewness is often highly sensitive to the selected erange.
+        where E_center is the orbital-projected band center.
+
+        Note that the kurtosis is often highly sensitive to the selected energy range.
+
+        "elements" and "sites" cannot be used together.
 
         Args:
-            band: Orbital type to get the band center of (default is d-band)
-            elements: Elements to get the band center of (cannot be used in conjunction with site)
-            sites: Sites to get the band center of (cannot be used in conjunction with el)
-            spin: Spin channel to use. By default, the spin channels will be combined.
-            erange: [min, max] energy range to consider, with respect to the Fermi level.
-                Default is None, which means all energies are considered.
+            band (OrbitalType): Orbitals to get the band center of (default is d-band).
+            elements (list[SpeciesLike]): Elements to get the band center of.
+            sites (list[PeriodicSite]): Sites to get the band center of.
+            spin (Spin): Spin channel to use. By default, both spin channels will be combined.
+            erange (tuple(min, max)): The energy range to consider, with respect to the
+                Fermi level. Default to None for all energies.
 
         Returns:
-            float: orbital-projected kurtosis (dimensionless)
+            float: The orbital-projected kurtosis (dimensionless).
         """
         kwds: dict = dict(elements=elements, sites=sites, band=band, spin=spin, erange=erange)
         return self.get_n_moment(4, **kwds) / self.get_n_moment(2, **kwds) ** 2
@@ -983,7 +1051,7 @@ class CompleteDos(Dos):
         if elements and sites:
             raise ValueError("Both element and site cannot be specified.")
 
-        densities: Mapping[Spin, ArrayLike] = {}
+        densities: dict[Spin, ArrayLike] = {}
         if elements:
             for idx, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
@@ -1036,7 +1104,7 @@ class CompleteDos(Dos):
         if elements and sites:
             raise ValueError("Both element and site cannot be specified.")
 
-        densities: Mapping[Spin, ArrayLike] = {}
+        densities: dict[Spin, ArrayLike] = {}
         if elements:
             for idx, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
@@ -1220,7 +1288,7 @@ class CompleteDos(Dos):
             fp1 (NamedTuple): The 1st dos fingerprint object
             fp2 (NamedTuple): The 2nd dos fingerprint object
             col (int): The item in the fingerprints (0:energies,1: densities) to take the dot product of (default is 1)
-            pt (int or str) : The index of the point that the dot product is to be taken (default is All)
+            pt (int | str) : The index of the point that the dot product is to be taken (default is All)
             normalize (bool): If True normalize the scalar product to 1 (default is False)
             tanimoto (bool): If True will compute Tanimoto index (default is False)
 
@@ -1230,9 +1298,9 @@ class CompleteDos(Dos):
         Returns:
             float: Similarity index given by the dot product
         """
-        fp1_dict = CompleteDos.fp_to_dict(fp1) if not isinstance(fp1, dict) else fp1
+        fp1_dict = fp1 if isinstance(fp1, dict) else CompleteDos.fp_to_dict(fp1)
 
-        fp2_dict = CompleteDos.fp_to_dict(fp2) if not isinstance(fp2, dict) else fp2
+        fp2_dict = fp2 if isinstance(fp2, dict) else CompleteDos.fp_to_dict(fp2)
 
         if pt == "All":
             vec1 = np.array([pt[col] for pt in fp1_dict.values()]).flatten()
@@ -1272,7 +1340,7 @@ class CompleteDos(Dos):
             pdoss[at] = orb_dos
         return cls(struct, tdos, pdoss)
 
-    def as_dict(self) -> dict:
+    def as_dict(self) -> dict[str, Any]:
         """JSON-serializable dict representation of CompleteDos."""
         dct = {
             "@module": type(self).__module__,
@@ -1297,21 +1365,21 @@ class CompleteDos(Dos):
 
 
 class LobsterCompleteDos(CompleteDos):
-    """Extended CompleteDOS for Lobster."""
+    """Extended CompleteDOS for LOBSTER."""
 
     def get_site_orbital_dos(self, site: PeriodicSite, orbital: str) -> Dos:  # type: ignore
         """Get the Dos for a particular orbital of a particular site.
 
         Args:
-            site: Site in Structure associated with CompleteDos.
-            orbital: principal quantum number and orbital in string format, e.g. "4s".
-                    possible orbitals are: "s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2",
+            site (PeriodicSite): Site in Structure associated with CompleteDos.
+            orbital (str): Principal quantum number and orbital, e.g. "4s".
+                    Possible orbitals are: "s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2",
                     "d_xz", "d_x^2-y^2", "f_y(3x^2-y^2)", "f_xyz",
-                    "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)"
-                    In contrast to the Cohpcar and the Cohplist objects, the strings from the Lobster files are used
+                    "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)".
+                    In contrast to the Cohpcar and the Cohplist objects, the strings from the LOBSTER files are used.
 
         Returns:
-            Dos containing densities of an orbital of a specific site.
+            Dos: Densities of an orbital of a specific site.
         """
         if orbital[1:] not in {
             "s",
@@ -1416,7 +1484,7 @@ class LobsterCompleteDos(CompleteDos):
         return cls(struct, tdos, pdoss)
 
 
-def add_densities(density1: Mapping[Spin, ArrayLike], density2: Mapping[Spin, ArrayLike]) -> dict[Spin, np.ndarray]:
+def add_densities(density1: dict[Spin, ArrayLike], density2: dict[Spin, ArrayLike]) -> dict[Spin, np.ndarray]:
     """Sum two densities.
 
     Args:
@@ -1440,14 +1508,14 @@ def f0(E, fermi, T) -> float:
     """Fermi-Dirac distribution function.
 
     Args:
-        E (float): energy in eV
-        fermi (float): the Fermi level in eV
-        T (float): the temperature in kelvin
+        E (float): Energy in eV
+        fermi (float): The Fermi level in eV.
+        T (float): The temperature in kelvin.
 
     Returns:
-        float: the Fermi-Dirac occupation probability at energy E
+        float: The Fermi-Dirac occupation probability at energy E.
     """
-    return 1.0 / (1.0 + np.exp((E - fermi) / (_cd("Boltzmann constant in eV/K") * T)))
+    return 1.0 / (1.0 + np.exp((E - fermi) / (_constant("Boltzmann constant in eV/K") * T)))
 
 
 def _get_orb_type_lobster(orb) -> OrbitalType | None:
