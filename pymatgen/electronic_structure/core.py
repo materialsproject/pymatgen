@@ -365,9 +365,9 @@ class Magmom(MSONable):
         Returns:
             bool
         """
-        magmoms = [Magmom(magmom) for magmom in magmoms]
-        ref_saxis = magmoms[0].saxis
-        match_ref = [magmom.saxis == ref_saxis for magmom in magmoms]
+        _magmoms: list[Magmom] = [Magmom(magmom) for magmom in magmoms]
+        ref_saxis = _magmoms[0].saxis
+        match_ref = [magmom.saxis == ref_saxis for magmom in _magmoms]
         return bool(np.all(match_ref))
 
     @staticmethod
@@ -384,10 +384,10 @@ class Magmom(MSONable):
         Returns:
             tuple[list[Magmom], np.ndarray]: Magmoms and their global spin axes.
         """
-        magmoms = [Magmom(magmom) for magmom in magmoms]
-        saxis = Magmom.get_suggested_saxis(magmoms) if saxis is None else saxis / np.linalg.norm(saxis)
-        magmoms = [magmom.get_moment(saxis=saxis) for magmom in magmoms]
-        return magmoms, saxis
+        _magmoms: list[Magmom] = [Magmom(magmom) for magmom in magmoms]
+        _saxis: Vector3D = Magmom.get_suggested_saxis(_magmoms) if saxis is None else saxis / np.linalg.norm(saxis)  # type: ignore[arg-type]
+        moments: list[NDArray] = [magmom.get_moment(saxis=_saxis) for magmom in _magmoms]
+        return moments, saxis
 
     @staticmethod
     def get_suggested_saxis(magmoms: list[MagMomentLike]) -> NDArray:
@@ -406,13 +406,13 @@ class Magmom(MSONable):
         # e.g. slightly canted magnetic structures.
         # For fully collinear structures, will return expected result.
 
-        magmoms = [Magmom(magmom) for magmom in magmoms]
-        # Filter only non-zero magmoms
-        magmoms = [magmom for magmom in magmoms if abs(magmom)]
-        magmoms.sort(reverse=True)
+        _magmoms: list[Magmom] = [Magmom(magmom) for magmom in magmoms]
+        # Keep non-zero magmoms only
+        _magmoms = [magmom for magmom in _magmoms if abs(magmom)]  # type: ignore[arg-type]
+        _magmoms.sort(reverse=True)
 
-        if len(magmoms) > 0:
-            return magmoms[0].get_00t_magmom_with_xyz_saxis().saxis
+        if _magmoms:
+            return _magmoms[0].get_00t_magmom_with_xyz_saxis().saxis
         return np.array([0, 0, 1], dtype="d")
 
     @staticmethod
@@ -425,18 +425,18 @@ class Magmom(MSONable):
         Returns:
             bool.
         """
-        magmoms = [Magmom(magmom) for magmom in magmoms]
-        if not Magmom.have_consistent_saxis(magmoms):
-            magmoms = Magmom.get_consistent_set_and_saxis(magmoms)[0]
+        _magmoms: list[Magmom] = [Magmom(magmom) for magmom in magmoms]
+        if not Magmom.have_consistent_saxis(_magmoms):
+            _magmoms = Magmom.get_consistent_set_and_saxis(_magmoms)[0]
 
         # Convert to numpy array for convenience
-        magmoms = np.array([list(magmom) for magmom in magmoms])
-        magmoms = magmoms[np.any(magmoms, axis=1)]  # remove zero magmoms
-        if len(magmoms) == 0:
+        magmoms_arr: NDArray = np.array([list(magmom) for magmom in _magmoms])
+        magmoms_arr = magmoms_arr[np.any(magmoms_arr, axis=1)]  # remove zero magmoms
+        if len(magmoms_arr) == 0:
             return True
 
         # Use first moment as reference to compare against
-        ref_magmom = magmoms[0]
+        ref_magmom = magmoms_arr[0]
         # Magnitude of cross products != 0 if non-collinear with reference
         num_ncl = np.count_nonzero(np.linalg.norm(np.cross(ref_magmom, magmoms), axis=1))
         return num_ncl == 0
@@ -461,10 +461,10 @@ class Magmom(MSONable):
         """
         # Get matrix representing unit lattice vectors
         unit_m = lattice.matrix / np.linalg.norm(lattice.matrix, axis=1)[:, None]
-        moment = np.matmul(list(moment), unit_m)
+        _moment: NDArray = np.matmul(list(moment), unit_m)
         # Round small values to zero
-        moment[np.abs(moment) < 1e-8] = 0
-        return cls(moment)
+        _moment[np.abs(_moment) < 1e-8] = 0
+        return cls(_moment)
 
     def get_moment_relative_to_crystal_axes(self, lattice: Lattice) -> Vector3D:
         """If scalar magmoms, moments will be given arbitrarily along z.
