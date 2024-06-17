@@ -11,6 +11,7 @@ from monty.json import MSONable
 from scipy.constants import value as _cd
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import hilbert
+from scipy.special import expit
 
 from pymatgen.core import Structure, get_el_sp
 from pymatgen.core.spectrum import Spectrum
@@ -1459,19 +1460,7 @@ def f0(E, fermi, T) -> float:
         float: the Fermi-Dirac occupation probability at energy E
     """
     exponent = (E - fermi) / (_cd("Boltzmann constant in eV/K") * T)
-
-    # mask infinity overflows to zero to avoid unnecessary warnings:
-    mask = exponent > 250  # these return FD occupancies of ~1e-108, beyond negligible
-    if isinstance(exponent, np.ndarray):
-        fd_occs = np.zeros_like(exponent)
-        fd_occs[~mask] = 1.0 / (1.0 + np.exp(exponent[~mask]))
-        fd_occs[mask] = 0.0
-    elif mask:
-        fd_occs = 0.0
-    else:
-        fd_occs = 1.0 / (1.0 + np.exp(exponent))
-
-    return fd_occs
+    return expit(-exponent)  # scipy logistic sigmoid function; expit(x) = 1/(1+exp(-x))
 
 
 def _get_orb_type_lobster(orb) -> OrbitalType | None:
