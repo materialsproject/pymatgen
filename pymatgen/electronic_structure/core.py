@@ -427,18 +427,18 @@ class Magmom(MSONable):
         Returns:
             bool.
         """
-        _magmoms: list[Magmom] = [Magmom(magmom) for magmom in magmoms]
-        if not Magmom.have_consistent_saxis(_magmoms):
-            _magmoms = Magmom.get_consistent_set_and_saxis(_magmoms)[0]
+        magmoms = [Magmom(magmom) for magmom in magmoms]
+        if not Magmom.have_consistent_saxis(magmoms):
+            magmoms = Magmom.get_consistent_set_and_saxis(magmoms)[0]
 
         # Convert to numpy array for convenience
-        magmoms_arr: NDArray = np.array([list(magmom) for magmom in _magmoms])
-        magmoms_arr = magmoms_arr[np.any(magmoms_arr, axis=1)]  # remove zero magmoms
-        if len(magmoms_arr) == 0:
+        magmoms = np.array([list(cast(Magmom, magmom)) for magmom in magmoms])
+        magmoms = magmoms[np.any(magmoms, axis=1)]  # remove zero magmoms
+        if len(magmoms) == 0:
             return True
 
         # Use first moment as reference to compare against
-        ref_magmom = magmoms_arr[0]
+        ref_magmom = magmoms[0]
         # Magnitude of cross products != 0 if non-collinear with reference
         num_ncl = np.count_nonzero(np.linalg.norm(np.cross(ref_magmom, magmoms), axis=1))
         return num_ncl == 0
