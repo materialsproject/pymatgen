@@ -387,9 +387,9 @@ class Magmom(MSONable):
             tuple[list[Magmom], NDArray]: Magmoms and their global spin axes.
         """
         _magmoms: list[Magmom] = [Magmom(magmom) for magmom in magmoms]
-        _saxis: Vector3D = Magmom.get_suggested_saxis(_magmoms) if saxis is None else saxis / np.linalg.norm(saxis)  # type: ignore[arg-type]
+        _saxis: NDArray = Magmom.get_suggested_saxis(_magmoms) if saxis is None else saxis / np.linalg.norm(saxis)
         moments: list[NDArray] = [magmom.get_moment(saxis=_saxis) for magmom in _magmoms]
-        return moments, saxis
+        return moments, _saxis
 
     @staticmethod
     def get_suggested_saxis(magmoms: Sequence[MagMomentLike]) -> NDArray:
