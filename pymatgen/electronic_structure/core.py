@@ -11,6 +11,8 @@ import numpy as np
 from monty.json import MSONable
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from numpy.typing import NDArray
     from typing_extensions import Self
 
@@ -94,7 +96,7 @@ class Magmom(MSONable):
       e.g. m = Magmom([1.0, 1.0, 2.0]), and indexing will work as
       expected, e.g. m[0] gives 1.0.
 
-    * For collinear calculations, Magmom can assumed to be scalar-like,
+    * For collinear calculations, Magmom can assumed to be float-like,
       e.g. m = Magmom(5.0) will work as expected, e.g. float(m) gives 5.0.
 
     Both of these cases should be safe and shouldn't give any surprises,
@@ -182,7 +184,7 @@ class Magmom(MSONable):
         an arbitrary direction.
 
         Should give unsurprising output if Magmom is treated like a
-        scalar or if a set of Magmoms describes a collinear structure.
+        float or if a set of Magmoms describes a collinear structure.
 
         Implemented this way rather than simpler abs(self) so that
         moments will have a consistent sign in case of e.g.
@@ -272,7 +274,7 @@ class Magmom(MSONable):
             saxis (Vector3D): Spin quantization axis.
 
         Returns:
-            np.ndarray of length 3.  # TODO: DanielYang: how to record length for NDArray?
+            NDArray of length 3.
         """
         # Transform to moment with spin axis (0, 0, 1)
         trafo_mat_inv = self._get_transformation_matrix_inv(self.saxis)
@@ -350,7 +352,7 @@ class Magmom(MSONable):
         return type(self)(self)
 
     @staticmethod
-    def have_consistent_saxis(magmoms: list[MagMomentLike]) -> bool:
+    def have_consistent_saxis(magmoms: Sequence[MagMomentLike]) -> bool:
         """Check whether all Magmoms have a consistent spin quantization axis.
 
         To write MAGMOM tags to a VASP INCAR, a consistent global SAXIS value for
@@ -360,7 +362,7 @@ class Magmom(MSONable):
             Magmom.get_consistent_set(magmoms).
 
         Args:
-            magmoms (list[MagMomentLike]): Magmoms.
+            magmoms (Sequence[MagMomentLike]): Magmoms.
 
         Returns:
             bool
@@ -372,17 +374,17 @@ class Magmom(MSONable):
 
     @staticmethod
     def get_consistent_set_and_saxis(
-        magmoms: list[MagMomentLike],
+        magmoms: Sequence[MagMomentLike],
         saxis: Vector3D | None = None,
     ) -> tuple[list[Magmom], NDArray]:
         """Ensure magmoms use the same spin axis.
 
         Args:
-            magmoms (list[MagMomentLike]): Magmoms, scalars or vectors.
+            magmoms (Sequence[MagMomentLike]): Magmoms, floats or vectors.
             saxis (Vector3D): An optional global spin axis.
 
         Returns:
-            tuple[list[Magmom], np.ndarray]: Magmoms and their global spin axes.
+            tuple[list[Magmom], NDArray]: Magmoms and their global spin axes.
         """
         _magmoms: list[Magmom] = [Magmom(magmom) for magmom in magmoms]
         _saxis: Vector3D = Magmom.get_suggested_saxis(_magmoms) if saxis is None else saxis / np.linalg.norm(saxis)  # type: ignore[arg-type]
@@ -390,16 +392,16 @@ class Magmom(MSONable):
         return moments, saxis
 
     @staticmethod
-    def get_suggested_saxis(magmoms: list[MagMomentLike]) -> NDArray:
+    def get_suggested_saxis(magmoms: Sequence[MagMomentLike]) -> NDArray:
         """Get a suggested spin axis for magmoms, taking the largest magnetic
         moment as the reference. For calculations with collinear spins,
         this would give a sensible saxis for a NCL calculation.
 
         Args:
-            magmoms (list[MagMomentLike]): Magmoms, scalars or vectors.
+            magmoms (Sequence[MagMomentLike]): Magmoms, floats or vectors.
 
         Returns:
-            np.ndarray of length 3
+            NDArray of length 3
         """
         # Heuristic, will pick largest magmom as the reference.
         # Useful for creating collinear approximations of
@@ -416,11 +418,11 @@ class Magmom(MSONable):
         return np.array([0, 0, 1], dtype="d")
 
     @staticmethod
-    def are_collinear(magmoms: list[MagMomentLike]) -> bool:
+    def are_collinear(magmoms: Sequence[MagMomentLike]) -> bool:
         """Check if a list of magnetic moments are collinear with each other.
 
         Args:
-            magmoms (list[MagMomentLike]): Magmoms, scalars or vectors.
+            magmoms (Sequence[MagMomentLike]): Magmoms, floats or vectors.
 
         Returns:
             bool.
