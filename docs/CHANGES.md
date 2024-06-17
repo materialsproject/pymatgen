@@ -6,6 +6,14 @@ nav_order: 4
 
 # Changelog
 
+## v2024.6.10
+* Fix bug in `update_charge_from_potcar` (#3866)
+* Fix bug in VASP parameter parsing (@mkhorton)
+* Add `strict_anions` option to `MaterialsProject2020Compatibility` (@mkhorton)
+* Slightly more robust `MSONAtoms` handling (@Andrew-S-Rosen)
+* Bug fix: handle non-integer oxidation states in `Species` (@esoteric-ephemera)
+* Revert change that removed test structure files from pymatgen source.
+
 ## v2024.6.4
 
 ### 🐛 Bug Fixes

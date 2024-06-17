@@ -20,6 +20,8 @@ cimport numpy as np
 from libc.math cimport fabs, round
 from libc.stdlib cimport free, malloc
 
+np.import_array()
+
 #create images, 2d array of all length 3 combinations of [-1,0,1]
 rng = np.arange(-1, 2, dtype=np.float_)
 arange = rng[:, None] * np.array([1, 0, 0])[None, :]

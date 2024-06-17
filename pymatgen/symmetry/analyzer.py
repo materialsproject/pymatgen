@@ -51,12 +51,22 @@ cite_conventional_cell_algo = due.dcite(
 )
 
 
+class SymmetryUndetermined(ValueError):
+    """
+    An Exception for when symmetry cannot be determined. This might happen
+    when, for example, atoms are very close together.
+    """
+
+
 @lru_cache(maxsize=32)
 def _get_symmetry_dataset(cell, symprec, angle_tolerance):
     """Simple wrapper to cache results of spglib.get_symmetry_dataset since this call is
     expensive.
     """
-    return spglib.get_symmetry_dataset(cell, symprec=symprec, angle_tolerance=angle_tolerance)
+    dataset = spglib.get_symmetry_dataset(cell, symprec=symprec, angle_tolerance=angle_tolerance)
+    if dataset is None:
+        raise SymmetryUndetermined
+    return dataset
 
 
 class SpacegroupAnalyzer:
