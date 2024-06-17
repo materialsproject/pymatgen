@@ -193,8 +193,9 @@ class Vasprun(MSONable):
     Attributes:
         ionic_steps (list): All ionic steps in the run as a list of {"structure": structure at end of run,
             "electronic_steps": {All electronic step data in vasprun file}, "stresses": stress matrix}.
-        tdos (Dos): Total dos calculated at the end of run.
-        idos (Dos): Integrated dos calculated at the end of run.
+        tdos (Dos): Total dos calculated at the end of run. Note that this is rounded to 4 decimal
+            places by VASP.
+        idos (Dos): Integrated dos calculated at the end of run. Rounded to 4 decimal places by VASP.
         pdos (list): List of list of PDos objects. Access as pdos[atomindex][orbitalindex].
         efermi (float): Fermi energy.
         eigenvalues (dict): Final eigenvalues as a dict of {(spin, kpoint index):[[eigenvalue, occu]]}.
@@ -274,6 +275,8 @@ class Vasprun(MSONable):
             parse_dos (bool): Whether to parse the dos. Defaults to True. Set
                 to False to shave off significant time from the parsing if you
                 are not interested in getting those data.
+                Note that the DOS output from VASP is rounded to 4 decimal places,
+                which can give some slight inaccuracies.
             parse_eigen (bool): Whether to parse the eigenvalues. Defaults to
                 True. Set to False to shave off significant time from the
                 parsing if you are not interested in getting those data.
