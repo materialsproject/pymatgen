@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import functools
 import warnings
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 import numpy as np
 from monty.json import MSONable
@@ -317,6 +317,7 @@ class Dos(MSONable):
             tuple[float, float, float]: Energies in eV corresponding to the band gap, CBM and VBM.
         """
         tdos = self.get_densities(spin)
+        assert tdos is not None
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
 
@@ -360,6 +361,7 @@ class Dos(MSONable):
         """
         # Determine tolerance
         tdos = self.get_densities(spin)
+        assert tdos is not None
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
 
@@ -794,7 +796,7 @@ class CompleteDos(Dos):
         Returns:
             dict[Element, Dos]
         """
-        el_dos = {}
+        el_dos: dict[SpeciesLike, dict[Spin, NDArray]] = {}
         for site, atom_dos in self.pdos.items():
             el = site.specie
             for pdos in atom_dos.values():
@@ -898,6 +900,7 @@ class CompleteDos(Dos):
 
         energies = dos.energies - dos.efermi
         dos_densities = dos.get_densities(spin=spin)
+        assert dos_densities is not None
 
         # Only integrate up to Fermi level
         energies = dos.energies - dos.efermi
@@ -1080,6 +1083,7 @@ class CompleteDos(Dos):
 
         energies = dos.energies - dos.efermi
         dos_densities = dos.get_densities(spin=spin)
+        assert dos_densities is not None
 
         # Only consider a given energy range
         if erange:
@@ -1173,6 +1177,7 @@ class CompleteDos(Dos):
 
         energies = transformed_dos.energies - transformed_dos.efermi
         densities = transformed_dos.get_densities(spin=spin)
+        assert densities is not None
 
         # Only consider a given energy range, if specified
         if erange:
@@ -1224,17 +1229,15 @@ class CompleteDos(Dos):
 
         pdos_obj = self.get_spd_dos()
 
-        pdos = {}
-        for key in pdos_obj:
-            dens = pdos_obj[key].get_densities()
-
-            pdos[key.name] = dens
+        pdos = {key.name: pdos_obj[key].get_densities() for key in pdos_obj}
 
         pdos["summed_pdos"] = np.sum(list(pdos.values()), axis=0)
         pdos["tdos"] = self.get_densities()
 
         try:
             densities = pdos[type]
+            assert densities is not None
+
             if len(energies) < n_bins:
                 inds = np.where((energies >= min_e) & (energies <= max_e))
                 return FingerPrint(energies[inds], densities[inds], type, len(energies), np.diff(energies)[0])
@@ -1287,7 +1290,7 @@ class CompleteDos(Dos):
         fp1: FingerPrint,
         fp2: FingerPrint,
         col: int = 1,
-        pt: int | Literal["ALL"] = "All",
+        pt: int | Literal["All"] = "All",
         normalize: bool = False,
         tanimoto: bool = False,
     ) -> float:
@@ -1428,9 +1431,12 @@ class LobsterCompleteDos(CompleteDos):
         for s, atom_dos in self.pdos.items():
             if s == site:
                 for orb, pdos in atom_dos.items():
-                    if _get_orb_lobster(orb) in (Orbital.dxy, Orbital.dxz, Orbital.dyz):
+                    orbital = _get_orb_lobster(str(orb))
+                    assert orbital is not None
+
+                    if orbital in (Orbital.dxy, Orbital.dxz, Orbital.dyz):
                         t2g_dos.append(pdos)
-                    elif _get_orb_lobster(orb) in (Orbital.dx2, Orbital.dz2):
+                    elif orbital in (Orbital.dx2, Orbital.dz2):
                         eg_dos.append(pdos)
         return {
             "t2g": Dos(self.efermi, self.energies, functools.reduce(add_densities, t2g_dos)),
@@ -1449,7 +1455,7 @@ class LobsterCompleteDos(CompleteDos):
         spd_dos = {}
         for atom_dos in self.pdos.values():
             for orb, pdos in atom_dos.items():
-                orbital_type = _get_orb_type_lobster(orb)
+                orbital_type = _get_orb_type_lobster(str(orb))
                 if orbital_type not in spd_dos:
                     spd_dos[orbital_type] = pdos
                 else:
@@ -1471,7 +1477,7 @@ class LobsterCompleteDos(CompleteDos):
         for site, atom_dos in self.pdos.items():
             if site.specie == el:
                 for orb, pdos in atom_dos.items():
-                    orbital_type = _get_orb_type_lobster(orb)
+                    orbital_type = _get_orb_type_lobster(str(orb))
                     if orbital_type not in el_dos:
                         el_dos[orbital_type] = pdos
                     else:
@@ -1511,9 +1517,9 @@ def add_densities(density1: dict[Spin, NDArray], density2: dict[Spin, NDArray]) 
 def _get_orb_type(orb: Orbital | OrbitalType) -> OrbitalType:
     """Get OrbitalType."""
     try:
-        return orb.orbital_type
+        return cast(Orbital, orb).orbital_type
     except AttributeError:
-        return orb
+        return cast(OrbitalType, orb)
 
 
 def f0(E: float, fermi: float, T: float) -> float:
