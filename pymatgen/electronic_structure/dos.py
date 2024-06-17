@@ -91,8 +91,11 @@ class DOS(Spectrum):
         end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
         return end - start, end, start
 
-    def get_cbm_vbm(self, tol: float = 0.001, abs_tol: bool = False, spin=None) -> tuple[float, float]:
-        """Expects a DOS object and finds the cbm and vbm.
+    def get_cbm_vbm(self, tol: float = 1e-4, abs_tol: bool = False, spin=None) -> tuple[float, float]:
+        """
+        Expects a DOS object and finds the CBM and VBM eigenvalues.
+
+        `tol` may need to be increased for systems with noise/disorder.
 
         Args:
             tol: tolerance in occupations for determining the gap
@@ -122,7 +125,7 @@ class DOS(Spectrum):
 
         # work backwards until tolerance is reached
         i_gap_start = i_fermi
-        while i_gap_start - 1 >= 0 and tdos[i_gap_start - 1] <= tol:
+        while i_gap_start >= 1 and tdos[i_gap_start - 1] <= tol:
             i_gap_start -= 1
 
         # work forwards until tolerance is reached
@@ -132,8 +135,11 @@ class DOS(Spectrum):
         i_gap_end -= 1
         return self.x[i_gap_end], self.x[i_gap_start]
 
-    def get_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
-        """Expects a DOS object and finds the gap.
+    def get_gap(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None):
+        """
+        Expects a DOS object and finds the band gap.
+
+        `tol` may need to be increased for systems with noise/disorder.
 
         Args:
             tol: tolerance in occupations for determining the gap
@@ -290,8 +296,12 @@ class Dos(MSONable):
         end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
         return end - start, end, start
 
-    def get_cbm_vbm(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
-        """Expects a DOS object and finds the cbm and vbm.
+    def get_cbm_vbm(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> tuple[
+        float, float]:
+        """
+        Expects a DOS object and finds the CBM and VBM eigenvalues.
+
+        `tol` may need to be increased for systems with noise/disorder.
 
         Args:
             tol: tolerance in occupations for determining the gap
@@ -1448,7 +1458,20 @@ def f0(E, fermi, T) -> float:
     Returns:
         float: the Fermi-Dirac occupation probability at energy E
     """
-    return 1.0 / (1.0 + np.exp((E - fermi) / (_cd("Boltzmann constant in eV/K") * T)))
+    exponent = (E - fermi) / (_cd("Boltzmann constant in eV/K") * T)
+
+    # mask infinity overflows to zero to avoid unnecessary warnings:
+    mask = exponent > 250  # these return FD occupancies of ~1e-108, beyond negligible
+    if isinstance(exponent, np.ndarray):
+        fd_occs = np.zeros_like(exponent)
+        fd_occs[~mask] = 1.0 / (1.0 + np.exp(exponent[~mask]))
+        fd_occs[mask] = 0.0
+    elif mask:
+        fd_occs = 0.0
+    else:
+        fd_occs = 1.0 / (1.0 + np.exp(exponent))
+
+    return fd_occs
 
 
 def _get_orb_type_lobster(orb) -> OrbitalType | None:
