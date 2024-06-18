@@ -2939,12 +2939,12 @@ class IStructure(SiteCollection, MSONable):
         return str(writer)
 
     @classmethod
-    def from_id(cls, id: str, source: StructureSources = "Materials Project", **kwargs) -> Structure:
+    def from_id(cls, id_: str, source: StructureSources = "Materials Project", **kwargs) -> Structure:
         """
         Load a structure file based on an id, usually from an online source.
 
         Args:
-            id: The id. E.g., the materials project id.
+            id_: The id associated with the structure. E.g., the Materials Project id.
             source: Source of the data. Defaults to "Materials Project".
             **kwargs: Pass-through to any API calls.
         """
@@ -2952,12 +2952,12 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.ext.matproj import MPRester
 
             mpr = MPRester(**kwargs)
-            return mpr.get_structure_by_material_id(id)  # type: ignore
+            return mpr.get_structure_by_material_id(id_)  # type: ignore[attr-defined]
         if source == "COD":
             from pymatgen.ext.cod import COD
 
             cod = COD()
-            return cod.get_structure_by_id(int(id))
+            return cod.get_structure_by_id(int(id_))
         raise ValueError(f"Invalid source: {source}")
 
     @classmethod
