@@ -1134,7 +1134,6 @@ class SlabGenerator:
         if self.lll_reduce:
             # Sanitize Slab (LLL reduction + site sorting + map frac_coords)
             lll_slab = struct.copy(sanitize=True)
-            struct = lll_slab
 
             # Apply reduction on the scaling factor
             mapping = lll_slab.lattice.find_mapping(struct.lattice)
