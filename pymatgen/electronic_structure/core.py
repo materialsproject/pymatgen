@@ -228,48 +228,6 @@ class Magmom(MSONable):
         magmom = cls(global_moment)
         return cls(magmom.get_moment(saxis=saxis), saxis=saxis)
 
-    @classmethod
-    def _get_transformation_matrix(
-        cls,
-        saxis: Vector3D,
-    ) -> tuple[Vector3D, Vector3D, Vector3D]:
-        saxis = saxis / np.linalg.norm(saxis)
-
-        alpha = np.arctan2(saxis[1], saxis[0])
-        beta = np.arctan2(np.sqrt(saxis[0] ** 2 + saxis[1] ** 2), saxis[2])
-
-        cos_a = np.cos(alpha)
-        cos_b = np.cos(beta)
-        sin_a = np.sin(alpha)
-        sin_b = np.sin(beta)
-
-        return (
-            (cos_b * cos_a, -sin_a, sin_b * cos_a),
-            (cos_b * sin_a, cos_a, sin_b * sin_a),
-            (-sin_b, 0, cos_b),
-        )
-
-    @classmethod
-    def _get_transformation_matrix_inv(
-        cls,
-        saxis: Vector3D,
-    ) -> tuple[Vector3D, Vector3D, Vector3D]:
-        saxis = saxis / np.linalg.norm(saxis)
-
-        alpha = np.arctan2(saxis[1], saxis[0])
-        beta = np.arctan2(np.sqrt(saxis[0] ** 2 + saxis[1] ** 2), saxis[2])
-
-        cos_a = np.cos(alpha)
-        cos_b = np.cos(beta)
-        sin_a = np.sin(alpha)
-        sin_b = np.sin(beta)
-
-        return (
-            (cos_b * cos_a, cos_b * sin_a, -sin_b),
-            (-sin_a, cos_a, 0),
-            (sin_b * cos_a, sin_b * sin_a, cos_b),
-        )
-
     def get_moment(self, saxis: Vector3D = (0, 0, 1)) -> NDArray:
         """Get magnetic moment relative to a given spin quantization axis.
         If no axis is provided, moment will be given relative to the
@@ -282,12 +240,53 @@ class Magmom(MSONable):
         Returns:
             NDArray of length 3.
         """
+
+        def get_transformation_matrix(
+            saxis: Vector3D,
+        ) -> tuple[Vector3D, Vector3D, Vector3D]:
+            """Get the matrix to transform spin axis to z-axis."""
+            saxis = saxis / np.linalg.norm(saxis)
+
+            alpha = np.arctan2(saxis[1], saxis[0])
+            beta = np.arctan2(np.sqrt(saxis[0] ** 2 + saxis[1] ** 2), saxis[2])
+
+            cos_a = np.cos(alpha)
+            cos_b = np.cos(beta)
+            sin_a = np.sin(alpha)
+            sin_b = np.sin(beta)
+
+            return (
+                (cos_b * cos_a, -sin_a, sin_b * cos_a),
+                (cos_b * sin_a, cos_a, sin_b * sin_a),
+                (-sin_b, 0, cos_b),
+            )
+
+        def get_transformation_matrix_inv(
+            saxis: Vector3D,
+        ) -> tuple[Vector3D, Vector3D, Vector3D]:
+            """Get the inverse of matrix to transform spin axis to z-axis."""
+            saxis = saxis / np.linalg.norm(saxis)
+
+            alpha = np.arctan2(saxis[1], saxis[0])
+            beta = np.arctan2(np.sqrt(saxis[0] ** 2 + saxis[1] ** 2), saxis[2])
+
+            cos_a = np.cos(alpha)
+            cos_b = np.cos(beta)
+            sin_a = np.sin(alpha)
+            sin_b = np.sin(beta)
+
+            return (
+                (cos_b * cos_a, cos_b * sin_a, -sin_b),
+                (-sin_a, cos_a, 0),
+                (sin_b * cos_a, sin_b * sin_a, cos_b),
+            )
+
         # Transform to moment with spin axis (0, 0, 1)
-        trafo_mat_inv = self._get_transformation_matrix_inv(self.saxis)
+        trafo_mat_inv = get_transformation_matrix_inv(self.saxis)
         moment = np.matmul(self.moment, trafo_mat_inv)
 
         # Transform to new saxis
-        trafo_mat = self._get_transformation_matrix(saxis)
+        trafo_mat = get_transformation_matrix(saxis)
         moment = np.matmul(moment, trafo_mat)
 
         # Round small values to zero
