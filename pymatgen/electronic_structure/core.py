@@ -139,14 +139,14 @@ class Magmom(MSONable):
         """
         # Init from another Magmom instance
         if isinstance(moment, type(self)):
-            saxis = moment.saxis  # type: ignore[has-type]  # TODO: DanielYang: fix this
+            saxis = moment.saxis  # type: ignore[has-type]
             moment = moment.moment  # type: ignore[has-type]
 
-        moment = np.array(moment, dtype="d")
-        if moment.ndim == 0:
-            moment = moment * (0, 0, 1)
+        magmom: NDArray = np.array(moment, dtype="d")
+        if magmom.ndim == 0:
+            magmom = magmom * (0, 0, 1)
 
-        self.moment = moment
+        self.moment = magmom
 
         saxis = np.array(saxis, dtype="d")
 
@@ -229,7 +229,10 @@ class Magmom(MSONable):
         return cls(magmom.get_moment(saxis=saxis), saxis=saxis)
 
     @classmethod
-    def _get_transformation_matrix(cls, saxis: Vector3D) -> list[list[float]]:
+    def _get_transformation_matrix(
+        cls,
+        saxis: Vector3D,
+    ) -> tuple[Vector3D, Vector3D, Vector3D]:
         saxis = saxis / np.linalg.norm(saxis)
 
         alpha = np.arctan2(saxis[1], saxis[0])
@@ -240,14 +243,17 @@ class Magmom(MSONable):
         sin_a = np.sin(alpha)
         sin_b = np.sin(beta)
 
-        return [
-            [cos_b * cos_a, -sin_a, sin_b * cos_a],  # TODO: use tuple to record len
-            [cos_b * sin_a, cos_a, sin_b * sin_a],
-            [-sin_b, 0, cos_b],
-        ]
+        return (
+            (cos_b * cos_a, -sin_a, sin_b * cos_a),
+            (cos_b * sin_a, cos_a, sin_b * sin_a),
+            (-sin_b, 0, cos_b),
+        )
 
     @classmethod
-    def _get_transformation_matrix_inv(cls, saxis: Vector3D) -> list[list[float]]:
+    def _get_transformation_matrix_inv(
+        cls,
+        saxis: Vector3D,
+    ) -> tuple[Vector3D, Vector3D, Vector3D]:
         saxis = saxis / np.linalg.norm(saxis)
 
         alpha = np.arctan2(saxis[1], saxis[0])
@@ -258,11 +264,11 @@ class Magmom(MSONable):
         sin_a = np.sin(alpha)
         sin_b = np.sin(beta)
 
-        return [
-            [cos_b * cos_a, cos_b * sin_a, -sin_b],  # TODO: use tuple to record len
-            [-sin_a, cos_a, 0],
-            [sin_b * cos_a, sin_b * sin_a, cos_b],
-        ]
+        return (
+            (cos_b * cos_a, cos_b * sin_a, -sin_b),
+            (-sin_a, cos_a, 0),
+            (sin_b * cos_a, sin_b * sin_a, cos_b),
+        )
 
     def get_moment(self, saxis: Vector3D = (0, 0, 1)) -> NDArray:
         """Get magnetic moment relative to a given spin quantization axis.
