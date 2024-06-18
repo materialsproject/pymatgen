@@ -62,10 +62,7 @@ jobs:
 
       - name: Create mamba environment
         run: |
-          micromamba create -n pmg python=${{ matrix.config.python }} --yes
-
-      - name: Install uv
-        run: micromamba run -n pmg pip install uv
+          micromamba create -n pmg python=${{ matrix.python-version }} --yes
 
       - name: Install ubuntu-only conda dependencies
         if: matrix.config.os == 'ubuntu-latest'
@@ -75,9 +72,7 @@ jobs:
       - name: Install pymatgen and dependencies
         run: |
           micromamba activate pmg
-          # TODO remove temporary fix. added since uv install torch is flaky.
-          # track https://github.com/astral-sh/uv/issues/1921 for resolution
-          pip install torch
+          pip install uv
 
           uv pip install numpy cython
           uv pip install --editable '.[${{ matrix.config.extras }}]' --resolution=${{ matrix.config.resolution }}
