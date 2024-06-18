@@ -1,5 +1,5 @@
-"""This module provides core classes needed by all define electronic structure,
-such as the Spin, Orbital, etc.
+"""This module provides core classes to define electronic structure,
+including Spin, Orbital and Magmom.
 """
 
 from __future__ import annotations
@@ -85,45 +85,43 @@ class Orbital(Enum):
 
 
 class Magmom(MSONable):
-    """Class in active development. Use with caution, feedback is
-    appreciated.
+    """In active development. Use with caution, feedback is appreciated.
 
     Class to handle magnetic moments. Define the magnetic moment of a
     site or species relative to a spin quantization axis. Designed for
     use in electronic structure calculations.
 
-    * For the general case, Magmom can be specified by a vector,
-      e.g. m = Magmom([1.0, 1.0, 2.0]), and indexing will work as
-      expected, e.g. m[0] gives 1.0.
+        * For the general case, Magmom can be specified by a 3D vector,
+        e.g. m = Magmom([1.0, 1.0, 2.0]), and indexing will work as
+        expected, e.g. m[0] gives 1.0.
 
-    * For collinear calculations, Magmom can assumed to be float-like,
-      e.g. m = Magmom(5.0) will work as expected, e.g. float(m) gives 5.0.
+        * For collinear calculations, Magmom can assumed to be float-like,
+        e.g. m = Magmom(5.0) will work as expected, e.g. float(m) gives 5.0.
 
-    Both of these cases should be safe and shouldn't give any surprises,
+    Both cases should be safe and shouldn't give any surprise,
     and more advanced functionality is available if required.
 
-    There also exist useful static methods for lists of magmoms:
+    There are also static methods for sequences of magmoms:
 
-    * Magmom.are_collinear(magmoms) - if True, a collinear electronic
-      structure calculation can be safely initialized, with float(Magmom)
-      giving the expected scalar magnetic moment value.
+        * Magmom.are_collinear(magmoms) - If True, a collinear electronic
+        structure calculation can be safely initialized, with float(Magmom)
+        giving the expected scalar magnetic moment value.
 
-    * Magmom.get_consistent_set_and_saxis(magmoms) - for non-collinear
-      electronic structure calculations, a global, consistent spin axis
-      has to be used. This method returns a list of Magmoms which all
-      share a common spin axis, along with the global spin axis.
+        * Magmom.get_consistent_set_and_saxis(magmoms) - For non-collinear
+        electronic structure calculations, a global and consistent spin axis
+        has to be used. This method returns a list of Magmoms which all
+        share a common spin axis, along with the global spin axis.
 
-    All methods that take lists of magmoms will accept magmoms either as
-    Magmom objects or as scalars/lists and will automatically convert to
-    a Magmom representation internally.
+    All methods that take sequence of magmoms will accept either Magmom
+    objects, or as scalars/lists and will automatically convert to Magmom
+    representations internally.
 
-    The following methods are also particularly useful in the context of
-    VASP calculations:
+    The following methods are also useful for VASP calculations:
         - Magmom.get_xyz_magmom_with_001_saxis()
         - Magmom.get_00t_magmom_with_xyz_saxis()
 
-    See VASP documentation for more information:
-        https://cms.mpi.univie.ac.at/wiki/index.php/SAXIS
+        See VASP documentation for more information:
+            https://cms.mpi.univie.ac.at/wiki/index.php/SAXIS
     """
 
     def __init__(
@@ -162,7 +160,7 @@ class Magmom(MSONable):
         return np.linalg.norm(self.moment)
 
     def __eq__(self, other: object) -> bool:
-        """Whether 'global' magnetic moments are the same, saxis can differ."""
+        """Whether global magnetic moments are the same, saxis can differ."""
         try:
             other_magmom = type(self)(other)
         except (TypeError, ValueError):
