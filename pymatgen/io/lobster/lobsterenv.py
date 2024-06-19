@@ -102,13 +102,13 @@ class LobsterNeighbors(NearNeighbors):
                 or ICOBI) should be considered.
             additional_condition (int): Additional condition that decides
                 which kind of bonds will be considered:
-                    0 - No additional condition
-                    1 - Only anion-cation bonds
-                    2 - No element to same element bonds
-                    3 - Only anion-cation bonds and no element to same element bonds
-                    4 - Only element to oxygen bonds
-                    5 - No anion-cation bonds
-                    6 - Only cation-cation bonds
+                    0 - NO_ADDITIONAL_CONDITION
+                    1 - ONLY_ANION_CATION_BONDS
+                    2 - NO_ELEMENT_TO_SAME_ELEMENT_BONDS
+                    3 - ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS
+                    4 - ONLY_ELEMENT_TO_OXYGEN_BONDS
+                    5 - DO_NOT_CONSIDER_ANION_CATION_BONDS
+                    6 - ONLY_CATION_CATION_BONDS
             only_bonds_to (list[str]): Only consider bonds to certain elements (e.g. ["O"] for oxygen).
             perc_strength_icohp (float): If no "limits" are given, this will decide
                 which ICOHPs will be considered (relative to the strongest ICOHP/ICOOP/ICOBI).
