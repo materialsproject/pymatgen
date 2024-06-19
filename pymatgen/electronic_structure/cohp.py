@@ -1181,11 +1181,11 @@ class IcohpCollection(MSONable):
     def get_icohp_dict_of_site(
         self,
         site,
-        minsummedicohp=None,
-        maxsummedicohp=None,
+        minsummedicohp: float | None = None,
+        maxsummedicohp: float | None = None,
         minbondlength=0.0,
         maxbondlength=8.0,
-        only_bonds_to=None,
+        only_bonds_to: list[str] | None = None,
     ):
         """Get a dict of IcohpValue for a certain site (indicated by integer).
 

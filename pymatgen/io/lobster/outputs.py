@@ -512,6 +512,8 @@ class Icohplist(MSONable):
     def icohplist(self) -> dict[Any, dict[str, Any]]:
         """The ICOHP list compatible with older version of this class."""
         icohp_dict = {}
+        assert self._icohpcollection is not None
+
         for key, value in self._icohpcollection._icohplist.items():
             icohp_dict[key] = {
                 "length": value._length,
