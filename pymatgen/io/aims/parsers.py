@@ -931,14 +931,14 @@ class AimsOutCalcChunk(AimsOutChunk):
     @property
     def mulliken_charges(self) -> Sequence[float] | None:
         """The Mulliken charges of the system"""
-        if "hirshfeld_charges" not in self._cache:
+        if "mulliken_charges" not in self._cache:
             self._parse_mulliken()
         return self._cache["mulliken_charges"]
 
     @property
     def mulliken_spins(self) -> Sequence[float] | None:
         """The Mulliken spins of the system"""
-        if "hirshfeld_spins" not in self._cache:
+        if "mulliken_spins" not in self._cache:
             self._parse_mulliken()
         return self._cache["mulliken_spins"]
 
