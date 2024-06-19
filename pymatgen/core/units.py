@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import collections
 import re
+import warnings
 from collections import defaultdict
 from functools import partial
 from numbers import Number
@@ -78,15 +79,12 @@ BASE_UNITS: dict[str, dict] = {
     "intensity": {"cd": 1},
     "memory": {
         "byte": 1,
-        "Kb": 1024,
-        "Mb": 1024**2,
-        "Gb": 1024**3,
-        "Tb": 1024**4,
+        "KB": 1024,
+        "MB": 1024**2,
+        "GB": 1024**3,
+        "TB": 1024**4,
     },
 }
-
-# Accept kb, mb, gb ... as well.
-BASE_UNITS["memory"].update({k.lower(): v for k, v in BASE_UNITS["memory"].items()})
 
 # This current list are supported derived units defined in terms of powers of
 # SI base units and constants.
@@ -312,6 +310,14 @@ class FloatWithUnit(float):
             unit (str | Unit): A unit. e.g. "C".
             unit_type (str): A type of unit. e.g. "charge"
         """
+        # Check deprecated memory unit
+        # TODO: remove after 2025-01-01
+        if unit_type == "memory" and str(unit) in {"Kb", "kb", "Mb", "mb", "Gb", "gb", "Tb", "tb"}:
+            warnings.warn(
+                f"Unit {unit!s} is deprecated, please use {str(unit).upper()} instead", DeprecationWarning, stacklevel=2
+            )
+            unit = str(unit).upper()
+
         if unit_type is not None and str(unit) not in ALL_UNITS[unit_type]:
             raise UnitError(f"{unit} is not a supported unit for {unit_type}")
 
@@ -440,16 +446,16 @@ class FloatWithUnit(float):
         """Convert string to FloatWithUnit.
 
         Example usage:
-            Memory.from_str("1. Mb").
+            Memory.from_str("1. MB").
         """
-        # Extract num and unit string.
+        # Extract num and unit string
         string = string.strip()
         for _idx, char in enumerate(string):
             if char.isalpha() or char.isspace():
                 break
         else:
             raise ValueError(f"Unit is missing in string {string}")
-        num, unit = float(string[:_idx]), string[_idx:]
+        num, unit = float(string[:_idx]), string[_idx:].strip()
 
         # Find unit type (set it to None if it cannot be detected)
         for unit_type, dct in BASE_UNITS.items():
@@ -763,7 +769,7 @@ A float with a memory unit.
 
 Args:
     val (float): Value
-    unit (Unit): e.g. Kb, Mb, Gb, Tb. Must be valid unit or UnitError
+    unit (Unit): e.g. KB, MB, GB, TB. Must be valid unit or UnitError
         is raised.
 """
 

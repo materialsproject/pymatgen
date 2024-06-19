@@ -14,7 +14,7 @@ from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
 
-from pymatgen.core import Composition, Element, Lattice, Species
+from pymatgen.core import SETTINGS, Composition, Element, Lattice, Species
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import (
     IMolecule,
@@ -924,6 +924,10 @@ class TestStructure(PymatgenTest):
         self.disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
         self.labeled_structure = Structure(lattice, ["Si", "Si"], coords, labels=["Si1", "Si2"])
 
+    @pytest.mark.skipif(
+        SETTINGS.get("PMG_MAPI_KEY", "") == "",
+        reason="PMG_MAPI_KEY environment variable not set or MP API is down. This is also the case in a PR.",
+    )
     def test_from_id(self):
         s = Structure.from_id("mp-1143")
         assert isinstance(s, Structure)
