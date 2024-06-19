@@ -13,6 +13,11 @@ name = "pymatgen"
 authors = [
     { name = "Pymatgen Development Team", email = "ongsp@ucsd.edu" },
 ]
+maintainers = [
+    { name = "Shyue Ping Ong", email = "ongsp@ucsd.edu" },
+    { name = "Matthew Horton", email = "m.k.horton@gmail.com" },
+    { name = "Janosh Riebesell", email = "janosh.riebesell@gmail.com" },
+]
 description = """
 Python Materials Genomics is a robust materials analysis code that defines core object representations for structures
 and molecules with support for many electronic structure codes. It is currently the core analysis code powering the
@@ -55,7 +60,8 @@ dependencies = [
     "matplotlib>=3.8",
     "monty>=2024.5.24",
     "networkx>=2.2",
-    "numpy>=1.25.0",
+    'numpy>=1.25.0,<2.0 ; platform_system == "Windows"',
+    'numpy>=1.25.0 ; platform_system != "Windows"',
     "palettable>=3.1.1",
     "pandas>=2",
     "plotly>=4.5.0",
@@ -93,7 +99,7 @@ dev = [
     "pytest-cov>=4",
     "pytest-split>=0.8",
     "pytest>8",
-    "ruff>=0.4",
+    "ruff>=0.4.8",
 ]
 ci = [
     "pytest>=8",
@@ -103,7 +109,6 @@ ci = [
 docs = [
     "sphinx",
     "sphinx_rtd_theme",
-    "doc2dash",
 ]
 optional = [
     "ase>=3.23.0",
@@ -192,6 +197,7 @@ select = [
     "I", # isort
     "ICN", # flake8-import-conventions
     "ISC", # flake8-implicit-str-concat
+    "NPY201", # numpy 2.0
     "PD", # pandas-vet
     "PERF", # perflint
     "PIE", # flake8-pie
