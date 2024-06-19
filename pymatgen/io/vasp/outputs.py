@@ -3578,14 +3578,14 @@ class VolumetricData(BaseVolumetricData):
 
     def write_file(
         self,
-        file_name: str | Path,
+        file_name: PathLike,
         vasp4_compatible: bool = False,
     ) -> None:
         """Write the VolumetricData object to a VASP compatible file.
 
         Args:
-            file_name (str): Path to a file
-            vasp4_compatible (bool): True if the format is VASP4 compatible
+            file_name (PathLike): The output file.
+            vasp4_compatible (bool): Whether the format is VASP4 compatible.
         """
 
         def format_fortran_float(flt: float) -> str:
