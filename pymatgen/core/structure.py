@@ -64,6 +64,7 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
 
 FileFormats = Literal["cif", "poscar", "cssr", "json", "yaml", "yml", "xsf", "mcsqs", "res", "pwmat", ""]
+StructureSources = Literal["Materials Project", "COD"]
 
 
 class Neighbor(Site):
@@ -1522,6 +1523,11 @@ class IStructure(SiteCollection, MSONable):
 
         Returns:
             spacegroup_symbol, international_number
+
+        Raises:
+            pymatgen.symmetry.analyzer.SymmetryUndetermined if symmetry cannot
+            be determined. This can happen for numerical reasons, for example if
+            atoms are placed unphysically close together.
         """
         # Avoid circular import
         from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -2931,6 +2937,28 @@ class IStructure(SiteCollection, MSONable):
         if filename:
             writer.write_file(filename)
         return str(writer)
+
+    @classmethod
+    def from_id(cls, id: str, source: StructureSources = "Materials Project", **kwargs) -> Structure:
+        """
+        Load a structure file based on an id, usually from an online source.
+
+        Args:
+            id: The id. E.g., the materials project id.
+            source: Source of the data. Defaults to "Materials Project".
+            **kwargs: Pass-through to any API calls.
+        """
+        if source == "Materials Project":
+            from pymatgen.ext.matproj import MPRester
+
+            mpr = MPRester(**kwargs)
+            return mpr.get_structure_by_material_id(id)  # type: ignore
+        if source == "COD":
+            from pymatgen.ext.cod import COD
+
+            cod = COD()
+            return cod.get_structure_by_id(int(id))
+        raise ValueError(f"Invalid source: {source}")
 
     @classmethod
     def from_str(  # type: ignore[override]

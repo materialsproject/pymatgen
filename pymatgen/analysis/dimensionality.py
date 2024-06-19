@@ -403,9 +403,9 @@ def find_connected_atoms(struct, tolerance=0.45, ldict=None):
 
     n_atoms = len(struct.species)
     fc = np.array(struct.frac_coords)
-    fc_copy = np.repeat(fc[:, :, np.newaxis], 27, axis=2)
+    fc_copy = np.repeat(fc[:, :, None], 27, axis=2)
     neighbors = np.array(list(itertools.product([0, 1, -1], [0, 1, -1], [0, 1, -1]))).T
-    neighbors = np.repeat(neighbors[np.newaxis, :, :], 1, axis=0)
+    neighbors = np.repeat(neighbors[None, :, :], 1, axis=0)
     fc_diff = fc_copy - neighbors
     species = list(map(str, struct.species))
     # in case of charged species

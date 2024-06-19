@@ -146,7 +146,9 @@ class Polarization:
     electron Angstroms along the three lattice directions (a,b,c).
     """
 
-    def __init__(self, p_elecs, p_ions, structures, p_elecs_in_cartesian=True, p_ions_in_cartesian=False):
+    def __init__(
+        self, p_elecs, p_ions, structures: Sequence[Structure], p_elecs_in_cartesian=True, p_ions_in_cartesian=False
+    ):
         """
         p_elecs: np.array of electronic contribution to the polarization with shape [N, 3]
         p_ions: np.array of ionic contribution to the polarization with shape [N, 3]
@@ -260,8 +262,8 @@ class Polarization:
         p_tot = p_elec + p_ion
         p_tot = np.array(p_tot)
 
-        lattices = [s.lattice for s in self.structures]
-        volumes = np.array([s.lattice.volume for s in self.structures])
+        lattices = [struct.lattice for struct in self.structures]
+        volumes = np.array([latt.volume for latt in lattices])
 
         n_elecs = len(p_elec)
 
@@ -273,7 +275,7 @@ class Polarization:
         # convert polarizations and lattice lengths prior to adjustment
         if convert_to_muC_per_cm2 and not all_in_polar:
             # Convert the total polarization
-            p_tot = np.multiply(units.T[:, np.newaxis], p_tot)
+            p_tot = np.multiply(units.T[:, None], p_tot)
             # adjust lattices
             for idx in range(n_elecs):
                 lattice = lattices[idx]
@@ -316,7 +318,7 @@ class Polarization:
         """Get the dipole / polarization quanta along a, b, and c for
         all structures.
         """
-        lattices = [s.lattice for s in self.structures]
+        lattices = [struct.lattice for struct in self.structures]
         volumes = np.array([struct.volume for struct in self.structures])
 
         n_structs = len(self.structures)

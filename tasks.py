@@ -197,7 +197,7 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
     if dry_run:
         print(tokens[0] + "##".join(tokens[1:]))
     else:
-        with open("docs/docs/CHANGES.md", mode="w") as file:
+        with open("docs/CHANGES.md", mode="w") as file:
             file.write(tokens[0] + "##".join(tokens[1:]))
         ctx.run("open docs/CHANGES.md")
     print("The following commit messages were not included...")
@@ -225,7 +225,7 @@ def release(ctx: Context, version: str | None = None, nodoc: bool = False) -> No
     release_github(ctx, version)
 
     ctx.run("rm -f dist/*.*", warn=True)
-    ctx.run("python setup.py sdist bdist_wheel", warn=True)
+    ctx.run("python -m build", warn=True)
     ctx.run("twine upload --skip-existing dist/*.whl", warn=True)
     ctx.run("twine upload --skip-existing dist/*.tar.gz", warn=True)
     # post_discourse(ctx, warn=True)
