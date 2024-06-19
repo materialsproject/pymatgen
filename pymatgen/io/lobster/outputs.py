@@ -48,7 +48,6 @@ __maintainer__ = "Janine George "
 __email__ = "janinegeorge.ulfen@gmail.com"
 __date__ = "Dec 13, 2017"
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))  # TODO: DanielYang: not used
 
 due.cite(
     Doi("10.1002/cplu.202200123"),
@@ -118,11 +117,11 @@ class Cohpcar:
                 filename = "COHPCAR.lobster"
 
         with zopen(filename, mode="rt") as file:
-            contents = file.read().split("\n")
+            lines = file.read().split("\n")
 
         # The parameters line is the second line in a COHPCAR file.
         # It contains all parameters that are needed to map the file.
-        parameters = contents[1].split()
+        parameters = lines[1].split()
         # Subtract 1 to skip the average
         num_bonds = int(parameters[0]) if self.are_multi_center_cobis else int(parameters[0]) - 1
         self.efermi = float(parameters[-1])
@@ -131,7 +130,7 @@ class Cohpcar:
         cohp_data: dict[str, dict[str, Any]] = {}
         if not self.are_multi_center_cobis:
             # The COHP data start in row num_bonds + 3
-            data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
+            data = np.array([np.array(row.split(), dtype=float) for row in lines[num_bonds + 3 :]]).transpose()
             cohp_data = {
                 "average": {
                     "COHP": {spin: data[1 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
@@ -140,7 +139,7 @@ class Cohpcar:
             }
         else:
             # The COBI data start in row num_bonds + 3 if multi-center cobis exist
-            data = np.array([np.array(row.split(), dtype=float) for row in contents[num_bonds + 3 :]]).transpose()
+            data = np.array([np.array(row.split(), dtype=float) for row in lines[num_bonds + 3 :]]).transpose()
 
         self.energies = data[0]
 
@@ -155,7 +154,7 @@ class Cohpcar:
         label = ""
         for bond in range(num_bonds):
             if not self.are_multi_center_cobis:
-                bond_data = self._get_bond_data(contents[3 + bond])
+                bond_data = self._get_bond_data(lines[3 + bond])
                 label = str(bond_num)
                 orbs = bond_data["orbitals"]
                 cohp = {spin: data[2 * (bond + s * (num_bonds + 1)) + 3] for s, spin in enumerate(spins)}
@@ -204,7 +203,7 @@ class Cohpcar:
                     }
 
             else:
-                bond_data = self._get_bond_data(contents[2 + bond], are_multi_center_cobis=self.are_multi_center_cobis)
+                bond_data = self._get_bond_data(lines[2 + bond], are_multi_center_cobis=self.are_multi_center_cobis)
 
                 label = str(bond_num)
                 orbs = bond_data["orbitals"]
@@ -368,7 +367,7 @@ class Icohplist(MSONable):
             icohpcollection (IcohpCollection): IcohpCollection Object.
 
         """
-        # Avoid circular dependencies
+        # Avoid circular import
         from pymatgen.electronic_structure.cohp import IcohpCollection
 
         self._filename = filename
@@ -392,14 +391,14 @@ class Icohplist(MSONable):
         # and we don't need the header.
         if self._icohpcollection is None:
             with zopen(filename, mode="rt") as file:
-                data = file.read().split("\n")[1:-1]
-            if len(data) == 0:
+                lines = file.read().split("\n")[1:-1]
+            if len(lines) == 0:
                 raise RuntimeError("ICOHPLIST file contains no data.")
 
             # Determine LOBSTER version
-            if len(data[0].split()) == 8:
+            if len(lines[0].split()) == 8:
                 version = "3.1.1"
-            elif len(data[0].split()) == 6:
+            elif len(lines[0].split()) == 6:
                 version = "2.2.1"
                 warnings.warn("Please consider using the new Lobster version. See www.cohp.de.")
             else:
@@ -408,24 +407,24 @@ class Icohplist(MSONable):
             # If the calculation is spin polarized, the line in the middle
             # of the file will be another header line.
             # TODO: adapt this for orbital-wise stuff
-            self.is_spin_polarized = "distance" in data[len(data) // 2]
+            self.is_spin_polarized = "distance" in lines[len(lines) // 2]
 
             # Check if orbital-wise ICOHPLIST
             # TODO: include case where there is only one ICOHP
-            self.orbitalwise = len(data) > 2 and "_" in data[1].split()[1]
+            self.orbitalwise = len(lines) > 2 and "_" in lines[1].split()[1]
 
             data_orbitals: list[str] = []
             if self.orbitalwise:
                 data_without_orbitals = []
                 data_orbitals = []
-                for line in data:
+                for line in lines:
                     if "_" not in line.split()[1]:
                         data_without_orbitals += [line]
                     else:
                         data_orbitals += [line]
 
             else:
-                data_without_orbitals = data
+                data_without_orbitals = lines
 
             if "distance" in data_without_orbitals[len(data_without_orbitals) // 2]:
                 # TODO: adapt this for orbital-wise stuff
@@ -559,20 +558,20 @@ class NciCobiList:
         # LOBSTER list files have an extra trailing blank line
         # and we don't need the header
         with zopen(filename, mode="rt") as file:  # type:ignore
-            data = file.read().split("\n")[1:-1]
-        if len(data) == 0:
+            lines = file.read().split("\n")[1:-1]
+        if len(lines) == 0:
             raise RuntimeError("NcICOBILIST file contains no data.")
 
         # If the calculation is spin-polarized, the line in the middle
         # of the file will be another header line.
         # TODO: adapt this for orbitalwise case
-        self.is_spin_polarized = "spin" in data[len(data) // 2]
+        self.is_spin_polarized = "spin" in lines[len(lines) // 2]
 
         # Check if orbitalwise NcICOBILIST
         # include case when there is only one NcICOBI
         self.orbital_wise = False  # set as default
-        for entry in data:  # NcICOBIs orbitalwise and non-orbitalwise can be mixed
-            if len(data) > 2 and "s]" in str(entry.split()[3:]):
+        for entry in lines:  # NcICOBIs orbitalwise and non-orbitalwise can be mixed
+            if len(lines) > 2 and "s]" in str(entry.split()[3:]):
                 self.orbital_wise = True
                 warnings.warn(
                     "This is an orbitalwise NcICOBILIST.lobster file. "
@@ -582,11 +581,11 @@ class NciCobiList:
 
         if self.orbital_wise:
             data_without_orbitals = []
-            for line in data:
+            for line in lines:
                 if "_" not in str(line.split()[3:]) and "s]" not in str(line.split()[3:]):
                     data_without_orbitals += [line]
         else:
-            data_without_orbitals = data
+            data_without_orbitals = lines
 
         if "spin" in data_without_orbitals[len(data_without_orbitals) // 2]:
             # TODO: adapt this for orbitalwise case
@@ -762,7 +761,7 @@ class Doscar:
         return self._completedos
 
     @property
-    def pdos(self) -> list:  # TODO: DanielYang: more specific type
+    def pdos(self) -> list[dict]:
         """Projected DOS (PDOS)."""
         return self._pdos
 
@@ -830,13 +829,13 @@ class Charge(MSONable):
 
         if self.num_atoms is None:
             with zopen(filename, mode="rt") as file:
-                data = file.read().split("\n")[3:-3]
-            if len(data) == 0:
+                lines = file.read().split("\n")[3:-3]
+            if len(lines) == 0:
                 raise RuntimeError("CHARGES file contains no data.")
 
-            self.num_atoms = len(data)
+            self.num_atoms = len(lines)
             for atom in range(self.num_atoms):
-                line = data[atom].split()
+                line = lines[atom].split()
                 self.atomlist += [line[1] + line[0]]
                 self.types += [line[1]]
                 self.mulliken += [float(line[2])]
@@ -902,7 +901,7 @@ class Lobsterout(MSONable):
         warning_lines (str): String with all warnings.
     """
 
-    # Valid Lobsterout instance attributes
+    # Valid Lobsterout attributes
     _ATTRIBUTES: ClassVar[set[str]] = {
         "filename",
         "is_restart_from_projection",
@@ -933,8 +932,8 @@ class Lobsterout(MSONable):
         "has_density_of_energies",
     }
 
-    # TODO: add tests for skipping COBI and madelung
-    # TODO: add tests for including COBI and madelung
+    # TODO: add tests for skipping COBI and Madelung
+    # TODO: add tests for including COBI and Madelung
     def __init__(self, filename: PathLike | None, **kwargs) -> None:
         """
         Args:
@@ -950,72 +949,72 @@ class Lobsterout(MSONable):
                     raise ValueError(f"{attr}={val} is not a valid attribute for Lobsterout")
         elif filename:
             with zopen(filename, mode="rt") as file:
-                data = file.read().split("\n")
-            if len(data) == 0:
+                lines = file.read().split("\n")
+            if len(lines) == 0:
                 raise RuntimeError("lobsterout does not contain any data")
 
             # Check if LOBSTER starts from a projection
-            self.is_restart_from_projection = "loading projection from projectionData.lobster..." in data
+            self.is_restart_from_projection = "loading projection from projectionData.lobster..." in lines
 
-            self.lobster_version = self._get_lobster_version(data=data)
+            self.lobster_version = self._get_lobster_version(data=lines)
 
-            self.number_of_threads = int(self._get_threads(data=data))
-            self.dft_program = self._get_dft_program(data=data)
+            self.number_of_threads = self._get_threads(data=lines)
+            self.dft_program = self._get_dft_program(data=lines)
 
-            self.number_of_spins = self._get_number_of_spins(data=data)
-            chargespilling, totalspilling = self._get_spillings(data=data, number_of_spins=self.number_of_spins)
+            self.number_of_spins = self._get_number_of_spins(data=lines)
+            chargespilling, totalspilling = self._get_spillings(data=lines, number_of_spins=self.number_of_spins)
             self.charge_spilling = chargespilling
             self.total_spilling = totalspilling
 
-            elements, basistype, basisfunctions = self._get_elements_basistype_basisfunctions(data=data)
+            elements, basistype, basisfunctions = self._get_elements_basistype_basisfunctions(data=lines)
             self.elements = elements
             self.basis_type = basistype
             self.basis_functions = basisfunctions
 
-            wall_time, user_time, sys_time = self._get_timing(data=data)
+            wall_time, user_time, sys_time = self._get_timing(data=lines)
             self.timing = {
                 "wall_time": wall_time,
                 "user_time": user_time,
                 "sys_time": sys_time,
             }
 
-            warninglines = self._get_all_warning_lines(data=data)
+            warninglines = self._get_all_warning_lines(data=lines)
             self.warning_lines = warninglines
 
-            orthowarning = self._get_warning_orthonormalization(data=data)
+            orthowarning = self._get_warning_orthonormalization(data=lines)
             self.info_orthonormalization = orthowarning
 
-            infos = self._get_all_info_lines(data=data)
+            infos = self._get_all_info_lines(data=lines)
             self.info_lines = infos
 
-            self.has_doscar = "writing DOSCAR.lobster..." in data and "SKIPPING writing DOSCAR.lobster..." not in data
+            self.has_doscar = "writing DOSCAR.lobster..." in lines and "SKIPPING writing DOSCAR.lobster..." not in lines
             self.has_doscar_lso = (
-                "writing DOSCAR.LSO.lobster..." in data and "SKIPPING writing DOSCAR.LSO.lobster..." not in data
+                "writing DOSCAR.LSO.lobster..." in lines and "SKIPPING writing DOSCAR.LSO.lobster..." not in lines
             )
             self.has_cohpcar = (
-                "writing COOPCAR.lobster and ICOOPLIST.lobster..." in data
-                and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in data
+                "writing COOPCAR.lobster and ICOOPLIST.lobster..." in lines
+                and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in lines
             )
             self.has_coopcar = (
-                "writing COHPCAR.lobster and ICOHPLIST.lobster..." in data
-                and "SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster..." not in data
+                "writing COHPCAR.lobster and ICOHPLIST.lobster..." in lines
+                and "SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster..." not in lines
             )
             self.has_cobicar = (
-                "writing COBICAR.lobster and ICOBILIST.lobster..." in data
-                and "SKIPPING writing COBICAR.lobster and ICOBILIST.lobster..." not in data
+                "writing COBICAR.lobster and ICOBILIST.lobster..." in lines
+                and "SKIPPING writing COBICAR.lobster and ICOBILIST.lobster..." not in lines
             )
 
-            self.has_charge = "SKIPPING writing CHARGE.lobster..." not in data
-            self.has_projection = "saving projection to projectionData.lobster..." in data
+            self.has_charge = "SKIPPING writing CHARGE.lobster..." not in lines
+            self.has_projection = "saving projection to projectionData.lobster..." in lines
             self.has_bandoverlaps = (
-                "WARNING: I dumped the band overlap matrices to the file bandOverlaps.lobster." in data
+                "WARNING: I dumped the band overlap matrices to the file bandOverlaps.lobster." in lines
             )
-            self.has_fatbands = self._has_fatband(data=data)
-            self.has_grosspopulation = "writing CHARGE.lobster and GROSSPOP.lobster..." in data
-            self.has_density_of_energies = "writing DensityOfEnergy.lobster..." in data
+            self.has_fatbands = self._has_fatband(data=lines)
+            self.has_grosspopulation = "writing CHARGE.lobster and GROSSPOP.lobster..." in lines
+            self.has_density_of_energies = "writing DensityOfEnergy.lobster..." in lines
             self.has_madelung = (
-                "writing SitePotentials.lobster and MadelungEnergies.lobster..." in data
-                and "skipping writing SitePotentials.lobster and MadelungEnergies.lobster..." not in data
+                "writing SitePotentials.lobster and MadelungEnergies.lobster..." in lines
+                and "skipping writing SitePotentials.lobster and MadelungEnergies.lobster..." not in lines
             )
         else:
             raise ValueError("must provide either filename or kwargs to initialize Lobsterout")
@@ -1057,7 +1056,7 @@ class Lobsterout(MSONable):
 
     def as_dict(self) -> dict[str, Any]:
         """MSONable dict."""
-        dct = vars(self)
+        dct = dict(vars(self))
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
 
@@ -1065,6 +1064,7 @@ class Lobsterout(MSONable):
 
     @staticmethod
     def _get_lobster_version(data: list[str]) -> str:
+        """Get LOBSTER version."""
         for row in data:
             row_parts = row.split()
             if len(row_parts) > 1 and row_parts[0] == "LOBSTER":
@@ -1073,30 +1073,34 @@ class Lobsterout(MSONable):
 
     @staticmethod
     def _has_fatband(data: list[str]) -> bool:
+        """Check whether calculation has hatband data."""
         for row in data:
-            splitrow = row.split()
-            if len(splitrow) > 1 and splitrow[1] == "FatBand":
+            row_parts = row.split()
+            if len(row_parts) > 1 and row_parts[1] == "FatBand":
                 return True
         return False
 
     @staticmethod
     def _get_dft_program(data: list[str]) -> str | None:
+        """Get the DFT program used for calculation."""
         for row in data:
-            splitrow = row.split()
-            if len(splitrow) > 4 and splitrow[3] == "program...":
-                return splitrow[4]
+            row_parts = row.split()
+            if len(row_parts) > 4 and row_parts[3] == "program...":
+                return row_parts[4]
         return None
 
     @staticmethod
     def _get_number_of_spins(data: list[str]) -> Literal[1, 2]:
+        """Get index of spin channel."""
         return 2 if "spillings for spin channel 2" in data else 1
 
     @staticmethod
-    def _get_threads(data: list[str]) -> str:
+    def _get_threads(data: list[str]) -> int:
+        """Get number of CPU threads."""
         for row in data:
-            splitrow = row.split()
-            if len(splitrow) > 11 and splitrow[11] in {"threads", "thread"}:
-                return splitrow[10]
+            row_parts = row.split()
+            if len(row_parts) > 11 and row_parts[11] in {"threads", "thread"}:
+                return int(row_parts[10])
         raise ValueError("Threads not found.")
 
     @staticmethod
@@ -1104,16 +1108,17 @@ class Lobsterout(MSONable):
         data: list[str],
         number_of_spins: Literal[1, 2],
     ) -> tuple[list[np.float64], list[np.float64]]:
+        """Get charge spillings and total spillings."""
         charge_spillings = []
         total_spillings = []
         for row in data:
-            splitrow = row.split()
-            if len(splitrow) > 2 and splitrow[2] == "spilling:":
+            row_parts = row.split()
+            if len(row_parts) > 2 and row_parts[2] == "spilling:":
                 # TODO: DanielYang: why do we need float64?
-                if splitrow[1] == "charge":
-                    charge_spillings.append(np.float64(splitrow[3].replace("%", "")) / 100.0)
-                elif splitrow[1] == "total":
-                    total_spillings.append(np.float64(splitrow[3].replace("%", "")) / 100.0)
+                if row_parts[1] == "charge":
+                    charge_spillings.append(np.float64(row_parts[3].replace("%", "")) / 100.0)
+                elif row_parts[1] == "total":
+                    total_spillings.append(np.float64(row_parts[3].replace("%", "")) / 100.0)
 
             if len(charge_spillings) == number_of_spins and len(total_spillings) == number_of_spins:
                 break
@@ -1124,6 +1129,7 @@ class Lobsterout(MSONable):
     def _get_elements_basistype_basisfunctions(
         data: list[str],
     ) -> tuple[list[str], list[str], list[str]]:
+        """Get elements, basis types and basis functions."""
         begin = False
         end = False
         elements = []
@@ -1161,16 +1167,16 @@ class Lobsterout(MSONable):
         user_times, wall_times, sys_times = [], [], []
 
         for row in data:
-            splitrow = row.split()
-            if "finished" in splitrow:
+            row_parts = row.split()
+            if "finished" in row_parts:
                 begin = True
             if begin:
-                if "wall" in splitrow:
-                    wall_times = splitrow[2:10]
-                if "user" in splitrow:
-                    user_times = splitrow[:8]
-                if "sys" in splitrow:
-                    sys_times = splitrow[:8]
+                if "wall" in row_parts:
+                    wall_times = row_parts[2:10]
+                if "user" in row_parts:
+                    user_times = row_parts[:8]
+                if "sys" in row_parts:
+                    sys_times = row_parts[:8]
 
         wall_time_dict = {"h": wall_times[0], "min": wall_times[2], "s": wall_times[4], "ms": wall_times[6]}
         user_time_dict = {"h": user_times[0], "min": user_times[2], "s": user_times[4], "ms": user_times[6]}
@@ -1180,29 +1186,32 @@ class Lobsterout(MSONable):
 
     @staticmethod
     def _get_warning_orthonormalization(data: list[str]) -> list[str]:
+        """Get orthonormalization warnings."""
         orthowarnings = []
         for row in data:
-            splitrow = row.split()
-            if "orthonormalized" in splitrow:
-                orthowarnings.append(" ".join(splitrow[1:]))
+            row_parts = row.split()
+            if "orthonormalized" in row_parts:
+                orthowarnings.append(" ".join(row_parts[1:]))
         return orthowarnings
 
     @staticmethod
     def _get_all_warning_lines(data: list[str]) -> list[str]:
+        """Get all WARNING lines."""
         warnings_ = []
         for row in data:
-            splitrow = row.split()
-            if len(splitrow) > 0 and splitrow[0] == "WARNING:":
-                warnings_.append(" ".join(splitrow[1:]))
+            row_parts = row.split()
+            if len(row_parts) > 0 and row_parts[0] == "WARNING:":
+                warnings_.append(" ".join(row_parts[1:]))
         return warnings_
 
     @staticmethod
     def _get_all_info_lines(data: list[str]) -> list[str]:
+        """Get all INFO lines."""
         infos = []
         for row in data:
-            splitrow = row.split()
-            if len(splitrow) > 0 and splitrow[0] == "INFO:":
-                infos.append(" ".join(splitrow[1:]))
+            row_parts = row.split()
+            if len(row_parts) > 0 and row_parts[0] == "INFO:":
+                infos.append(" ".join(row_parts[1:]))
         return infos
 
 
@@ -1239,7 +1248,7 @@ class Fatband:
     ) -> None:
         """
         Args:
-            filenames ( PathLike | list[PathLike]): File names or path to a
+            filenames (PathLike | list[PathLike]): File names or path to a
                 folder from which all "FATBAND_*" files will be read.
             kpoints_file (PathLike): KPOINTS file for bandstructure calculation, typically "KPOINTS".
             vasprun_file (PathLike): Corresponding vasprun.xml file. Instead, the
@@ -1279,25 +1288,27 @@ class Fatband:
         parameters = []
 
         if not isinstance(filenames, list) or filenames is None:
-            filenames_new = []
+            filenames_new: list[str] = []
             if filenames is None:
                 filenames = "."
             for name in os.listdir(filenames):
                 if fnmatch.fnmatch(name, "FATBAND_*.lobster"):
-                    filenames_new += [os.path.join(filenames, name)]
-            filenames = filenames_new
+                    filenames_new.append(os.path.join(filenames, name))
+            filenames = filenames_new  # type: ignore[assignment]
 
-        if len(cast(list[PathLike], filenames)) == 0:
+        filenames = cast(list[PathLike], filenames)
+
+        if len(filenames) == 0:
             raise ValueError("No FATBAND files in folder or given")
 
         for name in filenames:
             with zopen(name, mode="rt") as file:
-                contents = file.read().split("\n")
+                lines = file.read().split("\n")
 
-            atom_names += [os.path.split(name)[1].split("_")[1].capitalize()]
-            parameters = contents[0].split()
-            # atom_type += [re.split(r"[0-9]+", parameters[3])[0].capitalize()]
-            orbital_names += [parameters[4]]
+            atom_names.append(os.path.split(name)[1].split("_")[1].capitalize())
+            parameters = lines[0].split()
+            # atom_type.append(re.split(r"[0-9]+", parameters[3])[0].capitalize())
+            orbital_names.append(parameters[4])
 
         # Get atomtype orbital dict
         atom_orbital_dict: dict[str, list[str]] = {}
@@ -1326,19 +1337,19 @@ class Fatband:
         p_eigenvals: dict = {}
         for ifilename, filename in enumerate(filenames):
             with zopen(filename, mode="rt") as file:
-                contents = file.read().split("\n")
+                lines = file.read().split("\n")
 
             if ifilename == 0:
                 self.nbands = int(parameters[6])
-                self.number_kpts = kpoints_object.num_kpts - int(contents[1].split()[2]) + 1
+                self.number_kpts = kpoints_object.num_kpts - int(lines[1].split()[2]) + 1
 
-            if len(contents[1:]) == self.nbands + 2:
+            if len(lines[1:]) == self.nbands + 2:
                 self.is_spinpolarized = False
-            elif len(contents[1:]) == self.nbands * 2 + 2:
+            elif len(lines[1:]) == self.nbands * 2 + 2:
                 self.is_spinpolarized = True
             else:
                 linenumbers = []
-                for iline, line in enumerate(contents[1 : self.nbands * 2 + 4]):
+                for iline, line in enumerate(lines[1 : self.nbands * 2 + 4]):
                     if line.split()[0] == "#":
                         linenumbers += [iline]
 
@@ -1380,9 +1391,9 @@ class Fatband:
             idx_kpt = -1
             linenumber = 0
             iband = 0
-            for line in contents[1:-1]:
+            for line in lines[1:-1]:
                 if line.split()[0] == "#":
-                    KPOINT = np.array(  # TODO: DanielYang: fix KPOINT type
+                    KPOINT = np.array(
                         [
                             float(line.split()[4]),
                             float(line.split()[5]),
@@ -1476,19 +1487,18 @@ class Bandoverlaps(MSONable):
 
         if not self.band_overlaps_dict:
             with zopen(filename, mode="rt") as file:
-                contents = file.read().split("\n")
+                lines = file.read().split("\n")
 
-            spin_numbers = [0, 1] if contents[0].split()[-1] == "0" else [1, 2]
+            spin_numbers = [0, 1] if lines[0].split()[-1] == "0" else [1, 2]
 
             self._filename = filename
-            self._read(contents, spin_numbers)
+            self._read(lines, spin_numbers)
 
-    def _read(self, contents: list[str], spin_numbers: list[int]) -> None:
-        """Read all contents of the file.
+    def _read(self, lines: list[str], spin_numbers: list[int]) -> None:
+        """Read all lines of the file.
 
         Args:
-            contents (list[str]): Contents of the file.
-            # TODO: DanielYang: double-check spin_numbers type
+            lines (list[str]): Lines of the file.
             spin_numbers (list[int]): Spin numbers depending on LOBSTER version.
         """
         spin: Spin = Spin.up
@@ -1496,7 +1506,7 @@ class Bandoverlaps(MSONable):
         overlaps: list = []
         # This has to be done like this because there can be different numbers
         # of problematic k-points per spin
-        for line in contents:
+        for line in lines:
             if f"Overlap Matrix (abs) of the orthonormalized projected bands for spin {spin_numbers[0]}" in line:
                 spin = Spin.up
 
@@ -1623,25 +1633,25 @@ class Grosspop(MSONable):
             filename (PathLike): The "GROSSPOP.lobster" file.
             list_dict_grosspop (list[dict]): All information about the gross populations.
         """
-        # Read file
         self._filename = filename
         self.list_dict_grosspop = [] if list_dict_grosspop is None else list_dict_grosspop
         if not self.list_dict_grosspop:
             with zopen(filename, mode="rt") as file:
-                contents = file.read().split("\n")
+                lines = file.read().split("\n")
 
-            # Transfers content of file to list of dict
+            # Read file to list of dict
             small_dict: dict[str, Any] = {}
-            for line in contents[3:]:
-                cleanline = [i for i in line.split(" ") if i != ""]
-                if len(cleanline) == 5:
-                    small_dict = {"Mulliken GP": {}, "Loewdin GP": {}, "element": cleanline[1]}
-                    small_dict["Mulliken GP"][cleanline[2]] = float(cleanline[3])
-                    small_dict["Loewdin GP"][cleanline[2]] = float(cleanline[4])
-                elif len(cleanline) > 0:
-                    small_dict["Mulliken GP"][cleanline[0]] = float(cleanline[1])
-                    small_dict["Loewdin GP"][cleanline[0]] = float(cleanline[2])
-                    if "total" in cleanline[0]:
+            for line in lines[3:]:
+                cleanlines = [idx for idx in line.split(" ") if idx != ""]
+                if len(cleanlines) == 5:
+                    small_dict = {"Mulliken GP": {}, "Loewdin GP": {}, "element": cleanlines[1]}
+                    small_dict["Mulliken GP"][cleanlines[2]] = float(cleanlines[3])
+                    small_dict["Loewdin GP"][cleanlines[2]] = float(cleanlines[4])
+
+                elif len(cleanlines) > 0:
+                    small_dict["Mulliken GP"][cleanlines[0]] = float(cleanlines[1])
+                    small_dict["Loewdin GP"][cleanlines[0]] = float(cleanlines[2])
+                    if "total" in cleanlines[0]:
                         self.list_dict_grosspop += [small_dict]
 
     def get_structure_with_total_grosspop(self, structure_filename: PathLike) -> Structure:
@@ -1654,16 +1664,16 @@ class Grosspop(MSONable):
             Structure Object with Mulliken and Loewdin total grosspopulations as site properties.
         """
         struct = Structure.from_file(structure_filename)
-        mullikengp = []
-        loewdingp = []
+        mulliken_gps = []
+        loewdin_gps = []
         for grosspop in self.list_dict_grosspop:
             # TODO: DanielYang: what type is the following? (use append instead)
-            mullikengp += [grosspop["Mulliken GP"]["total"]]
-            loewdingp += [grosspop["Loewdin GP"]["total"]]
+            mulliken_gps += [grosspop["Mulliken GP"]["total"]]
+            loewdin_gps += [grosspop["Loewdin GP"]["total"]]
 
         site_properties = {
-            "Total Mulliken GP": mullikengp,
-            "Total Loewdin GP": loewdingp,
+            "Total Mulliken GP": mulliken_gps,
+            "Total Loewdin GP": loewdin_gps,
         }
         return struct.copy(site_properties=site_properties)
 
@@ -1693,6 +1703,18 @@ class Wavefunction:
     def _parse_file(
         filename: PathLike,
     ) -> tuple[Tuple3Ints, list[Vector3D], list[float], list[float], list[float]]:
+        """Parse wave function file.
+
+        Args:
+            filename (PathLike): The file to parse.
+
+        Returns:
+            grid (tuple[int, int, int]): Grid for the wave function [Nx+1, Ny+1, Nz+1].
+            points (list[Tuple[float, float, float]]): Points.
+            real (list[float]): Real parts of wave function.
+            imaginary (list[float]): Imaginary parts of wave function.
+            distance (list[float]): Distances to the first point in wave function file.
+        """
         with zopen(filename, mode="rt") as file:
             lines = file.read().split("\n")
 
@@ -1700,17 +1722,16 @@ class Wavefunction:
         distances = []
         reals = []
         imaginaries = []
-        splitline = lines[0].split()
-        grid: Tuple3Ints = (int(splitline[7]), int(splitline[8]), int(splitline[9]))
+        line_parts = lines[0].split()
+        grid: Tuple3Ints = (int(line_parts[7]), int(line_parts[8]), int(line_parts[9]))
 
         for line in lines[1:]:
-            splitline = line.split()
-            if len(splitline) >= 6:
-                # TODO: DanielYang: changed point to tuple, make sure this don't break anything
-                points.append((float(splitline[0]), float(splitline[1]), float(splitline[2])))
-                distances.append(float(splitline[3]))
-                reals.append(float(splitline[4]))
-                imaginaries.append(float(splitline[5]))
+            line_parts = line.split()
+            if len(line_parts) >= 6:
+                points.append((float(line_parts[0]), float(line_parts[1]), float(line_parts[2])))
+                distances.append(float(line_parts[3]))
+                reals.append(float(line_parts[4]))
+                imaginaries.append(float(line_parts[5]))
 
         if len(reals) != grid[0] * grid[1] * grid[2] or len(imaginaries) != grid[0] * grid[1] * grid[2]:
             raise ValueError("Something went wrong while reading the file")
@@ -1854,6 +1875,9 @@ class MadelungEnergies(MSONable):
         """
         Args:
             filename (PathLike): The "MadelungEnergies.lobster" file.
+            ewald_splitting (float): The Ewald splitting parameter to compute SitePotentials.
+            madelungenergies_mulliken (float): The Madelung energy based on the Mulliken approach.
+            madelungenergies_loewdin (float): The Madelung energy based on the Loewdin approach.
         """
         self._filename = filename
         self.ewald_splitting = None if ewald_splitting is None else ewald_splitting
@@ -1926,8 +1950,8 @@ class SitePotential(MSONable):
             types (list[str]): Unique atom types in the structure.
             sitepotentials_loewdin (list[float]): Loewdin site potentials.
             sitepotentials_mulliken (list[float]): Mulliken site potentials.
-            madelungenergies_loewdin (float): Madelung energy based on the Loewdin approach.
             madelungenergies_mulliken (float): Madelung energy based on the Mulliken approach.
+            madelungenergies_loewdin (float): Madelung energy based on the Loewdin approach.
         """
         self._filename = filename
         self.ewald_splitting = [] if ewald_splitting is None else ewald_splitting
@@ -1940,26 +1964,25 @@ class SitePotential(MSONable):
         self.madelungenergies_mulliken = [] if madelungenergies_mulliken is None else madelungenergies_mulliken
 
         if self.num_atoms is None:
-            # site_potentials
             with zopen(filename, mode="rt") as file:
-                data = file.read().split("\n")
-            if len(data) == 0:
+                lines = file.read().split("\n")
+            if len(lines) == 0:
                 raise RuntimeError("SitePotentials file contains no data.")
 
             self._filename = filename
-            self.ewald_splitting = float(data[0].split()[9])
+            self.ewald_splitting = float(lines[0].split()[9])
 
-            data = data[5:-1]
-            self.num_atoms = len(data) - 2
+            lines = lines[5:-1]
+            self.num_atoms = len(lines) - 2
             for atom in range(self.num_atoms):
-                line = data[atom].split()
+                line = lines[atom].split()
                 self.atomlist += [line[1] + str(line[0])]
                 self.types += [line[1]]
                 self.sitepotentials_mulliken += [float(line[2])]
                 self.sitepotentials_loewdin += [float(line[3])]
 
-            self.madelungenergies_mulliken = float(data[self.num_atoms + 1].split()[3])
-            self.madelungenergies_loewdin = float(data[self.num_atoms + 1].split()[4])
+            self.madelungenergies_mulliken = float(lines[self.num_atoms + 1].split()[3])
+            self.madelungenergies_loewdin = float(lines[self.num_atoms + 1].split()[4])
 
     def get_structure_with_site_potentials(self, structure_filename: PathLike) -> Structure:
         """Get a Structure with Mulliken and Loewdin charges as site properties.
@@ -2017,9 +2040,10 @@ class SitePotential(MSONable):
 
 
 def get_orb_from_str(orbs: list[str]) -> tuple[str, list[tuple[int, Orbital]]]:
-    """
+    """Get Orbitals from string representations.
+
     Args:
-        orbs (list[str]): Wwo or more str, e.g. ["2p_x", "3s"].
+        orbs (list[str]): Orbitals, e.g. ["2p_x", "3s"].
 
     Returns:
         tuple[str, list[tuple[int, Orbital]]]: Orbital label, orbitals.
@@ -2059,37 +2083,41 @@ class LobsterMatrices:
     """Read Matrices file generated by LOBSTER (e.g. hamiltonMatrices.lobster).
 
     Attributes:
-        for filename == "hamiltonMatrices.lobster"
-        onsite_energies (list[np.arrays]): List real part of onsite energies from the matrices each k-point.
-        average_onsite_energies (dict): dict with average onsite elements energies for all k-points with keys as
-                                        basis used in the LOBSTER computation (uses only real part of matrix).
-        hamilton_matrices (dict[np.arrays]) : dict with the complex hamilton matrix
-                                        at each k-point with k-point and spin as keys
+        If filename == "hamiltonMatrices.lobster":
+            onsite_energies (list[NDArray]): Real parts of onsite energies from the
+                matrices each k-point.
+            average_onsite_energies (dict): Average onsite elements energies for
+                all k-points with keys as basis used in the LOBSTER computation
+                (uses only real part of matrix).
+            hamilton_matrices (dict[Spin, NDArray]): The complex Hamilton matrix at each
+                k-point with k-point and spin as keys.
 
-        for filename == "coefficientMatrices.lobster"
+        If filename == "coefficientMatrices.lobster":
+            onsite_coefficients (list[NDArray]): Real parts of onsite coefficients
+                from the matrices each k-point.
+            average_onsite_coefficient (dict): Average onsite elements coefficients
+                for all k-points with keys as basis used in the LOBSTER computation
+                (uses only real part of matrix).
+            coefficient_matrices (dict[Spin, NDArray]): The coefficients matrix
+                at each k-point with k-point and spin as keys.
 
-        onsite_coefficients (list[np.arrays]): List real part of onsite coefficients from the matrices each k-point.
-        average_onsite_coefficient (dict): dict with average onsite elements coefficients for all k-points with keys as
-                                        basis used in the LOBSTER computation (uses only real part of matrix).
-        coefficient_matrices (dict[np.arrays]) : dict with the coefficients matrix
-                                        at each k-point with k-point and spin as keys
+        If filename == "transferMatrices.lobster":
+            onsite_transfer (list[NDArray]): Real parts of onsite transfer
+                coefficients from the matrices at each k-point.
+            average_onsite_transfer (dict): Average onsite elements transfer
+                coefficients for all k-points with keys as basis used in the
+                LOBSTER computation (uses only real part of matrix).
+            transfer_matrices (dict[Spin, NDArray]): The coefficients matrix at
+                each k-point with k-point and spin as keys.
 
-        for filename == "transferMatrices.lobster"
-
-        onsite_transfer (list[np.arrays]): List real part of onsite transfer coefficients from the matrices at each
-                                        k-point.
-        average_onsite_transfer (dict): dict with average onsite elements transfer coefficients for all k-points with
-                                        keys as basis used in the LOBSTER computation (uses only real part of matrix).
-        transfer_matrices (dict[np.arrays]) : dict with the coefficients matrix at
-                                        each k-point with k-point and spin as keys
-
-        for filename == "overlapMatrices.lobster"
-
-        onsite_overlaps (list[np.arrays]): List real part of onsite overlaps from the matrices each k-point.
-        average_onsite_overlaps (dict): dict with average onsite elements overlaps for all k-points with keys as
-                                        basis used in the LOBSTER computation (uses only real part of matrix).
-        overlap_matrices (dict[np.arrays]) : dict with the overlap matrix at
-                                        each k-point with k-point as keys
+        If filename == "overlapMatrices.lobster":
+            onsite_overlaps (list[NDArray]): Real parts of onsite overlaps
+                from the matrices each k-point.
+            average_onsite_overlaps (dict): Average onsite elements overlaps
+                for all k-points with keys as basis used in the LOBSTER
+                computation (uses only real part of matrix).
+            overlap_matrices (dict[NDArray]): The overlap matrix at
+                each k-point with k-point as keys.
     """
 
     def __init__(
@@ -2099,16 +2127,15 @@ class LobsterMatrices:
     ) -> None:
         """
         Args:
-            filename (PathLike): The hamiltonMatrices file, typically "hamiltonMatrices.lobster".
             e_fermi (float): Fermi level in eV for the structure only.
-                relevant if input file contains hamilton matrices data
+                Relevant if input file contains Hamilton matrices data.
+            filename (PathLike): The hamiltonMatrices file, typically "hamiltonMatrices.lobster".
         """
 
-        self._filename = filename
-        # hamiltonMatrices
+        self._filename = str(filename)
         with zopen(self._filename, mode="rt") as file:
-            file_data = file.readlines()
-        if len(file_data) == 0:
+            lines = file.readlines()
+        if len(lines) == 0:
             raise RuntimeError("Please check provided input file, it seems to be empty")
 
         pattern_coeff_hamil_trans = r"(\d+)\s+kpoint\s+(\d+)"  # regex pattern to extract spin and k-point number
@@ -2118,22 +2145,22 @@ class LobsterMatrices:
             if e_fermi is None:
                 raise ValueError("Please provide the fermi energy in eV ")
             self.onsite_energies, self.average_onsite_energies, self.hamilton_matrices = self._parse_matrix(
-                file_data=file_data, pattern=pattern_coeff_hamil_trans, e_fermi=e_fermi
+                file_data=lines, pattern=pattern_coeff_hamil_trans, e_fermi=e_fermi
             )
 
         elif "coefficient" in self._filename:
             self.onsite_coefficients, self.average_onsite_coefficient, self.coefficient_matrices = self._parse_matrix(
-                file_data=file_data, pattern=pattern_coeff_hamil_trans, e_fermi=0
+                file_data=lines, pattern=pattern_coeff_hamil_trans, e_fermi=0
             )
 
         elif "transfer" in self._filename:
             self.onsite_transfer, self.average_onsite_transfer, self.transfer_matrices = self._parse_matrix(
-                file_data=file_data, pattern=pattern_coeff_hamil_trans, e_fermi=0
+                file_data=lines, pattern=pattern_coeff_hamil_trans, e_fermi=0
             )
 
         elif "overlap" in self._filename:
             self.onsite_overlaps, self.average_onsite_overlaps, self.overlap_matrices = self._parse_matrix(
-                file_data=file_data, pattern=pattern_overlap, e_fermi=0
+                file_data=lines, pattern=pattern_overlap, e_fermi=0
             )
 
     @staticmethod
