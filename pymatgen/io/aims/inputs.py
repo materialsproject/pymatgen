@@ -138,23 +138,25 @@ class AimsGeometryIn(MSONable):
             for lv in structure.lattice.matrix:
                 content_lines.append(f"lattice_vector {lv[0]: .12e} {lv[1]: .12e} {lv[2]: .12e}")
 
-        charges = structure.site_properties.get("charge", np.zeros(len(structure.species)))
-        magmoms = structure.site_properties.get("magmom", np.zeros(len(structure.species)))
+        charges = structure.site_properties.get("charge", np.zeros(structure.num_sites))
+        magmoms = structure.site_properties.get("magmom", [None] * structure.num_sites)
 
-        sp_spins = [None if isinstance(sp, Element) else sp.spin for sp in structure.species]
-        for species, coord, charge, magmom, sp_spin in zip(
-            structure.species, structure.cart_coords, charges, magmoms, sp_spins
-        ):
-            content_lines.append(f"atom {coord[0]: .12e} {coord[1]: .12e} {coord[2]: .12e} {species}")
-            if (not np.isnan(sp_spin)) and (magmom == 0):
-                content_lines.append(f"     initial_moment {species.spin}")
+        for species, coord, charge, magmom in zip(structure.species, structure.cart_coords, charges, magmoms):
+            if isinstance(species, Element):
+                spin = magmom
+                element = species
+            else:
+                spin = species.spin
+                element = species.element
+                if magmom is not None and magmom != spin:
+                    raise ValueError("species.spin and magnetic moments don't agree. Please only define one")
+
+            content_lines.append(f"atom {coord[0]: .12e} {coord[1]: .12e} {coord[2]: .12e} {element}")
             if charge != 0:
                 content_lines.append(f"     initial_charge {charge:.12e}")
-            if magmom != 0:
-                if (not np.isnan(sp_spin)) and (sp_spin != magmom):
-                    raise ValueError("Spin and magnetic moments don't agree.")
 
-                content_lines.append(f"     initial_moment {magmom:.12e}")
+            if (spin is not None) and (spin != 0):
+                content_lines.append(f"     initial_moment {spin:.12e}")
 
         return cls(_content="\n".join(content_lines), _structure=structure)
 
@@ -438,6 +440,9 @@ class AimsControlIn(MSONable):
             value (Any): The value for that parameter
         """
         if key == "output":
+            if value in self._parameters[key]:
+                return
+
             if isinstance(value, str):
                 value = [value]
             self._parameters[key] += value
@@ -511,11 +516,10 @@ class AimsControlIn(MSONable):
         if parameters["xc"] == "LDA":
             parameters["xc"] = "pw-lda"
 
-        no_spins = ["spin" not in str(site.species) for site in structure.sites]
-        magmom = structure.site_properties.get("magmom", np.zeros(structure.num_sites))
+        spins = np.array([0.0 if isinstance(sp, Element) else sp.spin for sp in structure.species])
+        magmom = structure.site_properties.get("magmom", spins)
         if (
             parameters.get("spin", "") == "collinear"
-            and all(no_spins)
             and np.all(magmom == 0.0)
             and ("default_initial_moment" not in parameters)
         ):
