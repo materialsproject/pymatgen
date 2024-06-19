@@ -12,6 +12,8 @@ cimport numpy as np
 from libc.math cimport fabs
 from libc.stdlib cimport free, malloc
 
+np.import_array()
+
 __author__ = "Will Richards"
 __copyright__ = "Copyright 2011, The Materials Project"
 __version__ = "1.0"
