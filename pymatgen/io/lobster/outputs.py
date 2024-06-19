@@ -35,6 +35,8 @@ if TYPE_CHECKING:
     from typing import Any
 
     from pymatgen.core.structure import IStructure
+    from pymatgen.electronic_structure.cohp import IcohpCollection
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -43,7 +45,7 @@ __maintainer__ = "Janine George "
 __email__ = "janinegeorge.ulfen@gmail.com"
 __date__ = "Dec 13, 2017"
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))  # TODO: DanielYang: not used
 
 due.cite(
     Doi("10.1002/cplu.202200123"),
@@ -343,19 +345,19 @@ class Icohplist(MSONable):
         self,
         are_coops: bool = False,
         are_cobis: bool = False,
-        filename: str | None = None,
+        filename: PathLike | None = None,
         is_spin_polarized: bool = False,
         orbitalwise: bool = False,
-        icohpcollection=None,
+        icohpcollection: IcohpCollection | None = None,
     ):
         """
         Args:
             are_coops: Determines if the file is a list of ICOOPs.
-              Defaults to False for ICOHPs.
+                Defaults to False for ICOHPs.
             are_cobis: Determines if the file is a list of ICOBIs.
-              Defaults to False for ICOHPs.
-            filename: Name of the ICOHPLIST file. If it is None, the default
-              file name will be chosen, depending on the value of are_coops
+                Defaults to False for ICOHPs.
+            filename (PathLike): The ICOHPLIST file. If it is None, the default
+                file name will be chosen, depending on the value of are_coops
             is_spin_polarized: Boolean to indicate if the calculation is spin polarized
             icohpcollection: IcohpCollection Object
 
@@ -789,7 +791,7 @@ class Charge(MSONable):
 
     def __init__(
         self,
-        filename: str = "CHARGE.lobster",
+        filename: PathLike = "CHARGE.lobster",
         num_atoms: int | None = None,
         atomlist: list[str] | None = None,
         types: list[str] | None = None,
@@ -798,7 +800,7 @@ class Charge(MSONable):
     ):
         """
         Args:
-            filename: filename for the CHARGE file, typically "CHARGE.lobster".
+            filename (PathLike): The CHARGE file, typically "CHARGE.lobster".
             num_atoms: number of atoms in the structure
             atomlist: list of atoms in the structure
             types: list of unique species in the structure
