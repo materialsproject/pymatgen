@@ -2839,7 +2839,7 @@ class Interface(Structure):
         return iface
 
 
-def label_termination(slab: Structure, ftol: float = 0.25) -> str:
+def label_termination(slab: Structure, t_index = 1, ftol: float = 0.25) -> str:
     """Label the slab surface termination."""
     frac_coords = slab.frac_coords
     n = len(frac_coords)
@@ -2876,7 +2876,7 @@ def label_termination(slab: Structure, ftol: float = 0.25) -> str:
 
     sp_symbol = SpacegroupAnalyzer(top_plane, symprec=0.1).get_space_group_symbol()
     form = top_plane.reduced_formula
-    return f"{form}_{sp_symbol}_{len(top_plane)}"
+    return f"{t_index+1}_{form}_{sp_symbol}_{len(top_plane)}"
 
 
 def count_layers(struct: Structure, el: Element | None = None) -> int:
