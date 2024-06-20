@@ -417,11 +417,11 @@ class Icohplist(MSONable):
             if self.orbitalwise:
                 data_without_orbitals = []
                 data_orbitals = []
-                for line_parts in lines:
-                    if "_" not in line_parts.split()[1]:
-                        data_without_orbitals.append(line_parts)
+                for line in lines:
+                    if "_" not in line.split()[1]:
+                        data_without_orbitals.append(line)
                     else:
-                        data_orbitals.append(line_parts)
+                        data_orbitals.append(line)
 
             else:
                 data_without_orbitals = lines
@@ -478,17 +478,17 @@ class Icohplist(MSONable):
                 list_orb_icohp = []
                 n_orbs = len(data_orbitals) // 2 if self.is_spin_polarized else len(data_orbitals)
 
-                for i_data_orb in range(n_orbs):
-                    data_orb = data_orbitals[i_data_orb]
+                for i_orb in range(n_orbs):
+                    data_orb = data_orbitals[i_orb]
                     icohp = {}
                     line_parts = data_orb.split()
-                    label = f"{line_parts[0]}"
+                    label = line_parts[0]
                     orbs = re.findall(r"_(.*?)(?=\s)", data_orb)
                     orb_label, orbitals = get_orb_from_str(orbs)
                     icohp[Spin.up] = float(line_parts[7])
 
                     if self.is_spin_polarized:
-                        icohp[Spin.down] = float(data_orbitals[n_orbs + i_data_orb].split()[7])
+                        icohp[Spin.down] = float(data_orbitals[n_orbs + i_orb].split()[7])
 
                     if len(list_orb_icohp) < int(label):
                         list_orb_icohp.append({orb_label: {"icohp": icohp, "orbitals": orbitals}})
@@ -597,13 +597,13 @@ class NciCobiList:
         self.list_num = []
 
         for bond in range(n_bonds):
-            line = data_without_orbitals[bond].split()
+            line_parts = data_without_orbitals[bond].split()
             ncicobi = {}
 
-            label = f"{line[0]}"
-            n_atoms = str(line[1])
-            ncicobi[Spin.up] = float(line[2])
-            interaction_type = str(line[3:]).replace("'", "").replace(" ", "")
+            label = line_parts[0]
+            n_atoms = line_parts[1]
+            ncicobi[Spin.up] = float(line_parts[2])
+            interaction_type = str(line_parts[3:]).replace("'", "").replace(" ", "")
             num = 1
 
             if self.is_spin_polarized:
@@ -688,7 +688,7 @@ class Doscar:
             for _atom in range(n_atoms + 1):
                 line = file.readline()
                 ndos = int(line.split()[2])
-                orbitals.extend(line.split(";")[-1].split())
+                orbitals += [line.split(";")[-1].split()]
                 line = file.readline().split()
                 cdos = np.zeros((ndos, len(line)))
                 cdos[0] = np.array(line)
@@ -1971,7 +1971,7 @@ class SitePotential(MSONable):
             self.num_atoms = len(lines) - 2
             for atom in range(self.num_atoms):
                 line_parts = lines[atom].split()
-                self.atomlist.append(line_parts[1] + str(line_parts[0]))
+                self.atomlist.append(line_parts[1] + line_parts[0])
                 self.types.append(line_parts[1])
                 self.sitepotentials_mulliken.append(float(line_parts[2]))
                 self.sitepotentials_loewdin.append(float(line_parts[3]))
