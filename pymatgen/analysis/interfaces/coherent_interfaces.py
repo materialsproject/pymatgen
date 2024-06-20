@@ -34,6 +34,7 @@ class CoherentInterfaceBuilder:
         film_miller: Tuple3Ints,
         substrate_miller: Tuple3Ints,
         zslgen: ZSLGenerator | None = None,
+        termination_ftol = 0.25
     ):
         """
         Args:
@@ -135,10 +136,10 @@ class CoherentInterfaceBuilder:
         sub_slabs = sub_sg.get_slabs()
 
         film_shifts = [slab.shift for slab in film_slabs]
-        film_terminations = [label_termination(slab) for slab in film_slabs]
+        film_terminations = [label_termination(slab, self.termination_ftol) for slab in film_slabs]
 
         sub_shifts = [slab.shift for slab in sub_slabs]
-        sub_terminations = [label_termination(slab) for slab in sub_slabs]
+        sub_terminations = [label_termination(slab, self.termination_ftol) for slab in sub_slabs]
 
         self._terminations = {
             (film_label, sub_label): (film_shift, sub_shift)
