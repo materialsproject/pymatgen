@@ -93,14 +93,6 @@ vis = ["vtk>=6.0.0"]
 abinit = ["netcdf4>=1.6.5"]
 mlp = ["matgl>=1.1.1", "chgnet>=0.3.8"]
 electronic_structure = ["fdint>=2.0.2"]
-dev = [
-    "mypy>=1.10.0",
-    "pre-commit>=3",
-    "pytest-cov>=4",
-    "pytest-split>=0.8",
-    "pytest>8",
-    "ruff>=0.4.8",
-]
 ci = [
     "pytest>=8",
     "pytest-cov>=4",
