@@ -129,8 +129,8 @@ class Cohpcar:
         spins = [Spin.up, Spin.down] if int(parameters[1]) == 2 else [Spin.up]
         cohp_data: dict[str, dict[str, Any]] = {}
         if not self.are_multi_center_cobis:
-            # The COHP data start in row num_bonds + 3
-            data = np.array([np.array(row.split(), dtype=float) for row in lines[num_bonds + 3 :]]).transpose()
+            # The COHP data start in line num_bonds + 3
+            data = np.array([np.array(line.split(), dtype=float) for line in lines[num_bonds + 3 :]]).transpose()
             cohp_data = {
                 "average": {
                     "COHP": {spin: data[1 + 2 * s * (num_bonds + 1)] for s, spin in enumerate(spins)},
@@ -138,8 +138,8 @@ class Cohpcar:
                 }
             }
         else:
-            # The COBI data start in row num_bonds + 3 if multi-center cobis exist
-            data = np.array([np.array(row.split(), dtype=float) for row in lines[num_bonds + 3 :]]).transpose()
+            # The COBI data start in line num_bonds + 3 if multi-center cobis exist
+            data = np.array([np.array(line.split(), dtype=float) for line in lines[num_bonds + 3 :]]).transpose()
 
         self.energies = data[0]
 
@@ -435,8 +435,8 @@ class Icohplist(MSONable):
                 n_bonds = len(data_without_orbitals)
 
             labels: list[str] = []
-            atoms1: list[str] = []
-            atoms2: list[str] = []
+            atom1s: list[str] = []
+            atom2s: list[str] = []
             lens: list[float] = []
             translations: list[Tuple3Ints] = []
             nums: list[int] = []
@@ -466,8 +466,8 @@ class Icohplist(MSONable):
                         icohp[Spin.down] = float(data_without_orbitals[bond + n_bonds + 1].split()[4])
 
                 labels.append(label)
-                atoms1.append(atom1)
-                atoms2.append(atom2)
+                atom1s.append(atom1)
+                atom2s.append(atom2)
                 lens.append(length)
                 translations.append(translation)
                 nums.append(num)
@@ -499,8 +499,8 @@ class Icohplist(MSONable):
                 are_coops=are_coops,
                 are_cobis=are_cobis,
                 list_labels=labels,
-                list_atom1=atoms1,
-                list_atom2=atoms2,
+                list_atom1=atom1s,
+                list_atom2=atom2s,
                 list_length=lens,
                 list_translation=translations,
                 list_num=nums,
@@ -689,12 +689,13 @@ class Doscar:
                 line = file.readline()
                 ndos = int(line.split()[2])
                 orbitals += [line.split(";")[-1].split()]
+
                 line = file.readline().split()
                 cdos = np.zeros((ndos, len(line)))
                 cdos[0] = np.array(line)
                 for nd in range(1, ndos):
-                    line = file.readline().split()
-                    cdos[nd] = np.array(line)
+                    line_parts = file.readline().split()
+                    cdos[nd] = np.array(line_parts)
                 dos.append(cdos)
 
         doshere = np.array(dos[0])
@@ -1061,28 +1062,28 @@ class Lobsterout(MSONable):
     @staticmethod
     def _get_lobster_version(data: list[str]) -> str:
         """Get LOBSTER version."""
-        for row in data:
-            row_parts = row.split()
-            if len(row_parts) > 1 and row_parts[0] == "LOBSTER":
-                return row_parts[1]
+        for line in data:
+            line_parts = line.split()
+            if len(line_parts) > 1 and line_parts[0] == "LOBSTER":
+                return line_parts[1]
         raise RuntimeError("Version not found.")
 
     @staticmethod
     def _has_fatband(data: list[str]) -> bool:
         """Check whether calculation has hatband data."""
-        for row in data:
-            row_parts = row.split()
-            if len(row_parts) > 1 and row_parts[1] == "FatBand":
+        for line in data:
+            line_parts = line.split()
+            if len(line_parts) > 1 and line_parts[1] == "FatBand":
                 return True
         return False
 
     @staticmethod
     def _get_dft_program(data: list[str]) -> str | None:
         """Get the DFT program used for calculation."""
-        for row in data:
-            row_parts = row.split()
-            if len(row_parts) > 4 and row_parts[3] == "program...":
-                return row_parts[4]
+        for line in data:
+            line_parts = line.split()
+            if len(line_parts) > 4 and line_parts[3] == "program...":
+                return line_parts[4]
         return None
 
     @staticmethod
@@ -1093,10 +1094,10 @@ class Lobsterout(MSONable):
     @staticmethod
     def _get_threads(data: list[str]) -> int:
         """Get number of CPU threads."""
-        for row in data:
-            row_parts = row.split()
-            if len(row_parts) > 11 and row_parts[11] in {"threads", "thread"}:
-                return int(row_parts[10])
+        for line in data:
+            line_parts = line.split()
+            if len(line_parts) > 11 and line_parts[11] in {"threads", "thread"}:
+                return int(line_parts[10])
         raise ValueError("Threads not found.")
 
     @staticmethod
@@ -1107,14 +1108,14 @@ class Lobsterout(MSONable):
         """Get charge spillings and total spillings."""
         charge_spillings = []
         total_spillings = []
-        for row in data:
-            row_parts = row.split()
-            if len(row_parts) > 2 and row_parts[2] == "spilling:":
+        for line in data:
+            line_parts = line.split()
+            if len(line_parts) > 2 and line_parts[2] == "spilling:":
                 # TODO: DanielYang: why do we need float64?
-                if row_parts[1] == "charge":
-                    charge_spillings.append(np.float64(row_parts[3].replace("%", "")) / 100.0)
-                elif row_parts[1] == "total":
-                    total_spillings.append(np.float64(row_parts[3].replace("%", "")) / 100.0)
+                if line_parts[1] == "charge":
+                    charge_spillings.append(np.float64(line_parts[3].replace("%", "")) / 100.0)
+                elif line_parts[1] == "total":
+                    total_spillings.append(np.float64(line_parts[3].replace("%", "")) / 100.0)
 
             if len(charge_spillings) == number_of_spins and len(total_spillings) == number_of_spins:
                 break
@@ -1124,17 +1125,17 @@ class Lobsterout(MSONable):
     @staticmethod
     def _get_elements_basistype_basisfunctions(
         data: list[str],
-    ) -> tuple[list[str], list[str], list[str]]:
+    ) -> tuple[list[str], list[str], list[list[str]]]:
         """Get elements, basis types and basis functions."""
         begin = False
         end = False
-        elements = []
-        basistypes = []
-        basisfunctions = []
-        for row in data:
+        elements: list[str] = []
+        basistypes: list[str] = []
+        basisfunctions: list[list[str]] = []
+        for line in data:
             if begin and not end:
-                row_parts = row.split()
-                if row_parts[0] not in {
+                line_parts = line.split()
+                if line_parts[0] not in {
                     "INFO:",
                     "WARNING:",
                     "setting",
@@ -1144,13 +1145,14 @@ class Lobsterout(MSONable):
                     "spillings",
                     "writing",
                 }:
-                    elements.append(row_parts[0])
-                    basistypes.append(row_parts[1].replace("(", "").replace(")", ""))
+                    elements.append(line_parts[0])
+                    basistypes.append(line_parts[1].replace("(", "").replace(")", ""))
                     # Last sign is ''
-                    basisfunctions.extend(row_parts[2:])
+                    basisfunctions.append(line_parts[2:])
                 else:
                     end = True
-            if "setting up local basis functions..." in row:
+
+            if "setting up local basis functions..." in line:
                 begin = True
         return elements, basistypes, basisfunctions
 
@@ -1162,17 +1164,17 @@ class Lobsterout(MSONable):
         begin = False
         user_times, wall_times, sys_times = [], [], []
 
-        for row in data:
-            row_parts = row.split()
-            if "finished" in row_parts:
+        for line in data:
+            line_parts = line.split()
+            if "finished" in line_parts:
                 begin = True
             if begin:
-                if "wall" in row_parts:
-                    wall_times = row_parts[2:10]
-                if "user" in row_parts:
-                    user_times = row_parts[:8]
-                if "sys" in row_parts:
-                    sys_times = row_parts[:8]
+                if "wall" in line_parts:
+                    wall_times = line_parts[2:10]
+                if "user" in line_parts:
+                    user_times = line_parts[:8]
+                if "sys" in line_parts:
+                    sys_times = line_parts[:8]
 
         wall_time_dict = {"h": wall_times[0], "min": wall_times[2], "s": wall_times[4], "ms": wall_times[6]}
         user_time_dict = {"h": user_times[0], "min": user_times[2], "s": user_times[4], "ms": user_times[6]}
@@ -1184,30 +1186,30 @@ class Lobsterout(MSONable):
     def _get_warning_orthonormalization(data: list[str]) -> list[str]:
         """Get orthonormalization warnings."""
         orthowarnings = []
-        for row in data:
-            row_parts = row.split()
-            if "orthonormalized" in row_parts:
-                orthowarnings.append(" ".join(row_parts[1:]))
+        for line in data:
+            line_parts = line.split()
+            if "orthonormalized" in line_parts:
+                orthowarnings.append(" ".join(line_parts[1:]))
         return orthowarnings
 
     @staticmethod
     def _get_all_warning_lines(data: list[str]) -> list[str]:
         """Get all WARNING lines."""
         warnings_ = []
-        for row in data:
-            row_parts = row.split()
-            if len(row_parts) > 0 and row_parts[0] == "WARNING:":
-                warnings_.append(" ".join(row_parts[1:]))
+        for line in data:
+            line_parts = line.split()
+            if len(line_parts) > 0 and line_parts[0] == "WARNING:":
+                warnings_.append(" ".join(line_parts[1:]))
         return warnings_
 
     @staticmethod
     def _get_all_info_lines(data: list[str]) -> list[str]:
         """Get all INFO lines."""
         infos = []
-        for row in data:
-            row_parts = row.split()
-            if len(row_parts) > 0 and row_parts[0] == "INFO:":
-                infos.append(" ".join(row_parts[1:]))
+        for line in data:
+            line_parts = line.split()
+            if len(line_parts) > 0 and line_parts[0] == "INFO:":
+                infos.append(" ".join(line_parts[1:]))
         return infos
 
 
@@ -1533,12 +1535,12 @@ class Bandoverlaps(MSONable):
                 overlaps = []
 
             else:
-                rows = []
+                _lines = []
                 for el in line.split(" "):
                     if el != "":
-                        rows.append(float(el))
-                overlaps.append(rows)
-                if len(overlaps) == len(rows):
+                        _lines.append(float(el))
+                overlaps.append(_lines)
+                if len(overlaps) == len(_lines):
                     self.band_overlaps_dict[spin]["matrices"].append(np.matrix(overlaps))
 
     def has_good_quality_maxDeviation(self, limit_maxDeviation: float = 0.1) -> bool:
@@ -2179,6 +2181,7 @@ class LobsterMatrices:
                     pass
                 else:
                     end_inxs_imag.append(idx - 1)
+
                 matches = re.search(pattern, file_data[idx - 1])
                 if matches and len(matches.groups()) == 2:
                     complex_matrices[matches[2]] = {}
