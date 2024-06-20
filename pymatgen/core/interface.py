@@ -2839,7 +2839,7 @@ class Interface(Structure):
         return iface
 
 
-def label_termination(slab: Structure) -> str:
+def label_termination(slab: Structure, ftol: float = 0.01) -> str:
     """Label the slab surface termination."""
     frac_coords = slab.frac_coords
     n = len(frac_coords)
@@ -2863,7 +2863,7 @@ def label_termination(slab: Structure) -> str:
 
     condensed_m = squareform(dist_matrix)
     z = linkage(condensed_m)
-    clusters = fcluster(z, 0.25, criterion="distance")
+    clusters = fcluster(z, ftol, criterion="distance")
 
     clustered_sites: dict[int, list[Site]] = {c: [] for c in clusters}
     for idx, cluster in enumerate(clusters):
