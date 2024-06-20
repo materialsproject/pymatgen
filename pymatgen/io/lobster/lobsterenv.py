@@ -244,7 +244,7 @@ class LobsterNeighbors(NearNeighbors):
 
     @property
     def anion_types(self) -> set[Element]:
-        """The set of types of anions in crystal structure.
+        """The set of anion types in crystal structure.
 
         Returns:
             set[Element]: Anions in the crystal structure.
@@ -260,7 +260,7 @@ class LobsterNeighbors(NearNeighbors):
         return set(anion_species)
 
     @deprecated(anion_types)
-    def get_anion_types(self):
+    def get_anion_types(self) -> set[Element]:
         return self.anion_types
 
     def get_nn_info(  # type: ignore[override]

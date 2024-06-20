@@ -1104,18 +1104,17 @@ class Lobsterout(MSONable):
     def _get_spillings(
         data: list[str],
         number_of_spins: Literal[1, 2],
-    ) -> tuple[list[np.float64], list[np.float64]]:
+    ) -> tuple[list[float], list[float]]:
         """Get charge spillings and total spillings."""
         charge_spillings = []
         total_spillings = []
         for line in data:
             line_parts = line.split()
             if len(line_parts) > 2 and line_parts[2] == "spilling:":
-                # TODO: DanielYang: why do we need float64?
                 if line_parts[1] == "charge":
-                    charge_spillings.append(np.float64(line_parts[3].replace("%", "")) / 100.0)
+                    charge_spillings.append(float(line_parts[3].replace("%", "")) / 100.0)
                 elif line_parts[1] == "total":
-                    total_spillings.append(np.float64(line_parts[3].replace("%", "")) / 100.0)
+                    total_spillings.append(float(line_parts[3].replace("%", "")) / 100.0)
 
             if len(charge_spillings) == number_of_spins and len(total_spillings) == number_of_spins:
                 break
