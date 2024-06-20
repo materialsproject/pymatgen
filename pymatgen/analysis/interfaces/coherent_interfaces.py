@@ -132,8 +132,8 @@ class CoherentInterfaceBuilder:
             reorient_lattice=False,  # This is necessary to not screw up the lattice
         )
 
-        film_slabs = film_sg.get_slabs()
-        sub_slabs = sub_sg.get_slabs()
+        film_slabs = film_sg.get_slabs(ftol=self.termination_ftol)
+        sub_slabs = sub_sg.get_slabs(ftol=self.termination_ftol)
 
         film_shifts = [slab.shift for slab in film_slabs]
         film_terminations = [label_termination(slab, self.termination_ftol) for slab in film_slabs]
