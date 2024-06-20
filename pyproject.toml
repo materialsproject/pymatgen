@@ -161,10 +161,6 @@ include = ["pymatgen.*"]
 "pymatgen.io.lammps" = ["CoeffsDataType.yaml", "templates/*.template"]
 "pymatgen.symmetry" = ["*.yaml", "*.json", "*.sqlite"]
 
-
-
-
-
 [tool.pdm.dev-dependencies]
 lint = [
     "mypy>=1.10.0",
