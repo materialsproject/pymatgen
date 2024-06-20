@@ -330,6 +330,12 @@ class LobsterNeighbors(NearNeighbors):
                 list_csm.append(None)
                 list_permut.append(None)
 
+        new_list_ce_symbols = []
+        new_list_csm = []
+        new_list_permut = []
+        new_list_neighsite = []
+        new_list_neighisite = []
+
         if only_indices is None:
             if not only_cation_environments:
                 return LobsterLightStructureEnvironments.from_Lobster(
@@ -341,13 +347,6 @@ class LobsterNeighbors(NearNeighbors):
                     structure=self.structure,
                     valences=self.valences,
                 )
-
-            # TODO: DanielYang: reduce code repetition in the following
-            new_list_ce_symbols = []
-            new_list_csm = []
-            new_list_permut = []
-            new_list_neighsite = []
-            new_list_neighisite = []
 
             assert self.valences is not None
             for ival, val in enumerate(self.valences):
@@ -365,12 +364,6 @@ class LobsterNeighbors(NearNeighbors):
                     new_list_neighsite.append([])
 
         else:
-            new_list_ce_symbols = []
-            new_list_csm = []
-            new_list_permut = []
-            new_list_neighsite = []
-            new_list_neighisite = []
-
             for isite, _site in enumerate(self.structure):
                 if isite in only_indices:
                     new_list_ce_symbols.append(list_ce_symbols[isite])
@@ -1209,7 +1202,7 @@ class LobsterNeighbors(NearNeighbors):
             percentage (float): The percentage to scale extremum.
 
         Returns:
-            float: Min value of ICOHPs / max value of ICOOPs or ICOBIs.
+            float: Min value of ICOHPs, or max value of ICOOPs/ICOBIs.
         """
 
         which_extr = min if not self.are_coops and not self.are_cobis else max
@@ -1347,11 +1340,11 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
         """Set up a LightStructureEnvironments from LOBSTER.
 
         Args:
-            list_ce_symbol: list of symbols for coordination environments.
-            list_csm: list of continuous symmetry measures.
-            list_permutation: list of permutations.
-            list_neighsite: list of neighboring sites.
-            list_neighisite: list of neighboring isites (number of a site).
+            list_ce_symbol (list): Coordination environments symbols.
+            list_csm (list): Continuous symmetry measures.
+            list_permutation (list): Permutations.
+            list_neighsite (list): Neighboring sites.
+            list_neighisite (list): Neighboring sites indexes.
             structure (Structure): Structure object.
             valences (list[float]): Valences.
 

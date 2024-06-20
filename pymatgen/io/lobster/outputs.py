@@ -336,11 +336,13 @@ class Icohplist(MSONable):
     Attributes:
         are_coops (bool): Whether the file includes COOPs (True) or COHPs (False).
         is_spin_polarized (bool): Whether the calculation is spin polarized.
-        Icohplist (dict[str, Dict[str, Union[float, int, Dict[Spin, float]]]]): The
-            listfile data of the form: {
-                bond: "length": bond length,  # TODO: DanielYang: clarify this entry
-                "number_of_bonds": number of bonds,
-                "icohp": {Spin.up: ICOHP(Ef) spin up, Spin.down: ...},
+        Icohplist (dict[str, Dict[str, Union[float, int, Dict[Spin, float]]]]):
+            The listfile data of the form: {
+                bond: {
+                    "length": Bond length,
+                    "number_of_bonds": Number of bonds,
+                    "icohp": {Spin.up: ICOHP(Ef)_up, Spin.down: ...},
+                    }
             }
         IcohpCollection (IcohpCollection): IcohpCollection Object.
     """
@@ -536,10 +538,14 @@ class NciCobiList:
 
     Attributes:
         is_spin_polarized (bool): Whether the calculation is spin polarized.
-        NciCobiList (dict): The listfile data of the form:  # TODO: DanielYang: clarify entry
-            {bond: "number_of_atoms": number of atoms involved in the multi-center interaction,
-            "ncicobi": {Spin.up: Nc-ICOBI(Ef) spin up, Spin.down: ...}},
-            "interaction_type": type of the multi-center interaction
+        NciCobiList (dict): The listfile data of the form:
+            {
+                bond: {
+                    "number_of_atoms": Number of atoms involved in the multi-center interaction,
+                    "ncicobi": {Spin.up: Nc-ICOBI(Ef)_up, Spin.down: ...},
+                    "interaction_type": Type of the multi-center interaction,
+                    }
+            }
     """
 
     def __init__(self, filename: PathLike | None = "NcICOBILIST.lobster") -> None:
@@ -1279,7 +1285,7 @@ class Fatband:
             self.efermi = efermi
         kpoints_object = Kpoints.from_file(kpoints_file)
 
-        # atom_type = []  # TODO: DanielYang: this is not used?
+        # atom_type = []
         atom_names = []
         orbital_names = []
         parameters = []
