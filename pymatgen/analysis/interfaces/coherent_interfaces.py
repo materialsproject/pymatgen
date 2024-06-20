@@ -50,7 +50,7 @@ class CoherentInterfaceBuilder:
         self.film_miller = film_miller
         self.substrate_miller = substrate_miller
         self.zslgen = zslgen or ZSLGenerator(bidirectional=True)
-
+        self.termination_ftol = termination_ftol
         self._find_matches()
         self._find_terminations()
 
