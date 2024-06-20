@@ -2839,7 +2839,7 @@ class Interface(Structure):
         return iface
 
 
-def label_termination(slab: Structure, ftol: float = 0.01) -> str:
+def label_termination(slab: Structure, ftol: float = 0.25) -> str:
     """Label the slab surface termination."""
     frac_coords = slab.frac_coords
     n = len(frac_coords)
