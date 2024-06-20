@@ -400,7 +400,7 @@ class Icohplist(MSONable):
                 version = "3.1.1"
             elif len(lines[0].split()) == 6:
                 version = "2.2.1"
-                warnings.warn("Please consider using the new Lobster version. See www.cohp.de.")
+                warnings.warn("Please consider using a newer LOBSTER version. See www.cohp.de.")
             else:
                 raise ValueError
 
@@ -409,7 +409,7 @@ class Icohplist(MSONable):
             # TODO: adapt this for orbital-wise stuff
             self.is_spin_polarized = "distance" in lines[len(lines) // 2]
 
-            # Check if orbital-wise ICOHPLIST
+            # Check if is orbital-wise ICOHPLIST
             # TODO: include case where there is only one ICOHP
             self.orbitalwise = len(lines) > 2 and "_" in lines[1].split()[1]
 
@@ -417,11 +417,11 @@ class Icohplist(MSONable):
             if self.orbitalwise:
                 data_without_orbitals = []
                 data_orbitals = []
-                for line in lines:
-                    if "_" not in line.split()[1]:
-                        data_without_orbitals += [line]
+                for line_parts in lines:
+                    if "_" not in line_parts.split()[1]:
+                        data_without_orbitals.append(line_parts)
                     else:
-                        data_orbitals += [line]
+                        data_orbitals.append(line_parts)
 
             else:
                 data_without_orbitals = lines
@@ -434,49 +434,44 @@ class Icohplist(MSONable):
             else:
                 n_bonds = len(data_without_orbitals)
 
-            labels, atoms1, atoms2, lens, translations, nums, icohps = [], [], [], [], [], [], []
-
-            # initialize static variables
-            label = ""
-            atom1 = ""
-            atom2 = ""
-            length = None
-            num = None
-            translation = []
+            labels: list[str] = []
+            atoms1: list[str] = []
+            atoms2: list[str] = []
+            lens: list[float] = []
+            translations: list[Tuple3Ints] = []
+            nums: list[int] = []
+            icohps: list[dict[Spin, float]] = []
 
             for bond in range(n_bonds):
-                line = data_without_orbitals[bond].split()
-                icohp = {}
-                if version == "2.2.1":
-                    label = f"{line[0]}"
-                    atom1 = str(line[1])
-                    atom2 = str(line[2])
-                    length = float(line[3])
-                    icohp[Spin.up] = float(line[4])
-                    num = int(line[5])
-                    translation = [0, 0, 0]
-                    if self.is_spin_polarized:
-                        icohp[Spin.down] = float(data_without_orbitals[bond + n_bonds + 1].split()[4])
+                line_parts = data_without_orbitals[bond].split()
+                icohp: dict[Spin, float] = {}
 
-                elif version == "3.1.1":
-                    label = f"{line[0]}"
-                    atom1 = str(line[1])
-                    atom2 = str(line[2])
-                    length = float(line[3])
-                    translation = [int(line[4]), int(line[5]), int(line[6])]
-                    icohp[Spin.up] = float(line[7])
+                label = line_parts[0]
+                atom1 = line_parts[1]
+                atom2 = line_parts[2]
+                length = float(line_parts[3])
+
+                if version == "3.1.1":
                     num = 1
-
+                    translation = (int(line_parts[4]), int(line_parts[5]), int(line_parts[6]))
+                    icohp[Spin.up] = float(line_parts[7])
                     if self.is_spin_polarized:
                         icohp[Spin.down] = float(data_without_orbitals[bond + n_bonds + 1].split()[7])
 
-                labels += [label]
-                atoms1 += [atom1]
-                atoms2 += [atom2]
-                lens += [length]
-                translations += [translation]
-                nums += [num]
-                icohps += [icohp]
+                else:  # if version == "2.2.1":
+                    num = int(line_parts[5])
+                    translation = (0, 0, 0)
+                    icohp[Spin.up] = float(line_parts[4])
+                    if self.is_spin_polarized:
+                        icohp[Spin.down] = float(data_without_orbitals[bond + n_bonds + 1].split()[4])
+
+                labels.append(label)
+                atoms1.append(atom1)
+                atoms2.append(atom2)
+                lens.append(length)
+                translations.append(translation)
+                nums.append(num)
+                icohps.append(icohp)
 
             list_orb_icohp: list[dict] | None = None
             if self.orbitalwise:
@@ -486,17 +481,17 @@ class Icohplist(MSONable):
                 for i_data_orb in range(n_orbs):
                     data_orb = data_orbitals[i_data_orb]
                     icohp = {}
-                    line = data_orb.split()
-                    label = f"{line[0]}"
+                    line_parts = data_orb.split()
+                    label = f"{line_parts[0]}"
                     orbs = re.findall(r"_(.*?)(?=\s)", data_orb)
                     orb_label, orbitals = get_orb_from_str(orbs)
-                    icohp[Spin.up] = float(line[7])
+                    icohp[Spin.up] = float(line_parts[7])
 
                     if self.is_spin_polarized:
                         icohp[Spin.down] = float(data_orbitals[n_orbs + i_data_orb].split()[7])
 
                     if len(list_orb_icohp) < int(label):
-                        list_orb_icohp += [{orb_label: {"icohp": icohp, "orbitals": orbitals}}]
+                        list_orb_icohp.append({orb_label: {"icohp": icohp, "orbitals": orbitals}})
                     else:
                         list_orb_icohp[int(label) - 1][orb_label] = {"icohp": icohp, "orbitals": orbitals}
 
@@ -583,7 +578,7 @@ class NciCobiList:
             data_without_orbitals = []
             for line in lines:
                 if "_" not in str(line.split()[3:]) and "s]" not in str(line.split()[3:]):
-                    data_without_orbitals += [line]
+                    data_without_orbitals.append(line)
         else:
             data_without_orbitals = lines
 
@@ -614,11 +609,11 @@ class NciCobiList:
             if self.is_spin_polarized:
                 ncicobi[Spin.down] = float(data_without_orbitals[bond + n_bonds + 1].split()[2])
 
-            self.list_labels += [label]
-            self.list_n_atoms += [n_atoms]
-            self.list_ncicobi += [ncicobi]
-            self.list_interaction_type += [interaction_type]
-            self.list_num += [num]
+            self.list_labels.append(label)
+            self.list_n_atoms.append(n_atoms)
+            self.list_ncicobi.append(ncicobi)
+            self.list_interaction_type.append(interaction_type)
+            self.list_num.append(num)
 
         # TODO: add functions to get orbital resolved NcICOBIs
 
@@ -693,14 +688,15 @@ class Doscar:
             for _atom in range(n_atoms + 1):
                 line = file.readline()
                 ndos = int(line.split()[2])
-                orbitals += [line.split(";")[-1].split()]
+                orbitals.extend(line.split(";")[-1].split())
                 line = file.readline().split()
                 cdos = np.zeros((ndos, len(line)))
                 cdos[0] = np.array(line)
                 for nd in range(1, ndos):
                     line = file.readline().split()
                     cdos[nd] = np.array(line)
-                dos += [cdos]
+                dos.append(cdos)
+
         doshere = np.array(dos[0])
         if len(doshere[0, :]) == 5:
             self._is_spin_polarized = True
@@ -723,7 +719,7 @@ class Doscar:
                 for orb_num, j in enumerate(range(1, ncol)):
                     orb = orbitals[atom + 1][orb_num]
                     pdos[orb][spin] = data[:, j]
-                pdoss += [pdos]
+                pdoss.append(pdos)
         else:
             tdensities[Spin.up] = doshere[:, 1]
             tdensities[Spin.down] = doshere[:, 2]
@@ -741,7 +737,7 @@ class Doscar:
                     pdos[orb][spin] = data[:, j]
                     if j % 2 == 0:
                         orb_num += 1
-                pdoss += [pdos]
+                pdoss.append(pdos)
 
         self._efermi = efermi
         self._pdos = pdoss
@@ -835,11 +831,11 @@ class Charge(MSONable):
 
             self.num_atoms = len(lines)
             for atom in range(self.num_atoms):
-                line = lines[atom].split()
-                self.atomlist += [line[1] + line[0]]
-                self.types += [line[1]]
-                self.mulliken += [float(line[2])]
-                self.loewdin += [float(line[3])]
+                line_parts = lines[atom].split()
+                self.atomlist.append(line_parts[1] + line_parts[0])
+                self.types.append(line_parts[1])
+                self.mulliken.append(float(line_parts[2]))
+                self.loewdin.append(float(line_parts[3]))
 
     def get_structure_with_charges(self, structure_filename: PathLike) -> Structure:
         """Get a Structure with Mulliken and Loewdin charges as site properties.
@@ -1151,7 +1147,7 @@ class Lobsterout(MSONable):
                     elements.append(row_parts[0])
                     basistypes.append(row_parts[1].replace("(", "").replace(")", ""))
                     # Last sign is ''
-                    basisfunctions.append(row_parts[2:])
+                    basisfunctions.extend(row_parts[2:])
                 else:
                     end = True
             if "setting up local basis functions..." in row:
@@ -1301,11 +1297,11 @@ class Fatband:
         if len(filenames) == 0:
             raise ValueError("No FATBAND files in folder or given")
 
-        for name in filenames:
-            with zopen(name, mode="rt") as file:
+        for fname in filenames:
+            with zopen(fname, mode="rt") as file:
                 lines = file.read().split("\n")
 
-            atom_names.append(os.path.split(name)[1].split("_")[1].capitalize())
+            atom_names.append(os.path.split(fname)[1].split("_")[1].capitalize())
             parameters = lines[0].split()
             # atom_type.append(re.split(r"[0-9]+", parameters[3])[0].capitalize())
             orbital_names.append(parameters[4])
@@ -1324,9 +1320,9 @@ class Fatband:
                 raise ValueError("The are two FATBAND files for the same atom and orbital. The program will stop.")
             split = []
             for item in items:
-                split += [item.split("_")[0]]
+                split.append(item.split("_")[0])
             for number in collections.Counter(split).values():
-                if number not in (1, 3, 5, 7):
+                if number not in {1, 3, 5, 7}:
                     raise ValueError(
                         "Make sure all relevant orbitals were generated and that no duplicates (2p and 2p_x) are "
                         "present"
@@ -1351,7 +1347,7 @@ class Fatband:
                 linenumbers = []
                 for iline, line in enumerate(lines[1 : self.nbands * 2 + 4]):
                     if line.split()[0] == "#":
-                        linenumbers += [iline]
+                        linenumbers.append(iline)
 
                 if ifilename == 0:
                     self.is_spinpolarized = len(linenumbers) == 2
@@ -1401,7 +1397,7 @@ class Fatband:
                         ]
                     )
                     if ifilename == 0:
-                        kpoints_array += [KPOINT]
+                        kpoints_array.append(KPOINT)
 
                     linenumber = 0
                     iband = 0
@@ -1531,19 +1527,19 @@ class Bandoverlaps(MSONable):
                     self.band_overlaps_dict[spin]["matrices"] = []
 
                 maxdev = line.split(" ")[2]
-                self.band_overlaps_dict[spin]["max_deviations"] += [float(maxdev)]
-                self.band_overlaps_dict[spin]["k_points"] += [kpoint_array]
-                self.max_deviation += [float(maxdev)]
+                self.band_overlaps_dict[spin]["max_deviations"].append(float(maxdev))
+                self.band_overlaps_dict[spin]["k_points"].append(kpoint_array)
+                self.max_deviation.append(float(maxdev))
                 overlaps = []
 
             else:
                 rows = []
                 for el in line.split(" "):
                     if el != "":
-                        rows += [float(el)]
-                overlaps += [rows]
+                        rows.append(float(el))
+                overlaps.append(rows)
                 if len(overlaps) == len(rows):
-                    self.band_overlaps_dict[spin]["matrices"] += [np.matrix(overlaps)]
+                    self.band_overlaps_dict[spin]["matrices"].append(np.matrix(overlaps))
 
     def has_good_quality_maxDeviation(self, limit_maxDeviation: float = 0.1) -> bool:
         """Check if the maxDeviation from the ideal bandoverlap is smaller
@@ -1652,7 +1648,7 @@ class Grosspop(MSONable):
                     small_dict["Mulliken GP"][cleanlines[0]] = float(cleanlines[1])
                     small_dict["Loewdin GP"][cleanlines[0]] = float(cleanlines[2])
                     if "total" in cleanlines[0]:
-                        self.list_dict_grosspop += [small_dict]
+                        self.list_dict_grosspop.append(small_dict)
 
     def get_structure_with_total_grosspop(self, structure_filename: PathLike) -> Structure:
         """Get a Structure with Mulliken and Loewdin total grosspopulations as site properties.
@@ -1664,12 +1660,11 @@ class Grosspop(MSONable):
             Structure Object with Mulliken and Loewdin total grosspopulations as site properties.
         """
         struct = Structure.from_file(structure_filename)
-        mulliken_gps = []
-        loewdin_gps = []
+        mulliken_gps: list[dict] = []
+        loewdin_gps: list[dict] = []
         for grosspop in self.list_dict_grosspop:
-            # TODO: DanielYang: what type is the following? (use append instead)
-            mulliken_gps += [grosspop["Mulliken GP"]["total"]]
-            loewdin_gps += [grosspop["Loewdin GP"]["total"]]
+            mulliken_gps.append(grosspop["Mulliken GP"]["total"])
+            loewdin_gps.append(grosspop["Loewdin GP"]["total"])
 
         site_properties = {
             "Total Mulliken GP": mulliken_gps,
@@ -1776,13 +1771,13 @@ class Wavefunction:
                         "coordinates 0.0 0.0 0.0 coordinates 1.0 1.0 1.0 box bandlist 1 "
                     )
 
-                new_x += [x_here]
-                new_y += [y_here]
-                new_z += [z_here]
+                new_x.append(x_here)
+                new_y.append(y_here)
+                new_z.append(z_here)
 
-                new_real += [self.real[runner]]
-                new_imaginary += [self.imaginary[runner]]
-                new_density += [self.real[runner] ** 2 + self.imaginary[runner] ** 2]
+                new_real.append(self.real[runner])
+                new_imaginary.append(self.imaginary[runner])
+                new_density.append(self.real[runner] ** 2 + self.imaginary[runner] ** 2)
 
         self.final_real = np.reshape(new_real, [Nx, Ny, Nz])
         self.final_imaginary = np.reshape(new_imaginary, [Nx, Ny, Nz])
@@ -1975,11 +1970,11 @@ class SitePotential(MSONable):
             lines = lines[5:-1]
             self.num_atoms = len(lines) - 2
             for atom in range(self.num_atoms):
-                line = lines[atom].split()
-                self.atomlist += [line[1] + str(line[0])]
-                self.types += [line[1]]
-                self.sitepotentials_mulliken += [float(line[2])]
-                self.sitepotentials_loewdin += [float(line[3])]
+                line_parts = lines[atom].split()
+                self.atomlist.append(line_parts[1] + str(line_parts[0]))
+                self.types.append(line_parts[1])
+                self.sitepotentials_mulliken.append(float(line_parts[2]))
+                self.sitepotentials_loewdin.append(float(line_parts[3]))
 
             self.madelungenergies_mulliken = float(lines[self.num_atoms + 1].split()[3])
             self.madelungenergies_loewdin = float(lines[self.num_atoms + 1].split()[4])

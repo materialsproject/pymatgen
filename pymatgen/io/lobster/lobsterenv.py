@@ -426,22 +426,22 @@ class LobsterNeighbors(NearNeighbors):
                 isites = list(range(len(self.structure)))
 
         summed_icohps = 0.0
-        list_icohps = []
+        list_icohps: list[float] = []
         number_bonds = 0
-        labels = []
+        labels: list[str] = []
         atoms = []
-        final_isites = []
+        final_isites: list[int] = []
         assert self.Icohpcollection is not None
         for idx, _site in enumerate(self.structure):
             if idx in isites:
-                for keys, icohpsum in zip(self.list_keys[idx], self.list_icohps[idx]):
+                for key, icohpsum in zip(self.list_keys[idx], self.list_icohps[idx]):
                     summed_icohps += icohpsum
                     list_icohps.append(icohpsum)
-                    labels.append(keys)
+                    labels.append(key)
                     atoms.append(
                         [
-                            self.Icohpcollection._list_atom1[int(keys) - 1],
-                            self.Icohpcollection._list_atom2[int(keys) - 1],
+                            self.Icohpcollection._list_atom1[int(key) - 1],
+                            self.Icohpcollection._list_atom2[int(key) - 1],
                         ]
                     )
                     number_bonds += 1
@@ -588,10 +588,10 @@ class LobsterNeighbors(NearNeighbors):
                 for atomtype in only_bonds_to:
                     # This is necessary to identify also bonds between the same elements correctly
                     if str(self.structure[isite].species.elements[0]) != atomtype:
-                        if atomtype in (
+                        if atomtype in {
                             self._split_string(atompair[0])[0],
                             self._split_string(atompair[1])[0],
-                        ):
+                        }:
                             present = True
                     elif (
                         atomtype == self._split_string(atompair[0])[0]
@@ -653,10 +653,11 @@ class LobsterNeighbors(NearNeighbors):
 
         if self.valences is None and onlycation_isites:
             raise ValueError("No valences are provided")
+
         if isites is None:
             if onlycation_isites:
                 assert self.valences is not None
-                isites = [i for i in range(len(self.structure)) if self.valences[i] >= 0.0]
+                isites = [idx for idx in range(len(self.structure)) if self.valences[idx] >= 0.0]
             else:
                 isites = list(range(len(self.structure)))
 
@@ -789,6 +790,9 @@ class LobsterNeighbors(NearNeighbors):
         # Make sure everything is relative to the given Structure and
         # not just the atoms in the unit cell
         if self.add_additional_data_sg:
+            assert self.bonding_list_1.icohpcollection is not None
+            assert self.bonding_list_2.icohpcollection is not None
+
             self.sg_list = [
                 [
                     {
