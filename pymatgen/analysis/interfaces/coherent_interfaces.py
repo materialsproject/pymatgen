@@ -34,7 +34,7 @@ class CoherentInterfaceBuilder:
         film_miller: Tuple3Ints,
         substrate_miller: Tuple3Ints,
         zslgen: ZSLGenerator | None = None,
-        termination_ftol = 0.25
+        termination_ftol=0.25,
     ):
         """
         Args:
