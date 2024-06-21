@@ -35,6 +35,7 @@ class CoherentInterfaceBuilder:
         substrate_miller: Tuple3Ints,
         zslgen: ZSLGenerator | None = None,
         termination_ftol=0.25,
+        label_index = False
     ):
         """
         Args:
@@ -43,6 +44,8 @@ class CoherentInterfaceBuilder:
             film_miller: miller index of the film layer
             substrate_miller: miller index for the substrate layer
             zslgen: BiDirectionalZSL if you want custom lattice matching tolerances for coherency.
+            termination_ftol: tolerance to distinguish different terminating atomic planes.
+            label_index: whether to add an extra index at the beginning of the termination label.
         """
         # Bulk structures
         self.substrate_structure = substrate_structure
@@ -51,6 +54,7 @@ class CoherentInterfaceBuilder:
         self.substrate_miller = substrate_miller
         self.zslgen = zslgen or ZSLGenerator(bidirectional=True)
         self.termination_ftol = termination_ftol
+        self.label_index = label_index
         self._find_matches()
         self._find_terminations()
 
@@ -137,12 +141,12 @@ class CoherentInterfaceBuilder:
 
         film_shifts = [slab.shift for slab in film_slabs]
         film_terminations = [
-            label_termination(slab, t_index, self.termination_ftol) for t_index, slab in enumerate(film_slabs)
+            label_termination(slab, t_index, self.termination_ftol, self.label_index) for t_index, slab in enumerate(film_slabs)
         ]
 
         sub_shifts = [slab.shift for slab in sub_slabs]
         sub_terminations = [
-            label_termination(slab, t_index, self.termination_ftol) for t_index, slab in enumerate(sub_slabs)
+            label_termination(slab, t_index, self.termination_ftol, self.label_index) for t_index, slab in enumerate(sub_slabs)
         ]
 
         self._terminations = {
