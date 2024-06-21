@@ -35,7 +35,7 @@ class CoherentInterfaceBuilder:
         substrate_miller: Tuple3Ints,
         zslgen: ZSLGenerator | None = None,
         termination_ftol=0.25,
-        label_index = False
+        label_index=False,
     ):
         """
         Args:
@@ -141,12 +141,14 @@ class CoherentInterfaceBuilder:
 
         film_shifts = [slab.shift for slab in film_slabs]
         film_terminations = [
-            label_termination(slab, t_index, self.termination_ftol, self.label_index) for t_index, slab in enumerate(film_slabs)
+            label_termination(slab, t_index, self.termination_ftol, self.label_index)
+            for t_index, slab in enumerate(film_slabs)
         ]
 
         sub_shifts = [slab.shift for slab in sub_slabs]
         sub_terminations = [
-            label_termination(slab, t_index, self.termination_ftol, self.label_index) for t_index, slab in enumerate(sub_slabs)
+            label_termination(slab, t_index, self.termination_ftol, self.label_index)
+            for t_index, slab in enumerate(sub_slabs)
         ]
 
         self._terminations = {
