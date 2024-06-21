@@ -698,7 +698,7 @@ class GrainBoundaryGenerator:
             list(top_grain.frac_coords) + list(bottom_grain.frac_coords),
         )
         t_and_b_dis = t_and_b.lattice.get_all_distances(
-            t_and_b.frac_coords[0:n_sites], t_and_b.frac_coords[n_sites : n_sites * 2]
+            t_and_b.frac_coords[:n_sites], t_and_b.frac_coords[n_sites : n_sites * 2]
         )
         index_incident = np.nonzero(t_and_b_dis < np.min(t_and_b_dis) + tol_coi)
 

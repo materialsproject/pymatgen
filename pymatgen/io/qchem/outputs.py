@@ -2333,7 +2333,7 @@ def parse_natural_populations(lines: list[str]) -> list[pd.DataFrame]:
                 # Extract the values
                 values = line.split()
                 if len(values[0]) > 2:
-                    values.insert(0, values[0][0:-3])
+                    values.insert(0, values[0][:-3])
                     values[1] = values[1][-3:]
                 data.append(
                     [

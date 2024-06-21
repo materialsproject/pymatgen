@@ -238,6 +238,6 @@ class ElectricFieldGradient(SquareTensor):
         elif isinstance(specie, Species):
             quad_pol_mom = specie.get_nmr_quadrupole_moment()
         else:
-            raise ValueError("Invalid species provided for quadrupolar coupling constant calculations")
+            raise TypeError("Invalid species provided for quadrupolar coupling constant calculations")
 
         return (e * quad_pol_mom * Vzz / planks_constant).to("MHz")

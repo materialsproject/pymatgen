@@ -169,7 +169,7 @@ class GruneisenParameter(MSONable):
 
         return thermal_cond
 
-    @property  # type: ignore
+    @property
     @requires(phonopy, "This method requires phonopy to be installed")
     def tdos(self):
         """The total DOS (re)constructed from the gruneisen.yaml file."""

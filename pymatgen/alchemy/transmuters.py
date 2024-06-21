@@ -121,10 +121,10 @@ class StandardTransmuter:
                 describes whether the transformation altered the structure
         """
         if self.ncores and transformation.use_multiprocessing:
-            with Pool(self.ncores) as p:
+            with Pool(self.ncores) as pool:
                 # need to condense arguments into single tuple to use map
                 z = ((ts, transformation, extend_collection, clear_redo) for ts in self.transformed_structures)
-                trafo_new_structs = p.map(_apply_transformation, z, 1)
+                trafo_new_structs = pool.map(_apply_transformation, z, 1)
                 self.transformed_structures = []
                 for ts in trafo_new_structs:
                     self.transformed_structures.extend(ts)
@@ -223,19 +223,17 @@ class StandardTransmuter:
 
 
 class CifTransmuter(StandardTransmuter):
-    """Generate a Transmuter from a cif string, possibly containing multiple
-    structures.
-    """
+    """Generate a Transmuter from a CIF string, possibly containing multiple structures."""
 
     def __init__(self, cif_string, transformations=None, primitive=True, extend_collection=False):
-        """Generate a Transmuter from a cif string, possibly
+        """Generate a Transmuter from a CIF string, possibly
         containing multiple structures.
 
         Args:
-            cif_string: A string containing a cif or a series of CIFs
+            cif_string: A string containing a CIF or a series of CIFs
             transformations: New transformations to be applied to all
                 structures
-            primitive: Whether to generate the primitive cell from the cif.
+            primitive: Whether to generate the primitive cell from the CIF.
             extend_collection: Whether to use more than one output structure
                 from one-to-many transformations. extend_collection can be a
                 number, which determines the maximum branching for each
@@ -262,7 +260,7 @@ class CifTransmuter(StandardTransmuter):
         containing multiple structures.
 
         Args:
-            filenames: List of strings of the cif files
+            filenames: List of strings of the CIF files
             transformations: New transformations to be applied to all
                 structures
             primitive: Same meaning as in __init__.
