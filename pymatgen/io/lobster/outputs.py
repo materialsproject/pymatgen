@@ -20,6 +20,7 @@ from collections import defaultdict
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
+from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
 
@@ -860,13 +861,13 @@ class Charge(MSONable):
         return struct.copy(site_properties=site_properties)
 
     @property
+    @deprecated(message="Use `mulliken` instead.", category=DeprecationWarning)
     def Mulliken(self) -> list[float]:
-        warnings.warn("`Mulliken` attribute is deprecated. Use `mulliken` instead.", DeprecationWarning, stacklevel=2)
         return self.mulliken
 
     @property
+    @deprecated(message="Use `loewdin` instead.", category=DeprecationWarning)
     def Loewdin(self) -> list[float]:
-        warnings.warn("`Loewdin` attribute is deprecated. Use `loewdin` instead.", DeprecationWarning, stacklevel=2)
         return self.loewdin
 
 
@@ -1606,9 +1607,8 @@ class Bandoverlaps(MSONable):
         return True
 
     @property
+    @deprecated(message="Use `band_overlaps_dict` instead.", category=DeprecationWarning)
     def bandoverlapsdict(self) -> dict:
-        msg = "`bandoverlapsdict` attribute is deprecated. Use `band_overlaps_dict` instead."
-        warnings.warn(msg, DeprecationWarning, stacklevel=2)
         return self.band_overlaps_dict
 
 
@@ -1899,21 +1899,13 @@ class MadelungEnergies(MSONable):
             self.madelungenergies_loewdin = float(line_parts[2])
 
     @property
+    @deprecated(message="Use `madelungenergies_loewdin` instead.", category=DeprecationWarning)
     def madelungenergies_Loewdin(self) -> float | None:
-        warnings.warn(
-            "`madelungenergies_Loewdin` attribute is deprecated. Use `madelungenergies_loewdin` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return self.madelungenergies_loewdin
 
     @property
+    @deprecated(message="Use `madelungenergies_mulliken` instead.", category=DeprecationWarning)
     def madelungenergies_Mulliken(self) -> float | None:
-        warnings.warn(
-            "`madelungenergies_Mulliken` attribute is deprecated. Use `madelungenergies_mulliken` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return self.madelungenergies_mulliken
 
 
@@ -2005,39 +1997,23 @@ class SitePotential(MSONable):
         return struct.copy(site_properties=site_properties)
 
     @property
+    @deprecated(message="Use `sitepotentials_mulliken` instead.", category=DeprecationWarning)
     def sitepotentials_Mulliken(self) -> list[float]:
-        warnings.warn(
-            "`sitepotentials_Mulliken` attribute is deprecated. Use `sitepotentials_mulliken` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return self.sitepotentials_mulliken
 
     @property
+    @deprecated(message="Use `sitepotentials_loewdin` instead.", category=DeprecationWarning)
     def sitepotentials_Loewdin(self) -> list[float]:
-        warnings.warn(
-            "`sitepotentials_Loewdin` attribute is deprecated. Use `sitepotentials_loewdin` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return self.sitepotentials_loewdin
 
     @property
+    @deprecated(message="Use `madelungenergies_mulliken` instead.", category=DeprecationWarning)
     def madelungenergies_Mulliken(self):
-        warnings.warn(
-            "`madelungenergies_Mulliken` attribute is deprecated. Use `madelungenergies_mulliken` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return self.madelungenergies_mulliken
 
     @property
+    @deprecated(message="Use `madelungenergies_loewdin` instead.", category=DeprecationWarning)
     def madelungenergies_Loewdin(self):
-        warnings.warn(
-            "`madelungenergies_Loewdin` attribute is deprecated. Use `madelungenergies_loewdin` instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return self.madelungenergies_loewdin
 
 
