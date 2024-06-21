@@ -46,7 +46,7 @@ the [`pymatgen` GitHub repo](https://github.com/materialsproject/pymatgen). Here
 1. Install pymatgen in editable mode with dev and optional dependencies:
 
     ```sh
-    uv pip install -e .[ci,optional]
+    uv pip install -e '.[ci,optional]'
     pre-commit install  # Install pre-commit hook for linters.
     ```
 
