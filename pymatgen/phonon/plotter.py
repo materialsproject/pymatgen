@@ -3,34 +3,50 @@
 from __future__ import annotations
 
 import logging
-from collections import namedtuple
+from typing import TYPE_CHECKING, NamedTuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.constants as const
+from matplotlib.collections import LineCollection
 from monty.json import jsanitize
 
-from pymatgen.electronic_structure.plotter import plot_brillouin_zone
+from pymatgen.electronic_structure.plotter import BSDOSPlotter, plot_brillouin_zone
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.gruneisen import GruneisenPhononBandStructureSymmLine
-from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig_plt, pretty_plot
+from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from os import PathLike
+    from typing import Any, Callable, Literal
+
+    from matplotlib.axes import Axes
+    from matplotlib.figure import Figure
+
+    from pymatgen.core import Structure
+    from pymatgen.phonon.dos import PhononDos
+    from pymatgen.phonon.gruneisen import GruneisenParameter
 
 logger = logging.getLogger(__name__)
 
-FreqUnits = namedtuple("FreqUnits", ["factor", "label"])
+
+class FreqUnits(NamedTuple):
+    """Conversion factor from THz to the required units and the label."""
+
+    factor: float
+    label: str
 
 
-def freq_units(units):
+def freq_units(units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"]) -> FreqUnits:
     """
-
     Args:
         units: str, accepted values: thz, ev, mev, ha, cm-1, cm^-1.
 
     Returns:
-        Returns conversion factor from THz to the required units and the label in the form of a namedtuple
-
+        Conversion factor from THz to the required units and the label in the form of a namedtuple.
     """
-    d = {
+    dct = {
         "thz": FreqUnits(1, "THz"),
         "ev": FreqUnits(const.value("hertz-electron volt relationship") * const.tera, "eV"),
         "mev": FreqUnits(
@@ -48,14 +64,13 @@ def freq_units(units):
         ),
     }
     try:
-        return d[units.lower().strip()]
+        return dct[units.lower().strip()]
     except KeyError:
-        raise KeyError(f"Value for units `{units}` unknown\nPossible values are:\n {list(d)}")
+        raise KeyError(f"Value for units `{units}` unknown\nPossible values are:\n {list(dct)}")
 
 
 class PhononDosPlotter:
-    """
-    Class for plotting phonon DOSs. The interface is extremely flexible given there are many
+    """Plot phonon DOSs. The interface is very flexible to accommodate the many
     different ways in which people want to view DOS.
     Typical usage is:
         # Initializes plotter with some optional args. Defaults are usually fine
@@ -68,33 +83,36 @@ class PhononDosPlotter:
         # returned by CompletePhononDos.get_element_dos().
     """
 
-    def __init__(self, stack=False, sigma=None):
+    def __init__(self, stack: bool = False, sigma: float | None = None) -> None:
         """
         Args:
             stack: Whether to plot the DOS as a stacked area graph
             sigma: A float specifying a standard deviation for Gaussian smearing
                 the DOS for nicer looking plots. Defaults to None for no smearing.
         """
+        # a likely user mistake is to try to pass a DOS as the first argument (similar to PhononBSPlotter) but
+        # without the isinstance check, this would not raise an error and just silently cause a blank plot
+        if not isinstance(stack, bool):
+            raise ValueError(
+                "The first argument stack expects a boolean. If you are trying to add a DOS, use the add_dos() method."
+            )
         self.stack = stack
         self.sigma = sigma
-        self._doses = {}
+        self._doses: dict[str, dict[str, np.ndarray]] = {}
 
-    def add_dos(self, label, dos):
-        """
-        Adds a dos for plotting.
+    def add_dos(self, label: str, dos: PhononDos, **kwargs: Any) -> None:
+        """Add a dos for plotting.
 
         Args:
-            label:
-                label for the DOS. Must be unique.
-            dos:
-                PhononDos object
+            label (str): label for the DOS. Must be unique.
+            dos (PhononDos): DOS object
+            **kwargs: kwargs supported by matplotlib.pyplot.plot
         """
         densities = dos.get_smeared_densities(self.sigma) if self.sigma else dos.densities
-        self._doses[label] = {"frequencies": dos.frequencies, "densities": densities}
+        self._doses[label] = {"frequencies": dos.frequencies, "densities": densities, **kwargs}
 
-    def add_dos_dict(self, dos_dict, key_sort_func=None):
-        """
-        Add a dictionary of doses, with an optional sorting function for the
+    def add_dos_dict(self, dos_dict: dict, key_sort_func=None) -> None:
+        """Add a dictionary of doses, with an optional sorting function for the
         keys.
 
         Args:
@@ -105,100 +123,129 @@ class PhononDosPlotter:
         for label in keys:
             self.add_dos(label, dos_dict[label])
 
-    def get_dos_dict(self):
-        """
-        Returns the added doses as a json-serializable dict. Note that if you
+    def get_dos_dict(self) -> dict:
+        """Get the added doses as a json-serializable dict. Note that if you
         have specified smearing for the DOS plot, the densities returned will
         be the smeared densities, not the original densities.
 
         Returns:
-            Dict of dos data. Generally of the form, {label: {'frequencies':..,
-            'densities': ...}}
+            dict: DOS data. Generally of the form {label: {'frequencies':.., 'densities': ...}}
         """
         return jsanitize(self._doses)
 
-    def get_plot(self, xlim=None, ylim=None, units="thz"):
-        """
-        Get a matplotlib plot showing the DOS.
+    def get_plot(
+        self,
+        xlim: float | None = None,
+        ylim: float | None = None,
+        invert_axes: bool = False,
+        units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
+        legend: dict | None = None,
+        ax: Axes | None = None,
+    ) -> Axes:
+        """Get a matplotlib plot showing the DOS.
 
         Args:
-            xlim: Specifies the x-axis limits. Set to None for automatic
-                determination.
+            xlim: Specifies the x-axis limits. Set to None for automatic determination.
             ylim: Specifies the y-axis limits.
-            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+            invert_axes (bool): Whether to invert the x and y axes. Enables chemist style DOS plotting.
+                Defaults to False.
+            units (thz | ev | mev | ha | cm-1 | cm^-1): units for the frequencies. Defaults to "thz".
+            legend: dict with legend options. For example, {"loc": "upper right"}
+                will place the legend in the upper right corner. Defaults to {"fontsize": 30}.
+            ax (Axes): An existing axes object onto which the plot will be added.
+                If None, a new figure will be created.
         """
-        u = freq_units(units)
+        legend = legend or {}
+        legend.setdefault("fontsize", 30)
+        unit = freq_units(units)
 
-        ncolors = max(3, len(self._doses))
-        ncolors = min(9, ncolors)
+        n_colors = max(3, len(self._doses))
+        n_colors = min(9, n_colors)
 
-        import palettable
-
-        colors = palettable.colorbrewer.qualitative.Set1_9.mpl_colors  # pylint: disable=E1101
-
-        y = None
-        alldensities = []
-        allfrequencies = []
-        plt = pretty_plot(12, 8)
+        ys = None
+        all_densities = []
+        all_frequencies = []
+        ax = pretty_plot(*(8, 12) if invert_axes else (12, 8), ax=ax)
 
         # Note that this complicated processing of frequencies is to allow for
         # stacked plots in matplotlib.
         for dos in self._doses.values():
-            frequencies = dos["frequencies"] * u.factor
+            frequencies = dos["frequencies"] * unit.factor
             densities = dos["densities"]
-            if y is None:
-                y = np.zeros(frequencies.shape)
+            if ys is None:
+                ys = np.zeros(frequencies.shape)
             if self.stack:
-                y += densities
-                newdens = y.copy()
+                ys += densities
+                new_dens = ys.copy()
             else:
-                newdens = densities
-            allfrequencies.append(frequencies)
-            alldensities.append(newdens)
+                new_dens = densities
+            all_frequencies.append(frequencies)
+            all_densities.append(new_dens)
 
-        keys = list(self._doses)
-        keys.reverse()
-        alldensities.reverse()
-        allfrequencies.reverse()
-        allpts = []
-        for i, (key, frequencies, densities) in enumerate(zip(keys, allfrequencies, alldensities)):
-            allpts.extend(list(zip(frequencies, densities)))
-            if self.stack:
-                plt.fill(frequencies, densities, color=colors[i % ncolors], label=str(key))
+        keys = list(reversed(self._doses))
+        all_densities.reverse()
+        all_frequencies.reverse()
+        all_pts = []
+        colors = ("blue", "red", "green", "orange", "purple", "brown", "pink", "gray", "olive")
+        for idx, (key, frequencies, densities) in enumerate(zip(keys, all_frequencies, all_densities)):
+            color = self._doses[key].get("color", colors[idx % n_colors])
+            linewidth = self._doses[key].get("linewidth", 3)
+            kwargs = {
+                key: val
+                for key, val in self._doses[key].items()
+                if key not in ["frequencies", "densities", "color", "linewidth"]
+            }
+            all_pts.extend(list(zip(frequencies, densities)))
+            if invert_axes:
+                xs, ys = densities, frequencies
             else:
-                plt.plot(
-                    frequencies,
-                    densities,
-                    color=colors[i % ncolors],
-                    label=str(key),
-                    linewidth=3,
-                )
+                xs, ys = frequencies, densities
+            if self.stack:
+                ax.fill(xs, ys, color=color, label=str(key), **kwargs)
+            else:
+                ax.plot(xs, ys, color=color, label=str(key), linewidth=linewidth, **kwargs)
 
         if xlim:
-            plt.xlim(xlim)
+            ax.set_xlim(xlim)
         if ylim:
-            plt.ylim(ylim)
+            ax.set_ylim(ylim)
+        elif invert_axes:
+            _ylim = ax.get_ylim()
+            relevant_x = [p[1] for p in all_pts if _ylim[0] < p[0] < _ylim[1]] or ax.get_xlim()
+            ax.set_xlim((min(relevant_x), max(relevant_x)))
         else:
-            xlim = plt.xlim()
-            relevanty = [p[1] for p in allpts if xlim[0] < p[0] < xlim[1]]
-            plt.ylim((min(relevanty), max(relevanty)))
+            _xlim = ax.get_xlim()
+            relevant_y = [p[1] for p in all_pts if _xlim[0] < p[0] < _xlim[1]] or ax.get_ylim()
+            ax.set_ylim((min(relevant_y), max(relevant_y)))
 
-        ylim = plt.ylim()
-        plt.plot([0, 0], ylim, "k--", linewidth=2)
+        if invert_axes:
+            ax.axhline(0, linewidth=2, color="black", linestyle="--")
 
-        plt.xlabel(rf"$\mathrm{{Frequencies\ ({u.label})}}$")
-        plt.ylabel(r"$\mathrm{Density\ of\ states}$")
+            ax.set_xlabel(r"$\mathrm{Density\ of\ states}$", fontsize=legend.get("fontsize", 30))
+            ax.set_ylabel(rf"$\mathrm{{Frequencies\ ({unit.label})}}$", fontsize=legend.get("fontsize", 30))
 
-        plt.legend()
-        leg = plt.gca().get_legend()
-        ltext = leg.get_texts()  # all the text.Text instance in the legend
-        plt.setp(ltext, fontsize=30)
-        plt.tight_layout()
-        return plt
+        else:
+            ax.axvline(0, linewidth=2, color="black", linestyle="--")
 
-    def save_plot(self, filename, img_format="eps", xlim=None, ylim=None, units="thz"):
-        """
-        Save matplotlib plot to a file.
+            ax.set_xlabel(rf"$\mathrm{{Frequencies\ ({unit.label})}}$", fontsize=legend.get("fontsize", 30))
+            ax.set_ylabel(r"$\mathrm{Density\ of\ states}$", fontsize=legend.get("fontsize", 30))
+
+        # only show legend if there are labels
+        if sum(map(len, keys)) > 0:
+            ax.legend(**legend)
+
+        return ax
+
+    def save_plot(
+        self,
+        filename: str | PathLike,
+        img_format: str = "eps",
+        xlim: float | None = None,
+        ylim: float | None = None,
+        invert_axes: bool = False,
+        units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
+    ) -> None:
+        """Save matplotlib plot to a file.
 
         Args:
             filename: Filename to write to.
@@ -206,33 +253,44 @@ class PhononDosPlotter:
             xlim: Specifies the x-axis limits. Set to None for automatic
                 determination.
             ylim: Specifies the y-axis limits.
+            invert_axes: Whether to invert the x and y axes. Enables chemist style DOS plotting.
+                Defaults to False.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1
         """
-        plt = self.get_plot(xlim, ylim, units=units)
+        self.get_plot(xlim, ylim, invert_axes=invert_axes, units=units)
         plt.savefig(filename, format=img_format)
         plt.close()
 
-    def show(self, xlim=None, ylim=None, units="thz"):
-        """
-        Show the plot using matplotlib.
+    def show(
+        self,
+        xlim: float | None = None,
+        ylim: None = None,
+        invert_axes: bool = False,
+        units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
+    ) -> None:
+        """Show the plot using matplotlib.
 
         Args:
             xlim: Specifies the x-axis limits. Set to None for automatic
                 determination.
             ylim: Specifies the y-axis limits.
+            invert_axes: Whether to invert the x and y axes. Enables chemist style DOS plotting.
+                Defaults to False.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
         """
-        plt = self.get_plot(xlim, ylim, units=units)
+        self.get_plot(xlim, ylim, invert_axes=invert_axes, units=units)
         plt.show()
 
 
 class PhononBSPlotter:
-    """Class to plot or get data to facilitate the plot of band structure objects."""
+    """Plot or get data to facilitate the plot of band structure objects."""
 
-    def __init__(self, bs):
+    def __init__(self, bs: PhononBandStructureSymmLine, label: str | None = None) -> None:
         """
         Args:
             bs: A PhononBandStructureSymmLine object.
+            label: A label for the plot. Defaults to None for no label. Esp. useful with
+                the plot_compare method to distinguish the band structures.
         """
         if not isinstance(bs, PhononBandStructureSymmLine):
             raise ValueError(
@@ -241,48 +299,31 @@ class PhononBSPlotter:
                 "not along symmetry lines won't work)"
             )
         self._bs = bs
-        self._nb_bands = self._bs.nb_bands
+        self._label = label
 
-    def _maketicks(self, plt):
+    @property
+    def n_bands(self) -> int:
+        """Number of bands."""
+        return self._bs.nb_bands
+
+    def _make_ticks(self, ax: Axes) -> Axes:
         """Utility private method to add ticks to a band structure."""
         ticks = self.get_ticks()
-        # Sanitize only plot the uniq values
-        uniq_d = []
-        uniq_l = []
-        temp_ticks = list(zip(ticks["distance"], ticks["label"]))
-        for i, tt in enumerate(temp_ticks):
-            if i == 0:
-                uniq_d.append(tt[0])
-                uniq_l.append(tt[1])
-                logger.debug(f"Adding label {tt[0]} at {tt[1]}")
-            elif tt[1] == temp_ticks[i - 1][1]:
-                logger.debug(f"Skipping label {tt[1]}")
-            else:
-                logger.debug(f"Adding label {tt[0]} at {tt[1]}")
-                uniq_d.append(tt[0])
-                uniq_l.append(tt[1])
 
-        logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l))}")
-        plt.gca().set_xticks(uniq_d)
-        plt.gca().set_xticklabels(uniq_l)
+        # zip to sanitize, only plot the uniq values
+        ticks_labels = list(zip(*zip(ticks["distance"], ticks["label"])))
+        if ticks_labels:
+            ax.set_xticks(ticks_labels[0])
+            ax.set_xticklabels(ticks_labels[1])
 
-        for i in range(len(ticks["label"])):
-            if ticks["label"][i] is not None:
-                # don't print the same label twice
-                if i != 0:
-                    if ticks["label"][i] == ticks["label"][i - 1]:
-                        logger.debug(f"already print label... skipping label {ticks['label'][i]}")
-                    else:
-                        logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
-                        plt.axvline(ticks["distance"][i], color="k")
-                else:
-                    logger.debug(f"Adding a line at {ticks['distance'][i]} for label {ticks['label'][i]}")
-                    plt.axvline(ticks["distance"][i], color="k")
-        return plt
+        # plot vertical lines at each of the ticks
+        for idx, label in enumerate(ticks["label"]):
+            if label is not None:
+                ax.axvline(ticks["distance"][idx], color="black")
+        return ax
 
-    def bs_plot_data(self):
-        """
-        Get the data nicely formatted for a plot.
+    def bs_plot_data(self) -> dict[str, Any]:
+        """Get the data nicely formatted for a plot.
 
         Returns:
             A dict of the following format:
@@ -294,16 +335,18 @@ class PhononBSPlotter:
             lattice: The reciprocal lattice.
         """
         distance = []
-        frequency = []
+        frequency: list = []
 
         ticks = self.get_ticks()
 
-        for b in self._bs.branches:
+        for branch in self._bs.branches:
             frequency.append([])
-            distance.append([self._bs.distance[j] for j in range(b["start_index"], b["end_index"] + 1)])
+            distance.append([self._bs.distance[j] for j in range(branch["start_index"], branch["end_index"] + 1)])
 
-            for i in range(self._nb_bands):
-                frequency[-1].append([self._bs.bands[i][j] for j in range(b["start_index"], b["end_index"] + 1)])
+            for idx in range(self.n_bands):
+                frequency[-1].append(
+                    [self._bs.bands[idx][j] for j in range(branch["start_index"], branch["end_index"] + 1)]
+                )
 
         return {
             "ticks": ticks,
@@ -312,62 +355,57 @@ class PhononBSPlotter:
             "lattice": self._bs.lattice_rec.as_dict(),
         }
 
-    def get_plot(self, ylim=None, units="thz"):
-        """
-        Get a matplotlib object for the bandstructure plot.
+    def get_plot(
+        self, ylim: float | None = None, units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz", **kwargs
+    ) -> Axes:
+        """Get a matplotlib object for the bandstructure plot.
 
         Args:
             ylim: Specify the y-axis (frequency) limits; by default None let
                 the code choose.
             units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+                Defaults to "thz".
+            **kwargs: passed to ax.plot function.
         """
         u = freq_units(units)
 
-        plt = pretty_plot(12, 8)
-
-        band_linewidth = 1
+        ax = pretty_plot(12, 8)
 
         data = self.bs_plot_data()
-        for d in range(len(data["distances"])):
-            for i in range(self._nb_bands):
-                plt.plot(
-                    data["distances"][d],
-                    [data["frequency"][d][i][j] * u.factor for j in range(len(data["distances"][d]))],
-                    "b-",
-                    linewidth=band_linewidth,
-                )
+        kwargs.setdefault("color", "blue")
+        for dists, freqs in zip(data["distances"], data["frequency"]):
+            for idx in range(self.n_bands):
+                ys = [freqs[idx][j] * u.factor for j in range(len(dists))]
+                ax.plot(dists, ys, **kwargs)
 
-        self._maketicks(plt)
+        self._make_ticks(ax)
 
         # plot y=0 line
-        plt.axhline(0, linewidth=1, color="k")
+        ax.axhline(0, linewidth=1, color="black")
 
         # Main X and Y Labels
-        plt.xlabel(r"$\mathrm{Wave\ Vector}$", fontsize=30)
+        ax.set_xlabel(r"$\mathrm{Wave\ Vector}$", fontsize=30)
         ylabel = rf"$\mathrm{{Frequencies\ ({u.label})}}$"
-        plt.ylabel(ylabel, fontsize=30)
+        ax.set_ylabel(ylabel, fontsize=30)
 
         # X range (K)
         # last distance point
         x_max = data["distances"][-1][-1]
-        plt.xlim(0, x_max)
+        ax.set_xlim(0, x_max)
 
         if ylim is not None:
-            plt.ylim(ylim)
+            ax.set_ylim(ylim)
 
-        plt.tight_layout()
-
-        return plt
+        return ax
 
     def _get_weight(self, vec: np.ndarray, indices: list[list[int]]) -> np.ndarray:
-        """
-        compute the weight for each combination of sites according to the
+        """Compute the weight for each combination of sites according to the
         eigenvector.
         """
-        num_atom = int(self._nb_bands / 3)
+        num_atom = int(self.n_bands / 3)
         new_vec = np.zeros(num_atom)
-        for i in range(num_atom):
-            new_vec[i] = np.linalg.norm(vec[i * 3 : i * 3 + 3])
+        for idx in range(num_atom):
+            new_vec[idx] = np.linalg.norm(vec[idx * 3 : idx * 3 + 3])
         # get the projectors for each group
         gw = []
         norm_f = 0
@@ -382,8 +420,8 @@ class PhononBSPlotter:
         return np.array(gw, dtype=float) / norm_f
 
     @staticmethod
-    def _make_color(colors: list[int]) -> list[int]:
-        """Convert the eigendisplacements to rgb colors."""
+    def _make_color(colors: Sequence[int]) -> Sequence[int]:
+        """Convert the eigen-displacements to rgb colors."""
         # if there are two groups, use red and blue
         if len(colors) == 2:
             return [colors[0], 0, colors[1]]
@@ -391,21 +429,20 @@ class PhononBSPlotter:
             return colors
         # if there are four groups, use cyan, magenta, yellow and black
         if len(colors) == 4:
-            r = (1 - colors[0]) * (1 - colors[3])
-            g = (1 - colors[1]) * (1 - colors[3])
-            b = (1 - colors[2]) * (1 - colors[3])
-            return [r, g, b]
+            red = (1 - colors[0]) * (1 - colors[3])
+            green = (1 - colors[1]) * (1 - colors[3])
+            blue = (1 - colors[2]) * (1 - colors[3])
+            return [red, green, blue]
         raise ValueError(f"Expected 2, 3 or 4 colors, got {len(colors)}")
 
     def get_proj_plot(
         self,
         site_comb: str | list[list[int]] = "element",
         ylim: tuple[None | float, None | float] | None = None,
-        units: str = "thz",
+        units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
         rgb_labels: tuple[None | str] | None = None,
-    ) -> plt.Axes:
-        """
-        Get a matplotlib object for the bandstructure plot projected along atomic
+    ) -> Axes:
+        """Get a matplotlib object for the bandstructure plot projected along atomic
         sites.
 
         Args:
@@ -420,18 +457,15 @@ class PhononBSPlotter:
             rgb_labels: a list of rgb colors for the labels; if not specified,
                 the colors will be automatically generated.
         """
-        from matplotlib.collections import LineCollection
-
-        from pymatgen.electronic_structure.plotter import BSDOSPlotter
-
-        elements = [e.symbol for e in self._bs.structure.composition.elements]
+        assert self._bs.structure is not None, "Structure is required for get_proj_plot"
+        elements = [elem.symbol for elem in self._bs.structure.elements]
         if site_comb == "element":
             assert 2 <= len(elements) <= 4, "the compound must have 2, 3 or 4 unique elements"
             indices: list[list[int]] = [[] for _ in range(len(elements))]
-            for i, ele in enumerate(self._bs.structure.species):
-                for j, unique_species in enumerate(self._bs.structure.composition.elements):
-                    if ele == unique_species:
-                        indices[j].append(i)
+            for idx, elem in enumerate(self._bs.structure.species):
+                for j, unique_species in enumerate(self._bs.structure.elements):
+                    if elem == unique_species:
+                        indices[j].append(idx)
         else:
             assert isinstance(site_comb, list)
             assert 2 <= len(site_comb) <= 4, "the length of site_comb must be 2, 3 or 4"
@@ -447,29 +481,29 @@ class PhononBSPlotter:
         assert rgb_labels is None or len(rgb_labels) == len(indices), "wrong number of rgb_labels"
 
         u = freq_units(units)
-        fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
-        self._maketicks(plt)
+        _fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
+        self._make_ticks(ax)
 
         data = self.bs_plot_data()
         k_dist = np.array(data["distances"]).flatten()
         for d in range(1, len(k_dist)):
             # consider 2 k points each time so they connect
             colors = []
-            for idx in range(self._nb_bands):
+            for idx in range(self.n_bands):
                 eigenvec_1 = self._bs.eigendisplacements[idx][d - 1].flatten()
                 eigenvec_2 = self._bs.eigendisplacements[idx][d].flatten()
                 colors1 = self._get_weight(eigenvec_1, indices)
                 colors2 = self._get_weight(eigenvec_2, indices)
                 colors.append(self._make_color((colors1 + colors2) / 2))
-            seg = np.zeros((self._nb_bands, 2, 2))
+            seg = np.zeros((self.n_bands, 2, 2))
             seg[:, :, 1] = self._bs.bands[:, d - 1 : d + 1] * u.factor
             seg[:, 0, 0] = k_dist[d - 1]
             seg[:, 1, 0] = k_dist[d]
             ls = LineCollection(seg, colors=colors, linestyles="-", linewidths=2.5)
             ax.add_collection(ls)
         if ylim is None:
-            y_max: float = max(max(b) for b in self._bs.bands) * u.factor
-            y_min: float = min(min(b) for b in self._bs.bands) * u.factor
+            y_max: float = max(max(band) for band in self._bs.bands) * u.factor
+            y_min: float = min(min(band) for band in self._bs.bands) * u.factor
             y_margin = (y_max - y_min) * 0.05
             ylim = (y_min - y_margin, y_max + y_margin)
         ax.set_ylim(ylim)
@@ -484,9 +518,9 @@ class PhononBSPlotter:
         if rgb_labels is not None:
             labels = rgb_labels  # type: ignore[assignment]
         elif site_comb == "element":
-            labels = [e.symbol for e in self._bs.structure.composition.elements]
+            labels = [elem.symbol for elem in self._bs.structure.elements]
         else:
-            labels = [f"{i}" for i in range(len(site_comb))]
+            labels = [f"{idx}" for idx in range(len(site_comb))]
         if len(indices) == 2:
             BSDOSPlotter._rb_line(ax, labels[0], labels[1], "best")
         elif len(indices) == 3:
@@ -496,41 +530,43 @@ class PhononBSPlotter:
             pass
         return ax
 
-    def show(self, ylim=None, units="thz"):
-        """
-        Show the plot using matplotlib.
+    def show(
+        self, ylim: float | None = None, units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz"
+    ) -> None:
+        """Show the plot using matplotlib.
 
         Args:
-            ylim: Specify the y-axis (frequency) limits; by default None let
-                the code choose.
-            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+            ylim (float): Specifies the y-axis limits.
+            units ("thz" | "ev" | "mev" | "ha" | "cm-1" | "cm^-1"): units for the frequencies.
         """
-        plt = self.get_plot(ylim, units=units)
+        self.get_plot(ylim, units=units)
         plt.show()
 
-    def save_plot(self, filename, img_format="eps", ylim=None, units="thz"):
-        """
-        Save matplotlib plot to a file.
+    def save_plot(
+        self,
+        filename: str | PathLike,
+        ylim: float | None = None,
+        units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
+    ) -> None:
+        """Save matplotlib plot to a file.
 
         Args:
-            filename: Filename to write to.
-            img_format: Image format to use. Defaults to EPS.
-            ylim: Specifies the y-axis limits.
-            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+            filename (str | Path): Filename to write to.
+            ylim (float): Specifies the y-axis limits.
+            units ("thz" | "ev" | "mev" | "ha" | "cm-1" | "cm^-1"): units for the frequencies.
         """
-        plt = self.get_plot(ylim=ylim, units=units)
-        plt.savefig(filename, format=img_format)
+        self.get_plot(ylim=ylim, units=units)
+        plt.savefig(filename)
         plt.close()
 
     def show_proj(
         self,
         site_comb: str | list[list[int]] = "element",
         ylim: tuple[None | float, None | float] | None = None,
-        units: str = "thz",
+        units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
         rgb_labels: tuple[str] | None = None,
-    ):
-        """
-        Show the projected plot using matplotlib.
+    ) -> None:
+        """Show the projected plot using matplotlib.
 
         Args:
             site_comb: A list of list of indices of sites to combine. For example,
@@ -547,108 +583,148 @@ class PhononBSPlotter:
         self.get_proj_plot(site_comb=site_comb, ylim=ylim, units=units, rgb_labels=rgb_labels)
         plt.show()
 
-    def get_ticks(self):
-        """
-        Get all ticks and labels for a band structure plot.
+    def get_ticks(self) -> dict[str, list]:
+        """Get all ticks and labels for a band structure plot.
 
         Returns:
             A dict with 'distance': a list of distance at which ticks should
             be set and 'label': a list of label for each of those ticks.
         """
         tick_distance = []
-        tick_labels = []
-        previous_label = self._bs.qpoints[0].label
-        previous_branch = self._bs.branches[0]["name"]
-        for i, c in enumerate(self._bs.qpoints):
-            if c.label is not None:
-                tick_distance.append(self._bs.distance[i])
+        tick_labels: list[str] = []
+        prev_label = self._bs.qpoints[0].label
+        prev_branch = self._bs.branches[0]["name"]
+        for idx, point in enumerate(self._bs.qpoints):
+            if point.label is not None:
+                tick_distance.append(self._bs.distance[idx])
                 this_branch = None
-                for b in self._bs.branches:
-                    if b["start_index"] <= i <= b["end_index"]:
-                        this_branch = b["name"]
+                for branch in self._bs.branches:
+                    if branch["start_index"] <= idx <= branch["end_index"]:
+                        this_branch = branch["name"]
                         break
-                if c.label != previous_label and previous_branch != this_branch:
-                    label1 = c.label
+                if point.label != prev_label and prev_branch != this_branch:
+                    label1 = point.label
                     if label1.startswith("\\") or label1.find("_") != -1:
-                        label1 = "$" + label1 + "$"
-                    label0 = previous_label
+                        label1 = f"${label1}$"
+                    label0 = prev_label or ""
                     if label0.startswith("\\") or label0.find("_") != -1:
-                        label0 = "$" + label0 + "$"
+                        label0 = f"${label0}$"
                     tick_labels.pop()
                     tick_distance.pop()
-                    tick_labels.append(label0 + "$\\mid$" + label1)
-                elif c.label.startswith("\\") or c.label.find("_") != -1:
-                    tick_labels.append("$" + c.label + "$")
+                    tick_labels.append(f"{label0}|{label1}")
+                elif point.label.startswith("\\") or point.label.find("_") != -1:
+                    tick_labels.append(f"${point.label}$")
                 else:
-                    tick_labels.append(c.label)
-                previous_label = c.label
-                previous_branch = this_branch
+                    tick_labels.append(point.label)
+                prev_label = point.label
+                prev_branch = this_branch
+        # map atomate2 all-upper-case labels like GAMMA/DELTA to pretty symbols
+        tick_labels = [label.replace("GAMMA", "Γ").replace("DELTA", "Δ").replace("SIGMA", "Σ") for label in tick_labels]
         return {"distance": tick_distance, "label": tick_labels}
 
-    def plot_compare(self, other_plotter, units="thz"):
-        """
-        plot two band structure for comparison. One is in red the other in blue.
-        The two band structures need to be defined on the same symmetry lines!
-        and the distance between symmetry lines is the one of the band structure
-        used to build the PhononBSPlotter.
+    def plot_compare(
+        self,
+        other_plotter: PhononBSPlotter | dict[str, PhononBSPlotter],
+        units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
+        self_label: str = "self",
+        colors: Sequence[str] | None = None,
+        legend_kwargs: dict | None = None,
+        on_incompatible: Literal["raise", "warn", "ignore"] = "raise",
+        other_kwargs: dict | None = None,
+        **kwargs,
+    ) -> Axes:
+        """Plot two band structure for comparison. self in blue, others in red, green, ...
+        The band structures need to be defined on the same symmetry lines!
+        The distance between symmetry lines is determined by the band structure used to
+        initialize PhononBSPlotter (self).
 
         Args:
-            other_plotter: another PhononBSPlotter object defined along the same symmetry lines
-            units: units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
+            other_plotter (PhononBSPlotter | dict[str, PhononBSPlotter]): Other PhononBSPlotter object(s) defined along
+                the same symmetry lines
+            units (str): units for the frequencies. Accepted values thz, ev, mev, ha, cm-1, cm^-1.
                 Defaults to 'thz'.
+            self_label (str): label for the self band structure. Defaults to to the label passed to PhononBSPlotter.init
+                or, if None, 'self'.
+            colors (list[str]): list of colors for the other band structures. Defaults to None for automatic colors.
+            legend_kwargs: dict[str, Any]: kwargs passed to ax.legend().
+            on_incompatible ('raise' | 'warn' | 'ignore'): What to do if the band structures
+                are not compatible. Defaults to 'raise'.
+            other_kwargs: dict[str, Any]: kwargs passed to other_plotter ax.plot().
+            **kwargs: passed to ax.plot().
 
         Returns:
             a matplotlib object with both band structures
         """
-        u = freq_units(units)
+        unit = freq_units(units)
+        legend_kwargs = legend_kwargs or {}
+        other_kwargs = other_kwargs or {}
+        legend_kwargs.setdefault("fontsize", 20)
+        _colors = ("blue", "red", "green", "orange", "purple", "brown", "pink", "gray", "olive")
+        if isinstance(other_plotter, PhononBSPlotter):
+            other_plotter = {other_plotter._label or "other": other_plotter}
+        if colors:
+            assert len(colors) == len(other_plotter) + 1, "Wrong number of colors"
 
-        data_orig = self.bs_plot_data()
-        data = other_plotter.bs_plot_data()
+        self_data = self.bs_plot_data()
 
-        if len(data_orig["distances"]) != len(data["distances"]):
-            raise ValueError("The two objects are not compatible.")
+        line_width = kwargs.setdefault("linewidth", 1)
+        ax = self.get_plot(units=units, color=colors[0] if colors else _colors[0], **kwargs)
 
-        plt = self.get_plot(units=units)
-        band_linewidth = 1
-        for i in range(other_plotter._nb_bands):
-            for d in range(len(data_orig["distances"])):
-                plt.plot(
-                    data_orig["distances"][d],
-                    [data["frequency"][d][i][j] * u.factor for j in range(len(data_orig["distances"][d]))],
-                    "r-",
-                    linewidth=band_linewidth,
-                )
+        colors_other = []
 
-        return plt
+        for idx, plotter in enumerate(other_plotter.values()):
+            other_data = plotter.bs_plot_data()
 
-    def plot_brillouin(self):
+            if np.asarray(self_data["distances"]).shape != np.asarray(other_data["distances"]).shape:
+                if on_incompatible == "raise":
+                    raise ValueError("The two band structures are not compatible.")
+                if on_incompatible == "warn":
+                    logger.warning("The two band structures are not compatible.")
+                return None  # ignore/warn
+
+            color = colors[idx + 1] if colors else _colors[1 + idx % len(_colors)]
+            _kwargs = kwargs.copy()  # Don't set the color in kwargs, or every band will be red
+            colors_other.append(
+                _kwargs.setdefault("color", color)
+            )  # don't move this line up! it would mess up self.get_plot color
+
+            for band_idx in range(plotter.n_bands):
+                for dist_idx, dists in enumerate(self_data["distances"]):
+                    xs = dists
+                    ys = [other_data["frequency"][dist_idx][band_idx][j] * unit.factor for j in range(len(dists))]
+                    ax.plot(xs, ys, **(_kwargs | other_kwargs))
+
+        # add legend showing which color corresponds to which band structure
+        color_self = ax.lines[0].get_color()
+        ax.plot([], [], label=self._label or self_label, linewidth=2 * line_width, color=color_self)
+        linestyle = other_kwargs.get("linestyle", "-")
+        for color_other, label_other in zip(colors_other, other_plotter):
+            ax.plot([], [], label=label_other, linewidth=2 * line_width, color=color_other, linestyle=linestyle)
+            ax.legend(**legend_kwargs)
+
+        return ax
+
+    def plot_brillouin(self) -> None:
         """Plot the Brillouin zone."""
+        q_pts = self._bs.qpoints
         # get labels and lines
-        labels = {}
-        for q in self._bs.qpoints:
-            if q.label:
-                labels[q.label] = q.frac_coords
+        labels = {q_pt.label: q_pt.frac_coords for q_pt in q_pts if q_pt.label}
 
-        lines = []
-        for b in self._bs.branches:
-            lines.append(
-                [
-                    self._bs.qpoints[b["start_index"]].frac_coords,
-                    self._bs.qpoints[b["end_index"]].frac_coords,
-                ]
-            )
+        lines = [
+            [q_pts[branch["start_index"]].frac_coords, q_pts[branch["end_index"]].frac_coords]
+            for branch in self._bs.branches
+        ]
 
         plot_brillouin_zone(self._bs.lattice_rec, lines=lines, labels=labels)
 
 
 class ThermoPlotter:
-    """
-    Plotter for thermodynamic properties obtained from phonon DOS.
+    """Plotter for thermodynamic properties obtained from phonon DOS.
     If the structure corresponding to the DOS, it will be used to extract the formula unit and provide
     the plots in units of mol instead of mole-cell.
     """
 
-    def __init__(self, dos, structure=None):
+    def __init__(self, dos: PhononDos, structure: Structure = None) -> None:
         """
         Args:
             dos: A PhononDos object.
@@ -657,30 +733,40 @@ class ThermoPlotter:
         self.dos = dos
         self.structure = structure
 
-    def _plot_thermo(self, func, temperatures, factor=1, ax=None, ylabel=None, label=None, ylim=None, **kwargs):
-        """
-        Plots a thermodynamic property for a generic function from a PhononDos instance.
+    def _plot_thermo(
+        self,
+        func: Callable[[float, Structure | None], float],
+        temperatures: Sequence[float],
+        factor: float = 1,
+        ax: Axes = None,
+        ylabel: str | None = None,
+        label: str | None = None,
+        ylim: float | None = None,
+        **kwargs,
+    ) -> Figure:
+        """Plots a thermodynamic property for a generic function from a PhononDos instance.
 
         Args:
-            func: the thermodynamic function to be used to calculate the property
-            temperatures: a list of temperatures
+            func (Callable[[float, Structure | None], float]): Takes a temperature and structure (in that order)
+                and returns a thermodynamic property (e.g., heat capacity, entropy, etc.).
+            temperatures (list[float]): temperatures (in K) at which to evaluate func.
             factor: a multiplicative factor applied to the thermodynamic property calculated. Used to change
-                the units.
-            ax: matplotlib :class:`Axes` or None if a new figure should be created.
+                the units. Defaults to 1.
+            ax: matplotlib Axes or None if a new figure should be created.
             ylabel: label for the y axis
             label: label of the plot
             ylim: tuple specifying the y-axis limits.
             kwargs: kwargs passed to the matplotlib function 'plot'.
 
         Returns:
-            matplotlib figure
+            plt.figure: matplotlib figure
         """
-        ax, fig, plt = get_ax_fig_plt(ax)
+        ax, fig = get_ax_fig(ax)
 
         values = []
 
-        for t in temperatures:
-            values.append(func(t, structure=self.structure) * factor)
+        for temp in temperatures:
+            values.append(func(temp, self.structure) * factor)
 
         ax.plot(temperatures, values, label=label, **kwargs)
 
@@ -688,8 +774,8 @@ class ThermoPlotter:
             ax.set_ylim(ylim)
 
         ax.set_xlim((np.min(temperatures), np.max(temperatures)))
-        ylim = plt.ylim()
-        if ylim[0] < 0 < ylim[1]:
+        _ylim = plt.ylim()
+        if _ylim[0] < 0 < _ylim[1]:
             plt.plot(plt.xlim(), [0, 0], "k-", linewidth=1)
 
         ax.set_xlabel(r"$T$ (K)")
@@ -699,9 +785,8 @@ class ThermoPlotter:
         return fig
 
     @add_fig_kwargs
-    def plot_cv(self, tmin, tmax, ntemp, ylim=None, **kwargs):
-        """
-        Plots the constant volume specific heat C_v in a temperature range.
+    def plot_cv(self, tmin: float, tmax: float, ntemp: int, ylim: float | None = None, **kwargs) -> Figure:
+        """Plots the constant volume specific heat C_v in a temperature range.
 
         Args:
             tmin: minimum temperature
@@ -711,7 +796,7 @@ class ThermoPlotter:
             kwargs: kwargs passed to the matplotlib function 'plot'.
 
         Returns:
-            matplotlib figure
+            plt.figure: matplotlib figure
         """
         temperatures = np.linspace(tmin, tmax, ntemp)
 
@@ -720,9 +805,8 @@ class ThermoPlotter:
         return self._plot_thermo(self.dos.cv, temperatures, ylabel=ylabel, ylim=ylim, **kwargs)
 
     @add_fig_kwargs
-    def plot_entropy(self, tmin, tmax, ntemp, ylim=None, **kwargs):
-        """
-        Plots the vibrational entrpy in a temperature range.
+    def plot_entropy(self, tmin: float, tmax: float, ntemp: int, ylim: float | None = None, **kwargs) -> Figure:
+        """Plots the vibrational entrpy in a temperature range.
 
         Args:
             tmin: minimum temperature
@@ -732,7 +816,7 @@ class ThermoPlotter:
             kwargs: kwargs passed to the matplotlib function 'plot'.
 
         Returns:
-            matplotlib figure
+            plt.figure: matplotlib figure
         """
         temperatures = np.linspace(tmin, tmax, ntemp)
 
@@ -741,9 +825,8 @@ class ThermoPlotter:
         return self._plot_thermo(self.dos.entropy, temperatures, ylabel=ylabel, ylim=ylim, **kwargs)
 
     @add_fig_kwargs
-    def plot_internal_energy(self, tmin, tmax, ntemp, ylim=None, **kwargs):
-        """
-        Plots the vibrational internal energy in a temperature range.
+    def plot_internal_energy(self, tmin: float, tmax: float, ntemp: int, ylim: float | None = None, **kwargs) -> Figure:
+        """Plots the vibrational internal energy in a temperature range.
 
         Args:
             tmin: minimum temperature
@@ -753,7 +836,7 @@ class ThermoPlotter:
             kwargs: kwargs passed to the matplotlib function 'plot'.
 
         Returns:
-            matplotlib figure
+            plt.figure: matplotlib figure
         """
         temperatures = np.linspace(tmin, tmax, ntemp)
 
@@ -764,9 +847,10 @@ class ThermoPlotter:
         )
 
     @add_fig_kwargs
-    def plot_helmholtz_free_energy(self, tmin, tmax, ntemp, ylim=None, **kwargs):
-        """
-        Plots the vibrational contribution to the Helmoltz free energy in a temperature range.
+    def plot_helmholtz_free_energy(
+        self, tmin: float, tmax: float, ntemp: int, ylim: float | None = None, **kwargs
+    ) -> Figure:
+        """Plots the vibrational contribution to the Helmoltz free energy in a temperature range.
 
         Args:
             tmin: minimum temperature
@@ -776,7 +860,7 @@ class ThermoPlotter:
             kwargs: kwargs passed to the matplotlib function 'plot'.
 
         Returns:
-            matplotlib figure
+            plt.figure: matplotlib figure
         """
         temperatures = np.linspace(tmin, tmax, ntemp)
 
@@ -787,9 +871,10 @@ class ThermoPlotter:
         )
 
     @add_fig_kwargs
-    def plot_thermodynamic_properties(self, tmin, tmax, ntemp, ylim=None, **kwargs):
-        """
-        Plots all the thermodynamic properties in a temperature range.
+    def plot_thermodynamic_properties(
+        self, tmin: float, tmax: float, ntemp: int, ylim: float | None = None, **kwargs
+    ) -> Figure:
+        """Plots all the thermodynamic properties in a temperature range.
 
         Args:
             tmin: minimum temperature
@@ -799,7 +884,7 @@ class ThermoPlotter:
             kwargs: kwargs passed to the matplotlib function 'plot'.
 
         Returns:
-            matplotlib figure
+            plt.figure: matplotlib figure
         """
         temperatures = np.linspace(tmin, tmax, ntemp)
 
@@ -841,77 +926,82 @@ class ThermoPlotter:
 
 
 class GruneisenPlotter:
-    """Class to plot Gruneisenparameter Object."""
+    """Plot GruneisenParameter."""
 
-    def __init__(self, gruneisen):
-        """
-        Class to plot information from Gruneisenparameter Object
+    def __init__(self, gruneisen: GruneisenParameter) -> None:
+        """Plot information from GruneisenParameter.
+
         Args:
-            gruneisen: GruneisenParameter Object.
+            gruneisen (GruneisenParameter): containing the data to plot.
         """
         self._gruneisen = gruneisen
 
-    def get_plot(self, marker="o", markersize=None, units="thz"):
-        """
-        will produce a plot
+    def get_plot(
+        self,
+        marker: str = "o",
+        markersize: float | None = None,
+        units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
+    ) -> Axes:
+        """Will produce a plot.
+
         Args:
             marker: marker for the depiction
             markersize: size of the marker
             units: unit for the plots, accepted units: thz, ev, mev, ha, cm-1, cm^-1.
 
-        Returns: plot
+        Returns:
+            plt.Axes: matplotlib axes object
         """
-        u = freq_units(units)
+        freq_unit = freq_units(units)
 
-        xs = self._gruneisen.frequencies.flatten() * u.factor
+        xs = self._gruneisen.frequencies.flatten() * freq_unit.factor
         ys = self._gruneisen.gruneisen.flatten()
 
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
 
-        plt.xlabel(rf"$\mathrm{{Frequency\ ({u.label})}}$")
-        plt.ylabel(r"$\mathrm{Grüneisen\ parameter}$")
+        ax.set_xlabel(rf"$\mathrm{{Frequency\ ({freq_unit.label})}}$")
+        ax.set_ylabel(r"$\mathrm{Grüneisen\ parameter}$")
 
-        n = len(ys) - 1
-        for i, (x, y) in enumerate(zip(xs, ys)):
-            color = (1.0 / n * i, 0, 1.0 / n * (n - i))
+        n_points = len(ys) - 1
+        for idx, (xi, yi) in enumerate(zip(xs, ys)):
+            color = (1.0 / n_points * idx, 0, 1.0 / n_points * (n_points - idx))
 
-            if markersize:
-                plt.plot(x, y, marker, color=color, markersize=markersize)
-            else:
-                plt.plot(x, y, marker, color=color)
+            ax.plot(xi, yi, marker, color=color, markersize=markersize)
 
         plt.tight_layout()
+        return ax
 
-        return plt
+    def show(self, units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz") -> None:
+        """Will show the plot.
 
-    def show(self, units="thz"):
-        """
-        will show the plot
         Args:
             units: units for the plot, accepted units: thz, ev, mev, ha, cm-1, cm^-1.
-
-        Returns: plot
         """
-        plt = self.get_plot(units=units)
+        self.get_plot(units=units)
         plt.show()
 
-    def save_plot(self, filename, img_format="pdf", units="thz"):
-        """
-        Will save the plot to a file
+    def save_plot(
+        self,
+        filename: str | PathLike,
+        img_format: str = "pdf",
+        units: Literal["thz", "ev", "mev", "ha", "cm-1", "cm^-1"] = "thz",
+    ) -> None:
+        """Will save the plot to a file.
+
         Args:
             filename: name of the filename
             img_format: format of the saved plot
             units: accepted units: thz, ev, mev, ha, cm-1, cm^-1.
         """
-        plt = self.get_plot(units=units)
+        self.get_plot(units=units)
         plt.savefig(filename, format=img_format)
         plt.close()
 
 
 class GruneisenPhononBSPlotter(PhononBSPlotter):
-    """Class to plot or get data to facilitate the plot of band structure objects."""
+    """Plot or get data to facilitate the plot of band structure objects."""
 
-    def __init__(self, bs):
+    def __init__(self, bs: GruneisenPhononBandStructureSymmLine) -> None:
         """
         Args:
             bs: A GruneisenPhononBandStructureSymmLine object.
@@ -924,9 +1014,8 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
             )
         super().__init__(bs)
 
-    def bs_plot_data(self):
-        """
-        Get the data nicely formatted for a plot.
+    def bs_plot_data(self) -> dict[str, Any]:
+        """Get the data nicely formatted for a plot.
 
         Returns:
             A dict of the following format:
@@ -938,18 +1027,24 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
             gruneisen: GruneisenPhononBandStructureSymmLine
             lattice: The reciprocal lattice.
         """
-        distance, frequency, gruneisen = ([] for _ in range(3))
+        distance: list = []
+        frequency: list[list[list[float]]] = []
+        gruneisen: list = []
 
         ticks = self.get_ticks()
 
-        for b in self._bs.branches:
+        for branch in self._bs.branches:
             frequency.append([])
             gruneisen.append([])
-            distance.append([self._bs.distance[j] for j in range(b["start_index"], b["end_index"] + 1)])
+            distance.append([self._bs.distance[j] for j in range(branch["start_index"], branch["end_index"] + 1)])
 
-            for i in range(self._nb_bands):
-                frequency[-1].append([self._bs.bands[i][j] for j in range(b["start_index"], b["end_index"] + 1)])
-                gruneisen[-1].append([self._bs.gruneisen[i][j] for j in range(b["start_index"], b["end_index"] + 1)])
+            for idx in range(self.n_bands):
+                frequency[-1].append(
+                    [self._bs.bands[idx][j] for j in range(branch["start_index"], branch["end_index"] + 1)]
+                )
+                gruneisen[-1].append(
+                    [self._bs.gruneisen[idx][j] for j in range(branch["start_index"], branch["end_index"] + 1)]
+                )
 
         return {
             "ticks": ticks,
@@ -959,78 +1054,71 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
             "lattice": self._bs.lattice_rec.as_dict(),
         }
 
-    def get_plot_gs(self, ylim=None):
-        """
-        Get a matplotlib object for the gruneisen bandstructure plot.
+    def get_plot_gs(self, ylim: float | None = None, **kwargs) -> Axes:
+        """Get a matplotlib object for the Gruneisen bandstructure plot.
 
         Args:
             ylim: Specify the y-axis (gruneisen) limits; by default None let
                 the code choose.
+            **kwargs: additional keywords passed to ax.plot().
         """
-        plt = pretty_plot(12, 8)
+        ax = pretty_plot(12, 8)
 
-        # band_linewidth = 1
+        kwargs.setdefault("linewidth", 2)
+        kwargs.setdefault("marker", "o")
+        kwargs.setdefault("markersize", 2)
 
         data = self.bs_plot_data()
-        for d in range(len(data["distances"])):
-            for i in range(self._nb_bands):
-                plt.plot(
-                    data["distances"][d],
-                    [data["gruneisen"][d][i][j] for j in range(len(data["distances"][d]))],
-                    "b-",
-                    # linewidth=band_linewidth)
-                    marker="o",
-                    markersize=2,
-                    linewidth=2,
-                )
+        for dist_idx in range(len(data["distances"])):
+            for band_idx in range(self.n_bands):
+                ys = [data["gruneisen"][dist_idx][band_idx][idx] for idx in range(len(data["distances"][dist_idx]))]
 
-        self._maketicks(plt)
+                ax.plot(data["distances"][dist_idx], ys, "b-", **kwargs)
+
+        self._make_ticks(ax)
 
         # plot y=0 line
-        plt.axhline(0, linewidth=1, color="k")
+        ax.axhline(0, linewidth=1, color="black")
 
         # Main X and Y Labels
-        plt.xlabel(r"$\mathrm{Wave\ Vector}$", fontsize=30)
-        plt.ylabel(r"$\mathrm{Grüneisen\ Parameter}$", fontsize=30)
+        ax.set_xlabel(r"$\mathrm{Wave\ Vector}$", fontsize=30)
+        ax.set_ylabel(r"$\mathrm{Grüneisen\ Parameter}$", fontsize=30)
 
         # X range (K)
         # last distance point
         x_max = data["distances"][-1][-1]
-        plt.xlim(0, x_max)
+        ax.set_xlim(0, x_max)
 
         if ylim is not None:
-            plt.ylim(ylim)
+            ax.set_ylim(ylim)
 
         plt.tight_layout()
 
-        return plt
+        return ax
 
-    def show_gs(self, ylim=None):
-        """
-        Show the plot using matplotlib.
+    def show_gs(self, ylim: float | None = None) -> None:
+        """Show the plot using matplotlib.
 
         Args:
             ylim: Specifies the y-axis limits.
         """
-        plt = self.get_plot_gs(ylim)
+        self.get_plot_gs(ylim)
         plt.show()
 
-    def save_plot_gs(self, filename, img_format="eps", ylim=None):
-        """
-        Save matplotlib plot to a file.
+    def save_plot_gs(self, filename: str | PathLike, img_format: str = "eps", ylim: float | None = None) -> None:
+        """Save matplotlib plot to a file.
 
         Args:
             filename: Filename to write to.
             img_format: Image format to use. Defaults to EPS.
             ylim: Specifies the y-axis limits.
         """
-        plt = self.get_plot_gs(ylim=ylim)
+        self.get_plot_gs(ylim=ylim)
         plt.savefig(filename, format=img_format)
         plt.close()
 
-    def plot_compare_gs(self, other_plotter: GruneisenPhononBSPlotter) -> plt:
-        """
-        plot two band structure for comparison. One is in red the other in blue.
+    def plot_compare_gs(self, other_plotter: GruneisenPhononBSPlotter) -> Axes:
+        """Plot two band structure for comparison. One is in red the other in blue.
         The two band structures need to be defined on the same symmetry lines!
         and the distance between symmetry lines is
         the one of the band structure used to build the PhononBSPlotter.
@@ -1039,24 +1127,31 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
             other_plotter (GruneisenPhononBSPlotter): another phonon DOS plotter defined along
                 the same symmetry lines.
 
+        Raises:
+            ValueError: if the two plotters are incompatible (due to different data lengths)
+
         Returns:
             a matplotlib object with both band structures
         """
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
 
-        if len(data_orig["distances"]) != len(data["distances"]):
-            raise ValueError("The two objects are not compatible.")
+        len_orig = len(data_orig["distances"])
+        len_other = len(data["distances"])
+        if len_orig != len_other:
+            raise ValueError(
+                f"The two plotters are incompatible, plotting data have different lengths ({len_orig} vs {len_other})."
+            )
 
-        plt = self.get_plot()
+        ax = self.get_plot()
         band_linewidth = 1
-        for i in range(other_plotter._nb_bands):
-            for d in range(len(data_orig["distances"])):
-                plt.plot(
-                    data_orig["distances"][d],
-                    [data["gruneisen"][d][i][j] for j in range(len(data_orig["distances"][d]))],
+        for band_idx in range(other_plotter.n_bands):
+            for dist_idx in range(len(data_orig["distances"])):
+                ax.plot(
+                    data_orig["distances"][dist_idx],
+                    [data["gruneisen"][dist_idx][band_idx][j] for j in range(len(data_orig["distances"][dist_idx]))],
                     "r-",
                     linewidth=band_linewidth,
                 )
 
-        return plt
+        return ax

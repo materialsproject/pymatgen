@@ -7,7 +7,7 @@ import sqlite3
 import textwrap
 from array import array
 from fractions import Fraction
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.design_patterns import cached_class
@@ -19,6 +19,10 @@ from pymatgen.symmetry.settings import JonesFaithfulTransformation
 from pymatgen.util.string import transformation_to_string
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from typing_extensions import Self
+
     from pymatgen.core.lattice import Lattice
 
 __author__ = "Matthew Horton, Shyue Ping Ong"
@@ -31,8 +35,7 @@ class MagneticSpaceGroup(SymmetryGroup):
     """Representation of a magnetic space group."""
 
     def __init__(self, label, setting_transformation="a,b,c;0,0,0"):
-        """
-        Initializes a MagneticSpaceGroup from its Belov, Neronova and
+        """Initialize a MagneticSpaceGroup from its Belov, Neronova and
         Smirnova (BNS) number supplied as a list or its label supplied
         as a string. To create a magnetic structure in pymatgen, the
         Structure.from_magnetic_spacegroup() method can be used, which
@@ -89,8 +92,13 @@ class MagneticSpaceGroup(SymmetryGroup):
         See http://stokes.byu.edu/iso/magneticspacegroupshelp.php for more
         information on magnetic symmetry.
 
-        :param id: BNS number supplied as list of 2 ints or BNS label as
-            str or index as int (1-1651) to iterate over all space groups
+        Args:
+            label: BNS number supplied as list of 2 ints or BNS label as
+                str or index as int (1-1651) to iterate over all space groups
+            setting_transformation: Transformation to apply to convert
+                from BNS to OG setting, default is 'a,b,c;0,0,0' which
+                means no transformation, i.e. BNS setting is the same as
+                OG setting.
         """
         self._data = {}
 
@@ -115,10 +123,10 @@ class MagneticSpaceGroup(SymmetryGroup):
         raw_data = list(c.fetchone())
 
         # Jones Faithful transformation
-        self.jf = JonesFaithfulTransformation.from_transformation_string("a,b,c;0,0,0")
+        self.jf = JonesFaithfulTransformation.from_transformation_str("a,b,c;0,0,0")
         if isinstance(setting_transformation, str):
             if setting_transformation != "a,b,c;0,0,0":
-                self.jf = JonesFaithfulTransformation.from_transformation_string(setting_transformation)
+                self.jf = JonesFaithfulTransformation.from_transformation_str(setting_transformation)
         elif isinstance(setting_transformation, JonesFaithfulTransformation) and setting_transformation != self.jf:
             self.jf = setting_transformation
 
@@ -142,12 +150,12 @@ class MagneticSpaceGroup(SymmetryGroup):
             }
 
         def _parse_operators(b):
-            """Parses compact binary representation into list of MagSymmOps."""
+            """Parse compact binary representation into list of MagSymmOps."""
             if len(b) == 0:  # e.g. if magtype != 4, OG setting == BNS setting, and b == [] for OG symmops
                 return None
             raw_symops = [b[i : i + 6] for i in range(0, len(b), 6)]
 
-            symops = []
+            symm_ops = []
 
             for r in raw_symops:
                 point_operator = _get_point_operator(r[0])
@@ -165,12 +173,12 @@ class MagneticSpaceGroup(SymmetryGroup):
                 )
                 if time_reversal == -1:
                     seitz += "'"
-                symops.append({"op": op, "str": seitz})
+                symm_ops.append({"op": op, "str": seitz})
 
-            return symops
+            return symm_ops
 
         def _parse_wyckoff(b):
-            """Parses compact binary representation into list of Wyckoff sites."""
+            """Parse compact binary representation into list of Wyckoff sites."""
             if len(b) == 0:
                 return None
 
@@ -185,10 +193,10 @@ class MagneticSpaceGroup(SymmetryGroup):
             n = 1  # nth Wyckoff site
             num_wyckoff = b[0]
             while len(wyckoff_sites) < num_wyckoff:
-                m = b[1 + o]  # multiplicity
-                label = str(b[2 + o] * m) + get_label(num_wyckoff - n)
+                multiplicity = b[1 + o]
+                label = str(b[2 + o] * multiplicity) + get_label(num_wyckoff - n)
                 sites = []
-                for j in range(m):
+                for j in range(multiplicity):
                     s = b[3 + o + (j * 22) : 3 + o + (j * 22) + 22]  # data corresponding to specific Wyckoff position
                     translation_vec = [s[0] / s[3], s[1] / s[3], s[2] / s[3]]
                     matrix = [
@@ -219,12 +227,12 @@ class MagneticSpaceGroup(SymmetryGroup):
                 # could do something else with these in future
                 wyckoff_sites.append({"label": label, "str": " ".join(s["str"] for s in sites)})
                 n += 1
-                o += m * 22 + 2
+                o += multiplicity * 22 + 2
 
             return wyckoff_sites
 
         def _parse_lattice(b):
-            """Parses compact binary representation into list of lattice vectors/centerings."""
+            """Parse compact binary representation into list of lattice vectors/centerings."""
             if len(b) == 0:
                 return None
             raw_lattice = [b[i : i + 4] for i in range(0, len(b), 4)]
@@ -244,7 +252,7 @@ class MagneticSpaceGroup(SymmetryGroup):
             return lattice
 
         def _parse_transformation(b):
-            """Parses compact binary representation into transformation between OG and BNS settings."""
+            """Parse compact binary representation into transformation between OG and BNS settings."""
             if len(b) == 0:
                 return None
             # capital letters used here by convention,
@@ -258,14 +266,14 @@ class MagneticSpaceGroup(SymmetryGroup):
                 f"{Fraction(p[1]).limit_denominator()},"
                 f"{Fraction(p[2]).limit_denominator()}"
             )
-            return P_string + ";" + p_string
+            return f"{P_string};{p_string}"
 
-        for i in range(8, 15):
+        for idx in range(8, 15):
             try:
-                raw_data[i] = array("b", raw_data[i])  # construct array from sql binary blobs
+                raw_data[idx] = array("b", raw_data[idx])  # construct array from sql binary blobs
             except Exception:
                 # array() behavior changed, need to explicitly convert buffer to str in earlier Python
-                raw_data[i] = array("b", str(raw_data[i]))
+                raw_data[idx] = array("b", str(raw_data[idx]))
 
         self._data["og_bns_transform"] = _parse_transformation(raw_data[8])
         self._data["bns_operators"] = _parse_operators(raw_data[9])
@@ -278,13 +286,11 @@ class MagneticSpaceGroup(SymmetryGroup):
         db.close()
 
     @classmethod
-    def from_og(cls, label: Sequence[int] | str) -> MagneticSpaceGroup:
-        """
-        Initialize from Opechowski and Guccione (OG) label or number.
+    def from_og(cls, label: Sequence[int] | str) -> Self:
+        """Initialize from Opechowski and Guccione (OG) label or number.
 
-        :param id: OG number supplied as list of 3 ints or
-            or OG label as str
-        :return:
+        Args:
+            label: OG number supplied as list of 3 ints or OG label as str
         """
         db = sqlite3.connect(MAGSYMM_DATA)
         c = db.cursor()
@@ -307,7 +313,7 @@ class MagneticSpaceGroup(SymmetryGroup):
 
     @property
     def crystal_system(self):
-        """:return: Crystal system, e.g., cubic, hexagonal, etc."""
+        """Crystal system, e.g. cubic, hexagonal, etc."""
         i = self._data["bns_number"][0]
         if i <= 2:
             return "triclinic"
@@ -325,14 +331,15 @@ class MagneticSpaceGroup(SymmetryGroup):
 
     @property
     def sg_symbol(self):
-        """:return: Space group symbol"""
+        """Space group symbol."""
         return self._data["bns_label"]
 
     @property
     def symmetry_ops(self):
-        """
-        Retrieve magnetic symmetry operations of the space group.
-        :return: List of :class:`pymatgen.core.operations.MagSymmOp`.
+        """Retrieve magnetic symmetry operations of the space group.
+
+        Returns:
+            List of pymatgen.core.operations.MagSymmOp.
         """
         ops = [op_data["op"] for op_data in self._data["bns_operators"]]
 
@@ -357,12 +364,11 @@ class MagneticSpaceGroup(SymmetryGroup):
         return [self.jf.transform_symmop(op) for op in ops]
 
     def get_orbit(self, p, magmom, tol: float = 1e-5):
-        """
-        Returns the orbit for a point and its associated magnetic moment.
+        """Get the orbit for a point and its associated magnetic moment.
 
         Args:
             p: Point as a 3x1 array.
-            magmom: A magnetic moment, compatible with :class:`pymatgen.electronic_structure.core.Magmom`
+            magmom: A magnetic moment, compatible with pymatgen.electronic_structure.core.Magmom
             tol: Tolerance for determining if sites are the same. 1e-5 should
                 be sufficient for most purposes. Set to 0 for exact matching
                 (and also needed for symbolic orbits).
@@ -383,8 +389,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         return orbit, orbit_magmoms
 
     def is_compatible(self, lattice: Lattice, tol: float = 1e-5, angle_tol: float = 5) -> bool:
-        """
-        Checks whether a particular lattice is compatible with the
+        """Check whether a particular lattice is compatible with the
         *conventional* unit cell.
 
         Args:
@@ -423,9 +428,10 @@ class MagneticSpaceGroup(SymmetryGroup):
         return True
 
     def data_str(self, include_og=True):
-        """
-        Get description of all data, including information for OG setting.
-        :return: str.
+        """Get description of all data, including information for OG setting.
+
+        Returns:
+            str.
         """
         # __str__() omits information on OG setting to reduce confusion
         # as to which set of symops are active, this property gives
@@ -437,7 +443,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         # parse data into strings
 
         # indicate if non-standard setting specified
-        if self.jf != JonesFaithfulTransformation.from_transformation_string("a,b,c;0,0,0"):
+        if self.jf != JonesFaithfulTransformation.from_transformation_str("a,b,c;0,0,0"):
             description += "Non-standard setting: .....\n"
             description += repr(self.jf)
             description += "\n\nStandard setting information: \n"
@@ -446,9 +452,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         desc["bns_number"] = ".".join(map(str, self._data["bns_number"]))
         desc["bns_label"] = self._data["bns_label"]
         desc["og_id"] = (
-            "\t\tOG: " + ".".join(map(str, self._data["og_number"])) + " " + self._data["og_label"]
-            if include_og
-            else ""
+            f"\t\tOG: {'.'.join(map(str, self._data['og_number']))} {self._data['og_label']}" if include_og else ""
         )
         desc["bns_operators"] = " ".join(op_data["str"] for op_data in self._data["bns_operators"])
 
@@ -535,18 +539,18 @@ class MagneticSpaceGroup(SymmetryGroup):
         return description
 
     def __str__(self):
-        """
-        String representation of the space group, specifying the setting
+        """String representation of the space group, specifying the setting
         of the space group, its magnetic symmetry operators and Wyckoff
         positions.
-        :return: str.
+
+        Returns:
+            str.
         """
         return self.data_str(include_og=False)
 
 
 def _write_all_magnetic_space_groups_to_file(filename):
-    """
-    Write all magnetic space groups to a human-readable text file.
+    """Write all magnetic space groups to a human-readable text file.
     Should contain same information as text files provided by ISO-MAG.
     """
     out = (
@@ -560,5 +564,5 @@ def _write_all_magnetic_space_groups_to_file(filename):
         all_msgs.append(MagneticSpaceGroup(i))
     for msg in all_msgs:
         out += f"\n{msg.data_str()}\n\n--------\n"
-    with open(filename, "w") as f:
-        f.write(out)
+    with open(filename, mode="w") as file:
+        file.write(out)

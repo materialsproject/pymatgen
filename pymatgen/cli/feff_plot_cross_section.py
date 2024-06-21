@@ -6,6 +6,8 @@ from __future__ import annotations
 
 import argparse
 
+import matplotlib.pyplot as plt
+
 from pymatgen.io.feff.outputs import Xmu
 from pymatgen.util.plotting import pretty_plot
 
@@ -37,7 +39,7 @@ def main():
         help="feff.inp filename to import",
     )
 
-    plt = pretty_plot(12, 8)
+    ax = pretty_plot(12, 8)
     color_order = ["r", "b", "g", "c", "k", "m", "y"]
 
     args = parser.parse_args()
@@ -45,23 +47,22 @@ def main():
 
     data = xmu.as_dict()
 
-    plt.title(data["calc"] + " Feff9.6 Calculation for " + data["atom"] + " in " + data["formula"] + " unit cell")
-    plt.xlabel("Energies (eV)")
-    plt.ylabel("Absorption Cross-section")
+    ax.set_title(f"{data['calc']} Feff9.6 Calculation for {data['atom']} in {data['formula']} unit cell")
+    ax.set_xlabel("Energies (eV)")
+    ax.set_ylabel("Absorption Cross-section")
 
     x = data["energies"]
     y = data["scross"]
-    tle = "Single " + data["atom"] + " " + data["edge"] + " edge"
-    plt.plot(x, y, color_order[1 % 7], label=tle)
+    tle = f"Single {data['atom']} {data['edge']} edge"
+    ax.plot(x, y, color_order[1 % 7], label=tle)
 
     y = data["across"]
-    tle = data["atom"] + " " + data["edge"] + " edge in " + data["formula"]
-    plt.plot(x, y, color_order[2 % 7], label=tle)
+    tle = f"{data['atom']} {data['edge']} edge in {data['formula']}"
+    ax.plot(x, y, color_order[2 % 7], label=tle)
 
-    plt.legend()
-    leg = plt.gca().get_legend()
-    ltext = leg.get_texts()  # all the text.Text instance in the legend
-    plt.setp(ltext, fontsize=15)
+    ax.legend()
+    legend_text = ax.get_legend().get_texts()  # all the text.Text instance in the legend
+    plt.setp(legend_text, fontsize=15)
     plt.tight_layout()
     plt.show()
 

@@ -1,18 +1,19 @@
 <h1 align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen-white.svg">
-    <img alt="Logo" src="https://raw.githubusercontent.com/materialsproject/pymatgen/master/docs/_images/pymatgen.svg" height="70">
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/materialsproject/pymatgen/raw/master/docs/assets/pymatgen-white.svg">
+    <img alt="Logo" src="https://github.com/materialsproject/pymatgen/raw/master/docs/assets/pymatgen.svg"
+height="70">
   </picture>
 </h1>
 
 <h4 align="center">
 
 [![CI Status](https://github.com/materialsproject/pymatgen/actions/workflows/test.yml/badge.svg)](https://github.com/materialsproject/pymatgen/actions/workflows/test.yml)
-[![Coveralls](https://img.shields.io/coveralls/github/materialsproject/pymatgen?logo=coveralls&label=Coverage)](https://coveralls.io/github/materialsproject/pymatgen?branch=master)
+[![codecov](https://codecov.io/gh/materialsproject/pymatgen/branch/master/graph/badge.svg?token=XC47Un1LV2)](https://codecov.io/gh/materialsproject/pymatgen)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/pymatgen?logo=pypi&logoColor=white&color=blue&label=PyPI)](https://pypi.org/project/pymatgen)
 [![Conda Downloads](https://img.shields.io/conda/dn/conda-forge/pymatgen?logo=condaforge&color=blue&label=Conda)](https://anaconda.org/conda-forge/pymatgen)
-[![Requires Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
-[![arXiv](https://img.shields.io/badge/J.ComMatSci-2012.10.028-blue)](https://doi.org/10.1016/j.commatsci.2012.10.028)
+[![Requires Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
+[![Paper](https://img.shields.io/badge/J.ComMatSci-2012.10.028-blue?logo=elsevier&logoColor=white)](https://doi.org/10.1016/j.commatsci.2012.10.028)
 
 </h4>
 
@@ -32,7 +33,6 @@ Pymatgen is free to use. However, we also welcome your help to improve this libr
 - Code contributions via [pull request] are welcome.
 - For questions that are not bugs or feature requests, please use the `pymatgen` [MatSci forum](https://matsci.org/pymatgen) or open a [GitHub discussion].
 - [`matgenb`](https://github.com/materialsvirtuallab/matgenb#introduction) provides some example Jupyter notebooks that demonstrate how to use `pymatgen` functionality.
-- Follow us on [Twitter](https://twitter.com/pymatgen) to get news and tips.
 
 [pull request]: https://github.com/materialsproject/pymatgen/pulls
 [github issue]: https://github.com/materialsproject/pymatgen/issues
@@ -63,11 +63,11 @@ If you'd like to use the latest unreleased changes on the main branch, you can i
 pip install -U git+https://github.com/materialsproject/pymatgen
 ```
 
-The minimum Python version is 3.8. Some extra functionality (e.g., generation of POTCARs) does require additional setup (see the [`pymatgen` docs]).
+The minimum Python version is 3.9. Some extra functionality (e.g., generation of POTCARs) does require additional setup (see the [`pymatgen` docs]).
 
 ## Change Log
 
-Please check [GitHub releases](https://github.com/materialsproject/pymatgen/releases) and [commit history](https://github.com/materialsproject/pymatgen/commits/master) for the latest changes. A legacy changelog is still up at <https://pymatgen.org/change_log>.
+See [GitHub releases](https://github.com/materialsproject/pymatgen/releases), [`docs/CHANGES.md`](docs/CHANGES.md) or [commit history](https://github.com/materialsproject/pymatgen/commits/master) in increasing order of details.
 
 ## Using pymatgen
 
@@ -86,6 +86,11 @@ If you use `pymatgen` in your research, please consider citing the following wor
 
 In addition, some of `pymatgen`'s functionality is based on scientific advances/principles developed by the computational materials scientists in our team. Please refer to the [`pymatgen` docs] on how to cite them.
 
+### Soliciting contributions to 2nd `pymatgen` paper
+
+If you are a long-standing `pymatgen` contributor and would like to be involved in working on an updated `pymatgen` publication,
+please fill out this [co-author registration form](https://docs.google.com/forms/d/e/1FAIpQLSecIhD2YjdPGldrRTM8Go3VxVg_vjKjZAOXtIKDG7qckHLYaQ/viewform) or contact [@shyuep, @mkhorton and @janosh](mailto:ongsp@ucsd.edu,m.k.horton@gmail.com,janosh@lbl.gov?subject=Contributing%20to%20updated%20pymatgen%20paper) with questions.
+
 ## License
 
 Pymatgen is released under the MIT License. The terms of the license are as follows:
@@ -100,7 +105,8 @@ Pymatgen is released under the MIT License. The terms of the license are as foll
 
 ## About the Pymatgen Development Team
 
-Shyue Ping Ong of the [Materials Virtual Lab] started Pymatgen in 2011 and is still the project lead.
+Shyue Ping Ong (@shyuep) of the [Materials Virtual Lab] started Pymatgen in 2011 and is still the project lead.
+Janosh Riebesell (@janosh) and Matthew Horton (@mkhorton) are co-maintainers.
 
 The [`pymatgen` development team] is the set of all contributors to the `pymatgen` project, including all subprojects.
 

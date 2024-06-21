@@ -42,7 +42,7 @@ class AbstractEnvironmentNode(MSONable):
 
     def __hash__(self) -> int:
         """Simple hash function based on the hash function of the central site."""
-        return self.central_site.__hash__()
+        return hash(self.central_site)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, AbstractEnvironmentNode):
@@ -60,7 +60,7 @@ class AbstractEnvironmentNode(MSONable):
         return self.isite < other.isite
 
     def everything_equal(self, other):
-        """Checks equality with respect to another AbstractEnvironmentNode using the index of the central site
+        """Check equality with respect to another AbstractEnvironmentNode using the index of the central site
         as well as the central site itself.
         """
         return self == other and self.central_site == other.central_site
@@ -93,11 +93,11 @@ class AbstractEnvironmentNode(MSONable):
 
     def __str__(self):
         """String representation of the AbstractEnvironmentNode."""
-        return f"Node #{self.isite:d} {self.atom_symbol} ({self.coordination_environment})"
+        return f"Node #{self.isite} {self.atom_symbol} ({self.coordination_environment})"
 
 
 class EnvironmentNode(AbstractEnvironmentNode):
-    """Class used to define an environment as a node in a graph."""
+    """Define an environment as a node in a graph."""
 
     def __init__(self, central_site, i_central_site, ce_symbol) -> None:
         """
@@ -121,7 +121,7 @@ class EnvironmentNode(AbstractEnvironmentNode):
         """Compare with another environment node.
 
         Returns:
-            True if it is equal to the other node, False otherwise.
+            bool: True if it is equal to the other node.
         """
         return super().everything_equal(other) and self.coordination_environment == other.coordination_environment
 
@@ -157,8 +157,7 @@ class EnvironmentNode(AbstractEnvironmentNode):
 
 
 def get_environment_node(central_site, i_central_site, ce_symbol):
-    """
-    Get the EnvironmentNode class or subclass for the given site and symbol.
+    """Get the EnvironmentNode class or subclass for the given site and symbol.
 
     Args:
         central_site (Site or subclass of Site): Central site of the environment.

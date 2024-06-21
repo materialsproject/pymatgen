@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
+import operator
 from functools import reduce
 from math import sqrt
+from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.special import erf
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -17,7 +22,7 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 ##############################################################
-# Cartesian product of lists ##################################
+# Cartesian product of lists #################################
 ##############################################################
 
 
@@ -43,8 +48,12 @@ def _cartesian_product(lists):
 
 def prime_factors(n: int) -> list[int]:
     """Lists prime factors of a given natural integer, from greatest to smallest
-    :param n: Natural integer
-    :rtype : list of all prime factors of the given natural n.
+
+    Args:
+        n: Natural integer
+
+    Returns:
+        list of all prime factors of the given natural n.
     """
     idx = 2
     while idx <= sqrt(n):
@@ -56,14 +65,14 @@ def prime_factors(n: int) -> list[int]:
     return [n]  # n is prime
 
 
-def _factor_generator(n):
-    """
-    From a given natural integer, returns the prime factors and their multiplicity
-    :param n: Natural integer
-    :return:
+def _factor_generator(n: int) -> dict[int, int]:
+    """From a given natural integer, returns the prime factors and their multiplicity
+
+    Args:
+        n: Natural integer
     """
     p = prime_factors(n)
-    factors = {}
+    factors: dict[int, int] = {}
     for p1 in p:
         try:
             factors[p1] += 1
@@ -73,27 +82,30 @@ def _factor_generator(n):
 
 
 def divisors(n):
-    """
-    From a given natural integer, returns the list of divisors in ascending order
-    :param n: Natural integer
-    :return: List of divisors of n in ascending order.
+    """From a given natural integer, returns the list of divisors in ascending order
+
+    Args:
+        n: Natural integer
+
+    Returns:
+        List of divisors of n in ascending order.
     """
     factors = _factor_generator(n)
     _divisors = []
-    listexponents = [[k**x for x in range(0, factors[k] + 1)] for k in list(factors)]
-    listfactors = _cartesian_product(listexponents)
-    for f in listfactors:
-        _divisors.append(reduce(lambda x, y: x * y, f, 1))
+    exponents = [[k**x for x in range(factors[k] + 1)] for k in list(factors)]
+    factors = _cartesian_product(exponents)
+    for factor in factors:
+        _divisors.append(reduce(operator.mul, factor, 1))
     _divisors.sort()
     return _divisors
 
 
 def get_center_of_arc(p1, p2, radius):
     """
-    :param p1:
-    :param p2:
-    :param radius:
-    :return:
+    Args:
+        p1:
+        p2:
+        radius:
     """
     dx = p2[0] - p1[0]
     dy = p2[1] - p1[1]
@@ -107,37 +119,37 @@ def get_center_of_arc(p1, p2, radius):
     return (p1[0] + p2[0]) / 2 - tt * dy, (p1[1] + p2[1]) / 2 + tt * dx
 
 
-def get_linearly_independent_vectors(vectors_list):
+def get_linearly_independent_vectors(vectors: list[ArrayLike]) -> list[np.ndarray]:
     """
-    :param vectors_list:
-    :return:
+    Args:
+        vectors (list[ArrayLike]): List of vectors
     """
-    independent_vectors_list = []
-    for vector in vectors_list:
+    independent_vectors: list[np.ndarray] = []
+    for vector in vectors:
         if np.any(vector != 0):
-            if len(independent_vectors_list) == 0:
-                independent_vectors_list.append(np.array(vector))
-            elif len(independent_vectors_list) == 1:
-                rank = np.linalg.matrix_rank(np.array([independent_vectors_list[0], vector, [0, 0, 0]]))
+            if len(independent_vectors) == 0:
+                independent_vectors.append(np.array(vector))
+            elif len(independent_vectors) == 1:
+                rank = np.linalg.matrix_rank(np.array([independent_vectors[0], vector, [0, 0, 0]]))
                 if rank == 2:
-                    independent_vectors_list.append(np.array(vector))
-            elif len(independent_vectors_list) == 2:
-                mm = np.array([independent_vectors_list[0], independent_vectors_list[1], vector])
+                    independent_vectors.append(np.array(vector))
+            elif len(independent_vectors) == 2:
+                mm = np.array([independent_vectors[0], independent_vectors[1], vector])
                 if np.linalg.det(mm) != 0:
-                    independent_vectors_list.append(np.array(vector))
-        if len(independent_vectors_list) == 3:
+                    independent_vectors.append(np.array(vector))
+        if len(independent_vectors) == 3:
             break
-    return independent_vectors_list
+    return independent_vectors
 
 
 def scale_and_clamp(xx, edge0, edge1, clamp0, clamp1):
     """
-    :param xx:
-    :param edge0:
-    :param edge1:
-    :param clamp0:
-    :param clamp1:
-    :return:
+    Args:
+        xx:
+        edge0:
+        edge1:
+        clamp0:
+        clamp1:
     """
     return np.clip((xx - edge0) / (edge1 - edge0), clamp0, clamp1)
 
@@ -145,10 +157,10 @@ def scale_and_clamp(xx, edge0, edge1, clamp0, clamp1):
 # Step function based on the cumulative distribution function of the normal law
 def normal_cdf_step(xx, mean, scale):
     """
-    :param xx:
-    :param mean:
-    :param scale:
-    :return:
+    Args:
+        xx:
+        mean:
+        scale:
     """
     return 0.5 * (1.0 + erf((xx - mean) / (np.sqrt(2.0) * scale)))
 
@@ -162,10 +174,10 @@ def normal_cdf_step(xx, mean, scale):
 
 def smoothstep(xx, edges=None, inverse=False):
     """
-    :param xx:
-    :param edges:
-    :param inverse:
-    :return:
+    Args:
+        xx:
+        edges:
+        inverse:
     """
     if edges is None:
         xx_clipped = np.clip(xx, 0.0, 1.0)
@@ -178,10 +190,10 @@ def smoothstep(xx, edges=None, inverse=False):
 
 def smootherstep(xx, edges=None, inverse=False):
     """
-    :param xx:
-    :param edges:
-    :param inverse:
-    :return:
+    Args:
+        xx:
+        edges:
+        inverse:
     """
     if edges is None:
         xx_clipped = np.clip(xx, 0.0, 1.0)
@@ -194,10 +206,10 @@ def smootherstep(xx, edges=None, inverse=False):
 
 def cosinus_step(xx, edges=None, inverse=False):
     """
-    :param xx:
-    :param edges:
-    :param inverse:
-    :return:
+    Args:
+        xx:
+        edges:
+        inverse:
     """
     if edges is None:
         xx_clipped = np.clip(xx, 0.0, 1.0)
@@ -210,21 +222,21 @@ def cosinus_step(xx, edges=None, inverse=False):
 
 def power3_step(xx, edges=None, inverse=False):
     """
-    :param xx:
-    :param edges:
-    :param inverse:
-    :return:
+    Args:
+        xx:
+        edges:
+        inverse:
     """
     return smoothstep(xx, edges=edges, inverse=inverse)
 
 
 def powern_parts_step(xx, edges=None, inverse=False, nn=2):
     """
-    :param xx:
-    :param edges:
-    :param inverse:
-    :param nn:
-    :return:
+    Args:
+        xx:
+        edges:
+        inverse:
+        nn:
     """
     if edges is None:
         aa = np.power(0.5, 1.0 - nn)
@@ -263,10 +275,10 @@ def powern_parts_step(xx, edges=None, inverse=False, nn=2):
 
 def powern_decreasing(xx, edges=None, nn=2):
     """
-    :param xx:
-    :param edges:
-    :param nn:
-    :return:
+    Args:
+        xx:
+        edges:
+        nn:
     """
     if edges is None:
         aa = 1.0 / np.power(-1.0, nn)
@@ -277,10 +289,10 @@ def powern_decreasing(xx, edges=None, nn=2):
 
 def power2_decreasing_exp(xx, edges=None, alpha=1.0):
     """
-    :param xx:
-    :param edges:
-    :param alpha:
-    :return:
+    Args:
+        xx:
+        edges:
+        alpha:
     """
     if edges is None:
         aa = 1.0 / np.power(-1.0, 2)
@@ -296,14 +308,14 @@ def power2_decreasing_exp(xx, edges=None, alpha=1.0):
 
 def power2_tangent_decreasing(xx, edges=None, prefactor=None):
     """
-    :param xx:
-    :param edges:
-    :param prefactor:
-    :return:
+    Args:
+        xx:
+        edges:
+        prefactor:
     """
     if edges is None:
         aa = 1.0 / np.power(-1.0, 2) if prefactor is None else prefactor
-        return -aa * np.power(xx - 1.0, 2) * np.tan((xx - 1.0) * np.pi / 2.0)  # pylint: disable=E1130
+        return -aa * np.power(xx - 1.0, 2) * np.tan((xx - 1.0) * np.pi / 2.0)
 
     xx_scaled_and_clamped = scale_and_clamp(xx, edges[0], edges[1], 0.0, 1.0)
     return power2_tangent_decreasing(xx_scaled_and_clamped, prefactor=prefactor)
@@ -311,10 +323,10 @@ def power2_tangent_decreasing(xx, edges=None, prefactor=None):
 
 def power2_inverse_decreasing(xx, edges=None, prefactor=None):
     """
-    :param xx:
-    :param edges:
-    :param prefactor:
-    :return:
+    Args:
+        xx:
+        edges:
+        prefactor:
     """
     if edges is None:
         aa = 1.0 / np.power(-1.0, 2) if prefactor is None else prefactor
@@ -326,10 +338,10 @@ def power2_inverse_decreasing(xx, edges=None, prefactor=None):
 
 def power2_inverse_power2_decreasing(xx, edges=None, prefactor=None):
     """
-    :param xx:
-    :param edges:
-    :param prefactor:
-    :return:
+    Args:
+        xx:
+        edges:
+        prefactor:
     """
     if edges is None:
         aa = 1.0 / np.power(-1.0, 2) if prefactor is None else prefactor
@@ -344,11 +356,11 @@ def power2_inverse_power2_decreasing(xx, edges=None, prefactor=None):
 
 def power2_inverse_powern_decreasing(xx, edges=None, prefactor=None, powern=2.0):
     """
-    :param xx:
-    :param edges:
-    :param prefactor:
-    :param powern:
-    :return:
+    Args:
+        xx:
+        edges:
+        prefactor:
+        powern:
     """
     if edges is None:
         aa = 1.0 / np.power(-1.0, 2) if prefactor is None else prefactor

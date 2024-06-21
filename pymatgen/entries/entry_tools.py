@@ -1,5 +1,4 @@
-"""
-This module implements functions to perform various useful operations on
+"""This module implements functions to perform various useful operations on
 entries, such as grouping entries by structure.
 """
 
@@ -11,18 +10,23 @@ import datetime
 import itertools
 import json
 import logging
+import multiprocessing as mp
 import re
-from typing import TYPE_CHECKING, Iterable, Literal
+from collections import defaultdict
+from typing import TYPE_CHECKING
 
 from monty.json import MontyDecoder, MontyEncoder, MSONable
-from monty.string import unicode2str
 
 from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.analysis.structure_matcher import SpeciesComparator, StructureMatcher
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Composition, Element
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+    from typing import Literal
+
+    from typing_extensions import Self
+
     from pymatgen.entries import Entry
     from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 
@@ -46,15 +50,15 @@ def _perform_grouping(args):
     while len(unmatched) > 0:
         ref_host = unmatched[0][1]
         logger.info(f"Reference tid = {unmatched[0][0].entry_id}, formula = {ref_host.formula}")
-        ref_formula = ref_host.composition.reduced_formula
+        ref_formula = ref_host.reduced_formula
         logger.info(f"Reference host = {ref_formula}")
         matches = [unmatched[0]]
-        for i in range(1, len(unmatched)):
-            test_host = unmatched[i][1]
-            logger.info(f"Testing tid = {unmatched[i][0].entry_id}, formula = {test_host.formula}")
-            test_formula = test_host.composition.reduced_formula
+        for idx in range(1, len(unmatched)):
+            test_host = unmatched[idx][1]
+            logger.info(f"Testing tid = {unmatched[idx][0].entry_id}, formula = {test_host.formula}")
+            test_formula = test_host.reduced_formula
             logger.info(f"Test host = {test_formula}")
-            m = StructureMatcher(
+            matcher = StructureMatcher(
                 ltol=ltol,
                 stol=stol,
                 angle_tol=angle_tol,
@@ -62,9 +66,9 @@ def _perform_grouping(args):
                 scale=scale,
                 comparator=comparator,
             )
-            if m.fit(ref_host, test_host):
+            if matcher.fit(ref_host, test_host):
                 logger.info("Fit found")
-                matches.append(unmatched[i])
+                matches.append(unmatched[idx])
         groups.append(json.dumps([m[0] for m in matches], cls=MontyEncoder))
         unmatched = list(filter(lambda x: x not in matches, unmatched))
         logger.info(f"{len(unmatched)} unmatched remaining")
@@ -81,8 +85,7 @@ def group_entries_by_structure(
     comparator=None,
     ncpus=None,
 ):
-    """
-    Given a sequence of ComputedStructureEntries, use structure fitter to group
+    """Given a sequence of ComputedStructureEntries, use structure fitter to group
     them by structural similarity.
 
     Args:
@@ -113,10 +116,9 @@ def group_entries_by_structure(
     logger.info(f"Started at {start}")
     entries_host = [(entry, _get_host(entry.structure, species_to_remove)) for entry in entries]
     if ncpus:
-        symm_entries = collections.defaultdict(list)
+        symm_entries = defaultdict(list)
         for entry, host in entries_host:
             symm_entries[comparator.get_structure_hash(host)].append((entry, host))
-        import multiprocessing as mp
 
         logging.info(f"Using {ncpus} cpus")
         manager = mp.Manager()
@@ -165,12 +167,11 @@ def group_entries_by_structure(
 
 
 def group_entries_by_composition(entries, sort_by_e_per_atom=True):
-    """
-    Given a sequence of Entry-like objects, group them by composition and
+    """Given a sequence of Entry-like objects, group them by composition and
         optionally sort by energy above hull.
 
     Args:
-        entries (List): Sequence of Entry-like objects.
+        entries (list): Sequence of Entry-like objects.
         sort_by_e_per_atom (bool): Whether to sort the grouped entries by
             energy per atom (lowest energy first). Default True.
 
@@ -179,8 +180,8 @@ def group_entries_by_composition(entries, sort_by_e_per_atom=True):
         [[ entry1, entry2], [entry3, entry4, entry5]]
     """
     entry_groups = []
-    entries = sorted(entries, key=lambda e: e.composition.reduced_formula)
-    for _, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_formula):
+    entries = sorted(entries, key=lambda e: e.reduced_formula)
+    for _, g in itertools.groupby(entries, key=lambda e: e.reduced_formula):
         group = list(g)
         if sort_by_e_per_atom:
             group = sorted(group, key=lambda e: e.energy_per_atom)
@@ -191,8 +192,7 @@ def group_entries_by_composition(entries, sort_by_e_per_atom=True):
 
 
 class EntrySet(collections.abc.MutableSet, MSONable):
-    """
-    A convenient container for manipulating entries. Allows for generating
+    """A convenient container for manipulating entries. Allows for generating
     subsets, dumping into files, etc.
     """
 
@@ -207,24 +207,24 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         return item in self.entries
 
     def __iter__(self):
-        return self.entries.__iter__()
+        return iter(self.entries)
 
     def __len__(self):
         return len(self.entries)
 
     def add(self, element):
-        """
-        Add an entry.
+        """Add an entry.
 
-        :param element: Entry
+        Args:
+            element: Entry
         """
         self.entries.add(element)
 
     def discard(self, element):
-        """
-        Discard an entry.
+        """Discard an entry.
 
-        :param element: Entry
+        Args:
+            element: Entry
         """
         self.entries.discard(element)
 
@@ -232,7 +232,7 @@ class EntrySet(collections.abc.MutableSet, MSONable):
     def chemsys(self) -> set:
         """
         Returns:
-            set representing the chemical system, e.g., {"Li", "Fe", "P", "O"}.
+            set representing the chemical system, e.g. {"Li", "Fe", "P", "O"}.
         """
         chemsys = set()
         for e in self.entries:
@@ -241,19 +241,17 @@ class EntrySet(collections.abc.MutableSet, MSONable):
 
     @property
     def ground_states(self) -> set:
-        """
-        A set containing only the entries that are ground states, i.e., the lowest energy
+        """A set containing only the entries that are ground states, i.e., the lowest energy
         per atom entry at each composition.
         """
-        entries = sorted(self.entries, key=lambda e: e.composition.reduced_formula)
-        ground_states = set()
-        for _, g in itertools.groupby(entries, key=lambda e: e.composition.reduced_formula):
-            ground_states.add(min(g, key=lambda e: e.energy_per_atom))
-        return ground_states
+        entries = sorted(self.entries, key=lambda e: e.reduced_formula)
+        return {
+            min(g, key=lambda e: e.energy_per_atom)
+            for _, g in itertools.groupby(entries, key=lambda e: e.reduced_formula)
+        }
 
     def remove_non_ground_states(self):
-        """
-        Removes all non-ground state entries, i.e., only keep the lowest energy
+        """Removes all non-ground state entries, i.e., only keep the lowest energy
         per atom entry at each composition.
         """
         self.entries = self.ground_states
@@ -263,15 +261,14 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         return entry in self.ground_states
 
     def get_subset_in_chemsys(self, chemsys: list[str]):
-        """
-        Returns an EntrySet containing only the set of entries belonging to
+        """Get an EntrySet containing only the set of entries belonging to
         a particular chemical system (in this definition, it includes all sub
         systems). For example, if the entries are from the
         Li-Fe-P-O system, and chemsys=["Li", "O"], only the Li, O,
         and Li-O entries are returned.
 
         Args:
-            chemsys: Chemical system specified as list of elements. E.g.,
+            chemsys: Chemical system specified as list of elements. e.g.
                 ["Li", "O"]
 
         Returns:
@@ -290,28 +287,27 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         return EntrySet(subset)
 
     def as_dict(self) -> dict[Literal["entries"], list[Entry]]:
-        """Returns MSONable dict."""
+        """Get MSONable dict."""
         return {"entries": list(self.entries)}
 
     def to_csv(self, filename: str, latexify_names: bool = False) -> None:
-        """
-        Exports PDEntries to a csv.
+        """Exports PDEntries to a csv.
 
         Args:
             filename: Filename to write to.
             entries: PDEntries to export.
             latexify_names: Format entry names to be LaTex compatible,
-                e.g., Li_{2}O
+                e.g. Li_{2}O
         """
         els: set[Element] = set()
         for entry in self.entries:
-            els.update(entry.composition.elements)
+            els.update(entry.elements)
         elements = sorted(els, key=lambda a: a.X)
-        with open(filename, "w") as f:
+        with open(filename, mode="w") as file:
             writer = csv.writer(
-                f,
-                delimiter=unicode2str(","),
-                quotechar=unicode2str('"'),
+                file,
+                delimiter=",",
+                quotechar='"',
                 quoting=csv.QUOTE_MINIMAL,
             )
             writer.writerow(["Name"] + [el.symbol for el in elements] + ["Energy"])
@@ -322,9 +318,8 @@ class EntrySet(collections.abc.MutableSet, MSONable):
                 writer.writerow(row)
 
     @classmethod
-    def from_csv(cls, filename: str):
-        """
-        Imports PDEntries from a csv.
+    def from_csv(cls, filename: str) -> Self:
+        """Imports PDEntries from a csv.
 
         Args:
             filename: Filename to import from.
@@ -332,13 +327,8 @@ class EntrySet(collections.abc.MutableSet, MSONable):
         Returns:
             List of Elements, List of PDEntries
         """
-        with open(filename, encoding="utf-8") as f:
-            reader = csv.reader(
-                f,
-                delimiter=unicode2str(","),
-                quotechar=unicode2str('"'),
-                quoting=csv.QUOTE_MINIMAL,
-            )
+        with open(filename, encoding="utf-8") as file:
+            reader = csv.reader(file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)
             entries = []
             header_read = False
             elements: list[str] = []

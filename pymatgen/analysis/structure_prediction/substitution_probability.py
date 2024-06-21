@@ -1,6 +1,5 @@
 """
-This module provides classes for representing species substitution
-probabilities.
+This module provides classes for representing species substitution probabilities.
 """
 
 from __future__ import annotations
@@ -13,11 +12,15 @@ import math
 import os
 from collections import defaultdict
 from operator import mul
+from typing import TYPE_CHECKING
 
 from monty.design_patterns import cached_class
 
-from pymatgen.core.periodic_table import Species, get_el_sp
+from pymatgen.core import Species, get_el_sp
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -47,19 +50,17 @@ class SubstitutionProbability:
     def __init__(self, lambda_table=None, alpha=-5):
         """
         Args:
-            lambda_table:
-                json table of the weight functions lambda if None,
+            lambda_table: JSON table of the weight functions lambda if None,
                 will use the default lambda.json table
-            alpha:
-                weight function for never observed substitutions.
+            alpha (float): weight function for never observed substitutions.
         """
         if lambda_table is not None:
             self._lambda_table = lambda_table
         else:
             module_dir = os.path.dirname(__file__)
-            json_file = os.path.join(module_dir, "data", "lambda.json")
-            with open(json_file) as f:
-                self._lambda_table = json.load(f)
+            json_file = f"{module_dir}/data/lambda.json"
+            with open(json_file) as file:
+                self._lambda_table = json.load(file)
 
         # build map of specie pairs to lambdas
         self.alpha = alpha
@@ -75,7 +76,7 @@ class SubstitutionProbability:
 
         # create Z and px
         self.Z = 0
-        self._px = defaultdict(float)
+        self._px: dict[Species, float] = defaultdict(float)
         for s1, s2 in itertools.product(self.species, repeat=2):
             value = math.exp(self.get_lambda(s1, s2))
             self._px[s1] += value / 2
@@ -85,14 +86,14 @@ class SubstitutionProbability:
     def get_lambda(self, s1, s2):
         """
         Args:
-            s1 (Structure): 1st Structure
-            s2 (Structure): 2nd Structure.
+            s1 (Element/Species/str/int): Describes Ion in 1st Structure
+            s2 (Element/Species/str/int): Describes Ion in 2nd Structure.
 
         Returns:
             Lambda values
         """
-        k = frozenset([get_el_sp(s1), get_el_sp(s2)])
-        return self._l.get(k, self.alpha)
+        key = frozenset([get_el_sp(s1), get_el_sp(s2)])
+        return self._l.get(key, self.alpha)
 
     def get_px(self, sp):
         """
@@ -105,8 +106,7 @@ class SubstitutionProbability:
         return self._px[get_el_sp(sp)]
 
     def prob(self, s1, s2):
-        """
-        Gets the probability of 2 species substitution. Not used by the
+        """Get the probability of 2 species substitution. Not used by the
         structure predictor.
 
         Returns:
@@ -139,8 +139,7 @@ class SubstitutionProbability:
         return math.exp(self.get_lambda(s1, s2)) * self.Z / (self.get_px(s1) * self.get_px(s2))
 
     def cond_prob_list(self, l1, l2):
-        """
-        Find the probabilities of 2 lists. These should include ALL species.
+        """Find the probabilities of 2 lists. These should include ALL species.
         This is the probability conditional on l2.
 
         Args:
@@ -158,7 +157,7 @@ class SubstitutionProbability:
         return p
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "name": type(self).__name__,
             "version": __version__,
@@ -168,7 +167,7 @@ class SubstitutionProbability:
         }
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.
@@ -248,8 +247,7 @@ class SubstitutionPredictor:
         return output
 
     def composition_prediction(self, composition, to_this_composition=True):
-        """
-        Returns charged balanced substitutions from a starting or ending
+        """Get charged balanced substitutions from a starting or ending
         composition.
 
         Args:

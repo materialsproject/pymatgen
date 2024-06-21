@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from .netcdf import (
     NO_DEFAULT,
-    ETSF_Reader,
+    EtsfReader,
     NetcdfReader,
     NetcdfReaderError,
     as_etsfreader,
@@ -29,5 +29,4 @@ from .pseudos import (
     RadialFunction,
     l2str,
     str2l,
-    straceback,
 )

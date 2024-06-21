@@ -1,34 +1,26 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.structure_prediction package &mdash; pymatgen 2023.7.17 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <title>pymatgen.analysis.structure_prediction package &mdash; pymatgen 2024.6.4 documentation</title>
+      <link rel="stylesheet" href="assets/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="assets/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="assets/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.structure_prediction.html"/>
   <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
+    <script src="assets/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/js/theme.js"></script>
+        <script src="assets/jquery.js?v=5d32c60e"></script>
+        <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="assets/documentation_options.js?v=eaad03eb"></script>
+        <script src="assets/doctools.js?v=9a2dae69"></script>
+        <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="assets/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pymatgen.analysis.topological package" href="pymatgen.analysis.topological.html" />
-    <link rel="prev" title="pymatgen.analysis.solar package" href="pymatgen.analysis.solar.html" />
- 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-33990148-1']);
-  _gaq.push(['_trackPageview']);
-</script>
-
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -36,57 +28,71 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
-                2023.7.17
+                2024.6.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
-<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
-<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen namespace</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext namespace</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io namespace</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">pymatgen.analysis.structure_prediction package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-pymatgen.analysis.structure_prediction.dopant_predictor">pymatgen.analysis.structure_prediction.dopant_predictor module</a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_shannon_radii"><code class="docutils literal notranslate"><span class="pre">get_dopants_from_shannon_radii()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_substitution_probabilities"><code class="docutils literal notranslate"><span class="pre">get_dopants_from_substitution_probabilities()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen.dao">pymatgen.dao module</a></li>
+<li><a class="reference internal" href="#module-pymatgen.analysis.structure_prediction.substitution_probability">pymatgen.analysis.structure_prediction.substitution_probability module</a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor"><code class="docutils literal notranslate"><span class="pre">SubstitutionPredictor</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.composition_prediction"><code class="docutils literal notranslate"><span class="pre">SubstitutionPredictor.composition_prediction()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.list_prediction"><code class="docutils literal notranslate"><span class="pre">SubstitutionPredictor.list_prediction()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability"><code class="docutils literal notranslate"><span class="pre">SubstitutionProbability</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-pymatgen.analysis.structure_prediction.substitutor">pymatgen.analysis.structure_prediction.substitutor module</a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor"><code class="docutils literal notranslate"><span class="pre">Substitutor</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.as_dict"><code class="docutils literal notranslate"><span class="pre">Substitutor.as_dict()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.charge_balanced_tol"><code class="docutils literal notranslate"><span class="pre">Substitutor.charge_balanced_tol</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.from_dict"><code class="docutils literal notranslate"><span class="pre">Substitutor.from_dict()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.get_allowed_species"><code class="docutils literal notranslate"><span class="pre">Substitutor.get_allowed_species()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_comp"><code class="docutils literal notranslate"><span class="pre">Substitutor.pred_from_comp()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_list"><code class="docutils literal notranslate"><span class="pre">Substitutor.pred_from_list()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_structures"><code class="docutils literal notranslate"><span class="pre">Substitutor.pred_from_structures()</span></code></a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li><a class="reference internal" href="#module-pymatgen.analysis.structure_prediction.volume_predictor">pymatgen.analysis.structure_prediction.volume_predictor module</a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor"><code class="docutils literal notranslate"><span class="pre">DLSVolumePredictor</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.get_predicted_structure"><code class="docutils literal notranslate"><span class="pre">DLSVolumePredictor.get_predicted_structure()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.predict"><code class="docutils literal notranslate"><span class="pre">DLSVolumePredictor.predict()</span></code></a></li>
 </ul>
-
+</li>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor"><code class="docutils literal notranslate"><span class="pre">RLSVolumePredictor</span></code></a><ul>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.get_predicted_structure"><code class="docutils literal notranslate"><span class="pre">RLSVolumePredictor.get_predicted_structure()</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.predict"><code class="docutils literal notranslate"><span class="pre">RLSVolumePredictor.predict()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
         </div>
       </div>
     </nav>
@@ -100,10 +106,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
-          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
-          <li class="breadcrumb-item"><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">pymatgen.analysis.structure_prediction package</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.structure_prediction.rst" class="fa fa-github"> Edit on GitHub</a>
@@ -114,22 +117,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pymatgen-analysis-structure-prediction-package">
-<h1>pymatgen.analysis.structure_prediction package<a class="headerlink" href="#pymatgen-analysis-structure-prediction-package" title="Permalink to this heading"></a></h1>
-<section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
-<div class="toctree-wrapper compound">
-</div>
-</section>
+  <section id="module-pymatgen.analysis.structure_prediction">
+<span id="pymatgen-analysis-structure-prediction-package"></span><h1>pymatgen.analysis.structure_prediction package<a class="headerlink" href="#module-pymatgen.analysis.structure_prediction" title="Link to this heading"></a></h1>
+<p>Utilities to predict new structures.</p>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
 </section>
 <section id="module-pymatgen.analysis.structure_prediction.dopant_predictor">
-<span id="pymatgen-analysis-structure-prediction-dopant-predictor-module"></span><h2>pymatgen.analysis.structure_prediction.dopant_predictor module<a class="headerlink" href="#module-pymatgen.analysis.structure_prediction.dopant_predictor" title="Permalink to this heading"></a></h2>
+<span id="pymatgen-analysis-structure-prediction-dopant-predictor-module"></span><h2>pymatgen.analysis.structure_prediction.dopant_predictor module<a class="headerlink" href="#module-pymatgen.analysis.structure_prediction.dopant_predictor" title="Link to this heading"></a></h2>
 <p>Predicting potential dopants.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_shannon_radii">
-<span class="sig-name descname"><span class="pre">get_dopants_from_shannon_radii</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bonded_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_dopants</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_oxi_sign</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/dopant_predictor.py#L59-L123"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_shannon_radii" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_dopants_from_shannon_radii</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bonded_structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_dopants</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_oxi_sign</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/dopant_predictor.py#L60-L123"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_shannon_radii" title="Link to this definition"></a></dt>
 <dd><p>Get dopant suggestions based on Shannon radii differences.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -146,25 +145,27 @@ returned.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>Dopant suggestions, given as a dictionary with keys “n_type” and
-“p_type”. The suggestions for each doping type are given as a list of
+<dd class="field-even"><p><dl class="simple">
+<dt>Dopant suggestions, given as a dictionary with keys “n_type” and</dt><dd><p>”p_type”. The suggestions for each doping type are given as a list of
 dictionaries, each with they keys:</p>
 <ul class="simple">
 <li><p>”radii_diff”: The difference between the Shannon radii of the species.</p></li>
-<li><p>”dopant_spcies”: The dopant species.</p></li>
+<li><p>”dopant_species”: The dopant species.</p></li>
 <li><p>”original_species”: The substituted species.</p></li>
 </ul>
+</dd>
+</dl>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(dict)</p>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_substitution_probabilities">
-<span class="sig-name descname"><span class="pre">get_dopants_from_substitution_probabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_dopants</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_oxi_sign</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/dopant_predictor.py#L13-L56"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_substitution_probabilities" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_dopants_from_substitution_probabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_dopants</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_oxi_sign</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/dopant_predictor.py#L13-L57"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.dopant_predictor.get_dopants_from_substitution_probabilities" title="Link to this definition"></a></dt>
 <dd><p>Get dopant suggestions based on substitution probabilities.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -181,30 +182,31 @@ returned.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p><p>Dopant suggestions, given as a dictionary with keys “n_type” and
-“p_type”. The suggestions for each doping type are given as a list of
+<dd class="field-even"><p><dl class="simple">
+<dt>Dopant suggestions, given as a dictionary with keys “n_type” and</dt><dd><p>”p_type”. The suggestions for each doping type are given as a list of
 dictionaries, each with they keys:</p>
 <ul class="simple">
 <li><p>”probability”: The probability of substitution.</p></li>
 <li><p>”dopant_species”: The dopant species.</p></li>
 <li><p>”original_species”: The substituted species.</p></li>
 </ul>
+</dd>
+</dl>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(dict)</p>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
 
 </section>
 <section id="module-pymatgen.analysis.structure_prediction.substitution_probability">
-<span id="pymatgen-analysis-structure-prediction-substitution-probability-module"></span><h2>pymatgen.analysis.structure_prediction.substitution_probability module<a class="headerlink" href="#module-pymatgen.analysis.structure_prediction.substitution_probability" title="Permalink to this heading"></a></h2>
-<p>This module provides classes for representing species substitution
-probabilities.</p>
+<span id="pymatgen-analysis-structure-prediction-substitution-probability-module"></span><h2>pymatgen.analysis.structure_prediction.substitution_probability module<a class="headerlink" href="#module-pymatgen.analysis.structure_prediction.substitution_probability" title="Link to this heading"></a></h2>
+<p>This module provides classes for representing species substitution probabilities.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SubstitutionPredictor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lambda_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/substitution_probability.py#L182-L280"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SubstitutionPredictor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lambda_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/substitution_probability.py#L181-L278"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Predicts likely substitutions either to or from a given composition
 or species list using the SubstitutionProbability.</p>
@@ -219,8 +221,8 @@ or species list using the SubstitutionProbability.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.composition_prediction">
-<span class="sig-name descname"><span class="pre">composition_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_this_composition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/substitution_probability.py#L250-L280"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.composition_prediction" title="Permalink to this definition"></a></dt>
-<dd><p>Returns charged balanced substitutions from a starting or ending
+<span class="sig-name descname"><span class="pre">composition_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_this_composition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/substitution_probability.py#L249-L278"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.composition_prediction" title="Link to this definition"></a></dt>
+<dd><p>Get charged balanced substitutions from a starting or ending
 composition.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -243,7 +245,7 @@ from that list.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.list_prediction">
-<span class="sig-name descname"><span class="pre">list_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_this_composition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/substitution_probability.py#L198-L248"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.list_prediction" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">list_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_this_composition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/substitution_probability.py#L197-L247"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionPredictor.list_prediction" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -267,7 +269,7 @@ from that list.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SubstitutionProbability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/substitution_probability.py#L30-L179"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">SubstitutionProbability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/substitution_probability.py#L33-L178"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability" title="pymatgen.analysis.structure_prediction.substitution_probability.SubstitutionProbability"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubstitutionProbability</span></code></a></p>
 <p>This class finds substitution probabilities given lists of atoms
 to substitute. The inputs make more sense if you look through the
@@ -279,9 +281,9 @@ Inorganic Chemistry, 50(2), 656-663. doi:10.1021/ic102031h</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lambda_table</strong> – json table of the weight functions lambda if None,
+<li><p><strong>lambda_table</strong> – JSON table of the weight functions lambda if None,
 will use the default lambda.json table</p></li>
-<li><p><strong>alpha</strong> – weight function for never observed substitutions.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – weight function for never observed substitutions.</p></li>
 </ul>
 </dd>
 </dl>
@@ -289,19 +291,18 @@ will use the default lambda.json table</p></li>
 
 </section>
 <section id="module-pymatgen.analysis.structure_prediction.substitutor">
-<span id="pymatgen-analysis-structure-prediction-substitutor-module"></span><h2>pymatgen.analysis.structure_prediction.substitutor module<a class="headerlink" href="#module-pymatgen.analysis.structure_prediction.substitutor" title="Permalink to this heading"></a></h2>
+<span id="pymatgen-analysis-structure-prediction-substitutor-module"></span><h2>pymatgen.analysis.structure_prediction.substitutor module<a class="headerlink" href="#module-pymatgen.analysis.structure_prediction.substitutor" title="Link to this heading"></a></h2>
 <p>This module provides classes for predicting new structures from existing ones.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitutor.Substitutor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Substitutor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/substitutor.py#L28-L266"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Substitutor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symprec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/substitutor.py#L32-L263"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MSONable</span></code></p>
 <p>This object uses a data mined ionic substitution approach to propose
 compounds likely to be stable. It relies on an algorithm presented in
 Hautier, G., Fischer, C., Ehrlacher, V., Jain, A., and Ceder, G. (2011).
 Data Mined Ionic Substitutions for the Discovery of New Compounds.
 Inorganic Chemistry, 50(2), 656-663. doi:10.1021/ic102031h.</p>
-<p>This substitutor uses the substitution probability class to
-find good substitutions for a given chemistry or structure.</p>
+<p>Use the substitution probability class to find good substitutions for a given chemistry or structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -315,16 +316,21 @@ lambda_table, alpha</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.as_dict">
-<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/substitutor.py#L244-L253"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.as_dict" title="Permalink to this definition"></a></dt>
-<dd><p>Returns: MSONable dict.</p>
+<span class="sig-name descname"><span class="pre">as_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/substitutor.py#L241-L250"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.as_dict" title="Link to this definition"></a></dt>
+<dd><p>Get MSONable dict.</p>
 </dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.charge_balanced_tol">
+<span class="sig-name descname"><span class="pre">charge_balanced_tol</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1e-09</span></em><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/analysis/structure_prediction/substitutor.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.charge_balanced_tol" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.from_dict">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/substitutor.py#L255-L266"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.from_dict" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/substitutor.py#L252-L263"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.from_dict" title="Link to this definition"></a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>d</strong> (<em>dict</em>) – Dict representation.</p>
+<dd class="field-odd"><p><strong>dct</strong> (<em>dict</em>) – Dict representation.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Class</p>
@@ -334,34 +340,36 @@ lambda_table, alpha</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.get_allowed_species">
-<span class="sig-name descname"><span class="pre">get_allowed_species</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/substitutor.py#L61-L66"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.get_allowed_species" title="Permalink to this definition"></a></dt>
-<dd><p>Returns the species in the domain of the probability function
+<span class="sig-name descname"><span class="pre">get_allowed_species</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/substitutor.py#L65-L69"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.get_allowed_species" title="Link to this definition"></a></dt>
+<dd><p>Get the species in the domain of the probability function
 any other specie will not work.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_comp">
-<span class="sig-name descname"><span class="pre">pred_from_comp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/substitutor.py#L226-L242"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_comp" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pred_from_comp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">composition</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/substitutor.py#L224-L239"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_comp" title="Link to this definition"></a></dt>
 <dd><p>Similar to pred_from_list except this method returns a list after
 checking that compositions are charge balanced.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_list">
-<span class="sig-name descname"><span class="pre">pred_from_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species_list</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/substitutor.py#L171-L224"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_list" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pred_from_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">species_list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/substitutor.py#L171-L222"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_list" title="Link to this definition"></a></dt>
 <dd><p>There are an exceptionally large number of substitutions to
 look at (260^n), where n is the number of species in the
 list. We need a more efficient than brute force way of going
 through these possibilities. The brute force method would be:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sp</span><span class="o">.</span><span class="n">species_list</span>
-                           <span class="p">,</span> <span class="n">repeat</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">species_list</span><span class="p">)):</span>
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sp</span><span class="o">.</span><span class="n">conditional_probability_list</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">species_list</span><span class="p">)</span>
-                           <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_threshold</span><span class="p">:</span>
-        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">species_list</span><span class="p">,</span><span class="n">p</span><span class="p">)))</span>
-<span class="k">return</span> <span class="n">output</span>
-</pre></div>
-</div>
+<blockquote>
+<div><p>output = []
+for p in itertools.product(self._sp.species_list, repeat=len(species_list)):</p>
+<blockquote>
+<div><dl class="simple">
+<dt>if self._sp.conditional_probability_list(p, species_list) &gt; self._threshold:</dt><dd><p>output.append(dict(zip(species_list, p)))</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>return output</p>
+</div></blockquote>
 <p>Instead of that we do a branch and bound.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -376,14 +384,14 @@ dictionary, and a probability value</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_structures">
-<span class="sig-name descname"><span class="pre">pred_from_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structures_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_duplicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_existing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/substitutor.py#L68-L159"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_structures" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">pred_from_structures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_species</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">structures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_duplicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_existing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="pymatgen.alchemy.html#pymatgen.alchemy.materials.TransformedStructure" title="pymatgen.alchemy.materials.TransformedStructure"><span class="pre">TransformedStructure</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/substitutor.py#L71-L159"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.substitutor.Substitutor.pred_from_structures" title="Link to this definition"></a></dt>
 <dd><p>Performs a structure prediction targeting compounds containing all of
 the target_species, based on a list of structure (those structures
 can for instance come from a database like the ICSD). It will return
 all the structures formed by ionic substitutions with a probability
 higher than the threshold.</p>
-<p>Notes:
-If the default probability model is used, input structures must
+<p class="rubric">Notes</p>
+<p>If the default probability model is used, input structures must
 be oxidation state decorated. See AutoOxiStateDecorationTransformation</p>
 <p>This method does not change the number of species in a structure. i.e
 if the number of target species is 3, only input structures containing
@@ -392,10 +400,9 @@ if the number of target species is 3, only input structures containing
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>target_species</strong> – a list of species with oxidation states
-e.g., [Species(‘Li’,1),Species(‘Ni’,2), Species(‘O’,-2)]</p></li>
-<li><p><strong>structures_list</strong> – a list of dictionary of the form {‘structure’:Structure object
-,’id’:some id where it comes from}
-the id can for instance refer to an ICSD id.</p></li>
+e.g. [Species(‘Li+’), Species(‘Ni2+’), Species(‘O-2’)]</p></li>
+<li><p><strong>structures_list</strong> – list of dictionary of the form {‘structure’: Structure object, ‘id’: some id where it comes from}
+The id can for instance refer to an ICSD id.</p></li>
 <li><p><strong>remove_duplicates</strong> – if True, the duplicates in the predicted structures will
 be removed</p></li>
 <li><p><strong>remove_existing</strong> – if True, the predicted structures that already exist in the
@@ -412,11 +419,11 @@ structures_list will be removed</p></li>
 
 </section>
 <section id="module-pymatgen.analysis.structure_prediction.volume_predictor">
-<span id="pymatgen-analysis-structure-prediction-volume-predictor-module"></span><h2>pymatgen.analysis.structure_prediction.volume_predictor module<a class="headerlink" href="#module-pymatgen.analysis.structure_prediction.volume_predictor" title="Permalink to this heading"></a></h2>
+<span id="pymatgen-analysis-structure-prediction-volume-predictor-module"></span><h2>pymatgen.analysis.structure_prediction.volume_predictor module<a class="headerlink" href="#module-pymatgen.analysis.structure_prediction.volume_predictor" title="Link to this heading"></a></h2>
 <p>Predict volumes of crystal structures.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DLSVolumePredictor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_scaling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_scaling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/volume_predictor.py#L139-L248"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DLSVolumePredictor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_scaling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_scaling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/volume_predictor.py#L139-L247"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Data-mined lattice scaling (DLS) scheme that relies on data-mined bond
 lengths to predict the crystal volume of a given structure.</p>
@@ -442,7 +449,7 @@ too-large volumes).</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.get_predicted_structure">
-<span class="sig-name descname"><span class="pre">get_predicted_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">icsd_vol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/volume_predictor.py#L235-L248"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.get_predicted_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_predicted_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">icsd_vol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/volume_predictor.py#L234-L247"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.get_predicted_structure" title="Link to this definition"></a></dt>
 <dd><p>Given a structure, returns back the structure scaled to predicted
 volume.</p>
 <dl class="field-list simple">
@@ -457,14 +464,13 @@ volume.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">icsd_vol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/volume_predictor.py#L168-L233"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.predict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">icsd_vol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/volume_predictor.py#L168-L232"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.DLSVolumePredictor.predict" title="Link to this definition"></a></dt>
 <dd><p>Given a structure, returns the predicted volume.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>structure</strong> (<a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><em>Structure</em></a>) – a crystal structure with an unknown volume.</p></li>
-<li><p><strong>icsd_vol</strong> (<em>bool</em>) – True if the input structure’s volume comes from
-ICSD.</p></li>
+<li><p><strong>icsd_vol</strong> (<em>bool</em>) – True if the input structure’s volume comes from ICSD.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -477,7 +483,7 @@ ICSD.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RLSVolumePredictor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">check_isostructural</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radii_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ionic-atomic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_bv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/volume_predictor.py#L28-L136"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">RLSVolumePredictor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">check_isostructural</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">radii_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ionic-atomic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_bv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/volume_predictor.py#L28-L136"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Reference lattice scaling (RLS) scheme that predicts the volume of a
 structure based on a known crystal structure.</p>
@@ -498,7 +504,7 @@ states if not present.</p></li>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.get_predicted_structure">
-<span class="sig-name descname"><span class="pre">get_predicted_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/volume_predictor.py#L120-L136"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.get_predicted_structure" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_predicted_structure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/volume_predictor.py#L120-L136"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.get_predicted_structure" title="Link to this definition"></a></dt>
 <dd><p>Given a structure, returns back the structure scaled to predicted
 volume.</p>
 <dl class="field-list simple">
@@ -517,7 +523,7 @@ structure but different species.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2023.7.17/pymatgen/core/../analysis/structure_prediction/volume_predictor.py#L51-L118"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.predict" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">structure</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="pymatgen.core.html#pymatgen.core.structure.Structure" title="pymatgen.core.structure.Structure"><span class="pre">Structure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_structure</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.6.4/pymatgen/core/../analysis/structure_prediction/volume_predictor.py#L51-L118"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.structure_prediction.volume_predictor.RLSVolumePredictor.predict" title="Link to this definition"></a></dt>
 <dd><p>Given a structure, returns the predicted volume.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -535,10 +541,6 @@ structure but different species.</p></li>
 
 </dd></dl>
 
-</section>
-<section id="module-pymatgen.analysis.structure_prediction">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.analysis.structure_prediction" title="Permalink to this heading"></a></h2>
-<p>Utilities to predict new structures.</p>
 </section>
 </section>
 
@@ -567,22 +569,7 @@ structure but different species.</p></li>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
- 
-<div class="footer">This page uses <a href="http://analytics.google.com/">
-Google Analytics</a> to collect statistics. You can disable it by blocking
-the JavaScript coming from www.google-analytics.com.
-<script type="text/javascript">
-  (function() {
-    var ga = document.createElement('script');
-    ga.src = ('https:' == document.location.protocol ?
-              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    ga.setAttribute('async', 'true');
-    document.documentElement.firstChild.appendChild(ga);
-  })();
-</script>
-</div>
-
+  </script> 
 
 </body>
 </html>

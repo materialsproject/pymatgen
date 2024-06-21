@@ -1,24 +1,16 @@
 """Support for Abinit input variables."""
+
 from __future__ import annotations
 
 import collections
 import collections.abc
 import string
+from collections.abc import Sequence
 
 import numpy as np
 
-__all__ = [
-    "InputVariable",
-]
-
 _SPECIAL_DATASET_INDICES = (":", "+", "?")
-
-_DATASET_INDICES = "".join(list(string.digits) + list(_SPECIAL_DATASET_INDICES))
-
-_INTERNAL_DATASET_INDICES = ("__s", "__i", "__a")
-
-_SPECIAL_CONVERSION = zip(_INTERNAL_DATASET_INDICES, _SPECIAL_DATASET_INDICES)
-
+_DATASET_INDICES = "".join([*string.digits, *_SPECIAL_DATASET_INDICES])
 _UNITS = {
     "bohr": 1.0,
     "angstrom": 1.8897261328856432,
@@ -31,7 +23,7 @@ _UNITS = {
 class InputVariable:
     """An Abinit input variable."""
 
-    def __init__(self, name, value, units="", valperline=3):
+    def __init__(self, name: str, value, units: str = "", valperline: int = 3) -> None:
         """
         Args:
             name: Name of the variable.
@@ -43,12 +35,11 @@ class InputVariable:
         self.value = value
         self._units = units
 
-        # Maximum number of values per line.
-        self.valperline = valperline
-        if name in ["bdgw"]:
+        self.valperline = valperline  # Maximum number of values per line.
+        if name == "bdgw":
             self.valperline = 2
 
-        if is_iter(self.value) and isinstance(self.value[-1], str) and self.value[-1] in _UNITS:
+        if isinstance(self.value, Sequence) and isinstance(self.value[-1], str) and self.value[-1] in _UNITS:
             self.value = list(self.value)
             self._units = self.value.pop(-1)
 
@@ -65,18 +56,18 @@ class InputVariable:
 
     @property
     def basename(self):
-        """Return the name trimmed of any dataset index."""
+        """The name trimmed of any dataset index."""
         basename = self.name
         return basename.rstrip(_DATASET_INDICES)
 
     @property
     def dataset(self):
-        """Return the dataset index in string form."""
+        """The dataset index in string form."""
         return self.name.split(self.basename)[-1]
 
     @property
     def units(self):
-        """Return the units."""
+        """The units."""
         return self._units
 
     def __str__(self):
@@ -89,122 +80,116 @@ class InputVariable:
         line = " " + var
 
         # By default, do not impose a number of decimal points
-        floatdecimal = 0
+        float_decimal = 0
 
         # For some inputs, enforce number of decimal points...
         if any(inp in var for inp in ("xred", "xcart", "rprim", "qpt", "kpt")):
-            floatdecimal = 16
+            float_decimal = 16
 
         # ...but not for those
         if any(inp in var for inp in ("ngkpt", "kptrlatt", "ngqpt", "ng2qpt")):
-            floatdecimal = 0
+            float_decimal = 0
 
         if isinstance(value, np.ndarray):
-            n = 1
-            for i in np.shape(value):
-                n *= i
-            value = np.reshape(value, n)
-            value = list(value)
+            value = list(value.flatten())
 
         # values in lists
         if isinstance(value, (list, tuple)):
             # Reshape a list of lists into a single list
             if all(isinstance(v, (list, tuple)) for v in value):
-                line += self.format_list2d(value, floatdecimal)
+                line += self.format_list2d(value, float_decimal)
 
             else:
-                line += self.format_list(value, floatdecimal)
+                line += self.format_list(value, float_decimal)
 
         # scalar values
         else:
-            line += " " + str(value)
+            line += f" {value}"
 
         # Add units
         if self.units:
-            line += " " + self.units
+            line += f" {self.units}"
 
         return line
 
     @staticmethod
-    def format_scalar(val, floatdecimal=0):
-        """
-        Format a single numerical value into a string
+    def format_scalar(val, float_decimal=0):
+        """Format a single numerical value into a string
         with the appropriate number of decimal.
         """
-        sval = str(val)
-        if sval.lstrip("-").lstrip("+").isdigit() and floatdecimal == 0:
-            return sval
+        str_val = str(val)
+        if str_val.lstrip("-").lstrip("+").isdigit() and float_decimal == 0:
+            return str_val
 
         try:
             fval = float(val)
         except Exception:
-            return sval
+            return str_val
 
         if fval == 0 or (1e-3 < abs(fval) < 1e4):
             form = "f"
-            addlen = 5
+            add_len = 5
         else:
             form = "e"
-            addlen = 8
+            add_len = 8
 
-        ndec = max(len(str(fval - int(fval))) - 2, floatdecimal)
-        ndec = min(ndec, 10)
+        n_dec = max(len(str(fval - int(fval))) - 2, float_decimal)
+        n_dec = min(n_dec, 10)
 
-        sval = f"{fval:>{ndec + addlen}.{ndec}{form}}"
+        str_val = f"{fval:>{n_dec + add_len}.{n_dec}{form}}"
 
-        return sval.replace("e", "d")
+        return str_val.replace("e", "d")
 
     @staticmethod
-    def format_list2d(values, floatdecimal=0):
+    def format_list2d(values, float_decimal=0):
         """Format a list of lists."""
-        lvals = flatten(values)
+        flattened_list = flatten(values)
 
         # Determine the representation
-        if all(isinstance(v, int) for v in lvals):
+        if all(isinstance(v, int) for v in flattened_list):
             type_all = int
         else:
             try:
-                for v in lvals:
+                for v in flattened_list:
                     float(v)
                 type_all = float
             except Exception:
                 type_all = str
 
         # Determine the format
-        width = max(len(str(s)) for s in lvals)
-        if type_all == int:
+        width = max(len(str(s)) for s in flattened_list)
+        if type_all is int:
             fmt_spec = f">{width}d"
-        elif type_all == str:
+        elif type_all is str:
             fmt_spec = f">{width}"
         else:
             # Number of decimal
-            max_dec = max(len(str(f - int(f))) - 2 for f in lvals)
-            ndec = min(max(max_dec, floatdecimal), 10)
+            max_dec = max(len(str(f - int(f))) - 2 for f in flattened_list)
+            n_dec = min(max(max_dec, float_decimal), 10)
 
-            if all(f == 0 or (abs(f) > 1e-3 and abs(f) < 1e4) for f in lvals):
-                fmt_spec = f">{ndec + 5}.{ndec}f"
+            if all(f == 0 or (abs(f) > 1e-3 and abs(f) < 1e4) for f in flattened_list):
+                fmt_spec = f">{n_dec + 5}.{n_dec}f"
             else:
-                fmt_spec = f">{ndec + 8}.{ndec}e"
+                fmt_spec = f">{n_dec + 8}.{n_dec}e"
 
         line = "\n"
-        for L in values:
-            for val in L:
+        for lst in values:
+            for val in lst:
                 line += f" {val:{{fmt_spec}}}"
             line += "\n"
 
         return line.rstrip("\n")
 
-    def format_list(self, values, floatdecimal=0):
-        """
-        Format a list of values into a string.
+    def format_list(self, values, float_decimal=0):
+        """Format a list of values into a string.
         The result might be spread among several lines.
         """
         line = ""
 
         # Format the line declaring the value
-        for i, val in enumerate(values):
-            line += " " + self.format_scalar(val, floatdecimal)
-            if self.valperline is not None and (i + 1) % self.valperline == 0:
+        for i, val in enumerate(values, start=1):
+            line += f" {self.format_scalar(val, float_decimal)}"
+            if self.valperline is not None and i % self.valperline == 0:
                 line += "\n"
 
         # Add a carriage return in case of several lines
@@ -212,11 +197,6 @@ class InputVariable:
             line = "\n" + line
 
         return line.rstrip("\n")
-
-
-def is_iter(obj) -> bool:
-    """Return True if the argument is list-like."""
-    return hasattr(obj, "__iter__")
 
 
 def flatten(iterable):

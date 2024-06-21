@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import abc
-import collections
+from collections import defaultdict
 from typing import TYPE_CHECKING
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 from pymatgen.core.spectrum import Spectrum
-from pymatgen.util.plotting import add_fig_kwargs
+from pymatgen.util.plotting import add_fig_kwargs, pretty_plot
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
@@ -67,47 +68,39 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
                 sphere of radius 2 / wavelength.
 
         Returns:
-            (DiffractionPattern)
+            DiffractionPattern
         """
+        raise NotImplementedError
 
     def get_plot(
         self,
-        structure,
-        two_theta_range=(0, 90),
+        structure: Structure,
+        two_theta_range: tuple[float, float] = (0, 90),
         annotate_peaks="compact",
-        ax=None,
+        ax: plt.Axes = None,
         with_labels=True,
         fontsize=16,
-    ):
-        """
-        Returns the diffraction plot as a matplotlib.pyplot.
+    ) -> plt.Axes:
+        """Get the diffraction plot as a matplotlib Axes.
 
         Args:
             structure: Input structure
-            two_theta_range ([float of length 2]): Tuple for range of
-                two_thetas to calculate in degrees. Defaults to (0, 90). Set to
-                None if you want all diffracted beams within the limiting
+            two_theta_range (tuple[float, float]): Range of two_thetas to calculate in degrees.
+                Defaults to (0, 90). Set to None if you want all diffracted beams within the limiting
                 sphere of radius 2 / wavelength.
-            annotate_peaks (str or None): Whether and how to annotate the peaks
+            annotate_peaks (str | None): Whether and how to annotate the peaks
                 with hkl indices. Default is 'compact', i.e. show short
                 version (oriented vertically), e.g. 100. If 'full', show
                 long version, e.g. (1, 0, 0). If None, do not show anything.
-            ax: matplotlib :class:`Axes` or None if a new figure should be
+            ax: matplotlib Axes or None if a new figure should be
                 created.
             with_labels: True to add xlabels and ylabels to the plot.
             fontsize: (int) fontsize for peak labels.
 
         Returns:
-            (matplotlib.pyplot)
+            plt.Axes: matplotlib Axes object
         """
-        if ax is None:
-            from pymatgen.util.plotting import pretty_plot
-
-            plt = pretty_plot(16, 10)
-            ax = plt.gca()
-        else:
-            # This to maintain the type of the return value.
-            import matplotlib.pyplot as plt
+        ax = ax or pretty_plot(16, 10)
 
         xrd = self.get_pattern(structure, two_theta_range=two_theta_range)
         imax = max(xrd.y)
@@ -155,14 +148,12 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
             ax.set_xlabel(r"$2\theta$ ($^\circ$)")
             ax.set_ylabel("Intensities (scaled)")
 
-        if hasattr(ax, "tight_layout"):
-            ax.tight_layout()
+        plt.tight_layout()
 
-        return plt
+        return ax
 
     def show_plot(self, structure: Structure, **kwargs):
-        """
-        Shows the diffraction plot.
+        """Show the diffraction plot.
 
         Args:
             structure (Structure): Input structure
@@ -170,7 +161,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
                 two_thetas to calculate in degrees. Defaults to (0, 90). Set to
                 None if you want all diffracted beams within the limiting
                 sphere of radius 2 / wavelength.
-            annotate_peaks (str or None): Whether and how to annotate the peaks
+            annotate_peaks (str | None): Whether and how to annotate the peaks
                 with hkl indices. Default is 'compact', i.e. show short
                 version (oriented vertically), e.g. 100. If 'full', show
                 long version, e.g. (1, 0, 0). If None, do not show anything.
@@ -188,19 +179,18 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
                 two_thetas to calculate in degrees. Defaults to (0, 90). Set to
                 None if you want all diffracted beams within the limiting
                 sphere of radius 2 / wavelength.
-            annotate_peaks (str or None): Whether and how to annotate the peaks
+            annotate_peaks (str | None): Whether and how to annotate the peaks
                 with hkl indices. Default is 'compact', i.e. show short
                 version (oriented vertically), e.g. 100. If 'full', show
                 long version, e.g. (1, 0, 0). If None, do not show anything.
             fontsize: (int) fontsize for peak labels.
         """
-        import matplotlib.pyplot as plt
 
-        nrows = len(structures)
-        fig, axes = plt.subplots(nrows=nrows, ncols=1, sharex=True, squeeze=False)
+        n_rows = len(structures)
+        fig, axes = plt.subplots(nrows=n_rows, ncols=1, sharex=True, squeeze=False)
 
         for i, (ax, structure) in enumerate(zip(axes.ravel(), structures)):
-            self.get_plot(structure, fontsize=fontsize, ax=ax, with_labels=i == nrows - 1, **kwargs)
+            self.get_plot(structure, fontsize=fontsize, ax=ax, with_labels=i == n_rows - 1, **kwargs)
             spg_symbol, spg_number = structure.get_space_group_info()
             ax.set_title(f"{structure.formula} {spg_symbol} ({spg_number}) ")
 
@@ -208,8 +198,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
 
 
 def get_unique_families(hkls):
-    """
-    Returns unique families of Miller indices. Families must be permutations
+    """Get unique families of Miller indices. Families must be permutations
     of each other.
 
     Args:
@@ -223,9 +212,9 @@ def get_unique_families(hkls):
     def is_perm(hkl1, hkl2) -> bool:
         h1 = np.abs(hkl1)
         h2 = np.abs(hkl2)
-        return all(i == j for i, j in zip(sorted(h1), sorted(h2)))
+        return np.all(np.sort(h1) == np.sort(h2))
 
-    unique = collections.defaultdict(list)
+    unique = defaultdict(list)
     for hkl1 in hkls:
         found = False
         for hkl2, v2 in unique.items():
@@ -237,7 +226,7 @@ def get_unique_families(hkls):
             unique[hkl1].append(hkl1)
 
     pretty_unique = {}
-    for v in unique.values():
-        pretty_unique[sorted(v)[-1]] = len(v)
+    for val in unique.values():
+        pretty_unique[max(val)] = len(val)
 
     return pretty_unique

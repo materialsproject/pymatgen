@@ -1,6 +1,5 @@
 """This module provides utility classes for io operations."""
 
-
 from __future__ import annotations
 
 import os
@@ -18,8 +17,7 @@ __date__ = "Sep 23, 2011"
 
 
 def clean_lines(string_list, remove_empty_lines=True):
-    """
-    Strips whitespace, carriage returns and empty lines from a list of strings.
+    """Strips whitespace, carriage returns and empty lines from a list of strings.
 
     Args:
         string_list: List of strings
@@ -40,12 +38,11 @@ def clean_lines(string_list, remove_empty_lines=True):
 
 
 def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
-    """
-    Small awk-mimicking search routine.
+    """Small awk-mimicking search routine.
 
     'file' is file to search through.
     'search' is the "search program", a list of lists/tuples with 3 elements;
-    i.e. [[regex,test,run],[regex,test,run],...]
+    i.e. [[regex, test, run], [regex, test, run], ...]
     'results' is a an object that your search program will have access to for
     storing results.
 
@@ -54,7 +51,7 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
 
     This function goes through each line in filename, and if regex matches that
     line *and* test(results,line)==True (or test is None) we execute
-    run(results,match),where match is the match object from running
+    run(results,match), where match is the match object from running
     Regex.match.
 
     The default results is an empty dictionary. Passing a results object let
@@ -64,17 +61,17 @@ def micro_pyawk(filename, search, results=None, debug=None, postdebug=None):
     Author: Rickard Armiento, Ioannis Petousis
 
     Returns:
-        results
+        dict[str, Any]: The results dictionary.
     """
     if results is None:
         results = {}
 
-    # Compile strings into regexs
+    # Compile regex strings
     for entry in search:
         entry[0] = re.compile(entry[0])
 
-    with zopen(filename, "rt") as f:
-        for line in f:
+    with zopen(filename, mode="rt") as file:
+        for line in file:
             for entry in search:
                 match = re.search(entry[0], line)
                 if match and (entry[1] is None or entry[1](results, line)):

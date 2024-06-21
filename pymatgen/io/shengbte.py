@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
@@ -17,6 +17,11 @@ try:
 except ImportError:
     f90nml = None
 
+if TYPE_CHECKING:
+    from typing import Any
+
+    from typing_extensions import Self
+
 __author__ = "Rees Chang, Alex Ganose"
 __copyright__ = "Copyright 2019, The Materials Project"
 __version__ = "0.1"
@@ -25,9 +30,8 @@ __date__ = "June 27, 2019"
 
 
 class Control(MSONable, dict):
-    """
-    Class for reading, updating, and writing ShengBTE CONTROL files.
-    See  https://bitbucket.org/sousaw/shengbte/src/master/ for more
+    """Read, update, and write ShengBTE CONTROL files.
+    See https://bitbucket.org/sousaw/shengbte/src/master/ for more
     detailed description and default values of CONTROL arguments.
     """
 
@@ -88,16 +92,13 @@ class Control(MSONable, dict):
                 with the keys "min", "max", "step".
             **kwargs: Other ShengBTE parameters. Several parameters are required
                 for ShengBTE to run - we have listed these parameters below:
-
                 - nelements (int): number of different elements in the compound
                 - natoms (int): number of atoms in the unit cell
-                - lattvec (size 3x3 array): real-space lattice vectors, in units
-                  of lfactor
+                - lattvec (size 3x3 array): real-space lattice vectors, in units of lfactor
                 - lfactor (float): unit of measurement for lattice vectors (nm).
                     I.e., set to 0.1 if lattvec given in Angstrom.
                 - types (size natom list): a vector of natom integers, ranging
-                  from 1 to nelements, assigning an element to each atom in the
-                  system
+                  from 1 to nelements, assigning an element to each atom in the system
                 - elements (size natom list): a vector of element names
                 - positions (size natomx3 array): atomic positions in lattice
                   coordinates
@@ -127,7 +128,7 @@ class Control(MSONable, dict):
         f90nml,
         "ShengBTE Control object requires f90nml to be installed. Please get it at https://pypi.org/project/f90nml.",
     )
-    def from_file(cls, filepath: str):
+    def from_file(cls, filepath: str) -> Self:
         """
         Read a CONTROL namelist file and output a 'Control' object.
 
@@ -150,9 +151,8 @@ class Control(MSONable, dict):
         return cls.from_dict(all_dict)
 
     @classmethod
-    def from_dict(cls, control_dict: dict):
-        """
-        Write a CONTROL file from a Python dictionary. Description and default
+    def from_dict(cls, control_dict: dict) -> Self:
+        """Write a CONTROL file from a Python dictionary. Description and default
         parameters can be found at
         https://bitbucket.org/sousaw/shengbte/src/master/.
         Note some parameters are mandatory. Optional parameters default here to
@@ -167,9 +167,8 @@ class Control(MSONable, dict):
         f90nml,
         "ShengBTE Control object requires f90nml to be installed. Please get it at https://pypi.org/project/f90nml.",
     )
-    def to_file(self, filename: str = "CONTROL"):
-        """
-        Writes ShengBTE CONTROL file from 'Control' object.
+    def to_file(self, filename: str = "CONTROL") -> None:
+        """Write ShengBTE CONTROL file from 'Control' object.
 
         Args:
             filename: A file name.
@@ -194,13 +193,12 @@ class Control(MSONable, dict):
         flags_nml = f90nml.Namelist({"flags": flags_dict})
         control_str += str(flags_nml) + "\n"
 
-        with open(filename, "w") as file:
+        with open(filename, mode="w", encoding="utf-8") as file:
             file.write(control_str)
 
     @classmethod
-    def from_structure(cls, structure: Structure, reciprocal_density: int | None = 50000, **kwargs):
-        """
-        Get a ShengBTE control object from a structure.
+    def from_structure(cls, structure: Structure, reciprocal_density: int | None = 50000, **kwargs) -> Self:
+        """Get a ShengBTE control object from a structure.
 
         Args:
             structure: A structure object.
@@ -212,15 +210,15 @@ class Control(MSONable, dict):
         Returns:
             A ShengBTE control object.
         """
-        elements = list(map(str, structure.composition.elements))
+        elements = list(map(str, structure.elements))
 
         unique_nums = np.unique(structure.atomic_numbers)
         types_dict = dict(zip(unique_nums, range(len(unique_nums))))
         types = [types_dict[i] + 1 for i in structure.atomic_numbers]
 
         control_dict = {
-            "nelements": structure.ntypesp,
-            "natoms": structure.num_sites,
+            "nelements": structure.n_elems,
+            "natoms": len(structure),
             "norientations": 0,
             "lfactor": 0.1,
             "lattvec": structure.lattice.matrix.tolist(),
@@ -238,8 +236,7 @@ class Control(MSONable, dict):
         return Control(**control_dict)
 
     def get_structure(self) -> Structure:
-        """
-        Get a pymatgen Structure from a ShengBTE control object.
+        """Get a pymatgen Structure from a ShengBTE control object.
 
         The control object must have the "lattvec", "types", "elements", and
         "positions" settings otherwise an error will be thrown.
@@ -264,7 +261,7 @@ class Control(MSONable, dict):
         return Structure(cell, species, self["positions"])
 
     def as_dict(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return dict(self)
 
 

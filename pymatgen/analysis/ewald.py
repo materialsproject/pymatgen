@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import bisect
+import math
 from copy import copy, deepcopy
 from datetime import datetime
-from math import log, pi, sqrt
-from typing import Any
+from typing import TYPE_CHECKING
 from warnings import warn
 
 import numpy as np
@@ -16,6 +16,11 @@ from scipy.special import comb, erfc
 
 from pymatgen.core.structure import Structure
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, William Davidson Richard"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -52,7 +57,7 @@ class EwaldSummation(MSONable):
     """
 
     # Converts unit of q*q/r into eV
-    CONV_FACT = 1e10 * constants.e / (4 * pi * constants.epsilon_0)
+    CONV_FACT = 1e10 * constants.e / (4 * math.pi * constants.epsilon_0)
 
     def __init__(
         self,
@@ -64,8 +69,7 @@ class EwaldSummation(MSONable):
         w=1 / 2**0.5,
         compute_forces=False,
     ):
-        """
-        Initializes and calculates the Ewald sum. Default convergence
+        """Initialize and calculate the Ewald sum. Default convergence
         parameters have been specified, but you can override them if you wish.
 
         Args:
@@ -74,10 +78,10 @@ class EwaldSummation(MSONable):
                 Structure.add_oxidation_state... for example.
             real_space_cut (float): Real space cutoff radius dictating how
                 many terms are used in the real space sum. Defaults to None,
-                which means determine automagically using the formula given
+                which means determine automatically using the formula given
                 in gulp 3.1 documentation.
             recip_space_cut (float): Reciprocal space cutoff radius.
-                Defaults to None, which means determine automagically using
+                Defaults to None, which means determine automatically using
                 the formula given in gulp 3.1 documentation.
             eta (float): The screening parameter. Defaults to None, which means
                 determine automatically.
@@ -93,19 +97,19 @@ class EwaldSummation(MSONable):
             compute_forces (bool): Whether to compute forces. False by
                 default since it is usually not needed.
         """
-        self._s = structure
+        self._struct = structure
         self._charged = abs(structure.charge) > 1e-8
         self._vol = structure.volume
         self._compute_forces = compute_forces
 
         self._acc_factor = acc_factor
         # set screening length
-        self._eta = eta or (len(structure) * w / (self._vol**2)) ** (1 / 3) * pi
-        self._sqrt_eta = sqrt(self._eta)
+        self._eta = eta or (len(structure) * w / (self._vol**2)) ** (1 / 3) * math.pi
+        self._sqrt_eta = math.sqrt(self._eta)
 
         # acc factor used to automatically determine the optimal real and
         # reciprocal space cutoff radii
-        self._accf = sqrt(log(10**acc_factor))
+        self._accf = math.sqrt(math.log(10**acc_factor))
 
         self._rmax = real_space_cut or self._accf / self._sqrt_eta
         self._gmax = recip_space_cut or 2 * self._sqrt_eta * self._accf
@@ -115,7 +119,7 @@ class EwaldSummation(MSONable):
         # necessary to obtain several factors of improvement in speedup.
         self._oxi_states = [compute_average_oxidation_state(site) for site in structure]
 
-        self._coords = np.array(self._s.cart_coords)
+        self._coords = np.array(self._struct.cart_coords)
 
         # Define the private attributes to lazy compute reciprocal and real
         # space terms.
@@ -128,10 +132,7 @@ class EwaldSummation(MSONable):
         )
 
     def compute_partial_energy(self, removed_indices):
-        """
-        Gives total Ewald energy for certain sites being removed, i.e. zeroed
-        out.
-        """
+        """Get total Ewald energy for certain sites being removed, i.e. zeroed out."""
         total_energy_matrix = self.total_energy_matrix.copy()
         for idx in removed_indices:
             total_energy_matrix[idx, :] = 0
@@ -139,8 +140,7 @@ class EwaldSummation(MSONable):
         return sum(sum(total_energy_matrix))
 
     def compute_sub_structure(self, sub_structure, tol: float = 1e-3):
-        """
-        Gives total Ewald energy for an sub structure in the same
+        """Get total Ewald energy for an sub structure in the same
         lattice. The sub_structure must be a subset of the original
         structure, with possible different charges.
 
@@ -162,17 +162,17 @@ class EwaldSummation(MSONable):
             return None
 
         matches = []
-        for i, site in enumerate(self._s):
+        for idx, site in enumerate(self._struct):
             matching_site = find_match(site)
             if matching_site:
                 new_charge = compute_average_oxidation_state(matching_site)
-                old_charge = self._oxi_states[i]
+                old_charge = self._oxi_states[idx]
                 scaling_factor = new_charge / old_charge
                 matches.append(matching_site)
             else:
                 scaling_factor = 0
-            total_energy_matrix[i, :] *= scaling_factor
-            total_energy_matrix[:, i] *= scaling_factor
+            total_energy_matrix[idx, :] *= scaling_factor
+            total_energy_matrix[:, idx] *= scaling_factor
 
         if len(matches) != len(sub_structure):
             output = ["Missing sites."]
@@ -193,8 +193,7 @@ class EwaldSummation(MSONable):
 
     @property
     def reciprocal_space_energy_matrix(self):
-        """
-        The reciprocal space energy matrix. Each matrix element (i, j)
+        """The reciprocal space energy matrix. Each matrix element (i, j)
         corresponds to the interaction energy between site i and site j in
         reciprocal space.
         """
@@ -213,8 +212,7 @@ class EwaldSummation(MSONable):
 
     @property
     def real_space_energy_matrix(self):
-        """
-        The real space energy matrix. Each matrix element (i, j) corresponds to
+        """The real space energy matrix. Each matrix element (i, j) corresponds to
         the interaction energy between site i and site j in real space.
         """
         if not self._initialized:
@@ -232,8 +230,7 @@ class EwaldSummation(MSONable):
 
     @property
     def point_energy_matrix(self):
-        """
-        The point space matrix. A diagonal matrix with the point terms for each
+        """The point space matrix. A diagonal matrix with the point terms for each
         site in the diagonal elements.
         """
         if not self._initialized:
@@ -251,8 +248,7 @@ class EwaldSummation(MSONable):
 
     @property
     def total_energy_matrix(self):
-        """
-        The total energy matrix. Each matrix element (i, j) corresponds to the
+        """The total energy matrix. Each matrix element (i, j) corresponds to the
         total interaction energy between site i and site j.
 
         Note that this does not include the charged-cell energy, which is only important
@@ -269,10 +265,7 @@ class EwaldSummation(MSONable):
 
     @property
     def forces(self):
-        """
-        The forces on each site as a Nx3 matrix. Each row corresponds to a
-        site.
-        """
+        """The forces on each site as a Nx3 matrix. Each row corresponds to a site."""
         if not self._initialized:
             self._calc_ewald_terms()
             self._initialized = True
@@ -286,8 +279,9 @@ class EwaldSummation(MSONable):
 
         Args:
             site_index (int): Index of site
-        ReturnS:
-        (float) - Energy of that site
+
+        Returns:
+            float: Energy of that site
         """
         if not self._initialized:
             self._calc_ewald_terms()
@@ -298,7 +292,7 @@ class EwaldSummation(MSONable):
         return np.sum(self._recip[:, site_index]) + np.sum(self._real[:, site_index]) + self._point[site_index]
 
     def _calc_ewald_terms(self):
-        """Calculates and sets all Ewald terms (point, real and reciprocal)."""
+        """Calculate and sets all Ewald terms (point, real and reciprocal)."""
         self._recip, recip_forces = self._calc_recip()
         self._real, self._point, real_point_forces = self._calc_real_and_point()
         if self._compute_forces:
@@ -312,126 +306,115 @@ class EwaldSummation(MSONable):
         S(G) = sum_{k=1,N} q_k exp(-i G.r_k)
         S(G)S(-G) = |S(G)|**2.
 
-        This method is heavily vectorized to utilize numpy's C backend for
-        speed.
+        This method is heavily vectorized to utilize numpy's C backend for speed.
         """
-        numsites = self._s.num_sites
-        prefactor = 2 * pi / self._vol
-        erecip = np.zeros((numsites, numsites), dtype=np.float_)
-        forces = np.zeros((numsites, 3), dtype=np.float_)
+        n_sites = len(self._struct)
+        prefactor = 2 * math.pi / self._vol
+        e_recip = np.zeros((n_sites, n_sites), dtype=np.float64)
+        forces = np.zeros((n_sites, 3), dtype=np.float64)
         coords = self._coords
-        rcp_latt = self._s.lattice.reciprocal_lattice
+        rcp_latt = self._struct.lattice.reciprocal_lattice
         recip_nn = rcp_latt.get_points_in_sphere([[0, 0, 0]], [0, 0, 0], self._gmax)
 
-        frac_coords = [fcoords for (fcoords, dist, i, img) in recip_nn if dist != 0]
+        frac_coords = [frac_coords for (frac_coords, dist, _idx, _img) in recip_nn if dist != 0]
 
         gs = rcp_latt.get_cartesian_coords(frac_coords)
         g2s = np.sum(gs**2, 1)
-        expvals = np.exp(-g2s / (4 * self._eta))
+        exp_vals = np.exp(-g2s / (4 * self._eta))
         grs = np.sum(gs[:, None] * coords[None, :], 2)
 
-        oxistates = np.array(self._oxi_states)
+        oxi_states = np.array(self._oxi_states)
 
         # create array where q_2[i,j] is qi * qj
-        qiqj = oxistates[None, :] * oxistates[:, None]
+        qi_qj = oxi_states[None, :] * oxi_states[:, None]
 
         # calculate the structure factor
-        sreals = np.sum(oxistates[None, :] * np.cos(grs), 1)
-        simags = np.sum(oxistates[None, :] * np.sin(grs), 1)
+        s_reals = np.sum(oxi_states[None, :] * np.cos(grs), 1)
+        s_imags = np.sum(oxi_states[None, :] * np.sin(grs), 1)
 
-        for g, g2, gr, expval, sreal, simag in zip(gs, g2s, grs, expvals, sreals, simags):
+        for g, g2, gr, exp_val, s_real, s_imag in zip(gs, g2s, grs, exp_vals, s_reals, s_imags):
             # Uses the identity sin(x)+cos(x) = 2**0.5 sin(x + pi/4)
-            m = (gr[None, :] + pi / 4) - gr[:, None]
-            np.sin(m, m)
-            m *= expval / g2
+            m = np.sin((gr[None, :] + math.pi / 4) - gr[:, None])
+            m *= exp_val / g2
 
-            erecip += m
+            e_recip += m
 
             if self._compute_forces:
-                pref = 2 * expval / g2 * oxistates
-                factor = prefactor * pref * (sreal * np.sin(gr) - simag * np.cos(gr))
+                pref = 2 * exp_val / g2 * oxi_states
+                factor = prefactor * pref * (s_real * np.sin(gr) - s_imag * np.cos(gr))
 
                 forces += factor[:, None] * g[None, :]
 
         forces *= EwaldSummation.CONV_FACT
-        erecip *= prefactor * EwaldSummation.CONV_FACT * qiqj * 2**0.5
-        return erecip, forces
+        e_recip *= prefactor * EwaldSummation.CONV_FACT * qi_qj * 2**0.5
+        return e_recip, forces
 
     def _calc_real_and_point(self):
-        """Determines the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2."""
-        fcoords = self._s.frac_coords
-        forcepf = 2 * self._sqrt_eta / sqrt(pi)
+        """Determine the self energy -(eta/pi)**(1/2) * sum_{i=1}^{N} q_i**2."""
+        frac_coords = self._struct.frac_coords
+        force_pf = 2 * self._sqrt_eta / math.sqrt(math.pi)
         coords = self._coords
-        numsites = self._s.num_sites
-        ereal = np.empty((numsites, numsites), dtype=np.float_)
+        n_sites = len(self._struct)
+        e_real = np.empty((n_sites, n_sites), dtype=np.float64)
 
-        forces = np.zeros((numsites, 3), dtype=np.float_)
+        forces = np.zeros((n_sites, 3), dtype=np.float64)
 
         qs = np.array(self._oxi_states)
 
-        epoint = -(qs**2) * sqrt(self._eta / pi)
+        e_point = -(qs**2) * math.sqrt(self._eta / math.pi)
 
-        for i in range(numsites):
-            nfcoords, rij, js, _ = self._s.lattice.get_points_in_sphere(
-                fcoords, coords[i], self._rmax, zip_results=False
+        for idx in range(n_sites):
+            nf_coords, rij, js, _ = self._struct.lattice.get_points_in_sphere(
+                frac_coords, coords[idx], self._rmax, zip_results=False
             )
 
             # remove the rii term
             inds = rij > 1e-8
             js = js[inds]
             rij = rij[inds]
-            nfcoords = nfcoords[inds]
+            nf_coords = nf_coords[inds]
 
-            qi = qs[i]
+            qi = qs[idx]
             qj = qs[js]
 
-            erfcval = erfc(self._sqrt_eta * rij)
-            new_ereals = erfcval * qi * qj / rij
+            erfc_val = erfc(self._sqrt_eta * rij)
+            new_ereals = erfc_val * qi * qj / rij
 
             # insert new_ereals
-            for key in range(numsites):
-                ereal[key, i] = np.sum(new_ereals[js == key])
+            for key in range(n_sites):
+                e_real[key, idx] = np.sum(new_ereals[js == key])
 
             if self._compute_forces:
-                nccoords = self._s.lattice.get_cartesian_coords(nfcoords)
+                nc_coords = self._struct.lattice.get_cartesian_coords(nf_coords)
 
-                fijpf = qj / rij**3 * (erfcval + forcepf * rij * np.exp(-self._eta * rij**2))
-                forces[i] += np.sum(
-                    np.expand_dims(fijpf, 1) * (np.array([coords[i]]) - nccoords) * qi * EwaldSummation.CONV_FACT,
+                fijpf = qj / rij**3 * (erfc_val + force_pf * rij * np.exp(-self._eta * rij**2))
+                forces[idx] += np.sum(
+                    np.expand_dims(fijpf, 1) * (np.array([coords[idx]]) - nc_coords) * qi * EwaldSummation.CONV_FACT,
                     axis=0,
                 )
 
-        ereal *= 0.5 * EwaldSummation.CONV_FACT
-        epoint *= EwaldSummation.CONV_FACT
-        return ereal, epoint, forces
+        e_real *= 0.5 * EwaldSummation.CONV_FACT
+        e_point *= EwaldSummation.CONV_FACT
+        return e_real, e_point, forces
 
     @property
     def eta(self):
-        """Returns: eta value used in Ewald summation."""
+        """Eta value used in Ewald summation."""
         return self._eta
 
     def __str__(self):
-        if self._compute_forces:
-            output = [
-                "Real = " + str(self.real_space_energy),
-                "Reciprocal = " + str(self.reciprocal_space_energy),
-                "Point = " + str(self.point_energy),
-                "Total = " + str(self.total_energy),
-                "Forces:\n" + str(self.forces),
-            ]
-        else:
-            output = [
-                "Real = " + str(self.real_space_energy),
-                "Reciprocal = " + str(self.reciprocal_space_energy),
-                "Point = " + str(self.point_energy),
-                "Total = " + str(self.total_energy),
-                "Forces were not computed",
-            ]
+        output = [
+            f"Real = {self.real_space_energy}",
+            f"Reciprocal = {self.reciprocal_space_energy}",
+            f"Point = {self.point_energy}",
+            f"Total = {self.total_energy}",
+            f"Forces:\n{self.forces}" if self._compute_forces else "Forces were not computed",
+        ]
         return "\n".join(output)
 
     def as_dict(self, verbosity: int = 0) -> dict:
         """
-        Json-serialization dict representation of EwaldSummation.
+        JSON-serialization dict representation of EwaldSummation.
 
         Args:
             verbosity (int): Verbosity level. Default of 0 only includes the
@@ -440,7 +423,7 @@ class EwaldSummation(MSONable):
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
-            "structure": self._s.as_dict(),
+            "structure": self._struct.as_dict(),
             "compute_forces": self._compute_forces,
             "eta": self._eta,
             "acc_factor": self._acc_factor,
@@ -453,31 +436,31 @@ class EwaldSummation(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d: dict[str, Any], fmt: str | None = None, **kwargs) -> EwaldSummation:
+    def from_dict(cls, dct: dict[str, Any], fmt: str | None = None, **kwargs) -> Self:
         """Create an EwaldSummation instance from JSON-serialized dictionary.
 
         Args:
-            d (dict): Dictionary representation
+            dct (dict): Dictionary representation
             fmt (str, optional): Unused. Defaults to None.
 
         Returns:
             EwaldSummation: class instance
         """
         summation = cls(
-            structure=Structure.from_dict(d["structure"]),
-            real_space_cut=d["real_space_cut"],
-            recip_space_cut=d["recip_space_cut"],
-            eta=d["eta"],
-            acc_factor=d["acc_factor"],
-            compute_forces=d["compute_forces"],
+            structure=Structure.from_dict(dct["structure"]),
+            real_space_cut=dct["real_space_cut"],
+            recip_space_cut=dct["recip_space_cut"],
+            eta=dct["eta"],
+            acc_factor=dct["acc_factor"],
+            compute_forces=dct["compute_forces"],
         )
 
         # set previously computed private attributes
-        if d["_recip"] is not None:
-            summation._recip = np.array(d["_recip"])
-            summation._real = np.array(d["_real"])
-            summation._point = np.array(d["_point"])
-            summation._forces = np.array(d["_forces"])
+        if dct["_recip"] is not None:
+            summation._recip = np.array(dct["_recip"])
+            summation._real = np.array(dct["_real"])
+            summation._point = np.array(dct["_point"])
+            summation._forces = np.array(dct["_forces"])
             summation._initialized = True
 
         return summation
@@ -504,12 +487,9 @@ class EwaldMinimizer:
     ALGO_FAST = 0
     ALGO_COMPLETE = 1
     ALGO_BEST_FIRST = 2
-
-    """
-    ALGO_TIME_LIMIT: Slowly increases the speed (with the cost of decreasing
-    accuracy) as the minimizer runs. Attempts to limit the run time to
-    approximately 30 minutes.
-    """
+    # ALGO_TIME_LIMIT: Slowly increases the speed (with the cost of decreasing
+    # accuracy) as the minimizer runs. Attempts to limit the run time to
+    # approximately 30 minutes.
     ALGO_TIME_LIMIT = 3
 
     def __init__(self, matrix, m_list, num_to_return=1, algo=ALGO_FAST):
@@ -550,7 +530,7 @@ class EwaldMinimizer:
         if algo == EwaldMinimizer.ALGO_COMPLETE:
             raise NotImplementedError("Complete algo not yet implemented for EwaldMinimizer")
 
-        self._output_lists = []
+        self._output_lists: list = []
         # Tag that the recurse function looks at each level. If a method
         # sets this to true it breaks the recursion and stops the search.
         self._finished = False
@@ -563,8 +543,7 @@ class EwaldMinimizer:
         self._minimized_sum = self._output_lists[0][0]
 
     def minimize_matrix(self):
-        """
-        This method finds and returns the permutations that produce the lowest
+        """Get the permutations that produce the lowest
         Ewald sum calls recursive function to iterate through permutations.
         """
         if self._algo in (EwaldMinimizer.ALGO_FAST, EwaldMinimizer.ALGO_BEST_FIRST):
@@ -572,8 +551,7 @@ class EwaldMinimizer:
         return None
 
     def add_m_list(self, matrix_sum, m_list):
-        """
-        This adds an m_list to the output_lists and updates the current
+        """Add an m_list to the output_lists and updates the current
         minimum if the list is full.
         """
         if self._output_lists is None:
@@ -588,8 +566,7 @@ class EwaldMinimizer:
             self._current_minimum = self._output_lists[-1][0]
 
     def best_case(self, matrix, m_list, indices_left):
-        """
-        Computes a best case given a matrix and manipulation list.
+        """Compute a best case given a matrix and manipulation list.
 
         Args:
             matrix: the current matrix (with some permutations already
@@ -631,7 +608,7 @@ class EwaldMinimizer:
             elapsed_time = datetime.utcnow() - self._start_time
             speedup_parameter = elapsed_time.total_seconds() / 1800
             avg_int = np.sum(interaction_matrix, axis=None)
-            avg_frac = np.average(np.outer(1 - fractions, 1 - fractions))
+            avg_frac = np.mean(np.outer(1 - fractions, 1 - fractions))
             average_correction = avg_int * avg_frac
 
             interaction_correction = average_correction * speedup_parameter + interaction_correction * (
@@ -642,20 +619,17 @@ class EwaldMinimizer:
 
     @classmethod
     def get_next_index(cls, matrix, manipulation, indices_left):
-        """
-        Returns an index that should have the most negative effect on the
+        """Get an index that should have the most negative effect on the
         matrix sum.
         """
-        # pylint: disable=E1126
+
         f = manipulation[0]
         indices = list(indices_left.intersection(manipulation[2]))
         sums = np.sum(matrix[indices], axis=1)
         return indices[sums.argmax(axis=0)] if f < 1 else indices[sums.argmin(axis=0)]
 
     def _recurse(self, matrix, m_list, indices, output_m_list=None):
-        """
-        This method recursively finds the minimal permutations using a binary
-        tree search strategy.
+        """Find the minimal permutations using a binary tree search strategy.
 
         Args:
             matrix: The current matrix (with some permutations already
@@ -664,7 +638,7 @@ class EwaldMinimizer:
             indices: Set of indices which haven't had a permutation
                 performed on them.
         """
-        # check to see if we've found all the solutions that we need
+        # Check if we've found all the solutions that we need
         if self._finished:
             return
 
@@ -713,17 +687,17 @@ class EwaldMinimizer:
 
     @property
     def best_m_list(self):
-        """Returns: Best m_list found."""
+        """The best manipulation list found."""
         return self._best_m_list
 
     @property
     def minimized_sum(self):
-        """Returns: Minimized sum."""
+        """The minimized Ewald sum."""
         return self._minimized_sum
 
     @property
     def output_lists(self):
-        """Returns: output lists."""
+        """Output lists."""
         return self._output_lists
 
 

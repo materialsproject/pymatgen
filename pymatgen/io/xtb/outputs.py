@@ -1,4 +1,5 @@
 """Parsers for XTB output files and directories."""
+
 from __future__ import annotations
 
 import logging
@@ -21,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class CRESTOutput(MSONable):
-    """Class to parse CREST output files."""
+    """Parse CREST output files."""
 
     def __init__(self, output_filename, path="."):
         """
@@ -35,14 +36,13 @@ class CRESTOutput(MSONable):
         self.path = path
         self.filename = output_filename
 
-        self.cmd_options = {}
-        self.sorted_structures_energies = []
+        self.cmd_options: dict = {}
+        self.sorted_structures_energies: list = []
         self.properly_terminated = False
         self._parse_crest_output()
 
     def _parse_crest_output(self):
-        """
-        Parse output file and directory to extract all command line inputs
+        """Parse output file and directory to extract all command line inputs
             and output files.
         Sets the attributes:
             cmd_options: Dict of type {flag: value}
@@ -55,8 +55,8 @@ class CRESTOutput(MSONable):
 
         # Get CREST command
         crest_cmd = None
-        with open(output_filepath) as xtbout_file:
-            for line in xtbout_file:
+        with open(output_filepath, encoding="utf-8") as xtb_out_file:
+            for line in xtb_out_file:
                 if "> crest" in line:
                     crest_cmd = line.strip()[8:]
                     break
@@ -71,12 +71,12 @@ class CRESTOutput(MSONable):
             print(f"Input file {split_cmd[0]} not found")
 
         # Get CREST input flags
-        for i, entry in enumerate(split_cmd):
+        for i, entry in enumerate(split_cmd, start=1):
             value = None
             if entry and "-" in entry:
                 option = entry[1:]
-                if i + 1 < len(split_cmd) and "-" not in split_cmd[i + 1]:
-                    value = split_cmd[i + 1]
+                if i < len(split_cmd) and "-" not in split_cmd[i]:
+                    value = split_cmd[i]
                 self.cmd_options[option] = value
         # Get input charge for decorating parsed molecules
         chg = 0
@@ -88,11 +88,11 @@ class CRESTOutput(MSONable):
             chg = int(str_chg) if "-" in str_chg else int(str_chg[-1])
 
         # Check for proper termination
-        with open(output_filepath, "rb+") as xtbout_file:
-            xtbout_file.seek(-2, 2)
-            while xtbout_file.read(1) != b"\n":
-                xtbout_file.seek(-2, 1)
-            end_bstring = xtbout_file.read()
+        with open(output_filepath, "rb+") as xtb_out_file:
+            xtb_out_file.seek(-2, 2)
+            while xtb_out_file.read(1) != b"\n":
+                xtb_out_file.seek(-2, 1)
+            end_bstring = xtb_out_file.read()
             if b"CREST terminated normally." in end_bstring:
                 self.properly_terminated = True
 
@@ -111,8 +111,8 @@ class CRESTOutput(MSONable):
             )
             conformer_degeneracies = []
             energies = []
-            with open(output_filepath) as xtbout_file:
-                for line in xtbout_file:
+            with open(output_filepath, encoding="utf-8") as xtb_out_file:
+                for line in xtb_out_file:
                     conformer_match = conformer_pattern.match(line)
                     rotamer_match = rotamer_pattern.match(line)
                     if conformer_match:
@@ -126,12 +126,12 @@ class CRESTOutput(MSONable):
                 final_rotamer_filename = "crest_rotamers.xyz"
             else:
                 n_rot_files = []
-                for f in os.listdir(self.path):
-                    if "crest_rotamers" in f:
-                        n_rot_file = int(os.path.splitext(f)[0].split("_")[2])
+                for filename in os.listdir(self.path):
+                    if "crest_rotamers" in filename:
+                        n_rot_file = int(os.path.splitext(filename)[0].split("_")[2])
                         n_rot_files.append(n_rot_file)
-                if len(n_rot_files) > 0:
-                    final_rotamer_filename = f"crest_rotamers_{max(n_rot_files)}.xyz"
+                final_rotamer_filename = f"crest_rotamers_{max(n_rot_files)}.xyz" if len(n_rot_files) > 0 else ""
+
             try:
                 rotamers_path = os.path.join(self.path, final_rotamer_filename)
                 rotamer_structures = XYZ.from_file(rotamers_path).all_molecules
@@ -148,19 +148,19 @@ class CRESTOutput(MSONable):
                 print(f"{final_rotamer_filename} not found, no rotamer list processed")
 
             # Get lowest energy conformer from 'crest_best.xyz'
-            crestbest_path = os.path.join(self.path, "crest_best.xyz")
+            crest_best_path = os.path.join(self.path, "crest_best.xyz")
             try:
-                lowest_e_struct = Molecule.from_file(crestbest_path)
+                lowest_e_struct = Molecule.from_file(crest_best_path)
                 lowest_e_struct.set_charge_and_spin(charge=chg)
                 self.lowest_energy_structure = lowest_e_struct
             except FileNotFoundError:
-                print(f"{crestbest_path} not found")
+                print(f"{crest_best_path} not found")
 
         else:
-            crestbest_path = os.path.join(self.path, "crest_best.xyz")
+            crest_best_path = os.path.join(self.path, "crest_best.xyz")
             try:
-                lowest_e_struct = Molecule.from_file(crestbest_path)
+                lowest_e_struct = Molecule.from_file(crest_best_path)
                 lowest_e_struct.set_charge_and_spin(charge=chg)
                 self.lowest_energy_structure = lowest_e_struct
             except FileNotFoundError:
-                print(f"{crestbest_path} not found")
+                print(f"{crest_best_path} not found")

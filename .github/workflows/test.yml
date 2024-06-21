@@ -1,21 +1,16 @@
 # Runs the complete test suite incl. many external command line dependencies (like Openbabel)
-# as well as the pymatgen.ext package. Coverage is computed based on this workflow.
+# as well as the pymatgen.ext package. Coverage used to be computed based on this workflow.
 name: Tests
 
 on:
   push:
     branches: [master]
+    paths-ignore: ["**/*.md", docs/**]
   pull_request:
     branches: [master]
-  release:
-    types: [published]
+    paths-ignore: ["**/*.md", docs/**]
   workflow_dispatch:
-    inputs:
-      task:
-        type: choice
-        options: [tests, release]
-        default: tests
-        description: Only run tests or release a new version of pymatgen to PyPI after tests pass.
+  workflow_call: # make this workflow reusable by release.yml
 
 permissions:
   contents: read
@@ -24,156 +19,88 @@ jobs:
   test:
     # prevent this action from running on forks
     if: github.repository == 'materialsproject/pymatgen'
+    defaults:
+      run:
+        shell: bash -l {0} # enables conda/mamba env activation by reading bash profile
     strategy:
       fail-fast: false
       matrix:
-        # pytest-split automatically distributes work load so parallel jobs finish in similar time
-        os: [ubuntu-latest, windows-latest]
-        python-version: ["3.8", "3.11"]
-        split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        # include/exclude is meant to maximize CI coverage of different platforms and python
-        # versions while minimizing the total number of jobs. We run all pytest splits with the
-        # oldest supported python version (currently 3.8) on windows (seems most likely to surface
-        # errors) and with newest version (currently 3.11) on ubuntu (to get complete and speedy
-        # coverage on unix). Also sample some splits on macos for all python versions
-        exclude:
+        # maximize CI coverage of different platforms and python versions while minimizing the
+        # total number of jobs. We run all pytest splits with the oldest supported python
+        # version (currently 3.9) on windows (seems most likely to surface errors) and with
+        # newest version (currently 3.12) on ubuntu (to get complete coverage on unix).
+        config:
           - os: windows-latest
-            python-version: "3.11"
+            python: "3.9"
+            resolution: highest
+            extras: ci,optional
           - os: ubuntu-latest
-            python-version: "3.8"
-        include:
+            python: "3.12"
+            resolution: lowest-direct
+            extras: ci,optional
           - os: macos-latest
-            python-version: "3.8"
-            split: 1
-          - os: macos-latest
-            python-version: "3.9"
-            split: 2
-          - os: macos-latest
-            python-version: "3.10"
-            split: 3
-          - os: macos-latest
-            python-version: "3.11"
-            split: 4
+            python: "3.10"
+            resolution: lowest-direct
+            extras: ci # test with only required dependencies installed
 
-    runs-on: ${{ matrix.os }}
+        # pytest-split automatically distributes work load so parallel jobs finish in similar time
+        # update durations file with `pytest --store-durations --durations-path tests/files/.pytest-split-durations`
+        split: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+    runs-on: ${{ matrix.config.os }}
 
     env:
       PMG_MAPI_KEY: ${{ secrets.PMG_MAPI_KEY }}
-      MPLBACKEND: Agg # https://github.com/orgs/community/discussions/26434
-      PMG_TEST_FILES_DIR: ${{ github.workspace }}/test_files
-      GULP_LIB: ${{ github.workspace }}/cmd_line/gulp/Libraries
+      PMG_VASP_PSP_DIR: ${{ github.workspace }}/tests/files
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: setup.py
-      - name: Add CLIs to GITHUB_PATH
-        if: runner.os != 'Windows'
-        # This is the way to update env variables in a way that persist for the entire job.
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up micromamba
+        uses: mamba-org/setup-micromamba@main
+
+      - name: Create mamba environment
         run: |
-          for pkg in cmd_line/*;
-            do echo "$(pwd)/cmd_line/$pkg/Linux_64bit" >> "$GITHUB_PATH";
-          done
-      - name: Install dependencies
+          micromamba create -n pmg python=${{ matrix.config.python }} --yes
+
+      - name: Install uv
+        run: micromamba run -n pmg pip install uv
+
+      - name: Install ubuntu-only conda dependencies
+        if: matrix.config.os == 'ubuntu-latest'
         run: |
-          python -m pip install --upgrade pip wheel
-          python -m pip install numpy cython packaging
-          python -m pip install -e '.[dev,optional]'
+          micromamba install -n pmg -c conda-forge enumlib packmol bader openbabel openff-toolkit --yes
+
+      - name: Install pymatgen and dependencies
+        run: |
+          micromamba activate pmg
+          # TODO remove temporary fix. added since uv install torch is flaky.
+          # track https://github.com/astral-sh/uv/issues/1921 for resolution
+          pip install torch --upgrade
+
+          uv pip install numpy cython
+          uv pip install --editable '.[${{ matrix.config.extras }}]' --resolution=${{ matrix.config.resolution }}
+
       - name: pytest split ${{ matrix.split }}
-        # to update the test durations, run
-        # pytest --store-durations --durations-path test_files/.pytest-split-durations
-        # and commit the results (requires pip install pytest-split)
         run: |
-          pytest --cov=pymatgen --splits 10 --group ${{ matrix.split }} --durations-path test_files/.pytest-split-durations
-      - name: Upload coverage
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-${{ matrix.split }}
-          path: .coverage
+          micromamba activate pmg
+          pytest --splits 10 --group ${{ matrix.split }} --durations-path tests/files/.pytest-split-durations tests
 
-  coverage:
+  trigger_atomate2_ci:
     needs: test
     runs-on: ubuntu-latest
+    # only run if changes were pushed to master
+    if: github.ref == 'refs/heads/master'
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-      - name: Install Coverage
-        run: python -m pip install coverage
-      - name: Download coverage artifacts
-        continue-on-error: true
-        uses: actions/download-artifact@v3
-      - name: Run coverage
-        continue-on-error: true
-        run: |
-          coverage combine coverage*/.coverage*
-          coverage report
-          coverage xml
-      - name: Coveralls Python
-        continue-on-error: true
-        uses: AndreMiras/coveralls-python-action@v20201129
-
-  build_sdist:
-    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        name: Install Python
-        with:
-          python-version: "3.10"
-      - run: python -m pip install build
-      - name: Build sdist
-        run: python -m build --sdist
-      - uses: actions/upload-artifact@v3
-        with:
-          path: dist/*.tar.gz
-
-  build_wheels:
-    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
-    needs: test
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["38", "39", "310", "311"]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.12.3
+      - name: Trigger Atomate2 CI
         env:
-          CIBW_BUILD: cp${{ matrix.python-version }}-*
-      - name: Save artifact
-        uses: actions/upload-artifact@v3
-        with:
-          path: ./wheelhouse/*.whl
-
-  release:
-    needs: [build_wheels, build_sdist]
-    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.task == 'release')
-    runs-on: ubuntu-latest
-    permissions:
-      # For pypi trusted publishing
-      id-token: write
-    steps:
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
-      - name: Get build artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: artifact
-          path: dist
-      - name: Publish to PyPi
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          skip-existing: true
-          verbose: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/materialsproject/atomate2/dispatches \
+            -d '{"event_type": "pymatgen-ci-trigger", "client_payload": {"pymatgen_ref": "${{ github.sha }}"}}'

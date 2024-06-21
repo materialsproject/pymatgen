@@ -4,16 +4,18 @@ from __future__ import annotations
 
 import os
 import warnings
-from typing import TYPE_CHECKING, Any, Literal, cast
+from typing import TYPE_CHECKING, Literal, cast
 
 import numpy as np
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.local_env import LocalStructOrderParams, get_neighbors_of_site_with_index
-from pymatgen.core.periodic_table import Species, get_el_sp
+from pymatgen.core import Species, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from pymatgen.core import Structure
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -282,8 +284,8 @@ class JahnTellerAnalyzer:
                 op_threshold=op_threshold,
             )
             active = analysis["active"]
-        except Exception as e:
-            warnings.warn(f"Error analyzing {structure.composition.reduced_formula}: {e}")
+        except Exception as exc:
+            warnings.warn(f"Error analyzing {structure.reduced_formula}: {exc}")
 
         return active
 
@@ -326,42 +328,42 @@ class JahnTellerAnalyzer:
                         jt_sites[index] = True
                         structure.add_site_property("possible_jt_active", jt_sites)
             return structure
-        except Exception as e:
-            warnings.warn(f"Error analyzing {structure.composition.reduced_formula}: {e}")
+        except Exception as exc:
+            warnings.warn(f"Error analyzing {structure.reduced_formula}: {exc}")
             return structure
 
     @staticmethod
     def _get_number_of_d_electrons(species: Species) -> float:
-        """
-        Get number of d electrons of a species.
+        """Get number of d electrons of a species.
 
         Args:
-          species: Species object
+            species: Species object
 
-        Returns: Number of d electrons.
+        Returns:
+            int: Number of d electrons.
         """
         # TODO: replace with more generic Hund's rule algorithm?
 
         # taken from get_crystal_field_spin
-        elec = species.full_electronic_structure
+        elec = species.element.full_electronic_structure
         if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
             raise AttributeError(f"Invalid element {species.symbol} for crystal field calculation.")
-        nelectrons = int(elec[-1][2] + elec[-2][2] - species.oxi_state)
-        if nelectrons < 0 or nelectrons > 10:
+        n_electrons = int(elec[-1][2] + elec[-2][2] - species.oxi_state)  # type: ignore
+        if n_electrons < 0 or n_electrons > 10:
             raise AttributeError(f"Invalid oxidation state {species.oxi_state} for element {species.symbol}")
 
-        return nelectrons
+        return n_electrons
 
     def get_magnitude_of_effect_from_species(self, species: str | Species, spin_state: str, motif: str) -> str:
-        """
-        Get magnitude of Jahn-Teller effect from provided species, spin state and motif.
+        """Get magnitude of Jahn-Teller effect from provided species, spin state and motif.
 
         Args:
-          species: e.g. Fe2+
-          spin_state: "high" or "low"
-          motif: "oct" or "tet"
+            species: e.g. Fe2+
+            spin_state: "high" or "low"
+            motif: "oct" or "tet"
 
-        Returns: "none", "weak" or "strong
+        Returns:
+            str: "none", "weak" or "strong"
         """
         magnitude = "none"
 
@@ -391,11 +393,11 @@ class JahnTellerAnalyzer:
         * in tetrahedral environments always weaker.
 
         Args:
-          motif: "oct" or "tet"
-          spin_config: dict of 'e' (e_g) and 't' (t2_g)
-            with number of electrons in each state
+            motif: "oct" or "tet"
+            spin_config: dict of 'e' (e_g) and 't' (t2_g) with number of electrons in each state
 
-        Returns:  "none", "weak" or "strong"
+        Returns:
+            str: "none", "weak" or "strong"
         """
         magnitude = "none"
         if motif == "oct":
@@ -450,8 +452,7 @@ class JahnTellerAnalyzer:
 
     @staticmethod
     def mu_so(species: str | Species, motif: Literal["oct", "tet"], spin_state: Literal["high", "low"]) -> float | None:
-        """Calculates the spin-only magnetic moment for a
-        given species. Only supports transition metals.
+        """Calculate the spin-only magnetic moment for a given species. Only supports transition metals.
 
         Args:
             species: Species
@@ -464,8 +465,8 @@ class JahnTellerAnalyzer:
         """
         try:
             sp = get_el_sp(species)
-            n = sp.get_crystal_field_spin(coordination=motif, spin_config=spin_state)
+            unpaired_spins = sp.get_crystal_field_spin(coordination=motif, spin_config=spin_state)
             # calculation spin-only magnetic moment for this number of unpaired spins
-            return np.sqrt(n * (n + 2))
+            return np.sqrt(unpaired_spins * (unpaired_spins + 2))
         except AttributeError:
             return None

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import collections
 import logging
+from typing import TYPE_CHECKING
 
 import networkx as nx
 import numpy as np
@@ -12,6 +13,9 @@ from monty.json import MSONable, jsanitize
 from pymatgen.analysis.chemenv.connectivity.connected_components import ConnectedComponent
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import get_environment_node
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
+
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -50,14 +54,14 @@ class StructureConnectivity(MSONable):
 
         Args:
             light_structure_environment: a LightStructureEnvironments object
-                                         containing the relevant local environments
-                                         for the sites in the structure.
+                containing the relevant local environments
+                for the sites in the structure.
             connectivity_graph: the networkx MultiGraph if it has already been computed,
-                                e.g. stored in a file or dict and StructureConnectivity
-                                is reconstructed from that file or dict.
+                e.g. stored in a file or dict and StructureConnectivity
+                is reconstructed from that file or dict.
             environment_subgraphs: the different subgraphs of environments that have
-                                   been computed if any (as for connectivity_graph, only
-                                   if it is reconstructed from a file or dict).
+                been computed if any (as for connectivity_graph, only
+                if it is reconstructed from a file or dict).
         """
         self.light_structure_environments = light_structure_environment
         if connectivity_graph is None:
@@ -76,6 +80,7 @@ class StructureConnectivity(MSONable):
             only_atoms ():
 
         Returns:
+            nx.MultiGraph: The subgraph of the structure connectivity graph
         """
         if environments_symbols is not None:
             self.setup_environment_subgraph(environments_symbols=environments_symbols, only_atoms=only_atoms)
@@ -138,8 +143,7 @@ class StructureConnectivity(MSONable):
                 )
 
     def setup_environment_subgraph(self, environments_symbols, only_atoms=None):
-        """
-        Set up the graph for predefined environments and optionally atoms.
+        """Set up the graph for predefined environments and optionally atoms.
 
         Args:
             environments_symbols: Symbols of the environments for the environment subgraph.
@@ -149,12 +153,12 @@ class StructureConnectivity(MSONable):
         if not isinstance(environments_symbols, collections.abc.Iterable):
             environments_symbols = [environments_symbols]
         environments_symbols = sorted(environments_symbols)
-        envs_string = "-".join(environments_symbols)
+        envs_str = "-".join(environments_symbols)
         if only_atoms is not None:
-            envs_string += "#" + "-".join(sorted(only_atoms))
+            envs_str += "#" + "-".join(sorted(only_atoms))
         # Get it directly if it was already computed
-        if envs_string in self.environment_subgraphs:
-            self._environment_subgraph = self.environment_subgraphs[envs_string]
+        if envs_str in self.environment_subgraphs:
+            self._environment_subgraph = self.environment_subgraphs[envs_str]
             return
 
         # Initialize graph for a subset of environments
@@ -244,7 +248,7 @@ class StructureConnectivity(MSONable):
                         delta=conn,
                         ligands=ligands,
                     )
-        self.environment_subgraphs[envs_string] = self._environment_subgraph
+        self.environment_subgraphs[envs_str] = self._environment_subgraph
 
     def setup_connectivity_description(self):
         pass
@@ -266,8 +270,8 @@ class StructureConnectivity(MSONable):
     def setup_atom_environments_subgraph(self, atoms_environments):
         raise NotImplementedError
 
-    def print_links(self):
-        """Returns:"""
+    def print_links(self) -> None:
+        """Print all links in the graph."""
         nodes = self.environment_subgraph().nodes()
         print("Links in graph :")
         for node in nodes:
@@ -285,7 +289,7 @@ class StructureConnectivity(MSONable):
                     )
 
     def as_dict(self):
-        """Returns:"""
+        """Convert to MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -298,25 +302,30 @@ class StructureConnectivity(MSONable):
         }
 
     @classmethod
-    def from_dict(cls, d):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
-            d ():
+            dct (dict):
 
         Returns:
+            StructureConnectivity
         """
         # Reconstructs the graph with integer as nodes (json's as_dict replaces integer keys with str keys)
-        cgraph = nx.from_dict_of_dicts(d["connectivity_graph"], create_using=nx.MultiGraph, multigraph_input=True)
-        cgraph = nx.relabel_nodes(cgraph, int)  # Just relabel the nodes using integer casting (maps str->int)
-        # Relabel multiedges (removes multiedges with str keys and adds them back with int keys)
-        edges = set(cgraph.edges())
+        connect_graph = nx.from_dict_of_dicts(
+            dct["connectivity_graph"], create_using=nx.MultiGraph, multigraph_input=True
+        )
+        connect_graph = nx.relabel_nodes(
+            connect_graph, int
+        )  # Just relabel the nodes using integer casting (maps str->int)
+        # Relabel multi-edges (removes multi-edges with str keys and adds them back with int keys)
+        edges = set(connect_graph.edges())
         for n1, n2 in edges:
-            new_edges = {int(iedge): edata for iedge, edata in cgraph[n1][n2].items()}
-            cgraph.remove_edges_from([(n1, n2, iedge) for iedge, edata in cgraph[n1][n2].items()])
-            cgraph.add_edges_from([(n1, n2, iedge, edata) for iedge, edata in new_edges.items()])
+            new_edges = {int(iedge): edata for iedge, edata in connect_graph[n1][n2].items()}
+            connect_graph.remove_edges_from([(n1, n2, iedge) for iedge, edata in connect_graph[n1][n2].items()])
+            connect_graph.add_edges_from([(n1, n2, iedge, edata) for iedge, edata in new_edges.items()])
         return cls(
-            LightStructureEnvironments.from_dict(d["light_structure_environments"]),
-            connectivity_graph=cgraph,
+            LightStructureEnvironments.from_dict(dct["light_structure_environments"]),
+            connectivity_graph=connect_graph,
             environment_subgraphs=None,
         )
         # TODO: also deserialize the environment_subgraphs

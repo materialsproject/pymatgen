@@ -46,20 +46,6 @@ def get_dir_indir_gap(run=""):
     return dir_gap, indir_gap
 
 
-def matrix_eigvals(matrix):
-    """
-    Calculate the eigenvalues of a matrix.
-
-    Args:
-        matrix (np.array): The matrix to diagonalise.
-
-    Returns:
-        (np.array): Array of the matrix eigenvalues.
-    """
-    eigvals, eigvecs = np.linalg.eig(matrix)
-    return eigvals
-
-
 def to_matrix(xx, yy, zz, xy, yz, xz):
     """
     Convert a list of matrix components to a symmetric 3x3 matrix.
@@ -74,7 +60,7 @@ def to_matrix(xx, yy, zz, xy, yz, xz):
         xz (float): xz component of the matrix.
 
     Returns:
-        (np.array): The matrix, as a 3x3 numpy array.
+        np.array: The matrix, as a 3x3 numpy array.
     """
     return np.array([[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]])
 
@@ -86,14 +72,13 @@ def parse_dielectric_data(data):
 
     Args:
         data (list): length N list of dielectric data. Each entry should be
-                     a list of ``[xx, yy, zz, xy, xz, yz ]`` dielectric
-                     tensor elements.
+            a list of ``[xx, yy, zz, xy , xz, yz ]`` dielectric tensor elements.
 
     Returns:
-        (np.array):  a Nx3 numpy array. Each row contains the eigenvalues
-                     for the corresponding row in `data`.
+        np.array: a Nx3 numpy array. Each row contains the eigenvalues
+            for the corresponding row in `data`.
     """
-    return np.array([matrix_eigvals(to_matrix(*e)) for e in data])
+    return np.array([np.linalg.eig(to_matrix(*eps))[0] for eps in data])
 
 
 def absorption_coefficient(dielectric):
@@ -103,13 +88,13 @@ def absorption_coefficient(dielectric):
 
     Args:
         dielectric (list): A list containing the dielectric response function
-                           in the pymatgen vasprun format.
-                           | element 0: list of energies
-                           | element 1: real dielectric tensors, in ``[xx, yy, zz, xy, xz, yz]`` format.
-                           | element 2: imaginary dielectric tensors, in ``[xx, yy, zz, xy, xz, yz]`` format.
+            in the pymatgen vasprun format.
+            - element 0: list of energies
+            - element 1: real dielectric tensors, in ``[xx, yy, zz, xy, xz, yz]`` format.
+            - element 2: imaginary dielectric tensors, in ``[xx, yy, zz, xy, xz, yz]`` format.
 
     Returns:
-        (np.array): absorption coefficient using eV as frequency units (cm^-1).
+        np.array: absorption coefficient using eV as frequency units (cm^-1).
     """
     energies_in_eV = np.array(dielectric[0])
     real_dielectric = parse_dielectric_data(dielectric[1])
@@ -131,15 +116,15 @@ def absorption_coefficient(dielectric):
 
 def optics(path=""):
     """Helper function to calculate optical absorption coefficient."""
-    dirgap, indirgap = get_dir_indir_gap(path)
+    dir_gap, indir_gap = get_dir_indir_gap(path)
 
     run = Vasprun(path, occu_tol=1e-2)
     new_en, new_abs = absorption_coefficient(run.dielectric)
     return (
         np.array(new_en, dtype=np.float64),
         np.array(new_abs, dtype=np.float64),
-        dirgap,
-        indirgap,
+        dir_gap,
+        indir_gap,
     )
 
 
@@ -170,7 +155,6 @@ def slme(
 
     Returns:
         The calculated maximum efficiency.
-
     """
     # Defining constants for tidy equations
     c = constants.c  # speed of light, m/s
@@ -231,7 +215,7 @@ def slme(
     )
 
     material_interpolated_absorbance = np.zeros(len(solar_spectra_wavelength_meters))
-    for i in range(0, len(solar_spectra_wavelength_meters)):
+    for i in range(len(solar_spectra_wavelength_meters)):
         # Cutting off absorption data below the gap. This is done to deal
         # with VASPs broadening of the calculated absorption data
 
@@ -271,7 +255,7 @@ def slme(
 
     max_power = power(test_voltage)
 
-    # Calculate the maximized efficience
+    # Calculate the maximized efficiency
     efficiency = max_power / power_in
 
     if plot_current_voltage:
@@ -280,6 +264,5 @@ def slme(
         plt.plot(V, power(V), linestyle="--")
         plt.savefig("pp.png")
         plt.close()
-        # print(power(V_Pmax))
 
     return 100.0 * efficiency

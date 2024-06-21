@@ -8,6 +8,8 @@ from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import is_anion
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing import ClassVar
+
     from pymatgen.core import Structure
 
 
@@ -42,7 +44,7 @@ due.cite(
 
 
 class AdditionalConditions:
-    """Class for additional conditions."""
+    """Additional conditions that can be used to filter coordination environments."""
 
     NO_ADDITIONAL_CONDITION = 0
     ONLY_ANION_CATION_BONDS = 1
@@ -57,7 +59,7 @@ class AdditionalConditions:
     ONLY_ACB_AND_NO_E2SEB = ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS
     ONLY_E2OB = ONLY_ELEMENT_TO_OXYGEN_BONDS
     # Dictionary mapping of integer for the condition and its "description"
-    CONDITION_DESCRIPTION = {
+    CONDITION_DESCRIPTION: ClassVar = {
         NO_ADDITIONAL_CONDITION: "No additional condition",
         ONLY_ANION_CATION_BONDS: "Only anion-cation bonds",
         NO_ELEMENT_TO_SAME_ELEMENT_BONDS: "No element-element bonds (same elements)",
@@ -70,10 +72,10 @@ class AdditionalConditions:
 
     def check_condition(self, condition, structure: Structure, parameters):
         """
-        :param condition:
-        :param structure:
-        :param parameters:
-        :return:
+        Args:
+            condition:
+            structure:
+            parameters:
         """
         if condition == self.NONE:
             return True
@@ -85,20 +87,20 @@ class AdditionalConditions:
         if condition == self.NO_E2SEB:
             ii = parameters["site_index"]
             jj = parameters["neighbor_index"]
-            elmts_ii = [sp.symbol for sp in structure[ii].species]
-            elmts_jj = [sp.symbol for sp in structure[jj].species]
-            return len(set(elmts_ii) & set(elmts_jj)) == 0
+            elems_ii = [sp.symbol for sp in structure[ii].species]
+            elems_jj = [sp.symbol for sp in structure[jj].species]
+            return len(set(elems_ii) & set(elems_jj)) == 0
         if condition == self.ONLY_ACB_AND_NO_E2SEB:
             valences = parameters["valences"]
             ii = parameters["site_index"]
             jj = parameters["neighbor_index"]
-            elmts_ii = [sp.symbol for sp in structure[ii].species]
-            elmts_jj = [sp.symbol for sp in structure[jj].species]
-            return len(set(elmts_ii) & set(elmts_jj)) == 0 and is_anion_cation_bond(valences, ii, jj)
+            elems_ii = [sp.symbol for sp in structure[ii].species]
+            elems_jj = [sp.symbol for sp in structure[jj].species]
+            return len(set(elems_ii) & set(elems_jj)) == 0 and is_anion_cation_bond(valences, ii, jj)
         if condition == self.ONLY_E2OB:
             ii = parameters["site_index"]
             jj = parameters["neighbor_index"]
-            elmts_ii = [sp.symbol for sp in structure[ii].species]
-            elmts_jj = [sp.symbol for sp in structure[jj].species]
-            return ("O" in elmts_jj and "O" not in elmts_ii) or ("O" in elmts_ii and "O" not in elmts_jj)
+            elems_ii = [sp.symbol for sp in structure[ii].species]
+            elems_jj = [sp.symbol for sp in structure[jj].species]
+            return ("O" in elems_jj and "O" not in elems_ii) or ("O" in elems_ii and "O" not in elems_jj)
         return None

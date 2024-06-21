@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import numpy as np
-from monty.dev import requires
 
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -15,9 +14,9 @@ try:
     chemview_loaded = True
 except ImportError:
     chemview_loaded = False
+    MolecularViewer = get_atom_color = None
 
 
-@requires(chemview_loaded, "To use quick_view, you need to have chemview installed.")
 def quick_view(
     structure,
     bonds=True,
@@ -33,7 +32,7 @@ def quick_view(
     Args:
         structure: pymatgen Structure
         bonds: (bool) visualize bonds. Bonds are found by comparing distances
-                        to added covalent radii of pairs. Defaults to True.
+            to added covalent radii of pairs. Defaults to True.
         conventional: (bool) use conventional cell. Defaults to False.
         transform: (list) can be used to make supercells with pymatgen.Structure.make_supercell method
         show_box: (bool) unit cell is shown. Defaults to True.
@@ -43,6 +42,10 @@ def quick_view(
     Returns:
         A chemview.MolecularViewer object
     """
+    # Ensure MolecularViewer is loaded
+    if not chemview_loaded:
+        raise RuntimeError("MolecularViewer not loaded.")
+
     struct = structure.copy()
     if conventional:
         struct = SpacegroupAnalyzer(struct).get_conventional_standard_structure()
@@ -53,9 +56,9 @@ def quick_view(
 
     if bonds:
         bonds = []
-        for idx in range(struct.num_sites - 1):
+        for idx in range(len(struct) - 1):
             sym_i = struct[idx].specie.symbol
-            for j in range(idx + 1, struct.num_sites):
+            for j in range(idx + 1, len(struct)):
                 sym_j = struct[j].specie.symbol
                 max_d = CovalentRadius.radius[sym_i] + CovalentRadius.radius[sym_j] + bond_tol
                 if struct.get_distance(idx, j, np.array([0, 0, 0])) < max_d:
@@ -72,12 +75,7 @@ def quick_view(
         rad = CovalentRadius.radius[el]
         mv.add_representation(
             "spheres",
-            {
-                "coordinates": coord.astype("float32"),
-                "colors": [get_atom_color(el)],
-                "radii": [rad * 0.5],
-                "opacity": 1.0,
-            },
+            {"coordinates": coord.astype(float), "colors": [get_atom_color(el)], "radii": [rad * 0.5], "opacity": 1},
         )
     if show_box:
         o = np.array([0, 0, 0])

@@ -1,5 +1,4 @@
-"""
-This module implements an interface to enumlib, Gus Hart's excellent Fortran
+"""This module implements an interface to enumlib, Gus Hart's excellent Fortran
 code for enumerating derivative structures.
 
 This module depends on a compiled enumlib with the executables enum.x and
@@ -41,9 +40,7 @@ from monty.dev import requires
 from monty.fractions import lcm
 from monty.tempfile import ScratchDir
 
-from pymatgen.core.periodic_table import DummySpecies
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
+from pymatgen.core import DummySpecies, PeriodicSite, Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -64,12 +61,10 @@ makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
     "in the README to compile these two executables accordingly.",
 )
 class EnumlibAdaptor:
-    """
-    An adaptor for enumlib.
+    """An adaptor for enumlib.
 
-    .. attribute:: structures
-
-        List of all enumerated structures.
+    Attributes:
+        structures (list): all enumerated structures.
     """
 
     amount_tol = 1e-5
@@ -85,8 +80,7 @@ class EnumlibAdaptor:
         check_ordered_symmetry=True,
         timeout=None,
     ):
-        """
-        Initializes the adapter with a structure and some parameters.
+        """Initialize the adapter with a structure and some parameters.
 
         Args:
             structure: An input structure.
@@ -146,8 +140,7 @@ class EnumlibAdaptor:
                 raise EnumError("Unable to enumerate structure.")
 
     def _gen_input_file(self):
-        """
-        Generate the necessary struct_enum.in file for enumlib. See enumlib
+        """Generate the necessary struct_enum.in file for enumlib. See enumlib
         documentation for details.
         """
         coord_format = "{:.6f} {:.6f} {:.6f}"
@@ -158,8 +151,7 @@ class EnumlibAdaptor:
             f"Spacegroup {fitter.get_space_group_symbol()} ({fitter.get_space_group_number()}) "
             f"with {len(symmetrized_structure.equivalent_sites)} distinct sites"
         )
-        """
-        Enumlib doesn"t work when the number of species get too large. To
+        """Enumlib doesn"t work when the number of species get too large. To
         simplify matters, we generate the input file only with disordered sites
         and exclude the ordered sites from the enumeration. The fact that
         different disordered sites with the exact same species may belong to
@@ -206,7 +198,7 @@ class EnumlibAdaptor:
         target_sg_num = get_sg_info(list(symmetrized_structure))
         curr_sites = list(itertools.chain.from_iterable(disordered_sites))
         sg_num = get_sg_info(curr_sites)
-        ordered_sites = sorted(ordered_sites, key=lambda sites: len(sites))
+        ordered_sites = sorted(ordered_sites, key=len)
         logger.debug(f"Disordered sites has sg # {sg_num}")
         self.ordered_sites = []
 
@@ -240,21 +232,18 @@ class EnumlibAdaptor:
         output = [self.structure.formula, "bulk"]
         for vec in lattice.matrix:
             output.append(coord_format.format(*vec))
-        output.append(f"{len(index_species)}")
-        output.append(f"{len(coord_str)}")
+        output.extend((f"{len(index_species)}", f"{len(coord_str)}"))
         output.extend(coord_str)
 
-        output.append(f"{self.min_cell_size} {self.max_cell_size}")
-        output.append(str(self.enum_precision_parameter))
-        output.append("full")
+        output.extend((f"{self.min_cell_size} {self.max_cell_size}", str(self.enum_precision_parameter), "full"))
 
         n_disordered = sum(len(s) for s in disordered_sites)
         base = int(
             n_disordered
             * lcm(
                 *(
-                    f.limit_denominator(n_disordered * self.max_cell_size).denominator
-                    for f in map(fractions.Fraction, index_amounts)
+                    fraction.limit_denominator(n_disordered * self.max_cell_size).denominator
+                    for fraction in map(fractions.Fraction, index_amounts)
                 )
             )
         )
@@ -266,7 +255,7 @@ class EnumlibAdaptor:
         # enumeration. See Cu7Te5.cif test file.
         base *= 10
 
-        # base = n_disordered # 10 ** int(math.ceil(math.log10(n_disordered)))
+        # base = n_disordered # 10 ** math.ceil(math.log10(n_disordered))
         # To get a reasonable number of structures, we fix concentrations to the
         # range expected in the original structure.
         total_amounts = sum(index_amounts)
@@ -276,12 +265,12 @@ class EnumlibAdaptor:
             if abs(conc * base - round(conc * base)) < 1e-5:
                 output.append(f"{int(round(conc * base))} {int(round(conc * base))} {base}")
             else:
-                min_conc = int(math.floor(conc * base))
+                min_conc = math.floor(conc * base)
                 output.append(f"{min_conc - 1} {min_conc + 1} {base}")
         output.append("")
         logger.debug("Generated input file:\n" + "\n".join(output))
-        with open("struct_enum.in", "w") as f:
-            f.write("\n".join(output))
+        with open("struct_enum.in", mode="w") as file:
+            file.write("\n".join(output))
 
     def _run_multienum(self):
         with subprocess.Popen([enum_cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True) as p:
@@ -327,7 +316,7 @@ class EnumlibAdaptor:
             stdin=subprocess.PIPE,
             close_fds=True,
         ) as rs:
-            stdout, stderr = rs.communicate()
+            _stdout, stderr = rs.communicate()
         if stderr:
             logger.warning(stderr.decode())
 
@@ -359,12 +348,12 @@ class EnumlibAdaptor:
             )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
         else:
-            ordered_structure = None  # to fix pylint E0601
+            ordered_structure = None
             inv_org_latt = None
 
         for file in glob("vasp.*"):
-            with open(file) as f:
-                data = f.read()
+            with open(file) as file:
+                data = file.read()
                 data = re.sub(r"scale factor", "1", data)
                 data = re.sub(r"(\d+)-(\d+)", r"\1 -\2", data)
                 poscar = Poscar.from_str(data, self.index_species)

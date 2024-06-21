@@ -7,32 +7,33 @@ import math
 import os
 import subprocess
 import time
-from typing import Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
-
-try:
-    import vtk
-    from vtk import vtkInteractorStyleTrackballCamera
-except ImportError:
-    # VTK not present. The Camera is to set object to avoid errors in unittest.
-    vtk = None
-    vtkInteractorStyleTrackballCamera = object
-
 from monty.dev import requires
 from monty.serialization import loadfn
 
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
+from pymatgen.core import PeriodicSite, Species, Structure
 from pymatgen.util.coord import in_coord_list
 
+try:
+    import vtk
+    from vtk import vtkInteractorStyleTrackballCamera as TrackballCamera
+except ImportError:
+    # VTK not present. The Camera is to set object to avoid errors in unittest.
+    vtk = None
+    TrackballCamera = object
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import ClassVar
+
 module_dir = os.path.dirname(os.path.abspath(__file__))
-EL_COLORS = loadfn(os.path.join(module_dir, "ElementColorSchemes.yaml"))
+EL_COLORS = loadfn(f"{module_dir}/ElementColorSchemes.yaml")
 
 
 class StructureVis:
-    """Provides Structure object visualization using VTK."""
+    """Structure visualization using VTK."""
 
     @requires(vtk, "Visualization requires the installation of VTK with Python bindings.")
     def __init__(
@@ -90,7 +91,7 @@ class StructureVis:
         self.title = "Structure Visualizer"
         self.iren = vtk.vtkRenderWindowInteractor()
         self.iren.SetRenderWindow(self.ren_win)
-        self.mapper_map = {}
+        self.mapper_map: dict = {}
         self.structure = None
 
         if element_color_mapping:
@@ -103,7 +104,7 @@ class StructureVis:
         self.poly_radii_tol_factor = poly_radii_tol_factor
         self.excluded_bonding_elements = excluded_bonding_elements or []
         self.show_help = True
-        self.supercell = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        self.supercell = np.eye(3)
         self.redraw()
 
         style = StructureInteractorStyle(self)
@@ -128,8 +129,7 @@ class StructureVis:
         self.ren_win.Render()
 
     def write_image(self, filename="image.png", magnification=1, image_format="png"):
-        """
-        Save render window to an image.
+        """Save render window to an image.
 
         Arguments:
             filename: file to save to. Defaults to image.png.
@@ -174,7 +174,7 @@ class StructureVis:
 
         self.ren_win.Render()
 
-    def orthongonalize_structure(self):
+    def orthogonalize_structure(self):
         """Orthogonalize the structure."""
         if self.structure is not None:
             self.set_structure(self.structure.copy(sanitize=True))
@@ -227,11 +227,9 @@ class StructureVis:
         labels = ["a", "b", "c"]
         colors = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
 
-        if has_lattice:
-            matrix = struct.lattice.matrix
+        matrix = struct.lattice.matrix if has_lattice else None
 
         if self.show_unit_cell and has_lattice:
-            # matrix = s.lattice.matrix
             self.add_text([0, 0, 0], "o")
             for vec in matrix:
                 self.add_line((0, 0, 0), vec, colors[count])
@@ -243,7 +241,7 @@ class StructureVis:
                 self.add_line(vec1 + vec2, vec1 + vec2 + vec3)
 
         if self.show_bonds or self.show_polyhedron:
-            elements = sorted(struct.composition.elements, key=lambda a: a.X)
+            elements = sorted(struct.elements, key=lambda a: a.X)
             anion = elements[-1]
 
             def contains_anion(site):
@@ -299,7 +297,7 @@ class StructureVis:
                 camera.SetFocalPoint(struct.center_of_mass)
 
         self.structure = structure
-        self.title = struct.composition.formula
+        self.title = struct.formula
 
     def zoom(self, factor):
         """Zoom the camera view by a factor."""
@@ -340,10 +338,8 @@ class StructureVis:
         vis_radius = 0.2 + 0.002 * radius
 
         for specie, occu in site.species.items():
-            if not specie:
-                color = (1, 1, 1)
-            elif specie.symbol in self.el_color_mapping:
-                color = [i / 255 for i in self.el_color_mapping[specie.symbol]]
+            color = [i / 255 for i in self.el_color_mapping.get(specie.symbol, (255, 255, 255))]
+
             mapper = self.add_partial_sphere(site.coords, vis_radius, color, start_angle, start_angle + 360 * occu)
             self.mapper_map[mapper] = [site]
             start_angle += 360 * occu
@@ -472,9 +468,9 @@ class StructureVis:
         grid.SetPoints(points)
 
         dsm = vtk.vtkDataSetMapper()
-        polysites = [center]
-        polysites.extend(neighbors)
-        self.mapper_map[dsm] = polysites
+        poly_sites = [center]
+        poly_sites.extend(neighbors)
+        self.mapper_map[dsm] = poly_sites
         if vtk.VTK_MAJOR_VERSION <= 5:
             dsm.SetInputConnection(grid.GetProducerPort())
         else:
@@ -486,15 +482,17 @@ class StructureVis:
         if color == "element":
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
-            myoccu = 0.0
-            for specie, occu in center.species.items():
-                if occu > myoccu:
-                    myspecie = specie
-                    myoccu = occu
-            color = [i / 255 for i in self.el_color_mapping[myspecie.symbol]]
+            max_occu = 0.0
+            max_species = next(iter(center.species), None)
+            for species, occu in center.species.items():
+                if occu > max_occu:
+                    max_species = species
+                    max_occu = occu
+            color = [i / 255 for i in self.el_color_mapping[max_species.symbol]]
             ac.GetProperty().SetColor(color)
         else:
             ac.GetProperty().SetColor(color)
+
         if draw_edges:
             ac.GetProperty().SetEdgeColor(edges_color)
             ac.GetProperty().SetLineWidth(edges_linewidth)
@@ -531,7 +529,7 @@ class StructureVis:
         triangles = vtk.vtkCellArray()
         triangles.InsertNextCell(triangle)
 
-        # polydata object
+        # vtkPolyData object
         trianglePolyData = vtk.vtkPolyData()
         trianglePolyData.SetPoints(points)
         trianglePolyData.SetPolys(triangles)
@@ -550,12 +548,13 @@ class StructureVis:
                 )
             # If partial occupations are involved, the color of the specie with
             # the highest occupation is used
-            myoccu = 0.0
-            for specie, occu in center.species.items():
-                if occu > myoccu:
-                    myspecie = specie
-                    myoccu = occu
-            color = [i / 255 for i in self.el_color_mapping[myspecie.symbol]]
+            max_occu = 0.0
+            max_species = next(iter(center.species), None)
+            for species, occu in center.species.items():
+                if occu > max_occu:
+                    max_species = species
+                    max_occu = occu
+            color = [i / 255 for i in self.el_color_mapping[max_species.symbol]]
             ac.GetProperty().SetColor(color)
         else:
             ac.GetProperty().SetColor(color)
@@ -598,15 +597,15 @@ class StructureVis:
                 ac.GetProperty().SetColor(color)
                 self.ren.AddActor(ac)
             elif len(face) > 3:
-                center = np.zeros(3, np.float_)
+                center = np.zeros(3, float)
                 for site in face:
                     center += site
-                center /= np.float_(len(face))
-                for ii, f in enumerate(face):
+                center /= np.float64(len(face))
+                for ii, f in enumerate(face, start=1):
                     points = vtk.vtkPoints()
                     triangle = vtk.vtkTriangle()
                     points.InsertNextPoint(f[0], f[1], f[2])
-                    ii2 = np.mod(ii + 1, len(face))
+                    ii2 = np.mod(ii, len(face))
                     points.InsertNextPoint(face[ii2][0], face[ii2][1], face[ii2][2])
                     points.InsertNextPoint(center[0], center[1], center[2])
                     for jj in range(3):
@@ -674,13 +673,12 @@ class StructureVis:
         """
         points = vtk.vtkPoints()
         points.InsertPoint(0, center.x, center.y, center.z)
-        n = len(neighbors)
         lines = vtk.vtkCellArray()
-        for i in range(n):
-            points.InsertPoint(i + 1, neighbors[i].coords)
+        for idx, neighbor in enumerate(neighbors):
+            points.InsertPoint(idx + 1, neighbor.coords)
             lines.InsertNextCell(2)
             lines.InsertCellPoint(0)
-            lines.InsertCellPoint(i + 1)
+            lines.InsertCellPoint(idx + 1)
         pd = vtk.vtkPolyData()
         pd.SetPoints(points)
         pd.SetLines(lines)
@@ -770,7 +768,7 @@ class StructureVis:
         self.iren.SetPicker(picker)
 
 
-class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
+class StructureInteractorStyle(TrackballCamera):
     """A custom interactor style for visualizing structures."""
 
     def __init__(self, parent):
@@ -796,7 +794,7 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
             iren.GetPicker().Pick(pos[0], pos[1], 0, ren)
         self.OnLeftButtonUp()
 
-    def keyPressEvent(self, obj, event):
+    def keyPressEvent(self, obj, _event):
         parent = obj.GetCurrentRenderer().parent
         sym = parent.iren.GetKeySym()
 
@@ -830,7 +828,7 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
             parent.show_help = not parent.show_help
             parent.redraw()
         elif sym == "r":
-            parent.redraw(True)
+            parent.redraw(True)  # noqa: FBT003
         elif sym == "s":
             parent.write_image("image.png")
         elif sym == "Up":
@@ -842,7 +840,7 @@ class StructureInteractorStyle(vtkInteractorStyleTrackballCamera):
         elif sym == "Right":
             parent.rotate_view(0, 90)
         elif sym == "o":
-            parent.orthongonalize_structure()
+            parent.orthogonalize_structure()
             parent.redraw()
 
         self.OnKeyPress()
@@ -858,7 +856,7 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
             movie.mp4
         zoom (float): A zoom to be applied to the visualizer. Defaults to 1.0.
         fps (int): Frames per second for the movie. Defaults to 20.
-        bitrate (str): Video bitate. Defaults to "10000k" (fairly high
+        bitrate (str): Video bitrate. Defaults to "10000k" (fairly high
             quality).
         quality (int): A quality scale. Defaults to 1.
         kwargs: Any kwargs supported by StructureVis to modify the images
@@ -868,25 +866,13 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
     vis.show_help = False
     vis.redraw()
     vis.zoom(zoom)
-    sigfig = int(math.floor(math.log10(len(structures))) + 1)
-    filename = f"image{{0:0{sigfig}d}}.png"
-    for i, s in enumerate(structures):
-        vis.set_structure(s)
-        vis.write_image(filename.format(i), 3)
-    filename = f"image%0{sigfig}d.png"
-    args = [
-        "ffmpeg",
-        "-y",
-        "-i",
-        filename,
-        "-q:v",
-        str(quality),
-        "-r",
-        str(fps),
-        "-b:v",
-        str(bitrate),
-        output_filename,
-    ]
+    sig_fig = math.floor(math.log10(len(structures))) + 1
+    filename = f"image{{0:0{sig_fig}d}}.png"
+    for idx, site in enumerate(structures):
+        vis.set_structure(site)
+        vis.write_image(filename.format(idx), 3)
+    filename = f"image%0{sig_fig}d.png"
+    args = ["ffmpeg", "-y", "-i", filename, "-q:v", str(quality), "-r", str(fps), "-b:v", str(bitrate), output_filename]
     with subprocess.Popen(args) as p:
         p.communicate()
 
@@ -894,7 +880,7 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
 class MultiStructuresVis(StructureVis):
     """Visualization for multiple structures."""
 
-    DEFAULT_ANIMATED_MOVIE_OPTIONS = dict(
+    DEFAULT_ANIMATED_MOVIE_OPTIONS: ClassVar[dict[str, str | float]] = dict(
         time_between_frames=0.1,
         looping_type="restart",
         number_of_loops=1,
@@ -969,17 +955,21 @@ class MultiStructuresVis(StructureVis):
             struct_vis_radii = []
             for site in struct:
                 radius = 0
-                for specie, occu in site.species.items():
+                vis_radius = 0.2
+                for species, occu in site.species.items():
                     radius += occu * (
-                        specie.ionic_radius
-                        if isinstance(specie, Species) and specie.ionic_radius
-                        else specie.average_ionic_radius
+                        species.ionic_radius
+                        if isinstance(species, Species) and species.ionic_radius
+                        else species.average_ionic_radius
                     )
                     vis_radius = 0.2 + 0.002 * radius
+
                 struct_radii.append(radius)
                 struct_vis_radii.append(vis_radius)
+
             self.all_radii.append(struct_radii)
             self.all_vis_radii.append(struct_vis_radii)
+
         self.set_structure(self.current_structure, reset_camera=True, to_unit_cell=False)
 
     def set_structure(self, structure: Structure, reset_camera=True, to_unit_cell=False):
@@ -1000,7 +990,7 @@ class MultiStructuresVis(StructureVis):
         tags = {}
         for tag in self.tags:
             istruct = tag.get("istruct", "all")
-            if istruct != "all" and istruct != self.istruct:
+            if istruct not in ("all", self.istruct):
                 continue
             site_index = tag["site_index"]
             color = tag.get("color", [0.5, 0.5, 0.5])

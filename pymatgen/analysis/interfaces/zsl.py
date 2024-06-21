@@ -4,13 +4,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from itertools import product
-from typing import Iterator
+from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
 
 from pymatgen.util.due import Doi, due
 from pymatgen.util.numba import njit
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 @dataclass
@@ -89,6 +92,7 @@ class ZSLGenerator(MSONable):
         """
         Initialize a Zur Super Lattice Generator for a specific film and
             substrate
+
         Args:
             max_area_ratio_tol(float): Max tolerance on ratio of
                 super-lattices to consider equal
@@ -105,14 +109,15 @@ class ZSLGenerator(MSONable):
         self.bidirectional = bidirectional
 
     def generate_sl_transformation_sets(self, film_area, substrate_area):
-        """
-        Generates transformation sets for film/substrate pair given the
+        """Generate transformation sets for film/substrate pair given the
         area of the unit cell area for the film and substrate. The
         transformation sets map the film and substrate unit cells to super
         lattices with a maximum area
+
         Args:
-            film_area(int): the unit cell area for the film
-            substrate_area(int): the unit cell area for the substrate
+            film_area (int): the unit cell area for the film
+            substrate_area (int): the unit cell area for the substrate
+
         Returns:
             transformation_sets: a set of transformation_sets defined as:
                 1.) the transformation matrices for the film to create a
@@ -180,7 +185,6 @@ class ZSLGenerator(MSONable):
     def __call__(self, film_vectors, substrate_vectors, lowest=False) -> Iterator[ZSLMatch]:
         """
         Runs the ZSL algorithm to generate all possible matching
-        :return:
         """
         film_area = vec_area(*film_vectors)
         substrate_area = vec_area(*substrate_vectors)
@@ -322,9 +326,7 @@ def _unidirectional_is_same_vectors(vec_set1, vec_set2, max_length_tol, max_angl
         return False
     if np.absolute(rel_strain(vec_set1[1], vec_set2[1])) > max_length_tol:
         return False
-    if np.absolute(rel_angle(vec_set1, vec_set2)) > max_angle_tol:
-        return False
-    return True
+    return np.absolute(rel_angle(vec_set1, vec_set2)) <= max_angle_tol
 
 
 @njit

@@ -4,15 +4,19 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
-import numpy as np
 from monty.io import zopen
 from monty.re import regrep
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.structure import Structure
+from pymatgen.core import Element, Lattice, Structure
 from pymatgen.util.io_utils import clean_lines
+
+if TYPE_CHECKING:
+    from pathlib import Path
+    from typing import Any, ClassVar
+
+    from typing_extensions import Self
 
 
 class PWInput:
@@ -34,8 +38,7 @@ class PWInput:
         kpoints_grid=(1, 1, 1),
         kpoints_shift=(0, 0, 0),
     ):
-        """
-        Initializes a PWSCF input file.
+        """Initialize a PWSCF input file.
 
         Args:
             structure (Structure): Input structure. For spin-polarized calculation,
@@ -97,7 +100,7 @@ class PWInput:
                         name = k
 
                 if name is None:
-                    name = site.specie.symbol + str(c)
+                    name = f"{site.specie.symbol}{c}"
                     site_descriptions[name] = site.properties
                     c += 1
 
@@ -136,7 +139,7 @@ class PWInput:
 
         out.append("ATOMIC_SPECIES")
         for k, v in sorted(site_descriptions.items(), key=lambda i: i[0]):
-            e = re.match(r"[A-Z][a-z]?", k).group(0)
+            e = re.match(r"[A-Z][a-z]?", k)[0]
             p = v if self.pseudo is not None else v["pseudo"]
             out.append(f"  {k}  {Element(e).atomic_mass:.4f} {p}")
 
@@ -187,59 +190,54 @@ class PWInput:
         }
 
     @classmethod
-    def from_dict(cls, pwinput_dict):
+    def from_dict(cls, dct: dict) -> Self:
         """
         Load a PWInput object from a dictionary.
 
         Args:
-            pwinput_dict (dict): dictionary with PWInput data
+            dct (dict): dictionary with PWInput data
 
         Returns:
             PWInput object
         """
         return cls(
-            structure=Structure.from_dict(pwinput_dict["structure"]),
-            pseudo=pwinput_dict["pseudo"],
-            control=pwinput_dict["sections"]["control"],
-            system=pwinput_dict["sections"]["system"],
-            electrons=pwinput_dict["sections"]["electrons"],
-            ions=pwinput_dict["sections"]["ions"],
-            cell=pwinput_dict["sections"]["cell"],
-            kpoints_mode=pwinput_dict["kpoints_mode"],
-            kpoints_grid=pwinput_dict["kpoints_grid"],
-            kpoints_shift=pwinput_dict["kpoints_shift"],
+            structure=Structure.from_dict(dct["structure"]),
+            pseudo=dct["pseudo"],
+            control=dct["sections"]["control"],
+            system=dct["sections"]["system"],
+            electrons=dct["sections"]["electrons"],
+            ions=dct["sections"]["ions"],
+            cell=dct["sections"]["cell"],
+            kpoints_mode=dct["kpoints_mode"],
+            kpoints_grid=dct["kpoints_grid"],
+            kpoints_shift=dct["kpoints_shift"],
         )
 
     def write_file(self, filename):
-        """
-        Write the PWSCF input file.
+        """Write the PWSCF input file.
 
         Args:
             filename (str): The string filename to output to.
         """
-        with open(filename, "w") as f:
-            f.write(str(self))
+        with open(filename, mode="w", encoding="utf-8") as file:
+            file.write(str(self))
 
-    @staticmethod
-    def from_file(filename):
+    @classmethod
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Reads an PWInput object from a file.
 
         Args:
-            filename (str): Filename for file
+            filename (str | Path): Filename for file
 
         Returns:
             PWInput object
         """
-        with zopen(filename, "rt") as f:
-            return PWInput.from_str(f.read())
+        with zopen(filename, mode="rt") as file:
+            return cls.from_str(file.read())
 
-    @np.deprecate(message="Use from_str instead")
-    def from_string(cls, *args, **kwargs):
-        return cls.from_str(*args, **kwargs)
-
-    @staticmethod
-    def from_str(string):
+    @classmethod
+    def from_str(cls, string: str) -> Self:
         """
         Reads an PWInput object from a string.
 
@@ -266,7 +264,7 @@ class PWInput:
                 return None
             return mode
 
-        sections = {
+        sections: dict[str, dict] = {
             "control": {},
             "system": {},
             "electrons": {},
@@ -278,19 +276,23 @@ class PWInput:
         species = []
         coords = []
         structure = None
-        site_properties = {"pseudo": []}
+        site_properties: dict[str, list] = {"pseudo": []}
         mode = None
+        kpoints_mode = None
+        kpoints_grid = (1, 1, 1)
+        kpoints_shift = (0, 0, 0)
+        coords_are_cartesian = False
+
         for line in lines:
             mode = input_mode(line)
             if mode is None:
                 pass
             elif mode[0] == "sections":
                 section = mode[1]
-                m = re.match(r"(\w+)\(?(\d*?)\)?\s*=\s*(.*)", line)
-                if m:
-                    key = m.group(1).strip()
-                    key_ = m.group(2).strip()
-                    val = m.group(3).strip()
+                if match := re.match(r"(\w+)\(?(\d*?)\)?\s*=\s*(.*)", line):
+                    key = match[1].strip()
+                    key_ = match[2].strip()
+                    val = match[3].strip()
                     if key_ != "":
                         if sections[section].get(key) is None:
                             val_ = [0.0] * 20  # MAX NTYP DEFINITION
@@ -304,37 +306,34 @@ class PWInput:
                         sections[section][key] = PWInput.proc_val(key, val)
 
             elif mode[0] == "pseudo":
-                m = re.match(r"(\w+)\s+(\d*.\d*)\s+(.*)", line)
-                if m:
-                    pseudo[m.group(1).strip()] = m.group(3).strip()
+                if match := re.match(r"(\w+)\s+(\d*.\d*)\s+(.*)", line):
+                    pseudo[match[1].strip()] = match[3].strip()
+
             elif mode[0] == "kpoints":
-                m = re.match(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)", line)
-                if m:
-                    kpoints_grid = (int(m.group(1)), int(m.group(2)), int(m.group(3)))
-                    kpoints_shift = (int(m.group(4)), int(m.group(5)), int(m.group(6)))
+                if match := re.match(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)", line):
+                    kpoints_grid = (int(match[1]), int(match[2]), int(match[3]))
+                    kpoints_shift = (int(match[4]), int(match[5]), int(match[6]))
                 else:
                     kpoints_mode = mode[1]
-                    kpoints_grid = (1, 1, 1)
-                    kpoints_shift = (0, 0, 0)
 
             elif mode[0] == "structure":
                 m_l = re.match(r"(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
                 m_p = re.match(r"(\w+)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
                 if m_l:
                     lattice += [
-                        float(m_l.group(1)),
-                        float(m_l.group(2)),
-                        float(m_l.group(3)),
+                        float(m_l[1]),
+                        float(m_l[2]),
+                        float(m_l[3]),
                     ]
+
                 elif m_p:
-                    site_properties["pseudo"].append(pseudo[m_p.group(1)])
-                    species.append(m_p.group(1))
-                    coords += [[float(m_p.group(2)), float(m_p.group(3)), float(m_p.group(4))]]
+                    site_properties["pseudo"].append(pseudo[m_p[1]])
+                    species.append(m_p[1])
+                    coords += [[float(m_p[2]), float(m_p[3]), float(m_p[4])]]
 
                     if mode[1] == "angstrom":
                         coords_are_cartesian = True
-                    elif mode[1] == "crystal":
-                        coords_are_cartesian = False
+
         structure = Structure(
             Lattice(lattice),
             species,
@@ -342,7 +341,7 @@ class PWInput:
             coords_are_cartesian=coords_are_cartesian,
             site_properties=site_properties,
         )
-        return PWInput(
+        return cls(
             structure=structure,
             control=sections["control"],
             pseudo=pseudo,
@@ -357,8 +356,7 @@ class PWInput:
 
     @staticmethod
     def proc_val(key, val):
-        """
-        Static helper method to convert PWINPUT parameters to proper type, e.g.,
+        """Static helper method to convert PWINPUT parameters to proper type, e.g.
         integers, floats, etc.
 
         Args:
@@ -371,7 +369,7 @@ class PWInput:
             "conv_thr",
             "Hubbard_U",
             "Hubbard_J0",
-            "defauss",
+            "degauss",
             "starting_magnetization",
         )
 
@@ -459,10 +457,10 @@ class PWInput:
             "refold_pos",
         )
 
-        def smart_int_or_float(numstr):
-            if numstr.find(".") != -1 or numstr.lower().find("e") != -1:
-                return float(numstr)
-            return int(numstr)
+        def smart_int_or_float(num_str):
+            if num_str.find(".") != -1 or num_str.lower().find("e") != -1:
+                return float(num_str)
+            return int(num_str)
 
         try:
             if key in bool_keys:
@@ -470,20 +468,19 @@ class PWInput:
                     return True
                 if val.lower() == ".false.":
                     return False
-                raise ValueError(key + " should be a boolean type!")
+                raise ValueError(f"{key} should be a boolean type!")
 
             if key in float_keys:
-                return float(re.search(r"^-?\d*\.?\d*d?-?\d*", val.lower()).group(0).replace("d", "e"))
+                return float(re.search(r"^-?\d*\.?\d*d?-?\d*", val.lower())[0].replace("d", "e"))
 
             if key in int_keys:
-                return int(re.match(r"^-?[0-9]+", val).group(0))
+                return int(re.match(r"^-?[0-9]+", val)[0])
 
         except ValueError:
             pass
 
         try:
-            val = val.replace("d", "e")
-            return smart_int_or_float(val)
+            return smart_int_or_float(val.replace("d", "e"))
         except ValueError:
             pass
 
@@ -492,9 +489,8 @@ class PWInput:
         if "false" in val.lower():
             return False
 
-        m = re.match(r"^[\"|'](.+)[\"|']$", val)
-        if m:
-            return m.group(1)
+        if match := re.match(r"^[\"|'](.+)[\"|']$", val):
+            return match[1]
         return None
 
 
@@ -505,7 +501,7 @@ class PWInputError(BaseException):
 class PWOutput:
     """Parser for PWSCF output file."""
 
-    patterns = dict(
+    patterns: ClassVar[dict[str, str]] = dict(
         energies=r"total energy\s+=\s+([\d\.\-]+)\sRy",
         ecut=r"kinetic\-energy cutoff\s+=\s+([\d\.\-]+)\s+Ry",
         lattice_type=r"bravais\-lattice index\s+=\s+(\d+)",
@@ -524,7 +520,7 @@ class PWOutput:
             filename (str): Filename.
         """
         self.filename = filename
-        self.data = defaultdict(list)
+        self.data: dict[str, Any] = defaultdict(list)
         self.read_pattern(PWOutput.patterns)
         for k, v in self.data.items():
             if k == "energies":
@@ -540,7 +536,7 @@ class PWOutput:
         arguments.
 
         Args:
-            patterns (dict): A dict of patterns, e.g.,
+            patterns (dict): A dict of patterns, e.g.
                 {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"}.
             reverse (bool): Read files in reverse. Defaults to false. Useful for
                 large files, esp OUTCARs, especially when used with
@@ -578,11 +574,11 @@ class PWOutput:
         return self.data[f"celldm{idx}"]
 
     @property
-    def final_energy(self):
-        """Returns: Final energy."""
+    def final_energy(self) -> float:
+        """The final energy from the PW output."""
         return self.data["energies"][-1]
 
     @property
-    def lattice_type(self):
-        """Returns: Lattice type."""
+    def lattice_type(self) -> int:
+        """The lattice type."""
         return self.data["lattice_type"]

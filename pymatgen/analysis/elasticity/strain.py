@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import collections
 import itertools
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy
@@ -17,7 +17,11 @@ from pymatgen.core.lattice import Lattice
 from pymatgen.core.tensors import SquareTensor, symmetry_reduce
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from typing import Literal
+
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
 
     from pymatgen.core.structure import Structure
 
@@ -36,11 +40,10 @@ class Deformation(SquareTensor):
 
     symbol = "d"
 
-    def __new__(cls, deformation_gradient):
+    def __new__(cls, deformation_gradient) -> Self:
         """
-        Create a Deformation object. Note that the constructor uses __new__
-        rather than __init__ according to the standard method of subclassing
-        numpy ndarrays.
+        Create a Deformation object. Note that the constructor uses __new__ rather than
+        __init__ according to the standard method of subclassing numpy ndarrays.
 
         Args:
             deformation_gradient (3x3 array-like): the 3x3 array-like
@@ -50,19 +53,18 @@ class Deformation(SquareTensor):
         return obj.view(cls)
 
     def is_independent(self, tol: float = 1e-8):
-        """Checks to determine whether the deformation is independent."""
+        """Check to determine whether the deformation is independent."""
         return len(self.get_perturbed_indices(tol)) == 1
 
     def get_perturbed_indices(self, tol: float = 1e-8):
-        """
-        Gets indices of perturbed elements of the deformation gradient,
+        """Get indices of perturbed elements of the deformation gradient,
         i. e. those that differ from the identity.
         """
         return list(zip(*np.where(abs(self - np.eye(3)) > tol)))
 
     @property
     def green_lagrange_strain(self):
-        """Calculates the Euler-Lagrange strain from the deformation gradient."""
+        """Calculate the Euler-Lagrange strain from the deformation gradient."""
         return Strain.from_deformation(self)
 
     def apply_to_structure(self, structure: Structure):
@@ -80,20 +82,19 @@ class Deformation(SquareTensor):
         return def_struct
 
     @classmethod
-    def from_index_amount(cls, matrixpos, amt):
-        """
-        Factory method for constructing a Deformation object
+    def from_index_amount(cls, matrix_pos, amt) -> Self:
+        """Factory method for constructing a Deformation object
         from a matrix position and amount.
 
         Args:
-            matrixpos (tuple): tuple corresponding the matrix position to
+            matrix_pos (tuple): tuple corresponding the matrix position to
                 have a perturbation added
             amt (float): amount to add to the identity matrix at position
-                matrixpos
+                matrix_pos
         """
-        f = np.identity(3)
-        f[matrixpos] += amt
-        return cls(f)
+        ident = np.identity(3)
+        ident[matrix_pos] += amt
+        return cls(ident)
 
 
 class DeformedStructureSet(collections.abc.Sequence):
@@ -102,7 +103,13 @@ class DeformedStructureSet(collections.abc.Sequence):
     can be used to calculate linear stress-strain response.
     """
 
-    def __init__(self, structure: Structure, norm_strains=None, shear_strains=None, symmetry=False):
+    def __init__(
+        self,
+        structure: Structure,
+        norm_strains: Sequence[float] = (-0.01, -0.005, 0.005, 0.01),
+        shear_strains: Sequence[float] = (-0.06, -0.03, 0.03, 0.06),
+        symmetry=False,
+    ) -> None:
         """
         Construct the deformed geometries of a structure. Generates m + n deformed structures
         according to the supplied parameters.
@@ -110,14 +117,11 @@ class DeformedStructureSet(collections.abc.Sequence):
         Args:
             structure (Structure): structure to undergo deformation
             norm_strains (list of floats): strain values to apply
-                to each normal mode.
+                to each normal mode. Defaults to (-0.01, -0.005, 0.005, 0.01).
             shear_strains (list of floats): strain values to apply
-                to each shear mode.
+                to each shear mode. Defaults to (-0.06, -0.03, 0.03, 0.06).
             symmetry (bool): whether or not to use symmetry reduction.
         """
-        norm_strains = norm_strains or [-0.01, -0.005, 0.005, 0.01]
-        shear_strains = shear_strains or [-0.06, -0.03, 0.03, 0.06]
-
         self.undeformed_structure = structure
         self.deformations: list[Deformation] = []
         self.def_structs: list[Structure] = []
@@ -154,7 +158,7 @@ class Strain(SquareTensor):
 
     symbol = "e"
 
-    def __new__(cls, strain_matrix):
+    def __new__(cls, strain_matrix) -> Self:
         """
         Create a Strain object. Note that the constructor uses __new__
         rather than __init__ according to the standard method of
@@ -181,9 +185,8 @@ class Strain(SquareTensor):
         self._vscale = getattr(obj, "_vscale", None)
 
     @classmethod
-    def from_deformation(cls, deformation: ArrayLike) -> Strain:
-        """
-        Factory method that returns a Strain object from a deformation
+    def from_deformation(cls, deformation: ArrayLike) -> Self:
+        """Factory method that returns a Strain object from a deformation
         gradient.
 
         Args:
@@ -193,7 +196,7 @@ class Strain(SquareTensor):
         return cls(0.5 * (np.dot(dfm.trans, dfm) - np.eye(3)))
 
     @classmethod
-    def from_index_amount(cls, idx, amount):
+    def from_index_amount(cls, idx: tuple | int, amount: float) -> Self:
         """
         Like Deformation.from_index_amount, except generates
         a strain from the zero 3x3 tensor or Voigt vector with
@@ -204,7 +207,7 @@ class Strain(SquareTensor):
             idx (tuple or integer): index to be perturbed, can be Voigt or full-tensor notation
             amount (float): amount to perturb selected index
         """
-        if np.array(idx).ndim == 0:
+        if isinstance(idx, int):
             v = np.zeros(6)
             v[idx] = amount
             return cls.from_voigt(v)
@@ -216,8 +219,7 @@ class Strain(SquareTensor):
         raise ValueError("Index must either be 2-tuple or integer corresponding to full-tensor or Voigt index")
 
     def get_deformation_matrix(self, shape: Literal["upper", "lower", "symmetric"] = "upper"):
-        """
-        Returns the deformation matrix.
+        """Get the deformation matrix.
 
         Args:
             shape ('upper' | 'lower' | 'symmetric'): method for determining deformation

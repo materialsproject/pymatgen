@@ -24,20 +24,23 @@ class ConnectivityFinder:
         """
         Constructor for the ConnectivityFinder.
 
-        :param multiple_environments_choice: defines the procedure to apply when
-        the environment of a given site is described as a "mix" of more than one
-        coordination environments.
+        Args:
+            multiple_environments_choice: defines the procedure to apply when
+            the environment of a given site is described as a "mix" of more than one
+            coordination environments.
         """
         self.setup_parameters(multiple_environments_choice=multiple_environments_choice)
 
     def get_structure_connectivity(self, light_structure_environments):
-        """
-        Get the structure connectivity from the coordination environments provided
+        """Get the structure connectivity from the coordination environments provided
         as an input.
 
-        :param light_structure_environments: LightStructureEnvironments with the
-        relevant coordination environments in the structure
-        :return: a StructureConnectivity object describing the connectivity of
+        Args:
+            light_structure_environments: LightStructureEnvironments with the
+            relevant coordination environments in the structure
+
+        Returns:
+            a StructureConnectivity object describing the connectivity of
         the environments in the structure
         """
         logging.info("Setup of structure connectivity graph")
@@ -49,12 +52,12 @@ class ConnectivityFinder:
                 continue
             if len(site_neighbors_sets) > 1:
                 if self.multiple_environments_choice is None:
-                    raise ValueError(f"Local environment of site {isite:d} is a mix and nothing is asked about it")
+                    raise ValueError(f"Local environment of site {isite} is a mix and nothing is asked about it")
                 if self.multiple_environments_choice == "TAKE_HIGHEST_FRACTION":
                     imax = np.argmax(
                         [ee["ce_fraction"] for ee in light_structure_environments.coordination_environments[isite]]
                     )
-                    print(f"IMAX {imax:d}")
+                    print(f"IMAX {imax}")
                     site_neighbors_set = site_neighbors_sets[imax]
                 else:
                     raise RuntimeError("Should not be here")
@@ -65,6 +68,6 @@ class ConnectivityFinder:
 
     def setup_parameters(self, multiple_environments_choice):
         """Setup of the parameters for the connectivity finder."""
-        if multiple_environments_choice is not None and multiple_environments_choice not in ["TAKE_HIGHEST_FRACTION"]:
+        if multiple_environments_choice is not None and multiple_environments_choice != "TAKE_HIGHEST_FRACTION":
             raise ValueError(f"Option {multiple_environments_choice!r} for multiple_environments_choice is not allowed")
         self.multiple_environments_choice = multiple_environments_choice

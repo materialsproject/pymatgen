@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import copy
 import re
 from collections import defaultdict
 
@@ -17,7 +16,7 @@ def read_pattern(text_str, patterns, terminate_on_match=False, postprocess=str):
 
     Args:
         text_str (str): the input string to search for patterns
-        patterns (dict): A dict of patterns, e.g.,
+        patterns (dict): A dict of patterns, e.g.
             {"energy": r"energy\\(sigma->0\\)\\s+=\\s+([\\d\\-.]+)"}.
         terminate_on_match (bool): Whether to terminate when there is at
             least one match in each key in pattern.
@@ -54,7 +53,7 @@ def read_matrix_pattern(header_pattern, footer_pattern, elements_pattern, text, 
     elements = re.findall(elements_pattern, text_between_header_and_footer)
 
     # Apply postprocessing to all the elements
-    return [postprocess(e) for e in elements]
+    return [postprocess(elem) for elem in elements]
 
 
 def read_table_pattern(
@@ -134,7 +133,7 @@ def lower_and_check_unique(dict_to_check):
         dict_to_check (dict): The dictionary to check and standardize
 
     Returns:
-        to_return (dict): An identical dictionary but with all keys made
+        dict: An identical dictionary but with all keys made
             lower case and no identical keys present.
     """
     if dict_to_check is None:
@@ -204,19 +203,14 @@ def process_parsed_fock_matrix(fock_matrix):
     return fock_matrix_reshaped
 
 
-def process_parsed_HESS(hess_data):
+def process_parsed_hess(hess_data):
     """
     Takes the information contained in a HESS file and converts it into
     the format of the machine-readable 132.0 file which can be printed
     out to be read into subsequent optimizations.
     """
     dim = int(hess_data[1].split()[1])
-    hess = []
-    tmp_part = []
-    for _ii in range(dim):
-        tmp_part.append(0.0)
-    for _ii in range(dim):
-        hess.append(copy.deepcopy(tmp_part))
+    hess = [[0 for _ in range(dim)] for _ in range(dim)]
 
     row = 0
     column = 0

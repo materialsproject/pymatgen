@@ -27,7 +27,8 @@ __copyright__ = "Copyright 2021, The Materials Project"
 __version__ = "0.2"
 
 logger = logging.getLogger(__name__)
-template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
+module_dir = os.path.dirname(os.path.abspath(__file__))
+template_dir = f"{module_dir}/templates"
 
 
 @dataclass
@@ -35,19 +36,19 @@ class BaseLammpsGenerator(InputGenerator):
     r"""
     Base class to generate LAMMPS input sets.
     Uses template files for the input. The variables that can be changed
-    in the input template file are those starting with a $ sign, e.g., $nsteps.
+    in the input template file are those starting with a $ sign, e.g. $nsteps.
     This generic class is specialized for each template in subclasses, e.g. LammpsMinimization.
     You can create a template for your own task following those present in pymatgen/io/lammps/templates.
     The parameters are then replaced based on the values found
-    in the settings dictionary that you provide, e.g., `{"nsteps": 1000}`.
+    in the settings dictionary that you provide, e.g. `{"nsteps": 1000}`.
 
-    Parameters:
+    Attributes:
         template: Path (string) to the template file used to create the InputFile for LAMMPS.
         calc_type: Human-readable string used to briefly describe the type of computations performed by LAMMPS.
         settings: Dictionary containing the values of the parameters to replace in the template.
         keep_stages: If True, the string is formatted in a block structure with stage names
-                     and newlines that differentiate commands in the respective stages of the InputFile.
-                     If False, stage names are not printed and all commands appear in a single block.
+        and newlines that differentiate commands in the respective stages of the InputFile.
+        If False, stage names are not printed and all commands appear in a single block.
 
     /!\ This InputSet and InputGenerator implementation is based on templates and is not intended to be very flexible.
     For instance, pymatgen will not detect whether a given variable should be adapted based on others
@@ -56,23 +57,20 @@ class BaseLammpsGenerator(InputGenerator):
     (https://github.com/Matgenix/atomate2-lammps).
     """
 
+    inputfile: LammpsInputFile | None = field(default=None)
     template: str = field(default_factory=str)
+    data: LammpsData | CombinedData | None = field(default=None)
     settings: dict = field(default_factory=dict)
     calc_type: str = field(default="lammps")
     keep_stages: bool = field(default=True)
 
-    def __post_init__(self):
-        self.settings = self.settings or {}
-
-    def get_input_set(  # type: ignore
-        self, structure: Structure | LammpsData | CombinedData | None  # pylint: disable=E1131
-    ) -> LammpsInputSet:
+    def get_input_set(self, structure: Structure | LammpsData | CombinedData) -> LammpsInputSet:
         """Generate a LammpsInputSet from the structure/data, tailored to the template file."""
-        data = LammpsData.from_structure(structure) if isinstance(structure, Structure) else structure
+        data: LammpsData = LammpsData.from_structure(structure) if isinstance(structure, Structure) else structure
 
         # Load the template
-        with zopen(self.template, "r") as f:
-            template_str = f.read()
+        with zopen(self.template, mode="r") as file:
+            template_str = file.read()
 
         # Replace all variables
         input_str = Template(template_str).safe_substitute(**self.settings)
@@ -84,7 +82,7 @@ class BaseLammpsGenerator(InputGenerator):
 
 
 class LammpsMinimization(BaseLammpsGenerator):
-    r"""
+    """
     Generator that yields a LammpsInputSet tailored for minimizing the energy of a system by iteratively
     adjusting atom coordinates.
     Example usage:
@@ -95,7 +93,7 @@ class LammpsMinimization(BaseLammpsGenerator):
 
     Do not forget to specify the force field, otherwise LAMMPS will not be able to run!
 
-    /!\ This InputSet and InputGenerator implementation is based on templates and is not intended to be very flexible.
+    This InputSet and InputGenerator implementation is based on templates and is not intended to be very flexible.
     For instance, pymatgen will not detect whether a given variable should be adapted based on others
     (e.g., the number of steps from the temperature), it will not check for convergence nor will it actually run LAMMPS.
     For additional flexibility and automation, use the atomate2-lammps implementation
@@ -112,25 +110,25 @@ class LammpsMinimization(BaseLammpsGenerator):
         read_data: str = "system.data",
         force_field: str = "Unspecified force field!",
         keep_stages: bool = False,
-    ):
-        r"""
+    ) -> None:
+        """
         Args:
             template: Path (string) to the template file used to create the InputFile for LAMMPS.
-            units: units to be used for the LAMMPS calculation (see official LAMMPS documentation).
-            atom_style: atom_style to be used for the LAMMPS calculation (see official LAMMPS documentation).
-            dimension: dimension to be used for the LAMMPS calculation (see official LAMMPS documentation).
-            boundary: boundary to be used for the LAMMPS calculation (see official LAMMPS documentation).
-            read_data: read_data to be used for the LAMMPS calculation (see official LAMMPS documentation).
-            force_field: force field to be used for the LAMMPS calculation (see official LAMMPS documentation).
-                         Note that you should provide all the required information as a single string.
-                         In case of multiple lines expected in the input file,
-                         separate them with '\n' in force_field.
+            units: units to be used for the LAMMPS calculation (see LAMMPS docs).
+            atom_style: atom_style to be used for the LAMMPS calculation (see LAMMPS docs).
+            dimension: dimension to be used for the LAMMPS calculation (see LAMMPS docs).
+            boundary: boundary to be used for the LAMMPS calculation (see LAMMPS docs).
+            read_data: read_data to be used for the LAMMPS calculation (see LAMMPS docs).
+            force_field: force field to be used for the LAMMPS calculation (see LAMMPS docs).
+                Note that you should provide all the required information as a single string.
+                In case of multiple lines expected in the input file,
+                separate them with '\n' in force_field.
             keep_stages: If True, the string is formatted in a block structure with stage names
-                         and newlines that differentiate commands in the respective stages of the InputFile.
-                         If False, stage names are not printed and all commands appear in a single block.
+                and newlines that differentiate commands in the respective stages of the InputFile.
+                If False, stage names are not printed and all commands appear in a single block.
         """
         if template is None:
-            template = os.path.join(template_dir, "minimization.template")
+            template = f"{template_dir}/minimization.template"
         settings = {
             "units": units,
             "atom_style": atom_style,
@@ -143,31 +141,31 @@ class LammpsMinimization(BaseLammpsGenerator):
         super().__init__(template=template, settings=settings, calc_type="minimization", keep_stages=keep_stages)
 
     @property
-    def units(self):
-        """Return the argument of the command 'units' passed to the generator."""
+    def units(self) -> str:
+        """The argument of the command 'units' passed to the generator."""
         return self.settings["units"]
 
     @property
-    def atom_style(self):
-        """Return the argument of the command 'atom_style' passed to the generator."""
+    def atom_style(self) -> str:
+        """The argument of the command 'atom_style' passed to the generator."""
         return self.settings["atom_style"]
 
     @property
-    def dimension(self):
-        """Return the argument of the command 'dimension' passed to the generator."""
+    def dimension(self) -> int:
+        """The argument of the command 'dimension' passed to the generator."""
         return self.settings["dimension"]
 
     @property
-    def boundary(self):
-        """Return the argument of the command 'boundary' passed to the generator."""
+    def boundary(self) -> str:
+        """The argument of the command 'boundary' passed to the generator."""
         return self.settings["boundary"]
 
     @property
-    def read_data(self):
-        """Return the argument of the command 'read_data' passed to the generator."""
+    def read_data(self) -> str:
+        """The argument of the command 'read_data' passed to the generator."""
         return self.settings["read_data"]
 
     @property
-    def force_field(self):
-        """Return the details of the force field commands passed to the generator."""
+    def force_field(self) -> str:
+        """The details of the force field commands passed to the generator."""
         return self.settings["force_field"]

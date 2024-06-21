@@ -1,34 +1,26 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pymatgen.analysis.chemenv package &mdash; pymatgen 2023.7.17 documentation</title>
-      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="_static/css/custom.css" type="text/css" />
+  <title>pymatgen.analysis.chemenv package &mdash; pymatgen 2024.6.4 documentation</title>
+      <link rel="stylesheet" href="assets/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="assets/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="assets/css/custom.css" type="text/css" />
     <link rel="canonical" href="https://pymatgen.orgpymatgen.analysis.chemenv.html"/>
   <!--[if lt IE 9]>
-    <script src="_static/js/html5shiv.min.js"></script>
+    <script src="assets/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/sphinx_highlight.js"></script>
-    <script src="_static/js/theme.js"></script>
+        <script src="assets/jquery.js?v=5d32c60e"></script>
+        <script src="assets/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="assets/documentation_options.js?v=eaad03eb"></script>
+        <script src="assets/doctools.js?v=9a2dae69"></script>
+        <script src="assets/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="assets/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="pymatgen.analysis.chemenv.connectivity package" href="pymatgen.analysis.chemenv.connectivity.html" />
-    <link rel="prev" title="pymatgen.analysis namespace" href="pymatgen.analysis.html" />
- 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
-<script type="text/javascript">
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-33990148-1']);
-  _gaq.push(['_trackPageview']);
-</script>
-
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -36,57 +28,31 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search"  style="background: linear-gradient(0deg, rgba(23,63,162,1) 0%, rgba(0,70,192,1) 100%)" >
-            <a href="index.html" class="icon icon-home"> pymatgen
+
+          
+          
+          <a href="index.html">
+            
           </a>
               <div class="version">
-                2023.7.17
+                2024.6.4
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="change_log.html">Change log</a></li>
-<li class="toctree-l1"><a class="reference internal" href="compatibility.html">Compatibility</a></li>
-<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
-<li class="toctree-l1"><a class="reference internal" href="team.html">Development Team</a></li>
-<li class="toctree-l1"><a class="reference internal" href="references.html">References</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Docs</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="pymatgen.html">pymatgen namespace</a><ul class="current">
-<li class="toctree-l3 current"><a class="reference internal" href="pymatgen.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.alchemy.html">pymatgen.alchemy package</a></li>
-<li class="toctree-l4 current"><a class="reference internal" href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.apps.html">pymatgen.apps package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.cli.html">pymatgen.cli package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.command_line.html">pymatgen.command_line package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.core.html">pymatgen.core package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.electronic_structure.html">pymatgen.electronic_structure package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.entries.html">pymatgen.entries package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.ext.html">pymatgen.ext namespace</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.io.html">pymatgen.io namespace</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.optimization.html">pymatgen.optimization package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.phonon.html">pymatgen.phonon package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.symmetry.html">pymatgen.symmetry package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.transformations.html">pymatgen.transformations package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.util.html">pymatgen.util package</a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.vis.html">pymatgen.vis package</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.html#module-pymatgen.dao">pymatgen.dao module</a></li>
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">pymatgen.analysis.chemenv package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
 </ul>
 </li>
 </ul>
-</li>
-</ul>
-
+</div>
         </div>
       </div>
     </nav>
@@ -100,10 +66,7 @@
         <div class="rst-content style-external-links">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="index.html" class="icon icon-home"></a></li>
-          <li class="breadcrumb-item"><a href="modules.html">pymatgen</a></li>
-          <li class="breadcrumb-item"><a href="pymatgen.html">pymatgen namespace</a></li>
-          <li class="breadcrumb-item"><a href="pymatgen.analysis.html">pymatgen.analysis namespace</a></li>
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">pymatgen.analysis.chemenv package</li>
       <li class="wy-breadcrumbs-aside">
               <a href="https://github.com/materialsproject/pymatgen/blob/master/docs_rst/pymatgen.analysis.chemenv.rst" class="fa fa-github"> Edit on GitHub</a>
@@ -114,16 +77,14 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="pymatgen-analysis-chemenv-package">
-<h1>pymatgen.analysis.chemenv package<a class="headerlink" href="#pymatgen-analysis-chemenv-package" title="Permalink to this heading"></a></h1>
+  <section id="module-pymatgen.analysis.chemenv">
+<span id="pymatgen-analysis-chemenv-package"></span><h1>pymatgen.analysis.chemenv package<a class="headerlink" href="#module-pymatgen.analysis.chemenv" title="Link to this heading"></a></h1>
+<p>Package for analyzing chemical environments.</p>
 <section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.html">pymatgen.analysis.chemenv.connectivity package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.html#subpackages">Subpackages</a><ul class="simple">
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.html#module-pymatgen.analysis.chemenv.connectivity.connected_components">pymatgen.analysis.chemenv.connectivity.connected_components module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.html#pymatgen.analysis.chemenv.connectivity.connected_components.ConnectedComponent"><code class="docutils literal notranslate"><span class="pre">ConnectedComponent</span></code></a><ul>
@@ -210,15 +171,11 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.html#pymatgen.analysis.chemenv.connectivity.structure_connectivity.get_delta_image"><code class="docutils literal notranslate"><span class="pre">get_delta_image()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.connectivity.html#module-pymatgen.analysis.chemenv.connectivity">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html">pymatgen.analysis.chemenv.coordination_environments package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files.html">pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files.html#module-pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files">Module contents</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files.html">pymatgen.analysis.chemenv.coordination_environments.coordination_geometries_files package</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#submodules">Submodules</a></li>
@@ -318,7 +275,6 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.from_dict"><code class="docutils literal notranslate"><span class="pre">DistanceAngleAreaNbSetWeight.from_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.rectangle_crosses_area"><code class="docutils literal notranslate"><span class="pre">DistanceAngleAreaNbSetWeight.rectangle_crosses_area()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.w_area_has_intersection"><code class="docutils literal notranslate"><span class="pre">DistanceAngleAreaNbSetWeight.w_area_has_intersection()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.w_area_has_intersection_smoothstep"><code class="docutils literal notranslate"><span class="pre">DistanceAngleAreaNbSetWeight.w_area_has_intersection_smoothstep()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.w_area_intersection_nbsfh_fbs_onb0"><code class="docutils literal notranslate"><span class="pre">DistanceAngleAreaNbSetWeight.w_area_intersection_nbsfh_fbs_onb0()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.DistanceAngleAreaNbSetWeight.weight"><code class="docutils literal notranslate"><span class="pre">DistanceAngleAreaNbSetWeight.weight()</span></code></a></li>
 </ul>
@@ -423,12 +379,12 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.StrategyOption.as_dict"><code class="docutils literal notranslate"><span class="pre">StrategyOption.as_dict()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy"><code class="docutils literal notranslate"><span class="pre">TargettedPenaltiedAbundanceChemenvStrategy</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.DEFAULT_TARGET_ENVIRONMENTS"><code class="docutils literal notranslate"><span class="pre">TargettedPenaltiedAbundanceChemenvStrategy.DEFAULT_TARGET_ENVIRONMENTS</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.as_dict"><code class="docutils literal notranslate"><span class="pre">TargettedPenaltiedAbundanceChemenvStrategy.as_dict()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.from_dict"><code class="docutils literal notranslate"><span class="pre">TargettedPenaltiedAbundanceChemenvStrategy.from_dict()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.get_site_coordination_environment"><code class="docutils literal notranslate"><span class="pre">TargettedPenaltiedAbundanceChemenvStrategy.get_site_coordination_environment()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargettedPenaltiedAbundanceChemenvStrategy.uniquely_determines_coordination_environments"><code class="docutils literal notranslate"><span class="pre">TargettedPenaltiedAbundanceChemenvStrategy.uniquely_determines_coordination_environments</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargetedPenaltiedAbundanceChemenvStrategy"><code class="docutils literal notranslate"><span class="pre">TargetedPenaltiedAbundanceChemenvStrategy</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargetedPenaltiedAbundanceChemenvStrategy.DEFAULT_TARGET_ENVIRONMENTS"><code class="docutils literal notranslate"><span class="pre">TargetedPenaltiedAbundanceChemenvStrategy.DEFAULT_TARGET_ENVIRONMENTS</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargetedPenaltiedAbundanceChemenvStrategy.as_dict"><code class="docutils literal notranslate"><span class="pre">TargetedPenaltiedAbundanceChemenvStrategy.as_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargetedPenaltiedAbundanceChemenvStrategy.from_dict"><code class="docutils literal notranslate"><span class="pre">TargetedPenaltiedAbundanceChemenvStrategy.from_dict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargetedPenaltiedAbundanceChemenvStrategy.get_site_coordination_environment"><code class="docutils literal notranslate"><span class="pre">TargetedPenaltiedAbundanceChemenvStrategy.get_site_coordination_environment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.TargetedPenaltiedAbundanceChemenvStrategy.uniquely_determines_coordination_environments"><code class="docutils literal notranslate"><span class="pre">TargetedPenaltiedAbundanceChemenvStrategy.uniquely_determines_coordination_environments</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies.WeightedNbSetChemenvStrategy"><code class="docutils literal notranslate"><span class="pre">WeightedNbSetChemenvStrategy</span></code></a><ul>
@@ -500,19 +456,18 @@
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.number_of_permutations"><code class="docutils literal notranslate"><span class="pre">CoordinationGeometry.number_of_permutations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.pauling_stability_ratio"><code class="docutils literal notranslate"><span class="pre">CoordinationGeometry.pauling_stability_ratio</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.ref_permutation"><code class="docutils literal notranslate"><span class="pre">CoordinationGeometry.ref_permutation()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.set_permutations_safe_override"><code class="docutils literal notranslate"><span class="pre">CoordinationGeometry.set_permutations_safe_override()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.CoordinationGeometry.solid_angles"><code class="docutils literal notranslate"><span class="pre">CoordinationGeometry.solid_angles()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm"><code class="docutils literal notranslate"><span class="pre">ExplicitPermutationsAlgorithm</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm.as_dict"><code class="docutils literal notranslate"><span class="pre">ExplicitPermutationsAlgorithm.as_dict</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm.as_dict"><code class="docutils literal notranslate"><span class="pre">ExplicitPermutationsAlgorithm.as_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm.from_dict"><code class="docutils literal notranslate"><span class="pre">ExplicitPermutationsAlgorithm.from_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.ExplicitPermutationsAlgorithm.permutations"><code class="docutils literal notranslate"><span class="pre">ExplicitPermutationsAlgorithm.permutations</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane"><code class="docutils literal notranslate"><span class="pre">SeparationPlane</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.argsorted_ref_separation_perm"><code class="docutils literal notranslate"><span class="pre">SeparationPlane.argsorted_ref_separation_perm</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.as_dict"><code class="docutils literal notranslate"><span class="pre">SeparationPlane.as_dict</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.as_dict"><code class="docutils literal notranslate"><span class="pre">SeparationPlane.as_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.from_dict"><code class="docutils literal notranslate"><span class="pre">SeparationPlane.from_dict()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.permutations"><code class="docutils literal notranslate"><span class="pre">SeparationPlane.permutations</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.coordination_geometries.SeparationPlane.ref_separation_perm"><code class="docutils literal notranslate"><span class="pre">SeparationPlane.ref_separation_perm</span></code></a></li>
@@ -679,13 +634,9 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#pymatgen.analysis.chemenv.coordination_environments.voronoi.from_bson_voronoi_list2"><code class="docutils literal notranslate"><span class="pre">from_bson_voronoi_list2()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.coordination_environments.html#module-pymatgen.analysis.chemenv.coordination_environments">Module contents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html">pymatgen.analysis.chemenv.utils package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#subpackages">Subpackages</a><ul class="simple">
-</ul>
-</li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#module-pymatgen.analysis.chemenv.utils.chemenv_config">pymatgen.analysis.chemenv.utils.chemenv_config module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#pymatgen.analysis.chemenv.utils.chemenv_config.ChemEnvConfig"><code class="docutils literal notranslate"><span class="pre">ChemEnvConfig</span></code></a><ul>
@@ -753,12 +704,12 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.get_lower_and_upper_f"><code class="docutils literal notranslate"><span class="pre">get_lower_and_upper_f()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.is_anion_cation_bond"><code class="docutils literal notranslate"><span class="pre">is_anion_cation_bond()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.matrixTimesVector"><code class="docutils literal notranslate"><span class="pre">matrixTimesVector()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.my_solid_angle"><code class="docutils literal notranslate"><span class="pre">my_solid_angle()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.quarter_ellipsis_functions"><code class="docutils literal notranslate"><span class="pre">quarter_ellipsis_functions()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rectangle_surface_intersection"><code class="docutils literal notranslate"><span class="pre">rectangle_surface_intersection()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rotateCoords"><code class="docutils literal notranslate"><span class="pre">rotateCoords()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.rotateCoordsOpt"><code class="docutils literal notranslate"><span class="pre">rotateCoordsOpt()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.separation_in_list"><code class="docutils literal notranslate"><span class="pre">separation_in_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.solid_angle"><code class="docutils literal notranslate"><span class="pre">solid_angle()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.sort_separation"><code class="docutils literal notranslate"><span class="pre">sort_separation()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.sort_separation_tuple"><code class="docutils literal notranslate"><span class="pre">sort_separation_tuple()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#pymatgen.analysis.chemenv.utils.coordination_geometry_utils.spline_functions"><code class="docutils literal notranslate"><span class="pre">spline_functions()</span></code></a></li>
@@ -875,15 +826,10 @@
 <li class="toctree-l3"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#pymatgen.analysis.chemenv.utils.scripts_utils.visualize"><code class="docutils literal notranslate"><span class="pre">visualize()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="pymatgen.analysis.chemenv.utils.html#module-pymatgen.analysis.chemenv.utils">Module contents</a></li>
 </ul>
 </li>
 </ul>
 </div>
-</section>
-<section id="module-pymatgen.analysis.chemenv">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pymatgen.analysis.chemenv" title="Permalink to this heading"></a></h2>
-<p>Package for analyzing chemical environments.</p>
 </section>
 </section>
 
@@ -912,22 +858,7 @@
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
- 
-<div class="footer">This page uses <a href="http://analytics.google.com/">
-Google Analytics</a> to collect statistics. You can disable it by blocking
-the JavaScript coming from www.google-analytics.com.
-<script type="text/javascript">
-  (function() {
-    var ga = document.createElement('script');
-    ga.src = ('https:' == document.location.protocol ?
-              'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    ga.setAttribute('async', 'true');
-    document.documentElement.firstChild.appendChild(ga);
-  })();
-</script>
-</div>
-
+  </script> 
 
 </body>
 </html>

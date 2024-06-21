@@ -6,31 +6,31 @@ should get the same Structure or ComputedStructureEntry back. On the other hand,
 from and back to a string/file is not guaranteed to be reversible, i.e. a diff on the output
 would not be empty. The difference should be limited to whitespace, float precision, and the
 REM entries.
-
 """
 
 from __future__ import annotations
 
+import datetime
 import re
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable, Literal
+from typing import TYPE_CHECKING
 
-import dateutil.parser  # type: ignore[import]
 from monty.io import zopen
 from monty.json import MSONable
 
-from pymatgen.core.lattice import Lattice
-from pymatgen.core.periodic_table import Element
-from pymatgen.core.sites import PeriodicSite
-from pymatgen.core.structure import Structure
+from pymatgen.core import Element, Lattice, PeriodicSite, Structure
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.io.core import ParseError
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from datetime import date
+    from pathlib import Path
+    from typing import Any, Callable, Literal
 
-__all__ = ["ResProvider", "AirssProvider", "ResIO", "ResWriter", "ResParseError", "ResError"]
+    from typing_extensions import Self
+
+    from pymatgen.util.typing import Tuple3Ints, Vector3D
 
 
 @dataclass(frozen=True)
@@ -48,7 +48,7 @@ class AirssTITL:
         return (
             f"TITL {self.seed:s} {self.pressure:.2f} {self.volume:.4f} {self.energy:.5f} "
             f"{self.integrated_spin_density:f} {self.integrated_absolute_spin_density:f} ({self.spacegroup_label:s}) "
-            f"n - {self.appearances:d}"
+            f"n - {self.appearances}"
         )
 
 
@@ -73,7 +73,7 @@ class ResCELL:
 class Ion:
     specie: str
     specie_num: int
-    pos: tuple[float, float, float]
+    pos: Vector3D
     occupancy: float
     spin: float | None
 
@@ -88,13 +88,13 @@ class Ion:
 
 @dataclass(frozen=True)
 class ResSFAC:
-    species: set[str]
+    species: list[str]
     ions: list[Ion]
 
     def __str__(self) -> str:
         species = " ".join(f"{specie:<2s}" for specie in self.species)
         ions = "\n".join(map(str, self.ions))
-        return f"SFAC {species}\n{ions}\nEND"
+        return f"SFAC {species}\n{ions}\nEND\n"
 
 
 @dataclass(frozen=True)
@@ -107,15 +107,13 @@ class Res:
     SFAC: ResSFAC
 
     def __str__(self) -> str:
-        return "\n".join(
-            [
-                "TITL" if self.TITL is None else str(self.TITL),
-                "\n".join(f"REM {rem}" for rem in self.REMS),
-                str(self.CELL),
-                "LATT -1",
-                str(self.SFAC),
-            ]
-        )
+        lines = ["TITL" if self.TITL is None else str(self.TITL)]
+
+        lines += (f"REM {rem}" for rem in self.REMS)
+
+        lines += (str(self.CELL), "LATT -1", str(self.SFAC))
+
+        return "\n".join(lines)
 
 
 class ResParseError(ParseError):
@@ -138,7 +136,7 @@ class ResParser:
         self.source: str = ""
 
     def _parse_titl(self, line: str) -> AirssTITL | None:
-        """Parses the TITL entry. Checks for AIRSS values in the entry."""
+        """Parse the TITL entry. Checks for AIRSS values in the entry."""
         fields = line.split(maxsplit=6)
         if len(fields) >= 6:
             # this is probably an AIRSS res file
@@ -160,7 +158,7 @@ class ResParser:
         return None
 
     def _parse_cell(self, line: str) -> ResCELL:
-        """Parses the CELL entry."""
+        """Parse the CELL entry."""
         fields = line.split()
         if len(fields) != 7:
             raise ResParseError(f"Failed to parse CELL {line=}, expected 7 fields.")
@@ -168,7 +166,7 @@ class ResParser:
         return ResCELL(field_1, a, b, c, alpha, beta, gamma)
 
     def _parse_ion(self, line: str) -> Ion:
-        """Parses entries in the SFAC block."""
+        """Parse entries in the SFAC block."""
         fields = line.split()
         if len(fields) == 6:
             spin = None
@@ -182,8 +180,8 @@ class ResParser:
         return Ion(specie, specie_num, (x, y, z), occ, spin)
 
     def _parse_sfac(self, line: str, it: Iterator[str]) -> ResSFAC:
-        """Parses the SFAC block."""
-        species = set(line.split())
+        """Parse the SFAC block."""
+        species = list(line.split())
         ions = []
         try:
             while True:
@@ -196,7 +194,7 @@ class ResParser:
         return ResSFAC(species, ions)
 
     def _parse_txt(self) -> Res:
-        """Parses the text of the file."""
+        """Parse the text of the file."""
         _REMS: list[str] = []
         _TITL: AirssTITL | None = None
         _CELL: ResCELL | None = None
@@ -236,17 +234,16 @@ class ResParser:
 
     @classmethod
     def _parse_str(cls, source: str) -> Res:
-        """Parses the res file as a string."""
+        """Parse the res file as a string."""
         self = cls()
         self.source = source
         return self._parse_txt()
 
     @classmethod
-    def _parse_file(cls, filename: str) -> Res:
-        """Parses the res file as a file."""
+    def _parse_file(cls, filename: str | Path) -> Res:
+        """Parse the res file as a file."""
         self = cls()
-        self.filename = filename
-        with zopen(filename, "r") as file:
+        with zopen(filename, mode="r") as file:
             self.source = file.read()
             return self._parse_txt()
 
@@ -260,24 +257,24 @@ class ResWriter:
         return ResCELL(1.0, lattice.a, lattice.b, lattice.c, lattice.alpha, lattice.beta, lattice.gamma)
 
     @classmethod
-    def _ions_from_sites(cls, sites: list[PeriodicSite]) -> list[Ion]:
-        """Produce a list of entries for a SFAC block from a list of pymatgen PeriodicSite."""
+    def _sfac_from_sites(cls, sites: list[PeriodicSite]) -> ResSFAC:
+        """Produce a SFAC block from a list of pymatgen PeriodicSite."""
         ions: list[Ion] = []
-        i = 0
+        species: list[str] = []
+
         for site in sites:
             for specie, occ in site.species.items():
-                i += 1
+                try:
+                    i = species.index(specie) + 1
+                except ValueError:
+                    species.append(specie)
+                    i = len(species)
+
                 x, y, z = map(float, site.frac_coords)
                 spin = site.properties.get("magmom")
                 spin = spin and float(spin)
                 ions.append(Ion(specie, i, (x, y, z), occ, spin))
-        return ions
 
-    @classmethod
-    def _sfac_from_sites(cls, sites: list[PeriodicSite]) -> ResSFAC:
-        """Produce a SFAC block from a list of pymatgen PeriodicSite."""
-        ions = cls._ions_from_sites(sites)
-        species = {ion.specie for ion in ions}
         return ResSFAC(species, ions)
 
     @classmethod
@@ -319,12 +316,12 @@ class ResWriter:
 
     def write(self, filename: str) -> None:
         """Write the res data to a file."""
-        with zopen(filename, "w") as file:
+        with zopen(filename, mode="w") as file:
             file.write(str(self))
 
 
 class ResProvider(MSONable):
-    """Provides access to elements of the res file in the form of familiar pymatgen objects."""
+    """Access elements of the RES file as familiar pymatgen objects."""
 
     def __init__(self, res: Res) -> None:
         """The :func:`from_str` and :func:`from_file` methods should be used instead of constructing this directly."""
@@ -338,12 +335,12 @@ class ResProvider(MSONable):
         return {"magmom": spin}
 
     @classmethod
-    def from_str(cls, string: str) -> ResProvider:
+    def from_str(cls, string: str) -> Self:
         """Construct a Provider from a string."""
         return cls(ResParser._parse_str(string))
 
     @classmethod
-    def from_file(cls, filename: str) -> ResProvider:
+    def from_file(cls, filename: str | Path) -> Self:
         """Construct a Provider from a file."""
         return cls(ResParser._parse_file(filename))
 
@@ -375,7 +372,7 @@ class ResProvider(MSONable):
 
 class AirssProvider(ResProvider):
     """
-    Provides access to the res file as does :class:`ResProvider`. This class additionally provides
+    Provides access to the res file as does ResProvider. This class additionally provides
     access to fields in the TITL entry and various other fields found in the REM entries
     that AIRSS puts in the file. Values in the TITL entry that AIRSS could not get end up as 0.
     If the TITL entry is malformed, empty, or missing then attempting to construct this class
@@ -388,7 +385,7 @@ class AirssProvider(ResProvider):
 
     The :attr:`parse_rems` attribute controls whether functions that fail to retrieve information
     from the REM entries should return ``None``. If this is set to ``"strict"``,
-    then a :class:`ParseError` may be raised, but the return value will not be ``None``.
+    then a ParseError may be raised, but the return value will not be ``None``.
     If it is set to ``"gentle"``, then ``None`` will be returned instead of raising an
     exception. This setting applies to all methods of this class that are typed to return
     an Optional type. Default is ``"gentle"``.
@@ -400,30 +397,33 @@ class AirssProvider(ResProvider):
         """The :func:`from_str` and :func:`from_file` methods should be used instead of constructing this directly."""
         super().__init__(res)
         if self._res.TITL is None:
-            raise ResError(f"{self.__class__} can only be constructed from a res file with a valid TITL entry.")
+            raise ResError(f"{type(self).__name__} can only be constructed from a res file with a valid TITL entry.")
         if parse_rems not in ["gentle", "strict"]:
             raise ValueError(f"{parse_rems} not valid, must be either 'gentle' or 'strict'.")
         self._TITL = self._res.TITL  # alias for the object so it is guarded by the None check
         self.parse_rems = parse_rems
 
     @classmethod
-    def from_str(cls, string: str, parse_rems: Literal["gentle", "strict"] = "gentle") -> AirssProvider:
+    def from_str(cls, string: str, parse_rems: Literal["gentle", "strict"] = "gentle") -> Self:
         """Construct a Provider from a string."""
         return cls(ResParser._parse_str(string), parse_rems)
 
     @classmethod
-    def from_file(cls, filename: str, parse_rems: Literal["gentle", "strict"] = "gentle") -> AirssProvider:
+    def from_file(cls, filename: str | Path, parse_rems: Literal["gentle", "strict"] = "gentle") -> Self:
         """Construct a Provider from a file."""
         return cls(ResParser._parse_file(filename), parse_rems)
 
     @classmethod
     def _parse_date(cls, string: str) -> date:
-        """Parses a date from a string where the date is in the format typically used by CASTEP."""
+        """Parse a date from a string where the date is in the format typically used by CASTEP."""
         match = cls._date_fmt.search(string)
         if match is None:
             raise ResParseError(f"Could not parse the date from {string=}.")
-        date_string = match.group(0)
-        return dateutil.parser.parse(date_string)
+
+        day, month, year, *_ = match.groups()
+        month_num = datetime.datetime.strptime(month, "%b").month
+
+        return datetime.date(int(year), month_num, int(day))
 
     def _raise_or_none(self, err: ResParseError) -> None:
         if self.parse_rems != "strict":
@@ -435,7 +435,7 @@ class AirssProvider(ResProvider):
         Retrieves the run start date and the path it was started in from the REM entries.
 
         Returns:
-            (date, path)
+            tuple[date, str]: (date, path)
         """
         for rem in self._res.REMS:
             if rem.strip().startswith("Run started:"):
@@ -464,7 +464,7 @@ class AirssProvider(ResProvider):
         Retrieves the functional, relativity scheme, and dispersion correction from the REM entries.
 
         Returns:
-            (functional, relativity, dispersion)
+            tuple[str, str, str]: (functional, relativity, dispersion)
         """
         for rem in self._res.REMS:
             if rem.strip().startswith("Functional"):
@@ -479,7 +479,7 @@ class AirssProvider(ResProvider):
         from the REM entries.
 
         Returns:
-            (cut-off, grid scale, Gmax, fsbc)
+            tuple[float, float, float, str]: (cut-off, grid scale, Gmax, fsbc)
         """
         for rem in self._res.REMS:
             if rem.strip().startswith("Cut-off"):
@@ -488,14 +488,12 @@ class AirssProvider(ResProvider):
         self._raise_or_none(ResParseError("Could not find line with cut-off energy."))
         return None
 
-    def get_mpgrid_offset_nkpts_spacing(
-        self,
-    ) -> tuple[tuple[int, int, int], tuple[float, float, float], int, float] | None:
+    def get_mpgrid_offset_nkpts_spacing(self) -> tuple[Tuple3Ints, Vector3D, int, float] | None:
         """
         Retrieves the MP grid, the grid offsets, number of kpoints, and maximum kpoint spacing.
 
         Returns:
-            (MP grid), (offsets), No. kpts, max spacing)
+            tuple[tuple[int, int, int], Vector3D, int, float]: (MP grid), (offsets), No. kpts, max spacing)
         """
         for rem in self._res.REMS:
             if rem.strip().startswith("MP grid"):
@@ -510,8 +508,8 @@ class AirssProvider(ResProvider):
         """
         Retrieves the version of AIRSS that was used along with the build date (not compile date).
 
-        Return:
-            (version string, date)
+        Returns:
+            tuple[str, date] (version string, date)
         """
         for rem in self._res.REMS:
             if rem.strip().startswith("AIRSS Version"):
@@ -538,13 +536,13 @@ class AirssProvider(ResProvider):
         Returns:
             dict[specie, potential]
         """
-        pspots: dict[str, str] = {}
+        pseudo_pots: dict[str, str] = {}
         for rem in self._res.REMS:
             srem = rem.split()
             if len(srem) == 2 and Element.is_valid_symbol(srem[0]):
                 k, v = srem
-                pspots[k] = v
-        return pspots
+                pseudo_pots[k] = v
+        return pseudo_pots
 
     @property
     def seed(self) -> str:
@@ -595,7 +593,7 @@ class AirssProvider(ResProvider):
 
     @property
     def entry(self) -> ComputedStructureEntry:
-        """Get this res file as a ComputedStructureEntry."""
+        """This res file as a ComputedStructureEntry."""
         return ComputedStructureEntry(self.structure, self.energy, data={"rems": self.rems})
 
     def as_dict(self, verbose: bool = True) -> dict[str, Any]:
@@ -606,8 +604,7 @@ class AirssProvider(ResProvider):
 
 
 class ResIO:
-    """
-    Class providing convenience methods for converting a Structure or ComputedStructureEntry
+    """Convenience methods for converting a Structure or ComputedStructureEntry
     to/from a string or file in the res format as used by AIRSS.
 
     Note: Converting from and back to pymatgen objects is expected to be reversible, i.e. you

@@ -1,13 +1,17 @@
 """This module contains some script utils that are used in the chemenv package."""
 
-
 from __future__ import annotations
 
 import re
 
 import numpy as np
 
-from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import SimplestChemenvStrategy
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
+    AbstractChemenvStrategy,
+    SimpleAbundanceChemenvStrategy,
+    SimplestChemenvStrategy,
+    TargetedPenaltiedAbundanceChemenvStrategy,
+)
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
     UNCLEAR_ENVIRONMENT_SYMBOL,
     AllCoordinationGeometries,
@@ -20,16 +24,13 @@ from pymatgen.analysis.chemenv.utils.chemenv_errors import NeighborsNotComputedC
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import rotateCoords
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Molecule
-from pymatgen.ext.matproj import MPRester
 from pymatgen.io.cif import CifParser
 
 try:
     from pymatgen.vis.structure_vtk import StructureVis
 
-    no_vis = False
 except ImportError:
-    StructureVis = None  # type: ignore
-    no_vis = True
+    StructureVis = None  # type: ignore[misc]
 
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -39,12 +40,11 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-strategies_class_lookup = {}
-strategies_class_lookup["SimplestChemenvStrategy"] = SimplestChemenvStrategy
-
-
-# strategies_class_lookup['SimpleAbundanceChemenvStrategy'] = SimpleAbundanceChemenvStrategy
-# strategies_class_lookup['TargettedPenaltiedAbundanceChemenvStrategy'] = TargettedPenaltiedAbundanceChemenvStrategy
+strategies_class_lookup: dict[str, AbstractChemenvStrategy] = {
+    "SimplestChemenvStrategy": SimplestChemenvStrategy,  # type: ignore
+    "SimpleAbundanceChemenvStrategy": SimpleAbundanceChemenvStrategy,  # type: ignore
+    "TargetedPenaltiedAbundanceChemenvStrategy": TargetedPenaltiedAbundanceChemenvStrategy,  # type: ignore
+}
 
 
 def draw_cg(
@@ -64,20 +64,22 @@ def draw_cg(
     """
     Draw cg.
 
-    :param vis:
-    :param site:
-    :param neighbors:
-    :param cg:
-    :param perm:
-    :param perfect2local_map:
-    :param show_perfect:
-    :param csm_info:
-    :param symmetry_measure_type:
-    :param perfect_radius:
-    :param show_distorted:
-    :param faces_color_override:
-    :return:
+    Args:
+        site:
+        vis:
+        neighbors:
+        cg:
+        perm:
+        perfect2local_map:
+        show_perfect:
+        csm_info:
+        symmetry_measure_type:
+        perfect_radius:
+        show_distorted:
+        faces_color_override:
     """
+    csm_suffix = ""
+    perf_radius = 0
     if show_perfect:
         if csm_info is None:
             raise ValueError("Not possible to show perfect environment without csm_info")
@@ -123,12 +125,12 @@ def draw_cg(
             else:
                 faces = cg.faces(neighbors)
                 edges = cg.edges(neighbors)
-            symbol = list(site.species)[0].symbol
+            symbol = next(iter(site.species)).symbol
             if faces_color_override:
-                mycolor = faces_color_override
+                color = faces_color_override
             else:
-                mycolor = [float(i) / 255 for i in vis.el_color_mapping[symbol]]
-            vis.add_faces(faces, mycolor, opacity=0.4)
+                color = [float(i) / 255 for i in vis.el_color_mapping[symbol]]
+            vis.add_faces(faces, color, opacity=0.4)
             vis.add_edges(edges)
         if show_perfect:
             perfect_geometry = AbstractGeometry.from_cg(cg)
@@ -152,29 +154,28 @@ def draw_cg(
                 )
 
 
-def visualize(cg, zoom=None, vis=None, myfactor=1.0, view_index=True, faces_color_override=None):
+def visualize(cg, zoom=None, vis=None, factor=1.0, view_index=True, faces_color_override=None):
     """
     Visualizing a coordination geometry
-    :param cg:
-    :param zoom:
-    :param vis:
-    :param myfactor:
-    :param view_index:
-    :param faces_color_override:
-    :return:
+    Args:
+        cg:
+        zoom:
+        vis:
+        factor:
+        view_index:
+        faces_color_override:
     """
-    if vis is None:
+    if vis is None and StructureVis is not None:
         vis = StructureVis(show_polyhedron=False, show_unit_cell=False)
-    myspecies = ["O"] * (cg.coordination_number + 1)
-    myspecies[0] = "Cu"
-    coords = [np.zeros(3, np.float_) + cg.central_site]
+    species = ["O"] * (cg.coordination_number + 1)
+    species[0] = "Cu"
+    coords = [np.zeros(3, float) + cg.central_site]
 
     for pp in cg.points:
         coords.append(np.array(pp) + cg.central_site)
-    coords = [cc * myfactor for cc in coords]
-    structure = Molecule(species=myspecies, coords=coords)
+    coords = [cc * factor for cc in coords]
+    structure = Molecule(species=species, coords=coords)
     vis.set_structure(structure=structure, reset_camera=True)
-    # neighbors_list = coords[1:]
     draw_cg(
         vis,
         site=structure[0],
@@ -194,8 +195,8 @@ def compute_environments(chemenv_configuration):
     """
     Compute the environments.
 
-    :param chemenv_configuration:
-    :return:
+    Args:
+        chemenv_configuration:
     """
     string_sources = {
         "cif": {"string": "a Cif file", "regexp": r".*\.cif$"},
@@ -205,13 +206,14 @@ def compute_environments(chemenv_configuration):
     questions["m"] = "mp"
     lgf = LocalGeometryFinder()
     lgf.setup_parameters()
-    allcg = AllCoordinationGeometries()
+    all_cg = AllCoordinationGeometries()
     strategy_class = strategies_class_lookup[chemenv_configuration.package_options["default_strategy"]["strategy"]]
     # TODO: Add the possibility to change the parameters and save them in the chemenv_configuration
     default_strategy = strategy_class()
     default_strategy.setup_options(chemenv_configuration.package_options["default_strategy"]["strategy_options"])
     max_dist_factor = chemenv_configuration.package_options["default_max_distance_factor"]
-    firsttime = True
+    first_time = True
+    test = None
     while True:
         if len(questions) > 1:
             found = False
@@ -219,6 +221,7 @@ def compute_environments(chemenv_configuration):
             for key_character, qq in questions.items():
                 print(f" - <{key_character}> for a structure from {string_sources[qq]['string']}")
             test = input(" ... ")
+            source_type = ""
             if test == "q":
                 break
             if test not in list(questions):
@@ -231,36 +234,45 @@ def compute_environments(chemenv_configuration):
                     continue
             else:
                 source_type = questions[test]
+
         else:
             found = False
-            source_type = list(questions.values())[0]
+            source_type = next(iter(questions.values()))
+
+        input_source = ""
         if found and len(questions) > 1:
             input_source = test
+
+        structure = None
         if source_type == "cif":
             if not found:
-                input_source = input("Enter path to cif file : ")
+                input_source = input("Enter path to CIF file : ")
             parser = CifParser(input_source)
-            structure = parser.get_structures()[0]
+            structure = parser.parse_structures(primitive=True)[0]
+
         elif source_type == "mp":
             if not found:
                 input_source = input('Enter materials project id (e.g. "mp-1902") : ')
-            a = MPRester()
-            structure = a.get_structure_by_material_id(input_source)
+            from pymatgen.ext.matproj import MPRester
+
+            with MPRester() as mpr:
+                structure = mpr.get_structure_by_material_id(input_source)
+
         lgf.setup_structure(structure)
-        print(f"Computing environments for {structure.composition.reduced_formula} ... ")
+        print(f"Computing environments for {structure.reduced_formula} ... ")
         se = lgf.compute_structure_environments(maximum_distance_factor=max_dist_factor)
         print("Computing environments finished")
         while True:
             test = input(
-                "See list of environments determined for each (unequivalent) site ? "
+                "See list of environments determined for each (inequivalent) site ? "
                 '("y" or "n", "d" with details, "g" to see the grid) : '
             )
             strategy = default_strategy
-            if test in ["y", "d", "g"]:
+            if test in {"y", "d", "g"}:
                 strategy.set_structure_environments(se)
-                for eqslist in se.equivalent_sites:
-                    site = eqslist[0]
-                    isite = se.structure.index(site)
+                for equiv_list in se.equivalent_sites:
+                    site = equiv_list[0]
+                    site_idx = se.structure.index(site)
                     try:
                         if strategy.uniquely_determines_coordination_environments:
                             ces = strategy.get_site_coordination_environments(site)
@@ -274,34 +286,34 @@ def compute_environments(chemenv_configuration):
                         continue
                     comp = site.species
                     # ce = strategy.get_site_coordination_environment(site)
+                    reduced_formula = comp.get_reduced_formula_and_factor()[0]
+                    the_cg = None
                     if strategy.uniquely_determines_coordination_environments:
                         ce = ces[0]
                         if ce is None:
                             continue
-                        thecg = allcg.get_geometry_from_mp_symbol(ce[0])
-                        mystring = (
-                            f"Environment for site #{isite} {comp.get_reduced_formula_and_factor()[0]}"
-                            f" ({comp}) : {thecg.name} ({ce[0]})\n"
+                        the_cg = all_cg.get_geometry_from_mp_symbol(ce[0])
+                        msg = (
+                            f"Environment for site #{site_idx} {reduced_formula}"
+                            f" ({comp}) : {the_cg.name} ({ce[0]})\n"
                         )
                     else:
-                        mystring = (
-                            f"Environments for site #{isite} {comp.get_reduced_formula_and_factor()[0]} ({comp}) : \n"
-                        )
+                        msg = f"Environments for site #{site_idx} {reduced_formula} ({comp}) : \n"
                         for ce in ces:
-                            cg = allcg.get_geometry_from_mp_symbol(ce[0])
+                            cg = all_cg.get_geometry_from_mp_symbol(ce[0])
                             csm = ce[1]["other_symmetry_measures"]["csm_wcs_ctwcc"]
-                            mystring += f" - {cg.name} ({cg.mp_symbol}): {ce[2]:.2%} (csm : {csm:2f})\n"
+                            msg += f" - {cg.name} ({cg.mp_symbol}): {ce[2]:.2%} (csm : {csm:2f})\n"
                     if (
                         test in ["d", "g"]
                         and strategy.uniquely_determines_coordination_environments
-                        and thecg.mp_symbol != UNCLEAR_ENVIRONMENT_SYMBOL
+                        and the_cg.mp_symbol != UNCLEAR_ENVIRONMENT_SYMBOL
                     ):
-                        mystring += "  <Continuous symmetry measures>  "
-                        mingeoms = se.ce_list[isite][thecg.coordination_number][0].minimum_geometries()
-                        for mingeom in mingeoms:
-                            csm = mingeom[1]["other_symmetry_measures"]["csm_wcs_ctwcc"]
-                            mystring += f"{mingeom[0]} : {csm:.2f}       "
-                    print(mystring)
+                        msg += "  <Continuous symmetry measures>  "
+                        min_geoms = se.ce_list[site_idx][the_cg.coordination_number][0].minimum_geometries()
+                        for min_geom in min_geoms:
+                            csm = min_geom[1]["other_symmetry_measures"]["csm_wcs_ctwcc"]
+                            msg += f"{min_geom[0]} : {csm:.2f}       "
+                    print(msg)
             if test == "g":
                 while True:
                     test = input(
@@ -311,17 +323,17 @@ def compute_environments(chemenv_configuration):
                     try:
                         indices = [int(x) for x in test.split()]
                         print(str(indices))
-                        for isite in indices:
-                            if isite < 0:
+                        for site_idx in indices:
+                            if site_idx < 0:
                                 raise IndexError
-                            se.plot_environments(isite)
+                            se.plot_environments(site_idx)
                         break
                     except ValueError:
                         print("This is not a valid site")
                     except IndexError:
                         print("This site is out of the site range")
 
-            if no_vis:
+            if StructureVis is None:
                 test = input('Go to next structure ? ("y" to do so)')
                 if test == "y":
                     break
@@ -329,7 +341,7 @@ def compute_environments(chemenv_configuration):
             test = input('View structure with environments ? ("y" for the unit cell or "m" for a supercell or "n") : ')
             if test in ["y", "m"]:
                 if test == "m":
-                    mydeltas = []
+                    deltas = []
                     while True:
                         try:
                             test = input("Enter multiplicity (e.g. 3 2 2) : ")
@@ -337,17 +349,20 @@ def compute_environments(chemenv_configuration):
                             for i0 in range(int(nns[0])):
                                 for i1 in range(int(nns[1])):
                                     for i2 in range(int(nns[2])):
-                                        mydeltas.append(np.array([1.0 * i0, 1.0 * i1, 1.0 * i2], np.float_))
+                                        deltas.append(np.array([1.0 * i0, 1.0 * i1, 1.0 * i2], float))
                             break
 
                         except (ValueError, IndexError):
                             print("Not a valid multiplicity")
                 else:
-                    mydeltas = [np.zeros(3, np.float_)]
-                if firsttime:
+                    deltas = [np.zeros(3, float)]
+                if first_time and StructureVis is not None:
                     vis = StructureVis(show_polyhedron=False, show_unit_cell=True)
                     vis.show_help = False
-                    firsttime = False
+                    first_time = False
+                else:
+                    vis = None  # TODO: following code logic seems buggy
+
                 vis.set_structure(se.structure)
                 strategy.set_structure_environments(se)
                 for site in se.structure:
@@ -359,10 +374,10 @@ def compute_environments(chemenv_configuration):
                         continue
                     ce = strategy.get_site_coordination_environment(site)
                     if ce is not None and ce[0] != UNCLEAR_ENVIRONMENT_SYMBOL:
-                        for mydelta in mydeltas:
+                        for delta in deltas:
                             psite = PeriodicSite(
                                 site.species,
-                                site.frac_coords + mydelta,
+                                site.frac_coords + delta,
                                 site.lattice,
                                 properties=site.properties,
                             )

@@ -1,5 +1,4 @@
-"""
-This module is used for analysis of materials with potential application as
+"""This module is used for analysis of materials with potential application as
 intercalation batteries.
 """
 
@@ -7,16 +6,21 @@ from __future__ import annotations
 
 import itertools
 from dataclasses import dataclass
-from typing import Iterable
+from typing import TYPE_CHECKING
 
+from monty.json import MontyDecoder
 from scipy.constants import N_A
 
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltagePair
-from pymatgen.core.composition import Composition
-from pymatgen.core.periodic_table import Element
+from pymatgen.core import Composition, Element
 from pymatgen.core.units import Charge, Time
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from typing_extensions import Self
 
 __author__ = "Anubhav Jain, Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -24,8 +28,7 @@ __copyright__ = "Copyright 2012, The Materials Project"
 
 @dataclass
 class InsertionElectrode(AbstractElectrode):
-    """
-    A set of topotactically related compounds, with different amounts of a
+    """A set of topotactically related compounds, with different amounts of a
     single element, e.g. TiO2 and LiTiO2, that can be used to define an
     insertion battery electrode.
     """
@@ -39,9 +42,8 @@ class InsertionElectrode(AbstractElectrode):
         entries: Iterable[ComputedEntry | ComputedStructureEntry],
         working_ion_entry: ComputedEntry | ComputedStructureEntry | PDEntry,
         strip_structures: bool = False,
-    ):
-        """
-        Create a new InsertionElectrode.
+    ) -> Self:
+        """Create a new InsertionElectrode.
 
         Args:
             entries: A list of ComputedEntries, ComputedStructureEntries, or
@@ -66,14 +68,14 @@ class InsertionElectrode(AbstractElectrode):
                 ents.append(ent)
             entries = ents
 
-        _working_ion = working_ion_entry.composition.elements[0]
+        _working_ion = working_ion_entry.elements[0]
         _working_ion_entry = working_ion_entry
 
         # Prepare to make phase diagram: determine elements and set their energy
         # to be very high
         elements = set()
         for entry in entries:
-            elements.update(entry.composition.elements)
+            elements.update(entry.elements)
 
         # Set an artificial high energy for each element for convex hull generation
         element_energy = max(entry.energy_per_atom for entry in entries) + 10
@@ -107,7 +109,7 @@ class InsertionElectrode(AbstractElectrode):
             for i in range(len(_stable_entries) - 1)
         )
         framework = _vpairs[0].framework
-        return cls(  # pylint: disable=E1123
+        return cls(
             voltage_pairs=_vpairs,
             working_ion_entry=_working_ion_entry,
             stable_entries=_stable_entries,
@@ -116,8 +118,7 @@ class InsertionElectrode(AbstractElectrode):
         )
 
     def get_stable_entries(self, charge_to_discharge=True):
-        """
-        Get the stable entries.
+        """Get the stable entries.
 
         Args:
             charge_to_discharge: order from most charge to most discharged
@@ -131,8 +132,7 @@ class InsertionElectrode(AbstractElectrode):
         return list_copy if charge_to_discharge else list_copy.reverse()
 
     def get_unstable_entries(self, charge_to_discharge=True):
-        """
-        Returns the unstable entries for the electrode.
+        """Get the unstable entries for the electrode.
 
         Args:
             charge_to_discharge: Order from most charge to most discharged
@@ -146,8 +146,7 @@ class InsertionElectrode(AbstractElectrode):
         return list_copy if charge_to_discharge else list_copy.reverse()
 
     def get_all_entries(self, charge_to_discharge=True):
-        """
-        Return all entries input for the electrode.
+        """Return all entries input for the electrode.
 
         Args:
             charge_to_discharge:
@@ -178,8 +177,7 @@ class InsertionElectrode(AbstractElectrode):
         return self.stable_entries[-1]
 
     def get_max_instability(self, min_voltage=None, max_voltage=None):
-        """
-        The maximum instability along a path for a specific voltage range.
+        """The maximum instability along a path for a specific voltage range.
 
         Args:
             min_voltage: The minimum allowable voltage.
@@ -198,8 +196,7 @@ class InsertionElectrode(AbstractElectrode):
         return max(data) if len(data) > 0 else None
 
     def get_min_instability(self, min_voltage=None, max_voltage=None):
-        """
-        The minimum instability along a path for a specific voltage range.
+        """The minimum instability along a path for a specific voltage range.
 
         Args:
             min_voltage: The minimum allowable voltage.
@@ -218,8 +215,7 @@ class InsertionElectrode(AbstractElectrode):
         return min(data) if len(data) > 0 else None
 
     def get_max_muO2(self, min_voltage=None, max_voltage=None):
-        """
-        Maximum critical oxygen chemical potential along path.
+        """Maximum critical oxygen chemical potential along path.
 
         Args:
             min_voltage: The minimum allowable voltage.
@@ -239,8 +235,7 @@ class InsertionElectrode(AbstractElectrode):
         return max(data) if len(data) > 0 else None
 
     def get_min_muO2(self, min_voltage=None, max_voltage=None):
-        """
-        Minimum critical oxygen chemical potential along path.
+        """Minimum critical oxygen chemical potential along path.
 
         Args:
             min_voltage: The minimum allowable voltage for a given step
@@ -261,8 +256,7 @@ class InsertionElectrode(AbstractElectrode):
         return min(data) if len(data) > 0 else None
 
     def get_sub_electrodes(self, adjacent_only=True, include_myself=True):
-        """
-        If this electrode contains multiple voltage steps, then it is possible
+        """If this electrode contains multiple voltage steps, then it is possible
         to use only a subset of the voltage steps to define other electrodes.
         For example, an LiTiO2 electrode might contain three subelectrodes:
         [LiTiO2 --> TiO2, LiTiO2 --> Li0.5TiO2, Li0.5TiO2 --> TiO2]
@@ -309,8 +303,7 @@ class InsertionElectrode(AbstractElectrode):
         return battery_list
 
     def get_summary_dict(self, print_subelectrodes=True) -> dict:
-        """
-        Generate a summary dict.
+        """Generate a summary dict.
         Populates the summary dict with the basic information from the parent method then populates more information.
         Since the parent method calls self.get_summary_dict(print_subelectrodes=True) for the subelectrodes.
         The current method will be called from within super().get_summary_dict.
@@ -322,12 +315,12 @@ class InsertionElectrode(AbstractElectrode):
         Returns:
             A summary of this electrode's properties in dict format.
         """
-        d = super().get_summary_dict(print_subelectrodes=print_subelectrodes)
+        dct = super().get_summary_dict(print_subelectrodes=print_subelectrodes)
 
         chg_comp = self.fully_charged_entry.composition
         dischg_comp = self.fully_discharged_entry.composition
 
-        d.update(
+        dct.update(
             {
                 "id_charge": self.fully_charged_entry.entry_id,
                 "formula_charge": chg_comp.reduced_formula,
@@ -341,50 +334,45 @@ class InsertionElectrode(AbstractElectrode):
             }
         )
         if all("decomposition_energy" in itr_ent.data for itr_ent in self.get_all_entries()):
-            d.update(
-                {
-                    "stability_charge": self.fully_charged_entry.data["decomposition_energy"],
-                    "stability_discharge": self.fully_discharged_entry.data["decomposition_energy"],
-                    "stability_data": {
-                        itr_ent.entry_id: itr_ent.data["decomposition_energy"] for itr_ent in self.get_all_entries()
-                    },
-                }
+            dct.update(
+                stability_charge=self.fully_charged_entry.data["decomposition_energy"],
+                stability_discharge=self.fully_discharged_entry.data["decomposition_energy"],
+                stability_data={
+                    itr_ent.entry_id: itr_ent.data["decomposition_energy"] for itr_ent in self.get_all_entries()
+                },
             )
 
         if all("muO2" in itr_ent.data for itr_ent in self.get_all_entries()):
-            d.update({"muO2_data": {itr_ent.entry_id: itr_ent.data["muO2"] for itr_ent in self.get_all_entries()}})
+            dct.update({"muO2_data": {itr_ent.entry_id: itr_ent.data["muO2"] for itr_ent in self.get_all_entries()}})
 
-        return d
+        return dct
 
     def __repr__(self):
-        output = []
-        chg_form = self.fully_charged_entry.composition.reduced_formula
-        dischg_form = self.fully_discharged_entry.composition.reduced_formula
-        output.append(f"InsertionElectrode with endpoints at {chg_form} and {dischg_form}")
-        output.append(f"Avg. volt. = {self.get_average_voltage()} V")
-        output.append(f"Grav. cap. = {self.get_capacity_grav()} mAh/g")
-        output.append(f"Vol. cap. = {self.get_capacity_vol()}")
-        return "\n".join(output)
+        chg_form = self.fully_charged_entry.reduced_formula
+        dischg_form = self.fully_discharged_entry.reduced_formula
+        return (
+            f"InsertionElectrode with endpoints at {chg_form} and {dischg_form}\n"
+            f"Avg. volt. = {self.get_average_voltage()} V\n"
+            f"Grav. cap. = {self.get_capacity_grav()} mAh/g\n"
+            f"Vol. cap. = {self.get_capacity_vol()}"
+        )
 
     @classmethod
-    def from_dict_legacy(cls, d):
+    def from_dict_legacy(cls, dct) -> Self:
         """
         Args:
-            d (dict): Dict representation.
+            dct (dict): Dict representation.
 
         Returns:
             InsertionElectrode
         """
-        from monty.json import MontyDecoder
-
-        dec = MontyDecoder()
-        return InsertionElectrode(  # pylint: disable=E1120
-            dec.process_decoded(d["entries"]),
-            dec.process_decoded(d["working_ion_entry"]),
+        return InsertionElectrode(
+            MontyDecoder().process_decoded(dct["entries"]),
+            MontyDecoder().process_decoded(dct["working_ion_entry"]),
         )
 
     def as_dict_legacy(self):
-        """Returns: MSONable dict."""
+        """Get MSONable dict."""
         return {
             "@module": type(self).__module__,
             "@class": type(self).__name__,
@@ -395,13 +383,13 @@ class InsertionElectrode(AbstractElectrode):
 
 @dataclass
 class InsertionVoltagePair(AbstractVoltagePair):
-    """Defines an Insertion Voltage Pair."""
+    """A voltage pair for an insertion battery, e.g. LiFePO4 -> FePO4."""
 
     entry_charge: ComputedEntry
     entry_discharge: ComputedEntry
 
     @classmethod
-    def from_entries(cls, entry1, entry2, working_ion_entry):
+    def from_entries(cls, entry1, entry2, working_ion_entry) -> Self:
         """
         Args:
             entry1: Entry corresponding to one of the entries in the voltage step.
@@ -410,14 +398,14 @@ class InsertionVoltagePair(AbstractVoltagePair):
                 the element that carries charge across the battery, e.g. Li.
         """
         # initialize some internal variables
-        working_element = working_ion_entry.composition.elements[0]
+        working_element = working_ion_entry.elements[0]
 
         entry_charge = entry1
         entry_discharge = entry2
         if entry_charge.composition.get_atomic_fraction(working_element) > entry2.composition.get_atomic_fraction(
             working_element
         ):
-            (entry_charge, entry_discharge) = (entry_discharge, entry_charge)
+            entry_charge, entry_discharge = entry_discharge, entry_charge
 
         comp_charge = entry_charge.composition
         comp_discharge = entry_discharge.composition
@@ -453,10 +441,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
         valence_list = Element(ion_sym).oxidation_states
         working_ion_valence = abs(max(valence_list))
 
-        (
-            framework,
-            norm_charge,
-        ) = frame_charge_comp.get_reduced_composition_and_factor()
+        framework, norm_charge = frame_charge_comp.get_reduced_composition_and_factor()
         norm_discharge = frame_discharge_comp.get_reduced_composition_and_factor()[1]
 
         # Initialize normalized properties
@@ -489,7 +474,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
         _frac_charge = comp_charge.get_atomic_fraction(working_element)
         _frac_discharge = comp_discharge.get_atomic_fraction(working_element)
 
-        vpair = InsertionVoltagePair(  # pylint: disable=E1123
+        vpair = InsertionVoltagePair(
             voltage=_voltage,
             mAh=_mAh,
             mass_charge=_mass_charge,
@@ -515,7 +500,7 @@ class InsertionVoltagePair(AbstractVoltagePair):
 
     def __repr__(self):
         output = [
-            f"Insertion voltage pair with working ion {self.working_ion_entry.composition.reduced_formula}",
+            f"Insertion voltage pair with working ion {self.working_ion_entry.reduced_formula}",
             f"V = {self.voltage}, mAh = {self.mAh}",
             f"mass_charge = {self.mass_charge}, mass_discharge = {self.mass_discharge}",
             f"vol_charge = {self.vol_charge}, vol_discharge = {self.vol_discharge}",

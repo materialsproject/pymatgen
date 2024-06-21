@@ -2,15 +2,19 @@
 
 from __future__ import annotations
 
-from collections import namedtuple
+from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
 
-from pymatgen.core.periodic_table import Species
-from pymatgen.core.structure import Site
+from pymatgen.core import Site, Species
 from pymatgen.core.tensors import SquareTensor
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.due import Doi, due
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from typing_extensions import Self
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"
@@ -33,11 +37,24 @@ class ChemicalShielding(SquareTensor):
     Authors: Shyam Dwaraknath, Xiaohui Qu
     """
 
-    HaeberlenNotation = namedtuple("HaeberlenNotation", "sigma_iso, delta_sigma_iso, zeta, eta")
-    MehringNotation = namedtuple("MehringNotation", "sigma_iso, sigma_11, sigma_22, sigma_33")
-    MarylandNotation = namedtuple("MarylandNotation", "sigma_iso, omega, kappa")
+    class HaeberlenNotation(NamedTuple):
+        sigma_iso: Any
+        delta_sigma_iso: Any
+        zeta: Any
+        eta: Any
 
-    def __new__(cls, cs_matrix, vscale=None):
+    class MehringNotation(NamedTuple):
+        sigma_iso: Any
+        sigma_11: Any
+        sigma_22: Any
+        sigma_33: Any
+
+    class MarylandNotation(NamedTuple):
+        sigma_iso: Any
+        omega: Any
+        kappa: Any
+
+    def __new__(cls, cs_matrix, vscale=None) -> Self | None:  # type: ignore[misc]
         """
         Create a Chemical Shielding tensor.
         Note that the constructor uses __new__
@@ -50,7 +67,7 @@ class ChemicalShielding(SquareTensor):
                 or a 1x3 array of the primary sigma values corresponding
                 to the principal axis system
             vscale (6x1 array-like): 6x1 array-like scaling the
-                Voigt-notation vector with the tensor entries
+                Voigt notation vector with the tensor entries
         """
         t_array = np.array(cs_matrix)
 
@@ -62,15 +79,14 @@ class ChemicalShielding(SquareTensor):
 
     @property
     def principal_axis_system(self):
-        """
-        Returns a chemical shielding tensor aligned to the principle axis system
+        """A chemical shielding tensor aligned to the principle axis system
         so that only the 3 diagonal components are non-zero.
         """
         return ChemicalShielding(np.diag(np.sort(np.linalg.eigvals(self.symmetrized))))
 
     @property
     def haeberlen_values(self):
-        """Returns: the Chemical shielding tensor in Haeberlen Notation."""
+        """The Chemical shielding tensor in Haeberlen Notation."""
         pas = self.principal_axis_system
         sigma_iso = pas.trace() / 3
         sigmas = np.diag(pas)
@@ -83,7 +99,7 @@ class ChemicalShielding(SquareTensor):
 
     @property
     def mehring_values(self):
-        """Returns: the Chemical shielding tensor in Mehring Notation."""
+        """The Chemical shielding tensor in Mehring Notation."""
         pas = self.principal_axis_system
         sigma_iso = pas.trace() / 3
         sigma_11, sigma_22, sigma_33 = np.diag(pas)
@@ -91,7 +107,7 @@ class ChemicalShielding(SquareTensor):
 
     @property
     def maryland_values(self):
-        """Returns: the Chemical shielding tensor in Maryland Notation."""
+        """The Chemical shielding tensor in Maryland Notation."""
         pas = self.principal_axis_system
         sigma_iso = pas.trace() / 3
         omega = np.diag(pas)[2] - np.diag(pas)[0]
@@ -101,7 +117,7 @@ class ChemicalShielding(SquareTensor):
         return self.MarylandNotation(sigma_iso, omega, kappa)
 
     @classmethod
-    def from_maryland_notation(cls, sigma_iso, omega, kappa):
+    def from_maryland_notation(cls, sigma_iso, omega, kappa) -> Self:
         """
         Initialize from Maryland notation.
 
@@ -127,7 +143,7 @@ class ElectricFieldGradient(SquareTensor):
     Authors: Shyam Dwaraknath, Xiaohui Qu
     """
 
-    def __new__(cls, efg_matrix, vscale=None):
+    def __new__(cls, efg_matrix, vscale=None) -> Self | None:  # type: ignore[misc]
         """
         Create a Chemical Shielding tensor.
         Note that the constructor uses __new__
@@ -140,7 +156,7 @@ class ElectricFieldGradient(SquareTensor):
                 or a 1x3 array of the primary values corresponding
                 to the principal axis system
             vscale (6x1 array-like): 6x1 array-like scaling the
-                voigt-notation vector with the tensor entries
+                Voigt notation vector with the tensor entries
         """
         t_array = np.array(efg_matrix)
 
@@ -152,43 +168,39 @@ class ElectricFieldGradient(SquareTensor):
 
     @property
     def principal_axis_system(self):
-        """
-        Returns a electric field gradient tensor aligned to the principle axis system so that only the 3 diagonal
-        components are non-zero.
+        """An electric field gradient tensor aligned to the principle axis system so that
+        only the 3 diagonal components are non-zero.
         """
         return ElectricFieldGradient(np.diag(np.sort(np.linalg.eigvals(self))))
 
     @property
     def V_xx(self):
-        """Returns: First diagonal element."""
+        """First diagonal element."""
         diags = np.diag(self.principal_axis_system)
-        return sorted(diags, key=np.abs)[0]
+        return min(diags, key=np.abs)
 
     @property
     def V_yy(self):
-        """Returns: Second diagonal element."""
+        """Second diagonal element."""
         diags = np.diag(self.principal_axis_system)
         return sorted(diags, key=np.abs)[1]
 
     @property
     def V_zz(self):
-        """Returns: Third diagonal element."""
+        """Third diagonal element."""
         diags = np.diag(self.principal_axis_system)
         return sorted(diags, key=np.abs)[2]
 
     @property
     def asymmetry(self):
-        """
-        Asymmetry of the electric field tensor defined as:
-            (V_yy - V_xx)/V_zz.
-        """
+        """Asymmetry of the electric field tensor defined as (V_yy - V_xx)/V_zz."""
         diags = np.diag(self.principal_axis_system)
         V = sorted(diags, key=np.abs)
         return np.abs((V[1] - V[0]) / V[2])
 
     def coupling_constant(self, specie):
-        """
-        Computes the coupling constant C_q as defined in:
+        """Compute the coupling constant C_q as defined in:
+
             Wasylishen R E, Ashbrook S E, Wimperis S. NMR of quadrupolar nuclei
             in solid materials[M]. John Wiley & Sons, 2012. (Chapter 3.2).
 
@@ -203,7 +215,7 @@ class ElectricFieldGradient(SquareTensor):
                     Can take a isotope or element string, Species object,
                     or Site object
 
-        Return:
+        Returns:
             the coupling constant as a FloatWithUnit in MHz
         """
         planks_constant = FloatWithUnit(6.62607004e-34, "m^2 kg s^-1")
@@ -216,16 +228,16 @@ class ElectricFieldGradient(SquareTensor):
             if len(specie.split("-")) > 1:
                 isotope = str(specie)
                 specie = Species(specie.split("-")[0])
-                Q = specie.get_nmr_quadrupole_moment(isotope)
+                quad_pol_mom = specie.get_nmr_quadrupole_moment(isotope)
             else:
                 specie = Species(specie)
-                Q = specie.get_nmr_quadrupole_moment()
+                quad_pol_mom = specie.get_nmr_quadrupole_moment()
         elif isinstance(specie, Site):
             specie = specie.specie
-            Q = specie.get_nmr_quadrupole_moment()
+            quad_pol_mom = specie.get_nmr_quadrupole_moment()
         elif isinstance(specie, Species):
-            Q = specie.get_nmr_quadrupole_moment()
+            quad_pol_mom = specie.get_nmr_quadrupole_moment()
         else:
             raise ValueError("Invalid species provided for quadrupolar coupling constant calculations")
 
-        return (e * Q * Vzz / planks_constant).to("MHz")
+        return (e * quad_pol_mom * Vzz / planks_constant).to("MHz")

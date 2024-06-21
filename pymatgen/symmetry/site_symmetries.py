@@ -1,4 +1,4 @@
-"""Provides analysis of site symmetries."""
+"""Analysis of site symmetries."""
 
 from __future__ import annotations
 
@@ -14,15 +14,14 @@ if TYPE_CHECKING:
 
 
 def get_site_symmetries(struct: Structure, precision: float = 0.1) -> list[list[SymmOp]]:
-    """
-    Get all the point group operations centered on each atomic site
+    """Get all the point group operations centered on each atomic site
     in the form [[point operations of site index 1]...[[point operations of site index N]]].
 
     Args:
         struct: Pymatgen structure
         precision (float): tolerance to find symmetry operations
 
-    Return:
+    Returns:
         list of lists of point operations for each atomic site
     """
     point_ops: list[list[SymmOp]] = []
@@ -34,7 +33,7 @@ def get_site_symmetries(struct: Structure, precision: float = 0.1) -> list[list[
         # Place the origin of the cell at each atomic site
         point_ops.append([])
 
-        for idx2, site2 in enumerate(struct):  # pylint: disable=C0200
+        for idx2, site2 in enumerate(struct):
             temp_struct.replace(
                 idx2,
                 site2.specie,
@@ -48,8 +47,7 @@ def get_site_symmetries(struct: Structure, precision: float = 0.1) -> list[list[
 
 
 def get_shared_symmetry_operations(struct: Structure, pointops: list[list[SymmOp]], tol: float = 0.1):
-    """
-    Get all the point group operations shared by a pair of atomic sites
+    """Get all the point group operations shared by a pair of atomic sites
     in the form [[point operations of site index 1],[],...,[]].
 
     Args:
@@ -57,13 +55,13 @@ def get_shared_symmetry_operations(struct: Structure, pointops: list[list[SymmOp
         pointops: list of point group operations from get_site_symmetries method
         tol (float): tolerance to find symmetry operations
 
-    Return:
+    Returns:
         list of lists of shared point operations for each pair of atomic sites
     """
-    num_sites = len(struct)
-    shared_ops = np.zeros((num_sites, num_sites), dtype=object)
-    for site1 in range(num_sites):
-        for site2 in range(num_sites):
+    n_sites = len(struct)
+    shared_ops = np.zeros((n_sites, n_sites), dtype=object)
+    for site1 in range(n_sites):
+        for site2 in range(n_sites):
             shared_ops[site1][site2] = []
             for point_op1 in pointops[site1]:
                 for point_op2 in pointops[site2]:
