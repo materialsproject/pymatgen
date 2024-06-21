@@ -1489,12 +1489,12 @@ class Kpoints(MSONable):
         return self.from_dict(self.as_dict())
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> Self:
+    def from_file(cls, filename: PathLike) -> Self:
         """
         Reads a Kpoints object from a KPOINTS file.
 
         Args:
-            filename (str): filename to read from.
+            filename (PathLike): filename to read from.
 
         Returns:
             Kpoints object

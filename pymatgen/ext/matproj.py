@@ -253,7 +253,7 @@ class _MPResterBasic:
         response = self.request(f"materials/summary/{material_id}/?_fields={prop}")
         structures = response[0][prop]
         if conventional_unit_cell:
-            return [SpacegroupAnalyzer(s).get_conventional_standard_structure() for s in structures]  # type: ignore
+            return [SpacegroupAnalyzer(s).get_conventional_standard_structure() for s in structures]
         return structures
 
     def get_entries(

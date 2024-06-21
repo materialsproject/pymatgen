@@ -93,7 +93,7 @@ class AdfKey(MSONable):
         if len(self.subkeys) > 0:
             for k in subkeys:
                 if not isinstance(k, AdfKey):
-                    raise ValueError("Not all subkeys are ``AdfKey`` objects!")
+                    raise TypeError("Not all subkeys are ``AdfKey`` objects!")
         self._sized_op = None
         if len(self.options) > 0:
             self._sized_op = isinstance(self.options[0], (list, tuple))
@@ -168,7 +168,7 @@ class AdfKey(MSONable):
         elif isinstance(subkey, AdfKey):
             key = subkey.key
         else:
-            raise ValueError("The subkey should be an AdfKey or a string!")
+            raise TypeError("The subkey should be an AdfKey or a string!")
         return len(self.subkeys) > 0 and key in (k.key for k in self.subkeys)
 
     def add_subkey(self, subkey):
@@ -370,13 +370,13 @@ class AdfTask(MSONable):
         ADF does not support calculating force/gradient.
     """
 
-    operations: ClassVar[dict[str, str]] = dict(
-        energy="Evaluate the single point energy.",
-        optimize="Minimize the energy by varying the molecular structure.",
-        frequencies="Compute second derivatives and print out an analysis of molecular vibrations.",
-        freq="Same as frequencies.",
-        numerical_frequencies="Compute molecular frequencies using numerical method.",
-    )
+    operations: ClassVar[dict[str, str]] = {
+        "energy": "Evaluate the single point energy.",
+        "optimize": "Minimize the energy by varying the molecular structure.",
+        "frequencies": "Compute second derivatives and print out an analysis of molecular vibrations.",
+        "freq": "Same as frequencies.",
+        "numerical_frequencies": "Compute molecular frequencies using numerical method.",
+    }
 
     def __init__(
         self,
@@ -474,7 +474,7 @@ class AdfTask(MSONable):
         out += "\n"
         for block_key in self.other_directives:
             if not isinstance(block_key, AdfKey):
-                raise ValueError(f"{block_key} is not an AdfKey!")
+                raise TypeError(f"{block_key} is not an AdfKey!")
             out += str(block_key) + "\n"
         return out
 
@@ -663,19 +663,19 @@ class AdfOutput:
             for line in file:
                 if match := error_patt.search(line):
                     self.is_failed = True
-                    self.error = match.group(1)
+                    self.error = match[1]
                     break
 
                 if self.run_type is None:
                     if match := run_type_patt.search(line):
-                        if match.group(1) == "FREQUENCIES":
+                        if match[1] == "FREQUENCIES":
                             self.freq_type = "Numerical"
                             self.run_type = "NumericalFreq"
-                        elif match.group(1) == "GEOMETRY OPTIMIZATION":
+                        elif match[1] == "GEOMETRY OPTIMIZATION":
                             self.run_type = "GeometryOptimization"
-                        elif match.group(1) == "CREATE":
+                        elif match[1] == "CREATE":
                             self.run_type = None
-                        elif match.group(1) == "SINGLE POINT":
+                        elif match[1] == "SINGLE POINT":
                             self.run_type = "SinglePoint"
                         else:
                             raise AdfOutputError("Undefined Runtype!")
@@ -684,12 +684,12 @@ class AdfOutput:
                     if match := coord_patt.search(line):
                         sites.append([match.groups()[0], list(map(float, match.groups()[2:]))])
                     elif match := final_energy_patt.search(line):
-                        self.final_energy = float(match.group(1))
+                        self.final_energy = float(match[1])
                         self.final_structure = self._sites_to_mol(sites)
 
                 elif self.run_type == "GeometryOptimization":
                     if match := cycle_patt.search(line):
-                        cycle = int(match.group(1))
+                        cycle = int(match[1])
                         if cycle <= 0:
                             raise AdfOutputError(f"Wrong {cycle=}")
                         if cycle > last_cycle:
@@ -701,14 +701,14 @@ class AdfOutput:
                         if match := coord_patt.search(line):
                             sites.append([match.groups()[1], list(map(float, match.groups()[2:]))])
                         elif match := energy_patt.search(line):
-                            self.energies.append(float(match.group(1)))
+                            self.energies.append(float(match[1]))
                             mol = self._sites_to_mol(sites)
                             self.structures.append(mol)
                             parse_cycle = False
                             sites = []
                     elif parse_final:
                         if match := final_energy_patt.search(line):
-                            self.final_energy = float(match.group(1))
+                            self.final_energy = float(match[1])
 
                 elif self.run_type == "NumericalFreq":
                     break
@@ -759,7 +759,7 @@ class AdfOutput:
                         if match := coord_on_patt.search(line):
                             parse_coord = True
                     elif match := coord_patt.search(line):
-                        sites.append([match.group(2), list(map(float, match.groups()[2:5]))])
+                        sites.append([match[2], list(map(float, match.groups()[2:5]))])
                         n_strike += 1
                     elif n_strike > 0:
                         find_structure = False
@@ -789,12 +789,12 @@ class AdfOutput:
                             self.normal_modes.append([])
 
                 elif parse_mode and (match := mode_patt.search(line)):
-                    v = list(chunks(map(float, match.group(3).split()), 3))
+                    v = list(chunks(map(float, match[3].split()), 3))
                     if len(v) != n_next:
                         raise AdfOutputError("Odd Error!")
                     for i, k in enumerate(range(-n_next, 0)):
                         self.normal_modes[k].extend(v[i])
-                    if int(match.group(1)) == n_atoms:
+                    if int(match[1]) == n_atoms:
                         parse_freq = True
                         parse_mode = False
         if isinstance(self.final_structure, list):

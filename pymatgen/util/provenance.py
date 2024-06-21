@@ -214,7 +214,7 @@ class StructureNL:
 
         # check that references are valid BibTeX
         if not isinstance(references, str):
-            raise ValueError("Invalid format for SNL reference! Should be empty string or BibTeX string.")
+            raise TypeError("Invalid format for SNL reference! Should be empty string or BibTeX string.")
         if references and not is_valid_bibtex(references):
             raise ValueError("Invalid format for SNL reference! Should be BibTeX string.")
         if len(references) > MAX_BIBTEX_CHARS:

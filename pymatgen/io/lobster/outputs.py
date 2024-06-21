@@ -35,6 +35,7 @@ if TYPE_CHECKING:
     from typing import Any
 
     from pymatgen.core.structure import IStructure
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Janine George, Marco Esters"
 __copyright__ = "Copyright 2017, The Materials Project"
@@ -80,7 +81,7 @@ class Cohpcar:
         are_coops: bool = False,
         are_cobis: bool = False,
         are_multi_center_cobis: bool = False,
-        filename: str | None = None,
+        filename: PathLike | None = None,
     ) -> None:
         """
         Args:
@@ -343,7 +344,7 @@ class Icohplist(MSONable):
         self,
         are_coops: bool = False,
         are_cobis: bool = False,
-        filename: str | None = None,
+        filename: PathLike | None = None,
         is_spin_polarized: bool = False,
         orbitalwise: bool = False,
         icohpcollection=None,
@@ -360,9 +361,6 @@ class Icohplist(MSONable):
             icohpcollection: IcohpCollection Object
 
         """
-        # to avoid circular dependencies
-        from pymatgen.electronic_structure.cohp import IcohpCollection
-
         self._filename = filename
         self.is_spin_polarized = is_spin_polarized
         self.orbitalwise = orbitalwise
@@ -492,6 +490,9 @@ class Icohplist(MSONable):
                     else:
                         list_orb_icohp[int(label) - 1][orb_label] = {"icohp": icohp, "orbitals": orbitals}
 
+            # Avoid circular import
+            from pymatgen.electronic_structure.cohp import IcohpCollection
+
             self._icohpcollection = IcohpCollection(
                 are_coops=are_coops,
                 are_cobis=are_cobis,
@@ -537,15 +538,20 @@ class NciCobiList:
             "interaction_type": type of the multi-center interaction
     """
 
-    def __init__(self, filename: str | None = "NcICOBILIST.lobster"):  # LOBSTER < 4.1.0: no COBI/ICOBI/NcICOBI
+    def __init__(
+        self,
+        filename: PathLike | None = "NcICOBILIST.lobster",
+    ) -> None:
         """
+        LOBSTER < 4.1.0: no COBI/ICOBI/NcICOBI
+
         Args:
             filename: Name of the NcICOBILIST file.
         """
 
         # LOBSTER list files have an extra trailing blank line
         # and we don't need the header.
-        with zopen(filename, mode="rt") as file:  # type:ignore
+        with zopen(filename, mode="rt") as file:
             data = file.read().split("\n")[1:-1]
         if len(data) == 0:
             raise RuntimeError("NcICOBILIST file contains no data.")
@@ -649,13 +655,13 @@ class Doscar:
 
     def __init__(
         self,
-        doscar: str = "DOSCAR.lobster",
-        structure_file: str | None = "POSCAR",
+        doscar: PathLike = "DOSCAR.lobster",
+        structure_file: PathLike | None = "POSCAR",
         structure: IStructure | Structure | None = None,
     ):
         """
         Args:
-            doscar: DOSCAR filename, typically "DOSCAR.lobster"
+            doscar: DOSCAR file, typically "DOSCAR.lobster"
             structure_file: for vasp, this is typically "POSCAR"
             structure: instead of a structure file, the structure can be given
                 directly. structure_file will be preferred.
@@ -789,7 +795,7 @@ class Charge(MSONable):
 
     def __init__(
         self,
-        filename: str = "CHARGE.lobster",
+        filename: PathLike = "CHARGE.lobster",
         num_atoms: int | None = None,
         atomlist: list[str] | None = None,
         types: list[str] | None = None,
@@ -798,7 +804,7 @@ class Charge(MSONable):
     ):
         """
         Args:
-            filename: filename for the CHARGE file, typically "CHARGE.lobster".
+            filename: The CHARGE file, typically "CHARGE.lobster".
             num_atoms: number of atoms in the structure
             atomlist: list of atoms in the structure
             types: list of unique species in the structure
@@ -816,7 +822,7 @@ class Charge(MSONable):
             with zopen(filename, mode="rt") as file:
                 data = file.read().split("\n")[3:-3]
             if len(data) == 0:
-                raise RuntimeError("CHARGES file contains no data.")
+                raise RuntimeError("CHARGE file contains no data.")
 
             self.num_atoms = len(data)
             for atom in range(self.num_atoms):
@@ -826,7 +832,7 @@ class Charge(MSONable):
                 self.mulliken += [float(line[2])]
                 self.loewdin += [float(line[3])]
 
-    def get_structure_with_charges(self, structure_filename):
+    def get_structure_with_charges(self, structure_filename: PathLike) -> Structure:
         """Get a Structure with Mulliken and Loewdin charges as site properties
 
         Args:
@@ -920,10 +926,10 @@ class Lobsterout(MSONable):
 
     # TODO: add tests for skipping COBI and madelung
     # TODO: add tests for including COBI and madelung
-    def __init__(self, filename: str | None, **kwargs) -> None:
+    def __init__(self, filename: PathLike | None, **kwargs) -> None:
         """
         Args:
-            filename: filename of lobsterout.
+            filename: The lobsterout file.
             **kwargs: dict to initialize Lobsterout instance
         """
         self.filename = filename
@@ -1007,46 +1013,38 @@ class Lobsterout(MSONable):
 
     def get_doc(self) -> dict[str, Any]:
         """Get the LobsterDict with all the information stored in lobsterout."""
-        lobster_dict: dict[str, Any] = {}
-        # check if Lobster starts from a projection
-        lobster_dict["restart_from_projection"] = self.is_restart_from_projection
-        lobster_dict["lobster_version"] = self.lobster_version
-        lobster_dict["threads"] = self.number_of_threads
-        lobster_dict["dft_program"] = self.dft_program
+        return {
+            # Check if LOBSTER starts from a projection
+            "restart_from_projection": self.is_restart_from_projection,
+            "lobster_version": self.lobster_version,
+            "threads": self.number_of_threads,
+            "dft_program": self.dft_program,
+            "charge_spilling": self.charge_spilling,
+            "total_spilling": self.total_spilling,
+            "elements": self.elements,
+            "basis_type": self.basis_type,
+            "basis_functions": self.basis_functions,
+            "timing": self.timing,
+            "warning_lines": self.warning_lines,
+            "info_orthonormalization": self.info_orthonormalization,
+            "info_lines": self.info_lines,
+            "has_doscar": self.has_doscar,
+            "has_doscar_lso": self.has_doscar_lso,
+            "has_cohpcar": self.has_cohpcar,
+            "has_coopcar": self.has_coopcar,
+            "has_cobicar": self.has_cobicar,
+            "has_charge": self.has_charge,
+            "has_madelung": self.has_madelung,
+            "has_projection": self.has_projection,
+            "has_bandoverlaps": self.has_bandoverlaps,
+            "has_fatbands": self.has_fatbands,
+            "has_grosspopulation": self.has_grosspopulation,
+            "has_density_of_energies": self.has_density_of_energies,
+        }
 
-        lobster_dict["charge_spilling"] = self.charge_spilling
-        lobster_dict["total_spilling"] = self.total_spilling
-
-        lobster_dict["elements"] = self.elements
-        lobster_dict["basis_type"] = self.basis_type
-        lobster_dict["basis_functions"] = self.basis_functions
-
-        lobster_dict["timing"] = self.timing
-
-        lobster_dict["warning_lines"] = self.warning_lines
-
-        lobster_dict["info_orthonormalization"] = self.info_orthonormalization
-
-        lobster_dict["info_lines"] = self.info_lines
-
-        lobster_dict["has_doscar"] = self.has_doscar
-        lobster_dict["has_doscar_lso"] = self.has_doscar_lso
-        lobster_dict["has_cohpcar"] = self.has_cohpcar
-        lobster_dict["has_coopcar"] = self.has_coopcar
-        lobster_dict["has_cobicar"] = self.has_cobicar
-        lobster_dict["has_charge"] = self.has_charge
-        lobster_dict["has_madelung"] = self.has_madelung
-        lobster_dict["has_projection"] = self.has_projection
-        lobster_dict["has_bandoverlaps"] = self.has_bandoverlaps
-        lobster_dict["has_fatbands"] = self.has_fatbands
-        lobster_dict["has_grosspopulation"] = self.has_grosspopulation
-        lobster_dict["has_density_of_energies"] = self.has_density_of_energies
-
-        return lobster_dict
-
-    def as_dict(self):
+    def as_dict(self) -> dict:
         """MSONable dict"""
-        dct = vars(self)
+        dct = dict(vars(self))
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
 
@@ -1137,7 +1135,7 @@ class Lobsterout(MSONable):
 
     @staticmethod
     def _get_timing(data):
-        # will give back wall, user and sys time
+        # Will give back wall, user and sys time
         begin = False
         user_time, wall_time, sys_time = [], [], []
 
@@ -1212,9 +1210,9 @@ class Fatband:
 
     def __init__(
         self,
-        filenames: str | list = ".",
-        kpoints_file: str = "KPOINTS",
-        vasprun_file: str | None = "vasprun.xml",
+        filenames: PathLike | list = ".",
+        kpoints_file: PathLike = "KPOINTS",
+        vasprun_file: PathLike | None = "vasprun.xml",
         structure: Structure | IStructure | None = None,
         efermi: float | None = None,
     ):
@@ -1222,8 +1220,8 @@ class Fatband:
         Args:
             filenames (list or string): can be a list of file names or a path to a folder from which all
                 "FATBAND_*" files will be read
-            kpoints_file (str): KPOINTS file for bandstructure calculation, typically "KPOINTS".
-            vasprun_file (str): Corresponding vasprun file.
+            kpoints_file (PathLike): KPOINTS file for bandstructure calculation, typically "KPOINTS".
+            vasprun_file (PathLike): Corresponding vasprun file.
                 Instead, the Fermi energy from the DFT run can be provided. Then,
                 this value should be set to None.
             structure (Structure): Structure object.
@@ -1406,13 +1404,13 @@ class Fatband:
 
         self.label_dict = label_dict
 
-    def get_bandstructure(self):
+    def get_bandstructure(self) -> LobsterBandStructureSymmLine:
         """Get a LobsterBandStructureSymmLine object which can be plotted with a normal BSPlotter."""
         return LobsterBandStructureSymmLine(
             kpoints=self.kpoints_array,
             eigenvals=self.eigenvals,
             lattice=self.lattice,
-            efermi=self.efermi,  # type: ignore
+            efermi=self.efermi,
             labels_dict=self.label_dict,
             structure=self.structure,
             projections=self.p_eigenvals,
@@ -2011,9 +2009,9 @@ def get_orb_from_str(orbs):
     orb_label = ""
     for iorb, orbital in enumerate(orbitals):
         if iorb == 0:
-            orb_label += f"{orbital[0]}{orbital[1].name}"  # type: ignore
+            orb_label += f"{orbital[0]}{orbital[1].name}"
         else:
-            orb_label += f"-{orbital[0]}{orbital[1].name}"  # type: ignore
+            orb_label += f"-{orbital[0]}{orbital[1].name}"
 
     return orb_label, orbitals
 

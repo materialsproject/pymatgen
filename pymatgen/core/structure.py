@@ -2952,7 +2952,7 @@ class IStructure(SiteCollection, MSONable):
             from pymatgen.ext.matproj import MPRester
 
             mpr = MPRester(**kwargs)
-            return mpr.get_structure_by_material_id(id_)  # type: ignore
+            return mpr.get_structure_by_material_id(id_)  # type: ignore[attr-defined]
         if source == "COD":
             from pymatgen.ext.cod import COD
 
@@ -3961,7 +3961,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             structure[(0, 2, 3)] = "Fe"
             Replaces sites 0, 2 and 3 with Fe.
 
-            structure[0::2] = "Fe"
+            structure[::2] = "Fe"
             Replaces all even index sites with Fe.
 
             structure["Mn"] = "Fe"

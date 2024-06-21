@@ -220,7 +220,7 @@ def _handle_disorder(structure: Structure, on_disorder: on_disorder_options):
         # As a workaround, we create a new structure with majority species on each site.
         structure = structure.copy()  # make a copy so we don't mutate the original structure
         for idx, site in enumerate(structure):
-            max_specie = max(site.species, key=site.species.get)  # type: ignore
+            max_specie = max(site.species, key=site.species.get)
             max_val = site.species[max_specie]
             if max_val <= 0.5:
                 if on_disorder == "take_majority_strict":
@@ -621,7 +621,7 @@ class NearNeighbors:
             structure, self, weights=weights, edge_properties=edge_properties
         )
 
-        # sets the attributes
+        # Set the attributes
         struct_graph.set_node_attributes()
         return struct_graph
 
@@ -655,7 +655,7 @@ class NearNeighbors:
                 params.append(tmp)
             lsops = LocalStructOrderParams(types, parameters=params)
             sites = [structure[n], *self.get_nn(structure, n)]
-            lostop_vals = lsops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))  # type: ignore
+            lostop_vals = lsops.get_order_parameters(sites, 0, indices_neighs=list(range(1, cn + 1)))  # type: ignore[call-overload, arg-type]
             dct = {}
             for idx, lsop in enumerate(lostop_vals):
                 dct[names[idx]] = lsop
@@ -769,7 +769,7 @@ class VoronoiNN(NearNeighbors):
                 if self.cutoff >= max_cutoff:
                     if exc.args and "vertex" in exc.args[0]:
                         # pass through the error raised by _extract_cell_info
-                        raise exc
+                        raise
                     raise RuntimeError("Error in Voronoi neighbor finding; max cutoff exceeded")
                 self.cutoff = min(self.cutoff * 2, max_cutoff + 0.001)
         return cell_info
@@ -817,14 +817,14 @@ class VoronoiNN(NearNeighbors):
             indices.extend([(x[2],) + x[3] for x in neighs])
 
         # Get the non-duplicates (using the site indices for numerical stability)
-        indices = np.array(indices, dtype=int)  # type: ignore
+        indices = np.array(indices, dtype=int)
         indices, uniq_inds = np.unique(indices, return_index=True, axis=0)  # type: ignore[assignment]
         sites = [sites[idx] for idx in uniq_inds]
 
         # Sort array such that atoms in the root image are first
         # Exploit the fact that the array is sorted by the unique operation such that
         # the images associated with atom 0 are first, followed by atom 1, etc.
-        (root_images,) = np.nonzero(np.abs(indices[:, 1:]).max(axis=1) == 0)  # type: ignore
+        (root_images,) = np.nonzero(np.abs(indices[:, 1:]).max(axis=1) == 0)  # type: ignore[call-overload]
 
         del indices  # Save memory (tessellations can be costly)
 
@@ -1486,7 +1486,7 @@ class OpenBabelNN(NearNeighbors):
 
         return siw
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:  # type: ignore
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:  # type: ignore[override]
         """
         Obtain a MoleculeGraph object using this NearNeighbor
         class. Requires the optional dependency networkx
@@ -1633,7 +1633,7 @@ class CovalentBondNN(NearNeighbors):
 
         return siw
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> MoleculeGraph:  # type: ignore
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> MoleculeGraph:  # type: ignore[override]
         """
         Obtain a MoleculeGraph object using this NearNeighbor class.
 
@@ -2874,7 +2874,7 @@ class LocalStructOrderParams:
             for j, neigh in enumerate(neighsites):
                 rij.append(neigh.coords - centvec)
                 dist.append(float(np.linalg.norm(rij[j])))
-                rij_norm.append(rij[j] / dist[j])  # type: ignore
+                rij_norm.append(rij[j] / dist[j])
         if self._computerjks:
             for j, neigh in enumerate(neighsites):
                 rjk.append([])
@@ -2890,7 +2890,7 @@ class LocalStructOrderParams:
                         rjknorm[j].append(rjk[j][kk] / distjk[j][kk])
                         kk += 1
         # Initialize OP list and, then, calculate OPs.
-        ops = [0.0 for t in self._types]
+        ops: list[float | None] = [0.0 for t in self._types]
         # norms = [[[] for j in range(nneigh)] for t in self._types]
 
         # First, coordination number and distance-based OPs.
@@ -2947,8 +2947,8 @@ class LocalStructOrderParams:
         #  Zimmermann et al., J. Am. Chem. Soc., under revision, 2015).
         if self._geomops:
             gaussthetak: list[float] = [0 for _t in self._types]  # not used by all OPs
-            qsp_theta = [[[] for _j in range(n_neighbors)] for _t in self._types]  # type: ignore
-            norms = [[[] for _j in range(n_neighbors)] for _t in self._types]  # type: ignore
+            qsp_theta: list[list[list]] = [[[] for _j in range(n_neighbors)] for _t in self._types]
+            norms: list[list[list]] = [[[] for _j in range(n_neighbors)] for _t in self._types]
             ipi = 1 / math.pi
             piover2 = math.pi / 2.0
             onethird = 1 / 3
@@ -3254,7 +3254,8 @@ class LocalStructOrderParams:
                     for j in range(n_neighbors):
                         ops[idx] += sum(qsp_theta[idx][j])
                         tmp_norm += float(sum(norms[idx][j]))
-                    ops[idx] = ops[idx] / tmp_norm if tmp_norm > 1.0e-12 else None  # type: ignore
+                    ops[idx] = ops[idx] / tmp_norm if tmp_norm > 1.0e-12 else None  # type: ignore[operator]
+
                 elif typ in {
                     "T",
                     "tri_pyr",
@@ -3283,16 +3284,18 @@ class LocalStructOrderParams:
                                     qsp_theta[idx][j][k] / norms[idx][j][k] if norms[idx][j][k] > 1.0e-12 else 0.0
                                 )
                             ops[idx] = max(qsp_theta[idx][j]) if j == 0 else max(ops[idx], *qsp_theta[idx][j])
+
                 elif typ == "bcc":
                     ops[idx] = 0.0
                     for j in range(n_neighbors):
                         ops[idx] += sum(qsp_theta[idx][j])
                     if n_neighbors > 3:
-                        ops[idx] = ops[idx] / float(
+                        ops[idx] = ops[idx] / float(  # type: ignore[operator]
                             0.5 * float(n_neighbors * (6 + (n_neighbors - 2) * (n_neighbors - 3)))
                         )
                     else:
                         ops[idx] = None  # type: ignore[call-overload]
+
                 elif typ == "sq_pyr_legacy":
                     if n_neighbors > 1:
                         dmean = np.mean(dist)
@@ -3302,7 +3305,7 @@ class LocalStructOrderParams:
                             acc = acc + math.exp(-0.5 * tmp * tmp)
                         for j in range(n_neighbors):
                             ops[idx] = max(qsp_theta[idx][j]) if j == 0 else max(ops[idx], *qsp_theta[idx][j])
-                        ops[idx] = acc * ops[idx] / float(n_neighbors)
+                        ops[idx] = acc * ops[idx] / float(n_neighbors)  # type: ignore[operator]
                         # nneigh * (nneigh - 1))
                     else:
                         ops[idx] = None  # type: ignore[call-overload]
@@ -3334,15 +3337,15 @@ class LocalStructOrderParams:
                     else:
                         ops[idx] = 1.0
                         if typ == "reg_tri":
-                            a = 2 * math.asin(b / (2 * math.sqrt(h * h + (b / (2 * math.cos(3 * math.pi / 18))) ** 2)))  # type: ignore
+                            a = 2 * math.asin(b / (2 * math.sqrt(h * h + (b / (2 * math.cos(3 * math.pi / 18))) ** 2)))
                             nmax = 3
 
                         else:
-                            a = 2 * math.asin(b / (2 * math.sqrt(h * h + dhalf * dhalf)))  # type: ignore
+                            a = 2 * math.asin(b / (2 * math.sqrt(h * h + dhalf * dhalf)))
                             nmax = 4
 
                         for j in range(min([n_neighbors, nmax])):
-                            ops[idx] = ops[idx] * math.exp(-0.5 * ((aijs[j] - a) * self._params[idx][0]) ** 2)
+                            ops[idx] = ops[idx] * math.exp(-0.5 * ((aijs[j] - a) * self._params[idx][0]) ** 2)  # type: ignore[operator]
 
         return ops
 
@@ -3995,7 +3998,7 @@ class CrystalNN(NearNeighbors):
 
         return self.transform_to_length(self.NNData(nn, cn_weights, cn_nninfo), length)
 
-    def get_cn(self, structure: Structure, n: int, **kwargs) -> float:  # type: ignore
+    def get_cn(self, structure: Structure, n: int, **kwargs) -> float:  # type: ignore[override]
         """Get coordination number, CN, of site with index n in structure.
 
         Args:
@@ -4301,7 +4304,7 @@ class Critic2NN(NearNeighbors):
         """
         return True
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:  # type: ignore
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:  # type: ignore[override]
         """
         Args:
             structure (Structure): Input structure

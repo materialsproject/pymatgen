@@ -732,7 +732,7 @@ class NwOutput:
                 if line.find(e) != -1:
                     errors.append(v)
             if parse_time and (match := time_patt.search(line)):
-                time = match.group(1)
+                time = match[1]
                 parse_time = False
             if parse_geom:
                 if line.strip() == "Atomic Mass":
@@ -746,11 +746,11 @@ class NwOutput:
                     parse_geom = False
                 else:
                     if match := coord_patt.search(line):
-                        species.append(match.group(1).capitalize())
-                        coords.append([float(match.group(2)), float(match.group(3)), float(match.group(4))])
+                        species.append(match[1].capitalize())
+                        coords.append([float(match[2]), float(match[3]), float(match[4])])
 
                     if match := lat_vector_patt.search(line):
-                        lattice.append([float(match.group(1)), float(match.group(2)), float(match.group(3))])
+                        lattice.append([float(match[1]), float(match[2]), float(match[3])])
 
             if parse_force:
                 if match := force_patt.search(line):
@@ -836,7 +836,7 @@ class NwOutput:
 
             else:
                 if match := energy_patt.search(line):
-                    energies.append(Energy(match.group(1), "Ha").to("eV"))
+                    energies.append(Energy(match[1], "Ha").to("eV"))
                     parse_time = True
                     continue
 
@@ -844,17 +844,17 @@ class NwOutput:
                     cosmo_scf_energy = energies[-1]
                     energies[-1] = {}
                     energies[-1]["cosmo scf"] = cosmo_scf_energy
-                    energies[-1].update({"gas phase": Energy(match.group(1), "Ha").to("eV")})
+                    energies[-1].update({"gas phase": Energy(match[1], "Ha").to("eV")})
 
                 if match := energy_sol_patt.search(line):
-                    energies[-1].update({"sol phase": Energy(match.group(1), "Ha").to("eV")})
+                    energies[-1].update({"sol phase": Energy(match[1], "Ha").to("eV")})
 
                 if match := preamble_patt.search(line):
                     try:
-                        val = int(match.group(2))
+                        val = int(match[2])
                     except ValueError:
-                        val = match.group(2)
-                    k = match.group(1).replace("No. of ", "n").replace(" ", "_")
+                        val = match[2]
+                    k = match[1].replace("No. of ", "n").replace(" ", "_")
                     data[k.lower()] = val
                 elif line.find('Geometry "geometry"') != -1:
                     parse_geom = True
@@ -892,7 +892,7 @@ class NwOutput:
                     if job_type == "NWChem DFT Module" and "COSMO solvation results" in output:
                         job_type += " COSMO"
                 elif match := corrections_patt.search(line):
-                    corrections[match.group(1)] = FloatWithUnit(match.group(2), "kJ mol^-1").to("eV atom^-1")
+                    corrections[match[1]] = FloatWithUnit(match[2], "kJ mol^-1").to("eV atom^-1")
 
         if frequencies:
             for _freq, mode in frequencies:
