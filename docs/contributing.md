@@ -47,6 +47,7 @@ the [`pymatgen` GitHub repo](https://github.com/materialsproject/pymatgen). Here
 
     ```sh
     uv pip install -e .[ci,optional]
+    pre-commit install  # Install pre-commit hook for linters.
     ```
 
 1. Make a new branch for your contributions
