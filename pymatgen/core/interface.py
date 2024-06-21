@@ -2880,7 +2880,7 @@ def label_termination(slab: Structure, ftol: float = 0.25, t_index=None) -> str:
     form = top_plane.reduced_formula
     
     if t_index is None:
-        return f"{t_index+1}_{form}_{sp_symbol}_{len(top_plane)}"
+        return f"{form}_{sp_symbol}_{len(top_plane)}"
         
     return f"{t_index}_{form}_{sp_symbol}_{len(top_plane)}"
 
