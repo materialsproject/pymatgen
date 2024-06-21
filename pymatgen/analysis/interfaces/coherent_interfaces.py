@@ -142,13 +142,17 @@ class CoherentInterfaceBuilder:
         film_shifts = [slab.shift for slab in film_slabs]
 
         if self.label_index:
-            film_terminations = [label_termination(slab, self.termination_ftol, t_index) for t_index, slab in enumerate(film_slabs)]
+            film_terminations = [
+                label_termination(slab, self.termination_ftol, t_index) for t_index, slab in enumerate(film_slabs)
+            ]
         else:
             film_terminations = [label_termination(slab, self.termination_ftol) for slab in film_slabs]
-        
+
         sub_shifts = [slab.shift for slab in sub_slabs]
         if self.label_index:
-            sub_terminations = [label_termination(slab, self.termination_ftol, t_index) for t_index, slab in enumerate(sub_slabs)]
+            sub_terminations = [
+                label_termination(slab, self.termination_ftol, t_index) for t_index, slab in enumerate(sub_slabs)
+            ]
         else:
             sub_terminations = [label_termination(slab, self.termination_ftol) for slab in sub_slabs]
 
