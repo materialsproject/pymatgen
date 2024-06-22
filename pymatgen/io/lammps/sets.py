@@ -18,9 +18,9 @@ from pymatgen.io.lammps.data import CombinedData, LammpsData
 from pymatgen.io.lammps.inputs import LammpsInputFile
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Ryan Kingsbury, Guillaume Brunin (Matgenix)"
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -50,7 +50,7 @@ class LammpsInputSet(InputSet):
         inputfile: LammpsInputFile | str,
         data: LammpsData | CombinedData,
         calc_type: str = "",
-        template_file: str = "",
+        template_file: PathLike = "",
         keep_stages: bool = False,
     ) -> None:
         """
@@ -75,9 +75,9 @@ class LammpsInputSet(InputSet):
         super().__init__(inputs={"in.lammps": self.inputfile, "system.data": self.data})
 
     @classmethod
-    def from_directory(cls, directory: str | Path, keep_stages: bool = False) -> Self:  # type: ignore[override]
-        """
-        Construct a LammpsInputSet from a directory of two or more files.
+    def from_directory(cls, directory: PathLike, keep_stages: bool = False) -> Self:  # type: ignore[override]
+        """Construct a LammpsInputSet from a directory of two or more files.
+
         TODO: accept directories with only the input file, that should include the structure as well.
 
         Args:
@@ -88,7 +88,7 @@ class LammpsInputSet(InputSet):
         input_file = LammpsInputFile.from_file(f"{directory}/in.lammps", keep_stages=keep_stages)
         atom_style = input_file.get_args("atom_style")
         if isinstance(atom_style, list):
-            raise ValueError("Variable atom_style is specified multiple times in the input file.")
+            raise ValueError("Variable atom_style is specified multiple times in the input file.")  # noqa: TRY004
         data_file = LammpsData.from_file(f"{directory}/system.data", atom_style=atom_style)
         return cls(inputfile=input_file, data=data_file, calc_type="read_from_dir")
 

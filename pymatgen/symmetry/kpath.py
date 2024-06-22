@@ -25,7 +25,7 @@ except ImportError:
 if TYPE_CHECKING:
     from typing import Any
 
-    from pymatgen.core import Structure
+    from pymatgen.core import Composition, Structure
     from pymatgen.util.typing import SpeciesLike
 
 __author__ = "Geoffroy Hautier, Katherine Latimer, Jason Munro"
@@ -890,11 +890,11 @@ class KPathSeek(KPathBase):
 
         sp = structure.site_properties
         species = [site.species for site in structure]
-        site_data = species
+        site_data: list[Composition] = species
 
         if not system_is_tri:
             warn("Non-zero 'magmom' data will be used to define unique atoms in the cell.")
-            site_data = zip(species, [tuple(vec) for vec in sp["magmom"]])  # type: ignore
+            site_data = zip(species, [tuple(vec) for vec in sp["magmom"]])  # type: ignore[assignment]
 
         unique_species: list[SpeciesLike] = []
         numbers = []

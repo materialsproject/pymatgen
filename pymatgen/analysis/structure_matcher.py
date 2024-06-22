@@ -899,7 +899,7 @@ class StructureMatcher(MSONable):
             List of (mapping, match)
         """
         if not isinstance(self._comparator, SpeciesComparator):
-            raise ValueError("Anonymous fitting currently requires SpeciesComparator")
+            raise TypeError("Anonymous fitting currently requires SpeciesComparator")
 
         # check that species lists are comparable
         sp1 = struct1.elements

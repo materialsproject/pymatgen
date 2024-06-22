@@ -629,11 +629,11 @@ class StructureVis:
             else:
                 raise ValueError("Number of points for a face should be >= 3")
 
-    def add_edges(self, edges, type="line", linewidth=2, color=(0.0, 0.0, 0.0)):
+    def add_edges(self, edges, type="line", linewidth=2, color=(0.0, 0.0, 0.0)):  # noqa: A002
         """
         Args:
             edges (): List of edges
-            type ():
+            type (): placeholder
             linewidth (): Width of line
             color (nd.array/tuple): RGB color.
         """
@@ -702,7 +702,7 @@ class StructureVis:
         self.ren.AddActor(actor)
 
     def add_picker_fixed(self):
-        """Create a cell picker.Returns:"""
+        """Create a cell picker."""
         picker = vtk.vtkCellPicker()
 
         # Create a Python function to create the text for the text mapper used
@@ -772,6 +772,7 @@ class StructureInteractorStyle(TrackballCamera):
     """A custom interactor style for visualizing structures."""
 
     def __init__(self, parent):
+        """Initialize StructureInteractorStyle."""
         self.parent = parent
         self.AddObserver("LeftButtonPressEvent", self.leftButtonPressEvent)
         self.AddObserver("MouseMoveEvent", self.mouseMoveEvent)
@@ -779,14 +780,17 @@ class StructureInteractorStyle(TrackballCamera):
         self.AddObserver("KeyPressEvent", self.keyPressEvent)
 
     def leftButtonPressEvent(self, obj, event):
+        """Left mouse button press event."""
         self.mouse_motion = 0
         self.OnLeftButtonDown()
 
     def mouseMoveEvent(self, obj, event):
+        """Mouse move event."""
         self.mouse_motion = 1
         self.OnMouseMove()
 
     def leftButtonReleaseEvent(self, obj, event):
+        """Left mouse button release event."""
         ren = obj.GetCurrentRenderer()
         iren = ren.GetRenderWindow().GetInteractor()
         if self.mouse_motion == 0:
@@ -795,6 +799,7 @@ class StructureInteractorStyle(TrackballCamera):
         self.OnLeftButtonUp()
 
     def keyPressEvent(self, obj, _event):
+        """Key press event."""
         parent = obj.GetCurrentRenderer().parent
         sym = parent.iren.GetKeySym()
 
@@ -873,19 +878,19 @@ def make_movie(structures, output_filename="movie.mp4", zoom=1.0, fps=20, bitrat
         vis.write_image(filename.format(idx), 3)
     filename = f"image%0{sig_fig}d.png"
     args = ["ffmpeg", "-y", "-i", filename, "-q:v", str(quality), "-r", str(fps), "-b:v", str(bitrate), output_filename]
-    with subprocess.Popen(args) as p:
-        p.communicate()
+    with subprocess.Popen(args) as process:
+        process.communicate()
 
 
 class MultiStructuresVis(StructureVis):
     """Visualization for multiple structures."""
 
-    DEFAULT_ANIMATED_MOVIE_OPTIONS: ClassVar[dict[str, str | float]] = dict(
-        time_between_frames=0.1,
-        looping_type="restart",
-        number_of_loops=1,
-        time_between_loops=1.0,
-    )
+    DEFAULT_ANIMATED_MOVIE_OPTIONS: ClassVar[dict[str, str | float]] = {
+        "time_between_frames": 0.1,
+        "looping_type": "restart",
+        "number_of_loops": 1,
+        "time_between_loops": 1.0,
+    }
 
     def __init__(
         self,
@@ -1049,7 +1054,7 @@ class MultiStructuresVis(StructureVis):
     def set_animated_movie_options(self, animated_movie_options=None):
         """
         Args:
-            animated_movie_options ():
+            animated_movie_options (): animated movie options.
         """
         if animated_movie_options is None:
             self.animated_movie_options = self.DEFAULT_ANIMATED_MOVIE_OPTIONS.copy()
@@ -1138,9 +1143,11 @@ class MultiStructuresInteractorStyle(StructureInteractorStyle):
     """Interactor for MultiStructureVis."""
 
     def __init__(self, parent) -> None:
+        """Initialize MultiStructuresInteractorStyle."""
         StructureInteractorStyle.__init__(self, parent=parent)
 
     def keyPressEvent(self, obj, event):
+        """Key press event."""
         parent = obj.GetCurrentRenderer().parent
         sym = parent.iren.GetKeySym()
 

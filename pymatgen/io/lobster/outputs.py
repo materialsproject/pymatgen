@@ -498,6 +498,9 @@ class Icohplist(MSONable):
                     else:
                         list_orb_icohp[int(label) - 1][orb_label] = {"icohp": icohp, "orbitals": orbitals}
 
+            # Avoid circular import
+            from pymatgen.electronic_structure.cohp import IcohpCollection
+
             self._icohpcollection = IcohpCollection(
                 are_coops=are_coops,
                 are_cobis=are_cobis,
@@ -559,7 +562,7 @@ class NciCobiList:
         """
         # LOBSTER list files have an extra trailing blank line
         # and we don't need the header
-        with zopen(filename, mode="rt") as file:  # type:ignore
+        with zopen(filename, mode="rt") as file:
             lines = file.read().split("\n")[1:-1]
         if len(lines) == 0:
             raise RuntimeError("NcICOBILIST file contains no data.")
@@ -1442,13 +1445,13 @@ class Fatband:
 
         self.label_dict = label_dict
 
-    def get_bandstructure(self):
+    def get_bandstructure(self) -> LobsterBandStructureSymmLine:
         """Get a LobsterBandStructureSymmLine object which can be plotted with a normal BSPlotter."""
         return LobsterBandStructureSymmLine(
             kpoints=self.kpoints_array,
             eigenvals=self.eigenvals,
             lattice=self.lattice,
-            efermi=self.efermi,  # type: ignore
+            efermi=self.efermi,
             labels_dict=self.label_dict,
             structure=self.structure,
             projections=self.p_eigenvals,
@@ -2050,9 +2053,9 @@ def get_orb_from_str(orbs: list[str]) -> tuple[str, list[tuple[int, Orbital]]]:
     orb_label = ""
     for iorb, orbital in enumerate(orbitals):
         if iorb == 0:
-            orb_label += f"{orbital[0]}{orbital[1].name}"  # type: ignore
+            orb_label += f"{orbital[0]}{orbital[1].name}"
         else:
-            orb_label += f"-{orbital[0]}{orbital[1].name}"  # type: ignore
+            orb_label += f"-{orbital[0]}{orbital[1].name}"
 
     return orb_label, orbitals
 

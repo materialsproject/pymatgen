@@ -80,8 +80,8 @@ class Cssr:
         sp, coords = [], []
         for line in lines[4:]:
             if match := re.match(r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)", line.strip()):
-                sp.append(match.group(1))
-                coords.append([float(match.group(i)) for i in range(2, 5)])
+                sp.append(match[1])
+                coords.append([float(match[i]) for i in range(2, 5)])
         return cls(Structure(lattice, sp, coords))
 
     @classmethod

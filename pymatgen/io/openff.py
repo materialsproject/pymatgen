@@ -139,10 +139,10 @@ def get_atom_map(inferred_mol: tk.Molecule, openff_mol: tk.Molecule) -> tuple[bo
             isomorphism was found and a dictionary representing the atom mapping.
     """
     # do not apply formal charge restrictions
-    kwargs = dict(
-        return_atom_map=True,
-        formal_charge_matching=False,
-    )
+    kwargs = {
+        "return_atom_map": True,
+        "formal_charge_matching": False,
+    }
     isomorphic, atom_map = tk.topology.Molecule.are_isomorphic(openff_mol, inferred_mol, **kwargs)
     if isomorphic:
         return True, atom_map

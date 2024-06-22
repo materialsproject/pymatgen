@@ -874,15 +874,15 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
     dei_dsi = np.zeros((order - 1, 6, len(strain_state_dict)))
     for idx, (strain_state, data) in enumerate(strain_state_dict.items()):
         hvec = data["strains"][:, strain_state.index(1)]
-        for ord in range(1, order):
-            coef = get_diff_coeff(hvec, ord)
-            dei_dsi[ord - 1, :, idx] = np.dot(coef, data["stresses"])
+        for _ord in range(1, order):
+            coef = get_diff_coeff(hvec, _ord)
+            dei_dsi[_ord - 1, :, idx] = np.dot(coef, data["stresses"])
 
     m, _absent = generate_pseudo(list(strain_state_dict), order)
-    for ord in range(1, order):
-        cvec, carr = get_symbol_list(ord + 1)
-        svec = np.ravel(dei_dsi[ord - 1].T)
-        cmap = dict(zip(cvec, np.dot(m[ord - 1], svec)))
+    for _ord in range(1, order):
+        cvec, carr = get_symbol_list(_ord + 1)
+        svec = np.ravel(dei_dsi[_ord - 1].T)
+        cmap = dict(zip(cvec, np.dot(m[_ord - 1], svec)))
         c_list.append(v_subs(carr, cmap))
     return [Tensor.from_voigt(c) for c in c_list]
 

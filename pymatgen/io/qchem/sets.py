@@ -13,9 +13,10 @@ from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.utils import lower_and_check_unique
 
 if TYPE_CHECKING:
-    from typing import Literal
+    from typing import Any, Literal
 
     from pymatgen.core.structure import Molecule
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
 __copyright__ = "Copyright 2018-2022, The Materials Project"
@@ -25,12 +26,12 @@ __email__ = "samblau1@gmail.com"
 
 logger = logging.getLogger(__name__)
 
-# note that in addition to the solvent-specific parameters, this dict contains
+# Note that in addition to the solvent-specific parameters, this dict contains
 # dielectric constants for use with each solvent. The dielectric constants
 # are used by the isodensity SS(V)PE electrostatic calculation part of CMIRS
 # they are not part of the parameters tabulated by Q-Chem
 # see https://manual.q-chem.com/latest/example_CMIRS-water.html
-CMIRS_SETTINGS = {
+CMIRS_SETTINGS: dict[str, Any] = {
     "water": {
         "0.001": {
             "a": "-0.006736",
@@ -384,7 +385,7 @@ class QChemDictSet(QCInput):
             "vdwscale": "1.1",
         }
 
-        svp_defaults = {"rhoiso": "0.001", "nptleb": "1202", "itrngr": "2", "irotgr": "2"}
+        svp_defaults: dict[str, Any] = {"rhoiso": "0.001", "nptleb": "1202", "itrngr": "2", "irotgr": "2"}
 
         plots_defaults = {"grid_spacing": "0.05", "total_density": "0"}
 
@@ -397,20 +398,21 @@ class QChemDictSet(QCInput):
         smx: dict = {}
         vdw: dict = {}
         plots: dict = {}
-        rem: dict = {}
-        svp: dict = {}
-        pcm_nonels: dict = {}
-        rem["job_type"] = job_type
-        rem["basis"] = self.basis_set
-        rem["max_scf_cycles"] = str(self.max_scf_cycles)
-        rem["gen_scfman"] = "true"
-        rem["xc_grid"] = "3"
-        rem["thresh"] = "14"
-        rem["s2thresh"] = "16"
-        rem["scf_algorithm"] = self.scf_algorithm
-        rem["resp_charges"] = "true"
-        rem["symmetry"] = "false"
-        rem["sym_ignore"] = "true"
+        svp: dict[str, Any] = {}
+        pcm_nonels: dict[str, Any] = {}
+        rem: dict[str, Any] = {
+            "job_type": job_type,
+            "basis": self.basis_set,
+            "max_scf_cycles": str(self.max_scf_cycles),
+            "gen_scfman": "true",
+            "xc_grid": "3",
+            "thresh": "14",
+            "s2thresh": "16",
+            "scf_algorithm": self.scf_algorithm,
+            "resp_charges": "true",
+            "symmetry": "false",
+            "sym_ignore": "true",
+        }
 
         if self.dft_rung == 1:
             rem["method"] = "spw92"
@@ -476,10 +478,10 @@ class QChemDictSet(QCInput):
             svp = svp_defaults
             rem["solvent_method"] = "isosvp"
             rem["gen_scfman"] = "false"
-            svp["dielst"] = CMIRS_SETTINGS[self.cmirs_solvent]["dielst"]  # type: ignore
+            svp["dielst"] = CMIRS_SETTINGS[self.cmirs_solvent]["dielst"]
             svp["idefesr"] = "1"  # this flag enables the CMIRS part
             svp["ipnrf"] = "1"  # this flag is also required for some undocumented reason
-            pcm_nonels = CMIRS_SETTINGS[self.cmirs_solvent][svp["rhoiso"]]  # type: ignore
+            pcm_nonels = CMIRS_SETTINGS[self.cmirs_solvent][svp["rhoiso"]]
             pcm_nonels["delta"] = "7"  # as recommended by Q-Chem. See manual.
             pcm_nonels["gaulag_n"] = "40"  # as recommended by Q-Chem. See manual.
 
@@ -563,8 +565,8 @@ class QChemDictSet(QCInput):
                                     "CMIRS is only parameterized for RHOISO values of 0.001 or 0.0005! Exiting..."
                                 )
                             for k2 in pcm_nonels:
-                                if CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2):  # type: ignore
-                                    pcm_nonels[k2] = CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2)  # type: ignore
+                                if CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2):
+                                    pcm_nonels[k2] = CMIRS_SETTINGS[self.cmirs_solvent][v].get(k2)
                         if k == "idefesr":
                             if self.cmirs_solvent is not None and v == "0":
                                 warnings.warn(
@@ -615,13 +617,13 @@ class QChemDictSet(QCInput):
             pcm_nonels=pcm_nonels,
         )
 
-    def write(self, input_file: str):
+    def write(self, input_file: PathLike) -> None:
         """
         Args:
-            input_file (str): Filename.
+            input_file (PathLike): Filename.
         """
         self.write_file(input_file)
-        if self.smd_solvent in ("custom", "other") and self.qchem_version == 5:
+        if self.smd_solvent in {"custom", "other"} and self.qchem_version == 5:
             with zopen(os.path.join(os.path.dirname(input_file), "solvent_data"), mode="wt") as file:
                 file.write(self.custom_smd)
 

@@ -76,7 +76,7 @@ class COD:
         cod_ids = []
         for line in text:
             if match := re.search(r"(\d+)", line):
-                cod_ids.append(int(match.group(1)))
+                cod_ids.append(int(match[1]))
         return cod_ids
 
     def get_structure_by_id(self, cod_id: int, timeout: int = 600, **kwargs) -> Structure:

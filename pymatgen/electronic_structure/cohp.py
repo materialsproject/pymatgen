@@ -172,7 +172,7 @@ class Cohp(MSONable):
         if spin is None:
             dict_to_return = {}
             for sp, cohp_vals in populations.items():
-                if (max(cohp_vals[0:n_energies_below_efermi])) > limit:
+                if (max(cohp_vals[:n_energies_below_efermi])) > limit:
                     dict_to_return[sp] = True
                 else:
                     dict_to_return[sp] = False
@@ -182,7 +182,7 @@ class Cohp(MSONable):
                 spin = Spin(spin)
             elif isinstance(spin, str):
                 spin = Spin({"up": 1, "down": -1}[spin.lower()])
-            if (max(populations[spin][0:n_energies_below_efermi])) > limit:
+            if (max(populations[spin][:n_energies_below_efermi])) > limit:
                 dict_to_return[spin] = True
             else:
                 dict_to_return[spin] = False

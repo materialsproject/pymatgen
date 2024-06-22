@@ -101,7 +101,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         """
         points = [0, 0, 0]
         coord_values = np.arange(coord_left, coord_right + 1)
-        points[0], points[1], points[2] = np.meshgrid(coord_values, coord_values, coord_values)  # type: ignore
+        points[0], points[1], points[2] = np.meshgrid(coord_values, coord_values, coord_values)
         points_matrix = (np.ravel(points[i]) for i in range(3))
         return np.vstack(list(points_matrix)).transpose()
 
@@ -120,7 +120,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         if len(points) == 0:
             return []
         filtered = np.where(np.dot(np.array(self.beam_direction), np.transpose(points)) == laue_zone)
-        result = points[filtered]  # type: ignore
+        result = points[filtered]
         return cast(list[Tuple3Ints], [tuple(x) for x in result.tolist()])
 
     def get_interplanar_spacings(
@@ -194,7 +194,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             for plane in bragg_angles:
                 scattering_factor_curr = atom.Z - 41.78214 * s2[plane] * np.sum(
                     coeffs[:, 0] * np.exp(-coeffs[:, 1] * s2[plane]),
-                    axis=None,  # type: ignore
+                    axis=None,
                 )
                 scattering_factors_for_atom[plane] = scattering_factor_curr
             x_ray_factors[atom.symbol] = scattering_factors_for_atom

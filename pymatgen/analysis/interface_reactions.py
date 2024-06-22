@@ -92,7 +92,7 @@ class InterfacialReactivity(MSONable):
         bypass_grand_warning = kwargs.get("bypass_grand_warning", False)
 
         if isinstance(pd, GrandPotentialPhaseDiagram) and not bypass_grand_warning:
-            raise ValueError(
+            raise TypeError(
                 "Please use the GrandPotentialInterfacialReactivity "
                 "class for interfacial reactions with open elements!"
             )
@@ -338,17 +338,16 @@ class InterfacialReactivity(MSONable):
             hoverinfo="none",
         )
 
-        annotations = self._get_plotly_annotations(x, energy, reactions)  # type: ignore
+        annotations = self._get_plotly_annotations(x, energy, reactions)
 
-        min_idx = energy.index(min(energy))  # type: ignore
+        min_idx = energy.index(min(energy))
 
         x_min = x.pop(min_idx)
         e_min = energy.pop(min_idx)
         rxn_min = reactions.pop(min_idx)
 
         labels = [
-            f"{htmlify(str(r))} <br>\u0394E<sub>rxn</sub> = {round(e, 3)} eV/atom"  # type: ignore
-            for r, e in zip(reactions, energy)
+            f"{htmlify(str(r))} <br>\u0394E<sub>rxn</sub> = {round(e, 3)} eV/atom" for r, e in zip(reactions, energy)
         ]
 
         markers = Scatter(
@@ -367,7 +366,7 @@ class InterfacialReactivity(MSONable):
             hoverlabel={"bgcolor": "navy"},
         )
 
-        min_label = f"{htmlify(str(rxn_min))} <br>\u0394E<sub>rxn</sub> = {round(e_min, 3)} eV/atom"  # type: ignore
+        min_label = f"{htmlify(str(rxn_min))} <br>\u0394E<sub>rxn</sub> = {round(e_min, 3)} eV/atom"
 
         minimum = Scatter(
             x=[x_min],
@@ -625,9 +624,9 @@ class GrandPotentialInterfacialReactivity(InterfacialReactivity):
                 warning message.
         """
         if not isinstance(grand_pd, GrandPotentialPhaseDiagram):
-            raise ValueError("Please use the InterfacialReactivity class if using a regular phase diagram!")
+            raise TypeError("Please use the InterfacialReactivity class if using a regular phase diagram!")
         if not isinstance(pd_non_grand, PhaseDiagram):
-            raise ValueError("Please provide non-grand phase diagram to compute no_mixing_energy!")
+            raise TypeError("Please provide non-grand phase diagram to compute no_mixing_energy!")
 
         super().__init__(
             c1=c1, c2=c2, pd=grand_pd, norm=norm, use_hull_energy=use_hull_energy, bypass_grand_warning=True

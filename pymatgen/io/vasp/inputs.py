@@ -1493,7 +1493,7 @@ class Kpoints(MSONable):
         """Read a Kpoints object from a KPOINTS file.
 
         Args:
-            filename (PathLike): Filen to read.
+            filename (PathLike): File to read.
 
         Returns:
             Kpoints object
