@@ -128,11 +128,11 @@ class ZeoCssr(Cssr):
                 r"\d+\s+(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+(?:0\s+){8}([0-9\-\.]+)",
                 line.strip(),
             ):
-                sp.append(match.group(1))
-                # coords.append([float(m.group(i)) for i in xrange(2, 5)])
+                sp.append(match[1])
+                # coords.append([float(m[i]) for i in xrange(2, 5)])
                 # Zeo++ takes x-axis along a and pymatgen takes z-axis along c
-                coords.append([float(match.group(i)) for i in [3, 4, 2]])
-                charge.append(match.group(5))
+                coords.append([float(match[i]) for i in [3, 4, 2]])
+                charge.append(match[5])
         return cls(Structure(lattice, sp, coords, site_properties={"charge": charge}))
 
     @classmethod
@@ -183,10 +183,10 @@ class ZeoVoronoiXYZ(XYZ):
         coord_patt = re.compile(r"(\w+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)\s+([0-9\-\.]+)")
         for idx in range(2, 2 + n_sites):
             if match := coord_patt.search(lines[idx]):
-                sp.append(match.group(1))  # this is 1-indexed
+                sp.append(match[1])  # this is 1-indexed
                 # coords.append(map(float, m.groups()[1:4]))  # this is 0-indexed
-                coords.append([float(j) for j in [match.group(i) for i in [3, 4, 2]]])
-                prop.append(float(match.group(5)))
+                coords.append([float(j) for j in [match[i] for i in [3, 4, 2]]])
+                prop.append(float(match[5]))
         return cls(Molecule(sp, coords, site_properties={"voronoi_radius": prop}))
 
     @classmethod

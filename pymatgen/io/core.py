@@ -37,7 +37,9 @@ from monty.io import zopen
 from monty.json import MSONable
 
 if TYPE_CHECKING:
-    from os import PathLike
+    from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike
 
 
 __author__ = "Ryan Kingsbury"
@@ -59,18 +61,20 @@ class InputFile(MSONable):
     to __init__ as attributes.
     """
 
+    def __str__(self) -> str:
+        return self.get_str()
+
     @abc.abstractmethod
     def get_str(self) -> str:
         """Return a string representation of an entire input file."""
 
-    def write_file(self, filename: str | PathLike) -> None:
+    def write_file(self, filename: PathLike) -> None:
         """Write the input file.
 
         Args:
             filename: The filename to output to, including path.
         """
-        filename = filename if isinstance(filename, Path) else Path(filename)
-        with zopen(filename, mode="wt") as file:
+        with zopen(Path(filename), mode="wt") as file:
             file.write(self.get_str())
 
     @classmethod
@@ -88,7 +92,7 @@ class InputFile(MSONable):
         raise NotImplementedError(f"from_str has not been implemented in {cls.__name__}")
 
     @classmethod
-    def from_file(cls, path: str | Path) -> None:
+    def from_file(cls, path: PathLike) -> None:
         """
         Creates an InputFile object from a file.
 
@@ -98,12 +102,8 @@ class InputFile(MSONable):
         Returns:
             InputFile
         """
-        filename = path if isinstance(path, Path) else Path(path)
-        with zopen(filename, mode="rt") as file:
+        with zopen(Path(path), mode="rt") as file:
             return cls.from_str(file.read())  # from_str not implemented
-
-    def __str__(self) -> str:
-        return self.get_str()
 
 
 class InputSet(MSONable, MutableMapping):
@@ -120,9 +120,8 @@ class InputSet(MSONable, MutableMapping):
     is optional.
     """
 
-    def __init__(self, inputs: dict[str | Path, str | InputFile] | None = None, **kwargs):
-        """
-        Instantiate an InputSet.
+    def __init__(self, inputs: dict[PathLike, str | InputFile] | None = None, **kwargs) -> None:
+        """Instantiate an InputSet.
 
         Args:
             inputs: The core mapping of filename: file contents that defines the InputSet data.
@@ -139,12 +138,12 @@ class InputSet(MSONable, MutableMapping):
         self.__dict__.update(**kwargs)
 
     def __getattr__(self, key):
-        # allow accessing keys as attributes
+        """Allow accessing keys as attributes."""
         if key in self._kwargs:
             return self.get(key)
         raise AttributeError(f"'{type(self).__name__}' object has no attribute {key!r}")
 
-    def __copy__(self) -> InputSet:
+    def __copy__(self) -> Self:
         cls = type(self)
         new_instance = cls.__new__(cls)
 
@@ -153,7 +152,7 @@ class InputSet(MSONable, MutableMapping):
 
         return new_instance
 
-    def __deepcopy__(self, memo: dict[int, InputSet]) -> InputSet:
+    def __deepcopy__(self, memo: dict[int, InputSet]) -> Self:
         cls = type(self)
         new_instance = cls.__new__(cls)
         memo[id(self)] = new_instance
@@ -166,26 +165,26 @@ class InputSet(MSONable, MutableMapping):
     def __len__(self) -> int:
         return len(self.inputs)
 
-    def __iter__(self) -> Iterator[str | Path]:
+    def __iter__(self) -> Iterator[PathLike]:
         return iter(self.inputs)
 
-    def __getitem__(self, key: str | Path) -> str | InputFile | slice:
+    def __getitem__(self, key: PathLike) -> str | InputFile | slice:
         return self.inputs[key]
 
-    def __setitem__(self, key: str | Path, value: str | InputFile) -> None:
+    def __setitem__(self, key: PathLike, value: str | InputFile) -> None:
         self.inputs[key] = value
 
-    def __delitem__(self, key: str | Path) -> None:
+    def __delitem__(self, key: PathLike) -> None:
         del self.inputs[key]
 
     def write_input(
         self,
-        directory: str | Path,
+        directory: PathLike,
         make_dir: bool = True,
         overwrite: bool = True,
         zip_inputs: bool = False,
-    ):
-        """Write Inputs to one or more files.
+    ) -> None:
+        """Write inputs to one or more files.
 
         Args:
             directory: Directory to write input files to
@@ -226,7 +225,7 @@ class InputSet(MSONable, MutableMapping):
                         pass
 
     @classmethod
-    def from_directory(cls, directory: str | Path) -> None:
+    def from_directory(cls, directory: PathLike) -> None:
         """
         Construct an InputSet from a directory of one or more files.
 
@@ -261,4 +260,4 @@ class InputGenerator(MSONable):
 
 
 class ParseError(SyntaxError):
-    """This exception indicates a problem was encountered during parsing due to unexpected formatting."""
+    """Indicate a problem was encountered during parsing due to unexpected formatting."""

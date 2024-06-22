@@ -1839,10 +1839,10 @@ class TestLobsterin(PymatgenTest):
         assert len_after == len_before - 1
 
         # Test case sensitivity of |= operator
-        self.Lobsterin["skipCOHP"] = True  # Camel case
+        self.Lobsterin |= {"skipCOHP": True}  # Camel case
         assert self.Lobsterin["skipcohp"] is True
 
-        self.Lobsterin["skipcohp"] = False  # lower case
+        self.Lobsterin |= {"skipcohp": False}  # lower case
         assert self.Lobsterin["skipcohp"] is False
 
     def test_read_write_lobsterin(self):

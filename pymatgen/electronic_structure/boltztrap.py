@@ -611,14 +611,11 @@ class BoltztrapRunner(MSONable):
                         bt_exe.append("-so")
 
                     with subprocess.Popen(
-                        bt_exe,
-                        stdout=subprocess.PIPE,
-                        stdin=subprocess.PIPE,
-                        stderr=subprocess.PIPE,
-                    ) as p:
-                        p.wait()
+                        bt_exe, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE
+                    ) as process:
+                        process.wait()
 
-                        for c in p.communicate():
+                        for c in process.communicate():
                             logging.info(c.decode())
                             if "error in factorization" in c.decode():
                                 raise BoltztrapError("error in factorization")
@@ -870,7 +867,7 @@ class BoltztrapAnalyzer:
                 w: list[bool] = []
                 prec = 1e-5
                 while len(w) == 0:
-                    w = np.where(np.all(np.abs(kp - self._bz_kpoints) < [prec] * 3, axis=1))[0]  # type: ignore
+                    w = np.where(np.all(np.abs(kp - self._bz_kpoints) < [prec] * 3, axis=1))[0]
                     prec *= 10
 
                 _idx_list.append((idx, w[0]))
@@ -878,7 +875,7 @@ class BoltztrapAnalyzer:
             idx_list = np.array(_idx_list)
 
             bz_bands_in_eV = (self._bz_bands * Energy(1, "Ry").to("eV") + efermi).T
-            bands_dict = {Spin.up: bz_bands_in_eV[:, idx_list[:, 1]].tolist()}  # type: ignore
+            bands_dict = {Spin.up: bz_bands_in_eV[:, idx_list[:, 1]].tolist()}
 
             return BandStructureSymmLine(
                 kpt_line, bands_dict, structure.lattice.reciprocal_lattice, efermi, labels_dict=labels_dict

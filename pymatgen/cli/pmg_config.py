@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
 def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
     """Setup CP2K basis and potential data directory."""
-    data_dir, target_dir = (os.path.abspath(dir) for dir in cp2k_data_dirs)
+    data_dir, target_dir = (os.path.abspath(dirc) for dirc in cp2k_data_dirs)
     try:
         os.mkdir(target_dir)
     except OSError:
@@ -74,9 +74,7 @@ def setup_cp2k_data(cp2k_data_dirs: list[str]) -> None:
             try:
                 basis = GaussianTypeOrbitalBasisSet.from_str(chk)
                 basis.filename = os.path.basename(basis_file)
-                settings[basis.element.symbol]["basis_sets"][basis.get_hash()] = jsanitize(  # type: ignore
-                    basis, strict=True
-                )
+                settings[basis.element.symbol]["basis_sets"][basis.get_hash()] = jsanitize(basis, strict=True)  # type: ignore[union-attr]
             except ValueError:
                 # Chunk was readable, but the element is not pmg recognized
                 continue
@@ -146,17 +144,17 @@ def setup_potcars(potcar_dirs: list[str]):
                     shutil.copy(fname, dest)
                     ext = fname.split(".")[-1]
                     if ext.upper() in ["Z", "GZ"]:
-                        with subprocess.Popen(["gunzip", dest]) as p:
-                            p.communicate()
+                        with subprocess.Popen(["gunzip", dest]) as process:
+                            process.communicate()
                     elif ext.upper() == "BZ2":
-                        with subprocess.Popen(["bunzip2", dest]) as p:
-                            p.communicate()
+                        with subprocess.Popen(["bunzip2", dest]) as process:
+                            process.communicate()
                     if subdir == "Osmium":
                         subdir = "Os"
                     dest = os.path.join(base_dir, f"POTCAR.{subdir}")
                     shutil.move(f"{base_dir}/POTCAR", dest)
-                    with subprocess.Popen(["gzip", "-f", dest]) as p:
-                        p.communicate()
+                    with subprocess.Popen(["gzip", "-f", dest]) as process:
+                        process.communicate()
                 except Exception as exc:
                     print(f"An error has occurred. Message is {exc}. Trying to continue... ")
 
@@ -273,7 +271,7 @@ def add_config_var(tokens: list[str], backup_suffix: str) -> None:
             print(f"Existing {rc_path} backed up to {rc_path}{backup_suffix}")
         dct = loadfn(rc_path)
     special_vals = {"true": True, "false": False, "none": None, "null": None}
-    for key, val in zip(tokens[0::2], tokens[1::2]):
+    for key, val in zip(tokens[::2], tokens[1::2]):
         dct[key] = special_vals.get(val.lower(), val)
     dumpfn(dct, rc_path)
     print(f"New {rc_path} written!")

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime
 import itertools
 import logging
 import math
@@ -12,7 +13,6 @@ import xml.etree.ElementTree as ET
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
-from datetime import datetime
 from glob import glob
 from io import StringIO
 from pathlib import Path
@@ -155,13 +155,13 @@ def _vasprun_float(flt: float | str) -> float:
     try:
         return float(flt)
 
-    except ValueError as exc:
+    except ValueError:
         flt = cast(str, flt)
         _flt: str = flt.strip()
         if _flt == "*" * len(_flt):
             warnings.warn("Float overflow (*******) encountered in vasprun")
             return np.nan
-        raise exc
+        raise
 
 
 @dataclass
@@ -526,9 +526,9 @@ class Vasprun(MSONable):
                             if "kinetic" in d:
                                 md_data[-1]["energy"] = {i.attrib["name"]: float(i.text) for i in elem.findall("i")}
 
-        except ET.ParseError as exc:
+        except ET.ParseError:
             if self.exception_on_bad_xml:
-                raise exc
+                raise
             warnings.warn(
                 "XML is malformed. Parsing has stopped but partial data is available.",
                 UserWarning,
@@ -846,7 +846,7 @@ class Vasprun(MSONable):
             ComputedStructureEntry/ComputedEntry
         """
         if entry_id is None:
-            entry_id = f"vasprun-{datetime.now()}"
+            entry_id = f"vasprun-{datetime.datetime.now(tz=datetime.timezone.utc)}"
         param_names = {
             "is_hubbard",
             "hubbards",
@@ -1379,12 +1379,12 @@ class Vasprun(MSONable):
                     else:
                         params[name] = _parse_v_parameters(ptype, val, self.filename, name)
 
-                except Exception as exc:
+                except Exception:
                     if name == "RANDOM_SEED":
                         # Handle the case where RANDOM_SEED > 99999, which results in *****
                         params[name] = None
                     else:
-                        raise exc
+                        raise
         elem.clear()
         return Incar(params)
 
@@ -1398,12 +1398,12 @@ class Vasprun(MSONable):
                 return str(Element(symbol))
 
             # vasprun.xml uses "X" instead of "Xe" for Xenon
-            except ValueError as exc:
+            except ValueError:
                 if symbol == "X":
                     return "Xe"
                 if symbol == "r":
                     return "Zr"
-                raise exc
+                raise
 
         atomic_symbols = []
         potcar_symbols = []

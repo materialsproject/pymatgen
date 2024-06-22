@@ -270,10 +270,10 @@ class TransformedStructure(MSONable):
         primitive: bool = True,
         occupancy_tolerance: float = 1.0,
     ) -> Self:
-        """Generate TransformedStructure from a cif string.
+        """Generate TransformedStructure from a CIF string.
 
         Args:
-            cif_string (str): Input cif string. Should contain only one
+            cif_string (str): Input CIF string. Should contain only one
                 structure. For CIFs containing multiple structures, please use
                 CifTransmuter.
             transformations (list[Transformation]): Sequence of transformations
@@ -302,7 +302,7 @@ class TransformedStructure(MSONable):
             source = "uploaded cif"
         source_info = {
             "source": source,
-            "datetime": str(datetime.datetime.now()),
+            "datetime": str(datetime.datetime.now(tz=datetime.timezone.utc)),
             "original_file": raw_str,
             "cif_data": cif_dict[cif_keys[0]],
         }
@@ -330,7 +330,7 @@ class TransformedStructure(MSONable):
         struct = poscar.structure
         source_info = {
             "source": "POSCAR",
-            "datetime": str(datetime.datetime.now()),
+            "datetime": str(datetime.datetime.now(tz=datetime.timezone.utc)),
             "original_file": raw_str,
         }
         return cls(struct, transformations, history=[source_info])

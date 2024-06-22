@@ -268,15 +268,15 @@ class SpaceGroup(SymmetryGroup):
     def _generate_full_symmetry_ops(self) -> np.ndarray:
         symm_ops = np.array(self.generators)
         for op in symm_ops:
-            op[0:3, 3] = np.mod(op[0:3, 3], 1)
+            op[:3, 3] = np.mod(op[:3, 3], 1)
         new_ops = symm_ops
         while len(new_ops) > 0 and len(symm_ops) < self.order:
             gen_ops = []
             for g in new_ops:
                 temp_ops = np.einsum("ijk,kl", symm_ops, g)
                 for op in temp_ops:
-                    op[0:3, 3] = np.mod(op[0:3, 3], 1)
-                    ind = np.where(np.abs(1 - op[0:3, 3]) < 1e-5)
+                    op[:3, 3] = np.mod(op[:3, 3], 1)
+                    ind = np.where(np.abs(1 - op[:3, 3]) < 1e-5)
                     op[ind, 3] = 0
                     if not in_array_list(symm_ops, op):
                         gen_ops.append(op)

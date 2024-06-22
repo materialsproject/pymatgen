@@ -653,10 +653,7 @@ class AbinitTimer:
 
     def get_section(self, section_name):
         """Return section associated to `section_name`."""
-        try:
-            idx = self.section_names.index(section_name)
-        except Exception:
-            raise
+        idx = self.section_names.index(section_name)
         sect = self.sections[idx]
         assert sect.name == section_name
         return sect
@@ -721,7 +718,7 @@ class AbinitTimer:
             values.append([sec.__dict__[key] for sec in self.sections])
         return values
 
-    def names_and_values(self, key, minval=None, minfract=None, sorted=True):
+    def names_and_values(self, key, minval=None, minfract=None, sorted=True):  # noqa: A002
         """Select the entries whose value[key] is >= minval or whose fraction[key] is >= minfract
         Return the names of the sections and the corresponding values.
         """
