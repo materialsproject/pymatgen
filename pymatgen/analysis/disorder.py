@@ -24,17 +24,17 @@ def get_warren_cowley_parameters(structure: Structure, r: float, dr: float) -> d
     """
     comp = structure.composition
 
-    n_ij = defaultdict(int)  # type: ignore
-    n_neighbors = defaultdict(int)  # type: ignore
+    n_ij: defaultdict = defaultdict(int)
+    n_neighbors: defaultdict = defaultdict(int)
     for site in structure:
         for nn in structure.get_neighbors_in_shell(site.coords, r, dr):
             n_ij[(site.specie, nn.specie)] += 1
             n_neighbors[site.specie] += 1
 
-    alpha_ij = {}  # type: ignore
+    alpha_ij = {}
     for sp1, sp2 in itertools.product(comp, comp):
         pij = n_ij.get((sp1, sp2), 0) / n_neighbors[sp1]
         conc2 = comp.get_atomic_fraction(sp2)
         alpha_ij[(sp1, sp2)] = (pij - conc2) / ((1 if sp1 == sp2 else 0) - conc2)
 
-    return alpha_ij  # type: ignore
+    return alpha_ij

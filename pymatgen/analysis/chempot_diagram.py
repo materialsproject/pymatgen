@@ -187,7 +187,7 @@ class ChemicalPotentialDiagram(MSONable):
                 default_min_limit=self.default_min_limit,
                 formal_chempots=self.formal_chempots,
             )
-            fig = cpd.get_plot(elements=elems, label_stable=label_stable)  # type: ignore
+            fig = cpd.get_plot(elements=elems, label_stable=label_stable)  # type: ignore[arg-type]
         else:
             fig = self._get_3d_plot(
                 elements=elems,
@@ -211,7 +211,7 @@ class ChemicalPotentialDiagram(MSONable):
         interior_point = np.min(self.lims, axis=1) + 1e-1
         hs_int = HalfspaceIntersection(hs_hyperplanes, interior_point)
 
-        domains = {entry.reduced_formula: [] for entry in entries}  # type: ignore
+        domains: dict[str, list] = {entry.reduced_formula: [] for entry in entries}
 
         for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets):
             for v in facet:
@@ -585,7 +585,7 @@ class ChemicalPotentialDiagram(MSONable):
 
         return axes_layout
 
-    @property  # type: ignore
+    @property
     @lru_cache(maxsize=1)  # noqa: B019
     def domains(self) -> dict[str, np.ndarray]:
         """Mapping of formulas to array of domain boundary points."""

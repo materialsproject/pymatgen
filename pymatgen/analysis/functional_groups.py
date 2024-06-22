@@ -83,7 +83,7 @@ class FunctionalGroupExtractor:
                 self.molgraph = molecule
 
         else:
-            raise ValueError("Input to FunctionalGroupExtractor must be str, Molecule, or MoleculeGraph.")
+            raise TypeError("Input to FunctionalGroupExtractor must be str, Molecule, or MoleculeGraph.")
 
         if self.molgraph is None:
             self.molgraph = MoleculeGraph.from_local_env_strategy(self.molecule, OpenBabelNN())

@@ -105,7 +105,7 @@ class AimsOutChunk:
                 line_index.append(ll + line_start)
         return line_index
 
-    def parse_scalar(self, property: str) -> float | None:
+    def parse_scalar(self, property: str) -> float | None:  # noqa: A002
         """Parse a scalar property from the chunk.
 
         Args:
