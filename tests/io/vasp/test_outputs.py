@@ -1629,8 +1629,8 @@ class TestProcar(PymatgenTest):
         assert procar.occupancies[Spin.up].shape == (nk, nb)
 
         # spot check some values:
-        assert procar.data[Spin.up][0,1,1,0] == approx(0.095)
-        assert procar.data[Spin.up][0,1,1,1] == approx(0)
+        assert procar.data[Spin.up][0, 1, 1, 0] == approx(0.095)
+        assert procar.data[Spin.up][0, 1, 1, 1] == approx(0)
 
         assert procar.xyz_data["x"][0, 1, 1, 0] == approx(-0.063)
         assert procar.xyz_data["z"][0, 1, 1, 1] == approx(0)
@@ -1650,8 +1650,8 @@ class TestProcar(PymatgenTest):
         assert procar.occupancies[Spin.up].shape == (nk, nb)
 
         # spot check some values:
-        assert procar.data[Spin.up][0,1,1,0] == approx(0.094)
-        assert procar.data[Spin.up][0,1,1,1] == approx(0)
+        assert procar.data[Spin.up][0, 1, 1, 0] == approx(0.094)
+        assert procar.data[Spin.up][0, 1, 1, 1] == approx(0)
 
         assert procar.xyz_data["x"][0, 1, 1, 0] == approx(0)
         assert procar.xyz_data["z"][0, 1, 1, 1] == approx(0)

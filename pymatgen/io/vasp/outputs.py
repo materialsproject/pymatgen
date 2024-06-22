@@ -16,7 +16,6 @@ from dataclasses import dataclass
 from glob import glob
 from io import StringIO
 from pathlib import Path
-from tqdm import tqdm
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
@@ -25,6 +24,7 @@ from monty.json import MSONable, jsanitize
 from monty.os.path import zpath
 from monty.re import regrep
 from numpy.testing import assert_allclose
+from tqdm import tqdm
 
 from pymatgen.core import Composition, Element, Lattice, Structure
 from pymatgen.core.trajectory import Trajectory
@@ -3806,15 +3806,24 @@ class Procar(MSONable):
         nkpoints (int): Number of k-points.
         nions (int): Number of ions.
         nspins (int): Number of spins.
+        is_soc (bool): Whether the PROCAR contains spin-orbit coupling (LSORBIT = True) data.
+        kpoints (np.array): The k-points as an nd.array of shape (nkpoints, 3).
+        occupancies (dict): The occupancies of the bands as a dict of the form:
+            { spin: nd.array accessed with (k-point index, band index) }
+        eigenvalues (dict): The eigenvalues of the bands as a dict of the form:
+            { spin: nd.array accessed with (k-point index, band index) }
+        xyz_data (dict): The PROCAR projections data along the x,y and z magnetisation projection
+            directions, with is_soc = True (see VASP wiki for more info).
+            { 'x'/'y'/'z': nd.array accessed with (k-point index, band index, ion index, orbital index) }
     """
 
-    def __init__(self, filename: Union[PathLike, list[PathLike]]) -> None:
+    def __init__(self, filename: PathLike | list[PathLike]):
         """
         Args:
             filename: The path to PROCAR(.gz) file to read, or list of paths.
         """
         # get PROCAR filenames list to parse:
-        filenames = [filename] if isinstance(filename, (str, Path)) else filename
+        filenames = [filename] if not isinstance(filename, list) else filename
         self.nions = None  # used to check for consistency in files later
         self.nspins = None  # used to check for consistency in files later
         self.is_soc = None  # used to check for consistency in files later
@@ -3832,7 +3841,7 @@ class Procar(MSONable):
         occupancies_list, kpoints_list, weights_list = [], [], []
         eigenvalues_list, data_list, xyz_data_list = [], [], []
         phase_factors_list = []
-        for filename in tqdm(filenames, desc='Reading PROCARs', unit='file', disable=len(filenames) == 1):
+        for filename in tqdm(filenames, desc="Reading PROCARs", unit="file", disable=len(filenames) == 1):
             kpoints, weights, eigenvalues, occupancies, data, phase_factors, xyz_data = self._read(
                 filename, parsed_kpoints=parsed_kpoints
             )  # TODO: Quick check parsed_kpoints working as expected
@@ -3849,45 +3858,42 @@ class Procar(MSONable):
         # Combine arrays along the kpoints axis:
         # nbands (axis = 2) could differ between arrays, so set missing values to zero:
         max_nbands = max(eig_dict[Spin.up].shape[1] for eig_dict in eigenvalues_list)
-        for dict_array_list in [
-            occupancies_list, eigenvalues_list, data_list, xyz_data_list, phase_factors_list
-        ]:
-            for i, dict_array in enumerate(dict_array_list):
+        for dict_array_list in [occupancies_list, eigenvalues_list, data_list, xyz_data_list, phase_factors_list]:
+            for _i, dict_array in enumerate(dict_array_list):
                 if dict_array:
-                    for spin, array in dict_array.items():
+                    for key, array in dict_array.items():
                         if array.shape[1] < max_nbands:
                             if len(array.shape) == 2:  # occupancies, eigenvalues
-                                array_list[i] = np.pad(
+                                dict_array[key] = np.pad(
                                     array,
-                                    ((0, 0), (0, max_nbands - arr.shape[2])),
-                                    mode='constant',
+                                    ((0, 0), (0, max_nbands - array.shape[2])),
+                                    mode="constant",
                                 )
                             elif len(array.shape) == 4:  # data, phase_factors
-                                array_list[i] = np.pad(
-                                    arr,
+                                dict_array[key] = np.pad(
+                                    array,
                                     (
                                         (0, 0),
-                                        (0, max_nbands - arr.shape[2]),
+                                        (0, max_nbands - array.shape[2]),
                                         (0, 0),
                                         (0, 0),
                                     ),
-                                    mode='constant',
+                                    mode="constant",
                                 )
-                            elif len(arr.shape) == 5:  # xyz_data
-                                array_list[i] = np.pad(
-                                    arr,
+                            elif len(array.shape) == 5:  # xyz_data
+                                dict_array[key] = np.pad(
+                                    array,
                                     (
                                         (0, 0),
-                                        (0, max_nbands - arr.shape[2]),
+                                        (0, max_nbands - array.shape[2]),
                                         (0, 0),
                                         (0, 0),
                                         (0, 0),
                                     ),
-                                    mode='constant',
+                                    mode="constant",
                                 )
                             else:
-                                raise ValueError('Unexpected array shape encountered!')
-
+                                raise ValueError("Unexpected array shape encountered!")
 
         # set nbands, nkpoints, and other attributes:
         self.nbands = max_nbands
@@ -3895,29 +3901,24 @@ class Procar(MSONable):
         self.nkpoints = len(self.kpoints)
         self.occupancies = {
             spin: np.concatenate([occupancies[spin] for occupancies in occupancies_list], axis=0)
-            for spin in occupancies_list[0].keys()
+            for spin in occupancies_list[0]
         }
         self.eigenvalues = {
             spin: np.concatenate([eigenvalues[spin] for eigenvalues in eigenvalues_list], axis=0)
-            for spin in eigenvalues_list[0].keys()
+            for spin in eigenvalues_list[0]
         }
         self.weights = np.concatenate(weights_list, axis=0)
-        self.data = {
-            spin: np.concatenate([data[spin] for data in data_list], axis=0)
-            for spin in data_list[0].keys()
-        }
+        self.data = {spin: np.concatenate([data[spin] for data in data_list], axis=0) for spin in data_list[0]}
         self.phase_factors = {
             spin: np.concatenate([phase_factors[spin] for phase_factors in phase_factors_list], axis=0)
-            for spin in phase_factors_list[0].keys()
+            for spin in phase_factors_list[0]
         }
         if self.is_soc:
             self.xyz_data = {
-                key: np.concatenate([xyz_data[key] for xyz_data in xyz_data_list], axis=0)
-                for key in xyz_data_list[0].keys()
+                key: np.concatenate([xyz_data[key] for xyz_data in xyz_data_list], axis=0) for key in xyz_data_list[0]
             }
         else:
             self.xyz_data = None
-
 
     def _parse_kpoint_line(self, line):
         """
@@ -3928,7 +3929,7 @@ class Procar(MSONable):
         so need to be able to recognise and handle this.
         """
         fields = line.split()
-        kpoint_fields = fields[3:fields.index("weight")]
+        kpoint_fields = fields[3 : fields.index("weight")]
         kpoint_fields = [" -".join(field.split("-")).split() for field in kpoint_fields]
         kpoint_fields = [val for sublist in kpoint_fields for val in sublist]  # flatten
 
@@ -3971,7 +3972,9 @@ class Procar(MSONable):
             phase_factors: dict[Spin, np.ndarray] | None = None
             xyz_data: dict[str, np.ndarray] | None = None  # 'x'/'y'/'z' as keys for SOC projections dict
             # keep track of parsed kpoints, to avoid redundant/duplicate parsing with multiple PROCARs:
-            this_procar_parsed_kpoints = set()  # set of tuples of parsed (kvectors, 0/1 for Spin.up/down) for this PROCAR
+            this_procar_parsed_kpoints = (
+                set()
+            )  # set of tuples of parsed (kvectors, 0/1 for Spin.up/down) for this PROCAR
 
             # first dynamically determine whether PROCAR is SOC or not; SOC PROCARs have 4 lists of projections (
             # total and x,y,z) for each band, while non-SOC have only 1 list of projections:
@@ -4013,9 +4016,11 @@ class Procar(MSONable):
                     if current_kpoint == 0:
                         spin = Spin.up if spin == Spin.down else Spin.down
 
-                    if (kvec not in parsed_kpoints and
-                        (kvec, {Spin.down: 0, Spin.up:1}[spin]) not in this_procar_parsed_kpoints):
-                        this_procar_parsed_kpoints.add((kvec, {Spin.down: 0, Spin.up:1}[spin]))
+                    if (
+                        kvec not in parsed_kpoints
+                        and (kvec, {Spin.down: 0, Spin.up: 1}[spin]) not in this_procar_parsed_kpoints
+                    ):
+                        this_procar_parsed_kpoints.add((kvec, {Spin.down: 0, Spin.up: 1}[spin]))
                         skipping_kpoint = False
                         if spin == Spin.up:
                             kpoints.append(kvec)  # only add once
@@ -4096,26 +4101,25 @@ class Procar(MSONable):
                     n_ions = int(match[3])
 
                     if self.nions is not None and self.nions != n_ions:  # parsing multiple PROCARs but nions mismatch!
-                        raise ValueError(f'Mismatch in number of ions in supplied PROCARs: ({n_ions} vs {self.nions})!')
+                        raise ValueError(f"Mismatch in number of ions in supplied PROCARs: ({n_ions} vs {self.nions})!")
 
-            nbands = n_bands
             self.nions = n_ions  # attributes that should be consistent between multiple files are set here
             if self.orbitals is not None and self.orbitals != headers:  # multiple PROCARs but orbitals mismatch!
-                raise ValueError(f'Mismatch in orbital headers in supplied PROCARs: {headers} vs {self.orbitals}!')
+                raise ValueError(f"Mismatch in orbital headers in supplied PROCARs: {headers} vs {self.orbitals}!")
             self.orbitals = headers
             if self.nspins is not None and self.nspins != len(data):  # parsing multiple PROCARs but nspins mismatch!
-                raise ValueError('Mismatch in number of spin channels in supplied PROCARs!')
+                raise ValueError("Mismatch in number of spin channels in supplied PROCARs!")
             self.nspins = len(data)
 
-            # chop off emtpy kpoints in arrays and redetermine nkpoints as we may have skipped previously-parsed kpoints
+            # chop off empty kpoints in arrays and redetermine nkpoints as we may have skipped previously-parsed kpoints
             nkpoints = current_kpoint + 1
-            weights = np.array(weights[: nkpoints])
-            data = {spin: data[spin][: nkpoints] for spin in data}
-            eigenvalues = {spin: eigenvalues[spin][: nkpoints] for spin in eigenvalues}
-            occupancies = {spin: occupancies[spin][: nkpoints] for spin in occupancies}
-            phase_factors = {spin: phase_factors[spin][: nkpoints] for spin in phase_factors}
+            weights = np.array(weights[:nkpoints])
+            data = {spin: data[spin][:nkpoints] for spin in data}
+            eigenvalues = {spin: eigenvalues[spin][:nkpoints] for spin in eigenvalues}
+            occupancies = {spin: occupancies[spin][:nkpoints] for spin in occupancies}
+            phase_factors = {spin: phase_factors[spin][:nkpoints] for spin in phase_factors}
             if self.is_soc:
-                xyz_data = {spin: xyz_data[spin][: nkpoints] for spin in xyz_data}
+                xyz_data = {spin: xyz_data[spin][:nkpoints] for spin in xyz_data}
 
             # Update the parsed kpoints
             parsed_kpoints.update({kvec_spin_tuple[0] for kvec_spin_tuple in this_procar_parsed_kpoints})
@@ -4138,11 +4142,7 @@ class Procar(MSONable):
         assert self.nions is not None
 
         dico: dict[Spin, list] = {
-            spin: [
-                [defaultdict(float) for _ in range(self.nkpoints)]
-                for _ in range(self.nbands)
-            ]
-            for spin in self.data
+            spin: [[defaultdict(float) for _ in range(self.nkpoints)] for _ in range(self.nbands)] for spin in self.data
         }
         for iat in range(self.nions):
             name = structure.species[iat].symbol
