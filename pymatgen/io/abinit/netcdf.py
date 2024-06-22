@@ -101,7 +101,7 @@ class NetcdfReader:
         """Activated when used in the with statement."""
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, type, value, traceback):  # noqa: A002
         """Activated at the end of the with statement. It automatically closes the file."""
         self.rootgrp.close()
 
@@ -315,7 +315,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
 
     znucl_type = ncdata.read_value("atomic_numbers")
 
-    # type_atom[0:natom] --> index Between 1 and number of atom species
+    # type_atom[:natom] --> index Between 1 and number of atom species
     type_atom = ncdata.read_value("atom_species")
 
     # Fortran to C index and float --> int conversion.
@@ -446,7 +446,7 @@ _HDR_VARIABLES = (
     ),
     # _H(type(pawrhoij_type), allocatable :: pawrhoij(:) ! EVOLVING variable, only for paw
 )
-_HDR_VARIABLES = {h.name: h for h in _HDR_VARIABLES}  # type: ignore
+_HDR_VARIABLES = {h.name: h for h in _HDR_VARIABLES}  # type: ignore[assignment]
 
 
 class AbinitHeader(AttrDict):

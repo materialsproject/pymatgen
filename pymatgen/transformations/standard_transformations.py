@@ -218,7 +218,7 @@ class SupercellTransformation(AbstractTransformation):
 
         # Try to find a scaling_matrix satisfying the required boundary distance with smaller cell.
         if allow_rotation and sum(min_expand != 0) > 1:
-            min1, min2, min3 = map(int, min_expand)  # type: ignore  # map(int) just for mypy's sake
+            min1, min2, min3 = map(int, min_expand)
             scaling_matrix = [
                 [min1 or 1, 1 if min1 and min2 else 0, 1 if min1 and min3 else 0],
                 [-1 if min2 and min1 else 0, min2 or 1, 1 if min2 and min3 else 0],
@@ -279,9 +279,9 @@ class SubstitutionTransformation(AbstractTransformation):
         """
         self.species_map = species_map
         self._species_map = dict(species_map)
-        for k, v in self._species_map.items():
-            if isinstance(v, (tuple, list)):
-                self._species_map[k] = dict(v)  # type: ignore[assignment]
+        for key, val in self._species_map.items():
+            if isinstance(val, (tuple, list)):
+                self._species_map[key] = dict(val)  # type: ignore[assignment]
 
     def apply_transformation(self, structure: Structure) -> Structure:
         """Apply the transformation.

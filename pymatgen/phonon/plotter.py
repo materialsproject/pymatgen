@@ -93,7 +93,7 @@ class PhononDosPlotter:
         # a likely user mistake is to try to pass a DOS as the first argument (similar to PhononBSPlotter) but
         # without the isinstance check, this would not raise an error and just silently cause a blank plot
         if not isinstance(stack, bool):
-            raise ValueError(
+            raise TypeError(
                 "The first argument stack expects a boolean. If you are trying to add a DOS, use the add_dos() method."
             )
         self.stack = stack
@@ -293,7 +293,7 @@ class PhononBSPlotter:
                 the plot_compare method to distinguish the band structures.
         """
         if not isinstance(bs, PhononBandStructureSymmLine):
-            raise ValueError(
+            raise TypeError(
                 "PhononBSPlotter only works with PhononBandStructureSymmLine objects. "
                 "A PhononBandStructure object (on a uniform grid for instance and "
                 "not along symmetry lines won't work)"
@@ -476,7 +476,7 @@ class PhononBSPlotter:
                     assert 0 <= idx < len(all_sites), "one or more indices in site_comb does not exist"
                     all_indices.remove(idx)
             if len(all_indices) != 0:
-                raise Exception(f"not all {len(all_sites)} indices are included in site_comb")
+                raise ValueError(f"not all {len(all_sites)} indices are included in site_comb")
             indices = site_comb  # type: ignore[assignment]
         assert rgb_labels is None or len(rgb_labels) == len(indices), "wrong number of rgb_labels"
 
@@ -1007,7 +1007,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
             bs: A GruneisenPhononBandStructureSymmLine object.
         """
         if not isinstance(bs, GruneisenPhononBandStructureSymmLine):
-            raise ValueError(
+            raise TypeError(
                 "GruneisenPhononBSPlotter only works with GruneisenPhononBandStructureSymmLine objects. "
                 "A GruneisenPhononBandStructure object (on a uniform grid for instance and "
                 "not along symmetry lines won't work)"

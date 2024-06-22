@@ -561,7 +561,7 @@ class FermiDos(Dos, MSONable):
         for _ in range(precision):
             fermi_range = np.arange(-nstep, nstep + 1) * step + fermi
             calc_doping = np.array([self.get_doping(fermi_lvl, temperature) for fermi_lvl in fermi_range])
-            relative_error = np.abs(calc_doping / concentration - 1.0)  # type: ignore
+            relative_error = np.abs(calc_doping / concentration - 1.0)
             fermi = fermi_range[np.argmin(relative_error)]
             step /= 10.0
 
@@ -885,17 +885,13 @@ class CompleteDos(Dos):
         if elements:
             for idx, el in enumerate(elements):
                 spd_dos = self.get_element_spd_dos(el)[band]
-                densities = (
-                    spd_dos.densities if idx == 0 else add_densities(densities, spd_dos.densities)  # type: ignore
-                )
+                densities = spd_dos.densities if idx == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
 
         elif sites:
             for idx, site in enumerate(sites):
                 spd_dos = self.get_site_spd_dos(site)[band]
-                densities = (
-                    spd_dos.densities if idx == 0 else add_densities(densities, spd_dos.densities)  # type: ignore
-                )
+                densities = spd_dos.densities if idx == 0 else add_densities(densities, spd_dos.densities)
             dos = Dos(self.efermi, self.energies, densities)
 
         else:
@@ -1195,7 +1191,7 @@ class CompleteDos(Dos):
 
     def get_dos_fp(
         self,
-        type: str = "summed_pdos",
+        type: str = "summed_pdos",  # noqa: A002
         binning: bool = True,
         min_e: float | None = None,
         max_e: float | None = None,
@@ -1371,9 +1367,7 @@ class CompleteDos(Dos):
             for at in self.structure:
                 dd = {}
                 for orb, pdos in self.pdos[at].items():
-                    dd[str(orb)] = {
-                        "densities": {str(int(spin)): list(dens) for spin, dens in pdos.items()}  # type: ignore
-                    }
+                    dd[str(orb)] = {"densities": {str(int(spin)): list(dens) for spin, dens in pdos.items()}}
                 dct["pdos"].append(dd)
             dct["atom_dos"] = {str(at): dos.as_dict() for at, dos in self.get_element_dos().items()}
             dct["spd_dos"] = {str(orb): dos.as_dict() for orb, dos in self.get_spd_dos().items()}
@@ -1403,7 +1397,7 @@ _lobster_orb_labs = (
 class LobsterCompleteDos(CompleteDos):
     """Extended CompleteDos for LOBSTER."""
 
-    def get_site_orbital_dos(self, site: PeriodicSite, orbital: str) -> Dos:  # type: ignore
+    def get_site_orbital_dos(self, site: PeriodicSite, orbital: str) -> Dos:  # type: ignore[override]
         """Get the DOS for a particular orbital of a particular site.
 
         Args:
@@ -1421,7 +1415,7 @@ class LobsterCompleteDos(CompleteDos):
         if orbital[1:] not in _lobster_orb_labs:
             raise ValueError("orbital is not correct")
 
-        return Dos(self.efermi, self.energies, self.pdos[site][orbital])  # type: ignore
+        return Dos(self.efermi, self.energies, self.pdos[site][orbital])  # type: ignore[index]
 
     def get_site_t2g_eg_resolved_dos(
         self,
@@ -1454,7 +1448,7 @@ class LobsterCompleteDos(CompleteDos):
             "e_g": Dos(self.efermi, self.energies, functools.reduce(add_densities, eg_dos)),
         }
 
-    def get_spd_dos(self) -> dict[str, Dos]:  # type: ignore
+    def get_spd_dos(self) -> dict[str, Dos]:  # type: ignore[override]
         """Get orbital projected DOS.
 
         For example, if 3s and 4s are included in the basis of some element,
@@ -1464,6 +1458,7 @@ class LobsterCompleteDos(CompleteDos):
             {orbital: Dos}
         """
         spd_dos = {}
+        orb = None
         for atom_dos in self.pdos.values():
             for orb, pdos in atom_dos.items():
                 orbital_type = _get_orb_type_lobster(str(orb))
@@ -1472,9 +1467,9 @@ class LobsterCompleteDos(CompleteDos):
                 else:
                     spd_dos[orbital_type] = add_densities(spd_dos[orbital_type], pdos)
 
-        return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in spd_dos.items()}  # type: ignore
+        return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in spd_dos.items()}  # type: ignore[misc]
 
-    def get_element_spd_dos(self, el: SpeciesLike) -> dict[str, Dos]:  # type: ignore
+    def get_element_spd_dos(self, el: SpeciesLike) -> dict[str, Dos]:  # type: ignore[override]
         """Get element and s/p/d projected DOS.
 
         Args:
@@ -1494,7 +1489,7 @@ class LobsterCompleteDos(CompleteDos):
                     else:
                         el_dos[orbital_type] = add_densities(el_dos[orbital_type], pdos)
 
-        return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in el_dos.items()}  # type: ignore
+        return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in el_dos.items()}  # type: ignore[misc]
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:

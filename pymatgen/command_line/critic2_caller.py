@@ -351,7 +351,7 @@ class CriticalPoint(MSONable):
     def __init__(
         self,
         index,
-        type,
+        type,  # noqa: A002
         frac_coords,
         point_group,
         multiplicity,

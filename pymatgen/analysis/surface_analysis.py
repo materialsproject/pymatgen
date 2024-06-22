@@ -872,10 +872,10 @@ class SurfaceEnergyPlotter:
         mark = "--" if ucell_comp != clean_comp else "-"
 
         delu_dict = self.set_all_variables(delu_dict, delu_default)
-        delu_dict[ref_delu] = chempot_range[0]  # type: ignore
+        delu_dict[ref_delu] = chempot_range[0]  # type: ignore[index]
         gamma_min = self.as_coeffs_dict[entry]
         gamma_min = gamma_min if type(gamma_min).__name__ == "float" else sub_chempots(gamma_min, delu_dict)
-        delu_dict[ref_delu] = chempot_range[1]  # type: ignore
+        delu_dict[ref_delu] = chempot_range[1]  # type: ignore[index]
         gamma_max = self.as_coeffs_dict[entry]
         gamma_max = gamma_max if type(gamma_max).__name__ == "float" else sub_chempots(gamma_max, delu_dict)
         gamma_range = [gamma_min, gamma_max]

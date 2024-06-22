@@ -37,7 +37,7 @@ __date__ = "August 09, 2022"
 
 sub_spgrp = partial(re.sub, r"[\s_]", "")
 
-space_groups = {sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]}  # type: ignore
+space_groups = {sub_spgrp(k): k for k in SYMM_DATA["space_group_encoding"]}
 
 
 class ThermalDisplacementMatrices(MSONable):
@@ -97,19 +97,19 @@ class ThermalDisplacementMatrices(MSONable):
         Returns:
             3d numpy array including thermal displacements, first dimensions are the atoms
         """
-        matrixform = np.zeros((len(thermal_displacement), 3, 3))
-        for imat, mat in enumerate(thermal_displacement):
+        matrix_form = np.zeros((len(thermal_displacement), 3, 3))
+        for idx, mat in enumerate(thermal_displacement):
             # xx, yy, zz, yz, xz, xy
-            matrixform[imat][0][0] = mat[0]
-            matrixform[imat][1][1] = mat[1]
-            matrixform[imat][2][2] = mat[2]
-            matrixform[imat][1][2] = mat[3]
-            matrixform[imat][2][1] = mat[3]
-            matrixform[imat][0][2] = mat[4]
-            matrixform[imat][2][0] = mat[4]
-            matrixform[imat][0][1] = mat[5]
-            matrixform[imat][1][0] = mat[5]
-        return matrixform
+            matrix_form[idx][0][0] = mat[0]
+            matrix_form[idx][1][1] = mat[1]
+            matrix_form[idx][2][2] = mat[2]
+            matrix_form[idx][1][2] = mat[3]
+            matrix_form[idx][2][1] = mat[3]
+            matrix_form[idx][0][2] = mat[4]
+            matrix_form[idx][2][0] = mat[4]
+            matrix_form[idx][0][1] = mat[5]
+            matrix_form[idx][1][0] = mat[5]
+        return matrix_form
 
     @staticmethod
     def get_reduced_matrix(thermal_displacement: ArrayLike[ArrayLike]) -> np.ndarray[np.ndarray]:
@@ -203,20 +203,20 @@ class ThermalDisplacementMatrices(MSONable):
         Returns:
             np.array: eigenvalues of Ucart. First dimension are the atoms in the structure.
         """
-        U1U2U3 = []
+        u1u2u3_eig_vals = []
         for mat in self.thermal_displacement_matrix_cart_matrixform:
-            U1U2U3.append(np.linalg.eig(mat)[0])
-        return U1U2U3
+            u1u2u3_eig_vals.append(np.linalg.eig(mat)[0])
+        return u1u2u3_eig_vals
 
     def write_cif(self, filename: str) -> None:
-        """Write a cif including thermal displacements.
+        """Write a CIF including thermal displacements.
 
         Args:
-            filename: name of the cif file
+            filename: name of the CIF file
         """
         writer = CifWriter(self.structure)
         writer.write_file(filename)
-        # This will simply append the thermal displacement part to the cif from the CifWriter
+        # This will simply append the thermal displacement part to the CIF from the CifWriter
         # In the long run, CifWriter could be extended to handle thermal displacement matrices
         with open(filename, mode="a") as file:
             file.write("loop_ \n")
@@ -396,7 +396,7 @@ class ThermalDisplacementMatrices(MSONable):
 
             counter = 1
             # two vectors per atom
-            for _i in range(len(result)):
+            for _ in range(len(result)):
                 file.write(f"{counter} 0.2 255 0 0 1\n")
                 counter += 1
                 file.write(f"{counter} 0.2 0 0 255 1\n")
@@ -514,7 +514,7 @@ class ThermalDisplacementMatrices(MSONable):
 
     @staticmethod
     def from_cif_P1(filename: str) -> list[ThermalDisplacementMatrices]:
-        """Reads a cif with P1 symmetry including positions and ADPs.
+        """Reads a CIF with P1 symmetry including positions and ADPs.
         Currently, no check of symmetry is performed as CifParser methods cannot be easily reused.
 
         Args:

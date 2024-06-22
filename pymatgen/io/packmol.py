@@ -23,11 +23,15 @@ import os
 import subprocess
 from pathlib import Path
 from shutil import which
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from pymatgen.core import Molecule
 from pymatgen.io.core import InputGenerator, InputSet
+
+if TYPE_CHECKING:
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Tingzheng Hou, Ryan Kingsbury, Orion Cohen"
 __version__ = "1.0"
@@ -41,7 +45,7 @@ class PackmolSet(InputSet):
     InputSet for the Packmol software. This class defines several attributes related to.
     """
 
-    def run(self, path: str | Path, timeout=30):
+    def run(self, path: PathLike, timeout=30):
         """Run packmol and write out the packed structure.
 
         Args:
@@ -88,12 +92,12 @@ class PackmolSet(InputSet):
             os.chdir(wd)
 
     @classmethod
-    def from_directory(cls, directory: str | Path) -> None:
+    def from_directory(cls, directory: PathLike) -> None:
         """
         Construct an InputSet from a directory of one or more files.
 
         Args:
-            directory (str | Path): Directory to read input files from.
+            directory (PathLike): Directory to read input files from.
         """
         raise NotImplementedError(f"from_directory has not been implemented in {cls.__name__}")
 
@@ -109,9 +113,9 @@ class PackmolBoxGen(InputGenerator):
         tolerance: float = 2.0,
         seed: int = 1,
         control_params: dict | None = None,
-        inputfile: str | Path = "packmol.inp",
-        outputfile: str | Path = "packmol_out.xyz",
-        stdoutfile: str | Path = "packmol.stdout",
+        inputfile: PathLike = "packmol.inp",
+        outputfile: PathLike = "packmol_out.xyz",
+        stdoutfile: PathLike = "packmol.stdout",
     ) -> None:
         """
         Instantiate a PackmolBoxGen class. The init method defines simulations parameters
@@ -132,7 +136,7 @@ class PackmolBoxGen(InputGenerator):
         self.tolerance = tolerance
         self.seed = seed
 
-    def get_input_set(  # type: ignore
+    def get_input_set(
         self,
         molecules: list[dict],
         box: list[float] | None = None,
@@ -182,7 +186,7 @@ class PackmolBoxGen(InputGenerator):
             # estimate the total volume of all molecules in cubic Å
             net_volume = 0.0
             for d in molecules:
-                mol = Molecule.from_file(d["coords"]) if not isinstance(d["coords"], Molecule) else d["coords"]
+                mol = d["coords"] if isinstance(d["coords"], Molecule) else Molecule.from_file(d["coords"])
 
                 if mol is None:
                     raise ValueError("Molecule cannot be None.")
@@ -222,10 +226,10 @@ class PackmolBoxGen(InputGenerator):
             file_contents += f"  inside box {box_list}\n"
             file_contents += "end structure\n\n"
 
-        mapping.update({str(self.inputfile): file_contents})
+        mapping |= {str(self.inputfile): file_contents}
 
         return PackmolSet(
-            inputs=mapping,  # type: ignore
+            inputs=mapping,  # type: ignore[arg-type]
             seed=self.seed,
             inputfile=self.inputfile,
             outputfile=self.outputfile,

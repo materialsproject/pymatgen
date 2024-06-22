@@ -266,8 +266,8 @@ class CollinearMagneticStructureAnalyzer:
             elif overwrite_magmom_mode == OverwriteMagmomMode.normalize.value and magmoms[idx] != 0:
                 magmoms[idx] = int(magmoms[idx] / abs(magmoms[idx]))
 
-        # round magmoms, used to smooth out computational data
-        magmoms = self._round_magmoms(magmoms, round_magmoms) if round_magmoms else magmoms  # type: ignore
+        # Round magmoms, used to smooth out computational data
+        magmoms = self._round_magmoms(magmoms, round_magmoms) if round_magmoms else magmoms
 
         if set_net_positive:
             sign = np.sum(magmoms)
