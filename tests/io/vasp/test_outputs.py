@@ -1606,13 +1606,34 @@ class TestProcar(PymatgenTest):
         with pytest.raises(ValueError, match="'m' is not in list"):
             procar.get_occupation(1, "m")
         assert procar.nbands == 10
-        print(procar.nkpoints)
         assert procar.nkpoints == 10
         assert procar.nions == 3
         filepath = f"{VASP_OUT_DIR}/PROCAR.gz"
         procar = Procar(filepath)
         assert procar.get_occupation(0, "dxy")[Spin.up] == approx(0.96214813853000025)
         assert procar.get_occupation(0, "dxy")[Spin.down] == approx(0.85796295426000124)
+
+    def test_soc_procar(self):
+        filepath = f"{VASP_OUT_DIR}/PROCAR.SOC.gz"
+        procar = Procar(filepath)
+        assert procar.nions == 4
+        assert procar.nkpoints == 25
+        assert procar.nspins == 1
+        assert procar.is_soc  # SOC PROCAR
+        nb = procar.nbands
+        nk = procar.nkpoints
+        assert procar.eigenvalues[Spin.up].shape == (nk, nb)
+        assert procar.kpoints.shape == (nk, 3)
+        assert len(procar.weights) == nk
+        assert np.all(procar.kpoints[0][0] == 0.0)
+        assert procar.occupancies[Spin.up].shape == (nk, nb)
+
+        # spot check some values:
+        assert procar.data[Spin.up][0,1,1,0] == approx(0.095)
+        assert procar.data[Spin.up][0,1,1,1] == approx(0)
+
+        assert procar.xyz_data["x"][0, 1, 1, 0] == approx(-0.063)
+        assert procar.xyz_data["z"][0, 1, 1, 1] == approx(0)
 
     def test_phase_factors(self):
         filepath = f"{VASP_OUT_DIR}/PROCAR.phase.gz"
