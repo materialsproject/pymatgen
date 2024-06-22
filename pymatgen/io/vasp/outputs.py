@@ -3788,9 +3788,12 @@ class Elfcar(VolumetricData):
 
 class Procar(MSONable):
     """
-    # TODO: Test parsing speeds with easyunfold vs old vs new pymatgen
-    # TODO: Update docstring to mention easyunfold
     PROCAR file reader.
+
+    Updated to use code from easyunfold (https://smtg-bham.github.io/easyunfold; band-structure
+    unfolding package) to allow SOC PROCAR parsing, and parsing multiple PROCAR files together.
+    easyunfold's PROCAR parser can be used if finer control over projections (k-point weighting,
+    normalisation per band, quick orbital sub-selection etc) is needed.
 
     Attributes:
         data (dict): The PROCAR data of the form below. It should VASP uses 1-based indexing,
@@ -3805,11 +3808,10 @@ class Procar(MSONable):
         nspins (int): Number of spins.
     """
 
-    def __init__(self, filename: Union[PathLike, list[PathLike]], normalise=True) -> None:
+    def __init__(self, filename: Union[PathLike, list[PathLike]]) -> None:
         """
         Args:
             filename: The path to PROCAR(.gz) file to read, or list of paths.
-            normalise: Whether to normalise the summed projections for every band to 1, or not. (Default: True)
         """
         # get PROCAR filenames list to parse:
         filenames = [filename] if isinstance(filename, (str, Path)) else filename
@@ -3818,8 +3820,6 @@ class Procar(MSONable):
         self.is_soc = None  # used to check for consistency in files later
         self.orbitals = None  # used to check for consistency in files later
         self.read(filenames)
-        self.normalise = normalise
-        # TODO: Normalise here or in code
 
     def read(self, filenames: list[PathLike]):
         """
