@@ -1606,6 +1606,7 @@ class TestProcar(PymatgenTest):
         with pytest.raises(ValueError, match="'m' is not in list"):
             procar.get_occupation(1, "m")
         assert procar.nbands == 10
+        print(procar.nkpoints)
         assert procar.nkpoints == 10
         assert procar.nions == 3
         filepath = f"{VASP_OUT_DIR}/PROCAR.gz"

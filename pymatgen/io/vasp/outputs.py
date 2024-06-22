@@ -3788,7 +3788,8 @@ class Elfcar(VolumetricData):
 
 class Procar(MSONable):
     """
-
+    # TODO: Test parsing speeds with easyunfold vs old vs new pymatgen
+    # TODO: Update docstring to mention easyunfold
     PROCAR file reader.
 
     Attributes:
@@ -3830,9 +3831,9 @@ class Procar(MSONable):
         parsed_kpoints = None
         occupancies_list, kpoints_list, weights_list = [], [], []
         eigenvalues_list, data_list, xyz_data_list = [], [], []
-        phase_factors_list, xyz_phase_factors_list = [], []
+        phase_factors_list = []
         for filename in tqdm(filenames, desc='Reading PROCARs', unit='file', disable=len(filenames) == 1):
-            kpoints, weights, eigenvalues, occupancies, data, phase_factors, xyz_data, xyz_phase_factors = self._read(
+            kpoints, weights, eigenvalues, occupancies, data, phase_factors, xyz_data = self._read(
                 filename, parsed_kpoints=parsed_kpoints
             )  # TODO: Quick check parsed_kpoints working as expected
 
@@ -3844,13 +3845,12 @@ class Procar(MSONable):
             data_list.append(data)
             xyz_data_list.append(xyz_data)
             phase_factors_list.append(phase_factors)
-            xyz_phase_factors_list.append(xyz_phase_factors)
 
         # Combine arrays along the kpoints axis:
         # nbands (axis = 2) could differ between arrays, so set missing values to zero:
         max_nbands = max(eig_dict[Spin.up].shape[1] for eig_dict in eigenvalues_list)
         for dict_array_list in [
-            occupancies_list, eigenvalues_list, data_list, xyz_data_list, phase_factors_list, xyz_phase_factors_list
+            occupancies_list, eigenvalues_list, data_list, xyz_data_list, phase_factors_list
         ]:
             for i, dict_array in enumerate(dict_array_list):
                 if dict_array:
@@ -3873,7 +3873,7 @@ class Procar(MSONable):
                                     ),
                                     mode='constant',
                                 )
-                            elif len(arr.shape) == 5:  # xyz_data, xyz_phase_factors
+                            elif len(arr.shape) == 5:  # xyz_data
                                 array_list[i] = np.pad(
                                     arr,
                                     (
@@ -3915,12 +3915,8 @@ class Procar(MSONable):
                 key: np.concatenate([xyz_data[key] for xyz_data in xyz_data_list], axis=0)
                 for key in xyz_data_list[0].keys()
             }
-            self.xyz_phase_factors = {
-                key: np.concatenate([xyz_phase_factors[key] for xyz_phase_factors in xyz_phase_factors_list], axis=0)
-                for key in xyz_phase_factors_list[0].keys()
-            }
         else:
-            self.xyz_data = self.xyz_phase_factors = None
+            self.xyz_data = None
 
 
     def _parse_kpoint_line(self, line):
@@ -3952,7 +3948,7 @@ class Procar(MSONable):
         if parsed_kpoints is None:
             parsed_kpoints = set()
 
-        with (zopen(filename, mode="rt") as file_handle):
+        with zopen(filename, mode="rt") as file_handle:
             preamble_expr = re.compile(r"# of k-points:\s*(\d+)\s+# of bands:\s*(\d+)\s+# of ions:\s*(\d+)")
             kpoint_expr = re.compile(r"^k-point\s+(\d+).*weight = ([0-9\.]+)")
             band_expr = re.compile(r"^band\s+(\d+)")
@@ -3974,7 +3970,6 @@ class Procar(MSONable):
             occupancies: dict[Spin, np.ndarray] | None = None
             phase_factors: dict[Spin, np.ndarray] | None = None
             xyz_data: dict[str, np.ndarray] | None = None  # 'x'/'y'/'z' as keys for SOC projections dict
-            xyz_phase_factors: dict[str, np.ndarray] | None = None  # 'x'/'y'/'z' as keys for SOC projections dict
             # keep track of parsed kpoints, to avoid redundant/duplicate parsing with multiple PROCARs:
             this_procar_parsed_kpoints = set()  # set of tuples of parsed (kvectors, 0/1 for Spin.up/down) for this PROCAR
 
@@ -4005,24 +4000,29 @@ class Procar(MSONable):
             self.is_soc = is_soc
 
             skipping_kpoint = False  # true when skipping projections for a previously-parsed kpoint
+            ion_line_count = 0  # printed twice when phase factors present
             for line in file_handle:
                 line = line.strip()
+                if ion_expr.match(line):
+                    ion_line_count += 1
+
                 if kpoint_expr.match(line):
                     kvec = self._parse_kpoint_line(line)
-
-                    if (kvec not in parsed_kpoints and
-                        (kvec, {Spin.down: 0, Spin.up:1}[spin]) not in this_procar_parsed_kpoints):
-                        this_procar_parsed_kpoints.add((kvec, {Spin.down: 0, Spin.up:1}[spin]))
-                        kpoints.append(kvec)
-                        skipping_kpoint = False
-                    else:  # skip ahead to next kpoint:
-                        skipping_kpoint = True
-                        continue
-
                     match = kpoint_expr.match(line)
                     current_kpoint = int(match[1]) - 1  # type: ignore[index]
                     if current_kpoint == 0:
                         spin = Spin.up if spin == Spin.down else Spin.down
+
+                    if (kvec not in parsed_kpoints and
+                        (kvec, {Spin.down: 0, Spin.up:1}[spin]) not in this_procar_parsed_kpoints):
+                        this_procar_parsed_kpoints.add((kvec, {Spin.down: 0, Spin.up:1}[spin]))
+                        skipping_kpoint = False
+                        if spin == Spin.up:
+                            kpoints.append(kvec)  # only add once
+                    else:  # skip ahead to next kpoint:
+                        skipping_kpoint = True
+                        continue
+
                     if spin == Spin.up:
                         weights[current_kpoint] = float(match[2])  # record k-weight only once
                     proj_data_parsed_for_band = 0
@@ -4031,6 +4031,7 @@ class Procar(MSONable):
                     continue
 
                 elif band_expr.match(line):
+                    ion_line_count = 0  # printed a second time when phase factors present
                     match = band_expr.match(line)
                     current_band = int(match[1]) - 1  # type: ignore[index]
                     tokens = line.split()
@@ -4050,7 +4051,6 @@ class Procar(MSONable):
                     )
                     if self.is_soc:
                         xyz_data = data.copy()  # dict keys are now "x", "y", "z" rather than Spin.up/down
-                        xyz_phase_factors = phase_factors.copy()
 
                 elif expr.match(line):
                     tokens = line.split()
@@ -4063,13 +4063,12 @@ class Procar(MSONable):
                         assert data is not None
                         data[spin][current_kpoint, current_band, index, :] = num_data
 
-                    elif self.is_soc:
+                    elif self.is_soc and proj_data_parsed_for_band < 4:
+                        proj_direction = {1: "x", 2: "y", 3: "z"}[proj_data_parsed_for_band]
                         assert xyz_data is not None
-                        xyz_data[{1: "x", 2: "y", 3: "z"}[proj_data_parsed_for_band]][
-                            current_kpoint, current_band, index, :
-                        ] = num_data
+                        xyz_data[proj_direction][current_kpoint, current_band, index, :] = num_data
 
-                    elif len(tokens) > len(headers):  # TODO: Need to be able to handle this too
+                    elif len(tokens) > len(headers):  # note no xyz projected phase factors with SOC
                         # New format of PROCAR (VASP 5.4.4)
                         num_data = np.array([float(t) for t in tokens[: 2 * len(headers)]])
                         for orb in range(len(headers)):
@@ -4084,17 +4083,16 @@ class Procar(MSONable):
 
                 elif total_expr.match(line):
                     proj_data_parsed_for_band += 1
-                    if proj_data_parsed_for_band > 4:
-                        raise RuntimeError("Error in PROCAR parsing; corrupted file?")
 
                 elif preamble_expr.match(line):
                     match = preamble_expr.match(line)
                     assert match is not None
                     n_kpoints = int(match[1])
-                    weights = np.zeros(n_kpoints)
                     n_bands = int(match[2])
-                    eigenvalues = defaultdict(lambda: np.zeros((n_kpoints, n_bands)))
-                    occupancies = defaultdict(lambda: np.zeros((n_kpoints, n_bands)))
+                    if eigenvalues is None:  # first spin
+                        weights = np.zeros(n_kpoints)
+                        eigenvalues = defaultdict(lambda: np.zeros((n_kpoints, n_bands)))
+                        occupancies = defaultdict(lambda: np.zeros((n_kpoints, n_bands)))
                     n_ions = int(match[3])
 
                     if self.nions is not None and self.nions != n_ions:  # parsing multiple PROCARs but nions mismatch!
@@ -4118,12 +4116,11 @@ class Procar(MSONable):
             phase_factors = {spin: phase_factors[spin][: nkpoints] for spin in phase_factors}
             if self.is_soc:
                 xyz_data = {spin: xyz_data[spin][: nkpoints] for spin in xyz_data}
-                xyz_phase_factors = {spin: xyz_phase_factors[spin][: nkpoints] for spin in xyz_phase_factors}
 
             # Update the parsed kpoints
             parsed_kpoints.update({kvec_spin_tuple[0] for kvec_spin_tuple in this_procar_parsed_kpoints})
 
-            return kpoints, weights, eigenvalues, occupancies, data, phase_factors, xyz_data, xyz_phase_factors
+            return kpoints, weights, eigenvalues, occupancies, data, phase_factors, xyz_data
 
     def get_projection_on_elements(self, structure: Structure) -> dict[Spin, list]:
         """
