@@ -3844,7 +3844,7 @@ class Procar(MSONable):
         for filename in tqdm(filenames, desc="Reading PROCARs", unit="file", disable=len(filenames) == 1):
             kpoints, weights, eigenvalues, occupancies, data, phase_factors, xyz_data = self._read(
                 filename, parsed_kpoints=parsed_kpoints
-            )  # TODO: Quick check parsed_kpoints working as expected
+            )
 
             # Append to respective lists
             occupancies_list.append(occupancies)
