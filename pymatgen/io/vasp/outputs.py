@@ -3823,10 +3823,10 @@ class Procar(MSONable):
             filename: The path to PROCAR(.gz) file to read, or list of paths.
         """
         # get PROCAR filenames list to parse:
-        filenames = [filename] if not isinstance(filename, list) else filename
-        self.nions = None  # used to check for consistency in files later
-        self.nspins = None  # used to check for consistency in files later
-        self.is_soc = None  # used to check for consistency in files later
+        filenames = filename if isinstance(filename, list) else [filename]
+        self.nions: int | None = None  # used to check for consistency in files later
+        self.nspins: int | None = None  # used to check for consistency in files later
+        self.is_soc: bool | None = None  # used to check for consistency in files later
         self.orbitals = None  # used to check for consistency in files later
         self.read(filenames)
 
@@ -3859,7 +3859,7 @@ class Procar(MSONable):
         # nbands (axis = 2) could differ between arrays, so set missing values to zero:
         max_nbands = max(eig_dict[Spin.up].shape[1] for eig_dict in eigenvalues_list)
         for dict_array_list in [occupancies_list, eigenvalues_list, data_list, xyz_data_list, phase_factors_list]:
-            for _i, dict_array in enumerate(dict_array_list):
+            for dict_array in dict_array_list:
                 if dict_array:
                     for key, array in dict_array.items():
                         if array.shape[1] < max_nbands:
@@ -3914,7 +3914,7 @@ class Procar(MSONable):
             for spin in phase_factors_list[0]
         }
         if self.is_soc:
-            self.xyz_data = {
+            self.xyz_data: dict | None = {
                 key: np.concatenate([xyz_data[key] for xyz_data in xyz_data_list], axis=0) for key in xyz_data_list[0]
             }
         else:
@@ -3966,7 +3966,7 @@ class Procar(MSONable):
             n_ions = None
             weights: np.ndarray[float] | None = None
             headers = None
-            data: dict[Spin, np.ndarray] | None = None
+            data: dict[Spin, np.ndarray] = {}
             eigenvalues: dict[Spin, np.ndarray] | None = None
             occupancies: dict[Spin, np.ndarray] | None = None
             phase_factors: dict[Spin, np.ndarray] | None = None
@@ -4004,6 +4004,7 @@ class Procar(MSONable):
 
             skipping_kpoint = False  # true when skipping projections for a previously-parsed kpoint
             ion_line_count = 0  # printed twice when phase factors present
+            proj_data_parsed_for_band = 0  # 0 for non-SOC, 1-4 for SOC/phase factors
             for line in file_handle:
                 line = line.strip()
                 if ion_expr.match(line):
@@ -4028,8 +4029,8 @@ class Procar(MSONable):
                         skipping_kpoint = True
                         continue
 
-                    if spin == Spin.up:
-                        weights[current_kpoint] = float(match[2])  # record k-weight only once
+                    if spin == Spin.up:  # record k-weight only once
+                        weights[current_kpoint] = float(match[2])  # type: ignore[index]
                     proj_data_parsed_for_band = 0
 
                 elif skipping_kpoint:
@@ -4040,8 +4041,8 @@ class Procar(MSONable):
                     match = band_expr.match(line)
                     current_band = int(match[1]) - 1  # type: ignore[index]
                     tokens = line.split()
-                    eigenvalues[spin][current_kpoint, current_band] = float(tokens[4])
-                    occupancies[spin][current_kpoint, current_band] = float(tokens[-1])
+                    eigenvalues[spin][current_kpoint, current_band] = float(tokens[4])  # type: ignore[index]
+                    occupancies[spin][current_kpoint, current_band] = float(tokens[-1])  # type: ignore[index]
                     # keep track of parsed projections for each band (1x w/non-SOC, 4x w/SOC):
                     proj_data_parsed_for_band = 0
 
@@ -4054,8 +4055,8 @@ class Procar(MSONable):
                     phase_factors = defaultdict(
                         lambda: np.full((n_kpoints, n_bands, n_ions, len(headers)), np.nan, dtype=np.complex128)
                     )
-                    if self.is_soc:
-                        xyz_data = data.copy()  # dict keys are now "x", "y", "z" rather than Spin.up/down
+                    if self.is_soc:  # dict keys are now "x", "y", "z" rather than Spin.up/down
+                        xyz_data = defaultdict(lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers))))
 
                 elif expr.match(line):
                     tokens = line.split()
@@ -4065,7 +4066,7 @@ class Procar(MSONable):
                     assert phase_factors is not None
 
                     if proj_data_parsed_for_band == 0:
-                        assert data is not None
+                        assert data
                         data[spin][current_kpoint, current_band, index, :] = num_data
 
                     elif self.is_soc and proj_data_parsed_for_band < 4:
@@ -4113,13 +4114,13 @@ class Procar(MSONable):
 
             # chop off empty kpoints in arrays and redetermine nkpoints as we may have skipped previously-parsed kpoints
             nkpoints = current_kpoint + 1
-            weights = np.array(weights[:nkpoints])
-            data = {spin: data[spin][:nkpoints] for spin in data}
-            eigenvalues = {spin: eigenvalues[spin][:nkpoints] for spin in eigenvalues}
-            occupancies = {spin: occupancies[spin][:nkpoints] for spin in occupancies}
-            phase_factors = {spin: phase_factors[spin][:nkpoints] for spin in phase_factors}
+            weights = np.array(weights[:nkpoints])  # type: ignore[index]
+            data = {spin: data[spin][:nkpoints] for spin in data}  # type: ignore[index]
+            eigenvalues = {spin: eigenvalues[spin][:nkpoints] for spin in eigenvalues}  # type: ignore[union-attr,index]
+            occupancies = {spin: occupancies[spin][:nkpoints] for spin in occupancies}  # type: ignore[union-attr,index]
+            phase_factors = {spin: phase_factors[spin][:nkpoints] for spin in phase_factors}  # type: ignore[union-attr,index]
             if self.is_soc:
-                xyz_data = {spin: xyz_data[spin][:nkpoints] for spin in xyz_data}
+                xyz_data = {spin: xyz_data[spin][:nkpoints] for spin in xyz_data}  # type: ignore[union-attr,index]
 
             # Update the parsed kpoints
             parsed_kpoints.update({kvec_spin_tuple[0] for kvec_spin_tuple in this_procar_parsed_kpoints})
