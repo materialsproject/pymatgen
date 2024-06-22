@@ -130,7 +130,7 @@ class DielectricFunctionCalculator(MSONable):
                 except ValueError as exc:
                     if "reshape" in str(exc):
                         continue
-                    raise exc
+                    raise
             return None
 
         vrun = Vasprun(f"{directory}/vasprun.xml")
@@ -414,7 +414,7 @@ def epsilon_imag(
     except ValueError as exc:
         if "zero-size array" in str(exc):
             return egrid, np.zeros_like(egrid, dtype=np.complex128)
-        raise exc
+        raise
     _, _, nk, nspin = cderm.shape[:4]
     iter_idx = [
         range(min_band0, max_band0 + 1),

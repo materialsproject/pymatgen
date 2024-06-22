@@ -84,7 +84,7 @@ class BabelMolAdaptor:
         elif isinstance(mol, pybel.Molecule):
             self._ob_mol = mol.OBMol
         else:
-            raise ValueError(f"Unsupported input type {type(mol)}, must be Molecule, openbabel.OBMol or pybel.Molecule")
+            raise TypeError(f"Unsupported input type {type(mol)}, must be Molecule, openbabel.OBMol or pybel.Molecule")
 
     @property
     def pymatgen_mol(self) -> Molecule:

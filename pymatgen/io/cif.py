@@ -42,7 +42,7 @@ __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 
 class CifBlock:
     """
-    Object for storing cif data. All data is stored in a single dictionary.
+    Object for storing CIF data. All data is stored in a single dictionary.
     Data inside loops are stored in lists in the data dictionary, and
     information on which keys are grouped together are stored in the loops
     attribute.
@@ -58,7 +58,7 @@ class CifBlock:
     ) -> None:
         """
         Args:
-            data: dict of data to go into the cif. Values should be convertible to string,
+            data: dict of data to go into the CIF. Values should be convertible to string,
                 or lists of these if the key is in a loop
             loops: list of lists of keys, grouped by which loop they should appear in
             header: name of the block (appears after the data_ on the first line).
@@ -77,7 +77,7 @@ class CifBlock:
         return self.data[key]
 
     def __str__(self) -> str:
-        """Get the cif string for the data block."""
+        """Get the CIF string for the data block."""
         out = [f"data_{self.header}"]
         keys = list(self.data)
         written = []
@@ -199,7 +199,7 @@ class CifBlock:
 
         while deq:
             _str = deq.popleft()
-            # cif keys aren't in quotes, so show up as _str[0]
+            # CIF keys aren't in quotes, so show up as _str[0]
             if _str[0] == "_eof":
                 break
 
@@ -249,7 +249,7 @@ class CifFile:
         """
         Args:
             data (dict): Of CifBlock objects.
-            orig_string (str): The original cif.
+            orig_string (str): The original CIF.
             comment (str): Comment.
         """
         self.data = data
@@ -372,13 +372,13 @@ class CifParser:
         self._site_tolerance = site_tolerance
         self._frac_tolerance = frac_tolerance
 
-        # Read cif file
+        # Read CIF file
         if isinstance(filename, (str, Path)):
             self._cif = CifFile.from_file(filename)
         elif isinstance(filename, StringIO):
             self._cif = CifFile.from_str(filename.read())
         else:
-            raise RuntimeError("Unsupported file format.")
+            raise TypeError("Unsupported file format.")
 
         # Options related to checking CIFs for missing elements
         # or incorrect stoichiometries
@@ -915,7 +915,7 @@ class CifParser:
         Returns:
             A string for the parsed symbol. None if no parsing was possible.
         """
-        # Common representations for elements/water in cif files
+        # Common representations for elements/water in CIF files
         # TODO: fix inconsistent handling of water
         special_syms = {
             "Hw": "H",
@@ -955,7 +955,7 @@ class CifParser:
         symmetrized: bool,
         check_occu: bool = False,
     ) -> Structure | None:
-        """Generate structure from part of the cif."""
+        """Generate structure from part of the CIF."""
 
         def get_num_implicit_hydrogens(symbol: str) -> int:
             """Get number of implicit hydrogens."""
@@ -1142,7 +1142,7 @@ class CifParser:
                 all_coords.extend(coords)
                 all_species.extend(len(coords) * [species])
                 all_magmoms.extend(_magmoms)
-                all_labels.extend(new_labels)  # type: ignore
+                all_labels.extend(new_labels)
 
             # Scale occupancies if necessary
             all_species_noedit = all_species.copy()  # save copy before scaling in case of check_occu=False, used below
@@ -1346,7 +1346,7 @@ class CifParser:
         # TODO: CIF specification supports multiple citations.
 
         for idx, data in enumerate(self._cif.data.values()):
-            # Convert to lower-case keys, some cif files inconsistent
+            # Convert to lower-case keys, some CIF files inconsistent
             _data = {k.lower(): v for k, v in data.data.items()}
 
             bibtex_entry = {}
@@ -1484,10 +1484,10 @@ def str2float(text: str) -> float:
         if isinstance(text, list) and len(text) == 1:
             return float(re.sub(r"\(.+\)*", "", text[0]))
 
-    except ValueError as exc:
+    except ValueError:
         if text.strip() == ".":
             return 0
-        raise exc
+        raise
     raise ValueError(f"{text!s} cannot be converted to float")
 
 
@@ -1508,7 +1508,7 @@ class CifWriter:
         Args:
             struct (Structure): structure to write.
             symprec (float): If not none, finds the symmetry of the structure
-                and writes the cif with symmetry information. Passes symprec
+                and writes the CIF with symmetry information. Passes symprec
                 to the SpacegroupAnalyzer. See also refine_struct.
             write_magmoms (bool): If True, will write magCIF file. Incompatible
                 with symprec

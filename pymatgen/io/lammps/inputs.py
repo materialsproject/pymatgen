@@ -934,9 +934,9 @@ class LammpsTemplateGen(TemplateInputGen):
     See pymatgen.io.template.py for additional documentation of this method.
     """
 
-    def get_input_set(  # type: ignore
+    def get_input_set(  # type: ignore[override]
         self,
-        script_template: str | Path,
+        script_template: PathLike,
         settings: dict | None = None,
         script_filename: str = "in.lammps",
         data: LammpsData | CombinedData | None = None,
@@ -974,7 +974,7 @@ def write_lammps_inputs(
     **kwargs,
 ) -> None:
     """
-    Writes input files for a LAMMPS run. Input script is constructed
+    Write input files for a LAMMPS run. Input script is constructed
     from a str template with placeholders to be filled by custom
     settings. Data file is either written from a LammpsData
     instance or copied from an existing file if read_data cmd is
@@ -1051,7 +1051,7 @@ def write_lammps_inputs(
     input_script = template.safe_substitute(**variables)
     if make_dir_if_not_present:
         os.makedirs(output_dir, exist_ok=True)
-    with open(os.path.join(output_dir, script_filename), mode="w") as file:
+    with open(os.path.join(output_dir, script_filename), mode="w", encoding="utf-8") as file:
         file.write(input_script)
 
     if read_data := re.search(r"read_data\s+(.*)\n", input_script):

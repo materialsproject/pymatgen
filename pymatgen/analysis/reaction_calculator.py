@@ -283,8 +283,8 @@ class BalancedReaction(MSONable):
 
         def get_comp_amt(comp_str):
             return {
-                Composition(m.group(2)): float(m.group(1) or 1)
-                for m in re.finditer(r"([\d\.]*(?:[eE]-?[\d\.]+)?)\s*([A-Z][\w\.\(\)]*)", comp_str)
+                Composition(match[2]): float(match[1] or 1)
+                for match in re.finditer(r"([\d\.]*(?:[eE]-?[\d\.]+)?)\s*([A-Z][\w\.\(\)]*)", comp_str)
             }
 
         return BalancedReaction(get_comp_amt(rct_str), get_comp_amt(prod_str))

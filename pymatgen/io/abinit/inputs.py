@@ -1097,7 +1097,7 @@ class BasicMultiDataset:
         return multi
 
     @classmethod
-    def replicate_input(cls, input, ndtset):
+    def replicate_input(cls, input, ndtset):  # noqa: A002
         """Construct a multidataset with ndtset from the BasicAbinitInput input."""
         multi = cls(input.structure, input.pseudos, ndtset=ndtset)
 

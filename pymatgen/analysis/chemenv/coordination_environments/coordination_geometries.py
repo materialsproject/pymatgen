@@ -767,7 +767,7 @@ class CoordinationGeometry:
         coords = [site.coords for site in sites] if permutation is None else [sites[ii].coords for ii in permutation]
         return [[coords[ii] for ii in face] for face in self._faces]
 
-    def edges(self, sites, permutation=None, input="sites"):
+    def edges(self, sites, permutation=None, input="sites"):  # noqa: A002
         """Get the list of edges of this coordination geometry. Each edge is given as a
         list of its end vertices coordinates.
         """
@@ -1144,7 +1144,7 @@ class AllCoordinationGeometries(dict):
         # TODO give a more helpful error message that suggests possible reasons and solutions
         raise RuntimeError("Should not be here!")
 
-    def pretty_print(self, type="implemented_geometries", maxcn=8, additional_info=None):
+    def pretty_print(self, type="implemented_geometries", maxcn=8, additional_info=None):  # noqa: A002
         """Get a string with a list of the Coordination Geometries.
 
         Args:

@@ -178,8 +178,8 @@ def _parse_sqs_path(path) -> Sqs:
     detected_instances = len(list(path.glob("bestsqs*[0-9]*.out")))
 
     # Convert best SQS structure to CIF file and pymatgen Structure
-    with Popen("str2cif < bestsqs.out > bestsqs.cif", shell=True, cwd=path) as p:
-        p.communicate()
+    with Popen("str2cif < bestsqs.out > bestsqs.cif", shell=True, cwd=path) as process:
+        process.communicate()
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -200,8 +200,8 @@ def _parse_sqs_path(path) -> Sqs:
         sqs_out = f"bestsqs{idx + 1}.out"
         sqs_cif = f"bestsqs{idx + 1}.cif"
         corr_out = f"bestcorr{idx + 1}.out"
-        with Popen(f"str2cif < {sqs_out} > {sqs_cif}", shell=True, cwd=path) as p:
-            p.communicate()
+        with Popen(f"str2cif < {sqs_out} > {sqs_cif}", shell=True, cwd=path) as process:
+            process.communicate()
         sqs = Structure.from_file(path / sqs_out)
         with open(path / corr_out) as file:
             lines = file.readlines()

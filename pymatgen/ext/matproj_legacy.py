@@ -1014,8 +1014,8 @@ class _MPResterLegacy:
                     break
                 except MPRestError as exc:
                     if match := re.search(r"error status code (\d+)", str(exc)):
-                        if not match.group(1).startswith("5"):
-                            raise exc
+                        if not match[1].startswith("5"):
+                            raise
                         n_tries += 1
                         print(
                             "Unknown server error. Trying again in five "
@@ -1606,7 +1606,7 @@ class _MPResterLegacy:
                 return [el.symbol for el in Element]
 
             if match := re.match(r"\{(.*)\}", sym):
-                return [s.strip() for s in match.group(1).split(",")]
+                return [s.strip() for s in match[1].split(",")]
             return [sym]
 
         def parse_tok(t):

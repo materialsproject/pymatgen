@@ -193,7 +193,7 @@ class Header(MSONable):
             self.periodic = False
             self.space_number = self.space_group = None
         else:
-            raise ValueError("'struct' argument must be a Structure or Molecule!")
+            raise TypeError("'struct' argument must be a Structure or Molecule!")
         self.comment = comment or "None given"
 
     @classmethod
