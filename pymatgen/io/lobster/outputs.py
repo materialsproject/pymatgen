@@ -1225,10 +1225,10 @@ class Fatband:
                 "FATBAND_*" files will be read
             kpoints_file (PathLike): KPOINTS file for bandstructure calculation, typically "KPOINTS".
             vasprun_file (PathLike): Corresponding vasprun file.
-                Instead, the Fermi energy from the DFT run can be provided. Then,
+                Instead, the Fermi level from the DFT run can be provided. Then,
                 this value should be set to None.
             structure (Structure): Structure object.
-            efermi (float): fermi energy in eV
+            efermi (float): Fermi level in eV.
         """
         warnings.warn("Make sure all relevant FATBAND files were generated and read in!")
         warnings.warn("Use Lobster 3.2.0 or newer for fatband calculations!")
@@ -1413,7 +1413,7 @@ class Fatband:
             kpoints=self.kpoints_array,
             eigenvals=self.eigenvals,
             lattice=self.lattice,
-            efermi=self.efermi,
+            efermi=self.efermi,  # type: ignore[arg-type]
             labels_dict=self.label_dict,
             structure=self.structure,
             projections=self.p_eigenvals,
