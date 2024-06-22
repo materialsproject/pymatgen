@@ -3785,7 +3785,7 @@ class Elfcar(VolumetricData):
         return VolumetricData(self.structure, alpha_data)
 
 
-class Procar:
+class Procar(MSONable):
     """
     PROCAR file reader.
 
@@ -3801,10 +3801,26 @@ class Procar:
         nions (int): Number of ions.
     """
 
-    def __init__(self, filename: PathLike) -> None:
+    def __init__(self, filename: Union[PathLike, list[PathLike]], normalise=True) -> None:
         """
         Args:
-            filename: The PROCAR to read.
+            filename: The path to PROCAR(.gz) file to read, or list of paths.
+            normalise: Whether to normalise the summed projections for every band to 1, or not. (Default: True)
+        """
+        # get PROCAR filenames list to parse:
+        filenames = [filename] if isinstance(filename, (str, Path)) else filename
+        self.read(filenames[0])
+        self.normalise = normalise
+
+    def read(self, filename: PathLike, parsed_kpoints=None):
+        """
+        Main function for reading in the PROCAR projections data.
+
+        Args:
+            filename: Path to PROCAR file to read.
+            parsed_kpoints:
+                set of tuples of already-parsed kpoints (e.g. from multiple zero-weighted bandstructure
+                calculations), to ensure redundant/duplicate parsing.
         """
         headers = None
 
@@ -3813,10 +3829,10 @@ class Procar:
             kpoint_expr = re.compile(r"^k-point\s+(\d+).*weight = ([0-9\.]+)")
             band_expr = re.compile(r"^band\s+(\d+)")
             ion_expr = re.compile(r"^ion.*")
+            total_expr = re.compile(r"^tot.*")
             expr = re.compile(r"^([0-9]+)\s+")
             current_kpoint = 0
             current_band = 0
-            done = False
             spin = Spin.down
 
             n_kpoints = None
@@ -3826,13 +3842,39 @@ class Procar:
             headers = None
             data: dict[Spin, np.ndarray] | None = None
             phase_factors: dict[Spin, np.ndarray] | None = None
+            xyz_data: dict[str, np.ndarray] | None = None  # 'x'/'y'/'z' as keys for SOC projections dict
+            xyz_phase_factors: dict[str, np.ndarray] | None = None  # 'x'/'y'/'z' as keys for SOC projections dict
+
+            # first dynamically determine whether PROCAR is SOC or not; SOC PROCARs have 4 lists of projections (
+            # total and x,y,z) for each band, while non-SOC have only 1 list of projections:
+            tot_count = 0
+            band_count = 0
+            for line in file_handle:
+                if total_expr.match(line):
+                    tot_count += 1
+                elif band_expr.match(line):
+                    band_count += 1
+                if band_count == 2:
+                    break
+
+            file_handle.seek(0)  # reset file handle to beginning
+            if tot_count == 1:
+                self.is_soc = False
+            elif tot_count == 4:
+                self.is_soc = True
+            else:
+                raise ValueError(
+                    "Number of lines starting with 'tot' in PROCAR does not match expected values (4x or 1x number of "
+                    "lines with 'band'), indicating a corrupted file!"
+                )
 
             for line in file_handle:
                 line = line.strip()
                 if band_expr.match(line):
                     match = band_expr.match(line)
                     current_band = int(match[1]) - 1  # type: ignore[index]
-                    done = False
+                    # keep track of parsed projections for each band (1x w/non-SOC, 4x w/SOC):
+                    proj_data_parsed_for_band = 0
 
                 elif kpoint_expr.match(line):
                     match = kpoint_expr.match(line)
@@ -3840,7 +3882,7 @@ class Procar:
                     weights[current_kpoint] = float(match[2])  # type: ignore[index]
                     if current_kpoint == 0:
                         spin = Spin.up if spin == Spin.down else Spin.down
-                    done = False
+                    proj_data_parsed_for_band = 0
 
                 elif headers is None and ion_expr.match(line):
                     headers = line.split()
@@ -3848,10 +3890,12 @@ class Procar:
                     headers.pop(-1)
 
                     data = defaultdict(lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers))))
-
                     phase_factors = defaultdict(
                         lambda: np.full((n_kpoints, n_bands, n_ions, len(headers)), np.nan, dtype=np.complex128)
                     )
+                    if self.is_soc:
+                        xyz_data = data.copy()  # dict keys are now "x", "y", "z" rather than Spin.up/down
+                        xyz_phase_factors = phase_factors.copy()
 
                 elif expr.match(line):
                     tokens = line.split()
@@ -3860,11 +3904,17 @@ class Procar:
                     num_data = np.array([float(t) for t in tokens[: len(headers)]])
                     assert phase_factors is not None
 
-                    if not done:
+                    if proj_data_parsed_for_band == 0:
                         assert data is not None
                         data[spin][current_kpoint, current_band, index, :] = num_data
 
-                    elif len(tokens) > len(headers):
+                    elif self.is_soc:
+                        assert xyz_data is not None
+                        xyz_data[{1: "x", 2: "y", 3: "z"}[proj_data_parsed_for_band]][
+                            current_kpoint, current_band, index, :
+                        ] = num_data
+
+                    elif len(tokens) > len(headers):  # TODO: Need to be able to handle this too
                         # New format of PROCAR (VASP 5.4.4)
                         num_data = np.array([float(t) for t in tokens[: 2 * len(headers)]])
                         for orb in range(len(headers)):
@@ -3877,8 +3927,10 @@ class Procar:
                     else:
                         phase_factors[spin][current_kpoint, current_band, index, :] += 1j * num_data
 
-                elif line.startswith("tot"):
-                    done = True
+                elif total_expr.match(line):
+                    proj_data_parsed_for_band += 1
+                    if proj_data_parsed_for_band > 4:
+                        raise RuntimeError("Error in PROCAR parsing; corrupted file?")
 
                 elif preamble_expr.match(line):
                     match = preamble_expr.match(line)
@@ -3895,9 +3947,13 @@ class Procar:
             self.orbitals = headers
             self.data = data
             self.phase_factors = phase_factors
+            if self.is_soc:
+                self.xyz_data = xyz_data
+                self.xyz_phase_factors = xyz_phase_factors
 
     def get_projection_on_elements(self, structure: Structure) -> dict[Spin, list]:
-        """Get a dict of projections on elements.
+        """
+        Get a dict of projections on elements.
 
         Args:
             structure (Structure): Input structure.
@@ -3910,10 +3966,13 @@ class Procar:
         assert self.nbands is not None
         assert self.nions is not None
 
-        dico: dict[Spin, list] = {}
-        for spin in self.data:
-            dico[spin] = [[defaultdict(float) for _ in range(self.nkpoints)] for _ in range(self.nbands)]
-
+        dico: dict[Spin, list] = {
+            spin: [
+                [defaultdict(float) for _ in range(self.nkpoints)]
+                for _ in range(self.nbands)
+            ]
+            for spin in self.data
+        }
         for iat in range(self.nions):
             name = structure.species[iat].symbol
             for spin, data in self.data.items():
@@ -3923,7 +3982,8 @@ class Procar:
         return dico
 
     def get_occupation(self, atom_index: int, orbital: str) -> dict:
-        """Get the occupation for a particular orbital of a particular atom.
+        """
+        Get the occupation for a particular orbital of a particular atom.
 
         Args:
             atom_num (int): Index of atom in the PROCAR. It should be noted
