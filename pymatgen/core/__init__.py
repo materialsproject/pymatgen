@@ -35,24 +35,42 @@ PKG_DIR = os.path.dirname(MODULE_DIR)
 ROOT = os.path.dirname(PKG_DIR)
 
 
-def _load_pmg_settings() -> dict[str, Any]:
-    settings: dict[str, Any] = {}
+def _expand_strings(data):
+    if isinstance(data, dict):
+        return {k: _expand_strings(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [_expand_strings(i) for i in data]
+    elif isinstance(data, str):
+        return os.path.expandvars(os.path.expanduser(data))
+    else:
+        return data
 
-    # Load .pmgrc.yaml file
+def _load_yaml_file(file_path: str) -> Dict[str, Any]:
     yaml = YAML()
-    for file_path in (SETTINGS_FILE, OLD_SETTINGS_FILE):
-        try:
-            with open(file_path, encoding="utf-8") as yml_file:
-                settings = yaml.load(yml_file) or {}
-            break
-        except FileNotFoundError:
-            continue
-        except Exception as exc:
-            # If there are any errors, default to using environment variables
-            # if present.
-            warnings.warn(f"Error loading {file_path}: {exc}.\nYou may need to reconfigure your YAML file.")
+    try:
+        expanded_path = os.path.expanduser(file_path)
+        with open(expanded_path, encoding="utf-8") as yml_file:
+            return _expand_strings(yaml.load(yml_file)) or {}
+    except FileNotFoundError:
+        warnings.warn(f"File not found: {file_path}")
+        return {}
+    except Exception as exc:
+        warnings.warn(f"Error loading {file_path}: {exc}.\nYou may need to reconfigure your YAML file.")
+        return {}
 
-    # Override .pmgrc.yaml with env vars (if present)
+def _load_pmg_settings(file_path: str = None) -> Dict[str, Any]:
+    settings: Dict[str, Any] = {}
+
+    # Load settings from the specified file or default files
+    if file_path:
+        settings.update(_load_yaml_file(file_path))
+    else:
+        for fp in (SETTINGS_FILE, OLD_SETTINGS_FILE):
+            settings.update(_load_yaml_file(fp))
+            if settings:
+                break
+
+    # Override with environment variables (if present)
     for key, val in os.environ.items():
         if key.startswith("PMG_"):
             settings[key] = val
@@ -60,7 +78,7 @@ def _load_pmg_settings() -> dict[str, Any]:
             settings[f"PMG_{key}"] = val
 
     return settings
-
+    
 
 SETTINGS = _load_pmg_settings()
 locals().update(SETTINGS)
