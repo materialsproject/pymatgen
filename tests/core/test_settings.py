@@ -43,3 +43,21 @@ def test_load_settings(tmp_path: Path, monkeypatch: MonkeyPatch) -> None:
     # should return empty dict if file is invalid
     settings_file.write_text("---")
     assert _load_pmg_settings() == {}
+
+    # test variable expansion in YAML
+    settings_file.write_text("PMG_VASP_PSP_DIR: ${HOME}/path/to/psp")
+    with monkeypatch.context() as ctx:
+        ctx.setenv("HOME", "/home/user")
+        assert _load_pmg_settings() == {"PMG_VASP_PSP_DIR": "/home/user/path/to/psp"}
+
+    # test user variables expansion in YAML
+    settings_file.write_text("PMG_VASP_PSP_DIR: ${USER_VAR}/path/to/psp")
+    with monkeypatch.context() as ctx:
+        ctx.setenv("USER_VAR", "/custom/dir")
+        assert _load_pmg_settings() == {"PMG_VASP_PSP_DIR": "/custom/dir/path/to/psp"}
+
+    # test tilde expansion
+    settings_file.write_text("PMG_VASP_PSP_DIR: ~/path/to/psp")
+    with monkeypatch.context() as ctx:
+        ctx.setenv("HOME", "/home/user")
+        assert _load_pmg_settings() == {"PMG_VASP_PSP_DIR": "/home/user/path/to/psp"}    
