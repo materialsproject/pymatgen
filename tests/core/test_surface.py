@@ -392,7 +392,7 @@ class TestSlabGenerator(PymatgenTest):
             struct = Structure.from_spacegroup(spg_int, lattice, ["H"], [[0, 0, 0]])
             miller = (0, 0, 0)
             while miller == (0, 0, 0):
-                miller = rng.integers(0, 6, size=3, endpoint=True)
+                miller = tuple(rng.integers(0, 6, size=3, endpoint=True))
             gen = SlabGenerator(struct, miller, 10, 10)
             a_vec, b_vec, _c_vec = gen.oriented_unit_cell.lattice.matrix
             assert np.dot(a_vec, gen._normal) == approx(0)
