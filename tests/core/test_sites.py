@@ -134,7 +134,8 @@ class TestPeriodicSite(PymatgenTest):
         site1 = PeriodicSite("Fe", np.array([0.01, 0.02, 0.03]), lattice)
         site2 = PeriodicSite("Fe", np.array([0.99, 0.98, 0.97]), lattice)
         assert get_distance_and_image_old(site1, site2)[0] > site1.distance_and_image(site2)[0]
-        site2 = PeriodicSite("Fe", np.random.rand(3), lattice)
+        rng = np.random.default_rng()
+        site2 = PeriodicSite("Fe", rng.random(3), lattice)
         dist_old, jimage_old = get_distance_and_image_old(site1, site2)
         dist_new, jimage_new = site1.distance_and_image(site2)
         assert dist_old - dist_new > -1e-8, "New distance algo should give smaller answers!"

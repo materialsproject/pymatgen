@@ -472,10 +472,11 @@ class TestLammpsData(PymatgenTest):
             ["Os", "O", "O"],
             [[0, 0.25583, 0.75], [0.11146, 0.46611, 0.91631], [0.11445, 0.04564, 0.69518]],
         )
-        velocities = np.random.randn(20, 3) * 0.1
+        rng = np.random.default_rng()
+        velocities = rng.random((20, 3)) * 0.1
         structure.add_site_property("velocities", velocities)
         lammps_data = LammpsData.from_structure(structure=structure, ff_elements=["O", "Os", "Na"])
-        idx = random.randint(0, 19)
+        idx = rng.integers(0, 19)
         a = lattice.matrix[0]
         v_a = velocities[idx].dot(a) / np.linalg.norm(a)
         assert v_a == approx(lammps_data.velocities.loc[idx + 1, "vx"])
@@ -520,13 +521,14 @@ class TestLammpsData(PymatgenTest):
 
 class TestTopology(TestCase):
     def test_init(self):
-        inner_charge = np.random.rand(10) - 0.5
-        outer_charge = np.random.rand(10) - 0.5
-        inner_velo = np.random.rand(10, 3) - 0.5
-        outer_velo = np.random.rand(10, 3) - 0.5
+        rng = np.random.default_rng()
+        inner_charge = rng.random(10) - 0.5
+        outer_charge = rng.random(10) - 0.5
+        inner_velo = rng.random((10, 3)) - 0.5
+        outer_velo = rng.random((10, 3)) - 0.5
         mol = Molecule(
             ["H"] * 10,
-            np.random.rand(10, 3) * 100,
+            rng.random((10, 3)) * 100,
             site_properties={
                 "ff_map": ["D"] * 10,
                 "charge": inner_charge,
@@ -752,11 +754,12 @@ class TestForceField(PymatgenTest):
 
 class TestFunc(TestCase):
     def test_lattice_2_lmpbox(self):
-        matrix = np.diag(np.random.randint(5, 14, size=(3,))) + np.random.rand(3, 3) * 0.2 - 0.1
+        rng = np.random.default_rng()
+        matrix = np.diag(rng.integers(5, 14, size=(3,))) + rng.random((3, 3)) * 0.2 - 0.1
         init_latt = Lattice(matrix)
-        frac_coords = np.random.rand(10, 3)
+        frac_coords = rng.random((10, 3))
         init_structure = Structure(init_latt, ["H"] * 10, frac_coords)
-        origin = np.random.rand(3) * 10 - 5
+        origin = rng.random(3) * 10 - 5
         box, symm_op = lattice_2_lmpbox(lattice=init_latt, origin=origin)
         boxed_latt = box.to_lattice()
         assert_allclose(init_latt.abc, boxed_latt.abc)

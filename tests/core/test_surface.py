@@ -375,7 +375,8 @@ class TestSlabGenerator(PymatgenTest):
         assert len(slab_non_prim) == len(slab) * 4
 
         # Some randomized testing of cell vectors
-        for spg_int in np.random.randint(1, 230, 10):
+        rng = np.random.default_rng()
+        for spg_int in rng.integers(1, 230, 10):
             sg = SpaceGroup.from_int_number(spg_int)
             if sg.crystal_system == "hexagonal" or (
                 sg.crystal_system == "trigonal"

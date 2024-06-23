@@ -121,12 +121,14 @@ class TestSpaceGroup:
 
     def test_get_orbit(self):
         sg = SpaceGroup("Fm-3m")
-        rand_percent = np.random.randint(0, 100 + 1, size=(3,)) / 100
+        rng = np.random.default_rng()
+        rand_percent = rng.integers(0, 100 + 1, size=(3,)) / 100
         assert len(sg.get_orbit(rand_percent)) <= sg.order
 
     def test_get_orbit_and_generators(self):
         sg = SpaceGroup("Fm-3m")
-        rand_percent = np.random.randint(0, 100 + 1, size=(3,)) / 100
+        rng = np.random.default_rng()
+        rand_percent = rng.integers(0, 100 + 1, size=(3,)) / 100
         orbit, generators = sg.get_orbit_and_generators(rand_percent)
         assert len(orbit) <= sg.order
         pp = generators[0].operate(orbit[0])

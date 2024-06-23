@@ -424,7 +424,8 @@ class TestTrajectory(PymatgenTest):
         displacements = np.zeros((11, *np.shape(structures[-1].frac_coords)))
 
         for idx in range(10):
-            displacement = np.random.random_sample(np.shape(structures[-1].frac_coords)) / 20
+            rng = np.random.default_rng()
+            displacement = rng.random(np.shape(structures[-1].frac_coords)) / 20
             new_coords = displacement + structures[-1].frac_coords
             structures.append(Structure(structures[-1].lattice, structures[-1].species, new_coords))
             displacements[idx + 1, :, :] = displacement
@@ -439,8 +440,9 @@ class TestTrajectory(PymatgenTest):
 
         # Generate structures with different lattices
         structures = []
+        rng = np.random.default_rng()
         for _ in range(10):
-            new_lattice = np.dot(structure.lattice.matrix, np.diag(1 + np.random.random_sample(3) / 20))
+            new_lattice = np.dot(structure.lattice.matrix, np.diag(1 + rng.random(3) / 20))
             temp_struct = structure.copy()
             temp_struct.lattice = Lattice(new_lattice)
             structures.append(temp_struct)

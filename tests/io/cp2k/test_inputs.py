@@ -214,8 +214,9 @@ class TestInput(PymatgenTest):
 
     def test_odd_file(self):
         scramble = ""
+        rng = np.random.default_rng()
         for string in self.ci.get_str():
-            if np.random.rand(1) > 0.5:
+            if rng.choice((True, False)):
                 if string == "\t":
                     scramble += " "
                 elif string == " ":

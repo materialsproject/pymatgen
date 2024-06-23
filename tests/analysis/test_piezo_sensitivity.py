@@ -137,7 +137,8 @@ class TestPiezoSensitivity(PymatgenTest):
         fcm = ForceConstantMatrix(self.piezo_struct, self.FCM, self.point_ops, self.shared_ops)
         fcm.get_FCM_operations()
 
-        fcm = fcm.get_symmetrized_FCM(np.random.rand(30, 30))
+        rng = np.random.default_rng()
+        fcm = fcm.get_symmetrized_FCM(rng.random((30, 30)))
         fcm = np.reshape(fcm, (10, 3, 10, 3)).swapaxes(1, 2)
         for i in range(len(self.FCM_operations)):
             for j in range(len(self.FCM_operations[i][4])):

@@ -364,7 +364,8 @@ class TestElement(PymatgenTest):
         assert Element.Fe == pickle.loads(pickled)
 
         # Test 5 random elements
-        for idx in np.random.randint(1, 104, size=5):
+        rng = np.random.default_rng()
+        for idx in rng.integers(1, 104, size=5):
             self.serialize_with_pickle(Element.from_Z(idx))
 
     def test_print_periodic_table(self):
