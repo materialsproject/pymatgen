@@ -204,7 +204,6 @@ ignore = [
   "G",    # validate logging format strings
   "INP",  # Ban PEP-420 implicit namespace packages
   "N",    # pep8-naming (many var/arg names are intended)
-  "NPY",  # NumPy-specific rules (TODO: enable this)
   "PTH",  # Prefer pathlib over os.path
   "S",    # flake8-bandit (TODO: enable this)
   "SLF",  # Access "private" class members
