@@ -4066,7 +4066,6 @@ class Procar(MSONable):
                     assert phase_factors is not None
 
                     if proj_data_parsed_for_band == 0:
-                        assert data
                         data[spin][current_kpoint, current_band, index, :] = num_data
 
                     elif self.is_soc and proj_data_parsed_for_band < 4:
