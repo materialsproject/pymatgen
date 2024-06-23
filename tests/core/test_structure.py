@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import random
 from fractions import Fraction
 from pathlib import Path
 from shutil import which
@@ -377,7 +376,8 @@ class TestIStructure(PymatgenTest):
         s1.pop(0)
         s2 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         s2.pop(2)
-        random.shuffle(s2)
+        rng = np.random.default_rng()
+        rng.shuffle(s2)
 
         for struct in s1.interpolate(s2, autosort_tol=0.5):
             assert_allclose(s1[0].frac_coords, struct[0].frac_coords)
@@ -388,7 +388,7 @@ class TestIStructure(PymatgenTest):
         s1 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         s2 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         s2[0] = "Fe", [0.01, 0.01, 0.01]
-        random.shuffle(s2)
+        rng.shuffle(s2)
 
         for struct in s1.interpolate(s2, autosort_tol=0.5):
             assert_allclose(s1[1].frac_coords, struct[1].frac_coords)
@@ -614,7 +614,8 @@ class TestIStructure(PymatgenTest):
         struct = self.struct
         nn = struct.get_neighbors_in_shell(struct[0].frac_coords, 2, 4, include_index=True, include_image=True)
         assert len(nn) == 47
-        rand_radius = random.uniform(3, 6)
+        rng = np.random.default_rng()
+        rand_radius = rng.uniform(3, 6)
         all_nn = struct.get_all_neighbors(rand_radius, include_index=True, include_image=True)
         for idx, site in enumerate(struct):
             assert len(all_nn[idx][0]) == 4

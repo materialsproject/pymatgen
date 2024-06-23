@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import random
 from unittest import TestCase
 
 import numpy as np
@@ -243,7 +242,8 @@ class TestSimplex(TestCase):
 
     def test_equal(self):
         c2 = list(self.simplex.coords)
-        random.shuffle(c2)
+        rng = np.random.default_rng()
+        rng.shuffle(c2)
         assert coord.Simplex(c2) == self.simplex
 
     def test_in_simplex(self):
