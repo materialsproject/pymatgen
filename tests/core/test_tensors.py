@@ -463,7 +463,7 @@ class TestTensorCollection(PymatgenTest):
 class TestSquareTensor(PymatgenTest):
     def setUp(self):
         rng = np.random.default_rng()
-        self.rand_sqtensor = SquareTensor(rng.random((3, 3)))
+        self.rand_sqtensor = SquareTensor(rng.standard_normal((3, 3)))
         self.symm_sqtensor = SquareTensor([[0.1, 0.3, 0.4], [0.3, 0.5, 0.2], [0.4, 0.2, 0.6]])
         self.non_invertible = SquareTensor([[0.1, 0, 0], [0.2, 0, 0], [0, 0, 0]])
         self.non_symm = SquareTensor([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.2, 0.5, 0.5]])

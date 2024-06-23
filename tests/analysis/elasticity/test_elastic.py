@@ -43,7 +43,7 @@ class TestElasticTensor(PymatgenTest):
             [0, 0, 0, 0, 0, 26.35],
         ]
         rng = np.random.default_rng()
-        mat = rng.random((6, 6))
+        mat = rng.standard_normal((6, 6))
         mat = mat + np.transpose(mat)
         self.rand_elastic_tensor = ElasticTensor.from_voigt(mat)
         self.ft = np.array(

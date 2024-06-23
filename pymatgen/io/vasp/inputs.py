@@ -673,7 +673,7 @@ class Poscar(MSONable):
         """
         # mean 0 variance 1
         rng = np.random.default_rng()
-        velocities = rng.random((len(self.structure), 3))
+        velocities = rng.standard_normal((len(self.structure), 3))
 
         # In AMU, (N, 1) array
         atomic_masses = np.array([site.specie.atomic_mass.to("kg") for site in self.structure])

@@ -473,7 +473,7 @@ class TestLammpsData(PymatgenTest):
             [[0, 0.25583, 0.75], [0.11146, 0.46611, 0.91631], [0.11445, 0.04564, 0.69518]],
         )
         rng = np.random.default_rng()
-        velocities = rng.random((20, 3)) * 0.1
+        velocities = rng.standard_normal((20, 3)) * 0.1
         structure.add_site_property("velocities", velocities)
         lammps_data = LammpsData.from_structure(structure=structure, ff_elements=["O", "Os", "Na"])
         idx = rng.integers(0, 19)

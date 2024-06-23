@@ -4468,7 +4468,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         def get_rand_vec():
             # Deal with zero vectors
             rng = np.random.default_rng()
-            vector = rng.random(3)
+            vector = rng.standard_normal(3)
             vnorm = np.linalg.norm(vector)
             dist = distance
             if isinstance(min_distance, (float, int)):
@@ -5020,7 +5020,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         def get_rand_vec():
             # Deal with zero vectors
             rng = np.random.default_rng()
-            vector = rng.random(3)
+            vector = rng.standard_normal(3)
             vnorm = np.linalg.norm(vector)
             return vector / vnorm * distance if vnorm != 0 else get_rand_vec()
 
