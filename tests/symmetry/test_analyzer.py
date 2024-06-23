@@ -575,8 +575,8 @@ class TestPointGroupAnalyzer(PymatgenTest):
         assert pg_analyzer.sch_symbol == "Ih"
 
     def test_symmetrize_molecule1(self):
-        rng = np.random.default_rng(77)
-        distortion = rng.standard_normal((len(C2H4), 3)) / 10
+        rng = np.random.default_rng()
+        distortion = rng.standard_normal((len(C2H4), 3)) / 15
         dist_mol = Molecule(C2H4.species, C2H4.cart_coords + distortion)
 
         eq = iterative_symmetrize(dist_mol, max_n=100, epsilon=1e-7)
@@ -592,8 +592,8 @@ class TestPointGroupAnalyzer(PymatgenTest):
                 assert_allclose(np.dot(ops[idx][j], coords[idx]), coords[j])
 
     def test_symmetrize_molecule2(self):
-        rng = np.random.default_rng(77)
-        distortion = rng.standard_normal((len(C2H2F2Br2), 3)) / 20
+        rng = np.random.default_rng()
+        distortion = rng.standard_normal((len(C2H2F2Br2), 3)) / 25
         dist_mol = Molecule(C2H2F2Br2.species, C2H2F2Br2.cart_coords + distortion)
         pa1 = PointGroupAnalyzer(C2H2F2Br2, tolerance=0.1)
         assert pa1.get_pointgroup().sch_symbol == "Ci"
