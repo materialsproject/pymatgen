@@ -769,10 +769,10 @@ class StructureGraph(MSONable):
         out_edges = [(u, v, d, "out") for u, v, d in self.graph.out_edges(n, data=True)]
         in_edges = [(u, v, d, "in") for u, v, d in self.graph.in_edges(n, data=True)]
 
-        for u, v, data, dir in out_edges + in_edges:
+        for u, v, data, dirc in out_edges + in_edges:
             to_jimage = data["to_jimage"]
 
-            if dir == "in":
+            if dirc == "in":
                 u, v = v, u
                 to_jimage = np.multiply(-1, to_jimage)
 

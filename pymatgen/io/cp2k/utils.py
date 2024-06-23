@@ -50,7 +50,7 @@ def postprocessor(data: str) -> str | float | bool | None:
     return data
 
 
-def preprocessor(data: str, dir: str = ".") -> str:
+def preprocessor(data: str, dir: str = ".") -> str:  # noqa: A002
     """
     Cp2k contains internal preprocessor flags that are evaluated before execution. This helper
     function recognizes those preprocessor flags and replaces them with an equivalent cp2k input

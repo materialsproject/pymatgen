@@ -10,9 +10,10 @@ from pymatgen.util.plotting import pretty_plot
 
 
 class SpectrumPlotter:
-    """Plot Spectrum objects and subclasses. Note that the interface
-    is extremely flexible given that there are many different ways in which
-    people want to view spectra. The typical usage is:
+    """Plot Spectrum objects and subclasses.
+
+    Note that the interface is extremely flexible given that there are many
+    different ways in which people want to view spectra. The typical usage is:
 
         # Initializes plotter with some optional args. Defaults are usually
         # fine,
@@ -129,6 +130,7 @@ class SpectrumPlotter:
 
         Args:
             filename (str): Filename to write to. Must include extension to specify image format.
+            kwargs: passed to get_plot.
         """
         self.get_plot(**kwargs)
         plt.savefig(filename)

@@ -442,7 +442,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             raise ValueError("Invalid algo.")
 
         opt_s = all_structures[0]["structure"]
-        return opt_s if not return_ranked_list else all_structures[0:num_to_return]
+        return opt_s if not return_ranked_list else all_structures[:num_to_return]
 
     def __repr__(self):
         return f"PartialRemoveSitesTransformation : Indices and fraction to remove = {self.indices}, ALGO = {self.algo}"

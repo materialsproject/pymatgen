@@ -71,13 +71,13 @@ class Stringify:
         with systems where the sub and superscripts are pure integers.
         """
         str_ = self.to_latex_string()
-        for m in re.finditer(r"\$_\{(\d+)\}\$", str_):
-            s1 = m.group()
-            s2 = [SUBSCRIPT_UNICODE[s] for s in m.group(1)]
+        for match in re.finditer(r"\$_\{(\d+)\}\$", str_):
+            s1 = match.group()
+            s2 = [SUBSCRIPT_UNICODE[s] for s in match[1]]
             str_ = str_.replace(s1, "".join(s2))
-        for m in re.finditer(r"\$\^\{([\d\+\-]+)\}\$", str_):
-            s1 = m.group()
-            s2 = [SUPERSCRIPT_UNICODE[s] for s in m.group(1)]
+        for match in re.finditer(r"\$\^\{([\d\+\-]+)\}\$", str_):
+            s1 = match.group()
+            s2 = [SUPERSCRIPT_UNICODE[s] for s in match[1]]
             str_ = str_.replace(s1, "".join(s2))
         return str_
 
@@ -416,4 +416,4 @@ def disordered_formula(disordered_struct, symbols=("x", "y", "z"), fmt="plain"):
     disordered_formula.append(" ")
     disordered_formula += [f"{key}={formula_double_format(val)} " for key, val in variable_map.items()]
 
-    return "".join(map(str, disordered_formula))[0:-1]
+    return "".join(map(str, disordered_formula))[:-1]

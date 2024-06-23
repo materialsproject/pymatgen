@@ -1504,7 +1504,7 @@ class Lattice(MSONable):
         center = np.array(center)
 
         # Prepare the list of output atoms
-        n = len(frac_points)  # type: ignore
+        n = len(frac_points)
         frac_coords = np.array(frac_points) % 1
         indices = np.arange(n)
 
@@ -1623,13 +1623,13 @@ class Lattice(MSONable):
         """
         if jimage is None:
             v, d2 = pbc_shortest_vectors(self, frac_coords1, frac_coords2, return_d2=True)
-            fc = self.get_fractional_coords(v[0][0]) + frac_coords1 - frac_coords2  # type: ignore
+            fc = self.get_fractional_coords(v[0][0]) + frac_coords1 - frac_coords2
             fc = np.array(np.round(fc), dtype=int)
             return np.sqrt(d2[0, 0]), fc
 
         jimage = np.array(jimage)
-        mapped_vec = self.get_cartesian_coords(jimage + frac_coords2 - frac_coords1)  # type: ignore
-        return np.linalg.norm(mapped_vec), jimage  # type: ignore
+        mapped_vec = self.get_cartesian_coords(jimage + frac_coords2 - frac_coords1)
+        return np.linalg.norm(mapped_vec), jimage
 
     def get_miller_index_from_coords(
         self,
@@ -1660,7 +1660,7 @@ class Lattice(MSONable):
             tuple: The Miller index.
         """
         if coords_are_cartesian:
-            coords = [self.get_fractional_coords(c) for c in coords]  # type: ignore
+            coords = [self.get_fractional_coords(c) for c in coords]
 
         coords = np.asarray(coords)
         g = coords.sum(axis=0) / coords.shape[0]
@@ -1837,12 +1837,12 @@ def get_points_in_spheres(
         valid_images = np.concatenate(valid_images, axis=0)
 
     else:
-        valid_coords = all_coords  # type: ignore
+        valid_coords = all_coords
         valid_images = [[0, 0, 0]] * len(valid_coords)
-        valid_indices = np.arange(len(valid_coords))  # type: ignore
+        valid_indices = np.arange(len(valid_coords))
 
     # Divide the valid 3D space into cubes and compute the cube ids
-    all_cube_index = _compute_cube_index(valid_coords, global_min, r)  # type: ignore
+    all_cube_index = _compute_cube_index(valid_coords, global_min, r)
     nx, ny, nz = _compute_cube_index(global_max, global_min, r) + 1
     all_cube_index = _three_to_one(all_cube_index, ny, nz)
     site_cube_index = _three_to_one(_compute_cube_index(center_coords, global_min, r), ny, nz)

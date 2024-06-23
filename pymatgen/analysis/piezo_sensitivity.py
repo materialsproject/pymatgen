@@ -534,7 +534,7 @@ class ForceConstantMatrix:
             pastrow = 0
             total = np.zeros([3, 3])
             for col in range(n_sites):
-                total = total + X[0:3, col * 3 : col * 3 + 3]
+                total = total + X[:3, col * 3 : col * 3 + 3]
 
             total = total / (n_sites)
             for op in operations:

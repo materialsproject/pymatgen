@@ -359,7 +359,7 @@ class CorrectionCalculator:
 
         return fig
 
-    def make_yaml(self, name: str = "MP2020", dir: str | None = None) -> None:
+    def make_yaml(self, name: str = "MP2020", dir: str | None = None) -> None:  # noqa: A002
         """Create the _name_Compatibility.yaml that stores corrections as well as _name_CompatibilityUncertainties.yaml
         for correction uncertainties.
 

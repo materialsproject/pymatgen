@@ -81,19 +81,19 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
     # Special formula handling for peroxides and certain elements. This is so
     # that formula output does not write LiO instead of Li2O2 for example.
-    special_formulas: ClassVar[dict[str, str]] = dict(
-        LiO="Li2O2",
-        NaO="Na2O2",
-        KO="K2O2",
-        HO="H2O2",
-        CsO="Cs2O2",
-        RbO="Rb2O2",
-        O="O2",
-        N="N2",
-        F="F2",
-        Cl="Cl2",
-        H="H2",
-    )
+    special_formulas: ClassVar[dict[str, str]] = {
+        "LiO": "Li2O2",
+        "NaO": "Na2O2",
+        "KO": "K2O2",
+        "HO": "H2O2",
+        "CsO": "Cs2O2",
+        "RbO": "Rb2O2",
+        "O": "O2",
+        "N": "N2",
+        "F": "F2",
+        "Cl": "Cl2",
+        "H": "H2",
+    }
 
     oxi_prob = None  # prior probability of oxidation used by oxi_state_guesses
 
@@ -1137,7 +1137,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             el = match[1]
             if len(el) > 2 or len(el) < 1:
                 raise ValueError("Invalid element symbol entered!")
-            amt = float(match.group(2)) if match.group(2).strip() != "" else 1
+            amt = float(match[2]) if match[2].strip() != "" else 1
 
             # convert the element string to proper [uppercase,lowercase] format
             # and award points if it is already in that format

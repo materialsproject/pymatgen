@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import re
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
-    AbstractChemenvStrategy,
     SimpleAbundanceChemenvStrategy,
     SimplestChemenvStrategy,
     TargetedPenaltiedAbundanceChemenvStrategy,
@@ -32,6 +32,9 @@ try:
 except ImportError:
     StructureVis = None  # type: ignore[misc]
 
+if TYPE_CHECKING:
+    from typing import Any
+
 __author__ = "David Waroquiers"
 __copyright__ = "Copyright 2012, The Materials Project"
 __credits__ = "Geoffroy Hautier"
@@ -40,10 +43,10 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-strategies_class_lookup: dict[str, AbstractChemenvStrategy] = {
-    "SimplestChemenvStrategy": SimplestChemenvStrategy,  # type: ignore
-    "SimpleAbundanceChemenvStrategy": SimpleAbundanceChemenvStrategy,  # type: ignore
-    "TargetedPenaltiedAbundanceChemenvStrategy": TargetedPenaltiedAbundanceChemenvStrategy,  # type: ignore
+strategies_class_lookup: dict[str, Any] = {
+    "SimplestChemenvStrategy": SimplestChemenvStrategy,
+    "SimpleAbundanceChemenvStrategy": SimpleAbundanceChemenvStrategy,
+    "TargetedPenaltiedAbundanceChemenvStrategy": TargetedPenaltiedAbundanceChemenvStrategy,
 }
 
 

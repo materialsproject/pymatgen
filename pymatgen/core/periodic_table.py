@@ -1208,7 +1208,8 @@ class Species(MSONable, Stringify):
             Shannon radius for specie in the specified environment.
         """
         radii = self._el.data["Shannon radii"]
-        radii = radii[str(int(self._oxi_state))][cn]  # type: ignore
+        assert self._oxi_state is not None
+        radii = radii[str(int(self._oxi_state))][cn]
         if len(radii) == 1:
             key, data = next(iter(radii.items()))
             if key != spin:
@@ -1247,7 +1248,8 @@ class Species(MSONable, Stringify):
         if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
             raise AttributeError(f"Invalid element {self.symbol} for crystal field calculation")
 
-        n_electrons = elec[-1][2] + elec[-2][2] - self.oxi_state  # type: ignore
+        assert self.oxi_state is not None
+        n_electrons = elec[-1][2] + elec[-2][2] - self.oxi_state
         if n_electrons < 0 or n_electrons > 10:
             raise AttributeError(f"Invalid oxidation state {self.oxi_state} for element {self.symbol}")
 
@@ -1504,13 +1506,13 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
         Species | Element: with a bias for the maximum number of properties
             that can be determined.
     """
-    # if obj is already an Element or Species, return as is
+    # If obj is already an Element or Species, return as is
     if isinstance(obj, (Element, Species, DummySpecies)):
         if getattr(obj, "_is_named_isotope", None):
             return Element(obj.name) if isinstance(obj, Element) else Species(str(obj))
         return obj
 
-    # if obj is an integer, return the Element with atomic number obj
+    # If obj is an integer, return the Element with atomic number obj
     try:
         flt = float(obj)
         assert flt == int(flt)
@@ -1518,22 +1520,22 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
     except (AssertionError, ValueError, TypeError, KeyError):
         pass
 
-    # if obj is a string, attempt to parse it as a Species
+    # If obj is a string, attempt to parse it as a Species
     try:
-        return Species.from_str(obj)  # type: ignore
+        return Species.from_str(obj)  # type: ignore[arg-type]
     except (ValueError, TypeError, KeyError):
         pass
-    # if Species parsing failed, try Element
+    # If Species parsing failed, try Element
     try:
-        return Element(obj)  # type: ignore
+        return Element(obj)  # type: ignore[arg-type]
     except (ValueError, TypeError, KeyError):
         pass
 
-    # if Element parsing failed, try DummySpecies
+    # If Element parsing failed, try DummySpecies
     try:
-        return DummySpecies.from_str(obj)  # type: ignore
-    except Exception:
-        raise ValueError(f"Can't parse Element or Species from {obj!r}")
+        return DummySpecies.from_str(obj)  # type: ignore[arg-type]
+    except Exception as exc:
+        raise ValueError(f"Can't parse Element or Species from {obj!r}") from exc
 
 
 @unique
