@@ -36,7 +36,6 @@ from __future__ import annotations
 
 import copy
 import itertools
-import random
 import warnings
 from typing import TYPE_CHECKING
 
@@ -804,11 +803,12 @@ class SurfaceEnergyPlotter:
         for hkl in self.all_slab_entries:
             rgb_indices = [0, 1, 2]
             color = [0, 0, 0, 1]
-            random.shuffle(rgb_indices)
+            rng = np.random.default_rng()
+            rng.shuffle(rgb_indices)
             for idx, ind in enumerate(rgb_indices):
                 if idx == 2:
                     break
-                color[ind] = np.random.uniform(0, 1)
+                color[ind] = rng.uniform(0, 1)
 
             # Get the clean (solid) colors first
             clean_list = np.linspace(0, 1, len(self.all_slab_entries[hkl]))

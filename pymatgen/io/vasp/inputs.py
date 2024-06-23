@@ -659,7 +659,7 @@ class Poscar(MSONable):
     def set_temperature(self, temperature: float) -> None:
         """
         Initialize the velocities based on Maxwell-Boltzmann distribution.
-        Removes linear, but not angular drift (same as VASP).
+        Remove linear, but not angular drift (same as VASP).
 
         Scale the energies to the exact temperature (microcanonical ensemble)
         Velocities are given in A/fs. This is the VASP default when
@@ -672,9 +672,10 @@ class Poscar(MSONable):
             temperature (float): Temperature in Kelvin.
         """
         # mean 0 variance 1
-        velocities = np.random.randn(len(self.structure), 3)
+        rng = np.random.default_rng()
+        velocities = rng.random((len(self.structure), 3))
 
-        # In AMU, (N,1) array
+        # In AMU, (N, 1) array
         atomic_masses = np.array([site.specie.atomic_mass.to("kg") for site in self.structure])
         dof = 3 * len(self.structure) - 3
 
