@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import warnings
 from importlib.metadata import PackageNotFoundError, version
-from typing import Any
+from typing import Any, Optional
 
 from ruamel.yaml import YAML
 
@@ -45,6 +45,7 @@ def _expand_strings(data):
     else:
         return data
 
+
 def _load_yaml_file(file_path: str) -> Dict[str, Any]:
     yaml = YAML()
     try:
@@ -58,7 +59,8 @@ def _load_yaml_file(file_path: str) -> Dict[str, Any]:
         warnings.warn(f"Error loading {file_path}: {exc}.\nYou may need to reconfigure your YAML file.")
         return {}
 
-def _load_pmg_settings(file_path: str = None) -> Dict[str, Any]:
+
+def _load_pmg_settings(file_path: str | None = None) -> Dict[str, Any]:
     settings: Dict[str, Any] = {}
 
     # Load settings from the specified file or default files
@@ -78,7 +80,7 @@ def _load_pmg_settings(file_path: str = None) -> Dict[str, Any]:
             settings[f"PMG_{key}"] = val
 
     return settings
-    
+
 
 SETTINGS = _load_pmg_settings()
 locals().update(SETTINGS)
