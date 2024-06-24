@@ -201,11 +201,10 @@ ignore = [
   "ERA",  # Check for commented-out code
   "FIX",  # Check for FIXME, TODO and other developer notes
   "FURB", # refurb (need preview mode, too many preview errors)
-  "G",    # validate logging format strings
+  "G",    # Validate logging format strings
   "INP",  # Ban PEP-420 implicit namespace packages
-  "N",    # pep8-naming (many var/arg names are intended)
+  "N",    # PEP8-naming (many var/arg names are intended)
   "PTH",  # Prefer pathlib over os.path
-  "S",    # flake8-bandit (TODO: enable this)
   "SLF",  # Access "private" class members
   "T20",  # Check for print/pprint
   "TD",   # TODO tags related
@@ -216,25 +215,29 @@ ignore = [
   "B904",    # Within an except clause, raise exceptions with ...
   "C408",    # unnecessary-collection-call
   "D105",    # Missing docstring in magic method
-  "D205",    # 1 blank line required between summary line and description
+  "D205",    # One blank line required between summary line and description
   "D212",    # Multi-line docstring summary should start at the first line
   "DTZ003",  # TODO: fix this (issue #3791)
   "FBT001",  # Boolean-typed positional argument in function definition
   "FBT002",  # Boolean default positional argument in function
   "PD901",   # pandas-df-variable-name
-  "PERF203", # try-except-in-loop
-  "PERF401", # manual-list-comprehension
-  "PLR0911", # too many return statements
-  "PLR0912", # too many branches
-  "PLR0913", # too many arguments
-  "PLR0915", # too many statements
-  "PLR2004", # magic values in comparison
+  "PERF203", # Use of try-except in for/while loop
+  "PERF401", # Replace "for" loops with list comprehension
+  "PLR0911", # Too many return statements
+  "PLR0912", # Too many branches
+  "PLR0913", # Too many arguments
+  "PLR0915", # Too many statements
+  "PLR2004", # Magic values in comparison
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
-  "PT013",   # pytest-incorrect-pytest-import
+  "PT013",   # Incorrect import of pytest
+  "S101",    # Use of "assert"
+  "S110",    # Log for try-except-pass
+  "S112",    # Log for try-except-continue
+  "S603",    # Check source for use of "subprocess" call
   "SIM105",  # Use contextlib.suppress() instead of try-except-pass
   "TRY003",  # Avoid specifying long messages outside the exception class
-  "TRY300",  # Checks for return statements in try blocks
-  "TRY301",  # Checks for raise statements within try blocks
+  "TRY300",  # Check for return statements in try blocks
+  "TRY301",  # Check for raise statements within try blocks
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
