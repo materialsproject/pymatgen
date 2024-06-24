@@ -68,7 +68,7 @@ class PackmolSet(InputSet):
             p = subprocess.run(
                 f"packmol < {self.inputfile!r}",
                 check=True,
-                shell=True,
+                shell=True,  # noqa: S602
                 timeout=timeout,
                 capture_output=True,
             )
