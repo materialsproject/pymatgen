@@ -76,11 +76,11 @@ class LMTOCtrl:
             line += " ".join(str(round(v, sigfigs)) for v in latt)
             lines.append(line)
 
-        for cat in ["CLASS", "SITE"]:
+        for cat in ("CLASS", "SITE"):
             for a, atoms in enumerate(ctrl_dict[cat]):
                 lst = [cat.ljust(9)] if a == 0 else [" ".ljust(9)]
                 for token, val in sorted(atoms.items()):
-                    if token == "POS":
+                    if token == "POS":  # noqa: S105
                         lst.append("POS=" + " ".join(str(round(p, sigfigs)) for p in val))
                     else:
                         lst.append(f"{token}={val}")
@@ -180,14 +180,15 @@ class LMTOCtrl:
 
         structure_tokens = {"ALAT": None, "PLAT": [], "CLASS": [], "SITE": []}
 
-        for cat in ["STRUC", "CLASS", "SITE"]:
+        for cat in ("STRUC", "CLASS", "SITE"):
             fields = struct_lines[cat].split("=")
             for idx, field in enumerate(fields, start=1):
                 token = field.split()[-1]
-                if token == "ALAT":
+                if token == "ALAT":  # noqa: S105
                     a_lat = round(float(fields[idx].split()[0]), sigfigs)
                     structure_tokens["ALAT"] = a_lat
-                elif token == "ATOM":
+
+                elif token == "ATOM":  # noqa: S105
                     atom = fields[idx].split()[0]
                     if not bool(re.match("E[0-9]*$", atom)):
                         if cat == "CLASS":
@@ -196,17 +197,19 @@ class LMTOCtrl:
                             structure_tokens["SITE"].append({"ATOM": atom})
                     else:
                         pass
-                elif token in ["PLAT", "POS"]:
+
+                elif token in {"PLAT", "POS"}:
                     try:
                         arr = np.array([round(float(i), sigfigs) for i in fields[idx].split()])
                     except ValueError:
                         arr = np.array([round(float(i), sigfigs) for i in fields[idx].split()[:-1]])
-                    if token == "PLAT":
+                    if token == "PLAT":  # noqa: S105
                         structure_tokens["PLAT"] = arr.reshape([3, 3])
                     elif not bool(re.match("E[0-9]*$", atom)):
                         structure_tokens["SITE"][-1]["POS"] = arr
                     else:
                         pass
+
                 else:
                     pass
         try:
