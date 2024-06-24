@@ -53,7 +53,7 @@ class COD:
         Returns:
             Response from SQL query.
         """
-        response = subprocess.check_output(["mysql", "-u", "cod_reader", "-h", self.url, "-e", sql, "cod"])
+        response = subprocess.check_output(["mysql", "-u", "cod_reader", "-h", self.url, "-e", sql, "cod"])  # noqa: S607
         return response.decode("utf-8")
 
     @requires(which("mysql"), "mysql must be installed to use this query.")

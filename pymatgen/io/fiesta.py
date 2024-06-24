@@ -135,7 +135,7 @@ class FiestaRun(MSONable):
 
         with zopen(self.log_file, mode="w") as fout:
             subprocess.call(
-                [
+                [  # noqa: S607
                     "mpirun",
                     "-n",
                     str(self.mpi_procs),
@@ -158,7 +158,7 @@ class FiestaRun(MSONable):
 
         with zopen(self.log_file, mode="w") as fout:
             subprocess.call(
-                [
+                [  # noqa: S607
                     "mpirun",
                     "-n",
                     str(self.mpi_procs),

@@ -132,7 +132,7 @@ def run_mcsqs(
             process.communicate(timeout=search_time * 60)
 
         if instances and instances > 1:
-            process = Popen(["mcsqs", "-best"])
+            process = Popen(["mcsqs", "-best"])  # noqa: S607
             process.communicate()
 
         if os.path.isfile("bestsqs.out") and os.path.isfile("bestcorr.out"):
@@ -153,7 +153,7 @@ def run_mcsqs(
                     "is search_time sufficient or are number of instances too high?"
                 )
 
-            process = Popen(["mcsqs", "-best"])
+            process = Popen(["mcsqs", "-best"])  # noqa: S607
             process.communicate()
 
         if os.path.isfile("bestsqs.out") and os.path.isfile("bestcorr.out"):
@@ -178,7 +178,7 @@ def _parse_sqs_path(path) -> Sqs:
     detected_instances = len(list(path.glob("bestsqs*[0-9]*.out")))
 
     # Convert best SQS structure to CIF file and pymatgen Structure
-    with Popen("str2cif < bestsqs.out > bestsqs.cif", shell=True, cwd=path) as process:
+    with Popen("str2cif < bestsqs.out > bestsqs.cif", shell=True, cwd=path) as process:  # noqa: S607
         process.communicate()
 
     with warnings.catch_warnings():

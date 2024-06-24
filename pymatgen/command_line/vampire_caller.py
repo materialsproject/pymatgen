@@ -130,7 +130,7 @@ class VampireCaller:
         self._create_ucf()
 
         # Call Vampire
-        with subprocess.Popen(["vampire-serial"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+        with subprocess.Popen(["vampire-serial"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:  # noqa: S607
             _stdout, stderr = process.communicate()
             stdout: str = _stdout.decode()
 
