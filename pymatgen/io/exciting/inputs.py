@@ -73,7 +73,7 @@ class ExcitingInput(MSONable):
     @classmethod
     def from_str(cls, data: str) -> Self:
         """Reads the exciting input from a string."""
-        root: ET.Element = ET.fromstring(data)
+        root: ET.Element = ET.fromstring(data)  # noqa: S314
         struct = root.find("structure")
         if struct is None:
             raise ValueError("No structure found in input file!")

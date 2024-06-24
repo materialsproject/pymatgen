@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from xml.etree import ElementTree
-
+from defusedxml import ElementTree
 from numpy.testing import assert_allclose
 
 from pymatgen.core import Lattice, Structure
