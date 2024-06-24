@@ -107,21 +107,21 @@ class TestSetChangeCheck(PymatgenTest):
             with open(input_set) as file:
                 text = file.read().encode("utf-8")
                 name = os.path.basename(input_set)
-                hashes[name] = hashlib.sha1(text).hexdigest()
+                hashes[name] = hashlib.sha256(text).hexdigest()
 
         known_hashes = {
-            "MatPESStaticSet.yaml": "8edecff2bbd1932c53159f56a8e6340e900aaa2f",
-            "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
-            "MPAbsorptionSet.yaml": "5931e1cb3cf8ba809b3d4f4a5960d728c682adf1",
-            "MPHSERelaxSet.yaml": "0d0d96a620461071cfd416ec9d5d6a8d2dfd0855",
-            "MPRelaxSet.yaml": "f2949cdc5dc8cd0bee6d39a5df0d6a6b7c144821",
-            "MPSCANRelaxSet.yaml": "167668225129002b49dc3550c04659869b9b9e47",
-            "MVLGWSet.yaml": "104ae93c3b3be19a13b0ee46ebdd0f40ceb96597",
-            "MVLRelax52Set.yaml": "4cfc6b1bd0548e45da3bde4a9c65b3249da13ecd",
-            "PBE54Base.yaml": "ec317781a7f344beb54c17a228db790c0eb49282",
-            "PBE64Base.yaml": "480c41c2448cb25706181de268090618e282b264",
-            "VASPIncarBase.yaml": "19762515f8deefb970f2968fca48a0d67f7964d4",
-            "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
+            "MVLGWSet.yaml": "eba4564a18b99494a08ab6fdbe5364e7212b5992c7a9ef109001ce314a5b33db",
+            "MVLRelax52Set.yaml": "3660879566a9ee2ab289e81d7916335b2f33ab24dcb3c16ba7aaca9ff22dfbad",
+            "MPHSERelaxSet.yaml": "1779cb6a6af43ad54a12aec22882b9b8aa3469b764e29ac4ab486960d067b811",
+            "VASPIncarBase.yaml": "8c1ce90d6697e45b650e1881e2b3d82a733dba17fb1bd73747a38261ec65a4c4",
+            "MPSCANRelaxSet.yaml": "ad652ea740d06f9edd979494f31e25074b82b9fffdaaf7eff2ae5541fb0e6288",
+            "PBE64Base.yaml": "3434c918c17706feae397d0852f2224e771db94d7e4c988039e8658e66d87494",
+            "MPRelaxSet.yaml": "c9b0a519588fb3709509a9f9964632692584905e2961a0fe2e5f657561913083",
+            "MITRelaxSet.yaml": "0b4bec619fa860dac648584853c3b3d5407e4148a85d0e95024fbd1dc315669d",
+            "vdW_parameters.yaml": "977c226a1b44831382e772a464aecb7f6297c98d7efc9190f8c18e0b73be2666",
+            "MatPESStaticSet.yaml": "4ec60ad4bbbb9a756f1b3fea8ca4eab8fc767d8f6a67332e7af3908c910fd7c5",
+            "MPAbsorptionSet.yaml": "e49cd0ab87864f1c244e9b5ceb4703243116ec1fbb8958a374ddff07f7a5625c",
+            "PBE54Base.yaml": "cdffe123eca8b19354554b60a7f8de9b8776caac9e1da2bd2a0516b7bfac8634",
         }
 
         for input_set in hashes:
