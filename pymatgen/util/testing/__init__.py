@@ -110,7 +110,7 @@ class PymatgenTest(TestCase):
 
             try:
                 with open(tmpfile, "rb") as file:
-                    unpickled_objs = pickle.load(file)
+                    unpickled_objs = pickle.load(file)  # noqa: S301
             except Exception as exc:
                 errors.append(f"pickle.load with {protocol=} raised:\n{exc}")
                 continue

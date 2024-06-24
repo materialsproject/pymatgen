@@ -65,7 +65,7 @@ class TestSite(PymatgenTest):
 
     def test_pickle(self):
         dump = pickle.dumps(self.propertied_site)
-        assert pickle.loads(dump) == self.propertied_site
+        assert pickle.loads(dump) == self.propertied_site  # noqa: S301
 
     def test_setters(self):
         self.disordered_site.species = "Cu"
