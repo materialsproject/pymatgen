@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.optimize import leastsq, minimize
+
 try:
     from numpy.exceptions import RankWarning  # NPY2
 except AttributeError:
