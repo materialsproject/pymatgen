@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import constants
 from scipy.constants import physical_constants, speed_of_light
-from scipy.integrate import simps
+from scipy.integrate import simpson
 from scipy.interpolate import interp1d
 
 from pymatgen.io.vasp.outputs import Vasprun
@@ -187,7 +187,7 @@ def slme(
     solar_spectra_photon_flux = solar_spectra_irradiance * (solar_spectra_wavelength_meters / (h * c))
 
     # Calculation of total solar power incoming
-    power_in = simps(solar_spectra_irradiance, solar_spectra_wavelength)
+    power_in = simpson(solar_spectra_irradiance, solar_spectra_wavelength)
 
     # calculation of blackbody irradiance spectra
     # units of W/(m**3), different than solar_spectra_irradiance!!! (This
@@ -232,7 +232,7 @@ def slme(
     J_0_r = (
         e
         * np.pi
-        * simps(
+        * simpson(
             blackbody_photon_flux * absorbed_by_wavelength,
             solar_spectra_wavelength_meters,
         )
@@ -240,7 +240,7 @@ def slme(
 
     J_0 = J_0_r / fr
 
-    J_sc = e * simps(solar_spectra_photon_flux * absorbed_by_wavelength, solar_spectra_wavelength)
+    J_sc = e * simpson(solar_spectra_photon_flux * absorbed_by_wavelength, solar_spectra_wavelength)
 
     def J(V):
         return J_sc - J_0 * (np.exp(e * V / (k * temperature)) - 1.0)
