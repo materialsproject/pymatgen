@@ -50,7 +50,7 @@ class LinearAssignment:
     """
 
     def __init__(self, costs, epsilon=1e-13):
-        self.orig_c = np.array(costs, dtype=np.float_, copy=False, order="C")
+        self.orig_c = np.array(costs, dtype=np.float64, copy=False, order="C")
         self.nx, self.ny = self.orig_c.shape
         self.n = self.ny
 
@@ -63,7 +63,7 @@ class LinearAssignment:
         if self.nx == self.ny:
             self.c = self.orig_c
         else:
-            self.c = np.zeros((self.n, self.n), dtype=np.float_)
+            self.c = np.zeros((self.n, self.n), dtype=np.float64)
             self.c[:self.nx] = self.orig_c
 
         # initialize solution vectors
