@@ -76,15 +76,15 @@ class LinearAssignment:
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef np.float_t compute(int size, np.float_t[:, :] c, np.int_t[:] x, np.int_t[:] y, np.float_t eps) nogil:
+cdef np.float_t compute(int size, np.float_t[:, :] c, np.int64_t[:] x, np.int64_t[:] y, np.float_t eps) nogil:
 
     # augment
     cdef int i, j, k, i1, j1, f, f0, cnt, low, up, z, last, nrr
     cdef int n = size
     cdef bint b
-    cdef np.int_t * col = <np.int_t *> malloc(n * sizeof(np.int_t))
-    cdef np.int_t * fre = <np.int_t *> malloc(n * sizeof(np.int_t))
-    cdef np.int_t * pred = <np.int_t *> malloc(n * sizeof(np.int_t))
+    cdef np.int64_t * col = <np.int64_t *> malloc(n * sizeof(np.int64_t))
+    cdef np.int64_t * fre = <np.int64_t *> malloc(n * sizeof(np.int64_t))
+    cdef np.int64_t * pred = <np.int64_t *> malloc(n * sizeof(np.int64_t))
     cdef np.float_t * v = <np.float_t *> malloc(n * sizeof(np.float_t))
     cdef np.float_t * d = <np.float_t *> malloc(n * sizeof(np.float_t))
     cdef np.float_t h, m, u1, u2, cost
