@@ -23,7 +23,7 @@ from libc.stdlib cimport free, malloc
 np.import_array()
 
 #create images, 2d array of all length 3 combinations of [-1,0,1]
-rng = np.arange(-1, 2, dtype=np.float_)
+rng = np.arange(-1, 2, dtype=np.float64)
 arange = rng[:, None] * np.array([1, 0, 0])[None, :]
 brange = rng[:, None] * np.array([0, 1, 0])[None, :]
 crange = rng[:, None] * np.array([0, 0, 1])[None, :]
@@ -73,7 +73,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     Args:
         lattice: lattice to use
         fcoords1: First set of fractional coordinates. e.g., [0.5, 0.6, 0.7]
-            or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. Must be np.float_
+            or [[1.1, 1.2, 4.3], [0.5, 0.6, 0.7]]. Must be np.float64
         fcoords2: Second set of fractional coordinates.
         mask (int_ array): Mask of matches that are not allowed.
             i.e. if mask[1,2] == True, then subset[1] cannot be matched
@@ -114,7 +114,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
                 frac_im[k] = images_view[i]
                 k += 1
 
-    cdef np.float_t[:, ::1] lat = np.array(matrix, dtype=np.float_, copy=False, order="C")
+    cdef np.float_t[:, ::1] lat = np.asarray(matrix, dtype=np.float64, order="C")
 
     I = len(fcoords1)
     J = len(fcoords2)
@@ -127,14 +127,14 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     cdef np.float_t[:, ::1] cart_im = <np.float_t[:n_pbc_im, :3]> malloc(3 * n_pbc_im * sizeof(np.float_t))
 
     cdef bint has_mask = mask is not None
-    cdef np.int_t[:, :] mask_arr
+    cdef np.int64_t[:, :] mask_arr
     if has_mask:
-        mask_arr = np.array(mask, dtype=np.int_, copy=False, order="C")
+        mask_arr = np.asarray(mask, dtype=np.int_, order="C")
 
     cdef bint has_ftol = (lll_frac_tol is not None)
     cdef np.float_t[:] ftol
     if has_ftol:
-        ftol = np.array(lll_frac_tol, dtype=np.float_, order="C", copy=False)
+        ftol = np.asarray(lll_frac_tol, dtype=np.float64, order="C")
 
 
     dot_2d_mod(fc1, lat, cart_f1)
@@ -214,7 +214,7 @@ def is_coord_subset_pbc(subset, superset, atol, mask, pbc=(True, True, True)):
     cdef np.float_t[:, :] fc1 = subset
     cdef np.float_t[:, :] fc2 = superset
     cdef np.float_t[:] t = atol
-    cdef np.int_t[:, :] m = np.array(mask, dtype=np.int_, copy=False, order="C")
+    cdef np.int64_t[:, :] m = np.asarray(mask, dtype=np.int_, order="C")
 
     cdef int i, j, k, len_fc1, len_fc2
     cdef np.float_t d
@@ -265,7 +265,7 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
     cdef np.float_t[:, :] fc1 = subset
     cdef np.float_t[:, :] fc2 = superset
     cdef np.float_t[:] t = atol
-    cdef np.int_t[:] c_inds = inds
+    cdef np.int64_t[:] c_inds = inds
     cdef np.float_t d
     cdef bint ok_inner, ok_outer, pbc_int[3]
 

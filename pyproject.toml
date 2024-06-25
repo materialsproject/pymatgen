@@ -1,8 +1,9 @@
 [build-system]
 requires = [
     "Cython>=0.29.23",
-    # pin NumPy version used in the build
-    "oldest-supported-numpy",
+    # Building against NPY2 will support both NPY1 and NPY2
+    # https://numpy.org/devdocs/dev/depending_on_numpy.html#build-time-dependency
+    "numpy>=2.0.0rc1",
     "setuptools>=65.0.0",
 ]
 build-backend = "setuptools.build_meta"
@@ -60,8 +61,9 @@ dependencies = [
     "matplotlib>=3.8",
     "monty>=2024.5.24",
     "networkx>=2.2",
-    'numpy>=1.25.0,<2.0 ; platform_system == "Windows"',
-    'numpy>=1.25.0 ; platform_system != "Windows"',
+    # NumPy documentation suggests pinning the current major version as the C API is used
+    # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
+    'numpy>=1.25.0,<3.0',
     "palettable>=3.1.1",
     "pandas>=2",
     "plotly>=4.5.0",

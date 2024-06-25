@@ -15,6 +15,11 @@ from typing import TYPE_CHECKING
 import numpy as np
 from scipy.optimize import leastsq, minimize
 
+try:
+    from numpy.exceptions import RankWarning  # NPY2
+except ImportError:
+    from numpy import RankWarning  # NPY1
+
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 
@@ -420,7 +425,7 @@ class NumericalEOS(PolynomialEOS):
             min_poly_order (int): minimum order of the polynomial to be
                 considered for fitting.
         """
-        warnings.simplefilter("ignore", np.RankWarning)
+        warnings.simplefilter("ignore", RankWarning)
 
         def get_rms(x, y):
             return np.sqrt(np.sum((np.array(x) - np.array(y)) ** 2) / len(x))
@@ -490,7 +495,7 @@ class NumericalEOS(PolynomialEOS):
             norm += weight
             coeffs = np.array(val[0])
             # pad the coefficient array with zeros
-            coeffs = np.lib.pad(coeffs, (0, max(fit_poly_order - len(coeffs), 0)), "constant")
+            coeffs = np.pad(coeffs, (0, max(fit_poly_order - len(coeffs), 0)), "constant")
             weighted_avg_coeffs += weight * coeffs
 
         # normalization
