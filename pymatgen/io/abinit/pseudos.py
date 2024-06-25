@@ -16,9 +16,9 @@ import tempfile
 import traceback
 from collections import defaultdict
 from typing import TYPE_CHECKING, NamedTuple
+from xml.etree import ElementTree as Et
 
 import numpy as np
-from defusedxml import ElementTree as Et
 from monty.collections import AttrDict, Namespace
 from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
