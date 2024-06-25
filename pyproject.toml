@@ -234,6 +234,7 @@ ignore = [
   "S110",    # Log for try-except-pass
   "S112",    # Log for try-except-continue
   "S311",    # Use random module for cryptographic purposes
+  "S314",    # Replace xml with defusedxml to avoid XML attacks
   "S603",    # Check source for use of "subprocess" call
   "SIM105",  # Use contextlib.suppress() instead of try-except-pass
   "TRY003",  # Avoid specifying long messages outside the exception class
