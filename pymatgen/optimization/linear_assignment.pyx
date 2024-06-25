@@ -50,7 +50,8 @@ class LinearAssignment:
     """
 
     def __init__(self, costs, epsilon=1e-13):
-        self.orig_c = np.array(costs, dtype=np.float64, copy=False, order="C")
+        # https://numpy.org/devdocs/numpy_2_0_migration_guide.html#adapting-to-changes-in-the-copy-keyword
+        self.orig_c = np.asarray(costs, dtype=np.float64, order="C")
         self.nx, self.ny = self.orig_c.shape
         self.n = self.ny
 
