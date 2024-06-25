@@ -17,7 +17,7 @@ from scipy.optimize import leastsq, minimize
 
 try:
     from numpy.exceptions import RankWarning  # NPY2
-except AttributeError:
+except ImportError:
     from numpy import RankWarning  # NPY1
 
 from pymatgen.core.units import FloatWithUnit
