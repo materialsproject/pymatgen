@@ -495,7 +495,7 @@ class NumericalEOS(PolynomialEOS):
             norm += weight
             coeffs = np.array(val[0])
             # pad the coefficient array with zeros
-            coeffs = np.lib.pad(coeffs, (0, max(fit_poly_order - len(coeffs), 0)), "constant")
+            coeffs = np.pad(coeffs, (0, max(fit_poly_order - len(coeffs), 0)), "constant")
             weighted_avg_coeffs += weight * coeffs
 
         # normalization
