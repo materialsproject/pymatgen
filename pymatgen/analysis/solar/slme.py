@@ -187,7 +187,7 @@ def slme(
     solar_spectra_photon_flux = solar_spectra_irradiance * (solar_spectra_wavelength_meters / (h * c))
 
     # Calculation of total solar power incoming
-    power_in = simpson(solar_spectra_irradiance, solar_spectra_wavelength)
+    power_in = simpson(solar_spectra_irradiance, x=solar_spectra_wavelength)
 
     # calculation of blackbody irradiance spectra
     # units of W/(m**3), different than solar_spectra_irradiance!!! (This
@@ -234,13 +234,13 @@ def slme(
         * np.pi
         * simpson(
             blackbody_photon_flux * absorbed_by_wavelength,
-            solar_spectra_wavelength_meters,
+            x=solar_spectra_wavelength_meters,
         )
     )
 
     J_0 = J_0_r / fr
 
-    J_sc = e * simpson(solar_spectra_photon_flux * absorbed_by_wavelength, solar_spectra_wavelength)
+    J_sc = e * simpson(solar_spectra_photon_flux * absorbed_by_wavelength, x=solar_spectra_wavelength)
 
     def J(V):
         return J_sc - J_0 * (np.exp(e * V / (k * temperature)) - 1.0)
