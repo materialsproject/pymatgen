@@ -3858,42 +3858,43 @@ class Procar(MSONable):
         # Combine arrays along the kpoints axis:
         # nbands (axis = 2) could differ between arrays, so set missing values to zero:
         max_nbands = max(eig_dict[Spin.up].shape[1] for eig_dict in eigenvalues_list)
-        for dict_array_list in [occupancies_list, eigenvalues_list, data_list, xyz_data_list, phase_factors_list]:
-            for dict_array in dict_array_list:
-                if dict_array:
-                    for key, array in dict_array.items():
-                        if array.shape[1] < max_nbands:
-                            if len(array.shape) == 2:  # occupancies, eigenvalues
-                                dict_array[key] = np.pad(
-                                    array,
-                                    ((0, 0), (0, max_nbands - array.shape[2])),
-                                    mode="constant",
-                                )
-                            elif len(array.shape) == 4:  # data, phase_factors
-                                dict_array[key] = np.pad(
-                                    array,
-                                    (
-                                        (0, 0),
-                                        (0, max_nbands - array.shape[2]),
-                                        (0, 0),
-                                        (0, 0),
-                                    ),
-                                    mode="constant",
-                                )
-                            elif len(array.shape) == 5:  # xyz_data
-                                dict_array[key] = np.pad(
-                                    array,
-                                    (
-                                        (0, 0),
-                                        (0, max_nbands - array.shape[2]),
-                                        (0, 0),
-                                        (0, 0),
-                                        (0, 0),
-                                    ),
-                                    mode="constant",
-                                )
-                            else:
-                                raise ValueError("Unexpected array shape encountered!")
+        for dict_array in itertools.chain(
+            occupancies_list, eigenvalues_list, data_list, xyz_data_list, phase_factors_list
+        ):
+            if dict_array:
+                for key, array in dict_array.items():
+                    if array.shape[1] < max_nbands:
+                        if len(array.shape) == 2:  # occupancies, eigenvalues
+                            dict_array[key] = np.pad(
+                                array,
+                                ((0, 0), (0, max_nbands - array.shape[2])),
+                                mode="constant",
+                            )
+                        elif len(array.shape) == 4:  # data, phase_factors
+                            dict_array[key] = np.pad(
+                                array,
+                                (
+                                    (0, 0),
+                                    (0, max_nbands - array.shape[2]),
+                                    (0, 0),
+                                    (0, 0),
+                                ),
+                                mode="constant",
+                            )
+                        elif len(array.shape) == 5:  # xyz_data
+                            dict_array[key] = np.pad(
+                                array,
+                                (
+                                    (0, 0),
+                                    (0, max_nbands - array.shape[2]),
+                                    (0, 0),
+                                    (0, 0),
+                                    (0, 0),
+                                ),
+                                mode="constant",
+                            )
+                        else:
+                            raise ValueError("Unexpected array shape encountered!")
 
         # set nbands, nkpoints, and other attributes:
         self.nbands = max_nbands
