@@ -482,10 +482,9 @@ class ComputedEntry(Entry):
         Returns:
             ComputedEntry
         """
-
         # Must handle cases where some kwargs exist in `dct` but are None
         # include extra logic to ensure these get properly treated
-        energy_adj = dct.get("energy_adjustments",[]) or []
+        energy_adj = dct.get("energy_adjustments", []) or []
 
         if dct["correction"] != 0 and not energy_adj:
             # the first block here is for legacy ComputedEntry that were
