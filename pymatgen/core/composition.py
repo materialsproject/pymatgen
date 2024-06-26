@@ -197,16 +197,16 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if all elements in B are in A and the amount of each element in A is
         greater than or equal to the amount of the element in B within
         Composition.amount_tolerance.
-
-        Should ONLY be used for defining a sort order (the behavior is probably not what you'd expect).
         """
         if not isinstance(other, type(self)):
             return NotImplemented
 
+        # if not set(self.elements).issuperset(other.elements):
+        #     return False
+
         for el in sorted(set(self.elements + other.elements)):
             if other[el] - self[el] >= type(self).amount_tolerance:
                 return False
-            # TODO @janosh 2024-04-29: is this a bug? why would we return True early?
             if self[el] - other[el] >= type(self).amount_tolerance:
                 return True
         return True

@@ -502,27 +502,60 @@ class TestComposition(PymatgenTest):
         assert hash(c1) != hash(c2), "Hash equal for different chemical systems"
 
     def test_comparisons(self):
-        c1 = Composition({"S": 1})
-        c1_1 = Composition({"S": 1.00000000000001})
-        c2 = Composition({"S": 2})
-        c3 = Composition({"O": 1})
-        c4 = Composition({"O": 1, "S": 1})
-        assert not c1 > c2
-        assert not c1_1 > c1
-        assert not c1_1 < c1
-        assert c1 > c3
-        assert c3 < c1
-        assert c4 > c1
-        assert sorted([c1, c1_1, c2, c4, c3]) == [c3, c1, c1_1, c4, c2]
+        # Test composition tolerance
+        comp_s1 = Composition({"S": 1})
+        comp_s1001 = Composition({"S": 1 + 1e-10})  # default tolerance is 1e-8
+        assert comp_s1 == comp_s1001
+        assert not comp_s1001 > comp_s1
+        assert not comp_s1001 < comp_s1
 
+        # Test same element
+        comp_s2 = Composition({"S": 2})
+        assert not comp_s1 > comp_s2
+        assert comp_s2 > comp_s1
+
+        # Test single different element
+        comp_o1 = Composition({"O": 1})
+        assert comp_s1 > comp_o1
+        assert comp_o1 < comp_s1
+
+        # Test superset
+        comp_s1o1 = Composition({"O": 1, "S": 1})
+        assert comp_s1o1 > comp_s1
+
+        # Test sorting
+        assert sorted([comp_s1, comp_s1001, comp_s2, comp_s1o1, comp_o1]) == [
+            comp_o1,
+            comp_s1,
+            comp_s1001,
+            comp_s1o1,
+            comp_s2,
+        ]
+
+        # Test multiple same elements
+        comp_fe3o4 = Composition({"Fe": 3, "S": 4})
+        comp_fe2o3 = Composition({"Fe": 2, "S": 3})
+        assert comp_fe3o4 > comp_fe2o3
+
+        comp_fe4o2 = Composition({"Fe": 4, "S": 2})
+        assert not comp_fe3o4 > comp_fe4o2
+        assert not comp_fe4o2 > comp_fe3o4
+
+        # Test different elements
+        comp_co2 = Composition({"C": 1, "O": 2})
+        comp_fe2o3 = Composition({"Fe": 2, "O": 3})
+        assert not comp_co2 > comp_fe2o3
+        assert not comp_fe2o3 > comp_co2
+
+        # Not implemented comparison between Composition and Element
         Fe = Element("Fe")
-        assert c1 != Fe, NotImplemented
-        assert c1 != Fe
+        assert comp_s1 != Fe, NotImplemented
+        assert comp_s1 != Fe
         with pytest.raises(
             TypeError,
             match="'<' not supported between instances of 'Composition' and 'Element'",
         ):
-            _ = c1 < Fe
+            _ = comp_s1 < Fe
 
     def test_almost_equals(self):
         c1 = Composition({"Fe": 2.0, "O": 3.0, "Mn": 0})
