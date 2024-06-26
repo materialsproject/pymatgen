@@ -103,7 +103,10 @@ class AimsGeometryIn(MSONable):
         else:
             raise ValueError("Incorrect number of lattice vectors passed.")
 
-        site_props = {"magmom": magmom, "charge": charge, "velocity": velocity}
+        site_props = {"magmom": magmom, "charge": charge}
+        if velocities_dct:
+            site_props["velocity"] = velocity
+
         if lattice is None:
             structure = Molecule(species, coords, np.sum(charge), site_properties=site_props)
         else:
