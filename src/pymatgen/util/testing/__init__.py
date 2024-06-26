@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 MODULE_DIR = Path(__file__).absolute().parent
 STRUCTURES_DIR = MODULE_DIR / ".." / "structures"
-TEST_FILES_DIR = Path(SETTINGS.get("PMG_TEST_FILES_DIR", f"{ROOT}/tests/files"))
+TEST_FILES_DIR = Path(SETTINGS.get("PMG_TEST_FILES_DIR", f"{ROOT}/../tests/files"))
 VASP_IN_DIR = f"{TEST_FILES_DIR}/io/vasp/inputs"
 VASP_OUT_DIR = f"{TEST_FILES_DIR}/io/vasp/outputs"
 # fake POTCARs have original header information, meaning properties like number of electrons,
