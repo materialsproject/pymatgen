@@ -2017,7 +2017,7 @@
     "tests/io/lobster/test_inputsenv.py::TestLobsterNeighbors::test_get_nn_info": 0.23225333401933312,
     "tests/io/lobster/test_inputsenv.py::TestLobsterNeighbors::test_get_plot_label": 0.2305897069745697,
     "tests/io/lobster/test_inputsenv.py::TestLobsterNeighbors::test_get_structure_environments": 0.2838197909295559,
-    "tests/io/lobster/test_inputsenv.py::TestLobsterNeighbors::test_get_strucuture_environments_further_tests": 0.2533352089812979,
+    "tests/io/lobster/test_inputsenv.py::TestLobsterNeighbors::test_get_structure_environments_further_tests": 0.2533352089812979,
     "tests/io/lobster/test_inputsenv.py::TestLobsterNeighbors::test_get_sum_icohps_between_neighbors_of_atom": 0.24758987501263618,
     "tests/io/lobster/test_inputsenv.py::TestLobsterNeighbors::test_molecules_allowed": 0.23277270805556327,
     "tests/io/lobster/test_inputsenv.py::TestLobsterNeighbors::test_order_parameter": 0.2319688760326244,
