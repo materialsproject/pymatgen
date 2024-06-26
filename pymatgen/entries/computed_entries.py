@@ -484,18 +484,17 @@ class ComputedEntry(Entry):
         """
         # Must handle cases where some kwargs exist in `dct` but are None
         # include extra logic to ensure these get properly treated
-        energy_adj = dct.get("energy_adjustments", []) or []
+        energy_adj = [MontyDecoder().process_decoded(e) for e in (dct.get("energy_adjustments", []) or [])]
+
+        # this is the preferred / modern way of instantiating ComputedEntry
+        # we don't pass correction explicitly because it will be calculated
+        # on the fly from energy_adjustments
+        correction = 0
 
         if dct["correction"] != 0 and not energy_adj:
-            # the first block here is for legacy ComputedEntry that were
+            # this block is for legacy ComputedEntry that were
             # serialized before we had the energy_adjustments attribute.
             correction = dct["correction"]
-        else:
-            # this is the preferred / modern way of instantiating ComputedEntry
-            # we don't pass correction explicitly because it will be calculated
-            # on the fly from energy_adjustments
-            correction = 0
-            energy_adj = [MontyDecoder().process_decoded(e) for e in energy_adj]
 
         return cls(
             dct["composition"],
