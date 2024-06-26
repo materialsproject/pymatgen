@@ -193,10 +193,10 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         return all(abs(amt - other[el]) <= type(self).amount_tolerance for el, amt in self.items())
 
     def __ge__(self, other: object) -> bool:
-        """Composition greater than or equal to. We consider compositions A >= B
-        if all elements in B are in A and the amount of each element in A is
-        greater than or equal to the amount of the element in B within
-        Composition.amount_tolerance.
+        """Composition greater than or equal to. We sort the elements in the compositions in order of
+        electronegativity. The amount of the most electropositive element that is not equal within a certain
+        tolerance factor is used to make a comparison. Note that an element not present in a Composition has an implied
+        amount of 0.
 
         Should ONLY be used for defining a sort order (the behavior is probably not what you'd expect).
         """
