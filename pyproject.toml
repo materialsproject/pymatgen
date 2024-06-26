@@ -217,7 +217,6 @@ ignore = [
   "D105",    # Missing docstring in magic method
   "D205",    # One blank line required between summary line and description
   "D212",    # Multi-line docstring summary should start at the first line
-  "DTZ003",  # TODO: fix this (issue #3791)
   "FBT001",  # Boolean-typed positional argument in function definition
   "FBT002",  # Boolean default positional argument in function
   "PD901",   # pandas-df-variable-name

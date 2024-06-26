@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import bisect
+import datetime
 import math
 from copy import copy, deepcopy
-from datetime import datetime
 from typing import TYPE_CHECKING
 from warnings import warn
 
@@ -535,7 +535,7 @@ class EwaldMinimizer:
         # sets this to true it breaks the recursion and stops the search.
         self._finished = False
 
-        self._start_time = datetime.utcnow()
+        self._start_time = datetime.datetime.now(datetime.timezone.utc)
 
         self.minimize_matrix()
 
@@ -605,7 +605,7 @@ class EwaldMinimizer:
         interaction_correction = np.sum(step3)
 
         if self._algo == self.ALGO_TIME_LIMIT:
-            elapsed_time = datetime.utcnow() - self._start_time
+            elapsed_time = datetime.datetime.now(datetime.timezone.utc) - self._start_time
             speedup_parameter = elapsed_time.total_seconds() / 1800
             avg_int = np.sum(interaction_matrix, axis=None)
             avg_frac = np.mean(np.outer(1 - fractions, 1 - fractions))
