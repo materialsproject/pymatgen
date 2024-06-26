@@ -1442,7 +1442,7 @@ class GrainBoundaryGenerator:
             v = 2 * v1 + u1
             w = w1
         else:
-            u, v, w = r_axis
+            u, v, w = r_axis  # type: ignore[misc]
 
         # Make sure mu, mv are coprime integers
         if c2_a2_ratio is None:
@@ -1555,7 +1555,7 @@ class GrainBoundaryGenerator:
         # Make sure math.(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
             r_axis = cast(Tuple3Ints, tuple([round(x / reduce(math.gcd, r_axis)) for x in r_axis]))
-        u, v, w = r_axis
+        u, v, w = r_axis  # type: ignore[misc]
 
         # Make sure mu, mv are coprime integers
         if ratio_alpha is None:
