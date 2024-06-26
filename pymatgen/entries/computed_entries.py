@@ -482,27 +482,29 @@ class ComputedEntry(Entry):
         Returns:
             ComputedEntry
         """
-        # the first block here is for legacy ComputedEntry that were
-        # serialized before we had the energy_adjustments attribute.
-        if dct["correction"] != 0 and not dct.get("energy_adjustments"):
-            return cls(
-                dct["composition"],
-                dct["energy"],
-                dct["correction"],
-                parameters={k: MontyDecoder().process_decoded(v) for k, v in dct.get("parameters", {}).items()},
-                data={k: MontyDecoder().process_decoded(v) for k, v in dct.get("data", {}).items()},
-                entry_id=dct.get("entry_id"),
-            )
-        # this is the preferred / modern way of instantiating ComputedEntry
-        # we don't pass correction explicitly because it will be calculated
-        # on the fly from energy_adjustments
+
+        # Must handle cases where some kwargs exist in `dct` but are None
+        # include extra logic to ensure these get properly treated
+        energy_adj = dct.get("energy_adjustments",[]) or []
+
+        if dct["correction"] != 0 and not energy_adj:
+            # the first block here is for legacy ComputedEntry that were
+            # serialized before we had the energy_adjustments attribute.
+            correction = dct["correction"]
+        else:
+            # this is the preferred / modern way of instantiating ComputedEntry
+            # we don't pass correction explicitly because it will be calculated
+            # on the fly from energy_adjustments
+            correction = 0
+            energy_adj = [MontyDecoder().process_decoded(e) for e in energy_adj]
+
         return cls(
             dct["composition"],
             dct["energy"],
-            correction=0,
-            energy_adjustments=[MontyDecoder().process_decoded(e) for e in dct.get("energy_adjustments", {})],
-            parameters={k: MontyDecoder().process_decoded(v) for k, v in dct.get("parameters", {}).items()},
-            data={k: MontyDecoder().process_decoded(v) for k, v in dct.get("data", {}).items()},
+            correction=correction,
+            energy_adjustments=energy_adj,
+            parameters={k: MontyDecoder().process_decoded(v) for k, v in (dct.get("parameters", {}) or {}).items()},
+            data={k: MontyDecoder().process_decoded(v) for k, v in (dct.get("data", {}) or {}).items()},
             entry_id=dct.get("entry_id"),
         )
 

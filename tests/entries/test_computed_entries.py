@@ -238,6 +238,14 @@ class TestComputedEntry(TestCase):
             assert entry == copy
             assert str(entry) == str(copy)
 
+    def test_from_dict_null_fields(self):
+        ce_dict = self.entry.as_dict()
+        for k in ("energy_adjustments","parameters","data",):
+            ce = ce_dict.copy()
+            ce[k] = None
+            new_ce = ComputedEntry.from_dict(ce)
+            assert new_ce == self.entry
+            assert getattr(new_ce,k,None) is not None
 
 class TestComputedStructureEntry(TestCase):
     def setUp(self):
