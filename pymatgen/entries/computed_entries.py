@@ -490,8 +490,7 @@ class ComputedEntry(Entry):
         # we don't pass correction explicitly because it will be calculated
         # on the fly from energy_adjustments
         correction = 0
-
-        if dct["correction"] != 0 and not energy_adj:
+        if dct["correction"] != 0 and len(energy_adj) == 0:
             # this block is for legacy ComputedEntry that were
             # serialized before we had the energy_adjustments attribute.
             correction = dct["correction"]
