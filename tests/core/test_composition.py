@@ -10,11 +10,10 @@ import random
 
 import pytest
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.core import Composition, DummySpecies, Element, Species
 from pymatgen.core.composition import ChemicalPotential
 from pymatgen.util.testing import PymatgenTest
+from pytest import approx
 
 
 class TestComposition(PymatgenTest):

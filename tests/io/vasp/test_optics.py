@@ -4,7 +4,6 @@ import numpy as np
 import pytest
 import scipy.special
 from numpy.testing import assert_allclose
-
 from pymatgen.io.vasp.optics import DielectricFunctionCalculator, delta_func, delta_methfessel_paxton, step_func
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
