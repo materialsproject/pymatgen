@@ -480,6 +480,13 @@ class TestMaterialsProjectCompatibility(TestCase):
         entries = self.compat.process_entries([self.entry1, self.entry2, self.entry3, self.entry4])
         assert len(entries) == 2
 
+    def test_parallel_process_entries(self):
+        with pytest.raises(ValueError):
+            entries = self.compat.process_entries([self.entry1, self.entry2, self.entry3, self.entry4], inplace=True, n_workers=2)
+
+        entries = self.compat.process_entries([self.entry1, self.entry2, self.entry3, self.entry4], inplace=False, n_workers=2)
+        assert len(entries) == 2
+
     def test_msonable(self):
         compat_dict = self.compat.as_dict()
         decoder = MontyDecoder()

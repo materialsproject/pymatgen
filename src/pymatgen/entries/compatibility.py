@@ -29,6 +29,9 @@ from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet, VaspInputSet
 from pymatgen.util.due import Doi, due
 from tqdm import tqdm
 from uncertainties import ufloat
+from pymatgen.util.joblib import tqdm_joblib, set_python_warnings
+
+from joblib import Parallel, delayed
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -203,7 +206,6 @@ class PotcarCorrection(Correction):
         return f"{self.input_set.__name__} Potcar Correction"
 
 
-@cached_class
 class GasCorrection(Correction):
     """Correct gas energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
@@ -241,7 +243,6 @@ class GasCorrection(Correction):
         return f"{self.name} Gas Correction"
 
 
-@cached_class
 class AnionCorrection(Correction):
     """Correct anion energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
@@ -333,7 +334,6 @@ class AnionCorrection(Correction):
         return f"{self.name} Anion Correction"
 
 
-@cached_class
 class AqueousCorrection(Correction):
     """This class implements aqueous phase compound corrections for elements
     and H2O.
@@ -422,7 +422,6 @@ class AqueousCorrection(Correction):
         return f"{self.name} Aqueous Correction"
 
 
-@cached_class
 class UCorrection(Correction):
     """This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Entry.parameters must contain a "hubbards" key which is a dict
@@ -537,21 +536,83 @@ class Compatibility(MSONable, abc.ABC):
         """
         raise NotImplementedError
 
-    def process_entry(self, entry: ComputedEntry, **kwargs) -> ComputedEntry | None:
+    def process_entry(
+        self,
+        entry: ComputedEntry,
+        inplace: bool = True,
+        **kwargs
+    ) -> ComputedEntry | None:
         """Process a single entry with the chosen Corrections. Note
         that this method will change the data of the original entry.
 
         Args:
             entry: A ComputedEntry object.
+            inplace (bool): Whether to adjust the entry in place. Defaults to True.
             **kwargs: Will be passed to process_entries().
 
         Returns:
             An adjusted entry if entry is compatible, else None.
         """
-        try:
-            return self.process_entries(entry, **kwargs)[0]
-        except IndexError:
+        if not inplace:
+            entry = copy.deepcopy(entry)
+
+        entry = self._process_entry_inplace(entry, **kwargs)
+
+        return entry[0] if entry is not None else None
+
+    def _process_entry_inplace(
+        self,
+        entry: AnyComputedEntry,
+        clean: bool = True,
+        on_error: Literal["ignore", "warn", "raise"] = "ignore",
+    ) -> ComputedEntry | None:
+        """Process a single entry with the chosen Corrections. Note
+        that this method will change the data of the original entry.
+
+        Args:
+            entry: A ComputedEntry object.
+            clean (bool): Whether to remove any previously-applied energy adjustments.
+                If True, all EnergyAdjustment are removed prior to processing the Entry.
+                Defaults to True.
+            on_error ('ignore' | 'warn' | 'raise'): What to do when get_adjustments(entry)
+                raises CompatibilityError. Defaults to 'ignore'.
+
+        Returns:
+            An adjusted entry if entry is compatible, else None.
+        """
+        ignore_entry = False
+        # if clean is True, remove all previous adjustments from the entry
+        if clean:
+            entry.energy_adjustments = []
+
+        try:  # get the energy adjustments
+            adjustments = self.get_adjustments(entry)
+        except CompatibilityError as exc:
+            if on_error == "raise":
+                raise exc
+            if on_error == "warn":
+                warnings.warn(str(exc))
             return None
+
+        for ea in adjustments:
+            # Has this correction already been applied?
+            if (ea.name, ea.cls, ea.value) in [(ea2.name, ea2.cls, ea2.value) for ea2 in entry.energy_adjustments]:
+                # we already applied this exact correction. Do nothing.
+                pass
+            elif (ea.name, ea.cls) in [(ea2.name, ea2.cls) for ea2 in entry.energy_adjustments]:
+                # we already applied a correction with the same name
+                # but a different value. Something is wrong.
+                ignore_entry = True
+                warnings.warn(
+                    f"Entry {entry.entry_id} already has an energy adjustment called {ea.name}, but its "
+                    f"value differs from the value of {ea.value:.3f} calculated here. This "
+                    "Entry will be discarded."
+                )
+            else:
+                # Add the correction to the energy_adjustments list
+                entry.energy_adjustments.append(ea)
+
+        return entry, ignore_entry
 
     def process_entries(
         self,
@@ -559,6 +620,7 @@ class Compatibility(MSONable, abc.ABC):
         clean: bool = True,
         verbose: bool = False,
         inplace: bool = True,
+        n_workers: int = 1,
         on_error: Literal["ignore", "warn", "raise"] = "ignore",
     ) -> list[AnyComputedEntry]:
         """Process a sequence of entries with the chosen Compatibility scheme.
@@ -575,6 +637,7 @@ class Compatibility(MSONable, abc.ABC):
             verbose (bool): Whether to display progress bar for processing multiple entries.
                 Defaults to False.
             inplace (bool): Whether to adjust input entries in place. Defaults to True.
+            n_workers (int): Number of workers to use for parallel processing. Defaults to 1.
             on_error ('ignore' | 'warn' | 'raise'): What to do when get_adjustments(entry)
                 raises CompatibilityError. Defaults to 'ignore'.
 
@@ -592,41 +655,29 @@ class Compatibility(MSONable, abc.ABC):
         if not inplace:
             entries = copy.deepcopy(entries)
 
-        for entry in tqdm(entries, disable=not verbose):
-            ignore_entry = False
-            # if clean is True, remove all previous adjustments from the entry
-            if clean:
-                entry.energy_adjustments = []
-
-            try:  # get the energy adjustments
-                adjustments = self.get_adjustments(entry)
-            except CompatibilityError as exc:
-                if on_error == "raise":
-                    raise
-                if on_error == "warn":
-                    warnings.warn(str(exc))
-                continue
-
-            for ea in adjustments:
-                # Has this correction already been applied?
-                if (ea.name, ea.cls, ea.value) in [(ea2.name, ea2.cls, ea2.value) for ea2 in entry.energy_adjustments]:
-                    # we already applied this exact correction. Do nothing.
-                    pass
-                elif (ea.name, ea.cls) in [(ea2.name, ea2.cls) for ea2 in entry.energy_adjustments]:
-                    # we already applied a correction with the same name
-                    # but a different value. Something is wrong.
-                    ignore_entry = True
-                    warnings.warn(
-                        f"Entry {entry.entry_id} already has an energy adjustment called {ea.name}, but its "
-                        f"value differs from the value of {ea.value:.3f} calculated here. This "
-                        "Entry will be discarded."
-                    )
-                else:
-                    # Add the correction to the energy_adjustments list
-                    entry.energy_adjustments.append(ea)
-
-            if not ignore_entry:
-                processed_entry_list.append(entry)
+        if n_workers == 1:
+            for entry in tqdm(entries, disable=not verbose):
+                result = self._process_entry_inplace(entry, clean, on_error)
+                if result is None:
+                    continue
+                entry, ignore_entry = result
+                if not ignore_entry:
+                    processed_entry_list.append(entry)
+        elif not inplace:
+            # set python warnings to ignore otherwise warnings will be printed multiple times
+            with tqdm_joblib(tqdm(total=len(entries), disable=not verbose)), set_python_warnings("ignore"):
+                results = Parallel(n_jobs=n_workers)(
+                    delayed(self._process_entry_inplace)(entry, clean, on_error)
+                    for entry in entries
+                )
+            for result in results:
+                if result is None:
+                    continue
+                entry, ignore_entry = result
+                if not ignore_entry:
+                    processed_entry_list.append(entry)
+        else:
+            raise ValueError("Parallel processing is not possible with for 'inplace=True'")
 
         return processed_entry_list
 
@@ -835,7 +886,6 @@ class MaterialsProjectCompatibility(CorrectionsList):
 # having to create a list of separate correction classes.
 
 
-@cached_class
 class MaterialsProject2020Compatibility(Compatibility):
     """This class implements the Materials Project 2020 energy correction scheme, which
     incorporates uncertainty quantification and allows for mixing of GGA and GGA+U entries
@@ -1228,7 +1278,6 @@ class MITAqueousCompatibility(CorrectionsList):
         )
 
 
-@cached_class
 @due.dcite(Doi("10.1103/PhysRevB.85.235438", "Pourbaix scheme to combine calculated and experimental data"))
 class MaterialsProjectAqueousCompatibility(Compatibility):
     """This class implements the Aqueous energy referencing scheme for constructing
