@@ -89,12 +89,14 @@ def publish(ctx: Context) -> None:
 
 @task
 def set_ver(ctx: Context, version: str):
-    with open("setup.py", encoding="utf-8") as file:
-        contents = file.read()
-        contents = re.sub(r"version=([^,]+),", f"version={version!r},", contents)
+    with open("pyproject.toml") as file:
+        lines = [re.sub(r"^version = \"([^,]+)\"", f'version = "{version}"', line.rstrip()) for line in file]
 
-    with open("setup.py", mode="w", encoding="utf-8") as file:
-        file.write(contents)
+    with open("pyproject.toml", "w") as file:
+        file.write("\n".join(lines) + "\n")
+
+    ctx.run("ruff check --fix custodian")
+    ctx.run("ruff format pyproject.toml")
 
 
 @task
