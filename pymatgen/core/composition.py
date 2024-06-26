@@ -203,7 +203,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if not isinstance(other, type(self)):
             return NotImplemented
 
-        if not set(self.elements).issuperset(other.elements):
+        if not set(self.elements).issuperset(set(other.elements)):
             # TODO: revise warning message
             warnings.warn("Elements is not a superset.")
             return False
