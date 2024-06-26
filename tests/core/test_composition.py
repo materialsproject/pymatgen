@@ -516,8 +516,10 @@ class TestComposition(PymatgenTest):
 
         # Test single different element
         comp_o1 = Composition({"O": 1})
-        assert comp_s1 > comp_o1
-        assert comp_o1 < comp_s1
+        with pytest.warns(match="Elements is not a superset."):
+            assert not comp_s1 > comp_o1
+        with pytest.warns(match="Elements is not a superset."):
+            assert not comp_o1 > comp_s1
 
         # Test superset
         comp_s1o1 = Composition({"O": 1, "S": 1})
@@ -544,8 +546,10 @@ class TestComposition(PymatgenTest):
         # Test different elements
         comp_co2 = Composition({"C": 1, "O": 2})
         comp_fe2o3 = Composition({"Fe": 2, "O": 3})
-        assert not comp_co2 > comp_fe2o3
-        assert not comp_fe2o3 > comp_co2
+        with pytest.warns(match="Elements is not a superset."):
+            assert not comp_co2 > comp_fe2o3
+        with pytest.warns(match="Elements is not a superset."):
+            assert not comp_fe2o3 > comp_co2
 
         # Not implemented comparison between Composition and Element
         Fe = Element("Fe")
