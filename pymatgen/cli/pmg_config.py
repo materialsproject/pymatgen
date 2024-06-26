@@ -144,16 +144,16 @@ def setup_potcars(potcar_dirs: list[str]):
                     shutil.copy(fname, dest)
                     ext = fname.split(".")[-1]
                     if ext.upper() in {"Z", "GZ"}:
-                        with subprocess.Popen(["/usr/bin/gunzip", dest]) as process:
+                        with subprocess.Popen(["gunzip", dest]) as process:
                             process.communicate()
                     elif ext.upper() == "BZ2":
-                        with subprocess.Popen(["bunzip2", dest]) as process:  # noqa: S607
+                        with subprocess.Popen(["bunzip2", dest]) as process:
                             process.communicate()
                     if subdir == "Osmium":
                         subdir = "Os"
                     dest = os.path.join(base_dir, f"POTCAR.{subdir}")
                     shutil.move(f"{base_dir}/POTCAR", dest)
-                    with subprocess.Popen(["/usr/bin/gzip", "-f", dest]) as process:
+                    with subprocess.Popen(["gzip", "-f", dest]) as process:
                         process.communicate()
                 except Exception as exc:
                     print(f"An error has occurred. Message is {exc}. Trying to continue... ")
@@ -174,14 +174,14 @@ def build_enum(fortran_command: str = "gfortran") -> bool:
     cwd = os.getcwd()
     state = True
     try:
-        subprocess.call(["git", "clone", "--recursive", "https://github.com/msg-byu/enumlib"])  # noqa: S607
+        subprocess.call(["git", "clone", "--recursive", "https://github.com/msg-byu/enumlib"])
         os.chdir(f"{cwd}/enumlib/symlib/src")
         os.environ["F90"] = fortran_command
-        subprocess.call(["/usr/bin/make"])
+        subprocess.call(["make"])
         enum_path = f"{cwd}/enumlib/src"
         os.chdir(enum_path)
-        subprocess.call(["/usr/bin/make"])
-        subprocess.call(["/usr/bin/make", "enum.x"])
+        subprocess.call(["make"])
+        subprocess.call(["make", "enum.x"])
         shutil.copy("enum.x", os.path.join("..", ".."))
     except Exception as exc:
         print(exc)
@@ -205,8 +205,8 @@ def build_bader(fortran_command="gfortran"):
         urlretrieve(bader_url, "bader.tar.gz")  # noqa: S310
         subprocess.call(["/usr/bin/tar", "-zxf", "bader.tar.gz"])
         os.chdir("bader")
-        subprocess.call(["/bin/cp", "makefile.osx_" + fortran_command, "makefile"])
-        subprocess.call(["/usr/bin/make"])
+        subprocess.call(["cp", "makefile.osx_" + fortran_command, "makefile"])
+        subprocess.call(["make"])
         shutil.copy("bader", os.path.join("..", "bader_exe"))
         os.chdir("..")
         shutil.rmtree("bader")
@@ -223,12 +223,12 @@ def build_bader(fortran_command="gfortran"):
 def install_software(install: Literal["enumlib", "bader"]):
     """Install all optional external software."""
     try:
-        subprocess.call(["ifort", "--version"])  # noqa: S607
+        subprocess.call(["ifort", "--version"])
         print("Found ifort")
         fortran_command = "ifort"
     except Exception:
         try:
-            subprocess.call(["gfortran", "--version"])  # noqa: S607
+            subprocess.call(["gfortran", "--version"])
             print("Found gfortran")
             fortran_command = "gfortran"
         except Exception as exc:

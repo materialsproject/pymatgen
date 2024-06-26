@@ -132,7 +132,7 @@ def run_mcsqs(
             process.communicate(timeout=search_time * 60)
 
         if instances and instances > 1:
-            process = Popen(["mcsqs", "-best"])  # noqa: S607
+            process = Popen(["mcsqs", "-best"])
             process.communicate()
 
         if os.path.isfile("bestsqs.out") and os.path.isfile("bestcorr.out"):
@@ -153,7 +153,7 @@ def run_mcsqs(
                     "is search_time sufficient or are number of instances too high?"
                 )
 
-            process = Popen(["mcsqs", "-best"])  # noqa: S607
+            process = Popen(["mcsqs", "-best"])
             process.communicate()
 
         if os.path.isfile("bestsqs.out") and os.path.isfile("bestcorr.out"):
@@ -182,7 +182,7 @@ def _parse_sqs_path(path) -> Sqs:
         open(os.path.join(path, "bestsqs.out")) as input_file,
         open(os.path.join(path, "bestsqs.cif"), "w") as output_file,
     ):
-        process = Popen(["str2cif"], stdin=input_file, stdout=output_file, cwd=path)  # noqa: S607
+        process = Popen(["str2cif"], stdin=input_file, stdout=output_file, cwd=path)
         process.communicate()
 
     with warnings.catch_warnings():
@@ -205,7 +205,7 @@ def _parse_sqs_path(path) -> Sqs:
         sqs_cif = os.path.join(path, f"bestsqs{idx + 1}.cif")
 
         with open(sqs_out) as input_file, open(sqs_cif, "w") as output_file:
-            process = Popen(["str2cif"], stdin=input_file, stdout=output_file, cwd=path)  # noqa: S607
+            process = Popen(["str2cif"], stdin=input_file, stdout=output_file, cwd=path)
             process.communicate()
         sqs = Structure.from_file(path / sqs_out)
 

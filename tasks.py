@@ -172,7 +172,7 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
             updating the actual change log file. Defaults to False.
     """
     version = version or f"{datetime.datetime.now(tz=datetime.timezone.utc):%Y.%-m.%-d}"
-    output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{__version__}..HEAD"])  # noqa: S607
+    output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{__version__}..HEAD"])
     lines = []
     ignored_commits = []
     for line in output.decode("utf-8").strip().split("\n"):

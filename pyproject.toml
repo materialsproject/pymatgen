@@ -236,6 +236,7 @@ ignore = [
   "S311",    # Use random module for cryptographic purposes
   "S314",    # Replace xml with defusedxml to avoid XML attacks
   "S603",    # Check source for use of "subprocess" call
+  "S607",    # Start process with relative path
   "SIM105",  # Use contextlib.suppress() instead of try-except-pass
   "TRY003",  # Avoid specifying long messages outside the exception class
   "TRY300",  # Check for return statements in try blocks
