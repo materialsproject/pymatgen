@@ -205,7 +205,7 @@ class PotcarCorrection(Correction):
     def __str__(self) -> str:
         return f"{self.input_set.__name__} Potcar Correction"
 
-
+@cached_class
 class GasCorrection(Correction):
     """Correct gas energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
@@ -242,7 +242,7 @@ class GasCorrection(Correction):
     def __str__(self):
         return f"{self.name} Gas Correction"
 
-
+@cached_class
 class AnionCorrection(Correction):
     """Correct anion energies to obtain the right formation energies. Note that
     this depends on calculations being run within the same input set.
@@ -334,6 +334,7 @@ class AnionCorrection(Correction):
         return f"{self.name} Anion Correction"
 
 
+@cached_class
 class AqueousCorrection(Correction):
     """This class implements aqueous phase compound corrections for elements
     and H2O.
@@ -422,6 +423,7 @@ class AqueousCorrection(Correction):
         return f"{self.name} Aqueous Correction"
 
 
+@cached_class
 class UCorrection(Correction):
     """This class implements the GGA/GGA+U mixing scheme, which allows mixing of
     entries. Entry.parameters must contain a "hubbards" key which is a dict
@@ -886,6 +888,7 @@ class MaterialsProjectCompatibility(CorrectionsList):
 # having to create a list of separate correction classes.
 
 
+@cached_class
 class MaterialsProject2020Compatibility(Compatibility):
     """This class implements the Materials Project 2020 energy correction scheme, which
     incorporates uncertainty quantification and allows for mixing of GGA and GGA+U entries
@@ -1278,6 +1281,7 @@ class MITAqueousCompatibility(CorrectionsList):
         )
 
 
+@cached_class
 @due.dcite(Doi("10.1103/PhysRevB.85.235438", "Pourbaix scheme to combine calculated and experimental data"))
 class MaterialsProjectAqueousCompatibility(Compatibility):
     """This class implements the Aqueous energy referencing scheme for constructing
