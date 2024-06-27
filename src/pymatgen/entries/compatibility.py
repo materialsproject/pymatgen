@@ -12,6 +12,7 @@ from collections import defaultdict
 from typing import TYPE_CHECKING, Union, cast
 
 import numpy as np
+from joblib import Parallel, delayed
 from monty.design_patterns import cached_class
 from monty.json import MSONable
 from monty.serialization import loadfn
@@ -27,11 +28,9 @@ from pymatgen.entries.computed_entries import (
 )
 from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet, VaspInputSet
 from pymatgen.util.due import Doi, due
+from pymatgen.util.joblib import set_python_warnings, tqdm_joblib
 from tqdm import tqdm
 from uncertainties import ufloat
-from pymatgen.util.joblib import tqdm_joblib, set_python_warnings
-
-from joblib import Parallel, delayed
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -205,6 +204,7 @@ class PotcarCorrection(Correction):
     def __str__(self) -> str:
         return f"{self.input_set.__name__} Potcar Correction"
 
+
 @cached_class
 class GasCorrection(Correction):
     """Correct gas energies to obtain the right formation energies. Note that
@@ -241,6 +241,7 @@ class GasCorrection(Correction):
 
     def __str__(self):
         return f"{self.name} Gas Correction"
+
 
 @cached_class
 class AnionCorrection(Correction):
@@ -538,12 +539,7 @@ class Compatibility(MSONable, abc.ABC):
         """
         raise NotImplementedError
 
-    def process_entry(
-        self,
-        entry: ComputedEntry,
-        inplace: bool = True,
-        **kwargs
-    ) -> ComputedEntry | None:
+    def process_entry(self, entry: ComputedEntry, inplace: bool = True, **kwargs) -> ComputedEntry | None:
         """Process a single entry with the chosen Corrections. Note
         that this method will change the data of the original entry.
 
@@ -591,7 +587,7 @@ class Compatibility(MSONable, abc.ABC):
             adjustments = self.get_adjustments(entry)
         except CompatibilityError as exc:
             if on_error == "raise":
-                raise exc
+                raise
             if on_error == "warn":
                 warnings.warn(str(exc))
             return None
@@ -669,8 +665,7 @@ class Compatibility(MSONable, abc.ABC):
             # set python warnings to ignore otherwise warnings will be printed multiple times
             with tqdm_joblib(tqdm(total=len(entries), disable=not verbose)), set_python_warnings("ignore"):
                 results = Parallel(n_jobs=n_workers)(
-                    delayed(self._process_entry_inplace)(entry, clean, on_error)
-                    for entry in entries
+                    delayed(self._process_entry_inplace)(entry, clean, on_error) for entry in entries
                 )
             for result in results:
                 if result is None:
@@ -1185,7 +1180,9 @@ class MaterialsProject2020Compatibility(Compatibility):
             expected_u = float(u_settings.get(symbol, 0))
             actual_u = float(calc_u.get(symbol, 0))
             if actual_u != expected_u:
-                raise CompatibilityError(f"Invalid U value of {actual_u:.3} on {symbol}, expected {expected_u:.3} for {entry.as_dict()}")
+                raise CompatibilityError(
+                    f"Invalid U value of {actual_u:.3} on {symbol}, expected {expected_u:.3} for {entry.as_dict()}"
+                )
             if symbol in u_corrections:
                 adjustments.append(
                     CompositionEnergyAdjustment(
@@ -1502,6 +1499,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         clean: bool = False,
         verbose: bool = False,
         inplace: bool = True,
+        n_workers: int = 1,
         on_error: Literal["ignore", "warn", "raise"] = "ignore",
     ) -> list[AnyComputedEntry]:
         """Process a sequence of entries with the chosen Compatibility scheme.
@@ -1515,6 +1513,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
                 Default is False.
             inplace (bool): Whether to modify the entries in place. If False, a copy of the
                 entries is made and processed. Default is True.
+            n_workers (int): Number of workers to use for parallel processing. Default is 1.
             on_error ('ignore' | 'warn' | 'raise'): What to do when get_adjustments(entry)
                 raises CompatibilityError. Defaults to 'ignore'.
 
@@ -1532,7 +1531,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
 
         # pre-process entries with the given solid compatibility class
         if self.solid_compat:
-            entries = self.solid_compat.process_entries(entries, clean=True)
+            entries = self.solid_compat.process_entries(entries, clean=True, inplace=inplace, n_workers=n_workers)
+            return [entries]
 
         # when processing single entries, all H2 polymorphs will get assigned the
         # same energy
@@ -1566,7 +1566,9 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             h2_entries = sorted(h2_entries, key=lambda e: e.energy_per_atom)
             self.h2_energy = h2_entries[0].energy_per_atom  # type: ignore[assignment]
 
-        return super().process_entries(entries, clean=clean, verbose=verbose, inplace=inplace, on_error=on_error)
+        return super().process_entries(
+            entries, clean=clean, verbose=verbose, inplace=inplace, n_workers=n_workers, on_error=on_error
+        )
 
 
 def needs_u_correction(

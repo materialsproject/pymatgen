@@ -1,10 +1,17 @@
+"""This module provides utility functions for getting progress bar with joblib."""
+
+from __future__ import annotations
+
 import contextlib
-from collections.abc import Iterator
-from typing import Any
 import os
+from typing import TYPE_CHECKING, Any
 
 import joblib
-from tqdm import tqdm
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from tqdm import tqdm
 
 
 @contextlib.contextmanager
@@ -15,6 +22,7 @@ def tqdm_joblib(tqdm_object: tqdm) -> Iterator[None]:
 
     class TqdmBatchCompletionCallback(joblib.parallel.BatchCompletionCallBack):
         def __call__(self, *args: tuple, **kwargs: dict[str, Any]) -> None:
+            """This will be called after each batch, to update the progress bar."""
             tqdm_object.update(n=self.batch_size)
             return super().__call__(*args, **kwargs)
 
@@ -29,12 +37,15 @@ def tqdm_joblib(tqdm_object: tqdm) -> Iterator[None]:
 
 @contextlib.contextmanager
 def set_python_warnings(warnings):
-    original_warnings = os.environ.get('PYTHONWARNINGS')
-    os.environ['PYTHONWARNINGS'] = warnings
+    """Context manager to set the PYTHONWARNINGS environment variable to the
+    given value. This is useful for preventing spam when using parallel processing.
+    """
+    original_warnings = os.environ.get("PYTHONWARNINGS")
+    os.environ["PYTHONWARNINGS"] = warnings
     try:
         yield
     finally:
         if original_warnings is None:
-            del os.environ['PYTHONWARNINGS']
+            del os.environ["PYTHONWARNINGS"]
         else:
-            os.environ['PYTHONWARNINGS'] = original_warnings
+            os.environ["PYTHONWARNINGS"] = original_warnings
