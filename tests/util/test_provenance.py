@@ -7,7 +7,6 @@ from unittest import TestCase
 
 import numpy as np
 import pytest
-
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.util.provenance import Author, HistoryNode, StructureNL
 

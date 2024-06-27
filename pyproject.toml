@@ -131,8 +131,8 @@ feff_plot_dos = "pymatgen.cli.feff_plot_dos:main"
 get_environment = "pymatgen.cli.get_environment:main"
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["pymatgen.*"]
+where = ["src"]
+include = ["pymatgen"]
 
 [tool.setuptools.package-data]
 "pymatgen.analysis" = ["*.yaml", "*.json", "*.csv"]
@@ -247,8 +247,8 @@ docstring-code-format = true
 "__init__.py" = ["F401"]
 "tests/**" = ["ANN201", "D", "PLR0124"]
 "tasks.py" = ["D"]
-"pymatgen/analysis/*" = ["D"]
-"pymatgen/io/*" = ["D"]
+"src/pymatgen/analysis/*" = ["D"]
+"src/pymatgen/io/*" = ["D"]
 "dev_scripts/*" = ["D"]
 
 [tool.pytest.ini_options]
