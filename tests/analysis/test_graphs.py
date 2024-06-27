@@ -10,8 +10,6 @@ import networkx as nx
 import networkx.algorithms.isomorphism as iso
 import pytest
 from monty.serialization import loadfn
-from pytest import approx
-
 from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError, PeriodicSite, StructureGraph
 from pymatgen.analysis.local_env import (
     CovalentBondNN,
@@ -25,6 +23,7 @@ from pymatgen.command_line.critic2_caller import Critic2Analysis
 from pymatgen.core import Lattice, Molecule, Site, Structure
 from pymatgen.core.structure import FunctionalGroups
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 try:
     from openbabel import openbabel

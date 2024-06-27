@@ -19,7 +19,6 @@ from typing import TYPE_CHECKING
 import requests
 from invoke import task
 from monty.os import cd
-
 from pymatgen.core import __version__
 
 if TYPE_CHECKING:
@@ -38,7 +37,7 @@ def make_doc(ctx: Context) -> None:
         ctx.run("touch apidoc/index.rst", warn=True)
         ctx.run("rm pymatgen.*.rst", warn=True)
         # ctx.run("rm pymatgen.*.md", warn=True)
-        ctx.run("sphinx-apidoc --implicit-namespaces -M -d 7 -o apidoc -f ../pymatgen ../**/tests/*")
+        ctx.run("sphinx-apidoc --implicit-namespaces -M -d 7 -o apidoc -f ../src/pymatgen ../**/tests/*")
 
         # Note: we use HTML building for the API docs to preserve search functionality.
         ctx.run("sphinx-build -b html apidoc html")  # HTML building.
@@ -95,7 +94,7 @@ def set_ver(ctx: Context, version: str):
     with open("pyproject.toml", "w") as file:
         file.write("\n".join(lines) + "\n")
 
-    ctx.run("ruff check --fix custodian")
+    ctx.run("ruff check --fix pymatgen")
     ctx.run("ruff format pyproject.toml")
 
 
