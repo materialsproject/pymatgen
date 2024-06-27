@@ -1491,7 +1491,7 @@ class KPathLatimerMunro(KPathBase):
                             max(ind, facet_as_key_point_inds_bndy[j - 1]),
                         )
                     )
-                k = j + 2 if j != len(facet_as_key_point_inds_bndy) - 2 else 0
+                k = j + 1 if j != len(facet_as_key_point_inds_bndy) - 1 else 0
                 if (
                     min(ind, facet_as_key_point_inds_bndy[k]),
                     max(ind, facet_as_key_point_inds_bndy[k]),
