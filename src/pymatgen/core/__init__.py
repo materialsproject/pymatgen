@@ -58,6 +58,13 @@ def _load_pmg_settings() -> dict[str, Any]:
         elif key in ("VASP_PSP_DIR", "MAPI_KEY", "DEFAULT_FUNCTIONAL"):
             settings[f"PMG_{key}"] = val
 
+    for key, val in settings.items():
+        if key.endswith("_DIR"):
+            # Enables the use of $HOME and ~ in paths.
+            val = os.path.expanduser(val)
+            val = os.path.expandvars(val)
+            settings[key] = val
+
     return settings
 
 
