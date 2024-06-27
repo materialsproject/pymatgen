@@ -1482,13 +1482,13 @@ class KPathLatimerMunro(KPathBase):
             face_center_ind = facet_as_key_point_inds[-1]
             for j, ind in enumerate(facet_as_key_point_inds_bndy, start=-1):
                 if (
-                    min(ind, ind),
-                    max(ind, ind),
+                    min(ind, facet_as_key_point_inds_bndy[j]),
+                    max(ind, facet_as_key_point_inds_bndy[j]),
                 ) not in key_lines:
                     key_lines.append(
                         (
-                            min(ind, ind),
-                            max(ind, ind),
+                            min(ind, facet_as_key_point_inds_bndy[j]),
+                            max(ind, facet_as_key_point_inds_bndy[j]),
                         )
                     )
                 k = j + 2 if j != len(facet_as_key_point_inds_bndy) - 2 else 0

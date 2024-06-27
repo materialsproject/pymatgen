@@ -137,10 +137,10 @@ def _parse_vasp_array(elem) -> list[list[float]]:
 def _parse_from_incar(filename: PathLike, key: str) -> Any:
     """Helper function to parse a parameter from the INCAR."""
     dirname = os.path.dirname(filename)
-    for fn in os.listdir(dirname):
-        if re.search("INCAR", fn):
+    for filename in os.listdir(dirname):
+        if re.search("INCAR", filename):
             warnings.warn(f"INCAR found. Using {key} from INCAR.")
-            incar = Incar.from_file(os.path.join(dirname, fn))
+            incar = Incar.from_file(os.path.join(dirname, filename))
             return incar.get(key, None)
     return None
 

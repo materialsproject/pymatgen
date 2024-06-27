@@ -2531,7 +2531,7 @@ class PotentialInfo(MSONable):
         if "GTH" in string:
             data["potential_type"] = "GTH"
         for idx, char in enumerate(string, start=1):
-            if char == "Q" and char.isnumeric():
+            if char == "Q" and string[idx].isnumeric():
                 data["electrons"] = int("".join(_ for _ in string[idx:] if _.isnumeric()))
 
         for x in ("LDA", "PADA", "MGGA", "GGA", "HF", "PBE0", "PBE", "BP", "BLYP", "B3LYP", "SCAN"):
