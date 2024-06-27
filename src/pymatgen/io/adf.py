@@ -192,8 +192,8 @@ class AdfKey(MSONable):
         """
         if len(self.subkeys) > 0:
             key = subkey if isinstance(subkey, str) else subkey.key
-            for idx, subkey in enumerate(self.subkeys):
-                if subkey.key == key:
+            for idx, sk in enumerate(self.subkeys):
+                if sk.key == key:
                     self.subkeys.pop(idx)
                     break
 
