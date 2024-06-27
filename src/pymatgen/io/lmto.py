@@ -197,7 +197,7 @@ class LMTOCtrl:
                         pass
                 elif token in ["PLAT", "POS"]:
                     try:
-                        arr = np.array([round(float(i), sigfigs) for i in fields[idx].split()])
+                        arr = np.array([round(float(i), sigfigs) for i in field.split()])
                     except ValueError:
                         arr = np.array([round(float(i), sigfigs) for i in fields[idx].split()[:-1]])
                     if token == "PLAT":

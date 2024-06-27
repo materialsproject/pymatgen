@@ -74,8 +74,8 @@ class CRESTOutput(MSONable):
             value = None
             if entry and "-" in entry:
                 option = entry[1:]
-                if i < len(split_cmd) and "-" not in split_cmd[i]:
-                    value = split_cmd[i]
+                if i < len(split_cmd) and "-" not in entry:
+                    value = entry
                 self.cmd_options[option] = value
         # Get input charge for decorating parsed molecules
         chg = 0
