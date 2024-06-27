@@ -83,7 +83,7 @@ class CRESTInput(MSONable):
         for idx, val in enumerate(atoms_for_mtd):
             if val + 1 not in atoms_for_mtd:
                 interval_list.append(val)
-                if idx != len(atoms_for_mtd):
+                if idx != len(atoms_for_mtd) - 1:
                     interval_list.append(atoms_for_mtd[idx + 1])
         allowed_mtd_string = ",".join(
             [f"{interval_list[i]}-{interval_list[i + 1]}" for i in range(len(interval_list)) if i % 2 == 0]
