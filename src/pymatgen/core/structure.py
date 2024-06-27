@@ -3460,12 +3460,13 @@ class IMolecule(SiteCollection, MSONable):
         output = []
         output_var = []
         for idx, site in enumerate(self):
+            sp = site.specie
             if idx == 0:
-                output.append(f"{site.specie}")
+                output.append(f"{sp}")
             elif idx == 1:
                 nn = find_nn_pos_before_site(idx)
                 bond_length = self.get_distance(idx, nn[0])
-                output.append(f"{site.specie} {nn[0] + 1} B{idx}")
+                output.append(f"{sp} {nn[0] + 1} B{idx}")
                 output_var.append(f"B{idx}={bond_length:.6f}")
             elif idx == 2:
                 nn = find_nn_pos_before_site(idx)
@@ -3478,7 +3479,7 @@ class IMolecule(SiteCollection, MSONable):
                 bond_length = self.get_distance(idx, nn[0])
                 angle = self.get_angle(idx, nn[0], nn[1])
                 dih = self.get_dihedral(idx, nn[0], nn[1], nn[2])
-                output.append(f"{site.specie} {nn[0] + 1} B{idx} {nn[1] + 1} A{idx} {nn[2] + 1} D{idx}")
+                output.append(f"{sp} {nn[0] + 1} B{idx} {nn[1] + 1} A{idx} {nn[2] + 1} D{idx}")
                 output_var.extend((f"B{idx}={bond_length:.6f}", f"A{idx}={angle:.6f}", f"D{idx}={dih:.6f}"))
         return "\n".join(output) + "\n\n" + "\n".join(output_var)
 
