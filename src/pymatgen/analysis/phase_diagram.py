@@ -1619,29 +1619,21 @@ class PatchedPhaseDiagram(PhaseDiagram):
         # Add the elemental references
         inds.extend([min_entries.index(el) for el in el_refs.values()])
 
-        self.qhull_entries = tuple(min_entries[idx] for idx in inds)
+        qhull_entries = tuple(min_entries[idx] for idx in inds)
         # make qhull spaces frozensets since they become keys to self.pds dict and frozensets are hashable
         # prevent repeating elements in chemical space and avoid the ordering problem (i.e. Fe-O == O-Fe automatically)
-        self._qhull_spaces = tuple(frozenset(entry.elements) for entry in self.qhull_entries)
+        qhull_spaces = tuple(frozenset(entry.elements) for entry in qhull_entries)
 
         # Get all unique chemical spaces
-        spaces = {s for s in self._qhull_spaces if len(s) > 1}
+        spaces = {s for s in qhull_spaces if len(s) > 1}
 
         # Remove redundant chemical spaces
-        if not keep_all_spaces and len(spaces) > 1:
-            max_size = max(len(s) for s in spaces)
-
-            systems = set()
-            # NOTE reduce the number of comparisons by only comparing to larger sets
-            for idx in range(2, max_size + 1):
-                test = (s for s in spaces if len(s) == idx)
-                refer = (s for s in spaces if len(s) > idx)
-                systems |= {t for t in test if not any(t.issubset(r) for r in refer)}
-
-            spaces = systems
+        spaces = self.remove_redundant_spaces(spaces, keep_all_spaces)
 
         # TODO comprhys: refactor to have self._compute method to allow serialization
-        self.spaces = sorted(spaces, key=len, reverse=False)  # Calculate pds for smaller dimension spaces first
+        self.spaces = sorted(spaces, key=len, reverse=True)  # Calculate pds for smaller dimension spaces last
+        self.qhull_entries = qhull_entries
+        self._qhull_spaces = qhull_spaces
         self.pds = dict(self._get_pd_patch_for_space(s) for s in tqdm(self.spaces, disable=not verbose))
         self.all_entries = all_entries
         self.el_refs = el_refs
@@ -1698,6 +1690,21 @@ class PatchedPhaseDiagram(PhaseDiagram):
         entries = [MontyDecoder().process_decoded(entry) for entry in dct["all_entries"]]
         elements = [Element.from_dict(elem) for elem in dct["elements"]]
         return cls(entries, elements)
+
+    @staticmethod
+    def remove_redundant_spaces(spaces, keep_all_spaces=False):
+        if keep_all_spaces or len(spaces) <= 1:
+            return spaces
+
+        # Sort spaces by size in descending order and pre-compute lengths
+        sorted_spaces = sorted(spaces, key=len, reverse=True)
+
+        result = []
+        for i, space_i in enumerate(sorted_spaces):
+            if not any(space_i.issubset(larger_space) for larger_space in sorted_spaces[:i]):
+                result.append(space_i)
+
+        return result
 
     # NOTE following methods are inherited unchanged from PhaseDiagram:
     # __repr__,
