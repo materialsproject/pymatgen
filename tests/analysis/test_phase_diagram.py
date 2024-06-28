@@ -3,6 +3,7 @@ from __future__ import annotations
 import collections
 import unittest
 import unittest.mock
+from itertools import combinations
 from numbers import Number
 from unittest import TestCase
 
@@ -835,6 +836,19 @@ class TestPatchedPhaseDiagram(TestCase):
         assert unlikely_chem_space in self.ppd
         assert self.ppd[unlikely_chem_space] == self.pd
         del self.ppd[unlikely_chem_space]  # test __delitem__() and restore original state
+
+    def test_remove_redundant_spaces(self):
+        spaces = tuple(frozenset(entry.elements) for entry in self.ppd.qhull_entries)
+        # NOTE this is 5 not 4 as "He" is a non redundant space that gets dropped for other reasons
+        assert len(self.ppd.remove_redundant_spaces(spaces)) == 5
+
+        test = (
+            list(combinations(range(1, 7), 4))
+            + list(combinations(range(1, 10), 2))
+            + list(combinations([1, 4, 7, 9, 2], 5))
+        )
+        test = [frozenset(t) for t in test]
+        assert len(self.ppd.remove_redundant_spaces(test)) == 30
 
 
 class TestReactionDiagram(TestCase):
