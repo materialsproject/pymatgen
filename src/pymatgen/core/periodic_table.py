@@ -326,8 +326,14 @@ class ElementBase(Enum):
 
     @property
     def electronic_structure(self) -> str:
-        """Electronic structure as string, with only valence electrons.
-        e.g. The electronic structure for Fe is represented as '[Ar].3d6.4s2'.
+        """Electronic structure as string, with only valence electrons. The
+        electrons are listed in order of increasing prinicpal quantum number
+         (orbital number), irrespective of the actual energy level,
+        e.g., The electronic structure for Fe is represented as '[Ar].3d6.4s2'
+        even though the 3d electrons are higher in energy than the 4s.
+
+        References:
+            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024, June 3]. National Institute of Standards and Technology, Gaithersburg, MD. DOI: https://doi.org/10.18434/T4W30F
         """
         return re.sub("</*sup>", "", self._data["Electronic structure"]["0"])
 
@@ -414,10 +420,14 @@ class ElementBase(Enum):
 
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
-        """Full electronic structure as tuple.
-        e.g. The electronic structure for Fe is represented as:
+        """Full electronic structure as list of tuples, in order of increasing principal (n) and angular momentum (l)  quantum numbers.
+        
+        For example, the electronic structure for Fe is represented as:
         [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
         (3, "d", 6), (4, "s", 2)].
+
+        References:
+            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024, June 3]. National Institute of Standards and Technology, Gaithersburg, MD. DOI: https://doi.org/10.18434/T4W30F
         """
         e_str = self.electronic_structure
 
@@ -435,7 +445,8 @@ class ElementBase(Enum):
     @property
     def valence(self) -> tuple[int | np.nan, int]:
         """Valence subshell angular moment (L) and number of valence e- (v_e),
-        obtained from full electron config.
+        obtained from full electron config, where L=0, 1, 2, or 3 for s, p, d,
+        and f orbitals, respectively.
         """
         if self.group == 18:
             return np.nan, 0  # The number of valence of noble gas is 0
@@ -1097,10 +1108,14 @@ class Species(MSONable, Stringify):
     # robustness
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
-        """Full electronic structure as tuple.
-        e.g. The electronic structure for Fe is represented as:
+        """Full electronic structure as list of tuples, in order of increasing principal (n) and angular momentum (l)  quantum numbers.
+        
+        For example, the electronic structure for Fe+2 is represented as:
         [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
-        (3, "d", 6), (4, "s", 2)].
+        (3, "d", 6)].
+
+        References:
+            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024, June 3]. National Institute of Standards and Technology, Gaithersburg, MD. DOI: https://doi.org/10.18434/T4W30F
         """
         e_str = self.electronic_structure
 
@@ -1120,7 +1135,8 @@ class Species(MSONable, Stringify):
     @property
     def valence(self) -> tuple[int | np.nan, int]:
         """Valence subshell angular moment (L) and number of valence e- (v_e),
-        obtained from full electron config. L=0, 1, 2, or 3 for s, p, d, and f orbitals, respectively.
+        obtained from full electron config, where L=0, 1, 2, or 3 for s, p, d,
+        and f orbitals, respectively.
         """
         if self.group == 18:
             return np.nan, 0  # The number of valence of noble gas is 0
