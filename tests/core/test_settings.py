@@ -40,6 +40,11 @@ def test_load_settings(tmp_path: Path, monkeypatch: MonkeyPatch) -> None:
         ctx.setenv("PMG_MAPI_KEY", "BAZ")
         assert _load_pmg_settings() == {"PMG_MAPI_KEY": "BAZ"}
 
+    with monkeypatch.context() as ctx:
+        ctx.setenv("HOME", "/home/fakeuser")
+        ctx.setenv("PMG_VASP_PSP_DIR", "$HOME/psp")
+        assert _load_pmg_settings()["PMG_VASP_PSP_DIR"] == "/home/fakeuser/psp"
+
     # should return empty dict if file is invalid
     settings_file.write_text("---")
     assert _load_pmg_settings() == {}

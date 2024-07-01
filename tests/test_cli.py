@@ -33,8 +33,8 @@ def test_pmg_structure(cd_tmp_path: Path):
     exit_status = os.system(f"pmg structure --symmetry 0.1 --filenames {TEST_FILES_DIR}/cif/Li2O.cif")  # noqa:S605
     assert exit_status == 0
 
-    exit_status = os.system(
-        f"pmg structure --group element --filenames {TEST_FILES_DIR}/cif/Li2O.cif {TEST_FILES_DIR}/cif/Li.cif"  # noqa:S605
+    exit_status = os.system(  # noqa: S605
+        f"pmg structure --group element --filenames {TEST_FILES_DIR}/cif/Li2O.cif {TEST_FILES_DIR}/cif/Li.cif"
     )
     assert exit_status == 0
 
