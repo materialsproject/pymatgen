@@ -17,7 +17,6 @@ from warnings import warn
 import numpy as np
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
-
 from monty.os.path import zpath
 from pymatgen.core import SETTINGS, Element, Lattice, Molecule, Structure
 
