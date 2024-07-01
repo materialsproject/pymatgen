@@ -93,14 +93,6 @@ vis = ["vtk>=6.0.0"]
 abinit = ["netcdf4>=1.6.5"]
 mlp = ["matgl>=1.1.1", "chgnet>=0.3.8"]
 electronic_structure = ["fdint>=2.0.2"]
-dev = [
-    "mypy>=1.10.0",
-    "pre-commit>=3",
-    "pytest-cov>=4",
-    "pytest-split>=0.8",
-    "pytest>8",
-    "ruff>=0.4.8",
-]
 ci = [
     "pytest>=8",
     "pytest-cov>=4",
@@ -133,9 +125,15 @@ optional = [
 ]
 numba = ["numba>=0.55"]
 
+[project.scripts]
+pmg = "pymatgen.cli.pmg:main"
+feff_plot_cross_section = "pymatgen.cli.feff_plot_cross_section:main"
+feff_plot_dos = "pymatgen.cli.feff_plot_dos:main"
+get_environment = "pymatgen.cli.get_environment:main"
+
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["pymatgen.*"]
+where = ["src"]
+include = ["pymatgen"]
 
 [tool.setuptools.package-data]
 "pymatgen.analysis" = ["*.yaml", "*.json", "*.csv"]
@@ -161,11 +159,17 @@ include = ["pymatgen.*"]
 "pymatgen.io.lammps" = ["CoeffsDataType.yaml", "templates/*.template"]
 "pymatgen.symmetry" = ["*.yaml", "*.json", "*.sqlite"]
 
-[project.scripts]
-pmg = "pymatgen.cli.pmg:main"
-feff_plot_cross_section = "pymatgen.cli.feff_plot_cross_section:main"
-feff_plot_dos = "pymatgen.cli.feff_plot_dos:main"
-get_environment = "pymatgen.cli.get_environment:main"
+[tool.pdm.dev-dependencies]
+lint = [
+    "mypy>=1.10.0",
+    "ruff>=0.4.9",
+    "pre-commit>=3.7.1",
+]
+test = [
+    "pytest>=8.2.2",
+    "pytest-cov>=5.0.0",
+    "pytest-split>=0.9.0",
+]
 
 [tool.versioningit.vcs]
 method = "git"
@@ -184,57 +188,54 @@ target-version = "py39"
 line-length = 120
 
 [tool.ruff.lint]
-select = [
-    "B", # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "D", # pydocstyle
-    "E", # pycodestyle error
-    "EXE", # flake8-executable
-    "F", # pyflakes
-    "FA", # flake8-future-annotations
-    "FBT003", # boolean-positional-value-in-call
-    "FLY", # flynt
-    "I", # isort
-    "ICN", # flake8-import-conventions
-    "ISC", # flake8-implicit-str-concat
-    "NPY201", # numpy 2.0
-    "PD", # pandas-vet
-    "PERF", # perflint
-    "PIE", # flake8-pie
-    "PL", # pylint
-    "PLR0402",
-    "PLR1714",
-    "PLR5501",
-    "PT", # flake8-pytest-style
-    "PYI", # flakes8-pyi
-    "Q", # flake8-quotes
-    "RET", # flake8-return
-    "RSE", # flake8-raise
-    "RUF", # Ruff-specific rules
-    "SIM", # flake8-simplify
-    "SLOT", # flake8-slots
-    "TCH", # flake8-type-checking
-    "TID", # flake8-tidy-imports
-    "UP", # pyupgrade
-    "W", # pycodestyle warning
-    "YTT", # flake8-2020
-]
+select = ["ALL"]
 ignore = [
-    "B023", # Function definition does not bind loop variable
-    "B028", # No explicit stacklevel keyword argument found
-    "B904", # Within an except clause, raise exceptions with ...
-    "C408", # unnecessary-collection-call
-    "D105", # Missing docstring in magic method
-    "D205", # 1 blank line required between summary line and description
-    "D212", # Multi-line docstring summary should start at the first line
-    "PD901", # pandas-df-variable-name
-    "PERF203", # try-except-in-loop
-    "PERF401", # manual-list-comprehension
-    "PLR", # pylint refactor
-    "PLW2901", # Outer for loop variable overwritten by inner assignment target
-    "PT013", # pytest-incorrect-pytest-import
-    "PTH", # prefer pathlib to os.path
-    "SIM105", # Use contextlib.suppress() instead of try-except-pass
+  # Rule families
+  "ANN",  # flake8-annotations (not ready, require types for ALL args)
+  "ARG",  # Check for unused function arguments
+  "BLE",  # General catch of Exception
+  "C90",  # Check for functions with a high McCabe complexity
+  "COM",  # flake8-commas (conflict with line wrapper)
+  "CPY",  # Missing copyright notice at top of file (need preview mode)
+  "EM",   # Format nice error messages
+  "ERA",  # Check for commented-out code
+  "FIX",  # Check for FIXME, TODO and other developer notes
+  "FURB", # refurb (need preview mode, too many preview errors)
+  "G",    # validate logging format strings
+  "INP",  # Ban PEP-420 implicit namespace packages
+  "N",    # pep8-naming (many var/arg names are intended)
+  "NPY",  # NumPy-specific rules (TODO: enable this)
+  "PTH",  # Prefer pathlib over os.path
+  "S",    # flake8-bandit (TODO: enable this)
+  "SLF",  # Access "private" class members
+  "T20",  # Check for print/pprint
+  "TD",   # TODO tags related
+
+  # Single rules
+  "B023",    # Function definition does not bind loop variable
+  "B028",    # No explicit stacklevel keyword argument found
+  "B904",    # Within an except clause, raise exceptions with ...
+  "C408",    # unnecessary-collection-call
+  "D105",    # Missing docstring in magic method
+  "D205",    # 1 blank line required between summary line and description
+  "D212",    # Multi-line docstring summary should start at the first line
+  "DTZ003",  # TODO: fix this (issue #3791)
+  "FBT001",  # Boolean-typed positional argument in function definition
+  "FBT002",  # Boolean default positional argument in function
+  "PD901",   # pandas-df-variable-name
+  "PERF203", # try-except-in-loop
+  "PERF401", # manual-list-comprehension
+  "PLR0911", # too many return statements
+  "PLR0912", # too many branches
+  "PLR0913", # too many arguments
+  "PLR0915", # too many statements
+  "PLR2004", # magic values in comparison
+  "PLW2901", # Outer for loop variable overwritten by inner assignment target
+  "PT013",   # pytest-incorrect-pytest-import
+  "SIM105",  # Use contextlib.suppress() instead of try-except-pass
+  "TRY003",  # Avoid specifying long messages outside the exception class
+  "TRY300",  # Checks for return statements in try blocks
+  "TRY301",  # Checks for raise statements within try blocks
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
@@ -245,11 +246,9 @@ docstring-code-format = true
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
-"tests/**" = ["ANN201", "D", "S101"]
-"tasks.py" = ["D"]
-"pymatgen/analysis/*" = ["D"]
-"pymatgen/vis/*" = ["D"]
-"pymatgen/io/*" = ["D"]
+"tests/**" = ["ANN201", "D", "PLR0124"]
+"src/pymatgen/analysis/*" = ["D"]
+"src/pymatgen/io/*" = ["D"]
 "dev_scripts/*" = ["D"]
 
 [tool.pytest.ini_options]

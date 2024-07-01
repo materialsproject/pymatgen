@@ -108,7 +108,6 @@ import pandas as pd
 import pytest
 from monty.json import MontyDecoder
 from numpy.testing import assert_allclose
-
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice

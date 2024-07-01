@@ -3,7 +3,6 @@ from __future__ import annotations
 import random
 
 import numpy as np
-
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure

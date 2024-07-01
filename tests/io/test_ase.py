@@ -3,7 +3,6 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from monty.json import MontyDecoder, jsanitize
-
 from pymatgen.core import Composition, Lattice, Molecule, Structure
 from pymatgen.core.structure import StructureError
 from pymatgen.io.ase import AseAtomsAdaptor, MSONAtoms

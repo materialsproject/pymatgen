@@ -3,7 +3,6 @@ from __future__ import annotations
 from unittest import TestCase
 
 import pandas as pd
-
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR

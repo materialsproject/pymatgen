@@ -15,7 +15,6 @@ from random import shuffle
 
 import numpy as np
 import tabulate
-
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
@@ -236,7 +235,7 @@ if __name__ == "__main__":
                 sym_measures = [c["symmetry_measure"] for c in csms]
                 prt1(string="Continuous symmetry measures", printing_volume=printing_volume)
                 prt1(string=sym_measures, printing_volume=printing_volume)
-                csms_with_recorded_permutation = []  # type: ignore
+                csms_with_recorded_permutation: list = []
                 explicit_permutations = []
                 for icsm, csm in enumerate(csms):
                     found = False
@@ -308,7 +307,6 @@ if __name__ == "__main__":
                 all_planes_point_indices += algo.other_plane_points
 
             # Setup of the permutations to be used for this algorithm
-
             indices = list(range(cg.coordination_number))
             if permutations_setup_type == "all":
                 perms_iterator = itertools.permutations(indices)
@@ -400,7 +398,8 @@ if __name__ == "__main__":
                     else:
                         perms_used[some_perm] = 1
                 tcurrent = time.process_time()
-                time_left = (n_permutations - idx_perm) * (tcurrent - t0) / idx_perm  # type: ignore
+                assert n_permutations is not None
+                time_left = (n_permutations - idx_perm) * (tcurrent - t0) / idx_perm
                 time_left = f"{time_left:.1f}"
                 idx_perm += 1
             print(
