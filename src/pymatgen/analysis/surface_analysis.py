@@ -41,9 +41,6 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
-from sympy import Symbol
-from sympy.solvers import linsolve, solve
-
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.core import Structure
 from pymatgen.core.composition import Composition
@@ -53,11 +50,12 @@ from pymatgen.io.vasp.outputs import Locpot, Outcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
+from sympy import Symbol
+from sympy.solvers import linsolve, solve
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
-
     from pymatgen.util.typing import Tuple3Ints
+    from typing_extensions import Self
 
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 

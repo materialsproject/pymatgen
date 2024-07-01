@@ -9,8 +9,6 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from monty.json import MontyDecoder
-from pytest import approx
-
 from pymatgen.core import Element, PeriodicSite
 from pymatgen.core.lattice import Lattice
 from pymatgen.symmetry.structure import SymmetrizedStructure
@@ -36,6 +34,7 @@ from pymatgen.transformations.standard_transformations import (
     SupercellTransformation,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
+from pytest import approx
 
 enumlib_present = which("enum.x") and which("makestr.x")
 

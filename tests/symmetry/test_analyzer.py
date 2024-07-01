@@ -5,8 +5,6 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from pytest import approx, raises
-
 from pymatgen.core import Lattice, Molecule, PeriodicSite, Site, Species, Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import (
@@ -18,6 +16,7 @@ from pymatgen.symmetry.analyzer import (
 )
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pytest import approx, raises
 
 TEST_DIR = f"{TEST_FILES_DIR}/symmetry/analyzer"
 

@@ -5,10 +5,8 @@ import os
 import unittest
 
 import numpy as np
-from numpy.testing import assert_allclose
-from pytest import approx
-
 import pymatgen
+from numpy.testing import assert_allclose
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, Structure
 from pymatgen.core.surface import (
@@ -25,6 +23,7 @@ from pymatgen.core.surface import (
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 
 class TestSlab(PymatgenTest):

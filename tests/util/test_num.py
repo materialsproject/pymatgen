@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pytest
-
 from pymatgen.util.num import round_to_sigfigs
 
 

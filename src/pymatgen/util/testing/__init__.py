@@ -17,7 +17,6 @@ from unittest import TestCase
 import pytest
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 from monty.serialization import loadfn
-
 from pymatgen.core import ROOT, SETTINGS, Structure
 
 if TYPE_CHECKING:

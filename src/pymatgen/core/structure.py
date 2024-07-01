@@ -30,12 +30,6 @@ from monty.io import zopen
 from monty.json import MSONable
 from numpy import cross, eye
 from numpy.linalg import norm
-from ruamel.yaml import YAML
-from scipy.cluster.hierarchy import fcluster, linkage
-from scipy.linalg import expm, polar
-from scipy.spatial.distance import squareform
-from tabulate import tabulate
-
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
@@ -46,6 +40,11 @@ from pymatgen.core.units import Length, Mass
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
+from ruamel.yaml import YAML
+from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.linalg import expm, polar
+from scipy.spatial.distance import squareform
+from tabulate import tabulate
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
@@ -58,9 +57,8 @@ if TYPE_CHECKING:
     from ase.optimize.optimize import Optimizer
     from matgl.ext.ase import TrajectoryObserver
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
-
     from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
+    from typing_extensions import Self
 
 FileFormats = Literal["cif", "poscar", "cssr", "json", "yaml", "yml", "xsf", "mcsqs", "res", "pwmat", ""]
 StructureSources = Literal["Materials Project", "COD"]
@@ -828,7 +826,6 @@ class SiteCollection(collections.abc.Sequence, ABC):
         from ase.constraints import ExpCellFilter
         from ase.io import read
         from ase.optimize.optimize import Optimizer
-
         from pymatgen.io.ase import AseAtomsAdaptor
 
         opt_kwargs = opt_kwargs or {}

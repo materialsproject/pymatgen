@@ -13,7 +13,6 @@ from subprocess import Popen, TimeoutExpired
 from typing import TYPE_CHECKING, NamedTuple
 
 from monty.dev import requires
-
 from pymatgen.core.structure import Structure
 
 if TYPE_CHECKING:

@@ -27,20 +27,18 @@ import pandas as pd
 from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
-from ruamel.yaml import YAML
-
 from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.io_utils import clean_lines
+from ruamel.yaml import YAML
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Literal
 
-    from typing_extensions import Self
-
     from pymatgen.core.sites import Site
     from pymatgen.core.structure import SiteCollection
+    from typing_extensions import Self
 
 __author__ = "Kiran Mathew, Zhi Deng, Tingzheng Hou"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"

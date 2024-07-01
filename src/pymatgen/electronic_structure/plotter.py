@@ -20,7 +20,6 @@ from matplotlib.collections import LineCollection
 from matplotlib.gridspec import GridSpec
 from monty.dev import requires
 from monty.json import jsanitize
-
 from pymatgen.core import Element
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
@@ -37,7 +36,6 @@ if TYPE_CHECKING:
     from typing import Literal
 
     from numpy.typing import ArrayLike
-
     from pymatgen.electronic_structure.dos import CompleteDos, Dos
 
 logger = logging.getLogger(__name__)

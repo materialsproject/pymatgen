@@ -8,23 +8,21 @@ from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
 from monty.json import MSONable
-from scipy.constants import value as _cd
-from scipy.ndimage import gaussian_filter1d
-from scipy.signal import hilbert
-
 from pymatgen.core import Structure, get_el_sp
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.util.coord import get_linear_interpolated_value
+from scipy.constants import value as _cd
+from scipy.ndimage import gaussian_filter1d
+from scipy.signal import hilbert
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
-
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.util.typing import SpeciesLike, Tuple3Floats
+    from typing_extensions import Self
 
 
 class DOS(Spectrum):

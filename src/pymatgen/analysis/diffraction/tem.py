@@ -11,7 +11,6 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import scipy.constants as sc
-
 from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.string import latexify_spacegroup, unicodeify_spacegroup
@@ -19,7 +18,6 @@ from pymatgen.util.typing import Tuple3Ints
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
-
     from pymatgen.core import Structure
 
 __author__ = "Frank Wan, Jason Liang"

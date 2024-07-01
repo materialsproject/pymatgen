@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import numpy as np
-
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 

@@ -3,8 +3,6 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
@@ -13,6 +11,7 @@ from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_f
 )
 from pymatgen.core.structure import Lattice, Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 __author__ = "waroquiers"
 

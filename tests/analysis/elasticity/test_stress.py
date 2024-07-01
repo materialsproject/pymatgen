@@ -3,11 +3,10 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.util.testing import PymatgenTest
+from pytest import approx
 
 
 class TestStress(PymatgenTest):

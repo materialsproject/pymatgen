@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
-
 from pymatgen.core import Site, Species
 from pymatgen.core.tensors import SquareTensor
 from pymatgen.core.units import FloatWithUnit

@@ -7,9 +7,6 @@ from unittest.mock import patch
 import pytest
 import requests
 from numpy.testing import assert_allclose
-from pytest import approx
-from ruamel.yaml import YAML
-
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
 from pymatgen.analysis.reaction_calculator import Reaction
@@ -24,6 +21,8 @@ from pymatgen.ext.matproj_legacy import TaskType, _MPResterLegacy
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
+from ruamel.yaml import YAML
 
 try:
     skip_mprester_tests = requests.get("https://materialsproject.org", timeout=600).status_code != 200

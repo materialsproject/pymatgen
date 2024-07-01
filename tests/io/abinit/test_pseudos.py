@@ -4,10 +4,9 @@ import os.path
 from collections import defaultdict
 
 import pytest
-from pytest import approx
-
 from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 

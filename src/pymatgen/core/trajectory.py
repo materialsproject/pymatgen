@@ -13,7 +13,6 @@ from typing import TYPE_CHECKING, Union, cast
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
-
 from pymatgen.core.structure import Composition, DummySpecies, Element, Lattice, Molecule, Species, Structure
 from pymatgen.io.ase import AseAtomsAdaptor
 
@@ -21,9 +20,8 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
     from typing import Any
 
-    from typing_extensions import Self
-
     from pymatgen.util.typing import Matrix3D, PathLike, SitePropsType, Vector3D
+    from typing_extensions import Self
 
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen, Evan Spotte-Smith"

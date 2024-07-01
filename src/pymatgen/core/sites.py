@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
-
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
@@ -18,9 +17,8 @@ if TYPE_CHECKING:
     from typing import Any
 
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
-
     from pymatgen.util.typing import CompositionLike, SpeciesLike, Vector3D
+    from typing_extensions import Self
 
 
 class Site(collections.abc.Hashable, MSONable):
