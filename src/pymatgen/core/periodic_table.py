@@ -333,7 +333,10 @@ class ElementBase(Enum):
         even though the 3d electrons are higher in energy than the 4s.
 
         References:
-            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024, June 3]. National Institute of Standards and Technology, Gaithersburg, MD. DOI: https://doi.org/10.18434/T4W30F
+            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
+            Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
+            June 3]. National Institute of Standards and Technology, Gaithersburg,
+            MD. DOI: https://doi.org/10.18434/T4W30F
         """
         return re.sub("</*sup>", "", self._data["Electronic structure"]["0"])
 
@@ -420,14 +423,18 @@ class ElementBase(Enum):
 
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
-        """Full electronic structure as list of tuples, in order of increasing principal (n) and angular momentum (l)  quantum numbers.
-        
+        """Full electronic structure as list of tuples, in order of increasing
+        principal (n) and angular momentum (l)  quantum numbers.
+
         For example, the electronic structure for Fe is represented as:
         [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
         (3, "d", 6), (4, "s", 2)].
 
         References:
-            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024, June 3]. National Institute of Standards and Technology, Gaithersburg, MD. DOI: https://doi.org/10.18434/T4W30F
+            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
+            Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
+            June 3]. National Institute of Standards and Technology, Gaithersburg,
+            MD. DOI: https://doi.org/10.18434/T4W30F
         """
         e_str = self.electronic_structure
 
@@ -1097,25 +1104,32 @@ class Species(MSONable, Stringify):
         even though the 3d electrons are higher in energy than the 4s.
 
         References:
-            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024, June 3]. National Institute of Standards and Technology, Gaithersburg, MD. DOI: https://doi.org/10.18434/T4W30F
+            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
+            Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
+            June 3]. National Institute of Standards and Technology, Gaithersburg,
+            MD. DOI: https://doi.org/10.18434/T4W30F
         """
         if self._data["Electronic structure"].get(str(self._oxi_state)) is not None:
             return re.sub("</*sup>", "", self._data["Electronic structure"][str(self._oxi_state)])
-        else:
-            raise ValueError(f"No electronic structure data for oxidation state {self.oxi_state}")
+
+        raise ValueError(f"No electronic structure data for oxidation state {self.oxi_state}")
 
     # NOTE - copied exactly from Element. Refactoring / inheritance may improve
     # robustness
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
-        """Full electronic structure as list of tuples, in order of increasing principal (n) and angular momentum (l)  quantum numbers.
-        
+        """Full electronic structure as list of tuples, in order of increasing
+        principal (n) and angular momentum (l)  quantum numbers.
+
         For example, the electronic structure for Fe+2 is represented as:
         [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
         (3, "d", 6)].
 
         References:
-            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024, June 3]. National Institute of Standards and Technology, Gaithersburg, MD. DOI: https://doi.org/10.18434/T4W30F
+            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
+            Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
+            June 3]. National Institute of Standards and Technology, Gaithersburg,
+            MD. DOI: https://doi.org/10.18434/T4W30F
         """
         e_str = self.electronic_structure
 
