@@ -17,7 +17,6 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.dev import deprecated
 from monty.json import MSONable
-
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Ha_to_eV, Length, Mass, Unit
 from pymatgen.io.core import ParseError
 from pymatgen.util.string import Stringify, formula_double_format
@@ -25,9 +24,8 @@ from pymatgen.util.string import Stringify, formula_double_format
 if TYPE_CHECKING:
     from typing import Any, Callable, Literal
 
-    from typing_extensions import Self
-
     from pymatgen.util.typing import SpeciesLike
+    from typing_extensions import Self
 
 # Load element data from JSON file
 with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
@@ -421,7 +419,7 @@ class ElementBase(Enum):
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
         """Full electronic structure as list of tuples, in order of increasing principal (n) and angular momentum (l)  quantum numbers.
-        
+
         For example, the electronic structure for Fe is represented as:
         [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
         (3, "d", 6), (4, "s", 2)].
@@ -1109,7 +1107,7 @@ class Species(MSONable, Stringify):
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
         """Full electronic structure as list of tuples, in order of increasing principal (n) and angular momentum (l)  quantum numbers.
-        
+
         For example, the electronic structure for Fe+2 is represented as:
         [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
         (3, "d", 6)].
