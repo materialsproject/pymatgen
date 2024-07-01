@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.dev import deprecated
 from monty.json import MSONable
+
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Ha_to_eV, Length, Mass, Unit
 from pymatgen.io.core import ParseError
 from pymatgen.util.string import Stringify, formula_double_format
@@ -24,8 +25,9 @@ from pymatgen.util.string import Stringify, formula_double_format
 if TYPE_CHECKING:
     from typing import Any, Callable, Literal
 
-    from pymatgen.util.typing import SpeciesLike
     from typing_extensions import Self
+
+    from pymatgen.util.typing import SpeciesLike
 
 # Load element data from JSON file
 with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
@@ -327,7 +329,7 @@ class ElementBase(Enum):
         """Electronic structure as string, with only valence electrons.
         e.g. The electronic structure for Fe is represented as '[Ar].3d6.4s2'.
         """
-        return re.sub("</*sup>", "", self._data["Electronic structure"])
+        return re.sub("</*sup>", "", self._data["Electronic structure"]["0"])
 
     @property
     def average_ionic_radius(self) -> FloatWithUnit:
@@ -1081,9 +1083,12 @@ class Species(MSONable, Stringify):
         raise NotImplementedError
 
     @property
-    def electronic_structure(self) -> list[tuple[int, str, int]]:
+    def electronic_structure(self) -> str:
         """Electronic structure as tuple. Not implemented for Species as of now."""
-        raise NotImplementedError
+        try:
+            return re.sub("</*sup>", "", self._data["Electronic structure"][str(self._oxi_state)])
+        except KeyError:
+            raise ValueError(f"No electronic structure data for oxidation state {self.oxi_state}")
 
     @property
     def valence(self) -> tuple[int | np.nan, int]:
