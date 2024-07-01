@@ -8,13 +8,12 @@ from enum import Enum
 
 import numpy as np
 import pytest
-from pytest import approx
-
 from pymatgen.core import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.periodic_table import ElementBase, ElementType
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.io.core import ParseError
 from pymatgen.util.testing import PymatgenTest
+from pytest import approx
 
 
 class TestElement(PymatgenTest):
@@ -603,18 +602,37 @@ class TestDummySpecies:
 
     def test_species_electronic_structure(self):
         assert Species("Fe", 0).electronic_structure == "[Ar].3d6.4s2"
-        assert Species("Fe", 0).full_electronic_structure == [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
-        (3, "d", 6), (4, "s", 2)]
+        assert Species("Fe", 0).full_electronic_structure == [
+            (1, "s", 2),
+            (2, "s", 2),
+            (2, "p", 6),
+            (3, "s", 2),
+            (3, "p", 6),
+            (3, "d", 6),
+            (4, "s", 2),
+        ]
         assert Species("Fe", 0).valence == (2, 6)
 
         assert Species("Fe", 2).electronic_structure == "[Ar].3d6"
-        assert Species("Fe", 2).full_electronic_structure == [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
-        (3, "d", 6)]
+        assert Species("Fe", 2).full_electronic_structure == [
+            (1, "s", 2),
+            (2, "s", 2),
+            (2, "p", 6),
+            (3, "s", 2),
+            (3, "p", 6),
+            (3, "d", 6),
+        ]
         assert Species("Fe", 2).valence == (2, 6)
 
         assert Species("Fe", 3).electronic_structure == "[Ar].3d5"
-        assert Species("Fe", 3).full_electronic_structure ==[(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
-        (3, "d", 5)]
+        assert Species("Fe", 3).full_electronic_structure == [
+            (1, "s", 2),
+            (2, "s", 2),
+            (2, "p", 6),
+            (3, "s", 2),
+            (3, "p", 6),
+            (3, "d", 5),
+        ]
         assert Species("Fe", 3).valence == (2, 5)
 
         assert Species("Li", 1).electronic_structure == "1s2"
