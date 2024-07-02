@@ -13,8 +13,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
-from scipy.stats import gmean
-
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.analysis.chemenv.utils.chemenv_errors import EquivalentSiteSearchError
@@ -29,6 +27,7 @@ from pymatgen.analysis.chemenv.utils.func_utils import (
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from scipy.stats import gmean
 
 if TYPE_CHECKING:
     from typing import ClassVar

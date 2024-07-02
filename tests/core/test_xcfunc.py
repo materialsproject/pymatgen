@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pytest
-
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.util.testing import PymatgenTest
 

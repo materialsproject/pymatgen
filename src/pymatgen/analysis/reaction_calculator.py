@@ -10,18 +10,16 @@ from typing import TYPE_CHECKING, no_type_check, overload
 import numpy as np
 from monty.fractions import gcd_float
 from monty.json import MontyDecoder, MSONable
-from uncertainties import ufloat
-
 from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
+from uncertainties import ufloat
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from typing_extensions import Self
-
     from pymatgen.core import Element, Species
     from pymatgen.util.typing import CompositionLike
+    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"

@@ -6,12 +6,11 @@ import numpy as np
 import pytest
 from monty.serialization import MontyDecoder, loadfn
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.tensors import SquareTensor, Tensor, TensorCollection, TensorMapping, itertools, symmetry_reduce
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 
 class TestTensor(PymatgenTest):

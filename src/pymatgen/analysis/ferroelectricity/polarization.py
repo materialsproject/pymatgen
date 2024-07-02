@@ -48,17 +48,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-from scipy.interpolate import UnivariateSpline
-
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
+from scipy.interpolate import UnivariateSpline
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from typing_extensions import Self
-
     from pymatgen.core.sites import PeriodicSite
+    from typing_extensions import Self
 
 
 __author__ = "Tess Smidt"

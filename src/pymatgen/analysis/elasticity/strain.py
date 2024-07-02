@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy
-
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.tensors import SquareTensor, symmetry_reduce
 
@@ -21,9 +20,8 @@ if TYPE_CHECKING:
     from typing import Literal
 
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
-
     from pymatgen.core.structure import Structure
+    from typing_extensions import Self
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"

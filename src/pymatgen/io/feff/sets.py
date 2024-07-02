@@ -20,7 +20,6 @@ import numpy as np
 from monty.json import MSONable
 from monty.os.path import zpath
 from monty.serialization import loadfn
-
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 

@@ -11,7 +11,6 @@ from itertools import groupby
 
 import numpy as np
 import pandas as pd
-
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.entries.compatibility import (

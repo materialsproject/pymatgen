@@ -16,7 +16,6 @@ from joblib import Parallel, delayed
 from monty.dev import requires
 from monty.fractions import lcm
 from monty.json import MSONable
-
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.energy_models import SymmetryModel

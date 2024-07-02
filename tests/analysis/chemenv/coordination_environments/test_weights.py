@@ -3,8 +3,6 @@ from __future__ import annotations
 import json
 
 import pytest
-from pytest import approx
-
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     AngleNbSetWeight,
     CNBiasNbSetWeight,
@@ -17,6 +15,7 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
 )
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import StructureEnvironments
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 __author__ = "waroquiers"
 
