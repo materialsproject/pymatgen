@@ -332,7 +332,6 @@ class ThermalDisplacementMatrices(MSONable):
             raise ValueError("Illegal which_structure value.")
 
         with open(filename, mode="w", encoding="utf-8") as file:
-            #
             file.write("#VESTA_FORMAT_VERSION 3.5.4\n \n \n")
             file.write("CRYSTAL\n\n")
             file.write("TITLE\n")

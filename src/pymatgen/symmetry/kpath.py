@@ -1480,18 +1480,18 @@ class KPathLatimerMunro(KPathBase):
             # not the face center point (don't need to check it since it's not
             # shared with other facets)
             face_center_ind = facet_as_key_point_inds[-1]
-            for j, ind in enumerate(facet_as_key_point_inds_bndy, start=-1):
+            for j, ind in enumerate(facet_as_key_point_inds_bndy):
                 if (
-                    min(ind, facet_as_key_point_inds_bndy[j]),
-                    max(ind, facet_as_key_point_inds_bndy[j]),
+                    min(ind, facet_as_key_point_inds_bndy[j - 1]),
+                    max(ind, facet_as_key_point_inds_bndy[j - 1]),
                 ) not in key_lines:
                     key_lines.append(
                         (
-                            min(ind, facet_as_key_point_inds_bndy[j]),
-                            max(ind, facet_as_key_point_inds_bndy[j]),
+                            min(ind, facet_as_key_point_inds_bndy[j - 1]),
+                            max(ind, facet_as_key_point_inds_bndy[j - 1]),
                         )
                     )
-                k = j + 2 if j != len(facet_as_key_point_inds_bndy) - 2 else 0
+                k = j + 1 if j != len(facet_as_key_point_inds_bndy) - 1 else 0
                 if (
                     min(ind, facet_as_key_point_inds_bndy[k]),
                     max(ind, facet_as_key_point_inds_bndy[k]),

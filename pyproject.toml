@@ -247,7 +247,6 @@ docstring-code-format = true
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 "tests/**" = ["ANN201", "D", "PLR0124"]
-"tasks.py" = ["D"]
 "src/pymatgen/analysis/*" = ["D"]
 "src/pymatgen/io/*" = ["D"]
 "dev_scripts/*" = ["D"]

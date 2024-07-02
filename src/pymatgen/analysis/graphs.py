@@ -2419,8 +2419,8 @@ class MoleculeGraph(MSONable):
 
         for cycle in cycles_nodes:
             edges = []
-            for idx, itm in enumerate(cycle, start=-1):
-                edges.append((cycle[idx], itm))
+            for idx, itm in enumerate(cycle):
+                edges.append((cycle[idx - 1], itm))
             cycles_edges.append(edges)
 
         return cycles_edges

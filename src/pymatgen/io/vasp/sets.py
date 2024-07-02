@@ -369,7 +369,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         return dct
 
     @property  # type: ignore[no-redef]
-    def structure(self) -> Structure | None:
+    def structure(self) -> Structure | None:  # noqa: F811
         """Structure."""
         return self._structure
 
