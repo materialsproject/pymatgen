@@ -1,9 +1,10 @@
 """
 Pyinvoke tasks.py file for automating releases and admin stuff.
 
-To cut a new pymatgen release, use `invoke update-changelog` followed by `invoke release`.
+To cut a new pymatgen release:
 
-Author: Shyue Ping Ong
+    invoke update-changelog
+    invoke release
 """
 
 from __future__ import annotations
@@ -19,7 +20,6 @@ from typing import TYPE_CHECKING
 import requests
 from invoke import task
 from monty.os import cd
-
 from pymatgen.core import __version__
 
 if TYPE_CHECKING:
@@ -38,7 +38,7 @@ def make_doc(ctx: Context) -> None:
         ctx.run("touch apidoc/index.rst", warn=True)
         ctx.run("rm pymatgen.*.rst", warn=True)
         # ctx.run("rm pymatgen.*.md", warn=True)
-        ctx.run("sphinx-apidoc --implicit-namespaces -M -d 7 -o apidoc -f ../pymatgen ../**/tests/*")
+        ctx.run("sphinx-apidoc --implicit-namespaces -M -d 7 -o apidoc -f ../src/pymatgen ../**/tests/*")
 
         # Note: we use HTML building for the API docs to preserve search functionality.
         ctx.run("sphinx-build -b html apidoc html")  # HTML building.
@@ -89,13 +89,20 @@ def publish(ctx: Context) -> None:
 
 @task
 def set_ver(ctx: Context, version: str):
+    """
+    Set version in pyproject.toml file.
+
+    Args:
+        ctx (Context): The context.
+        version (str): An input version.
+    """
     with open("pyproject.toml") as file:
         lines = [re.sub(r"^version = \"([^,]+)\"", f'version = "{version}"', line.rstrip()) for line in file]
 
     with open("pyproject.toml", "w") as file:
         file.write("\n".join(lines) + "\n")
 
-    ctx.run("ruff check --fix custodian")
+    ctx.run("ruff check --fix pymatgen")
     ctx.run("ruff format pyproject.toml")
 
 
@@ -105,6 +112,7 @@ def release_github(ctx: Context, version: str) -> None:
     Release to Github using Github API.
 
     Args:
+        ctx (Context): The context.
         version (str): The version.
     """
     with open("docs/CHANGES.md", encoding="utf-8") as file:
@@ -125,36 +133,6 @@ def release_github(ctx: Context, version: str) -> None:
         "https://api.github.com/repos/materialsproject/pymatgen/releases",
         data=json.dumps(payload),
         headers={"Authorization": f"token {os.environ['GITHUB_RELEASES_TOKEN']}"},
-        timeout=600,
-    )
-    print(response.text)
-
-
-def post_discourse(version: str) -> None:
-    """
-    Post release announcement to http://discuss.matsci.org/c/pymatgen.
-
-    Args:
-        version (str): The version.
-    """
-    with open("CHANGES.rst", encoding="utf-8") as file:
-        contents = file.read()
-    tokens = re.split(r"\-+", contents)
-    desc = tokens[1].strip()
-    tokens = desc.split("\n")
-    desc = "\n".join(tokens[:-1]).strip()
-    raw = f"v{version}\n\n{desc}"
-    payload = {
-        "topic_id": 36,
-        "raw": raw,
-    }
-    response = requests.post(
-        "https://discuss.matsci.org/c/pymatgen/posts.json",
-        data=payload,
-        params={
-            "api_username": os.environ["DISCOURSE_API_USERNAME"],
-            "api_key": os.environ["DISCOURSE_API_KEY"],
-        },
         timeout=600,
     )
     print(response.text)
@@ -239,6 +217,9 @@ def release(ctx: Context, version: str | None = None, nodoc: bool = False) -> No
 def open_doc(ctx: Context) -> None:
     """
     Open local documentation in web browser.
+
+    Args:
+        ctx (invoke.Context): The context object.
     """
     pth = os.path.abspath("docs/_build/html/index.html")
     webbrowser.open(f"file://{pth}")
