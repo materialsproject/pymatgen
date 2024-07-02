@@ -1031,7 +1031,7 @@ class Vasprun(MSONable):
                 eigenvals,
                 lattice_new,
                 e_fermi,
-                labels_dict,
+                labels_dict,  # type: ignore[arg-type]
                 structure=self.final_structure,
                 projections=p_eig_vals,
             )
@@ -1557,7 +1557,7 @@ class Vasprun(MSONable):
     def _parse_dos(elem: XML_Element) -> tuple[Dos, Dos, list[dict]]:
         """Parse density of states (DOS)."""
         efermi = float(elem.find("i").text)  # type: ignore[union-attr, arg-type]
-        energies = None
+        energies: NDArray | None = None
         tdensities = {}
         idensities = {}
 
@@ -1586,6 +1586,8 @@ class Vasprun(MSONable):
                         pdos[orb][spin] = data[:, col_idx]  # type: ignore[index]
                 pdoss.append(pdos)
         elem.clear()
+
+        assert energies is not None
         return Dos(efermi, energies, tdensities), Dos(efermi, energies, idensities), pdoss
 
     @staticmethod
