@@ -440,7 +440,7 @@
         "Metallic radius": 1.43,
         "iupac_ordering": 80,
         "IUPAC ordering": 80,
-        "Ground level": "2P\u00b01/2",
+        "Ground level": "2P°1/2",
         "Ionization energies": [
             5.985769,
             18.82855,
@@ -560,7 +560,7 @@
         "Metallic radius": 1.73,
         "iupac_ordering": 26,
         "IUPAC ordering": 26,
-        "Ground level": "8S\u00b07/2",
+        "Ground level": "8S°7/2",
         "Ionization energies": [
             5.97381,
             11.7,
@@ -821,7 +821,7 @@
         "Metallic radius": "no data",
         "iupac_ordering": 89,
         "IUPAC ordering": 89,
-        "Ground level": "4S\u00b03/2",
+        "Ground level": "4S°3/2",
         "Ionization energies": [
             9.78855,
             18.5892,
@@ -936,7 +936,7 @@
         "Metallic radius": "no data",
         "iupac_ordering": 98,
         "IUPAC ordering": 98,
-        "Ground level": "2P\u00b03/2",
+        "Ground level": "2P°3/2",
         "Ionization energies": [
             9.31751,
             17.88,
@@ -1291,7 +1291,7 @@
         "Metallic radius": "no data",
         "iupac_ordering": 81,
         "IUPAC ordering": 81,
-        "Ground level": "2P\u00b01/2",
+        "Ground level": "2P°1/2",
         "Ionization energies": [
             8.298019,
             25.15483,
@@ -1657,7 +1657,7 @@
         "Metallic radius": 1.82,
         "iupac_ordering": 87,
         "IUPAC ordering": 87,
-        "Ground level": "4S\u00b03/2",
+        "Ground level": "4S°3/2",
         "Ionization energies": [
             7.285516,
             16.703,
@@ -1817,7 +1817,7 @@
         "Metallic radius": 1.703,
         "iupac_ordering": 24,
         "IUPAC ordering": 24,
-        "Ground level": "6H\u00b015/2",
+        "Ground level": "6H°15/2",
         "Ionization energies": [
             6.19785,
             11.9,
@@ -2034,7 +2034,7 @@
         "Metallic radius": 1.14,
         "iupac_ordering": 100,
         "IUPAC ordering": 100,
-        "Ground level": "2P\u00b03/2",
+        "Ground level": "2P°3/2",
         "Ionization energies": [
             11.81381,
             21.591,
@@ -2592,7 +2592,7 @@
         "Metallic radius": 1.707,
         "iupac_ordering": 46,
         "IUPAC ordering": 46,
-        "Ground level": "1G\u00b04",
+        "Ground level": "1G°4",
         "Ionization energies": [
             5.5386,
             10.956,
@@ -2939,7 +2939,7 @@
         "Metallic radius": "no data",
         "iupac_ordering": 101,
         "IUPAC ordering": 101,
-        "Ground level": "2P\u00b03/2",
+        "Ground level": "2P°3/2",
         "Ionization energies": [
             12.967633,
             23.81364,
@@ -3033,7 +3033,7 @@
         "Metallic radius": 1.743,
         "iupac_ordering": 25,
         "IUPAC ordering": 25,
-        "Ground level": "9D\u00b02",
+        "Ground level": "9D°2",
         "Ionization energies": [
             5.99141,
             12.4,
@@ -4199,7 +4199,7 @@
         "Metallic radius": 1.86,
         "iupac_ordering": 22,
         "IUPAC ordering": 22,
-        "Ground level": "4I\u00b015/2",
+        "Ground level": "4I°15/2",
         "Ionization energies": [
             6.36758,
             12.2,
@@ -4431,7 +4431,7 @@
         "Metallic radius": 2.041,
         "iupac_ordering": 41,
         "IUPAC ordering": 41,
-        "Ground level": "8S\u00b07/2",
+        "Ground level": "8S°7/2",
         "Ionization energies": [
             5.670385,
             11.24,
@@ -4592,7 +4592,7 @@
         "Metallic radius": "no data",
         "iupac_ordering": 102,
         "IUPAC ordering": 102,
-        "Ground level": "2P\u00b03/2",
+        "Ground level": "2P°3/2",
         "Ionization energies": [
             17.42282,
             34.97081,
@@ -5193,7 +5193,7 @@
         "Metallic radius": 1.35,
         "iupac_ordering": 79,
         "IUPAC ordering": 79,
-        "Ground level": "2P\u00b01/2",
+        "Ground level": "2P°1/2",
         "Ionization energies": [
             5.999302,
             20.51514,
@@ -5323,7 +5323,7 @@
         "Metallic radius": 1.802,
         "iupac_ordering": 40,
         "IUPAC ordering": 40,
-        "Ground level": "9D\u00b02",
+        "Ground level": "9D°2",
         "Ionization energies": [
             6.1498,
             12.076,
@@ -6109,7 +6109,7 @@
         "Metallic radius": 1.765,
         "iupac_ordering": 37,
         "IUPAC ordering": 37,
-        "Ground level": "4I\u00b015/2",
+        "Ground level": "4I°15/2",
         "Ionization energies": [
             6.0215,
             11.781,
@@ -6299,7 +6299,7 @@
         "Metallic radius": "no data",
         "iupac_ordering": 99,
         "IUPAC ordering": 99,
-        "Ground level": "2P\u00b03/2",
+        "Ground level": "2P°3/2",
         "Ionization energies": [
             10.45126,
             19.13126,
@@ -6448,7 +6448,7 @@
         "Metallic radius": 1.67,
         "iupac_ordering": 78,
         "IUPAC ordering": 78,
-        "Ground level": "2P\u00b01/2",
+        "Ground level": "2P°1/2",
         "Ionization energies": [
             5.7863557,
             18.87041,
@@ -7206,7 +7206,7 @@
         "Metallic radius": "no data",
         "iupac_ordering": 18,
         "IUPAC ordering": 18,
-        "Ground level": "2P\u00b01/2",
+        "Ground level": "2P°1/2",
         "Ionization energies": [
             4.96,
             14.54,
@@ -7520,7 +7520,7 @@
         "Metallic radius": "no data",
         "iupac_ordering": 20,
         "IUPAC ordering": 20,
-        "Ground level": "2F\u00b07/2",
+        "Ground level": "2F°7/2",
         "Ionization energies": [
             6.58,
             12.4,
@@ -8239,7 +8239,7 @@
         "Metallic radius": "no data",
         "iupac_ordering": 91,
         "IUPAC ordering": 91,
-        "Ground level": "4S\u00b03/2",
+        "Ground level": "4S°3/2",
         "Ionization energies": [
             14.53413,
             29.60125,
@@ -9705,7 +9705,7 @@
         "Metallic radius": "no data",
         "iupac_ordering": 90,
         "IUPAC ordering": 90,
-        "Ground level": "4S\u00b03/2",
+        "Ground level": "4S°3/2",
         "Ionization energies": [
             10.486686,
             19.76949,
@@ -10409,7 +10409,7 @@
         "Metallic radius": 1.811,
         "iupac_ordering": 43,
         "IUPAC ordering": 43,
-        "Ground level": "6H\u00b05/2",
+        "Ground level": "6H°5/2",
         "Ionization energies": [
             5.58187,
             10.938,
@@ -10761,7 +10761,7 @@
         "Metallic radius": 1.828,
         "iupac_ordering": 45,
         "IUPAC ordering": 45,
-        "Ground level": "4I\u00b09/2",
+        "Ground level": "4I°9/2",
         "Ionization energies": [
             5.4702,
             10.631,
@@ -12424,7 +12424,7 @@
         "Metallic radius": 1.61,
         "iupac_ordering": 88,
         "IUPAC ordering": 88,
-        "Ground level": "4S\u00b03/2",
+        "Ground level": "4S°3/2",
         "Ionization energies": [
             8.608389,
             16.626,
@@ -13618,7 +13618,7 @@
         "Metallic radius": 1.781,
         "iupac_ordering": 39,
         "IUPAC ordering": 39,
-        "Ground level": "6H\u00b015/2",
+        "Ground level": "6H°15/2",
         "Ionization energies": [
             5.8638,
             11.513,
@@ -14469,7 +14469,7 @@
         "Metallic radius": 1.7,
         "iupac_ordering": 77,
         "IUPAC ordering": 77,
-        "Ground level": "2P\u00b01/2",
+        "Ground level": "2P°1/2",
         "Ionization energies": [
             6.1082873,
             20.4283,
@@ -14656,7 +14656,7 @@
         "Metallic radius": 1.747,
         "iupac_ordering": 35,
         "IUPAC ordering": 35,
-        "Ground level": "2F\u00b07/2",
+        "Ground level": "2F°7/2",
         "Ionization energies": [
             6.18431,
             12.065,
@@ -14895,7 +14895,7 @@
         "Metallic radius": 1.542,
         "iupac_ordering": 29,
         "IUPAC ordering": 29,
-        "Ground level": "5L\u00b06",
+        "Ground level": "5L°6",
         "Ionization energies": [
             6.19405,
             11.6,
