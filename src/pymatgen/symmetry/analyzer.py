@@ -25,7 +25,6 @@ from typing import TYPE_CHECKING
 import numpy as np
 import scipy.cluster
 import spglib
-
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule, PeriodicSite, Structure

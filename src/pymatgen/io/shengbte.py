@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.dev import requires
 from monty.json import MSONable
-
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Kpoints
 

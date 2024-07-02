@@ -7,15 +7,13 @@ from collections import defaultdict
 from typing import TYPE_CHECKING
 
 from monty.json import MSONable
-
 from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
 from pymatgen.core import get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
-
     from pymatgen.core import Structure
+    from typing_extensions import Self
 
 
 class AbstractStructureFilter(MSONable, abc.ABC):

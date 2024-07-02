@@ -34,7 +34,6 @@ from shutil import which
 
 import requests
 from monty.dev import requires
-
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 

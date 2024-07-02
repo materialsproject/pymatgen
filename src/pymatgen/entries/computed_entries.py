@@ -17,19 +17,17 @@ from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
-from scipy.interpolate import interp1d
-from uncertainties import ufloat
-
 from pymatgen.core.composition import Composition
 from pymatgen.entries import Entry
 from pymatgen.util.due import Doi, due
+from scipy.interpolate import interp1d
+from uncertainties import ufloat
 
 if TYPE_CHECKING:
     from typing import Literal
 
-    from typing_extensions import Self
-
     from pymatgen.core import Structure
+    from typing_extensions import Self
 
 __author__ = "Ryan Kingsbury, Matt McDermott, Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011-2020, The Materials Project"

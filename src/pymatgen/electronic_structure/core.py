@@ -14,10 +14,9 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from numpy.typing import NDArray
-    from typing_extensions import Self
-
     from pymatgen.core import Lattice
     from pymatgen.util.typing import MagMomentLike, Vector3D
+    from typing_extensions import Self
 
 
 @unique

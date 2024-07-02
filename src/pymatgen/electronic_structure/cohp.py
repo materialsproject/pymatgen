@@ -19,8 +19,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
-from scipy.interpolate import InterpolatedUnivariateSpline
-
 from pymatgen.core.sites import PeriodicSite
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.core import Orbital, Spin
@@ -29,15 +27,15 @@ from pymatgen.io.lobster import Cohpcar
 from pymatgen.util.coord import get_linear_interpolated_value
 from pymatgen.util.due import Doi, due
 from pymatgen.util.num import round_to_sigfigs
+from scipy.interpolate import InterpolatedUnivariateSpline
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Literal
 
     from numpy.typing import NDArray
-    from typing_extensions import Self
-
     from pymatgen.util.typing import PathLike, SpinLike, Vector3D
+    from typing_extensions import Self
 
 __author__ = "Marco Esters, Janine George"
 __copyright__ = "Copyright 2017, The Materials Project"

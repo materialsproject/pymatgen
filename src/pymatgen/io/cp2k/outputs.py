@@ -17,7 +17,6 @@ import pandas as pd
 from monty.io import zopen
 from monty.json import MSONable, jsanitize
 from monty.re import regrep
-
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine

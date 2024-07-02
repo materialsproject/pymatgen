@@ -17,7 +17,6 @@ from typing import TYPE_CHECKING
 
 from monty.io import zopen
 from monty.json import MSONable
-
 from pymatgen.core import Element, Lattice, PeriodicSite, Structure
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.io.core import ParseError
@@ -28,9 +27,8 @@ if TYPE_CHECKING:
     from pathlib import Path
     from typing import Any, Callable, Literal
 
-    from typing_extensions import Self
-
     from pymatgen.util.typing import Tuple3Ints, Vector3D
+    from typing_extensions import Self
 
 
 @dataclass(frozen=True)

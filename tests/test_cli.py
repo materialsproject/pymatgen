@@ -4,7 +4,6 @@ import os
 from typing import TYPE_CHECKING
 
 import pytest
-
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 
 if TYPE_CHECKING:

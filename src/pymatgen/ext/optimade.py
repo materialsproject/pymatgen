@@ -8,11 +8,10 @@ from typing import TYPE_CHECKING, NamedTuple
 from urllib.parse import urljoin, urlparse
 
 import requests
-from tqdm import tqdm
-
 from pymatgen.core import DummySpecies, Structure
 from pymatgen.util.due import Doi, due
 from pymatgen.util.provenance import StructureNL
+from tqdm import tqdm
 
 if TYPE_CHECKING:
     from typing import ClassVar

@@ -10,7 +10,6 @@ from os import PathLike as OsPathLike
 from typing import TYPE_CHECKING, Any, Literal, Union
 
 from numpy.typing import NDArray
-
 from pymatgen.core import Composition, DummySpecies, Element, Species
 from pymatgen.electronic_structure.core import Magmom, Spin
 

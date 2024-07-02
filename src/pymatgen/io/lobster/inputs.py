@@ -22,7 +22,6 @@ import spglib
 from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
-
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
@@ -32,10 +31,9 @@ from pymatgen.util.due import Doi, due
 if TYPE_CHECKING:
     from typing import Any, ClassVar, Literal
 
-    from typing_extensions import Self
-
     from pymatgen.core.composition import Composition
     from pymatgen.util.typing import PathLike, Tuple3Ints
+    from typing_extensions import Self
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 

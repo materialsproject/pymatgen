@@ -10,16 +10,14 @@ import numpy as np
 import scipy.constants
 import scipy.special
 from monty.json import MSONable
-from tqdm import tqdm
-
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.vasp.outputs import Vasprun, Waveder
+from tqdm import tqdm
 
 if TYPE_CHECKING:
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
-
     from pymatgen.util.typing import PathLike
+    from typing_extensions import Self
 
 __author__ = "Jimmy-Xuan Shen"
 __copyright__ = "Copyright 2022, The Materials Project"

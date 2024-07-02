@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING, no_type_check
 
 import numpy as np
 from monty.io import zopen
-
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ry_to_eV, bohr_to_angstrom
 from pymatgen.electronic_structure.core import Spin
