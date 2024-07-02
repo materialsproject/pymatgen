@@ -62,7 +62,7 @@ class PackmolSet(InputSet):
             )
         try:
             os.chdir(path)
-            p = subprocess.run(
+            p = subprocess.run(  # noqa: S602
                 f"packmol < {self.inputfile!r}",
                 check=True,
                 shell=True,

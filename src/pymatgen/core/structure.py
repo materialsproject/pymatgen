@@ -14,7 +14,6 @@ import itertools
 import json
 import math
 import os
-import random
 import re
 import sys
 import warnings
@@ -1874,7 +1873,7 @@ class IStructure(SiteCollection, MSONable):
                         redundant.append(jdx)
 
             # Delete the redundant neighbors
-            m = ~np.in1d(np.arange(len(bonds[0])), redundant)
+            m = ~np.isin(np.arange(len(bonds[0])), redundant)
             idcs_dist = np.argsort(bonds[3][m])
             bonds = (bonds[0][m][idcs_dist], bonds[1][m][idcs_dist], bonds[2][m][idcs_dist], bonds[3][m][idcs_dist])
 
@@ -3640,11 +3639,12 @@ class IMolecule(SiteCollection, MSONable):
         ):
             box_center = [(i + 0.5) * a, (j + 0.5) * b, (k + 0.5) * c]
             if random_rotation:
+                rng = np.random.default_rng()
                 while True:
                     op = SymmOp.from_origin_axis_angle(
                         (0, 0, 0),
-                        axis=np.random.rand(3),
-                        angle=random.uniform(-180, 180),
+                        axis=rng.random(3),
+                        angle=rng.uniform(-180, 180),
                     )
                     rot_mat = op.rotation_matrix
                     new_coords = np.dot(rot_mat, centered_coords.T).T + box_center
@@ -4465,11 +4465,12 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         def get_rand_vec():
             # Deal with zero vectors
-            vector = np.random.randn(3)
+            rng = np.random.default_rng()
+            vector = rng.standard_normal(3)
             vnorm = np.linalg.norm(vector)
             dist = distance
             if isinstance(min_distance, (float, int)):
-                dist = np.random.uniform(min_distance, dist)
+                dist = rng.uniform(min_distance, dist)
             return vector / vnorm * dist if vnorm != 0 else get_rand_vec()
 
         for idx in range(len(self._sites)):
@@ -5016,7 +5017,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         def get_rand_vec():
             # Deal with zero vectors
-            vector = np.random.randn(3)
+            rng = np.random.default_rng()
+            vector = rng.standard_normal(3)
             vnorm = np.linalg.norm(vector)
             return vector / vnorm * distance if vnorm != 0 else get_rand_vec()
 
