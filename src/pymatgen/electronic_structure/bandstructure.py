@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
-
 from pymatgen.core import Element, Lattice, Structure, get_el_sp
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer

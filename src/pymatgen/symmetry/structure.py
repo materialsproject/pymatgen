@@ -5,16 +5,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-from tabulate import tabulate
-
 from pymatgen.core.structure import PeriodicSite, Structure
+from tabulate import tabulate
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from typing_extensions import Self
-
     from pymatgen.symmetry.analyzer import SpacegroupOperations
+    from typing_extensions import Self
 
 
 class SymmetrizedStructure(Structure):

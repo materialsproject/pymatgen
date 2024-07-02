@@ -8,14 +8,12 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
-
 from pymatgen.core import Lattice, Structure
 from pymatgen.symmetry.kpath import KPathSeek
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
-
     from pymatgen.util.typing import PathLike
+    from typing_extensions import Self
 
 __author__ = "Hanyu Liu"
 __email__ = "domainofbuaa@gmail.com"

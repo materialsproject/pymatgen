@@ -11,7 +11,6 @@ import warnings
 from typing import TYPE_CHECKING
 
 from monty.dev import requires
-
 from pymatgen.core.structure import IMolecule, Molecule
 
 try:
@@ -20,9 +19,8 @@ except Exception:
     openbabel = pybel = None
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
-
     from pymatgen.analysis.graphs import MoleculeGraph
+    from typing_extensions import Self
 
 
 __author__ = "Shyue Ping Ong, Qi Wang"

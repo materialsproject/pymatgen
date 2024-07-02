@@ -22,14 +22,12 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.dev import requires
 from monty.json import MSONable
+from pymatgen.core.structure import Molecule
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
 
-from pymatgen.core.structure import Molecule
-
 try:
     from openbabel import openbabel
-
     from pymatgen.io.babel import BabelMolAdaptor
 except ImportError:
     openbabel = BabelMolAdaptor = None  # type: ignore[misc]

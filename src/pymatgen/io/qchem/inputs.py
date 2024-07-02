@@ -7,7 +7,6 @@ import re
 from typing import TYPE_CHECKING
 
 from monty.io import zopen
-
 from pymatgen.core import Molecule
 from pymatgen.io.core import InputFile
 

@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.design_patterns import cached_class
-
 from pymatgen.core.operations import MagSymmOp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.groups import SymmetryGroup, in_array_list
@@ -21,9 +20,8 @@ from pymatgen.util.string import transformation_to_string
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from typing_extensions import Self
-
     from pymatgen.core.lattice import Lattice
+    from typing_extensions import Self
 
 __author__ = "Matthew Horton, Shyue Ping Ong"
 

@@ -14,7 +14,6 @@ from unittest import TestCase
 
 import numpy as np
 import pytest
-
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.command_line.gulp_caller import (
     BuckinghamPotential,

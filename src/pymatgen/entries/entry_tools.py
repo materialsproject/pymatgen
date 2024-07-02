@@ -16,7 +16,6 @@ from collections import defaultdict
 from typing import TYPE_CHECKING
 
 from monty.json import MontyDecoder, MontyEncoder, MSONable
-
 from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.analysis.structure_matcher import SpeciesComparator, StructureMatcher
 from pymatgen.core import Composition, Element
@@ -25,10 +24,9 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from typing import Literal
 
-    from typing_extensions import Self
-
     from pymatgen.entries import Entry
     from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+    from typing_extensions import Self
 
 logger = logging.getLogger(__name__)
 

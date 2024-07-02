@@ -3,7 +3,6 @@ from __future__ import annotations
 import networkx as nx
 import pytest
 from monty.serialization import loadfn
-
 from pymatgen.analysis.dimensionality import (
     calculate_dimensionality_of_site,
     get_dimensionality_cheon,

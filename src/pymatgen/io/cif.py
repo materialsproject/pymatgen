@@ -19,7 +19,6 @@ import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.serialization import loadfn
-
 from pymatgen.core import Composition, DummySpecies, Element, Lattice, PeriodicSite, Species, Structure, get_el_sp
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.electronic_structure.core import Magmom
@@ -33,9 +32,8 @@ if TYPE_CHECKING:
     from typing import Any
 
     from numpy.typing import NDArray
-    from typing_extensions import Self
-
     from pymatgen.util.typing import PathLike, Vector3D
+    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 

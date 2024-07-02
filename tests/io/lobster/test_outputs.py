@@ -7,8 +7,6 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
-
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.cohp import IcohpCollection
 from pymatgen.electronic_structure.core import Orbital, Spin
@@ -29,6 +27,7 @@ from pymatgen.io.lobster import (
 )
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 

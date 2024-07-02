@@ -12,7 +12,6 @@ from warnings import warn
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder
-
 from pymatgen.core import Molecule, Structure
 from pymatgen.io.aims.inputs import AimsControlIn, AimsGeometryIn
 from pymatgen.io.aims.parsers import AimsParseError, read_aims_output

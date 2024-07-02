@@ -11,7 +11,6 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.dev import deprecated
 from monty.tempfile import ScratchDir
-
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule
 from pymatgen.io.babel import BabelMolAdaptor

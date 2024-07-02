@@ -10,11 +10,10 @@ from warnings import warn
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.spatial import Voronoi
-
 from pymatgen.analysis.local_env import JmolNN, VoronoiNN
 from pymatgen.core import Composition, Element, PeriodicSite, Species
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from scipy.spatial import Voronoi
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure

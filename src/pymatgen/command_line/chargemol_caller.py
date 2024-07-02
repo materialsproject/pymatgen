@@ -51,7 +51,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.tempfile import ScratchDir
-
 from pymatgen.core import Element
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar

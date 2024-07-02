@@ -20,7 +20,6 @@ from typing import TYPE_CHECKING, NamedTuple
 import matplotlib as mpl
 import numpy as np
 from monty.dev import deprecated
-
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
@@ -36,12 +35,11 @@ if TYPE_CHECKING:
 
     import matplotlib as mpl
     from numpy.typing import NDArray
-    from typing_extensions import Self
-
     from pymatgen.core import PeriodicNeighbor, Site, Structure
     from pymatgen.core.periodic_table import Element
     from pymatgen.electronic_structure.cohp import IcohpCollection, IcohpValue
     from pymatgen.util.typing import PathLike
+    from typing_extensions import Self
 
 __author__ = "Janine George"
 __copyright__ = "Copyright 2021, The Materials Project"

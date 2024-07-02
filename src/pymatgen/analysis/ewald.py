@@ -11,11 +11,10 @@ from warnings import warn
 
 import numpy as np
 from monty.json import MSONable
-from scipy import constants
-from scipy.special import comb, erfc
-
 from pymatgen.core.structure import Structure
 from pymatgen.util.due import Doi, due
+from scipy import constants
+from scipy.special import comb, erfc
 
 if TYPE_CHECKING:
     from typing import Any
