@@ -50,6 +50,18 @@ class DOS(Spectrum):
         super().__init__(energies, densities, efermi)
         self.efermi = efermi
 
+    def __str__(self) -> str:
+        """Get a string which can be easily plotted (using gnuplot)."""
+        if Spin.down in self.densities:
+            str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
+            for idx, energy in enumerate(self.energies):
+                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][idx]:.5f} {self.densities[Spin.down][idx]:.5f}")
+        else:
+            str_arr = [f"#{'Energy':30s} {'DensityUp':30s}"]
+            for idx, energy in enumerate(self.energies):
+                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][idx]:.5f}")
+        return "\n".join(str_arr)
+
     def get_interpolated_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
         """Expects a DOS object and finds the gap.
 
@@ -146,18 +158,6 @@ class DOS(Spectrum):
         cbm, vbm = self.get_cbm_vbm(tol, abs_tol, spin)
         return max(cbm - vbm, 0.0)
 
-    def __str__(self) -> str:
-        """Get a string which can be easily plotted (using gnuplot)."""
-        if Spin.down in self.densities:
-            str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
-            for i, energy in enumerate(self.energies):
-                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
-        else:
-            str_arr = [f"#{'Energy':30s} {'DensityUp':30s}"]
-            for i, energy in enumerate(self.energies):
-                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
-        return "\n".join(str_arr)
-
 
 class Dos(MSONable):
     """Basic DOS object. All other DOS objects are extended versions of this
@@ -187,6 +187,33 @@ class Dos(MSONable):
         vol = norm_vol or 1
         self.densities = {k: np.array(d) / vol for k, d in densities.items()}
 
+    def __add__(self, other):
+        """Add two DOS together. Checks that energy scales are the same.
+        Otherwise, a ValueError is thrown.
+
+        Args:
+            other: Another DOS object.
+
+        Returns:
+            Sum of the two DOSs.
+        """
+        if not all(np.equal(self.energies, other.energies)):
+            raise ValueError("Energies of both DOS are not compatible!")
+        densities = {spin: self.densities[spin] + other.densities[spin] for spin in self.densities}
+        return Dos(self.efermi, self.energies, densities)
+
+    def __str__(self) -> str:
+        """Get a string which can be easily plotted (using gnuplot)."""
+        if Spin.down in self.densities:
+            str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
+            for i, energy in enumerate(self.energies):
+                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
+        else:
+            str_arr = [f"#{'Energy':30s} {'DensityUp':30s}"]
+            for i, energy in enumerate(self.energies):
+                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
+        return "\n".join(str_arr)
+
     def get_densities(self, spin: Spin | None = None):
         """Get the density of states for a particular spin.
 
@@ -198,8 +225,9 @@ class Dos(MSONable):
             None, the sum of all spins is returned.
         """
         if self.densities is None:
-            result = None
-        elif spin is None:
+            return None
+
+        if spin is None:
             if Spin.down in self.densities:
                 result = self.densities[Spin.up] + self.densities[Spin.down]
             else:
@@ -224,21 +252,6 @@ class Dos(MSONable):
         for spin, dens in self.densities.items():
             smeared_dens[spin] = gaussian_filter1d(dens, sigma / avg_diff)
         return smeared_dens
-
-    def __add__(self, other):
-        """Add two DOS together. Checks that energy scales are the same.
-        Otherwise, a ValueError is thrown.
-
-        Args:
-            other: Another DOS object.
-
-        Returns:
-            Sum of the two DOSs.
-        """
-        if not all(np.equal(self.energies, other.energies)):
-            raise ValueError("Energies of both DOS are not compatible!")
-        densities = {spin: self.densities[spin] + other.densities[spin] for spin in self.densities}
-        return Dos(self.efermi, self.energies, densities)
 
     def get_interpolated_value(self, energy: float) -> dict[Spin, float]:
         """Get interpolated density for a particular energy.
@@ -338,18 +351,6 @@ class Dos(MSONable):
         """
         cbm, vbm = self.get_cbm_vbm(tol, abs_tol, spin)
         return max(cbm - vbm, 0.0)
-
-    def __str__(self) -> str:
-        """Get a string which can be easily plotted (using gnuplot)."""
-        if Spin.down in self.densities:
-            str_arr = [f"#{'Energy':30s} {'DensityUp':30s} {'DensityDown':30s}"]
-            for i, energy in enumerate(self.energies):
-                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f} {self.densities[Spin.down][i]:.5f}")
-        else:
-            str_arr = [f"#{'Energy':30s} {'DensityUp':30s}"]
-            for i, energy in enumerate(self.energies):
-                str_arr.append(f"{energy:.5f} {self.densities[Spin.up][i]:.5f}")
-        return "\n".join(str_arr)
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
@@ -624,6 +625,9 @@ class CompleteDos(Dos):
         self.pdos = pdoss
         self.structure = structure
 
+    def __str__(self) -> str:
+        return f"Complete DOS for {self.structure}"
+
     def get_normalized(self) -> CompleteDos:
         """Get a normalized version of the CompleteDos."""
         if self.norm_vol is not None:
@@ -773,7 +777,7 @@ class CompleteDos(Dos):
         n_F_down = n_F[Spin.down]
 
         if (n_F_up + n_F_down) == 0:
-            # only well defined for metals or half-metals
+            # Only well defined for metals or half-metals
             return float("NaN")
 
         spin_polarization = (n_F_up - n_F_down) / (n_F_up + n_F_down)
@@ -1283,9 +1287,6 @@ class CompleteDos(Dos):
             dct["spd_dos"] = {str(orb): dos.as_dict() for orb, dos in self.get_spd_dos().items()}
         return dct
 
-    def __str__(self) -> str:
-        return f"Complete DOS for {self.structure}"
-
 
 class LobsterCompleteDos(CompleteDos):
     """Extended CompleteDOS for Lobster."""
@@ -1450,8 +1451,24 @@ def _get_orb_type_lobster(orb) -> OrbitalType | None:
     Returns:
         OrbitalType
     """
-    orb_labs = ["s", "p_y", "p_z", "p_x", "d_xy", "d_yz", "d_z^2", "d_xz", "d_x^2-y^2"]
-    orb_labs += ["f_y(3x^2-y^2)", "f_xyz", "f_yz^2", "f_z^3", "f_xz^2", "f_z(x^2-y^2)", "f_x(x^2-3y^2)"]
+    orb_labs = (
+        "s",
+        "p_y",
+        "p_z",
+        "p_x",
+        "d_xy",
+        "d_yz",
+        "d_z^2",
+        "d_xz",
+        "d_x^2-y^2",
+        "f_y(3x^2-y^2)",
+        "f_xyz",
+        "f_yz^2",
+        "f_z^3",
+        "f_xz^2",
+        "f_z(x^2-y^2)",
+        "f_x(x^2-3y^2)",
+    )
 
     try:
         orbital = Orbital(orb_labs.index(orb[1:]))
@@ -1469,7 +1486,7 @@ def _get_orb_lobster(orb):
     Returns:
         Orbital.
     """
-    orb_labs = [
+    orb_labs = (
         "s",
         "p_y",
         "p_z",
@@ -1486,10 +1503,10 @@ def _get_orb_lobster(orb):
         "f_xz^2",
         "f_z(x^2-y^2)",
         "f_x(x^2-3y^2)",
-    ]
+    )
 
     try:
         return Orbital(orb_labs.index(orb[1:]))
     except AttributeError:
         print("Orb not in list")
-    return None
+        return None
