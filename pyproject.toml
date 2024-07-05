@@ -1,11 +1,175 @@
 [build-system]
 requires = [
-  "Cython>=0.29.23",
-  # pin NumPy version used in the build
-  "oldest-supported-numpy",
-  "setuptools>=65.0.0",
+    "Cython>=0.29.23",
+    # pin NumPy version used in the build
+    "oldest-supported-numpy",
+    "setuptools>=65.0.0",
 ]
 build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "pymatgen"
+authors = [
+    { name = "Pymatgen Development Team", email = "ongsp@ucsd.edu" },
+]
+maintainers = [
+    { name = "Shyue Ping Ong", email = "ongsp@ucsd.edu" },
+    { name = "Matthew Horton", email = "m.k.horton@gmail.com" },
+    { name = "Janosh Riebesell", email = "janosh.riebesell@gmail.com" },
+]
+description = """
+Python Materials Genomics is a robust materials analysis code that defines core object representations for structures
+and molecules with support for many electronic structure codes. It is currently the core analysis code powering the
+Materials Project (https://materialsproject.org)."""
+readme = "README.md"
+requires-python = ">=3.9"
+keywords = [
+    "ABINIT",
+    "analysis",
+    "crystal",
+    "diagrams",
+    "electronic",
+    "gaussian",
+    "materials",
+    "nwchem",
+    "phase",
+    "project",
+    "qchem",
+    "science",
+    "structure",
+    "VASP",
+]
+license = { text = "MIT" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "matplotlib>=3.8",
+    "monty>=2024.5.24",
+    "networkx>=2.2",
+    'numpy>=1.25.0,<2.0 ; platform_system == "Windows"',
+    'numpy>=1.25.0 ; platform_system != "Windows"',
+    "palettable>=3.1.1",
+    "pandas>=2",
+    "plotly>=4.5.0",
+    "pybtex>=0.24.0",
+    "requests>=2.32",
+    "ruamel.yaml>=0.17.0",
+    "scipy>=1.13.0",
+    "spglib>=2.0.2",
+    "sympy>=1.2",
+    "tabulate>=0.9",
+    "tqdm>=4.60",
+    "uncertainties>=3.1.4",
+    "joblib>=1",
+]
+version = "2024.6.10"
+
+[project.urls]
+Homepage = "https://pymatgen.org"
+Documentation = "https://pymatgen.org"
+Repository = "https://github.com/materialsproject/pymatgen"
+Issues = "https://github.com/materialsproject/pymatgen/issues"
+Pypi = "https://pypi.org/project/pymatgen"
+
+[project.optional-dependencies]
+ase = ["ase>=3.23.0"]
+# don't depend on tblite above 3.11 since unsupported https://github.com/tblite/tblite/issues/175
+tblite = ["tblite[ase]>=0.3.0; python_version<'3.12'"]
+vis = ["vtk>=6.0.0"]
+abinit = ["netcdf4>=1.6.5"]
+mlp = ["matgl>=1.1.1", "chgnet>=0.3.8"]
+electronic_structure = ["fdint>=2.0.2"]
+ci = [
+    "pytest>=8",
+    "pytest-cov>=4",
+    "pytest-split>=0.8",
+]
+docs = [
+    "sphinx",
+    "sphinx_rtd_theme",
+]
+optional = [
+    "ase>=3.23.0",
+    # TODO restore BoltzTraP2 when install fixed, hopefully following merge of
+    # https://gitlab.com/sousaw/BoltzTraP2/-/merge_requests/18
+    # caused CI failure due to ModuleNotFoundError: No module named 'packaging'
+    # "BoltzTraP2>=22.3.2; platform_system!='Windows'",
+    "chemview>=0.6",
+    "chgnet>=0.3.8",
+    "f90nml>=1.1.2",
+    "galore>=0.6.1",
+    "h5py>=3.11.0",
+    "jarvis-tools>=2020.7.14",
+    "matgl>=1.1.1",
+    "netCDF4>=1.6.5",
+    "phonopy>=2.23",
+    "seekpath>=2.0.1",
+    # don't depend on tblite above 3.11 since unsupported https://github.com/tblite/tblite/issues/175
+    "tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'",
+    # "hiphive>=0.6",
+    # "openbabel>=3.1.1; platform_system=='Linux'",
+]
+numba = ["numba>=0.55"]
+
+[project.scripts]
+pmg = "pymatgen.cli.pmg:main"
+feff_plot_cross_section = "pymatgen.cli.feff_plot_cross_section:main"
+feff_plot_dos = "pymatgen.cli.feff_plot_dos:main"
+get_environment = "pymatgen.cli.get_environment:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["pymatgen"]
+
+[tool.setuptools.package-data]
+"pymatgen.analysis" = ["*.yaml", "*.json", "*.csv"]
+"pymatgen.analysis.chemenv" = [
+    "coordination_environments/coordination_geometries_files/*.json",
+    "coordination_environments/coordination_geometries_files/*.txt",
+    "coordination_environments/strategy_files/ImprovedConfidenceCutoffDefaultParameters.json",
+]
+"pymatgen.analysis.structure_prediction" = ["*.yaml", "data/*.json"]
+"pymatgen.analysis.diffraction" = ["*.json"]
+"pymatgen.analysis.magnetism" = ["default_magmoms.yaml"]
+"pymatgen.analysis.solar" = ["am1.5G.dat"]
+"pymatgen.entries" = ["*.json.gz", "*.yaml", "data/*.json"]
+"pymatgen.core" = ["*.json"]
+"pymatgen" = ["py.typed"]
+"pymatgen.io.vasp" = ["*.yaml", "*.json", "*.json.gz", "*.json.bz2"]
+"pymatgen.io.feff" = ["*.yaml"]
+"pymatgen.io.cp2k" = ["*.yaml"]
+"pymatgen.io.lobster" = ["lobster_basis/*.yaml"]
+"pymatgen.command_line" = ["*"]
+"pymatgen.util" = ["structures/*.json", "*.json"]
+"pymatgen.vis" = ["*.yaml"]
+"pymatgen.io.lammps" = ["CoeffsDataType.yaml", "templates/*.template"]
+"pymatgen.symmetry" = ["*.yaml", "*.json", "*.sqlite"]
+
+[tool.pdm.dev-dependencies]
+lint = [
+    "mypy>=1.10.0",
+    "ruff>=0.4.9",
+    "pre-commit>=3.7.1",
+]
+test = [
+    "pytest>=8.2.2",
+    "pytest-cov>=5.0.0",
+    "pytest-split>=0.9.0",
+]
 
 [tool.versioningit.vcs]
 method = "git"
@@ -24,41 +188,30 @@ target-version = "py39"
 line-length = 120
 
 [tool.ruff.lint]
-select = [
-  "B",       # flake8-bugbear
-  "C4",      # flake8-comprehensions
-  "D",       # pydocstyle
-  "E",       # pycodestyle error
-  "EXE",     # flake8-executable
-  "F",       # pyflakes
-  "FA",      # flake8-future-annotations
-  "FBT003",  # boolean-positional-value-in-call
-  "FLY",     # flynt
-  "I",       # isort
-  "ICN",     # flake8-import-conventions
-  "ISC",     # flake8-implicit-str-concat
-  "PD",      # pandas-vet
-  "PERF",    # perflint
-  "PIE",     # flake8-pie
-  "PL",      # pylint
-  "PLR0402",
-  "PLR1714",
-  "PLR5501",
-  "PT",      # flake8-pytest-style
-  "PYI",     # flakes8-pyi
-  "Q",       # flake8-quotes
-  "RET",     # flake8-return
-  "RSE",     # flake8-raise
-  "RUF",     # Ruff-specific rules
-  "SIM",     # flake8-simplify
-  "SLOT",    # flake8-slots
-  "TCH",     # flake8-type-checking
-  "TID",     # flake8-tidy-imports
-  "UP",      # pyupgrade
-  "W",       # pycodestyle warning
-  "YTT",     # flake8-2020
-]
+select = ["ALL"]
 ignore = [
+  # Rule families
+  "ANN",  # flake8-annotations (not ready, require types for ALL args)
+  "ARG",  # Check for unused function arguments
+  "BLE",  # General catch of Exception
+  "C90",  # Check for functions with a high McCabe complexity
+  "COM",  # flake8-commas (conflict with line wrapper)
+  "CPY",  # Missing copyright notice at top of file (need preview mode)
+  "EM",   # Format nice error messages
+  "ERA",  # Check for commented-out code
+  "FIX",  # Check for FIXME, TODO and other developer notes
+  "FURB", # refurb (need preview mode, too many preview errors)
+  "G",    # validate logging format strings
+  "INP",  # Ban PEP-420 implicit namespace packages
+  "N",    # pep8-naming (many var/arg names are intended)
+  "NPY",  # NumPy-specific rules (TODO: enable this)
+  "PTH",  # Prefer pathlib over os.path
+  "S",    # flake8-bandit (TODO: enable this)
+  "SLF",  # Access "private" class members
+  "T20",  # Check for print/pprint
+  "TD",   # TODO tags related
+
+  # Single rules
   "B023",    # Function definition does not bind loop variable
   "B028",    # No explicit stacklevel keyword argument found
   "B904",    # Within an except clause, raise exceptions with ...
@@ -66,14 +219,23 @@ ignore = [
   "D105",    # Missing docstring in magic method
   "D205",    # 1 blank line required between summary line and description
   "D212",    # Multi-line docstring summary should start at the first line
+  "DTZ003",  # TODO: fix this (issue #3791)
+  "FBT001",  # Boolean-typed positional argument in function definition
+  "FBT002",  # Boolean default positional argument in function
   "PD901",   # pandas-df-variable-name
   "PERF203", # try-except-in-loop
   "PERF401", # manual-list-comprehension
-  "PLR",     # pylint refactor
+  "PLR0911", # too many return statements
+  "PLR0912", # too many branches
+  "PLR0913", # too many arguments
+  "PLR0915", # too many statements
+  "PLR2004", # magic values in comparison
   "PLW2901", # Outer for loop variable overwritten by inner assignment target
   "PT013",   # pytest-incorrect-pytest-import
-  "PTH",     # prefer pathlib to os.path
   "SIM105",  # Use contextlib.suppress() instead of try-except-pass
+  "TRY003",  # Avoid specifying long messages outside the exception class
+  "TRY300",  # Checks for return statements in try blocks
+  "TRY301",  # Checks for raise statements within try blocks
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
@@ -84,11 +246,9 @@ docstring-code-format = true
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
-"tests/**" = ["ANN201", "D", "S101"]
-"tasks.py" = ["D"]
-"pymatgen/analysis/*" = ["D"]
-"pymatgen/vis/*" = ["D"]
-"pymatgen/io/*" = ["D"]
+"tests/**" = ["ANN201", "D", "PLR0124"]
+"src/pymatgen/analysis/*" = ["D"]
+"src/pymatgen/io/*" = ["D"]
 "dev_scripts/*" = ["D"]
 
 [tool.pytest.ini_options]
@@ -97,31 +257,31 @@ addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings --import-mod
 [tool.coverage.run]
 parallel = true
 omit = [
-  "pymatgen/cli/feff_plot_cross_section.py",
-  "pymatgen/cli/feff_plot_dos.py",
-  "pymatgen/cli/pmg_config.py",
-  "pymatgen/cli/pmg_plot.py",
-  "pymatgen/cli/pmg_potcar.py",
-  "pymatgen/cli/pmg_query.py",
-  "pymatgen/dao.py",
+    "pymatgen/cli/feff_plot_cross_section.py",
+    "pymatgen/cli/feff_plot_dos.py",
+    "pymatgen/cli/pmg_config.py",
+    "pymatgen/cli/pmg_plot.py",
+    "pymatgen/cli/pmg_potcar.py",
+    "pymatgen/cli/pmg_query.py",
+    "pymatgen/dao.py",
 ]
 
 [tool.coverage.report]
 exclude_also = [
-  "@deprecated",
-  "@np.deprecate",
-  "def __repr__",
-  "except ImportError:",
-  "if 0:",
-  "if TYPE_CHECKING:",
-  "if __name__ == .__main__.:",
-  "if self.debug:",
-  "if settings.DEBUG",
-  "if typing.TYPE_CHECKING:",
-  "pragma: no cover",
-  "raise AssertionError",
-  "raise NotImplementedError",
-  "show_plot",
+    "@deprecated",
+    "@np.deprecate",
+    "def __repr__",
+    "except ImportError:",
+    "if 0:",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "if typing.TYPE_CHECKING:",
+    "pragma: no cover",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "show_plot",
 ]
 
 [tool.mypy]

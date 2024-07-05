@@ -31,7 +31,7 @@ jobs:
           ruff format --check .
 
       - name: mypy
-        run: mypy ${{ github.event.repository.name }}
+        run: mypy src
 
       - name: pyright
         run: pyright

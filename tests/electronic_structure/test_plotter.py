@@ -10,8 +10,6 @@ import numpy as np
 import pytest
 from matplotlib import rc
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer
@@ -31,6 +29,7 @@ from pymatgen.electronic_structure.plotter import (
 )
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pytest import approx
 
 BAND_TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
