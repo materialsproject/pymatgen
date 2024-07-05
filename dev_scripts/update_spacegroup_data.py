@@ -17,8 +17,8 @@ from pymatgen.symmetry.groups import PointGroup
 __author__ = "Katharina Ueltzen @kaueltzen"
 __date__ = "2024-06-06"
 
-SYMM_OPS = loadfn("../pymatgen/symmetry/symm_ops.json")
-SYMM_DATA = loadfn("../pymatgen/symmetry/symm_data.json")
+SYMM_OPS = loadfn("../src/pymatgen/symmetry/symm_ops.json")
+SYMM_DATA = loadfn("../src/pymatgen/symmetry/symm_data.json")
 
 
 def convert_symmops_to_sg_encoding(symbol: str) -> str:
@@ -91,5 +91,5 @@ for spg_idx, spg in enumerate(SYMM_OPS):
         sys.exit(1)
     SYMM_OPS[spg_idx]["point_group"] = pg.symbol
 
-dumpfn(SYMM_DATA, "../pymatgen/symmetry/symm_data.json")
-dumpfn(SYMM_OPS, "../pymatgen/symmetry/symm_ops.json")
+dumpfn(SYMM_DATA, "../src/pymatgen/symmetry/symm_data.json")
+dumpfn(SYMM_OPS, "../src/pymatgen/symmetry/symm_ops.json")
