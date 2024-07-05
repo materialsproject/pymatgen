@@ -9,8 +9,9 @@ symm_data.json
 
 from __future__ import annotations
 
-from monty.serialization import dumpfn, loadfn
+import sys
 
+from monty.serialization import dumpfn, loadfn
 from pymatgen.symmetry.groups import PointGroup
 
 __author__ = "Katharina Ueltzen @kaueltzen"
@@ -87,7 +88,7 @@ for spg_idx, spg in enumerate(SYMM_OPS):
         pg = PointGroup.from_space_group(spg["short_h_m"])
     except AssertionError as e:
         print(spg, str(e))
-        exit(1)
+        sys.exit(1)
     SYMM_OPS[spg_idx]["point_group"] = pg.symbol
 
 dumpfn(SYMM_DATA, "../pymatgen/symmetry/symm_data.json")
