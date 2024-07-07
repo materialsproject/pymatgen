@@ -1366,6 +1366,7 @@ class MPHSERelaxSet(VaspInputSet):
             if vdw_param := hse_vdw_par.get(self.vdw):
                 self._config_dict["INCAR"].update(vdw_param)
 
+
 @dataclass
 class MPStaticSet(VaspInputSet):
     """Create input files for a static calculation.
