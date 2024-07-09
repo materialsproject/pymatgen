@@ -45,6 +45,7 @@ import numpy as np
 from monty.dev import deprecated
 from monty.json import MSONable
 from monty.serialization import loadfn
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Element, PeriodicSite, SiteCollection, Species, Structure
 from pymatgen.io.core import InputGenerator
@@ -58,8 +59,9 @@ from pymatgen.util.typing import Kpoint
 if TYPE_CHECKING:
     from typing import Callable, Literal, Union
 
-    from pymatgen.util.typing import PathLike, Tuple3Ints, Vector3D
     from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike, Tuple3Ints, Vector3D
 
     UserPotcarFunctional = Union[
         Literal["PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"], None
@@ -69,7 +71,10 @@ MODULE_DIR = os.path.dirname(__file__)
 
 
 def _load_yaml_config(fname):
-    config = loadfn(f"{MODULE_DIR}/{fname}.yaml")
+    fname = f"{MODULE_DIR}/{fname}"
+    if not fname.endswith(".yaml"):
+        fname += ".yaml"
+    config = loadfn(fname)
     if "PARENT" in config:
         parent_config = _load_yaml_config(config["PARENT"])
         for k, v in parent_config.items():
@@ -587,7 +592,11 @@ class VaspInputSet(InputGenerator, abc.ABC):
             elif key == "KSPACING" and self.auto_kspacing:
                 # Default to metal if no prev calc available
                 bandgap = 0 if self.bandgap is None else self.bandgap
-                incar[key] = auto_kspacing(bandgap, self.bandgap_tol)
+                if new_kspacing := getattr(self, "kspacing_update", None):
+                    # allow custom KSPACING update
+                    incar[key] = new_kspacing
+                else:
+                    incar[key] = auto_kspacing(bandgap, self.bandgap_tol)
 
             else:
                 incar[key] = setting
@@ -1247,7 +1256,7 @@ class MPRelaxSet(VaspInputSet):
 
 @due.dcite(
     Doi("10.1021/acs.jpclett.0c02405"),
-    description="AccurAccurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation",
+    description="Accurate and Numerically Efficient r2SCAN Meta-Generalized Gradient Approximation",
 )
 @due.dcite(
     Doi("10.1103/PhysRevLett.115.036402"),
@@ -1323,6 +1332,104 @@ class MPScanRelaxSet(VaspInputSet):
             vdw_par = loadfn(f"{MODULE_DIR}/vdW_parameters.yaml")
             for k in vdw_par[self.vdw]:
                 self._config_dict["INCAR"].pop(k, None)
+
+
+@dataclass
+class MP24RelaxSet(VaspInputSet):
+    """
+    Materials Project relax set after a 2023-2024 benchmarking effort.
+
+    By default, this uses r2SCAN as the xc functional.
+    """
+
+    xc_functional: Literal["R2SCAN", "PBE", "PBESOL"] = "R2SCAN"
+    dispersion: Literal["rVV10", "D4"] | None = None
+    CONFIG = _load_yaml_config("MP24RelaxSet")
+    auto_ismear: bool = True
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        to_func = {
+            "R2SCAN": "R2SCAN",
+            "PBE": "PE",
+            "PBESOL": "PS",
+        }
+
+        xc_func = self.xc_functional.upper()
+        config_updates = {}
+        if xc_func == "R2SCAN":
+            config_updates = {"METAGGA": to_func[xc_func], "GGA": None}
+        elif xc_func in ["PBE", "PBESOL"]:
+            config_updates = {"METAGGA": None, "GGA": to_func[xc_func]}
+        else:
+            raise ValueError(f"Unknown XC functional {self.xc_functional}!")
+
+        if self.dispersion == "rVV10":
+            if xc_func == "R2SCAN":
+                config_updates = {"BPARAM": 11.95, "CPARAM": 0.0093}
+            else:
+                raise ValueError("Use of rVV10 with functionals other than r2 / SCAN is not currently supported.")
+
+        elif self.dispersion == "D4":
+            d4_pars = {
+                "R2SCAN": {
+                    "S6": 1.0,
+                    "S8": 0.60187490,
+                    "A1": 0.51559235,
+                    "A2": 5.77342911,
+                },
+                "PBE": {
+                    "S6": 1.0,
+                    "S8": 0.95948085,
+                    "A1": 0.38574991,
+                    "A2": 4.80688534,
+                },
+                "PBESOL": {
+                    "S6": 1.0,
+                    "S8": 1.71885698,
+                    "A1": 0.47901421,
+                    "A2": 5.96771589,
+                },
+            }
+            config_updates = {f"VDW_{k}": v for k, v in d4_pars[xc_func].items()}
+
+        if len(config_updates) > 0:
+            self._config_dict["INCAR"].update(config_updates)
+
+    @staticmethod
+    def _sigmoid_interp(
+        bg, min_dk: float = 0.22, max_dk: float = 0.5, shape: float = 0.43, center: float = 4.15, fac: float = 12.0
+    ):
+        delta = shape * (bg - center)
+        sigmoid = delta / (1.0 + delta**fac) ** (1.0 / fac)
+        return 0.5 * (min_dk + max_dk + (max_dk - min_dk) * sigmoid)
+
+    def _multi_sigmoid_interp(
+        self,
+        bandgap: float,
+        dks: tuple[float, ...] = (0.22, 0.44, 0.5),
+        shape: tuple[float, ...] = (1.1, 2.5),
+        center: tuple[float, ...] = (2.35, 6.1),
+        fac: tuple[float, ...] = (8, 8),
+        bg_cut: tuple[float, ...] = (4.5,),
+    ):
+        for icut, cutpt in enumerate(bg_cut):
+            min_bd = self.bandgap_tol if (icut == 0) else cutpt
+            if min_bd <= bandgap < cutpt:
+                return self._sigmoid_interp(
+                    bandgap,
+                    min_dk=dks[icut],
+                    max_dk=dks[icut + 1],
+                    shape=shape[icut],
+                    center=center[icut],
+                    fac=fac[icut],
+                )
+        return None
+
+    @property
+    def kspacing_update(self):
+        return self._multi_sigmoid_interp(self.bandgap)
 
 
 @dataclass
@@ -1518,10 +1625,51 @@ class MPScanStaticSet(MPScanRelaxSet):
     def incar_updates(self) -> dict[str, Any]:
         """Updates to the INCAR config for this calculation type."""
         updates: dict[str, Any] = {
+            "ALGO": "Fast",
             "LREAL": False,
             "NSW": 0,
             "LORBIT": 11,
             "LVHAR": True,
+            "ISMEAR": -5,
+        }
+
+        if self.lepsilon:
+            # LPEAD=T: numerical evaluation of overlap integral prevents
+            # LRF_COMMUTATOR errors and can lead to better expt. agreement
+            # but produces slightly different results
+            updates |= {"IBRION": 8, "LEPSILON": True, "LPEAD": True, "NSW": 1, "NPAR": None}
+
+        if self.lcalcpol:
+            updates["LCALCPOL"] = True
+
+        return updates
+
+
+@dataclass
+class MP24StaticSet(MP24RelaxSet):
+    """Create input files for a static calculation using MP24 parameters
+
+    Args:
+        structure (Structure): Structure from previous run.
+        bandgap (float): Bandgap of the structure in eV. The bandgap is used to
+            compute the appropriate k-point density and determine the smearing settings.
+        lepsilon (bool): Whether to add static dielectric calculation
+        lcalcpol (bool): Whether to turn on evaluation of the Berry phase approximations
+            for electronic polarization.
+        **kwargs: Keywords supported by MP24RelaxSet.
+    """
+
+    lepsilon: bool = False
+    lcalcpol: bool = False
+    inherit_incar: bool = True
+    auto_kspacing: bool = True
+
+    @property
+    def incar_updates(self) -> dict[str, Any]:
+        """Updates to the INCAR config for this calculation type."""
+        updates: dict[str, Any] = {
+            "NSW": 0,
+            "LORBIT": 11,
             "ISMEAR": -5,
         }
 
