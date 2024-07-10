@@ -26,6 +26,7 @@ from pymatgen.io.cp2k.inputs import Keyword
 from pymatgen.io.cp2k.sets import Cp2kInput
 from pymatgen.io.cp2k.utils import natural_keys, postprocessor
 from pymatgen.io.xyz import XYZ
+from pymatgen.io.common import VolumetricData
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
@@ -328,7 +329,7 @@ class Cp2kOutput:
         with zopen(self.filename, mode="rt") as file:
             while True:
                 line = file.readline()
-                if re.search(r"Atom\s+Kind\s+Element\s+X\s+Y\s+Z\s+Z\(eff\)\s+Mass", line):
+                if re.search(r"\s*Atom\s+Kind\s+Element\s+X\s+Y\s+Z\s+Z\(eff\)\s+Mass", line) or re.search(r"Atom\s+Kind\s+Element\s+X\s+Y\s+Z\s+Z\(eff\)\s+Mass", line):
                     for _ in range(self.data["num_atoms"][0][0]):
                         line = file.readline().split()
                         if line == []:
@@ -1593,6 +1594,67 @@ class Cp2kOutput:
         if attribute_name is not None:
             self.data[attribute_name] = retained_data
         return retained_data
+    def parse_cube(self, cube_filename=None):
+        """Parse a cube file .
+        Args:
+            cube_filename: Filename containing cube file info. If name is not given, 
+            then the "*hartree*.cube*" will be taken as the default 
+        """
+        if not cube_filename:
+            if self.filenames["v_hartree"]:
+                cube_filename = self.filenames["v_hartree"][0]
+            else:
+                return
+        else:
+            cube_filename=os.path.join(self.dir,cube_filename)      
+        #print(cube_filename)
+        with open(cube_filename, 'r') as file:
+            lines = file.readlines()
+
+        origin = list(map(float, lines[2].split()[1:4])) 
+        num_atoms = int(lines[2].split()[0])  
+
+        grid_points = []
+        grid_vectors = []
+        for i in range(3):
+            line = lines[3 + i].split()
+            grid_points.append(int(line[0]))
+
+        grid_points = np.array(grid_points)
+        dim = tuple(grid_points)  # Dimensions for VolumetricData
+        data_start = 6 + num_atoms
+
+        # Read volumetric data
+        data = []
+        for line in lines[data_start:]:
+            data.extend(map(float, line.split()))
+        data_array = np.array(data).reshape(grid_points[::-1], order='F') # vasp style  
+        volumetric_data = {'total': data_array.transpose((2, 1, 0))}
+        #self.parse_structures()
+        chosen_structure = self.final_structure if self.final_structure else self.initial_structure
+
+        patterns = {
+            "electron_density": r".*ELECTRON_DENSITY.*\.cube.*",
+            "spin_density": r".*SPIN_DENSITY.*\.cube.*",
+            "v_hartree": r".*hartree.*\.cube.*"
+        }
+
+        # Initialize a variable to hold the type of the cube file
+        cube_type = None
+
+        # Check the filename against each pattern
+        for key, pattern in patterns.items():
+            if re.match(pattern, cube_filename, re.IGNORECASE):
+                cube_type = key
+                break
+        pmg_cube=VolumetricData(
+            structure=chosen_structure,
+            data=volumetric_data,
+            distance_matrix=None,
+            data_aug=None)
+
+        self.data[cube_type]=pmg_cube 
+        return pmg_cube
 
     def as_dict(self):
         """Return dictionary representation of the output."""
