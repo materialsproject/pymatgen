@@ -148,8 +148,10 @@ class AimsGeometryIn(MSONable):
         charges = structure.site_properties.get("charge", np.zeros(structure.num_sites))
         magmoms = structure.site_properties.get("magmom", [None] * structure.num_sites)
         velocities = structure.site_properties.get("velocity", [None for _ in structure.species])
-        
-        for species, coord, charge, magmom, v in zip(structure.species, structure.cart_coords, charges, magmoms, velocities):
+
+        for species, coord, charge, magmom, v in zip(
+            structure.species, structure.cart_coords, charges, magmoms, velocities
+        ):
             if isinstance(species, Element):
                 spin = magmom
                 element = species
