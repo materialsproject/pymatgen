@@ -702,24 +702,34 @@ class AimsSpeciesFile:
                 if "species" in line:
                     self.label = line.split()[1]
 
-    def __eq__(self, sepcies_2: AimsSpeciesFile) -> bool:
+    def __eq__(self, sepcies_2: object) -> bool:
         """Returns if two speceies are equal"""
+        if not isinstance(sepcies_2, AimsSpeciesFile):
+            return NotImplemented
         return self.data == sepcies_2.data
 
-    def __lt__(self, sepcies_2: AimsSpeciesFile) -> bool:
+    def __lt__(self, sepcies_2: object) -> bool:
         """Returns if two speceies are equal"""
+        if not isinstance(sepcies_2, AimsSpeciesFile):
+            return NotImplemented
         return self.data < sepcies_2.data
 
-    def __le__(self, sepcies_2: AimsSpeciesFile) -> bool:
+    def __le__(self, sepcies_2: object) -> bool:
         """Returns if two speceies are equal"""
+        if not isinstance(sepcies_2, AimsSpeciesFile):
+            return NotImplemented
         return self.data <= sepcies_2.data
 
-    def __gt__(self, sepcies_2: AimsSpeciesFile) -> bool:
+    def __gt__(self, sepcies_2: object) -> bool:
         """Returns if two speceies are equal"""
+        if not isinstance(sepcies_2, AimsSpeciesFile):
+            return NotImplemented
         return self.data > sepcies_2.data
 
-    def __ge__(self, sepcies_2: AimsSpeciesFile) -> bool:
+    def __ge__(self, sepcies_2: object) -> bool:
         """Returns if two speceies are equal"""
+        if not isinstance(sepcies_2, AimsSpeciesFile):
+            return NotImplemented
         return self.data >= sepcies_2.data
 
     @classmethod
