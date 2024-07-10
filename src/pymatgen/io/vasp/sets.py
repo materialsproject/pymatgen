@@ -1355,7 +1355,7 @@ class MP24RelaxSet(VaspInputSet):
         }
 
         xc_func = self.xc_functional.upper()
-        config_updates = {}
+        config_updates : dict[str,Any] = {}
         if xc_func == "R2SCAN":
             config_updates = {"METAGGA": to_func[xc_func], "GGA": None}
         elif xc_func in ["PBE", "PBESOL"]:
