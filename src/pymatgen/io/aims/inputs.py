@@ -61,7 +61,7 @@ class AimsGeometryIn(MSONable):
         ]
 
         species, coords, is_frac, lattice_vectors = [], [], [], []
-        charges_dct, moments_dct = {}, {}
+        charges_dct, moments_dct, velocities_dct = {}, {}, {}
 
         for line in content_lines:
             inp = line.split()
@@ -75,6 +75,8 @@ class AimsGeometryIn(MSONable):
                 moments_dct[len(coords) - 1] = float(inp[1])
             if inp[0] == "initial_charge":
                 charges_dct[len(coords) - 1] = float(inp[1])
+            if inp[0] == "velocity":
+                velocities_dct[len(coords) - 1] = [float(x) for x in inp[1:]]
 
         charge = np.zeros(len(coords))
         for key, val in charges_dct.items():
@@ -83,6 +85,10 @@ class AimsGeometryIn(MSONable):
         magmom = np.zeros(len(coords))
         for key, val in moments_dct.items():
             magmom[key] = val
+
+        velocity: list[None | list[float]] = [None for _ in coords]
+        for key, v in velocities_dct.items():
+            velocity[key] = v
 
         if len(lattice_vectors) == 3:
             lattice = Lattice(lattice_vectors)
@@ -97,6 +103,9 @@ class AimsGeometryIn(MSONable):
             raise ValueError("Incorrect number of lattice vectors passed.")
 
         site_props = {"magmom": magmom, "charge": charge}
+        if velocities_dct:
+            site_props["velocity"] = velocity
+
         if lattice is None:
             structure = Molecule(species, coords, np.sum(charge), site_properties=site_props)
         else:
@@ -138,9 +147,7 @@ class AimsGeometryIn(MSONable):
 
         charges = structure.site_properties.get("charge", np.zeros(structure.num_sites))
         magmoms = structure.site_properties.get("magmom", [None] * structure.num_sites)
-
-        print("\n\ncharges", charges)
-        print("\n\nmagmoms", magmoms)
+        velocities = structure.site_properties.get("velocity", [None for _ in structure.species])
         for species, coord, charge, magmom in zip(structure.species, structure.cart_coords, charges, magmoms):
             if isinstance(species, Element):
                 spin = magmom
@@ -154,9 +161,10 @@ class AimsGeometryIn(MSONable):
             content_lines.append(f"atom {coord[0]: .12e} {coord[1]: .12e} {coord[2]: .12e} {element}")
             if charge != 0:
                 content_lines.append(f"     initial_charge {charge:.12e}")
-
             if (spin is not None) and (spin != 0):
                 content_lines.append(f"     initial_moment {spin:.12e}")
+            if v is not None and any(v_i != 0.0 for v_i in v):
+                content_lines.append(f"     velocity   {'  '.join([f'{v_i:.12e}' for v_i in v])}")
 
         return cls(_content="\n".join(content_lines), _structure=structure)
 
