@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
 from warnings import warn
+
 import numpy as np
 from pymatgen.core import Lattice, Molecule, Structure
 from pymatgen.core.tensors import Tensor
@@ -507,7 +508,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         for prop, site_key in site_prop_keys.items():
             if prop in results:
                 site_properties[site_key] = results[prop]
-        
+
         if "magmom" in site_properties:
             if np.abs(np.sum(site_properties["magmom"]) - properties["magmom"]) < 1e-3:
                 warn("Total magenetic moment and sum of Mulliken spins is not consistent", Warning, 1)
@@ -521,7 +522,7 @@ class AimsOutCalcChunk(AimsOutChunk):
                 properties=properties,
                 coords_are_cartesian=True,
             )
-        
+
         return Molecule(
             species,
             coords,

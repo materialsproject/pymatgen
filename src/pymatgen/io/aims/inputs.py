@@ -147,7 +147,7 @@ class AimsGeometryIn(MSONable):
 
         charges = structure.site_properties.get("charge", np.zeros(structure.num_sites))
         magmoms = structure.site_properties.get("magmom", [None] * structure.num_sites)
-        velocities = structure.site_properties.get("velocity", [None for _ in structure.species])
+        structure.site_properties.get("velocity", [None for _ in structure.species])
         for species, coord, charge, magmom in zip(structure.species, structure.cart_coords, charges, magmoms):
             if isinstance(species, Element):
                 spin = magmom
@@ -639,11 +639,8 @@ class AimsControlIn(MSONable):
             file.write(content)
 
     def get_species_block(
-            self, 
-            structure: Structure | Molecule, 
-            basis_set: str | dict[str, str], 
-            species_dir: str | Path | None=None
-        ) -> str:
+        self, structure: Structure | Molecule, basis_set: str | dict[str, str], species_dir: str | Path | None = None
+    ) -> str:
         """Get the basis set information for a structure
 
         Args:
@@ -705,19 +702,19 @@ class AimsSpeciesFile:
     def __eq__(self, sepcies_2: AimsSpeciesFile) -> bool:
         """Returns if two speceies are equal"""
         return self.data == sepcies_2.data
-    
+
     def __lt__(self, sepcies_2: AimsSpeciesFile) -> bool:
         """Returns if two speceies are equal"""
         return self.data < sepcies_2.data
-    
+
     def __le__(self, sepcies_2: AimsSpeciesFile) -> bool:
         """Returns if two speceies are equal"""
         return self.data <= sepcies_2.data
-    
+
     def __gt__(self, sepcies_2: AimsSpeciesFile) -> bool:
         """Returns if two speceies are equal"""
         return self.data > sepcies_2.data
-    
+
     def __ge__(self, sepcies_2: AimsSpeciesFile) -> bool:
         """Returns if two speceies are equal"""
         return self.data >= sepcies_2.data
@@ -738,11 +735,7 @@ class AimsSpeciesFile:
 
     @classmethod
     def from_element_and_basis_name(
-        cls, 
-        element: str, 
-        basis: str, *, 
-        species_dir : str | Path | None=None, 
-        label: str | None = None
+        cls, element: str, basis: str, *, species_dir: str | Path | None = None, label: str | None = None
     ) -> AimsSpeciesFile:
         """Initialize from element and basis names.
 
@@ -765,10 +758,7 @@ class AimsSpeciesFile:
         else:
             species_file_name = "00_Emptium_default"
 
-        if species_dir is None:
-            aims_species_dir = SETTINGS.get("AIMS_SPECIES_DIR")
-        else:
-            aims_species_dir = species_dir
+        aims_species_dir = SETTINGS.get("AIMS_SPECIES_DIR") if species_dir is None else species_dir
 
         if aims_species_dir is None:
             raise ValueError(
@@ -820,7 +810,7 @@ class SpeciesDefaults(list, MSONable):
         labels: Sequence[str],
         basis_set: str | dict[str, str],
         *,
-        species_dir: str | Path | None=None,
+        species_dir: str | Path | None = None,
         elements: dict[str, str] | None = None,
     ) -> None:
         """
@@ -858,7 +848,9 @@ class SpeciesDefaults(list, MSONable):
                     raise ValueError(f"Basis set not found for specie {label} (represented by element {el})")
             else:
                 basis_set = self.basis_set
-            self.append(AimsSpeciesFile.from_element_and_basis_name(el, basis_set, species_dir=self.species_dir, label=label))
+            self.append(
+                AimsSpeciesFile.from_element_and_basis_name(el, basis_set, species_dir=self.species_dir, label=label)
+            )
 
     def __str__(self):
         """String representation of the species' defaults"""
@@ -867,10 +859,7 @@ class SpeciesDefaults(list, MSONable):
 
     @classmethod
     def from_structure(
-        cls, 
-        struct: Structure | Molecule, 
-        basis_set: str | dict[str, str],
-        species_dir: str | Path | None = None
+        cls, struct: Structure | Molecule, basis_set: str | dict[str, str], species_dir: str | Path | None = None
     ):
         """Initialize species defaults from a structure."""
         labels = []
