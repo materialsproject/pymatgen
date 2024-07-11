@@ -867,7 +867,7 @@ class SpeciesDefaults(list, MSONable):
 
     def __str__(self):
         """String representation of the species' defaults"""
-        return "".join([str(x) for x in np.unique(self)])
+        return "".join([str(x) for x in self])
 
     @classmethod
     def from_structure(
@@ -883,7 +883,7 @@ class SpeciesDefaults(list, MSONable):
                 raise ValueError("Something is terribly wrong with the structure")
             if label not in labels:
                 labels.append(label)
-                elements[label] = el.symbol
+                elements[label] = el.name
         return SpeciesDefaults(labels, basis_set, species_dir=species_dir, elements=elements)
 
     def to_dict(self):
