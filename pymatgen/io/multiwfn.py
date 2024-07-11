@@ -8,7 +8,8 @@ outputs from Multiwfn. Additional features may be added over time as needed/desi
 import copy
 import json
 import os
-from typing import Any, Dict, List
+from pathlib import Path
+from typing import Any, Dict, List, Tuple, Union
 
 import numpy as np
 
@@ -19,6 +20,40 @@ __version__ = "0.1"
 __maintainer__ = "Evan Spotte-Smith"
 __email__ = "santiagovargas921@gmail.com, espottesmith@gmail.com"
 __date__ = "July 10, 2024"
+
+
+# TODO: probably don't need this at all; confirm
+def dft_inp_to_dict(dft_inp_file):
+    """
+    helper function to parse dft input file.
+    Takes
+        dft_inp_file (str): path to dft input file
+    returns: dictionary of atom positions
+    """
+    atom_dict = {}
+
+    with open(dft_inp_file) as f:
+        lines = f.readlines()
+        # strip tabs
+        lines = [line[:-1] for line in lines]
+
+    # find line starting with "* xyz"
+    for ind, line in enumerate(lines):
+        if "* xyz" in line:
+            xyz_ind = ind
+            break
+
+    # filter lines before and including xyz_ind
+    lines = lines[xyz_ind + 1 : -1]
+
+    for ind, line in enumerate(lines):
+        line_split = line.split()
+        atom_dict[ind] = {
+            "element": line_split[0],
+            "pos": [float(x) for x in line_split[1:]],
+        }
+
+    return atom_dict
 
 
 def extract_info_from_cp_text(lines_split: List[str], cp_type: str, conditionals: Dict[str, List[str]]) -> Dict[str, Any]:
@@ -246,170 +281,177 @@ def parse_cp(lines: List[str]) -> Dict[str, Any]:
     return extract_info_from_cp_text(lines_split, cp_type, conditionals[cp_type])
 
 
-def get_qtaim_descs(file, verbose=False):
+def get_qtaim_descs(file: Union[str, Path]) -> Dict[str, Dict[str, Any]]:
     """
-    helper function to parse CPprop file from multiwfn.
-    Takes
+    Parse CPprop file from multiwfn by parsing each individual critical-point section.
+
+    Args:
         file (str): path to CPprop file
-        verbose(bool): prints dictionary of descriptors
-    returns: dictionary of descriptors
+    
+    Returns:
+        ret_dict (Dict[str, Dict[str, Any]]): Output dictionary of QTAIM descriptors
+
     """
-    cp_dict, ret_dict = {}, {}
+
+    cp_sections = list()
+    ret_dict = dict()
 
     with open(file) as f:
         lines = f.readlines()
         lines = [line[:-1] for line in lines]
 
     # section lines into segments on ----------------
-    track = 0
     for ind, line in enumerate(lines):
         if "----------------" in line:
-            lines_segment = []
+            lines_segment = list()
         lines_segment.append(line)
         if ind < len(lines) - 1:
             if "----------------" in lines[ind + 1]:
-                cp_dict[track] = lines_segment
-                track += 1
+                cp_sections.append(lines_segment)
         else:
-            cp_dict[track] = lines_segment
+            cp_sections.append(lines_segment)
 
-    for k, v in cp_dict.items():
-        ind_atom, cp_dict = parse_cp(v, verbose=verbose)
-        ret_dict[ind_atom] = cp_dict
+    for section in cp_sections:
+        cp_name, cp_dict = parse_cp(section)
+        ret_dict[cp_name] = cp_dict
 
-    # remove keys-value pairs that are "ring"
-    ret_dict = {k: v for k, v in ret_dict.items() if "ring" not in k}
     return ret_dict
 
 
-
-# TODO: probably don't need this at all; confirm
-def dft_inp_to_dict(dft_inp_file):
+def separate_cps_by_type(qtaim_descs: Dict[str, Dict[str, Any]]) -> Dict[str, Dict[str, Dict[str, Any]]]:
     """
-    helper function to parse dft input file.
-    Takes
-        dft_inp_file (str): path to dft input file
-    returns: dictionary of atom positions
-    """
-    atom_dict = {}
+    Separates QTAIM descriptors by type
 
-    with open(dft_inp_file) as f:
-        lines = f.readlines()
-        # strip tabs
-        lines = [line[:-1] for line in lines]
+    Args:
+        qtaim_descs (Dict[str, Dict[str, Any]]): Dictionary where keys are CP names and values are dictionaries of
+            descriptors obtained from `get_qtaim_descs` and `parse_cp`
 
-    # find line starting with "* xyz"
-    for ind, line in enumerate(lines):
-        if "* xyz" in line:
-            xyz_ind = ind
-            break
-
-    # filter lines before and including xyz_ind
-    lines = lines[xyz_ind + 1 : -1]
-
-    for ind, line in enumerate(lines):
-        line_split = line.split()
-        atom_dict[ind] = {
-            "element": line_split[0],
-            "pos": [float(x) for x in line_split[1:]],
-        }
-
-    return atom_dict
-
-
-def only_atom_cps(qtaim_descs):
-    """
-    separates qtaim descriptors into atom and bond descriptors
-    """
-    ret_dict = {}
-    ret_dict_bonds = {}
-    for k, v in qtaim_descs.items():
-        if "bond" not in k and "Unknown" not in k:
-            ret_dict[k] = v
-        if "bond" in k:
-            ret_dict_bonds[k] = v
-    return ret_dict, ret_dict_bonds
-
-
-def find_cp(atom_dict, atom_cp_dict, margin=0.5):
-    """
-    From a dictionary of atom ind, position, and element, find the corresponding cp in the atom_cp_dict
-    Takes:
-        atom_dict: dict
-            dictionary of atom ind, position, and element
-        atom_cp_dict: dict
-            dictionary of cp ind, position, and element
     Returns:
-        cp_key: str
-            key of cp_dict
-        cp_dict: dict
-            dictionary of cp values matching atom
+        organized_descs (Dict[str, Dict[str, Dict[str, Any]]]): Dictionary of organized QTAIM critical points and their
+            descriptors. Keys are "atom", "bond", "ring", and "cage", and values are dicts 
+            {<CP name>: <QTAIM descriptors>}
     """
 
-    for k, v in atom_cp_dict.items():
+    organized_descs = {
+        "atom": dict(),
+        "bond": dict(),
+        "ring": dict(),
+        "cage": dict()
+    }
+    
+    for k, v in qtaim_descs.items():
+        if "bond" in k:
+            organized_descs["bond"][k] = v
+        elif "ring" in k:
+            organized_descs["ring"][k] = v
+        elif "cage" in k:
+            organized_descs["cage"][k] = v
+        elif "Unknown" not in k:
+            organized_descs["atom"][k] = v
+        
+    return organized_descs
+
+
+def match_atom_cp(
+    atom_dict: Dict[str, Any],
+    atom_cp_dict: Dict[str, Dict[str, Any]],
+    margin: float = 0.5
+) -> Tuple[Union[str, None], Dict]:
+    """
+    From a dictionary of atomic position and element symbol, find the corresponding cp in the atom_cp_dict
+    
+    Args:
+        atom_dict (Dict[str, Any]): Dictionary containing the atom's element symbol and position in Cartesian space
+        atom_cp_dict (Dict[str, Dict[str, Any]]): Dictionary where keys are critical point names and values are 
+            descriptors, including element symbol and position
+        margin (float): Maximum distance (in Angstrom) that a critical point can be away from an atom center
+            and be associated with that atom. Default is 0.5 Angstrom
+
+    Returns:
+        cp_name (str | None): Key of atom_cp_dict; the name of the atom critical point corresponding to this atom. If no match
+            is found, this will be None
+        cp_dict (Dict): Dictionary of CP descriptors matching this atom
+    """
+
+    for cp_name, cp_dict in atom_cp_dict.items():
         if (
-            int(k.split("_")[0]) == atom_dict["ind"] + 1
-            and v["element"] == atom_dict["element"]
+            int(cp_name.split("_")[0]) == atom_dict["ind"] + 1
+            and cp_dict["element"] == atom_dict["element"]
         ):
-            return k, v
+            return cp_name, cp_dict
 
         else:
-            element_cond = v["element"] == atom_dict["element"]
-            # print(v["element"], atom_dict["element"])
-            if element_cond:
+            if cp_dict["element"] == atom_dict["element"]:
                 distance = np.linalg.norm(
-                    np.array(v["pos_ang"]) - np.array(atom_dict["pos"])
+                    np.array(cp_dict["pos_ang"]) - np.array(atom_dict["pos"])
                 )
-                dist_cond = distance < margin
-                if dist_cond:
-                    return k, v
 
-    return False, {}
+                if distance < margin:
+                    return cp_name, cp_dict
+
+    # No match
+    return None, dict()
 
 
-def find_cp_map(dft_dict, atom_cp_dict, margin=0.5):
+def map_atoms_cps(
+    atoms: List[Dict[str, Any]],
+    atom_cp_dict: Dict[str, Dict[str, Any]],
+    margin: float = 0.5
+) -> Tuple[
+    Dict[int, Dict[str, Any]],
+    Dict[int, Dict[str, Any]],
+    List[int],
+]:
     """
     Iterate through dft dict corresponding cp in atom_cp_dict
+
     Takes:
-        dft_dict: dict
-            dictionary of dft atoms
-        atom_cp_dict: dict
-            dictionary of qtaim atom cps
+        atoms (List[Dict[str, Any]]): List of dictionaries containing the atom's element symbols and positions in
+            Cartesian space
+        atom_cp_dict (Dict[str, Dict[str, Any]]): Dictionary where keys are critical point names and values are 
+            descriptors, including element symbol and position
+        margin (float): Maximum distance (in Angstrom) that a critical point can be away from an atom center
+            and be associated with that atom. Default is 0.5 Angstrom
     Returns:
-        ret_dict (dict): dictionary with dft atoms as keys and cp_dict as values
-        qtaim_to_dft (dict): dictionary with qtaim atoms as keys and dft atoms as values
-        missing_atoms (list): list of dft atoms that do not have a cp found in qtaim
+        index_to_cp_desc (Dict[int, Dict[str, Any]]): Dictionary mapping atomic indices to atom critical point descriptors
+        index_to_cp_key (Dict[int, Dict[str, Any]]): dictionary with qtaim atoms as keys and dft atoms as values
+        missing_atoms (List[int]): list of dft atoms that do not have a cp found in qtaim
     """
-    ret_dict, qtaim_to_dft = {}, {}
-    missing_atoms = []
-    for k, v in dft_dict.items():
-        v_send = {"element": v["element"], "pos": v["pos"], "ind": k}
 
-        # if k.split("_")[0].isdigit():
+    index_to_cp_desc, index_to_cp_key = dict(), dict()
+    missing_atoms = list()
+    
+    for atom_info in atoms:
         # finds cp by distance and naming scheme from CPprop.txt
-        ret_key, dict_ret = find_cp(
-            v_send, atom_cp_dict, margin=margin
-        )  # find_cp returns cp_key, cp_dict
-        if ret_key != False:
-            ret_dict[k] = dict_ret
-            qtaim_to_dft[k] = {"key": ret_key, "pos": dict_ret["pos_ang"]}
-
+        cp_name, this_atom_cp = find_cp(
+            atom_info, atom_cp_dict, margin=margin
+        )
+        
+        # If this is False, that means no match was found
+        if cp_name:
+            index_to_cp_desc[atom_info["ind"]] = this_atom_cp
+            index_to_cp_key[atom_info["ind"]] = {"key": cp_name, "pos": this_atom_cp["pos_ang"]}
         else:
-            # print("CP no match found in dft")
-            ret_dict[k] = {}
-            qtaim_to_dft[k] = {"key": -1, "pos": []}
-            missing_atoms.append(k)
+            index_to_cp_desc[atom_info["ind"]] = dict()
+            index_to_cp_key[atom_info["ind"]] = {"key": None, "pos": list()}
+            missing_atoms.append(atom_info["ind"])
 
-    return ret_dict, qtaim_to_dft, missing_atoms
+    return index_to_cp_desc, index_to_cp_key, missing_atoms
 
 
-def find_bond_cp(i, bonds_cps):
+def match_bond_cp(
+    atom_one: int,
+    atom_two: int,
+    bonds_cps: Dict[str, Dict[str, Any]]
+):
     """
+    From two atom indices, find the corresponding bond cp (if possible)
+
     Takes:
-        i: list
-            list of two atom indices
-        bonds_cps: dict
-            dictionary of bond cps
+        atom_one (int): First atom index
+        atom_two (int): Second atom index
+        bonds_cps: (Dict[str, Dict[str, Any]]): Dictionary where keys are critical point names and values are 
+            descriptors
     Returns:
         dict_cp_bond: dict
             dictionary of cp values for bond
@@ -421,6 +463,7 @@ def find_bond_cp(i, bonds_cps):
     return False
 
 
+# TODO: do something similar for rings and cages
 def add_closest_atoms_to_bond(bond_cps, dft_dict, margin=1.0):
     """
     Takes in bonds cps and adds the index of the closest atoms to the bond
