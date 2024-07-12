@@ -8,6 +8,7 @@ outputs from Multiwfn. Additional features may be added over time as needed/desi
 import copy
 import json
 import os
+import warnings
 from pathlib import Path
 from typing import Any, Dict, List, Tuple, Union
 
@@ -56,7 +57,11 @@ def dft_inp_to_dict(dft_inp_file):
     return atom_dict
 
 
-def extract_info_from_cp_text(lines_split: List[str], cp_type: str, conditionals: Dict[str, List[str]]) -> Dict[str, Any]:
+def extract_info_from_cp_text(
+    lines_split: List[str],
+    cp_type: str,
+    conditionals: Dict[str, List[str]]
+) -> Tuple[str, Dict[str, Any]]:
     """
     Extract specific information from a Multiwfn QTAIM output.
 
@@ -109,10 +114,7 @@ def extract_info_from_cp_text(lines_split: List[str], cp_type: str, conditionals
                         list_raw = [
                             x for x in list_raw if any(char.isdigit() for char in x)
                         ]
-                        #print("list raw connected: ", list_raw)
-                        # list_raw = [list_raw[0], list_raw[-2]]
                         list_raw = [int(x.split("(")[0]) for x in list_raw]
-                        #print("list raw connected: ", list_raw)
                         cp_dict[k] = list_raw
 
                 elif k == "pos_ang":
@@ -128,7 +130,6 @@ def extract_info_from_cp_text(lines_split: List[str], cp_type: str, conditionals
                     cp_dict[k] = float(lines_split[ind + 2][-1])
 
                 else:
-                    # print(i)
                     cp_dict[k] = float(i[-1])
 
                 this_conditionals.pop(k)
@@ -137,7 +138,7 @@ def extract_info_from_cp_text(lines_split: List[str], cp_type: str, conditionals
     return cp_name, cp_dict
 
 
-def parse_cp(lines: List[str]) -> Dict[str, Any]:
+def parse_cp(lines: List[str]) -> Tuple[str, Dict[str, Any]]:
     """
     Parse information from a single QTAIM critical point.
 
@@ -169,6 +170,7 @@ def parse_cp(lines: List[str]) -> Dict[str, Any]:
         "cp_num": ["----------------"],
         "ele_info": ["Corresponding", "nucleus:"],
         "pos_ang": ["Position", "(Angstrom):"],
+        "density_total": ["Density", "of", "all", "electrons:"],
         "density_alpha": ["Density", "of", "Alpha", "electrons:"],
         "density_beta": ["Density", "of", "Beta", "electrons:"],
         "spin_density": ["Spin", "density", "of", "electrons:"],
@@ -196,6 +198,7 @@ def parse_cp(lines: List[str]) -> Dict[str, Any]:
         "cp_num": ["----------------"],
         "connected_bond_paths": ["Connected", "atoms:"],
         "pos_ang": ["Position", "(Angstrom):"],
+        "density_total": ["Density", "of", "all", "electrons:"],
         "density_alpha": ["Density", "of", "Alpha", "electrons:"],
         "density_beta": ["Density", "of", "Beta", "electrons:"],
         "spin_density": ["Spin", "density", "of", "electrons:"],
@@ -222,6 +225,7 @@ def parse_cp(lines: List[str]) -> Dict[str, Any]:
     cp_ring_conditionals = {
         "cp_num": "----------------",
         "pos_ang": ["Position", "(Angstrom):"],
+        "density_total": ["Density", "of", "all", "electrons:"],
         "density_alpha": ["Density", "of", "Alpha", "electrons:"],
         "density_beta": ["Density", "of", "Beta", "electrons:"],
         "spin_density": ["Spin", "density", "of", "electrons:"],
@@ -248,6 +252,7 @@ def parse_cp(lines: List[str]) -> Dict[str, Any]:
     cp_cage_conditionals = {
         "cp_num": "----------------",
         "pos_ang": ["Position", "(Angstrom):"],
+        "density_total": ["Density", "of", "all", "electrons:"],
         "density_alpha": ["Density", "of", "Alpha", "electrons:"],
         "density_beta": ["Density", "of", "Beta", "electrons:"],
         "spin_density": ["Spin", "density", "of", "electrons:"],
@@ -443,7 +448,7 @@ def match_bond_cp(
     atom_one: int,
     atom_two: int,
     bonds_cps: Dict[str, Dict[str, Any]]
-):
+) -> Optional[Dict[str, Any]]:
     """
     From two atom indices, find the corresponding bond cp (if possible)
 
@@ -453,76 +458,208 @@ def match_bond_cp(
         bonds_cps: (Dict[str, Dict[str, Any]]): Dictionary where keys are critical point names and values are 
             descriptors
     Returns:
-        dict_cp_bond: dict
-            dictionary of cp values for bond
+        Dict[str, Any] or None
     """
+
     for k, v in bonds_cps.items():
-        if i == v["atom_inds"] or i == [v["atom_inds"][1], v["atom_inds"][0]]:
+        if sorted(v["atom_inds"]) == sorted([atom_one, atom_two]):
             return v
 
-    return False
+    return None
 
 
-# TODO: do something similar for rings and cages
-def add_closest_atoms_to_bond(bond_cps, dft_dict, margin=1.0):
+def add_atoms_to_bonds(
+    bond_cps: Dict[str, Dict[str, Any]],
+    atoms: Dict[int, Dict[str, Any]],
+    margin: float = 1.0
+) -> Dict[str, Dict[str, Any]]:
     """
-    Takes in bonds cps and adds the index of the closest atoms to the bond
-    Takes:
-        bond_cps: dict
-            dictionary of bond cps
-        dft_to_qtaim: dict
-            dictionary of dft to qtaim atom indices
+    Modifies bond CPs to include the atoms involved in the bond
+
+    Note that we're assuming:
+        - That bonds only involve two atoms
+        - That the atoms closest to the bond critical point are those being bonded
+    The latter assumption is probably good, but the former is potentially problematic
+
+    Args:
+        bond_cps (Dict[str, Dict[str, Any]]): Mapping from CP names to descriptors
+        atoms (Dict[int, Dict[str, Any]]): Mapping between atom indices and atom properties (e.g. atomic positions)
+    
     Returns:
-        bond_cps: dict
-            dictionary of bond cps with closest atoms added
+        bond_cps
     """
-    for k, v in bond_cps.items():
-        for i in k:
-            dists = []
-            for j in dft_dict.keys():
-                dists.append(
-                    np.linalg.norm(
-                        np.array(v["pos_ang"]) - np.array(dft_dict[j]["pos"])
-                    )
+
+    for cp_name, cp_desc in bond_cps.items():
+        dists = list()
+        for atom_info in atoms.values():
+            dists.append(
+                np.linalg.norm(
+                    np.array(cp_desc["pos_ang"]) - np.array(atom_info["pos"])
                 )
-            # yell if the two closest atoms are further than margin
-            if np.sort(dists)[:2].tolist()[1] > margin:
-                print("Warning: bond cp is far from bond")
-            bond_cps[k]["atom_inds"] = np.argsort(dists)[:2].tolist()
+            )
+        # yell if the two closest atoms are further than the margin
+        if np.sort(dists)[:2].tolist()[1] > margin:
+            warnings.warn("Warning: bond cp is far from bonding atoms")
+        bond_cps[cp_name]["atom_inds"] = np.argsort(dists)[:2].tolist()
     return bond_cps
 
 
-def bond_cp_distance(bond_cps, bond_list, dft_dict, margin=2.0):
+def add_atoms_to_rings(
+    ring_cps: Dict[str, Dict[str, Any]],
+    bond_cps: Dict[str, Dict[str, Any]],
+    max_distance: float = 3.0,
+    margin: float = 1.0,
+) -> Dict[str, Dict[str, Any]]:
     """
-    Takes in bond cps and finds the closest atoms to the bond
-    Takes:
-        bond_cps (dict): dictionary of bond cps
-        bond_list (list): list of bonds
-        bond_defn (str): bond definition, either "distance" or "qtaim"
-        dft_dict (dict): dictionary of dft atoms
+    Modifies ring CPs to include bonds and atoms involved in the ring
+
+    A brief outline of this algorithm:
+        For each `ring_cp` in `ring_cps`:
+            1. Order bond_cps by their distance to `ring_cp`
+            2. Assume that the three closest bond CPs make up the ring. If there are less than three bond_cps, an error
+                will be raised. If any of the three closest bond CPs are further than `max_distance`, a warning will be
+                raised.
+            3. Look for other bond CPs that are close to `ring_cp`, where "close" means that the distance between the
+                bond CP and `ring_cp` is at most `max(close_bond_cp_dists) + margin`, where `close_bond_cp_dists` is
+                the collection of distances between `ring_cp` and the three closest bond CPs.
+            4. Add the names of all bond CPs, and all atoms associated with them, to `ring_cp`
+
+    Args:
+        ring_cps (Dict[str, Dict[str, Any]]): Collection of ring CPs. Keys are ring CP names; values are CP descriptor
+            dictionaries
+        bond_cps (Dict[str, Dict[str, Any]]): Collection of bond CPs. Keys are bond CP names; values are CP descriptor
+            dictionaries
+        max_distance (float): Maximum distance that a bond CP should be from a ring CP, in Angstrom. Currently, if the
+            closest bond CPs to a ring CP are more than this distance away, a warning will be raised. Default is 3
+            Angstrom 
+        margin (float): Once the closest bond CPs to a ring CP have been found, other bond CPs will be sought that are
+            at most as far away from the ring CP as the furthest of these close bond CPs, plus this marginal distance
+            in Angstrom. Default is 1.0 Angstrom
+
     Returns:
-        ret_dict (dict): dictionary of bond cps with closest atoms added
+        ring_cps
     """
 
-    ret_dict = {}
+    if len(ring_cps) > 0 and len(bond_cps) < 3:
+        raise ValueError("Cannot have a ring CP with less than three bond CPs!")
 
-    bond_cps = add_closest_atoms_to_bond(
-        bond_cps, dft_dict, margin=margin
-    )  # gets atoms from bond cps
+    for cp_name, cp_desc in ring_cps.items():
+        dists = list()
+        for bond_name, bond_desc in bond_cps.items():
+            dists.append(
+                (
+                    np.linalg.norm(
+                        np.array(cp_desc["pos_ang"]) - np.array(bond_desc["pos_ang"])
+                    ),
+                    bond_name
+                )
+            )
 
-    for i in bond_list:
-        dict_cp_bond = find_bond_cp(
-            i, bond_cps
-        )  # gets bond cp dictionary from bond_cps
-        if dict_cp_bond != False:  # remaps to [atom1, atom2] : qtaim_dict
-            ret_dict[tuple(i)] = dict_cp_bond
-        else:
-            # print("No bond found for ", i)
-            ret_dict[tuple(i)] = {}
+        sorted_bonds = sorted(dists)
+        max_close_dist = sorted_bonds[2][0]
 
-    return ret_dict
+        # yell if the three closest bonds are further than the max distance
+        if max_close_dist > max_distance:
+            warnings.warn("Warning: ring CP is far from closest bond CPs.")
+
+        # Assume that the three closest bonds are all part of the ring
+        bond_names = [bcp[1] for bcp in sorted_bonds[:3]]
+        
+        # Add additional bonds that are relatively close to this ring
+        if len(sorted_bonds) > 3:
+            for bond_dist, bond_name in sorted_bonds[3:]:
+                if bond_dist < max_close_dist + margin:
+                    bond_names.append(bond_name)
+                else:
+                    break
+
+        # Add all unique atoms involved in this ring
+        atom_inds = set()
+        for bond_name in bond_names:
+            for atom_ind in bond_cps[bond_name]["atom_inds"]:
+                atom_inds.add(atom_ind)
+
+        ring_cps[cp_name]["bond_names"] = bond_names
+        ring_cps[cp_name]["atom_inds"] = list(atom_inds)
+    return ring_cps
 
 
+def add_atoms_to_cages(
+    cage_cps: Dict[str, Dict[str, Any]],
+    ring_cps: Dict[str, Dict[str, Any]],
+    max_distance: float = 3.0,
+    margin: float = 1.0,
+) -> Dict[str, Dict[str, Any]]:
+    """
+    Modifies cage CPs to include rings, bonds, and atoms involved in the ring
+
+    This function follows a similar procedure to `add_atoms_to_rings`.
+
+    Args:
+        cage_cps (Dict[str, Dict[str, Any]]): Collection of cage CPs. Keys are cage CP names; values are CP descriptor
+            dictionaries
+        ring_cps (Dict[str, Dict[str, Any]]): Collection of ring CPs. Keys are ring CP names; values are CP descriptor
+            dictionaries
+        max_distance (float): Maximum distance that a ring CP should be from a cage CP, in Angstrom. Currently, if the
+            closest ring CPs to a cage CP are more than this distance away, a warning will be raised. Default is 3
+            Angstrom 
+        margin (float): Once the closest ring CPs to a cage CP have been found, other ring CPs will be sought that are
+            at most as far away from the cage CP as the furthest of these close ring CPs, plus this marginal distance
+            in Angstrom. Default is 1.0 Angstrom
+
+    Returns:
+        cage_cps
+    """
+
+    if len(cage_cps) > 0 and len(ring_cps) < 3:
+        raise ValueError("Cannot have a cage CP with less than three ring CPs!")
+
+    for cp_name, cp_desc in cage_cps.items():
+        dists = list()
+        for ring_name, ring_desc in ring_cps.items():
+            dists.append(
+                (
+                    np.linalg.norm(
+                        np.array(cp_desc["pos_ang"]) - np.array(ring_desc["pos_ang"])
+                    ),
+                    ring_name
+                )
+            )
+
+        sorted_rings = sorted(dists)
+        max_close_dist = sorted_rings[2][0]
+
+        # yell if the three closest bonds are further than the max distance
+        if max_close_dist > max_distance:
+            warnings.warn("Warning: cage CP is far from closest ring CPs.")
+
+        # Assume that the three closest rings are all part of the cage
+        ring_names = [rcp[1] for rcp in sorted_rings[:3]]
+        
+        # Add additional rings that are relatively close to this cage
+        if len(sorted_rings) > 3:
+            for ring_dist, ring_name in sorted_rings[3:]:
+                if ring_dist < max_close_dist + margin:
+                    ring_names.append(ring_name)
+                else:
+                    break
+
+        # Add all unique bonds and atoms involved in this cage
+        bond_names = set()
+        atom_inds = set()
+        for ring_name in ring_names:
+            for bond_name in ring_cps[ring_name]["bond_names"]:
+                bond_names.add(bond_name)
+            for atom_ind in ring_cps[ring_name]["atom_inds"]:
+                atom_inds.add(atom_ind)
+
+        cage_cps[cp_name]["ring_names"] = ring_names
+        cage_cps[cp_name]["bond_names"] = list(bond_names)
+        cage_cps[cp_name]["atom_inds"] = list(atom_inds)
+    return cage_cps
+
+
+# TODO: you are here
 def merge_qtaim_inds(
     qtaim_descs, dft_inp_file, bond_list=None, define_bonds="qtaim", margin=1.0
 ):
