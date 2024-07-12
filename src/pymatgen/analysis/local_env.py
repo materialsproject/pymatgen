@@ -588,6 +588,10 @@ class NearNeighbors:
         """
         Obtain a StructureGraph object using this NearNeighbor class. Requires pip install networkx.
 
+        NOTE: The StructureGraph will not contain sites or bonds that are equivalent under lattice
+        vector translations. For more details please see the following discussion:
+        https://github.com/materialsproject/pymatgen/issues/3888
+
         Args:
             structure: Structure object.
             decorate (bool): whether to annotate site properties with order parameters using neighbors
