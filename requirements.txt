@@ -20,7 +20,7 @@ latexcodec==3.0.0
     # via pybtex
 matplotlib==3.9.0
     # via pymatgen (pyproject.toml)
-monty==2024.5.24
+monty==2024.7.12
     # via pymatgen (pyproject.toml)
 mpmath==1.3.0
     # via sympy
