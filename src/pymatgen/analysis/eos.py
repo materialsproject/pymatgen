@@ -419,7 +419,7 @@ class NumericalEOS(PolynomialEOS):
             min_poly_order (int): minimum order of the polynomial to be
                 considered for fitting.
         """
-        warnings.simplefilter("ignore", np.exceptions.RankWarning)
+        warnings.simplefilter("ignore", np.RankWarning)
 
         def get_rms(x, y):
             return np.sqrt(np.sum((np.array(x) - np.array(y)) ** 2) / len(x))
