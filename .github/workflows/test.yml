@@ -72,10 +72,6 @@ jobs:
         run: |
           micromamba install -n pmg -c conda-forge enumlib packmol bader openbabel openff-toolkit --yes
 
-          micromamba activate pmg
-          # uv cannot install BoltzTraP2 for some reason
-          pip install BoltzTraP2
-
       - name: Install pymatgen and dependencies
         run: |
           micromamba activate pmg
