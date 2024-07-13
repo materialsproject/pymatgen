@@ -822,7 +822,7 @@ class CompleteDos(Dos):
 
         # Only consider up to Fermi level in numerator
         energies = dos.energies - dos.efermi
-        return np.trapezoid(dos_densities[energies < 0], x=energies[energies < 0]) / np.trapezoid(
+        return np.trapz(dos_densities[energies < 0], x=energies[energies < 0]) / np.trapz(
             dos_densities, x=energies
         )
 
@@ -1005,7 +1005,7 @@ class CompleteDos(Dos):
             p = energies
 
         # Take the nth moment
-        return np.trapezoid(p**n * dos_densities, x=energies) / np.trapezoid(dos_densities, x=energies)
+        return np.trapz(p**n * dos_densities, x=energies) / np.trapz(dos_densities, x=energies)
 
     def get_hilbert_transform(
         self,
