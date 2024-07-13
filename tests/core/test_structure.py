@@ -12,9 +12,7 @@ import numpy as np
 import pytest
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
-
-from pymatgen.core import Composition, Element, Lattice, Species
+from pymatgen.core import SETTINGS, Composition, Element, Lattice, Species
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import (
     IMolecule,
@@ -30,6 +28,7 @@ from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
+from pytest import approx
 
 try:
     from ase.atoms import Atoms
@@ -923,6 +922,17 @@ class TestStructure(PymatgenTest):
         self.cu_structure = Structure(lattice, ["Cu", "Cu"], coords)
         self.disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
         self.labeled_structure = Structure(lattice, ["Si", "Si"], coords, labels=["Si1", "Si2"])
+
+    @pytest.mark.skipif(
+        SETTINGS.get("PMG_MAPI_KEY", "") == "",
+        reason="PMG_MAPI_KEY environment variable not set or MP API is down. This is also the case in a PR.",
+    )
+    def test_from_id(self):
+        s = Structure.from_id("mp-1143")
+        assert isinstance(s, Structure)
+        assert s.reduced_formula == "Al2O3"
+        s = Structure.from_id("1101077", source="COD")
+        assert s.reduced_formula == "LiV2O4"
 
     def test_mutable_sequence_methods(self):
         struct = self.struct

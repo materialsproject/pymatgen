@@ -12,8 +12,6 @@ import plotly.graph_objects as go
 import pytest
 from monty.serialization import dumpfn, loadfn
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.analysis.phase_diagram import (
     CompoundPhaseDiagram,
     GrandPotentialPhaseDiagram,
@@ -32,6 +30,7 @@ from pymatgen.core import Composition, DummySpecies, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.entries.entry_tools import EntrySet
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis"
 

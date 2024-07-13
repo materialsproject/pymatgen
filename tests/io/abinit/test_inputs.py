@@ -6,7 +6,6 @@ import tempfile
 import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
-
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit.inputs import (
     BasicAbinitInput,
@@ -185,8 +184,8 @@ class TestMultiDataset(PymatgenTest):
         assert len(multi) == 1
         assert multi.ndtset == 1
         assert multi.isnc
-        for i, inp in enumerate(multi):
-            assert list(inp) == list(multi[i])
+        for inp in multi:
+            assert list(inp) == list(inp)
 
         multi.addnew_from(0)
         assert multi.ndtset == 2

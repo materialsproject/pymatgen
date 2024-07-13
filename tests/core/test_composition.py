@@ -10,11 +10,10 @@ import random
 
 import pytest
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.core import Composition, DummySpecies, Element, Species
 from pymatgen.core.composition import ChemicalPotential
 from pymatgen.util.testing import PymatgenTest
+from pytest import approx
 
 
 class TestComposition(PymatgenTest):
@@ -633,7 +632,7 @@ class TestComposition(PymatgenTest):
             {"V": 5, "O": -2},
         )
 
-        expected_oxi_guesses = dict(Li=1, Fe=2, P=5, O=-2)
+        expected_oxi_guesses = {"Li": 1, "Fe": 2, "P": 5, "O": -2}
         # max_sites for very large composition - should timeout if incorrect
         assert Composition("Li10000Fe10000P10000O40000").oxi_state_guesses(max_sites=7)[0] == expected_oxi_guesses
 

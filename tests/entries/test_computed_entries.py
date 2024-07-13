@@ -7,8 +7,6 @@ from unittest import TestCase
 
 import pytest
 from monty.json import MontyDecoder
-from pytest import approx
-
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import (
@@ -23,6 +21,7 @@ from pymatgen.entries.computed_entries import (
 )
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR
+from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/entries"
 
@@ -237,6 +236,19 @@ class TestComputedEntry(TestCase):
             copy = entry.copy()
             assert entry == copy
             assert str(entry) == str(copy)
+
+    def test_from_dict_null_fields(self):
+        ce_dict = self.entry.as_dict()
+        for k in (
+            "energy_adjustments",
+            "parameters",
+            "data",
+        ):
+            ce = ce_dict.copy()
+            ce[k] = None
+            new_ce = ComputedEntry.from_dict(ce)
+            assert new_ce == self.entry
+            assert getattr(new_ce, k, None) is not None
 
 
 class TestComputedStructureEntry(TestCase):
