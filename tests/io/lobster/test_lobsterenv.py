@@ -687,7 +687,7 @@ class TestLobsterNeighbors(TestCase):
         lse2 = self.chem_env_lobster1.get_light_structure_environment()
         assert lse2.coordination_environments[0][0]["ce_symbol"] == "O:6"
 
-    def test_get_strucuture_environments_further_tests(self):
+    def test_get_structure_environments_further_tests(self):
         lse = self.chem_env_lobster1_second.get_light_structure_environment()
         lse.as_dict()
         lse.get_statistics()
