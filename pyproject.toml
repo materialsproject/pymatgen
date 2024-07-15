@@ -104,7 +104,7 @@ docs = [
 ]
 optional = [
     "ase>=3.23.0",
-    "BoltzTraP2>=24.1.1; platform_system!='Windows'",
+    "BoltzTraP2>=24.7.2; platform_system!='Windows'",
     "chemview>=0.6",
     "chgnet>=0.3.8",
     "f90nml>=1.1.2",
