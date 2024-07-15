@@ -309,7 +309,7 @@ class WulffShape:
             *args: Passed to get_plot.
             **kwargs: Passed to get_plot.
         """
-        self.get_plot(*args, **kwargs).show()
+        self.get_plot(*args, **kwargs).get_figure().show()
 
     def get_line_in_facet(self, facet):
         """Get the sorted pts in a facet used to draw a line."""
