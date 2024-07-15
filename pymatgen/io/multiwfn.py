@@ -1,8 +1,8 @@
 """
 This module implements input/output processing from Multiwfn.
 
-Currently, the focus of this module is on processing Quantum Theory of Atoms in Molecules (QTAIM)
-outputs from Multiwfn. Additional features may be added over time as needed/desired.
+Currently, the focus of this module is on processing Quantum Theory of Atoms in Molecules (QTAIM) outputs from
+Multiwfn. Additional features may be added over time as needed/desired.
 """
 
 import copy
@@ -10,9 +10,12 @@ import json
 import os
 import warnings
 from pathlib import Path
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Literal, Tuple, Union
 
 import numpy as np
+
+# from pymatgen.core.sites import Site
+from pymatgen.core.structure import Molecule
 
 
 __author__ = "Santiago Vargas, Evan Spotte-Smith"
@@ -23,17 +26,47 @@ __email__ = "santiagovargas921@gmail.com, espottesmith@gmail.com"
 __date__ = "July 10, 2024"
 
 
+QTAIM_CONDITIONALS = {
+    "cp_num": ["----------------"],
+    "ele_info": ["Corresponding", "nucleus:"],
+    "connected_bond_paths": ["Connected", "atoms:"],
+    "pos_ang": ["Position", "(Angstrom):"],
+    "density_total": ["Density", "of", "all", "electrons:"],
+    "density_alpha": ["Density", "of", "Alpha", "electrons:"],
+    "density_beta": ["Density", "of", "Beta", "electrons:"],
+    "spin_density": ["Spin", "density", "of", "electrons:"],
+    "lol": ["Localized", "orbital", "locator"],
+    "energy_density": ["Energy", "density", "E(r)"],
+    "Lagrangian_K": ["Lagrangian", "kinetic", "energy"],
+    "Hamiltonian_K": ["Hamiltonian", "kinetic", "energy"],
+    "lap_e_density": ["Laplacian", "electron", "density:"],
+    "e_loc_func": ["Electron", "localization", "function"],
+    "ave_loc_ion_E": ["Average", "local", "ionization", "energy"],
+    "delta_g_promolecular": ["Delta-g", "promolecular"],
+    "delta_g_hirsh": ["Delta-g", "Hirshfeld"],
+    "esp_nuc": ["ESP", "nuclear", "charges:"],
+    "esp_e": ["ESP", "electrons:"],
+    "esp_total": ["Total", "ESP:"],
+    "grad_norm": ["Components", "gradient", "x/y/z"],
+    "lap_norm": ["Components", "Laplacian", "x/y/z"],
+    "eig_hess": ["Eigenvalues", "Hessian:"],
+    "det_hessian": ["Determinant", "Hessian:"],
+    "ellip_e_dens": ["Ellipticity", "electron", "density:"],
+    "eta": ["eta", "index:"],
+}
+
+
 def extract_info_from_cp_text(
     lines_split: List[str],
-    cp_type: str,
+    cp_type: Literal["atom", "bond", "ring", "cage"],
     conditionals: Dict[str, List[str]]
 ) -> Tuple[str, Dict[str, Any]]:
     """
     Extract specific information from a Multiwfn QTAIM output.
 
     Args:
-        lines_split (List[str]): List of lines from a (preparsed) CP file, containing only information regarding one
-            critical point, split by whitespace
+        lines_split (List[str]): List of lines from a (pre-processed) CP file, containing only information regarding
+            one critical point, split by whitespace
         cp_type: Type of critical point. Currently, can be "atom", "bond", "ring", or "cage"
         conditionals (Dict[str, List[str]]): Parameters to extract with strings to search for to see if the
             data is present
@@ -56,7 +89,7 @@ def extract_info_from_cp_text(
                     cp_dict[k] = int(i[2][:-1])
 
                     # Placeholder name
-                    # For nuclear critical points, this can be overwritten later
+                    # For nuclear critical points, this can be overwritten later (see below)
                     cp_name = f"{cp_dict[k]}_{cp_type}"
 
                 elif k == "ele_info":
@@ -122,57 +155,19 @@ def parse_cp(lines: List[str]) -> Tuple[str, Dict[str, Any]]:
     # Figure out what kind of critical-point we're dealing with
     if "(3,-3)" in lines_split[0]:
         cp_type = "atom"
+        conditions = {k: v for k, v in QTAIM_CONDITIONALS.items() if k not in ["connected_bond_paths"]}
     elif "(3,-1)" in lines_split[0]:
         cp_type = "bond"
+        conditionals = {k: v for k, v in QTAIM_CONDITIONALS.items() if k not in ["ele_info"]}
     elif "(3,+1)" in lines_split[0]:
         cp_type = "ring"
     elif "(3,+3)" in lines_split[0]:
         cp_type = "cage"
-
+        conditionals = {k: v for k, v in QTAIM_CONDITIONALS.items() if k not in ["connected_bond_paths", "ele_info"]}
     else:
         return None, dict()
 
-    conditionals = {
-        "cp_num": ["----------------"],
-        "ele_info": ["Corresponding", "nucleus:"],
-        "connected_bond_paths": ["Connected", "atoms:"],
-        "pos_ang": ["Position", "(Angstrom):"],
-        "density_total": ["Density", "of", "all", "electrons:"],
-        "density_alpha": ["Density", "of", "Alpha", "electrons:"],
-        "density_beta": ["Density", "of", "Beta", "electrons:"],
-        "spin_density": ["Spin", "density", "of", "electrons:"],
-        "lol": ["Localized", "orbital", "locator"],
-        "energy_density": ["Energy", "density", "E(r)"],
-        "Lagrangian_K": ["Lagrangian", "kinetic", "energy"],
-        "Hamiltonian_K": ["Hamiltonian", "kinetic", "energy"],
-        "lap_e_density": ["Laplacian", "electron", "density:"],
-        "e_loc_func": ["Electron", "localization", "function"],
-        "ave_loc_ion_E": ["Average", "local", "ionization", "energy"],
-        "delta_g_promolecular": ["Delta-g", "promolecular"],
-        "delta_g_hirsh": ["Delta-g", "Hirshfeld"],
-        "esp_nuc": ["ESP", "nuclear", "charges:"],
-        "esp_e": ["ESP", "electrons:"],
-        "esp_total": ["Total", "ESP:"],
-        "grad_norm": ["Components", "gradient", "x/y/z"],
-        "lap_norm": ["Components", "Laplacian", "x/y/z"],
-        "eig_hess": ["Eigenvalues", "Hessian:"],
-        "det_hessian": ["Determinant", "Hessian:"],
-        "ellip_e_dens": ["Ellipticity", "electron", "density:"],
-        "eta": ["eta", "index:"],
-    }
-
-    atom_conditions = {k: v for k, v in conditionals.items() if k not in ["connected_bond_paths"]}
-    bond_conditionals = {k: v for k, v in conditionals.items() if k not in ["ele_info"]}
-    ring_cage_conditionals = {k: v for k, v in conditionals.items() if k not in ["connected_bond_paths", "ele_info"]}
-
-    conditionals = {
-        "atom": atom_conditionals,
-        "bond": bond_conditionals,
-        "ring": ring_cage_conditionals,
-        "cage": ring_cage_conditionals
-    }
-
-    return extract_info_from_cp_text(lines_split, cp_type, conditionals[cp_type])
+    return extract_info_from_cp_text(lines_split, cp_type, conditionals)
 
 
 def get_qtaim_descs(file: Union[str, Path]) -> Dict[str, Dict[str, Any]]:
@@ -180,15 +175,15 @@ def get_qtaim_descs(file: Union[str, Path]) -> Dict[str, Dict[str, Any]]:
     Parse CPprop file from multiwfn by parsing each individual critical-point section.
 
     Args:
-        file (str): path to CPprop file
+        file (str | Path): path to CPprop file
     
     Returns:
-        ret_dict (Dict[str, Dict[str, Any]]): Output dictionary of QTAIM descriptors
+        descriptors (Dict[str, Dict[str, Any]]): Output dictionary of QTAIM descriptors
 
     """
 
     cp_sections = list()
-    ret_dict = dict()
+    descriptors = dict()
 
     with open(file) as f:
         lines = f.readlines()
@@ -207,14 +202,17 @@ def get_qtaim_descs(file: Union[str, Path]) -> Dict[str, Dict[str, Any]]:
 
     for section in cp_sections:
         cp_name, cp_dict = parse_cp(section)
-        ret_dict[cp_name] = cp_dict
 
-    return ret_dict
+        # Possibility that parsing fails
+        if cp_name:
+            descriptors[cp_name] = cp_dict
+
+    return descriptors
 
 
 def separate_cps_by_type(qtaim_descs: Dict[str, Dict[str, Any]]) -> Dict[str, Dict[Any, Dict[str, Any]]]:
     """
-    Separates QTAIM descriptors by type
+    Separates QTAIM descriptors by type (atom, bond, ring, or cage)
 
     Args:
         qtaim_descs (Dict[str, Dict[str, Any]]): Dictionary where keys are CP names and values are dictionaries of
@@ -247,18 +245,20 @@ def separate_cps_by_type(qtaim_descs: Dict[str, Dict[str, Any]]) -> Dict[str, Di
 
 
 def match_atom_cp(
-    atom_dict: Dict[str, Any],
+    molecule: Molecule,
+    index: int,
     atom_cp_dict: Dict[str, Dict[str, Any]],
-    margin: float = 0.5
+    max_distance: float = 0.5
 ) -> Tuple[Union[str, None], Dict]:
     """
-    From a dictionary of atomic position and element symbol, find the corresponding cp in the atom_cp_dict
+    From a dictionary with an atom's position and element symbol, find the corresponding cp in the atom CP dictionary
     
     Args:
-        atom_dict (Dict[str, Any]): Dictionary containing the atom's element symbol and position in Cartesian space
+        molecule (Molecule): structure corresponding to this Multiwfn calculation
+        index (int): index of the atom to be matched
         atom_cp_dict (Dict[str, Dict[str, Any]]): Dictionary where keys are critical point names and values are 
             descriptors, including element symbol and position
-        margin (float): Maximum distance (in Angstrom) that a critical point can be away from an atom center
+        max_distance (float): Maximum distance (in Angstrom) that a critical point can be away from an atom center
             and be associated with that atom. Default is 0.5 Angstrom
 
     Returns:
@@ -267,20 +267,23 @@ def match_atom_cp(
         cp_dict (Dict): Dictionary of CP descriptors matching this atom
     """
 
+    atom = molecule.sites[i]
+    atom_symbol = atom.species_string
+
     for cp_name, cp_dict in atom_cp_dict.items():
         if (
-            int(cp_name.split("_")[0]) == atom_dict["ind"] + 1
-            and cp_dict["element"] == atom_dict["element"]
+            int(cp_name.split("_")[0]) == index + 1
+            and cp_dict["element"] == atom_symbol
         ):
             return cp_name, cp_dict
 
         else:
-            if cp_dict["element"] == atom_dict["element"]:
+            if cp_dict["element"] == atom_symbol:
                 distance = np.linalg.norm(
-                    np.array(cp_dict["pos_ang"]) - np.array(atom_dict["pos"])
+                    np.array(cp_dict["pos_ang"]) - atom.coords
                 )
 
-                if distance < margin:
+                if distance < max_distance:
                     return cp_name, cp_dict
 
     # No match
@@ -288,77 +291,49 @@ def match_atom_cp(
 
 
 def map_atoms_cps(
-    atoms: List[Dict[str, Any]],
+    molecule: Molecule,
     atom_cp_dict: Dict[str, Dict[str, Any]],
-    margin: float = 0.5
+    max_distance: float = 0.5
 ) -> Tuple[
-    Dict[int, Dict[str, Any]],
     Dict[int, Dict[str, Any]],
     List[int],
 ]:
     """
     Connect atom CPs to atoms by their positions.
 
-    Takes:
-        atoms (List[Dict[str, Any]]): List of dictionaries containing the atom's element symbols and positions in
-            Cartesian space
+    Args:
+        molecule (Molecule): structure corresponding to this Multiwfn calculation
         atom_cp_dict (Dict[str, Dict[str, Any]]): Dictionary where keys are critical point names and values are 
             descriptors, including element symbol and position
-        margin (float): Maximum distance (in Angstrom) that a critical point can be away from an atom center
+        max_distance (float): Maximum distance (in Angstrom) that a critical point can be away from an atom center
             and be associated with that atom. Default is 0.5 Angstrom
     Returns:
         index_to_cp_desc (Dict[int, Dict[str, Any]]): Dictionary mapping atomic indices to atom critical point descriptors
-        index_to_cp_key (Dict[int, Dict[str, Any]]): dictionary with qtaim atoms as keys and dft atoms as values
         missing_atoms (List[int]): list of dft atoms that do not have a cp found in qtaim
     """
 
     index_to_cp_desc, index_to_cp_key = dict(), dict()
     missing_atoms = list()
     
-    for atom_info in atoms:
+    for index in range(len(molecule)):
         # finds cp by distance and naming scheme from CPprop.txt
         cp_name, this_atom_cp = match_atom_cp(
-            atom_info, atom_cp_dict, margin=margin
+            molecule, index, atom_cp_dict, max_distance=max_distance
         )
         
         # If this is False, that means no match was found
         if cp_name:
-            index_to_cp_desc[atom_info["ind"]] = this_atom_cp
-            index_to_cp_key[atom_info["ind"]] = {"key": cp_name, "pos": this_atom_cp["pos_ang"]}
+            index_to_cp_desc[index] = this_atom_cp
+            indx_to_cp_desc[index]["name"] = cp_name
         else:
-            index_to_cp_desc[atom_info["ind"]] = dict()
-            index_to_cp_key[atom_info["ind"]] = {"key": None, "pos": list()}
-            missing_atoms.append(atom_info["ind"])
+            index_to_cp_desc[index] = dict()
+            missing_atoms.append(index)
 
-    return index_to_cp_desc, index_to_cp_key, missing_atoms
-
-
-def match_bond_cp(
-    atom_one: int,
-    atom_two: int,
-    bonds_cps: Dict[str, Dict[str, Any]]
-) -> Optional[Dict[str, Any]]:
-    """
-    From two atom indices, find the corresponding bond cp (if possible)
-
-    Takes:
-        atom_one (int): First atom index
-        atom_two (int): Second atom index
-        bonds_cps: (Dict[str, Dict[str, Any]]): Dictionary where keys are critical point names and values are 
-            descriptors
-    Returns:
-        Dict[str, Any] or None
-    """
-
-    for k, v in bonds_cps.items():
-        if sorted(v["atom_inds"]) == sorted([atom_one, atom_two]):
-            return v
-
-    return None
+    return index_to_cp_desc, missing_atoms
 
 
 def add_atoms(
-    atom_info: Dict[int, Dict[str, Any]],
+    molecule: Molecule,
     organized_cps: Dict[str, Dict[str, Dict[str, Any]]],
     dist_threshold_bond: float = 1.0,
     dist_threshold_ring_cage: float = 3.0,
@@ -376,7 +351,7 @@ def add_atoms(
             and the closest rings to a cage constitute those CPs.
 
     Args:
-        atom_info (Dict[int, Dict[str, Any]]): Mapping between atom indices and atom properties (e.g. atomic positions)
+        molecule (Molecule): structure corresponding to this Multiwfn calculation
         organized_cps (Dict[str, Dict[str, Dict[str, Any]]]): Keys are CP categories ("atom", "bond", "ring", and
             "cage"). Values are themselves dictionaries, where the keys are CP names and the values are CP descriptors
         dist_threshold_bond (float): If the nearest atoms to a bond CP are further from the bond CP than this threshold
@@ -398,12 +373,7 @@ def add_atoms(
     ):
         dists = list()
         for oname, oval in options.items():
-            if "pos_ang" in oval:
-                opos = np.array(oval["pos_ang"])
-            else:
-                # For atom info
-                opos = np.array(oval["pos"])
-
+            opos = np.array(oval["pos_ang"])
             dists.append((np.linalg.norm(position - opos), oname))
 
         return sorted(dists)
@@ -418,6 +388,8 @@ def add_atoms(
         raise ValueError("Cannot have a cage CP with less than three ring CPs!")
 
     modified_organized_cps = copy.deepcopy(organizd_cps)
+    
+    atom_info = {i: {"pos_ang": s.coords} for i, s in enumerate(molecule.sites)}
 
     bond_cps = organized_cps["bond"]
     ring_cps = organized_cps["ring"]
@@ -494,54 +466,54 @@ def add_atoms(
     return modified_organized_cps
 
 
-def merge_qtaim_inds(
-    qtaim_descs, dft_inp_file, bond_list=None, define_bonds="qtaim", margin=1.0
-):
+def process_multiwfn_qtaim(
+    molecule: Molecule,
+    file: Union[str, Path],
+    max_distance_atom: float = 0.5,
+    dist_threshold_bond: float = 1.0,
+    dist_threshold_ring_cage: float = 3.0,
+    distance_margin: float = 1.0,
+) -> Dict[str, Dict[Any, Dict[str, Any]]]:
     """
-    Gets mapping of qtaim indices to atom indices and remaps atom CP descriptors
+    Process quantum theory of atoms in molecules (QTAIM) outputs from Multiwfn.
 
-    Takes
-        qtaim_descs: dict of qtaim descriptors
-        dft_inp_file: str input file for dft
-    returns:
-        dict of qtaim descriptors ordered by atoms in dft_inp_file
+    Args:
+        molecule (Molecule): structure corresponding to this Multiwfn calculation
+        file (str | Path): path to CPprop file containing QTAIM information
+        max_distance (float): Maximum distance (in Angstrom) that an atom critical point can be away from an atom
+            center and be associated with that atom. Default is 0.5 Angstrom
+        dist_threshold_bond (float): If the nearest atoms to a bond CP are further from the bond CP than this threshold
+            (default 1.0 Angstrom), then a warning will be raised.
+        dist_threshold_ring_cage (float): If the nearest bond CPs to a ring CP or the nearest ring CPs to a cage CP are
+            further than this threshold (default 3.0 Angstrom), then a warning will be raised.
+        distance_margin (float): Rings must be made up of at least three bonds, and cages must be made up of at least
+            three rings. We therefore define rings by the three closest bond CPs and cages by the three closest ring
+            CPs. We associate additional bond/ring CPs with ring/cage CPs if they are no further than the third-closest
+            bond/ring CP, plus this margin.
+
+    Returns:
+        qtaim_descriptors (Dict[str, Dict[str, Dict[str, Any]]]): QTAIM descriptors, organized by type ("atom", "bond",
+            "ring", "cage")
     """
 
-    # open dft input file
-    dft_dict = dft_inp_to_dict(dft_inp_file)
-    # find only atom cps to map
-    atom_only_cps, bond_cps = only_atom_cps(qtaim_descs)
-    # remap qtaim indices to atom indices
-    atom_cps_remapped, qtaim_to_dft, missing_atoms = find_cp_map(
-        dft_dict, atom_only_cps, margin=margin
+    # Initial parsing and organizing
+    descriptors_unorganized = get_qtaim_descs(file)
+    qtaim_descriptors = separate_cps_by_type(descriptors_unorganized)
+
+    # Remap atom CPs to atom indices
+    remapped_atoms, missing_atoms = map_atoms_cps(molecule, qtaim_descriptors["atom"], max_distance=max_distance_atom)
+
+    if len(missing_atoms) > 0:
+        warnings.warn(f"Some atoms not mapped to atom CPs! Indices: {missing_atoms}")
+
+    qtaim_descriptors["atom"] = remapped_atoms
+
+    qtaim_descriptors = add_atoms(
+        molecule,
+        qtaim_descriptors,
+        dist_threshold_bond=dist_threshold_bond,
+        dist_threshold_ring_cage=dist_threshold_ring_cage,
+        distance_margin=distance_margin
     )
-    # remapping bonds
-    bond_list_ret = []
-    if define_bonds == "qtaim":
-        bond_cps_qtaim = {}
-        bond_cps = {
-            k: v for k, v in bond_cps.items() if "connected_bond_paths" in v.keys()
-        }
-        #print("bond cps: ", bond_cps)
 
-        for k, v in bond_cps.items():
-            bond_list_unsorted = v["connected_bond_paths"]
-            #print(bond_list_unsorted)
-            bond_list_unsorted = [
-                int(qtaim_to_dft[i - 1]["key"].split("_")[0]) - 1
-                for i in bond_list_unsorted
-            ]
-            #print(bond_list_unsorted)
-            bond_list_unsorted = sorted(bond_list_unsorted)
-            #print(bond_list_unsorted)
-            #assert len(bond_list_unsorted) == 2, "bond list not length 2"
-            #assert bond_list_unsorted[0] != bond_list_unsorted[1], "bond list same"
-            bond_cps_qtaim[tuple(bond_list_unsorted)] = v
-            bond_list_ret.append(bond_list_unsorted)
-        bond_cps = bond_cps_qtaim
-
-    else:
-        bond_cps = bond_cp_distance(bond_cps, bond_list, dft_dict, margin=margin)
-    # merge dictionaries
-    ret_dict = {**atom_cps_remapped, **bond_cps}
-    return ret_dict
+    return qtaim_descriptors
