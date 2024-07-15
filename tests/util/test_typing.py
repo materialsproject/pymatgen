@@ -68,7 +68,7 @@ def test_composition_like():
 
 
 def test_pbc_like():
-    assert type(PbcLike) == GenericAlias
+    assert isinstance(PbcLike, GenericAlias)
     assert get_args(PbcLike) == (bool, bool, bool)
 
 

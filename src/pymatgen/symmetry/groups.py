@@ -112,6 +112,7 @@ class PointGroup(SymmetryGroup):
 
     def __init__(self, int_symbol: str) -> None:
         """Initialize a Point Group from its international symbol.
+        Please note that only the 32 crystal classes are supported right now.
 
         Args:
             int_symbol (str): International or Hermann-Mauguin Symbol.
@@ -165,6 +166,54 @@ class PointGroup(SymmetryGroup):
                 orbit.append(pp)
         return orbit
 
+    @classmethod
+    def from_space_group(cls, sg_symbol: str) -> PointGroup:
+        """Instantiate one of the 32 crystal classes from a space group symbol in
+        Hermann Mauguin notation (int symbol or full symbol).
+
+        Args:
+            sg_symbol: space group symbol in Hermann Mauguin notation.
+
+        Raises:
+            AssertionError if a valid crystal class cannot be created
+        Returns:
+            crystal class in Hermann-Mauguin notation.
+        """
+        abbrev_map = {
+            "2/m2/m2/m": "mmm",
+            "4/m2/m2/m": "4/mmm",
+            "-32/m": "-3m",
+            "6/m2/m2/m": "6/mmm",
+            "2/m-3": "m-3",
+            "4/m-32/m": "m-3m",
+        }
+        non_standard_map = {
+            "m2m": "mm2",
+            "2mm": "mm2",
+            "-4m2": "-42m",  # technically not non-standard
+            "-62m": "-6m2",  # technically not non-standard
+        }
+        symbol = re.sub(r" ", "", sg_symbol)
+
+        symm_ops = loadfn(os.path.join(os.path.dirname(__file__), "symm_ops.json"))  # get short symbol if possible
+        for spg in symm_ops:
+            if symbol in [spg["hermann_mauguin"], spg["universal_h_m"], spg["hermann_mauguin_u"]]:
+                symbol = spg["short_h_m"]
+
+        assert symbol[0].isupper(), f"Invalid sg_symbol {sg_symbol}"
+        assert not symbol[1:].isupper(), f"Invalid sg_symbol {sg_symbol}"
+
+        symbol = symbol[1:]  # Remove centering
+        symbol = symbol.translate(str.maketrans("abcden", "mmmmmm"))  # Remove translation from glide planes
+        symbol = re.sub(r"_.", "", symbol)  # Remove translation from screw axes
+        symbol = abbrev_map.get(symbol, symbol)
+        symbol = non_standard_map.get(symbol, symbol)
+
+        assert (
+            symbol in SYMM_DATA["point_group_encoding"]
+        ), f"Could not create a valid crystal class ({symbol}) from sg_symbol {sg_symbol}"
+        return cls(symbol)
+
 
 @cached_class
 class SpaceGroup(SymmetryGroup):
@@ -194,7 +243,7 @@ class SpaceGroup(SymmetryGroup):
         v["full_symbol"]: k for k, v in SYMM_DATA["space_group_encoding"].items()
     }
 
-    def __init__(self, int_symbol: str) -> None:
+    def __init__(self, int_symbol: str, hexagonal: bool = True) -> None:
         """Initialize a Space Group from its full or abbreviated international
         symbol. Only standard settings are supported.
 
@@ -209,8 +258,25 @@ class SpaceGroup(SymmetryGroup):
                 possible settings for a spacegroup, use the get_settings()
                 classmethod. Alternative origin choices can be indicated by a
                 translation vector, e.g. 'Fm-3m(a-1/4,b-1/4,c-1/4)'.
+            hexagonal (bool): For rhombohedral groups, whether to handle as in
+                hexagonal setting (default) or rhombohedral setting.
+                If the int_symbol of a rhombohedral spacegroup is given with the
+                setting ("(:)H"/"(:)R"), this parameter is overwritten accordingly
+                (please note that the setting is not contained in the symbol
+                attribute anymore).
         """
         from pymatgen.core.operations import SymmOp
+
+        if int_symbol.endswith("H"):
+            self.hexagonal = True
+            if not int_symbol.endswith(":H"):
+                int_symbol = int_symbol[:-1] + ":H"
+        elif int_symbol.endswith("R"):
+            self.hexagonal = False
+            if not int_symbol.endswith(":R"):
+                int_symbol = int_symbol[:-1] + ":R"
+        else:
+            self.hexagonal = hexagonal
 
         int_symbol = re.sub(r" ", "", int_symbol)
         if int_symbol in SpaceGroup.abbrev_sg_mapping:
@@ -221,15 +287,22 @@ class SpaceGroup(SymmetryGroup):
         self._symmetry_ops: set[SymmOp] | None
 
         for spg in SpaceGroup.SYMM_OPS:
-            if int_symbol in [spg["hermann_mauguin"], spg["universal_h_m"]]:
+            if int_symbol in [spg["hermann_mauguin"], spg["universal_h_m"], spg["hermann_mauguin_u"]]:
                 ops = [SymmOp.from_xyz_str(s) for s in spg["symops"]]
-                self.symbol = re.sub(r":", "", re.sub(r" ", "", spg["universal_h_m"]))
+                self.symbol = spg["hermann_mauguin_u"]
                 if int_symbol in SpaceGroup.sg_encoding:
                     self.full_symbol = SpaceGroup.sg_encoding[int_symbol]["full_symbol"]
                     self.point_group = SpaceGroup.sg_encoding[int_symbol]["point_group"]
+                elif self.symbol in SpaceGroup.sg_encoding:
+                    self.full_symbol = SpaceGroup.sg_encoding[self.symbol]["full_symbol"]
+                    self.point_group = SpaceGroup.sg_encoding[self.symbol]["point_group"]
                 else:
-                    self.full_symbol = re.sub(r" ", "", spg["universal_h_m"])
-                    self.point_group = spg["schoenflies"]
+                    self.full_symbol = spg["hermann_mauguin_u"]
+                    warnings.warn(
+                        f"Full symbol not available, falling back to short Hermann Mauguin symbol "
+                        f"{self.symbol} instead"
+                    )
+                    self.point_group = spg["point_group"]
                 self.int_number = spg["number"]
                 self.order = len(ops)
                 self._symmetry_ops = {*ops}
@@ -399,7 +472,7 @@ class SpaceGroup(SymmetryGroup):
         if crys_system == "hexagonal" or (
             crys_system == "trigonal"
             and (
-                self.symbol.endswith("H")
+                self.hexagonal
                 or self.int_number
                 in [143, 144, 145, 147, 149, 150, 151, 152, 153, 154, 156, 157, 158, 159, 162, 163, 164, 165]
             )
@@ -531,7 +604,8 @@ def sg_symbol_from_int_number(int_number: int, hexagonal: bool = True) -> str:
             hexagonal setting (default) or rhombohedral setting.
 
     Returns:
-        str: Spacegroup symbol
+        str: Spacegroup symbol / Space group symbol + "H" if group is
+            rhombohedral and hexagonal=True
     """
     syms = []
     for n, v in SYMM_DATA["space_group_encoding"].items():
