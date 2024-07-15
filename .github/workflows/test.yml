@@ -80,6 +80,8 @@ jobs:
           # track https://github.com/astral-sh/uv/issues/1921 for resolution
           pip install torch --upgrade
 
+          pip install boltztrap2
+
           uv pip install cython setuptools wheel
           uv pip install --editable '.[${{ matrix.config.extras }}]' --resolution=${{ matrix.config.resolution }}
 
