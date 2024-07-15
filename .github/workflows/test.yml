@@ -39,7 +39,7 @@ jobs:
             resolution: lowest-direct
             extras: ci,optional
           - os: macos-latest
-            python: '>3.9'
+            python: '3.10'
             resolution: lowest-direct
             extras: ci # test with only required dependencies installed
 
