@@ -77,7 +77,12 @@ class SpacegroupAnalyzer:
     Uses spglib to perform various symmetry finding operations.
     """
 
-    def __init__(self, structure: Structure, symprec: float | None = 0.01, angle_tolerance: float = 5) -> None:
+    def __init__(
+        self,
+        structure: Structure,
+        symprec: float | None = 0.01,
+        angle_tolerance: float = 5,
+    ) -> None:
         """
         Args:
             structure (Structure/IStructure): Structure to find symmetry
@@ -338,7 +343,7 @@ class SpacegroupAnalyzer:
             self.get_space_group_number(),
             self.get_symmetry_operations(),
         )
-        return SymmetrizedStructure(self._structure, spg_ops, sym_dataset["equivalent_atoms"], sym_dataset["wyckoffs"])
+        return SymmetrizedStructure(self._structure, spg_ops, sym_dataset.equivalent_atoms, sym_dataset.wyckoffs)
 
     def get_refined_structure(self, keep_site_properties: bool = False) -> Structure:
         """Get the refined structure based on detected symmetry. The refined structure is
@@ -391,8 +396,8 @@ class SpacegroupAnalyzer:
         species = [self._unique_species[i - 1] for i in numbers]
         if keep_site_properties:
             site_properties = {}
-            for k, v in self._site_props.items():
-                site_properties[k] = [v[i - 1] for i in numbers]
+            for key, val in self._site_props.items():
+                site_properties[key] = [val[i - 1] for i in numbers]
         else:
             site_properties = None
 
@@ -423,8 +428,8 @@ class SpacegroupAnalyzer:
         mapping, grid = spglib.get_ir_reciprocal_mesh(np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
 
         results = []
-        for i, count in zip(*np.unique(mapping, return_counts=True)):
-            results.append(((grid[i] + shift * (0.5, 0.5, 0.5)) / mesh, count))
+        for idx, count in zip(*np.unique(mapping, return_counts=True)):
+            results.append(((grid[idx] + shift * (0.5, 0.5, 0.5)) / mesh, count))
         return results
 
     def get_ir_reciprocal_mesh_map(
@@ -621,7 +626,7 @@ class SpacegroupAnalyzer:
             key=lambda k: k["length"],
         )
 
-        if latt_type in ("orthorhombic", "cubic"):
+        if latt_type in {"orthorhombic", "cubic"}:
             # you want to keep the c axis where it is
             # to keep the C- settings
             transf = np.zeros(shape=(3, 3))
@@ -629,7 +634,7 @@ class SpacegroupAnalyzer:
                 transf[2] = [0, 0, 1]
                 a, b = sorted(lattice.abc[:2])
                 sorted_dic = sorted(
-                    ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in [0, 1]),
+                    ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in (0, 1)),
                     key=lambda k: k["length"],
                 )
                 for idx in range(2):
@@ -641,7 +646,7 @@ class SpacegroupAnalyzer:
                 transf[2] = [1, 0, 0]
                 a, b = sorted(lattice.abc[1:])
                 sorted_dic = sorted(
-                    ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in [1, 2]),
+                    ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in (1, 2)),
                     key=lambda k: k["length"],
                 )
                 for idx in range(2):
@@ -665,7 +670,8 @@ class SpacegroupAnalyzer:
                 a, c = c, a
                 transf = np.dot([[0, 0, 1], [0, 1, 0], [1, 0, 0]], transf)
             lattice = Lattice.tetragonal(a, c)
-        elif latt_type in ("hexagonal", "rhombohedral"):
+
+        elif latt_type in {"hexagonal", "rhombohedral"}:
             # for the conventional cell representation,
             # we always show the rhombohedral lattices as hexagonal
 
@@ -694,7 +700,7 @@ class SpacegroupAnalyzer:
                 transf = np.zeros(shape=(3, 3))
                 transf[2] = [0, 0, 1]
                 sorted_dic = sorted(
-                    ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in [0, 1]),
+                    ({"vec": lattice.matrix[i], "length": lattice.abc[i], "orig_index": i} for i in (0, 1)),
                     key=lambda k: k["length"],
                 )
                 a = sorted_dic[0]["length"]
@@ -997,7 +1003,7 @@ class PointGroupAnalyzer:
         self.eig_tol = eigen_tolerance
         self.mat_tol = matrix_tolerance
         self._analyze()
-        if self.sch_symbol in ["C1v", "C1h"]:
+        if self.sch_symbol in {"C1v", "C1h"}:
             self.sch_symbol = "Cs"
 
     def _analyze(self):
@@ -1011,7 +1017,7 @@ class PointGroupAnalyzer:
                 wt = site.species.weight
                 for i in range(3):
                     inertia_tensor[i, i] += wt * (c[(i + 1) % 3] ** 2 + c[(i + 2) % 3] ** 2)
-                for i, j in [(0, 1), (1, 2), (0, 2)]:
+                for i, j in ((0, 1), (1, 2), (0, 2)):
                     inertia_tensor[i, j] += -wt * c[i] * c[j]
                     inertia_tensor[j, i] += -wt * c[j] * c[i]
                 total_inertia += wt * np.dot(c, c)
