@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import copy
 import warnings
-from typing import TYPE_CHECKING, Any, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 
@@ -133,7 +133,7 @@ def extract_info_from_cp_text(
     return cp_name, cp_dict
 
 
-def parse_cp(lines: list[str]) -> tuple[Optional[str], dict[str, Any]]:
+def parse_cp(lines: list[str]) -> tuple[str | None, dict[str, Any]]:
     """
     Parse information from a single QTAIM critical point.
 
@@ -166,7 +166,7 @@ def parse_cp(lines: list[str]) -> tuple[Optional[str], dict[str, Any]]:
     return extract_info_from_cp_text(lines_split, cp_type, conditionals)
 
 
-def get_qtaim_descs(file: Union[str, Path]) -> dict[str, dict[str, Any]]:
+def get_qtaim_descs(file: str | Path) -> dict[str, dict[str, Any]]:
     """
     Parse CPprop file from multiwfn by parsing each individual critical-point section.
 
@@ -238,7 +238,7 @@ def separate_cps_by_type(qtaim_descs: dict[str, dict[str, Any]]) -> dict[str, di
 
 def match_atom_cp(
     molecule: Molecule, index: int, atom_cp_dict: dict[str, dict[str, Any]], max_distance: float = 0.5
-) -> tuple[Optional[str], dict]:
+) -> tuple[str | None, dict]:
     """
     From a dictionary with an atom's position and element symbol, find the corresponding cp in the atom CP dictionary
 
@@ -448,7 +448,7 @@ def add_atoms(
 
 def process_multiwfn_qtaim(
     molecule: Molecule,
-    file: Union[str, Path],
+    file: str | Path,
     max_distance_atom: float = 0.5,
     dist_threshold_bond: float = 1.0,
     dist_threshold_ring_cage: float = 3.0,
