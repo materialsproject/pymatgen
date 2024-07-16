@@ -133,7 +133,7 @@ def extract_info_from_cp_text(
     return cp_name, cp_dict
 
 
-def parse_cp(lines: list[str]) -> tuple[str | None, dict[str, Any]]:
+def parse_cp(lines: list[str]) -> tuple[Optional[str], dict[str, Any]]:
     """
     Parse information from a single QTAIM critical point.
 
@@ -166,7 +166,7 @@ def parse_cp(lines: list[str]) -> tuple[str | None, dict[str, Any]]:
     return extract_info_from_cp_text(lines_split, cp_type, conditionals)  # type: ignore[arg-type]
 
 
-def get_qtaim_descs(file: str | Path) -> dict[str, dict[str, Any]]:
+def get_qtaim_descs(file: Union[str, Path]) -> dict[str, dict[str, Any]]:
     """
     Parse CPprop file from multiwfn by parsing each individual critical-point section.
 
@@ -238,7 +238,7 @@ def separate_cps_by_type(qtaim_descs: dict[str, dict[str, Any]]) -> dict[str, di
 
 def match_atom_cp(
     molecule: Molecule, index: int, atom_cp_dict: dict[str, dict[str, Any]], max_distance: float = 0.5
-) -> tuple[str | None, dict]:
+) -> tuple[Optional[str], dict]:
     """
     From a dictionary with an atom's position and element symbol, find the corresponding cp in the atom CP dictionary
 
@@ -314,7 +314,7 @@ def map_atoms_cps(
 
 def add_atoms(
     molecule: Molecule,
-    organized_cps: dict[str, dict[str, dict[str, Any]]],
+    organized_cps: dict[str, dict[Any, dict[str, Any]]],
     dist_threshold_bond: float = 1.0,
     dist_threshold_ring_cage: float = 3.0,
     distance_margin: float = 0.5,
@@ -332,8 +332,9 @@ def add_atoms(
 
     Args:
         molecule (Molecule): structure corresponding to this Multiwfn calculation
-        organized_cps (Dict[str, Dict[str, Dict[str, Any]]]): Keys are CP categories ("atom", "bond", "ring", and
-            "cage"). Values are themselves dictionaries, where the keys are CP names and the values are CP descriptors
+        organized_cps (Dict[str, Dict[Any, Dict[str, Any]]]): Keys are CP categories ("atom", "bond", "ring", and
+            "cage"). Values are themselves dictionaries, where the keys are CP names (or atom indices) and the values
+            are CP descriptors
         dist_threshold_bond (float): If the nearest atoms to a bond CP are further from the bond CP than this threshold
             (default 1.0 Angstrom), then a warning will be raised.
         dist_threshold_ring_cage (float): If the nearest bond CPs to a ring CP or the nearest ring CPs to a cage CP are
@@ -448,7 +449,7 @@ def add_atoms(
 
 def process_multiwfn_qtaim(
     molecule: Molecule,
-    file: str | Path,
+    file: Union[str, Path],
     max_distance_atom: float = 0.5,
     dist_threshold_bond: float = 1.0,
     dist_threshold_ring_cage: float = 3.0,
