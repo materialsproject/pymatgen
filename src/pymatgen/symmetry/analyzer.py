@@ -139,7 +139,7 @@ class SpacegroupAnalyzer:
         Returns:
             str: Spacegroup symbol for structure.
         """
-        return self._space_group_data["international"]
+        return self._space_group_data.international
 
     def get_space_group_number(self) -> int:
         """Get the international spacegroup number (e.g., 62) for structure.
@@ -147,7 +147,7 @@ class SpacegroupAnalyzer:
         Returns:
             int: International spacegroup number for structure.
         """
-        return int(self._space_group_data["number"])
+        return int(self._space_group_data.number)
 
     def get_space_group_operations(self) -> SpacegroupOperations:
         """Get the SpacegroupOperations for the Structure.
@@ -167,7 +167,7 @@ class SpacegroupAnalyzer:
         Returns:
             str: Hall symbol
         """
-        return self._space_group_data["hall"]
+        return self._space_group_data.hall
 
     def get_point_group_symbol(self) -> str:
         """Get the point group associated with the structure.
@@ -175,7 +175,7 @@ class SpacegroupAnalyzer:
         Returns:
             Pointgroup: Point group for structure.
         """
-        rotations = self._space_group_data["rotations"]
+        rotations = self._space_group_data.rotations
         # passing a 0-length rotations list to spglib can segfault
         if len(rotations) == 0:
             return "1"
@@ -191,10 +191,10 @@ class SpacegroupAnalyzer:
         Returns:
             str: Crystal system for structure
         """
-        n = self._space_group_data["number"]
+        n = self._space_group_data.number
 
-        # not using isinstance(n, int) to allow 0-decimal floats
-        if not (n == int(n) and 0 < n < 231):
+        # Not using isinstance(n, int) to allow 0-decimal floats
+        if n != int(n) or not 0 < n < 231:
             raise ValueError(f"Received invalid space group {n}")
 
         if 0 < n < 3:
@@ -222,13 +222,11 @@ class SpacegroupAnalyzer:
         Returns:
             str: Lattice type for structure
         """
-        spg_num = self._space_group_data["number"]
+        spg_num = self._space_group_data.number
         system = self.get_crystal_system()
-        if spg_num in (146, 148, 155, 160, 161, 166, 167):
+        if spg_num in {146, 148, 155, 160, 161, 166, 167}:
             return "rhombohedral"
-        if system == "trigonal":
-            return "hexagonal"
-        return system
+        return "hexagonal" if system == "trigonal" else system
 
     def get_symmetry_dataset(self):
         """Get the symmetry dataset as a dict.
@@ -1192,8 +1190,7 @@ class PointGroupAnalyzer:
             if max_sym % i != 0:
                 continue
             op = SymmOp.from_axis_angle_and_translation(axis, 360 / i)
-            rotvalid = self.is_valid_op(op)
-            if rotvalid:
+            if self.is_valid_op(op):
                 self.symmops.append(op)
                 self.rot_sym.append((axis, i))
                 return i
@@ -1209,8 +1206,7 @@ class PointGroupAnalyzer:
             test_axis = np.cross(s1.coords - s2.coords, axis)
             if np.linalg.norm(test_axis) > self.tol:
                 op = SymmOp.from_axis_angle_and_translation(test_axis, 180)
-                r2present = self.is_valid_op(op)
-                if r2present:
+                if self.is_valid_op(op):
                     self.symmops.append(op)
                     self.rot_sym.append((test_axis, 2))
                     return True
@@ -1323,7 +1319,7 @@ class PointGroupAnalyzer:
         for site in self.centered_mol:
             coord = symm_op.operate(site.coords)
             ind = find_in_coord_list(coords, coord, self.tol)
-            if not (len(ind) == 1 and self.centered_mol[ind[0]].species == site.species):
+            if len(ind) != 1 or self.centered_mol[ind[0]].species != site.species:
                 return False
         return True
 
