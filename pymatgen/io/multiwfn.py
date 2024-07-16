@@ -336,7 +336,7 @@ def add_atoms(
     organized_cps: Dict[str, Dict[str, Dict[str, Any]]],
     dist_threshold_bond: float = 1.0,
     dist_threshold_ring_cage: float = 3.0,
-    distance_margin: float = 1.0,
+    distance_margin: float = 0.5,
 ) -> Dict[str, Dict[str, Dict[str, Any]]]:
     """
     Modify bond, ring, and cage CPs to include information about surrounding critical points. Bonds will include
@@ -360,7 +360,7 @@ def add_atoms(
         distance_margin (float): Rings must be made up of at least three bonds, and cages must be made up of at least
             three rings. We therefore define rings by the three closest bond CPs and cages by the three closest ring
             CPs. We associate additional bond/ring CPs with ring/cage CPs if they are no further than the third-closest
-            bond/ring CP, plus this margin.
+            bond/ring CP, plus this margin. Default is 0.5 Angstrom
 
     Returns:
         modified_organized_cps (Dict[str, Dict[str, Dict[str, Any]]]): CP dict with additional information added.
@@ -377,6 +377,14 @@ def add_atoms(
 
         return sorted(dists)
 
+    modified_organized_cps = copy.deepcopy(organized_cps)
+    
+    atom_info = {i: {"pos_ang": s.coords} for i, s in enumerate(molecule.sites)}
+
+    bond_cps = modified_organized_cps["bond"]
+    ring_cps = modified_organized_cps["ring"]
+    cage_cps = modified_organized_cps["cage"]
+
     if len(bond_cps) > 0 and len(atom_info) < 2:
         raise ValueError("Cannot have a bond CP with less than two atom CPs!")
 
@@ -386,14 +394,6 @@ def add_atoms(
     if len(cage_cps) > 0 and len(ring_cps) < 3:
         raise ValueError("Cannot have a cage CP with less than three ring CPs!")
 
-    modified_organized_cps = copy.deepcopy(organizd_cps)
-    
-    atom_info = {i: {"pos_ang": s.coords} for i, s in enumerate(molecule.sites)}
-
-    bond_cps = organized_cps["bond"]
-    ring_cps = organized_cps["ring"]
-    cage_cps = organized_cps["cage"]
-
     # NOTE: for bonds, we associate based on atoms, NOT based on atom CPs
     for cp_name, cp_desc in bond_cps.items():
         sorted_atoms = sort_cps_by_distance(np.array(cp_desc["pos_ang"]), atom_info)
@@ -401,7 +401,7 @@ def add_atoms(
         if sorted_atoms[1][0] > dist_threshold_bond:
             warnings.warn("Warning: bond CP is far from bonding atoms")
         
-        modified_organized_cps["bond"][cp_name]["atom_inds"] = sorted([ca[1] for ca in closest_atoms[:2]])
+        modified_organized_cps["bond"][cp_name]["atom_inds"] = sorted([ca[1] for ca in sorted_atoms[:2]])
 
     for cp_name, cp_desc in ring_cps.items():
         sorted_bonds = sort_cps_by_distance(np.array(cp_desc["pos_ang"]), bond_cps)
@@ -434,7 +434,7 @@ def add_atoms(
         sorted_rings = sort_cps_by_distance(np.array(cp_desc["pos_ang"]), ring_cps)
         max_close_dist = sorted_rings[2][0]
 
-        # yell if the three closest bonds are further than the max distance
+        # Warn if the three closest bonds are further than the max distance
         if max_close_dist > dist_threshold_ring_cage:
             warnings.warn("Warning: cage CP is far from closest ring CPs.")
 
@@ -471,7 +471,7 @@ def process_multiwfn_qtaim(
     max_distance_atom: float = 0.5,
     dist_threshold_bond: float = 1.0,
     dist_threshold_ring_cage: float = 3.0,
-    distance_margin: float = 1.0,
+    distance_margin: float = 0.5,
 ) -> Dict[str, Dict[Any, Dict[str, Any]]]:
     """
     Process quantum theory of atoms in molecules (QTAIM) outputs from Multiwfn.
@@ -488,7 +488,7 @@ def process_multiwfn_qtaim(
         distance_margin (float): Rings must be made up of at least three bonds, and cages must be made up of at least
             three rings. We therefore define rings by the three closest bond CPs and cages by the three closest ring
             CPs. We associate additional bond/ring CPs with ring/cage CPs if they are no further than the third-closest
-            bond/ring CP, plus this margin.
+            bond/ring CP, plus this margin. Default is 0.5 Angstrom
 
     Returns:
         qtaim_descriptors (Dict[str, Dict[str, Dict[str, Any]]]): QTAIM descriptors, organized by type ("atom", "bond",

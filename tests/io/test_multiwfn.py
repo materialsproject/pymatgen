@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import copy
+
 import numpy as np
 import pytest
 from monty.json import MontyDecoder, jsanitize
@@ -163,8 +165,109 @@ def test_atom_matching():
 
 
 def test_add_atoms():
-    pass
+    mol = Molecule.from_file(base_dir / "mol_all.xyz")
+
+    all_descs = get_qtaim_descs(base_dir / "CPprop_all.txt")
+    separated = separate_cps_by_type(all_descs)
+
+    # Test ValueErrors
+    mol_minatom = Molecule(["O"], [[0.0, 0.0, 0.0]])
+
+    with pytest.raises(ValueError):
+        add_atoms(mol_minatom, separated)
+
+    sep_minbonds = copy.deepcopy(separated)
+    sep_minbonds["bond"] = {k: separated["bond"][k] for k in ["1_bond", "2_bond"]}
+
+    with pytest.raises(ValueError):
+        add_atoms(mol, sep_minbonds)
+
+    sep_minrings = copy.deepcopy(separated)
+    sep_minrings["ring"] = {k: separated["ring"][k] for k in ["13_ring", "14_ring"]}
+
+    with pytest.raises(ValueError):
+        add_atoms(mol, sep_minrings)
+
+    modified = add_atoms(mol, separated)
+
+    # Test that atom indices are being connected reasonably to bonds
+    assert sorted(modified["bond"]["1_bond"]["atom_inds"]) == [3, 14]
+
+    # Test that bonds and atoms are being connected reasonably to rings
+    assert sorted(modified["ring"]["13_ring"]["atom_inds"]) == [35, 36, 37, 38, 39, 40, 42, 46]
+    assert sorted(modified["ring"]["13_ring"]["bond_names"]) == ['11_bond', '23_bond', '27_bond', '28_bond', '3_bond', '5_bond', '8_bond']
+
+    # Test that rings, bonds, and atoms are being connected reasonably to cages
+    assert sorted(modified["cage"]["67_cage"]["atom_inds"]) == [0, 20, 22, 23, 24, 25, 27, 50, 51, 52, 55]
+    assert sorted(modified["cage"]["67_cage"]["bond_names"]) == [
+        '100_bond',
+        '121_bond',
+        '134_bond',
+        '143_bond',
+        '169_bond',
+        '171_bond',
+        '180_bond',
+        '53_bond',
+        '55_bond',
+        '56_bond',
+        '58_bond',
+        '60_bond',
+        '71_bond',
+        '72_bond',
+        '74_bond',
+        '76_bond',
+        '79_bond',
+        '81_bond',
+        '82_bond',
+        '94_bond',
+        '95_bond'
+    ]
+    assert sorted(modified["cage"]["67_cage"]["ring_names"]) == ['62_ring', '66_ring', '70_ring']
 
 
 def test_process_multiwfn_qtaim():
-    pass
+    # Don't need to test very thoroughly, since we've already tested everything else
+    mol = Molecule.from_file(base_dir / "mol_all.xyz")
+
+    descriptors = process_multiwfn_qtaim(mol, base_dir / "CPprop_all.txt")
+    
+    # Checking that everything's been parsed and separated properly
+    assert len(descriptors["atom"]) == 56
+    assert len(descriptors["bond"]) == 90
+    assert len(descriptors["ring"]) == 28
+    assert len(descriptors["cage"]) == 3
+
+    # Checking that atoms have been remapped properly
+    for i in range(1, 56):
+        assert i in descriptors["atom"]
+
+    # Checking that atom info has been added
+    assert sorted(descriptors["bond"]["1_bond"]["atom_inds"]) == [3, 14]
+
+    assert sorted(descriptors["ring"]["13_ring"]["atom_inds"]) == [35, 36, 37, 38, 39, 40, 42, 46]
+    assert sorted(descriptors["ring"]["13_ring"]["bond_names"]) == ['11_bond', '23_bond', '27_bond', '28_bond', '3_bond', '5_bond', '8_bond']
+    assert sorted(descriptors["cage"]["67_cage"]["atom_inds"]) == [0, 20, 22, 23, 24, 25, 27, 50, 51, 52, 55]
+    assert sorted(descriptors["cage"]["67_cage"]["bond_names"]) == [
+        '100_bond',
+        '121_bond',
+        '134_bond',
+        '143_bond',
+        '169_bond',
+        '171_bond',
+        '180_bond',
+        '53_bond',
+        '55_bond',
+        '56_bond',
+        '58_bond',
+        '60_bond',
+        '71_bond',
+        '72_bond',
+        '74_bond',
+        '76_bond',
+        '79_bond',
+        '81_bond',
+        '82_bond',
+        '94_bond',
+        '95_bond'
+    ]
+    assert sorted(descriptors["cage"]["67_cage"]["ring_names"]) == ['62_ring', '66_ring', '70_ring']
