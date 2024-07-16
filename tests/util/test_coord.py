@@ -6,10 +6,9 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
-
 from pymatgen.core.lattice import Lattice
 from pymatgen.util import coord
+from pytest import approx
 
 
 class TestCoordUtils:

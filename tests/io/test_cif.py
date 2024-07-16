@@ -2,14 +2,13 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from pytest import approx
-
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Composition, DummySpecies, Element, Lattice, Species, Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.cif import CifBlock, CifParser, CifWriter
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
+from pytest import approx
 
 try:
     import pybtex
@@ -163,7 +162,7 @@ class TestCifIO(PymatgenTest):
     def test_cif_parser(self):
         parser = CifParser(f"{TEST_FILES_DIR}/cif/LiFePO4.cif")
         for struct in parser.parse_structures():
-            assert struct.formula == "Li4 Fe4 P4 O16", "Incorrectly parsed cif."
+            assert struct.formula == "Li4 Fe4 P4 O16", "Incorrectly parsed CIF"
 
         parser = CifParser(f"{TEST_FILES_DIR}/cif/V2O3.cif")
         for struct in parser.parse_structures():
@@ -748,7 +747,10 @@ loop_
             cif_str = cif_file.read()
         cif_str = cif_str.replace("Te    Te 1.0000", "Te_label    Te 10.0", 1)
 
-        structs = CifParser.from_str(cif_str).parse_structures(check_occu=False)
+        with pytest.warns(
+            UserWarning, match=r"Issues encountered while parsing CIF: Some occupancies \(\[10\.0\]\) sum to > 1!"
+        ):
+            structs = CifParser.from_str(cif_str).parse_structures(check_occu=False)
 
         assert len(structs) > 0
         assert set(structs[0].labels) == {"Te_label", "Ge"}
@@ -1041,11 +1043,11 @@ Gd1 5.05 5.05 0.0"""
 
     def test_write(self):
         with open(f"{MCIF_TEST_DIR}/GdB4-writer-ref.mcif") as file:
-            cw_ref_string = file.read()
+            cw_ref_str = file.read()
         s_ncl = self.mcif_ncl.parse_structures(primitive=False)[0]
 
         cw = CifWriter(s_ncl, write_magmoms=True)
-        assert str(cw) == cw_ref_string
+        assert str(cw) == cw_ref_str
 
         # from list-type magmoms
         list_magmoms = [list(m) for m in s_ncl.site_properties["magmom"]]
@@ -1055,15 +1057,15 @@ Gd1 5.05 5.05 0.0"""
 
         s_ncl.add_site_property("magmom", list_magmoms)
         cw = CifWriter(s_ncl, write_magmoms=True)
-        assert str(cw) == cw_ref_string
+        assert str(cw) == cw_ref_str
 
         s_ncl.add_site_property("magmom", float_magmoms)
         cw = CifWriter(s_ncl, write_magmoms=True)
 
         with open(f"{MCIF_TEST_DIR}/GdB4-str-magnitudes-ref.mcif") as file:
-            cw_ref_string_magnitudes = file.read()
+            cw_ref_str_magnitudes = file.read()
 
-        assert str(cw).strip() == cw_ref_string_magnitudes.strip()
+        assert str(cw).strip() == cw_ref_str_magnitudes.strip()
         # test we're getting correct magmoms in ncl case
         s_ncl2 = self.mcif_ncl2.parse_structures()[0]
         list_magmoms = [list(m) for m in s_ncl2.site_properties["magmom"]]

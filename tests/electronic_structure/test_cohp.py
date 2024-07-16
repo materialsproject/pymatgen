@@ -5,8 +5,6 @@ from unittest import TestCase
 
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
-
 from pymatgen.electronic_structure.cohp import (
     Cohp,
     CompleteCohp,
@@ -16,6 +14,7 @@ from pymatgen.electronic_structure.cohp import (
 )
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
@@ -924,7 +923,7 @@ class TestCompleteCohp(PymatgenTest):
             assert icohp1 == approx(icohp2, abs=1e-4)
 
     def test_dict(self):
-        # The json files are dict representations of the COHPs from the LMTO
+        # The JSON files are dict representations of the COHPs from the LMTO
         # and LOBSTER calculations and should thus be the same.
 
         def is_equal(a, b):

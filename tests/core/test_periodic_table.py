@@ -2,17 +2,18 @@ from __future__ import annotations
 
 import math
 import pickle
+import re
 from copy import deepcopy
 from enum import Enum
 
 import numpy as np
 import pytest
-from pytest import approx
-
 from pymatgen.core import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.periodic_table import ElementBase, ElementType
 from pymatgen.core.units import Ha_to_eV
+from pymatgen.io.core import ParseError
 from pymatgen.util.testing import PymatgenTest
+from pytest import approx
 
 
 class TestElement(PymatgenTest):
@@ -529,12 +530,20 @@ class TestSpecies(PymatgenTest):
         ("P5+", "P", 5),
         ("Na0+", "Na", 0),
         ("Na0-", "Na", 0),
+        ("C0.53-", "C", -0.53),
+        ("Tc3.498+", "Tc", 3.498),
     ],
 )
 def test_symbol_oxi_state_str(symbol_oxi, expected_element, expected_oxi_state):
     species = Species(symbol_oxi)
     assert species._el.symbol == expected_element
-    assert species._oxi_state == expected_oxi_state
+    assert species._oxi_state == pytest.approx(expected_oxi_state, rel=1.0e-6)
+
+
+def test_symbol_oxi_state_str_raises():
+    symbol = "Fe2.5f2123+"  # invalid oxidation state
+    with pytest.raises(ParseError, match=re.escape(f"Failed to parse {symbol=}")):
+        _ = Species(symbol)
 
 
 class TestDummySpecies:
@@ -591,18 +600,47 @@ class TestDummySpecies:
         )
         assert sp.spin == 5
 
-    def test_species_electron_config(self):
+    def test_species_electronic_structure(self):
+        assert Species("Fe", 0).electronic_structure == "[Ar].3d6.4s2"
+        assert Species("Fe", 0).full_electronic_structure == [
+            (1, "s", 2),
+            (2, "s", 2),
+            (2, "p", 6),
+            (3, "s", 2),
+            (3, "p", 6),
+            (3, "d", 6),
+            (4, "s", 2),
+        ]
+        assert Species("Fe", 0).valence == (2, 6)
+
+        assert Species("Fe", 2).electronic_structure == "[Ar].3d6"
+        assert Species("Fe", 2).full_electronic_structure == [
+            (1, "s", 2),
+            (2, "s", 2),
+            (2, "p", 6),
+            (3, "s", 2),
+            (3, "p", 6),
+            (3, "d", 6),
+        ]
+        assert Species("Fe", 2).valence == (2, 6)
+
+        assert Species("Fe", 3).electronic_structure == "[Ar].3d5"
         assert Species("Fe", 3).full_electronic_structure == [
             (1, "s", 2),
             (2, "s", 2),
             (2, "p", 6),
             (3, "s", 2),
             (3, "p", 6),
-            (4, "s", 2),
-            (3, "d", 3),
+            (3, "d", 5),
         ]
-        assert Species("Fe", 3).electronic_structure == "[Ar].4s2.3d3"
-        assert Species("Fe", 3).valence == (2, 3)
+        assert Species("Fe", 3).valence == (2, 5)
+
+        assert Species("Li", 1).electronic_structure == "1s2"
+        # alkali metals, all p
+        for el in ["Na", "K", "Rb", "Cs"]:
+            assert Species(el, 1).electronic_structure.split(".")[-1][1::] == "p6", f"Failure for {el} +1"
+        for el in ["Ca", "Mg", "Ba", "Sr"]:
+            assert Species(el, 2).electronic_structure.split(".")[-1][1::] == "p6", f"Failure for {el} +2"
 
 
 def test_get_el_sp():

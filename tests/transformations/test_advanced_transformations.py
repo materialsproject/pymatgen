@@ -7,8 +7,6 @@ import numpy as np
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
-
 from pymatgen.analysis.energy_models import IsingModel, SymmetryModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.core import Lattice, Molecule, Species, Structure
@@ -41,6 +39,7 @@ from pymatgen.transformations.standard_transformations import (
     SubstitutionTransformation,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
+from pytest import approx
 
 try:
     import hiphive
@@ -338,7 +337,7 @@ class TestMagOrderingTransformation(PymatgenTest):
     def test_as_from_dict(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75)
         dct = trans.as_dict()
-        # Check json encodability
+        # Check JSON encodability
         _ = json.dumps(dct)
         trans = MagOrderingTransformation.from_dict(dct)
         assert trans.mag_species_spin == {"Fe": 5}
@@ -536,7 +535,7 @@ class TestDopingTransformation(PymatgenTest):
     def test_as_from_dict(self):
         trans = DopingTransformation("Al3+", min_length=5, alio_tol=1, codopant=False, max_structures_per_enum=1)
         dct = trans.as_dict()
-        # Check json encodability
+        # Check JSON encodability
         _ = json.dumps(dct)
         trans = DopingTransformation.from_dict(dct)
         assert str(trans.dopant) == "Al3+"

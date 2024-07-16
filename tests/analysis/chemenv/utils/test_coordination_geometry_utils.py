@@ -5,10 +5,9 @@ import random
 
 import numpy as np
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
 from pymatgen.util.testing import PymatgenTest
+from pytest import approx
 
 __author__ = "David Waroquiers"
 

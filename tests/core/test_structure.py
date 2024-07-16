@@ -12,9 +12,7 @@ import numpy as np
 import pytest
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
-
-from pymatgen.core import Composition, Element, Lattice, Species
+from pymatgen.core import SETTINGS, Composition, Element, Lattice, Species
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import (
     IMolecule,
@@ -30,6 +28,7 @@ from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
+from pytest import approx
 
 try:
     from ase.atoms import Atoms
@@ -168,6 +167,16 @@ class TestIStructure(PymatgenTest):
     def test_elements(self):
         assert self.struct.elements == [Element("Si")]
         assert self.propertied_structure.elements == [Element("Si")]
+
+    def test_chemical_system(self):
+        assert self.struct.chemical_system == "Si"
+        assert self.propertied_structure.chemical_system == "Si"
+        assert self.V2O3.chemical_system == "O-V"
+
+    def test_chemical_system_set(self):
+        assert self.struct.chemical_system_set == {"Si"}
+        assert self.propertied_structure.chemical_system_set == {"Si"}
+        assert self.V2O3.chemical_system_set == {"O", "V"}
 
     def test_specie_init(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
@@ -913,6 +922,17 @@ class TestStructure(PymatgenTest):
         self.cu_structure = Structure(lattice, ["Cu", "Cu"], coords)
         self.disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
         self.labeled_structure = Structure(lattice, ["Si", "Si"], coords, labels=["Si1", "Si2"])
+
+    @pytest.mark.skipif(
+        SETTINGS.get("PMG_MAPI_KEY", "") == "",
+        reason="PMG_MAPI_KEY environment variable not set or MP API is down. This is also the case in a PR.",
+    )
+    def test_from_id(self):
+        s = Structure.from_id("mp-1143")
+        assert isinstance(s, Structure)
+        assert s.reduced_formula == "Al2O3"
+        s = Structure.from_id("1101077", source="COD")
+        assert s.reduced_formula == "LiV2O4"
 
     def test_mutable_sequence_methods(self):
         struct = self.struct
@@ -1965,6 +1985,12 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         )
         assert propertied_mol[0].magmom == 0.5
         assert propertied_mol[1].magmom == -0.5
+
+    def test_chemical_system(self):
+        assert self.mol.chemical_system == "C-H"
+
+    def test_chemical_system_set(self):
+        assert self.mol.chemical_system_set == {"C", "H"}
 
     def test_get_boxed_structure(self):
         struct = self.mol.get_boxed_structure(9, 9, 9)

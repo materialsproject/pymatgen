@@ -2,13 +2,12 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from pytest import approx
-
 from pymatgen.analysis.chemenv.utils.func_utils import (
     CSMFiniteRatioFunction,
     CSMInfiniteRatioFunction,
     DeltaCSMRatioFunction,
 )
+from pytest import approx
 
 __author__ = "waroquiers"
 
