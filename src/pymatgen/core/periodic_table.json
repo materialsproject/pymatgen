@@ -1763,7 +1763,7 @@
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
         "Electronic structure": {
             "0": "[Rn].5f<sup>9</sup>.7s<sup>2</sup>",
-            "3": "[Rn].5f<sup>9</sup>"
+            "3": "[Rn].5f<sup>8</sup>"
         },
         "Ionic radii": {
             "3": 1.1,
@@ -5423,7 +5423,7 @@
             "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup>",
             "-4": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>",
             "2": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>",
-            "4": "[Ar].3d<sup>10</sup>.4s<sup>1</sup>"
+            "4": "[Ar].3d<sup>10</sup>"
         },
         "ICSD oxidation states": [
             2,
@@ -5545,7 +5545,7 @@
         "Electronic structure": {
             "0": "1s<sup>1</sup>",
             "-1": "1s<sup>2</sup>",
-            "1": ""
+            "1": null
         },
         "ICSD oxidation states": [
             1,
@@ -8157,7 +8157,7 @@
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
         "Electronic structure": {
             "0": "[He].2s<sup>2</sup>.2p<sup>3</sup>",
-            "-3": "[He].2s<sup>2</sup>",
+            "-3": "[He].2s<sup>2</sup>.2p<sup>6</sup>",
             "3": "1s<sup>2</sup>.2s<sup>2</sup>",
             "5": "1s<sup>2</sup>"
         },
@@ -8794,7 +8794,7 @@
         "Electrical resistivity": "7.2 10<sup>-8</sup> &Omega; m",
         "Electronic structure": {
             "0": "[Ar].3d<sup>8</sup>.4s<sup>2</sup>",
-            "2": "[Ar].3d<sup>6</sup>"
+            "2": "[Ar].3d<sup>8</sup>"
         },
         "ICSD oxidation states": [
             1,
@@ -9629,7 +9629,7 @@
         "Electrical resistivity": "about 10 10<sup>-8</sup> &Omega; m",
         "Electronic structure": {
             "0": "[Ne].3s<sup>2</sup>.3p<sup>3</sup>",
-            "-3": "[Ne].3s<sup>2</sup>",
+            "-3": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>",
             "3": "[Ne].3s<sup>2</sup>",
             "5": "1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup>"
         },
@@ -10690,7 +10690,7 @@
         "Electrical resistivity": "70 10<sup>-8</sup> &Omega; m",
         "Electronic structure": {
             "0": "[Xe].4f<sup>3</sup>.6s<sup>2</sup>",
-            "3": "[Xe].4f<sup>3</sup>"
+            "3": "[Xe].4f<sup>2</sup>"
         },
         "ICSD oxidation states": [
             3,
@@ -12350,7 +12350,7 @@
         "Electrical resistivity": "40 10<sup>-8</sup> &Omega; m",
         "Electronic structure": {
             "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>3</sup>",
-            "-3": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>",
+            "-3": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>",
             "3": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>",
             "5": "[Kr].4d<sup>10</sup>"
         },
@@ -12860,7 +12860,7 @@
         "Electrical resistivity": "94 10<sup>-8</sup> &Omega; m",
         "Electronic structure": {
             "0": "[Xe].4f<sup>6</sup>.6s<sup>2</sup>",
-            "3": "[Xe].4f<sup>6</sup>"
+            "3": "[Xe].4f<sup>5</sup>"
         },
         "ICSD oxidation states": [
             2,
@@ -13541,7 +13541,7 @@
         "Electrical resistivity": "115 10<sup>-8</sup> &Omega; m",
         "Electronic structure": {
             "0": "[Xe].4f<sup>9</sup>.6s<sup>2</sup>",
-            "3": "[Xe].4f<sup>6</sup>"
+            "3": "[Xe].4f<sup>8</sup>"
         },
         "ICSD oxidation states": [
             3,

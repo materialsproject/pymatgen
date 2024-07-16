@@ -642,6 +642,14 @@ class TestDummySpecies:
         for el in ["Ca", "Mg", "Ba", "Sr"]:
             assert Species(el, 2).electronic_structure.split(".")[-1][1::] == "p6", f"Failure for {el} +2"
 
+        for el in Element:
+            for ox in el.common_oxidation_states:
+                if str(el) == 'H' and ox == 1:
+                    continue
+                n_electron_el = sum([orb[-1] for orb in el.full_electronic_structure])
+                n_electron_sp = sum([orb[-1] for orb in Species(el, ox).full_electronic_structure])
+                assert n_electron_el - n_electron_sp == ox, print(f'Failure for {el} {ox}')
+
 
 def test_get_el_sp():
     assert get_el_sp("Fe2+") == Species("Fe", 2)
