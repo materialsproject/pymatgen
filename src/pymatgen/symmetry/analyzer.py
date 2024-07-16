@@ -35,9 +35,12 @@ from pymatgen.util.due import Doi, due
 if TYPE_CHECKING:
     from typing import Any, Literal
 
+    from numpy.typing import NDArray
     from pymatgen.core import Element, Species
     from pymatgen.core.sites import Site
     from pymatgen.symmetry.groups import CrystalSystem
+    from pymatgen.util.typing import Kpoint
+    from spglib import SpglibDataset
 
     LatticeType = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "rhombohedral", "tetragonal", "triclinic"]
 
@@ -93,7 +96,6 @@ class SpacegroupAnalyzer:
         self._site_props = structure.site_properties
         unique_species: list[Element | Species] = []
         zs = []
-        magmoms = []
         for species, group in itertools.groupby(structure, key=lambda s: s.species):
             if species in unique_species:
                 ind = unique_species.index(species)
@@ -106,6 +108,7 @@ class SpacegroupAnalyzer:
             getattr(specie, "spin", None) is not None for specie in structure.types_of_species
         )
 
+        magmoms = []
         for site in structure:
             if hasattr(site, "magmom"):
                 magmoms.append(site.magmom)
@@ -228,25 +231,25 @@ class SpacegroupAnalyzer:
             return "rhombohedral"
         return "hexagonal" if system == "trigonal" else system
 
-    def get_symmetry_dataset(self):
-        """Get the symmetry dataset as a dict.
+    def get_symmetry_dataset(self) -> SpglibDataset:
+        """Get the symmetry dataset as a SpglibDataset.
 
         Returns:
-            dict: With the following properties:
+            frozen dict: With the following properties:
                 number: International space group number
                 international: International symbol
                 hall: Hall symbol
                 transformation_matrix: Transformation matrix from lattice of
-                input cell to Bravais lattice L^bravais = L^original * Tmat
-                origin shift: Origin shift in the setting of "Bravais lattice"
-                rotations, translations: Rotation matrices and translation
-                vectors. Space group operations are obtained by
-                [(r,t) for r, t in zip(rotations, translations)]
+                    input cell to Bravais lattice L^bravais = L^original * Tmat
+                    origin shift: Origin shift in the setting of "Bravais lattice"
+                    rotations, translations: Rotation matrices and translation
+                    vectors. Space group operations are obtained by
+                    [(r,t) for r, t in zip(rotations, translations)]
                 wyckoffs: Wyckoff letters
         """
         return self._space_group_data
 
-    def _get_symmetry(self):
+    def _get_symmetry(self) -> tuple[NDArray, NDArray]:
         """Get the symmetry operations associated with the structure.
 
         Returns:
@@ -268,15 +271,15 @@ class SpacegroupAnalyzer:
         # (these are in fractional coordinates, so should be small denominator
         # fractions)
         translations = []
-        for t in dct["translations"]:
-            translations.append([float(Fraction(c).limit_denominator(1000)) for c in t])
+        for trans in dct["translations"]:
+            translations.append([float(Fraction(c).limit_denominator(1000)) for c in trans])
         translations = np.array(translations)
 
-        # fractional translations of 1 are more simply 0
+        # Fractional translations of 1 are more simply 0
         translations[np.abs(translations) == 1] = 0
         return dct["rotations"], translations
 
-    def get_symmetry_operations(self, cartesian=False):
+    def get_symmetry_operations(self, cartesian: bool = False) -> list[SymmOp]:
         """Return symmetry operations as a list of SymmOp objects. By default returns
         fractional coord sym_ops. But Cartesian can be returned too.
 
@@ -295,7 +298,7 @@ class SpacegroupAnalyzer:
             sym_ops.append(op)
         return sym_ops
 
-    def get_point_group_operations(self, cartesian=False):
+    def get_point_group_operations(self, cartesian: bool = False) -> list[SymmOp]:
         """Return symmetry operations as a list of SymmOp objects. By default returns
         fractional coord symm ops. But Cartesian can be returned too.
 
@@ -322,7 +325,7 @@ class SpacegroupAnalyzer:
             symm_ops.append(op)
         return symm_ops
 
-    def get_symmetrized_structure(self):
+    def get_symmetrized_structure(self) -> SymmetrizedStructure:
         """Get a symmetrized structure. A symmetrized structure is one where the sites
         have been grouped into symmetrically equivalent groups.
 
@@ -337,7 +340,7 @@ class SpacegroupAnalyzer:
         )
         return SymmetrizedStructure(self._structure, spg_ops, sym_dataset["equivalent_atoms"], sym_dataset["wyckoffs"])
 
-    def get_refined_structure(self, keep_site_properties=False):
+    def get_refined_structure(self, keep_site_properties: bool = False) -> Structure:
         """Get the refined structure based on detected symmetry. The refined structure is
         a *conventional* cell setting with atoms moved to the expected symmetry positions.
 
@@ -366,7 +369,7 @@ class SpacegroupAnalyzer:
         struct = Structure(lattice, species, scaled_positions, site_properties=site_properties)
         return struct.get_sorted_structure()
 
-    def find_primitive(self, keep_site_properties=False):
+    def find_primitive(self, keep_site_properties: bool = False) -> Structure:
         """Find a primitive version of the unit cell.
 
         Args:
@@ -397,9 +400,13 @@ class SpacegroupAnalyzer:
             lattice, species, scaled_positions, to_unit_cell=True, site_properties=site_properties
         ).get_reduced_structure()
 
-    def get_ir_reciprocal_mesh(self, mesh=(10, 10, 10), is_shift=(0, 0, 0)):
-        """k-point mesh of the Brillouin zone generated taken into account symmetry.The
-        method returns the irreducible kpoints of the mesh and their weights.
+    def get_ir_reciprocal_mesh(
+        self,
+        mesh: tuple[int, int, int] = (10, 10, 10),
+        is_shift: tuple[float, float, float] = (0, 0, 0),
+    ) -> list[tuple[Kpoint, float]]:
+        """k-point mesh of the Brillouin zone generated taken into account symmetry.
+        The method returns the irreducible kpoints of the mesh and their weights.
 
         Args:
             mesh (3x1 array): The number of kpoint for the mesh needed in
@@ -420,7 +427,11 @@ class SpacegroupAnalyzer:
             results.append(((grid[i] + shift * (0.5, 0.5, 0.5)) / mesh, count))
         return results
 
-    def get_ir_reciprocal_mesh_map(self, mesh=(10, 10, 10), is_shift=(0, 0, 0)):
+    def get_ir_reciprocal_mesh_map(
+        self,
+        mesh: tuple[int, int, int] = (10, 10, 10),
+        is_shift: tuple[float, float, float] = (0, 0, 0),
+    ) -> tuple[NDArray, NDArray]:
         """Same as 'get_ir_reciprocal_mesh' but the full grid together with the mapping
         that maps a reducible to an irreducible kpoint is returned.
 
@@ -443,7 +454,10 @@ class SpacegroupAnalyzer:
         return grid_fractional_coords, mapping
 
     @cite_conventional_cell_algo
-    def get_conventional_to_primitive_transformation_matrix(self, international_monoclinic=True):
+    def get_conventional_to_primitive_transformation_matrix(
+        self,
+        international_monoclinic: bool = True,
+    ) -> NDArray:
         """Get the transformation matrix to transform a conventional unit cell to a
         primitive cell according to certain standards the standards are defined in
         Setyawan, W., & Curtarolo, S. (2010). High-throughput electronic band structure
@@ -464,30 +478,32 @@ class SpacegroupAnalyzer:
             return np.eye(3)
 
         if lattice == "rhombohedral":
-            # check if the conventional representation is hexagonal or
+            # Check if the conventional representation is hexagonal or
             # rhombohedral
             lengths = conv.lattice.lengths
             if abs(lengths[0] - lengths[2]) < 0.0001:
-                transf = np.eye
-            else:
-                transf = np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]], dtype=np.float64) / 3
+                return np.eye
+            return np.array([[-1, 1, 1], [2, 1, 1], [-1, -2, 1]], dtype=np.float64) / 3
 
-        elif "I" in self.get_space_group_symbol():
-            transf = np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]], dtype=np.float64) / 2
-        elif "F" in self.get_space_group_symbol():
-            transf = np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]], dtype=np.float64) / 2
-        elif "C" in self.get_space_group_symbol() or "A" in self.get_space_group_symbol():
+        if "I" in self.get_space_group_symbol():
+            return np.array([[-1, 1, 1], [1, -1, 1], [1, 1, -1]], dtype=np.float64) / 2
+
+        if "F" in self.get_space_group_symbol():
+            return np.array([[0, 1, 1], [1, 0, 1], [1, 1, 0]], dtype=np.float64) / 2
+
+        if "C" in self.get_space_group_symbol() or "A" in self.get_space_group_symbol():
             if self.get_crystal_system() == "monoclinic":
-                transf = np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]], dtype=np.float64) / 2
-            else:
-                transf = np.array([[1, -1, 0], [1, 1, 0], [0, 0, 2]], dtype=np.float64) / 2
-        else:
-            transf = np.eye(3)
+                return np.array([[1, 1, 0], [-1, 1, 0], [0, 0, 2]], dtype=np.float64) / 2
+            return np.array([[1, -1, 0], [1, 1, 0], [0, 0, 2]], dtype=np.float64) / 2
 
-        return transf
+        return np.eye(3)
 
     @cite_conventional_cell_algo
-    def get_primitive_standard_structure(self, international_monoclinic=True, keep_site_properties=False):
+    def get_primitive_standard_structure(
+        self,
+        international_monoclinic: bool = True,
+        keep_site_properties: bool = False,
+    ) -> Structure:
         """Get a structure with a primitive cell according to certain standards. The
         standards are defined in Setyawan, W., & Curtarolo, S. (2010). High-throughput
         electronic band structure calculations: Challenges and tools. Computational
@@ -566,7 +582,11 @@ class SpacegroupAnalyzer:
         return Structure.from_sites(new_sites)
 
     @cite_conventional_cell_algo
-    def get_conventional_standard_structure(self, international_monoclinic=True, keep_site_properties=False):
+    def get_conventional_standard_structure(
+        self,
+        international_monoclinic: bool = True,
+        keep_site_properties: bool = False,
+    ) -> Structure:
         """Get a structure with a conventional cell according to certain standards. The
         standards are defined in Setyawan, W., & Curtarolo, S. (2010). High-throughput
         electronic band structure calculations: Challenges and tools. Computational
@@ -881,7 +901,7 @@ class SpacegroupAnalyzer:
         )
         return new_struct.get_sorted_structure()
 
-    def get_kpoint_weights(self, kpoints, atol=1e-5):
+    def get_kpoint_weights(self, kpoints: Sequence[Kpoint], atol: float = 1e-5) -> list[float]:
         """Calculate the weights for a list of kpoints.
 
         Args:
@@ -923,7 +943,7 @@ class SpacegroupAnalyzer:
                     mapped[tuple(g)] += 1
                     weights.append(mapping.count(mapping[idx]))
                     break
-        if (len(mapped) != len(set(mapping))) or (not all(v == 1 for v in mapped.values())):
+        if (len(mapped) != len(set(mapping))) or any(v != 1 for v in mapped.values()):
             raise ValueError("Unable to find 1:1 corresponding between input kpoints and irreducible grid!")
         return [w / sum(weights) for w in weights]
 
