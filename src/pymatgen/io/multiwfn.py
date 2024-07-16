@@ -207,7 +207,7 @@ def get_qtaim_descs(file: str | Path) -> dict[str, dict[str, Any]]:
     return descriptors
 
 
-def separate_cps_by_type(qtaim_descs: dict[str, dict[str, Any]]) -> dict[str, dict[str, dict[str, Any]]]:
+def separate_cps_by_type(qtaim_descs: dict[Any, dict[str, Any]]) -> dict[str, dict[Any, dict[str, Any]]]:
     """
     Separates QTAIM descriptors by type (atom, bond, ring, or cage)
 
@@ -484,7 +484,7 @@ def process_multiwfn_qtaim(
 
     # Initial parsing and organizing
     descriptors_unorganized = get_qtaim_descs(file)
-    qtaim_descriptors = separate_cps_by_type(descriptors_unorganized)
+    qtaim_descriptors: dict[str, dict[Any, dict[str, Any]]] = separate_cps_by_type(descriptors_unorganized)
 
     # Remap atom CPs to atom indices
     remapped_atoms, missing_atoms = map_atoms_cps(molecule, qtaim_descriptors["atom"], max_distance=max_distance_atom)
