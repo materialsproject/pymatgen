@@ -108,8 +108,8 @@ def extract_info_from_cp_text(
                 elif k == "connected_bond_paths":
                     list_raw = list(i[2:])
                     # save only items that contain a number
-                    list_raw = [x for x in list_raw if any(char.isdigit() for char in x)]  # type: ignore
-                    list_raw = [int(x.split("(")[0]) for x in list_raw]  # type: ignore
+                    list_raw = [x for x in list_raw if any(char.isdigit() for char in x)]  # type: ignore[misc]
+                    list_raw = [int(x.split("(")[0]) for x in list_raw]  # type: ignore[misc]
                     cp_dict[k] = list_raw
 
                 elif k == "pos_ang":
@@ -435,9 +435,9 @@ def add_atoms(
         atom_inds = set()
         for ring_name in ring_names:
             for bond_name in ring_cps[ring_name]["bond_names"]:
-                bond_names.add(bond_name)  # type: ignore
+                bond_names.add(bond_name)  # type: ignore[attr-defined]
             for atom_ind in ring_cps[ring_name]["atom_inds"]:
-                atom_inds.add(atom_ind)  # type: ignore
+                atom_inds.add(atom_ind)  # type: ignore[attr-defined]
 
         modified_organized_cps["cage"][cp_name]["ring_names"] = ring_names
         modified_organized_cps["cage"][cp_name]["bond_names"] = list(bond_names)
