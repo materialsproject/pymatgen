@@ -1497,7 +1497,12 @@ class PointGroupAnalyzer:
         return {"sym_mol": molecule, "eq_sets": eq_sets, "sym_ops": ops}
 
 
-def iterative_symmetrize(mol, max_n=10, tolerance=0.3, epsilon=1e-2):
+def iterative_symmetrize(
+    mol: Molecule,
+    max_n: int = 10,
+    tolerance: float = 0.3,
+    epsilon: float = 1e-2,
+) -> dict:
     """Get a symmetrized molecule.
 
     The equivalent atoms obtained via
@@ -1517,7 +1522,6 @@ def iterative_symmetrize(mol, max_n=10, tolerance=0.3, epsilon=1e-2):
         epsilon (float): If the element-wise absolute difference of two
             subsequently symmetrized structures is smaller epsilon,
             the iteration stops before max_n is reached.
-
 
     Returns:
         dict: with three possible keys:
@@ -1541,7 +1545,11 @@ def iterative_symmetrize(mol, max_n=10, tolerance=0.3, epsilon=1e-2):
     return eq
 
 
-def cluster_sites(mol: Molecule, tol: float, give_only_index: bool = False) -> tuple[Site | None, dict]:
+def cluster_sites(
+    mol: Molecule,
+    tol: float,
+    give_only_index: bool = False,
+) -> tuple[Site | None, dict]:
     """Cluster sites based on distance and species type.
 
     Args:
@@ -1576,7 +1584,10 @@ def cluster_sites(mol: Molecule, tol: float, give_only_index: bool = False) -> t
     return origin_site, clustered_sites
 
 
-def generate_full_symmops(symmops: Sequence[SymmOp], tol: float) -> Sequence[SymmOp]:
+def generate_full_symmops(
+    symmops: Sequence[SymmOp],
+    tol: float,
+) -> Sequence[SymmOp]:
     """Recursive algorithm to permute through all possible combinations of the initially
     supplied symmetry operations to arrive at a complete set of operations mapping a
     single atom to all other equivalent atoms in the point group. This assumes that the
@@ -1621,7 +1632,12 @@ def generate_full_symmops(symmops: Sequence[SymmOp], tol: float) -> Sequence[Sym
 class SpacegroupOperations(list):
     """Represents a space group, which is a collection of symmetry operations."""
 
-    def __init__(self, int_symbol, int_number, symmops):
+    def __init__(
+        self,
+        int_symbol: str,
+        int_number: int,
+        symmops: Sequence[SymmOp],
+    ) -> None:
         """
         Args:
             int_symbol (str): International symbol of the spacegroup.
@@ -1633,7 +1649,15 @@ class SpacegroupOperations(list):
         self.int_number = int_number
         super().__init__(symmops)
 
-    def are_symmetrically_equivalent(self, sites1, sites2, symm_prec=1e-3) -> bool:
+    def __str__(self) -> str:
+        return f"{self.int_symbol} ({self.int_number}) spacegroup"
+
+    def are_symmetrically_equivalent(
+        self,
+        sites1: set[PeriodicSite],
+        sites2: set[PeriodicSite],
+        symm_prec: float = 1e-3,
+    ) -> bool:
         """Given two sets of PeriodicSites, test if they are actually symmetrically
         equivalent under this space group. Useful, for example, if you want to test if
         selecting atoms 1 and 2 out of a set of 4 atoms are symmetrically the same as
@@ -1664,9 +1688,6 @@ class SpacegroupOperations(list):
                 return True
         return False
 
-    def __str__(self):
-        return f"{self.int_symbol} ({self.int_number}) spacegroup"
-
 
 class PointGroupOperations(list):
     """Represents a point group, which is a sequence of symmetry operations.
@@ -1675,7 +1696,12 @@ class PointGroupOperations(list):
         sch_symbol (str): Schoenflies symbol of the point group.
     """
 
-    def __init__(self, sch_symbol, operations, tol: float = 0.1):
+    def __init__(
+        self,
+        sch_symbol: str,
+        operations: Sequence[SymmOp],
+        tol: float = 0.1,
+    ) -> None:
         """
         Args:
             sch_symbol (str): Schoenflies symbol of the point group.
@@ -1688,5 +1714,5 @@ class PointGroupOperations(list):
         self.sch_symbol = sch_symbol
         super().__init__(generate_full_symmops(operations, tol))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.sch_symbol
