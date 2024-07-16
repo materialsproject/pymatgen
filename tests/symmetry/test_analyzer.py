@@ -125,7 +125,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
     def test_get_symmetry_dataset(self):
         ds = self.sg.get_symmetry_dataset()
-        assert ds["international"] == "Pnma"
+        assert ds.international == "Pnma"
 
     def test_init_cell(self):
         # see https://github.com/materialsproject/pymatgen/pull/3179
