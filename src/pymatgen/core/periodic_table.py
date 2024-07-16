@@ -1319,7 +1319,7 @@ class Species(MSONable, Stringify):
             raise ValueError("Invalid coordination or spin config")
 
         elec = self.element.full_electronic_structure
-        if len(elec) < 4 or elec[-2][1] != "s" or elec[-1][1] != "d":
+        if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
             raise AttributeError(f"Invalid element {self.symbol} for crystal field calculation")
 
         assert self.oxi_state is not None

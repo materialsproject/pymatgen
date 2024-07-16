@@ -74,8 +74,8 @@ class TestElement(PymatgenTest):
                 (2, "p", 6),
                 (3, "s", 2),
                 (3, "p", 6),
-                (4, "s", 2),
                 (3, "d", 6),
+                (4, "s", 2),
             ],
             "Li": [(1, "s", 2), (2, "s", 1)],
             "U": [
@@ -84,25 +84,25 @@ class TestElement(PymatgenTest):
                 (2, "p", 6),
                 (3, "s", 2),
                 (3, "p", 6),
-                (4, "s", 2),
                 (3, "d", 10),
+                (4, "s", 2),
                 (4, "p", 6),
-                (5, "s", 2),
                 (4, "d", 10),
+                (5, "s", 2),
                 (5, "p", 6),
-                (6, "s", 2),
                 (4, "f", 14),
                 (5, "d", 10),
+                (6, "s", 2),
                 (6, "p", 6),
-                (7, "s", 2),
                 (5, "f", 3),
                 (6, "d", 1),
+                (7, "s", 2),
             ],
         }
         for k, v in cases.items():
             assert Element(k).full_electronic_structure == v
 
-        assert Element.Ac.electronic_structure == "[Rn].7s2.6d1"
+        assert Element.Ac.electronic_structure == "[Rn].6d1.7s2"
 
     def test_group(self):
         cases = {
