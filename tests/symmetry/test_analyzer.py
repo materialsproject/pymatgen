@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import asdict
 from unittest import TestCase
 
 import numpy as np
@@ -17,6 +18,7 @@ from pymatgen.symmetry.analyzer import (
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
 from pytest import approx, raises
+from spglib import SpglibDataset
 
 TEST_DIR = f"{TEST_FILES_DIR}/symmetry/analyzer"
 
@@ -170,9 +172,10 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert crystal_system == "orthorhombic"
         assert self.disordered_sg.get_crystal_system() == "tetragonal"
 
-    @pytest.mark.skip("TODO: does not support item assignment")
     def test_invalid_space_group_number(self):
-        self.sg._space_group_data["number"] = 0
+        invalid_sg = asdict(self.sg.get_symmetry_dataset())
+        invalid_sg["number"] = 0
+        self.sg._space_group_data = SpglibDataset(**invalid_sg)
         with pytest.raises(ValueError, match="Received invalid space group 0"):
             self.sg.get_crystal_system()
 
