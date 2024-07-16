@@ -221,7 +221,12 @@ def separate_cps_by_type(qtaim_descs: dict[str, dict[str, Any]]) -> dict[str, di
             {<CP name>: <QTAIM descriptors>}
     """
 
-    organized_descs: dict[str, dict[str, dict[str, Any]]] = {"atom": dict(), "bond": dict(), "ring": dict(), "cage": dict()}
+    organized_descs: dict[str, dict[str, dict[str, Any]]] = {
+        "atom": dict(),
+        "bond": dict(),
+        "ring": dict(),
+        "cage": dict(),
+    }
 
     for k, v in qtaim_descs.items():
         if "bond" in k:
