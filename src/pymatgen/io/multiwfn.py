@@ -163,7 +163,7 @@ def parse_cp(lines: list[str]) -> tuple[str | None, dict[str, Any]]:
     else:
         return None, dict()
 
-    return extract_info_from_cp_text(lines_split, cp_type, conditionals)
+    return extract_info_from_cp_text(lines_split, cp_type, conditionals)  # type: ignore[arg-type]
 
 
 def get_qtaim_descs(file: str | Path) -> dict[str, dict[str, Any]]:
@@ -186,7 +186,7 @@ def get_qtaim_descs(file: str | Path) -> dict[str, dict[str, Any]]:
         lines = [line[:-1] for line in lines]
 
     # section lines into segments on ----------------
-    lines_segment = list()
+    lines_segment: list[str] = list()
     for ind, line in enumerate(lines):
         if "----------------" in line:
             lines_segment = list()
@@ -207,7 +207,7 @@ def get_qtaim_descs(file: str | Path) -> dict[str, dict[str, Any]]:
     return descriptors
 
 
-def separate_cps_by_type(qtaim_descs: dict[str, dict[str, Any]]) -> dict[str, dict[Any, dict[str, Any]]]:
+def separate_cps_by_type(qtaim_descs: dict[str, dict[str, Any]]) -> dict[str, dict[str, dict[str, Any]]]:
     """
     Separates QTAIM descriptors by type (atom, bond, ring, or cage)
 
@@ -221,7 +221,7 @@ def separate_cps_by_type(qtaim_descs: dict[str, dict[str, Any]]) -> dict[str, di
             {<CP name>: <QTAIM descriptors>}
     """
 
-    organized_descs = {"atom": dict(), "bond": dict(), "ring": dict(), "cage": dict()}
+    organized_descs: dict[str, dict[str, dict[str, Any]]] = {"atom": dict(), "bond": dict(), "ring": dict(), "cage": dict()}
 
     for k, v in qtaim_descs.items():
         if "bond" in k:
@@ -294,7 +294,7 @@ def map_atoms_cps(
         missing_atoms (List[int]): list of dft atoms that do not have a cp found in qtaim
     """
 
-    index_to_cp_desc, _index_to_cp_key = dict(), dict()
+    index_to_cp_desc = dict()
     missing_atoms = list()
 
     for index in range(len(molecule)):
@@ -431,16 +431,16 @@ def add_atoms(
                     break
 
         # Add all unique bonds and atoms involved in this cage
-        bond_names = set()
+        bond_names_cage = set()
         atom_inds = set()
         for ring_name in ring_names:
             for bond_name in ring_cps[ring_name]["bond_names"]:
-                bond_names.add(bond_name)  # type: ignore[attr-defined]
+                bond_names_cage.add(bond_name)  # type: ignore[attr-defined]
             for atom_ind in ring_cps[ring_name]["atom_inds"]:
                 atom_inds.add(atom_ind)  # type: ignore[attr-defined]
 
         modified_organized_cps["cage"][cp_name]["ring_names"] = ring_names
-        modified_organized_cps["cage"][cp_name]["bond_names"] = list(bond_names)
+        modified_organized_cps["cage"][cp_name]["bond_names"] = list(bond_names_cage)
         modified_organized_cps["cage"][cp_name]["atom_inds"] = list(atom_inds)
 
     return modified_organized_cps
