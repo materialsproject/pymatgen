@@ -3332,6 +3332,7 @@
         "Electrical resistivity": "12.7 10<sup>-8</sup> &Omega; m",
         "Electronic structure": {
             "0": "[Ar].3d<sup>5</sup>.4s<sup>1</sup>",
+            "2": "[Ar].3d<sup>4</sup>",
             "3": "[Ar].3d<sup>3</sup>",
             "6": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>"
         },
@@ -3675,7 +3676,9 @@
         "Electrical resistivity": "1.72 10<sup>-8</sup> &Omega; m",
         "Electronic structure": {
             "0": "[Ar].3d<sup>10</sup>.4s<sup>1</sup>",
-            "2": "[Ar].3d<sup>9</sup>"
+            "1": "[Ar].3d<sup>10</sup>",
+            "2": "[Ar].3d<sup>9</sup>",
+            "3": "[Ar].3d<sup>8</sup>"
         },
         "ICSD oxidation states": [
             1,
@@ -7758,6 +7761,7 @@
         "Electronic structure": {
             "0": "[Ar].3d<sup>5</sup>.4s<sup>2</sup>",
             "2": "[Ar].3d<sup>5</sup>",
+            "3": "[Ar].3d<sup>4</sup>",
             "4": "[Ar].3d<sup>3</sup>",
             "7": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>"
         },
@@ -7982,6 +7986,7 @@
         "Electrical resistivity": "5.5 10<sup>-8</sup> &Omega; m",
         "Electronic structure": {
             "0": "[Kr].4d<sup>5</sup>.5s<sup>1</sup>",
+            "3": "[Kr].4d<sup>3</sup>",
             "4": "[Kr].4d<sup>2</sup>",
             "6": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>"
         },
@@ -8794,7 +8799,8 @@
         "Electrical resistivity": "7.2 10<sup>-8</sup> &Omega; m",
         "Electronic structure": {
             "0": "[Ar].3d<sup>8</sup>.4s<sup>2</sup>",
-            "2": "[Ar].3d<sup>8</sup>"
+            "2": "[Ar].3d<sup>8</sup>",
+            "3": "[Ar].3d<sup>7</sup>"
         },
         "ICSD oxidation states": [
             1,
