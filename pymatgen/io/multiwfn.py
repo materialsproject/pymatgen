@@ -76,7 +76,6 @@ def extract_info_from_cp_text(
     """
 
     cp_dict: Dict[str, Any] = dict()
-    unknown_id = 0
 
     cp_name = "null"
 
@@ -94,10 +93,9 @@ def extract_info_from_cp_text(
 
                 elif k == "ele_info":
                     if i[2] == "Unknown":
-                        cp_name = str(unknown_id) + "_Unknown"
+                        cp_name = str(cp_dict["cp_num"]) + "_Unknown"
                         cp_dict["number"] = "Unknown"
                         cp_dict["ele"] = "Unknown"
-                        unknown_id += 1
                     else:
                         if len(i) == 3:
                             cp_dict["element"] = i[2].split("(")[1][:-1]
@@ -155,12 +153,13 @@ def parse_cp(lines: List[str]) -> Tuple[str, Dict[str, Any]]:
     # Figure out what kind of critical-point we're dealing with
     if "(3,-3)" in lines_split[0]:
         cp_type = "atom"
-        conditions = {k: v for k, v in QTAIM_CONDITIONALS.items() if k not in ["connected_bond_paths"]}
+        conditionals = {k: v for k, v in QTAIM_CONDITIONALS.items() if k not in ["connected_bond_paths"]}
     elif "(3,-1)" in lines_split[0]:
         cp_type = "bond"
         conditionals = {k: v for k, v in QTAIM_CONDITIONALS.items() if k not in ["ele_info"]}
     elif "(3,+1)" in lines_split[0]:
         cp_type = "ring"
+        conditionals = {k: v for k, v in QTAIM_CONDITIONALS.items() if k not in ["connected_bond_paths", "ele_info"]}
     elif "(3,+3)" in lines_split[0]:
         cp_type = "cage"
         conditionals = {k: v for k, v in QTAIM_CONDITIONALS.items() if k not in ["connected_bond_paths", "ele_info"]}
