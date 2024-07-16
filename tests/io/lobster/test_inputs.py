@@ -7,8 +7,6 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
-
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.cohp import IcohpCollection
 from pymatgen.electronic_structure.core import Orbital, Spin
@@ -32,6 +30,7 @@ from pymatgen.io.lobster.inputs import get_all_possible_basis_combinations
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
 from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
@@ -1839,10 +1838,10 @@ class TestLobsterin(PymatgenTest):
         assert len_after == len_before - 1
 
         # Test case sensitivity of |= operator
-        self.Lobsterin["skipCOHP"] = True  # Camel case
+        self.Lobsterin |= {"skipCOHP": True}  # Camel case
         assert self.Lobsterin["skipcohp"] is True
 
-        self.Lobsterin["skipcohp"] = False  # lower case
+        self.Lobsterin |= {"skipcohp": False}  # lower case
         assert self.Lobsterin["skipcohp"] is False
 
     def test_read_write_lobsterin(self):

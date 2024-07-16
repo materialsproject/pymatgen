@@ -8,7 +8,6 @@ import numpy as np
 import pytest
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose
-
 from pymatgen.core import SETTINGS
 from pymatgen.io.aims.inputs import (
     ALLOWED_AIMS_CUBE_TYPES,
@@ -77,23 +76,23 @@ def test_read_h2o_in(tmp_path: Path):
     assert h2o.structure == h2o_from_dct.structure
 
 
-def check_wrong_type_aims_cube(type, exp_err):
+def check_wrong_type_aims_cube(cube_type, exp_err):
     with pytest.raises(ValueError, match=exp_err):
-        AimsCube(type=type)
+        AimsCube(type=cube_type)
 
 
 def test_aims_cube():
-    check_wrong_type_aims_cube(type="INCORRECT_TYPE", exp_err="Cube type undefined")
+    check_wrong_type_aims_cube(cube_type="INCORRECT_TYPE", exp_err="Cube type undefined")
 
     for cube_type in ALLOWED_AIMS_CUBE_TYPES_STATE:
         check_wrong_type_aims_cube(
-            type=cube_type,
+            cube_type=cube_type,
             exp_err=f"{cube_type=} must have a state associated with it",
         )
 
     for cube_type in ALLOWED_AIMS_CUBE_TYPES:
         check_wrong_type_aims_cube(
-            type=f"{cube_type} 1",
+            cube_type=f"{cube_type} 1",
             exp_err=f"{cube_type=} can not have a state associated with it",
         )
 

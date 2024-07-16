@@ -10,7 +10,6 @@ import json
 import os
 
 import numpy as np
-
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
     AllCoordinationGeometries,
     ExplicitPermutationsAlgorithm,

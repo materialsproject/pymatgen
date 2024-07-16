@@ -18,7 +18,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.9"
+          python-version: '3.x'
 
       - name: Install dependencies
         run: |
@@ -31,7 +31,7 @@ jobs:
           ruff format --check .
 
       - name: mypy
-        run: mypy ${{ github.event.repository.name }}
+        run: mypy src
 
       - name: pyright
         run: pyright

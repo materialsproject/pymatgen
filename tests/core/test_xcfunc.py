@@ -1,20 +1,24 @@
 from __future__ import annotations
 
+import pytest
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.util.testing import PymatgenTest
 
 
 class TestLibxcFunc(PymatgenTest):
-    def test_xcfunc_api(self):
-        """Testing XcFunc API."""
+    def setUp(self) -> None:
+        self.ixc_11 = XcFunc.from_abinit_ixc(11)
+
+    def test_aliases(self):
         # Aliases should be unique
         assert len(XcFunc.aliases()) == len(set(XcFunc.aliases()))
 
+    def test_lda(self):
         # LDA-Teter
         ixc_1 = XcFunc.from_abinit_ixc(1)
         assert ixc_1.type == "LDA"
         assert ixc_1.name == "LDA_XC_TETER93"
-        assert ixc_1 == ixc_1
+        assert ixc_1 == ixc_1  # test __eq__
         assert ixc_1 == "LDA_XC_TETER93"
         assert ixc_1 != "PBE"
         assert ixc_1.name not in XcFunc.aliases()
@@ -28,7 +32,9 @@ class TestLibxcFunc(PymatgenTest):
         assert ixc_7.name == XcFunc.from_name(ixc_7.name)
         assert ixc_7 != ixc_1
 
+    def test_gga_pbe(self):
         # GGA-PBE from ixc == 11 (in aliases)
+        ixc_1 = XcFunc.from_abinit_ixc(1)
         ixc_11 = XcFunc.from_abinit_ixc(11)
         assert ixc_11.type == "GGA"
         assert ixc_11.name == "PBE"
@@ -42,25 +48,29 @@ class TestLibxcFunc(PymatgenTest):
         assert "PBE" in dct
         assert ixc_11 in dct
 
-        # Test if object can be serialized with Pickle.
-        self.serialize_with_pickle(ixc_11)
+    def test_pickle_serialize(self):
+        # Test if object can be serialized with Pickle
+        self.serialize_with_pickle(self.ixc_11)
 
+    @pytest.mark.skip()
+    def test_msonable(self):
         # Test if object supports MSONable
         # TODO
-        # ixc_11.x.as_dict()
-        # self.assertMSONable(ixc_11)
+        self.ixc_11.x.as_dict()
+        self.assertMSONable(self.ixc_11)
 
+    def test_from(self):
         # GGA-PBE from ixc given in abinit-libxc mode
         ixc_101130 = XcFunc.from_abinit_ixc(-101130)
         assert ixc_101130.type == "GGA"
         assert ixc_101130.name == "PBE"
-        assert ixc_101130 == ixc_11
+        assert ixc_101130 == self.ixc_11
 
         # GGA-PBE built from name
         gga_pbe = XcFunc.from_name("PBE")
         assert gga_pbe.type == "GGA"
         assert gga_pbe.name == "PBE"
-        assert ixc_11 == gga_pbe
+        assert self.ixc_11 == gga_pbe
 
         # Use X from GGA and C from LDA!
         unknown_xc = XcFunc.from_name("GGA_X_PBE+ LDA_C_PW")

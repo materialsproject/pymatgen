@@ -6,12 +6,11 @@ import numpy as np
 import pytest
 from monty.serialization import MontyDecoder, loadfn
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.tensors import SquareTensor, Tensor, TensorCollection, TensorMapping, itertools, symmetry_reduce
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 
 class TestTensor(PymatgenTest):
@@ -159,7 +158,7 @@ class TestTensor(PymatgenTest):
         test = Tensor(np.arange(0, 3**4).reshape((3, 3, 3, 3)))
         assert_allclose([0, 27, 54], test.einsum_sequence([x] * 3))
         assert test.einsum_sequence([np.eye(3)] * 2) == 360
-        with pytest.raises(ValueError, match="other tensors must be list of tensors or tensor input"):
+        with pytest.raises(TypeError, match="other tensors must be list of tensors or tensor input"):
             test.einsum_sequence(Tensor(np.zeros(3)))
 
     def test_symmetrized(self):
