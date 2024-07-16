@@ -644,11 +644,11 @@ class TestDummySpecies:
 
         for el in Element:
             for ox in el.common_oxidation_states:
-                if str(el) == 'H' and ox == 1:
+                if str(el) == "H" and ox == 1:
                     continue
                 n_electron_el = sum([orb[-1] for orb in el.full_electronic_structure])
                 n_electron_sp = sum([orb[-1] for orb in Species(el, ox).full_electronic_structure])
-                assert n_electron_el - n_electron_sp == ox, print(f'Failure for {el} {ox}')
+                assert n_electron_el - n_electron_sp == ox, print(f"Failure for {el} {ox}")
 
 
 def test_get_el_sp():
