@@ -266,7 +266,7 @@ def match_atom_cp(
         cp_dict (Dict): Dictionary of CP descriptors matching this atom
     """
 
-    atom = molecule.sites[i]
+    atom = molecule.sites[index]
     atom_symbol = atom.species_string
 
     for cp_name, cp_dict in atom_cp_dict.items():
@@ -323,7 +323,7 @@ def map_atoms_cps(
         # If this is False, that means no match was found
         if cp_name:
             index_to_cp_desc[index] = this_atom_cp
-            indx_to_cp_desc[index]["name"] = cp_name
+            index_to_cp_desc[index]["name"] = cp_name
         else:
             index_to_cp_desc[index] = dict()
             missing_atoms.append(index)

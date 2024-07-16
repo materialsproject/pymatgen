@@ -129,7 +129,37 @@ def test_parse_cps():
 
 
 def test_atom_matching():
-    pass
+    mol = Molecule.from_file(base_dir / "mol_all.xyz")
+
+    all_descs = get_qtaim_descs(base_dir / "CPprop_all.txt")
+    separated = separate_cps_by_type(all_descs)
+
+    all_descs_fudged = get_qtaim_descs(base_dir / "CPprop_fudged_nuclei.txt")
+    separated_fudged = separate_cps_by_type(all_descs_fudged)
+
+    # Test successful single match
+    name, desc = match_atom_cp(mol, 0, separated["atom"])
+    assert name == "1_Sm"
+    assert desc["element"] == "Sm"
+    assert desc["number"] == "1"
+
+    # Test successful match by distance
+    name, desc = match_atom_cp(mol, 0, separated_fudged["atom"])
+    assert name == "78_Sm"
+
+    # Test unsuccessful single match
+    name, desc = match_atom_cp(mol, 55, separated_fudged["atom"])
+    assert name is None
+    assert len(desc) == 0
+
+    # Test overall mapping
+    mapping, missing = map_atoms_cps(mol, separated_fudged["atom"])
+    assert len(mapping) == 56
+    assert mapping[0]["element"] == "Sm"
+    assert len(mapping[55]) == 0
+
+    assert len(missing) == 1
+    assert missing[0] == 55
 
 
 def test_add_atoms():
