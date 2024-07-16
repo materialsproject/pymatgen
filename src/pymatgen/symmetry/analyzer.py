@@ -275,10 +275,10 @@ class SpacegroupAnalyzer:
         # [1e-4, 2e-4, 1e-4]
         # (these are in fractional coordinates, so should be small denominator
         # fractions)
-        translations = []
+        _translations: list = []
         for trans in dct["translations"]:
-            translations.append([float(Fraction(c).limit_denominator(1000)) for c in trans])
-        translations = np.array(translations)
+            _translations.append([float(Fraction(c).limit_denominator(1000)) for c in trans])
+        translations: NDArray = np.array(_translations)
 
         # Fractional translations of 1 are more simply 0
         translations[np.abs(translations) == 1] = 0
@@ -541,7 +541,7 @@ class SpacegroupAnalyzer:
             international_monoclinic=international_monoclinic
         )
 
-        new_sites = []
+        new_sites: list[PeriodicSite] = []
         lattice = Lattice(np.dot(transf, conv.lattice.matrix))
         for site in conv:
             new_s = PeriodicSite(
@@ -707,18 +707,18 @@ class SpacegroupAnalyzer:
                 b = sorted_dic[1]["length"]
                 c = lattice.abc[2]
                 new_matrix = None
-                for t in itertools.permutations(list(range(2)), 2):
+                for tp2 in itertools.permutations(list(range(2)), 2):
                     m = lattice.matrix
-                    latt2 = Lattice([m[t[0]], m[t[1]], m[2]])
+                    latt2 = Lattice([m[tp2[0]], m[tp2[1]], m[2]])
                     lengths = latt2.lengths
                     angles = latt2.angles
                     if angles[0] > 90:
                         # if the angle is > 90 we invert a and b to get
                         # an angle < 90
-                        a, b, c, alpha, beta, gamma = Lattice([-m[t[0]], -m[t[1]], m[2]]).parameters
+                        a, b, c, alpha, beta, gamma = Lattice([-m[tp2[0]], -m[tp2[1]], m[2]]).parameters
                         transf = np.zeros(shape=(3, 3))
-                        transf[0][t[0]] = -1
-                        transf[1][t[1]] = -1
+                        transf[0][tp2[0]] = -1
+                        transf[1][tp2[1]] = -1
                         transf[2][2] = 1
                         alpha = math.pi * alpha / 180
                         new_matrix = [
@@ -730,8 +730,8 @@ class SpacegroupAnalyzer:
 
                     if angles[0] < 90:
                         transf = np.zeros(shape=(3, 3))
-                        transf[0][t[0]] = 1
-                        transf[1][t[1]] = 1
+                        transf[0][tp2[0]] = 1
+                        transf[1][tp2[1]] = 1
                         transf[2][2] = 1
                         a, b, c = lengths
                         alpha = math.pi * angles[0] / 180
@@ -756,15 +756,15 @@ class SpacegroupAnalyzer:
                 # and b<c
                 new_matrix = None
 
-                for t in itertools.permutations(list(range(3)), 3):
+                for tp3 in itertools.permutations(list(range(3)), 3):
                     m = lattice.matrix
-                    a, b, c, alpha, beta, gamma = Lattice([m[t[0]], m[t[1]], m[t[2]]]).parameters
+                    a, b, c, alpha, beta, gamma = Lattice([m[tp3[0]], m[tp3[1]], m[tp3[2]]]).parameters
                     if alpha > 90 and b < c:
-                        a, b, c, alpha, beta, gamma = Lattice([-m[t[0]], -m[t[1]], m[t[2]]]).parameters
+                        a, b, c, alpha, beta, gamma = Lattice([-m[tp3[0]], -m[tp3[1]], m[tp3[2]]]).parameters
                         transf = np.zeros(shape=(3, 3))
-                        transf[0][t[0]] = -1
-                        transf[1][t[1]] = -1
-                        transf[2][t[2]] = 1
+                        transf[0][tp3[0]] = -1
+                        transf[1][tp3[1]] = -1
+                        transf[2][tp3[2]] = 1
                         alpha = math.pi * alpha / 180
                         new_matrix = [
                             [a, 0, 0],
@@ -775,9 +775,9 @@ class SpacegroupAnalyzer:
 
                     if alpha < 90 and b < c:
                         transf = np.zeros(shape=(3, 3))
-                        transf[0][t[0]] = 1
-                        transf[1][t[1]] = 1
-                        transf[2][t[2]] = 1
+                        transf[0][tp3[0]] = 1
+                        transf[1][tp3[1]] = 1
+                        transf[2][tp3[2]] = 1
                         alpha = math.pi * alpha / 180
                         new_matrix = [
                             [a, 0, 0],
@@ -942,7 +942,7 @@ class SpacegroupAnalyzer:
         mapping = list(mapping)
         grid = (np.array(grid) + np.array(shift) * (0.5, 0.5, 0.5)) / mesh
         weights = []
-        mapped = defaultdict(int)
+        mapped: dict[tuple, int] = defaultdict(int)
         for kpt in kpoints:
             for idx, g in enumerate(grid):
                 if np.allclose(pbc_diff(kpt, g), (0, 0, 0), atol=atol):
