@@ -10,7 +10,6 @@ from types import GenericAlias
 from typing import TYPE_CHECKING, get_args
 
 import pytest
-
 from pymatgen.core import Composition, DummySpecies, Element, Species
 from pymatgen.entries import Entry
 from pymatgen.util.typing import CompositionLike, EntryLike, PathLike, PbcLike, SpeciesLike
@@ -69,7 +68,7 @@ def test_composition_like():
 
 
 def test_pbc_like():
-    assert type(PbcLike) == GenericAlias
+    assert isinstance(PbcLike, GenericAlias)
     assert get_args(PbcLike) == (bool, bool, bool)
 
 

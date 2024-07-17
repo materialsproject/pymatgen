@@ -5,11 +5,10 @@ import pickle
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.core import Composition, Element, Lattice, PeriodicSite, Site, Species
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.testing import PymatgenTest
+from pytest import approx
 
 
 class TestSite(PymatgenTest):

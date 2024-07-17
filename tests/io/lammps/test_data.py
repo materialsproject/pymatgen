@@ -10,12 +10,11 @@ import pandas as pd
 import pytest
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose
-from pytest import approx
-from ruamel.yaml import YAML
-
 from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.io.lammps.data import CombinedData, ForceField, LammpsBox, LammpsData, Topology, lattice_2_lmpbox
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
+from ruamel.yaml import YAML
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 

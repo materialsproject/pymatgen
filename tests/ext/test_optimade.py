@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import pytest
 import requests
-
 from pymatgen.ext.optimade import OptimadeRester
 from pymatgen.util.testing import PymatgenTest
 

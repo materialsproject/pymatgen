@@ -4,7 +4,6 @@ from unittest import TestCase
 
 import numpy as np
 from numpy.testing import assert_allclose
-
 from pymatgen.analysis.eos import EOS
 from pymatgen.analysis.quasiharmonic import QuasiHarmonicDebyeApprox
 from pymatgen.core.structure import Structure

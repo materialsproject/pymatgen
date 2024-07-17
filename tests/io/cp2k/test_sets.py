@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import pytest
-from pytest import approx
-
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.sets import SETTINGS, Cp2kValidationError, DftSet, GaussianTypeOrbitalBasisSet, GthPotential
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
 
