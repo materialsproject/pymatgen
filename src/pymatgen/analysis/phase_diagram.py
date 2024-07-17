@@ -903,7 +903,6 @@ class PhaseDiagram(MSONable):
             }
 
             # NOTE calling PhaseDiagram is only reasonable if the composition has fewer than 5 elements
-            # TODO can we call PatchedPhaseDiagram here?
             inner_hull = PhaseDiagram(reduced_space)
 
             competing_entries = inner_hull.stable_entries | {*self._get_stable_entries_in_space(entry_elems)}
@@ -1036,8 +1035,6 @@ class PhaseDiagram(MSONable):
         if np.all(c1 == c2):
             return [comp1.copy(), comp2.copy()]
 
-        # NOTE made into method to facilitate inheritance of this method
-        # in PatchedPhaseDiagram if approximate solution can be found.
         intersections = self._get_simplex_intersections(c1, c2)
 
         # find position along line
@@ -1667,7 +1664,19 @@ class PatchedPhaseDiagram(PhaseDiagram):
         return item in self.pds
 
     def as_dict(self) -> dict[str, Any]:
-        """
+        """Write the entries and elements used to construct the PatchedPhaseDiagram
+        to a dictionary. 
+
+        NOTE unlike PhaseDiagram the computation involved in constructing the 
+        PatchedPhaseDiagram is not saved on serialisation. This is done because
+        hierachically calling the `PhaseDiagram.as_dict()` method would break the
+        link in memory between entries in overlapping patches leading to a
+        ballooning of the amount of memory used.
+        
+        NOTE For memory efficiency the best way to store patched phase diagrams is
+        via pickling. As this allows all the entries in overlapping patches to share
+        the same id in memory when unpickling.
+        
         Returns:
             dict[str, Any]: MSONable dictionary representation of PatchedPhaseDiagram.
         """
@@ -1680,7 +1689,18 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """
+        """Reconstruct PatchedPhaseDiagram from dictionary serialisation.
+
+        NOTE unlike PhaseDiagram the computation involved in constructing the 
+        PatchedPhaseDiagram is not saved on serialisation. This is done because
+        hierachically calling the `PhaseDiagram.as_dict()` method would break the
+        link in memory between entries in overlapping patches leading to a
+        ballooning of the amount of memory used. 
+
+        NOTE For memory efficiency the best way to store patched phase diagrams is
+        via pickling. As this allows all the entries in overlapping patches to share
+        the same id in memory when unpickling.
+
         Args:
             dct (dict): dictionary representation of PatchedPhaseDiagram.
 
@@ -1708,7 +1728,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     # NOTE following methods are inherited unchanged from PhaseDiagram:
     # __repr__,
-    # as_dict,
     # all_entries_hulldata,
     # unstable_entries,
     # stable_entries,
@@ -1778,8 +1797,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
         """
         return self.get_phase_separation_energy(entry, stable_only=True)
 
-    # NOTE the following functions are not implemented for PatchedPhaseDiagram
-
     def get_decomp_and_e_above_hull(
         self,
         entry: PDEntry,
@@ -1793,6 +1810,20 @@ class PatchedPhaseDiagram(PhaseDiagram):
         return super().get_decomp_and_e_above_hull(
             entry=entry, allow_negative=allow_negative, check_stable=check_stable, on_error=on_error
         )
+
+    def _get_pd_patch_for_space(self, space: frozenset[Element]) -> tuple[frozenset[Element], PhaseDiagram]:
+        """
+        Args:
+            space (frozenset[Element]): chemical space of the form A-B-X.
+
+        Returns:
+            space, PhaseDiagram for the given chemical space
+        """
+        space_entries = [e for e, s in zip(self.qhull_entries, self._qhull_spaces) if space.issuperset(s)]
+
+        return space, PhaseDiagram(space_entries)
+
+    # NOTE the following functions are not implemented for PatchedPhaseDiagram
 
     def _get_facet_and_simplex(self):
         """Not Implemented - See PhaseDiagram."""
@@ -1841,18 +1872,6 @@ class PatchedPhaseDiagram(PhaseDiagram):
     def get_chempot_range_stability_phase(self):
         """Not Implemented - See PhaseDiagram."""
         raise NotImplementedError("get_chempot_range_stability_phase() not implemented for PatchedPhaseDiagram")
-
-    def _get_pd_patch_for_space(self, space: frozenset[Element]) -> tuple[frozenset[Element], PhaseDiagram]:
-        """
-        Args:
-            space (frozenset[Element]): chemical space of the form A-B-X.
-
-        Returns:
-            space, PhaseDiagram for the given chemical space
-        """
-        space_entries = [e for e, s in zip(self.qhull_entries, self._qhull_spaces) if space.issuperset(s)]
-
-        return space, PhaseDiagram(space_entries)
 
 
 class ReactionDiagram:
