@@ -2839,6 +2839,7 @@ class Interface(Structure):
 
 def label_termination(slab: Structure, ftol: float = 0.25, t_index: int | None = None) -> str:
     """Label the slab surface termination.
+
     Args:
         slab (Slab): film or substrate slab to label termination for
         ftol (float): tolerance for terminating position hierarchical clustering
