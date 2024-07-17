@@ -1,16 +1,13 @@
-"""This module provides classes to run and analyze boltztrap on pymatgen band
-structure objects. Boltztrap is a software interpolating band structures and
-computing materials properties from this band structure using Boltzmann
-semi-classical transport theory.
+"""This module provides classes to run and analyze BoltzTraP on pymatgen band
+structure objects. BoltzTraP is a software developed by Georg Madsen to
+interpolate band structures and compute materials properties from this
+band structure using Boltzmann semi-classical transport theory.
 
-Boltztrap has been developed by Georg Madsen.
-
-http://www.icams.de/content/research/software-development/boltztrap/
+https://www.tuwien.at/en/tch/tc/theoretical-materials-chemistry/boltztrap
 
 You need version 1.2.3 or higher
 
-References are:
-
+References:
     Madsen, G. K. H., and Singh, D. J. (2006).
     BoltzTraP. A code for calculating band-structure dependent quantities.
     Computer Physics Communications, 175, 67-71
@@ -65,8 +62,8 @@ class BoltztrapRunner(MSONable):
     @requires(
         which("x_trans"),
         "BoltztrapRunner requires the executables 'x_trans' to be in PATH. Please download "
-        "Boltztrap at http://www.icams.de/content/research/software-development/boltztrap/ "
-        "and follow the instructions in the README to compile Bolztrap accordingly. "
+        "BoltzTraP at https://www.tuwien.at/en/tch/tc/theoretical-materials-chemistry/boltztrap "
+        "and follow the instructions in the README to compile BoltzTraP accordingly. "
         "Then add x_trans to your path",
     )
     def __init__(
