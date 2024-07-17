@@ -34,7 +34,7 @@ class CoherentInterfaceBuilder:
         substrate_miller: Tuple3Ints,
         zslgen: ZSLGenerator | None = None,
         termination_ftol=0.25,
-        label_index=False, # necessary to add index to termination
+        label_index=False,  # necessary to add index to termination
     ):
         """
         Args:
@@ -142,7 +142,8 @@ class CoherentInterfaceBuilder:
 
         if self.label_index:
             film_terminations = [
-                label_termination(slab, self.termination_ftol, t_index) for t_index, slab in enumerate(film_slabs, start=1)
+                label_termination(slab, self.termination_ftol, t_index)
+                for t_index, slab in enumerate(film_slabs, start=1)
             ]
         else:
             film_terminations = [label_termination(slab, self.termination_ftol) for slab in film_slabs]
@@ -150,7 +151,8 @@ class CoherentInterfaceBuilder:
         sub_shifts = [slab.shift for slab in sub_slabs]
         if self.label_index:
             sub_terminations = [
-                label_termination(slab, self.termination_ftol, t_index) for t_index, slab in enumerate(sub_slabs, start=1)
+                label_termination(slab, self.termination_ftol, t_index)
+                for t_index, slab in enumerate(sub_slabs, start=1)
             ]
         else:
             sub_terminations = [label_termination(slab, self.termination_ftol) for slab in sub_slabs]
