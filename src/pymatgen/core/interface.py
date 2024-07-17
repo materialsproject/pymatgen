@@ -2837,7 +2837,6 @@ class Interface(Structure):
         return iface
 
 
-def label_termination(slab: Structure) -> str:
 def label_termination(slab: Structure, ftol: float = 0.25, t_index: int | None = None) -> str:
     """Label the slab surface termination.
     Args:
