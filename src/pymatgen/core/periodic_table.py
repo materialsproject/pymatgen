@@ -324,10 +324,19 @@ class ElementBase(Enum):
 
     @property
     def electronic_structure(self) -> str:
-        """Electronic structure as string, with only valence electrons.
-        e.g. The electronic structure for Fe is represented as '[Ar].3d6.4s2'.
+        """Electronic structure as string, with only valence electrons. The
+        electrons are listed in order of increasing prinicpal quantum number
+         (orbital number), irrespective of the actual energy level,
+        e.g., The electronic structure for Fe is represented as '[Ar].3d6.4s2'
+        even though the 3d electrons are higher in energy than the 4s.
+
+        References:
+            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
+            Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
+            June 3]. National Institute of Standards and Technology, Gaithersburg,
+            MD. DOI: https://doi.org/10.18434/T4W30F
         """
-        return re.sub("</*sup>", "", self._data["Electronic structure"])
+        return re.sub("</*sup>", "", self._data["Electronic structure"]["0"])
 
     @property
     def average_ionic_radius(self) -> FloatWithUnit:
@@ -412,10 +421,18 @@ class ElementBase(Enum):
 
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
-        """Full electronic structure as tuple.
-        e.g. The electronic structure for Fe is represented as:
+        """Full electronic structure as list of tuples, in order of increasing
+        principal (n) and angular momentum (l)  quantum numbers.
+
+        For example, the electronic structure for Fe is represented as:
         [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
         (3, "d", 6), (4, "s", 2)].
+
+        References:
+            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
+            Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
+            June 3]. National Institute of Standards and Technology, Gaithersburg,
+            MD. DOI: https://doi.org/10.18434/T4W30F
         """
         e_str = self.electronic_structure
 
@@ -433,7 +450,8 @@ class ElementBase(Enum):
     @property
     def valence(self) -> tuple[int | np.nan, int]:
         """Valence subshell angular moment (L) and number of valence e- (v_e),
-        obtained from full electron config.
+        obtained from full electron config, where L=0, 1, 2, or 3 for s, p, d,
+        and f orbitals, respectively.
         """
         if self.group == 18:
             return np.nan, 0  # The number of valence of noble gas is 0
@@ -1076,21 +1094,79 @@ class Species(MSONable, Stringify):
         return self._spin
 
     @property
-    def full_electronic_structure(self) -> list[tuple[int, str, int]]:
-        """Full electronic structure as tuple. Not implemented for Species as of now."""
-        raise NotImplementedError
+    def electronic_structure(self) -> str:
+        """Electronic structure as string, with only valence electrons. The
+        electrons are listed in order of increasing prinicpal quantum number
+         (orbital number), irrespective of the actual energy level,
+        e.g., The electronic structure for Fe is represented as '[Ar].3d6.4s2'
+        even though the 3d electrons are higher in energy than the 4s.
 
+        References:
+            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
+            Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
+            June 3]. National Institute of Standards and Technology, Gaithersburg,
+            MD. DOI: https://doi.org/10.18434/T4W30F
+        """
+        if self._data["Electronic structure"].get(str(self._oxi_state)) is not None:
+            return re.sub("</*sup>", "", self._data["Electronic structure"][str(self._oxi_state)])
+
+        raise ValueError(f"No electronic structure data for oxidation state {self.oxi_state}")
+
+    # NOTE - copied exactly from Element. Refactoring / inheritance may improve
+    # robustness
     @property
-    def electronic_structure(self) -> list[tuple[int, str, int]]:
-        """Electronic structure as tuple. Not implemented for Species as of now."""
-        raise NotImplementedError
+    def full_electronic_structure(self) -> list[tuple[int, str, int]]:
+        """Full electronic structure as list of tuples, in order of increasing
+        principal (n) and angular momentum (l)  quantum numbers.
 
+        For example, the electronic structure for Fe+2 is represented as:
+        [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
+        (3, "d", 6)].
+
+        References:
+            Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
+            Atomic Spectra Database (ver. 5.11). https://physics.nist.gov/asd [2024,
+            June 3]. National Institute of Standards and Technology, Gaithersburg,
+            MD. DOI: https://doi.org/10.18434/T4W30F
+        """
+        e_str = self.electronic_structure
+
+        def parse_orbital(orb_str):
+            if match := re.match(r"(\d+)([spdfg]+)(\d+)", orb_str):
+                return int(match[1]), match[2], int(match[3])
+            return orb_str
+
+        data = [parse_orbital(s) for s in e_str.split(".")]
+        if data[0][0] == "[":
+            sym = data[0].replace("[", "").replace("]", "")
+            data = list(Element(sym).full_electronic_structure) + data[1:]
+        return data
+
+    # NOTE - copied exactly from Element. Refactoring / inheritance may improve
+    # robustness
     @property
     def valence(self) -> tuple[int | np.nan, int]:
         """Valence subshell angular moment (L) and number of valence e- (v_e),
-        obtained from full electron config. Not implemented for Species as of now.
+        obtained from full electron config, where L=0, 1, 2, or 3 for s, p, d,
+        and f orbitals, respectively.
         """
-        raise NotImplementedError
+        if self.group == 18:
+            return np.nan, 0  # The number of valence of noble gas is 0
+
+        L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
+        valence: list[tuple[int, int]] = []
+        full_electron_config = self.full_electronic_structure
+        last_orbital = full_electron_config[-1]
+        for n, l_symbol, ne in full_electron_config:
+            idx = L_symbols.lower().index(l_symbol)
+            if ne < (2 * idx + 1) * 2 or (
+                (n, l_symbol, ne) == last_orbital and ne == (2 * idx + 1) * 2 and len(valence) == 0
+            ):  # check for full last shell (e.g. column 2)
+                valence.append((idx, ne))
+        if len(valence) > 1:
+            raise ValueError(f"{self} has ambiguous valence")
+
+        return valence[0]
 
     @property
     def ionic_radius(self) -> float | None:
