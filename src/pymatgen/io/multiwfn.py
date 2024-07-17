@@ -14,10 +14,7 @@ from typing import TYPE_CHECKING, Any, Literal
 import numpy as np
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from pymatgen.core.structure import Molecule
-
     from pymatgen.util.typing import PathLike
 
 __author__ = "Santiago Vargas, Evan Spotte-Smith"
