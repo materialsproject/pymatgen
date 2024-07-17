@@ -1665,18 +1665,18 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     def as_dict(self) -> dict[str, Any]:
         """Write the entries and elements used to construct the PatchedPhaseDiagram
-        to a dictionary. 
+        to a dictionary.
 
-        NOTE unlike PhaseDiagram the computation involved in constructing the 
+        NOTE unlike PhaseDiagram the computation involved in constructing the
         PatchedPhaseDiagram is not saved on serialisation. This is done because
         hierachically calling the `PhaseDiagram.as_dict()` method would break the
         link in memory between entries in overlapping patches leading to a
         ballooning of the amount of memory used.
-        
+
         NOTE For memory efficiency the best way to store patched phase diagrams is
         via pickling. As this allows all the entries in overlapping patches to share
         the same id in memory when unpickling.
-        
+
         Returns:
             dict[str, Any]: MSONable dictionary representation of PatchedPhaseDiagram.
         """
@@ -1691,11 +1691,11 @@ class PatchedPhaseDiagram(PhaseDiagram):
     def from_dict(cls, dct: dict) -> Self:
         """Reconstruct PatchedPhaseDiagram from dictionary serialisation.
 
-        NOTE unlike PhaseDiagram the computation involved in constructing the 
+        NOTE unlike PhaseDiagram the computation involved in constructing the
         PatchedPhaseDiagram is not saved on serialisation. This is done because
         hierachically calling the `PhaseDiagram.as_dict()` method would break the
         link in memory between entries in overlapping patches leading to a
-        ballooning of the amount of memory used. 
+        ballooning of the amount of memory used.
 
         NOTE For memory efficiency the best way to store patched phase diagrams is
         via pickling. As this allows all the entries in overlapping patches to share
