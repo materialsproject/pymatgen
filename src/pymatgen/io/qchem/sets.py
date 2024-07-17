@@ -150,6 +150,7 @@ class QChemDictSet(QCInput):
         max_scf_cycles: int = 100,
         geom_opt_max_cycles: int = 200,
         plot_cubes: bool = False,
+        output_wavefunction: bool = False,
         nbo_params: dict | None = None,
         geom_opt: dict | None = None,
         cdft_constraints: list[list[dict]] | None = None,
@@ -229,6 +230,8 @@ class QChemDictSet(QCInput):
             max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
             geom_opt_max_cycles (int): Maximum number of geometry optimization iterations. (Default: 200)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
+            output_wavefunction (bool): Whether to write a wavefunction (*.wfn) file of the electron density
+                (Default: False)
             nbo_params (dict): A dict containing the desired NBO params. Note that a key:value pair of
                 "version":7 will trigger NBO7 analysis. Otherwise, NBO5 analysis will be performed,
                 including if an empty dict is passed. Besides a key of "version", all other key:value
@@ -368,6 +371,7 @@ class QChemDictSet(QCInput):
         self.max_scf_cycles = max_scf_cycles
         self.geom_opt_max_cycles = geom_opt_max_cycles
         self.plot_cubes = plot_cubes
+        self.output_wavefunction = output_wavefunction
         self.nbo_params = nbo_params
         self.geom_opt = geom_opt
         self.cdft_constraints = cdft_constraints
@@ -429,6 +433,10 @@ class QChemDictSet(QCInput):
 
         if self.job_type.lower() in ["opt", "ts", "pes_scan"]:
             rem["geom_opt_max_cycles"] = str(self.geom_opt_max_cycles)
+
+        # To keep things simpler on the analysis side, don't give user option to change *.wfn file name
+        if self.output_wavefunction:
+            rem["write_wfn"] = "wavefunction"
 
         solvent_def = 0
         for a in [self.pcm_dielectric, self.isosvp_dielectric, self.smd_solvent, self.cmirs_solvent]:
@@ -644,6 +652,7 @@ class SinglePointSet(QChemDictSet):
         custom_smd: str | None = None,
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
+        output_wavefunction: bool = False,
         nbo_params: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
         cdft_constraints: list[list[dict]] | None = None,
@@ -713,6 +722,8 @@ class SinglePointSet(QChemDictSet):
                 Refer to the QChem manual for further details.
             max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
+            output_wavefunction (bool): Whether to write a wavefunction (*.wfn) file of the electron density
+                (Default: False)
             cdft_constraints (list of lists of dicts):
                 A list of lists of dictionaries, where each dictionary represents a charge
                 constraint in the cdft section of the QChem input file.
@@ -842,6 +853,7 @@ class SinglePointSet(QChemDictSet):
             qchem_version=qchem_version,
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
+            output_wavefunction=output_wavefunction,
             nbo_params=nbo_params,
             vdw_mode=vdw_mode,
             cdft_constraints=cdft_constraints,
@@ -868,6 +880,7 @@ class OptSet(QChemDictSet):
         custom_smd: str | None = None,
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
+        output_wavefunction: bool = False,
         nbo_params: dict | None = None,
         opt_variables: dict[str, list] | None = None,
         geom_opt_max_cycles: int = 200,
@@ -940,6 +953,8 @@ class OptSet(QChemDictSet):
                 explicitly requested by passing in a dictionary (empty or otherwise) for this input parameter.
                 (Default: False)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
+            output_wavefunction (bool): Whether to write a wavefunction (*.wfn) file of the electron density
+                (Default: False)
             vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies
                 only if you are using overwrite_inputs to add a $van_der_waals section to the input.
                 In 'atomic' mode (default), dict keys represent the atomic number associated with each
@@ -1053,6 +1068,7 @@ class OptSet(QChemDictSet):
             max_scf_cycles=self.max_scf_cycles,
             geom_opt_max_cycles=self.geom_opt_max_cycles,
             plot_cubes=plot_cubes,
+            output_wavefunction=output_wavefunction,
             nbo_params=nbo_params,
             geom_opt=geom_opt,
             cdft_constraints=cdft_constraints,
@@ -1077,6 +1093,7 @@ class TransitionStateSet(QChemDictSet):
         custom_smd: str | None = None,
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
+        output_wavefunction: bool = False,
         nbo_params: dict | None = None,
         opt_variables: dict[str, list] | None = None,
         geom_opt_max_cycles: int = 200,
@@ -1146,6 +1163,8 @@ class TransitionStateSet(QChemDictSet):
                 explicitly requested by passing in a dictionary (empty or otherwise) for this input parameter.
                 (Default: False)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
+            output_wavefunction (bool): Whether to write a wavefunction (*.wfn) file of the electron density
+                (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
                 The currently available sections (keys) are rem, pcm,
                 solvent, smx, opt, scan, van_der_waals, and plots. The value of each key is a
@@ -1187,6 +1206,7 @@ class TransitionStateSet(QChemDictSet):
             max_scf_cycles=self.max_scf_cycles,
             geom_opt_max_cycles=self.geom_opt_max_cycles,
             plot_cubes=plot_cubes,
+            output_wavefunction=output_wavefunction,
             nbo_params=nbo_params,
             geom_opt=geom_opt,
             overwrite_inputs=overwrite_inputs,
@@ -1211,6 +1231,7 @@ class ForceSet(QChemDictSet):
         custom_smd: str | None = None,
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
+        output_wavefunction: bool = False,
         nbo_params: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
         cdft_constraints: list[list[dict]] | None = None,
@@ -1271,6 +1292,8 @@ class ForceSet(QChemDictSet):
                 Refer to the QChem manual for further details.
             max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
+            output_wavefunction (bool): Whether to write a wavefunction (*.wfn) file of the electron density
+                (Default: False)
             vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies
                 only if you are using overwrite_inputs to add a $van_der_waals section to the input.
                 In 'atomic' mode (default), dict keys represent the atomic number associated with each
@@ -1376,6 +1399,7 @@ class ForceSet(QChemDictSet):
             qchem_version=qchem_version,
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
+            output_wavefunction=output_wavefunction,
             nbo_params=nbo_params,
             vdw_mode=vdw_mode,
             cdft_constraints=cdft_constraints,
@@ -1400,6 +1424,7 @@ class FreqSet(QChemDictSet):
         custom_smd: str | None = None,
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
+        output_wavefunction: bool = False,
         nbo_params: dict | None = None,
         vdw_mode: Literal["atomic", "sequential"] = "atomic",
         cdft_constraints: list[list[dict]] | None = None,
@@ -1460,6 +1485,8 @@ class FreqSet(QChemDictSet):
                 Refer to the QChem manual for further details.
             max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
+            output_wavefunction (bool): Whether to write a wavefunction (*.wfn) file of the electron density
+                (Default: False)
             vdw_mode ('atomic' | 'sequential'): Method of specifying custom van der Waals radii. Applies
                 only if you are using overwrite_inputs to add a $van_der_waals section to the input.
                 In 'atomic' mode (default), dict keys represent the atomic number associated with each
@@ -1565,6 +1592,7 @@ class FreqSet(QChemDictSet):
             qchem_version=qchem_version,
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
+            output_wavefunction=output_wavefunction,
             nbo_params=nbo_params,
             vdw_mode=vdw_mode,
             cdft_constraints=cdft_constraints,
@@ -1597,6 +1625,7 @@ class PESScanSet(QChemDictSet):
         custom_smd: str | None = None,
         max_scf_cycles: int = 100,
         plot_cubes: bool = False,
+        output_wavefunction: bool = False,
         nbo_params: dict | None = None,
         opt_variables: dict[str, list] | None = None,
         scan_variables: dict[str, list] | None = None,
@@ -1670,6 +1699,8 @@ class PESScanSet(QChemDictSet):
                 Refer to the QChem manual for further details.
             max_scf_cycles (int): Maximum number of SCF iterations. (Default: 100)
             plot_cubes (bool): Whether to write CUBE files of the electron density. (Default: False)
+            output_wavefunction (bool): Whether to write a wavefunction (*.wfn) file of the electron density
+                (Default: False)
             overwrite_inputs (dict): Dictionary of QChem input sections to add or overwrite variables.
                 The currently available sections (keys) are rem, pcm,
                 solvent, smx, opt, scan, van_der_waals, and plots. The value of each key is a
@@ -1714,6 +1745,7 @@ class PESScanSet(QChemDictSet):
             qchem_version=qchem_version,
             max_scf_cycles=self.max_scf_cycles,
             plot_cubes=plot_cubes,
+            output_wavefunction=output_wavefunction,
             nbo_params=nbo_params,
             overwrite_inputs=overwrite_inputs,
             vdw_mode=vdw_mode,
