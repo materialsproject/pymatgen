@@ -846,6 +846,8 @@ class SpeciesDefaults(list, MSONable):
             elements = {}
         self.elements = {}
         for label in self.labels:
+            if ",spin" in label:
+                label = label.split(",")[0]
             self.elements[label] = elements.get(label, label)
         self._set_species()
 
@@ -853,8 +855,7 @@ class SpeciesDefaults(list, MSONable):
         """Initialize species defaults from the instance data"""
         del self[:]
 
-        for label in self.labels:
-            el = self.elements[label]
+        for label, el in self.elements.items():
             if isinstance(self.basis_set, dict):
                 basis_set = self.basis_set.get(label, None)
                 if basis_set is None:
