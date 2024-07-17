@@ -13,12 +13,12 @@ from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 
-# from pymatgen.core.sites import Site
-
 if TYPE_CHECKING:
     from pathlib import Path
 
     from pymatgen.core.structure import Molecule
+
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Santiago Vargas, Evan Spotte-Smith"
 __copyright__ = "Copyright 2024, The Materials Project"
@@ -166,12 +166,12 @@ def parse_cp(lines: list[str]) -> tuple[str | None, dict[str, Any]]:
     return extract_info_from_cp_text(lines_split, cp_type, conditionals)  # type: ignore[arg-type]
 
 
-def get_qtaim_descs(file: str | Path) -> dict[str, dict[str, Any]]:
+def get_qtaim_descs(file: PathLike) -> dict[str, dict[str, Any]]:
     """
     Parse CPprop file from multiwfn by parsing each individual critical-point section.
 
     Args:
-        file (str | Path): path to CPprop file
+        file (PathLike): path to CPprop file
 
     Returns:
         descriptors (Dict[str, Dict[str, Any]]): Output dictionary of QTAIM descriptors
@@ -454,7 +454,7 @@ def add_atoms(
 
 def process_multiwfn_qtaim(
     molecule: Molecule,
-    file: str | Path,
+    file: PathLike,
     max_distance_atom: float = 0.5,
     dist_threshold_bond: float = 1.0,
     dist_threshold_ring_cage: float = 3.0,
@@ -465,7 +465,7 @@ def process_multiwfn_qtaim(
 
     Args:
         molecule (Molecule): structure corresponding to this Multiwfn calculation
-        file (str | Path): path to CPprop file containing QTAIM information
+        file (PathLike): path to CPprop file containing QTAIM information
         max_distance (float): Maximum distance (in Angstrom) that an atom critical point can be away from an atom
             center and be associated with that atom. Default is 0.5 Angstrom
         dist_threshold_bond (float): If the nearest atoms to a bond CP are further from the bond CP than this threshold
