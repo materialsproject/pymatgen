@@ -15,6 +15,9 @@ from typing import TYPE_CHECKING, Literal, Union, cast
 import numpy as np
 from monty.fractions import lcm
 from numpy.testing import assert_allclose
+from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.spatial.distance import squareform
+
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite, Site
@@ -22,17 +25,16 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.surface import Slab
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.typing import Tuple3Ints
-from scipy.cluster.hierarchy import fcluster, linkage
-from scipy.spatial.distance import squareform
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Callable
 
     from numpy.typing import ArrayLike, NDArray
+    from typing_extensions import Self
+
     from pymatgen.core import Element
     from pymatgen.util.typing import CompositionLike, Matrix3D, MillerIndex, Tuple3Floats, Vector3D
-    from typing_extensions import Self
 
 Tuple4Ints = tuple[int, int, int, int]
 logger = logging.getLogger(__name__)
@@ -696,7 +698,7 @@ class GrainBoundaryGenerator:
             list(top_grain.frac_coords) + list(bottom_grain.frac_coords),
         )
         t_and_b_dis = t_and_b.lattice.get_all_distances(
-            t_and_b.frac_coords[:n_sites], t_and_b.frac_coords[n_sites : n_sites * 2]
+            t_and_b.frac_coords[0:n_sites], t_and_b.frac_coords[n_sites : n_sites * 2]
         )
         index_incident = np.nonzero(t_and_b_dis < np.min(t_and_b_dis) + tol_coi)
 
@@ -1442,7 +1444,7 @@ class GrainBoundaryGenerator:
             v = 2 * v1 + u1
             w = w1
         else:
-            u, v, w = r_axis  # type: ignore[misc]
+            u, v, w = r_axis
 
         # Make sure mu, mv are coprime integers
         if c2_a2_ratio is None:
@@ -1555,7 +1557,7 @@ class GrainBoundaryGenerator:
         # Make sure math.(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
             r_axis = cast(Tuple3Ints, tuple([round(x / reduce(math.gcd, r_axis)) for x in r_axis]))
-        u, v, w = r_axis  # type: ignore[misc]
+        u, v, w = r_axis
 
         # Make sure mu, mv are coprime integers
         if ratio_alpha is None:
@@ -2837,8 +2839,13 @@ class Interface(Structure):
         return iface
 
 
-def label_termination(slab: Structure) -> str:
-    """Label the slab surface termination."""
+def label_termination(slab: Structure, ftol: float = 0.25, t_index: int | None = None) -> str:
+    """Label the slab surface termination.
+    Args:
+        slab (Slab): film or substrate slab to label termination for
+        ftol (float): tolerance for terminating position hierachical clustering
+        t_index (None|int): if not None, adding an extra index to the termination label output
+    """
     frac_coords = slab.frac_coords
     n = len(frac_coords)
 
@@ -2861,7 +2868,7 @@ def label_termination(slab: Structure) -> str:
 
     condensed_m = squareform(dist_matrix)
     z = linkage(condensed_m)
-    clusters = fcluster(z, 0.25, criterion="distance")
+    clusters = fcluster(z, ftol, criterion="distance")
 
     clustered_sites: dict[int, list[Site]] = {c: [] for c in clusters}
     for idx, cluster in enumerate(clusters):
@@ -2874,7 +2881,11 @@ def label_termination(slab: Structure) -> str:
 
     sp_symbol = SpacegroupAnalyzer(top_plane, symprec=0.1).get_space_group_symbol()
     form = top_plane.reduced_formula
-    return f"{form}_{sp_symbol}_{len(top_plane)}"
+
+    if t_index is None:
+        return f"{form}_{sp_symbol}_{len(top_plane)}"
+
+    return f"{t_index}_{form}_{sp_symbol}_{len(top_plane)}"
 
 
 def count_layers(struct: Structure, el: Element | None = None) -> int:
