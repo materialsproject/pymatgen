@@ -7,12 +7,11 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.testing import assert_allclose
-from scipy.linalg import polar
-
 from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.analysis.interfaces.zsl import ZSLGenerator, fast_norm
 from pymatgen.core.interface import Interface, label_termination
 from pymatgen.core.surface import SlabGenerator
+from scipy.linalg import polar
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -34,8 +33,6 @@ class CoherentInterfaceBuilder:
         film_miller: Tuple3Ints,
         substrate_miller: Tuple3Ints,
         zslgen: ZSLGenerator | None = None,
-        termination_ftol=0.25,
-        label_index=False, # necessary to add index to termination
     ):
         """
         Args:
@@ -44,8 +41,6 @@ class CoherentInterfaceBuilder:
             film_miller: miller index of the film layer
             substrate_miller: miller index for the substrate layer
             zslgen: BiDirectionalZSL if you want custom lattice matching tolerances for coherency.
-            termination_ftol: tolerance to distinguish different terminating atomic planes.
-            label_index: whether to add an extra index at the beginning of the termination label.
         """
         # Bulk structures
         self.substrate_structure = substrate_structure
@@ -53,8 +48,7 @@ class CoherentInterfaceBuilder:
         self.film_miller = film_miller
         self.substrate_miller = substrate_miller
         self.zslgen = zslgen or ZSLGenerator(bidirectional=True)
-        self.termination_ftol = termination_ftol
-        self.label_index = label_index
+
         self._find_matches()
         self._find_terminations()
 
@@ -136,25 +130,14 @@ class CoherentInterfaceBuilder:
             reorient_lattice=False,  # This is necessary to not screw up the lattice
         )
 
-        film_slabs = film_sg.get_slabs(ftol=self.termination_ftol)
-        sub_slabs = sub_sg.get_slabs(ftol=self.termination_ftol)
+        film_slabs = film_sg.get_slabs()
+        sub_slabs = sub_sg.get_slabs()
 
         film_shifts = [slab.shift for slab in film_slabs]
-
-        if self.label_index:
-            film_terminations = [
-                label_termination(slab, self.termination_ftol, t_index) for t_index, slab in enumerate(film_slabs, start=1)
-            ]
-        else:
-            film_terminations = [label_termination(slab, self.termination_ftol) for slab in film_slabs]
+        film_terminations = [label_termination(slab) for slab in film_slabs]
 
         sub_shifts = [slab.shift for slab in sub_slabs]
-        if self.label_index:
-            sub_terminations = [
-                label_termination(slab, self.termination_ftol, t_index) for t_index, slab in enumerate(sub_slabs, start=1)
-            ]
-        else:
-            sub_terminations = [label_termination(slab, self.termination_ftol) for slab in sub_slabs]
+        sub_terminations = [label_termination(slab) for slab in sub_slabs]
 
         self._terminations = {
             (film_label, sub_label): (film_shift, sub_shift)
