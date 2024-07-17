@@ -1669,7 +1669,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         NOTE unlike PhaseDiagram the computation involved in constructing the
         PatchedPhaseDiagram is not saved on serialisation. This is done because
-        hierachically calling the `PhaseDiagram.as_dict()` method would break the
+        hierarchically calling the `PhaseDiagram.as_dict()` method would break the
         link in memory between entries in overlapping patches leading to a
         ballooning of the amount of memory used.
 
@@ -1693,7 +1693,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
         NOTE unlike PhaseDiagram the computation involved in constructing the
         PatchedPhaseDiagram is not saved on serialisation. This is done because
-        hierachically calling the `PhaseDiagram.as_dict()` method would break the
+        hierarchically calling the `PhaseDiagram.as_dict()` method would break the
         link in memory between entries in overlapping patches leading to a
         ballooning of the amount of memory used.
 
