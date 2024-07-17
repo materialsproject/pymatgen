@@ -382,7 +382,7 @@ class AimsInputGenerator(InputGenerator):
         Returns:
             dict: Monkhorst-Pack grid size in all directions
         """
-        recipcell = structure.lattice.inv_matrix
+        recipcell = structure.lattice.inv_matrix.transpose()
         return self.d2k_recipcell(recipcell, structure.lattice.pbc, kptdensity, even)
 
     def k2d(self, structure: Structure, k_grid: np.ndarray[int]):
@@ -397,7 +397,7 @@ class AimsInputGenerator(InputGenerator):
         Returns:
             dict: Density of kpoints in each direction. result.mean() computes average density
         """
-        recipcell = structure.lattice.inv_matrix
+        recipcell = structure.lattice.inv_matrix.transpose()
         densities = k_grid / (2 * np.pi * np.sqrt((recipcell**2).sum(axis=1)))
         return np.array(densities)
 
@@ -433,6 +433,7 @@ class AimsInputGenerator(InputGenerator):
                     kpts.append(int(np.ceil(k)))
             else:
                 kpts.append(1)
+            print(f"kpoiint: {i} {kpts[i]} {np.sqrt((recipcell[i] ** 2).sum())} {kptdensity[i]}")
         return kpts
 
 
