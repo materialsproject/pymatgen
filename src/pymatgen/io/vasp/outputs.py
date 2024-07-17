@@ -24,8 +24,6 @@ from monty.json import MSONable, jsanitize
 from monty.os.path import zpath
 from monty.re import regrep
 from numpy.testing import assert_allclose
-from tqdm import tqdm
-
 from pymatgen.core import Composition, Element, Lattice, Structure
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.core.units import unitized
@@ -44,6 +42,7 @@ from pymatgen.io.wannier90 import Unk
 from pymatgen.util.io_utils import clean_lines, micro_pyawk
 from pymatgen.util.num import make_symmetric_matrix_from_upper_tri
 from pymatgen.util.typing import Kpoint, Tuple3Floats, Vector3D
+from tqdm import tqdm
 
 if TYPE_CHECKING:
     from typing import Any, Callable, Literal
@@ -52,9 +51,8 @@ if TYPE_CHECKING:
     from xml.etree.ElementTree import Element as XML_Element
 
     from numpy.typing import NDArray
-    from typing_extensions import Self
-
     from pymatgen.util.typing import PathLike
+    from typing_extensions import Self
 
 logger = logging.getLogger(__name__)
 

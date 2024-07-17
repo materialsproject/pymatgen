@@ -13,8 +13,6 @@ import numpy as np
 import pytest
 from monty.io import zopen
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.core import Element
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -42,6 +40,7 @@ from pymatgen.io.vasp.outputs import (
 )
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pytest import approx
 
 try:
     import h5py
