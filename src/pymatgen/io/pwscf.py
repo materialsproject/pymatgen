@@ -305,7 +305,7 @@ class PWInput:
                         sections[section][key] = PWInput.proc_val(key, val)
 
             elif mode[0] == "pseudo":
-                if match := re.match(r"(\w+\d*\+?-?)\s+(\d*.\d*)\s+(.*)", line):
+                if match := re.match(r"(\w+\d*[\+-]?)\s+(\d*.\d*)\s+(.*)", line):
                     pseudo[match[1].strip()] = match[3].strip()
 
             elif mode[0] == "kpoints":
@@ -317,7 +317,7 @@ class PWInput:
 
             elif mode[0] == "structure":
                 m_l = re.match(r"(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
-                m_p = re.match(r"(\w+\d*\+?-?)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
+                m_p = re.match(r"(\w+\d*[\+-]?)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
                 if m_l:
                     lattice += [
                         float(m_l[1]),
