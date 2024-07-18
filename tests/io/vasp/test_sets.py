@@ -111,6 +111,7 @@ class TestSetChangeCheck(PymatgenTest):
         known_hashes = {
             "MatPESStaticSet.yaml": "8edecff2bbd1932c53159f56a8e6340e900aaa2f",
             "MITRelaxSet.yaml": "1a0970f8cad9417ec810f7ab349dc854eaa67010",
+            "MP24RelaxSet.yaml": "66a8cf8be2174fe82c101e189c1ac157dd6cc2c7",
             "MPAbsorptionSet.yaml": "5931e1cb3cf8ba809b3d4f4a5960d728c682adf1",
             "MPHSERelaxSet.yaml": "0d0d96a620461071cfd416ec9d5d6a8d2dfd0855",
             "MPRelaxSet.yaml": "f2949cdc5dc8cd0bee6d39a5df0d6a6b7c144821",
@@ -118,7 +119,7 @@ class TestSetChangeCheck(PymatgenTest):
             "MVLGWSet.yaml": "104ae93c3b3be19a13b0ee46ebdd0f40ceb96597",
             "MVLRelax52Set.yaml": "4cfc6b1bd0548e45da3bde4a9c65b3249da13ecd",
             "PBE54Base.yaml": "ec317781a7f344beb54c17a228db790c0eb49282",
-            "PBE64Base.yaml": "480c41c2448cb25706181de268090618e282b264",
+            "PBE64Base.yaml": "0b6e1eb9d848c7264ba6a2347ce6e921f85522e3",
             "VASPIncarBase.yaml": "19762515f8deefb970f2968fca48a0d67f7964d4",
             "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
         }
