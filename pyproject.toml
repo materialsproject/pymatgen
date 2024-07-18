@@ -131,6 +131,9 @@ feff_plot_cross_section = "pymatgen.cli.feff_plot_cross_section:main"
 feff_plot_dos = "pymatgen.cli.feff_plot_dos:main"
 get_environment = "pymatgen.cli.get_environment:main"
 
+[tool.setuptools]
+include-package-data = false
+
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["pymatgen", "pymatgen.*"]
