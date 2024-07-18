@@ -72,11 +72,28 @@ class TestEtsfReader(PymatgenTest):
             # Initialize pymatgen structure from GSR.
             structure = data.read_structure()
             assert isinstance(structure, Structure)
+            assert "magmom" not in structure.site_properties
 
             # Read ixc.
             # TODO: Upgrade GSR file.
             # xc = data.read_abinit_xcfunc()
             # assert xc == "LDA"
+
+    @pytest.mark.skipif(netCDF4 is None, reason="Requires Netcdf4")
+    def test_read_fe(self):
+        path = self.GSR_paths["Fe_magmoms_collinear"]
+        ref_magmom_collinear = [0, 0, -0.5069359730980665]
+
+        with EtsfReader(path) as data:
+            structure = data.read_structure()
+            assert structure.site_properties["magmom"] == ref_magmom_collinear
+
+        path = self.GSR_paths["Fe_magmoms_noncollinear"]
+        ref_magmom_noncollinear = [0.357939487, 0.357939487, 0]
+
+        with EtsfReader(path) as data:
+            structure = data.read_structure()
+            assert structure.site_properties["magmom"] == ref_magmom_noncollinear
 
 
 class TestAbinitHeader(PymatgenTest):
