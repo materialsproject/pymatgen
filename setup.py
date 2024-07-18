@@ -15,17 +15,17 @@ setup(
     ext_modules=[
         Extension(
             "pymatgen.optimization.linear_assignment",
-            ["pymatgen/optimization/linear_assignment.pyx"],
+            ["src/pymatgen/optimization/linear_assignment.pyx"],
             extra_link_args=extra_link_args,
         ),
         Extension(
             "pymatgen.util.coord_cython",
-            ["pymatgen/util/coord_cython.pyx"],
+            ["src/pymatgen/util/coord_cython.pyx"],
             extra_link_args=extra_link_args,
         ),
         Extension(
             "pymatgen.optimization.neighbors",
-            ["pymatgen/optimization/neighbors.pyx"],
+            ["src/pymatgen/optimization/neighbors.pyx"],
             extra_link_args=extra_link_args,
         ),
     ],

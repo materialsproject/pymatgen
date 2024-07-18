@@ -377,7 +377,7 @@ CELL_PARAMETERS angstrom
         assert pw_in.sections["system"]["smearing"] == "cold"
 
 
-class TestPWOuput(PymatgenTest):
+class TestPWOutput(PymatgenTest):
     def setUp(self):
         self.pw_out = PWOutput(f"{TEST_DIR}/Si.pwscf.out")
 
