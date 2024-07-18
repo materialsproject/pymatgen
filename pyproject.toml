@@ -133,7 +133,7 @@ get_environment = "pymatgen.cli.get_environment:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["pymatgen"]
+include = ["pymatgen", "pymatgen.*"]
 
 [tool.setuptools.package-data]
 "pymatgen.analysis" = ["*.yaml", "*.json", "*.csv"]
