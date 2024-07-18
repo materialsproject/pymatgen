@@ -18,7 +18,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 
 class TestEtsfReader(PymatgenTest):
     def setUp(self):
-        formulas = ["Si2"]
+        formulas = ["Si2", "Fe_magmoms_collinear", "Fe_magmoms_noncollinear"]
         self.GSR_paths = dct = {}
         for formula in formulas:
             dct[formula] = f"{TEST_DIR}/{formula}_GSR.nc"
