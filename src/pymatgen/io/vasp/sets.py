@@ -1593,7 +1593,8 @@ class MatPESStaticSet(VaspInputSet):
             )
 
         if self.xc_functional.upper() == "R2SCAN":
-            self._config_dict["INCAR"].update({"METAGGA": "R2SCAN", "ALGO": "ALL", "GGA": None})
+            self._config_dict["INCAR"].update({"METAGGA": "R2SCAN", "ALGO": "ALL"})
+            self._config_dict["INCAR"].pop("GGA", None)
         if self.xc_functional.upper().endswith("+U"):
             self._config_dict["INCAR"]["LDAU"] = True
 
