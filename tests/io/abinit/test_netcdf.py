@@ -89,7 +89,7 @@ class TestEtsfReader(PymatgenTest):
             assert structure.site_properties["magmom"] == ref_magmom_collinear
 
         path = self.GSR_paths["Fe_magmoms_noncollinear"]
-        ref_magmom_noncollinear = [0.357939487, 0.357939487, 0]
+        ref_magmom_noncollinear = [[0.357939487, 0.357939487, 0]]
 
         with EtsfReader(path) as data:
             structure = data.read_structure()
