@@ -62,7 +62,7 @@ dependencies = [
     "networkx>=2.2",
     'numpy>=1.25.0,<2.0 ; platform_system == "Windows"',
     'numpy>=1.25.0 ; platform_system != "Windows"',
-    "palettable>=3.1.1",
+    "palettable>=3.3.3",
     "pandas>=2",
     "plotly>=4.5.0",
     "pybtex>=0.24.0",
