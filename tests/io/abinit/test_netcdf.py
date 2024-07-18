@@ -82,7 +82,7 @@ class TestEtsfReader(PymatgenTest):
     @pytest.mark.skipif(netCDF4 is None, reason="Requires Netcdf4")
     def test_read_fe(self):
         path = self.GSR_paths["Fe_magmoms_collinear"]
-        ref_magmom_collinear = [0, 0, -0.5069359730980665]
+        ref_magmom_collinear = [-0.5069359730980665]
 
         with EtsfReader(path) as data:
             structure = data.read_structure()
