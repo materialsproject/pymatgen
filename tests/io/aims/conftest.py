@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 
 import pytest
-
 from pymatgen.core import SETTINGS
 
 module_dir = os.path.dirname(__file__)

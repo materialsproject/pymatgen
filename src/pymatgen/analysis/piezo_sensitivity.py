@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
-
 from pymatgen.core.tensors import Tensor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 

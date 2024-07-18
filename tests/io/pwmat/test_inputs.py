@@ -3,7 +3,6 @@ from __future__ import annotations
 import pytest
 from monty.io import zopen
 from numpy.testing import assert_allclose
-
 from pymatgen.core import Composition, Structure
 from pymatgen.io.pwmat.inputs import (
     ACExtractor,

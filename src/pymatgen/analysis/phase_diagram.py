@@ -21,11 +21,6 @@ from matplotlib.cm import ScalarMappable
 from matplotlib.colors import LinearSegmentedColormap, Normalize
 from matplotlib.font_manager import FontProperties
 from monty.json import MontyDecoder, MSONable
-from scipy import interpolate
-from scipy.optimize import minimize
-from scipy.spatial import ConvexHull
-from tqdm import tqdm
-
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.core import DummySpecies, Element, get_el_sp
 from pymatgen.core.composition import Composition
@@ -34,6 +29,10 @@ from pymatgen.util.coord import Simplex, in_coord_list
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import htmlify, latexify
+from scipy import interpolate
+from scipy.optimize import minimize
+from scipy.spatial import ConvexHull
+from tqdm import tqdm
 
 if TYPE_CHECKING:
     from collections.abc import Collection, Iterator, Sequence

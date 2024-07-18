@@ -20,9 +20,6 @@ from typing import TYPE_CHECKING
 
 import requests
 from monty.json import MontyDecoder, MontyEncoder
-from ruamel.yaml import YAML
-from tqdm import tqdm
-
 from pymatgen.core import SETTINGS, Composition, Element, Structure
 from pymatgen.core import __version__ as PMG_VERSION
 from pymatgen.core.surface import get_symmetrically_equivalent_miller_indices
@@ -31,15 +28,16 @@ from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEn
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
+from ruamel.yaml import YAML
+from tqdm import tqdm
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Literal
 
-    from typing_extensions import Self
-
     from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
     from pymatgen.phonon.dos import CompletePhononDos
+    from typing_extensions import Self
 
 logger = logging.getLogger(__name__)
 MP_LOG_FILE = os.path.join(os.path.expanduser("~"), ".mprester.log.yaml")

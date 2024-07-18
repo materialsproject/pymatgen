@@ -13,7 +13,6 @@ from matplotlib.patches import Circle, FancyArrowPatch
 from monty.json import MSONable, jsanitize
 from networkx.algorithms.components import is_connected
 from networkx.algorithms.traversal import bfs_tree
-
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 from pymatgen.analysis.chemenv.utils.graph_utils import get_delta

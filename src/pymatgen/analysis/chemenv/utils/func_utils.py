@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-
 from pymatgen.analysis.chemenv.utils.math_utils import (
     power2_decreasing_exp,
     power2_inverse_decreasing,

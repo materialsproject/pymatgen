@@ -31,10 +31,6 @@ import numpy as np
 from monty.dev import requires
 from monty.json import MSONable, jsanitize
 from monty.os import cd
-from scipy import constants
-from scipy.optimize import fsolve
-from scipy.spatial import distance
-
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.units import Energy, Length
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine, Kpoint
@@ -42,15 +38,17 @@ from pymatgen.electronic_structure.core import Orbital
 from pymatgen.electronic_structure.dos import CompleteDos, Dos, Spin
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
+from scipy import constants
+from scipy.optimize import fsolve
+from scipy.spatial import distance
 
 if TYPE_CHECKING:
     from typing import Literal
 
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
-
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.core.structure import Structure
+    from typing_extensions import Self
 
 __author__ = "Geoffroy Hautier, Zachary Gibbs, Francesco Ricci, Anubhav Jain"
 __copyright__ = "Copyright 2013, The Materials Project"

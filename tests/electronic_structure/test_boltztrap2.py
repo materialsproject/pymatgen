@@ -5,11 +5,10 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from monty.serialization import loadfn
-from pytest import approx
-
 from pymatgen.electronic_structure.core import OrbitalType, Spin
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR
+from pytest import approx
 
 try:
     from pymatgen.electronic_structure.boltztrap2 import (

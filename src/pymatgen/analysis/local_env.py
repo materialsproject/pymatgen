@@ -19,13 +19,12 @@ from typing import TYPE_CHECKING, Literal, NamedTuple, get_args
 import numpy as np
 from monty.dev import deprecated, requires
 from monty.serialization import loadfn
-from ruamel.yaml import YAML
-from scipy.spatial import Voronoi
-
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core import Element, IStructure, PeriodicNeighbor, PeriodicSite, Site, Species, Structure
+from ruamel.yaml import YAML
+from scipy.spatial import Voronoi
 
 try:
     from openbabel import openbabel
@@ -35,10 +34,9 @@ except Exception:
 if TYPE_CHECKING:
     from typing import Any
 
-    from typing_extensions import Self
-
     from pymatgen.core.composition import SpeciesLike
     from pymatgen.util.typing import Tuple3Ints
+    from typing_extensions import Self
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman, "

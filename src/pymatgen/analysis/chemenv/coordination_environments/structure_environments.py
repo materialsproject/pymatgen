@@ -17,7 +17,6 @@ from matplotlib.colors import Normalize
 from matplotlib.gridspec import GridSpec
 from matplotlib.patches import Polygon
 from monty.json import MontyDecoder, MSONable, jsanitize
-
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError

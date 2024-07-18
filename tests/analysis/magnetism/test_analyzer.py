@@ -6,8 +6,6 @@ from unittest import TestCase
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.analysis.magnetism import (
     CollinearMagneticStructureAnalyzer,
     MagneticStructureEnumerator,
@@ -16,6 +14,7 @@ from pymatgen.analysis.magnetism import (
 )
 from pymatgen.core import Element, Lattice, Species, Structure
 from pymatgen.util.testing import TEST_FILES_DIR
+from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/magnetic_orderings"
 

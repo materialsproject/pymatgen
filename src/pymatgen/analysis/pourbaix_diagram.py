@@ -16,9 +16,6 @@ from typing import TYPE_CHECKING, no_type_check
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
-from scipy.spatial import ConvexHull, HalfspaceIntersection
-from scipy.special import comb
-
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction, ReactionError
 from pymatgen.core import Composition, Element
@@ -29,6 +26,8 @@ from pymatgen.util.coord import Simplex
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
 from pymatgen.util.string import Stringify
+from scipy.spatial import ConvexHull, HalfspaceIntersection
+from scipy.special import comb
 
 if TYPE_CHECKING:
     from typing import Any

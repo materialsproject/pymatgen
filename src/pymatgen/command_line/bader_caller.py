@@ -27,7 +27,6 @@ import numpy as np
 from monty.dev import deprecated
 from monty.shutil import decompress_file
 from monty.tempfile import ScratchDir
-
 from pymatgen.io.common import VolumetricData
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
@@ -35,9 +34,8 @@ from pymatgen.io.vasp.outputs import Chgcar
 if TYPE_CHECKING:
     from typing import Any
 
-    from typing_extensions import Self
-
     from pymatgen.core import Structure
+    from typing_extensions import Self
 
 __author__ = "shyuepingong"
 __version__ = "0.1"

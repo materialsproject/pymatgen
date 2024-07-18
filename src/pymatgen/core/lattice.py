@@ -16,19 +16,17 @@ from typing import TYPE_CHECKING, cast
 import numpy as np
 from monty.dev import deprecated
 from monty.json import MSONable
-from scipy.spatial import Voronoi
-
 from pymatgen.util.coord import pbc_shortest_vectors
 from pymatgen.util.due import Doi, due
+from scipy.spatial import Voronoi
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from numpy.typing import ArrayLike
-    from typing_extensions import Self
-
     from pymatgen.core.operations import SymmOp
     from pymatgen.util.typing import MillerIndex, PbcLike, Vector3D
+    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Michael Kocher"
 __copyright__ = "Copyright 2011, The Materials Project"

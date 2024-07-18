@@ -17,15 +17,13 @@ from typing import TYPE_CHECKING
 
 from monty.io import zopen
 from monty.json import MSONable
-
 from pymatgen.core.structure import Molecule
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from typing_extensions import Self
-
     from pymatgen.util.typing import Tuple3Ints
+    from typing_extensions import Self
 
 __author__ = "ndardenne"
 __copyright__ = "Copyright 2012, The Materials Project"

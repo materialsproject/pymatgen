@@ -14,7 +14,6 @@ import itertools
 from typing import TYPE_CHECKING
 
 from monty.json import MSONable
-
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:

@@ -15,14 +15,13 @@ from collections import defaultdict
 
 import numpy as np
 from monty.dev import deprecated
+from pymatgen.analysis.eos import EOS, PolynomialEOS
+from pymatgen.core.units import FloatWithUnit
+from pymatgen.util.due import Doi, due
 from scipy.constants import physical_constants
 from scipy.integrate import quadrature
 from scipy.misc import derivative
 from scipy.optimize import minimize
-
-from pymatgen.analysis.eos import EOS, PolynomialEOS
-from pymatgen.core.units import FloatWithUnit
-from pymatgen.util.due import Doi, due
 
 __author__ = "Kiran Mathew, Brandon Bocklund"
 __credits__ = "Cormac Toher"

@@ -2,11 +2,10 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from pytest import approx
-
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.groups import SYMM_DATA, PointGroup, SpaceGroup
+from pytest import approx
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Virtual Lab"

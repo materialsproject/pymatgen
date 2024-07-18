@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
-
 from pymatgen.util.plotting import pretty_plot
 
 if TYPE_CHECKING:

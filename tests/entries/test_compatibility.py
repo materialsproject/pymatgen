@@ -9,11 +9,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from unittest import TestCase
 
+import pymatgen
 import pytest
 from monty.json import MontyDecoder
-from pytest import approx
-
-import pymatgen
 from pymatgen.core import Element, Species
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -34,6 +32,7 @@ from pymatgen.entries.compatibility import (
 )
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry, ConstantEnergyAdjustment
 from pymatgen.util.testing import TEST_FILES_DIR
+from pytest import approx
 
 if TYPE_CHECKING:
     from pymatgen.util.typing import CompositionLike

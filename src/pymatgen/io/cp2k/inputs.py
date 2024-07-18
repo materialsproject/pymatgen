@@ -37,7 +37,6 @@ from typing import TYPE_CHECKING
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
-
 from pymatgen.core import Element
 from pymatgen.io.cp2k.utils import chunk, postprocessor, preprocessor
 from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
@@ -48,11 +47,10 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Literal
 
-    from typing_extensions import Self
-
     from pymatgen.core.lattice import Lattice
     from pymatgen.core.structure import Molecule, Structure
     from pymatgen.util.typing import Kpoint, Tuple3Ints
+    from typing_extensions import Self
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"

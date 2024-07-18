@@ -7,8 +7,6 @@ import warnings
 from importlib.metadata import PackageNotFoundError, version
 from typing import Any
 
-from ruamel.yaml import YAML
-
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
@@ -16,6 +14,7 @@ from pymatgen.core.periodic_table import DummySpecie, DummySpecies, Element, Spe
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.structure import IMolecule, IStructure, Molecule, PeriodicNeighbor, SiteCollection, Structure
 from pymatgen.core.units import ArrayWithUnit, FloatWithUnit, Unit
+from ruamel.yaml import YAML
 
 __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"

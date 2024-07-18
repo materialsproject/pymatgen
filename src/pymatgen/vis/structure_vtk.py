@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.dev import requires
 from monty.serialization import loadfn
-
 from pymatgen.core import PeriodicSite, Species, Structure
 from pymatgen.util.coord import in_coord_list
 

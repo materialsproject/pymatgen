@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
-
 from pymatgen.core import Composition, Lattice, Structure, get_el_sp
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord import lattice_points_in_supercell
@@ -18,9 +17,8 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from typing import Literal
 
-    from typing_extensions import Self
-
     from pymatgen.util.typing import SpeciesLike
+    from typing_extensions import Self
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"

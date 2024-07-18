@@ -7,8 +7,6 @@ import numpy as np
 import pytest
 from monty.serialization import dumpfn, loadfn
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.outputs import (
     QCOutput,
@@ -18,6 +16,7 @@ from pymatgen.io.qchem.outputs import (
     orbital_coeffs_parser,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 try:
     from openbabel import openbabel

@@ -18,7 +18,6 @@ from typing import TYPE_CHECKING, cast
 from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
 from monty.serialization import loadfn
-
 from pymatgen.core.periodic_table import DummySpecies, Element, ElementType, Species, get_el_sp
 from pymatgen.core.units import Mass
 from pymatgen.util.string import Stringify, formula_double_format
@@ -27,9 +26,8 @@ if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
     from typing import Any, ClassVar
 
-    from typing_extensions import Self
-
     from pymatgen.util.typing import SpeciesLike
+    from typing_extensions import Self
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 

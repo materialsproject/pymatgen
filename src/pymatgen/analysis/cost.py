@@ -17,7 +17,6 @@ from typing import TYPE_CHECKING
 
 import scipy.constants as const
 from monty.design_patterns import singleton
-
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.core import Composition, Element
 from pymatgen.util.provenance import is_valid_bibtex

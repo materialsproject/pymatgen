@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import palettable.colorbrewer.diverging
 from matplotlib import cm, colors
-
 from pymatgen.core import Element
 
 if TYPE_CHECKING:

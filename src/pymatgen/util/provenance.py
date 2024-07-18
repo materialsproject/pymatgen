@@ -10,7 +10,6 @@ from io import StringIO
 from typing import TYPE_CHECKING, NamedTuple
 
 from monty.json import MontyDecoder, MontyEncoder
-
 from pymatgen.core.structure import Molecule, Structure
 
 try:

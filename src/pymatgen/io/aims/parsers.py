@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
-
 from pymatgen.core import Lattice, Molecule, Structure
 from pymatgen.core.tensors import Tensor
 from pymatgen.util.typing import Tuple3Floats

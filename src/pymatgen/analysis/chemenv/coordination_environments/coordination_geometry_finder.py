@@ -23,7 +23,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.linalg import norm, svd
-
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import MultiWeightsChemenvStrategy
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (

@@ -12,7 +12,6 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy import around
-
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
@@ -25,10 +24,9 @@ from pymatgen.transformations.site_transformations import PartialRemoveSitesTran
 from pymatgen.transformations.transformation_abc import AbstractTransformation
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
-
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.util.typing import SpeciesLike
+    from typing_extensions import Self
 
 logger = logging.getLogger(__name__)
 

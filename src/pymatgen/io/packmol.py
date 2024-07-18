@@ -26,7 +26,6 @@ from shutil import which
 from typing import TYPE_CHECKING
 
 import numpy as np
-
 from pymatgen.core import Molecule
 from pymatgen.io.core import InputGenerator, InputSet
 

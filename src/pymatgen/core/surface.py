@@ -27,26 +27,24 @@ from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.fractions import lcm
-from scipy.cluster.hierarchy import fcluster, linkage
-from scipy.spatial.distance import squareform
-
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, PeriodicSite, Structure, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
 from pymatgen.util.due import Doi, due
 from pymatgen.util.typing import Tuple3Ints
+from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.spatial.distance import squareform
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
-
     from pymatgen.core.composition import Element, Species
     from pymatgen.symmetry.groups import CrystalSystem
     from pymatgen.util.typing import MillerIndex
+    from typing_extensions import Self
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
 

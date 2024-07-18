@@ -7,7 +7,6 @@ from copy import deepcopy
 from typing import TYPE_CHECKING
 
 from monty.json import MSONable
-
 from pymatgen.core.composition import Composition, reduce_formula
 from pymatgen.util.string import Stringify, charge_string, formula_double_format
 

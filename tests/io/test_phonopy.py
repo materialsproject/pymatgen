@@ -7,8 +7,6 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
-
 from pymatgen.core import Element
 from pymatgen.io.phonopy import (
     CompletePhononDos,
@@ -29,6 +27,7 @@ from pymatgen.io.phonopy import (
     get_thermal_displacement_matrices,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 try:
     from phonopy import Phonopy

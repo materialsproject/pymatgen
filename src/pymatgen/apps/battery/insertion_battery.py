@@ -9,13 +9,12 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from monty.json import MontyDecoder
-from scipy.constants import N_A
-
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltagePair
 from pymatgen.core import Composition, Element
 from pymatgen.core.units import Charge, Time
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
+from scipy.constants import N_A
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

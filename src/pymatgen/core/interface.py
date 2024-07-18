@@ -15,9 +15,6 @@ from typing import TYPE_CHECKING, Literal, Union, cast
 import numpy as np
 from monty.fractions import lcm
 from numpy.testing import assert_allclose
-from scipy.cluster.hierarchy import fcluster, linkage
-from scipy.spatial.distance import squareform
-
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite, Site
@@ -25,16 +22,17 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.surface import Slab
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.typing import Tuple3Ints
+from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.spatial.distance import squareform
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Callable
 
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import Self
-
     from pymatgen.core import Element
     from pymatgen.util.typing import CompositionLike, Matrix3D, MillerIndex, Tuple3Floats, Vector3D
+    from typing_extensions import Self
 
 Tuple4Ints = tuple[int, int, int, int]
 logger = logging.getLogger(__name__)

@@ -6,7 +6,6 @@ import re
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.trajectory import Trajectory

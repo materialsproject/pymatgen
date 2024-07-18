@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Literal, cast
 
 import numpy as np
 from monty.json import MSONable
-
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.due import Doi, due
 from pymatgen.util.string import transformation_to_string

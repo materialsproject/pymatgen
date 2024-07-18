@@ -33,13 +33,12 @@ import numpy as np
 import plotly.express as px
 from monty.json import MSONable
 from plotly.graph_objects import Figure, Mesh3d, Scatter, Scatter3d
-from scipy.spatial import ConvexHull, HalfspaceIntersection
-
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.core.composition import Composition, Element
 from pymatgen.util.coord import Simplex
 from pymatgen.util.due import Doi, due
 from pymatgen.util.string import htmlify
+from scipy.spatial import ConvexHull, HalfspaceIntersection
 
 if TYPE_CHECKING:
     from pymatgen.entries.computed_entries import ComputedEntry

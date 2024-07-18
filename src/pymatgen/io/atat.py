@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import numpy as np
-
 from pymatgen.core import Lattice, Structure, get_el_sp
 
 __author__ = "Matthew Horton"

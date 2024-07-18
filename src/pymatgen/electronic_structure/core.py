@@ -13,9 +13,8 @@ from monty.json import MSONable
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from typing_extensions import Self
-
     from pymatgen.core import Lattice
+    from typing_extensions import Self
 
 
 @unique
