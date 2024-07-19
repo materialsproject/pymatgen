@@ -1272,7 +1272,7 @@ class MPScanRelaxSet(VaspInputSet):
 
         2. Meta-GGA calculations require POTCAR files that include
         information on the kinetic energy density of the core-electrons,
-        i.e. "PBE_52" or "PBE_54". Make sure the POTCARs include the
+        i.e. "PBE_52", "PBE_54" or "PBE_64". Make sure the POTCARs include the
         following lines (see VASP wiki for more details):
 
             $ grep kinetic POTCAR
@@ -1313,7 +1313,7 @@ class MPScanRelaxSet(VaspInputSet):
     user_potcar_functional: UserPotcarFunctional = "PBE_54"
     auto_ismear: bool = True
     CONFIG = _load_yaml_config("MPSCANRelaxSet")
-    _valid_potcars: Sequence[str] | None = ("PBE_52", "PBE_54")
+    _valid_potcars: Sequence[str] | None = ("PBE_52", "PBE_54", "PBE_64")
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -1348,9 +1348,23 @@ class MPMetalRelaxSet(VaspInputSet):
 
 @dataclass
 class MPHSERelaxSet(VaspInputSet):
-    """Same as the MPRelaxSet, but with HSE parameters."""
+    """Same as the MPRelaxSet, but with HSE parameters and vdW corrections."""
 
     CONFIG = _load_yaml_config("MPHSERelaxSet")
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self._add_hse_vdw_parameters()
+
+    def _add_hse_vdw_parameters(self) -> None:
+        if self.vdw:
+            hse_vdw_par = {
+                "dftd3": {"VDW_SR": 1.129, "VDW_S8": 0.109},
+                "dftd3-bj": {"VDW_A1": 0.383, "VDW_S8": 2.310, "VDW_A2": 5.685},
+            }
+
+            if vdw_param := hse_vdw_par.get(self.vdw):
+                self._config_dict["INCAR"].update(vdw_param)
 
 
 @dataclass

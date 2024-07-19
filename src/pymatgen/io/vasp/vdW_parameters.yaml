@@ -5,6 +5,8 @@ dftd3:
     IVDW: 11
 dftd3-bj:
     IVDW: 12
+dftd4:
+    IVDW: 13
 ts:
     IVDW: 2
 ts-hirshfeld:
