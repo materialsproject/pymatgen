@@ -1517,9 +1517,9 @@ class CubicSupercellTransformation(AbstractTransformation):
                     not self.force_90_degrees
                     or np.all(np.absolute(np.array(superstructure.lattice.angles) - 90) < self.angle_tolerance)
                 ):
+                    self.transformation_matrix = transformation_matrix
                     return superstructure
 
-                self.transformation_matrix = transformation_matrix
                 # Increase threshold until proposed supercell meets requirements
                 target_sc_size += self.step_size
                 self.check_exceptions(length_vecs, n_atoms)
@@ -1548,6 +1548,7 @@ class CubicSupercellTransformation(AbstractTransformation):
                 not self.force_90_degrees
                 or np.all(np.absolute(np.array(superstructure.lattice.angles) - 90) < self.angle_tolerance)
             ):
+                print("ORTHO")
                 return superstructure
 
             self.transformation_matrix = transformation_matrix
