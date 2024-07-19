@@ -1459,6 +1459,9 @@ class CubicSupercellTransformation(AbstractTransformation):
                 are allowed. max_length is required for this option.
             angle_tolerance: tolerance to determine the 90 degree angles.
             step_size (float): step_size which is used to increase the supercell.
+                If allow_orthorhombic and force_90_degrees is both set to True,
+                the chosen step_size will be automatically multiplied by 5 to
+                prevent a too long search for the possible supercell.
         """
         self.min_atoms = min_atoms or -np.inf
         self.max_atoms = max_atoms or np.inf
