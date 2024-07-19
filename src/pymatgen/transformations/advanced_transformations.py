@@ -1497,26 +1497,19 @@ class CubicSupercellTransformation(AbstractTransformation):
             st = SupercellTransformation(self.transformation_matrix)
             return st.apply_transformation(structure)
 
-        # target_threshold is used as the desired cubic side lengths
         if not self.allow_orthorhombic:
             # boolean for if a sufficiently large supercell has been created
             sc_not_found = True
 
+            # target_threshold is used as the desired cubic side lengths
             target_sc_size = self.min_length
             while sc_not_found:
                 target_sc_lat_vecs = np.eye(3, 3) * target_sc_size
-                length_vecs, n_atoms, superstructure, transformation_matrix = self.get_possible_supercell(
+                length_vecs, n_atoms, superstructure, self.transformation_matrix = self.get_possible_supercell(
                     lat_vecs, structure, target_sc_lat_vecs
                 )
                 # Check if constraints are satisfied
-                if (
-                    np.min(np.linalg.norm(length_vecs, axis=1)) >= self.min_length
-                    and self.min_atoms <= n_atoms <= self.max_atoms
-                ) and (
-                    not self.force_90_degrees
-                    or np.all(np.absolute(np.array(superstructure.lattice.angles) - 90) < self.angle_tolerance)
-                ):
-                    self.transformation_matrix = transformation_matrix
+                if self.check_constraints(length_vecs=length_vecs, n_atoms=n_atoms, superstructure=superstructure):
                     return superstructure
 
                 # Increase threshold until proposed supercell meets requirements
@@ -1524,6 +1517,10 @@ class CubicSupercellTransformation(AbstractTransformation):
                 self.check_exceptions(length_vecs, n_atoms)
 
             raise AttributeError("Unable to find cubic supercell")
+
+        if self.force_90_degrees:
+            # prevent a too long search for the supercell
+            self.step_size *= 5
 
         combined_list = [
             [size_a, size_b, size_c]
@@ -1535,18 +1532,11 @@ class CubicSupercellTransformation(AbstractTransformation):
 
         for size_a, size_b, size_c in combined_list:
             target_sc_lat_vecs = np.array([[size_a, 0, 0], [0, size_b, 0], [0, 0, size_c]])
-            length_vecs, n_atoms, superstructure, transformation_matrix = self.get_possible_supercell(
+            length_vecs, n_atoms, superstructure, self.transformation_matrix = self.get_possible_supercell(
                 lat_vecs, structure, target_sc_lat_vecs
             )
             # Check if constraints are satisfied
-            if (
-                np.min(np.linalg.norm(length_vecs, axis=1)) >= self.min_length
-                and self.min_atoms <= n_atoms <= self.max_atoms
-            ) and (
-                not self.force_90_degrees
-                or np.all(np.absolute(np.array(superstructure.lattice.angles) - 90) < self.angle_tolerance)
-            ):
-                self.transformation_matrix = transformation_matrix
+            if self.check_constraints(length_vecs=length_vecs, n_atoms=n_atoms, superstructure=superstructure):
                 return superstructure
 
             self.check_exceptions(length_vecs, n_atoms)
@@ -1562,6 +1552,25 @@ class CubicSupercellTransformation(AbstractTransformation):
             )
         if self.max_length is not None and np.max(np.linalg.norm(length_vecs, axis=1)) >= self.max_length:
             raise AttributeError("While trying to solve for the supercell, the max length was exceeded.")
+
+    def check_constraints(self, length_vecs, n_atoms, superstructure):
+        """
+        Check if the supercell constraints are met.
+
+        Returns:
+            bool
+
+        """
+        return bool(
+            (
+                np.min(np.linalg.norm(length_vecs, axis=1)) >= self.min_length
+                and self.min_atoms <= n_atoms <= self.max_atoms
+            )
+            and (
+                not self.force_90_degrees
+                or np.all(np.absolute(np.array(superstructure.lattice.angles) - 90) < self.angle_tolerance)
+            )
+        )
 
     @staticmethod
     def get_possible_supercell(lat_vecs, structure, target_sc_lat_vecs):
