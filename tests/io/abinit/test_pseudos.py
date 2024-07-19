@@ -17,7 +17,7 @@ class TestPseudo(PymatgenTest):
         nc_pseudo_fnames["Si"] = [f"{TEST_DIR}/{file}" for file in ("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")]
 
         paw_pseudo_fnames = defaultdict(list)
-        paw_pseudo_fnames["Ni"] = [f"{TEST_DIR}/{file}" for file in ("28ni.paw")]
+        paw_pseudo_fnames["Ni"] = [f"{TEST_DIR}/28ni.paw"]
 
         self.nc_pseudos = defaultdict(list)
         self.paw_pseudos = defaultdict(list)
