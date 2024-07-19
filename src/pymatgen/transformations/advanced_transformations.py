@@ -1562,7 +1562,7 @@ class CubicSupercellTransformation(AbstractTransformation):
                 "of nearest neighbor distances."
             )
         if self.max_length is not None and np.max(np.linalg.norm(length_vecs, axis=1)) >= self.max_length:
-            raise AttributeError("While trying to solve for the supercell, " "the max length was exceeded.")
+            raise AttributeError("While trying to solve for the supercell, the max length was exceeded.")
 
     def get_possible_supercell(self, lat_vecs, structure, target_sc_lat_vecs):
         transformation_matrix = target_sc_lat_vecs @ np.linalg.inv(lat_vecs)
