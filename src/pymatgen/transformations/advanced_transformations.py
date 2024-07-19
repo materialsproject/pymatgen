@@ -1525,7 +1525,6 @@ class CubicSupercellTransformation(AbstractTransformation):
                 target_sc_size += self.step_size
                 self.check_exceptions(length_vecs, n_atoms)
             raise AttributeError("Unable to find cubic supercell")
-        # boolean for if a sufficiently large supercell has been created
 
         combined_list=[[size_a, size_b, size_c] for size_a in np.arange(self.min_length, self.max_length, self.step_size) for size_b in np.arange(self.min_length, self.max_length, self.step_size) for size_c in np.arange(self.min_length, self.max_length, self.step_size) ]
         combined_list=sorted(combined_list, key=sum)
