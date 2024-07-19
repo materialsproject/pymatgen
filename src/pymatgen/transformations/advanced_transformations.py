@@ -1508,7 +1508,6 @@ class CubicSupercellTransformation(AbstractTransformation):
                 length_vecs, n_atoms, superstructure, transformation_matrix = self.get_possible_supercell(
                     lat_vecs, structure, target_sc_lat_vecs
                 )
-
                 # Check if constraints are satisfied
                 if (
                     np.min(np.linalg.norm(length_vecs, axis=1)) >= self.min_length
@@ -1523,6 +1522,7 @@ class CubicSupercellTransformation(AbstractTransformation):
                 # Increase threshold until proposed supercell meets requirements
                 target_sc_size += self.step_size
                 self.check_exceptions(length_vecs, n_atoms)
+
             raise AttributeError("Unable to find cubic supercell")
 
         combined_list = [
@@ -1538,9 +1538,7 @@ class CubicSupercellTransformation(AbstractTransformation):
             length_vecs, n_atoms, superstructure, transformation_matrix = self.get_possible_supercell(
                 lat_vecs, structure, target_sc_lat_vecs
             )
-            print(superstructure.lattice)
             # Check if constraints are satisfied
-            print(n_atoms)
             if (
                 np.min(np.linalg.norm(length_vecs, axis=1)) >= self.min_length
                 and self.min_atoms <= n_atoms <= self.max_atoms
