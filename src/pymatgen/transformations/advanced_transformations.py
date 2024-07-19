@@ -1449,7 +1449,7 @@ class CubicSupercellTransformation(AbstractTransformation):
             max_atoms: Maximum number of atoms allowed in the supercell.
             min_atoms: Minimum number of atoms allowed in the supercell.
             min_length: Minimum length of the smallest supercell lattice vector.
-            max_length: Maximum length of the larget supercell lattice vector.
+            max_length: Maximum length of the larger supercell lattice vector.
             force_diagonal: If True, return a transformation with a diagonal
                 transformation matrix.
             force_90_degrees: If True, return a transformation for a supercell
@@ -1556,6 +1556,7 @@ class CubicSupercellTransformation(AbstractTransformation):
         raise AttributeError("Unable to find orthorhombic supercell")
 
     def check_exceptions(self, length_vecs, n_atoms):
+        """Check supercell exceptions."""
         if n_atoms > self.max_atoms:
             raise AttributeError(
                 "While trying to solve for the supercell, the max "
@@ -1563,9 +1564,16 @@ class CubicSupercellTransformation(AbstractTransformation):
                 "of nearest neighbor distances."
             )
         if self.max_length is not None and np.max(np.linalg.norm(length_vecs, axis=1)) >= self.max_length:
-            raise AttributeError("While trying to solve for the supercell, " "the max length was exceeded.")
+            raise AttributeError("While trying to solve for the supercell, the max length was exceeded.")
 
-    def get_possible_supercell(self, lat_vecs, structure, target_sc_lat_vecs):
+    @staticmethod
+    def get_possible_supercell(lat_vecs, structure, target_sc_lat_vecs):
+        """
+        Get the supercell possible with the set conditions.
+
+        Returns:
+            length_vecs, n_atoms, superstructure, transformation_matrix
+        """
         transformation_matrix = target_sc_lat_vecs @ np.linalg.inv(lat_vecs)
         # round the entries of T and force T to be non-singular
         transformation_matrix = _round_and_make_arr_singular(  # type: ignore[assignment]
