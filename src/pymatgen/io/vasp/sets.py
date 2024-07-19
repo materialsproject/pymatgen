@@ -1272,7 +1272,7 @@ class MPScanRelaxSet(VaspInputSet):
 
         2. Meta-GGA calculations require POTCAR files that include
         information on the kinetic energy density of the core-electrons,
-        i.e. "PBE_52" or "PBE_54". Make sure the POTCARs include the
+        i.e. "PBE_52", "PBE_54" or "PBE_64". Make sure the POTCARs include the
         following lines (see VASP wiki for more details):
 
             $ grep kinetic POTCAR
@@ -1313,7 +1313,7 @@ class MPScanRelaxSet(VaspInputSet):
     user_potcar_functional: UserPotcarFunctional = "PBE_54"
     auto_ismear: bool = True
     CONFIG = _load_yaml_config("MPSCANRelaxSet")
-    _valid_potcars: Sequence[str] | None = ("PBE_52", "PBE_54")
+    _valid_potcars: Sequence[str] | None = ("PBE_52", "PBE_54", "PBE_64")
 
     def __post_init__(self) -> None:
         super().__post_init__()
