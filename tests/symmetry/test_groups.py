@@ -203,6 +203,8 @@ class TestSpaceGroup:
     def test_subgroup_supergroup(self):
         assert SpaceGroup("Pma2").is_subgroup(SpaceGroup("Pccm"))
         assert not SpaceGroup.from_int_number(229).is_subgroup(SpaceGroup.from_int_number(230))
+        assert SpaceGroup("P3").is_subgroup(SpaceGroup("P3"))  # Added after #3937
+        assert SpaceGroup("Fm-3m").is_subgroup(SpaceGroup("Pm-3m"))  # Added after #3937
 
     def test_hexagonal(self):
         for num in (146, 148, 155, 160, 161, 166, 167):

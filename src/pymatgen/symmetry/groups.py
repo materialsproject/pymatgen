@@ -525,8 +525,8 @@ class SpaceGroup(SymmetryGroup):
         if not isinstance(supergroup, SpaceGroup):
             return NotImplemented
 
-        if len(supergroup.symmetry_ops) < len(self.symmetry_ops):
-            return False
+        # if len(supergroup.symmetry_ops) < len(self.symmetry_ops):  # Disabled after issue #3937 TODO constrain
+        # return False
 
         groups = [{supergroup.int_number}]
         all_groups = [supergroup.int_number]
@@ -534,7 +534,10 @@ class SpaceGroup(SymmetryGroup):
         while True:
             new_sub_groups = set()
             for i in groups[-1]:
-                new_sub_groups.update([j for j in max_subgroups[i] if j not in all_groups])
+                if len(groups) == 1:
+                    new_sub_groups.update(list(max_subgroups[i]))
+                else:
+                    new_sub_groups.update([j for j in max_subgroups[i] if j not in all_groups])
             if self.int_number in new_sub_groups:
                 return True
 
