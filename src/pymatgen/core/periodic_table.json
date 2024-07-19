@@ -33,7 +33,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "10070 kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Rn].6d<sup>1</sup>.7s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Rn].6d<sup>1</sup>.7s<sup>2</sup>",
+            "3": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>"
+        },
         "Ionic radii": {
             "3": 1.26
         },
@@ -191,7 +194,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "10490 kg m<sup>-3</sup>",
         "Electrical resistivity": "1.63 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Kr].4d<sup>10</sup>.5s<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[Kr].4d<sup>10</sup>.5s<sup>1</sup>",
+            "1": "[Kr].4d<sup>10</sup>"
+        },
         "ICSD oxidation states": [
             1,
             2,
@@ -375,7 +381,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "2700 kg m<sup>-3</sup>",
         "Electrical resistivity": "2.7 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ne].3s<sup>2</sup>.3p<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[Ne].3s<sup>2</sup>.3p<sup>1</sup>",
+            "3": "1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             3
         ],
@@ -465,7 +474,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Rn].5f<sup>7</sup>.7s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Rn].5f<sup>7</sup>.7s<sup>2</sup>",
+            "3": "[Rn].5f<sup>6</sup>"
+        },
         "Ionic radii": {
             "2": 1.4,
             "3": 1.115,
@@ -667,7 +679,9 @@
         "Critical temperature": "150.8 K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>",
+        "Electronic structure": {
+            "0": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>"
+        },
         "Liquid range": "3.5 K",
         "Max oxidation state": 0,
         "Melting point": "83.8 K",
@@ -739,7 +753,12 @@
         "Critical temperature": "1700 K",
         "Density of solid": "5727 kg m<sup>-3</sup>",
         "Electrical resistivity": "33 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>3</sup>",
+        "Electronic structure": {
+            "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>3</sup>",
+            "3": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>",
+            "5": "[Ar].3d<sup>10</sup>",
+            "-3": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3,
@@ -873,7 +892,11 @@
         "Critical temperature": "no data K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>5</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>5</sup>",
+            "1": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>4</sup>",
+            "-1": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>"
+        },
         "Ionic radii": {
             "7": 0.76
         },
@@ -1034,7 +1057,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "19300 kg m<sup>-3</sup>",
         "Electrical resistivity": "2.2 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>1</sup>",
+            "3": "[Xe].4f<sup>14</sup>.5d<sup>8</sup>"
+        },
         "Ionic radii": {
             "1": 1.51,
             "3": 0.99,
@@ -1203,7 +1229,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "2460 kg m<sup>-3</sup>",
         "Electrical resistivity": "&gt; 10<sup>12</sup>10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[He].2s<sup>2</sup>.2p<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[He].2s<sup>2</sup>.2p<sup>1</sup>",
+            "3": "1s<sup>2</sup>"
+        },
         "ICSD oxidation states": [
             3,
             -3
@@ -1301,7 +1330,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "3510 kg m<sup>-3</sup>",
         "Electrical resistivity": "34 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].6s<sup>2</sup>",
+            "2": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             2
         ],
@@ -1457,7 +1489,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "1848 kg m<sup>-3</sup>",
         "Electrical resistivity": "3.8 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[He].2s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[He].2s<sup>2</sup>",
+            "2": "1s<sup>2</sup>"
+        },
         "ICSD oxidation states": [
             2
         ],
@@ -1553,7 +1588,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "9780 kg m<sup>-3</sup>",
         "Electrical resistivity": "130 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>3</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>3</sup>",
+            "3": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>"
+        },
         "ICSD oxidation states": [
             1,
             2,
@@ -1723,7 +1761,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "14780 kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Rn].5f<sup>9</sup>.7s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Rn].5f<sup>9</sup>.7s<sup>2</sup>",
+            "3": "[Rn].5f<sup>8</sup>"
+        },
         "Ionic radii": {
             "3": 1.1,
             "4": 0.97
@@ -1907,7 +1948,14 @@
         "Critical temperature": "586 K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "&gt; 10<sup>18</sup>10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>5</sup>",
+        "Electronic structure": {
+            "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>5</sup>",
+            "-1": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>",
+            "1": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>4</sup>",
+            "3": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup>",
+            "5": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>",
+            "7": "[Ar].3d<sup>10</sup>"
+        },
         "ICSD oxidation states": [
             5,
             -1
@@ -2047,7 +2095,11 @@
         "Critical temperature": "no data K",
         "Density of solid": "2267 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 1000 - direction dependent10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[He].2s<sup>2</sup>.2p<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[He].2s<sup>2</sup>.2p<sup>2</sup>",
+            "-4": "[He].2s<sup>2</sup>.2p<sup>6</sup>",
+            "4": "1s<sup>2</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3,
@@ -2148,7 +2200,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "1550 kg m<sup>-3</sup>",
         "Electrical resistivity": "3.4 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ar].4s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Ar].4s<sup>2</sup>",
+            "2": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             2
         ],
@@ -2274,7 +2329,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "8650 kg m<sup>-3</sup>",
         "Electrical resistivity": "7 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>",
+            "2": "[Kr].4d<sup>10</sup>"
+        },
         "ICSD oxidation states": [
             2
         ],
@@ -2430,7 +2488,11 @@
         "Critical temperature": "no data K",
         "Density of solid": "6689 kg m<sup>-3</sup>",
         "Electrical resistivity": "74 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>1</sup>.5d<sup>1</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>1</sup>.5d<sup>1</sup>.6s<sup>2</sup>",
+            "3": "[Xe].4f<sup>1</sup>",
+            "4": "[Cd].5p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             3,
             4
@@ -2609,7 +2671,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "15100 kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Rn].5f<sup>10</sup>.7s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Rn].5f<sup>10</sup>.7s<sup>2</sup>",
+            "3": "[Rn].5f<sup>9</sup>"
+        },
         "Ionic radii": {
             "3": 1.09,
             "4": 0.961
@@ -2792,7 +2857,14 @@
         "Critical temperature": "417 K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "&gt; 10<sup>10</sup>10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ne].3s<sup>2</sup>.3p<sup>5</sup>",
+        "Electronic structure": {
+            "0": "[Ne].3s<sup>2</sup>.3p<sup>5</sup>",
+            "-1": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>",
+            "1": "[Ne].3s<sup>2</sup>.3p<sup>4</sup>",
+            "3": "[Ne].3s<sup>2</sup>.3p<sup>2</sup>",
+            "5": "[Ne].3s<sup>2</sup>",
+            "7": "1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             -1
         ],
@@ -2905,7 +2977,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "13510 kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Rn].5f<sup>7</sup>.6d<sup>1</sup>.7s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Rn].5f<sup>7</sup>.6d<sup>1</sup>.7s<sup>2</sup>",
+            "3": "[Rn].5f<sup>7</sup>"
+        },
         "Ionic radii": {
             "3": 1.11,
             "4": 0.99
@@ -3084,7 +3159,11 @@
         "Critical temperature": "no data K",
         "Density of solid": "8900 kg m<sup>-3</sup>",
         "Electrical resistivity": "6 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ar].3d<sup>7</sup>.4s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Ar].3d<sup>7</sup>.4s<sup>2</sup>",
+            "2": "[Ar].3d<sup>7</sup>",
+            "3": "[Ar].3d<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             1,
             2,
@@ -3251,7 +3330,12 @@
         "Critical temperature": "no data K",
         "Density of solid": "7140 kg m<sup>-3</sup>",
         "Electrical resistivity": "12.7 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ar].3d<sup>5</sup>.4s<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[Ar].3d<sup>5</sup>.4s<sup>1</sup>",
+            "2": "[Ar].3d<sup>4</sup>",
+            "3": "[Ar].3d<sup>3</sup>",
+            "6": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3,
@@ -3433,7 +3517,10 @@
         "Critical temperature": "1938 K",
         "Density of solid": "1879 kg m<sup>-3</sup>",
         "Electrical resistivity": "21 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].6s<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[Xe].6s<sup>1</sup>",
+            "1": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             1
         ],
@@ -3587,7 +3674,12 @@
         "Critical temperature": "no data K",
         "Density of solid": "8920 kg m<sup>-3</sup>",
         "Electrical resistivity": "1.72 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ar].3d<sup>10</sup>.4s<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[Ar].3d<sup>10</sup>.4s<sup>1</sup>",
+            "1": "[Ar].3d<sup>10</sup>",
+            "2": "[Ar].3d<sup>9</sup>",
+            "3": "[Ar].3d<sup>8</sup>"
+        },
         "ICSD oxidation states": [
             1,
             2,
@@ -3748,7 +3840,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "8551 kg m<sup>-3</sup>",
         "Electrical resistivity": "92.6 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>10</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>10</sup>.6s<sup>2</sup>",
+            "3": "[Xe].4f<sup>9</sup>"
+        },
         "ICSD oxidation states": [
             3
         ],
@@ -3929,7 +4024,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "9066 kg m<sup>-3</sup>",
         "Electrical resistivity": "86.0 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>12</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>12</sup>.6s<sup>2</sup>",
+            "3": "[Xe].4f<sup>11</sup>"
+        },
         "ICSD oxidation states": [
             3
         ],
@@ -4076,7 +4174,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Rn].5f<sup>11</sup>.7s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Rn].5f<sup>11</sup>.7s<sup>2</sup>",
+            "3": "[Rn].5f<sup>10</sup>"
+        },
         "Liquid range": "no data K",
         "Melting point": "1133 K",
         "Mendeleev no": 38,
@@ -4236,7 +4337,11 @@
         "Critical temperature": "no data K",
         "Density of solid": "5244 kg m<sup>-3</sup>",
         "Electrical resistivity": "90 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>7</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>7</sup>.6s<sup>2</sup>",
+            "2": "[Xe].4f<sup>7</sup>",
+            "3": "[Xe].4f<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3
@@ -4417,7 +4522,10 @@
         "Critical temperature": "144 K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[He].2s<sup>2</sup>.2p<sup>5</sup>",
+        "Electronic structure": {
+            "0": "[He].2s<sup>2</sup>.2p<sup>5</sup>",
+            "-1": "[He].2s<sup>2</sup>.2p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             -1
         ],
@@ -4526,7 +4634,11 @@
         "Critical temperature": "no data K",
         "Density of solid": "7874 kg m<sup>-3</sup>",
         "Electrical resistivity": "10 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ar].3d<sup>6</sup>.4s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Ar].3d<sup>6</sup>.4s<sup>2</sup>",
+            "2": "[Ar].3d<sup>6</sup>",
+            "3": "[Ar].3d<sup>5</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3
@@ -4703,7 +4815,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Rn].5f<sup>12</sup>.7s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Rn].5f<sup>12</sup>.7s<sup>2</sup>",
+            "3": "[Rn].5f<sup>11</sup>"
+        },
         "Liquid range": "no data K",
         "Melting point": "about 1800 K",
         "Mendeleev no": 37,
@@ -4866,7 +4981,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Rn].7s<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[Rn].7s<sup>1</sup>",
+            "1": "[Hg].6p<sup>6</sup>"
+        },
         "Ionic radii": {
             "1": 1.94
         },
@@ -5020,7 +5138,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "5904 kg m<sup>-3</sup>",
         "Electrical resistivity": "about  14 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>1</sup>",
+            "3": "[Ar].3d<sup>10</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3
@@ -5142,7 +5263,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "7901 kg m<sup>-3</sup>",
         "Electrical resistivity": "131 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>7</sup>.5d<sup>1</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>7</sup>.5d<sup>1</sup>.6s<sup>2</sup>",
+            "3": "[Xe].4f<sup>7</sup>"
+        },
         "ICSD oxidation states": [
             3
         ],
@@ -5298,7 +5422,12 @@
         "Critical temperature": "no data K",
         "Density of solid": "5323 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 50000 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup>",
+            "-4": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>",
+            "2": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>",
+            "4": "[Ar].3d<sup>10</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3,
@@ -5416,7 +5545,11 @@
         "Critical temperature": "33 K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "1s<sup>1</sup>",
+        "Electronic structure": {
+            "0": "1s<sup>1</sup>",
+            "-1": "1s<sup>2</sup>",
+            "1": null
+        },
         "ICSD oxidation states": [
             1,
             -1
@@ -5486,7 +5619,9 @@
         "Critical temperature": "5.19 K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "1s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "1s<sup>2</sup>"
+        },
         "Liquid range": "3.27 K",
         "Max oxidation state": 0,
         "Melting point": "0.95 K",
@@ -5546,7 +5681,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "13310 kg m<sup>-3</sup>",
         "Electrical resistivity": "34 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>14</sup>.5d<sup>2</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>14</sup>.5d<sup>2</sup>.6s<sup>2</sup>",
+            "4": "[Xe].4f<sup>14</sup>"
+        },
         "ICSD oxidation states": [
             4
         ],
@@ -5715,7 +5853,11 @@
         "Critical temperature": "1750 K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "96 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>",
+            "1": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>1</sup>",
+            "2": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>"
+        },
         "ICSD oxidation states": [
             1,
             2
@@ -5909,7 +6051,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "8795 kg m<sup>-3</sup>",
         "Electrical resistivity": "81.4 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>11</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>11</sup>.6s<sup>2</sup>",
+            "3": "[Xe].4f<sup>10</sup>"
+        },
         "ICSD oxidation states": [
             3
         ],
@@ -6071,7 +6216,14 @@
         "Critical temperature": "819 K",
         "Density of solid": "4940 kg m<sup>-3</sup>",
         "Electrical resistivity": "&gt; 10<sup>15</sup>10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>5</sup>",
+        "Electronic structure": {
+            "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>5</sup>",
+            "-1": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>",
+            "1": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>4</sup>",
+            "3": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>2</sup>",
+            "5": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>",
+            "7": "[Kr].4d<sup>10</sup>"
+        },
         "ICSD oxidation states": [
             5,
             -1
@@ -6236,7 +6388,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "7310 kg m<sup>-3</sup>",
         "Electrical resistivity": "8 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>1</sup>",
+            "3": "[Kr].4d<sup>10</sup>"
+        },
         "ICSD oxidation states": [
             1,
             2,
@@ -6382,7 +6537,11 @@
         "Critical temperature": "no data K",
         "Density of solid": "22650 kg m<sup>-3</sup>",
         "Electrical resistivity": "4.7 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>14</sup>.5d<sup>7</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>14</sup>.5d<sup>7</sup>.6s<sup>2</sup>",
+            "3": "[Xe].4f<sup>14</sup>.5d<sup>6</sup>",
+            "4": "[Xe].4f<sup>14</sup>.5d<sup>5</sup>"
+        },
         "ICSD oxidation states": [
             3,
             4,
@@ -6554,7 +6713,10 @@
         "Critical temperature": "2223 K",
         "Density of solid": "856 kg m<sup>-3</sup>",
         "Electrical resistivity": "7.5 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ar].4s<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[Ar].4s<sup>1</sup>",
+            "1": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             1
         ],
@@ -6682,7 +6844,9 @@
         "Critical temperature": "209.4 K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>",
+        "Electronic structure": {
+            "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>"
+        },
         "Liquid range": "4.14 K",
         "Max oxidation state": 0,
         "Melting point": "115.79 K",
@@ -6776,7 +6940,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "6146 kg m<sup>-3</sup>",
         "Electrical resistivity": "61.5 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].5d<sup>1</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].5d<sup>1</sup>.6s<sup>2</sup>",
+            "3": "[Cd].5p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3
@@ -6932,7 +7099,10 @@
         "Critical temperature": "3223 K",
         "Density of solid": "535 kg m<sup>-3</sup>",
         "Electrical resistivity": "9.5 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[He].2s<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[He].2s<sup>1</sup>",
+            "1": "1s<sup>2</sup>"
+        },
         "ICSD oxidation states": [
             1
         ],
@@ -7012,7 +7182,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Rn].5f<sup>14</sup>.7s<sup>2</sup>.7p<sup>1</sup> (tentative)",
+        "Electronic structure": {
+            "0": "[Rn].5f<sup>14</sup>.7s<sup>2</sup>.7p<sup>1</sup>",
+            "3": "[Rn].5f<sup>14</sup>"
+        },
         "Liquid range": "no data K",
         "Melting point": "about 1900 K",
         "Mendeleev no": 34,
@@ -7175,7 +7348,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "9841 kg m<sup>-3</sup>",
         "Electrical resistivity": "58 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>14</sup>.5d<sup>1</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>14</sup>.5d<sup>1</sup>.6s<sup>2</sup>",
+            "3": "[Xe].4f<sup>14</sup>"
+        },
         "ICSD oxidation states": [
             3
         ],
@@ -7319,7 +7495,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Rn].5f<sup>13</sup>.7s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Rn].5f<sup>13</sup>.7s<sup>2</sup>",
+            "3": "[Rn].5f<sup>12</sup>"
+        },
         "Liquid range": "no data K",
         "Melting point": "about 1100 K",
         "Mendeleev no": 36,
@@ -7471,7 +7650,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "1738 kg m<sup>-3</sup>",
         "Electrical resistivity": "4.4 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ne].3s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Ne].3s<sup>2</sup>",
+            "2": "[He].2s<sup>2</sup>.2p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             2
         ],
@@ -7576,7 +7758,13 @@
         "Critical temperature": "no data K",
         "Density of solid": "7470 kg m<sup>-3</sup>",
         "Electrical resistivity": "144 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ar].3d<sup>5</sup>.4s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Ar].3d<sup>5</sup>.4s<sup>2</sup>",
+            "2": "[Ar].3d<sup>5</sup>",
+            "3": "[Ar].3d<sup>4</sup>",
+            "4": "[Ar].3d<sup>3</sup>",
+            "7": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3,
@@ -7796,7 +7984,12 @@
         "Critical temperature": "no data K",
         "Density of solid": "10280 kg m<sup>-3</sup>",
         "Electrical resistivity": "5.5 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Kr].4d<sup>5</sup>.5s<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[Kr].4d<sup>5</sup>.5s<sup>1</sup>",
+            "3": "[Kr].4d<sup>3</sup>",
+            "4": "[Kr].4d<sup>2</sup>",
+            "6": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3,
@@ -7967,7 +8160,12 @@
         "Critical temperature": "126.2 K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[He].2s<sup>2</sup>.2p<sup>3</sup>",
+        "Electronic structure": {
+            "0": "[He].2s<sup>2</sup>.2p<sup>3</sup>",
+            "-3": "[He].2s<sup>2</sup>.2p<sup>6</sup>",
+            "3": "1s<sup>2</sup>.2s<sup>2</sup>",
+            "5": "1s<sup>2</sup>"
+        },
         "ICSD oxidation states": [
             1,
             3,
@@ -8079,7 +8277,10 @@
         "Critical temperature": "2573 K",
         "Density of solid": "968 kg m<sup>-3</sup>",
         "Electrical resistivity": "4.9 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ne].3s<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[Ne].3s<sup>1</sup>",
+            "1": "[He].2s<sup>2</sup>.2p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             1
         ],
@@ -8202,7 +8403,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "8570 kg m<sup>-3</sup>",
         "Electrical resistivity": "15.2 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Kr].4d<sup>4</sup>.5s<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[Kr].4d<sup>4</sup>.5s<sup>1</sup>",
+            "5": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3,
@@ -8367,7 +8571,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "6800 kg m<sup>-3</sup>",
         "Electrical resistivity": "64.3 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>4</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>4</sup>.6s<sup>2</sup>",
+            "3": "[Xe].4f<sup>3</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3
@@ -8524,7 +8731,9 @@
         "Critical temperature": "44.4 K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[He].2s<sup>2</sup>.2p<sup>6</sup>",
+        "Electronic structure": {
+            "0": "[He].2s<sup>2</sup>.2p<sup>6</sup>"
+        },
         "Liquid range": "2.51 K",
         "Max oxidation state": 0,
         "Melting point": "24.56 K",
@@ -8588,7 +8797,11 @@
         "Critical temperature": "no data K",
         "Density of solid": "8908 kg m<sup>-3</sup>",
         "Electrical resistivity": "7.2 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ar].3d<sup>8</sup>.4s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Ar].3d<sup>8</sup>.4s<sup>2</sup>",
+            "2": "[Ar].3d<sup>8</sup>",
+            "3": "[Ar].3d<sup>7</sup>"
+        },
         "ICSD oxidation states": [
             1,
             2,
@@ -8733,7 +8946,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Rn].5f<sup>14</sup>.7s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Rn].5f<sup>14</sup>.7s<sup>2</sup>",
+            "3": "[Rn].5f<sup>13</sup>"
+        },
         "Liquid range": "no data K",
         "Melting point": "about 1100 K",
         "Mendeleev no": 35,
@@ -8891,7 +9107,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "20450 kg m<sup>-3</sup>",
         "Electrical resistivity": "120 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Rn].5f<sup>4</sup>.6d<sup>1</sup>.7s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Rn].5f<sup>4</sup>.6d<sup>1</sup>.7s<sup>2</sup>",
+            "5": "[Rn].5f<sup>2</sup>"
+        },
         "Ionic radii": {
             "2": 1.24,
             "3": 1.15,
@@ -9101,7 +9320,10 @@
         "Critical temperature": "154.6 K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[He].2s<sup>2</sup>.2p<sup>4</sup>",
+        "Electronic structure": {
+            "0": "[He].2s<sup>2</sup>.2p<sup>4</sup>",
+            "-2": "[He].2s<sup>2</sup>.2p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             -2
         ],
@@ -9215,7 +9437,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "22610 kg m<sup>-3</sup>",
         "Electrical resistivity": "8.1 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>14</sup>.5d<sup>6</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>14</sup>.5d<sup>6</sup>.6s<sup>2</sup>",
+            "4": "[Xe].4f<sup>14</sup>.5d<sup>4</sup>"
+        },
         "Ionic radii": {
             "4": 0.77,
             "5": 0.715,
@@ -9408,7 +9633,12 @@
         "Critical temperature": "994 K",
         "Density of solid": "1823 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 10 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ne].3s<sup>2</sup>.3p<sup>3</sup>",
+        "Electronic structure": {
+            "0": "[Ne].3s<sup>2</sup>.3p<sup>3</sup>",
+            "-3": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>",
+            "3": "[Ne].3s<sup>2</sup>",
+            "5": "1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             3,
             4,
@@ -9536,7 +9766,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "15370 kg m<sup>-3</sup>",
         "Electrical resistivity": "18 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Rn].5f<sup>2</sup>.6d<sup>1</sup>.7s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Rn].5f<sup>2</sup>.6d<sup>1</sup>.7s<sup>2</sup>",
+            "5": "[Hg].6p<sup>6</sup>"
+        },
         "Ionic radii": {
             "3": 1.16,
             "4": 1.04,
@@ -9740,7 +9973,11 @@
         "Critical temperature": "no data K",
         "Density of solid": "11340 kg m<sup>-3</sup>",
         "Electrical resistivity": "21 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>2</sup>",
+            "2": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>",
+            "4": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>"
+        },
         "ICSD oxidation states": [
             2,
             4
@@ -9966,7 +10203,11 @@
         "Critical temperature": "no data K",
         "Density of solid": "12023 kg m<sup>-3</sup>",
         "Electrical resistivity": "10.8 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Kr].4d<sup>10</sup>",
+        "Electronic structure": {
+            "0": "[Kr].4d<sup>10</sup>",
+            "2": "[Kr].4d<sup>8</sup>",
+            "4": "[Kr].4d<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             2,
             4
@@ -10122,7 +10363,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "7264 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 75 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>5</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>5</sup>.6s<sup>2</sup>",
+            "3": "[Xe].4f<sup>4</sup>"
+        },
         "Ionic radii": {
             "3": 1.11
         },
@@ -10271,7 +10515,12 @@
         "Critical temperature": "no data K",
         "Density of solid": "9196 kg m<sup>-3</sup>",
         "Electrical resistivity": "40 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>4</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>4</sup>",
+            "-2": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>",
+            "2": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>2</sup>",
+            "4": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>"
+        },
         "Ionic radii": {
             "4": 1.08,
             "6": 0.81
@@ -10445,7 +10694,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "6640 kg m<sup>-3</sup>",
         "Electrical resistivity": "70 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>3</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>3</sup>.6s<sup>2</sup>",
+            "3": "[Xe].4f<sup>2</sup>"
+        },
         "ICSD oxidation states": [
             3,
             4
@@ -10611,7 +10863,11 @@
         "Critical temperature": "no data K",
         "Density of solid": "21090 kg m<sup>-3</sup>",
         "Electrical resistivity": "10.6 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>14</sup>.5d<sup>9</sup>.6s<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>14</sup>.5d<sup>9</sup>.6s<sup>1</sup>",
+            "2": "[Xe].4f<sup>14</sup>.5d<sup>8</sup>",
+            "4": "[Xe].4f<sup>14</sup>.5d<sup>6</sup>"
+        },
         "Ionic radii": {
             "2": 0.94,
             "4": 0.765,
@@ -10775,7 +11031,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "19816 kg m<sup>-3</sup>",
         "Electrical resistivity": "150 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Rn].5f<sup>6</sup>.7s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Rn].5f<sup>6</sup>.7s<sup>2</sup>",
+            "4": "[Rn].5f<sup>4</sup>"
+        },
         "Ionic radii": {
             "3": 1.14,
             "4": 1,
@@ -10981,7 +11240,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "5000 kg m<sup>-3</sup>",
         "Electrical resistivity": "100 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Rn].7s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Rn].7s<sup>2</sup>",
+            "2": "[Hg].6p<sup>6</sup>"
+        },
         "Ionic radii": {
             "2": 1.62
         },
@@ -11146,7 +11408,10 @@
         "Critical temperature": "2093 K",
         "Density of solid": "1532 kg m<sup>-3</sup>",
         "Electrical resistivity": "13.3 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Kr].5s<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[Kr].5s<sup>1</sup>",
+            "1": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             1
         ],
@@ -11301,7 +11566,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "21020 kg m<sup>-3</sup>",
         "Electrical resistivity": "18 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>14</sup>.5d<sup>5</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>14</sup>.5d<sup>5</sup>.6s<sup>2</sup>",
+            "4": "[Xe].4f<sup>14</sup>.5d<sup>3</sup>"
+        },
         "ICSD oxidation states": [
             3,
             4,
@@ -11493,7 +11761,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "12450 kg m<sup>-3</sup>",
         "Electrical resistivity": "4.3 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Kr].4d<sup>8</sup>.5s<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[Kr].4d<sup>8</sup>.5s<sup>1</sup>",
+            "3": "[Kr].4d<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             3,
             4
@@ -11637,7 +11908,9 @@
         "Critical temperature": "377 K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>6</sup>"
+        },
         "Liquid range": "9.3 K",
         "Max oxidation state": 0,
         "Melting point": "202 K",
@@ -11779,7 +12052,11 @@
         "Critical temperature": "no data K",
         "Density of solid": "12370 kg m<sup>-3</sup>",
         "Electrical resistivity": "7.1 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Kr].4d<sup>7</sup>.5s<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[Kr].4d<sup>7</sup>.5s<sup>1</sup>",
+            "3": "[Kr].4d<sup>5</sup>",
+            "4": "[Kr].4d<sup>4</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3,
@@ -11941,7 +12218,13 @@
         "Critical temperature": "1314 K",
         "Density of solid": "1960 kg m<sup>-3</sup>",
         "Electrical resistivity": "&gt; 10<sup>23</sup>10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ne].3s<sup>2</sup>.3p<sup>4</sup>",
+        "Electronic structure": {
+            "0": "[Ne].3s<sup>2</sup>.3p<sup>4</sup>",
+            "-2": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>",
+            "2": "[Ne].3s<sup>2</sup>.3p<sup>2</sup>",
+            "4": "[Ne].3s<sup>2</sup>",
+            "6": "1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             -1,
             2,
@@ -12071,7 +12354,12 @@
         "Critical temperature": "no data K",
         "Density of solid": "6697 kg m<sup>-3</sup>",
         "Electrical resistivity": "40 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>3</sup>",
+        "Electronic structure": {
+            "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>3</sup>",
+            "-3": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>",
+            "3": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>",
+            "5": "[Kr].4d<sup>10</sup>"
+        },
         "ICSD oxidation states": [
             -2,
             3,
@@ -12222,7 +12510,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "2985 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 55 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ar].3d<sup>1</sup>.4s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Ar].3d<sup>1</sup>.4s<sup>2</sup>",
+            "3": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3
@@ -12328,7 +12619,13 @@
         "Critical temperature": "1766 K",
         "Density of solid": "4819 kg m<sup>-3</sup>",
         "Electrical resistivity": "high 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>4</sup>",
+        "Electronic structure": {
+            "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>4</sup>",
+            "-2": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>",
+            "2": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>2</sup>",
+            "4": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>",
+            "6": "[Ar].3d<sup>10</sup>"
+        },
         "ICSD oxidation states": [
             -1,
             4,
@@ -12460,7 +12757,11 @@
         "Critical temperature": "no data K",
         "Density of solid": "2330 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 100000 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ne].3s<sup>2</sup>.3p<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Ne].3s<sup>2</sup>.3p<sup>2</sup>",
+            "-4": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>",
+            "4": "1s<sup>2</sup>.2s<sup>2</sup>.2p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             -4,
             4
@@ -12563,7 +12864,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "7353 kg m<sup>-3</sup>",
         "Electrical resistivity": "94 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>6</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>6</sup>.6s<sup>2</sup>",
+            "3": "[Xe].4f<sup>5</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3
@@ -12747,7 +13051,12 @@
         "Critical temperature": "no data K",
         "Density of solid": "7310 kg m<sup>-3</sup>",
         "Electrical resistivity": "11.5 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>2</sup>",
+            "-4": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>",
+            "2": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>",
+            "4": "[Kr].4d<sup>10</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3,
@@ -12899,7 +13208,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "2630 kg m<sup>-3</sup>",
         "Electrical resistivity": "13.5 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Kr].5s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Kr].5s<sup>2</sup>",
+            "2": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             2
         ],
@@ -13046,7 +13358,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "16650 kg m<sup>-3</sup>",
         "Electrical resistivity": "13.5 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>14</sup>.5d<sup>3</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>14</sup>.5d<sup>3</sup>.6s<sup>2</sup>",
+            "5": "[Xe].4f<sup>14</sup>"
+        },
         "ICSD oxidation states": [
             3,
             4,
@@ -13230,7 +13545,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "8219 kg m<sup>-3</sup>",
         "Electrical resistivity": "115 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>9</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>9</sup>.6s<sup>2</sup>",
+            "3": "[Xe].4f<sup>8</sup>"
+        },
         "ICSD oxidation states": [
             3,
             4
@@ -13404,7 +13722,11 @@
         "Critical temperature": "no data K",
         "Density of solid": "11500 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 22 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Kr].4d<sup>5</sup>.5s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Kr].4d<sup>5</sup>.5s<sup>2</sup>",
+            "4": "[Kr].4d<sup>3</sup>",
+            "7": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>"
+        },
         "Ionic radii": {
             "4": 0.785,
             "5": 0.74,
@@ -13552,7 +13874,13 @@
         "Critical temperature": "no data K",
         "Density of solid": "6240 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 10000 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>4</sup>",
+        "Electronic structure": {
+            "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>4</sup>",
+            "-2": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>",
+            "2": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>2</sup>",
+            "4": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>",
+            "6": "[Kr].4d<sup>10</sup>"
+        },
         "ICSD oxidation states": [
             -2,
             4,
@@ -13726,7 +14054,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "11724 kg m<sup>-3</sup>",
         "Electrical resistivity": "15 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Rn].6d<sup>2</sup>.7s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Rn].6d<sup>2</sup>.7s<sup>2</sup>",
+            "4": "[Hg].6p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             4
         ],
@@ -13917,7 +14248,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "4507 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 40 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ar].3d<sup>2</sup>.4s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Ar].3d<sup>2</sup>.4s<sup>2</sup>",
+            "4": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3,
@@ -14062,7 +14396,11 @@
         "Critical temperature": "no data K",
         "Density of solid": "11850 kg m<sup>-3</sup>",
         "Electrical resistivity": "15 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>1</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>.6p<sup>1</sup>",
+            "1": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>.6s<sup>2</sup>",
+            "3": "[Xe].4f<sup>14</sup>.5d<sup>10</sup>"
+        },
         "ICSD oxidation states": [
             1,
             3
@@ -14253,7 +14591,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "9321 kg m<sup>-3</sup>",
         "Electrical resistivity": "67.6 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>13</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>13</sup>.6s<sup>2</sup>",
+            "3": "[Xe].4f<sup>12</sup>"
+        },
         "ICSD oxidation states": [
             3
         ],
@@ -14430,7 +14771,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "19050 kg m<sup>-3</sup>",
         "Electrical resistivity": "28 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Rn].5f<sup>3</sup>.6d<sup>1</sup>.7s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Rn].5f<sup>3</sup>.6d<sup>1</sup>.7s<sup>2</sup>",
+            "6": "[Hg].6p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             3,
             4,
@@ -14678,7 +15022,13 @@
         "Critical temperature": "no data K",
         "Density of solid": "6110 kg m<sup>-3</sup>",
         "Electrical resistivity": "20 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ar].3d<sup>3</sup>.4s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Ar].3d<sup>3</sup>.4s<sup>2</sup>",
+            "2": "[Ar].3d<sup>3</sup>",
+            "3": "[Ar].3d<sup>2</sup>",
+            "4": "[Ar].3d<sup>1</sup>",
+            "5": "[Ne].3s<sup>2</sup>.3p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3,
@@ -14841,7 +15191,11 @@
         "Critical temperature": "no data K",
         "Density of solid": "19250 kg m<sup>-3</sup>",
         "Electrical resistivity": "5.4 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>14</sup>.5d<sup>4</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>14</sup>.5d<sup>4</sup>.6s<sup>2</sup>",
+            "4": "[Xe].4f<sup>14</sup>.5d<sup>2</sup>",
+            "6": "[Xe].4f<sup>14</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3,
@@ -15026,7 +15380,9 @@
         "Critical temperature": "289.7 K",
         "Density of solid": "no data kg m<sup>-3</sup>",
         "Electrical resistivity": "no data 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>",
+        "Electronic structure": {
+            "0": "[Kr].4d<sup>10</sup>.5s<sup>2</sup>.5p<sup>6</sup>"
+        },
         "Ionic radii": {
             "8": 0.62
         },
@@ -15154,7 +15510,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "4472 kg m<sup>-3</sup>",
         "Electrical resistivity": "about 60 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Kr].4d<sup>1</sup>.5s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Kr].4d<sup>1</sup>.5s<sup>2</sup>",
+            "3": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             3
         ],
@@ -15288,7 +15647,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "6570 kg m<sup>-3</sup>",
         "Electrical resistivity": "25.0 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Xe].4f<sup>14</sup>.6s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Xe].4f<sup>14</sup>.6s<sup>2</sup>",
+            "3": "[Xe].4f<sup>13</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3
@@ -15468,7 +15830,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "7140 kg m<sup>-3</sup>",
         "Electrical resistivity": "6.0 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>",
+            "2": "[Ar].3d<sup>10</sup>"
+        },
         "ICSD oxidation states": [
             2
         ],
@@ -15592,7 +15957,10 @@
         "Critical temperature": "no data K",
         "Density of solid": "6511 kg m<sup>-3</sup>",
         "Electrical resistivity": "43.3 10<sup>-8</sup> &Omega; m",
-        "Electronic structure": "[Kr].4d<sup>2</sup>.5s<sup>2</sup>",
+        "Electronic structure": {
+            "0": "[Kr].4d<sup>2</sup>.5s<sup>2</sup>",
+            "4": "[Ar].3d<sup>10</sup>.4s<sup>2</sup>.4p<sup>6</sup>"
+        },
         "ICSD oxidation states": [
             2,
             3,
