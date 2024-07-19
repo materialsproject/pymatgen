@@ -762,15 +762,23 @@ class TestCubicSupercellTransformation(PymatgenTest):
         max_atoms = 400
 
         supercell_generator_cubic = CubicSupercellTransformation(
-            min_atoms=min_atoms, max_atoms=max_atoms, min_length=10.0, force_90_degrees=False,
-            allow_orthorhombic=False, max_length=25
+            min_atoms=min_atoms,
+            max_atoms=max_atoms,
+            min_length=10.0,
+            force_90_degrees=False,
+            allow_orthorhombic=False,
+            max_length=25,
         )
 
         transformed_cubic = supercell_generator_cubic.apply_transformation(structure)
 
         supercell_generator_orthorhombic = CubicSupercellTransformation(
-            min_atoms=min_atoms, max_atoms=max_atoms, min_length=10.0, force_90_degrees=False,
-            allow_orthorhombic=True, max_length=25
+            min_atoms=min_atoms,
+            max_atoms=max_atoms,
+            min_length=10.0,
+            force_90_degrees=False,
+            allow_orthorhombic=True,
+            max_length=25,
         )
 
         transformed_orthorhombic = supercell_generator_orthorhombic.apply_transformation(structure)
