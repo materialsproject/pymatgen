@@ -173,6 +173,44 @@ class PointGroup(SymmetryGroup):
                 orbit.append(pp)
         return orbit
 
+    def is_subgroup(self, supergroup: PointGroup) -> bool:
+        """True if this group is a subgroup of the supplied group.
+            Modification of SymmetryGroup method with a few more constraints.
+
+        Args:
+            supergroup (pointGroup): Supergroup to test.
+
+        Returns:
+            bool: True if this group is a subgroup of the supplied group.
+        """
+        possible_but_direction_differences = (
+            ["trigonal", "cubic"],
+            ["monoclinic", "tetragonal"],
+            ["monoclinic", "hexagonal"],
+            ["monoclinic", "trigonal"],
+            ["orthorhombic", "hexagonal"],
+            ["orthorhombic", "tetragonal"],
+        )
+        if [self.crystal_system, supergroup.crystal_system] in possible_but_direction_differences:
+            raise NotImplementedError
+        warnings.warn(
+            "This is not fully functional. Only trivial subsets are tested right now. "
+            "This will not work if the crystallographic directions of the two groups are different."
+        )
+        return set(self.symmetry_ops).issubset(supergroup.symmetry_ops)
+
+    def is_supergroup(self, subgroup: PointGroup) -> bool:
+        """True if this group is a subgroup of the supplied group.
+            Modification of SymmetryGroup method with a few more constraints.
+
+        Args:
+            subgroup (PointGroup): Subgroup to test.
+
+        Returns:
+            bool: True if this group is a supergroup of the supplied group.
+        """
+        return subgroup.is_subgroup(self)
+
     @classmethod
     def from_space_group(cls, sg_symbol: str) -> PointGroup:
         """Instantiate one of the 32 crystal classes from a space group symbol in

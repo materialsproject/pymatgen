@@ -55,8 +55,9 @@ class TestPointGroup:
         pg_m3m = PointGroup("m-3m")
         pg_6mmm = PointGroup("6/mmm")
         pg_3m = PointGroup("-3m")
-        # TODO: Fix the test below.
+        # TODO: Fix the tests below.
         # assert pg3m.is_subgroup(pgm3m)
+        # assert PointGroup("32").is_subgroup(PointGroup("-6m2"))
         assert pg_3m.is_subgroup(pg_6mmm)
         assert not pg_m3m.is_supergroup(pg_6mmm)
 
