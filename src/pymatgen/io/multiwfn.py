@@ -317,6 +317,7 @@ def map_atoms_cps(
 def add_atoms(
     molecule: Molecule,
     organized_cps: dict[str, dict[Any, dict[str, Any]]],
+    bond_atom_criterion: Literal["qtaim", "distance"] = "distance",
     dist_threshold_bond: float = 1.0,
     dist_threshold_ring_cage: float = 3.0,
     distance_margin: float = 0.5,
@@ -327,16 +328,17 @@ def add_atoms(
     indices of the atoms involved, and cages will include information on neighboring rings, bonds, and the atoms
     involved.
 
-    Some assumptions:
-        - Bonds only involve two atoms
-        - The atom CPs closest to a bond correspond to the atoms being bonded. Similarly, the closest bonds to a ring
-            and the closest rings to a cage constitute those CPs.
-
     Args:
         molecule (Molecule): structure corresponding to this Multiwfn calculation
         organized_cps (Dict[str, Dict[Any, Dict[str, Any]]]): Keys are CP categories ("atom", "bond", "ring", and
             "cage"). Values are themselves dictionaries, where the keys are CP names (or atom indices) and the values
             are CP descriptors
+        bond_atom_criterion (Literal["qtaim", "distance"]): If "qtaim", the inherent bonding definition obtained from
+            QTAIM/Multiwfn will be used to link bond CPs to atoms involved in those bonds; if "distance", a
+            distance-based metric will be used instead, where the atoms closest to the bond CP will be assumed to be
+            bonded.
+            NOTE: to use "qtaim" as `bond_atom_criterion`, you must have used `map_atoms_cps` to link atom numbers from
+            Multiwfn to atom indices in `molecule`.
         dist_threshold_bond (float): If the nearest atoms to a bond CP are further from the bond CP than this threshold
             (default 1.0 Angstrom), then a warning will be raised.
         dist_threshold_ring_cage (float): If the nearest bond CPs to a ring CP or the nearest ring CPs to a cage CP are
@@ -365,6 +367,13 @@ def add_atoms(
 
     atom_info = {i: {"pos_ang": s.coords} for i, s in enumerate(molecule.sites)}
 
+    # Can only include bonds where the connected atoms are provided
+    if bond_atom_criterion == "qtaim":
+        modified_organized_cps["bond"] = {
+            k: v for k, v in modified_organized_cps["bond"].items() if "connected_bond_paths" in v
+        }
+
+    atom_cps = modified_organized_cps["atom"]
     bond_cps = modified_organized_cps["bond"]
     ring_cps = modified_organized_cps["ring"]
     cage_cps = modified_organized_cps["cage"]
@@ -378,14 +387,25 @@ def add_atoms(
     if len(cage_cps) > 0 and len(ring_cps) < 3:
         raise ValueError("Cannot have a cage CP with less than three ring CPs!")
 
-    # NOTE: for bonds, we associate based on atoms, NOT based on atom CPs
     for cp_name, cp_desc in bond_cps.items():
-        sorted_atoms = sort_cps_by_distance(np.array(cp_desc["pos_ang"]), atom_info)
+        if bond_atom_criterion == "distance":
+            # NOTE: for bonds, we associate based on atoms, NOT based on atom CPs
+            sorted_atoms = sort_cps_by_distance(np.array(cp_desc["pos_ang"]), atom_info)
 
-        if sorted_atoms[1][0] > dist_threshold_bond:
-            warnings.warn("Warning: bond CP is far from bonding atoms")
+            if sorted_atoms[1][0] > dist_threshold_bond:
+                warnings.warn("Warning: bond CP is far from bonding atoms")
 
-        modified_organized_cps["bond"][cp_name]["atom_inds"] = sorted([ca[1] for ca in sorted_atoms[:2]])
+            # Assume only two atoms involved in bond
+            modified_organized_cps["bond"][cp_name]["atom_inds"] = sorted([ca[1] for ca in sorted_atoms[:2]])
+        else:
+            bond_atoms_list = list()
+            for index in cp_desc["connected_bond_paths"]:
+                for true_index, descriptors in atom_cps.items():
+                    if int(descriptors["name"].split("_")[0]) == index:
+                        bond_atoms_list.append(true_index)
+                        break
+
+            modified_organized_cps["bond"][cp_name]["atom_inds"] = sorted(bond_atoms_list)
 
     for cp_name, cp_desc in ring_cps.items():
         sorted_bonds = sort_cps_by_distance(np.array(cp_desc["pos_ang"]), bond_cps)
@@ -452,6 +472,7 @@ def add_atoms(
 def process_multiwfn_qtaim(
     molecule: Molecule,
     file: PathLike,
+    bond_atom_criterion: Literal["qtaim", "distance"] = "distance",
     max_distance_atom: float = 0.5,
     dist_threshold_bond: float = 1.0,
     dist_threshold_ring_cage: float = 3.0,
@@ -463,6 +484,10 @@ def process_multiwfn_qtaim(
     Args:
         molecule (Molecule): structure corresponding to this Multiwfn calculation
         file (PathLike): path to CPprop file containing QTAIM information
+        bond_atom_criterion (Literal["qtaim", "distance"]): If "qtaim", the inherent bonding definition obtained from
+            QTAIM/Multiwfn will be used to link bond CPs to atoms involved in those bonds; if "distance", a
+            distance-based metric will be used instead, where the atoms closest to the bond CP will be assumed to be
+            bonded.
         max_distance (float): Maximum distance (in Angstrom) that an atom critical point can be away from an atom
             center and be associated with that atom. Default is 0.5 Angstrom
         dist_threshold_bond (float): If the nearest atoms to a bond CP are further from the bond CP than this threshold
@@ -475,8 +500,8 @@ def process_multiwfn_qtaim(
             bond/ring CP, plus this margin. Default is 0.5 Angstrom
 
     Returns:
-        qtaim_descriptors (Dict[str, Dict[str, Dict[str, Any]]]): QTAIM descriptors, organized by type ("atom", "bond",
-            "ring", "cage")
+        with_atoms (Dict[str, Dict[str, Dict[str, Any]]]): QTAIM descriptors, organized by type ("atom", "bond",
+            "ring", "cage"), with additional metadata added to bond, ring, and cage CPs
     """
 
     # Initial parsing and organizing
@@ -494,6 +519,7 @@ def process_multiwfn_qtaim(
     return add_atoms(
         molecule,
         qtaim_descriptors,
+        bond_atom_criterion=bond_atom_criterion,
         dist_threshold_bond=dist_threshold_bond,
         dist_threshold_ring_cage=dist_threshold_ring_cage,
         distance_margin=distance_margin,

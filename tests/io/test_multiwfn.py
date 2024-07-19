@@ -230,6 +230,14 @@ def test_add_atoms():
     ]
     assert sorted(modified["cage"]["67_cage"]["ring_names"]) == ["62_ring", "66_ring", "70_ring"]
 
+    # Test with QTAIM-defined bonds
+    remapped_atoms, _ = map_atoms_cps(mol, separated["atom"])
+    separated["atom"] = remapped_atoms
+    modified_qtaim = add_atoms(mol, separated, bond_atom_criterion="qtaim")
+
+    assert len(modified_qtaim["bond"]) == 63
+    assert modified_qtaim["bond"]["9_bond"]["atom_inds"] == [2, 43]
+
 
 def test_process_multiwfn_qtaim():
     # Don't need to test very thoroughly, since we've already tested everything else
