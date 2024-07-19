@@ -1549,12 +1549,6 @@ class CubicSupercellTransformation(AbstractTransformation):
                 or np.all(np.absolute(np.array(superstructure.lattice.angles) - 90) < self.angle_tolerance)
             ):
                 return superstructure
-<<<<<<< HEAD
-=======
-            else:
-                print(np.min(np.linalg.norm(length_vecs, axis=1)) >= self.min_length)
-                print("test")
->>>>>>> 6def33eee9aaf2014cf9d7a45a0904db252e611a
             self.transformation_matrix = transformation_matrix
             self.check_exceptions(length_vecs, n_atoms)
 
