@@ -76,7 +76,10 @@ class SymmetryGroup(Sequence, Stringify, ABC):
         Returns:
             bool: True if this group is a subgroup of the supplied group.
         """
-        warnings.warn("This is not fully functional. Only trivial subsets are tested right now. ")
+        warnings.warn(
+            "This is not fully functional. Only trivial subsets are tested right now. "
+            "This will not work if the crystallographic directions of the two groups are different."
+        )
         return set(self.symmetry_ops).issubset(supergroup.symmetry_ops)
 
     def is_supergroup(self, subgroup: SymmetryGroup) -> bool:
@@ -88,7 +91,10 @@ class SymmetryGroup(Sequence, Stringify, ABC):
         Returns:
             bool: True if this group is a supergroup of the supplied group.
         """
-        warnings.warn("This is not fully functional. Only trivial subsets are tested right now. ")
+        warnings.warn(
+            "This is not fully functional. Only trivial subsets are tested right now. "
+            "This will not work if the crystallographic directions of the two groups are different."
+        )
         return set(subgroup.symmetry_ops).issubset(self.symmetry_ops)
 
     def to_latex_string(self) -> str:
@@ -125,6 +131,7 @@ class PointGroup(SymmetryGroup):
         ]
         self._symmetry_ops = {SymmOp.from_rotation_and_translation(m) for m in self._generate_full_symmetry_ops()}
         self.order = len(self._symmetry_ops)
+        self.crystal_system = SYMM_DATA["point_group_crystal_system_map"][int_symbol]
 
     @property
     def symmetry_ops(self) -> set[SymmOp]:
