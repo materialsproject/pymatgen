@@ -1548,12 +1548,10 @@ class CubicSupercellTransformation(AbstractTransformation):
                 not self.force_90_degrees
                 or np.all(np.absolute(np.array(superstructure.lattice.angles) - 90) < self.angle_tolerance)
             ):
-                print("ORTHO")
+                self.transformation_matrix = transformation_matrix
                 return superstructure
 
-            self.transformation_matrix = transformation_matrix
             self.check_exceptions(length_vecs, n_atoms)
-
         raise AttributeError("Unable to find orthorhombic supercell")
 
     def check_exceptions(self, length_vecs, n_atoms):
