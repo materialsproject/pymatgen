@@ -16,13 +16,31 @@ class TestPseudo(PymatgenTest):
         nc_pseudo_fnames = defaultdict(list)
         nc_pseudo_fnames["Si"] = [f"{TEST_DIR}/{file}" for file in ("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")]
 
+        paw_pseudo_fnames = defaultdict(list)
+        paw_pseudo_fnames["Ni"] = [f"{TEST_DIR}/{file}" for file in ("28ni.paw")]
+
         self.nc_pseudos = defaultdict(list)
+        self.paw_pseudos = defaultdict(list)
 
         for symbol, file_names in nc_pseudo_fnames.items():
             for file_name in file_names:
                 _root, ext = os.path.splitext(file_name)
                 pseudo = Pseudo.from_file(file_name)
                 self.nc_pseudos[symbol].append(pseudo)
+
+                # Save the pseudo as instance attribute whose name
+                # is constructed with the rule: symbol_ppformat
+                attribute = f"{symbol}_{ext[1:]}"
+                if hasattr(self, attribute):
+                    raise RuntimeError(f"self has already {attribute=}")
+
+                setattr(self, attribute, pseudo)
+
+        for symbol, file_names in paw_pseudo_fnames.items():
+            for file_name in file_names:
+                _root, ext = os.path.splitext(file_name)
+                pseudo = Pseudo.from_file(file_name)
+                self.paw_pseudos[symbol].append(pseudo)
 
                 # Save the pseudo as instance attribute whose name
                 # is constructed with the rule: symbol_ppformat
@@ -89,6 +107,31 @@ class TestPseudo(PymatgenTest):
 
         # Test pickle
         self.serialize_with_pickle(table, test_eq=False)
+
+    def test_paw_pseudos(self):
+        """Test 28ni.paw."""
+        for symbol, pseudos in self.paw_pseudos.items():
+            for pseudo in pseudos:
+                assert repr(pseudo)
+                assert str(pseudo)
+                assert not pseudo.isnc
+                assert pseudo.ispaw
+                assert pseudo.Z == 28
+                assert pseudo.symbol == symbol
+                assert pseudo.Z_val == 18
+                assert pseudo.paw_radius >= 0.0
+
+                # Test pickle
+                self.serialize_with_pickle(pseudo)
+
+                # Test MSONable
+                self.assert_msonable(pseudo)
+
+        pseudo = self.Ni_paw
+        assert pseudo.l_max == 2
+        assert pseudo.l_local == 0
+        assert pseudo.supports_soc
+        assert pseudo.md5 is not None
 
     def test_pawxml_pseudos(self):
         """Test O.GGA_PBE-JTH-paw.xml."""
