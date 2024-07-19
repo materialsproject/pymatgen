@@ -1489,7 +1489,7 @@ class CubicSupercellTransformation(AbstractTransformation):
         lat_vecs = structure.lattice.matrix
 
         if self.max_length is None and self.allow_orthorhombic:
-            raise AttributeError("max_length is required " "for orthorhombic cells")
+            raise AttributeError("max_length is required for orthorhombic cells")
 
         if self.force_diagonal:
             scale = self.min_length / np.array(structure.lattice.abc)
