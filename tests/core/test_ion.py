@@ -61,6 +61,7 @@ class TestIon(TestCase):
             ("N2", "N2(aq)"),
             ("H4O4", "H2O2(aq)"),
             ("OH-", "OH[-1]"),
+            ("H2PO4-", "H2PO4[-1]"),
             ("CH3COO-", "CH3COO[-1]"),
             ("CH3COOH", "CH3COOH(aq)"),
             ("CH3OH", "CH3OH(aq)"),
