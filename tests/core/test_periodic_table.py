@@ -169,6 +169,11 @@ class TestElement(PymatgenTest):
         for k, v in cases.items():
             assert ElementBase.from_row_and_group(v[0], v[1]) == Element(k)
 
+    def test_n_electrons(self):
+        cases = {"O": 8, "Fe": 26, "Li": 3, "Be": 4}
+        for k, v in cases.items():
+            assert Element(k).n_electrons == v
+
     def test_valence(self):
         cases = {"O": (1, 4), "Fe": (2, 6), "Li": (0, 1), "Be": (0, 2)}
         for k, v in cases.items():
@@ -602,6 +607,7 @@ class TestDummySpecies:
 
     def test_species_electronic_structure(self):
         assert Species("Fe", 0).electronic_structure == "[Ar].3d6.4s2"
+        assert Species("Fe", 0).n_electrons == 26
         assert Species("Fe", 0).full_electronic_structure == [
             (1, "s", 2),
             (2, "s", 2),
@@ -614,6 +620,7 @@ class TestDummySpecies:
         assert Species("Fe", 0).valence == (2, 6)
 
         assert Species("Fe", 2).electronic_structure == "[Ar].3d6"
+        assert Species("Fe", 2).n_electrons == 24
         assert Species("Fe", 2).full_electronic_structure == [
             (1, "s", 2),
             (2, "s", 2),
@@ -625,6 +632,7 @@ class TestDummySpecies:
         assert Species("Fe", 2).valence == (2, 6)
 
         assert Species("Fe", 3).electronic_structure == "[Ar].3d5"
+        assert Species("Fe", 3).n_electrons == 23
         assert Species("Fe", 3).full_electronic_structure == [
             (1, "s", 2),
             (2, "s", 2),
@@ -636,6 +644,7 @@ class TestDummySpecies:
         assert Species("Fe", 3).valence == (2, 5)
 
         assert Species("Li", 1).electronic_structure == "1s2"
+        assert Species("Li", 1).n_electrons == 2
         # alkali metals, all p
         for el in ["Na", "K", "Rb", "Cs"]:
             assert Species(el, 1).electronic_structure.split(".")[-1][1::] == "p6", f"Failure for {el} +1"
