@@ -472,6 +472,11 @@ class ElementBase(Enum):
         return sorted(data, key=lambda x: _madelung.index((x[0], x[1])))
 
     @property
+    def n_electrons(self) -> int:
+        """Total number of electrons in the Element."""
+        return sum([t[-1] for t in self.full_electronic_structure])
+
+    @property
     def valence(self) -> tuple[int | np.nan, int]:
         """Valence subshell angular moment (L) and number of valence e- (v_e),
         obtained from full electron config, where L=0, 1, 2, or 3 for s, p, d,
@@ -1167,6 +1172,13 @@ class Species(MSONable, Stringify):
             data = list(Element(sym).full_electronic_structure) + data[1:]
         # sort the final electronic structure by increasing energy level
         return sorted(data, key=lambda x: _madelung.index((x[0], x[1])))
+
+    # NOTE - copied exactly from Element. Refactoring / inheritance may improve
+    # robustness
+    @property
+    def n_electrons(self) -> int:
+        """Total number of electrons in the Species."""
+        return sum([t[-1] for t in self.full_electronic_structure])
 
     # NOTE - copied exactly from Element. Refactoring / inheritance may improve
     # robustness
