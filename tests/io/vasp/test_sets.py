@@ -120,7 +120,7 @@ class TestSetChangeCheck(PymatgenTest):
             "PBE54Base.yaml": "ec317781a7f344beb54c17a228db790c0eb49282",
             "PBE64Base.yaml": "480c41c2448cb25706181de268090618e282b264",
             "VASPIncarBase.yaml": "19762515f8deefb970f2968fca48a0d67f7964d4",
-            "vdW_parameters.yaml": "04bb09bb563d159565bcceac6a11e8bdf0152b79",
+            "vdW_parameters.yaml": "b67c60317846466479da96ee36eb15ad7dbf2afc",
         }
 
         for input_set in hashes:
@@ -1601,7 +1601,7 @@ class TestMVLScanRelaxSet(PymatgenTest):
         assert input_set.potcar.functional == "PBE_52"
 
         with pytest.raises(
-            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54', 'PBE_64'\)"
         ):
             MVLScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
