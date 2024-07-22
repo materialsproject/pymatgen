@@ -2982,9 +2982,9 @@ class PDPlotter:
                 comp = entry.composition
 
                 if hasattr(entry, "original_entry"):
-                    orig_entry = entry.original_entry 
-                    comp = orig_entry.composition 
-                    entry_id = getattr(orig_entry, "entry_id", "no ID") 
+                    orig_entry = entry.original_entry
+                    comp = orig_entry.composition
+                    entry_id = getattr(orig_entry, "entry_id", "no ID")
 
                 formula = comp.reduced_formula
                 clean_formula = htmlify(formula)
@@ -2998,24 +2998,24 @@ class PDPlotter:
                 else:
                     uncertainty = 0
                     label += " (Stable)"
-                    if hasattr(entry, "correction_uncertainty_per_atom") and label_uncertainties: 
+                    if hasattr(entry, "correction_uncertainty_per_atom") and label_uncertainties:
                         uncertainty = round(entry.correction_uncertainty_per_atom, 4)
-                        label += f"<br> (Error: +/- {uncertainty} eV/atom)" 
+                        label += f"<br> (Error: +/- {uncertainty} eV/atom)"
                     uncertainties.append(uncertainty)
-                    energies.append(energy)                
-                
+                    energies.append(energy)
+
                 if self._dim == 3 and self.ternary_style == "2d":
                     label += "<br>"
                     total_sum_el = sum(entry.composition[el] for el, axis in zip(self._pd.elements, [x, y, z]))
                     for el, axis in zip(self._pd.elements, [x, y, z]):
                         axis.append(entry.composition[el])
                         label += f"<br> {el}: {round(entry.composition[el]/total_sum_el, 6)}"
-                elif self._dim == 3 and self.ternary_style =="3d":
+                elif self._dim == 3 and self.ternary_style == "3d":
                     label += "<br>"
                     x.append(coord[0])
                     y.append(coord[1])
                     z.append(energy)
-                    
+
                     total_sum_el = sum(entry.composition[el] for el, axis2 in zip(self._pd.elements, [x, y, z]))
                     for el, axis in zip(self._pd.elements, [x, y, z]):
                         label += f"<br> {el}: {round(entry.composition[el]/total_sum_el, 6)}"
@@ -3023,10 +3023,10 @@ class PDPlotter:
                     x.append(coord[0])
                     y.append(coord[1])
 
-                    if self._dim == 4: # This check might not be necessary
+                    if self._dim == 4:  # This check might not be necessary
                         z.append(coord[2])
-                
-                texts.append(label) 
+
+                texts.append(label)
 
             return {"x": x, "y": y, "z": z, "texts": texts, "energies": energies, "uncertainties": uncertainties}
 
