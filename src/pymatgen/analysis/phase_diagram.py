@@ -3020,7 +3020,7 @@ class PDPlotter:
                         z.append(energy)
                     elif self._dim == 4:
                         z.append(coord[2])
-                        
+
                 texts.append(label)
             return {"x": x, "y": y, "z": z, "texts": texts, "energies": energies, "uncertainties": uncertainties}
 
