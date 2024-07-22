@@ -34,6 +34,24 @@ if TYPE_CHECKING:
 
 SYMM_DATA = loadfn(os.path.join(os.path.dirname(__file__), "symm_data.json"))
 
+PG_ABBREV_MAP = {
+    "2/m2/m2/m": "mmm",
+    "4/m2/m2/m": "4/mmm",
+    "-32/m": "-3m",
+    "6/m2/m2/m": "6/mmm",
+    "2/m-3": "m-3",
+    "4/m-32/m": "m-3m",
+}
+PG_SETTINGS_MAP = {  # only one setting per crystal class in SYMM_DATA database available right now
+    "m2m": "mm2",
+    "2mm": "mm2",
+    "-4m2": "-42m",
+    "-62m": "-6m2",
+    "312": "32",
+    "31m": "3m",
+    "-31m": "-3m",
+}
+
 
 class SymmetryGroup(Sequence, Stringify, ABC):
     """Abstract class representing a symmetry group."""
@@ -121,9 +139,15 @@ class PointGroup(SymmetryGroup):
         Please note that only the 32 crystal classes are supported right now.
 
         Args:
-            int_symbol (str): International or Hermann-Mauguin Symbol.
+            int_symbol (str): International or Hermann-Mauguin Symbol. Please note that the PointGroup object
+            may have a different setting than specified in the int_symbol as only one setting per point group
+            is available right now.
         """
         from pymatgen.core.operations import SymmOp
+
+        int_symbol = int_symbol.replace(" ", "")
+        int_symbol = PG_ABBREV_MAP.get(int_symbol, int_symbol)
+        int_symbol = PG_SETTINGS_MAP.get(int_symbol, int_symbol)
 
         self.symbol = int_symbol
         self.generators = [
@@ -215,6 +239,7 @@ class PointGroup(SymmetryGroup):
     def from_space_group(cls, sg_symbol: str) -> PointGroup:
         """Instantiate one of the 32 crystal classes from a space group symbol in
         Hermann Mauguin notation (int symbol or full symbol).
+        Please note that the axes of space group and crystal class may be different.
 
         Args:
             sg_symbol: space group symbol in Hermann Mauguin notation.
@@ -224,20 +249,6 @@ class PointGroup(SymmetryGroup):
         Returns:
             crystal class in Hermann-Mauguin notation.
         """
-        abbrev_map = {
-            "2/m2/m2/m": "mmm",
-            "4/m2/m2/m": "4/mmm",
-            "-32/m": "-3m",
-            "6/m2/m2/m": "6/mmm",
-            "2/m-3": "m-3",
-            "4/m-32/m": "m-3m",
-        }
-        non_standard_map = {
-            "m2m": "mm2",
-            "2mm": "mm2",
-            "-4m2": "-42m",  # technically not non-standard
-            "-62m": "-6m2",  # technically not non-standard
-        }
         symbol = re.sub(r" ", "", sg_symbol)
 
         symm_ops = loadfn(os.path.join(os.path.dirname(__file__), "symm_ops.json"))  # get short symbol if possible
@@ -251,8 +262,8 @@ class PointGroup(SymmetryGroup):
         symbol = symbol[1:]  # Remove centering
         symbol = symbol.translate(str.maketrans("abcden", "mmmmmm"))  # Remove translation from glide planes
         symbol = re.sub(r"_.", "", symbol)  # Remove translation from screw axes
-        symbol = abbrev_map.get(symbol, symbol)
-        symbol = non_standard_map.get(symbol, symbol)
+        symbol = PG_ABBREV_MAP.get(symbol, symbol)
+        symbol = PG_SETTINGS_MAP.get(symbol, symbol)
 
         assert (
             symbol in SYMM_DATA["point_group_encoding"]
@@ -570,8 +581,8 @@ class SpaceGroup(SymmetryGroup):
         if not isinstance(supergroup, SpaceGroup):
             return NotImplemented
 
-        # if len(supergroup.symmetry_ops) < len(self.symmetry_ops):  # Disabled after issue #3937 TODO constrain
-        # return False
+        if len(supergroup.symmetry_ops) < len(self.symmetry_ops) and supergroup.point_group != self.point_group:
+            return False
 
         groups = [{supergroup.int_number}]
         all_groups = [supergroup.int_number]

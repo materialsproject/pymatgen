@@ -61,6 +61,10 @@ class TestPointGroup:
         assert pg_3m.is_subgroup(pg_6mmm)
         assert not pg_m3m.is_supergroup(pg_6mmm)
 
+    def test_init_different_settings_and_full_notation(self):
+        PointGroup("2/m 2/m 2/m")
+        PointGroup("31m")
+
     def test_from_space_group(self):
         assert PointGroup.from_space_group("P 2_1/n2_1/m2_1/a").symbol == "mmm"
         assert PointGroup.from_space_group("F d d d").symbol == "mmm"
