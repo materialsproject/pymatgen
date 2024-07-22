@@ -3007,21 +3007,29 @@ class PDPlotter:
                     uncertainties.append(uncertainty)
                     energies.append(energy)
 
-                if self._dim == 3 and self.ternary_style == "2d":
+               if self._dim == 3 and self.ternary_style == "2d":
+                    label += "<br>"
                     total_sum_el = sum(entry.composition[el] for el, axis in zip(self._pd.elements, [x, y, z]))
                     for el, axis in zip(self._pd.elements, [x, y, z]):
                         axis.append(entry.composition[el])
-                        label += f"<br> {el}: {round(entry.composition[el]/total_sum_el, 4)}"
+                        label += f"<br> {el}: {round(entry.composition[el]/total_sum_el, 6)}"
+                elif self._dim == 3 and self.ternary_style =="3d":
+                    label += "<br>"
+                    x.append(coord[0])
+                    y.append(coord[1])
+                    z.append(energy)
+                    
+                    total_sum_el = sum(entry.composition[el] for el, axis2 in zip(self._pd.elements, [x, y, z]))
+                    for el, axis in zip(self._pd.elements, [x, y, z]):
+                        label += f"<br> {el}: {round(entry.composition[el]/total_sum_el, 6)}"
                 else:
                     x.append(coord[0])
                     y.append(coord[1])
 
-                    if self._dim == 3:
-                        z.append(energy)
-                    elif self._dim == 4:
+                    if self._dim == 4: # This check might not be necessary
                         z.append(coord[2])
-
-                texts.append(label)
+                
+                texts.append(label) 
             return {"x": x, "y": y, "z": z, "texts": texts, "energies": energies, "uncertainties": uncertainties}
 
         if highlight_entries is None:
