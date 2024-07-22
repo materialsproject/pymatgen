@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
 import scipy.constants as const
@@ -11,10 +11,12 @@ from monty.json import MSONable
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_linear_interpolated_value
 from scipy.ndimage import gaussian_filter1d
+from scipy.stats import wasserstein_distance
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from numpy.typing import NDArray
     from typing_extensions import Self
 
 BOLTZ_THZ_PER_K = const.value("Boltzmann constant in Hz/K") / const.tera  # Boltzmann constant in THz/K
@@ -484,3 +486,140 @@ class CompletePhononDos(PhononDos):
 
     def __str__(self) -> str:
         return f"Complete phonon DOS for {self.structure}"
+
+    def get_dos_fp(
+        self,
+        binning: bool = True,
+        min_e: float | None = None,
+        max_e: float | None = None,
+        n_bins: int = 256,
+        normalize: bool = True,
+    ) -> NamedTuple:
+        """Generate the DOS fingerprint.
+
+        Args:
+            binning (bool): If true, the DOS fingerprint is binned using np.linspace and n_bins.
+                Default is True.
+            min_e (float): The minimum mode energy to include in the fingerprint (default is None)
+            max_e (float): The maximum mode energy to include in the fingerprint (default is None)
+            n_bins (int): Number of bins to be used in the fingerprint (default is 256)
+            normalize (bool): If true, normalizes the area under fp to equal to 1. Default is True.
+
+        Returns:
+            NamedTuple: The electronic density of states fingerprint
+                of format (energies, densities, type, n_bins)
+        """
+
+        class fingerprint(NamedTuple):
+            energies: NDArray
+            densities: NDArray
+            n_bins: int
+            bin_width: float
+
+        frequencies = self.frequencies
+
+        if max_e is None:
+            max_e = np.max(frequencies)
+
+        if min_e is None:
+            min_e = np.min(frequencies)
+
+        densities = self.densities
+
+        if len(frequencies) < n_bins:
+            inds = np.where((frequencies >= min_e) & (frequencies <= max_e))
+            return fingerprint(frequencies[inds], densities[inds], len(frequencies), np.diff(frequencies)[0])
+
+        if binning:
+            freq_bounds = np.linspace(min_e, max_e, n_bins + 1)
+            freq = freq_bounds[:-1] + (freq_bounds[1] - freq_bounds[0]) / 2.0
+            bin_width = np.diff(freq)[0]
+        else:
+            freq_bounds = np.array(frequencies)
+            freq = np.append(frequencies, [frequencies[-1] + np.abs(frequencies[-1]) / 10])
+            n_bins = len(frequencies)
+            bin_width = np.diff(frequencies)[0]
+
+        dos_rebin = np.zeros(freq.shape)
+
+        for ii, e1, e2 in zip(range(len(freq)), freq_bounds[:-1], freq_bounds[1:]):
+            inds = np.where((frequencies >= e1) & (frequencies < e2))
+            dos_rebin[ii] = np.sum(densities[inds])
+        if normalize:  # scale DOS bins to make area under histogram equal 1
+            area = np.sum(dos_rebin * bin_width)
+            dos_rebin_sc = dos_rebin / area
+        else:
+            dos_rebin_sc = dos_rebin
+
+        return fingerprint(np.array([freq]), dos_rebin_sc, n_bins, bin_width)
+
+    @staticmethod
+    def fp_to_dict(fp: NamedTuple) -> dict:
+        """Convert a fingerprint into a dictionary.
+
+        Args:
+            fp: The DOS fingerprint to be converted into a dictionary
+
+        Returns:
+            dict: A dict of the fingerprint Keys=type, Values=np.ndarray(energies, densities)
+        """
+        fp_dict = {}
+        fp_dict[fp[2]] = np.array([fp[0], fp[1]], dtype="object").T
+
+        return fp_dict
+
+    @staticmethod
+    def get_dos_fp_similarity(
+        fp1: NamedTuple,
+        fp2: NamedTuple,
+        col: int = 1,
+        pt: int | str = "All",
+        normalize: bool = False,
+        metric: str | None = "Tanimoto",
+    ) -> float:
+        """Calculate the similarity index between two fingerprints.
+
+        Args:
+            fp1 (NamedTuple): The 1st dos fingerprint object
+            fp2 (NamedTuple): The 2nd dos fingerprint object
+            col (int): The item in the fingerprints (0:energies,1: densities) to take the dot product of (default is 1)
+            pt (int or str) : The index of the point that the dot product is to be taken (default is All)
+            normalize (bool): If True normalize the scalar product to 1 (default is False)
+            metric (str): Metric used to compute similariy default is "Tanimoto". One can also calculate
+            Wasserstein Distance. If set to None, simple dot product is computed
+
+        Raises:
+            ValueError: If both tanimoto and normalize are set to True.
+
+        Returns:
+            float: Similarity index given by the dot product
+        """
+        fp1_dict = CompletePhononDos.fp_to_dict(fp1) if not isinstance(fp1, dict) else fp1
+
+        fp2_dict = CompletePhononDos.fp_to_dict(fp2) if not isinstance(fp2, dict) else fp2
+
+        if pt == "All":
+            vec1 = np.array([pt[col] for pt in fp1_dict.values()]).flatten()
+            vec2 = np.array([pt[col] for pt in fp2_dict.values()]).flatten()
+        else:
+            vec1 = fp1_dict[fp1[2][pt]][col]
+            vec2 = fp2_dict[fp2[2][pt]][col]
+
+        if not normalize and metric == "Tanimoto":
+            rescale = np.linalg.norm(vec1) ** 2 + np.linalg.norm(vec2) ** 2 - np.dot(vec1, vec2)
+            return np.dot(vec1, vec2) / rescale
+
+        if not normalize and metric == "Wasserstein":
+            return wasserstein_distance(u_values=vec1, v_values=vec2)
+
+        if metric is None and normalize:
+            rescale = np.linalg.norm(vec1) * np.linalg.norm(vec2)
+            return np.dot(vec1, vec2) / rescale
+
+        if metric is None and not normalize:
+            rescale = 1.0
+            return np.dot(vec1, vec2) / rescale
+
+        raise ValueError(
+            "Cannot compute similarity index. Please set either normalize=True or tanimoto=True or both to False."
+        )
