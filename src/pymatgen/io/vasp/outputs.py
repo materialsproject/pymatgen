@@ -3898,7 +3898,7 @@ class Procar:
             structure (Structure): Input structure.
 
         Returns:
-            A dict as {Spin.up: [k index][b index][{Element: values}]].
+            A dict as {Spin: [band index][kpoint index][{Element: values}]].
         """
         assert self.data is not None, "Data cannot be None."
         assert self.nkpoints is not None
