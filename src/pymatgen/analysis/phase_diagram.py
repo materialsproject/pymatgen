@@ -3008,11 +3008,9 @@ class PDPlotter:
                     energies.append(energy)
 
                 if self._dim == 3 and self.ternary_style == "2d":
+                    total_sum_el = sum(entry.composition[el] for el, axis in zip(self._pd.elements, [x, y, z]))
                     for el, axis in zip(self._pd.elements, [x, y, z]):
                         axis.append(entry.composition[el])
-                        total_sum_el = 0
-                        for el2, axis2 in zip(self._pd.elements, [x, y, z]):
-                            total_sum_el += entry.composition[el2]
                         label += f"<br> {el}: {round(entry.composition[el]/total_sum_el, 4)}"
                 else:
                     x.append(coord[0])
