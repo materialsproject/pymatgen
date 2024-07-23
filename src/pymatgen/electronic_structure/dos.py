@@ -1115,7 +1115,7 @@ class CompleteDos(Dos):
         max_e: float | None = None,
         n_bins: int = 256,
         normalize: bool = True,
-    ) -> NamedTuple:
+    ) -> DosFingerprint:
         """Generate the DOS fingerprint.
 
         Based on work of:
@@ -1138,7 +1138,7 @@ class CompleteDos(Dos):
             ValueError: If type is not one of the accepted values {s/p/d/f/}summed_{pdos/tdos}.
 
         Returns:
-            NamedTuple: The electronic density of states fingerprint
+            DosFingerprint: The electronic density of states fingerprint
                 of format (energies, densities, type, n_bins)
         """
         energies = self.energies - self.efermi
