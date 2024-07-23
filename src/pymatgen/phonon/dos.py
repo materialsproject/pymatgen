@@ -510,41 +510,41 @@ class CompletePhononDos(PhononDos):
     def get_dos_fp(
         self,
         binning: bool = True,
-        min_e: float | None = None,
-        max_e: float | None = None,
+        min_f: float | None = None,
+        max_f: float | None = None,
         n_bins: int = 256,
         normalize: bool = True,
-    ) -> NamedTuple:
+    ) -> PhononDosFingerprint:
         """Generate the DOS fingerprint.
 
         Args:
             binning (bool): If true, the DOS fingerprint is binned using np.linspace and n_bins.
                 Default is True.
-            min_e (float): The minimum mode energy to include in the fingerprint (default is None)
-            max_e (float): The maximum mode energy to include in the fingerprint (default is None)
+            min_f (float): The minimum mode frequency to include in the fingerprint (default is None)
+            max_f (float): The maximum mode frequency to include in the fingerprint (default is None)
             n_bins (int): Number of bins to be used in the fingerprint (default is 256)
             normalize (bool): If true, normalizes the area under fp to equal to 1. Default is True.
 
         Returns:
-            NamedTuple: The electronic density of states fingerprint
-                of format (energies, densities, type, n_bins)
+            PhononDosFingerprint: The phonon density of states fingerprint
+                of format (frequencies, densities, n_bins, bin_width)
         """
         frequencies = self.frequencies
 
-        if max_e is None:
-            max_e = np.max(frequencies)
+        if max_f is None:
+            max_f = np.max(frequencies)
 
-        if min_e is None:
-            min_e = np.min(frequencies)
+        if min_f is None:
+            min_f = np.min(frequencies)
 
         densities = self.densities
 
         if len(frequencies) < n_bins:
-            inds = np.where((frequencies >= min_e) & (frequencies <= max_e))
+            inds = np.where((frequencies >= min_f) & (frequencies <= max_f))
             return PhononDosFingerprint(frequencies[inds], densities[inds], len(frequencies), np.diff(frequencies)[0])
 
         if binning:
-            freq_bounds = np.linspace(min_e, max_e, n_bins + 1)
+            freq_bounds = np.linspace(min_f, max_f, n_bins + 1)
             freq = freq_bounds[:-1] + (freq_bounds[1] - freq_bounds[0]) / 2.0
             bin_width = np.diff(freq)[0]
         else:
@@ -567,14 +567,14 @@ class CompletePhononDos(PhononDos):
         return PhononDosFingerprint(np.array([freq]), dos_rebin_sc, n_bins, bin_width)
 
     @staticmethod
-    def fp_to_dict(fp: NamedTuple) -> dict:
+    def fp_to_dict(fp: PhononDosFingerprint) -> dict:
         """Convert a fingerprint into a dictionary.
 
         Args:
             fp: The DOS fingerprint to be converted into a dictionary
 
         Returns:
-            dict: A dict of the fingerprint Keys=type, Values=np.ndarray(energies, densities)
+            dict: A dict of the fingerprint Keys=type, Values=np.ndarray(frequencies, densities)
         """
         fp_dict = {}
         fp_dict[fp[2]] = np.array([fp[0], fp[1]], dtype="object").T
@@ -610,7 +610,7 @@ class CompletePhononDos(PhononDos):
         """
         if metric not in [None, "Tanimoto", "Wasserstein"]:
             raise NotImplementedError(
-                "Requested metric not implemented. Currently implemented metrics are Tanimoto, Wasserstien or None"
+                "Requested metric not implemented. Currently implemented metrics are Tanimoto, Wasserstien and None."
             )
 
         fp1_dict = CompletePhononDos.fp_to_dict(fp1) if not isinstance(fp1, dict) else fp1
