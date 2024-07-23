@@ -158,3 +158,54 @@ class TestCompletePhononDos(PymatgenTest):
             "Complete phonon DOS for Full Formula (Na1 Cl1)\nReduced Formula: NaCl\n"
             "abc   :   4.023651   4.023651   4.023651\nangles"
         )
+
+    def test_get_dos_fp(self):
+        # normalize=True
+        dos_fp = self.cdos.get_dos_fp(min_f=-1, max_f=5, n_bins=56, normalize=True)
+        bin_width = np.diff(dos_fp.frequencies)[0][0]
+        assert max(dos_fp.frequencies[0]) <= 5
+        assert min(dos_fp.frequencies[0]) >= -1
+        assert len(dos_fp.frequencies[0]) == 56
+        assert sum(dos_fp.densities * bin_width) == approx(1)
+        # normalize=False
+        dos_fp2 = self.cdos.get_dos_fp(min_f=-1, max_f=5, n_bins=56, normalize=False)
+        bin_width2 = np.diff(dos_fp2.frequencies)[0][0]
+        assert sum(dos_fp2.densities * bin_width2) == approx(13.722295798242834)
+        assert dos_fp2.bin_width == approx(bin_width2)
+        # binning=False
+        dos_fp = self.cdos.get_dos_fp(min_f=None, max_f=None, n_bins=56, normalize=True, binning=False)
+        assert dos_fp.n_bins == len(self.cdos.frequencies)
+
+    def test_get_dos_fp_similarity(self):
+        # Tanimoto
+        dos_fp = self.cdos.get_dos_fp(min_f=-1, max_f=6, n_bins=56, normalize=True)
+        dos_fp2 = self.cdos.get_dos_fp(min_f=-1, max_f=6, n_bins=56, normalize=False)
+        similarity_index = self.cdos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Tanimoto")
+        assert similarity_index == approx(0.0553088193)
+
+        dos_fp = self.cdos.get_dos_fp(min_f=-1, max_f=6, n_bins=56, normalize=True)
+        dos_fp2 = self.cdos.get_dos_fp(min_f=-1, max_f=6, n_bins=56, normalize=True)
+        similarity_index = self.cdos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Tanimoto")
+        assert similarity_index == approx(1)
+
+        # Wasserstein
+        dos_fp = self.cdos.get_dos_fp(min_f=-1, max_f=6, n_bins=56, normalize=True)
+        dos_fp2 = self.cdos.get_dos_fp(min_f=-1, max_f=6, n_bins=56, normalize=True)
+        similarity_index = self.cdos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Wasserstein")
+        assert similarity_index == approx(0)
+
+    def test_dos_fp_exceptions(self):
+        dos_fp = self.cdos.get_dos_fp(min_f=-1, max_f=5, n_bins=56, normalize=True)
+        dos_fp2 = self.cdos.get_dos_fp(min_f=-1, max_f=5, n_bins=56, normalize=True)
+        # test exceptions
+        with pytest.raises(
+            ValueError,
+            match="Cannot compute similarity index. When normalize=True, then please set metric=None",
+        ):
+            self.cdos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Tanimoto", normalize=True)
+        with pytest.raises(
+            NotImplementedError,
+            match="Requested metric not implemented. Currently implemented metrics are "
+            "Tanimoto, Wasserstien and None.",
+        ):
+            self.cdos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Dot", normalize=False)
