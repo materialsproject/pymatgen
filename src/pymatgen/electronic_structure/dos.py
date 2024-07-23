@@ -15,11 +15,12 @@ from pymatgen.util.coord import get_linear_interpolated_value
 from scipy.constants import value as _cd
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import hilbert
+from scipy.stats import wasserstein_distance
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
-    from numpy.typing import ArrayLike, NDArray
+    from numpy.typing import ArrayLike
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.util.typing import SpeciesLike, Tuple3Floats
     from typing_extensions import Self
@@ -587,6 +588,28 @@ class FermiDos(Dos, MSONable):
         }
 
 
+class DosFingerprint(NamedTuple):
+    """
+    Represents a Density of States (DOS) fingerprint.
+
+    This named tuple is used to store information related to the Density of States (DOS)
+    in a material. It includes the energies, densities, type, number of bins, and bin width.
+
+    Args:
+        energies: The energy values associated with the DOS.
+        densities: The corresponding density values for each energy.
+        fp_type: The type of DOS fingerprint.
+        n_bins: The number of bins used in the fingerprint.
+        bin_width: The width of each bin in the DOS fingerprint.
+    """
+
+    energies: np.ndarray
+    densities: np.ndarray
+    fp_type: str
+    n_bins: int
+    bin_width: float
+
+
 class CompleteDos(Dos):
     """This wrapper class defines a total dos, and also provides a list of PDos.
     Mainly used by pymatgen.io.vasp.Vasprun to create a complete Dos from
@@ -1086,7 +1109,7 @@ class CompleteDos(Dos):
 
     def get_dos_fp(
         self,
-        type: str = "summed_pdos",  # noqa: A002
+        fp_type: str = "summed_pdos",
         binning: bool = True,
         min_e: float | None = None,
         max_e: float | None = None,
@@ -1102,7 +1125,7 @@ class CompleteDos(Dos):
         Copyright (c) 2020 Florian Knoop, Thomas A.R.Purcell, Matthias Scheffler, Christian Carbogno.
 
         Args:
-            type (str): Specify fingerprint type needed can accept '{s/p/d/f/}summed_{pdos/tdos}'
+            fp_type (str): Specify fingerprint type needed can accept '{s/p/d/f/}summed_{pdos/tdos}'
             (default is summed_pdos)
             binning (bool): If true, the DOS fingerprint is binned using np.linspace and n_bins.
                 Default is True.
@@ -1118,14 +1141,6 @@ class CompleteDos(Dos):
             NamedTuple: The electronic density of states fingerprint
                 of format (energies, densities, type, n_bins)
         """
-
-        class fingerprint(NamedTuple):
-            energies: NDArray
-            densities: NDArray
-            type: str
-            n_bins: int
-            bin_width: float
-
         energies = self.energies - self.efermi
 
         if max_e is None:
@@ -1146,10 +1161,10 @@ class CompleteDos(Dos):
         pdos["tdos"] = self.get_densities()
 
         try:
-            densities = pdos[type]
+            densities = pdos[fp_type]
             if len(energies) < n_bins:
                 inds = np.where((energies >= min_e) & (energies <= max_e))
-                return fingerprint(energies[inds], densities[inds], type, len(energies), np.diff(energies)[0])
+                return DosFingerprint(energies[inds], densities[inds], fp_type, len(energies), np.diff(energies)[0])
 
             if binning:
                 ener_bounds = np.linspace(min_e, max_e, n_bins + 1)
@@ -1172,7 +1187,7 @@ class CompleteDos(Dos):
             else:
                 dos_rebin_sc = dos_rebin
 
-            return fingerprint(np.array([ener]), dos_rebin_sc, type, n_bins, bin_width)
+            return DosFingerprint(np.array([ener]), dos_rebin_sc, fp_type, n_bins, bin_width)
 
         except KeyError:
             raise ValueError(
@@ -1197,29 +1212,36 @@ class CompleteDos(Dos):
 
     @staticmethod
     def get_dos_fp_similarity(
-        fp1: NamedTuple,
-        fp2: NamedTuple,
+        fp1: DosFingerprint,
+        fp2: DosFingerprint,
         col: int = 1,
         pt: int | str = "All",
         normalize: bool = False,
-        tanimoto: bool = False,
+        metric: str | None = "Tanimoto",
     ) -> float:
         """Calculate the similarity index (dot product) of two fingerprints.
 
         Args:
-            fp1 (NamedTuple): The 1st dos fingerprint object
-            fp2 (NamedTuple): The 2nd dos fingerprint object
+            fp1 (DosFingerprint): The 1st dos fingerprint object
+            fp2 (DosFingerprint): The 2nd dos fingerprint object
             col (int): The item in the fingerprints (0:energies,1: densities) to take the dot product of (default is 1)
             pt (int or str) : The index of the point that the dot product is to be taken (default is All)
             normalize (bool): If True normalize the scalar product to 1 (default is False)
-            tanimoto (bool): If True will compute Tanimoto index (default is False)
+            metric (str): Metric used to compute similarity default is "Tanimoto". One can also calculate
+                Wasserstein Distance. If set to None, simple dot product is computed
 
         Raises:
-            ValueError: If both tanimoto and normalize are set to True.
+            NotImplementedError: If metric other than Tanimoto, Wasserstien and None is requested.
+            ValueError:  If normalize is set to True along with the metric.
 
         Returns:
             float: Similarity index given by the dot product
         """
+        if metric not in [None, "Tanimoto", "Wasserstein"]:
+            raise NotImplementedError(
+                "Requested metric not implemented. Currently implemented metrics are Tanimoto, Wasserstien and None."
+            )
+
         fp1_dict = CompleteDos.fp_to_dict(fp1) if not isinstance(fp1, dict) else fp1
 
         fp2_dict = CompleteDos.fp_to_dict(fp2) if not isinstance(fp2, dict) else fp2
@@ -1228,24 +1250,27 @@ class CompleteDos(Dos):
             vec1 = np.array([pt[col] for pt in fp1_dict.values()]).flatten()
             vec2 = np.array([pt[col] for pt in fp2_dict.values()]).flatten()
         else:
-            vec1 = fp1_dict[fp1[2][pt]][col]
-            vec2 = fp2_dict[fp2[2][pt]][col]
+            vec1 = fp1_dict[fp1[2][pt]][col]  # type: ignore # noqa:PGH003
+            vec2 = fp2_dict[fp2[2][pt]][col]  # type: ignore # noqa:PGH003
 
-        if not normalize and tanimoto:
+        if not normalize and metric == "Tanimoto":
             rescale = np.linalg.norm(vec1) ** 2 + np.linalg.norm(vec2) ** 2 - np.dot(vec1, vec2)
             return np.dot(vec1, vec2) / rescale
 
-        if not tanimoto and normalize:
+        if not normalize and metric == "Wasserstein":
+            return wasserstein_distance(
+                u_values=np.cumsum(vec1 * fp1.bin_width), v_values=np.cumsum(vec2 * fp2.bin_width)
+            )
+
+        if metric is None and normalize:
             rescale = np.linalg.norm(vec1) * np.linalg.norm(vec2)
             return np.dot(vec1, vec2) / rescale
 
-        if not tanimoto and not normalize:
+        if metric is None and not normalize:
             rescale = 1.0
             return np.dot(vec1, vec2) / rescale
 
-        raise ValueError(
-            "Cannot compute similarity index. Please set either normalize=True or tanimoto=True or both to False."
-        )
+        raise ValueError("Cannot compute similarity index. When normalize=True, then please set metric=None")
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
