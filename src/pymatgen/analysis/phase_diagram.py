@@ -3024,7 +3024,7 @@ class PDPlotter:
 
                 if self._dim == 3 and self.ternary_style == "2d":
                     label += "<br>"
-                    total_sum_el = sum(entry.composition[el] for el, axis in zip(self._pd.elements, range(self._dim)))
+                    total_sum_el = sum(entry.composition[el] for el, _axis in zip(self._pd.elements, range(self._dim)))
                     for el, axis in zip(self._pd.elements, range(self._dim)):
                         _cartesian_positions = [x, y, z]
                         _cartesian_positions[axis].append(entry.composition[el])
@@ -3035,8 +3035,8 @@ class PDPlotter:
                     z.append(energy)
 
                     label += "<br>"
-                    total_sum_el = sum(entry.composition[el] for el, axis2 in zip(self._pd.elements, range(self._dim)))
-                    for el, axis in zip(self._pd.elements, range(self._dim)):
+                    total_sum_el = sum(entry.composition[el] for el, _axis in zip(self._pd.elements, range(self._dim)))
+                    for el, _axis in zip(self._pd.elements, range(self._dim)):
                         label += f"<br> {el}: {round(entry.composition[el]/total_sum_el, 6)}"
                 elif self._dim == 4:
                     x.append(coord[0])
@@ -3044,8 +3044,8 @@ class PDPlotter:
                     z.append(coord[2])
 
                     label += "<br>"
-                    total_sum_el = sum(entry.composition[el] for el, axis2 in zip(self._pd.elements, range(self._dim)))
-                    for el, axis in zip(self._pd.elements, range(self._dim)):
+                    total_sum_el = sum(entry.composition[el] for el, _axis in zip(self._pd.elements, range(self._dim)))
+                    for el, _axis in zip(self._pd.elements, range(self._dim)):
                         label += f"<br> {el}: {round(entry.composition[el]/total_sum_el, 6)}"
                 else:
                     x.append(coord[0])
