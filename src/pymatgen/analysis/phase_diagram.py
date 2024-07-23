@@ -2782,18 +2782,36 @@ class PDPlotter:
                     ys.append(y)
                     zs.append(z)
 
-                traces += [
-                    go.Mesh3d(
-                        x=xs,
-                        y=ys,
-                        z=zs,
-                        opacity=0.05,
-                        alphahull=-1,
-                        flatshading=True,
-                        hoverinfo="skip",
-                        color=next(fillcolors),
-                    )
-                ]
+                if _idx == 1:
+                    traces += [
+                        go.Mesh3d(
+                            x=xs,
+                            y=ys,
+                            z=zs,
+                            opacity=0.05,
+                            alphahull=-1,
+                            flatshading=True,
+                            hoverinfo="skip",
+                            color=next(fillcolors),
+                            legendgroup="facets",
+                            showlegend= True,
+                            name = "Hull Surfaces (toggle to access points easier)"
+                        )
+                    ]
+                else:
+                    traces += [
+                        go.Mesh3d(
+                            x=xs,
+                            y=ys,
+                            z=zs,
+                            opacity=0.05,
+                            alphahull=-1,
+                            flatshading=True,
+                            hoverinfo="skip",
+                            color=next(fillcolors),
+                            legendgroup="facets",
+                        )
+                    ]
 
         return traces
 
@@ -2982,53 +3000,61 @@ class PDPlotter:
                 comp = entry.composition
 
                 if hasattr(entry, "original_entry"):
-                    orig_entry = entry.original_entry
-                    comp = orig_entry.composition
-                    entry_id = getattr(orig_entry, "entry_id", "no ID")
+                    orig_entry = entry.original_entry 
+                    comp = orig_entry.composition 
+                    entry_id = getattr(orig_entry, "entry_id", "no ID") 
 
                 formula = comp.reduced_formula
                 clean_formula = htmlify(formula)
-                label = f"{clean_formula} ({entry_id}) <br> {energy} eV/atom    <br>"
+                label = f"{clean_formula} ({entry_id}) <br>  Formation energy: {energy} eV/atom <br> "
                 if not stable:
                     e_above_hull = round(self._pd.get_e_above_hull(entry), 3)
                     if e_above_hull > self.show_unstable:
                         continue
-                    label += f" ({e_above_hull:+} eV/atom)"
+                    label += f" Energy Above Hull: ({e_above_hull:+} eV/atom)"
                     energies.append(e_above_hull)
                 else:
                     uncertainty = 0
                     label += " (Stable)"
-                    if hasattr(entry, "correction_uncertainty_per_atom") and label_uncertainties:
+                    if hasattr(entry, "correction_uncertainty_per_atom") and label_uncertainties: 
                         uncertainty = round(entry.correction_uncertainty_per_atom, 4)
-                        label += f"<br> (Error: +/- {uncertainty} eV/atom)"
+                        label += f"<br> (Error: +/- {uncertainty} eV/atom)" 
                     uncertainties.append(uncertainty)
-                    energies.append(energy)
-
+                    energies.append(energy)                
+                
                 if self._dim == 3 and self.ternary_style == "2d":
                     label += "<br>"
-                    total_sum_el = sum(entry.composition[el] for el, _axis in zip(self._pd.elements, [x, y, z]))
-                    for el, axis in zip(self._pd.elements, [x, y, z]):
-                        axis.append(entry.composition[el])
+                    total_sum_el = sum(entry.composition[el] for el, axis in zip(self._pd.elements, range(self._dim)))
+                    for el, axis in zip(self._pd.elements, range(self._dim)):
+                        _cartesian_positions = [x,y,z] 
+                        _cartesian_positions[axis].append(entry.composition[el])
                         label += f"<br> {el}: {round(entry.composition[el]/total_sum_el, 6)}"
-                elif self._dim == 3 and self.ternary_style == "3d":
-                    label += "<br>"
+                elif self._dim == 3 and self.ternary_style =="3d":
                     x.append(coord[0])
                     y.append(coord[1])
                     z.append(energy)
 
-                    total_sum_el = sum(entry.composition[el] for el, _axis2 in zip(self._pd.elements, [x, y, z]))
-                    for el, _axis in zip(self._pd.elements, [x, y, z]):
+                    label += "<br>"
+                    total_sum_el = sum(entry.composition[el] for el, axis2 in zip(self._pd.elements, range(self._dim)))
+                    for el, axis in zip(self._pd.elements, range(self._dim)):
+                        label += f"<br> {el}: {round(entry.composition[el]/total_sum_el, 6)}"
+                elif self._dim == 4:
+                    x.append(coord[0])
+                    y.append(coord[1])
+                    z.append(coord[2])
+                    
+                    label += "<br>"
+                    total_sum_el = sum(entry.composition[el] for el, axis2 in zip(self._pd.elements, range(self._dim)))
+                    for el, axis in zip(self._pd.elements, range(self._dim)):
                         label += f"<br> {el}: {round(entry.composition[el]/total_sum_el, 6)}"
                 else:
                     x.append(coord[0])
                     y.append(coord[1])
 
-                    if self._dim == 4:  # This check might not be necessary
-                        z.append(coord[2])
-
-                texts.append(label)
+                texts.append(label) 
 
             return {"x": x, "y": y, "z": z, "texts": texts, "energies": energies, "uncertainties": uncertainties}
+
 
         if highlight_entries is None:
             highlight_entries = []
