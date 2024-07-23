@@ -317,7 +317,7 @@ def map_atoms_cps(
 def add_atoms(
     molecule: Molecule,
     organized_cps: dict[str, dict[Any, dict[str, Any]]],
-    bond_atom_criterion: Literal["qtaim", "distance"] = "distance",
+    bond_atom_criterion: Literal["qtaim", "distance", "combined"] = "combined",
     dist_threshold_bond: float = 1.0,
     dist_threshold_ring_cage: float = 3.0,
     distance_margin: float = 0.5,
@@ -333,12 +333,13 @@ def add_atoms(
         organized_cps (Dict[str, Dict[Any, Dict[str, Any]]]): Keys are CP categories ("atom", "bond", "ring", and
             "cage"). Values are themselves dictionaries, where the keys are CP names (or atom indices) and the values
             are CP descriptors
-        bond_atom_criterion (Literal["qtaim", "distance"]): If "qtaim", the inherent bonding definition obtained from
-            QTAIM/Multiwfn will be used to link bond CPs to atoms involved in those bonds; if "distance", a
-            distance-based metric will be used instead, where the atoms closest to the bond CP will be assumed to be
-            bonded.
-            NOTE: to use "qtaim" as `bond_atom_criterion`, you must have used `map_atoms_cps` to link atom numbers from
-            Multiwfn to atom indices in `molecule`.
+        bond_atom_criterion (Literal["qtaim", "distance", "combined"]): If this is "qtaim", the inherent bonding
+            definition obtained from QTAIM/Multiwfn will be used to link bond CPs to atoms involved in those bonds. If
+            it is "distance", a distance-based metric will be used instead, where the atoms closest to the bond CP will
+            be assumed to be bonded. If this is "combined", then the QTAIM/Multiwfn definition will be used where
+            available, and a distance metric will be used for all bond CPs lacking a definition from QTAIM/Multiwfn.
+            NOTE: to use "qtaim" or "combined" as `bond_atom_criterion`, you must have used `map_atoms_cps` to link atom
+            numbers from Multiwfn to atom indices in `molecule`.
         dist_threshold_bond (float): If the nearest atoms to a bond CP are further from the bond CP than this threshold
             (default 1.0 Angstrom), then a warning will be raised.
         dist_threshold_ring_cage (float): If the nearest bond CPs to a ring CP or the nearest ring CPs to a cage CP are
@@ -397,13 +398,32 @@ def add_atoms(
 
             # Assume only two atoms involved in bond
             modified_organized_cps["bond"][cp_name]["atom_inds"] = sorted([ca[1] for ca in sorted_atoms[:2]])
-        else:
+        elif bond_atom_criterion == "qtaim":
             bond_atoms_list = list()
             for index in cp_desc["connected_bond_paths"]:
                 for true_index, descriptors in atom_cps.items():
                     if int(descriptors["name"].split("_")[0]) == index:
                         bond_atoms_list.append(true_index)
                         break
+
+            modified_organized_cps["bond"][cp_name]["atom_inds"] = sorted(bond_atoms_list)
+        else:
+            if "connected_bond_paths" in cp_desc:
+                bond_atoms_list = list()
+                for index in cp_desc["connected_bond_paths"]:
+                    for true_index, descriptors in atom_cps.items():
+                        if int(descriptors["name"].split("_")[0]) == index:
+                            bond_atoms_list.append(true_index)
+                            break
+                if len(bond_atoms_list) != 2:
+                    raise ValueError(f"Could not match all atoms in connected_bond_paths for bond CP {cp_name}")
+            else:
+                sorted_atoms = sort_cps_by_distance(np.array(cp_desc["pos_ang"]), atom_info)
+
+                if sorted_atoms[1][0] > dist_threshold_bond:
+                    warnings.warn("Warning: bond CP is far from bonding atoms")
+
+                bond_atoms_list = sorted([ca[1] for ca in sorted_atoms[:2]])
 
             modified_organized_cps["bond"][cp_name]["atom_inds"] = sorted(bond_atoms_list)
 

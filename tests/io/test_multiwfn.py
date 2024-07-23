@@ -186,7 +186,8 @@ def test_add_atoms():
     with pytest.raises(ValueError, match=r"cage CP"):
         add_atoms(mol, sep_minrings)
 
-    modified = add_atoms(mol, separated)
+    # Test distance-based metric
+    modified = add_atoms(mol, separated, bond_atom_criterion="distance")
 
     # Test that atom indices are being connected reasonably to bonds
     assert sorted(modified["bond"]["1_bond"]["atom_inds"]) == [3, 14]
@@ -237,6 +238,12 @@ def test_add_atoms():
 
     assert len(modified_qtaim["bond"]) == 63
     assert modified_qtaim["bond"]["9_bond"]["atom_inds"] == [2, 43]
+
+    # Test with combined QTAIM- + distance-based bonds
+    modified_separated = add_atoms(mol, separated)
+
+    assert modified_separated["bond"]["9_bond"]["atom_inds"] == [2, 43]
+    assert len(modified_separated["bond"]) == 90
 
 
 def test_process_multiwfn_qtaim():
