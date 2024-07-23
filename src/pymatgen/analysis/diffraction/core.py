@@ -165,7 +165,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
                 version (oriented vertically), e.g. 100. If 'full', show
                 long version, e.g. (1, 0, 0). If None, do not show anything.
         """
-        self.get_plot(structure, **kwargs).show()
+        self.get_plot(structure, **kwargs).get_figure().show()
 
     @add_fig_kwargs
     def plot_structures(self, structures, fontsize=6, **kwargs):
