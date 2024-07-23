@@ -266,32 +266,44 @@ class TestCompleteDos(TestCase):
         assert dos_fp.n_bins == len(self.dos.energies)
 
     def test_get_dos_fp_similarity(self):
-        dos_fp = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        dos_fp2 = self.dos.get_dos_fp(type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, tanimoto=True)
+        # Tanimoto
+        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        dos_fp2 = self.dos.get_dos_fp(fp_type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Tanimoto")
         assert similarity_index == approx(0.3342481451042263)
 
-        dos_fp = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        dos_fp2 = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, tanimoto=True)
+        # Wasserstein
+        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        dos_fp2 = self.dos.get_dos_fp(fp_type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Wasserstein")
+        assert similarity_index == approx(0.2668440595873588)
+
+        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        dos_fp2 = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Tanimoto")
         assert similarity_index == approx(1)
 
     def test_dos_fp_exceptions(self):
-        dos_fp = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        dos_fp2 = self.dos.get_dos_fp(type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        dos_fp2 = self.dos.get_dos_fp(fp_type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True)
         # test exceptions
         with pytest.raises(
             ValueError,
-            match="Cannot compute similarity index. Please set either "
-            "normalize=True or tanimoto=True or both to False.",
+            match="Cannot compute similarity index. When normalize=True, then please set",
         ):
-            self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, tanimoto=True, normalize=True)
+            self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Tanimoto", normalize=True)
         with pytest.raises(
             ValueError,
             match="Please recheck type requested, either the orbital "
             "projections unavailable in input DOS or there's a typo in type.",
         ):
-            self.dos.get_dos_fp(type="k", min_e=-10, max_e=0, n_bins=56, normalize=True)
+            self.dos.get_dos_fp(fp_type="k", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        with pytest.raises(
+            NotImplementedError,
+            match="Requested metric not implemented. Currently implemented metrics are "
+            "Tanimoto, Wasserstien and None.",
+        ):
+            self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Dot", normalize=False)
 
 
 class TestDOS(PymatgenTest):
