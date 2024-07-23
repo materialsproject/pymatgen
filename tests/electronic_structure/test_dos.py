@@ -249,20 +249,20 @@ class TestCompleteDos(TestCase):
 
     def test_get_dos_fp(self):
         # normalize=True
-        dos_fp = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
         bin_width = np.diff(dos_fp.energies)[0][0]
         assert max(dos_fp.energies[0]) <= 0
         assert min(dos_fp.energies[0]) >= -10
         assert len(dos_fp.energies[0]) == 56
-        assert dos_fp.type == "s"
+        assert dos_fp.fp_type == "s"
         assert sum(dos_fp.densities * bin_width) == approx(1)
         # normalize=False
-        dos_fp2 = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, n_bins=56, normalize=False)
+        dos_fp2 = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=False)
         bin_width2 = np.diff(dos_fp2.energies)[0][0]
         assert sum(dos_fp2.densities * bin_width2) == approx(7.279303571428509)
         assert dos_fp2.bin_width == approx(bin_width2)
         # binning=False
-        dos_fp = self.dos.get_dos_fp(type="s", min_e=None, max_e=None, n_bins=56, normalize=True, binning=False)
+        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=None, max_e=None, n_bins=56, normalize=True, binning=False)
         assert dos_fp.n_bins == len(self.dos.energies)
 
     def test_get_dos_fp_similarity(self):
@@ -272,16 +272,16 @@ class TestCompleteDos(TestCase):
         similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Tanimoto")
         assert similarity_index == approx(0.3342481451042263)
 
+        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        dos_fp2 = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Tanimoto")
+        assert similarity_index == approx(1)
+
         # Wasserstein
         dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
         dos_fp2 = self.dos.get_dos_fp(fp_type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True)
         similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Wasserstein")
         assert similarity_index == approx(0.2668440595873588)
-
-        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        dos_fp2 = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Tanimoto")
-        assert similarity_index == approx(1)
 
     def test_dos_fp_exceptions(self):
         dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
@@ -289,7 +289,7 @@ class TestCompleteDos(TestCase):
         # test exceptions
         with pytest.raises(
             ValueError,
-            match="Cannot compute similarity index. When normalize=True, then please set",
+            match="Cannot compute similarity index. When normalize=True, then please set metric=None",
         ):
             self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Tanimoto", normalize=True)
         with pytest.raises(
