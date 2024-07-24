@@ -692,7 +692,7 @@ class TestSQSTransformationIcet(PymatgenTest):
 
 
 class TestCubicSupercellTransformation(PymatgenTest):
-    def test_apply_transformation(self):
+    def test_apply_transformation_cubic_supercell(self):
         structure = self.get_structure("TlBiSe2")
         min_atoms = 100
         max_atoms = 1000
@@ -755,6 +755,84 @@ class TestCubicSupercellTransformation(PymatgenTest):
         )
         transformed_structure = supercell_generator.apply_transformation(structure)
         assert_allclose(list(transformed_structure.lattice.angles), [90.0, 90.0, 90.0])
+
+    def test_apply_transformation_orthorhombic_supercell(self):
+        structure = self.get_structure("Li3V2(PO4)3")
+        min_atoms = 100
+        max_atoms = 400
+
+        supercell_generator_cubic = CubicSupercellTransformation(
+            min_atoms=min_atoms,
+            max_atoms=max_atoms,
+            min_length=10.0,
+            force_90_degrees=False,
+            allow_orthorhombic=False,
+            max_length=25,
+        )
+
+        transformed_cubic = supercell_generator_cubic.apply_transformation(structure)
+
+        supercell_generator_orthorhombic = CubicSupercellTransformation(
+            min_atoms=min_atoms,
+            max_atoms=max_atoms,
+            min_length=10.0,
+            force_90_degrees=False,
+            allow_orthorhombic=True,
+            max_length=25,
+        )
+
+        transformed_orthorhombic = supercell_generator_orthorhombic.apply_transformation(structure)
+
+        assert_array_equal(
+            supercell_generator_orthorhombic.transformation_matrix,
+            np.array([[0, -2, 1], [-2, 0, 0], [0, 0, -2]]),
+        )
+
+        # make sure that the orthorhombic supercell is different from the cubic cell
+        assert not np.array_equal(
+            supercell_generator_cubic.transformation_matrix, supercell_generator_orthorhombic.transformation_matrix
+        )
+        assert transformed_cubic.lattice.angles != transformed_orthorhombic.lattice.angles
+        assert transformed_orthorhombic.lattice.abc != transformed_cubic.lattice.abc
+
+        structure = self.get_structure("Si")
+        min_atoms = 100
+        max_atoms = 400
+
+        supercell_generator_cubic = CubicSupercellTransformation(
+            min_atoms=min_atoms,
+            max_atoms=max_atoms,
+            min_length=10.0,
+            force_90_degrees=True,
+            allow_orthorhombic=False,
+            max_length=25,
+        )
+
+        transformed_cubic = supercell_generator_cubic.apply_transformation(structure)
+
+        supercell_generator_orthorhombic = CubicSupercellTransformation(
+            min_atoms=min_atoms,
+            max_atoms=max_atoms,
+            min_length=10.0,
+            force_90_degrees=True,
+            allow_orthorhombic=True,
+            max_length=25,
+        )
+
+        transformed_orthorhombic = supercell_generator_orthorhombic.apply_transformation(structure)
+
+        assert_array_equal(
+            supercell_generator_orthorhombic.transformation_matrix,
+            np.array([[3, 0, 0], [-2, 4, 0], [-2, 4, 6]]),
+        )
+
+        # make sure that the orthorhombic supercell is different from the cubic cell
+        assert not np.array_equal(
+            supercell_generator_cubic.transformation_matrix, supercell_generator_orthorhombic.transformation_matrix
+        )
+        assert transformed_orthorhombic.lattice.abc != transformed_cubic.lattice.abc
+        # only angels are expected to be the same because of force_90_degrees = True
+        assert transformed_cubic.lattice.angles == transformed_orthorhombic.lattice.angles
 
 
 class TestAddAdsorbateTransformation(PymatgenTest):
