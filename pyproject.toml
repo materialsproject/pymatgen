@@ -69,14 +69,14 @@ dependencies = [
     "requests>=2.32",
     "ruamel.yaml>=0.17.0",
     "scipy>=1.13.0",
-    "spglib>=2.0.2",
+    "spglib>=2.5.0",
     "sympy>=1.2",
     "tabulate>=0.9",
     "tqdm>=4.60",
     "uncertainties>=3.1.4",
     "joblib>=1",
 ]
-version = "2024.6.10"
+version = "2024.7.18"
 
 [project.urls]
 Homepage = "https://pymatgen.org"
@@ -128,9 +128,12 @@ feff_plot_cross_section = "pymatgen.cli.feff_plot_cross_section:main"
 feff_plot_dos = "pymatgen.cli.feff_plot_dos:main"
 get_environment = "pymatgen.cli.get_environment:main"
 
+[tool.setuptools]
+include-package-data = false
+
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["pymatgen"]
+include = ["pymatgen", "pymatgen.*"]
 
 [tool.setuptools.package-data]
 "pymatgen.analysis" = ["*.yaml", "*.json", "*.csv"]
