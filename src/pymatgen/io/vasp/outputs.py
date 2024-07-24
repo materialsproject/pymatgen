@@ -1705,10 +1705,8 @@ class BSVasprun(Vasprun):
                 tag = elem.tag
                 if event == "start":
                     # The start event tells us when we have entered blocks
-                    if (
-                        tag == "eigenvalues_kpoints_opt"
-                        or tag == "projected_kpoints_opt"
-                        or (tag == "dos" and elem.attrib.get("comment") == "kpoints_opt")
+                    if tag in {"eigenvalues_kpoints_opt", "projected_kpoints_opt"} or (
+                        tag == "dos" and elem.attrib.get("comment") == "kpoints_opt"
                     ):
                         in_kpoints_opt = True
                 elif not parsed_header:
