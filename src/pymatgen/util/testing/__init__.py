@@ -49,7 +49,7 @@ class PymatgenTest(TestCase):
     @classmethod
     def get_structure(cls, name: str) -> Structure:
         """
-        Lazily load a structure from pymatgen/util/testing/structures.
+        Lazily load a structure from pymatgen/util/structures.
 
         Args:
             name (str): Name of structure file.
