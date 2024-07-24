@@ -6,6 +6,14 @@ nav_order: 4
 
 # Changelog
 
+## v2024.7.18
+- Fix `setuptools` for packaging (#3934)
+- Improve Keep Redundant Spaces algorithm for PatchedPhaseDiagram (#3900)
+- Add electronic structure methods for Species (#3902)
+- Migrate `spglib` to new `SpglibDataset` format with version 2.5.0 (#3923)
+- SpaceGroup changes (#3859)
+- Add MD input set to FHI-aims (#3896)
+
 ## v2024.6.10
 * Fix bug in `update_charge_from_potcar` (#3866)
 * Fix bug in VASP parameter parsing (@mkhorton)
