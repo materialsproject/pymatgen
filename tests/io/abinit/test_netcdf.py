@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import os
+import tarfile
+
 import numpy as np
 import pytest
+from monty.tempfile import ScratchDir
 from numpy.testing import assert_allclose, assert_array_equal
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit import EtsfReader
@@ -18,7 +22,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/abinit"
 
 class TestEtsfReader(PymatgenTest):
     def setUp(self):
-        formulas = ["Si2", "Fe_magmoms_collinear", "Fe_magmoms_noncollinear"]
+        formulas = ["Si2"]
         self.GSR_paths = dct = {}
         for formula in formulas:
             dct[formula] = f"{TEST_DIR}/{formula}_GSR.nc"
@@ -81,19 +85,24 @@ class TestEtsfReader(PymatgenTest):
 
     @pytest.mark.skipif(netCDF4 is None, reason="Requires Netcdf4")
     def test_read_fe(self):
-        path = self.GSR_paths["Fe_magmoms_collinear"]
-        ref_magmom_collinear = [-0.5069359730980665]
+        with ScratchDir(".") as tmp_dir:
+            with tarfile.open(f"{TEST_DIR}/Fe_magmoms_collinear_GSR.tar.xz", mode="r:xz") as t:
+                t.extractall(tmp_dir)
+                ref_magmom_collinear = [-0.5069359730980665]
+                path = os.path.join(tmp_dir, "Fe_magmoms_collinear_GSR.nc")
 
-        with EtsfReader(path) as data:
-            structure = data.read_structure()
-            assert structure.site_properties["magmom"] == ref_magmom_collinear
+                with EtsfReader(path) as data:
+                    structure = data.read_structure()
+                    assert structure.site_properties["magmom"] == ref_magmom_collinear
 
-        path = self.GSR_paths["Fe_magmoms_noncollinear"]
-        ref_magmom_noncollinear = [[0.357939487, 0.357939487, 0]]
+            with tarfile.open(f"{TEST_DIR}/Fe_magmoms_noncollinear_GSR.tar.xz", mode="r:xz") as t:
+                t.extractall(tmp_dir)
+                ref_magmom_noncollinear = [[0.357939487, 0.357939487, 0]]
+                path = os.path.join(tmp_dir, "Fe_magmoms_noncollinear_GSR.nc")
 
-        with EtsfReader(path) as data:
-            structure = data.read_structure()
-            assert structure.site_properties["magmom"] == ref_magmom_noncollinear
+                with EtsfReader(path) as data:
+                    structure = data.read_structure()
+                    assert structure.site_properties["magmom"] == ref_magmom_noncollinear
 
 
 class TestAbinitHeader(PymatgenTest):
