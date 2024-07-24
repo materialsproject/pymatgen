@@ -1703,10 +1703,8 @@ class BSVasprun(Vasprun):
                 tag = elem.tag
                 if event == "start":
                     # The start event tells us when we have entered blocks
-                    if (
-                        tag == "eigenvalues_kpoints_opt"
-                        or tag == "projected_kpoints_opt"
-                        or (tag == "dos" and elem.attrib.get("comment") == "kpoints_opt")
+                    if tag in {"eigenvalues_kpoints_opt", "projected_kpoints_opt"} or (
+                        tag == "dos" and elem.attrib.get("comment") == "kpoints_opt"
                     ):
                         in_kpoints_opt = True
                 elif not parsed_header:
@@ -3891,31 +3889,31 @@ class Procar:
             self.data = data
             self.phase_factors = phase_factors
 
-    def get_projection_on_elements(self, structure: Structure) -> dict[Spin, list]:
+    def get_projection_on_elements(self, structure: Structure) -> dict[Spin, list[list[dict[str, float]]]]:
         """Get a dict of projections on elements.
 
         Args:
             structure (Structure): Input structure.
 
         Returns:
-            A dict as {Spin.up: [k index][b index][{Element: values}]].
+            A dict as {Spin: [band index][kpoint index][{Element: values}]].
         """
         assert self.data is not None, "Data cannot be None."
         assert self.nkpoints is not None
         assert self.nbands is not None
         assert self.nions is not None
 
-        dico: dict[Spin, list] = {}
+        elem_proj: dict[Spin, list] = {}
         for spin in self.data:
-            dico[spin] = [[defaultdict(float) for _ in range(self.nkpoints)] for _ in range(self.nbands)]
+            elem_proj[spin] = [[defaultdict(float) for _ in range(self.nkpoints)] for _ in range(self.nbands)]
 
         for iat in range(self.nions):
             name = structure.species[iat].symbol
             for spin, data in self.data.items():
                 for kpoint, band in itertools.product(range(self.nkpoints), range(self.nbands)):
-                    dico[spin][band][kpoint][name] += np.sum(data[kpoint, band, iat, :])
+                    elem_proj[spin][band][kpoint][name] += np.sum(data[kpoint, band, iat, :])
 
-        return dico
+        return elem_proj
 
     def get_occupation(self, atom_index: int, orbital: str) -> dict:
         """Get the occupation for a particular orbital of a particular atom.
