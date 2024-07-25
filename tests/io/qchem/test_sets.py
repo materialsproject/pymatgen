@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 
 import pytest
-
 from pymatgen.io.qchem.sets import (
     ForceSet,
     FreqSet,
@@ -383,7 +382,7 @@ class TestQChemDictSet(PymatgenTest):
         os.remove("solvent_data")
 
     def test_solvation_warnings(self):
-        """Tests warnings / errors resulting from nonsensical overwrite_inputs."""
+        """Test warnings / errors resulting from nonsensical overwrite_inputs."""
         test_molecule = QCInput.from_file(f"{TEST_DIR}/pcm.qin").molecule
         with pytest.raises(RuntimeError, match="CMIRS is only parameterized"):
             QChemDictSet(

@@ -5,10 +5,9 @@ from __future__ import annotations
 import pickle
 
 import numpy as np
+import pymatgen
 import pytest
 from numpy.testing import assert_allclose
-
-import pymatgen
 from pymatgen.analysis.piezo_sensitivity import (
     BornEffectiveCharge,
     ForceConstantMatrix,

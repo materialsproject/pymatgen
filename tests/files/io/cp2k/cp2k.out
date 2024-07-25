@@ -498,7 +498,7 @@
 
  MODULE QUICKSTEP:  ATOMIC COORDINATES IN angstrom
 
- Atom  Kind  Element       X           Y           Z          Z(eff)       Mass
+   Atom Kind Element         X             Y             Z       Z(eff)     Mass
     1   1 Si  14       1.367182    1.367182    1.367182       4.0000     28.0855
     2   1 Si  14       0.000000    0.000000    0.000000       4.0000     28.0855
 

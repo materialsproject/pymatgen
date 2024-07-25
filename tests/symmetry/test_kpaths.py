@@ -4,7 +4,6 @@ import random
 
 import pytest
 from monty.serialization import loadfn
-
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.bandstructure import HighSymmKpath

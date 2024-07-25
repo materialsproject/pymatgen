@@ -3,7 +3,6 @@ from __future__ import annotations
 import random
 
 import numpy as np
-
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -183,12 +182,12 @@ class TestVoronoiContainer(PymatgenTest):
             normalized_distance_tolerance=0.0100001,
             isites=[0],
         )
-        fake_parameter_indices_list = [
+        fake_parameter_indices = [
             *[(ii, jj) for ii in range(2, 5) for jj in range(7, 14)],
             *[(ii, jj) for ii in range(5, 7) for jj in range(10, 14)],
         ]
 
-        points = detailed_voronoi_container._get_vertices_dist_ang_indices(fake_parameter_indices_list)
+        points = detailed_voronoi_container._get_vertices_dist_ang_indices(fake_parameter_indices)
         assert points[0] == (2, 7)
         assert points[1] == (4, 7)
         assert points[2] == (4, 10)

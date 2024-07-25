@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import numpy as np
 from numpy.testing import assert_array_equal
-from pytest import approx
-
 from pymatgen.analysis.interfaces.zsl import (
     ZSLGenerator,
     fast_norm,
@@ -14,6 +12,7 @@ from pymatgen.analysis.interfaces.zsl import (
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
+from pytest import approx
 
 __author__ = "Shyam Dwaraknath"
 __copyright__ = "Copyright 2016, The Materials Project"

@@ -6,6 +6,144 @@ nav_order: 4
 
 # Changelog
 
+## v2024.7.18
+- Fix `setuptools` for packaging (#3934)
+- Improve Keep Redundant Spaces algorithm for PatchedPhaseDiagram (#3900)
+- Add electronic structure methods for Species (#3902)
+- Migrate `spglib` to new `SpglibDataset` format with version 2.5.0 (#3923)
+- SpaceGroup changes (#3859)
+- Add MD input set to FHI-aims (#3896)
+
+## v2024.6.10
+* Fix bug in `update_charge_from_potcar` (#3866)
+* Fix bug in VASP parameter parsing (@mkhorton)
+* Add `strict_anions` option to `MaterialsProject2020Compatibility` (@mkhorton)
+* Slightly more robust `MSONAtoms` handling (@Andrew-S-Rosen)
+* Bug fix: handle non-integer oxidation states in `Species` (@esoteric-ephemera)
+* Revert change that removed test structure files from pymatgen source.
+
+## v2024.6.4
+
+### 🐛 Bug Fixes
+
+* Run CI with two different `uv` resolution strategies: `highest` and `lowest-direct` by @janosh in https://github.com/materialsproject/pymatgen/pull/3852
+* Fix filter condition for warn msg of unphysical site occupancy in `io.cif` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3853
+
+### 🛠 Enhancements
+
+* Add new `.pmgrc.yaml` setting `PMG_VASP_PSP_SUB_DIRS: dict[str, str]` by @janosh in https://github.com/materialsproject/pymatgen/pull/3858
+
+### 📖 Documentation
+
+* Clarify argument `shift` for `SlabGenerator.get_slab` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3748
+
+### 🚧 CI
+
+* Add CI run without `'optional'` deps installed by @janosh in https://github.com/materialsproject/pymatgen/pull/3857
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.5.31...v2024.6.4
+
+## 2024.5.31
+
+### 🐛 Bug Fixes
+
+* Make `Beautifulsoup` optional by @ab5424 in https://github.com/materialsproject/pymatgen/pull/3774
+* Fix overlayed subplots in `BSPlotterProjected.get_projected_plots_dots()` by @janosh in https://github.com/materialsproject/pymatgen/pull/3798
+* Fix `_get_dipole_info` for DDEC6 `ChargemolAnalysis` and add test case by @JonathanSchmidt1 in https://github.com/materialsproject/pymatgen/pull/3801
+* `Cp2kOutput.parse_initial_structure()` use regex for line matching to allow arbitrary white space between Atom/Kind/Element/... by @janosh in https://github.com/materialsproject/pymatgen/pull/3810
+* Fix the minor document error in `POTCAR Setup`. by @hongyi-zhao in https://github.com/materialsproject/pymatgen/pull/3834
+* Use `isclose` over `==` for overlap position check in `SlabGenerator.get_slabs` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3825
+* [Deprecation] Replace `Element` property `is_rare_earth_metal` with `is_rare_earth` to include Y and Sc  by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3817
+
+### 🛠 Enhancements
+
+* Add `is_radioactive` property to Element class by @AntObi in https://github.com/materialsproject/pymatgen/pull/3804
+* Add a `from_ase_atoms()` method to `Structure` by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3812
+* Adapt to the latest version of PWmat output file by @lhycms in https://github.com/materialsproject/pymatgen/pull/3823
+* Update VASP sets to transition atomate2 to use pymatgen input sets exclusively by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3835 (slightly breaking, see [#3860](https://github.com/materialsproject/pymatgen/issues/3860) for details)
+
+### 📖 Documentation
+
+* Imperative `get_...` method and `@property` doc strings by @janosh in https://github.com/materialsproject/pymatgen/pull/3802
+* Doc string standardization by @janosh in https://github.com/materialsproject/pymatgen/pull/3805
+
+### 🧹 House-Keeping
+
+* Add types for `core.(molecular_orbitals|operations|sites|spectrum|tensor|xcfunc)` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3829
+* Move test structures out of `util` directory by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3831
+
+### 🧪 Tests
+
+* Improve type annotations for `core.(trajectory/units)` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3832
+
+### 🏷️ Type Hints
+
+* More type annotations by @janosh in https://github.com/materialsproject/pymatgen/pull/3800
+* Add types for `core.periodic_table/bonds/composition/ion/lattice/libxcfunc`, new type `MillerIndex` and fix Lattice hash by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3814
+* Guard `TYPE_CHECKING` only imports by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3827
+* Improve type annotations and comments for `io.cif` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3820
+* Improve type annotations for `core.structure` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3837
+
+### 🤷‍♂️ Other Changes
+
+* mixing scheme: change default for verbose by @tschaume in https://github.com/materialsproject/pymatgen/pull/3806
+* `ruff` 0.4.3 auto-fixes by @janosh in https://github.com/materialsproject/pymatgen/pull/3808
+* Re-enable some useful `ruff` rules by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3813
+* `pandas.read_csv`: replace deprecated `delim_whitespace=True` with `sep="\s+"` by @ab5424 in https://github.com/materialsproject/pymatgen/pull/3846
+* Improve unphysical (greater than 1) occupancy handling in `CifParser` and add missing site label `if not check_occu` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3819
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.5.1...v2024.5.31
+
+## v2024.5.1
+
+### 🐛 Bug Fixes
+
+* Fix OPTIMADE rester URL contruction and improve testing by @ml-evs in https://github.com/materialsproject/pymatgen/pull/3756
+* Add fix for SFAC writer by @stefsmeets in https://github.com/materialsproject/pymatgen/pull/3779
+* Fix LobsterSet by @naik-aakash in https://github.com/materialsproject/pymatgen/pull/3771
+* Update `vasprun.converged_ionic` logic when `EDIFFG=0`, REDO of PR #3765 by @matthewkuner in https://github.com/materialsproject/pymatgen/pull/3783
+* Fix for incorrect file path in `tests/io/test_zeopp.py` by @AntObi in https://github.com/materialsproject/pymatgen/pull/3784
+* Fix for writing non-unique site labels in `CifWriter` by @stefsmeets in https://github.com/materialsproject/pymatgen/pull/3767
+* Homogenize return type of `Lattice.get_points_in_sphere` to always be `np.array`(s) by @janosh in https://github.com/materialsproject/pymatgen/pull/3797
+
+### 📖 Documentation
+
+* Add note to documentation for usage of CrystalNN by @JaGeo in https://github.com/materialsproject/pymatgen/pull/3764
+* Update to average Grüneisen documentation by @JaGeo in https://github.com/materialsproject/pymatgen/pull/3773
+* Format doc strings by @janosh in https://github.com/materialsproject/pymatgen/pull/3790
+* Imperative doc strings by @janosh in https://github.com/materialsproject/pymatgen/pull/3792
+
+### 🧹 House-Keeping
+
+* `pyright` fixes for `ext/io/phonon/symmetry/transformations/util/vis/dev_scripts` and improve `io.lobster` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3757
+* Separate test files by modules and collect test files `csv/cif` into folders  by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3746
+
+### 🚧 CI
+
+* Officially support Python 3.12 and test in CI by @janosh in https://github.com/materialsproject/pymatgen/pull/3685
+
+### 🏥 Package Health
+
+* Remove `gulp` from package data, code base and CI tests by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3789
+
+### 🏷️ Type Hints
+
+* Add type annotations for `io.vasp.inputs/optics` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3740
+* `pyright` fixes by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3777
+* Convert `kpts` in `Kpoints` to `Sequence[tuple]` and set it as `property` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3758
+
+### 🤷‍♂️ Other Changes
+
+* add `get_string->get_str` alias for `Poscar` by @timurbazhirov in https://github.com/materialsproject/pymatgen/pull/3763
+* Fix `ruff` FURB192 by @janosh in https://github.com/materialsproject/pymatgen/pull/3785
+
+## New Contributors
+
+* @timurbazhirov made their first contribution in https://github.com/materialsproject/pymatgen/pull/3763
+* @AntObi made their first contribution in https://github.com/materialsproject/pymatgen/pull/3784
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.4.13...2024.5.1
+
 ## v2024.4.13
 
 Hot fix release for [v2024.4.12](#v2024412) to be yanked on PyPI due to https://github.com/materialsproject/pymatgen/issues/3751.

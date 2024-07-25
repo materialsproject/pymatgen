@@ -12,9 +12,7 @@ import numpy as np
 import pytest
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
-
-from pymatgen.core import Composition, Element, Lattice, Species
+from pymatgen.core import SETTINGS, Composition, Element, Lattice, Species
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import (
     IMolecule,
@@ -30,13 +28,14 @@ from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
+from pytest import approx
 
 try:
     from ase.atoms import Atoms
     from ase.calculators.calculator import Calculator
     from ase.calculators.emt import EMT
 except ImportError:
-    ase = None
+    ase = Atoms = Calculator = EMT = None
 
 
 enum_cmd = which("enum.x") or which("multienum.x")
@@ -168,6 +167,16 @@ class TestIStructure(PymatgenTest):
     def test_elements(self):
         assert self.struct.elements == [Element("Si")]
         assert self.propertied_structure.elements == [Element("Si")]
+
+    def test_chemical_system(self):
+        assert self.struct.chemical_system == "Si"
+        assert self.propertied_structure.chemical_system == "Si"
+        assert self.V2O3.chemical_system == "O-V"
+
+    def test_chemical_system_set(self):
+        assert self.struct.chemical_system_set == {"Si"}
+        assert self.propertied_structure.chemical_system_set == {"Si"}
+        assert self.V2O3.chemical_system_set == {"O", "V"}
 
     def test_specie_init(self):
         coords = [[0, 0, 0], [0.75, 0.5, 0.75]]
@@ -914,6 +923,17 @@ class TestStructure(PymatgenTest):
         self.disordered = Structure.from_spacegroup("Im-3m", Lattice.cubic(3), [Composition("Fe0.5Mn0.5")], [[0, 0, 0]])
         self.labeled_structure = Structure(lattice, ["Si", "Si"], coords, labels=["Si1", "Si2"])
 
+    @pytest.mark.skipif(
+        SETTINGS.get("PMG_MAPI_KEY", "") == "",
+        reason="PMG_MAPI_KEY environment variable not set or MP API is down. This is also the case in a PR.",
+    )
+    def test_from_id(self):
+        s = Structure.from_id("mp-1143")
+        assert isinstance(s, Structure)
+        assert s.reduced_formula == "Al2O3"
+        s = Structure.from_id("1101077", source="COD")
+        assert s.reduced_formula == "LiV2O4"
+
     def test_mutable_sequence_methods(self):
         struct = self.struct
         struct[0] = "Fe"
@@ -938,7 +958,7 @@ class TestStructure(PymatgenTest):
 
         # Test slice replacement.
         struct = PymatgenTest.get_structure("Li2O")
-        struct[0:2] = "S"
+        struct[:2] = "S"
         assert struct.formula == "Li1 S2"
 
     def test_not_hashable(self):
@@ -1559,7 +1579,7 @@ class TestStructure(PymatgenTest):
         assert struct.formula == "Si1 C1"
         struct[(0, 1)] = "Ge"
         assert struct.formula == "Ge2"
-        struct[0:2] = "Sn"
+        struct[:2] = "Sn"
         assert struct.formula == "Sn2"
 
         struct = self.struct.copy()
@@ -1748,7 +1768,6 @@ class TestStructure(PymatgenTest):
         assert traj[0] != traj[-1]
         assert os.path.isfile(traj_file)
 
-    @pytest.mark.skip("TODO remove skip once https://github.com/materialsvirtuallab/matgl/issues/238 is resolved")
     def test_calculate_m3gnet(self):
         pytest.importorskip("matgl")
         calculator = self.get_structure("Si").calculate()
@@ -1760,7 +1779,6 @@ class TestStructure(PymatgenTest):
         assert np.linalg.norm(calculator.results["forces"]) == approx(7.8123485e-06, abs=0.2)
         assert np.linalg.norm(calculator.results["stress"]) == approx(1.7861567, abs=2)
 
-    @pytest.mark.skip("TODO remove skip once https://github.com/materialsvirtuallab/matgl/issues/238 is resolved")
     def test_relax_m3gnet(self):
         matgl = pytest.importorskip("matgl")
         struct = self.get_structure("Si")
@@ -1771,7 +1789,6 @@ class TestStructure(PymatgenTest):
             actual = relaxed.dynamics[key]
             assert actual == val, f"expected {key} to be {val}, {actual=}"
 
-    @pytest.mark.skip("TODO remove skip once https://github.com/materialsvirtuallab/matgl/issues/238 is resolved")
     def test_relax_m3gnet_fixed_lattice(self):
         matgl = pytest.importorskip("matgl")
         struct = self.get_structure("Si")
@@ -1780,7 +1797,6 @@ class TestStructure(PymatgenTest):
         assert isinstance(relaxed.calc, matgl.ext.ase.M3GNetCalculator)
         assert relaxed.dynamics["optimizer"] == "BFGS"
 
-    @pytest.mark.skip("TODO remove skip once https://github.com/materialsvirtuallab/matgl/issues/238 is resolved")
     def test_relax_m3gnet_with_traj(self):
         pytest.importorskip("matgl")
         struct = self.get_structure("Si")
@@ -1848,6 +1864,13 @@ Sites (8)
         assert isinstance(atoms, Atoms)
         assert len(atoms) == len(self.struct)
         assert AseAtomsAdaptor.get_structure(atoms) == self.struct
+        assert Structure.from_ase_atoms(atoms) == self.struct
+
+        labeled_atoms = self.labeled_structure.to_ase_atoms()
+        assert Structure.from_ase_atoms(labeled_atoms) == self.labeled_structure
+
+        with pytest.raises(ValueError, match="ASE Atoms only supports ordered structures"):
+            self.disordered.to_ase_atoms()
 
     def test_struct_with_isotope(self):
         struct = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_LiFePO4")
@@ -1884,7 +1907,7 @@ class TestIMolecule(PymatgenTest):
         assert mol.formula == "Si1 H4"
         mol[(0, 1)] = "Ge"
         assert mol.formula == "Ge2 H3"
-        mol[0:2] = "Sn"
+        mol[:2] = "Sn"
         assert mol.formula == "Sn2 H3"
 
         mol = self.mol.copy()
@@ -1958,6 +1981,12 @@ Site: H (-0.5134, 0.8892, -0.3630)"""
         )
         assert propertied_mol[0].magmom == 0.5
         assert propertied_mol[1].magmom == -0.5
+
+    def test_chemical_system(self):
+        assert self.mol.chemical_system == "C-H"
+
+    def test_chemical_system_set(self):
+        assert self.mol.chemical_system_set == {"C", "H"}
 
     def test_get_boxed_structure(self):
         struct = self.mol.get_boxed_structure(9, 9, 9)
@@ -2373,8 +2402,6 @@ class TestMolecule(PymatgenTest):
         assert traj[0] != traj[-1]
         assert os.path.isfile(traj_file)
 
-    # TODO remove skip once https://github.com/tblite/tblite/issues/110 is fixed
-    @pytest.mark.skip("Pytorch and TBLite clash. https://github.com/materialsproject/pymatgen/pull/3060")
     def test_calculate_gfnxtb(self):
         pytest.importorskip("tblite")
         mol_copy = self.mol.copy()

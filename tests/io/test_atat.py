@@ -1,18 +1,17 @@
 from __future__ import annotations
 
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.core.structure import Structure
 from pymatgen.io.atat import Mcsqs
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/atat/mcsqs"
 
 
 class TestAtat(PymatgenTest):
     def test_mcsqs_import(self):
-        test_string = """1.000000 0.000000 0.000000
+        test_str = """1.000000 0.000000 0.000000
 0.000000 1.000000 0.000000
 0.000000 0.000000 1.000000
 0.000000 -1.000000 -2.000000
@@ -60,7 +59,7 @@ class TestAtat(PymatgenTest):
 0.000000 -1.000000 -1.500000 O
 """
 
-        mcsqs = Mcsqs.structure_from_str(test_string)
+        mcsqs = Mcsqs.structure_from_str(test_str)
 
         assert mcsqs.formula == "Sr3 Ca5 Mn7 Fe1 O24"
         assert mcsqs.lattice.a == approx(2.2360679775)
@@ -71,7 +70,7 @@ class TestAtat(PymatgenTest):
         struct = self.get_structure("SrTiO3")
         struct.replace_species({"Sr2+": {"Sr2+": 0.5, "Ca2+": 0.5}})
 
-        ref_string = """3.905000 0.000000 0.000000
+        ref_str = """3.905000 0.000000 0.000000
 -0.000000 3.905000 0.000000
 0.000000 0.000000 3.905000
 1.0 0.0 0.0
@@ -83,7 +82,7 @@ class TestAtat(PymatgenTest):
 0.000000 0.500000 0.000000 O2-=1.0
 0.500000 0.000000 0.000000 O2-=1.0"""
 
-        assert Mcsqs(struct).to_str() == ref_string
+        assert Mcsqs(struct).to_str() == ref_str
 
     def test_mcsqs_cif_nacl(self):
         # CIF file from str2cif (utility distributed with atat)

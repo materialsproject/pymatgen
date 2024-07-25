@@ -67,7 +67,46 @@ Windows and Linux.
 
 ## Recent Breaking Changes
 
-## v2024.1.26
+### v2024.?.?
+
+The `symbol` attribute of `SpaceGroup` now always refers to its Hermann-Mauguin symbol
+(see [#3859](https://github.com/materialsproject/pymatgen/pull/3859)). In order to replace
+the old symbol, run
+
+```py
+from pymatgen.symmetry.groups import SpaceGroup
+
+try:
+    new_symbol = SpaceGroup(old_symbol).symbol
+except ValueError:
+    if old_symbol in ["P2_12_121", "I2_12_121"]:
+        new_symbol = SpaceGroup(old_symbol[:-1]+"_1").symbol
+    else:
+        new_symbol = SpaceGroup(old_symbol[:-1]).symbol
+```
+
+### v2024.5.31
+
+* Update VASP sets to transition `atomate2` to use `pymatgen` input sets exclusively by @esoteric-ephemera in [#3835](https://github.com/materialsproject/pymatgen/pull/3835)
+
+  Before [#3835](https://github.com/materialsproject/pymatgen/pull/3835), VASP input sets had a `"POTCAR"` key
+
+  ```py
+  vasp_input = MPRelaxSet().get_input_set(structure=struct, potcar_spec=True)
+  vasp_input["POTCAR"]
+  >>> ["Mg_pv", "O"]
+  ```
+
+  [#3835](https://github.com/materialsproject/pymatgen/pull/3835) renamed that to `"POTCAR.spec"` which is formatted differently:
+
+  ```py
+  vasp_input["POTCAR.spec"]
+  >>> "Mg_pv\nO"
+  ```
+
+  See [#3860](https://github.com/materialsproject/pymatgen/issues/3860) for details.
+
+### v2024.1.26
 
 The mixture of `(get|from)_str` and `(get|from)_string` methods on various `pymatgen` classes were migrated to a consistent `(get|from)_str` everywhere in [#3158](https://github.com/materialsproject/pymatgen/pull/3158) and several follow-up PRs. The deprecation release was [v2023.8.10](https://github.com/materialsproject/pymatgen/releases/tag/v2023.8.10) and the removal release resulting in a breaking change was [v2024.1.26](https://github.com/materialsproject/pymatgen/releases/tag/v2024.1.26). Migration to the new API in all cases is to replace:
 

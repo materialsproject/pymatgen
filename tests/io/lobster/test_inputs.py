@@ -2,14 +2,11 @@ from __future__ import annotations
 
 import json
 import os
-import tempfile
 from unittest import TestCase
 
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
-
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.cohp import IcohpCollection
 from pymatgen.electronic_structure.core import Orbital, Spin
@@ -33,6 +30,7 @@ from pymatgen.io.lobster.inputs import get_all_possible_basis_combinations
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
 from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
@@ -1554,38 +1552,76 @@ class TestFatband(PymatgenTest):
         assert bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064), abs=1e-2)
 
 
-class TestLobsterin(TestCase):
+class TestLobsterin(PymatgenTest):
     def setUp(self):
-        self.Lobsterinfromfile = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.1")
-        self.Lobsterinfromfile2 = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.2")
-        self.Lobsterinfromfile3 = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.3")
-        self.Lobsterinfromfile4 = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.4.gz")
+        self.Lobsterin = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.1")
+        self.Lobsterin2 = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.2")
+        self.Lobsterin3 = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.3")
+        self.Lobsterin4 = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.4.gz")
 
     def test_from_file(self):
-        # test read from file
-        assert self.Lobsterinfromfile["cohpstartenergy"] == approx(-15.0)
-        assert self.Lobsterinfromfile["cohpendenergy"] == approx(5.0)
-        assert self.Lobsterinfromfile["basisset"] == "pbeVaspFit2015"
-        assert self.Lobsterinfromfile["gaussiansmearingwidth"] == approx(0.1)
-        assert self.Lobsterinfromfile["basisfunctions"][0] == "Fe 3d 4p 4s"
-        assert self.Lobsterinfromfile["basisfunctions"][1] == "Co 3d 4p 4s"
-        assert self.Lobsterinfromfile["skipdos"]
-        assert self.Lobsterinfromfile["skipcohp"]
-        assert self.Lobsterinfromfile["skipcoop"]
-        assert self.Lobsterinfromfile["skippopulationanalysis"]
-        assert self.Lobsterinfromfile["skipgrosspopulation"]
+        # Test reading from file
+        assert self.Lobsterin["cohpstartenergy"] == approx(-15.0)
+        assert self.Lobsterin["cohpendenergy"] == approx(5.0)
+        assert self.Lobsterin["basisset"] == "pbeVaspFit2015"
+        assert self.Lobsterin["gaussiansmearingwidth"] == approx(0.1)
+        assert self.Lobsterin["basisfunctions"][0] == "Fe 3d 4p 4s"
+        assert self.Lobsterin["basisfunctions"][1] == "Co 3d 4p 4s"
+        assert self.Lobsterin["skipdos"]
+        assert self.Lobsterin["skipcohp"]
+        assert self.Lobsterin["skipcoop"]
+        assert self.Lobsterin["skippopulationanalysis"]
+        assert self.Lobsterin["skipgrosspopulation"]
 
-        # test if comments are correctly removed
-        assert self.Lobsterinfromfile == self.Lobsterinfromfile2
+        # Test if comments are correctly removed
+        assert self.Lobsterin == self.Lobsterin2
 
-    def test_getitem(self):
-        # tests implementation of getitem, should be case independent
-        assert self.Lobsterinfromfile["COHPSTARTENERGY"] == approx(-15.0)
+    def test_duplicates_from_file(self):
+        with open(f"{TEST_DIR}/lobsterin.1") as file:
+            original_file = file.readlines()
 
-    def test_setitem(self):
-        # test implementation of setitem
-        self.Lobsterinfromfile["skipCOHP"] = False
-        assert self.Lobsterinfromfile["skipcohp"] is False
+        # String and float keywords does not allow duplicates
+        float_dup_file = original_file.copy()
+        float_dup_file.append("cohpstartenergy -15.0")
+
+        float_tmp_file = self.tmp_path / "tmp_lobster_in_float"
+        float_tmp_file.write_text("\n".join(float_dup_file))
+
+        with pytest.raises(ValueError, match="Same keyword cohpstartenergy twice!"):
+            _ = Lobsterin.from_file(float_tmp_file)
+
+        # Boolean and list keywords allow duplicates
+        bool_dup_file = original_file.copy()
+        bool_dup_file.append("skipdos")
+
+        bool_tmp_file = self.tmp_path / "tmp_lobster_in_bool"
+        bool_tmp_file.write_text("\n".join(bool_dup_file))
+
+        _ = Lobsterin.from_file(bool_tmp_file)  # no error should be raised
+
+    def test_magic_methods(self):
+        """Test __getitem__, __setitem__ and __contains__,
+        should be case independent.
+        """
+        # Test __setitem__
+        assert self.Lobsterin["COHPSTARTENERGY"] == approx(-15.0)
+
+        with pytest.raises(KeyError, match="Key hello is currently not available"):
+            self.Lobsterin["HELLO"] = True
+
+        # Test __getitem__
+        self.Lobsterin["skipCOHP"] = False
+        assert self.Lobsterin["skipcohp"] is False
+        assert self.Lobsterin.get("skipCOHP") is False
+
+        with pytest.raises(KeyError, match="key='World' is not available"):
+            _ = self.Lobsterin["World"]
+
+        # Test __contains__
+        assert "COHPSTARTENERGY" in self.Lobsterin
+        assert "cohpstartenergy" in self.Lobsterin
+
+        assert "helloworld" not in self.Lobsterin
 
     def test_initialize_from_dict(self):
         # initialize from dict
@@ -1614,7 +1650,7 @@ class TestLobsterin(TestCase):
             lobsterin2 = Lobsterin({"cohpstartenergy": -15.0, "cohpstartEnergy": -20.0})
         lobsterin2 = Lobsterin({"cohpstartenergy": -15.0})
         # can only calculate nbands if basis functions are provided
-        with pytest.raises(ValueError, match="No basis functions are provided. The program cannot calculate nbands"):
+        with pytest.raises(ValueError, match="No basis functions are provided. The program cannot calculate nbands."):
             lobsterin2._get_nbands(structure=Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Fe3O4"))
 
     def test_standard_settings(self):
@@ -1749,43 +1785,67 @@ class TestLobsterin(TestCase):
 
     def test_diff(self):
         # test diff
-        assert self.Lobsterinfromfile.diff(self.Lobsterinfromfile2)["Different"] == {}
-        assert self.Lobsterinfromfile.diff(self.Lobsterinfromfile2)["Same"]["cohpstartenergy"] == approx(-15.0)
+        assert self.Lobsterin.diff(self.Lobsterin2)["Different"] == {}
+        assert self.Lobsterin.diff(self.Lobsterin2)["Same"]["cohpstartenergy"] == approx(-15.0)
 
         # test diff in both directions
-        for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"]:
-            assert entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"]
-        for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Same"]:
-            assert entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Same"]
-        for entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]:
-            assert entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]
-        for entry in self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]:
-            assert entry in self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]
+        for entry in self.Lobsterin.diff(self.Lobsterin3)["Same"]:
+            assert entry in self.Lobsterin3.diff(self.Lobsterin)["Same"]
+        for entry in self.Lobsterin3.diff(self.Lobsterin)["Same"]:
+            assert entry in self.Lobsterin.diff(self.Lobsterin3)["Same"]
+        for entry in self.Lobsterin.diff(self.Lobsterin3)["Different"]:
+            assert entry in self.Lobsterin3.diff(self.Lobsterin)["Different"]
+        for entry in self.Lobsterin3.diff(self.Lobsterin)["Different"]:
+            assert entry in self.Lobsterin.diff(self.Lobsterin3)["Different"]
 
         assert (
-            self.Lobsterinfromfile.diff(self.Lobsterinfromfile3)["Different"]["skipcohp"]["lobsterin1"]
-            == self.Lobsterinfromfile3.diff(self.Lobsterinfromfile)["Different"]["skipcohp"]["lobsterin2"]
+            self.Lobsterin.diff(self.Lobsterin3)["Different"]["skipcohp"]["lobsterin1"]
+            == self.Lobsterin3.diff(self.Lobsterin)["Different"]["skipcohp"]["lobsterin2"]
         )
 
+    def test_diff_case_insensitivity(self):
+        """Test case-insensitivity of diff method."""
+        with open(f"{TEST_DIR}/lobsterin.1", encoding="utf-8") as file:
+            lobsterin_content = file.read()
+
+        lobsterin_content.replace("COHPstartEnergy -15.0", "cohpSTARTEnergy -15.0")
+        lobsterin_content.replace("skipcohp", "skipCOHP")
+
+        tmp_file_path = self.tmp_path / "tmp_lobster_in"
+        tmp_file_path.write_text(lobsterin_content)
+
+        lobsterin_diff_case = Lobsterin.from_file(tmp_file_path)
+        assert self.Lobsterin.diff(lobsterin_diff_case)["Different"] == {}
+
     def test_dict_functionality(self):
-        assert self.Lobsterinfromfile.get("COHPstartEnergy") == -15.0
-        assert self.Lobsterinfromfile.get("COHPstartEnergy") == -15.0
-        assert self.Lobsterinfromfile.get("COhPstartenergy") == -15.0
-        lobsterincopy = self.Lobsterinfromfile.copy()
-        lobsterincopy.update({"cohpstarteNergy": -10.00})
-        assert lobsterincopy["cohpstartenergy"] == -10.0
-        lobsterincopy.pop("cohpstarteNergy")
-        assert "cohpstartenergy" not in lobsterincopy
-        lobsterincopy.pop("cohpendenergY")
-        lobsterincopy["cohpsteps"] = 100
-        assert lobsterincopy["cohpsteps"] == 100
-        before = len(lobsterincopy.items())
-        lobsterincopy.popitem()
-        after = len(lobsterincopy.items())
-        assert before != after
+        for key in ("COHPstartEnergy", "COHPstartEnergy", "COhPstartenergy"):
+            start_energy = self.Lobsterin.get(key)
+            assert start_energy == -15.0, f"{start_energy=}, {key=}"
+
+        lobsterin_copy = self.Lobsterin.copy()
+        lobsterin_copy.update({"cohpstarteNergy": -10.00})
+        assert lobsterin_copy["cohpstartenergy"] == -10.0
+        lobsterin_copy.pop("cohpstarteNergy")
+        assert "cohpstartenergy" not in lobsterin_copy
+        lobsterin_copy.pop("cohpendenergY")
+        lobsterin_copy["cohpsteps"] = 100
+        assert lobsterin_copy["cohpsteps"] == 100
+        len_before = len(lobsterin_copy.items())
+        assert len_before == 9, f"{len_before=}"
+
+        lobsterin_copy.popitem()
+        len_after = len(lobsterin_copy.items())
+        assert len_after == len_before - 1
+
+        # Test case sensitivity of |= operator
+        self.Lobsterin |= {"skipCOHP": True}  # Camel case
+        assert self.Lobsterin["skipcohp"] is True
+
+        self.Lobsterin |= {"skipcohp": False}  # lower case
+        assert self.Lobsterin["skipcohp"] is False
 
     def test_read_write_lobsterin(self):
-        outfile_path = tempfile.mkstemp()[1]
+        outfile_path = self.tmp_path / "lobsterin_test"
         lobsterin1 = Lobsterin.from_file(f"{TEST_DIR}/lobsterin.1")
         lobsterin1.write_lobsterin(outfile_path)
         lobsterin2 = Lobsterin.from_file(outfile_path)
@@ -1833,7 +1893,7 @@ class TestLobsterin(TestCase):
 
     def test_write_lobsterin(self):
         # write lobsterin, read it and compare it
-        outfile_path = tempfile.mkstemp()[1]
+        outfile_path = self.tmp_path / "lobsterin_test"
         lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
             f"{VASP_IN_DIR}/POSCAR_Fe3O4",
             f"{VASP_IN_DIR}/INCAR.lobster",
@@ -1846,7 +1906,7 @@ class TestLobsterin(TestCase):
 
     def test_write_incar(self):
         # write INCAR and compare
-        outfile_path = tempfile.mkstemp()[1]
+        outfile_path = self.tmp_path / "INCAR_test"
         lobsterin1 = Lobsterin.standard_calculations_from_vasp_files(
             f"{VASP_IN_DIR}/POSCAR_Fe3O4",
             f"{VASP_IN_DIR}/INCAR.lobster",
@@ -1857,6 +1917,7 @@ class TestLobsterin(TestCase):
             f"{VASP_IN_DIR}/INCAR.lobster3",
             outfile_path,
             f"{VASP_IN_DIR}/POSCAR_Fe3O4",
+            isym=-1,
         )
 
         incar1 = Incar.from_file(f"{VASP_IN_DIR}/INCAR.lobster3")
@@ -1871,8 +1932,8 @@ class TestLobsterin(TestCase):
 
     def test_write_kpoints(self):
         # line mode
-        outfile_path = tempfile.mkstemp()[1]
-        outfile_path2 = tempfile.mkstemp(prefix="POSCAR")[1]
+        outfile_path = self.tmp_path / "KPOINTS_test"
+        outfile_path2 = self.tmp_path / "POSCAR_test"
         lobsterin1 = Lobsterin({})
         # test writing primitive cell
         lobsterin1.write_POSCAR_with_standard_primitive(
@@ -1883,6 +1944,7 @@ class TestLobsterin(TestCase):
             POSCAR_input=outfile_path2,
             KPOINTS_output=outfile_path,
             kpoints_line_density=58,
+            isym=-1,
         )
         kpoint = Kpoints.from_file(outfile_path)
         assert kpoint.num_kpts == 562
@@ -1918,7 +1980,7 @@ class TestLobsterin(TestCase):
         assert labels == labels2
 
         # without line mode
-        lobsterin1.write_KPOINTS(POSCAR_input=outfile_path2, KPOINTS_output=outfile_path, line_mode=False)
+        lobsterin1.write_KPOINTS(POSCAR_input=outfile_path2, KPOINTS_output=outfile_path, line_mode=False, isym=-1)
         kpoint = Kpoints.from_file(outfile_path)
         kpoint2 = Kpoints.from_file(f"{VASP_OUT_DIR}/IBZKPT.lobster")
 
@@ -1936,6 +1998,7 @@ class TestLobsterin(TestCase):
             line_mode=False,
             from_grid=True,
             input_grid=[6, 6, 3],
+            isym=-1,
         )
         kpoint = Kpoints.from_file(outfile_path)
         kpoint2 = Kpoints.from_file(f"{VASP_OUT_DIR}/IBZKPT.lobster")
@@ -2019,10 +2082,10 @@ class TestLobsterin(TestCase):
                 found += 1
         return found == 1
 
-    def test_msonable_implementation(self):
+    def test_as_from_dict(self):
         # tests as dict and from dict methods
-        new_lobsterin = Lobsterin.from_dict(self.Lobsterinfromfile.as_dict())
-        assert new_lobsterin == self.Lobsterinfromfile
+        new_lobsterin = Lobsterin.from_dict(self.Lobsterin.as_dict())
+        assert new_lobsterin == self.Lobsterin
         new_lobsterin.to_json()
 
 
@@ -2420,13 +2483,17 @@ class TestWavefunction(PymatgenTest):
             filename=f"{TEST_DIR}/LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz",
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR_O.gz"),
         )
-        wave1.write_file(filename=f"{self.tmp_path}/wavecar_test.vasp", part="real")
-        assert os.path.isfile("wavecar_test.vasp")
+        real_wavecar_path = f"{self.tmp_path}/real-wavecar.vasp"
+        wave1.write_file(filename=real_wavecar_path, part="real")
+        assert os.path.isfile(real_wavecar_path)
 
-        wave1.write_file(filename=f"{self.tmp_path}/wavecar_test.vasp", part="imaginary")
-        assert os.path.isfile("wavecar_test.vasp")
-        wave1.write_file(filename=f"{self.tmp_path}/density.vasp", part="density")
-        assert os.path.isfile("density.vasp")
+        imag_wavecar_path = f"{self.tmp_path}/imaginary-wavecar.vasp"
+        wave1.write_file(filename=imag_wavecar_path, part="imaginary")
+        assert os.path.isfile(imag_wavecar_path)
+
+        density_wavecar_path = f"{self.tmp_path}/density-wavecar.vasp"
+        wave1.write_file(filename=density_wavecar_path, part="density")
+        assert os.path.isfile(density_wavecar_path)
 
 
 class TestSitePotentials(PymatgenTest):

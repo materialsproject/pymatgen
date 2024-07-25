@@ -4,7 +4,6 @@ import json
 from unittest import TestCase
 
 from monty.json import MontyDecoder
-
 from pymatgen.alchemy.filters import (
     ContainsSpecieFilter,
     RemoveDuplicatesFilter,

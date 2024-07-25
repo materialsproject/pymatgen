@@ -4,17 +4,16 @@ from unittest import TestCase
 
 import numpy as np
 import pytest
-from matplotlib.figure import Figure as mpl_figure
+from matplotlib.figure import Figure as MplFigure
 from numpy.testing import assert_allclose
 from pandas import DataFrame
 from plotly.graph_objects import Figure
-from scipy.spatial import ConvexHull
-
 from pymatgen.analysis.interface_reactions import GrandPotentialInterfacialReactivity, InterfacialReactivity
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.core.composition import Composition, Element
 from pymatgen.entries.computed_entries import ComputedEntry
+from scipy.spatial import ConvexHull
 
 
 class TestInterfaceReaction(TestCase):
@@ -143,12 +142,12 @@ class TestInterfaceReaction(TestCase):
             use_hull_energy=False,
         )
         with pytest.raises(
-            ValueError,
+            TypeError,
             match="Please use the GrandPotentialInterfacialReactivity "
             "class for interfacial reactions with open elements!",
         ):
             _ = InterfacialReactivity(Composition("Li2O2"), Composition("Li"), pd=self.gpd, norm=True)
-        with pytest.raises(ValueError, match="Please provide non-grand phase diagram to compute no_mixing_energy!"):
+        with pytest.raises(TypeError, match="Please provide non-grand phase diagram to compute no_mixing_energy!"):
             _ = GrandPotentialInterfacialReactivity(
                 Composition("O2"),
                 Composition("Mn"),
@@ -392,7 +391,7 @@ class TestInterfaceReaction(TestCase):
     def test_plot(self):
         for ir in self.irs:
             fig = ir.plot(backend="matplotlib")
-            assert fig, isinstance(fig, mpl_figure)
+            assert fig, isinstance(fig, MplFigure)
 
             fig = ir.plot(backend="plotly")
             assert isinstance(fig, Figure)

@@ -1,0 +1,16 @@
+# https://editorconfig.org/
+root = true
+
+# Default settings for all files.
+[*]
+end_of_line = lf
+insert_final_newline = true
+charset = utf-8
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+max_line_length = 120
+
+# Set indent size for json and YAML files.
+[*.{json,yml,yaml}]
+indent_size = 2

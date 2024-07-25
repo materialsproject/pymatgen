@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from monty.serialization import loadfn
-
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 

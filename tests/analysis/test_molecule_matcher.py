@@ -4,8 +4,6 @@ from unittest import TestCase
 
 import numpy as np
 import pytest
-from pytest import approx
-
 from pymatgen.analysis.molecule_matcher import (
     BruteForceOrderMatcher,
     GeneticOrderMatcher,
@@ -19,6 +17,7 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Lattice, Molecule, Structure
 from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import TEST_FILES_DIR
+from pytest import approx
 
 try:
     from openbabel import openbabel
@@ -32,7 +31,7 @@ ob_align_missing = openbabel is None or "OBAlign" not in dir(openbabel)
 
 
 def rotate(mol, seed):
-    """Performs a random rotation of the sites in a structure.
+    """Perform a random rotation of the sites in a structure.
 
     Args:
         mol (Molecule): The Molecule object which will be transformed.
@@ -46,7 +45,7 @@ def rotate(mol, seed):
 
 
 def perturb(mol, scale, seed):
-    """Performs a random perturbation of the sites in a structure.
+    """Perform a random perturbation of the sites in a structure.
 
     Args:
         scale (float): Distance in angstroms by which to perturb each site.
@@ -60,7 +59,7 @@ def perturb(mol, scale, seed):
 
 
 def permute(mol, seed):
-    """Performs a random permutation of the sites in a structure.
+    """Perform a random permutation of the sites in a structure.
 
     Args:
         seed (int): The seed value for the random generator.
@@ -161,7 +160,7 @@ class TestMoleculeMatcher:
     def test_group_molecules(self):
         mol_matcher = MoleculeMatcher(tolerance=0.001)
         with open(f"{TEST_DIR}/mol_list.txt") as file:
-            filename_list = [line.strip() for line in file.readlines()]
+            filename_list = [line.strip() for line in file]
         mol_list = [Molecule.from_file(f"{TEST_DIR}/{file}") for file in filename_list]
         mol_groups = mol_matcher.group_molecules(mol_list)
         filename_groups = [[filename_list[mol_list.index(m)] for m in g] for g in mol_groups]

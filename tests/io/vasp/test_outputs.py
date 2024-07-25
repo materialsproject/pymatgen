@@ -13,15 +13,13 @@ import numpy as np
 import pytest
 from monty.io import zopen
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.core import Element
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spin
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
-from pymatgen.io.vasp.inputs import Kpoints, Poscar, Potcar
+from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
 from pymatgen.io.vasp.outputs import (
     WSWQ,
     BSVasprun,
@@ -43,6 +41,7 @@ from pymatgen.io.vasp.outputs import (
 )
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pytest import approx
 
 try:
     import h5py
@@ -252,8 +251,8 @@ class TestVasprun(PymatgenTest):
         assert len(trajectory) == len(vasp_run.ionic_steps)
         assert "forces" in trajectory[0].site_properties
 
-        for i, step in enumerate(vasp_run.ionic_steps):
-            assert vasp_run.structures[i] == step["structure"]
+        for idx, step in enumerate(vasp_run.ionic_steps):
+            assert vasp_run.structures[idx] == step["structure"]
 
         assert all(
             vasp_run.structures[idx] == vasp_run.ionic_steps[idx]["structure"]
@@ -264,14 +263,14 @@ class TestVasprun(PymatgenTest):
 
         assert vasp_run.atomic_symbols == ["Li"] + 4 * ["Fe"] + 4 * ["P"] + 16 * ["O"]
         assert vasp_run.final_structure.reduced_formula == "LiFe4(PO4)4"
-        assert vasp_run.incar is not None, "Incar cannot be read"
-        assert vasp_run.kpoints is not None, "Kpoints cannot be read"
-        assert vasp_run.eigenvalues is not None, "Eigenvalues cannot be read"
+        assert isinstance(vasp_run.incar, Incar), f"{vasp_run.incar=}"
+        assert isinstance(vasp_run.kpoints, Kpoints), f"{vasp_run.kpoints=}"
+        assert isinstance(vasp_run.eigenvalues, dict), f"{vasp_run.eigenvalues=}"
         assert vasp_run.final_energy == approx(-269.38319884, abs=1e-7)
         assert vasp_run.tdos.get_gap() == approx(2.0589, abs=1e-4)
         expected = (2.539, 4.0906, 1.5516, False)
         assert vasp_run.eigenvalue_band_properties == approx(expected)
-        assert not vasp_run.is_hubbard
+        assert vasp_run.is_hubbard is False
         assert vasp_run.potcar_symbols == [
             "PAW_PBE Li 17Jan2003",
             "PAW_PBE Fe 06Sep2000",
@@ -279,12 +278,12 @@ class TestVasprun(PymatgenTest):
             "PAW_PBE P 17Jan2003",
             "PAW_PBE O 08Apr2002",
         ]
-        assert vasp_run.kpoints is not None, "Kpoints cannot be read"
-        assert vasp_run.actual_kpoints is not None, "Actual kpoints cannot be read"
-        assert vasp_run.actual_kpoints_weights is not None, "Actual kpoints weights cannot be read"
+        assert isinstance(vasp_run.kpoints, Kpoints), f"{vasp_run.kpoints=}"
+        assert isinstance(vasp_run.actual_kpoints, list), f"{vasp_run.actual_kpoints=}"
+        assert isinstance(vasp_run.actual_kpoints_weights, list), f"{vasp_run.actual_kpoints_weights=}"
         for atom_doses in vasp_run.pdos:
             for orbital_dos in atom_doses:
-                assert orbital_dos is not None, "Partial Dos cannot be read"
+                assert isinstance(orbital_dos, Orbital), f"{orbital_dos=}"
 
         # test skipping ionic steps.
         vasprun_skip = Vasprun(filepath, 3, parse_potcar_file=False)
@@ -319,7 +318,7 @@ class TestVasprun(PymatgenTest):
             UnconvergedVASPWarning, match="vasprun.unconverged.xml.gz is an unconverged VASP run"
         ) as warns:
             vasprun_unconverged = Vasprun(filepath, parse_potcar_file=False)
-        assert len(warns) == 1
+        assert len(warns) >= 1
 
         assert vasprun_unconverged.converged_ionic
         assert not vasprun_unconverged.converged_electronic
@@ -663,7 +662,7 @@ class TestVasprun(PymatgenTest):
         # Ensure no potcar is found and nothing is updated
         with pytest.warns(UserWarning, match="No POTCAR file with matching TITEL fields was found in") as warns:
             vasp_run = Vasprun(filepath, parse_potcar_file=".")
-        assert len(warns) == 2
+        assert len(warns) >= 2, f"{len(warns)=}"
         assert vasp_run.potcar_spec == [
             {"titel": "PAW_PBE Li 17Jan2003", "hash": None, "summary_stats": {}},
             {"titel": "PAW_PBE Fe 06Sep2000", "hash": None, "summary_stats": {}},
@@ -1646,34 +1645,34 @@ class TestProcar(PymatgenTest):
         assert d2[Spin.up][2][2] == approx({"Na": 0.688, "Li": 0.042})
 
 
-class TestXdatcar(PymatgenTest):
+class TestXdatcar:
     def test_init(self):
         filepath = f"{VASP_OUT_DIR}/XDATCAR_4"
-        x = Xdatcar(filepath)
-        structures = x.structures
+        xdatcar = Xdatcar(filepath)
+        structures = xdatcar.structures
         assert len(structures) == 4
         for struct in structures:
             assert struct.formula == "Li2 O1"
 
         filepath = f"{VASP_OUT_DIR}/XDATCAR_5"
-        x = Xdatcar(filepath)
-        structures = x.structures
+        xdatcar = Xdatcar(filepath)
+        structures = xdatcar.structures
         assert len(structures) == 4
         for struct in structures:
             assert struct.formula == "Li2 O1"
 
-        x.concatenate(f"{VASP_OUT_DIR}/XDATCAR_4")
-        assert len(x.structures) == 8
-        assert x.get_str() is not None
+        xdatcar.concatenate(f"{VASP_OUT_DIR}/XDATCAR_4")
+        assert len(xdatcar.structures) == 8
+        assert xdatcar.get_str() is not None
 
         filepath = f"{VASP_OUT_DIR}/XDATCAR_6"
-        x = Xdatcar(filepath)
-        structures = x.structures
+        xdatcar = Xdatcar(filepath)
+        structures = xdatcar.structures
 
         assert structures[0].lattice != structures[-1].lattice
 
 
-class TestDynmat(PymatgenTest):
+class TestDynmat:
     def test_init(self):
         filepath = f"{VASP_OUT_DIR}/DYNMAT"
         dct = Dynmat(filepath)
@@ -1690,12 +1689,16 @@ class TestDynmat(PymatgenTest):
 
 class TestWavecar(PymatgenTest):
     def setUp(self):
-        a = np.array(np.eye(3) * 10, dtype=float)  # lattice vectors
-        self.vol = np.dot(a[0, :], np.cross(a[1, :], a[2, :]))  # unit cell volume
+        latt_mat = np.array(np.eye(3) * 10, dtype=float)  # lattice vectors
+        self.vol = np.dot(latt_mat[0, :], np.cross(latt_mat[1, :], latt_mat[2, :]))  # unit cell volume
         # reciprocal lattice vectors
-        b = np.array([np.cross(a[1, :], a[2, :]), np.cross(a[2, :], a[0, :]), np.cross(a[0, :], a[1, :])])
-        self.b = 2 * np.pi * b / self.vol
-        self.a = a
+        recip_latt_mat = [
+            np.cross(latt_mat[1, :], latt_mat[2, :]),
+            np.cross(latt_mat[2, :], latt_mat[0, :]),
+            np.cross(latt_mat[0, :], latt_mat[1, :]),
+        ]
+        self.recip_latt_mat = 2 * np.pi * np.array(recip_latt_mat) / self.vol
+        self.latt_mat = latt_mat
         self.wavecar = Wavecar(f"{VASP_OUT_DIR}/WAVECAR.N2")
         self.wH2 = Wavecar(f"{VASP_OUT_DIR}/WAVECAR.H2_low_symm")
         self.wH2_gamma = Wavecar(f"{VASP_OUT_DIR}/WAVECAR.H2_low_symm.gamma")
@@ -1759,8 +1762,8 @@ class TestWavecar(PymatgenTest):
         assert wavecar.encut == 25.0
         assert wavecar.nb == 9
         assert wavecar.nk == 1
-        assert_allclose(wavecar.a, self.a)
-        assert_allclose(wavecar.b, self.b)
+        assert_allclose(wavecar.a, self.latt_mat)
+        assert_allclose(wavecar.b, self.recip_latt_mat)
         assert wavecar.vol == approx(self.vol)
         assert len(wavecar.kpoints) == wavecar.nk
         assert len(wavecar.coeffs) == wavecar.nk

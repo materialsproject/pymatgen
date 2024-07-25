@@ -2,14 +2,13 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from pytest import approx
-
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Composition, DummySpecies, Element, Lattice, Species, Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.io.cif import CifBlock, CifParser, CifWriter
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
+from pytest import approx
 
 try:
     import pybtex
@@ -163,7 +162,7 @@ class TestCifIO(PymatgenTest):
     def test_cif_parser(self):
         parser = CifParser(f"{TEST_FILES_DIR}/cif/LiFePO4.cif")
         for struct in parser.parse_structures():
-            assert struct.formula == "Li4 Fe4 P4 O16", "Incorrectly parsed cif."
+            assert struct.formula == "Li4 Fe4 P4 O16", "Incorrectly parsed CIF"
 
         parser = CifParser(f"{TEST_FILES_DIR}/cif/V2O3.cif")
         for struct in parser.parse_structures():
@@ -731,16 +730,30 @@ loop_
         cb2 = CifBlock.from_str(str(cb))
         assert cb == cb2
 
-    def test_bad_cif(self):
+    def test_bad_occu(self):
         filepath = f"{TEST_FILES_DIR}/cif/bad_occu.cif"
         parser = CifParser(filepath)
         with pytest.raises(
-            ValueError, match="No structure parsed for section 1 in CIF.\nSpecies occupancies sum to more than 1!"
+            ValueError, match="No structure parsed for section 1 in CIF.\nOccupancy 1.556 exceeded tolerance."
         ):
             parser.parse_structures(on_error="raise")
         parser = CifParser(filepath, occupancy_tolerance=2)
         struct = parser.parse_structures()[0]
         assert struct[0].species["Al3+"] == approx(0.778)
+
+    def test_not_check_occu(self):
+        # Test large occupancy with check_occu turned off
+        with open(f"{TEST_FILES_DIR}/cif/site_type_symbol_test.cif") as cif_file:
+            cif_str = cif_file.read()
+        cif_str = cif_str.replace("Te    Te 1.0000", "Te_label    Te 10.0", 1)
+
+        with pytest.warns(
+            UserWarning, match=r"Issues encountered while parsing CIF: Some occupancies \(\[10\.0\]\) sum to > 1!"
+        ):
+            structs = CifParser.from_str(cif_str).parse_structures(check_occu=False)
+
+        assert len(structs) > 0
+        assert set(structs[0].labels) == {"Te_label", "Ge"}
 
     def test_one_line_symm(self):
         cif_file = f"{TEST_FILES_DIR}/cif/OneLineSymmP1.cif"
@@ -1030,11 +1043,11 @@ Gd1 5.05 5.05 0.0"""
 
     def test_write(self):
         with open(f"{MCIF_TEST_DIR}/GdB4-writer-ref.mcif") as file:
-            cw_ref_string = file.read()
+            cw_ref_str = file.read()
         s_ncl = self.mcif_ncl.parse_structures(primitive=False)[0]
 
         cw = CifWriter(s_ncl, write_magmoms=True)
-        assert str(cw) == cw_ref_string
+        assert str(cw) == cw_ref_str
 
         # from list-type magmoms
         list_magmoms = [list(m) for m in s_ncl.site_properties["magmom"]]
@@ -1044,15 +1057,15 @@ Gd1 5.05 5.05 0.0"""
 
         s_ncl.add_site_property("magmom", list_magmoms)
         cw = CifWriter(s_ncl, write_magmoms=True)
-        assert str(cw) == cw_ref_string
+        assert str(cw) == cw_ref_str
 
         s_ncl.add_site_property("magmom", float_magmoms)
         cw = CifWriter(s_ncl, write_magmoms=True)
 
         with open(f"{MCIF_TEST_DIR}/GdB4-str-magnitudes-ref.mcif") as file:
-            cw_ref_string_magnitudes = file.read()
+            cw_ref_str_magnitudes = file.read()
 
-        assert str(cw).strip() == cw_ref_string_magnitudes.strip()
+        assert str(cw).strip() == cw_ref_str_magnitudes.strip()
         # test we're getting correct magmoms in ncl case
         s_ncl2 = self.mcif_ncl2.parse_structures()[0]
         list_magmoms = [list(m) for m in s_ncl2.site_properties["magmom"]]
@@ -1091,7 +1104,7 @@ def test_cif_writer_non_unique_labels(capsys):
     parser = CifParser(f"{TEST_FILES_DIR}/cif/garnet.cif")
     struct = parser.parse_structures()[0]
 
-    assert struct.labels[0:3] == ["Ca1", "Ca1", "Ca1"]
+    assert struct.labels[:3] == ["Ca1", "Ca1", "Ca1"]
     assert len(set(struct.labels)) != len(struct.labels)
 
     # This should raise a warning
@@ -1099,7 +1112,7 @@ def test_cif_writer_non_unique_labels(capsys):
         CifWriter(struct)
 
     struct.relabel_sites()
-    assert struct.labels[0:3] == ["Ca1_1", "Ca1_2", "Ca1_3"]
+    assert struct.labels[:3] == ["Ca1_1", "Ca1_2", "Ca1_3"]
 
     _ = capsys.readouterr()
     # This should not raise a warning

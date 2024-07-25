@@ -1,7 +1,5 @@
-"""
-Developer script to convert yaml periodic table to json format.
-Created on Nov 15, 2011.
-"""
+"""Developer script to convert YAML periodic table to JSON format.
+Created on 2011-11-15."""
 
 from __future__ import annotations
 
@@ -11,11 +9,15 @@ from collections import defaultdict
 from itertools import product
 
 import requests
-from bs4 import BeautifulSoup
+from monty.dev import requires
 from monty.serialization import dumpfn, loadfn
+from pymatgen.core import Element, get_el_sp
 from ruamel import yaml
 
-from pymatgen.core import Element, get_el_sp
+try:
+    from bs4 import BeautifulSoup
+except ImportError:
+    BeautifulSoup = None
 
 ptable_yaml_path = "periodic_table.yaml"
 
@@ -27,8 +29,8 @@ def parse_oxi_state():
     oxi_data = re.sub("[\n\r]", "", oxi_data)
     patt = re.compile("<tr>(.*?)</tr>", re.MULTILINE)
 
-    for m in patt.finditer(oxi_data):
-        line = m.group(1)
+    for match in patt.finditer(oxi_data):
+        line = match[1]
         line = re.sub("</td>", "", line)
         line = re.sub("(<td>)+", "<td>", line)
         line = re.sub("</*a[^>]*>", "", line)
@@ -36,15 +38,15 @@ def parse_oxi_state():
         oxi_states = []
         common_oxi = []
         for tok in re.split("<td>", line.strip()):
-            m2 = re.match(r"<b>([A-Z][a-z]*)</b>", tok)
-            if m2:
-                el = m2.group(1)
+            match2 = re.match(r"<b>([A-Z][a-z]*)</b>", tok)
+            if match2:
+                el = match2[1]
             else:
-                m3 = re.match(r"(<b>)*([\+\-]\d)(</b>)*", tok)
-                if m3:
-                    oxi_states += [int(m3.group(2))]
-                    if m3.group(1):
-                        common_oxi += [int(m3.group(2))]
+                match3 = re.match(r"(<b>)*([\+\-]\d)(</b>)*", tok)
+                if match3:
+                    oxi_states += [int(match3[2])]
+                    if match3[1]:
+                        common_oxi += [int(match3[2])]
         if el in data:
             del data[el]["Max oxidation state"]
             del data[el]["Min oxidation state"]
@@ -74,13 +76,12 @@ def parse_ionic_radii():
         el = tokens[2]
 
         ionic_radii = {}
-        for j in range(3, len(tokens)):
-            match = re.match(r"^\s*([0-9\.]+)", tokens[j])
-            if match:
-                ionic_radii[int(header[j])] = float(match.group(1))
+        for tok_idx in range(3, len(tokens)):
+            if match := re.match(r"^\s*([0-9\.]+)", tokens[tok_idx]):
+                ionic_radii[int(header[tok_idx])] = float(match[1])
 
         if el in data:
-            data[el]["Ionic_radii" + suffix] = ionic_radii
+            data[el][f"Ionic_radii{suffix}"] = ionic_radii
             if suffix == "_hs":
                 data[el]["Ionic_radii"] = ionic_radii
         else:
@@ -231,6 +232,7 @@ def gen_iupac_ordering():
         periodic_table[el]["IUPAC ordering"] = iupac_ordering_dict[get_el_sp(el)]
 
 
+@requires(BeautifulSoup, "BeautifulSoup must be installed to use this method.")
 def add_electron_affinities():
     """Update the periodic table data file with electron affinities."""
 

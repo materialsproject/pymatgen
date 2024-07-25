@@ -3,7 +3,6 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from monty.json import MontyDecoder, jsanitize
-
 from pymatgen.core import Composition, Lattice, Molecule, Structure
 from pymatgen.core.structure import StructureError
 from pymatgen.io.ase import AseAtomsAdaptor, MSONAtoms
@@ -359,6 +358,6 @@ def test_no_ase_err():
 
     import pymatgen.io.ase
 
-    expected_msg = str(pymatgen.io.ase.no_ase_err)
+    expected_msg = str(pymatgen.io.ase.NO_ASE_ERR)
     with pytest.raises(PackageNotFoundError, match=expected_msg):
         pymatgen.io.ase.MSONAtoms()

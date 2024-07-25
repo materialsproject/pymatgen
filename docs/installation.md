@@ -188,9 +188,9 @@ pmg config --add PMG_VASP_PSP_DIR <MY_PSP>
 In practice, this entire process might look something like the following:
 
 ```bash
-pmg config -p /path/to/pseudos/potcar_PBE.54/ /path/to/pseudos/pmg_potcars/
-pmg config -p /path/to/pseudos/potcar_LDA.54/ /path/to/pseudos/pmg_potcars/
-pmg config --add PMG_VASP_PSP_DIR /path/to/pseudos/pmg_potcars/pmg_potcars
+pmg config -p /path/to/pseudos/potcar_PBE.54 /path/to/pseudos/pmg_potcars
+pmg config -p /path/to/pseudos/potcar_LDA.54 /path/to/pseudos/pmg_potcars
+pmg config --add PMG_VASP_PSP_DIR /path/to/pseudos/pmg_potcars
 ```
 
 If desired, you may specify a default version and type of pseudopotentials as follows:

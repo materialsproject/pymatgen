@@ -10,12 +10,11 @@ import pandas as pd
 import pytest
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose
-from pytest import approx
-from ruamel.yaml import YAML
-
 from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.io.lammps.data import CombinedData, ForceField, LammpsBox, LammpsData, Topology, lattice_2_lmpbox
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
+from ruamel.yaml import YAML
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
@@ -757,11 +756,11 @@ class TestFunc(TestCase):
         frac_coords = np.random.rand(10, 3)
         init_structure = Structure(init_latt, ["H"] * 10, frac_coords)
         origin = np.random.rand(3) * 10 - 5
-        box, symmop = lattice_2_lmpbox(lattice=init_latt, origin=origin)
+        box, symm_op = lattice_2_lmpbox(lattice=init_latt, origin=origin)
         boxed_latt = box.to_lattice()
         assert_allclose(init_latt.abc, boxed_latt.abc)
         assert_allclose(init_latt.angles, boxed_latt.angles)
-        cart_coords = symmop.operate_multi(init_structure.cart_coords) - origin
+        cart_coords = symm_op.operate_multi(init_structure.cart_coords) - origin
         boxed_structure = Structure(boxed_latt, ["H"] * 10, cart_coords, coords_are_cartesian=True)
         assert_allclose(boxed_structure.frac_coords, frac_coords)
         tetra_latt = Lattice.tetragonal(5, 5)

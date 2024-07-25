@@ -8,9 +8,6 @@ from copy import deepcopy
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from pytest import approx
-from scipy.misc import central_diff_weights
-
 from pymatgen.analysis.elasticity.elastic import (
     ComplianceTensor,
     ElasticTensor,
@@ -29,6 +26,8 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
+from scipy.misc import central_diff_weights
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/elasticity"
 
@@ -196,13 +195,13 @@ class TestElasticTensor(PymatgenTest):
 
     def test_from_pseudoinverse(self):
         strain_list = [Strain.from_deformation(def_matrix) for def_matrix in self.def_stress_dict["deformations"]]
-        stress_list = list(self.def_stress_dict["stresses"])
+        stresses = list(self.def_stress_dict["stresses"])
         with pytest.warns(
             UserWarning,
             match="Pseudo-inverse fitting of Strain/Stress lists may yield questionable results from "
             "vasp data, use with caution",
         ):
-            et_fl = -0.1 * ElasticTensor.from_pseudoinverse(strain_list, stress_list).voigt
+            et_fl = -0.1 * ElasticTensor.from_pseudoinverse(strain_list, stresses).voigt
             assert_allclose(
                 et_fl.round(2),
                 [
@@ -395,7 +394,7 @@ class TestNthOrderElasticTensor(PymatgenTest):
 
 
 class TestDiffFit(PymatgenTest):
-    """Tests various functions related to diff fitting."""
+    """Test various functions related to diff fitting."""
 
     def setUp(self):
         with open(f"{TEST_DIR}/test_toec_data.json") as file:

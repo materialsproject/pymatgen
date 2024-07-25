@@ -3,6 +3,7 @@ from __future__ import annotations
 import collections
 import unittest
 import unittest.mock
+from itertools import combinations
 from numbers import Number
 from unittest import TestCase
 
@@ -12,8 +13,6 @@ import plotly.graph_objects as go
 import pytest
 from monty.serialization import dumpfn, loadfn
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.analysis.phase_diagram import (
     CompoundPhaseDiagram,
     GrandPotentialPhaseDiagram,
@@ -32,6 +31,7 @@ from pymatgen.core import Composition, DummySpecies, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.entries.entry_tools import EntrySet
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis"
 
@@ -710,6 +710,7 @@ class TestPatchedPhaseDiagram(TestCase):
 
         self.pd = PhaseDiagram(entries=self.entries)
         self.ppd = PatchedPhaseDiagram(entries=self.entries)
+        self.ppd_all = PatchedPhaseDiagram(entries=self.entries, keep_all_spaces=True)
 
         # novel entries not in any of the patches
         self.novel_comps = [Composition("H5C2OP"), Composition("V2PH4C")]
@@ -757,7 +758,11 @@ class TestPatchedPhaseDiagram(TestCase):
 
         # test dims of sub PDs
         dim_counts = collections.Counter(pd.dim for pd in self.ppd.pds.values())
-        assert dim_counts == {3: 7, 2: 6, 4: 2}
+        assert dim_counts == {4: 2, 3: 2}
+
+        # test dims of sub PDs
+        dim_counts = collections.Counter(pd.dim for pd in self.ppd_all.pds.values())
+        assert dim_counts == {2: 8, 3: 7, 4: 2}
 
     def test_get_hull_energy(self):
         for comp in self.novel_comps:
@@ -773,7 +778,7 @@ class TestPatchedPhaseDiagram(TestCase):
             assert np.isclose(e_above_hull_pd, e_above_hull_ppd)
 
     def test_repr(self):
-        assert repr(self.ppd) == str(self.ppd) == "PatchedPhaseDiagram covering 15 sub-spaces"
+        assert repr(self.ppd) == str(self.ppd) == "PatchedPhaseDiagram covering 4 sub-spaces"
 
     def test_as_from_dict(self):
         ppd_dict = self.ppd.as_dict()
@@ -811,7 +816,8 @@ class TestPatchedPhaseDiagram(TestCase):
         pd = self.ppd[chem_space]
         assert isinstance(pd, PhaseDiagram)
         assert chem_space in pd._qhull_spaces
-        assert str(pd) == "V-C phase diagram\n4 stable phases: \nC, V, V6C5, V2C"
+        assert len(str(pd)) == 186
+        assert str(pd).startswith("V-H-C-O phase diagram\n25 stable phases:")
 
         with pytest.raises(KeyError, match="frozenset"):
             self.ppd[frozenset(map(Element, "HBCNOFPS"))]
@@ -830,6 +836,19 @@ class TestPatchedPhaseDiagram(TestCase):
         assert unlikely_chem_space in self.ppd
         assert self.ppd[unlikely_chem_space] == self.pd
         del self.ppd[unlikely_chem_space]  # test __delitem__() and restore original state
+
+    def test_remove_redundant_spaces(self):
+        spaces = tuple(frozenset(entry.elements) for entry in self.ppd.qhull_entries)
+        # NOTE this is 5 not 4 as "He" is a non redundant space that gets dropped for other reasons
+        assert len(self.ppd.remove_redundant_spaces(spaces)) == 5
+
+        test = (
+            list(combinations(range(1, 7), 4))
+            + list(combinations(range(1, 10), 2))
+            + list(combinations([1, 4, 7, 9, 2], 5))
+        )
+        test = [frozenset(t) for t in test]
+        assert len(self.ppd.remove_redundant_spaces(test)) == 30
 
 
 class TestReactionDiagram(TestCase):

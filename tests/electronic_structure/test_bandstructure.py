@@ -8,8 +8,6 @@ import numpy as np
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.bandstructure import (
     BandStructureSymmLine,
@@ -21,6 +19,7 @@ from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.plotter import BSPlotterProjected
 from pymatgen.io.vasp import BSVasprun
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
@@ -360,7 +359,8 @@ class TestLobsterBandStructureSymmLine(PymatgenTest):
         axs = BSPlotterProjected(self.bs_spin).get_projected_plots_dots({"Si": ["3s"]})
         assert isinstance(axs, list)
         assert len(axs) == 1
-        assert axs[0].get_title() == "Si 3s"
+        print(axs[0].get_title())
+        assert axs[0].get_title() == r"${\mathrm{Si}}_{\mathrm{3s}}$"
 
     def test_get_branch(self):
         branch = self.bs_p.get_branch(0)[0]

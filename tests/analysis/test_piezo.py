@@ -5,7 +5,6 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
-
 from pymatgen.analysis.piezo import PiezoTensor
 from pymatgen.util.testing import PymatgenTest
 
@@ -19,7 +18,7 @@ __date__ = "4/1/16"
 
 class TestPiezo(PymatgenTest):
     def setUp(self):
-        self.piezo_struc = self.get_structure("BaNiO3")
+        self.piezo_struct = self.get_structure("BaNiO3")
         self.voigt_matrix = np.array(
             [
                 [0.0, 0.0, 0.0, 0.0, 0.03839, 0.0],

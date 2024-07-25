@@ -108,7 +108,6 @@ import pandas as pd
 import pytest
 from monty.json import MontyDecoder
 from numpy.testing import assert_allclose
-
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
@@ -158,8 +157,7 @@ class MixingState:
 
 @pytest.fixture()
 def mixing_scheme_no_compat():
-    """
-    Return an instance of MaterialsProjectDFTMixingScheme with no additional
+    """Get an instance of MaterialsProjectDFTMixingScheme with no additional
     compatibility schemes (e.g., compat_1=None). Used by most of the tests where
     we are manually supplying energies.
     """
@@ -1230,8 +1228,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
 
     def test_check_potcar(self, ms_complete):
-        """
-        Entries with invalid or missing POTCAR raise error by default but should be ignored if
+        """Entries with invalid or missing POTCAR raise error by default but should be ignored if
         check_potcar=False in MaterialsProjectDFTMixingScheme.
         """
         # remove the POTCAR spec from one of the entries (changing in-place is fine since

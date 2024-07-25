@@ -5,7 +5,6 @@ import json
 from pathlib import Path
 
 import pytest
-
 from pymatgen.core import Structure
 from pymatgen.io.aims.sets import AimsInputSet
 
@@ -28,7 +27,7 @@ compute_forces                     .true.
 #
 #  Suggested "light" defaults for Si atom (to be pasted into control.in file)
 #  Be sure to double-check any results obtained with these settings for post-processing,
-#  e.g., with the "tight" defaults and larger basis sets.
+#  e.g. with the "tight" defaults and larger basis sets.
 #
 #  2020/09/08 Added f function to "light" after reinspection of Delta test outcomes.
 #             This was done for all of Al-Cl and is a tricky decision since it makes
@@ -130,7 +129,7 @@ compute_forces                     .true.
 #
 #  Suggested "light" defaults for Si atom (to be pasted into control.in file)
 #  Be sure to double-check any results obtained with these settings for post-processing,
-#  e.g., with the "tight" defaults and larger basis sets.
+#  e.g. with the "tight" defaults and larger basis sets.
 #
 #  2020/09/08 Added f function to "light" after reinspection of Delta test outcomes.
 #             This was done for all of Al-Cl and is a tricky decision since it makes

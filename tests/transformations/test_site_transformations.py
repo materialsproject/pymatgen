@@ -6,7 +6,6 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.transformations.site_transformations import (
     AddSitePropertyTransformation,
