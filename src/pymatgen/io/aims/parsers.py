@@ -330,7 +330,7 @@ class AimsOutHeaderChunk(AimsOutChunk):
 
         line_start = self.reverse_search_for(["| K-points in task"])
         line_end = self.reverse_search_for(["| k-point:"])
-        if (line_start == LINE_NOT_FOUND) or (line_end == LINE_NOT_FOUND) or (line_end - line_start != n_kpts):
+        if LINE_NOT_FOUND in {line_start, line_end} or (line_end - line_start != n_kpts):
             self._cache.update(
                 {
                     "k_points": None,
