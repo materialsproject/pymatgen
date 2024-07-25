@@ -2048,6 +2048,13 @@ class TestWSWQ(PymatgenTest):
                 assert np.linalg.norm([r, i]) < 0.001
 
 
+try:
+    import h5py
+except ImportError:
+    h5py = None
+
+
+@pytest.mark.skipif(h5py is None, "h5py must be installed to use the .Vaspout class.")
 class TestVaspout(PymatgenTest):
     def setUp(self):
         self.vaspout = Vaspout(f"{VASP_OUT_DIR}/vaspout.line_mode_band_structure.h5.gz")
