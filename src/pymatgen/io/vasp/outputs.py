@@ -50,7 +50,8 @@ except ImportError:
     h5py = None
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Literal, Sequence
+    from collections.abc import Sequence
+    from typing import Any, Callable, Literal
 
     # Avoid name conflict with pymatgen.core.Element
     from xml.etree.ElementTree import Element as XML_Element
@@ -1209,7 +1210,7 @@ class Vasprun(MSONable):
 
         Args:
             path (PathLike | bool): Path to search for POTCARs.
-        
+
         Note that the vasprun.xml spec typically hasn't included the POTCAR symbols,
         since these are derived from the TITEL.
         """
@@ -5365,6 +5366,7 @@ class WSWQ(MSONable):
 class UnconvergedVASPWarning(Warning):
     """Warning for unconverged VASP run."""
 
+
 @requires(h5py is not None, "h5py must be installed to read vaspout.h5")
 class Vaspout(Vasprun):
     """
@@ -5446,7 +5448,7 @@ class Vaspout(Vasprun):
                 val = [cls._parse_hdf5_value(x) for x in val]
         return val
 
-    def _parse(self, parse_dos: bool, parse_eigen: bool, parse_projected_eigen: bool) -> None:  # type: ignore
+    def _parse(self, parse_dos: bool, parse_eigen: bool, parse_projected_eigen: bool) -> None:  # type: ignore[override]
         """
         Parse data contained in vaspout.h5.
 
@@ -5498,7 +5500,7 @@ class Vaspout(Vasprun):
         self.generator = {"version": self.vasp_version}
 
     @staticmethod
-    def _parse_structure(positions: dict) -> Structure:
+    def _parse_structure(positions: dict) -> Structure:  # type: ignore[override]
         """
         Parse the structure from vaspout format.
 
@@ -5524,7 +5526,7 @@ class Vaspout(Vasprun):
         )
 
     @staticmethod
-    def _parse_kpoints(kpoints: dict) -> tuple[Kpoints, Sequence, Sequence]:
+    def _parse_kpoints(kpoints: dict) -> tuple[Kpoints, Sequence, Sequence]:  # type: ignore[override]
         _kpoints_style_from_mode = {
             KpointsSupportedModes.Reciprocal: {"mode": "e", "coordinate_space": "R"},
             KpointsSupportedModes.Automatic: {"mode": "a"},
@@ -5574,17 +5576,21 @@ class Vaspout(Vasprun):
             atom_symbols += [str(element) for _ in range(int(composition[element]))]
         return atom_symbols
 
-    def _parse_params(self, input_data: dict):
+    def _parse_params(self, input_data: dict):  # type: ignore[override]
         self.incar = Incar(input_data["incar"])
 
         # TODO: set defaults in parameters to match vasprun?
-        self.parameters = Incar.from_dict(self.incar.as_dict())
+        self.parameters = Incar.from_dict(self.incar.as_dict())  # type: ignore[attr-defined]
 
-        self.kpoints = None
-        self.actual_kpoints = None
-        self.actual_kpoints_weights = None
+        self.kpoints: list[Any] | None = None  # type: ignore[assignment]
+        self.actual_kpoints: list[Any] | None = None  # type: ignore[assignment]
+        self.actual_kpoints_weights: Sequence[float] = None  # type: ignore[assignment]
         if not self.incar.get("KSPACING"):
-            self.kpoints, self.actual_kpoints, self.actual_kpoints_weights = self._parse_kpoints(input_data["kpoints"])
+            (
+                self.kpoints,
+                self.actual_kpoints,
+                self.actual_kpoints_weights,
+            ) = self._parse_kpoints(input_data["kpoints"])  # type: ignore[assignment]
 
         self.initial_structure = self._parse_structure(input_data["poscar"])
         self.atomic_symbols = self._parse_atominfo(self.initial_structure.composition)
@@ -5678,7 +5684,7 @@ class Vaspout(Vasprun):
     def _parse_results(self, results: dict) -> None:
         self.final_structure = self._parse_structure(results["positions"])
 
-    def _parse_dos(self, electron_dos: dict, projectors: list | None = None):  # type: ignore
+    def _parse_dos(self, electron_dos: dict, projectors: list | None = None):  # type: ignore[override]
         self.efermi = electron_dos["efermi"]
 
         densities: dict = {}
@@ -5722,7 +5728,7 @@ class Vaspout(Vasprun):
                 self.pdos += [site_res_pdos]
 
     @staticmethod
-    def _parse_eigen(eigenvalues_complete: dict):
+    def _parse_eigen(eigenvalues_complete: dict):  # type: ignore[override]
         eigenvalues = {}
         for ispin in range(eigenvalues_complete["ispin"]):
             eigenvalues[Spin.up if ispin == 0 else Spin.down] = np.array(
@@ -5739,7 +5745,7 @@ class Vaspout(Vasprun):
             )
         return eigenvalues
 
-    @property  # type: ignore
+    @property
     @unitized("eV")
     def final_energy(self):
         """Final energy from vaspout."""

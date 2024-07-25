@@ -2358,14 +2358,14 @@ class PotcarSingle:
         """
 
         key_match = all(
-            set(potcar_stats_1["keywords"].get(key)) == set(potcar_stats_2["keywords"].get(key))  # type: ignore
+            set(potcar_stats_1["keywords"].get(key)) == set(potcar_stats_2["keywords"].get(key))
             for key in check_potcar_fields
         )
 
         data_match = False
         if key_match:
             data_diff = [
-                abs(potcar_stats_1["stats"].get(key, {}).get(stat) - potcar_stats_2["stats"].get(key, {}).get(stat))  # type: ignore
+                abs(potcar_stats_1["stats"].get(key, {}).get(stat) - potcar_stats_2["stats"].get(key, {}).get(stat))
                 for stat in ["MEAN", "ABSMEAN", "VAR", "MIN", "MAX"]
                 for key in check_potcar_fields
             ]
@@ -2746,7 +2746,7 @@ class Potcar(list, MSONable):
         with zopen(filename, mode="rt") as file:
             fdata = file.read()
         return cls.from_str(fdata)
-    
+
     def write_file(self, filename: PathLike) -> None:
         """Write Potcar to a file.
 
