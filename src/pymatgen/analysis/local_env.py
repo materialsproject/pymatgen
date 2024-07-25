@@ -3048,7 +3048,7 @@ class LocalStructOrderParams:
                                 norms[idx][j][kc] += 1
 
                         for m in range(n_neighbors):
-                            if (m != j) and (m != k) and (not flag_xaxis):
+                            if m not in {j, k} and (not flag_xaxis):
                                 tmp = max(-1.0, min(np.inner(zaxis, rij_norm[m]), 1.0))
                                 thetam = math.acos(tmp)
                                 x_two_axis_tmp = gramschmidt(rij_norm[m], zaxis)

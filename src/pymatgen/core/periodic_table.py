@@ -33,6 +33,28 @@ with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="ut
 
 _pt_row_sizes = (2, 8, 8, 18, 18, 32, 32)
 
+_madelung = [
+    (1, "s"),
+    (2, "s"),
+    (2, "p"),
+    (3, "s"),
+    (3, "p"),
+    (4, "s"),
+    (3, "d"),
+    (4, "p"),
+    (5, "s"),
+    (4, "d"),
+    (5, "p"),
+    (6, "s"),
+    (4, "f"),
+    (5, "d"),
+    (6, "p"),
+    (7, "s"),
+    (5, "f"),
+    (6, "d"),
+    (7, "p"),
+]
+
 
 @functools.total_ordering
 @unique
@@ -422,11 +444,12 @@ class ElementBase(Enum):
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
         """Full electronic structure as list of tuples, in order of increasing
-        principal (n) and angular momentum (l)  quantum numbers.
+        energy level (according to the Madelung rule). Therefore, the final
+        element in the list gives the electronic structure of the valence shell.
 
         For example, the electronic structure for Fe is represented as:
         [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
-        (3, "d", 6), (4, "s", 2)].
+        (4, "s", 2), (3, "d", 6)].
 
         References:
             Kramida, A., Ralchenko, Yu., Reader, J., and NIST ASD Team (2023). NIST
@@ -445,7 +468,13 @@ class ElementBase(Enum):
         if data[0][0] == "[":
             sym = data[0].replace("[", "").replace("]", "")
             data = list(Element(sym).full_electronic_structure) + data[1:]
-        return data
+        # sort the final electronic structure by increasing energy level
+        return sorted(data, key=lambda x: _madelung.index((x[0], x[1])))
+
+    @property
+    def n_electrons(self) -> int:
+        """Total number of electrons in the Element."""
+        return sum([t[-1] for t in self.full_electronic_structure])
 
     @property
     def valence(self) -> tuple[int | np.nan, int]:
@@ -1117,7 +1146,8 @@ class Species(MSONable, Stringify):
     @property
     def full_electronic_structure(self) -> list[tuple[int, str, int]]:
         """Full electronic structure as list of tuples, in order of increasing
-        principal (n) and angular momentum (l)  quantum numbers.
+        energy level (according to the Madelung rule). Therefore, the final
+        element in the list gives the electronic structure of the valence shell.
 
         For example, the electronic structure for Fe+2 is represented as:
         [(1, "s", 2), (2, "s", 2), (2, "p", 6), (3, "s", 2), (3, "p", 6),
@@ -1140,7 +1170,15 @@ class Species(MSONable, Stringify):
         if data[0][0] == "[":
             sym = data[0].replace("[", "").replace("]", "")
             data = list(Element(sym).full_electronic_structure) + data[1:]
-        return data
+        # sort the final electronic structure by increasing energy level
+        return sorted(data, key=lambda x: _madelung.index((x[0], x[1])))
+
+    # NOTE - copied exactly from Element. Refactoring / inheritance may improve
+    # robustness
+    @property
+    def n_electrons(self) -> int:
+        """Total number of electrons in the Species."""
+        return sum([t[-1] for t in self.full_electronic_structure])
 
     # NOTE - copied exactly from Element. Refactoring / inheritance may improve
     # robustness
@@ -1319,7 +1357,7 @@ class Species(MSONable, Stringify):
             raise ValueError("Invalid coordination or spin config")
 
         elec = self.element.full_electronic_structure
-        if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
+        if len(elec) < 4 or elec[-2][1] != "s" or elec[-1][1] != "d":
             raise AttributeError(f"Invalid element {self.symbol} for crystal field calculation")
 
         assert self.oxi_state is not None
