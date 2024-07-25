@@ -16,8 +16,8 @@ from pymatgen.electronic_structure.bandstructure import BandStructure, BandStruc
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.ext.matproj import MP_LOG_FILE, MPRestError, _MPResterBasic
-from pymatgen.ext.matproj_legacy import TaskType, _MPResterLegacy
+from pymatgen.ext.matproj import MP_LOG_FILE, _MPResterBasic
+from pymatgen.ext.matproj_legacy import MPRestError, TaskType, _MPResterLegacy
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
