@@ -2054,7 +2054,7 @@ except ImportError:
     h5py = None
 
 
-@pytest.mark.skipif(h5py is None, "h5py must be installed to use the .Vaspout class.")
+@pytest.mark.skipif(condition=h5py is None, reason="h5py must be installed to use the .Vaspout class.")
 class TestVaspout(PymatgenTest):
     def setUp(self):
         self.vaspout = Vaspout(f"{VASP_OUT_DIR}/vaspout.line_mode_band_structure.h5.gz")
