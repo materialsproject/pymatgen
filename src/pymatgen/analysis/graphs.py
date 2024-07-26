@@ -2478,8 +2478,7 @@ class MoleculeGraph(MSONable):
         Returns:
             int: the number of neighbors of site n.
         """
-        n_self_loops = sum(1 for n, v in self.graph.edges(n) if n == v)
-        return self.graph.degree(n) - n_self_loops
+        return self.graph.degree(n)
 
     def draw_graph_to_file(
         self,
