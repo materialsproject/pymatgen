@@ -37,9 +37,12 @@ ROOT = os.path.dirname(PKG_DIR)
 def _load_pmg_settings() -> dict[str, Any]:
     settings: dict[str, Any] = {}
 
+    # PMG_CONFIG_FILE takes precedence over default settings location
+    settings_file = os.getenv("PMG_CONFIG_FILE") or SETTINGS_FILE
+
     # Load .pmgrc.yaml file
     yaml = YAML()
-    for file_path in (SETTINGS_FILE, OLD_SETTINGS_FILE):
+    for file_path in (settings_file, OLD_SETTINGS_FILE):
         try:
             with open(file_path, encoding="utf-8") as yml_file:
                 settings = yaml.load(yml_file) or {}
