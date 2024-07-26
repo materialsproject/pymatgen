@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import os
+import tarfile
+
 import numpy as np
 import pytest
+from monty.tempfile import ScratchDir
 from numpy.testing import assert_allclose, assert_array_equal
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit import EtsfReader
@@ -72,11 +76,33 @@ class TestEtsfReader(PymatgenTest):
             # Initialize pymatgen structure from GSR.
             structure = data.read_structure()
             assert isinstance(structure, Structure)
+            assert "magmom" not in structure.site_properties
 
             # Read ixc.
             # TODO: Upgrade GSR file.
             # xc = data.read_abinit_xcfunc()
             # assert xc == "LDA"
+
+    @pytest.mark.skipif(netCDF4 is None, reason="Requires Netcdf4")
+    def test_read_fe(self):
+        with ScratchDir(".") as tmp_dir:
+            with tarfile.open(f"{TEST_DIR}/Fe_magmoms_collinear_GSR.tar.xz", mode="r:xz") as t:
+                t.extractall(tmp_dir)
+                ref_magmom_collinear = [-0.5069359730980665]
+                path = os.path.join(tmp_dir, "Fe_magmoms_collinear_GSR.nc")
+
+                with EtsfReader(path) as data:
+                    structure = data.read_structure()
+                    assert structure.site_properties["magmom"] == ref_magmom_collinear
+
+            with tarfile.open(f"{TEST_DIR}/Fe_magmoms_noncollinear_GSR.tar.xz", mode="r:xz") as t:
+                t.extractall(tmp_dir)
+                ref_magmom_noncollinear = [[0.357939487, 0.357939487, 0]]
+                path = os.path.join(tmp_dir, "Fe_magmoms_noncollinear_GSR.nc")
+
+                with EtsfReader(path) as data:
+                    structure = data.read_structure()
+                    assert structure.site_properties["magmom"] == ref_magmom_noncollinear
 
 
 class TestAbinitHeader(PymatgenTest):
