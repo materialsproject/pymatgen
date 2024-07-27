@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import os.path
+import tarfile
 from collections import defaultdict
 
 import pytest
+from monty.tempfile import ScratchDir
 from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 from pytest import approx
@@ -17,6 +19,7 @@ class TestPseudo(PymatgenTest):
         nc_pseudo_fnames["Si"] = [f"{TEST_DIR}/{file}" for file in ("14si.pspnc", "14si.4.hgh", "14-Si.LDA.fhi")]
 
         self.nc_pseudos = defaultdict(list)
+        self.paw_pseudos = defaultdict(list)
 
         for symbol, file_names in nc_pseudo_fnames.items():
             for file_name in file_names:
@@ -89,6 +92,35 @@ class TestPseudo(PymatgenTest):
 
         # Test pickle
         self.serialize_with_pickle(table, test_eq=False)
+
+    def test_paw_pseudos(self):
+        """Test 28ni.paw."""
+        file_name = f"{TEST_DIR}/28ni.paw.tar.xz"
+        symbol = "Ni"
+        with ScratchDir(".") as tmp_dir, tarfile.open(file_name, mode="r:xz") as t:
+            t.extractall(tmp_dir)
+            path = os.path.join(tmp_dir, "28ni.paw")
+            pseudo = Pseudo.from_file(path)
+
+            assert repr(pseudo)
+            assert str(pseudo)
+            assert not pseudo.isnc
+            assert pseudo.ispaw
+            assert pseudo.Z == 28
+            assert pseudo.symbol == symbol
+            assert pseudo.Z_val == 18
+            assert pseudo.paw_radius >= 0.0
+
+            assert pseudo.l_max == 2
+            assert pseudo.l_local == 0
+            assert pseudo.supports_soc
+            assert pseudo.md5 is not None
+
+            # Test pickle
+            self.serialize_with_pickle(pseudo)
+
+            # Test MSONable
+            self.assert_msonable(pseudo)
 
     def test_pawxml_pseudos(self):
         """Test O.GGA_PBE-JTH-paw.xml."""
