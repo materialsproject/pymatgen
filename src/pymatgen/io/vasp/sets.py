@@ -1353,7 +1353,7 @@ class MPHSERelaxSet(VaspInputSet):
     CONFIG = _load_yaml_config("MPHSERelaxSet")
     vdw: Literal["dftd3", "dftd3-bj"] | None = None
 
-    def __post_init__(self)  -> None:
+    def __post_init__(self) -> None:
         super().__post_init__()
         self._config_dict["INCAR"]["LASPH"] = True
 

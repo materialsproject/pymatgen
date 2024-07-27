@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import hashlib
 import os
+import unittest
 from glob import glob
 from zipfile import ZipFile
 
 import numpy as np
-import unittest
 import pytest
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
