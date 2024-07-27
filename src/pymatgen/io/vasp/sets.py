@@ -1348,9 +1348,29 @@ class MPMetalRelaxSet(VaspInputSet):
 
 @dataclass
 class MPHSERelaxSet(VaspInputSet):
-    """Same as the MPRelaxSet, but with HSE parameters."""
+    """Same as the MPRelaxSet, but with HSE parameters and vdW corrections."""
 
     CONFIG = _load_yaml_config("MPHSERelaxSet")
+    vdw: Literal["dftd3", "dftd3-bj"] | None = None
+
+    def __post_init__(self)  -> None:
+        super().__post_init__()
+        self._config_dict["INCAR"]["LASPH"] = True
+
+    @property
+    def incar_updates(self) -> dict[str, Any]:
+        """Updates to the INCAR config for this calculation type."""
+        updates: dict[str, Any] = {}
+
+        if self.vdw:
+            hse_vdw_par = {
+                "dftd3": {"VDW_SR": 1.129, "VDW_S8": 0.109},
+                "dftd3-bj": {"VDW_A1": 0.383, "VDW_S8": 2.310, "VDW_A2": 5.685},
+            }
+            if vdw_param := hse_vdw_par.get(self.vdw):
+                updates.update(vdw_param)
+
+        return updates
 
 
 @dataclass

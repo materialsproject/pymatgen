@@ -6,6 +6,7 @@ from glob import glob
 from zipfile import ZipFile
 
 import numpy as np
+import unittest
 import pytest
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
@@ -1515,6 +1516,73 @@ class TestMVLGWSet(PymatgenTest):
         assert mvlgwgbse1.incar["ANTIRES"] == 0
         assert mvlgwgbse1.incar["NBANDSO"] == 20
         assert mvlgwgbse1.incar["ALGO"] == "Bse"
+
+
+class TestMPHSERelaxSet(PymatgenTest):
+    def setUp(self):
+        self.structure = dummy_structure
+        self.set = MPHSERelaxSet
+
+    def test_vdw_and_lasph_none(self):
+        vis = self.set(self.structure, vdw=None)
+        assert vis.incar["LASPH"], "LASPH is not set to True"
+        vdw_keys = {"VDW_SR", "VDW_S8", "VDW_A1", "VDW_A2"}
+        assert all(key not in vis.incar for key in vdw_keys), "Unexpected vdW parameters are set"
+
+    def test_vdw_and_lasph_dftd3(self):
+        vis = self.set(self.structure, vdw="dftd3")
+        assert vis.incar["LASPH"], "LASPH is not set to True"
+        assert vis.incar["VDW_SR"] == pytest.approx(1.129), "VDW_SR is not set correctly"
+        assert vis.incar["VDW_S8"] == pytest.approx(0.109), "VDW_S8 is not set correctly"
+
+    def test_vdw_and_lasph_dftd3_bj(self):
+        vis = self.set(self.structure, vdw="dftd3-bj")
+        assert vis.incar["LASPH"], "LASPH is not set to True"
+        assert vis.incar["VDW_A1"] == pytest.approx(0.383), "VDW_A1 is not set correctly"
+        assert vis.incar["VDW_S8"] == pytest.approx(2.310), "VDW_S8 is not set correctly"
+        assert vis.incar["VDW_A2"] == pytest.approx(5.685), "VDW_A2 is not set correctly"
+
+    def test_user_incar_settings(self):
+        user_incar_settings = {"LASPH": False, "VDW_SR": 1.5}
+        vis = self.set(self.structure, vdw="dftd3", user_incar_settings=user_incar_settings)
+        assert not vis.incar["LASPH"], "LASPH user setting not applied"
+        assert vis.incar["VDW_SR"] == 1.5, "VDW_SR user setting not applied"
+
+    @unittest.skipIf(not os.path.exists(TEST_DIR), "Test files are not present.")
+    def test_from_prev_calc(self):
+        prev_run = os.path.join(TEST_DIR, "fixtures", "relaxation")
+
+        # Test for dftd3
+        vis_d3 = self.set.from_prev_calc(prev_calc_dir=prev_run, vdw="dftd3")
+        assert vis_d3.incar["LASPH"]
+        assert "VDW_SR" in vis_d3.incar
+        assert "VDW_S8" in vis_d3.incar
+
+        # Test for dftd3-bj
+        vis_bj = self.set.from_prev_calc(prev_calc_dir=prev_run, vdw="dftd3-bj")
+        assert vis_bj.incar["LASPH"]
+        assert "VDW_A1" in vis_bj.incar
+        assert "VDW_A2" in vis_bj.incar
+        assert "VDW_S8" in vis_bj.incar
+
+    @unittest.skipIf(not os.path.exists(TEST_DIR), "Test files are not present.")
+    def test_override_from_prev_calc(self):
+        prev_run = os.path.join(TEST_DIR, "fixtures", "relaxation")
+
+        # Test for dftd3
+        vis_d3 = self.set(self.structure, vdw="dftd3")
+        vis_d3 = vis_d3.override_from_prev_calc(prev_calc_dir=prev_run)
+        assert vis_d3.incar["LASPH"]
+        assert "VDW_SR" in vis_d3.incar
+        assert "VDW_S8" in vis_d3.incar
+
+        # Test for dftd3-bj
+        vis_bj = self.set(self.structure, vdw="dftd3-bj")
+        vis_bj = vis_bj.override_from_prev_calc(prev_calc_dir=prev_run)
+        assert vis_bj.incar["LASPH"]
+        assert "VDW_A1" in vis_bj.incar
+        assert "VDW_A2" in vis_bj.incar
+        assert "VDW_S8" in vis_bj.incar
 
 
 class TestMPHSEBS(PymatgenTest):
