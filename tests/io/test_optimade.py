@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import numpy as np
-
 from pymatgen.core import Structure
 from pymatgen.io.optimade import OptimadeStructureAdapter
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
