@@ -409,7 +409,7 @@ from    to  to_image
         diff = struct_graph.diff(sg2)
         assert diff["dist"] == 0
 
-        assert self.square_sg.get_coordination_of_site(0) == 2
+        assert self.square_sg.get_coordination_of_site(0) == 4
 
     def test_from_edges(self):
         edges = {
