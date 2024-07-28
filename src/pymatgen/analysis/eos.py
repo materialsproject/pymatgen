@@ -13,6 +13,7 @@ from copy import deepcopy
 from typing import TYPE_CHECKING
 
 import numpy as np
+from numpy.exceptions import RankWarning
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 from scipy.optimize import leastsq, minimize
@@ -419,7 +420,7 @@ class NumericalEOS(PolynomialEOS):
             min_poly_order (int): minimum order of the polynomial to be
                 considered for fitting.
         """
-        warnings.simplefilter("ignore", np.RankWarning)
+        warnings.simplefilter("ignore", RankWarning)
 
         def get_rms(x, y):
             return np.sqrt(np.sum((np.array(x) - np.array(y)) ** 2) / len(x))
