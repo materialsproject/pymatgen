@@ -1,9 +1,6 @@
 __pycache__/
 .DS_Store
 pymatgen.egg-info
-dependencies/PyCifRW-3.3/PyCifRW.egg-info
-dependencies/spglib*/pyspglib.egg-info
-dependencies/spglib*/build
 *.o
 *.so
 *.pyc
@@ -26,7 +23,6 @@ setuptools*
 .cache
 .tox
 .eggs/
-gulptmp_4_1
 .coverage
 .*_cache
 # VS Code
