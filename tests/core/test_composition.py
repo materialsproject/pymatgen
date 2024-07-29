@@ -701,6 +701,7 @@ class TestComposition(PymatgenTest):
     def test_chemical_system(self):
         assert Composition({"Na": 1, "Cl": 1}).chemical_system == "Cl-Na"
         assert Composition({"Na+": 1, "Cl-": 1}).chemical_system == "Cl-Na"
+        assert Composition({"Na+": 1, "Na2+": 1, "Cl-": 1}).chemical_system == "Cl-Na"
 
     def test_chemical_system_set(self):
         assert Composition({"Na": 1, "Cl": 1}).chemical_system_set == {"Cl", "Na"}
