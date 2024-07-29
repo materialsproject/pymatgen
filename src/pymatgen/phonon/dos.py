@@ -413,100 +413,6 @@ class PhononDos(MSONable):
 
         return max(filtered_maxima_freqs)
 
-
-class PhononDosFingerprint(NamedTuple):
-    """
-    Represents a Phonon Density of States (DOS) fingerprint.
-
-    This named tuple is used to store information related to the Density of States (DOS)
-    in a material. It includes the frequencies, densities, number of bins, and bin width.
-
-    Args:
-        frequencies: The frequency values associated with the DOS.
-        densities: The corresponding density values for each energy.
-        n_bins: The number of bins used in the fingerprint.
-        bin_width: The width of each bin in the DOS fingerprint.
-    """
-
-    frequencies: NDArray
-    densities: NDArray
-    n_bins: int
-    bin_width: float
-
-
-class CompletePhononDos(PhononDos):
-    """This wrapper class defines a total dos, and also provides a list of PDos.
-
-    Attributes:
-        pdos (dict): Dict of partial densities of the form {Site:Densities}.
-            Densities are a dict of {Orbital:Values} where Values are a list of floats.
-            Site is a pymatgen.core.sites.Site object.
-    """
-
-    def __init__(self, structure: Structure, total_dos, ph_doses: dict) -> None:
-        """
-        Args:
-            structure: Structure associated with this particular DOS.
-            total_dos: total Dos for structure
-            ph_doses: The phonon DOSes are supplied as a dict of {Site: Densities}.
-        """
-        super().__init__(frequencies=total_dos.frequencies, densities=total_dos.densities)
-        self.pdos = {site: np.array(dens) for site, dens in ph_doses.items()}
-        self.structure = structure
-
-    def get_site_dos(self, site) -> PhononDos:
-        """Get the Dos for a site.
-
-        Args:
-            site: Site in Structure associated with CompletePhononDos.
-
-        Returns:
-            PhononDos: containing summed orbital densities for site.
-        """
-        return PhononDos(self.frequencies, self.pdos[site])
-
-    def get_element_dos(self) -> dict:
-        """Get element projected Dos.
-
-        Returns:
-            dict of {Element: Dos}
-        """
-        el_dos = {}
-        for site, atom_dos in self.pdos.items():
-            el = site.specie
-            if el not in el_dos:
-                el_dos[el] = np.array(atom_dos)
-            else:
-                el_dos[el] += np.array(atom_dos)
-        return {el: PhononDos(self.frequencies, densities) for el, densities in el_dos.items()}
-
-    @classmethod
-    def from_dict(cls, dct: dict) -> Self:
-        """Get CompleteDos object from dict representation."""
-        total_dos = PhononDos.from_dict(dct)
-        struct = Structure.from_dict(dct["structure"])
-        ph_doses = dict(zip(struct, dct["pdos"]))
-
-        return cls(struct, total_dos, ph_doses)
-
-    def as_dict(self):
-        """JSON-serializable dict representation of CompletePhononDos."""
-        dct = {
-            "@module": type(self).__module__,
-            "@class": type(self).__name__,
-            "structure": self.structure.as_dict(),
-            "frequencies": list(self.frequencies),
-            "densities": list(self.densities),
-            "pdos": [],
-        }
-        if len(self.pdos) > 0:
-            for site in self.structure:
-                dct["pdos"].append(list(self.pdos[site]))
-        return dct
-
-    def __str__(self) -> str:
-        return f"Complete phonon DOS for {self.structure}"
-
     def get_dos_fp(
         self,
         binning: bool = True,
@@ -642,3 +548,97 @@ class CompletePhononDos(PhononDos):
             return np.dot(vec1, vec2) / rescale
 
         raise ValueError("Cannot compute similarity index. When normalize=True, then please set metric=None")
+
+
+class PhononDosFingerprint(NamedTuple):
+    """
+    Represents a Phonon Density of States (DOS) fingerprint.
+
+    This named tuple is used to store information related to the Density of States (DOS)
+    in a material. It includes the frequencies, densities, number of bins, and bin width.
+
+    Args:
+        frequencies: The frequency values associated with the DOS.
+        densities: The corresponding density values for each energy.
+        n_bins: The number of bins used in the fingerprint.
+        bin_width: The width of each bin in the DOS fingerprint.
+    """
+
+    frequencies: NDArray
+    densities: NDArray
+    n_bins: int
+    bin_width: float
+
+
+class CompletePhononDos(PhononDos):
+    """This wrapper class defines a total dos, and also provides a list of PDos.
+
+    Attributes:
+        pdos (dict): Dict of partial densities of the form {Site:Densities}.
+            Densities are a dict of {Orbital:Values} where Values are a list of floats.
+            Site is a pymatgen.core.sites.Site object.
+    """
+
+    def __init__(self, structure: Structure, total_dos, ph_doses: dict) -> None:
+        """
+        Args:
+            structure: Structure associated with this particular DOS.
+            total_dos: total Dos for structure
+            ph_doses: The phonon DOSes are supplied as a dict of {Site: Densities}.
+        """
+        super().__init__(frequencies=total_dos.frequencies, densities=total_dos.densities)
+        self.pdos = {site: np.array(dens) for site, dens in ph_doses.items()}
+        self.structure = structure
+
+    def get_site_dos(self, site) -> PhononDos:
+        """Get the Dos for a site.
+
+        Args:
+            site: Site in Structure associated with CompletePhononDos.
+
+        Returns:
+            PhononDos: containing summed orbital densities for site.
+        """
+        return PhononDos(self.frequencies, self.pdos[site])
+
+    def get_element_dos(self) -> dict:
+        """Get element projected Dos.
+
+        Returns:
+            dict of {Element: Dos}
+        """
+        el_dos = {}
+        for site, atom_dos in self.pdos.items():
+            el = site.specie
+            if el not in el_dos:
+                el_dos[el] = np.array(atom_dos)
+            else:
+                el_dos[el] += np.array(atom_dos)
+        return {el: PhononDos(self.frequencies, densities) for el, densities in el_dos.items()}
+
+    @classmethod
+    def from_dict(cls, dct: dict) -> Self:
+        """Get CompleteDos object from dict representation."""
+        total_dos = PhononDos.from_dict(dct)
+        struct = Structure.from_dict(dct["structure"])
+        ph_doses = dict(zip(struct, dct["pdos"]))
+
+        return cls(struct, total_dos, ph_doses)
+
+    def as_dict(self):
+        """JSON-serializable dict representation of CompletePhononDos."""
+        dct = {
+            "@module": type(self).__module__,
+            "@class": type(self).__name__,
+            "structure": self.structure.as_dict(),
+            "frequencies": list(self.frequencies),
+            "densities": list(self.densities),
+            "pdos": [],
+        }
+        if len(self.pdos) > 0:
+            for site in self.structure:
+                dct["pdos"].append(list(self.pdos[site]))
+        return dct
+
+    def __str__(self) -> str:
+        return f"Complete phonon DOS for {self.structure}"
