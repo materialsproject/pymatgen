@@ -2856,7 +2856,7 @@ class VaspInput(dict, MSONable):
                 dict of {filename: Object type}. Objects must have
                 from_file method.
         """
-        sub_dct = {}
+        sub_dct: dict[str, Any] = {}
         for fname, ftype in (
             ("INCAR", Incar),
             ("KPOINTS", Kpoints),

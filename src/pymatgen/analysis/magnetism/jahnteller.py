@@ -345,7 +345,7 @@ class JahnTellerAnalyzer:
 
         # taken from get_crystal_field_spin
         elec = species.element.full_electronic_structure
-        if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
+        if len(elec) < 4 or elec[-2][1] != "s" or elec[-1][1] != "d":
             raise AttributeError(f"Invalid element {species.symbol} for crystal field calculation.")
         n_electrons = int(elec[-1][2] + elec[-2][2] - species.oxi_state)  # type: ignore[operator]
         if n_electrons < 0 or n_electrons > 10:

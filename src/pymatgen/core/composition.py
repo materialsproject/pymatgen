@@ -487,7 +487,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         sorted alphabetically and joined by dashes, by convention for use
         in database keys.
         """
-        return "-".join(sorted(el.symbol for el in self.elements))
+        return "-".join(sorted(self.chemical_system_set))
 
     @property
     def num_atoms(self) -> float:
