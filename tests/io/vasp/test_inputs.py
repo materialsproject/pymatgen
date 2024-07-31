@@ -773,6 +773,7 @@ SIGMA = 0.1"""
                     "AMIN": 0.01,
                     "ICHARG": 1,
                     "MAGMOM": [1, 2, 4, 5],
+                    "LREAL": True,
                     "NBAND": 250,  # typo in tag
                     "METAGGA": "SCAM",  # typo in value
                     "EDIFF": 5 + 1j,  # value should be a float
@@ -783,7 +784,7 @@ SIGMA = 0.1"""
             )
             incar.check_params()
 
-        assert record[0].message.args[0] == "Cannot find NBAND in the list of INCAR tags"
+        assert record[0].message.args[0] == "Cannot find NBAND in the list of INCAR tags", record[0].message.args[0]
         assert record[1].message.args[0] == "METAGGA: Cannot find SCAM in the list of values"
         assert record[2].message.args[0] == "EDIFF: (5+1j) is not a float"
         assert record[3].message.args[0] == "ISIF: Cannot find 9 in the list of values"
