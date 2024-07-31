@@ -1874,7 +1874,7 @@ class IStructure(SiteCollection, MSONable):
                         redundant.append(jdx)
 
             # Delete the redundant neighbors
-            m = ~np.in1d(np.arange(len(bonds[0])), redundant)
+            m = ~np.isin(np.arange(len(bonds[0])), redundant)
             idcs_dist = np.argsort(bonds[3][m])
             bonds = (bonds[0][m][idcs_dist], bonds[1][m][idcs_dist], bonds[2][m][idcs_dist], bonds[3][m][idcs_dist])
 
