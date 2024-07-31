@@ -1,17 +1,14 @@
+"""Unit tests for StructureNL (SNL) format."""
+
 from __future__ import annotations
 
-import datetime
+from datetime import datetime, timedelta, timezone
 from unittest import TestCase
 
 import numpy as np
 import pytest
-
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.util.provenance import Author, HistoryNode, StructureNL
-
-"""
-Unit tests for StructureNL (SNL) format
-"""
 
 __author__ = "Anubhav Jain"
 __credits__ = "Shyue Ping Ong"
@@ -98,7 +95,7 @@ class StructureNLCase(TestCase):
 
         # An empty list should not work
         with pytest.raises(
-            ValueError,
+            TypeError,
             match="Invalid format for SNL reference! Should be empty string or BibTeX string.",
         ):
             StructureNL(self.struct, self.hulk, references=[])
@@ -155,7 +152,7 @@ class StructureNLCase(TestCase):
 
     def test_eq(self):
         # test basic Equal()
-        created_at = datetime.datetime.now()
+        created_at = datetime.now(tz=timezone.utc)
         struct_nl = StructureNL(
             self.struct,
             self.hulk,
@@ -179,7 +176,7 @@ class StructureNLCase(TestCase):
         assert struct_nl == struct_nl2
 
         # change the created at date, now they are no longer equal
-        created_at = datetime.datetime.now() + datetime.timedelta(days=-1)
+        created_at = datetime.now(tz=timezone.utc) + timedelta(days=-1)
         snl_new_date = StructureNL(
             self.struct,
             self.hulk,

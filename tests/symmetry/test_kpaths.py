@@ -4,7 +4,6 @@ import random
 
 import pytest
 from monty.serialization import loadfn
-
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.bandstructure import HighSymmKpath
@@ -14,6 +13,8 @@ try:
     from seekpath import get_path
 except ImportError:
     get_path = None
+
+TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
 
 class TestHighSymmKpath(PymatgenTest):
@@ -59,8 +60,8 @@ class TestHighSymmKpath(PymatgenTest):
             _ = kpath.get_kpoints()
 
     def test_continuous_kpath(self):
-        bs = loadfn(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure.json")
-        cont_bs = loadfn(f"{TEST_FILES_DIR}/Cu2O_361_bandstructure_continuous.json.gz")
+        bs = loadfn(f"{TEST_DIR}/Cu2O_361_bandstructure.json")
+        cont_bs = loadfn(f"{TEST_DIR}/Cu2O_361_bandstructure_continuous.json.gz")
         alt_bs = HighSymmKpath(bs.structure).get_continuous_path(bs)
 
         assert cont_bs.as_dict() == alt_bs.as_dict()

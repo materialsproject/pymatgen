@@ -3,14 +3,13 @@ from __future__ import annotations
 from unittest import TestCase
 
 import pytest
-
 from pymatgen.analysis.functional_groups import FunctionalGroupExtractor
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core.structure import Molecule
 from pymatgen.util.testing import TEST_FILES_DIR
 
-TEST_DIR = f"{TEST_FILES_DIR}/functional_groups"
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/functional_groups"
 
 pytest.importorskip("openbabel")
 pytest.importorskip("networkx")

@@ -1,0 +1,630 @@
+
+Running Job 1 of 2 VCGenSCFMan.in
+qchem VCGenSCFMan.in_23392.0 /tmp/qchem23392/ 1
+/usr/local/qchem/exe/qcprog.exe VCGenSCFMan.in_23392.0 /tmp/qchem23392/
+Check license passed
+
+                  Welcome to Q-Chem
+     A Quantum Leap Into The Future Of Chemistry
+
+
+ Q-Chem 4.4, Q-Chem, Inc., Pleasanton, CA (2016)
+
+ Y. Shao,  Z. Gan,  E. Epifanovsky,  A. T. B. Gilbert,  M. Wormit,  
+ J. Kussmann,  A. W. Lange,  A. Behn,  J. Deng,  X. Feng,  D. Ghosh,  
+ M. Goldey,  P. R. Horn,  L. D. Jacobson,  I. Kaliman,  F.Rob,  
+ R. Z. Khaliullin,  T. Kus,  A. Landau,  J. Liu,  E. I. Proynov,  Y. M. Rhee,  
+ R. M. Richard,  M. A. Rohrdanz,  R. P. Steele,  E. J. Sundstrom,  
+ H. L. Woodcock III,  P. M. Zimmerman,  D. Zuev,  B. Albrecht,  E. Alguire,  
+ B. Austin,  S. A. Baeppler,  G. J. O. Beran,  Y. A. Bernard,  E. Berquist,  
+ K. Brandhorst,  K. B. Bravaya,  S. T. Brown,  D. Casanova,  C.-M. Chang,  
+ Y. Chen,  S. H. Chien,  K. D. Closser,  M. P. Coons,  D. L. Crittenden,  
+ S. Dasgupta,  M. Diedenhofen,  R. A. DiStasio Jr.,  H. Do,  A. D. Dutoi,  
+ R. G. Edgar,  P.-T. Fang,  S. Fatehi,  Q. Feng,  L. Fusti-Molnar,  
+ A. Ghysels,  A. Golubeva-Zadorozhnaya,  J. Gomes,  A. Gunina,  
+ M. W. D. Hanson-Heine,  P. H. P. Harbach,  A. W. Hauser,  E. G. Hohenstein,  
+ Z. C. Holden,  K. Hui,  T.-C. Jagau,  H. Ji,  B. Kaduk,  K. Khistyaev,  
+ Jaehoon Kim,  Jihan Kim,  R. A. King,  P. Klunzinger,  D. Kosenkov,  
+ T. Kowalczyk,  C. M. Krauter,  A. Kunitsa,  K. U. Lao,  A. Laurent,  
+ K. V. Lawler,  D. Lefrancois,  S. Lehtola,  S. V. Levchenko,  C. Y. Lin,  
+ Y.-S. Lin,  F. Liu,  E. Livshits,  R. C. Lochan,  A. Luenser,  P. Manohar,  
+ S. F. Manzer,  S.-P. Mao,  Y. Mao,  N. Mardirossian,  A. V. Marenich,  
+ L. A. Martinez-Martinez,  S. A. Maurer,  N. J. Mayhall,  J.-M. Mewes,  
+ A. F. Morrison,  K. Nanda,  C. M. Oana,  R. Olivares-Amaya,  D. P. O'Neill,  
+ J. A. Parkhill,  T. M. Perrine,  R. Peverati,  P. A. Pieniazek,  F. Plasser,  
+ A. Prociuk,  D. R. Rehn,  E. Rosta,  N. J. Russ,  N. Sergueev,  
+ S. M. Sharada,  S. Sharma,  D. W. Small,  A. Sodt,  T. Stauch,  T. Stein,  
+ D. Stuck,  Y.-C. Su,  A. J. W. Thom,  T. Tsuchimochi,  L. Vogt,  O. Vydrov,  
+ T. Wang,  M. A. Watson,  J. Wenzel,  A. White,  C. F. Williams,  
+ V. Vanovschi,  S. Yeganeh,  S. R. Yost,  Z.-Q. You,  I. Y. Zhang,  X. Zhang,  
+ Y. Zhao,  B. R. Brooks,  G. K. L. Chan,  D. M. Chipman,  C. J. Cramer,  
+ W. A. Goddard III,  M. S. Gordon,  W. J. Hehre,  A. Klamt,  
+ H. F. Schaefer III,  M. W. Schmidt,  C. D. Sherrill,  D. G. Truhlar,  
+ A. Warshel,  X. Xu,  A. Aspuru-Guzik,  R. Baer,  A. T. Bell,  N. A. Besley,  
+ J.-D. Chai,  A. Dreuw,  B. D. Dunietz,  T. R. Furlani,  S. R. Gwaltney,  
+ C.-P. Hsu,  Y. Jung,  J. Kong,  D. S. Lambrecht,  W. Liang,  C. Ochsenfeld,  
+ V. A. Rassolov,  L. V. Slipchenko,  J. E. Subotnik,  T. Van Voorhis,  
+ J. M. Herbert,  A. I. Krylov,  P. M. W. Gill,  M. Head-Gordon
+
+ Contributors to earlier versions of Q-Chem not listed above: 
+ R. D. Adamson,  J. Baker,  E. F. C. Byrd,  A. K. Chakraborty,  C.-L. Cheng,  
+ H. Dachsel,  R. J. Doerksen,  G. Hawkins,  A. Heyden,  S. Hirata,  
+ G. Kedziora,  F. J. Keil,  C. Kelley,  P. P. Korambath,  W. Kurlancheek,  
+ A. M. Lee,  M. S. Lee,  D. Liotard,  I. Lotan,  P. E. Maslen,  N. Nair,  
+ D. Neuhauser,  R. Olson,  B. Peters,  J. Ritchie,  N. E. Schultz,  
+ N. Shenvi,  A. C. Simmonett,  K. S. Thanthiriwatte,  Q. Wu,  W. Zhang
+
+ Please cite Q-Chem as follows:
+ Y. Shao et al., Mol. Phys. 113, 184-215 (2015)
+ DOI: 10.1080/00268976.2014.952696
+
+ Q-Chem 4.4.1 for Mac (Intel) OS X
+
+ Parts of Q-Chem use Armadillo 5.200.1 (Boston Tea Smuggler).
+ http://arma.sourceforge.net/
+
+ Q-Chem begins on Mon Feb  5 10:37:17 2018  
+
+Host: 
+0
+
+     Scratch files written to /tmp/qchem23392//
+ Jul2716 11668_ 21447  21445 4730   
+Processing $rem in /usr/local/qchem/config/preferences.
+ MEM_TOTAL  2000 
+Symmetry turned off for PCM calculation
+
+Checking the input file for inconsistencies... 	...done.
+[HyperChem begin]
+[HyperChem end]
+[HyperChem begin]
+[HyperChem end]
+[HyperChem begin]
+[HyperChem end]
+[HyperChem begin]
+[HyperChem end]
+[HyperChem begin]
+[HyperChem end]
+[HyperChem begin]
+[HyperChem end]
+[HyperChem begin]
+[HyperChem end]
+[HyperChem begin]
+[HyperChem end]
+
+--------------------------------------------------------------
+User input:
+--------------------------------------------------------------
+$molecule
+0 2
+O    0.8010000    0.1690000   -0.0030000
+C    1.0790000   -1.1530000   -0.0060000
+C   -0.5330000    0.2830000    0.0020000
+O    2.2120000   -1.6520000   -0.0110000
+O   -0.0850000   -1.8400000   -0.0040000
+C   -1.0690000   -0.9320000    0.0010000
+Li    4.0510000   -2.4620000   -0.0180000
+H   -0.9340000    1.2920000    0.0050000
+H   -2.0840000   -1.3170000    0.0040000
+$end
+
+$rem
+BASIS  =  6-311++G**
+GUI  =  1
+SYM_IGNORE = true
+METHOD  =  wb97xd
+JOB_TYPE  =  Optimization
+SCF_CONVERGENCE = 6
+SOLVENT_METHOD  =  PCM
+MAX_SCF_CYCLES  =  300
+gen_scfman = True
+$end
+
+$pcm
+heavypoints   194
+hpoints   194
+radii   uff
+theory   cpcm
+vdwscale   1.1
+$end
+
+$solvent
+dielectric   10.0
+$end
+
+--------------------------------------------------------------
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      O       0.8010000000     0.1690000000    -0.0030000000
+    2      C       1.0790000000    -1.1530000000    -0.0060000000
+    3      C      -0.5330000000     0.2830000000     0.0020000000
+    4      O       2.2120000000    -1.6520000000    -0.0110000000
+    5      O      -0.0850000000    -1.8400000000    -0.0040000000
+    6      C      -1.0690000000    -0.9320000000     0.0010000000
+    7      Li      4.0510000000    -2.4620000000    -0.0180000000
+    8      H      -0.9340000000     1.2920000000     0.0050000000
+    9      H      -2.0840000000    -1.3170000000     0.0040000000
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =   250.3623131857 hartrees
+ There are       24 alpha and       23 beta electrons
+[HyperChem begin]
+[HyperChem end]
+[HyperChem begin]
+;Nuclear Cartesian coordinates in Angstroms
+[coordinates]
+      0.801000000000      0.169000000000     -0.003000000000
+      1.079000000000     -1.153000000000     -0.006000000000
+     -0.533000000000      0.283000000000      0.002000000000
+      2.212000000000     -1.652000000000     -0.011000000000
+     -0.085000000000     -1.840000000000     -0.004000000000
+     -1.069000000000     -0.932000000000      0.001000000000
+      4.051000000000     -2.462000000000     -0.018000000000
+     -0.934000000000      1.292000000000      0.005000000000
+     -2.084000000000     -1.317000000000      0.004000000000
+[HyperChem end]
+[HyperChem begin]
+[HyperChem end]
+ Requested basis set is 6-311++G(d,p)
+[HyperChem begin]
+[basis]
+;
+1:
+;
+Shells = 6
+Shell1 =[ S   6   1.00 ]
+   1    8.588500E+03    1.895150E-03
+   2    1.297230E+03    1.438590E-02
+   3    2.992960E+02    7.073200E-02
+   4    8.737710E+01    2.400010E-01
+   5    2.567890E+01    5.947970E-01
+   6    3.740040E+00    2.808020E-01
+Shell2 =[ SP  3   1.00 ]
+   1    4.211750E+01    1.138890E-01    3.651140E-02
+   2    9.628370E+00    9.208110E-01    2.371530E-01
+   3    2.853320E+00   -3.274470E-03    8.197020E-01
+Shell3 =[ SP  1   1.00 ]
+   1    9.056610E-01    1.000000E+00    1.000000E+00
+Shell4 =[ SP  1   1.00 ]
+   1    2.556110E-01    1.000000E+00    1.000000E+00
+Shell5 =[ SP  1   1.00 ]
+   1    8.450000E-02    1.000000E+00    1.000000E+00
+Shell6 =[ D   1   1.00 ]
+   1    1.292000E+00    1.000000E+00
+;
+2:
+;
+Shells = 6
+Shell1 =[ S   6   1.00 ]
+   1    4.563240E+03    1.966650E-03
+   2    6.820240E+02    1.523060E-02
+   3    1.549730E+02    7.612690E-02
+   4    4.445530E+01    2.608010E-01
+   5    1.302900E+01    6.164620E-01
+   6    1.827730E+00    2.210060E-01
+Shell2 =[ SP  3   1.00 ]
+   1    2.096420E+01    1.146600E-01    4.024870E-02
+   2    4.803310E+00    9.199990E-01    2.375940E-01
+   3    1.459330E+00   -3.030680E-03    8.158540E-01
+Shell3 =[ SP  1   1.00 ]
+   1    4.834560E-01    1.000000E+00    1.000000E+00
+Shell4 =[ SP  1   1.00 ]
+   1    1.455850E-01    1.000000E+00    1.000000E+00
+Shell5 =[ SP  1   1.00 ]
+   1    4.380000E-02    1.000000E+00    1.000000E+00
+Shell6 =[ D   1   1.00 ]
+   1    6.260000E-01    1.000000E+00
+;
+3:
+;
+Shells = 6
+Shell1 =[ S   6   1.00 ]
+   1    4.563240E+03    1.966650E-03
+   2    6.820240E+02    1.523060E-02
+   3    1.549730E+02    7.612690E-02
+   4    4.445530E+01    2.608010E-01
+   5    1.302900E+01    6.164620E-01
+   6    1.827730E+00    2.210060E-01
+Shell2 =[ SP  3   1.00 ]
+   1    2.096420E+01    1.146600E-01    4.024870E-02
+   2    4.803310E+00    9.199990E-01    2.375940E-01
+   3    1.459330E+00   -3.030680E-03    8.158540E-01
+Shell3 =[ SP  1   1.00 ]
+   1    4.834560E-01    1.000000E+00    1.000000E+00
+Shell4 =[ SP  1   1.00 ]
+   1    1.455850E-01    1.000000E+00    1.000000E+00
+Shell5 =[ SP  1   1.00 ]
+   1    4.380000E-02    1.000000E+00    1.000000E+00
+Shell6 =[ D   1   1.00 ]
+   1    6.260000E-01    1.000000E+00
+;
+4:
+;
+Shells = 6
+Shell1 =[ S   6   1.00 ]
+   1    8.588500E+03    1.895150E-03
+   2    1.297230E+03    1.438590E-02
+   3    2.992960E+02    7.073200E-02
+   4    8.737710E+01    2.400010E-01
+   5    2.567890E+01    5.947970E-01
+   6    3.740040E+00    2.808020E-01
+Shell2 =[ SP  3   1.00 ]
+   1    4.211750E+01    1.138890E-01    3.651140E-02
+   2    9.628370E+00    9.208110E-01    2.371530E-01
+   3    2.853320E+00   -3.274470E-03    8.197020E-01
+Shell3 =[ SP  1   1.00 ]
+   1    9.056610E-01    1.000000E+00    1.000000E+00
+Shell4 =[ SP  1   1.00 ]
+   1    2.556110E-01    1.000000E+00    1.000000E+00
+Shell5 =[ SP  1   1.00 ]
+   1    8.450000E-02    1.000000E+00    1.000000E+00
+Shell6 =[ D   1   1.00 ]
+   1    1.292000E+00    1.000000E+00
+;
+5:
+;
+Shells = 6
+Shell1 =[ S   6   1.00 ]
+   1    8.588500E+03    1.895150E-03
+   2    1.297230E+03    1.438590E-02
+   3    2.992960E+02    7.073200E-02
+   4    8.737710E+01    2.400010E-01
+   5    2.567890E+01    5.947970E-01
+   6    3.740040E+00    2.808020E-01
+Shell2 =[ SP  3   1.00 ]
+   1    4.211750E+01    1.138890E-01    3.651140E-02
+   2    9.628370E+00    9.208110E-01    2.371530E-01
+   3    2.853320E+00   -3.274470E-03    8.197020E-01
+Shell3 =[ SP  1   1.00 ]
+   1    9.056610E-01    1.000000E+00    1.000000E+00
+Shell4 =[ SP  1   1.00 ]
+   1    2.556110E-01    1.000000E+00    1.000000E+00
+Shell5 =[ SP  1   1.00 ]
+   1    8.450000E-02    1.000000E+00    1.000000E+00
+Shell6 =[ D   1   1.00 ]
+   1    1.292000E+00    1.000000E+00
+;
+6:
+;
+Shells = 6
+Shell1 =[ S   6   1.00 ]
+   1    4.563240E+03    1.966650E-03
+   2    6.820240E+02    1.523060E-02
+   3    1.549730E+02    7.612690E-02
+   4    4.445530E+01    2.608010E-01
+   5    1.302900E+01    6.164620E-01
+   6    1.827730E+00    2.210060E-01
+Shell2 =[ SP  3   1.00 ]
+   1    2.096420E+01    1.146600E-01    4.024870E-02
+   2    4.803310E+00    9.199990E-01    2.375940E-01
+   3    1.459330E+00   -3.030680E-03    8.158540E-01
+Shell3 =[ SP  1   1.00 ]
+   1    4.834560E-01    1.000000E+00    1.000000E+00
+Shell4 =[ SP  1   1.00 ]
+   1    1.455850E-01    1.000000E+00    1.000000E+00
+Shell5 =[ SP  1   1.00 ]
+   1    4.380000E-02    1.000000E+00    1.000000E+00
+Shell6 =[ D   1   1.00 ]
+   1    6.260000E-01    1.000000E+00
+;
+7:
+;
+Shells = 6
+Shell1 =[ S   6   1.00 ]
+   1    9.004600E+02    2.287040E-03
+   2    1.344330E+02    1.763500E-02
+   3    3.043650E+01    8.734340E-02
+   4    8.626390E+00    2.809770E-01
+   5    2.483320E+00    6.587410E-01
+   6    3.031790E-01    1.187120E-01
+Shell2 =[ SP  3   1.00 ]
+   1    4.868900E+00    9.332930E-02    3.276610E-02
+   2    8.569240E-01    9.430450E-01    1.597920E-01
+   3    2.432270E-01   -2.798270E-03    8.856670E-01
+Shell3 =[ SP  1   1.00 ]
+   1    6.350700E-02    1.000000E+00    1.000000E+00
+Shell4 =[ SP  1   1.00 ]
+   1    2.436830E-02    1.000000E+00    1.000000E+00
+Shell5 =[ SP  1   1.00 ]
+   1    7.400000E-03    1.000000E+00    1.000000E+00
+Shell6 =[ D   1   1.00 ]
+   1    2.000000E-01    1.000000E+00
+;
+8:
+;
+Shells = 5
+Shell1 =[ S   3   1.00 ]
+   1    3.386500E+01    2.549380E-02
+   2    5.094790E+00    1.903730E-01
+   3    1.158790E+00    8.521610E-01
+Shell2 =[ S   1   1.00 ]
+   1    3.258400E-01    1.000000E+00
+Shell3 =[ S   1   1.00 ]
+   1    1.027410E-01    1.000000E+00
+Shell4 =[ S   1   1.00 ]
+   1    3.600000E-02    1.000000E+00
+Shell5 =[ P   1   1.00 ]
+   1    7.500000E-01    1.000000E+00
+;
+9:
+;
+Shells = 5
+Shell1 =[ S   3   1.00 ]
+   1    3.386500E+01    2.549380E-02
+   2    5.094790E+00    1.903730E-01
+   3    1.158790E+00    8.521610E-01
+Shell2 =[ S   1   1.00 ]
+   1    3.258400E-01    1.000000E+00
+Shell3 =[ S   1   1.00 ]
+   1    1.027410E-01    1.000000E+00
+Shell4 =[ S   1   1.00 ]
+   1    3.600000E-02    1.000000E+00
+Shell5 =[ P   1   1.00 ]
+   1    7.500000E-01    1.000000E+00
+[HyperChem end]
+ There are 52 shells and 168 basis functions
+
+ Total QAlloc Memory Limit   2000 MB
+ Mega-Array Size        61 MB
+ MEM_STATIC part        62 MB
+Discretize the solute cavity surface with Lebedev spheres
+	Using 194 Lebedev grid points for each H atom
+	Using 194 Lebedev grid points for other atoms
+	Atomic van der Waals radii will be scaled by 1.10
+ Serial switch compute.
+ Remove points where switching function is < 1.0e-08
+ Keep 908 surface tesserae and discard 838 interior tesserae
+ Molecular Surface Area = 130.417 Angst**2
+ A cutoff of  1.0D-09 yielded   1282 shell pairs
+ There are     13861 function pairs (     15064 Cartesian)
+ 
+ -------------------------------------------------------
+ OpenMP Integral Computing Module                       
+ Release: version 1.0, May 2013, Q-Chem Inc. Pittsburgh 
+ -------------------------------------------------------
+ Integral Job Info:
+ Integral job number is                      11
+ Integral operator is                         1
+ short-range coefficients              22203600
+ long-range coefficients              100000000
+ Omega coefficients                         200
+ if combine SR and LR in K                    1
+ Integral screening is                        0
+ Integral computing path is                   2
+ max size of driver memory is            800000
+ size of driver memory is                593474
+ size of scratch memory is              2260544
+ max col of scratch BK array               1296
+ max len of scratch array in speh3          155
+ max len of scratch index in speh4           18
+ max int batch size is                      520
+ min int batch size is                       52
+ fixed nKL is                                52
+ max L of basis functions is                  2
+ order of int derivative is                   0
+ number of shells is                         52
+ number of basis is                         175
+ number of cartesian basis is               175
+ number of contracted shell pairs          1282
+ number of primitive shell pairs           3663
+ maxK2 (contraction) of shell pair           36
+ max number of K2 of shell pair               1
+ max number of CS2 of shell pair            235
+ max number of PS2 of shell pair            864
+ mem total for path MDJ                   38610
+ -------------------------------------------------------
+ Smallest overlap matrix eigenvalue = 2.97E-05
+
+ Q-Chem warning in module /scratch/svnadmin/11668_zgan/qchem/stvman/mkSTV.C, line 257:
+
+ Overlap eigenvalue is smaller than square root of threshold
+
+
+ Scale SEOQF with 1.000000e-02/1.000000e-02/1.000000e-02
+
+ Standard Electronic Orientation quadrupole field applied
+ Nucleus-field energy     =     0.0000000010 hartrees
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+    ==================================================
+              Start of Object-Oriented SCFman         
+               Written by Eric Jon Sundstrom          
+                        2008-2012                     
+    ==================================================
+Running Object-Oriented UKS
+This be the guess = 2000
+Obtaining Guess
+performing a single roothaan step with Fock from read density so that orbitals are available to all algorithms
+ K construction time:  CPU 2.66 s  wall 2.73 s
+energy of the guess density (C=0) -350.289770348854
+performing fock build in obtain guess so that inital energy evaluation is possible
+ K construction time:  CPU 2.78 s  wall 2.91 s
+Energy after obtain guess = -348.494520612679
+Begin Timing: normal SCF calculation
+ K construction time:  CPU 2.57 s  wall 2.59 s
+    1    -348.4945206127      3.73e-03     00000 
+ K construction time:  CPU 2.56 s  wall 2.56 s
+    2    -348.3723979064      5.40e-03     00000 
+ K construction time:  CPU 2.55 s  wall 2.56 s
+    3    -348.6486943702      5.72e-04     00000 
+ K construction time:  CPU 2.59 s  wall 2.61 s
+    4    -348.6515850202      2.89e-04     00000 
+ K construction time:  CPU 2.60 s  wall 2.63 s
+    5    -348.6525928222      4.80e-05     00000 
+ K construction time:  CPU 2.80 s  wall 2.91 s
+    6    -348.6527399313      2.36e-05     00000 
+ K construction time:  CPU 2.62 s  wall 2.67 s
+    7    -348.6527882880      1.23e-05     00000 
+ K construction time:  CPU 2.61 s  wall 2.65 s
+    8    -348.6528109069      4.03e-06     00000 
+ K construction time:  CPU 2.61 s  wall 2.64 s
+    9    -348.6528137287      2.49e-06     00000 
+ K construction time:  CPU 2.53 s  wall 2.54 s
+   10    -348.6528143405      1.65e-06     00000 
+ K construction time:  CPU 2.47 s  wall 2.48 s
+   11    -348.6528147204      1.58e-06     00000 
+ K construction time:  CPU 2.54 s  wall 2.57 s
+   12    -348.6528148203      1.37e-06     00000 
+ K construction time:  CPU 2.74 s  wall 2.78 s
+   13    -348.6528149128      1.02e-06     00000 
+<S^2> =      7.501978901e-01
+   14    -348.6528149529      6.21e-07     00000 Convergence criterion met
+Timing the normal SCF step: 58.00s (wall), 58.01s (cpu)
+Wall 1 = 67
+Clock 1 = 66.99
+    ==================================================
+             The end of Object-Oriented SCFman        
+    ==================================================
+ 
+ --------------------------------------------------------------
+ 
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+ 
+ Alpha MOs
+ -- Occupied --
+-19.396 -19.396 -19.303 -10.540 -10.409 -10.408  -2.079  -1.371
+ -1.252  -1.200  -0.941  -0.833  -0.804  -0.702  -0.678  -0.630
+ -0.619  -0.564  -0.556  -0.549  -0.513  -0.455  -0.379  -0.142
+ -- Virtual --
+  0.008   0.016   0.017   0.026   0.029   0.031   0.034   0.042
+  0.056   0.057   0.059   0.087   0.087   0.103   0.109   0.131
+  0.134   0.138   0.148   0.150   0.159   0.168   0.168   0.171
+  0.188   0.189   0.197   0.218   0.247   0.259   0.292   0.300
+  0.303   0.307   0.309   0.343   0.347   0.358   0.360   0.367
+  0.386   0.411   0.416   0.450   0.462   0.504   0.505   0.543
+  0.555   0.559   0.565   0.570   0.584   0.603   0.607   0.622
+  0.665   0.711   0.721   0.736   0.767   0.812   0.824   0.845
+  0.878   0.899   0.934   0.966   1.037   1.042   1.076   1.087
+  1.169   1.175   1.196   1.206   1.224   1.233   1.294   1.308
+  1.329   1.378   1.452   1.489   1.524   1.641   1.704   1.746
+  1.755   1.762   1.776   1.785   1.810   1.884   1.907   1.973
+  2.092   2.149   2.169   2.435   2.552   2.571   2.686   2.738
+  2.742   2.764   2.817   2.846   2.894   2.968   3.043   3.109
+  3.145   3.147   3.157   3.208   3.270   3.376   3.417   3.437
+  3.561   3.616   3.655   3.895   4.003   4.009   4.094   4.224
+  4.226   4.994   4.998   5.096   5.199   5.327   5.524   5.568
+  5.936   6.017  23.785  23.827  24.343  49.889  49.996  50.089
+ 
+ Beta MOs
+ -- Occupied --
+-19.396 -19.396 -19.303 -10.540 -10.409 -10.408  -2.075  -1.371
+ -1.252  -1.200  -0.941  -0.833  -0.804  -0.702  -0.678  -0.630
+ -0.618  -0.564  -0.556  -0.550  -0.513  -0.455  -0.378
+ -- Virtual --
+  0.017   0.028   0.031   0.039   0.048   0.052   0.060   0.067
+  0.080   0.093   0.101   0.116   0.136   0.139   0.141   0.148
+  0.151   0.171   0.188   0.192   0.205   0.217   0.218   0.233
+  0.249   0.260   0.263   0.276   0.277   0.283   0.294   0.306
+  0.313   0.326   0.333   0.362   0.372   0.387   0.388   0.423
+  0.424   0.434   0.443   0.459   0.486   0.503   0.543   0.559
+  0.573   0.593   0.608   0.611   0.642   0.681   0.681   0.716
+  0.720   0.739   0.769   0.778   0.800   0.813   0.849   0.849
+  0.874   0.943   0.967   0.971   0.989   1.053   1.077   1.089
+  1.094   1.170   1.185   1.202   1.210   1.224   1.239   1.295
+  1.321   1.330   1.387   1.452   1.510   1.547   1.649   1.705
+  1.747   1.755   1.766   1.776   1.786   1.816   1.885   1.908
+  1.975   2.092   2.149   2.169   2.435   2.553   2.572   2.686
+  2.739   2.743   2.765   2.817   2.846   2.894   2.969   3.043
+  3.109   3.145   3.147   3.158   3.209   3.271   3.377   3.418
+  3.437   3.563   3.618   3.655   3.906   4.004   4.009   4.095
+  4.225   4.228   4.994   4.998   5.097   5.201   5.327   5.524
+  5.568   5.938   6.017  23.785  23.828  24.343  49.889  49.996
+ 50.090
+ --------------------------------------------------------------
+ 
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)    Spin (a.u.)
+  --------------------------------------------------------
+      1 O                    -0.012587      -0.008776
+      2 C                     0.240556      -0.010176
+      3 C                    -0.126233       0.003875
+      4 O                    -0.313226      -0.064260
+      5 O                    -0.012943      -0.008744
+      6 C                    -0.125908       0.003834
+      7 Li                   -0.137749       1.082524
+      8 H                     0.243901       0.000866
+      9 H                     0.244190       0.000856
+  --------------------------------------------------------
+  Sum of atomic charges =     0.000000
+  Sum of spin   charges =     1.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                 0.0000
+    Dipole Moment (Debye)
+         X      -9.8371      Y       4.3325      Z       0.0423
+       Tot      10.7490
+    Quadrupole Moments (Debye-Ang)
+        XX     -82.6253     XY      24.4675     YY     -55.8981
+        XZ       0.1823     YZ      -0.1088     ZZ     -43.5920
+    Octopole Moments (Debye-Ang^2)
+       XXX    -412.1112    XXY     176.7673    XYY    -137.3617
+       YYY     216.2433    XXZ       1.3465    XYZ      -0.5624
+       YYZ       0.6807    XZZ     -58.9641    YZZ      55.5074
+       ZZZ       0.9568
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX   -2848.7956   XXXY    1109.9118   XXYY    -791.9600
+      XYYY     674.0487   YYYY    -987.1076   XXXZ       8.5376
+      XXYZ      -3.6347   XYYZ       2.8281   YYYZ      -3.2700
+      XXZZ    -311.6710   XYZZ     152.8693   YYZZ    -160.2260
+      XZZZ       3.6306   YZZZ      -2.2807   ZZZZ    -106.6723
+ -----------------------------------------------------------------
+[HyperChem begin]
+;Total dipole moment in Debye
+[dipole-moment]
+     10.749011897614
+;Dipole moment components in Debye
+[dipole-moment-components]
+     -9.837121809699      4.332493938683      0.042279397524
+[HyperChem end]
+[HyperChem begin]
+[HyperChem end]
+[HyperChem begin]
+[HyperChem end]
+[HyperChem begin]
+[HyperChem end]
+ Calculating analytic gradient of the SCF energy
+ Gradient of AOints
+            1           2           3           4           5           6
+    1  -8.0272929  -0.4202660   5.3924052 -21.1040052   6.8867131  12.3706727
+    2 -16.6759480   0.2044202 -11.8119016   9.2957674  17.1689678   3.9785855
+    3  -0.0019420  -0.0103658  -0.0460300   0.0931843   0.0163601  -0.0291409
+            7           8           9
+    1  -2.6963053   2.2127627   5.3853156
+    2   1.1868020  -5.2739841   1.9272908
+    3   0.0100532  -0.0156025  -0.0165163
+ K construction time:  CPU 9.53 s  wall 9.70 s
+ Gradient of SCF Energy
+            1           2           3           4           5           6
+    1  -0.0314110  -0.0527100   0.0335868   0.0567431  -0.0362523   0.0328572
+    2   0.0199101   0.0238533  -0.0157593  -0.0251900   0.0098081  -0.0141592
+    3   0.0000479   0.0004155  -0.0000732  -0.0003125   0.0000789  -0.0002196
+            7           8           9
+    1   0.0032398  -0.0000443  -0.0060093
+    2  -0.0013618   0.0083131  -0.0054143
+    3  -0.0000088   0.0000197   0.0000521
+ Max gradient component =       5.674E-02
+ RMS gradient           =       2.177E-02
+ Computing fast CPCM-SWIG gradient.
+
+ Q-Chem fatal error occurred in module /scratch/svnadmin/11668_zgan/qchem/libmdc/newfileman.C, line 293:
+
+ Error reading in TMP file 863/0 (4)
+
+
+Running Job 2 of 2 VCGenSCFMan.in
+qchem VCGenSCFMan.in_23392.1 /tmp/qchem23392/ 1
+/usr/local/qchem/exe/qcprog.exe VCGenSCFMan.in_23392.1 /tmp/qchem23392/
+Check license passed
+
+
+ Q-Chem fatal error occurred in module main.C, line 134:
+
+  Error in Progman: No input file
+
+

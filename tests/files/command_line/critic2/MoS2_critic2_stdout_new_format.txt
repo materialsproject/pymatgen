@@ -1,0 +1,503 @@
+                  _   _     _          ___     
+                 (_) | |   (_)        |__ \    
+     ___   _ __   _  | |_   _    ___     ) |   
+    / __| | '__| | | | __| | |  / __|   / /    
+   | (__  | |    | | | |_  | | | (__   / /_    
+    \___| |_|    |_|  \__| |_|  \___| |____|   
+
+* CRITIC2: analysis of real-space scalar fields in solids and molecules.
+  (c) 1996-2019 A. Otero-de-la-Roza, A. Martin-Pendas, V. Lua~na
+  Distributed under GNU GPL v.3 (see COPYING for details)
+  Bugs, requests, and rants: aoterodelaroza@gmail.com
+  Website: https://aoterodelaroza.github.io/critic2/
+  If you find this software useful, please cite:
+  A. Otero-de-la-Roza et al., Comput. Phys. Commun. 185 (2014) 1007-1018.
+  A. Otero-de-la-Roza et al., Comput. Phys. Commun. 180 (2009) 157-166.
+
++ critic2 (development), commit e825969
+ compile host: Darwin bismuth.dhcp.lbl.gov 18.7.0 Darwin Kernel Version 18.7.0: Tue Aug 20 16:57:14 PDT 2019; root:xnu-4903.271.2~2/RELEASE_X86_64 x86_64
+ compile date: Thu Nov 14 12:44:56 PST 2019
+    using f77: gfortran -g -O2
+          f90: gfortran -g -O2 -ffree-form -ffree-line-length-none -fopenmp
+            c: gcc -g -O2 -Iqhull/
+      ldflags:
+       debug?: no
+ compiled dat: /usr/local/share/critic2
+      datadir: /usr/local/share/critic2
+     dic file: /usr/local/share/critic2/cif/cif_core.dic
+...was found?: T
+       spglib: 1.13.0
+        libxc: <unavailable>
+
+CRITIC2--2019/11/14, 16:34:45.095
+
+%% crystal POSCAR
+
+* Crystal structure
+  From: POSCAR
+  Lattice parameters (bohr): 6.028824  6.028822  32.955883
+  Lattice parameters (ang): 3.190316  3.190315  17.439502
+  Lattice angles (degrees): 90.000  90.000  120.000
+  Empirical formula:
+    Mo(1) S(2)
+  Number of non-equivalent atoms in the unit cell: 2
+  Number of atoms in the unit cell: 3
+  Number of atomic species: 2
+  Number of electrons (with zero atomic charge): 74
+
++ List of atomic species:
+# spc = atomic species. Z = atomic number. name = atomic name (symbol).
+# Q = charge. ZPSP = pseudopotential charge.
+# spc  Z   name    Q   ZPSP
+   1  42    Mo     0.0  --
+   2  16     S     0.0  --
+
++ List of non-equivalent atoms in the unit cell (cryst. coords.):
+# at = complete list atomic ID. xyz = Cartesian coordinates. spc = atomic species.
+# wyck = wyckoff position. name = atomic name (symbol). mult = multiplicity.
+# Z = atomic number.
+# nat       x              y              z        spc wyck  name   mult  Z
+   1   0.3333330000   0.6666670000   0.2132950000   1    1b   Mo     1   42
+   2   0.6666670000   0.3333330000   0.3030270000   2    2h    S     2   16
+
++ List of atoms in the unit cell (cryst. coords.):
+# at = complete list atomic ID. xyz = Cartesian coordinates. spc = atomic species.
+# name = atomic name (symbol). Z = atomic number.
+# at        x              y              z        spc  name    Z
+   1   0.3333330000   0.6666670000   0.2132950000   1    Mo    42
+   2   0.6666670000   0.3333330000   0.3030270000   2     S    16
+   3   0.6666670000   0.3333330000   0.1235620000   2     S    16
+
++ Lattice vectors (bohr)
+    a:    6.0288235174     0.0000000000     0.0000000000
+    b:   -3.0144117587     5.2211129942     0.0000000000
+    c:    0.0000000000     0.0000000000    32.9558826739
+
++ List of atoms in Cartesian coordinates (bohr):
+# at = complete list atomic ID. xyz = Cartesian coordinates. spc = atomic species.
+# name = atomic name (symbol). Z = atomic number. dnn = nearest-neighbor distance.
+# at         x                y                z         spc  name    Z     dnn
+   1    -0.0000030144     3.4807437365     7.0293249949   1    Mo    42    4.5673
+   2     3.0144147731     1.7403692577     9.9865222590   2     S    16    4.5673
+   3     3.0144147731     1.7403692577     4.0720947750   2     S    16    4.5673
+
++ Cell volume (bohr^3): 1037.35788
++ Cell volume (ang^3): 153.72058
+
++ List of symmetry operations (12):
+  Operation 1:
+     1.000000  0.000000  0.000000  0.000000
+     0.000000  1.000000  0.000000  0.000000
+     0.000000  0.000000  1.000000  0.000000
+  Operation 2:
+    -1.000000  1.000000  0.000000  0.999999
+    -1.000000  0.000000  0.000000  0.000000
+     0.000000  0.000000 -1.000000  0.426590
+  Operation 3:
+     0.000000 -1.000000  0.000000  0.000000
+     1.000000 -1.000000  0.000000  0.000001
+     0.000000  0.000000  1.000000  0.000000
+  Operation 4:
+     1.000000  0.000000  0.000000  0.000000
+     0.000000  1.000000  0.000000  0.000000
+     0.000000  0.000000 -1.000000  0.426590
+  Operation 5:
+    -1.000000  1.000000  0.000000  0.999999
+    -1.000000  0.000000  0.000000  0.000000
+     0.000000  0.000000  1.000000  0.000000
+  Operation 6:
+     0.000000 -1.000000  0.000000  0.000000
+     1.000000 -1.000000  0.000000  0.000001
+     0.000000  0.000000 -1.000000  0.426590
+  Operation 7:
+     0.000000 -1.000000  0.000000 -0.000000
+    -1.000000  0.000000  0.000000 -0.000000
+     0.000000  0.000000 -1.000000  0.426590
+  Operation 8:
+     1.000000  0.000000  0.000000  0.000000
+     1.000000 -1.000000  0.000000  0.000001
+     0.000000  0.000000  1.000000  0.000000
+  Operation 9:
+    -1.000000  1.000000  0.000000  0.999999
+     0.000000  1.000000  0.000000  0.000000
+     0.000000  0.000000 -1.000000  0.426590
+  Operation 10:
+     0.000000 -1.000000  0.000000  0.000000
+    -1.000000  0.000000  0.000000 -0.000000
+     0.000000  0.000000  1.000000  0.000000
+  Operation 11:
+     1.000000  0.000000  0.000000  0.000000
+     1.000000 -1.000000  0.000000  0.000001
+     0.000000  0.000000 -1.000000  0.426590
+  Operation 12:
+    -1.000000  1.000000  0.000000  0.999999
+     0.000000  1.000000  0.000000  0.000000
+     0.000000  0.000000  1.000000 -0.000000
+
++ List of symmetry operations in crystallographic notation:
+   1: x,y,z
+   2: -x+y,-x,-7/12-z
+   3: -y,x-y,z
+   4: x,y,-7/12-z
+   5: -x+y,-x,z
+   6: -y,x-y,-7/12-z
+   7: -y,-x,-7/12-z
+   8: x,x-y,z
+   9: -x+y,y,-7/12-z
+   10: -y,-x,z
+   11: x,x-y,-7/12-z
+   12: -x+y,y,z
+
++ List of centering vectors (1):
+  Vector 1: 0.000000  0.000000  0.000000
+
++ Crystal symmetry information
+  Space group (Hermann-Mauguin): P-6m2 (number 187)
+  Point group (Hermann-Mauguin): -6m2
+  Point group (Schoenflies): D3h
+  Holohedry: hexagonal
+  Laue class: 6/mmm
+
++ Cartesian/crystallographic coordinate transformation matrices:
+  A = car to crys (xcrys = A * xcar, bohr^-1)
+       0.1658698413     0.0957650219    -0.0000000000
+       0.0000000000     0.1915300437     0.0000000000
+       0.0000000000    -0.0000000000     0.0303435963
+  B = crys to car (xcar = B * xcrys, bohr)
+       6.0288235174    -3.0144117587     0.0000000000
+       0.0000000000     5.2211129942     0.0000000000
+       0.0000000000     0.0000000000    32.9558826739
+  G = metric tensor (B'*B, bohr^2)
+      36.3467130035   -18.1733565018     0.0000000000
+     -18.1733565018    36.3466991490     0.0000000000
+       0.0000000000     0.0000000000  1086.0902028166
+
++ List of fragments in the system (1)
+# Id = fragment ID. nat = number of atoms in fragment. C-o-m = center of mass (bohr).
+# Discrete = is this fragment finite?
+# Id  nat           Center of mass            Discrete
+  1    3      0.066242    0.533121    0.213295   No
+
++ This is a 2D periodic (layered) structure.
+  Vacuum lattice vectors: (0 0 1)
+  Connected lattice vectors: (-1 1 0), (1 1 0)
+
++ Atomic environment
+  Number of atoms (reduced cell/environment): 3 / 1200
+  Radius of (unit cell/environment) circumscribed sphere (bohr): 17.2853 / 73.3606
+  Maximum interaction distance (bohr): 29.1564
+  Covering regions:
+    Total number of regions: 448 (8 8 7)
+    Minimum region ID: -4 -4 -4
+    Maximum region ID: 3 3 2
+    Region side (bohr): 11.6407
+    Transformation origin (bohr): -0.0000,-5.2211,-16.4779
+    Search offsets: 3375
+    Maximum search offset: 7
+    Average number of atoms per region: 2.6786
+    Maximum number of atoms in a region: 10
+
++ Vertex of the WS cell in cryst. coords. (12)
+# id = vertex ID. xyz = vertex cryst. coords. d = vertex distance to origin (bohr).
+   id       x            y            z          d (bohr)
+    1   -0.333333     0.333333     0.500000    16.84155927
+    2   -0.666667    -0.333333     0.500000    16.84155927
+    3   -0.333333     0.333333    -0.500000    16.84155927
+    4   -0.666667    -0.333333    -0.500000    16.84155927
+    5    0.333333     0.666667    -0.500000    16.84155927
+    6    0.666667     0.333333    -0.500000    16.84155927
+    7    0.333333     0.666667     0.500000    16.84155927
+    8    0.666667     0.333333     0.500000    16.84155927
+    9   -0.333333    -0.666667     0.500000    16.84155927
+   10   -0.333333    -0.666667    -0.500000    16.84155927
+   11    0.333333    -0.333333    -0.500000    16.84155927
+   12    0.333333    -0.333333     0.500000    16.84155927
+
++ Faces of the WS cell (8)
+# Face ID: vertexID1 vertexID2 ...
+   1: 1  7  8  12 9  2
+   2: 1  7  5  3
+   3: 1  3  4  2
+   4: 3  4  10 11 6  5
+   5: 2  4  10 9
+   6: 5  7  8  6
+   7: 8  12 11 6
+   8: 12 11 10 9
+
++ Lattice vectors for the Wigner-Seitz neighbors
+# FaceID: Voronoi lattice vector (cryst. coords.)
+   1:  0  0  1
+   2:  0  1  0
+   3: -1  0  0
+   4:  0  0 -1
+   5: -1 -1  0
+   6:  1  1  0
+   7:  1  0  0
+   8:  0 -1  0
+
++ Lattice vectors for the Delaunay reduced cell (cryst. coords.)
+  a:  0 -1  0
+  b: -1 -1  0
+  c:  0  0 -1
+  Delaunay reduced cell lengths: 6.028822 6.028822 32.955883
+  Delaunay reduced cell angles: 90.000 90.000 60.000
+
++ Is the cell orthogonal? F
++ Is the reduced cell orthogonal? F
+
+* List of scalar fields
++ Field number 0
+  Name: <promolecular>
+  Source: <generated>
+  Type: promolecular
+  Atoms in the environment: 1200
+  Use core densities? F
+  Numerical derivatives? F
+  Nuclear CP signature: -3
+  Number of non-equivalent critical points: 2
+  Number of critical points in the unit cell: 3
+  Alias for this field (2): $0, $rho0
+  This is the REFERENCE field.
+
+* List of integrable properties (3)
+#  Id  Type  Field  Name
+    1   v        0  Volume
+    2  fval      0  Pop
+    3  lval      0  Lap
+
+* List of additional properties at critical points (0)
+
+* List of core and pseudopotential charges for each field
+# id  type   core?  ZPSP
+  0  promol   no
+
+%% auto CPEPS 0.1 SEED WS SEED PAIR DIST 10
+
+Start AUTO--2019/11/14, 16:34:45.146
+
+* Automatic determination of CPs
+  Discard new CPs if another CP was found at a distance less than: 1.000E-01 bohr
+  Discard new CPs if a nucleus was found at a distance less than: 1.000E-01 bohr
+  Discard new CPs if a hydrogen was found at a distance less than: 2.000E-01 bohr
+  CPs are degenerate if any Hessian element abs value is less than: 1.000E-08
+  Discard CPs if grad(f) is above: 1.000E-12
++ List of seeding actions
+  Id nseed     Type           Description
+  1 900     WS recursive    depth=1, x0=0.0000  0.0000  0.0000, no radius
+  2 6       Atom pairs      dist=10.0000, npts=1
++ Number of seeds before pruning and clipping: 906
++ Number of seeds: 906
++ Searching for CPs
+  CP localization progress:
+  [1/906]
+  [37/906]
+  [73/906]
+  [109/906]
+  [145/906]
+  [181/906]
+  [217/906]
+  [253/906]
+  [289/906]
+  [325/906]
+  [361/906]
+  [397/906]
+  [433/906]
+  [469/906]
+  [505/906]
+  [541/906]
+  [577/906]
+  [613/906]
+  [649/906]
+  [685/906]
+  [721/906]
+  [757/906]
+  [793/906]
+  [829/906]
+  [865/906]
+  [901/906]
++ Sorting the CPs
+
+* Critical point list, final report (non-equivalent cps)
+  Topological class (n|b|r|c): 2(3) 1(6) 2(4) 1(1)
+  Morse sum: 0
+# ncp   pg  type   CPname         position (cryst. coords.)
+
+       mult  name            f             |grad|           lap
+  1    D3h (3,-3) nucleus   0.33333300   0.66666700   0.21329500    1     Mo      9.38480413E+04  0.00000000E+00 -7.77982334E+12
+  2    C3v (3,-3) nucleus   0.66666700   0.33333300   0.30302700    2     S       2.88969401E+03  0.00000000E+00 -4.93993112E+09
+  3    Cs  (3,-1)   bond    0.50465565   0.49534435   0.16819324    6     b1      7.08836736E-02  5.58296428E-16  1.82415234E-01
+  4    C2v (3,1 )   ring    0.68479458   0.31520584   0.21329445    3     r2      3.29779365E-02  7.03233002E-17  6.47395690E-02
+  5    D3h (3,1 )   ring    0.99999970   0.00000016   0.21329545    1     r1      1.80954412E-02  4.90480648E-17  2.64018791E-02
+  6    D3h (3,3 )   cage    0.66666252   0.33333884   0.21329445    1     c1      3.29682205E-02  1.19695717E-16  6.46554509E-02
+
+* Analysis of system bonds
+# ncp is the bond from the non-equivalent CP list.
+# End-1 and End-2 are the bond path terminator from the non-equivalent
+#   CP list (index in parentheses).
+# r1 and r2 are the geometric distances between bond and terminators.
+# r1-B-r2 is the geometric angle between bond and terminators (angle).
+# p1 and p2 are the bond path lengths.
+# ncp  End-1    End-2   r1(bohr) r2(bohr)  r1/r2  r1-B-r2  p1(bohr) p2(bohr)
+  3    S (2)    Mo (1)   2.2417   2.3259   0.9638  178.72   2.2418   2.3259
+
+* Analysis of system rings
+# ncp is the ring from the non-equivalent CP list.
+# End-1 and End-2 are the ring path terminator from the non-equivalent
+#   CP list (index in parentheses).
+# r1 and r2 are the geometric distances between ring and terminators.
+# r1-B-r2 is the geometric angle between bond and terminators (angle).
+# p1 and p2 are the ring path lengths.
+# ncp  End-1    End-2   r1(bohr) r2(bohr)  r1/r2  r1-B-r2  p1(bohr) p2(bohr)
+  4    c1 (6)   c1 (6)  13.8098   0.1893  72.9352  103.79  16.7019   0.1895
+  5    c1 (6)   c1 (6)  13.3092  13.3092   1.0000  180.00  13.3092  13.3092
+
+* Complete CP list
+# (x symbols are the non-equivalent representative atoms)
+#  cp   ncp  typ      position (cryst. coords.)        op.    (lvec+cvec)
+x 1      1    n  0.33333300   0.66666700   0.21329500   1   0.0   0.0   0.0
+x 2      2    n  0.66666700   0.33333300   0.30302700   1   0.0   0.0   0.0
+  3      2    n  0.66666500   0.33333300   0.12356300   2   0.0   1.0   0.0
+x 4      3    b  0.50465565   0.49534435   0.16819324   1   0.0   0.0   0.0
+  5      3    b  0.99068770   0.49534435   0.25839676   2   0.0   1.0   0.0
+  6      3    b  0.50465565   0.00931230   0.16819324   3   1.0   0.0   0.0
+  7      3    b  0.50465565   0.49534435   0.25839676   4   0.0   0.0   0.0
+  8      3    b  0.99068770   0.49534435   0.16819324   5   0.0   1.0   0.0
+  9      3    b  0.50465565   0.00931230   0.25839676   6   1.0   0.0   0.0
+x 10     4    r  0.68479458   0.31520584   0.21329445   1   0.0   0.0   0.0
+  11     4    r  0.63041026   0.31520542   0.21329555   2   0.0   1.0   0.0
+  12     4    r  0.68479416   0.36958974   0.21329445   3   1.0   0.0   0.0
+x 13     5    r  0.99999970   0.00000016   0.21329545   1   0.0   0.0   0.0
+x 14     6    c  0.66666252   0.33333884   0.21329445   1   0.0   0.0   0.0
+
+* Complete CP list, bcp and rcp connectivity table
+# (cp(end)+lvec connected to bcp/rcp)
+#cp  ncp   typ        position (cryst. coords.)            end1 (lvec)      end2 (lvec)
+1      1    n   0.33333300    0.66666700    0.21329500
+2      2    n   0.66666700    0.33333300    0.30302700
+3      2    n   0.66666500    0.33333300    0.12356300
+4      3    b   0.50465565    0.49534435    0.16819324   3   ( 0  0  0 )  1   ( 0  0  0 )
+5      3    b   0.99068770    0.49534435    0.25839676   2   ( 0  0  0 )  1   ( 1  0  0 )
+6      3    b   0.50465565    0.00931230    0.16819324   3   ( 0  0  0 )  1   ( 0 -1  0 )
+7      3    b   0.50465565    0.49534435    0.25839676   2   ( 0  0  0 )  1   ( 0  0  0 )
+8      3    b   0.99068770    0.49534435    0.16819324   3   ( 0  0  0 )  1   ( 1  0  0 )
+9      3    b   0.50465565    0.00931230    0.25839676   2   ( 0  0  0 )  1   ( 0 -1  0 )
+10     4    r   0.68479458    0.31520584    0.21329445   14  ( 0  0  0 )  14  ( 0  0  0 )
+11     4    r   0.63041026    0.31520542    0.21329555   14  (-1  0  0 )  14  ( 0  0  0 )
+12     4    r   0.68479416    0.36958974    0.21329445   14  ( 0  1  0 )  14  ( 0  0  0 )
+13     5    r   0.99999970    0.00000016    0.21329545   14  ( 0  0  0 )  14  ( 0  0  0 )
+14     6    c   0.66666252    0.33333884    0.21329445
+
+* Attractor connectivity matrix
+  to be read: each cp in a row i connects to mij cps in column j
+              n(1)  n(2)
+               Mo    S
+ n(1)    Mo     0     6
+ n(2)    S      3     0
+
+* Additional properties at the critical points
++ Critical point no. 1
+  Crystallographic coordinates: 0.3333330000 0.6666670000 0.2132950000
+  Cartesian coordinates (bohr): -0.0000030144 3.4807437365 7.0293249949
+  Type : nucleus
+  Field value (f): 9.384804134E+04
+  Field value, valence (fval): 9.384804134E+04
+  Gradient (grad f): 0.000000000E+00  0.000000000E+00  0.000000000E+00
+  Gradient norm (|grad f|): 0.000000000E+00
+  Gradient norm, valence: 0.000000000E+00
+  Laplacian (del2 f): -7.779823337E+12
+  Laplacian, valence (del2 fval): -7.779823337E+12
+  Hessian:
+    -2.593274446E+12   1.517383572E-08   2.407299777E-09
+     1.517383572E-08  -2.593274446E+12   4.815717780E-09
+     2.407299777E-09   4.815717780E-09  -2.593274446E+12
+  Hessian eigenvalues: -2.593274446E+12  -2.593274446E+12  -2.593274446E+12
++ Critical point no. 2
+  Crystallographic coordinates: 0.6666670000 0.3333330000 0.3030270000
+  Cartesian coordinates (bohr): 3.0144147731 1.7403692577 9.9865222590
+  Type : nucleus
+  Field value (f): 2.889694009E+03
+  Field value, valence (fval): 2.889694009E+03
+  Gradient (grad f): 0.000000000E+00  0.000000000E+00  0.000000000E+00
+  Gradient norm (|grad f|): 0.000000000E+00
+  Gradient norm, valence: 0.000000000E+00
+  Laplacian (del2 f): -4.939931115E+09
+  Laplacian, valence (del2 fval): -4.939931115E+09
+  Hessian:
+    -1.646643705E+09   8.722393660E-09  -9.147018895E-09
+     8.722393660E-09  -1.646643705E+09   6.368258707E-09
+    -9.147018895E-09   6.368258707E-09  -1.646643705E+09
+  Hessian eigenvalues: -1.646643705E+09  -1.646643705E+09  -1.646643705E+09
++ Critical point no. 3
+  Crystallographic coordinates: 0.5046556468 0.4953443509 0.1681932409
+  Cartesian coordinates (bohr): 1.5493079954 2.5862488270 5.5429567148
+  Type : (3,-1)
+  Field value (f): 7.088367355E-02
+  Field value, valence (fval): 7.088367355E-02
+  Gradient (grad f): -4.113649390E-16  2.478926623E-16  2.846454219E-16
+  Gradient norm (|grad f|): 5.582964278E-16
+  Gradient norm, valence: 0.000000000E+00
+  Laplacian (del2 f): 1.824152340E-01
+  Laplacian, valence (del2 fval): 1.824152340E-01
+  Hessian:
+     9.796409872E-02  -8.956598938E-02  -1.501050848E-01
+    -8.956598938E-02  -5.457845608E-03   8.666318823E-02
+    -1.501050848E-01   8.666318823E-02   8.990898085E-02
+  Hessian eigenvalues: -5.716878165E-02  -5.609159003E-02  2.956756056E-01
+  Ellipticity (l_1/l_2 - 1): 1.920415547E-02
++ Critical point no. 4
+  Crystallographic coordinates: 0.6847945802 0.3152058376 0.2132944472
+  Cartesian coordinates (bohr): 3.1783454865 1.6457252946 7.0293067772
+  Type : (3,1)
+  Field value (f): 3.297793652E-02
+  Field value, valence (fval): 3.297793652E-02
+  Gradient (grad f): 2.905921226E-17  -7.580455187E-18  6.358824915E-17
+  Gradient norm (|grad f|): 7.032330018E-17
+  Gradient norm, valence: 0.000000000E+00
+  Laplacian (del2 f): 6.473956901E-02
+  Laplacian, valence (del2 fval): 6.473956901E-02
+  Hessian:
+     4.873631130E-04   3.386923031E-03   4.174551988E-08
+     3.386923031E-03   4.398179302E-03  -2.410138417E-08
+     4.174551988E-08  -2.410138417E-08   5.985402660E-02
+  Hessian eigenvalues: -1.468094226E-03  6.353636641E-03  5.985402660E-02
++ Critical point no. 5
+  Crystallographic coordinates: 0.9999996986 0.0000001631 0.2132954500
+  Cartesian coordinates (bohr): 6.0288212084 0.0000008515 7.0293398266
+  Type : (3,1)
+  Field value (f): 1.809544122E-02
+  Field value, valence (fval): 1.809544122E-02
+  Gradient (grad f): -4.152154846E-17  2.449891922E-17  -9.026440650E-18
+  Gradient norm (|grad f|): 4.904806479E-17
+  Gradient norm, valence: 0.000000000E+00
+  Laplacian (del2 f): 2.640187909E-02
+  Laplacian, valence (del2 fval): 2.640187909E-02
+  Hessian:
+     1.482340069E-02  -2.851960562E-08  -8.020482798E-13
+    -2.851960562E-08   1.482335969E-02   3.055911875E-13
+    -8.020482798E-13   3.055911875E-13  -3.244881295E-03
+  Hessian eigenvalues: -3.244881295E-03  1.482334507E-02  1.482341531E-02
++ Critical point no. 6
+  Crystallographic coordinates: 0.6666625162 0.3333388364 0.2132944496
+  Cartesian coordinates (bohr): 3.0143701476 1.7403997304 7.0293068547
+  Type : (3,3)
+  Field value (f): 3.296822052E-02
+  Field value, valence (fval): 3.296822052E-02
+  Gradient (grad f): 8.381523362E-19  -3.567423187E-17  1.142528391E-16
+  Gradient norm (|grad f|): 1.196957166E-16
+  Gradient norm, valence: 0.000000000E+00
+  Laplacian (del2 f): 6.465545091E-02
+  Laplacian, valence (del2 fval): 6.465545091E-02
+  Hessian:
+     1.768365835E-03  -8.564396528E-07  -1.143409191E-11
+    -8.564396528E-07   1.767178290E-03   7.817269504E-12
+    -1.143409191E-11   7.817269504E-12   6.111990679E-02
+  Hessian eigenvalues: 1.766729923E-03  1.768814202E-03  6.111990679E-02
++ Flatness (rho_min / rho_b,max): 0.255284
+
+End AUTO--2019/11/14, 16:34:45.182
+
+CRITIC2 ended succesfully (0 WARNINGS, 0 COMMENTS)
+
+Elapsed wall time: 0s
+Elapsed CPU time: 0s
+CRITIC2--2019/11/14, 16:34:45.182

@@ -7,9 +7,6 @@ from unittest.mock import patch
 import pytest
 import requests
 from numpy.testing import assert_allclose
-from pytest import approx
-from ruamel.yaml import YAML
-
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
 from pymatgen.analysis.reaction_calculator import Reaction
@@ -19,20 +16,27 @@ from pymatgen.electronic_structure.bandstructure import BandStructure, BandStruc
 from pymatgen.electronic_structure.dos import CompleteDos
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from pymatgen.entries.computed_entries import ComputedEntry
-from pymatgen.ext.matproj import MP_LOG_FILE, MPRestError, _MPResterBasic
-from pymatgen.ext.matproj_legacy import TaskType, _MPResterLegacy
+from pymatgen.ext.matproj import MP_LOG_FILE, _MPResterBasic
+from pymatgen.ext.matproj_legacy import MPRestError, TaskType, _MPResterLegacy
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
+from ruamel.yaml import YAML
 
+PMG_MAPI_KEY = SETTINGS.get("PMG_MAPI_KEY", "")
+if (10 < len(PMG_MAPI_KEY) <= 20) and "PMG_MAPI_KEY" in SETTINGS:
+    MP_URL = "https://legacy.materialsproject.org"
+elif len(PMG_MAPI_KEY) > 20:
+    MP_URL = "https://api.materialsproject.org"
+else:
+    MP_URL = "https://materialsproject.org"
 try:
-    skip_mprester_tests = requests.get("https://materialsproject.org").status_code != 200
+    skip_mprester_tests = requests.get(MP_URL, timeout=600).status_code != 200
 
 except (ModuleNotFoundError, ImportError, requests.exceptions.ConnectionError):
     # Skip all MPRester tests if some downstream problem on the website, mp-api or whatever.
     skip_mprester_tests = True
-
-PMG_MAPI_KEY = SETTINGS.get("PMG_MAPI_KEY", "")
 
 
 @pytest.mark.skipif(
@@ -76,7 +80,7 @@ class TestMPResterOld(PymatgenTest):
             "total_magnetization",
         }
         mp_id = "mp-1143"
-        vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/")
+        vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=600)
         expected_vals = vals.json()
 
         for prop in props:
@@ -120,7 +124,7 @@ class TestMPResterOld(PymatgenTest):
 
     def test_find_structure(self):
         mpr = _MPResterLegacy()
-        cif_file = f"{TEST_FILES_DIR}/Fe3O4.cif"
+        cif_file = f"{TEST_FILES_DIR}/cif/Fe3O4.cif"
         data = mpr.find_structure(str(cif_file))
         assert len(data) > 1
         struct = Structure.from_file(cif_file, primitive=True)
@@ -514,8 +518,8 @@ class TestMPResterOld(PymatgenTest):
     skip_mprester_tests or (not len(PMG_MAPI_KEY) > 20),
     reason="PMG_MAPI_KEY environment variable not set or MP API is down.",
 )
-class TestMPResterNewBasic:
-    def setup(self):
+class TestMPResterNewBasic(PymatgenTest):
+    def setUp(self):
         self.rester = _MPResterBasic()
 
     def test_get_summary(self):
@@ -570,7 +574,7 @@ class TestMPResterNewBasic:
     #         "total_magnetization",
     #     }
     #     mp_id = "mp-1143"
-    #     vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/")
+    #     vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=600)
     #     expected_vals = vals.json()
     #
     #     for prop in props:
@@ -680,11 +684,12 @@ class TestMPResterNewBasic:
     #     assert isinstance(bs_unif, BandStructure)
     #     assert not isinstance(bs_unif, BandStructureSymmLine)
     #
-    # def test_get_phonon_data_by_material_id(self):
-    #     bs = self.rester.get_phonon_bandstructure_by_material_id("mp-661")
-    #     assert isinstance(bs, PhononBandStructureSymmLine)
-    #     dos = self.rester.get_phonon_dos_by_material_id("mp-661")
-    #     assert isinstance(dos, CompletePhononDos)
+    def test_get_phonon_data_by_material_id(self):
+        bs = self.rester.get_phonon_bandstructure_by_material_id("mp-661")
+        assert isinstance(bs, PhononBandStructureSymmLine)
+        dos = self.rester.get_phonon_dos_by_material_id("mp-661")
+        assert isinstance(dos, CompletePhononDos)
+
     #     ddb_str = self.rester.get_phonon_ddb_by_material_id("mp-661")
     #     assert isinstance(ddb_str, str)
 

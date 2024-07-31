@@ -1,0 +1,83 @@
+#### CIF created by Crystallographica 2 ####
+
+data_StrontiumYttriumCobaltOxide
+
+_audit_creation_method                    'Crystallographica 2' 
+_cell_angle_alpha                         90 
+_cell_angle_beta                          90 
+_cell_angle_gamma                         90 
+_cell_formula_units_Z                     16 
+_cell_length_a                            7.6239 
+_cell_length_b                            7.6239 
+_cell_length_c                            15.327 
+_cell_volume                              890.864 
+_cgraph_comments                         'Crystal structure of the novel complex cobalt oxide Sr0.7 
+
+     Y0.3 Co O2.62
+
+'
+_cgraph_title                            'Strontium Yttrium Cobalt Oxide (0.7/0.3/1/2.62)'
+_chemical_formula_sum                    '(Sr0.7 Y0.3) Co O2.62'
+_symmetry_space_group_name_H-M           'I 4/m m m'
+_symmetry_space_group_name_Hall          '-I 4 2'
+
+loop_
+        _symmetry_equiv_pos_as_xyz
+        'x, y, z'
+        'x+1/2, y+1/2, z+1/2'
+        '-x, -y, -z'
+        '-x+1/2, -y+1/2, -z+1/2'
+        '-y, x, z'
+        '-y+1/2, x+1/2, z+1/2'
+        'y, -x, -z'
+        'y+1/2, -x+1/2, -z+1/2'
+        '-x, -y, z'
+        '-x+1/2, -y+1/2, z+1/2'
+        'x, y, -z'
+        'x+1/2, y+1/2, -z+1/2'
+        'y, -x, z'
+        'y+1/2, -x+1/2, z+1/2'
+        '-y, x, -z'
+        '-y+1/2, x+1/2, -z+1/2'
+        'x, -y, -z'
+        'x+1/2, -y+1/2, -z+1/2'
+        '-x, y, z'
+        '-x+1/2, y+1/2, z+1/2'
+        '-x, y, -z'
+        '-x+1/2, y+1/2, -z+1/2'
+        'x, -y, z'
+        'x+1/2, -y+1/2, z+1/2'
+        'y, x, -z'
+        'y+1/2, x+1/2, -z+1/2'
+        '-y, -x, z'
+        '-y+1/2, -x+1/2, z+1/2'
+        '-y, -x, -z'
+        '-y+1/2, -x+1/2, -z+1/2'
+        'y, x, z'
+        'y+1/2, x+1/2, z+1/2'
+
+loop_
+        _atom_site_label
+        _atom_site_type_symbol
+        _atom_site_fract_x
+        _atom_site_fract_y
+        _atom_site_fract_z
+        _atom_site_U_iso_or_equiv
+        _atom_site_thermal_displace_type
+        _atom_site_occupancy
+        Sr1 Sr2+ 0 0 0.8785 0.0146916 Uiso 0.7
+        Y1 Y3+ 0 0 0.8785 0.0146916 Uiso 0.3
+        Sr2 Sr2+ 0 0.5 0.867 0.0102588 Uiso 0.7
+        Y2 Y3+ 0 0.5 0.867 0.0102588 Uiso 0.3
+        Sr3 Sr2+ 0 0 0.3503 0.00949886 Uiso 0.7
+        Y3 Y3+ 0 0 0.3503 0.00949886 Uiso 0.3
+        Co1 Co3+ 0.7483 0.7483 0 0.0135517 Uiso 1
+        Co2 Co3+ 0.25 0.75 0.25 0.00544601 Uiso 1
+        O1 O2- 0 0.2494 0.24 0.0100055 Uiso 1
+        O2 O2- 0.2905 0.2905 0.1176 0.0191244 Uiso 1
+        O3 O2- 0 0.7241 0 0.0227973 Uiso 1
+        O4 O2- 0.387 0.5 0 0.00379954 Uiso 0.25
+
+_eof
+
+#### End of Crystallographic Information File ####

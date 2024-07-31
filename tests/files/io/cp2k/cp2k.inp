@@ -1,0 +1,163 @@
+@include include.inc
+@SET MAX_SCF 1
+
+&FORCE_EVAL 
+	METHOD QS
+	STRESS_TENSOR ANALYTICAL
+	&SUBSYS 
+		! Input parameters needed to set up the CELL.
+		&CELL 
+			A 0.0 2.734364 2.734364
+			B 2.734364 0.0 2.734364
+			C 2.734364 2.734364 0.0
+		&END CELL
+		&KIND Si_1
+			ELEMENT Si
+			MAGNETIZATION 0.0
+			BASIS_SET DZVP-MOLOPT-SR-GTH-q4
+			POTENTIAL GTH-PBE-q4
+			BASIS_SET AUX_FIT cFIT3
+                        &POTENTIAL
+                            1 2 3 # Nonsense
+                            11 3 0.1 # Nonsense
+                        &END
+			GHOST False
+		&END KIND
+		&COORD 
+			Si_1 1.367182 1.367182 1.367182
+			Si_1 0.0 0.0 0.0
+		&END COORD
+	&END SUBSYS
+	&PRINT 
+		&FORCES 
+		&END FORCES
+		&STRESS_TENSOR 
+		&END STRESS_TENSOR
+	&END PRINT
+	&DFT 
+		BASIS_SET_FILE_NAME BASIS_MOLOPT 
+		BASIS_SET_FILE_NAME BASIS_MOLOPT_UCL
+		POTENTIAL_FILE_NAME GTH_POTENTIALS
+		UKS True ! Whether to run unrestricted Kohn Sham (i.e. spin polarized)
+		MULTIPLICITY 0
+		CHARGE 0
+		&QS 
+			METHOD GPW
+			EPS_DEFAULT 1e-12 ! Base precision level (in Ha)
+			EXTRAPOLATION ASPC ! WFN extrapolation between steps
+		&END QS
+		&SCF 
+			MAX_SCF $MAX_SCF ! Max number of steps for an inner SCF loop
+			EPS_SCF 1 ! Convergence threshold for SCF
+			added_mos -1 -1
+			SCF_GUESS RESTART ! How to initialize the density matrix
+			MAX_ITER_LUMO 400 ! Iterations for solving for unoccupied levels when running OT
+		&END SCF
+		&MGRID 
+			CUTOFF 100.0 ! Cutoff in [Ry] for finest level of the MG.
+			REL_CUTOFF 50 ! Controls which gaussians are mapped to which level of the MG
+			NGRIDS 5 ! Number of grid levels in the MG
+			PROGRESSION_FACTOR 3
+		&END MGRID
+		&XC 
+			&XC_FUNCTIONAL 
+				&PBE 
+				&END PBE
+			&END XC_FUNCTIONAL
+		&END XC
+		&PRINT 
+			&PDOS 
+				NLUMO -1
+				COMPONENTS 
+				&LDOS 
+					COMPONENTS 
+					LIST 1
+				&END LDOS
+				&LDOS 
+					COMPONENTS 
+					LIST 2
+				&END LDOS
+			&END PDOS
+			&MO_CUBES 
+				WRITE_CUBE False
+				NHOMO -1
+				NLUMO -1
+			&END MO_CUBES
+			&V_HARTREE_CUBE 
+				STRIDE 2 2 2
+			&END V_HARTREE_CUBE
+			&E_DENSITY_CUBE 
+				STRIDE 2 2 2
+			&END E_DENSITY_CUBE
+			&BAND_STRUCTURE 
+				FILE_NAME BAND.bs
+				ADDED_MOS 100
+				&KPOINT_SET 
+					NPOINTS 1
+					UNITS B_VECTOR
+					SPECIAL_POINT Gamma 0.0 0.0 0.0 
+					SPECIAL_POINT X 0.5 0.0 0.5
+				&END KPOINT_SET
+				&KPOINT_SET 
+					NPOINTS 1
+					UNITS B_VECTOR
+					SPECIAL_POINT X 0.5 0.0 0.5 
+					SPECIAL_POINT W 0.5 0.25 0.75
+				&END KPOINT_SET
+				&KPOINT_SET 
+					NPOINTS 1
+					UNITS B_VECTOR
+					SPECIAL_POINT W 0.5 0.25 0.75 
+					SPECIAL_POINT K 0.375 0.375 0.75
+				&END KPOINT_SET
+				&KPOINT_SET 
+					NPOINTS 1
+					UNITS B_VECTOR
+					SPECIAL_POINT K 0.375 0.375 0.75 
+					SPECIAL_POINT Gamma 0.0 0.0 0.0
+				&END KPOINT_SET
+				&KPOINT_SET 
+					NPOINTS 1
+					UNITS B_VECTOR
+					SPECIAL_POINT Gamma 0.0 0.0 0.0 
+					SPECIAL_POINT L 0.5 0.5 0.5
+				&END KPOINT_SET
+				&KPOINT_SET 
+					NPOINTS 1
+					UNITS B_VECTOR
+					SPECIAL_POINT L 0.5 0.5 0.5 
+					SPECIAL_POINT U 0.625 0.25 0.625
+				&END KPOINT_SET
+				&KPOINT_SET 
+					NPOINTS 1
+					UNITS B_VECTOR
+					SPECIAL_POINT U 0.625 0.25 0.625 
+					SPECIAL_POINT W 0.5 0.25 0.75
+				&END KPOINT_SET
+				&KPOINT_SET 
+					NPOINTS 1
+					UNITS B_VECTOR
+					SPECIAL_POINT W 0.5 0.25 0.75 
+					SPECIAL_POINT L 0.5 0.5 0.5
+				&END KPOINT_SET
+				&KPOINT_SET 
+					NPOINTS 1
+					UNITS B_VECTOR
+					SPECIAL_POINT L 0.5 0.5 0.5 
+					SPECIAL_POINT K 0.375 0.375 0.75
+				&END KPOINT_SET
+				&KPOINT_SET 
+					NPOINTS 1
+					UNITS B_VECTOR
+					SPECIAL_POINT U 0.625 0.25 0.625 
+					SPECIAL_POINT X 0.5 0.0 0.5
+				&END KPOINT_SET
+			&END BAND_STRUCTURE
+		&END PRINT
+	&END DFT
+&END FORCE_EVAL
+&GLOBAL 
+	PROJECT_NAME Static
+	RUN_TYPE ENERGY_FORCE
+	EXTENDED_FFT_LENGTHS True
+&END GLOBAL

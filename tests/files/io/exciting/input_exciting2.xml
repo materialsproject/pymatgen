@@ -1,0 +1,20 @@
+<input xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://xml.exciting-code.org/excitinginput.xsd">
+  <title>Si2</title>
+  <structure speciespath="./">
+    <crystal scale="1.8897543760313331">
+      <basevect>      3.84000000       0.00000000       0.00000000</basevect>
+      <basevect>      1.92000000       2.71529004      -1.92000000</basevect>
+      <basevect>      0.00000000       0.00000000       3.84000000</basevect>
+      </crystal>
+    <species speciesfile="Si.xml">
+      <atom coord="      0.00000000       0.00000000       0.00000000" />
+      <atom coord="      0.75000000       0.50000000       0.75000000" />
+      </species>
+    </structure>
+  <grst do="fromscratch" ngridk="8 8 8" xctype="GGA_PBE_SOL" gmaxvr="14.0" />
+  <xs xstype="BSE" ngridk="4 4 4" ngridq="4 4 4" nempty="30" gqmax="3.0" broad="0.07" tevout="true">
+    <energywindow intv="0.0 1.0" points="1200" />
+    <screening screentype="full" nempty="100" />
+    <BSE bsetype="singlet" nstlbse="1 5 1 4" />
+    </xs>
+  </input>

@@ -4,7 +4,6 @@ import json
 from unittest import TestCase
 
 from monty.json import MontyDecoder
-
 from pymatgen.apps.battery.conversion_battery import ConversionElectrode
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode
 from pymatgen.apps.battery.plotter import VoltageProfilePlotter
@@ -12,16 +11,18 @@ from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.testing import TEST_FILES_DIR
 
+TEST_DIR = f"{TEST_FILES_DIR}/apps/battery"
+
 
 class TestVoltageProfilePlotter(TestCase):
     def setUp(self):
         entry_Li = ComputedEntry("Li", -1.90753119)
 
-        with open(f"{TEST_FILES_DIR}/LiTiO2_batt.json") as file:
+        with open(f"{TEST_DIR}/LiTiO2_batt.json") as file:
             entries_LTO = json.load(file, cls=MontyDecoder)
         self.ie_LTO = InsertionElectrode.from_entries(entries_LTO, entry_Li)
 
-        with open(f"{TEST_FILES_DIR}/FeF3_batt.json") as file:
+        with open(f"{TEST_DIR}/FeF3_batt.json") as file:
             entries = json.load(file, cls=MontyDecoder)
         self.ce_FF = ConversionElectrode.from_composition_and_entries(Composition("FeF3"), entries)
 
@@ -38,6 +39,7 @@ class TestVoltageProfilePlotter(TestCase):
         plotter.add_electrode(self.ce_FF, "FeF3 conversion")
         fig = plotter.get_plotly_figure()
         assert fig.layout.xaxis.title.text == "Atomic Fraction of Li"
+
         plotter = VoltageProfilePlotter(xaxis="x_form")
         plotter.add_electrode(self.ce_FF, "FeF3 conversion")
         fig = plotter.get_plotly_figure()

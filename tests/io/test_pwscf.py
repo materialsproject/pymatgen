@@ -3,10 +3,11 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
+
+TEST_DIR = f"{TEST_FILES_DIR}/io/pwscf"
 
 
 class TestPWInput(PymatgenTest):
@@ -375,9 +376,9 @@ CELL_PARAMETERS angstrom
         assert pw_in.sections["system"]["smearing"] == "cold"
 
 
-class TestPWOuput(PymatgenTest):
+class TestPWOutput(PymatgenTest):
     def setUp(self):
-        self.pw_out = PWOutput(f"{TEST_FILES_DIR}/Si.pwscf.out")
+        self.pw_out = PWOutput(f"{TEST_DIR}/Si.pwscf.out")
 
     def test_properties(self):
         assert self.pw_out.final_energy == approx(-93.45259708)

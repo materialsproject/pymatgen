@@ -4,11 +4,12 @@ import json
 from unittest import TestCase
 
 from monty.json import MontyDecoder
-from pytest import approx
-
 from pymatgen.apps.battery.conversion_battery import ConversionElectrode, ConversionVoltagePair
 from pymatgen.core.composition import Composition
 from pymatgen.util.testing import TEST_FILES_DIR
+from pytest import approx
+
+TEST_DIR = f"{TEST_FILES_DIR}/apps/battery"
 
 
 class TestConversionElectrode(TestCase):
@@ -16,7 +17,7 @@ class TestConversionElectrode(TestCase):
         self.formulas = ["LiCoO2", "FeF3", "MnO2"]
         self.conversion_electrodes = {}
         for formula in self.formulas:
-            with open(f"{TEST_FILES_DIR}/{formula}_batt.json") as fid:
+            with open(f"{TEST_DIR}/{formula}_batt.json") as fid:
                 entries = json.load(fid, cls=MontyDecoder)
             if formula in ["LiCoO2", "FeF3"]:
                 working_ion = "Li"

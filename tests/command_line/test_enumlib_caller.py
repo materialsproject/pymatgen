@@ -5,14 +5,13 @@ from shutil import which
 
 import numpy as np
 import pytest
-from pytest import approx
-
 from pymatgen.command_line.enumlib_caller import EnumError, EnumlibAdaptor
 from pymatgen.core import Element, Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.transformations.site_transformations import RemoveSitesTransformation
 from pymatgen.transformations.standard_transformations import SubstitutionTransformation
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 enum_cmd = which("enum.x") or which("multienum.x")
 makestr_cmd = which("makestr.x") or which("makeStr.x") or which("makeStr.py")
@@ -71,7 +70,7 @@ class TestEnumlibAdaptor(PymatgenTest):
         structures = adaptor.structures
         assert len(structures) == 10
 
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/EnumerateTest.json")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/command_line/enumlib/EnumerateTest.json")
         adaptor = EnumlibAdaptor(struct, 1, 1)
         adaptor.run()
         structures = adaptor.structures
@@ -81,7 +80,7 @@ class TestEnumlibAdaptor(PymatgenTest):
         # It used to be that a rounding issue would result in this structure
         # showing that Cu3Te2 satisfies an ordering of this structure.
         # This has been fixed by multiplying the base by 100.
-        struct = Structure.from_file(f"{TEST_FILES_DIR}/Cu7Te5.cif")
+        struct = Structure.from_file(f"{TEST_FILES_DIR}/cif/Cu7Te5.cif")
         adaptor = EnumlibAdaptor(struct, 1, 2)
         with pytest.raises(EnumError, match="Unable to enumerate structure"):
             adaptor.run()
@@ -90,7 +89,7 @@ class TestEnumlibAdaptor(PymatgenTest):
         assert len(adaptor.structures) == 197
 
     def test_partial_disorder(self):
-        struct = Structure.from_file(filename=f"{TEST_FILES_DIR}/garnet.cif")
+        struct = Structure.from_file(filename=f"{TEST_FILES_DIR}/cif/garnet.cif")
         spga = SpacegroupAnalyzer(struct, 0.1)
         prim = spga.find_primitive()
         struct = prim.copy()
@@ -121,7 +120,7 @@ class TestEnumlibAdaptor(PymatgenTest):
 
     @unittest.skip("Fails seemingly at random.")
     def test_timeout(self):
-        struct = Structure.from_file(filename=f"{TEST_FILES_DIR}/garnet.cif")
+        struct = Structure.from_file(filename=f"{TEST_FILES_DIR}/cif/garnet.cif")
         SpacegroupAnalyzer(struct, 0.1)
         struct["Al3+"] = {"Al3+": 0.5, "Ga3+": 0.5}
         adaptor = EnumlibAdaptor(struct, 1, 1, enum_precision_parameter=0.01, timeout=0.0000000000001)

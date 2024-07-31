@@ -1,0 +1,49 @@
+    2
+jmolscript: load "" {1 1 1} spacegroup "x,y,z" unitcell [{      0.000000     2.829447     2.829447 }, {      2.829447     0.000000     2.829447 }, {      2.829447     2.829447     0.000000 }]
+Na      0.000000      0.000000      0.000000       0.539920
+Cl      2.829447      2.829447      2.829447       0.901058
+    
+ Chargemol version 3.5 September 26, 2017.
+ See ddec.sourceforge.net for latest version.
+    
+    
+ The sum of bond orders (SBO) for each atom in the unit cell are listed above.
+ All bond orders greater than     0.001000 are printed below.
+  
+  
+ ===================================================================================
+ Printing BOs for ATOM #      1 ( Na ) in the reference unit cell.
+  
+ Bonded to the ( -1,  -1,   0) translated image of atom number     2 ( Cl ) with bond order =     0.0882    The average spin polarization of this bonding =     0.0000
+ Bonded to the ( -1,   0,  -1) translated image of atom number     2 ( Cl ) with bond order =     0.0882    The average spin polarization of this bonding =     0.0000
+ Bonded to the ( -1,   0,   0) translated image of atom number     2 ( Cl ) with bond order =     0.0882    The average spin polarization of this bonding =     0.0000
+ Bonded to the (  0,  -1,  -1) translated image of atom number     2 ( Cl ) with bond order =     0.0882    The average spin polarization of this bonding =     0.0000
+ Bonded to the (  0,  -1,   0) translated image of atom number     2 ( Cl ) with bond order =     0.0882    The average spin polarization of this bonding =     0.0000
+ Bonded to the (  0,   0,  -1) translated image of atom number     2 ( Cl ) with bond order =     0.0882    The average spin polarization of this bonding =     0.0000
+ The sum of bond orders for this atom is SBO =        0.539920
+  
+  
+ ===================================================================================
+ Printing BOs for ATOM #      2 ( Cl ) in the reference unit cell.
+  
+ Bonded to the (  1,   1,   0) translated image of atom number     1 ( Na ) with bond order =     0.0882    The average spin polarization of this bonding =     0.0000
+ Bonded to the (  1,   0,   1) translated image of atom number     1 ( Na ) with bond order =     0.0882    The average spin polarization of this bonding =     0.0000
+ Bonded to the (  1,   0,   0) translated image of atom number     1 ( Na ) with bond order =     0.0882    The average spin polarization of this bonding =     0.0000
+ Bonded to the (  0,   1,   1) translated image of atom number     1 ( Na ) with bond order =     0.0882    The average spin polarization of this bonding =     0.0000
+ Bonded to the (  0,   1,   0) translated image of atom number     1 ( Na ) with bond order =     0.0882    The average spin polarization of this bonding =     0.0000
+ Bonded to the (  0,   0,   1) translated image of atom number     1 ( Na ) with bond order =     0.0882    The average spin polarization of this bonding =     0.0000
+ Bonded to the (  0,   0,   1) translated image of atom number     2 ( Cl ) with bond order =     0.0306    The average spin polarization of this bonding =     0.0000
+ Bonded to the (  0,   0,  -1) translated image of atom number     2 ( Cl ) with bond order =     0.0306    The average spin polarization of this bonding =     0.0000
+ Bonded to the (  0,   1,  -1) translated image of atom number     2 ( Cl ) with bond order =     0.0306    The average spin polarization of this bonding =     0.0000
+ Bonded to the (  0,  -1,   1) translated image of atom number     2 ( Cl ) with bond order =     0.0306    The average spin polarization of this bonding =     0.0000
+ Bonded to the (  0,   1,   0) translated image of atom number     2 ( Cl ) with bond order =     0.0306    The average spin polarization of this bonding =     0.0000
+ Bonded to the (  0,  -1,   0) translated image of atom number     2 ( Cl ) with bond order =     0.0306    The average spin polarization of this bonding =     0.0000
+ Bonded to the (  1,  -1,   0) translated image of atom number     2 ( Cl ) with bond order =     0.0306    The average spin polarization of this bonding =     0.0000
+ Bonded to the ( -1,   1,   0) translated image of atom number     2 ( Cl ) with bond order =     0.0306    The average spin polarization of this bonding =     0.0000
+ Bonded to the (  1,   0,  -1) translated image of atom number     2 ( Cl ) with bond order =     0.0306    The average spin polarization of this bonding =     0.0000
+ Bonded to the ( -1,   0,   1) translated image of atom number     2 ( Cl ) with bond order =     0.0306    The average spin polarization of this bonding =     0.0000
+ Bonded to the (  1,   0,   0) translated image of atom number     2 ( Cl ) with bond order =     0.0306    The average spin polarization of this bonding =     0.0000
+ Bonded to the ( -1,   0,   0) translated image of atom number     2 ( Cl ) with bond order =     0.0306    The average spin polarization of this bonding =     0.0000
+ The sum of bond orders for this atom is SBO =        0.901058
+    
+ 2022/01/19  22:49:04

@@ -3,12 +3,11 @@ from __future__ import annotations
 from unittest import TestCase
 
 import pandas as pd
-
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR
 
-TEST_DIR = f"{TEST_FILES_DIR}/magnetic_orderings"
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/magnetic_orderings"
 
 
 class TestHeisenbergMapper(TestCase):

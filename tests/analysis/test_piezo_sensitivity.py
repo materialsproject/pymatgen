@@ -5,10 +5,9 @@ from __future__ import annotations
 import pickle
 
 import numpy as np
+import pymatgen
 import pytest
 from numpy.testing import assert_allclose
-
-import pymatgen
 from pymatgen.analysis.piezo_sensitivity import (
     BornEffectiveCharge,
     ForceConstantMatrix,
@@ -30,7 +29,7 @@ __email__ = "handongling@berkeley.edu"
 __status__ = "Development"
 __date__ = "4/23/19"
 
-TEST_DIR = f"{TEST_FILES_DIR}/piezo_sensitivity"
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/piezo_sensitivity"
 
 
 class TestPiezoSensitivity(PymatgenTest):

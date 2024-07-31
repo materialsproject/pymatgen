@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.os.path import zpath
 from monty.serialization import zopen
-
 from pymatgen.core import SETTINGS
 from pymatgen.io.vasp import Potcar, PotcarSingle
 from pymatgen.io.vasp.sets import _load_yaml_config
@@ -47,7 +46,7 @@ class PotcarScrambler:
 
     def _rand_float_from_str_with_prec(self, input_str: str, bloat: float = 1.5) -> float:
         n_prec = len(input_str.split(".")[1])
-        bd = max(1, bloat * abs(float(input_str)))
+        bd = max(1, bloat * abs(float(input_str)))  # ensure we don't get 0
         return round(bd * np.random.rand(1)[0], n_prec)
 
     def _read_fortran_str_and_scramble(self, input_str: str, bloat: float = 1.5):
@@ -69,8 +68,7 @@ class PotcarScrambler:
             return input_str
 
     def scramble_single_potcar(self, potcar: PotcarSingle) -> str:
-        """
-        Scramble the body of a POTCAR, retain the PSCTR header information.
+        """Scramble the body of a POTCAR, retain the PSCTR header information.
 
         To the best of my (ADK) knowledge, in the OUTCAR file,
         almost all information from the POTCAR in the "PSCTR" block
@@ -84,8 +82,7 @@ class PotcarScrambler:
         is included. This information is not scrambled below.
         """
         scrambled_potcar_str = ""
-        needs_sha256 = False
-        scramble_values = False
+        needs_sha256 = scramble_values = False
         og_sha_str = "SHA256 = None\n"
         for line in potcar.data.split("\n")[:-1]:
             single_line_rows = line.split(";")
@@ -174,8 +171,7 @@ def generate_fake_potcar_libraries() -> None:
 
 
 def potcar_cleanser() -> None:
-    """
-    Function to replace copyrighted POTCARs used in io.vasp.sets testing
+    """Replace copyrighted POTCARs used in io.vasp.sets testing
     with dummy POTCARs that have scrambled PSP and kinetic energy values
     (but retain the original header information which is also found in OUTCARs
     and freely shared by VASP)

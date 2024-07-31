@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
-
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     AngleNbSetWeight,
     CNBiasNbSetWeight,
@@ -37,23 +36,22 @@ __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
 
-allcg = AllCoordinationGeometries()
+all_cg = AllCoordinationGeometries()
 
 
 class CoordinationEnvironmentMorphing:
-    """Class to morph a coordination environment into another one."""
+    """Morph a coordination environment into another one."""
 
     def __init__(self, initial_environment_symbol, expected_final_environment_symbol, morphing_description):
         self.initial_environment_symbol = initial_environment_symbol
         self.expected_final_environment_symbol = expected_final_environment_symbol
         self.morphing_description = morphing_description
-        self.coordination_geometry = allcg.get_geometry_from_mp_symbol(initial_environment_symbol)
+        self.coordination_geometry = all_cg.get_geometry_from_mp_symbol(initial_environment_symbol)
         self.abstract_geometry = AbstractGeometry.from_cg(self.coordination_geometry)
 
     @classmethod
     def simple_expansion(cls, initial_environment_symbol, expected_final_environment_symbol, neighbors_indices):
-        """
-        Simple expansion of a coordination environment.
+        """Simple expansion of a coordination environment.
 
         Args:
             initial_environment_symbol (str): The initial coordination environment symbol.
@@ -74,12 +72,12 @@ class CoordinationEnvironmentMorphing:
         )
 
     def figure_fractions(self, weights_options: dict, morphing_factors: Sequence[float] | None = None) -> None:
-        """
-        Plot the fractions of the initial and final coordination environments as a function of the morphing factor.
+        """Plot the fractions of the initial and final coordination environments as a
+        function of the morphing factor.
 
         Args:
-            weights_options (dict): The weights options.
-            morphing_factors (list): The morphing factors.
+            weights_options (dict): The weights options. morphing_factors (list): The
+            morphing factors.
         """
         if morphing_factors is None:
             morphing_factors = np.linspace(1.0, 2.0, 21)

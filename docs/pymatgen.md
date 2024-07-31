@@ -2,9 +2,6 @@
 layout: default
 title: API Documentation
 nav_order: 6
----
-
----
 layout: default
 title: API Documentation
 nav_order: 6
@@ -4056,13 +4053,13 @@ nav_order: 6
           * [`AbstractFeffInputSet.potential`](pymatgen.io.feff.md#pymatgen.io.feff.sets.AbstractFeffInputSet.potential)
           * [`AbstractFeffInputSet.tags`](pymatgen.io.feff.md#pymatgen.io.feff.sets.AbstractFeffInputSet.tags)
           * [`AbstractFeffInputSet.write_input()`](pymatgen.io.feff.md#pymatgen.io.feff.sets.AbstractFeffInputSet.write_input)
-        * [`FEFFDictSet`](pymatgen.io.feff.md#pymatgen.io.feff.sets.FEFFDictSet)
-          * [`FEFFDictSet.atoms`](pymatgen.io.feff.md#pymatgen.io.feff.sets.FEFFDictSet.atoms)
-          * [`FEFFDictSet.from_directory()`](pymatgen.io.feff.md#pymatgen.io.feff.sets.FEFFDictSet.from_directory)
-          * [`FEFFDictSet.header()`](pymatgen.io.feff.md#pymatgen.io.feff.sets.FEFFDictSet.header)
-          * [`FEFFDictSet.potential`](pymatgen.io.feff.md#pymatgen.io.feff.sets.FEFFDictSet.potential)
-          * [`FEFFDictSet.tags`](pymatgen.io.feff.md#pymatgen.io.feff.sets.FEFFDictSet.tags)
-        * [`MPEELSDictSet`](pymatgen.io.feff.md#pymatgen.io.feff.sets.MPEELSDictSet)
+        * [`FEFFVaspInputSet`](pymatgen.io.feff.md#pymatgen.io.feff.sets.FEFFVaspInputSet)
+          * [`FEFFVaspInputSet.atoms`](pymatgen.io.feff.md#pymatgen.io.feff.sets.FEFFVaspInputSet.atoms)
+          * [`FEFFVaspInputSet.from_directory()`](pymatgen.io.feff.md#pymatgen.io.feff.sets.FEFFVaspInputSet.from_directory)
+          * [`FEFFVaspInputSet.header()`](pymatgen.io.feff.md#pymatgen.io.feff.sets.FEFFVaspInputSet.header)
+          * [`FEFFVaspInputSet.potential`](pymatgen.io.feff.md#pymatgen.io.feff.sets.FEFFVaspInputSet.potential)
+          * [`FEFFVaspInputSet.tags`](pymatgen.io.feff.md#pymatgen.io.feff.sets.FEFFVaspInputSet.tags)
+        * [`MPEELSVaspInputSet`](pymatgen.io.feff.md#pymatgen.io.feff.sets.MPEELSVaspInputSet)
         * [`MPELNESSet`](pymatgen.io.feff.md#pymatgen.io.feff.sets.MPELNESSet)
           * [`MPELNESSet.CONFIG`](pymatgen.io.feff.md#pymatgen.io.feff.sets.MPELNESSet.CONFIG)
         * [`MPEXAFSSet`](pymatgen.io.feff.md#pymatgen.io.feff.sets.MPEXAFSSet)
@@ -4395,8 +4392,8 @@ nav_order: 6
         * [`FreqSet`](pymatgen.io.qchem.md#pymatgen.io.qchem.sets.FreqSet)
         * [`OptSet`](pymatgen.io.qchem.md#pymatgen.io.qchem.sets.OptSet)
         * [`PESScanSet`](pymatgen.io.qchem.md#pymatgen.io.qchem.sets.PESScanSet)
-        * [`QChemDictSet`](pymatgen.io.qchem.md#pymatgen.io.qchem.sets.QChemDictSet)
-          * [`QChemDictSet.write()`](pymatgen.io.qchem.md#pymatgen.io.qchem.sets.QChemDictSet.write)
+        * [`QChemVaspInputSet`](pymatgen.io.qchem.md#pymatgen.io.qchem.sets.QChemVaspInputSet)
+          * [`QChemVaspInputSet.write()`](pymatgen.io.qchem.md#pymatgen.io.qchem.sets.QChemVaspInputSet.write)
         * [`SinglePointSet`](pymatgen.io.qchem.md#pymatgen.io.qchem.sets.SinglePointSet)
         * [`TransitionStateSet`](pymatgen.io.qchem.md#pymatgen.io.qchem.sets.TransitionStateSet)
       * [pymatgen.io.qchem.utils module](pymatgen.io.qchem.md#module-pymatgen.io.qchem.utils)
@@ -4763,16 +4760,16 @@ nav_order: 6
         * [`get_band_structure_from_vasp_multiple_branches()`](pymatgen.io.vasp.md#pymatgen.io.vasp.outputs.get_band_structure_from_vasp_multiple_branches)
       * [pymatgen.io.vasp.sets module](pymatgen.io.vasp.md#module-pymatgen.io.vasp.sets)
         * [`BadInputSetWarning`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.BadInputSetWarning)
-        * [`DictSet`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.DictSet)
-          * [`DictSet.calculate_ng()`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.DictSet.calculate_ng)
-          * [`DictSet.estimate_nbands()`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.DictSet.estimate_nbands)
-          * [`DictSet.incar`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.DictSet.incar)
-          * [`DictSet.kpoints`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.DictSet.kpoints)
-          * [`DictSet.nelect`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.DictSet.nelect)
-          * [`DictSet.poscar`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.DictSet.poscar)
-          * [`DictSet.potcar_functional`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.DictSet.potcar_functional)
-          * [`DictSet.structure`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.DictSet.structure)
-          * [`DictSet.write_input()`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.DictSet.write_input)
+        * [`VaspInputSet`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.VaspInputSet)
+          * [`VaspInputSet.calculate_ng()`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.VaspInputSet.calculate_ng)
+          * [`VaspInputSet.estimate_nbands()`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.VaspInputSet.estimate_nbands)
+          * [`VaspInputSet.incar`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.VaspInputSet.incar)
+          * [`VaspInputSet.kpoints`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.VaspInputSet.kpoints)
+          * [`VaspInputSet.nelect`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.VaspInputSet.nelect)
+          * [`VaspInputSet.poscar`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.VaspInputSet.poscar)
+          * [`VaspInputSet.potcar_functional`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.VaspInputSet.potcar_functional)
+          * [`VaspInputSet.structure`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.VaspInputSet.structure)
+          * [`VaspInputSet.write_input()`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.VaspInputSet.write_input)
         * [`LobsterSet`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.LobsterSet)
           * [`LobsterSet.incar`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.LobsterSet.incar)
         * [`MITMDSet`](pymatgen.io.vasp.md#pymatgen.io.vasp.sets.MITMDSet)
@@ -5896,7 +5893,7 @@ nav_order: 6
       * [`StructureVis.add_text()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.StructureVis.add_text)
       * [`StructureVis.add_triangle()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.StructureVis.add_triangle)
       * [`StructureVis.display_help()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.StructureVis.display_help)
-      * [`StructureVis.orthongonalize_structure()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.StructureVis.orthongonalize_structure)
+      * [`StructureVis.orthogonalize_structure()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.StructureVis.orthogonalize_structure)
       * [`StructureVis.redraw()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.StructureVis.redraw)
       * [`StructureVis.rotate_view()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.StructureVis.rotate_view)
       * [`StructureVis.set_structure()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.StructureVis.set_structure)
@@ -5904,6 +5901,5 @@ nav_order: 6
       * [`StructureVis.write_image()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.StructureVis.write_image)
       * [`StructureVis.zoom()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.StructureVis.zoom)
     * [`make_movie()`](pymatgen.vis.md#pymatgen.vis.structure_vtk.make_movie)
-
 
 ## pymatgen.dao module

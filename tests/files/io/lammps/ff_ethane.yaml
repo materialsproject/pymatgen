@@ -1,0 +1,44 @@
+mass_info:
+- [c4, 12.01115]
+- [h1, 1.00797]
+nonbond_coeffs:
+- [0.062, 3.854]
+- [0.023, 2.878]
+topo_coeffs:
+  Angle Coeffs:
+  - BondAngle Coeffs: [20.754, 11.421, 1.53, 1.101]
+    BondBond Coeffs: [3.3872, 1.53, 1.101]
+    coeffs: [110.77, 41.453, -10.604, 5.129]
+    types:
+    - [c4, c4, h1]
+  - BondAngle Coeffs: [18.103, 18.103, 1.101, 1.101]
+    BondBond Coeffs: [5.3316, 1.101, 1.101]
+    coeffs: [107.66, 39.641, -12.921, -2.4318]
+    types:
+    - [h1, c4, h1]
+  Bond Coeffs:
+  - coeffs: [1.53, 299.67, -501.77, 679.81]
+    types:
+    - [c4, c4]
+  - coeffs: [1.101, 345.0, -691.89, 844.6]
+    types:
+    - [c4, h1]
+  Dihedral Coeffs:
+  - AngleAngleTorsion Coeffs: [-12.564, 110.77, 110.77]
+    AngleTorsion Coeffs: [-0.8085, 0.5569, -0.2466, -0.8085, 0.5569, -0.2466, 110.77,
+      110.77]
+    BondBond13 Coeffs: [0.0, 1.101, 1.101]
+    EndBondTorsion Coeffs: [0.213, 0.312, 0.0777, 0.213, 0.312, 0.0777, 1.101, 1.101]
+    MiddleBondTorsion Coeffs: [-14.261, -0.5322, -0.4864, 1.53]
+    coeffs: [-0.1432, 0.0, 0.0617, 0.0, -0.153, 0.0]
+    types:
+    - [h1, c4, c4, h1]
+  Improper Coeffs:
+  - AngleAngle Coeffs: [0.2738, -0.4825, 0.2738, 110.77, 107.66, 110.77]
+    coeffs: [0.0, 0.0]
+    types:
+    - [c4, c4, h1, h1]
+  - AngleAngle Coeffs: [-0.3157, -0.3157, -0.3157, 107.66, 107.66, 107.66]
+    coeffs: [0.0, 0.0]
+    types:
+    - [h1, c4, h1, h1]

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import collections
-import os
 import unittest
 import unittest.mock
+from itertools import combinations
 from numbers import Number
 from unittest import TestCase
 
@@ -13,8 +13,6 @@ import plotly.graph_objects as go
 import pytest
 from monty.serialization import dumpfn, loadfn
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.analysis.phase_diagram import (
     CompoundPhaseDiagram,
     GrandPotentialPhaseDiagram,
@@ -32,9 +30,10 @@ from pymatgen.analysis.phase_diagram import (
 from pymatgen.core import Composition, DummySpecies, Element
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.entries.entry_tools import EntrySet
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+TEST_DIR = f"{TEST_FILES_DIR}/analysis"
 
 
 class TestPDEntry(TestCase):
@@ -108,7 +107,7 @@ class TestPDEntry(TestCase):
         assert str(pde) == "PDEntry : Li1 Fe1 O2 with energy = 53.0000"
 
     def test_read_csv(self):
-        entries = EntrySet.from_csv(f"{module_dir}/pd_entries_test.csv")
+        entries = EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv")
         assert entries.chemsys == {"Li", "Fe", "O"}, "Wrong elements!"
         assert len(entries) == 490, "Wrong number of entries!"
 
@@ -171,7 +170,7 @@ class TestTransformedPDEntry(TestCase):
 
 class TestPhaseDiagram(PymatgenTest):
     def setUp(self):
-        self.entries = EntrySet.from_csv(f"{module_dir}/pd_entries_test.csv")
+        self.entries = EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv")
         self.pd = PhaseDiagram(self.entries)
 
     def test_init(self):
@@ -642,7 +641,7 @@ class TestPhaseDiagram(PymatgenTest):
 
 class TestGrandPotentialPhaseDiagram(TestCase):
     def setUp(self):
-        self.entries = EntrySet.from_csv(f"{module_dir}/pd_entries_test.csv")
+        self.entries = EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv")
         self.pd = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -5})
         self.pd6 = GrandPotentialPhaseDiagram(self.entries, {Element("O"): -6})
 
@@ -678,7 +677,7 @@ class TestGrandPotentialPhaseDiagram(TestCase):
 
 class TestCompoundPhaseDiagram(TestCase):
     def setUp(self):
-        self.entries = EntrySet.from_csv(f"{module_dir}/pd_entries_test.csv")
+        self.entries = EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv")
         self.pd = CompoundPhaseDiagram(self.entries, [Composition("Li2O"), Composition("Fe2O3")])
 
     def test_stable_entries(self):
@@ -704,13 +703,14 @@ class TestCompoundPhaseDiagram(TestCase):
 
 class TestPatchedPhaseDiagram(TestCase):
     def setUp(self):
-        self.entries = EntrySet.from_csv(f"{module_dir}/reaction_entries_test.csv")
+        self.entries = EntrySet.from_csv(f"{TEST_DIR}/phase_diagram/reaction_entries_test.csv")
         # NOTE add He to test for correct behavior despite no patches involving He
         self.no_patch_entry = he_entry = PDEntry("He", -1.23)
         self.entries.add(he_entry)
 
         self.pd = PhaseDiagram(entries=self.entries)
         self.ppd = PatchedPhaseDiagram(entries=self.entries)
+        self.ppd_all = PatchedPhaseDiagram(entries=self.entries, keep_all_spaces=True)
 
         # novel entries not in any of the patches
         self.novel_comps = [Composition("H5C2OP"), Composition("V2PH4C")]
@@ -758,7 +758,11 @@ class TestPatchedPhaseDiagram(TestCase):
 
         # test dims of sub PDs
         dim_counts = collections.Counter(pd.dim for pd in self.ppd.pds.values())
-        assert dim_counts == {3: 7, 2: 6, 4: 2}
+        assert dim_counts == {4: 2, 3: 2}
+
+        # test dims of sub PDs
+        dim_counts = collections.Counter(pd.dim for pd in self.ppd_all.pds.values())
+        assert dim_counts == {2: 8, 3: 7, 4: 2}
 
     def test_get_hull_energy(self):
         for comp in self.novel_comps:
@@ -774,7 +778,7 @@ class TestPatchedPhaseDiagram(TestCase):
             assert np.isclose(e_above_hull_pd, e_above_hull_ppd)
 
     def test_repr(self):
-        assert repr(self.ppd) == str(self.ppd) == "PatchedPhaseDiagram covering 15 sub-spaces"
+        assert repr(self.ppd) == str(self.ppd) == "PatchedPhaseDiagram covering 4 sub-spaces"
 
     def test_as_from_dict(self):
         ppd_dict = self.ppd.as_dict()
@@ -812,7 +816,8 @@ class TestPatchedPhaseDiagram(TestCase):
         pd = self.ppd[chem_space]
         assert isinstance(pd, PhaseDiagram)
         assert chem_space in pd._qhull_spaces
-        assert str(pd) == "V-C phase diagram\n4 stable phases: \nC, V, V6C5, V2C"
+        assert len(str(pd)) == 186
+        assert str(pd).startswith("V-H-C-O phase diagram\n25 stable phases:")
 
         with pytest.raises(KeyError, match="frozenset"):
             self.ppd[frozenset(map(Element, "HBCNOFPS"))]
@@ -832,10 +837,23 @@ class TestPatchedPhaseDiagram(TestCase):
         assert self.ppd[unlikely_chem_space] == self.pd
         del self.ppd[unlikely_chem_space]  # test __delitem__() and restore original state
 
+    def test_remove_redundant_spaces(self):
+        spaces = tuple(frozenset(entry.elements) for entry in self.ppd.qhull_entries)
+        # NOTE this is 5 not 4 as "He" is a non redundant space that gets dropped for other reasons
+        assert len(self.ppd.remove_redundant_spaces(spaces)) == 5
+
+        test = (
+            list(combinations(range(1, 7), 4))
+            + list(combinations(range(1, 10), 2))
+            + list(combinations([1, 4, 7, 9, 2], 5))
+        )
+        test = [frozenset(t) for t in test]
+        assert len(self.ppd.remove_redundant_spaces(test)) == 30
+
 
 class TestReactionDiagram(TestCase):
     def setUp(self):
-        self.entries = list(EntrySet.from_csv(f"{module_dir}/reaction_entries_test.csv").entries)
+        self.entries = list(EntrySet.from_csv(f"{TEST_DIR}/phase_diagram/reaction_entries_test.csv").entries)
         for entry in self.entries:
             if entry.reduced_formula == "VPO5":
                 entry1 = entry
@@ -875,7 +893,7 @@ class TestReactionDiagram(TestCase):
 
 class TestPDPlotter(TestCase):
     def setUp(self):
-        entries = list(EntrySet.from_csv(f"{module_dir}/pd_entries_test.csv"))
+        entries = list(EntrySet.from_csv(f"{TEST_DIR}/pd_entries_test.csv"))
 
         elemental_entries = [entry for entry in entries if entry.elements == [Element("Li")]]
         self.pd_unary = PhaseDiagram(elemental_entries)

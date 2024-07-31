@@ -1,0 +1,24 @@
+GENE          # use generic interface
+1 0 0 0.000000         # iskip (not presently used) idebug setgap shiftgap 
+0.0 0.000367 1.370379   10.0     # Fermilevel (Ry),energygrid,energy span around Fermilevel, number of electrons
+CALC                    # CALC (calculate expansion coeff), NOCALC read from file
+10                        # lpfac, number of latt-points per k-point
+DOS                     # run mode (only BOLTZ is supported)
+.15                       # (efcut) energy range of chemical potential
+1300. 100.                  # Tmax, temperature grid
+-1.  # energyrange of bands given DOS output sig_xxx and dos_xxx (xxx is band number)
+HISTO
+0 0 0 0 0 0
+12
+1e+16
+1e+17
+1e+18
+1e+19
+1e+20
+1e+21
+-1e+16
+-1e+17
+-1e+18
+-1e+19
+-1e+20
+-1e+21

@@ -3,11 +3,10 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
-from pytest import approx
-
 from pymatgen.analysis.magnetism.jahnteller import JahnTellerAnalyzer, Species
 from pymatgen.core import Structure
 from pymatgen.util.testing import TEST_FILES_DIR
+from pytest import approx
 
 
 class TestJahnTeller(TestCase):
@@ -82,9 +81,9 @@ class TestJahnTeller(TestCase):
         assert magnitude == "none"
 
     def test_jahn_teller_structure_analysis(self):
-        LiFePO4 = Structure.from_file(f"{TEST_FILES_DIR}/LiFePO4.cif", primitive=True)
+        LiFePO4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/LiFePO4.cif", primitive=True)
 
-        Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif", primitive=True)
+        Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe3O4.cif", primitive=True)
 
         assert self.jt.is_jahn_teller_active(LiFePO4)
         assert self.jt.is_jahn_teller_active(Fe3O4)

@@ -1,0 +1,138 @@
+# Created by the Bilbao Crystallographic Server
+# http://www.cryst.ehu.es
+# Date: 08/22/2016 22:48:02
+# Database entry: 1.178 Cu1.07Mn0.93O2
+# Cif-like file for the case 1.178
+
+
+data_5yOhtAoR
+_audit_creation_date            2016-08-22
+_audit_creation_method          "Bilbao Crystallographic Server"
+
+_chemical_name_systematic
+;
+;
+_chemical_name_common                    ?
+_chemical_formula_moiety                 ?
+_chemical_formula_structural             ?
+_chemical_formula_analytical             ?
+_chemical_formula_iupac                  ?
+_chemical_formula_sum                    'Cu1 .07Mn0 .93O2'
+_chemical_formula_weight                 ?
+_chemical_melting_point                  ?
+_chemical_compound_source                ?
+_chemical_absolute_configuration         .
+
+
+_citation_journal_abbrev        "PHYSICAL REVIEW B"
+_citation_journal_volume        83
+_citation_page_first            ?
+_citation_page_last             ?
+_citation_article_id            172407
+_citation_year                  2011
+_citation_DOI                   10.1103/PhysRevB.83.172407
+
+loop_
+_citation_author_name
+"Garlea, V.O."
+
+_atomic_positions_source_database_code_ICSD  .
+_atomic_positions_source_other               .
+
+_transition_temperature     52
+_experiment_temperature     ?
+
+loop_
+_irrep_id
+_irrep_dimension
+_irrep_small_dimension
+_irrep_direction_type
+_irrep_action
+_irrep_modes_number
+_irrep_presence
+mV1- 2 1 . primary 3 .
+
+_exptl_crystal_magnetic_properties_details
+;
+NPD
+Compound with a 7% substitution of Mn by Cu, with formula Cu_1.07Mn_0.93O_2
+The pure compound MnCuO2 has a different magnetic phase with k=(-1/2,1/2,1/2)  (see entry #1.57)
+No triclinic strain is observed, in contrast with the pure compound.
+;
+
+_active_magnetic_irreps_details
+;
+1k magnetic structure
+k-maximal magnetic symmetry
+maximal k-symmetry (1 possible)
+twin related equivalent structure with k=(1/2,1/2,0), related by the lost twofold rotation.
+;
+
+_parent_space_group.name_H-M                        'C 2/m'
+_parent_space_group.IT_number                       12
+_parent_space_group.transform_to_standard_Pp_abc    'a,b,c;0,0,0'
+
+loop_
+_magnetic_propagation_vector_seq_id
+_magnetic_propagation_vector_kxkykz
+k1 -1/2,1/2,0
+
+_magnetic_space_group.standard_setting              'no'
+_magnetic_space_group.transform_from_parent_Pp_abc  '2a,2b,c;0,0,0'
+_magnetic_space_group.transform_to_standard_Pp_abc  'c,1/4a+1/4b,-1/2a+1/2b;0,0,0'
+
+loop_
+_magnetic_atom_site_moment_symmetry_constraints_label
+_atom_site_magnetic_moment_symmetry_constraints_mxmymz
+Mn1 mx,my,mz
+
+_space_group.magn_number_BNS   2.7
+_space_group.magn_name_BNS     "P_S -1"
+_space_group.magn_point_group "-11'"
+_space_group.magn_point_group_number "2.2.4"
+_cell_length_a                 11.0867
+_cell_length_b                 5.7640
+_cell_length_c                 5.8955
+_cell_angle_alpha              90.00
+_cell_angle_beta               104.2968
+_cell_angle_gamma              90.00
+
+loop_
+_space_group_symop.magn_id
+_space_group_symop.magn_operation_xyz
+_space_group_symop.magn_operation_mxmymz
+1 x,y,z,+1 mx,my,mz
+2 -x,-y,-z,+1 mx,my,mz
+
+loop_
+_space_group_symop.magn_centering_id
+_space_group_symop.magn_centering_xyz
+_space_group_symop.magn_centering_mxmymz
+1 x,y,z,+1 mx,my,mz
+2 x+1/4,y+1/4,z,+1 mx,my,mz
+3 x+1/2,y+1/2,z,+1 mx,my,mz
+4 x+3/4,y+3/4,z,+1 mx,my,mz
+5 x+3/4,y+1/4,z,-1 -mx,-my,-mz
+6 x,y+1/2,z,-1 -mx,-my,-mz
+7 x+1/4,y+3/4,z,-1 -mx,-my,-mz
+8 x+1/2,y,z,-1 -mx,-my,-mz
+
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_occupancy
+Cu1 Cu 0.00000 0.25000 0.50000 1.00
+Mn1 Mn 0.00000 0.00000 0.00000 0.932(5)
+Cu2 Cu 0.00000 0.00000 0.00000 0.068
+O1 O 0.20349 0.00000 0.1763 1.
+
+loop_
+_atom_site_moment_label
+_atom_site_moment_crystalaxis_x
+_atom_site_moment_crystalaxis_y
+_atom_site_moment_crystalaxis_z
+Mn1 1.8(2) 0.0 1.4(3)
+

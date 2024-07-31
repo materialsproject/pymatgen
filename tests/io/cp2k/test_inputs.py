@@ -3,8 +3,6 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
-
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import (
     BasisFile,
@@ -23,6 +21,9 @@ from pymatgen.io.cp2k.inputs import (
     SectionList,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
+
+TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
 
 si_struct = Structure(
     lattice=[[0, 2.734364, 2.734364], [2.734364, 0, 2.734364], [2.734364, 2.734364, 0]],
@@ -159,7 +160,7 @@ class TestBasisAndPotential(PymatgenTest):
 
 class TestInput(PymatgenTest):
     def setUp(self):
-        self.ci = Cp2kInput.from_file(f"{TEST_FILES_DIR}/cp2k/cp2k.inp")
+        self.ci = Cp2kInput.from_file(f"{TEST_DIR}/cp2k.inp")
 
     def test_basic_sections(self):
         cp2k_input = Cp2kInput.from_str(CP2K_INPUT_STR)

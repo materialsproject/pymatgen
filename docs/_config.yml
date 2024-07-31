@@ -20,7 +20,7 @@ aux_links:
   GitHub: [https://github.com/materialsproject/pymatgen]
   Issues: [https://github.com/materialsproject/pymatgen/issues]
   Discourse: [https://matsci.org/pymatgen]
-  Materials Project: [https://materialsproject.org]
+  Matgenb Examples: [https://matgenb.materialsvirtuallab.org/]
 
 # Enable or disable the site search
 # Supports true (default) or false

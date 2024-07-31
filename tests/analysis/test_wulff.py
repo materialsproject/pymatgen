@@ -1,16 +1,14 @@
 from __future__ import annotations
 
 import json
-import os
-
-from pytest import approx
 
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
-from pymatgen.util.testing import PymatgenTest
+from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 __author__ = "Zihan Xu, Richard Tran, Balachandran Radhakrishnan"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"
@@ -19,12 +17,12 @@ __maintainer__ = "Zihan Xu"
 __email__ = "zix009@eng.ucsd.edu"
 __date__ = "May 05 2016"
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/wulff"
 
 
 class TestWulffShape(PymatgenTest):
     def setUp(self):
-        with open(f"{module_dir}/surface_samples.json") as data_file:
+        with open(f"{TEST_DIR}/surface_samples.json") as data_file:
             surface_properties = json.load(data_file)
 
         surface_energies, miller_indices = {}, {}
@@ -89,9 +87,8 @@ class TestWulffShape(PymatgenTest):
         self.wulff_Ir.get_plotly()
 
     def symm_check(self, ucell, wulff_vertices):
-        """
-        # Checks if the point group of the Wulff shape matches
-        # the point group of its conventional unit cell.
+        """Check if the point group of the Wulff shape matches
+        the point group of its conventional unit cell.
 
         Args:
             ucell (str): Unit cell that the Wulff shape is based on.
@@ -99,7 +96,8 @@ class TestWulffShape(PymatgenTest):
                 shape. Use wulff.wulff_pt_list to obtain the list
                 (see wulff_generator.py).
 
-        return (bool)
+        Returns:
+            bool: True if the point group of the Wulff shape matches
         """
         space_group_analyzer = SpacegroupAnalyzer(ucell)
         symm_ops = space_group_analyzer.get_point_group_operations(cartesian=True)

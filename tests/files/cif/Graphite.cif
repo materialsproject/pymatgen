@@ -1,0 +1,81 @@
+
+#(C) 2015 by Fachinformationszentrum Karlsruhe.  All rights reserved.
+data_53781-ICSD
+_database_code_ICSD 53781
+_audit_creation_date 2003-04-01
+_audit_update_record 2013-02-01
+_chemical_name_systematic Carbon
+_chemical_formula_structural C
+_chemical_formula_sum C1
+_chemical_name_structure_type Graphite(2H)
+_chemical_name_mineral 'Graphite 2H'
+_exptl_crystal_density_diffrn 2.22
+_publ_section_title 'Structure of graphite'
+loop_
+_citation_id
+_citation_journal_full
+_citation_year
+_citation_journal_volume
+_citation_page_first
+_citation_page_last
+_citation_journal_id_ASTM
+primary 'Physical Review (1,1893-132,1963/141,1966-188,1969)' 1917 10 661 696
+PHRVAO
+loop_
+_publ_author_name
+'Hull, A.W.'
+_cell_length_a 2.47
+_cell_length_b 2.47
+_cell_length_c 6.8
+_cell_angle_alpha 90.
+_cell_angle_beta 90.
+_cell_angle_gamma 120.
+_cell_volume 35.93
+_cell_formula_units_Z 4
+_symmetry_space_group_name_H-M 'P 63/m m c'
+_symmetry_Int_Tables_number 194
+loop_
+_symmetry_equiv_pos_site_id
+_symmetry_equiv_pos_as_xyz
+1 'x, x-y, -z+1/2'
+2 '-x+y, y, -z+1/2'
+3 '-y, -x, -z+1/2'
+4 '-x+y, -x, -z+1/2'
+5 '-y, x-y, -z+1/2'
+6 'x, y, -z+1/2'
+7 '-x, -x+y, z+1/2'
+8 'x-y, -y, z+1/2'
+9 'y, x, z+1/2'
+10 'x-y, x, z+1/2'
+11 'y, -x+y, z+1/2'
+12 '-x, -y, z+1/2'
+13 '-x, -x+y, -z'
+14 'x-y, -y, -z'
+15 'y, x, -z'
+16 'x-y, x, -z'
+17 'y, -x+y, -z'
+18 '-x, -y, -z'
+19 'x, x-y, z'
+20 '-x+y, y, z'
+21 '-y, -x, z'
+22 '-x+y, -x, z'
+23 '-y, x-y, z'
+24 'x, y, z'
+loop_
+_atom_type_symbol
+_atom_type_oxidation_number
+C0+ 0
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_symmetry_multiplicity
+_atom_site_Wyckoff_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_B_iso_or_equiv
+_atom_site_occupancy
+_atom_site_attached_hydrogens
+C1 C0+ 2 b 0 0 0.25 . 1. 0
+C2 C0+ 2 c 0.3333 0.6667 0.25 . 1. 0
+#End of TTdata_53781-ICSD

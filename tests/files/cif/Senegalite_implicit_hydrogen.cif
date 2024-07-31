@@ -1,0 +1,68 @@
+data_global
+_chemical_name_mineral 'Senegalite'
+loop_
+_publ_author_name
+'Keegan T D'
+'Araki T'
+'Moore P B'
+_journal_name_full 'American Mineralogist'
+_journal_volume 64 
+_journal_year 1979
+_journal_page_first 1243
+_journal_page_last 1247
+_publ_section_title
+;
+ Senegalite, Al2(OH)3(H2O)(PO4), a novel structure type
+;
+_database_code_amcsd 0000752
+_chemical_formula_sum 'Al2 P O8 H5'
+_cell_length_a 7.675
+_cell_length_b 9.711
+_cell_length_c 7.635
+_cell_angle_alpha 90
+_cell_angle_beta 90
+_cell_angle_gamma 90
+_cell_volume 569.051
+_exptl_crystal_density_diffrn      2.544
+_symmetry_space_group_name_H-M 'P 21 n b'
+loop_
+_space_group_symop_operation_xyz
+  'x,y,z'
+  'x,1/2+y,1/2-z'
+  '1/2+x,1/2-y,1/2+z'
+  '1/2+x,-y,-z'
+loop_
+_atom_site_label
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+Al(1)   0.50000   0.19887   0.52290
+Al(2)   0.88320   0.34948   0.66200
+P   0.51930   0.48252   0.68687
+O(1)   0.71790   0.48180   0.72060
+O(2)   0.43110   0.56150   0.83750
+O(3)   0.44650   0.33490   0.68820
+O(4)   0.48450   0.55020   0.51160
+O-H(1)   0.72550   0.25520   0.51340
+O-H(2)   0.04230   0.42540   0.82940
+O-H(3)   0.83100   0.24520   0.86980
+Wat   0.05210   0.20180   0.60500
+loop_
+_atom_site_aniso_label
+_atom_site_aniso_U_11
+_atom_site_aniso_U_22
+_atom_site_aniso_U_33
+_atom_site_aniso_U_12
+_atom_site_aniso_U_13
+_atom_site_aniso_U_23
+Al(1) 0.00716 0.00554 0.00827 0.00038 -0.00089 0.00000
+Al(2) 0.00657 0.00645 0.00827 0.00038 -0.00089 -0.00038
+P 0.00668 0.00530 0.00794 0.00038 -0.00059 0.00000
+O(1) 0.00627 0.00812 0.01920 -0.00038 -0.00237 0.00150
+O(2) 0.01194 0.00812 0.01358 -0.00038 -0.00237 0.00376
+O(3) 0.01134 0.00717 0.01388 -0.00227 0.00267 -0.00113
+O(4) 0.01701 0.01338 0.01181 0.00302 0.00208 -0.00413
+O-H(1) 0.00776 0.01290 0.01270 0.00264 -0.00059 0.00451
+O-H(2) 0.00716 0.00860 0.01181 -0.00113 -0.00119 0.00150
+O-H(3) 0.00925 0.00717 0.01122 0.00189 -0.00178 -0.00188
+Wat 0.01283 0.01003 0.01772 0.00151 0.00356 0.00038

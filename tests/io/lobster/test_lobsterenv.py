@@ -5,8 +5,6 @@ from unittest import TestCase
 
 import numpy as np
 import pytest
-from pytest import approx
-
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core import Element
 from pymatgen.core.structure import Structure
@@ -15,6 +13,7 @@ from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.lobster import Charge, Icohplist
 from pymatgen.io.lobster.lobsterenv import LobsterNeighbors
 from pymatgen.util.testing import TEST_FILES_DIR
+from pytest import approx
 
 __author__ = "Janine George"
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -22,7 +21,7 @@ __version__ = "0.1"
 __email__ = "janine.george@uclouvain.be"
 __date__ = "Jan 14, 2021"
 
-TEST_DIR = f"{TEST_FILES_DIR}/cohp/environments"
+TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp/environments"
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -688,7 +687,7 @@ class TestLobsterNeighbors(TestCase):
         lse2 = self.chem_env_lobster1.get_light_structure_environment()
         assert lse2.coordination_environments[0][0]["ce_symbol"] == "O:6"
 
-    def test_get_strucuture_environments_further_tests(self):
+    def test_get_structure_environments_further_tests(self):
         lse = self.chem_env_lobster1_second.get_light_structure_environment()
         lse.as_dict()
         lse.get_statistics()

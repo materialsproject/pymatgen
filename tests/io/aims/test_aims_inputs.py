@@ -8,13 +8,15 @@ import numpy as np
 import pytest
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose
-
+from pymatgen.core import SETTINGS
 from pymatgen.io.aims.inputs import (
     ALLOWED_AIMS_CUBE_TYPES,
     ALLOWED_AIMS_CUBE_TYPES_STATE,
     AimsControlIn,
     AimsCube,
     AimsGeometryIn,
+    AimsSpeciesFile,
+    SpeciesDefaults,
 )
 from pymatgen.util.testing.aims import compare_single_files as compare_files
 
@@ -74,23 +76,23 @@ def test_read_h2o_in(tmp_path: Path):
     assert h2o.structure == h2o_from_dct.structure
 
 
-def check_wrong_type_aims_cube(type, exp_err):
+def check_wrong_type_aims_cube(cube_type, exp_err):
     with pytest.raises(ValueError, match=exp_err):
-        AimsCube(type=type)
+        AimsCube(type=cube_type)
 
 
 def test_aims_cube():
-    check_wrong_type_aims_cube(type="INCORRECT_TYPE", exp_err="Cube type undefined")
+    check_wrong_type_aims_cube(cube_type="INCORRECT_TYPE", exp_err="Cube type undefined")
 
     for cube_type in ALLOWED_AIMS_CUBE_TYPES_STATE:
         check_wrong_type_aims_cube(
-            type=cube_type,
+            cube_type=cube_type,
             exp_err=f"{cube_type=} must have a state associated with it",
         )
 
     for cube_type in ALLOWED_AIMS_CUBE_TYPES:
         check_wrong_type_aims_cube(
-            type=f"{cube_type} 1",
+            cube_type=f"{cube_type} 1",
             exp_err=f"{cube_type=} can not have a state associated with it",
         )
 
@@ -164,7 +166,7 @@ def test_aims_control_in(tmp_path: Path):
         "compute_forces": True,
         "relax_geometry": ["trm", "1e-3"],
         "batch_size_limit": 200,
-        "species_dir": str(TEST_DIR.parent / "species_directory/light"),
+        "species_dir": "light",
     }
 
     aims_control = AimsControlIn(parameters.copy())
@@ -204,30 +206,27 @@ def test_aims_control_in(tmp_path: Path):
     compare_files(TEST_DIR / "control.in.si", f"{tmp_path}/control.in")
 
 
-def test_aims_control_in_default_species_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("AIMS_SPECIES_DIR", str(TEST_DIR.parent / "species_directory/light"))
+def test_species_file(monkeypatch: pytest.MonkeyPatch):
+    """Tests an AimsSpeciesFile class"""
+    monkeypatch.setitem(SETTINGS, "AIMS_SPECIES_DIR", str(TEST_DIR.parent / "species_directory"))
+    species_file = AimsSpeciesFile.from_element_and_basis_name("Si", "light", label="Si_surface")
+    assert species_file.label == "Si_surface"
+    assert species_file.element == "Si"
 
-    parameters = {
-        "cubes": [
-            AimsCube(type="eigenstate 1", points=[10, 10, 10]),
-            AimsCube(type="total_density", points=[10, 10, 10]),
-        ],
-        "xc": "LDA",
-        "smearing": ["fermi-dirac", 0.01],
-        "vdw_correction_hirshfeld": True,
-        "compute_forces": True,
-        "relax_geometry": ["trm", "1e-3"],
-        "batch_size_limit": 200,
-        "output": ["band 0 0 0 0.5 0 0.5 10 G X", "band 0 0 0 0.5 0.5 0.5 10 G L"],
-        "k_grid": [1, 1, 1],
-    }
 
-    aims_control = AimsControlIn(parameters.copy())
-
-    for key, val in parameters.items():
-        assert aims_control[key] == val
-
+def test_species_defaults(monkeypatch: pytest.MonkeyPatch):
+    """Tests an AimsSpeciesDefaults class"""
+    monkeypatch.setitem(SETTINGS, "AIMS_SPECIES_DIR", str(TEST_DIR.parent / "species_directory"))
     si = AimsGeometryIn.from_file(TEST_DIR / "geometry.in.si.gz").structure
+    species_defaults = SpeciesDefaults.from_structure(si, "light")
+    assert species_defaults.labels == [
+        "Si",
+    ]
+    assert species_defaults.elements == {"Si": "Si"}
 
-    aims_control.write_file(si, directory=tmp_path, verbose_header=True, overwrite=True)
-    compare_files(TEST_DIR / "control.in.si.no_sd", f"{tmp_path}/control.in")
+    si.relabel_sites()
+    species_defaults = SpeciesDefaults.from_structure(si, "light")
+    assert species_defaults.labels == ["Si_1", "Si_2"]
+    assert species_defaults.elements == {"Si_1": "Si", "Si_2": "Si"}
+    assert "Si_1" in str(species_defaults)
+    assert "Si_2" in str(species_defaults)

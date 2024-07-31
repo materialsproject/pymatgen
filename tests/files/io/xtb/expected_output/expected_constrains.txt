@@ -1,0 +1,7 @@
+$constrain
+  atoms: 8,1,2
+  force constant=0.5
+  reference=crest_in.xyz
+$metadyn
+  atoms: 3-7,9-14
+$end

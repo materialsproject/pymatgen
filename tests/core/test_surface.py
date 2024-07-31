@@ -6,10 +6,8 @@ import random
 import unittest
 
 import numpy as np
-from numpy.testing import assert_allclose
-from pytest import approx
-
 import pymatgen
+from numpy.testing import assert_allclose
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, Structure
 from pymatgen.core.surface import (
@@ -26,6 +24,7 @@ from pymatgen.core.surface import (
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 
 class TestSlab(PymatgenTest):
@@ -229,7 +228,7 @@ class TestSlab(PymatgenTest):
         assert len(all_non_laue_slabs) > 0
 
     def test_get_symmetric_sites(self):
-        # Check to see if we get an equivalent site on one
+        # Check if we get an equivalent site on one
         # surface if we add a new site to the other surface
 
         all_Ti_slabs = generate_all_slabs(
@@ -261,7 +260,7 @@ class TestSlab(PymatgenTest):
             assert sg.is_laue()
 
     def test_oriented_unit_cell(self):
-        # Check to see if we get the fully reduced oriented unit
+        # Check if we get the fully reduced oriented unit
         # cell. This will also ensure that the constrain_latt
         # parameter for get_primitive_structure is working properly
 
@@ -380,9 +379,9 @@ class TestSlabGenerator(PymatgenTest):
             if sg.crystal_system == "hexagonal" or (
                 sg.crystal_system == "trigonal"
                 and (
-                    sg.symbol.endswith("H")
+                    sg.hexagonal
                     or sg.int_number
-                    in [143, 144, 145, 147, 149, 150, 151, 152, 153, 154, 156, 157, 158, 159, 162, 163, 164, 165]
+                    in (143, 144, 145, 147, 149, 150, 151, 152, 153, 154, 156, 157, 158, 159, 162, 163, 164, 165)
                 )
             ):
                 lattice = Lattice.hexagonal(5, 10)
@@ -580,15 +579,18 @@ class TestSlabGenerator(PymatgenTest):
     def test_bonds_broken(self):
         # Querying the Materials Project database for Si
         struct = self.get_structure("Si")
+
         # Conventional unit cell is supplied to ensure miller indices
         # correspond to usual crystallographic definitions
         conv_bulk = SpacegroupAnalyzer(struct).get_conventional_standard_structure()
         slab_gen = SlabGenerator(conv_bulk, [1, 1, 1], 10, 10, center_slab=True)
+
         # Setting a generous estimate for max_broken_bonds
         # so that all terminations are generated. These slabs
         # are ordered by ascending number of bonds broken
         # which is assigned to Slab.energy
         slabs = slab_gen.get_slabs(bonds={("Si", "Si"): 2.40}, max_broken_bonds=30)
+
         # Looking at the two slabs generated in VESTA, we
         # expect 2 and 6 bonds broken so we check for this.
         # Number of broken bonds are floats due to primitive

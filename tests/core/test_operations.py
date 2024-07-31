@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import numpy as np
 from numpy.testing import assert_allclose
-
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.testing import PymatgenTest

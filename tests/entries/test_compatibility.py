@@ -9,11 +9,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from unittest import TestCase
 
+import pymatgen
 import pytest
 from monty.json import MontyDecoder
-from pytest import approx
-
-import pymatgen
 from pymatgen.core import Element, Species
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -34,6 +32,7 @@ from pymatgen.entries.compatibility import (
 )
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry, ConstantEnergyAdjustment
 from pymatgen.util.testing import TEST_FILES_DIR
+from pytest import approx
 
 if TYPE_CHECKING:
     from pymatgen.util.typing import CompositionLike
@@ -551,6 +550,20 @@ class TestMaterialsProjectCompatibility2020(TestCase):
         self.compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
         self.gga_compat = MaterialsProject2020Compatibility("GGA", check_potcar_hash=False)
 
+        self.entry_many_anions = ComputedEntry(
+            "CuI9",
+            -1,
+            0.0,
+            parameters={
+                "is_hubbard": False,
+                "run_type": "GGA",
+                "potcar_spec": [
+                    {"titel": "PAW_PBE Cu_pv 06Sep2000", "hash": "2d718b6be91068094207c9e861e11a89"},
+                    {"titel": "PAW_PBE I 08Apr2002", "hash": "f4ff16a495dd361ff5824ee61b418bb0"},
+                ],
+            },
+        )
+
     def test_process_entry(self):
         # Correct parameters
         assert self.compat.process_entry(self.entry1) is not None
@@ -969,7 +982,7 @@ class TestMaterialsProjectCompatibility2020(TestCase):
         assert len(entries) == 2
 
     def test_config_file(self):
-        config_file = Path(f"{TEST_FILES_DIR}/MP2020Compatibility_alternate.yaml")
+        config_file = Path(f"{TEST_FILES_DIR}/entries/compatibility/MP2020Compatibility_alternate.yaml")
         compat = MaterialsProject2020Compatibility(config_file=config_file)
         entry = compat.process_entry(self.entry1)
         for ea in entry.energy_adjustments:
@@ -984,7 +997,7 @@ class TestMaterialsProjectCompatibility2020(TestCase):
 
     def test_processing_entries_inplace(self):
         # load two entries in GGA_GGA_U_R2SCAN thermo type
-        json_file = Path(f"{TEST_FILES_DIR}/entries_thermo_type_GGA_GGA_U_R2SCAN.json")
+        json_file = Path(f"{TEST_FILES_DIR}/entries/entries_thermo_type_GGA_GGA_U_R2SCAN.json")
         with open(json_file) as file:
             entries = json.load(file, cls=MontyDecoder)
         # check whether the compatibility scheme can keep input entries unchanged
@@ -1047,6 +1060,19 @@ class TestMaterialsProjectCompatibility2020(TestCase):
         assert processed_entry.energy_adjustments[1].name == "MP2020 GGA/GGA+U mixing correction (Mn)"
         assert processed_entry.correction == approx(-6.084)
         assert processed_entry.energy == approx(-58.97 + -6.084)
+
+    def test_many_anions(self):
+        compat = MaterialsProject2020Compatibility(strict_anions="require_bound")
+        processed_entry = compat.process_entry(self.entry_many_anions)
+        assert processed_entry.energy == -1
+
+        compat = MaterialsProject2020Compatibility(strict_anions="no_check")
+        processed_entry = compat.process_entry(self.entry_many_anions)
+        assert processed_entry.energy == approx(-4.411)
+
+        compat = MaterialsProject2020Compatibility(strict_anions="require_exact")
+        processed_entry = compat.process_entry(self.entry_many_anions)
+        assert processed_entry.energy == -1
 
 
 class TestMITCompatibility(TestCase):

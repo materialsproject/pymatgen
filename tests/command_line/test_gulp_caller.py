@@ -14,7 +14,6 @@ from unittest import TestCase
 
 import numpy as np
 import pytest
-
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.command_line.gulp_caller import (
     BuckinghamPotential,
@@ -27,6 +26,8 @@ from pymatgen.command_line.gulp_caller import (
 )
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
+
+TEST_DIR = f"{TEST_FILES_DIR}/command_line/gulp"
 
 gulp_present = which("gulp") and os.getenv("GULP_LIB") and ("win" not in sys.platform)
 # disable gulp tests for now. Right now, it is compiled against libgfortran3, which is no longer supported in the new
@@ -246,7 +247,7 @@ class TestGulpIO(TestCase):
     def test_get_relaxed_structure(self):
         # Output string obtained from running GULP on a terminal
 
-        with open(f"{TEST_FILES_DIR}/gulp/example21.gout") as file:
+        with open(f"{TEST_DIR}/example21.gout") as file:
             out_str = file.read()
         struct = self.gio.get_relaxed_structure(out_str)
         assert isinstance(struct, Structure)

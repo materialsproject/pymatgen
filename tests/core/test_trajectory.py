@@ -1,16 +1,19 @@
 from __future__ import annotations
 
 import copy
+import re
 
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
-
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.io.qchem.outputs import QCOutput
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
+
+TEST_DIR = f"{TEST_FILES_DIR}/core/trajectory"
 
 
 class TestTrajectory(PymatgenTest):
@@ -19,7 +22,7 @@ class TestTrajectory(PymatgenTest):
         self.traj = Trajectory.from_file(f"{VASP_OUT_DIR}/XDATCAR_traj")
         self.structures = xdatcar.structures
 
-        out = QCOutput(f"{TEST_FILES_DIR}/molecules/new_qchem_files/ts.out")
+        out = QCOutput(f"{TEST_FILES_DIR}/io/qchem/new_qchem_files/ts.out")
         last_mol = out.data["molecule_from_last_geometry"]
         species = last_mol.species
         coords = out.data["geometries"]
@@ -87,8 +90,8 @@ class TestTrajectory(PymatgenTest):
         else:
             raise AssertionError
 
-        sliced_traj = self.traj_mols[0:2]
-        sliced_traj_from_mols = Trajectory.from_molecules(self.molecules[0:2])
+        sliced_traj = self.traj_mols[:2]
+        sliced_traj_from_mols = Trajectory.from_molecules(self.molecules[:2])
 
         if len(sliced_traj) == len(sliced_traj_from_mols):
             assert all(sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj)))
@@ -470,11 +473,23 @@ class TestTrajectory(PymatgenTest):
         self._check_traj_equality(self.traj, written_traj)
 
     def test_from_file(self):
-        traj = Trajectory.from_file(f"{TEST_FILES_DIR}/LiMnO2_chgnet_relax.traj")
-        assert isinstance(traj, Trajectory)
+        try:
+            traj = Trajectory.from_file(f"{TEST_DIR}/LiMnO2_chgnet_relax.traj")
+            assert isinstance(traj, Trajectory)
 
-        # Check length of the trajectory
-        assert len(traj) == 2
+            # Check length of the trajectory
+            assert len(traj) == 2
 
-        # Check composition of the first frame of the trajectory
-        assert traj[0].formula == "Li2 Mn2 O4"
+            # Check composition of the first frame of the trajectory
+            assert traj[0].formula == "Li2 Mn2 O4"
+        except ImportError:
+            with pytest.raises(ImportError, match="ASE is required to read .traj files. pip install ase"):
+                Trajectory.from_file(f"{TEST_DIR}/LiMnO2_chgnet_relax.traj")
+
+    def test_index_error(self):
+        with pytest.raises(IndexError, match="index=100 out of range, trajectory only has 100 frames"):
+            self.traj[100]
+        with pytest.raises(
+            TypeError, match=re.escape("bad index='test', expected one of [int, slice, list[int], numpy.ndarray]")
+        ):
+            self.traj["test"]

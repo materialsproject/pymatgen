@@ -2,12 +2,11 @@ from __future__ import annotations
 
 import os
 
-from pytest import approx
-
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.outputs import check_for_structure_changes
 from pymatgen.io.xtb.outputs import CRESTOutput
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 try:
     from openbabel import openbabel
@@ -19,8 +18,8 @@ __author__ = "Alex Epstein"
 __copyright__ = "Copyright 2020, The Materials Project"
 __version__ = "0.1"
 
-TEST_DIR = f"{TEST_FILES_DIR}/xtb/sample_CREST_output"
-EXPECTED_DIR = f"{TEST_FILES_DIR}/xtb/expected_output"
+TEST_DIR = f"{TEST_FILES_DIR}/io/xtb/sample_CREST_output"
+EXPECTED_DIR = f"{TEST_FILES_DIR}/io/xtb/expected_output"
 
 
 class TestCRESTOutput(PymatgenTest):

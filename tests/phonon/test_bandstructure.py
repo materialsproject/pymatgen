@@ -4,20 +4,21 @@ import copy
 import json
 
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
-
 from pymatgen.electronic_structure.bandstructure import Kpoint
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
+
+TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
 
 class TestPhononBandStructureSymmLine(PymatgenTest):
     def setUp(self):
-        with open(f"{TEST_FILES_DIR}/NaCl_phonon_bandstructure.json") as file:
+        with open(f"{TEST_DIR}/NaCl_phonon_bandstructure.json") as file:
             dct = json.load(file)
         self.bs = PhononBandStructureSymmLine.from_dict(dct)
 
-        with open(f"{TEST_FILES_DIR}/Si_phonon_bandstructure.json") as file:
+        with open(f"{TEST_DIR}/Si_phonon_bandstructure.json") as file:
             dct = json.load(file)
         self.bs2 = PhononBandStructureSymmLine.from_dict(dct)
 

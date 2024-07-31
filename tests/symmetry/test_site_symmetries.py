@@ -4,7 +4,6 @@ import gzip
 import json
 
 from monty.json import MontyDecoder
-
 from pymatgen.symmetry import site_symmetries as ss
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
@@ -15,7 +14,7 @@ __email__ = "handongling@berkeley.edu"
 __status__ = "Development"
 __date__ = "4/23/19"
 
-TEST_DIR = f"{TEST_FILES_DIR}/site_symmetries"
+TEST_DIR = f"{TEST_FILES_DIR}/symmetry/site_symmetries"
 
 
 class TestSiteSymmetries(PymatgenTest):

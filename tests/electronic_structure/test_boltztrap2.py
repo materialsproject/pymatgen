@@ -5,11 +5,10 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from monty.serialization import loadfn
-from pytest import approx
-
 from pymatgen.electronic_structure.core import OrbitalType, Spin
 from pymatgen.io.vasp import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR
+from pytest import approx
 
 try:
     from pymatgen.electronic_structure.boltztrap2 import (
@@ -25,7 +24,7 @@ try:
 except Exception:
     BOLTZTRAP2_PRESENT = False
 
-TEST_DIR = f"{TEST_FILES_DIR}/boltztrap2"
+TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/boltztrap2"
 
 
 vasp_run_file = f"{TEST_DIR}/vasprun.xml"

@@ -7,8 +7,6 @@ import numpy as np
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
-
 from pymatgen.analysis.energy_models import IsingModel, SymmetryModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.core import Lattice, Molecule, Species, Structure
@@ -41,6 +39,7 @@ from pymatgen.transformations.standard_transformations import (
     SubstitutionTransformation,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
+from pytest import approx
 
 try:
     import hiphive
@@ -54,12 +53,11 @@ except ImportError:
 
 
 def get_table():
-    """
-    Loads a lightweight lambda table for use in unit tests to reduce
+    """Loads a lightweight lambda table for use in unit tests to reduce
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """
-    json_path = f"{TEST_FILES_DIR}/struct_predictor/test_lambda.json"
+    json_path = f"{TEST_FILES_DIR}/analysis/struct_predictor/test_lambda.json"
     with open(json_path) as file:
         return json.load(file)
 
@@ -292,11 +290,11 @@ class TestMagOrderingTransformation(PymatgenTest):
         self.NiO_AFM_001 = Structure(lattice, species, coords)
         self.NiO_AFM_001.add_spin_by_site([-5, 5, 0, 0])
 
-        self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/Fe3O4.cif")
+        self.Fe3O4 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Fe3O4.cif")
         trans = AutoOxiStateDecorationTransformation()
         self.Fe3O4_oxi = trans.apply_transformation(self.Fe3O4)
 
-        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/Li8Fe2NiCoO8.cif").remove_oxidation_states()
+        self.Li8Fe2NiCoO8 = Structure.from_file(f"{TEST_FILES_DIR}/cif/Li8Fe2NiCoO8.cif").remove_oxidation_states()
 
     def test_apply_transformation(self):
         trans = MagOrderingTransformation({"Fe": 5})
@@ -339,7 +337,7 @@ class TestMagOrderingTransformation(PymatgenTest):
     def test_as_from_dict(self):
         trans = MagOrderingTransformation({"Fe": 5}, order_parameter=0.75)
         dct = trans.as_dict()
-        # Check json encodability
+        # Check JSON encodability
         _ = json.dumps(dct)
         trans = MagOrderingTransformation.from_dict(dct)
         assert trans.mag_species_spin == {"Fe": 5}
@@ -537,7 +535,7 @@ class TestDopingTransformation(PymatgenTest):
     def test_as_from_dict(self):
         trans = DopingTransformation("Al3+", min_length=5, alio_tol=1, codopant=False, max_structures_per_enum=1)
         dct = trans.as_dict()
-        # Check json encodability
+        # Check JSON encodability
         _ = json.dumps(dct)
         trans = DopingTransformation.from_dict(dct)
         assert str(trans.dopant) == "Al3+"
@@ -647,7 +645,7 @@ class TestSQSTransformation(PymatgenTest):
 
 @pytest.mark.skipif(ClusterSpace is None, reason="icet not installed.")
 class TestSQSTransformationIcet(PymatgenTest):
-    stored_run: dict = loadfn(f"{TEST_FILES_DIR}/icet-sqs-fcc-Mg_75-Al_25-scaling_8.json.gz")
+    stored_run: dict = loadfn(f"{TEST_FILES_DIR}/transformations/icet-sqs-fcc-Mg_75-Al_25-scaling_8.json.gz")
     scaling: int = 8
 
     def test_icet_import(self):
@@ -694,7 +692,7 @@ class TestSQSTransformationIcet(PymatgenTest):
 
 
 class TestCubicSupercellTransformation(PymatgenTest):
-    def test_apply_transformation(self):
+    def test_apply_transformation_cubic_supercell(self):
         structure = self.get_structure("TlBiSe2")
         min_atoms = 100
         max_atoms = 1000
@@ -757,6 +755,84 @@ class TestCubicSupercellTransformation(PymatgenTest):
         )
         transformed_structure = supercell_generator.apply_transformation(structure)
         assert_allclose(list(transformed_structure.lattice.angles), [90.0, 90.0, 90.0])
+
+    def test_apply_transformation_orthorhombic_supercell(self):
+        structure = self.get_structure("Li3V2(PO4)3")
+        min_atoms = 100
+        max_atoms = 400
+
+        supercell_generator_cubic = CubicSupercellTransformation(
+            min_atoms=min_atoms,
+            max_atoms=max_atoms,
+            min_length=10.0,
+            force_90_degrees=False,
+            allow_orthorhombic=False,
+            max_length=25,
+        )
+
+        transformed_cubic = supercell_generator_cubic.apply_transformation(structure)
+
+        supercell_generator_orthorhombic = CubicSupercellTransformation(
+            min_atoms=min_atoms,
+            max_atoms=max_atoms,
+            min_length=10.0,
+            force_90_degrees=False,
+            allow_orthorhombic=True,
+            max_length=25,
+        )
+
+        transformed_orthorhombic = supercell_generator_orthorhombic.apply_transformation(structure)
+
+        assert_array_equal(
+            supercell_generator_orthorhombic.transformation_matrix,
+            np.array([[0, -2, 1], [-2, 0, 0], [0, 0, -2]]),
+        )
+
+        # make sure that the orthorhombic supercell is different from the cubic cell
+        assert not np.array_equal(
+            supercell_generator_cubic.transformation_matrix, supercell_generator_orthorhombic.transformation_matrix
+        )
+        assert transformed_cubic.lattice.angles != transformed_orthorhombic.lattice.angles
+        assert transformed_orthorhombic.lattice.abc != transformed_cubic.lattice.abc
+
+        structure = self.get_structure("Si")
+        min_atoms = 100
+        max_atoms = 400
+
+        supercell_generator_cubic = CubicSupercellTransformation(
+            min_atoms=min_atoms,
+            max_atoms=max_atoms,
+            min_length=10.0,
+            force_90_degrees=True,
+            allow_orthorhombic=False,
+            max_length=25,
+        )
+
+        transformed_cubic = supercell_generator_cubic.apply_transformation(structure)
+
+        supercell_generator_orthorhombic = CubicSupercellTransformation(
+            min_atoms=min_atoms,
+            max_atoms=max_atoms,
+            min_length=10.0,
+            force_90_degrees=True,
+            allow_orthorhombic=True,
+            max_length=25,
+        )
+
+        transformed_orthorhombic = supercell_generator_orthorhombic.apply_transformation(structure)
+
+        assert_array_equal(
+            supercell_generator_orthorhombic.transformation_matrix,
+            np.array([[3, 0, 0], [-2, 4, 0], [-2, 4, 6]]),
+        )
+
+        # make sure that the orthorhombic supercell is different from the cubic cell
+        assert not np.array_equal(
+            supercell_generator_cubic.transformation_matrix, supercell_generator_orthorhombic.transformation_matrix
+        )
+        assert transformed_orthorhombic.lattice.abc != transformed_cubic.lattice.abc
+        # only angels are expected to be the same because of force_90_degrees = True
+        assert transformed_cubic.lattice.angles == transformed_orthorhombic.lattice.angles
 
 
 class TestAddAdsorbateTransformation(PymatgenTest):

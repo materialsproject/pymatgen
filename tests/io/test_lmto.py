@@ -4,7 +4,6 @@ import os
 
 import numpy as np
 from numpy.testing import assert_array_equal
-
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ry_to_eV
 from pymatgen.electronic_structure.core import Spin
@@ -19,7 +18,7 @@ __email__ = "esters@uoregon.edu"
 __date__ = "Nov 30, 2017"
 
 
-TEST_DIR = f"{TEST_FILES_DIR}/cohp"
+TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 

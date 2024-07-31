@@ -4,12 +4,11 @@ import os
 
 import pytest
 from numpy.testing import assert_array_equal
-
 from pymatgen.io.shengbte import Control
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 f90nml = pytest.importorskip("f90nml")
-TEST_DIR = f"{TEST_FILES_DIR}/shengbte"
+TEST_DIR = f"{TEST_FILES_DIR}/io/shengbte"
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -70,21 +69,21 @@ class TestShengBTE(PymatgenTest):
         io.to_file(filename=f"{self.tmp_path}/test_control")
 
         with open(f"{self.tmp_path}/test_control") as file:
-            test_string = file.read()
+            test_str = file.read()
         with open(f"{TEST_DIR}/CONTROL-CSLD_Si") as reference_file:
             reference_string = reference_file.read()
-        assert test_string == reference_string
+        assert test_str == reference_string
 
     def test_from_dict(self):
         io = Control.from_dict(self.test_dict)
         io.to_file(filename=f"{self.tmp_path}/test_control")
         with open(f"{self.tmp_path}/test_control") as file:
-            test_string = file.read()
+            test_str = file.read()
         with open(f"{TEST_DIR}/CONTROL-CSLD_Si") as reference_file:
             reference_string = reference_file.read()
-        assert test_string == reference_string
+        assert test_str == reference_string
 
-    def test_msonable_implementation(self):
+    def test_as_from_dict(self):
         # tests as dict and from dict methods
         ctrl_from_file = Control.from_file(self.filename)
         control_from_dict = Control.from_dict(ctrl_from_file.as_dict())

@@ -1,0 +1,14 @@
+System is AlPO4
+ISTART = 0
+ENCUT = 600
+PREC = Accurate
+EDIFF = 1.0E-06
+NPAR = 8
+LREAL = Auto
+ISMEAR = -5
+SIGMA = 0
+LCHARG = .False.
+LWAVE = .False.
+LEFG = .True.
+QUAD_EFG = 0.0 146.6 0.0 0.0 0.0
+ 

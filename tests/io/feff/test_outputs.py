@@ -5,7 +5,7 @@ from unittest import TestCase
 from pymatgen.io.feff.outputs import LDos, Xmu
 from pymatgen.util.testing import TEST_FILES_DIR
 
-FEFF_TEST_DIR = f"{TEST_FILES_DIR}/feff"
+FEFF_TEST_DIR = f"{TEST_FILES_DIR}/io/feff"
 
 
 class TestFeffLdos(TestCase):

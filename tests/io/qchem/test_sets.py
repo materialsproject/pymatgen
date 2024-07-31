@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 
 import pytest
-
 from pymatgen.io.qchem.sets import (
     ForceSet,
     FreqSet,
@@ -23,7 +22,7 @@ __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 
 
-TEST_DIR = f"{TEST_FILES_DIR}/molecules/new_qchem_files"
+TEST_DIR = f"{TEST_FILES_DIR}/io/qchem/new_qchem_files"
 
 
 class TestQChemDictSet(PymatgenTest):
@@ -382,8 +381,17 @@ class TestQChemDictSet(PymatgenTest):
             assert lines[0] == "90.00,1.415,0.00,0.735,20.2,0.00,0.00"
         os.remove("solvent_data")
 
+    def test_output_wavefunction(self):
+        """Test function for outputting *.wfn files"""
+        test_molecule = QCInput.from_file(f"{TEST_DIR}/pcm.qin").molecule
+        test_dict_set = QChemDictSet(
+            molecule=test_molecule, job_type="opt", basis_set="6-31G*", scf_algorithm="diis", output_wavefunction=True
+        )
+
+        assert test_dict_set.rem["write_wfn"] == "wavefunction"
+
     def test_solvation_warnings(self):
-        """Tests warnings / errors resulting from nonsensical overwrite_inputs."""
+        """Test warnings / errors resulting from nonsensical overwrite_inputs."""
         test_molecule = QCInput.from_file(f"{TEST_DIR}/pcm.qin").molecule
         with pytest.raises(RuntimeError, match="CMIRS is only parameterized"):
             QChemDictSet(

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pytest
-
 from pymatgen.analysis.fragmenter import Fragmenter
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
@@ -12,7 +11,7 @@ __author__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 
 
-TEST_DIR = f"{TEST_FILES_DIR}/fragmenter_files"
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/local_env/fragmenter_files"
 
 
 class TestFragmentMolecule(PymatgenTest):

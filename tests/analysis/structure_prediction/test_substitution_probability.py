@@ -3,14 +3,15 @@ from __future__ import annotations
 import json
 from unittest import TestCase
 
-from pytest import approx
-
 from pymatgen.analysis.structure_prediction.substitution_probability import (
     SubstitutionPredictor,
     SubstitutionProbability,
 )
 from pymatgen.core import Composition, Species
 from pymatgen.util.testing import TEST_FILES_DIR
+from pytest import approx
+
+TEST_DIR = f"{TEST_FILES_DIR}/analysis/struct_predictor"
 
 
 def get_table():
@@ -19,16 +20,15 @@ def get_table():
     initialization time, and make unit tests insensitive to changes in the
     default lambda table.
     """
-    json_path = f"{TEST_FILES_DIR}/struct_predictor/test_lambda.json"
+    json_path = f"{TEST_DIR}/test_lambda.json"
     with open(json_path) as file:
         return json.load(file)
 
 
 class TestSubstitutionProbability(TestCase):
     def test_full_lambda_table(self):
-        """
-        This test tests specific values in the data folder. If the
-        json is updated, these tests will have to be as well.
+        """Check specific values in the data folder. If the
+        JSON is updated, these tests will have to be as well.
         """
         sp = SubstitutionProbability(alpha=-5.0)
         sp1 = Species("Fe", 4)

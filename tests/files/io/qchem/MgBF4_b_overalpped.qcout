@@ -1,0 +1,322 @@
+
+Running Job 1 of 1 MgBF4_b_overalpped.inp
+qchem MgBF4_b_overalpped.inp_9404.0 /Users/xiaohuiqu/scratch/qchem9404/ 1
+                  Welcome to Q-Chem
+     A Quantum Leap Into The Future Of Chemistry
+
+
+ Q-Chem 4.2, Q-Chem, Inc., Pleasanton, CA (2014).
+
+ Y. Shao,  Z. Gan,  E. Epifanovsky,  A. T. B. Gilbert,  M. Wormit,  
+ J. Kussmann,  A. W. Lange,  A. Behn,  J. Deng,  X. Feng,  D. Ghosh,  
+ M. Goldey,  P. R. Horn,  L. D. Jacobson,  I. Kaliman,  R. Z. Khaliullin,  
+ T. Kus,  A. Landau,  J. Liu,  E. I. Proynov,  Y. M. Rhee,  R. M. Richard,  
+ M. A. Rohrdanz,  R. P. Steele,  E. J. Sundstrom,  H. L. Woodcock III,  
+ P. M. Zimmerman,  D. Zuev,  B. Albrecht,  E. Alguire,  B. Austin,  
+ G. J. O. Beran,  Y. A. Bernard,  E. Berquist,  K. Brandhorst,  
+ K. B. Bravaya,  S. T. Brown,  D. Casanova,  C.-M. Chang,  Y. Chen,  
+ S. H. Chien,  K. D. Closser,  D. L. Crittenden,  M. Diedenhofen,  
+ R. A. DiStasio Jr.,  H. Do,  A. D. Dutoi,  R. G. Edgar,  S. Fatehi,  
+ L. Fusti-Molnar,  A. Ghysels,  A. Golubeva-Zadorozhnaya,  J. Gomes,  
+ M. W. D. Hanson-Heine,  P. H. P. Harbach,  A. W. Hauser,  E. G. Hohenstein,  
+ Z. C. Holden,  T.-C. Jagau,  H. Ji,  B. Kaduk,  K. Khistyaev,  Jaehoon Kim,  
+ Jihan Kim,  R. A. King,  P. Klunzinger,  D. Kosenkov,  T. Kowalczyk,  
+ C. M. Krauter,  K. U. Lao,  A. Laurent,  K. V. Lawler,  S. V. Levchenko,  
+ C. Y. Lin,  F. Liu,  E. Livshits,  R. C. Lochan,  A. Luenser,  P. Manohar,  
+ S. F. Manzer,  S.-P. Mao,  N. Mardirossian,  A. V. Marenich,  S. A. Maurer,  
+ N. J. Mayhall,  C. M. Oana,  R. Olivares-Amaya,  D. P. O'Neill,  
+ J. A. Parkhill,  T. M. Perrine,  R. Peverati,  P. A. Pieniazek,  A. Prociuk,  
+ D. R. Rehn,  E. Rosta,  N. J. Russ,  N. Sergueev,  S. M. Sharada,  
+ S. Sharma,  D. W. Small,  A. Sodt,  T. Stein,  D. Stuck,  Y.-C. Su,  
+ A. J. W. Thom,  T. Tsuchimochi,  L. Vogt,  O. Vydrov,  T. Wang,  
+ M. A. Watson,  J. Wenzel,  A. White,  C. F. Williams,  V. Vanovschi,  
+ S. Yeganeh,  S. R. Yost,  Z.-Q. You,  I. Y. Zhang,  X. Zhang,  Y. Zhao,  
+ B. R. Brooks,  G. K. L. Chan,  D. M. Chipman,  C. J. Cramer,  
+ W. A. Goddard III,  M. S. Gordon,  W. J. Hehre,  A. Klamt,  
+ H. F. Schaefer III,  M. W. Schmidt,  C. D. Sherrill,  D. G. Truhlar,  
+ A. Warshel,  X. Xu,  A. Aspuru-Guzik,  R. Baer,  A. T. Bell,  N. A. Besley,  
+ J.-D. Chai,  A. Dreuw,  B. D. Dunietz,  T. R. Furlani,  S. R. Gwaltney,  
+ C.-P. Hsu,  Y. Jung,  J. Kong,  D. S. Lambrecht,  W. Liang,  C. Ochsenfeld,  
+ V. A. Rassolov,  L. V. Slipchenko,  J. E. Subotnik,  T. Van Voorhis,  
+ J. M. Herbert,  A. I. Krylov,  P. M. W. Gill,  M. Head-Gordon
+
+ Contributors to earlier versions of Q-Chem not listed above: 
+ R. D. Adamson,  J. Baker,  E. F. C. Byrd,  A. K. Chakraborty,  C.-L. Cheng,  
+ H. Dachsel,  R. J. Doerksen,  G. Hawkins,  A. Heyden,  S. Hirata,  
+ G. Kedziora,  F. J. Keil,  C. Kelley,  P. P. Korambath,  W. Kurlancheek,  
+ A. M. Lee,  M. S. Lee,  D. Liotard,  I. Lotan,  P. E. Maslen,  N. Nair,  
+ D. Neuhauser,  R. Olson,  B. Peters,  J. Ritchie,  N. E. Schultz,  
+ N. Shenvi,  A. C. Simmonett,  K. S. Thanthiriwatte,  Q. Wu,  W. Zhang
+
+ Q-Chem 4.2.0.0  for Mac (Intel) OS X
+
+ Parts of Q-Chem use Armadillo 4.100.2 (Dirt Cruiser).
+ http://arma.sourceforge.net/
+
+ Q-Chem begins on Wed Oct  1 15:30:23 2014  
+
+Host: 
+0
+
+     Scratch files written to /Users/xiaohuiqu/scratch/qchem9404//
+ May1314 814_zgan 4730   
+Processing $rem in /Users/xiaohuiqu/program/qchem/config/preferences.
+ MEM_TOTAL  2000 
+Finally everything over in PARseQInput
+
+--------------------------------------------------------------
+User input:
+--------------------------------------------------------------
+$molecule
+0  1
+@F         -1.97542000       -0.00167000       -0.00220000
+Mg          1.74098000        0.00069000       -0.00059000
+B          -0.64171000        0.00038000        0.00030000
+F           0.00283000       -0.37603000        1.24133000
+F           0.00630000       -0.88689000       -0.94476000
+F           0.00149000        1.26346000       -0.29374000
+$end
+
+
+$rem
+jobtype = sp
+exchange = b3lyp
+basis = 6-31+g*
+$end
+
+--------------------------------------------------------------
+ ----------------------------------------------------------------
+             Standard Nuclear Orientation (Angstroms)
+    I     Atom           X                Y                Z
+ ----------------------------------------------------------------
+    1      GH     -1.9754200000    -0.0016700000    -0.0022000000
+    2      Mg      1.7409800000     0.0006900000    -0.0005900000
+    3      B      -0.6417100000     0.0003800000     0.0003000000
+    4      F       0.0028300000    -0.3760300000     1.2413300000
+    5      F       0.0063000000    -0.8868900000    -0.9447600000
+    6      F       0.0014900000     1.2634600000    -0.2937400000
+ ----------------------------------------------------------------
+ Nuclear Repulsion Energy =   198.9907225515 hartrees
+ There are       22 alpha and       22 beta electrons
+ Requested basis set is 6-31+G(d)
+ There are 31 shells and 118 basis functions
+
+Total QAlloc Memory Limit   2000 MB
+Mega-Array Size        61 MB
+MEM_STATIC part        62 MB
+
+                       Distance Matrix (Angstroms)
+             GH(  1)   Mg(  2)   B (  3)   F (  4)   F (  5)
+   Mg(  2)  3.716401
+   B (  3)  1.333714  2.382690
+   F (  4)  2.366429  2.169205  1.448196
+   F (  5)  2.366273  2.165264  1.449242  2.244990
+   F (  6)  2.365105  2.169412  1.447597  2.245967  2.246743
+ 
+ A cutoff of  1.0D-08 yielded    465 shell pairs
+ There are      7100 function pairs
+ Smallest overlap matrix eigenvalue = 8.55E-04
+
+  Scale SEOQF with 1.000000e-01/1.000000e-01/1.000000e-01
+
+ Standard Electronic Orientation quadrupole field applied
+ Nucleus-field energy     =     0.0000000006 hartrees
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 57:
+
+ No atomic polarizability available.
+
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 70:
+
+ No atomic polarizability available.
+
+ A restricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-05
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 57:
+
+ No atomic polarizability available.
+
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 70:
+
+ No atomic polarizability available.
+
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1    -524.9584862447      4.79E-02
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 57:
+
+ No atomic polarizability available.
+
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 70:
+
+ No atomic polarizability available.
+
+    2    -524.5066209350      6.37E-03
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 57:
+
+ No atomic polarizability available.
+
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 70:
+
+ No atomic polarizability available.
+
+    3    -524.3092080430      1.14E-02
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 57:
+
+ No atomic polarizability available.
+
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 70:
+
+ No atomic polarizability available.
+
+    4    -524.5107988118      4.52E-03
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 57:
+
+ No atomic polarizability available.
+
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 70:
+
+ No atomic polarizability available.
+
+    5    -524.5595541672      2.09E-03
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 57:
+
+ No atomic polarizability available.
+
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 70:
+
+ No atomic polarizability available.
+
+    6    -524.5760576162      1.94E-04
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 57:
+
+ No atomic polarizability available.
+
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 70:
+
+ No atomic polarizability available.
+
+    7    -524.5761178074      8.56E-05
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 57:
+
+ No atomic polarizability available.
+
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 70:
+
+ No atomic polarizability available.
+
+    8    -524.5761430555      2.77E-05
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 57:
+
+ No atomic polarizability available.
+
+
+ Q-Chem warning in module /scratch/svnadmin/814_zgan/qchem/libgen/Atomic_PolEc.C, line 70:
+
+ No atomic polarizability available.
+
+    9    -524.5761442943      5.31E-06 Convergence criterion met
+ ---------------------------------------
+ SCF time:  CPU 5.86 s  wall 5.92 s
+ SCF   energy in the final basis set = -524.5761442943
+ Total energy in the final basis set = -524.5761442943
+ Analysis of SCF Wavefunction
+ 
+ --------------------------------------------------------------
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+ 
+ Alpha MOs
+ -- Occupied --
+-46.889 -24.747 -24.747 -24.746  -6.906  -3.165  -1.910  -1.909
+ -1.909  -1.264  -1.211  -1.211  -0.616  -0.544  -0.543  -0.533
+ -0.482  -0.481  -0.442  -0.442  -0.422  -0.194
+ -- Virtual --
+ -0.128  -0.028  -0.028   0.003   0.006   0.032   0.032   0.043
+  0.048   0.048   0.073   0.094   0.156   0.156   0.182   0.194
+  0.194   0.200   0.200   0.218   0.249   0.249   0.250   0.261
+  0.284   0.285   0.312   0.324   0.338   0.339   0.342   0.375
+  0.375   0.393   0.425   0.426   0.486   0.520   0.578   0.578
+  0.667   0.667   0.804   0.879   0.961   0.963   0.963   1.226
+  1.226   1.255   1.385   1.501   1.501   1.566   1.584   1.584
+  1.625   1.625   1.660   1.693   1.700   1.701   1.791   1.855
+  1.918   1.919   1.968   1.969   1.989   1.989   1.992   2.081
+  2.081   2.136   2.381   2.381   2.409   2.630   2.699   2.699
+  2.990   2.990   3.180   3.211   3.212   3.295   3.731   4.268
+  5.383   5.384   5.858   6.635   7.180   7.181   7.840  50.612
+ --------------------------------------------------------------
+ 
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)
+  ----------------------------------------
+      1 GH                   -0.167413
+      2 Mg                    0.284133
+      3 B                     1.153672
+      4 F                    -0.423382
+      5 F                    -0.423925
+      6 F                    -0.423086
+  ----------------------------------------
+  Sum of atomic charges =     0.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                 0.0000
+    Dipole Moment (Debye)
+         X       2.4160      Y       0.0028      Z      -0.0042
+       Tot       2.4160
+    Quadrupole Moments (Debye-Ang)
+        XX     -29.1212     XY      -0.0021     YY     -33.8067
+        XZ      -0.0027     YZ      -0.0007     ZZ     -33.8053
+    Octopole Moments (Debye-Ang^2)
+       XXX     -41.2122    XXY      -0.0245    XYY     -14.2783
+       YYY      -1.7471    XXZ      -0.0114    XYZ      -0.0047
+       YYZ       1.3884    XZZ     -14.2803    YZZ       1.6911
+       ZZZ      -1.4412
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX    -297.0562   XXXY      -0.0308   XXYY     -66.0930
+      XYYY       0.0123   YYYY    -125.0158   XXXZ       0.0565
+      XXYZ       0.0025   XYYZ       0.0247   YYYZ      -0.0015
+      XXZZ     -66.0700   XYZZ       0.0061   YYZZ     -41.6469
+      XZZZ       0.0697   YZZZ       0.0019   ZZZZ    -124.8925
+ -----------------------------------------------------------------
+Archival summary:
+1\1\macqu.dhcp.lbl.gov\SP\ProcedureUnspecified\6-31+G*\g14g1\WedOct115:30:292014WedOct115:30:292014\0\\#,ProcedureUnspecified,6-31+G*,\\0,1\Mg\F,1,2.16526\B,2,1.44924,1,79.7993\Gh,3,1.33371,2,116.422,1,-179.967,0\F,3,1.4476,2,101.716,1,-52.3168,0\F,3,1.4482,2,101.577,1,52.4102,0\\\@
+
+ Total job time:  5.98s(wall), 5.92s(cpu) 
+ Wed Oct  1 15:30:29 2014
+
+        *************************************************************
+        *                                                           *
+        *  Thank you very much for using Q-Chem.  Have a nice day.  *
+        *                                                           *
+        *************************************************************
+
+

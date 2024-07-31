@@ -1,0 +1,38 @@
+    3
+ nonperiodic system
+O       0.000000     -0.000000      0.319088       2.859091
+O       0.000000      1.135186     -0.159544       1.459862
+O       0.000000     -1.135186     -0.159544       1.459862
+    
+ Chargemol version 3.5 September 26, 2017.
+ See ddec.sourceforge.net for latest version.
+    
+    
+ The sum of bond orders (SBO) for each atom in the unit cell are listed above.
+ All bond orders greater than     0.001000 are printed below.
+  
+  
+ ===================================================================================
+ Printing BOs for ATOM #      1 ( O  ) in the reference unit cell.
+  
+ Bonded to the (  0,   0,   0) translated image of atom number     2 ( O  ) with bond order =     1.4295    The average spin polarization of this bonding =     0.0490
+ Bonded to the (  0,   0,   0) translated image of atom number     3 ( O  ) with bond order =     1.4295    The average spin polarization of this bonding =     0.0490
+ The sum of bond orders for this atom is SBO =        2.859091
+  
+  
+ ===================================================================================
+ Printing BOs for ATOM #      2 ( O  ) in the reference unit cell.
+  
+ Bonded to the (  0,   0,   0) translated image of atom number     1 ( O  ) with bond order =     1.4295    The average spin polarization of this bonding =     0.0490
+ Bonded to the (  0,   0,   0) translated image of atom number     3 ( O  ) with bond order =     0.0303    The average spin polarization of this bonding =     0.0532
+ The sum of bond orders for this atom is SBO =        1.459862
+  
+  
+ ===================================================================================
+ Printing BOs for ATOM #      3 ( O  ) in the reference unit cell.
+  
+ Bonded to the (  0,   0,   0) translated image of atom number     1 ( O  ) with bond order =     1.4295    The average spin polarization of this bonding =     0.0490
+ Bonded to the (  0,   0,   0) translated image of atom number     2 ( O  ) with bond order =     0.0303    The average spin polarization of this bonding =     0.0532
+ The sum of bond orders for this atom is SBO =        1.459862
+    
+ 2017/10/01  14:19:11

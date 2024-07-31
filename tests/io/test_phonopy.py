@@ -7,8 +7,6 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
-
 from pymatgen.core import Element
 from pymatgen.io.phonopy import (
     CompletePhononDos,
@@ -29,6 +27,7 @@ from pymatgen.io.phonopy import (
     get_thermal_displacement_matrices,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 try:
     from phonopy import Phonopy
@@ -37,7 +36,8 @@ except ImportError as exc:
     print(exc)
     Phonopy = None
 
-TEST_DIR = f"{TEST_FILES_DIR}/phonopy"
+TEST_DIR = f"{TEST_FILES_DIR}/io/phonopy"
+PHONON_DIR = f"{TEST_FILES_DIR}/phonon"
 
 
 class TestPhonopyParser(PymatgenTest):
@@ -209,13 +209,13 @@ class TestPhonopyFromForceConstants(TestCase):
 class TestGruneisen:
     def test_ph_bs_symm_line(self):
         self.bs_symm_line_1 = get_gruneisen_ph_bs_symm_line(
-            gruneisen_path=f"{TEST_FILES_DIR}/gruneisen/gruneisen_band_Si.yaml",
-            structure_path=f"{TEST_FILES_DIR}/gruneisen/eq/POSCAR_Si",
+            gruneisen_path=f"{PHONON_DIR}/gruneisen/gruneisen_band_Si.yaml",
+            structure_path=f"{PHONON_DIR}/gruneisen/eq/POSCAR_Si",
             fit=True,
         )
         self.bs_symm_line_2 = get_gruneisen_ph_bs_symm_line(
-            gruneisen_path=f"{TEST_FILES_DIR}/gruneisen/gruneisen_band_Si.yaml",
-            structure_path=f"{TEST_FILES_DIR}/gruneisen/eq/POSCAR_Si",
+            gruneisen_path=f"{PHONON_DIR}/gruneisen/gruneisen_band_Si.yaml",
+            structure_path=f"{PHONON_DIR}/gruneisen/eq/POSCAR_Si",
             fit=False,
         )
 
@@ -223,12 +223,12 @@ class TestGruneisen:
 
         assert self.bs_symm_line_1.gruneisen[0][0] != self.bs_symm_line_2.gruneisen[0][0]
         with pytest.raises(ValueError, match="Please provide a structure or structure path"):
-            get_gruneisen_ph_bs_symm_line(gruneisen_path=f"{TEST_FILES_DIR}/gruneisen/gruneisen_eq_plus_minus_InP.yaml")
+            get_gruneisen_ph_bs_symm_line(gruneisen_path=f"{PHONON_DIR}/gruneisen/gruneisen_eq_plus_minus_InP.yaml")
 
     def test_gruneisen_parameter(self):
         self.gruneisenobject_Si = get_gruneisenparameter(
-            f"{TEST_FILES_DIR}/gruneisen/gruneisen_mesh_Si.yaml",
-            structure_path=f"{TEST_FILES_DIR}/gruneisen/eq/POSCAR_Si",
+            f"{PHONON_DIR}/gruneisen/gruneisen_mesh_Si.yaml",
+            structure_path=f"{PHONON_DIR}/gruneisen/eq/POSCAR_Si",
         )
 
         assert self.gruneisenobject_Si.frequencies[0][0] == approx(0.2523831291)
@@ -236,15 +236,15 @@ class TestGruneisen:
 
         # catch the exception when no structure is present
         with pytest.raises(ValueError, match="Please provide a structure or structure path"):
-            get_gruneisenparameter(f"{TEST_FILES_DIR}/gruneisen/gruneisen_mesh_InP_without_struct.yaml")
+            get_gruneisenparameter(f"{PHONON_DIR}/gruneisen/gruneisen_mesh_InP_without_struct.yaml")
 
 
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
 class TestThermalDisplacementMatrices(PymatgenTest):
     def test_get_thermal_displacement_matrix(self):
         list_matrices = get_thermal_displacement_matrices(
-            f"{TEST_FILES_DIR}/phonopy/thermal_displacement_matrices/thermal_displacement_matrices.yaml",
-            f"{TEST_FILES_DIR}/phonopy/thermal_displacement_matrices/POSCAR",
+            f"{PHONON_DIR}/thermal_displacement_matrices/thermal_displacement_matrices.yaml",
+            f"{PHONON_DIR}/thermal_displacement_matrices/POSCAR",
         )
 
         assert_allclose(

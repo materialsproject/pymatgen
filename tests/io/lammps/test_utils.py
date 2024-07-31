@@ -7,26 +7,28 @@ from pymatgen.io.lammps.data import Topology
 from pymatgen.io.lammps.utils import Polymer
 from pymatgen.util.testing import TEST_FILES_DIR
 
+TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
+
 
 class TestPolymer(TestCase):
     @classmethod
     def setUpClass(cls):
         # head molecule
-        cls.peo_head = Molecule.from_file(f"{TEST_FILES_DIR}/lammps/peo_head.xyz")
+        cls.peo_head = Molecule.from_file(f"{TEST_DIR}/peo_head.xyz")
         charges = [-0.1187, 0.0861, 0.0861, 0.0861, -0.2792, -0.0326, 0.0861, 0.0861]
         cls.peo_head.add_site_property("charge", charges)
         s_head = 0
         s_tail = 5
 
         # chain molecule
-        cls.peo_bulk = Molecule.from_file(f"{TEST_FILES_DIR}/lammps/peo_bulk.xyz")
+        cls.peo_bulk = Molecule.from_file(f"{TEST_DIR}/peo_bulk.xyz")
         charges = [-0.0326, 0.0861, 0.0861, -0.2792, -0.0326, 0.0861, 0.0861]
         cls.peo_bulk.add_site_property("charge", charges)
         head = 0
         tail = 4
 
         # terminal molecule
-        cls.peo_tail = Molecule.from_file(f"{TEST_FILES_DIR}/lammps/peo_tail.xyz")
+        cls.peo_tail = Molecule.from_file(f"{TEST_DIR}/peo_tail.xyz")
         charges = [-0.0326, 0.0861, 0.0861, -0.2792, -0.1187, 0.0861, 0.0861, 0.0861]
         cls.peo_tail.add_site_property("charge", charges)
         e_head = 0
@@ -104,7 +106,7 @@ class TestPackmolOutput(TestCase):
         ethanol = Molecule(cls.ethanol_atoms, ethanol_coords)
         water = Molecule(cls.water_atoms, water_coords)
         cls.mols = [ethanol, water]
-        cls.cocktail = Molecule.from_file(f"{TEST_FILES_DIR}/lammps/cocktail.xyz")
+        cls.cocktail = Molecule.from_file(f"{TEST_DIR}/cocktail.xyz")
         cls.packmol_config = [{"number": 1}, {"number": 15}]
 
     def test_packed_molecule(self):

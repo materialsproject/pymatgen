@@ -1,0 +1,118 @@
+ dos normalization:    2.0000000000000000     
+ About to call read_input
+=================== INPUT VARIABLES ======================
+ Bandstyle: GENE
+Set fermi:   1
+Debug:  0
+FermiE:  0.0000. step size: 0.0004 Ecut: 0.1000. # val. e:  240.000
+Run type: CALC
+Fourier expansion factor: 20
+Calc type: BOLTZ
+Fermi level range: (Ry)  0.1500
+Max temperature: (K)  800.0 Temp step: (K) ****
+Range around Ef where bands are given individual output (Ry) -1.0000
+HISTO used for calculation of DOS
+   12 doping levels will be used
+ Doping levels to be output for, in carriers / cm^3:
+ 0.100E+16 0.100E+17 0.100E+18 0.100E+19 0.100E+20 0.100E+21
+-0.100E+16-0.100E+17-0.100E+18-0.100E+19-0.100E+20-0.100E+21
+=========================================================
+ Band style: GENE
+==============  OUTPUT from GENERIC interface ===============
+  1  0  0         1
+  0  1  0
+  0  0  1
+
+ -1  0  0         2
+  0 -1  0
+  0  0 -1
+
+ -1  0  0         3
+  0 -1  0
+  0  0  1
+
+  1  0  0         4
+  0  1  0
+  0  0 -1
+
+  1  0  0         5
+  0 -1  0
+  0  0 -1
+
+ -1  0  0         6
+  0  1  0
+  0  0  1
+
+ -1  0  0         7
+  0  1  0
+  0  0 -1
+
+  1  0  0         8
+  0 -1  0
+  0  0  1
+
+ Number of kpts in IBZ:           81
+==============  End GENERIC interface         ===============
+ Input file read successfully
+ About to call subroutine bandana
+==============  OUTPUT from BANDANA       ================
+Fermi level changed to middle of gap. Ef = 0.05896
+Egap:     0.122338 Energy range:    -0.141272 -     0.237481. Bands range:  101 -  140
+VBM:    -0.002205 CBM:     0.120133 Efermi:     0.058964
+
+==============  End BANDANA           ====================
+ Subroutine bandana executed successfully
+ Approx number of kpts in BZ :          648
+ About to enter gen_lattpoints
+ ======= OUTPUT FROM gen_lattpoints ======================
+  KXMAX,KYMAX,KZMAX          33          11           9
+ GMAX   233.91175851735150     
+     1912 LATTICE POINTS GENERATED 
+
+        SIZE INCLUDING STAR MEMBERS =    12909
+ USED TIME:  8.99999961256980896E-003
+ =============== END gen_lattpoints ======================
+ nwave:         1912
+ Allocating engre...
+ engre allocated
+ About to enter fite4...
+fite4 matrix setup:     0.080
+ inf =            0
+ INF2:           0
+fite4 diagonalize:      0.000
+fite4 reexpand:         0.076
+ Subroutine fite4 executed
+ Finally! Starting Boltzmann calculation!
+ Calling DOS
+==============  OUTPUT from dos   ========================
+ max-exp          32          10           8
+ iff1,iff2,iff3          72          24          18
+  in dos before bracketing ebmin/max =  -0.14223911098053410       0.23774329538429442     
+  in dos ebmin/max =  -0.18023735161701696       0.27574153602077728     
+  in dos icut1, icut2 =          101         140
+ Calling FermiIntegrals
+Doping level number     1 n =  0.100E+16 electrons/cm3
+  Doping corresponds to   6.12975564134970547E-007  excess holes per unit cell
+Doping level number     2 n =  0.100E+17 electrons/cm3
+  Doping corresponds to   6.12975564134970483E-006  excess holes per unit cell
+Doping level number     3 n =  0.100E+18 electrons/cm3
+  Doping corresponds to   6.12975564134970568E-005  excess holes per unit cell
+Doping level number     4 n =  0.100E+19 electrons/cm3
+  Doping corresponds to   6.12975564134970487E-004  excess holes per unit cell
+Doping level number     5 n =  0.100E+20 electrons/cm3
+  Doping corresponds to   6.12975564134970487E-003  excess holes per unit cell
+Doping level number     6 n =  0.100E+21 electrons/cm3
+  Doping corresponds to   6.12975564134970521E-002  excess holes per unit cell
+Doping level number     7 n = -0.100E+16 electrons/cm3
+  Doping corresponds to  -6.12975564134970547E-007  excess electrons per unit cell
+Doping level number     8 n = -0.100E+17 electrons/cm3
+  Doping corresponds to  -6.12975564134970483E-006  excess electrons per unit cell
+Doping level number     9 n = -0.100E+18 electrons/cm3
+  Doping corresponds to  -6.12975564134970568E-005  excess electrons per unit cell
+Doping level number    10 n = -0.100E+19 electrons/cm3
+  Doping corresponds to  -6.12975564134970487E-004  excess electrons per unit cell
+Doping level number    11 n = -0.100E+20 electrons/cm3
+  Doping corresponds to  -6.12975564134970487E-003  excess electrons per unit cell
+Doping level number    12 n = -0.100E+21 electrons/cm3
+  Doping corresponds to  -6.12975564134970521E-002  excess electrons per unit cell
+ TRANSPORT END BoltzTrap calculation

@@ -4,11 +4,12 @@ import json
 from unittest import TestCase
 
 from monty.json import MontyDecoder, MontyEncoder
-from pytest import approx
-
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode, InsertionVoltagePair
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.testing import TEST_FILES_DIR
+from pytest import approx
+
+TEST_DIR = f"{TEST_FILES_DIR}/apps/battery"
 
 
 class TestInsertionElectrode(TestCase):
@@ -16,16 +17,16 @@ class TestInsertionElectrode(TestCase):
         self.entry_Li = ComputedEntry("Li", -1.90753119)
         self.entry_Ca = ComputedEntry("Ca", -1.99689568)
 
-        with open(f"{TEST_FILES_DIR}/LiTiO2_batt.json") as file:
+        with open(f"{TEST_DIR}/LiTiO2_batt.json") as file:
             self.entries_LTO = json.load(file, cls=MontyDecoder)
 
-        with open(f"{TEST_FILES_DIR}/MgVO_batt.json") as file:
+        with open(f"{TEST_DIR}/MgVO_batt.json") as file:
             self.entries_MVO = json.load(file, cls=MontyDecoder)
 
-        with open(f"{TEST_FILES_DIR}/Mg_batt.json") as file:
+        with open(f"{TEST_DIR}/Mg_batt.json") as file:
             self.entry_Mg = json.load(file, cls=MontyDecoder)
 
-        with open(f"{TEST_FILES_DIR}/CaMoO2_batt.json") as file:
+        with open(f"{TEST_DIR}/CaMoO2_batt.json") as file:
             self.entries_CMO = json.load(file, cls=MontyDecoder)
 
         self.ie_LTO = InsertionElectrode.from_entries(self.entries_LTO, self.entry_Li)
@@ -86,7 +87,7 @@ class TestInsertionElectrode(TestCase):
         assert ie.min_voltage == approx(0.89702381)
         assert ie.get_average_voltage() == approx(1.84143141)
 
-        # Just to make sure json string works.
+        # Just to make sure JSON string works.
         json_str = json.dumps(self.ie_LTO, cls=MontyEncoder)
         ie = json.loads(json_str, cls=MontyDecoder)
         assert ie.max_voltage == approx(2.78583901)
@@ -94,20 +95,19 @@ class TestInsertionElectrode(TestCase):
         assert ie.get_average_voltage() == approx(1.84143141)
 
     def test_voltage_pair(self):
-        vpair = self.ie_LTO[0]
-        assert vpair.voltage == approx(2.78583901)
-        assert vpair.mAh == approx(13400.7411749)
-        assert vpair.mass_charge == approx(79.8658)
-        assert vpair.mass_discharge == approx(83.3363)
-        assert vpair.vol_charge == approx(37.553684467)
-        assert vpair.vol_discharge == approx(37.917719932)
-        assert vpair.frac_charge == approx(0)
-        assert vpair.frac_discharge == approx(0.14285714285714285)
-        assert vpair.x_charge == approx(0)
-        assert vpair.x_discharge == approx(0.5)
+        volt_pair = self.ie_LTO[0]
+        assert volt_pair.voltage == approx(2.78583901)
+        assert volt_pair.mAh == approx(13400.7411749)
+        assert volt_pair.mass_charge == approx(79.8658)
+        assert volt_pair.mass_discharge == approx(83.3363)
+        assert volt_pair.vol_charge == approx(37.553684467)
+        assert volt_pair.vol_discharge == approx(37.917719932)
+        assert volt_pair.frac_charge == approx(0)
+        assert volt_pair.frac_discharge == approx(0.14285714285714285)
+        assert volt_pair.x_charge == approx(0)
+        assert volt_pair.x_discharge == approx(0.5)
         # reconstruct the voltage pair
-        dct = vpair.as_dict()
-        vv = InsertionVoltagePair.from_dict(dct)
+        vv = InsertionVoltagePair.from_dict(volt_pair.as_dict())
         assert vv.entry_charge.energy == approx(-105.53608265)
         assert vv.voltage == approx(2.78583901)
 

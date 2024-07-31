@@ -4,7 +4,6 @@ from shutil import which
 
 import pytest
 from monty.serialization import loadfn
-
 from pymatgen.command_line.mcsqs_caller import run_mcsqs
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
@@ -14,7 +13,7 @@ __maintainer__ = "Handong Ling, Rachel Woods-Robinson"
 __email__ = "handongling@berkeley.edu, rwoodsrobinson@lbl.gov"
 
 
-TEST_DIR = f"{TEST_FILES_DIR}/mcsqs"
+TEST_DIR = f"{TEST_FILES_DIR}/io/atat/mcsqs"
 
 
 @pytest.mark.skipif(not (which("mcsqs") and which("str2cif")), reason="mcsqs executable not present")

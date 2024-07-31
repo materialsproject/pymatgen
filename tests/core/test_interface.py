@@ -2,23 +2,21 @@ from __future__ import annotations
 
 import numpy as np
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.core.interface import GrainBoundary, GrainBoundaryGenerator, Interface
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
-TEST_DIR = f"{TEST_FILES_DIR}/grain_boundary"
+TEST_DIR = f"{TEST_FILES_DIR}/core/grain_boundary"
 
 
 class TestGrainBoundary(PymatgenTest):
-    @classmethod
-    def setUpClass(cls):
-        cls.Cu_conv = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif")
-        GB_Cu_conv = GrainBoundaryGenerator(cls.Cu_conv)
-        cls.Cu_GB1 = GB_Cu_conv.gb_from_parameters(
+    def setUp(self):
+        self.Cu_conv = Structure.from_file(f"{TEST_DIR}/Cu_mp-30_conventional_standard.cif")
+        GB_Cu_conv = GrainBoundaryGenerator(self.Cu_conv)
+        self.Cu_GB1 = GB_Cu_conv.gb_from_parameters(
             [1, 2, 3],
             123.74898859588858,
             expand_times=4,
@@ -27,7 +25,7 @@ class TestGrainBoundary(PymatgenTest):
             plane=[1, 3, 1],
             rm_ratio=0.0,
         )
-        cls.Cu_GB2 = GB_Cu_conv.gb_from_parameters(
+        self.Cu_GB2 = GB_Cu_conv.gb_from_parameters(
             [1, 2, 3],
             123.74898859588858,
             expand_times=4,
@@ -39,15 +37,17 @@ class TestGrainBoundary(PymatgenTest):
     def test_init(self):
         assert self.Cu_GB1.rotation_angle == approx(123.74898859588858)
         assert self.Cu_GB1.vacuum_thickness == approx(1.5)
-        assert self.Cu_GB2.rotation_axis == [1, 2, 3]
+        assert self.Cu_GB2.rotation_axis == (1, 2, 3)
         assert_allclose(self.Cu_GB1.ab_shift, [0.0, 0.0])
         assert_allclose(self.Cu_GB2.ab_shift, [0.2, 0.2])
-        assert self.Cu_GB1.gb_plane == [1, 3, 1]
-        assert self.Cu_GB2.gb_plane == [1, 2, 3]
+        assert self.Cu_GB1.gb_plane == (1, 3, 1)
+        assert self.Cu_GB2.gb_plane == (1, 2, 3)
         assert_allclose(self.Cu_GB1.init_cell.lattice.matrix, self.Cu_conv.lattice.matrix)
 
     def test_copy(self):
         Cu_GB1_copy = self.Cu_GB1.copy()
+        assert Cu_GB1_copy is not self.Cu_GB1
+        assert Cu_GB1_copy == self.Cu_GB1
         assert Cu_GB1_copy.sigma == approx(self.Cu_GB1.sigma)
         assert Cu_GB1_copy.rotation_angle == approx(self.Cu_GB1.rotation_angle)
         assert Cu_GB1_copy.rotation_axis == self.Cu_GB1.rotation_axis

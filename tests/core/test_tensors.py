@@ -6,12 +6,11 @@ import numpy as np
 import pytest
 from monty.serialization import MontyDecoder, loadfn
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.tensors import SquareTensor, Tensor, TensorCollection, TensorMapping, itertools, symmetry_reduce
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 
 class TestTensor(PymatgenTest):
@@ -101,7 +100,7 @@ class TestTensor(PymatgenTest):
         )
 
         self.structure = self.get_structure("BaNiO3")
-        ieee_file_path = f"{TEST_FILES_DIR}/ieee_conversion_data.json"
+        ieee_file_path = f"{TEST_FILES_DIR}/core/tensors/ieee_conversion_data.json"
         self.ones = Tensor(np.ones((3, 3)))
         self.ieee_data = loadfn(ieee_file_path)
 
@@ -159,7 +158,7 @@ class TestTensor(PymatgenTest):
         test = Tensor(np.arange(0, 3**4).reshape((3, 3, 3, 3)))
         assert_allclose([0, 27, 54], test.einsum_sequence([x] * 3))
         assert test.einsum_sequence([np.eye(3)] * 2) == 360
-        with pytest.raises(ValueError, match="other tensors must be list of tensors or tensor input"):
+        with pytest.raises(TypeError, match="other tensors must be list of tensors or tensor input"):
             test.einsum_sequence(Tensor(np.zeros(3)))
 
     def test_symmetrized(self):
@@ -283,7 +282,7 @@ class TestTensor(PymatgenTest):
         assert empty[tkey] == 1
 
     def test_populate(self):
-        test_data = loadfn(f"{TEST_FILES_DIR}/test_toec_data.json")
+        test_data = loadfn(f"{TEST_FILES_DIR}/analysis/elasticity/test_toec_data.json")
 
         sn = self.get_structure("Sn")
         vtens = np.zeros((6, 6))
@@ -369,15 +368,12 @@ class TestTensorCollection(PymatgenTest):
         self.rand_tc = TensorCollection(list(np.random.random((4, 3, 3))))
         self.diff_rank = TensorCollection([np.ones([3] * i) for i in range(2, 5)])
         self.struct = self.get_structure("Si")
-        ieee_file_path = f"{TEST_FILES_DIR}/ieee_conversion_data.json"
+        ieee_file_path = f"{TEST_FILES_DIR}/core/tensors/ieee_conversion_data.json"
         self.ieee_data = loadfn(ieee_file_path)
 
     def list_based_function_check(self, attribute, coll, *args, **kwargs):
-        """
-        This function allows for more efficient testing of list-based
-        functions in a "collection"-style class like TensorCollection.
-
-        It ensures that the test function
+        """More efficient testing of list-based functions in a "collection"-style
+        class like TensorCollection.
         """
         tc_orig = TensorCollection(coll)
         tc_mod = getattr(tc_orig, attribute)

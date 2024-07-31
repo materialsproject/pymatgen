@@ -1,0 +1,249 @@
+
+Running Job 1 of 1 hf_pcm.inp
+qchem hf_pcm.inp_4005.0 /Users/xiaohuiqu/scratch/qchem4005/ 1
+                  Welcome to Q-Chem
+     A Quantum Leap Into The Future Of Chemistry
+
+ Y. Shao, L. Fusti-Molnar, Y. Jung, J. Kussmann, C. Ochsenfeld, S. T. Brown, 
+ A. T. B. Gilbert, L. V. Slipchenko, S. V. Levchenko, D. P. O'Neill, 
+ R. A. DiStasio Jr., R. C. Lochan, T. Wang, G. J. O. Beran, N. A. Besley, 
+ J. M. Herbert, C. Y. Lin, T. Van Voorhis, S. H. Chien, A. Sodt, R. P. Steele, 
+ V. A. Rassolov, P. E. Maslen, P. P. Korambath, R. D. Adamson, B. Austin, 
+ J. Baker, E. F. C. Byrd, H. Dachsel, R. J. Doerksen, A. Dreuw, B. D. Dunietz, 
+ A. D. Dutoi, T. R. Furlani, S. R. Gwaltney, A. Heyden, S. Hirata, C.-P. Hsu, 
+ G. Kedziora, R. Z. Khaliullin, P. Klunzinger, A. M. Lee, M. S. Lee, W. Liang, 
+ I. Lotan, N. Nair, B. Peters, E. I. Proynov, P. A. Pieniazek, Y. M. Rhee, 
+ J. Ritchie, E. Rosta, C. D. Sherrill, A. C. Simmonett, J. E. Subotnik, 
+ H. L. Woodcock III, W. Zhang, A. T. Bell, A. K. Chakraborty, D. M. Chipman, 
+ F. J. Keil, A. Warshel, W. J. Hehre, H. F. Schaefer III, J. Kong, 
+ A. I. Krylov, P. M. W. Gill, M. Head-Gordon
+
+ Additional authors for Version 3.1: 
+ Z. Gan, Y. Zhao, N. E. SchultzD. Truhlar, E. Epifanovsky, M. Oana
+
+ Additional authors for Version 3.2: 
+ R. Baer, B. R. Brooks, D. Casanova, J.-D. Chai, C.-L. Cheng, C. Cramer, 
+ D. Crittenden, A. Ghysels, G. Hawkins, E. G. Hohenstein, C. Kelley, 
+ W. Kurlancheek, D. Liotard, E. Livshits, P. Manohar, A. Marenich, 
+ D. Neuhauser, R. Olson, M. A. Rohrdanz, K. S. Thanthiriwatte, A. J. W. Thom, 
+ V. Vanovschi, C. F. Williams, Q. Wu, Z.-Q. You
+
+ Additional authors for Version 4.0: 
+ A. Aspuru-Guzik, Y. Bernard, C. Chang, J. Deng, A. Dreuw, M. Diedenhofen, 
+ R. G. Edgar, D. Ghosh, W. A. Goddard III, M. Goldey, L. D. Jacobson, 
+ M. Gordon, B. Kaduk, I. Kaliman, K. Khistyaev, R. King, A. Klamt, 
+ D. Kosenkov, T. Kus, D. Lambrecht, A. Landau, A. W. Lange, K. Lawler, F. Liu, 
+ J. Liu, R. Olivares-Amaya, S. P. Mao, J. Parkhill, N. Russ, M. Schmidt, 
+ N. Shenvi, D. Small, Y. C. Su, E. Sundstrom, L. Vogt, O. Vydrov, M. Watson, 
+ M. Wormit, X. Xu, S. Yeganeh, I. Y. Zhang, D. Zuev
+
+ Additional authors for Version 4.1: 
+ X. Feng, M. W. D. Hason-Heine, P. Horn, H. Ji, A. Laurent, R. Peverati, 
+ N. Mardirossian, N. Sergueev, S. Sharada, P. Zimmerman
+
+
+ Q-Chem, Version 4.1, Q-Chem, Inc., Pittsburgh, PA (2013).
+
+ MAC (Intel) OSX Version 4.1.0.1 
+
+ Q-chem begins on Sun Dec 15 10:30:35 2013  
+
+Host: 
+0
+
+     Scratch files written to /Users/xiaohuiqu/scratch/qchem4005//
+ Aug3013 17693_zgan 4696   
+Processing $rem in /Users/xiaohuiqu/program/qchem/config/preferences.
+ MEM_TOTAL  2000 
+Symmetry turned off for PCM calculation
+Finally everything over in PARseQInput
+
+--------------------------------------------------------------
+User input:
+--------------------------------------------------------------
+$molecule
+1 2
+H       0.000000     0.000000     0.943930
+F       0.000000     0.000000     0.000000
+$end
+
+$rem
+job_type = sp
+exchange = b3lyp
+basis = 6-31+g*
+solvent_method = pcm
+$end
+
+$pcm
+theory ssvpe
+vdwScale 1.1
+radii uff
+$end
+
+$pcm_solvent
+dielectric 78.3553
+$end
+
+
+--------------------------------------------------------------
+ ----------------------------------------------------
+       Standard Nuclear Orientation (Angstroms)
+    I     Atom         X            Y            Z
+ ----------------------------------------------------
+    1      H       0.000000     0.000000     0.943930
+    2      F       0.000000     0.000000     0.000000
+ ----------------------------------------------------
+ Nuclear Repulsion Energy =     5.0454958495 hartrees
+ There are        5 alpha and        4 beta electrons
+ Requested basis set is 6-31+G(d)
+ There are 7 shells and 21 basis functions
+
+Total QAlloc Memory Limit   2000 MB
+Mega-Array Size        61 MB
+MEM_STATIC part        62 MB
+Discretize the solute cavity surface with Lebedev spheres
+	Using 590 Lebedev grid points for each H atom
+	Using 590 Lebedev grid points for other atoms
+	Atomic van der Waals radii will be scaled by 1.10
+ Serial switch compute.
+ Remove points where switching function is < 1.0e-08
+ Keep 826 surface tesserae and discard 354 interior tesserae
+ Molecular Surface Area = 48.321 Angst**2
+
+                       Distance Matrix (Angstroms)
+             H (  1)
+   F (  2)  0.943930
+ 
+ A cutoff of  1.0D-08 yielded     28 shell pairs
+ There are       264 function pairs
+ Smallest overlap matrix eigenvalue = 7.23E-03
+
+  Scale SEOQF with 1.000000e+00/1.000000e+00/1.000000e+00
+
+ Standard Electronic Orientation quadrupole field applied
+ Nucleus-field energy     =    -0.0000000010 hartrees
+ Guess from superposition of atomic densities
+ Warning:  Energy on first SCF cycle will be non-variational
+ An unrestricted hybrid HF-DFT SCF calculation will be
+ performed using Pulay DIIS extrapolation
+ Exchange:     0.2000 Hartree-Fock + 0.0800 Slater + 0.7200 Becke88
+ Correlation:  0.8100 LYP + 0.1900 VWN1RPA
+ Using SG-1 standard quadrature grid
+ SCF converges when DIIS error is below 1.0E-05
+ Inaccurate integrated density:
+   Number of electrons =     9
+   Numerical integral  =    10.000002394148
+   Relative error      =    11.1111377128 %
+ ---------------------------------------
+  Cycle       Energy         DIIS Error
+ ---------------------------------------
+    1    -100.3778605607      1.03E-01
+Constructing SS(V)PE matrices
+ Time req'd to do Mat Mult: 0.09 s (CPU) 0.09 s (wall)
+ Using non-symmetric K matrix
+ Reading D matrix from file 860
+ Writing R matrix to file 861
+ Time req'd to do K^-1*R Mat Mult: 0.09 s (CPU) 0.09 s (wall)
+    2     -99.9305609107      3.34E-02
+ Reading R matrix from file 861
+    3     -99.9562649820      2.80E-02
+ Reading R matrix from file 861
+    4     -99.9839211839      1.35E-03
+ Reading R matrix from file 861
+    5     -99.9840232251      2.92E-04
+ Reading R matrix from file 861
+    6     -99.9840325625      3.39E-05
+ Reading R matrix from file 861
+    7     -99.9840341121      1.46E-05
+ Reading R matrix from file 861
+ Reading R matrix from file 861
+    8     -99.9840344143      2.45E-06 Convergence criterion met
+ ---------------------------------------
+
+************** Final PCM Free Energy Summary **************
+ G_electrostatic  =      -0.13810490 hartree =     -86.66213093 kcal/mol
+ G_cavitation     =       0.00000000 hartree =       0.00000000 kcal/mol
+ G_dispersion     =       0.00000000 hartree =       0.00000000 kcal/mol
+ G_repulsion      =       0.00000000 hartree =       0.00000000 kcal/mol
+ --------------------------------------------------
+ Non-electrostatic Free Energy =       0.00000000 hartree =       0.00000000 kcal/mol
+ Total                         =      -0.13810490 hartree =     -86.66213093 kcal/mol
+ --------------------------------------------------
+ SCF Energy (H0 + V/2)                       =     -99.98403441 
+ Solute Internal Energy (H0)                 =     -99.84592952 
+ Total Free Energy (H0 + V/2 + non-elec)     =     -99.98403441 hartree
+                                             =  -62740.92854378 kcal/mol
+***********************************************************
+
+ <S^2> = 0.7516
+ SCF time:  CPU 0.66 s  wall 0.76 s
+ SCF   energy in the final basis set = -99.9840344143
+ Total energy in the final basis set = -99.9840344143
+ Analysis of SCF Wavefunction
+ 
+ --------------------------------------------------------------
+                    Orbital Energies (a.u.)
+ --------------------------------------------------------------
+ 
+ Alpha MOs
+ -- Occupied --
+-25.116  -1.553  -0.849  -0.821  -0.729
+ -- Virtual --
+ -0.062   0.122   0.151   0.156   0.210   0.801   1.190   1.238
+  1.297   1.422   1.490   1.535   1.556   1.558   2.387   4.002
+ 
+ Beta MOs
+ -- Occupied --
+-25.082  -1.464  -0.816  -0.694
+ -- Virtual --
+ -0.511  -0.053   0.128   0.158   0.172   0.211   0.807   1.255
+  1.288   1.315   1.452   1.543   1.548   1.613   1.619   2.408
+  4.036
+ --------------------------------------------------------------
+ 
+          Ground-State Mulliken Net Atomic Charges
+
+     Atom                 Charge (a.u.)    Spin (a.u.)
+  --------------------------------------------------------
+      1 H                     0.694321      -0.019009
+      2 F                     0.305679       1.019009
+  --------------------------------------------------------
+  Sum of atomic charges =     1.000000
+  Sum of spin   charges =     1.000000
+
+ -----------------------------------------------------------------
+                    Cartesian Multipole Moments
+ -----------------------------------------------------------------
+    Charge (ESU x 10^10)
+                 4.8032
+    Dipole Moment (Debye)
+         X       0.0000      Y       0.0000      Z       2.5203
+       Tot       2.5203
+    Quadrupole Moments (Debye-Ang)
+        XX      -3.9074     XY      -0.3617     YY      -4.2391
+        XZ       0.0000     YZ       0.0000     ZZ      -1.6087
+    Octapole Moments (Debye-Ang^2)
+       XXX       0.0000    XXY       0.0000    XYY       0.0000
+       YYY       0.0000    XXZ       0.0037    XYZ       0.0105
+       YYZ       0.0133    XZZ       0.0000    YZZ       0.0000
+       ZZZ       2.4378
+    Hexadecapole Moments (Debye-Ang^3)
+      XXXX      -1.8611   XXXY      -0.1616   XXYY      -0.6698
+      XYYY      -0.1617   YYYY      -2.1576   XXXZ       0.0000
+      XXYZ       0.0000   XYYZ       0.0000   YYYZ       0.0000
+      XXZZ      -0.7976   XYZZ      -0.0541   YYZZ      -0.8473
+      XZZZ       0.0000   YZZZ       0.0000   ZZZZ      -0.6202
+ -----------------------------------------------------------------
+Archival summary:
+1\1\MacQu.local\SP\ProcedureUnspecified\6-31+G*\11(1+,2)\SunDec1510:30:352013SunDec1510:30:352013\0\\#,ProcedureUnspecified,6-31+G*,\\1,2\H\F,1,0.94393\\\@
+
+ Total job time:  0.85s(wall), 0.71s(cpu) 
+ Sun Dec 15 10:30:35 2013
+
+        *************************************************************
+        *                                                           *
+        *  Thank you very much for using Q-Chem.  Have a nice day.  *
+        *                                                           *
+        *************************************************************
+
+

@@ -5,11 +5,10 @@ import itertools
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
-
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.testing import PymatgenTest
+from pytest import approx
 
 
 class TestLattice(PymatgenTest):
@@ -33,6 +32,8 @@ class TestLattice(PymatgenTest):
         lattice = Lattice.cubic(len_a)
         assert lattice is not None, "Initialization from new_cubic failed"
         assert_array_equal(lattice.pbc, (True, True, True))
+        assert hash(lattice) == -6887896986157825384
+
         lattice2 = Lattice(np.eye(3) * len_a)
         for ii in range(3):
             for jj in range(3):
@@ -51,7 +52,7 @@ class TestLattice(PymatgenTest):
                 assert (name1 == name2) == (latt1 == latt2)
 
         # ensure partial periodic boundaries is unequal to all full periodic boundaries
-        assert not any(self.cubic_partial_pbc == x for x in self.families.values())
+        assert not any(self.cubic_partial_pbc == family for family in self.families.values())
 
     def test_format(self):
         assert (
@@ -80,8 +81,8 @@ class TestLattice(PymatgenTest):
         # Random testing that get_cart and get_frac coords reverses each other.
         rand_coord = np.random.random_sample(3)
         coord = self.tetragonal.get_cartesian_coords(rand_coord)
-        fcoord = self.tetragonal.get_fractional_coords(coord)
-        assert_allclose(fcoord, rand_coord)
+        frac_coord = self.tetragonal.get_fractional_coords(coord)
+        assert_allclose(frac_coord, rand_coord)
 
     def test_get_vector_along_lattice_directions(self):
         lattice_mat = np.array([[0.5, 0.0, 0.0], [0.5, np.sqrt(3) / 2.0, 0.0], [0.0, 0.0, 1.0]])
@@ -109,8 +110,8 @@ class TestLattice(PymatgenTest):
         assert d_hkl == cubic_copy.d_hkl(hkl)
 
     def test_reciprocal_lattice(self):
-        recip_latt = self.lattice.reciprocal_lattice
-        assert_allclose(recip_latt.matrix, 0.628319 * np.eye(3), atol=1e-6)
+        recip_lattice = self.lattice.reciprocal_lattice
+        assert_allclose(recip_lattice.matrix, 0.628319 * np.eye(3), atol=1e-6)
         assert_allclose(
             self.tetragonal.reciprocal_lattice.matrix,
             [[0.628319, 0.0, 0.0], [0.0, 0.628319, 0], [0.0, 0.0, 0.3141590]],
@@ -118,8 +119,8 @@ class TestLattice(PymatgenTest):
         )
 
         # Test the crystallographic version.
-        recip_latt_crystallographic = self.lattice.reciprocal_lattice_crystallographic
-        assert_allclose(recip_latt.matrix, recip_latt_crystallographic.matrix * 2 * np.pi, 5)
+        recip_lattice_crystallographic = self.lattice.reciprocal_lattice_crystallographic
+        assert_allclose(recip_lattice.matrix, recip_lattice_crystallographic.matrix * 2 * np.pi, 5)
 
     def test_static_methods(self):
         expected_lengths = [3.840198, 3.84019885, 3.8401976]
@@ -352,26 +353,40 @@ class TestLattice(PymatgenTest):
         # This is a non-niggli representation of a cubic lattice
         lattice = Lattice([[1, 5, 0], [0, 1, 0], [5, 0, 1]])
         # evenly spaced points array between 0 and 1
-        pts = np.array(list(itertools.product(range(5), repeat=3))) / 5
-        pts = lattice.get_fractional_coords(pts)
+        points = np.array(list(itertools.product(range(5), repeat=3))) / 5
+        points = lattice.get_fractional_coords(points)
 
         # Test getting neighbors within 1 neighbor distance of the origin
-        fcoords, dists, inds, images = lattice.get_points_in_sphere(pts, [0, 0, 0], 0.20001, zip_results=False)
-        assert len(fcoords) == 7  # There are 7 neighbors
+        frac_coords, dists, indices, images = lattice.get_points_in_sphere(
+            points, [0, 0, 0], 0.20001, zip_results=False
+        )
+        assert len(frac_coords) == 7  # There are 7 neighbors
         assert np.isclose(dists, 0.2).sum() == 6  # 6 are at 0.2
         assert np.isclose(dists, 0).sum() == 1  # 1 is at 0
-        assert len(set(inds)) == 7  # They have unique indices
-        assert_array_equal(images[np.isclose(dists, 0)], [[0, 0, 0]])
+        assert len(set(indices)) == 7  # They have unique indices
+        assert images[np.isclose(dists, 0)].tolist() == [[0, 0, 0]]
 
         # More complicated case, using the zip output
-        result = lattice.get_points_in_sphere(pts, [0.5, 0.5, 0.5], 1.0001)
+        result = lattice.get_points_in_sphere(points, [0.5, 0.5, 0.5], 1.0001)
+        assert isinstance(result, tuple)
         assert len(result) == 552
-        assert len(result[0]) == 4  # coords, dists, ind, supercell
+        assert len(result[0]) == 4  # coords, dists, indices, supercell
 
         # test pbc
         latt_pbc = Lattice([[1, 5, 0], [0, 1, 0], [5, 0, 1]], pbc=(True, True, False))
-        fcoords, dists, inds, images = latt_pbc.get_points_in_sphere(pts, [0, 0, 0], 0.20001, zip_results=False)
-        assert len(fcoords) == 6
+        frac_coords, dists, indices, images = latt_pbc.get_points_in_sphere(
+            points, [0, 0, 0], 0.20001, zip_results=False
+        )
+        assert len(frac_coords) == 6
+
+        # ensure consistent return type if zip_results=False and no points in sphere are found
+        # https://github.com/materialsproject/pymatgen/issues/3794
+        result = lattice.get_points_in_sphere(points, [0.5, 0.5, 0.5], 0.0001, zip_results=False)
+        assert isinstance(result, tuple)
+        assert len(result) == 4
+        assert all(len(arr) == 0 for arr in result)
+        types = {*map(type, result)}
+        assert types == {np.ndarray}, f"Expected only np.ndarray, got {types}"
 
     def test_get_all_distances(self):
         fcoords = np.array(

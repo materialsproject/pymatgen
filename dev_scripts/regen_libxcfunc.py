@@ -2,7 +2,7 @@
 """
 This script regenerates the enum values in pymatgen.core.libxc_func.py.
 It requires in input the path of the `libxc_docs.txt` file contained in libxc/src
-The script parses this file, creates a new json file inside pymatgen.core
+The script parses this file, creates a new JSON file inside pymatgen.core
 and update the enum values declared in LibxcFunc.
 The script must be executed inside pymatgen/dev_scripts.
 """
@@ -16,10 +16,7 @@ from copy import deepcopy
 
 
 def parse_libxc_docs(path):
-    """
-    Parse libxc_docs.txt file, return dictionary with mapping:
-    libxc_id --> info_dict.
-    """
+    """Parse libxc_docs.txt file, return dictionary {libxc_id: info_dict}."""
 
     def parse_section(section):
         dct = {}
@@ -46,7 +43,7 @@ def parse_libxc_docs(path):
 
 
 def write_libxc_docs_json(xc_funcs, json_path):
-    """Write json file with libxc metadata to path jpath."""
+    """Write JSON file with libxc metadata to path jpath."""
     xc_funcs = deepcopy(xc_funcs)
 
     # Remove XC_FAMILY from Family and XC_ from Kind to make strings more human-readable.
@@ -85,7 +82,7 @@ def main():
 
     xc_funcs = parse_libxc_docs(path)
 
-    # Generate new json file in pycore
+    # Generate new JSON file in pycore
     pmg_core = os.path.abspath("../pymatgen/core/")
     json_path = f"{pmg_core}/libxc_docs.json"
     write_libxc_docs_json(xc_funcs, json_path)
@@ -111,11 +108,11 @@ def main():
     del lines[start + 1 : stop]
 
     # [2] write new py module
-    with open(xc_funcpy_path, mode="w") as file:
+    with open(xc_funcpy_path, mode="w", encoding="utf-8") as file:
         file.writelines(lines)
 
     print("Files have been regenerated")
-    print("Remember to update libxc_version in libxcfuncs.py!")
+    print("Remember to update __version__ in libxcfuncs.py!")
 
     return 0
 

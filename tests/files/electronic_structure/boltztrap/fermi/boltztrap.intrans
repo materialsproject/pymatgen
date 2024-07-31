@@ -1,0 +1,7 @@
+GENE          # use generic interface
+1 0 0 0.0         # iskip (not presently used) idebug setgap shiftgap 
+0.0 0.000367 0.1   10.0     # Fermilevel (Ry),energygrid,energy span around Fermilevel, number of electrons
+CALC                    # CALC (calculate expansion coeff), NOCALC read from file
+10                        # lpfac, number of latt-points per k-point
+FERMI                     # run mode (only BOLTZ is supported)
+1                        # actual band selected: 7 spin: 1

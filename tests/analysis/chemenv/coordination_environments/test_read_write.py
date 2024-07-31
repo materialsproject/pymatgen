@@ -3,8 +3,6 @@ from __future__ import annotations
 import json
 
 from numpy.testing import assert_allclose
-from pytest import approx
-
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     AngleNbSetWeight,
     CNBiasNbSetWeight,
@@ -23,11 +21,12 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+from pytest import approx
 
 __author__ = "waroquiers"
 
-json_dir = f"{TEST_FILES_DIR}/chemenv/json"
-struct_env_dir = f"{TEST_FILES_DIR}/chemenv/structure_environments"
+json_dir = f"{TEST_FILES_DIR}/analysis/chemenv/json"
+struct_env_dir = f"{TEST_FILES_DIR}/analysis/chemenv/structure_environments"
 
 
 class TestReadWriteChemenv(PymatgenTest):

@@ -1,0 +1,37 @@
+# generated using pymatgen
+data_H6PbCI3N
+_symmetry_space_group_name_H-M   Pm
+_cell_length_a   6.43672416
+_cell_length_b   6.43839326
+_cell_length_c   6.49207037
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.41946266
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   6
+_chemical_formula_structural   H6PbCI3N
+_chemical_formula_sum   'H6 Pb1 C1 I3 N1'
+_cell_volume   269.03821821
+_cell_formula_units_Z   1
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  'x, -y, z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  H  H1  2  0.159093  0.138944  0.931123  1
+  H  H2  2  0.796003  0.130429  0.039015  1
+  H  H3  1  0.132363  0.000000  0.168228  1
+  H  H4  1  0.821186  0.000000  0.820191  1
+  Pb  Pb5  1  0.524761  0.500000  0.524221  1
+  C  C6  1  0.095387  0.000000  0.003485  1
+  I  I7  1  0.038363  0.500000  0.551006  1
+  I  I8  1  0.562853  0.000000  0.494216  1
+  I  I9  1  0.571761  0.500000  0.027564  1
+  N  N10  1  0.865128  0.000000  0.975112  1

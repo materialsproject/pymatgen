@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import warnings
+
 import pytest
 from numpy.testing import assert_array_equal
-from pytest import approx
-
 from pymatgen.core.units import (
     ArrayWithUnit,
     Energy,
@@ -25,6 +25,7 @@ from pymatgen.core.units import (
     unitized,
 )
 from pymatgen.util.testing import PymatgenTest
+from pytest import approx
 
 
 def test_unit_conversions():
@@ -89,20 +90,34 @@ class TestFloatWithUnit(PymatgenTest):
         assert x.to("cm") == approx(4.2e-08)
         assert x.to("pm") == 420
         assert str(x / 2) == "2.1 ang"
+
         y = x**3
         assert y == approx(74.088)
         assert str(y.unit) == "ang^3"
 
     def test_memory(self):
-        mega = Memory(1, "Mb")
-        assert mega.to("byte") == 1024**2
-        assert mega == Memory(1, "mb")
+        mega_0 = Memory(1, "MB")
+        assert mega_0.to("byte") == 1024**2
 
-        same_mega = Memory.from_str("1Mb")
-        assert same_mega.unit_type == "memory"
+        mega_1 = Memory.from_str("1 MB")
+        assert mega_1.unit_type == "memory"
 
-        other_mega = Memory.from_str("+1.0 mb")
-        assert mega == other_mega
+        mega_2 = Memory.from_str("1MB")
+        assert mega_2.unit_type == "memory"
+
+        mega_3 = Memory.from_str("+1.0 MB")
+        assert mega_0 == mega_1 == mega_2 == mega_3
+
+    def test_deprecated_memory(self):
+        # TODO: remove after 2025-01-01
+        for unit in ("Kb", "kb", "Mb", "mb", "Gb", "gb", "Tb", "tb"):
+            with pytest.warns(DeprecationWarning, match=f"Unit {unit} is deprecated"):
+                Memory(1, unit)
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            for unit in ("KB", "MB", "GB", "TB"):
+                Memory(1, unit)
 
     def test_unitized(self):
         @unitized("eV")
@@ -169,10 +184,9 @@ class TestFloatWithUnit(PymatgenTest):
         assert FloatWithUnit(-5, "MPa") == -x
 
 
-class TestArrayWithFloatWithUnit(PymatgenTest):
+class TestArrayWithUnit(PymatgenTest):
     def test_energy(self):
-        """
-        Similar to FloatWithUnitTest.test_energy.
+        """Similar to TestFloatWithUnit.test_energy.
         Check whether EnergyArray and FloatWithUnit have same behavior.
 
         # TODO
@@ -195,8 +209,7 @@ class TestArrayWithFloatWithUnit(PymatgenTest):
         assert float(e_in_ev + 1) == 2.1
 
     def test_time(self):
-        """
-        Similar to FloatWithUnitTest.test_time.
+        """Similar to FloatWithUnitTest.test_time.
         Check whether EnergyArray and FloatWithUnit have same behavior.
         """
         # here there's a minor difference because we have a ndarray with dtype=int
@@ -207,8 +220,7 @@ class TestArrayWithFloatWithUnit(PymatgenTest):
         assert str(3 * a) == "60 h"
 
     def test_length(self):
-        """
-        Similar to FloatWithUnitTest.test_time.
+        """Similar to FloatWithUnitTest.test_time.
         Check whether EnergyArray and FloatWithUnit have same behavior.
         """
         x = LengthArray(4.2, "ang")
@@ -240,7 +252,7 @@ class TestArrayWithFloatWithUnit(PymatgenTest):
             ene_ha * time_s,
             ene_ha / ene_ev,
             ene_ha.copy(),
-            ene_ha[0:1],
+            ene_ha[:1],
             e1,
             e2,
             e3,
