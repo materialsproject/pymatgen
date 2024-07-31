@@ -773,7 +773,7 @@ SIGMA = 0.1"""
                     "AMIN": 0.01,
                     "ICHARG": 1,
                     "MAGMOM": [1, 2, 4, 5],
-                    "LREAL": True,
+                    "LREAL": True,  # special case: Union type
                     "NBAND": 250,  # typo in tag
                     "METAGGA": "SCAM",  # typo in value
                     "EDIFF": 5 + 1j,  # value should be a float

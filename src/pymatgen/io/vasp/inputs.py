@@ -1015,30 +1015,9 @@ class Incar(dict, MSONable):
         If a tag doesn't exist, calculation will still run, however VASP
         will ignore the tag and set it as default without letting you know.
         """
-
-        def check_param_type(val: Any, expected_type: str) -> bool:
-            """Check if the type of a VASP tag matches its expected type.
-
-            Args:
-                val (Any): The values of the VASP tag to check.
-                expected_type (str): Expected type of the tag.
-
-            Returns:
-                bool
-            """
-            current_type: str = type(val).__name__
-
-            if expected_type in {"int", "float", "str", "list", "bool"}:
-                return current_type == expected_type
-
-            if expected_type.startswith("Union"):
-                return current_type in expected_type.removeprefix("Union[").removesuffix("]").replace(" ", "").split(
-                    ","
-                )
-
-            # Let unrecored type pass the test
-            warnings.warn(f"Update the code to handle composite type {expected_type}.", stacklevel=2)
-            return True
+        # Need to import Union to support type checking of "LREAL"
+        # TODO: Use "X | Y" after moving to Python 3.10+, see #3958
+        from typing import Union  # noqa: F401
 
         # Load INCAR tag/value check reference file
         with open(os.path.join(module_dir, "incar_parameters.json"), encoding="utf-8") as json_file:
@@ -1051,10 +1030,10 @@ class Incar(dict, MSONable):
                 continue
 
             # Check value and its type
-            param_type = incar_params[tag].get("type")
-            allowed_values = incar_params[tag].get("values")
+            param_type: str = incar_params[tag].get("type")
+            allowed_values: list[Any] = incar_params[tag].get("values")
 
-            if param_type is not None and not check_param_type(val, param_type):
+            if param_type is not None and not isinstance(val, eval(param_type)):
                 warnings.warn(f"{tag}: {val} is not a {param_type}", BadIncarWarning, stacklevel=2)
 
             # Only check value when it's not None,
