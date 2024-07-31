@@ -1015,10 +1015,6 @@ class Incar(dict, MSONable):
         If a tag doesn't exist, calculation will still run, however VASP
         will ignore the tag and set it as default without letting you know.
         """
-        # Need to import Union to support type checking of "LREAL"
-        # TODO: Use "X | Y" after moving to Python 3.10+, see #3958
-        from typing import Union  # noqa: F401
-
         # Load INCAR tag/value check reference file
         with open(os.path.join(module_dir, "incar_parameters.json"), encoding="utf-8") as json_file:
             incar_params = json.loads(json_file.read())
