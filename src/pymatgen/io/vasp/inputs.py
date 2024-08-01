@@ -2856,7 +2856,7 @@ class VaspInput(dict, MSONable):
                 dict of {filename: Object type}. Objects must have
                 from_file method.
         """
-        sub_dct = {}
+        sub_dct: dict[str, Any] = {}
         for fname, ftype in (
             ("INCAR", Incar),
             ("KPOINTS", Kpoints),
@@ -2867,9 +2867,9 @@ class VaspInput(dict, MSONable):
                 full_zpath = zpath(os.path.join(input_dir, fname))
                 sub_dct[fname.lower()] = ftype.from_file(full_zpath)  # type: ignore[attr-defined]
             except FileNotFoundError:  # handle the case where there is no KPOINTS file
-                sub_dct[fname.lower()] = None
+                sub_dct[fname.lower()] = None  # type: ignore[assignment]
 
-        sub_dct["optional_files"] = {
+        sub_dct["optional_files"] = {  # type: ignore[assignment]
             fname: ftype.from_file(os.path.join(input_dir, fname)) for fname, ftype in (optional_files or {}).items()
         }
 

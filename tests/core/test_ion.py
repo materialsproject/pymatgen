@@ -46,6 +46,7 @@ class TestIon(TestCase):
         assert Ion.from_formula("SO42-").charge == -1
         assert Ion.from_formula("SO4--").charge == -2
         assert Ion.from_formula("SO4[--]").charge == -2
+        assert Ion.from_formula("N3-").charge == -1
 
         assert Ion.from_formula("Na[+-+]").charge == 1
 
@@ -59,19 +60,25 @@ class TestIon(TestCase):
             ("O3", "O3(aq)"),
             ("O2", "O2(aq)"),
             ("N2", "N2(aq)"),
+            ("NaOH", "NaOH(aq)"),
             ("H4O4", "H2O2(aq)"),
             ("OH-", "OH[-1]"),
+            ("H2PO4-", "H2PO4[-1]"),
             ("CH3COO-", "CH3COO[-1]"),
             ("CH3COOH", "CH3COOH(aq)"),
             ("CH3OH", "CH3OH(aq)"),
             ("H4CO", "CH3OH(aq)"),
+            ("CH4", "CH4(aq)"),
+            ("NH4+", "NH4[+1]"),
+            ("NH3", "NH3(aq)"),
+            ("N3-", "N3[-1]"),
+            ("HCOO-", "HCO2[-1]"),
             ("C2H6O", "C2H5OH(aq)"),
             ("C3H8O", "C3H7OH(aq)"),
             ("C4H10O", "C4H9OH(aq)"),
             ("Fe(OH)4+", "Fe(OH)4[+1]"),
             ("Zr(OH)4", "Zr(OH)4(aq)"),
         ]
-
         for tup in special_formulas:
             assert Ion.from_formula(tup[0]).reduced_formula == tup[1]
 
