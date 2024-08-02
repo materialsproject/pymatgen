@@ -10,6 +10,7 @@ from types import GenericAlias
 from typing import TYPE_CHECKING, get_args
 
 import pytest
+
 from pymatgen.core import Composition, DummySpecies, Element, Species
 from pymatgen.entries import Entry
 from pymatgen.util.typing import CompositionLike, EntryLike, PathLike, PbcLike, SpeciesLike

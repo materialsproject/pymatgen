@@ -21,8 +21,9 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Callable
 
-    from pymatgen.alchemy.filters import AbstractStructureFilter
     from typing_extensions import Self
+
+    from pymatgen.alchemy.filters import AbstractStructureFilter
 
 __author__ = "Shyue Ping Ong, Will Richards"
 __copyright__ = "Copyright 2012, The Materials Project"

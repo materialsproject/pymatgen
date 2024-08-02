@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from pymatgen.core import Structure
 from pymatgen.io.jarvis import Atoms, JarvisAtomsAdaptor
 from pymatgen.util.testing import VASP_IN_DIR

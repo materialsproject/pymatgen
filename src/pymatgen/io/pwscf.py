@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 from monty.io import zopen
 from monty.re import regrep
+
 from pymatgen.core import Element, Lattice, Structure
 from pymatgen.util.io_utils import clean_lines
 
