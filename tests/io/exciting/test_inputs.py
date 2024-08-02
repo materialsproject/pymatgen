@@ -3,6 +3,7 @@ from __future__ import annotations
 from xml.etree import ElementTree
 
 from numpy.testing import assert_allclose
+
 from pymatgen.core import Lattice, Structure
 from pymatgen.io.exciting import ExcitingInput
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest

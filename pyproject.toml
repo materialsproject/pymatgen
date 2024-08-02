@@ -10,13 +10,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pymatgen"
-authors = [
-    { name = "Pymatgen Development Team", email = "ongsp@ucsd.edu" },
-]
+authors = [{ name = "Pymatgen Development Team", email = "ongsp@ucsd.edu" }]
 maintainers = [
-    { name = "Shyue Ping Ong", email = "ongsp@ucsd.edu" },
-    { name = "Matthew Horton", email = "m.k.horton@gmail.com" },
     { name = "Janosh Riebesell", email = "janosh.riebesell@gmail.com" },
+    { name = "Matthew Horton", email = "m.k.horton@gmail.com" },
+    { name = "Shyue Ping Ong", email = "ongsp@ucsd.edu" },
 ]
 description = """
 Python Materials Genomics is a robust materials analysis code that defines core object representations for structures
@@ -26,6 +24,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 keywords = [
     "ABINIT",
+    "VASP",
     "analysis",
     "crystal",
     "diagrams",
@@ -38,7 +37,6 @@ keywords = [
     "qchem",
     "science",
     "structure",
-    "VASP",
 ]
 license = { text = "MIT" }
 classifiers = [
@@ -46,17 +44,18 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
     "Topic :: Scientific/Engineering :: Chemistry",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Scientific/Engineering :: Physics",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
+    "joblib>=1",
     "matplotlib>=3.8",
     "monty>=2024.7.29",
     "networkx>=2.2",
@@ -74,7 +73,8 @@ dependencies = [
     "tabulate>=0.9",
     "tqdm>=4.60",
     "uncertainties>=3.1.4",
-    "joblib>=1",
+    'numpy>=1.25.0 ; platform_system != "Windows"',
+    'numpy>=1.25.0,<2.0 ; platform_system == "Windows"',
 ]
 version = "2024.7.18"
 
@@ -91,17 +91,10 @@ ase = ["ase>=3.23.0"]
 tblite = ["tblite[ase]>=0.3.0; python_version<'3.12'"]
 vis = ["vtk>=6.0.0"]
 abinit = ["netcdf4>=1.6.5"]
-mlp = ["matgl>=1.1.1", "chgnet>=0.3.8"]
+mlp = ["chgnet>=0.3.8", "matgl>=1.1.1"]
 electronic_structure = ["fdint>=2.0.2"]
-ci = [
-    "pytest>=8",
-    "pytest-cov>=4",
-    "pytest-split>=0.8",
-]
-docs = [
-    "sphinx",
-    "sphinx_rtd_theme",
-]
+ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8"]
+docs = ["sphinx", "sphinx_rtd_theme"]
 optional = [
     "ase>=3.23.0",
     # TODO restore BoltzTraP2 when install fixed, hopefully following merge of
@@ -139,7 +132,7 @@ where = ["src"]
 include = ["pymatgen", "pymatgen.*"]
 
 [tool.setuptools.package-data]
-"pymatgen.analysis" = ["*.yaml", "*.json", "*.csv"]
+"pymatgen.analysis" = ["*.csv", "*.json", "*.yaml"]
 "pymatgen.analysis.chemenv" = [
     "coordination_environments/coordination_geometries_files/*.json",
     "coordination_environments/coordination_geometries_files/*.txt",
@@ -152,27 +145,19 @@ include = ["pymatgen", "pymatgen.*"]
 "pymatgen.entries" = ["*.json.gz", "*.yaml", "data/*.json"]
 "pymatgen.core" = ["*.json"]
 "pymatgen" = ["py.typed"]
-"pymatgen.io.vasp" = ["*.yaml", "*.json", "*.json.gz", "*.json.bz2"]
+"pymatgen.io.vasp" = ["*.json", "*.json.bz2", "*.json.gz", "*.yaml"]
 "pymatgen.io.feff" = ["*.yaml"]
 "pymatgen.io.cp2k" = ["*.yaml"]
 "pymatgen.io.lobster" = ["lobster_basis/*.yaml"]
 "pymatgen.command_line" = ["*"]
-"pymatgen.util" = ["structures/*.json", "*.json"]
+"pymatgen.util" = ["*.json", "structures/*.json"]
 "pymatgen.vis" = ["*.yaml"]
 "pymatgen.io.lammps" = ["CoeffsDataType.yaml", "templates/*.template"]
-"pymatgen.symmetry" = ["*.yaml", "*.json", "*.sqlite"]
+"pymatgen.symmetry" = ["*.json", "*.sqlite", "*.yaml"]
 
 [tool.pdm.dev-dependencies]
-lint = [
-    "mypy>=1.10.0",
-    "ruff>=0.4.9",
-    "pre-commit>=3.7.1",
-]
-test = [
-    "pytest>=8.2.2",
-    "pytest-cov>=5.0.0",
-    "pytest-split>=0.9.0",
-]
+lint = ["mypy>=1.10.0", "pre-commit>=3.7.1", "ruff>=0.4.9"]
+test = ["pytest-cov>=5.0.0", "pytest-split>=0.9.0", "pytest>=8.2.2"]
 
 [tool.versioningit.vcs]
 method = "git"
@@ -193,56 +178,57 @@ line-length = 120
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-  # Rule families
-  "ANN",  # flake8-annotations (not ready, require types for ALL args)
-  "ARG",  # Check for unused function arguments
-  "BLE",  # General catch of Exception
-  "C90",  # Check for functions with a high McCabe complexity
-  "COM",  # flake8-commas (conflict with line wrapper)
-  "CPY",  # Missing copyright notice at top of file (need preview mode)
-  "EM",   # Format nice error messages
-  "ERA",  # Check for commented-out code
-  "FIX",  # Check for FIXME, TODO and other developer notes
-  "FURB", # refurb (need preview mode, too many preview errors)
-  "G",    # validate logging format strings
-  "INP",  # Ban PEP-420 implicit namespace packages
-  "N",    # pep8-naming (many var/arg names are intended)
-  "NPY",  # NumPy-specific rules (TODO: enable this)
-  "PTH",  # Prefer pathlib over os.path
-  "S",    # flake8-bandit (TODO: enable this)
-  "SLF",  # Access "private" class members
-  "T20",  # Check for print/pprint
-  "TD",   # TODO tags related
+    # Rule families
+    "ANN",  # flake8-annotations (not ready, require types for ALL args)
+    "ARG",  # Check for unused function arguments
+    "BLE",  # General catch of Exception
+    "C90",  # Check for functions with a high McCabe complexity
+    "COM",  # flake8-commas (conflict with line wrapper)
+    "CPY",  # Missing copyright notice at top of file (need preview mode)
+    "EM",   # Format nice error messages
+    "ERA",  # Check for commented-out code
+    "FIX",  # Check for FIXME, TODO and other developer notes
+    "FURB", # refurb (need preview mode, too many preview errors)
+    "G",    # validate logging format strings
+    "INP",  # Ban PEP-420 implicit namespace packages
+    "N",    # pep8-naming (many var/arg names are intended)
+    "NPY",  # NumPy-specific rules (TODO: enable this)
+    "PTH",  # Prefer pathlib over os.path
+    "S",    # flake8-bandit (TODO: enable this)
+    "SLF",  # Access "private" class members
+    "T20",  # Check for print/pprint
+    "TD",   # TODO tags related
 
-  # Single rules
-  "B023",    # Function definition does not bind loop variable
-  "B028",    # No explicit stacklevel keyword argument found
-  "B904",    # Within an except clause, raise exceptions with ...
-  "C408",    # unnecessary-collection-call
-  "D105",    # Missing docstring in magic method
-  "D205",    # 1 blank line required between summary line and description
-  "D212",    # Multi-line docstring summary should start at the first line
-  "DTZ003",  # TODO: fix this (issue #3791)
-  "FBT001",  # Boolean-typed positional argument in function definition
-  "FBT002",  # Boolean default positional argument in function
-  "PD901",   # pandas-df-variable-name
-  "PERF203", # try-except-in-loop
-  "PERF401", # manual-list-comprehension
-  "PLR0911", # too many return statements
-  "PLR0912", # too many branches
-  "PLR0913", # too many arguments
-  "PLR0915", # too many statements
-  "PLR2004", # magic values in comparison
-  "PLW2901", # Outer for loop variable overwritten by inner assignment target
-  "PT013",   # pytest-incorrect-pytest-import
-  "SIM105",  # Use contextlib.suppress() instead of try-except-pass
-  "TRY003",  # Avoid specifying long messages outside the exception class
-  "TRY300",  # Checks for return statements in try blocks
-  "TRY301",  # Checks for raise statements within try blocks
+    # Single rules
+    "B023",    # Function definition does not bind loop variable
+    "B028",    # No explicit stacklevel keyword argument found
+    "B904",    # Within an except clause, raise exceptions with ...
+    "C408",    # unnecessary-collection-call
+    "D105",    # Missing docstring in magic method
+    "D205",    # 1 blank line required between summary line and description
+    "D212",    # Multi-line docstring summary should start at the first line
+    "DTZ003",  # TODO: fix this (issue #3791)
+    "FBT001",  # Boolean-typed positional argument in function definition
+    "FBT002",  # Boolean default positional argument in function
+    "PD901",   # pandas-df-variable-name
+    "PERF203", # try-except-in-loop
+    "PERF401", # manual-list-comprehension
+    "PLR0911", # too many return statements
+    "PLR0912", # too many branches
+    "PLR0913", # too many arguments
+    "PLR0915", # too many statements
+    "PLR2004", # magic values in comparison
+    "PLW2901", # Outer for loop variable overwritten by inner assignment target
+    "PT013",   # pytest-incorrect-pytest-import
+    "SIM105",  # Use contextlib.suppress() instead of try-except-pass
+    "TRY003",  # Avoid specifying long messages outside the exception class
+    "TRY300",  # Checks for return statements in try blocks
+    "TRY301",  # Checks for raise statements within try blocks
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
 isort.split-on-trailing-comma = false
+isort.known-first-party = ["pymatgen"]
 
 [tool.ruff.format]
 docstring-code-format = true

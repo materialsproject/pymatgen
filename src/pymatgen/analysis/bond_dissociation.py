@@ -8,6 +8,7 @@ from typing import cast
 
 import networkx as nx
 from monty.json import MSONable
+
 from pymatgen.analysis.fragmenter import open_ring
 from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError
 from pymatgen.analysis.local_env import OpenBabelNN

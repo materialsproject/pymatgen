@@ -8,6 +8,7 @@ import warnings
 from typing import TYPE_CHECKING
 
 from monty.io import zopen
+
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.utils import lower_and_check_unique
 
