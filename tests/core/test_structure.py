@@ -1768,6 +1768,7 @@ class TestStructure(PymatgenTest):
         assert traj[0] != traj[-1]
         assert os.path.isfile(traj_file)
 
+    @pytest.mark.skip("TODO: #3958 wait for matgl resolve of torch dependency")
     def test_calculate_m3gnet(self):
         pytest.importorskip("matgl")
         calculator = self.get_structure("Si").calculate()
@@ -1779,6 +1780,7 @@ class TestStructure(PymatgenTest):
         assert np.linalg.norm(calculator.results["forces"]) == approx(7.8123485e-06, abs=0.2)
         assert np.linalg.norm(calculator.results["stress"]) == approx(1.7861567, abs=2)
 
+    @pytest.mark.skip("TODO: #3958 wait for matgl resolve of torch dependency")
     def test_relax_m3gnet(self):
         matgl = pytest.importorskip("matgl")
         struct = self.get_structure("Si")
@@ -1789,6 +1791,7 @@ class TestStructure(PymatgenTest):
             actual = relaxed.dynamics[key]
             assert actual == val, f"expected {key} to be {val}, {actual=}"
 
+    @pytest.mark.skip("TODO: #3958 wait for matgl resolve of torch dependency")
     def test_relax_m3gnet_fixed_lattice(self):
         matgl = pytest.importorskip("matgl")
         struct = self.get_structure("Si")
@@ -1797,6 +1800,7 @@ class TestStructure(PymatgenTest):
         assert isinstance(relaxed.calc, matgl.ext.ase.M3GNetCalculator)
         assert relaxed.dynamics["optimizer"] == "BFGS"
 
+    @pytest.mark.skip("TODO: #3958 wait for matgl resolve of torch dependency")
     def test_relax_m3gnet_with_traj(self):
         pytest.importorskip("matgl")
         struct = self.get_structure("Si")
