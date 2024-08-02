@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 from numpy.testing import assert_allclose
+
 from pymatgen.analysis.chemenv.utils.math_utils import (
     _cartesian_product,
     cosinus_step,

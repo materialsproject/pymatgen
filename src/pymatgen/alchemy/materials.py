@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 from warnings import warn
 
 from monty.json import MSONable, jsanitize
+
 from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifParser
 from pymatgen.io.vasp.inputs import Poscar
@@ -23,8 +24,9 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
-    from pymatgen.alchemy.filters import AbstractStructureFilter
     from typing_extensions import Self
+
+    from pymatgen.alchemy.filters import AbstractStructureFilter
 
 
 class TransformedStructure(MSONable):

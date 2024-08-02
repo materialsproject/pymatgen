@@ -16,6 +16,9 @@ from joblib import Parallel, delayed
 from monty.design_patterns import cached_class
 from monty.json import MSONable
 from monty.serialization import loadfn
+from tqdm import tqdm
+from uncertainties import ufloat
+
 from pymatgen.analysis.structure_analyzer import oxide_type, sulfide_type
 from pymatgen.core import SETTINGS, Composition, Element
 from pymatgen.entries.computed_entries import (
@@ -29,8 +32,6 @@ from pymatgen.entries.computed_entries import (
 from pymatgen.io.vasp.sets import MITRelaxSet, MPRelaxSet, VaspInputSet
 from pymatgen.util.due import Doi, due
 from pymatgen.util.joblib import set_python_warnings, tqdm_joblib
-from tqdm import tqdm
-from uncertainties import ufloat
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
