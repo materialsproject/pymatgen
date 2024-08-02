@@ -15,6 +15,7 @@ from pymatgen.util.coord import get_linear_interpolated_value
 from scipy.constants import value as _cd
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import hilbert
+from scipy.special import expit
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
@@ -89,8 +90,11 @@ class DOS(Spectrum):
         end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
         return end - start, end, start
 
-    def get_cbm_vbm(self, tol: float = 0.001, abs_tol: bool = False, spin=None) -> tuple[float, float]:
-        """Expects a DOS object and finds the cbm and vbm.
+    def get_cbm_vbm(self, tol: float = 1e-4, abs_tol: bool = False, spin=None) -> tuple[float, float]:
+        """
+        Expects a DOS object and finds the CBM and VBM eigenvalues.
+
+        `tol` may need to be increased for systems with noise/disorder.
 
         Args:
             tol: tolerance in occupations for determining the gap
@@ -120,7 +124,7 @@ class DOS(Spectrum):
 
         # work backwards until tolerance is reached
         i_gap_start = i_fermi
-        while i_gap_start - 1 >= 0 and tdos[i_gap_start - 1] <= tol:
+        while i_gap_start >= 1 and tdos[i_gap_start - 1] <= tol:
             i_gap_start -= 1
 
         # work forwards until tolerance is reached
@@ -130,8 +134,11 @@ class DOS(Spectrum):
         i_gap_end -= 1
         return self.x[i_gap_end], self.x[i_gap_start]
 
-    def get_gap(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None):
-        """Expects a DOS object and finds the gap.
+    def get_gap(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None):
+        """
+        Expects a DOS object and finds the band gap.
+
+        `tol` may need to be increased for systems with noise/disorder.
 
         Args:
             tol: tolerance in occupations for determining the gap
@@ -288,8 +295,11 @@ class Dos(MSONable):
         end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
         return end - start, end, start
 
-    def get_cbm_vbm(self, tol: float = 0.001, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
-        """Expects a DOS object and finds the cbm and vbm.
+    def get_cbm_vbm(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
+        """
+        Expects a DOS object and finds the CBM and VBM eigenvalues.
+
+        `tol` may need to be increased for systems with noise/disorder.
 
         Args:
             tol: tolerance in occupations for determining the gap
@@ -424,6 +434,7 @@ class FermiDos(Dos, MSONable):
         ecbm, evbm = self.get_cbm_vbm()
         self.idx_vbm = int(np.argmin(abs(self.energies - evbm)))
         self.idx_cbm = int(np.argmin(abs(self.energies - ecbm)))
+        self.idx_mid_gap = int(self.idx_vbm + (self.idx_cbm - self.idx_vbm) / 2)
         self.A_to_cm = 1e-8
 
         if bandgap:
@@ -439,7 +450,8 @@ class FermiDos(Dos, MSONable):
             self.energies[idx_fermi:] += (bandgap - (ecbm - evbm)) / 2.0
 
     def get_doping(self, fermi_level: float, temperature: float) -> float:
-        """Calculate the doping (majority carrier concentration) at a given
+        """
+        Calculate the doping (majority carrier concentration) at a given
         Fermi level  and temperature. A simple Left Riemann sum is used for
         integrating the density of states over energy & equilibrium Fermi-Dirac
         distribution.
@@ -455,15 +467,15 @@ class FermiDos(Dos, MSONable):
             (p-type doping).
         """
         cb_integral = np.sum(
-            self.tdos[self.idx_cbm :]
-            * f0(self.energies[self.idx_cbm :], fermi_level, temperature)
-            * self.de[self.idx_cbm :],
+            self.tdos[self.idx_mid_gap :]
+            * f0(self.energies[self.idx_mid_gap :], fermi_level, temperature)
+            * self.de[self.idx_mid_gap :],
             axis=0,
         )
         vb_integral = np.sum(
-            self.tdos[: self.idx_vbm + 1]
-            * f0(-self.energies[: self.idx_vbm + 1], -fermi_level, temperature)
-            * self.de[: self.idx_vbm + 1],
+            self.tdos[: self.idx_mid_gap + 1]
+            * f0(-self.energies[: self.idx_mid_gap + 1], -fermi_level, temperature)
+            * self.de[: self.idx_mid_gap + 1],
             axis=0,
         )
         return (vb_integral - cb_integral) / (self.volume * self.A_to_cm**3)
@@ -1439,7 +1451,8 @@ def f0(E, fermi, T) -> float:
     Returns:
         float: the Fermi-Dirac occupation probability at energy E
     """
-    return 1.0 / (1.0 + np.exp((E - fermi) / (_cd("Boltzmann constant in eV/K") * T)))
+    exponent = (E - fermi) / (_cd("Boltzmann constant in eV/K") * T)
+    return expit(-exponent)  # scipy logistic sigmoid function; expit(x) = 1/(1+exp(-x))
 
 
 def _get_orb_type_lobster(orb) -> OrbitalType | None:
