@@ -142,7 +142,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
             atomic species are grouped together.
         user_potcar_functional (str): Functional to use. Default (None) is to use the
             functional in the config dictionary. Valid values: "PBE", "PBE_52",
-            "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US".
+            "PBE_54", "PBE_64", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US".
         force_gamma (bool): Force gamma centered kpoint generation. Default (False) is
             to use the Automatic Density kpoint scheme, which will use the Gamma
             centered generation scheme for hexagonal cells, and Monkhorst-Pack otherwise.
@@ -2685,14 +2685,13 @@ class LobsterSet(VaspInputSet):
         super().__post_init__()
         warnings.warn("Make sure that all parameters are okay! This is a brand new implementation.")
 
-        if self.user_potcar_functional == "PBE_64":
+        if self.user_potcar_functional in ["PBE_52", "PBE_64"]:
             warnings.warn(
-                "Using PBE_64 POTCARs with basis functions generated for PBE_54 POTCARs. "
-                "Basis functions for elements with updated or newly added POTCARs in PBE_64 "
-                "will not be available and may cause errors or inaccuracies.",
+                f"Using {self.user_potcar_functional} POTCARs with basis functions generated for PBE_54 POTCARs. "
+                "Basis functions for elements with obsoleted, updated or newly added POTCARs in "
+                f"{self.user_potcar_functional} will not be available and may cause errors or inaccuracies.",
                 BadInputSetWarning,
             )
-
         if self.isym not in {-1, 0}:
             raise ValueError("Lobster cannot digest WAVEFUNCTIONS with symmetry. isym must be -1 or 0")
         if self.ismear not in {-5, 0}:
