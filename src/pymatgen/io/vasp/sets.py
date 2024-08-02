@@ -1272,7 +1272,7 @@ class MPScanRelaxSet(VaspInputSet):
 
         2. Meta-GGA calculations require POTCAR files that include
         information on the kinetic energy density of the core-electrons,
-        i.e. "PBE_52" or "PBE_54". Make sure the POTCARs include the
+        i.e. "PBE_52", "PBE_54" or "PBE_64". Make sure the POTCARs include the
         following lines (see VASP wiki for more details):
 
             $ grep kinetic POTCAR
@@ -1313,7 +1313,7 @@ class MPScanRelaxSet(VaspInputSet):
     user_potcar_functional: UserPotcarFunctional = "PBE_54"
     auto_ismear: bool = True
     CONFIG = _load_yaml_config("MPSCANRelaxSet")
-    _valid_potcars: Sequence[str] | None = ("PBE_52", "PBE_54")
+    _valid_potcars: Sequence[str] | None = ("PBE_52", "PBE_54", "PBE_64")
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -2266,13 +2266,13 @@ class MVLRelax52Set(VaspInputSet):
 
     Args:
         structure (Structure): input structure.
-        user_potcar_functional (str): choose from "PBE_52" and "PBE_54".
+        user_potcar_functional (str): choose from "PBE_52", "PBE_54" and "PBE_64".
         **kwargs: Other kwargs supported by VaspInputSet.
     """
 
     user_potcar_functional: UserPotcarFunctional = "PBE_52"
     CONFIG = _load_yaml_config("MVLRelax52Set")
-    _valid_potcars: Sequence[str] | None = ("PBE_52", "PBE_54")
+    _valid_potcars: Sequence[str] | None = ("PBE_52", "PBE_54", "PBE_64")
 
 
 class MITNEBSet(VaspInputSet):
@@ -2606,7 +2606,7 @@ class MVLScanRelaxSet(VaspInputSet):
 
         2. Meta-GGA calculations require POTCAR files that include
         information on the kinetic energy density of the core-electrons,
-        i.e. "PBE_52" or "PBE_54". Make sure the POTCAR including the
+        i.e. "PBE_52", "PBE_54" or "PBE_64". Make sure the POTCAR including the
         following lines (see VASP wiki for more details):
 
             $ grep kinetic POTCAR
@@ -2623,13 +2623,13 @@ class MVLScanRelaxSet(VaspInputSet):
     """
 
     user_potcar_functional: UserPotcarFunctional = "PBE_52"
-    _valid_potcars: Sequence[str] | None = ("PBE_52", "PBE_54")
+    _valid_potcars: Sequence[str] | None = ("PBE_52", "PBE_54", "PBE_64")
     CONFIG = MPRelaxSet.CONFIG
 
     def __post_init__(self) -> None:
         super().__post_init__()
-        if self.user_potcar_functional not in {"PBE_52", "PBE_54"}:
-            raise ValueError("SCAN calculations require PBE_52 or PBE_54!")
+        if self.user_potcar_functional not in {"PBE_52", "PBE_54", "PBE_64"}:
+            raise ValueError("SCAN calculations require PBE_52, PBE_54, or PBE_64!")
 
     @property
     def incar_updates(self) -> dict[str, Any]:
@@ -2679,11 +2679,19 @@ class LobsterSet(VaspInputSet):
     user_potcar_functional: UserPotcarFunctional = "PBE_54"
 
     CONFIG = MPRelaxSet.CONFIG
-    _valid_potcars: Sequence[str] | None = ("PBE_52", "PBE_54")
+    _valid_potcars: Sequence[str] | None = ("PBE_52", "PBE_54", "PBE_64")
 
     def __post_init__(self) -> None:
         super().__post_init__()
         warnings.warn("Make sure that all parameters are okay! This is a brand new implementation.")
+
+        if self.user_potcar_functional == "PBE_64":
+            warnings.warn(
+                "Using PBE_64 POTCARs with basis functions generated for PBE_54 POTCARs. "
+                "Basis functions for elements with updated or newly added POTCARs in PBE_64 "
+                "will not be available and may cause errors or inaccuracies.",
+                BadInputSetWarning,
+            )
 
         if self.isym not in {-1, 0}:
             raise ValueError("Lobster cannot digest WAVEFUNCTIONS with symmetry. isym must be -1 or 0")
