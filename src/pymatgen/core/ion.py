@@ -173,9 +173,10 @@ class Ion(Composition, MSONable, Stringify):
         el_amt_dict = {k: int(round(v)) for k, v in comp.get_el_amt_dict().items()}
         formula, factor = reduce_formula(el_amt_dict, iupac_ordering=iupac_ordering)
 
-        if (self.composition.get("H") and self.composition.get("O")) is not None:
+        # This line checks specifically that the contains an equal amount of O and H. When that is the case,
+        # they should be displayed as "OH" rather than "HO".
+        if self.composition.get("H") == self.composition.get("O"):
             formula = formula.replace("HO", "OH")
-
         if nH2O > 0:
             formula += f".{nH2O}H2O"
 
@@ -187,6 +188,13 @@ class Ion(Composition, MSONable, Stringify):
         elif formula == "H2CO":
             formula = "CH3COOH"
             factor /= 2
+        # phosphoric acid system
+        elif formula == "PH3O4":
+            formula = "H3PO4"
+        elif formula == "PHO4":
+            formula = "HPO4"
+        elif formula == "P(HO2)2":
+            formula = "H2PO4"
         # acetate
         elif formula == "H3(CO)2":
             formula = "CH3COO"
@@ -205,6 +213,29 @@ class Ion(Composition, MSONable, Stringify):
         elif formula == "O" and factor % 3 == 0:
             formula = "O3"
             factor /= 3
+        # ammonia
+        elif formula == "H4N":
+            formula = "NH4"
+        elif formula == "H3N":
+            formula = "NH3"
+        # methane
+        elif formula == "H4C":
+            formula = "CH4"
+        # thiocyanate
+        elif formula == "CSN":
+            formula = "SCN"
+        # triiodide, nitride, an phosphide
+        elif formula in ["I", "N", "P"] and self.charge == -1:
+            formula += "3"
+            factor /= 3
+        # formate # codespell:ignore
+        elif formula == "HCOO":
+            formula = "HCO2"
+        # oxalate
+        elif formula == "CO2":
+            formula = "C2O4"
+            factor *= 2
+        # diatomic gases
         elif formula in {"O", "N", "F", "Cl", "H"} and factor % 2 == 0:
             formula += "2"
             factor /= 2

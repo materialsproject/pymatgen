@@ -413,7 +413,7 @@ class Tensor(np.ndarray, MSONable):
         # Check conventional setting:
         sga = SpacegroupAnalyzer(structure)
         dataset = sga.get_symmetry_dataset()
-        trans_mat = dataset["transformation_matrix"]
+        trans_mat = dataset.transformation_matrix
         conv_latt = Lattice(np.transpose(np.dot(np.transpose(structure.lattice.matrix), np.linalg.inv(trans_mat))))
         xtal_sys = sga.get_crystal_system()
 
