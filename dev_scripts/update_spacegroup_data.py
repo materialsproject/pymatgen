@@ -12,6 +12,7 @@ from __future__ import annotations
 import sys
 
 from monty.serialization import dumpfn, loadfn
+
 from pymatgen.symmetry.groups import PointGroup
 
 __author__ = "Katharina Ueltzen @kaueltzen"

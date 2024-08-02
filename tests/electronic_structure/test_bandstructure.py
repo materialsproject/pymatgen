@@ -8,6 +8,8 @@ import numpy as np
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.electronic_structure.bandstructure import (
     BandStructureSymmLine,
@@ -19,7 +21,6 @@ from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.plotter import BSPlotterProjected
 from pymatgen.io.vasp import BSVasprun
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 
