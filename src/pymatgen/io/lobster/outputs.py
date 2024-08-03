@@ -69,7 +69,7 @@ class Cohpcar:
         efermi (float): The Fermi level in eV.
         energies (Sequence[float]): Sequence of energies in eV. Note that LOBSTER
             shifts the energies so that the Fermi level is at zero.
-        is_spin_polarized (bool): Boolean to indicate if the calculation is spin polarized.
+        is_spin_polarized (bool): True if the calculation is spin polarized.
         orb_cohp (dict[str, Dict[str, Dict[str, Any]]]): The orbital-resolved COHPs of the form:
             orb_cohp[label] = {bond_data["orb_label"]: {
                 "COHP": {Spin.up: cohps, Spin.down:cohps},
@@ -405,7 +405,7 @@ class Icohplist(MSONable):
                 version = "2.2.1"
                 warnings.warn("Please consider using a newer LOBSTER version. See www.cohp.de.")
             else:
-                raise ValueError
+                raise ValueError("Unsupported LOBSTER version.")
 
             # If the calculation is spin polarized, the line in the middle
             # of the file will be another header line.
@@ -508,7 +508,7 @@ class Icohplist(MSONable):
                 list_atom1=atom1s,
                 list_atom2=atom2s,
                 list_length=lens,
-                list_translation=translations,
+                list_translation=translations,  # type: ignore[arg-type]
                 list_num=nums,
                 list_icohp=icohps,
                 is_spin_polarized=self.is_spin_polarized,
@@ -560,6 +560,7 @@ class NciCobiList:
         Args:
             filename: Name of the NcICOBILIST file.
         """
+
         # LOBSTER list files have an extra trailing blank line
         # and we don't need the header
         with zopen(filename, mode="rt") as file:
@@ -663,7 +664,7 @@ class Doscar:
             the Spin.up contribution at each of the energies. itdensities[Spin.down]: NumPy array
             of the total density of states for the Spin.down contribution at each of the energies.
             If is_spin_polarized=False, itdensities[Spin.up]: NumPy array of the total density of states.
-        is_spin_polarized (bool): Boolean. Tells if the system is spin polarized.
+        is_spin_polarized (bool): Whether the system is spin polarized.
     """
 
     def __init__(
@@ -841,15 +842,15 @@ class Charge(MSONable):
                 raise RuntimeError("CHARGES file contains no data.")
 
             self.num_atoms = len(lines)
-            for atom in range(self.num_atoms):
-                line_parts = lines[atom].split()
+            for atom_idx in range(self.num_atoms):
+                line_parts = lines[atom_idx].split()
                 self.atomlist.append(line_parts[1] + line_parts[0])
                 self.types.append(line_parts[1])
                 self.mulliken.append(float(line_parts[2]))
                 self.loewdin.append(float(line_parts[3]))
 
     def get_structure_with_charges(self, structure_filename: PathLike) -> Structure:
-        """Get a Structure with Mulliken and Loewdin charges as site properties.
+        """Get a Structure with Mulliken and Loewdin charges as site properties
 
         Args:
             structure_filename (PathLike): The POSCAR file.
@@ -896,7 +897,7 @@ class Lobsterout(MSONable):
         has_density_of_energies (bool): Whether DensityOfEnergy.lobster is present.
         has_fatbands (bool): Whether fatband calculation was performed.
         has_grosspopulation (bool): Whether GROSSPOP.lobster is present.
-        info_lines (str): Additional Information on the run.
+        info_lines (str): Additional information on the run.
         info_orthonormalization (str): Information on orthonormalization.
         is_restart_from_projection (bool): Whether that calculation was restarted
             from an existing projection file.
@@ -1227,7 +1228,7 @@ class Fatband:
             The first index of the array refers to the band and the second to the index of the kpoint.
             The kpoints are ordered according to the order of the kpoints_array attribute.
             If the band structure is not spin polarized, we only store one data set under Spin.up.
-        is_spin_polarized (bool): Boolean that tells you whether this was a spin-polarized calculation.
+        is_spin_polarized (bool): Whether this was a spin-polarized calculation.
         kpoints_array (list[NDArray]): List of kpoints as NumPy arrays, in frac_coords of the given
             lattice by default.
         label_dict (dict[str, Union[str, NDArray]]): Dictionary that links a kpoint (in frac coords or Cartesian
@@ -1447,7 +1448,7 @@ class Fatband:
             kpoints=self.kpoints_array,
             eigenvals=self.eigenvals,
             lattice=self.lattice,
-            efermi=self.efermi,
+            efermi=self.efermi,  # type: ignore[arg-type]
             labels_dict=self.label_dict,
             structure=self.structure,
             projections=self.p_eigenvals,
@@ -1577,7 +1578,7 @@ class Bandoverlaps(MSONable):
             limit_deviation (float): Upper limit of the maxDeviation.
 
         Returns:
-            bool: Information about the quality of the projection.
+            bool: Whether the quality of the projection is good.
         """
         for matrix in self.band_overlaps_dict[Spin.up]["matrices"]:
             for iband1, band1 in enumerate(matrix):

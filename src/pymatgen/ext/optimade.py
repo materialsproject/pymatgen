@@ -508,8 +508,7 @@ class OptimadeRester:
             provider_url: An OPTIMADE provider URL
 
         Returns:
-            A dictionary of keys (in format of "provider.database") to
-            Provider objects.
+            dict: keys (in format of "provider.database") mapped to Provider objects.
         """
         # Add trailing slash to all URLs if missing; prevents urljoin from scrubbing
         if urlparse(provider_url).path is not None and not provider_url.endswith("/"):
