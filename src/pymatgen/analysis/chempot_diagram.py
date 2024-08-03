@@ -168,7 +168,7 @@ class ChemicalPotentialDiagram(MSONable):
                 (in eV/atom), helping provide visual clarity. Defaults to 1.0.
 
         Returns:
-            A Plotly Figure object
+            plotly.graph_objects.Figure
         """
         if elements:
             elems = [Element(str(e)) for e in elements]

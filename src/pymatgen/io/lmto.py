@@ -281,7 +281,7 @@ class LMTOCopl:
                 "length": bond length}
         efermi (float): The Fermi energy in Ry or eV.
         energies (list): Sequence of energies in Ry or eV.
-        is_spin_polarized (bool): Boolean to indicate if the calculation is spin polarized.
+        is_spin_polarized (bool): True if the calculation is spin-polarized.
     """
 
     def __init__(self, filename="COPL", to_eV=False):

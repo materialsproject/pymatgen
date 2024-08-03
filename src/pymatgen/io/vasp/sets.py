@@ -2880,9 +2880,8 @@ def batch_write_input(
             Defaults to True.
         subfolder (callable): Function to create subdirectory name from
             structure. Defaults to simply "formula_count".
-        sanitize (bool): Boolean indicating whether to sanitize the
-            structure before writing the VASP input files. Sanitized output
-            are generally easier for viewing and certain forms of analysis.
+        sanitize (bool): Whether to sanitize the structure before writing the VASP input files.
+            Sanitized output are generally easier for viewing and certain forms of analysis.
             Defaults to False.
         include_cif (bool): Whether to output a CIF as well. CIF files are
             generally better supported in visualization programs.

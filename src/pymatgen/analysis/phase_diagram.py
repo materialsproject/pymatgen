@@ -1573,8 +1573,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
                 the entries themselves and are sorted alphabetically.
                 If specified, element ordering (e.g. for pd coordinates)
                 is preserved.
-            keep_all_spaces (bool): Boolean control on whether to keep chemical spaces
-                that are subspaces of other spaces.
+            keep_all_spaces (bool): Pass True to keep chemical spaces that are subspaces
+                of other spaces.
             verbose (bool): Whether to show progress bar during convex hull construction.
         """
         if elements is None:

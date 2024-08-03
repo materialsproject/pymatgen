@@ -272,7 +272,7 @@ class JahnTellerAnalyzer:
                 quite distorted, this threshold is smaller than one might expect
 
         Returns:
-            boolean, True if might be Jahn-Teller active, False if not
+            bool: True if might be Jahn-Teller active, False if not
         """
         active = False
 
