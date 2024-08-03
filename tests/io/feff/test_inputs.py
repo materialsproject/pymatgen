@@ -4,10 +4,11 @@ import os
 from unittest import TestCase
 
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.core import Molecule, Structure
 from pymatgen.io.feff.inputs import Atoms, Header, Paths, Potential, Tags
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 FEFF_TEST_DIR = f"{TEST_FILES_DIR}/io/feff"
 

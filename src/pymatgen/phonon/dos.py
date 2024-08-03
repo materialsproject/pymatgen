@@ -8,9 +8,10 @@ import numpy as np
 import scipy.constants as const
 from monty.functools import lazy_property
 from monty.json import MSONable
+from scipy.ndimage import gaussian_filter1d
+
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_linear_interpolated_value
-from scipy.ndimage import gaussian_filter1d
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

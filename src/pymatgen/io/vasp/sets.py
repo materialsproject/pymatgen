@@ -45,6 +45,7 @@ import numpy as np
 from monty.dev import deprecated
 from monty.json import MSONable
 from monty.serialization import loadfn
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Element, PeriodicSite, SiteCollection, Species, Structure
 from pymatgen.io.core import InputGenerator
@@ -58,8 +59,9 @@ from pymatgen.util.typing import Kpoint
 if TYPE_CHECKING:
     from typing import Callable, Literal, Union
 
-    from pymatgen.util.typing import PathLike, Tuple3Ints, Vector3D
     from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike, Tuple3Ints, Vector3D
 
     UserPotcarFunctional = Union[
         Literal["PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"], None

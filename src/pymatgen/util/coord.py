@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
+
 from pymatgen.util import coord_cython
 
 if TYPE_CHECKING:
@@ -18,6 +19,7 @@ if TYPE_CHECKING:
     from typing import Literal
 
     from numpy.typing import ArrayLike
+
     from pymatgen.util.typing import PbcLike
 
 

@@ -6,6 +6,7 @@ import re
 from typing import TYPE_CHECKING
 
 import numpy as np
+
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     SimpleAbundanceChemenvStrategy,
     SimplestChemenvStrategy,
