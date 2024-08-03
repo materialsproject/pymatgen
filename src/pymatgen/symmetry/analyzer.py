@@ -277,10 +277,9 @@ class SpacegroupAnalyzer:
         # [1e-4, 2e-4, 1e-4]
         # (these are in fractional coordinates, so should be small denominator
         # fractions)
-        _translations: list = []
-        for trans in dct["translations"]:
-            _translations.append([float(Fraction(c).limit_denominator(1000)) for c in trans])
-        translations: NDArray = np.array(_translations)
+        translations: NDArray = np.array(
+            [[float(Fraction(c).limit_denominator(1000)) for c in trans] for trans in dct["translations"]]
+        )
 
         # Fractional translations of 1 are more simply 0
         translations[np.abs(translations) == 1] = 0
