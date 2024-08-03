@@ -81,7 +81,7 @@ class AbstractFeffInputSet(MSONable, abc.ABC):
         dct = {"HEADER": self.header(), "PARAMETERS": self.tags}
 
         if "RECIPROCAL" not in self.tags:
-            dct.update({"POTENTIALS": self.potential, "ATOMS": self.atoms})
+            dct |= {"POTENTIALS": self.potential, "ATOMS": self.atoms}
 
         return dct
 

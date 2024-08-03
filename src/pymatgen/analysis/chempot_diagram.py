@@ -295,7 +295,7 @@ class ChemicalPotentialDiagram(MSONable):
             draw_domains[formula] = pts_2d
 
         layout = plotly_layouts["default_layout_2d"].copy()
-        layout.update(self._get_axis_layout_dict(elements))
+        layout |= self._get_axis_layout_dict(elements)
         if label_stable:
             layout["annotations"] = annotations
 
@@ -366,7 +366,7 @@ class ChemicalPotentialDiagram(MSONable):
             domain_simplexes[formula] = simplexes
 
         layout = plotly_layouts["default_layout_3d"].copy()
-        layout["scene"].update(self._get_axis_layout_dict(elements))
+        layout["scene"] |= self._get_axis_layout_dict(elements)
         layout["scene"]["annotations"] = None
 
         if label_stable:
@@ -559,7 +559,7 @@ class ChemicalPotentialDiagram(MSONable):
         """Get a Plotly annotation dict given a formula and location."""
         formula = htmlify(formula)
         annotation = plotly_layouts["default_annotation_layout"].copy()
-        annotation.update({"x": ann_loc[0], "y": ann_loc[1], "text": formula})
+        annotation |= {"x": ann_loc[0], "y": ann_loc[1], "text": formula}
         if len(ann_loc) == 3:
             annotation["z"] = ann_loc[2]
         return annotation

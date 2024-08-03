@@ -795,8 +795,8 @@ class PourbaixDiagram(MSONable):
         Args:
             entry (PourbaixEntry): PourbaixEntry corresponding to
                 compound to find the decomposition for
-            pH (float, [float]): pH at which to find the decomposition
-            V (float, [float]): voltage at which to find the decomposition
+            pH (float, list[float]): pH at which to find the decomposition
+            V (float, list[float]): voltage at which to find the decomposition
 
         Returns:
             Decomposition energy for the entry, i. e. the energy above
@@ -818,13 +818,13 @@ class PourbaixDiagram(MSONable):
         decomposition_energy /= entry.composition.num_atoms
         return decomposition_energy
 
-    def get_hull_energy(self, pH, V):
+    def get_hull_energy(self, pH: float | list[float], V: float | list[float]) -> np.ndarray:
         """Get the minimum energy of the Pourbaix "basin" that is formed
         from the stable Pourbaix planes. Vectorized.
 
         Args:
-            pH (float or [float]): pH at which to find the hull energy
-            V (float or [float]): V at which to find the hull energy
+            pH (float | list[float]): pH at which to find the hull energy
+            V (float | list[float]): V at which to find the hull energy
 
         Returns:
             np.array: minimum Pourbaix energy at conditions
