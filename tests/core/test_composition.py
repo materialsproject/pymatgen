@@ -10,10 +10,11 @@ import random
 
 import pytest
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.core import Composition, DummySpecies, Element, Species
 from pymatgen.core.composition import ChemicalPotential
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 
 class TestComposition(PymatgenTest):
@@ -701,6 +702,7 @@ class TestComposition(PymatgenTest):
     def test_chemical_system(self):
         assert Composition({"Na": 1, "Cl": 1}).chemical_system == "Cl-Na"
         assert Composition({"Na+": 1, "Cl-": 1}).chemical_system == "Cl-Na"
+        assert Composition({"Na+": 1, "Na2+": 1, "Cl-": 1}).chemical_system == "Cl-Na"
 
     def test_chemical_system_set(self):
         assert Composition({"Na": 1, "Cl": 1}).chemical_system_set == {"Cl", "Na"}

@@ -10,12 +10,14 @@ import abc
 from typing import TYPE_CHECKING
 
 from monty.json import MSONable
+
 from pymatgen.analysis.ewald import EwaldSummation
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
-    from pymatgen.core import Structure
     from typing_extensions import Self
+
+    from pymatgen.core import Structure
 
 __version__ = "0.1"
 

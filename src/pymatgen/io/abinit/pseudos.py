@@ -24,11 +24,12 @@ from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
 from monty.json import MontyDecoder, MSONable
 from monty.os.path import find_exts
+from tabulate import tabulate
+
 from pymatgen.core import Element
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
-from tabulate import tabulate
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -36,8 +37,9 @@ if TYPE_CHECKING:
 
     import matplotlib.pyplot as plt
     from numpy.typing import NDArray
-    from pymatgen.core import Structure
     from typing_extensions import Self
+
+    from pymatgen.core import Structure
 
 logger = logging.getLogger(__name__)
 
@@ -1078,8 +1080,8 @@ class PseudoParser:
         # Assume file with the abinit header.
         lines = _read_nlines(filename, 80)
 
-        for lineno, line in enumerate(lines, start=1):
-            if lineno == 3:
+        for lineno, line in enumerate(lines):
+            if lineno == 2:
                 try:
                     tokens = line.split()
                     pspcod, _pspxc = map(int, tokens[:2])
@@ -1095,7 +1097,7 @@ class PseudoParser:
 
                 if pspcod == 7:
                     # PAW -> need to know the format pspfmt
-                    tokens = line.split()
+                    tokens = lines[lineno + 1].split()
                     pspfmt, _creatorID = tokens[:2]
 
                     ppdesc = ppdesc._replace(format=pspfmt)

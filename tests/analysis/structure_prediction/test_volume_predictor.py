@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import pytest
+from pytest import approx
+
 from pymatgen.analysis.structure_prediction.volume_predictor import DLSVolumePredictor, RLSVolumePredictor
 from pymatgen.core import Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/structure_prediction"
 

@@ -6,6 +6,7 @@ from unittest import TestCase
 
 import pytest
 import requests
+
 from pymatgen.ext.cod import COD
 
 if "CI" in os.environ:  # test is slow and flaky, skip in CI. see

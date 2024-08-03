@@ -19,6 +19,7 @@ import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
+
 from pymatgen.core import __version__ as CURRENT_VER
 from pymatgen.io.core import InputFile
 from pymatgen.io.lammps.data import CombinedData, LammpsData
@@ -27,8 +28,9 @@ from pymatgen.io.template import TemplateInputGen
 if TYPE_CHECKING:
     from os import PathLike
 
-    from pymatgen.io.core import InputSet
     from typing_extensions import Self
+
+    from pymatgen.io.core import InputSet
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng, Manas Likhit, Guillaume Brunin (Matgenix)"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"

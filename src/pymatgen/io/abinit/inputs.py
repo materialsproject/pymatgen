@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, NamedTuple
 import numpy as np
 from monty.collections import AttrDict
 from monty.json import MSONable
+
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit import abiobjects as aobj
 from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable

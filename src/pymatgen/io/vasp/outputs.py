@@ -24,6 +24,7 @@ from monty.json import MSONable, jsanitize
 from monty.os.path import zpath
 from monty.re import regrep
 from numpy.testing import assert_allclose
+
 from pymatgen.core import Composition, Element, Lattice, Structure
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.core.units import unitized
@@ -50,8 +51,9 @@ if TYPE_CHECKING:
     from xml.etree.ElementTree import Element as XML_Element
 
     from numpy.typing import NDArray
-    from pymatgen.util.typing import PathLike
     from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike
 
 logger = logging.getLogger(__name__)
 
@@ -3889,31 +3891,31 @@ class Procar:
             self.data = data
             self.phase_factors = phase_factors
 
-    def get_projection_on_elements(self, structure: Structure) -> dict[Spin, list]:
+    def get_projection_on_elements(self, structure: Structure) -> dict[Spin, list[list[dict[str, float]]]]:
         """Get a dict of projections on elements.
 
         Args:
             structure (Structure): Input structure.
 
         Returns:
-            A dict as {Spin.up: [k index][b index][{Element: values}]].
+            A dict as {Spin: [band index][kpoint index][{Element: values}]].
         """
         assert self.data is not None, "Data cannot be None."
         assert self.nkpoints is not None
         assert self.nbands is not None
         assert self.nions is not None
 
-        dico: dict[Spin, list] = {}
+        elem_proj: dict[Spin, list] = {}
         for spin in self.data:
-            dico[spin] = [[defaultdict(float) for _ in range(self.nkpoints)] for _ in range(self.nbands)]
+            elem_proj[spin] = [[defaultdict(float) for _ in range(self.nkpoints)] for _ in range(self.nbands)]
 
         for iat in range(self.nions):
             name = structure.species[iat].symbol
             for spin, data in self.data.items():
                 for kpoint, band in itertools.product(range(self.nkpoints), range(self.nbands)):
-                    dico[spin][band][kpoint][name] += np.sum(data[kpoint, band, iat, :])
+                    elem_proj[spin][band][kpoint][name] += np.sum(data[kpoint, band, iat, :])
 
-        return dico
+        return elem_proj
 
     def get_occupation(self, atom_index: int, orbital: str) -> dict:
         """Get the occupation for a particular orbital of a particular atom.
