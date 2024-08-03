@@ -14,9 +14,10 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.exceptions import RankWarning
+from scipy.optimize import leastsq, minimize
+
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
-from scipy.optimize import leastsq, minimize
 
 if TYPE_CHECKING:
     from typing import ClassVar

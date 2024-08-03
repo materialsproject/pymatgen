@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.os.path import zpath
 from monty.serialization import zopen
+
 from pymatgen.core import SETTINGS
 from pymatgen.io.vasp import Potcar, PotcarSingle
 from pymatgen.io.vasp.sets import _load_yaml_config

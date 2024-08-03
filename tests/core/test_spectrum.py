@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import numpy as np
 from numpy.testing import assert_allclose
-from pymatgen.core.spectrum import Spectrum
-from pymatgen.util.testing import PymatgenTest
 from pytest import approx
 from scipy import stats
+
+from pymatgen.core.spectrum import Spectrum
+from pymatgen.util.testing import PymatgenTest
 
 
 class TestSpectrum(PymatgenTest):

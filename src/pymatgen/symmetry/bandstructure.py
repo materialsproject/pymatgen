@@ -9,6 +9,7 @@ from warnings import warn
 
 import networkx as nx
 import numpy as np
+
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.symmetry.analyzer import cite_conventional_cell_algo
