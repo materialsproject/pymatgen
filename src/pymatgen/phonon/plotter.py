@@ -12,6 +12,7 @@ from matplotlib import colors
 from matplotlib.collections import LineCollection
 from matplotlib.colors import LinearSegmentedColormap
 from monty.json import jsanitize
+
 from pymatgen.electronic_structure.plotter import BSDOSPlotter, plot_brillouin_zone
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.gruneisen import GruneisenPhononBandStructureSymmLine
@@ -24,6 +25,7 @@ if TYPE_CHECKING:
 
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
+
     from pymatgen.core import Structure
     from pymatgen.phonon.dos import PhononDos
     from pymatgen.phonon.gruneisen import GruneisenParameter

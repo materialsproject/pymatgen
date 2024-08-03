@@ -7,11 +7,12 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.testing import assert_allclose
+from scipy.linalg import polar
+
 from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.analysis.interfaces.zsl import ZSLGenerator, fast_norm
 from pymatgen.core.interface import Interface, label_termination
 from pymatgen.core.surface import SlabGenerator
-from scipy.linalg import polar
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence

@@ -6,11 +6,12 @@ from unittest import TestCase
 
 import pytest
 from monty.serialization import loadfn
+from pytest import approx
+
 from pymatgen.electronic_structure.bandstructure import BandStructure
 from pymatgen.electronic_structure.boltztrap import BoltztrapAnalyzer, BoltztrapRunner
 from pymatgen.electronic_structure.core import OrbitalType, Spin
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 try:
     from ase.io.cube import read_cube

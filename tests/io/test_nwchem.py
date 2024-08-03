@@ -4,10 +4,11 @@ import json
 from unittest import TestCase
 
 import pytest
+from pytest import approx
+
 from pymatgen.core.structure import Molecule
 from pymatgen.io.nwchem import NwInput, NwInputError, NwOutput, NwTask
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/nwchem"
 

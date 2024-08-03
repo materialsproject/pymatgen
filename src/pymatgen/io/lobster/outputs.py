@@ -23,6 +23,7 @@ import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
+
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import LobsterBandStructureSymmLine
 from pymatgen.electronic_structure.core import Orbital, Spin
@@ -36,6 +37,7 @@ if TYPE_CHECKING:
     from typing import Any, ClassVar, Literal
 
     from numpy.typing import NDArray
+
     from pymatgen.core.structure import IStructure
     from pymatgen.electronic_structure.cohp import IcohpCollection
     from pymatgen.util.typing import Tuple3Ints, Vector3D
