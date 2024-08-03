@@ -234,8 +234,8 @@ class CompleteCohp(Cohp):
     """A wrapper that defines an average COHP, and individual COHPs.
 
     Attributes:
-        are_coops (bool): Whether the object is consisting of COOPs.
-        are_cobis (bool): Whether the object is consisting of COBIs.
+        are_coops (bool): Whether the object consists of COOPs.
+        are_cobis (bool): Whether the object consists of COBIs.
         efermi (float): The Fermi level.
         energies (Sequence[float]): Sequence of energies.
         structure (Structure): Structure associated with the COHPs.

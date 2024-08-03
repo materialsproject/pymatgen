@@ -3927,8 +3927,7 @@ def plot_fermi_surface(
             By default 0 eV correspond to the VBM, as in the plot of band
             structure along symmetry line.
             Default: One surface, with max energy value + 0.01 eV
-        cbm (bool): Boolean value to specify if the considered band is a
-            conduction band or not
+        cbm (bool): True if the considered band is a conduction band or not.
         multiple_figure (bool): If True a figure for each energy level will be
             shown. If False all the surfaces will be shown in the same figure.
             In this last case, tune the transparency factor.

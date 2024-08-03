@@ -1938,7 +1938,7 @@ class BoltztrapAnalyzer:
             dos_spin: in DOS mode, set to 1 for spin up and -1 for spin down
 
         Returns:
-            a BoltztrapAnalyzer object
+            BoltztrapAnalyzer
         """
         run_type, warning, efermi, gap, doping_levels = cls.parse_outputtrans(path_dir)
 
