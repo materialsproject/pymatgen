@@ -11,8 +11,9 @@ from itertools import product
 import requests
 from monty.dev import requires
 from monty.serialization import dumpfn, loadfn
-from pymatgen.core import Element, get_el_sp
 from ruamel import yaml
+
+from pymatgen.core import Element, get_el_sp
 
 try:
     from bs4 import BeautifulSoup

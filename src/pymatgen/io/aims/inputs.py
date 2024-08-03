@@ -17,14 +17,16 @@ import numpy as np
 from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os.path import zpath
+
 from pymatgen.core import SETTINGS, Element, Lattice, Molecule, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
-    from pymatgen.util.typing import Tuple3Floats, Tuple3Ints
     from typing_extensions import Self
+
+    from pymatgen.util.typing import Tuple3Floats, Tuple3Ints
 
 __author__ = "Thomas A. R. Purcell"
 __version__ = "1.0"

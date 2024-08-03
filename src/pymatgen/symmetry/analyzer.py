@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import scipy.cluster
 import spglib
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule, PeriodicSite, Structure
@@ -36,11 +37,12 @@ if TYPE_CHECKING:
     from typing import Any, Literal
 
     from numpy.typing import NDArray
+    from spglib import SpglibDataset
+
     from pymatgen.core import Element, Species
     from pymatgen.core.sites import Site
     from pymatgen.symmetry.groups import CrystalSystem
     from pymatgen.util.typing import Kpoint
-    from spglib import SpglibDataset
 
     LatticeType = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "rhombohedral", "tetragonal", "triclinic"]
 
@@ -275,10 +277,9 @@ class SpacegroupAnalyzer:
         # [1e-4, 2e-4, 1e-4]
         # (these are in fractional coordinates, so should be small denominator
         # fractions)
-        _translations: list = []
-        for trans in dct["translations"]:
-            _translations.append([float(Fraction(c).limit_denominator(1000)) for c in trans])
-        translations: NDArray = np.array(_translations)
+        translations: NDArray = np.array(
+            [[float(Fraction(c).limit_denominator(1000)) for c in trans] for trans in dct["translations"]]
+        )
 
         # Fractional translations of 1 are more simply 0
         translations[np.abs(translations) == 1] = 0

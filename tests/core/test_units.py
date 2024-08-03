@@ -4,6 +4,8 @@ import warnings
 
 import pytest
 from numpy.testing import assert_array_equal
+from pytest import approx
+
 from pymatgen.core.units import (
     ArrayWithUnit,
     Energy,
@@ -25,7 +27,6 @@ from pymatgen.core.units import (
     unitized,
 )
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 
 def test_unit_conversions():
