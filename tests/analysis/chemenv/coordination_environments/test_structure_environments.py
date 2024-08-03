@@ -5,6 +5,8 @@ import os
 
 import numpy as np
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     MultiWeightsChemenvStrategy,
     SimplestChemenvStrategy,
@@ -16,7 +18,6 @@ from pymatgen.analysis.chemenv.coordination_environments.structure_environments 
 )
 from pymatgen.core import Species, Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 __author__ = "waroquiers"
 

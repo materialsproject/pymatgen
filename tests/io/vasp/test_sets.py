@@ -10,6 +10,8 @@ import pytest
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
+from pytest import MonkeyPatch, approx, mark
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SETTINGS, Lattice, Species, Structure
 from pymatgen.core.composition import Composition
@@ -53,7 +55,6 @@ from pymatgen.io.vasp.sets import (
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
-from pytest import MonkeyPatch, approx, mark
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/vasp"
 
@@ -728,12 +729,12 @@ class TestMPStaticSet(PymatgenTest):
             vis = self.set(vis.structure, user_incar_settings={"LUSE_VDW": True, "LASPH": False})
             vis.incar.items()
         with pytest.warns(BadInputSetWarning, match=r"LASPH"):
-            dummy_struc = Structure(
+            dummy_struct = Structure(
                 lattice=[[0, 2, 2], [2, 0, 2], [2, 2, 0]],
                 species=["Fe", "O"],
                 coords=[[0, 0, 0], [0.5, 0.5, 0.5]],
             )
-            vis = self.set(dummy_struc, user_incar_settings={"LDAU": True, "LASPH": False})
+            vis = self.set(dummy_struct, user_incar_settings={"LDAU": True, "LASPH": False})
             vis.incar.items()
 
     def test_user_incar_kspacing(self):

@@ -17,6 +17,7 @@ from unittest import TestCase
 import pytest
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 from monty.serialization import loadfn
+
 from pymatgen.core import ROOT, SETTINGS, Structure
 
 if TYPE_CHECKING:
@@ -49,7 +50,7 @@ class PymatgenTest(TestCase):
     @classmethod
     def get_structure(cls, name: str) -> Structure:
         """
-        Lazily load a structure from pymatgen/util/testing/structures.
+        Lazily load a structure from pymatgen/util/structures.
 
         Args:
             name (str): Name of structure file.

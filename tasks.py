@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING
 import requests
 from invoke import task
 from monty.os import cd
+
 from pymatgen.core import __version__
 
 if TYPE_CHECKING:
@@ -102,7 +103,7 @@ def set_ver(ctx: Context, version: str):
     with open("pyproject.toml", "w") as file:
         file.write("\n".join(lines) + "\n")
 
-    ctx.run("ruff check --fix pymatgen")
+    ctx.run("ruff check --fix src")
     ctx.run("ruff format pyproject.toml")
 
 

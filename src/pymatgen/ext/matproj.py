@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING, NamedTuple
 
 import requests
 from monty.json import MontyDecoder
+
 from pymatgen.core import SETTINGS
 from pymatgen.core import __version__ as PMG_VERSION
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -28,10 +29,11 @@ if TYPE_CHECKING:
     from typing import Callable
 
     from mp_api.client import MPRester as _MPResterNew
+    from typing_extensions import Self
+
     from pymatgen.core.structure import Structure
     from pymatgen.entries.computed_entries import ComputedStructureEntry
     from pymatgen.ext.matproj_legacy import _MPResterLegacy
-    from typing_extensions import Self
 
 logger = logging.getLogger(__name__)
 
@@ -178,7 +180,7 @@ class _MPResterBasic:
             Dict
         """
         get = "_all_fields=True" if fields is None else "_fields=" + ",".join(fields)
-        return self.request(f"materials/summary/{material_id}/?{get}")[0]
+        return self.request(f"materials/summary/?{get}", payload={"material_ids": material_id})[0]
 
     get_doc = get_summary_by_material_id
 
@@ -348,6 +350,32 @@ class _MPResterBasic:
         criteria = ",".join(chemsys)
 
         return self.get_entries(criteria, *args, **kwargs)
+
+    def get_phonon_bandstructure_by_material_id(self, material_id: str):
+        """Get phonon bandstructure by material_id.
+
+        Args:
+            material_id (str): Materials Project material_id
+
+        Returns:
+            PhononBandStructureSymmLine: A phonon band structure.
+        """
+        prop = "ph_bs"
+        response = self.request(f"materials/phonon/?material_ids={material_id}&_fields={prop}")
+        return response[0][prop]
+
+    def get_phonon_dos_by_material_id(self, material_id: str):
+        """Get phonon density of states by material_id.
+
+        Args:
+            material_id (str): Materials Project material_id
+
+        Returns:
+            CompletePhononDos: A phonon DOS object.
+        """
+        prop = "ph_dos"
+        response = self.request(f"materials/phonon/?material_ids={material_id}&_fields={prop}")
+        return response[0][prop]
 
 
 class MPRester:

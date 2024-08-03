@@ -6,8 +6,10 @@ import random
 import unittest
 
 import numpy as np
-import pymatgen
 from numpy.testing import assert_allclose
+from pytest import approx
+
+import pymatgen
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, Structure
 from pymatgen.core.surface import (
@@ -24,7 +26,6 @@ from pymatgen.core.surface import (
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 
 class TestSlab(PymatgenTest):
@@ -379,9 +380,9 @@ class TestSlabGenerator(PymatgenTest):
             if sg.crystal_system == "hexagonal" or (
                 sg.crystal_system == "trigonal"
                 and (
-                    sg.symbol.endswith("H")
+                    sg.hexagonal
                     or sg.int_number
-                    in [143, 144, 145, 147, 149, 150, 151, 152, 153, 154, 156, 157, 158, 159, 162, 163, 164, 165]
+                    in (143, 144, 145, 147, 149, 150, 151, 152, 153, 154, 156, 157, 158, 159, 162, 163, 164, 165)
                 )
             ):
                 lattice = Lattice.hexagonal(5, 10)

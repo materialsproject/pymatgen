@@ -31,21 +31,23 @@ from monty.json import MontyDecoder, MSONable
 from monty.os import cd
 from monty.os.path import zpath
 from monty.serialization import dumpfn, loadfn
+from tabulate import tabulate
+
 from pymatgen.core import SETTINGS, Element, Lattice, Structure, get_el_sp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 from pymatgen.util.typing import Kpoint, Tuple3Floats, Tuple3Ints, Vector3D
-from tabulate import tabulate
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from typing import Any, ClassVar, Literal
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
+
     from pymatgen.symmetry.bandstructure import HighSymmKpath
     from pymatgen.util.typing import PathLike
-    from typing_extensions import Self
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
@@ -1026,10 +1028,10 @@ class Incar(dict, MSONable):
                 continue
 
             # Check value and its type
-            param_type = incar_params[tag].get("type")
-            allowed_values = incar_params[tag].get("values")
+            param_type: str = incar_params[tag].get("type")
+            allowed_values: list[Any] = incar_params[tag].get("values")
 
-            if param_type is not None and type(val).__name__ != param_type:
+            if param_type is not None and not isinstance(val, eval(param_type)):
                 warnings.warn(f"{tag}: {val} is not a {param_type}", BadIncarWarning, stacklevel=2)
 
             # Only check value when it's not None,
@@ -2856,7 +2858,7 @@ class VaspInput(dict, MSONable):
                 dict of {filename: Object type}. Objects must have
                 from_file method.
         """
-        sub_dct = {}
+        sub_dct: dict[str, Any] = {}
         for fname, ftype in (
             ("INCAR", Incar),
             ("KPOINTS", Kpoints),
@@ -2867,9 +2869,9 @@ class VaspInput(dict, MSONable):
                 full_zpath = zpath(os.path.join(input_dir, fname))
                 sub_dct[fname.lower()] = ftype.from_file(full_zpath)  # type: ignore[attr-defined]
             except FileNotFoundError:  # handle the case where there is no KPOINTS file
-                sub_dct[fname.lower()] = None
+                sub_dct[fname.lower()] = None  # type: ignore[assignment]
 
-        sub_dct["optional_files"] = {
+        sub_dct["optional_files"] = {  # type: ignore[assignment]
             fname: ftype.from_file(os.path.join(input_dir, fname)) for fname, ftype in (optional_files or {}).items()
         }
 

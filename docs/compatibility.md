@@ -67,6 +67,24 @@ Windows and Linux.
 
 ## Recent Breaking Changes
 
+### v2024.?.?
+
+The `symbol` attribute of `SpaceGroup` now always refers to its Hermann-Mauguin symbol
+(see [#3859](https://github.com/materialsproject/pymatgen/pull/3859)). In order to replace
+the old symbol, run
+
+```py
+from pymatgen.symmetry.groups import SpaceGroup
+
+try:
+    new_symbol = SpaceGroup(old_symbol).symbol
+except ValueError:
+    if old_symbol in ["P2_12_121", "I2_12_121"]:
+        new_symbol = SpaceGroup(old_symbol[:-1]+"_1").symbol
+    else:
+        new_symbol = SpaceGroup(old_symbol[:-1]).symbol
+```
+
 ### v2024.5.31
 
 * Update VASP sets to transition `atomate2` to use `pymatgen` input sets exclusively by @esoteric-ephemera in [#3835](https://github.com/materialsproject/pymatgen/pull/3835)

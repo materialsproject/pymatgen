@@ -4,6 +4,7 @@ import os
 
 import pytest
 from numpy.testing import assert_array_equal
+
 from pymatgen.io.shengbte import Control
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
