@@ -655,7 +655,7 @@ class PhononBSPlotter:
             **kwargs: passed to ax.plot().
 
         Returns:
-            a matplotlib object with both band structures
+            plt.Axes: with two band structures.
         """
         unit = freq_units(units)
         legend_kwargs = legend_kwargs or {}
@@ -1186,7 +1186,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
             ValueError: if the two plotters are incompatible (due to different data lengths)
 
         Returns:
-            a matplotlib object with both band structures
+            plt.Axes: with both band structures
         """
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()

@@ -421,7 +421,7 @@ class BVAnalyzer:
             return [[int(frac_site) for frac_site in assigned[site]] for site in structure]
         raise ValueError("Valences cannot be assigned!")
 
-    def get_oxi_state_decorated_structure(self, structure: Structure):
+    def get_oxi_state_decorated_structure(self, structure: Structure) -> Structure:
         """Get an oxidation state decorated structure. This currently works only
         for ordered structures only.
 
@@ -429,7 +429,7 @@ class BVAnalyzer:
             structure: Structure to analyze
 
         Returns:
-            A modified structure that is oxidation state decorated.
+            Structure: modified with oxidation state decorations.
 
         Raises:
             ValueError if the valences cannot be determined.

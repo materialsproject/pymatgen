@@ -303,7 +303,7 @@ class BandStructure:
         """Get data about the valence band maximum (VBM).
 
         Returns:
-            dict of keys "band_index", "kpoint_index", "kpoint", "energy":
+            dict with keys "band_index", "kpoint_index", "kpoint", "energy":
                 - "band_index" (dict): A dict with spin keys pointing to a list of the
                 indices of the band containing the VBM (please note that you
                 can have several bands sharing the VBM) {Spin.up:[],
@@ -370,7 +370,7 @@ class BandStructure:
         """Get data about the conduction band minimum (CBM).
 
         Returns:
-            dict of keys "band_index", "kpoint_index", "kpoint", "energy":
+            dict with keys "band_index", "kpoint_index", "kpoint", "energy":
                 - "band_index" (dict): A dict with spin keys pointing to a list of the
                 indices of the band containing the CBM (please note that you
                 can have several bands sharing the CBM) {Spin.up:[], Spin.down:[]}.
@@ -436,7 +436,7 @@ class BandStructure:
         r"""Get band gap.
 
         Returns:
-            dict of keys "energy", "direct", "transition":
+            dict with keys "energy", "direct", "transition":
                 "energy" (float): Band gap energy.
                 "direct" (bool): Whether the gap is direct.
                 "transition" (str): Kpoint labels of the transition (e.g., "\\Gamma-X").
@@ -609,7 +609,7 @@ class BandStructure:
             dct: A dict with all data for a BandStructure.
 
         Returns:
-            A BandStructure object.
+            BandStructure
         """
         # Strip the label to recover initial string
         # (see trick used in as_dict to handle "$"" chars)
@@ -657,7 +657,7 @@ class BandStructure:
             dct (dict): A dict with all data for a BandStructure object.
 
         Returns:
-            A BandStructure object.
+            BandStructure
         """
         # Strip the label to recover initial string
         # (see trick used in as_dict to handle "$" chars)

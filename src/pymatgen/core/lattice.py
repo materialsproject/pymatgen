@@ -1300,8 +1300,7 @@ class Lattice(MSONable):
         Args:
             coords_a: Array-like coordinates.
             coords_b: Array-like coordinates.
-            frac_coords (bool): Boolean stating whether the vector
-                corresponds to fractional or Cartesian coordinates.
+            frac_coords (bool): True if the vectors are fractional (as opposed to Cartesian) coordinates.
 
         Returns:
             one-dimensional `numpy` array.

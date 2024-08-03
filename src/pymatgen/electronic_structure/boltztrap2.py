@@ -1,24 +1,23 @@
-"""This module provides a pymatgen interface to BoltzTraP2.
+"""This module provides an interface to BoltzTraP2.
 Some of the code is written following the examples provided in BoltzTraP2.
 
 BoltzTraP2 is a Python software interpolating band structures and
-computing materials properties from dft band structure using Boltzmann
+computing materials properties from DFT band structure using Boltzmann
 semi-classical transport theory, developed by Georg Madsen, Jesús Carrete,
 Matthieu J. Verstraete.
 
 https://gitlab.com/sousaw/BoltzTraP2
 https://www.sciencedirect.com/science/article/pii/S0010465518301632
 
-References are:
-
+References:
     Georg K.H.Madsen, Jesús Carrete, Matthieu J.Verstraete
     BoltzTraP2, a program for interpolating band structures and
     calculating semi-classical transport coefficients
-    Computer Physics Communications 231, 140-145, 2018
+    Computer Physics Communications 231, 140-145, 2018.
 
     Madsen, G. K. H., and Singh, D. J. (2006).
     BoltzTraP. A code for calculating band-structure dependent quantities.
-    Computer Physics Communications, 175, 67-71
+    Computer Physics Communications, 175, 67-71.
 
 Todo:
 - Read first derivative of the eigenvalues from vasprun.xml (mommat)

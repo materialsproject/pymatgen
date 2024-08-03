@@ -781,7 +781,7 @@ class _MPResterLegacy:
                 (default). If False, return the uniform band structure.
 
         Returns:
-            A BandStructure object.
+            BandStructure
         """
         prop = "bandstructure" if line_mode else "bandstructure_uniform"
         data = self.get_data(material_id, prop=prop)
@@ -1577,7 +1577,7 @@ class _MPResterLegacy:
         return content["pagination"]["total"] != 0
 
     @staticmethod
-    def parse_criteria(criteria_string):
+    def parse_criteria(criteria_string) -> dict:
         """Parse a powerful and simple string criteria and generates a proper
         mongo syntax criteria.
 

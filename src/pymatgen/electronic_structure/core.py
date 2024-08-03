@@ -288,6 +288,7 @@ class Magmom(MSONable):
         moment = np.matmul(moment, trafo_mat)
 
         # Round small values to zero
+        # Round small values to zero
         moment[np.abs(moment) < 1e-8] = 0
 
         return moment
@@ -317,6 +318,7 @@ class Magmom(MSONable):
         Returns:
             Magmom
         """
+        return type(self)(self.get_moment())
         return type(self)(self.get_moment())
 
     def get_00t_magmom_with_xyz_saxis(self) -> Self:
@@ -440,6 +442,7 @@ class Magmom(MSONable):
         if len(magmoms) == 0:
             return True
 
+        # Use first moment as reference to compare against
         # Use first moment as reference to compare against
         ref_magmom = magmoms[0]
         # Magnitude of cross products != 0 if non-collinear with reference
