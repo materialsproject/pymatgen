@@ -724,7 +724,7 @@ class DeformStructureTransformation(AbstractTransformation):
 
 
 class DiscretizeOccupanciesTransformation(AbstractTransformation):
-    """Discretizes the site occupancies in a disordered structure; useful for
+    """Discretize the site occupancies in a disordered structure; useful for
     grouping similar structures or as a pre-processing step for order-disorder
     transformations.
     """
@@ -749,14 +749,14 @@ class DiscretizeOccupanciesTransformation(AbstractTransformation):
         self.tol = tol if tol is not None else 1 / (4 * max_denominator)
         self.fix_denominator = fix_denominator
 
-    def apply_transformation(self, structure):
-        """Discretizes the site occupancies in the structure.
+    def apply_transformation(self, structure) -> Structure:
+        """Discretize the site occupancies in the structure.
 
         Args:
             structure: disordered Structure to discretize occupancies
 
         Returns:
-            A new disordered Structure with occupancies discretized
+            Structure: new disordered Structure instance with occupancies discretized
         """
         if structure.is_ordered:
             return structure

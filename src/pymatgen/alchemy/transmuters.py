@@ -331,13 +331,10 @@ def batch_write_vasp_input(
         output_dir: Directory to output files
         create_directory (bool): Create the directory if not present.
             Defaults to True.
-        subfolder: Function to create subdirectory name from
-            transformed_structure.
-            e.g. lambda x: x.other_parameters["tags"][0] to use the first
-            tag.
-        include_cif (bool): Boolean indication whether to output a CIF as
-            well. CIF files are generally better supported in visualization
-            programs.
+        subfolder: Function to create subdirectory name from transformed_structure.
+            E.g. lambda x: x.other_parameters["tags"][0] to use the first tag.
+        include_cif (bool): Pass True to output a CIF as well. CIF files are generally
+            better supported in visualization programs.
         **kwargs: Any kwargs supported by vasp_input_set.
     """
     for idx, struct in enumerate(transformed_structures):

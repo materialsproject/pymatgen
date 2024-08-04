@@ -262,7 +262,7 @@ class BalancedReaction(MSONable):
             dct (dict): from as_dict().
 
         Returns:
-            A BalancedReaction object.
+            BalancedReaction
         """
         reactants = {Composition(comp): coeff for comp, coeff in dct["reactants"].items()}
         products = {Composition(comp): coeff for comp, coeff in dct["products"].items()}

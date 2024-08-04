@@ -177,6 +177,14 @@ class InputSet(MSONable, MutableMapping):
     def __delitem__(self, key: PathLike) -> None:
         del self.inputs[key]
 
+    # enable dict merge
+    def __or__(self, other: dict | Self) -> Self:
+        if isinstance(other, dict):
+            other = type(self)(other)
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return type(self)({**self.inputs, **other.inputs}, **self._kwargs)
+
     def write_input(
         self,
         directory: PathLike,

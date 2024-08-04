@@ -59,8 +59,8 @@ dependencies = [
     "matplotlib>=3.8",
     "monty>=2024.7.29",
     "networkx>=2.2",
-    'numpy>=1.25.0,<2.0 ; platform_system == "Windows"',
-    'numpy>=1.25.0 ; platform_system != "Windows"',
+    "numpy>=1.25.0 ; platform_system != 'Windows'",
+    "numpy>=1.25.0,<2.0 ; platform_system == 'Windows'",
     "palettable>=3.3.3",
     "pandas>=2",
     "plotly>=4.5.0",
@@ -73,8 +73,6 @@ dependencies = [
     "tabulate>=0.9",
     "tqdm>=4.60",
     "uncertainties>=3.1.4",
-    'numpy>=1.25.0 ; platform_system != "Windows"',
-    'numpy>=1.25.0,<2.0 ; platform_system == "Windows"',
 ]
 version = "2024.7.18"
 
@@ -214,7 +212,7 @@ ignore = [
     "PLR0912", # too many branches
     "PLR0913", # too many arguments
     "PLR0915", # too many statements
-    "PLR2004", # magic values in comparison
+    "PLR2004", # magic-value-comparison TODO fix these
     "PLW2901", # Outer for loop variable overwritten by inner assignment target
     "PT013",   # pytest-incorrect-pytest-import
     "SIM105",  # Use contextlib.suppress() instead of try-except-pass
@@ -232,7 +230,9 @@ docstring-code-format = true
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
-"tests/**" = ["ANN201", "D", "PLR0124"]
+# PLR2004: magic-value-comparison
+# PLR6301: no-self-use
+"tests/**" = ["ANN201", "D", "PLR0124", "PLR2004", "PLR6301"]
 "src/pymatgen/analysis/*" = ["D"]
 "src/pymatgen/io/*" = ["D"]
 "dev_scripts/*" = ["D"]

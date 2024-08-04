@@ -118,8 +118,7 @@ class SymmetrizedStructure(Structure):
             row = [str(idx), site.species_string]
             row.extend([f"{j:>10.6f}" for j in site.frac_coords])
             row.append(self.wyckoff_symbols[idx])
-            for key in keys:
-                row.append(props[key][idx])
+            row += [props[key][idx] for key in keys]
             data.append(row)
         outs.append(tabulate(data, headers=["#", "SP", "a", "b", "c", "Wyckoff", *keys]))
         return "\n".join(outs)

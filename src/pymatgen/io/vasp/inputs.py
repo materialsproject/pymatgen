@@ -2753,7 +2753,7 @@ class VaspInput(dict, MSONable):
         """
         super().__init__(**kwargs)
         self._potcar_filename = "POTCAR" + (".spec" if potcar_spec else "")
-        self.update({"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, self._potcar_filename: potcar})
+        self |= {"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, self._potcar_filename: potcar}
         if optional_files is not None:
             self.update(optional_files)
 

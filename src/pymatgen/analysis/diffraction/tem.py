@@ -338,8 +338,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         plane: Tuple3Ints,
         other_plane: Tuple3Ints,
     ) -> bool:
-        """
-        Checks if two hkl planes are parallel in reciprocal space.
+        """Checks if two hkl planes are parallel in reciprocal space.
 
         Args:
             structure (Structure): The input structure.
@@ -347,7 +346,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             other_plane (3-tuple): The other plane to be compared.
 
         Returns:
-            boolean
+            bool: True if the planes are parallel, False otherwise.
         """
         phi = self.get_interplanar_angle(structure, plane, other_plane)
         return phi in (180, 0) or np.isnan(phi)
