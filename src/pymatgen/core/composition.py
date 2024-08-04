@@ -507,7 +507,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """Calculate atomic fraction of an Element or Species.
 
         Args:
-            el (Element/Species): Element or Species to get fraction for.
+            el (SpeciesLike): Element or Species to get fraction for.
 
         Returns:
             Atomic fraction for element el in Composition

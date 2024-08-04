@@ -38,8 +38,8 @@ class EOSBase(ABC):
     def __init__(self, volumes, energies):
         """
         Args:
-            volumes (list/numpy.array): volumes in Ang^3
-            energies (list/numpy.array): energy in eV.
+            volumes (Sequence[float]): in Ang^3.
+            energies (Sequence[float]): in eV.
         """
         self.volumes = np.array(volumes)
         self.energies = np.array(energies)
@@ -561,8 +561,8 @@ class EOS:
         """Fit energies as function of volumes.
 
         Args:
-            volumes (list/np.array)
-            energies (list/np.array)
+            volumes (Sequence[float]): in Ang^3
+            energies (Sequence[float]): in eV
 
         Returns:
             EOSBase: EOSBase object

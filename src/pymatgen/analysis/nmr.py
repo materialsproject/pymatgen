@@ -122,9 +122,9 @@ class ChemicalShielding(SquareTensor):
         Initialize from Maryland notation.
 
         Args:
-            sigma_iso ():
-            omega ():
-            kappa ():
+            sigma_iso (float): isotropic chemical shielding
+            omega (float): anisotropy
+            kappa (float): asymmetry parameter
 
         Returns:
             ChemicalShielding

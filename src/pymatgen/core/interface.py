@@ -83,8 +83,8 @@ class GrainBoundary(Structure):
         """A Structure with additional information and methods pertaining to GBs.
 
         Args:
-            lattice (Lattice/3x3 array): The lattice, either as an instance or
-                any 2D array. Each row should correspond to a lattice vector.
+            lattice (Lattice | np.ndarray): The lattice, either as an instance or
+                a 3x3 array. Each row should correspond to a lattice vector.
             species ([Species]): Sequence of species on each site. Can take in
                 flexible input, including:
 
@@ -2390,7 +2390,7 @@ def symm_group_cubic(mat: NDArray) -> list:
     """Obtain cubic symmetric equivalents of the list of vectors.
 
     Args:
-        mat (n by 3 array/matrix): lattice matrix
+        mat (np.ndarray): n x 3 lattice matrix
 
 
     Returns:
@@ -2451,9 +2451,8 @@ class Interface(Structure):
         and methods pertaining to interfaces.
 
         Args:
-            lattice (Lattice/3x3 array): The lattice, either as a
-                pymatgen.core.Lattice or
-                simply as any 2D array. Each row should correspond to a lattice
+            lattice (Lattice | np.ndarray): The lattice, either as a pymatgen.core.Lattice
+                or a 3x3 array. Each row should correspond to a lattice
                 vector. e.g. [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
             species ([Species]): Sequence of species on each site. Can take in

@@ -366,13 +366,13 @@ class TransformedStructure(MSONable):
         history = []
         for hist in self.history:
             snl_metadata = hist.pop("_snl", {})
-            history.append(
+            history += [
                 {
                     "name": snl_metadata.pop("name", "pymatgen"),
                     "url": snl_metadata.pop("url", "http://pypi.python.org/pypi/pymatgen"),
                     "description": hist,
                 }
-            )
+            ]
 
         return StructureNL(self.final_structure, authors, history=history, **kwargs)
 

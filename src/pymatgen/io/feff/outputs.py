@@ -281,7 +281,7 @@ class Xmu(MSONable):
         Args:
             header: Header object
             parameters: Tags object
-            absorbing_atom (str/int): absorbing atom symbol or index
+            absorbing_atom (str | int): absorbing atom symbol or index
             data (numpy.ndarray, Nx6): cross_sections.
         """
         self.header = header
@@ -380,12 +380,12 @@ class Xmu(MSONable):
 
 
 class Eels(MSONable):
-    """Parse'eels.dat' file."""
+    """Parse eels.dat file."""
 
     def __init__(self, data):
         """
         Args:
-            data (): Eels data.
+            data (numpy.ndarray): data from eels.dat file
         """
         self.data = np.array(data)
 
