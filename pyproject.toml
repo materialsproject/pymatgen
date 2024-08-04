@@ -56,7 +56,8 @@ classifiers = [
 ]
 dependencies = [
     "joblib>=1",
-    "matplotlib>=3.8",
+    # TODO: track https://github.com/matplotlib/matplotlib/issues/28551
+    "matplotlib>=3.8,<3.9.1",
     "monty>=2024.7.29",
     "networkx>=2.2",
     "numpy>=1.25.0 ; platform_system != 'Windows'",
