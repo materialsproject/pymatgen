@@ -315,12 +315,12 @@ class LobsterNeighbors(NearNeighbors):
         list_ce_symbols = []
         list_csm = []
         list_permut = []
-        for ival, _neigh_coords in enumerate(self.list_coords):
+        for idx, _neigh_coords in enumerate(self.list_coords):
             if (len(_neigh_coords)) > 13:
                 raise ValueError("Environment cannot be determined. Number of neighbors is larger than 13.")
             # Avoid problems if _neigh_coords is empty
             if _neigh_coords != []:
-                lgf.setup_local_geometry(isite=ival, coords=_neigh_coords, optimization=2)
+                lgf.setup_local_geometry(isite=idx, coords=_neigh_coords, optimization=2)
                 cncgsm = lgf.get_coordination_symmetry_measures(optimization=2)
                 list_ce_symbols.append(min(cncgsm.items(), key=lambda t: t[1]["csm_wcs_ctwcc"])[0])
                 list_csm.append(min(cncgsm.items(), key=lambda t: t[1]["csm_wcs_ctwcc"])[1]["csm_wcs_ctwcc"])
@@ -349,13 +349,13 @@ class LobsterNeighbors(NearNeighbors):
                 )
 
             assert self.valences is not None
-            for ival, val in enumerate(self.valences):
+            for idx, val in enumerate(self.valences):
                 if val >= 0.0:
-                    new_list_ce_symbols.append(list_ce_symbols[ival])
-                    new_list_csm.append(list_csm[ival])
-                    new_list_permut.append(list_permut[ival])
-                    new_list_neighisite.append(self.list_neighisite[ival])
-                    new_list_neighsite.append(self.list_neighsite[ival])
+                    new_list_ce_symbols.append(list_ce_symbols[idx])
+                    new_list_csm.append(list_csm[idx])
+                    new_list_permut.append(list_permut[idx])
+                    new_list_neighisite.append(self.list_neighisite[idx])
+                    new_list_neighsite.append(self.list_neighsite[idx])
                 else:
                     new_list_ce_symbols.append(None)
                     new_list_csm.append(None)
@@ -364,13 +364,13 @@ class LobsterNeighbors(NearNeighbors):
                     new_list_neighsite.append([])
 
         else:
-            for isite, _site in enumerate(self.structure):
-                if isite in only_indices:
-                    new_list_ce_symbols.append(list_ce_symbols[isite])
-                    new_list_csm.append(list_csm[isite])
-                    new_list_permut.append(list_permut[isite])
-                    new_list_neighisite.append(self.list_neighisite[isite])
-                    new_list_neighsite.append(self.list_neighsite[isite])
+            for site_idx, _site in enumerate(self.structure):
+                if site_idx in only_indices:
+                    new_list_ce_symbols.append(list_ce_symbols[site_idx])
+                    new_list_csm.append(list_csm[site_idx])
+                    new_list_permut.append(list_permut[site_idx])
+                    new_list_neighisite.append(self.list_neighisite[site_idx])
+                    new_list_neighsite.append(self.list_neighsite[site_idx])
                 else:
                     new_list_ce_symbols.append(None)
                     new_list_csm.append(None)
@@ -418,11 +418,11 @@ class LobsterNeighbors(NearNeighbors):
             else:
                 isites = list(range(len(self.structure)))
 
-        summed_icohps = 0.0
+        summed_icohps: float = 0.0
         list_icohps: list[float] = []
-        number_bonds = 0
+        number_bonds: int = 0
         labels: list[str] = []
-        atoms = []
+        atoms: list[list[str]] = []
         final_isites: list[int] = []
         assert self.Icohpcollection is not None
         for idx, _site in enumerate(self.structure):
@@ -661,14 +661,14 @@ class LobsterNeighbors(NearNeighbors):
         atoms: list[list[str]] = []
         assert self.Icohpcollection is not None
         for isite in isites:
-            for in_site, site_idx in enumerate(self.list_neighsite[isite]):
-                for in_site2, site2_idx in enumerate(self.list_neighsite[isite]):
-                    if in_site < in_site2:
-                        unitcell1 = self._determine_unit_cell(site_idx)
-                        unitcell2 = self._determine_unit_cell(site2_idx)
+            for site_idx, n_site in enumerate(self.list_neighsite[isite]):
+                for site2_idx, n_site2 in enumerate(self.list_neighsite[isite]):
+                    if site_idx < site2_idx:
+                        unitcell1 = self._determine_unit_cell(n_site)
+                        unitcell2 = self._determine_unit_cell(n_site2)
 
-                        index_n_site = self._get_original_site(self.structure, site_idx)
-                        index_n_site2 = self._get_original_site(self.structure, site2_idx)
+                        index_n_site = self._get_original_site(self.structure, n_site)
+                        index_n_site2 = self._get_original_site(self.structure, n_site2)
 
                         if index_n_site < index_n_site2:
                             translation = list(np.array(unitcell1) - np.array(unitcell2))
@@ -837,8 +837,8 @@ class LobsterNeighbors(NearNeighbors):
                                 neighbor.frac_coords
                                 - self.structure[
                                     next(
-                                        isite
-                                        for isite, site in enumerate(self.structure)
+                                        site_idx
+                                        for site_idx, site in enumerate(self.structure)
                                         if neighbor.is_periodic_image(site)
                                     )
                                 ].frac_coords
@@ -851,7 +851,7 @@ class LobsterNeighbors(NearNeighbors):
                             "bond_label": self.list_keys[ineighbors][ineighbor],
                         },
                         "site_index": next(
-                            isite for isite, site in enumerate(self.structure) if neighbor.is_periodic_image(site)
+                            site_idx for site_idx, site in enumerate(self.structure) if neighbor.is_periodic_image(site)
                         ),
                     }
                     for ineighbor, neighbor in enumerate(neighbors)
@@ -947,20 +947,20 @@ class LobsterNeighbors(NearNeighbors):
                 _neigh_coords = []
                 _neigh_frac_coords = []
 
-                for ineigh, neigh in enumerate(neighbors_by_distance):
-                    index_here2 = index_here_list[ineigh]
+                for neigh_idx, neigh in enumerate(neighbors_by_distance):
+                    index_here2 = index_here_list[neigh_idx]
 
-                    for idist, dist in enumerate(copied_distances_from_ICOHPs):
+                    for dist_idx, dist in enumerate(copied_distances_from_ICOHPs):
                         if (
-                            np.isclose(dist, list_distances[ineigh], rtol=1e-4)
-                            and copied_neighbors_from_ICOHPs[idist] == index_here2
+                            np.isclose(dist, list_distances[neigh_idx], rtol=1e-4)
+                            and copied_neighbors_from_ICOHPs[dist_idx] == index_here2
                         ):
                             _list_neighsite.append(neigh)
                             _list_neighisite.append(index_here2)
-                            _neigh_coords.append(coords[ineigh])
+                            _neigh_coords.append(coords[neigh_idx])
                             _neigh_frac_coords.append(neigh.frac_coords)
-                            del copied_distances_from_ICOHPs[idist]
-                            del copied_neighbors_from_ICOHPs[idist]
+                            del copied_distances_from_ICOHPs[dist_idx]
+                            del copied_neighbors_from_ICOHPs[dist_idx]
                             break
 
                 list_neighisite.append(_list_neighisite)
@@ -1372,8 +1372,8 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
 
             if list_neighisite[site_idx] is not None:
                 all_nbs_sites_indices_here = []
-                for idx_neigh_site, neigh_site in enumerate(list_neighsite[site_idx]):
-                    diff = neigh_site.frac_coords - structure[list_neighisite[site_idx][idx_neigh_site]].frac_coords
+                for neigh_site_idx, neigh_site in enumerate(list_neighsite[site_idx]):
+                    diff = neigh_site.frac_coords - structure[list_neighisite[site_idx][neigh_site_idx]].frac_coords
                     round_diff = np.round(diff)
                     if not np.allclose(diff, round_diff):
                         raise ValueError(
@@ -1385,7 +1385,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
 
                     neighbor = {
                         "site": neigh_site,
-                        "index": list_neighisite[site_idx][idx_neigh_site],
+                        "index": list_neighisite[site_idx][neigh_site_idx],
                         "image_cell": nb_image_cell,
                     }
                     all_nbs_sites.append(neighbor)
