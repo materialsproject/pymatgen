@@ -215,12 +215,6 @@ class TestStructureNL(TestCase):
             [self.valid_node, self.valid_node2],
         )
         round_trip_from_dict = StructureNL.from_dict(struct_nl.as_dict())
-        needed_attrs = ("structure", "authors", "projects", "references", "remarks", "data", "history", "created_at")
-        for attr in needed_attrs:
-            print(f"{attr}={getattr(struct_nl, attr)}")
-            print(f"{getattr(round_trip_from_dict, attr)=}")
-        print(f"{round_trip_from_dict=}")
-        print(f"{struct_nl=}")
         assert struct_nl == round_trip_from_dict
         # complicated objects in the 'data' and 'nodes' field
         complicated_node = {
