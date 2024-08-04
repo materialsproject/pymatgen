@@ -401,7 +401,7 @@ class LobsterNeighbors(NearNeighbors):
 
 
         Args:
-            isites (list[int]): Site ids. If is None, all isites will be used
+            isites (list[int]): Site IDs. If is None, all isites will be used
                 to add the ICOHPs of the neighbors.
             onlycation_isites (bool): If True and if isite is None, will
                 only analyse the cations sites.
@@ -461,7 +461,7 @@ class LobsterNeighbors(NearNeighbors):
         Args:
             path_to_cohpcar (PathLike): Path to COHPCAR or COOPCAR or COBICAR.
             obj_cohpcar (CompleteCohp): CompleteCohp object
-            isites (list[int]): Site ids. If empty, all sites will be used to add the ICOHPs of the neighbors.
+            isites (list[int]): Site IDs. If empty, all sites will be used to add the ICOHPs of the neighbors.
             onlycation_isites (bool): Only use cations, if isite is empty.
             only_bonds_to (list[str]): Only anions in this list will be considered.
             per_bond (bool): Whether to plot a normalization of the plotted COHP
@@ -635,7 +635,7 @@ class LobsterNeighbors(NearNeighbors):
         """Get interactions between neighbors of certain sites.
 
         Args:
-            isites (list[int]): Site ids. If is None, all sites will be used.
+            isites (list[int]): Site IDs. If is None, all sites will be used.
             onlycation_isites (bool): Only use cations, if isite is None.
 
         Returns:
@@ -654,21 +654,21 @@ class LobsterNeighbors(NearNeighbors):
             else:
                 isites = list(range(len(self.structure)))
 
-        summed_icohps = 0.0
-        list_icohps = []
-        number_bonds = 0
-        labels = []
-        atoms = []
+        summed_icohps: float = 0.0
+        list_icohps: list[float] = []
+        number_bonds: int = 0
+        labels: list[str] = []
+        atoms: list[list[str]] = []
         assert self.Icohpcollection is not None
         for isite in isites:
-            for in_site, n_site in enumerate(self.list_neighsite[isite]):
-                for in_site2, n_site2 in enumerate(self.list_neighsite[isite]):
+            for in_site, site_idx in enumerate(self.list_neighsite[isite]):
+                for in_site2, site2_idx in enumerate(self.list_neighsite[isite]):
                     if in_site < in_site2:
-                        unitcell1 = self._determine_unit_cell(n_site)
-                        unitcell2 = self._determine_unit_cell(n_site2)
+                        unitcell1 = self._determine_unit_cell(site_idx)
+                        unitcell2 = self._determine_unit_cell(site2_idx)
 
-                        index_n_site = self._get_original_site(self.structure, n_site)
-                        index_n_site2 = self._get_original_site(self.structure, n_site2)
+                        index_n_site = self._get_original_site(self.structure, site_idx)
+                        index_n_site2 = self._get_original_site(self.structure, site2_idx)
 
                         if index_n_site < index_n_site2:
                             translation = list(np.array(unitcell1) - np.array(unitcell2))
@@ -1184,7 +1184,6 @@ class LobsterNeighbors(NearNeighbors):
         """
         unitcell = []
         for coord in site.frac_coords:
-            # DEBUG: value is always 0?
             value = math.floor(round(coord, 4))
             unitcell.append(value)
 
