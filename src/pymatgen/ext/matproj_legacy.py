@@ -535,7 +535,7 @@ class _MPResterLegacy:
             ]
             data = {"oxide_type": d["oxide_type"]}
             if property_data:
-                data.update({k: d[k] for k in property_data})
+                data |= {k: d[k] for k in property_data}
             if not inc_structure:
                 e = ComputedEntry(
                     d["unit_cell_formula"],
@@ -575,7 +575,7 @@ class _MPResterLegacy:
         a Pourbaix diagram from the rest interface.
 
         Args:
-            chemsys (str or [str]): Chemical system string comprising element
+            chemsys (str | list[str]): Chemical system string comprising element
                 symbols separated by dashes, e.g. "Li-Fe-O" or List of element
                 symbols, e.g. ["Li", "Fe", "O"].
             solid_compat: Compatibility scheme used to pre-process solid DFT energies prior to applying aqueous
@@ -836,7 +836,7 @@ class _MPResterLegacy:
         phases. Extremely useful for creating phase diagrams of entire chemical systems.
 
         Args:
-            elements (str or [str]): Chemical system string comprising element
+            elements (str | list[str]): Chemical system string comprising element
                 symbols separated by dashes, e.g. "Li-Fe-O" or List of element
                 symbols, e.g. ["Li", "Fe", "O"].
             compatible_only (bool): Whether to return only "compatible"
@@ -1001,7 +1001,7 @@ class _MPResterLegacy:
         progress_bar = tqdm(total=len(mids), disable=not show_progress_bar)
         for chunk in chunks:
             chunk_criteria = criteria.copy()
-            chunk_criteria.update({"material_id": {"$in": chunk}})
+            chunk_criteria |= {"material_id": {"$in": chunk}}
             n_tries = 0
             while n_tries < max_tries_per_chunk:
                 try:

@@ -96,9 +96,7 @@ class PDEntry(Entry):
 
     def as_dict(self):
         """Get MSONable dict representation of PDEntry."""
-        return_dict = super().as_dict()
-        return_dict.update({"name": self.name, "attribute": self.attribute})
-        return return_dict
+        return super().as_dict() | {"name": self.name, "attribute": self.attribute}
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
@@ -1903,7 +1901,7 @@ class ReactionDiagram:
         """
         elem_set = set()
         for entry in [entry1, entry2]:
-            elem_set.update([el.symbol for el in entry.elements])
+            elem_set |= {el.symbol for el in entry.elements}
 
         elements = tuple(elem_set)  # Fix elements to ensure order.
 
@@ -2948,7 +2946,7 @@ class PDPlotter:
                 for d in ["xref", "yref"]:
                     annotation.pop(d)  # Scatter3d cannot contain xref, yref
                     if self._dim == 3:
-                        annotation.update({"x": y, "y": x})
+                        annotation.update(x=x, y=y)
                         if entry.composition.is_element:
                             z = 0.9 * self._min_energy  # place label 10% above base
 
@@ -3096,26 +3094,24 @@ class PDPlotter:
             if highlight_entries:
                 highlight_markers = plotly_layouts["default_unary_marker_settings"].copy()
                 highlight_markers.update(
-                    {
-                        "x": [0] * len(highlight_props["y"]),
-                        "y": list(highlight_props["x"]),
-                        "name": "Highlighted",
-                        "marker": {
-                            "color": "mediumvioletred",
-                            "size": 22,
-                            "line": {"color": "black", "width": 2},
-                            "symbol": "square",
-                        },
-                        "opacity": 0.9,
-                        "hovertext": highlight_props["texts"],
-                        "error_y": {
-                            "array": list(highlight_props["uncertainties"]),
-                            "type": "data",
-                            "color": "gray",
-                            "thickness": 2.5,
-                            "width": 5,
-                        },
-                    }
+                    x=[0] * len(highlight_props["y"]),
+                    y=list(highlight_props["x"]),
+                    name="Highlighted",
+                    marker={
+                        "color": "mediumvioletred",
+                        "size": 22,
+                        "line": {"color": "black", "width": 2},
+                        "symbol": "square",
+                    },
+                    opacity=0.9,
+                    hovertext=highlight_props["texts"],
+                    error_y={
+                        "array": list(highlight_props["uncertainties"]),
+                        "type": "data",
+                        "color": "gray",
+                        "thickness": 2.5,
+                        "width": 5,
+                    },
                 )
 
         if self._dim == 2:
@@ -3137,22 +3133,20 @@ class PDPlotter:
                     "width": 5,
                 },
             )
-            unstable_markers.update(
-                {
-                    "x": list(unstable_props["x"]),
-                    "y": list(unstable_props["y"]),
-                    "name": "Above Hull",
-                    "marker": {
-                        "color": unstable_props["energies"],
-                        "colorscale": plotly_layouts["unstable_colorscale"],
-                        "size": 7,
-                        "symbol": "diamond",
-                        "line": {"color": "black", "width": 1},
-                        "opacity": 0.8,
-                    },
-                    "hovertext": unstable_props["texts"],
-                }
-            )
+            unstable_markers |= {
+                "x": list(unstable_props["x"]),
+                "y": list(unstable_props["y"]),
+                "name": "Above Hull",
+                "marker": {
+                    "color": unstable_props["energies"],
+                    "colorscale": plotly_layouts["unstable_colorscale"],
+                    "size": 7,
+                    "symbol": "diamond",
+                    "line": {"color": "black", "width": 1},
+                    "opacity": 0.8,
+                },
+                "hovertext": unstable_props["texts"],
+            }
             if highlight_entries:
                 highlight_markers = plotly_layouts["default_binary_marker_settings"].copy()
                 highlight_markers.update(
@@ -3180,209 +3174,191 @@ class PDPlotter:
             stable_markers = plotly_layouts["default_ternary_2d_marker_settings"].copy()
             unstable_markers = plotly_layouts["default_ternary_2d_marker_settings"].copy()
 
-            stable_markers.update(
-                {
-                    "a": list(stable_props["x"]),
-                    "b": list(stable_props["y"]),
-                    "c": list(stable_props["z"]),
-                    "name": "Stable",
-                    "hovertext": stable_props["texts"],
-                    "marker": {
-                        "color": "green",
-                        "line": {"width": 2.0, "color": "black"},
-                        "symbol": "circle",
-                        "size": 15,
+            stable_markers |= {
+                "a": list(stable_props["x"]),
+                "b": list(stable_props["y"]),
+                "c": list(stable_props["z"]),
+                "name": "Stable",
+                "hovertext": stable_props["texts"],
+                "marker": {
+                    "color": "green",
+                    "line": {"width": 2.0, "color": "black"},
+                    "symbol": "circle",
+                    "size": 15,
+                },
+            }
+            unstable_markers |= {
+                "a": unstable_props["x"],
+                "b": unstable_props["y"],
+                "c": unstable_props["z"],
+                "name": "Above Hull",
+                "hovertext": unstable_props["texts"],
+                "marker": {
+                    "color": unstable_props["energies"],
+                    "opacity": 0.8,
+                    "colorscale": plotly_layouts["unstable_colorscale"],
+                    "line": {"width": 1, "color": "black"},
+                    "size": 7,
+                    "symbol": "diamond",
+                    "colorbar": {
+                        "title": "Energy Above Hull<br>(eV/atom)",
+                        "x": 0,
+                        "y": 1,
+                        "yanchor": "top",
+                        "xpad": 0,
+                        "ypad": 0,
+                        "thickness": 0.02,
+                        "thicknessmode": "fraction",
+                        "len": 0.5,
                     },
-                }
-            )
-            unstable_markers.update(
-                {
-                    "a": unstable_props["x"],
-                    "b": unstable_props["y"],
-                    "c": unstable_props["z"],
-                    "name": "Above Hull",
-                    "hovertext": unstable_props["texts"],
-                    "marker": {
-                        "color": unstable_props["energies"],
-                        "opacity": 0.8,
-                        "colorscale": plotly_layouts["unstable_colorscale"],
-                        "line": {"width": 1, "color": "black"},
-                        "size": 7,
-                        "symbol": "diamond",
-                        "colorbar": {
-                            "title": "Energy Above Hull<br>(eV/atom)",
-                            "x": 0,
-                            "y": 1,
-                            "yanchor": "top",
-                            "xpad": 0,
-                            "ypad": 0,
-                            "thickness": 0.02,
-                            "thicknessmode": "fraction",
-                            "len": 0.5,
-                        },
-                    },
-                }
-            )
+                },
+            }
             if highlight_entries:
                 highlight_markers = plotly_layouts["default_ternary_2d_marker_settings"].copy()
-                highlight_markers.update(
-                    {
-                        "a": list(highlight_props["x"]),
-                        "b": list(highlight_props["y"]),
-                        "c": list(highlight_props["z"]),
-                        "name": "Highlighted",
-                        "hovertext": highlight_props["texts"],
-                        "marker": {
-                            "color": "mediumvioletred",
-                            "line": {"width": 2.0, "color": "black"},
-                            "symbol": "square",
-                            "size": 16,
-                        },
-                    }
-                )
+                highlight_markers |= {
+                    "a": list(highlight_props["x"]),
+                    "b": list(highlight_props["y"]),
+                    "c": list(highlight_props["z"]),
+                    "name": "Highlighted",
+                    "hovertext": highlight_props["texts"],
+                    "marker": {
+                        "color": "mediumvioletred",
+                        "line": {"width": 2.0, "color": "black"},
+                        "symbol": "square",
+                        "size": 16,
+                    },
+                }
 
         elif self._dim == 3 and self.ternary_style == "3d":
             stable_markers = plotly_layouts["default_ternary_3d_marker_settings"].copy()
             unstable_markers = plotly_layouts["default_ternary_3d_marker_settings"].copy()
 
-            stable_markers.update(
-                {
-                    "x": list(stable_props["y"]),
-                    "y": list(stable_props["x"]),
-                    "z": list(stable_props["z"]),
-                    "name": "Stable",
-                    "marker": {
-                        "color": "#1e1e1f",
-                        "size": 11,
-                        "opacity": 0.99,
+            stable_markers |= {
+                "x": list(stable_props["y"]),
+                "y": list(stable_props["x"]),
+                "z": list(stable_props["z"]),
+                "name": "Stable",
+                "marker": {
+                    "color": "#1e1e1f",
+                    "size": 11,
+                    "opacity": 0.99,
+                },
+                "hovertext": stable_props["texts"],
+                "error_z": {
+                    "array": list(stable_props["uncertainties"]),
+                    "type": "data",
+                    "color": "darkgray",
+                    "width": 10,
+                    "thickness": 5,
+                },
+            }
+            unstable_markers |= {
+                "x": unstable_props["y"],
+                "y": unstable_props["x"],
+                "z": unstable_props["z"],
+                "name": "Above Hull",
+                "hovertext": unstable_props["texts"],
+                "marker": {
+                    "color": unstable_props["energies"],
+                    "colorscale": plotly_layouts["unstable_colorscale"],
+                    "size": 5,
+                    "line": {"color": "black", "width": 1},
+                    "symbol": "diamond",
+                    "opacity": 0.7,
+                    "colorbar": {
+                        "title": "Energy Above Hull<br>(eV/atom)",
+                        "x": 0,
+                        "y": 1,
+                        "yanchor": "top",
+                        "xpad": 0,
+                        "ypad": 0,
+                        "thickness": 0.02,
+                        "thicknessmode": "fraction",
+                        "len": 0.5,
                     },
-                    "hovertext": stable_props["texts"],
+                },
+            }
+            if highlight_entries:
+                highlight_markers = plotly_layouts["default_ternary_3d_marker_settings"].copy()
+                highlight_markers |= {
+                    "x": list(highlight_props["y"]),
+                    "y": list(highlight_props["x"]),
+                    "z": list(highlight_props["z"]),
+                    "name": "Highlighted",
+                    "marker": {
+                        "size": 12,
+                        "opacity": 0.99,
+                        "symbol": "square",
+                        "color": "mediumvioletred",
+                    },
+                    "hovertext": highlight_props["texts"],
                     "error_z": {
-                        "array": list(stable_props["uncertainties"]),
+                        "array": list(highlight_props["uncertainties"]),
                         "type": "data",
                         "color": "darkgray",
                         "width": 10,
                         "thickness": 5,
                     },
                 }
-            )
-            unstable_markers.update(
-                {
-                    "x": unstable_props["y"],
-                    "y": unstable_props["x"],
-                    "z": unstable_props["z"],
-                    "name": "Above Hull",
-                    "hovertext": unstable_props["texts"],
-                    "marker": {
-                        "color": unstable_props["energies"],
-                        "colorscale": plotly_layouts["unstable_colorscale"],
-                        "size": 5,
-                        "line": {"color": "black", "width": 1},
-                        "symbol": "diamond",
-                        "opacity": 0.7,
-                        "colorbar": {
-                            "title": "Energy Above Hull<br>(eV/atom)",
-                            "x": 0,
-                            "y": 1,
-                            "yanchor": "top",
-                            "xpad": 0,
-                            "ypad": 0,
-                            "thickness": 0.02,
-                            "thicknessmode": "fraction",
-                            "len": 0.5,
-                        },
-                    },
-                }
-            )
-            if highlight_entries:
-                highlight_markers = plotly_layouts["default_ternary_3d_marker_settings"].copy()
-                highlight_markers.update(
-                    {
-                        "x": list(highlight_props["y"]),
-                        "y": list(highlight_props["x"]),
-                        "z": list(highlight_props["z"]),
-                        "name": "Highlighted",
-                        "marker": {
-                            "size": 12,
-                            "opacity": 0.99,
-                            "symbol": "square",
-                            "color": "mediumvioletred",
-                        },
-                        "hovertext": highlight_props["texts"],
-                        "error_z": {
-                            "array": list(highlight_props["uncertainties"]),
-                            "type": "data",
-                            "color": "darkgray",
-                            "width": 10,
-                            "thickness": 5,
-                        },
-                    }
-                )
 
         elif self._dim == 4:
             stable_markers = plotly_layouts["default_quaternary_marker_settings"].copy()
             unstable_markers = plotly_layouts["default_quaternary_marker_settings"].copy()
-            stable_markers.update(
-                {
-                    "x": stable_props["x"],
-                    "y": stable_props["y"],
-                    "z": stable_props["z"],
-                    "name": "Stable",
-                    "marker": {
-                        "size": 7,
-                        "opacity": 0.99,
-                        "color": "darkgreen",
-                        "line": {"color": "black", "width": 1},
+            stable_markers |= {
+                "x": stable_props["x"],
+                "y": stable_props["y"],
+                "z": stable_props["z"],
+                "name": "Stable",
+                "marker": {
+                    "size": 7,
+                    "opacity": 0.99,
+                    "color": "darkgreen",
+                    "line": {"color": "black", "width": 1},
+                },
+                "hovertext": stable_props["texts"],
+            }
+            unstable_markers |= {
+                "x": unstable_props["x"],
+                "y": unstable_props["y"],
+                "z": unstable_props["z"],
+                "name": "Above Hull",
+                "marker": {
+                    "color": unstable_props["energies"],
+                    "colorscale": plotly_layouts["unstable_colorscale"],
+                    "size": 5,
+                    "symbol": "diamond",
+                    "line": {"color": "black", "width": 1},
+                    "colorbar": {
+                        "title": "Energy Above Hull<br>(eV/atom)",
+                        "x": 0,
+                        "y": 1,
+                        "yanchor": "top",
+                        "xpad": 0,
+                        "ypad": 0,
+                        "thickness": 0.02,
+                        "thicknessmode": "fraction",
+                        "len": 0.5,
                     },
-                    "hovertext": stable_props["texts"],
-                }
-            )
-            unstable_markers.update(
-                {
-                    "x": unstable_props["x"],
-                    "y": unstable_props["y"],
-                    "z": unstable_props["z"],
-                    "name": "Above Hull",
-                    "marker": {
-                        "color": unstable_props["energies"],
-                        "colorscale": plotly_layouts["unstable_colorscale"],
-                        "size": 5,
-                        "symbol": "diamond",
-                        "line": {"color": "black", "width": 1},
-                        "colorbar": {
-                            "title": "Energy Above Hull<br>(eV/atom)",
-                            "x": 0,
-                            "y": 1,
-                            "yanchor": "top",
-                            "xpad": 0,
-                            "ypad": 0,
-                            "thickness": 0.02,
-                            "thicknessmode": "fraction",
-                            "len": 0.5,
-                        },
-                    },
-                    "hovertext": unstable_props["texts"],
-                    "visible": "legendonly",
-                }
-            )
+                },
+                "hovertext": unstable_props["texts"],
+                "visible": "legendonly",
+            }
             if highlight_entries:
                 highlight_markers = plotly_layouts["default_quaternary_marker_settings"].copy()
-                highlight_markers.update(
-                    {
-                        "x": highlight_props["x"],
-                        "y": highlight_props["y"],
-                        "z": highlight_props["z"],
-                        "name": "Highlighted",
-                        "marker": {
-                            "size": 9,
-                            "opacity": 0.99,
-                            "symbol": "square",
-                            "color": "mediumvioletred",
-                            "line": {"color": "black", "width": 1},
-                        },
-                        "hovertext": highlight_props["texts"],
-                    }
-                )
+                highlight_markers |= {
+                    "x": highlight_props["x"],
+                    "y": highlight_props["y"],
+                    "z": highlight_props["z"],
+                    "name": "Highlighted",
+                    "marker": {
+                        "size": 9,
+                        "opacity": 0.99,
+                        "symbol": "square",
+                        "color": "mediumvioletred",
+                        "line": {"color": "black", "width": 1},
+                    },
+                    "hovertext": highlight_props["texts"],
+                }
 
         highlight_marker_plot = None
 

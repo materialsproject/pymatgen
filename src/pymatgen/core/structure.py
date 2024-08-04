@@ -3941,9 +3941,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """Modify a site in the structure.
 
         Args:
-            idx (int, [int], slice, Species-like): Indices to change. You can
-                specify these as an int, a list of int, or a species-like
-                string.
+            idx (int, list[int], slice, Species-like): Indices to change. You can
+                specify these as an int, a list of int, or a species-like string.
             site (PeriodicSite | Species | dict[SpeciesLike, float] | Sequence): 4 options exist. You
                 can provide a PeriodicSite directly (lattice will be checked). Or more conveniently,
                 you can provide a species-like object (or a dict mapping SpeciesLike to occupancy floats)
@@ -4773,9 +4772,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         """Modify a site in the molecule.
 
         Args:
-            idx (int, [int], slice, Species-like): Indices to change. You can
-                specify these as an int, a list of int, or a species-like
-                string.
+            idx (int, list[int], slice, Species-like): Indices to change. You can
+                specify these as an int, a list of int, or a species-like string.
             site (PeriodicSite/Species/Sequence): Three options exist. You can
                 provide a Site directly, or for convenience, you can provide
                 simply a Species-like string/object, or finally a (Species,

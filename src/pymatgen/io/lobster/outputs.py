@@ -172,18 +172,16 @@ class Cohpcar:
                     }
 
                 elif label in orb_cohp:
-                    orb_cohp[label].update(
-                        {
-                            bond_data["orb_label"]: {
-                                "COHP": cohp,
-                                "ICOHP": icohp,
-                                "orbitals": orbs,
-                                "length": bond_data["length"],
-                                "sites": bond_data["sites"],
-                                "cells": bond_data["cells"],
-                            }
+                    orb_cohp[label] |= {
+                        bond_data["orb_label"]: {
+                            "COHP": cohp,
+                            "ICOHP": icohp,
+                            "orbitals": orbs,
+                            "length": bond_data["length"],
+                            "sites": bond_data["sites"],
+                            "cells": bond_data["cells"],
                         }
-                    )
+                    }
                 else:
                     # Present for LOBSTER versions older than 2.2.0
                     if bond_num == 0:
@@ -224,17 +222,15 @@ class Cohpcar:
                     }
 
                 elif label in orb_cohp:
-                    orb_cohp[label].update(
-                        {
-                            bond_data["orb_label"]: {
-                                "COHP": cohp,
-                                "ICOHP": icohp,
-                                "orbitals": orbs,
-                                "length": bond_data["length"],
-                                "sites": bond_data["sites"],
-                            }
+                    orb_cohp[label] |= {
+                        bond_data["orb_label"]: {
+                            "COHP": cohp,
+                            "ICOHP": icohp,
+                            "orbitals": orbs,
+                            "length": bond_data["length"],
+                            "sites": bond_data["sites"],
                         }
-                    )
+                    }
                 else:
                     # Present for LOBSTER versions older than 2.2.0
                     if bond_num == 0:
@@ -2195,10 +2191,11 @@ class LobsterMatrices:
             matches = re.search(pattern, file_data[start_inx_real - 2])
             if matches and len(matches.groups()) == 2:
                 spin = Spin.up if matches[1] == "1" else Spin.down
-                complex_matrices[matches[2]] |= {spin: comp_matrix}
-
+                k_point = matches[2]
+                complex_matrices[k_point] |= {spin: comp_matrix}
             elif matches and len(matches.groups()) == 1:
-                complex_matrices |= {matches[1]: comp_matrix}
+                k_point = matches[1]
+                complex_matrices |= {k_point: comp_matrix}
             matrix_diagonal_values.append(comp_matrix.real.diagonal() - e_fermi)
 
         # Extract elements basis functions as list

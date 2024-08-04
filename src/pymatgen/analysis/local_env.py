@@ -1218,7 +1218,7 @@ class JmolNN(NearNeighbors):
 
         # Update any user preference elemental radii
         if el_radius_updates:
-            self.el_radius.update(el_radius_updates)
+            self.el_radius |= el_radius_updates
 
     @property
     def structures_allowed(self) -> bool:
@@ -2755,7 +2755,7 @@ class LocalStructOrderParams:
             raise ValueError("Index for getting order parameter type out-of-bounds!")
         return self._types[index]
 
-    def get_parameters(self, index):
+    def get_parameters(self, index: int) -> list[float]:
         """Get list of floats that represents
         the parameters associated
         with calculation of the order
@@ -2764,12 +2764,10 @@ class LocalStructOrderParams:
         inputted because of processing out of efficiency reasons.
 
         Args:
-            index (int):
-                index of order parameter for which associated parameters
-                are to be returned.
+            index (int): index of order parameter for which to return associated params.
 
         Returns:
-            [float]: parameters of a given OP.
+            list[float]: parameters of a given OP.
         """
         if index < 0 or index >= len(self._types):
             raise ValueError("Index for getting parameters associated with order parameter calculation out-of-bounds!")
