@@ -38,7 +38,7 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
     from typing_extensions import Self
 
-    from pymatgen.core import PeriodicNeighbor, Site, Structure
+    from pymatgen.core import PeriodicNeighbor, PeriodicSite, Structure
     from pymatgen.core.periodic_table import Element
     from pymatgen.electronic_structure.cohp import IcohpCollection, IcohpValue
     from pymatgen.util.typing import PathLike
@@ -1176,11 +1176,11 @@ class LobsterNeighbors(NearNeighbors):
         return head, tail
 
     @staticmethod
-    def _determine_unit_cell(site: Site) -> list[int]:
+    def _determine_unit_cell(site: PeriodicSite) -> list[int]:
         """Determine the unit cell based on the site.
 
         Args:
-            site (Site): The site.
+            site (PeriodicSite): The site.
         """
         unitcell = []
         for coord in site.frac_coords:
@@ -1331,7 +1331,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
         list_ce_symbol: list[str],
         list_csm: list[float],
         list_permutation: list,
-        list_neighsite: list[Site],
+        list_neighsite: list[PeriodicSite],
         list_neighisite: list[list[int]],
         structure: Structure,
         valences: list[float] | None = None,
@@ -1342,7 +1342,7 @@ class LobsterLightStructureEnvironments(LightStructureEnvironments):
             list_ce_symbol (list[str]): Coordination environments symbols.
             list_csm (list[float]): Continuous symmetry measures.
             list_permutation (list): Permutations.
-            list_neighsite (list[Site]): Neighboring sites.
+            list_neighsite (list[PeriodicSite]): Neighboring sites.
             list_neighisite (list[list[int]]): Neighboring sites indexes.
             structure (Structure): Structure object.
             valences (list[float]): Valences.
