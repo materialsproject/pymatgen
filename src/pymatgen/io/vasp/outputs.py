@@ -899,9 +899,8 @@ class Vasprun(MSONable):
                 the band structure data. Set this flag to ignore it. (Default: False)
 
         Returns:
-            a BandStructure object (or more specifically a
-            BandStructureSymmLine object if the run is detected to be a run
-            along symmetry lines)
+            BandStructure (or more specifically a BandStructureSymmLine object if the run
+            is detected to be a run along symmetry lines)
 
             Two types of runs along symmetry lines are accepted: non-sc with
             Line-Mode in the KPOINT file or hybrid, self-consistent with a
@@ -1033,7 +1032,7 @@ class Vasprun(MSONable):
                 eigenvals,
                 lattice_new,
                 e_fermi,
-                labels_dict,
+                labels_dict,  # type: ignore[arg-type]
                 structure=self.final_structure,
                 projections=p_eig_vals,
             )
@@ -1559,7 +1558,7 @@ class Vasprun(MSONable):
     def _parse_dos(elem: XML_Element) -> tuple[Dos, Dos, list[dict]]:
         """Parse density of states (DOS)."""
         efermi = float(elem.find("i").text)  # type: ignore[union-attr, arg-type]
-        energies = None
+        energies: NDArray | None = None
         tdensities = {}
         idensities = {}
 
@@ -1588,6 +1587,8 @@ class Vasprun(MSONable):
                         pdos[orb][spin] = data[:, col_idx]  # type: ignore[index]
                 pdoss.append(pdos)
         elem.clear()
+
+        assert energies is not None
         return Dos(efermi, energies, tdensities), Dos(efermi, energies, idensities), pdoss
 
     @staticmethod
@@ -1891,7 +1892,7 @@ class Outcar:
         final_energy (float): Final energy after extrapolation of sigma back to 0, i.e. energy(sigma->0).
         final_energy_wo_entrp (float): Final energy before extrapolation of sigma, i.e. energy without entropy.
         final_fr_energy (float): Final "free energy", i.e. free energy TOTEN.
-        has_onsite_density_matrices (bool): Boolean for if onsite density matrices have been set.
+        has_onsite_density_matrices (bool): Whether onsite density matrices have been set.
         lcalcpol (bool): If LCALCPOL has been set.
         lepsilon (bool): If LEPSILON has been set.
         nelect (float): Returns the number of electrons in the calculation.

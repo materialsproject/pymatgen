@@ -237,19 +237,15 @@ class MagneticSpaceGroup(SymmetryGroup):
                 return None
             raw_lattice = [b[i : i + 4] for i in range(0, len(b), 4)]
 
-            lattice = []
-
-            for r in raw_lattice:
-                lattice.append(
-                    {
-                        "vector": [r[0] / r[3], r[1] / r[3], r[2] / r[3]],
-                        "str": f"({Fraction(r[0] / r[3]).limit_denominator()},"
-                        f"{Fraction(r[1] / r[3]).limit_denominator()},"
-                        f"{Fraction(r[2] / r[3]).limit_denominator()})+",
-                    }
-                )
-
-            return lattice
+            return [
+                {
+                    "vector": [r[0] / r[3], r[1] / r[3], r[2] / r[3]],
+                    "str": f"({Fraction(r[0] / r[3]).limit_denominator()},"
+                    f"{Fraction(r[1] / r[3]).limit_denominator()},"
+                    f"{Fraction(r[2] / r[3]).limit_denominator()})+",
+                }
+                for r in raw_lattice
+            ]
 
         def _parse_transformation(b):
             """Parse compact binary representation into transformation between OG and BNS settings."""
@@ -559,9 +555,7 @@ def _write_all_magnetic_space_groups_to_file(filename):
         "http://stokes.byu.edu/iso/magnetic_data.txt\n"
         "Used with kind permission from Professor Branton Campbell, BYU\n\n"
     )
-    all_msgs = []
-    for i in range(1, 1652):
-        all_msgs.append(MagneticSpaceGroup(i))
+    all_msgs = list(map(MagneticSpaceGroup, range(1, 1652)))
     for msg in all_msgs:
         out += f"\n{msg.data_str()}\n\n--------\n"
     with open(filename, mode="w") as file:

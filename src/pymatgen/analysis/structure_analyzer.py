@@ -395,7 +395,7 @@ def contains_peroxide(structure, relative_cutoff=1.1):
             atoms must be to each other to be considered a peroxide.
 
     Returns:
-        Boolean indicating if structure contains a peroxide anion.
+        bool: True if structure contains a peroxide anion.
     """
     return oxide_type(structure, relative_cutoff) == "peroxide"
 

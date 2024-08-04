@@ -75,10 +75,7 @@ def zval_dict_from_potcar(potcar) -> dict[str, float]:
 
     potcar: Potcar object
     """
-    zval_dict = {}
-    for p in potcar:
-        zval_dict.update({p.element: p.ZVAL})
-    return zval_dict
+    return {p.element: p.ZVAL for p in potcar}
 
 
 def calc_ionic(site: PeriodicSite, structure: Structure, zval: float) -> np.ndarray:

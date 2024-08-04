@@ -496,7 +496,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             mol: The molecule. OpenBabel OBMol object.
 
         Returns:
-            Boolean value.
+            bool
         """
         if mol.NumAtoms() < 3:
             return True
@@ -589,7 +589,7 @@ class MoleculeMatcher(MSONable):
             mol2: Second molecule. OpenBabel OBMol or pymatgen Molecule object
 
         Returns:
-            A boolean value indicates whether two molecules are the same.
+            bool: Whether two molecules are the same.
         """
         return self.get_rmsd(mol1, mol2) < self._tolerance
 
