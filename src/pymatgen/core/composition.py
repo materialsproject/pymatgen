@@ -536,7 +536,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 "actinoid", "radioactive", "quadrupolar", "s-block", "p-block", "d-block", "f-block".
 
         Returns:
-            bool: Whether any elements in Composition match category.
+            bool: True if any elements in Composition match category.
         """
         allowed_categories = [element.value for element in ElementType]
 

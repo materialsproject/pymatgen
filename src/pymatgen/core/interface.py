@@ -1768,7 +1768,7 @@ class GrainBoundaryGenerator:
                 e.g. mu:lam:mv = c2,None,a2, means b2 is irrational.
 
         Returns:
-            dict: sigmas  dictionary with keys as the possible integer sigma values
+            dict: sigmas dictionary with keys as the possible integer sigma values
                 and values as list of the possible rotation angles to the
                 corresponding sigma values. e.g. the format as
                 {sigma1: [angle11,angle12,...], sigma2: [angle21, angle22,...],...}

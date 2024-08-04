@@ -290,7 +290,7 @@ class Slab(Structure):
             symprec (float): Symmetry precision used for SpaceGroup analyzer.
 
         Returns:
-            bool: Whether surfaces are symmetric.
+            bool: True if surfaces are symmetric.
         """
         spg_analyzer = SpacegroupAnalyzer(self, symprec=symprec)
         symm_ops = spg_analyzer.get_point_group_operations()

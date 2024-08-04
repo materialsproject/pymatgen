@@ -517,7 +517,7 @@ class StructureVis:
             color: Color for triangle as RGB.
             center: The "central atom" of the triangle
             opacity: opacity of the triangle
-            draw_edges: If set to True, the a line will be  drawn at each edge
+            draw_edges: If set to True, the a line will be drawn at each edge
             edges_color: Color of the line for the edges
             edges_linewidth: Width of the line drawn for the edges
         """

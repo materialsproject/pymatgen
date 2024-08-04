@@ -1503,7 +1503,7 @@ class Bandoverlaps(MSONable):
             limit_maxDeviation: limit of the maxDeviation
 
         Returns:
-            bool: Whether the quality of the projection is good.
+            bool: True if the quality of the projection is good.
         """
         return all(deviation <= limit_maxDeviation for deviation in self.max_deviation)
 
@@ -1525,7 +1525,7 @@ class Bandoverlaps(MSONable):
             limit_deviation (float): limit of the maxDeviation
 
         Returns:
-            bool: Whether the quality of the projection is good.
+            bool: True if the quality of the projection is good.
         """
         for matrix in self.band_overlaps_dict[Spin.up]["matrices"]:
             for iband1, band1 in enumerate(matrix):

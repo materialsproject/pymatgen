@@ -1984,7 +1984,7 @@ def get_okeeffe_distance_prediction(el1, el2):
     """Get an estimate of the bond valence parameter (bond length) using
     the derived parameters from 'Atoms Sizes and Bond Lengths in Molecules
     and Crystals' (O'Keeffe & Brese, 1991). The estimate is based on two
-    experimental parameters: r and c. The value for r  is based off radius,
+    experimental parameters: r and c. The value for r is based off radius,
     while c is (usually) the Allred-Rochow electronegativity. Values used
     are *not* generated from pymatgen, and are found in
     'okeeffe_params.json'.

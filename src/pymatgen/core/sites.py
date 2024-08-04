@@ -46,7 +46,7 @@ class Site(collections.abc.Hashable, MSONable):
         Args:
             species: Species on the site. Can be:
                 i.  A Composition-type object (preferred)
-                ii. An  element / species specified either as a string
+                ii. An element / species specified either as a string
                     symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
                     e.g. 3, 56, or actual Element or Species objects.
                 iii.Dict of elements/species and occupancies, e.g.
@@ -305,7 +305,7 @@ class PeriodicSite(Site, MSONable):
         Args:
             species: Species on the site. Can be:
                 i.  A Composition-type object (preferred)
-                ii. An  element / species specified either as a string
+                ii. An element / species specified either as a string
                     symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
                     e.g. 3, 56, or actual Element or Species objects.
                 iii.Dict of elements/species and occupancies, e.g.

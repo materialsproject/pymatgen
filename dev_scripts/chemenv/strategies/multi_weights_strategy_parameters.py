@@ -51,7 +51,9 @@ class CoordinationEnvironmentMorphing:
         self.abstract_geometry = AbstractGeometry.from_cg(self.coordination_geometry)
 
     @classmethod
-    def simple_expansion(cls, initial_environment_symbol, expected_final_environment_symbol, neighbors_indices):
+    def simple_expansion(
+        cls, initial_environment_symbol, expected_final_environment_symbol, neighbors_indices
+    ) -> CoordinationEnvironmentMorphing:
         """Simple expansion of a coordination environment.
 
         Args:

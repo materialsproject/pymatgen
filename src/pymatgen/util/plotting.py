@@ -712,7 +712,7 @@ def add_fig_kwargs(func):
         tight_layout      True to call fig.tight_layout (default: False)
         ax_grid           True (False) to add (remove) grid from all axes in fig.
                           Default: None i.e. fig is left unchanged.
-        ax_annotate       Add labels to  subplots e.g. (a), (b).
+        ax_annotate       Add labels to subplots e.g. (a), (b).
                           Default: False
         fig_close         Close figure. Default: False.
         ================  ====================================================

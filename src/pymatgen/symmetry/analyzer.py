@@ -1346,7 +1346,7 @@ class PointGroupAnalyzer:
             symm_op (SymmOp): Symmetry operation to test.
 
         Returns:
-            bool: Whether SymmOp is valid for Molecule.
+            bool: True if SymmOp is valid for Molecule.
         """
         coords = self.centered_mol.cart_coords
         for site in self.centered_mol:
@@ -1674,7 +1674,7 @@ class SpacegroupOperations(list):
                 are symmetrically similar.
 
         Returns:
-            bool: Whether the two sets of sites are symmetrically equivalent.
+            bool: True if the two sets of sites are symmetrically equivalent.
         """
 
         def in_sites(site):
