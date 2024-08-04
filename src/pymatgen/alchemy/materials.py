@@ -5,9 +5,9 @@ series of transformations.
 
 from __future__ import annotations
 
-import datetime
 import json
 import re
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from warnings import warn
 
@@ -302,7 +302,7 @@ class TransformedStructure(MSONable):
             source = "uploaded cif"
         source_info = {
             "source": source,
-            "datetime": str(datetime.datetime.now(tz=datetime.timezone.utc)),
+            "datetime": str(datetime.now(tz=timezone.utc)),
             "original_file": raw_str,
             "cif_data": cif_dict[cif_keys[0]],
         }
@@ -330,7 +330,7 @@ class TransformedStructure(MSONable):
         struct = poscar.structure
         source_info = {
             "source": "POSCAR",
-            "datetime": str(datetime.datetime.now(tz=datetime.timezone.utc)),
+            "datetime": str(datetime.now(tz=timezone.utc)),
             "original_file": raw_str,
         }
         return cls(struct, transformations, history=[source_info])
@@ -341,7 +341,7 @@ class TransformedStructure(MSONable):
         dct["@module"] = type(self).__module__
         dct["@class"] = type(self).__name__
         dct["history"] = jsanitize(self.history)
-        dct["last_modified"] = str(datetime.datetime.now(datetime.timezone.utc))
+        dct["last_modified"] = str(datetime.now(timezone.utc))
         dct["other_parameters"] = jsanitize(self.other_parameters)
         return dct
 
