@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 
+from pymatgen.core import Structure
 from pymatgen.io.aims.sets.core import StaticSetGenerator
 from pymatgen.util.testing.aims import O2, Si, comp_system
 
@@ -22,6 +23,11 @@ def test_static_si(tmp_path):
 def test_static_si_no_kgrid(tmp_path):
     parameters = {"species_dir": "light"}
     Si_supercell = Si.make_supercell(np.array([[1, 0, 0], [0, 2, 0], [0, 0, 3]]), in_place=False)
+    Si_supercell = Structure(
+        lattice=Si_supercell.lattice,
+        species=Si_supercell.species,
+        coords=np.round(Si_supercell.frac_coords, 15),
+    )
     comp_system(Si_supercell, parameters, "static-no-kgrid-si", tmp_path, ref_path, StaticSetGenerator)
 
 
