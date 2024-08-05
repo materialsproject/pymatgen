@@ -63,7 +63,7 @@ class PackmolSet(InputSet):
             )
         try:
             os.chdir(path)
-            p = subprocess.run(  # noqa: S602
+            proc = subprocess.run(  # noqa: S602
                 f"packmol < {self.inputfile!r}",
                 check=True,
                 shell=True,
@@ -73,19 +73,19 @@ class PackmolSet(InputSet):
             # this workaround is needed because packmol can fail to find
             # a solution but still return a zero exit code
             # see https://github.com/m3g/packmol/issues/28
-            if "ERROR" in p.stdout.decode():
-                if "Could not open file." in p.stdout.decode():
+            if "ERROR" in proc.stdout.decode():
+                if "Could not open file." in proc.stdout.decode():
                     raise ValueError(
                         "Your packmol might be too old to handle paths with spaces."
                         "Please try again with a newer version or use paths without spaces."
                     )
-                msg = p.stdout.decode().split("ERROR")[-1]
+                msg = proc.stdout.decode().split("ERROR")[-1]
                 raise ValueError(f"Packmol failed with return code 0 and stdout: {msg}")
         except subprocess.CalledProcessError as exc:
             raise ValueError(f"Packmol failed with error code {exc.returncode} and stderr: {exc.stderr}") from exc
         else:
             with open(Path(path, self.stdoutfile), mode="w") as out:
-                out.write(p.stdout.decode())
+                out.write(proc.stdout.decode())
         finally:
             os.chdir(wd)
 

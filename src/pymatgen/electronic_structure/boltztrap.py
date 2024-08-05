@@ -425,13 +425,13 @@ class BoltztrapRunner(MSONable):
         Args:
             output_file: Filename
         """
-        setgap = 1 if self.scissor > 0.0001 else 0
+        set_gap = 1 if self.scissor > 0.0001 else 0
 
         if self.run_type in ("BOLTZ", "DOS"):
             with open(output_file, mode="w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
-                    f"1 0 {setgap} {Energy(self.scissor, 'eV').to('Ry')}         "
+                    f"1 0 {set_gap} {Energy(self.scissor, 'eV').to('Ry')}         "
                     "# iskip (not presently used) idebug setgap shiftgap \n"
                 )
                 fout.write(
@@ -480,7 +480,7 @@ class BoltztrapRunner(MSONable):
             with open(output_file, mode="w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
-                    f"1 0 {setgap} {Energy(self.scissor, 'eV').to('Ry')}         # iskip (not presently used) "
+                    f"1 0 {set_gap} {Energy(self.scissor, 'eV').to('Ry')}         # iskip (not presently used) "
                     "idebug setgap shiftgap \n"
                 )
                 fout.write(
