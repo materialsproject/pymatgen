@@ -133,7 +133,6 @@ class VoltageProfilePlotter:
             **kwargs: passed to plotly.graph_objects.Layout
         """
         font_dict = font_dict or {"family": "Arial", "size": 24, "color": "#000000"}
-        hover_temp = "Voltage : %{y:.2f} V"
 
         data = []
         working_ion_symbols = set()
@@ -150,6 +149,8 @@ class VoltageProfilePlotter:
                     plot_y.append(None)
                 plot_x.append(x[i])
                 plot_y.append(y[i])
+            xlabel = self._choose_best_x_label(formula=formula, work_ion_symbol=working_ion_symbols)
+            hover_temp = "Voltage (V): %{y:.2f}<br>" + xlabel + ": %{x:.3f}"
             data.append(go.Scatter(x=plot_x, y=plot_y, name=key, hovertemplate=hover_temp))
 
         fig = go.Figure(
@@ -159,7 +160,7 @@ class VoltageProfilePlotter:
                 width=width,
                 height=height,
                 font=font_dict,
-                xaxis={"title": self._choose_best_x_label(formula=formula, work_ion_symbol=working_ion_symbols)},
+                xaxis={"title": xlabel},
                 yaxis={"title": "Voltage (V)"},
                 **kwargs,
             ),
