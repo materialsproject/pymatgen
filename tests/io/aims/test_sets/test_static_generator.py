@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
+
 from pymatgen.io.aims.sets.core import StaticSetGenerator
 from pymatgen.util.testing.aims import O2, Si, comp_system
 
@@ -19,7 +21,8 @@ def test_static_si(tmp_path):
 
 def test_static_si_no_kgrid(tmp_path):
     parameters = {"species_dir": "light"}
-    comp_system(Si, parameters, "static-no-kgrid-si", tmp_path, ref_path, StaticSetGenerator)
+    Si_supercell = Si.make_supercell(np.array([[1, 0, 0], [0, 2, 0], [0, 0, 3]]), in_place=False)
+    comp_system(Si_supercell, parameters, "static-no-kgrid-si", tmp_path, ref_path, StaticSetGenerator)
 
 
 def test_static_o2(tmp_path):
