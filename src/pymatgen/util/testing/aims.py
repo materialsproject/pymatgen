@@ -49,6 +49,7 @@ def compare_files(test_name: str, work_dir: Path, ref_dir: Path) -> None:
             ref_lines = [line.strip() for line in ref_file.readlines() if len(line.strip()) > 0 and line[0] != "#"]
 
         for test_line, ref_line in zip(test_lines, ref_lines):
+            print(f"\n{test_line}\n{ref_line}")
             if "output" in test_line and "band" in test_line:
                 assert check_band(test_line, ref_line)
             else:
