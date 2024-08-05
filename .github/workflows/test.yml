@@ -72,7 +72,7 @@ jobs:
         run: |
           micromamba install -n pmg -c conda-forge enumlib packmol bader openbabel openff-toolkit --yes
 
-      - name: Install pymatgen and dependencies
+      - name: Install pymatgen dependencies
         run: |
           micromamba activate pmg
 
@@ -82,9 +82,17 @@ jobs:
 
           uv pip install cython setuptools wheel
 
+      - name: Install BoltzTraP2 on Ubuntu
+        if: matrix.config.os == 'ubuntu-latest'
+        run: |
+          micromamba activate pmg
           # TODO: uv cannot install BoltzTraP2 (#3786),
           # suggesting no NumPy when there is
           pip install BoltzTraP2
+
+      - name: Install pymatgen
+        run: |
+          micromamba activate pmg
 
           uv pip install --editable '.[${{ matrix.config.extras }}]' --resolution=${{ matrix.config.resolution }}
 
