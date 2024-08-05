@@ -255,7 +255,7 @@ class SpaceGroup(SymmetryGroup):
                 notation is a LaTeX-like string, with screw axes being
                 represented by an underscore. For example, "P6_3/mmc".
                 Alternative settings can be accessed by adding a ":identifier".
-                For example, the hexagonal setting  for rhombohedral cells can be
+                For example, the hexagonal setting for rhombohedral cells can be
                 accessed by adding a ":H", e.g. "R-3m:H". To find out all
                 possible settings for a spacegroup, use the get_settings()
                 classmethod. Alternative origin choices can be indicated by a

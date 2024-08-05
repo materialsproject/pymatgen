@@ -39,7 +39,7 @@ class Nwchem2Fiesta(MSONable):
 
     If nwchem.nw is the input, nwchem.out the output, and structure.movecs the
     "movecs" file, the syntax to run NWCHEM2FIESTA is: NWCHEM2FIESTA
-    nwchem.nw  nwchem.nwout  structure.movecs > log_n2f
+    nwchem.nw nwchem.nwout structure.movecs > log_n2f
     """
 
     def __init__(self, folder, filename="nwchem", log_file="log_n2f"):

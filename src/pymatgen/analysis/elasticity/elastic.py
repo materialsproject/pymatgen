@@ -55,9 +55,9 @@ class NthOrderElasticTensor(Tensor):
     def __new__(cls, input_array, check_rank=None, tol: float = 1e-4) -> Self:
         """
         Args:
-            input_array ():
-            check_rank ():
-            tol ():
+            input_array (np.ndarray): input array for tensor
+            check_rank (int): rank of tensor to check
+            tol (float): tolerance for initial symmetry test of tensor
         """
         obj = super().__new__(cls, input_array, check_rank=check_rank)
         if obj.rank % 2 != 0:
@@ -524,7 +524,7 @@ class ComplianceTensor(Tensor):
     def __new__(cls, s_array) -> Self:
         """
         Args:
-            s_array ():
+            s_array (np.ndarray): input array for tensor
         """
         vscale = np.ones((6, 6))
         vscale[3:] *= 2

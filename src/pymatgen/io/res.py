@@ -10,9 +10,9 @@ REM entries.
 
 from __future__ import annotations
 
-import datetime
 import re
 from dataclasses import dataclass
+from datetime import date, datetime, timezone
 from typing import TYPE_CHECKING
 
 from monty.io import zopen
@@ -24,7 +24,6 @@ from pymatgen.io.core import ParseError
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-    from datetime import date
     from pathlib import Path
     from typing import Any, Callable, Literal
 
@@ -421,9 +420,9 @@ class AirssProvider(ResProvider):
             raise ResParseError(f"Could not parse the date from {string=}.")
 
         day, month, year, *_ = match.groups()
-        month_num = datetime.datetime.strptime(month, "%b").replace(tzinfo=datetime.timezone.utc).month
+        month_num = datetime.strptime(month, "%b").replace(tzinfo=timezone.utc).month
 
-        return datetime.date(int(year), month_num, int(day))
+        return date(int(year), month_num, int(day))
 
     def _raise_or_none(self, err: ResParseError) -> None:
         if self.parse_rems != "strict":

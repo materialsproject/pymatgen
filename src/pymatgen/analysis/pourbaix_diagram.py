@@ -85,10 +85,9 @@ class PourbaixEntry(MSONable, Stringify):
     def __init__(self, entry, entry_id=None, concentration=1e-6):
         """
         Args:
-            entry (ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry): An
-                entry object
-            entry_id ():
-            concentration ():
+            entry (ComputedEntry | ComputedStructureEntry | PDEntry | IonEntry): An entry object
+            entry_id (str): A string id for the entry
+            concentration (float): Concentration of the entry in M. Defaults to 1e-6.
         """
         self.entry = entry
         if isinstance(entry, IonEntry):
@@ -102,7 +101,7 @@ class PourbaixEntry(MSONable, Stringify):
         self.uncorrected_energy = entry.energy
         if entry_id is not None:
             self.entry_id = entry_id
-        elif hasattr(entry, "entry_id") and entry.entry_id:
+        elif getattr(entry, "entry_id", None):
             self.entry_id = entry.entry_id
         else:
             self.entry_id = None

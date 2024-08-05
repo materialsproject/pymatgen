@@ -32,7 +32,7 @@ class Cssr:
     def __init__(self, structure: Structure):
         """
         Args:
-            structure (Structure/IStructure): A structure to create the Cssr object.
+            structure (Structure | IStructure): A structure to create the Cssr object.
         """
         if not structure.is_ordered:
             raise ValueError("Cssr file can only be constructed from ordered structure")

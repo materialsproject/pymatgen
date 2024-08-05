@@ -111,7 +111,7 @@ class InterfacialReactivity(MSONable):
 
         # Factor is the compositional ratio between composition self.c1 and
         # processed composition self.comp1. For example, the factor for
-        # Composition('SiO2') and  Composition('O') is 2.0. This factor will be used
+        # Composition('SiO2') and Composition('O') is 2.0. This factor will be used
         # to convert mixing ratio in self.comp1 - self.comp2 tie line to that in
         # self.c1 - self.c2 tie line.
         self.factor1 = 1.0
