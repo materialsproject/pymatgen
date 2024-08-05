@@ -95,7 +95,8 @@ ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8"]
 docs = ["sphinx", "sphinx_rtd_theme"]
 optional = [
     "ase>=3.23.0",
-    "BoltzTraP2>=24.7.2 ; platform_system != 'Windows'",
+    # TODO: uv cannot install BoltzTraP2
+    # "BoltzTraP2>=24.7.2 ; platform_system != 'Windows'",
     "chemview>=0.6",
     "chgnet>=0.3.8",
     "f90nml>=1.1.2",
@@ -104,7 +105,7 @@ optional = [
     "jarvis-tools>=2020.7.14",
     "matgl>=1.1.1",
     # TODO: track https://github.com/matplotlib/matplotlib/issues/28551
-    "matplotlib>=3.8,<3.9.1",
+    "matplotlib>=3.8,!=3.9.1",
     "netCDF4>=1.6.5",
     "phonopy>=2.23",
     "seekpath>=2.0.1",
