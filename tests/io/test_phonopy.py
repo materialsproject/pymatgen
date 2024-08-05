@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 from unittest import TestCase
 
@@ -167,6 +168,7 @@ class TestPhonopyFromForceConstants(TestCase):
         self.supercell_matrix = np.eye(3) * 2
         self.force_constants = parse_FORCE_CONSTANTS(fc_file)
 
+    @pytest.mark.skipif(sys.platform == "win32" and int(np.__version__[0]) >= 2, reason="See https://github.com/conda-forge/phonopy-feedstock/pull/158#issuecomment-2227506701")
     def test_get_phonon_dos_from_fc(self):
         dos = get_phonon_dos_from_fc(
             self.structure,

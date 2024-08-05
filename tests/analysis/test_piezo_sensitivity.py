@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pickle
+import sys
 
 import numpy as np
 import pytest
@@ -257,6 +258,7 @@ class TestPiezoSensitivity(PymatgenTest):
         piezo = get_piezo(self.BEC, self.IST, self.FCM)
         assert_allclose(piezo, self.piezo, atol=1e-5)
 
+    @pytest.mark.skipif(sys.platform == "win32" and int(np.__version__[0]) >= 2, reason="See https://github.com/conda-forge/phonopy-feedstock/pull/158#issuecomment-2227506701")
     def test_rand_piezo(self):
         pytest.importorskip("phonopy")
         rand_BEC, rand_IST, rand_FCM, _piezo = rand_piezo(
