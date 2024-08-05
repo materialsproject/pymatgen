@@ -43,7 +43,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
     def __init__(self, species, strict_compare=False, AND=True, exclude=False):
         """
         Args:
-            species ([Species/Element]): list of species to look for
+            species (list[SpeciesLike]): species to look for
             AND: whether all species must be present to pass (or fail) filter.
             strict_compare: if true, compares objects by specie or element
                 object if false, compares atomic number
@@ -157,7 +157,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
             dct (dict): Dict representation.
 
         Returns:
-            Filter
+            SpecieProximityFilter
         """
         return cls(**dct["init_args"])
 

@@ -426,7 +426,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
     these will be treated separately if the difference is above a threshold
     tolerance. currently this is .1
 
-    For example, if a fraction of .25 Li is on sites 0, 1, 2, 3  and .5 on sites
+    For example, if a fraction of .25 Li is on sites 0, 1, 2, 3 and .5 on sites
     4, 5, 6, 7 then 1 site from [0, 1, 2, 3] will be filled and 2 sites from [4, 5, 6, 7]
     will be filled, even though a lower energy combination might be found by
     putting all lithium in sites [4, 5, 6, 7].
@@ -457,7 +457,7 @@ class OrderDisorderedStructureTransformation(AbstractTransformation):
         """For this transformation, the apply_transformation method will return
         only the ordered structure with the lowest Ewald energy, to be
         consistent with the method signature of the other transformations.
-        However, all structures are stored in the  all_structures attribute in
+        However, all structures are stored in the all_structures attribute in
         the transformation object for easy access.
 
         Args:

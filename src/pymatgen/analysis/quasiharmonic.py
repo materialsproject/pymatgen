@@ -146,7 +146,7 @@ class QuasiHarmonicDebyeApprox:
     def optimizer(self, temperature):
         """Evaluate G(V, T, P) at the given temperature(and pressure) and minimize it w.r.t. V.
 
-        1. Compute the  vibrational Helmholtz free energy, A_vib.
+        1. Compute the vibrational Helmholtz free energy, A_vib.
         2. Compute the Gibbs free energy as a function of volume, temperature
             and pressure, G(V,T,P).
         3. Perform an equation of state fit to get the functional form of
@@ -248,7 +248,7 @@ class QuasiHarmonicDebyeApprox:
     @staticmethod
     def debye_integral(y):
         """
-        Debye integral. Eq(5) in  doi.org/10.1016/j.comphy.2003.12.001.
+        Debye integral. Eq(5) in doi.org/10.1016/j.comphy.2003.12.001.
 
         Args:
             y (float): Debye temperature / T, upper limit

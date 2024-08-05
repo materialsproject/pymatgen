@@ -375,7 +375,7 @@ class Atoms(MSONable):
         """
         Args:
             struct (Structure): input structure
-            absorbing_atom (str/int): Symbol for absorbing atom or site index
+            absorbing_atom (str | int): Symbol for absorbing atom or site index
             radius (float): radius of the atom cluster in Angstroms.
         """
         if not struct.is_ordered:
@@ -778,7 +778,7 @@ class Potential(MSONable):
         """
         Args:
             struct (Structure): Structure object.
-            absorbing_atom (str/int): Absorbing atom symbol or site index.
+            absorbing_atom (str | int): Absorbing atom symbol or site index.
         """
         if not struct.is_ordered:
             raise ValueError("Structure with partial occupancies cannot be converted into atomic coordinates!")
@@ -984,7 +984,7 @@ def get_absorbing_atom_symbol_index(absorbing_atom, structure):
     """Get the absorbing atom symbol and site index in the given structure.
 
     Args:
-        absorbing_atom (str/int): symbol or site index
+        absorbing_atom (str | int): symbol or site index
         structure (Structure)
 
     Returns:

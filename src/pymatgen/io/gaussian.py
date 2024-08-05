@@ -1003,7 +1003,7 @@ class GaussianOutput:
             structure: structure in the output file
         """
         # read Hessian matrix under "Force constants in Cartesian coordinates"
-        # Hessian matrix is in the input  orientation framework
+        # Hessian matrix is in the input orientation framework
         # WARNING : need #P in the route line
 
         ndf = 3 * len(structure)

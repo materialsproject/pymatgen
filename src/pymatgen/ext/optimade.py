@@ -500,7 +500,7 @@ class OptimadeRester:
         It does not raise exceptions but will instead _logger.warning and provide
         an empty dictionary in the case of invalid data.
 
-        In future, when the specification  is sufficiently well adopted,
+        In future, when the specification is sufficiently well adopted,
         we might be more strict here.
 
         Args:

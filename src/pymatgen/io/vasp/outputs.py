@@ -281,7 +281,7 @@ class Vasprun(MSONable):
                 eigenvalues and magnetization. Defaults to False. Set to True to obtain
                 projected eigenvalues and magnetization. **Note that this can take an
                 extreme amount of time and memory.** So use this wisely.
-            parse_potcar_file (PathLike/bool): Whether to parse the potcar file to read
+            parse_potcar_file (bool | PathLike): Whether to parse the potcar file to read
                 the potcar hashes for the potcar_spec attribute. Defaults to True,
                 where no hashes will be determined and the potcar_spec dictionaries
                 will read {"symbol": ElSymbol, "hash": None}. By Default, looks in

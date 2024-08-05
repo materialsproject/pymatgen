@@ -853,7 +853,7 @@ class PhaseDiagram(MSONable):
             **kwargs: Passed to get_decomp_and_e_above_hull.
 
         Returns:
-            tuple[decomp, energy]: The decomposition  is given as a dict of {PDEntry, amount}
+            tuple[decomp, energy]: The decomposition is given as a dict of {PDEntry, amount}
                 for all entries in the decomp reaction where amount is the amount of the
                 fractional composition. The phase separation energy is given per atom.
         """
@@ -1547,7 +1547,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
             Note that this does not mean that all these entries are actually used in
             the phase diagram. For example, this includes the positive formation energy
             entries that are filtered out before Phase Diagram construction.
-        min_entries (list[PDEntry]): List of the  lowest energy entries for each composition
+        min_entries (list[PDEntry]): List of the lowest energy entries for each composition
             in the data provided for Phase Diagram construction.
         el_refs (list[PDEntry]): List of elemental references for the phase diagrams.
             These are entries corresponding to the lowest energy element entries for

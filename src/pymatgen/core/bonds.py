@@ -103,7 +103,7 @@ class CovalentBond:
                 bond length. If None, a ValueError will be thrown.
 
         Returns:
-            bool: whether two sites are bonded.
+            bool: True if two sites are bonded.
         """
         sp1 = next(iter(site1.species))
         sp2 = next(iter(site2.species))
