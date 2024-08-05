@@ -75,9 +75,6 @@ jobs:
       - name: Install pymatgen and dependencies
         run: |
           micromamba activate pmg
-          # TODO remove temporary fix. added since uv install torch is flaky.
-          # track https://github.com/astral-sh/uv/issues/1921 for resolution
-          pip install torch --upgrade
 
           uv pip install numpy cython
           uv pip install --editable '.[${{ matrix.config.extras }}]' --resolution=${{ matrix.config.resolution }}
