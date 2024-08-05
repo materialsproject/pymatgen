@@ -118,10 +118,10 @@ class CostDBElements(CostDBCSV):
 class CostAnalyzer:
     """Given a CostDB, figures out the minimum cost solutions via convex hull."""
 
-    def __init__(self, costdb):
+    def __init__(self, costdb: CostDB) -> None:
         """
         Args:
-            costdb (): Cost database.
+            costdb (CostDB): Cost database to use.
         """
         self.costdb = costdb
 

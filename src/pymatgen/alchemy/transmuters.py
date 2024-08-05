@@ -103,7 +103,7 @@ class StandardTransmuter:
         for ts in self.transformed_structures:
             ts.redo_next_change()
 
-    def append_transformation(self, transformation, extend_collection=False, clear_redo=True):
+    def append_transformation(self, transformation, extend_collection=False, clear_redo=True) -> list[bool]:
         """Append a transformation to all TransformedStructures.
 
         Args:
@@ -117,8 +117,8 @@ class StandardTransmuter:
                 redo, the redo list should not be cleared to allow multiple redos.
 
         Returns:
-            list[bool]: corresponding to initial transformed structures each boolean
-                describes whether the transformation altered the structure
+            list[bool]: Each list item is True if the transformation altered the structure
+                with the corresponding index.
         """
         if self.ncores and transformation.use_multiprocessing:
             with Pool(self.ncores) as pool:
@@ -135,6 +135,9 @@ class StandardTransmuter:
                 if new is not None:
                     new_structures += new
             self.transformed_structures += new_structures
+
+        # len(ts) > 1 checks if the structure has history
+        return [len(ts) > 1 for ts in self.transformed_structures]
 
     def extend_transformations(self, transformations):
         """Extend a sequence of transformations to the TransformedStructure.

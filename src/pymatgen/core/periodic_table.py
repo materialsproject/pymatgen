@@ -1609,9 +1609,8 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
     will be attempted.
 
     Args:
-        obj (Element/Species/str/int): An arbitrary object. Supported objects
-            are actual Element/Species objects, integers (representing atomic
-            numbers) or strings (element symbols or species strings).
+        obj (SpeciesLike): An arbitrary object. Supported objects are actual Element/Species,
+            integers (representing atomic numbers) or strings (element symbols or species strings).
 
     Raises:
         ValueError: if obj cannot be converted into an Element or Species.

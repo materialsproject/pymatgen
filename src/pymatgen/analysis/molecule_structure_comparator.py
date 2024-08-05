@@ -194,7 +194,7 @@ class MoleculeStructureComparator(MSONable):
     def get_13_bonds(priority_bonds):
         """
         Args:
-            priority_bonds ():
+            priority_bonds (list[tuple]): 12 bonds
 
         Returns:
             tuple: 13 bonds

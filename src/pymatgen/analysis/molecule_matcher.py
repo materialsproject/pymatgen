@@ -589,7 +589,7 @@ class MoleculeMatcher(MSONable):
             mol2: Second molecule. OpenBabel OBMol or pymatgen Molecule object
 
         Returns:
-            bool: Whether two molecules are the same.
+            bool: True if two molecules are the same.
         """
         return self.get_rmsd(mol1, mol2) < self._tolerance
 
@@ -598,7 +598,7 @@ class MoleculeMatcher(MSONable):
 
         Returns:
             RMSD if topology of the two molecules are the same
-            Infinite if  the topology is different
+            Infinite if the topology is different
         """
         label1, label2 = self._mapper.uniform_labels(mol1, mol2)
         if label1 is None or label2 is None:

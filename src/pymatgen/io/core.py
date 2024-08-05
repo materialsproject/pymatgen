@@ -177,8 +177,8 @@ class InputSet(MSONable, MutableMapping):
     def __delitem__(self, key: PathLike) -> None:
         del self.inputs[key]
 
-    # enable dict merge
     def __or__(self, other: dict | Self) -> Self:
+        # enable dict merge operator | for InputSet
         if isinstance(other, dict):
             other = type(self)(other)
         if not isinstance(other, type(self)):

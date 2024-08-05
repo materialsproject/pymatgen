@@ -254,7 +254,7 @@ class PhononBandStructure(MSONable):
         """Get the breaking of the acoustic sum rule for the three acoustic modes,
         if Gamma is present. None otherwise.
         If eigendisplacements are available they are used to determine the acoustic
-        modes: selects the bands corresponding  to the eigendisplacements that
+        modes: selects the bands corresponding to the eigendisplacements that
         represent to a translation within tol_eigendisplacements. If these are not
         identified or eigendisplacements are missing the first 3 modes will be used
         (indices [:3]).

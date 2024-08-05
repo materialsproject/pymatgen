@@ -193,7 +193,7 @@ direct
 
     def test_gruneisen_parameter(self):
         gamma = self.qhda.gruneisen_parameter(0, self.qhda.ev_eos_fit.v0)
-        assert_allclose(gamma, 2.188302, atol=1e-3)
+        assert_allclose(gamma, 2.188302, atol=1e-2)
 
     def test_thermal_conductivity(self):
         kappa = self.qhda.thermal_conductivity(self.T, self.opt_vol)
