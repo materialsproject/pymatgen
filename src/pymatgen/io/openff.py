@@ -6,6 +6,7 @@ import warnings
 from pathlib import Path
 
 import numpy as np
+
 import pymatgen
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN, metal_edge_extender

@@ -13,9 +13,10 @@ from copy import deepcopy
 from typing import TYPE_CHECKING
 
 import numpy as np
+from scipy.optimize import leastsq, minimize
+
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
-from scipy.optimize import leastsq, minimize
 
 if TYPE_CHECKING:
     from typing import ClassVar
@@ -37,8 +38,8 @@ class EOSBase(ABC):
     def __init__(self, volumes, energies):
         """
         Args:
-            volumes (list/numpy.array): volumes in Ang^3
-            energies (list/numpy.array): energy in eV.
+            volumes (Sequence[float]): in Ang^3.
+            energies (Sequence[float]): in eV.
         """
         self.volumes = np.array(volumes)
         self.energies = np.array(energies)
@@ -560,8 +561,8 @@ class EOS:
         """Fit energies as function of volumes.
 
         Args:
-            volumes (list/np.array)
-            energies (list/np.array)
+            volumes (Sequence[float]): in Ang^3
+            energies (Sequence[float]): in eV
 
         Returns:
             EOSBase: EOSBase object

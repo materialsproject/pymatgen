@@ -5,16 +5,17 @@ from __future__ import annotations
 import bisect
 import math
 from copy import copy, deepcopy
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from warnings import warn
 
 import numpy as np
 from monty.json import MSONable
-from pymatgen.core.structure import Structure
-from pymatgen.util.due import Doi, due
 from scipy import constants
 from scipy.special import comb, erfc
+
+from pymatgen.core.structure import Structure
+from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from typing import Any
@@ -534,7 +535,7 @@ class EwaldMinimizer:
         # sets this to true it breaks the recursion and stops the search.
         self._finished = False
 
-        self._start_time = datetime.utcnow()
+        self._start_time = datetime.now(tz=timezone.utc)
 
         self.minimize_matrix()
 
@@ -604,7 +605,7 @@ class EwaldMinimizer:
         interaction_correction = np.sum(step3)
 
         if self._algo == self.ALGO_TIME_LIMIT:
-            elapsed_time = datetime.utcnow() - self._start_time
+            elapsed_time = datetime.now(tz=timezone.utc) - self._start_time
             speedup_parameter = elapsed_time.total_seconds() / 1800
             avg_int = np.sum(interaction_matrix, axis=None)
             avg_frac = np.mean(np.outer(1 - fractions, 1 - fractions))

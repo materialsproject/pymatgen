@@ -10,6 +10,7 @@ from typing import Any
 
 import numpy as np
 from monty.io import zopen
+
 from pymatgen.core import Molecule, Structure
 
 

@@ -22,12 +22,14 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.dev import requires
 from monty.json import MSONable
-from pymatgen.core.structure import Molecule
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial.distance import cdist
 
+from pymatgen.core.structure import Molecule
+
 try:
     from openbabel import openbabel
+
     from pymatgen.io.babel import BabelMolAdaptor
 except ImportError:
     openbabel = BabelMolAdaptor = None  # type: ignore[misc]
@@ -494,7 +496,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             mol: The molecule. OpenBabel OBMol object.
 
         Returns:
-            Boolean value.
+            bool
         """
         if mol.NumAtoms() < 3:
             return True
@@ -587,7 +589,7 @@ class MoleculeMatcher(MSONable):
             mol2: Second molecule. OpenBabel OBMol or pymatgen Molecule object
 
         Returns:
-            A boolean value indicates whether two molecules are the same.
+            bool: True if two molecules are the same.
         """
         return self.get_rmsd(mol1, mol2) < self._tolerance
 
@@ -596,7 +598,7 @@ class MoleculeMatcher(MSONable):
 
         Returns:
             RMSD if topology of the two molecules are the same
-            Infinite if  the topology is different
+            Infinite if the topology is different
         """
         label1, label2 = self._mapper.uniform_labels(mol1, mol2)
         if label1 is None or label2 is None:
