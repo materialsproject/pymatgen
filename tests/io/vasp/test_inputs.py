@@ -774,6 +774,7 @@ SIGMA = 0.1"""
                     "AMIN": 0.01,
                     "ICHARG": 1,
                     "MAGMOM": [1, 2, 4, 5],
+                    "LREAL": True,  # special case: Union type
                     "NBAND": 250,  # typo in tag
                     "METAGGA": "SCAM",  # typo in value
                     "EDIFF": 5 + 1j,  # value should be a float
@@ -1100,8 +1101,8 @@ class TestPotcarSingle(TestCase):
         assert self.psingle_Fe.nelectrons == 8
 
     def test_electron_config(self):
-        assert self.psingle_Mn_pv.electron_configuration == [(4, "s", 2), (3, "d", 5), (3, "p", 6)]
-        assert self.psingle_Fe.electron_configuration == [(4, "s", 2), (3, "d", 6)]
+        assert self.psingle_Mn_pv.electron_configuration == [(3, "d", 5), (4, "s", 2), (3, "p", 6)]
+        assert self.psingle_Fe.electron_configuration == [(3, "d", 6), (4, "s", 2)]
 
     def test_attributes(self):
         for key, val in self.Mn_pv_attrs.items():

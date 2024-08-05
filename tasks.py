@@ -1,19 +1,20 @@
 """
 Pyinvoke tasks.py file for automating releases and admin stuff.
 
-To cut a new pymatgen release, use `invoke update-changelog` followed by `invoke release`.
+To cut a new pymatgen release:
 
-Author: Shyue Ping Ong
+    invoke update-changelog
+    invoke release
 """
 
 from __future__ import annotations
 
-import datetime
 import json
 import os
 import re
 import subprocess
 import webbrowser
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 import requests
@@ -38,7 +39,7 @@ def make_doc(ctx: Context) -> None:
         ctx.run("touch apidoc/index.rst", warn=True)
         ctx.run("rm pymatgen.*.rst", warn=True)
         # ctx.run("rm pymatgen.*.md", warn=True)
-        ctx.run("sphinx-apidoc --implicit-namespaces -M -d 7 -o apidoc -f ../pymatgen ../**/tests/*")
+        ctx.run("sphinx-apidoc --implicit-namespaces -M -d 7 -o apidoc -f ../src/pymatgen ../**/tests/*")
 
         # Note: we use HTML building for the API docs to preserve search functionality.
         ctx.run("sphinx-build -b html apidoc html")  # HTML building.
@@ -89,12 +90,21 @@ def publish(ctx: Context) -> None:
 
 @task
 def set_ver(ctx: Context, version: str):
-    with open("setup.py", encoding="utf-8") as file:
-        contents = file.read()
-        contents = re.sub(r"version=([^,]+),", f"version={version!r},", contents)
+    """
+    Set version in pyproject.toml file.
 
-    with open("setup.py", mode="w", encoding="utf-8") as file:
-        file.write(contents)
+    Args:
+        ctx (Context): The context.
+        version (str): An input version.
+    """
+    with open("pyproject.toml") as file:
+        lines = [re.sub(r"^version = \"([^,]+)\"", f'version = "{version}"', line.rstrip()) for line in file]
+
+    with open("pyproject.toml", "w") as file:
+        file.write("\n".join(lines) + "\n")
+
+    ctx.run("ruff check --fix src")
+    ctx.run("ruff format pyproject.toml")
 
 
 @task
@@ -103,6 +113,7 @@ def release_github(ctx: Context, version: str) -> None:
     Release to Github using Github API.
 
     Args:
+        ctx (Context): The context.
         version (str): The version.
     """
     with open("docs/CHANGES.md", encoding="utf-8") as file:
@@ -128,36 +139,6 @@ def release_github(ctx: Context, version: str) -> None:
     print(response.text)
 
 
-def post_discourse(version: str) -> None:
-    """
-    Post release announcement to http://discuss.matsci.org/c/pymatgen.
-
-    Args:
-        version (str): The version.
-    """
-    with open("CHANGES.rst", encoding="utf-8") as file:
-        contents = file.read()
-    tokens = re.split(r"\-+", contents)
-    desc = tokens[1].strip()
-    tokens = desc.split("\n")
-    desc = "\n".join(tokens[:-1]).strip()
-    raw = f"v{version}\n\n{desc}"
-    payload = {
-        "topic_id": 36,
-        "raw": raw,
-    }
-    response = requests.post(
-        "https://discuss.matsci.org/c/pymatgen/posts.json",
-        data=payload,
-        params={
-            "api_username": os.environ["DISCOURSE_API_USERNAME"],
-            "api_key": os.environ["DISCOURSE_API_KEY"],
-        },
-        timeout=600,
-    )
-    print(response.text)
-
-
 @task
 def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = False) -> None:
     """Create a preliminary change log using the git logs.
@@ -169,7 +150,7 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
         dry_run (bool, optional): If True, the function will only print the changes without
             updating the actual change log file. Defaults to False.
     """
-    version = version or f"{datetime.datetime.now(tz=datetime.timezone.utc):%Y.%-m.%-d}"
+    version = version or f"{datetime.now(tz=timezone.utc):%Y.%-m.%-d}"
     output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{__version__}..HEAD"])
     lines = []
     ignored_commits = []
@@ -216,7 +197,7 @@ def release(ctx: Context, version: str | None = None, nodoc: bool = False) -> No
         version (str, optional): The version to release.
         nodoc (bool, optional): Whether to skip documentation generation.
     """
-    version = version or f"{datetime.datetime.now(tz=datetime.timezone.utc):%Y.%-m.%-d}"
+    version = version or f"{datetime.now(tz=timezone.utc):%Y.%-m.%-d}"
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx, version)
     if not nodoc:
@@ -237,6 +218,9 @@ def release(ctx: Context, version: str | None = None, nodoc: bool = False) -> No
 def open_doc(ctx: Context) -> None:
     """
     Open local documentation in web browser.
+
+    Args:
+        ctx (invoke.Context): The context object.
     """
     pth = os.path.abspath("docs/_build/html/index.html")
     webbrowser.open(f"file://{pth}")
