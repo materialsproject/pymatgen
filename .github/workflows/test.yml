@@ -70,7 +70,7 @@ jobs:
       - name: Install ubuntu-only conda dependencies
         if: matrix.config.os == 'ubuntu-latest'
         run: |
-          micromamba install -n pmg -c conda-forge enumlib packmol bader openbabel openff-toolkit --yes
+          micromamba install -n pmg -c conda-forge enumlib packmol bader openbabel openff-toolkit pygraphviz --yes
 
       - name: Install pymatgen dependencies
         run: |
@@ -82,10 +82,11 @@ jobs:
 
           uv pip install cython setuptools wheel
 
-      - name: Install BoltzTraP2 on Ubuntu
+      - name: Install optional Ubuntu dependencies
         if: matrix.config.os == 'ubuntu-latest'
         run: |
           micromamba activate pmg
+
           # TODO: uv cannot install BoltzTraP2 (#3786),
           # suggesting no NumPy when there is
           pip install BoltzTraP2
