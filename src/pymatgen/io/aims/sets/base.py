@@ -12,6 +12,7 @@ from warnings import warn
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder
+
 from pymatgen.core import Molecule, Structure
 from pymatgen.io.aims.inputs import AimsControlIn, AimsGeometryIn
 from pymatgen.io.aims.parsers import AimsParseError, read_aims_output
@@ -233,7 +234,7 @@ class AimsInputGenerator(InputGenerator):
             prev_dir (str or Path): The previous directory for the calculation
         """
         prev_structure: Structure | Molecule | None = None
-        prev_parameters = {}
+        prev_params = {}
         prev_results: dict[str, Any] = {}
 
         if prev_dir:
@@ -242,7 +243,7 @@ class AimsInputGenerator(InputGenerator):
             # jobflow_remote)
             split_prev_dir = str(prev_dir).split(":")[-1]
             with open(f"{split_prev_dir}/parameters.json") as param_file:
-                prev_parameters = json.load(param_file, cls=MontyDecoder)
+                prev_params = json.load(param_file, cls=MontyDecoder)
 
             try:
                 aims_output: Sequence[Structure | Molecule] = read_aims_output(
@@ -255,7 +256,7 @@ class AimsInputGenerator(InputGenerator):
             except (IndexError, AimsParseError):
                 pass
 
-        return prev_structure, prev_parameters, prev_results
+        return prev_structure, prev_params, prev_results
 
     @staticmethod
     def _get_properties(
@@ -307,12 +308,9 @@ class AimsInputGenerator(InputGenerator):
         Returns:
             dict: The input object
         """
-        # Get the default configuration
-        # FHI-aims recommends using their defaults so bare-bones default parameters
-        parameters: dict[str, Any] = {
-            "xc": "pbe",
-            "relativistic": "atomic_zora scalar",
-        }
+        # Get the default config
+        # FHI-aims recommends using their defaults so bare-bones default params
+        params: dict[str, Any] = {"xc": "pbe", "relativistic": "atomic_zora scalar"}
 
         # Override default parameters with previous parameters
         prev_parameters = {} if prev_parameters is None else copy.deepcopy(prev_parameters)
@@ -326,25 +324,25 @@ class AimsInputGenerator(InputGenerator):
                 kpt_settings["density"] = density
 
         parameter_updates = self.get_parameter_updates(structure, prev_parameters)
-        parameters = recursive_update(parameters, parameter_updates)
+        params = recursive_update(params, parameter_updates)
 
         # Override default parameters with user_params
-        parameters = recursive_update(parameters, self.user_params)
-        if ("k_grid" in parameters) and ("density" in kpt_settings):
+        params = recursive_update(params, self.user_params)
+        if ("k_grid" in params) and ("density" in kpt_settings):
             warn(
                 "WARNING: the k_grid is set in user_params and in the kpt_settings,"
                 " using the one passed in user_params.",
                 stacklevel=1,
             )
-        elif isinstance(structure, Structure) and ("k_grid" not in parameters):
+        elif isinstance(structure, Structure) and ("k_grid" not in params):
             density = kpt_settings.get("density", 5.0)
             even = kpt_settings.get("even", True)
-            parameters["k_grid"] = self.d2k(structure, density, even)
-        elif isinstance(structure, Molecule) and "k_grid" in parameters:
+            params["k_grid"] = self.d2k(structure, density, even)
+        elif isinstance(structure, Molecule) and "k_grid" in params:
             warn("WARNING: removing unnecessary k_grid information", stacklevel=1)
-            del parameters["k_grid"]
+            del params["k_grid"]
 
-        return parameters
+        return params
 
     def get_parameter_updates(
         self,
@@ -365,7 +363,7 @@ class AimsInputGenerator(InputGenerator):
     def d2k(
         self,
         structure: Structure,
-        kptdensity: float | list[float] = 5.0,
+        kpt_density: float | list[float] = 5.0,
         even: bool = True,
     ) -> Iterable[float]:
         """Convert k-point density to Monkhorst-Pack grid size.
@@ -375,15 +373,15 @@ class AimsInputGenerator(InputGenerator):
         Args:
             structure (Structure): Contains unit cell and
                 information about boundary conditions.
-            kptdensity (float | list[float]): Required k-point
+            kpt_density (float | list[float]): Required k-point
                 density.  Default value is 5.0 point per Ang^-1.
             even (bool): Round up to even numbers.
 
         Returns:
             dict: Monkhorst-Pack grid size in all directions
         """
-        recipcell = structure.lattice.inv_matrix.transpose()
-        return self.d2k_recipcell(recipcell, structure.lattice.pbc, kptdensity, even)
+        recip_cell = structure.lattice.inv_matrix.transpose()
+        return self.d2k_recip_cell(recip_cell, structure.lattice.pbc, kpt_density, even)
 
     def k2d(self, structure: Structure, k_grid: np.ndarray[int]):
         """Generate the kpoint density in each direction from given k_grid.
@@ -397,43 +395,42 @@ class AimsInputGenerator(InputGenerator):
         Returns:
             dict: Density of kpoints in each direction. result.mean() computes average density
         """
-        recipcell = structure.lattice.inv_matrix.transpose()
-        densities = k_grid / (2 * np.pi * np.sqrt((recipcell**2).sum(axis=1)))
+        recip_cell = structure.lattice.inv_matrix.transpose()
+        densities = k_grid / (2 * np.pi * np.sqrt((recip_cell**2).sum(axis=1)))
         return np.array(densities)
 
     @staticmethod
-    def d2k_recipcell(
-        recipcell: np.ndarray,
+    def d2k_recip_cell(
+        recip_cell: np.ndarray,
         pbc: Sequence[bool],
-        kptdensity: float | Sequence[float] = 5.0,
+        kpt_density: float | Sequence[float] = 5.0,
         even: bool = True,
     ) -> Sequence[int]:
         """Convert k-point density to Monkhorst-Pack grid size.
 
         Args:
-            recipcell (Cell): The reciprocal cell
+            recip_cell (Cell): The reciprocal cell
             pbc (Sequence[bool]): If element of pbc is True
                 then system is periodic in that direction
-            kptdensity (float or list[floats]): Required k-point
+            kpt_density (float or list[floats]): Required k-point
                 density.  Default value is 3.5 point per Ang^-1.
         even(bool): Round up to even numbers.
 
         Returns:
             dict: Monkhorst-Pack grid size in all directions
         """
-        if not isinstance(kptdensity, Iterable):
-            kptdensity = 3 * [float(kptdensity)]
+        if not isinstance(kpt_density, Iterable):
+            kpt_density = 3 * [float(kpt_density)]
         kpts: list[int] = []
         for i in range(3):
             if pbc[i]:
-                k = 2 * np.pi * np.sqrt((recipcell[i] ** 2).sum()) * float(kptdensity[i])
+                k = 2 * np.pi * np.sqrt((recip_cell[i] ** 2).sum()) * float(kpt_density[i])
                 if even:
                     kpts.append(2 * int(np.ceil(k / 2)))
                 else:
                     kpts.append(int(np.ceil(k)))
             else:
                 kpts.append(1)
-            print(f"kpoiint: {i} {kpts[i]} {np.sqrt((recipcell[i] ** 2).sum())} {kptdensity[i]}")
         return kpts
 
 
