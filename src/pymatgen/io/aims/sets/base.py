@@ -5,7 +5,6 @@ from __future__ import annotations
 import copy
 import json
 import logging
-from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 from warnings import warn
@@ -19,7 +18,7 @@ from pymatgen.io.aims.parsers import AimsParseError, read_aims_output
 from pymatgen.io.core import InputFile, InputGenerator, InputSet
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterable, Sequence
 
     from pymatgen.util.typing import PathLike
 
@@ -363,7 +362,7 @@ class AimsInputGenerator(InputGenerator):
     def d2k(
         self,
         structure: Structure,
-        kpt_density: float | list[float] = 5.0,
+        kpt_density: float | tuple[float, float, float] = 5.0,
         even: bool = True,
     ) -> Iterable[float]:
         """Convert k-point density to Monkhorst-Pack grid size.
@@ -419,8 +418,8 @@ class AimsInputGenerator(InputGenerator):
         Returns:
             dict: Monkhorst-Pack grid size in all directions
         """
-        if not isinstance(kpt_density, Iterable):
-            kpt_density = 3 * [float(kpt_density)]
+        if isinstance(kpt_density, float):
+            kpt_density = (kpt_density, kpt_density, kpt_density)
         kpts: list[int] = []
         for i in range(3):
             if pbc[i]:
