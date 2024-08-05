@@ -967,8 +967,8 @@ class BztPlotter:
         prop_z: Literal["doping", "temp"] = "temp",
         output: Literal["avg_eigs", "eigs"] = "avg_eigs",
         dop_type: Literal["n", "p"] = "n",
-        doping=None,
-        temps=None,
+        doping: list[float] | None = None,
+        temps: list[float] | None = None,
         xlim: tuple[float, float] = (-2, 2),
         ax: plt.Axes | None = None,
     ) -> plt.Axes | plt.Figure:
@@ -1114,6 +1114,9 @@ class BztPlotter:
             leg_title = f"{dop_type}-type"
 
         elif prop_z == "doping" and prop_x == "temp":
+            if doping is None:
+                raise ValueError("doping cannot be None when prop_z is doping")
+
             for dop in doping:
                 dop_idx = doping_all.index(dop)
                 prop_out = np.linalg.eigh(p_array[dop_type][:, dop_idx])[0]
@@ -1139,7 +1142,7 @@ class BztPlotter:
         plt.ylabel(f"{props_lbl[idx_prop]} {props_unit[idx_prop]}", fontsize=30)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
-        plt.legend(title=leg_title if leg_title != "" else "", fontsize=15)
+        plt.legend(title=leg_title or "", fontsize=15)
         plt.tight_layout()
         plt.grid()
 
