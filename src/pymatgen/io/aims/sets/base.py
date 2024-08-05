@@ -403,7 +403,7 @@ class AimsInputGenerator(InputGenerator):
     def d2k_recip_cell(
         recip_cell: np.ndarray,
         pbc: Sequence[bool],
-        kpt_density: float | Sequence[float] = 5.0,
+        kpt_density: float | tuple[float, float, float] = 5.0,
         even: bool = True,
     ) -> Sequence[int]:
         """Convert k-point density to Monkhorst-Pack grid size.
@@ -413,7 +413,7 @@ class AimsInputGenerator(InputGenerator):
             pbc (Sequence[bool]): If element of pbc is True
                 then system is periodic in that direction
             kpt_density (float or list[floats]): Required k-point
-                density.  Default value is 3.5 point per Ang^-1.
+                density. Default value is 5 points per Ang^-1.
         even(bool): Round up to even numbers.
 
         Returns:
