@@ -1114,9 +1114,8 @@ class LocalGeometryFinder:
         aa = 0.4
         bb = -0.2
         coords = []
-        rng = np.random.default_rng()
         for _ in range(coordination + 1):
-            coords.append(aa * rng.random(3) + bb)
+            coords.append(aa * np.random.default_rng().random(3) + bb)
         self.set_structure(
             lattice=np.array(np.eye(3) * 10, float),
             species=["Si"] * (coordination + 1),
@@ -1133,8 +1132,7 @@ class LocalGeometryFinder:
         """
         self.icentral_site = 0
         self.indices = list(range(1, coordination + 1))
-        rng = np.random.default_rng()
-        rng.shuffle(self.indices)
+        np.random.default_rng().shuffle(self.indices)
 
     def setup_ordered_indices_local_geometry(self, coordination):
         """Set up ordered indices for the local geometry, for testing purposes.

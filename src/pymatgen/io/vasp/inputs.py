@@ -672,8 +672,7 @@ class Poscar(MSONable):
             temperature (float): Temperature in Kelvin.
         """
         # mean 0 variance 1
-        rng = np.random.default_rng()
-        velocities = rng.standard_normal((len(self.structure), 3))
+        velocities = np.random.default_rng().standard_normal((len(self.structure), 3))
 
         # In AMU, (N, 1) array
         atomic_masses = np.array([site.specie.atomic_mass.to("kg") for site in self.structure])

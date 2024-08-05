@@ -1752,8 +1752,7 @@ def _round_and_make_arr_singular(arr: np.ndarray) -> np.ndarray:
             col_idx_to_fix = np.where(matches)[0]
 
             # Break ties for the largest absolute magnitude
-            rng = np.random.default_rng()
-            r_idx = rng.integers(len(col_idx_to_fix))
+            r_idx = np.random.default_rng().integers(len(col_idx_to_fix))
             col_idx_to_fix = col_idx_to_fix[r_idx]
 
             # Round the chosen element away from zero
@@ -2172,8 +2171,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         if not seed:
             # if seed is None, use a random RandomState seed but make sure
             # we store that the original seed was None
-            rng = np.random.default_rng()
-            seed = rng.integers(1, 1000000000)
+            seed = np.random.default_rng().integers(1, 1000000000)
 
         self.random_state = np.random.RandomState(seed)
         self.kwargs = kwargs

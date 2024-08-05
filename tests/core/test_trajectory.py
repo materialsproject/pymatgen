@@ -423,8 +423,8 @@ class TestTrajectory(PymatgenTest):
         structures = [Structure.from_file(f"{VASP_IN_DIR}/POSCAR")]
         displacements = np.zeros((11, *np.shape(structures[-1].frac_coords)))
 
+        rng = np.random.default_rng()
         for idx in range(10):
-            rng = np.random.default_rng()
             displacement = rng.random(np.shape(structures[-1].frac_coords)) / 20
             new_coords = displacement + structures[-1].frac_coords
             structures.append(Structure(structures[-1].lattice, structures[-1].species, new_coords))

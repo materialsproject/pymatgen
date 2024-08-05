@@ -31,8 +31,7 @@ class TestSymmOp(PymatgenTest):
         assert_allclose(new_coords, [[[-0.1339746, 2.23205081, 4.0]] * 2] * 2, 2)
 
     def test_inverse(self):
-        rng = np.random.default_rng()
-        point = rng.random(3)
+        point = np.random.default_rng().random(3)
         new_coord = self.op.operate(point)
         assert_allclose(self.op.inverse.operate(new_coord), point, 2)
 
@@ -47,8 +46,7 @@ class TestSymmOp(PymatgenTest):
         assert_allclose(np.dot(new_coord - origin, normal), -np.dot(point - origin, normal))
 
     def test_apply_rotation_only(self):
-        rng = np.random.default_rng()
-        point = rng.random(3)
+        point = np.random.default_rng().random(3)
         new_coord = self.op.operate(point)
         rotate_only = self.op.apply_rotation_only(point)
         assert_allclose(rotate_only + self.op.translation_vector, new_coord, 2)
@@ -153,8 +151,7 @@ class TestSymmOp(PymatgenTest):
         )
 
     def test_are_symmetrically_related(self):
-        rng = np.random.default_rng()
-        point = rng.random(3)
+        point = np.random.default_rng().random(3)
         new_coord = self.op.operate(point)
         assert self.op.are_symmetrically_related(point, new_coord)
         assert self.op.are_symmetrically_related(new_coord, point)
@@ -181,8 +178,7 @@ class TestSymmOp(PymatgenTest):
     def test_as_from_dict(self):
         dct = self.op.as_dict()
         op = SymmOp.from_dict(dct)
-        rng = np.random.default_rng()
-        point = rng.random(3)
+        point = np.random.default_rng().random(3)
         new_coord = self.op.operate(point)
         assert op.are_symmetrically_related(point, new_coord)
 

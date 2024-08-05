@@ -614,8 +614,7 @@ class TestIStructure(PymatgenTest):
         struct = self.struct
         nn = struct.get_neighbors_in_shell(struct[0].frac_coords, 2, 4, include_index=True, include_image=True)
         assert len(nn) == 47
-        rng = np.random.default_rng()
-        rand_radius = rng.uniform(3, 6)
+        rand_radius = np.random.default_rng().uniform(3, 6)
         all_nn = struct.get_all_neighbors(rand_radius, include_index=True, include_image=True)
         for idx, site in enumerate(struct):
             assert len(all_nn[idx][0]) == 4

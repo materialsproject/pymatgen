@@ -800,10 +800,10 @@ class SurfaceEnergyPlotter:
             surface will be transparent.
         """
         color_dict = {}
+        rng = np.random.default_rng()
         for hkl in self.all_slab_entries:
             rgb_indices = [0, 1, 2]
             color = [0, 0, 0, 1]
-            rng = np.random.default_rng()
             rng.shuffle(rgb_indices)
             for idx, ind in enumerate(rgb_indices):
                 if idx == 2:

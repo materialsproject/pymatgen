@@ -3634,6 +3634,7 @@ class IMolecule(SiteCollection, MSONable):
         all_coords: list[ArrayLike] = []
 
         centered_coords = self.cart_coords - self.center_of_mass + offset
+        rng = np.random.default_rng()
 
         for i, j, k in itertools.product(
             list(range(images[0])),
@@ -3642,7 +3643,6 @@ class IMolecule(SiteCollection, MSONable):
         ):
             box_center = [(i + 0.5) * a, (j + 0.5) * b, (k + 0.5) * c]
             if random_rotation:
-                rng = np.random.default_rng()
                 while True:
                     op = SymmOp.from_origin_axis_angle(
                         (0, 0, 0),
@@ -5018,8 +5018,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         def get_rand_vec():
             # Deal with zero vectors
-            rng = np.random.default_rng()
-            vector = rng.standard_normal(3)
+            vector = np.random.default_rng().standard_normal(3)
             vnorm = np.linalg.norm(vector)
             return vector / vnorm * distance if vnorm != 0 else get_rand_vec()
 

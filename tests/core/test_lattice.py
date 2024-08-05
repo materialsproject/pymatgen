@@ -80,8 +80,7 @@ class TestLattice(PymatgenTest):
         )
 
         # Random testing that get_cart and get_frac coords reverses each other.
-        rng = np.random.default_rng()
-        rand_coord = rng.random(3)
+        rand_coord = np.random.default_rng().random(3)
         coord = self.tetragonal.get_cartesian_coords(rand_coord)
         frac_coord = self.tetragonal.get_fractional_coords(coord)
         assert_allclose(frac_coord, rand_coord)
@@ -193,8 +192,7 @@ class TestLattice(PymatgenTest):
         assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
         assert_allclose(sorted(reduced_latt.abc), sorted(expected.abc))
 
-        rng = np.random.default_rng()
-        random_latt = Lattice(rng.random((3, 3)))
+        random_latt = Lattice(np.random.default_rng().random((3, 3)))
         if np.linalg.det(random_latt.matrix) > 1e-8:
             reduced_random_latt = random_latt.get_lll_reduced_lattice()
             assert reduced_random_latt.volume == approx(random_latt.volume)

@@ -242,8 +242,7 @@ class TestSimplex(TestCase):
 
     def test_equal(self):
         c2 = list(self.simplex.coords)
-        rng = np.random.default_rng()
-        rng.shuffle(c2)
+        np.random.default_rng().shuffle(c2)
         assert coord.Simplex(c2) == self.simplex
 
     def test_in_simplex(self):
