@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.dev import deprecated
 from monty.json import MSONable
+
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Ha_to_eV, Length, Mass, Unit
 from pymatgen.io.core import ParseError
 from pymatgen.util.string import Stringify, formula_double_format
@@ -24,8 +25,9 @@ from pymatgen.util.string import Stringify, formula_double_format
 if TYPE_CHECKING:
     from typing import Any, Callable, Literal
 
-    from pymatgen.util.typing import SpeciesLike
     from typing_extensions import Self
+
+    from pymatgen.util.typing import SpeciesLike
 
 # Load element data from JSON file
 with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
@@ -1607,9 +1609,8 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
     will be attempted.
 
     Args:
-        obj (Element/Species/str/int): An arbitrary object. Supported objects
-            are actual Element/Species objects, integers (representing atomic
-            numbers) or strings (element symbols or species strings).
+        obj (SpeciesLike): An arbitrary object. Supported objects are actual Element/Species,
+            integers (representing atomic numbers) or strings (element symbols or species strings).
 
     Raises:
         ValueError: if obj cannot be converted into an Element or Species.

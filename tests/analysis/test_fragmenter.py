@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from pymatgen.analysis.fragmenter import Fragmenter
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN

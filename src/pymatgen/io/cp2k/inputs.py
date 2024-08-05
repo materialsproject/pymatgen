@@ -37,6 +37,7 @@ from typing import TYPE_CHECKING
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
+
 from pymatgen.core import Element
 from pymatgen.io.cp2k.utils import chunk, postprocessor, preprocessor
 from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
@@ -47,10 +48,11 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Literal
 
+    from typing_extensions import Self
+
     from pymatgen.core.lattice import Lattice
     from pymatgen.core.structure import Molecule, Structure
     from pymatgen.util.typing import Kpoint, Tuple3Ints
-    from typing_extensions import Self
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
@@ -332,6 +334,10 @@ class Section(MSONable):
     def __setitem__(self, key, value):
         self.setitem(key, value)
 
+    # dict merge
+    def __or__(self, other: dict) -> Section:
+        return self.update(other)
+
     def setitem(self, key, value, strict=False):
         """
         Helper function for setting items. Kept separate from the double-underscore function so that
@@ -416,7 +422,7 @@ class Section(MSONable):
                 return v
         return default
 
-    def update(self, dct: dict, strict=False):
+    def update(self, dct: dict, strict=False) -> Section:
         """
         Update the Section according to a dictionary argument. This is most useful
         for providing user-override settings to default parameters. As you pass a
@@ -441,6 +447,7 @@ class Section(MSONable):
                 new sections and keywords. Default: False
         """
         Section._update(self, dct, strict=strict)
+        return self
 
     @staticmethod
     def _update(d1, d2, strict=False):
@@ -1971,18 +1978,16 @@ class Kpoints(Section):
         else:
             raise ValueError("No k-points provided!")
 
-        keywords.update(
-            {
-                "SCHEME": Keyword("SCHEME", scheme),
-                "EPS_GEO": Keyword("EPS_GEO", eps_geo),
-                "FULL_GRID": Keyword("FULL_GRID", full_grid),
-                "PARALLEL_GROUP_SIZE": Keyword("PARALLEL_GROUP_SIZE", parallel_group_size),
-                "SYMMETRY": Keyword("SYMMETRY", symmetry),
-                "UNITS": Keyword("UNITS", units),
-                "VERBOSE": Keyword("VERBOSE", verbose),
-                "WAVEFUNCTIONS": Keyword("WAVEFUNCTIONS", wavefunctions),
-            }
-        )
+        keywords |= {
+            "SCHEME": Keyword("SCHEME", scheme),
+            "EPS_GEO": Keyword("EPS_GEO", eps_geo),
+            "FULL_GRID": Keyword("FULL_GRID", full_grid),
+            "PARALLEL_GROUP_SIZE": Keyword("PARALLEL_GROUP_SIZE", parallel_group_size),
+            "SYMMETRY": Keyword("SYMMETRY", symmetry),
+            "UNITS": Keyword("UNITS", units),
+            "VERBOSE": Keyword("VERBOSE", verbose),
+            "WAVEFUNCTIONS": Keyword("WAVEFUNCTIONS", wavefunctions),
+        }
 
         super().__init__(
             name="KPOINTS",

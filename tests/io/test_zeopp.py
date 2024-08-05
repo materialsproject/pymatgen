@@ -4,6 +4,8 @@ import unittest
 from unittest import TestCase
 
 import pytest
+from pytest import approx
+
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core import Molecule, Species, Structure
 from pymatgen.io.zeopp import (
@@ -14,7 +16,6 @@ from pymatgen.io.zeopp import (
     get_voronoi_nodes,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
-from pytest import approx
 
 try:
     import zeo

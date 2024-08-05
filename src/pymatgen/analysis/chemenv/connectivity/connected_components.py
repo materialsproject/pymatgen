@@ -13,6 +13,7 @@ from matplotlib.patches import Circle, FancyArrowPatch
 from monty.json import MSONable, jsanitize
 from networkx.algorithms.components import is_connected
 from networkx.algorithms.traversal import bfs_tree
+
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
 from pymatgen.analysis.chemenv.utils.graph_utils import get_delta
@@ -372,14 +373,15 @@ class ConnectedComponent(MSONable):
     def compute_periodicity(self, algorithm="all_simple_paths") -> None:
         """
         Args:
-            algorithm ():
+            algorithm (str): Algorithm to use to compute the periodicity vectors. Can be
+                either "all_simple_paths" or "cycle_basis".
         """
         if algorithm == "all_simple_paths":
             self.compute_periodicity_all_simple_paths_algorithm()
         elif algorithm == "cycle_basis":
             self.compute_periodicity_cycle_basis()
         else:
-            raise ValueError(f"Algorithm {algorithm!r} is not allowed to compute periodicity")
+            raise ValueError(f"{algorithm=} is not allowed to compute periodicity")
         self._order_periodicity_vectors()
 
     def compute_periodicity_all_simple_paths_algorithm(self):
@@ -512,7 +514,7 @@ class ConnectedComponent(MSONable):
     def make_supergraph(self, multiplicity):
         """
         Args:
-            multiplicity ():
+            multiplicity (int): Multiplicity of the super graph.
 
         Returns:
             nx.MultiGraph: Super graph of the connected component.
@@ -635,7 +637,8 @@ class ConnectedComponent(MSONable):
     def elastic_centered_graph(self, start_node=None):
         """
         Args:
-            start_node ():
+            start_node (Node, optional): Node to start the elastic centering from.
+                If not provided, the first node in the graph is used.
 
         Returns:
             nx.MultiGraph: Elastic centered subgraph.
