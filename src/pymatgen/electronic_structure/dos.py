@@ -903,9 +903,7 @@ class CompleteDos(Dos):
 
         # Only integrate up to Fermi level
         energies = dos.energies - dos.efermi
-        return np.trapz(dos_densities[energies < 0], x=energies[energies < 0]) / np.trapz(
-            dos_densities, x=energies
-        )
+        return np.trapz(dos_densities[energies < 0], x=energies[energies < 0]) / np.trapz(dos_densities, x=energies)
 
     def get_band_center(
         self,
