@@ -82,7 +82,9 @@ jobs:
 
           uv pip install cython setuptools wheel
 
-          uv pip install BoltzTraP2>=24.7.2
+          # TODO: uv cannot install BoltzTraP2 (#3786),
+          # suggesting no NumPy when there is
+          pip install BoltzTraP2>=24.7.2
 
           uv pip install --editable '.[${{ matrix.config.extras }}]' --resolution=${{ matrix.config.resolution }}
 

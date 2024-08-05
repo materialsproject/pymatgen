@@ -95,7 +95,7 @@ ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8"]
 docs = ["sphinx", "sphinx_rtd_theme"]
 optional = [
     "ase>=3.23.0",
-    # "BoltzTraP2>=24.7.2",  # TODO: WIP
+    "BoltzTraP2>=24.7.2",
     "chemview>=0.6",
     "chgnet>=0.3.8",
     "f90nml>=1.1.2",
