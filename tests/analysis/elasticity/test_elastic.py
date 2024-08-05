@@ -182,7 +182,9 @@ class TestElasticTensor(PymatgenTest):
             UserWarning, match="Input elastic tensor does not satisfy standard Voigt symmetries"
         ) as warns:
             ElasticTensor(non_symm)
-        assert sum("Input elastic tensor does not satisfy standard Voigt symmetries" in str(warn) for warn in warns) == 1
+        assert (
+            sum("Input elastic tensor does not satisfy standard Voigt symmetries" in str(warn) for warn in warns) == 1
+        )
 
         bad_tensor1 = np.zeros((3, 3, 3))
         bad_tensor2 = np.zeros((3, 3, 3, 2))
