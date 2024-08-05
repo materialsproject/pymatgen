@@ -1255,7 +1255,7 @@ class IStructure(SiteCollection, MSONable):
         are generated from the spacegroup operations.
 
         Args:
-            sg (str/int): The spacegroup. If a string, it will be interpreted
+            sg (str | int): The spacegroup. If a string, it will be interpreted
                 as one of the notations supported by
                 pymatgen.symmetry.groups.Spacegroup. e.g. "R-3c" or "Fm-3m".
                 If an int, it will be interpreted as an international number.
@@ -1544,7 +1544,7 @@ class IStructure(SiteCollection, MSONable):
         Basically a convenience method to call structure matching.
 
         Args:
-            other (IStructure/Structure): Another structure.
+            other (IStructure | Structure): Another structure.
             anonymous (bool): Whether to use anonymous structure matching which allows distinct
                 species in one structure to map to another.
             **kwargs: Same **kwargs as in
@@ -1815,7 +1815,7 @@ class IStructure(SiteCollection, MSONable):
 
         Args:
             r (float): Radius of sphere
-            sg (str/int): The spacegroup the symmetry operations of which will be
+            sg (str | int): The spacegroup the symmetry operations of which will be
                 used to classify the neighbors. If a string, it will be interpreted
                 as one of the notations supported by
                 pymatgen.symmetry.groups.Spacegroup. e.g. "R-3c" or "Fm-3m".
@@ -3941,9 +3941,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """Modify a site in the structure.
 
         Args:
-            idx (int, [int], slice, Species-like): Indices to change. You can
-                specify these as an int, a list of int, or a species-like
-                string.
+            idx (int, list[int], slice, Species-like): Indices to change. You can
+                specify these as an int, a list of int, or a species-like string.
             site (PeriodicSite | Species | dict[SpeciesLike, float] | Sequence): 4 options exist. You
                 can provide a PeriodicSite directly (lattice will be checked). Or more conveniently,
                 you can provide a species-like object (or a dict mapping SpeciesLike to occupancy floats)
@@ -4774,9 +4773,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         """Modify a site in the molecule.
 
         Args:
-            idx (int, [int], slice, Species-like): Indices to change. You can
-                specify these as an int, a list of int, or a species-like
-                string.
+            idx (int, list[int], slice, Species-like): Indices to change. You can
+                specify these as an int, a list of int, or a species-like string.
             site (PeriodicSite/Species/Sequence): Three options exist. You can
                 provide a Site directly, or for convenience, you can provide
                 simply a Species-like string/object, or finally a (Species,

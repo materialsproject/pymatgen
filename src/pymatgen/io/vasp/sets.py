@@ -148,7 +148,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         force_gamma (bool): Force gamma centered kpoint generation. Default (False) is
             to use the Automatic Density kpoint scheme, which will use the Gamma
             centered generation scheme for hexagonal cells, and Monkhorst-Pack otherwise.
-        reduce_structure (None/str): Before generating the input files, generate the
+        reduce_structure (str | None): Before generating the input files, generate the
             reduced structure. Default (None), does not alter the structure. Valid
             values: None, "niggli", "LLL".
         vdw: Adds default parameters for van-der-Waals functionals supported by VASP to
@@ -1490,7 +1490,7 @@ class MatPESStaticSet(VaspInputSet):
             )
 
         if self.xc_functional.upper() == "R2SCAN":
-            self._config_dict["INCAR"].update({"METAGGA": "R2SCAN", "ALGO": "ALL", "GGA": None})
+            self._config_dict["INCAR"] |= {"METAGGA": "R2SCAN", "ALGO": "ALL", "GGA": None}
         if self.xc_functional.upper().endswith("+U"):
             self._config_dict["INCAR"]["LDAU"] = True
 

@@ -476,7 +476,7 @@ class CollinearMagneticStructureAnalyzer:
         ferro/ferrimagnetic is self.threshold_ordering and defaults to 1e-8.
 
         Returns:
-            Ordering: Enum  with values FM: ferromagnetic, FiM: ferrimagnetic,
+            Ordering: Enum with values FM: ferromagnetic, FiM: ferrimagnetic,
                 AFM: antiferromagnetic, NM: non-magnetic or Unknown. Unknown is
                 returned if magnetic moments are not defined or structure is not collinear
                 (in which case a warning is issued).

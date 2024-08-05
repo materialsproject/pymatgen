@@ -508,15 +508,13 @@ class ComputedEntry(Entry):
     def as_dict(self) -> dict:
         """MSONable dict."""
         return_dict = super().as_dict()
-        return_dict.update(
-            {
-                "entry_id": self.entry_id,
-                "correction": self.correction,
-                "energy_adjustments": json.loads(json.dumps(self.energy_adjustments, cls=MontyEncoder)),
-                "parameters": json.loads(json.dumps(self.parameters, cls=MontyEncoder)),
-                "data": json.loads(json.dumps(self.data, cls=MontyEncoder)),
-            }
-        )
+        return_dict |= {
+            "entry_id": self.entry_id,
+            "correction": self.correction,
+            "energy_adjustments": json.loads(json.dumps(self.energy_adjustments, cls=MontyEncoder)),
+            "parameters": json.loads(json.dumps(self.parameters, cls=MontyEncoder)),
+            "data": json.loads(json.dumps(self.data, cls=MontyEncoder)),
+        }
         return return_dict
 
     def __hash__(self) -> int:

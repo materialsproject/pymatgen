@@ -106,6 +106,8 @@ optional = [
     "h5py>=3.11.0",
     "jarvis-tools>=2020.7.14",
     "matgl>=1.1.1",
+    # TODO: track https://github.com/matplotlib/matplotlib/issues/28551
+    "matplotlib>=3.8,<3.9.1",
     "netCDF4>=1.6.5",
     "phonopy>=2.23",
     "seekpath>=2.0.1",
@@ -203,7 +205,7 @@ ignore = [
     "D105",    # Missing docstring in magic method
     "D205",    # One blank line required between summary line and description
     "D212",    # Multi-line docstring summary should start at the first line
-      "FBT001",  # Boolean-typed positional argument in function definition
+    "FBT001",  # Boolean-typed positional argument in function definition
     "FBT002",  # Boolean default positional argument in function
     "PD901",   # pandas-df-variable-name
     "PERF203", # Use of try-except in for/while loop

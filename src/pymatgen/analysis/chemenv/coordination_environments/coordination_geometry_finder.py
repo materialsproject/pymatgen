@@ -613,8 +613,8 @@ class LocalGeometryFinder:
             optimization: optimization algorithm
 
         Returns:
-            The StructureEnvironments object containing all the information about the coordination
-            environments in the structure.
+            StructureEnvironments: contains all the information about the coordination
+                environments in the structure.
         """
         time_init = time.process_time()
         if info is None:

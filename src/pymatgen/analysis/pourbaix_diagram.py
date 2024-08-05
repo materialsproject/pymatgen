@@ -85,10 +85,9 @@ class PourbaixEntry(MSONable, Stringify):
     def __init__(self, entry, entry_id=None, concentration=1e-6):
         """
         Args:
-            entry (ComputedEntry/ComputedStructureEntry/PDEntry/IonEntry): An
-                entry object
-            entry_id ():
-            concentration ():
+            entry (ComputedEntry | ComputedStructureEntry | PDEntry | IonEntry): An entry object
+            entry_id (str): A string id for the entry
+            concentration (float): Concentration of the entry in M. Defaults to 1e-6.
         """
         self.entry = entry
         if isinstance(entry, IonEntry):
@@ -102,7 +101,7 @@ class PourbaixEntry(MSONable, Stringify):
         self.uncorrected_energy = entry.energy
         if entry_id is not None:
             self.entry_id = entry_id
-        elif hasattr(entry, "entry_id") and entry.entry_id:
+        elif getattr(entry, "entry_id", None):
             self.entry_id = entry.entry_id
         else:
             self.entry_id = None
@@ -795,8 +794,8 @@ class PourbaixDiagram(MSONable):
         Args:
             entry (PourbaixEntry): PourbaixEntry corresponding to
                 compound to find the decomposition for
-            pH (float, [float]): pH at which to find the decomposition
-            V (float, [float]): voltage at which to find the decomposition
+            pH (float, list[float]): pH at which to find the decomposition
+            V (float, list[float]): voltage at which to find the decomposition
 
         Returns:
             Decomposition energy for the entry, i. e. the energy above
@@ -818,13 +817,13 @@ class PourbaixDiagram(MSONable):
         decomposition_energy /= entry.composition.num_atoms
         return decomposition_energy
 
-    def get_hull_energy(self, pH, V):
+    def get_hull_energy(self, pH: float | list[float], V: float | list[float]) -> np.ndarray:
         """Get the minimum energy of the Pourbaix "basin" that is formed
         from the stable Pourbaix planes. Vectorized.
 
         Args:
-            pH (float or [float]): pH at which to find the hull energy
-            V (float or [float]): V at which to find the hull energy
+            pH (float | list[float]): pH at which to find the hull energy
+            V (float | list[float]): V at which to find the hull energy
 
         Returns:
             np.array: minimum Pourbaix energy at conditions

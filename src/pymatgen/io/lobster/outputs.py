@@ -166,18 +166,16 @@ class Cohpcar:
                     }
 
                 elif label in orb_cohp:
-                    orb_cohp[label].update(
-                        {
-                            bond_data["orb_label"]: {
-                                "COHP": cohp,
-                                "ICOHP": icohp,
-                                "orbitals": orbs,
-                                "length": bond_data["length"],
-                                "sites": bond_data["sites"],
-                                "cells": bond_data["cells"],
-                            }
+                    orb_cohp[label] |= {
+                        bond_data["orb_label"]: {
+                            "COHP": cohp,
+                            "ICOHP": icohp,
+                            "orbitals": orbs,
+                            "length": bond_data["length"],
+                            "sites": bond_data["sites"],
+                            "cells": bond_data["cells"],
                         }
-                    )
+                    }
                 else:
                     # present for Lobster versions older than Lobster 2.2.0
                     if bond_num == 0:
@@ -219,17 +217,15 @@ class Cohpcar:
                     }
 
                 elif label in orb_cohp:
-                    orb_cohp[label].update(
-                        {
-                            bond_data["orb_label"]: {
-                                "COHP": cohp,
-                                "ICOHP": icohp,
-                                "orbitals": orbs,
-                                "length": bond_data["length"],
-                                "sites": bond_data["sites"],
-                            }
+                    orb_cohp[label] |= {
+                        bond_data["orb_label"]: {
+                            "COHP": cohp,
+                            "ICOHP": icohp,
+                            "orbitals": orbs,
+                            "length": bond_data["length"],
+                            "sites": bond_data["sites"],
                         }
-                    )
+                    }
                 else:
                     # present for Lobster versions older than Lobster 2.2.0
                     if bond_num == 0:
@@ -1507,7 +1503,7 @@ class Bandoverlaps(MSONable):
             limit_maxDeviation: limit of the maxDeviation
 
         Returns:
-            bool: Whether the quality of the projection is good.
+            bool: True if the quality of the projection is good.
         """
         return all(deviation <= limit_maxDeviation for deviation in self.max_deviation)
 
@@ -1529,7 +1525,7 @@ class Bandoverlaps(MSONable):
             limit_deviation (float): limit of the maxDeviation
 
         Returns:
-            bool: Whether the quality of the projection is good.
+            bool: True if the quality of the projection is good.
         """
         for matrix in self.band_overlaps_dict[Spin.up]["matrices"]:
             for iband1, band1 in enumerate(matrix):
@@ -2136,10 +2132,10 @@ class LobsterMatrices:
             if matches and len(matches.groups()) == 2:
                 spin = Spin.up if matches[1] == "1" else Spin.down
                 k_point = matches[2]
-                complex_matrices[k_point].update({spin: comp_matrix})
+                complex_matrices[k_point] |= {spin: comp_matrix}
             elif matches and len(matches.groups()) == 1:
                 k_point = matches[1]
-                complex_matrices.update({k_point: comp_matrix})
+                complex_matrices |= {k_point: comp_matrix}
             matrix_diagonal_values.append(comp_matrix.real.diagonal() - e_fermi)
 
         # extract elements basis functions as list
