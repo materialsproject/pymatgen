@@ -82,8 +82,6 @@ jobs:
 
           uv pip install cython setuptools wheel
 
-          pip install boltztrap2
-
           uv pip install --editable '.[${{ matrix.config.extras }}]' --resolution=${{ matrix.config.resolution }}
 
       - name: pytest split ${{ matrix.split }}
