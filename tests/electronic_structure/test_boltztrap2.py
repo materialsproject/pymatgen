@@ -316,7 +316,9 @@ class TestBztPlotter(TestCase):
         assert self.bztPlotter is not None
         fig = self.bztPlotter.plot_props("S", "mu", "temp", temps=[300, 500])
         assert fig is not None
+
         fig = self.bztPlotter.plot_bands()
         assert fig is not None
+
         fig = self.bztPlotter.plot_dos()
         assert fig is not None
