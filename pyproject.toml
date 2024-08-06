@@ -3,7 +3,7 @@ requires = [
     "Cython>=0.29.23",
     # Building against NPY2 will support both NPY1 and NPY2
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#build-time-dependency
-    "numpy>=2.0.0rc1",
+    "numpy>=2.0.1",
     "setuptools>=65.0.0",
 ]
 build-backend = "setuptools.build_meta"
@@ -62,7 +62,6 @@ dependencies = [
     "networkx>=2.2",
     # NumPy documentation suggests pinning the current major version as the C API is used
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
-    'numpy>=1.25.0,<3.0',
     "palettable>=3.3.3",
     "pandas>=2",
     "plotly>=4.5.0",
@@ -75,6 +74,7 @@ dependencies = [
     "tabulate>=0.9",
     "tqdm>=4.60",
     "uncertainties>=3.1.4",
+    'numpy>=1.25.0,<3.0',
 ]
 version = "2024.7.18"
 
