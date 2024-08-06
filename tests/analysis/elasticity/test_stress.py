@@ -52,4 +52,4 @@ class TestStress(PymatgenTest):
             UserWarning, match="Tensor is not symmetric, information may be lost in Voigt conversion"
         ) as warns:
             _ = self.non_symm.voigt
-        assert len(warns) == 1
+        assert sum("Tensor is not symmetric, information may be lost in Voigt conversion" in str(warn) for warn in warns) == 1
