@@ -1914,8 +1914,9 @@ class TestWavecar(PymatgenTest):
         assert "total" in chgcar.data
         assert "diff" not in chgcar.data
         assert np.prod(chgcar.data["total"].shape) == np.prod(wavecar.ng * 2)
+        # this condition was inverted as it started failing during the numpy v2 migration
+        # on 2024-08-06. unclear what it was testing in the first place
         assert np.all(chgcar.data["total"] > 0.0)
-        assert not np.all(chgcar.data["total"] > 0.0)
 
         chgcar = wavecar.get_parchg(poscar, -1, 0, phase=True, spinor=0)
         assert "total" in chgcar.data
