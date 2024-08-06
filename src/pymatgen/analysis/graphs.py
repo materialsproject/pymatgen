@@ -933,7 +933,7 @@ class StructureGraph(MSONable):
                     d["label"] = f"{d['weight']:.2f} {units}"
 
             # update edge with our new style attributes
-            g.edges[u, v, k] |= d
+            g.edges[u, v, k].update(d)
 
         # optionally remove periodic image edges,
         # these can be confusing due to periodic boundaries
@@ -2603,7 +2603,7 @@ class MoleculeGraph(MSONable):
                     d["label"] = f"{d['weight']:.2f} {units}"
 
             # update edge with our new style attributes
-            g.edges[u, v, k] |= d
+            g.edges[u, v, k].update(d)
 
         # optionally remove periodic image edges,
         # these can be confusing due to periodic boundaries

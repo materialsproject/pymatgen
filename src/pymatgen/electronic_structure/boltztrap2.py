@@ -44,6 +44,7 @@ from pymatgen.symmetry.bandstructure import HighSymmKpath
 
 if TYPE_CHECKING:
     from pathlib import Path
+    from typing import Literal
 
     from typing_extensions import Self
 
@@ -961,20 +962,20 @@ class BztPlotter:
 
     def plot_props(
         self,
-        prop_y,
-        prop_x,
-        prop_z="temp",
-        output="avg_eigs",
-        dop_type="n",
-        doping=None,
-        temps=None,
-        xlim=(-2, 2),
-        ax: plt.Axes = None,
-    ):
+        prop_y: str,
+        prop_x: Literal["mu", "doping", "temp"],
+        prop_z: Literal["doping", "temp"] = "temp",
+        output: Literal["avg_eigs", "eigs"] = "avg_eigs",
+        dop_type: Literal["n", "p"] = "n",
+        doping: list[float] | None = None,
+        temps: list[float] | None = None,
+        xlim: tuple[float, float] = (-2, 2),
+        ax: plt.Axes | None = None,
+    ) -> plt.Axes | plt.Figure:
         """Plot the transport properties.
 
         Args:
-            prop_y: property to plot among ("Conductivity","Seebeck","Kappa","Carrier_conc",
+            prop_y: property to plot among ("Conductivity", "Seebeck", "Kappa", "Carrier_conc",
                 "Hall_carrier_conc_trace"). Abbreviations are possible, like "S" for "Seebeck"
             prop_x: independent variable in the x-axis among ('mu','doping','temp')
             prop_z: third variable to plot multiple curves ('doping','temp')
@@ -991,7 +992,9 @@ class BztPlotter:
             ax: figure.axes where to plot. If None, a new figure is produced.
 
         Returns:
-            plt.Axes: matplotlib Axes object
+            plt.Axes: matplotlib Axes object if ax provided
+            OR
+            plt.Figure: matplotlib Figure object if ax is None
 
         Example:
             bztPlotter.plot_props('S','mu','temp',temps=[600,900,1200]).show()
@@ -1026,15 +1029,15 @@ class BztPlotter:
             r"$(cm^{-3})$",
         )
 
-        props_short = [p[: len(prop_y)] for p in props]
+        props_short = tuple(p[: len(prop_y)] for p in props)
 
         if prop_y not in props_short:
             raise BoltztrapError("prop_y not valid")
 
-        if prop_x not in ("mu", "doping", "temp"):
+        if prop_x not in {"mu", "doping", "temp"}:
             raise BoltztrapError("prop_x not valid")
 
-        if prop_z not in ("doping", "temp"):
+        if prop_z not in {"doping", "temp"}:
             raise BoltztrapError("prop_z not valid")
 
         idx_prop = props_short.index(prop_y)
@@ -1048,8 +1051,7 @@ class BztPlotter:
         else:
             p_array = getattr(self.bzt_transP, f"{props[idx_prop]}_{prop_x}")
 
-        if ax is None:
-            plt.figure(figsize=(10, 8))
+        fig = plt.figure(figsize=(10, 8)) if ax is None else None
 
         temps_all = self.bzt_transP.temp_r.tolist()
         if temps is None:
@@ -1112,6 +1114,9 @@ class BztPlotter:
             leg_title = f"{dop_type}-type"
 
         elif prop_z == "doping" and prop_x == "temp":
+            if doping is None:
+                raise ValueError("doping cannot be None when prop_z is doping")
+
             for dop in doping:
                 dop_idx = doping_all.index(dop)
                 prop_out = np.linalg.eigh(p_array[dop_type][:, dop_idx])[0]
@@ -1137,10 +1142,11 @@ class BztPlotter:
         plt.ylabel(f"{props_lbl[idx_prop]} {props_unit[idx_prop]}", fontsize=30)
         plt.xticks(fontsize=25)
         plt.yticks(fontsize=25)
-        plt.legend(title=leg_title if leg_title != "" else "", fontsize=15)
+        plt.legend(title=leg_title or "", fontsize=15)
         plt.tight_layout()
         plt.grid()
-        return ax
+
+        return fig if ax is None else ax
 
     def plot_bands(self):
         """Plot a band structure on symmetry line using BSPlotter()."""
