@@ -59,13 +59,14 @@ class PackmolSet(InputSet):
             )
         try:
             os.chdir(path)
-            proc = subprocess.run(  # noqa: S602
-                f"packmol < {self.inputfile!r}",
-                check=True,
-                shell=True,
-                timeout=timeout,
-                capture_output=True,
-            )
+            with open(self.inputfile, encoding="utf-8") as infile:
+                proc = subprocess.run(
+                    ["packmol"],
+                    stdin=infile,
+                    check=True,
+                    timeout=timeout,
+                    capture_output=True,
+                )
             # This workaround is needed because packmol can fail to find
             # a solution but still return a zero exit code.
             # See https://github.com/m3g/packmol/issues/28
@@ -197,11 +198,11 @@ class PackmolBoxGen(InputGenerator):
 
         for dct in molecules:
             if isinstance(dct["coords"], (str, Path)):
-                mol = Molecule.from_file(str(dct["coords"]))
+                mol = Molecule.from_file(dct["coords"])
             elif isinstance(dct["coords"], Molecule):
                 mol = dct["coords"]
             else:
-                raise ValueError("Molecule is not provided.")  # noqa: TRY004
+                raise TypeError("Molecule is not provided in supported format.")
 
             fname = f"packmol_{dct['name']}.xyz"
             mapping[fname] = mol.to(fmt="xyz")
