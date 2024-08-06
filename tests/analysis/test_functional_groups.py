@@ -3,6 +3,7 @@ from __future__ import annotations
 from unittest import TestCase
 
 import pytest
+
 from pymatgen.analysis.functional_groups import FunctionalGroupExtractor
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN

@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 from monty.io import zopen
 from monty.re import regrep
+
 from pymatgen.core import Element, Lattice, Structure
 from pymatgen.util.io_utils import clean_lines
 
@@ -291,7 +292,7 @@ class PWInput:
                 if match := re.match(r"(\w+)\(?(\d*?)\)?\s*=\s*(.*)", line):
                     key = match[1].strip()
                     key_ = match[2].strip()
-                    val = match[3].strip()
+                    val = match[3].strip().rstrip(",")
                     if key_ != "":
                         if sections[section].get(key) is None:
                             val_ = [0.0] * 20  # MAX NTYP DEFINITION
@@ -305,7 +306,7 @@ class PWInput:
                         sections[section][key] = PWInput.proc_val(key, val)
 
             elif mode[0] == "pseudo":
-                if match := re.match(r"(\w+)\s+(\d*.\d*)\s+(.*)", line):
+                if match := re.match(r"(\w+\d*[\+-]?)\s+(\d*.\d*)\s+(.*)", line):
                     pseudo[match[1].strip()] = match[3].strip()
 
             elif mode[0] == "kpoints":
@@ -317,7 +318,7 @@ class PWInput:
 
             elif mode[0] == "structure":
                 m_l = re.match(r"(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
-                m_p = re.match(r"(\w+)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
+                m_p = re.match(r"(\w+\d*[\+-]?)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
                 if m_l:
                     lattice += [
                         float(m_l[1]),

@@ -45,6 +45,7 @@ import numpy as np
 from monty.dev import deprecated
 from monty.json import MSONable
 from monty.serialization import loadfn
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Element, PeriodicSite, SiteCollection, Species, Structure
 from pymatgen.io.core import InputGenerator
@@ -58,8 +59,9 @@ from pymatgen.util.typing import Kpoint
 if TYPE_CHECKING:
     from typing import Callable, Literal, Union
 
-    from pymatgen.util.typing import PathLike, Tuple3Ints, Vector3D
     from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike, Tuple3Ints, Vector3D
 
     UserPotcarFunctional = Union[
         Literal["PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"], None
@@ -146,7 +148,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         force_gamma (bool): Force gamma centered kpoint generation. Default (False) is
             to use the Automatic Density kpoint scheme, which will use the Gamma
             centered generation scheme for hexagonal cells, and Monkhorst-Pack otherwise.
-        reduce_structure (None/str): Before generating the input files, generate the
+        reduce_structure (str | None): Before generating the input files, generate the
             reduced structure. Default (None), does not alter the structure. Valid
             values: None, "niggli", "LLL".
         vdw: Adds default parameters for van-der-Waals functionals supported by VASP to
@@ -1488,7 +1490,7 @@ class MatPESStaticSet(VaspInputSet):
             )
 
         if self.xc_functional.upper() == "R2SCAN":
-            self._config_dict["INCAR"].update({"METAGGA": "R2SCAN", "ALGO": "ALL", "GGA": None})
+            self._config_dict["INCAR"] |= {"METAGGA": "R2SCAN", "ALGO": "ALL", "GGA": None}
         if self.xc_functional.upper().endswith("+U"):
             self._config_dict["INCAR"]["LDAU"] = True
 
@@ -2878,9 +2880,8 @@ def batch_write_input(
             Defaults to True.
         subfolder (callable): Function to create subdirectory name from
             structure. Defaults to simply "formula_count".
-        sanitize (bool): Boolean indicating whether to sanitize the
-            structure before writing the VASP input files. Sanitized output
-            are generally easier for viewing and certain forms of analysis.
+        sanitize (bool): Whether to sanitize the structure before writing the VASP input files.
+            Sanitized output are generally easier for viewing and certain forms of analysis.
             Defaults to False.
         include_cif (bool): Whether to output a CIF as well. CIF files are
             generally better supported in visualization programs.

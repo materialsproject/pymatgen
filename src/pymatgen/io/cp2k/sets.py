@@ -24,6 +24,8 @@ import os
 import warnings
 
 import numpy as np
+from ruamel.yaml import YAML
+
 from pymatgen.core import SETTINGS
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Element, Molecule, Structure
@@ -65,7 +67,6 @@ from pymatgen.io.cp2k.inputs import (
 from pymatgen.io.cp2k.utils import get_truncated_coulomb_cutoff, get_unique_site_indices
 from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
 from pymatgen.io.vasp.inputs import KpointsSupportedModes
-from ruamel.yaml import YAML
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
@@ -828,7 +829,7 @@ class DftSet(Cp2kInput):
                     " distance between atoms. I hope you know what you're doing."
                 )
 
-        ip_keywords = {}
+        ip_keywords: dict[str, Keyword] = {}
         if hybrid_functional == "HSE06":
             pbe = PBE("ORIG", scale_c=1, scale_x=0)
             xc_functional = XCFunctional(functionals=[], subsections={"PBE": pbe})
@@ -845,13 +846,11 @@ class DftSet(Cp2kInput):
                     },
                 )
             )
-            ip_keywords.update(
-                {
-                    "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
-                    "OMEGA": Keyword("OMEGA", 0.11),
-                    "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
-                }
-            )
+            ip_keywords |= {
+                "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
+                "OMEGA": Keyword("OMEGA", 0.11),
+                "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
+            }
         elif hybrid_functional == "PBE0":
             pbe = PBE("ORIG", scale_c=1, scale_x=1 - hf_fraction)
             xc_functional = XCFunctional(functionals=[], subsections={"PBE": pbe})
@@ -884,16 +883,14 @@ class DftSet(Cp2kInput):
 
             potential_type = potential_type or "MIX_CL_TRUNC"
             hf_fraction = 1
-            ip_keywords.update(
-                {
-                    "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
-                    "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
-                    "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
-                    "OMEGA": Keyword("OMEGA", omega),
-                    "SCALE_COULOMB": Keyword("SCALE_COULOMB", scale_coulomb),
-                    "SCALE_LONGRANGE": Keyword("SCALE_LONGRANGE", scale_longrange - scale_coulomb),
-                }
-            )
+            ip_keywords |= {
+                "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
+                "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
+                "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
+                "OMEGA": Keyword("OMEGA", omega),
+                "SCALE_COULOMB": Keyword("SCALE_COULOMB", scale_coulomb),
+                "SCALE_LONGRANGE": Keyword("SCALE_LONGRANGE", scale_longrange - scale_coulomb),
+            }
             xc_functional.insert(
                 Section(
                     "XWPBE",
@@ -923,17 +920,15 @@ class DftSet(Cp2kInput):
             pbe = PBE("ORIG", scale_c=gga_c_fraction, scale_x=gga_x_fraction)
             xc_functional = XCFunctional(functionals=[], subsections={"PBE": pbe})
 
-            ip_keywords.update(
-                {
-                    "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
-                    "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
-                    "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
-                    "SCALE_COULOMB": Keyword("SCALE_COULOMB", scale_coulomb),
-                    "SCALE_GAUSSIAN": Keyword("SCALE_GAUSSIAN", scale_gaussian),
-                    "SCALE_LONGRANGE": Keyword("SCALE_LONGRANGE", scale_longrange),
-                    "OMEGA": Keyword("OMEGA", omega),
-                }
-            )
+            ip_keywords |= {
+                "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
+                "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
+                "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
+                "SCALE_COULOMB": Keyword("SCALE_COULOMB", scale_coulomb),
+                "SCALE_GAUSSIAN": Keyword("SCALE_GAUSSIAN", scale_gaussian),
+                "SCALE_LONGRANGE": Keyword("SCALE_LONGRANGE", scale_longrange),
+                "OMEGA": Keyword("OMEGA", omega),
+            }
 
         interaction_potential = Section("INTERACTION_POTENTIAL", subsections={}, keywords=ip_keywords)
 
@@ -1097,14 +1092,14 @@ class DftSet(Cp2kInput):
         if not self.check("force_eval/properties/linres/localize"):
             self.activate_localize()
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("EPR", **kwargs))
-        self["FORCE_EVAL"]["PROPERTIES"]["LINRES"]["EPR"].update({"PRINT": {"G_TENSOR": {}}})
+        self["FORCE_EVAL"]["PROPERTIES"]["LINRES"]["EPR"] |= {"PRINT": {"G_TENSOR": {}}}
 
     def activate_nmr(self, **kwargs) -> None:
         """Calculate nmr shifts. Requires localize. Suggested with GAPW."""
         if not self.check("force_eval/properties/linres/localize"):
             self.activate_localize()
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("NMR", **kwargs))
-        self["FORCE_EVAL"]["PROPERTIES"]["LINRES"]["NMR"].update({"PRINT": {"CHI_TENSOR": {}, "SHIELDING_TENSOR": {}}})
+        self["FORCE_EVAL"]["PROPERTIES"]["LINRES"]["NMR"] |= {"PRINT": {"CHI_TENSOR": {}, "SHIELDING_TENSOR": {}}}
 
     def activate_spinspin(self, **kwargs) -> None:
         """Calculate spin-spin coupling tensor. Requires localize."""
@@ -1185,7 +1180,7 @@ class DftSet(Cp2kInput):
                 algorithm="IRAC",
                 linesearch="2PNT",
             )
-            self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
+            self |= {"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}}  # type: ignore[assignment]
 
     def activate_robust_minimization(self) -> None:
         """Modify the set to use more robust SCF minimization technique."""
@@ -1195,7 +1190,7 @@ class DftSet(Cp2kInput):
             algorithm="STRICT",
             linesearch="3PNT",
         )
-        self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
+        self |= {"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}}  # type: ignore[assignment]
 
     def activate_very_strict_minimization(self) -> None:
         """Method to modify the set to use very strict SCF minimization scheme."""
@@ -1205,7 +1200,7 @@ class DftSet(Cp2kInput):
             algorithm="STRICT",
             linesearch="GOLD",
         )
-        self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
+        self |= {"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}}  # type: ignore[assignment]
 
     def activate_nonperiodic(self, solver="ANALYTIC") -> None:
         """

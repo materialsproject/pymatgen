@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import matplotlib.pyplot as plt
+
 from pymatgen.analysis.diffraction.xrd import XRDCalculator
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.plotter import DosPlotter
