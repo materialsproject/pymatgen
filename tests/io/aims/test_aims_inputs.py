@@ -10,7 +10,6 @@ from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose
 
 from pymatgen.core import SETTINGS, Lattice, Species, Structure
-
 from pymatgen.io.aims.inputs import (
     ALLOWED_AIMS_CUBE_TYPES,
     ALLOWED_AIMS_CUBE_TYPES_STATE,
