@@ -225,7 +225,6 @@ ignore = [
     "TRY003",  # Avoid specifying long messages outside the exception class
     "TRY300",  # Checks for return statements in try blocks
     "TRY301",  # Checks for raise statements within try blocks
-    "NPY201",  # Numpy 2.0 deprecation
 ]
 pydocstyle.convention = "google"
 isort.required-imports = ["from __future__ import annotations"]
