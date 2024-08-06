@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import scipy.constants as sc
+
 from pymatgen.analysis.diffraction.core import AbstractDiffractionPatternCalculator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.string import latexify_spacegroup, unicodeify_spacegroup
@@ -18,6 +19,7 @@ from pymatgen.util.typing import Tuple3Ints
 
 if TYPE_CHECKING:
     from numpy.typing import NDArray
+
     from pymatgen.core import Structure
 
 __author__ = "Frank Wan, Jason Liang"
@@ -336,8 +338,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         plane: Tuple3Ints,
         other_plane: Tuple3Ints,
     ) -> bool:
-        """
-        Checks if two hkl planes are parallel in reciprocal space.
+        """Checks if two hkl planes are parallel in reciprocal space.
 
         Args:
             structure (Structure): The input structure.
@@ -345,7 +346,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             other_plane (3-tuple): The other plane to be compared.
 
         Returns:
-            boolean
+            bool: True if the planes are parallel, False otherwise.
         """
         phi = self.get_interplanar_angle(structure, plane, other_plane)
         return phi in (180, 0) or np.isnan(phi)

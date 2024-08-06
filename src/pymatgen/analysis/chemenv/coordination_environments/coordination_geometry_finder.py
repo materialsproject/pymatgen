@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.linalg import norm, svd
+
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import MultiWeightsChemenvStrategy
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import (
@@ -612,8 +613,8 @@ class LocalGeometryFinder:
             optimization: optimization algorithm
 
         Returns:
-            The StructureEnvironments object containing all the information about the coordination
-            environments in the structure.
+            StructureEnvironments: contains all the information about the coordination
+                environments in the structure.
         """
         time_init = time.process_time()
         if info is None:

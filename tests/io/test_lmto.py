@@ -4,6 +4,7 @@ import os
 
 import numpy as np
 from numpy.testing import assert_array_equal
+
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ry_to_eV
 from pymatgen.electronic_structure.core import Spin

@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import pytest
+from pytest import approx
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.kpath import KPathSeek
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 try:
     from seekpath import get_path

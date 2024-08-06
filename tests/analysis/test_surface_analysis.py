@@ -3,11 +3,12 @@ from __future__ import annotations
 import json
 
 from numpy.testing import assert_allclose
+from pytest import approx
+from sympy import Number, Symbol
+
 from pymatgen.analysis.surface_analysis import NanoscaleStability, SlabEntry, SurfaceEnergyPlotter, WorkFunctionAnalyzer
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
-from sympy import Number, Symbol
 
 __author__ = "Richard Tran"
 __copyright__ = "Copyright 2012, The Materials Project"

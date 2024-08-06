@@ -8,12 +8,13 @@ from matplotlib.figure import Figure as MplFigure
 from numpy.testing import assert_allclose
 from pandas import DataFrame
 from plotly.graph_objects import Figure
+from scipy.spatial import ConvexHull
+
 from pymatgen.analysis.interface_reactions import GrandPotentialInterfacialReactivity, InterfacialReactivity
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram, PhaseDiagram
 from pymatgen.analysis.reaction_calculator import Reaction
 from pymatgen.core.composition import Composition, Element
 from pymatgen.entries.computed_entries import ComputedEntry
-from scipy.spatial import ConvexHull
 
 
 class TestInterfaceReaction(TestCase):

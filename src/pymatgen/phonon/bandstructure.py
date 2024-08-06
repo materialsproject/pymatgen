@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.bandstructure import Kpoint
@@ -17,8 +18,9 @@ if TYPE_CHECKING:
     from typing import Any
 
     from numpy.typing import ArrayLike
-    from pymatgen.util.typing import Tuple3Ints
     from typing_extensions import Self
+
+    from pymatgen.util.typing import Tuple3Ints
 
 
 def get_reasonable_repetitions(n_atoms: int) -> Tuple3Ints:
@@ -252,7 +254,7 @@ class PhononBandStructure(MSONable):
         """Get the breaking of the acoustic sum rule for the three acoustic modes,
         if Gamma is present. None otherwise.
         If eigendisplacements are available they are used to determine the acoustic
-        modes: selects the bands corresponding  to the eigendisplacements that
+        modes: selects the bands corresponding to the eigendisplacements that
         represent to a translation within tol_eigendisplacements. If these are not
         identified or eigendisplacements are missing the first 3 modes will be used
         (indices [:3]).

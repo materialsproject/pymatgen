@@ -7,6 +7,7 @@ import warnings
 from typing import TYPE_CHECKING, Literal, cast
 
 import numpy as np
+
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.local_env import LocalStructOrderParams, get_neighbors_of_site_with_index
 from pymatgen.core import Species, get_el_sp
@@ -271,7 +272,7 @@ class JahnTellerAnalyzer:
                 quite distorted, this threshold is smaller than one might expect
 
         Returns:
-            boolean, True if might be Jahn-Teller active, False if not
+            bool: True if might be Jahn-Teller active, False if not
         """
         active = False
 
@@ -345,7 +346,7 @@ class JahnTellerAnalyzer:
 
         # taken from get_crystal_field_spin
         elec = species.element.full_electronic_structure
-        if len(elec) < 4 or elec[-1][1] != "s" or elec[-2][1] != "d":
+        if len(elec) < 4 or elec[-2][1] != "s" or elec[-1][1] != "d":
             raise AttributeError(f"Invalid element {species.symbol} for crystal field calculation.")
         n_electrons = int(elec[-1][2] + elec[-2][2] - species.oxi_state)  # type: ignore[operator]
         if n_electrons < 0 or n_electrons > 10:
