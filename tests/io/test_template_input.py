@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 
 import pytest
+
 from pymatgen.io.template import TemplateInputGen
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 

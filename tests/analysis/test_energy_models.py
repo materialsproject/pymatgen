@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from pytest import approx
+
 from pymatgen.analysis.energy_models import EwaldElectrostaticModel, IsingModel, SymmetryModel
 from pymatgen.core import Species
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 
 class TestEwaldElectrostaticModel:

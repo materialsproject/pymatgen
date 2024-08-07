@@ -25,10 +25,11 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import plotly.graph_objects as go
+from scipy.spatial import ConvexHull
+
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_angle
 from pymatgen.util.string import unicodeify_spacegroup
-from scipy.spatial import ConvexHull
 
 if TYPE_CHECKING:
     from pymatgen.core.lattice import Lattice

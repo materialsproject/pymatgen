@@ -24,11 +24,12 @@ from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
 from monty.json import MontyDecoder, MSONable
 from monty.os.path import find_exts
+from tabulate import tabulate
+
 from pymatgen.core import Element
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
-from tabulate import tabulate
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -36,8 +37,9 @@ if TYPE_CHECKING:
 
     import matplotlib.pyplot as plt
     from numpy.typing import NDArray
-    from pymatgen.core import Structure
     from typing_extensions import Self
+
+    from pymatgen.core import Structure
 
 logger = logging.getLogger(__name__)
 

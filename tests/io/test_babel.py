@@ -4,13 +4,14 @@ import copy
 from unittest import TestCase
 
 import pytest
+from pytest import approx
+
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.molecule_matcher import MoleculeMatcher
 from pymatgen.core.structure import Molecule
 from pymatgen.io.babel import BabelMolAdaptor
 from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 pybel = pytest.importorskip("openbabel.pybel")
 

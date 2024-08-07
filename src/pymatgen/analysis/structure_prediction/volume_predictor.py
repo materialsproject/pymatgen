@@ -7,6 +7,7 @@ import warnings
 
 import numpy as np
 from monty.serialization import loadfn
+
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Structure

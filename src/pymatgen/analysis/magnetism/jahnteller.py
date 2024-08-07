@@ -7,6 +7,7 @@ import warnings
 from typing import TYPE_CHECKING, Literal, cast
 
 import numpy as np
+
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.local_env import LocalStructOrderParams, get_neighbors_of_site_with_index
 from pymatgen.core import Species, get_el_sp
@@ -271,7 +272,7 @@ class JahnTellerAnalyzer:
                 quite distorted, this threshold is smaller than one might expect
 
         Returns:
-            boolean, True if might be Jahn-Teller active, False if not
+            bool: True if might be Jahn-Teller active, False if not
         """
         active = False
 

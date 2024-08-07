@@ -5,10 +5,10 @@ Then use in your code as
 
     from .due import due, Doi, BibTeX, Text
 
-See  https://github.com/duecredit/duecredit/blob/master/README.md for examples.
+See https://github.com/duecredit/duecredit/blob/master/README.md for examples.
 
 Origin:     Originally a part of the duecredit
-Copyright:  2015-2021  DueCredit developers
+Copyright:  2015-2021 DueCredit developers
 License:    BSD-2
 """
 

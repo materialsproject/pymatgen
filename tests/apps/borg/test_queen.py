@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from pytest import approx
+
 from pymatgen.apps.borg.hive import VaspToComputedEntryDrone
 from pymatgen.apps.borg.queen import BorgQueen
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Project"

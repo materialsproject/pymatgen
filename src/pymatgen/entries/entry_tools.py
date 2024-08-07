@@ -6,16 +6,17 @@ from __future__ import annotations
 
 import collections
 import csv
-import datetime
 import itertools
 import json
 import logging
 import multiprocessing as mp
 import re
 from collections import defaultdict
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 from monty.json import MontyDecoder, MontyEncoder, MSONable
+
 from pymatgen.analysis.phase_diagram import PDEntry
 from pymatgen.analysis.structure_matcher import SpeciesComparator, StructureMatcher
 from pymatgen.core import Composition, Element
@@ -24,9 +25,10 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
     from typing import Literal
 
+    from typing_extensions import Self
+
     from pymatgen.entries import Entry
     from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
-    from typing_extensions import Self
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +112,7 @@ def group_entries_by_structure(
     """
     if comparator is None:
         comparator = SpeciesComparator()
-    start = datetime.datetime.now(tz=datetime.timezone.utc)
+    start = datetime.now(tz=timezone.utc)
     logger.info(f"Started at {start}")
     entries_host = [(entry, _get_host(entry.structure, species_to_remove)) for entry in entries]
     if ncpus:
@@ -159,8 +161,8 @@ def group_entries_by_structure(
     entry_groups = []
     for g in groups:
         entry_groups.append(json.loads(g, cls=MontyDecoder))
-    logging.info(f"Finished at {datetime.datetime.now(tz=datetime.timezone.utc)}")
-    logging.info(f"Took {datetime.datetime.now(tz=datetime.timezone.utc) - start}")
+    logging.info(f"Finished at {datetime.now(tz=timezone.utc)}")
+    logging.info(f"Took {datetime.now(tz=timezone.utc) - start}")
     return entry_groups
 
 

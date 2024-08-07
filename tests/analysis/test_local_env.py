@@ -7,6 +7,8 @@ from typing import get_args
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import (
     BrunnerNNReal,
@@ -36,7 +38,6 @@ from pymatgen.analysis.local_env import (
 )
 from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/local_env/fragmenter_files"
 
@@ -1201,7 +1202,6 @@ class TestCrystalNN(PymatgenTest):
 
     def test_weighted_cn_no_oxid(self):
         cnn = CrystalNN(weighted_cn=True)
-        cn_array = []
         # fmt: off
         expected_array = [
             5.8962, 5.8996, 5.8962, 5.8996, 5.7195, 5.7195, 5.7202, 5.7194, 4.0012, 4.0012,
@@ -1210,8 +1210,7 @@ class TestCrystalNN(PymatgenTest):
         ]
         # fmt: on
         struct = self.lifepo4.copy().remove_oxidation_states()
-        for idx in range(len(struct)):
-            cn_array.append(cnn.get_cn(struct, idx, use_weights=True))
+        cn_array = [cnn.get_cn(struct, idx, use_weights=True) for idx in range(len(struct))]
 
         assert_allclose(expected_array, cn_array, 2)
 

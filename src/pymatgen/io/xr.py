@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.io import zopen
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
@@ -37,7 +38,7 @@ class Xr:
     def __init__(self, structure: Structure):
         """
         Args:
-            structure (Structure/IStructure): Structure object to create the Xr object.
+            structure (Structure | IStructure): Structure object to create the Xr object.
         """
         if not structure.is_ordered:
             raise ValueError("Xr file can only be constructed from ordered structure")

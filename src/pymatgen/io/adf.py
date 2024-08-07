@@ -10,6 +10,7 @@ from monty.io import reverse_readline
 from monty.itertools import chunks
 from monty.json import MSONable
 from monty.serialization import zopen
+
 from pymatgen.core.structure import Molecule
 
 if TYPE_CHECKING:

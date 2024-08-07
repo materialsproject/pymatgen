@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import scipy.cluster
 import spglib
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule, PeriodicSite, Structure
@@ -36,11 +37,12 @@ if TYPE_CHECKING:
     from typing import Any, Literal
 
     from numpy.typing import NDArray
+    from spglib import SpglibDataset
+
     from pymatgen.core import Element, Species
     from pymatgen.core.sites import Site
     from pymatgen.symmetry.groups import CrystalSystem
     from pymatgen.util.typing import Kpoint
-    from spglib import SpglibDataset
 
     LatticeType = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "rhombohedral", "tetragonal", "triclinic"]
 
@@ -85,7 +87,7 @@ class SpacegroupAnalyzer:
     ) -> None:
         """
         Args:
-            structure (Structure/IStructure): Structure to find symmetry
+            structure (Structure | IStructure): Structure to find symmetry
             symprec (float): Tolerance for symmetry finding. Defaults to 0.01,
                 which is fairly strict and works well for properly refined
                 structures with atoms in the proper symmetry coordinates. For
@@ -275,10 +277,9 @@ class SpacegroupAnalyzer:
         # [1e-4, 2e-4, 1e-4]
         # (these are in fractional coordinates, so should be small denominator
         # fractions)
-        _translations: list = []
-        for trans in dct["translations"]:
-            _translations.append([float(Fraction(c).limit_denominator(1000)) for c in trans])
-        translations: NDArray = np.array(_translations)
+        translations: NDArray = np.array(
+            [[float(Fraction(c).limit_denominator(1000)) for c in trans] for trans in dct["translations"]]
+        )
 
         # Fractional translations of 1 are more simply 0
         translations[np.abs(translations) == 1] = 0
@@ -1345,7 +1346,7 @@ class PointGroupAnalyzer:
             symm_op (SymmOp): Symmetry operation to test.
 
         Returns:
-            bool: Whether SymmOp is valid for Molecule.
+            bool: True if SymmOp is valid for Molecule.
         """
         coords = self.centered_mol.cart_coords
         for site in self.centered_mol:
@@ -1673,7 +1674,7 @@ class SpacegroupOperations(list):
                 are symmetrically similar.
 
         Returns:
-            bool: Whether the two sets of sites are symmetrically equivalent.
+            bool: True if the two sets of sites are symmetrically equivalent.
         """
 
         def in_sites(site):

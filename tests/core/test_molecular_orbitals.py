@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from pymatgen.core.molecular_orbitals import MolecularOrbitals
 from pymatgen.util.testing import PymatgenTest
 

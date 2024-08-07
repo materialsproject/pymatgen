@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import numpy as np
 from numpy.testing import assert_allclose, assert_array_equal
+from pytest import approx
+
 from pymatgen.analysis.nmr import ChemicalShielding, ElectricFieldGradient
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 
 class TestChemicalShieldingNotation(PymatgenTest):

@@ -4,6 +4,7 @@ from unittest import TestCase
 
 import numpy as np
 from numpy.testing import assert_allclose
+
 from pymatgen.symmetry.settings import JonesFaithfulTransformation, Lattice, SymmOp
 
 __author__ = "Matthew Horton"

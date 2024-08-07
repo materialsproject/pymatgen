@@ -8,6 +8,7 @@ from math import asin, cos, degrees, pi, radians, sin
 from typing import TYPE_CHECKING
 
 import numpy as np
+
 from pymatgen.analysis.diffraction.core import (
     AbstractDiffractionPatternCalculator,
     DiffractionPattern,
@@ -100,7 +101,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
         """Initialize the XRD calculator with a given radiation.
 
         Args:
-            wavelength (str/float): The wavelength can be specified as either a
+            wavelength (str | float): The wavelength can be specified as either a
                 float or a string. If it is a string, it must be one of the
                 supported definitions in the AVAILABLE_RADIATION class
                 variable, which provides useful commonly used wavelengths.

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import pytest
+from pytest import approx
+
 from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
     AdditionalConditionInt,
     AngleCutoffFloat,
@@ -9,7 +11,6 @@ from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies impo
     SimplestChemenvStrategy,
 )
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 __author__ = "waroquiers"
 

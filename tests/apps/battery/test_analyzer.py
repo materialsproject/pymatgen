@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import pytest
+from pytest import approx
+
 from pymatgen.apps.battery.analyzer import BatteryAnalyzer
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 
 class TestBatteryAnalyzer(PymatgenTest):

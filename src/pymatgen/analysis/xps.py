@@ -25,13 +25,15 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
+
 from pymatgen.core import Element
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
-    from pymatgen.electronic_structure.dos import CompleteDos
     from typing_extensions import Self
+
+    from pymatgen.electronic_structure.dos import CompleteDos
 
 
 due.cite(

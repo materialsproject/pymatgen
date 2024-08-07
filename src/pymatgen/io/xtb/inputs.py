@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 class CRESTInput(MSONable):
     """
-    An object representing  CREST input files.
+    An object representing CREST input files.
     Because CREST is controlled through command line flags and external
     files, the CRESTInput class mainly consists of methods for containing
     and writing external files.

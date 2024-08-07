@@ -8,6 +8,9 @@ from copy import deepcopy
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+from pytest import approx
+from scipy.misc import central_diff_weights
+
 from pymatgen.analysis.elasticity.elastic import (
     ComplianceTensor,
     ElasticTensor,
@@ -26,8 +29,6 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
-from scipy.misc import central_diff_weights
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/elasticity"
 

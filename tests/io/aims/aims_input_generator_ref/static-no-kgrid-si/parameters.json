@@ -4,7 +4,7 @@
   "species_dir": "/home/tpurcell/git/atomate2/tests/aims/species_dir/light",
   "k_grid": [
     12,
-    12,
-    12
+    6,
+    4
   ]
 }

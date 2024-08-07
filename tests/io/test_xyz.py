@@ -4,11 +4,12 @@ from unittest import TestCase
 
 import pandas as pd
 import pytest
+from pytest import approx
+
 from pymatgen.core import Structure
 from pymatgen.core.structure import Molecule
 from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
-from pytest import approx
 
 
 class TestXYZ(TestCase):

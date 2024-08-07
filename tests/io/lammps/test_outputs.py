@@ -7,6 +7,7 @@ from unittest import TestCase
 import numpy as np
 import pandas as pd
 from numpy.testing import assert_allclose
+
 from pymatgen.io.lammps.outputs import LammpsDump, parse_lammps_dumps, parse_lammps_log
 from pymatgen.util.testing import TEST_FILES_DIR
 

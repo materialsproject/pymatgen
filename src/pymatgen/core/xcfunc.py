@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, NamedTuple
 
 from monty.functools import lazy_property
 from monty.json import MSONable
+
 from pymatgen.core.libxcfunc import LibxcFunc
 
 if TYPE_CHECKING:

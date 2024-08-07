@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 
 import pytest
+
 from pymatgen.core.structure import Molecule
 from pymatgen.io.multiwfn import (
     QTAIM_CONDITIONALS,

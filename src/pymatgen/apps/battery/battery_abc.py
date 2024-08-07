@@ -12,8 +12,9 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from monty.json import MSONable
-from pymatgen.core import Composition, Element
 from scipy.constants import N_A
+
+from pymatgen.core import Composition, Element
 
 if TYPE_CHECKING:
     from pymatgen.entries.computed_entries import ComputedEntry

@@ -6,6 +6,7 @@ from unittest import TestCase
 import matplotlib.pyplot as plt
 import pytest
 from numpy.testing import assert_allclose
+
 from pymatgen.phonon import CompletePhononDos, PhononBandStructureSymmLine
 from pymatgen.phonon.plotter import PhononBSPlotter, PhononDosPlotter, ThermoPlotter
 from pymatgen.util.testing import TEST_FILES_DIR

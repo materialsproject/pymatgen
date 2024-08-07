@@ -7,6 +7,8 @@ import numpy as np
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose, assert_array_equal
+from pytest import approx
+
 from pymatgen.analysis.energy_models import IsingModel, SymmetryModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
 from pymatgen.core import Lattice, Molecule, Species, Structure
@@ -39,7 +41,6 @@ from pymatgen.transformations.standard_transformations import (
     SubstitutionTransformation,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
-from pytest import approx
 
 try:
     import hiphive

@@ -20,12 +20,13 @@ from monty.dev import deprecated
 from monty.json import MSONable
 from networkx.drawing.nx_agraph import write_dot
 from networkx.readwrite import json_graph
+from scipy.spatial import KDTree
+from scipy.stats import describe
+
 from pymatgen.core import Lattice, Molecule, PeriodicSite, Structure
 from pymatgen.core.structure import FunctionalGroups
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.vis.structure_vtk import EL_COLORS
-from scipy.spatial import KDTree
-from scipy.stats import describe
 
 try:
     import igraph
@@ -38,10 +39,11 @@ if TYPE_CHECKING:
 
     from igraph import Graph
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
+
     from pymatgen.analysis.local_env import NearNeighbors
     from pymatgen.core import Species
     from pymatgen.util.typing import Tuple3Ints
-    from typing_extensions import Self
 
 
 logger = logging.getLogger(__name__)

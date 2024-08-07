@@ -4,6 +4,7 @@ import json
 from unittest import TestCase
 
 from monty.json import MontyDecoder
+
 from pymatgen.apps.battery.conversion_battery import ConversionElectrode
 from pymatgen.apps.battery.insertion_battery import InsertionElectrode
 from pymatgen.apps.battery.plotter import VoltageProfilePlotter

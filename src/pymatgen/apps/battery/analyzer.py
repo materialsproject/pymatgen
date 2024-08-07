@@ -6,6 +6,7 @@ import math
 from collections import defaultdict
 
 import scipy.constants as const
+
 from pymatgen.core import Composition, Element, Species
 
 __author__ = "Anubhav Jain"

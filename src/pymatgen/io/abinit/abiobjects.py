@@ -13,6 +13,7 @@ import numpy as np
 from monty.collections import AttrDict
 from monty.design_patterns import singleton
 from monty.json import MontyDecoder, MontyEncoder, MSONable
+
 from pymatgen.core import ArrayWithUnit, Lattice, Species, Structure, units
 
 if TYPE_CHECKING:
@@ -265,10 +266,7 @@ def structure_to_abivars(
             # One should make sure that the orientation is preserved (see Curtarolo's settings)
 
     if geo_mode == "rprim":
-        dct.update(
-            acell=3 * [1.0],
-            rprim=r_prim,
-        )
+        dct.update(acell=3 * [1.0], rprim=r_prim)
 
     elif geo_mode == "angdeg":
         dct.update(
@@ -375,7 +373,7 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
     def as_dict(self):
         """JSON-friendly dict representation of SpinMode."""
         out = {k: getattr(self, k) for k in self._fields}
-        out.update({"@module": type(self).__module__, "@class": type(self).__name__})
+        out |= {"@module": type(self).__module__, "@class": type(self).__name__}
         return out
 
     @classmethod
@@ -384,7 +382,6 @@ class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble,
         return cls(**{key: dct[key] for key in dct if key in cls._fields})
 
 
-# An handy Multiton
 _mode_to_spin_vars = {
     "unpolarized": SpinMode("unpolarized", 1, 1, 1),
     "polarized": SpinMode("polarized", 2, 1, 2),
@@ -631,13 +628,7 @@ class Electrons(AbivarAble, MSONable):
         """Return dictionary with Abinit variables."""
         abivars = self.spin_mode.to_abivars()
 
-        abivars.update(
-            {
-                "nband": self.nband,
-                "fband": self.fband,
-                "charge": self.charge,
-            }
-        )
+        abivars |= {"nband": self.nband, "fband": self.fband, "charge": self.charge}
 
         if self.smearing:
             abivars.update(self.smearing.to_abivars())
@@ -740,15 +731,13 @@ class KSampling(AbivarAble, MSONable):
             else:  # use_symmetries and not use_time_reversal
                 kptopt = 4
 
-            abivars.update(
-                {
-                    "ngkpt": ngkpt,
-                    "shiftk": shiftk,
-                    "nshiftk": len(shiftk),
-                    "kptopt": kptopt,
-                    "chksymbreak": chksymbreak,
-                }
-            )
+            abivars |= {
+                "ngkpt": ngkpt,
+                "shiftk": shiftk,
+                "nshiftk": len(shiftk),
+                "kptopt": kptopt,
+                "chksymbreak": chksymbreak,
+            }
 
         elif mode == KSamplingModes.path:
             if num_kpts <= 0:
@@ -756,29 +745,21 @@ class KSampling(AbivarAble, MSONable):
 
             kptbounds = np.reshape(kpts, (-1, 3))
 
-            abivars.update(
-                {
-                    "ndivsm": num_kpts,
-                    "kptbounds": kptbounds,
-                    "kptopt": -len(kptbounds) + 1,
-                }
-            )
+            abivars |= {"ndivsm": num_kpts, "kptbounds": kptbounds, "kptopt": -len(kptbounds) + 1}
 
         elif mode == KSamplingModes.automatic:
             kpts = np.reshape(kpts, (-1, 3))
             if len(kpts) != num_kpts:
                 raise ValueError("For Automatic mode, num_kpts must be specified.")
 
-            abivars.update(
-                {
-                    "kptopt": 0,
-                    "kpt": kpts,
-                    "nkpt": num_kpts,
-                    "kptnrm": np.ones(num_kpts),
-                    "wtk": kpts_weights,  # for iscf/=-2, wtk.
-                    "chksymbreak": chksymbreak,
-                }
-            )
+            abivars |= {
+                "kptopt": 0,
+                "kpt": kpts,
+                "nkpt": num_kpts,
+                "kptnrm": np.ones(num_kpts),
+                "wtk": kpts_weights,  # for iscf/=-2, wtk.
+                "chksymbreak": chksymbreak,
+            }
 
         else:
             raise ValueError(f"Unknown {mode=}")
@@ -1115,11 +1096,7 @@ class RelaxationMethod(AbivarAble, MSONable):
 
         # Atom relaxation.
         if self.move_atoms:
-            out_vars.update(
-                {
-                    "tolmxf": self.abivars.tolmxf,
-                }
-            )
+            out_vars["tolmxf"] = self.abivars.tolmxf
 
         if self.abivars.atoms_constraints:
             # Add input variables for constrained relaxation.

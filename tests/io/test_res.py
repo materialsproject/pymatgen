@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import pytest
+from pytest import approx
+
 from pymatgen.core import Structure
 from pymatgen.io.res import AirssProvider, ResParseError, ResWriter
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/res"
 

@@ -12,6 +12,8 @@ import numpy as np
 from matplotlib import patches
 from matplotlib.path import Path
 from monty.serialization import loadfn
+from scipy.spatial import Delaunay
+
 from pymatgen import vis
 from pymatgen.analysis.local_env import VoronoiNN
 from pymatgen.analysis.structure_matcher import StructureMatcher
@@ -20,13 +22,13 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.surface import generate_all_slabs
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list_pbc
-from scipy.spatial import Delaunay
 
 if TYPE_CHECKING:
     import matplotlib.pyplot as plt
     from numpy.typing import ArrayLike
-    from pymatgen.core.surface import Slab
     from typing_extensions import Self
+
+    from pymatgen.core.surface import Slab
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2016, The Materials Project"

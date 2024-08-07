@@ -4,6 +4,7 @@ from unittest import TestCase
 
 import pytest
 from monty.serialization import loadfn
+
 from pymatgen.analysis.bond_dissociation import BondDissociationEnergies
 from pymatgen.util.testing import TEST_FILES_DIR
 

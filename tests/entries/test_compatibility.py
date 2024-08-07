@@ -9,9 +9,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 from unittest import TestCase
 
-import pymatgen
 import pytest
 from monty.json import MontyDecoder
+from pytest import approx
+
+import pymatgen
 from pymatgen.core import Element, Species
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -32,7 +34,6 @@ from pymatgen.entries.compatibility import (
 )
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry, ConstantEnergyAdjustment
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 if TYPE_CHECKING:
     from pymatgen.util.typing import CompositionLike
@@ -478,6 +479,17 @@ class TestMaterialsProjectCompatibility(TestCase):
 
     def test_process_entries(self):
         entries = self.compat.process_entries([self.entry1, self.entry2, self.entry3, self.entry4])
+        assert len(entries) == 2
+
+    def test_parallel_process_entries(self):
+        with pytest.raises(ValueError, match="Parallel processing is not possible with for 'inplace=True'"):
+            entries = self.compat.process_entries(
+                [self.entry1, self.entry2, self.entry3, self.entry4], inplace=True, n_workers=2
+            )
+
+        entries = self.compat.process_entries(
+            [self.entry1, self.entry2, self.entry3, self.entry4], inplace=False, n_workers=2
+        )
         assert len(entries) == 2
 
     def test_msonable(self):
@@ -1877,6 +1889,22 @@ class TestMaterialsProjectAqueousCompatibility:
         entries_copy = copy.deepcopy(entries)
         MaterialsProjectAqueousCompatibility().process_entries(entries, inplace=False)
         assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
+
+    def test_parallel_process_entries(self):
+        hydrate_entry = ComputedEntry(Composition("FeH4O2"), -10)  # nH2O = 2
+        hydrate_entry2 = ComputedEntry(Composition("Li2O2H2"), -10)  # nH2O = 0
+
+        entry_list = [hydrate_entry, hydrate_entry2]
+
+        compat = MaterialsProjectAqueousCompatibility(
+            o2_energy=-10, h2o_energy=-20, h2o_adjustments=-0.5, solid_compat=None
+        )
+
+        with pytest.raises(ValueError, match="Parallel processing is not possible with for 'inplace=True'"):
+            entries = compat.process_entries(entry_list, inplace=True, n_workers=2)
+
+        entries = compat.process_entries(entry_list, inplace=False, n_workers=2, on_error="raise")
+        assert len(entries) == 2
 
 
 class TestAqueousCorrection(TestCase):

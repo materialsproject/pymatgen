@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from pymatgen.analysis.hhi import HHIModel
 from pytest import approx
+
+from pymatgen.analysis.hhi import HHIModel
 
 
 class TestHHIModel:

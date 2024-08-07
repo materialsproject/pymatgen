@@ -11,10 +11,11 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
+from scipy.interpolate import RegularGridInterpolator
+
 from pymatgen.core import Element, Site, Structure
 from pymatgen.core.units import ang_to_bohr, bohr_to_angstrom
 from pymatgen.electronic_structure.core import Spin
-from scipy.interpolate import RegularGridInterpolator
 
 if TYPE_CHECKING:
     from pathlib import Path

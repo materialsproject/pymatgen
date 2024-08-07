@@ -7,12 +7,13 @@ from unittest import TestCase
 import matplotlib.pyplot as plt
 import numpy as np
 from monty.serialization import dumpfn, loadfn
+from pytest import approx
+
 from pymatgen.analysis.pourbaix_diagram import IonEntry, MultiEntry, PourbaixDiagram, PourbaixEntry, PourbaixPlotter
 from pymatgen.core.composition import Composition
 from pymatgen.core.ion import Ion
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/pourbaix_diagram"
 

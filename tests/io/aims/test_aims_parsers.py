@@ -6,6 +6,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+
 from pymatgen.core.tensors import Tensor
 from pymatgen.io.aims.parsers import (
     EV_PER_A3_TO_KBAR,

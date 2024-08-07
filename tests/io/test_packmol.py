@@ -6,6 +6,7 @@ from shutil import which
 from subprocess import TimeoutExpired
 
 import pytest
+
 from pymatgen.analysis.molecule_matcher import MoleculeMatcher
 from pymatgen.core import Molecule
 from pymatgen.io.packmol import PackmolBoxGen

@@ -10,6 +10,8 @@ import networkx as nx
 import networkx.algorithms.isomorphism as iso
 import pytest
 from monty.serialization import loadfn
+from pytest import approx
+
 from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError, PeriodicSite, StructureGraph
 from pymatgen.analysis.local_env import (
     CovalentBondNN,
@@ -23,7 +25,6 @@ from pymatgen.command_line.critic2_caller import Critic2Analysis
 from pymatgen.core import Lattice, Molecule, Site, Structure
 from pymatgen.core.structure import FunctionalGroups
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 try:
     from openbabel import openbabel
@@ -372,7 +373,7 @@ from    to  to_image
         bc_square_sg_r.draw_graph_to_file(f"{self.tmp_path}/bc_square_r.pdf", algo="neato", image_labels=False)
 
         # ensure PDF files were created
-        pdfs = {path.split("/") for path in glob(f"{self.tmp_path}/*.pdf")}
+        pdfs = {path.split("/")[-1] for path in glob(f"{self.tmp_path}/*.pdf")}
         expected_pdfs = {
             "bc_square_r_single.pdf",
             "bc_square_r.pdf",

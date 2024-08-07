@@ -20,6 +20,7 @@ import numpy as np
 from monty.json import MSONable
 from monty.os.path import zpath
 from monty.serialization import loadfn
+
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 
@@ -80,7 +81,7 @@ class AbstractFeffInputSet(MSONable, abc.ABC):
         dct = {"HEADER": self.header(), "PARAMETERS": self.tags}
 
         if "RECIPROCAL" not in self.tags:
-            dct.update({"POTENTIALS": self.potential, "ATOMS": self.atoms})
+            dct |= {"POTENTIALS": self.potential, "ATOMS": self.atoms}
 
         return dct
 
@@ -133,7 +134,7 @@ class FEFFDictSet(AbstractFeffInputSet):
     ):
         """
         Args:
-            absorbing_atom (str/int): absorbing atom symbol or site index
+            absorbing_atom (str | int): absorbing atom symbol or site index
             structure: Structure or Molecule object. If a Structure, SpaceGroupAnalyzer is used to
                 determine symmetrically-equivalent sites. If a Molecule, there is no symmetry
                 checking.
@@ -365,7 +366,7 @@ class MPXANESSet(FEFFDictSet):
     ):
         r"""
         Args:
-            absorbing_atom (str/int): absorbing atom symbol or site index
+            absorbing_atom (str | int): absorbing atom symbol or site index
             structure (Structure): input
             edge (str): absorption edge
             radius (float): cluster radius in Angstroms.
@@ -404,7 +405,7 @@ class MPEXAFSSet(FEFFDictSet):
     ):
         r"""
         Args:
-            absorbing_atom (str/int): absorbing atom symbol or site index
+            absorbing_atom (str | int): absorbing atom symbol or site index
             structure (Structure): input structure
             edge (str): absorption edge
             radius (float): cluster radius in Angstroms.
@@ -448,7 +449,7 @@ class MPEELSDictSet(FEFFDictSet):
     ):
         """
         Args:
-            absorbing_atom (str/int): absorbing atom symbol or site index
+            absorbing_atom (str | int): absorbing atom symbol or site index
             structure (Structure): input structure
             edge (str): absorption edge
             spectrum (str): ELNES or EXELFS
@@ -519,7 +520,7 @@ class MPELNESSet(MPEELSDictSet):
     ):
         r"""
         Args:
-            absorbing_atom (str/int): absorbing atom symbol or site index
+            absorbing_atom (str | int): absorbing atom symbol or site index
             structure (Structure): input structure
             edge (str): absorption edge
             radius (float): cluster radius in Angstroms.
@@ -575,7 +576,7 @@ class MPEXELFSSet(MPEELSDictSet):
     ):
         r"""
         Args:
-            absorbing_atom (str/int): absorbing atom symbol or site index
+            absorbing_atom (str | int): absorbing atom symbol or site index
             structure (Structure): input structure
             edge (str): absorption edge
             radius (float): cluster radius in Angstroms.

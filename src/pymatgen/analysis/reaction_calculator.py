@@ -10,16 +10,18 @@ from typing import TYPE_CHECKING, no_type_check, overload
 import numpy as np
 from monty.fractions import gcd_float
 from monty.json import MontyDecoder, MSONable
+from uncertainties import ufloat
+
 from pymatgen.core.composition import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
-from uncertainties import ufloat
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
+    from typing_extensions import Self
+
     from pymatgen.core import Element, Species
     from pymatgen.util.typing import CompositionLike
-    from typing_extensions import Self
 
 __author__ = "Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -137,7 +139,7 @@ class BalancedReaction(MSONable):
         Another factor can be specified.
 
         Args:
-            element (Element/Species): Element to normalize to.
+            element (SpeciesLike): Element to normalize to.
             factor (float): Factor to normalize to. Defaults to 1.
         """
         all_comp = self._all_comp
@@ -150,7 +152,7 @@ class BalancedReaction(MSONable):
         """Get the amount of the element in the reaction.
 
         Args:
-            element (Element/Species): Element in the reaction
+            element (SpeciesLike): Element in the reaction
 
         Returns:
             Amount of that element in the reaction.
@@ -260,7 +262,7 @@ class BalancedReaction(MSONable):
             dct (dict): from as_dict().
 
         Returns:
-            A BalancedReaction object.
+            BalancedReaction
         """
         reactants = {Composition(comp): coeff for comp, coeff in dct["reactants"].items()}
         products = {Composition(comp): coeff for comp, coeff in dct["products"].items()}

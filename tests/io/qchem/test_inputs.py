@@ -5,6 +5,7 @@ import os
 
 import pytest
 from monty.serialization import loadfn
+
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.inputs import QCInput
 from pymatgen.io.qchem.sets import OptSet

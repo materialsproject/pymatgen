@@ -7,11 +7,12 @@ from fractions import Fraction
 from typing import TYPE_CHECKING
 
 import numpy as np
+from sympy import Matrix
+from sympy.parsing.sympy_parser import parse_expr
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.util.string import transformation_to_string
-from sympy import Matrix
-from sympy.parsing.sympy_parser import parse_expr
 
 if TYPE_CHECKING:
     from typing_extensions import Self

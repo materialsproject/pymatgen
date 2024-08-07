@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import numpy as np
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.core.interface import GrainBoundary, GrainBoundaryGenerator, Interface
 from pymatgen.core.structure import Structure
 from pymatgen.core.surface import SlabGenerator
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/core/grain_boundary"
 

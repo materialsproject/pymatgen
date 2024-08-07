@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
+
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.core.structure import Structure
 from pymatgen.util.plotting import add_fig_kwargs

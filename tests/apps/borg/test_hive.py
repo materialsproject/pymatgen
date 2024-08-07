@@ -3,6 +3,8 @@ from __future__ import annotations
 import os
 from unittest import TestCase
 
+from pytest import approx
+
 from pymatgen.apps.borg.hive import (
     GaussianToComputedEntryDrone,
     SimpleVaspToComputedEntryDrone,
@@ -10,7 +12,6 @@ from pymatgen.apps.borg.hive import (
 )
 from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_OUT_DIR
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/apps/borg"
 

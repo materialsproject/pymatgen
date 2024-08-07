@@ -4,10 +4,11 @@ import copy
 import json
 
 from numpy.testing import assert_allclose, assert_array_equal
+from pytest import approx
+
 from pymatgen.electronic_structure.bandstructure import Kpoint
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/bandstructure"
 

@@ -4,10 +4,11 @@ import json
 from unittest import TestCase
 
 from monty.json import MontyDecoder
+from pytest import approx
+
 from pymatgen.apps.battery.conversion_battery import ConversionElectrode, ConversionVoltagePair
 from pymatgen.core.composition import Composition
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/apps/battery"
 

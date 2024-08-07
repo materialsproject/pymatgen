@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING, NamedTuple
 
 import requests
 from monty.json import MontyDecoder
+
 from pymatgen.core import SETTINGS
 from pymatgen.core import __version__ as PMG_VERSION
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -28,10 +29,11 @@ if TYPE_CHECKING:
     from typing import Callable
 
     from mp_api.client import MPRester as _MPResterNew
+    from typing_extensions import Self
+
     from pymatgen.core.structure import Structure
     from pymatgen.entries.computed_entries import ComputedStructureEntry
     from pymatgen.ext.matproj_legacy import _MPResterLegacy
-    from typing_extensions import Self
 
 logger = logging.getLogger(__name__)
 
@@ -332,7 +334,7 @@ class _MPResterBasic:
         Li, Fe and O phases. Extremely useful for creating phase diagrams of entire chemical systems.
 
         Args:
-            elements (str or [str]): Chemical system string comprising element
+            elements (str | list[str]): Chemical system string comprising element
                 symbols separated by dashes, e.g. "Li-Fe-O" or List of element
                 symbols, e.g. ["Li", "Fe", "O"].
             *args: Pass-through to get_entries.

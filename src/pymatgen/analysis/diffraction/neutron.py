@@ -8,6 +8,7 @@ from math import asin, cos, degrees, pi, radians, sin
 from typing import TYPE_CHECKING
 
 import numpy as np
+
 from pymatgen.analysis.diffraction.core import (
     AbstractDiffractionPatternCalculator,
     DiffractionPattern,

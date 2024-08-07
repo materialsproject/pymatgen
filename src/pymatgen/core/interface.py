@@ -15,6 +15,9 @@ from typing import TYPE_CHECKING, Literal, Union, cast
 import numpy as np
 from monty.fractions import lcm
 from numpy.testing import assert_allclose
+from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.spatial.distance import squareform
+
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.sites import PeriodicSite, Site
@@ -22,17 +25,16 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.surface import Slab
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.typing import Tuple3Ints
-from scipy.cluster.hierarchy import fcluster, linkage
-from scipy.spatial.distance import squareform
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Callable
 
     from numpy.typing import ArrayLike, NDArray
+    from typing_extensions import Self
+
     from pymatgen.core import Element
     from pymatgen.util.typing import CompositionLike, Matrix3D, MillerIndex, Tuple3Floats, Vector3D
-    from typing_extensions import Self
 
 Tuple4Ints = tuple[int, int, int, int]
 logger = logging.getLogger(__name__)
@@ -81,8 +83,8 @@ class GrainBoundary(Structure):
         """A Structure with additional information and methods pertaining to GBs.
 
         Args:
-            lattice (Lattice/3x3 array): The lattice, either as an instance or
-                any 2D array. Each row should correspond to a lattice vector.
+            lattice (Lattice | np.ndarray): The lattice, either as an instance or
+                a 3x3 array. Each row should correspond to a lattice vector.
             species ([Species]): Sequence of species on each site. Can take in
                 flexible input, including:
 
@@ -1766,7 +1768,7 @@ class GrainBoundaryGenerator:
                 e.g. mu:lam:mv = c2,None,a2, means b2 is irrational.
 
         Returns:
-            dict: sigmas  dictionary with keys as the possible integer sigma values
+            dict: sigmas dictionary with keys as the possible integer sigma values
                 and values as list of the possible rotation angles to the
                 corresponding sigma values. e.g. the format as
                 {sigma1: [angle11,angle12,...], sigma2: [angle21, angle22,...],...}
@@ -2388,7 +2390,7 @@ def symm_group_cubic(mat: NDArray) -> list:
     """Obtain cubic symmetric equivalents of the list of vectors.
 
     Args:
-        mat (n by 3 array/matrix): lattice matrix
+        mat (np.ndarray): n x 3 lattice matrix
 
 
     Returns:
@@ -2449,9 +2451,8 @@ class Interface(Structure):
         and methods pertaining to interfaces.
 
         Args:
-            lattice (Lattice/3x3 array): The lattice, either as a
-                pymatgen.core.Lattice or
-                simply as any 2D array. Each row should correspond to a lattice
+            lattice (Lattice | np.ndarray): The lattice, either as a pymatgen.core.Lattice
+                or a 3x3 array. Each row should correspond to a lattice
                 vector. e.g. [[10,0,0], [20,10,0], [0,0,30]] specifies a
                 lattice with lattice vectors [10,0,0], [20,10,0] and [0,0,30].
             species ([Species]): Sequence of species on each site. Can take in

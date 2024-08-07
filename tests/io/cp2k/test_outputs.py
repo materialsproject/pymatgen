@@ -4,9 +4,10 @@ from unittest import TestCase
 
 import numpy as np
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.io.cp2k.outputs import Cp2kOutput
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
 

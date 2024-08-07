@@ -5,18 +5,20 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from scipy.constants import N_A
+
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.reaction_calculator import BalancedReaction
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltagePair
 from pymatgen.core import Composition, Element
 from pymatgen.core.units import Charge, Time
-from scipy.constants import N_A
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from pymatgen.entries.computed_entries import ComputedEntry
     from typing_extensions import Self
+
+    from pymatgen.entries.computed_entries import ComputedEntry
 
 
 @dataclass

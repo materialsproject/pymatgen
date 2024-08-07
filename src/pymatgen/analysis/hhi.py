@@ -14,6 +14,7 @@ from __future__ import annotations
 import os
 
 from monty.design_patterns import singleton
+
 from pymatgen.core import Composition, Element
 
 __author__ = "Anubhav Jain"

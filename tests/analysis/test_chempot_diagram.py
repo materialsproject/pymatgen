@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 from plotly.graph_objects import Figure
+from pytest import approx
+
 from pymatgen.analysis.chempot_diagram import (
     ChemicalPotentialDiagram,
     get_2d_orthonormal_vector,
@@ -11,7 +13,6 @@ from pymatgen.analysis.chempot_diagram import (
 from pymatgen.core.composition import Element
 from pymatgen.entries.entry_tools import EntrySet
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis"
 

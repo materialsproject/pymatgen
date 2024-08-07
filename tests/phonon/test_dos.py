@@ -5,10 +5,11 @@ import re
 
 import numpy as np
 import pytest
+from pytest import approx
+
 from pymatgen.core import Element
 from pymatgen.phonon.dos import CompletePhononDos, PhononDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/phonon/dos"
 

@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import numpy as np
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.analysis.eos import EOS, NumericalEOS
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 
 class TestEOS(PymatgenTest):

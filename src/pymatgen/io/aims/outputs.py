@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MontyDecoder, MSONable
+
 from pymatgen.io.aims.parsers import (
     read_aims_header_info,
     read_aims_header_info_from_content,
@@ -18,9 +19,10 @@ if TYPE_CHECKING:
     from pathlib import Path
     from typing import Any
 
+    from typing_extensions import Self
+
     from pymatgen.core import Molecule, Structure
     from pymatgen.util.typing import Matrix3D, Vector3D
-    from typing_extensions import Self
 
 __author__ = "Andrey Sobolev and Thomas A. R. Purcell"
 __version__ = "1.0"

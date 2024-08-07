@@ -15,14 +15,16 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy.constants as const
+
 from pymatgen.core.units import kb as kb_ev
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core import Molecule
     from pymatgen.io.gaussian import GaussianOutput
     from pymatgen.io.qchem.outputs import QCOutput
-    from typing_extensions import Self
 
 __author__ = "Alex Epstein"
 __copyright__ = "Copyright 2020, The Materials Project"

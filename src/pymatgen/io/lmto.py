@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, no_type_check
 
 import numpy as np
 from monty.io import zopen
+
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ry_to_eV, bohr_to_angstrom
 from pymatgen.electronic_structure.core import Spin
@@ -280,7 +281,7 @@ class LMTOCopl:
                 "length": bond length}
         efermi (float): The Fermi energy in Ry or eV.
         energies (list): Sequence of energies in Ry or eV.
-        is_spin_polarized (bool): Boolean to indicate if the calculation is spin polarized.
+        is_spin_polarized (bool): True if the calculation is spin-polarized.
     """
 
     def __init__(self, filename="COPL", to_eV=False):

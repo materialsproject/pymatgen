@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from numpy.testing import assert_allclose
+
 from pymatgen.analysis.interfaces.coherent_interfaces import (
     CoherentInterfaceBuilder,
     from_2d_to_3d,

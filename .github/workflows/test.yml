@@ -35,11 +35,11 @@ jobs:
             resolution: highest
             extras: ci,optional
           - os: ubuntu-latest
-            python: '>3.9'
+            python: ">3.9"
             resolution: lowest-direct
             extras: ci,optional
           - os: macos-latest
-            python: '3.10'
+            python: "3.10"
             resolution: lowest-direct
             extras: ci # test with only required dependencies installed
 
@@ -70,17 +70,28 @@ jobs:
       - name: Install ubuntu-only conda dependencies
         if: matrix.config.os == 'ubuntu-latest'
         run: |
-          micromamba install -n pmg -c conda-forge enumlib packmol bader openbabel openff-toolkit --yes
+          micromamba install -n pmg -c conda-forge enumlib packmol bader openbabel openff-toolkit pygraphviz --yes
 
       - name: Install pymatgen and dependencies
         run: |
           micromamba activate pmg
+
           # TODO remove temporary fix. added since uv install torch is flaky.
           # track https://github.com/astral-sh/uv/issues/1921 for resolution
           pip install torch --upgrade
 
-          uv pip install numpy cython
+          uv pip install cython setuptools wheel
+
           uv pip install --editable '.[${{ matrix.config.extras }}]' --resolution=${{ matrix.config.resolution }}
+
+      - name: Install optional Ubuntu dependencies
+        if: matrix.config.os == 'ubuntu-latest'
+        run: |
+          micromamba activate pmg
+
+          # TODO: uv cannot install BoltzTraP2 (#3786),
+          # suggesting no NumPy when there is
+          pip install BoltzTraP2
 
       - name: pytest split ${{ matrix.split }}
         run: |

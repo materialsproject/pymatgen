@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 import networkx as nx
 import numpy as np
 from monty.json import MSONable, jsanitize
+
 from pymatgen.analysis.chemenv.connectivity.connected_components import ConnectedComponent
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import get_environment_node
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
@@ -75,8 +76,8 @@ class StructureConnectivity(MSONable):
     def environment_subgraph(self, environments_symbols=None, only_atoms=None):
         """
         Args:
-            environments_symbols ():
-            only_atoms ():
+            environments_symbols (list[str]): symbols of the environments to consider.
+            only_atoms (list[str]): atoms to consider.
 
         Returns:
             nx.MultiGraph: The subgraph of the structure connectivity graph
@@ -186,8 +187,8 @@ class StructureConnectivity(MSONable):
                         )
                         self._environment_subgraph.add_node(env_node)
                 else:
-                    #  TODO: add the possibility of a "constraint" on the minimum percentage
-                    #        of the atoms on the site
+                    # TODO add the possibility of a "constraint" on the minimum percentage
+                    # of the atoms on the site
                     this_site_elements = [
                         sp.symbol for sp in self.light_structure_environments.structure[isite].species_and_occu
                     ]

@@ -3,9 +3,10 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/pwscf"
 
@@ -374,6 +375,32 @@ CELL_PARAMETERS angstrom
 
         assert_allclose(lattice, pw_in.structure.lattice.matrix)
         assert pw_in.sections["system"]["smearing"] == "cold"
+
+    def test_write_and_read_str(self):
+        struct = self.get_structure("Graphite")
+        struct.remove_oxidation_states()
+        pw = PWInput(
+            struct,
+            pseudo={"C": "C.pbe-n-kjpaw_psl.1.0.0.UPF"},
+            control={"calculation": "scf", "pseudo_dir": "./"},
+            system={"ecutwfc": 45},
+        )
+        pw_str = str(pw)
+        assert pw_str.strip() == str(PWInput.from_str(pw_str)).strip()
+
+    def test_write_and_read_str_with_oxidation(self):
+        struct = self.get_structure("Li2O")
+        pw = PWInput(
+            struct,
+            control={"calculation": "scf", "pseudo_dir": "./"},
+            pseudo={
+                "Li+": "Li.pbe-n-kjpaw_psl.0.1.UPF",
+                "O2-": "O.pbe-n-kjpaw_psl.0.1.UPF",
+            },
+            system={"ecutwfc": 50},
+        )
+        pw_str = str(pw)
+        assert pw_str.strip() == str(PWInput.from_str(pw_str)).strip()
 
 
 class TestPWOutput(PymatgenTest):

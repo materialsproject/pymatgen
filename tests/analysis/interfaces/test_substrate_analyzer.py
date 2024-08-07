@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from numpy.testing import assert_allclose
+
 from pymatgen.analysis.elasticity.elastic import ElasticTensor
 from pymatgen.analysis.interfaces.substrate_analyzer import SubstrateAnalyzer
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer

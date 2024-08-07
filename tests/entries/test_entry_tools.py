@@ -4,6 +4,7 @@ from itertools import starmap
 
 import pytest
 from monty.serialization import dumpfn, loadfn
+
 from pymatgen.core import Element
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.entries.entry_tools import EntrySet, group_entries_by_composition, group_entries_by_structure

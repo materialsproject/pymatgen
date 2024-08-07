@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import palettable.colorbrewer.diverging
 from matplotlib import cm, colors
+
 from pymatgen.core import Element
 
 if TYPE_CHECKING:
@@ -92,10 +93,10 @@ def pretty_plot_two_axis(
     examples. Makes it easier to create plots with different axes.
 
     Args:
-        x (np.ndarray/list): Data for x-axis.
-        y1 (dict/np.ndarray/list): Data for y1 axis (left). If a dict, it will
+        x (Sequence[float]): Data for x-axis.
+        y1 (Sequence[float] | dict[str, Sequence[float]]): Data for y1 axis (left). If a dict, it will
             be interpreted as a {label: sequence}.
-        y2 (dict/np.ndarray/list): Data for y2 axis (right). If a dict, it will
+        y2 (Sequence[float] | dict[str, Sequence[float]]): Data for y2 axis (right). If a dict, it will
             be interpreted as a {label: sequence}.
         xlabel (str): If not None, this will be the label for the x-axis.
         y1label (str): If not None, this will be the label for the y1-axis.
@@ -711,7 +712,7 @@ def add_fig_kwargs(func):
         tight_layout      True to call fig.tight_layout (default: False)
         ax_grid           True (False) to add (remove) grid from all axes in fig.
                           Default: None i.e. fig is left unchanged.
-        ax_annotate       Add labels to  subplots e.g. (a), (b).
+        ax_annotate       Add labels to subplots e.g. (a), (b).
                           Default: False
         fig_close         Close figure. Default: False.
         ================  ====================================================

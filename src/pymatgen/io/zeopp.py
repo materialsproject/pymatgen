@@ -31,6 +31,7 @@ from typing import TYPE_CHECKING
 from monty.dev import requires
 from monty.io import zopen
 from monty.tempfile import ScratchDir
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cssr import Cssr

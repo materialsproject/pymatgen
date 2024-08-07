@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import numpy as np
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.core.structure import Structure
 from pymatgen.phonon.thermal_displacements import ThermalDisplacementMatrices
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/phonon/thermal_displacement_matrices"
 

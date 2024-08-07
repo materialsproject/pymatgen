@@ -4,10 +4,11 @@ from shutil import which
 from unittest import TestCase
 
 import pytest
+from pytest import approx
+
 from pymatgen.command_line.critic2_caller import Critic2Analysis, Critic2Caller
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 __author__ = "Matthew Horton"
 __version__ = "0.1"

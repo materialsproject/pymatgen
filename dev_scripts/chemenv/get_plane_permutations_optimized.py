@@ -15,6 +15,7 @@ from random import shuffle
 
 import numpy as np
 import tabulate
+
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,

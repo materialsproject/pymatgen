@@ -17,17 +17,19 @@ from typing import TYPE_CHECKING, overload
 import numpy as np
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
+
 from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
     from typing import ClassVar, Literal
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
+
     from pymatgen.core.lattice import Lattice
 
     # Don't import at runtime to avoid circular import
     from pymatgen.core.operations import SymmOp  # noqa: TCH004
-    from typing_extensions import Self
 
     CrystalSystem = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "tetragonal", "triclinic", "trigonal"]
 
@@ -253,7 +255,7 @@ class SpaceGroup(SymmetryGroup):
                 notation is a LaTeX-like string, with screw axes being
                 represented by an underscore. For example, "P6_3/mmc".
                 Alternative settings can be accessed by adding a ":identifier".
-                For example, the hexagonal setting  for rhombohedral cells can be
+                For example, the hexagonal setting for rhombohedral cells can be
                 accessed by adding a ":H", e.g. "R-3m:H". To find out all
                 possible settings for a spacegroup, use the get_settings()
                 classmethod. Alternative origin choices can be indicated by a

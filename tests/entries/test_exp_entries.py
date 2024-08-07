@@ -4,9 +4,10 @@ import json
 from unittest import TestCase
 
 from monty.json import MontyDecoder
+from pytest import approx
+
 from pymatgen.entries.exp_entries import ExpEntry
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 
 class TestExpEntry(TestCase):

@@ -7,6 +7,8 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
+from pytest import approx
+
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.cohp import IcohpCollection
 from pymatgen.electronic_structure.core import Orbital, Spin
@@ -30,7 +32,6 @@ from pymatgen.io.lobster.inputs import get_all_possible_basis_combinations
 from pymatgen.io.vasp import Vasprun
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Potcar
 from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
@@ -443,77 +444,77 @@ class TestIcohplist(TestCase):
                 "length": 2.88231,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -2.18042},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "2": {
                 "length": 3.10144,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -1.14347},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "3": {
                 "length": 2.88231,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -2.18042},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "4": {
                 "length": 3.10144,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -1.14348},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "5": {
                 "length": 3.05001,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -1.30006},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "6": {
                 "length": 2.91676,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -1.96843},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "7": {
                 "length": 3.05001,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -1.30006},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "8": {
                 "length": 2.91676,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -1.96843},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "9": {
                 "length": 3.37522,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -0.47531},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "10": {
                 "length": 3.07294,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -2.38796},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "11": {
                 "length": 3.37522,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -0.47531},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
         }
@@ -522,77 +523,77 @@ class TestIcohplist(TestCase):
                 "length": 2.88231,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: 0.14245},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "2": {
                 "length": 3.10144,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -0.04118},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "3": {
                 "length": 2.88231,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: 0.14245},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "4": {
                 "length": 3.10144,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -0.04118},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "5": {
                 "length": 3.05001,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -0.03516},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "6": {
                 "length": 2.91676,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: 0.10745},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "7": {
                 "length": 3.05001,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -0.03516},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "8": {
                 "length": 2.91676,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: 0.10745},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "9": {
                 "length": 3.37522,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -0.12395},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "10": {
                 "length": 3.07294,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: 0.24714},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "11": {
                 "length": 3.37522,
                 "number_of_bonds": 3,
                 "icohp": {Spin.up: -0.12395},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
         }
@@ -601,14 +602,14 @@ class TestIcohplist(TestCase):
                 "length": 2.83189,
                 "number_of_bonds": 2,
                 "icohp": {Spin.up: -0.10218, Spin.down: -0.19701},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
             "2": {
                 "length": 2.45249,
                 "number_of_bonds": 1,
                 "icohp": {Spin.up: -0.28485, Spin.down: -0.58279},
-                "translation": [0, 0, 0],
+                "translation": (0, 0, 0),
                 "orbitals": None,
             },
         }

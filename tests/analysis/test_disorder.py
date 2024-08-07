@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from pytest import approx
+
 from pymatgen.analysis.disorder import get_warren_cowley_parameters
 from pymatgen.core import Element, Structure
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 
 class TestOrderParameter(PymatgenTest):

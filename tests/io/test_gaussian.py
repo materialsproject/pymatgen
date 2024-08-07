@@ -3,11 +3,12 @@ from __future__ import annotations
 from unittest import TestCase
 
 import pytest
+from pytest import approx
+
 from pymatgen.core.structure import Molecule
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.gaussian import GaussianInput, GaussianOutput
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/gaussian"
 

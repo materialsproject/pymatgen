@@ -4,6 +4,8 @@ from unittest import TestCase
 
 import numpy as np
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.analysis.structure_analyzer import (
     RelaxationAnalyzer,
     VoronoiAnalyzer,
@@ -17,7 +19,6 @@ from pymatgen.analysis.structure_analyzer import (
 from pymatgen.core import Element, Lattice, Structure
 from pymatgen.io.vasp.outputs import Xdatcar
 from pymatgen.util.testing import VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
-from pytest import approx
 
 
 class TestVoronoiAnalyzer(PymatgenTest):

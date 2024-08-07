@@ -4,6 +4,7 @@ import json
 from copy import deepcopy
 
 import pytest
+
 from pymatgen.alchemy.filters import ContainsSpecieFilter
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.core import SETTINGS

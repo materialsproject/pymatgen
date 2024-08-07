@@ -4,10 +4,11 @@ from unittest import TestCase
 
 import numpy as np
 import pytest
+from pytest import approx
+
 from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import VASP_IN_DIR
-from pytest import approx
 
 
 class TestEwaldSummation(TestCase):

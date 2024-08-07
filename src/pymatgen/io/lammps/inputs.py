@@ -19,6 +19,7 @@ import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
+
 from pymatgen.core import __version__ as CURRENT_VER
 from pymatgen.io.core import InputFile
 from pymatgen.io.lammps.data import CombinedData, LammpsData
@@ -27,8 +28,9 @@ from pymatgen.io.template import TemplateInputGen
 if TYPE_CHECKING:
     from os import PathLike
 
-    from pymatgen.io.core import InputSet
     from typing_extensions import Self
+
+    from pymatgen.io.core import InputSet
 
 __author__ = "Kiran Mathew, Brandon Wood, Zhi Deng, Manas Likhit, Guillaume Brunin (Matgenix)"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -909,7 +911,7 @@ class LammpsRun(MSONable):
         with open(template_path, encoding="utf-8") as file:
             script_template = file.read()
         settings = other_settings.copy() if other_settings else {}
-        settings.update({"force_field": force_field, "temperature": temperature, "nsteps": nsteps})
+        settings |= {"force_field": force_field, "temperature": temperature, "nsteps": nsteps}
         script_filename = "in.md"
         return cls(
             script_template=script_template,
@@ -957,7 +959,7 @@ class LammpsTemplateGen(TemplateInputGen):
         input_set = super().get_input_set(template=script_template, variables=settings, filename=script_filename)
 
         if data:
-            input_set.update({data_filename: data})
+            input_set |= {data_filename: data}
         return input_set
 
 

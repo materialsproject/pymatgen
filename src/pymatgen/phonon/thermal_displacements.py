@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.structure import Structure
 from pymatgen.io.cif import CifFile, CifParser, CifWriter, str2float

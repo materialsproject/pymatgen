@@ -21,6 +21,7 @@ from shutil import which
 import pandas as pd
 from monty.dev import requires
 from monty.json import MSONable
+
 from pymatgen.analysis.magnetism.heisenberg import HeisenbergMapper
 
 __author__ = "ncfrey"

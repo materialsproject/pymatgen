@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from unittest import TestCase
 
+from pytest import approx
+
 from pymatgen.analysis.local_env import CrystalNN
 from pymatgen.analysis.structure_prediction.dopant_predictor import (
     get_dopants_from_shannon_radii,
     get_dopants_from_substitution_probabilities,
 )
 from pymatgen.core import Species, Structure
-from pytest import approx
 
 
 class TestDopantPrediction(TestCase):

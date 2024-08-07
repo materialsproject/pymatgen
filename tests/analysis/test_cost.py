@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from unittest import TestCase
 
+from pytest import approx
+
 from pymatgen.analysis.cost import CostAnalyzer, CostDBCSV, CostDBElements
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/cost"
 

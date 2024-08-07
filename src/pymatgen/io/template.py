@@ -9,6 +9,7 @@ from string import Template
 from typing import TYPE_CHECKING
 
 from monty.io import zopen
+
 from pymatgen.io.core import InputGenerator, InputSet
 
 if TYPE_CHECKING:

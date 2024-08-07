@@ -37,8 +37,9 @@ from monty.io import zopen
 from monty.json import MSONable
 
 if TYPE_CHECKING:
-    from pymatgen.util.typing import PathLike
     from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike
 
 
 __author__ = "Ryan Kingsbury"
@@ -175,6 +176,14 @@ class InputSet(MSONable, MutableMapping):
 
     def __delitem__(self, key: PathLike) -> None:
         del self.inputs[key]
+
+    def __or__(self, other: dict | Self) -> Self:
+        # enable dict merge operator | for InputSet
+        if isinstance(other, dict):
+            other = type(self)(other)
+        if not isinstance(other, type(self)):
+            return NotImplemented
+        return type(self)({**self.inputs, **other.inputs}, **self._kwargs)
 
     def write_input(
         self,

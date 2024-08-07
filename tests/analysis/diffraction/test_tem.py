@@ -6,11 +6,12 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.analysis.diffraction.tem import TEMCalculator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 __author__ = "Frank Wan, Jason Liang"
 __copyright__ = "Copyright 2019, The Materials Project"

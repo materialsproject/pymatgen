@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import pytest
+from pytest import approx
+
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.sets import SETTINGS, Cp2kValidationError, DftSet, GaussianTypeOrbitalBasisSet, GthPotential
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
 
@@ -102,7 +103,7 @@ class TestDftSet(PymatgenTest):
         assert dft_set.check("force_eval/dft/auxiliary_density_matrix_method")
 
         # Validator will trip for kpoints + hfx
-        dft_set.update({"force_eval": {"dft": {"kpoints": {}}}})
+        dft_set |= {"force_eval": {"dft": {"kpoints": {}}}}
         with pytest.raises(Cp2kValidationError, match="CP2K v2022.1: Does not support hartree fock with kpoints"):
             dft_set.validate()
 

@@ -9,6 +9,7 @@ from operator import mul
 from typing import TYPE_CHECKING
 
 from monty.json import MSONable
+
 from pymatgen.alchemy.filters import RemoveDuplicatesFilter, RemoveExistingFilter
 from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.alchemy.transmuters import StandardTransmuter
