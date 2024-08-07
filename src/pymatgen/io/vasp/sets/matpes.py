@@ -37,7 +37,7 @@ class MatPESStaticSet(VaspInputSet):
     # These are parameters that we will inherit from any previous INCAR supplied. They are mostly parameters related
     # to symmetry and convergence set by Custodian when errors are encountered in a previous run. Given that our goal
     # is to have a strictly homogeneous PES data, all other parameters (e.g., ISMEAR, ALGO, etc.) are not inherited.
-    inherit_incar: list[str] | bool = (  # type: ignore
+    inherit_incar: list[str] | bool = (  # type: ignore  # noqa: PGH003
         "LPEAD",
         "NGX",
         "NGY",

@@ -1,3 +1,5 @@
+# ruff: noqa: PGH003
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -381,7 +383,7 @@ class MVLNPTMDSet(VaspInputSet):
             "LDAU": False,
         }
         # Set NPT-AIMD ENCUT = 1.5 * VASP_default
-        enmax = [self.potcar[i].keywords["ENMAX"] for i in range(self.structure.ntypesp)]  # type: ignore
+        enmax = [self.potcar[i].keywords["ENMAX"] for i in range(self.structure.ntypesp)]  # type: ignore[union-attr]
         updates["ENCUT"] = max(enmax) * 1.5
         return updates
 

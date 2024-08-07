@@ -1,3 +1,7 @@
+"""Re-export all VASP input sets, for more convenient imports and to maintain backwards compatible imports
+following the split up of sets.py into submodules in #3865.
+"""
+
 from __future__ import annotations
 
 from pymatgen.io.vasp.sets.base import (

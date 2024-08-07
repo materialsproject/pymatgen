@@ -1,3 +1,4 @@
+# ruff: noqa: PGH003
 """
 This module defines the VaspInputSet abstract base class and a concrete implementation for the parameters developed
 and tested by the core team of pymatgen, including the Materials Virtual Lab, Materials Project and the MIT high
@@ -369,7 +370,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         return dct
 
     @property  # type: ignore
-    def structure(self) -> Structure:
+    def structure(self) -> Structure:  # noqa: F811
         """Structure."""
         return self._structure
 
@@ -840,7 +841,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 self.structure, kconfig["zero_weighted_reciprocal_density"], self.force_gamma
             )
             sga = SpacegroupAnalyzer(self.structure, symprec=self.sym_prec)
-            mesh = sga.get_ir_reciprocal_mesh(zero_weighted_kpoints.kpts[0])
+            mesh = sga.get_ir_reciprocal_mesh(zero_weighted_kpoints.kpts[0])  # type: ignore[arg-type]
             zero_weighted_kpoints = Kpoints(
                 comment="Uniform grid",
                 style=Kpoints.supported_modes.Reciprocal,
