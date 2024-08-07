@@ -184,7 +184,7 @@ class PackmolBoxGen(InputGenerator):
             file_contents.append(f"output {self.outputfile}\n")
 
         if box:
-            box_list: str = " ".join(str(i) for i in box)
+            box_list = " ".join(map(str, box))
         else:
             # Estimate the total volume of all molecules in cubic Å
             net_volume: float = 0.0
