@@ -35,6 +35,7 @@ class CoherentInterfaceBuilder:
         zslgen: ZSLGenerator | None = None,
         termination_ftol=0.25,
         label_index=False,  # necessary to add index to termination
+        filting_out_sym_slabs=True,
     ):
         """
         Args:
@@ -45,6 +46,7 @@ class CoherentInterfaceBuilder:
             zslgen: BiDirectionalZSL if you want custom lattice matching tolerances for coherency.
             termination_ftol: tolerance to distinguish different terminating atomic planes.
             label_index: whether to add an extra index at the beginning of the termination label.
+            filting_out_sym_slabs: whether to filter out identical slabs with different termination, this might need to be set as False to find more non-identical terminations because slab identity separately dose not mean combinational identity.
         """
         # Bulk structures
         self.substrate_structure = substrate_structure
@@ -54,6 +56,7 @@ class CoherentInterfaceBuilder:
         self.zslgen = zslgen or ZSLGenerator(bidirectional=True)
         self.termination_ftol = termination_ftol
         self.label_index = label_index
+        self.filting_out_sym_slabs = filting_out_sym_slabs
         self._find_matches()
         self._find_terminations()
 
@@ -135,9 +138,9 @@ class CoherentInterfaceBuilder:
             reorient_lattice=False,  # This is necessary to not screw up the lattice
         )
 
-        film_slabs = film_sg.get_slabs(ftol=self.termination_ftol)
-        sub_slabs = sub_sg.get_slabs(ftol=self.termination_ftol)
 
+        film_slabs = film_sg.get_slabs(ftol=self.termination_ftol, filting_out_sym_slabs=self.filting_out_sym_slabs)
+        sub_slabs = sub_sg.get_slabs(ftol=self.termination_ftol, filting_out_sym_slabs=self.filting_out_sym_slabs)
         film_shifts = [slab.shift for slab in film_slabs]
 
         if self.label_index:
