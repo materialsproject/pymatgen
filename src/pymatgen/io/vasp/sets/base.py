@@ -1431,22 +1431,25 @@ def _get_recommended_lreal(structure: Structure) -> str | bool:
     return "Auto" if structure.num_sites > 16 else False
 
 
-def _combine_kpoints(*kpoints_objects: Kpoints) -> Kpoints:
+def _combine_kpoints(*kpoints_objects: Sequence[Kpoints]) -> Kpoints:
     """Combine multiple Kpoints objects."""
     _labels: list[list[str]] = []
     _kpoints: list[Sequence[Kpoint]] = []
     _weights = []
 
-    for kpoints_object in filter(None, kpoints_objects):
-        if kpoints_object.style != Kpoints.supported_modes.Reciprocal:
+    kpoints_obj: Kpoints
+    for kpoints_obj in kpoints_objects:  # type: ignore[assignment]
+        if kpoints_obj is None:
+            continue
+        if kpoints_obj.style != Kpoints.supported_modes.Reciprocal:
             raise ValueError("Can only combine kpoints with style=Kpoints.supported_modes.Reciprocal")
-        if kpoints_object.labels is None:
-            _labels.append([""] * len(kpoints_object.kpts))
+        if kpoints_obj.labels is None:
+            _labels.append([""] * len(kpoints_obj.kpts))
         else:
-            _labels.append(kpoints_object.labels)
+            _labels.append(kpoints_obj.labels)
 
-        _kpoints.append(kpoints_object.kpts)
-        _weights.append(kpoints_object.kpts_weights)
+        _kpoints.append(kpoints_obj.kpts)
+        _weights.append(kpoints_obj.kpts_weights)
 
     labels = np.concatenate(_labels).tolist()
     kpoints = np.concatenate(_kpoints).tolist()
