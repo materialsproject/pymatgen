@@ -7,6 +7,8 @@ from typing import get_args
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.local_env import (
     BrunnerNNReal,
@@ -36,7 +38,6 @@ from pymatgen.analysis.local_env import (
 )
 from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/local_env/fragmenter_files"
 
@@ -444,10 +445,8 @@ class TestMiniDistNN(PymatgenTest):
         assert voronoi_nn.get_cn(self.cscl, 0) == 8
         assert voronoi_nn.get_cn(self.lifepo4, 0) == 6
 
-        assert CrystalNN._quadrant_integral([1,0.36], 0) == approx(
-            0.7551954297486029)
-        assert CrystalNN._quadrant_integral([1,0.36,0], 1) == approx(
-            1 - 0.7551954297486029)
+        assert CrystalNN._quadrant_integral([1, 0.36], 0) == approx(0.7551954297486029)
+        assert CrystalNN._quadrant_integral([1, 0.36, 0], 1) == approx(1 - 0.7551954297486029)
         crystal_nn = CrystalNN()
         assert crystal_nn.get_cn(self.diamond, 0) == 4
         assert crystal_nn.get_cn(self.nacl, 0) == 6
@@ -1181,7 +1180,7 @@ class TestCrystalNN(PymatgenTest):
     def test_discrete_cn(self):
         cnn = CrystalNN()
         cn_array = []
-        expected_array = 8 * [6] + 6 * [4] + [1] + 2 * [4] + [1] + 4 * [4] + [1] + + 2 * [4] + [1] + 2 * [4]
+        expected_array = 8 * [6] + 6 * [4] + [1] + 2 * [4] + [1] + 4 * [4] + [1] + +2 * [4] + [1] + 2 * [4]
         for idx, _ in enumerate(self.lifepo4):
             cn_array.append(cnn.get_cn(self.lifepo4, idx))
 
