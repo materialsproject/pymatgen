@@ -43,9 +43,9 @@ class TestPiezoSensitivity(PymatgenTest):
         self.shared_ops = np.load(f"{TEST_DIR}/sharedops.npy", allow_pickle=True)
         self.IST_operations = np.load(f"{TEST_DIR}/istops.npy", allow_pickle=True)
         with open(f"{TEST_DIR}/becops.pkl", "rb") as file:
-            self.BEC_operations = pickle.load(file)
+            self.BEC_operations = pickle.load(file)  # noqa: S301
         with open(f"{TEST_DIR}/fcmops.pkl", "rb") as file:
-            self.FCM_operations = pickle.load(file)
+            self.FCM_operations = pickle.load(file)  # noqa: S301
         self.piezo = np.array(
             [
                 [
@@ -137,7 +137,7 @@ class TestPiezoSensitivity(PymatgenTest):
         fcm = ForceConstantMatrix(self.piezo_struct, self.FCM, self.point_ops, self.shared_ops)
         fcm.get_FCM_operations()
 
-        fcm = fcm.get_symmetrized_FCM(np.random.rand(30, 30))
+        fcm = fcm.get_symmetrized_FCM(np.random.default_rng().random((30, 30)))
         fcm = np.reshape(fcm, (10, 3, 10, 3)).swapaxes(1, 2)
         for i in range(len(self.FCM_operations)):
             for j in range(len(self.FCM_operations[i][4])):

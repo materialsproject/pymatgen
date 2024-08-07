@@ -14,7 +14,6 @@ import itertools
 import json
 import math
 import os
-import random
 import re
 import sys
 import warnings
@@ -3635,6 +3634,7 @@ class IMolecule(SiteCollection, MSONable):
         all_coords: list[ArrayLike] = []
 
         centered_coords = self.cart_coords - self.center_of_mass + offset
+        rng = np.random.default_rng()
 
         for i, j, k in itertools.product(
             list(range(images[0])),
@@ -3646,8 +3646,8 @@ class IMolecule(SiteCollection, MSONable):
                 while True:
                     op = SymmOp.from_origin_axis_angle(
                         (0, 0, 0),
-                        axis=np.random.rand(3),
-                        angle=random.uniform(-180, 180),
+                        axis=rng.random(3),
+                        angle=rng.uniform(-180, 180),
                     )
                     rot_mat = op.rotation_matrix
                     new_coords = np.dot(rot_mat, centered_coords.T).T + box_center
@@ -4467,11 +4467,12 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         def get_rand_vec():
             # Deal with zero vectors
-            vector = np.random.randn(3)
+            rng = np.random.default_rng()
+            vector = rng.standard_normal(3)
             vnorm = np.linalg.norm(vector)
             dist = distance
             if isinstance(min_distance, (float, int)):
-                dist = np.random.uniform(min_distance, dist)
+                dist = rng.uniform(min_distance, dist)
             return vector / vnorm * dist if vnorm != 0 else get_rand_vec()
 
         for idx in range(len(self._sites)):
@@ -5017,7 +5018,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         def get_rand_vec():
             # Deal with zero vectors
-            vector = np.random.randn(3)
+            vector = np.random.default_rng().standard_normal(3)
             vnorm = np.linalg.norm(vector)
             return vector / vnorm * distance if vnorm != 0 else get_rand_vec()
 

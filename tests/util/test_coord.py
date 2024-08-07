@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import random
 from unittest import TestCase
 
 import numpy as np
@@ -243,14 +242,15 @@ class TestSimplex(TestCase):
 
     def test_equal(self):
         c2 = list(self.simplex.coords)
-        random.shuffle(c2)
+        np.random.default_rng().shuffle(c2)
         assert coord.Simplex(c2) == self.simplex
 
     def test_in_simplex(self):
         assert self.simplex.in_simplex([0.1, 0.1, 0.1])
         assert not self.simplex.in_simplex([0.6, 0.6, 0.6])
+        rng = np.random.default_rng()
         for _ in range(10):
-            coord = np.random.random_sample(size=3) / 3
+            coord = rng.random(size=3) / 3
             assert self.simplex.in_simplex(coord)
 
     def test_2d_triangle(self):

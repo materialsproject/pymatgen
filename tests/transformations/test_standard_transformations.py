@@ -123,7 +123,7 @@ class TestSupercellTransformation(TestCase):
         assert struct.formula == "Li16 O16"
 
     def test_from_scaling_factors(self):
-        scale_factors = np.random.randint(1, 5, 3)
+        scale_factors = np.random.default_rng().integers(1, 5, 3)
         trafo = SupercellTransformation.from_scaling_factors(*scale_factors)
         struct = trafo.apply_transformation(self.struct)
         assert len(struct) == 4 * functools.reduce(operator.mul, scale_factors)
