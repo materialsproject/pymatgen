@@ -15,9 +15,10 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/wannier90"
 
 class TestUnk(PymatgenTest):
     def setUp(self):
-        self.data_std = np.random.rand(10, 5, 5, 5)
+        rng = np.random.default_rng()
+        self.data_std = rng.random((10, 5, 5, 5))
         self.unk_std = Unk(1, self.data_std)
-        self.data_ncl = np.random.rand(10, 2, 5, 5, 5)
+        self.data_ncl = rng.random((10, 2, 5, 5, 5))
         self.unk_ncl = Unk(1, self.data_ncl)
 
     def test_init(self):
@@ -32,7 +33,8 @@ class TestUnk(PymatgenTest):
         assert not self.unk_std.is_noncollinear
 
         # too small data
-        data_bad_shape = np.random.rand(2, 2, 2)
+        rng = np.random.default_rng()
+        data_bad_shape = rng.random((2, 2, 2))
         with pytest.raises(
             ValueError,
             match=r"invalid data shape, must be \(nbnd, ngx, ngy, ngz\) or \(nbnd, 2, ngx, ngy, ngz\) "
@@ -41,7 +43,7 @@ class TestUnk(PymatgenTest):
             Unk(1, data_bad_shape)
 
         # too big data
-        data_bad_shape = np.random.rand(2, 2, 2, 2, 2, 2)
+        data_bad_shape = rng.random((2, 2, 2, 2, 2, 2))
         with pytest.raises(
             ValueError,
             match=r"invalid data shape, must be \(nbnd, ngx, ngy, ngz\) or \(nbnd, 2, ngx, ngy, ngz\) for noncollinear",
@@ -59,7 +61,7 @@ class TestUnk(PymatgenTest):
         assert self.unk_ncl.is_noncollinear
 
         # too big data
-        data_bad_ncl = np.random.rand(2, 3, 2, 2, 2)
+        data_bad_ncl = rng.random((2, 3, 2, 2, 2))
         with pytest.raises(
             ValueError,
             match=r"invalid noncollinear data, shape should be \(nbnd, 2, ngx, ngy, ngz\), given \(2, 3, 2, 2, 2\)",
@@ -116,7 +118,8 @@ class TestUnk(PymatgenTest):
         assert self.unk_std != "poop"
 
         # ng
-        tmp_unk = Unk(1, np.random.rand(10, 5, 5, 4))
+        rng = np.random.default_rng()
+        tmp_unk = Unk(1, rng.random((10, 5, 5, 4)))
         assert self.unk_std != tmp_unk
 
         # ik
@@ -127,13 +130,13 @@ class TestUnk(PymatgenTest):
         assert self.unk_std != self.unk_ncl
 
         # nbnd
-        tmp_unk = Unk(1, np.random.rand(9, 5, 5, 5))
+        tmp_unk = Unk(1, rng.random((9, 5, 5, 5)))
         assert self.unk_std != tmp_unk
 
         # data
-        tmp_unk = Unk(1, np.random.rand(10, 5, 5, 5))
+        tmp_unk = Unk(1, rng.random((10, 5, 5, 5)))
         assert self.unk_std != tmp_unk
-        tmp_unk = Unk(1, np.random.rand(10, 2, 5, 5, 5))
+        tmp_unk = Unk(1, rng.random((10, 2, 5, 5, 5)))
         assert self.unk_ncl != tmp_unk
 
         # same

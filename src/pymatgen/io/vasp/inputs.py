@@ -672,9 +672,9 @@ class Poscar(MSONable):
             temperature (float): Temperature in Kelvin.
         """
         # mean 0 variance 1
-        velocities = np.random.randn(len(self.structure), 3)
+        velocities = np.random.default_rng().standard_normal((len(self.structure), 3))
 
-        # In AMU, (N,1) array
+        # In AMU, (N, 1) array
         atomic_masses = np.array([site.specie.atomic_mass.to("kg") for site in self.structure])
         dof = 3 * len(self.structure) - 3
 
@@ -1031,7 +1031,7 @@ class Incar(dict, MSONable):
             param_type: str = incar_params[tag].get("type")
             allowed_values: list[Any] = incar_params[tag].get("values")
 
-            if param_type is not None and not isinstance(val, eval(param_type)):
+            if param_type is not None and not isinstance(val, eval(param_type)):  # noqa: S307
                 warnings.warn(f"{tag}: {val} is not a {param_type}", BadIncarWarning, stacklevel=2)
 
             # Only check value when it's not None,
