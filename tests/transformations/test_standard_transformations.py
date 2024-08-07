@@ -131,7 +131,7 @@ class TestSupercellTransformation(TestCase):
     def test_from_boundary_distance(self):
         struct_cubic = Structure.from_spacegroup("Pm-3m", 4 * np.eye(3), ["H"], [[0, 0, 0]])
 
-        for struct in [struct_cubic, self.struct]:
+        for struct in (struct_cubic, self.struct):
             for min_dist in range(6, 19, 4):
                 trafo = SupercellTransformation.from_boundary_distance(
                     structure=struct, min_boundary_dist=min_dist, allow_rotation=False

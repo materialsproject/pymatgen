@@ -163,7 +163,7 @@ class TestCifIO(PymatgenTest):
     def test_cif_parser(self):
         parser = CifParser(f"{TEST_FILES_DIR}/cif/LiFePO4.cif")
         for struct in parser.parse_structures():
-            assert struct.formula == "Li4 Fe4 P4 O16", "Incorrectly parsed cif."
+            assert struct.formula == "Li4 Fe4 P4 O16", "Incorrectly parsed CIF"
 
         parser = CifParser(f"{TEST_FILES_DIR}/cif/V2O3.cif")
         for struct in parser.parse_structures():

@@ -633,7 +633,7 @@ class TestComposition(PymatgenTest):
             {"V": 5, "O": -2},
         )
 
-        expected_oxi_guesses = dict(Li=1, Fe=2, P=5, O=-2)
+        expected_oxi_guesses = {"Li": 1, "Fe": 2, "P": 5, "O": -2}
         # max_sites for very large composition - should timeout if incorrect
         assert Composition("Li10000Fe10000P10000O40000").oxi_state_guesses(max_sites=7)[0] == expected_oxi_guesses
 
@@ -702,6 +702,7 @@ class TestComposition(PymatgenTest):
     def test_chemical_system(self):
         assert Composition({"Na": 1, "Cl": 1}).chemical_system == "Cl-Na"
         assert Composition({"Na+": 1, "Cl-": 1}).chemical_system == "Cl-Na"
+        assert Composition({"Na+": 1, "Na2+": 1, "Cl-": 1}).chemical_system == "Cl-Na"
 
     def test_chemical_system_set(self):
         assert Composition({"Na": 1, "Cl": 1}).chemical_system_set == {"Cl", "Na"}

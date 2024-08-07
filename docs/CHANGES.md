@@ -6,6 +6,22 @@ nav_order: 4
 
 # Changelog
 
+## v2024.7.18
+- Fix `setuptools` for packaging (#3934)
+- Improve Keep Redundant Spaces algorithm for PatchedPhaseDiagram (#3900)
+- Add electronic structure methods for Species (#3902)
+- Migrate `spglib` to new `SpglibDataset` format with version 2.5.0 (#3923)
+- SpaceGroup changes (#3859)
+- Add MD input set to FHI-aims (#3896)
+
+## v2024.6.10
+* Fix bug in `update_charge_from_potcar` (#3866)
+* Fix bug in VASP parameter parsing (@mkhorton)
+* Add `strict_anions` option to `MaterialsProject2020Compatibility` (@mkhorton)
+* Slightly more robust `MSONAtoms` handling (@Andrew-S-Rosen)
+* Bug fix: handle non-integer oxidation states in `Species` (@esoteric-ephemera)
+* Revert change that removed test structure files from pymatgen source.
+
 ## v2024.6.4
 
 ### 🐛 Bug Fixes
@@ -44,7 +60,7 @@ nav_order: 4
 * Add `is_radioactive` property to Element class by @AntObi in https://github.com/materialsproject/pymatgen/pull/3804
 * Add a `from_ase_atoms()` method to `Structure` by @Andrew-S-Rosen in https://github.com/materialsproject/pymatgen/pull/3812
 * Adapt to the latest version of PWmat output file by @lhycms in https://github.com/materialsproject/pymatgen/pull/3823
-* Update VASP sets to transition atomate2 to use pymatgen input sets exclusively by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3835
+* Update VASP sets to transition atomate2 to use pymatgen input sets exclusively by @esoteric-ephemera in https://github.com/materialsproject/pymatgen/pull/3835 (slightly breaking, see [#3860](https://github.com/materialsproject/pymatgen/issues/3860) for details)
 
 ### 📖 Documentation
 

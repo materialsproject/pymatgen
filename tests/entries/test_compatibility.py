@@ -481,6 +481,17 @@ class TestMaterialsProjectCompatibility(TestCase):
         entries = self.compat.process_entries([self.entry1, self.entry2, self.entry3, self.entry4])
         assert len(entries) == 2
 
+    def test_parallel_process_entries(self):
+        with pytest.raises(ValueError, match="Parallel processing is not possible with for 'inplace=True'"):
+            entries = self.compat.process_entries(
+                [self.entry1, self.entry2, self.entry3, self.entry4], inplace=True, n_workers=2
+            )
+
+        entries = self.compat.process_entries(
+            [self.entry1, self.entry2, self.entry3, self.entry4], inplace=False, n_workers=2
+        )
+        assert len(entries) == 2
+
     def test_msonable(self):
         compat_dict = self.compat.as_dict()
         decoder = MontyDecoder()
@@ -550,6 +561,20 @@ class TestMaterialsProjectCompatibility2020(TestCase):
 
         self.compat = MaterialsProject2020Compatibility(check_potcar_hash=False)
         self.gga_compat = MaterialsProject2020Compatibility("GGA", check_potcar_hash=False)
+
+        self.entry_many_anions = ComputedEntry(
+            "CuI9",
+            -1,
+            0.0,
+            parameters={
+                "is_hubbard": False,
+                "run_type": "GGA",
+                "potcar_spec": [
+                    {"titel": "PAW_PBE Cu_pv 06Sep2000", "hash": "2d718b6be91068094207c9e861e11a89"},
+                    {"titel": "PAW_PBE I 08Apr2002", "hash": "f4ff16a495dd361ff5824ee61b418bb0"},
+                ],
+            },
+        )
 
     def test_process_entry(self):
         # Correct parameters
@@ -1047,6 +1072,19 @@ class TestMaterialsProjectCompatibility2020(TestCase):
         assert processed_entry.energy_adjustments[1].name == "MP2020 GGA/GGA+U mixing correction (Mn)"
         assert processed_entry.correction == approx(-6.084)
         assert processed_entry.energy == approx(-58.97 + -6.084)
+
+    def test_many_anions(self):
+        compat = MaterialsProject2020Compatibility(strict_anions="require_bound")
+        processed_entry = compat.process_entry(self.entry_many_anions)
+        assert processed_entry.energy == -1
+
+        compat = MaterialsProject2020Compatibility(strict_anions="no_check")
+        processed_entry = compat.process_entry(self.entry_many_anions)
+        assert processed_entry.energy == approx(-4.411)
+
+        compat = MaterialsProject2020Compatibility(strict_anions="require_exact")
+        processed_entry = compat.process_entry(self.entry_many_anions)
+        assert processed_entry.energy == -1
 
 
 class TestMITCompatibility(TestCase):
@@ -1851,6 +1889,22 @@ class TestMaterialsProjectAqueousCompatibility:
         entries_copy = copy.deepcopy(entries)
         MaterialsProjectAqueousCompatibility().process_entries(entries, inplace=False)
         assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
+
+    def test_parallel_process_entries(self):
+        hydrate_entry = ComputedEntry(Composition("FeH4O2"), -10)  # nH2O = 2
+        hydrate_entry2 = ComputedEntry(Composition("Li2O2H2"), -10)  # nH2O = 0
+
+        entry_list = [hydrate_entry, hydrate_entry2]
+
+        compat = MaterialsProjectAqueousCompatibility(
+            o2_energy=-10, h2o_energy=-20, h2o_adjustments=-0.5, solid_compat=None
+        )
+
+        with pytest.raises(ValueError, match="Parallel processing is not possible with for 'inplace=True'"):
+            entries = compat.process_entries(entry_list, inplace=True, n_workers=2)
+
+        entries = compat.process_entries(entry_list, inplace=False, n_workers=2, on_error="raise")
+        assert len(entries) == 2
 
 
 class TestAqueousCorrection(TestCase):

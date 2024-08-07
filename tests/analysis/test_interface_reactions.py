@@ -143,12 +143,12 @@ class TestInterfaceReaction(TestCase):
             use_hull_energy=False,
         )
         with pytest.raises(
-            ValueError,
+            TypeError,
             match="Please use the GrandPotentialInterfacialReactivity "
             "class for interfacial reactions with open elements!",
         ):
             _ = InterfacialReactivity(Composition("Li2O2"), Composition("Li"), pd=self.gpd, norm=True)
-        with pytest.raises(ValueError, match="Please provide non-grand phase diagram to compute no_mixing_energy!"):
+        with pytest.raises(TypeError, match="Please provide non-grand phase diagram to compute no_mixing_energy!"):
             _ = GrandPotentialInterfacialReactivity(
                 Composition("O2"),
                 Composition("Mn"),

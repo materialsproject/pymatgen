@@ -2,6 +2,8 @@ changelog:
   exclude:
     authors: [dependabot, github-actions, pre-commit-ci]
   categories:
+    - title: 💥 Breaking Changes
+      labels: [breaking]
     - title: 🎉 New Features
       labels: [feature]
     - title: 🐛 Bug Fixes
@@ -20,8 +22,6 @@ changelog:
       labels: [refactor]
     - title: 🧪 Tests
       labels: [tests]
-    - title: 💥 Breaking Changes
-      labels: [breaking]
     - title: 🔒 Security Fixes
       labels: [security]
     - title: 🏥 Package Health

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import pickle
+import re
 from copy import deepcopy
 from enum import Enum
 
@@ -12,6 +13,7 @@ from pytest import approx
 from pymatgen.core import DummySpecies, Element, Species, get_el_sp
 from pymatgen.core.periodic_table import ElementBase, ElementType
 from pymatgen.core.units import Ha_to_eV
+from pymatgen.io.core import ParseError
 from pymatgen.util.testing import PymatgenTest
 
 
@@ -73,8 +75,8 @@ class TestElement(PymatgenTest):
                 (2, "p", 6),
                 (3, "s", 2),
                 (3, "p", 6),
-                (3, "d", 6),
                 (4, "s", 2),
+                (3, "d", 6),
             ],
             "Li": [(1, "s", 2), (2, "s", 1)],
             "U": [
@@ -83,19 +85,19 @@ class TestElement(PymatgenTest):
                 (2, "p", 6),
                 (3, "s", 2),
                 (3, "p", 6),
-                (3, "d", 10),
                 (4, "s", 2),
+                (3, "d", 10),
                 (4, "p", 6),
-                (4, "d", 10),
                 (5, "s", 2),
+                (4, "d", 10),
                 (5, "p", 6),
+                (6, "s", 2),
                 (4, "f", 14),
                 (5, "d", 10),
-                (6, "s", 2),
                 (6, "p", 6),
+                (7, "s", 2),
                 (5, "f", 3),
                 (6, "d", 1),
-                (7, "s", 2),
             ],
         }
         for k, v in cases.items():
@@ -167,6 +169,11 @@ class TestElement(PymatgenTest):
         }
         for k, v in cases.items():
             assert ElementBase.from_row_and_group(v[0], v[1]) == Element(k)
+
+    def test_n_electrons(self):
+        cases = {"O": 8, "Fe": 26, "Li": 3, "Be": 4}
+        for k, v in cases.items():
+            assert Element(k).n_electrons == v
 
     def test_valence(self):
         cases = {"O": (1, 4), "Fe": (2, 6), "Li": (0, 1), "Be": (0, 2)}
@@ -529,12 +536,20 @@ class TestSpecies(PymatgenTest):
         ("P5+", "P", 5),
         ("Na0+", "Na", 0),
         ("Na0-", "Na", 0),
+        ("C0.53-", "C", -0.53),
+        ("Tc3.498+", "Tc", 3.498),
     ],
 )
 def test_symbol_oxi_state_str(symbol_oxi, expected_element, expected_oxi_state):
     species = Species(symbol_oxi)
     assert species._el.symbol == expected_element
-    assert species._oxi_state == expected_oxi_state
+    assert species._oxi_state == pytest.approx(expected_oxi_state, rel=1.0e-6)
+
+
+def test_symbol_oxi_state_str_raises():
+    symbol = "Fe2.5f2123+"  # invalid oxidation state
+    with pytest.raises(ParseError, match=re.escape(f"Failed to parse {symbol=}")):
+        _ = Species(symbol)
 
 
 class TestDummySpecies:
@@ -591,13 +606,82 @@ class TestDummySpecies:
         )
         assert sp.spin == 5
 
-    def test_not_implemented(self):
-        with pytest.raises(NotImplementedError):
-            _ = Species("Fe", 2).full_electronic_structure
-        with pytest.raises(NotImplementedError):
-            _ = Species("Fe", 2).electronic_structure
-        with pytest.raises(NotImplementedError):
-            _ = Species("Fe", 2).valence
+    def test_species_electronic_structure(self):
+        assert Species("Fe", 0).electronic_structure == "[Ar].3d6.4s2"
+        assert Species("Fe", 0).n_electrons == 26
+        assert Species("Fe", 0).full_electronic_structure == [
+            (1, "s", 2),
+            (2, "s", 2),
+            (2, "p", 6),
+            (3, "s", 2),
+            (3, "p", 6),
+            (4, "s", 2),
+            (3, "d", 6),
+        ]
+        assert Species("Fe", 0).valence == (2, 6)
+
+        assert Species("Fe", 2).electronic_structure == "[Ar].3d6"
+        assert Species("Fe", 2).n_electrons == 24
+        assert Species("Fe", 2).full_electronic_structure == [
+            (1, "s", 2),
+            (2, "s", 2),
+            (2, "p", 6),
+            (3, "s", 2),
+            (3, "p", 6),
+            (3, "d", 6),
+        ]
+        assert Species("Fe", 2).valence == (2, 6)
+
+        assert Species("Fe", 3).electronic_structure == "[Ar].3d5"
+        assert Species("Fe", 3).n_electrons == 23
+        assert Species("Fe", 3).full_electronic_structure == [
+            (1, "s", 2),
+            (2, "s", 2),
+            (2, "p", 6),
+            (3, "s", 2),
+            (3, "p", 6),
+            (3, "d", 5),
+        ]
+        assert Species("Fe", 3).valence == (2, 5)
+
+        assert Species("Th", 4).electronic_structure == "[Hg].6p6"
+        assert Species("Th", 4).full_electronic_structure == [
+            (1, "s", 2),
+            (2, "s", 2),
+            (2, "p", 6),
+            (3, "s", 2),
+            (3, "p", 6),
+            (4, "s", 2),
+            (3, "d", 10),
+            (4, "p", 6),
+            (5, "s", 2),
+            (4, "d", 10),
+            (5, "p", 6),
+            (6, "s", 2),
+            (4, "f", 14),
+            (5, "d", 10),
+            (6, "p", 6),
+        ]
+        assert Species("Th", 4).valence == (1, 6)
+
+        assert Species("Li", 1).electronic_structure == "1s2"
+        assert Species("Li", 1).n_electrons == 2
+        # alkali metals, all p
+        for el in ["Na", "K", "Rb", "Cs"]:
+            assert Species(el, 1).electronic_structure.split(".")[-1][1::] == "p6", f"Failure for {el} +1"
+        for el in ["Ca", "Mg", "Ba", "Sr"]:
+            assert Species(el, 2).electronic_structure.split(".")[-1][1::] == "p6", f"Failure for {el} +2"
+        # valence shell should be f (l=3) for all lanthanide ions except La+3 and Lu+3
+        for el in ["Ce", "Nd", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu"]:
+            assert Species(el, 3).valence[0] == 3, f"Failure for {el} +3"
+
+        for el in Element:
+            for ox in el.common_oxidation_states:
+                if str(el) == "H" and ox == 1:
+                    continue
+                n_electron_el = sum([orb[-1] for orb in el.full_electronic_structure])
+                n_electron_sp = sum([orb[-1] for orb in Species(el, ox).full_electronic_structure])
+                assert n_electron_el - n_electron_sp == ox, print(f"Failure for {el} {ox}")
 
 
 def test_get_el_sp():

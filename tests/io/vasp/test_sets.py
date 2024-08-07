@@ -170,7 +170,6 @@ class TestMITMPRelaxSet(PymatgenTest):
     def setUpClass(cls):
         cls.set = MITRelaxSet
         cls.mp_set = MPRelaxSet
-        cls.monkeypatch = MonkeyPatch()
 
         filepath = f"{VASP_IN_DIR}/POSCAR"
         cls.structure = Structure.from_file(filepath)
@@ -256,8 +255,8 @@ class TestMITMPRelaxSet(PymatgenTest):
         structure = Structure(self.lattice, ["P", "Fe"], self.coords)
         # Use pytest's monkeypatch to temporarily point pymatgen to a directory
         # containing the wrong POTCARs (LDA potcars in a PBE directory)
-        with self.monkeypatch.context() as m:
-            m.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(f"{VASP_IN_DIR}/wrong_potcars"))
+        with MonkeyPatch().context() as monkeypatch:
+            monkeypatch.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(f"{VASP_IN_DIR}/wrong_potcars"))
             with pytest.warns(BadInputSetWarning, match="not known by pymatgen"):
                 _ = self.set(structure).potcar
 
@@ -440,7 +439,7 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         # test that van-der-Waals parameters are parsed correctly
 
-        vdw_par = loadfn(MODULE_DIR / "vdW_parameters.yaml")
+        vdw_par = loadfn(f"{MODULE_DIR}/vdW_parameters.yaml")
         with pytest.raises(
             KeyError,
             match=f"Invalid or unsupported van-der-Waals functional. Supported functionals are {', '.join(vdw_par)}.",
@@ -730,12 +729,12 @@ class TestMPStaticSet(PymatgenTest):
             vis = self.set(vis.structure, user_incar_settings={"LUSE_VDW": True, "LASPH": False})
             vis.incar.items()
         with pytest.warns(BadInputSetWarning, match=r"LASPH"):
-            dummy_struc = Structure(
+            dummy_struct = Structure(
                 lattice=[[0, 2, 2], [2, 0, 2], [2, 2, 0]],
                 species=["Fe", "O"],
                 coords=[[0, 0, 0], [0.5, 0.5, 0.5]],
             )
-            vis = self.set(dummy_struc, user_incar_settings={"LDAU": True, "LASPH": False})
+            vis = self.set(dummy_struct, user_incar_settings={"LDAU": True, "LASPH": False})
             vis.incar.items()
 
     def test_user_incar_kspacing(self):
@@ -1118,7 +1117,7 @@ class TestMagmomLdau(PymatgenTest):
         assert magmom == magmom_ans
 
     def test_ln_magmom(self):
-        yaml_path = MODULE_DIR / "VASPIncarBase.yaml"
+        yaml_path = f"{MODULE_DIR}/VASPIncarBase.yaml"
         magmom_setting = loadfn(yaml_path)["INCAR"]["MAGMOM"]
         structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/La4Fe4O12.cif")
         structure.add_oxidation_state_by_element({"La": +3, "Fe": +3, "O": -2})
@@ -2122,7 +2121,7 @@ def test_vasp_input_set_alias():
 
 def test_dict_set_alias():
     with pytest.warns(
-        FutureWarning, match="DictSet is deprecated, and will be removed on 2025-12-31\n; use VaspInputSet"
+        FutureWarning, match="DictSet is deprecated, and will be removed on 2025-12-31\nUse VaspInputSet"
     ):
         DictSet()
     assert isinstance(DictSet(), VaspInputSet)

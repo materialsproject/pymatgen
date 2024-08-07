@@ -373,7 +373,7 @@ from    to  to_image
         bc_square_sg_r.draw_graph_to_file(f"{self.tmp_path}/bc_square_r.pdf", algo="neato", image_labels=False)
 
         # ensure PDF files were created
-        pdfs = {path.split("/") for path in glob(f"{self.tmp_path}/*.pdf")}
+        pdfs = {path.split("/")[-1] for path in glob(f"{self.tmp_path}/*.pdf")}
         expected_pdfs = {
             "bc_square_r_single.pdf",
             "bc_square_r.pdf",
@@ -410,7 +410,7 @@ from    to  to_image
         diff = struct_graph.diff(sg2)
         assert diff["dist"] == 0
 
-        assert self.square_sg.get_coordination_of_site(0) == 2
+        assert self.square_sg.get_coordination_of_site(0) == 4
 
     def test_from_edges(self):
         edges = {
