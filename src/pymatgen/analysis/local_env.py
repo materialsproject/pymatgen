@@ -19,13 +19,12 @@ from typing import TYPE_CHECKING, Literal, NamedTuple, get_args
 import numpy as np
 from monty.dev import deprecated, requires
 from monty.serialization import loadfn
-from ruamel.yaml import YAML
-from scipy.spatial import Voronoi
-
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core import Element, IStructure, PeriodicNeighbor, PeriodicSite, Site, Species, Structure
+from ruamel.yaml import YAML
+from scipy.spatial import Voronoi
 
 try:
     from openbabel import openbabel
@@ -35,10 +34,9 @@ except Exception:
 if TYPE_CHECKING:
     from typing import Any
 
-    from typing_extensions import Self
-
     from pymatgen.core.composition import SpeciesLike
     from pymatgen.util.typing import Tuple3Ints
+    from typing_extensions import Self
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman, "
@@ -1161,7 +1159,7 @@ def _is_in_targets(site, targets):
         targets ([Element]) List of elements
 
     Returns:
-        bool: Whether this site contains a certain list of elements
+        boolean: Whether this site contains a certain list of elements
     """
     elems = _get_elements(site)
     return all(elem in targets for elem in elems)
@@ -1218,7 +1216,7 @@ class JmolNN(NearNeighbors):
 
         # Update any user preference elemental radii
         if el_radius_updates:
-            self.el_radius |= el_radius_updates
+            self.el_radius.update(el_radius_updates)
 
     @property
     def structures_allowed(self) -> bool:
@@ -1984,7 +1982,7 @@ def get_okeeffe_distance_prediction(el1, el2):
     """Get an estimate of the bond valence parameter (bond length) using
     the derived parameters from 'Atoms Sizes and Bond Lengths in Molecules
     and Crystals' (O'Keeffe & Brese, 1991). The estimate is based on two
-    experimental parameters: r and c. The value for r is based off radius,
+    experimental parameters: r and c. The value for r  is based off radius,
     while c is (usually) the Allred-Rochow electronegativity. Values used
     are *not* generated from pymatgen, and are found in
     'okeeffe_params.json'.
@@ -2755,7 +2753,7 @@ class LocalStructOrderParams:
             raise ValueError("Index for getting order parameter type out-of-bounds!")
         return self._types[index]
 
-    def get_parameters(self, index: int) -> list[float]:
+    def get_parameters(self, index):
         """Get list of floats that represents
         the parameters associated
         with calculation of the order
@@ -2764,10 +2762,12 @@ class LocalStructOrderParams:
         inputted because of processing out of efficiency reasons.
 
         Args:
-            index (int): index of order parameter for which to return associated params.
+            index (int):
+                index of order parameter for which associated parameters
+                are to be returned.
 
         Returns:
-            list[float]: parameters of a given OP.
+            [float]: parameters of a given OP.
         """
         if index < 0 or index >= len(self._types):
             raise ValueError("Index for getting parameters associated with order parameter calculation out-of-bounds!")
@@ -3990,7 +3990,7 @@ class CrystalNN(NearNeighbors):
                         nn_info.append(entry)
                 cn = len(nn_info)
                 cn_nninfo[cn] = nn_info
-                cn_weights[cn] = self._semicircle_integral(dist_bins, idx)
+                cn_weights[cn] = self._quadrant_integral(dist_bins, idx)
 
         # add zero coord
         cn0_weight = 1 - sum(cn_weights.values())
@@ -4047,10 +4047,13 @@ class CrystalNN(NearNeighbors):
         return super().get_cn_dict(structure, n, use_weights)
 
     @staticmethod
-    def _semicircle_integral(dist_bins, idx):
+    def _semicircle_integral(dist_bins: list, idx: int) -> float:
         """
         An internal method to get an integral between two bounds of a unit
         semicircle. Used in algorithm to determine bond probabilities.
+        This function has an issue, which is detailed at
+        https://github.com/materialsproject/pymatgen/issues/3973.
+        Therefore, _quadrant_integral is now the method of choice.
 
         Args:
             dist_bins: (float) list of all possible bond weights
@@ -4074,6 +4077,35 @@ class CrystalNN(NearNeighbors):
         area2 = 0.5 * ((x2 * math.sqrt(radius**2 - x2**2)) + (radius**2 * math.atan(x2 / math.sqrt(radius**2 - x2**2))))
 
         return (area1 - area2) / (0.25 * math.pi * radius**2)
+
+    @staticmethod
+    def _quadrant_integral(dist_bins: list, idx: int) -> float:
+        """
+        An internal method to get an integral between two bounds of a unit
+        quadrant. Used in algorithm to determine bond probabilities.
+
+        Args:
+            dist_bins: (float) list of all possible bond weights
+            idx: (float) index of starting bond weight
+
+        Returns:
+            float: integral of portion of unit quadrant
+        """
+        radius = 1
+
+        x1 = dist_bins[idx]
+        x2 = dist_bins[idx + 1]
+
+        areaquarter = 0.25 * math.pi * radius**2
+
+        area1 = areaquarter - 0.5 * (radius**2 * math.acos(
+            1 - x1 / radius) - (radius - x1) * math.sqrt(
+            2 * radius * x1 - x1**2))
+        area2 = areaquarter - 0.5 * (radius**2 * math.acos(
+            1 - x2 / radius) - (radius - x2) * math.sqrt(
+            2 * radius * x2 - x2**2))
+
+        return (area2 - area1) / areaquarter
 
     @staticmethod
     def transform_to_length(nn_data, length):
