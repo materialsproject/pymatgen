@@ -46,7 +46,9 @@ class CoherentInterfaceBuilder:
             zslgen: BiDirectionalZSL if you want custom lattice matching tolerances for coherency.
             termination_ftol: tolerance to distinguish different terminating atomic planes.
             label_index: whether to add an extra index at the beginning of the termination label.
-            filting_out_sym_slabs: whether to filter out identical slabs with different termination, this might need to be set as False to find more non-identical terminations because slab identity separately dose not mean combinational identity.
+            filting_out_sym_slabs: whether to filter out identical slabs with different termination,
+            this might need to be set as False to find more non-identical terminations because slab
+            identity separately dose not mean combinational identity.
         """
         # Bulk structures
         self.substrate_structure = substrate_structure
