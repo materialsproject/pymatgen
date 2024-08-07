@@ -25,6 +25,7 @@ repos:
     rev: v1.11.1
     hooks:
       - id: mypy
+        entry: env MYPYPATH=src mypy
 
   - repo: https://github.com/codespell-project/codespell
     rev: v2.3.0
