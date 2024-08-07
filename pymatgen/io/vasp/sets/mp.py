@@ -99,7 +99,7 @@ class MPScanRelaxSet(VaspInputSet):
             dispersion correction available for SCAN at this time.
         **kwargs: Keywords supported by VaspInputSet.
 
-        References:
+    References:
             [1] P. Wisesa, K.A. McGill, T. Mueller, Efficient generation of
             generalized Monkhorst-Pack grids through the use of informatics,
             Phys. Rev. B. 93 (2016) 1-10. doi:10.1103/PhysRevB.93.155109.
@@ -804,7 +804,7 @@ class MPAbsorptionSet(VaspInputSet):
     SUPPORTED_MODES = ("IPA", "RPA")
 
     def __post_init__(self):
-        """Validate settings"""
+        """Validate settings."""
         super().__post_init__()
         self.mode = self.mode.upper()
         if self.mode not in MPAbsorptionSet.SUPPORTED_MODES:

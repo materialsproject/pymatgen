@@ -62,7 +62,7 @@ class MatPESStaticSet(VaspInputSet):
     CONFIG = _load_yaml_config("MatPESStaticSet")
 
     def __post_init__(self):
-        """Validate inputs"""
+        """Validate inputs."""
         super().__post_init__()
         valid_xc_functionals = ("R2SCAN", "PBE", "PBE+U")
         if self.xc_functional.upper() not in valid_xc_functionals:

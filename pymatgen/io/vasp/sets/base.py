@@ -225,7 +225,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
     _valid_potcars: Sequence[str] | None = None
 
     def __post_init__(self):
-        """Perform validation"""
+        """Perform validation."""
         user_potcar_functional = self.user_potcar_functional
         if (valid_potcars := self._valid_potcars) and user_potcar_functional not in valid_potcars:
             raise ValueError(f"Invalid {user_potcar_functional=}, must be one of {valid_potcars}")
@@ -370,7 +370,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
     @property  # type: ignore
     def structure(self) -> Structure:
-        """Structure"""
+        """Structure."""
         return self._structure
 
     @structure.setter
@@ -708,7 +708,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
 
     @property
     def poscar(self) -> Poscar:
-        """Poscar"""
+        """Poscar."""
         if self.structure is None:
             raise RuntimeError("No structure is associated with the input set!")
         site_properties = self.structure.site_properties
@@ -909,7 +909,6 @@ class VaspInputSet(InputGenerator, abc.ABC):
     @property
     def potcar_symbols(self):
         """List of POTCAR symbols."""
-
         elements = self.poscar.site_symbols
         potcar_symbols = []
         settings = self._config_dict["POTCAR"]
@@ -1524,7 +1523,7 @@ def _get_nedos(vasprun: Vasprun | None, dedos: float) -> int:
 
 
 def auto_kspacing(bandgap, bandgap_tol):
-    """Set kspacing based on the bandgap"""
+    """Set kspacing based on the bandgap."""
     if bandgap is None or bandgap <= bandgap_tol:  # metallic
         return 0.22
 
