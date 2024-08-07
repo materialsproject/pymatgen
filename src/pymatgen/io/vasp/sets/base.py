@@ -1143,7 +1143,7 @@ class DictSet(VaspInputSet):
     def __post_init__(self):
         super().__post_init__()
         warnings.warn(
-            "DictSet is deprecated, and will be removed on 2025-12-31\n; Use VaspInputSet",
+            "DictSet is deprecated, and will be removed on 2025-12-31. Use VaspInputSet",
             category=FutureWarning,
             stacklevel=2,
         )
