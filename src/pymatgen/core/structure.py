@@ -31,6 +31,12 @@ from monty.io import zopen
 from monty.json import MSONable
 from numpy import cross, eye
 from numpy.linalg import norm
+from ruamel.yaml import YAML
+from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.linalg import expm, polar
+from scipy.spatial.distance import squareform
+from tabulate import tabulate
+
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
@@ -41,11 +47,6 @@ from pymatgen.core.units import Length, Mass
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
-from ruamel.yaml import YAML
-from scipy.cluster.hierarchy import fcluster, linkage
-from scipy.linalg import expm, polar
-from scipy.spatial.distance import squareform
-from tabulate import tabulate
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
@@ -58,8 +59,9 @@ if TYPE_CHECKING:
     from ase.optimize.optimize import Optimizer
     from matgl.ext.ase import TrajectoryObserver
     from numpy.typing import ArrayLike, NDArray
-    from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
     from typing_extensions import Self
+
+    from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
 
 FileFormats = Literal["cif", "poscar", "cssr", "json", "yaml", "yml", "xsf", "mcsqs", "res", "pwmat", ""]
 StructureSources = Literal["Materials Project", "COD"]
@@ -827,6 +829,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         from ase.constraints import ExpCellFilter
         from ase.io import read
         from ase.optimize.optimize import Optimizer
+
         from pymatgen.io.ase import AseAtomsAdaptor
 
         opt_kwargs = opt_kwargs or {}
@@ -1253,7 +1256,7 @@ class IStructure(SiteCollection, MSONable):
         are generated from the spacegroup operations.
 
         Args:
-            sg (str/int): The spacegroup. If a string, it will be interpreted
+            sg (str | int): The spacegroup. If a string, it will be interpreted
                 as one of the notations supported by
                 pymatgen.symmetry.groups.Spacegroup. e.g. "R-3c" or "Fm-3m".
                 If an int, it will be interpreted as an international number.
@@ -1542,7 +1545,7 @@ class IStructure(SiteCollection, MSONable):
         Basically a convenience method to call structure matching.
 
         Args:
-            other (IStructure/Structure): Another structure.
+            other (IStructure | Structure): Another structure.
             anonymous (bool): Whether to use anonymous structure matching which allows distinct
                 species in one structure to map to another.
             **kwargs: Same **kwargs as in
@@ -1813,7 +1816,7 @@ class IStructure(SiteCollection, MSONable):
 
         Args:
             r (float): Radius of sphere
-            sg (str/int): The spacegroup the symmetry operations of which will be
+            sg (str | int): The spacegroup the symmetry operations of which will be
                 used to classify the neighbors. If a string, it will be interpreted
                 as one of the notations supported by
                 pymatgen.symmetry.groups.Spacegroup. e.g. "R-3c" or "Fm-3m".
@@ -1874,7 +1877,7 @@ class IStructure(SiteCollection, MSONable):
                         redundant.append(jdx)
 
             # Delete the redundant neighbors
-            m = ~np.in1d(np.arange(len(bonds[0])), redundant)
+            m = ~np.isin(np.arange(len(bonds[0])), redundant)
             idcs_dist = np.argsort(bonds[3][m])
             bonds = (bonds[0][m][idcs_dist], bonds[1][m][idcs_dist], bonds[2][m][idcs_dist], bonds[3][m][idcs_dist])
 
@@ -3938,9 +3941,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """Modify a site in the structure.
 
         Args:
-            idx (int, [int], slice, Species-like): Indices to change. You can
-                specify these as an int, a list of int, or a species-like
-                string.
+            idx (int, list[int], slice, Species-like): Indices to change. You can
+                specify these as an int, a list of int, or a species-like string.
             site (PeriodicSite | Species | dict[SpeciesLike, float] | Sequence): 4 options exist. You
                 can provide a PeriodicSite directly (lattice will be checked). Or more conveniently,
                 you can provide a species-like object (or a dict mapping SpeciesLike to occupancy floats)
@@ -4770,9 +4772,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         """Modify a site in the molecule.
 
         Args:
-            idx (int, [int], slice, Species-like): Indices to change. You can
-                specify these as an int, a list of int, or a species-like
-                string.
+            idx (int, list[int], slice, Species-like): Indices to change. You can
+                specify these as an int, a list of int, or a species-like string.
             site (PeriodicSite/Species/Sequence): Three options exist. You can
                 provide a Site directly, or for convenience, you can provide
                 simply a Species-like string/object, or finally a (Species,

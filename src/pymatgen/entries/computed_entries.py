@@ -17,17 +17,19 @@ from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
+from scipy.interpolate import interp1d
+from uncertainties import ufloat
+
 from pymatgen.core.composition import Composition
 from pymatgen.entries import Entry
 from pymatgen.util.due import Doi, due
-from scipy.interpolate import interp1d
-from uncertainties import ufloat
 
 if TYPE_CHECKING:
     from typing import Literal
 
-    from pymatgen.core import Structure
     from typing_extensions import Self
+
+    from pymatgen.core import Structure
 
 __author__ = "Ryan Kingsbury, Matt McDermott, Shyue Ping Ong, Anubhav Jain"
 __copyright__ = "Copyright 2011-2020, The Materials Project"
@@ -506,15 +508,13 @@ class ComputedEntry(Entry):
     def as_dict(self) -> dict:
         """MSONable dict."""
         return_dict = super().as_dict()
-        return_dict.update(
-            {
-                "entry_id": self.entry_id,
-                "correction": self.correction,
-                "energy_adjustments": json.loads(json.dumps(self.energy_adjustments, cls=MontyEncoder)),
-                "parameters": json.loads(json.dumps(self.parameters, cls=MontyEncoder)),
-                "data": json.loads(json.dumps(self.data, cls=MontyEncoder)),
-            }
-        )
+        return_dict |= {
+            "entry_id": self.entry_id,
+            "correction": self.correction,
+            "energy_adjustments": json.loads(json.dumps(self.energy_adjustments, cls=MontyEncoder)),
+            "parameters": json.loads(json.dumps(self.parameters, cls=MontyEncoder)),
+            "data": json.loads(json.dumps(self.data, cls=MontyEncoder)),
+        }
         return return_dict
 
     def __hash__(self) -> int:

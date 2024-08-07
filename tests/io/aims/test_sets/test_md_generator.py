@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from pymatgen.io.aims.sets.core import MDSetGenerator
 from pymatgen.util.testing.aims import Si, compare_files
 

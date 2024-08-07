@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import warnings
 from shutil import which
-from unittest.mock import patch
 
 import numpy as np
 import pytest
 from monty.shutil import copy_r
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.command_line.bader_caller import BaderAnalysis, bader_analysis_from_path
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/command_line/bader"
 
@@ -59,7 +59,6 @@ class TestBaderAnalysis(PymatgenTest):
         assert len(analysis.data) == 14
 
         # Test Cube file format parsing
-
         copy_r(TEST_DIR, self.tmp_path)
         analysis = BaderAnalysis(cube_filename=f"{TEST_DIR}/elec.cube.gz")
         assert len(analysis.data) == 9
@@ -75,17 +74,17 @@ class TestBaderAnalysis(PymatgenTest):
         analysis = BaderAnalysis(chgcar_filename=chgcar_path, chgref_filename=chgref_path)
         analysis_from_path = BaderAnalysis.from_path(from_path_dir)
 
-        for key in analysis_from_path.summary:
-            val, val_from_path = analysis.summary[key], analysis_from_path.summary[key]
-            if isinstance(analysis_from_path.summary[key], (bool, str)):
+        for key, val_from_path in analysis_from_path.summary.items():
+            val = analysis.summary[key]
+            if isinstance(val_from_path, (bool, str)):
                 assert val == val_from_path, f"{key=}"
             elif key == "charge":
                 assert_allclose(val, val_from_path, atol=1e-5)
 
     def test_bader_analysis_from_path(self):
-        summary = bader_analysis_from_path(TEST_DIR)
         """
         Reference summary dict (with bader 1.0)
+
         summary_ref = {
             "magmom": [4.298761, 4.221997, 4.221997, 3.816685, 4.221997, 4.298763, 0.36292, 0.370516, 0.36292,
                 0.36292, 0.36292, 0.36292, 0.36292, 0.370516],
@@ -101,6 +100,9 @@ class TestBaderAnalysis(PymatgenTest):
             "reference_used": True,
         }
         """
+
+        summary = bader_analysis_from_path(TEST_DIR)
+
         assert set(summary) == {
             "magmom",
             "min_dist",
@@ -130,12 +132,11 @@ class TestBaderAnalysis(PymatgenTest):
         )
 
     def test_missing_file_bader_exe_path(self):
-        pytest.skip("doesn't reliably raise RuntimeError")
-        # mock which("bader") to return None so we always fall back to use bader_exe_path
-        with (
-            patch("shutil.which", return_value=None),
-            pytest.raises(
-                RuntimeError, match="BaderAnalysis requires the executable bader be in the PATH or the full path "
-            ),
-        ):
-            BaderAnalysis(chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz", bader_exe_path="")
+        # Mock which("bader") to return None so we always fall back to use bader_exe_path
+        with pytest.MonkeyPatch.context() as monkeypatch:
+            monkeypatch.setenv("PATH", "")
+
+            with pytest.raises(
+                RuntimeError, match="Requires bader or bader.exe to be in the PATH or the absolute path"
+            ):
+                BaderAnalysis(chgcar_filename=f"{VASP_OUT_DIR}/CHGCAR.Fe3O4.gz")

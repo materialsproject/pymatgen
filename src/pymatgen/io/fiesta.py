@@ -17,13 +17,15 @@ from typing import TYPE_CHECKING
 
 from monty.io import zopen
 from monty.json import MSONable
+
 from pymatgen.core.structure import Molecule
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from pymatgen.util.typing import Tuple3Ints
     from typing_extensions import Self
+
+    from pymatgen.util.typing import Tuple3Ints
 
 __author__ = "ndardenne"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -37,7 +39,7 @@ class Nwchem2Fiesta(MSONable):
 
     If nwchem.nw is the input, nwchem.out the output, and structure.movecs the
     "movecs" file, the syntax to run NWCHEM2FIESTA is: NWCHEM2FIESTA
-    nwchem.nw  nwchem.nwout  structure.movecs > log_n2f
+    nwchem.nw nwchem.nwout structure.movecs > log_n2f
     """
 
     def __init__(self, folder, filename="nwchem", log_file="log_n2f"):

@@ -6,6 +6,7 @@ import re
 
 import pandas as pd
 import pytest
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.io.lammps.data import LammpsData

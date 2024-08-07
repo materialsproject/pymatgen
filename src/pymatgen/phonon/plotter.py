@@ -12,6 +12,7 @@ from matplotlib import colors
 from matplotlib.collections import LineCollection
 from matplotlib.colors import LinearSegmentedColormap
 from monty.json import jsanitize
+
 from pymatgen.electronic_structure.plotter import BSDOSPlotter, plot_brillouin_zone
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.gruneisen import GruneisenPhononBandStructureSymmLine
@@ -24,6 +25,7 @@ if TYPE_CHECKING:
 
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
+
     from pymatgen.core import Structure
     from pymatgen.phonon.dos import PhononDos
     from pymatgen.phonon.gruneisen import GruneisenParameter
@@ -653,7 +655,7 @@ class PhononBSPlotter:
             **kwargs: passed to ax.plot().
 
         Returns:
-            a matplotlib object with both band structures
+            plt.Axes: with two band structures.
         """
         unit = freq_units(units)
         legend_kwargs = legend_kwargs or {}
@@ -1184,7 +1186,7 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
             ValueError: if the two plotters are incompatible (due to different data lengths)
 
         Returns:
-            a matplotlib object with both band structures
+            plt.Axes: with both band structures
         """
         data_orig = self.bs_plot_data()
         data = other_plotter.bs_plot_data()
