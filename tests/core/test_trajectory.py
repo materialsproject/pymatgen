@@ -219,6 +219,10 @@ class TestTrajectory(PymatgenTest):
         expected = props[1:]
         assert traj[1:].frame_properties == expected
 
+        # test that the frame properties are set correctly when indexing an individual structure/molecule
+        expected = props[0]
+        assert traj[0].properties == expected
+
     def test_extend(self):
         traj = copy.deepcopy(self.traj)
 
