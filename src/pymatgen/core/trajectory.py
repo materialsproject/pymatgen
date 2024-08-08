@@ -109,6 +109,20 @@ class Trajectory(MSONable):
                 `coords_are_displacement=True`. Defaults to the first index of
                 `coords` when `coords_are_displacement=False`.
         """
+        coords = np.asarray(coords)
+
+        if len(coords.shape) != 3:
+            raise ValueError(f"`coords` must have 3 dimensions! {coords.shape=}")
+
+        if len(species) != coords.shape[1]:
+            raise ValueError(
+                f"`species` (N={len(species)}) and `coords` "
+                f"(N={coords.shape[1]}) must have the same number of sites!"
+            )
+
+        if coords.shape[2] != 3:
+            raise ValueError("`coords` must have shape (M, N, 3)!")
+
         self.charge = self.spin_multiplicity = self.lattice = self.constant_lattice = None
 
         # First, sanity check that the necessary inputs have been provided
@@ -128,6 +142,9 @@ class Trajectory(MSONable):
                 lattice = [cast(Lattice, x).matrix for x in lattice]
             lattice = np.asarray(lattice)
 
+            if lattice.shape[-2:] != (3, 3):
+                raise ValueError(f"`lattice` must have shape (3, 3) or (M, 3, 3), found {lattice.shape}!")
+
             if not constant_lattice and lattice.shape == (3, 3):
                 self.lattice = np.tile(lattice, (len(coords), 1, 1))
                 warnings.warn(
@@ -136,6 +153,9 @@ class Trajectory(MSONable):
                 )
             else:
                 self.lattice = lattice
+
+            if len(lattice.shape) == 3 and (lattice.shape[0] != len(coords)):
+                raise ValueError(f"`lattice` must have shape (M, 3, 3)! found M={len(coords)}, {lattice.shape=}!")
 
             self.constant_lattice = constant_lattice
 
@@ -151,7 +171,7 @@ class Trajectory(MSONable):
         self.coords_are_displacement = coords_are_displacement
 
         self.species = species
-        self.coords = np.asarray(coords)
+        self.coords = coords
         self.time_step = time_step
 
         self._check_site_props(site_properties)
