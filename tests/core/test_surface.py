@@ -847,18 +847,11 @@ class TestMillerIndexFinder(PymatgenTest):
         assert hkl == (2, -1, 0)
 
 class TestCoherentInterfaceBuilder(unittest.TestCase):
-
     def setUp(self):
-        #build substrate & film structure
+        # build substrate & film structure
         basis = [[0, 0, 0], [0.25, 0.25, 0.25]]
-        self.substrate = Structure(
-            Lattice.cubic(a=5.431),
-            ["Si", "Si"],
-            basis)
-        self.film = substrate = Structure(
-            Lattice.cubic(a=5.658),
-            ["Ge", "Ge"],
-            basis)
+        self.substrate = Structure(Lattice.cubic(a=5.431), ["Si", "Si"], basis)
+        self.film = Structure(Lattice.cubic(a=5.658), ["Ge", "Ge"], basis)
 
     def test_termination_searching(self):
         sub_analyzer = SubstrateAnalyzer()
@@ -873,9 +866,8 @@ class TestCoherentInterfaceBuilder(unittest.TestCase):
                                              ('1_Ge_P4/mmm_1', '2_Si_P4/mmm_1'),\
                                              ('2_Ge_P4/mmm_1', '1_Si_P4/mmm_1'),\
                                              ('2_Ge_P4/mmm_1', '2_Si_P4/mmm_1')], \
-"""
-termination results wrong
-""")
+                                             'termination results wrong')
+
 
 if __name__ == "__main__":
     unittest.main()
