@@ -17,9 +17,6 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
-import unittest
-from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
 
 class TestInterfaceBuilder(PymatgenTest):
     @classmethod
@@ -75,8 +72,9 @@ class TestCoherentInterfaceBuilder(unittest.TestCase):
             label_index=True,
             filting_out_sym_slabs=False,
         )
-        self.assertTrue(cib.terminations == [('1_Ge_P4/mmm_1', '1_Si_P4/mmm_1'),\
-                                             ('1_Ge_P4/mmm_1', '2_Si_P4/mmm_1'),\
-                                             ('2_Ge_P4/mmm_1', '1_Si_P4/mmm_1'),\
-                                             ('2_Ge_P4/mmm_1', '2_Si_P4/mmm_1')],
-                                             'termination results wrong')
+        assert cib.terminations == [
+            ("1_Ge_P4/mmm_1", "1_Si_P4/mmm_1"),
+            ("1_Ge_P4/mmm_1", "2_Si_P4/mmm_1"),
+            ("2_Ge_P4/mmm_1", "1_Si_P4/mmm_1"),
+            ("2_Ge_P4/mmm_1", "2_Si_P4/mmm_1"),
+        ], "termination results wrong"
