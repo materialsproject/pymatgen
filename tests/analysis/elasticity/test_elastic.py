@@ -181,7 +181,9 @@ class TestElasticTensor(PymatgenTest):
             UserWarning, match="Input elastic tensor does not satisfy standard Voigt symmetries"
         ) as warns:
             ElasticTensor(non_symm)
-        assert len(warns) == 1
+        assert (
+            sum("Input elastic tensor does not satisfy standard Voigt symmetries" in str(warn) for warn in warns) == 1
+        )
 
         bad_tensor1 = np.zeros((3, 3, 3))
         bad_tensor2 = np.zeros((3, 3, 3, 2))
@@ -219,7 +221,8 @@ class TestElasticTensor(PymatgenTest):
         stresses = self.toec_dict["stresses"]
         with pytest.warns(UserWarning, match="No eq state found, returning zero voigt stress") as warns:
             et = ElasticTensor.from_independent_strains(strains, stresses)
-        assert len(warns) == 2
+        assert sum("No eq state found" in str(warn) for warn in warns) == 1
+        assert sum("Extra strain states in strain-" in str(warn) for warn in warns) == 1
         assert_allclose(et.voigt, self.toec_dict["C2_raw"], atol=1e1)
 
     def test_energy_density(self):
