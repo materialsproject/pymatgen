@@ -219,6 +219,7 @@ class Trajectory(MSONable):
                     charge=charge,
                     spin_multiplicity=spin,
                     site_properties=self._get_site_props(frames),  # type: ignore[arg-type]
+                    properties=None if self.frame_properties is None else self.frame_properties[frames],
                 )
 
             lattice = self.lattice if self.constant_lattice else self.lattice[frames]
@@ -228,6 +229,7 @@ class Trajectory(MSONable):
                 self.species,
                 self.coords[frames],
                 site_properties=self._get_site_props(frames),  # type: ignore[arg-type]
+                properties=None if self.frame_properties is None else self.frame_properties[frames],
                 to_unit_cell=True,
             )
 
