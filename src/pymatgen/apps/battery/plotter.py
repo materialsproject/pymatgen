@@ -150,6 +150,8 @@ class VoltageProfilePlotter:
                 plot_x.append(x[i])
                 plot_y.append(y[i])
             xlabel = self._choose_best_x_label(formula=formula, work_ion_symbol=working_ion_symbols)
+            if xlabel == None:
+                xlabel = "x"
             hover_temp = "Voltage (V): %{y:.2f}<br>" + xlabel + ": %{x:.3f}"
             data.append(go.Scatter(x=plot_x, y=plot_y, name=key, hovertemplate=hover_temp))
 
@@ -160,7 +162,7 @@ class VoltageProfilePlotter:
                 width=width,
                 height=height,
                 font=font_dict,
-                xaxis={"title": xlabel},
+                xaxis={"title": self._choose_best_x_label(formula=formula, work_ion_symbol=working_ion_symbols)},
                 yaxis={"title": "Voltage (V)"},
                 **kwargs,
             ),
