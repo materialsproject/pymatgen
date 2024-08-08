@@ -10,7 +10,10 @@ from pymatgen.analysis.interfaces.coherent_interfaces import (
 )
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
-
+import unittest
+from pymatgen.core.structure import Structure
+from pymatgen.core.lattice import Lattice
+from pymatgen.analysis.interfaces import CoherentInterfaceBuilder, SubstrateAnalyzer
 
 class TestInterfaceBuilder(PymatgenTest):
     @classmethod
