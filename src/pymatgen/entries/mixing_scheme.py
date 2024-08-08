@@ -114,7 +114,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if hasattr(compat, "check_potcar"):
                 compat.check_potcar = check_potcar  # type: ignore[union-attr]
 
-    def process_entries(
+    def process_entries(  # type: ignore[override]
         self,
         entries: AnyComputedEntry | list[AnyComputedEntry],
         clean: bool = True,
