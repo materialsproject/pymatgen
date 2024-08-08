@@ -116,8 +116,7 @@ class Trajectory(MSONable):
 
         if len(species) != coords.shape[1]:
             raise ValueError(
-                f"species (N={len(species)}) and coords "
-                f"(N={coords.shape[1]}) must have the same number of sites!"
+                f"species (N={len(species)}) and coords " f"(N={coords.shape[1]}) must have the same number of sites!"
             )
 
         if coords.shape[2] != 3:
