@@ -1,19 +1,21 @@
 from __future__ import annotations
 
+import unittest
+
 from numpy.testing import assert_allclose
 
+from pymatgen.analysis.interfaces import CoherentInterfaceBuilder, SubstrateAnalyzer
 from pymatgen.analysis.interfaces.coherent_interfaces import (
     CoherentInterfaceBuilder,
     from_2d_to_3d,
     get_2d_transform,
     get_rot_3d_for_2d,
 )
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
-import unittest
-from pymatgen.core.structure import Structure
-from pymatgen.core.lattice import Lattice
-from pymatgen.analysis.interfaces import CoherentInterfaceBuilder, SubstrateAnalyzer
+
 
 class TestInterfaceBuilder(PymatgenTest):
     @classmethod
