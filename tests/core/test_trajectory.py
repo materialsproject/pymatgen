@@ -526,13 +526,13 @@ class TestTrajectory(PymatgenTest):
         ]
         wrong_dim_coords = [[1.5, -0, 0, 1], [1.9, -1.2, 0, 1]]
 
-        with pytest.raises(ValueError, match=re.escape("`lattice` must have shape (M, 3, 3)!")):
+        with pytest.raises(ValueError, match=re.escape("lattice must have shape (M, 3, 3)!")):
             Trajectory(species=species, coords=coords, lattice=short_lattice)
-        with pytest.raises(ValueError, match=re.escape("lattice` must have shape (3, 3) or (M, 3, 3)")):
+        with pytest.raises(ValueError, match=re.escape("lattice must have shape (3, 3) or (M, 3, 3)")):
             Trajectory(species=species, coords=coords, lattice=unphysical_lattice)
         with pytest.raises(ValueError, match="must have the same number of sites!"):
             Trajectory(species=species, coords=extra_coords, lattice=const_lattice)
-        with pytest.raises(ValueError, match=re.escape("`coords` must have shape (M, N, 3)")):
+        with pytest.raises(ValueError, match=re.escape("coords must have shape (M, N, 3)")):
             Trajectory(species=species, coords=unphysical_coords, lattice=const_lattice)
-        with pytest.raises(ValueError, match="`coords` must have 3 dimensions!"):
+        with pytest.raises(ValueError, match="coords must have 3 dimensions!"):
             Trajectory(species=species, coords=wrong_dim_coords, lattice=const_lattice)
