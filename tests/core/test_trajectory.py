@@ -423,8 +423,9 @@ class TestTrajectory(PymatgenTest):
         structures = [Structure.from_file(f"{VASP_IN_DIR}/POSCAR")]
         displacements = np.zeros((11, *np.shape(structures[-1].frac_coords)))
 
+        rng = np.random.default_rng()
         for idx in range(10):
-            displacement = np.random.random_sample(np.shape(structures[-1].frac_coords)) / 20
+            displacement = rng.random(np.shape(structures[-1].frac_coords)) / 20
             new_coords = displacement + structures[-1].frac_coords
             structures.append(Structure(structures[-1].lattice, structures[-1].species, new_coords))
             displacements[idx + 1, :, :] = displacement
@@ -439,8 +440,9 @@ class TestTrajectory(PymatgenTest):
 
         # Generate structures with different lattices
         structures = []
+        rng = np.random.default_rng()
         for _ in range(10):
-            new_lattice = np.dot(structure.lattice.matrix, np.diag(1 + np.random.random_sample(3) / 20))
+            new_lattice = np.dot(structure.lattice.matrix, np.diag(1 + rng.random(3) / 20))
             temp_struct = structure.copy()
             temp_struct.lattice = Lattice(new_lattice)
             structures.append(temp_struct)
@@ -494,3 +496,43 @@ class TestTrajectory(PymatgenTest):
             TypeError, match=re.escape("bad index='test', expected one of [int, slice, list[int], numpy.ndarray]")
         ):
             self.traj["test"]
+
+    def test_incorrect_dims(self):
+        # Good Inputs
+        const_lattice = ((1, 0, 0), (0, 1, 0), (0, 0, 1))
+        species = ["C", "O"]
+        coords = [
+            [[1.5, -0, 0], [1.9, -1.2, 0]],
+            [[1.5, -0, 0], [1.9, -1.2, 0]],
+            [[1.5, -0, 0], [1.9, -1.2, 0]],
+        ]
+
+        # Problematic Inputs
+        short_lattice = [((1, 0, 0), (0, 1, 0), (0, 0, 1)), ((1, 0, 0), (0, 1, 0), (0, 0, 1))]
+        unphysical_lattice = [
+            ((1, 0, 0), (0, 1, 0)),
+            ((1, 0, 0), (0, 1, 0)),
+            ((1, 0, 0), (0, 1, 0)),
+        ]
+        extra_coords = [
+            [[1.5, -0, 0], [1.9, -1.2, 0], [1.9, -1.2, 0]],
+            [[1.5, -0, 0], [1.9, -1.2, 0], [1.9, -1.2, 0]],
+            [[1.5, -0, 0], [1.9, -1.2, 0], [1.9, -1.2, 0]],
+        ]
+        unphysical_coords = [
+            [[1.5, -0, 0, 1], [1.9, -1.2, 0, 1]],
+            [[1.5, -0, 0, 1], [1.9, -1.2, 0, 1]],
+            [[1.5, -0, 0, 1], [1.9, -1.2, 0, 1]],
+        ]
+        wrong_dim_coords = [[1.5, -0, 0, 1], [1.9, -1.2, 0, 1]]
+
+        with pytest.raises(ValueError, match=re.escape("lattice must have shape (M, 3, 3)!")):
+            Trajectory(species=species, coords=coords, lattice=short_lattice)
+        with pytest.raises(ValueError, match=re.escape("lattice must have shape (3, 3) or (M, 3, 3)")):
+            Trajectory(species=species, coords=coords, lattice=unphysical_lattice)
+        with pytest.raises(ValueError, match="must have the same number of sites!"):
+            Trajectory(species=species, coords=extra_coords, lattice=const_lattice)
+        with pytest.raises(ValueError, match=re.escape("coords must have shape (M, N, 3)")):
+            Trajectory(species=species, coords=unphysical_coords, lattice=const_lattice)
+        with pytest.raises(ValueError, match="coords must have 3 dimensions!"):
+            Trajectory(species=species, coords=wrong_dim_coords, lattice=const_lattice)
