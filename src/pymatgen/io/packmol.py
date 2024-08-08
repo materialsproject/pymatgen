@@ -213,6 +213,7 @@ class PackmolBoxGen(InputGenerator):
                 raise TypeError("Molecule is not provided in supported format.")
 
             fname = f"packmol_{dct['name']}.xyz"
+            assert mol is not None
             mapping[fname] = mol.to(fmt="xyz")
             if " " in str(fname):
                 file_contents.append(f"structure {fname!r}")

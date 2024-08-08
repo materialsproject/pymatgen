@@ -1585,7 +1585,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
             if not self.o2_energy and (o2_entries := [e for e in entries if e.reduced_formula == "O2"]):
                 self.o2_energy = min(e.energy_per_atom for e in o2_entries)
 
-            if not self.h2o_energy and not self.h2o_adjustments:
+            if not self.h2o_energy and not self.h2o_adjustments:  # noqa: SIM102
                 if h2o_entries := [e for e in entries if e.reduced_formula == "H2O"]:
                     h2o_entries = sorted(h2o_entries, key=lambda e: e.energy_per_atom)
                     self.h2o_energy = h2o_entries[0].energy_per_atom
