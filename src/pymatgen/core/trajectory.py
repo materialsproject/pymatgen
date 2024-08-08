@@ -107,12 +107,12 @@ class Trajectory(MSONable):
                 trajectory. Used to reconstruct positions when converting from
                 displacements to positions. Only needs to be specified if
                 `coords_are_displacement=True`. Defaults to the first index of
-                `coords` when `coords_are_displacement=False`.
+                coords when coords_are_displacement=False.
         """
         coords = np.asarray(coords)
 
-        if len(coords.shape) != 3:
-            raise ValueError(f"`coords` must have 3 dimensions! {coords.shape=}")
+        if coords.ndim != 3:
+            raise ValueError(f"coords must have 3 dimensions! {coords.shape=}")
 
         if len(species) != coords.shape[1]:
             raise ValueError(
@@ -121,7 +121,7 @@ class Trajectory(MSONable):
             )
 
         if coords.shape[2] != 3:
-            raise ValueError("`coords` must have shape (M, N, 3)!")
+            raise ValueError(f"coords must have shape (M, N, 3), got {coords.shape}!")
 
         self.charge = self.spin_multiplicity = self.lattice = self.constant_lattice = None
 
