@@ -13,22 +13,17 @@ fonttools==4.53.0
 idna==3.7
     # via requests
 joblib==1.4.2
-    # via pymatgen (pyproject.toml)
 kiwisolver==1.4.5
     # via matplotlib
 latexcodec==3.0.0
     # via pybtex
 matplotlib==3.9.0
-    # via pymatgen (pyproject.toml)
-monty==2024.5.24
-    # via pymatgen (pyproject.toml)
+monty==2024.7.30
 mpmath==1.3.0
     # via sympy
 networkx==3.3
-    # via pymatgen (pyproject.toml)
 numpy==2.0.0
     # via
-    #   pymatgen (pyproject.toml)
     #   contourpy
     #   matplotlib
     #   pandas
@@ -39,15 +34,11 @@ packaging==24.1
     #   matplotlib
     #   plotly
 palettable==3.3.3
-    # via pymatgen (pyproject.toml)
 pandas==2.2.2
-    # via pymatgen (pyproject.toml)
 pillow==10.3.0
     # via matplotlib
 plotly==5.22.0
-    # via pymatgen (pyproject.toml)
 pybtex==0.24.0
-    # via pymatgen (pyproject.toml)
 pyparsing==3.1.2
     # via matplotlib
 python-dateutil==2.9.0.post0
@@ -59,30 +50,22 @@ pytz==2024.1
 pyyaml==6.0.1
     # via pybtex
 requests==2.32.3
-    # via pymatgen (pyproject.toml)
 ruamel-yaml==0.18.6
-    # via pymatgen (pyproject.toml)
 ruamel-yaml-clib==0.2.8
     # via ruamel-yaml
 scipy==1.13.1
-    # via pymatgen (pyproject.toml)
 six==1.16.0
     # via
     #   pybtex
     #   python-dateutil
-spglib==2.4.0
-    # via pymatgen (pyproject.toml)
+spglib==2.5.0
 sympy==1.12.1
-    # via pymatgen (pyproject.toml)
 tabulate==0.9.0
-    # via pymatgen (pyproject.toml)
 tenacity==8.4.1
     # via plotly
 tqdm==4.66.4
-    # via pymatgen (pyproject.toml)
 tzdata==2024.1
     # via pandas
 uncertainties==3.2.1
-    # via pymatgen (pyproject.toml)
 urllib3==2.2.2
     # via requests

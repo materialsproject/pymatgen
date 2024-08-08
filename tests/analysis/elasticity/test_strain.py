@@ -118,9 +118,10 @@ class TestStrain(PymatgenTest):
         assert_allclose(self.non_ind_str.voigt, [0, 0.0002, 0.0002, 0.0004, 0.02, 0.02])
 
     def test_convert_strain_to_deformation(self):
-        strain = Tensor(np.random.random((3, 3))).symmetrized
+        rng = np.random.default_rng()
+        strain = Tensor(rng.random((3, 3))).symmetrized
         while not (np.linalg.eigvals(strain) > 0).all():
-            strain = Tensor(np.random.random((3, 3))).symmetrized
+            strain = Tensor(rng.random((3, 3))).symmetrized
         upper = convert_strain_to_deformation(strain, shape="upper")
         symm = convert_strain_to_deformation(strain, shape="symmetric")
         assert_allclose(np.triu(upper), upper)
