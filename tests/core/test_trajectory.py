@@ -78,51 +78,45 @@ class TestTrajectory(PymatgenTest):
         sliced_traj = self.traj[2:99:3]
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[2:99:3])
 
-        if len(sliced_traj) == len(sliced_traj_from_structs):
-            assert all(sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj)))
-        else:
-            raise AssertionError
+        assert len(sliced_traj) == len(
+            sliced_traj_from_structs
+        ), f"{len(sliced_traj)=} != {len(sliced_traj_from_structs)=}"
+        assert all(sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj)))
 
         sliced_traj = self.traj[:-4:2]
         sliced_traj_from_structs = Trajectory.from_structures(self.structures[:-4:2])
 
-        if len(sliced_traj) == len(sliced_traj_from_structs):
-            assert all(sliced_traj[idx] == sliced_traj_from_structs[idx] for idx in range(len(sliced_traj)))
-        else:
-            raise AssertionError
+        assert len(sliced_traj) == len(
+            sliced_traj_from_structs
+        ), f"{len(sliced_traj)=} != {len(sliced_traj_from_structs)=}"
+        assert all(sliced_traj[idx] == sliced_traj_from_structs[idx] for idx in range(len(sliced_traj)))
 
         sliced_traj = self.traj_mols[:2]
         sliced_traj_from_mols = Trajectory.from_molecules(self.molecules[:2])
 
-        if len(sliced_traj) == len(sliced_traj_from_mols):
-            assert all(sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj)))
-        else:
-            raise AssertionError
+        assert len(sliced_traj) == len(sliced_traj_from_mols), f"{len(sliced_traj)=} != {len(sliced_traj_from_mols)=}"
+        assert all(sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj)))
 
         sliced_traj = self.traj_mols[:-2]
         sliced_traj_from_mols = Trajectory.from_molecules(self.molecules[:-2])
 
-        if len(sliced_traj) == len(sliced_traj_from_mols):
-            assert all(sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj)))
-        else:
-            raise AssertionError
+        assert len(sliced_traj) == len(sliced_traj_from_mols), f"{len(sliced_traj)=} != {len(sliced_traj_from_mols)=}"
+        assert all(sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj)))
 
     def test_list_slice(self):
         sliced_traj = self.traj[[10, 30, 70]]
         sliced_traj_from_structs = Trajectory.from_structures([self.structures[i] for i in [10, 30, 70]])
 
-        if len(sliced_traj) == len(sliced_traj_from_structs):
-            assert all(sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj)))
-        else:
-            raise AssertionError
+        assert len(sliced_traj) == len(
+            sliced_traj_from_structs
+        ), f"{len(sliced_traj)=} != {len(sliced_traj_from_structs)=}"
+        assert all(sliced_traj[i] == sliced_traj_from_structs[i] for i in range(len(sliced_traj)))
 
         sliced_traj = self.traj_mols[[1, 3]]
         sliced_traj_from_mols = Trajectory.from_molecules([self.molecules[i] for i in [1, 3]])
 
-        if len(sliced_traj) == len(sliced_traj_from_mols):
-            assert all(sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj)))
-        else:
-            raise AssertionError
+        assert len(sliced_traj) == len(sliced_traj_from_mols), f"{len(sliced_traj)=} != {len(sliced_traj_from_mols)=}"
+        assert all(sliced_traj[i] == sliced_traj_from_mols[i] for i in range(len(sliced_traj)))
 
     def test_conversion(self):
         # Convert to displacements and back, and then check structures.

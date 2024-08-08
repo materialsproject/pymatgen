@@ -147,10 +147,10 @@ def parse_cp(lines: list[str]) -> tuple[str | None, dict[str, Any]]:
     # Figure out what kind of critical-point we're dealing with
     if "(3,-3)" in lines_split[0]:
         cp_type = "atom"
-        conditionals = {k: v for k, v in QTAIM_CONDITIONALS.items() if k not in ["connected_bond_paths"]}
+        conditionals = {k: v for k, v in QTAIM_CONDITIONALS.items() if k != "connected_bond_paths"}
     elif "(3,-1)" in lines_split[0]:
         cp_type = "bond"
-        conditionals = {k: v for k, v in QTAIM_CONDITIONALS.items() if k not in ["ele_info"]}
+        conditionals = {k: v for k, v in QTAIM_CONDITIONALS.items() if k != "ele_info"}
     elif "(3,+1)" in lines_split[0]:
         cp_type = "ring"
         conditionals = {k: v for k, v in QTAIM_CONDITIONALS.items() if k not in ["connected_bond_paths", "ele_info"]}

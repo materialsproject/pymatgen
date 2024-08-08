@@ -276,7 +276,6 @@ exclude_also = [
     "if settings.DEBUG",
     "if typing.TYPE_CHECKING:",
     "pragma: no cover",
-    "raise AssertionError",
     "raise NotImplementedError",
     "show_plot",
 ]
