@@ -80,6 +80,7 @@ jobs:
           # track https://github.com/astral-sh/uv/issues/1921 for resolution
           pip install torch --upgrade
 
+          uv pip install cython setuptools wheel
           uv pip install "delvewheel>=1.7.4" # TODO remove following new netcdf4 release, currently on 1.7.1
 
           uv pip install --editable '.[${{ matrix.config.extras }}]' --resolution=${{ matrix.config.resolution }}
