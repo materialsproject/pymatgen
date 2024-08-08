@@ -12,6 +12,7 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
+from warnings import warn
 
 import numpy as np
 from monty.io import zopen
@@ -146,19 +147,30 @@ class AimsGeometryIn(MSONable):
             for lv in structure.lattice.matrix:
                 content_lines.append(f"lattice_vector {lv[0]: .12e} {lv[1]: .12e} {lv[2]: .12e}")
 
-        charges = structure.site_properties.get("charge", np.zeros(len(structure.species)))
-        magmoms = structure.site_properties.get("magmom", np.zeros(len(structure.species)))
+        charges = structure.site_properties.get("charge", np.zeros(structure.num_sites))
+        magmoms = structure.site_properties.get("magmom", [None] * structure.num_sites)
         velocities = structure.site_properties.get("velocity", [None for _ in structure.species])
+
         for species, coord, charge, magmom, v in zip(
             structure.species, structure.cart_coords, charges, magmoms, velocities
         ):
-            content_lines.append(f"atom {coord[0]: .12e} {coord[1]: .12e} {coord[2]: .12e} {species}")
+            if isinstance(species, Element):
+                spin = magmom
+                element = species
+            else:
+                spin = species.spin
+                element = species.element
+                if magmom is not None and magmom != spin:
+                    raise ValueError("species.spin and magnetic moments don't agree. Please only define one")
+
+            content_lines.append(f"atom {coord[0]: .12e} {coord[1]: .12e} {coord[2]: .12e} {element}")
             if charge != 0:
                 content_lines.append(f"     initial_charge {charge:.12e}")
-            if magmom != 0:
-                content_lines.append(f"     initial_moment {magmom:.12e}")
+            if (spin is not None) and (spin != 0):
+                content_lines.append(f"     initial_moment {spin:.12e}")
             if v is not None and any(v_i != 0.0 for v_i in v):
                 content_lines.append(f"     velocity   {'  '.join([f'{v_i:.12e}' for v_i in v])}")
+
         return cls(_content="\n".join(content_lines), _structure=structure)
 
     @property
@@ -441,6 +453,9 @@ class AimsControlIn(MSONable):
             value (Any): The value for that parameter
         """
         if key == "output":
+            if value in self._parameters[key]:
+                return
+
             if isinstance(value, str):
                 value = [value]
             self._parameters[key] += value
@@ -514,6 +529,16 @@ class AimsControlIn(MSONable):
         if parameters["xc"] == "LDA":
             parameters["xc"] = "pw-lda"
 
+        spins = np.array([0.0 if isinstance(sp, Element) else sp.spin for sp in structure.species])
+        magmom = structure.site_properties.get("magmom", spins)
+        if (
+            parameters.get("spin", "") == "collinear"
+            and np.all(magmom == 0.0)
+            and ("default_initial_moment" not in parameters)
+        ):
+            warn("Removing spin from parameters since no spin information is in the structure", RuntimeWarning)
+            parameters.pop("spin")
+
         cubes = parameters.pop("cubes", None)
 
         if verbose_header:
@@ -561,7 +586,18 @@ class AimsControlIn(MSONable):
         species_defaults = self._parameters.get("species_dir", "")
         if not species_defaults:
             raise KeyError("Species' defaults not specified in the parameters")
-        content += self.get_species_block(structure, species_defaults)
+
+        species_dir = None
+        if isinstance(species_defaults, str):
+            species_defaults = Path(species_defaults)
+            if species_defaults.is_absolute():
+                species_dir = species_defaults.parent
+                basis_set = species_defaults.name
+            else:
+                basis_set = str(species_defaults)
+        else:
+            basis_set = species_defaults
+        content += self.get_species_block(structure, basis_set, species_dir=species_dir)
 
         return content
 
@@ -607,15 +643,18 @@ class AimsControlIn(MSONable):
 
             file.write(content)
 
-    def get_species_block(self, structure: Structure | Molecule, basis_set: str | dict[str, str]) -> str:
-        """Get the basis set information for a structure.
+    def get_species_block(
+        self, structure: Structure | Molecule, basis_set: str | dict[str, str], species_dir: str | Path | None = None
+    ) -> str:
+        """Get the basis set information for a structure
 
         Args:
             structure (Molecule or Structure): The structure to get the basis set information for
             basis_set (str | dict[str, str]):
                 a name of a basis set (`light`, `tight`...) or a mapping from site labels to basis set names.
                 The name of a basis set can either correspond to the subfolder in `defaults_2020` folder
-                or be a full path from the `FHI-aims/species_defaults` directory.
+                or be a full path from the `FHI-aims/species_defaults` directory.\
+            species_dir (str | Path | None): The base species directory
 
         Returns:
             The block to add to the control.in file for the species
@@ -623,7 +662,7 @@ class AimsControlIn(MSONable):
         Raises:
             ValueError: If a file for the species is not found
         """
-        species_defaults = SpeciesDefaults.from_structure(structure, basis_set)
+        species_defaults = SpeciesDefaults.from_structure(structure, basis_set, species_dir)
         return str(species_defaults)
 
     def as_dict(self) -> dict[str, Any]:
@@ -656,7 +695,7 @@ class AimsSpeciesFile:
         """
         Args:
             data (str): A string of the complete species defaults file
-            label (str): A string representing the name of species.
+            label (str): A string representing the name of species
         """
         self.data = data
         self.label = label
@@ -664,6 +703,36 @@ class AimsSpeciesFile:
             for line in data.splitlines():
                 if "species" in line:
                     self.label = line.split()[1]
+
+    def __eq__(self, sepcies_2: object) -> bool:
+        """Returns if two speceies are equal"""
+        if not isinstance(sepcies_2, AimsSpeciesFile):
+            return NotImplemented
+        return self.data == sepcies_2.data
+
+    def __lt__(self, sepcies_2: object) -> bool:
+        """Returns if two speceies are equal"""
+        if not isinstance(sepcies_2, AimsSpeciesFile):
+            return NotImplemented
+        return self.data < sepcies_2.data
+
+    def __le__(self, sepcies_2: object) -> bool:
+        """Returns if two speceies are equal"""
+        if not isinstance(sepcies_2, AimsSpeciesFile):
+            return NotImplemented
+        return self.data <= sepcies_2.data
+
+    def __gt__(self, sepcies_2: object) -> bool:
+        """Returns if two speceies are equal"""
+        if not isinstance(sepcies_2, AimsSpeciesFile):
+            return NotImplemented
+        return self.data > sepcies_2.data
+
+    def __ge__(self, sepcies_2: object) -> bool:
+        """Returns if two speceies are equal"""
+        if not isinstance(sepcies_2, AimsSpeciesFile):
+            return NotImplemented
+        return self.data >= sepcies_2.data
 
     @classmethod
     def from_file(cls, filename: str, label: str | None = None) -> AimsSpeciesFile:
@@ -680,7 +749,9 @@ class AimsSpeciesFile:
             return cls(file.read(), label)
 
     @classmethod
-    def from_element_and_basis_name(cls, element: str, basis: str, *, label: str | None = None) -> AimsSpeciesFile:
+    def from_element_and_basis_name(
+        cls, element: str, basis: str, *, species_dir: str | Path | None = None, label: str | None = None
+    ) -> AimsSpeciesFile:
         """Initialize from element and basis names.
 
         Args:
@@ -702,7 +773,8 @@ class AimsSpeciesFile:
         else:
             species_file_name = "00_Emptium_default"
 
-        aims_species_dir = SETTINGS.get("AIMS_SPECIES_DIR")
+        aims_species_dir = SETTINGS.get("AIMS_SPECIES_DIR") if species_dir is None else species_dir
+
         if aims_species_dir is None:
             raise ValueError(
                 "No AIMS_SPECIES_DIR variable found in the config file. "
@@ -723,7 +795,7 @@ class AimsSpeciesFile:
         )
 
     def __str__(self):
-        """String representation of the species' defaults file."""
+        """String representation of the species' defaults file"""
         return re.sub(r"^ *species +\w+", f"  species        {self.label}", self.data, flags=re.MULTILINE)
 
     @property
@@ -739,13 +811,13 @@ class AimsSpeciesFile:
 
     @classmethod
     def from_dict(cls, dct: dict[str, Any]) -> AimsSpeciesFile:
-        """Deserialization of the AimsSpeciesFile object."""
+        """Deserialization of the AimsSpeciesFile object"""
         return AimsSpeciesFile(data=dct["data"], label=dct["label"])
 
 
 class SpeciesDefaults(list, MSONable):
     """A list containing a set of species' defaults objects with
-    methods to read and write them to files.
+    methods to read and write them to files
     """
 
     def __init__(
@@ -753,6 +825,7 @@ class SpeciesDefaults(list, MSONable):
         labels: Sequence[str],
         basis_set: str | dict[str, str],
         *,
+        species_dir: str | Path | None = None,
         elements: dict[str, str] | None = None,
     ) -> None:
         """
@@ -762,6 +835,7 @@ class SpeciesDefaults(list, MSONable):
                 a name of a basis set (`light`, `tight`...) or a mapping from site labels to basis set names.
                 The name of a basis set can either correspond to the subfolder in `defaults_2020` folder
                 or be a full path from the `FHI-aims/species_defaults` directory.
+            species_dir (str | Path | None): The base species directory
             elements (dict[str, str] | None):
                 a mapping from site labels to elements. If some label is not in this mapping,
                 it coincides with an element.
@@ -769,48 +843,54 @@ class SpeciesDefaults(list, MSONable):
         super().__init__()
         self.labels = labels
         self.basis_set = basis_set
+        self.species_dir = species_dir
         if elements is None:
             elements = {}
         self.elements = {}
         for label in self.labels:
+            if ",spin" in label:
+                label = label.split(",")[0]
             self.elements[label] = elements.get(label, label)
         self._set_species()
 
     def _set_species(self) -> None:
-        """Initialize species defaults from the instance data."""
+        """Initialize species defaults from the instance data"""
         del self[:]
 
-        for label in self.labels:
-            el = self.elements[label]
+        for label, el in self.elements.items():
             if isinstance(self.basis_set, dict):
                 basis_set = self.basis_set.get(label, None)
                 if basis_set is None:
                     raise ValueError(f"Basis set not found for specie {label} (represented by element {el})")
             else:
                 basis_set = self.basis_set
-            self.append(AimsSpeciesFile.from_element_and_basis_name(el, basis_set, label=label))
+            self.append(
+                AimsSpeciesFile.from_element_and_basis_name(el, basis_set, species_dir=self.species_dir, label=label)
+            )
 
     def __str__(self):
-        """String representation of the species' defaults."""
+        """String representation of the species' defaults"""
         return "".join([str(x) for x in self])
 
     @classmethod
-    def from_structure(cls, struct: Structure | Molecule, basis_set: str | dict[str, str]):
+    def from_structure(
+        cls, struct: Structure | Molecule, basis_set: str | dict[str, str], species_dir: str | Path | None = None
+    ):
         """Initialize species defaults from a structure."""
         labels = []
         elements = {}
         for label, el in sorted(zip(struct.labels, struct.species)):
             if not isinstance(el, Element):
-                raise TypeError("FHI-aims does not support fractional compositions")
+                el = el.element
             if (label is None) or (el is None):
                 raise ValueError("Something is terribly wrong with the structure")
             if label not in labels:
                 labels.append(label)
                 elements[label] = el.name
-        return SpeciesDefaults(labels, basis_set, elements=elements)
+        return SpeciesDefaults(labels, basis_set, species_dir=species_dir, elements=elements)
 
     def to_dict(self):
-        """Dictionary representation of the species' defaults."""
+        """Dictionary representation of the species' defaults"""
         return {
             "labels": self.labels,
             "elements": self.elements,
@@ -821,5 +901,5 @@ class SpeciesDefaults(list, MSONable):
 
     @classmethod
     def from_dict(cls, dct: dict[str, Any]) -> SpeciesDefaults:
-        """Deserialization of the SpeciesDefaults object."""
+        """Deserialization of the SpeciesDefaults object"""
         return SpeciesDefaults(dct["labels"], dct["basis_set"], elements=dct["elements"])
