@@ -71,4 +71,4 @@ class TestCoherentInterfaceBuilder(unittest.TestCase):
         self.assertTrue(cib.terminations == [('1_Ge_P4/mmm_1', '1_Si_P4/mmm_1'),\
                                              ('1_Ge_P4/mmm_1', '2_Si_P4/mmm_1'),\
                                              ('2_Ge_P4/mmm_1', '1_Si_P4/mmm_1'),\
-                                             ('2_Ge_P4/mmm_1', '2_Si_P4/mmm_1')],\ 'termination results wrong')
+                                             ('2_Ge_P4/mmm_1', '2_Si_P4/mmm_1')], 'termination results wrong')
