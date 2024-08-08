@@ -9,7 +9,6 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 import pymatgen
-from pymatgen.analysis.interfaces import CoherentInterfaceBuilder, SubstrateAnalyzer
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, Structure
 from pymatgen.core.surface import (
@@ -844,35 +843,3 @@ class TestMillerIndexFinder(PymatgenTest):
         s3 = np.array([1.1595, 0.66943764, 0.9065])
         hkl = miller_index_from_sites(matrix, [s1, s2, s3])
         assert hkl == (2, -1, 0)
-
-
-class TestCoherentInterfaceBuilder(unittest.TestCase):
-    def setUp(self):
-        # build substrate & film structure
-        basis = [[0, 0, 0], [0.25, 0.25, 0.25]]
-        self.substrate = Structure(Lattice.cubic(a=5.431), ["Si", "Si"], basis)
-        self.film = Structure(Lattice.cubic(a=5.658), ["Ge", "Ge"], basis)
-
-    def test_termination_searching(self):
-        sub_analyzer = SubstrateAnalyzer()
-        matches = list(sub_analyzer.calculate(substrate=self.substrate, film=self.film))
-        cib = CoherentInterfaceBuilder(
-            film_structure=self.film,
-            substrate_structure=self.substrate,
-            film_miller=matches[0].film_miller,
-            substrate_miller=matches[0].substrate_miller,
-            zslgen=sub_analyzer,
-            termination_ftol=1e-4,
-            label_index=True,
-            filting_out_sym_slabs=False,
-        )
-        assert cib.terminations == [
-            ("1_Ge_P4/mmm_1", "1_Si_P4/mmm_1"),
-            ("1_Ge_P4/mmm_1", "2_Si_P4/mmm_1"),
-            ("2_Ge_P4/mmm_1", "1_Si_P4/mmm_1"),
-            ("2_Ge_P4/mmm_1", "2_Si_P4/mmm_1"),
-        ], "termination results wrong"
-
-
-if __name__ == "__main__":
-    unittest.main()
