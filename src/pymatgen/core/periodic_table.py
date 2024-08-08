@@ -1609,9 +1609,9 @@ def get_el_sp(obj: SpeciesLike) -> Element | Species | DummySpecies:
 
 @functools.lru_cache
 def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
-    """Utility method to get an Element, Species or DummySpecies from any input.
+    """Utility function to get an Element, Species or DummySpecies from any input.
 
-    If obj is in itself an Element or a Species, it is returned automatically.
+    If obj is an Element or a Species, it is returned as is.
     If obj is an int or a string representing an integer, the Element with the
     atomic number obj is returned.
     If obj is a string, Species parsing will be attempted (e.g. Mn2+). Failing that
@@ -1626,8 +1626,8 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
         ValueError: if obj cannot be converted into an Element or Species.
 
     Returns:
-        Species | Element: with a bias for the maximum number of properties
-            that can be determined.
+        Element | Species | DummySpecies: with a bias for the maximum number
+            of properties that can be determined.
     """
     # If obj is already an Element or Species, return as is
     if isinstance(obj, (Element, Species, DummySpecies)):
