@@ -476,7 +476,7 @@ class ElementBase(Enum):
     @property
     def n_electrons(self) -> int:
         """Total number of electrons in the Element."""
-        return sum([t[-1] for t in self.full_electronic_structure])
+        return sum(t[-1] for t in self.full_electronic_structure)
 
     @property
     def valence(self) -> tuple[int | np.nan, int]:
@@ -1180,7 +1180,7 @@ class Species(MSONable, Stringify):
     @property
     def n_electrons(self) -> int:
         """Total number of electrons in the Species."""
-        return sum([t[-1] for t in self.full_electronic_structure])
+        return sum(t[-1] for t in self.full_electronic_structure)
 
     # NOTE - copied exactly from Element. Refactoring / inheritance may improve
     # robustness

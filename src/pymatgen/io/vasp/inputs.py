@@ -1465,10 +1465,8 @@ class Kpoints(MSONable):
             kpoints.append(ibz.kpath["kpoints"][path[0]])
             labels.append(path[0])
             for i in range(1, len(path) - 1):
-                kpoints.append(ibz.kpath["kpoints"][path[i]])
-                labels.append(path[i])
-                kpoints.append(ibz.kpath["kpoints"][path[i]])
-                labels.append(path[i])
+                kpoints += [ibz.kpath["kpoints"][path[i]]] * 2
+                labels += [path[i]] * 2
 
             kpoints.append(ibz.kpath["kpoints"][path[-1]])
             labels.append(path[-1])

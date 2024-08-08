@@ -1,8 +1,9 @@
 [build-system]
 requires = [
     "Cython>=0.29.23",
-    # pin NumPy version used in the build
-    "oldest-supported-numpy",
+    # Building against NPY2 will support both NPY1 and NPY2
+    # https://numpy.org/devdocs/dev/depending_on_numpy.html#build-time-dependency
+    "numpy>=2.0.1",
     "setuptools>=65.0.0",
 ]
 build-backend = "setuptools.build_meta"
@@ -59,8 +60,8 @@ dependencies = [
     "matplotlib>=3.8",
     "monty>=2024.7.29",
     "networkx>=2.2",
-    "numpy>=1.25.0 ; platform_system != 'Windows'",
-    "numpy>=1.25.0,<2.0 ; platform_system == 'Windows'",
+    # NumPy documentation suggests pinning the current major version as the C API is used
+    # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
     "palettable>=3.3.3",
     "pandas>=2",
     "plotly>=4.5.0",
@@ -73,6 +74,7 @@ dependencies = [
     "tabulate>=0.9",
     "tqdm>=4.60",
     "uncertainties>=3.1.4",
+    'numpy>=1.25.0,<3.0',
 ]
 version = "2024.7.18"
 
@@ -88,7 +90,7 @@ ase = ["ase>=3.23.0"]
 # don't depend on tblite above 3.11 since unsupported https://github.com/tblite/tblite/issues/175
 tblite = ["tblite[ase]>=0.3.0; python_version<'3.12'"]
 vis = ["vtk>=6.0.0"]
-abinit = ["netcdf4>=1.6.5"]
+abinit = ["netcdf4>=1.7.1"]
 mlp = ["chgnet>=0.3.8", "matgl>=1.1.1"]
 electronic_structure = ["fdint>=2.0.2"]
 ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8"]
@@ -274,7 +276,6 @@ exclude_also = [
     "if settings.DEBUG",
     "if typing.TYPE_CHECKING:",
     "pragma: no cover",
-    "raise AssertionError",
     "raise NotImplementedError",
     "show_plot",
 ]

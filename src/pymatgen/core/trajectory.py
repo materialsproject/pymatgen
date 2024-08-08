@@ -219,6 +219,7 @@ class Trajectory(MSONable):
                     charge=charge,
                     spin_multiplicity=spin,
                     site_properties=self._get_site_props(frames),  # type: ignore[arg-type]
+                    properties=None if self.frame_properties is None else self.frame_properties[frames],
                 )
 
             lattice = self.lattice if self.constant_lattice else self.lattice[frames]
@@ -228,6 +229,7 @@ class Trajectory(MSONable):
                 self.species,
                 self.coords[frames],
                 site_properties=self._get_site_props(frames),  # type: ignore[arg-type]
+                properties=None if self.frame_properties is None else self.frame_properties[frames],
                 to_unit_cell=True,
             )
 
@@ -690,15 +692,15 @@ class Trajectory(MSONable):
         if isinstance(site_props, dict):
             site_props = [site_props]
         elif len(site_props) != len(self):
-            raise AssertionError(
-                f"Size of the site properties {len(site_props)} does not equal to the number of frames {len(self)}"
+            raise ValueError(
+                f"Size of the site properties {len(site_props)} does not equal the number of frames {len(self)}"
             )
 
         n_sites = len(self.coords[0])
         for dct in site_props:
             for key, val in dct.items():
                 assert len(val) == n_sites, (
-                    f"Size of site property {key} {len(val)}) does not equal to the "
+                    f"Size of site property {key} {len(val)}) does not equal the "
                     f"number of sites in the structure {n_sites}."
                 )
 
@@ -708,8 +710,8 @@ class Trajectory(MSONable):
             return
 
         if len(frame_props) != len(self):
-            raise AssertionError(
-                f"Size of the frame properties {len(frame_props)} does not equal to the number of frames {len(self)}"
+            raise ValueError(
+                f"Size of the frame properties {len(frame_props)} does not equal the number of frames {len(self)}"
             )
 
     def _get_site_props(self, frames: ValidIndex) -> SitePropsType | None:

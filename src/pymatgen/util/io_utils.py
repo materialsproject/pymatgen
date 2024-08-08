@@ -16,7 +16,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 
-def clean_lines(string_list, remove_empty_lines=True):
+def clean_lines(string_list, remove_empty_lines=True) -> list[str]:
     """Strips whitespace, carriage returns and empty lines from a list of strings.
 
     Args:
@@ -24,8 +24,8 @@ def clean_lines(string_list, remove_empty_lines=True):
         remove_empty_lines: Set to True to skip lines which are empty after
             stripping.
 
-    Returns:
-        List of clean strings with no whitespaces.
+    Yields:
+        list: clean strings with no whitespaces.
     """
     for s in string_list:
         clean_s = s
