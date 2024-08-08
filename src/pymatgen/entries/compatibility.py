@@ -1565,7 +1565,6 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # Pre-process entries with the given solid compatibility class
         if self.solid_compat:
             entries = self.solid_compat.process_entries(entries, clean=True, inplace=inplace, n_workers=n_workers)
-            return [entries]  # DEBUG: incompatible return type
 
         # when processing single entries, all H2 polymorphs will get assigned the
         # same energy
