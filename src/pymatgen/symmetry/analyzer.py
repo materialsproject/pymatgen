@@ -1503,7 +1503,7 @@ def iterative_symmetrize(
     max_n: int = 10,
     tolerance: float = 0.3,
     epsilon: float = 1e-2,
-) -> dict[Literal["sym_mol", "eq_sets", "sym_ops"], Any]:
+) -> dict[Literal["sym_mol", "eq_sets", "sym_ops"], Molecule | dict]:
     """Get a symmetrized molecule.
 
     The equivalent atoms obtained via `PointGroupAnalyzer.get_equivalent_atoms`
