@@ -9,8 +9,8 @@ from numpy.testing import assert_allclose
 from pytest import approx
 
 import pymatgen
-from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.analysis.interfaces import CoherentInterfaceBuilder, SubstrateAnalyzer
+from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, Structure
 from pymatgen.core.surface import (
     ReconstructionGenerator,
@@ -26,7 +26,6 @@ from pymatgen.core.surface import (
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 
 class TestSlab(PymatgenTest):
@@ -846,6 +845,7 @@ class TestMillerIndexFinder(PymatgenTest):
         hkl = miller_index_from_sites(matrix, [s1, s2, s3])
         assert hkl == (2, -1, 0)
 
+
 class TestCoherentInterfaceBuilder(unittest.TestCase):
     def setUp(self):
         # build substrate & film structure
@@ -855,18 +855,23 @@ class TestCoherentInterfaceBuilder(unittest.TestCase):
 
     def test_termination_searching(self):
         sub_analyzer = SubstrateAnalyzer()
-        matches = list(sub_analyzer.calculate(substrate = self.substrate, film = self.film))
-        cib = CoherentInterfaceBuilder(film_structure = self.film,
-                               substrate_structure=self.substrate,
-                               film_miller=matches[0].film_miller,
-                               substrate_miller=matches[0].substrate_miller,
-                               zslgen=sub_analyzer,termination_ftol=1e-4,label_index=True,\
-                               filting_out_sym_slabs=False)
-        self.assertTrue(cib.terminations == [('1_Ge_P4/mmm_1', '1_Si_P4/mmm_1'),\
-                                             ('1_Ge_P4/mmm_1', '2_Si_P4/mmm_1'),\
-                                             ('2_Ge_P4/mmm_1', '1_Si_P4/mmm_1'),\
-                                             ('2_Ge_P4/mmm_1', '2_Si_P4/mmm_1')], \
-                                             'termination results wrong')
+        matches = list(sub_analyzer.calculate(substrate=self.substrate, film=self.film))
+        cib = CoherentInterfaceBuilder(
+            film_structure=self.film,
+            substrate_structure=self.substrate,
+            film_miller=matches[0].film_miller,
+            substrate_miller=matches[0].substrate_miller,
+            zslgen=sub_analyzer,
+            termination_ftol=1e-4,
+            label_index=True,
+            filting_out_sym_slabs=False,
+        )
+        assert cib.terminations == [
+            ("1_Ge_P4/mmm_1", "1_Si_P4/mmm_1"),
+            ("1_Ge_P4/mmm_1", "2_Si_P4/mmm_1"),
+            ("2_Ge_P4/mmm_1", "1_Si_P4/mmm_1"),
+            ("2_Ge_P4/mmm_1", "2_Si_P4/mmm_1"),
+        ], "termination results wrong"
 
 
 if __name__ == "__main__":
