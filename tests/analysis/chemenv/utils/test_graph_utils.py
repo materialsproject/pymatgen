@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 from numpy.testing import assert_allclose
+
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode
 from pymatgen.analysis.chemenv.utils.graph_utils import MultiGraphCycle, SimpleGraphCycle, get_delta
 from pymatgen.util.testing import PymatgenTest

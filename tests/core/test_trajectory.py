@@ -6,6 +6,7 @@ import re
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.trajectory import Trajectory
@@ -422,8 +423,9 @@ class TestTrajectory(PymatgenTest):
         structures = [Structure.from_file(f"{VASP_IN_DIR}/POSCAR")]
         displacements = np.zeros((11, *np.shape(structures[-1].frac_coords)))
 
+        rng = np.random.default_rng()
         for idx in range(10):
-            displacement = np.random.random_sample(np.shape(structures[-1].frac_coords)) / 20
+            displacement = rng.random(np.shape(structures[-1].frac_coords)) / 20
             new_coords = displacement + structures[-1].frac_coords
             structures.append(Structure(structures[-1].lattice, structures[-1].species, new_coords))
             displacements[idx + 1, :, :] = displacement
@@ -438,8 +440,9 @@ class TestTrajectory(PymatgenTest):
 
         # Generate structures with different lattices
         structures = []
+        rng = np.random.default_rng()
         for _ in range(10):
-            new_lattice = np.dot(structure.lattice.matrix, np.diag(1 + np.random.random_sample(3) / 20))
+            new_lattice = np.dot(structure.lattice.matrix, np.diag(1 + rng.random(3) / 20))
             temp_struct = structure.copy()
             temp_struct.lattice = Lattice(new_lattice)
             structures.append(temp_struct)

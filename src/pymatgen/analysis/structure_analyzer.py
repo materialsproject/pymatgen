@@ -10,10 +10,11 @@ from warnings import warn
 
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.spatial import Voronoi
+
 from pymatgen.analysis.local_env import JmolNN, VoronoiNN
 from pymatgen.core import Composition, Element, PeriodicSite, Species
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from scipy.spatial import Voronoi
 
 if TYPE_CHECKING:
     from pymatgen.core import Structure
@@ -394,7 +395,7 @@ def contains_peroxide(structure, relative_cutoff=1.1):
             atoms must be to each other to be considered a peroxide.
 
     Returns:
-        Boolean indicating if structure contains a peroxide anion.
+        bool: True if structure contains a peroxide anion.
     """
     return oxide_type(structure, relative_cutoff) == "peroxide"
 

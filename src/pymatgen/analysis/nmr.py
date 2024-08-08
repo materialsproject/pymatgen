@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
+
 from pymatgen.core import Site, Species
 from pymatgen.core.tensors import SquareTensor
 from pymatgen.core.units import FloatWithUnit
@@ -121,9 +122,9 @@ class ChemicalShielding(SquareTensor):
         Initialize from Maryland notation.
 
         Args:
-            sigma_iso ():
-            omega ():
-            kappa ():
+            sigma_iso (float): isotropic chemical shielding
+            omega (float): anisotropy
+            kappa (float): asymmetry parameter
 
         Returns:
             ChemicalShielding

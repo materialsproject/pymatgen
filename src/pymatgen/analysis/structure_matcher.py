@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
+
 from pymatgen.core import Composition, Lattice, Structure, get_el_sp
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord import lattice_points_in_supercell
@@ -17,8 +18,9 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
     from typing import Literal
 
-    from pymatgen.util.typing import SpeciesLike
     from typing_extensions import Self
+
+    from pymatgen.util.typing import SpeciesLike
 
 __author__ = "William Davidson Richards, Stephen Dacek, Shyue Ping Ong"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -51,7 +53,7 @@ class AbstractComparator(MSONable, abc.ABC):
                 definition in Site and PeriodicSite.
 
         Returns:
-            Boolean indicating whether species are considered equal.
+            bool: True if species are considered equal.
         """
         return False
 
@@ -120,7 +122,7 @@ class SpeciesComparator(AbstractComparator):
                 definition in Site and PeriodicSite.
 
         Returns:
-            Boolean indicating whether species are equal.
+            bool: True if species are equal.
         """
         return sp1 == sp2
 
@@ -149,7 +151,7 @@ class SpinComparator(AbstractComparator):
                 definition in Site and PeriodicSite.
 
         Returns:
-            Boolean indicating whether species are equal.
+            bool: True if species are equal.
         """
         for s1 in sp1:
             spin1 = getattr(s1, "spin", 0) or 0
@@ -186,8 +188,7 @@ class ElementComparator(AbstractComparator):
                 definition in Site and PeriodicSite.
 
         Returns:
-            Boolean indicating whether species are the same based on element
-            and amounts.
+            bool: True if species are the same based on element and amounts.
         """
         comp1 = Composition(sp1)
         comp2 = Composition(sp2)
@@ -1050,7 +1051,7 @@ class StructureMatcher(MSONable):
                 If True, skip to get a primitive structure and perform Niggli reduction for struct1 and struct2
 
         Returns:
-            bool: Whether a species mapping can map struct1 to struct2
+            bool: True if a species mapping can map struct1 to struct2
         """
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2, niggli, skip_structure_reduction)
