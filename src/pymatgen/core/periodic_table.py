@@ -12,7 +12,7 @@ from collections import Counter
 from enum import Enum, unique
 from itertools import combinations, product
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 import numpy as np
 from monty.dev import deprecated
@@ -1597,11 +1597,21 @@ class DummySpecie(DummySpecies):
     """
 
 
+@overload
+def get_el_sp(obj: int) -> Element:
+    pass
+
+
+@overload
+def get_el_sp(obj: SpeciesLike) -> Element | Species | DummySpecies:
+    pass
+
+
 @functools.lru_cache
 def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
     """Utility method to get an Element, Species or DummySpecies from any input.
 
-    If obj is in itself an element or a specie, it is returned automatically.
+    If obj is in itself an Element or a Species, it is returned automatically.
     If obj is an int or a string representing an integer, the Element with the
     atomic number obj is returned.
     If obj is a string, Species parsing will be attempted (e.g. Mn2+). Failing that
