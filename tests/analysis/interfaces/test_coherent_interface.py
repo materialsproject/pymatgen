@@ -4,6 +4,7 @@ from numpy.testing import assert_allclose
 
 from pymatgen.analysis.interfaces.coherent_interfaces import (
     CoherentInterfaceBuilder,
+    SubstrateAnalyzer,
     from_2d_to_3d,
     get_2d_transform,
     get_rot_3d_for_2d,
@@ -13,7 +14,6 @@ from pymatgen.util.testing import PymatgenTest
 import unittest
 from pymatgen.core.structure import Structure
 from pymatgen.core.lattice import Lattice
-from pymatgen.analysis.interfaces import CoherentInterfaceBuilder, SubstrateAnalyzer
 
 class TestInterfaceBuilder(PymatgenTest):
     @classmethod
@@ -69,9 +69,8 @@ class TestCoherentInterfaceBuilder(unittest.TestCase):
             label_index=True,
             filting_out_sym_slabs=False,
         )
-        assert cib.terminations == [
-            ("1_Ge_P4/mmm_1", "1_Si_P4/mmm_1"),
-            ("1_Ge_P4/mmm_1", "2_Si_P4/mmm_1"),
-            ("2_Ge_P4/mmm_1", "1_Si_P4/mmm_1"),
-            ("2_Ge_P4/mmm_1", "2_Si_P4/mmm_1"),
-        ], "termination results wrong"
+        self.assertTrue(cib.terminations == [('1_Ge_P4/mmm_1', '1_Si_P4/mmm_1'),\
+                                             ('1_Ge_P4/mmm_1', '2_Si_P4/mmm_1'),\
+                                             ('2_Ge_P4/mmm_1', '1_Si_P4/mmm_1'),\
+                                             ('2_Ge_P4/mmm_1', '2_Si_P4/mmm_1')],
+                                             'termination results wrong')
