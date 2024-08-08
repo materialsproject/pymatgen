@@ -4911,7 +4911,7 @@ class Wavecar:
 
         # Scaling of ng for the fft grid, need to restore value at the end
         temp_ng = self.ng
-        self.ng = self.ng * scale
+        self.ng *= scale
         N = np.prod(self.ng)
 
         data = {}

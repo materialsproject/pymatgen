@@ -257,7 +257,7 @@ class StructureVis:
                         exclude = True
                         break
                     max_radius = max(max_radius, sp.average_ionic_radius)
-                    color = color + occu * np.array(self.el_color_mapping.get(sp.symbol, [0, 0, 0]))
+                    color += occu * np.array(self.el_color_mapping.get(sp.symbol, [0, 0, 0]))
 
                 if not exclude:
                     max_radius = (1 + self.poly_radii_tol_factor) * (max_radius + anion_radius)

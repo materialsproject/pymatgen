@@ -168,8 +168,8 @@ class TestSymmOp(PymatgenTest):
         is_too_close = np.abs([from_b, to_b] - floored) > 1 - tol
         floored[is_too_close] += 1
         r_b = self.op.apply_rotation_only(r_a) - floored[0] + floored[1]
-        from_b = from_b % 1
-        to_b = to_b % 1
+        from_b %= 1
+        to_b %= 1
         assert self.op.are_symmetrically_related_vectors(from_a, to_a, r_a, from_b, to_b, r_b)[0]
         assert not self.op.are_symmetrically_related_vectors(from_a, to_a, r_a, from_b, to_b, r_b)[1]
         assert self.op.are_symmetrically_related_vectors(to_a, from_a, -r_a, from_b, to_b, r_b)[0]

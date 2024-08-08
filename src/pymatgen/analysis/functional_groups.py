@@ -220,7 +220,7 @@ class FunctionalGroupExtractor:
                     # Add all associated hydrogens into the functional group
                     if neighbor in hydrogens:
                         grp_hs.add(neighbor)
-            func_grp = func_grp | grp_hs
+            func_grp |= grp_hs
 
             func_groups.append(func_grp)
 

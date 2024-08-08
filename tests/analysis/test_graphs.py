@@ -317,7 +317,7 @@ from    to  to_image
 
         # test sequential multiplication
         sq_sg_1 = self.square_sg * (2, 2, 1)
-        sq_sg_1 = sq_sg_1 * (2, 2, 1)
+        sq_sg_1 *= 2, 2, 1
         sq_sg_2 = self.square_sg * (4, 4, 1)
         assert sq_sg_1.graph.number_of_edges() == sq_sg_2.graph.number_of_edges()
         # TODO: the below test still gives 8 != 4
@@ -333,7 +333,7 @@ from    to  to_image
         # test 3D Structure
 
         nio_struct_graph = StructureGraph.from_local_env_strategy(self.NiO, MinimumDistanceNN())
-        nio_struct_graph = nio_struct_graph * 3
+        nio_struct_graph *= 3
 
         for n in range(len(nio_struct_graph)):
             assert nio_struct_graph.get_coordination_of_site(n) == 6
@@ -350,7 +350,7 @@ from    to  to_image
 
         # draw MoS2 graph that's been successively multiplied
         mos2_sg_2 = self.mos2_sg * (3, 3, 1)
-        mos2_sg_2 = mos2_sg_2 * (3, 3, 1)
+        mos2_sg_2 *= 3, 3, 1
         mos2_sg_2.draw_graph_to_file(f"{self.tmp_path}/MoS2_twice_mul.pdf", algo="neato", hide_image_edges=True)
 
         # draw MoS2 graph that's generated from a pre-multiplied Structure

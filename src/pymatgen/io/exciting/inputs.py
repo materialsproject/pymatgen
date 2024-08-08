@@ -126,7 +126,7 @@ class ExcitingInput(MSONable):
         if struct.attrib.get("cartesian"):
             cartesian = True
             for p, j in itertools.product(positions, range(3)):
-                p[j] = p[j] * ExcitingInput.bohr2ang
+                p[j] *= ExcitingInput.bohr2ang
 
         _crystal = struct.find("crystal")
         assert _crystal is not None, "crystal cannot be None."

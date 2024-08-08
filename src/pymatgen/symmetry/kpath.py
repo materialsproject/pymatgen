@@ -1720,8 +1720,8 @@ class KPathLatimerMunro(KPathBase):
 
     @staticmethod
     def _closewrapped(pos1, pos2, tolerance):
-        pos1 = pos1 % 1.0
-        pos2 = pos2 % 1.0
+        pos1 %= 1.0
+        pos2 %= 1.0
 
         if len(pos1) != len(pos2):
             return False

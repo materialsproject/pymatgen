@@ -170,7 +170,7 @@ def slme(
 
     # Make sure the absorption coefficient has the right units (m^{-1})
     if absorbance_in_inverse_centimeters:
-        material_absorbance_data = material_absorbance_data * 100
+        material_absorbance_data *= 100
 
     # Load the Air Mass 1.5 Global tilt solar spectrum
     solar_spectrum_data_file = str(os.path.join(os.path.dirname(__file__), "am1.5G.dat"))

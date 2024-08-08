@@ -874,7 +874,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                 for k in range(len(old_dict["bands"][spin])):
                     for v in range(len(old_dict["bands"][spin][k])):
                         if k >= max_index:
-                            old_dict["bands"][spin][k][v] = old_dict["bands"][spin][k][v] + shift
+                            old_dict["bands"][spin][k][v] += shift
 
         else:
             shift = new_band_gap - self.get_band_gap()["energy"]
@@ -883,8 +883,8 @@ class BandStructureSymmLine(BandStructure, MSONable):
                 for k in range(len(old_dict["bands"][spin])):
                     for v in range(len(old_dict["bands"][spin][k])):
                         if old_dict["bands"][spin][k][v] >= old_dict["cbm"]["energy"]:
-                            old_dict["bands"][spin][k][v] = old_dict["bands"][spin][k][v] + shift
-            old_dict["efermi"] = old_dict["efermi"] + shift
+                            old_dict["bands"][spin][k][v] += shift
+            old_dict["efermi"] += shift
 
         return self.from_dict(old_dict)
 

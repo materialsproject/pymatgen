@@ -1029,7 +1029,7 @@ class LocalGeometryFinder:
         # Rotating the test environment
         if random_rotation == "RANDOM":
             uu = rng.random(3) + 0.1
-            uu = uu / norm(uu)
+            uu /= norm(uu)
             theta = np.pi * rng.random()
             cos_theta = np.cos(theta)
             sin_theta = np.sin(theta)

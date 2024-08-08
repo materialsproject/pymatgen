@@ -1112,7 +1112,7 @@ class SlabGenerator:
         frac_coords -= np.floor(frac_coords)  # wrap to the [0, 1) range
 
         # Scale down z-coordinate by the number of layers
-        frac_coords[:, 2] = frac_coords[:, 2] / n_layers
+        frac_coords[:, 2] /= n_layers
 
         # Duplicate atom layers by stacking along the z-axis
         all_coords = []
