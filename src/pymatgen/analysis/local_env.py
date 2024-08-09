@@ -19,12 +19,13 @@ from typing import TYPE_CHECKING, Literal, NamedTuple, get_args
 import numpy as np
 from monty.dev import deprecated, requires
 from monty.serialization import loadfn
+from ruamel.yaml import YAML
+from scipy.spatial import Voronoi
+
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core import Element, IStructure, PeriodicNeighbor, PeriodicSite, Site, Species, Structure
-from ruamel.yaml import YAML
-from scipy.spatial import Voronoi
 
 try:
     from openbabel import openbabel
@@ -34,9 +35,10 @@ except Exception:
 if TYPE_CHECKING:
     from typing import Any
 
+    from typing_extensions import Self
+
     from pymatgen.core.composition import SpeciesLike
     from pymatgen.util.typing import Tuple3Ints
-    from typing_extensions import Self
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman, "
@@ -1159,7 +1161,7 @@ def _is_in_targets(site, targets):
         targets ([Element]) List of elements
 
     Returns:
-        boolean: Whether this site contains a certain list of elements
+        bool: Whether this site contains a certain list of elements
     """
     elems = _get_elements(site)
     return all(elem in targets for elem in elems)
@@ -1216,7 +1218,7 @@ class JmolNN(NearNeighbors):
 
         # Update any user preference elemental radii
         if el_radius_updates:
-            self.el_radius.update(el_radius_updates)
+            self.el_radius |= el_radius_updates
 
     @property
     def structures_allowed(self) -> bool:
@@ -1488,7 +1490,7 @@ class OpenBabelNN(NearNeighbors):
 
         return siw
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:  # type: ignore[override]
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:
         """
         Obtain a MoleculeGraph object using this NearNeighbor
         class. Requires the optional dependency networkx
@@ -1635,7 +1637,7 @@ class CovalentBondNN(NearNeighbors):
 
         return siw
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> MoleculeGraph:  # type: ignore[override]
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> MoleculeGraph:
         """
         Obtain a MoleculeGraph object using this NearNeighbor class.
 
@@ -1982,7 +1984,7 @@ def get_okeeffe_distance_prediction(el1, el2):
     """Get an estimate of the bond valence parameter (bond length) using
     the derived parameters from 'Atoms Sizes and Bond Lengths in Molecules
     and Crystals' (O'Keeffe & Brese, 1991). The estimate is based on two
-    experimental parameters: r and c. The value for r  is based off radius,
+    experimental parameters: r and c. The value for r is based off radius,
     while c is (usually) the Allred-Rochow electronegativity. Values used
     are *not* generated from pymatgen, and are found in
     'okeeffe_params.json'.
@@ -2753,7 +2755,7 @@ class LocalStructOrderParams:
             raise ValueError("Index for getting order parameter type out-of-bounds!")
         return self._types[index]
 
-    def get_parameters(self, index):
+    def get_parameters(self, index: int) -> list[float]:
         """Get list of floats that represents
         the parameters associated
         with calculation of the order
@@ -2762,12 +2764,10 @@ class LocalStructOrderParams:
         inputted because of processing out of efficiency reasons.
 
         Args:
-            index (int):
-                index of order parameter for which associated parameters
-                are to be returned.
+            index (int): index of order parameter for which to return associated params.
 
         Returns:
-            [float]: parameters of a given OP.
+            list[float]: parameters of a given OP.
         """
         if index < 0 or index >= len(self._types):
             raise ValueError("Index for getting parameters associated with order parameter calculation out-of-bounds!")
@@ -4000,7 +4000,7 @@ class CrystalNN(NearNeighbors):
 
         return self.transform_to_length(self.NNData(nn, cn_weights, cn_nninfo), length)
 
-    def get_cn(self, structure: Structure, n: int, **kwargs) -> float:  # type: ignore[override]
+    def get_cn(self, structure: Structure, n: int, **kwargs) -> float:
         """Get coordination number, CN, of site with index n in structure.
 
         Args:
@@ -4306,7 +4306,7 @@ class Critic2NN(NearNeighbors):
         """
         return True
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:  # type: ignore[override]
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:
         """
         Args:
             structure (Structure): Input structure

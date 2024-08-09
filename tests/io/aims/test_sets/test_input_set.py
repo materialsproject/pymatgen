@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 import pytest
+
 from pymatgen.core import Structure
 from pymatgen.io.aims.sets import AimsInputSet
 

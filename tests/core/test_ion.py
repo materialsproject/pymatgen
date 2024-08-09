@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import random
 from unittest import TestCase
 
+import numpy as np
 import pytest
+
 from pymatgen.core import Composition, Element
 from pymatgen.core.ion import Ion
 
@@ -169,15 +170,16 @@ class TestIon(TestCase):
         assert dct["charge"] == correct_dict["charge"]
 
     def test_equals(self):
-        random_z = random.randint(1, 92)
+        rng = np.random.default_rng()
+        random_z = rng.integers(1, 93)
         fixed_el = Element.from_Z(random_z)
-        other_z = random.randint(1, 92)
+        other_z = rng.integers(1, 93)
         while other_z == random_z:
-            other_z = random.randint(1, 92)
+            other_z = rng.integers(1, 93)
         comp1 = Ion(Composition({fixed_el: 1, Element.from_Z(other_z): 0}), 1)
-        other_z = random.randint(1, 92)
+        other_z = rng.integers(1, 93)
         while other_z == random_z:
-            other_z = random.randint(1, 92)
+            other_z = rng.integers(1, 93)
         comp2 = Ion(Composition({fixed_el: 1, Element.from_Z(other_z): 0}), 1)
         assert comp1 == comp2, f"Composition equality test failed. {comp1.formula} should be equal to {comp2.formula}"
         assert hash(comp1) == hash(comp2), "Hash equality test failed!"

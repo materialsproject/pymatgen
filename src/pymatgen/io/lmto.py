@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, no_type_check
 
 import numpy as np
 from monty.io import zopen
+
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ry_to_eV, bohr_to_angstrom
 from pymatgen.electronic_structure.core import Spin
@@ -75,11 +76,11 @@ class LMTOCtrl:
             line += " ".join(str(round(v, sigfigs)) for v in latt)
             lines.append(line)
 
-        for cat in ["CLASS", "SITE"]:
+        for cat in ("CLASS", "SITE"):
             for a, atoms in enumerate(ctrl_dict[cat]):
                 lst = [cat.ljust(9)] if a == 0 else [" ".ljust(9)]
                 for token, val in sorted(atoms.items()):
-                    if token == "POS":
+                    if token == "POS":  # noqa: S105
                         lst.append("POS=" + " ".join(str(round(p, sigfigs)) for p in val))
                     else:
                         lst.append(f"{token}={val}")
@@ -179,14 +180,14 @@ class LMTOCtrl:
 
         structure_tokens = {"ALAT": None, "PLAT": [], "CLASS": [], "SITE": []}
 
-        for cat in ["STRUC", "CLASS", "SITE"]:
+        for cat in ("STRUC", "CLASS", "SITE"):
             fields = struct_lines[cat].split("=")
             for idx, field in enumerate(fields):
                 token = field.split()[-1]
-                if token == "ALAT":
+                if token == "ALAT":  # noqa: S105
                     a_lat = round(float(fields[idx + 1].split()[0]), sigfigs)
                     structure_tokens["ALAT"] = a_lat
-                elif token == "ATOM":
+                elif token == "ATOM":  # noqa: S105
                     atom = fields[idx + 1].split()[0]
                     if not bool(re.match("E[0-9]*$", atom)):
                         if cat == "CLASS":
@@ -195,12 +196,12 @@ class LMTOCtrl:
                             structure_tokens["SITE"].append({"ATOM": atom})
                     else:
                         pass
-                elif token in ["PLAT", "POS"]:
+                elif token in {"PLAT", "POS"}:
                     try:
                         arr = np.array([round(float(i), sigfigs) for i in fields[idx + 1].split()])
                     except ValueError:
                         arr = np.array([round(float(i), sigfigs) for i in fields[idx + 1].split()[:-1]])
-                    if token == "PLAT":
+                    if token == "PLAT":  # noqa: S105
                         structure_tokens["PLAT"] = arr.reshape([3, 3])
                     elif not bool(re.match("E[0-9]*$", atom)):
                         structure_tokens["SITE"][-1]["POS"] = arr
@@ -215,7 +216,7 @@ class LMTOCtrl:
         except ValueError:
             pass
 
-        for token in ["HEADER", "VERS"]:
+        for token in ("HEADER", "VERS"):
             try:
                 value = re.split(token + r"\s*", struct_lines[token])[1]
                 structure_tokens[token] = value.strip()
@@ -280,7 +281,7 @@ class LMTOCopl:
                 "length": bond length}
         efermi (float): The Fermi energy in Ry or eV.
         energies (list): Sequence of energies in Ry or eV.
-        is_spin_polarized (bool): Boolean to indicate if the calculation is spin polarized.
+        is_spin_polarized (bool): True if the calculation is spin-polarized.
     """
 
     def __init__(self, filename="COPL", to_eV=False):

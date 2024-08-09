@@ -6,14 +6,14 @@ Created on Nov 10, 2012.
 
 from __future__ import annotations
 
-import random
-
+import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.core import Composition, DummySpecies, Element, Species
 from pymatgen.core.composition import ChemicalPotential
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 
 class TestComposition(PymatgenTest):
@@ -474,15 +474,16 @@ class TestComposition(PymatgenTest):
     def test_equals(self):
         # generate randomized compositions for robustness (tests might pass for specific elements
         # but fail for others)
-        random_z = random.randint(1, 92)
+        rng = np.random.default_rng()
+        random_z = rng.integers(1, 92)
         fixed_el = Element.from_Z(random_z)
-        other_z = random.randint(1, 92)
+        other_z = rng.integers(1, 92)
         while other_z == random_z:
-            other_z = random.randint(1, 92)
+            other_z = rng.integers(1, 92)
         comp1 = Composition({fixed_el: 1, Element.from_Z(other_z): 0})
-        other_z = random.randint(1, 92)
+        other_z = rng.integers(1, 92)
         while other_z == random_z:
-            other_z = random.randint(1, 92)
+            other_z = rng.integers(1, 92)
         comp2 = Composition({fixed_el: 1, Element.from_Z(other_z): 0})
         assert comp1 == comp2, f"Composition equality test failed. {comp1.formula} should be equal to {comp2.formula}"
         assert hash(comp1) == hash(comp2), "Hash equality test failed!"
@@ -622,7 +623,7 @@ class TestComposition(PymatgenTest):
 
         # https://github.com/materialsproject/pymatgen/issues/3324
         # always expect 0 for oxi_state_guesses of elemental systems
-        for atomic_num in random.sample(range(1, 92), 10):  # try 10 random elements
+        for atomic_num in np.random.default_rng().choice(range(1, 92), 10):  # try 10 random elements
             elem = Element.from_Z(atomic_num).symbol
             assert Composition(f"{elem}2").oxi_state_guesses() == ({elem: 0},)
             assert Composition(f"{elem}3").oxi_state_guesses() == ({elem: 0},)

@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Union, cast
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
+
 from pymatgen.core.structure import Composition, DummySpecies, Element, Lattice, Molecule, Species, Structure
 from pymatgen.io.ase import AseAtomsAdaptor
 
@@ -20,8 +21,9 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
     from typing import Any
 
-    from pymatgen.util.typing import Matrix3D, PathLike, SitePropsType, Vector3D
     from typing_extensions import Self
+
+    from pymatgen.util.typing import Matrix3D, PathLike, SitePropsType, Vector3D
 
 
 __author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen, Evan Spotte-Smith"
@@ -53,7 +55,7 @@ class Trajectory(MSONable):
         coords_are_displacement: bool = False,
         base_positions: list[list[Vector3D]] | np.ndarray | None = None,
     ) -> None:
-        """In below, `N` denotes the number of sites in the structure, and `M` denotes the
+        """In below, N denotes the number of sites in the structure, and M denotes the
         number of frames in the trajectory.
 
         Args:
@@ -71,48 +73,61 @@ class Trajectory(MSONable):
             spin_multiplicity: int or float. Spin multiplicity of the system. This is only
                 used for Molecule-based trajectories.
             lattice: shape (3, 3) or (M, 3, 3). Lattice of the structures in the
-                trajectory; should be used together with `constant_lattice`.
-                If `constant_lattice=True`, this should be a single lattice that is
+                trajectory; should be used together with constant_lattice.
+                If constant_lattice=True, this should be a single lattice that is
                 common for all structures in the trajectory (e.g. in an NVT run).
-                If `constant_lattice=False`, this should be a list of lattices,
+                If constant_lattice=False, this should be a list of lattices,
                 each for one structure in the trajectory (e.g. in an NPT run or a
                 relaxation that allows changing the cell size). This is only used for
                 Structure-based trajectories.
             site_properties: Properties associated with the sites. This should be a
-                list of `M` dicts for a single dict. If a list of dicts, each provides
+                list of M dicts for a single dict. If a list of dicts, each provides
                 the site properties for a frame. Each value in a dict should be a
-                sequence of length `N`, giving the properties of the `N` sites.
-                For example, for a trajectory with `M=2` and `N=4`, the
-                `site_properties` can be: [{"magmom":[5,5,5,5]}, {"magmom":[5,5,5,5]}].
+                sequence of length N, giving the properties of the N sites.
+                For example, for a trajectory with M=2 and N=4, the
+                site_properties can be: [{"magmom":[5,5,5,5]}, {"magmom":[5,5,5,5]}].
                 If a single dict, the site properties in the dict apply to all frames
-                in the trajectory. For example, for a trajectory with `M=2` and `N=4`,
+                in the trajectory. For example, for a trajectory with M=2 and N=4,
                 {"magmom":[2,2,2,2]} means that, through the entire trajectory,
                 the magmom are kept constant at 2 for all four atoms.
             frame_properties: Properties associated with the structure (e.g. total
-                energy). This should be a sequence of `M` dicts, with each dict
+                energy). This should be a sequence of M dicts, with each dict
                 providing the properties for a frame. For example, for a trajectory with
-                `M=2`, the `frame_properties` can be [{'energy':1.0}, {'energy':2.0}].
+                M=2, the frame_properties can be [{'energy':1.0}, {'energy':2.0}].
             constant_lattice: Whether the lattice changes during the simulation.
-                Should be used together with `lattice`. See usage there. This is only
+                Should be used together with lattice. See usage there. This is only
                 used for Structure-based trajectories.
-            time_step: Time step of MD simulation in femto-seconds. Should be `None`
+            time_step: Time step of MD simulation in femto-seconds. Should be None
                 for a trajectory representing a geometry optimization.
-            coords_are_displacement: Whether `coords` are given in displacements
-                (True) or positions (False). Note, if this is `True`, `coords`
+            coords_are_displacement: Whether coords are given in displacements
+                (True) or positions (False). Note, if this is True, coords
                 of a frame (say i) should be relative to the previous frame (i.e.
-                i-1), but not relative to the `base_position`.
+                i-1), but not relative to the base_position.
             base_positions: shape (N, 3). The starting positions of all atoms in the
                 trajectory. Used to reconstruct positions when converting from
                 displacements to positions. Only needs to be specified if
-                `coords_are_displacement=True`. Defaults to the first index of
-                `coords` when `coords_are_displacement=False`.
+                coords_are_displacement=True. Defaults to the first index of
+                coords when coords_are_displacement=False.
         """
+        coords = np.asarray(coords)
+
+        if coords.ndim != 3:
+            raise ValueError(f"coords must have 3 dimensions! {coords.shape=}")
+
+        if len(species) != coords.shape[1]:
+            raise ValueError(
+                f"species (N={len(species)}) and coords (N={coords.shape[1]}) must have the same number of sites!"
+            )
+
+        if coords.shape[2] != 3:
+            raise ValueError(f"coords must have shape (M, N, 3), got {coords.shape}!")
+
         self.charge = self.spin_multiplicity = self.lattice = self.constant_lattice = None
 
         # First, sanity check that the necessary inputs have been provided
         if lattice is None:
             if charge is None:
-                raise ValueError("`charge` must be provided for a Molecule-based Trajectory!")
+                raise ValueError("charge must be provided for a Molecule-based Trajectory!")
 
             self.charge = int(charge)
             if spin_multiplicity is None:
@@ -126,14 +141,20 @@ class Trajectory(MSONable):
                 lattice = [cast(Lattice, x).matrix for x in lattice]
             lattice = np.asarray(lattice)
 
+            if lattice.shape[-2:] != (3, 3):
+                raise ValueError(f"lattice must have shape (3, 3) or (M, 3, 3), found {lattice.shape}!")
+
             if not constant_lattice and lattice.shape == (3, 3):
                 self.lattice = np.tile(lattice, (len(coords), 1, 1))
                 warnings.warn(
-                    "Get `constant_lattice=False`, but only get a single `lattice`. "
-                    "Use this single `lattice` as the lattice for all frames."
+                    "Get constant_lattice=False, but only get a single lattice. "
+                    "Use this single lattice as the lattice for all frames."
                 )
             else:
                 self.lattice = lattice
+
+            if len(lattice.shape) == 3 and (lattice.shape[0] != len(coords)):
+                raise ValueError(f"lattice must have shape (M, 3, 3)! found M={len(coords)}, {lattice.shape=}!")
 
             self.constant_lattice = constant_lattice
 
@@ -149,7 +170,7 @@ class Trajectory(MSONable):
         self.coords_are_displacement = coords_are_displacement
 
         self.species = species
-        self.coords = np.asarray(coords)
+        self.coords = coords
         self.time_step = time_step
 
         self._check_site_props(site_properties)
@@ -170,7 +191,7 @@ class Trajectory(MSONable):
     def __getitem__(self, frames: ValidIndex) -> Molecule | Structure | Self:
         """Get a subset of the trajectory.
 
-        The output depends on the type of the input `frames`. If an int is given, return
+        The output depends on the type of the input frames. If an int is given, return
         a pymatgen Molecule or Structure at the specified frame. If a list or a slice, return a new
         trajectory with a subset of frames.
 
@@ -198,6 +219,7 @@ class Trajectory(MSONable):
                     charge=charge,
                     spin_multiplicity=spin,
                     site_properties=self._get_site_props(frames),  # type: ignore[arg-type]
+                    properties=None if self.frame_properties is None else self.frame_properties[frames],
                 )
 
             lattice = self.lattice if self.constant_lattice else self.lattice[frames]
@@ -207,6 +229,7 @@ class Trajectory(MSONable):
                 self.species,
                 self.coords[frames],
                 site_properties=self._get_site_props(frames),  # type: ignore[arg-type]
+                properties=None if self.frame_properties is None else self.frame_properties[frames],
                 to_unit_cell=True,
             )
 
@@ -268,7 +291,7 @@ class Trajectory(MSONable):
         """
         struct = self[idx]
         if isinstance(struct, Molecule):
-            raise TypeError("Cannot return `Structure` for `Molecule`-based `Trajectory`! Use `get_molecule` instead!")
+            raise TypeError("Cannot return Structure for Molecule-based Trajectory! Use get_molecule instead!")
 
         return struct
 
@@ -283,17 +306,17 @@ class Trajectory(MSONable):
         """
         mol = self[idx]
         if isinstance(mol, Structure):
-            raise TypeError("Cannot return `Molecule` for `Structure`-based `Trajectory`! Use `get_structure` instead!")
+            raise TypeError("Cannot return Molecule for Structure-based Trajectory! Use get_structure instead!")
 
         return mol
 
     def to_positions(self) -> None:
         """Convert displacements between consecutive frames into positions.
 
-        `base_positions` and `coords` should both be in fractional coords or
+        base_positions and coords should both be in fractional coords or
         absolute coords.
 
-        This is the opposite operation of `to_displacements()`.
+        This is the opposite operation of to_displacements().
         """
         if not self.coords_are_displacement:
             return
@@ -305,11 +328,11 @@ class Trajectory(MSONable):
     def to_displacements(self) -> None:
         """Convert positions of trajectory into displacements between consecutive frames.
 
-        `base_positions` and `coords` should both be in fractional coords. Does
+        base_positions and coords should both be in fractional coords. Does
         not work for absolute coords because the atoms are to be wrapped into the
         simulation box.
 
-        This is the opposite operation of `to_positions()`.
+        This is the opposite operation of to_positions().
         """
         if self.coords_are_displacement:
             return
@@ -345,7 +368,7 @@ class Trajectory(MSONable):
             self.lattice is not None  # is structures
             and trajectory.lattice is None  # is molecules
         ):
-            raise ValueError("Cannot combine `Molecule`- and `Structure`-based `Trajectory`. objects.")
+            raise ValueError("Cannot combine Molecule- and Structure-based Trajectory. objects.")
 
         if self.time_step != trajectory.time_step:
             raise ValueError(
@@ -408,7 +431,7 @@ class Trajectory(MSONable):
             significant_figures: Significant figures in the output file.
         """
         if self.lattice is None:
-            raise TypeError("`write_Xdatcar` can only be used with `Structure`-based `Trajectory` objects!")
+            raise TypeError("write_Xdatcar can only be used with Structure-based Trajectory objects!")
 
         # Ensure trajectory is in position form
         self.to_positions()
@@ -669,15 +692,15 @@ class Trajectory(MSONable):
         if isinstance(site_props, dict):
             site_props = [site_props]
         elif len(site_props) != len(self):
-            raise AssertionError(
-                f"Size of the site properties {len(site_props)} does not equal to the number of frames {len(self)}"
+            raise ValueError(
+                f"Size of the site properties {len(site_props)} does not equal the number of frames {len(self)}"
             )
 
         n_sites = len(self.coords[0])
         for dct in site_props:
             for key, val in dct.items():
                 assert len(val) == n_sites, (
-                    f"Size of site property {key} {len(val)}) does not equal to the "
+                    f"Size of site property {key} {len(val)}) does not equal the "
                     f"number of sites in the structure {n_sites}."
                 )
 
@@ -687,8 +710,8 @@ class Trajectory(MSONable):
             return
 
         if len(frame_props) != len(self):
-            raise AssertionError(
-                f"Size of the frame properties {len(frame_props)} does not equal to the number of frames {len(self)}"
+            raise ValueError(
+                f"Size of the frame properties {len(frame_props)} does not equal the number of frames {len(self)}"
             )
 
     def _get_site_props(self, frames: ValidIndex) -> SitePropsType | None:

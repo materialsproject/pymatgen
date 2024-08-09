@@ -2,16 +2,16 @@ exclude: ^(docs|tests/files|tasks.py)
 
 ci:
   autoupdate_schedule: monthly
-  skip: [ mypy, pyright ]
+  skip: [mypy, pyright]
   autofix_commit_msg: pre-commit auto-fixes
   autoupdate_commit_msg: pre-commit autoupdate
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.5.4
+    rev: v0.5.7
     hooks:
       - id: ruff
-        args: [ --fix, --unsafe-fixes ]
+        args: [--fix, --unsafe-fixes]
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -22,7 +22,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.0
+    rev: v1.11.1
     hooks:
       - id: mypy
 
@@ -30,16 +30,16 @@ repos:
     rev: v2.3.0
     hooks:
       - id: codespell
-        stages: [ commit, commit-msg ]
-        exclude_types: [ html ]
-        additional_dependencies: [ tomli ] # needed to read pyproject.toml below py3.11
+        stages: [commit, commit-msg]
+        exclude_types: [html]
+        additional_dependencies: [tomli] # needed to read pyproject.toml below py3.11
         exclude: src/pymatgen/analysis/aflow_prototypes.json
 
   - repo: https://github.com/MarcoGorelli/cython-lint
     rev: v0.16.2
     hooks:
       - id: cython-lint
-        args: [ --no-pycodestyle ]
+        args: [--no-pycodestyle]
       - id: double-quote-cython-strings
 
   - repo: https://github.com/adamchainz/blacken-docs
@@ -56,15 +56,15 @@ repos:
         # MD033: no inline HTML
         # MD041: first line in a file should be a top-level heading
         # MD025: single title
-        args: [ --disable, MD013, MD024, MD025, MD033, MD041, "--" ]
+        args: [--disable, MD013, MD024, MD025, MD033, MD041, "--"]
 
   - repo: https://github.com/kynan/nbstripout
     rev: 0.7.1
     hooks:
       - id: nbstripout
-        args: [ --drop-empty-cells, --keep-output ]
+        args: [--drop-empty-cells, --keep-output]
 
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.373
+    rev: v1.1.375
     hooks:
       - id: pyright

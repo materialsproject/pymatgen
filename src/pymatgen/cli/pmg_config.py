@@ -13,10 +13,11 @@ from urllib.request import urlretrieve
 
 from monty.json import jsanitize
 from monty.serialization import dumpfn, loadfn
+from ruamel import yaml
+
 from pymatgen.core import OLD_SETTINGS_FILE, SETTINGS_FILE, Element
 from pymatgen.io.cp2k.inputs import GaussianTypeOrbitalBasisSet, GthPotential
 from pymatgen.io.cp2k.utils import chunk
-from ruamel import yaml
 
 if TYPE_CHECKING:
     from argparse import Namespace
@@ -142,7 +143,7 @@ def setup_potcars(potcar_dirs: list[str]):
                     dest = os.path.join(base_dir, os.path.basename(fname))
                     shutil.copy(fname, dest)
                     ext = fname.split(".")[-1]
-                    if ext.upper() in ["Z", "GZ"]:
+                    if ext.upper() in {"Z", "GZ"}:
                         with subprocess.Popen(["gunzip", dest]) as process:
                             process.communicate()
                     elif ext.upper() == "BZ2":
@@ -201,8 +202,8 @@ def build_bader(fortran_command="gfortran"):
     cwd = os.getcwd()
     state = True
     try:
-        urlretrieve(bader_url, "bader.tar.gz")
-        subprocess.call(["tar", "-zxf", "bader.tar.gz"])
+        urlretrieve(bader_url, "bader.tar.gz")  # noqa: S310
+        subprocess.call(["/usr/bin/tar", "-zxf", "bader.tar.gz"])
         os.chdir("bader")
         subprocess.call(["cp", "makefile.osx_" + fortran_command, "makefile"])
         subprocess.call(["make"])

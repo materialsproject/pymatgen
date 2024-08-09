@@ -6,6 +6,9 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+from pytest import approx, raises
+from spglib import SpglibDataset
+
 from pymatgen.core import Lattice, Molecule, PeriodicSite, Site, Species, Structure
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.symmetry.analyzer import (
@@ -17,8 +20,6 @@ from pymatgen.symmetry.analyzer import (
 )
 from pymatgen.symmetry.structure import SymmetrizedStructure
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
-from pytest import approx, raises
-from spglib import SpglibDataset
 
 TEST_DIR = f"{TEST_FILES_DIR}/symmetry/analyzer"
 
@@ -87,6 +88,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
     def test_get_point_group_operations(self):
         sg: SpacegroupAnalyzer
+        rng = np.random.default_rng()
         for sg, structure in [(self.sg, self.structure), (self.sg4, self.structure4)]:
             pg_ops = sg.get_point_group_operations()
             frac_symm_ops = sg.get_symmetry_operations()
@@ -111,7 +113,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
                 # Make sure this works for any position, not just the atomic
                 # ones.
-                random_fcoord = np.random.uniform(size=(3))
+                random_fcoord = rng.uniform(size=(3))
                 random_ccoord = structure.lattice.get_cartesian_coords(random_fcoord)
                 new_frac = fop.operate(random_fcoord)
                 new_cart = op.operate(random_ccoord)
@@ -575,8 +577,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
         assert pg_analyzer.sch_symbol == "Ih"
 
     def test_symmetrize_molecule1(self):
-        np.random.seed(77)
-        distortion = np.random.randn(len(C2H4), 3) / 10
+        distortion = np.random.default_rng(0).standard_normal((len(C2H4), 3)) / 10
         dist_mol = Molecule(C2H4.species, C2H4.cart_coords + distortion)
 
         eq = iterative_symmetrize(dist_mol, max_n=100, epsilon=1e-7)
@@ -592,8 +593,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
                 assert_allclose(np.dot(ops[idx][j], coords[idx]), coords[j])
 
     def test_symmetrize_molecule2(self):
-        np.random.seed(77)
-        distortion = np.random.randn(len(C2H2F2Br2), 3) / 20
+        distortion = np.random.default_rng(0).standard_normal((len(C2H2F2Br2), 3)) / 20
         dist_mol = Molecule(C2H2F2Br2.species, C2H2F2Br2.cart_coords + distortion)
         pa1 = PointGroupAnalyzer(C2H2F2Br2, tolerance=0.1)
         assert pa1.get_pointgroup().sch_symbol == "Ci"

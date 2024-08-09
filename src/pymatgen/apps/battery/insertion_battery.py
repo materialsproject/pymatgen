@@ -9,12 +9,13 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from monty.json import MontyDecoder
+from scipy.constants import N_A
+
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.apps.battery.battery_abc import AbstractElectrode, AbstractVoltagePair
 from pymatgen.core import Composition, Element
 from pymatgen.core.units import Charge, Time
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
-from scipy.constants import N_A
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -319,19 +320,17 @@ class InsertionElectrode(AbstractElectrode):
         chg_comp = self.fully_charged_entry.composition
         dischg_comp = self.fully_discharged_entry.composition
 
-        dct.update(
-            {
-                "id_charge": self.fully_charged_entry.entry_id,
-                "formula_charge": chg_comp.reduced_formula,
-                "id_discharge": self.fully_discharged_entry.entry_id,
-                "formula_discharge": dischg_comp.reduced_formula,
-                "max_instability": self.get_max_instability(),
-                "min_instability": self.get_min_instability(),
-                "material_ids": [itr_ent.entry_id for itr_ent in self.get_all_entries()],
-                "stable_material_ids": [itr_ent.entry_id for itr_ent in self.get_stable_entries()],
-                "unstable_material_ids": [itr_ent.entry_id for itr_ent in self.get_unstable_entries()],
-            }
-        )
+        dct |= {
+            "id_charge": self.fully_charged_entry.entry_id,
+            "formula_charge": chg_comp.reduced_formula,
+            "id_discharge": self.fully_discharged_entry.entry_id,
+            "formula_discharge": dischg_comp.reduced_formula,
+            "max_instability": self.get_max_instability(),
+            "min_instability": self.get_min_instability(),
+            "material_ids": [itr_ent.entry_id for itr_ent in self.get_all_entries()],
+            "stable_material_ids": [itr_ent.entry_id for itr_ent in self.get_stable_entries()],
+            "unstable_material_ids": [itr_ent.entry_id for itr_ent in self.get_unstable_entries()],
+        }
         if all("decomposition_energy" in itr_ent.data for itr_ent in self.get_all_entries()):
             dct.update(
                 stability_charge=self.fully_charged_entry.data["decomposition_energy"],
@@ -342,7 +341,7 @@ class InsertionElectrode(AbstractElectrode):
             )
 
         if all("muO2" in itr_ent.data for itr_ent in self.get_all_entries()):
-            dct.update({"muO2_data": {itr_ent.entry_id: itr_ent.data["muO2"] for itr_ent in self.get_all_entries()}})
+            dct |= {"muO2_data": {itr_ent.entry_id: itr_ent.data["muO2"] for itr_ent in self.get_all_entries()}}
 
         return dct
 

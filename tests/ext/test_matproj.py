@@ -1,12 +1,15 @@
 from __future__ import annotations
 
-import random
 import re
 from unittest.mock import patch
 
+import numpy as np
 import pytest
 import requests
 from numpy.testing import assert_allclose
+from pytest import approx
+from ruamel.yaml import YAML
+
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
 from pymatgen.analysis.reaction_calculator import Reaction
@@ -21,8 +24,6 @@ from pymatgen.ext.matproj_legacy import MPRestError, TaskType, _MPResterLegacy
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
 from pymatgen.phonon.dos import CompletePhononDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
-from ruamel.yaml import YAML
 
 PMG_MAPI_KEY = SETTINGS.get("PMG_MAPI_KEY", "")
 if (10 < len(PMG_MAPI_KEY) <= 20) and "PMG_MAPI_KEY" in SETTINGS:
@@ -49,7 +50,7 @@ class TestMPResterOld(PymatgenTest):
 
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_materials_ids("Al2O3")
-        random.shuffle(mids)
+        np.random.default_rng().shuffle(mids)
         doc = self.rester.get_doc(mids.pop(0))
         assert doc["pretty_formula"] == "Al2O3"
 
@@ -542,7 +543,7 @@ class TestMPResterNewBasic(PymatgenTest):
 
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_material_ids("Al2O3")
-        random.shuffle(mids)
+        np.random.default_rng().shuffle(mids)
         doc = self.rester.get_doc(mids.pop(0))
         assert doc["formula_pretty"] == "Al2O3"
 

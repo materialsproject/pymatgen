@@ -17,6 +17,7 @@ from matplotlib.colors import Normalize
 from matplotlib.gridspec import GridSpec
 from matplotlib.patches import Polygon
 from monty.json import MontyDecoder, MSONable, jsanitize
+
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.analysis.chemenv.utils.chemenv_errors import ChemenvError
@@ -372,7 +373,7 @@ class StructureEnvironments(MSONable):
             the structure and the DetailedVoronoiContainer.
 
             As an inner (nested) class, the NeighborsSet is not supposed to be used anywhere else that inside the
-            StructureEnvironments. The from_dict method is thus using the structure and  detailed_voronoi when
+            StructureEnvironments. The from_dict method is thus using the structure and detailed_voronoi when
             reconstructing itself. These two are both in the StructureEnvironments object.
 
             Args:

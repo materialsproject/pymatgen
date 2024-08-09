@@ -27,18 +27,20 @@ import pandas as pd
 from monty.io import zopen
 from monty.json import MSONable
 from monty.serialization import loadfn
+from ruamel.yaml import YAML
+
 from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.io_utils import clean_lines
-from ruamel.yaml import YAML
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Literal
 
+    from typing_extensions import Self
+
     from pymatgen.core.sites import Site
     from pymatgen.core.structure import SiteCollection
-    from typing_extensions import Self
 
 __author__ = "Kiran Mathew, Zhi Deng, Tingzheng Hou"
 __copyright__ = "Copyright 2018, The Materials Virtual Lab"
@@ -553,7 +555,7 @@ class LammpsData(MSONable):
                 for t in ff_df.itertuples(index=True, name=None):
                     coeffs_dict = {"coeffs": list(t[1:]), "types": []}
                     if class2_coeffs:
-                        coeffs_dict.update({k: list(v[t[0] - 1]) for k, v in class2_coeffs.items()})
+                        coeffs_dict |= {k: list(v[t[0] - 1]) for k, v in class2_coeffs.items()}
                     topo_coeffs[kw].append(coeffs_dict)
 
         if self.topology:
@@ -797,7 +799,7 @@ class LammpsData(MSONable):
             topology[key] = df[SECTION_HEADERS[key]]
         topology = {key: values for key, values in topology.items() if not values.empty}
 
-        items.update({"atoms": atoms, "velocities": velocities, "topology": topology})
+        items |= {"atoms": atoms, "velocities": velocities, "topology": topology}
         return cls(**items)
 
     @classmethod
@@ -1160,7 +1162,7 @@ class ForceField(MSONable):
 
         all_data = {kw: process_data(main_data)}
         if class2_data:
-            all_data.update({k: process_data(v) for k, v in class2_data.items()})
+            all_data |= {k: process_data(v) for k, v in class2_data.items()}
         return all_data, {f"{kw[:-7]}s": mapper}
 
     def to_file(self, filename: str) -> None:
@@ -1358,12 +1360,12 @@ class CombinedData(LammpsData):
 
     # NOTE (@janosh): The following two methods for override parent class LammpsData
     @classmethod
-    def from_ff_and_topologies(cls) -> None:  # type: ignore[override]
+    def from_ff_and_topologies(cls) -> None:
         """Unsupported constructor for CombinedData objects."""
         raise AttributeError("Unsupported constructor for CombinedData objects")
 
     @classmethod
-    def from_structure(cls) -> None:  # type: ignore[override]
+    def from_structure(cls) -> None:
         """Unsupported constructor for CombinedData objects."""
         raise AttributeError("Unsupported constructor for CombinedData objects")
 

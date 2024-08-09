@@ -34,6 +34,7 @@ from shutil import which
 
 import requests
 from monty.dev import requires
+
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
 
@@ -70,7 +71,7 @@ class COD:
 
         # Standardize formula to the version used by COD
         cod_formula = Composition(formula).hill_formula
-        sql = f'select file from data where formula="- {cod_formula} -"'
+        sql = f'select file from data where formula="- {cod_formula} -"'  # noqa: S608
         text = self.query(sql).split("\n")
         cod_ids = []
         for line in text:
@@ -105,7 +106,7 @@ class COD:
             A list of dict of the format [{"structure": Structure, "cod_id": int, "sg": "P n m a"}]
         """
         structures: list[dict[str, str | int | Structure]] = []
-        sql = f'select file, sg from data where formula="- {Composition(formula).hill_formula} -"'
+        sql = f'select file, sg from data where formula="- {Composition(formula).hill_formula} -"'  # noqa: S608
         text = self.query(sql).split("\n")
         text.pop(0)
         for line in text:

@@ -13,9 +13,15 @@ from copy import deepcopy
 from typing import TYPE_CHECKING
 
 import numpy as np
+from scipy.optimize import leastsq, minimize
+
+try:
+    from numpy.exceptions import RankWarning  # NPY2
+except ImportError:
+    from numpy import RankWarning  # NPY1
+
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
-from scipy.optimize import leastsq, minimize
 
 if TYPE_CHECKING:
     from typing import ClassVar
@@ -37,8 +43,8 @@ class EOSBase(ABC):
     def __init__(self, volumes, energies):
         """
         Args:
-            volumes (list/numpy.array): volumes in Ang^3
-            energies (list/numpy.array): energy in eV.
+            volumes (Sequence[float]): in Ang^3.
+            energies (Sequence[float]): in eV.
         """
         self.volumes = np.array(volumes)
         self.energies = np.array(energies)
@@ -419,7 +425,7 @@ class NumericalEOS(PolynomialEOS):
             min_poly_order (int): minimum order of the polynomial to be
                 considered for fitting.
         """
-        warnings.simplefilter("ignore", np.RankWarning)
+        warnings.simplefilter("ignore", RankWarning)
 
         def get_rms(x, y):
             return np.sqrt(np.sum((np.array(x) - np.array(y)) ** 2) / len(x))
@@ -489,7 +495,7 @@ class NumericalEOS(PolynomialEOS):
             norm += weight
             coeffs = np.array(val[0])
             # pad the coefficient array with zeros
-            coeffs = np.lib.pad(coeffs, (0, max(fit_poly_order - len(coeffs), 0)), "constant")
+            coeffs = np.pad(coeffs, (0, max(fit_poly_order - len(coeffs), 0)), "constant")
             weighted_avg_coeffs += weight * coeffs
 
         # normalization
@@ -560,8 +566,8 @@ class EOS:
         """Fit energies as function of volumes.
 
         Args:
-            volumes (list/np.array)
-            energies (list/np.array)
+            volumes (Sequence[float]): in Ang^3
+            energies (Sequence[float]): in eV
 
         Returns:
             EOSBase: EOSBase object

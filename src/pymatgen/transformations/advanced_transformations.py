@@ -16,6 +16,7 @@ from joblib import Parallel, delayed
 from monty.dev import requires
 from monty.fractions import lcm
 from monty.json import MSONable
+
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.energy_models import SymmetryModel
@@ -819,7 +820,7 @@ class MagOrderingTransformation(AbstractTransformation):
             Structure | list[Structure]: Structure(s) after MagOrderTransformation.
         """
         if not structure.is_ordered:
-            raise ValueError("Create an ordered approximation of your  input structure first.")
+            raise ValueError("Create an ordered approximation of your input structure first.")
 
         # retrieve order parameters
         order_parameters = [MagOrderParameterConstraint.from_dict(op_dict) for op_dict in self.order_parameter]
@@ -1751,7 +1752,7 @@ def _round_and_make_arr_singular(arr: np.ndarray) -> np.ndarray:
             col_idx_to_fix = np.where(matches)[0]
 
             # Break ties for the largest absolute magnitude
-            r_idx = np.random.randint(len(col_idx_to_fix))
+            r_idx = np.random.default_rng().integers(len(col_idx_to_fix))
             col_idx_to_fix = col_idx_to_fix[r_idx]
 
             # Round the chosen element away from zero
@@ -2170,7 +2171,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         if not seed:
             # if seed is None, use a random RandomState seed but make sure
             # we store that the original seed was None
-            seed = np.random.randint(1, 1000000000)
+            seed = np.random.default_rng().integers(1, 1000000000)
 
         self.random_state = np.random.RandomState(seed)
         self.kwargs = kwargs
