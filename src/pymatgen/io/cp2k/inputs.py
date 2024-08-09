@@ -1,20 +1,20 @@
 """
-This module defines the building blocks of a CP2K input file. The cp2k input structure is
+This module defines the building blocks of a CP2K input file. The CP2K input structure is
 essentially a collection of "sections" which are similar to dictionary objects that activate
-modules of the cp2k executable, and then "keywords" which adjust variables inside of those
+modules of the CP2K executable, and then "keywords" which adjust variables inside of those
 modules. For example, FORCE_EVAL section will activate CP2K's ability to calculate forces,
 and inside FORCE_EVAL, the Keyword "METHOD can be set to "QS" to set the method of force
 evaluation to be the quickstep (DFT) module.
 
 A quick overview of the module:
 
--- Section class defines the basis of Cp2k input and contains methods for manipulating these
+-- Section class defines the basis of CP2K input and contains methods for manipulating these
    objects similarly to Dicts.
 -- Keyword class defines the keywords used inside of Section objects that changes variables in
-   Cp2k programs.
+   CP2K programs.
 -- SectionList and KeywordList classes are lists of Section and Keyword objects that have
    the same dictionary key. This deals with repeated sections and keywords.
--- Cp2kInput class is special instantiation of Section that is used to represent the full cp2k
+-- Cp2kInput class is special instantiation of Section that is used to represent the full CP2K
    calculation input.
 -- The rest of the classes are children of Section intended to make initialization of common
    sections easier.
@@ -58,8 +58,6 @@ __author__ = "Nicholas Winner"
 __version__ = "2.0"
 __email__ = "nwinner@berkeley.edu"
 __date__ = "September 2022"
-
-MODULE_DIR = Path(__file__).resolve().parent
 
 
 class Keyword(MSONable):
@@ -238,8 +236,8 @@ class KeywordList(MSONable):
 
 class Section(MSONable):
     """
-    Basic input representation of input to Cp2k. Activates functionality inside of the
-    Cp2k executable.
+    Basic input representation of input to CP2K. Activates functionality inside of the
+    CP2K executable.
     """
 
     def __init__(
@@ -281,7 +279,7 @@ class Section(MSONable):
             location: the path to the section in the form 'SECTION/SUBSECTION1/SUBSECTION3',
                 example for QS module: 'FORCE_EVAL/DFT/QS'. This location is used to automatically
                 determine if a subsection requires a supersection to be activated.
-            verbose: Controls how much is printed to Cp2k input files (Also see Keyword).
+            verbose: Controls how much is printed to CP2K input files (Also see Keyword).
                 If True, then a description of the section will be printed with it as a comment
                 (if description is set). Default=True.
             alias: An alias for this class to use in place of the name.
@@ -657,7 +655,7 @@ class SectionList(MSONable):
 
 class Cp2kInput(Section):
     """
-    Special instance of 'Section' class that is meant to represent the overall cp2k input.
+    Special instance of 'Section' class that is meant to represent the overall CP2K input.
     Distinguishes itself from Section by overriding get_str() to not print this section's
     title and by implementing the file i/o.
     """
@@ -782,7 +780,7 @@ class Cp2kInput(Section):
 
 
 class Global(Section):
-    """Controls 'global' settings for cp2k execution such as RUN_TYPE and PROJECT_NAME."""
+    """Controls 'global' settings for CP2K execution such as RUN_TYPE and PROJECT_NAME."""
 
     def __init__(
         self,
@@ -822,7 +820,7 @@ class Global(Section):
 
 
 class ForceEval(Section):
-    """Controls the calculation of energy and forces in Cp2k."""
+    """Controls the calculation of energy and forces in CP2K."""
 
     def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
         """Initialize the ForceEval section."""
@@ -847,7 +845,7 @@ class ForceEval(Section):
 
 
 class Dft(Section):
-    """Controls the DFT parameters in Cp2k."""
+    """Controls the DFT parameters in CP2K."""
 
     def __init__(
         self,
@@ -1356,7 +1354,7 @@ class Kind(Section):
         subsections = subsections or {}
         description = "The description of this kind of atom including basis sets, element, etc."
 
-        # Special case for closed-shell elements. Cannot impose magnetization in cp2k.
+        # Special case for closed-shell elements. Cannot impose magnetization in CP2K.
         closed_shell_elems = {2, 4, 10, 12, 18, 20, 30, 36, 38, 48, 54, 56, 70, 80, 86, 88, 102, 112, 118}
         if Element(self.specie).Z in closed_shell_elems:
             self.magnetization = 0
@@ -1940,7 +1938,7 @@ class Kpoints(Section):
                 weigh each by 1
             eps_geo (float): tolerance for symmetry. Default=1e-6
             full_grid (bool): use full (not reduced) kpoint grid. Default=False.
-            parallel_group_size (int): from cp2k manual: Number of processors
+            parallel_group_size (int): from CP2K manual: Number of processors
                 to be used for a single kpoint. This number must divide the
                 total number of processes. The number of groups must divide
                 the total number of kpoints. Value=-1 (smallest possible
@@ -2284,7 +2282,7 @@ class BasisInfo(MSONable):
 @dataclass
 class AtomicMetadata(MSONable):
     """
-    Metadata for basis sets and potentials in cp2k.
+    Metadata for basis sets and potentials in CP2K.
 
     Attributes:
         info: Info about this object
@@ -2368,7 +2366,7 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         if self.info and self.potential == "All Electron" and self.element:
             self.info.electrons = self.element.Z
         if self.name == "ALLELECTRON":
-            self.name = "ALL"  # cp2k won't parse ALLELECTRON for some reason
+            self.name = "ALL"  # CP2K won't parse ALLELECTRON for some reason
 
         def cast(d):
             new = {}
@@ -2399,7 +2397,7 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         return [len(exp) for exp in self.exponents]
 
     def get_str(self) -> str:
-        """Get standard cp2k GTO formatted string."""
+        """Get standard CP2K GTO formatted string."""
         if (  # written verbosely so mypy can perform type narrowing
             self.info is None
             or self.nset is None
@@ -2429,7 +2427,7 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
 
     @classmethod
     def from_str(cls, string: str) -> Self:
-        """Read from standard cp2k GTO formatted string."""
+        """Read from standard CP2K GTO formatted string."""
         lines = [line for line in string.split("\n") if line]
         firstline = lines[0].split()
         element = Element(firstline[0])
@@ -2528,7 +2526,7 @@ class PotentialInfo(MSONable):
 
     @classmethod
     def from_str(cls, string: str) -> Self:
-        """Get a cp2k formatted string representation."""
+        """Get a CP2K formatted string representation."""
         string = string.upper()
         data: dict[str, Any] = {}
         if "NLCC" in string:
@@ -2580,7 +2578,7 @@ class GthPotential(AtomicMetadata):
         if self.potential == "All Electron" and self.element:
             self.info.electrons = self.element.Z
         if self.name == "ALLELECTRON":
-            self.name = "ALL"  # cp2k won't parse ALLELECTRON for some reason
+            self.name = "ALL"  # CP2K won't parse ALLELECTRON for some reason
 
         def cast(d):
             new = {}
@@ -2734,7 +2732,7 @@ class GthPotential(AtomicMetadata):
 
 @dataclass
 class DataFile(MSONable):
-    """A data file for a cp2k calc."""
+    """A data file for a CP2K calc."""
 
     objects: Sequence | None = None
 
