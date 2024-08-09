@@ -13,5 +13,12 @@ install_boltztrap() {
     echo "BoltzTraP installation completed."
 }
 
+install_babel() {
+    # Install openbabel
+    sudo apt install openbabel
+}
+
+
 # Main script
 install_boltztrap
+install_babel
