@@ -3,10 +3,9 @@ from __future__ import annotations
 import unittest
 
 from numpy.testing import assert_allclose
-
+from pymatgen.analysis.interfaces.substrate_analyzer import SubstrateAnalyzer
 from pymatgen.analysis.interfaces.coherent_interfaces import (
     CoherentInterfaceBuilder,
-    SubstrateAnalyzer,
     from_2d_to_3d,
     get_2d_transform,
     get_rot_3d_for_2d,
