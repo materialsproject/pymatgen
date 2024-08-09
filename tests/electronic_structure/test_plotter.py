@@ -298,7 +298,7 @@ class TestPlotBZ(TestCase):
 @pytest.mark.skipif(not which("x_trans"), reason="No x_trans executable found")
 class TestBoltztrapPlotter(TestCase):
     def setUp(self):
-        bz = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/boltztrap/transp/")
+        bz = BoltztrapAnalyzer.from_files(f"{TEST_FILES_DIR}/electronic_structure/boltztrap/transp/")
         self.plotter = BoltztrapPlotter(bz)
 
     def test_plot_carriers(self):
