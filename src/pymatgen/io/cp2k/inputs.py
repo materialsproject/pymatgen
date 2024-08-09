@@ -29,7 +29,6 @@ import itertools
 import os
 import re
 import textwrap
-from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
