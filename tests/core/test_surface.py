@@ -686,7 +686,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
             assert any(len(match.group_structures([struct, slab])) == 1 for slab in slabs)
 
 
-class MillerIndexFinderTests(PymatgenTest):
+class TestMillerIndexFinder(PymatgenTest):
     def setUp(self):
         self.cscl = Structure.from_spacegroup("Pm-3m", Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])
         self.Fe = Structure.from_spacegroup("Im-3m", Lattice.cubic(2.82), ["Fe"], [[0, 0, 0]])

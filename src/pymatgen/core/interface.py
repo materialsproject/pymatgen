@@ -2838,8 +2838,14 @@ class Interface(Structure):
         return iface
 
 
-def label_termination(slab: Structure) -> str:
-    """Label the slab surface termination."""
+def label_termination(slab: Structure, ftol: float = 0.25, t_index: int | None = None) -> str:
+    """Label the slab surface termination.
+
+    Args:
+        slab (Slab): film or substrate slab to label termination for
+        ftol (float): tolerance for terminating position hierarchical clustering
+        t_index (None|int): if not None, adding an extra index to the termination label output
+    """
     frac_coords = slab.frac_coords
     n = len(frac_coords)
 
@@ -2862,7 +2868,7 @@ def label_termination(slab: Structure) -> str:
 
     condensed_m = squareform(dist_matrix)
     z = linkage(condensed_m)
-    clusters = fcluster(z, 0.25, criterion="distance")
+    clusters = fcluster(z, ftol, criterion="distance")
 
     clustered_sites: dict[int, list[Site]] = {c: [] for c in clusters}
     for idx, cluster in enumerate(clusters):
@@ -2875,7 +2881,11 @@ def label_termination(slab: Structure) -> str:
 
     sp_symbol = SpacegroupAnalyzer(top_plane, symprec=0.1).get_space_group_symbol()
     form = top_plane.reduced_formula
-    return f"{form}_{sp_symbol}_{len(top_plane)}"
+
+    if t_index is None:
+        return f"{form}_{sp_symbol}_{len(top_plane)}"
+
+    return f"{t_index}_{form}_{sp_symbol}_{len(top_plane)}"
 
 
 def count_layers(struct: Structure, el: Element | None = None) -> int:
