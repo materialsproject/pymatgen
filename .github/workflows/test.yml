@@ -91,7 +91,10 @@ jobs:
 
           # TODO: uv cannot install BoltzTraP2 at this moment,
           # track https://gitlab.com/sousaw/BoltzTraP2/-/merge_requests/21
-          uv pip install BoltzTraP2 --no-build-isolation
+          pip install BoltzTraP2
+
+          bash ${{ github.workspace }}/.github/workflows/install-opt-dependency.sh
+
 
       - name: pytest split ${{ matrix.split }}
         run: |
