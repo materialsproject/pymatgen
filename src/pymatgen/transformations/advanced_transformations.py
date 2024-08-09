@@ -1504,6 +1504,10 @@ class CubicSupercellTransformation(AbstractTransformation):
             # boolean for if a sufficiently large supercell has been created
             sc_not_found = True
 
+            if not self.force_90_degrees:
+                # prevent a too long search for the supercell
+                self.step_size *= 5
+
             # target_threshold is used as the desired cubic side lengths
             target_sc_size = self.min_length
             while sc_not_found:
