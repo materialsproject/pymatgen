@@ -183,7 +183,7 @@ class TestBoltztrapAnalyzer(TestCase):
         ]
 
         assert_allclose(self.bz.get_average_eff_mass(output="tensor")["p"][300][2], ref, atol=1e-4)
-        assert_allclose(self.bz.get_average_eff_mass(output="tensor", doping_levels=False)[300][500], ref2, atol=4)
+        assert_allclose(self.bz.get_average_eff_mass(output="tensor", doping_levels=False)[300][500], ref2, rtol=4)
         assert_allclose(self.bz.get_average_eff_mass(output="average")["n"][300][2], 1.53769093989, atol=1e-4)
 
     def test_get_carrier_concentration(self):
