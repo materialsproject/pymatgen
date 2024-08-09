@@ -531,7 +531,7 @@ class LammpsInputFile(InputFile):
             file.write(self.get_str(ignore_comments=ignore_comments, keep_stages=keep_stages))
 
     @classmethod
-    def from_str(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> Self:  # type: ignore[override]
+    def from_str(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> Self:
         """
         Helper method to parse string representation of LammpsInputFile.
         If you created the input file by hand, there is no guarantee that the representation
@@ -609,7 +609,7 @@ class LammpsInputFile(InputFile):
         return lammps_in_file
 
     @classmethod
-    def from_file(cls, path: str | Path, ignore_comments: bool = False, keep_stages: bool = False) -> Self:  # type: ignore[override]
+    def from_file(cls, path: str | Path, ignore_comments: bool = False, keep_stages: bool = False) -> Self:
         """
         Creates an InputFile object from a file.
 
@@ -934,7 +934,7 @@ class LammpsTemplateGen(TemplateInputGen):
     See pymatgen.io.template.py for additional documentation of this method.
     """
 
-    def get_input_set(  # type: ignore[override]
+    def get_input_set(
         self,
         script_template: PathLike,
         settings: dict | None = None,

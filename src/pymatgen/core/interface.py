@@ -166,7 +166,7 @@ class GrainBoundary(Structure):
             outs.append(f"{idx} {site.species_string} {' '.join(to_str(coord, 12) for coord in site.frac_coords)}")
         return "\n".join(outs)
 
-    def copy(self) -> Self:  # type: ignore[override]
+    def copy(self) -> Self:
         """Make a copy of the GrainBoundary."""
         return type(self)(
             self.lattice,
@@ -261,7 +261,7 @@ class GrainBoundary(Structure):
                 coincident_sites.append(self.sites[idx])
         return coincident_sites
 
-    def as_dict(self) -> dict:  # type: ignore[override]
+    def as_dict(self) -> dict:
         """
         Returns:
             Dictionary representation of GrainBoundary object.
@@ -281,7 +281,7 @@ class GrainBoundary(Structure):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:  # type: ignore[override]
+    def from_dict(cls, dct: dict) -> Self:
         """Generate GrainBoundary from a dict created by as_dict().
 
         Args:
@@ -2580,7 +2580,7 @@ class Interface(Structure):
         """A Structure for just the film."""
         return Structure.from_sites(self.film_sites)
 
-    def copy(self) -> Self:  # type: ignore[override]
+    def copy(self) -> Self:
         """Make a copy of the Interface."""
         return type(self).from_dict(self.as_dict())
 
@@ -2689,7 +2689,7 @@ class Interface(Structure):
             site._lattice = new_lattice  # Update the lattice
             site.coords = c_coords  # Put back into original Cartesian space
 
-    def as_dict(self) -> dict:  # type: ignore[override]
+    def as_dict(self) -> dict:
         """MSONable dict."""
         return {
             **super().as_dict(),
@@ -2700,7 +2700,7 @@ class Interface(Structure):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:  # type: ignore[override]
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct: dict.
