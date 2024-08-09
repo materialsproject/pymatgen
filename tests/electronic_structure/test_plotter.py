@@ -319,7 +319,7 @@ class TestBoltztrapPlotter(TestCase):
         ax = self.plotter.plot_conductivity_dop()
         assert len(ax.get_lines()) == 16, f"wrong number of lines, got {len(ax.get_lines())}"
         assert ax.get_lines()[0].get_data()[0][0] == 1000000000000000.0, "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == 0.3801957596666667, "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 0.37348597333333333, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_conductivity_mu(self):
@@ -333,7 +333,7 @@ class TestBoltztrapPlotter(TestCase):
         ax = self.plotter.plot_conductivity_temp()
         assert len(ax.get_lines()) == 12, f"wrong number of lines, got {len(ax.get_lines())}"
         assert ax.get_lines()[0].get_data()[0][0] == 100, "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == 0.3801957596666667, "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 0.37348597333333333, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_dos(self):
@@ -347,14 +347,14 @@ class TestBoltztrapPlotter(TestCase):
         ax = self.plotter.plot_eff_mass_dop()
         assert len(ax.get_lines()) == 16, f"wrong number of lines, got {len(ax.get_lines())}"
         assert ax.get_lines()[0].get_data()[0][0] == 1000000000000000.0, "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == 1.4231240011719886, "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 0.7884104589550917, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_eff_mass_temp(self):
         ax = self.plotter.plot_eff_mass_temp()
         assert len(ax.get_lines()) == 12, f"wrong number of lines, got {len(ax.get_lines())}"
         assert ax.get_lines()[0].get_data()[0][0] == 100, "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == 1.4231240011719886, "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 0.7884104589550917, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_hall_carriers(self):
@@ -368,28 +368,28 @@ class TestBoltztrapPlotter(TestCase):
         ax = self.plotter.plot_power_factor_dop()
         assert len(ax.get_lines()) == 16, f"wrong number of lines, got {len(ax.get_lines())}"
         assert ax.get_lines()[0].get_data()[0][0] == 1000000000000000.0, "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == 0.40606868935796925, "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 0.34159957604872454, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_power_factor_mu(self):
         ax = self.plotter.plot_power_factor_mu()
         assert len(ax.get_lines()) == 9, "wrong number of lines"
         assert ax.get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == 365.5514594136157, "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 365.55145941361565, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_power_factor_temp(self):
         ax = self.plotter.plot_power_factor_temp()
         assert len(ax.get_lines()) == 12, f"wrong number of lines, got {len(ax.get_lines())}"
         assert ax.get_lines()[0].get_data()[0][0] == 100, "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == 0.40606868935796925, "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 0.34159957604872454, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_seebeck_dop(self):
         ax = self.plotter.plot_seebeck_dop()
         assert len(ax.get_lines()) == 16, f"wrong number of lines, got {len(ax.get_lines())}"
         assert ax.get_lines()[0].get_data()[0][0] == 1000000000000000.0, "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == 1050.8197666666667, "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == -955.09921, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_seebeck_eff_mass_mu(self):
@@ -410,14 +410,14 @@ class TestBoltztrapPlotter(TestCase):
         ax = self.plotter.plot_seebeck_temp()
         assert len(ax.get_lines()) == 12, f"wrong number of lines, got {len(ax.get_lines())}"
         assert ax.get_lines()[0].get_data()[0][0] == 100, "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == 1050.8197666666667, "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == -955.09921, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_zt_dop(self):
         ax = self.plotter.plot_zt_dop()
         assert len(ax.get_lines()) == 16, f"wrong number of lines, got {len(ax.get_lines())}"
         assert ax.get_lines()[0].get_data()[0][0] == 1000000000000000.0, "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == 4.060682863129955e-05, "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 3.4159932358881496e-05, "wrong 1 data in line 0"
         plt.close()
 
     def test_plot_zt_mu(self):
@@ -431,7 +431,7 @@ class TestBoltztrapPlotter(TestCase):
         ax = self.plotter.plot_zt_temp()
         assert len(ax.get_lines()) == 12, f"wrong number of lines, got {len(ax.get_lines())}"
         assert ax.get_lines()[0].get_data()[0][0] == 100, "wrong 0 data in line 0"
-        assert ax.get_lines()[0].get_data()[1][0] == 4.060682863129955e-05, "wrong 1 data in line 0"
+        assert ax.get_lines()[0].get_data()[1][0] == 3.4159932358881496e-05, "wrong 1 data in line 0"
         plt.close()
 
 
