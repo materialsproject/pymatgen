@@ -37,7 +37,7 @@ jobs:
           - os: ubuntu-latest
             python: ">3.9"
             resolution: lowest-direct
-            extras: ci,optional,electronic_structure
+            extras: ci,optional
           - os: macos-latest
             python: "3.10"
             resolution: lowest-direct
