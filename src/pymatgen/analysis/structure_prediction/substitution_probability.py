@@ -76,7 +76,7 @@ class SubstitutionProbability:
 
         # create Z and px
         self.Z = 0
-        self._px: dict[Species, float] = defaultdict(float)
+        self._px: dict[SpeciesLike, float] = defaultdict(float)
         for s1, s2 in itertools.product(self.species, repeat=2):
             value = math.exp(self.get_lambda(s1, s2))
             self._px[s1] += value / 2

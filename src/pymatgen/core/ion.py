@@ -304,7 +304,7 @@ class Ion(Composition, MSONable, Stringify):
         """Composition of ion."""
         return Composition(self._data)
 
-    def oxi_state_guesses(  # type: ignore[override]
+    def oxi_state_guesses(
         self,
         oxi_states_override: dict | None = None,
         all_oxi_states: bool = False,

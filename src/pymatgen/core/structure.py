@@ -104,7 +104,7 @@ class Neighbor(Site):
         """Make neighbor Tuple-like to retain backwards compatibility."""
         return 3
 
-    def __getitem__(self, idx: int) -> Self | float:  # type: ignore[override]
+    def __getitem__(self, idx: int) -> Self | float:
         """Make neighbor Tuple-like to retain backwards compatibility."""
         return (self, self.nn_distance, self.index)[idx]
 
@@ -170,7 +170,7 @@ class PeriodicNeighbor(PeriodicSite):
         """Make neighbor Tuple-like to retain backwards compatibility."""
         return 4
 
-    def __getitem__(self, idx: int | slice):  # type: ignore[override]
+    def __getitem__(self, idx: int | slice):
         """Make neighbor Tuple-like to retain backwards compatibility."""
         return (self, self.nn_distance, self.index, self.image)[idx]
 
@@ -179,12 +179,12 @@ class PeriodicNeighbor(PeriodicSite):
         """Cartesian coords."""
         return self._lattice.get_cartesian_coords(self._frac_coords)
 
-    def as_dict(self) -> dict:  # type: ignore[override]
+    def as_dict(self) -> dict:
         """Note that method calls the super of Site, which is MSONable itself."""
         return super(Site, self).as_dict()
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:  # type: ignore[override]
+    def from_dict(cls, dct: dict) -> Self:
         """Get a PeriodicNeighbor from a dict.
 
         Args:
@@ -2960,7 +2960,7 @@ class IStructure(SiteCollection, MSONable):
         raise ValueError(f"Invalid source: {source}")
 
     @classmethod
-    def from_str(  # type: ignore[override]
+    def from_str(
         cls,
         input_string: str,
         fmt: FileFormats,
@@ -3044,7 +3044,7 @@ class IStructure(SiteCollection, MSONable):
         return cls.from_sites(struct, properties=struct.properties)
 
     @classmethod
-    def from_file(  # type: ignore[override]
+    def from_file(
         cls,
         filename: PathLike,
         primitive: bool = False,
@@ -3774,7 +3774,7 @@ class IMolecule(SiteCollection, MSONable):
         return str(writer)
 
     @classmethod
-    def from_str(  # type: ignore[override]
+    def from_str(
         cls,
         input_string: str,
         fmt: Literal["xyz", "gjf", "g03", "g09", "com", "inp", "json", "yaml"],
@@ -3821,7 +3821,7 @@ class IMolecule(SiteCollection, MSONable):
         return cls.from_sites(mol, properties=mol.properties)
 
     @classmethod
-    def from_file(cls, filename: PathLike) -> Self | None:  # type: ignore[override]
+    def from_file(cls, filename: PathLike) -> Self | None:
         """Read a molecule from a file. Supported formats include xyz,
         gaussian input (gjf|g03|g09|com|inp), Gaussian output (.out|and
         pymatgen's JSON-serialized molecules. Using openbabel,
@@ -3933,7 +3933,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         self._sites: list[PeriodicSite] = list(self._sites)  # type: ignore[assignment]
 
-    def __setitem__(  # type: ignore[override]
+    def __setitem__(
         self,
         idx: int | slice | Sequence[int] | SpeciesLike,
         site: SpeciesLike | PeriodicSite | Sequence | dict[SpeciesLike, float],
@@ -4018,7 +4018,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         for site in self:
             site.lattice = lattice
 
-    def append(  # type: ignore[override]
+    def append(
         self,
         species: CompositionLike,
         coords: ArrayLike,
@@ -4049,7 +4049,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             properties=properties,
         )
 
-    def insert(  # type: ignore[override]
+    def insert(
         self,
         idx: int,
         species: CompositionLike,
@@ -4765,7 +4765,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         )
         self._sites: list[Site] = list(self._sites)
 
-    def __setitem__(  # type: ignore[override]
+    def __setitem__(
         self,
         idx: int | slice | Sequence[int] | SpeciesLike,
         site: SpeciesLike | Site | Sequence,
@@ -4810,7 +4810,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         """Deletes a site from the Structure."""
         self._sites.__delitem__(idx)
 
-    def append(  # type: ignore[override]
+    def append(
         self,
         species: CompositionLike,
         coords: ArrayLike,
@@ -4874,7 +4874,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         return self
 
-    def insert(  # type: ignore[override]
+    def insert(
         self,
         idx: int,
         species: CompositionLike,
