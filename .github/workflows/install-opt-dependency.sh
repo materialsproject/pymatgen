@@ -18,6 +18,7 @@ install_vampire() {
     wget https://vampire.york.ac.uk/resources/release-5/vampire-5.0-linux.tar.gz
     tar -zxvf vampire-5.0-linux.tar.gz
     mv linux vampire-5.0
+    chmod +x vampire-5.0/vampire-serial
 
     echo "vampire-5.0" >> $GITHUB_PATH
 
@@ -27,7 +28,7 @@ install_vampire() {
 install_babel() {
     # Install openbabel
     # TODO: not working
-    sudo apt install openbabel
+    sudo apt-get install openbabel
 }
 
 
