@@ -226,7 +226,7 @@ class Ion(Composition, MSONable, Stringify):
         elif formula == "CSN":
             formula = "SCN"
         # triiodide, nitride, an phosphide
-        elif formula in ["I", "N", "P"] and self.charge == -1:
+        elif (formula in ["N", "P"] and self.charge == -1) or (formula == "I" and self.charge == 1 / 3):
             formula += "3"
             factor /= 3
         # formate # codespell:ignore
@@ -235,7 +235,7 @@ class Ion(Composition, MSONable, Stringify):
         # oxalate
         elif formula == "CO2":
             formula = "C2O4"
-            factor *= 2
+            factor /= 2
         # diatomic gases
         elif formula in {"O", "N", "F", "Cl", "H"} and factor % 2 == 0:
             formula += "2"
