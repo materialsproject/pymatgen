@@ -6,7 +6,8 @@ nav_order: 4
 
 # Changelog
 
-## v2024.8.8
+## v2024.8.9
+- Revert bad split of sets.py, which broke downstream code.
 
 ### 🎉 New Features
 
