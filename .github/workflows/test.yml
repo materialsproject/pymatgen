@@ -95,7 +95,6 @@ jobs:
 
           bash ${{ github.workspace }}/.github/workflows/install-opt-dependency.sh
 
-
       - name: pytest split ${{ matrix.split }}
         run: |
           micromamba activate pmg
