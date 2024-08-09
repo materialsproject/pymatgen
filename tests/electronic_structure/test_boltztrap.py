@@ -6,6 +6,7 @@ from unittest import TestCase
 
 import pytest
 from monty.serialization import loadfn
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.electronic_structure.bandstructure import BandStructure
@@ -181,9 +182,9 @@ class TestBoltztrapAnalyzer(TestCase):
             [-1.36897140e-17, 8.74169648e-17, 2.21151980e01],
         ]
 
-        assert self.bz.get_average_eff_mass(output="tensor")["p"][300][2] == approx(ref, abs=1e-4)
-        assert self.bz.get_average_eff_mass(output="tensor", doping_levels=False)[300][500] == approx(ref2, 4)
-        assert self.bz.get_average_eff_mass(output="average")["n"][300][2] == approx(1.53769093989, abs=1e-4)
+        assert_allclose(self.bz.get_average_eff_mass(output="tensor")["p"][300][2], ref, atol=1e-4)
+        assert_allclose(self.bz.get_average_eff_mass(output="tensor", doping_levels=False)[300][500], ref2, atol=4)
+        assert_allclose(self.bz.get_average_eff_mass(output="average")["n"][300][2], 1.53769093989, atol=1e-4)
 
     def test_get_carrier_concentration(self):
         assert self.bz.get_carrier_concentration()[300][39] / 1e22 == approx(6.4805156617179151, abs=1e-4)
