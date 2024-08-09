@@ -31,7 +31,6 @@ import re
 import textwrap
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from monty.dev import deprecated
@@ -46,6 +45,7 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from pathlib import Path
     from typing import Any, Literal
 
     from typing_extensions import Self
