@@ -309,6 +309,7 @@ class TestBoltztrapPlotter(TestCase):
         plt.close()
 
     def test_plot_complexity_factor_mu(self):
+        pytest.importorskip("fdint")
         ax = self.plotter.plot_complexity_factor_mu()
         assert len(ax.get_lines()) == 2, "wrong number of lines"
         assert ax.get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
@@ -393,6 +394,7 @@ class TestBoltztrapPlotter(TestCase):
         plt.close()
 
     def test_plot_seebeck_eff_mass_mu(self):
+        pytest.importorskip("fdint")
         ax = self.plotter.plot_seebeck_eff_mass_mu()
         assert len(ax.get_lines()) == 2, "wrong number of lines"
         assert ax.get_lines()[0].get_data()[0][0] == -2.0702422655947665, "wrong 0 data in line 0"
