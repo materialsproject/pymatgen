@@ -1037,7 +1037,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
 
     def get_projections_on_elements_and_orbitals(
         self,
-        el_orb_spec: dict[Element, list],  # type: ignore[override]
+        el_orb_spec: dict[Element, list],
     ) -> dict[Spin, list]:
         """Get projections on elements and specific orbitals.
 

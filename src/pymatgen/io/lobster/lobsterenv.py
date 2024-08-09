@@ -253,7 +253,7 @@ class LobsterNeighbors(NearNeighbors):
     def get_anion_types(self):
         return self.anion_types
 
-    def get_nn_info(self, structure: Structure, n: int, use_weights: bool = False) -> dict:  # type: ignore[override]
+    def get_nn_info(self, structure: Structure, n: int, use_weights: bool = False) -> dict:
         """Get coordination number, CN, of site with index n in structure.
 
         Args:

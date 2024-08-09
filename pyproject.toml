@@ -285,7 +285,7 @@ ignore_missing_imports = true
 namespace_packages = true
 explicit_package_bases = true
 no_implicit_optional = false
-disable_error_code = "annotation-unchecked"
+disable_error_code = ["annotation-unchecked", "override"]
 
 [[tool.mypy.overrides]]
 module = ["requests.*", "tabulate.*"]

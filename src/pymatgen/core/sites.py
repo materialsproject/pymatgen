@@ -84,7 +84,7 @@ class Site(collections.abc.Hashable, MSONable):
             return props[attr]
         raise AttributeError(f"{attr=} not found on {type(self).__name__}")
 
-    def __getitem__(self, el: Element) -> float:  # type: ignore[override]
+    def __getitem__(self, el: Element) -> float:
         """Get the occupancy for element."""
         return self.species[el]
 
@@ -102,7 +102,7 @@ class Site(collections.abc.Hashable, MSONable):
             and self.properties == other.properties
         )
 
-    def __hash__(self) -> int:  # type: ignore[override]
+    def __hash__(self) -> int:
         """Minimally effective hash function that just distinguishes between Sites
         with different elements.
         """
