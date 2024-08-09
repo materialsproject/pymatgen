@@ -36,12 +36,14 @@ from __future__ import annotations
 
 import copy
 import itertools
-import random
 import warnings
 from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
+from sympy import Symbol
+from sympy.solvers import linsolve, solve
+
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.core import Structure
 from pymatgen.core.composition import Composition
@@ -51,12 +53,11 @@ from pymatgen.io.vasp.outputs import Locpot, Outcar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.due import Doi, due
 from pymatgen.util.plotting import pretty_plot
-from sympy import Symbol
-from sympy.solvers import linsolve, solve
 
 if TYPE_CHECKING:
-    from pymatgen.util.typing import Tuple3Ints
     from typing_extensions import Self
+
+    from pymatgen.util.typing import Tuple3Ints
 
 EV_PER_ANG2_TO_JOULES_PER_M2 = 16.0217656
 
@@ -799,14 +800,15 @@ class SurfaceEnergyPlotter:
             surface will be transparent.
         """
         color_dict = {}
+        rng = np.random.default_rng()
         for hkl in self.all_slab_entries:
             rgb_indices = [0, 1, 2]
             color = [0, 0, 0, 1]
-            random.shuffle(rgb_indices)
+            rng.shuffle(rgb_indices)
             for idx, ind in enumerate(rgb_indices):
                 if idx == 2:
                     break
-                color[ind] = np.random.uniform(0, 1)
+                color[ind] = rng.uniform(0, 1)
 
             # Get the clean (solid) colors first
             clean_list = np.linspace(0, 1, len(self.all_slab_entries[hkl]))

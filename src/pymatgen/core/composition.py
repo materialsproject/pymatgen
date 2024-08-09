@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, cast
 from monty.fractions import gcd, gcd_float
 from monty.json import MSONable
 from monty.serialization import loadfn
+
 from pymatgen.core.periodic_table import DummySpecies, Element, ElementType, Species, get_el_sp
 from pymatgen.core.units import Mass
 from pymatgen.util.string import Stringify, formula_double_format
@@ -26,8 +27,9 @@ if TYPE_CHECKING:
     from collections.abc import Generator, Iterator
     from typing import Any, ClassVar
 
-    from pymatgen.util.typing import SpeciesLike
     from typing_extensions import Self
+
+    from pymatgen.util.typing import SpeciesLike
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -505,7 +507,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """Calculate atomic fraction of an Element or Species.
 
         Args:
-            el (Element/Species): Element or Species to get fraction for.
+            el (SpeciesLike): Element or Species to get fraction for.
 
         Returns:
             Atomic fraction for element el in Composition
@@ -534,7 +536,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 "actinoid", "radioactive", "quadrupolar", "s-block", "p-block", "d-block", "f-block".
 
         Returns:
-            bool: Whether any elements in Composition match category.
+            bool: True if any elements in Composition match category.
         """
         allowed_categories = [element.value for element in ElementType]
 

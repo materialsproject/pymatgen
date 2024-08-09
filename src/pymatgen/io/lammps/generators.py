@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 from string import Template
 
 from monty.io import zopen
+
 from pymatgen.core import Structure
 from pymatgen.io.core import InputGenerator
 from pymatgen.io.lammps.data import CombinedData, LammpsData

@@ -6,15 +6,17 @@ from unittest import TestCase
 
 import pytest
 import requests
+import urllib3
+
 from pymatgen.ext.cod import COD
 
 if "CI" in os.environ:  # test is slow and flaky, skip in CI. see
     # https://github.com/materialsproject/pymatgen/pull/3777#issuecomment-2071217785
-    pytest.skip(allow_module_level=True)
+    pytest.skip(allow_module_level=True, reason="Skip COD test in CI")
 
 try:
     website_down = requests.get("https://www.crystallography.net", timeout=600).status_code != 200
-except requests.exceptions.ConnectionError:
+except (requests.exceptions.ConnectionError, urllib3.exceptions.ConnectTimeoutError):
     website_down = True
 
 

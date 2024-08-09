@@ -6,6 +6,7 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.transformations.site_transformations import (
     AddSitePropertyTransformation,
@@ -260,7 +261,7 @@ class TestAddSitePropertyTransformation(PymatgenTest):
     def test_apply_transformation(self):
         struct = self.get_structure("Li2O2")
         sd = [[True, True, True] for _ in struct]
-        bader = np.random.random(len(struct)).tolist()
+        bader = np.random.default_rng().random(len(struct)).tolist()
         site_props = {"selective_dynamics": sd, "bader": bader}
         trans = AddSitePropertyTransformation(site_props)
         manually_set = struct.copy()

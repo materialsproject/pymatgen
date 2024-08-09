@@ -6,6 +6,7 @@ import re
 from typing import TYPE_CHECKING
 
 from monty.io import zopen
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 
@@ -31,7 +32,7 @@ class Cssr:
     def __init__(self, structure: Structure):
         """
         Args:
-            structure (Structure/IStructure): A structure to create the Cssr object.
+            structure (Structure | IStructure): A structure to create the Cssr object.
         """
         if not structure.is_ordered:
             raise ValueError("Cssr file can only be constructed from ordered structure")

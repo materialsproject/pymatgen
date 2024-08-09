@@ -3,13 +3,14 @@ from __future__ import annotations
 import json
 from unittest import TestCase
 
+from pytest import approx
+
 from pymatgen.analysis.structure_prediction.substitution_probability import (
     SubstitutionPredictor,
     SubstitutionProbability,
 )
 from pymatgen.core import Composition, Species
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/struct_predictor"
 

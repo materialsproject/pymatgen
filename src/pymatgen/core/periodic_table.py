@@ -12,11 +12,12 @@ from collections import Counter
 from enum import Enum, unique
 from itertools import combinations, product
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 import numpy as np
 from monty.dev import deprecated
 from monty.json import MSONable
+
 from pymatgen.core.units import SUPPORTED_UNIT_NAMES, FloatWithUnit, Ha_to_eV, Length, Mass, Unit
 from pymatgen.io.core import ParseError
 from pymatgen.util.string import Stringify, formula_double_format
@@ -24,8 +25,9 @@ from pymatgen.util.string import Stringify, formula_double_format
 if TYPE_CHECKING:
     from typing import Any, Callable, Literal
 
-    from pymatgen.util.typing import SpeciesLike
     from typing_extensions import Self
+
+    from pymatgen.util.typing import SpeciesLike
 
 # Load element data from JSON file
 with open(Path(__file__).absolute().parent / "periodic_table.json", encoding="utf-8") as ptable_json:
@@ -474,7 +476,7 @@ class ElementBase(Enum):
     @property
     def n_electrons(self) -> int:
         """Total number of electrons in the Element."""
-        return sum([t[-1] for t in self.full_electronic_structure])
+        return sum(t[-1] for t in self.full_electronic_structure)
 
     @property
     def valence(self) -> tuple[int | np.nan, int]:
@@ -1178,7 +1180,7 @@ class Species(MSONable, Stringify):
     @property
     def n_electrons(self) -> int:
         """Total number of electrons in the Species."""
-        return sum([t[-1] for t in self.full_electronic_structure])
+        return sum(t[-1] for t in self.full_electronic_structure)
 
     # NOTE - copied exactly from Element. Refactoring / inheritance may improve
     # robustness
@@ -1595,11 +1597,21 @@ class DummySpecie(DummySpecies):
     """
 
 
+@overload
+def get_el_sp(obj: int) -> Element:
+    pass
+
+
+@overload
+def get_el_sp(obj: SpeciesLike) -> Element | Species | DummySpecies:
+    pass
+
+
 @functools.lru_cache
 def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
-    """Utility method to get an Element, Species or DummySpecies from any input.
+    """Utility function to get an Element, Species or DummySpecies from any input.
 
-    If obj is in itself an element or a specie, it is returned automatically.
+    If obj is an Element or a Species, it is returned as is.
     If obj is an int or a string representing an integer, the Element with the
     atomic number obj is returned.
     If obj is a string, Species parsing will be attempted (e.g. Mn2+). Failing that
@@ -1607,16 +1619,15 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
     will be attempted.
 
     Args:
-        obj (Element/Species/str/int): An arbitrary object. Supported objects
-            are actual Element/Species objects, integers (representing atomic
-            numbers) or strings (element symbols or species strings).
+        obj (SpeciesLike): An arbitrary object. Supported objects are actual Element/Species,
+            integers (representing atomic numbers) or strings (element symbols or species strings).
 
     Raises:
         ValueError: if obj cannot be converted into an Element or Species.
 
     Returns:
-        Species | Element: with a bias for the maximum number of properties
-            that can be determined.
+        Element | Species | DummySpecies: with a bias for the maximum number
+            of properties that can be determined.
     """
     # If obj is already an Element or Species, return as is
     if isinstance(obj, (Element, Species, DummySpecies)):

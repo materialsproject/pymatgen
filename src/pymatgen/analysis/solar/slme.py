@@ -22,9 +22,10 @@ try:
     from scipy.integrate import simpson
 except ImportError:
     from scipy.integrate import simps as simpson
+from scipy.interpolate import interp1d
+
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.due import Doi, due
-from scipy.interpolate import interp1d
 
 due.cite(
     Doi("10.1021/acs.chemmater.9b02166"),

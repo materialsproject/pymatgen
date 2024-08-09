@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 
 from monty.io import zopen
 from monty.json import MSONable
+
 from pymatgen.entries.computed_entries import ComputedEntry, ComputedStructureEntry
 from pymatgen.io.gaussian import GaussianOutput
 from pymatgen.io.vasp.inputs import Incar, Poscar, Potcar

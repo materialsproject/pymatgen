@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import pytest
+from pytest import approx
+
 from pymatgen.analysis.diffraction.neutron import NDCalculator
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 """
 These calculated values were verified with VESTA and FullProf.

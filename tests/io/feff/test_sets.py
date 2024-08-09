@@ -5,6 +5,7 @@ import os
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+
 from pymatgen.core.structure import Lattice, Molecule, Structure
 from pymatgen.io.feff.inputs import Atoms, Header, Potential, Tags
 from pymatgen.io.feff.sets import FEFFDictSet, MPELNESSet, MPEXAFSSet, MPXANESSet
