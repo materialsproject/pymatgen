@@ -91,7 +91,7 @@ jobs:
 
           # TODO: uv cannot install BoltzTraP2 (#3786),
           # suggesting no NumPy when there is
-          pip install BoltzTraP2 fdint
+          pip install BoltzTraP2
 
       - name: pytest split ${{ matrix.split }}
         run: |
