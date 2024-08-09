@@ -1485,11 +1485,10 @@ class Kpoints(MSONable):
 
     @classmethod
     def from_file(cls, filename: PathLike) -> Self:
-        """
-        Reads a Kpoints object from a KPOINTS file.
+        """Read a Kpoints object from a KPOINTS file.
 
         Args:
-            filename (PathLike): filename to read from.
+            filename (PathLike): File to read.
 
         Returns:
             Kpoints object
