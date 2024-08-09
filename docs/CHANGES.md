@@ -9,6 +9,8 @@ nav_order: 4
 ## v2024.8.9
 - Revert bad split of sets.py, which broke downstream code.
 
+## v2024.8.8
+
 ### 🎉 New Features
 
 * Add multiwfn QTAIM parsing capabilities by @espottesmith in https://github.com/materialsproject/pymatgen/pull/3926
