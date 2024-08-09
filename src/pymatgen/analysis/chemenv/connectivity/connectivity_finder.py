@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 
 import numpy as np
+
 from pymatgen.analysis.chemenv.connectivity.structure_connectivity import StructureConnectivity
 
 __author__ = "David Waroquiers"

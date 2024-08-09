@@ -20,6 +20,7 @@ from matplotlib.collections import LineCollection
 from matplotlib.gridspec import GridSpec
 from monty.dev import requires
 from monty.json import jsanitize
+
 from pymatgen.core import Element
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
 from pymatgen.electronic_structure.boltztrap import BoltztrapError
@@ -36,6 +37,7 @@ if TYPE_CHECKING:
     from typing import Literal
 
     from numpy.typing import ArrayLike
+
     from pymatgen.electronic_structure.dos import CompleteDos, Dos
 
 logger = logging.getLogger(__name__)
@@ -49,22 +51,27 @@ __date__ = "May 1, 2012"
 
 
 class DosPlotter:
-    """Plot DOSs. The interface is extremely flexible given there are many
+    """Plot DOS. The interface is extremely flexible given there are many
     different ways in which people want to view DOS.
     Typical usage is:
-        # Initializes plotter with some optional args. Defaults are usually fine
+        # Initialize plotter with some optional args. Defaults are usually fine
         plotter = PhononDosPlotter().
 
         # Add DOS with a label
         plotter.add_dos("Total DOS", dos)
 
-        # Alternatively, you can add a dict of DOSes. This is the typical form
+        # Alternatively, you can add a dict of DOS. This is the typical form
         # returned by CompletePhononDos.get_element_dos().
         plotter.add_dos_dict({"dos1": dos1, "dos2": dos2})
         plotter.add_dos_dict(complete_dos.get_spd_dos())
     """
 
-    def __init__(self, zero_at_efermi: bool = True, stack: bool = False, sigma: float | None = None) -> None:
+    def __init__(
+        self,
+        zero_at_efermi: bool = True,
+        stack: bool = False,
+        sigma: float | None = None,
+    ) -> None:
         """
         Args:
             zero_at_efermi (bool): Whether to shift all Dos to have zero energy at the
@@ -3920,8 +3927,7 @@ def plot_fermi_surface(
             By default 0 eV correspond to the VBM, as in the plot of band
             structure along symmetry line.
             Default: One surface, with max energy value + 0.01 eV
-        cbm (bool): Boolean value to specify if the considered band is a
-            conduction band or not
+        cbm (bool): True if the considered band is a conduction band or not.
         multiple_figure (bool): If True a figure for each energy level will be
             shown. If False all the surfaces will be shown in the same figure.
             In this last case, tune the transparency factor.

@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.dev import deprecated
 from monty.tempfile import ScratchDir
+
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule
 from pymatgen.io.babel import BabelMolAdaptor
@@ -120,9 +121,10 @@ class Polymer:
     def _next_move_direction(self) -> np.ndarray:
         """Pick a move at random from the list of moves."""
         n_moves = len(self.moves)
-        move = np.random.randint(1, n_moves + 1)
+        rng = np.random.default_rng()
+        move = rng.integers(1, n_moves + 1)
         while self.prev_move == (move + 3) % n_moves:
-            move = np.random.randint(1, n_moves + 1)
+            move = rng.integers(1, n_moves + 1)
         self.prev_move = move
         return np.array(self.moves[move])
 

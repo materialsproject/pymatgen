@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.optimization.neighbors import find_points_in_spheres
 from pymatgen.util.testing import PymatgenTest

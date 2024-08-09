@@ -4,8 +4,9 @@ from unittest import TestCase
 
 import numpy as np
 import pytest
-from pymatgen.optimization.linear_assignment import LinearAssignment
 from pytest import approx
+
+from pymatgen.optimization.linear_assignment import LinearAssignment
 
 
 class TestLinearAssignment(TestCase):

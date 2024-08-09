@@ -13,11 +13,14 @@ from operator import mul
 from typing import TYPE_CHECKING
 
 from monty.design_patterns import cached_class
+
 from pymatgen.core import Species, get_el_sp
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
     from typing_extensions import Self
+
+    from pymatgen.util.typing import SpeciesLike
 
 __author__ = "Will Richards, Geoffroy Hautier"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -73,7 +76,7 @@ class SubstitutionProbability:
 
         # create Z and px
         self.Z = 0
-        self._px: dict[Species, float] = defaultdict(float)
+        self._px: dict[SpeciesLike, float] = defaultdict(float)
         for s1, s2 in itertools.product(self.species, repeat=2):
             value = math.exp(self.get_lambda(s1, s2))
             self._px[s1] += value / 2
@@ -83,8 +86,8 @@ class SubstitutionProbability:
     def get_lambda(self, s1, s2):
         """
         Args:
-            s1 (Element/Species/str/int): Describes Ion in 1st Structure
-            s2 (Element/Species/str/int): Describes Ion in 2nd Structure.
+            s1 (SpeciesLike): Ion in 1st structure.
+            s2 (SpeciesLike): Ion in 2nd structure.
 
         Returns:
             Lambda values
@@ -92,13 +95,13 @@ class SubstitutionProbability:
         key = frozenset([get_el_sp(s1), get_el_sp(s2)])
         return self._l.get(key, self.alpha)
 
-    def get_px(self, sp):
+    def get_px(self, sp: SpeciesLike) -> float:
         """
         Args:
-            sp (Species/Element): Species.
+            sp (SpeciesLike): Species.
 
         Returns:
-            Probability
+            float: Probability
         """
         return self._px[get_el_sp(sp)]
 
@@ -184,7 +187,7 @@ class SubstitutionPredictor:
     def __init__(self, lambda_table=None, alpha=-5, threshold=1e-3):
         """
         Args:
-            lambda_table (): Input lambda table.
+            lambda_table (dict): Input lambda table.
             alpha (float): weight function for never observed substitutions
             threshold (float): Threshold to use to identify high probability structures.
         """

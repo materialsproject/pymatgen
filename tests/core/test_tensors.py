@@ -6,19 +6,22 @@ import numpy as np
 import pytest
 from monty.serialization import MontyDecoder, loadfn
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.tensors import SquareTensor, Tensor, TensorCollection, TensorMapping, itertools, symmetry_reduce
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 
 class TestTensor(PymatgenTest):
     def setUp(self):
+        rng = np.random.default_rng()
+
         self.vec = Tensor([1.0, 0.0, 0.0])
-        self.rand_rank2 = Tensor(np.random.randn(3, 3))
-        self.rand_rank3 = Tensor(np.random.randn(3, 3, 3))
-        self.rand_rank4 = Tensor(np.random.randn(3, 3, 3, 3))
+        self.rand_rank2 = Tensor(rng.standard_normal((3, 3)))
+        self.rand_rank3 = Tensor(rng.standard_normal((3, 3, 3)))
+        self.rand_rank4 = Tensor(rng.standard_normal((3, 3, 3, 3)))
         a = 3.14 * 42.5 / 180
         self.non_symm = SquareTensor([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.2, 0.5, 0.5]])
         self.rotation = SquareTensor([[math.cos(a), 0, math.sin(a)], [0, 1, 0], [-math.sin(a), 0, math.cos(a)]])
@@ -365,7 +368,7 @@ class TestTensorCollection(PymatgenTest):
     def setUp(self):
         self.seq_tc = list(np.arange(4 * 3**3).reshape((4, 3, 3, 3)))
         self.seq_tc = TensorCollection(self.seq_tc)
-        self.rand_tc = TensorCollection(list(np.random.random((4, 3, 3))))
+        self.rand_tc = TensorCollection(list(np.random.default_rng().random((4, 3, 3))))
         self.diff_rank = TensorCollection([np.ones([3] * i) for i in range(2, 5)])
         self.struct = self.get_structure("Si")
         ieee_file_path = f"{TEST_FILES_DIR}/core/tensors/ieee_conversion_data.json"
@@ -435,7 +438,7 @@ class TestTensorCollection(PymatgenTest):
             self.list_based_function_check("convert_to_ieee", tc, struct)
 
         # from_voigt
-        tc_input = list(np.random.random((3, 6, 6)))
+        tc_input = list(np.random.default_rng().random((3, 6, 6)))
         tc = TensorCollection.from_voigt(tc_input)
         for t_input, tensor in zip(tc_input, tc):
             assert_allclose(Tensor.from_voigt(t_input), tensor)
@@ -456,7 +459,7 @@ class TestTensorCollection(PymatgenTest):
 
 class TestSquareTensor(PymatgenTest):
     def setUp(self):
-        self.rand_sqtensor = SquareTensor(np.random.randn(3, 3))
+        self.rand_sqtensor = SquareTensor(np.random.default_rng().standard_normal((3, 3)))
         self.symm_sqtensor = SquareTensor([[0.1, 0.3, 0.4], [0.3, 0.5, 0.2], [0.4, 0.2, 0.6]])
         self.non_invertible = SquareTensor([[0.1, 0, 0], [0.2, 0, 0], [0, 0, 0]])
         self.non_symm = SquareTensor([[0.1, 0.2, 0.3], [0.4, 0.5, 0.6], [0.2, 0.5, 0.5]])

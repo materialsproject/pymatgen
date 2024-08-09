@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.dev import requires
 from monty.serialization import loadfn
+
 from pymatgen.core import PeriodicSite, Species, Structure
 from pymatgen.util.coord import in_coord_list
 
@@ -360,7 +361,7 @@ class StructureVis:
         Args:
             coords (nd.array): Coordinates
             radius (float): Radius of sphere
-            color (): Color of sphere.
+            color (tuple): RGB color of sphere
             start (float): Starting angle.
             end (float): Ending angle.
             opacity (float): Opacity.
@@ -516,7 +517,7 @@ class StructureVis:
             color: Color for triangle as RGB.
             center: The "central atom" of the triangle
             opacity: opacity of the triangle
-            draw_edges: If set to True, the a line will be  drawn at each edge
+            draw_edges: If set to True, the a line will be drawn at each edge
             edges_color: Color of the line for the edges
             edges_linewidth: Width of the line drawn for the edges
         """
@@ -568,8 +569,8 @@ class StructureVis:
         Adding face of polygon.
 
         Args:
-            faces (): Coordinates of the faces.
-            color (): Color.
+            faces (list): Coordinates of the faces.
+            color (tuple): RGB color.
             opacity (float): Opacity
         """
         for face in faces:
@@ -628,13 +629,19 @@ class StructureVis:
             else:
                 raise ValueError("Number of points for a face should be >= 3")
 
-    def add_edges(self, edges, type="line", linewidth=2, color=(0.0, 0.0, 0.0)):  # noqa: A002
+    def add_edges(
+        self,
+        edges: Sequence[Sequence[Sequence[float]]],
+        type: str = "line",  # noqa: A002
+        linewidth: float = 2,
+        color: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    ) -> None:
         """
         Args:
-            edges (): List of edges
-            type (): placeholder
-            linewidth (): Width of line
-            color (nd.array/tuple): RGB color.
+            edges (Sequence): List of edges. Each edge is a list of two points.
+            type (str): Type of the edge. Defaults to "line". Unused.
+            linewidth (float): Width of the line.
+            color (tuple[float, float, float]): RGB color.
         """
         points = vtk.vtkPoints()
         lines = vtk.vtkCellArray()
@@ -921,7 +928,7 @@ class MultiStructuresVis(StructureVis):
                 bonding determination. Defaults to an empty list. Useful
                 when trying to visualize a certain atom type in the
                 framework (e.g., Li in a Li-ion battery cathode material).
-            animated_movie_options (): Used for moving.
+            animated_movie_options (dict): Options for animated movie.
         """
         super().__init__(
             element_color_mapping=element_color_mapping,
@@ -941,12 +948,11 @@ class MultiStructuresVis(StructureVis):
         self.set_animated_movie_options(animated_movie_options=animated_movie_options)
 
     def set_structures(self, structures: Sequence[Structure], tags=None):
-        """
-        Add list of structures to the visualizer.
+        """Add list of structures to the visualizer.
 
         Args:
             structures (list[Structures]): structures to be visualized.
-            tags (): List of tags.
+            tags (list[dict]): List of tags to be applied to the structures.
         """
         self.structures = structures
         self.istruct = 0
@@ -1053,7 +1059,7 @@ class MultiStructuresVis(StructureVis):
     def set_animated_movie_options(self, animated_movie_options=None):
         """
         Args:
-            animated_movie_options (): animated movie options.
+            animated_movie_options (dict): Options for animated movie.
         """
         if animated_movie_options is None:
             self.animated_movie_options = self.DEFAULT_ANIMATED_MOVIE_OPTIONS.copy()

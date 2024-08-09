@@ -52,16 +52,18 @@ from monty.dev import requires
 from monty.json import MSONable
 from monty.serialization import loadfn
 from monty.tempfile import ScratchDir
+from scipy.spatial import KDTree
+
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core import DummySpecies
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar, VolumetricData
 from pymatgen.util.due import Doi, due
-from scipy.spatial import KDTree
 
 if TYPE_CHECKING:
-    from pymatgen.core import Structure
     from typing_extensions import Self
+
+    from pymatgen.core import Structure
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

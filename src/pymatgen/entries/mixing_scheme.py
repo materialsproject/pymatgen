@@ -11,6 +11,7 @@ from itertools import groupby
 
 import numpy as np
 import pandas as pd
+
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.entries.compatibility import (
@@ -113,7 +114,7 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             if hasattr(compat, "check_potcar"):
                 compat.check_potcar = check_potcar  # type: ignore[union-attr]
 
-    def process_entries(
+    def process_entries(  # type: ignore[override]
         self,
         entries: AnyComputedEntry | list[AnyComputedEntry],
         clean: bool = True,

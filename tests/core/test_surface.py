@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import json
 import os
-import random
 import unittest
 
 import numpy as np
-import pymatgen
 from numpy.testing import assert_allclose
+from pytest import approx
+
+import pymatgen
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, Structure
 from pymatgen.core.surface import (
@@ -24,7 +25,6 @@ from pymatgen.core.surface import (
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 
 class TestSlab(PymatgenTest):
@@ -374,7 +374,8 @@ class TestSlabGenerator(PymatgenTest):
         assert len(slab_non_prim) == len(slab) * 4
 
         # Some randomized testing of cell vectors
-        for spg_int in np.random.randint(1, 230, 10):
+        rng = np.random.default_rng()
+        for spg_int in rng.integers(1, 230, 10):
             sg = SpaceGroup.from_int_number(spg_int)
             if sg.crystal_system == "hexagonal" or (
                 sg.crystal_system == "trigonal"
@@ -391,11 +392,7 @@ class TestSlabGenerator(PymatgenTest):
             struct = Structure.from_spacegroup(spg_int, lattice, ["H"], [[0, 0, 0]])
             miller = (0, 0, 0)
             while miller == (0, 0, 0):
-                miller = (
-                    random.randint(0, 6),
-                    random.randint(0, 6),
-                    random.randint(0, 6),
-                )
+                miller = tuple(rng.integers(0, 6, size=3, endpoint=True))
             gen = SlabGenerator(struct, miller, 10, 10)
             a_vec, b_vec, _c_vec = gen.oriented_unit_cell.lattice.matrix
             assert np.dot(a_vec, gen._normal) == approx(0)

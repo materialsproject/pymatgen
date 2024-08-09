@@ -29,6 +29,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
+
 from pymatgen.analysis.excitation import ExcitationSpectrum
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.units import Energy, FloatWithUnit
@@ -309,7 +310,7 @@ $theory_spec
                 theory is always "dft" for a dft task.
         """
         t = NwTask.from_molecule(mol, theory="dft", **kwargs)
-        t.theory_directives.update({"xc": xc, "mult": t.spin_multiplicity})
+        t.theory_directives |= {"xc": xc, "mult": t.spin_multiplicity}
         return t
 
     @classmethod
@@ -843,10 +844,10 @@ class NwOutput:
                     cosmo_scf_energy = energies[-1]
                     energies[-1] = {}
                     energies[-1]["cosmo scf"] = cosmo_scf_energy
-                    energies[-1].update({"gas phase": Energy(match[1], "Ha").to("eV")})
+                    energies[-1] |= {"gas phase": Energy(match[1], "Ha").to("eV")}
 
                 if match := energy_sol_patt.search(line):
-                    energies[-1].update({"sol phase": Energy(match[1], "Ha").to("eV")})
+                    energies[-1] |= {"sol phase": Energy(match[1], "Ha").to("eV")}
 
                 if match := preamble_patt.search(line):
                     try:
@@ -910,23 +911,21 @@ class NwOutput:
                 for jj in range(ii + 1, len_hess):
                     projected_hessian[ii].append(projected_hessian[jj][ii])
 
-        data.update(
-            {
-                "job_type": job_type,
-                "energies": energies,
-                "corrections": corrections,
-                "molecules": molecules,
-                "structures": structures,
-                "basis_set": basis_set,
-                "errors": errors,
-                "has_error": len(errors) > 0,
-                "frequencies": frequencies,
-                "normal_frequencies": normal_frequencies,
-                "hessian": hessian,
-                "projected_hessian": projected_hessian,
-                "forces": all_forces,
-                "task_time": time,
-            }
-        )
+        data |= {
+            "job_type": job_type,
+            "energies": energies,
+            "corrections": corrections,
+            "molecules": molecules,
+            "structures": structures,
+            "basis_set": basis_set,
+            "errors": errors,
+            "has_error": len(errors) > 0,
+            "frequencies": frequencies,
+            "normal_frequencies": normal_frequencies,
+            "hessian": hessian,
+            "projected_hessian": projected_hessian,
+            "forces": all_forces,
+            "task_time": time,
+        }
 
         return data
