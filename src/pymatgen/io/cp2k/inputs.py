@@ -391,8 +391,7 @@ class Section(MSONable):
         """
         if kw := self.get_keyword(d):
             return kw
-        sec = self.get_section(d)
-        if sec:
+        if sec := self.get_section(d):
             return sec
         return default
 
@@ -678,10 +677,7 @@ class Cp2kInput(Section):
 
     def get_str(self):
         """Get string representation of the Cp2kInput."""
-        string = ""
-        for v in self.subsections.values():
-            string += v.get_str()
-        return string
+        return "".join(v.get_str() for v in self.subsections.values())
 
     @classmethod
     def _from_dict(cls, dct: dict):
@@ -2131,8 +2127,6 @@ class BandStructure(Section):
             keywords=keywords,
         )
 
-    # TODO kpoints objects are defined in the vasp module instead of a code agnostic module
-    # if this changes in the future as other codes are added, then this will need to change
     @classmethod
     def from_kpoints(cls, kpoints: VaspKpoints, kpoints_line_density: int = 20) -> Self:
         """
@@ -2141,6 +2135,9 @@ class BandStructure(Section):
         Args:
             kpoints: a kpoint object from the vasp module, which was constructed in line mode
             kpoints_line_density: Number of kpoints along each path
+
+        TODO: kpoints objects are defined in the vasp module instead of a code agnostic module
+        if this changes in the future as other codes are added, then this will need to change
         """
         if kpoints.style == KpointsSupportedModes.Line_mode:
 
@@ -2224,14 +2221,13 @@ class BasisInfo(MSONable):
             return False
         d1 = self.as_dict()
         d2 = other.as_dict()
-        return all(not (v is not None and v != d2[k]) for k, v in d1.items())
+        return all(v is None or v == d2[k] for k, v in d1.items())
 
     @classmethod
     def from_str(cls, string: str) -> Self:
         """Get summary info from a string."""
         string = string.upper()
-        data: dict[str, Any] = {}
-        data["cc"] = "CC" in string
+        data: dict[str, Any] = {"cc": "CC" in string}
         string = string.replace("CC", "")
         data["pc"] = "PC" in string
         string = string.replace("PC", "")
@@ -2322,7 +2318,7 @@ class AtomicMetadata(MSONable):
         other_names = [other.name]
         if other.alias_names:
             other_names.extend(other.alias_names)
-        return all(not (nm is not None and nm not in other_names) for nm in this_names)
+        return all(nm is None or nm in other_names for nm in this_names)
 
     def get_hash(self) -> str:
         """Get a hash of this object."""
@@ -2522,7 +2518,7 @@ class PotentialInfo(MSONable):
             return False
         d1 = self.as_dict()
         d2 = other.as_dict()
-        return all(not (v is not None and v != d2[k]) for k, v in d1.items())
+        return all(v is None or v == d2[k] for k, v in d1.items())
 
     @classmethod
     def from_str(cls, string: str) -> Self:
@@ -2652,11 +2648,11 @@ class GthPotential(AtomicMetadata):
         for idx in range(self.nprj):
             total_fill = self.nprj_ppnl[idx] * 20 + 24
             tmp = f"{self.radii[idx]: .14f} {self.nprj_ppnl[idx]: d}"
-            out += f"{tmp:>{''}{24}}"
+            out += f"{tmp:>24}"
             for i in range(self.nprj_ppnl[idx]):
                 k = total_fill - 24 if i == 0 else total_fill
                 tmp = " ".join(f"{v: .14f}" for v in self.hprj_ppnl[idx][i].values())
-                out += f"{tmp:>{''}{k}}"
+                out += f"{tmp:>{k}}"
                 out += "\n"
         return out
 
