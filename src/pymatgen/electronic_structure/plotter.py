@@ -3348,11 +3348,11 @@ class BoltztrapPlotter:
         else:
             eff_mass = self._bz.get_average_eff_mass(output="eigs")
 
-        ax_main = pretty_plot(22, 14)
+        ax = pretty_plot(22, 14)
         temperatures = sorted(eff_mass["n"])
         doping = self._bz.doping["n"] if doping == "all" else doping
         for idx, dop_type in enumerate("np"):
-            ax = plt.subplot(121 + idx)
+            plt.subplot(121 + idx)
             for dop in doping:
                 dop_idx = self._bz.doping[dop_type].index(dop)
                 em_temp = [eff_mass[dop_type][temp][dop_idx] for temp in temperatures]
@@ -3371,7 +3371,7 @@ class BoltztrapPlotter:
             ax.tick_params(labelsize=25)
 
         plt.tight_layout()
-        return ax_main
+        return ax
 
     def plot_seebeck_dop(self, temps="all", output: Literal["average", "eigs"] = "average"):
         """Plot the Seebeck in function of doping levels for different temperatures.
