@@ -1503,47 +1503,41 @@ def iterative_symmetrize(
     max_n: int = 10,
     tolerance: float = 0.3,
     epsilon: float = 1e-2,
-) -> dict:
+) -> dict[Literal["sym_mol", "eq_sets", "sym_ops"], Molecule | dict]:
     """Get a symmetrized molecule.
 
-    The equivalent atoms obtained via
-    :meth:`~pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms`
+    The equivalent atoms obtained via `PointGroupAnalyzer.get_equivalent_atoms`
     are rotated, mirrored... unto one position.
-    Then the average position is calculated.
-    The average position is rotated, mirrored... back with the inverse
-    of the previous symmetry operations, which gives the
-    symmetrized molecule
+    Then the average position is calculated, which is rotated, mirrored...
+    back with the inverse of the previous symmetry operations, giving the
+    symmetrized molecule.
 
     Args:
         mol (Molecule): A pymatgen Molecule instance.
         max_n (int): Maximum number of iterations.
-        tolerance (float): Tolerance for detecting symmetry.
-            Gets passed as Argument into
-            ~pymatgen.analyzer.symmetry.PointGroupAnalyzer.
+        tolerance (float): Tolerance for detecting symmetry with PointGroupAnalyzer.
         epsilon (float): If the element-wise absolute difference of two
             subsequently symmetrized structures is smaller epsilon,
             the iteration stops before max_n is reached.
 
     Returns:
-        dict: with three possible keys:
-            sym_mol: A symmetrized molecule instance.
+        dict with three keys:
+            sym_mol: A symmetrized Molecule instance.
             eq_sets: A dictionary of indices mapping to sets of indices, each key maps to indices
                 of all equivalent atoms. The keys are guaranteed to be not equivalent.
-            sym_ops: Twofold nested dictionary. operations[i][j] gives the symmetry operation
+            sym_ops: Two-fold nested dictionary. operations[i][j] gives the symmetry operation
                 that maps atom i unto j.
     """
-    new = mol
-    n = 0
-    finished = False
-    eq = {"sym_mol": new, "eq_sets": {}, "sym_ops": {}}
-    while not finished and n <= max_n:
-        previous = new
-        PA = PointGroupAnalyzer(previous, tolerance=tolerance)
-        eq = PA.symmetrize_molecule()
-        new = eq["sym_mol"]
-        finished = np.allclose(new.cart_coords, previous.cart_coords, atol=epsilon)
-        n += 1
-    return eq
+    new_mol: Molecule = mol
+    sym_mol: dict = {"sym_mol": new_mol, "eq_sets": {}, "sym_ops": {}}
+    for _ in range(max_n):
+        prev_mol: Molecule = new_mol
+        sym_mol = PointGroupAnalyzer(prev_mol, tolerance=tolerance).symmetrize_molecule()
+        new_mol = sym_mol["sym_mol"]
+
+        if np.allclose(new_mol.cart_coords, prev_mol.cart_coords, atol=epsilon):
+            break
+    return sym_mol
 
 
 def cluster_sites(
