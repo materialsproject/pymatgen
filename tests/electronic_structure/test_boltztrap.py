@@ -14,21 +14,15 @@ from pymatgen.electronic_structure.core import OrbitalType, Spin
 from pymatgen.util.testing import TEST_FILES_DIR
 
 try:
-    from ase.io.cube import read_cube
-except ImportError:
-    read_cube = None
-
-try:
     import fdint
 except ImportError:
     fdint = None
 
+
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/boltztrap"
 
-x_trans = which("x_trans")
 
-
-@pytest.mark.skipif(not x_trans, reason="No x_trans.")
+@pytest.mark.skipif(not which("x_trans"), reason="No x_trans.")
 class TestBoltztrapAnalyzer(TestCase):
     @classmethod
     def setUpClass(cls):
