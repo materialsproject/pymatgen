@@ -15,7 +15,6 @@ import os
 import re
 import subprocess
 import warnings
-from collections.abc import Sequence
 from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
@@ -40,7 +39,7 @@ from pymatgen.util.string import str_delimited
 from pymatgen.util.typing import Kpoint, Tuple3Floats, Tuple3Ints, Vector3D
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Sequence
     from typing import Any, ClassVar, Literal
 
     from numpy.typing import ArrayLike
@@ -1137,7 +1136,7 @@ class Kpoints(MSONable):
 
         self.comment = comment
         self.num_kpts = num_kpts
-        self.kpts = kpts
+        self.kpts = kpts  # type: ignore[assignment]
         self.style = style
         self.coord_type = coord_type
         self.kpts_weights = kpts_weights
@@ -1186,10 +1185,10 @@ class Kpoints(MSONable):
         return "\n".join(lines) + "\n"
 
     @property
-    def kpts(self) -> Sequence[Kpoint]:
+    def kpts(self) -> list[Kpoint]:
         """A sequence of Kpoints, where each Kpoint is a tuple of 3 or 1."""
         if all(isinstance(kpt, (list, tuple, np.ndarray)) and len(kpt) in {1, 3} for kpt in self._kpts):
-            return cast(Sequence[Kpoint], list(map(tuple, self._kpts)))  # type: ignore[arg-type]
+            return cast(list[Kpoint], list(map(tuple, self._kpts)))  # type: ignore[arg-type]
 
         if all(isinstance(point, (int, float)) for point in self._kpts) and len(self._kpts) == 3:
             return [cast(Kpoint, tuple(self._kpts))]
