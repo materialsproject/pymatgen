@@ -332,9 +332,27 @@ class Section(MSONable):
     def __setitem__(self, key, value):
         self.setitem(key, value)
 
-    # dict merge
     def __or__(self, other: dict) -> Section:
+        """Dict merge."""
         return self.update(other)
+
+    def __delitem__(self, key):
+        """
+        Delete section with name matching key OR delete all keywords
+        with names matching this key.
+        """
+        if lst := [sub_sec for sub_sec in self.subsections if sub_sec.upper() == key.upper()]:
+            del self.subsections[lst[0]]
+            return
+
+        if lst := [kw for kw in self.keywords if kw.upper() == key.upper()]:
+            del self.keywords[lst[0]]
+            return
+
+        raise KeyError("No section or keyword matching the given key.")
+
+    def __sub__(self, other):
+        return self.__delitem__(other)
 
     def setitem(self, key, value, strict=False):
         """
@@ -356,24 +374,6 @@ class Section(MSONable):
                 self.keywords[key] = value
             elif not strict:
                 self.keywords[key] = value
-
-    def __delitem__(self, key):
-        """
-        Delete section with name matching key OR delete all keywords
-        with names matching this key.
-        """
-        if lst := [sub_sec for sub_sec in self.subsections if sub_sec.upper() == key.upper()]:
-            del self.subsections[lst[0]]
-            return
-
-        if lst := [kw for kw in self.keywords if kw.upper() == key.upper()]:
-            del self.keywords[lst[0]]
-            return
-
-        raise KeyError("No section or keyword matching the given key.")
-
-    def __sub__(self, other):
-        return self.__delitem__(other)
 
     def add(self, other):
         """Add another keyword to the current section."""
@@ -2015,7 +2015,7 @@ class Kpoints(Section):
         weights = kpoints.kpts_weights
 
         if kpoints.style == KpointsSupportedModes.Monkhorst:
-            kpt: Kpoint = kpts[0]
+            kpt: Kpoint | float = kpts[0]
             x, y, z = (kpt, kpt, kpt) if isinstance(kpt, (int, float)) else kpt
             scheme = f"MONKHORST-PACK {x} {y} {z}"
             units = "B_VECTOR"
@@ -2736,6 +2736,9 @@ class DataFile(MSONable):
 
     objects: Sequence | None = None
 
+    def __str__(self):
+        return self.get_str()
+
     @classmethod
     def from_file(cls, filename) -> Self:
         """Load from a file, reserved for child classes."""
@@ -2759,9 +2762,6 @@ class DataFile(MSONable):
     def get_str(self) -> str:
         """Get string representation."""
         return "\n".join(b.get_str() for b in self.objects or [])
-
-    def __str__(self):
-        return self.get_str()
 
 
 @dataclass
