@@ -29,7 +29,7 @@ import itertools
 import os
 import re
 import textwrap
-from collections.abc import Iterable, Sequence
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -44,7 +44,7 @@ from pymatgen.io.vasp.inputs import KpointsSupportedModes
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterable, Sequence
     from pathlib import Path
     from typing import Any, Literal
 
@@ -2008,11 +2008,11 @@ class Kpoints(Section):
                 do this automatically without spglib present at execution time.
         """
         kpts = kpoints.kpts
-        weights = kpoints.kpts_weights
+        weights: Sequence[float] | None = kpoints.kpts_weights
 
         if kpoints.style == KpointsSupportedModes.Monkhorst:
-            kpt: Kpoint | float = kpts[0]
-            x, y, z = (kpt, kpt, kpt) if isinstance(kpt, (int, float)) else kpt
+            kpt: Kpoint = kpts[0]
+            x, y, z = (kpt, kpt, kpt) if len(kpt) == 1 else kpt
             scheme = f"MONKHORST-PACK {x} {y} {z}"
             units = "B_VECTOR"
 
@@ -2030,13 +2030,11 @@ class Kpoints(Section):
                     "No cp2k automatic gamma constructor. A structure is required to construct from spglib"
                 )
 
-            if (isinstance(kpts[0], Iterable) and tuple(kpts[0]) == (1, 1, 1)) or (
-                isinstance(kpts[0], (float, int)) and int(kpts[0]) == 1
-            ):
+            if tuple(kpts[0]) in {(1, 1, 1), (1,)}:
                 scheme = "GAMMA"
             else:
                 sga = SpacegroupAnalyzer(structure)
-                _kpts, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpts))
+                _kpts, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpts))  # type: ignore[arg-type]
                 kpts = tuple(itertools.chain.from_iterable(_kpts))
                 scheme = "GENERAL"
 
