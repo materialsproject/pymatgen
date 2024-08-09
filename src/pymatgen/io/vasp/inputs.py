@@ -1188,7 +1188,7 @@ class Kpoints(MSONable):
     def kpts(self) -> list[Kpoint]:
         """A sequence of Kpoints, where each Kpoint is a tuple of 3 or 1."""
         if all(isinstance(kpt, (list, tuple, np.ndarray)) and len(kpt) in {1, 3} for kpt in self._kpts):
-            return cast(list[Kpoint], list(map(tuple, self._kpts)))  # type: ignore[arg-type]
+            return list(map(tuple, self._kpts))  # type: ignore[arg-type]
 
         if all(isinstance(point, (int, float)) for point in self._kpts) and len(self._kpts) == 3:
             return [cast(Kpoint, tuple(self._kpts))]
