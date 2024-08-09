@@ -4,7 +4,6 @@ import unittest
 
 from numpy.testing import assert_allclose
 
-from pymatgen.analysis.interfaces import CoherentInterfaceBuilder, SubstrateAnalyzer
 from pymatgen.analysis.interfaces.coherent_interfaces import (
     CoherentInterfaceBuilder,
     SubstrateAnalyzer,
