@@ -1,4 +1,4 @@
-# Runs the complete test suite incl. many external command line dependencies (like Openbabel)
+# Run the complete test suite incl. many external command line dependencies (like Openbabel)
 # as well as the pymatgen.ext package. Coverage used to be computed based on this workflow.
 name: Tests
 
@@ -17,15 +17,15 @@ permissions:
 
 jobs:
   test:
-    # prevent this action from running on forks
+    # Prevent this action from running on forks
     if: github.repository == 'materialsproject/pymatgen'
     defaults:
       run:
-        shell: bash -l {0} # enables conda/mamba env activation by reading bash profile
+        shell: bash -l {0} # Enable conda/mamba env activation by reading bash profile
     strategy:
       fail-fast: false
       matrix:
-        # maximize CI coverage of different platforms and python versions while minimizing the
+        # Maximize CI coverage of different platforms and python versions while minimizing the
         # total number of jobs. We run all pytest splits with the oldest supported python
         # version (currently 3.9) on windows (seems most likely to surface errors) and with
         # newest version (currently 3.12) on ubuntu (to get complete coverage on unix).
@@ -89,9 +89,9 @@ jobs:
         run: |
           micromamba activate pmg
 
-          # TODO: uv cannot install BoltzTraP2 (#3786),
-          # suggesting no NumPy when there is
-          pip install BoltzTraP2
+          # TODO: uv cannot install BoltzTraP2 at this moment,
+          # track https://gitlab.com/sousaw/BoltzTraP2/-/merge_requests/21
+          uv pip install BoltzTraP2 --no-build-isolation
 
       - name: pytest split ${{ matrix.split }}
         run: |
@@ -101,7 +101,7 @@ jobs:
   trigger_atomate2_ci:
     needs: test
     runs-on: ubuntu-latest
-    # only run if changes were pushed to master
+    # Only run if changes are pushed to master
     if: github.ref == 'refs/heads/master'
     steps:
       - name: Trigger Atomate2 CI
