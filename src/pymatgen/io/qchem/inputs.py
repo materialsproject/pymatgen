@@ -306,7 +306,7 @@ class QCInput(InputFile):
         return multi_job_string
 
     @classmethod
-    def from_str(cls, string: str) -> Self:  # type: ignore[override]
+    def from_str(cls, string: str) -> Self:
         """
         Read QcInput from string.
 
@@ -380,7 +380,7 @@ class QCInput(InputFile):
             file.write(QCInput.multi_job_string(job_list))
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> Self:  # type: ignore[override]
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Create QcInput from file.
 

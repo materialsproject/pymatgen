@@ -1998,7 +1998,7 @@ class Kpoints(Section):
         )
 
     @classmethod
-    def from_kpoints(cls, kpoints: VaspKpoints, structure=None) -> Self:
+    def from_kpoints(cls, kpoints: VaspKpoints, structure: Structure | None = None) -> Self:
         """
         Initialize the section from a Kpoints object (pymatgen.io.vasp.inputs). CP2K
         does not have an automatic gamma-point constructor, so this is generally used
@@ -2007,8 +2007,8 @@ class Kpoints(Section):
         so long as the grid is fine enough.
 
         Args:
-            kpoints: A pymatgen kpoints object.
-            structure: Pymatgen structure object. Required for automatically performing
+            kpoints (Kpoints): A pymatgen kpoints object.
+            structure (Structure): Required for automatically performing
                 symmetry analysis and reducing the kpoint grid.
             reduce: whether or not to reduce the grid using symmetry. CP2K itself cannot
                 do this automatically without spglib present at execution time.
@@ -2017,8 +2017,8 @@ class Kpoints(Section):
         weights = kpoints.kpts_weights
 
         if kpoints.style == KpointsSupportedModes.Monkhorst:
-            kpt: Kpoint = kpts[0]  # type: ignore[assignment]
-            x, y, z = (kpt, kpt, kpt) if isinstance(kpt, (int, float)) else kpt  # type: ignore[misc]
+            kpt: Kpoint = kpts[0]
+            x, y, z = (kpt, kpt, kpt) if isinstance(kpt, (int, float)) else kpt
             scheme = f"MONKHORST-PACK {x} {y} {z}"
             units = "B_VECTOR"
 
@@ -2042,7 +2042,7 @@ class Kpoints(Section):
                 scheme = "GAMMA"
             else:
                 sga = SpacegroupAnalyzer(structure)
-                _kpts, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpts))  # type: ignore[assignment]
+                _kpts, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpts))
                 kpts = tuple(itertools.chain.from_iterable(_kpts))
                 scheme = "GENERAL"
 
@@ -2771,7 +2771,7 @@ class BasisFile(DataFile):
     """Data file for basis sets only."""
 
     @classmethod
-    def from_str(cls, string: str) -> Self:  # type: ignore[override]
+    def from_str(cls, string: str) -> Self:
         """Initialize from a string representation."""
         basis_sets = [GaussianTypeOrbitalBasisSet.from_str(c) for c in chunk(string)]
         return cls(objects=basis_sets)
@@ -2782,7 +2782,7 @@ class PotentialFile(DataFile):
     """Data file for potentials only."""
 
     @classmethod
-    def from_str(cls, string: str) -> Self:  # type: ignore[override]
+    def from_str(cls, string: str) -> Self:
         """Initialize from a string representation."""
         basis_sets = [GthPotential.from_str(c) for c in chunk(string)]
         return cls(objects=basis_sets)

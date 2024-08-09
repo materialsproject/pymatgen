@@ -1397,7 +1397,7 @@ _lobster_orb_labs = (
 class LobsterCompleteDos(CompleteDos):
     """Extended CompleteDos for LOBSTER."""
 
-    def get_site_orbital_dos(self, site: PeriodicSite, orbital: str) -> Dos:  # type: ignore[override]
+    def get_site_orbital_dos(self, site: PeriodicSite, orbital: str) -> Dos:
         """Get the DOS for a particular orbital of a particular site.
 
         Args:
@@ -1448,7 +1448,7 @@ class LobsterCompleteDos(CompleteDos):
             "e_g": Dos(self.efermi, self.energies, functools.reduce(add_densities, eg_dos)),
         }
 
-    def get_spd_dos(self) -> dict[str, Dos]:  # type: ignore[override]
+    def get_spd_dos(self) -> dict[str, Dos]:
         """Get orbital projected DOS.
 
         For example, if 3s and 4s are included in the basis of some element,
@@ -1469,7 +1469,7 @@ class LobsterCompleteDos(CompleteDos):
 
         return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in spd_dos.items()}  # type: ignore[misc]
 
-    def get_element_spd_dos(self, el: SpeciesLike) -> dict[str, Dos]:  # type: ignore[override]
+    def get_element_spd_dos(self, el: SpeciesLike) -> dict[str, Dos]:
         """Get element and s/p/d projected DOS.
 
         Args:

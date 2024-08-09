@@ -837,7 +837,7 @@ class CorrectionsList(Compatibility):
         dct["corrections"] = corrections
         return dct
 
-    def explain(self, entry: ComputedEntry) -> None:  # type: ignore[override]
+    def explain(self, entry: ComputedEntry) -> None:
         """Print an explanation of the corrections that are being applied for a
         given compatibility scheme. Inspired by the "explain" methods in many
         database methodologies.
