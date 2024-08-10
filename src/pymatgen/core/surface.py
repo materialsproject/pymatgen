@@ -949,9 +949,9 @@ class SlabGenerator:
                 or "bulk_equivalent" not in initial_structure.site_properties
             ):
                 spg_analyzer = SpacegroupAnalyzer(initial_structure)
-                initial_structure.add_site_property("bulk_wyckoff", spg_analyzer.get_symmetry_dataset()["wyckoffs"])
+                initial_structure.add_site_property("bulk_wyckoff", spg_analyzer.get_symmetry_dataset().wyckoffs)
                 initial_structure.add_site_property(
-                    "bulk_equivalent", spg_analyzer.get_symmetry_dataset()["equivalent_atoms"].tolist()
+                    "bulk_equivalent", spg_analyzer.get_symmetry_dataset().equivalent_atoms.tolist()
                 )
 
         def calculate_surface_normal() -> np.ndarray:
