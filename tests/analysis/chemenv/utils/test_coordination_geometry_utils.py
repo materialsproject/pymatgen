@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import itertools
-import random
 
 import numpy as np
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.analysis.chemenv.utils.coordination_geometry_utils import Plane
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 __author__ = "David Waroquiers"
 
@@ -275,8 +275,9 @@ class TestPlanesUtils(PymatgenTest):
         plane = Plane.from_coefficients(0, 0, 1, 0)
         zzs = [0.1, -0.2, 0.7, -2.1, -1.85, 0, -0.71, -0.82, -6.5, 1.8]
         plist = []
+        rng = np.random.default_rng()
         for zz in zzs:
-            plist.append([random.uniform(-20, 20), random.uniform(-20, 20), zz])
+            plist.append([rng.uniform(-20, 20), rng.uniform(-20, 20), zz])
         distances, indices_sorted, groups = plane.distances_indices_groups(points=plist, delta=0.25)
         assert indices_sorted == [5, 0, 1, 2, 6, 7, 9, 4, 3, 8]
         assert groups == [[5, 0, 1], [2, 6, 7], [9, 4, 3], [8]]

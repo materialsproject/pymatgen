@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import json
 
+from pytest import approx
+
 from pymatgen.analysis.wulff import WulffShape
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 __author__ = "Zihan Xu, Richard Tran, Balachandran Radhakrishnan"
 __copyright__ = "Copyright 2013, The Materials Virtual Lab"

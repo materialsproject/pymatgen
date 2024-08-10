@@ -19,7 +19,11 @@ def test_static_si(tmp_path):
 
 def test_static_si_no_kgrid(tmp_path):
     parameters = {"species_dir": "light"}
-    comp_system(Si, parameters, "static-no-kgrid-si", tmp_path, ref_path, StaticSetGenerator)
+    Si_supercell = Si.make_supercell([1, 2, 3], in_place=False)
+    for site in Si_supercell:
+        # round site.coords to ignore floating point errors
+        site.coords = [round(x, 15) for x in site.coords]
+    comp_system(Si_supercell, parameters, "static-no-kgrid-si", tmp_path, ref_path, StaticSetGenerator)
 
 
 def test_static_o2(tmp_path):

@@ -14,7 +14,6 @@ import itertools
 import json
 import math
 import os
-import random
 import re
 import sys
 import warnings
@@ -31,6 +30,12 @@ from monty.io import zopen
 from monty.json import MSONable
 from numpy import cross, eye
 from numpy.linalg import norm
+from ruamel.yaml import YAML
+from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.linalg import expm, polar
+from scipy.spatial.distance import squareform
+from tabulate import tabulate
+
 from pymatgen.core.bonds import CovalentBond, get_bond_length
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
@@ -41,11 +46,6 @@ from pymatgen.core.units import Length, Mass
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.maggroups import MagneticSpaceGroup
 from pymatgen.util.coord import all_distances, get_angle, lattice_points_in_supercell
-from ruamel.yaml import YAML
-from scipy.cluster.hierarchy import fcluster, linkage
-from scipy.linalg import expm, polar
-from scipy.spatial.distance import squareform
-from tabulate import tabulate
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
@@ -58,8 +58,9 @@ if TYPE_CHECKING:
     from ase.optimize.optimize import Optimizer
     from matgl.ext.ase import TrajectoryObserver
     from numpy.typing import ArrayLike, NDArray
-    from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
     from typing_extensions import Self
+
+    from pymatgen.util.typing import CompositionLike, MillerIndex, PathLike, PbcLike, SpeciesLike
 
 FileFormats = Literal["cif", "poscar", "cssr", "json", "yaml", "yml", "xsf", "mcsqs", "res", "pwmat", ""]
 StructureSources = Literal["Materials Project", "COD"]
@@ -103,7 +104,7 @@ class Neighbor(Site):
         """Make neighbor Tuple-like to retain backwards compatibility."""
         return 3
 
-    def __getitem__(self, idx: int) -> Self | float:  # type: ignore[override]
+    def __getitem__(self, idx: int) -> Self | float:
         """Make neighbor Tuple-like to retain backwards compatibility."""
         return (self, self.nn_distance, self.index)[idx]
 
@@ -169,7 +170,7 @@ class PeriodicNeighbor(PeriodicSite):
         """Make neighbor Tuple-like to retain backwards compatibility."""
         return 4
 
-    def __getitem__(self, idx: int | slice):  # type: ignore[override]
+    def __getitem__(self, idx: int | slice):
         """Make neighbor Tuple-like to retain backwards compatibility."""
         return (self, self.nn_distance, self.index, self.image)[idx]
 
@@ -178,12 +179,12 @@ class PeriodicNeighbor(PeriodicSite):
         """Cartesian coords."""
         return self._lattice.get_cartesian_coords(self._frac_coords)
 
-    def as_dict(self) -> dict:  # type: ignore[override]
+    def as_dict(self) -> dict:
         """Note that method calls the super of Site, which is MSONable itself."""
         return super(Site, self).as_dict()
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:  # type: ignore[override]
+    def from_dict(cls, dct: dict) -> Self:
         """Get a PeriodicNeighbor from a dict.
 
         Args:
@@ -827,6 +828,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         from ase.constraints import ExpCellFilter
         from ase.io import read
         from ase.optimize.optimize import Optimizer
+
         from pymatgen.io.ase import AseAtomsAdaptor
 
         opt_kwargs = opt_kwargs or {}
@@ -1253,7 +1255,7 @@ class IStructure(SiteCollection, MSONable):
         are generated from the spacegroup operations.
 
         Args:
-            sg (str/int): The spacegroup. If a string, it will be interpreted
+            sg (str | int): The spacegroup. If a string, it will be interpreted
                 as one of the notations supported by
                 pymatgen.symmetry.groups.Spacegroup. e.g. "R-3c" or "Fm-3m".
                 If an int, it will be interpreted as an international number.
@@ -1542,7 +1544,7 @@ class IStructure(SiteCollection, MSONable):
         Basically a convenience method to call structure matching.
 
         Args:
-            other (IStructure/Structure): Another structure.
+            other (IStructure | Structure): Another structure.
             anonymous (bool): Whether to use anonymous structure matching which allows distinct
                 species in one structure to map to another.
             **kwargs: Same **kwargs as in
@@ -1813,7 +1815,7 @@ class IStructure(SiteCollection, MSONable):
 
         Args:
             r (float): Radius of sphere
-            sg (str/int): The spacegroup the symmetry operations of which will be
+            sg (str | int): The spacegroup the symmetry operations of which will be
                 used to classify the neighbors. If a string, it will be interpreted
                 as one of the notations supported by
                 pymatgen.symmetry.groups.Spacegroup. e.g. "R-3c" or "Fm-3m".
@@ -2958,7 +2960,7 @@ class IStructure(SiteCollection, MSONable):
         raise ValueError(f"Invalid source: {source}")
 
     @classmethod
-    def from_str(  # type: ignore[override]
+    def from_str(
         cls,
         input_string: str,
         fmt: FileFormats,
@@ -3042,7 +3044,7 @@ class IStructure(SiteCollection, MSONable):
         return cls.from_sites(struct, properties=struct.properties)
 
     @classmethod
-    def from_file(  # type: ignore[override]
+    def from_file(
         cls,
         filename: PathLike,
         primitive: bool = False,
@@ -3632,6 +3634,7 @@ class IMolecule(SiteCollection, MSONable):
         all_coords: list[ArrayLike] = []
 
         centered_coords = self.cart_coords - self.center_of_mass + offset
+        rng = np.random.default_rng()
 
         for i, j, k in itertools.product(
             list(range(images[0])),
@@ -3643,8 +3646,8 @@ class IMolecule(SiteCollection, MSONable):
                 while True:
                     op = SymmOp.from_origin_axis_angle(
                         (0, 0, 0),
-                        axis=np.random.rand(3),
-                        angle=random.uniform(-180, 180),
+                        axis=rng.random(3),
+                        angle=rng.uniform(-180, 180),
                     )
                     rot_mat = op.rotation_matrix
                     new_coords = np.dot(rot_mat, centered_coords.T).T + box_center
@@ -3771,7 +3774,7 @@ class IMolecule(SiteCollection, MSONable):
         return str(writer)
 
     @classmethod
-    def from_str(  # type: ignore[override]
+    def from_str(
         cls,
         input_string: str,
         fmt: Literal["xyz", "gjf", "g03", "g09", "com", "inp", "json", "yaml"],
@@ -3818,7 +3821,7 @@ class IMolecule(SiteCollection, MSONable):
         return cls.from_sites(mol, properties=mol.properties)
 
     @classmethod
-    def from_file(cls, filename: PathLike) -> Self | None:  # type: ignore[override]
+    def from_file(cls, filename: PathLike) -> Self | None:
         """Read a molecule from a file. Supported formats include xyz,
         gaussian input (gjf|g03|g09|com|inp), Gaussian output (.out|and
         pymatgen's JSON-serialized molecules. Using openbabel,
@@ -3930,7 +3933,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         self._sites: list[PeriodicSite] = list(self._sites)  # type: ignore[assignment]
 
-    def __setitem__(  # type: ignore[override]
+    def __setitem__(
         self,
         idx: int | slice | Sequence[int] | SpeciesLike,
         site: SpeciesLike | PeriodicSite | Sequence | dict[SpeciesLike, float],
@@ -3938,9 +3941,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
         """Modify a site in the structure.
 
         Args:
-            idx (int, [int], slice, Species-like): Indices to change. You can
-                specify these as an int, a list of int, or a species-like
-                string.
+            idx (int, list[int], slice, Species-like): Indices to change. You can
+                specify these as an int, a list of int, or a species-like string.
             site (PeriodicSite | Species | dict[SpeciesLike, float] | Sequence): 4 options exist. You
                 can provide a PeriodicSite directly (lattice will be checked). Or more conveniently,
                 you can provide a species-like object (or a dict mapping SpeciesLike to occupancy floats)
@@ -4016,7 +4018,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
         for site in self:
             site.lattice = lattice
 
-    def append(  # type: ignore[override]
+    def append(
         self,
         species: CompositionLike,
         coords: ArrayLike,
@@ -4047,7 +4049,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             properties=properties,
         )
 
-    def insert(  # type: ignore[override]
+    def insert(
         self,
         idx: int,
         species: CompositionLike,
@@ -4465,11 +4467,12 @@ class Structure(IStructure, collections.abc.MutableSequence):
 
         def get_rand_vec():
             # Deal with zero vectors
-            vector = np.random.randn(3)
+            rng = np.random.default_rng()
+            vector = rng.standard_normal(3)
             vnorm = np.linalg.norm(vector)
             dist = distance
             if isinstance(min_distance, (float, int)):
-                dist = np.random.uniform(min_distance, dist)
+                dist = rng.uniform(min_distance, dist)
             return vector / vnorm * dist if vnorm != 0 else get_rand_vec()
 
         for idx in range(len(self._sites)):
@@ -4762,7 +4765,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         )
         self._sites: list[Site] = list(self._sites)
 
-    def __setitem__(  # type: ignore[override]
+    def __setitem__(
         self,
         idx: int | slice | Sequence[int] | SpeciesLike,
         site: SpeciesLike | Site | Sequence,
@@ -4770,9 +4773,8 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         """Modify a site in the molecule.
 
         Args:
-            idx (int, [int], slice, Species-like): Indices to change. You can
-                specify these as an int, a list of int, or a species-like
-                string.
+            idx (int, list[int], slice, Species-like): Indices to change. You can
+                specify these as an int, a list of int, or a species-like string.
             site (PeriodicSite/Species/Sequence): Three options exist. You can
                 provide a Site directly, or for convenience, you can provide
                 simply a Species-like string/object, or finally a (Species,
@@ -4808,7 +4810,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
         """Deletes a site from the Structure."""
         self._sites.__delitem__(idx)
 
-    def append(  # type: ignore[override]
+    def append(
         self,
         species: CompositionLike,
         coords: ArrayLike,
@@ -4872,7 +4874,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         return self
 
-    def insert(  # type: ignore[override]
+    def insert(
         self,
         idx: int,
         species: CompositionLike,
@@ -5016,7 +5018,7 @@ class Molecule(IMolecule, collections.abc.MutableSequence):
 
         def get_rand_vec():
             # Deal with zero vectors
-            vector = np.random.randn(3)
+            vector = np.random.default_rng().standard_normal(3)
             vnorm = np.linalg.norm(vector)
             return vector / vnorm * distance if vnorm != 0 else get_rand_vec()
 

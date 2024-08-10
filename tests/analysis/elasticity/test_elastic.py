@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import json
-import random
 import warnings
 from copy import deepcopy
 
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+from pytest import approx
+from scipy.misc import central_diff_weights
+
 from pymatgen.analysis.elasticity.elastic import (
     ComplianceTensor,
     ElasticTensor,
@@ -26,8 +28,6 @@ from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
 from pymatgen.core.units import FloatWithUnit
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
-from scipy.misc import central_diff_weights
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/elasticity"
 
@@ -42,7 +42,7 @@ class TestElasticTensor(PymatgenTest):
             [0, 0, 0, 0, 26.35, 0],
             [0, 0, 0, 0, 0, 26.35],
         ]
-        mat = np.random.randn(6, 6)
+        mat = np.random.default_rng().standard_normal((6, 6))
         mat = mat + np.transpose(mat)
         self.rand_elastic_tensor = ElasticTensor.from_voigt(mat)
         self.ft = np.array(
@@ -181,7 +181,9 @@ class TestElasticTensor(PymatgenTest):
             UserWarning, match="Input elastic tensor does not satisfy standard Voigt symmetries"
         ) as warns:
             ElasticTensor(non_symm)
-        assert len(warns) == 1
+        assert (
+            sum("Input elastic tensor does not satisfy standard Voigt symmetries" in str(warn) for warn in warns) == 1
+        )
 
         bad_tensor1 = np.zeros((3, 3, 3))
         bad_tensor2 = np.zeros((3, 3, 3, 2))
@@ -219,7 +221,8 @@ class TestElasticTensor(PymatgenTest):
         stresses = self.toec_dict["stresses"]
         with pytest.warns(UserWarning, match="No eq state found, returning zero voigt stress") as warns:
             et = ElasticTensor.from_independent_strains(strains, stresses)
-        assert len(warns) == 2
+        assert sum("No eq state found" in str(warn) for warn in warns) == 1
+        assert sum("Extra strain states in strain-" in str(warn) for warn in warns) == 1
         assert_allclose(et.voigt, self.toec_dict["C2_raw"], atol=1e1)
 
     def test_energy_density(self):
@@ -406,18 +409,19 @@ class TestDiffFit(PymatgenTest):
         strain_inds = [(0,), (1,), (2,), (1, 3), (1, 2, 3)]
         vecs = {}
         strain_states = []
+        rng = np.random.default_rng()
         for strain_ind in strain_inds:
             ss = np.zeros(6)
             np.put(ss, strain_ind, 1)
             strain_states.append(tuple(ss))
             vec = np.zeros((4, 6))
-            rand_values = np.random.uniform(0.1, 1, 4)
+            rand_values = rng.uniform(0.1, 1, 4)
             for idx in strain_ind:
                 vec[:, idx] = rand_values
             vecs[strain_ind] = vec
         all_strains = [Strain.from_voigt(v).zeroed() for vec in vecs.values() for v in vec]
-        random.shuffle(all_strains)
-        all_stresses = [Stress.from_voigt(np.random.random(6)).zeroed() for s in all_strains]
+        rng.shuffle(all_strains)
+        all_stresses = [Stress.from_voigt(rng.random(6)).zeroed() for _ in all_strains]
         strain_dict = {k.tobytes(): v for k, v in zip(all_strains, all_stresses)}
         ss_dict = get_strain_state_dict(all_strains, all_stresses, add_eq=False)
         # Check length of ss_dict

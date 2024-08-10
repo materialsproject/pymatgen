@@ -7,6 +7,7 @@ from copy import deepcopy
 from typing import TYPE_CHECKING
 
 from monty.json import MSONable
+
 from pymatgen.core.composition import Composition, reduce_formula
 from pymatgen.util.string import Stringify, charge_string, formula_double_format
 
@@ -303,7 +304,7 @@ class Ion(Composition, MSONable, Stringify):
         """Composition of ion."""
         return Composition(self._data)
 
-    def oxi_state_guesses(  # type: ignore[override]
+    def oxi_state_guesses(
         self,
         oxi_states_override: dict | None = None,
         all_oxi_states: bool = False,

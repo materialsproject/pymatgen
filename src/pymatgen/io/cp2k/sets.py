@@ -24,6 +24,8 @@ import os
 import warnings
 
 import numpy as np
+from ruamel.yaml import YAML
+
 from pymatgen.core import SETTINGS
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Element, Molecule, Structure
@@ -65,7 +67,6 @@ from pymatgen.io.cp2k.inputs import (
 from pymatgen.io.cp2k.utils import get_truncated_coulomb_cutoff, get_unique_site_indices
 from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
 from pymatgen.io.vasp.inputs import KpointsSupportedModes
-from ruamel.yaml import YAML
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
@@ -117,7 +118,7 @@ class DftSet(Cp2kInput):
                 speed-ups for this part of the calculation, but the system must have a band gap
                 for OT to be used (higher band-gap --> faster convergence).
             energy_gap (float): Estimate of energy gap for pre-conditioner. Default is -1, leaving
-                it up to cp2k.
+                it up to CP2K.
             eps_default (float): Replaces all EPS_XX Keywords in the DFT section value, ensuring
                 an overall accuracy of at least this much.
             eps_scf (float): The convergence criteria for leaving the SCF loop. Default is 1e-6.
@@ -146,13 +147,13 @@ class DftSet(Cp2kInput):
                 transformation is not analytically correct and uses a truncated polynomial
                 expansion, but is robust to the problems with STRICT, and so is the default.
             linesearch (str): Linesearch method for CG. 2PNT is the default, and is the fastest,
-                but is not as robust as 3PNT. 2PNT is required as of cp2k v9.1 for compatibility
+                but is not as robust as 3PNT. 2PNT is required as of CP2K v9.1 for compatibility
                 with irac+rotation. This may be upgraded in the future. 3PNT can be good for wide
                 gapped transition metal systems as an alternative.
             rotation (bool): Whether or not to allow for rotation of the orbitals in the OT method.
                 This equates to allowing for fractional occupations in the calculation.
             occupation_preconditioner (bool): Whether or not to account for fractional occupations
-                in the preconditioner. This method is not fully integrated as of cp2k v9.1 and is
+                in the preconditioner. This method is not fully integrated as of CP2K v9.1 and is
                 set to false by default.
             cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high
                 cutoff will allow you to have very accurate calculations PROVIDED that REL_CUTOFF
@@ -209,7 +210,7 @@ class DftSet(Cp2kInput):
         self.insert(ForceEval())
 
         if self.kpoints:
-            # As of cp2k v2022.1 kpoint module is not fully integrated, so even specifying
+            # As of CP2K v2022.1 kpoint module is not fully integrated, so even specifying
             # 0,0,0 will disable certain features. So, you have to drop it all together to
             # get full support
             if (
@@ -357,7 +358,7 @@ class DftSet(Cp2kInput):
 
                     el: {'basis': obj, 'potential': obj}
 
-                2. Provide a hash of the object that matches the keys in the pmg configured cp2k data files.
+                2. Provide a hash of the object that matches the keys in the pmg configured CP2K data files.
 
                     el: {'basis': hash, 'potential': hash}
 
@@ -372,7 +373,7 @@ class DftSet(Cp2kInput):
             Strategy 2: global descriptors
 
                 In this case, any elements not present in the argument will be dealt with by searching the pmg
-                configured cp2k data files to find a objects matching your requirements.
+                configured CP2K data files to find a objects matching your requirements.
 
                     - functional: Find potential and basis that have been optimized for a specific functional like PBE.
                         Can be None if you do not require them to match.
@@ -401,7 +402,7 @@ class DftSet(Cp2kInput):
             desired_basis, desired_aux_basis, desired_potential = None, None, None
             have_element_file = os.path.isfile(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el))
 
-            # Necessary if matching data to cp2k data files
+            # Necessary if matching data to CP2K data files
             if have_element_file:
                 with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el), encoding="utf-8") as file:
                     yaml = YAML(typ="unsafe", pure=True)
@@ -674,7 +675,7 @@ class DftSet(Cp2kInput):
         """
         Attaches a non-scf band structure calc the end of an SCF loop.
 
-        This requires a kpoint calculation, which is not always default in cp2k.
+        This requires a kpoint calculation, which is not always default in CP2K.
 
         Args:
             kpoints_line_density: number of kpoints along each branch in line-mode calc.
@@ -727,7 +728,7 @@ class DftSet(Cp2kInput):
         """
         Basic set for activating hybrid DFT calculation using Auxiliary Density Matrix Method.
 
-        Note 1: When running ADMM with cp2k, memory is very important. If the memory requirements
+        Note 1: When running ADMM with CP2K, memory is very important. If the memory requirements
         exceed what is available (see max_memory), then CP2K will have to calculate the 4-electron
         integrals for HFX during each step of the SCF cycle. ADMM provides a huge speed up by
         making the memory requirements *feasible* to fit into RAM, which means you only need to
@@ -741,14 +742,14 @@ class DftSet(Cp2kInput):
         Args:
             hybrid_functional (str): Type of hybrid functional. This set supports HSE (screened)
                 and PBE0 (truncated). Default is PBE0, which converges easier in the GPW basis
-                used by cp2k.
+                used by CP2K.
             hf_fraction (float): fraction of exact HF exchange energy to mix. Default: 0.25
             gga_x_fraction (float): fraction of gga exchange energy to retain. Default: 0.75
             gga_c_fraction (float): fraction of gga correlation energy to retain. Default: 1.0
             max_memory (int): Maximum memory available to each MPI process (in Mb) in the
                 calculation. Most modern computing nodes will have ~2Gb per core, or 2048 Mb,
                 but check for your specific system. This value should be as large as possible
-                while still leaving some memory for the other parts of cp2k. Important: If
+                while still leaving some memory for the other parts of CP2K. Important: If
                 this value is set larger than the memory limits, CP2K will likely seg-fault.
                 Default: 2000
             cutoff_radius (float): for truncated hybrid functional (i.e. PBE0), this is the cutoff
@@ -828,7 +829,7 @@ class DftSet(Cp2kInput):
                     " distance between atoms. I hope you know what you're doing."
                 )
 
-        ip_keywords = {}
+        ip_keywords: dict[str, Keyword] = {}
         if hybrid_functional == "HSE06":
             pbe = PBE("ORIG", scale_c=1, scale_x=0)
             xc_functional = XCFunctional(functionals=[], subsections={"PBE": pbe})
@@ -845,13 +846,11 @@ class DftSet(Cp2kInput):
                     },
                 )
             )
-            ip_keywords.update(
-                {
-                    "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
-                    "OMEGA": Keyword("OMEGA", 0.11),
-                    "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
-                }
-            )
+            ip_keywords |= {
+                "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
+                "OMEGA": Keyword("OMEGA", 0.11),
+                "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
+            }
         elif hybrid_functional == "PBE0":
             pbe = PBE("ORIG", scale_c=1, scale_x=1 - hf_fraction)
             xc_functional = XCFunctional(functionals=[], subsections={"PBE": pbe})
@@ -884,16 +883,14 @@ class DftSet(Cp2kInput):
 
             potential_type = potential_type or "MIX_CL_TRUNC"
             hf_fraction = 1
-            ip_keywords.update(
-                {
-                    "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
-                    "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
-                    "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
-                    "OMEGA": Keyword("OMEGA", omega),
-                    "SCALE_COULOMB": Keyword("SCALE_COULOMB", scale_coulomb),
-                    "SCALE_LONGRANGE": Keyword("SCALE_LONGRANGE", scale_longrange - scale_coulomb),
-                }
-            )
+            ip_keywords |= {
+                "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
+                "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
+                "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
+                "OMEGA": Keyword("OMEGA", omega),
+                "SCALE_COULOMB": Keyword("SCALE_COULOMB", scale_coulomb),
+                "SCALE_LONGRANGE": Keyword("SCALE_LONGRANGE", scale_longrange - scale_coulomb),
+            }
             xc_functional.insert(
                 Section(
                     "XWPBE",
@@ -923,17 +920,15 @@ class DftSet(Cp2kInput):
             pbe = PBE("ORIG", scale_c=gga_c_fraction, scale_x=gga_x_fraction)
             xc_functional = XCFunctional(functionals=[], subsections={"PBE": pbe})
 
-            ip_keywords.update(
-                {
-                    "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
-                    "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
-                    "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
-                    "SCALE_COULOMB": Keyword("SCALE_COULOMB", scale_coulomb),
-                    "SCALE_GAUSSIAN": Keyword("SCALE_GAUSSIAN", scale_gaussian),
-                    "SCALE_LONGRANGE": Keyword("SCALE_LONGRANGE", scale_longrange),
-                    "OMEGA": Keyword("OMEGA", omega),
-                }
-            )
+            ip_keywords |= {
+                "POTENTIAL_TYPE": Keyword("POTENTIAL_TYPE", potential_type),
+                "CUTOFF_RADIUS": Keyword("CUTOFF_RADIUS", cutoff_radius),
+                "T_C_G_DATA": Keyword("T_C_G_DATA", "t_c_g.dat"),
+                "SCALE_COULOMB": Keyword("SCALE_COULOMB", scale_coulomb),
+                "SCALE_GAUSSIAN": Keyword("SCALE_GAUSSIAN", scale_gaussian),
+                "SCALE_LONGRANGE": Keyword("SCALE_LONGRANGE", scale_longrange),
+                "OMEGA": Keyword("OMEGA", omega),
+            }
 
         interaction_potential = Section("INTERACTION_POTENTIAL", subsections={}, keywords=ip_keywords)
 
@@ -1097,14 +1092,14 @@ class DftSet(Cp2kInput):
         if not self.check("force_eval/properties/linres/localize"):
             self.activate_localize()
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("EPR", **kwargs))
-        self["FORCE_EVAL"]["PROPERTIES"]["LINRES"]["EPR"].update({"PRINT": {"G_TENSOR": {}}})
+        self["FORCE_EVAL"]["PROPERTIES"]["LINRES"]["EPR"] |= {"PRINT": {"G_TENSOR": {}}}
 
     def activate_nmr(self, **kwargs) -> None:
         """Calculate nmr shifts. Requires localize. Suggested with GAPW."""
         if not self.check("force_eval/properties/linres/localize"):
             self.activate_localize()
         self["FORCE_EVAL"]["PROPERTIES"]["LINRES"].insert(Section("NMR", **kwargs))
-        self["FORCE_EVAL"]["PROPERTIES"]["LINRES"]["NMR"].update({"PRINT": {"CHI_TENSOR": {}, "SHIELDING_TENSOR": {}}})
+        self["FORCE_EVAL"]["PROPERTIES"]["LINRES"]["NMR"] |= {"PRINT": {"CHI_TENSOR": {}, "SHIELDING_TENSOR": {}}}
 
     def activate_spinspin(self, **kwargs) -> None:
         """Calculate spin-spin coupling tensor. Requires localize."""
@@ -1185,7 +1180,7 @@ class DftSet(Cp2kInput):
                 algorithm="IRAC",
                 linesearch="2PNT",
             )
-            self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
+            self |= {"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}}  # type: ignore[assignment]
 
     def activate_robust_minimization(self) -> None:
         """Modify the set to use more robust SCF minimization technique."""
@@ -1195,7 +1190,7 @@ class DftSet(Cp2kInput):
             algorithm="STRICT",
             linesearch="3PNT",
         )
-        self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
+        self |= {"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}}  # type: ignore[assignment]
 
     def activate_very_strict_minimization(self) -> None:
         """Method to modify the set to use very strict SCF minimization scheme."""
@@ -1205,7 +1200,7 @@ class DftSet(Cp2kInput):
             algorithm="STRICT",
             linesearch="GOLD",
         )
-        self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})
+        self |= {"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}}  # type: ignore[assignment]
 
     def activate_nonperiodic(self, solver="ANALYTIC") -> None:
         """
@@ -1382,9 +1377,9 @@ class HybridCellOptSet(DftSet):
 
 class Cp2kValidationError(Exception):
     """
-    Cp2k Validation Exception. Not exhausted. May raise validation
+    CP2K validation exception. Not exhausted. May raise validation
     errors for features which actually do work if using a newer version
-    of cp2k.
+    of CP2K.
     """
 
     CP2K_VERSION = "v2022.1"

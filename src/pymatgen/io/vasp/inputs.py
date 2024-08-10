@@ -15,7 +15,6 @@ import os
 import re
 import subprocess
 import warnings
-from collections.abc import Sequence
 from enum import Enum, unique
 from glob import glob
 from hashlib import sha256
@@ -31,21 +30,23 @@ from monty.json import MontyDecoder, MSONable
 from monty.os import cd
 from monty.os.path import zpath
 from monty.serialization import dumpfn, loadfn
+from tabulate import tabulate
+
 from pymatgen.core import SETTINGS, Element, Lattice, Structure, get_el_sp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
 from pymatgen.util.typing import Kpoint, Tuple3Floats, Tuple3Ints, Vector3D
-from tabulate import tabulate
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, Sequence
     from typing import Any, ClassVar, Literal
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
+
     from pymatgen.symmetry.bandstructure import HighSymmKpath
     from pymatgen.util.typing import PathLike
-    from typing_extensions import Self
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
@@ -670,9 +671,9 @@ class Poscar(MSONable):
             temperature (float): Temperature in Kelvin.
         """
         # mean 0 variance 1
-        velocities = np.random.randn(len(self.structure), 3)
+        velocities = np.random.default_rng().standard_normal((len(self.structure), 3))
 
-        # In AMU, (N,1) array
+        # In AMU, (N, 1) array
         atomic_masses = np.array([site.specie.atomic_mass.to("kg") for site in self.structure])
         dof = 3 * len(self.structure) - 3
 
@@ -1026,10 +1027,10 @@ class Incar(dict, MSONable):
                 continue
 
             # Check value and its type
-            param_type = incar_params[tag].get("type")
-            allowed_values = incar_params[tag].get("values")
+            param_type: str = incar_params[tag].get("type")
+            allowed_values: list[Any] = incar_params[tag].get("values")
 
-            if param_type is not None and type(val).__name__ != param_type:
+            if param_type is not None and not isinstance(val, eval(param_type)):  # noqa: S307
                 warnings.warn(f"{tag}: {val} is not a {param_type}", BadIncarWarning, stacklevel=2)
 
             # Only check value when it's not None,
@@ -1135,7 +1136,7 @@ class Kpoints(MSONable):
 
         self.comment = comment
         self.num_kpts = num_kpts
-        self.kpts = kpts
+        self.kpts = kpts  # type: ignore[assignment]
         self.style = style
         self.coord_type = coord_type
         self.kpts_weights = kpts_weights
@@ -1184,10 +1185,10 @@ class Kpoints(MSONable):
         return "\n".join(lines) + "\n"
 
     @property
-    def kpts(self) -> Sequence[Kpoint]:
+    def kpts(self) -> list[Kpoint]:
         """A sequence of Kpoints, where each Kpoint is a tuple of 3 or 1."""
         if all(isinstance(kpt, (list, tuple, np.ndarray)) and len(kpt) in {1, 3} for kpt in self._kpts):
-            return cast(Sequence[Kpoint], list(map(tuple, self._kpts)))  # type: ignore[arg-type]
+            return list(map(tuple, self._kpts))  # type: ignore[arg-type]
 
         if all(isinstance(point, (int, float)) for point in self._kpts) and len(self._kpts) == 3:
             return [cast(Kpoint, tuple(self._kpts))]
@@ -1463,10 +1464,8 @@ class Kpoints(MSONable):
             kpoints.append(ibz.kpath["kpoints"][path[0]])
             labels.append(path[0])
             for i in range(1, len(path) - 1):
-                kpoints.append(ibz.kpath["kpoints"][path[i]])
-                labels.append(path[i])
-                kpoints.append(ibz.kpath["kpoints"][path[i]])
-                labels.append(path[i])
+                kpoints += [ibz.kpath["kpoints"][path[i]]] * 2
+                labels += [path[i]] * 2
 
             kpoints.append(ibz.kpath["kpoints"][path[-1]])
             labels.append(path[-1])
@@ -2751,7 +2750,7 @@ class VaspInput(dict, MSONable):
         """
         super().__init__(**kwargs)
         self._potcar_filename = "POTCAR" + (".spec" if potcar_spec else "")
-        self.update({"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, self._potcar_filename: potcar})
+        self |= {"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, self._potcar_filename: potcar}
         if optional_files is not None:
             self.update(optional_files)
 

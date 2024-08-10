@@ -7,6 +7,7 @@ import re
 from typing import TYPE_CHECKING
 
 from monty.io import zopen
+
 from pymatgen.core import Molecule
 from pymatgen.io.core import InputFile
 
@@ -291,7 +292,7 @@ class QCInput(InputFile):
     def multi_job_string(job_list: list[QCInput]) -> str:
         """
         Args:
-            job_list (): List of jobs.
+            job_list (list[QCInput]): List of QChem jobs.
 
         Returns:
             str: String representation of a multi-job input file.
@@ -305,7 +306,7 @@ class QCInput(InputFile):
         return multi_job_string
 
     @classmethod
-    def from_str(cls, string: str) -> Self:  # type: ignore[override]
+    def from_str(cls, string: str) -> Self:
         """
         Read QcInput from string.
 
@@ -372,14 +373,14 @@ class QCInput(InputFile):
         """Write a multijob file.
 
         Args:
-            job_list (): List of jobs.
-            filename (): Filename
+            job_list (list[QCInput]): List of QChem jobs.
+            filename (str): Name of the file to write.
         """
         with zopen(filename, mode="wt") as file:
             file.write(QCInput.multi_job_string(job_list))
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> Self:  # type: ignore[override]
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Create QcInput from file.
 
@@ -451,10 +452,10 @@ class QCInput(InputFile):
         return "\n".join(mol_list)
 
     @staticmethod
-    def rem_template(rem: dict) -> str:
+    def rem_template(rem: dict[str, Any]) -> str:
         """
         Args:
-            rem ():
+            rem (dict[str, Any]): REM section.
 
         Returns:
             str: REM template.
@@ -472,7 +473,7 @@ class QCInput(InputFile):
         Optimization template.
 
         Args:
-            opt ():
+            opt (dict[str, list]): Optimization section.
 
         Returns:
             str: Optimization template.
@@ -497,7 +498,7 @@ class QCInput(InputFile):
         PCM run template.
 
         Args:
-            pcm ():
+            pcm (dict): PCM section.
 
         Returns:
             str: PCM template.
@@ -514,7 +515,7 @@ class QCInput(InputFile):
         """Solvent template.
 
         Args:
-            solvent ():
+            solvent (dict): Solvent section.
 
         Returns:
             str: Solvent section.
@@ -530,7 +531,7 @@ class QCInput(InputFile):
     def smx_template(smx: dict) -> str:
         """
         Args:
-            smx ():
+            smx (dict): Solvation model with short-range corrections.
 
         Returns:
             str: Solvation model with short-range corrections.
@@ -603,7 +604,7 @@ class QCInput(InputFile):
     def plots_template(plots: dict) -> str:
         """
         Args:
-            plots ():
+            plots (dict): Plots section.
 
         Returns:
             str: Plots section.
@@ -618,7 +619,7 @@ class QCInput(InputFile):
     def nbo_template(nbo: dict) -> str:
         """
         Args:
-            nbo ():
+            nbo (dict): NBO section.
 
         Returns:
             str: NBO section.
@@ -654,7 +655,7 @@ class QCInput(InputFile):
     def geom_opt_template(geom_opt: dict) -> str:
         """
         Args:
-            geom_opt ():
+            geom_opt (dict): Geometry optimization section.
 
         Returns:
             str: Geometry optimization section.

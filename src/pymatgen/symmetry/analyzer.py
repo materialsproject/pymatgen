@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import scipy.cluster
 import spglib
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Molecule, PeriodicSite, Structure
@@ -36,11 +37,12 @@ if TYPE_CHECKING:
     from typing import Any, Literal
 
     from numpy.typing import NDArray
+    from spglib import SpglibDataset
+
     from pymatgen.core import Element, Species
     from pymatgen.core.sites import Site
     from pymatgen.symmetry.groups import CrystalSystem
     from pymatgen.util.typing import Kpoint
-    from spglib import SpglibDataset
 
     LatticeType = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "rhombohedral", "tetragonal", "triclinic"]
 
@@ -85,7 +87,7 @@ class SpacegroupAnalyzer:
     ) -> None:
         """
         Args:
-            structure (Structure/IStructure): Structure to find symmetry
+            structure (Structure | IStructure): Structure to find symmetry
             symprec (float): Tolerance for symmetry finding. Defaults to 0.01,
                 which is fairly strict and works well for properly refined
                 structures with atoms in the proper symmetry coordinates. For
@@ -275,10 +277,9 @@ class SpacegroupAnalyzer:
         # [1e-4, 2e-4, 1e-4]
         # (these are in fractional coordinates, so should be small denominator
         # fractions)
-        _translations: list = []
-        for trans in dct["translations"]:
-            _translations.append([float(Fraction(c).limit_denominator(1000)) for c in trans])
-        translations: NDArray = np.array(_translations)
+        translations: NDArray = np.array(
+            [[float(Fraction(c).limit_denominator(1000)) for c in trans] for trans in dct["translations"]]
+        )
 
         # Fractional translations of 1 are more simply 0
         translations[np.abs(translations) == 1] = 0
@@ -1345,7 +1346,7 @@ class PointGroupAnalyzer:
             symm_op (SymmOp): Symmetry operation to test.
 
         Returns:
-            bool: Whether SymmOp is valid for Molecule.
+            bool: True if SymmOp is valid for Molecule.
         """
         coords = self.centered_mol.cart_coords
         for site in self.centered_mol:
@@ -1502,47 +1503,41 @@ def iterative_symmetrize(
     max_n: int = 10,
     tolerance: float = 0.3,
     epsilon: float = 1e-2,
-) -> dict:
+) -> dict[Literal["sym_mol", "eq_sets", "sym_ops"], Molecule | dict]:
     """Get a symmetrized molecule.
 
-    The equivalent atoms obtained via
-    :meth:`~pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms`
+    The equivalent atoms obtained via `PointGroupAnalyzer.get_equivalent_atoms`
     are rotated, mirrored... unto one position.
-    Then the average position is calculated.
-    The average position is rotated, mirrored... back with the inverse
-    of the previous symmetry operations, which gives the
-    symmetrized molecule
+    Then the average position is calculated, which is rotated, mirrored...
+    back with the inverse of the previous symmetry operations, giving the
+    symmetrized molecule.
 
     Args:
         mol (Molecule): A pymatgen Molecule instance.
         max_n (int): Maximum number of iterations.
-        tolerance (float): Tolerance for detecting symmetry.
-            Gets passed as Argument into
-            ~pymatgen.analyzer.symmetry.PointGroupAnalyzer.
+        tolerance (float): Tolerance for detecting symmetry with PointGroupAnalyzer.
         epsilon (float): If the element-wise absolute difference of two
             subsequently symmetrized structures is smaller epsilon,
             the iteration stops before max_n is reached.
 
     Returns:
-        dict: with three possible keys:
-            sym_mol: A symmetrized molecule instance.
+        dict with three keys:
+            sym_mol: A symmetrized Molecule instance.
             eq_sets: A dictionary of indices mapping to sets of indices, each key maps to indices
                 of all equivalent atoms. The keys are guaranteed to be not equivalent.
-            sym_ops: Twofold nested dictionary. operations[i][j] gives the symmetry operation
+            sym_ops: Two-fold nested dictionary. operations[i][j] gives the symmetry operation
                 that maps atom i unto j.
     """
-    new = mol
-    n = 0
-    finished = False
-    eq = {"sym_mol": new, "eq_sets": {}, "sym_ops": {}}
-    while not finished and n <= max_n:
-        previous = new
-        PA = PointGroupAnalyzer(previous, tolerance=tolerance)
-        eq = PA.symmetrize_molecule()
-        new = eq["sym_mol"]
-        finished = np.allclose(new.cart_coords, previous.cart_coords, atol=epsilon)
-        n += 1
-    return eq
+    new_mol: Molecule = mol
+    sym_mol: dict = {"sym_mol": new_mol, "eq_sets": {}, "sym_ops": {}}
+    for _ in range(max_n):
+        prev_mol: Molecule = new_mol
+        sym_mol = PointGroupAnalyzer(prev_mol, tolerance=tolerance).symmetrize_molecule()
+        new_mol = sym_mol["sym_mol"]
+
+        if np.allclose(new_mol.cart_coords, prev_mol.cart_coords, atol=epsilon):
+            break
+    return sym_mol
 
 
 def cluster_sites(
@@ -1673,7 +1668,7 @@ class SpacegroupOperations(list):
                 are symmetrically similar.
 
         Returns:
-            bool: Whether the two sets of sites are symmetrically equivalent.
+            bool: True if the two sets of sites are symmetrically equivalent.
         """
 
         def in_sites(site):
