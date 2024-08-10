@@ -1381,7 +1381,7 @@ class Lattice(MSONable):
             frac_points = np.ascontiguousarray(frac_points, dtype=float)
             latt_matrix = np.ascontiguousarray(self.matrix, dtype=float)
             cart_coords = np.ascontiguousarray(self.get_cartesian_coords(frac_points), dtype=float)
-            pbc = np.ascontiguousarray(self.pbc, dtype=int)
+            pbc = np.ascontiguousarray(self.pbc, dtype=np.int64)
             center_coords = np.ascontiguousarray([center], dtype=float)
 
             _, indices, images, distances = find_points_in_spheres(

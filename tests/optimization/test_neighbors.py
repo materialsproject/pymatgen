@@ -38,7 +38,7 @@ class TestNeighbors(PymatgenTest):
             all_coords=np.array(points),
             center_coords=np.array(center_points),
             r=3,
-            pbc=np.array([0, 0, 0], dtype=int),
+            pbc=np.array([0, 0, 0], dtype=np.int64),
             lattice=np.array(lattice.matrix),
             tol=1e-8,
         )
@@ -48,7 +48,7 @@ class TestNeighbors(PymatgenTest):
             all_coords=np.array(points),
             center_coords=np.array(center_points),
             r=3,
-            pbc=np.array([1, 1, 1], dtype=int),
+            pbc=np.array([1, 1, 1], dtype=np.int64),
             lattice=np.array(lattice.matrix),
         )
         assert len(nns[0]) == 12
@@ -57,7 +57,7 @@ class TestNeighbors(PymatgenTest):
             all_coords=np.array(points),
             center_coords=np.array(center_points),
             r=3,
-            pbc=np.array([True, False, False], dtype=int),
+            pbc=np.array([True, False, False], dtype=np.int64),
             lattice=np.array(lattice.matrix),
         )
         assert len(nns[0]) == 4
