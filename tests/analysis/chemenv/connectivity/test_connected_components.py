@@ -375,7 +375,7 @@ class TestConnectedComponent(PymatgenTest):
         assert cc.periodicity == "2D"
         assert_allclose(cc.periodicity_vectors, [[0, 1, 0], [1, 1, 0]])
         assert isinstance(cc.periodicity_vectors, list)
-        assert cc.periodicity_vectors[0].dtype is np.dtype(int)
+        assert cc.periodicity_vectors[0].dtype is np.dtype(np.int64)
 
         # Test a 3d periodicity
         graph = nx.MultiGraph()
@@ -445,7 +445,7 @@ class TestConnectedComponent(PymatgenTest):
         assert cc.periodicity == "3D"
         assert_allclose(cc.periodicity_vectors, [[0, 1, 0], [1, 1, 0], [1, 1, 1]])
         assert isinstance(cc.periodicity_vectors, list)
-        assert cc.periodicity_vectors[0].dtype is np.dtype(int)
+        assert cc.periodicity_vectors[0].dtype is np.dtype(np.int64)
 
     def test_real_systems(self):
         # Initialize geometry and connectivity finders
