@@ -71,7 +71,7 @@ class DOS(Spectrum):
 
     def get_interpolated_gap(
         self,
-        tol: float = 0.001,
+        tol: float = 1e-4,
         abs_tol: bool = False,
         spin: Spin | None = None,
     ) -> tuple[float, float, float]:
@@ -116,7 +116,7 @@ class DOS(Spectrum):
         end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
         return end - start, end, start
 
-    def get_cbm_vbm(self, tol: float = 1e-3, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
+    def get_cbm_vbm(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
         """
         Expects a DOS object and finds the CBM and VBM eigenvalues.
 
@@ -162,7 +162,7 @@ class DOS(Spectrum):
 
         return self.x[i_gap_end], self.x[i_gap_start]
 
-    def get_gap(self, tol: float = 1e-3, abs_tol: bool = False, spin: Spin | None = None) -> float:
+    def get_gap(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> float:
         """
         Expects a DOS object and finds the band gap, using the determined
         VBM and CBM eigenvalues.
@@ -299,7 +299,7 @@ class Dos(MSONable):
 
     def get_interpolated_gap(
         self,
-        tol: float = 0.001,
+        tol: float = 1e-4,
         abs_tol: bool = False,
         spin: Spin | None = None,
     ) -> Tuple3Floats:
@@ -341,7 +341,7 @@ class Dos(MSONable):
 
         return end - start, end, start
 
-    def get_cbm_vbm(self, tol: float = 1e-3, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
+    def get_cbm_vbm(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
         """
         Expects a DOS object and finds the CBM and VBM eigenvalues.
 
@@ -384,7 +384,7 @@ class Dos(MSONable):
 
     def get_gap(
         self,
-        tol: float = 0.001,
+        tol: float = 1e-4,
         abs_tol: bool = False,
         spin: Spin | None = None,
     ) -> float:
