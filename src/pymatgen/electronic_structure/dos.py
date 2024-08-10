@@ -18,7 +18,6 @@ from pymatgen.core.spectrum import Spectrum
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.util.coord import get_linear_interpolated_value
 
-
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any, Literal
@@ -117,12 +116,7 @@ class DOS(Spectrum):
         end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
         return end - start, end, start
 
-    def get_cbm_vbm(
-        self, 
-        tol: float = 1e-3, 
-        abs_tol: bool = False, 
-        spin: Spin | None = None
-    ) -> tuple[float, float]:
+    def get_cbm_vbm(self, tol: float = 1e-3, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
         """
         Expects a DOS object and finds the CBM and VBM eigenvalues.
 
@@ -352,7 +346,7 @@ class Dos(MSONable):
         Expects a DOS object and finds the CBM and VBM eigenvalues.
 
         `tol` may need to be increased for systems with noise/disorder.
-        
+
         Args:
             tol (float): Tolerance in occupations for determining the gap.
             abs_tol (bool): Use absolute (True) or relative (False) tolerance.
