@@ -129,7 +129,7 @@ def pbc_shortest_vectors(lattice, fcoords1, fcoords2, mask=None, return_d2=False
     cdef bint has_mask = mask is not None
     cdef np.int64_t[:, :] mask_arr
     if has_mask:
-        mask_arr = np.asarray(mask, dtype=np.int_, order="C")
+        mask_arr = np.asarray(mask, dtype=np.int64, order="C")
 
     cdef bint has_ftol = (lll_frac_tol is not None)
     cdef np.float_t[:] ftol
@@ -214,7 +214,7 @@ def is_coord_subset_pbc(subset, superset, atol, mask, pbc=(True, True, True)):
     cdef np.float_t[:, :] fc1 = subset
     cdef np.float_t[:, :] fc2 = superset
     cdef np.float_t[:] t = atol
-    cdef np.int64_t[:, :] m = np.asarray(mask, dtype=np.int_, order="C")
+    cdef np.int64_t[:, :] m = np.asarray(mask, dtype=np.int64, order="C")
 
     cdef int i, j, k, len_fc1, len_fc2
     cdef np.float_t d
