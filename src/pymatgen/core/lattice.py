@@ -443,7 +443,7 @@ class Lattice(MSONable):
         dct: dict,
         fmt: str | None = None,
         **kwargs,
-    ) -> Self:  # type: ignore[override]
+    ) -> Self:
         """Create a Lattice from a dictionary.
 
         If fmt is None, the dict should contain the a, b, c,

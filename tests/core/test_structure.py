@@ -9,6 +9,8 @@ from unittest import skipIf
 
 import numpy as np
 import pytest
+import requests
+import urllib3
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
@@ -932,8 +934,14 @@ class TestStructure(PymatgenTest):
         s = Structure.from_id("mp-1143")
         assert isinstance(s, Structure)
         assert s.reduced_formula == "Al2O3"
-        s = Structure.from_id("1101077", source="COD")
-        assert s.reduced_formula == "LiV2O4"
+
+        try:
+            website_down = requests.get("https://www.crystallography.net", timeout=600).status_code != 200
+        except (requests.exceptions.ConnectionError, urllib3.exceptions.ConnectTimeoutError):
+            website_down = True
+        if not website_down:
+            s = Structure.from_id("1101077", source="COD")
+            assert s.reduced_formula == "LiV2O4"
 
     def test_mutable_sequence_methods(self):
         struct = self.struct

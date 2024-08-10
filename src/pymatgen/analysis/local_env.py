@@ -1490,7 +1490,7 @@ class OpenBabelNN(NearNeighbors):
 
         return siw
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:  # type: ignore[override]
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:
         """
         Obtain a MoleculeGraph object using this NearNeighbor
         class. Requires the optional dependency networkx
@@ -1637,7 +1637,7 @@ class CovalentBondNN(NearNeighbors):
 
         return siw
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> MoleculeGraph:  # type: ignore[override]
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> MoleculeGraph:
         """
         Obtain a MoleculeGraph object using this NearNeighbor class.
 
@@ -4000,7 +4000,7 @@ class CrystalNN(NearNeighbors):
 
         return self.transform_to_length(self.NNData(nn, cn_weights, cn_nninfo), length)
 
-    def get_cn(self, structure: Structure, n: int, **kwargs) -> float:  # type: ignore[override]
+    def get_cn(self, structure: Structure, n: int, **kwargs) -> float:
         """Get coordination number, CN, of site with index n in structure.
 
         Args:
@@ -4306,7 +4306,7 @@ class Critic2NN(NearNeighbors):
         """
         return True
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:  # type: ignore[override]
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:
         """
         Args:
             structure (Structure): Input structure

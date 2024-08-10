@@ -184,7 +184,7 @@ class Lobsterin(UserDict, MSONable):
         except KeyError as exc:
             raise KeyError(f"{key=} is not available") from exc
 
-    def __contains__(self, key: str) -> bool:  # type: ignore[override]
+    def __contains__(self, key: str) -> bool:
         """To avoid cases sensitivity problems."""
         return super().__contains__(key.lower().strip())
 

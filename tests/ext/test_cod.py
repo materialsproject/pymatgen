@@ -6,6 +6,7 @@ from unittest import TestCase
 
 import pytest
 import requests
+import urllib3
 
 from pymatgen.ext.cod import COD
 
@@ -15,7 +16,7 @@ if "CI" in os.environ:  # test is slow and flaky, skip in CI. see
 
 try:
     website_down = requests.get("https://www.crystallography.net", timeout=600).status_code != 200
-except requests.exceptions.ConnectionError:
+except (requests.exceptions.ConnectionError, urllib3.exceptions.ConnectTimeoutError):
     website_down = True
 
 
