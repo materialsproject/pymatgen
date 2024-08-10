@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
 from monty.dev import deprecated
+
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
@@ -31,9 +32,10 @@ from pymatgen.io.lobster import Charge, Icohplist
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core import Structure
     from pymatgen.core.periodic_table import Element
-    from typing_extensions import Self
 
 __author__ = "Janine George"
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -251,7 +253,7 @@ class LobsterNeighbors(NearNeighbors):
     def get_anion_types(self):
         return self.anion_types
 
-    def get_nn_info(self, structure: Structure, n: int, use_weights: bool = False) -> dict:  # type: ignore[override]
+    def get_nn_info(self, structure: Structure, n: int, use_weights: bool = False) -> dict:
         """Get coordination number, CN, of site with index n in structure.
 
         Args:

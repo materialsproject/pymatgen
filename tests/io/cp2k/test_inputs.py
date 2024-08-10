@@ -3,6 +3,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
+from pytest import approx
+
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import (
     BasisFile,
@@ -21,7 +23,6 @@ from pymatgen.io.cp2k.inputs import (
     SectionList,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/cp2k"
 
@@ -213,8 +214,9 @@ class TestInput(PymatgenTest):
 
     def test_odd_file(self):
         scramble = ""
+        rng = np.random.default_rng()
         for string in self.ci.get_str():
-            if np.random.rand(1) > 0.5:
+            if rng.choice((True, False)):
                 if string == "\t":
                     scramble += " "
                 elif string == " ":

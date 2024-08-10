@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import datetime
 import itertools
 import logging
 import math
@@ -13,6 +12,7 @@ import xml.etree.ElementTree as ET
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from glob import glob
 from io import StringIO
 from pathlib import Path
@@ -24,6 +24,7 @@ from monty.json import MSONable, jsanitize
 from monty.os.path import zpath
 from monty.re import regrep
 from numpy.testing import assert_allclose
+
 from pymatgen.core import Composition, Element, Lattice, Structure
 from pymatgen.core.trajectory import Trajectory
 from pymatgen.core.units import unitized
@@ -51,8 +52,9 @@ if TYPE_CHECKING:
     from xml.etree.ElementTree import Element as XML_Element
 
     from numpy.typing import NDArray
-    from pymatgen.util.typing import PathLike
     from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike
 
 logger = logging.getLogger(__name__)
 
@@ -280,7 +282,7 @@ class Vasprun(MSONable):
                 eigenvalues and magnetization. Defaults to False. Set to True to obtain
                 projected eigenvalues and magnetization. **Note that this can take an
                 extreme amount of time and memory.** So use this wisely.
-            parse_potcar_file (PathLike/bool): Whether to parse the potcar file to read
+            parse_potcar_file (bool | PathLike): Whether to parse the potcar file to read
                 the potcar hashes for the potcar_spec attribute. Defaults to True,
                 where no hashes will be determined and the potcar_spec dictionaries
                 will read {"symbol": ElSymbol, "hash": None}. By Default, looks in
@@ -844,7 +846,7 @@ class Vasprun(MSONable):
             ComputedStructureEntry/ComputedEntry
         """
         if entry_id is None:
-            entry_id = f"vasprun-{datetime.datetime.now(tz=datetime.timezone.utc)}"
+            entry_id = f"vasprun-{datetime.now(tz=timezone.utc)}"
         param_names = {
             "is_hubbard",
             "hubbards",
@@ -898,9 +900,8 @@ class Vasprun(MSONable):
                 the band structure data. Set this flag to ignore it. (Default: False)
 
         Returns:
-            a BandStructure object (or more specifically a
-            BandStructureSymmLine object if the run is detected to be a run
-            along symmetry lines)
+            BandStructure (or more specifically a BandStructureSymmLine object if the run
+            is detected to be a run along symmetry lines)
 
             Two types of runs along symmetry lines are accepted: non-sc with
             Line-Mode in the KPOINT file or hybrid, self-consistent with a
@@ -1032,7 +1033,7 @@ class Vasprun(MSONable):
                 eigenvals,
                 lattice_new,
                 e_fermi,
-                labels_dict,
+                labels_dict,  # type: ignore[arg-type]
                 structure=self.final_structure,
                 projections=p_eig_vals,
             )
@@ -1558,7 +1559,7 @@ class Vasprun(MSONable):
     def _parse_dos(elem: XML_Element) -> tuple[Dos, Dos, list[dict]]:
         """Parse density of states (DOS)."""
         efermi = float(elem.find("i").text)  # type: ignore[union-attr, arg-type]
-        energies = None
+        energies: NDArray | None = None
         tdensities = {}
         idensities = {}
 
@@ -1587,6 +1588,8 @@ class Vasprun(MSONable):
                         pdos[orb][spin] = data[:, col_idx]  # type: ignore[index]
                 pdoss.append(pdos)
         elem.clear()
+
+        assert energies is not None
         return Dos(efermi, energies, tdensities), Dos(efermi, energies, idensities), pdoss
 
     @staticmethod
@@ -1704,10 +1707,8 @@ class BSVasprun(Vasprun):
                 tag = elem.tag
                 if event == "start":
                     # The start event tells us when we have entered blocks
-                    if (
-                        tag == "eigenvalues_kpoints_opt"
-                        or tag == "projected_kpoints_opt"
-                        or (tag == "dos" and elem.attrib.get("comment") == "kpoints_opt")
+                    if tag in {"eigenvalues_kpoints_opt", "projected_kpoints_opt"} or (
+                        tag == "dos" and elem.attrib.get("comment") == "kpoints_opt"
                     ):
                         in_kpoints_opt = True
                 elif not parsed_header:
@@ -1892,7 +1893,7 @@ class Outcar:
         final_energy (float): Final energy after extrapolation of sigma back to 0, i.e. energy(sigma->0).
         final_energy_wo_entrp (float): Final energy before extrapolation of sigma, i.e. energy without entropy.
         final_fr_energy (float): Final "free energy", i.e. free energy TOTEN.
-        has_onsite_density_matrices (bool): Boolean for if onsite density matrices have been set.
+        has_onsite_density_matrices (bool): Whether onsite density matrices have been set.
         lcalcpol (bool): If LCALCPOL has been set.
         lepsilon (bool): If LEPSILON has been set.
         nelect (float): Returns the number of electrons in the calculation.
@@ -4122,31 +4123,31 @@ class Procar(MSONable):
 
             return kpoints, weights, eigenvalues, occupancies, data, phase_factors, xyz_data
 
-    def get_projection_on_elements(self, structure: Structure) -> dict[Spin, list]:
-        """
-        Get a dict of projections on elements.
+    def get_projection_on_elements(self, structure: Structure) -> dict[Spin, list[list[dict[str, float]]]]:
+        """Get a dict of projections on elements.
 
         Args:
             structure (Structure): Input structure.
 
         Returns:
-            A dict as {Spin.up: [k index][b index][{Element: values}]].
+            A dict as {Spin: [band index][kpoint index][{Element: values}]].
         """
         assert self.data is not None, "Data cannot be None."
         assert self.nkpoints is not None
         assert self.nbands is not None
         assert self.nions is not None
 
-        dico: dict[Spin, list] = {
-            spin: [[defaultdict(float) for _ in range(self.nkpoints)] for _ in range(self.nbands)] for spin in self.data
-        }
+        elem_proj: dict[Spin, list] = {}
+        for spin in self.data:
+            elem_proj[spin] = [[defaultdict(float) for _ in range(self.nkpoints)] for _ in range(self.nbands)]
+
         for iat in range(self.nions):
             name = structure.species[iat].symbol
             for spin, data in self.data.items():
                 for kpoint, band in itertools.product(range(self.nkpoints), range(self.nbands)):
-                    dico[spin][band][kpoint][name] += np.sum(data[kpoint, band, iat, :])
+                    elem_proj[spin][band][kpoint][name] += np.sum(data[kpoint, band, iat, :])
 
-        return dico
+        return elem_proj
 
     def get_occupation(self, atom_index: int, orbital: str) -> dict:
         """

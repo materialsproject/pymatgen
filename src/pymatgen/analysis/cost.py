@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING
 
 import scipy.constants as const
 from monty.design_patterns import singleton
+
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.core import Composition, Element
 from pymatgen.util.provenance import is_valid_bibtex
@@ -117,10 +118,10 @@ class CostDBElements(CostDBCSV):
 class CostAnalyzer:
     """Given a CostDB, figures out the minimum cost solutions via convex hull."""
 
-    def __init__(self, costdb):
+    def __init__(self, costdb: CostDB) -> None:
         """
         Args:
-            costdb (): Cost database.
+            costdb (CostDB): Cost database to use.
         """
         self.costdb = costdb
 

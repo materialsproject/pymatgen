@@ -12,6 +12,7 @@ from __future__ import annotations
 import sys
 
 from monty.serialization import dumpfn, loadfn
+
 from pymatgen.symmetry.groups import PointGroup
 
 __author__ = "Katharina Ueltzen @kaueltzen"
@@ -29,7 +30,7 @@ def convert_symmops_to_sg_encoding(symbol: str) -> str:
     Args:
         symbol (str): "hermann_mauguin" or "universal_h_m" key of symmops.json
     Returns:
-        symbol in the format of SYMM_DATA["space_group_encoding"] keys
+        str: symbol in the format of SYMM_DATA["space_group_encoding"] keys
     """
     symbol_representation = symbol.split(":")
     representation = ":" + "".join(symbol_representation[1].split(" ")) if len(symbol_representation) > 1 else ""
@@ -50,7 +51,7 @@ def remove_identity_from_full_hermann_mauguin(symbol: str) -> str:
     Args:
         symbol (str): "hermann_mauguin" key of symmops.json
     Returns:
-        short "hermann_mauguin" key
+        str: short "hermann_mauguin" key
     """
     if symbol in ("P 1", "C 1", "P 1 "):
         return symbol

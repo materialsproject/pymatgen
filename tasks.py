@@ -9,17 +9,18 @@ To cut a new pymatgen release:
 
 from __future__ import annotations
 
-import datetime
 import json
 import os
 import re
 import subprocess
 import webbrowser
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 import requests
 from invoke import task
 from monty.os import cd
+
 from pymatgen.core import __version__
 
 if TYPE_CHECKING:
@@ -117,10 +118,10 @@ def release_github(ctx: Context, version: str) -> None:
     """
     with open("docs/CHANGES.md", encoding="utf-8") as file:
         contents = file.read()
-    tokens = re.split(r"\-+", contents)
+    tokens = re.split(r"\n\#\#\s", contents)
     desc = tokens[1].strip()
     tokens = desc.split("\n")
-    desc = "\n".join(tokens[:-1]).strip()
+    desc = "\n".join(tokens[1:]).strip()
     payload = {
         "tag_name": f"v{version}",
         "target_commitish": "master",
@@ -149,7 +150,7 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
         dry_run (bool, optional): If True, the function will only print the changes without
             updating the actual change log file. Defaults to False.
     """
-    version = version or f"{datetime.datetime.now(tz=datetime.timezone.utc):%Y.%-m.%-d}"
+    version = version or f"{datetime.now(tz=timezone.utc):%Y.%-m.%-d}"
     output = subprocess.check_output(["git", "log", "--pretty=format:%s", f"v{__version__}..HEAD"])
     lines = []
     ignored_commits = []
@@ -196,7 +197,7 @@ def release(ctx: Context, version: str | None = None, nodoc: bool = False) -> No
         version (str, optional): The version to release.
         nodoc (bool, optional): Whether to skip documentation generation.
     """
-    version = version or f"{datetime.datetime.now(tz=datetime.timezone.utc):%Y.%-m.%-d}"
+    version = version or f"{datetime.now(tz=timezone.utc):%Y.%-m.%-d}"
     ctx.run("rm -r dist build pymatgen.egg-info", warn=True)
     set_ver(ctx, version)
     if not nodoc:

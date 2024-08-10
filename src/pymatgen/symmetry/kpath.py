@@ -12,6 +12,7 @@ import networkx as nx
 import numpy as np
 import spglib
 from monty.dev import requires
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, cite_conventional_cell_algo
@@ -1342,11 +1343,7 @@ class KPathLatimerMunro(KPathBase):
         # Choose remaining unconnected key points for k-path. The ones that remain are
         # those with inversion symmetry. Connect them to gamma.
 
-        unconnected = []
-
-        for idx in range(len(key_points_inds_orbits)):
-            if idx not in point_orbits_in_path:
-                unconnected.append(idx)
+        unconnected = [idx for idx in range(len(key_points_inds_orbits)) if idx not in point_orbits_in_path]
 
         for ind in unconnected:
             connect = False

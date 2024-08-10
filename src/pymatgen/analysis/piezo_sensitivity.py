@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.dev import requires
+
 from pymatgen.core.tensors import Tensor
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
@@ -121,7 +122,7 @@ class BornEffectiveCharge:
         BEC = np.zeros((n_atoms, 3, 3))
         for atom, ops in enumerate(self.BEC_operations):
             if ops[0] == ops[1]:
-                temp_tensor = Tensor(np.random.rand(3, 3) - 0.5)
+                temp_tensor = Tensor(np.random.default_rng().random((3, 3)) - 0.5)
                 temp_tensor = sum(temp_tensor.transform(symm_op) for symm_op in self.pointops[atom]) / len(
                     self.pointops[atom]
                 )
@@ -237,7 +238,7 @@ class InternalStrainTensor:
                 temp_tensor += op[1].transform_tensor(IST[op[0]])
 
             if len(ops) == 0:
-                temp_tensor = Tensor(np.random.rand(3, 3, 3) - 0.5)
+                temp_tensor = Tensor(np.random.default_rng().random((3, 3, 3)) - 0.5)
                 for dim in range(3):
                     temp_tensor[dim] = (temp_tensor[dim] + temp_tensor[dim].T) / 2
                 temp_tensor = sum(temp_tensor.transform(symm_op) for symm_op in self.pointops[atom]) / len(
@@ -384,7 +385,7 @@ class ForceConstantMatrix:
                 ].T
                 continue
 
-            temp_tensor = Tensor(np.random.rand(3, 3) - 0.5) * max_force
+            temp_tensor = Tensor(np.random.default_rng().random((3, 3)) - 0.5) * max_force
 
             temp_tensor_sum = sum(temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]])
             temp_tensor_sum = temp_tensor_sum / (len(self.sharedops[op[0]][op[1]]))
@@ -483,9 +484,10 @@ class ForceConstantMatrix:
 
             max_eig = np.max(-1 * eigs)
             eig_sort = np.argsort(np.abs(eigs))
+            rng = np.random.default_rng()
             for idx in range(3, len(eigs)):
                 if eigs[eig_sort[idx]] > 1e-6:
-                    eigs[eig_sort[idx]] = -1 * max_eig * np.random.rand()
+                    eigs[eig_sort[idx]] = -1 * max_eig * rng.random()
             diag = np.real(np.eye(len(fcm)) * eigs)
 
             fcm = np.real(np.matmul(np.matmul(vecs, diag), vecs.T))

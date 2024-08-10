@@ -4,8 +4,12 @@ from __future__ import annotations
 
 import os
 import re
+from typing import TYPE_CHECKING
 
 from monty.io import zopen
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 __author__ = "Shyue Ping Ong, Rickard Armiento, Anubhav Jain, G Matteo, Ioannis Petousis"
 __copyright__ = "Copyright 2011, The Materials Project"
@@ -16,7 +20,7 @@ __status__ = "Production"
 __date__ = "Sep 23, 2011"
 
 
-def clean_lines(string_list, remove_empty_lines=True):
+def clean_lines(string_list, remove_empty_lines=True) -> Generator[str, None, None]:
     """Strips whitespace, carriage returns and empty lines from a list of strings.
 
     Args:
@@ -24,8 +28,8 @@ def clean_lines(string_list, remove_empty_lines=True):
         remove_empty_lines: Set to True to skip lines which are empty after
             stripping.
 
-    Returns:
-        List of clean strings with no whitespaces.
+    Yields:
+        list: clean strings with no whitespaces.
     """
     for s in string_list:
         clean_s = s
