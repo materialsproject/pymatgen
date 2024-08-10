@@ -244,7 +244,7 @@ def find_points_in_spheres(
         free(offset_final)
         free(distances)
 
-        return (np.array([], dtype=int), np.array([], dtype=int),
+        return (np.array([], dtype=np.int64), np.array([], dtype=np.int64),
             np.array([[], [], []], dtype=float).T, np.array([], dtype=float))
 
     n_atoms = count
@@ -349,8 +349,8 @@ def find_points_in_spheres(
         failed_malloc = 0
 
     if count == 0:
-        py_index_1 = np.array([], dtype=int)
-        py_index_2 = np.array([], dtype=int)
+        py_index_1 = np.array([], dtype=np.int64)
+        py_index_2 = np.array([], dtype=np.int64)
         py_offsets = np.array([[], [], []], dtype=float).T
         py_distances = np.array([], dtype=float)
     else:

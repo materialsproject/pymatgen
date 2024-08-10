@@ -258,7 +258,7 @@ def coord_list_mapping_pbc(subset, superset, atol=1e-8, pbc=(True, True, True)):
     Returns:
         list of indices such that superset[indices] = subset
     """
-    inds = -np.ones(len(subset), dtype=int)
+    inds = -np.ones(len(subset), dtype=np.int64)
     subset = np.atleast_2d(subset)
     superset = np.atleast_2d(superset)
 

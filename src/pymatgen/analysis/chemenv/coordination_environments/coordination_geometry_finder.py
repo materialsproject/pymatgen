@@ -1728,7 +1728,7 @@ class LocalGeometryFinder:
                         continue
                     if sep not in nb_set.separations:
                         nb_set.separations[sep] = {}
-                    _sep = [np.array(ss, dtype=int) for ss in separation]
+                    _sep = [np.array(ss, dtype=np.int64) for ss in separation]
                     nb_set.separations[sep][separation] = (plane, _sep)
                     if sep == separation_plane_algo.separation:
                         new_seps.append(_sep)
