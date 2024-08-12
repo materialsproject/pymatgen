@@ -1171,7 +1171,7 @@ class Kpoints(MSONable):
                 else:
                     lines[-1] += f" {int(self.kpts_weights[idx])}"
 
-        # Print tetrahedron parameters if the number of tetrahedrons > 0
+        # Tetrahedron parameters if the number of tetrahedrons > 0
         if style not in "lagm" and self.tet_number > 0:
             lines.extend(("Tetrahedron", f"{self.tet_number} {self.tet_weight:f}"))
             if self.tet_connections is not None:
@@ -1179,7 +1179,7 @@ class Kpoints(MSONable):
                     a, b, c, d = vertices
                     lines.append(f"{sym_weight} {a} {b} {c} {d}")
 
-        # Print shifts for automatic kpoints types if not zero.
+        # Shifts for automatic kpoints types if not zero.
         if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0, 0, 0):
             lines.append(" ".join(map(str, self.kpts_shift)))
         return "\n".join(lines) + "\n"
@@ -1209,11 +1209,11 @@ class Kpoints(MSONable):
         return self._style
 
     @style.setter
-    def style(self, style) -> None:
+    def style(self, style: str | KpointsSupportedModes) -> None:
         """Set the style for the Kpoints. One of Kpoints_supported_modes enum.
 
         Args:
-            style: Style
+            style (str | KpointsSupportedModes): Style
         """
         if isinstance(style, str):
             style = type(self).supported_modes.from_str(style)
@@ -1248,7 +1248,7 @@ class Kpoints(MSONable):
                 each reciprocal lattice vector.
 
         Returns:
-            Kpoints object
+            Kpoints
         """
         warnings.warn("Please use INCAR KSPACING tag.", DeprecationWarning, stacklevel=2)
 
@@ -1264,7 +1264,7 @@ class Kpoints(MSONable):
     @classmethod
     def gamma_automatic(cls, kpts: Kpoint = (1, 1, 1), shift: Vector3D = (0, 0, 0)) -> Self:
         """
-        Constructor for an automatic Gamma centered Kpoint grid.
+        Construct an automatic Gamma-centered Kpoint grid.
 
         Args:
             kpts: Subdivisions N_1, N_2 and N_3 along reciprocal lattice
@@ -1272,15 +1272,14 @@ class Kpoints(MSONable):
             shift: Shift to be applied to the kpoints. Defaults to (0, 0, 0).
 
         Returns:
-            Kpoints object
+            Kpoints
         """
         return cls("Automatic kpoint scheme", 0, cls.supported_modes.Gamma, kpts=[kpts], kpts_shift=shift)
 
     @classmethod
     def monkhorst_automatic(cls, kpts: Kpoint = (2, 2, 2), shift: Vector3D = (0, 0, 0)) -> Self:
         """
-        Convenient static constructor for an automatic Monkhorst pack Kpoint
-        grid.
+        Construct an automatic Monkhorst-Pack Kpoint grid.
 
         Args:
             kpts: Subdivisions N_1, N_2, N_3 along reciprocal lattice
@@ -1288,7 +1287,7 @@ class Kpoints(MSONable):
             shift: Shift to be applied to the kpoints. Defaults to (0, 0, 0).
 
         Returns:
-            Kpoints object
+            Kpoints
         """
         return cls("Automatic kpoint scheme", 0, cls.supported_modes.Monkhorst, kpts=[kpts], kpts_shift=shift)
 
