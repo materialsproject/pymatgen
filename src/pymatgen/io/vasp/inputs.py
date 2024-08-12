@@ -265,15 +265,17 @@ class Poscar(MSONable):
 
         dirname: str = os.path.dirname(os.path.abspath(filename))
         names: list[str] | None = None
-        if check_for_potcar and SETTINGS.get("PMG_POTCAR_CHECKS") is not False:
-            potcars = glob(f"{dirname}/*POTCAR*")
-            if potcars:
-                try:
-                    potcar = Potcar.from_file(min(potcars))
-                    names = [sym.split("_")[0] for sym in potcar.symbols]
-                    [get_el_sp(n) for n in names]  # ensure valid names
-                except Exception:
-                    names = None
+        if (
+            check_for_potcar
+            and SETTINGS.get("PMG_POTCAR_CHECKS") is not False
+            and (potcars := glob(f"{dirname}/*POTCAR*"))
+        ):
+            try:
+                potcar = Potcar.from_file(min(potcars))
+                names = [sym.split("_")[0] for sym in potcar.symbols]
+                map(get_el_sp, names)  # ensure valid names
+            except Exception:
+                names = None
 
         with zopen(filename, mode="rt") as file:
             return cls.from_str(file.read(), names, read_velocities=read_velocities)
@@ -2401,7 +2403,7 @@ class PotcarSingle:
                 the PotcarSingle
         """
         # Dict to translate the sets in the .json file to the keys used in VaspInputSet
-        mapping_dict = {
+        mapping_dict: dict[str, dict[str, str]] = {
             "potUSPP_GGA": {
                 "pymatgen_key": "PW91_US",
                 "vasp_description": "Ultrasoft pseudo potentials"
