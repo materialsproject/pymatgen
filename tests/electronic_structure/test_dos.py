@@ -295,7 +295,7 @@ class TestCompleteDos(TestCase):
             self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Tanimoto", normalize=True)
         with pytest.raises(
             ValueError,
-            match="Please recheck type requested, either the orbital "
+            match="Please recheck fp_type requested, either the orbital "
             "projections unavailable in input DOS or there's a typo in type.",
         ):
             self.dos.get_dos_fp(fp_type="k", min_e=-10, max_e=0, n_bins=56, normalize=True)
