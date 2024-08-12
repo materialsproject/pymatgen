@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import itertools
-import logging
 import math
 import os
 import re
@@ -54,8 +53,6 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.util.typing import PathLike
-
-logger = logging.getLogger(__name__)
 
 
 def _parse_parameters(val_type: str, val: str) -> bool | str | float | int:
