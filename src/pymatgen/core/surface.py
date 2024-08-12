@@ -27,24 +27,26 @@ from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.fractions import lcm
+from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.spatial.distance import squareform
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, PeriodicSite, Structure, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
 from pymatgen.util.due import Doi, due
 from pymatgen.util.typing import Tuple3Ints
-from scipy.cluster.hierarchy import fcluster, linkage
-from scipy.spatial.distance import squareform
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
     from numpy.typing import ArrayLike, NDArray
+    from typing_extensions import Self
+
     from pymatgen.core.composition import Element, Species
     from pymatgen.symmetry.groups import CrystalSystem
     from pymatgen.util.typing import MillerIndex
-    from typing_extensions import Self
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
 
@@ -216,7 +218,7 @@ class Slab(Structure):
         return np.linalg.norm(np.cross(matrix[0], matrix[1]))
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> Self:  # type: ignore[override]
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct: dict.
@@ -240,7 +242,7 @@ class Slab(Structure):
             energy=dct["energy"],
         )
 
-    def as_dict(self, **kwargs) -> dict:  # type: ignore[override]
+    def as_dict(self, **kwargs) -> dict:
         """MSONable dict."""
         dct = super().as_dict(**kwargs)
         dct["@module"] = type(self).__module__
@@ -253,7 +255,7 @@ class Slab(Structure):
         dct["energy"] = self.energy
         return dct
 
-    def copy(self, site_properties: dict[str, Any] | None = None) -> Self:  # type: ignore[override]
+    def copy(self, site_properties: dict[str, Any] | None = None) -> Self:
         """Get a copy of the Slab, with options to update site properties.
 
         Args:
@@ -288,7 +290,7 @@ class Slab(Structure):
             symprec (float): Symmetry precision used for SpaceGroup analyzer.
 
         Returns:
-            bool: Whether surfaces are symmetric.
+            bool: True if surfaces are symmetric.
         """
         spg_analyzer = SpacegroupAnalyzer(self, symprec=symprec)
         symm_ops = spg_analyzer.get_point_group_operations()

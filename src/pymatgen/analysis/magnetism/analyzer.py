@@ -13,6 +13,10 @@ from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
 from monty.serialization import loadfn
+from ruamel.yaml.error import MarkedYAMLError
+from scipy.signal import argrelextrema
+from scipy.stats import gaussian_kde
+
 from pymatgen.core.structure import DummySpecies, Element, Species, Structure
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -20,9 +24,6 @@ from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.transformations.advanced_transformations import MagOrderingTransformation, MagOrderParameterConstraint
 from pymatgen.transformations.standard_transformations import AutoOxiStateDecorationTransformation
 from pymatgen.util.due import Doi, due
-from ruamel.yaml.error import MarkedYAMLError
-from scipy.signal import argrelextrema
-from scipy.stats import gaussian_kde
 
 if TYPE_CHECKING:
     from typing import Any
@@ -475,7 +476,7 @@ class CollinearMagneticStructureAnalyzer:
         ferro/ferrimagnetic is self.threshold_ordering and defaults to 1e-8.
 
         Returns:
-            Ordering: Enum  with values FM: ferromagnetic, FiM: ferrimagnetic,
+            Ordering: Enum with values FM: ferromagnetic, FiM: ferrimagnetic,
                 AFM: antiferromagnetic, NM: non-magnetic or Unknown. Unknown is
                 returned if magnetic moments are not defined or structure is not collinear
                 (in which case a warning is issued).

@@ -28,6 +28,10 @@ import numpy as np
 from monty.dev import requires
 from monty.json import MSONable, jsanitize
 from monty.os import cd
+from scipy import constants
+from scipy.optimize import fsolve
+from scipy.spatial import distance
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.units import Energy, Length
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine, Kpoint
@@ -35,17 +39,15 @@ from pymatgen.electronic_structure.core import Orbital
 from pymatgen.electronic_structure.dos import CompleteDos, Dos, Spin
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-from scipy import constants
-from scipy.optimize import fsolve
-from scipy.spatial import distance
 
 if TYPE_CHECKING:
     from typing import Literal
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
+
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.core.structure import Structure
-    from typing_extensions import Self
 
 __author__ = "Geoffroy Hautier, Zachary Gibbs, Francesco Ricci, Anubhav Jain"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -423,13 +425,13 @@ class BoltztrapRunner(MSONable):
         Args:
             output_file: Filename
         """
-        setgap = 1 if self.scissor > 0.0001 else 0
+        set_gap = 1 if self.scissor > 0.0001 else 0
 
         if self.run_type in ("BOLTZ", "DOS"):
             with open(output_file, mode="w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
-                    f"1 0 {setgap} {Energy(self.scissor, 'eV').to('Ry')}         "
+                    f"1 0 {set_gap} {Energy(self.scissor, 'eV').to('Ry')}         "
                     "# iskip (not presently used) idebug setgap shiftgap \n"
                 )
                 fout.write(
@@ -478,7 +480,7 @@ class BoltztrapRunner(MSONable):
             with open(output_file, mode="w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
-                    f"1 0 {setgap} {Energy(self.scissor, 'eV').to('Ry')}         # iskip (not presently used) "
+                    f"1 0 {set_gap} {Energy(self.scissor, 'eV').to('Ry')}         # iskip (not presently used) "
                     "idebug setgap shiftgap \n"
                 )
                 fout.write(
@@ -1936,7 +1938,7 @@ class BoltztrapAnalyzer:
             dos_spin: in DOS mode, set to 1 for spin up and -1 for spin down
 
         Returns:
-            a BoltztrapAnalyzer object
+            BoltztrapAnalyzer
         """
         run_type, warning, efermi, gap, doping_levels = cls.parse_outputtrans(path_dir)
 

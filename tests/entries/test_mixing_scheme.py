@@ -108,6 +108,7 @@ import pandas as pd
 import pytest
 from monty.json import MontyDecoder
 from numpy.testing import assert_allclose
+
 from pymatgen.analysis.phase_diagram import PhaseDiagram
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.lattice import Lattice
@@ -1405,11 +1406,9 @@ class TestMaterialsProjectDFTMixingSchemeStates:
             if entry.entry_id in ["r2scan-4", "r2scan-6"]:
                 assert entry.correction == 3
                 assert entry.parameters["run_type"] == "R2SCAN"
-            elif entry.entry_id == "gga-4":
-                raise AssertionError("Entry gga-4 should have been discarded")
-            elif entry.entry_id == "gga-6":
-                raise AssertionError("Entry gga-6 should have been discarded")
             else:
+                assert entry.entry_id != "gga-4", f"{entry.entry_id=} should have been discarded"
+                assert entry.entry_id != "gga-6", f"{entry.entry_id=} should have been discarded"
                 assert entry.correction == 0, f"{entry.entry_id}"
                 assert entry.parameters["run_type"] == "GGA"
 
@@ -1454,9 +1453,8 @@ class TestMaterialsProjectDFTMixingSchemeStates:
                 assert entry.correction == 3
             elif entry.entry_id == "r2scan-7":
                 assert entry.correction == 15
-            elif entry.entry_id == "gga-4":
-                raise AssertionError(f"Entry {entry.entry_id} should have been discarded")
             else:
+                assert entry.entry_id != "gga-4", f"{entry.entry_id=} should have been discarded"
                 assert entry.correction == 0, f"{entry.entry_id}"
                 assert entry.parameters["run_type"] == "GGA"
 
@@ -1500,9 +1498,8 @@ class TestMaterialsProjectDFTMixingSchemeStates:
             if entry.entry_id == "r2scan-4":
                 assert entry.correction == 3
                 assert entry.parameters["run_type"] == "R2SCAN"
-            elif entry.entry_id in ["gga-4", "r2scan-8"]:
-                raise AssertionError(f"Entry {entry.entry_id} should have been discarded")
             else:
+                assert entry.entry_id not in ("gga-4", "r2scan-8"), f"{entry.entry_id=} should have been discarded"
                 assert entry.correction == 0, f"{entry.entry_id}"
                 assert entry.parameters["run_type"] == "GGA"
 

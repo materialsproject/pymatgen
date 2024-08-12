@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import gzip
 import json
-import random
 from unittest import TestCase
 
 import numpy as np
@@ -10,11 +9,12 @@ import pandas as pd
 import pytest
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose
+from pytest import approx
+from ruamel.yaml import YAML
+
 from pymatgen.core import Element, Lattice, Molecule, Structure
 from pymatgen.io.lammps.data import CombinedData, ForceField, LammpsBox, LammpsData, Topology, lattice_2_lmpbox
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
-from ruamel.yaml import YAML
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/lammps"
 
@@ -261,9 +261,10 @@ class TestLammpsData(PymatgenTest):
         c2h6 = LammpsData.from_file(out_path)
         pd.testing.assert_frame_equal(c2h6.masses, self.ethane.masses)
         pd.testing.assert_frame_equal(c2h6.atoms, self.ethane.atoms)
-        ff_kw = random.sample(sorted(self.ethane.force_field), 1)[0]
+        rng = np.random.default_rng()
+        ff_kw = rng.choice(sorted(self.ethane.force_field), 1)[0]
         pd.testing.assert_frame_equal(c2h6.force_field[ff_kw], self.ethane.force_field[ff_kw], ff_kw)
-        topo_kw = random.sample(sorted(self.ethane.topology), 1)[0]
+        topo_kw = rng.choice(sorted(self.ethane.topology), 1)[0]
         pd.testing.assert_frame_equal(c2h6.topology[topo_kw], self.ethane.topology[topo_kw], topo_kw)
         out_path2 = f"{self.tmp_path}/test2.data"
         self.virus.write_file(filename=out_path2)
@@ -298,9 +299,10 @@ class TestLammpsData(PymatgenTest):
         assert c_ff.mass_info == mass_info
         np.testing.assert_array_equal(c_ff.nonbond_coeffs, c.force_field["Pair Coeffs"].values)
         base_kws = ["Bond", "Angle", "Dihedral", "Improper"]
+        rng = np.random.default_rng()
         for kw in base_kws:
             ff_kw = f"{kw} Coeffs"
-            idx = random.randint(0, len(c_ff.topo_coeffs[ff_kw]) - 1)
+            idx = rng.integers(0, len(c_ff.topo_coeffs[ff_kw]) - 1)
             sample_coeff = c_ff.topo_coeffs[ff_kw][idx]
             np.testing.assert_array_equal(sample_coeff["coeffs"], c.force_field[ff_kw].iloc[idx].values, ff_kw)
         topo = topos[-1]
@@ -318,7 +320,7 @@ class TestLammpsData(PymatgenTest):
             topo_df: pd.DataFrame = topos_df[topos_df["atom1"] >= shift]
             topo_arr = topo_df.drop("type", axis=1)
             np.testing.assert_array_equal(topo.topologies[topo_kw], topo_arr - shift, topo_kw)
-            sample_topo = random.sample(list(topo_df.itertuples(index=False, name=None)), 1)[0]
+            sample_topo = rng.choice(list(topo_df.itertuples(index=False, name=None)), 1)[0]
             topo_type_idx = sample_topo[0] - 1
             topo_type = tuple(atom_labels[i - 1] for i in atoms.loc[list(sample_topo[1:])]["type"])
 
@@ -423,7 +425,7 @@ class TestLammpsData(PymatgenTest):
         assert pair_ij.loc[7, "id2"] == 3
         assert pair_ij.loc[7, "coeff2"] == 2.1
         # sort_id
-        atom_id = random.randint(1, 384)
+        atom_id = np.random.default_rng().integers(1, 384)
         assert self.tatb.atoms.loc[atom_id].name == atom_id
 
     def test_from_ff_and_topologies(self):
@@ -448,7 +450,7 @@ class TestLammpsData(PymatgenTest):
         np.testing.assert_array_equal(bonds.index.values, np.arange(1, len(bonds) + 1))
         np.testing.assert_array_equal(angles.index.values, np.arange(1, len(angles) + 1))
 
-        idx = random.randint(0, len(topologies) - 1)
+        idx = np.random.default_rng().integers(0, len(topologies) - 1)
         sample = topologies[idx]
         in_atoms = ice.atoms[ice.atoms["molecule-ID"] == idx + 1]
         np.testing.assert_array_equal(in_atoms.index.values, np.arange(3 * idx + 1, 3 * idx + 4))
@@ -471,10 +473,11 @@ class TestLammpsData(PymatgenTest):
             ["Os", "O", "O"],
             [[0, 0.25583, 0.75], [0.11146, 0.46611, 0.91631], [0.11445, 0.04564, 0.69518]],
         )
-        velocities = np.random.randn(20, 3) * 0.1
+        rng = np.random.default_rng()
+        velocities = rng.standard_normal((20, 3)) * 0.1
         structure.add_site_property("velocities", velocities)
         lammps_data = LammpsData.from_structure(structure=structure, ff_elements=["O", "Os", "Na"])
-        idx = random.randint(0, 19)
+        idx = rng.integers(0, 19)
         a = lattice.matrix[0]
         v_a = velocities[idx].dot(a) / np.linalg.norm(a)
         assert v_a == approx(lammps_data.velocities.loc[idx + 1, "vx"])
@@ -508,24 +511,28 @@ class TestLammpsData(PymatgenTest):
         pd.testing.assert_frame_equal(c2h6.masses, self.ethane.masses)
         pd.testing.assert_frame_equal(c2h6.atoms, self.ethane.atoms)
         ff = self.ethane.force_field
-        key, target_df = random.sample(sorted(ff.items()), 1)[0]
+        rng = np.random.default_rng()
+        ff_items = list(ff.items())
+        key, target_df = ff_items[rng.choice(len(ff_items))]
         c2h6.force_field[key].index = c2h6.force_field[key].index.map(int)
         assert pd.testing.assert_frame_equal(c2h6.force_field[key], target_df, check_dtype=False) is None, key
         topo = self.ethane.topology
-        key, target_df = random.sample(sorted(topo.items()), 1)[0]
+        topo_items = list(topo.items())
+        key, target_df = topo_items[rng.choice(len(topo_items))]
         c2h6.topology[key].index = c2h6.topology[key].index.map(int)
         assert pd.testing.assert_frame_equal(c2h6.topology[key], target_df) is None, key
 
 
 class TestTopology(TestCase):
     def test_init(self):
-        inner_charge = np.random.rand(10) - 0.5
-        outer_charge = np.random.rand(10) - 0.5
-        inner_velo = np.random.rand(10, 3) - 0.5
-        outer_velo = np.random.rand(10, 3) - 0.5
+        rng = np.random.default_rng()
+        inner_charge = rng.random(10) - 0.5
+        outer_charge = rng.random(10) - 0.5
+        inner_velo = rng.random((10, 3)) - 0.5
+        outer_velo = rng.random((10, 3)) - 0.5
         mol = Molecule(
             ["H"] * 10,
-            np.random.rand(10, 3) * 100,
+            rng.random((10, 3)) * 100,
             site_properties={
                 "ff_map": ["D"] * 10,
                 "charge": inner_charge,
@@ -751,11 +758,12 @@ class TestForceField(PymatgenTest):
 
 class TestFunc(TestCase):
     def test_lattice_2_lmpbox(self):
-        matrix = np.diag(np.random.randint(5, 14, size=(3,))) + np.random.rand(3, 3) * 0.2 - 0.1
+        rng = np.random.default_rng()
+        matrix = np.diag(rng.integers(5, 14, size=(3,))) + rng.random((3, 3)) * 0.2 - 0.1
         init_latt = Lattice(matrix)
-        frac_coords = np.random.rand(10, 3)
+        frac_coords = rng.random((10, 3))
         init_structure = Structure(init_latt, ["H"] * 10, frac_coords)
-        origin = np.random.rand(3) * 10 - 5
+        origin = rng.random(3) * 10 - 5
         box, symm_op = lattice_2_lmpbox(lattice=init_latt, origin=origin)
         boxed_latt = box.to_lattice()
         assert_allclose(init_latt.abc, boxed_latt.abc)
@@ -1059,24 +1067,29 @@ class TestCombinedData(TestCase):
         pd.testing.assert_frame_equal(lic3o3h4.masses, self.li_ec.masses)
         pd.testing.assert_frame_equal(lic3o3h4.atoms, self.li_ec.atoms)
         ff = self.li_ec.force_field
-        key, target_df = random.sample(sorted(ff.items()), 1)[0]
+        rng = np.random.default_rng()
+        ff_items = list(ff.items())
+        key, target_df = ff_items[rng.choice(len(ff_items))]
         lic3o3h4.force_field[key].index = lic3o3h4.force_field[key].index.map(int)
         assert pd.testing.assert_frame_equal(lic3o3h4.force_field[key], target_df, check_dtype=False) is None, key
         topo = self.li_ec.topology
-        key, target_df = random.sample(sorted(topo.items()), 1)[0]
+        topo_items = list(topo.items())
+        key, target_df = topo_items[rng.choice(len(topo_items))]
         assert pd.testing.assert_frame_equal(lic3o3h4.topology[key], target_df) is None, key
         lic3o3h4.mols[1].masses.index = lic3o3h4.mols[1].masses.index.map(int)
         lic3o3h4.mols[1].atoms.index = lic3o3h4.mols[1].atoms.index.map(int)
         pd.testing.assert_frame_equal(lic3o3h4.mols[1].masses, self.li_ec.mols[1].masses)
         pd.testing.assert_frame_equal(lic3o3h4.mols[1].atoms, self.li_ec.mols[1].atoms)
         ff_1 = self.li_ec.mols[1].force_field
-        key, target_df = random.sample(sorted(ff_1.items()), 1)[0]
+        ff1_items = list(ff_1.items())
+        key, target_df = ff1_items[rng.choice(len(ff1_items))]
         lic3o3h4.mols[1].force_field[key].index = lic3o3h4.mols[1].force_field[key].index.map(int)
         assert (
             pd.testing.assert_frame_equal(lic3o3h4.mols[1].force_field[key], target_df, check_dtype=False) is None
         ), key
         topo_1 = self.li_ec.mols[1].topology
-        key, target_df = random.sample(sorted(topo_1.items()), 1)[0]
+        topo1_items = list(topo_1.items())
+        key, target_df = topo1_items[rng.choice(len(topo1_items))]
         lic3o3h4.mols[1].topology[key].index = lic3o3h4.mols[1].topology[key].index.map(int)
         assert pd.testing.assert_frame_equal(lic3o3h4.mols[1].topology[key], target_df) is None, key
 

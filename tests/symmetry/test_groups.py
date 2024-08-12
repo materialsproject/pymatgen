@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from pytest import approx
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
 from pymatgen.symmetry.groups import SYMM_DATA, PointGroup, SpaceGroup
-from pytest import approx
 
 __author__ = "Shyue Ping Ong"
 __copyright__ = "Copyright 2012, The Materials Virtual Lab"
@@ -120,12 +121,12 @@ class TestSpaceGroup:
 
     def test_get_orbit(self):
         sg = SpaceGroup("Fm-3m")
-        rand_percent = np.random.randint(0, 100 + 1, size=(3,)) / 100
+        rand_percent = np.random.default_rng().integers(0, 100, size=(3,), endpoint=True) / 100
         assert len(sg.get_orbit(rand_percent)) <= sg.order
 
     def test_get_orbit_and_generators(self):
         sg = SpaceGroup("Fm-3m")
-        rand_percent = np.random.randint(0, 100 + 1, size=(3,)) / 100
+        rand_percent = np.random.default_rng().integers(0, 100 + 1, size=(3,)) / 100
         orbit, generators = sg.get_orbit_and_generators(rand_percent)
         assert len(orbit) <= sg.order
         pp = generators[0].operate(orbit[0])

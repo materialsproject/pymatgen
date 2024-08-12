@@ -8,11 +8,12 @@ import pytest
 from monty.io import zopen
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.core import Element, Structure
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.electronic_structure.dos import DOS, CompleteDos, FermiDos, LobsterCompleteDos
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/dos"
 

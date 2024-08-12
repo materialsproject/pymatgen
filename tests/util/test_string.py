@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
 from pymatgen.core import Structure
 from pymatgen.util.string import (
     Stringify,

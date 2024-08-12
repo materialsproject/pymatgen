@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.json import MontyDecoder, MontyEncoder, MSONable
+
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.periodic_table import DummySpecies, Element, Species, get_el_sp
@@ -17,8 +18,9 @@ if TYPE_CHECKING:
     from typing import Any
 
     from numpy.typing import ArrayLike
-    from pymatgen.util.typing import CompositionLike, SpeciesLike, Vector3D
     from typing_extensions import Self
+
+    from pymatgen.util.typing import CompositionLike, SpeciesLike, Vector3D
 
 
 class Site(collections.abc.Hashable, MSONable):
@@ -44,7 +46,7 @@ class Site(collections.abc.Hashable, MSONable):
         Args:
             species: Species on the site. Can be:
                 i.  A Composition-type object (preferred)
-                ii. An  element / species specified either as a string
+                ii. An element / species specified either as a string
                     symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
                     e.g. 3, 56, or actual Element or Species objects.
                 iii.Dict of elements/species and occupancies, e.g.
@@ -82,14 +84,14 @@ class Site(collections.abc.Hashable, MSONable):
             return props[attr]
         raise AttributeError(f"{attr=} not found on {type(self).__name__}")
 
-    def __getitem__(self, el: Element) -> float:  # type: ignore[override]
+    def __getitem__(self, el: Element) -> float:
         """Get the occupancy for element."""
         return self.species[el]
 
     def __eq__(self, other: object) -> bool:
         """Site is equal to another site if the species and occupancies are the
-        same, and the coordinates are the same to some tolerance.  numpy
-        function `allclose` is used to determine if coordinates are close.
+        same, and the coordinates are the same to some tolerance. `numpy.allclose`
+        is used to determine if coordinates are close.
         """
         if not isinstance(other, type(self)):
             return NotImplemented
@@ -100,7 +102,7 @@ class Site(collections.abc.Hashable, MSONable):
             and self.properties == other.properties
         )
 
-    def __hash__(self) -> int:  # type: ignore[override]
+    def __hash__(self) -> int:
         """Minimally effective hash function that just distinguishes between Sites
         with different elements.
         """
@@ -303,7 +305,7 @@ class PeriodicSite(Site, MSONable):
         Args:
             species: Species on the site. Can be:
                 i.  A Composition-type object (preferred)
-                ii. An  element / species specified either as a string
+                ii. An element / species specified either as a string
                     symbols, e.g. "Li", "Fe2+", "P" or atomic numbers,
                     e.g. 3, 56, or actual Element or Species objects.
                 iii.Dict of elements/species and occupancies, e.g.

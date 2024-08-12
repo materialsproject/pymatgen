@@ -4,6 +4,8 @@ from unittest import TestCase
 
 import numpy as np
 import pytest
+from pytest import approx
+
 from pymatgen.analysis.molecule_matcher import (
     BruteForceOrderMatcher,
     GeneticOrderMatcher,
@@ -17,7 +19,6 @@ from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import Lattice, Molecule, Structure
 from pymatgen.io.xyz import XYZ
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 try:
     from openbabel import openbabel

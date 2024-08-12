@@ -5,10 +5,11 @@ import itertools
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
+from pytest import approx
+
 from pymatgen.core.lattice import Lattice, get_points_in_spheres
 from pymatgen.core.operations import SymmOp
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 
 class TestLattice(PymatgenTest):
@@ -79,7 +80,7 @@ class TestLattice(PymatgenTest):
         )
 
         # Random testing that get_cart and get_frac coords reverses each other.
-        rand_coord = np.random.random_sample(3)
+        rand_coord = np.random.default_rng().random(3)
         coord = self.tetragonal.get_cartesian_coords(rand_coord)
         frac_coord = self.tetragonal.get_fractional_coords(coord)
         assert_allclose(frac_coord, rand_coord)
@@ -191,7 +192,7 @@ class TestLattice(PymatgenTest):
         assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
         assert_allclose(sorted(reduced_latt.abc), sorted(expected.abc))
 
-        random_latt = Lattice(np.random.random((3, 3)))
+        random_latt = Lattice(np.random.default_rng().random((3, 3)))
         if np.linalg.det(random_latt.matrix) > 1e-8:
             reduced_random_latt = random_latt.get_lll_reduced_lattice()
             assert reduced_random_latt.volume == approx(random_latt.volume)
@@ -449,13 +450,14 @@ class TestLattice(PymatgenTest):
         assert_allclose(image, [0, 0, -1])
 
     def test_get_distance_and_image_strict(self):
+        rng = np.random.default_rng()
         for _ in range(10):
-            lengths = np.random.randint(1, 100, 3)
-            lattice = np.random.rand(3, 3) * lengths
+            lengths = rng.integers(1, 100, 3)
+            lattice = rng.random((3, 3)) * lengths
             lattice = Lattice(lattice)
 
-            f1 = np.random.rand(3)
-            f2 = np.random.rand(3)
+            f1 = rng.random(3)
+            f2 = rng.random(3)
 
             scope = list(range(-3, 4))
             min_image_dist = (float("inf"), None)

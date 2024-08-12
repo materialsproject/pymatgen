@@ -1,20 +1,20 @@
 """
-This module defines the building blocks of a CP2K input file. The cp2k input structure is
+This module defines the building blocks of a CP2K input file. The CP2K input structure is
 essentially a collection of "sections" which are similar to dictionary objects that activate
-modules of the cp2k executable, and then "keywords" which adjust variables inside of those
+modules of the CP2K executable, and then "keywords" which adjust variables inside of those
 modules. For example, FORCE_EVAL section will activate CP2K's ability to calculate forces,
 and inside FORCE_EVAL, the Keyword "METHOD can be set to "QS" to set the method of force
 evaluation to be the quickstep (DFT) module.
 
 A quick overview of the module:
 
--- Section class defines the basis of Cp2k input and contains methods for manipulating these
+-- Section class defines the basis of CP2K input and contains methods for manipulating these
    objects similarly to Dicts.
 -- Keyword class defines the keywords used inside of Section objects that changes variables in
-   Cp2k programs.
+   CP2K programs.
 -- SectionList and KeywordList classes are lists of Section and Keyword objects that have
    the same dictionary key. This deals with repeated sections and keywords.
--- Cp2kInput class is special instantiation of Section that is used to represent the full cp2k
+-- Cp2kInput class is special instantiation of Section that is used to represent the full CP2K
    calculation input.
 -- The rest of the classes are children of Section intended to make initialization of common
    sections easier.
@@ -29,14 +29,13 @@ import itertools
 import os
 import re
 import textwrap
-from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.json import MSONable
+
 from pymatgen.core import Element
 from pymatgen.io.cp2k.utils import chunk, postprocessor, preprocessor
 from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
@@ -44,20 +43,20 @@ from pymatgen.io.vasp.inputs import KpointsSupportedModes
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Iterable, Sequence
+    from pathlib import Path
     from typing import Any, Literal
+
+    from typing_extensions import Self
 
     from pymatgen.core.lattice import Lattice
     from pymatgen.core.structure import Molecule, Structure
     from pymatgen.util.typing import Kpoint, Tuple3Ints
-    from typing_extensions import Self
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
 __email__ = "nwinner@berkeley.edu"
 __date__ = "September 2022"
-
-MODULE_DIR = Path(__file__).resolve().parent
 
 
 class Keyword(MSONable):
@@ -236,8 +235,8 @@ class KeywordList(MSONable):
 
 class Section(MSONable):
     """
-    Basic input representation of input to Cp2k. Activates functionality inside of the
-    Cp2k executable.
+    Basic input representation of input to CP2K. Activates functionality inside of the
+    CP2K executable.
     """
 
     def __init__(
@@ -279,7 +278,7 @@ class Section(MSONable):
             location: the path to the section in the form 'SECTION/SUBSECTION1/SUBSECTION3',
                 example for QS module: 'FORCE_EVAL/DFT/QS'. This location is used to automatically
                 determine if a subsection requires a supersection to be activated.
-            verbose: Controls how much is printed to Cp2k input files (Also see Keyword).
+            verbose: Controls how much is printed to CP2K input files (Also see Keyword).
                 If True, then a description of the section will be printed with it as a comment
                 (if description is set). Default=True.
             alias: An alias for this class to use in place of the name.
@@ -332,6 +331,28 @@ class Section(MSONable):
     def __setitem__(self, key, value):
         self.setitem(key, value)
 
+    def __or__(self, other: dict) -> Section:
+        """Dict merge."""
+        return self.update(other)
+
+    def __delitem__(self, key):
+        """
+        Delete section with name matching key OR delete all keywords
+        with names matching this key.
+        """
+        if lst := [sub_sec for sub_sec in self.subsections if sub_sec.upper() == key.upper()]:
+            del self.subsections[lst[0]]
+            return
+
+        if lst := [kw for kw in self.keywords if kw.upper() == key.upper()]:
+            del self.keywords[lst[0]]
+            return
+
+        raise KeyError("No section or keyword matching the given key.")
+
+    def __sub__(self, other):
+        return self.__delitem__(other)
+
     def setitem(self, key, value, strict=False):
         """
         Helper function for setting items. Kept separate from the double-underscore function so that
@@ -353,24 +374,6 @@ class Section(MSONable):
             elif not strict:
                 self.keywords[key] = value
 
-    def __delitem__(self, key):
-        """
-        Delete section with name matching key OR delete all keywords
-        with names matching this key.
-        """
-        if lst := [sub_sec for sub_sec in self.subsections if sub_sec.upper() == key.upper()]:
-            del self.subsections[lst[0]]
-            return
-
-        if lst := [kw for kw in self.keywords if kw.upper() == key.upper()]:
-            del self.keywords[lst[0]]
-            return
-
-        raise KeyError("No section or keyword matching the given key.")
-
-    def __sub__(self, other):
-        return self.__delitem__(other)
-
     def add(self, other):
         """Add another keyword to the current section."""
         if not isinstance(other, (Keyword, KeywordList)):
@@ -387,8 +390,7 @@ class Section(MSONable):
         """
         if kw := self.get_keyword(d):
             return kw
-        sec = self.get_section(d)
-        if sec:
+        if sec := self.get_section(d):
             return sec
         return default
 
@@ -416,7 +418,7 @@ class Section(MSONable):
                 return v
         return default
 
-    def update(self, dct: dict, strict=False):
+    def update(self, dct: dict, strict=False) -> Section:
         """
         Update the Section according to a dictionary argument. This is most useful
         for providing user-override settings to default parameters. As you pass a
@@ -441,6 +443,7 @@ class Section(MSONable):
                 new sections and keywords. Default: False
         """
         Section._update(self, dct, strict=strict)
+        return self
 
     @staticmethod
     def _update(d1, d2, strict=False):
@@ -650,7 +653,7 @@ class SectionList(MSONable):
 
 class Cp2kInput(Section):
     """
-    Special instance of 'Section' class that is meant to represent the overall cp2k input.
+    Special instance of 'Section' class that is meant to represent the overall CP2K input.
     Distinguishes itself from Section by overriding get_str() to not print this section's
     title and by implementing the file i/o.
     """
@@ -673,10 +676,7 @@ class Cp2kInput(Section):
 
     def get_str(self):
         """Get string representation of the Cp2kInput."""
-        string = ""
-        for v in self.subsections.values():
-            string += v.get_str()
-        return string
+        return "".join(v.get_str() for v in self.subsections.values())
 
     @classmethod
     def _from_dict(cls, dct: dict):
@@ -775,7 +775,7 @@ class Cp2kInput(Section):
 
 
 class Global(Section):
-    """Controls 'global' settings for cp2k execution such as RUN_TYPE and PROJECT_NAME."""
+    """Controls 'global' settings for CP2K execution such as RUN_TYPE and PROJECT_NAME."""
 
     def __init__(
         self,
@@ -815,7 +815,7 @@ class Global(Section):
 
 
 class ForceEval(Section):
-    """Controls the calculation of energy and forces in Cp2k."""
+    """Controls the calculation of energy and forces in CP2K."""
 
     def __init__(self, keywords: dict | None = None, subsections: dict | None = None, **kwargs):
         """Initialize the ForceEval section."""
@@ -840,7 +840,7 @@ class ForceEval(Section):
 
 
 class Dft(Section):
-    """Controls the DFT parameters in Cp2k."""
+    """Controls the DFT parameters in CP2K."""
 
     def __init__(
         self,
@@ -1349,7 +1349,7 @@ class Kind(Section):
         subsections = subsections or {}
         description = "The description of this kind of atom including basis sets, element, etc."
 
-        # Special case for closed-shell elements. Cannot impose magnetization in cp2k.
+        # Special case for closed-shell elements. Cannot impose magnetization in CP2K.
         closed_shell_elems = {2, 4, 10, 12, 18, 20, 30, 36, 38, 48, 54, 56, 70, 80, 86, 88, 102, 112, 118}
         if Element(self.specie).Z in closed_shell_elems:
             self.magnetization = 0
@@ -1933,7 +1933,7 @@ class Kpoints(Section):
                 weigh each by 1
             eps_geo (float): tolerance for symmetry. Default=1e-6
             full_grid (bool): use full (not reduced) kpoint grid. Default=False.
-            parallel_group_size (int): from cp2k manual: Number of processors
+            parallel_group_size (int): from CP2K manual: Number of processors
                 to be used for a single kpoint. This number must divide the
                 total number of processes. The number of groups must divide
                 the total number of kpoints. Value=-1 (smallest possible
@@ -1971,18 +1971,16 @@ class Kpoints(Section):
         else:
             raise ValueError("No k-points provided!")
 
-        keywords.update(
-            {
-                "SCHEME": Keyword("SCHEME", scheme),
-                "EPS_GEO": Keyword("EPS_GEO", eps_geo),
-                "FULL_GRID": Keyword("FULL_GRID", full_grid),
-                "PARALLEL_GROUP_SIZE": Keyword("PARALLEL_GROUP_SIZE", parallel_group_size),
-                "SYMMETRY": Keyword("SYMMETRY", symmetry),
-                "UNITS": Keyword("UNITS", units),
-                "VERBOSE": Keyword("VERBOSE", verbose),
-                "WAVEFUNCTIONS": Keyword("WAVEFUNCTIONS", wavefunctions),
-            }
-        )
+        keywords |= {
+            "SCHEME": Keyword("SCHEME", scheme),
+            "EPS_GEO": Keyword("EPS_GEO", eps_geo),
+            "FULL_GRID": Keyword("FULL_GRID", full_grid),
+            "PARALLEL_GROUP_SIZE": Keyword("PARALLEL_GROUP_SIZE", parallel_group_size),
+            "SYMMETRY": Keyword("SYMMETRY", symmetry),
+            "UNITS": Keyword("UNITS", units),
+            "VERBOSE": Keyword("VERBOSE", verbose),
+            "WAVEFUNCTIONS": Keyword("WAVEFUNCTIONS", wavefunctions),
+        }
 
         super().__init__(
             name="KPOINTS",
@@ -1993,7 +1991,7 @@ class Kpoints(Section):
         )
 
     @classmethod
-    def from_kpoints(cls, kpoints: VaspKpoints, structure=None) -> Self:
+    def from_kpoints(cls, kpoints: VaspKpoints, structure: Structure | None = None) -> Self:
         """
         Initialize the section from a Kpoints object (pymatgen.io.vasp.inputs). CP2K
         does not have an automatic gamma-point constructor, so this is generally used
@@ -2002,18 +2000,18 @@ class Kpoints(Section):
         so long as the grid is fine enough.
 
         Args:
-            kpoints: A pymatgen kpoints object.
-            structure: Pymatgen structure object. Required for automatically performing
+            kpoints (Kpoints): A pymatgen kpoints object.
+            structure (Structure): Required for automatically performing
                 symmetry analysis and reducing the kpoint grid.
             reduce: whether or not to reduce the grid using symmetry. CP2K itself cannot
                 do this automatically without spglib present at execution time.
         """
         kpts = kpoints.kpts
-        weights = kpoints.kpts_weights
+        weights: Sequence[float] | None = kpoints.kpts_weights
 
         if kpoints.style == KpointsSupportedModes.Monkhorst:
-            kpt: Kpoint = kpts[0]  # type: ignore[assignment]
-            x, y, z = (kpt, kpt, kpt) if isinstance(kpt, (int, float)) else kpt  # type: ignore[misc]
+            kpt: Kpoint = kpts[0]
+            x, y, z = (kpt, kpt, kpt) if len(kpt) == 1 else kpt
             scheme = f"MONKHORST-PACK {x} {y} {z}"
             units = "B_VECTOR"
 
@@ -2031,14 +2029,12 @@ class Kpoints(Section):
                     "No cp2k automatic gamma constructor. A structure is required to construct from spglib"
                 )
 
-            if (isinstance(kpts[0], Iterable) and tuple(kpts[0]) == (1, 1, 1)) or (
-                isinstance(kpts[0], (float, int)) and int(kpts[0]) == 1
-            ):
+            if tuple(kpts[0]) in {(1, 1, 1), (1,)}:
                 scheme = "GAMMA"
             else:
                 sga = SpacegroupAnalyzer(structure)
-                _kpts, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpts))  # type: ignore[assignment]
-                kpts = tuple(itertools.chain.from_iterable(_kpts))
+                _kpts, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpts))  # type: ignore[arg-type]
+                kpts = list(itertools.chain.from_iterable(_kpts))
                 scheme = "GENERAL"
 
             units = "B_VECTOR"
@@ -2128,8 +2124,6 @@ class BandStructure(Section):
             keywords=keywords,
         )
 
-    # TODO kpoints objects are defined in the vasp module instead of a code agnostic module
-    # if this changes in the future as other codes are added, then this will need to change
     @classmethod
     def from_kpoints(cls, kpoints: VaspKpoints, kpoints_line_density: int = 20) -> Self:
         """
@@ -2138,6 +2132,9 @@ class BandStructure(Section):
         Args:
             kpoints: a kpoint object from the vasp module, which was constructed in line mode
             kpoints_line_density: Number of kpoints along each path
+
+        TODO: kpoints objects are defined in the vasp module instead of a code agnostic module
+        if this changes in the future as other codes are added, then this will need to change
         """
         if kpoints.style == KpointsSupportedModes.Line_mode:
 
@@ -2221,14 +2218,13 @@ class BasisInfo(MSONable):
             return False
         d1 = self.as_dict()
         d2 = other.as_dict()
-        return all(not (v is not None and v != d2[k]) for k, v in d1.items())
+        return all(v is None or v == d2[k] for k, v in d1.items())
 
     @classmethod
     def from_str(cls, string: str) -> Self:
         """Get summary info from a string."""
         string = string.upper()
-        data: dict[str, Any] = {}
-        data["cc"] = "CC" in string
+        data: dict[str, Any] = {"cc": "CC" in string}
         string = string.replace("CC", "")
         data["pc"] = "PC" in string
         string = string.replace("PC", "")
@@ -2279,7 +2275,7 @@ class BasisInfo(MSONable):
 @dataclass
 class AtomicMetadata(MSONable):
     """
-    Metadata for basis sets and potentials in cp2k.
+    Metadata for basis sets and potentials in CP2K.
 
     Attributes:
         info: Info about this object
@@ -2319,7 +2315,7 @@ class AtomicMetadata(MSONable):
         other_names = [other.name]
         if other.alias_names:
             other_names.extend(other.alias_names)
-        return all(not (nm is not None and nm not in other_names) for nm in this_names)
+        return all(nm is None or nm in other_names for nm in this_names)
 
     def get_hash(self) -> str:
         """Get a hash of this object."""
@@ -2363,7 +2359,7 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         if self.info and self.potential == "All Electron" and self.element:
             self.info.electrons = self.element.Z
         if self.name == "ALLELECTRON":
-            self.name = "ALL"  # cp2k won't parse ALLELECTRON for some reason
+            self.name = "ALL"  # CP2K won't parse ALLELECTRON for some reason
 
         def cast(d):
             new = {}
@@ -2394,7 +2390,7 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
         return [len(exp) for exp in self.exponents]
 
     def get_str(self) -> str:
-        """Get standard cp2k GTO formatted string."""
+        """Get standard CP2K GTO formatted string."""
         if (  # written verbosely so mypy can perform type narrowing
             self.info is None
             or self.nset is None
@@ -2424,7 +2420,7 @@ class GaussianTypeOrbitalBasisSet(AtomicMetadata):
 
     @classmethod
     def from_str(cls, string: str) -> Self:
-        """Read from standard cp2k GTO formatted string."""
+        """Read from standard CP2K GTO formatted string."""
         lines = [line for line in string.split("\n") if line]
         firstline = lines[0].split()
         element = Element(firstline[0])
@@ -2519,11 +2515,11 @@ class PotentialInfo(MSONable):
             return False
         d1 = self.as_dict()
         d2 = other.as_dict()
-        return all(not (v is not None and v != d2[k]) for k, v in d1.items())
+        return all(v is None or v == d2[k] for k, v in d1.items())
 
     @classmethod
     def from_str(cls, string: str) -> Self:
-        """Get a cp2k formatted string representation."""
+        """Get a CP2K formatted string representation."""
         string = string.upper()
         data: dict[str, Any] = {}
         if "NLCC" in string:
@@ -2575,7 +2571,7 @@ class GthPotential(AtomicMetadata):
         if self.potential == "All Electron" and self.element:
             self.info.electrons = self.element.Z
         if self.name == "ALLELECTRON":
-            self.name = "ALL"  # cp2k won't parse ALLELECTRON for some reason
+            self.name = "ALL"  # CP2K won't parse ALLELECTRON for some reason
 
         def cast(d):
             new = {}
@@ -2649,11 +2645,11 @@ class GthPotential(AtomicMetadata):
         for idx in range(self.nprj):
             total_fill = self.nprj_ppnl[idx] * 20 + 24
             tmp = f"{self.radii[idx]: .14f} {self.nprj_ppnl[idx]: d}"
-            out += f"{tmp:>{''}{24}}"
+            out += f"{tmp:>24}"
             for i in range(self.nprj_ppnl[idx]):
                 k = total_fill - 24 if i == 0 else total_fill
                 tmp = " ".join(f"{v: .14f}" for v in self.hprj_ppnl[idx][i].values())
-                out += f"{tmp:>{''}{k}}"
+                out += f"{tmp:>{k}}"
                 out += "\n"
         return out
 
@@ -2729,9 +2725,12 @@ class GthPotential(AtomicMetadata):
 
 @dataclass
 class DataFile(MSONable):
-    """A data file for a cp2k calc."""
+    """A data file for a CP2K calc."""
 
     objects: Sequence | None = None
+
+    def __str__(self):
+        return self.get_str()
 
     @classmethod
     def from_file(cls, filename) -> Self:
@@ -2757,16 +2756,13 @@ class DataFile(MSONable):
         """Get string representation."""
         return "\n".join(b.get_str() for b in self.objects or [])
 
-    def __str__(self):
-        return self.get_str()
-
 
 @dataclass
 class BasisFile(DataFile):
     """Data file for basis sets only."""
 
     @classmethod
-    def from_str(cls, string: str) -> Self:  # type: ignore[override]
+    def from_str(cls, string: str) -> Self:
         """Initialize from a string representation."""
         basis_sets = [GaussianTypeOrbitalBasisSet.from_str(c) for c in chunk(string)]
         return cls(objects=basis_sets)
@@ -2777,7 +2773,7 @@ class PotentialFile(DataFile):
     """Data file for potentials only."""
 
     @classmethod
-    def from_str(cls, string: str) -> Self:  # type: ignore[override]
+    def from_str(cls, string: str) -> Self:
         """Initialize from a string representation."""
         basis_sets = [GthPotential.from_str(c) for c in chunk(string)]
         return cls(objects=basis_sets)

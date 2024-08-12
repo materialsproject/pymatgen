@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import random
 from fractions import Fraction
 from pathlib import Path
 from shutil import which
@@ -10,8 +9,12 @@ from unittest import skipIf
 
 import numpy as np
 import pytest
+import requests
+import urllib3
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose, assert_array_equal
+from pytest import approx
+
 from pymatgen.core import SETTINGS, Composition, Element, Lattice, Species
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.structure import (
@@ -28,7 +31,6 @@ from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.io.cif import CifParser
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR, PymatgenTest
-from pytest import approx
 
 try:
     from ase.atoms import Atoms
@@ -376,7 +378,8 @@ class TestIStructure(PymatgenTest):
         s1.pop(0)
         s2 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         s2.pop(2)
-        random.shuffle(s2)
+        rng = np.random.default_rng()
+        rng.shuffle(s2)
 
         for struct in s1.interpolate(s2, autosort_tol=0.5):
             assert_allclose(s1[0].frac_coords, struct[0].frac_coords)
@@ -387,7 +390,7 @@ class TestIStructure(PymatgenTest):
         s1 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         s2 = Structure.from_spacegroup("Fm-3m", Lattice.cubic(3), ["Fe"], [[0, 0, 0]])
         s2[0] = "Fe", [0.01, 0.01, 0.01]
-        random.shuffle(s2)
+        rng.shuffle(s2)
 
         for struct in s1.interpolate(s2, autosort_tol=0.5):
             assert_allclose(s1[1].frac_coords, struct[1].frac_coords)
@@ -613,7 +616,7 @@ class TestIStructure(PymatgenTest):
         struct = self.struct
         nn = struct.get_neighbors_in_shell(struct[0].frac_coords, 2, 4, include_index=True, include_image=True)
         assert len(nn) == 47
-        rand_radius = random.uniform(3, 6)
+        rand_radius = np.random.default_rng().uniform(3, 6)
         all_nn = struct.get_all_neighbors(rand_radius, include_index=True, include_image=True)
         for idx, site in enumerate(struct):
             assert len(all_nn[idx][0]) == 4
@@ -931,8 +934,14 @@ class TestStructure(PymatgenTest):
         s = Structure.from_id("mp-1143")
         assert isinstance(s, Structure)
         assert s.reduced_formula == "Al2O3"
-        s = Structure.from_id("1101077", source="COD")
-        assert s.reduced_formula == "LiV2O4"
+
+        try:
+            website_down = requests.get("https://www.crystallography.net", timeout=600).status_code != 200
+        except (requests.exceptions.ConnectionError, urllib3.exceptions.ConnectTimeoutError):
+            website_down = True
+        if not website_down:
+            s = Structure.from_id("1101077", source="COD")
+            assert s.reduced_formula == "LiV2O4"
 
     def test_mutable_sequence_methods(self):
         struct = self.struct
@@ -1679,6 +1688,7 @@ class TestStructure(PymatgenTest):
         assert not hasattr(calculator, "dynamics")
         assert self.cu_structure == struct_copy, "original structure was modified"
 
+    @pytest.mark.skipif(int(np.__version__[0]) >= 2, reason="chgnet is not built against NumPy 2.0")
     def test_relax_chgnet(self):
         pytest.importorskip("chgnet")
         struct_copy = self.cu_structure.copy()
@@ -1702,6 +1712,7 @@ class TestStructure(PymatgenTest):
         assert custom_relaxed.calc.results.get("energy") == approx(-6.0151076, abs=1e-4)
         assert custom_relaxed.volume == approx(40.044794644, abs=1e-4)
 
+    @pytest.mark.skipif(int(np.__version__[0]) >= 2, reason="chgnet is not built against NumPy 2.0")
     def test_calculate_chgnet(self):
         pytest.importorskip("chgnet")
         struct = self.get_structure("Si")
@@ -1768,6 +1779,7 @@ class TestStructure(PymatgenTest):
         assert traj[0] != traj[-1]
         assert os.path.isfile(traj_file)
 
+    @pytest.mark.skip("TODO: #3958 wait for matgl resolve of torch dependency")
     def test_calculate_m3gnet(self):
         pytest.importorskip("matgl")
         calculator = self.get_structure("Si").calculate()
@@ -1779,6 +1791,7 @@ class TestStructure(PymatgenTest):
         assert np.linalg.norm(calculator.results["forces"]) == approx(7.8123485e-06, abs=0.2)
         assert np.linalg.norm(calculator.results["stress"]) == approx(1.7861567, abs=2)
 
+    @pytest.mark.skip("TODO: #3958 wait for matgl resolve of torch dependency")
     def test_relax_m3gnet(self):
         matgl = pytest.importorskip("matgl")
         struct = self.get_structure("Si")
@@ -1789,6 +1802,7 @@ class TestStructure(PymatgenTest):
             actual = relaxed.dynamics[key]
             assert actual == val, f"expected {key} to be {val}, {actual=}"
 
+    @pytest.mark.skip("TODO: #3958 wait for matgl resolve of torch dependency")
     def test_relax_m3gnet_fixed_lattice(self):
         matgl = pytest.importorskip("matgl")
         struct = self.get_structure("Si")
@@ -1797,6 +1811,7 @@ class TestStructure(PymatgenTest):
         assert isinstance(relaxed.calc, matgl.ext.ase.M3GNetCalculator)
         assert relaxed.dynamics["optimizer"] == "BFGS"
 
+    @pytest.mark.skip("TODO: #3958 wait for matgl resolve of torch dependency")
     def test_relax_m3gnet_with_traj(self):
         pytest.importorskip("matgl")
         struct = self.get_structure("Si")

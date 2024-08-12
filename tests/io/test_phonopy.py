@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 from unittest import TestCase
 
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
+from pytest import approx
+
 from pymatgen.core import Element
 from pymatgen.io.phonopy import (
     CompletePhononDos,
@@ -27,7 +30,6 @@ from pymatgen.io.phonopy import (
     get_thermal_displacement_matrices,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 try:
     from phonopy import Phonopy
@@ -156,6 +158,10 @@ class TestGetDisplacedStructures(PymatgenTest):
 
 
 @pytest.mark.skipif(Phonopy is None, reason="Phonopy not present")
+@pytest.mark.skipif(
+    sys.platform == "win32" and int(np.__version__[0]) >= 2,
+    reason="See https://github.com/conda-forge/phonopy-feedstock/pull/158#issuecomment-2227506701",
+)
 class TestPhonopyFromForceConstants(TestCase):
     def setUp(self) -> None:
         test_path = Path(TEST_DIR)

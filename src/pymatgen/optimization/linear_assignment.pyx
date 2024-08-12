@@ -50,7 +50,8 @@ class LinearAssignment:
     """
 
     def __init__(self, costs, epsilon=1e-13):
-        self.orig_c = np.array(costs, dtype=np.float_, copy=False, order="C")
+        # https://numpy.org/devdocs/numpy_2_0_migration_guide.html#adapting-to-changes-in-the-copy-keyword
+        self.orig_c = np.asarray(costs, dtype=np.float64, order="C")
         self.nx, self.ny = self.orig_c.shape
         self.n = self.ny
 
@@ -63,7 +64,7 @@ class LinearAssignment:
         if self.nx == self.ny:
             self.c = self.orig_c
         else:
-            self.c = np.zeros((self.n, self.n), dtype=np.float_)
+            self.c = np.zeros((self.n, self.n), dtype=np.float64)
             self.c[:self.nx] = self.orig_c
 
         # initialize solution vectors
@@ -76,15 +77,15 @@ class LinearAssignment:
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef np.float_t compute(int size, np.float_t[:, :] c, np.int_t[:] x, np.int_t[:] y, np.float_t eps) nogil:
+cdef np.float_t compute(int size, np.float_t[:, :] c, np.int64_t[:] x, np.int64_t[:] y, np.float_t eps) nogil:
 
     # augment
     cdef int i, j, k, i1, j1, f, f0, cnt, low, up, z, last, nrr
     cdef int n = size
     cdef bint b
-    cdef np.int_t * col = <np.int_t *> malloc(n * sizeof(np.int_t))
-    cdef np.int_t * fre = <np.int_t *> malloc(n * sizeof(np.int_t))
-    cdef np.int_t * pred = <np.int_t *> malloc(n * sizeof(np.int_t))
+    cdef np.int64_t * col = <np.int64_t *> malloc(n * sizeof(np.int64_t))
+    cdef np.int64_t * fre = <np.int64_t *> malloc(n * sizeof(np.int64_t))
+    cdef np.int64_t * pred = <np.int64_t *> malloc(n * sizeof(np.int64_t))
     cdef np.float_t * v = <np.float_t *> malloc(n * sizeof(np.float_t))
     cdef np.float_t * d = <np.float_t *> malloc(n * sizeof(np.float_t))
     cdef np.float_t h, m, u1, u2, cost
