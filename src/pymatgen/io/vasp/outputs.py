@@ -1241,25 +1241,21 @@ class Vasprun(MSONable):
 
     def as_dict(self) -> dict:
         """JSON-serializable dict representation."""
-        dct = {
+        comp = self.final_structure.composition
+        unique_symbols = sorted(set(self.atomic_symbols))
+        dct: dict[str, Any] = {
             "vasp_version": self.vasp_version,
             "has_vasp_completed": self.converged,
             "nsites": len(self.final_structure),
+            "unit_cell_formula": comp.as_dict(),
+            "reduced_cell_formula": Composition(comp.reduced_formula).as_dict(),
+            "pretty_formula": comp.reduced_formula,
+            "is_hubbard": self.is_hubbard,
+            "hubbards": self.hubbards,
+            "elements": unique_symbols,
+            "nelements": len(unique_symbols),
+            "run_type": self.run_type,
         }
-        comp = self.final_structure.composition
-        dct["unit_cell_formula"] = comp.as_dict()
-        dct["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
-        dct["pretty_formula"] = comp.reduced_formula
-        symbols = [s.split()[1] for s in self.potcar_symbols]
-        symbols = [re.split(r"_", s)[0] for s in symbols]
-        dct["is_hubbard"] = self.is_hubbard
-        dct["hubbards"] = self.hubbards
-
-        unique_symbols = sorted(set(self.atomic_symbols))
-        dct["elements"] = unique_symbols
-        dct["nelements"] = len(unique_symbols)
-
-        dct["run_type"] = self.run_type
 
         vin: dict[str, Any] = {
             "incar": dict(self.incar.items()),
