@@ -502,7 +502,8 @@ class PhononDos(MSONable):
         Args:
             fp1 (PhononDosFingerprint): The 1st dos fingerprint object
             fp2 (PhononDosFingerprint): The 2nd dos fingerprint object
-            col (int): The item in the fingerprints (0:energies,1: densities) to take the dot product of (default is 1)
+            col (int): The item in the fingerprints (0:frequencies,1: densities) to compute
+                the similarity index of  (default is 1)
             pt (int or str) : The index of the point that the dot product is to be taken (default is All)
             normalize (bool): If True normalize the scalar product to 1 (default is False)
             metric (Literal): Metric used to compute similarity default is "tanimoto".
