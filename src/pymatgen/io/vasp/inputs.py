@@ -1924,8 +1924,8 @@ class PotcarSingle:
         """
         try:
             return self.keywords[attr.upper()]
-        except Exception:
-            raise AttributeError(attr)
+        except Exception as exc:
+            raise AttributeError(attr) from exc
 
     def __str__(self) -> str:
         return f"{self.data}\n"
@@ -2740,7 +2740,7 @@ class VaspInput(dict, MSONable):
         self._potcar_filename = "POTCAR" + (".spec" if potcar_spec else "")
         self |= {"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, self._potcar_filename: potcar}
         if optional_files is not None:
-            self.update(optional_files)
+            self |= optional_files
 
     def __str__(self) -> str:
         output: list = []
