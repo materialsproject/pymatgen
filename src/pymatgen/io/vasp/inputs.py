@@ -1245,8 +1245,6 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
-        warnings.warn("Please use INCAR KSPACING tag.", DeprecationWarning, stacklevel=2)
-
         return cls(
             "Fully automatic kpoint scheme",
             0,
