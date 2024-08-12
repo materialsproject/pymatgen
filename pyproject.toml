@@ -76,7 +76,7 @@ dependencies = [
     "uncertainties>=3.1.4",
     'numpy>=1.25.0,<3.0',
 ]
-version = "2024.8.8"
+version = "2024.8.9"
 
 [project.urls]
 Homepage = "https://pymatgen.org"
@@ -174,7 +174,6 @@ repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest
 [tool.ruff]
 target-version = "py39"
 line-length = 120
-output-format = "concise"
 
 [tool.ruff.lint]
 select = ["ALL"]
