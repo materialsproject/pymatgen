@@ -891,7 +891,8 @@ Cartesian
         kpoints = Kpoints.monkhorst_automatic((2, 2, 2), [0, 0, 0])
         assert kpoints.style == Kpoints.supported_modes.Monkhorst
         assert kpoints.kpts == [(2, 2, 2)]
-        kpoints = Kpoints.automatic(100)
+        with pytest.warns(DeprecationWarning, match="Please use INCAR KSPACING tag"):
+            kpoints = Kpoints.automatic(100)
         assert kpoints.style == Kpoints.supported_modes.Automatic
         assert kpoints.kpts == [(100,)]
         filepath = f"{VASP_IN_DIR}/POSCAR"
