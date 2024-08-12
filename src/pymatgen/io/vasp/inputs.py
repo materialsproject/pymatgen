@@ -215,7 +215,7 @@ class Poscar(MSONable):
     @property
     def natoms(self) -> list[int]:
         """Sequence of number of sites of each type associated with the Poscar.
-        Similar to 7th line in vasp 5+ POSCAR or the 6th line in vasp 4 POSCAR.
+        Similar to 7th line in VASP 5+ POSCAR or the 6th line in VASP 4 POSCAR.
         """
         syms: list[str] = [site.specie.symbol for site in self.structure]
         return [len(tuple(a[1])) for a in itertools.groupby(syms)]
@@ -332,7 +332,7 @@ class Poscar(MSONable):
         scale: float = float(lines[1])
         lattice: np.ndarray = np.array([[float(i) for i in line.split()] for line in lines[2:5]])
         if scale < 0:
-            # In vasp, a negative scale factor is treated as a volume. We need
+            # In VASP, a negative scale factor is treated as a volume. We need
             # to translate this to a proper lattice vector scaling.
             vol: float = abs(np.linalg.det(lattice))
             lattice *= (-scale / vol) ** (1 / 3)
@@ -350,7 +350,7 @@ class Poscar(MSONable):
             vasp5_symbols = True
             symbols: list[str] = [symbol.split("/")[0] for symbol in lines[5].split()]
 
-            # Atoms and number of atoms in POSCAR written with vasp appear on
+            # Atoms and number of atoms in POSCAR written with VASP appear on
             # multiple lines when atoms of the same type are not grouped together
             # and more than 20 groups are then defined ...
             # Example :
@@ -526,13 +526,13 @@ class Poscar(MSONable):
         significant_figures: int = 16,
     ) -> str:
         """Return a string to be written as a POSCAR file. By default, site
-        symbols are written, which is compatible for vasp >= 5.
+        symbols are written, which is compatible for VASP >= 5.
 
         Args:
             direct (bool): Whether coordinates are output in direct or
                 Cartesian. Defaults to True.
             vasp4_compatible (bool): Set to True to omit site symbols on 6th
-                line to maintain backward vasp 4.x compatibility. Defaults
+                line to maintain backward VASP 4.x compatibility. Defaults
                 to False.
             significant_figures (int): Number of significant digits to
                 output all quantities. Defaults to 16. Note that positions are
@@ -2708,7 +2708,7 @@ class UnknownPotcarWarning(UserWarning):
 
 
 class VaspInput(dict, MSONable):
-    """Contain a set of vasp input objects corresponding to a run."""
+    """Contain a set of VASP input objects corresponding to a run."""
 
     def __init__(
         self,
