@@ -9,7 +9,6 @@ import codecs
 import hashlib
 import itertools
 import json
-import logging
 import math
 import os
 import re
@@ -52,12 +51,11 @@ if TYPE_CHECKING:
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
 
-logger = logging.getLogger(__name__)
-module_dir = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class Poscar(MSONable):
-    """Object for representing the data in a POSCAR or CONTCAR file.
+    """Represent the data in a POSCAR or CONTCAR file.
 
     Attributes:
         structure: Associated Structure.
@@ -700,7 +698,7 @@ class BadPoscarWarning(UserWarning):
 
 class Incar(dict, MSONable):
     """
-    INCAR object for reading and writing INCAR files.
+    Read and write INCAR files.
     Essentially a dictionary with some helper functions.
     """
 
@@ -1012,7 +1010,7 @@ class Incar(dict, MSONable):
         will ignore the tag and set it as default without letting you know.
         """
         # Load INCAR tag/value check reference file
-        with open(os.path.join(module_dir, "incar_parameters.json"), encoding="utf-8") as json_file:
+        with open(os.path.join(MODULE_DIR, "incar_parameters.json"), encoding="utf-8") as json_file:
             incar_params = json.loads(json_file.read())
 
         for tag, val in self.items():
@@ -1071,7 +1069,7 @@ class KpointsSupportedModes(Enum):
 class Kpoints(MSONable):
     """KPOINTS reader/writer."""
 
-    supported_modes = KpointsSupportedModes
+    supported_modes: ClassVar[type[KpointsSupportedModes]] = KpointsSupportedModes
 
     def __init__(
         self,
@@ -1723,10 +1721,10 @@ class OrbitalDescription(NamedTuple):
 
 
 # Hashes computed from the full POTCAR file contents by pymatgen (not 1st-party VASP hashes)
-PYMATGEN_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_pymatgen_hashes.json")
+PYMATGEN_POTCAR_HASHES = loadfn(f"{MODULE_DIR}/vasp_potcar_pymatgen_hashes.json")
 # Written to some newer POTCARs by VASP
-VASP_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
-POTCAR_STATS_PATH: str = os.path.join(module_dir, "potcar-summary-stats.json.bz2")
+VASP_POTCAR_HASHES = loadfn(f"{MODULE_DIR}/vasp_potcar_file_hashes.json")
+POTCAR_STATS_PATH: str = os.path.join(MODULE_DIR, "potcar-summary-stats.json.bz2")
 
 
 class PotcarSingle:
@@ -2511,7 +2509,7 @@ def _gen_potcar_summary_stats(
     append: bool = False,
     vasp_psp_dir: str | None = None,
     summary_stats_filename: str | None = POTCAR_STATS_PATH,
-):
+) -> dict:
     """
     Regenerate the reference data in potcar-summary-stats.json.bz2 used to validate POTCARs
     by comparing header values and several statistics of copyrighted POTCAR data without
@@ -2573,7 +2571,7 @@ def _gen_potcar_summary_stats(
 class Potcar(list, MSONable):
     """Read and write POTCAR files for calculations. Consists of a list of PotcarSingle."""
 
-    FUNCTIONAL_CHOICES = tuple(PotcarSingle.functional_dir)
+    FUNCTIONAL_CHOICES: ClassVar[tuple] = tuple(PotcarSingle.functional_dir)
 
     def __init__(
         self,
