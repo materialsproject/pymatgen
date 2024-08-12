@@ -1293,7 +1293,7 @@ class Kpoints(MSONable):
 
     @classmethod
     def automatic_density(cls, structure: Structure, kppa: float, force_gamma: bool = False) -> Self:
-        """Get an automatic Kpoint object based on a structure and a kpoint
+        """Get an automatic Kpoints object based on a structure and a kpoint
         density. Uses Gamma centered meshes for hexagonal cells and face-centered cells,
         Monkhorst-Pack grids otherwise.
 
@@ -1338,7 +1338,7 @@ class Kpoints(MSONable):
 
     @classmethod
     def automatic_gamma_density(cls, structure: Structure, kppa: float) -> Self:
-        """Get an automatic Kpoint object based on a structure and a kpoint
+        """Get an automatic Kpoints object based on a structure and a kpoint
         density. Uses Gamma centered meshes always. For GW.
 
         Algorithm:
@@ -1377,7 +1377,7 @@ class Kpoints(MSONable):
 
     @classmethod
     def automatic_density_by_vol(cls, structure: Structure, kppvol: int, force_gamma: bool = False) -> Self:
-        """Get an automatic Kpoint object based on a structure and a kpoint
+        """Get an automatic Kpoints object based on a structure and a kpoint
         density per inverse Angstrom^3 of reciprocal cell.
 
         Algorithm:
@@ -1399,11 +1399,11 @@ class Kpoints(MSONable):
     def automatic_density_by_lengths(
         cls, structure: Structure, length_densities: Sequence[float], force_gamma: bool = False
     ) -> Self:
-        """Get an automatic Kpoint object based on a structure and a k-point
+        """Get an automatic Kpoints object based on a structure and a k-point
         density normalized by lattice constants.
 
         Algorithm:
-            For a given dimension, the # of k-points is chosen as
+            For a given dimension, the number of k-points is chosen as
             length_density = # of kpoints * lattice constant, e.g. [50.0, 50.0, 1.0] would
             have k-points of 50/a x 50/b x 1/c.
 
@@ -1424,7 +1424,7 @@ class Kpoints(MSONable):
         lattice = structure.lattice
 
         abc = lattice.abc
-        num_div: Tuple3Ints = tuple(np.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))
+        num_div: Tuple3Ints = tuple(math.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))
 
         is_hexagonal: bool = lattice.is_hexagonal()
         is_face_centered: bool = structure.get_space_group_info()[0][0] == "F"

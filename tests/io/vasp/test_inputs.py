@@ -905,22 +905,27 @@ Cartesian
         struct = Structure.from_file(filepath)
         kpoints = Kpoints.automatic_density(struct, 500)
         assert kpoints.kpts == [(1, 3, 3)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
         kpoints = Kpoints.automatic_density(struct, 500, force_gamma=True)
         assert kpoints.style == Kpoints.supported_modes.Gamma
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
 
         kpoints = Kpoints.automatic_density_by_vol(struct, 1000)
         assert kpoints.kpts == [(6, 10, 13)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
         kpoints = Kpoints.automatic_density_by_lengths(struct, [50, 50, 1], force_gamma=True)
         assert kpoints.kpts == [(5, 9, 1)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0]), kpoints.kpts
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
         struct.make_supercell(3)
         kpoints = Kpoints.automatic_density(struct, 500)
         assert kpoints.kpts == [(1, 1, 1)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
         assert kpoints.style == Kpoints.supported_modes.Gamma
         kpoints = Kpoints.from_str(
             """k-point mesh
