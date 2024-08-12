@@ -148,18 +148,18 @@ class TestPhononDos(PymatgenTest):
         # Tanimoto
         dos_fp = self.dos.get_dos_fp(min_f=-1, max_f=6, n_bins=56, normalize=True)
         dos_fp2 = self.dos.get_dos_fp(min_f=-1, max_f=6, n_bins=56, normalize=False)
-        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Tanimoto")
+        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="tanimoto")
         assert similarity_index == approx(0.0553088193)
 
         dos_fp = self.dos.get_dos_fp(min_f=-1, max_f=6, n_bins=56, normalize=True)
         dos_fp2 = self.dos.get_dos_fp(min_f=-1, max_f=6, n_bins=56, normalize=True)
-        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Tanimoto")
+        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="tanimoto")
         assert similarity_index == approx(1)
 
         # Wasserstein
         dos_fp = self.dos.get_dos_fp(min_f=-1, max_f=6, n_bins=56, normalize=True)
         dos_fp2 = self.dos.get_dos_fp(min_f=-1, max_f=6, n_bins=56, normalize=True)
-        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Wasserstein")
+        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="wasserstein")
         assert similarity_index == approx(0)
 
     def test_dos_fp_exceptions(self):
@@ -168,13 +168,13 @@ class TestPhononDos(PymatgenTest):
         # test exceptions
         with pytest.raises(
             ValueError,
-            match="Cannot compute similarity index. When normalize=True, then please set metric=None",
+            match="Cannot compute similarity index. When normalize=True, then please set metric=cosine-sim",
         ):
-            self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Tanimoto", normalize=True)
+            self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="tanimoto", normalize=True)
         with pytest.raises(
-            NotImplementedError,
+            ValueError,
             match="Requested metric not implemented. Currently implemented metrics are "
-            "Tanimoto, Wasserstien and None.",
+            "tanimoto, wasserstien and cosine-sim.",
         ):
             self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Dot", normalize=False)
 

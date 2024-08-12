@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, NamedTuple
+from typing import TYPE_CHECKING, Literal, NamedTuple
 
 import numpy as np
 import scipy.constants as const
@@ -495,7 +495,7 @@ class PhononDos(MSONable):
         col: int = 1,
         pt: int | str = "All",
         normalize: bool = False,
-        metric: str | None = "Tanimoto",
+        metric: Literal["tanimoto", "wasserstein", "cosine-sim"] = "tanimoto",
     ) -> float:
         """Calculate the similarity index between two fingerprints.
 
@@ -505,19 +505,19 @@ class PhononDos(MSONable):
             col (int): The item in the fingerprints (0:energies,1: densities) to take the dot product of (default is 1)
             pt (int or str) : The index of the point that the dot product is to be taken (default is All)
             normalize (bool): If True normalize the scalar product to 1 (default is False)
-            metric (str): Metric used to compute similarity default is "Tanimoto". One can also calculate
-                Wasserstein Distance. If set to None, simple dot product is computed
+            metric (Literal): Metric used to compute similarity default is "tanimoto".
 
         Raises:
-            NotImplementedError: If metric other than Tanimoto, Wasserstien and None is requested.
+            ValueError: If metric other than tanimoto, wasserstein and "cosine-sim" is requested.
             ValueError: If normalize is set to True along with the metric.
 
         Returns:
             float: Similarity index given by the dot product
         """
-        if metric not in [None, "Tanimoto", "Wasserstein"]:
-            raise NotImplementedError(
-                "Requested metric not implemented. Currently implemented metrics are Tanimoto, Wasserstien and None."
+        if metric not in ["tanimoto", "wasserstein", "cosine-sim"]:
+            raise ValueError(
+                "Requested metric not implemented. Currently implemented metrics are tanimoto, "
+                "wasserstien and cosine-sim."
             )
 
         fp1_dict = CompletePhononDos.fp_to_dict(fp1) if not isinstance(fp1, dict) else fp1
@@ -531,24 +531,24 @@ class PhononDos(MSONable):
             vec1 = fp1_dict[fp1[2][pt]][col]  # type: ignore # noqa:PGH003
             vec2 = fp2_dict[fp2[2][pt]][col]  # type: ignore # noqa:PGH003
 
-        if not normalize and metric == "Tanimoto":
+        if not normalize and metric == "tanimoto":
             rescale = np.linalg.norm(vec1) ** 2 + np.linalg.norm(vec2) ** 2 - np.dot(vec1, vec2)
             return np.dot(vec1, vec2) / rescale
 
-        if not normalize and metric == "Wasserstein":
+        if not normalize and metric == "wasserstein":
             return wasserstein_distance(
                 u_values=np.cumsum(vec1 * fp1.bin_width), v_values=np.cumsum(vec2 * fp2.bin_width)
             )
 
-        if metric is None and normalize:
+        if normalize and metric == "cosine-sim":
             rescale = np.linalg.norm(vec1) * np.linalg.norm(vec2)
             return np.dot(vec1, vec2) / rescale
 
-        if metric is None and not normalize:
+        if not normalize and metric == "cosine-sim":
             rescale = 1.0
             return np.dot(vec1, vec2) / rescale
 
-        raise ValueError("Cannot compute similarity index. When normalize=True, then please set metric=None")
+        raise ValueError("Cannot compute similarity index. When normalize=True, then please set metric=cosine-sim")
 
 
 class PhononDosFingerprint(NamedTuple):
