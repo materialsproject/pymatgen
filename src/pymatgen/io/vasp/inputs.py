@@ -1522,7 +1522,7 @@ class Kpoints(MSONable):
 
         # Automatic gamma and Monk KPOINTS, with optional shift
         if style in {"g", "m"}:
-            _kpt: list[float] = [float(i) for i in lines[3].split()]
+            _kpt: list[float] = [int(i) for i in lines[3].split()]
             if len(_kpt) != 3:
                 raise ValueError("Invalid Kpoint length.")
             kpt: Tuple3Floats = cast(Tuple3Floats, tuple(_kpt))
