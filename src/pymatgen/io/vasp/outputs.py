@@ -1489,7 +1489,6 @@ class Vasprun(MSONable):
 
     def _parse_chemical_shielding(self, elem: XML_Element) -> list[dict[str, Any]]:
         """Parse NMR chemical shielding."""
-        calculation = []
         istep: dict[str, Any] = {}
         # not all calculations have a structure
         _struct = elem.find("structure")
@@ -1499,7 +1498,9 @@ class Vasprun(MSONable):
             istep[va.attrib["name"]] = _parse_vasp_array(va)
         istep["structure"] = struct
         istep["electronic_steps"] = []
-        calculation.append(istep)
+        calculation = [
+            istep,
+        ]
         for scstep in elem.findall("scstep"):
             try:
                 e_steps_dict = {i.attrib["name"]: _vasprun_float(i.text) for i in scstep.find("energy").findall("i")}  # type: ignore[union-attr, arg-type]
@@ -1759,24 +1760,21 @@ class BSVasprun(Vasprun):
 
     def as_dict(self) -> dict:
         """JSON-serializable dict representation."""
+        comp = self.final_structure.composition
+        unique_symbols = sorted(set(self.atomic_symbols))
         dct = {
             "vasp_version": self.vasp_version,
             "has_vasp_completed": True,
             "nsites": len(self.final_structure),
+            "unit_cell_formula": comp.as_dict(),
+            "reduced_cell_formula": Composition(comp.reduced_formula).as_dict(),
+            "pretty_formula": comp.reduced_formula,
+            "is_hubbard": self.is_hubbard,
+            "hubbards": self.hubbards,
+            "elements": unique_symbols,
+            "nelements": len(unique_symbols),
+            "run_type": self.run_type,
         }
-
-        comp = self.final_structure.composition
-        dct["unit_cell_formula"] = comp.as_dict()
-        dct["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
-        dct["pretty_formula"] = comp.reduced_formula
-        dct["is_hubbard"] = self.is_hubbard
-        dct["hubbards"] = self.hubbards
-
-        unique_symbols = sorted(set(self.atomic_symbols))
-        dct["elements"] = unique_symbols
-        dct["nelements"] = len(unique_symbols)
-
-        dct["run_type"] = self.run_type
 
         vin: dict[str, Any] = {
             "incar": dict(self.incar),
