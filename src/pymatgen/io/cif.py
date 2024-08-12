@@ -21,7 +21,17 @@ from monty.io import zopen
 from monty.serialization import loadfn
 from spglib import __version__ as __spglib_version__
 
-from pymatgen.core import Composition, DummySpecies, Element, Lattice, PeriodicSite, Species, Structure, get_el_sp, __version__
+from pymatgen.core import (
+    Composition,
+    DummySpecies,
+    Element,
+    Lattice,
+    PeriodicSite,
+    Species,
+    Structure,
+    __version__,
+    get_el_sp,
+)
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, SpacegroupOperations
