@@ -966,7 +966,6 @@ Cartesian
         assert kpts != kpt_copy
 
     def test_automatic_kpoint(self):
-        # struct = PymatgenTest.get_structure("Li2O")
         poscar = Poscar.from_str(
             """Al1
 1.0
@@ -980,6 +979,18 @@ direct
         )
         kpoints = Kpoints.automatic_density(poscar.structure, 1000)
         assert_allclose(kpoints.kpts[0], [10, 10, 10])
+
+    @pytest.mark.parametrize("kpts_mode", ["Gamma", "Monkhorst"])
+    def test_automatica_gamma_monkhorst(self, kpts_mode):
+        kpoints = Kpoints.from_str(f"""Test KPOINTS string
+0
+{kpts_mode}
+3    3    3
+0.0  0.0  0.0""")
+
+        assert str(kpoints.style) == kpts_mode
+        assert kpoints.kpts[0] == (3, 3, 3)
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
 
     def test_automatic_density_by_lengths(self):
         # Load a structure from a POSCAR file
