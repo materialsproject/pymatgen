@@ -38,7 +38,7 @@ from pymatgen.util.string import str_delimited
 from pymatgen.util.typing import Kpoint, Tuple3Floats, Tuple3Ints, Vector3D
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Sequence
     from typing import Any, ClassVar, Literal
 
     from numpy.typing import ArrayLike
@@ -2603,12 +2603,6 @@ class Potcar(list, MSONable):
 
     def __str__(self) -> str:
         return "\n".join(str(potcar).strip("\n") for potcar in self) + "\n"
-
-    def __iter__(self) -> Iterator[PotcarSingle]:
-        """Boilerplate code. Only here to supply type hint so
-        `for psingle in Potcar()` is correctly inferred as PotcarSingle.
-        """
-        return super().__iter__()
 
     @property
     def symbols(self) -> list[str]:
