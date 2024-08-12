@@ -110,37 +110,37 @@ class Poscar(MSONable):
             sort_structure (bool, optional): Whether to sort the structure. Useful if species
                 are not grouped properly together. Defaults to False.
         """
-        if structure.is_ordered:
-            site_properties = {}
-
-            if selective_dynamics is not None:
-                selective_dynamics = np.array(selective_dynamics)
-                if not selective_dynamics.all():
-                    site_properties["selective_dynamics"] = selective_dynamics
-
-            if velocities:
-                velocities = np.array(velocities)
-                if velocities.any():
-                    site_properties["velocities"] = velocities
-
-            if predictor_corrector:
-                predictor_corrector = np.array(predictor_corrector)
-                if predictor_corrector.any():
-                    site_properties["predictor_corrector"] = predictor_corrector
-
-            structure = Structure.from_sites(structure)
-            self.structure = structure.copy(site_properties=site_properties)
-            if sort_structure:
-                self.structure = self.structure.get_sorted_structure()
-            self.true_names = true_names
-            self.comment = structure.formula if comment is None else comment
-            if predictor_corrector_preamble:
-                self.structure.properties["predictor_corrector_preamble"] = predictor_corrector_preamble
-
-            if lattice_velocities and np.any(lattice_velocities):
-                self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
-        else:
+        if not structure.is_ordered:
             raise ValueError("Disordered structure with partial occupancies cannot be converted into POSCAR!")
+
+        site_properties: dict[str, Any] = {}
+
+        if selective_dynamics is not None:
+            selective_dynamics = np.array(selective_dynamics)
+            if not selective_dynamics.all():
+                site_properties["selective_dynamics"] = selective_dynamics
+
+        if velocities:
+            velocities = np.array(velocities)
+            if velocities.any():
+                site_properties["velocities"] = velocities
+
+        if predictor_corrector:
+            predictor_corrector = np.array(predictor_corrector)
+            if predictor_corrector.any():
+                site_properties["predictor_corrector"] = predictor_corrector
+
+        structure = Structure.from_sites(structure)
+        self.structure = structure.copy(site_properties=site_properties)
+        if sort_structure:
+            self.structure = self.structure.get_sorted_structure()
+        self.true_names = true_names
+        self.comment = structure.formula if comment is None else comment
+        if predictor_corrector_preamble:
+            self.structure.properties["predictor_corrector_preamble"] = predictor_corrector_preamble
+
+        if lattice_velocities and np.any(lattice_velocities):
+            self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
 
         self.temperature = -1.0
 
