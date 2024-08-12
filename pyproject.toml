@@ -174,6 +174,7 @@ repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest
 [tool.ruff]
 target-version = "py39"
 line-length = 120
+output-format = "concise"
 
 [tool.ruff.lint]
 select = ["ALL"]
