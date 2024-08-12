@@ -248,8 +248,7 @@ class NEBAnalysis(MSONable):
             if terminal:
                 for ds in terminal_dirs:
                     od = ds[0] if idx == 0 else ds[1]
-                    outcar = glob(f"{od}/OUTCAR*")
-                    if outcar:
+                    if outcar := glob(f"{od}/OUTCAR*"):
                         outcar = sorted(outcar)
                         outcars.append(Outcar(outcar[-1]))
                         break

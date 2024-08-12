@@ -418,8 +418,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
 def _get_transformation_history(path):
     """Check for a transformations.json* file and returns the history."""
-    trans_json = glob(f"{path}/transformations.json*")
-    if trans_json:
+    if trans_json := glob(f"{path}/transformations.json*"):
         try:
             with zopen(trans_json[0]) as file:
                 return json.load(file)["history"]

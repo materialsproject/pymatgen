@@ -1003,10 +1003,8 @@ class VaspInputSet(InputGenerator, abc.ABC):
             )
 
         files_to_transfer = {}
-        if getattr(self, "copy_chgcar", False):
-            chgcars = sorted(glob(str(Path(prev_calc_dir) / "CHGCAR*")))
-            if chgcars:
-                files_to_transfer["CHGCAR"] = str(chgcars[-1])
+        if getattr(self, "copy_chgcar", False) and (chgcars := sorted(glob(str(Path(prev_calc_dir) / "CHGCAR*")))):
+            files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
         if getattr(self, "copy_wavecar", False):
             for fname in ("WAVECAR", "WAVEDER", "WFULL"):

@@ -932,13 +932,12 @@ class Cp2kOutput:
         pattern = r"\s+(\d)\s+(\w+)\s+(\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
         footer = r".+Total charge"
 
-        d = self.read_table_pattern(
+        if self.read_table_pattern(
             header_pattern=header,
             row_pattern=pattern,
             footer_pattern=footer,
             last_one_only=False,
-        )
-        if d:
+        ):
             print("Found data, but not yet implemented!")
 
     def parse_hirshfeld(self):

@@ -604,8 +604,7 @@ class PourbaixDiagram(MSONable):
         else:
             # Serial processing of multi-entry generation
             for combo in all_combos:
-                multi_entry = self.process_multientry(combo, prod_comp=tot_comp)
-                if multi_entry:
+                if multi_entry := self.process_multientry(combo, prod_comp=tot_comp):
                     multi_entries.append(multi_entry)
 
         return multi_entries
