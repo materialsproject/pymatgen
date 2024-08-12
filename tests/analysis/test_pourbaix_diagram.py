@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 import multiprocessing
 from unittest import TestCase
 
@@ -16,8 +15,6 @@ from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis/pourbaix_diagram"
-
-logger = logging.getLogger(__name__)
 
 
 class TestPourbaixEntry(PymatgenTest):
