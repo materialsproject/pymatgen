@@ -828,20 +828,20 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 density = kconfig["reciprocal_density"]
                 base_kpoints = Kpoints.automatic_density_by_vol(self.structure, density, self.force_gamma)
 
-            if explicit and base_kpoints is not None:
-                sga = SpacegroupAnalyzer(self.structure, symprec=self.sym_prec)
-                mesh = sga.get_ir_reciprocal_mesh(base_kpoints.kpts[0])
-                base_kpoints = Kpoints(
-                    comment="Uniform grid",
-                    style=Kpoints.supported_modes.Reciprocal,
-                    num_kpts=len(mesh),
-                    kpts=tuple(i[0] for i in mesh),
-                    kpts_weights=[i[1] for i in mesh],
-                )
-            else:
+            if not explicit or base_kpoints is None:
                 # If not explicit that means no other options have been specified
                 # so we can return the k-points as is
                 return base_kpoints
+
+            sga = SpacegroupAnalyzer(self.structure, symprec=self.sym_prec)
+            mesh = sga.get_ir_reciprocal_mesh(base_kpoints.kpts[0])
+            base_kpoints = Kpoints(
+                comment="Uniform grid",
+                style=Kpoints.supported_modes.Reciprocal,
+                num_kpts=len(mesh),
+                kpts=tuple(i[0] for i in mesh),
+                kpts_weights=[i[1] for i in mesh],
+            )
 
         zero_weighted_kpoints = None
         if kconfig.get("zero_weighted_line_density"):
@@ -885,9 +885,9 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 kpts_weights=[0] * len(points),
             )
 
-        if base_kpoints and not (added_kpoints or zero_weighted_kpoints):
+        if base_kpoints and not added_kpoints and not zero_weighted_kpoints:
             return base_kpoints
-        if added_kpoints and not (base_kpoints or zero_weighted_kpoints):
+        if added_kpoints and not base_kpoints and not zero_weighted_kpoints:
             return added_kpoints
 
         # Sanity check
@@ -937,11 +937,10 @@ class VaspInputSet(InputGenerator, abc.ABC):
         potcar_symbols = []
         settings = self._config_dict["POTCAR"]
 
-        if isinstance(settings[elements[-1]], dict):
-            for el in elements:
+        for el in elements:
+            if isinstance(settings[elements[-1]], dict):
                 potcar_symbols.append(settings[el]["symbol"] if el in settings else el)
-        else:
-            for el in elements:
+            else:
                 potcar_symbols.append(settings.get(el, el))
 
         return potcar_symbols
@@ -1863,13 +1862,13 @@ class MPSOCSet(VaspInputSet):
             if self.magmom:
                 structure = structure.copy(site_properties={"magmom": self.magmom})
 
-            # MAGMOM has to be 3D for SOC calculation.
-            if hasattr(structure[0], "magmom"):
-                if not isinstance(structure[0].magmom, list):
-                    # Project MAGMOM to z-axis
-                    structure = structure.copy(site_properties={"magmom": [[0, 0, site.magmom] for site in structure]})
-            else:
+            # MAGMOM has to be 3D for SOC calculation
+            if not hasattr(structure[0], "magmom"):
                 raise ValueError("Neither the previous structure has magmom property nor magmom provided")
+
+            if not isinstance(structure[0].magmom, list):
+                # Project MAGMOM to z-axis
+                structure = structure.copy(site_properties={"magmom": [[0, 0, site.magmom] for site in structure]})
 
         assert VaspInputSet.structure is not None
         VaspInputSet.structure.fset(self, structure)
@@ -2377,7 +2376,7 @@ class MITNEBSet(VaspInputSet):
         if write_path_cif:
             sites = {
                 PeriodicSite(site.species, site.frac_coords, self.structures[0].lattice)
-                for site in chain(*(struct for struct in self.structures))
+                for site in chain(*iter(self.structures))
             }
             neb_path = Structure.from_sites(sorted(sites))
             neb_path.to(filename=f"{output_dir}/path.cif")
