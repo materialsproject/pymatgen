@@ -168,49 +168,44 @@ class Poscar(MSONable):
         """Velocities in Poscar."""
         return self.structure.site_properties.get("velocities")
 
+    @velocities.setter
+    def velocities(self, velocities: ArrayLike | None) -> None:
+        self.structure.add_site_property("velocities", velocities)
+
     @property
     def selective_dynamics(self) -> ArrayLike | None:
         """Selective dynamics in Poscar."""
         return self.structure.site_properties.get("selective_dynamics")
+
+    @selective_dynamics.setter
+    def selective_dynamics(self, selective_dynamics: ArrayLike | None) -> None:
+        self.structure.add_site_property("selective_dynamics", selective_dynamics)
 
     @property
     def predictor_corrector(self) -> ArrayLike | None:
         """Predictor corrector in Poscar."""
         return self.structure.site_properties.get("predictor_corrector")
 
+    @predictor_corrector.setter
+    def predictor_corrector(self, predictor_corrector: ArrayLike | None) -> None:
+        self.structure.add_site_property("predictor_corrector", predictor_corrector)
+
     @property
     def predictor_corrector_preamble(self) -> str | None:
         """Predictor corrector preamble in Poscar."""
         return self.structure.properties.get("predictor_corrector_preamble")
+
+    @predictor_corrector_preamble.setter
+    def predictor_corrector_preamble(self, predictor_corrector_preamble: str | None) -> None:
+        self.structure.properties["predictor_corrector"] = predictor_corrector_preamble
 
     @property
     def lattice_velocities(self) -> ArrayLike | None:
         """Lattice velocities in Poscar (including the current lattice vectors)."""
         return self.structure.properties.get("lattice_velocities")
 
-    @velocities.setter  # type: ignore[no-redef, attr-defined]
-    def velocities(self, velocities: ArrayLike | None) -> None:
-        """Setter for Poscar.velocities."""
-        self.structure.add_site_property("velocities", velocities)
-
-    @selective_dynamics.setter  # type: ignore[no-redef, attr-defined]
-    def selective_dynamics(self, selective_dynamics: ArrayLike | None) -> None:
-        """Setter for Poscar.selective_dynamics."""
-        self.structure.add_site_property("selective_dynamics", selective_dynamics)
-
-    @predictor_corrector.setter  # type: ignore[no-redef, attr-defined]
-    def predictor_corrector(self, predictor_corrector: ArrayLike | None) -> None:
-        """Setter for Poscar.predictor_corrector."""
-        self.structure.add_site_property("predictor_corrector", predictor_corrector)
-
-    @predictor_corrector_preamble.setter  # type: ignore[no-redef, attr-defined]
-    def predictor_corrector_preamble(self, predictor_corrector_preamble: str | None) -> None:
-        """Setter for Poscar.predictor_corrector."""
-        self.structure.properties["predictor_corrector"] = predictor_corrector_preamble
-
-    @lattice_velocities.setter  # type: ignore[no-redef, attr-defined]
+    @lattice_velocities.setter
     def lattice_velocities(self, lattice_velocities: ArrayLike | None) -> None:
-        """Setter for Poscar.lattice_velocities."""
         self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
 
     @property
@@ -1101,6 +1096,9 @@ class Kpoints(MSONable):
         constructors (automatic, gamma_automatic, monkhorst_automatic) and it
         is recommended that you use those.
 
+        The default behavior of the constructor is for a Gamma-centered,
+        1x1x1 KPOINTS with no shift.
+
         Args:
             comment (str): String comment for Kpoints. Defaults to "Default gamma".
             num_kpts: Following VASP method of defining the KPOINTS file, this
@@ -1127,9 +1125,6 @@ class Kpoints(MSONable):
                 of the tetrahedrons for the tetrahedron method.
                 Format is a list of tuples, [ (sym_weight, [tet_vertices]),
                 ...]
-
-        The default behavior of the constructor is for a Gamma centered,
-        1x1x1 KPOINTS with no shift.
         """
         if num_kpts > 0 and not labels and not kpts_weights:
             raise ValueError("For explicit or line-mode kpoints, either the labels or kpts_weights must be specified.")
@@ -1179,7 +1174,7 @@ class Kpoints(MSONable):
                     a, b, c, d = vertices
                     lines.append(f"{sym_weight} {a} {b} {c} {d}")
 
-        # Shifts for automatic kpoints types if not zero.
+        # Shifts for automatic kpoints types if not zero
         if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0, 0, 0):
             lines.append(" ".join(map(str, self.kpts_shift)))
         return "\n".join(lines) + "\n"
