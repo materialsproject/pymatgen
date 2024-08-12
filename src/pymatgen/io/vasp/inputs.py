@@ -1239,7 +1239,7 @@ class Kpoints(MSONable):
     def automatic(cls, subdivisions: int) -> Self:
         """
         Constructor for a fully automatic Kpoint grid, with
-        gamma centered Monkhorst-Pack grids and the number of subdivisions
+        Gamma-centered grids and the number of subdivisions
         along each reciprocal lattice vector determined by the scheme in the
         VASP manual.
 
@@ -1250,6 +1250,8 @@ class Kpoints(MSONable):
         Returns:
             Kpoints object
         """
+        warnings.warn("Please use INCAR KSPACING tag.", DeprecationWarning, stacklevel=2)
+
         return cls(
             "Fully automatic kpoint scheme",
             0,
@@ -1520,7 +1522,7 @@ class Kpoints(MSONable):
 
         coord_pattern = re.compile(r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+([\d+.\-Ee]+)")
 
-        # Automatic gamma and Monk KPOINTS, with optional shift
+        # Automatic Gamma-centered or Monkhorst-Pack KPOINTS, with optional shift
         if style in {"g", "m"}:
             _kpt: list[float] = [int(i) for i in lines[3].split()]
             if len(_kpt) != 3:
