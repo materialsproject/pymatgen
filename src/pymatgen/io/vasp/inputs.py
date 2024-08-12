@@ -1425,7 +1425,7 @@ class Kpoints(MSONable):
         lattice = structure.lattice
 
         abc = lattice.abc
-        num_div: Tuple3Ints = tuple(np.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))
+        num_div: Tuple3Ints = tuple(math.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))
 
         is_hexagonal: bool = lattice.is_hexagonal()
         is_face_centered: bool = structure.get_space_group_info()[0][0] == "F"
@@ -1524,7 +1524,7 @@ class Kpoints(MSONable):
 
         # Automatic gamma and Monk KPOINTS, with optional shift
         if style in {"g", "m"}:
-            _kpt: list[float] = [float(i) for i in lines[3].split()]
+            _kpt: list[float] = [int(i) for i in lines[3].split()]
             if len(_kpt) != 3:
                 raise ValueError("Invalid Kpoint length.")
             kpt: Tuple3Floats = cast(Tuple3Floats, tuple(_kpt))
