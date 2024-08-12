@@ -888,23 +888,32 @@ Cartesian
         kpoints = Kpoints.gamma_automatic((3, 3, 3), [0, 0, 0])
         assert kpoints.style == Kpoints.supported_modes.Gamma
         assert kpoints.kpts == [(3, 3, 3)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
+
         kpoints = Kpoints.monkhorst_automatic((2, 2, 2), [0, 0, 0])
         assert kpoints.style == Kpoints.supported_modes.Monkhorst
         assert kpoints.kpts == [(2, 2, 2)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
+
         with pytest.warns(DeprecationWarning, match="Please use INCAR KSPACING tag"):
             kpoints = Kpoints.automatic(100)
         assert kpoints.style == Kpoints.supported_modes.Automatic
         assert kpoints.kpts == [(100,)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
+
         filepath = f"{VASP_IN_DIR}/POSCAR"
         struct = Structure.from_file(filepath)
         kpoints = Kpoints.automatic_density(struct, 500)
         assert kpoints.kpts == [(1, 3, 3)]
         assert kpoints.style == Kpoints.supported_modes.Gamma
+
         kpoints = Kpoints.automatic_density(struct, 500, force_gamma=True)
         assert kpoints.style == Kpoints.supported_modes.Gamma
+
         kpoints = Kpoints.automatic_density_by_vol(struct, 1000)
         assert kpoints.kpts == [(6, 10, 13)]
         assert kpoints.style == Kpoints.supported_modes.Gamma
+
         kpoints = Kpoints.automatic_density_by_lengths(struct, [50, 50, 1], force_gamma=True)
         assert kpoints.kpts == [(5, 9, 1)]
         assert kpoints.style == Kpoints.supported_modes.Gamma
@@ -980,18 +989,6 @@ direct
         )
         kpoints = Kpoints.automatic_density(poscar.structure, 1000)
         assert_allclose(kpoints.kpts[0], [10, 10, 10])
-
-    @pytest.mark.parametrize("kpts_mode", ["Gamma", "Monkhorst"])
-    def test_automatica_gamma_monkhorst(self, kpts_mode):
-        kpoints = Kpoints.from_str(f"""Test KPOINTS string
-0
-{kpts_mode}
-3    3    3
-0.0  0.0  0.0""")
-
-        assert str(kpoints.style) == kpts_mode
-        assert kpoints.kpts[0] == (3, 3, 3)
-        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
 
     def test_automatic_density_by_lengths(self):
         # Load a structure from a POSCAR file
