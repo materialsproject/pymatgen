@@ -802,6 +802,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                     "added_kpoints, or zero weighted k-points."
                 )
             # If length is in kpoints settings use Kpoints.automatic
+            warnings.filterwarnings("ignore", message="Please use INCAR KSPACING tag")
             return Kpoints.automatic(kconfig["length"])
 
         base_kpoints = None
