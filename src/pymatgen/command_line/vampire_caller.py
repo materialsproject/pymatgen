@@ -35,8 +35,19 @@ VAMPEXE = which("vampire-serial")
 
 
 class VampireCaller:
-    """Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical
-    temperature with classical Monte Carlo.
+    """Run Vampire on a material with magnetic ordering and exchange parameter
+    information to compute the critical temperature with classical Monte Carlo.
+
+    Attributes:
+            sgraph (StructureGraph): Ground state graph.
+            unique_site_ids (dict): Maps each site to its unique identifier
+            nn_interactions (dict): {i: j} pairs of NN interactions
+                between unique sites.
+            ex_params (dict): Exchange parameter values (meV/atom)
+            mft_t (float): Mean field theory estimate of critical T
+            mat_name (str): Formula unit label for input files
+            mat_id_dict (dict): Maps sites to material id # for vampire
+                indexing.
     """
 
     @requires(
@@ -73,17 +84,6 @@ class VampireCaller:
             avg (bool): If True, simply use <J> exchange parameter estimate.
                 If False, attempt to use NN, NNN, etc. interactions.
             user_input_settings (dict): optional commands for VAMPIRE Monte Carlo
-
-        Attributes:
-            sgraph (StructureGraph): Ground state graph.
-            unique_site_ids (dict): Maps each site to its unique identifier
-            nn_interactions (dict): {i: j} pairs of NN interactions
-                between unique sites.
-            ex_params (dict): Exchange parameter values (meV/atom)
-            mft_t (float): Mean field theory estimate of critical T
-            mat_name (str): Formula unit label for input files
-            mat_id_dict (dict): Maps sites to material id # for vampire
-                indexing.
 
         Todo:
             * Create input files in a temp folder that gets cleaned up after run terminates
@@ -394,7 +394,7 @@ class VampireCaller:
 
 class VampireOutput(MSONable):
     """This class processes results from a Vampire Monte Carlo simulation
-    and returns the critical temperature.
+    and parses the critical temperature.
     """
 
     def __init__(self, parsed_out=None, nmats=None, critical_temp=None):
