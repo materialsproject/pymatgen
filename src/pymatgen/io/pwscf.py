@@ -37,6 +37,7 @@ class PWInput:
         kpoints_mode="automatic",
         kpoints_grid=(1, 1, 1),
         kpoints_shift=(0, 0, 0),
+        format_options=None,
     ):
         """Initialize a PWSCF input file.
 
@@ -60,6 +61,15 @@ class PWInput:
             kpoints_grid (sequence): The kpoint grid. Default to (1, 1, 1).
             kpoints_shift (sequence): The shift for the kpoints. Defaults to
                 (0, 0, 0).
+            format_options (dict): Formatting options when writing into a string.
+                Can be used to specify e.g., the number of decimal places
+                (including trailing zeros) for real-space coordinate values
+                (atomic positions, cell parameters). Defaults to None,
+                in which case the following default values are used
+                (so as to maintain backwards compatibility):
+                {"indent": 2, "kpoints_crystal_b_indent": 1,
+                 "coord_decimals": 6, "atomic_mass_decimals": 4,
+                 "kpoints_grid_decimals": 4}.
         """
         self.structure = structure
         sections = {}
@@ -84,6 +94,25 @@ class PWInput:
         self.kpoints_mode = kpoints_mode
         self.kpoints_grid = kpoints_grid
         self.kpoints_shift = kpoints_shift
+        self.format_options = {
+            # Default to 2 spaces for indentation
+            "indent": 2,
+            # Default to 1 space for indent in kpoint grid entries
+            # when kpoints_mode == "crystal_b"
+            "kpoints_crystal_b_indent": 1,
+            # Default to 6 decimal places
+            # for atomic position and cell vector coordinates
+            "coord_decimals": 6,
+            # Default to 4 decimal places for atomic mass values
+            "atomic_mass_decimals": 4,
+            # Default to 4 decimal places
+            # for kpoint grid entries
+            # when kpoints_mode == "crystal_b"
+            "kpoints_grid_decimals": 4,
+        }
+        if format_options is None:
+            format_options = {}
+        self.format_options.update(format_options)
 
     def __str__(self):
         out = []
@@ -115,6 +144,7 @@ class PWInput:
                 return ".FALSE."
             return v
 
+        indent = " " * self.format_options["indent"]
         for k1 in ["control", "system", "electrons", "ions", "cell"]:
             v1 = self.sections[k1]
             out.append(f"&{k1.upper()}")
@@ -123,54 +153,64 @@ class PWInput:
                 if isinstance(v1[k2], list):
                     n = 1
                     for _ in v1[k2][: len(site_descriptions)]:
-                        sub.append(f"  {k2}({n}) = {to_str(v1[k2][n - 1])}")
+                        sub.append(f"{indent}{k2}({n}) = {to_str(v1[k2][n - 1])}")
                         n += 1
                 else:
-                    sub.append(f"  {k2} = {to_str(v1[k2])}")
+                    sub.append(f"{indent}{k2} = {to_str(v1[k2])}")
             if k1 == "system":
                 if "ibrav" not in self.sections[k1]:
-                    sub.append("  ibrav = 0")
+                    sub.append(f"{indent}ibrav = 0")
                 if "nat" not in self.sections[k1]:
-                    sub.append(f"  nat = {len(self.structure)}")
+                    sub.append(f"{indent}nat = {len(self.structure)}")
                 if "ntyp" not in self.sections[k1]:
-                    sub.append(f"  ntyp = {len(site_descriptions)}")
+                    sub.append(f"{indent}ntyp = {len(site_descriptions)}")
             sub.append("/")
             out.append(",\n".join(sub))
 
         out.append("ATOMIC_SPECIES")
+        prec = self.format_options["atomic_mass_decimals"]
         for k, v in sorted(site_descriptions.items(), key=lambda i: i[0]):
             e = re.match(r"[A-Z][a-z]?", k)[0]
             p = v if self.pseudo is not None else v["pseudo"]
-            out.append(f"  {k}  {Element(e).atomic_mass:.4f} {p}")
+            out.append(f"{indent}{k}  {Element(e).atomic_mass:.{prec}f} {p}")
 
         out.append("ATOMIC_POSITIONS crystal")
+        prec = self.format_options["coord_decimals"]
         if self.pseudo is not None:
             for site in self.structure:
-                out.append(f"  {site.specie} {site.a:.6f} {site.b:.6f} {site.c:.6f}")
+                pos_str = [f"{site.specie}"]
+                pos_str.extend([f"{v:.{prec}f}" for v in site.frac_coords])
+                out.append(f"{indent}{' '.join(pos_str)}")
         else:
             for site in self.structure:
                 name = None
                 for k, v in sorted(site_descriptions.items(), key=lambda i: i[0]):
                     if v == site.properties:
                         name = k
-                out.append(f"  {name} {site.a:.6f} {site.b:.6f} {site.c:.6f}")
+                pos_str = [f"{name}"]
+                pos_str.extend([f"{v:.{prec}f}" for v in site.frac_coords])
+                out.append(f"{indent}{' '.join(pos_str)}")
 
         out.append(f"K_POINTS {self.kpoints_mode}")
         if self.kpoints_mode == "automatic":
             kpt_str = [f"{i}" for i in self.kpoints_grid]
             kpt_str.extend([f"{i}" for i in self.kpoints_shift])
-            out.append(f"  {' '.join(kpt_str)}")
+            out.append(f"{indent}{' '.join(kpt_str)}")
         elif self.kpoints_mode == "crystal_b":
-            out.append(f" {len(self.kpoints_grid)}")
+            kpt_indent = " " * self.format_options["kpoints_crystal_b_indent"]
+            out.append(f"{kpt_indent}{len(self.kpoints_grid)}")
+            prec = self.format_options["kpoints_grid_decimals"]
             for i in range(len(self.kpoints_grid)):
-                kpt_str = [f"{entry:.4f}" for entry in self.kpoints_grid[i]]
-                out.append(f" {' '.join(kpt_str)}")
+                kpt_str = [f"{entry:.{prec}f}" for entry in self.kpoints_grid[i]]
+                out.append(f"{kpt_indent}{' '.join(kpt_str)}")
         elif self.kpoints_mode == "gamma":
             pass
 
         out.append("CELL_PARAMETERS angstrom")
+        prec = self.format_options["coord_decimals"]
         for vec in self.structure.lattice.matrix:
-            out.append(f"  {vec[0]:f} {vec[1]:f} {vec[2]:f}")
+            vec_str = [f"{v:.{prec}f}" for v in vec]
+            out.append(f"{indent}{' '.join(vec_str)}")
         return "\n".join(out)
 
     def as_dict(self):
