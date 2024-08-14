@@ -36,7 +36,7 @@ from pymatgen.core import SETTINGS, Element, Lattice, Structure, get_el_sp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
-from pymatgen.util.typing import Kpoint, Tuple3Ints, Vector3D
+from pymatgen.util.typing import Kpoint, Tuple3Floats, Tuple3Ints, Vector3D
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -1567,7 +1567,7 @@ class Kpoints(MSONable):
                 "Cartesian" if lines[3].lower()[0] in "ck" else "Reciprocal"
             )
             _style = cls.supported_modes.Line_mode
-            _kpts: list[Kpoint] = []
+            _kpts: list[Tuple3Floats] = []
             labels = []
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for idx in range(4, len(lines)):
@@ -1596,7 +1596,7 @@ class Kpoints(MSONable):
 
         for idx in range(3, 3 + num_kpts):
             tokens = lines[idx].split()
-            kpts.append(cast(Kpoint, tuple(float(i) for i in tokens[:3])))
+            kpts.append(cast(Tuple3Floats, tuple(float(i) for i in tokens[:3])))
             kpts_weights.append(float(tokens[3]))
             if len(tokens) > 4:
                 labels.append(tokens[4])
