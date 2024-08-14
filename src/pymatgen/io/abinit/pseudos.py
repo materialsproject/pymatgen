@@ -1540,8 +1540,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             for filepath in [os.path.join(top, fn) for fn in os.listdir(top)]:
                 if os.path.isfile(filepath):
                     try:
-                        pseudo = Pseudo.from_file(filepath)
-                        if pseudo:
+                        if pseudo := Pseudo.from_file(filepath):
                             pseudos.append(pseudo)
                         else:
                             logger.info(f"Skipping file {filepath}")

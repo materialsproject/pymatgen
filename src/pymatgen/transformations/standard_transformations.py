@@ -6,7 +6,6 @@ All transformations should inherit the AbstractTransformation ABC.
 
 from __future__ import annotations
 
-import logging
 from fractions import Fraction
 from typing import TYPE_CHECKING
 
@@ -29,8 +28,6 @@ if TYPE_CHECKING:
 
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.util.typing import SpeciesLike
-
-logger = logging.getLogger(__name__)
 
 
 class RotationTransformation(AbstractTransformation):
