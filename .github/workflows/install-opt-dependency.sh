@@ -5,8 +5,8 @@ set -e
 
 install_boltztrap() {
     # Install BoltzTraP
-    wget -O BoltzTraP.tar.bz2 https://owncloud.tuwien.ac.at/index.php/s/s2d55LYlZnioa3s/download
-    tar -jxvf BoltzTraP.tar.bz2
+    wget -q -O BoltzTraP.tar.bz2 https://owncloud.tuwien.ac.at/index.php/s/s2d55LYlZnioa3s/download
+    tar -jxf BoltzTraP.tar.bz2
 
     echo "$(realpath boltztrap-1.2.5/src/)" >> $GITHUB_PATH
 
@@ -15,8 +15,8 @@ install_boltztrap() {
 
 install_vampire() {
     # Install Vampire 5.0
-    wget https://vampire.york.ac.uk/resources/release-5/vampire-5.0-linux.tar.gz
-    tar -zxvf vampire-5.0-linux.tar.gz
+    wget -q https://vampire.york.ac.uk/resources/release-5/vampire-5.0-linux.tar.gz
+    tar -zxf vampire-5.0-linux.tar.gz
     mv linux vampire-5.0
 
     echo "$(realpath vampire-5.0/)" >> $GITHUB_PATH
