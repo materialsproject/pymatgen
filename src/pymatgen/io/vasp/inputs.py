@@ -1733,6 +1733,11 @@ VASP_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
 POTCAR_STATS_PATH: str = os.path.join(module_dir, "potcar-summary-stats.json.bz2")
 
 
+class PMG_VASP_PSP_DIR_Error(ValueError):
+    """Error thrown when PMG_VASP_PSP_DIR is not configured, but POTCAR is requested."""
+    pass
+
+
 class PotcarSingle:
     """
     Object for a **single** POTCAR. The builder assumes the POTCAR contains
@@ -2278,7 +2283,7 @@ class PotcarSingle:
         functional_subdir = SETTINGS.get("PMG_VASP_PSP_SUB_DIRS", {}).get(functional, cls.functional_dir[functional])
         PMG_VASP_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR")
         if PMG_VASP_PSP_DIR is None:
-            raise ValueError(
+            raise PMG_VASP_PSP_DIR_Error(
                 f"No POTCAR for {symbol} with {functional=} found. Please set the PMG_VASP_PSP_DIR in .pmgrc.yaml."
             )
         if not os.path.isdir(PMG_VASP_PSP_DIR):
