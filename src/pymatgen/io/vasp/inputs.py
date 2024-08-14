@@ -1735,7 +1735,6 @@ POTCAR_STATS_PATH: str = os.path.join(module_dir, "potcar-summary-stats.json.bz2
 
 class PMG_VASP_PSP_DIR_Error(ValueError):
     """Error thrown when PMG_VASP_PSP_DIR is not configured, but POTCAR is requested."""
-    pass
 
 
 class PotcarSingle:
