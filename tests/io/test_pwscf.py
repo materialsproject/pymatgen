@@ -500,6 +500,21 @@ CELL_PARAMETERS angstrom
 """
         assert str(pw).strip() == expected.strip()
 
+    def test_custom_decimal_precision_write_and_read_str(self):
+        struct = self.get_structure("Li2O")
+        pw = PWInput(
+            struct,
+            control={"calculation": "scf", "pseudo_dir": "./"},
+            pseudo={
+                "Li+": "Li.pbe-n-kjpaw_psl.0.1.UPF",
+                "O2-": "O.pbe-n-kjpaw_psl.0.1.UPF",
+            },
+            system={"ecutwfc": 50},
+            format_options={"coord_decimals": 9},
+        )
+        pw_str = str(pw)
+        assert pw_str.strip() == str(PWInput.from_str(pw_str)).strip()
+
 
 class TestPWOutput(PymatgenTest):
     def setUp(self):

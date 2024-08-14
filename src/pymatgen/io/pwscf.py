@@ -227,6 +227,7 @@ class PWInput:
             "kpoints_mode": self.kpoints_mode,
             "kpoints_grid": self.kpoints_grid,
             "kpoints_shift": self.kpoints_shift,
+            "format_options": self.format_options,
         }
 
     @classmethod
@@ -251,6 +252,7 @@ class PWInput:
             kpoints_mode=dct["kpoints_mode"],
             kpoints_grid=dct["kpoints_grid"],
             kpoints_shift=dct["kpoints_shift"],
+            format_options=dct["format_options"],
         )
 
     def write_file(self, filename):
@@ -287,7 +289,7 @@ class PWInput:
         Returns:
             PWInput object
         """
-        lines = list(clean_lines(string.splitlines()))
+        lines = list(clean_lines(string.splitlines(), rstrip_only=True))
 
         def input_mode(line):
             if line[0] == "&":
@@ -322,6 +324,7 @@ class PWInput:
         kpoints_grid = (1, 1, 1)
         kpoints_shift = (0, 0, 0)
         coords_are_cartesian = False
+        format_options = {}
 
         for line in lines:
             mode = input_mode(line)
@@ -329,10 +332,11 @@ class PWInput:
                 pass
             elif mode[0] == "sections":
                 section = mode[1]
-                if match := re.match(r"(\w+)\(?(\d*?)\)?\s*=\s*(.*)", line):
-                    key = match[1].strip()
-                    key_ = match[2].strip()
-                    val = match[3].strip().rstrip(",")
+                if match := re.match(r"^(\s*)(\w+)\(?(\d*?)\)?\s*=\s*(.*)", line):
+                    format_options["indent"] = len(match[1])
+                    key = match[2].strip()
+                    key_ = match[3].strip()
+                    val = match[4].strip().rstrip(",")
                     if key_ != "":
                         if sections[section].get(key) is None:
                             val_ = [0.0] * 20  # MAX NTYP DEFINITION
@@ -346,8 +350,9 @@ class PWInput:
                         sections[section][key] = PWInput.proc_val(key, val)
 
             elif mode[0] == "pseudo":
-                if match := re.match(r"(\w+\d*[\+-]?)\s+(\d*.\d*)\s+(.*)", line):
-                    pseudo[match[1].strip()] = match[3].strip()
+                if match := re.match(r"^(\s*)(\w+\d*[\+-]?)\s+(\d*.\d*)\s+(.*)", line):
+                    format_options["indent"] = len(match[1])
+                    pseudo[match[2].strip()] = match[4].strip()
 
             elif mode[0] == "kpoints":
                 if match := re.match(r"(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)", line):
@@ -357,19 +362,39 @@ class PWInput:
                     kpoints_mode = mode[1]
 
             elif mode[0] == "structure":
-                m_l = re.match(r"(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
-                m_p = re.match(r"(\w+\d*[\+-]?)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
+                m_l = re.match(r"^(\s*)(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
+                m_p = re.match(r"^(\s*)(\w+\d*[\+-]?)\s+(-?\d+\.\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)", line)
                 if m_l:
+                    format_options["indent"] = len(m_l[1])
                     lattice += [
-                        float(m_l[1]),
                         float(m_l[2]),
                         float(m_l[3]),
+                        float(m_l[4]),
                     ]
+                    decimals = max(
+                        # length of decimal digits; 0 if no decimal digits
+                        (len(dec[1]) if len(dec := v.split(".")) == 2 else 0)
+                        for v in (m_l[2], m_l[3], m_l[4])
+                    )
+                    format_options["coord_decimals"] = max(
+                        format_options.get("coord_decimals", 0),
+                        decimals,
+                    )
 
                 elif m_p:
-                    site_properties["pseudo"].append(pseudo[m_p[1]])
-                    species.append(m_p[1])
-                    coords += [[float(m_p[2]), float(m_p[3]), float(m_p[4])]]
+                    format_options["indent"] = len(m_p[1])
+                    site_properties["pseudo"].append(pseudo[m_p[2]])
+                    species.append(m_p[2])
+                    coords += [[float(m_p[3]), float(m_p[4]), float(m_p[5])]]
+                    decimals = max(
+                        # length of decimal digits; 0 if no decimal digits
+                        (len(dec[1]) if len(dec := v.split(".")) == 2 else 0)
+                        for v in (m_p[3], m_p[4], m_p[5])
+                    )
+                    format_options["coord_decimals"] = max(
+                        format_options.get("coord_decimals", 0),
+                        decimals,
+                    )
 
                     if mode[1] == "angstrom":
                         coords_are_cartesian = True
@@ -392,6 +417,7 @@ class PWInput:
             kpoints_mode=kpoints_mode,
             kpoints_grid=kpoints_grid,
             kpoints_shift=kpoints_shift,
+            format_options=format_options,
         )
 
     @staticmethod
