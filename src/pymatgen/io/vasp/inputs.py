@@ -36,7 +36,7 @@ from pymatgen.core import SETTINGS, Element, Lattice, Structure, get_el_sp
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.io_utils import clean_lines
 from pymatgen.util.string import str_delimited
-from pymatgen.util.typing import Kpoint, Tuple3Floats, Tuple3Ints, Vector3D
+from pymatgen.util.typing import Kpoint, Tuple3Ints, Vector3D
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -1262,7 +1262,7 @@ class Kpoints(MSONable):
         )
 
     @classmethod
-    def gamma_automatic(cls, kpts: Kpoint = (1, 1, 1), shift: Vector3D = (0, 0, 0)) -> Self:
+    def gamma_automatic(cls, kpts: Tuple3Ints = (1, 1, 1), shift: Vector3D = (0, 0, 0)) -> Self:
         """
         Constructor for an automatic Gamma centered Kpoint grid.
 
@@ -1277,7 +1277,7 @@ class Kpoints(MSONable):
         return cls("Automatic kpoint scheme", 0, cls.supported_modes.Gamma, kpts=[kpts], kpts_shift=shift)
 
     @classmethod
-    def monkhorst_automatic(cls, kpts: Kpoint = (2, 2, 2), shift: Vector3D = (0, 0, 0)) -> Self:
+    def monkhorst_automatic(cls, kpts: Tuple3Ints = (2, 2, 2), shift: Vector3D = (0, 0, 0)) -> Self:
         """
         Convenient static constructor for an automatic Monkhorst pack Kpoint
         grid.
@@ -1524,10 +1524,10 @@ class Kpoints(MSONable):
 
         # Automatic gamma and Monk KPOINTS, with optional shift
         if style in {"g", "m"}:
-            _kpt: list[float] = [int(i) for i in lines[3].split()]
+            _kpt: list[int] = [int(i) for i in lines[3].split()]
             if len(_kpt) != 3:
                 raise ValueError("Invalid Kpoint length.")
-            kpt: Tuple3Floats = cast(Tuple3Floats, tuple(_kpt))
+            kpt: Tuple3Ints = cast(Tuple3Ints, tuple(_kpt))
 
             kpts_shift: Vector3D = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
