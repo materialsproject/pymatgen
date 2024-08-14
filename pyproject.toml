@@ -114,7 +114,7 @@ optional = [
     # don't depend on tblite above 3.11 since unsupported https://github.com/tblite/tblite/issues/175
     "tblite[ase]>=0.3.0; platform_system=='Linux' and python_version<'3.12'",
     # "hiphive>=0.6",
-    # "openbabel>=3.1.1; platform_system=='Linux'",
+    "openbabel-wheel>=3.1.1; platform_system=='Linux'",
 ]
 numba = ["numba>=0.55"]
 

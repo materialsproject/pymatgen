@@ -24,14 +24,7 @@ install_vampire() {
     echo "Vampire installation completed."
 }
 
-install_babel() {
-    # Install openbabel
-    # TODO: not working
-    sudo apt-get install openbabel
-}
-
 
 # Main script
 install_boltztrap
 install_vampire
-install_babel
