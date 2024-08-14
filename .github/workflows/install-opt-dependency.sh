@@ -15,7 +15,6 @@ install_boltztrap() {
 
 install_vampire() {
     # Install Vampire 5.0
-    # TODO: not working, got `FileNotFoundError: [Errno 2] No such file or directory: 'vampire-serial`
     wget https://vampire.york.ac.uk/resources/release-5/vampire-5.0-linux.tar.gz
     tar -zxvf vampire-5.0-linux.tar.gz
     mv linux vampire-5.0
