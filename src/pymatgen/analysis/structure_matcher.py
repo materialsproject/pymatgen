@@ -968,8 +968,7 @@ class StructureMatcher(MSONable):
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
 
-        matches = self._anonymous_match(struct1, struct2, fu, s1_supercell, use_rms=True, break_on_match=False)
-        if matches:
+        if matches := self._anonymous_match(struct1, struct2, fu, s1_supercell, use_rms=True, break_on_match=False):
             best = min(matches, key=lambda x: x[1][0])
             return best[1][0], best[0]
 
@@ -993,9 +992,7 @@ class StructureMatcher(MSONable):
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2)
 
-        matches = self._anonymous_match(struct1, struct2, fu, s1_supercell, use_rms=True, break_on_match=True)
-
-        if matches:
+        if matches := self._anonymous_match(struct1, struct2, fu, s1_supercell, use_rms=True, break_on_match=True):
             min_X_diff = np.inf
             best = None
             for match in matches:
@@ -1027,8 +1024,7 @@ class StructureMatcher(MSONable):
         struct1, struct2 = self._process_species([struct1, struct2])
         struct1, struct2, fu, s1_supercell = self._preprocess(struct1, struct2, niggli)
 
-        matches = self._anonymous_match(struct1, struct2, fu, s1_supercell, break_on_match=not include_dist)
-        if matches:
+        if matches := self._anonymous_match(struct1, struct2, fu, s1_supercell, break_on_match=not include_dist):
             if include_dist:
                 return [(m[0], m[1][0]) for m in matches]
 

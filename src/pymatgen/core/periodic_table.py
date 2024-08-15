@@ -380,10 +380,8 @@ class ElementBase(Enum):
         taken over all positive oxidation states of the element for which
         data is present.
         """
-        if "Ionic radii" in self._data:
-            radii = [v for k, v in self._data["Ionic radii"].items() if int(k) > 0]
-            if radii:
-                return FloatWithUnit(sum(radii) / len(radii), "ang")
+        if "Ionic radii" in self._data and (radii := [v for k, v in self._data["Ionic radii"].items() if int(k) > 0]):
+            return FloatWithUnit(sum(radii) / len(radii), "ang")
         return FloatWithUnit(0.0, "ang")
 
     @property
@@ -392,10 +390,8 @@ class ElementBase(Enum):
         taken over all negative oxidation states of the element for which
         data is present.
         """
-        if "Ionic radii" in self._data:
-            radii = [v for k, v in self._data["Ionic radii"].items() if int(k) < 0]
-            if radii:
-                return FloatWithUnit(sum(radii) / len(radii), "ang")
+        if "Ionic radii" in self._data and (radii := [v for k, v in self._data["Ionic radii"].items() if int(k) < 0]):
+            return FloatWithUnit(sum(radii) / len(radii), "ang")
         return FloatWithUnit(0.0, "ang")
 
     @property

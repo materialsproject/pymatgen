@@ -1680,8 +1680,8 @@ def generate_all_slabs(
 
 
 # Load the reconstructions_archive JSON file
-module_dir = os.path.dirname(os.path.abspath(__file__))
-with open(f"{module_dir}/reconstructions_archive.json", encoding="utf-8") as data_file:
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+with open(f"{MODULE_DIR}/reconstructions_archive.json", encoding="utf-8") as data_file:
     RECONSTRUCTIONS_ARCHIVE = json.load(data_file)
 
 

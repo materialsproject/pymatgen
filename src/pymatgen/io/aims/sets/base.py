@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import copy
 import json
-import logging
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 from warnings import warn
@@ -30,8 +29,6 @@ GEOMETRY_FILE_NAME: str = "geometry.in"
 
 
 DEFAULT_AIMS_PROPERTIES = ("energy", "free_energy", "forces", "stress", "stresses", "dipole", "magmom")
-
-logger = logging.getLogger(__name__)
 
 
 class AimsInputSet(InputSet):
