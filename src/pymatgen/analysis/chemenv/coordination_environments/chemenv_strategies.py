@@ -8,7 +8,6 @@ fraction. The choice of the strategy depends on the purpose of the user.
 from __future__ import annotations
 
 import abc
-import os
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -42,8 +41,6 @@ __version__ = "2.0"
 __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
-
-module_dir = os.path.dirname(os.path.abspath(__file__))
 
 MPSYMBOL_TO_CN = AllCoordinationGeometries().get_symbol_cn_mapping()
 ALLCG = AllCoordinationGeometries()

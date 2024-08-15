@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import copy
-import logging
 from typing import TYPE_CHECKING
 
 from monty.json import MSONable
@@ -22,8 +21,6 @@ __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 __status__ = "Beta"
 __date__ = "8/21/19"
-
-logger = logging.getLogger(__name__)
 
 
 class Fragmenter(MSONable):
