@@ -28,8 +28,8 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import ClassVar
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
-EL_COLORS = loadfn(f"{module_dir}/ElementColorSchemes.yaml")
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+EL_COLORS = loadfn(f"{MODULE_DIR}/ElementColorSchemes.yaml")
 
 
 class StructureVis:
