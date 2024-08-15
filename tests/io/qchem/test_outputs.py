@@ -33,10 +33,10 @@ __version__ = "0.1"
 __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 
-single_job_dict = loadfn(f"{TEST_FILES_DIR}/io/qchem/single_job.json")
-multi_job_dict = loadfn(f"{TEST_FILES_DIR}/io/qchem/multi_job.json")
+SINGLE_JOB_DICT = loadfn(f"{TEST_FILES_DIR}/io/qchem/single_job.json")
+MULTI_JOB_DICT = loadfn(f"{TEST_FILES_DIR}/io/qchem/multi_job.json")
 
-property_list = {
+PROPERTIES = {
     "errors",
     "multiple_outputs",
     "completion",
@@ -155,9 +155,9 @@ property_list = {
 }
 
 if openbabel is not None:
-    property_list.add("structure_change")
+    PROPERTIES.add("structure_change")
 
-single_job_out_names = {
+SINGLE_JOB_OUT_NAMES = {
     "unable_to_determine_lambda_in_geom_opt.qcout",
     "thiophene_wfs_5_carboxyl.qcout",
     "hf.qcout",
@@ -240,7 +240,7 @@ single_job_out_names = {
     "new_qchem_files/os_gap.qout",
 }
 
-multi_job_out_names = {
+MULTI_JOB_OUT_NAMES = {
     "not_enough_total_memory.qcout",
     "new_qchem_files/VC_solv_eps10.qcout",
     "new_qchem_files/MECLi_solv_eps10.qcout",
@@ -264,7 +264,7 @@ class TestQCOutput(PymatgenTest):
     def generate_single_job_dict():
         """Used to generate test dictionary for single jobs."""
         single_job_dict = {}
-        for file in single_job_out_names:
+        for file in SINGLE_JOB_OUT_NAMES:
             single_job_dict[file] = QCOutput(f"{TEST_FILES_DIR}/molecules/{file}").data
         dumpfn(single_job_dict, "single_job.json")
 
@@ -272,7 +272,7 @@ class TestQCOutput(PymatgenTest):
     def generate_multi_job_dict():
         """Used to generate test dictionary for multiple jobs."""
         multi_job_dict = {}
-        for file in multi_job_out_names:
+        for file in MULTI_JOB_OUT_NAMES:
             outputs = QCOutput.multiple_outputs_from_file(f"{TEST_FILES_DIR}/molecules/{file}", keep_sub_files=False)
             multi_job_dict[file] = [sub_output.data for sub_output in outputs]
         dumpfn(multi_job_dict, "multi_job.json")
@@ -280,13 +280,13 @@ class TestQCOutput(PymatgenTest):
     def _test_property(self, key, single_outs, multi_outs):
         for filename, out_data in single_outs.items():
             try:
-                assert out_data.get(key) == single_job_dict[filename].get(key)
+                assert out_data.get(key) == SINGLE_JOB_DICT[filename].get(key)
             except ValueError:
                 try:
                     if isinstance(out_data.get(key), dict):
-                        assert out_data.get(key) == approx(single_job_dict[filename].get(key))
+                        assert out_data.get(key) == approx(SINGLE_JOB_DICT[filename].get(key))
                     else:
-                        assert_allclose(out_data.get(key), single_job_dict[filename].get(key), atol=1e-6)
+                        assert_allclose(out_data.get(key), SINGLE_JOB_DICT[filename].get(key), atol=1e-6)
                 except AssertionError:
                     raise RuntimeError(f"Issue with {filename=} Exiting...")
             except AssertionError:
@@ -294,25 +294,25 @@ class TestQCOutput(PymatgenTest):
         for filename, outputs in multi_outs.items():
             for idx, sub_output in enumerate(outputs):
                 try:
-                    assert sub_output.data.get(key) == multi_job_dict[filename][idx].get(key)
+                    assert sub_output.data.get(key) == MULTI_JOB_DICT[filename][idx].get(key)
                 except ValueError:
                     if isinstance(sub_output.data.get(key), dict):
-                        assert sub_output.data.get(key) == approx(multi_job_dict[filename][idx].get(key))
+                        assert sub_output.data.get(key) == approx(MULTI_JOB_DICT[filename][idx].get(key))
                     else:
-                        assert_allclose(sub_output.data.get(key), multi_job_dict[filename][idx].get(key), atol=1e-6)
+                        assert_allclose(sub_output.data.get(key), MULTI_JOB_DICT[filename][idx].get(key), atol=1e-6)
 
     @pytest.mark.skip()  # self._test_property(key, single_outs, multi_outs) fails with
     # ValueError: The truth value of an array with more than one element is ambiguous
     @pytest.mark.skipif(openbabel is None, reason="OpenBabel not installed.")
     def test_all(self):
-        single_outs = {file: QCOutput(f"{TEST_FILES_DIR}/molecules/{file}").data for file in single_job_out_names}
+        single_outs = {file: QCOutput(f"{TEST_FILES_DIR}/molecules/{file}").data for file in SINGLE_JOB_OUT_NAMES}
 
         multi_outs = {
             file: QCOutput.multiple_outputs_from_file(f"{TEST_FILES_DIR}/molecules/{file}", keep_sub_files=False)
-            for file in multi_job_out_names
+            for file in MULTI_JOB_OUT_NAMES
         }
 
-        for key in property_list:
+        for key in PROPERTIES:
             self._test_property(key, single_outs, multi_outs)
 
     def test_multipole_parsing(self):
