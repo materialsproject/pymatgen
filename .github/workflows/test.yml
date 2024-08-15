@@ -76,9 +76,8 @@ jobs:
         run: |
           micromamba activate pmg
 
-          # TODO1 (use uv over pip) remove temporary fix. added since uv install torch is flaky.
-          # track https://github.com/astral-sh/uv/issues/1921 for resolution
-          # TODO2 (pin torch version): DGL library doesn't support torch > 2.2.1 yet,
+          # TODO1 (use uv over pip) uv install torch is flaky, track #3826
+          # TODO2 (pin torch version): DGL library (matgl) doesn't support torch > 2.2.1,
           # see: https://discuss.dgl.ai/t/filenotfounderror-cannot-find-dgl-c-graphbolt-library/4302
           pip install torch==2.2.1 --upgrade
 
