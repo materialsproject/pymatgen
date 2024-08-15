@@ -76,7 +76,7 @@ jobs:
         run: |
           micromamba activate pmg
 
-          uv pip install cython setuptools wheel
+          uv pip install cython setuptools wheel torch
 
           uv pip install --editable '.[${{ matrix.config.extras }}]' --resolution=${{ matrix.config.resolution }}
 
