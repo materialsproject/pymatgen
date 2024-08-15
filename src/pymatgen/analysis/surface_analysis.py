@@ -1029,8 +1029,7 @@ class SurfaceEnergyPlotter:
                         if ads_entry.get_monolayer not in ml_be_dict:
                             ml_be_dict[ads_entry.get_monolayer] = 1000
                         be = ads_entry.gibbs_binding_energy(eads=plot_eads)
-                        if be < ml_be_dict[ads_entry.get_monolayer]:
-                            ml_be_dict[ads_entry.get_monolayer] = be
+                        ml_be_dict[ads_entry.get_monolayer] = min(be, ml_be_dict[ads_entry.get_monolayer])
             # sort the binding energies and monolayers
             # in order to properly draw a line plot
             vals = sorted(ml_be_dict.items())

@@ -632,8 +632,7 @@ class NwOutput:
         de = (emax - emin) / npoints
 
         # Use width of at least two grid points
-        if width < 2 * de:
-            width = 2 * de
+        width = max(width, 2 * de)
 
         energies = [emin + ie * de for ie in range(npoints)]
 
