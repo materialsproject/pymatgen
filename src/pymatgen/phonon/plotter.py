@@ -313,8 +313,7 @@ class PhononBSPlotter:
         ticks = self.get_ticks()
 
         # zip to sanitize, only plot the uniq values
-        ticks_labels = list(zip(*zip(ticks["distance"], ticks["label"])))
-        if ticks_labels:
+        if ticks_labels := list(zip(*zip(ticks["distance"], ticks["label"]))):
             ax.set_xticks(ticks_labels[0])
             ax.set_xticklabels(ticks_labels[1])
 

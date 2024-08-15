@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 import re
 from itertools import chain, combinations
 from typing import TYPE_CHECKING, no_type_check, overload
@@ -30,9 +29,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Jul 11 2012"
-
-
-logger = logging.getLogger(__name__)
 
 
 class BalancedReaction(MSONable):

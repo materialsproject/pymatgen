@@ -50,16 +50,16 @@ __email__ = "nils.e.r.zimmermann@gmail.com"
 __status__ = "Production"
 __date__ = "August 17, 2017"
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 yaml = YAML()
 
-with open(f"{module_dir}/op_params.yaml") as file:
+with open(f"{MODULE_DIR}/op_params.yaml") as file:
     default_op_params = yaml.load(file)
 
-with open(f"{module_dir}/cn_opt_params.yaml") as file:
+with open(f"{MODULE_DIR}/cn_opt_params.yaml") as file:
     cn_opt_params = yaml.load(file)
 
-with open(f"{module_dir}/ionic_radii.json") as file:
+with open(f"{MODULE_DIR}/ionic_radii.json") as file:
     _ion_radii = json.load(file)
 
 
@@ -1211,7 +1211,7 @@ class JmolNN(NearNeighbors):
         self.min_bond_distance = min_bond_distance
 
         # Load elemental radii table
-        bonds_file = f"{module_dir}/bonds_jmol_ob.yaml"
+        bonds_file = f"{MODULE_DIR}/bonds_jmol_ob.yaml"
         with open(bonds_file) as file:
             yaml = YAML()
             self.el_radius = yaml.load(file)
@@ -1490,7 +1490,7 @@ class OpenBabelNN(NearNeighbors):
 
         return siw
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:  # type: ignore[override]
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:
         """
         Obtain a MoleculeGraph object using this NearNeighbor
         class. Requires the optional dependency networkx
@@ -1637,7 +1637,7 @@ class CovalentBondNN(NearNeighbors):
 
         return siw
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> MoleculeGraph:  # type: ignore[override]
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> MoleculeGraph:
         """
         Obtain a MoleculeGraph object using this NearNeighbor class.
 
@@ -4000,7 +4000,7 @@ class CrystalNN(NearNeighbors):
 
         return self.transform_to_length(self.NNData(nn, cn_weights, cn_nninfo), length)
 
-    def get_cn(self, structure: Structure, n: int, **kwargs) -> float:  # type: ignore[override]
+    def get_cn(self, structure: Structure, n: int, **kwargs) -> float:
         """Get coordination number, CN, of site with index n in structure.
 
         Args:
@@ -4226,7 +4226,7 @@ class CutOffDictNN(NearNeighbors):
             A CutOffDictNN using the preset cut-off dictionary.
         """
         if preset == "vesta_2019":
-            cut_offs = loadfn(f"{module_dir}/vesta_cutoffs.yaml")
+            cut_offs = loadfn(f"{MODULE_DIR}/vesta_cutoffs.yaml")
             return cls(cut_off_dict=cut_offs)
 
         raise ValueError(f"Unknown {preset=}")
@@ -4306,7 +4306,7 @@ class Critic2NN(NearNeighbors):
         """
         return True
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:  # type: ignore[override]
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:
         """
         Args:
             structure (Structure): Input structure

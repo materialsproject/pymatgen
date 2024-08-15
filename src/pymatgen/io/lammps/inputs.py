@@ -39,8 +39,8 @@ __maintainer__ = "Zhi Deng, Guillaume Brunin (Matgenix)"
 __email__ = "z4deng@eng.ucsd.edu, info@matgenix.com"
 __date__ = "Nov 2022"
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
-template_dir = f"{module_dir}/templates"
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATE_DIR = f"{MODULE_DIR}/templates"
 
 
 class LammpsInputFile(InputFile):
@@ -531,7 +531,7 @@ class LammpsInputFile(InputFile):
             file.write(self.get_str(ignore_comments=ignore_comments, keep_stages=keep_stages))
 
     @classmethod
-    def from_str(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> Self:  # type: ignore[override]
+    def from_str(cls, contents: str, ignore_comments: bool = False, keep_stages: bool = False) -> Self:
         """
         Helper method to parse string representation of LammpsInputFile.
         If you created the input file by hand, there is no guarantee that the representation
@@ -609,7 +609,7 @@ class LammpsInputFile(InputFile):
         return lammps_in_file
 
     @classmethod
-    def from_file(cls, path: str | Path, ignore_comments: bool = False, keep_stages: bool = False) -> Self:  # type: ignore[override]
+    def from_file(cls, path: str | Path, ignore_comments: bool = False, keep_stages: bool = False) -> Self:
         """
         Creates an InputFile object from a file.
 
@@ -907,7 +907,7 @@ class LammpsRun(MSONable):
             other_settings (dict): other settings to be filled into
                 placeholders.
         """
-        template_path = os.path.join(template_dir, "md.template")
+        template_path = os.path.join(TEMPLATE_DIR, "md.template")
         with open(template_path, encoding="utf-8") as file:
             script_template = file.read()
         settings = other_settings.copy() if other_settings else {}
@@ -934,7 +934,7 @@ class LammpsTemplateGen(TemplateInputGen):
     See pymatgen.io.template.py for additional documentation of this method.
     """
 
-    def get_input_set(  # type: ignore[override]
+    def get_input_set(
         self,
         script_template: PathLike,
         settings: dict | None = None,

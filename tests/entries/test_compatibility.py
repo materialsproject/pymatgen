@@ -39,6 +39,9 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import CompositionLike
 
 
+MODULE_DIR = os.path.dirname(os.path.abspath(pymatgen.entries.__file__))
+
+
 class TestCorrectionSpecificity(TestCase):
     """Make sure corrections are only applied to GGA or GGA+U entries."""
 
@@ -1909,8 +1912,7 @@ class TestMaterialsProjectAqueousCompatibility:
 
 class TestAqueousCorrection(TestCase):
     def setUp(self):
-        module_dir = os.path.dirname(os.path.abspath(pymatgen.entries.__file__))
-        fp = f"{module_dir}/MITCompatibility.yaml"
+        fp = f"{MODULE_DIR}/MITCompatibility.yaml"
         self.corr = AqueousCorrection(fp)
 
     def test_compound_energy(self):
@@ -1939,8 +1941,7 @@ class TestMITAqueousCompatibility(TestCase):
     def setUp(self):
         self.compat = MITCompatibility(check_potcar_hash=True)
         self.aqcompat = MITAqueousCompatibility(check_potcar_hash=True)
-        module_dir = os.path.dirname(os.path.abspath(pymatgen.entries.__file__))
-        fp = f"{module_dir}/MITCompatibility.yaml"
+        fp = f"{MODULE_DIR}/MITCompatibility.yaml"
         self.aqcorr = AqueousCorrection(fp)
 
     def test_aqueous_compat(self):

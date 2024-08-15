@@ -12,7 +12,7 @@ from collections import Counter
 from enum import Enum, unique
 from itertools import combinations, product
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 import numpy as np
 from monty.dev import deprecated
@@ -380,10 +380,8 @@ class ElementBase(Enum):
         taken over all positive oxidation states of the element for which
         data is present.
         """
-        if "Ionic radii" in self._data:
-            radii = [v for k, v in self._data["Ionic radii"].items() if int(k) > 0]
-            if radii:
-                return FloatWithUnit(sum(radii) / len(radii), "ang")
+        if "Ionic radii" in self._data and (radii := [v for k, v in self._data["Ionic radii"].items() if int(k) > 0]):
+            return FloatWithUnit(sum(radii) / len(radii), "ang")
         return FloatWithUnit(0.0, "ang")
 
     @property
@@ -392,10 +390,8 @@ class ElementBase(Enum):
         taken over all negative oxidation states of the element for which
         data is present.
         """
-        if "Ionic radii" in self._data:
-            radii = [v for k, v in self._data["Ionic radii"].items() if int(k) < 0]
-            if radii:
-                return FloatWithUnit(sum(radii) / len(radii), "ang")
+        if "Ionic radii" in self._data and (radii := [v for k, v in self._data["Ionic radii"].items() if int(k) < 0]):
+            return FloatWithUnit(sum(radii) / len(radii), "ang")
         return FloatWithUnit(0.0, "ang")
 
     @property
@@ -476,7 +472,7 @@ class ElementBase(Enum):
     @property
     def n_electrons(self) -> int:
         """Total number of electrons in the Element."""
-        return sum([t[-1] for t in self.full_electronic_structure])
+        return sum(t[-1] for t in self.full_electronic_structure)
 
     @property
     def valence(self) -> tuple[int | np.nan, int]:
@@ -1180,7 +1176,7 @@ class Species(MSONable, Stringify):
     @property
     def n_electrons(self) -> int:
         """Total number of electrons in the Species."""
-        return sum([t[-1] for t in self.full_electronic_structure])
+        return sum(t[-1] for t in self.full_electronic_structure)
 
     # NOTE - copied exactly from Element. Refactoring / inheritance may improve
     # robustness
@@ -1597,11 +1593,21 @@ class DummySpecie(DummySpecies):
     """
 
 
+@overload
+def get_el_sp(obj: int) -> Element:
+    pass
+
+
+@overload
+def get_el_sp(obj: SpeciesLike) -> Element | Species | DummySpecies:
+    pass
+
+
 @functools.lru_cache
 def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
-    """Utility method to get an Element, Species or DummySpecies from any input.
+    """Utility function to get an Element, Species or DummySpecies from any input.
 
-    If obj is in itself an element or a specie, it is returned automatically.
+    If obj is an Element or a Species, it is returned as is.
     If obj is an int or a string representing an integer, the Element with the
     atomic number obj is returned.
     If obj is a string, Species parsing will be attempted (e.g. Mn2+). Failing that
@@ -1616,8 +1622,8 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
         ValueError: if obj cannot be converted into an Element or Species.
 
     Returns:
-        Species | Element: with a bias for the maximum number of properties
-            that can be determined.
+        Element | Species | DummySpecies: with a bias for the maximum number
+            of properties that can be determined.
     """
     # If obj is already an Element or Species, return as is
     if isinstance(obj, (Element, Species, DummySpecies)):

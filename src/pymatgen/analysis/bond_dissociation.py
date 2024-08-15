@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 import warnings
 from typing import cast
 
@@ -22,8 +21,6 @@ __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 __status__ = "Alpha"
 __date__ = "7/26/18"
-
-logger = logging.getLogger(__name__)
 
 
 class BondDissociationEnergies(MSONable):

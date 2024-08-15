@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 import re
 from typing import TYPE_CHECKING
 
@@ -25,8 +24,6 @@ __version__ = "0.1"
 __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 __credits__ = "Xiaohui Qu"
-
-logger = logging.getLogger(__name__)
 
 
 class QCInput(InputFile):
@@ -306,7 +303,7 @@ class QCInput(InputFile):
         return multi_job_string
 
     @classmethod
-    def from_str(cls, string: str) -> Self:  # type: ignore[override]
+    def from_str(cls, string: str) -> Self:
         """
         Read QcInput from string.
 
@@ -380,7 +377,7 @@ class QCInput(InputFile):
             file.write(QCInput.multi_job_string(job_list))
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> Self:  # type: ignore[override]
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Create QcInput from file.
 

@@ -84,14 +84,14 @@ class Site(collections.abc.Hashable, MSONable):
             return props[attr]
         raise AttributeError(f"{attr=} not found on {type(self).__name__}")
 
-    def __getitem__(self, el: Element) -> float:  # type: ignore[override]
+    def __getitem__(self, el: Element) -> float:
         """Get the occupancy for element."""
         return self.species[el]
 
     def __eq__(self, other: object) -> bool:
         """Site is equal to another site if the species and occupancies are the
-        same, and the coordinates are the same to some tolerance.  numpy
-        function `allclose` is used to determine if coordinates are close.
+        same, and the coordinates are the same to some tolerance. `numpy.allclose`
+        is used to determine if coordinates are close.
         """
         if not isinstance(other, type(self)):
             return NotImplemented
@@ -102,7 +102,7 @@ class Site(collections.abc.Hashable, MSONable):
             and self.properties == other.properties
         )
 
-    def __hash__(self) -> int:  # type: ignore[override]
+    def __hash__(self) -> int:
         """Minimally effective hash function that just distinguishes between Sites
         with different elements.
         """

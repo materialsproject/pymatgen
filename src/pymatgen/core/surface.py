@@ -218,7 +218,7 @@ class Slab(Structure):
         return np.linalg.norm(np.cross(matrix[0], matrix[1]))
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> Self:  # type: ignore[override]
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct: dict.
@@ -242,7 +242,7 @@ class Slab(Structure):
             energy=dct["energy"],
         )
 
-    def as_dict(self, **kwargs) -> dict:  # type: ignore[override]
+    def as_dict(self, **kwargs) -> dict:
         """MSONable dict."""
         dct = super().as_dict(**kwargs)
         dct["@module"] = type(self).__module__
@@ -255,7 +255,7 @@ class Slab(Structure):
         dct["energy"] = self.energy
         return dct
 
-    def copy(self, site_properties: dict[str, Any] | None = None) -> Self:  # type: ignore[override]
+    def copy(self, site_properties: dict[str, Any] | None = None) -> Self:
         """Get a copy of the Slab, with options to update site properties.
 
         Args:
@@ -1680,8 +1680,8 @@ def generate_all_slabs(
 
 
 # Load the reconstructions_archive JSON file
-module_dir = os.path.dirname(os.path.abspath(__file__))
-with open(f"{module_dir}/reconstructions_archive.json", encoding="utf-8") as data_file:
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+with open(f"{MODULE_DIR}/reconstructions_archive.json", encoding="utf-8") as data_file:
     RECONSTRUCTIONS_ARCHIVE = json.load(data_file)
 
 

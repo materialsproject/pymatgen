@@ -9,7 +9,6 @@ For additional flexibility and automation, use the atomate2-lammps implementatio
 
 from __future__ import annotations
 
-import logging
 import os
 from typing import TYPE_CHECKING
 
@@ -26,9 +25,7 @@ __author__ = "Ryan Kingsbury, Guillaume Brunin (Matgenix)"
 __copyright__ = "Copyright 2021, The Materials Project"
 __version__ = "0.2"
 
-logger = logging.getLogger(__name__)
-module_dir = os.path.dirname(os.path.abspath(__file__))
-template_dir = f"{module_dir}/templates"
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class LammpsInputSet(InputSet):
@@ -75,7 +72,7 @@ class LammpsInputSet(InputSet):
         super().__init__(inputs={"in.lammps": self.inputfile, "system.data": self.data})
 
     @classmethod
-    def from_directory(cls, directory: PathLike, keep_stages: bool = False) -> Self:  # type: ignore[override]
+    def from_directory(cls, directory: PathLike, keep_stages: bool = False) -> Self:
         """Construct a LammpsInputSet from a directory of two or more files.
 
         TODO: accept directories with only the input file, that should include the structure as well.

@@ -429,8 +429,7 @@ class StructureGraph(MSONable):
         # there should only ever be at most one edge
         # between a given (site, jimage) pair and another
         # (site, jimage) pair
-        existing_edge_data = self.graph.get_edge_data(from_index, to_index)
-        if existing_edge_data:
+        if existing_edge_data := self.graph.get_edge_data(from_index, to_index):
             for d in existing_edge_data.values():
                 if d["to_jimage"] == to_jimage:
                     if warn_duplicates:
@@ -933,7 +932,7 @@ class StructureGraph(MSONable):
                     d["label"] = f"{d['weight']:.2f} {units}"
 
             # update edge with our new style attributes
-            g.edges[u, v, k] |= d
+            g.edges[u, v, k].update(d)
 
         # optionally remove periodic image edges,
         # these can be confusing due to periodic boundaries
@@ -1287,12 +1286,10 @@ class StructureGraph(MSONable):
     def _edges_to_str(cls, g) -> str:
         header = "from    to  to_image    "
         header_line = "----  ----  ------------"
-        edge_weight_name = g.graph["edge_weight_name"]
-        if edge_weight_name:
+        if g.graph["edge_weight_name"]:
             print_weights = True
             edge_label = g.graph["edge_weight_name"]
-            edge_weight_units = g.graph["edge_weight_units"]
-            if edge_weight_units:
+            if edge_weight_units := g.graph["edge_weight_units"]:
                 edge_label += f" ({edge_weight_units})"
             header += f"  {edge_label}"
             header_line += f"  {'-' * max([18, len(edge_label)])}"
@@ -2603,7 +2600,7 @@ class MoleculeGraph(MSONable):
                     d["label"] = f"{d['weight']:.2f} {units}"
 
             # update edge with our new style attributes
-            g.edges[u, v, k] |= d
+            g.edges[u, v, k].update(d)
 
         # optionally remove periodic image edges,
         # these can be confusing due to periodic boundaries
@@ -2673,12 +2670,10 @@ class MoleculeGraph(MSONable):
     def _edges_to_str(cls, g):
         header = "from    to  to_image    "
         header_line = "----  ----  ------------"
-        edge_weight_name = g.graph["edge_weight_name"]
-        if edge_weight_name:
+        if g.graph["edge_weight_name"]:
             print_weights = ["weight"]
             edge_label = g.graph["edge_weight_name"]
-            edge_weight_units = g.graph["edge_weight_units"]
-            if edge_weight_units:
+            if edge_weight_units := g.graph["edge_weight_units"]:
                 edge_label += f" ({edge_weight_units})"
             header += f"  {edge_label}"
             header_line += f"  {'-' * max([18, len(edge_label)])}"
