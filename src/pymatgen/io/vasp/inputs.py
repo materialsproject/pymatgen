@@ -9,7 +9,6 @@ import codecs
 import hashlib
 import itertools
 import json
-import logging
 import math
 import os
 import re
@@ -39,7 +38,7 @@ from pymatgen.util.string import str_delimited
 from pymatgen.util.typing import Kpoint, Tuple3Floats, Tuple3Ints, Vector3D
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Sequence
     from typing import Any, ClassVar, Literal
 
     from numpy.typing import ArrayLike
@@ -52,12 +51,11 @@ if TYPE_CHECKING:
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Rickard Armiento, Vincent L Chevrier, Stephen Dacek"
 __copyright__ = "Copyright 2011, The Materials Project"
 
-logger = logging.getLogger(__name__)
-module_dir = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class Poscar(MSONable):
-    """Object for representing the data in a POSCAR or CONTCAR file.
+    """Represent the data in a POSCAR or CONTCAR file.
 
     Attributes:
         structure: Associated Structure.
@@ -112,37 +110,37 @@ class Poscar(MSONable):
             sort_structure (bool, optional): Whether to sort the structure. Useful if species
                 are not grouped properly together. Defaults to False.
         """
-        if structure.is_ordered:
-            site_properties = {}
-
-            if selective_dynamics is not None:
-                selective_dynamics = np.array(selective_dynamics)
-                if not selective_dynamics.all():
-                    site_properties["selective_dynamics"] = selective_dynamics
-
-            if velocities:
-                velocities = np.array(velocities)
-                if velocities.any():
-                    site_properties["velocities"] = velocities
-
-            if predictor_corrector:
-                predictor_corrector = np.array(predictor_corrector)
-                if predictor_corrector.any():
-                    site_properties["predictor_corrector"] = predictor_corrector
-
-            structure = Structure.from_sites(structure)
-            self.structure = structure.copy(site_properties=site_properties)
-            if sort_structure:
-                self.structure = self.structure.get_sorted_structure()
-            self.true_names = true_names
-            self.comment = structure.formula if comment is None else comment
-            if predictor_corrector_preamble:
-                self.structure.properties["predictor_corrector_preamble"] = predictor_corrector_preamble
-
-            if lattice_velocities and np.any(lattice_velocities):
-                self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
-        else:
+        if not structure.is_ordered:
             raise ValueError("Disordered structure with partial occupancies cannot be converted into POSCAR!")
+
+        site_properties: dict[str, Any] = {}
+
+        if selective_dynamics is not None:
+            selective_dynamics = np.array(selective_dynamics)
+            if not selective_dynamics.all():
+                site_properties["selective_dynamics"] = selective_dynamics
+
+        if velocities:
+            velocities = np.array(velocities)
+            if velocities.any():
+                site_properties["velocities"] = velocities
+
+        if predictor_corrector:
+            predictor_corrector = np.array(predictor_corrector)
+            if predictor_corrector.any():
+                site_properties["predictor_corrector"] = predictor_corrector
+
+        structure = Structure.from_sites(structure)
+        self.structure = structure.copy(site_properties=site_properties)
+        if sort_structure:
+            self.structure = self.structure.get_sorted_structure()
+        self.true_names = true_names
+        self.comment = structure.formula if comment is None else comment
+        if predictor_corrector_preamble:
+            self.structure.properties["predictor_corrector_preamble"] = predictor_corrector_preamble
+
+        if lattice_velocities and np.any(lattice_velocities):
+            self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
 
         self.temperature = -1.0
 
@@ -168,49 +166,44 @@ class Poscar(MSONable):
         """Velocities in Poscar."""
         return self.structure.site_properties.get("velocities")
 
+    @velocities.setter
+    def velocities(self, velocities: ArrayLike | None) -> None:
+        self.structure.add_site_property("velocities", velocities)
+
     @property
     def selective_dynamics(self) -> ArrayLike | None:
         """Selective dynamics in Poscar."""
         return self.structure.site_properties.get("selective_dynamics")
+
+    @selective_dynamics.setter
+    def selective_dynamics(self, selective_dynamics: ArrayLike | None) -> None:
+        self.structure.add_site_property("selective_dynamics", selective_dynamics)
 
     @property
     def predictor_corrector(self) -> ArrayLike | None:
         """Predictor corrector in Poscar."""
         return self.structure.site_properties.get("predictor_corrector")
 
+    @predictor_corrector.setter
+    def predictor_corrector(self, predictor_corrector: ArrayLike | None) -> None:
+        self.structure.add_site_property("predictor_corrector", predictor_corrector)
+
     @property
     def predictor_corrector_preamble(self) -> str | None:
         """Predictor corrector preamble in Poscar."""
         return self.structure.properties.get("predictor_corrector_preamble")
+
+    @predictor_corrector_preamble.setter
+    def predictor_corrector_preamble(self, predictor_corrector_preamble: str | None) -> None:
+        self.structure.properties["predictor_corrector"] = predictor_corrector_preamble
 
     @property
     def lattice_velocities(self) -> ArrayLike | None:
         """Lattice velocities in Poscar (including the current lattice vectors)."""
         return self.structure.properties.get("lattice_velocities")
 
-    @velocities.setter  # type: ignore[no-redef, attr-defined]
-    def velocities(self, velocities: ArrayLike | None) -> None:
-        """Setter for Poscar.velocities."""
-        self.structure.add_site_property("velocities", velocities)
-
-    @selective_dynamics.setter  # type: ignore[no-redef, attr-defined]
-    def selective_dynamics(self, selective_dynamics: ArrayLike | None) -> None:
-        """Setter for Poscar.selective_dynamics."""
-        self.structure.add_site_property("selective_dynamics", selective_dynamics)
-
-    @predictor_corrector.setter  # type: ignore[no-redef, attr-defined]
-    def predictor_corrector(self, predictor_corrector: ArrayLike | None) -> None:
-        """Setter for Poscar.predictor_corrector."""
-        self.structure.add_site_property("predictor_corrector", predictor_corrector)
-
-    @predictor_corrector_preamble.setter  # type: ignore[no-redef, attr-defined]
-    def predictor_corrector_preamble(self, predictor_corrector_preamble: str | None) -> None:
-        """Setter for Poscar.predictor_corrector."""
-        self.structure.properties["predictor_corrector"] = predictor_corrector_preamble
-
-    @lattice_velocities.setter  # type: ignore[no-redef, attr-defined]
+    @lattice_velocities.setter
     def lattice_velocities(self, lattice_velocities: ArrayLike | None) -> None:
-        """Setter for Poscar.lattice_velocities."""
         self.structure.properties["lattice_velocities"] = np.asarray(lattice_velocities)
 
     @property
@@ -222,7 +215,7 @@ class Poscar(MSONable):
     @property
     def natoms(self) -> list[int]:
         """Sequence of number of sites of each type associated with the Poscar.
-        Similar to 7th line in vasp 5+ POSCAR or the 6th line in vasp 4 POSCAR.
+        Similar to 7th line in VASP 5+ POSCAR or the 6th line in VASP 4 POSCAR.
         """
         syms: list[str] = [site.specie.symbol for site in self.structure]
         return [len(tuple(a[1])) for a in itertools.groupby(syms)]
@@ -272,15 +265,17 @@ class Poscar(MSONable):
 
         dirname: str = os.path.dirname(os.path.abspath(filename))
         names: list[str] | None = None
-        if check_for_potcar and SETTINGS.get("PMG_POTCAR_CHECKS") is not False:
-            potcars = glob(f"{dirname}/*POTCAR*")
-            if potcars:
-                try:
-                    potcar = Potcar.from_file(min(potcars))
-                    names = [sym.split("_")[0] for sym in potcar.symbols]
-                    [get_el_sp(n) for n in names]  # ensure valid names
-                except Exception:
-                    names = None
+        if (
+            check_for_potcar
+            and SETTINGS.get("PMG_POTCAR_CHECKS") is not False
+            and (potcars := glob(f"{dirname}/*POTCAR*"))
+        ):
+            try:
+                potcar = Potcar.from_file(min(potcars))
+                names = [sym.split("_")[0] for sym in potcar.symbols]
+                map(get_el_sp, names)  # ensure valid names
+            except Exception:
+                names = None
 
         with zopen(filename, mode="rt") as file:
             return cls.from_str(file.read(), names, read_velocities=read_velocities)
@@ -339,7 +334,7 @@ class Poscar(MSONable):
         scale: float = float(lines[1])
         lattice: np.ndarray = np.array([[float(i) for i in line.split()] for line in lines[2:5]])
         if scale < 0:
-            # In vasp, a negative scale factor is treated as a volume. We need
+            # In VASP, a negative scale factor is treated as a volume. We need
             # to translate this to a proper lattice vector scaling.
             vol: float = abs(np.linalg.det(lattice))
             lattice *= (-scale / vol) ** (1 / 3)
@@ -357,7 +352,7 @@ class Poscar(MSONable):
             vasp5_symbols = True
             symbols: list[str] = [symbol.split("/")[0] for symbol in lines[5].split()]
 
-            # Atoms and number of atoms in POSCAR written with vasp appear on
+            # Atoms and number of atoms in POSCAR written with VASP appear on
             # multiple lines when atoms of the same type are not grouped together
             # and more than 20 groups are then defined ...
             # Example :
@@ -533,13 +528,13 @@ class Poscar(MSONable):
         significant_figures: int = 16,
     ) -> str:
         """Return a string to be written as a POSCAR file. By default, site
-        symbols are written, which is compatible for vasp >= 5.
+        symbols are written, which is compatible for VASP >= 5.
 
         Args:
             direct (bool): Whether coordinates are output in direct or
                 Cartesian. Defaults to True.
             vasp4_compatible (bool): Set to True to omit site symbols on 6th
-                line to maintain backward vasp 4.x compatibility. Defaults
+                line to maintain backward VASP 4.x compatibility. Defaults
                 to False.
             significant_figures (int): Number of significant digits to
                 output all quantities. Defaults to 16. Note that positions are
@@ -705,7 +700,7 @@ class BadPoscarWarning(UserWarning):
 
 class Incar(dict, MSONable):
     """
-    INCAR object for reading and writing INCAR files.
+    Read and write INCAR files.
     Essentially a dictionary with some helper functions.
     """
 
@@ -1017,7 +1012,7 @@ class Incar(dict, MSONable):
         will ignore the tag and set it as default without letting you know.
         """
         # Load INCAR tag/value check reference file
-        with open(os.path.join(module_dir, "incar_parameters.json"), encoding="utf-8") as json_file:
+        with open(os.path.join(MODULE_DIR, "incar_parameters.json"), encoding="utf-8") as json_file:
             incar_params = json.loads(json_file.read())
 
         for tag, val in self.items():
@@ -1076,7 +1071,7 @@ class KpointsSupportedModes(Enum):
 class Kpoints(MSONable):
     """KPOINTS reader/writer."""
 
-    supported_modes = KpointsSupportedModes
+    supported_modes: ClassVar[type[KpointsSupportedModes]] = KpointsSupportedModes
 
     def __init__(
         self,
@@ -1100,6 +1095,9 @@ class Kpoints(MSONable):
         schemes can be constructed far more easily using the convenience static
         constructors (automatic, gamma_automatic, monkhorst_automatic) and it
         is recommended that you use those.
+
+        The default behavior of the constructor is for a Gamma-centered,
+        1x1x1 KPOINTS with no shift.
 
         Args:
             comment (str): String comment for Kpoints. Defaults to "Default gamma".
@@ -1127,9 +1125,6 @@ class Kpoints(MSONable):
                 of the tetrahedrons for the tetrahedron method.
                 Format is a list of tuples, [ (sym_weight, [tet_vertices]),
                 ...]
-
-        The default behavior of the constructor is for a Gamma centered,
-        1x1x1 KPOINTS with no shift.
         """
         if num_kpts > 0 and not labels and not kpts_weights:
             raise ValueError("For explicit or line-mode kpoints, either the labels or kpts_weights must be specified.")
@@ -1171,7 +1166,7 @@ class Kpoints(MSONable):
                 else:
                     lines[-1] += f" {int(self.kpts_weights[idx])}"
 
-        # Print tetrahedron parameters if the number of tetrahedrons > 0
+        # Tetrahedron parameters if the number of tetrahedrons > 0
         if style not in "lagm" and self.tet_number > 0:
             lines.extend(("Tetrahedron", f"{self.tet_number} {self.tet_weight:f}"))
             if self.tet_connections is not None:
@@ -1179,7 +1174,7 @@ class Kpoints(MSONable):
                     a, b, c, d = vertices
                     lines.append(f"{sym_weight} {a} {b} {c} {d}")
 
-        # Print shifts for automatic kpoints types if not zero.
+        # Shifts for automatic kpoints types if not zero
         if self.num_kpts <= 0 and tuple(self.kpts_shift) != (0, 0, 0):
             lines.append(" ".join(map(str, self.kpts_shift)))
         return "\n".join(lines) + "\n"
@@ -1209,11 +1204,11 @@ class Kpoints(MSONable):
         return self._style
 
     @style.setter
-    def style(self, style) -> None:
+    def style(self, style: str | KpointsSupportedModes) -> None:
         """Set the style for the Kpoints. One of Kpoints_supported_modes enum.
 
         Args:
-            style: Style
+            style (str | KpointsSupportedModes): Style
         """
         if isinstance(style, str):
             style = type(self).supported_modes.from_str(style)
@@ -1239,7 +1234,7 @@ class Kpoints(MSONable):
     def automatic(cls, subdivisions: int) -> Self:
         """
         Constructor for a fully automatic Kpoint grid, with
-        gamma centered Monkhorst-Pack grids and the number of subdivisions
+        Gamma-centered grids and the number of subdivisions
         along each reciprocal lattice vector determined by the scheme in the
         VASP manual.
 
@@ -1248,7 +1243,7 @@ class Kpoints(MSONable):
                 each reciprocal lattice vector.
 
         Returns:
-            Kpoints object
+            Kpoints
         """
         return cls(
             "Fully automatic kpoint scheme",
@@ -1262,7 +1257,7 @@ class Kpoints(MSONable):
     @classmethod
     def gamma_automatic(cls, kpts: Kpoint = (1, 1, 1), shift: Vector3D = (0, 0, 0)) -> Self:
         """
-        Constructor for an automatic Gamma centered Kpoint grid.
+        Construct an automatic Gamma-centered Kpoint grid.
 
         Args:
             kpts: Subdivisions N_1, N_2 and N_3 along reciprocal lattice
@@ -1270,15 +1265,14 @@ class Kpoints(MSONable):
             shift: Shift to be applied to the kpoints. Defaults to (0, 0, 0).
 
         Returns:
-            Kpoints object
+            Kpoints
         """
         return cls("Automatic kpoint scheme", 0, cls.supported_modes.Gamma, kpts=[kpts], kpts_shift=shift)
 
     @classmethod
     def monkhorst_automatic(cls, kpts: Kpoint = (2, 2, 2), shift: Vector3D = (0, 0, 0)) -> Self:
         """
-        Convenient static constructor for an automatic Monkhorst pack Kpoint
-        grid.
+        Construct an automatic Monkhorst-Pack Kpoint grid.
 
         Args:
             kpts: Subdivisions N_1, N_2, N_3 along reciprocal lattice
@@ -1286,13 +1280,13 @@ class Kpoints(MSONable):
             shift: Shift to be applied to the kpoints. Defaults to (0, 0, 0).
 
         Returns:
-            Kpoints object
+            Kpoints
         """
         return cls("Automatic kpoint scheme", 0, cls.supported_modes.Monkhorst, kpts=[kpts], kpts_shift=shift)
 
     @classmethod
     def automatic_density(cls, structure: Structure, kppa: float, force_gamma: bool = False) -> Self:
-        """Get an automatic Kpoint object based on a structure and a kpoint
+        """Get an automatic Kpoints object based on a structure and a kpoint
         density. Uses Gamma centered meshes for hexagonal cells and face-centered cells,
         Monkhorst-Pack grids otherwise.
 
@@ -1337,7 +1331,7 @@ class Kpoints(MSONable):
 
     @classmethod
     def automatic_gamma_density(cls, structure: Structure, kppa: float) -> Self:
-        """Get an automatic Kpoint object based on a structure and a kpoint
+        """Get an automatic Kpoints object based on a structure and a kpoint
         density. Uses Gamma centered meshes always. For GW.
 
         Algorithm:
@@ -1376,7 +1370,7 @@ class Kpoints(MSONable):
 
     @classmethod
     def automatic_density_by_vol(cls, structure: Structure, kppvol: int, force_gamma: bool = False) -> Self:
-        """Get an automatic Kpoint object based on a structure and a kpoint
+        """Get an automatic Kpoints object based on a structure and a kpoint
         density per inverse Angstrom^3 of reciprocal cell.
 
         Algorithm:
@@ -1398,11 +1392,11 @@ class Kpoints(MSONable):
     def automatic_density_by_lengths(
         cls, structure: Structure, length_densities: Sequence[float], force_gamma: bool = False
     ) -> Self:
-        """Get an automatic Kpoint object based on a structure and a k-point
+        """Get an automatic Kpoints object based on a structure and a k-point
         density normalized by lattice constants.
 
         Algorithm:
-            For a given dimension, the # of k-points is chosen as
+            For a given dimension, the number of k-points is chosen as
             length_density = # of kpoints * lattice constant, e.g. [50.0, 50.0, 1.0] would
             have k-points of 50/a x 50/b x 1/c.
 
@@ -1520,7 +1514,7 @@ class Kpoints(MSONable):
 
         coord_pattern = re.compile(r"^\s*([\d+.\-Ee]+)\s+([\d+.\-Ee]+)\s+([\d+.\-Ee]+)")
 
-        # Automatic gamma and Monk KPOINTS, with optional shift
+        # Automatic Gamma-centered or Monkhorst-Pack KPOINTS, with optional shift
         if style in {"g", "m"}:
             _kpt: list[float] = [float(i) for i in lines[3].split()]
             if len(_kpt) != 3:
@@ -1727,10 +1721,10 @@ class OrbitalDescription(NamedTuple):
 
 
 # Hashes computed from the full POTCAR file contents by pymatgen (not 1st-party VASP hashes)
-PYMATGEN_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_pymatgen_hashes.json")
+PYMATGEN_POTCAR_HASHES = loadfn(f"{MODULE_DIR}/vasp_potcar_pymatgen_hashes.json")
 # Written to some newer POTCARs by VASP
-VASP_POTCAR_HASHES = loadfn(f"{module_dir}/vasp_potcar_file_hashes.json")
-POTCAR_STATS_PATH: str = os.path.join(module_dir, "potcar-summary-stats.json.bz2")
+VASP_POTCAR_HASHES = loadfn(f"{MODULE_DIR}/vasp_potcar_file_hashes.json")
+POTCAR_STATS_PATH: str = os.path.join(MODULE_DIR, "potcar-summary-stats.json.bz2")
 
 
 class PotcarSingle:
@@ -1930,8 +1924,8 @@ class PotcarSingle:
         """
         try:
             return self.keywords[attr.upper()]
-        except Exception:
-            raise AttributeError(attr)
+        except Exception as exc:
+            raise AttributeError(attr) from exc
 
     def __str__(self) -> str:
         return f"{self.data}\n"
@@ -2407,7 +2401,7 @@ class PotcarSingle:
                 the PotcarSingle
         """
         # Dict to translate the sets in the .json file to the keys used in VaspInputSet
-        mapping_dict = {
+        mapping_dict: dict[str, dict[str, str]] = {
             "potUSPP_GGA": {
                 "pymatgen_key": "PW91_US",
                 "vasp_description": "Ultrasoft pseudo potentials"
@@ -2515,7 +2509,7 @@ def _gen_potcar_summary_stats(
     append: bool = False,
     vasp_psp_dir: str | None = None,
     summary_stats_filename: str | None = POTCAR_STATS_PATH,
-):
+) -> dict:
     """
     Regenerate the reference data in potcar-summary-stats.json.bz2 used to validate POTCARs
     by comparing header values and several statistics of copyrighted POTCAR data without
@@ -2577,7 +2571,7 @@ def _gen_potcar_summary_stats(
 class Potcar(list, MSONable):
     """Read and write POTCAR files for calculations. Consists of a list of PotcarSingle."""
 
-    FUNCTIONAL_CHOICES = tuple(PotcarSingle.functional_dir)
+    FUNCTIONAL_CHOICES: ClassVar[tuple] = tuple(PotcarSingle.functional_dir)
 
     def __init__(
         self,
@@ -2609,12 +2603,6 @@ class Potcar(list, MSONable):
 
     def __str__(self) -> str:
         return "\n".join(str(potcar).strip("\n") for potcar in self) + "\n"
-
-    def __iter__(self) -> Iterator[PotcarSingle]:
-        """Boilerplate code. Only here to supply type hint so
-        `for psingle in Potcar()` is correctly inferred as PotcarSingle.
-        """
-        return super().__iter__()
 
     @property
     def symbols(self) -> list[str]:
@@ -2720,7 +2708,7 @@ class UnknownPotcarWarning(UserWarning):
 
 
 class VaspInput(dict, MSONable):
-    """Contain a set of vasp input objects corresponding to a run."""
+    """Contain a set of VASP input objects corresponding to a run."""
 
     def __init__(
         self,
@@ -2752,7 +2740,7 @@ class VaspInput(dict, MSONable):
         self._potcar_filename = "POTCAR" + (".spec" if potcar_spec else "")
         self |= {"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, self._potcar_filename: potcar}
         if optional_files is not None:
-            self.update(optional_files)
+            self |= optional_files
 
     def __str__(self) -> str:
         output: list = []

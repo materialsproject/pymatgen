@@ -41,8 +41,6 @@ __version__ = "0.2"
 __email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 10, 2017"
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
-
 
 class TestCohpcar(PymatgenTest):
     def setUp(self):

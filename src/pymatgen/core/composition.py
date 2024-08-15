@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
     from pymatgen.util.typing import SpeciesLike
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 @total_ordering
@@ -959,7 +959,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
         # Load prior probabilities of oxidation states, used to rank solutions
         if not type(self).oxi_prob:
-            all_data = loadfn(f"{module_dir}/../analysis/icsd_bv.yaml")
+            all_data = loadfn(f"{MODULE_DIR}/../analysis/icsd_bv.yaml")
             type(self).oxi_prob = {Species.from_str(sp): data for sp, data in all_data["occurrence"].items()}
         oxi_states_override = oxi_states_override or {}
         # Assert Composition only has integer amounts

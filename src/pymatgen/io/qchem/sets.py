@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 import os
 import warnings
 from typing import TYPE_CHECKING
@@ -23,8 +22,6 @@ __copyright__ = "Copyright 2018-2022, The Materials Project"
 __version__ = "0.1"
 __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
-
-logger = logging.getLogger(__name__)
 
 # Note that in addition to the solvent-specific parameters, this dict contains
 # dielectric constants for use with each solvent. The dielectric constants

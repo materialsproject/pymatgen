@@ -30,8 +30,8 @@ __email__ = "fwan@berkeley.edu, yhljason@berkeley.edu"
 __date__ = "03/31/2020"
 
 
-module_dir = os.path.dirname(__file__)
-with open(f"{module_dir}/atomic_scattering_params.json", encoding="utf-8") as file:
+MODULE_DIR = os.path.dirname(__file__)
+with open(f"{MODULE_DIR}/atomic_scattering_params.json", encoding="utf-8") as file:
     ATOMIC_SCATTERING_PARAMS = json.load(file)
 
 

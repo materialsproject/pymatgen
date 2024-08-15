@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 import os
 import re
 
@@ -17,8 +16,6 @@ __version__ = "0.1"
 __maintainer__ = "Alex Epstein"
 __email__ = "aepstein@lbl.gov"
 __credits__ = "Sam Blau, Evan Spotte-Smith"
-
-logger = logging.getLogger(__name__)
 
 
 class CRESTOutput(MSONable):
