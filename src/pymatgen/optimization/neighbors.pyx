@@ -94,7 +94,7 @@ def find_points_in_spheres(
         double [:, ::1] frac_coords =  <double[:n_center, :3]> safe_malloc(
             n_center * 3 * sizeof(double)
         )
-        double[:, ::1] all_fcoords = <double[:n_total, :3]> safe_malloc(
+        double[:, ::1] all_frac_coords = <double[:n_total, :3]> safe_malloc(
             n_total * 3 * sizeof(double)
         )
         double[:, ::1] coords_in_cell = <double[:n_total, :3]> safe_malloc(
@@ -149,10 +149,10 @@ def find_points_in_spheres(
         for j in range(3):
             if pbc[j]:
                 # only wrap atoms when this dimension is PBC
-                all_fcoords[i, j] = offset_correction[i, j] % 1
-                offset_correction[i, j] = offset_correction[i, j] - all_fcoords[i, j]
+                all_frac_coords[i, j] = offset_correction[i, j] % 1
+                offset_correction[i, j] = offset_correction[i, j] - all_frac_coords[i, j]
             else:
-                all_fcoords[i, j] = offset_correction[i, j]
+                all_frac_coords[i, j] = offset_correction[i, j]
                 offset_correction[i, j] = 0
 
     # compute the reciprocal lattice in place
@@ -165,7 +165,7 @@ def find_points_in_spheres(
 
     for i in range(3):
         nlattice *= (max_bounds[i] - min_bounds[i])
-    matmul(all_fcoords, lattice, coords_in_cell)
+    matmul(all_frac_coords, lattice, coords_in_cell)
 
     # Get translated images, coordinates and indices
     for i in range(min_bounds[0], max_bounds[0]):
@@ -229,7 +229,7 @@ def find_points_in_spheres(
     # if no valid neighbors were found return empty
     if count == 0:
         free(&frac_coords[0, 0])
-        free(&all_fcoords[0, 0])
+        free(&all_frac_coords[0, 0])
         free(&coords_in_cell[0, 0])
         free(&offset_correction[0, 0])
         free(&center_indices1[0])
@@ -379,7 +379,7 @@ def find_points_in_spheres(
 
     free(&offset_correction[0, 0])
     free(&frac_coords[0, 0])
-    free(&all_fcoords[0, 0])
+    free(&all_frac_coords[0, 0])
     free(&coords_in_cell[0, 0])
     free(&center_indices1[0])
     free(&center_indices3[0, 0])

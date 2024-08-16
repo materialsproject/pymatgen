@@ -479,15 +479,15 @@ def get_all_elementary_cycles(graph):
     index2edge = []
     edge_idx = 0
     for n1, n2 in graph.edges:
-        all_edges_dict[(n1, n2)] = edge_idx
-        all_edges_dict[(n2, n1)] = edge_idx
+        all_edges_dict[n1, n2] = edge_idx
+        all_edges_dict[n2, n1] = edge_idx
         index2edge.append((n1, n2))
         edge_idx += 1
     cycles_matrix = np.zeros(shape=(len(cycle_basis), edge_idx), dtype=bool)
     for icycle, cycle in enumerate(cycle_basis):
         for in1, n1 in enumerate(cycle, start=1):
             n2 = cycle[(in1) % len(cycle)]
-            iedge = all_edges_dict[(n1, n2)]
+            iedge = all_edges_dict[n1, n2]
             cycles_matrix[icycle, iedge] = True
 
     elementary_cycles_list = []

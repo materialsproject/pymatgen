@@ -484,7 +484,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             points.remove((0, 0, 0))
         points.remove(first_point)
         points.remove(second_point)
-        positions[(0, 0, 0)] = np.array([0, 0])
+        positions[0, 0, 0] = np.array([0, 0])
         r1 = self.wavelength_rel() * self.camera_length / first_d
         positions[first_point] = np.array([r1, 0])
         r2 = self.wavelength_rel() * self.camera_length / second_d
