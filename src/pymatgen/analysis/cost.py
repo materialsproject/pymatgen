@@ -32,7 +32,7 @@ __maintainer__ = "Anubhav Jain"
 __email__ = "ajain@lbl.gov"
 __date__ = "Aug 27, 2013"
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class CostEntry(PDEntry):
@@ -112,7 +112,7 @@ class CostDBElements(CostDBCSV):
     """Singleton that provides the cost data for elements."""
 
     def __init__(self):
-        CostDBCSV.__init__(self, f"{module_dir}/costdb_elements.csv")
+        CostDBCSV.__init__(self, f"{MODULE_DIR}/costdb_elements.csv")
 
 
 class CostAnalyzer:

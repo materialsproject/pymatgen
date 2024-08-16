@@ -5,7 +5,6 @@ for parsing CP2K-related outputs.
 
 from __future__ import annotations
 
-import logging
 import os
 import re
 import warnings
@@ -31,8 +30,6 @@ from pymatgen.io.xyz import XYZ
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
 __status__ = "Production"
-
-logger = logging.getLogger(__name__)
 
 
 class Cp2kOutput:
@@ -932,13 +929,12 @@ class Cp2kOutput:
         pattern = r"\s+(\d)\s+(\w+)\s+(\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
         footer = r".+Total charge"
 
-        d = self.read_table_pattern(
+        if self.read_table_pattern(
             header_pattern=header,
             row_pattern=pattern,
             footer_pattern=footer,
             last_one_only=False,
-        )
-        if d:
+        ):
             print("Found data, but not yet implemented!")
 
     def parse_hirshfeld(self):

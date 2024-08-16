@@ -20,7 +20,7 @@ __date__ = "Nov 30, 2017"
 
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
-module_dir = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestCtrl(PymatgenTest):
@@ -30,7 +30,7 @@ class TestCtrl(PymatgenTest):
         self.ref_fe = LMTOCtrl.from_file()
 
     def tearDown(self):
-        os.chdir(module_dir)
+        os.chdir(MODULE_DIR)
 
     def test_dict(self):
         assert self.ref_bise == LMTOCtrl.from_dict(self.ref_bise.as_dict())
@@ -55,7 +55,7 @@ class TestCopl(PymatgenTest):
         self.copl_fe = LMTOCopl()
 
     def tearDown(self):
-        os.chdir(module_dir)
+        os.chdir(MODULE_DIR)
 
     def test_attributes(self):
         assert not self.copl_bise.is_spin_polarized

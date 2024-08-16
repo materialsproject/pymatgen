@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 import os
 
 import pytest
@@ -20,13 +19,8 @@ __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 __credits__ = "Xiaohui Qu"
 
-logger = logging.getLogger(__name__)
-
 
 class TestQCInput(PymatgenTest):
-    # ef setUpClass(cls):
-    # add things that show up over and over again
-
     def test_molecule_template(self):
         species = ["C", "O"]
         coords = [

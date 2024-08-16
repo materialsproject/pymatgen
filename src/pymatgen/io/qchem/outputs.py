@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import copy
-import logging
 import math
 import os
 import re
@@ -44,8 +43,6 @@ __version__ = "0.1"
 __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 __credits__ = "Gabe Gomes"
-
-logger = logging.getLogger(__name__)
 
 
 class QCOutput(MSONable):

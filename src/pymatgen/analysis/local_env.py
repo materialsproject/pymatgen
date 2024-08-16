@@ -50,16 +50,16 @@ __email__ = "nils.e.r.zimmermann@gmail.com"
 __status__ = "Production"
 __date__ = "August 17, 2017"
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 yaml = YAML()
 
-with open(f"{module_dir}/op_params.yaml") as file:
+with open(f"{MODULE_DIR}/op_params.yaml") as file:
     default_op_params = yaml.load(file)
 
-with open(f"{module_dir}/cn_opt_params.yaml") as file:
+with open(f"{MODULE_DIR}/cn_opt_params.yaml") as file:
     cn_opt_params = yaml.load(file)
 
-with open(f"{module_dir}/ionic_radii.json") as file:
+with open(f"{MODULE_DIR}/ionic_radii.json") as file:
     _ion_radii = json.load(file)
 
 
@@ -1211,7 +1211,7 @@ class JmolNN(NearNeighbors):
         self.min_bond_distance = min_bond_distance
 
         # Load elemental radii table
-        bonds_file = f"{module_dir}/bonds_jmol_ob.yaml"
+        bonds_file = f"{MODULE_DIR}/bonds_jmol_ob.yaml"
         with open(bonds_file) as file:
             yaml = YAML()
             self.el_radius = yaml.load(file)
@@ -4184,8 +4184,7 @@ class CutOffDictNN(NearNeighbors):
         for (sp1, sp2), dist in self.cut_off_dict.items():
             lookup_dict[sp1][sp2] = dist
             lookup_dict[sp2][sp1] = dist
-            if dist > self._max_dist:
-                self._max_dist = dist
+            self._max_dist = max(dist, self._max_dist)
         self._lookup_dict = lookup_dict
 
     @property
@@ -4226,7 +4225,7 @@ class CutOffDictNN(NearNeighbors):
             A CutOffDictNN using the preset cut-off dictionary.
         """
         if preset == "vesta_2019":
-            cut_offs = loadfn(f"{module_dir}/vesta_cutoffs.yaml")
+            cut_offs = loadfn(f"{MODULE_DIR}/vesta_cutoffs.yaml")
             return cls(cut_off_dict=cut_offs)
 
         raise ValueError(f"Unknown {preset=}")

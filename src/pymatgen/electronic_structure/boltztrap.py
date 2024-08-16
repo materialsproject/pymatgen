@@ -552,8 +552,7 @@ class BoltztrapRunner(MSONable):
         run_type = self.run_type
         if run_type in ("BANDS", "DOS", "FERMI"):
             convergence = False
-            if self.lpfac > max_lpfac:
-                max_lpfac = self.lpfac
+            max_lpfac = max(self.lpfac, max_lpfac)
 
         if run_type == "BANDS" and self.bs.is_spin_polarized:
             print(

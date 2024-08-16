@@ -175,8 +175,7 @@ class OptimadeStructureAdapter:
         properties: dict[str, Any] = {"optimade_id": _id}
 
         # Take any prefixed attributes and save them as properties
-        custom_properties = {k: v for k, v in attributes.items() if k.startswith("_")}
-        if custom_properties:
+        if custom_properties := {k: v for k, v in attributes.items() if k.startswith("_")}:
             properties["optimade_attributes"] = custom_properties
 
         return Structure(
