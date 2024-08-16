@@ -301,7 +301,7 @@ class TestQCOutput(PymatgenTest):
                     else:
                         assert_allclose(sub_output.data.get(key), multi_job_dict[filename][idx].get(key), atol=1e-6)
 
-    @pytest.mark.skip()  # self._test_property(key, single_outs, multi_outs) fails with
+    @pytest.mark.skip  # self._test_property(key, single_outs, multi_outs) fails with
     # ValueError: The truth value of an array with more than one element is ambiguous
     @pytest.mark.skipif(openbabel is None, reason="OpenBabel not installed.")
     def test_all(self):
