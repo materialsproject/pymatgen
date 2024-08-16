@@ -49,7 +49,7 @@ from monty.serialization import loadfn
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Element, PeriodicSite, SiteCollection, Species, Structure
 from pymatgen.io.core import InputGenerator
-from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar, VaspInput
+from pymatgen.io.vasp.inputs import Incar, Kpoints, PMG_VASP_PSP_DIR_Error, Poscar, Potcar, VaspInput
 from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
@@ -341,7 +341,15 @@ class VaspInputSet(InputGenerator, abc.ABC):
             zip_output (bool): If True, output will be zipped into a file with the
                 same name as the InputSet (e.g., MPStaticSet.zip).
         """
-        vasp_input = self.get_input_set(potcar_spec=potcar_spec)
+        try:
+            vasp_input = self.get_input_set(potcar_spec=potcar_spec)
+        except PMG_VASP_PSP_DIR_Error:
+            assert potcar_spec is False
+            raise ValueError(
+                "PMG_VASP_PSP_DIR is not set."
+                "  Please set the PMG_VASP_PSP_DIR in .pmgrc.yaml"
+                " or use potcar_spec=True argument."
+            )
 
         cif_name = None
         if include_cif:

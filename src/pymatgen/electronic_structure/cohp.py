@@ -1344,14 +1344,12 @@ class IcohpCollection(MSONable):
         for value in self._icohplist.values():
             if not value.is_spin_polarized or not summed_spin_channels:
                 if not self._are_coops and not self._are_cobis:
-                    if value.icohpvalue(spin) < extremum:
-                        extremum = value.icohpvalue(spin)
+                    extremum = min(value.icohpvalue(spin), extremum)
                 elif value.icohpvalue(spin) > extremum:
                     extremum = value.icohpvalue(spin)
 
             elif not self._are_coops and not self._are_cobis:
-                if value.summed_icohp < extremum:
-                    extremum = value.summed_icohp
+                extremum = min(value.summed_icohp, extremum)
 
             elif value.summed_icohp > extremum:
                 extremum = value.summed_icohp
