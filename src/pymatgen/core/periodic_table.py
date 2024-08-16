@@ -539,9 +539,9 @@ class ElementBase(Enum):
             for ML in range(-L, L - 1, -1):
                 for MS in np.arange(S, -S + 1, 1):
                     if (ML, MS) in comb_counter:
-                        comb_counter[(ML, MS)] -= 1
-                        if comb_counter[(ML, MS)] == 0:
-                            del comb_counter[(ML, MS)]
+                        comb_counter[ML, MS] -= 1
+                        if comb_counter[ML, MS] == 0:
+                            del comb_counter[ML, MS]
         return term_symbols
 
     @property

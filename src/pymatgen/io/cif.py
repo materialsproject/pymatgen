@@ -579,7 +579,7 @@ class CifParser:
 
                     for comparison_frac in important_fracs:
                         if abs(1 - frac / comparison_frac) < self._frac_tolerance:
-                            fracs_to_change[(label, idx)] = str(comparison_frac)
+                            fracs_to_change[label, idx] = str(comparison_frac)
 
         if fracs_to_change:
             self.warnings.append(
