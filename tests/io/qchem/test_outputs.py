@@ -288,10 +288,11 @@ class TestQCOutput(PymatgenTest):
                         assert out_data.get(key) == approx(SINGLE_JOB_DICT[filename].get(key))
                     else:
                         assert_allclose(out_data.get(key), SINGLE_JOB_DICT[filename].get(key), atol=1e-6)
-                except AssertionError:
-                    raise RuntimeError(f"Issue with {filename=} Exiting...")
-            except AssertionError:
-                raise RuntimeError(f"Issue with {filename=} Exiting...")
+                except AssertionError as exc:
+                    raise RuntimeError(f"Issue with {filename=} Exiting...") from exc
+            except AssertionError as exc:
+                raise RuntimeError(f"Issue with {filename=} Exiting...") from exc
+
         for filename, outputs in multi_outs.items():
             for idx, sub_output in enumerate(outputs):
                 try:
@@ -302,9 +303,6 @@ class TestQCOutput(PymatgenTest):
                     else:
                         assert_allclose(sub_output.data.get(key), MULTI_JOB_DICT[filename][idx].get(key), atol=1e-6)
 
-    @pytest.mark.skip("TODO: fix this unit test")
-    # self._test_property(key, single_outs, multi_outs) fails with
-    # ValueError: The truth value of an array with more than one element is ambiguous
     @pytest.mark.skipif(openbabel is None, reason="OpenBabel not installed.")
     def test_all(self):
         single_outs = {file: QCOutput(f"{TEST_DIR}/{file}").data for file in SINGLE_JOB_OUT_NAMES}
