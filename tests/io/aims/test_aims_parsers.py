@@ -23,7 +23,7 @@ eps_lp = 1e-7  # The epsilon value used to compare numbers that are low-precisio
 parser_file_dir = Path(__file__).parent / "parser_checks"
 
 
-@pytest.fixture()
+@pytest.fixture
 def default_chunk():
     lines = ["TEST", "A", "TEST", "| Number of atoms: 200 atoms"]
     return AimsOutChunk(lines)
@@ -50,7 +50,7 @@ def test_search_parse_scalar(default_chunk):
     assert default_chunk.parse_scalar("n_electrons") is None
 
 
-@pytest.fixture()
+@pytest.fixture
 def empty_header_chunk():
     return AimsOutHeaderChunk([])
 
@@ -89,7 +89,7 @@ def test_default_header_k_point_weights(empty_header_chunk):
     assert empty_header_chunk.k_point_weights is None
 
 
-@pytest.fixture()
+@pytest.fixture
 def initial_lattice():
     return np.array(
         [
@@ -100,7 +100,7 @@ def initial_lattice():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def header_chunk():
     with gzip.open(f"{parser_file_dir}/header_chunk.out.gz", mode="rt") as hc_file:
         lines = hc_file.readlines()
@@ -155,7 +155,7 @@ def test_header_n_k_points(header_chunk):
     assert header_chunk.n_k_points == 8
 
 
-@pytest.fixture()
+@pytest.fixture
 def k_points():
     return np.array(
         [
@@ -203,7 +203,7 @@ def test_header_header_summary(header_chunk, k_points):
             assert val == header_summary[key]
 
 
-@pytest.fixture()
+@pytest.fixture
 def empty_calc_chunk(header_chunk):
     return AimsOutCalcChunk([], header_chunk)
 
@@ -288,7 +288,7 @@ def test_default_calc_converged(empty_calc_chunk):
     assert not empty_calc_chunk.converged
 
 
-@pytest.fixture()
+@pytest.fixture
 def calc_chunk(header_chunk):
     with gzip.open(f"{parser_file_dir}/calc_chunk.out.gz", mode="rt") as file:
         lines = file.readlines()
@@ -298,7 +298,7 @@ def calc_chunk(header_chunk):
     return AimsOutCalcChunk(lines, header_chunk)
 
 
-@pytest.fixture()
+@pytest.fixture
 def numerical_stress_chunk(header_chunk):
     with gzip.open(f"{parser_file_dir}/numerical_stress.out.gz", mode="rt") as file:
         lines = file.readlines()
@@ -419,7 +419,7 @@ def test_calc_hirshfeld_dipole(calc_chunk):
     assert calc_chunk.hirshfeld_dipole is None
 
 
-@pytest.fixture()
+@pytest.fixture
 def molecular_header_chunk():
     with gzip.open(f"{parser_file_dir}/molecular_header_chunk.out.gz", mode="rt") as file:
         lines = file.readlines()
@@ -451,7 +451,7 @@ def test_molecular_header_initial_structure(molecular_header_chunk, molecular_po
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def molecular_calc_chunk(molecular_header_chunk):
     with gzip.open(f"{parser_file_dir}/molecular_calc_chunk.out.gz", mode="rt") as file:
         lines = file.readlines()
@@ -461,7 +461,7 @@ def molecular_calc_chunk(molecular_header_chunk):
     return AimsOutCalcChunk(lines, molecular_header_chunk)
 
 
-@pytest.fixture()
+@pytest.fixture
 def molecular_positions():
     return np.array([[-0.00191785, -0.00243279, 0], [0.97071531, -0.00756333, 0], [-0.25039746, 0.93789612, 0]])
 

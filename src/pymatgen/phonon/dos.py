@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, NamedTuple
 
 import numpy as np
 import scipy.constants as const
 from monty.functools import lazy_property
 from monty.json import MSONable
 from scipy.ndimage import gaussian_filter1d
+from scipy.stats import wasserstein_distance
 
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_linear_interpolated_value
@@ -16,6 +17,7 @@ from pymatgen.util.coord import get_linear_interpolated_value
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from numpy.typing import NDArray
     from typing_extensions import Self
 
 BOLTZ_THZ_PER_K = const.value("Boltzmann constant in Hz/K") / const.tera  # Boltzmann constant in THz/K
@@ -411,6 +413,163 @@ class PhononDos(MSONable):
             filtered_maxima_freqs = maxima_freqs[self.densities[:-1][maxima] >= threshold]
 
         return max(filtered_maxima_freqs)
+
+    def get_dos_fp(
+        self,
+        binning: bool = True,
+        min_f: float | None = None,
+        max_f: float | None = None,
+        n_bins: int = 256,
+        normalize: bool = True,
+    ) -> PhononDosFingerprint:
+        """Generate the DOS fingerprint.
+
+        Args:
+            binning (bool): If true, the DOS fingerprint is binned using np.linspace and n_bins.
+                Default is True.
+            min_f (float): The minimum mode frequency to include in the fingerprint (default is None)
+            max_f (float): The maximum mode frequency to include in the fingerprint (default is None)
+            n_bins (int): Number of bins to be used in the fingerprint (default is 256)
+            normalize (bool): If true, normalizes the area under fp to equal to 1. Default is True.
+
+        Returns:
+            PhononDosFingerprint: The phonon density of states fingerprint
+                of format (frequencies, densities, n_bins, bin_width)
+        """
+        frequencies = self.frequencies
+
+        if max_f is None:
+            max_f = np.max(frequencies)
+
+        if min_f is None:
+            min_f = np.min(frequencies)
+
+        densities = self.densities
+
+        if len(frequencies) < n_bins:
+            inds = np.where((frequencies >= min_f) & (frequencies <= max_f))
+            return PhononDosFingerprint(frequencies[inds], densities[inds], len(frequencies), np.diff(frequencies)[0])
+
+        if binning:
+            freq_bounds = np.linspace(min_f, max_f, n_bins + 1)
+            freq = freq_bounds[:-1] + (freq_bounds[1] - freq_bounds[0]) / 2.0
+            bin_width = np.diff(freq)[0]
+        else:
+            freq_bounds = np.array(frequencies)
+            freq = np.append(frequencies, [frequencies[-1] + np.abs(frequencies[-1]) / 10])
+            n_bins = len(frequencies)
+            bin_width = np.diff(frequencies)[0]
+
+        dos_rebin = np.zeros(freq.shape)
+
+        for ii, e1, e2 in zip(range(len(freq)), freq_bounds[:-1], freq_bounds[1:]):
+            inds = np.where((frequencies >= e1) & (frequencies < e2))
+            dos_rebin[ii] = np.sum(densities[inds])
+        if normalize:  # scale DOS bins to make area under histogram equal 1
+            area = np.sum(dos_rebin * bin_width)
+            dos_rebin_sc = dos_rebin / area
+        else:
+            dos_rebin_sc = dos_rebin
+
+        return PhononDosFingerprint(np.array([freq]), dos_rebin_sc, n_bins, bin_width)
+
+    @staticmethod
+    def fp_to_dict(fp: PhononDosFingerprint) -> dict:
+        """Convert a fingerprint into a dictionary.
+
+        Args:
+            fp: The DOS fingerprint to be converted into a dictionary
+
+        Returns:
+            dict: A dict of the fingerprint Keys=type, Values=np.ndarray(frequencies, densities)
+        """
+        fp_dict = {}
+        fp_dict[fp[2]] = np.array([fp[0], fp[1]], dtype="object").T
+
+        return fp_dict
+
+    @staticmethod
+    def get_dos_fp_similarity(
+        fp1: PhononDosFingerprint,
+        fp2: PhononDosFingerprint,
+        col: int = 1,
+        pt: int | str = "All",
+        normalize: bool = False,
+        metric: Literal["tanimoto", "wasserstein", "cosine-sim"] = "tanimoto",
+    ) -> float:
+        """Calculate the similarity index between two fingerprints.
+
+        Args:
+            fp1 (PhononDosFingerprint): The 1st dos fingerprint object
+            fp2 (PhononDosFingerprint): The 2nd dos fingerprint object
+            col (int): The item in the fingerprints (0:frequencies,1: densities) to compute
+                the similarity index of  (default is 1)
+            pt (int or str) : The index of the point that the dot product is to be taken (default is All)
+            normalize (bool): If True normalize the scalar product to 1 (default is False)
+            metric (Literal): Metric used to compute similarity default is "tanimoto".
+
+        Raises:
+            ValueError: If metric other than tanimoto, wasserstein and "cosine-sim" is requested.
+            ValueError: If normalize is set to True along with the metric.
+
+        Returns:
+            float: Similarity index given by the dot product
+        """
+        if metric not in ["tanimoto", "wasserstein", "cosine-sim"]:
+            raise ValueError(
+                "Requested metric not implemented. Currently implemented metrics are tanimoto, "
+                "wasserstien and cosine-sim."
+            )
+
+        fp1_dict = CompletePhononDos.fp_to_dict(fp1) if not isinstance(fp1, dict) else fp1
+
+        fp2_dict = CompletePhononDos.fp_to_dict(fp2) if not isinstance(fp2, dict) else fp2
+
+        if pt == "All":
+            vec1 = np.array([pt[col] for pt in fp1_dict.values()]).flatten()
+            vec2 = np.array([pt[col] for pt in fp2_dict.values()]).flatten()
+        else:
+            vec1 = fp1_dict[fp1[2][pt]][col]  # type: ignore # noqa:PGH003
+            vec2 = fp2_dict[fp2[2][pt]][col]  # type: ignore # noqa:PGH003
+
+        if not normalize and metric == "tanimoto":
+            rescale = np.linalg.norm(vec1) ** 2 + np.linalg.norm(vec2) ** 2 - np.dot(vec1, vec2)
+            return np.dot(vec1, vec2) / rescale
+
+        if not normalize and metric == "wasserstein":
+            return wasserstein_distance(
+                u_values=np.cumsum(vec1 * fp1.bin_width), v_values=np.cumsum(vec2 * fp2.bin_width)
+            )
+
+        if normalize and metric == "cosine-sim":
+            rescale = np.linalg.norm(vec1) * np.linalg.norm(vec2)
+            return np.dot(vec1, vec2) / rescale
+
+        if not normalize and metric == "cosine-sim":
+            rescale = 1.0
+            return np.dot(vec1, vec2) / rescale
+
+        raise ValueError("Cannot compute similarity index. When normalize=True, then please set metric=cosine-sim")
+
+
+class PhononDosFingerprint(NamedTuple):
+    """
+    Represents a Phonon Density of States (DOS) fingerprint.
+
+    This named tuple is used to store information related to the Density of States (DOS)
+    in a material. It includes the frequencies, densities, number of bins, and bin width.
+
+    Args:
+        frequencies: The frequency values associated with the DOS.
+        densities: The corresponding density values for each energy.
+        n_bins: The number of bins used in the fingerprint.
+        bin_width: The width of each bin in the DOS fingerprint.
+    """
+
+    frequencies: NDArray
+    densities: NDArray
+    n_bins: int
+    bin_width: float
 
 
 class CompletePhononDos(PhononDos):

@@ -2159,8 +2159,8 @@ class IStructure(SiteCollection, MSONable):
         lattice = self._lattice
         matrix = lattice.matrix
         neighbors: list[list] = [[] for _ in range(len(self))]
-        all_fcoords = np.mod(self.frac_coords, 1)
-        coords_in_cell = np.dot(all_fcoords, matrix)
+        all_frac_coords = np.mod(self.frac_coords, 1)
+        coords_in_cell = np.dot(all_frac_coords, matrix)
         site_coords = self.cart_coords
 
         indices = np.arange(len(self))
@@ -2519,14 +2519,14 @@ class IStructure(SiteCollection, MSONable):
         # Group sites by species string
         sites = sorted(self._sites, key=site_label)
 
-        grouped_sites = [list(a[1]) for a in itertools.groupby(sites, key=site_label)]
+        grouped_sites = [list(grp) for _, grp in itertools.groupby(sites, key=site_label)]
         grouped_frac_coords = [np.array([s.frac_coords for s in g]) for g in grouped_sites]
 
         # min_vecs are approximate periodicities of the cell. The exact
         # periodicities from the supercell matrices are checked against these
         # first
-        min_fcoords = min(grouped_frac_coords, key=len)
-        min_vecs = min_fcoords - min_fcoords[0]
+        min_frac_coords = min(grouped_frac_coords, key=len)
+        min_vecs = min_frac_coords - min_frac_coords[0]
 
         # Fractional tolerance in the supercell
         super_ftol = np.divide(tolerance, self.lattice.abc)
@@ -2636,14 +2636,14 @@ class IStructure(SiteCollection, MSONable):
 
                     # Add the new sites, averaging positions
                     added = np.zeros(len(gsites))
-                    new_fcoords = all_frac % 1
+                    new_frac_coords = all_frac % 1
                     for grp_idx, group in enumerate(groups):
                         if not added[grp_idx]:
                             added[group] = True
                             inds = np.where(group)[0]
-                            coords = new_fcoords[inds[0]]
+                            coords = new_frac_coords[inds[0]]
                             for inner_idx, ind in enumerate(inds[1:]):
-                                offset = new_fcoords[ind] - coords
+                                offset = new_frac_coords[ind] - coords
                                 coords += (offset - np.round(offset)) / (inner_idx + 2)
                             new_sp.append(gsites[inds[0]].species)
                             for k in gsites[inds[0]].properties:
