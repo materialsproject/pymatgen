@@ -1803,17 +1803,17 @@ def get_points_in_spheres(
 
         # Temporarily hold the fractional coordinates
         image_offsets = lattice.get_fractional_coords(all_coords)
-        all_fcoords = []
+        all_frac_coords = []
 
         # Only wrap periodic boundary
         for kk in range(3):
             if _pbc[kk]:
-                all_fcoords.append(np.mod(image_offsets[:, kk : kk + 1], 1))
+                all_frac_coords.append(np.mod(image_offsets[:, kk : kk + 1], 1))
             else:
-                all_fcoords.append(image_offsets[:, kk : kk + 1])
-        all_fcoords = np.concatenate(all_fcoords, axis=1)
-        image_offsets = image_offsets - all_fcoords
-        coords_in_cell = np.dot(all_fcoords, matrix)
+                all_frac_coords.append(image_offsets[:, kk : kk + 1])
+        all_frac_coords = np.concatenate(all_frac_coords, axis=1)
+        image_offsets = image_offsets - all_frac_coords
+        coords_in_cell = np.dot(all_frac_coords, matrix)
 
         # Filter out those beyond max range
         valid_coords = []

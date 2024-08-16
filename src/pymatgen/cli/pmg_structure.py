@@ -56,7 +56,7 @@ def analyze_localenv(args):
     for bond in args.localenv:
         tokens = bond.split("=")
         species = tokens[0].split("-")
-        bonds[(species[0], species[1])] = float(tokens[1])
+        bonds[species[0], species[1]] = float(tokens[1])
     for filename in args.filenames:
         print(f"Analyzing {filename}...")
         data = []

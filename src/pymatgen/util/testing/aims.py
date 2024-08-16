@@ -100,7 +100,7 @@ def comp_system(
         user_kpt_settings (dict[str, Any] | None): settings for k-point density in FHI-aims
 
     Raises:
-        AssertionError: If the input files are not the same
+        ValueError: If the input files are not the same
     """
     if user_kpt_settings is None:
         user_kpt_settings = {}
@@ -130,7 +130,7 @@ def compare_single_files(ref_file: str | Path, test_file: str | Path) -> None:
         test_file (str | Path): The file to compare against the reference
 
     Raises:
-        AssertionError: If the files are not the same
+        ValueError: If the files are not the same
     """
     with open(test_file) as tf:
         test_lines = tf.readlines()[5:]
@@ -141,7 +141,8 @@ def compare_single_files(ref_file: str | Path, test_file: str | Path) -> None:
     for test_line, ref_line in zip(test_lines, ref_lines):
         if "species_dir" in ref_line:
             continue
-        assert test_line.strip() == ref_line.strip()
+        if test_line.strip() != ref_line.strip():
+            raise ValueError(f"{test_line=} != {ref_line=}")
 
 
 Si = Structure(

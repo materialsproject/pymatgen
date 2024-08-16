@@ -887,7 +887,7 @@ class GaussianOutput:
                         self.bond_orders = {}
                         for atom_idx in range(n_atoms):
                             for atom_jdx in range(atom_idx + 1, n_atoms):
-                                self.bond_orders[(atom_idx, atom_jdx)] = matrix[atom_idx][atom_jdx]
+                                self.bond_orders[atom_idx, atom_jdx] = matrix[atom_idx][atom_jdx]
                         parse_bond_order = False
 
                     elif termination_patt.search(line):

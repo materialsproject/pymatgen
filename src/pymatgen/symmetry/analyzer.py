@@ -1573,9 +1573,9 @@ def cluster_sites(
         if avg_dist[f_cluster[idx]] < tol:
             origin_site = idx if give_only_index else site
         elif give_only_index:
-            clustered_sites[(avg_dist[f_cluster[idx]], site.species)].append(idx)
+            clustered_sites[avg_dist[f_cluster[idx]], site.species].append(idx)
         else:
-            clustered_sites[(avg_dist[f_cluster[idx]], site.species)].append(site)
+            clustered_sites[avg_dist[f_cluster[idx]], site.species].append(site)
     return origin_site, clustered_sites
 
 
