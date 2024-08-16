@@ -699,10 +699,11 @@ class Trajectory(MSONable):
         n_sites = len(self.coords[0])
         for dct in site_props:
             for key, val in dct.items():
-                assert len(val) == n_sites, (
-                    f"Size of site property {key} {len(val)}) does not equal the "
-                    f"number of sites in the structure {n_sites}."
-                )
+                if len(val) != n_sites:
+                    raise ValueError(
+                        f"Size of site property {key} {len(val)}) does not equal the "
+                        f"number of sites in the structure {n_sites}."
+                    )
 
     def _check_frame_props(self, frame_props: list[dict] | None) -> None:
         """Check data shape of site properties."""

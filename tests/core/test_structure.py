@@ -1586,7 +1586,7 @@ class TestStructure(PymatgenTest):
         struct = self.struct.copy()
         struct[0] = "C"
         assert struct.formula == "Si1 C1"
-        struct[(0, 1)] = "Ge"
+        struct[0, 1] = "Ge"
         assert struct.formula == "Ge2"
         struct[:2] = "Sn"
         assert struct.formula == "Sn2"
@@ -1920,7 +1920,7 @@ class TestIMolecule(PymatgenTest):
         mol = self.mol.copy()
         mol[0] = "Si"
         assert mol.formula == "Si1 H4"
-        mol[(0, 1)] = "Ge"
+        mol[0, 1] = "Ge"
         assert mol.formula == "Ge2 H3"
         mol[:2] = "Sn"
         assert mol.formula == "Sn2 H3"

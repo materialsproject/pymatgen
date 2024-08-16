@@ -886,27 +886,26 @@ class HeisenbergModel(MSONable):
     def from_dict(cls, dct: dict) -> Self:
         """Create a HeisenbergModel from a dict."""
         # Reconstitute the site ids
-        usids = {}
-        wids = {}
-        nnis = {}
+        unique_site_ids = {}
+        wyckoff_ids = {}
+        nn_interactions = {}
 
         for k, v in dct["nn_interactions"].items():
             nn_dict = {}
             for k1, v1 in v.items():
                 key = literal_eval(k1)
                 nn_dict[key] = v1
-            nnis[k] = nn_dict
+            nn_interactions[k] = nn_dict
 
         for k, v in dct["unique_site_ids"].items():
             key = literal_eval(k)
             if isinstance(key, int):
-                usids[(key,)] = v
+                unique_site_ids[key,] = v
             elif isinstance(key, tuple):
-                usids[key] = v
+                unique_site_ids[key] = v
 
         for k, v in dct["wyckoff_ids"].items():
-            key = literal_eval(k)
-            wids[key] = v
+            wyckoff_ids[literal_eval(k)] = v
 
         # Reconstitute the structure and graph objects
         structures = []
@@ -933,9 +932,9 @@ class HeisenbergModel(MSONable):
             cutoff=dct["cutoff"],
             tol=dct["tol"],
             sgraphs=sgraphs,
-            unique_site_ids=usids,
-            wyckoff_ids=wids,
-            nn_interactions=nnis,
+            unique_site_ids=unique_site_ids,
+            wyckoff_ids=wyckoff_ids,
+            nn_interactions=nn_interactions,
             dists=dct["dists"],
             ex_mat=ex_mat,
             ex_params=dct["ex_params"],
@@ -956,8 +955,7 @@ class HeisenbergModel(MSONable):
             float: Exchange parameter J_exc in meV
         """
         # Get unique site identifiers
-        i_index = 0
-        j_index = 0
+        i_index = j_index = 0
         for k in self.unique_site_ids:
             if i in k:
                 i_index = self.unique_site_ids[k]

@@ -471,10 +471,10 @@ class NumericalEOS(PolynomialEOS):
                 if a * b < 0:
                     rms = get_rms(energies, np.poly1d(coeffs)(volumes))
                     rms_min = min(rms_min, rms * idx / n_data_fit)
-                    all_coeffs[(idx, n_data_fit)] = [coeffs.tolist(), rms]
+                    all_coeffs[idx, n_data_fit] = [coeffs.tolist(), rms]
                     # store the fit coefficients small to large,
                     # i.e a0, a1, .. an
-                    all_coeffs[(idx, n_data_fit)][0].reverse()
+                    all_coeffs[idx, n_data_fit][0].reverse()
             # remove 1 data point from each end.
             e_v_work.pop()
             e_v_work.pop(0)
