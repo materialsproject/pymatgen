@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 from numpy.testing import assert_allclose
 
@@ -102,7 +102,7 @@ class TestExcitingInput(PymatgenTest):
             [0.5, 0.5, 0.5],
         ]
         label_ref = ["GAMMA", "X", "S", "Y", "GAMMA", "Z", "U", "R", "T", "Z", "Y", "T", "U", "X", "S", "R"]
-        root = ElementTree.fromstring(band_str)
+        root = ET.fromstring(band_str)
         for plot1d in root.iter("plot1d"):
             for point in plot1d.iter("point"):
                 coord.append([float(i) for i in point.get("coord").split()])
@@ -140,8 +140,8 @@ class TestExcitingInput(PymatgenTest):
 
         # read reference file
         filepath = f"{TEST_DIR}/input_exciting2.xml"
-        tree = ElementTree.parse(filepath)
+        tree = ET.parse(filepath)
         root = tree.getroot()
-        ref_str = ElementTree.tostring(root, encoding="unicode")
+        ref_str = ET.tostring(root, encoding="unicode")
 
         assert ref_str.strip() == test_str.strip()
