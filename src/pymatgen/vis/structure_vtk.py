@@ -1033,10 +1033,10 @@ class MultiStructuresVis(StructureVis):
             if cell_index == (0, 0, 0):
                 coords = site.coords
             else:
-                fcoords = site.frac_coords + np.array(cell_index)
+                frac_coords = site.frac_coords + np.array(cell_index)
                 site_image = PeriodicSite(
                     site.species,
-                    fcoords,
+                    frac_coords,
                     self.current_structure.lattice,
                     to_unit_cell=False,
                     coords_are_cartesian=False,
@@ -1097,20 +1097,20 @@ class MultiStructuresVis(StructureVis):
             warning (str): Warning.
         """
         self.warning_txt_mapper = vtk.vtkTextMapper()
-        tprops = self.warning_txt_mapper.GetTextProperty()
-        tprops.SetFontSize(14)
-        tprops.SetFontFamilyToTimes()
-        tprops.SetColor(1, 0, 0)
-        tprops.BoldOn()
-        tprops.SetJustificationToRight()
+        text_props = self.warning_txt_mapper.GetTextProperty()
+        text_props.SetFontSize(14)
+        text_props.SetFontFamilyToTimes()
+        text_props.SetColor(1, 0, 0)
+        text_props.BoldOn()
+        text_props.SetJustificationToRight()
         self.warning_txt = f"WARNING : {warning}"
         self.warning_txt_actor = vtk.vtkActor2D()
         self.warning_txt_actor.VisibilityOn()
         self.warning_txt_actor.SetMapper(self.warning_txt_mapper)
         self.ren.AddActor(self.warning_txt_actor)
         self.warning_txt_mapper.SetInput(self.warning_txt)
-        winsize = self.ren_win.GetSize()
-        self.warning_txt_actor.SetPosition(winsize[0] - 10, 10)
+        win_size = self.ren_win.GetSize()
+        self.warning_txt_actor.SetPosition(win_size[0] - 10, 10)
         self.warning_txt_actor.VisibilityOn()
 
     def erase_warning(self):
@@ -1135,8 +1135,8 @@ class MultiStructuresVis(StructureVis):
         self.info_txt_actor.SetMapper(self.info_txt_mapper)
         self.ren.AddActor(self.info_txt_actor)
         self.info_txt_mapper.SetInput(self.info_txt)
-        winsize = self.ren_win.GetSize()
-        self.info_txt_actor.SetPosition(10, winsize[1] - 10)
+        win_size = self.ren_win.GetSize()
+        self.info_txt_actor.SetPosition(10, win_size[1] - 10)
         self.info_txt_actor.VisibilityOn()
 
     def erase_info(self):

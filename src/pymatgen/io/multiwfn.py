@@ -448,8 +448,7 @@ def add_atoms(
         # Add all unique atoms involved in this ring
         atom_inds = set()
         for bond_name in bond_names:
-            for atom_ind in bond_cps[bond_name]["atom_inds"]:
-                atom_inds.add(atom_ind)
+            atom_inds.update(bond_cps[bond_name]["atom_inds"])
 
         modified_organized_cps["ring"][cp_name]["bond_names"] = bond_names
         modified_organized_cps["ring"][cp_name]["atom_inds"] = list(atom_inds)
@@ -477,10 +476,8 @@ def add_atoms(
         bond_names_cage = set()
         atom_inds = set()
         for ring_name in ring_names:
-            for bond_name in ring_cps[ring_name]["bond_names"]:
-                bond_names_cage.add(bond_name)  # type: ignore[attr-defined]
-            for atom_ind in ring_cps[ring_name]["atom_inds"]:
-                atom_inds.add(atom_ind)  # type: ignore[attr-defined]
+            bond_names_cage.update(ring_cps[ring_name]["bond_names"])  # type: ignore[attr-defined]
+            atom_inds.update(ring_cps[ring_name]["atom_inds"])  # type: ignore[attr-defined]
 
         modified_organized_cps["cage"][cp_name]["ring_names"] = ring_names
         modified_organized_cps["cage"][cp_name]["bond_names"] = list(bond_names_cage)
