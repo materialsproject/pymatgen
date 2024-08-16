@@ -4184,8 +4184,7 @@ class CutOffDictNN(NearNeighbors):
         for (sp1, sp2), dist in self.cut_off_dict.items():
             lookup_dict[sp1][sp2] = dist
             lookup_dict[sp2][sp1] = dist
-            if dist > self._max_dist:
-                self._max_dist = dist
+            self._max_dist = max(dist, self._max_dist)
         self._lookup_dict = lookup_dict
 
     @property

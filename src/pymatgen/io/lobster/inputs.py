@@ -249,7 +249,8 @@ class Lobsterin(UserDict, MSONable):
             overwritedict (dict): dict that can be used to update lobsterin, e.g. {"skipdos": True}
         """
         # Update previous entries
-        self |= {} if overwritedict is None else overwritedict
+        if overwritedict is not None:
+            self.update(overwritedict)
 
         with open(path, mode="w", encoding="utf-8") as file:
             for key in self:
