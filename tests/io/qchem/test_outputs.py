@@ -277,7 +277,7 @@ class TestQCOutput(PymatgenTest):
             multi_job_dict[file] = [sub_output.data for sub_output in outputs]
         dumpfn(multi_job_dict, "multi_job.json")
 
-    def _test_property(self, key, single_outs, multi_outs):
+    def _check_property(self, key, single_outs, multi_outs):
         for filename, out_data in single_outs.items():
             try:
                 assert out_data.get(key) == SINGLE_JOB_DICT[filename].get(key)
@@ -314,7 +314,7 @@ class TestQCOutput(PymatgenTest):
         }
 
         for key in PROPERTIES:
-            self._test_property(key, single_outs, multi_outs)
+            self._check_property(key, single_outs, multi_outs)
 
     def test_multipole_parsing(self):
         sp = QCOutput(f"{TEST_DIR}/nbo.qout")
