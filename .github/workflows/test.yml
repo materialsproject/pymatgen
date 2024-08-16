@@ -70,7 +70,7 @@ jobs:
       - name: Install ubuntu-only conda dependencies
         if: matrix.config.os == 'ubuntu-latest'
         run: |
-          micromamba install -n pmg -c conda-forge enumlib packmol bader openff-toolkit pygraphviz tblite --yes
+          micromamba install -n pmg -c conda-forge bader enumlib openff-toolkit packmol pygraphviz tblite --yes
 
       - name: Install pymatgen and dependencies
         run: |
