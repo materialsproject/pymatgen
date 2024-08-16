@@ -1180,7 +1180,7 @@ class DftSet(Cp2kInput):
                 algorithm="IRAC",
                 linesearch="2PNT",
             )
-            self |= {"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}}  # type: ignore[assignment]
+            self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})  # type: ignore[assignment]
 
     def activate_robust_minimization(self) -> None:
         """Modify the set to use more robust SCF minimization technique."""
@@ -1190,7 +1190,7 @@ class DftSet(Cp2kInput):
             algorithm="STRICT",
             linesearch="3PNT",
         )
-        self |= {"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}}  # type: ignore[assignment]
+        self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})  # type: ignore[assignment]
 
     def activate_very_strict_minimization(self) -> None:
         """Method to modify the set to use very strict SCF minimization scheme."""
@@ -1200,7 +1200,7 @@ class DftSet(Cp2kInput):
             algorithm="STRICT",
             linesearch="GOLD",
         )
-        self |= {"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}}  # type: ignore[assignment]
+        self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})  # type: ignore[assignment]
 
     def activate_nonperiodic(self, solver="ANALYTIC") -> None:
         """

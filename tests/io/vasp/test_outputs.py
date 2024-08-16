@@ -7,7 +7,7 @@ import sys
 from io import StringIO
 from pathlib import Path
 from shutil import copyfile, copyfileobj
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 import numpy as np
 import pytest
@@ -123,7 +123,7 @@ class TestVasprun(PymatgenTest):
             Vasprun(f"{VASP_OUT_DIR}/vasprun.dielectric_bad.xml.gz")
 
     def test_bad_vasprun(self):
-        with pytest.raises(ElementTree.ParseError):
+        with pytest.raises(ET.ParseError):
             Vasprun(f"{VASP_OUT_DIR}/vasprun.bad.xml.gz")
 
         with pytest.warns(

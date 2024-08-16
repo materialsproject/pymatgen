@@ -16,7 +16,7 @@ import tempfile
 import traceback
 from collections import defaultdict
 from typing import TYPE_CHECKING, NamedTuple
-from xml.etree import ElementTree as Et
+from xml.etree import ElementTree as ET
 
 import numpy as np
 from monty.collections import AttrDict, Namespace
@@ -1242,7 +1242,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     @lazy_property
     def root(self):
         """Root tree of XML."""
-        tree = Et.parse(self.filepath)
+        tree = ET.parse(self.filepath)
         return tree.getroot()
 
     @property

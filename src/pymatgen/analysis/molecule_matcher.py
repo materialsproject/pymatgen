@@ -321,8 +321,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
                 for idx in range(1, vmol.NumAtoms() + 1):
                     va = vmol.GetAtom(idx)
                     distance = math.sqrt((c1x - va.x()) ** 2 + (c1y - va.y()) ** 2 + (c1z - va.z()) ** 2)
-                    if distance < min_distance:
-                        min_distance = distance
+                    min_distance = min(distance, min_distance)
                 if min_distance > 0.2:
                     a1 = vmol.NewAtom()
                     a1.SetAtomicNum(9)
