@@ -3538,7 +3538,7 @@ class PDPlotter:
                 # whether an entry is a new compound or an existing (from the
                 #  ICSD or from the MP) one.
                 for x, y in labels:
-                    if labels[(x, y)].attribute is None or labels[(x, y)].attribute == "existing":
+                    if labels[x, y].attribute is None or labels[x, y].attribute == "existing":
                         plt.plot(x, y, "ko", **self.plotkwargs)
                     else:
                         plt.plot(x, y, "k*", **self.plotkwargs)
@@ -3566,7 +3566,7 @@ class PDPlotter:
             ii = 0
             if process_attributes:
                 for x, y in labels:
-                    if labels[(x, y)].attribute is None or labels[(x, y)].attribute == "existing":
+                    if labels[x, y].attribute is None or labels[x, y].attribute == "existing":
                         plt.plot(x, y, "o", markerfacecolor=vals_stable[ii], markersize=12)
                     else:
                         plt.plot(x, y, "*", markerfacecolor=vals_stable[ii], markersize=18)

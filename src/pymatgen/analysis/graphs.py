@@ -717,7 +717,7 @@ class StructureGraph(MSONable):
 
         if graph_dict is not None:
             for u, v in graph_dict:
-                edge_props = graph_dict[(u, v)]
+                edge_props = graph_dict[u, v]
                 # default of (0, 0, 0) says that all edges should stay inside the initial image
                 to_jimage = edge_props.get("to_jimage", (0, 0, 0))
                 weight = edge_props.pop("weight", None)
@@ -2097,12 +2097,12 @@ class MoleculeGraph(MSONable):
         # alter any bonds before partition, to avoid remapping
         if alterations is not None:
             for u, v in alterations:
-                if "weight" in alterations[(u, v)]:
-                    weight = alterations[(u, v)].pop("weight")
-                    edge_properties = alterations[(u, v)] if len(alterations[(u, v)]) != 0 else None
+                if "weight" in alterations[u, v]:
+                    weight = alterations[u, v].pop("weight")
+                    edge_properties = alterations[u, v] if len(alterations[u, v]) != 0 else None
                     original.alter_edge(u, v, new_weight=weight, new_edge_properties=edge_properties)
                 else:
-                    original.alter_edge(u, v, new_edge_properties=alterations[(u, v)])
+                    original.alter_edge(u, v, new_edge_properties=alterations[u, v])
 
         return original.get_disconnected_fragments()
 
@@ -2160,7 +2160,7 @@ class MoleculeGraph(MSONable):
                 for from_index, to_index, key in remapped.edges:
                     edge_props = fragment.get_edge_data(from_index, to_index, key=key)
 
-                    edges[(from_index, to_index)] = edge_props
+                    edges[from_index, to_index] = edge_props
 
                 unique_mol_graph_list.append(
                     self.from_edges(
@@ -2261,7 +2261,7 @@ class MoleculeGraph(MSONable):
 
             if graph_dict is not None:
                 for u, v in graph_dict:
-                    edge_props = graph_dict[(u, v)]
+                    edge_props = graph_dict[u, v]
                     weight = edge_props.pop("weight", None)
                     self.add_edge(
                         mapping[u],

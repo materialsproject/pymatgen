@@ -1009,7 +1009,7 @@ class MultiStructuresVis(StructureVis):
                 struct_radii = self.all_vis_radii[self.istruct]
                 for isite, _site in enumerate(self.current_structure):
                     vis_radius = 1.5 * tag.get("radius", struct_radii[isite])
-                    tags[(isite, (0, 0, 0))] = {
+                    tags[isite, (0, 0, 0)] = {
                         "radius": vis_radius,
                         "color": color,
                         "opacity": opacity,
@@ -1022,7 +1022,7 @@ class MultiStructuresVis(StructureVis):
                 vis_radius = tag["radius_factor"] * self.all_vis_radii[self.istruct][site_index]
             else:
                 vis_radius = 1.5 * self.all_vis_radii[self.istruct][site_index]
-            tags[(site_index, cell_index)] = {
+            tags[site_index, cell_index] = {
                 "radius": vis_radius,
                 "color": color,
                 "opacity": opacity,
