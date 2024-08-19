@@ -39,7 +39,7 @@ class TestHeisenbergMapper(TestCase):
     def test_sites(self):
         for hm in self.hms:
             unique_site_ids = hm.unique_site_ids
-            assert unique_site_ids[(0, 1)] == 0
+            assert unique_site_ids[0, 1] == 0
 
     def test_nn_interactions(self):
         for hm in self.hms:

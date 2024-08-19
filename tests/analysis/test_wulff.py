@@ -132,7 +132,7 @@ class TestWulffShape(PymatgenTest):
         for hkl in Nb_area_fraction_dict:
             assert Nb_area_fraction_dict[hkl] == (1 if hkl == (3, 1, 0) else 0)
 
-        assert self.wulff_Nb.miller_energy_dict[(3, 1, 0)] == self.wulff_Nb.weighted_surface_energy
+        assert self.wulff_Nb.miller_energy_dict[3, 1, 0] == self.wulff_Nb.weighted_surface_energy
 
     def symmetry_test(self):
         # Maintains that all wulff shapes have the same point

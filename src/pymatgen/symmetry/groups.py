@@ -178,6 +178,7 @@ class PointGroup(SymmetryGroup):
 
         Raises:
             AssertionError if a valid crystal class cannot be created
+
         Returns:
             crystal class in Hermann-Mauguin notation.
         """
@@ -202,8 +203,10 @@ class PointGroup(SymmetryGroup):
             if symbol in [spg["hermann_mauguin"], spg["universal_h_m"], spg["hermann_mauguin_u"]]:
                 symbol = spg["short_h_m"]
 
-        assert symbol[0].isupper(), f"Invalid sg_symbol {sg_symbol}"
-        assert not symbol[1:].isupper(), f"Invalid sg_symbol {sg_symbol}"
+        if not symbol[0].isupper():
+            raise ValueError(f"Invalid {sg_symbol=}")
+        if symbol[1:].isupper():
+            raise ValueError(f"Invalid {sg_symbol=}")
 
         symbol = symbol[1:]  # Remove centering
         symbol = symbol.translate(str.maketrans("abcden", "mmmmmm"))  # Remove translation from glide planes
@@ -211,9 +214,8 @@ class PointGroup(SymmetryGroup):
         symbol = abbrev_map.get(symbol, symbol)
         symbol = non_standard_map.get(symbol, symbol)
 
-        assert (
-            symbol in SYMM_DATA["point_group_encoding"]
-        ), f"Could not create a valid crystal class ({symbol}) from sg_symbol {sg_symbol}"
+        if symbol not in SYMM_DATA["point_group_encoding"]:
+            raise ValueError(f"Could not create a valid crystal class ({symbol}) from {sg_symbol=}")
         return cls(symbol)
 
 
