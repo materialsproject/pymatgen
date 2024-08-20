@@ -3,7 +3,7 @@ requires = [
     "Cython>=0.29.23",
     # Building against NPY2 will support both NPY1 and NPY2
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#build-time-dependency
-    "numpy>=2.1.0",
+    "numpy>=2.0.1",
     "setuptools>=65.0.0",
 ]
 build-backend = "setuptools.build_meta"
