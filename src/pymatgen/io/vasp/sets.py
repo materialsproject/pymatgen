@@ -64,7 +64,7 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import PathLike, Tuple3Ints, Vector3D
 
     UserPotcarFunctional = Union[
-        Literal["PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"], None
+        Literal["PBE", "PBE_52", "PBE_54", "PBE_64", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"], None
     ]
 
 MODULE_DIR = os.path.dirname(__file__)
@@ -810,6 +810,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                     "added_kpoints, or zero weighted k-points."
                 )
             # If length is in kpoints settings use Kpoints.automatic
+            warnings.filterwarnings("ignore", message="Please use INCAR KSPACING tag")
             return Kpoints.automatic(kconfig["length"])
 
         base_kpoints = None
