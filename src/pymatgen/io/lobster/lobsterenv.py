@@ -263,7 +263,7 @@ class LobsterNeighbors(NearNeighbors):
     def get_anion_types(self) -> set[Element]:
         return self.anion_types
 
-    def get_nn_info(  # type: ignore[override]
+    def get_nn_info(
         self,
         structure: Structure,
         n: int,
