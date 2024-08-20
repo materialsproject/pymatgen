@@ -57,8 +57,7 @@ classifiers = [
 ]
 dependencies = [
     "joblib>=1",
-    # TODO: track https://github.com/matplotlib/matplotlib/issues/28551
-    "matplotlib>=3.8,<3.9.1",
+    "matplotlib>=3.8",
     "monty>=2024.7.29",
     "networkx>=2.2",
     # NumPy documentation suggests pinning the current major version as the C API is used
