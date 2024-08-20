@@ -180,6 +180,12 @@ class TestMITMPRelaxSet(PymatgenTest):
         cls.mit_set_unsorted = cls.set(cls.structure, sort_structure=False)
         cls.mp_set = MPRelaxSet(cls.structure)
 
+    def test_pbe64(self):
+        vis = MPRelaxSet(self.structure, user_potcar_functional="PBE_64")
+        assert vis.potcar[0].keywords["TITEL"] == "PAW_PBE Fe_pv 02Aug2007"
+        assert vis.potcar[1].keywords["TITEL"] == "PAW_PBE P 06Sep2000"
+        assert vis.potcar[2].keywords["TITEL"] == "PAW_PBE O 08Apr2002"
+
     def test_no_structure_init(self):
         # basic test of initialization with no structure.
         vis = MPRelaxSet()
