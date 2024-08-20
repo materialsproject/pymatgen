@@ -1245,6 +1245,8 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
+        warnings.warn("Please use INCAR KSPACING tag.", DeprecationWarning, stacklevel=2)
+
         return cls(
             "Fully automatic kpoint scheme",
             0,
@@ -1255,7 +1257,7 @@ class Kpoints(MSONable):
         )
 
     @classmethod
-    def gamma_automatic(cls, kpts: Kpoint = (1, 1, 1), shift: Vector3D = (0, 0, 0)) -> Self:
+    def gamma_automatic(cls, kpts: Tuple3Ints = (1, 1, 1), shift: Vector3D = (0, 0, 0)) -> Self:
         """
         Construct an automatic Gamma-centered Kpoint grid.
 
@@ -1270,7 +1272,7 @@ class Kpoints(MSONable):
         return cls("Automatic kpoint scheme", 0, cls.supported_modes.Gamma, kpts=[kpts], kpts_shift=shift)
 
     @classmethod
-    def monkhorst_automatic(cls, kpts: Kpoint = (2, 2, 2), shift: Vector3D = (0, 0, 0)) -> Self:
+    def monkhorst_automatic(cls, kpts: Tuple3Ints = (2, 2, 2), shift: Vector3D = (0, 0, 0)) -> Self:
         """
         Construct an automatic Monkhorst-Pack Kpoint grid.
 
@@ -1417,7 +1419,7 @@ class Kpoints(MSONable):
         lattice = structure.lattice
 
         abc = lattice.abc
-        num_div: Tuple3Ints = tuple(np.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))
+        num_div: Tuple3Ints = tuple(math.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))
 
         is_hexagonal: bool = lattice.is_hexagonal()
         is_face_centered: bool = structure.get_space_group_info()[0][0] == "F"
@@ -1515,10 +1517,10 @@ class Kpoints(MSONable):
 
         # Automatic Gamma-centered or Monkhorst-Pack KPOINTS, with optional shift
         if style in {"g", "m"}:
-            _kpt: list[float] = [float(i) for i in lines[3].split()]
+            _kpt: list[int] = [int(i) for i in lines[3].split()]
             if len(_kpt) != 3:
                 raise ValueError("Invalid Kpoint length.")
-            kpt: Tuple3Floats = cast(Tuple3Floats, tuple(_kpt))
+            kpt: Tuple3Ints = cast(Tuple3Ints, tuple(_kpt))
 
             kpts_shift: Vector3D = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
@@ -1558,7 +1560,7 @@ class Kpoints(MSONable):
                 "Cartesian" if lines[3].lower()[0] in "ck" else "Reciprocal"
             )
             _style = cls.supported_modes.Line_mode
-            _kpts: list[Kpoint] = []
+            _kpts: list[Tuple3Floats] = []
             labels = []
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for idx in range(4, len(lines)):
@@ -1587,7 +1589,7 @@ class Kpoints(MSONable):
 
         for idx in range(3, 3 + num_kpts):
             tokens = lines[idx].split()
-            kpts.append(cast(Kpoint, tuple(float(i) for i in tokens[:3])))
+            kpts.append(cast(Tuple3Floats, tuple(float(i) for i in tokens[:3])))
             kpts_weights.append(float(tokens[3]))
             if len(tokens) > 4:
                 labels.append(tokens[4])

@@ -60,7 +60,11 @@ Matrix3D = tuple[Vector3D, Vector3D, Vector3D]
 SitePropsType = Union[list[dict[Any, Sequence[Any]]], dict[Any, Sequence[Any]]]
 
 # Types specific to io.vasp
-Kpoint = Union[Tuple3Floats, tuple[int,]]
+Kpoint = Union[
+    Tuple3Ints,
+    tuple[int,],  # Automatic k-point mesh
+    Vector3D,  # Line-mode and explicit k-point mesh
+]
 
 # Miller index
 MillerIndex = Tuple3Ints
