@@ -156,6 +156,7 @@ class TestFragmentMolecule(PymatgenTest):
         )
         assert frag2.new_unique_fragments == 295 - 12
 
+    @pytest.mark.skipif(os.name == "nt", reason="Tests for openbabel failing on Win")
     def test_pc_then_ec_depth_10(self):
         pytest.importorskip("openbabel")
         fragPC = Fragmenter(molecule=self.pc, depth=10, open_rings=True)
