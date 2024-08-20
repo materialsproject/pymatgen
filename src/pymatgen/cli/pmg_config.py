@@ -120,6 +120,7 @@ def setup_potcars(potcar_dirs: list[str]):
         "potpaw_PBE_54": "POT_GGA_PAW_PBE_54",
         "potpaw_PBE.52": "POT_GGA_PAW_PBE_52",
         "potpaw_PBE.54": "POT_GGA_PAW_PBE_54",
+        "potpaw_PBE.64": "POT_GGA_PAW_PBE_64",
         "potpaw_LDA": "POT_LDA_PAW",
         "potpaw_LDA.52": "POT_LDA_PAW_52",
         "potpaw_LDA.54": "POT_LDA_PAW_54",
