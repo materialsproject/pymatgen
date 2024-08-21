@@ -216,9 +216,7 @@ class TestSymmOp(PymatgenTest):
         assert op4 == op5
         assert op3 == op5
 
-        # TODO: assertWarns not in Python 2.x unittest
-        # update PymatgenTest for unittest2?
-        # self.assertWarns(UserWarning, self.op.as_xyz_str)
+        self.assertWarns(UserWarning, self.op.as_xyz_str)
 
         symm_op = SymmOp.from_xyz_str("0.5+x, 0.25+y, 0.75+z")
         assert_allclose(symm_op.translation_vector, [0.5, 0.25, 0.75])
