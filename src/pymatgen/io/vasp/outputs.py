@@ -6,6 +6,7 @@ import itertools
 import math
 import os
 import re
+import subprocess
 import warnings
 import xml.etree.ElementTree as ET
 from collections import defaultdict
@@ -5816,4 +5817,4 @@ class Vaspout(Vasprun):
             if os.path.isfile(filename):  # type: ignore[arg-type]
                 warnings.warn(f"File {filename} already exists, skipping compression.")
             else:
-                os.system(f"{compressor} {fname_prefix}")
+                subprocess.Popen(f"{compressor} {fname_prefix}").wait()
