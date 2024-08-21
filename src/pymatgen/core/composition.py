@@ -181,7 +181,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         Args:
             other: Composition to compare to.
         """
-        if not isinstance(other, (type(self), dict)):
+        if not isinstance(other, type(self) | dict):
             return NotImplemented
 
         # elements with amounts < Composition.amount_tolerance don't show up
@@ -214,7 +214,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """Add two compositions. For example, an Fe2O3 composition + an FeO
         composition gives a Fe3O4 composition.
         """
-        if not isinstance(other, (type(self), dict)):
+        if not isinstance(other, type(self) | dict):
             return NotImplemented
 
         new_el_map: dict[SpeciesLike, float] = defaultdict(float)
@@ -232,7 +232,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             original composition in any of its elements, unless allow_negative
             is True
         """
-        if not isinstance(other, (type(self), dict)):
+        if not isinstance(other, type(self) | dict):
             return NotImplemented
 
         new_el_map: dict[SpeciesLike, float] = defaultdict(float)
@@ -245,14 +245,14 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         """Multiply a Composition by an integer or a float.
         Fe2O3 * 4 -> Fe8O12.
         """
-        if not isinstance(other, (int, float)):
+        if not isinstance(other, int | float):
             return NotImplemented
         return type(self)({el: self[el] * other for el in self}, allow_negative=self.allow_negative)
 
     __rmul__ = __mul__
 
     def __truediv__(self, other: object) -> Self:
-        if not isinstance(other, (int, float)):
+        if not isinstance(other, int | float):
             return NotImplemented
         return type(self)({el: self[el] / other for el in self}, allow_negative=self.allow_negative)
 
@@ -608,7 +608,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             reduced /= gcd(*(int(i) for i in self.values()))
 
         anon = ""
-        for elem, amt in zip(string.ascii_uppercase, sorted(reduced.values())):
+        for elem, amt in zip(string.ascii_uppercase, sorted(reduced.values()), strict=False):
             if amt == 1:
                 amt_str = ""
             elif abs(amt % 1) < 1e-8:
@@ -726,7 +726,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if {*oxi_states} <= {0, None}:
             # all oxidation states are None or 0
             return None
-        return sum(oxi * amt for oxi, amt in zip(oxi_states, self.values()))
+        return sum(oxi * amt for oxi, amt in zip(oxi_states, self.values(), strict=False))
 
     @property
     def charge_balanced(self) -> bool | None:
@@ -1008,7 +1008,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         for x in product(*el_sums):
             # Each x is a trial of one possible oxidation sum for each element
             if sum(x) == target_charge:  # charge balance condition
-                el_sum_sol = dict(zip(elements, x))  # element->oxid_sum
+                el_sum_sol = dict(zip(elements, x, strict=False))  # element->oxid_sum
                 # Normalize oxid_sum by amount to get avg oxid state
                 sol = {el: v / el_amt[el] for el, v in el_sum_sol.items()}
                 # Add the solution to the list of solutions
@@ -1021,7 +1021,9 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 all_scores.append(score)
 
                 # Collect the combination of oxidation states for each site
-                all_oxid_combo.append({e: el_best_oxid_combo[idx][v] for idx, (e, v) in enumerate(zip(elements, x))})
+                all_oxid_combo.append(
+                    {e: el_best_oxid_combo[idx][v] for idx, (e, v) in enumerate(zip(elements, x, strict=False))}
+                )
 
         # Sort the solutions from highest to lowest score
         if all_scores:
@@ -1029,11 +1031,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 *(
                     (y, x)
                     for (z, y, x) in sorted(
-                        zip(all_scores, all_sols, all_oxid_combo),
+                        zip(all_scores, all_sols, all_oxid_combo, strict=False),
                         key=lambda pair: pair[0],
                         reverse=True,
                     )
-                )
+                ),
+                strict=False,
             )
         return tuple(all_sols), tuple(all_oxid_combo)
 
@@ -1285,14 +1288,14 @@ class ChemicalPotential(dict, MSONable):
             raise ValueError("Duplicate potential specified")
 
     def __mul__(self, other: object) -> Self:
-        if isinstance(other, (int, float)):
+        if isinstance(other, int | float):
             return type(self)({key: val * other for key, val in self.items()})
         return NotImplemented
 
     __rmul__ = __mul__
 
     def __truediv__(self, other: object) -> Self:
-        if isinstance(other, (int, float)):
+        if isinstance(other, int | float):
             return type(self)({key: val / other for key, val in self.items()})
         return NotImplemented
 

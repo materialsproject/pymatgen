@@ -259,7 +259,7 @@ class TestMagSymmOp(PymatgenTest):
 
         transformed_magmoms = [[1, 2, 3], [-1, -2, -3], [1, -2, 3], [1, 2, -3]]
 
-        for xyzt_string, transformed_magmom in zip(xyzt_strings, transformed_magmoms):
+        for xyzt_string, transformed_magmom in zip(xyzt_strings, transformed_magmoms, strict=False):
             for magmom in magmoms:
                 op = MagSymmOp.from_xyzt_str(xyzt_string)
                 assert_allclose(transformed_magmom, op.operate_magmom(magmom).global_moment)

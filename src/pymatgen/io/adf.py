@@ -96,7 +96,7 @@ class AdfKey(MSONable):
                     raise TypeError("Not all subkeys are ``AdfKey`` objects!")
         self._sized_op = None
         if len(self.options) > 0:
-            self._sized_op = isinstance(self.options[0], (list, tuple))
+            self._sized_op = isinstance(self.options[0], list | tuple)
 
     def _options_string(self):
         """Return the option string."""
@@ -213,7 +213,7 @@ class AdfKey(MSONable):
         if len(self.options) == 0:
             self.options.append(option)
         else:
-            sized_op = isinstance(option, (list, tuple))
+            sized_op = isinstance(option, list | tuple)
             if self._sized_op != sized_op:
                 raise TypeError("Option type is mismatched!")
             self.options.append(option)

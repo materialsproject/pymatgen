@@ -557,7 +557,7 @@ class Slab(Structure):
                         frac_coords.append(struct_matcher.frac_coords + [0, 0, shift])  # noqa: RUF005
 
                 # sort by species to put all similar species together.
-                sp_fcoord = sorted(zip(species, frac_coords), key=lambda x: x[0])
+                sp_fcoord = sorted(zip(species, frac_coords, strict=False), key=lambda x: x[0])
                 species = [x[0] for x in sp_fcoord]
                 frac_coords = [x[1] for x in sp_fcoord]
                 slab = type(self)(
@@ -1691,7 +1691,7 @@ def get_d(slab: Slab) -> float:
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
 
     distance = None
-    for site, next_site in zip(sorted_sites, sorted_sites[1:]):
+    for site, next_site in zip(sorted_sites, sorted_sites[1:], strict=False):
         if not isclose(site.frac_coords[2], next_site.frac_coords[2], abs_tol=1e-6):
             distance = next_site.frac_coords[2] - site.frac_coords[2]
             break

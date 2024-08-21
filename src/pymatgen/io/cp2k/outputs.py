@@ -297,7 +297,7 @@ class Cp2kOutput:
             self.structures = []
             gs = self.initial_structure.site_properties.get("ghost")
             if not self.is_molecule:
-                for mol, latt in zip(mols, lattices):
+                for mol, latt in zip(mols, lattices, strict=False):
                     self.structures.append(
                         Structure(
                             lattice=latt,
@@ -520,7 +520,7 @@ class Cp2kOutput:
         if not self.data.get("stress_tensor"):
             self.parse_stresses()
 
-        for i, (structure, energy) in enumerate(zip(self.structures, self.data.get("total_energy"))):
+        for i, (structure, energy) in enumerate(zip(self.structures, self.data.get("total_energy"), strict=False)):
             self.ionic_steps.append(
                 {
                     "structure": structure,
@@ -629,6 +629,7 @@ class Cp2kOutput:
                 for _possible, _name in zip(
                     ["RVV10", "LMKLL", "DRSLL", "DFT-D3", "DFT-D2"],
                     ["RVV10", "LMKLL", "DRSLL", "D3", "D2"],
+                    strict=False,
                 ):
                     if _possible in ll[0]:
                         found = _name
@@ -714,7 +715,7 @@ class Cp2kOutput:
             reverse=False,
         )
         i = iter(self.data["lattice"])
-        lattices = list(zip(i, i, i))
+        lattices = list(zip(i, i, i, strict=False))
         return lattices[0]
 
     def parse_atomic_kind_info(self):
@@ -1462,7 +1463,7 @@ class Cp2kOutput:
         dct = np.zeros(npts)
         e_s = np.linspace(min(energies), max(energies), npts)
 
-        for e, _pd in zip(energies, densities):
+        for e, _pd in zip(energies, densities, strict=False):
             weight = np.exp(-(((e_s - e) / width) ** 2)) / (np.sqrt(np.pi) * width)
             dct += _pd * weight
 

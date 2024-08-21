@@ -311,7 +311,7 @@ class TestDOS(PymatgenTest):
     def setUp(self):
         with open(f"{TEST_DIR}/complete_dos.json") as file:
             dct = json.load(file)
-            ys = list(zip(dct["densities"]["1"], dct["densities"]["-1"]))
+            ys = list(zip(dct["densities"]["1"], dct["densities"]["-1"], strict=False))
             self.dos = DOS(dct["energies"], ys, dct["efermi"])
 
     def test_get_gap(self):

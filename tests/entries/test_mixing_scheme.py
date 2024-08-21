@@ -756,7 +756,7 @@ def test_data_ms_complete(ms_complete):
     ComputedStructureEntry match (or don't match) as intended.
     """
     sm = StructureMatcher()
-    for g, s in zip(ms_complete.gga_entries, ms_complete.scan_entries):
+    for g, s in zip(ms_complete.gga_entries, ms_complete.scan_entries, strict=False):
         if g.entry_id == "gga-3":
             assert not sm.fit(g.structure, s.structure)
         else:
@@ -1226,7 +1226,7 @@ class TestMaterialsProjectDFTMixingSchemeArgs:
         # check whether the compatibility scheme can keep input entries unchanged
         entries_copy = copy.deepcopy(entries)
         MaterialsProjectDFTMixingScheme().process_entries(entries, inplace=False)
-        assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy))
+        assert all(e.correction == e_copy.correction for e, e_copy in zip(entries, entries_copy, strict=False))
 
     def test_check_potcar(self, ms_complete):
         """Entries with invalid or missing POTCAR raise error by default but should be ignored if

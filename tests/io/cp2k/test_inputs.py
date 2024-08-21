@@ -193,7 +193,7 @@ class TestInput(PymatgenTest):
         for struct in [nonsense_struct, si_struct, ch_mol]:
             coords = Coord(struct)
             for val in coords.keywords.values():
-                assert isinstance(val, (Keyword, KeywordList))
+                assert isinstance(val, Keyword | KeywordList)
 
     def test_kind(self):
         for struct in [nonsense_struct, si_struct, ch_mol]:

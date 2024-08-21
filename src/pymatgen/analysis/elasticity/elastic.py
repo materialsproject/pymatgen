@@ -619,7 +619,7 @@ class ElasticTensorExpansion(TensorCollection):
         points = quad["points"]
         weights = quad["weights"]
         num, denom, c = np.zeros((3, 3)), 0, 1
-        for p, w in zip(points, weights):
+        for p, w in zip(points, weights, strict=False):
             gk = ElasticTensor(self[0]).green_kristoffel(p)
             _rho_wsquareds, us = np.linalg.eigh(gk)
             us = [u / np.linalg.norm(u) for u in np.transpose(us)]
@@ -882,7 +882,7 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
     for _ord in range(1, order):
         cvec, carr = get_symbol_list(_ord + 1)
         svec = np.ravel(dei_dsi[_ord - 1].T)
-        cmap = dict(zip(cvec, np.dot(m[_ord - 1], svec)))
+        cmap = dict(zip(cvec, np.dot(m[_ord - 1], svec), strict=False))
         c_list.append(v_subs(carr, cmap))
     return [Tensor.from_voigt(c) for c in c_list]
 

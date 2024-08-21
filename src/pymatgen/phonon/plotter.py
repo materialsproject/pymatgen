@@ -19,9 +19,9 @@ from pymatgen.phonon.gruneisen import GruneisenPhononBandStructureSymmLine
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
     from os import PathLike
-    from typing import Any, Callable, Literal
+    from typing import Any, Literal
 
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
@@ -189,7 +189,7 @@ class PhononDosPlotter:
         all_frequencies.reverse()
         all_pts = []
         colors = ("blue", "red", "green", "orange", "purple", "brown", "pink", "gray", "olive")
-        for idx, (key, frequencies, densities) in enumerate(zip(keys, all_frequencies, all_densities)):
+        for idx, (key, frequencies, densities) in enumerate(zip(keys, all_frequencies, all_densities, strict=False)):
             color = self._doses[key].get("color", colors[idx % n_colors])
             linewidth = self._doses[key].get("linewidth", 3)
             kwargs = {
@@ -197,7 +197,7 @@ class PhononDosPlotter:
                 for key, val in self._doses[key].items()
                 if key not in ["frequencies", "densities", "color", "linewidth"]
             }
-            all_pts.extend(list(zip(frequencies, densities)))
+            all_pts.extend(list(zip(frequencies, densities, strict=False)))
             if invert_axes:
                 xs, ys = densities, frequencies
             else:
@@ -313,7 +313,7 @@ class PhononBSPlotter:
         ticks = self.get_ticks()
 
         # zip to sanitize, only plot the uniq values
-        if ticks_labels := list(zip(*zip(ticks["distance"], ticks["label"]))):
+        if ticks_labels := list(zip(*zip(ticks["distance"], ticks["label"], strict=False), strict=False)):
             ax.set_xticks(ticks_labels[0])
             ax.set_xticklabels(ticks_labels[1])
 
@@ -374,7 +374,7 @@ class PhononBSPlotter:
 
         data = self.bs_plot_data()
         kwargs.setdefault("color", "blue")
-        for dists, freqs in zip(data["distances"], data["frequency"]):
+        for dists, freqs in zip(data["distances"], data["frequency"], strict=False):
             for idx in range(self.n_bands):
                 ys = [freqs[idx][j] * u.factor for j in range(len(dists))]
                 ax.plot(dists, ys, **kwargs)
@@ -699,7 +699,7 @@ class PhononBSPlotter:
         color_self = ax.lines[0].get_color()
         ax.plot([], [], label=self._label or self_label, linewidth=2 * line_width, color=color_self)
         linestyle = other_kwargs.get("linestyle", "-")
-        for color_other, label_other in zip(colors_other, other_plotter):
+        for color_other, label_other in zip(colors_other, other_plotter, strict=False):
             ax.plot([], [], label=label_other, linewidth=2 * line_width, color=color_other, linestyle=linestyle)
             ax.legend(**legend_kwargs)
 
@@ -964,7 +964,7 @@ class GruneisenPlotter:
         ax.set_ylabel(r"$\mathrm{Grüneisen\ parameter}$")
 
         n_points = len(ys) - 1
-        for idx, (xi, yi) in enumerate(zip(xs, ys)):
+        for idx, (xi, yi) in enumerate(zip(xs, ys, strict=False)):
             color = (1.0 / n_points * idx, 0, 1.0 / n_points * (n_points - idx))
 
             ax.plot(xi, yi, marker, color=color, markersize=markersize)
@@ -1090,7 +1090,9 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         )
 
         sc = None
-        for (dists_inx, dists), (_, freqs) in zip(enumerate(data["distances"]), enumerate(data["frequency"])):
+        for (dists_inx, dists), (_, freqs) in zip(
+            enumerate(data["distances"]), enumerate(data["frequency"]), strict=False
+        ):
             for band_idx in range(self.n_bands):
                 if plot_ph_bs_with_gruneisen:
                     ys = [freqs[band_idx][j] * u.factor for j in range(len(dists))]

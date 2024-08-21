@@ -57,7 +57,8 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.typing import Kpoint
 
 if TYPE_CHECKING:
-    from typing import Callable, Literal, Union
+    from collections.abc import Callable
+    from typing import Literal, Union
 
     from typing_extensions import Self
 
@@ -300,10 +301,10 @@ class VaspInputSet(InputGenerator, abc.ABC):
         else:
             self.structure = self.structure
 
-        if isinstance(self.prev_incar, (Path, str)):
+        if isinstance(self.prev_incar, Path | str):
             self.prev_incar = Incar.from_file(self.prev_incar)
 
-        if isinstance(self.prev_kpoints, (Path, str)):
+        if isinstance(self.prev_kpoints, Path | str):
             self.prev_kpoints = Kpoints.from_file(self.prev_kpoints)
 
         self.prev_vasprun: Vasprun | None = None
@@ -518,7 +519,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         prev_incar: dict[str, Any] = {}
         if self.inherit_incar is True and self.prev_incar:
             prev_incar = cast(dict[str, Any], self.prev_incar)
-        elif isinstance(self.inherit_incar, (list, tuple)) and self.prev_incar:
+        elif isinstance(self.inherit_incar, list | tuple) and self.prev_incar:
             prev_incar = {
                 k: cast(dict[str, Any], self.prev_incar)[k] for k in self.inherit_incar if k in self.prev_incar
             }
@@ -584,7 +585,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                         # Else, use fallback LDAU value if it exists
                     else:
                         incar[key] = [
-                            setting.get(sym, 0) if isinstance(setting.get(sym, 0), (float, int)) else 0
+                            setting.get(sym, 0) if isinstance(setting.get(sym, 0), float | int) else 0
                             for sym in poscar.site_symbols
                         ]
 
@@ -2960,7 +2961,7 @@ def get_valid_magmom_struct(
         for site in structure:
             if "magmom" not in site.properties or site.properties["magmom"] is None:
                 pass
-            elif isinstance(site.properties["magmom"], (float, int)):
+            elif isinstance(site.properties["magmom"], float | int):
                 if mode == "v":
                     raise TypeError("Magmom type conflict")
                 mode = "s"
