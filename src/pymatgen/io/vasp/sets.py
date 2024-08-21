@@ -58,15 +58,15 @@ from pymatgen.util.typing import Kpoint
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from typing import Literal, Union
+    from typing import Literal
 
     from typing_extensions import Self
 
     from pymatgen.util.typing import PathLike, Tuple3Ints, Vector3D
 
-    UserPotcarFunctional = Union[
-        Literal["PBE", "PBE_52", "PBE_54", "PBE_64", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"], None
-    ]
+    UserPotcarFunctional = (
+        Literal["PBE", "PBE_52", "PBE_54", "PBE_64", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"] | None
+    )
 
 MODULE_DIR = os.path.dirname(__file__)
 

@@ -25,20 +25,20 @@ if TYPE_CHECKING:  # needed to avoid circular imports
 Tuple3Ints = tuple[int, int, int]
 Tuple3Floats = tuple[float, float, float]
 
-PathLike = Union[str, OsPathLike]
+PathLike = str | OsPathLike
 PbcLike = tuple[bool, bool, bool]
 
 # Things that can be cast to a Spin
-SpinLike = Union[Spin, Literal[-1, 1, "up", "down"]]
+SpinLike = Spin | Literal[-1, 1, "up", "down"]
 
 # Things that can be cast to a magnetic moment
-MagMomentLike = Union[float, Sequence[float], NDArray, Magmom]
+MagMomentLike = float | Sequence[float] | NDArray | Magmom
 
 # Things that can be cast to a Species-like object using get_el_sp
-SpeciesLike = Union[str, Element, Species, DummySpecies]
+SpeciesLike = str | Element | Species | DummySpecies
 
 # Things that can be cast to a Composition
-CompositionLike = Union[str, Element, Species, DummySpecies, dict, Composition]
+CompositionLike = str | Element | Species | DummySpecies | dict | Composition
 
 # Entry or any of its subclasses or dicts that can be unpacked into any of them
 EntryLike = Union[
@@ -57,14 +57,13 @@ EntryLike = Union[
 Vector3D = Tuple3Floats
 Matrix3D = tuple[Vector3D, Vector3D, Vector3D]
 
-SitePropsType = Union[list[dict[Any, Sequence[Any]]], dict[Any, Sequence[Any]]]
+SitePropsType = list[dict[Any, Sequence[Any]]] | dict[Any, Sequence[Any]]
 
 # Types specific to io.vasp
-Kpoint = Union[
-    Tuple3Ints,
-    tuple[int,],  # Automatic k-point mesh
-    Vector3D,  # Line-mode and explicit k-point mesh
-]
+Kpoint = (
+    Tuple3Ints | tuple[int] | Vector3D
+)  # tuple[int]: Automatic k-point mesh, Vector3D: Line-mode and explicit k-point mesh
+
 
 # Miller index
 MillerIndex = Tuple3Ints
