@@ -278,8 +278,7 @@ class Trajectory(MSONable):
                 base_positions=self.base_positions,
             )
 
-        avail_indexes: list[str] = str(ValidIndex).split(" | ")
-        raise TypeError(f"bad index={frames!r}, expected one of [{", ".join(avail_indexes)}]")
+        raise TypeError(f"bad index={frames!r}, expected one of [{', '.join(str(ValidIndex).split(' | '))}]")
 
     def get_structure(self, idx: int) -> Structure:
         """Get structure at specified index.
