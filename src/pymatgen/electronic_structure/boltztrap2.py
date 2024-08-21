@@ -51,8 +51,8 @@ if TYPE_CHECKING:
 try:
     from BoltzTraP2 import bandlib as BL
     from BoltzTraP2 import fite, sphere, units
-except ImportError:
-    raise BoltztrapError("BoltzTraP2 has to be installed and working")
+except ImportError as exc:
+    raise BoltztrapError("BoltzTraP2 has to be installed and working") from exc
 
 
 __author__ = "Francesco Ricci"
@@ -944,7 +944,7 @@ class BztPlotter:
 
     Example:
         bztPlotter = BztPlotter(bztTransp,bztInterp)
-        fig = self.bztPlotter.plot_props('S', 'mu', 'temp', temps=[300, 500])
+        fig = self.bztPlotter.plot_props("S", "mu", "temp", temps=[300, 500])
         fig.show()
     """
 
