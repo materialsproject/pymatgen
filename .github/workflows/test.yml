@@ -35,7 +35,7 @@ jobs:
             resolution: highest
             extras: ci,optional
           - os: ubuntu-latest
-            python: ">3.10"
+            python: "3.13"
             resolution: lowest-direct
             extras: ci,optional
           - os: macos-latest
