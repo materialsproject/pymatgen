@@ -8,7 +8,7 @@ import itertools
 import warnings
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import TYPE_CHECKING, Union, cast
+from typing import TYPE_CHECKING, TypeAlias, cast
 
 import numpy as np
 from monty.io import zopen
@@ -30,7 +30,7 @@ __author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen, Evan Spotte-Smith"
 __version__ = "0.1"
 __date__ = "Jun 29, 2022"
 
-ValidIndex = Union[int, slice, list[int], np.ndarray]
+ValidIndex: TypeAlias = int | slice | list[int] | np.ndarray
 
 
 class Trajectory(MSONable):
@@ -278,7 +278,7 @@ class Trajectory(MSONable):
                 base_positions=self.base_positions,
             )
 
-        raise TypeError(f"bad index={frames!r}, expected one of {str(ValidIndex).split('Union')[1]}")
+        raise TypeError(f"bad index={frames!r}, expected one of [{ValidIndex!s}]")
 
     def get_structure(self, idx: int) -> Structure:
         """Get structure at specified index.
