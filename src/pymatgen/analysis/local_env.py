@@ -14,6 +14,7 @@ from bisect import bisect_left
 from collections import defaultdict
 from copy import deepcopy
 from functools import lru_cache
+from itertools import pairwise
 from typing import TYPE_CHECKING, Literal, NamedTuple, get_args
 
 import numpy as np
@@ -895,7 +896,7 @@ class VoronoiNN(NearNeighbors):
                 # qvoronoi returns vertices in CCW order, so I can break
                 # the face up in to segments (0,1,2), (0,2,3), ... to compute
                 # its area where each number is a vertex size
-                for j, k in zip(vind[1:], vind[2:], strict=False):
+                for j, k in pairwise(vind[1:]):
                     volume += vol_tetra(
                         center_coords,
                         all_vertices[vind[0]],

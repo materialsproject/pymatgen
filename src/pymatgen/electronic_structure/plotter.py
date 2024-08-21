@@ -371,7 +371,7 @@ class BSPlotter:
     def _get_branch_steps(branches):
         """Find discontinuous branches."""
         steps = [0]
-        for b1, b2 in zip(branches[:-1], branches[1:], strict=False):
+        for b1, b2 in itertools.pairwise(branches):
             if b2["name"].split("-")[0] != b1["name"].split("-")[-1]:
                 steps.append(b2["start_index"])
         steps.append(branches[-1]["end_index"] + 1)

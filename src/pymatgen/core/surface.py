@@ -1691,7 +1691,7 @@ def get_d(slab: Slab) -> float:
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
 
     distance = None
-    for site, next_site in zip(sorted_sites, sorted_sites[1:], strict=False):
+    for site, next_site in itertools.pairwise(sorted_sites):
         if not isclose(site.frac_coords[2], next_site.frac_coords[2], abs_tol=1e-6):
             distance = next_site.frac_coords[2] - site.frac_coords[2]
             break
