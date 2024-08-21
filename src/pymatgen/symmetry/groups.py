@@ -17,17 +17,19 @@ from typing import TYPE_CHECKING, overload
 import numpy as np
 from monty.design_patterns import cached_class
 from monty.serialization import loadfn
+
 from pymatgen.util.string import Stringify
 
 if TYPE_CHECKING:
     from typing import ClassVar, Literal
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
+
     from pymatgen.core.lattice import Lattice
 
     # Don't import at runtime to avoid circular import
     from pymatgen.core.operations import SymmOp  # noqa: TCH004
-    from typing_extensions import Self
 
     CrystalSystem = Literal["cubic", "hexagonal", "monoclinic", "orthorhombic", "tetragonal", "triclinic", "trigonal"]
 
@@ -176,6 +178,7 @@ class PointGroup(SymmetryGroup):
 
         Raises:
             AssertionError if a valid crystal class cannot be created
+
         Returns:
             crystal class in Hermann-Mauguin notation.
         """
@@ -200,8 +203,10 @@ class PointGroup(SymmetryGroup):
             if symbol in [spg["hermann_mauguin"], spg["universal_h_m"], spg["hermann_mauguin_u"]]:
                 symbol = spg["short_h_m"]
 
-        assert symbol[0].isupper(), f"Invalid sg_symbol {sg_symbol}"
-        assert not symbol[1:].isupper(), f"Invalid sg_symbol {sg_symbol}"
+        if not symbol[0].isupper():
+            raise ValueError(f"Invalid {sg_symbol=}")
+        if symbol[1:].isupper():
+            raise ValueError(f"Invalid {sg_symbol=}")
 
         symbol = symbol[1:]  # Remove centering
         symbol = symbol.translate(str.maketrans("abcden", "mmmmmm"))  # Remove translation from glide planes
@@ -209,9 +214,8 @@ class PointGroup(SymmetryGroup):
         symbol = abbrev_map.get(symbol, symbol)
         symbol = non_standard_map.get(symbol, symbol)
 
-        assert (
-            symbol in SYMM_DATA["point_group_encoding"]
-        ), f"Could not create a valid crystal class ({symbol}) from sg_symbol {sg_symbol}"
+        if symbol not in SYMM_DATA["point_group_encoding"]:
+            raise ValueError(f"Could not create a valid crystal class ({symbol}) from {sg_symbol=}")
         return cls(symbol)
 
 
@@ -253,7 +257,7 @@ class SpaceGroup(SymmetryGroup):
                 notation is a LaTeX-like string, with screw axes being
                 represented by an underscore. For example, "P6_3/mmc".
                 Alternative settings can be accessed by adding a ":identifier".
-                For example, the hexagonal setting  for rhombohedral cells can be
+                For example, the hexagonal setting for rhombohedral cells can be
                 accessed by adding a ":H", e.g. "R-3m:H". To find out all
                 possible settings for a spacegroup, use the get_settings()
                 classmethod. Alternative origin choices can be indicated by a
@@ -464,7 +468,7 @@ class SpaceGroup(SymmetryGroup):
         crys_system = self.crystal_system
 
         def check(param, ref, tolerance):
-            return all(abs(i - j) < tolerance for i, j in zip(param, ref) if j is not None)
+            return all(abs(i - j) < tolerance for i, j in zip(param, ref, strict=False) if j is not None)
 
         if crys_system == "cubic":
             a = abc[0]

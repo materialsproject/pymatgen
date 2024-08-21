@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
+
 from pymatgen.util import coord_cython
 
 if TYPE_CHECKING:
@@ -18,6 +19,7 @@ if TYPE_CHECKING:
     from typing import Literal
 
     from numpy.typing import ArrayLike
+
     from pymatgen.util.typing import PbcLike
 
 
@@ -131,7 +133,7 @@ def get_linear_interpolated_value(x_values: ArrayLike, y_values: ArrayLike, x: f
     Returns:
         Value at x.
     """
-    arr = np.array(sorted(zip(x_values, y_values), key=lambda d: d[0]))
+    arr = np.array(sorted(zip(x_values, y_values, strict=False), key=lambda d: d[0]))
 
     indices = np.where(arr[:, 0] >= x)[0]
 

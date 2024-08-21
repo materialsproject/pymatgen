@@ -16,7 +16,7 @@ import tempfile
 import traceback
 from collections import defaultdict
 from typing import TYPE_CHECKING, NamedTuple
-from xml.etree import ElementTree as Et
+from xml.etree import ElementTree as ET
 
 import numpy as np
 from monty.collections import AttrDict, Namespace
@@ -24,11 +24,12 @@ from monty.functools import lazy_property
 from monty.itertools import iterator_from_slice
 from monty.json import MontyDecoder, MSONable
 from monty.os.path import find_exts
+from tabulate import tabulate
+
 from pymatgen.core import Element
 from pymatgen.core.xcfunc import XcFunc
 from pymatgen.io.core import ParseError
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig
-from tabulate import tabulate
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -36,8 +37,9 @@ if TYPE_CHECKING:
 
     import matplotlib.pyplot as plt
     from numpy.typing import NDArray
-    from pymatgen.core import Structure
     from typing_extensions import Self
+
+    from pymatgen.core import Structure
 
 logger = logging.getLogger(__name__)
 
@@ -621,7 +623,7 @@ def _dict_from_lines(lines, key_nums, sep=None) -> dict:
         if len(values) != len(keys):
             raise ValueError(f"{line=}\n {len(keys)=} must equal {len(values)=}")
 
-        kwargs.update(zip(keys, values))
+        kwargs.update(zip(keys, values, strict=False))
 
     return kwargs
 
@@ -1078,8 +1080,8 @@ class PseudoParser:
         # Assume file with the abinit header.
         lines = _read_nlines(filename, 80)
 
-        for lineno, line in enumerate(lines, start=1):
-            if lineno == 3:
+        for lineno, line in enumerate(lines):
+            if lineno == 2:
                 try:
                     tokens = line.split()
                     pspcod, _pspxc = map(int, tokens[:2])
@@ -1095,7 +1097,7 @@ class PseudoParser:
 
                 if pspcod == 7:
                     # PAW -> need to know the format pspfmt
-                    tokens = line.split()
+                    tokens = lines[lineno + 1].split()
                     pspfmt, _creatorID = tokens[:2]
 
                     ppdesc = ppdesc._replace(format=pspfmt)
@@ -1240,7 +1242,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     @lazy_property
     def root(self):
         """Root tree of XML."""
-        tree = Et.parse(self.filepath)
+        tree = ET.parse(self.filepath)
         return tree.getroot()
 
     @property
@@ -1538,8 +1540,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             for filepath in [os.path.join(top, fn) for fn in os.listdir(top)]:
                 if os.path.isfile(filepath):
                     try:
-                        pseudo = Pseudo.from_file(filepath)
-                        if pseudo:
+                        if pseudo := Pseudo.from_file(filepath):
                             pseudos.append(pseudo)
                         else:
                             logger.info(f"Skipping file {filepath}")
@@ -1828,7 +1829,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         """Get new class:`PseudoTable` object with pseudos in the given rows of the periodic table.
         rows can be either a int or a list of integers.
         """
-        if not isinstance(rows, (list, tuple)):
+        if not isinstance(rows, list | tuple):
             rows = [rows]
         return type(self)([p for p in self if p.element.row in rows])
 

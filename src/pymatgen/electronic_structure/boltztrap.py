@@ -1,16 +1,13 @@
-"""This module provides classes to run and analyze boltztrap on pymatgen band
-structure objects. Boltztrap is a software interpolating band structures and
-computing materials properties from this band structure using Boltzmann
-semi-classical transport theory.
+"""This module provides classes to run and analyze BoltzTraP on pymatgen band
+structure objects. BoltzTraP is a software developed by Georg Madsen to
+interpolate band structures and compute materials properties from this
+band structure using Boltzmann semi-classical transport theory.
 
-Boltztrap has been developed by Georg Madsen.
-
-http://www.icams.de/content/research/software-development/boltztrap/
+https://www.tuwien.at/en/tch/tc/theoretical-materials-chemistry/boltztrap
 
 You need version 1.2.3 or higher
 
-References are:
-
+References:
     Madsen, G. K. H., and Singh, D. J. (2006).
     BoltzTraP. A code for calculating band-structure dependent quantities.
     Computer Physics Communications, 175, 67-71
@@ -31,6 +28,10 @@ import numpy as np
 from monty.dev import requires
 from monty.json import MSONable, jsanitize
 from monty.os import cd
+from scipy import constants
+from scipy.optimize import fsolve
+from scipy.spatial import distance
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.units import Energy, Length
 from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine, Kpoint
@@ -38,17 +39,15 @@ from pymatgen.electronic_structure.core import Orbital
 from pymatgen.electronic_structure.dos import CompleteDos, Dos, Spin
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
-from scipy import constants
-from scipy.optimize import fsolve
-from scipy.spatial import distance
 
 if TYPE_CHECKING:
     from typing import Literal
 
     from numpy.typing import ArrayLike
+    from typing_extensions import Self
+
     from pymatgen.core.sites import PeriodicSite
     from pymatgen.core.structure import Structure
-    from typing_extensions import Self
 
 __author__ = "Geoffroy Hautier, Zachary Gibbs, Francesco Ricci, Anubhav Jain"
 __copyright__ = "Copyright 2013, The Materials Project"
@@ -60,13 +59,13 @@ __date__ = "August 23, 2013"
 
 
 class BoltztrapRunner(MSONable):
-    """This class is used to run Boltztrap on a band structure object."""
+    """This class is used to run BoltzTraP on a band structure object."""
 
     @requires(
         which("x_trans"),
         "BoltztrapRunner requires the executables 'x_trans' to be in PATH. Please download "
-        "Boltztrap at http://www.icams.de/content/research/software-development/boltztrap/ "
-        "and follow the instructions in the README to compile Bolztrap accordingly. "
+        "BoltzTraP at https://www.tuwien.at/en/tch/tc/theoretical-materials-chemistry/boltztrap "
+        "and follow the instructions in the README to compile BoltzTraP accordingly. "
         "Then add x_trans to your path",
     )
     def __init__(
@@ -144,7 +143,7 @@ class BoltztrapRunner(MSONable):
                 electron occupations. If the band structure comes from a soc
                 computation, you should set soc to True (default False)
             doping:
-                the fixed doping levels you want to compute. Boltztrap provides
+                the fixed doping levels you want to compute. BoltzTraP provides
                 both transport values depending on electron chemical potential
                 (fermi energy) and for a series of fixed carrier
                 concentrations. By default, this is set to 1e16 to 1e22 in
@@ -426,13 +425,13 @@ class BoltztrapRunner(MSONable):
         Args:
             output_file: Filename
         """
-        setgap = 1 if self.scissor > 0.0001 else 0
+        set_gap = 1 if self.scissor > 0.0001 else 0
 
         if self.run_type in ("BOLTZ", "DOS"):
             with open(output_file, mode="w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
-                    f"1 0 {setgap} {Energy(self.scissor, 'eV').to('Ry')}         "
+                    f"1 0 {set_gap} {Energy(self.scissor, 'eV').to('Ry')}         "
                     "# iskip (not presently used) idebug setgap shiftgap \n"
                 )
                 fout.write(
@@ -481,7 +480,7 @@ class BoltztrapRunner(MSONable):
             with open(output_file, mode="w") as fout:
                 fout.write("GENE          # use generic interface\n")
                 fout.write(
-                    f"1 0 {setgap} {Energy(self.scissor, 'eV').to('Ry')}         # iskip (not presently used) "
+                    f"1 0 {set_gap} {Energy(self.scissor, 'eV').to('Ry')}         # iskip (not presently used) "
                     "idebug setgap shiftgap \n"
                 )
                 fout.write(
@@ -553,8 +552,7 @@ class BoltztrapRunner(MSONable):
         run_type = self.run_type
         if run_type in ("BANDS", "DOS", "FERMI"):
             convergence = False
-            if self.lpfac > max_lpfac:
-                max_lpfac = self.lpfac
+            max_lpfac = max(self.lpfac, max_lpfac)
 
         if run_type == "BANDS" and self.bs.is_spin_polarized:
             print(
@@ -734,7 +732,7 @@ class BoltztrapAnalyzer:
         bz_kpoints=None,
         fermi_surface_data=None,
     ) -> None:
-        """Constructor taking directly all the data generated by Boltztrap. You
+        """Constructor taking directly all the data generated by BoltzTraP. You
         won't probably use it directly but instead use the from_files and
         from_dict methods.
 
@@ -760,7 +758,7 @@ class BoltztrapAnalyzer:
                 each Fermi level in mu_steps]}
                 The units are m^3/C
             doping: The different doping levels that have been given to
-                Boltztrap. The format is {'p':[],'n':[]} with an array of
+                BoltzTraP. The format is {'p':[],'n':[]} with an array of
                 doping levels. The units are cm^-3
             mu_doping: Gives the electron chemical potential (or Fermi level)
                 for a given set of doping.
@@ -802,7 +800,7 @@ class BoltztrapAnalyzer:
             intrans: a dictionary of inputs e.g. {"scissor": 0.0}
             carrier_conc: The concentration of carriers in electron (or hole)
                 per unit cell
-            dos: The dos computed by Boltztrap given as a pymatgen Dos object
+            dos: The dos computed by BoltzTraP given as a pymatgen Dos object
             dos_partial: Data for the partial DOS projected on sites and
                 orbitals
             vol: Volume of the unit cell in angstrom cube (A^3)
@@ -837,13 +835,13 @@ class BoltztrapAnalyzer:
         self.fermi_surface_data = fermi_surface_data
 
     def get_symm_bands(self, structure: Structure, efermi, kpt_line=None, labels_dict=None):
-        """Useful to read bands from Boltztrap output and get a BandStructureSymmLine object
+        """Useful to read bands from BoltzTraP output and get a BandStructureSymmLine object
         comparable with that one from a DFT calculation (if the same kpt_line is
         provided). Default kpt_line and labels_dict is the standard path of high symmetry
         k-point for the specified structure. They could be extracted from the
         BandStructureSymmLine object that you want to compare with. efermi variable must
         be specified to create the BandStructureSymmLine object (usually it comes from DFT
-        or Boltztrap calc).
+        or BoltzTraP calc).
         """
         try:
             if kpt_line is None:
@@ -853,7 +851,9 @@ class BoltztrapAnalyzer:
                     for kpt in kpath.get_kpoints(coords_are_cartesian=False)[0]
                 ]
                 labels_dict = {
-                    label: key for key, label in zip(*kpath.get_kpoints(coords_are_cartesian=False)) if label
+                    label: key
+                    for key, label in zip(*kpath.get_kpoints(coords_are_cartesian=False), strict=False)
+                    if label
                 }
                 kpt_line = [kp.frac_coords for kp in kpt_line]
             elif isinstance(kpt_line[0], Kpoint):
@@ -1388,7 +1388,7 @@ class BoltztrapAnalyzer:
                 cond_mass = self.get_average_eff_mass(output=output, doping_levels=True)[dt][temp]
 
                 if output == "average":
-                    cmplx_fact[dt] = [(m_s / abs(m_c)) ** 1.5 for m_s, m_c in zip(sbk_mass, cond_mass)]
+                    cmplx_fact[dt] = [(m_s / abs(m_c)) ** 1.5 for m_s, m_c in zip(sbk_mass, cond_mass, strict=False)]
 
                 else:
                     cmplx_fact[dt] = []
@@ -1403,7 +1403,7 @@ class BoltztrapAnalyzer:
         cond_mass = self.get_average_eff_mass(output=output, doping_levels=False)[temp]
 
         if output == "average":
-            return [(m_s / abs(m_c)) ** 1.5 for m_s, m_c in zip(sbk_mass, cond_mass)]
+            return [(m_s / abs(m_c)) ** 1.5 for m_s, m_c in zip(sbk_mass, cond_mass, strict=False)]
 
         cmplx_fact_list: list = []
         for i, sm in enumerate(sbk_mass):
@@ -1640,7 +1640,7 @@ class BoltztrapAnalyzer:
 
     def get_hall_carrier_concentration(self):
         """Get the Hall carrier concentration (in cm^-3). This is the trace of
-        the Hall tensor (see Boltztrap source code) Hall carrier concentration
+        the Hall tensor (see BoltzTraP source code) Hall carrier concentration
         are not always exactly the same than carrier concentration.
 
         Returns:
@@ -1770,7 +1770,7 @@ class BoltztrapAnalyzer:
             path_dir: (str) dir containing the boltztrap.intrans file
 
         Returns:
-            dict: various inputs that had been used in the Boltztrap run.
+            dict: various inputs that had been used in the BoltzTraP run.
         """
         intrans = {}
         with open(f"{path_dir}/boltztrap.intrans") as file:
@@ -1939,7 +1939,7 @@ class BoltztrapAnalyzer:
             dos_spin: in DOS mode, set to 1 for spin up and -1 for spin down
 
         Returns:
-            a BoltztrapAnalyzer object
+            BoltztrapAnalyzer
         """
         run_type, warning, efermi, gap, doping_levels = cls.parse_outputtrans(path_dir)
 

@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Literal, cast
 
 import numpy as np
 from monty.json import MSONable
+
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.due import Doi, due
 from pymatgen.util.string import transformation_to_string
@@ -158,7 +159,7 @@ class SymmOp(MSONable):
         # Build einstein sum string
         lc = string.ascii_lowercase
         indices = lc[:rank], lc[rank : 2 * rank]
-        einsum_string = ",".join(a + i for a, i in zip(*indices))
+        einsum_string = ",".join(a + i for a, i in zip(*indices, strict=False))
         einsum_string += f",{indices[::-1][0]}->{indices[::-1][1]}"
         einsum_args = [self.rotation_matrix] * rank + [tensor]
 
@@ -261,7 +262,7 @@ class SymmOp(MSONable):
         Returns:
             SymmOp for a rotation about given axis and translation.
         """
-        if isinstance(axis, (tuple, list)):
+        if isinstance(axis, tuple | list):
             axis = np.array(axis)
 
         vec = np.array(translation_vec)

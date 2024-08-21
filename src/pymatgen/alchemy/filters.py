@@ -7,13 +7,15 @@ from collections import defaultdict
 from typing import TYPE_CHECKING
 
 from monty.json import MSONable
+
 from pymatgen.analysis.structure_matcher import ElementComparator, StructureMatcher
 from pymatgen.core import get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
-    from pymatgen.core import Structure
     from typing_extensions import Self
+
+    from pymatgen.core import Structure
 
 
 class AbstractStructureFilter(MSONable, abc.ABC):
@@ -41,7 +43,7 @@ class ContainsSpecieFilter(AbstractStructureFilter):
     def __init__(self, species, strict_compare=False, AND=True, exclude=False):
         """
         Args:
-            species ([Species/Element]): list of species to look for
+            species (list[SpeciesLike]): species to look for
             AND: whether all species must be present to pass (or fail) filter.
             strict_compare: if true, compares objects by specie or element
                 object if false, compares atomic number
@@ -130,8 +132,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
         all_species = set(self.specie_and_min_dist)
         for site in structure:
             species = set(site.species)
-            sp_to_test = species.intersection(all_species)
-            if sp_to_test:
+            if sp_to_test := species.intersection(all_species):
                 max_r = max(self.specie_and_min_dist[sp] for sp in sp_to_test)
                 neighbors = structure.get_neighbors(site, max_r)
                 for sp in sp_to_test:
@@ -155,7 +156,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
             dct (dict): Dict representation.
 
         Returns:
-            Filter
+            SpecieProximityFilter
         """
         return cls(**dct["init_args"])
 
@@ -176,7 +177,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
         """
         self.symprec = symprec
         self.structure_list: dict[str, list[Structure]] = defaultdict(list)
-        if not isinstance(structure_matcher, (dict, StructureMatcher, type(None))):
+        if not isinstance(structure_matcher, dict | StructureMatcher | type(None)):
             raise TypeError(f"{structure_matcher=} must be a dict, StructureMatcher or None")
         if isinstance(structure_matcher, dict):
             self.structure_matcher = StructureMatcher.from_dict(structure_matcher)

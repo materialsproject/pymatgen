@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
+
 from pymatgen.util.due import Doi, due
 from pymatgen.util.numba import njit
 
@@ -171,6 +172,7 @@ class ZSLGenerator(MSONable):
             for (f_trans, s_trans), (f, s) in zip(
                 product(film_transformations, substrate_transformations),
                 product(films, substrates),
+                strict=False,
             ):
                 if is_same_vectors(
                     f,

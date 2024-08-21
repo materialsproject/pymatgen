@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-import logging
 import re
 from typing import TYPE_CHECKING
 
 from monty.io import zopen
+
 from pymatgen.core import Molecule
 from pymatgen.io.core import InputFile
 
@@ -24,8 +24,6 @@ __version__ = "0.1"
 __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 __credits__ = "Xiaohui Qu"
-
-logger = logging.getLogger(__name__)
 
 
 class QCInput(InputFile):
@@ -291,7 +289,7 @@ class QCInput(InputFile):
     def multi_job_string(job_list: list[QCInput]) -> str:
         """
         Args:
-            job_list (): List of jobs.
+            job_list (list[QCInput]): List of QChem jobs.
 
         Returns:
             str: String representation of a multi-job input file.
@@ -305,7 +303,7 @@ class QCInput(InputFile):
         return multi_job_string
 
     @classmethod
-    def from_str(cls, string: str) -> Self:  # type: ignore[override]
+    def from_str(cls, string: str) -> Self:
         """
         Read QcInput from string.
 
@@ -372,14 +370,14 @@ class QCInput(InputFile):
         """Write a multijob file.
 
         Args:
-            job_list (): List of jobs.
-            filename (): Filename
+            job_list (list[QCInput]): List of QChem jobs.
+            filename (str): Name of the file to write.
         """
         with zopen(filename, mode="wt") as file:
             file.write(QCInput.multi_job_string(job_list))
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> Self:  # type: ignore[override]
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Create QcInput from file.
 
@@ -451,10 +449,10 @@ class QCInput(InputFile):
         return "\n".join(mol_list)
 
     @staticmethod
-    def rem_template(rem: dict) -> str:
+    def rem_template(rem: dict[str, Any]) -> str:
         """
         Args:
-            rem ():
+            rem (dict[str, Any]): REM section.
 
         Returns:
             str: REM template.
@@ -472,7 +470,7 @@ class QCInput(InputFile):
         Optimization template.
 
         Args:
-            opt ():
+            opt (dict[str, list]): Optimization section.
 
         Returns:
             str: Optimization template.
@@ -497,7 +495,7 @@ class QCInput(InputFile):
         PCM run template.
 
         Args:
-            pcm ():
+            pcm (dict): PCM section.
 
         Returns:
             str: PCM template.
@@ -514,7 +512,7 @@ class QCInput(InputFile):
         """Solvent template.
 
         Args:
-            solvent ():
+            solvent (dict): Solvent section.
 
         Returns:
             str: Solvent section.
@@ -530,7 +528,7 @@ class QCInput(InputFile):
     def smx_template(smx: dict) -> str:
         """
         Args:
-            smx ():
+            smx (dict): Solvation model with short-range corrections.
 
         Returns:
             str: Solvation model with short-range corrections.
@@ -603,7 +601,7 @@ class QCInput(InputFile):
     def plots_template(plots: dict) -> str:
         """
         Args:
-            plots ():
+            plots (dict): Plots section.
 
         Returns:
             str: Plots section.
@@ -618,7 +616,7 @@ class QCInput(InputFile):
     def nbo_template(nbo: dict) -> str:
         """
         Args:
-            nbo ():
+            nbo (dict): NBO section.
 
         Returns:
             str: NBO section.
@@ -654,7 +652,7 @@ class QCInput(InputFile):
     def geom_opt_template(geom_opt: dict) -> str:
         """
         Args:
-            geom_opt ():
+            geom_opt (dict): Geometry optimization section.
 
         Returns:
             str: Geometry optimization section.
@@ -692,7 +690,11 @@ class QCInput(InputFile):
                         raise ValueError("Invalid CDFT constraint type!")
 
                 for coef, first, last, type_string in zip(
-                    constraint["coefficients"], constraint["first_atoms"], constraint["last_atoms"], type_strings
+                    constraint["coefficients"],
+                    constraint["first_atoms"],
+                    constraint["last_atoms"],
+                    type_strings,
+                    strict=False,
                 ):
                     if type_string != "":
                         cdft_list.append(f"   {coef} {first} {last} {type_string}")
@@ -846,7 +848,7 @@ class QCInput(InputFile):
         matches = read_pattern(string, patterns)
 
         mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
-        for match, table in zip(matches.get("charge_spin"), mol_table):
+        for match, table in zip(matches.get("charge_spin"), mol_table, strict=False):
             charge = int(match[0])
             spin = int(match[1])
             species = [val[0] for val in table]

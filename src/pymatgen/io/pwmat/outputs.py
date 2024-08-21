@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
+
 from pymatgen.io.pwmat.inputs import ACstrExtractor, AtomConfig, LineLocator
 
 if TYPE_CHECKING:
@@ -135,17 +136,17 @@ class Movement(MSONable):
                 tmp_chunk: str = ""
                 for _ in range(self.chunk_sizes[ii]):
                     tmp_chunk += mvt.readline()
-                tmp_step.update({"atom_config": AtomConfig.from_str(tmp_chunk)})
-                tmp_step.update({"e_tot": ACstrExtractor(tmp_chunk).get_e_tot()[0]})
-                tmp_step.update({"atom_forces": ACstrExtractor(tmp_chunk).get_atom_forces().reshape(-1, 3)})
+                tmp_step["atom_config"] = AtomConfig.from_str(tmp_chunk)
+                tmp_step["e_tot"] = ACstrExtractor(tmp_chunk).get_e_tot()[0]
+                tmp_step["atom_forces"] = ACstrExtractor(tmp_chunk).get_atom_forces().reshape(-1, 3)
                 e_atoms: np.ndarray | None = ACstrExtractor(tmp_chunk).get_atom_forces()
                 if e_atoms is not None:
-                    tmp_step.update({"atom_energies": ACstrExtractor(tmp_chunk).get_atom_energies()})
+                    tmp_step["atom_energies"] = ACstrExtractor(tmp_chunk).get_atom_energies()
                 else:
                     print(f"Ionic step #{ii} : Energy deposition is turn down.")
                 virial: np.ndarray | None = ACstrExtractor(tmp_chunk).get_virial()
                 if virial is not None:
-                    tmp_step.update({"virial": virial.reshape(3, 3)})
+                    tmp_step["virial"] = virial.reshape(3, 3)
                 else:
                     print(f"Ionic step #{ii} : No virial information.")
                 ionic_steps.append(tmp_step)
@@ -261,9 +262,9 @@ class Report(MSONable):
             kpts_weight[ii] = float(tmp_row_lst[3].strip())
 
             if len(tmp_row_lst) == 5:
-                hsps.update(
-                    {tmp_row_lst[4]: np.array([float(tmp_row_lst[0]), float(tmp_row_lst[1]), float(tmp_row_lst[2])])}
-                )
+                hsps |= {
+                    tmp_row_lst[4]: np.array([float(tmp_row_lst[0]), float(tmp_row_lst[1]), float(tmp_row_lst[2])])
+                }
         return kpts, kpts_weight, hsps
 
     @property

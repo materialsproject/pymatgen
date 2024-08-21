@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 
 import matplotlib.pyplot as plt
 import numpy as np
+
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.util.plotting import add_fig_kwargs, pretty_plot
 
@@ -104,7 +105,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         xrd = self.get_pattern(structure, two_theta_range=two_theta_range)
         imax = max(xrd.y)
 
-        for two_theta, i, hkls in zip(xrd.x, xrd.y, xrd.hkls):
+        for two_theta, i, hkls in zip(xrd.x, xrd.y, xrd.hkls, strict=False):
             if two_theta_range[0] <= two_theta <= two_theta_range[1]:
                 hkl_tuples = [hkl["hkl"] for hkl in hkls]
                 label = ", ".join(map(str, hkl_tuples))  # 'full' label
@@ -187,7 +188,7 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         n_rows = len(structures)
         fig, axes = plt.subplots(nrows=n_rows, ncols=1, sharex=True, squeeze=False)
 
-        for i, (ax, structure) in enumerate(zip(axes.ravel(), structures)):
+        for i, (ax, structure) in enumerate(zip(axes.ravel(), structures, strict=False)):
             self.get_plot(structure, fontsize=fontsize, ax=ax, with_labels=i == n_rows - 1, **kwargs)
             spg_symbol, spg_number = structure.get_space_group_info()
             ax.set_title(f"{structure.formula} {spg_symbol} ({spg_number}) ")

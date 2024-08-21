@@ -15,6 +15,8 @@ import scipy.constants as const
 from monty.io import zopen
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
+from pytest import MonkeyPatch, approx
+
 from pymatgen.core import SETTINGS
 from pymatgen.core.composition import Composition
 from pymatgen.core.structure import Structure
@@ -34,7 +36,6 @@ from pymatgen.io.vasp.inputs import (
     _gen_potcar_summary_stats,
 )
 from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
-from pytest import MonkeyPatch, approx
 
 # make sure _gen_potcar_summary_stats runs and works with all tests in this file
 _summ_stats = _gen_potcar_summary_stats(append=False, vasp_psp_dir=str(FAKE_POTCAR_DIR), summary_stats_filename=None)
@@ -773,6 +774,7 @@ SIGMA = 0.1"""
                     "AMIN": 0.01,
                     "ICHARG": 1,
                     "MAGMOM": [1, 2, 4, 5],
+                    "LREAL": True,  # special case: Union type
                     "NBAND": 250,  # typo in tag
                     "METAGGA": "SCAM",  # typo in value
                     "EDIFF": 5 + 1j,  # value should be a float
@@ -886,29 +888,44 @@ Cartesian
         kpoints = Kpoints.gamma_automatic((3, 3, 3), [0, 0, 0])
         assert kpoints.style == Kpoints.supported_modes.Gamma
         assert kpoints.kpts == [(3, 3, 3)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
+
         kpoints = Kpoints.monkhorst_automatic((2, 2, 2), [0, 0, 0])
         assert kpoints.style == Kpoints.supported_modes.Monkhorst
         assert kpoints.kpts == [(2, 2, 2)]
-        kpoints = Kpoints.automatic(100)
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
+
+        with pytest.warns(DeprecationWarning, match="Please use INCAR KSPACING tag"):
+            kpoints = Kpoints.automatic(100)
         assert kpoints.style == Kpoints.supported_modes.Automatic
         assert kpoints.kpts == [(100,)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
+
         filepath = f"{VASP_IN_DIR}/POSCAR"
         struct = Structure.from_file(filepath)
         kpoints = Kpoints.automatic_density(struct, 500)
         assert kpoints.kpts == [(1, 3, 3)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
         assert kpoints.style == Kpoints.supported_modes.Gamma
+
         kpoints = Kpoints.automatic_density(struct, 500, force_gamma=True)
         assert kpoints.style == Kpoints.supported_modes.Gamma
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
+
         kpoints = Kpoints.automatic_density_by_vol(struct, 1000)
         assert kpoints.kpts == [(6, 10, 13)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
         assert kpoints.style == Kpoints.supported_modes.Gamma
+
         kpoints = Kpoints.automatic_density_by_lengths(struct, [50, 50, 1], force_gamma=True)
         assert kpoints.kpts == [(5, 9, 1)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0]), kpoints.kpts
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
         struct.make_supercell(3)
         kpoints = Kpoints.automatic_density(struct, 500)
         assert kpoints.kpts == [(1, 1, 1)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
         assert kpoints.style == Kpoints.supported_modes.Gamma
         kpoints = Kpoints.from_str(
             """k-point mesh
@@ -964,7 +981,6 @@ Cartesian
         assert kpts != kpt_copy
 
     def test_automatic_kpoint(self):
-        # struct = PymatgenTest.get_structure("Li2O")
         poscar = Poscar.from_str(
             """Al1
 1.0
@@ -1099,8 +1115,8 @@ class TestPotcarSingle(TestCase):
         assert self.psingle_Fe.nelectrons == 8
 
     def test_electron_config(self):
-        assert self.psingle_Mn_pv.electron_configuration == [(4, "s", 2), (3, "d", 5), (3, "p", 6)]
-        assert self.psingle_Fe.electron_configuration == [(4, "s", 2), (3, "d", 6)]
+        assert self.psingle_Mn_pv.electron_configuration == [(3, "d", 5), (4, "s", 2), (3, "p", 6)]
+        assert self.psingle_Fe.electron_configuration == [(3, "d", 6), (4, "s", 2)]
 
     def test_attributes(self):
         for key, val in self.Mn_pv_attrs.items():
@@ -1290,7 +1306,7 @@ class TestPotcar(PymatgenTest):
         assert len(ref_potcar) == len(new_potcar), f"wrong POTCAR line count: {len(ref_potcar)} != {len(new_potcar)}"
 
         # check line by line
-        for line1, line2 in zip(ref_potcar, new_potcar):
+        for line1, line2 in zip(ref_potcar, new_potcar, strict=False):
             assert line1.strip() == line2.strip(), f"wrong POTCAR line: {line1} != {line2}"
 
     def test_set_symbol(self):

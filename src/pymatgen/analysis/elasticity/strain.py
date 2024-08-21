@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import scipy
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.tensors import SquareTensor, symmetry_reduce
 
@@ -20,8 +21,9 @@ if TYPE_CHECKING:
     from typing import Literal
 
     from numpy.typing import ArrayLike
-    from pymatgen.core.structure import Structure
     from typing_extensions import Self
+
+    from pymatgen.core.structure import Structure
 
 __author__ = "Joseph Montoya"
 __copyright__ = "Copyright 2012, The Materials Project"
@@ -58,7 +60,7 @@ class Deformation(SquareTensor):
         """Get indices of perturbed elements of the deformation gradient,
         i. e. those that differ from the identity.
         """
-        return list(zip(*np.where(abs(self - np.eye(3)) > tol)))
+        return list(zip(*np.where(abs(self - np.eye(3)) > tol), strict=False))
 
     @property
     def green_lagrange_strain(self):

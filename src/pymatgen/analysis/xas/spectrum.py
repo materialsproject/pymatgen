@@ -7,10 +7,11 @@ import warnings
 from typing import TYPE_CHECKING
 
 import numpy as np
+from scipy.interpolate import interp1d
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
-from scipy.interpolate import interp1d
 
 if TYPE_CHECKING:
     from typing import Literal
@@ -193,7 +194,7 @@ class XAS(Spectrum):
             )
             l3_f = interp1d(l3_xanes.x, l3_xanes.y, bounds_error=True, fill_value=0, kind="cubic")
             energy = list(np.linspace(min(l3_xanes.x), max(l3_xanes.x), num=num_samples))
-            mu = [i + j for i, j in zip([max(i, 0) for i in l2_f(energy)], l3_f(energy))]
+            mu = [i + j for i, j in zip([max(i, 0) for i in l2_f(energy)], l3_f(energy), strict=False)]
             # check for jumps at the onset of L2-edge XANES
             idx = energy.index(min(energy, key=lambda x: (abs(x - l2_xanes.x[0]))))
             if abs(mu[idx] - mu[idx - 1]) / (mu[idx - 1]) > 0.1:

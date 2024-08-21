@@ -8,10 +8,11 @@ from typing import TYPE_CHECKING, NamedTuple
 from urllib.parse import urljoin, urlparse
 
 import requests
+from tqdm import tqdm
+
 from pymatgen.core import DummySpecies, Structure
 from pymatgen.util.due import Doi, due
 from pymatgen.util.provenance import StructureNL
-from tqdm import tqdm
 
 if TYPE_CHECKING:
     from typing import ClassVar
@@ -200,13 +201,13 @@ class OptimadeRester:
             filters.append(f"(elements HAS ALL {elements_str})")
 
         if nsites:
-            if isinstance(nsites, (list, tuple)):
+            if isinstance(nsites, list | tuple):
                 filters.append(f"(nsites>={min(nsites)} AND nsites<={max(nsites)})")
             else:
                 filters.append(f"({nsites=})")
 
         if nelements:
-            if isinstance(nelements, (list, tuple)):
+            if isinstance(nelements, list | tuple):
                 filters.append(f"(nelements>={min(nelements)} AND nelements<={max(nelements)})")
             else:
                 filters.append(f"({nelements=})")
@@ -378,7 +379,7 @@ class OptimadeRester:
         def _get_comp(sp_dict):
             return {
                 _sanitize_symbol(symbol): conc
-                for symbol, conc in zip(sp_dict["chemical_symbols"], sp_dict["concentration"])
+                for symbol, conc in zip(sp_dict["chemical_symbols"], sp_dict["concentration"], strict=False)
             }
 
         for data in json["data"]:
@@ -499,7 +500,7 @@ class OptimadeRester:
         It does not raise exceptions but will instead _logger.warning and provide
         an empty dictionary in the case of invalid data.
 
-        In future, when the specification  is sufficiently well adopted,
+        In future, when the specification is sufficiently well adopted,
         we might be more strict here.
 
         Args:
@@ -507,8 +508,7 @@ class OptimadeRester:
             provider_url: An OPTIMADE provider URL
 
         Returns:
-            A dictionary of keys (in format of "provider.database") to
-            Provider objects.
+            dict: keys (in format of "provider.database") mapped to Provider objects.
         """
         # Add trailing slash to all URLs if missing; prevents urljoin from scrubbing
         if urlparse(provider_url).path is not None and not provider_url.endswith("/"):

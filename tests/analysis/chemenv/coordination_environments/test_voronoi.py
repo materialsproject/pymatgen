@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import random
-
 import numpy as np
+
 from pymatgen.analysis.chemenv.coordination_environments.voronoi import DetailedVoronoiContainer
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -30,7 +29,8 @@ class TestVoronoiContainer(PymatgenTest):
             (5, [5, 5, 3.96]),
             (6, [5, 5, 6.05]),
         ]
-        random.shuffle(order_and_coords)
+        rng = np.random.default_rng()
+        rng.shuffle(order_and_coords)
         arr_sorted = np.argsort([oc[0] for oc in order_and_coords]) + 1
         coords.extend([oc[1] for oc in order_and_coords])
         fake_structure = Structure(cubic_lattice, species, coords, coords_are_cartesian=True)
@@ -88,7 +88,7 @@ class TestVoronoiContainer(PymatgenTest):
             (5, [5, 5, 3.92]),
             (6, [5, 5, 6.09]),
         ]
-        random.shuffle(order_and_coords)
+        rng.shuffle(order_and_coords)
         arr_sorted = np.argsort([oc[0] for oc in order_and_coords]) + 1
         coords2.extend([oc[1] for oc in order_and_coords])
         fake_structure2 = Structure(cubic_lattice, species, coords2, coords_are_cartesian=True)

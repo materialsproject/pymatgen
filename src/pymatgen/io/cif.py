@@ -19,6 +19,7 @@ import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
 from monty.serialization import loadfn
+
 from pymatgen.core import Composition, DummySpecies, Element, Lattice, PeriodicSite, Species, Structure, get_el_sp
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.electronic_structure.core import Magmom
@@ -32,8 +33,9 @@ if TYPE_CHECKING:
     from typing import Any
 
     from numpy.typing import NDArray
-    from pymatgen.util.typing import PathLike, Vector3D
     from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike, Vector3D
 
 __author__ = "Shyue Ping Ong, Will Richards, Matthew Horton"
 
@@ -103,7 +105,7 @@ class CifBlock:
         for line in loop:
             out += "\n " + line
 
-        for fields in zip(*(self.data[k] for k in loop)):
+        for fields in zip(*(self.data[k] for k in loop), strict=False):
             line = "\n"
             for val in map(self._format_field, fields):
                 if val[0] == ";":
@@ -226,7 +228,7 @@ class CifBlock:
                 n = len(items) // len(columns)
                 assert len(items) % n == 0
                 loops.append(columns)
-                for k, v in zip(columns * n, items):
+                for k, v in zip(columns * n, items, strict=False):
                     data[k].append(v.strip())
 
             elif issue := "".join(_str).strip():
@@ -371,7 +373,7 @@ class CifParser:
         self._frac_tolerance = frac_tolerance
 
         # Read CIF file
-        if isinstance(filename, (str, Path)):
+        if isinstance(filename, str | Path):
             self._cif = CifFile.from_file(filename)
         elif isinstance(filename, StringIO):
             self._cif = CifFile.from_str(filename.read())
@@ -577,7 +579,7 @@ class CifParser:
 
                     for comparison_frac in important_fracs:
                         if abs(1 - frac / comparison_frac) < self._frac_tolerance:
-                            fracs_to_change[(label, idx)] = str(comparison_frac)
+                            fracs_to_change[label, idx] = str(comparison_frac)
 
         if fracs_to_change:
             self.warnings.append(
@@ -608,7 +610,7 @@ class CifParser:
                 raise ValueError("Length of magmoms and coords don't match.")
 
             magmoms_out: list[Magmom] = []
-            for tmp_coord, tmp_magmom in zip(coords, magmoms):
+            for tmp_coord, tmp_magmom in zip(coords, magmoms, strict=False):
                 for op in self.symmetry_operations:
                     coord = op.operate(tmp_coord)
                     coord = np.array([i - math.floor(i) for i in coord])

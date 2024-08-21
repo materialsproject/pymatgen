@@ -8,12 +8,14 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
+
 from pymatgen.core import Lattice, Structure
 from pymatgen.symmetry.kpath import KPathSeek
 
 if TYPE_CHECKING:
-    from pymatgen.util.typing import PathLike
     from typing_extensions import Self
+
+    from pymatgen.util.typing import PathLike
 
 __author__ = "Hanyu Liu"
 __email__ = "domainofbuaa@gmail.com"
@@ -397,7 +399,7 @@ class AtomConfig(MSONable):
         if mag:
             magmoms = ac_extractor.get_magmoms()
             for idx, tmp_site in enumerate(structure):
-                tmp_site.properties.update({"magmom": magmoms[idx]})
+                tmp_site.properties |= {"magmom": magmoms[idx]}
 
         return cls(structure)
 
@@ -496,8 +498,8 @@ class GenKpt(MSONable):
         """
         self.reciprocal_lattice: np.ndarray = reciprocal_lattice
         self.kpath: dict = {}
-        self.kpath.update({"kpoints": kpoints})
-        self.kpath.update({"path": path})
+        self.kpath |= {"kpoints": kpoints}
+        self.kpath |= {"path": path}
         self.density = density
 
     @classmethod
@@ -515,7 +517,7 @@ class GenKpt(MSONable):
             kpts_2d: dict[str, np.ndarray] = {}
             for tmp_name, tmp_kpt in kpath_set.kpath["kpoints"].items():
                 if (tmp_kpt[2]) == 0:
-                    kpts_2d.update({tmp_name: tmp_kpt})
+                    kpts_2d |= {tmp_name: tmp_kpt}
 
             path_2d: list[list[str]] = []
             for tmp_path in kpath_set.kpath["path"]:
@@ -598,8 +600,8 @@ class HighSymmetryPoint(MSONable):
         """
         self.reciprocal_lattice: np.ndarray = reciprocal_lattice
         self.kpath: dict = {}
-        self.kpath.update({"kpoints": kpts})
-        self.kpath.update({"path": path})
+        self.kpath |= {"kpoints": kpts}
+        self.kpath |= {"path": path}
         self.density = density
 
     @classmethod

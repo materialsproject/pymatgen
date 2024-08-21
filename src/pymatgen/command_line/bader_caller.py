@@ -27,6 +27,7 @@ import numpy as np
 from monty.dev import deprecated
 from monty.shutil import decompress_file
 from monty.tempfile import ScratchDir
+
 from pymatgen.io.common import VolumetricData
 from pymatgen.io.vasp.inputs import Potcar
 from pymatgen.io.vasp.outputs import Chgcar
@@ -34,8 +35,9 @@ from pymatgen.io.vasp.outputs import Chgcar
 if TYPE_CHECKING:
     from typing import Any
 
-    from pymatgen.core import Structure
     from typing_extensions import Self
+
+    from pymatgen.core import Structure
 
 __author__ = "shyuepingong"
 __version__ = "0.1"
@@ -216,7 +218,7 @@ class BaderAnalysis:
             if line.startswith("-"):
                 break
             vals = map(float, line.split()[1:])
-            data.append(dict(zip(headers, vals)))
+            data.append(dict(zip(headers, vals, strict=False)))
 
         for line in lines:
             tokens = line.strip().split(":")
@@ -275,6 +277,7 @@ class BaderAnalysis:
             self.chgcar.structure,
             self.chgcar.structure.frac_coords,
             atom_chgcars,
+            strict=False,
         ):
             # Find the index of the atom in the charge density atom
             index = np.round(np.multiply(loc, chg.dim))

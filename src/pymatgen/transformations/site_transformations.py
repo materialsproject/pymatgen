@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
+
 from pymatgen.analysis.ewald import EwaldMinimizer, EwaldSummation
 from pymatgen.analysis.local_env import MinimumDistanceNN
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
@@ -315,7 +316,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             for ii, t_sites in enumerate(tested_sites):
                 t_energy = all_structures[ii]["energy"]
                 if abs((energy - t_energy) / len(s_new)) < 1e-5 and sg.are_symmetrically_equivalent(
-                    sites_to_remove, t_sites, symm_prec=symprec
+                    set(sites_to_remove), set(t_sites), symm_prec=symprec
                 ):
                     already_tested = True
 
@@ -377,7 +378,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     def _enumerate_ordering(self, structure: Structure):
         # Generate the disordered structure first.
         struct = structure.copy()
-        for indices, fraction in zip(self.indices, self.fractions):
+        for indices, fraction in zip(self.indices, self.fractions, strict=False):
             for ind in indices:
                 new_sp = {sp: occu * fraction for sp, occu in structure[ind].species.items()}
                 struct[ind] = new_sp
@@ -408,7 +409,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         """
         num_remove_dict = {}
         total_combos = 0
-        for idx, frac in zip(self.indices, self.fractions):
+        for idx, frac in zip(self.indices, self.fractions, strict=False):
             n_to_remove = len(idx) * frac
             if abs(n_to_remove - int(round(n_to_remove))) > 1e-3:
                 raise ValueError("Fraction to remove must be consistent with integer amounts in structure.")

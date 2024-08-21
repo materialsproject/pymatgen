@@ -4,6 +4,7 @@ import gzip
 import json
 
 from monty.json import MontyDecoder
+
 from pymatgen.symmetry import site_symmetries as ss
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 

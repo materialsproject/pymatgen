@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+
 from pymatgen.analysis.elasticity.strain import Deformation, DeformedStructureSet, Strain, convert_strain_to_deformation
 from pymatgen.core.structure import Structure
 from pymatgen.core.tensors import Tensor
@@ -60,10 +61,10 @@ class TestDeformation(PymatgenTest):
         assert_allclose(strained_non.sites[1].coords, [3.8872306, 1.224e-6, 2.3516318], atol=1e-7)
 
         # Check convention for applying transformation
-        for vec, defo_vec in zip(self.structure.lattice.matrix, strained_non.lattice.matrix):
+        for vec, defo_vec in zip(self.structure.lattice.matrix, strained_non.lattice.matrix, strict=False):
             new_vec = np.dot(self.non_ind_defo, np.transpose(vec))
             assert_allclose(new_vec, defo_vec)
-        for coord, defo_coord in zip(self.structure.cart_coords, strained_non.cart_coords):
+        for coord, defo_coord in zip(self.structure.cart_coords, strained_non.cart_coords, strict=False):
             new_coord = np.dot(self.non_ind_defo, np.transpose(coord))
             assert_allclose(new_coord, defo_coord)
 
@@ -117,9 +118,10 @@ class TestStrain(PymatgenTest):
         assert_allclose(self.non_ind_str.voigt, [0, 0.0002, 0.0002, 0.0004, 0.02, 0.02])
 
     def test_convert_strain_to_deformation(self):
-        strain = Tensor(np.random.random((3, 3))).symmetrized
+        rng = np.random.default_rng()
+        strain = Tensor(rng.random((3, 3))).symmetrized
         while not (np.linalg.eigvals(strain) > 0).all():
-            strain = Tensor(np.random.random((3, 3))).symmetrized
+            strain = Tensor(rng.random((3, 3))).symmetrized
         upper = convert_strain_to_deformation(strain, shape="upper")
         symm = convert_strain_to_deformation(strain, shape="symmetric")
         assert_allclose(np.triu(upper), upper)

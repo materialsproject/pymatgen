@@ -7,6 +7,8 @@ import warnings
 from importlib.metadata import PackageNotFoundError, version
 from typing import Any
 
+from ruamel.yaml import YAML
+
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
@@ -14,7 +16,6 @@ from pymatgen.core.periodic_table import DummySpecie, DummySpecies, Element, Spe
 from pymatgen.core.sites import PeriodicSite, Site
 from pymatgen.core.structure import IMolecule, IStructure, Molecule, PeriodicNeighbor, SiteCollection, Structure
 from pymatgen.core.units import ArrayWithUnit, FloatWithUnit, Unit
-from ruamel.yaml import YAML
 
 __author__ = "Pymatgen Development Team"
 __email__ = "pymatgen@googlegroups.com"
@@ -37,9 +38,12 @@ ROOT = os.path.dirname(PKG_DIR)
 def _load_pmg_settings() -> dict[str, Any]:
     settings: dict[str, Any] = {}
 
+    # PMG_CONFIG_FILE takes precedence over default settings location
+    settings_file = os.getenv("PMG_CONFIG_FILE") or SETTINGS_FILE
+
     # Load .pmgrc.yaml file
     yaml = YAML()
-    for file_path in (SETTINGS_FILE, OLD_SETTINGS_FILE):
+    for file_path in (settings_file, OLD_SETTINGS_FILE):
         try:
             with open(file_path, encoding="utf-8") as yml_file:
                 settings = yaml.load(yml_file) or {}
