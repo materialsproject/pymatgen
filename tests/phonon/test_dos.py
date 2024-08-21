@@ -171,12 +171,11 @@ class TestPhononDos(PymatgenTest):
             match="Cannot compute similarity index. When normalize=True, then please set metric=cosine-sim",
         ):
             self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="tanimoto", normalize=True)
-        with pytest.raises(
-            ValueError,
-            match="Requested metric not implemented. Currently implemented metrics are "
-            "tanimoto, wasserstien and cosine-sim.",
-        ):
-            self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Dot", normalize=False)
+
+        valid_metrics = ("tanimoto", "wasserstein", "cosine-sim")
+        metric = "Dot"
+        with pytest.raises(ValueError, match=re.escape(f"Invalid {metric=}, choose from {valid_metrics}.")):
+            self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric=metric, normalize=False)
 
 
 class TestCompletePhononDos(PymatgenTest):

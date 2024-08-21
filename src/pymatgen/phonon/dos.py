@@ -509,17 +509,15 @@ class PhononDos(MSONable):
             metric (Literal): Metric used to compute similarity default is "tanimoto".
 
         Raises:
-            ValueError: If metric other than tanimoto, wasserstein and "cosine-sim" is requested.
+            ValueError: If metric other than "tanimoto", "wasserstein" and "cosine-sim" is requested.
             ValueError: If normalize is set to True along with the metric.
 
         Returns:
             float: Similarity index given by the dot product
         """
-        if metric not in ["tanimoto", "wasserstein", "cosine-sim"]:
-            raise ValueError(
-                "Requested metric not implemented. Currently implemented metrics are tanimoto, "
-                "wasserstien and cosine-sim."
-            )
+        valid_metrics = ("tanimoto", "wasserstein", "cosine-sim")
+        if metric not in valid_metrics:
+            raise ValueError(f"Invalid {metric=}, choose from {valid_metrics}.")
 
         fp1_dict = CompletePhononDos.fp_to_dict(fp1) if not isinstance(fp1, dict) else fp1
 
