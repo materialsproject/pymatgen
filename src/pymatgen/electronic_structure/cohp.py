@@ -552,7 +552,7 @@ class CompleteCohp(Cohp):
         if self.orb_res_cohp is None:
             return None
 
-        if isinstance(orbitals, (list, tuple)):
+        if isinstance(orbitals, list | tuple):
             cohp_orbs = [val["orbitals"] for val in self.orb_res_cohp[label].values()]
             orbs = []
             for orbital in orbitals:
@@ -1062,7 +1062,7 @@ class IcohpValue(MSONable):
         if not self.is_spin_polarized and spin == Spin.down:
             raise ValueError("The calculation was not performed with spin polarization")
 
-        if isinstance(orbitals, (tuple, list)):
+        if isinstance(orbitals, tuple | list):
             orbitals = f"{orbitals[0]}-{orbitals[1]}"
 
         assert self._orbitals is not None
@@ -1202,7 +1202,7 @@ class IcohpCollection(MSONable):
         if orbitals is None:
             return icohp.summed_icohp if summed_spin_channels else icohp.icohpvalue(spin)
 
-        if isinstance(orbitals, (tuple, list)):
+        if isinstance(orbitals, tuple | list):
             orbitals = f"{orbitals[0]}-{orbitals[1]}"
 
         if summed_spin_channels:

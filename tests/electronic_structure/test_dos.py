@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from unittest import TestCase
 
 import numpy as np
@@ -299,19 +300,18 @@ class TestCompleteDos(TestCase):
             "projections unavailable in input DOS or there's a typo in type.",
         ):
             self.dos.get_dos_fp(fp_type="k", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        with pytest.raises(
-            ValueError,
-            match="Requested metric not implemented. Currently implemented metrics are "
-            "tanimoto, wasserstien and cosine-sim.",
-        ):
-            self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="Dot", normalize=False)
+
+        valid_metrics = ("tanimoto", "wasserstein", "cosine-sim")
+        metric = "Dot"
+        with pytest.raises(ValueError, match=re.escape(f"Invalid {metric=}, choose from {valid_metrics}.")):
+            self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric=metric, normalize=False)
 
 
 class TestDOS(PymatgenTest):
     def setUp(self):
         with open(f"{TEST_DIR}/complete_dos.json") as file:
             dct = json.load(file)
-            ys = list(zip(dct["densities"]["1"], dct["densities"]["-1"]))
+            ys = list(zip(dct["densities"]["1"], dct["densities"]["-1"], strict=False))
             self.dos = DOS(dct["energies"], ys, dct["efermi"])
 
     def test_get_gap(self):
