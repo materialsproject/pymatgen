@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.dev import requires
 from monty.json import MSONable
+
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp import Kpoints
 
@@ -110,7 +111,7 @@ class Control(MSONable, dict):
 
         self["ngrid"] = ngrid
 
-        if isinstance(temperature, (int, float)):
+        if isinstance(temperature, int | float):
             self["t"] = temperature
 
         elif isinstance(temperature, dict):
@@ -212,7 +213,7 @@ class Control(MSONable, dict):
         elements = list(map(str, structure.elements))
 
         unique_nums = np.unique(structure.atomic_numbers)
-        types_dict = dict(zip(unique_nums, range(len(unique_nums))))
+        types_dict = dict(zip(unique_nums, range(len(unique_nums)), strict=False))
         types = [types_dict[i] + 1 for i in structure.atomic_numbers]
 
         control_dict = {
@@ -249,7 +250,7 @@ class Control(MSONable, dict):
 
         unique_elements = self["elements"]
         n_unique_elements = len(unique_elements)
-        element_map = dict(zip(range(1, n_unique_elements + 1), unique_elements))
+        element_map = dict(zip(range(1, n_unique_elements + 1), unique_elements, strict=False))
         species = [element_map[i] for i in self["types"]]
 
         cell = np.array(self["lattvec"])

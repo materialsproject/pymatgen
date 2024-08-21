@@ -9,13 +9,14 @@ from typing import TYPE_CHECKING
 import numpy as np
 import scipy.constants as cst
 from monty.io import zopen
+from scipy.stats import norm
+
 from pymatgen.core import Composition, Element, Molecule
 from pymatgen.core.operations import SymmOp
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.electronic_structure.core import Spin
 from pymatgen.util.coord import get_angle
 from pymatgen.util.plotting import pretty_plot
-from scipy.stats import norm
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -835,23 +836,23 @@ class GaussianOutput:
                             while "Atom  AN" not in line:
                                 if "Frequencies --" in line:
                                     freqs = map(float, float_patt.findall(line))
-                                    for ifreq, freq in zip(ifreqs, freqs):
+                                    for ifreq, freq in zip(ifreqs, freqs, strict=False):
                                         frequencies[ifreq]["frequency"] = freq
                                 elif "Red. masses --" in line:
                                     r_masses = map(float, float_patt.findall(line))
-                                    for ifreq, r_mass in zip(ifreqs, r_masses):
+                                    for ifreq, r_mass in zip(ifreqs, r_masses, strict=False):
                                         frequencies[ifreq]["r_mass"] = r_mass
                                 elif "Frc consts  --" in line:
                                     f_consts = map(float, float_patt.findall(line))
-                                    for ifreq, f_const in zip(ifreqs, f_consts):
+                                    for ifreq, f_const in zip(ifreqs, f_consts, strict=False):
                                         frequencies[ifreq]["f_constant"] = f_const
                                 elif "IR Inten    --" in line:
                                     IR_intens = map(float, float_patt.findall(line))
-                                    for ifreq, intens in zip(ifreqs, IR_intens):
+                                    for ifreq, intens in zip(ifreqs, IR_intens, strict=False):
                                         frequencies[ifreq]["IR_intensity"] = intens
                                 else:
                                     syms = line.split()[:3]
-                                    for ifreq, sym in zip(ifreqs, syms):
+                                    for ifreq, sym in zip(ifreqs, syms, strict=False):
                                         frequencies[ifreq]["symmetry"] = sym
                                 line = file.readline()
 
@@ -859,7 +860,7 @@ class GaussianOutput:
                             line = file.readline()
                             while normal_mode_patt.search(line):
                                 values = list(map(float, float_patt.findall(line)))
-                                for idx, ifreq in zip(range(0, len(values), 3), ifreqs):
+                                for idx, ifreq in zip(range(0, len(values), 3), ifreqs, strict=False):
                                     frequencies[ifreq]["mode"].extend(values[idx : idx + 3])
                                 line = file.readline()
 
@@ -886,7 +887,7 @@ class GaussianOutput:
                         self.bond_orders = {}
                         for atom_idx in range(n_atoms):
                             for atom_jdx in range(atom_idx + 1, n_atoms):
-                                self.bond_orders[(atom_idx, atom_jdx)] = matrix[atom_idx][atom_jdx]
+                                self.bond_orders[atom_idx, atom_jdx] = matrix[atom_idx][atom_jdx]
                         parse_bond_order = False
 
                     elif termination_patt.search(line):
@@ -1002,7 +1003,7 @@ class GaussianOutput:
             structure: structure in the output file
         """
         # read Hessian matrix under "Force constants in Cartesian coordinates"
-        # Hessian matrix is in the input  orientation framework
+        # Hessian matrix is in the input orientation framework
         # WARNING : need #P in the route line
 
         ndf = 3 * len(structure)

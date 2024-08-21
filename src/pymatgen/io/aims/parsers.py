@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 import numpy as np
+
 from pymatgen.core import Lattice, Molecule, Structure
 from pymatgen.core.tensors import Tensor
 from pymatgen.util.typing import Tuple3Floats
@@ -319,24 +320,14 @@ class AimsOutHeaderChunk(AimsOutChunk):
         """Parse the list of k-points used in the calculation."""
         n_kpts = self.parse_scalar("n_kpts")
         if n_kpts is None:
-            self._cache.update(
-                {
-                    "k_points": None,
-                    "k_point_weights": None,
-                }
-            )
+            self._cache |= {"k_points": None, "k_point_weights": None}
             return
         n_kpts = int(n_kpts)
 
         line_start = self.reverse_search_for(["| K-points in task"])
         line_end = self.reverse_search_for(["| k-point:"])
         if LINE_NOT_FOUND in {line_start, line_end} or (line_end - line_start != n_kpts):
-            self._cache.update(
-                {
-                    "k_points": None,
-                    "k_point_weights": None,
-                }
-            )
+            self._cache |= {"k_points": None, "k_point_weights": None}
             return
 
         k_points = np.zeros((n_kpts, 3))
@@ -345,12 +336,7 @@ class AimsOutHeaderChunk(AimsOutChunk):
             k_points[kk] = [float(inp) for inp in line.split()[4:7]]
             k_point_weights[kk] = float(line.split()[-1])
 
-        self._cache.update(
-            {
-                "k_points": k_points,
-                "k_point_weights": k_point_weights,
-            }
-        )
+        self._cache |= {"k_points": k_points, "k_point_weights": k_point_weights}
 
     @property
     def n_atoms(self) -> int:
@@ -611,7 +597,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         return self._cache["lattice"]
 
     @property
-    def forces(self) -> np.array[Vector3D] | None:
+    def forces(self) -> np.ndarray | None:
         """The forces from the aims.out file."""
         line_start = self.reverse_search_for(["Total atomic forces"])
         if line_start == LINE_NOT_FOUND:
@@ -624,8 +610,8 @@ class AimsOutCalcChunk(AimsOutChunk):
         )
 
     @property
-    def stresses(self) -> np.array[Matrix3D] | None:
-        """The stresses from the aims.out file and convert to kbar."""
+    def stresses(self) -> np.ndarray | None:
+        """The stresses from the aims.out file and convert to kBar."""
         line_start = self.reverse_search_for(["Per atom stress (eV) used for heat flux calculation"])
         if line_start == LINE_NOT_FOUND:
             return None
@@ -639,12 +625,9 @@ class AimsOutCalcChunk(AimsOutChunk):
 
     @property
     def stress(self) -> Matrix3D | None:
-        """The stress from the aims.out file and convert to kbar."""
+        """The stress from the aims.out file and convert to kBar."""
         line_start = self.reverse_search_for(
-            [
-                "Analytical stress tensor - Symmetrized",
-                "Numerical stress tensor",
-            ]
+            ["Analytical stress tensor - Symmetrized", "Numerical stress tensor"]
         )  # Offset to relevant lines
         if line_start == LINE_NOT_FOUND:
             return None
@@ -738,14 +721,12 @@ class AimsOutCalcChunk(AimsOutChunk):
         """Parse the Hirshfled charges volumes, and dipole moments."""
         line_start = self.reverse_search_for(["Performing Hirshfeld analysis of fragment charges and moments."])
         if line_start == LINE_NOT_FOUND:
-            self._cache.update(
-                {
-                    "hirshfeld_charges": None,
-                    "hirshfeld_volumes": None,
-                    "hirshfeld_atomic_dipoles": None,
-                    "hirshfeld_dipole": None,
-                }
-            )
+            self._cache |= {
+                "hirshfeld_charges": None,
+                "hirshfeld_volumes": None,
+                "hirshfeld_atomic_dipoles": None,
+                "hirshfeld_dipole": None,
+            }
             return
 
         line_inds = self.search_for_all("Hirshfeld charge", line_start, -1)
@@ -767,14 +748,12 @@ class AimsOutCalcChunk(AimsOutChunk):
         else:
             hirshfeld_dipole = None
 
-        self._cache.update(
-            {
-                "hirshfeld_charges": hirshfeld_charges,
-                "hirshfeld_volumes": hirshfeld_volumes,
-                "hirshfeld_atomic_dipoles": hirshfeld_atomic_dipoles,
-                "hirshfeld_dipole": hirshfeld_dipole,
-            }
-        )
+        self._cache |= {
+            "hirshfeld_charges": hirshfeld_charges,
+            "hirshfeld_volumes": hirshfeld_volumes,
+            "hirshfeld_atomic_dipoles": hirshfeld_atomic_dipoles,
+            "hirshfeld_dipole": hirshfeld_dipole,
+        }
 
     @property
     def structure(self) -> Structure | Molecule:

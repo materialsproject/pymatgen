@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
-import datetime
 import json
 import re
 import sys
+from datetime import datetime, timezone
 from io import StringIO
 from typing import TYPE_CHECKING, NamedTuple
 
 from monty.json import MontyDecoder, MontyEncoder
+
 from pymatgen.core.structure import Molecule, Structure
 
 try:
@@ -41,7 +42,7 @@ def is_valid_bibtex(reference: str) -> bool:
         reference: A String reference in BibTeX format.
 
     Returns:
-        Boolean indicating if reference is valid bibtex.
+        bool: True if reference is valid bibtex.
     """
     # str is necessary since pybtex seems to have an issue with unicode. The
     # filter expression removes all non-ASCII characters.
@@ -255,7 +256,7 @@ class StructureNL:
         if not all(sys.getsizeof(h) < MAX_HNODE_SIZE for h in history):
             raise ValueError(f"One or more history nodes exceeds the maximum size limit of {MAX_HNODE_SIZE} bytes")
 
-        self.created_at = created_at or datetime.datetime.utcnow()
+        self.created_at = created_at or f"{datetime.now(tz=timezone.utc):%Y-%m-%d %H:%M:%S.%f%z}"
 
     def as_dict(self):
         """Get MSONable dict."""

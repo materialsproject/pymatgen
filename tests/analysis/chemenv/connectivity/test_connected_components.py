@@ -7,6 +7,7 @@ import networkx as nx
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+
 from pymatgen.analysis.chemenv.connectivity.connected_components import ConnectedComponent
 from pymatgen.analysis.chemenv.connectivity.connectivity_finder import ConnectivityFinder
 from pymatgen.analysis.chemenv.connectivity.environment_nodes import EnvironmentNode

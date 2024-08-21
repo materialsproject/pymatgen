@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import copy
-import logging
 from typing import TYPE_CHECKING
 
 from monty.json import MSONable
+
 from pymatgen.analysis.graphs import MoleculeGraph, MolGraphSplitError
 from pymatgen.analysis.local_env import OpenBabelNN, metal_edge_extender
 from pymatgen.io.babel import BabelMolAdaptor
@@ -21,8 +21,6 @@ __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 __status__ = "Beta"
 __date__ = "8/21/19"
-
-logger = logging.getLogger(__name__)
 
 
 class Fragmenter(MSONable):

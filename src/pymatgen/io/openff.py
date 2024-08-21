@@ -6,6 +6,7 @@ import warnings
 from pathlib import Path
 
 import numpy as np
+
 import pymatgen
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN, metal_edge_extender
@@ -285,7 +286,7 @@ def create_openff_mol(
     Returns:
         tk.Molecule: The created OpenFF Molecule.
     """
-    if isinstance(geometry, (str, Path)):
+    if isinstance(geometry, str | Path):
         geometry = pymatgen.core.Molecule.from_file(str(geometry))
 
     if partial_charges is not None:

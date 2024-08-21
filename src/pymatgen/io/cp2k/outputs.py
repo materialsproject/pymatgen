@@ -5,7 +5,6 @@ for parsing CP2K-related outputs.
 
 from __future__ import annotations
 
-import logging
 import os
 import re
 import warnings
@@ -17,6 +16,7 @@ import pandas as pd
 from monty.io import zopen
 from monty.json import MSONable, jsanitize
 from monty.re import regrep
+
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.core.units import Ha_to_eV
 from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine
@@ -30,8 +30,6 @@ from pymatgen.io.xyz import XYZ
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
 __status__ = "Production"
-
-logger = logging.getLogger(__name__)
 
 
 class Cp2kOutput:
@@ -93,7 +91,7 @@ class Cp2kOutput:
 
     @property
     def cp2k_version(self):
-        """The cp2k version used in the calculation."""
+        """The CP2K version used in the calculation."""
         return self.data.get("cp2k_version")[0][0]
 
     @property
@@ -189,7 +187,7 @@ class Cp2kOutput:
     @property
     def is_molecule(self) -> bool:
         """
-        True if the cp2k output was generated for a molecule (i.e.
+        True if the CP2K output was generated for a molecule (i.e.
         no periodicity in the cell).
         """
         return self.data.get("poisson_periodicity", [[""]])[0][0].upper() == "NONE"
@@ -209,7 +207,7 @@ class Cp2kOutput:
 
     def parse_files(self):
         """
-        Identify files present in the directory with the cp2k output file. Looks for trajectories,
+        Identify files present in the directory with the CP2K output file. Looks for trajectories,
         dos, and cubes.
         """
         self.filenames["DOS"] = glob(os.path.join(self.dir, "*.dos*"))
@@ -258,11 +256,11 @@ class Cp2kOutput:
 
     def parse_structures(self, trajectory_file=None, lattice_file=None):
         """
-        Parses the structures from a cp2k calculation. Static calculations simply use the initial
+        Parse the structures from a CP2K calculation. Static calculations simply use the initial
         structure. For calculations with ionic motion, the function will look for the appropriate
         trajectory and lattice files based on naming convention. If no file is given, and no file
         is found, it is assumed that the lattice/structure remained constant, and the initial
-        lattice/structure is used. Cp2k does not output the trajectory in the main output file by
+        lattice/structure is used. CP2K does not output the trajectory in the main output file by
         default, so non static calculations have to reference the trajectory file.
         """
         self.parse_initial_structure()
@@ -299,7 +297,7 @@ class Cp2kOutput:
             self.structures = []
             gs = self.initial_structure.site_properties.get("ghost")
             if not self.is_molecule:
-                for mol, latt in zip(mols, lattices):
+                for mol, latt in zip(mols, lattices, strict=False):
                     self.structures.append(
                         Structure(
                             lattice=latt,
@@ -315,7 +313,7 @@ class Cp2kOutput:
             self.final_structure = self.structures[-1]
 
     def parse_initial_structure(self):
-        """Parse the initial structure from the main cp2k output file."""
+        """Parse the initial structure from the main CP2K output file."""
         patterns = {"num_atoms": re.compile(r"- Atoms:\s+(\d+)")}
         self.read_pattern(
             patterns=patterns,
@@ -425,7 +423,7 @@ class Cp2kOutput:
 
         if not all(self.data["scf_converged"]):
             warnings.warn(
-                "There is at least one unconverged SCF cycle in the provided cp2k calculation",
+                "There is at least one unconverged SCF cycle in the provided CP2K calculation",
                 UserWarning,
             )
         if any(self.data["geo_opt_not_converged"]):
@@ -522,7 +520,7 @@ class Cp2kOutput:
         if not self.data.get("stress_tensor"):
             self.parse_stresses()
 
-        for i, (structure, energy) in enumerate(zip(self.structures, self.data.get("total_energy"))):
+        for i, (structure, energy) in enumerate(zip(self.structures, self.data.get("total_energy"), strict=False)):
             self.ionic_steps.append(
                 {
                     "structure": structure,
@@ -631,6 +629,7 @@ class Cp2kOutput:
                 for _possible, _name in zip(
                     ["RVV10", "LMKLL", "DRSLL", "DFT-D3", "DFT-D2"],
                     ["RVV10", "LMKLL", "DRSLL", "D3", "D2"],
+                    strict=False,
                 ):
                     if _possible in ll[0]:
                         found = _name
@@ -716,7 +715,7 @@ class Cp2kOutput:
             reverse=False,
         )
         i = iter(self.data["lattice"])
-        lattices = list(zip(i, i, i))
+        lattices = list(zip(i, i, i, strict=False))
         return lattices[0]
 
     def parse_atomic_kind_info(self):
@@ -931,13 +930,12 @@ class Cp2kOutput:
         pattern = r"\s+(\d)\s+(\w+)\s+(\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
         footer = r".+Total charge"
 
-        d = self.read_table_pattern(
+        if self.read_table_pattern(
             header_pattern=header,
             row_pattern=pattern,
             footer_pattern=footer,
             last_one_only=False,
-        )
-        if d:
+        ):
             print("Found data, but not yet implemented!")
 
     def parse_hirshfeld(self):
@@ -992,7 +990,7 @@ class Cp2kOutput:
                 self.structures[i].add_site_property("hirshfield", hirshfeld)
 
     def parse_mo_eigenvalues(self):
-        """Parse the MO eigenvalues from the cp2k output file. Will get the eigenvalues (and band gap)
+        """Parse the MO eigenvalues from the CP2K output file. Will get the eigenvalues (and band gap)
         at each ionic step (if more than one exist).
 
         Everything is decomposed by spin channel. If calculation was performed without spin
@@ -1166,13 +1164,13 @@ class Cp2kOutput:
         self.band_gap = (bg[Spin.up][-1] + bg[Spin.down][-1]) / 2 if bg[Spin.up] and bg[Spin.down] else None
 
     def parse_dos(self, dos_file=None, pdos_files=None, ldos_files=None):
-        """Parse the dos files produced by cp2k calculation. CP2K produces different files based
+        """Parse the dos files produced by CP2K calculation. CP2K produces different files based
         on the input file rather than assimilating them all into one file.
 
         One file type is the overall DOS file, which is used for k-point calculations. For
         non-kpoint calculation, the overall DOS is generally not calculated, but the
         element-projected pDOS is. Separate files are created for each spin channel and each
-        atom kind. If requested, cp2k can also do site/local projected dos (ldos). Each site
+        atom kind. If requested, CP2K can also do site/local projected dos (ldos). Each site
         requested will have a separate file for each spin channel (if spin polarized calculation
         is performed).
 
@@ -1324,7 +1322,7 @@ class Cp2kOutput:
             efermi=efermi,
             labels_dict=labels,
             structure=self.final_structure,
-            projections=None,  # not implemented in cp2k
+            projections=None,  # not implemented in CP2K
         )
 
         self.band_gap = self.data["band_structure"].get_band_gap().get("energy")
@@ -1465,7 +1463,7 @@ class Cp2kOutput:
         dct = np.zeros(npts)
         e_s = np.linspace(min(energies), max(energies), npts)
 
-        for e, _pd in zip(energies, densities):
+        for e, _pd in zip(energies, densities, strict=False):
             weight = np.exp(-(((e_s - e) / width) ** 2)) / (np.sqrt(np.pi) * width)
             dct += _pd * weight
 
@@ -1646,7 +1644,7 @@ def parse_energy_file(energy_file):
     return {c: df[c].to_numpy() for c in columns}
 
 
-# TODO The DOS file that cp2k outputs as of 2022.1 seems to have a lot of problems.
+# TODO: The DOS file that CP2K outputs as of 2022.1 seems to have a lot of problems.
 def parse_dos(dos_file=None):
     """Parse a dos file. This format is different from the pdos files."""
     data = np.loadtxt(dos_file)
@@ -1668,7 +1666,7 @@ def parse_dos(dos_file=None):
 
 def parse_pdos(dos_file=None, spin_channel=None, total=False):
     """
-    Parse a single DOS file created by cp2k. Must contain one PDOS snapshot. i.e. you cannot
+    Parse a single DOS file created by CP2K. Must contain one PDOS snapshot. i.e. you cannot
     use this cannot deal with multiple concatenated dos files.
 
     Args:

@@ -33,12 +33,13 @@ import numpy as np
 import plotly.express as px
 from monty.json import MSONable
 from plotly.graph_objects import Figure, Mesh3d, Scatter, Scatter3d
+from scipy.spatial import ConvexHull, HalfspaceIntersection
+
 from pymatgen.analysis.phase_diagram import PDEntry, PhaseDiagram
 from pymatgen.core.composition import Composition, Element
 from pymatgen.util.coord import Simplex
 from pymatgen.util.due import Doi, due
 from pymatgen.util.string import htmlify
-from scipy.spatial import ConvexHull, HalfspaceIntersection
 
 if TYPE_CHECKING:
     from pymatgen.entries.computed_entries import ComputedEntry
@@ -167,7 +168,7 @@ class ChemicalPotentialDiagram(MSONable):
                 (in eV/atom), helping provide visual clarity. Defaults to 1.0.
 
         Returns:
-            A Plotly Figure object
+            plotly.graph_objects.Figure
         """
         if elements:
             elems = [Element(str(e)) for e in elements]
@@ -212,7 +213,7 @@ class ChemicalPotentialDiagram(MSONable):
 
         domains: dict[str, list] = {entry.reduced_formula: [] for entry in entries}
 
-        for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets):
+        for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets, strict=False):
             for v in facet:
                 if v < len(entries):
                     this_entry = entries[v]
@@ -294,7 +295,7 @@ class ChemicalPotentialDiagram(MSONable):
             draw_domains[formula] = pts_2d
 
         layout = plotly_layouts["default_layout_2d"].copy()
-        layout.update(self._get_axis_layout_dict(elements))
+        layout |= self._get_axis_layout_dict(elements)
         if label_stable:
             layout["annotations"] = annotations
 
@@ -365,7 +366,7 @@ class ChemicalPotentialDiagram(MSONable):
             domain_simplexes[formula] = simplexes
 
         layout = plotly_layouts["default_layout_3d"].copy()
-        layout["scene"].update(self._get_axis_layout_dict(elements))
+        layout["scene"] |= self._get_axis_layout_dict(elements)
         layout["scene"]["annotations"] = None
 
         if label_stable:
@@ -558,7 +559,7 @@ class ChemicalPotentialDiagram(MSONable):
         """Get a Plotly annotation dict given a formula and location."""
         formula = htmlify(formula)
         annotation = plotly_layouts["default_annotation_layout"].copy()
-        annotation.update({"x": ann_loc[0], "y": ann_loc[1], "text": formula})
+        annotation |= {"x": ann_loc[0], "y": ann_loc[1], "text": formula}
         if len(ann_loc) == 3:
             annotation["z"] = ann_loc[2]
         return annotation
@@ -577,7 +578,7 @@ class ChemicalPotentialDiagram(MSONable):
             return f"<br> μ<sub>{element}</sub> - μ<sub>{element}</sub><sup>o</sup> (eV)"
 
         axes_layout = {}
-        for ax, el in zip(axes, elements):
+        for ax, el in zip(axes, elements, strict=False):
             layout = plotly_layouts[layout_name].copy()
             layout["title"] = get_chempot_axis_title(el)
             axes_layout[ax] = layout

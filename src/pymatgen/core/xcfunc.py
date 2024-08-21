@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, NamedTuple
 
 from monty.functools import lazy_property
 from monty.json import MSONable
+
 from pymatgen.core.libxcfunc import LibxcFunc
 
 if TYPE_CHECKING:
@@ -143,7 +144,7 @@ class XcFunc(MSONable):
         return hash(self.name)
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, (str, type(self))):
+        if not isinstance(other, str | type(self)):
             return NotImplemented
         if isinstance(other, type(self)):
             return self.name == other.name

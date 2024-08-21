@@ -7,6 +7,8 @@ import numpy as np
 import pytest
 from monty.serialization import dumpfn, loadfn
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.outputs import (
     QCOutput,
@@ -16,7 +18,6 @@ from pymatgen.io.qchem.outputs import (
     orbital_coeffs_parser,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 try:
     from openbabel import openbabel
@@ -300,7 +301,7 @@ class TestQCOutput(PymatgenTest):
                     else:
                         assert_allclose(sub_output.data.get(key), multi_job_dict[filename][idx].get(key), atol=1e-6)
 
-    @pytest.mark.skip()  # self._test_property(key, single_outs, multi_outs) fails with
+    @pytest.mark.skip  # self._test_property(key, single_outs, multi_outs) fails with
     # ValueError: The truth value of an array with more than one element is ambiguous
     @pytest.mark.skipif(openbabel is None, reason="OpenBabel not installed.")
     def test_all(self):

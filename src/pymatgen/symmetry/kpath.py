@@ -12,6 +12,7 @@ import networkx as nx
 import numpy as np
 import spglib
 from monty.dev import requires
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import MagSymmOp, SymmOp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer, cite_conventional_cell_algo
@@ -893,7 +894,7 @@ class KPathSeek(KPathBase):
 
         if not system_is_tri:
             warn("Non-zero 'magmom' data will be used to define unique atoms in the cell.")
-            site_data = zip(species, [tuple(vec) for vec in sp["magmom"]])  # type: ignore[assignment]
+            site_data = zip(species, [tuple(vec) for vec in sp["magmom"]], strict=False)  # type: ignore[assignment]
 
         unique_species: list[SpeciesLike] = []
         numbers = []
@@ -1342,11 +1343,7 @@ class KPathLatimerMunro(KPathBase):
         # Choose remaining unconnected key points for k-path. The ones that remain are
         # those with inversion symmetry. Connect them to gamma.
 
-        unconnected = []
-
-        for idx in range(len(key_points_inds_orbits)):
-            if idx not in point_orbits_in_path:
-                unconnected.append(idx)
+        unconnected = [idx for idx in range(len(key_points_inds_orbits)) if idx not in point_orbits_in_path]
 
         for ind in unconnected:
             connect = False
@@ -1440,7 +1437,7 @@ class KPathLatimerMunro(KPathBase):
         return key_points, bz_as_key_point_inds, face_center_inds
 
     def _get_key_point_orbits(self, key_points):
-        key_points_copy = dict(zip(range(len(key_points) - 1), key_points[0 : len(key_points) - 1]))
+        key_points_copy = dict(zip(range(len(key_points) - 1), key_points[0 : len(key_points) - 1], strict=False))
         # gamma not equivalent to any in BZ and is last point added to
         # key_points
         key_points_inds_orbits = []
@@ -1510,7 +1507,7 @@ class KPathLatimerMunro(KPathBase):
         return key_lines
 
     def _get_key_line_orbits(self, key_points, key_lines, key_points_inds_orbits):
-        key_lines_copy = dict(zip(range(len(key_lines)), key_lines))
+        key_lines_copy = dict(zip(range(len(key_lines)), key_lines, strict=False))
         key_lines_inds_orbits = []
 
         i = 0

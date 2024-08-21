@@ -7,13 +7,14 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.linalg import norm
-from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
 from scipy.integrate import quad
 from scipy.interpolate import UnivariateSpline
 from scipy.spatial import ConvexHull
 
+from pymatgen.analysis.chemenv.utils.chemenv_errors import SolidAngleError
+
 if TYPE_CHECKING:
-    from typing import Callable
+    from collections.abc import Callable
 
     from numpy.typing import ArrayLike
     from typing_extensions import Self

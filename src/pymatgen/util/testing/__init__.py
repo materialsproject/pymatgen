@@ -17,6 +17,7 @@ from unittest import TestCase
 import pytest
 from monty.json import MontyDecoder, MontyEncoder, MSONable
 from monty.serialization import loadfn
+
 from pymatgen.core import ROOT, SETTINGS, Structure
 
 if TYPE_CHECKING:
@@ -87,7 +88,7 @@ class PymatgenTest(TestCase):
         """
         # Build a list even when we receive a single object.
         got_single_object = False
-        if not isinstance(objects, (list, tuple)):
+        if not isinstance(objects, list | tuple):
             got_single_object = True
             objects = [objects]
 
@@ -109,14 +110,14 @@ class PymatgenTest(TestCase):
 
             try:
                 with open(tmpfile, "rb") as file:
-                    unpickled_objs = pickle.load(file)
+                    unpickled_objs = pickle.load(file)  # noqa: S301
             except Exception as exc:
                 errors.append(f"pickle.load with {protocol=} raised:\n{exc}")
                 continue
 
             # Test for equality
             if test_eq:
-                for orig, unpickled in zip(objects, unpickled_objs):
+                for orig, unpickled in zip(objects, unpickled_objs, strict=False):
                     assert (
                         orig == unpickled
                     ), f"Unpickled and original objects are unequal for {protocol=}\n{orig=}\n{unpickled=}"

@@ -13,22 +13,24 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 import sympy as sp
+from scipy.integrate import quad
+from scipy.optimize import root
+from scipy.special import factorial
+
 from pymatgen.analysis.elasticity.strain import Strain
 from pymatgen.analysis.elasticity.stress import Stress
 from pymatgen.core.tensors import DEFAULT_QUAD, SquareTensor, Tensor, TensorCollection, get_uvec
 from pymatgen.core.units import Unit
 from pymatgen.util.due import Doi, due
-from scipy.integrate import quad
-from scipy.optimize import root
-from scipy.special import factorial
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Literal
 
     from numpy.typing import ArrayLike
-    from pymatgen.core import Structure
     from typing_extensions import Self
+
+    from pymatgen.core import Structure
 
 
 __author__ = "Joseph Montoya"
@@ -53,9 +55,9 @@ class NthOrderElasticTensor(Tensor):
     def __new__(cls, input_array, check_rank=None, tol: float = 1e-4) -> Self:
         """
         Args:
-            input_array ():
-            check_rank ():
-            tol ():
+            input_array (np.ndarray): input array for tensor
+            check_rank (int): rank of tensor to check
+            tol (float): tolerance for initial symmetry test of tensor
         """
         obj = super().__new__(cls, input_array, check_rank=check_rank)
         if obj.rank % 2 != 0:
@@ -522,7 +524,7 @@ class ComplianceTensor(Tensor):
     def __new__(cls, s_array) -> Self:
         """
         Args:
-            s_array ():
+            s_array (np.ndarray): input array for tensor
         """
         vscale = np.ones((6, 6))
         vscale[3:] *= 2
@@ -617,7 +619,7 @@ class ElasticTensorExpansion(TensorCollection):
         points = quad["points"]
         weights = quad["weights"]
         num, denom, c = np.zeros((3, 3)), 0, 1
-        for p, w in zip(points, weights):
+        for p, w in zip(points, weights, strict=False):
             gk = ElasticTensor(self[0]).green_kristoffel(p)
             _rho_wsquareds, us = np.linalg.eigh(gk)
             us = [u / np.linalg.norm(u) for u in np.transpose(us)]
@@ -880,7 +882,7 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
     for _ord in range(1, order):
         cvec, carr = get_symbol_list(_ord + 1)
         svec = np.ravel(dei_dsi[_ord - 1].T)
-        cmap = dict(zip(cvec, np.dot(m[_ord - 1], svec)))
+        cmap = dict(zip(cvec, np.dot(m[_ord - 1], svec), strict=False))
         c_list.append(v_subs(carr, cmap))
     return [Tensor.from_voigt(c) for c in c_list]
 

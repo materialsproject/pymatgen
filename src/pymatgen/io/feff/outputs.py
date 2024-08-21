@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.io import zopen
 from monty.json import MSONable
+
 from pymatgen.core import Element
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.electronic_structure.dos import CompleteDos, Dos
@@ -121,12 +122,11 @@ class LDos(MSONable):
             all_pdos.append(defaultdict(dict))
             for k, v in vorb.items():
                 density = [ldos[pot_index][j][forb[k] + 1] for j in range(d_length)]
-                updos = density
-                downdos = None
-                if downdos:
-                    all_pdos[-1][v] = {Spin.up: updos, Spin.down: downdos}
+                up_dos = density
+                if down_dos := None:
+                    all_pdos[-1][v] = {Spin.up: up_dos, Spin.down: down_dos}
                 else:
-                    all_pdos[-1][v] = {Spin.up: updos}
+                    all_pdos[-1][v] = {Spin.up: up_dos}
 
         pdos = all_pdos
         vorb2 = {0: Orbital.s, 1: Orbital.py, 2: Orbital.dxy, 3: Orbital.f0}
@@ -280,7 +280,7 @@ class Xmu(MSONable):
         Args:
             header: Header object
             parameters: Tags object
-            absorbing_atom (str/int): absorbing atom symbol or index
+            absorbing_atom (str | int): absorbing atom symbol or index
             data (numpy.ndarray, Nx6): cross_sections.
         """
         self.header = header
@@ -379,12 +379,12 @@ class Xmu(MSONable):
 
 
 class Eels(MSONable):
-    """Parse'eels.dat' file."""
+    """Parse eels.dat file."""
 
     def __init__(self, data):
         """
         Args:
-            data (): Eels data.
+            data (numpy.ndarray): data from eels.dat file
         """
         self.data = np.array(data)
 

@@ -20,6 +20,7 @@ from typing import TYPE_CHECKING, NamedTuple
 
 import numpy as np
 from monty.dev import deprecated
+
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import LocalGeometryFinder
 from pymatgen.analysis.chemenv.coordination_environments.structure_environments import LightStructureEnvironments
@@ -31,9 +32,10 @@ from pymatgen.io.lobster import Charge, Icohplist
 from pymatgen.util.due import Doi, due
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from pymatgen.core import Structure
     from pymatgen.core.periodic_table import Element
-    from typing_extensions import Self
 
 __author__ = "Janine George"
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -241,7 +243,7 @@ class LobsterNeighbors(NearNeighbors):
             raise ValueError("No cations and anions defined")
 
         anion_species = []
-        for site, val in zip(self.structure, self.valences):
+        for site, val in zip(self.structure, self.valences, strict=False):
             if val < 0.0:
                 anion_species.append(site.specie)
 
@@ -251,7 +253,7 @@ class LobsterNeighbors(NearNeighbors):
     def get_anion_types(self):
         return self.anion_types
 
-    def get_nn_info(self, structure: Structure, n: int, use_weights: bool = False) -> dict:  # type: ignore[override]
+    def get_nn_info(self, structure: Structure, n: int, use_weights: bool = False) -> dict:
         """Get coordination number, CN, of site with index n in structure.
 
         Args:
@@ -411,7 +413,7 @@ class LobsterNeighbors(NearNeighbors):
         final_isites = []
         for ival, _site in enumerate(self.structure):
             if ival in isites:
-                for keys, icohpsum in zip(self.list_keys[ival], self.list_icohps[ival]):
+                for keys, icohpsum in zip(self.list_keys[ival], self.list_icohps[ival], strict=False):
                     summed_icohps += icohpsum
                     list_icohps.append(icohpsum)
                     labels.append(keys)
@@ -557,7 +559,7 @@ class LobsterNeighbors(NearNeighbors):
             # iterate through labels and atoms and check which bonds can be included
             new_labels = []
             new_atoms = []
-            for key, atompair, isite in zip(labels, atoms, final_isites):
+            for key, atompair, isite in zip(labels, atoms, final_isites, strict=False):
                 present = False
                 for atomtype in only_bonds_to:
                     # This is necessary to identify also bonds between the same elements correctly!

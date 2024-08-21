@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import sys
+
 import numpy as np
 import pytest
 import scipy.special
 from numpy.testing import assert_allclose
+
 from pymatgen.io.vasp.optics import DielectricFunctionCalculator, delta_func, delta_methfessel_paxton, step_func
 from pymatgen.io.vasp.outputs import Vasprun
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
@@ -50,6 +53,10 @@ class TestVasprun(PymatgenTest):
         assert len(x_val) == len(y_val) == len(text)
 
 
+@pytest.mark.skipif(
+    sys.platform == "win32" and int(np.__version__[0]) >= 2,
+    reason="Fails on Windows with numpy > 2.0.0, awaiting https://github.com/scipy/scipy/issues/21052 resolution",
+)
 def test_delta_func():
     x = np.array([0, 1, 2, 3, 4, 5])
 

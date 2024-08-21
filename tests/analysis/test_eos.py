@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import numpy as np
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.analysis.eos import EOS, NumericalEOS
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 
 class TestEOS(PymatgenTest):
@@ -404,9 +405,8 @@ class TestEOS(PymatgenTest):
         assert_allclose(self.num_eos_fit.e0, -10.84749, atol=1e-3)
         assert_allclose(self.num_eos_fit.v0, 40.857201, atol=1e-1)
         assert_allclose(self.num_eos_fit.b0, 0.55, atol=1e-2)
-        # TODO: why were these tests commented out?
-        # assert_allclose(self.num_eos_fit.b0_GPa, 89.0370727, atol=1e-1)
-        # assert_allclose(self.num_eos_fit.b1, 4.344039, atol=1e-2)
+        assert_allclose(self.num_eos_fit.b0_GPa, 89.0370727, atol=1e-1)
+        assert_allclose(self.num_eos_fit.b1, 4.344039, atol=1e-2)
 
     def test_eos_func(self):
         # list vs np.array arguments

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import numpy as np
 from plotly.graph_objects import Figure
+from pytest import approx
+
 from pymatgen.analysis.chempot_diagram import (
     ChemicalPotentialDiagram,
     get_2d_orthonormal_vector,
@@ -11,7 +13,6 @@ from pymatgen.analysis.chempot_diagram import (
 from pymatgen.core.composition import Element
 from pymatgen.entries.entry_tools import EntrySet
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/analysis"
 
@@ -37,7 +38,7 @@ class TestChemicalPotentialDiagram(PymatgenTest):
 
         elems = [Element("Li"), Element("Fe"), Element("O")]
         energies = [-1.91301487, -6.5961471, -25.54966885]
-        correct_el_refs = dict(zip(elems, energies))
+        correct_el_refs = dict(zip(elems, energies, strict=False))
 
         assert el_refs == approx(correct_el_refs)
 
@@ -45,7 +46,7 @@ class TestChemicalPotentialDiagram(PymatgenTest):
         el_refs = {elem: entry.energy for elem, entry in self.cpd_ternary_formal.el_refs.items()}
         elems = [Element("Li"), Element("Fe"), Element("O")]
         energies = [0, 0, 0]
-        correct_el_refs = dict(zip(elems, energies))
+        correct_el_refs = dict(zip(elems, energies, strict=False))
         assert el_refs == approx(correct_el_refs)
 
     def test_border_hyperplanes(self):

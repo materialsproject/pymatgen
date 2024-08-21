@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import random
 from unittest import TestCase
 
+import numpy as np
 import pytest
+
 from pymatgen.core import Composition, Element
 from pymatgen.core.ion import Ion
 
@@ -55,6 +56,7 @@ class TestIon(TestCase):
             ("Cl-", "Cl[-1]"),
             ("H+", "H[+1]"),
             ("F-", "F[-1]"),
+            ("I-", "I[-1]"),
             ("F2", "F2(aq)"),
             ("H2", "H2(aq)"),
             ("O3", "O3(aq)"),
@@ -68,6 +70,7 @@ class TestIon(TestCase):
             ("CH3COOH", "CH3COOH(aq)"),
             ("CH3OH", "CH3OH(aq)"),
             ("H4CO", "CH3OH(aq)"),
+            ("CO2-", "C2O4[-2]"),
             ("CH4", "CH4(aq)"),
             ("NH4+", "NH4[+1]"),
             ("NH3", "NH3(aq)"),
@@ -80,7 +83,9 @@ class TestIon(TestCase):
             ("Zr(OH)4", "Zr(OH)4(aq)"),
         ]
         for tup in special_formulas:
-            assert Ion.from_formula(tup[0]).reduced_formula == tup[1]
+            assert (
+                Ion.from_formula(tup[0]).reduced_formula == tup[1]
+            ), f"Expected {tup[1]} but got {Ion.from_formula(tup[0]).reduced_formula}"
 
         assert Ion.from_formula("Fe(OH)4+").get_reduced_formula_and_factor(hydrates=True) == ("FeO2.2H2O", 1)
         assert Ion.from_formula("Zr(OH)4").get_reduced_formula_and_factor(hydrates=True) == ("ZrO2.2H2O", 1)
@@ -169,15 +174,16 @@ class TestIon(TestCase):
         assert dct["charge"] == correct_dict["charge"]
 
     def test_equals(self):
-        random_z = random.randint(1, 92)
+        rng = np.random.default_rng()
+        random_z = rng.integers(1, 93)
         fixed_el = Element.from_Z(random_z)
-        other_z = random.randint(1, 92)
+        other_z = rng.integers(1, 93)
         while other_z == random_z:
-            other_z = random.randint(1, 92)
+            other_z = rng.integers(1, 93)
         comp1 = Ion(Composition({fixed_el: 1, Element.from_Z(other_z): 0}), 1)
-        other_z = random.randint(1, 92)
+        other_z = rng.integers(1, 93)
         while other_z == random_z:
-            other_z = random.randint(1, 92)
+            other_z = rng.integers(1, 93)
         comp2 = Ion(Composition({fixed_el: 1, Element.from_Z(other_z): 0}), 1)
         assert comp1 == comp2, f"Composition equality test failed. {comp1.formula} should be equal to {comp2.formula}"
         assert hash(comp1) == hash(comp2), "Hash equality test failed!"

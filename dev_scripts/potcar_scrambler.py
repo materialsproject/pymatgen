@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.os.path import zpath
 from monty.serialization import zopen
+
 from pymatgen.core import SETTINGS
 from pymatgen.io.vasp import Potcar, PotcarSingle
 from pymatgen.io.vasp.sets import _load_yaml_config
@@ -47,20 +48,21 @@ class PotcarScrambler:
     def _rand_float_from_str_with_prec(self, input_str: str, bloat: float = 1.5) -> float:
         n_prec = len(input_str.split(".")[1])
         bd = max(1, bloat * abs(float(input_str)))  # ensure we don't get 0
-        return round(bd * np.random.rand(1)[0], n_prec)
+        return round(bd * np.random.default_rng().random(), n_prec)
 
     def _read_fortran_str_and_scramble(self, input_str: str, bloat: float = 1.5):
         input_str = input_str.strip()
+        rng = np.random.default_rng()
 
         if input_str.lower() in {"t", "f", "true", "false"}:
-            return bool(np.random.randint(2))
+            return rng.choice((True, False))
 
         if input_str.upper() == input_str.lower() and input_str[0].isnumeric():
             if "." in input_str:
                 return self._rand_float_from_str_with_prec(input_str, bloat=bloat)
             integer = int(input_str)
             fac = int(np.sign(integer))  # return int of same sign
-            return fac * np.random.randint(abs(max(1, int(np.ceil(bloat * integer)))))
+            return fac * rng.integers(abs(max(1, int(np.ceil(bloat * integer)))))
         try:
             float(input_str)
             return self._rand_float_from_str_with_prec(input_str, bloat=bloat)

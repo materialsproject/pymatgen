@@ -6,6 +6,7 @@ import tempfile
 import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
+
 from pymatgen.core.structure import Structure
 from pymatgen.io.abinit.inputs import (
     BasicAbinitInput,
@@ -234,7 +235,7 @@ class TestMultiDataset(PymatgenTest):
         assert new_multi.ndtset == multi.ndtset
         assert new_multi.structure == multi.structure
 
-        for old_inp, new_inp in zip(multi, new_multi):
+        for old_inp, new_inp in zip(multi, new_multi, strict=False):
             assert old_inp is not new_inp
             assert old_inp.as_dict() == new_inp.as_dict()
 

@@ -14,17 +14,19 @@ from bisect import bisect_left
 from collections import defaultdict
 from copy import deepcopy
 from functools import lru_cache
+from itertools import pairwise
 from typing import TYPE_CHECKING, Literal, NamedTuple, get_args
 
 import numpy as np
 from monty.dev import deprecated, requires
 from monty.serialization import loadfn
+from ruamel.yaml import YAML
+from scipy.spatial import Voronoi
+
 from pymatgen.analysis.bond_valence import BV_PARAMS, BVAnalyzer
 from pymatgen.analysis.graphs import MoleculeGraph, StructureGraph
 from pymatgen.analysis.molecule_structure_comparator import CovalentRadius
 from pymatgen.core import Element, IStructure, PeriodicNeighbor, PeriodicSite, Site, Species, Structure
-from ruamel.yaml import YAML
-from scipy.spatial import Voronoi
 
 try:
     from openbabel import openbabel
@@ -34,9 +36,10 @@ except Exception:
 if TYPE_CHECKING:
     from typing import Any
 
+    from typing_extensions import Self
+
     from pymatgen.core.composition import SpeciesLike
     from pymatgen.util.typing import Tuple3Ints
-    from typing_extensions import Self
 
 
 __author__ = "Shyue Ping Ong, Geoffroy Hautier, Sai Jayaraman, "
@@ -48,16 +51,16 @@ __email__ = "nils.e.r.zimmermann@gmail.com"
 __status__ = "Production"
 __date__ = "August 17, 2017"
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 yaml = YAML()
 
-with open(f"{module_dir}/op_params.yaml") as file:
+with open(f"{MODULE_DIR}/op_params.yaml") as file:
     default_op_params = yaml.load(file)
 
-with open(f"{module_dir}/cn_opt_params.yaml") as file:
+with open(f"{MODULE_DIR}/cn_opt_params.yaml") as file:
     cn_opt_params = yaml.load(file)
 
-with open(f"{module_dir}/ionic_radii.json") as file:
+with open(f"{MODULE_DIR}/ionic_radii.json") as file:
     _ion_radii = json.load(file)
 
 
@@ -80,13 +83,13 @@ class ValenceIonicRadiusEvaluator:
     def radii(self):
         """List of ionic radii of elements in the order of sites."""
         elems = [site.species_string for site in self._structure]
-        return dict(zip(elems, self._ionic_radii))
+        return dict(zip(elems, self._ionic_radii, strict=False))
 
     @property
     def valences(self):
         """List of oxidation states of elements in the order of sites."""
         el = [site.species_string for site in self._structure]
-        return dict(zip(el, self._valences))
+        return dict(zip(el, self._valences, strict=False))
 
     @property
     def structure(self):
@@ -519,7 +522,7 @@ class NearNeighbors:
         #  And, different first steps might results in the same neighbor
         #  Now, we condense those neighbors into a single entry per neighbor
         all_sites = {}
-        for first_site, term_sites in zip(allowed_steps, terminal_neighbors):
+        for first_site, term_sites in zip(allowed_steps, terminal_neighbors, strict=False):
             for term_site in term_sites:
                 key = (term_site["site_index"], tuple(term_site["image"]))
 
@@ -570,7 +573,7 @@ class NearNeighbors:
             return site.index
 
         for idx, struc_site in enumerate(structure):
-            if isinstance(structure, (IStructure, Structure)):
+            if isinstance(structure, IStructure | Structure):
                 if site.is_periodic_image(struc_site):
                     return idx
             elif site == struc_site:
@@ -893,7 +896,7 @@ class VoronoiNN(NearNeighbors):
                 # qvoronoi returns vertices in CCW order, so I can break
                 # the face up in to segments (0,1,2), (0,2,3), ... to compute
                 # its area where each number is a vertex size
-                for j, k in zip(vind[1:], vind[2:]):
+                for j, k in pairwise(vind[1:]):
                     volume += vol_tetra(
                         center_coords,
                         all_vertices[vind[0]],
@@ -1159,7 +1162,7 @@ def _is_in_targets(site, targets):
         targets ([Element]) List of elements
 
     Returns:
-        boolean: Whether this site contains a certain list of elements
+        bool: Whether this site contains a certain list of elements
     """
     elems = _get_elements(site)
     return all(elem in targets for elem in elems)
@@ -1209,14 +1212,14 @@ class JmolNN(NearNeighbors):
         self.min_bond_distance = min_bond_distance
 
         # Load elemental radii table
-        bonds_file = f"{module_dir}/bonds_jmol_ob.yaml"
+        bonds_file = f"{MODULE_DIR}/bonds_jmol_ob.yaml"
         with open(bonds_file) as file:
             yaml = YAML()
             self.el_radius = yaml.load(file)
 
         # Update any user preference elemental radii
         if el_radius_updates:
-            self.el_radius.update(el_radius_updates)
+            self.el_radius |= el_radius_updates
 
     @property
     def structures_allowed(self) -> bool:
@@ -1286,7 +1289,7 @@ class JmolNN(NearNeighbors):
         for nn in structure.get_neighbors(site, max_rad):
             dist = nn.nn_distance
             # Confirm neighbor based on bond length specific to atom pair
-            if dist <= (bonds[(site.specie, nn.specie)]) and (nn.nn_distance > self.min_bond_distance):
+            if dist <= (bonds[site.specie, nn.specie]) and (nn.nn_distance > self.min_bond_distance):
                 weight = min_rad / dist
                 siw.append(
                     {
@@ -1362,7 +1365,7 @@ class MinimumDistanceNN(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        is_periodic = isinstance(structure, (Structure, IStructure))
+        is_periodic = isinstance(structure, Structure | IStructure)
         siw = []
         if self.get_all_sites:
             for nn in neighs_dists:
@@ -1488,7 +1491,7 @@ class OpenBabelNN(NearNeighbors):
 
         return siw
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:  # type: ignore[override]
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:
         """
         Obtain a MoleculeGraph object using this NearNeighbor
         class. Requires the optional dependency networkx
@@ -1635,7 +1638,7 @@ class CovalentBondNN(NearNeighbors):
 
         return siw
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> MoleculeGraph:  # type: ignore[override]
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> MoleculeGraph:
         """
         Obtain a MoleculeGraph object using this NearNeighbor class.
 
@@ -1982,7 +1985,7 @@ def get_okeeffe_distance_prediction(el1, el2):
     """Get an estimate of the bond valence parameter (bond length) using
     the derived parameters from 'Atoms Sizes and Bond Lengths in Molecules
     and Crystals' (O'Keeffe & Brese, 1991). The estimate is based on two
-    experimental parameters: r and c. The value for r  is based off radius,
+    experimental parameters: r and c. The value for r is based off radius,
     while c is (usually) the Allred-Rochow electronegativity. Values used
     are *not* generated from pymatgen, and are found in
     'okeeffe_params.json'.
@@ -2395,8 +2398,12 @@ class LocalStructOrderParams:
         self._cos_n_p[1] = [math.cos(float(p)) for p in phis]
 
         for idx in range(2, self._max_trig_order + 1):
-            self._pow_sin_t[idx] = [e[0] * e[1] for e in zip(self._pow_sin_t[idx - 1], self._pow_sin_t[1])]
-            self._pow_cos_t[idx] = [e[0] * e[1] for e in zip(self._pow_cos_t[idx - 1], self._pow_cos_t[1])]
+            self._pow_sin_t[idx] = [
+                e[0] * e[1] for e in zip(self._pow_sin_t[idx - 1], self._pow_sin_t[1], strict=False)
+            ]
+            self._pow_cos_t[idx] = [
+                e[0] * e[1] for e in zip(self._pow_cos_t[idx - 1], self._pow_cos_t[1], strict=False)
+            ]
             self._sin_n_p[idx] = [math.sin(float(idx) * float(p)) for p in phis]
             self._cos_n_p[idx] = [math.cos(float(idx) * float(p)) for p in phis]
 
@@ -2425,7 +2432,9 @@ class LocalStructOrderParams:
         sqrt_5_pi = math.sqrt(5 / math.pi)
 
         pre_y_2_2 = [0.25 * sqrt_15_2pi * val for val in self._pow_sin_t[2]]
-        pre_y_2_1 = [0.5 * sqrt_15_2pi * val[0] * val[1] for val in zip(self._pow_sin_t[1], self._pow_cos_t[1])]
+        pre_y_2_1 = [
+            0.5 * sqrt_15_2pi * val[0] * val[1] for val in zip(self._pow_sin_t[1], self._pow_cos_t[1], strict=False)
+        ]
 
         acc = 0.0
 
@@ -2496,13 +2505,16 @@ class LocalStructOrderParams:
         sqrt_1_pi = math.sqrt(1 / math.pi)
 
         pre_y_4_4 = [i16_3 * sqrt_35_2pi * val for val in self._pow_sin_t[4]]
-        pre_y_4_3 = [i8_3 * sqrt_35_pi * val[0] * val[1] for val in zip(self._pow_sin_t[3], self._pow_cos_t[1])]
+        pre_y_4_3 = [
+            i8_3 * sqrt_35_pi * val[0] * val[1] for val in zip(self._pow_sin_t[3], self._pow_cos_t[1], strict=False)
+        ]
         pre_y_4_2 = [
-            i8_3 * sqrt_5_2pi * val[0] * (7 * val[1] - 1.0) for val in zip(self._pow_sin_t[2], self._pow_cos_t[2])
+            i8_3 * sqrt_5_2pi * val[0] * (7 * val[1] - 1.0)
+            for val in zip(self._pow_sin_t[2], self._pow_cos_t[2], strict=False)
         ]
         pre_y_4_1 = [
             i8_3 * sqrt_5_pi * val[0] * (7 * val[1] - 3 * val[2])
-            for val in zip(self._pow_sin_t[1], self._pow_cos_t[3], self._pow_cos_t[1])
+            for val in zip(self._pow_sin_t[1], self._pow_cos_t[3], self._pow_cos_t[1], strict=False)
         ]
 
         acc = 0.0
@@ -2605,17 +2617,20 @@ class LocalStructOrderParams:
         sqrt_13_pi = math.sqrt(13 / math.pi)
 
         pre_y_6_6 = [i64 * sqrt_3003_pi * val for val in self._pow_sin_t[6]]
-        pre_y_6_5 = [i32_3 * sqrt_1001_pi * val[0] * val[1] for val in zip(self._pow_sin_t[5], self._pow_cos_t[1])]
+        pre_y_6_5 = [
+            i32_3 * sqrt_1001_pi * val[0] * val[1] for val in zip(self._pow_sin_t[5], self._pow_cos_t[1], strict=False)
+        ]
         pre_y_6_4 = [
-            i32_3 * sqrt_91_2pi * val[0] * (11 * val[1] - 1.0) for val in zip(self._pow_sin_t[4], self._pow_cos_t[2])
+            i32_3 * sqrt_91_2pi * val[0] * (11 * val[1] - 1.0)
+            for val in zip(self._pow_sin_t[4], self._pow_cos_t[2], strict=False)
         ]
         pre_y_6_3 = [
             i32 * sqrt_1365_pi * val[0] * (11 * val[1] - 3 * val[2])
-            for val in zip(self._pow_sin_t[3], self._pow_cos_t[3], self._pow_cos_t[1])
+            for val in zip(self._pow_sin_t[3], self._pow_cos_t[3], self._pow_cos_t[1], strict=False)
         ]
         pre_y_6_2 = [
             i64 * sqrt_1365_pi * val[0] * (33 * val[1] - 18 * val[2] + 1.0)
-            for val in zip(self._pow_sin_t[2], self._pow_cos_t[4], self._pow_cos_t[2])
+            for val in zip(self._pow_sin_t[2], self._pow_cos_t[4], self._pow_cos_t[2], strict=False)
         ]
         pre_y_6_1 = [
             i16 * sqrt_273_2pi * val[0] * (33 * val[1] - 30 * val[2] + 5 * val[3])
@@ -2624,6 +2639,7 @@ class LocalStructOrderParams:
                 self._pow_cos_t[5],
                 self._pow_cos_t[3],
                 self._pow_cos_t[1],
+                strict=False,
             )
         ]
 
@@ -2753,7 +2769,7 @@ class LocalStructOrderParams:
             raise ValueError("Index for getting order parameter type out-of-bounds!")
         return self._types[index]
 
-    def get_parameters(self, index):
+    def get_parameters(self, index: int) -> list[float]:
         """Get list of floats that represents
         the parameters associated
         with calculation of the order
@@ -2762,12 +2778,10 @@ class LocalStructOrderParams:
         inputted because of processing out of efficiency reasons.
 
         Args:
-            index (int):
-                index of order parameter for which associated parameters
-                are to be returned.
+            index (int): index of order parameter for which to return associated params.
 
         Returns:
-            [float]: parameters of a given OP.
+            list[float]: parameters of a given OP.
         """
         if index < 0 or index >= len(self._types):
             raise ValueError("Index for getting parameters associated with order parameter calculation out-of-bounds!")
@@ -3680,7 +3694,7 @@ class EconNN(NearNeighbors):
             mefir = _get_mean_fictive_ionic_radius(firs, minimum_fir=mefir)
 
         siw = []
-        for nn, fir in zip(neighbors, firs):
+        for nn, fir in zip(neighbors, firs, strict=False):
             if nn.nn_distance < self.cutoff:
                 w = math.exp(1 - (fir / mefir) ** 6)
                 if w > self.tol:
@@ -4000,7 +4014,7 @@ class CrystalNN(NearNeighbors):
 
         return self.transform_to_length(self.NNData(nn, cn_weights, cn_nninfo), length)
 
-    def get_cn(self, structure: Structure, n: int, **kwargs) -> float:  # type: ignore[override]
+    def get_cn(self, structure: Structure, n: int, **kwargs) -> float:
         """Get coordination number, CN, of site with index n in structure.
 
         Args:
@@ -4184,8 +4198,7 @@ class CutOffDictNN(NearNeighbors):
         for (sp1, sp2), dist in self.cut_off_dict.items():
             lookup_dict[sp1][sp2] = dist
             lookup_dict[sp2][sp1] = dist
-            if dist > self._max_dist:
-                self._max_dist = dist
+            self._max_dist = max(dist, self._max_dist)
         self._lookup_dict = lookup_dict
 
     @property
@@ -4226,7 +4239,7 @@ class CutOffDictNN(NearNeighbors):
             A CutOffDictNN using the preset cut-off dictionary.
         """
         if preset == "vesta_2019":
-            cut_offs = loadfn(f"{module_dir}/vesta_cutoffs.yaml")
+            cut_offs = loadfn(f"{MODULE_DIR}/vesta_cutoffs.yaml")
             return cls(cut_off_dict=cut_offs)
 
         raise ValueError(f"Unknown {preset=}")
@@ -4306,7 +4319,7 @@ class Critic2NN(NearNeighbors):
         """
         return True
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:  # type: ignore[override]
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:
         """
         Args:
             structure (Structure): Input structure

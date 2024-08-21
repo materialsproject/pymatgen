@@ -25,10 +25,11 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import plotly.graph_objects as go
+from scipy.spatial import ConvexHull
+
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_angle
 from pymatgen.util.string import unicodeify_spacegroup
-from scipy.spatial import ConvexHull
 
 if TYPE_CHECKING:
     from pymatgen.core.lattice import Lattice
@@ -201,7 +202,7 @@ class WulffShape:
         recp = self.structure.lattice.reciprocal_lattice_crystallographic
         recp_symm_ops = self.lattice.get_recp_symmetry_operation(self.symprec)
 
-        for i, (hkl, energy) in enumerate(zip(self.hkl_list, self.e_surf_list)):
+        for i, (hkl, energy) in enumerate(zip(self.hkl_list, self.e_surf_list, strict=False)):
             for op in recp_symm_ops:
                 miller = tuple(int(x) for x in op.operate(hkl))
                 if miller not in all_hkl:
@@ -624,12 +625,12 @@ class WulffShape:
     @property
     def miller_area_dict(self) -> dict[tuple, float]:
         """{hkl: area_hkl on wulff}."""
-        return dict(zip(self.miller_list, self.color_area))
+        return dict(zip(self.miller_list, self.color_area, strict=False))
 
     @property
     def miller_energy_dict(self) -> dict[tuple, float]:
         """{hkl: surface energy_hkl}."""
-        return dict(zip(self.miller_list, self.e_surf_list))
+        return dict(zip(self.miller_list, self.e_surf_list, strict=False))
 
     @property
     def surface_area(self) -> float:

@@ -6,6 +6,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from monty.json import MontyDecoder
+
 from pymatgen.analysis.xas.spectrum import XAS
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 from pymatgen.vis.plotters import SpectrumPlotter
@@ -22,7 +23,7 @@ class TestSpectrumPlotter(PymatgenTest):
         self.plotter = SpectrumPlotter(yshift=0.2)
         self.plotter.add_spectrum("LiCoO2", self.xanes)
         xanes = self.xanes.copy()
-        xanes.y += np.random.randn(len(xanes.y)) * 0.005
+        xanes.y += np.random.default_rng().standard_normal(len(xanes.y)) * 0.005
         self.plotter.add_spectrum("LiCoO2 + noise", xanes)
         self.plotter.add_spectrum("LiCoO2 - replot", xanes, "k")
         ax = self.plotter.get_plot()
@@ -35,7 +36,7 @@ class TestSpectrumPlotter(PymatgenTest):
         self.plotter = SpectrumPlotter(yshift=0.2, stack=True)
         self.plotter.add_spectrum("LiCoO2", self.xanes, "b")
         xanes = self.xanes.copy()
-        xanes.y += np.random.randn(len(xanes.y)) * 0.005
+        xanes.y += np.random.default_rng().standard_normal(len(xanes.y)) * 0.005
         self.plotter.add_spectrum("LiCoO2 + noise", xanes, "r")
         ax = self.plotter.get_plot()
         assert isinstance(ax, plt.Axes)
@@ -45,7 +46,7 @@ class TestSpectrumPlotter(PymatgenTest):
         # create spectra_dict
         spectra_dict = {"LiCoO2": self.xanes}
         xanes = self.xanes.copy()
-        xanes.y += np.random.randn(len(xanes.y)) * 0.005
+        xanes.y += np.random.default_rng().standard_normal(len(xanes.y)) * 0.005
         spectra_dict["LiCoO2 + noise"] = spectra_dict["LiCoO2 - replot"] = xanes
 
         self.plotter = SpectrumPlotter(yshift=0.2)

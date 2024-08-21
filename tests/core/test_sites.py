@@ -5,10 +5,11 @@ import pickle
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+from pytest import approx
+
 from pymatgen.core import Composition, Element, Lattice, PeriodicSite, Site, Species
 from pymatgen.electronic_structure.core import Magmom
 from pymatgen.util.testing import PymatgenTest
-from pytest import approx
 
 
 class TestSite(PymatgenTest):
@@ -64,7 +65,7 @@ class TestSite(PymatgenTest):
 
     def test_pickle(self):
         dump = pickle.dumps(self.propertied_site)
-        assert pickle.loads(dump) == self.propertied_site
+        assert pickle.loads(dump) == self.propertied_site  # noqa: S301
 
     def test_setters(self):
         self.disordered_site.species = "Cu"
@@ -133,7 +134,7 @@ class TestPeriodicSite(PymatgenTest):
         site1 = PeriodicSite("Fe", np.array([0.01, 0.02, 0.03]), lattice)
         site2 = PeriodicSite("Fe", np.array([0.99, 0.98, 0.97]), lattice)
         assert get_distance_and_image_old(site1, site2)[0] > site1.distance_and_image(site2)[0]
-        site2 = PeriodicSite("Fe", np.random.rand(3), lattice)
+        site2 = PeriodicSite("Fe", np.random.default_rng().random(3), lattice)
         dist_old, jimage_old = get_distance_and_image_old(site1, site2)
         dist_new, jimage_new = site1.distance_and_image(site2)
         assert dist_old - dist_new > -1e-8, "New distance algo should give smaller answers!"

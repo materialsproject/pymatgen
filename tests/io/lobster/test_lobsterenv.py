@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-import os
 from unittest import TestCase
 
 import numpy as np
 import pytest
+from pytest import approx
+
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core import Element
 from pymatgen.core.structure import Structure
@@ -13,7 +14,6 @@ from pymatgen.electronic_structure.core import Spin
 from pymatgen.io.lobster import Charge, Icohplist
 from pymatgen.io.lobster.lobsterenv import LobsterNeighbors
 from pymatgen.util.testing import TEST_FILES_DIR
-from pytest import approx
 
 __author__ = "Janine George"
 __copyright__ = "Copyright 2021, The Materials Project"
@@ -22,7 +22,6 @@ __email__ = "janine.george@uclouvain.be"
 __date__ = "Jan 14, 2021"
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp/environments"
-module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestLobsterNeighbors(TestCase):

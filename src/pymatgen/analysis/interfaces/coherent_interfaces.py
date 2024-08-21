@@ -7,11 +7,12 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 from numpy.testing import assert_allclose
+from scipy.linalg import polar
+
 from pymatgen.analysis.elasticity.strain import Deformation
 from pymatgen.analysis.interfaces.zsl import ZSLGenerator, fast_norm
 from pymatgen.core.interface import Interface, label_termination
 from pymatgen.core.surface import SlabGenerator
-from scipy.linalg import polar
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
@@ -142,7 +143,7 @@ class CoherentInterfaceBuilder:
         self._terminations = {
             (film_label, sub_label): (film_shift, sub_shift)
             for (film_label, film_shift), (sub_label, sub_shift) in product(
-                zip(film_terminations, film_shifts), zip(sub_terminations, sub_shifts)
+                zip(film_terminations, film_shifts, strict=False), zip(sub_terminations, sub_shifts, strict=False)
             )
         }
         self.terminations = list(self._terminations)

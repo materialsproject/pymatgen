@@ -27,24 +27,26 @@ from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.fractions import lcm
+from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.spatial.distance import squareform
+
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, PeriodicSite, Structure, get_el_sp
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.coord import in_coord_list
 from pymatgen.util.due import Doi, due
 from pymatgen.util.typing import Tuple3Ints
-from scipy.cluster.hierarchy import fcluster, linkage
-from scipy.spatial.distance import squareform
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import Any
 
     from numpy.typing import ArrayLike, NDArray
+    from typing_extensions import Self
+
     from pymatgen.core.composition import Element, Species
     from pymatgen.symmetry.groups import CrystalSystem
     from pymatgen.util.typing import MillerIndex
-    from typing_extensions import Self
 
 __author__ = "Richard Tran, Wenhao Sun, Zihan Xu, Shyue Ping Ong"
 
@@ -216,7 +218,7 @@ class Slab(Structure):
         return np.linalg.norm(np.cross(matrix[0], matrix[1]))
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> Self:  # type: ignore[override]
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct: dict.
@@ -240,7 +242,7 @@ class Slab(Structure):
             energy=dct["energy"],
         )
 
-    def as_dict(self, **kwargs) -> dict:  # type: ignore[override]
+    def as_dict(self, **kwargs) -> dict:
         """MSONable dict."""
         dct = super().as_dict(**kwargs)
         dct["@module"] = type(self).__module__
@@ -253,7 +255,7 @@ class Slab(Structure):
         dct["energy"] = self.energy
         return dct
 
-    def copy(self, site_properties: dict[str, Any] | None = None) -> Self:  # type: ignore[override]
+    def copy(self, site_properties: dict[str, Any] | None = None) -> Self:
         """Get a copy of the Slab, with options to update site properties.
 
         Args:
@@ -288,7 +290,7 @@ class Slab(Structure):
             symprec (float): Symmetry precision used for SpaceGroup analyzer.
 
         Returns:
-            bool: Whether surfaces are symmetric.
+            bool: True if surfaces are symmetric.
         """
         spg_analyzer = SpacegroupAnalyzer(self, symprec=symprec)
         symm_ops = spg_analyzer.get_point_group_operations()
@@ -555,7 +557,7 @@ class Slab(Structure):
                         frac_coords.append(struct_matcher.frac_coords + [0, 0, shift])  # noqa: RUF005
 
                 # sort by species to put all similar species together.
-                sp_fcoord = sorted(zip(species, frac_coords), key=lambda x: x[0])
+                sp_fcoord = sorted(zip(species, frac_coords, strict=False), key=lambda x: x[0])
                 species = [x[0] for x in sp_fcoord]
                 frac_coords = [x[1] for x in sp_fcoord]
                 slab = type(self)(
@@ -826,10 +828,10 @@ def get_slab_regions(
     # If slab is noncontiguous
     if frac_coords:
         # Locate the lowest site within the upper Slab
-        last_fcoords = []
+        last_frac_coords = []
         last_indices = []
         while frac_coords:
-            last_fcoords = copy.copy(frac_coords)
+            last_frac_coords = copy.copy(frac_coords)
             last_indices = copy.copy(indices)
 
             site = slab[indices[frac_coords.index(min(frac_coords))]]
@@ -848,7 +850,7 @@ def get_slab_regions(
         for site in slab:
             if all(nn.index not in all_indices for nn in slab.get_neighbors(site, blength)):
                 upper_fcoords.append(site.frac_coords[2])
-        coords: list = copy.copy(frac_coords) if frac_coords else copy.copy(last_fcoords)
+        coords: list = copy.copy(frac_coords) if frac_coords else copy.copy(last_frac_coords)
         min_top = slab[last_indices[coords.index(min(coords))]].frac_coords[2]
         return [(0, max(upper_fcoords)), (min_top, 1)]
 
@@ -1678,8 +1680,8 @@ def generate_all_slabs(
 
 
 # Load the reconstructions_archive JSON file
-module_dir = os.path.dirname(os.path.abspath(__file__))
-with open(f"{module_dir}/reconstructions_archive.json", encoding="utf-8") as data_file:
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+with open(f"{MODULE_DIR}/reconstructions_archive.json", encoding="utf-8") as data_file:
     RECONSTRUCTIONS_ARCHIVE = json.load(data_file)
 
 
@@ -1689,7 +1691,7 @@ def get_d(slab: Slab) -> float:
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
 
     distance = None
-    for site, next_site in zip(sorted_sites, sorted_sites[1:]):
+    for site, next_site in itertools.pairwise(sorted_sites):
         if not isclose(site.frac_coords[2], next_site.frac_coords[2], abs_tol=1e-6):
             distance = next_site.frac_coords[2] - site.frac_coords[2]
             break

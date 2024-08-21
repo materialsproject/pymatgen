@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 
 import pytest
+
 from pymatgen.core.structure import Molecule
 from pymatgen.io.multiwfn import (
     QTAIM_CONDITIONALS,
@@ -28,7 +29,7 @@ def test_parse_single_cp():
         name1, desc1 = parse_cp(contents)
 
         contents_split = [line.split() for line in contents]
-        conditionals = {k: v for k, v in QTAIM_CONDITIONALS.items() if k not in ["connected_bond_paths"]}
+        conditionals = {k: v for k, v in QTAIM_CONDITIONALS.items() if k != "connected_bond_paths"}
         name2, desc2 = extract_info_from_cp_text(contents_split, "atom", conditionals)
 
         assert name1 == name2
@@ -169,22 +170,22 @@ def test_add_atoms():
     separated = separate_cps_by_type(all_descs)
 
     # Test ValueErrors
-    mol_minatom = Molecule(["O"], [[0.0, 0.0, 0.0]])
+    mol_min_atom = Molecule(["O"], [[0.0, 0.0, 0.0]])
 
     with pytest.raises(ValueError, match=r"bond CP"):
-        add_atoms(mol_minatom, separated)
+        add_atoms(mol_min_atom, separated)
 
-    sep_minbonds = copy.deepcopy(separated)
-    sep_minbonds["bond"] = {k: separated["bond"][k] for k in ["1_bond", "2_bond"]}
+    sep_min_bonds = copy.deepcopy(separated)
+    sep_min_bonds["bond"] = {k: separated["bond"][k] for k in ["1_bond", "2_bond"]}
 
     with pytest.raises(ValueError, match=r"ring CP"):
-        add_atoms(mol, sep_minbonds)
+        add_atoms(mol, sep_min_bonds)
 
-    sep_minrings = copy.deepcopy(separated)
-    sep_minrings["ring"] = {k: separated["ring"][k] for k in ["13_ring", "14_ring"]}
+    sep_min_rings = copy.deepcopy(separated)
+    sep_min_rings["ring"] = {k: separated["ring"][k] for k in ["13_ring", "14_ring"]}
 
     with pytest.raises(ValueError, match=r"cage CP"):
-        add_atoms(mol, sep_minrings)
+        add_atoms(mol, sep_min_rings)
 
     # Test distance-based metric
     modified = add_atoms(mol, separated, bond_atom_criterion="distance")

@@ -6,6 +6,7 @@ from pathlib import Path
 
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose
+
 from pymatgen.core import Structure
 from pymatgen.io.aims.outputs import AimsOutput
 

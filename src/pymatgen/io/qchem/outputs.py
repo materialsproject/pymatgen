@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import copy
-import logging
 import math
 import os
 import re
@@ -16,6 +15,7 @@ import numpy as np
 import pandas as pd
 from monty.io import zopen
 from monty.json import MSONable, jsanitize
+
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN
 from pymatgen.core import Molecule
@@ -43,8 +43,6 @@ __version__ = "0.1"
 __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 __credits__ = "Gabe Gomes"
-
-logger = logging.getLogger(__name__)
 
 
 class QCOutput(MSONable):
@@ -1907,7 +1905,7 @@ class QCOutput(MSONable):
         )
 
         self.data["cdft_constraints_multipliers"] = []
-        for const, multip in zip(temp_dict.get("constraint", []), temp_dict.get("multiplier", [])):
+        for const, multip in zip(temp_dict.get("constraint", []), temp_dict.get("multiplier", []), strict=False):
             entry = {"index": int(const[0]), "constraint": float(const[1]), "multiplier": float(multip[0])}
             self.data["cdft_constraints_multipliers"].append(entry)
 
@@ -1981,8 +1979,8 @@ class QCOutput(MSONable):
             spins_2 = [int(r.strip()) for r in temp_dict["states"][0][3].strip().split("\n")]
 
             self.data["almo_coupling_states"] = [
-                [[i, j] for i, j in zip(charges_1, spins_1)],
-                [[i, j] for i, j in zip(charges_2, spins_2)],
+                [[i, j] for i, j in zip(charges_1, spins_1, strict=False)],
+                [[i, j] for i, j in zip(charges_2, spins_2, strict=False)],
             ]
 
         # State energies

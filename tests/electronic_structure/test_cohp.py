@@ -5,6 +5,8 @@ from unittest import TestCase
 
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
+from pytest import approx
+
 from pymatgen.electronic_structure.cohp import (
     Cohp,
     CompleteCohp,
@@ -14,7 +16,6 @@ from pymatgen.electronic_structure.cohp import (
 )
 from pymatgen.electronic_structure.core import Orbital, Spin
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
-from pytest import approx
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp"
 
@@ -899,6 +900,7 @@ class TestCompleteCohp(PymatgenTest):
         for cohp1, cohp2 in zip(
             self.cobi_multi_B2H6.get_cohp_by_label("average").cohp[Spin.up],
             self.cobi_multi_B2H6_average2.get_cohp_by_label("average").cohp[Spin.up],
+            strict=False,
         ):
             print(cohp1)
             print(cohp2)
@@ -907,18 +909,21 @@ class TestCompleteCohp(PymatgenTest):
         for cohp1, cohp2 in zip(
             self.cobi_multi_B2H6.get_cohp_by_label("average").cohp[Spin.down],
             self.cobi_multi_B2H6_average2.get_cohp_by_label("average").cohp[Spin.down],
+            strict=False,
         ):
             assert cohp1 == approx(cohp2, abs=1e-4)
 
         for icohp1, icohp2 in zip(
             self.cobi_multi_B2H6.get_cohp_by_label("average").icohp[Spin.up],
             self.cobi_multi_B2H6_average2.get_cohp_by_label("average").icohp[Spin.up],
+            strict=False,
         ):
             assert icohp1 == approx(icohp2, abs=1e-4)
 
         for icohp1, icohp2 in zip(
             self.cobi_multi_B2H6.get_cohp_by_label("average").icohp[Spin.down],
             self.cobi_multi_B2H6_average2.get_cohp_by_label("average").icohp[Spin.down],
+            strict=False,
         ):
             assert icohp1 == approx(icohp2, abs=1e-4)
 

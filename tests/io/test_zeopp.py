@@ -4,6 +4,8 @@ import unittest
 from unittest import TestCase
 
 import pytest
+from pytest import approx
+
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core import Molecule, Species, Structure
 from pymatgen.io.zeopp import (
@@ -14,7 +16,6 @@ from pymatgen.io.zeopp import (
     get_voronoi_nodes,
 )
 from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
-from pytest import approx
 
 try:
     import zeo
@@ -157,7 +158,7 @@ class TestGetVoronoiNodes(TestCase):
         bv = BVAnalyzer()
         valences = bv.get_valences(self.structure)
         el = [site.species_string for site in self.structure]
-        valence_dict = dict(zip(el, valences))
+        valence_dict = dict(zip(el, valences, strict=False))
         self.rad_dict = {}
         for key, val in valence_dict.items():
             self.rad_dict[key] = float(Species(key, val).ionic_radius)
@@ -196,7 +197,7 @@ class TestGetHighAccuracyVoronoiNodes(TestCase):
         bv = BVAnalyzer()
         valences = bv.get_valences(self.structure)
         el = [site.species_string for site in self.structure]
-        valence_dict = dict(zip(el, valences))
+        valence_dict = dict(zip(el, valences, strict=False))
         self.rad_dict = {}
         for key, val in valence_dict.items():
             self.rad_dict[key] = float(Species(key, val).ionic_radius)
@@ -222,7 +223,7 @@ class TestGetVoronoiNodesMultiOxi(TestCase):
             radius = Species(el, valence).ionic_radius
             radii.append(radius)
         el = [site.species_string for site in self.structure]
-        self.rad_dict = dict(zip(el, radii))
+        self.rad_dict = dict(zip(el, radii, strict=False))
 
     def test_get_voronoi_nodes(self):
         vor_node_struct, vor_edge_center_struct, vor_face_center_struct = get_voronoi_nodes(

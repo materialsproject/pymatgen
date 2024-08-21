@@ -48,15 +48,17 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
+from scipy.interpolate import UnivariateSpline
+
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from scipy.interpolate import UnivariateSpline
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from pymatgen.core.sites import PeriodicSite
     from typing_extensions import Self
+
+    from pymatgen.core.sites import PeriodicSite
 
 
 __author__ = "Tess Smidt"
@@ -73,10 +75,7 @@ def zval_dict_from_potcar(potcar) -> dict[str, float]:
 
     potcar: Potcar object
     """
-    zval_dict = {}
-    for p in potcar:
-        zval_dict.update({p.element: p.ZVAL})
-    return zval_dict
+    return {p.element: p.ZVAL for p in potcar}
 
 
 def calc_ionic(site: PeriodicSite, structure: Structure, zval: float) -> np.ndarray:
@@ -308,7 +307,7 @@ class Polarization:
             sites.append(new_site[0])
 
         adjust_pol = []
-        for site, struct in zip(sites, d_structs):
+        for site, struct in zip(sites, d_structs, strict=False):
             adjust_pol.append(np.multiply(site.frac_coords, np.array(struct.lattice.lengths)).ravel())
         return np.array(adjust_pol)
 
