@@ -206,7 +206,6 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         for el in sorted(set(self.elements + other.elements)):
             if other[el] - self[el] >= type(self).amount_tolerance:
                 return False
-            # TODO @janosh 2024-04-29: is this a bug? why would we return True early?
             if self[el] - other[el] >= type(self).amount_tolerance:
                 return True
         return True
