@@ -2806,10 +2806,10 @@ class IStructure(SiteCollection, MSONable):
                 row.append(site.properties.get(key))
             data.append(row)
 
-        df = pd.DataFrame(data, columns=["Species", *"abcxyz", *prop_keys])
-        df.attrs["Reduced Formula"] = self.composition.reduced_formula
-        df.attrs["Lattice"] = self.lattice
-        return df
+        df_struct = pd.DataFrame(data, columns=["Species", *"abcxyz", *prop_keys])
+        df_struct.attrs["Reduced Formula"] = self.composition.reduced_formula
+        df_struct.attrs["Lattice"] = self.lattice
+        return df_struct
 
     @classmethod
     def from_dict(

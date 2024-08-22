@@ -125,8 +125,8 @@ class TestSetChangeCheck(PymatgenTest):
             "PBE54Base.yaml": "cdffe123eca8b19354554b60a7f8de9b8776caac9e1da2bd2a0516b7bfac8634",
         }
 
-        for input_set in hashes:
-            assert hashes[input_set] == known_hashes[input_set], f"{input_set=}\n{msg}"
+        for input_set, hash_str in hashes.items():
+            assert hash_str == known_hashes[input_set], f"{input_set=}\n{msg}"
 
 
 class TestVaspInputSet(PymatgenTest):

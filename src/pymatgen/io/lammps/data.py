@@ -512,8 +512,7 @@ class LammpsData(MSONable):
             unique_mids = np.unique(mids)
             data_by_mols = {}
             for k in unique_mids:
-                df = atoms_df[atoms_df["molecule-ID"] == k]
-                data_by_mols[k] = {"Atoms": df}
+                data_by_mols[k] = {"Atoms": atoms_df[atoms_df["molecule-ID"] == k]}
 
         masses = self.masses.copy()
         masses["label"] = atom_labels
@@ -665,51 +664,51 @@ class LammpsData(MSONable):
             kw = title_info[0].strip()
             str_io = StringIO("".join(sec_lines[2:]))  # skip the 2nd line
             if kw.endswith("Coeffs") and not kw.startswith("PairIJ"):
-                df_list = [
+                dfs = [
                     pd.read_csv(StringIO(line), header=None, comment="#", sep=r"\s+")
                     for line in sec_lines[2:]
                     if line.strip()
                 ]
-                df = pd.concat(df_list, ignore_index=True)
-                names = ["id"] + [f"coeff{i}" for i in range(1, df.shape[1])]
+                df_section = pd.concat(dfs, ignore_index=True)
+                names = ["id"] + [f"coeff{i}" for i in range(1, df_section.shape[1])]
             else:
-                df = pd.read_csv(str_io, header=None, comment="#", sep=r"\s+")
+                df_section = pd.read_csv(str_io, header=None, comment="#", sep=r"\s+")
                 if kw == "PairIJ Coeffs":
-                    names = ["id1", "id2"] + [f"coeff{i}" for i in range(1, df.shape[1] - 1)]
-                    df.index.name = None
+                    names = ["id1", "id2"] + [f"coeff{i}" for i in range(1, df_section.shape[1] - 1)]
+                    df_section.index.name = None
                 elif kw in SECTION_HEADERS:
                     names = ["id"] + SECTION_HEADERS[kw]
                 elif kw == "Atoms":
                     names = ["id"] + ATOMS_HEADERS[atom_style]
-                    if df.shape[1] == len(names):
+                    if df_section.shape[1] == len(names):
                         pass
-                    elif df.shape[1] == len(names) + 3:
+                    elif df_section.shape[1] == len(names) + 3:
                         names += ["nx", "ny", "nz"]
                     else:
                         raise ValueError(f"Format in Atoms section inconsistent with {atom_style=}")
                 else:
                     raise NotImplementedError(f"Parser for {kw} section not implemented")
-            df.columns = names
+            df_section.columns = names
             if sort_id:
                 sort_by = "id" if kw != "PairIJ Coeffs" else ["id1", "id2"]
-                df = df.sort_values(sort_by)
-            if "id" in df.columns:
-                df = df.set_index("id", drop=True)
-                df.index.name = None
-            return kw, df
+                df_section = df_section.sort_values(sort_by)
+            if "id" in df_section.columns:
+                df_section = df_section.set_index("id", drop=True)
+                df_section.index.name = None
+            return kw, df_section
 
         err_msg = "Bad LAMMPS data format where "
         body = {}
         seen_atoms = False
         for part in parts[1:]:
-            name, section = parse_section(part)
+            name, df_section = parse_section(part)
             if name == "Atoms":
                 seen_atoms = True
             if (
                 name in ["Velocities"] + SECTION_KEYWORDS["topology"] and not seen_atoms
             ):  # Atoms must appear earlier than these
                 raise RuntimeError(f"{err_msg}{name} section appears before Atoms section")
-            body[name] = section
+            body[name] = df_section
 
         err_msg += "Nos. of {} do not match between header and {} section"
         assert len(body["Masses"]) == header["types"]["atom"], err_msg.format("atom types", "Masses")
@@ -789,14 +788,14 @@ class LammpsData(MSONable):
 
         topology = {key: pd.DataFrame([]) for key, values in topo_labels.items() if len(values) > 0}
         for key in topology:
-            df = pd.DataFrame(np.concatenate(topo_collector[key]), columns=SECTION_HEADERS[key][1:])
-            df["type"] = list(map(ff.maps[key].get, topo_labels[key]))
-            if any(pd.isna(df["type"])):  # Throw away undefined topologies
+            df_topology = pd.DataFrame(np.concatenate(topo_collector[key]), columns=SECTION_HEADERS[key][1:])
+            df_topology["type"] = list(map(ff.maps[key].get, topo_labels[key]))
+            if any(pd.isna(df_topology["type"])):  # Throw away undefined topologies
                 warnings.warn(f"Undefined {key.lower()} detected and removed")
-                df = df.dropna(subset=["type"])
-                df = df.reset_index(drop=True)
-            df.index += 1
-            topology[key] = df[SECTION_HEADERS[key]]
+                df_topology = df_topology.dropna(subset=["type"])
+                df_topology = df_topology.reset_index(drop=True)
+            df_topology.index += 1
+            topology[key] = df_topology[SECTION_HEADERS[key]]
         topology = {key: values for key, values in topology.items() if not values.empty}
 
         items |= {"atoms": atoms, "velocities": velocities, "topology": topology}
@@ -1155,12 +1154,12 @@ class ForceField(MSONable):
                 mapper[t] = i
 
         def process_data(data) -> pd.DataFrame:
-            df = pd.DataFrame(data)
-            assert self._is_valid(df), "Invalid coefficients with rows varying in length"
-            n, c = df.shape
-            df.columns = [f"coeff{i}" for i in range(1, c + 1)]
-            df.index = range(1, n + 1)
-            return df
+            df_coeffs = pd.DataFrame(data)
+            assert self._is_valid(df_coeffs), "Invalid coefficients with rows varying in length"
+            n, c = df_coeffs.shape
+            df_coeffs.columns = [f"coeff{i}" for i in range(1, c + 1)]
+            df_coeffs.index = range(1, n + 1)
+            return df_coeffs
 
         all_data = {kw: process_data(main_data)}
         if class2_data:
@@ -1383,15 +1382,15 @@ class CombinedData(LammpsData):
             lines = file.readlines()
 
         str_io = StringIO("".join(lines[2:]))  # skip the 2nd line
-        df = pd.read_csv(
+        df_xyz = pd.read_csv(
             str_io,
             header=None,
             comment="#",
             sep=r"\s+",
             names=["atom", "x", "y", "z"],
         )
-        df.index += 1
-        return df
+        df_xyz.index += 1
+        return df_xyz
 
     @classmethod
     def from_files(cls, coordinate_file: str, list_of_numbers: list[int], *filenames: str) -> Self:

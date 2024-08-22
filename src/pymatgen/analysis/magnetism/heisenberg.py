@@ -770,22 +770,17 @@ class HeisenbergScreener:
             screened_structures (list): Sorted structures.
             screened_energies (list): Sorted energies.
         """
-        magmoms = [s.site_properties["magmom"] for s in structures]
-        n_below_1ub = [len([m for m in ms if abs(m) < 1]) for ms in magmoms]
+        magmoms = [struct.site_properties["magmom"] for struct in structures]
+        n_below_1ub = [sum(abs(m) < 1 for m in ms) for ms in magmoms]
 
-        df = pd.DataFrame(
-            {
-                "structure": structures,
-                "energy": energies,
-                "magmoms": magmoms,
-                "n_below_1ub": n_below_1ub,
-            }
+        df_mag = pd.DataFrame(
+            {"structure": structures, "energy": energies, "magmoms": magmoms, "n_below_1ub": n_below_1ub}
         )
 
         # keep the ground and first excited state fixed to capture the
         # low-energy spectrum
-        index = list(df.index)[2:]
-        df_high_energy = df.iloc[2:]
+        index = list(df_mag.index)[2:]
+        df_high_energy = df_mag.iloc[2:]
 
         # Prioritize structures with fewer magmoms < 1 uB
         df_high_energy = df_high_energy.sort_values(by="n_below_1ub")
@@ -793,9 +788,9 @@ class HeisenbergScreener:
         index = [0, 1, *df_high_energy.index]
 
         # sort
-        df = df.reindex(index)
-        screened_structures = list(df["structure"].values)
-        screened_energies = list(df["energy"].values)
+        df_mag = df_mag.reindex(index)
+        screened_structures = list(df_mag["structure"].values)
+        screened_energies = list(df_mag["energy"].values)
 
         return screened_structures, screened_energies
 

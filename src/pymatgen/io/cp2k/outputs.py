@@ -1636,12 +1636,12 @@ def parse_energy_file(energy_file):
         "conserved_quantity",
         "used_time",
     ]
-    df = pd.read_csv(energy_file, skiprows=1, names=columns, sep=r"\s+")
-    df["kinetic_energy"] = df["kinetic_energy"] * Ha_to_eV
-    df["potential_energy"] = df["potential_energy"] * Ha_to_eV
-    df["conserved_quantity"] = df["conserved_quantity"] * Ha_to_eV
-    df.astype(float)
-    return {c: df[c].to_numpy() for c in columns}
+    df_energies = pd.read_csv(energy_file, skiprows=1, names=columns, sep=r"\s+")
+    df_energies["kinetic_energy"] = df_energies["kinetic_energy"] * Ha_to_eV
+    df_energies["potential_energy"] = df_energies["potential_energy"] * Ha_to_eV
+    df_energies["conserved_quantity"] = df_energies["conserved_quantity"] * Ha_to_eV
+    df_energies = df_energies.astype(float)
+    return {c: df_energies[c].to_numpy() for c in columns}
 
 
 # TODO: The DOS file that CP2K outputs as of 2022.1 seems to have a lot of problems.

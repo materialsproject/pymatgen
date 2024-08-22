@@ -169,7 +169,7 @@ class FunctionalGroupExtractor:
 
             neighbor_spec = [str(self.species[n]) for n in neighbors]
 
-            ons = len([n for n in neighbor_spec if n in ["O", "N", "S"]])
+            ons = sum(n in ["O", "N", "S"] for n in neighbor_spec)
 
             if len(neighbors) == 4 and ons >= 2:
                 specials.add(node)

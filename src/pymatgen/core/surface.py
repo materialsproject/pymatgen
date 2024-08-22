@@ -2114,7 +2114,7 @@ def hkl_transformation(
     transf_hkl = np.array([idx // divisor for idx in transf_hkl])
 
     # Get positive Miller index
-    if len([i for i in transf_hkl if i < 0]) > 1:
+    if sum(idx < 0 for idx in transf_hkl) > 1:
         transf_hkl *= -1
 
     return tuple(transf_hkl)

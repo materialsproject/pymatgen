@@ -3036,7 +3036,7 @@ class PDPlotter:
                     for el, axis in zip(self._pd.elements, range(self._dim), strict=True):
                         _cartesian_positions = [x, y, z]
                         _cartesian_positions[axis].append(entry.composition[el])
-                        label += f"<br> {el}: {round(entry.composition[el]/total_sum_el, 6)}"
+                        label += f"<br> {el}: {round(entry.composition[el] / total_sum_el, 6)}"
                 elif self._dim == 3 and self.ternary_style == "3d":
                     x.append(coord[0])
                     y.append(coord[1])
@@ -3047,7 +3047,7 @@ class PDPlotter:
                         entry.composition[el] for el, _axis in zip(self._pd.elements, range(self._dim), strict=True)
                     )
                     for el, _axis in zip(self._pd.elements, range(self._dim), strict=True):
-                        label += f"<br> {el}: {round(entry.composition[el]/total_sum_el, 6)}"
+                        label += f"<br> {el}: {round(entry.composition[el] / total_sum_el, 6)}"
                 elif self._dim == 4:
                     x.append(coord[0])
                     y.append(coord[1])
@@ -3058,7 +3058,7 @@ class PDPlotter:
                         entry.composition[el] for el, _axis in zip(self._pd.elements, range(self._dim), strict=True)
                     )
                     for el, _axis in zip(self._pd.elements, range(self._dim), strict=True):
-                        label += f"<br> {el}: {round(entry.composition[el]/total_sum_el, 6)}"
+                        label += f"<br> {el}: {round(entry.composition[el] / total_sum_el, 6)}"
                 else:
                     x.append(coord[0])
                     y.append(coord[1])

@@ -381,13 +381,12 @@ class VampireCaller:
         names = ["T", "m_total", *[f"m_{idx + 1}" for idx in range(n_mats)], "X_x", "X_y", "X_z", "X_m", "nan"]
 
         # Parsing vampire MC output
-        df = pd.read_csv(vamp_stdout, sep="\t", skiprows=9, header=None, names=names)
-        df = df.drop("nan", axis=1)
+        df_stdout = pd.read_csv(vamp_stdout, sep="\t", skiprows=9, header=None, names=names).drop("nan", axis=1)
 
-        parsed_out = df.to_json()
+        parsed_out = df_stdout.to_json()
 
         # Max of susceptibility <-> critical temp
-        critical_temp = df.iloc[df.X_m.idxmax()]["T"]
+        critical_temp = df_stdout.iloc[df_stdout.X_m.idxmax()]["T"]
 
         return parsed_out, critical_temp
 

@@ -1744,7 +1744,7 @@ def get_integer_index(
     mi += 0  # converts -0 to 0
 
     def n_minus(index):
-        return len([h for h in index if h < 0])
+        return sum(h < 0 for h in index)
 
     if n_minus(mi) > n_minus(mi * -1):
         mi *= -1

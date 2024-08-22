@@ -174,14 +174,14 @@ def parse_lammps_log(filename: str = "log.lammps") -> list[pd.DataFrame]:
                 data["Step"] = int(step[1])
                 data |= {k: float(v) for k, v in re.findall(kv_pattern, "".join(ts[1:]))}
                 dicts.append(data)
-            df = pd.DataFrame(dicts)
+            df_thermo = pd.DataFrame(dicts)
             # rearrange the sequence of columns
             columns = ["Step"] + [k for k, v in re.findall(kv_pattern, "".join(time_steps[0][1:]))]
-            df = df[columns]
+            df_thermo = df_thermo[columns]
         # one line thermo data
         else:
-            df = pd.read_csv(StringIO("".join(lines)), sep=r"\s+")
-        return df
+            df_thermo = pd.read_csv(StringIO("".join(lines)), sep=r"\s+")
+        return df_thermo
 
     runs = []
     for b, e in zip(begins, ends, strict=True):
