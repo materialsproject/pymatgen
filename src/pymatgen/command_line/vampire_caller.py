@@ -31,7 +31,7 @@ __email__ = "ncfrey@lbl.gov"
 __status__ = "Development"
 __date__ = "June 2019"
 
-VAMPEXE = which("vampire-serial")
+VAMP_EXE = which("vampire-serial")
 
 
 class VampireCaller:
@@ -51,7 +51,7 @@ class VampireCaller:
     """
 
     @requires(
-        VAMPEXE,
+        VAMP_EXE,
         "VampireCaller requires vampire-serial to be in the path."
         "Please follow the instructions at https://vampire.york.ac.uk/download/.",
     )
@@ -130,7 +130,7 @@ class VampireCaller:
         self._create_ucf()
 
         # Call Vampire
-        with subprocess.Popen([VAMPEXE], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+        with subprocess.Popen([VAMP_EXE], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
             _stdout, stderr = process.communicate()
             stdout: str = _stdout.decode()
 

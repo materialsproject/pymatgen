@@ -269,9 +269,9 @@ def fast_norm(a):
 @njit
 def vec_angle(a, b):
     """Calculate angle between two vectors."""
-    cosang = np.dot(a, b)
-    sinang = fast_norm(np.cross(a, b))
-    return np.arctan2(sinang, cosang)
+    cos_ang = np.dot(a, b)
+    sin_ang = fast_norm(np.cross(a, b))
+    return np.arctan2(sin_ang, cos_ang)
 
 
 @njit

@@ -23,11 +23,10 @@ class TestVampireCaller(PymatgenTest):
 
         cls.structure_inputs = []
         cls.energy_inputs = []
-        for c in cls.compounds:
-            ordered_structures = list(c["structure"])
-            ordered_structures = [Structure.from_dict(d) for d in ordered_structures]
-            epa = list(c["energy_per_atom"])
-            energies = [e * len(s) for (e, s) in zip(epa, ordered_structures, strict=True)]
+        for compound in cls.compounds:
+            ordered_structures = [Structure.from_dict(d) for d in compound["structure"]]
+            e_per_atom = list(compound["energy_per_atom"])
+            energies = [e * len(s) for (e, s) in zip(e_per_atom, ordered_structures, strict=True)]
 
             cls.structure_inputs.append(ordered_structures)
             cls.energy_inputs.append(energies)
