@@ -276,7 +276,7 @@ class MultiEntry(PourbaixEntry):
             # TODO: Composition could be changed for compat with sum
             start = Composition() if attr == "composition" else 0
             weighted_values = (
-                getattr(entry, attr) * weight for entry, weight in zip(self.entry_list, self.weights, strict=False)
+                getattr(entry, attr) * weight for entry, weight in zip(self.entry_list, self.weights, strict=True)
             )
             return sum(weighted_values, start)
 
@@ -746,7 +746,7 @@ class PourbaixDiagram(MSONable):
 
         # organize the boundary points by entry
         pourbaix_domains = {entry: [] for entry in pourbaix_entries}
-        for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets, strict=False):
+        for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets, strict=True):
             for v in facet:
                 if v < len(pourbaix_entries):
                     this_entry = pourbaix_entries[v]

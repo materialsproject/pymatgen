@@ -663,7 +663,7 @@ class AbstractInput(MutableMapping, abc.ABC):
         Example:
             inp.pop_vars(["ionmov", "optcell", "ntime", "dilatmx"])
         """
-        return self.remove_vars(keys, strict=False)
+        return self.remove_vars(keys, strict=True)
 
     def remove_vars(self, keys: Sequence[str], strict: bool = True) -> dict[str, InputVariable]:
         """
@@ -807,7 +807,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
             and hasattr(self, "_vars")
             and any(tol in self._vars and tol != key for tol in _TOLVARS_SCF)
         ):
-            logger.info(f"Replacing previously set tolerance variable: {self.remove_vars(_TOLVARS_SCF, strict=False)}.")
+            logger.info(f"Replacing previously set tolerance variable: {self.remove_vars(_TOLVARS_SCF, strict=True)}.")
 
         return super().__setitem__(key, value)
 
@@ -987,14 +987,14 @@ class BasicAbinitInput(AbstractInput, MSONable):
         Remove all the tolerance variables present in self.
         Return dictionary with the variables that have been removed.
         """
-        return self.remove_vars(_TOLVARS, strict=False)
+        return self.remove_vars(_TOLVARS, strict=True)
 
     def pop_irdvars(self):
         """
         Remove all the `ird*` variables present in self.
         Return dictionary with the variables that have been removed.
         """
-        return self.remove_vars(_IRDVARS, strict=False)
+        return self.remove_vars(_IRDVARS, strict=True)
 
 
 class BasicMultiDataset:
@@ -1078,7 +1078,7 @@ class BasicMultiDataset:
     def from_inputs(cls, inputs: list[BasicAbinitInput]) -> Self:
         """Construct a multidataset from a list of BasicAbinitInputs."""
         for inp in inputs:
-            if any(p1 != p2 for p1, p2 in zip(inputs[0].pseudos, inp.pseudos, strict=False)):
+            if any(p1 != p2 for p1, p2 in zip(inputs[0].pseudos, inp.pseudos, strict=True)):
                 raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
 
         # Build BasicMultiDataset from input structures and pseudos and add inputs.
@@ -1089,7 +1089,7 @@ class BasicMultiDataset:
         )
 
         # Add variables
-        for inp, new_inp in zip(inputs, multi, strict=False):
+        for inp, new_inp in zip(inputs, multi, strict=True):
             new_inp.set_vars(**inp)
 
         return multi
@@ -1184,7 +1184,7 @@ class BasicMultiDataset:
     def append(self, abinit_input):
         """Add a BasicAbinitInput to the list."""
         assert isinstance(abinit_input, BasicAbinitInput)
-        if any(p1 != p2 for p1, p2 in zip(abinit_input.pseudos, abinit_input.pseudos, strict=False)):
+        if any(p1 != p2 for p1, p2 in zip(abinit_input.pseudos, abinit_input.pseudos, strict=True)):
             raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
         self._inputs.append(abinit_input)
 
@@ -1192,7 +1192,7 @@ class BasicMultiDataset:
         """Extends self with a list of BasicAbinitInputs."""
         assert all(isinstance(inp, BasicAbinitInput) for inp in abinit_inputs)
         for inp in abinit_inputs:
-            if any(p1 != p2 for p1, p2 in zip(self[0].pseudos, inp.pseudos, strict=False)):
+            if any(p1 != p2 for p1, p2 in zip(self[0].pseudos, inp.pseudos, strict=True)):
                 raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
         self._inputs.extend(abinit_inputs)
 

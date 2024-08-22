@@ -205,7 +205,7 @@ class TestBoltztrapAnalyzer(TestCase):
         kpoints = [kp.frac_coords for kp in sbs.kpoints]
         labels_dict = {k: sbs.labels_dict[k].frac_coords for k in sbs.labels_dict}
         for kpt_line, label_dict in zip(
-            [None, sbs.kpoints, kpoints], [None, sbs.labels_dict, labels_dict], strict=False
+            [None, sbs.kpoints, kpoints], [None, sbs.labels_dict, labels_dict], strict=True
         ):
             sbs_bzt = self.bz_bands.get_symm_bands(structure, -5.25204548, kpt_line=kpt_line, labels_dict=label_dict)
             assert len(sbs_bzt.bands[Spin.up]) == approx(20)

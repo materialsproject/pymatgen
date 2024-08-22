@@ -93,7 +93,7 @@ class TestAbinitInput(PymatgenTest):
         with pytest.raises(KeyError) as exc:
             inp.remove_vars("foo", strict=True)
         assert "key='foo' not in self:" in str(exc.value)
-        assert not inp.remove_vars("foo", strict=False)
+        assert not inp.remove_vars("foo", strict=True)
 
         # Test deepcopy and remove_vars.
         inp["bdgw"] = [1, 2]
@@ -235,7 +235,7 @@ class TestMultiDataset(PymatgenTest):
         assert new_multi.ndtset == multi.ndtset
         assert new_multi.structure == multi.structure
 
-        for old_inp, new_inp in zip(multi, new_multi, strict=False):
+        for old_inp, new_inp in zip(multi, new_multi, strict=True):
             assert old_inp is not new_inp
             assert old_inp.as_dict() == new_inp.as_dict()
 

@@ -335,7 +335,7 @@ class TestInterfaceReaction(TestCase):
             lst = list(ir.get_kinks())
             x_kink = [i[1] for i in lst]
             energy_kink = [i[2] for i in lst]
-            points = list(zip(x_kink, energy_kink, strict=False))
+            points = list(zip(x_kink, energy_kink, strict=True))
             if len(points) >= 3:
                 # To test convexity of the plot, construct convex hull from
                 # the kinks and make sure
@@ -343,7 +343,7 @@ class TestInterfaceReaction(TestCase):
                 # 2. all points are on the convex hull.
                 relative_vectors_1 = [(x - x_kink[0], e - energy_kink[0]) for x, e in points]
                 relative_vectors_2 = [(x - x_kink[-1], e - energy_kink[-1]) for x, e in points]
-                relative_vectors = zip(relative_vectors_1, relative_vectors_2, strict=False)
+                relative_vectors = zip(relative_vectors_1, relative_vectors_2, strict=True)
                 positions = [np.cross(v1, v2) for v1, v2 in relative_vectors]
                 assert np.all(np.array(positions) <= 0)
 
@@ -419,7 +419,7 @@ class TestInterfaceReaction(TestCase):
             (0.3333333, -3.333333),
             (0.3333333, -4.0),
         ]
-        for inter_react, expected in zip(self.irs, answer, strict=False):
+        for inter_react, expected in zip(self.irs, answer, strict=True):
             assert_allclose(inter_react.minimum, expected, atol=1e-7)
 
     def test_get_no_mixing_energy(self):
@@ -438,7 +438,7 @@ class TestInterfaceReaction(TestCase):
             return lst[0][1], lst[1][1]
 
         result_info = [ir.get_no_mixing_energy() for ir in self.irs if ir.grand]
-        for ii, jj in zip(result_info, answer, strict=False):
+        for ii, jj in zip(result_info, answer, strict=True):
             err_msg = f"get_no_mixing_energy: names get error, {name_lst(jj)} expected but gets {name_lst(ii)}"
             assert name_lst(ii) == name_lst(jj), err_msg
             assert_allclose(

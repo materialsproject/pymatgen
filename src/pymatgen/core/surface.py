@@ -557,7 +557,7 @@ class Slab(Structure):
                         frac_coords.append(struct_matcher.frac_coords + [0, 0, shift])  # noqa: RUF005
 
                 # sort by species to put all similar species together.
-                sp_fcoord = sorted(zip(species, frac_coords, strict=False), key=lambda x: x[0])
+                sp_fcoord = sorted(zip(species, frac_coords, strict=True), key=lambda x: x[0])
                 species = [x[0] for x in sp_fcoord]
                 frac_coords = [x[1] for x in sp_fcoord]
                 slab = type(self)(

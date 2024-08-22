@@ -462,7 +462,7 @@ class PhononDos(MSONable):
 
         dos_rebin = np.zeros(freq.shape)
 
-        for ii, e1, e2 in zip(range(len(freq)), freq_bounds[:-1], freq_bounds[1:], strict=False):
+        for ii, e1, e2 in zip(range(len(freq)), freq_bounds[:-1], freq_bounds[1:], strict=True):
             inds = np.where((frequencies >= e1) & (frequencies < e2))
             dos_rebin[ii] = np.sum(densities[inds])
         if normalize:  # scale DOS bins to make area under histogram equal 1
@@ -621,7 +621,7 @@ class CompletePhononDos(PhononDos):
         """Get CompleteDos object from dict representation."""
         total_dos = PhononDos.from_dict(dct)
         struct = Structure.from_dict(dct["structure"])
-        ph_doses = dict(zip(struct, dct["pdos"], strict=False))
+        ph_doses = dict(zip(struct, dct["pdos"], strict=True))
 
         return cls(struct, total_dos, ph_doses)
 

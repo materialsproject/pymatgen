@@ -60,7 +60,7 @@ class Deformation(SquareTensor):
         """Get indices of perturbed elements of the deformation gradient,
         i. e. those that differ from the identity.
         """
-        return list(zip(*np.where(abs(self - np.eye(3)) > tol), strict=False))
+        return list(zip(*np.where(abs(self - np.eye(3)) > tol), strict=True))
 
     @property
     def green_lagrange_strain(self):

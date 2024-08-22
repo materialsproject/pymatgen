@@ -161,7 +161,7 @@ class LammpsBox(MSONable):
         """
         ph = f"{{:.{significant_figures}f}}"
         lines = []
-        for bound, d in zip(self.bounds, "xyz", strict=False):
+        for bound, d in zip(self.bounds, "xyz", strict=True):
             fillers = bound + [d] * 2
             bound_format = " ".join([ph] * 2 + [" {}lo {}hi"])
             lines.append(bound_format.format(*fillers))
@@ -525,7 +525,7 @@ class LammpsData(MSONable):
             symbols = [Element(symbols[idx]).symbol for idx in np.argmin(diff, axis=1)]
         else:
             symbols = [f"Q{a}" for a in map(chr, range(97, 97 + len(unique_masses)))]
-        for um, s in zip(unique_masses, symbols, strict=False):
+        for um, s in zip(unique_masses, symbols, strict=True):
             masses.loc[masses["mass"] == um, "element"] = s
         if atom_labels is None:  # add unique labels based on elements
             for el, vc in masses["element"].value_counts().items():
@@ -1007,7 +1007,7 @@ class Topology(MSONable):
 
         topologies = {
             k: v
-            for k, v in zip(SECTION_KEYWORDS["topology"][:3], [bond_list, angle_list, dihedral_list], strict=False)
+            for k, v in zip(SECTION_KEYWORDS["topology"][:3], [bond_list, angle_list, dihedral_list], strict=True)
             if len(v) > 0
         } or None
         return cls(sites=molecule, topologies=topologies, **kwargs)
@@ -1478,7 +1478,7 @@ class CombinedData(LammpsData):
         lines = LammpsData.get_str(self, distance, velocity, charge, hybrid).splitlines()
         info = "# " + " + ".join(
             f"{a} {b}" if c == 1 else f"{a}({c}) {b}"
-            for a, b, c in zip(self.nums, self.names, self.mols_per_data, strict=False)
+            for a, b, c in zip(self.nums, self.names, self.mols_per_data, strict=True)
         )
         lines.insert(1, info)
         return "\n".join(lines)

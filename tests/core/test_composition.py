@@ -31,7 +31,7 @@ class TestComposition(PymatgenTest):
 
         self.indeterminate_comp = [
             Composition.ranked_compositions_from_indeterminate_formula("Co1", lock_if_strict=True),
-            Composition.ranked_compositions_from_indeterminate_formula("Co1", lock_if_strict=False),
+            Composition.ranked_compositions_from_indeterminate_formula("Co1", lock_if_strict=True),
             Composition.ranked_compositions_from_indeterminate_formula("co2o3"),
             Composition.ranked_compositions_from_indeterminate_formula("ncalu"),
             Composition.ranked_compositions_from_indeterminate_formula("calun"),
@@ -173,7 +173,7 @@ class TestComposition(PymatgenTest):
             1.21,
             2.43,
         )
-        for elem, val in zip(self.comps, electro_negs, strict=False):
+        for elem, val in zip(self.comps, electro_negs, strict=True):
             assert elem.average_electroneg == approx(val)
 
     def test_total_electrons(self):
@@ -406,7 +406,7 @@ class TestComposition(PymatgenTest):
         ]
         formula_list = ["Ti87.6 V5.5 Al6.9", "Ti44.98 Ni55.02", "H2O"]
 
-        for weight_dict, formula in zip(weight_dict_list, formula_list, strict=False):
+        for weight_dict, formula in zip(weight_dict_list, formula_list, strict=True):
             c1 = Composition(formula).fractional_composition
             c2 = Composition.from_weight_dict(weight_dict).fractional_composition
             assert set(c1.elements) == set(c2.elements)
@@ -829,7 +829,7 @@ class TestChemicalPotential:
 
         # test get_energy()
         assert pots.get_energy(fe_o2) == approx(5.2)
-        assert fe_pot.get_energy(fe_o2, strict=False) == approx(1)
+        assert fe_pot.get_energy(fe_o2, strict=True) == approx(1)
         with pytest.raises(ValueError, match="Potentials not specified for {Element O}"):
             fe_pot.get_energy(fe_o2)
 

@@ -295,7 +295,7 @@ def test_input_set():
     assert check_file(control_in_str, in_set.control_in)
     assert params_json == json.loads(in_set.params_json)
 
-    in_set.remove_parameters(keys=["relax_geometry"], strict=False)
+    in_set.remove_parameters(keys=["relax_geometry"], strict=True)
     assert check_file(control_in_str, in_set.control_in)
     assert params_json == json.loads(in_set.params_json)
 

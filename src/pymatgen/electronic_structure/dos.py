@@ -1268,7 +1268,7 @@ class CompleteDos(Dos):
 
             dos_rebin = np.zeros(ener.shape)
 
-            for ii, e1, e2 in zip(range(len(ener)), ener_bounds[:-1], ener_bounds[1:], strict=False):
+            for ii, e1, e2 in zip(range(len(ener)), ener_bounds[:-1], ener_bounds[1:], strict=True):
                 inds = np.where((energies >= e1) & (energies < e2))
                 dos_rebin[ii] = np.sum(densities[inds])
 
