@@ -431,7 +431,7 @@ class NumericalEOS(PolynomialEOS):
             return np.sqrt(np.sum((np.array(x) - np.array(y)) ** 2) / len(x))
 
         # list of (energy, volume) tuples
-        e_v = list(zip(self.energies, self.volumes, strict=False))
+        e_v = list(zip(self.energies, self.volumes, strict=True))
         n_data = len(e_v)
         # minimum number of data points used for fitting
         n_data_min = max(n_data - 2 * min_ndata_factor, min_poly_order + 1)

@@ -726,7 +726,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         if {*oxi_states} <= {0, None}:
             # all oxidation states are None or 0
             return None
-        return sum(oxi * amt for oxi, amt in zip(oxi_states, self.values(), strict=False))
+        return sum(oxi * amt for oxi, amt in zip(oxi_states, self.values(), strict=True))
 
     @property
     def charge_balanced(self) -> bool | None:
@@ -1008,7 +1008,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
         for x in product(*el_sums):
             # Each x is a trial of one possible oxidation sum for each element
             if sum(x) == target_charge:  # charge balance condition
-                el_sum_sol = dict(zip(elements, x, strict=False))  # element->oxid_sum
+                el_sum_sol = dict(zip(elements, x, strict=True))  # element->oxid_sum
                 # Normalize oxid_sum by amount to get avg oxid state
                 sol = {el: v / el_amt[el] for el, v in el_sum_sol.items()}
                 # Add the solution to the list of solutions
@@ -1022,7 +1022,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
 
                 # Collect the combination of oxidation states for each site
                 all_oxid_combo.append(
-                    {e: el_best_oxid_combo[idx][v] for idx, (e, v) in enumerate(zip(elements, x, strict=False))}
+                    {e: el_best_oxid_combo[idx][v] for idx, (e, v) in enumerate(zip(elements, x, strict=True))}
                 )
 
         # Sort the solutions from highest to lowest score
@@ -1031,12 +1031,12 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
                 *(
                     (y, x)
                     for (z, y, x) in sorted(
-                        zip(all_scores, all_sols, all_oxid_combo, strict=False),
+                        zip(all_scores, all_sols, all_oxid_combo, strict=True),
                         key=lambda pair: pair[0],
                         reverse=True,
                     )
                 ),
-                strict=False,
+                strict=True,
             )
         return tuple(all_sols), tuple(all_oxid_combo)
 

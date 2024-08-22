@@ -721,7 +721,7 @@ class MagOrderingTransformation(AbstractTransformation):
                 DummySpecies(symbol, spin=Spin.up): constraint.order_parameter,
                 DummySpecies(symbol, spin=Spin.down): 1 - constraint.order_parameter,
             }
-            for symbol, constraint in zip(dummy_species_symbols, order_parameters, strict=False)
+            for symbol, constraint in zip(dummy_species_symbols, order_parameters, strict=True)
         ]
 
         for site in dummy_struct:

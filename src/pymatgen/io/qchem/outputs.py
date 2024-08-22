@@ -1979,8 +1979,8 @@ class QCOutput(MSONable):
             spins_2 = [int(r.strip()) for r in temp_dict["states"][0][3].strip().split("\n")]
 
             self.data["almo_coupling_states"] = [
-                [[i, j] for i, j in zip(charges_1, spins_1, strict=False)],
-                [[i, j] for i, j in zip(charges_2, spins_2, strict=False)],
+                [[i, j] for i, j in zip(charges_1, spins_1, strict=True)],
+                [[i, j] for i, j in zip(charges_2, spins_2, strict=True)],
             ]
 
         # State energies

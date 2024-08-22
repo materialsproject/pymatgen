@@ -408,12 +408,12 @@ class GulpIO:
                 # If structure is oxidation state decorated, use that first.
                 el = [site.specie.symbol for site in structure]
                 valences = [site.specie.oxi_state for site in structure]
-                val_dict = dict(zip(el, valences, strict=False))
+                val_dict = dict(zip(el, valences, strict=True))
             except AttributeError:
                 bv = BVAnalyzer()
                 el = [site.specie.symbol for site in structure]
                 valences = bv.get_valences(structure)
-                val_dict = dict(zip(el, valences, strict=False))
+                val_dict = dict(zip(el, valences, strict=True))
 
         # Try bush library first
         bpb = BuckinghamPotential("bush")
@@ -490,7 +490,7 @@ class GulpIO:
         bv = BVAnalyzer()
         el = [site.specie.symbol for site in structure]
         valences = bv.get_valences(structure)
-        el_val_dict = dict(zip(el, valences, strict=False))
+        el_val_dict = dict(zip(el, valences, strict=True))
 
         gin = "species \n"
         qerf_str = "qerfc\n"
