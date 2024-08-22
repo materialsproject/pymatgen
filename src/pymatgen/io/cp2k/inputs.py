@@ -353,7 +353,7 @@ class Section(MSONable):
     def __sub__(self, other):
         return self.__delitem__(other)
 
-    def setitem(self, key, value, strict=True):
+    def setitem(self, key, value, strict=False):
         """
         Helper function for setting items. Kept separate from the double-underscore function so that
         "strict" option can be made possible.
@@ -418,7 +418,7 @@ class Section(MSONable):
                 return v
         return default
 
-    def update(self, dct: dict, strict=True) -> Section:
+    def update(self, dct: dict, strict=False) -> Section:
         """
         Update the Section according to a dictionary argument. This is most useful
         for providing user-override settings to default parameters. As you pass a
@@ -446,7 +446,7 @@ class Section(MSONable):
         return self
 
     @staticmethod
-    def _update(d1, d2, strict=True):
+    def _update(d1, d2, strict=False):
         """Helper method for self.update(d) method (see above)."""
         for k, v in d2.items():
             if isinstance(v, str | float | int | bool):

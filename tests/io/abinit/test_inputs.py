@@ -93,7 +93,7 @@ class TestAbinitInput(PymatgenTest):
         with pytest.raises(KeyError) as exc:
             inp.remove_vars("foo", strict=True)
         assert "key='foo' not in self:" in str(exc.value)
-        assert not inp.remove_vars("foo", strict=True)
+        assert not inp.remove_vars("foo", strict=False)
 
         # Test deepcopy and remove_vars.
         inp["bdgw"] = [1, 2]

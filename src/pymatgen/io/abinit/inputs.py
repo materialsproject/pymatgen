@@ -663,7 +663,7 @@ class AbstractInput(MutableMapping, abc.ABC):
         Example:
             inp.pop_vars(["ionmov", "optcell", "ntime", "dilatmx"])
         """
-        return self.remove_vars(keys, strict=True)
+        return self.remove_vars(keys, strict=False)
 
     def remove_vars(self, keys: Sequence[str], strict: bool = True) -> dict[str, InputVariable]:
         """
@@ -807,7 +807,7 @@ class BasicAbinitInput(AbstractInput, MSONable):
             and hasattr(self, "_vars")
             and any(tol in self._vars and tol != key for tol in _TOLVARS_SCF)
         ):
-            logger.info(f"Replacing previously set tolerance variable: {self.remove_vars(_TOLVARS_SCF, strict=True)}.")
+            logger.info(f"Replacing previously set tolerance variable: {self.remove_vars(_TOLVARS_SCF, strict=False)}.")
 
         return super().__setitem__(key, value)
 
@@ -987,14 +987,14 @@ class BasicAbinitInput(AbstractInput, MSONable):
         Remove all the tolerance variables present in self.
         Return dictionary with the variables that have been removed.
         """
-        return self.remove_vars(_TOLVARS, strict=True)
+        return self.remove_vars(_TOLVARS, strict=False)
 
     def pop_irdvars(self):
         """
         Remove all the `ird*` variables present in self.
         Return dictionary with the variables that have been removed.
         """
-        return self.remove_vars(_IRDVARS, strict=True)
+        return self.remove_vars(_IRDVARS, strict=False)
 
 
 class BasicMultiDataset:
