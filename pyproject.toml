@@ -178,23 +178,22 @@ output-format = "concise"
 select = ["ALL"]
 ignore = [
     # Rule families
-    "ANN",  # flake8-annotations (not ready, require types for ALL args)
-    "ARG",  # Check for unused function arguments
-    "BLE",  # General catch of Exception
-    "C90",  # Check for functions with a high McCabe complexity
-    "COM",  # flake8-commas (conflict with line wrapper)
-    "CPY",  # Missing copyright notice at top of file (need preview mode)
-    "EM",   # Format nice error messages
-    "ERA",  # Check for commented-out code
-    "FIX",  # Check for FIXME, TODO and other developer notes
-    "FURB", # refurb (need preview mode, too many preview errors)
-    "G",    # Validate logging format strings
-    "INP",  # Ban PEP-420 implicit namespace packages
-    "N",    # PEP8-naming (many var/arg names are intended)
-    "PTH",  # Prefer pathlib over os.path
-    "SLF",  # Access "private" class members
-    "T20",  # Check for print/pprint
-    "TD",   # TODO tags related
+    "ANN", # flake8-annotations (not ready, require types for ALL args)
+    "ARG", # Check for unused function arguments
+    "BLE", # General catch of Exception
+    "C90", # Check for functions with a high McCabe complexity
+    "COM", # flake8-commas (conflict with line wrapper)
+    "CPY", # Missing copyright notice at top of file (need preview mode)
+    "EM",  # Format nice error messages
+    "ERA", # Check for commented-out code
+    "FIX", # Check for FIXME, TODO and other developer notes
+    "G",   # Validate logging format strings
+    "INP", # Ban PEP-420 implicit namespace packages
+    "N",   # PEP8-naming (many var/arg names are intended)
+    "PTH", # Prefer pathlib over os.path
+    "SLF", # Access "private" class members
+    "T20", # Check for print/pprint
+    "TD",  # TODO tags related
 
     # Single rules
     "B023",    # Function definition does not bind loop variable
@@ -213,6 +212,7 @@ ignore = [
     "PLR0912", # Too many branches
     "PLR0913", # Too many arguments
     "PLR0915", # Too many statements
+    "PLR1702", # Too many nested blocks
     "PLR2004", # Magic-value-comparison TODO fix these
     "PLW2901", # Outer for loop variable overwritten by inner assignment target
     "PT013",   # Incorrect import of pytest
