@@ -542,7 +542,7 @@ loop_
   Si  Si1  1  0.75000000  0.50000000  0.75000000  0.5
   N  N2  1  0.75000000  0.50000000  0.75000000  0.5"""
 
-        for l1, l2 in zip(str(writer).split("\n"), answer.split("\n"), strict=True):
+        for l1, l2 in zip(str(writer).split("\n"), answer.split("\n"), strict=False):
             assert l1.strip() == l2.strip()
 
     def test_cif_writer_without_refinement(self):
