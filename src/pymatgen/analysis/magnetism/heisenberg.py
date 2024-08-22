@@ -148,7 +148,7 @@ class HeisenbergMapper:
         unique_site_ids = {}
         wyckoff_ids = {}
 
-        for idx, (indices, symbol) in enumerate(zip(equivalent_indices, wyckoff_symbols, strict=False)):
+        for idx, (indices, symbol) in enumerate(zip(equivalent_indices, wyckoff_symbols, strict=True)):
             unique_site_ids[tuple(indices)] = idx
             wyckoff_ids[idx] = symbol
             for index in indices:
@@ -195,7 +195,7 @@ class HeisenbergMapper:
 
         all_dists = all_dists[:3]
         labels = ("nn", "nnn", "nnnn")
-        dists = dict(zip(labels, all_dists, strict=False))
+        dists = dict(zip(labels, all_dists, strict=True))
 
         # Get dictionary keys for interactions
         for k in unique_site_ids:
@@ -376,7 +376,7 @@ class HeisenbergMapper:
         # Convert J_ij to meV
         j_ij[1:] *= 1000  # J_ij in meV
         j_ij = j_ij.tolist()
-        ex_params = {j_name: j[0] for j_name, j in zip(j_names, j_ij, strict=False)}
+        ex_params = {j_name: j[0] for j_name, j in zip(j_names, j_ij, strict=True)}
 
         self.ex_params = ex_params
 
@@ -401,7 +401,7 @@ class HeisenbergMapper:
 
         # epas = [e / len(s) for (e, s) in zip(self.energies, self.ordered_structures)]
 
-        for s, e in zip(self.ordered_structures, self.energies, strict=False):
+        for s, e in zip(self.ordered_structures, self.energies, strict=True):
             ordering = CollinearMagneticStructureAnalyzer(s, threshold=0, make_primitive=False).ordering
             magmoms = s.site_properties["magmom"]
 
@@ -420,7 +420,7 @@ class HeisenbergMapper:
 
         # Brute force search for closest thing to FM and AFM
         if not fm_struct or not afm_struct:
-            for s, e in zip(self.ordered_structures, self.energies, strict=False):
+            for s, e in zip(self.ordered_structures, self.energies, strict=True):
                 magmoms = s.site_properties["magmom"]
 
                 if abs(sum(magmoms)) > mag_max:  # FM ground state
@@ -723,7 +723,7 @@ class HeisenbergScreener:
         ]
 
         # Convert to energies / magnetic ion
-        energies = [e / len(s) for (e, s) in zip(energies, ordered_structures, strict=False)]
+        energies = [e / len(s) for (e, s) in zip(energies, ordered_structures, strict=True)]
 
         # Check for duplicate / degenerate states (sometimes different initial
         # configs relax to the same state)
@@ -751,7 +751,7 @@ class HeisenbergScreener:
             energies = [energy for idx, energy in enumerate(energies) if idx not in remove_list]
 
         # Sort by energy if not already sorted
-        ordered_structures = [s for _, s in sorted(zip(energies, ordered_structures, strict=False), reverse=False)]
+        ordered_structures = [s for _, s in sorted(zip(energies, ordered_structures, strict=True), reverse=False)]
         ordered_energies = sorted(energies, reverse=False)
 
         return ordered_structures, ordered_energies

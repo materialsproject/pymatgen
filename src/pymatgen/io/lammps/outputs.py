@@ -184,6 +184,6 @@ def parse_lammps_log(filename: str = "log.lammps") -> list[pd.DataFrame]:
         return df
 
     runs = []
-    for b, e in zip(begins, ends, strict=False):
+    for b, e in zip(begins, ends, strict=True):
         runs.append(_parse_thermo(lines[b + 1 : e]))
     return runs

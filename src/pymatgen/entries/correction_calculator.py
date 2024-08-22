@@ -267,7 +267,7 @@ class CorrectionCalculator:
         abs_errors = [abs(i) for i in self.diffs - np.dot(self.coeff_mat, self.corrections)]
         labels_graph = self.names.copy()
         abs_errors, labels_graph = (
-            list(t) for t in zip(*sorted(zip(abs_errors, labels_graph, strict=False)), strict=False)
+            list(t) for t in zip(*sorted(zip(abs_errors, labels_graph, strict=True)), strict=True)
         )  # sort by error
 
         n_err = len(abs_errors)
@@ -333,7 +333,7 @@ class CorrectionCalculator:
                     del abs_errors[n_species - idx - 1]
                     del diffs_cpy[n_species - idx - 1]
         abs_errors, labels_species = (
-            list(tup) for tup in zip(*sorted(zip(abs_errors, labels_species, strict=False)), strict=False)
+            list(tup) for tup in zip(*sorted(zip(abs_errors, labels_species, strict=True)), strict=True)
         )  # sort by error
 
         n_err = len(abs_errors)

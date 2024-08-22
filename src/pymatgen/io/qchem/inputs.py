@@ -694,7 +694,7 @@ class QCInput(InputFile):
                     constraint["first_atoms"],
                     constraint["last_atoms"],
                     type_strings,
-                    strict=False,
+                    strict=True,
                 ):
                     if type_string != "":
                         cdft_list.append(f"   {coef} {first} {last} {type_string}")
@@ -848,7 +848,7 @@ class QCInput(InputFile):
         matches = read_pattern(string, patterns)
 
         mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
-        for match, table in zip(matches.get("charge_spin"), mol_table, strict=False):
+        for match, table in zip(matches.get("charge_spin"), mol_table, strict=True):
             charge = int(match[0])
             spin = int(match[1])
             species = [val[0] for val in table]

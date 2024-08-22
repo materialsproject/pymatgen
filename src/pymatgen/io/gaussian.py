@@ -836,23 +836,23 @@ class GaussianOutput:
                             while "Atom  AN" not in line:
                                 if "Frequencies --" in line:
                                     freqs = map(float, float_patt.findall(line))
-                                    for ifreq, freq in zip(ifreqs, freqs, strict=False):
+                                    for ifreq, freq in zip(ifreqs, freqs, strict=True):
                                         frequencies[ifreq]["frequency"] = freq
                                 elif "Red. masses --" in line:
                                     r_masses = map(float, float_patt.findall(line))
-                                    for ifreq, r_mass in zip(ifreqs, r_masses, strict=False):
+                                    for ifreq, r_mass in zip(ifreqs, r_masses, strict=True):
                                         frequencies[ifreq]["r_mass"] = r_mass
                                 elif "Frc consts  --" in line:
                                     f_consts = map(float, float_patt.findall(line))
-                                    for ifreq, f_const in zip(ifreqs, f_consts, strict=False):
+                                    for ifreq, f_const in zip(ifreqs, f_consts, strict=True):
                                         frequencies[ifreq]["f_constant"] = f_const
                                 elif "IR Inten    --" in line:
                                     IR_intens = map(float, float_patt.findall(line))
-                                    for ifreq, intens in zip(ifreqs, IR_intens, strict=False):
+                                    for ifreq, intens in zip(ifreqs, IR_intens, strict=True):
                                         frequencies[ifreq]["IR_intensity"] = intens
                                 else:
                                     syms = line.split()[:3]
-                                    for ifreq, sym in zip(ifreqs, syms, strict=False):
+                                    for ifreq, sym in zip(ifreqs, syms, strict=True):
                                         frequencies[ifreq]["symmetry"] = sym
                                 line = file.readline()
 
@@ -860,7 +860,7 @@ class GaussianOutput:
                             line = file.readline()
                             while normal_mode_patt.search(line):
                                 values = list(map(float, float_patt.findall(line)))
-                                for idx, ifreq in zip(range(0, len(values), 3), ifreqs, strict=False):
+                                for idx, ifreq in zip(range(0, len(values), 3), ifreqs, strict=True):
                                     frequencies[ifreq]["mode"].extend(values[idx : idx + 3])
                                 line = file.readline()
 

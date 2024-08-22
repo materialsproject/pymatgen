@@ -105,7 +105,7 @@ class CifBlock:
         for line in loop:
             out += "\n " + line
 
-        for fields in zip(*(self.data[k] for k in loop), strict=False):
+        for fields in zip(*(self.data[k] for k in loop), strict=True):
             line = "\n"
             for val in map(self._format_field, fields):
                 if val[0] == ";":
@@ -228,7 +228,7 @@ class CifBlock:
                 n = len(items) // len(columns)
                 assert len(items) % n == 0
                 loops.append(columns)
-                for k, v in zip(columns * n, items, strict=False):
+                for k, v in zip(columns * n, items, strict=True):
                     data[k].append(v.strip())
 
             elif issue := "".join(_str).strip():
@@ -610,7 +610,7 @@ class CifParser:
                 raise ValueError("Length of magmoms and coords don't match.")
 
             magmoms_out: list[Magmom] = []
-            for tmp_coord, tmp_magmom in zip(coords, magmoms, strict=False):
+            for tmp_coord, tmp_magmom in zip(coords, magmoms, strict=True):
                 for op in self.symmetry_operations:
                     coord = op.operate(tmp_coord)
                     coord = np.array([i - math.floor(i) for i in coord])

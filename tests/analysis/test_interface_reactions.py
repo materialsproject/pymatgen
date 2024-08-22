@@ -335,7 +335,7 @@ class TestInterfaceReaction(TestCase):
             lst = list(ir.get_kinks())
             x_kink = [i[1] for i in lst]
             energy_kink = [i[2] for i in lst]
-            points = list(zip(x_kink, energy_kink, strict=False))
+            points = list(zip(x_kink, energy_kink, strict=True))
             if len(points) >= 3:
                 # To test convexity of the plot, construct convex hull from
                 # the kinks and make sure
@@ -343,7 +343,7 @@ class TestInterfaceReaction(TestCase):
                 # 2. all points are on the convex hull.
                 relative_vectors_1 = [(x - x_kink[0], e - energy_kink[0]) for x, e in points]
                 relative_vectors_2 = [(x - x_kink[-1], e - energy_kink[-1]) for x, e in points]
-                relative_vectors = zip(relative_vectors_1, relative_vectors_2, strict=False)
+                relative_vectors = zip(relative_vectors_1, relative_vectors_2, strict=True)
                 positions = [np.cross(v1, v2) for v1, v2 in relative_vectors]
                 assert np.all(np.array(positions) <= 0)
 
