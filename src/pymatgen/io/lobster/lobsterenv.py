@@ -253,7 +253,7 @@ class LobsterNeighbors(NearNeighbors):
             raise ValueError("No cations and anions defined")
 
         anion_species = []
-        for site, val in zip(self.structure, self.valences):
+        for site, val in zip(self.structure, self.valences, strict=False):
             if val < 0.0:
                 anion_species.append(site.specie)
 
@@ -427,7 +427,7 @@ class LobsterNeighbors(NearNeighbors):
         assert self.Icohpcollection is not None
         for idx, _site in enumerate(self.structure):
             if idx in isites:
-                for key, icohpsum in zip(self.list_keys[idx], self.list_icohps[idx]):
+                for key, icohpsum in zip(self.list_keys[idx], self.list_icohps[idx], strict=False):
                     summed_icohps += icohpsum
                     list_icohps.append(icohpsum)
                     labels.append(key)
@@ -576,7 +576,7 @@ class LobsterNeighbors(NearNeighbors):
             new_labels = []
             new_atoms = []
             assert final_isites is not None
-            for key, atompair, isite in zip(labels, atoms, final_isites):
+            for key, atompair, isite in zip(labels, atoms, final_isites, strict=False):
                 present = False
                 for atomtype in only_bonds_to:
                     # This is necessary to identify also bonds between the same elements correctly

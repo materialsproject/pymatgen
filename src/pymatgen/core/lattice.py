@@ -516,7 +516,7 @@ class Lattice(MSONable):
     @property
     def params_dict(self) -> dict[str, float]:
         """Dictionary of lattice parameters."""
-        return dict(zip("a b c alpha beta gamma".split(), self.parameters))
+        return dict(zip("a b c alpha beta gamma".split(), self.parameters, strict=False))
 
     @property
     def reciprocal_lattice(self) -> Self:
@@ -1320,7 +1320,7 @@ class Lattice(MSONable):
             cart_a = np.reshape([self.get_cartesian_coords(vec) for vec in coords_a], (-1, 3))
             cart_b = np.reshape([self.get_cartesian_coords(vec) for vec in coords_b], (-1, 3))
 
-        return np.array(list(itertools.starmap(np.dot, zip(cart_a, cart_b))))
+        return np.array(list(itertools.starmap(np.dot, zip(cart_a, cart_b, strict=False))))
 
     def norm(self, coords: ArrayLike, frac_coords: bool = True) -> np.ndarray:
         """Compute the norm of vector(s).
@@ -1393,7 +1393,7 @@ class Lattice(MSONable):
                 return np.array([]) if zip_results else tuple(np.array([]) for _ in range(4))
             frac_coords = frac_points[indices] + images
             if zip_results:
-                return tuple(zip(frac_coords, distances, indices, images))
+                return tuple(zip(frac_coords, distances, indices, images, strict=False))
             return frac_coords, distances, indices, images
 
     def get_points_in_sphere_py(
@@ -1447,7 +1447,7 @@ class Lattice(MSONable):
             return [] if zip_results else [()] * 4
         if zip_results:
             return neighbors
-        return [np.array(i) for i in list(zip(*neighbors))]
+        return [np.array(i) for i in list(zip(*neighbors, strict=False))]
 
     @deprecated(get_points_in_sphere, "This is retained purely for checking purposes.")
     def get_points_in_sphere_old(
@@ -1538,7 +1538,13 @@ class Lattice(MSONable):
 
         if zip_results:
             return list(
-                zip(shifted_coords[within_r], np.sqrt(d_2[within_r]), indices[within_r[0]], images[within_r[1:]])
+                zip(
+                    shifted_coords[within_r],
+                    np.sqrt(d_2[within_r]),
+                    indices[within_r[0]],
+                    images[within_r[1:]],
+                    strict=False,
+                )
             )
         return shifted_coords[within_r], np.sqrt(d_2[within_r]), indices[within_r[0]], images[within_r[1:]]
 
@@ -1798,7 +1804,7 @@ def get_points_in_spheres(
         nmin[_pbc] = nmin_temp[_pbc]
         nmax = np.ones_like(nmax_temp)
         nmax[_pbc] = nmax_temp[_pbc]
-        all_ranges = [np.arange(x, y, dtype="int64") for x, y in zip(nmin, nmax)]
+        all_ranges = [np.arange(x, y, dtype="int64") for x, y in zip(nmin, nmax, strict=False)]
         matrix = lattice.matrix
 
         # Temporarily hold the fractional coordinates
@@ -1850,7 +1856,7 @@ def get_points_in_spheres(
     cube_to_coords: dict[int, list] = defaultdict(list)
     cube_to_images: dict[int, list] = defaultdict(list)
     cube_to_indices: dict[int, list] = defaultdict(list)
-    for ii, jj, kk, ll in zip(all_cube_index.ravel(), valid_coords, valid_images, valid_indices):
+    for ii, jj, kk, ll in zip(all_cube_index.ravel(), valid_coords, valid_images, valid_indices, strict=False):
         cube_to_coords[ii].append(jj)
         cube_to_images[ii].append(kk)
         cube_to_indices[ii].append(ll)
@@ -1859,7 +1865,7 @@ def get_points_in_spheres(
     site_neighbors = find_neighbors(site_cube_index, nx, ny, nz)
     neighbors: list[list[tuple[np.ndarray, float, int, np.ndarray]]] = []
 
-    for ii, jj in zip(center_coords, site_neighbors):
+    for ii, jj in zip(center_coords, site_neighbors, strict=False):
         l1 = np.array(_three_to_one(jj, ny, nz), dtype=int).ravel()
         # Use the cube index map to find the all the neighboring
         # coords, images, and indices
@@ -1872,7 +1878,7 @@ def get_points_in_spheres(
         nn_indices = itertools.chain(*(cube_to_indices[k] for k in ks))
         distances = np.linalg.norm(nn_coords - ii[None, :], axis=1)
         nns: list[tuple[np.ndarray, float, int, np.ndarray]] = []
-        for coord, index, image, dist in zip(nn_coords, nn_indices, nn_images, distances):
+        for coord, index, image, dist in zip(nn_coords, nn_indices, nn_images, distances, strict=False):
             # Filtering out all sites that are beyond the cutoff
             # Here there is no filtering of overlapping sites
             if dist < r + numerical_tol:

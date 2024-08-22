@@ -3,7 +3,7 @@ requires = [
     "Cython>=0.29.23",
     # Building against NPY2 will support both NPY1 and NPY2
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#build-time-dependency
-    "numpy>=2.0.1",
+    "numpy>=2.1.0",
     "setuptools>=65.0.0",
 ]
 build-backend = "setuptools.build_meta"
@@ -22,7 +22,7 @@ Python Materials Genomics is a robust materials analysis code that defines core 
 and molecules with support for many electronic structure codes. It is currently the core analysis code powering the
 Materials Project (https://materialsproject.org)."""
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 keywords = [
     "ABINIT",
     "VASP",
@@ -49,7 +49,6 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.9",
     "Topic :: Scientific/Engineering :: Chemistry",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Scientific/Engineering :: Physics",
@@ -171,7 +170,7 @@ before-all = "ln -s /usr/lib64/libgfortran.so.5 /usr/lib64/libgfortran.so.3"
 repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel} --ignore-missing-dependencies"
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py310"
 line-length = 120
 output-format = "concise"
 

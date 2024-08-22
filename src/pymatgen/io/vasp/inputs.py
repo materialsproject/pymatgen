@@ -715,7 +715,7 @@ class Incar(dict, MSONable):
         if params is not None:
             # If INCAR contains vector-like MAGMOMS given as a list
             # of floats, convert to a list of lists
-            if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], (int, float))) and (
+            if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], int | float)) and (
                 params.get("LSORBIT") or params.get("LNONCOLLINEAR")
             ):
                 val = []
@@ -790,7 +790,7 @@ class Incar(dict, MSONable):
             if key == "MAGMOM" and isinstance(self[key], list):
                 value = []
 
-                if isinstance(self[key][0], (list, Magmom)) and (self.get("LSORBIT") or self.get("LNONCOLLINEAR")):
+                if isinstance(self[key][0], list | Magmom) and (self.get("LSORBIT") or self.get("LNONCOLLINEAR")):
                     value.append(" ".join(str(i) for j in self[key] for i in j))
                 elif self.get("LSORBIT") or self.get("LNONCOLLINEAR"):
                     for _key, group in itertools.groupby(self[key]):
@@ -1182,10 +1182,10 @@ class Kpoints(MSONable):
     @property
     def kpts(self) -> list[Kpoint]:
         """A sequence of Kpoints, where each Kpoint is a tuple of 3 or 1."""
-        if all(isinstance(kpt, (list, tuple, np.ndarray)) and len(kpt) in {1, 3} for kpt in self._kpts):
+        if all(isinstance(kpt, list | tuple | np.ndarray) and len(kpt) in {1, 3} for kpt in self._kpts):
             return list(map(tuple, self._kpts))  # type: ignore[arg-type]
 
-        if all(isinstance(point, (int, float)) for point in self._kpts) and len(self._kpts) == 3:
+        if all(isinstance(point, int | float) for point in self._kpts) and len(self._kpts) == 3:
             return [cast(Kpoint, tuple(self._kpts))]
 
         raise ValueError(f"Invalid Kpoint {self._kpts}.")
@@ -2042,17 +2042,17 @@ class PotcarSingle:
             if k in {"nentries", "Orbitals", "SHA256", "COPYR"}:
                 continue
             hash_str += f"{k}"
-            if isinstance(v, (bool, int)):
+            if isinstance(v, bool | int):
                 hash_str += f"{v}"
             elif isinstance(v, float):
                 hash_str += f"{v:.3f}"
-            elif isinstance(v, (tuple, list)):
+            elif isinstance(v, tuple | list):
                 for item in v:
                     if isinstance(item, float):
                         hash_str += f"{item:.3f}"
-                    elif isinstance(item, (Orbital, OrbitalDescription)):
+                    elif isinstance(item, Orbital | OrbitalDescription):
                         for item_v in item:
-                            if isinstance(item_v, (int, str)):
+                            if isinstance(item_v, int | str):
                                 hash_str += f"{item_v}"
                             elif isinstance(item_v, float):
                                 hash_str += f"{item_v:.3f}"
@@ -2157,7 +2157,7 @@ class PotcarSingle:
                 parsed_val = parse_fortran_style_str(raw_val)
                 if isinstance(parsed_val, str):
                     tmp_str += parsed_val.strip()
-                elif isinstance(parsed_val, (float, int)):
+                elif isinstance(parsed_val, float | int):
                     psp_vals.append(parsed_val)
             if len(tmp_str) > 0:
                 psp_keys.append(tmp_str.lower())
@@ -2168,10 +2168,10 @@ class PotcarSingle:
             if isinstance(val, bool):
                 # has to come first since bools are also ints
                 keyword_vals.append(1.0 if val else 0.0)
-            elif isinstance(val, (float, int)):
+            elif isinstance(val, float | int):
                 keyword_vals.append(val)
             elif hasattr(val, "__len__"):
-                keyword_vals += [num for num in val if isinstance(num, (float, int))]
+                keyword_vals += [num for num in val if isinstance(num, float | int)]
 
         def data_stats(data_list: Sequence) -> dict:
             """Used for hash-less and therefore less brittle POTCAR validity checking."""

@@ -177,7 +177,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
         """
         self.symprec = symprec
         self.structure_list: dict[str, list[Structure]] = defaultdict(list)
-        if not isinstance(structure_matcher, (dict, StructureMatcher, type(None))):
+        if not isinstance(structure_matcher, dict | StructureMatcher | type(None)):
             raise TypeError(f"{structure_matcher=} must be a dict, StructureMatcher or None")
         if isinstance(structure_matcher, dict):
             self.structure_matcher = StructureMatcher.from_dict(structure_matcher)

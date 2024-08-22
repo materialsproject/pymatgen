@@ -204,7 +204,7 @@ class KeywordList(MSONable):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return NotImplemented
-        return all(k == o for k, o in zip(self.keywords, other.keywords))
+        return all(k == o for k, o in zip(self.keywords, other.keywords, strict=False))
 
     def __add__(self, other):
         return self.extend(other)
@@ -316,12 +316,12 @@ class Section(MSONable):
         raise KeyError
 
     def __add__(self, other) -> Section:
-        if isinstance(other, (Keyword, KeywordList)):
+        if isinstance(other, Keyword | KeywordList):
             if other.name in self.keywords:
                 self.keywords[other.name] += other
             else:
                 self.keywords[other.name] = other
-        elif isinstance(other, (Section, SectionList)):
+        elif isinstance(other, Section | SectionList):
             self.insert(other)
         else:
             raise TypeError("Can only add sections or keywords.")
@@ -360,13 +360,13 @@ class Section(MSONable):
 
         strict will only set values for items that already have a key entry (no insertion).
         """
-        if isinstance(value, (Section, SectionList)):
+        if isinstance(value, Section | SectionList):
             if key in self.subsections:
                 self.subsections[key] = copy.deepcopy(value)
             elif not strict:
                 self.insert(value)
         else:
-            if not isinstance(value, (Keyword, KeywordList)):
+            if not isinstance(value, Keyword | KeywordList):
                 value = Keyword(key, value)
             if match := [k for k in self.keywords if key.upper() == k.upper()]:
                 del self.keywords[match[0]]
@@ -376,7 +376,7 @@ class Section(MSONable):
 
     def add(self, other):
         """Add another keyword to the current section."""
-        if not isinstance(other, (Keyword, KeywordList)):
+        if not isinstance(other, Keyword | KeywordList):
             raise TypeError(f"Can only add keywords, not {type(other).__name__}")
         return self + other
 
@@ -449,9 +449,9 @@ class Section(MSONable):
     def _update(d1, d2, strict=False):
         """Helper method for self.update(d) method (see above)."""
         for k, v in d2.items():
-            if isinstance(v, (str, float, int, bool)):
+            if isinstance(v, str | float | int | bool):
                 d1.setitem(k, Keyword(k, v), strict=strict)
-            elif isinstance(v, (Keyword, KeywordList)):
+            elif isinstance(v, Keyword | KeywordList):
                 d1.setitem(k, v, strict=strict)
             elif isinstance(v, dict):
                 if tmp := [_ for _ in d1.subsections if k.upper() == _.upper()]:
@@ -479,9 +479,9 @@ class Section(MSONable):
     def unset(self, dct: dict):
         """Dict based deletion. Used by custodian."""
         for k, v in dct.items():
-            if isinstance(v, (str, float, int, bool)):
+            if isinstance(v, str | float | int | bool):
                 del self[k][v]
-            elif isinstance(v, (Keyword, Section, KeywordList, SectionList)):
+            elif isinstance(v, Keyword | Section | KeywordList | SectionList):
                 del self[k][v.name]
             elif isinstance(v, dict):
                 self[k].unset(v)
@@ -491,9 +491,9 @@ class Section(MSONable):
     def inc(self, dct: dict):
         """Mongo style dict modification. Include."""
         for key, val in dct.items():
-            if isinstance(val, (str, float, bool, int, list)):
+            if isinstance(val, str | float | bool | int | list):
                 val = Keyword(key, val)
-            if isinstance(val, (Keyword, Section, KeywordList, SectionList)):
+            if isinstance(val, Keyword | Section | KeywordList | SectionList):
                 self.add(val)
             elif isinstance(val, dict):
                 self[key].inc(val)
@@ -502,7 +502,7 @@ class Section(MSONable):
 
     def insert(self, d):
         """Insert a new section as a subsection of the current one."""
-        assert isinstance(d, (Section, SectionList))
+        assert isinstance(d, Section | SectionList)
         self.subsections[d.alias or d.name] = copy.deepcopy(d)
 
     def check(self, path: str):
@@ -611,7 +611,7 @@ class SectionList(MSONable):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SectionList):
             return NotImplemented
-        return all(k == o for k, o in zip(self.sections, other.sections))
+        return all(k == o for k, o in zip(self.sections, other.sections, strict=False))
 
     def __add__(self, other):
         self.append(other)
@@ -1967,7 +1967,9 @@ class Kpoints(Section):
         if len(kpts) == 1:
             keywords["SCHEME"] = Keyword("SCHEME", scheme, *kpts[0])
         elif len(kpts) > 1:
-            keywords["KPOINT"] = KeywordList([Keyword("KPOINT", *k, w) for k, w in zip(self.kpts, self.weights)])
+            keywords["KPOINT"] = KeywordList(
+                [Keyword("KPOINT", *k, w) for k, w in zip(self.kpts, self.weights, strict=False)]
+            )
         else:
             raise ValueError("No k-points provided!")
 
@@ -2033,7 +2035,7 @@ class Kpoints(Section):
                 scheme = "GAMMA"
             else:
                 sga = SpacegroupAnalyzer(structure)
-                _kpts, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpts))  # type: ignore[arg-type]
+                _kpts, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpts), strict=False)  # type: ignore[arg-type]
                 kpts = list(itertools.chain.from_iterable(_kpts))
                 scheme = "GENERAL"
 
@@ -2140,7 +2142,7 @@ class BandStructure(Section):
 
             def pairwise(iterable):
                 a = iter(iterable)
-                return zip(a, a)
+                return zip(a, a, strict=False)
 
             kpoint_sets = [
                 KpointSet(
@@ -2148,7 +2150,7 @@ class BandStructure(Section):
                     kpoints=[(lbls[0], kpts[0]), (lbls[1], kpts[1])],
                     units="B_VECTOR",
                 )
-                for lbls, kpts in zip(pairwise(kpoints.labels), pairwise(kpoints.kpts))
+                for lbls, kpts in zip(pairwise(kpoints.labels), pairwise(kpoints.kpts), strict=False)
             ]
         elif kpoints.style in (
             KpointsSupportedModes.Reciprocal,

@@ -44,7 +44,8 @@ from pymatgen.util.num import make_symmetric_matrix_from_upper_tri
 from pymatgen.util.typing import Kpoint, Tuple3Floats, Vector3D
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Literal
+    from collections.abc import Callable
+    from typing import Any, Literal
 
     # Avoid name conflict with pymatgen.core.Element
     from xml.etree.ElementTree import Element as XML_Element
@@ -600,7 +601,9 @@ class Vasprun(MSONable):
                 return 2 * 3.14159 * np.sqrt(np.sqrt(real**2 + imag**2) - real) * np.sqrt(2) / hc * freq
 
             return list(
-                itertools.starmap(optical_absorb_coeff, zip(self.dielectric_data["density"][0], real_avg, imag_avg))
+                itertools.starmap(
+                    optical_absorb_coeff, zip(self.dielectric_data["density"][0], real_avg, imag_avg, strict=False)
+                )
             )
         return None
 
@@ -1021,7 +1024,7 @@ class Vasprun(MSONable):
                             "A band structure along symmetry lines requires a label "
                             "for each kpoint. Check your KPOINTS file"
                         )
-                    labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
+                    labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts, strict=False))
                 labels_dict.pop(None, None)  # type: ignore[call-overload]
 
             return BandStructureSymmLine(
@@ -1157,7 +1160,7 @@ class Vasprun(MSONable):
         if not path:
             return None
 
-        if isinstance(path, (str, Path)) and "POTCAR" in str(path):
+        if isinstance(path, str | Path) and "POTCAR" in str(path):
             potcar_paths = [str(path)]
         else:
             # the abspath is needed here in cases where no leading directory is specified,
@@ -1226,7 +1229,7 @@ class Vasprun(MSONable):
                 )
             else:
                 nums = [len(list(g)) for _, g in itertools.groupby(self.atomic_symbols)]
-                potcar_nelect = sum(ps.ZVAL * num for ps, num in zip(potcar, nums))
+                potcar_nelect = sum(ps.ZVAL * num for ps, num in zip(potcar, nums, strict=False))
             charge = potcar_nelect - nelect
 
             for struct in self.structures:
@@ -1988,13 +1991,13 @@ class Outcar:
                     tokens = [float(i) for i in re.findall(r"[\d\.\-]+", clean)]
                     tokens.pop(0)
                     if read_charge:
-                        charge.append(dict(zip(header, tokens)))
+                        charge.append(dict(zip(header, tokens, strict=False)))
                     elif read_mag_x:
-                        mag_x.append(dict(zip(header, tokens)))
+                        mag_x.append(dict(zip(header, tokens, strict=False)))
                     elif read_mag_y:
-                        mag_y.append(dict(zip(header, tokens)))
+                        mag_y.append(dict(zip(header, tokens, strict=False)))
                     elif read_mag_z:
-                        mag_z.append(dict(zip(header, tokens)))
+                        mag_z.append(dict(zip(header, tokens, strict=False)))
                 elif clean.startswith("tot"):
                     read_charge = False
                     read_mag_x = False
@@ -3218,7 +3221,7 @@ class Outcar:
 
             micro_pyawk(self.filename, search, self)
 
-            self.zval_dict = dict(zip(self.atom_symbols, self.zvals))  # type: ignore[attr-defined]
+            self.zval_dict = dict(zip(self.atom_symbols, self.zvals, strict=False))  # type: ignore[attr-defined]
 
             # Clean up
             del self.atom_symbols  # type: ignore[attr-defined]
@@ -4845,7 +4848,7 @@ class Wavecar:
             tcoeffs = self.coeffs[kpoint][band]
 
         mesh = np.zeros(tuple(self.ng), dtype=np.complex128)
-        for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs):  # type: ignore[call-overload]
+        for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs, strict=False):  # type: ignore[call-overload]
             t = tuple(gp.astype(int) + (self.ng / 2).astype(int))
             mesh[t] = coeff
 

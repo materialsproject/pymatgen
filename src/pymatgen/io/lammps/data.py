@@ -161,7 +161,7 @@ class LammpsBox(MSONable):
         """
         ph = f"{{:.{significant_figures}f}}"
         lines = []
-        for bound, d in zip(self.bounds, "xyz"):
+        for bound, d in zip(self.bounds, "xyz", strict=False):
             fillers = bound + [d] * 2
             bound_format = " ".join([ph] * 2 + [" {}lo {}hi"])
             lines.append(bound_format.format(*fillers))
@@ -525,7 +525,7 @@ class LammpsData(MSONable):
             symbols = [Element(symbols[idx]).symbol for idx in np.argmin(diff, axis=1)]
         else:
             symbols = [f"Q{a}" for a in map(chr, range(97, 97 + len(unique_masses)))]
-        for um, s in zip(unique_masses, symbols):
+        for um, s in zip(unique_masses, symbols, strict=False):
             masses.loc[masses["mass"] == um, "element"] = s
         if atom_labels is None:  # add unique labels based on elements
             for el, vc in masses["element"].value_counts().items():
@@ -915,7 +915,7 @@ class Topology(MSONable):
                     "Impropers": [[i, j, k, l], ...]
                 }.
         """
-        if not isinstance(sites, (Molecule, Structure)):
+        if not isinstance(sites, Molecule | Structure):
             sites = Molecule.from_sites(sites)
 
         type_by_sites = sites.site_properties[ff_label] if ff_label else [site.specie.symbol for site in sites]
@@ -1006,7 +1006,9 @@ class Topology(MSONable):
                 dihedral_list.extend([[ki, ii, jj, li] for ki, li in itertools.product(ks, ls) if ki != li])
 
         topologies = {
-            k: v for k, v in zip(SECTION_KEYWORDS["topology"][:3], [bond_list, angle_list, dihedral_list]) if len(v) > 0
+            k: v
+            for k, v in zip(SECTION_KEYWORDS["topology"][:3], [bond_list, angle_list, dihedral_list], strict=False)
+            if len(v) > 0
         } or None
         return cls(sites=molecule, topologies=topologies, **kwargs)
 
@@ -1475,7 +1477,8 @@ class CombinedData(LammpsData):
         """
         lines = LammpsData.get_str(self, distance, velocity, charge, hybrid).splitlines()
         info = "# " + " + ".join(
-            f"{a} {b}" if c == 1 else f"{a}({c}) {b}" for a, b, c in zip(self.nums, self.names, self.mols_per_data)
+            f"{a} {b}" if c == 1 else f"{a}({c}) {b}"
+            for a, b, c in zip(self.nums, self.names, self.mols_per_data, strict=False)
         )
         lines.insert(1, info)
         return "\n".join(lines)
