@@ -462,7 +462,7 @@ class PhononDos(MSONable):
 
         dos_rebin = np.zeros(freq.shape)
 
-        for ii, e1, e2 in zip(range(len(freq)), freq_bounds[:-1], freq_bounds[1:], strict=True):
+        for ii, e1, e2 in zip(range(len(freq)), freq_bounds[:-1], freq_bounds[1:], strict=False):
             inds = np.where((frequencies >= e1) & (frequencies < e2))
             dos_rebin[ii] = np.sum(densities[inds])
         if normalize:  # scale DOS bins to make area under histogram equal 1
