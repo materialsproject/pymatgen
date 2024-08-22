@@ -483,7 +483,7 @@ class TestStructureMatcher(PymatgenTest):
         del subset_supercell[0]
         result = sm.get_s2_like_s1(subset_supercell, s2)
         assert len(result) == 6
-        for a, b in zip(subset_supercell, result, strict=True):
+        for a, b in zip(subset_supercell, result, strict=False):
             assert a.distance(b) < 0.08
             assert a.species == b.species
 

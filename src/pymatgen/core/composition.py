@@ -608,7 +608,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             reduced /= gcd(*(int(i) for i in self.values()))
 
         anon = ""
-        for elem, amt in zip(string.ascii_uppercase, sorted(reduced.values()), strict=True):
+        for elem, amt in zip(string.ascii_uppercase, sorted(reduced.values()), strict=False):
             if amt == 1:
                 amt_str = ""
             elif abs(amt % 1) < 1e-8:

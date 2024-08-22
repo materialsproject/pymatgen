@@ -1229,7 +1229,7 @@ class Vasprun(MSONable):
                 )
             else:
                 nums = [len(list(g)) for _, g in itertools.groupby(self.atomic_symbols)]
-                potcar_nelect = sum(ps.ZVAL * num for ps, num in zip(potcar, nums, strict=True))
+                potcar_nelect = sum(ps.ZVAL * num for ps, num in zip(potcar, nums, strict=False))
             charge = potcar_nelect - nelect
 
             for struct in self.structures:
@@ -4848,7 +4848,7 @@ class Wavecar:
             tcoeffs = self.coeffs[kpoint][band]
 
         mesh = np.zeros(tuple(self.ng), dtype=np.complex128)
-        for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs, strict=True):  # type: ignore[call-overload]
+        for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs, strict=False):  # type: ignore[call-overload]
             t = tuple(gp.astype(int) + (self.ng / 2).astype(int))
             mesh[t] = coeff
 

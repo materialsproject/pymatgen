@@ -95,7 +95,7 @@ def _optimade_reduce_or_anonymize_formula(formula: str, alphabetize: bool = True
 
     if anonymize:
         numbers = sorted(numbers, reverse=True)
-        species = [s for _, s in zip(numbers, _optimade_anonymous_element_generator(), strict=True)]
+        species = [s for _, s in zip(numbers, _optimade_anonymous_element_generator(), strict=False)]
 
     elif alphabetize:
         species, numbers = zip(*sorted(zip(species, numbers, strict=True)), strict=True)  # type: ignore[assignment]

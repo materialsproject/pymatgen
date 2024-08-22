@@ -1905,7 +1905,7 @@ class QCOutput(MSONable):
         )
 
         self.data["cdft_constraints_multipliers"] = []
-        for const, multip in zip(temp_dict.get("constraint", []), temp_dict.get("multiplier", []), strict=True):
+        for const, multip in zip(temp_dict.get("constraint", []), temp_dict.get("multiplier", []), strict=False):
             entry = {"index": int(const[0]), "constraint": float(const[1]), "multiplier": float(multip[0])}
             self.data["cdft_constraints_multipliers"].append(entry)
 

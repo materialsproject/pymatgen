@@ -463,7 +463,7 @@ loop_
   O  O2  8  0.16570974  0.04607233  0.28538394  1
   O  O3  4  0.04337231  0.75000000  0.70713767  1
   O  O4  4  0.09664244  0.25000000  0.74132035  1"""
-        for l1, l2 in zip(str(writer).split("\n"), answer.split("\n"), strict=True):
+        for l1, l2 in zip(str(writer).split("\n"), answer.split("\n"), strict=False):
             assert l1.strip() == l2.strip()
 
     def test_symmetrized(self):

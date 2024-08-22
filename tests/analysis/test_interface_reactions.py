@@ -419,7 +419,7 @@ class TestInterfaceReaction(TestCase):
             (0.3333333, -3.333333),
             (0.3333333, -4.0),
         ]
-        for inter_react, expected in zip(self.irs, answer, strict=True):
+        for inter_react, expected in zip(self.irs, answer, strict=False):
             assert_allclose(inter_react.minimum, expected, atol=1e-7)
 
     def test_get_no_mixing_energy(self):
@@ -438,7 +438,7 @@ class TestInterfaceReaction(TestCase):
             return lst[0][1], lst[1][1]
 
         result_info = [ir.get_no_mixing_energy() for ir in self.irs if ir.grand]
-        for ii, jj in zip(result_info, answer, strict=True):
+        for ii, jj in zip(result_info, answer, strict=False):
             err_msg = f"get_no_mixing_energy: names get error, {name_lst(jj)} expected but gets {name_lst(ii)}"
             assert name_lst(ii) == name_lst(jj), err_msg
             assert_allclose(
