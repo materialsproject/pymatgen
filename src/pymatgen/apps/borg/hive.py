@@ -253,7 +253,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
 
             param = {"hubbards": {}}
             if "LDAUU" in incar:
-                param["hubbards"] = dict(zip(poscar.site_symbols, incar["LDAUU"]))
+                param["hubbards"] = dict(zip(poscar.site_symbols, incar["LDAUU"], strict=False))
             param["is_hubbard"] = incar.get("LDAU", True) and sum(param["hubbards"].values()) > 0
             param["run_type"] = None
             param["potcar_spec"] = potcar.spec

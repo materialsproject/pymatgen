@@ -1268,7 +1268,7 @@ class CompleteDos(Dos):
 
             dos_rebin = np.zeros(ener.shape)
 
-            for ii, e1, e2 in zip(range(len(ener)), ener_bounds[:-1], ener_bounds[1:]):
+            for ii, e1, e2 in zip(range(len(ener)), ener_bounds[:-1], ener_bounds[1:], strict=False):
                 inds = np.where((energies >= e1) & (energies < e2))
                 dos_rebin[ii] = np.sum(densities[inds])
 
@@ -1326,11 +1326,9 @@ class CompleteDos(Dos):
         Returns:
             float: Similarity index given by the dot product.
         """
-        if metric not in ["tanimoto", "wasserstein", "cosine-sim"]:
-            raise ValueError(
-                "Requested metric not implemented. Currently implemented metrics are tanimoto, "
-                "wasserstien and cosine-sim."
-            )
+        valid_metrics = ("tanimoto", "wasserstein", "cosine-sim")
+        if metric not in valid_metrics:
+            raise ValueError(f"Invalid {metric=}, choose from {valid_metrics}.")
 
         fp1_dict = CompleteDos.fp_to_dict(fp1) if not isinstance(fp1, dict) else fp1
         fp2_dict = CompleteDos.fp_to_dict(fp2) if not isinstance(fp2, dict) else fp2

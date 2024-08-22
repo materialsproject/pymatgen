@@ -286,7 +286,7 @@ def create_openff_mol(
     Returns:
         tk.Molecule: The created OpenFF Molecule.
     """
-    if isinstance(geometry, (str, Path)):
+    if isinstance(geometry, str | Path):
         geometry = pymatgen.core.Molecule.from_file(str(geometry))
 
     if partial_charges is not None:

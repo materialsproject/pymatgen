@@ -57,15 +57,16 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.typing import Kpoint
 
 if TYPE_CHECKING:
-    from typing import Callable, Literal, Union
+    from collections.abc import Callable
+    from typing import Literal
 
     from typing_extensions import Self
 
     from pymatgen.util.typing import PathLike, Tuple3Ints, Vector3D
 
-    UserPotcarFunctional = Union[
-        Literal["PBE", "PBE_52", "PBE_54", "PBE_64", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"], None
-    ]
+    UserPotcarFunctional = (
+        Literal["PBE", "PBE_52", "PBE_54", "PBE_64", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"] | None
+    )
 
 MODULE_DIR = os.path.dirname(__file__)
 
@@ -300,10 +301,10 @@ class VaspInputSet(InputGenerator, abc.ABC):
         else:
             self.structure = self.structure
 
-        if isinstance(self.prev_incar, (Path, str)):
+        if isinstance(self.prev_incar, Path | str):
             self.prev_incar = Incar.from_file(self.prev_incar)
 
-        if isinstance(self.prev_kpoints, (Path, str)):
+        if isinstance(self.prev_kpoints, Path | str):
             self.prev_kpoints = Kpoints.from_file(self.prev_kpoints)
 
         self.prev_vasprun: Vasprun | None = None
@@ -518,7 +519,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         prev_incar: dict[str, Any] = {}
         if self.inherit_incar is True and self.prev_incar:
             prev_incar = cast(dict[str, Any], self.prev_incar)
-        elif isinstance(self.inherit_incar, (list, tuple)) and self.prev_incar:
+        elif isinstance(self.inherit_incar, list | tuple) and self.prev_incar:
             prev_incar = {
                 k: cast(dict[str, Any], self.prev_incar)[k] for k in self.inherit_incar if k in self.prev_incar
             }
@@ -584,7 +585,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                         # Else, use fallback LDAU value if it exists
                     else:
                         incar[key] = [
-                            setting.get(sym, 0) if isinstance(setting.get(sym, 0), (float, int)) else 0
+                            setting.get(sym, 0) if isinstance(setting.get(sym, 0), float | int) else 0
                             for sym in poscar.site_symbols
                         ]
 
@@ -1356,9 +1357,29 @@ class MPMetalRelaxSet(VaspInputSet):
 
 @dataclass
 class MPHSERelaxSet(VaspInputSet):
-    """Same as the MPRelaxSet, but with HSE parameters."""
+    """Same as the MPRelaxSet, but with HSE parameters and vdW corrections."""
 
     CONFIG = _load_yaml_config("MPHSERelaxSet")
+    vdw: Literal["dftd3", "dftd3-bj"] | None = None
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self._config_dict["INCAR"]["LASPH"] = True
+
+    @property
+    def incar_updates(self) -> dict[str, Any]:
+        """Updates to the INCAR config for this calculation type."""
+        updates: dict[str, Any] = {}
+
+        if self.vdw:
+            hse_vdw_par = {
+                "dftd3": {"VDW_SR": 1.129, "VDW_S8": 0.109},
+                "dftd3-bj": {"VDW_A1": 0.383, "VDW_S8": 2.310, "VDW_A2": 5.685},
+            }
+            if vdw_param := hse_vdw_par.get(self.vdw):
+                updates.update(vdw_param)
+
+        return updates
 
 
 @dataclass
@@ -2960,7 +2981,7 @@ def get_valid_magmom_struct(
         for site in structure:
             if "magmom" not in site.properties or site.properties["magmom"] is None:
                 pass
-            elif isinstance(site.properties["magmom"], (float, int)):
+            elif isinstance(site.properties["magmom"], float | int):
                 if mode == "v":
                     raise TypeError("Magmom type conflict")
                 mode = "s"

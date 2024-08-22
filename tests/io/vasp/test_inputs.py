@@ -1306,7 +1306,7 @@ class TestPotcar(PymatgenTest):
         assert len(ref_potcar) == len(new_potcar), f"wrong POTCAR line count: {len(ref_potcar)} != {len(new_potcar)}"
 
         # check line by line
-        for line1, line2 in zip(ref_potcar, new_potcar):
+        for line1, line2 in zip(ref_potcar, new_potcar, strict=False):
             assert line1.strip() == line2.strip(), f"wrong POTCAR line: {line1} != {line2}"
 
     def test_set_symbol(self):
