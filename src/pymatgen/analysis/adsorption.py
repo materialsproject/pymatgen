@@ -235,7 +235,7 @@ class AdsorbateSiteFinder:
 
         Args:
             distance (float): distance from the coordinating ensemble
-                of atoms along the miller index for the site (i. e.
+                of atoms along the miller index for the site (i.e.
                 the distance from the slab itself)
             put_inside (bool): whether to put the site inside the cell
             symm_reduce (float): symm reduction threshold

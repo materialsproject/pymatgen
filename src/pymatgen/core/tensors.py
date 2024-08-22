@@ -57,7 +57,7 @@ class Tensor(np.ndarray, MSONable):
 
         Args:
             input_array: (array-like with shape 3^N): array-like representing
-                a tensor quantity in standard (i. e. non-Voigt) notation
+                a tensor quantity in standard (i.e. non-Voigt) notation
             vscale: (N x M array-like): a matrix corresponding
                 to the coefficients of the Voigt-notation tensor
             check_rank: (int): If not None, checks that input_array's rank == check_rank.
@@ -283,7 +283,7 @@ class Tensor(np.ndarray, MSONable):
 
     @property
     def voigt_symmetrized(self) -> Self:
-        """A "voigt"-symmetrized tensor, i. e. a Voigt-notation
+        """A "voigt"-symmetrized tensor, i.e. a Voigt-notation
         tensor such that it is invariant w.r.t. permutation of indices.
         """
         if self.rank % 2 != 0 or self.rank < 2:

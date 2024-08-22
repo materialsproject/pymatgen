@@ -289,7 +289,7 @@ class MultiEntry(PourbaixEntry):
 
     @property
     def name(self):
-        """MultiEntry name, i. e. the name of each entry joined by ' + '."""
+        """MultiEntry name, i.e. the name of each entry joined by ' + '."""
         return " + ".join(entry.name for entry in self.entry_list)
 
     def __repr__(self):
@@ -695,7 +695,7 @@ class PourbaixDiagram(MSONable):
 
     @staticmethod
     def get_pourbaix_domains(pourbaix_entries, limits=None):
-        """Get a set of Pourbaix stable domains (i. e. polygons) in
+        """Get a set of Pourbaix stable domains (i.e. polygons) in
         pH-V space from a list of pourbaix_entries.
 
         This function works by using scipy's HalfspaceIntersection
@@ -799,7 +799,7 @@ class PourbaixDiagram(MSONable):
             V (float, list[float]): voltage at which to find the decomposition
 
         Returns:
-            Decomposition energy for the entry, i. e. the energy above
+            Decomposition energy for the entry, i.e. the energy above
                 the "Pourbaix hull" in eV/atom at the given conditions
         """
         # Check composition consistency between entry and Pourbaix diagram:

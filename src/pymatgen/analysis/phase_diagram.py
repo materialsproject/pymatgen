@@ -2559,9 +2559,9 @@ class PDPlotter:
             else:
                 coord = tet_coord(data[line, 0:3])
             lines.append(coord)
-            labelcoord = list(zip(*coord, strict=True))
-            stable_entries[labelcoord[0]] = entry1
-            stable_entries[labelcoord[1]] = entry2
+            label_coord = list(zip(*coord, strict=True))
+            stable_entries[label_coord[0]] = entry1
+            stable_entries[label_coord[1]] = entry2
 
         all_entries = pd.all_entries
         all_data = np.array(pd.all_entries_hulldata)
@@ -2578,8 +2578,8 @@ class PDPlotter:
                     coord = triangular_coord([all_data[idx, 0:2], all_data[idx, 0:2]])
                 else:
                     coord = tet_coord([all_data[idx, 0:3], all_data[idx, 0:3], all_data[idx, 0:3]])
-                labelcoord = list(zip(*coord, strict=True))
-                unstable_entries[entry] = labelcoord[0]
+                label_coord = list(zip(*coord, strict=True))
+                unstable_entries[entry] = label_coord[0]
 
         return lines, stable_entries, unstable_entries
 
