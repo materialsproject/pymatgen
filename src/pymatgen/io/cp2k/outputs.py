@@ -1640,7 +1640,7 @@ def parse_energy_file(energy_file):
     df_energies["kinetic_energy"] = df_energies["kinetic_energy"] * Ha_to_eV
     df_energies["potential_energy"] = df_energies["potential_energy"] * Ha_to_eV
     df_energies["conserved_quantity"] = df_energies["conserved_quantity"] * Ha_to_eV
-    df_energies.astype(float)
+    df_energies = df_energies.astype(float)
     return {c: df_energies[c].to_numpy() for c in columns}
 
 
