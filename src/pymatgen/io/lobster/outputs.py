@@ -2175,7 +2175,7 @@ class LobsterMatrices:
         matrix_real = []
         matrix_imag = []
         for start_inx_real, end_inx_real, start_inx_imag, end_inx_imag in zip(
-            start_inxs_real, end_inxs_real, start_inxs_imag, end_inxs_imag, strict=False
+            start_inxs_real, end_inxs_real, start_inxs_imag, end_inxs_imag, strict=True
         ):
             # Matrix with text headers
             matrix_real = file_data[start_inx_real:end_inx_real]
@@ -2208,7 +2208,7 @@ class LobsterMatrices:
 
         # Get a dict with basis functions as keys and average values as values
         average_average_matrix_diag_dict = dict(
-            zip(elements_basis_functions, average_matrix_diagonal_values, strict=False)
+            zip(elements_basis_functions, average_matrix_diagonal_values, strict=True)
         )
 
         return matrix_diagonal_values, average_average_matrix_diag_dict, complex_matrices

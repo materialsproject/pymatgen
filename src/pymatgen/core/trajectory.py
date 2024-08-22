@@ -460,7 +460,7 @@ class Trajectory(MSONable):
 
             lines.append(f"Direct configuration=     {idx + 1}")
 
-            for coord, specie in zip(coords, self.species, strict=False):
+            for coord, specie in zip(coords, self.species, strict=True):
                 line = f'{" ".join(format_str.format(c) for c in coord)} {specie}'
                 lines.append(line)
 

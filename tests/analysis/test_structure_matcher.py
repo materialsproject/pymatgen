@@ -465,7 +465,7 @@ class TestStructureMatcher(PymatgenTest):
 
         # test when s1 is exact supercell of s2
         result = sm.get_s2_like_s1(s1, s2)
-        for a, b in zip(s1, result, strict=False):
+        for a, b in zip(s1, result, strict=True):
             assert a.distance(b) < 0.08
             assert a.species == b.species
 
@@ -500,7 +500,7 @@ class TestStructureMatcher(PymatgenTest):
         s2_missing_site = s2.copy()
         del s2_missing_site[1]
         result = sm.get_s2_like_s1(s1, s2_missing_site)
-        for a, b in zip((s1[i] for i in (0, 2, 4, 5)), result, strict=False):
+        for a, b in zip((s1[i] for i in (0, 2, 4, 5)), result, strict=True):
             assert a.distance(b) < 0.08
             assert a.species == b.species
 
@@ -534,7 +534,7 @@ class TestStructureMatcher(PymatgenTest):
 
         result = sm.get_s2_like_s1(s1, s2)
 
-        for x, y in zip(s1, result, strict=False):
+        for x, y in zip(s1, result, strict=True):
             assert x.distance(y) < 0.08
 
     def test_get_mapping(self):

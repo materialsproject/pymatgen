@@ -403,7 +403,7 @@ class BVAnalyzer:
         if self._best_vset:
             if structure.is_ordered:
                 assigned = {}
-                for val, sites in zip(self._best_vset, equi_sites, strict=False):
+                for val, sites in zip(self._best_vset, equi_sites, strict=True):
                     for site in sites:
                         assigned[site] = val
 
@@ -414,7 +414,7 @@ class BVAnalyzer:
                 new_best_vset.append([])
             for ival, val in enumerate(self._best_vset):
                 new_best_vset[attrib[ival]].append(val)
-            for val, sites in zip(new_best_vset, equi_sites, strict=False):
+            for val, sites in zip(new_best_vset, equi_sites, strict=True):
                 for site in sites:
                     assigned[site] = val
 
