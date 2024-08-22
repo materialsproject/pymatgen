@@ -186,7 +186,7 @@ class InterfacialReactivity(MSONable):
 
         index_kink = range(1, len(critical_comp) + 1)
 
-        return list(zip(index_kink, x_kink, energy_kink, react_kink, energy_per_rxt_formula, strict=False))
+        return list(zip(index_kink, x_kink, energy_kink, react_kink, energy_per_rxt_formula, strict=True))
 
     def plot(self, backend: Literal["plotly", "matplotlib"] = "plotly") -> Figure | plt.Figure:
         """
@@ -326,7 +326,7 @@ class InterfacialReactivity(MSONable):
 
     def _get_plotly_figure(self) -> Figure:
         """Get a Plotly figure of reaction kinks diagram."""
-        kinks = map(list, zip(*self.get_kinks(), strict=False))
+        kinks = map(list, zip(*self.get_kinks(), strict=True))
         _, x, energy, reactions, _ = kinks
 
         lines = Scatter(
@@ -348,7 +348,7 @@ class InterfacialReactivity(MSONable):
 
         labels = [
             f"{htmlify(str(r))} <br>\u0394E<sub>rxn</sub> = {round(e, 3)} eV/atom"
-            for r, e in zip(reactions, energy, strict=False)
+            for r, e in zip(reactions, energy, strict=True)
         ]
 
         markers = Scatter(
@@ -392,13 +392,13 @@ class InterfacialReactivity(MSONable):
         ax = pretty_plot(8, 5)
         plt.xlim([-0.05, 1.05])  # plot boundary is 5% wider on each side
 
-        kinks = list(zip(*self.get_kinks(), strict=False))
+        kinks = list(zip(*self.get_kinks(), strict=True))
         _, x, energy, reactions, _ = kinks
 
         plt.plot(x, energy, "o-", markersize=8, c="navy", zorder=1)
         plt.scatter(self.minimum[0], self.minimum[1], marker="*", c="red", s=400, zorder=2)
 
-        for x_coord, y_coord, rxn in zip(x, energy, reactions, strict=False):
+        for x_coord, y_coord, rxn in zip(x, energy, reactions, strict=True):
             products = ", ".join(
                 [latexify(p.reduced_formula) for p in rxn.products if not np.isclose(rxn.get_coeff(p), 0)]
             )
@@ -438,7 +438,7 @@ class InterfacialReactivity(MSONable):
     def _get_plotly_annotations(x: list[float], y: list[float], reactions: list[Reaction]):
         """Get dictionary of annotations for the Plotly figure layout."""
         annotations = []
-        for x_coord, y_coord, rxn in zip(x, y, reactions, strict=False):
+        for x_coord, y_coord, rxn in zip(x, y, reactions, strict=True):
             products = ", ".join(
                 [htmlify(p.reduced_formula) for p in rxn.products if not np.isclose(rxn.get_coeff(p), 0)]
             )

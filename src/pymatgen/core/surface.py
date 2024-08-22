@@ -557,7 +557,7 @@ class Slab(Structure):
                         frac_coords.append(struct_matcher.frac_coords + [0, 0, shift])  # noqa: RUF005
 
                 # sort by species to put all similar species together.
-                sp_fcoord = sorted(zip(species, frac_coords, strict=False), key=lambda x: x[0])
+                sp_fcoord = sorted(zip(species, frac_coords, strict=True), key=lambda x: x[0])
                 species = [x[0] for x in sp_fcoord]
                 frac_coords = [x[1] for x in sp_fcoord]
                 slab = type(self)(
@@ -2114,7 +2114,7 @@ def hkl_transformation(
     transf_hkl = np.array([idx // divisor for idx in transf_hkl])
 
     # Get positive Miller index
-    if len([i for i in transf_hkl if i < 0]) > 1:
+    if sum(idx < 0 for idx in transf_hkl) > 1:
         transf_hkl *= -1
 
     return tuple(transf_hkl)

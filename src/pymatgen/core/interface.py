@@ -2559,7 +2559,7 @@ class Interface(Structure):
     def substrate_sites(self) -> list[Site]:
         """The site objects in the substrate."""
         return [
-            site for site, tag in zip(self, self.site_properties["interface_label"], strict=False) if "substrate" in tag
+            site for site, tag in zip(self, self.site_properties["interface_label"], strict=True) if "substrate" in tag
         ]
 
     @property
@@ -2575,7 +2575,7 @@ class Interface(Structure):
     @property
     def film_sites(self) -> list[Site]:
         """The film sites of the interface."""
-        return [site for site, tag in zip(self, self.site_properties["interface_label"], strict=False) if "film" in tag]
+        return [site for site, tag in zip(self, self.site_properties["interface_label"], strict=True) if "film" in tag]
 
     @property
     def film(self) -> Structure:
@@ -2687,7 +2687,7 @@ class Interface(Structure):
         new_lattice = Lattice(new_latt_matrix)
         self._lattice = new_lattice
 
-        for site, c_coords in zip(self, self.cart_coords, strict=False):
+        for site, c_coords in zip(self, self.cart_coords, strict=True):
             site._lattice = new_lattice  # Update the lattice
             site.coords = c_coords  # Put back into original Cartesian space
 

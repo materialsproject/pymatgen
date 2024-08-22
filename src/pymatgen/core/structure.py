@@ -547,7 +547,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         """
         if len(values) != len(self):
             raise ValueError(f"{len(values)=} must equal sites in structure={len(self)}")
-        for site, val in zip(self, values, strict=False):
+        for site, val in zip(self, values, strict=True):
             site.properties[property_name] = val
 
         return self
@@ -651,7 +651,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
                 f"Oxidation states of all sites must be specified, expected {len(self)} values, "
                 f"got {len(oxidation_states)}"
             )
-        for site, ox in zip(self, oxidation_states, strict=False):
+        for site, ox in zip(self, oxidation_states, strict=True):
             new_sp = {}
             for el, occu in site.species.items():
                 sym = el.symbol
@@ -712,7 +712,7 @@ class SiteCollection(collections.abc.Sequence, ABC):
         if len(spins) != len(self):
             raise ValueError(f"Spins for all sites must be specified, expected {len(self)} spins, got {len(spins)}")
 
-        for site, spin in zip(self.sites, spins, strict=False):
+        for site, spin in zip(self.sites, spins, strict=True):
             new_species = {}
             for sp, occu in site.species.items():
                 sym = sp.symbol
@@ -1321,7 +1321,7 @@ class IStructure(SiteCollection, MSONable):
         all_coords: list[list[float]] = []
         all_site_properties: dict[str, list] = defaultdict(list)
         all_labels: list[str | None] = []
-        for idx, (sp, c) in enumerate(zip(species, frac_coords, strict=False)):
+        for idx, (sp, c) in enumerate(zip(species, frac_coords, strict=True)):
             cc = spg.get_orbit(c, tol=tol)
             all_sp.extend([sp] * len(cc))
             all_coords.extend(cc)
@@ -1427,7 +1427,7 @@ class IStructure(SiteCollection, MSONable):
         all_magmoms: list[float] = []
         all_site_properties: dict[str, list] = defaultdict(list)
         all_labels: list[str | None] = []
-        for idx, (spec, f_coord, magmom) in enumerate(zip(species, frac_coords, magmoms, strict=False)):
+        for idx, (spec, f_coord, magmom) in enumerate(zip(species, frac_coords, magmoms, strict=True)):
             cc, mm = msg.get_orbit(f_coord, magmom, tol=tol)
             all_sp.extend([spec] * len(cc))
             all_coords.extend(cc)
@@ -1864,10 +1864,10 @@ class IStructure(SiteCollection, MSONable):
             # Compare all neighbors pairwise to find the pairs that connect the same
             # two sites, but with an inverted vector (R=-R) that connects the two and add
             # one of each pair to the redundant list.
-            for idx, (i, j, R, d) in enumerate(zip(*bonds, strict=False)):
+            for idx, (i, j, R, d) in enumerate(zip(*bonds, strict=True)):
                 if idx in redundant:
                     continue
-                for jdx, (i2, j2, R2, d2) in enumerate(zip(*bonds, strict=False)):
+                for jdx, (i2, j2, R2, d2) in enumerate(zip(*bonds, strict=True)):
                     bool1 = i == j2
                     bool2 = j == i2
                     bool3 = (-R2 == R).all()
@@ -2005,7 +2005,7 @@ class IStructure(SiteCollection, MSONable):
         atol = Site.position_atol
         all_sites = self.sites
         for cindex, pindex, image, f_coord, d in zip(
-            center_indices, points_indices, images, f_coords, distances, strict=False
+            center_indices, points_indices, images, f_coords, distances, strict=True
         ):
             psite = all_sites[pindex]
             csite = sites[cindex]
@@ -2093,7 +2093,7 @@ class IStructure(SiteCollection, MSONable):
             lattice=self.lattice,
         )
         neighbors: list[list[PeriodicNeighbor]] = []
-        for point_neighbor, site in zip(point_neighbors, sites, strict=False):
+        for point_neighbor, site in zip(point_neighbors, sites, strict=True):
             nns: list[PeriodicNeighbor] = []
             if len(point_neighbor) < 1:
                 neighbors.append([])
@@ -2157,7 +2157,7 @@ class IStructure(SiteCollection, MSONable):
         nmin = np.floor(np.min(self.frac_coords, axis=0)) - maxr
         nmax = np.ceil(np.max(self.frac_coords, axis=0)) + maxr
 
-        all_ranges = list(itertools.starmap(np.arange, zip(nmin, nmax, strict=False)))
+        all_ranges = list(itertools.starmap(np.arange, zip(nmin, nmax, strict=True)))
         lattice = self._lattice
         matrix = lattice.matrix
         neighbors: list[list] = [[] for _ in range(len(self))]
@@ -2172,7 +2172,7 @@ class IStructure(SiteCollection, MSONable):
             all_dists = all_distances(coords, site_coords)
             all_within_r = np.bitwise_and(all_dists <= r, all_dists > 1e-8)
 
-            for j, d, within_r in zip(indices, all_dists, all_within_r, strict=False):
+            for j, d, within_r in zip(indices, all_dists, all_within_r, strict=True):
                 if include_site:
                     nnsite = PeriodicSite(
                         self[j].species,
@@ -2604,7 +2604,7 @@ class IStructure(SiteCollection, MSONable):
             any_close = np.any(is_close, axis=-1)
             inds = np.all(any_close, axis=-1)
 
-            for inv_m, latt_mat in zip(inv_ms[inds], ms[inds], strict=False):
+            for inv_m, latt_mat in zip(inv_ms[inds], ms[inds], strict=True):
                 new_m = np.dot(inv_m, self.lattice.matrix)
                 ftol = np.divide(tolerance, np.sqrt(np.sum(new_m**2, axis=1)))
 
@@ -2614,7 +2614,7 @@ class IStructure(SiteCollection, MSONable):
                 new_props = defaultdict(list)
                 new_labels = []
                 for gsites, gf_coords, non_nbrs in zip(
-                    grouped_sites, grouped_frac_coords, grouped_non_nbrs, strict=False
+                    grouped_sites, grouped_frac_coords, grouped_non_nbrs, strict=True
                 ):
                     all_frac = np.dot(gf_coords, latt_mat)
 
@@ -2806,10 +2806,10 @@ class IStructure(SiteCollection, MSONable):
                 row.append(site.properties.get(key))
             data.append(row)
 
-        df = pd.DataFrame(data, columns=["Species", *"abcxyz", *prop_keys])
-        df.attrs["Reduced Formula"] = self.composition.reduced_formula
-        df.attrs["Lattice"] = self.lattice
-        return df
+        df_struct = pd.DataFrame(data, columns=["Species", *"abcxyz", *prop_keys])
+        df_struct.attrs["Reduced Formula"] = self.composition.reduced_formula
+        df_struct.attrs["Lattice"] = self.lattice
+        return df_struct
 
     @classmethod
     def from_dict(
@@ -4395,7 +4395,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
             else:
                 f_coords = self._lattice.get_fractional_coords(site.coords + vector)
             if to_unit_cell:
-                f_coords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, f_coords, strict=False)]
+                f_coords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, f_coords, strict=True)]
             self[idx].frac_coords = f_coords
 
         return self

@@ -109,7 +109,7 @@ class NEBAnalysis(MSONable):
         rms_dist = [0]
         prev = structures[0]
         for st in structures[1:]:
-            dists = np.array([s2.distance(s1) for s1, s2 in zip(prev, st, strict=False)])
+            dists = np.array([s2.distance(s1) for s1, s2 in zip(prev, st, strict=True)])
             rms_dist.append(np.sqrt(np.sum(dists**2)))
             prev = st
         rms_dist = np.cumsum(rms_dist)
@@ -173,7 +173,7 @@ class NEBAnalysis(MSONable):
         ax.set_ylabel("Energy (meV)")
         ax.set_ylim((np.min(ys) - 10, np.max(ys) * 1.02 + 20))
         if label_barrier:
-            data = zip(xs * scale, ys, strict=False)
+            data = zip(xs * scale, ys, strict=True)
             barrier = max(data, key=lambda d: d[1])
             ax.plot([0, barrier[0]], [barrier[1], barrier[1]], "k--", linewidth=0.5)
             ax.annotate(

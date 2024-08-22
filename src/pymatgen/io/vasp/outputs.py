@@ -602,7 +602,7 @@ class Vasprun(MSONable):
 
             return list(
                 itertools.starmap(
-                    optical_absorb_coeff, zip(self.dielectric_data["density"][0], real_avg, imag_avg, strict=False)
+                    optical_absorb_coeff, zip(self.dielectric_data["density"][0], real_avg, imag_avg, strict=True)
                 )
             )
         return None
@@ -1024,7 +1024,7 @@ class Vasprun(MSONable):
                             "A band structure along symmetry lines requires a label "
                             "for each kpoint. Check your KPOINTS file"
                         )
-                    labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts, strict=False))
+                    labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts, strict=True))
                 labels_dict.pop(None, None)  # type: ignore[call-overload]
 
             return BandStructureSymmLine(
@@ -1991,13 +1991,13 @@ class Outcar:
                     tokens = [float(i) for i in re.findall(r"[\d\.\-]+", clean)]
                     tokens.pop(0)
                     if read_charge:
-                        charge.append(dict(zip(header, tokens, strict=False)))
+                        charge.append(dict(zip(header, tokens, strict=True)))
                     elif read_mag_x:
-                        mag_x.append(dict(zip(header, tokens, strict=False)))
+                        mag_x.append(dict(zip(header, tokens, strict=True)))
                     elif read_mag_y:
-                        mag_y.append(dict(zip(header, tokens, strict=False)))
+                        mag_y.append(dict(zip(header, tokens, strict=True)))
                     elif read_mag_z:
-                        mag_z.append(dict(zip(header, tokens, strict=False)))
+                        mag_z.append(dict(zip(header, tokens, strict=True)))
                 elif clean.startswith("tot"):
                     read_charge = False
                     read_mag_x = False
@@ -3221,7 +3221,7 @@ class Outcar:
 
             micro_pyawk(self.filename, search, self)
 
-            self.zval_dict = dict(zip(self.atom_symbols, self.zvals, strict=False))  # type: ignore[attr-defined]
+            self.zval_dict = dict(zip(self.atom_symbols, self.zvals, strict=True))  # type: ignore[attr-defined]
 
             # Clean up
             del self.atom_symbols  # type: ignore[attr-defined]

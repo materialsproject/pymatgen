@@ -83,13 +83,13 @@ class ValenceIonicRadiusEvaluator:
     def radii(self):
         """List of ionic radii of elements in the order of sites."""
         elems = [site.species_string for site in self._structure]
-        return dict(zip(elems, self._ionic_radii, strict=False))
+        return dict(zip(elems, self._ionic_radii, strict=True))
 
     @property
     def valences(self):
         """List of oxidation states of elements in the order of sites."""
         el = [site.species_string for site in self._structure]
-        return dict(zip(el, self._valences, strict=False))
+        return dict(zip(el, self._valences, strict=True))
 
     @property
     def structure(self):
@@ -522,7 +522,7 @@ class NearNeighbors:
         #  And, different first steps might results in the same neighbor
         #  Now, we condense those neighbors into a single entry per neighbor
         all_sites = {}
-        for first_site, term_sites in zip(allowed_steps, terminal_neighbors, strict=False):
+        for first_site, term_sites in zip(allowed_steps, terminal_neighbors, strict=True):
             for term_site in term_sites:
                 key = (term_site["site_index"], tuple(term_site["image"]))
 
@@ -2398,12 +2398,8 @@ class LocalStructOrderParams:
         self._cos_n_p[1] = [math.cos(float(p)) for p in phis]
 
         for idx in range(2, self._max_trig_order + 1):
-            self._pow_sin_t[idx] = [
-                e[0] * e[1] for e in zip(self._pow_sin_t[idx - 1], self._pow_sin_t[1], strict=False)
-            ]
-            self._pow_cos_t[idx] = [
-                e[0] * e[1] for e in zip(self._pow_cos_t[idx - 1], self._pow_cos_t[1], strict=False)
-            ]
+            self._pow_sin_t[idx] = [e[0] * e[1] for e in zip(self._pow_sin_t[idx - 1], self._pow_sin_t[1], strict=True)]
+            self._pow_cos_t[idx] = [e[0] * e[1] for e in zip(self._pow_cos_t[idx - 1], self._pow_cos_t[1], strict=True)]
             self._sin_n_p[idx] = [math.sin(float(idx) * float(p)) for p in phis]
             self._cos_n_p[idx] = [math.cos(float(idx) * float(p)) for p in phis]
 
@@ -2433,7 +2429,7 @@ class LocalStructOrderParams:
 
         pre_y_2_2 = [0.25 * sqrt_15_2pi * val for val in self._pow_sin_t[2]]
         pre_y_2_1 = [
-            0.5 * sqrt_15_2pi * val[0] * val[1] for val in zip(self._pow_sin_t[1], self._pow_cos_t[1], strict=False)
+            0.5 * sqrt_15_2pi * val[0] * val[1] for val in zip(self._pow_sin_t[1], self._pow_cos_t[1], strict=True)
         ]
 
         acc = 0.0
@@ -2506,15 +2502,15 @@ class LocalStructOrderParams:
 
         pre_y_4_4 = [i16_3 * sqrt_35_2pi * val for val in self._pow_sin_t[4]]
         pre_y_4_3 = [
-            i8_3 * sqrt_35_pi * val[0] * val[1] for val in zip(self._pow_sin_t[3], self._pow_cos_t[1], strict=False)
+            i8_3 * sqrt_35_pi * val[0] * val[1] for val in zip(self._pow_sin_t[3], self._pow_cos_t[1], strict=True)
         ]
         pre_y_4_2 = [
             i8_3 * sqrt_5_2pi * val[0] * (7 * val[1] - 1.0)
-            for val in zip(self._pow_sin_t[2], self._pow_cos_t[2], strict=False)
+            for val in zip(self._pow_sin_t[2], self._pow_cos_t[2], strict=True)
         ]
         pre_y_4_1 = [
             i8_3 * sqrt_5_pi * val[0] * (7 * val[1] - 3 * val[2])
-            for val in zip(self._pow_sin_t[1], self._pow_cos_t[3], self._pow_cos_t[1], strict=False)
+            for val in zip(self._pow_sin_t[1], self._pow_cos_t[3], self._pow_cos_t[1], strict=True)
         ]
 
         acc = 0.0
@@ -2618,19 +2614,19 @@ class LocalStructOrderParams:
 
         pre_y_6_6 = [i64 * sqrt_3003_pi * val for val in self._pow_sin_t[6]]
         pre_y_6_5 = [
-            i32_3 * sqrt_1001_pi * val[0] * val[1] for val in zip(self._pow_sin_t[5], self._pow_cos_t[1], strict=False)
+            i32_3 * sqrt_1001_pi * val[0] * val[1] for val in zip(self._pow_sin_t[5], self._pow_cos_t[1], strict=True)
         ]
         pre_y_6_4 = [
             i32_3 * sqrt_91_2pi * val[0] * (11 * val[1] - 1.0)
-            for val in zip(self._pow_sin_t[4], self._pow_cos_t[2], strict=False)
+            for val in zip(self._pow_sin_t[4], self._pow_cos_t[2], strict=True)
         ]
         pre_y_6_3 = [
             i32 * sqrt_1365_pi * val[0] * (11 * val[1] - 3 * val[2])
-            for val in zip(self._pow_sin_t[3], self._pow_cos_t[3], self._pow_cos_t[1], strict=False)
+            for val in zip(self._pow_sin_t[3], self._pow_cos_t[3], self._pow_cos_t[1], strict=True)
         ]
         pre_y_6_2 = [
             i64 * sqrt_1365_pi * val[0] * (33 * val[1] - 18 * val[2] + 1.0)
-            for val in zip(self._pow_sin_t[2], self._pow_cos_t[4], self._pow_cos_t[2], strict=False)
+            for val in zip(self._pow_sin_t[2], self._pow_cos_t[4], self._pow_cos_t[2], strict=True)
         ]
         pre_y_6_1 = [
             i16 * sqrt_273_2pi * val[0] * (33 * val[1] - 30 * val[2] + 5 * val[3])
@@ -2639,7 +2635,7 @@ class LocalStructOrderParams:
                 self._pow_cos_t[5],
                 self._pow_cos_t[3],
                 self._pow_cos_t[1],
-                strict=False,
+                strict=True,
             )
         ]
 
@@ -3694,7 +3690,7 @@ class EconNN(NearNeighbors):
             mefir = _get_mean_fictive_ionic_radius(firs, minimum_fir=mefir)
 
         siw = []
-        for nn, fir in zip(neighbors, firs, strict=False):
+        for nn, fir in zip(neighbors, firs, strict=True):
             if nn.nn_distance < self.cutoff:
                 w = math.exp(1 - (fir / mefir) ** 6)
                 if w > self.tol:

@@ -913,7 +913,7 @@ class StructureMatcher(MSONable):
         s2_comp = struct2.composition
         matches = []
         for perm in itertools.permutations(sp2):
-            sp_mapping = dict(zip(sp1, perm, strict=False))
+            sp_mapping = dict(zip(sp1, perm, strict=True))
 
             # do quick check that compositions are compatible
             mapped_comp = Composition({sp_mapping[k]: v for k, v in s1_comp.items()})

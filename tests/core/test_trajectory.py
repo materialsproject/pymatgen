@@ -390,7 +390,7 @@ class TestTrajectory(PymatgenTest):
         traj_1 = Trajectory(lattice=lattice, species=species, coords=coords, frame_properties=props_1)
 
         # energy and pressure properties
-        props_2 = [{"energy": e, "pressure": p} for e, p in zip(energy_2, pressure_2, strict=False)]
+        props_2 = [{"energy": e, "pressure": p} for e, p in zip(energy_2, pressure_2, strict=True)]
         traj_2 = Trajectory(lattice=lattice, species=species, coords=coords, frame_properties=props_2)
 
         # no properties
