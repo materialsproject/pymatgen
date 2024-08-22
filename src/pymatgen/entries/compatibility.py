@@ -9,7 +9,7 @@ import copy
 import os
 import warnings
 from collections import defaultdict
-from typing import TYPE_CHECKING, Union, cast
+from typing import TYPE_CHECKING, TypeAlias, cast
 
 import numpy as np
 from joblib import Parallel, delayed
@@ -73,7 +73,7 @@ assert (  # ping @janosh @rkingsbury on GitHub if this fails
     == MP2020_COMPAT_CONFIG["Corrections"]["GGAUMixingCorrections"]["F"]
 ), "MP2020Compatibility.yaml expected to have the same Hubbard U corrections for O and F"
 
-AnyComputedEntry = Union[ComputedEntry, ComputedStructureEntry]
+AnyComputedEntry: TypeAlias = ComputedEntry | ComputedStructureEntry
 
 
 class CompatibilityError(Exception):

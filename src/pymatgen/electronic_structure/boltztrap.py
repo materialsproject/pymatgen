@@ -851,7 +851,9 @@ class BoltztrapAnalyzer:
                     for kpt in kpath.get_kpoints(coords_are_cartesian=False)[0]
                 ]
                 labels_dict = {
-                    label: key for key, label in zip(*kpath.get_kpoints(coords_are_cartesian=False)) if label
+                    label: key
+                    for key, label in zip(*kpath.get_kpoints(coords_are_cartesian=False), strict=False)
+                    if label
                 }
                 kpt_line = [kp.frac_coords for kp in kpt_line]
             elif isinstance(kpt_line[0], Kpoint):
@@ -1386,7 +1388,7 @@ class BoltztrapAnalyzer:
                 cond_mass = self.get_average_eff_mass(output=output, doping_levels=True)[dt][temp]
 
                 if output == "average":
-                    cmplx_fact[dt] = [(m_s / abs(m_c)) ** 1.5 for m_s, m_c in zip(sbk_mass, cond_mass)]
+                    cmplx_fact[dt] = [(m_s / abs(m_c)) ** 1.5 for m_s, m_c in zip(sbk_mass, cond_mass, strict=False)]
 
                 else:
                     cmplx_fact[dt] = []
@@ -1401,7 +1403,7 @@ class BoltztrapAnalyzer:
         cond_mass = self.get_average_eff_mass(output=output, doping_levels=False)[temp]
 
         if output == "average":
-            return [(m_s / abs(m_c)) ** 1.5 for m_s, m_c in zip(sbk_mass, cond_mass)]
+            return [(m_s / abs(m_c)) ** 1.5 for m_s, m_c in zip(sbk_mass, cond_mass, strict=False)]
 
         cmplx_fact_list: list = []
         for i, sm in enumerate(sbk_mass):

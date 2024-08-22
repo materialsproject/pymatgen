@@ -63,7 +63,7 @@ class PhononDos(MSONable):
         Returns:
             Sum of the two DOSs.
         """
-        if isinstance(other, (int, float)):
+        if isinstance(other, int | float):
             return PhononDos(self.frequencies, self.densities + other)
         if not all(np.equal(self.frequencies, other.frequencies)):
             raise ValueError("Frequencies of both DOS are not compatible!")
@@ -462,7 +462,7 @@ class PhononDos(MSONable):
 
         dos_rebin = np.zeros(freq.shape)
 
-        for ii, e1, e2 in zip(range(len(freq)), freq_bounds[:-1], freq_bounds[1:]):
+        for ii, e1, e2 in zip(range(len(freq)), freq_bounds[:-1], freq_bounds[1:], strict=False):
             inds = np.where((frequencies >= e1) & (frequencies < e2))
             dos_rebin[ii] = np.sum(densities[inds])
         if normalize:  # scale DOS bins to make area under histogram equal 1
@@ -509,17 +509,15 @@ class PhononDos(MSONable):
             metric (Literal): Metric used to compute similarity default is "tanimoto".
 
         Raises:
-            ValueError: If metric other than tanimoto, wasserstein and "cosine-sim" is requested.
+            ValueError: If metric other than "tanimoto", "wasserstein" and "cosine-sim" is requested.
             ValueError: If normalize is set to True along with the metric.
 
         Returns:
             float: Similarity index given by the dot product
         """
-        if metric not in ["tanimoto", "wasserstein", "cosine-sim"]:
-            raise ValueError(
-                "Requested metric not implemented. Currently implemented metrics are tanimoto, "
-                "wasserstien and cosine-sim."
-            )
+        valid_metrics = ("tanimoto", "wasserstein", "cosine-sim")
+        if metric not in valid_metrics:
+            raise ValueError(f"Invalid {metric=}, choose from {valid_metrics}.")
 
         fp1_dict = CompletePhononDos.fp_to_dict(fp1) if not isinstance(fp1, dict) else fp1
 
@@ -623,7 +621,7 @@ class CompletePhononDos(PhononDos):
         """Get CompleteDos object from dict representation."""
         total_dos = PhononDos.from_dict(dct)
         struct = Structure.from_dict(dct["structure"])
-        ph_doses = dict(zip(struct, dct["pdos"]))
+        ph_doses = dict(zip(struct, dct["pdos"], strict=False))
 
         return cls(struct, total_dos, ph_doses)
 

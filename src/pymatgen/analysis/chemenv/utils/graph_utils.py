@@ -157,7 +157,7 @@ class SimpleGraphCycle(MSONable):
     def _is_valid(self, check_strict_ordering=False):
         """Check if a SimpleGraphCycle is valid.
 
-        This method checks :
+        This method checks:
         - that there are no duplicate nodes,
         - that there are either 1 or more than 2 nodes
 
@@ -180,7 +180,7 @@ class SimpleGraphCycle(MSONable):
                 if "'<' not supported between instances of" in msg:
                     return False, "The nodes are not sortable."
                 raise
-            res = all(i < j for i, j in zip(sorted_nodes, sorted_nodes[1:]))
+            res = all(i < j for i, j in itertools.pairwise(sorted_nodes))
             if not res:
                 return False, "The list of nodes in the cycle cannot be strictly ordered."
         return True, ""
@@ -266,7 +266,7 @@ class SimpleGraphCycle(MSONable):
         """
         if edges_are_ordered:
             nodes = [edge[0] for edge in edges]
-            if not all(e1e2[0][1] == e1e2[1][0] for e1e2 in zip(edges, edges[1:])) or edges[-1][1] != edges[0][0]:
+            if any(e1e2[0][1] != e1e2[1][0] for e1e2 in itertools.pairwise(edges)) or edges[-1][1] != edges[0][0]:
                 raise ValueError("Could not construct a cycle from edges.")
         else:
             remaining_edges = list(edges)
@@ -368,7 +368,7 @@ class MultiGraphCycle(MSONable):
                 if "'<' not supported between instances of" in msg:
                     return False, "The nodes are not sortable."
                 raise
-            is_ordered = all(node1 < node2 for node1, node2 in zip(sorted_nodes, sorted_nodes[1:]))
+            is_ordered = all(node1 < node2 for node1, node2 in itertools.pairwise(sorted_nodes))
             if not is_ordered:
                 return False, "The list of nodes in the cycle cannot be strictly ordered."
         return True, ""

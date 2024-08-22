@@ -623,7 +623,7 @@ def _dict_from_lines(lines, key_nums, sep=None) -> dict:
         if len(values) != len(keys):
             raise ValueError(f"{line=}\n {len(keys)=} must equal {len(values)=}")
 
-        kwargs.update(zip(keys, values))
+        kwargs.update(zip(keys, values, strict=False))
 
     return kwargs
 
@@ -1829,7 +1829,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         """Get new class:`PseudoTable` object with pseudos in the given rows of the periodic table.
         rows can be either a int or a list of integers.
         """
-        if not isinstance(rows, (list, tuple)):
+        if not isinstance(rows, list | tuple):
             rows = [rows]
         return type(self)([p for p in self if p.element.row in rows])
 

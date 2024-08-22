@@ -47,7 +47,7 @@ def diff_incar(args):
     incar2 = Incar.from_file(filepath2)
 
     def format_lists(v):
-        if isinstance(v, (tuple, list)):
+        if isinstance(v, tuple | list):
             return " ".join(f"{len(tuple(group))}*{i:.2f}" for (i, group) in itertools.groupby(v))
         return v
 
