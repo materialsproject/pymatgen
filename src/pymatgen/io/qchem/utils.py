@@ -146,7 +146,7 @@ def lower_and_check_unique(dict_to_check):
 
         if isinstance(val, str):
             val = val.lower()
-        elif isinstance(val, (int, float)):
+        elif isinstance(val, int | float):
             # convert all numeric keys to str
             val = str(val)
         else:

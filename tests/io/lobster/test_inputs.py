@@ -257,13 +257,13 @@ class TestCohpcar(PymatgenTest):
                         assert len(val["cells"]) == 3
                         assert len(val["COHP"][Spin.up]) == 12
                         assert len(val["COHP"][Spin.down]) == 12
-                        for cohp1, cohp2 in zip(val["COHP"][Spin.up], val["COHP"][Spin.down]):
+                        for cohp1, cohp2 in zip(val["COHP"][Spin.up], val["COHP"][Spin.down], strict=False):
                             assert cohp1 == approx(cohp2, abs=1e-4)
                     else:
                         assert len(val["cells"]) == 2
                         assert len(val["COHP"][Spin.up]) == 12
                         assert len(val["COHP"][Spin.down]) == 12
-                        for cohp1, cohp2 in zip(val["COHP"][Spin.up], val["COHP"][Spin.down]):
+                        for cohp1, cohp2 in zip(val["COHP"][Spin.up], val["COHP"][Spin.down], strict=False):
                             assert cohp1 == approx(cohp2, abs=1e-3)
 
     def test_orbital_resolved_cohp(self):
@@ -1299,7 +1299,7 @@ class TestLobsterout(PymatgenTest):
                     assert ref_data[key] == item
                 elif key in ("charge_spilling", "total_spilling"):
                     assert item[0] == approx(ref_data[key][0])
-                elif isinstance(item, (list, dict)):
+                elif isinstance(item, list | dict):
                     assert item == ref_data[key]
 
     def test_msonable(self):

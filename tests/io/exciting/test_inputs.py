@@ -70,7 +70,7 @@ class TestExcitingInput(PymatgenTest):
             ],
         )
         exc_in = ExcitingInput(structure)
-        for l1, l2 in zip(input_string.split("\n"), exc_in.write_string("unchanged").split("\n")):
+        for l1, l2 in zip(input_string.split("\n"), exc_in.write_string("unchanged").split("\n"), strict=False):
             if not l1.strip().startswith("<crystal scale"):
                 assert l1.strip() == l2.strip()
 

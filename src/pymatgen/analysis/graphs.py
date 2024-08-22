@@ -34,8 +34,8 @@ except ImportError:
     igraph = None
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-    from typing import Any, Callable
+    from collections.abc import Callable, Sequence
+    from typing import Any
 
     from igraph import Graph
     from numpy.typing import ArrayLike

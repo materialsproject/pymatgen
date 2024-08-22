@@ -48,7 +48,7 @@ def compare_files(test_name: str, work_dir: Path, ref_dir: Path) -> None:
         with gzip.open(f"{ref_dir / test_name / Path(file).name}.gz", "rt") as ref_file:
             ref_lines = [line.strip() for line in ref_file.readlines() if len(line.strip()) > 0 and line[0] != "#"]
 
-        for test_line, ref_line in zip(test_lines, ref_lines):
+        for test_line, ref_line in zip(test_lines, ref_lines, strict=False):
             if "output" in test_line and "band" in test_line:
                 assert check_band(test_line, ref_line)
             else:
@@ -68,7 +68,7 @@ def compare_files(test_name: str, work_dir: Path, ref_dir: Path) -> None:
     assert ref == check
 
     if check_output:
-        for ref_out, check_out in zip(ref_output, check_output):
+        for ref_out, check_out in zip(ref_output, check_output, strict=False):
             if "band" in check_out:
                 assert check_band(check_out, ref_out)
             else:
@@ -138,7 +138,7 @@ def compare_single_files(ref_file: str | Path, test_file: str | Path) -> None:
     with zopen(f"{ref_file}.gz", mode="rt") as rf:
         ref_lines = rf.readlines()[5:]
 
-    for test_line, ref_line in zip(test_lines, ref_lines):
+    for test_line, ref_line in zip(test_lines, ref_lines, strict=False):
         if "species_dir" in ref_line:
             continue
         if test_line.strip() != ref_line.strip():

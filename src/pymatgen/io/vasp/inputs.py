@@ -715,7 +715,7 @@ class Incar(dict, MSONable):
         if params is not None:
             # If INCAR contains vector-like MAGMOMS given as a list
             # of floats, convert to a list of lists
-            if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], (int, float))) and (
+            if (params.get("MAGMOM") and isinstance(params["MAGMOM"][0], int | float)) and (
                 params.get("LSORBIT") or params.get("LNONCOLLINEAR")
             ):
                 val = []
@@ -790,7 +790,7 @@ class Incar(dict, MSONable):
             if key == "MAGMOM" and isinstance(self[key], list):
                 value = []
 
-                if isinstance(self[key][0], (list, Magmom)) and (self.get("LSORBIT") or self.get("LNONCOLLINEAR")):
+                if isinstance(self[key][0], list | Magmom) and (self.get("LSORBIT") or self.get("LNONCOLLINEAR")):
                     value.append(" ".join(str(i) for j in self[key] for i in j))
                 elif self.get("LSORBIT") or self.get("LNONCOLLINEAR"):
                     for _key, group in itertools.groupby(self[key]):
@@ -1182,10 +1182,10 @@ class Kpoints(MSONable):
     @property
     def kpts(self) -> list[Kpoint]:
         """A sequence of Kpoints, where each Kpoint is a tuple of 3 or 1."""
-        if all(isinstance(kpt, (list, tuple, np.ndarray)) and len(kpt) in {1, 3} for kpt in self._kpts):
+        if all(isinstance(kpt, list | tuple | np.ndarray) and len(kpt) in {1, 3} for kpt in self._kpts):
             return list(map(tuple, self._kpts))  # type: ignore[arg-type]
 
-        if all(isinstance(point, (int, float)) for point in self._kpts) and len(self._kpts) == 3:
+        if all(isinstance(point, int | float) for point in self._kpts) and len(self._kpts) == 3:
             return [cast(Kpoint, tuple(self._kpts))]
 
         raise ValueError(f"Invalid Kpoint {self._kpts}.")
@@ -1245,6 +1245,8 @@ class Kpoints(MSONable):
         Returns:
             Kpoints
         """
+        warnings.warn("Please use INCAR KSPACING tag.", DeprecationWarning, stacklevel=2)
+
         return cls(
             "Fully automatic kpoint scheme",
             0,
@@ -1255,7 +1257,7 @@ class Kpoints(MSONable):
         )
 
     @classmethod
-    def gamma_automatic(cls, kpts: Kpoint = (1, 1, 1), shift: Vector3D = (0, 0, 0)) -> Self:
+    def gamma_automatic(cls, kpts: Tuple3Ints = (1, 1, 1), shift: Vector3D = (0, 0, 0)) -> Self:
         """
         Construct an automatic Gamma-centered Kpoint grid.
 
@@ -1270,7 +1272,7 @@ class Kpoints(MSONable):
         return cls("Automatic kpoint scheme", 0, cls.supported_modes.Gamma, kpts=[kpts], kpts_shift=shift)
 
     @classmethod
-    def monkhorst_automatic(cls, kpts: Kpoint = (2, 2, 2), shift: Vector3D = (0, 0, 0)) -> Self:
+    def monkhorst_automatic(cls, kpts: Tuple3Ints = (2, 2, 2), shift: Vector3D = (0, 0, 0)) -> Self:
         """
         Construct an automatic Monkhorst-Pack Kpoint grid.
 
@@ -1417,7 +1419,7 @@ class Kpoints(MSONable):
         lattice = structure.lattice
 
         abc = lattice.abc
-        num_div: Tuple3Ints = tuple(np.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))
+        num_div: Tuple3Ints = tuple(math.ceil(ld / abc[idx]) for idx, ld in enumerate(length_densities))
 
         is_hexagonal: bool = lattice.is_hexagonal()
         is_face_centered: bool = structure.get_space_group_info()[0][0] == "F"
@@ -1516,10 +1518,10 @@ class Kpoints(MSONable):
 
         # Automatic Gamma-centered or Monkhorst-Pack KPOINTS, with optional shift
         if style in {"g", "m"}:
-            _kpt: list[float] = [float(i) for i in lines[3].split()]
+            _kpt: list[int] = [int(i) for i in lines[3].split()]
             if len(_kpt) != 3:
                 raise ValueError("Invalid Kpoint length.")
-            kpt: Tuple3Floats = cast(Tuple3Floats, tuple(_kpt))
+            kpt: Tuple3Ints = cast(Tuple3Ints, tuple(_kpt))
 
             kpts_shift: Vector3D = (0, 0, 0)
             if len(lines) > 4 and coord_pattern.match(lines[4]):
@@ -1559,7 +1561,7 @@ class Kpoints(MSONable):
                 "Cartesian" if lines[3].lower()[0] in "ck" else "Reciprocal"
             )
             _style = cls.supported_modes.Line_mode
-            _kpts: list[Kpoint] = []
+            _kpts: list[Tuple3Floats] = []
             labels = []
             patt = re.compile(r"([e0-9.\-]+)\s+([e0-9.\-]+)\s+([e0-9.\-]+)\s*!*\s*(.*)")
             for idx in range(4, len(lines)):
@@ -1588,7 +1590,7 @@ class Kpoints(MSONable):
 
         for idx in range(3, 3 + num_kpts):
             tokens = lines[idx].split()
-            kpts.append(cast(Kpoint, tuple(float(i) for i in tokens[:3])))
+            kpts.append(cast(Tuple3Floats, tuple(float(i) for i in tokens[:3])))
             kpts_weights.append(float(tokens[3]))
             if len(tokens) > 4:
                 labels.append(tokens[4])
@@ -2041,17 +2043,17 @@ class PotcarSingle:
             if k in {"nentries", "Orbitals", "SHA256", "COPYR"}:
                 continue
             hash_str += f"{k}"
-            if isinstance(v, (bool, int)):
+            if isinstance(v, bool | int):
                 hash_str += f"{v}"
             elif isinstance(v, float):
                 hash_str += f"{v:.3f}"
-            elif isinstance(v, (tuple, list)):
+            elif isinstance(v, tuple | list):
                 for item in v:
                     if isinstance(item, float):
                         hash_str += f"{item:.3f}"
-                    elif isinstance(item, (Orbital, OrbitalDescription)):
+                    elif isinstance(item, Orbital | OrbitalDescription):
                         for item_v in item:
-                            if isinstance(item_v, (int, str)):
+                            if isinstance(item_v, int | str):
                                 hash_str += f"{item_v}"
                             elif isinstance(item_v, float):
                                 hash_str += f"{item_v:.3f}"
@@ -2156,7 +2158,7 @@ class PotcarSingle:
                 parsed_val = parse_fortran_style_str(raw_val)
                 if isinstance(parsed_val, str):
                     tmp_str += parsed_val.strip()
-                elif isinstance(parsed_val, (float, int)):
+                elif isinstance(parsed_val, float | int):
                     psp_vals.append(parsed_val)
             if len(tmp_str) > 0:
                 psp_keys.append(tmp_str.lower())
@@ -2167,10 +2169,10 @@ class PotcarSingle:
             if isinstance(val, bool):
                 # has to come first since bools are also ints
                 keyword_vals.append(1.0 if val else 0.0)
-            elif isinstance(val, (float, int)):
+            elif isinstance(val, float | int):
                 keyword_vals.append(val)
             elif hasattr(val, "__len__"):
-                keyword_vals += [num for num in val if isinstance(num, (float, int))]
+                keyword_vals += [num for num in val if isinstance(num, float | int)]
 
         def data_stats(data_list: Sequence) -> dict:
             """Used for hash-less and therefore less brittle POTCAR validity checking."""
