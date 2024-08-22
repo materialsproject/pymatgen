@@ -193,7 +193,7 @@ class Cohp(MSONable):
             limit (float): Only COHP higher than this value will be considered.
         """
         populations = self.cohp
-        n_energies_below_efermi = len([energy for energy in self.energies if energy <= self.efermi])
+        n_energies_below_efermi = sum(energy <= self.efermi for energy in self.energies)
 
         if populations is None:
             return None

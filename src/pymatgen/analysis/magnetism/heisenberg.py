@@ -770,8 +770,8 @@ class HeisenbergScreener:
             screened_structures (list): Sorted structures.
             screened_energies (list): Sorted energies.
         """
-        magmoms = [s.site_properties["magmom"] for s in structures]
-        n_below_1ub = [len([m for m in ms if abs(m) < 1]) for ms in magmoms]
+        magmoms = [struct.site_properties["magmom"] for struct in structures]
+        n_below_1ub = [sum(abs(m) < 1 for m in ms) for ms in magmoms]
 
         df = pd.DataFrame(
             {
