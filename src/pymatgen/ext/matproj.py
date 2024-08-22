@@ -26,7 +26,7 @@ from pymatgen.core import __version__ as PMG_VERSION
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 if TYPE_CHECKING:
-    from typing import Callable
+    from collections.abc import Callable
 
     from mp_api.client import MPRester as _MPResterNew
     from typing_extensions import Self

@@ -383,8 +383,8 @@ class TestGaussianOutput(TestCase):
 
         gau = GaussianOutput(f"{TEST_DIR}/H2O_gau_vib.out")
 
-        assert gau.bond_orders[(0, 1)] == 0.7582
-        assert gau.bond_orders[(1, 2)] == 0.0002
+        assert gau.bond_orders[0, 1] == 0.7582
+        assert gau.bond_orders[1, 2] == 0.0002
 
     def test_scan(self):
         gau = GaussianOutput(f"{TEST_DIR}/so2_scan.log")

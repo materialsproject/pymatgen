@@ -275,7 +275,9 @@ class MultiEntry(PourbaixEntry):
         if attr in ["energy", "npH", "nH2O", "nPhi", "conc_term", "composition", "uncorrected_energy", "elements"]:
             # TODO: Composition could be changed for compat with sum
             start = Composition() if attr == "composition" else 0
-            weighted_values = (getattr(entry, attr) * weight for entry, weight in zip(self.entry_list, self.weights))
+            weighted_values = (
+                getattr(entry, attr) * weight for entry, weight in zip(self.entry_list, self.weights, strict=False)
+            )
             return sum(weighted_values, start)
 
         # Attributes that are just lists of entry attributes
@@ -604,8 +606,7 @@ class PourbaixDiagram(MSONable):
         else:
             # Serial processing of multi-entry generation
             for combo in all_combos:
-                multi_entry = self.process_multientry(combo, prod_comp=tot_comp)
-                if multi_entry:
+                if multi_entry := self.process_multientry(combo, prod_comp=tot_comp):
                     multi_entries.append(multi_entry)
 
         return multi_entries
@@ -745,7 +746,7 @@ class PourbaixDiagram(MSONable):
 
         # organize the boundary points by entry
         pourbaix_domains = {entry: [] for entry in pourbaix_entries}
-        for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets):
+        for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets, strict=False):
             for v in facet:
                 if v < len(pourbaix_entries):
                     this_entry = pourbaix_entries[v]

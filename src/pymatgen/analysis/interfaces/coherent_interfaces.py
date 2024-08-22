@@ -143,7 +143,7 @@ class CoherentInterfaceBuilder:
         self._terminations = {
             (film_label, sub_label): (film_shift, sub_shift)
             for (film_label, film_shift), (sub_label, sub_shift) in product(
-                zip(film_terminations, film_shifts), zip(sub_terminations, sub_shifts)
+                zip(film_terminations, film_shifts, strict=False), zip(sub_terminations, sub_shifts, strict=False)
             )
         }
         self.terminations = list(self._terminations)

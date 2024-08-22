@@ -296,7 +296,7 @@ class SpacegroupAnalyzer:
         sym_ops = []
         mat = self._structure.lattice.matrix.T
         inv_mat = np.linalg.inv(mat)
-        for rot, trans in zip(rotation, translation):
+        for rot, trans in zip(rotation, translation, strict=False):
             if cartesian:
                 rot = np.dot(mat, np.dot(rot, inv_mat))
                 trans = np.dot(trans, self._structure.lattice.matrix)
@@ -429,7 +429,7 @@ class SpacegroupAnalyzer:
         mapping, grid = spglib.get_ir_reciprocal_mesh(np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
 
         results = []
-        for idx, count in zip(*np.unique(mapping, return_counts=True)):
+        for idx, count in zip(*np.unique(mapping, return_counts=True), strict=False):
             results.append(((grid[idx] + shift * (0.5, 0.5, 0.5)) / mesh, count))
         return results
 
@@ -1380,7 +1380,7 @@ class PointGroupAnalyzer:
 
         for index in get_clustered_indices():
             sites = self.centered_mol.cart_coords[index]
-            for i, reference in zip(index, sites):
+            for i, reference in zip(index, sites, strict=False):
                 for op in symm_ops:
                     rotated = np.dot(op, sites.T).T
                     matched_indices = find_in_coord_list(rotated, reference, self.tol)
@@ -1573,9 +1573,9 @@ def cluster_sites(
         if avg_dist[f_cluster[idx]] < tol:
             origin_site = idx if give_only_index else site
         elif give_only_index:
-            clustered_sites[(avg_dist[f_cluster[idx]], site.species)].append(idx)
+            clustered_sites[avg_dist[f_cluster[idx]], site.species].append(idx)
         else:
-            clustered_sites[(avg_dist[f_cluster[idx]], site.species)].append(site)
+            clustered_sites[avg_dist[f_cluster[idx]], site.species].append(site)
     return origin_site, clustered_sites
 
 

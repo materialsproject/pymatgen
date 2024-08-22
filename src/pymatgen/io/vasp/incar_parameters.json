@@ -650,7 +650,7 @@
     "type": "bool"
  },
  "LREAL": {
-   "type": "(bool, str)",
+   "type": "bool | str",
    "values": [
       false,
       true,

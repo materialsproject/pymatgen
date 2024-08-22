@@ -7,7 +7,7 @@ import sys
 from io import StringIO
 from pathlib import Path
 from shutil import copyfile, copyfileobj
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 import numpy as np
 import pytest
@@ -123,7 +123,7 @@ class TestVasprun(PymatgenTest):
             Vasprun(f"{VASP_OUT_DIR}/vasprun.dielectric_bad.xml.gz")
 
     def test_bad_vasprun(self):
-        with pytest.raises(ElementTree.ParseError):
+        with pytest.raises(ET.ParseError):
             Vasprun(f"{VASP_OUT_DIR}/vasprun.bad.xml.gz")
 
         with pytest.warns(
@@ -1193,7 +1193,7 @@ class TestOutcar(PymatgenTest):
             {"eta": 0.42, "nuclear_quadrupole_moment": 146.6, "cq": -5.58},
         ]
         assert len(outcar.data["efg"][2:10]) == len(expected_efg)
-        for e1, e2 in zip(outcar.data["efg"][2:10], expected_efg):
+        for e1, e2 in zip(outcar.data["efg"][2:10], expected_efg, strict=False):
             for k in e1:
                 assert e1[k] == approx(e2[k], abs=1e-5)
 
@@ -1221,7 +1221,7 @@ class TestOutcar(PymatgenTest):
         ]
 
         assert len(outcar.data["unsym_efg_tensor"][2:10]) == len(exepected_tensors)
-        for e1, e2 in zip(outcar.data["unsym_efg_tensor"][2:10], exepected_tensors):
+        for e1, e2 in zip(outcar.data["unsym_efg_tensor"][2:10], exepected_tensors, strict=False):
             assert_allclose(e1, e2)
 
     def test_read_fermi_contact_shift(self):
@@ -2043,7 +2043,7 @@ class TestWSWQ(PymatgenTest):
         assert self.wswq.nspin == 2
         assert self.wswq.me_real.shape == (2, 20, 18, 18)
         assert self.wswq.me_imag.shape == (2, 20, 18, 18)
-        for itr, (r, i) in enumerate(zip(self.wswq.me_real[0][0][4], self.wswq.me_imag[0][0][4])):
+        for itr, (r, i) in enumerate(zip(self.wswq.me_real[0][0][4], self.wswq.me_imag[0][0][4], strict=False)):
             if itr == 4:
                 assert np.linalg.norm([r, i]) > 0.999
             else:

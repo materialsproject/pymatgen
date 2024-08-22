@@ -144,7 +144,7 @@ class XcFunc(MSONable):
         return hash(self.name)
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, (str, type(self))):
+        if not isinstance(other, str | type(self)):
             return NotImplemented
         if isinstance(other, type(self)):
             return self.name == other.name

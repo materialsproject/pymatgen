@@ -205,7 +205,7 @@ class PackmolBoxGen(InputGenerator):
             box_list = f"0.0 0.0 0.0 {box_length:.1f} {box_length:.1f} {box_length:.1f}"
 
         for dct in molecules:
-            if isinstance(dct["coords"], (str, Path)):
+            if isinstance(dct["coords"], str | Path):
                 mol = Molecule.from_file(dct["coords"])
             elif isinstance(dct["coords"], Molecule):
                 mol = dct["coords"]

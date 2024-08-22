@@ -23,7 +23,8 @@ from pymatgen.io.core import ParseError
 from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Literal
+    from collections.abc import Callable
+    from typing import Any, Literal
 
     from typing_extensions import Self
 
@@ -204,7 +205,7 @@ class ElementBase(Enum):
             if val is None or str(val).startswith("no data"):
                 warnings.warn(f"No data available for {item} for {self.symbol}")
                 val = None
-            elif isinstance(val, (list, dict)):
+            elif isinstance(val, list | dict):
                 pass
             else:
                 try:
@@ -380,10 +381,8 @@ class ElementBase(Enum):
         taken over all positive oxidation states of the element for which
         data is present.
         """
-        if "Ionic radii" in self._data:
-            radii = [v for k, v in self._data["Ionic radii"].items() if int(k) > 0]
-            if radii:
-                return FloatWithUnit(sum(radii) / len(radii), "ang")
+        if "Ionic radii" in self._data and (radii := [v for k, v in self._data["Ionic radii"].items() if int(k) > 0]):
+            return FloatWithUnit(sum(radii) / len(radii), "ang")
         return FloatWithUnit(0.0, "ang")
 
     @property
@@ -392,10 +391,8 @@ class ElementBase(Enum):
         taken over all negative oxidation states of the element for which
         data is present.
         """
-        if "Ionic radii" in self._data:
-            radii = [v for k, v in self._data["Ionic radii"].items() if int(k) < 0]
-            if radii:
-                return FloatWithUnit(sum(radii) / len(radii), "ang")
+        if "Ionic radii" in self._data and (radii := [v for k, v in self._data["Ionic radii"].items() if int(k) < 0]):
+            return FloatWithUnit(sum(radii) / len(radii), "ang")
         return FloatWithUnit(0.0, "ang")
 
     @property
@@ -527,7 +524,7 @@ class ElementBase(Enum):
         # Total ML = sum(ml1, ml2), Total MS = sum(ms1, ms2)
         TL = [sum(ml_ms[comb[e]][0] for e in range(v_e)) for comb in e_config_combs]
         TS = [sum(ml_ms[comb[e]][1] for e in range(v_e)) for comb in e_config_combs]
-        comb_counter = Counter(zip(TL, TS))
+        comb_counter = Counter(zip(TL, TS, strict=False))
 
         term_symbols = []
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
@@ -543,9 +540,9 @@ class ElementBase(Enum):
             for ML in range(-L, L - 1, -1):
                 for MS in np.arange(S, -S + 1, 1):
                     if (ML, MS) in comb_counter:
-                        comb_counter[(ML, MS)] -= 1
-                        if comb_counter[(ML, MS)] == 0:
-                            del comb_counter[(ML, MS)]
+                        comb_counter[ML, MS] -= 1
+                        if comb_counter[ML, MS] == 0:
+                            del comb_counter[ML, MS]
         return term_symbols
 
     @property
@@ -1630,7 +1627,7 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
             of properties that can be determined.
     """
     # If obj is already an Element or Species, return as is
-    if isinstance(obj, (Element, Species, DummySpecies)):
+    if isinstance(obj, Element | Species | DummySpecies):
         if getattr(obj, "_is_named_isotope", None):
             return Element(obj.name) if isinstance(obj, Element) else Species(str(obj))
         return obj

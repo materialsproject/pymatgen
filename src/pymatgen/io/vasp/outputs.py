@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import itertools
-import logging
 import math
 import os
 import re
@@ -45,7 +44,8 @@ from pymatgen.util.num import make_symmetric_matrix_from_upper_tri
 from pymatgen.util.typing import Kpoint, Tuple3Floats, Vector3D
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Literal
+    from collections.abc import Callable
+    from typing import Any, Literal
 
     # Avoid name conflict with pymatgen.core.Element
     from xml.etree.ElementTree import Element as XML_Element
@@ -54,8 +54,6 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.util.typing import PathLike
-
-logger = logging.getLogger(__name__)
 
 
 def _parse_parameters(val_type: str, val: str) -> bool | str | float | int:
@@ -603,7 +601,9 @@ class Vasprun(MSONable):
                 return 2 * 3.14159 * np.sqrt(np.sqrt(real**2 + imag**2) - real) * np.sqrt(2) / hc * freq
 
             return list(
-                itertools.starmap(optical_absorb_coeff, zip(self.dielectric_data["density"][0], real_avg, imag_avg))
+                itertools.starmap(
+                    optical_absorb_coeff, zip(self.dielectric_data["density"][0], real_avg, imag_avg, strict=False)
+                )
             )
         return None
 
@@ -1024,7 +1024,7 @@ class Vasprun(MSONable):
                             "A band structure along symmetry lines requires a label "
                             "for each kpoint. Check your KPOINTS file"
                         )
-                    labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
+                    labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts, strict=False))
                 labels_dict.pop(None, None)  # type: ignore[call-overload]
 
             return BandStructureSymmLine(
@@ -1160,7 +1160,7 @@ class Vasprun(MSONable):
         if not path:
             return None
 
-        if isinstance(path, (str, Path)) and "POTCAR" in str(path):
+        if isinstance(path, str | Path) and "POTCAR" in str(path):
             potcar_paths = [str(path)]
         else:
             # the abspath is needed here in cases where no leading directory is specified,
@@ -1229,7 +1229,7 @@ class Vasprun(MSONable):
                 )
             else:
                 nums = [len(list(g)) for _, g in itertools.groupby(self.atomic_symbols)]
-                potcar_nelect = sum(ps.ZVAL * num for ps, num in zip(potcar, nums))
+                potcar_nelect = sum(ps.ZVAL * num for ps, num in zip(potcar, nums, strict=False))
             charge = potcar_nelect - nelect
 
             for struct in self.structures:
@@ -1241,25 +1241,21 @@ class Vasprun(MSONable):
 
     def as_dict(self) -> dict:
         """JSON-serializable dict representation."""
-        dct = {
+        comp = self.final_structure.composition
+        unique_symbols = sorted(set(self.atomic_symbols))
+        dct: dict[str, Any] = {
             "vasp_version": self.vasp_version,
             "has_vasp_completed": self.converged,
             "nsites": len(self.final_structure),
+            "unit_cell_formula": comp.as_dict(),
+            "reduced_cell_formula": Composition(comp.reduced_formula).as_dict(),
+            "pretty_formula": comp.reduced_formula,
+            "is_hubbard": self.is_hubbard,
+            "hubbards": self.hubbards,
+            "elements": unique_symbols,
+            "nelements": len(unique_symbols),
+            "run_type": self.run_type,
         }
-        comp = self.final_structure.composition
-        dct["unit_cell_formula"] = comp.as_dict()
-        dct["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
-        dct["pretty_formula"] = comp.reduced_formula
-        symbols = [s.split()[1] for s in self.potcar_symbols]
-        symbols = [re.split(r"_", s)[0] for s in symbols]
-        dct["is_hubbard"] = self.is_hubbard
-        dct["hubbards"] = self.hubbards
-
-        unique_symbols = sorted(set(self.atomic_symbols))
-        dct["elements"] = unique_symbols
-        dct["nelements"] = len(unique_symbols)
-
-        dct["run_type"] = self.run_type
 
         vin: dict[str, Any] = {
             "incar": dict(self.incar.items()),
@@ -1493,7 +1489,6 @@ class Vasprun(MSONable):
 
     def _parse_chemical_shielding(self, elem: XML_Element) -> list[dict[str, Any]]:
         """Parse NMR chemical shielding."""
-        calculation = []
         istep: dict[str, Any] = {}
         # not all calculations have a structure
         _struct = elem.find("structure")
@@ -1503,7 +1498,9 @@ class Vasprun(MSONable):
             istep[va.attrib["name"]] = _parse_vasp_array(va)
         istep["structure"] = struct
         istep["electronic_steps"] = []
-        calculation.append(istep)
+        calculation = [
+            istep,
+        ]
         for scstep in elem.findall("scstep"):
             try:
                 e_steps_dict = {i.attrib["name"]: _vasprun_float(i.text) for i in scstep.find("energy").findall("i")}  # type: ignore[union-attr, arg-type]
@@ -1763,24 +1760,21 @@ class BSVasprun(Vasprun):
 
     def as_dict(self) -> dict:
         """JSON-serializable dict representation."""
+        comp = self.final_structure.composition
+        unique_symbols = sorted(set(self.atomic_symbols))
         dct = {
             "vasp_version": self.vasp_version,
             "has_vasp_completed": True,
             "nsites": len(self.final_structure),
+            "unit_cell_formula": comp.as_dict(),
+            "reduced_cell_formula": Composition(comp.reduced_formula).as_dict(),
+            "pretty_formula": comp.reduced_formula,
+            "is_hubbard": self.is_hubbard,
+            "hubbards": self.hubbards,
+            "elements": unique_symbols,
+            "nelements": len(unique_symbols),
+            "run_type": self.run_type,
         }
-
-        comp = self.final_structure.composition
-        dct["unit_cell_formula"] = comp.as_dict()
-        dct["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
-        dct["pretty_formula"] = comp.reduced_formula
-        dct["is_hubbard"] = self.is_hubbard
-        dct["hubbards"] = self.hubbards
-
-        unique_symbols = sorted(set(self.atomic_symbols))
-        dct["elements"] = unique_symbols
-        dct["nelements"] = len(unique_symbols)
-
-        dct["run_type"] = self.run_type
 
         vin: dict[str, Any] = {
             "incar": dict(self.incar),
@@ -1997,13 +1991,13 @@ class Outcar:
                     tokens = [float(i) for i in re.findall(r"[\d\.\-]+", clean)]
                     tokens.pop(0)
                     if read_charge:
-                        charge.append(dict(zip(header, tokens)))
+                        charge.append(dict(zip(header, tokens, strict=False)))
                     elif read_mag_x:
-                        mag_x.append(dict(zip(header, tokens)))
+                        mag_x.append(dict(zip(header, tokens, strict=False)))
                     elif read_mag_y:
-                        mag_y.append(dict(zip(header, tokens)))
+                        mag_y.append(dict(zip(header, tokens, strict=False)))
                     elif read_mag_z:
-                        mag_z.append(dict(zip(header, tokens)))
+                        mag_z.append(dict(zip(header, tokens, strict=False)))
                 elif clean.startswith("tot"):
                     read_charge = False
                     read_mag_x = False
@@ -3227,7 +3221,7 @@ class Outcar:
 
             micro_pyawk(self.filename, search, self)
 
-            self.zval_dict = dict(zip(self.atom_symbols, self.zvals))  # type: ignore[attr-defined]
+            self.zval_dict = dict(zip(self.atom_symbols, self.zvals, strict=False))  # type: ignore[attr-defined]
 
             # Clean up
             del self.atom_symbols  # type: ignore[attr-defined]
@@ -4854,7 +4848,7 @@ class Wavecar:
             tcoeffs = self.coeffs[kpoint][band]
 
         mesh = np.zeros(tuple(self.ng), dtype=np.complex128)
-        for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs):  # type: ignore[call-overload]
+        for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs, strict=False):  # type: ignore[call-overload]
             t = tuple(gp.astype(int) + (self.ng / 2).astype(int))
             mesh[t] = coeff
 

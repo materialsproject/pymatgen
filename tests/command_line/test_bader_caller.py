@@ -76,7 +76,7 @@ class TestBaderAnalysis(PymatgenTest):
 
         for key, val_from_path in analysis_from_path.summary.items():
             val = analysis.summary[key]
-            if isinstance(val_from_path, (bool, str)):
+            if isinstance(val_from_path, bool | str):
                 assert val == val_from_path, f"{key=}"
             elif key == "charge":
                 assert_allclose(val, val_from_path, atol=1e-5)

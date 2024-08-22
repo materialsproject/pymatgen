@@ -49,7 +49,7 @@ from monty.serialization import loadfn
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Element, PeriodicSite, SiteCollection, Species, Structure
 from pymatgen.io.core import InputGenerator
-from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar, VaspInput
+from pymatgen.io.vasp.inputs import Incar, Kpoints, PMG_VASP_PSP_DIR_Error, Poscar, Potcar, VaspInput
 from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
@@ -57,15 +57,16 @@ from pymatgen.util.due import Doi, due
 from pymatgen.util.typing import Kpoint
 
 if TYPE_CHECKING:
-    from typing import Callable, Literal, Union
+    from collections.abc import Callable
+    from typing import Literal
 
     from typing_extensions import Self
 
     from pymatgen.util.typing import PathLike, Tuple3Ints, Vector3D
 
-    UserPotcarFunctional = Union[
-        Literal["PBE", "PBE_52", "PBE_54", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"], None
-    ]
+    UserPotcarFunctional = (
+        Literal["PBE", "PBE_52", "PBE_54", "PBE_64", "LDA", "LDA_52", "LDA_54", "PW91", "LDA_US", "PW91_US"] | None
+    )
 
 MODULE_DIR = os.path.dirname(__file__)
 
@@ -300,10 +301,10 @@ class VaspInputSet(InputGenerator, abc.ABC):
         else:
             self.structure = self.structure
 
-        if isinstance(self.prev_incar, (Path, str)):
+        if isinstance(self.prev_incar, Path | str):
             self.prev_incar = Incar.from_file(self.prev_incar)
 
-        if isinstance(self.prev_kpoints, (Path, str)):
+        if isinstance(self.prev_kpoints, Path | str):
             self.prev_kpoints = Kpoints.from_file(self.prev_kpoints)
 
         self.prev_vasprun: Vasprun | None = None
@@ -341,7 +342,15 @@ class VaspInputSet(InputGenerator, abc.ABC):
             zip_output (bool): If True, output will be zipped into a file with the
                 same name as the InputSet (e.g., MPStaticSet.zip).
         """
-        vasp_input = self.get_input_set(potcar_spec=potcar_spec)
+        try:
+            vasp_input = self.get_input_set(potcar_spec=potcar_spec)
+        except PMG_VASP_PSP_DIR_Error:
+            assert potcar_spec is False
+            raise ValueError(
+                "PMG_VASP_PSP_DIR is not set."
+                "  Please set the PMG_VASP_PSP_DIR in .pmgrc.yaml"
+                " or use potcar_spec=True argument."
+            )
 
         cif_name = None
         if include_cif:
@@ -510,7 +519,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         prev_incar: dict[str, Any] = {}
         if self.inherit_incar is True and self.prev_incar:
             prev_incar = cast(dict[str, Any], self.prev_incar)
-        elif isinstance(self.inherit_incar, (list, tuple)) and self.prev_incar:
+        elif isinstance(self.inherit_incar, list | tuple) and self.prev_incar:
             prev_incar = {
                 k: cast(dict[str, Any], self.prev_incar)[k] for k in self.inherit_incar if k in self.prev_incar
             }
@@ -576,7 +585,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                         # Else, use fallback LDAU value if it exists
                     else:
                         incar[key] = [
-                            setting.get(sym, 0) if isinstance(setting.get(sym, 0), (float, int)) else 0
+                            setting.get(sym, 0) if isinstance(setting.get(sym, 0), float | int) else 0
                             for sym in poscar.site_symbols
                         ]
 
@@ -802,6 +811,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
                     "added_kpoints, or zero weighted k-points."
                 )
             # If length is in kpoints settings use Kpoints.automatic
+            warnings.filterwarnings("ignore", message="Please use INCAR KSPACING tag")
             return Kpoints.automatic(kconfig["length"])
 
         base_kpoints = None
@@ -828,20 +838,20 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 density = kconfig["reciprocal_density"]
                 base_kpoints = Kpoints.automatic_density_by_vol(self.structure, density, self.force_gamma)
 
-            if explicit and base_kpoints is not None:
-                sga = SpacegroupAnalyzer(self.structure, symprec=self.sym_prec)
-                mesh = sga.get_ir_reciprocal_mesh(base_kpoints.kpts[0])
-                base_kpoints = Kpoints(
-                    comment="Uniform grid",
-                    style=Kpoints.supported_modes.Reciprocal,
-                    num_kpts=len(mesh),
-                    kpts=tuple(i[0] for i in mesh),
-                    kpts_weights=[i[1] for i in mesh],
-                )
-            else:
+            if not explicit or base_kpoints is None:
                 # If not explicit that means no other options have been specified
                 # so we can return the k-points as is
                 return base_kpoints
+
+            sga = SpacegroupAnalyzer(self.structure, symprec=self.sym_prec)
+            mesh = sga.get_ir_reciprocal_mesh(base_kpoints.kpts[0])
+            base_kpoints = Kpoints(
+                comment="Uniform grid",
+                style=Kpoints.supported_modes.Reciprocal,
+                num_kpts=len(mesh),
+                kpts=tuple(i[0] for i in mesh),
+                kpts_weights=[i[1] for i in mesh],
+            )
 
         zero_weighted_kpoints = None
         if kconfig.get("zero_weighted_line_density"):
@@ -885,9 +895,9 @@ class VaspInputSet(InputGenerator, abc.ABC):
                 kpts_weights=[0] * len(points),
             )
 
-        if base_kpoints and not (added_kpoints or zero_weighted_kpoints):
+        if base_kpoints and not added_kpoints and not zero_weighted_kpoints:
             return base_kpoints
-        if added_kpoints and not (base_kpoints or zero_weighted_kpoints):
+        if added_kpoints and not base_kpoints and not zero_weighted_kpoints:
             return added_kpoints
 
         # Sanity check
@@ -937,11 +947,10 @@ class VaspInputSet(InputGenerator, abc.ABC):
         potcar_symbols = []
         settings = self._config_dict["POTCAR"]
 
-        if isinstance(settings[elements[-1]], dict):
-            for el in elements:
+        for el in elements:
+            if isinstance(settings[elements[-1]], dict):
                 potcar_symbols.append(settings[el]["symbol"] if el in settings else el)
-        else:
-            for el in elements:
+            else:
                 potcar_symbols.append(settings.get(el, el))
 
         return potcar_symbols
@@ -1003,10 +1012,8 @@ class VaspInputSet(InputGenerator, abc.ABC):
             )
 
         files_to_transfer = {}
-        if getattr(self, "copy_chgcar", False):
-            chgcars = sorted(glob(str(Path(prev_calc_dir) / "CHGCAR*")))
-            if chgcars:
-                files_to_transfer["CHGCAR"] = str(chgcars[-1])
+        if getattr(self, "copy_chgcar", False) and (chgcars := sorted(glob(str(Path(prev_calc_dir) / "CHGCAR*")))):
+            files_to_transfer["CHGCAR"] = str(chgcars[-1])
 
         if getattr(self, "copy_wavecar", False):
             for fname in ("WAVECAR", "WAVEDER", "WFULL"):
@@ -1350,9 +1357,29 @@ class MPMetalRelaxSet(VaspInputSet):
 
 @dataclass
 class MPHSERelaxSet(VaspInputSet):
-    """Same as the MPRelaxSet, but with HSE parameters."""
+    """Same as the MPRelaxSet, but with HSE parameters and vdW corrections."""
 
     CONFIG = _load_yaml_config("MPHSERelaxSet")
+    vdw: Literal["dftd3", "dftd3-bj"] | None = None
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+        self._config_dict["INCAR"]["LASPH"] = True
+
+    @property
+    def incar_updates(self) -> dict[str, Any]:
+        """Updates to the INCAR config for this calculation type."""
+        updates: dict[str, Any] = {}
+
+        if self.vdw:
+            hse_vdw_par = {
+                "dftd3": {"VDW_SR": 1.129, "VDW_S8": 0.109},
+                "dftd3-bj": {"VDW_A1": 0.383, "VDW_S8": 2.310, "VDW_A2": 5.685},
+            }
+            if vdw_param := hse_vdw_par.get(self.vdw):
+                updates.update(vdw_param)
+
+        return updates
 
 
 @dataclass
@@ -1865,13 +1892,13 @@ class MPSOCSet(VaspInputSet):
             if self.magmom:
                 structure = structure.copy(site_properties={"magmom": self.magmom})
 
-            # MAGMOM has to be 3D for SOC calculation.
-            if hasattr(structure[0], "magmom"):
-                if not isinstance(structure[0].magmom, list):
-                    # Project MAGMOM to z-axis
-                    structure = structure.copy(site_properties={"magmom": [[0, 0, site.magmom] for site in structure]})
-            else:
+            # MAGMOM has to be 3D for SOC calculation
+            if not hasattr(structure[0], "magmom"):
                 raise ValueError("Neither the previous structure has magmom property nor magmom provided")
+
+            if not isinstance(structure[0].magmom, list):
+                # Project MAGMOM to z-axis
+                structure = structure.copy(site_properties={"magmom": [[0, 0, site.magmom] for site in structure]})
 
         assert VaspInputSet.structure is not None
         VaspInputSet.structure.fset(self, structure)
@@ -2379,7 +2406,7 @@ class MITNEBSet(VaspInputSet):
         if write_path_cif:
             sites = {
                 PeriodicSite(site.species, site.frac_coords, self.structures[0].lattice)
-                for site in chain(*(struct for struct in self.structures))
+                for site in chain(*iter(self.structures))
             }
             neb_path = Structure.from_sites(sorted(sites))
             neb_path.to(filename=f"{output_dir}/path.cif")
@@ -2961,7 +2988,7 @@ def get_valid_magmom_struct(
         for site in structure:
             if "magmom" not in site.properties or site.properties["magmom"] is None:
                 pass
-            elif isinstance(site.properties["magmom"], (float, int)):
+            elif isinstance(site.properties["magmom"], float | int):
                 if mode == "v":
                     raise TypeError("Magmom type conflict")
                 mode = "s"
