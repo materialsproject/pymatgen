@@ -238,8 +238,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
                 processed_entry_list.append(entry)
 
         if verbose:
-            count_type_1 = len([e for e in processed_entry_list if e.parameters["run_type"] in self.valid_rtypes_1])
-            count_type_2 = len([e for e in processed_entry_list if e.parameters["run_type"] in self.valid_rtypes_2])
+            count_type_1 = sum(entry.parameters["run_type"] in self.valid_rtypes_1 for entry in processed_entry_list)
+            count_type_2 = sum(entry.parameters["run_type"] in self.valid_rtypes_2 for entry in processed_entry_list)
             print(
                 f"\nProcessing complete. Mixed entries contain {count_type_1} {self.run_type_1} and {count_type_2} "
                 f"{self.run_type_2} entries.\n"

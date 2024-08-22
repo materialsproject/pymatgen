@@ -1075,7 +1075,7 @@ class DftSet(Cp2kInput):
                                 "LIST": Keyword("LIST", f"{t[0]}..{t[1]}"),
                             },
                         )
-                        for t, c in zip(tuples, components, strict=False)
+                        for t, c in zip(tuples, components, strict=True)
                         if c
                     ]
                 )

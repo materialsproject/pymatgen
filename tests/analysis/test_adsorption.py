@@ -87,7 +87,7 @@ class TestAdsorbateSiteFinder(PymatgenTest):
         assert len(structures) == 4
         sites = self.asf_111.find_adsorption_sites()
         # Check repeat functionality
-        assert len([site for site in structures[0] if site.properties["surface_properties"] != "adsorbate"]) == 4 * len(
+        assert sum(site.properties["surface_properties"] != "adsorbate" for site in structures[0]) == 4 * len(
             self.asf_111.slab
         )
         for n, structure in enumerate(structures):

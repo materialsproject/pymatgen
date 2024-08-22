@@ -379,7 +379,7 @@ class OptimadeRester:
         def _get_comp(sp_dict):
             return {
                 _sanitize_symbol(symbol): conc
-                for symbol, conc in zip(sp_dict["chemical_symbols"], sp_dict["concentration"], strict=False)
+                for symbol, conc in zip(sp_dict["chemical_symbols"], sp_dict["concentration"], strict=True)
             }
 
         for data in json["data"]:

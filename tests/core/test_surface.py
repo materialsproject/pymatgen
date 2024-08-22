@@ -159,7 +159,7 @@ class TestSlab(PymatgenTest):
             assert total_surf_sites / 2 == 4
 
             # Test if the ratio of surface sites per area is
-            # constant, ie are the surface energies the same
+            # constant, i.e. are the surface energies the same?
             r1 = total_surf_sites / (2 * slab.surface_area)
             slab_gen = SlabGenerator(self.ag_fcc, (3, 1, 0), 10, 10, primitive=False)
             slab = slab_gen.get_slabs()[0]

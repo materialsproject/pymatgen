@@ -1078,7 +1078,7 @@ class BasicMultiDataset:
     def from_inputs(cls, inputs: list[BasicAbinitInput]) -> Self:
         """Construct a multidataset from a list of BasicAbinitInputs."""
         for inp in inputs:
-            if any(p1 != p2 for p1, p2 in zip(inputs[0].pseudos, inp.pseudos, strict=False)):
+            if any(p1 != p2 for p1, p2 in zip(inputs[0].pseudos, inp.pseudos, strict=True)):
                 raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
 
         # Build BasicMultiDataset from input structures and pseudos and add inputs.
@@ -1089,7 +1089,7 @@ class BasicMultiDataset:
         )
 
         # Add variables
-        for inp, new_inp in zip(inputs, multi, strict=False):
+        for inp, new_inp in zip(inputs, multi, strict=True):
             new_inp.set_vars(**inp)
 
         return multi
@@ -1184,7 +1184,7 @@ class BasicMultiDataset:
     def append(self, abinit_input):
         """Add a BasicAbinitInput to the list."""
         assert isinstance(abinit_input, BasicAbinitInput)
-        if any(p1 != p2 for p1, p2 in zip(abinit_input.pseudos, abinit_input.pseudos, strict=False)):
+        if any(p1 != p2 for p1, p2 in zip(abinit_input.pseudos, abinit_input.pseudos, strict=True)):
             raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
         self._inputs.append(abinit_input)
 
@@ -1192,7 +1192,7 @@ class BasicMultiDataset:
         """Extends self with a list of BasicAbinitInputs."""
         assert all(isinstance(inp, BasicAbinitInput) for inp in abinit_inputs)
         for inp in abinit_inputs:
-            if any(p1 != p2 for p1, p2 in zip(self[0].pseudos, inp.pseudos, strict=False)):
+            if any(p1 != p2 for p1, p2 in zip(self[0].pseudos, inp.pseudos, strict=True)):
                 raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
         self._inputs.extend(abinit_inputs)
 

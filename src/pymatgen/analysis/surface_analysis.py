@@ -780,7 +780,7 @@ class SurfaceEnergyPlotter:
 
         # sort the chempot ranges for each facet
         for entry, v in stable_urange_dict.items():
-            se_dict[entry] = [se for idx, se in sorted(zip(v, se_dict[entry], strict=False))]
+            se_dict[entry] = [se for idx, se in sorted(zip(v, se_dict[entry], strict=True))]
             stable_urange_dict[entry] = sorted(v)
 
         if return_se_dict:
@@ -1033,7 +1033,7 @@ class SurfaceEnergyPlotter:
             # sort the binding energies and monolayers
             # in order to properly draw a line plot
             vals = sorted(ml_be_dict.items())
-            monolayers, BEs = zip(*vals, strict=False)
+            monolayers, BEs = zip(*vals, strict=True)
             ax.plot(monolayers, BEs, "-o", c=self.color_dict[clean_entry], label=hkl)
 
         adsorbates = tuple(ads_entry.ads_entries_dict)
@@ -1447,7 +1447,7 @@ class WorkFunctionAnalyzer:
             else:
                 yg.append(pot)
                 xg.append(self.along_c[idx])
-        xg, yg = zip(*sorted(zip(xg, yg, strict=False)), strict=False)
+        xg, yg = zip(*sorted(zip(xg, yg, strict=True)), strict=True)
         plt.plot(xg, yg, "r", linewidth=2.5, zorder=-1)
 
         # make it look nice

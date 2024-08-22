@@ -172,7 +172,7 @@ class Keyword(MSONable):
         units = re.findall(r"\[(.*)\]", s) or [None]
         s = re.sub(r"\[(.*)\]", "", s)
         args: list[Any] = s.split()
-        args = list(map(postprocessor if args[0].upper() != "ELEMENT" else str, args))  # type: ignore[call-overload]
+        args = list(map(postprocessor if args[0].upper() != "ELEMENT" else str, args))
         args[0] = str(args[0])
         return cls(*args, units=units[0], description=description)
 
@@ -204,7 +204,7 @@ class KeywordList(MSONable):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return NotImplemented
-        return all(k == o for k, o in zip(self.keywords, other.keywords, strict=False))
+        return all(k == o for k, o in zip(self.keywords, other.keywords, strict=True))
 
     def __add__(self, other):
         return self.extend(other)
@@ -611,7 +611,7 @@ class SectionList(MSONable):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SectionList):
             return NotImplemented
-        return all(k == o for k, o in zip(self.sections, other.sections, strict=False))
+        return all(k == o for k, o in zip(self.sections, other.sections, strict=True))
 
     def __add__(self, other):
         self.append(other)
@@ -1968,7 +1968,7 @@ class Kpoints(Section):
             keywords["SCHEME"] = Keyword("SCHEME", scheme, *kpts[0])
         elif len(kpts) > 1:
             keywords["KPOINT"] = KeywordList(
-                [Keyword("KPOINT", *k, w) for k, w in zip(self.kpts, self.weights, strict=False)]
+                [Keyword("KPOINT", *k, w) for k, w in zip(self.kpts, self.weights, strict=True)]
             )
         else:
             raise ValueError("No k-points provided!")
@@ -2035,7 +2035,7 @@ class Kpoints(Section):
                 scheme = "GAMMA"
             else:
                 sga = SpacegroupAnalyzer(structure)
-                _kpts, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpts), strict=False)  # type: ignore[arg-type]
+                _kpts, weights = zip(*sga.get_ir_reciprocal_mesh(mesh=kpts), strict=True)  # type: ignore[arg-type]
                 kpts = list(itertools.chain.from_iterable(_kpts))
                 scheme = "GENERAL"
 
@@ -2142,7 +2142,7 @@ class BandStructure(Section):
 
             def pairwise(iterable):
                 a = iter(iterable)
-                return zip(a, a, strict=False)
+                return zip(a, a, strict=True)
 
             kpoint_sets = [
                 KpointSet(
@@ -2150,7 +2150,7 @@ class BandStructure(Section):
                     kpoints=[(lbls[0], kpts[0]), (lbls[1], kpts[1])],
                     units="B_VECTOR",
                 )
-                for lbls, kpts in zip(pairwise(kpoints.labels), pairwise(kpoints.kpts), strict=False)
+                for lbls, kpts in zip(pairwise(kpoints.labels), pairwise(kpoints.kpts), strict=True)
             ]
         elif kpoints.style in (
             KpointsSupportedModes.Reciprocal,

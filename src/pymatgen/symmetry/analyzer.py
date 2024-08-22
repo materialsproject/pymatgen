@@ -296,7 +296,7 @@ class SpacegroupAnalyzer:
         sym_ops = []
         mat = self._structure.lattice.matrix.T
         inv_mat = np.linalg.inv(mat)
-        for rot, trans in zip(rotation, translation, strict=False):
+        for rot, trans in zip(rotation, translation, strict=True):
             if cartesian:
                 rot = np.dot(mat, np.dot(rot, inv_mat))
                 trans = np.dot(trans, self._structure.lattice.matrix)
@@ -429,7 +429,7 @@ class SpacegroupAnalyzer:
         mapping, grid = spglib.get_ir_reciprocal_mesh(np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
 
         results = []
-        for idx, count in zip(*np.unique(mapping, return_counts=True), strict=False):
+        for idx, count in zip(*np.unique(mapping, return_counts=True), strict=True):
             results.append(((grid[idx] + shift * (0.5, 0.5, 0.5)) / mesh, count))
         return results
 
@@ -1380,7 +1380,7 @@ class PointGroupAnalyzer:
 
         for index in get_clustered_indices():
             sites = self.centered_mol.cart_coords[index]
-            for i, reference in zip(index, sites, strict=False):
+            for i, reference in zip(index, sites, strict=True):
                 for op in symm_ops:
                     rotated = np.dot(op, sites.T).T
                     matched_indices = find_in_coord_list(rotated, reference, self.tol)

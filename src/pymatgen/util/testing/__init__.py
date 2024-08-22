@@ -117,7 +117,7 @@ class PymatgenTest(TestCase):
 
             # Test for equality
             if test_eq:
-                for orig, unpickled in zip(objects, unpickled_objs, strict=False):
+                for orig, unpickled in zip(objects, unpickled_objs, strict=True):
                     assert (
                         orig == unpickled
                     ), f"Unpickled and original objects are unequal for {protocol=}\n{orig=}\n{unpickled=}"
