@@ -377,14 +377,14 @@ class TestInterfaceReaction(TestCase):
         assert test5, "get_critical_original_kink_ratio: gets error!"
 
     def test_labels(self):
-        d_pymg = self.irs[0].labels
-        d_test = {
+        dict_pymg = self.irs[0].labels
+        dict_test = {
             1: "x= 0.0 energy in eV/atom = 0.0 Mn -> Mn",
             2: "x= 0.5 energy in eV/atom = -15.0 0.5 Mn + 0.5 O2 -> 0.5 MnO2",
             3: "x= 1.0 energy in eV/atom = 0.0 O2 -> O2",
         }
 
-        assert d_pymg == d_test, (
+        assert dict_pymg == dict_test, (
             "labels:label does not match for interfacial system "
             f"with {self.irs[0].c1_original.reduced_formula} and {self.irs[0].c2_original.reduced_formula}."
         )
@@ -399,9 +399,9 @@ class TestInterfaceReaction(TestCase):
 
     def test_get_dataframe(self):
         for ir in self.irs:
-            df = ir.get_dataframe()
-            assert isinstance(df, DataFrame)
-            assert {*df} >= {
+            df_reaction = ir.get_dataframe()
+            assert isinstance(df_reaction, DataFrame)
+            assert {*df_reaction} >= {
                 "Atomic fraction",
                 "E$_{\textrm{rxn}}$ (eV/atom)",
                 "E$_{\textrm{rxn}}$ (kJ/mol)",
