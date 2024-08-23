@@ -34,6 +34,10 @@ jobs:
             python: "3.10"
             resolution: highest
             extras: ci,optional
+          - os: windows-latest
+            python: "3.10"
+            resolution: highest
+            extras: ci,optional,np1
           - os: ubuntu-latest
             python: ">3.10"
             resolution: lowest-direct
@@ -92,6 +96,12 @@ jobs:
           # TODO: uv cannot install BoltzTraP2 (#3786),
           # suggesting no NumPy when there is
           pip install BoltzTraP2
+
+      - name: Install NumPy 1
+        if: matrix.config.extras == 'ci,optional,np1'
+        run: |
+          micromamba activate pmg
+          pip install numpy<2
 
       - name: pytest split ${{ matrix.split }}
         run: |
