@@ -115,7 +115,7 @@ optional = [
     # "openbabel>=3.1.1; platform_system=='Linux'",
 ]
 numba = ["numba>=0.55"]
-numpy1 = ["numpy>=1.25.0,<2"]  # TODO: WIP
+numpy1 = ["numpy>=1.25.0,<2"]  # Test NP1 on Windows (quite buggy ATM)
 
 [project.scripts]
 pmg = "pymatgen.cli.pmg:main"
