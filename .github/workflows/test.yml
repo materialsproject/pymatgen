@@ -94,7 +94,16 @@ jobs:
           # track https://gitlab.com/sousaw/BoltzTraP2/-/merge_requests/21
           pip install BoltzTraP2
 
-          bash ${{ github.workspace }}/.github/workflows/install-opt-dependency.sh
+          # Install BoltzTraP
+          wget -q -O BoltzTraP.tar.bz2 https://owncloud.tuwien.ac.at/index.php/s/s2d55LYlZnioa3s/download
+          tar -jxf BoltzTraP.tar.bz2
+          echo "$(realpath boltztrap-1.2.5/src/)" >> $GITHUB_PATH
+
+          # Install Vampire 5.0
+          wget -q https://vampire.york.ac.uk/resources/release-5/vampire-5.0-linux.tar.gz
+          tar -zxf vampire-5.0-linux.tar.gz
+          mv linux vampire-5.0
+          echo "$(realpath vampire-5.0/)" >> $GITHUB_PATH
 
       - name: pytest split ${{ matrix.split }}
         run: |
