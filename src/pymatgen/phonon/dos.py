@@ -621,7 +621,7 @@ class CompletePhononDos(PhononDos):
         """Get CompleteDos object from dict representation."""
         total_dos = PhononDos.from_dict(dct)
         struct = Structure.from_dict(dct["structure"])
-        ph_doses = dict(zip(struct, dct["pdos"], strict=False))
+        ph_doses = dict(zip(struct, dct["pdos"], strict=True))
 
         return cls(struct, total_dos, ph_doses)
 

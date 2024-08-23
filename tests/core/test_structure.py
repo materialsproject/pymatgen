@@ -622,7 +622,7 @@ class TestIStructure(PymatgenTest):
             assert len(all_nn[idx][0]) == 4
             assert len(all_nn[idx]) == len(struct.get_neighbors(site, rand_radius))
 
-        for site, nns in zip(struct, all_nn, strict=False):
+        for site, nns in zip(struct, all_nn, strict=True):
             for nn in nns:
                 assert nn[0].is_periodic_image(struct[nn[2]])
                 dist = sum((site.coords - nn[0].coords) ** 2) ** 0.5
@@ -785,7 +785,7 @@ Direct
             [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3],
         )
         all_nn = struct.get_all_neighbors(0.2, include_index=True)
-        for site, nns in zip(struct, all_nn, strict=False):
+        for site, nns in zip(struct, all_nn, strict=True):
             for nn in nns:
                 assert nn[0].is_periodic_image(struct[nn[2]])
                 d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
