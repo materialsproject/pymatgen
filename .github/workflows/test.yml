@@ -97,12 +97,6 @@ jobs:
           # suggesting no NumPy when there is
           pip install BoltzTraP2
 
-      - name: Install NumPy 1
-        if: matrix.config.extras == 'ci,optional,np1'
-        run: |
-          micromamba activate pmg
-          pip install numpy<2
-
       - name: pytest split ${{ matrix.split }}
         run: |
           micromamba activate pmg
