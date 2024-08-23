@@ -213,7 +213,7 @@ class ChemicalPotentialDiagram(MSONable):
 
         domains: dict[str, list] = {entry.reduced_formula: [] for entry in entries}
 
-        for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets):
+        for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets, strict=True):
             for v in facet:
                 if v < len(entries):
                     this_entry = entries[v]
@@ -578,7 +578,7 @@ class ChemicalPotentialDiagram(MSONable):
             return f"<br> μ<sub>{element}</sub> - μ<sub>{element}</sub><sup>o</sup> (eV)"
 
         axes_layout = {}
-        for ax, el in zip(axes, elements):
+        for ax, el in zip(axes, elements, strict=True):
             layout = plotly_layouts[layout_name].copy()
             layout["title"] = get_chempot_axis_title(el)
             axes_layout[ax] = layout

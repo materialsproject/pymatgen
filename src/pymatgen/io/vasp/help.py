@@ -62,11 +62,9 @@ class VaspDoc:
         main_doc = soup.find(id="mw-content-text")
         if fmt == "text":
             output = main_doc.text
-            output = re.sub("\n{2,}", "\n\n", output)
-        else:
-            output = str(main_doc)
+            return re.sub("\n{2,}", "\n\n", output)
 
-        return output
+        return str(main_doc)
 
     @classmethod
     def get_incar_tags(cls) -> list[str]:
@@ -83,9 +81,3 @@ class VaspDoc:
                 for child in children:
                     tags.append(child.text.strip())
         return tags
-
-
-if __name__ == "__main__":
-    doc = VaspDoc()
-    doc.print_help("ISYM")
-    print(doc.get_incar_tags())

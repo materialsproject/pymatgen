@@ -23,9 +23,10 @@ from pymatgen.util.testing import TEST_FILES_DIR
 TEST_DIR = f"{TEST_FILES_DIR}/io/openff/classical_md_mols"
 
 tk = pytest.importorskip("openff.toolkit")
+pybel = pytest.importorskip("openbabel.pybel")
 
 
-@pytest.fixture()
+@pytest.fixture
 def mol_files():
     return {
         "CCO_xyz": f"{TEST_DIR}/CCO.xyz",

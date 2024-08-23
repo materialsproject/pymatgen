@@ -105,7 +105,7 @@ class CifBlock:
         for line in loop:
             out += "\n " + line
 
-        for fields in zip(*(self.data[k] for k in loop)):
+        for fields in zip(*(self.data[k] for k in loop), strict=True):
             line = "\n"
             for val in map(self._format_field, fields):
                 if val[0] == ";":
@@ -228,7 +228,7 @@ class CifBlock:
                 n = len(items) // len(columns)
                 assert len(items) % n == 0
                 loops.append(columns)
-                for k, v in zip(columns * n, items):
+                for k, v in zip(columns * n, items, strict=True):
                     data[k].append(v.strip())
 
             elif issue := "".join(_str).strip():
@@ -373,7 +373,7 @@ class CifParser:
         self._frac_tolerance = frac_tolerance
 
         # Read CIF file
-        if isinstance(filename, (str, Path)):
+        if isinstance(filename, str | Path):
             self._cif = CifFile.from_file(filename)
         elif isinstance(filename, StringIO):
             self._cif = CifFile.from_str(filename.read())
@@ -579,7 +579,7 @@ class CifParser:
 
                     for comparison_frac in important_fracs:
                         if abs(1 - frac / comparison_frac) < self._frac_tolerance:
-                            fracs_to_change[(label, idx)] = str(comparison_frac)
+                            fracs_to_change[label, idx] = str(comparison_frac)
 
         if fracs_to_change:
             self.warnings.append(
@@ -610,7 +610,7 @@ class CifParser:
                 raise ValueError("Length of magmoms and coords don't match.")
 
             magmoms_out: list[Magmom] = []
-            for tmp_coord, tmp_magmom in zip(coords, magmoms):
+            for tmp_coord, tmp_magmom in zip(coords, magmoms, strict=True):
                 for op in self.symmetry_operations:
                     coord = op.operate(tmp_coord)
                     coord = np.array([i - math.floor(i) for i in coord])

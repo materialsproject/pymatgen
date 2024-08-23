@@ -137,7 +137,7 @@ class ElasticTensor(NthOrderElasticTensor):
     def __new__(cls, input_array, tol: float = 1e-4) -> Self:
         """
         Create an ElasticTensor object. The constructor throws an error if the shape of
-        the input_matrix argument is not 3x3x3x3, i. e. in true tensor notation. Issues a
+        the input_matrix argument is not 3x3x3x3, i.e. in true tensor notation. Issues a
         warning if the input_matrix argument does not satisfy standard symmetries. Note
         that the constructor uses __new__ rather than __init__ according to the standard
         method of subclassing numpy ndarrays.
@@ -564,7 +564,7 @@ class ElasticTensorExpansion(TensorCollection):
     @property
     def order(self) -> int:
         """
-        Order of the elastic tensor expansion, i. e. the order of the
+        Order of the elastic tensor expansion, i.e. the order of the
         highest included set of elastic constants.
         """
         return self[-1].order
@@ -619,7 +619,7 @@ class ElasticTensorExpansion(TensorCollection):
         points = quad["points"]
         weights = quad["weights"]
         num, denom, c = np.zeros((3, 3)), 0, 1
-        for p, w in zip(points, weights):
+        for p, w in zip(points, weights, strict=True):
             gk = ElasticTensor(self[0]).green_kristoffel(p)
             _rho_wsquareds, us = np.linalg.eigh(gk)
             us = [u / np.linalg.norm(u) for u in np.transpose(us)]
@@ -856,7 +856,7 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
         stresses (nx3x3 array-like): Array of 3x3 stresses
             to use in fitting ECs. These should be PK2 stresses.
         eq_stress (3x3 array-like): stress corresponding to
-            equilibrium strain (i. e. "0" strain state).
+            equilibrium strain (i.e. "0" strain state).
             If not specified, function will try to find
             the state in the list of provided stresses
             and strains. If not found, defaults to 0.
@@ -882,7 +882,7 @@ def diff_fit(strains, stresses, eq_stress=None, order=2, tol: float = 1e-10):
     for _ord in range(1, order):
         cvec, carr = get_symbol_list(_ord + 1)
         svec = np.ravel(dei_dsi[_ord - 1].T)
-        cmap = dict(zip(cvec, np.dot(m[_ord - 1], svec)))
+        cmap = dict(zip(cvec, np.dot(m[_ord - 1], svec), strict=True))
         c_list.append(v_subs(carr, cmap))
     return [Tensor.from_voigt(c) for c in c_list]
 
@@ -916,7 +916,7 @@ def find_eq_stress(strains, stresses, tol: float = 1e-10):
 
 def get_strain_state_dict(strains, stresses, eq_stress=None, tol: float = 1e-10, add_eq=True, sort=True):
     """Create a dictionary of voigt notation stress-strain sets
-    keyed by "strain state", i. e. a tuple corresponding to
+    keyed by "strain state", i.e. a tuple corresponding to
     the non-zero entries in ratios to the lowest nonzero value,
     e.g. [0, 0.1, 0, 0.2, 0, 0] -> (0,1,0,2,0,0)
     This allows strains to be collected in stencils as to
@@ -974,7 +974,7 @@ def generate_pseudo(strain_states, order=3):
 
     Args:
         strain_states (6xN array like): a list of Voigt-notation strain-states,
-            i. e. perturbed indices of the strain as a function of the smallest
+            i.e. perturbed indices of the strain as a function of the smallest
             strain e.g. (0, 1, 0, 0, 1, 0)
         order (int): order of pseudo-inverse to calculate
 
@@ -1010,7 +1010,7 @@ def generate_pseudo(strain_states, order=3):
 def get_symbol_list(rank, dim=6):
     """Get a symbolic representation of the Voigt-notation
     tensor that places identical symbols for entries related
-    by index transposition, i. e. C_1121 = C_1211 etc.
+    by index transposition, i.e. C_1121 = C_1211 etc.
 
     Args:
         dim (int): dimension of matrix/tensor, e.g. 6 for

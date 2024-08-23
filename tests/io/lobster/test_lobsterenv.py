@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from unittest import TestCase
 
 import numpy as np
@@ -23,7 +22,6 @@ __email__ = "janine.george@uclouvain.be"
 __date__ = "Jan 14, 2021"
 
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/cohp/environments"
-module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestLobsterNeighbors(TestCase):

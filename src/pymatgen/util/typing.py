@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from os import PathLike as OsPathLike
-from typing import TYPE_CHECKING, Any, Literal, Union
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias, Union
 
 from numpy.typing import NDArray
 
@@ -22,26 +22,26 @@ if TYPE_CHECKING:  # needed to avoid circular imports
     from pymatgen.entries.exp_entries import ExpEntry
 
 # Commonly used composite types
-Tuple3Ints = tuple[int, int, int]
-Tuple3Floats = tuple[float, float, float]
+Tuple3Ints: TypeAlias = tuple[int, int, int]
+Tuple3Floats: TypeAlias = tuple[float, float, float]
 
-PathLike = Union[str, OsPathLike]
-PbcLike = tuple[bool, bool, bool]
+PathLike: TypeAlias = str | OsPathLike
+PbcLike: TypeAlias = tuple[bool, bool, bool]
 
 # Things that can be cast to a Spin
-SpinLike = Union[Spin, Literal[-1, 1, "up", "down"]]
+SpinLike: TypeAlias = Spin | Literal[-1, 1, "up", "down"]
 
 # Things that can be cast to a magnetic moment
-MagMomentLike = Union[float, Sequence[float], NDArray, Magmom]
+MagMomentLike: TypeAlias = float | Sequence[float] | NDArray | Magmom
 
 # Things that can be cast to a Species-like object using get_el_sp
-SpeciesLike = Union[str, Element, Species, DummySpecies]
+SpeciesLike: TypeAlias = str | Element | Species | DummySpecies
 
 # Things that can be cast to a Composition
-CompositionLike = Union[str, Element, Species, DummySpecies, dict, Composition]
+CompositionLike: TypeAlias = str | Element | Species | DummySpecies | dict | Composition
 
 # Entry or any of its subclasses or dicts that can be unpacked into any of them
-EntryLike = Union[
+EntryLike: TypeAlias = Union[
     dict[str, Any],
     "Entry",
     "PDEntry",
@@ -54,13 +54,18 @@ EntryLike = Union[
     "GibbsComputedStructureEntry",
 ]
 
-Vector3D = Tuple3Floats
-Matrix3D = tuple[Vector3D, Vector3D, Vector3D]
+Vector3D: TypeAlias = Tuple3Floats
+Matrix3D: TypeAlias = tuple[Vector3D, Vector3D, Vector3D]
 
-SitePropsType = Union[list[dict[Any, Sequence[Any]]], dict[Any, Sequence[Any]]]
+SitePropsType: TypeAlias = list[dict[Any, Sequence[Any]]] | dict[Any, Sequence[Any]]
 
 # Types specific to io.vasp
-Kpoint = Union[Tuple3Floats, tuple[int,]]
+Kpoint: TypeAlias = (
+    Tuple3Ints
+    | tuple[int]  # Automatic k-point mesh
+    | Vector3D  # Line-mode and explicit k-point mesh
+)
+
 
 # Miller index
-MillerIndex = Tuple3Ints
+MillerIndex: TypeAlias = Tuple3Ints

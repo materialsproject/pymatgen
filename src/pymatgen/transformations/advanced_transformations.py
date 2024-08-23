@@ -46,8 +46,8 @@ except ImportError:
     hiphive = None
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
-    from typing import Any, Callable, Literal
+    from collections.abc import Callable, Iterable, Sequence
+    from typing import Any, Literal
 
 
 __author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, Alex Ganose"
@@ -721,7 +721,7 @@ class MagOrderingTransformation(AbstractTransformation):
                 DummySpecies(symbol, spin=Spin.up): constraint.order_parameter,
                 DummySpecies(symbol, spin=Spin.down): 1 - constraint.order_parameter,
             }
-            for symbol, constraint in zip(dummy_species_symbols, order_parameters)
+            for symbol, constraint in zip(dummy_species_symbols, order_parameters, strict=True)
         ]
 
         for site in dummy_struct:

@@ -132,8 +132,7 @@ class SpecieProximityFilter(AbstractStructureFilter):
         all_species = set(self.specie_and_min_dist)
         for site in structure:
             species = set(site.species)
-            sp_to_test = species.intersection(all_species)
-            if sp_to_test:
+            if sp_to_test := species.intersection(all_species):
                 max_r = max(self.specie_and_min_dist[sp] for sp in sp_to_test)
                 neighbors = structure.get_neighbors(site, max_r)
                 for sp in sp_to_test:
@@ -178,7 +177,7 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
         """
         self.symprec = symprec
         self.structure_list: dict[str, list[Structure]] = defaultdict(list)
-        if not isinstance(structure_matcher, (dict, StructureMatcher, type(None))):
+        if not isinstance(structure_matcher, dict | StructureMatcher | type(None)):
             raise TypeError(f"{structure_matcher=} must be a dict, StructureMatcher or None")
         if isinstance(structure_matcher, dict):
             self.structure_matcher = StructureMatcher.from_dict(structure_matcher)

@@ -32,7 +32,7 @@ __maintainer__ = "David Waroquiers"
 __email__ = "david.waroquiers@gmail.com"
 __date__ = "Feb 20, 2016"
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 UNKNOWN_ENVIRONMENT_SYMBOL = "UNKNOWN"
 UNCLEAR_ENVIRONMENT_SYMBOL = "UNCLEAR"
@@ -850,17 +850,17 @@ class AllCoordinationGeometries(dict):
         dict.__init__(self)
         self.cg_list: list[CoordinationGeometry] = []
         if only_symbols is None:
-            with open(f"{module_dir}/coordination_geometries_files/allcg.txt") as file:
+            with open(f"{MODULE_DIR}/coordination_geometries_files/allcg.txt") as file:
                 data = file.readlines()
             for line in data:
-                cg_file = f"{module_dir}/{line.strip()}"
+                cg_file = f"{MODULE_DIR}/{line.strip()}"
                 with open(cg_file) as file:
                     dd = json.load(file)
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))
         else:
             for symbol in only_symbols:
                 fsymbol = symbol.replace(":", "#")
-                cg_file = f"{module_dir}/coordination_geometries_files/{fsymbol}.json"
+                cg_file = f"{MODULE_DIR}/coordination_geometries_files/{fsymbol}.json"
                 with open(cg_file) as file:
                     dd = json.load(file)
                 self.cg_list.append(CoordinationGeometry.from_dict(dd))

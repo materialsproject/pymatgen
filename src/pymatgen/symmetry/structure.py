@@ -67,7 +67,7 @@ class SymmetrizedStructure(Structure):
         self.wyckoff_letters = wyckoff_letters
         self.wyckoff_symbols = [f"{len(symb)}{symb[0]}" for symb in wyckoff_symbols]
 
-    def copy(self) -> Self:  # type: ignore[override]
+    def copy(self) -> Self:
         """Make a copy of the SymmetrizedStructure."""
         return type(self)(
             self,
@@ -134,7 +134,7 @@ class SymmetrizedStructure(Structure):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:  # type: ignore[override]
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct (dict): Dict representation.

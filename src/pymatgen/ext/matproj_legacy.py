@@ -1393,7 +1393,7 @@ class _MPResterLegacy:
             # Prefer reconstructed surfaces, which have lower surface energies.
             if (miller not in miller_energy_map) or surf["is_reconstructed"]:
                 miller_energy_map[miller] = surf["surface_energy"]
-        millers, energies = zip(*miller_energy_map.items())
+        millers, energies = zip(*miller_energy_map.items(), strict=True)
         return WulffShape(lattice, millers, energies)
 
     def get_gb_data(

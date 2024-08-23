@@ -296,7 +296,7 @@ class SpacegroupAnalyzer:
         sym_ops = []
         mat = self._structure.lattice.matrix.T
         inv_mat = np.linalg.inv(mat)
-        for rot, trans in zip(rotation, translation):
+        for rot, trans in zip(rotation, translation, strict=True):
             if cartesian:
                 rot = np.dot(mat, np.dot(rot, inv_mat))
                 trans = np.dot(trans, self._structure.lattice.matrix)
@@ -429,7 +429,7 @@ class SpacegroupAnalyzer:
         mapping, grid = spglib.get_ir_reciprocal_mesh(np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
 
         results = []
-        for idx, count in zip(*np.unique(mapping, return_counts=True)):
+        for idx, count in zip(*np.unique(mapping, return_counts=True), strict=True):
             results.append(((grid[idx] + shift * (0.5, 0.5, 0.5)) / mesh, count))
         return results
 
@@ -1380,7 +1380,7 @@ class PointGroupAnalyzer:
 
         for index in get_clustered_indices():
             sites = self.centered_mol.cart_coords[index]
-            for i, reference in zip(index, sites):
+            for i, reference in zip(index, sites, strict=True):
                 for op in symm_ops:
                     rotated = np.dot(op, sites.T).T
                     matched_indices = find_in_coord_list(rotated, reference, self.tol)
@@ -1503,47 +1503,41 @@ def iterative_symmetrize(
     max_n: int = 10,
     tolerance: float = 0.3,
     epsilon: float = 1e-2,
-) -> dict:
+) -> dict[Literal["sym_mol", "eq_sets", "sym_ops"], Molecule | dict]:
     """Get a symmetrized molecule.
 
-    The equivalent atoms obtained via
-    :meth:`~pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms`
+    The equivalent atoms obtained via `PointGroupAnalyzer.get_equivalent_atoms`
     are rotated, mirrored... unto one position.
-    Then the average position is calculated.
-    The average position is rotated, mirrored... back with the inverse
-    of the previous symmetry operations, which gives the
-    symmetrized molecule
+    Then the average position is calculated, which is rotated, mirrored...
+    back with the inverse of the previous symmetry operations, giving the
+    symmetrized molecule.
 
     Args:
         mol (Molecule): A pymatgen Molecule instance.
         max_n (int): Maximum number of iterations.
-        tolerance (float): Tolerance for detecting symmetry.
-            Gets passed as Argument into
-            ~pymatgen.analyzer.symmetry.PointGroupAnalyzer.
+        tolerance (float): Tolerance for detecting symmetry with PointGroupAnalyzer.
         epsilon (float): If the element-wise absolute difference of two
             subsequently symmetrized structures is smaller epsilon,
             the iteration stops before max_n is reached.
 
     Returns:
-        dict: with three possible keys:
-            sym_mol: A symmetrized molecule instance.
+        dict with three keys:
+            sym_mol: A symmetrized Molecule instance.
             eq_sets: A dictionary of indices mapping to sets of indices, each key maps to indices
                 of all equivalent atoms. The keys are guaranteed to be not equivalent.
-            sym_ops: Twofold nested dictionary. operations[i][j] gives the symmetry operation
+            sym_ops: Two-fold nested dictionary. operations[i][j] gives the symmetry operation
                 that maps atom i unto j.
     """
-    new = mol
-    n = 0
-    finished = False
-    eq = {"sym_mol": new, "eq_sets": {}, "sym_ops": {}}
-    while not finished and n <= max_n:
-        previous = new
-        PA = PointGroupAnalyzer(previous, tolerance=tolerance)
-        eq = PA.symmetrize_molecule()
-        new = eq["sym_mol"]
-        finished = np.allclose(new.cart_coords, previous.cart_coords, atol=epsilon)
-        n += 1
-    return eq
+    new_mol: Molecule = mol
+    sym_mol: dict = {"sym_mol": new_mol, "eq_sets": {}, "sym_ops": {}}
+    for _ in range(max_n):
+        prev_mol: Molecule = new_mol
+        sym_mol = PointGroupAnalyzer(prev_mol, tolerance=tolerance).symmetrize_molecule()
+        new_mol = sym_mol["sym_mol"]
+
+        if np.allclose(new_mol.cart_coords, prev_mol.cart_coords, atol=epsilon):
+            break
+    return sym_mol
 
 
 def cluster_sites(
@@ -1579,9 +1573,9 @@ def cluster_sites(
         if avg_dist[f_cluster[idx]] < tol:
             origin_site = idx if give_only_index else site
         elif give_only_index:
-            clustered_sites[(avg_dist[f_cluster[idx]], site.species)].append(idx)
+            clustered_sites[avg_dist[f_cluster[idx]], site.species].append(idx)
         else:
-            clustered_sites[(avg_dist[f_cluster[idx]], site.species)].append(site)
+            clustered_sites[avg_dist[f_cluster[idx]], site.species].append(site)
     return origin_site, clustered_sites
 
 

@@ -26,7 +26,7 @@ class TestHeisenbergMapper(TestCase):
             ordered_structures = list(c["structure"])
             ordered_structures = [Structure.from_dict(d) for d in ordered_structures]
             epa = list(c["energy_per_atom"])
-            energies = [e * len(s) for (e, s) in zip(epa, ordered_structures)]
+            energies = [e * len(s) for (e, s) in zip(epa, ordered_structures, strict=True)]
 
             hm = HeisenbergMapper(ordered_structures, energies, cutoff=5.0, tol=0.02)
             cls.hms.append(hm)
@@ -39,7 +39,7 @@ class TestHeisenbergMapper(TestCase):
     def test_sites(self):
         for hm in self.hms:
             unique_site_ids = hm.unique_site_ids
-            assert unique_site_ids[(0, 1)] == 0
+            assert unique_site_ids[0, 1] == 0
 
     def test_nn_interactions(self):
         for hm in self.hms:

@@ -58,7 +58,7 @@ def test_read_h2o_in(tmp_path: Path):
         [0, -0.763239, -0.477047],
     ]
 
-    assert all(sp.symbol == symb for sp, symb in zip(h2o.structure.species, ["O", "H", "H"]))
+    assert all(sp.symbol == symb for sp, symb in zip(h2o.structure.species, ["O", "H", "H"], strict=True))
     assert_allclose(h2o.structure.cart_coords, in_coords)
 
     h2o_test_from_struct = AimsGeometryIn.from_structure(h2o.structure)

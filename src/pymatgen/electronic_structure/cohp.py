@@ -193,7 +193,7 @@ class Cohp(MSONable):
             limit (float): Only COHP higher than this value will be considered.
         """
         populations = self.cohp
-        n_energies_below_efermi = len([energy for energy in self.energies if energy <= self.efermi])
+        n_energies_below_efermi = sum(energy <= self.efermi for energy in self.energies)
 
         if populations is None:
             return None
@@ -552,7 +552,7 @@ class CompleteCohp(Cohp):
         if self.orb_res_cohp is None:
             return None
 
-        if isinstance(orbitals, (list, tuple)):
+        if isinstance(orbitals, list | tuple):
             cohp_orbs = [val["orbitals"] for val in self.orb_res_cohp[label].values()]
             orbs = []
             for orbital in orbitals:
@@ -1062,7 +1062,7 @@ class IcohpValue(MSONable):
         if not self.is_spin_polarized and spin == Spin.down:
             raise ValueError("The calculation was not performed with spin polarization")
 
-        if isinstance(orbitals, (tuple, list)):
+        if isinstance(orbitals, tuple | list):
             orbitals = f"{orbitals[0]}-{orbitals[1]}"
 
         assert self._orbitals is not None
@@ -1202,7 +1202,7 @@ class IcohpCollection(MSONable):
         if orbitals is None:
             return icohp.summed_icohp if summed_spin_channels else icohp.icohpvalue(spin)
 
-        if isinstance(orbitals, (tuple, list)):
+        if isinstance(orbitals, tuple | list):
             orbitals = f"{orbitals[0]}-{orbitals[1]}"
 
         if summed_spin_channels:
@@ -1344,14 +1344,12 @@ class IcohpCollection(MSONable):
         for value in self._icohplist.values():
             if not value.is_spin_polarized or not summed_spin_channels:
                 if not self._are_coops and not self._are_cobis:
-                    if value.icohpvalue(spin) < extremum:
-                        extremum = value.icohpvalue(spin)
+                    extremum = min(value.icohpvalue(spin), extremum)
                 elif value.icohpvalue(spin) > extremum:
                     extremum = value.icohpvalue(spin)
 
             elif not self._are_coops and not self._are_cobis:
-                if value.summed_icohp < extremum:
-                    extremum = value.summed_icohp
+                extremum = min(value.summed_icohp, extremum)
 
             elif value.summed_icohp > extremum:
                 extremum = value.summed_icohp

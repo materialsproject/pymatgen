@@ -202,7 +202,7 @@ class WulffShape:
         recp = self.structure.lattice.reciprocal_lattice_crystallographic
         recp_symm_ops = self.lattice.get_recp_symmetry_operation(self.symprec)
 
-        for i, (hkl, energy) in enumerate(zip(self.hkl_list, self.e_surf_list)):
+        for i, (hkl, energy) in enumerate(zip(self.hkl_list, self.e_surf_list, strict=True)):
             for op in recp_symm_ops:
                 miller = tuple(int(x) for x in op.operate(hkl))
                 if miller not in all_hkl:
@@ -625,12 +625,12 @@ class WulffShape:
     @property
     def miller_area_dict(self) -> dict[tuple, float]:
         """{hkl: area_hkl on wulff}."""
-        return dict(zip(self.miller_list, self.color_area))
+        return dict(zip(self.miller_list, self.color_area, strict=True))
 
     @property
     def miller_energy_dict(self) -> dict[tuple, float]:
         """{hkl: surface energy_hkl}."""
-        return dict(zip(self.miller_list, self.e_surf_list))
+        return dict(zip(self.miller_list, self.e_surf_list, strict=True))
 
     @property
     def surface_area(self) -> float:

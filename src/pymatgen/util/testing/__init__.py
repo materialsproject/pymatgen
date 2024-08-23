@@ -88,7 +88,7 @@ class PymatgenTest(TestCase):
         """
         # Build a list even when we receive a single object.
         got_single_object = False
-        if not isinstance(objects, (list, tuple)):
+        if not isinstance(objects, list | tuple):
             got_single_object = True
             objects = [objects]
 
@@ -117,7 +117,7 @@ class PymatgenTest(TestCase):
 
             # Test for equality
             if test_eq:
-                for orig, unpickled in zip(objects, unpickled_objs):
+                for orig, unpickled in zip(objects, unpickled_objs, strict=True):
                     assert (
                         orig == unpickled
                     ), f"Unpickled and original objects are unequal for {protocol=}\n{orig=}\n{unpickled=}"

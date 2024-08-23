@@ -9,6 +9,8 @@ from unittest import skipIf
 
 import numpy as np
 import pytest
+import requests
+import urllib3
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
@@ -620,7 +622,7 @@ class TestIStructure(PymatgenTest):
             assert len(all_nn[idx][0]) == 4
             assert len(all_nn[idx]) == len(struct.get_neighbors(site, rand_radius))
 
-        for site, nns in zip(struct, all_nn):
+        for site, nns in zip(struct, all_nn, strict=True):
             for nn in nns:
                 assert nn[0].is_periodic_image(struct[nn[2]])
                 dist = sum((site.coords - nn[0].coords) ** 2) ** 0.5
@@ -783,7 +785,7 @@ Direct
             [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3],
         )
         all_nn = struct.get_all_neighbors(0.2, include_index=True)
-        for site, nns in zip(struct, all_nn):
+        for site, nns in zip(struct, all_nn, strict=True):
             for nn in nns:
                 assert nn[0].is_periodic_image(struct[nn[2]])
                 d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
@@ -932,8 +934,14 @@ class TestStructure(PymatgenTest):
         s = Structure.from_id("mp-1143")
         assert isinstance(s, Structure)
         assert s.reduced_formula == "Al2O3"
-        s = Structure.from_id("1101077", source="COD")
-        assert s.reduced_formula == "LiV2O4"
+
+        try:
+            website_down = requests.get("https://www.crystallography.net", timeout=600).status_code != 200
+        except (requests.exceptions.ConnectionError, urllib3.exceptions.ConnectTimeoutError):
+            website_down = True
+        if not website_down:
+            s = Structure.from_id("1101077", source="COD")
+            assert s.reduced_formula == "LiV2O4"
 
     def test_mutable_sequence_methods(self):
         struct = self.struct
@@ -1578,7 +1586,7 @@ class TestStructure(PymatgenTest):
         struct = self.struct.copy()
         struct[0] = "C"
         assert struct.formula == "Si1 C1"
-        struct[(0, 1)] = "Ge"
+        struct[0, 1] = "Ge"
         assert struct.formula == "Ge2"
         struct[:2] = "Sn"
         assert struct.formula == "Sn2"
@@ -1680,6 +1688,7 @@ class TestStructure(PymatgenTest):
         assert not hasattr(calculator, "dynamics")
         assert self.cu_structure == struct_copy, "original structure was modified"
 
+    @pytest.mark.skipif(int(np.__version__[0]) >= 2, reason="chgnet is not built against NumPy 2.0")
     def test_relax_chgnet(self):
         pytest.importorskip("chgnet")
         struct_copy = self.cu_structure.copy()
@@ -1703,6 +1712,7 @@ class TestStructure(PymatgenTest):
         assert custom_relaxed.calc.results.get("energy") == approx(-6.0151076, abs=1e-4)
         assert custom_relaxed.volume == approx(40.044794644, abs=1e-4)
 
+    @pytest.mark.skipif(int(np.__version__[0]) >= 2, reason="chgnet is not built against NumPy 2.0")
     def test_calculate_chgnet(self):
         pytest.importorskip("chgnet")
         struct = self.get_structure("Si")
@@ -1910,7 +1920,7 @@ class TestIMolecule(PymatgenTest):
         mol = self.mol.copy()
         mol[0] = "Si"
         assert mol.formula == "Si1 H4"
-        mol[(0, 1)] = "Ge"
+        mol[0, 1] = "Ge"
         assert mol.formula == "Ge2 H3"
         mol[:2] = "Sn"
         assert mol.formula == "Sn2 H3"

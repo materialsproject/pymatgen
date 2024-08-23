@@ -43,7 +43,7 @@ class Deformation(SquareTensor):
     def __new__(cls, deformation_gradient) -> Self:
         """
         Create a Deformation object. Note that the constructor uses __new__ rather than
-        __init__ according to the standard method of subclassing numpy ndarrays.
+        __init__ according to the standard method of subclassing numpy arrays.
 
         Args:
             deformation_gradient (3x3 array-like): the 3x3 array-like
@@ -56,11 +56,11 @@ class Deformation(SquareTensor):
         """Check to determine whether the deformation is independent."""
         return len(self.get_perturbed_indices(tol)) == 1
 
-    def get_perturbed_indices(self, tol: float = 1e-8):
+    def get_perturbed_indices(self, tol: float = 1e-8) -> list[tuple[int, int]]:
         """Get indices of perturbed elements of the deformation gradient,
-        i. e. those that differ from the identity.
+        i.e. those that differ from the identity.
         """
-        return list(zip(*np.where(abs(self - np.eye(3)) > tol)))
+        return list(zip(*np.where(abs(self - np.eye(3)) > tol), strict=True))
 
     @property
     def green_lagrange_strain(self):

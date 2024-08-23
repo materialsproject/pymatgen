@@ -133,7 +133,7 @@ def get_linear_interpolated_value(x_values: ArrayLike, y_values: ArrayLike, x: f
     Returns:
         Value at x.
     """
-    arr = np.array(sorted(zip(x_values, y_values), key=lambda d: d[0]))
+    arr = np.array(sorted(zip(x_values, y_values, strict=True), key=lambda d: d[0]))
 
     indices = np.where(arr[:, 0] >= x)[0]
 

@@ -63,7 +63,7 @@ class TestCoordinationGeometries(PymatgenTest):
         cg_oct2 = CoordinationGeometry.from_dict(cg_oct.as_dict())
 
         assert cg_oct.central_site == approx(cg_oct2.central_site)
-        for p1, p2 in zip(cg_oct.points, cg_oct2.points):
+        for p1, p2 in zip(cg_oct.points, cg_oct2.points, strict=True):
             assert p1 == approx(p2)
         assert (
             str(cg_oct) == "Coordination geometry type : Octahedron (IUPAC: OC-6 || IUCr: [6o])\n"

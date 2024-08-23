@@ -87,7 +87,7 @@ def run_mcsqs(
     directory = directory or tempfile.mkdtemp()
     os.chdir(directory)
 
-    if isinstance(scaling, (int, float)):
+    if isinstance(scaling, int | float):
         if scaling % 1 != 0:
             raise ValueError(f"{scaling=} should be an integer")
         mcsqs_find_sqs_cmd = ["mcsqs", f"-n {scaling * n_atoms}"]

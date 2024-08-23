@@ -326,7 +326,7 @@ class TestRadialSiteDistortionTransformation(PymatgenTest):
 
         trafo = RadialSiteDistortionTransformation(0, 1, nn_only=True)
         struct = trafo.apply_transformation(self.structure)
-        for c1, c2 in zip(self.structure[1:7], struct[1:7]):
+        for c1, c2 in zip(self.structure[1:7], struct[1:7], strict=True):
             assert c1.distance(c2) == 1.0
 
         assert np.array_equal(struct[0].coords, [0, 0, 0])
@@ -340,5 +340,5 @@ class TestRadialSiteDistortionTransformation(PymatgenTest):
     def test_second_nn(self):
         trafo = RadialSiteDistortionTransformation(0, 1, nn_only=False)
         struct = trafo.apply_transformation(self.molecule)
-        for c1, c2 in zip(self.molecule[7:], struct[7:]):
+        for c1, c2 in zip(self.molecule[7:], struct[7:], strict=True):
             assert abs(round(sum(c2.coords - c1.coords), 2)) == 0.33

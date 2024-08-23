@@ -888,29 +888,44 @@ Cartesian
         kpoints = Kpoints.gamma_automatic((3, 3, 3), [0, 0, 0])
         assert kpoints.style == Kpoints.supported_modes.Gamma
         assert kpoints.kpts == [(3, 3, 3)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
+
         kpoints = Kpoints.monkhorst_automatic((2, 2, 2), [0, 0, 0])
         assert kpoints.style == Kpoints.supported_modes.Monkhorst
         assert kpoints.kpts == [(2, 2, 2)]
-        kpoints = Kpoints.automatic(100)
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
+
+        with pytest.warns(DeprecationWarning, match="Please use INCAR KSPACING tag"):
+            kpoints = Kpoints.automatic(100)
         assert kpoints.style == Kpoints.supported_modes.Automatic
         assert kpoints.kpts == [(100,)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
+
         filepath = f"{VASP_IN_DIR}/POSCAR"
         struct = Structure.from_file(filepath)
         kpoints = Kpoints.automatic_density(struct, 500)
         assert kpoints.kpts == [(1, 3, 3)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
         assert kpoints.style == Kpoints.supported_modes.Gamma
+
         kpoints = Kpoints.automatic_density(struct, 500, force_gamma=True)
         assert kpoints.style == Kpoints.supported_modes.Gamma
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
+
         kpoints = Kpoints.automatic_density_by_vol(struct, 1000)
         assert kpoints.kpts == [(6, 10, 13)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
         assert kpoints.style == Kpoints.supported_modes.Gamma
+
         kpoints = Kpoints.automatic_density_by_lengths(struct, [50, 50, 1], force_gamma=True)
         assert kpoints.kpts == [(5, 9, 1)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0]), kpoints.kpts
         assert kpoints.style == Kpoints.supported_modes.Gamma
 
         struct.make_supercell(3)
         kpoints = Kpoints.automatic_density(struct, 500)
         assert kpoints.kpts == [(1, 1, 1)]
+        assert all(isinstance(kpt, int) for kpt in kpoints.kpts[0])
         assert kpoints.style == Kpoints.supported_modes.Gamma
         kpoints = Kpoints.from_str(
             """k-point mesh
@@ -966,7 +981,6 @@ Cartesian
         assert kpts != kpt_copy
 
     def test_automatic_kpoint(self):
-        # struct = PymatgenTest.get_structure("Li2O")
         poscar = Poscar.from_str(
             """Al1
 1.0
@@ -1292,7 +1306,7 @@ class TestPotcar(PymatgenTest):
         assert len(ref_potcar) == len(new_potcar), f"wrong POTCAR line count: {len(ref_potcar)} != {len(new_potcar)}"
 
         # check line by line
-        for line1, line2 in zip(ref_potcar, new_potcar):
+        for line1, line2 in zip(ref_potcar, new_potcar, strict=True):
             assert line1.strip() == line2.strip(), f"wrong POTCAR line: {line1} != {line2}"
 
     def test_set_symbol(self):

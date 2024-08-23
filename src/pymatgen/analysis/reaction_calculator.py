@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 import re
 from itertools import chain, combinations
 from typing import TYPE_CHECKING, no_type_check, overload
@@ -30,9 +29,6 @@ __maintainer__ = "Shyue Ping Ong"
 __email__ = "shyuep@gmail.com"
 __status__ = "Production"
 __date__ = "Jul 11 2012"
-
-
-logger = logging.getLogger(__name__)
 
 
 class BalancedReaction(MSONable):
@@ -117,7 +113,7 @@ class BalancedReaction(MSONable):
         Returns:
             reaction energy as a float.
         """
-        return sum(amt * energies[c] for amt, c in zip(self._coeffs, self._all_comp))
+        return sum(amt * energies[c] for amt, c in zip(self._coeffs, self._all_comp, strict=True))
 
     def normalize_to(self, comp: Composition, factor: float = 1) -> None:
         """
@@ -207,7 +203,7 @@ class BalancedReaction(MSONable):
     def _str_from_formulas(cls, coeffs, formulas) -> str:
         reactant_str = []
         product_str = []
-        for amt, formula in zip(coeffs, formulas):
+        for amt, formula in zip(coeffs, formulas, strict=True):
             if abs(amt + 1) < cls.TOLERANCE:
                 reactant_str.append(formula)
             elif abs(amt - 1) < cls.TOLERANCE:
@@ -223,7 +219,7 @@ class BalancedReaction(MSONable):
     def _str_from_comp(cls, coeffs, compositions, reduce=False) -> tuple[str, float]:
         r_coeffs = np.zeros(len(coeffs))
         r_formulas = []
-        for idx, (amt, comp) in enumerate(zip(coeffs, compositions)):
+        for idx, (amt, comp) in enumerate(zip(coeffs, compositions, strict=True)):
             formula, factor = comp.get_reduced_formula_and_factor()
             r_coeffs[idx] = amt * factor
             r_formulas.append(formula)
@@ -236,7 +232,7 @@ class BalancedReaction(MSONable):
 
     def as_entry(self, energies) -> ComputedEntry:
         """Get a ComputedEntry representation of the reaction."""
-        relevant_comp = [comp * abs(coeff) for coeff, comp in zip(self._coeffs, self._all_comp)]
+        relevant_comp = [comp * abs(coeff) for coeff, comp in zip(self._coeffs, self._all_comp, strict=True)]
         comp: Composition = sum(relevant_comp, Composition())  # type: ignore[assignment]
 
         entry = ComputedEntry(0.5 * comp, self.calculate_energy(energies))

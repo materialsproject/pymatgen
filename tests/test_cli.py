@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from pytest import MonkeyPatch
 
 
-@pytest.fixture()
+@pytest.fixture
 def cd_tmp_path(tmp_path: Path, monkeypatch: MonkeyPatch):
     monkeypatch.chdir(tmp_path)
     return tmp_path

@@ -173,7 +173,7 @@ class TestComposition(PymatgenTest):
             1.21,
             2.43,
         )
-        for elem, val in zip(self.comps, electro_negs):
+        for elem, val in zip(self.comps, electro_negs, strict=True):
             assert elem.average_electroneg == approx(val)
 
     def test_total_electrons(self):
@@ -406,7 +406,7 @@ class TestComposition(PymatgenTest):
         ]
         formula_list = ["Ti87.6 V5.5 Al6.9", "Ti44.98 Ni55.02", "H2O"]
 
-        for weight_dict, formula in zip(weight_dict_list, formula_list):
+        for weight_dict, formula in zip(weight_dict_list, formula_list, strict=True):
             c1 = Composition(formula).fractional_composition
             c2 = Composition.from_weight_dict(weight_dict).fractional_composition
             assert set(c1.elements) == set(c2.elements)

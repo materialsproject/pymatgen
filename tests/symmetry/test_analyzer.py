@@ -93,7 +93,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
             pg_ops = sg.get_point_group_operations()
             frac_symm_ops = sg.get_symmetry_operations()
             symm_ops = sg.get_symmetry_operations(cartesian=True)
-            for fop, op, pgop in zip(frac_symm_ops, symm_ops, pg_ops):
+            for fop, op, pgop in zip(frac_symm_ops, symm_ops, pg_ops, strict=True):
                 # translation vector values should all be 0 or 0.5
                 t = fop.translation_vector * 2
                 assert_allclose(t - np.round(t), 0)
@@ -610,7 +610,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
             ir_mesh = spga.get_ir_reciprocal_mesh((4, 4, 4))
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
-            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
+            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh]), strict=True):
                 assert weight == approx(expected)
 
         for name in ("SrTiO3", "LiFePO4", "Graphite"):
@@ -619,14 +619,14 @@ class TestPointGroupAnalyzer(PymatgenTest):
             ir_mesh = spga.get_ir_reciprocal_mesh((1, 2, 3))
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
-            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
+            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh]), strict=True):
                 assert weight == approx(expected)
 
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.xml.gz")
         spga = SpacegroupAnalyzer(vasp_run.final_structure)
         wts = spga.get_kpoint_weights(vasp_run.actual_kpoints)
 
-        for w1, w2 in zip(vasp_run.actual_kpoints_weights, wts):
+        for w1, w2 in zip(vasp_run.actual_kpoints_weights, wts, strict=True):
             assert w1 == approx(w2)
 
         kpts = [[0, 0, 0], [0.15, 0.15, 0.15], [0.2, 0.2, 0.2]]

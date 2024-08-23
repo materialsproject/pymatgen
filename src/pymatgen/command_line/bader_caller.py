@@ -218,7 +218,7 @@ class BaderAnalysis:
             if line.startswith("-"):
                 break
             vals = map(float, line.split()[1:])
-            data.append(dict(zip(headers, vals)))
+            data.append(dict(zip(headers, vals, strict=True)))
 
         for line in lines:
             tokens = line.strip().split(":")
@@ -277,6 +277,7 @@ class BaderAnalysis:
             self.chgcar.structure,
             self.chgcar.structure.frac_coords,
             atom_chgcars,
+            strict=True,
         ):
             # Find the index of the atom in the charge density atom
             index = np.round(np.multiply(loc, chg.dim))

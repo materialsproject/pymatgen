@@ -48,7 +48,7 @@ def compare_files(test_name: str, work_dir: Path, ref_dir: Path) -> None:
         with gzip.open(f"{ref_dir / test_name / Path(file).name}.gz", "rt") as ref_file:
             ref_lines = [line.strip() for line in ref_file.readlines() if len(line.strip()) > 0 and line[0] != "#"]
 
-        for test_line, ref_line in zip(test_lines, ref_lines):
+        for test_line, ref_line in zip(test_lines, ref_lines, strict=True):
             if "output" in test_line and "band" in test_line:
                 assert check_band(test_line, ref_line)
             else:
@@ -68,7 +68,7 @@ def compare_files(test_name: str, work_dir: Path, ref_dir: Path) -> None:
     assert ref == check
 
     if check_output:
-        for ref_out, check_out in zip(ref_output, check_output):
+        for ref_out, check_out in zip(ref_output, check_output, strict=True):
             if "band" in check_out:
                 assert check_band(check_out, ref_out)
             else:
@@ -100,7 +100,7 @@ def comp_system(
         user_kpt_settings (dict[str, Any] | None): settings for k-point density in FHI-aims
 
     Raises:
-        AssertionError: If the input files are not the same
+        ValueError: If the input files are not the same
     """
     if user_kpt_settings is None:
         user_kpt_settings = {}
@@ -130,7 +130,7 @@ def compare_single_files(ref_file: str | Path, test_file: str | Path) -> None:
         test_file (str | Path): The file to compare against the reference
 
     Raises:
-        AssertionError: If the files are not the same
+        ValueError: If the files are not the same
     """
     with open(test_file) as tf:
         test_lines = tf.readlines()[5:]
@@ -138,10 +138,11 @@ def compare_single_files(ref_file: str | Path, test_file: str | Path) -> None:
     with zopen(f"{ref_file}.gz", mode="rt") as rf:
         ref_lines = rf.readlines()[5:]
 
-    for test_line, ref_line in zip(test_lines, ref_lines):
+    for test_line, ref_line in zip(test_lines, ref_lines, strict=True):
         if "species_dir" in ref_line:
             continue
-        assert test_line.strip() == ref_line.strip()
+        if test_line.strip() != ref_line.strip():
+            raise ValueError(f"{test_line=} != {ref_line=}")
 
 
 Si = Structure(

@@ -172,6 +172,7 @@ class ZSLGenerator(MSONable):
             for (f_trans, s_trans), (f, s) in zip(
                 product(film_transformations, substrate_transformations),
                 product(films, substrates),
+                strict=True,
             ):
                 if is_same_vectors(
                     f,

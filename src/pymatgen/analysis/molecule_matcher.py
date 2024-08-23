@@ -321,8 +321,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
                 for idx in range(1, vmol.NumAtoms() + 1):
                     va = vmol.GetAtom(idx)
                     distance = math.sqrt((c1x - va.x()) ** 2 + (c1y - va.y()) ** 2 + (c1z - va.z()) ** 2)
-                    if distance < min_distance:
-                        min_distance = distance
+                    min_distance = min(distance, min_distance)
                 if min_distance > 0.2:
                     a1 = vmol.NewAtom()
                     a1.SetAtomicNum(9)
@@ -404,7 +403,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
                 canon_label2[c2 - 1] = canon_idx
                 candidates1.remove(canon_idx)
 
-        canon_inchi_orig_map2 = list(zip(canon_label2, list(range(1, n_heavy + 1)), ilabel2))
+        canon_inchi_orig_map2 = list(zip(canon_label2, list(range(1, n_heavy + 1)), ilabel2, strict=True))
         canon_inchi_orig_map2.sort(key=lambda m: m[0])
         return tuple(x[2] for x in canon_inchi_orig_map2)
 
@@ -465,7 +464,7 @@ class InchiMolAtomMapper(AbstractMolAtomMapper):
             hydrogen_label1.remove(idx)
 
         hydrogen_orig_idx2 = label2[len(heavy_indices2) :]
-        hydrogen_canon_orig_map2 = list(zip(hydrogen_label2, hydrogen_orig_idx2))
+        hydrogen_canon_orig_map2 = list(zip(hydrogen_label2, hydrogen_orig_idx2, strict=True))
         hydrogen_canon_orig_map2.sort(key=lambda m: m[0])
         hydrogen_canon_indices2 = [x[1] for x in hydrogen_canon_orig_map2]
 
@@ -1101,7 +1100,7 @@ class HungarianOrderMatcher(KabschMatcher):
         """
         Ixx = Iyy = Izz = Ixy = Ixz = Iyz = 0.0
 
-        for (x, y, z), wt in zip(coords, weights):
+        for (x, y, z), wt in zip(coords, weights, strict=True):
             Ixx += wt * (y * y + z * z)
             Iyy += wt * (x * x + z * z)
             Izz += wt * (x * x + y * y)
