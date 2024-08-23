@@ -37,7 +37,7 @@ jobs:
           - os: windows-latest
             python: "3.10"
             resolution: highest
-            extras: ci,optional,np1
+            extras: ci,optional,numpy1
           - os: ubuntu-latest
             python: ">3.10"
             resolution: lowest-direct
