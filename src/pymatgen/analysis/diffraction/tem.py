@@ -30,8 +30,8 @@ __email__ = "fwan@berkeley.edu, yhljason@berkeley.edu"
 __date__ = "03/31/2020"
 
 
-module_dir = os.path.dirname(__file__)
-with open(f"{module_dir}/atomic_scattering_params.json", encoding="utf-8") as file:
+MODULE_DIR = os.path.dirname(__file__)
+with open(f"{MODULE_DIR}/atomic_scattering_params.json", encoding="utf-8") as file:
     ATOMIC_SCATTERING_PARAMS = json.load(file)
 
 
@@ -139,7 +139,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         if (0, 0, 0) in points_filtered:
             points_filtered.remove((0, 0, 0))
         interplanar_spacings_val = np.array([structure.lattice.d_hkl(x) for x in points_filtered])
-        return dict(zip(points_filtered, interplanar_spacings_val))
+        return dict(zip(points_filtered, interplanar_spacings_val, strict=True))
 
     def bragg_angles(self, interplanar_spacings: dict[Tuple3Ints, float]) -> dict[Tuple3Ints, float]:
         """Get the Bragg angles for every hkl point passed in (where n = 1).
@@ -153,7 +153,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         plane = list(interplanar_spacings)
         interplanar_spacings_val = np.array(list(interplanar_spacings.values()))
         bragg_angles_val = np.arcsin(self.wavelength_rel() / (2 * interplanar_spacings_val))
-        return dict(zip(plane, bragg_angles_val))
+        return dict(zip(plane, bragg_angles_val, strict=True))
 
     def get_s2(self, bragg_angles: dict[Tuple3Ints, float]) -> dict[Tuple3Ints, float]:
         """
@@ -169,7 +169,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         plane = list(bragg_angles)
         bragg_angles_val = np.array(list(bragg_angles.values()))
         s2_val = (np.sin(bragg_angles_val) / self.wavelength_rel()) ** 2
-        return dict(zip(plane, s2_val))
+        return dict(zip(plane, s2_val, strict=True))
 
     def x_ray_factors(
         self, structure: Structure, bragg_angles: dict[Tuple3Ints, float]
@@ -269,7 +269,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
         csf = self.cell_scattering_factors(structure, bragg_angles)
         csf_val = np.array(list(csf.values()))
         cell_intensity_val = (csf_val * csf_val.conjugate()).real
-        return dict(zip(bragg_angles, cell_intensity_val))
+        return dict(zip(bragg_angles, cell_intensity_val, strict=True))
 
     def get_pattern(
         self,
@@ -484,7 +484,7 @@ class TEMCalculator(AbstractDiffractionPatternCalculator):
             points.remove((0, 0, 0))
         points.remove(first_point)
         points.remove(second_point)
-        positions[(0, 0, 0)] = np.array([0, 0])
+        positions[0, 0, 0] = np.array([0, 0])
         r1 = self.wavelength_rel() * self.camera_length / first_d
         positions[first_point] = np.array([r1, 0])
         r2 = self.wavelength_rel() * self.camera_length / second_d

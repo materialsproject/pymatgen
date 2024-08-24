@@ -129,10 +129,7 @@ def draw_cg(
                 faces = cg.faces(neighbors)
                 edges = cg.edges(neighbors)
             symbol = next(iter(site.species)).symbol
-            if faces_color_override:
-                color = faces_color_override
-            else:
-                color = [float(i) / 255 for i in vis.el_color_mapping[symbol]]
+            color = faces_color_override or [float(i) / 255 for i in vis.el_color_mapping[symbol]]
             vis.add_faces(faces, color, opacity=0.4)
             vis.add_edges(edges)
         if show_perfect:

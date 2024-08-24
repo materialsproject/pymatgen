@@ -31,7 +31,7 @@ def prepare_band_input(structure: Structure, density: float = 20):
     points, labels = bp.get_kpoints(line_density=density, coords_are_cartesian=False)
     lines_and_labels: list[_SegmentDict] = []
     current_segment: _SegmentDict | None = None
-    for label_, coords in zip(labels, points):
+    for label_, coords in zip(labels, points, strict=True):
         # rename the Gamma point label
         label = "G" if label_ in ("GAMMA", "\\Gamma", "Γ") else label_
         if label:

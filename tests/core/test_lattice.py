@@ -80,7 +80,7 @@ class TestLattice(PymatgenTest):
         )
 
         # Random testing that get_cart and get_frac coords reverses each other.
-        rand_coord = np.random.random_sample(3)
+        rand_coord = np.random.default_rng().random(3)
         coord = self.tetragonal.get_cartesian_coords(rand_coord)
         frac_coord = self.tetragonal.get_fractional_coords(coord)
         assert_allclose(frac_coord, rand_coord)
@@ -192,7 +192,7 @@ class TestLattice(PymatgenTest):
         assert np.linalg.det(np.linalg.solve(expected.matrix, reduced_latt.matrix)) == approx(1)
         assert_allclose(sorted(reduced_latt.abc), sorted(expected.abc))
 
-        random_latt = Lattice(np.random.random((3, 3)))
+        random_latt = Lattice(np.random.default_rng().random((3, 3)))
         if np.linalg.det(random_latt.matrix) > 1e-8:
             reduced_random_latt = random_latt.get_lll_reduced_lattice()
             assert reduced_random_latt.volume == approx(random_latt.volume)
@@ -390,7 +390,7 @@ class TestLattice(PymatgenTest):
         assert types == {np.ndarray}, f"Expected only np.ndarray, got {types}"
 
     def test_get_all_distances(self):
-        fcoords = np.array(
+        frac_coords = np.array(
             [
                 [0.3, 0.3, 0.5],
                 [0.1, 0.1, 0.3],
@@ -409,10 +409,10 @@ class TestLattice(PymatgenTest):
                 [3.245, 4.453, 1.788, 3.852, 0.000],
             ]
         )
-        output = lattice.get_all_distances(fcoords, fcoords)
+        output = lattice.get_all_distances(frac_coords, frac_coords)
         assert_allclose(output, expected, 3)
         # test just one input point
-        output2 = lattice.get_all_distances(fcoords[0], fcoords)
+        output2 = lattice.get_all_distances(frac_coords[0], frac_coords)
         assert_allclose(output2, [expected[0]], 2)
         # test distance when initial points are not in unit cell
         f1 = [0, 0, 17]
@@ -429,7 +429,7 @@ class TestLattice(PymatgenTest):
                 [3.519, 1.131, 2.251, 0.000, 4.235],
             ]
         )
-        output3 = lattice_pbc.get_all_distances(fcoords[:-1], fcoords)
+        output3 = lattice_pbc.get_all_distances(frac_coords[:-1], frac_coords)
         assert_allclose(output3, expected_pbc, 3)
 
     def test_monoclinic(self):
@@ -450,13 +450,14 @@ class TestLattice(PymatgenTest):
         assert_allclose(image, [0, 0, -1])
 
     def test_get_distance_and_image_strict(self):
+        rng = np.random.default_rng()
         for _ in range(10):
-            lengths = np.random.randint(1, 100, 3)
-            lattice = np.random.rand(3, 3) * lengths
+            lengths = rng.integers(1, 100, 3)
+            lattice = rng.random((3, 3)) * lengths
             lattice = Lattice(lattice)
 
-            f1 = np.random.rand(3)
-            f2 = np.random.rand(3)
+            f1 = rng.random(3)
+            f2 = rng.random(3)
 
             scope = list(range(-3, 4))
             min_image_dist = (float("inf"), None)
@@ -480,20 +481,20 @@ class TestLattice(PymatgenTest):
         l2 = Lattice([a + b, b + c, c])
 
         cart_coords = np.array([[1, 1, 2], [2, 2, 1.5]])
-        l1_fcoords = l1.get_fractional_coords(cart_coords)
-        l2_fcoords = l2.get_fractional_coords(cart_coords)
+        l1_frac_coords = l1.get_fractional_coords(cart_coords)
+        l2_frac_coords = l2.get_fractional_coords(cart_coords)
 
         assert_allclose(l1.matrix, l2.lll_matrix)
         assert_allclose(np.dot(l2.lll_mapping, l2.matrix), l1.matrix)
 
-        assert_allclose(np.dot(l2_fcoords, l2.matrix), np.dot(l1_fcoords, l1.matrix))
+        assert_allclose(np.dot(l2_frac_coords, l2.matrix), np.dot(l1_frac_coords, l1.matrix))
 
-        lll_fcoords = l2.get_lll_frac_coords(l2_fcoords)
+        lll_frac_coords = l2.get_lll_frac_coords(l2_frac_coords)
 
-        assert_allclose(lll_fcoords, l1_fcoords)
-        assert_allclose(l1.get_cartesian_coords(lll_fcoords), np.dot(lll_fcoords, l2.lll_matrix))
+        assert_allclose(lll_frac_coords, l1_frac_coords)
+        assert_allclose(l1.get_cartesian_coords(lll_frac_coords), np.dot(lll_frac_coords, l2.lll_matrix))
 
-        assert_allclose(l2.get_frac_coords_from_lll(lll_fcoords), l2_fcoords)
+        assert_allclose(l2.get_frac_coords_from_lll(lll_frac_coords), l2_frac_coords)
 
     def test_get_miller_index_from_sites(self):
         # test on a cubic system
@@ -533,7 +534,7 @@ class TestLattice(PymatgenTest):
             all_coords=np.array(points),
             center_coords=np.array(center_points),
             r=3,
-            pbc=np.array([0, 0, 0], dtype=int),
+            pbc=np.array([0, 0, 0], dtype=np.int64),
             lattice=lattice,
             numerical_tol=1e-8,
         )
@@ -554,7 +555,7 @@ class TestLattice(PymatgenTest):
             all_coords=np.array(points),
             center_coords=np.array(center_points),
             r=3,
-            pbc=np.array([True, False, False], dtype=int),
+            pbc=np.array([True, False, False], dtype=np.int64),
             lattice=lattice,
         )
         assert len(nns[0]) == 4

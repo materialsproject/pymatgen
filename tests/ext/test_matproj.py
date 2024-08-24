@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import random
 import re
 from unittest.mock import patch
 
+import numpy as np
 import pytest
 import requests
 from numpy.testing import assert_allclose
@@ -50,7 +50,7 @@ class TestMPResterOld(PymatgenTest):
 
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_materials_ids("Al2O3")
-        random.shuffle(mids)
+        np.random.default_rng().shuffle(mids)
         doc = self.rester.get_doc(mids.pop(0))
         assert doc["pretty_formula"] == "Al2O3"
 
@@ -543,7 +543,7 @@ class TestMPResterNewBasic(PymatgenTest):
 
     def test_get_all_materials_ids_doc(self):
         mids = self.rester.get_material_ids("Al2O3")
-        random.shuffle(mids)
+        np.random.default_rng().shuffle(mids)
         doc = self.rester.get_doc(mids.pop(0))
         assert doc["formula_pretty"] == "Al2O3"
 

@@ -55,7 +55,7 @@ def perturb(mol, scale, seed):
     rng = np.random.default_rng(seed=seed)
 
     dV = rng.normal(scale=scale, size=(len(mol), 3))
-    for site, dv in zip(mol, dV):
+    for site, dv in zip(mol, dV, strict=True):
         site.coords += dv
 
 

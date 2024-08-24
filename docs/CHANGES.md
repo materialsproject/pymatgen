@@ -6,15 +6,89 @@ nav_order: 4
 
 # Changelog
 
+## v2024.8.9
+- Revert bad split of sets.py, which broke downstream code.
+
+## v2024.8.8
+
+### 🎉 New Features
+
+* Add multiwfn QTAIM parsing capabilities by @espottesmith in https://github.com/materialsproject/pymatgen/pull/3926
+
+### 🐛 Bug Fixes
+
+* Fix chemical system method for different oxidation states by @danielzuegner in https://github.com/materialsproject/pymatgen/pull/3915
+* Fix coordination number bug by @jmmshn in https://github.com/materialsproject/pymatgen/pull/3954
+* Fix Ion formula parsing bug; add more special formulas by @rkingsbury in https://github.com/materialsproject/pymatgen/pull/3942
+* Dedup `numpy`dependency in `pyproject` by @janosh in https://github.com/materialsproject/pymatgen/pull/3970
+* test_graph: add filename only to pdf list by @drew-parsons in https://github.com/materialsproject/pymatgen/pull/3972
+* Bugfix: `io.pwscf.PWInput.from_str()` by @jsukpark in https://github.com/materialsproject/pymatgen/pull/3931
+* Fix d2k function by @tpurcell90 in https://github.com/materialsproject/pymatgen/pull/3932
+* Assign frame properties to molecule/structure when indexing trajectory by @CompRhys in https://github.com/materialsproject/pymatgen/pull/3979
+
+### 🛠 Enhancements
+
+* `Element`/`Species`: order `full_electron_structure` by energy by @rkingsbury in https://github.com/materialsproject/pymatgen/pull/3944
+* Extend `CubicSupercell` transformation to also be able to look for orthorhombic cells by @JaGeo in https://github.com/materialsproject/pymatgen/pull/3938
+* Allow custom `.pmgrc.yaml` location via new `PMG_CONFIG_FILE` env var by @janosh in https://github.com/materialsproject/pymatgen/pull/3949
+* Fix MPRester tests and access phonon properties from the new API without having `mp-api` installed. by @AntObi in https://github.com/materialsproject/pymatgen/pull/3950
+* Adding Abinit magmoms from netCDF files to Structure.site_properties by @gbrunin in https://github.com/materialsproject/pymatgen/pull/3936
+* Parallel Joblib Process Entries by @CompRhys in https://github.com/materialsproject/pymatgen/pull/3933
+* Add OPTIMADE adapter by @ml-evs in https://github.com/materialsproject/pymatgen/pull/3876
+* Check Inputs to Trajectory. by @CompRhys in https://github.com/materialsproject/pymatgen/pull/3978
+
+### 📖 Documentation
+
+* Replace expired BoltzTraP link by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3929
+* Correct method `get_projection_on_elements` docstring under `Procar` class by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3945
+
+### 🧹 House-Keeping
+
+* Split VASP input sets into submodules by @janosh in https://github.com/materialsproject/pymatgen/pull/3865
+
+### 🚧 CI
+
+* Install some optional dependencies in CI by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3786
+
+### 💡 Refactoring
+
+* Fix `Incar` `check_params` for `Union` type  by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3958
+
+### 🏥 Package Health
+
+* build against NPY2 by @njzjz in https://github.com/materialsproject/pymatgen/pull/3894
+
+### 🏷️ Type Hints
+
+* Improve types for `electronic_structure.{bandstructure/cohp}` by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3873
+* Improve types for `electronic_structure.{core/dos}`  by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3880
+
+### 🤷‍♂️ Other Changes
+
+* switch to attr access interface for transformation matrix by @tsmathis in https://github.com/materialsproject/pymatgen/pull/3964
+* Fix import sorting by @janosh in https://github.com/materialsproject/pymatgen/pull/3968
+* Don't run `issue-metrics` on forks by @ab5424 in https://github.com/materialsproject/pymatgen/pull/3962
+* Enable Ruff rule family "N" and "S" by @DanielYang59 in https://github.com/materialsproject/pymatgen/pull/3892
+
+## New Contributors
+
+* @danielzuegner made their first contribution in https://github.com/materialsproject/pymatgen/pull/3915
+* @tsmathis made their first contribution in https://github.com/materialsproject/pymatgen/pull/3964
+* @jsukpark made their first contribution in https://github.com/materialsproject/pymatgen/pull/3931
+
+**Full Changelog**: https://github.com/materialsproject/pymatgen/compare/v2024.7.18...v2024.8.8
+
 ## v2024.7.18
-- Fix `setuptools` for packaging (#3934)
-- Improve Keep Redundant Spaces algorithm for PatchedPhaseDiagram (#3900)
-- Add electronic structure methods for Species (#3902)
-- Migrate `spglib` to new `SpglibDataset` format with version 2.5.0 (#3923)
-- SpaceGroup changes (#3859)
-- Add MD input set to FHI-aims (#3896)
+
+* Fix `setuptools` for packaging (#3934)
+* Improve Keep Redundant Spaces algorithm for PatchedPhaseDiagram (#3900)
+* Add electronic structure methods for Species (#3902)
+* Migrate `spglib` to new `SpglibDataset` format with version 2.5.0 (#3923)
+* SpaceGroup changes (#3859)
+* Add MD input set to FHI-aims (#3896)
 
 ## v2024.6.10
+
 * Fix bug in `update_charge_from_potcar` (#3866)
 * Fix bug in VASP parameter parsing (@mkhorton)
 * Add `strict_anions` option to `MaterialsProject2020Compatibility` (@mkhorton)

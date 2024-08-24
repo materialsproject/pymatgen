@@ -16,7 +16,7 @@ import tempfile
 import traceback
 from collections import defaultdict
 from typing import TYPE_CHECKING, NamedTuple
-from xml.etree import ElementTree as Et
+from xml.etree import ElementTree as ET
 
 import numpy as np
 from monty.collections import AttrDict, Namespace
@@ -623,7 +623,7 @@ def _dict_from_lines(lines, key_nums, sep=None) -> dict:
         if len(values) != len(keys):
             raise ValueError(f"{line=}\n {len(keys)=} must equal {len(values)=}")
 
-        kwargs.update(zip(keys, values))
+        kwargs.update(zip(keys, values, strict=True))
 
     return kwargs
 
@@ -1242,7 +1242,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
     @lazy_property
     def root(self):
         """Root tree of XML."""
-        tree = Et.parse(self.filepath)
+        tree = ET.parse(self.filepath)
         return tree.getroot()
 
     @property
@@ -1540,8 +1540,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
             for filepath in [os.path.join(top, fn) for fn in os.listdir(top)]:
                 if os.path.isfile(filepath):
                     try:
-                        pseudo = Pseudo.from_file(filepath)
-                        if pseudo:
+                        if pseudo := Pseudo.from_file(filepath):
                             pseudos.append(pseudo)
                         else:
                             logger.info(f"Skipping file {filepath}")
@@ -1830,7 +1829,7 @@ class PseudoTable(collections.abc.Sequence, MSONable):
         """Get new class:`PseudoTable` object with pseudos in the given rows of the periodic table.
         rows can be either a int or a list of integers.
         """
-        if not isinstance(rows, (list, tuple)):
+        if not isinstance(rows, list | tuple):
             rows = [rows]
         return type(self)([p for p in self if p.element.row in rows])
 

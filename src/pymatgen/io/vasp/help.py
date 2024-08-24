@@ -53,35 +53,31 @@ class VaspDoc:
             Help text.
         """
         tag = tag.upper()
-        response = requests.get(f"https://www.vasp.at/wiki/index.php/{tag}", verify=False, timeout=600)
+        response = requests.get(
+            f"https://www.vasp.at/wiki/index.php/{tag}",
+            verify=False,  # noqa: S501
+            timeout=600,
+        )
         soup = BeautifulSoup(response.text)
         main_doc = soup.find(id="mw-content-text")
         if fmt == "text":
             output = main_doc.text
-            output = re.sub("\n{2,}", "\n\n", output)
-        else:
-            output = str(main_doc)
+            return re.sub("\n{2,}", "\n\n", output)
 
-        return output
+        return str(main_doc)
 
     @classmethod
     def get_incar_tags(cls) -> list[str]:
         """Get a list of all INCAR tags from the VASP wiki."""
         tags = []
-        for page in [
+        for page in (
             "https://www.vasp.at/wiki/index.php/Category:INCAR",
             "https://www.vasp.at/wiki/index.php?title=Category:INCAR&pagefrom=ML+FF+LCONF+DISCARD#mw-pages",
-        ]:
-            response = requests.get(page, verify=False, timeout=600)
+        ):
+            response = requests.get(page, verify=False, timeout=600)  # noqa: S501
             soup = BeautifulSoup(response.text)
             for div in soup.findAll("div", {"class": "mw-category-group"}):
                 children = div.findChildren("li")
                 for child in children:
                     tags.append(child.text.strip())
         return tags
-
-
-if __name__ == "__main__":
-    doc = VaspDoc()
-    doc.print_help("ISYM")
-    print(doc.get_incar_tags())

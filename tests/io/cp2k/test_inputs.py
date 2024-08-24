@@ -193,7 +193,7 @@ class TestInput(PymatgenTest):
         for struct in [nonsense_struct, si_struct, ch_mol]:
             coords = Coord(struct)
             for val in coords.keywords.values():
-                assert isinstance(val, (Keyword, KeywordList))
+                assert isinstance(val, Keyword | KeywordList)
 
     def test_kind(self):
         for struct in [nonsense_struct, si_struct, ch_mol]:
@@ -214,8 +214,9 @@ class TestInput(PymatgenTest):
 
     def test_odd_file(self):
         scramble = ""
+        rng = np.random.default_rng()
         for string in self.ci.get_str():
-            if np.random.rand(1) > 0.5:
+            if rng.choice((True, False)):
                 if string == "\t":
                     scramble += " "
                 elif string == " ":

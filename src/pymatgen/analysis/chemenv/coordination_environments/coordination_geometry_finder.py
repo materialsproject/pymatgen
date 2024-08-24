@@ -993,15 +993,17 @@ class LocalGeometryFinder:
             raise ValueError("Wrong mp_symbol to setup coordination geometry")
         neighb_coords = []
         _points = points if points is not None else cg.points
+        rng = np.random.default_rng()
+
         if randomness:
-            rv = np.random.random_sample(3)
+            rv = rng.random(3)
             while norm(rv) > 1.0:
-                rv = np.random.random_sample(3)
+                rv = rng.random(3)
             coords = [np.zeros(3, float) + max_random_dist * rv]
             for pp in _points:
-                rv = np.random.random_sample(3)
+                rv = rng.random(3)
                 while norm(rv) > 1.0:
-                    rv = np.random.random_sample(3)
+                    rv = rng.random(3)
                 neighb_coords.append(np.array(pp) + max_random_dist * rv)
         else:
             coords = [np.zeros(3, float)]
@@ -1016,7 +1018,7 @@ class LocalGeometryFinder:
 
         # Scaling the test environment
         if random_scale == "RANDOM":
-            scale = 0.1 * np.random.random_sample() + 0.95
+            scale = 0.1 * rng.random() + 0.95
         elif random_scale == "NONE":
             scale = 1.0
         else:
@@ -1026,9 +1028,9 @@ class LocalGeometryFinder:
 
         # Rotating the test environment
         if random_rotation == "RANDOM":
-            uu = np.random.random_sample(3) + 0.1
+            uu = rng.random(3) + 0.1
             uu = uu / norm(uu)
-            theta = np.pi * np.random.random_sample()
+            theta = np.pi * rng.random()
             cos_theta = np.cos(theta)
             sin_theta = np.sin(theta)
             ux = uu[0]
@@ -1068,7 +1070,7 @@ class LocalGeometryFinder:
 
         # Translating the test environment
         if random_translation == "RANDOM":
-            translation = 10.0 * (2.0 * np.random.random_sample(3) - 1.0)
+            translation = 10.0 * (2.0 * rng.random(3) - 1.0)
         elif random_translation == "NONE":
             translation = np.zeros(3, float)
         else:
@@ -1113,7 +1115,7 @@ class LocalGeometryFinder:
         bb = -0.2
         coords = []
         for _ in range(coordination + 1):
-            coords.append(aa * np.random.random_sample(3) + bb)
+            coords.append(aa * np.random.default_rng().random(3) + bb)
         self.set_structure(
             lattice=np.array(np.eye(3) * 10, float),
             species=["Si"] * (coordination + 1),
@@ -1130,7 +1132,7 @@ class LocalGeometryFinder:
         """
         self.icentral_site = 0
         self.indices = list(range(1, coordination + 1))
-        np.random.shuffle(self.indices)
+        np.random.default_rng().shuffle(self.indices)
 
     def setup_ordered_indices_local_geometry(self, coordination):
         """Set up ordered indices for the local geometry, for testing purposes.
@@ -1726,7 +1728,7 @@ class LocalGeometryFinder:
                         continue
                     if sep not in nb_set.separations:
                         nb_set.separations[sep] = {}
-                    _sep = [np.array(ss, dtype=int) for ss in separation]
+                    _sep = [np.array(ss, dtype=np.int64) for ss in separation]
                     nb_set.separations[sep][separation] = (plane, _sep)
                     if sep == separation_plane_algo.separation:
                         new_seps.append(_sep)
@@ -2049,8 +2051,9 @@ class LocalGeometryFinder:
         algos = []
         perfect2local_maps = []
         local2perfect_maps = []
+        rng = np.random.default_rng()
         for idx in range(n_random):
-            perm = np.random.permutation(coordination_geometry.coordination_number)
+            perm = rng.permutation(coordination_geometry.coordination_number)
             permutations.append(perm)
             p2l = {}
             l2p = {}

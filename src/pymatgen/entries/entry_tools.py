@@ -46,7 +46,7 @@ def _perform_grouping(args):
 
     entries = json.loads(entries_json, cls=MontyDecoder)
     hosts = json.loads(hosts_json, cls=MontyDecoder)
-    unmatched = list(zip(entries, hosts))
+    unmatched = list(zip(entries, hosts, strict=True))
     while len(unmatched) > 0:
         ref_host = unmatched[0][1]
         logger.info(f"Reference tid = {unmatched[0][0].entry_id}, formula = {ref_host.formula}")

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-
 import pytest
 from numpy.testing import assert_array_equal
 
@@ -10,8 +8,6 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 f90nml = pytest.importorskip("f90nml")
 TEST_DIR = f"{TEST_FILES_DIR}/io/shengbte"
-
-module_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class TestShengBTE(PymatgenTest):
@@ -50,11 +46,11 @@ class TestShengBTE(PymatgenTest):
         assert io["lattvec"][0] == [0.0, 2.734363999, 2.734363999]
         assert io["lattvec"][1] == [2.734363999, 0.0, 2.734363999]
         assert io["lattvec"][2] == [2.734363999, 2.734363999, 0.0]
-        assert isinstance(io["elements"], (list, str))
+        assert isinstance(io["elements"], list | str)
         if isinstance(io["elements"], list):
             all_strings = all(isinstance(item, str) for item in io["elements"])
             assert all_strings
-        assert isinstance(io["types"], (list, int))
+        assert isinstance(io["types"], list | int)
         if isinstance(io["types"], list):
             all_ints = all(isinstance(item, int) for item in io["types"])
             assert all_ints

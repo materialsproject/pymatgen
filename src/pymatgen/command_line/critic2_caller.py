@@ -277,17 +277,16 @@ class Critic2Caller:
         chgcar = Chgcar.from_file(chgcar_path)
         chgcar_ref = None
 
-        if not zpsp:
-            potcar_path = get_filepath(
+        if not zpsp and (
+            potcar_path := get_filepath(
                 "POTCAR",
                 "Could not find POTCAR, will not be able to calculate charge transfer.",
                 path,
                 suffix,
             )
-
-            if potcar_path:
-                potcar = Potcar.from_file(potcar_path)
-                zpsp = {p.element: p.zval for p in potcar}
+        ):
+            potcar = Potcar.from_file(potcar_path)
+            zpsp = {p.element: p.zval for p in potcar}
 
         if not zpsp:
             # try and get reference "all-electron-like" charge density if zpsp not present

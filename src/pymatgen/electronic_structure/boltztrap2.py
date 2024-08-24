@@ -554,7 +554,7 @@ class BztInterpolator:
             spins = [Spin.up]
 
         energies = []
-        for spin, eb, vvb in zip(spins, eband_ud, vvband_ud):
+        for spin, eb, vvb in zip(spins, eband_ud, vvband_ud, strict=True):
             energies, densities, _vvdos, _cdos = BL.BTPDOS(eb, vvb, npts=npts_mu, erange=enr)
 
             if T:
@@ -589,7 +589,7 @@ class BztInterpolator:
         else:
             bar = None
 
-        for spin, eb in zip(spins, eband_ud):
+        for spin, eb in zip(spins, eband_ud, strict=True):
             for idx, site in enumerate(self.data.structure):
                 if site not in pdoss:
                     pdoss[site] = {}

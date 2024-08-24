@@ -335,7 +335,7 @@ class TestInterfaceReaction(TestCase):
             lst = list(ir.get_kinks())
             x_kink = [i[1] for i in lst]
             energy_kink = [i[2] for i in lst]
-            points = list(zip(x_kink, energy_kink))
+            points = list(zip(x_kink, energy_kink, strict=True))
             if len(points) >= 3:
                 # To test convexity of the plot, construct convex hull from
                 # the kinks and make sure
@@ -343,7 +343,7 @@ class TestInterfaceReaction(TestCase):
                 # 2. all points are on the convex hull.
                 relative_vectors_1 = [(x - x_kink[0], e - energy_kink[0]) for x, e in points]
                 relative_vectors_2 = [(x - x_kink[-1], e - energy_kink[-1]) for x, e in points]
-                relative_vectors = zip(relative_vectors_1, relative_vectors_2)
+                relative_vectors = zip(relative_vectors_1, relative_vectors_2, strict=True)
                 positions = [np.cross(v1, v2) for v1, v2 in relative_vectors]
                 assert np.all(np.array(positions) <= 0)
 
@@ -377,14 +377,14 @@ class TestInterfaceReaction(TestCase):
         assert test5, "get_critical_original_kink_ratio: gets error!"
 
     def test_labels(self):
-        d_pymg = self.irs[0].labels
-        d_test = {
+        dict_pymg = self.irs[0].labels
+        dict_test = {
             1: "x= 0.0 energy in eV/atom = 0.0 Mn -> Mn",
             2: "x= 0.5 energy in eV/atom = -15.0 0.5 Mn + 0.5 O2 -> 0.5 MnO2",
             3: "x= 1.0 energy in eV/atom = 0.0 O2 -> O2",
         }
 
-        assert d_pymg == d_test, (
+        assert dict_pymg == dict_test, (
             "labels:label does not match for interfacial system "
             f"with {self.irs[0].c1_original.reduced_formula} and {self.irs[0].c2_original.reduced_formula}."
         )
@@ -399,9 +399,9 @@ class TestInterfaceReaction(TestCase):
 
     def test_get_dataframe(self):
         for ir in self.irs:
-            df = ir.get_dataframe()
-            assert isinstance(df, DataFrame)
-            assert {*df} >= {
+            df_reaction = ir.get_dataframe()
+            assert isinstance(df_reaction, DataFrame)
+            assert {*df_reaction} >= {
                 "Atomic fraction",
                 "E$_{\textrm{rxn}}$ (eV/atom)",
                 "E$_{\textrm{rxn}}$ (kJ/mol)",
@@ -419,7 +419,7 @@ class TestInterfaceReaction(TestCase):
             (0.3333333, -3.333333),
             (0.3333333, -4.0),
         ]
-        for inter_react, expected in zip(self.irs, answer):
+        for inter_react, expected in zip(self.irs, answer, strict=False):
             assert_allclose(inter_react.minimum, expected, atol=1e-7)
 
     def test_get_no_mixing_energy(self):
@@ -438,7 +438,7 @@ class TestInterfaceReaction(TestCase):
             return lst[0][1], lst[1][1]
 
         result_info = [ir.get_no_mixing_energy() for ir in self.irs if ir.grand]
-        for ii, jj in zip(result_info, answer):
+        for ii, jj in zip(result_info, answer, strict=False):
             err_msg = f"get_no_mixing_energy: names get error, {name_lst(jj)} expected but gets {name_lst(ii)}"
             assert name_lst(ii) == name_lst(jj), err_msg
             assert_allclose(

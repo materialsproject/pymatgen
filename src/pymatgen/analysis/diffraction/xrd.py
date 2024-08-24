@@ -114,7 +114,7 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
                 specification of Debye-Waller factors. Note that these
                 factors are temperature dependent.
         """
-        if isinstance(wavelength, (float, int)):
+        if isinstance(wavelength, float | int):
             self.wavelength = wavelength
         elif isinstance(wavelength, str):
             self.radiation = wavelength

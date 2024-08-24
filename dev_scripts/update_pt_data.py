@@ -218,7 +218,9 @@ def gen_iupac_ordering():
     ]  # At -> F
 
     order = sum((list(product(x, y)) for x, y in order), [])  # noqa: RUF017
-    iupac_ordering_dict = dict(zip([Element.from_row_and_group(row, group) for group, row in order], range(len(order))))
+    iupac_ordering_dict = dict(
+        zip([Element.from_row_and_group(row, group) for group, row in order], range(len(order)), strict=True)
+    )
 
     # first clean periodic table of any IUPAC ordering
     for el in periodic_table:

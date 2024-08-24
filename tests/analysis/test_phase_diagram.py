@@ -447,7 +447,7 @@ class TestPhaseDiagram(PymatgenTest):
             {"evolution": -1.0, "chempot": -10.48758201, "reaction": "Li2O -> 2 Li + 0.5 O2"},
         ]
         result = self.pd.get_element_profile(Element("O"), Composition("Li2O"))
-        for d1, d2 in zip(expected, result):
+        for d1, d2 in zip(expected, result, strict=True):
             assert d1["evolution"] == approx(d2["evolution"])
             assert d1["chempot"] == approx(d2["chempot"])
             assert d1["reaction"] == str(d2["reaction"])
@@ -505,7 +505,7 @@ class TestPhaseDiagram(PymatgenTest):
             Composition("Li0.3243244Fe0.1621621O0.51351349"),
             Composition("Li3FeO4").fractional_composition,
         ]
-        for crit, exp in zip(comps, expected):
+        for crit, exp in zip(comps, expected, strict=True):
             assert crit.almost_equals(exp, rtol=0, atol=1e-5)
 
         comps = self.pd.get_critical_compositions(c1, c3)
@@ -515,7 +515,7 @@ class TestPhaseDiagram(PymatgenTest):
             Composition("Li5FeO4").fractional_composition,
             Composition("Li2O").fractional_composition,
         ]
-        for crit, exp in zip(comps, expected):
+        for crit, exp in zip(comps, expected, strict=True):
             assert crit.almost_equals(exp, rtol=0, atol=1e-5)
 
     def test_get_critical_compositions(self):
@@ -529,7 +529,7 @@ class TestPhaseDiagram(PymatgenTest):
             Composition("Li0.3243244Fe0.1621621O0.51351349") * 7.4,
             Composition("Li3FeO4"),
         ]
-        for crit, exp in zip(comps, expected):
+        for crit, exp in zip(comps, expected, strict=True):
             assert crit.almost_equals(exp, rtol=0, atol=1e-5)
 
         comps = self.pd.get_critical_compositions(c1, c3)
@@ -539,7 +539,7 @@ class TestPhaseDiagram(PymatgenTest):
             Composition("Li5FeO4") / 3,
             Composition("Li2O"),
         ]
-        for crit, exp in zip(comps, expected):
+        for crit, exp in zip(comps, expected, strict=True):
             assert crit.almost_equals(exp, rtol=0, atol=1e-5)
 
         # Don't fail silently if input compositions aren't in phase diagram
@@ -560,7 +560,7 @@ class TestPhaseDiagram(PymatgenTest):
             Composition("Li0.3243244Fe0.1621621O0.51351349") * 7.4,
             Composition("Li3FeO4"),
         ]
-        for crit, exp in zip(comps, expected):
+        for crit, exp in zip(comps, expected, strict=True):
             assert crit.almost_equals(exp, rtol=0, atol=1e-5)
 
         # case where the endpoints are identical

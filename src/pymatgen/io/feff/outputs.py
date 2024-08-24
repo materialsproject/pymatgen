@@ -122,12 +122,11 @@ class LDos(MSONable):
             all_pdos.append(defaultdict(dict))
             for k, v in vorb.items():
                 density = [ldos[pot_index][j][forb[k] + 1] for j in range(d_length)]
-                updos = density
-                downdos = None
-                if downdos:
-                    all_pdos[-1][v] = {Spin.up: updos, Spin.down: downdos}
+                up_dos = density
+                if down_dos := None:
+                    all_pdos[-1][v] = {Spin.up: up_dos, Spin.down: down_dos}
                 else:
-                    all_pdos[-1][v] = {Spin.up: updos}
+                    all_pdos[-1][v] = {Spin.up: up_dos}
 
         pdos = all_pdos
         vorb2 = {0: Orbital.s, 1: Orbital.py, 2: Orbital.dxy, 3: Orbital.f0}

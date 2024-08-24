@@ -197,7 +197,7 @@ class DosPlotter:
                     else:
                         x = energy
                         y = densities
-                    all_pts.extend(list(zip(x, y)))
+                    all_pts.extend(list(zip(x, y, strict=True)))
                     if self.stack:
                         ax.fill(x, y, color=colors[idx % n_colors], label=str(key))
                     elif spin == Spin.down and beta_dashed:
@@ -237,7 +237,7 @@ class DosPlotter:
 
         # Remove duplicate labels with a dictionary
         handles, labels = ax.get_legend_handles_labels()
-        label_dict = dict(zip(labels, handles))
+        label_dict = dict(zip(labels, handles, strict=True))
         ax.legend(label_dict.values(), label_dict)
         legend_text = ax.get_legend().get_texts()  # all the text.Text instance in the legend
         plt.setp(legend_text, fontsize=30)
@@ -336,7 +336,7 @@ class BSPlotter:
         # Sanitize only plot the uniq values
         uniq_d = []
         uniq_l = []
-        temp_ticks = list(zip(ticks["distance"], ticks["label"]))
+        temp_ticks = list(zip(ticks["distance"], ticks["label"], strict=True))
         for idx, t in enumerate(temp_ticks):
             if idx == 0:
                 uniq_d.append(t[0])
@@ -349,7 +349,7 @@ class BSPlotter:
                 uniq_d.append(t[0])
                 uniq_l.append(t[1])
 
-        logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l))}")
+        logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l, strict=True))}")
         ax.set_xticks(uniq_d)
         ax.set_xticklabels(uniq_l)
 
@@ -371,7 +371,7 @@ class BSPlotter:
     def _get_branch_steps(branches):
         """Find discontinuous branches."""
         steps = [0]
-        for b1, b2 in zip(branches[:-1], branches[1:]):
+        for b1, b2 in itertools.pairwise(branches):
             if b2["name"].split("-")[0] != b1["name"].split("-")[-1]:
                 steps.append(b2["start_index"])
         steps.append(branches[-1]["end_index"] + 1)
@@ -385,7 +385,7 @@ class BSPlotter:
         """
         scaled_distances = []
 
-        for br, br2 in zip(bs_ref.branches, bs.branches):
+        for br, br2 in zip(bs_ref.branches, bs.branches, strict=True):
             start = br["start_index"]
             end = br["end_index"]
             max_d = bs_ref.distance[end]
@@ -531,7 +531,7 @@ class BSPlotter:
         int_energies, int_distances = [], []
         smooth_k_orig = smooth_k
 
-        for dist, ene in zip(distances, energies):
+        for dist, ene in zip(distances, energies, strict=True):
             br_en = []
             warning_nan = (
                 f"WARNING! Distance / branch, band cannot be "
@@ -662,7 +662,7 @@ class BSPlotter:
                     distances = np.split(distances, steps)
                     energies = np.hsplit(energies, steps)
 
-                for dist, ene in zip(distances, energies):
+                for dist, ene in zip(distances, energies, strict=True):
                     ax.plot(dist, ene.T, c=colors[ibs], ls=ls)
 
             # plot markers for vbm and cbm
@@ -2196,7 +2196,7 @@ class BSPlotterProjected(BSPlotter):
 
         uniq_d = []
         uniq_l = []
-        temp_ticks = list(zip(f_distance, f_label))
+        temp_ticks = list(zip(f_distance, f_label, strict=True))
         for idx, tick in enumerate(temp_ticks):
             if idx == 0:
                 uniq_d.append(tick[0])
@@ -2209,7 +2209,7 @@ class BSPlotterProjected(BSPlotter):
                 uniq_d.append(tick[0])
                 uniq_l.append(tick[1])
 
-        logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l))}")
+        logger.debug(f"Unique labels are {list(zip(uniq_d, uniq_l, strict=True))}")
         ax.set_xticks(uniq_d)
         ax.set_xticklabels(uniq_l)
 
@@ -2583,7 +2583,9 @@ class BSDOSPlotter:
         green = [0.5 * (green[i] + green[i + 1]) for i in range(n_seg)]
         blue = [0.5 * (blue[i] + blue[i + 1]) for i in range(n_seg)]
         alpha = np.ones(n_seg, float) * alpha
-        lc = LineCollection(seg, colors=list(zip(red, green, blue, alpha)), linewidth=2, linestyles=linestyles)
+        lc = LineCollection(
+            seg, colors=list(zip(red, green, blue, alpha, strict=True)), linewidth=2, linestyles=linestyles
+        )
         ax.add_collection(lc)
 
     @staticmethod
@@ -3134,7 +3136,7 @@ class BoltztrapPlotter:
                     for xyz in range(3):
                         ax.plot(
                             temperatures,
-                            list(zip(*sbk_temp))[xyz],
+                            list(zip(*sbk_temp, strict=True))[xyz],
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
@@ -3188,7 +3190,7 @@ class BoltztrapPlotter:
                     for xyz in range(3):
                         ax.plot(
                             temperatures,
-                            list(zip(*cond_temp))[xyz],
+                            list(zip(*cond_temp, strict=True))[xyz],
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
@@ -3243,7 +3245,7 @@ class BoltztrapPlotter:
                     for xyz in range(3):
                         ax.plot(
                             temperatures,
-                            list(zip(*pf_temp))[xyz],
+                            list(zip(*pf_temp, strict=True))[xyz],
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
@@ -3297,7 +3299,7 @@ class BoltztrapPlotter:
                     for xyz in range(3):
                         ax.plot(
                             temperatures,
-                            list(zip(*zt_temp))[xyz],
+                            list(zip(*zt_temp, strict=True))[xyz],
                             marker="s",
                             label=f"{xyz} {dop} $cm^{{-3}}$",
                         )
@@ -3344,7 +3346,12 @@ class BoltztrapPlotter:
                     ax.plot(temperatures, em_temp, marker="s", label=f"{dop} $cm^{{-3}}$")
                 elif output == "eigs":
                     for xyz in range(3):
-                        ax.plot(temperatures, list(zip(*em_temp))[xyz], marker="s", label=f"{xyz} {dop} $cm^{{-3}}$")
+                        ax.plot(
+                            temperatures,
+                            list(zip(*em_temp, strict=True))[xyz],
+                            marker="s",
+                            label=f"{xyz} {dop} $cm^{{-3}}$",
+                        )
             ax.set_title(f"{dop_type}-type", fontsize=20)
             if idx == 0:
                 ax.set_ylabel("Effective mass (m$_e$)", fontsize=30.0)
@@ -3380,7 +3387,7 @@ class BoltztrapPlotter:
                     for xyz in range(3):
                         ax.semilogx(
                             self._bz.doping[dop_type],
-                            list(zip(*sbk[dop_type][temp]))[xyz],
+                            list(zip(*sbk[dop_type][temp], strict=True))[xyz],
                             marker="s",
                             label=f"{xyz} {temp} K",
                         )
@@ -3429,7 +3436,7 @@ class BoltztrapPlotter:
                     for xyz in range(3):
                         ax.semilogx(
                             self._bz.doping[dop_type],
-                            list(zip(*cond[dop_type][temp]))[xyz],
+                            list(zip(*cond[dop_type][temp], strict=True))[xyz],
                             marker="s",
                             label=f"{xyz} {temp} K",
                         )
@@ -3481,7 +3488,7 @@ class BoltztrapPlotter:
                     for xyz in range(3):
                         ax.semilogx(
                             self._bz.doping[dop_type],
-                            list(zip(*pow_factor[dop_type][temp]))[xyz],
+                            list(zip(*pow_factor[dop_type][temp], strict=True))[xyz],
                             marker="s",
                             label=f"{xyz} {temp} K",
                         )
@@ -3530,7 +3537,7 @@ class BoltztrapPlotter:
                     for xyz in range(3):
                         ax.semilogx(
                             self._bz.doping[dop_type],
-                            list(zip(*zt[dop_type][temp]))[xyz],
+                            list(zip(*zt[dop_type][temp], strict=True))[xyz],
                             marker="s",
                             label=f"{xyz} {temp} K",
                         )
@@ -3584,7 +3591,7 @@ class BoltztrapPlotter:
                     for xyz in range(3):
                         ax.semilogx(
                             self._bz.doping[dop_type],
-                            list(zip(*em[dop_type][temp]))[xyz],
+                            list(zip(*em[dop_type][temp], strict=True))[xyz],
                             marker="s",
                             label=f"{xyz} {temp} K",
                         )
@@ -3802,7 +3809,7 @@ class CohpPlotter:
                     else:
                         x = energies
                         y = -populations[spin] if plot_negative else populations[spin]
-                    allpts.extend(list(zip(x, y)))
+                    allpts.extend(list(zip(x, y, strict=True)))
                     if spin == Spin.up:
                         ax.plot(
                             x,
@@ -3997,7 +4004,7 @@ def plot_fermi_surface(
                         and any(np.all(line[1] == x) for x in bz[jface])
                     ):
                         mlab.plot3d(
-                            *zip(line[0], line[1]),
+                            *zip(line[0], line[1], strict=True),
                             color=(0, 0, 0),
                             tube_radius=None,
                             figure=fig,
@@ -4033,7 +4040,7 @@ def plot_fermi_surface(
                             and any(np.all(line[1] == x) for x in bz[jface])
                         ):
                             mlab.plot3d(
-                                *zip(line[0], line[1]),
+                                *zip(line[0], line[1], strict=True),
                                 color=(0, 0, 0),
                                 tube_radius=None,
                                 figure=fig,
@@ -4108,7 +4115,7 @@ def plot_wigner_seitz(lattice, ax: plt.Axes = None, **kwargs):
                     and any(np.all(line[0] == x) for x in bz[jface])
                     and any(np.all(line[1] == x) for x in bz[jface])
                 ):
-                    ax.plot(*zip(line[0], line[1]), **kwargs)
+                    ax.plot(*zip(line[0], line[1], strict=True), **kwargs)
 
     return fig, ax
 
@@ -4134,11 +4141,11 @@ def plot_lattice_vectors(lattice, ax: plt.Axes = None, **kwargs):
 
     vertex1 = lattice.get_cartesian_coords([0.0, 0.0, 0.0])
     vertex2 = lattice.get_cartesian_coords([1.0, 0.0, 0.0])
-    ax.plot(*zip(vertex1, vertex2), **kwargs)
+    ax.plot(*zip(vertex1, vertex2, strict=True), **kwargs)
     vertex2 = lattice.get_cartesian_coords([0.0, 1.0, 0.0])
-    ax.plot(*zip(vertex1, vertex2), **kwargs)
+    ax.plot(*zip(vertex1, vertex2, strict=True), **kwargs)
     vertex2 = lattice.get_cartesian_coords([0.0, 0.0, 1.0])
-    ax.plot(*zip(vertex1, vertex2), **kwargs)
+    ax.plot(*zip(vertex1, vertex2, strict=True), **kwargs)
 
     return fig, ax
 
@@ -4174,7 +4181,7 @@ def plot_path(line, lattice=None, coords_are_cartesian=False, ax: plt.Axes = Non
                 raise ValueError("coords_are_cartesian False requires the lattice")
             vertex1 = lattice.get_cartesian_coords(vertex1)
             vertex2 = lattice.get_cartesian_coords(vertex2)
-        ax.plot(*zip(vertex1, vertex2), **kwargs)
+        ax.plot(*zip(vertex1, vertex2, strict=True), **kwargs)
 
     return fig, ax
 

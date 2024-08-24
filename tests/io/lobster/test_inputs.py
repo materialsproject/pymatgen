@@ -41,8 +41,6 @@ __version__ = "0.2"
 __email__ = "janine.george@uclouvain.be, esters@uoregon.edu"
 __date__ = "Dec 10, 2017"
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
-
 
 class TestCohpcar(PymatgenTest):
     def setUp(self):
@@ -259,13 +257,13 @@ class TestCohpcar(PymatgenTest):
                         assert len(val["cells"]) == 3
                         assert len(val["COHP"][Spin.up]) == 12
                         assert len(val["COHP"][Spin.down]) == 12
-                        for cohp1, cohp2 in zip(val["COHP"][Spin.up], val["COHP"][Spin.down]):
+                        for cohp1, cohp2 in zip(val["COHP"][Spin.up], val["COHP"][Spin.down], strict=True):
                             assert cohp1 == approx(cohp2, abs=1e-4)
                     else:
                         assert len(val["cells"]) == 2
                         assert len(val["COHP"][Spin.up]) == 12
                         assert len(val["COHP"][Spin.down]) == 12
-                        for cohp1, cohp2 in zip(val["COHP"][Spin.up], val["COHP"][Spin.down]):
+                        for cohp1, cohp2 in zip(val["COHP"][Spin.up], val["COHP"][Spin.down], strict=True):
                             assert cohp1 == approx(cohp2, abs=1e-3)
 
     def test_orbital_resolved_cohp(self):
@@ -1301,7 +1299,7 @@ class TestLobsterout(PymatgenTest):
                     assert ref_data[key] == item
                 elif key in ("charge_spilling", "total_spilling"):
                     assert item[0] == approx(ref_data[key][0])
-                elif isinstance(item, (list, dict)):
+                elif isinstance(item, list | dict):
                     assert item == ref_data[key]
 
     def test_msonable(self):

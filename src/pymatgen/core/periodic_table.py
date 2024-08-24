@@ -12,7 +12,7 @@ from collections import Counter
 from enum import Enum, unique
 from itertools import combinations, product
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 import numpy as np
 from monty.dev import deprecated
@@ -23,7 +23,8 @@ from pymatgen.io.core import ParseError
 from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Literal
+    from collections.abc import Callable
+    from typing import Any, Literal
 
     from typing_extensions import Self
 
@@ -204,7 +205,7 @@ class ElementBase(Enum):
             if val is None or str(val).startswith("no data"):
                 warnings.warn(f"No data available for {item} for {self.symbol}")
                 val = None
-            elif isinstance(val, (list, dict)):
+            elif isinstance(val, list | dict):
                 pass
             else:
                 try:
@@ -380,10 +381,8 @@ class ElementBase(Enum):
         taken over all positive oxidation states of the element for which
         data is present.
         """
-        if "Ionic radii" in self._data:
-            radii = [v for k, v in self._data["Ionic radii"].items() if int(k) > 0]
-            if radii:
-                return FloatWithUnit(sum(radii) / len(radii), "ang")
+        if "Ionic radii" in self._data and (radii := [v for k, v in self._data["Ionic radii"].items() if int(k) > 0]):
+            return FloatWithUnit(sum(radii) / len(radii), "ang")
         return FloatWithUnit(0.0, "ang")
 
     @property
@@ -392,10 +391,8 @@ class ElementBase(Enum):
         taken over all negative oxidation states of the element for which
         data is present.
         """
-        if "Ionic radii" in self._data:
-            radii = [v for k, v in self._data["Ionic radii"].items() if int(k) < 0]
-            if radii:
-                return FloatWithUnit(sum(radii) / len(radii), "ang")
+        if "Ionic radii" in self._data and (radii := [v for k, v in self._data["Ionic radii"].items() if int(k) < 0]):
+            return FloatWithUnit(sum(radii) / len(radii), "ang")
         return FloatWithUnit(0.0, "ang")
 
     @property
@@ -476,7 +473,7 @@ class ElementBase(Enum):
     @property
     def n_electrons(self) -> int:
         """Total number of electrons in the Element."""
-        return sum([t[-1] for t in self.full_electronic_structure])
+        return sum(t[-1] for t in self.full_electronic_structure)
 
     @property
     def valence(self) -> tuple[int | np.nan, int]:
@@ -527,7 +524,7 @@ class ElementBase(Enum):
         # Total ML = sum(ml1, ml2), Total MS = sum(ms1, ms2)
         TL = [sum(ml_ms[comb[e]][0] for e in range(v_e)) for comb in e_config_combs]
         TS = [sum(ml_ms[comb[e]][1] for e in range(v_e)) for comb in e_config_combs]
-        comb_counter = Counter(zip(TL, TS))
+        comb_counter = Counter(zip(TL, TS, strict=True))
 
         term_symbols = []
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
@@ -543,9 +540,9 @@ class ElementBase(Enum):
             for ML in range(-L, L - 1, -1):
                 for MS in np.arange(S, -S + 1, 1):
                     if (ML, MS) in comb_counter:
-                        comb_counter[(ML, MS)] -= 1
-                        if comb_counter[(ML, MS)] == 0:
-                            del comb_counter[(ML, MS)]
+                        comb_counter[ML, MS] -= 1
+                        if comb_counter[ML, MS] == 0:
+                            del comb_counter[ML, MS]
         return term_symbols
 
     @property
@@ -1180,7 +1177,7 @@ class Species(MSONable, Stringify):
     @property
     def n_electrons(self) -> int:
         """Total number of electrons in the Species."""
-        return sum([t[-1] for t in self.full_electronic_structure])
+        return sum(t[-1] for t in self.full_electronic_structure)
 
     # NOTE - copied exactly from Element. Refactoring / inheritance may improve
     # robustness
@@ -1597,11 +1594,21 @@ class DummySpecie(DummySpecies):
     """
 
 
+@overload
+def get_el_sp(obj: int) -> Element:
+    pass
+
+
+@overload
+def get_el_sp(obj: SpeciesLike) -> Element | Species | DummySpecies:
+    pass
+
+
 @functools.lru_cache
 def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
-    """Utility method to get an Element, Species or DummySpecies from any input.
+    """Utility function to get an Element, Species or DummySpecies from any input.
 
-    If obj is in itself an element or a specie, it is returned automatically.
+    If obj is an Element or a Species, it is returned as is.
     If obj is an int or a string representing an integer, the Element with the
     atomic number obj is returned.
     If obj is a string, Species parsing will be attempted (e.g. Mn2+). Failing that
@@ -1616,11 +1623,11 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
         ValueError: if obj cannot be converted into an Element or Species.
 
     Returns:
-        Species | Element: with a bias for the maximum number of properties
-            that can be determined.
+        Element | Species | DummySpecies: with a bias for the maximum number
+            of properties that can be determined.
     """
     # If obj is already an Element or Species, return as is
-    if isinstance(obj, (Element, Species, DummySpecies)):
+    if isinstance(obj, Element | Species | DummySpecies):
         if getattr(obj, "_is_named_isotope", None):
             return Element(obj.name) if isinstance(obj, Element) else Species(str(obj))
         return obj

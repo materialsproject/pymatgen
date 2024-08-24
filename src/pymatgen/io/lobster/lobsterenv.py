@@ -243,7 +243,7 @@ class LobsterNeighbors(NearNeighbors):
             raise ValueError("No cations and anions defined")
 
         anion_species = []
-        for site, val in zip(self.structure, self.valences):
+        for site, val in zip(self.structure, self.valences, strict=True):
             if val < 0.0:
                 anion_species.append(site.specie)
 
@@ -253,7 +253,7 @@ class LobsterNeighbors(NearNeighbors):
     def get_anion_types(self):
         return self.anion_types
 
-    def get_nn_info(self, structure: Structure, n: int, use_weights: bool = False) -> dict:  # type: ignore[override]
+    def get_nn_info(self, structure: Structure, n: int, use_weights: bool = False) -> dict:
         """Get coordination number, CN, of site with index n in structure.
 
         Args:
@@ -413,7 +413,7 @@ class LobsterNeighbors(NearNeighbors):
         final_isites = []
         for ival, _site in enumerate(self.structure):
             if ival in isites:
-                for keys, icohpsum in zip(self.list_keys[ival], self.list_icohps[ival]):
+                for keys, icohpsum in zip(self.list_keys[ival], self.list_icohps[ival], strict=True):
                     summed_icohps += icohpsum
                     list_icohps.append(icohpsum)
                     labels.append(keys)
@@ -559,7 +559,7 @@ class LobsterNeighbors(NearNeighbors):
             # iterate through labels and atoms and check which bonds can be included
             new_labels = []
             new_atoms = []
-            for key, atompair, isite in zip(labels, atoms, final_isites):
+            for key, atompair, isite in zip(labels, atoms, final_isites, strict=True):
                 present = False
                 for atomtype in only_bonds_to:
                     # This is necessary to identify also bonds between the same elements correctly!

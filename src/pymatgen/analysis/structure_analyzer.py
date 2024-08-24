@@ -154,7 +154,7 @@ class VoronoiAnalyzer:
         Returns:
             plt.Axes: Matplotlib Axes object with the plotted Voronoi analysis.
         """
-        labels, val = zip(*voronoi_ensemble)
+        labels, val = zip(*voronoi_ensemble, strict=True)
         arr = np.array(val, dtype=float)
         arr /= np.sum(arr)
         pos = np.arange(len(arr)) + 0.5  # the bar centers on the y axis

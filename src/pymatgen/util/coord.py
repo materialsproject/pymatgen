@@ -133,7 +133,7 @@ def get_linear_interpolated_value(x_values: ArrayLike, y_values: ArrayLike, x: f
     Returns:
         Value at x.
     """
-    arr = np.array(sorted(zip(x_values, y_values), key=lambda d: d[0]))
+    arr = np.array(sorted(zip(x_values, y_values, strict=True), key=lambda d: d[0]))
 
     indices = np.where(arr[:, 0] >= x)[0]
 
@@ -267,7 +267,9 @@ def is_coord_subset_pbc(subset, superset, atol: float = 1e-8, mask=None, pbc: Pb
     """
     c1 = np.array(subset, dtype=np.float64)
     c2 = np.array(superset, dtype=np.float64)
-    mask_arr = np.array(mask, dtype=int) if mask is not None else np.zeros((len(subset), len(superset)), dtype=int)
+    mask_arr = (
+        np.array(mask, dtype=np.int64) if mask is not None else np.zeros((len(subset), len(superset)), dtype=np.int64)
+    )
     atol = np.zeros(3, dtype=np.float64) + atol
     return coord_cython.is_coord_subset_pbc(c1, c2, atol, mask_arr, pbc)
 

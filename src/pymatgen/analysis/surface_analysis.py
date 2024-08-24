@@ -36,7 +36,6 @@ from __future__ import annotations
 
 import copy
 import itertools
-import random
 import warnings
 from typing import TYPE_CHECKING
 
@@ -781,7 +780,7 @@ class SurfaceEnergyPlotter:
 
         # sort the chempot ranges for each facet
         for entry, v in stable_urange_dict.items():
-            se_dict[entry] = [se for idx, se in sorted(zip(v, se_dict[entry]))]
+            se_dict[entry] = [se for idx, se in sorted(zip(v, se_dict[entry], strict=True))]
             stable_urange_dict[entry] = sorted(v)
 
         if return_se_dict:
@@ -801,14 +800,15 @@ class SurfaceEnergyPlotter:
             surface will be transparent.
         """
         color_dict = {}
+        rng = np.random.default_rng()
         for hkl in self.all_slab_entries:
             rgb_indices = [0, 1, 2]
             color = [0, 0, 0, 1]
-            random.shuffle(rgb_indices)
+            rng.shuffle(rgb_indices)
             for idx, ind in enumerate(rgb_indices):
                 if idx == 2:
                     break
-                color[ind] = np.random.uniform(0, 1)
+                color[ind] = rng.uniform(0, 1)
 
             # Get the clean (solid) colors first
             clean_list = np.linspace(0, 1, len(self.all_slab_entries[hkl]))
@@ -1029,12 +1029,11 @@ class SurfaceEnergyPlotter:
                         if ads_entry.get_monolayer not in ml_be_dict:
                             ml_be_dict[ads_entry.get_monolayer] = 1000
                         be = ads_entry.gibbs_binding_energy(eads=plot_eads)
-                        if be < ml_be_dict[ads_entry.get_monolayer]:
-                            ml_be_dict[ads_entry.get_monolayer] = be
+                        ml_be_dict[ads_entry.get_monolayer] = min(be, ml_be_dict[ads_entry.get_monolayer])
             # sort the binding energies and monolayers
             # in order to properly draw a line plot
             vals = sorted(ml_be_dict.items())
-            monolayers, BEs = zip(*vals)
+            monolayers, BEs = zip(*vals, strict=True)
             ax.plot(monolayers, BEs, "-o", c=self.color_dict[clean_entry], label=hkl)
 
         adsorbates = tuple(ads_entry.ads_entries_dict)
@@ -1448,7 +1447,7 @@ class WorkFunctionAnalyzer:
             else:
                 yg.append(pot)
                 xg.append(self.along_c[idx])
-        xg, yg = zip(*sorted(zip(xg, yg)))
+        xg, yg = zip(*sorted(zip(xg, yg, strict=True)), strict=True)
         plt.plot(xg, yg, "r", linewidth=2.5, zorder=-1)
 
         # make it look nice

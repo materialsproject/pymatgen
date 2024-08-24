@@ -46,8 +46,8 @@ except ImportError:
     hiphive = None
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
-    from typing import Any, Callable, Literal
+    from collections.abc import Callable, Iterable, Sequence
+    from typing import Any, Literal
 
 
 __author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, Alex Ganose"
@@ -721,7 +721,7 @@ class MagOrderingTransformation(AbstractTransformation):
                 DummySpecies(symbol, spin=Spin.up): constraint.order_parameter,
                 DummySpecies(symbol, spin=Spin.down): 1 - constraint.order_parameter,
             }
-            for symbol, constraint in zip(dummy_species_symbols, order_parameters)
+            for symbol, constraint in zip(dummy_species_symbols, order_parameters, strict=True)
         ]
 
         for site in dummy_struct:
@@ -1752,7 +1752,7 @@ def _round_and_make_arr_singular(arr: np.ndarray) -> np.ndarray:
             col_idx_to_fix = np.where(matches)[0]
 
             # Break ties for the largest absolute magnitude
-            r_idx = np.random.randint(len(col_idx_to_fix))
+            r_idx = np.random.default_rng().integers(len(col_idx_to_fix))
             col_idx_to_fix = col_idx_to_fix[r_idx]
 
             # Round the chosen element away from zero
@@ -2171,7 +2171,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         if not seed:
             # if seed is None, use a random RandomState seed but make sure
             # we store that the original seed was None
-            seed = np.random.randint(1, 1000000000)
+            seed = np.random.default_rng().integers(1, 1000000000)
 
         self.random_state = np.random.RandomState(seed)
         self.kwargs = kwargs

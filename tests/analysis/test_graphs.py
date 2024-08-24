@@ -836,7 +836,7 @@ class TestMoleculeGraph(TestCase):
 
         # check fix in https://github.com/materialsproject/pymatgen/pull/3221
         # by comparing graph with equal nodes but different edges
-        edges[(1, 4)] = {"weight": 2}
+        edges[1, 4] = {"weight": 2}
         assert not self.ethylene.isomorphic_to(MoleculeGraph.from_edges(ethylene, edges))
 
     def test_substitute(self):

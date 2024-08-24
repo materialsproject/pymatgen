@@ -118,10 +118,10 @@ def release_github(ctx: Context, version: str) -> None:
     """
     with open("docs/CHANGES.md", encoding="utf-8") as file:
         contents = file.read()
-    tokens = re.split(r"\-+", contents)
+    tokens = re.split(r"\n\#\#\s", contents)
     desc = tokens[1].strip()
     tokens = desc.split("\n")
-    desc = "\n".join(tokens[:-1]).strip()
+    desc = "\n".join(tokens[1:]).strip()
     payload = {
         "tag_name": f"v{version}",
         "target_commitish": "master",

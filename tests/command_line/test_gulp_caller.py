@@ -280,7 +280,7 @@ class TestGlobalFunctions(TestCase):
         bv = BVAnalyzer()
         val = bv.get_valences(self.mgo_uc)
         el = [site.species_string for site in self.mgo_uc]
-        self.val_dict = dict(zip(el, val))
+        self.val_dict = dict(zip(el, val, strict=True))
 
     def test_get_energy_tersoff(self):
         structure = Structure.from_file(f"{VASP_IN_DIR}/POSCAR_Al12O18")
