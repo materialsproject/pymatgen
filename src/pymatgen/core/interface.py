@@ -1269,7 +1269,7 @@ class GrainBoundaryGenerator:
         r_matrix = np.dot(np.dot(np.linalg.inv(trans_cry.T), r_matrix), trans_cry.T)
         # Set one vector of the basis to the rotation axis direction, and
         # obtain the corresponding transform matrix
-        eye = np.eye(3, dtype=int)
+        eye = np.eye(3, dtype=np.int64)
         hh = kk = ll = None
         for hh in range(3):
             if abs(r_axis[hh]) != 0:
@@ -2107,7 +2107,7 @@ class GrainBoundaryGenerator:
         # Quickly generate a supercell, normal is not working in this way
         if quick_gen:
             scale_factor = []
-            eye = np.eye(3, dtype=int)
+            eye = np.eye(3, dtype=np.int64)
             for i, j in enumerate(miller):
                 if j == 0:
                     scale_factor.append(eye[i])

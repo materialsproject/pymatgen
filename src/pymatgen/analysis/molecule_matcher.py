@@ -1042,7 +1042,7 @@ class HungarianOrderMatcher(KabschMatcher):
         p_centroid_test = np.dot(p_centroid, U)
 
         # generate full view from q shape to fill in atom view on the fly
-        perm_inds = np.zeros(len(p_atoms), dtype=int)
+        perm_inds = np.zeros(len(p_atoms), dtype=np.int64)
 
         # Find unique atoms
         species = np.unique(p_atoms)
@@ -1067,7 +1067,7 @@ class HungarianOrderMatcher(KabschMatcher):
         p_centroid_test = np.dot(p_centroid, U)
 
         # generate full view from q shape to fill in atom view on the fly
-        perm_inds = np.zeros(len(p_atoms), dtype=int)
+        perm_inds = np.zeros(len(p_atoms), dtype=np.int64)
 
         # Find unique atoms
         species = np.unique(p_atoms)

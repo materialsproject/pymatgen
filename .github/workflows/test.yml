@@ -34,6 +34,10 @@ jobs:
             python: "3.10"
             resolution: highest
             extras: ci,optional
+          - os: windows-latest
+            python: "3.10"
+            resolution: highest
+            extras: ci,optional,numpy1  # Test NP1 on Windows (quite buggy ATM)
           - os: ubuntu-latest
             python: ">3.10"
             resolution: lowest-direct
