@@ -559,7 +559,7 @@ class StructureMatcher(MSONable):
         if s1_supercell:
             # remove the symmetrically equivalent s1 indices
             inds = inds[::fu]
-        return np.array(mask, dtype=int), inds, idx
+        return np.array(mask, dtype=np.int64), inds, idx
 
     def fit(
         self, struct1: Structure, struct2: Structure, symmetric: bool = False, skip_structure_reduction: bool = False

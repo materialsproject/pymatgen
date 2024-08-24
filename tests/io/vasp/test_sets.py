@@ -119,7 +119,7 @@ class TestSetChangeCheck(PymatgenTest):
             "PBE64Base.yaml": "3434c918c17706feae397d0852f2224e771db94d7e4c988039e8658e66d87494",
             "MPRelaxSet.yaml": "c9b0a519588fb3709509a9f9964632692584905e2961a0fe2e5f657561913083",
             "MITRelaxSet.yaml": "0b4bec619fa860dac648584853c3b3d5407e4148a85d0e95024fbd1dc315669d",
-            "vdW_parameters.yaml": "977c226a1b44831382e772a464aecb7f6297c98d7efc9190f8c18e0b73be2666",
+            "vdW_parameters.yaml": "7d2599a855533865335a313c043b6f89e03fc2633c88b6bc721723d94cc862bd",
             "MatPESStaticSet.yaml": "4ec60ad4bbbb9a756f1b3fea8ca4eab8fc767d8f6a67332e7af3908c910fd7c5",
             "MPAbsorptionSet.yaml": "e49cd0ab87864f1c244e9b5ceb4703243116ec1fbb8958a374ddff07f7a5625c",
             "PBE54Base.yaml": "cdffe123eca8b19354554b60a7f8de9b8776caac9e1da2bd2a0516b7bfac8634",
@@ -1676,7 +1676,7 @@ class TestMVLScanRelaxSet(PymatgenTest):
         assert input_set.potcar.functional == "PBE_52"
 
         with pytest.raises(
-            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54', 'PBE_64'\)"
         ):
             MVLScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
@@ -1687,7 +1687,7 @@ class TestMVLScanRelaxSet(PymatgenTest):
     #     assert test_potcar_set_1.potcar.functional == "PBE_54"
     #
     #     with pytest.raises(
-    #         ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+    #         ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54', 'PBE_64'\)"
     #     ):
     #         self.set(self.struct, user_potcar_functional="PBE")
     #
@@ -1806,7 +1806,7 @@ class TestMPScanRelaxSet(PymatgenTest):
         assert input_set.potcar.functional == "PBE_54"
 
         with pytest.raises(
-            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54', 'PBE_64'\)"
         ):
             MPScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
@@ -1976,7 +1976,7 @@ class TestMVLRelax52Set(PymatgenTest):
         assert test_potcar_set_1.potcar.functional == "PBE_52"
 
         with pytest.raises(
-            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54'\)"
+            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54', 'PBE_64'\)"
         ):
             self.set(self.struct, user_potcar_functional="PBE")
 

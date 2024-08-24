@@ -213,7 +213,7 @@ class TestArrayWithUnit(PymatgenTest):
         """Similar to FloatWithUnitTest.test_time.
         Check whether EnergyArray and FloatWithUnit have same behavior.
         """
-        # here there's a minor difference because we have a ndarray with dtype=int
+        # here there's a minor difference because we have a ndarray with dtype=np.int64
         a = TimeArray(20, "h")
         assert a.to("s") == 3600 * 20
         # Test left and right multiplication.

@@ -150,7 +150,7 @@ def structure_from_abivars(cls=None, *args, **kwargs) -> Structure:
         raise ValueError(f"{len(typat)=} must equal {len(coords)=}")
 
     # Note conversion to int and Fortran --> C indexing
-    typat = np.array(typat, dtype=int)
+    typat = np.array(typat, dtype=np.int64)
     species = [znucl_type[typ - 1] for typ in typat]
 
     return cls(

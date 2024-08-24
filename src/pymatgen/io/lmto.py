@@ -108,7 +108,7 @@ class LMTOCtrl:
         # The following is to find the classes (atoms that are not symmetry equivalent,
         # and create labels. Note that LMTO only attaches numbers with the second atom
         # of the same species, e.g. "Bi", "Bi1", "Bi2", etc.
-        eq_atoms = sga.get_symmetry_dataset()["equivalent_atoms"]
+        eq_atoms = sga.get_symmetry_dataset().equivalent_atoms
         ineq_sites_index = list(set(eq_atoms))
         sites = []
         classes = []
