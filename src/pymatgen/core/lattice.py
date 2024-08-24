@@ -961,7 +961,7 @@ class Lattice(MSONable):
         for idx, all_j in enumerate(gamma_b):
             inds = np.logical_and(all_j[:, None], np.logical_and(alpha_b, beta_b[idx][None, :]))
             for j, k in np.argwhere(inds):
-                scale_m = np.array((f_a[idx], f_b[j], f_c[k]), dtype=int)  # type: ignore[index]
+                scale_m = np.array((f_a[idx], f_b[j], f_c[k]), dtype=np.int64)  # type: ignore[index]
                 if abs(np.linalg.det(scale_m)) < 1e-8:
                     continue
 
@@ -1381,7 +1381,7 @@ class Lattice(MSONable):
             frac_points = np.ascontiguousarray(frac_points, dtype=float)
             latt_matrix = np.ascontiguousarray(self.matrix, dtype=float)
             cart_coords = np.ascontiguousarray(self.get_cartesian_coords(frac_points), dtype=float)
-            pbc = np.ascontiguousarray(self.pbc, dtype=int)
+            pbc = np.ascontiguousarray(self.pbc, dtype=np.int64)
             center_coords = np.ascontiguousarray([center], dtype=float)
 
             _, indices, images, distances = find_points_in_spheres(
@@ -1510,12 +1510,12 @@ class Lattice(MSONable):
         # Generate all possible images that could be within `r` of `center`
         mins = np.floor(pcoords - nmax)
         maxes = np.ceil(pcoords + nmax)
-        arange = np.arange(start=mins[0], stop=maxes[0], dtype=int)
-        brange = np.arange(start=mins[1], stop=maxes[1], dtype=int)
-        crange = np.arange(start=mins[2], stop=maxes[2], dtype=int)
-        arange = arange[:, None] * np.array([1, 0, 0], dtype=int)[None, :]
-        brange = brange[:, None] * np.array([0, 1, 0], dtype=int)[None, :]
-        crange = crange[:, None] * np.array([0, 0, 1], dtype=int)[None, :]
+        arange = np.arange(start=mins[0], stop=maxes[0], dtype=np.int64)
+        brange = np.arange(start=mins[1], stop=maxes[1], dtype=np.int64)
+        crange = np.arange(start=mins[2], stop=maxes[2], dtype=np.int64)
+        arange = arange[:, None] * np.array([1, 0, 0], dtype=np.int64)[None, :]
+        brange = brange[:, None] * np.array([0, 1, 0], dtype=np.int64)[None, :]
+        crange = crange[:, None] * np.array([0, 0, 1], dtype=np.int64)[None, :]
         images = arange[:, None, None] + brange[None, :, None] + crange[None, None, :]
 
         # Generate the coordinates of all atoms within these images
@@ -1629,7 +1629,7 @@ class Lattice(MSONable):
         if jimage is None:
             v, d2 = pbc_shortest_vectors(self, frac_coords1, frac_coords2, return_d2=True)
             fc = self.get_fractional_coords(v[0][0]) + frac_coords1 - frac_coords2
-            fc = np.array(np.round(fc), dtype=int)
+            fc = np.array(np.round(fc), dtype=np.int64)
             return np.sqrt(d2[0, 0]), fc
 
         jimage = np.array(jimage)
@@ -1866,7 +1866,7 @@ def get_points_in_spheres(
     neighbors: list[list[tuple[np.ndarray, float, int, np.ndarray]]] = []
 
     for ii, jj in zip(center_coords, site_neighbors, strict=True):
-        l1 = np.array(_three_to_one(jj, ny, nz), dtype=int).ravel()
+        l1 = np.array(_three_to_one(jj, ny, nz), dtype=np.int64).ravel()
         # Use the cube index map to find the all the neighboring
         # coords, images, and indices
         ks = [k for k in l1 if k in cube_to_coords]
@@ -1905,7 +1905,7 @@ def _compute_cube_index(
     Returns:
         np.ndarray: nx3 array int indices
     """
-    return np.array(np.floor((coords - global_min) / radius), dtype=int)
+    return np.array(np.floor((coords - global_min) / radius), dtype=np.int64)
 
 
 def _one_to_three(label1d: np.ndarray, ny: int, nz: int) -> np.ndarray:
@@ -1943,7 +1943,7 @@ def find_neighbors(label: np.ndarray, nx: int, ny: int, nz: int) -> list[np.ndar
         Neighbor cell indices.
     """
     array = [[-1, 0, 1]] * 3
-    neighbor_vectors = np.array(list(itertools.product(*array)), dtype=int)
+    neighbor_vectors = np.array(list(itertools.product(*array)), dtype=np.int64)
     label3d = _one_to_three(label, ny, nz) if np.shape(label)[1] == 1 else label
     all_labels = label3d[:, None, :] - neighbor_vectors[None, :, :]
     filtered_labels = []

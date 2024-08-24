@@ -42,7 +42,7 @@ class SOCSpillage:
         n_rows, n_cols = A.shape
         eps = np.finfo(float).eps
         tol = max(n_rows, n_cols) * np.amax(s) * eps
-        num = np.sum(s > tol, dtype=int)
+        num = np.sum(s > tol, dtype=np.int64)
         orthonormal_basis = u[:, :num]
         return orthonormal_basis, num
 

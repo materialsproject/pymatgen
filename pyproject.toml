@@ -73,7 +73,7 @@ dependencies = [
     "uncertainties>=3.1.4",
     # NumPy documentation suggests pinning the current major version as the C API is used
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
-    "numpy>=1.25.0,<3.0",
+    "numpy>=1.25.0,<3",
 ]
 version = "2024.8.9"
 
@@ -118,6 +118,7 @@ optional = [
     "openbabel-wheel>=3.1.1.20",
 ]
 numba = ["numba>=0.55"]
+numpy1 = ["numpy>=1.25.0,<2"]  # Test NP1 on Windows (quite buggy ATM)
 
 [project.scripts]
 pmg = "pymatgen.cli.pmg:main"
@@ -269,9 +270,7 @@ exclude_also = [
     "@np.deprecate",
     "def __repr__",
     "except ImportError:",
-    "if 0:",
     "if TYPE_CHECKING:",
-    "if __name__ == .__main__.:",
     "if self.debug:",
     "if settings.DEBUG",
     "if typing.TYPE_CHECKING:",
