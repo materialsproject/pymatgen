@@ -8,11 +8,15 @@ import numpy as np
 import scipy.constants as const
 from monty.functools import lazy_property
 from monty.json import MSONable
+from packaging import version
 from scipy.ndimage import gaussian_filter1d
 from scipy.stats import wasserstein_distance
 
 from pymatgen.core.structure import Structure
 from pymatgen.util.coord import get_linear_interpolated_value
+
+if version.parse(np.__version__) < version.parse("2.0.0"):
+    np.trapezoid = np.trapz  # noqa: NPY201
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -196,7 +200,7 @@ class PhononDos(MSONable):
             return 1.0 / (np.sinh(x) ** 2)
 
         wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * temp)
-        cv = np.trapz(wd2kt**2 * csch2(wd2kt) * dens, x=freqs)
+        cv = np.trapezoid(wd2kt**2 * csch2(wd2kt) * dens, x=freqs)
         cv *= const.Boltzmann * const.Avogadro
 
         if structure:
@@ -230,7 +234,7 @@ class PhononDos(MSONable):
         dens = self._positive_densities
 
         wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * temp)
-        entropy = np.trapz((wd2kt * 1 / np.tanh(wd2kt) - np.log(2 * np.sinh(wd2kt))) * dens, x=freqs)
+        entropy = np.trapezoid((wd2kt * 1 / np.tanh(wd2kt) - np.log(2 * np.sinh(wd2kt))) * dens, x=freqs)
 
         entropy *= const.Boltzmann * const.Avogadro
 
@@ -265,7 +269,7 @@ class PhononDos(MSONable):
         dens = self._positive_densities
 
         wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * temp)
-        e_phonon = np.trapz(freqs * 1 / np.tanh(wd2kt) * dens, x=freqs) / 2
+        e_phonon = np.trapezoid(freqs * 1 / np.tanh(wd2kt) * dens, x=freqs) / 2
 
         e_phonon *= THZ_TO_J * const.Avogadro
 
@@ -300,7 +304,7 @@ class PhononDos(MSONable):
         dens = self._positive_densities
 
         wd2kt = freqs / (2 * BOLTZ_THZ_PER_K * temp)
-        e_free = np.trapz(np.log(2 * np.sinh(wd2kt)) * dens, x=freqs)
+        e_free = np.trapezoid(np.log(2 * np.sinh(wd2kt)) * dens, x=freqs)
 
         e_free *= const.Boltzmann * const.Avogadro * temp
 
@@ -327,7 +331,7 @@ class PhononDos(MSONable):
         freqs = self._positive_frequencies
         dens = self._positive_densities
 
-        zpe = 0.5 * np.trapz(freqs * dens, x=freqs)
+        zpe = 0.5 * np.trapezoid(freqs * dens, x=freqs)
         zpe *= THZ_TO_J * const.Avogadro
 
         if structure:
