@@ -7,8 +7,6 @@
 # cython: profile=False
 # distutils: language = c
 
-# isort: dont-add-imports
-
 # Setting cdivision=True gives a small speed improvement, but the code is currently
 # written based on Python division so using cdivision may result in missing neighbors
 # in some off cases. See https://github.com/materialsproject/pymatgen/issues/2226
@@ -22,7 +20,7 @@ from libc.string cimport memset
 
 
 cdef void *safe_malloc(size_t size) except? NULL:
-    """Raise memory error if malloc fails"""
+    """Raise MemoryError if malloc fails."""
     if size == 0:
         return NULL
     cdef void *ptr = malloc(size)
@@ -32,7 +30,7 @@ cdef void *safe_malloc(size_t size) except? NULL:
 
 
 cdef void *safe_realloc(void *ptr_orig, size_t size) except? NULL:
-    """Raise memory error if realloc fails"""
+    """Raise MemoryError if realloc fails."""
     if size == 0:
         return NULL
     cdef void *ptr = realloc(ptr_orig, size)
@@ -64,10 +62,12 @@ def find_points_in_spheres(
             directly. If the cutoff is less than this value, the algorithm
             will calculate neighbor list using min_r as cutoff and discard
             those that have larger distances.
+
     Returns:
-        index1 (n, ), index2 (n, ), offset_vectors (n, 3), distances (n, ).
-        index1 of center_coords, and index2 of all_coords that form the neighbor pair
-        offset_vectors are the periodic image offsets for the all_coords.
+        index1 (n, ): Indexes of center_coords.
+        index2 (n, ): Indexes of all_coords that form the neighbor pair.
+        offset_vectors (n, 3): The periodic image offsets for all_coords.
+        distances (n, ).
     """
     if r < min_r:
         findex1, findex2, foffset_vectors, fdistances = find_points_in_spheres(
@@ -80,7 +80,7 @@ def find_points_in_spheres(
     cdef:
         int i, j, k, l, m
         double[3] maxr
-        # valid boundary, that is the minimum in center_coords - r
+        # Valid boundary, that is the minimum in center_coords - r
         double[3] valid_min
         double[3] valid_max
         double ledge
@@ -148,14 +148,14 @@ def find_points_in_spheres(
     for i in range(n_total):
         for j in range(3):
             if pbc[j]:
-                # only wrap atoms when this dimension is PBC
+                # Only wrap atoms when this dimension is PBC
                 all_frac_coords[i, j] = offset_correction[i, j] % 1
                 offset_correction[i, j] = offset_correction[i, j] - all_frac_coords[i, j]
             else:
                 all_frac_coords[i, j] = offset_correction[i, j]
                 offset_correction[i, j] = 0
 
-    # compute the reciprocal lattice in place
+    # Compute the reciprocal lattice in place
     get_reciprocal_lattice(lattice, reciprocal_lattice)
     get_max_r(reciprocal_lattice, maxr, r)
 
@@ -226,7 +226,7 @@ def find_points_in_spheres(
     else:
         failed_malloc = 0
 
-    # if no valid neighbors were found return empty
+    # If no valid neighbors were found return empty
     if count == 0:
         free(&frac_coords[0, 0])
         free(&all_frac_coords[0, 0])
@@ -244,7 +244,7 @@ def find_points_in_spheres(
         free(offset_final)
         free(distances)
 
-        return (np.array([], dtype=int), np.array([], dtype=int),
+        return (np.array([], dtype=np.int64), np.array([], dtype=np.int64),
             np.array([[], [], []], dtype=float).T, np.array([], dtype=float))
 
     n_atoms = count
@@ -349,8 +349,8 @@ def find_points_in_spheres(
         failed_malloc = 0
 
     if count == 0:
-        py_index_1 = np.array([], dtype=int)
-        py_index_2 = np.array([], dtype=int)
+        py_index_1 = np.array([], dtype=np.int64)
+        py_index_2 = np.array([], dtype=np.int64)
         py_offsets = np.array([[], [], []], dtype=float).T
         py_distances = np.array([], dtype=float)
     else:
@@ -393,7 +393,7 @@ def find_points_in_spheres(
 
 cdef void get_cube_neighbors(np.int64_t[3] ncube, np.int64_t[:, ::1] neighbor_map):
     """
-    Get {cube_index: cube_neighbor_indices} map
+    Get {cube_index: cube_neighbor_indices} map.
     """
     cdef:
         int i, j, k
@@ -405,7 +405,7 @@ cdef void get_cube_neighbors(np.int64_t[3] ncube, np.int64_t[:, ::1] neighbor_ma
         )
         np.int64_t[::1] cube_indices_1d = <np.int64_t[:ncubes]> safe_malloc(ncubes*sizeof(np.int64_t))
 
-        # creating the memviews of c-arrays once substantially improves speed
+        # Creating the memviews of c-arrays once substantially improves speed
         # but for some reason it makes the runtime scaling with the number of
         # atoms worse
         np.int64_t[1][3] index3_arr
@@ -419,7 +419,7 @@ cdef void get_cube_neighbors(np.int64_t[3] ncube, np.int64_t[:, ::1] neighbor_ma
         np.int64_t *ovectors_p = <np.int64_t *> safe_malloc(ntotal * 3 * sizeof(np.int64_t))
         int n_ovectors = compute_offset_vectors(ovectors_p, n)
 
-    # now resize to the actual size
+    # Resize to the actual size
     ovectors_p = <np.int64_t *> safe_realloc(ovectors_p, n_ovectors * 3 * sizeof(np.int64_t))
     ovectors = <np.int64_t[:n_ovectors, :3]>ovectors_p
 
@@ -496,8 +496,8 @@ cdef double distance2(
         np.int64_t index2,
         np.int64_t size
     ) nogil:
-    """Faster way to compute the distance squared by not using slice but providing indices
-    in each matrix
+    """Faster way to compute the distance squared by not using slice
+    but providing indices in each matrix.
     """
     cdef:
         int i
@@ -517,7 +517,7 @@ cdef void get_bounds(
     ) nogil:
     """
     Given the fractional coordinates and the number of repeation needed in each
-    direction, maxr, compute the translational bounds in each dimension
+    direction, maxr, compute the translational bounds in each dimension.
     """
     cdef:
         int i
@@ -542,7 +542,7 @@ cdef void get_frac_coords(
         double[:, ::1] frac_coords
     ) nogil:
     """
-    Compute the fractional coordinates
+    Compute the fractional coordinates.
     """
     matrix_inv(lattice, inv_lattice)
     matmul(cart_coords, inv_lattice, frac_coords)
@@ -553,7 +553,7 @@ cdef void matmul(
         double [:, ::1] out
     ) nogil:
     """
-    Matrix multiplication
+    Matrix multiplication.
     """
     cdef:
         int i, j, k
@@ -567,7 +567,7 @@ cdef void matmul(
 
 cdef void matrix_inv(const double[:, ::1] matrix, double[:, ::1] inv) nogil:
     """
-    Matrix inversion
+    Matrix inversion.
     """
     cdef:
         int i, j
@@ -580,7 +580,7 @@ cdef void matrix_inv(const double[:, ::1] matrix, double[:, ::1] inv) nogil:
 
 cdef double matrix_det(const double[:, ::1] matrix) nogil:
     """
-    Matrix determinant
+    Matrix determinant.
     """
     return (
         matrix[0, 0] * (matrix[1, 1] * matrix[2, 2] - matrix[1, 2] * matrix[2, 1]) +
@@ -594,13 +594,13 @@ cdef void get_max_r(
         double r
     ) nogil:
     """
-    Get maximum repetition in each directions
+    Get maximum repetition in each directions.
     """
     cdef:
         int i
         double recp_len
 
-    for i in range(3):  # is it ever not 3x3 for our cases?
+    for i in range(3):  # TODO: is it ever not 3x3 for our cases?
         recp_len = norm(reciprocal_lattice[i, :])
         maxr[i] = ceil((r + 0.15) * recp_len / (2 * pi))
 
@@ -609,7 +609,7 @@ cdef void get_reciprocal_lattice(
         double[:, ::1] reciprocal_lattice
     ) nogil:
     """
-    Compute the reciprocal lattice
+    Compute the reciprocal lattice.
     """
     cdef int i
     for i in range(3):
@@ -626,7 +626,7 @@ cdef void recip_component(
         double[::1] out
     ) nogil:
     """
-    Compute the reciprocal lattice vector
+    Compute the reciprocal lattice vector.
     """
     cdef:
         int i
@@ -640,7 +640,7 @@ cdef void recip_component(
 
 cdef double inner(const double[3] x, const double[3] y) nogil:
     """
-    Compute inner product of 3d vectors
+    Compute inner product of 3d vectors.
     """
     cdef:
         double sum = 0
@@ -652,7 +652,7 @@ cdef double inner(const double[3] x, const double[3] y) nogil:
 
 cdef void cross(const double[3] x, const double[3] y, double[3] out) nogil:
     """
-    Cross product of vector x and y, output in out
+    Cross product of vector x and y, output in out.
     """
     out[0] = x[1] * y[2] - x[2] * y[1]
     out[1] = x[2] * y[0] - x[0] * y[2]
@@ -660,7 +660,7 @@ cdef void cross(const double[3] x, const double[3] y, double[3] out) nogil:
 
 cdef double norm(const double[::1] vec) nogil:
     """
-    Vector norm
+    Vector norm.
     """
     cdef:
         int i
@@ -677,7 +677,7 @@ cdef void max_and_min(
         double[3] min_coords
     ) nogil:
     """
-    Compute the min and max of coords
+    Compute the min and max of coords.
     """
     cdef:
         int i, j
@@ -711,7 +711,7 @@ cdef void three_to_one(
         const np.int64_t[:, ::1] label3d, np.int64_t ny, np.int64_t nz, np.int64_t[::1] label1d
     ) nogil:
     """
-    3D vector representation to 1D
+    3D vector representation to 1D.
     """
     cdef:
         int i

@@ -598,7 +598,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         eig = self.bands
 
         n_phonons, n_qpoints = self.bands.shape
-        order = np.zeros([n_qpoints, n_phonons], dtype=int)
+        order = np.zeros([n_qpoints, n_phonons], dtype=np.int64)
         order[0] = np.array(range(n_phonons))
 
         # get the atomic masses
