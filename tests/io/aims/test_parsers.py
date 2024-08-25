@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import gzip
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -16,11 +15,13 @@ from pymatgen.io.aims.parsers import (
     AimsOutHeaderChunk,
     AimsParseError,
 )
+from pymatgen.util.testing import TEST_FILES_DIR
 
-eps_hp = 1e-15  # The epsilon value used to compare numbers that are high-precision
-eps_lp = 1e-7  # The epsilon value used to compare numbers that are low-precision
+PARSER_FILE_DIR = TEST_FILES_DIR / "io/aims/parser_checks"
 
-parser_file_dir = Path(__file__).parent / "parser_checks"
+
+EPS_HP = 1e-15  # The epsilon value used to compare numbers that are high-precision
+EPS_LP = 1e-7  # The epsilon value used to compare numbers that are low-precision
 
 
 @pytest.fixture
@@ -102,7 +103,7 @@ def initial_lattice():
 
 @pytest.fixture
 def header_chunk():
-    with gzip.open(f"{parser_file_dir}/header_chunk.out.gz", mode="rt") as hc_file:
+    with gzip.open(f"{PARSER_FILE_DIR}/header_chunk.out.gz", mode="rt") as hc_file:
         lines = hc_file.readlines()
 
     for ll, line in enumerate(lines):
@@ -290,7 +291,7 @@ def test_default_calc_converged(empty_calc_chunk):
 
 @pytest.fixture
 def calc_chunk(header_chunk):
-    with gzip.open(f"{parser_file_dir}/calc_chunk.out.gz", mode="rt") as file:
+    with gzip.open(f"{PARSER_FILE_DIR}/calc_chunk.out.gz", mode="rt") as file:
         lines = file.readlines()
 
     for ll, line in enumerate(lines):
@@ -300,7 +301,7 @@ def calc_chunk(header_chunk):
 
 @pytest.fixture
 def numerical_stress_chunk(header_chunk):
-    with gzip.open(f"{parser_file_dir}/numerical_stress.out.gz", mode="rt") as file:
+    with gzip.open(f"{PARSER_FILE_DIR}/numerical_stress.out.gz", mode="rt") as file:
         lines = file.readlines()
 
     for ll, line in enumerate(lines):
@@ -354,16 +355,16 @@ def test_calc_num_stress(numerical_stress_chunk):
 
 def test_calc_free_energy(calc_chunk):
     free_energy = -3.169503986610555e05
-    assert np.abs(calc_chunk.free_energy - free_energy) < eps_hp
-    assert np.abs(calc_chunk.structure.properties["free_energy"] - free_energy) < eps_hp
-    assert np.abs(calc_chunk.results["free_energy"] - free_energy) < eps_hp
+    assert np.abs(calc_chunk.free_energy - free_energy) < EPS_HP
+    assert np.abs(calc_chunk.structure.properties["free_energy"] - free_energy) < EPS_HP
+    assert np.abs(calc_chunk.results["free_energy"] - free_energy) < EPS_HP
 
 
 def test_calc_energy(calc_chunk):
     energy = -2.169503986610555e05
-    assert np.abs(calc_chunk.energy - energy) < eps_hp
-    assert np.abs(calc_chunk.structure.properties["energy"] - energy) < eps_hp
-    assert np.abs(calc_chunk.results["energy"] - energy) < eps_hp
+    assert np.abs(calc_chunk.energy - energy) < EPS_HP
+    assert np.abs(calc_chunk.structure.properties["energy"] - energy) < EPS_HP
+    assert np.abs(calc_chunk.results["energy"] - energy) < EPS_HP
 
 
 def test_calc_magnetic_moment(calc_chunk):
@@ -381,8 +382,8 @@ def test_calc_n_iter(calc_chunk):
 
 def test_calc_fermi_energy(calc_chunk):
     Ef = -8.24271207
-    assert np.abs(calc_chunk.E_f - Ef) < eps_lp
-    assert np.abs(calc_chunk.results["fermi_energy"] - Ef) < eps_lp
+    assert np.abs(calc_chunk.E_f - Ef) < EPS_LP
+    assert np.abs(calc_chunk.results["fermi_energy"] - Ef) < EPS_LP
 
 
 def test_calc_dipole(calc_chunk):
@@ -421,7 +422,7 @@ def test_calc_hirshfeld_dipole(calc_chunk):
 
 @pytest.fixture
 def molecular_header_chunk():
-    with gzip.open(f"{parser_file_dir}/molecular_header_chunk.out.gz", mode="rt") as file:
+    with gzip.open(f"{PARSER_FILE_DIR}/molecular_header_chunk.out.gz", mode="rt") as file:
         lines = file.readlines()
 
     for ll, line in enumerate(lines):
@@ -453,7 +454,7 @@ def test_molecular_header_initial_structure(molecular_header_chunk, molecular_po
 
 @pytest.fixture
 def molecular_calc_chunk(molecular_header_chunk):
-    with gzip.open(f"{parser_file_dir}/molecular_calc_chunk.out.gz", mode="rt") as file:
+    with gzip.open(f"{PARSER_FILE_DIR}/molecular_calc_chunk.out.gz", mode="rt") as file:
         lines = file.readlines()
 
     for idx, line in enumerate(lines):
@@ -492,16 +493,16 @@ def test_chunk_molecular_defaults_none(attrname, molecular_calc_chunk):
 
 def test_molecular_calc_free_energy(molecular_calc_chunk):
     free_energy = -2.206778551123339e04
-    assert np.abs(molecular_calc_chunk.free_energy - free_energy) < eps_hp
-    assert np.abs(molecular_calc_chunk.results["free_energy"] - free_energy) < eps_hp
-    assert np.abs(molecular_calc_chunk.structure.properties["free_energy"] - free_energy) < eps_hp
+    assert np.abs(molecular_calc_chunk.free_energy - free_energy) < EPS_HP
+    assert np.abs(molecular_calc_chunk.results["free_energy"] - free_energy) < EPS_HP
+    assert np.abs(molecular_calc_chunk.structure.properties["free_energy"] - free_energy) < EPS_HP
 
 
 def test_molecular_calc_energy(molecular_calc_chunk):
     energy = -0.206778551123339e04
-    assert np.abs(molecular_calc_chunk.energy - energy) < eps_hp
-    assert np.abs(molecular_calc_chunk.structure.properties["energy"] - energy) < eps_hp
-    assert np.abs(molecular_calc_chunk.results["energy"] - energy) < eps_hp
+    assert np.abs(molecular_calc_chunk.energy - energy) < EPS_HP
+    assert np.abs(molecular_calc_chunk.structure.properties["energy"] - energy) < EPS_HP
+    assert np.abs(molecular_calc_chunk.results["energy"] - energy) < EPS_HP
 
 
 def test_molecular_calc_n_iter(molecular_calc_chunk):

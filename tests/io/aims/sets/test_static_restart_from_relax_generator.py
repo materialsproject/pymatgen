@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from pymatgen.io.aims.sets.core import StaticSetGenerator
+from pymatgen.util.testing import TEST_FILES_DIR
 from pymatgen.util.testing.aims import O2, Si, comp_system
 
-MODULE_DIR = Path(__file__).resolve().parents[1]
-SPECIES_DIR = MODULE_DIR / "species_directory"
-REF_PATH = (MODULE_DIR / "aims_input_generator_ref").resolve()
+SPECIES_DIR = TEST_FILES_DIR / "io/aims/species_directory"
+REF_PATH = (TEST_FILES_DIR / "io/aims/aims_input_generator_ref").resolve()
 
 
 def test_static_from_relax_si(tmp_path):
