@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+from aims.conftest import Si, comp_system
+
 from pymatgen.io.aims.sets.bs import GWSetGenerator
 from pymatgen.util.testing import TEST_FILES_DIR
-from pymatgen.util.testing.aims import Si, comp_system
 
 SPECIES_DIR = TEST_FILES_DIR / "io/aims/species_directory"
-REF_PATH = (TEST_FILES_DIR / "io/aims/aims_input_generator_ref").resolve()
+REF_PATH = TEST_FILES_DIR / "io/aims/aims_input_generator_ref"
 
 
 def test_si_gw(tmp_path):

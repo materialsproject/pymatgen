@@ -20,7 +20,8 @@ from pymatgen.io.aims.inputs import (
     SpeciesDefaults,
 )
 from pymatgen.util.testing import TEST_FILES_DIR
-from pymatgen.util.testing.aims import compare_single_files as compare_files  # TODO: relocate
+
+from .conftest import compare_single_files as compare_files
 
 if TYPE_CHECKING:
     from pathlib import Path

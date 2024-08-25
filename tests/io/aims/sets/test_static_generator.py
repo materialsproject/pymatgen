@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from aims.conftest import O2, Si, comp_system
+
 from pymatgen.io.aims.sets.core import StaticSetGenerator
 from pymatgen.util.testing import TEST_FILES_DIR
-from pymatgen.util.testing.aims import O2, Si, comp_system
 
-REF_PATH = (TEST_FILES_DIR / "io/aims/aims_input_generator_ref").resolve()
+REF_PATH = TEST_FILES_DIR / "io/aims/aims_input_generator_ref"
 
 
 def test_static_si(tmp_path):
