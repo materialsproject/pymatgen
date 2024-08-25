@@ -1337,8 +1337,8 @@ class CompleteDos(Dos):
             vec1 = np.array([pt[col] for pt in fp1_dict.values()]).flatten()
             vec2 = np.array([pt[col] for pt in fp2_dict.values()]).flatten()
         else:
-            vec1 = fp1_dict[fp1[2][pt]][col]  # type: ignore # noqa:PGH003
-            vec2 = fp2_dict[fp2[2][pt]][col]  # type: ignore # noqa:PGH003
+            vec1 = fp1_dict[fp1[2][pt]][col]
+            vec2 = fp2_dict[fp2[2][pt]][col]
 
         if not normalize and metric == "tanimoto":
             rescale = np.linalg.norm(vec1) ** 2 + np.linalg.norm(vec2) ** 2 - np.dot(vec1, vec2)
