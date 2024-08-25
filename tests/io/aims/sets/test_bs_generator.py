@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from aims.conftest import Si, comp_system
+from ..conftest import Si, comp_system
 
 from pymatgen.io.aims.sets.bs import BandStructureSetGenerator
 from pymatgen.util.testing import TEST_FILES_DIR
