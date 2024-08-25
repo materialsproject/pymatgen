@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from aims.conftest import Si, comp_system
 from pymatgen.io.aims.sets.bs import GWSetGenerator
 from pymatgen.util.testing import TEST_FILES_DIR
+
+from ..conftest import Si, comp_system  # noqa: TID252
 
 SPECIES_DIR = TEST_FILES_DIR / "io/aims/species_directory"
 REF_PATH = TEST_FILES_DIR / "io/aims/aims_input_generator_ref"

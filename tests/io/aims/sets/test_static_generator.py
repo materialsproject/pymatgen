@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from aims.conftest import O2, Si, comp_system
 from pymatgen.io.aims.sets.core import StaticSetGenerator
 from pymatgen.util.testing import TEST_FILES_DIR
+
+from ..conftest import O2, Si, comp_system  # noqa: TID252
 
 REF_PATH = TEST_FILES_DIR / "io/aims/aims_input_generator_ref"
 

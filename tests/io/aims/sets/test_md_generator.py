@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import pytest
 
-from aims.conftest import Si, compare_files
 from pymatgen.io.aims.sets.core import MDSetGenerator
 from pymatgen.util.testing import TEST_FILES_DIR
+
+from ..conftest import Si, compare_files  # noqa: TID252
 
 SPECIES_DIR = TEST_FILES_DIR / "io/aims/species_directory"
 REF_PATH = TEST_FILES_DIR / "io/aims/aims_input_generator_ref"
