@@ -3,7 +3,9 @@ Created on 2011-11-15."""
 
 from __future__ import annotations
 
+import functools
 import json
+import operator
 import re
 from collections import defaultdict
 from itertools import product
@@ -217,7 +219,7 @@ def gen_iupac_ordering():
         ([17], range(6, 1, -1)),
     ]  # At -> F
 
-    order = sum((list(product(x, y)) for x, y in order), [])  # noqa: RUF017
+    order = functools.reduce(operator.iadd, (list(product(x, y)) for x, y in order), [])
     iupac_ordering_dict = dict(
         zip([Element.from_row_and_group(row, group) for group, row in order], range(len(order)), strict=True)
     )
