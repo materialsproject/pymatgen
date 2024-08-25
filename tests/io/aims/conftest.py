@@ -4,7 +4,7 @@ import gzip
 import json
 from glob import glob
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
@@ -14,6 +14,8 @@ from pymatgen.core import SETTINGS, Molecule, Structure
 from pymatgen.util.testing import TEST_FILES_DIR
 
 if TYPE_CHECKING:
+    from typing import Any
+
     from pymatgen.util.typing import PathLike
 
 
