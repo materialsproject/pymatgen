@@ -238,10 +238,14 @@ isort.known-first-party = ["pymatgen"]
 docstring-code-format = true
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
-# PLR2004: magic-value-comparison
-# PLR6301: no-self-use
-"tests/**" = ["ANN201", "D", "PLR0124", "PLR2004", "PLR6301"]
+"__init__.py" = ["F401"]  # unused-import
+"tests/**" = [
+    "ANN201",   # missing-return-type-undocumented-public-function
+    "D",        # pydocstyle
+    "PLR0124",  # comparison-with-itself
+    "PLR2004",  # magic-value-comparison
+    "PLR6301",  # no-self-use
+    ]
 "src/pymatgen/analysis/*" = ["D"]
 "src/pymatgen/io/*" = ["D"]
 "dev_scripts/*" = ["D"]
@@ -264,13 +268,11 @@ omit = [
 [tool.coverage.report]
 exclude_also = [
     "@deprecated",
-    "@np.deprecate",
     "def __repr__",
     "except ImportError:",
     "if TYPE_CHECKING:",
     "if self.debug:",
     "if settings.DEBUG",
-    "if typing.TYPE_CHECKING:",
     "pragma: no cover",
     "raise NotImplementedError",
     "show_plot",
