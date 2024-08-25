@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from ..conftest import O2, Si, comp_system
-
+from aims.conftest import O2, Si, comp_system
 from pymatgen.io.aims.sets.core import RelaxSetGenerator
 from pymatgen.util.testing import TEST_FILES_DIR
 

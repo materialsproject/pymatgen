@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import pytest
-from ..conftest import Si, compare_files
 
+from aims.conftest import Si, compare_files
 from pymatgen.io.aims.sets.core import MDSetGenerator
 from pymatgen.util.testing import TEST_FILES_DIR
 
