@@ -22,6 +22,7 @@ from __future__ import annotations
 import itertools
 import os
 import warnings
+from typing import TYPE_CHECKING
 
 import numpy as np
 from ruamel.yaml import YAML
@@ -67,6 +68,9 @@ from pymatgen.io.cp2k.inputs import (
 from pymatgen.io.cp2k.utils import get_truncated_coulomb_cutoff, get_unique_site_indices
 from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
 from pymatgen.io.vasp.inputs import KpointsSupportedModes
+
+if TYPE_CHECKING:
+    from typing import Literal
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
@@ -1280,7 +1284,7 @@ class DftSet(Cp2kInput):
         subsys.insert(coord)
         self["FORCE_EVAL"].insert(subsys)
 
-    def modify_dft_print_iters(self, iters, add_last="no"):
+    def modify_dft_print_iters(self, iters, add_last: Literal["no", "numeric", "symbolic"] = "no"):
         """
         Modify all DFT print iterations at once. Common use is to set iters to the max
         number of iterations + 1 and then set add_last to numeric. This would have the
@@ -1295,7 +1299,9 @@ class DftSet(Cp2kInput):
                 symbolic: mark last iteration with the letter "l"
                 no: do not explicitly include the last iteration
         """
-        assert add_last.lower() in ["no", "numeric", "symbolic"]
+        if add_last.lower() not in {"no", "numeric", "symbolic"}:
+            raise ValueError("add_list should be no/numeric/symbolic")
+
         run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0].upper()  # noqa: PD011
         if run_type not in ["ENERGY_FORCE", "ENERGY", "WAVEFUNCTION_OPTIMIZATION", "WFN_OPT"] and self.check(
             "FORCE_EVAL/DFT/PRINT"
