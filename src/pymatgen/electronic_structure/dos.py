@@ -321,7 +321,8 @@ class Dos(MSONable):
                 band gap, CBM and VBM.
         """
         tdos = self.get_densities(spin)
-        assert tdos is not None
+        if tdos is None:
+            raise ValueError("tdos is None")
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
 
@@ -365,7 +366,8 @@ class Dos(MSONable):
         """
         # Determine tolerance
         tdos = self.get_densities(spin)
-        assert tdos is not None
+        if tdos is None:
+            raise ValueError("tdos is None")
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
 
@@ -912,7 +914,8 @@ class CompleteDos(Dos):
 
         energies = dos.energies - dos.efermi
         dos_densities = dos.get_densities(spin=spin)
-        assert dos_densities is not None
+        if dos_densities is None:
+            raise ValueError("dos_densities is None")
 
         # Only integrate up to Fermi level
         energies = dos.energies - dos.efermi
@@ -1097,7 +1100,8 @@ class CompleteDos(Dos):
 
         energies = dos.energies - dos.efermi
         dos_densities = dos.get_densities(spin=spin)
-        assert dos_densities is not None
+        if dos_densities is None:
+            raise ValueError("dos_densities is None")
 
         # Only consider a given energy range
         if erange:
@@ -1192,7 +1196,8 @@ class CompleteDos(Dos):
 
         energies = transformed_dos.energies - transformed_dos.efermi
         densities = transformed_dos.get_densities(spin=spin)
-        assert densities is not None
+        if densities is None:
+            raise ValueError("densities is None")
 
         # Only consider a given energy range, if specified
         if erange:
@@ -1251,7 +1256,8 @@ class CompleteDos(Dos):
 
         try:
             densities = pdos[fp_type]
-            assert densities is not None
+            if densities is None:
+                raise ValueError("densities is None")
             if len(energies) < n_bins:
                 inds = np.where((energies >= min_e) & (energies <= max_e))
                 return DosFingerprint(energies[inds], densities[inds], fp_type, len(energies), np.diff(energies)[0])
@@ -1459,7 +1465,8 @@ class LobsterCompleteDos(CompleteDos):
             if s == site:
                 for orb, pdos in atom_dos.items():
                     orbital = _get_orb_lobster(str(orb))
-                    assert orbital is not None
+                    if orbital is None:
+                        raise ValueError("orbital is None")
 
                     if orbital in (Orbital.dxy, Orbital.dxz, Orbital.dyz):
                         t2g_dos.append(pdos)
