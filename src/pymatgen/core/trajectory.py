@@ -642,8 +642,10 @@ class Trajectory(MSONable):
             return prop1
 
         # General case
-        assert prop1 is None or isinstance(prop1, list | dict)
-        assert prop2 is None or isinstance(prop2, list | dict)
+        if prop1 is not None and not isinstance(prop1, list | dict):
+            raise ValueError("prop1 should be None, list or dict")
+        if prop2 is not None and not isinstance(prop2, list | dict):
+            raise ValueError("prop2 should be None, list or dict")
 
         p1_candidates: dict[str, Any] = {
             "NoneType": [None] * len1,
