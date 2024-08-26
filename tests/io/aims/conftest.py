@@ -160,10 +160,10 @@ def compare_single_files(ref_file: PathLike, test_file: PathLike) -> None:
             raise ValueError(f"{test_line=} != {ref_line=}")
 
 
-Si = Structure(
+Si: Structure = Structure(
     lattice=((0.0, 2.715, 2.715), (2.715, 0.0, 2.715), (2.715, 2.715, 0.0)),
     species=("Si", "Si"),
     coords=((0, 0, 0), (0.25, 0.25, 0.25)),
 )
 
-O2 = Molecule(species=("O", "O"), coords=((0, 0, 0.622978), (0, 0, -0.622978)))
+O2: Molecule = Molecule(species=("O", "O"), coords=((0, 0, 0.622978), (0, 0, -0.622978)))
