@@ -1585,7 +1585,8 @@ class Vasprun(MSONable):
                 pdoss.append(pdos)
         elem.clear()
 
-        assert energies is not None
+        if energies is None:
+            raise ValueError("energies is None")
         return Dos(efermi, energies, tdensities), Dos(efermi, energies, idensities), pdoss
 
     @staticmethod
@@ -2514,7 +2515,8 @@ class Outcar:
                 tensor_matrix = []
                 for line in table_body_text.rstrip().split("\n"):
                     ml = row_pat.search(line)
-                    assert ml is not None
+                    if ml is None:
+                        raise RuntimeError("failure to find pattern")
                     processed_line = [float(v) for v in ml.groups()]
                     tensor_matrix.append(processed_line)
                 unsym_tensors.append(tensor_matrix)
@@ -3846,12 +3848,15 @@ class Procar:
                 elif expr.match(line):
                     tokens = line.split()
                     index = int(tokens.pop(0)) - 1
-                    assert headers is not None
+                    if headers is None:
+                        raise ValueError("headers is None")
                     num_data = np.array([float(t) for t in tokens[: len(headers)]])
-                    assert phase_factors is not None
+                    if phase_factors is None:
+                        raise ValueError("phase_factors is None")
 
                     if not done:
-                        assert data is not None
+                        if data is None:
+                            raise ValueError("data is None")
                         data[spin][current_kpoint, current_band, index, :] = num_data
 
                     elif len(tokens) > len(headers):
@@ -3872,7 +3877,8 @@ class Procar:
 
                 elif preamble_expr.match(line):
                     match = preamble_expr.match(line)
-                    assert match is not None
+                    if match is None:
+                        raise RuntimeError("Failed to find preamable pattern")
                     n_kpoints = int(match[1])
                     n_bands = int(match[2])
                     n_ions = int(match[3])
@@ -3895,10 +3901,14 @@ class Procar:
         Returns:
             A dict as {Spin: [band index][kpoint index][{Element: values}]].
         """
-        assert self.data is not None, "Data cannot be None."
-        assert self.nkpoints is not None
-        assert self.nbands is not None
-        assert self.nions is not None
+        if self.data is None:
+            raise ValueError("data cannot be None.")
+        if self.nkpoints is None:
+            raise ValueError("nkpoints cannot be None.")
+        if self.nbands is None:
+            raise ValueError("nbands cannot be None.")
+        if self.nions is None:
+            raise ValueError("nions cannot be None.")
 
         elem_proj: dict[Spin, list] = {}
         for spin in self.data:
@@ -3929,10 +3939,12 @@ class Procar:
         Returns:
             Sum occupation of orbital of atom.
         """
-        assert self.orbitals is not None
+        if self.orbitals is None:
+            raise ValueError("orbitals is None")
         orbital_index = self.orbitals.index(orbital)
 
-        assert self.data is not None
+        if self.data is None:
+            raise ValueError("data is None")
         return {
             spin: np.sum(data[:, :, atom_index, orbital_index] * self.weights[:, None])  # type: ignore[call-overload]
             for spin, data in self.data.items()
@@ -4164,7 +4176,8 @@ class Xdatcar:
                 else:
                     coords_str.append(line)
 
-            assert preamble is not None
+            if preamble is None:
+                raise ValueError("preamble is None")
             poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
             if (
                 (ionicstep_end is None and ionicstep_cnt >= ionicstep_start)
@@ -4248,7 +4261,8 @@ class Xdatcar:
                 else:
                     coords_str.append(line)
 
-            assert preamble is not None
+            if preamble is None:
+                raise ValueError("preamble is None")
             poscar = Poscar.from_str("\n".join([*preamble, "Direct", *coords_str]))
 
             if (
@@ -5343,7 +5357,8 @@ class WSWQ(MSONable):
             terminate_on_match=False,
             postprocess=float,
         )["data"]
-        assert len(data_res) == nspin * nkpoints * nbands * nbands
+        if len(data_res) != nspin * nkpoints * nbands * nbands:
+            raise ValueError("incorrect length of data_res")
 
         data = np.array([complex(real_part, img_part) for (real_part, img_part), _ in data_res])
 
