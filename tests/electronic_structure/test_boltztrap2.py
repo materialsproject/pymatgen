@@ -134,6 +134,7 @@ class TestBztInterpolator(TestCase):
         self.loader = VasprunBSLoader(VASP_RUN)
         self.bztInterp = BztInterpolator(self.loader, lpfac=2)
         assert self.bztInterp is not None
+        # TODO: following creates file locally, use temp dir
         self.bztInterp = BztInterpolator(self.loader, lpfac=2, save_bztInterp=True, fname=BZT_INTERP_FN)
         assert self.bztInterp is not None
         self.bztInterp = BztInterpolator(self.loader, load_bztInterp=True, fname=BZT_INTERP_FN)
@@ -238,6 +239,7 @@ class TestBztTransportProperties(TestCase):
         assert self.bztTransp_sp is not None
 
         bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
+        # TODO: following creates file locally, use temp dir
         self.bztTransp_sp = BztTransportProperties(
             bztInterp_sp,
             temp_r=np.arange(300, 600, 100),
