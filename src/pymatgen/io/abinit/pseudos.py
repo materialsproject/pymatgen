@@ -1220,7 +1220,8 @@ class PawXmlSetup(Pseudo, PawPseudo):
         self.valence_states: dict = {}
         for node in root.find("valence_states"):
             attrib = AttrDict(node.attrib)
-            assert attrib.id not in self.valence_states
+            if attrib.id in self.valence_states:
+                raise ValueError("attrib.id in self.valence_states")
             self.valence_states[attrib.id] = attrib
 
         # Parse the radial grids
@@ -1228,7 +1229,8 @@ class PawXmlSetup(Pseudo, PawPseudo):
         for node in root.findall("radial_grid"):
             grid_params = node.attrib
             gid = grid_params["id"]
-            assert gid not in self.rad_grids
+            if gid in self.rad_grids:
+                raise ValueError("gid in rad_grids")
 
             self.rad_grids[gid] = self._eval_grid(grid_params)
 
@@ -1597,7 +1599,8 @@ class PseudoTable(collections.abc.Sequence, MSONable):
     def __getitem__(self, Z):
         """Retrieve pseudos for the atomic number z. Accepts both int and slice objects."""
         if isinstance(Z, slice):
-            assert Z.stop is not None
+            if Z.stop is None:
+                raise ValueError("Z.stop is None")
             pseudos = []
             for znum in iterator_from_slice(Z):
                 pseudos.extend(self._pseudos_with_z[znum])
