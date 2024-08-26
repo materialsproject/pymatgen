@@ -450,7 +450,7 @@ class Simplex(MSONable):
                         break
                 if not found:
                     barys.append(p)
-        if len(barys) < 3:
+        if len(barys) >= 3:
             raise ValueError("More than 2 intersections found")
         return [self.point_from_bary_coords(b) for b in barys]
 
