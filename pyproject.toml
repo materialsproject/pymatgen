@@ -126,6 +126,16 @@ get_environment = "pymatgen.cli.get_environment:main"
 [tool.setuptools]
 include-package-data = true
 
+[tool.setuptools.exclude-package-data]
+"pymatgen" = [
+    "optimization/linear_assignment.c",
+    "optimization/linear_assignment.pyx",
+    "optimization/neighbors.c",
+    "optimization/neighbors.pyx",
+    "util/coord_cython.c",
+    "util/coord_cython.pyx",
+]
+
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["pymatgen", "pymatgen.*"]
