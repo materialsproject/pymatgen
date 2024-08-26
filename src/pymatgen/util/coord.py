@@ -301,7 +301,8 @@ def lattice_points_in_supercell(supercell_matrix):
     frac_points = np.dot(all_points, np.linalg.inv(supercell_matrix))
 
     t_vecs = frac_points[np.all(frac_points < 1 - 1e-10, axis=1) & np.all(frac_points >= -1e-10, axis=1)]
-    assert len(t_vecs) == round(abs(np.linalg.det(supercell_matrix)))
+    if len(t_vecs) != round(abs(np.linalg.det(supercell_matrix))):
+        raise ValueError("The number of transformed vectors mismatch.")
     return t_vecs
 
 
@@ -449,7 +450,8 @@ class Simplex(MSONable):
                         break
                 if not found:
                     barys.append(p)
-        assert len(barys) < 3, "More than 2 intersections found"
+        if len(barys) < 3:
+            raise ValueError("More than 2 intersections found")
         return [self.point_from_bary_coords(b) for b in barys]
 
     def __eq__(self, other: object) -> bool:
