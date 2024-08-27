@@ -369,7 +369,7 @@ class TransformedStructure(MSONable):
             history += [
                 {
                     "name": snl_metadata.pop("name", "pymatgen"),
-                    "url": snl_metadata.pop("url", "http://pypi.python.org/pypi/pymatgen"),
+                    "url": snl_metadata.pop("url", "https://pypi.python.org/pypi/pymatgen"),
                     "description": hist,
                 }
             ]
