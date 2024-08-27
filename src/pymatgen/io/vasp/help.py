@@ -55,6 +55,7 @@ class VaspDoc:
         tag = tag.upper()
         response = requests.get(
             f"https://www.vasp.at/wiki/index.php/{tag}",
+            verify=False,  # noqa: S501
             timeout=600,
         )
         soup = BeautifulSoup(response.text)
@@ -73,7 +74,7 @@ class VaspDoc:
             "https://www.vasp.at/wiki/index.php/Category:INCAR",
             "https://www.vasp.at/wiki/index.php?title=Category:INCAR&pagefrom=ML+FF+LCONF+DISCARD#mw-pages",
         ):
-            response = requests.get(page, timeout=600)
+            response = requests.get(page, verify=False, timeout=600)  # noqa: S501
             soup = BeautifulSoup(response.text)
             for div in soup.findAll("div", {"class": "mw-category-group"}):
                 children = div.findChildren("li")
