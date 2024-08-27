@@ -988,7 +988,7 @@ class DopingTransformation(AbstractTransformation):
         logger.info(f"Composition: {comp}")
 
         for sp in comp:
-            if not hasattr("oxi_state", sp):
+            if not hasattr(sp, "oxi_state"):
                 analyzer = BVAnalyzer()
                 structure = analyzer.get_oxi_state_decorated_structure(structure)
                 comp = structure.composition
