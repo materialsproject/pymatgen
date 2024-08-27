@@ -988,9 +988,7 @@ class DopingTransformation(AbstractTransformation):
         logger.info(f"Composition: {comp}")
 
         for sp in comp:
-            try:
-                sp.oxi_state  # noqa: B018
-            except AttributeError:
+            if not hasattr("oxi_state", sp):
                 analyzer = BVAnalyzer()
                 structure = analyzer.get_oxi_state_decorated_structure(structure)
                 comp = structure.composition
