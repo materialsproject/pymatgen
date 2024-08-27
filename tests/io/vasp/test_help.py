@@ -23,10 +23,7 @@ except requests.exceptions.ConnectionError:
 @pytest.mark.skipif(BeautifulSoup is None, reason="BeautifulSoup4 is not installed")
 @pytest.mark.skipif(website_down, reason="www.vasp.at is down")
 class TestVaspDoc:
-    @pytest.mark.parametrize(
-        "tag",
-        ["ISYM"],
-    )
+    @pytest.mark.parametrize("tag", ["ISYM"])
     def test_print_help(self, tag):
         vasp_doc = VaspDoc()
         with patch("sys.stdout", new=io.StringIO()) as fake_stdout:
@@ -35,16 +32,13 @@ class TestVaspDoc:
 
         assert tag in output
 
-    @pytest.mark.parametrize(
-        "tag",
-        ["ISYM"],
-    )
+    @pytest.mark.parametrize("tag", ["ISYM"])
     def test_get_help(self, tag):
         vasp_doc = VaspDoc()
         docstr = vasp_doc.get_help(tag)
 
         assert tag in docstr
 
-    @pytest.mark.skip("TODO: get_incar_tags not working")
     def test_get_incar_tags(self):
-        VaspDoc.get_incar_tags()
+        incar_tags = VaspDoc.get_incar_tags()
+        assert incar_tags

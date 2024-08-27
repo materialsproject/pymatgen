@@ -55,7 +55,7 @@ class VaspDoc:
         tag = tag.upper()
         response = requests.get(
             f"https://www.vasp.at/wiki/index.php/{tag}",
-            timeout=600,
+            timeout=60,
         )
         soup = BeautifulSoup(response.text)
         main_doc = soup.find(id="mw-content-text")
@@ -69,12 +69,12 @@ class VaspDoc:
     def get_incar_tags(cls) -> list[str]:
         """Get a list of all INCAR tags from the VASP wiki."""
         tags = []
-        for page in (
-            "https://www.vasp.at/wiki/index.php/Category:INCAR",
-            "https://www.vasp.at/wiki/index.php?title=Category:INCAR&pagefrom=ML+FF+LCONF+DISCARD#mw-pages",
+        for url in (
+            "https://www.vasp.at/wiki/index.php/Category:INCAR_tag",
+            "https://www.vasp.at/wiki/index.php?title=Category:INCAR_tag&pagefrom=ML+FF+LCONF+DISCARD#mw-pages",
         ):
-            response = requests.get(page, timeout=600)
-            soup = BeautifulSoup(response.text)
+            response = requests.get(url, timeout=60)
+            soup = BeautifulSoup(response.text, features="html.parser")
             for div in soup.findAll("div", {"class": "mw-category-group"}):
                 children = div.findChildren("li")
                 for child in children:
