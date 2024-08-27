@@ -57,7 +57,7 @@ class VaspDoc:
             f"https://www.vasp.at/wiki/index.php/{tag}",
             timeout=60,
         )
-        soup = BeautifulSoup(response.text)
+        soup = BeautifulSoup(response.text, features="html.parser")
         main_doc = soup.find(id="mw-content-text")
         if fmt == "text":
             output = main_doc.text
