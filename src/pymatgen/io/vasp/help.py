@@ -16,7 +16,7 @@ except ImportError:
 class VaspDoc:
     """A VASP documentation helper."""
 
-    @requires(BeautifulSoup, "BeautifulSoup must be installed to fetch from the VASP wiki.")
+    @requires(BeautifulSoup, "BeautifulSoup4 must be installed to fetch from the VASP wiki.")
     def __init__(self) -> None:
         """Init for VaspDoc."""
         self.url_template = "https://www.vasp.at/wiki/index.php/%s"
