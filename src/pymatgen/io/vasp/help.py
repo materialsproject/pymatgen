@@ -19,7 +19,7 @@ class VaspDoc:
     @requires(BeautifulSoup, "BeautifulSoup must be installed to fetch from the VASP wiki.")
     def __init__(self) -> None:
         """Init for VaspDoc."""
-        self.url_template = "http://www.vasp.at/wiki/index.php/%s"
+        self.url_template = "https://www.vasp.at/wiki/index.php/%s"
 
     def print_help(self, tag: str) -> None:
         """
