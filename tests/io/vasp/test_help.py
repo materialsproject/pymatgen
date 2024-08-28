@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import io
+import json
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -36,6 +38,17 @@ class TestVaspDoc:
         assert tag in docstr
 
     def test_get_incar_tags(self):
-        incar_tags = VaspDoc.get_incar_tags()
-        assert isinstance(incar_tags, list)
-        assert incar_tags
+        """Get all INCAR tags and check incar_parameters.json file."""
+        incar_tags_wiki: set[str] = {tag.replace(" ", "_") for tag in VaspDoc.get_incar_tags()}
+
+        incar_tags_json_file = (
+            Path(__file__).resolve().parent.parent.parent.parent / "src/pymatgen/io/vasp/incar_parameters.json"
+        )
+        with open(incar_tags_json_file, encoding="utf-8") as file:
+            incar_tags_json: set[str] = set(json.load(file).keys())
+
+        if tags_json_only := incar_tags_json.difference(incar_tags_wiki):
+            raise RuntimeError(f"Some INCAR tags might have been removed from VASP wiki: {tags_json_only}")
+
+        if tags_wiki_only := incar_tags_wiki.difference(incar_tags_json):
+            raise RuntimeError(f"Some INCAR tags are missing in json file: {tags_wiki_only}")
