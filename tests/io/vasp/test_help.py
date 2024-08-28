@@ -8,10 +8,7 @@ import requests
 
 from pymatgen.io.vasp.help import VaspDoc
 
-try:
-    from bs4 import BeautifulSoup
-except ImportError:
-    BeautifulSoup = None
+BeautifulSoup = pytest.importorskip("bs4").BeautifulSoup
 
 
 try:
@@ -20,7 +17,6 @@ except requests.exceptions.ConnectionError:
     website_down = True
 
 
-@pytest.mark.skipif(BeautifulSoup is None, reason="BeautifulSoup4 is not installed")
 @pytest.mark.skipif(website_down, reason="www.vasp.at is down")
 class TestVaspDoc:
     @pytest.mark.parametrize("tag", ["ISYM"])
