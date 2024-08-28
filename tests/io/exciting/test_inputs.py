@@ -35,8 +35,8 @@ class TestExcitingInput(PymatgenTest):
     def test_write_string(self):
         # Test for the string export of structure into the exciting input xml schema
         input_string = (
-            '<input xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-            'xsi:noNamespaceSchemaLocation="http://xml.exciting-code.org/excitinginput'
+            '<input xmlns:ns0="https://www.w3.org/2001/XMLSchema-instance" '
+            'ns0:noNamespaceSchemaLocation="http://xml.exciting-code.org/excitinginput'
             '.xsd">\n  <title>Na4 Cl4</title>\n  <structure speciespath="./">\n    '
             '<crystal scale="1.8897543768634038">\n      <basevect>      5.62000000'
             "       0.00000000       0.00000000</basevect>\n      <basevect>      "
@@ -144,4 +144,4 @@ class TestExcitingInput(PymatgenTest):
         root = tree.getroot()
         ref_str = ET.tostring(root, encoding="unicode")
 
-        assert ref_str.strip() == test_str.strip()
+        assert ref_str.strip() == test_str.strip(), f"{ref_str} \n {test_str}"

@@ -1,4 +1,4 @@
-<input xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://xml.exciting-code.org/excitinginput.xsd">
+<input xmlns:ns0="https://www.w3.org/2001/XMLSchema-instance" ns0:noNamespaceSchemaLocation="http://xml.exciting-code.org/excitinginput.xsd">
   <title>Si2</title>
   <structure speciespath="./">
     <crystal scale="1.8897543760313331">
