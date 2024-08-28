@@ -567,7 +567,7 @@ class MoleculeMatcher(MSONable):
     @requires(
         openbabel,
         "BabelMolAdaptor requires openbabel to be installed with Python "
-        "bindings. Please get it at http://openbabel.org (version >=3.0.0).",
+        "bindings. Please get it at https://openbabel.org (version >=3.0.0).",
     )
     def __init__(self, tolerance: float = 0.01, mapper=None) -> None:
         """
@@ -798,7 +798,7 @@ class KabschMatcher(MSONable):
         P and Q, centered around the their centroid.
 
         For more info see:
-        - http://wikipedia.org/wiki/Kabsch_algorithm and
+        - https://wikipedia.org/wiki/Kabsch_algorithm and
         - https://cnx.org/contents/HV-RsdwL@23/Molecular-Distance-Measures
 
         Args:
