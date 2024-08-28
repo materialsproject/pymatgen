@@ -4,9 +4,7 @@ adsorption sites on slabs.
 
 from __future__ import annotations
 
-import functools
 import itertools
-import operator
 import os
 from typing import TYPE_CHECKING
 
@@ -302,7 +300,7 @@ class AdsorbateSiteFinder:
             sites = [site + distance * np.asarray(self.mvec) for site in sites]
 
             ads_sites[key] = sites
-        ads_sites["all"] = functools.reduce(operator.iadd, ads_sites.values(), [])
+        ads_sites["all"] = [item for sublist in ads_sites.values() for item in sublist]
         return ads_sites
 
     def symm_reduce(self, coords_set, threshold=1e-6):
