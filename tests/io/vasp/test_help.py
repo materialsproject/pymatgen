@@ -50,7 +50,7 @@ class TestVaspDoc:
             raise RuntimeError(f"{len(tags_wiki_only)} INCAR tags are missing in json file: {tags_wiki_only}")
 
         # The following is commented out because we want to make
-        # the json more permissive and still included deprecated tags
+        # the json more permissive and still include deprecated tags
         # if tags_json_only := incar_tags_json.difference(incar_tags_wiki):
         #     raise RuntimeError(
         #     f"{len(tags_json_only)} INCAR tags might have been removed from VASP wiki: {tags_json_only}"
