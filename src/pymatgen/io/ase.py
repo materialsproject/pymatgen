@@ -196,7 +196,7 @@ class AseAtomsAdaptor:
             atoms.set_array("oxi_states", np.array(oxi_states))
 
         # Atoms.info <---> Structure.properties
-        if properties := getattr(structure, "properties"):  # noqa: B009
+        if properties := structure.properties:
             atoms.info = properties
 
         # Regenerate Spacegroup object from `.todict()` representation
