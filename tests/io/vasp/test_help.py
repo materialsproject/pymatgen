@@ -32,8 +32,7 @@ class TestVaspDoc:
 
     @pytest.mark.parametrize("tag", ["ISYM"])
     def test_get_help(self, tag):
-        vasp_doc = VaspDoc()
-        docstr = vasp_doc.get_help(tag)
+        docstr = VaspDoc.get_help(tag)
 
         assert tag in docstr
 
