@@ -144,4 +144,4 @@ class TestExcitingInput(PymatgenTest):
         root = tree.getroot()
         ref_str = ET.tostring(root, encoding="unicode")
 
-        assert ref_str.strip() == test_str.strip(), f"{ref_str} \n {test_str}"
+        assert ref_str.strip() == test_str.strip()
