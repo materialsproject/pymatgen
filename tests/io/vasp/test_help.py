@@ -46,8 +46,12 @@ class TestVaspDoc:
         with open(incar_tags_json_file, encoding="utf-8") as file:
             incar_tags_json: set[str] = set(json.load(file).keys())
 
-        if tags_json_only := incar_tags_json.difference(incar_tags_wiki):
-            raise RuntimeError(f"Some INCAR tags might have been removed from VASP wiki: {tags_json_only}")
-
         if tags_wiki_only := incar_tags_wiki.difference(incar_tags_json):
-            raise RuntimeError(f"Some INCAR tags are missing in json file: {tags_wiki_only}")
+            raise RuntimeError(f"{len(tags_wiki_only)} INCAR tags are missing in json file: {tags_wiki_only}")
+
+        # The following is commented out because we want to make
+        # the json more permissive and still included deprecated tags
+        # if tags_json_only := incar_tags_json.difference(incar_tags_wiki):
+        #     raise RuntimeError(
+        #     f"{len(tags_json_only)} INCAR tags might have been removed from VASP wiki: {tags_json_only}"
+        # )
