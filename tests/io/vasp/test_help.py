@@ -13,7 +13,7 @@ BeautifulSoup = pytest.importorskip("bs4").BeautifulSoup
 
 try:
     website_down = requests.get("https://www.vasp.at", timeout=5).status_code != 200
-except requests.exceptions.ConnectionError:
+except (requests.exceptions.ConnectionError, requests.exceptions.ReadTimeout):
     website_down = True
 
 
@@ -37,4 +37,5 @@ class TestVaspDoc:
 
     def test_get_incar_tags(self):
         incar_tags = VaspDoc.get_incar_tags()
+        assert isinstance(incar_tags, list)
         assert incar_tags
