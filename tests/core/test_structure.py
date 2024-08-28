@@ -2361,7 +2361,7 @@ class TestMolecule(PymatgenTest):
 
     def test_extract_cluster(self):
         species = self.mol.species * 2
-        coords = [*self.mol.cart_coords, *(self.mol.cart_coords + [10, 0, 0])]  # noqa: RUF005
+        coords = [*self.mol.cart_coords, *(self.mol.cart_coords + np.array([10, 0, 0]))]
         mol = Molecule(species, coords)
         cluster = Molecule.from_sites(mol.extract_cluster([mol[0]]))
         assert mol.formula == "H8 C2"

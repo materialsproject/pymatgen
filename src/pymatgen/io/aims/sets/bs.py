@@ -83,7 +83,7 @@ class BandStructureSetGenerator(AimsInputGenerator):
             dict: The updated for the parameters for the output section of FHI-aims
         """
         if isinstance(structure, Molecule):
-            raise ValueError("BandStructures can not be made for non-periodic systems")  # noqa: TRY004
+            raise TypeError("BandStructures can not be made for non-periodic systems")
 
         updated_outputs = prev_parameters.get("output", [])
         updated_outputs += prepare_band_input(structure, self.k_point_density)

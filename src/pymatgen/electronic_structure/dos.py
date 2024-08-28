@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, NamedTuple, cast
 
 import numpy as np
 from monty.json import MSONable
+from packaging import version
 from scipy.constants import value as _constant
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import hilbert
@@ -17,6 +18,9 @@ from pymatgen.core import Structure, get_el_sp
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.util.coord import get_linear_interpolated_value
+
+if version.parse(np.__version__) < version.parse("2.0.0"):
+    np.trapezoid = np.trapz  # noqa: NPY201
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -919,7 +923,9 @@ class CompleteDos(Dos):
 
         # Only integrate up to Fermi level
         energies = dos.energies - dos.efermi
-        return np.trapz(dos_densities[energies < 0], x=energies[energies < 0]) / np.trapz(dos_densities, x=energies)
+        return np.trapezoid(dos_densities[energies < 0], x=energies[energies < 0]) / np.trapezoid(
+            dos_densities, x=energies
+        )
 
     def get_band_center(
         self,
@@ -1116,7 +1122,7 @@ class CompleteDos(Dos):
             p = energies
 
         # Take the nth moment
-        return np.trapz(p**n * dos_densities, x=energies) / np.trapz(dos_densities, x=energies)
+        return np.trapezoid(p**n * dos_densities, x=energies) / np.trapezoid(dos_densities, x=energies)
 
     def get_hilbert_transform(
         self,
@@ -1343,8 +1349,8 @@ class CompleteDos(Dos):
             vec1 = np.array([pt[col] for pt in fp1_dict.values()]).flatten()
             vec2 = np.array([pt[col] for pt in fp2_dict.values()]).flatten()
         else:
-            vec1 = fp1_dict[fp1[2][pt]][col]  # type: ignore # noqa:PGH003
-            vec2 = fp2_dict[fp2[2][pt]][col]  # type: ignore # noqa:PGH003
+            vec1 = fp1_dict[fp1[2][pt]][col]
+            vec2 = fp2_dict[fp2[2][pt]][col]
 
         if not normalize and metric == "tanimoto":
             rescale = np.linalg.norm(vec1) ** 2 + np.linalg.norm(vec2) ** 2 - np.dot(vec1, vec2)

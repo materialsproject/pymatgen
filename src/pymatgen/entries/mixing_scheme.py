@@ -292,8 +292,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             )
 
         # Verify that the entry is included in the mixing state data
-        if (entry.entry_id not in mixing_state_data["entry_id_1"].values) and (  # noqa: PD011
-            entry.entry_id not in mixing_state_data["entry_id_2"].values  # noqa: PD011
+        if (entry.entry_id not in mixing_state_data["entry_id_1"].to_numpy()) and (
+            entry.entry_id not in mixing_state_data["entry_id_2"].to_numpy()
         ):
             raise CompatibilityError(
                 f"WARNING! Discarding {run_type} entry {entry.entry_id} for {entry.formula} "
@@ -303,8 +303,8 @@ class MaterialsProjectDFTMixingScheme(Compatibility):
             )
 
         # Verify that the entry's energy has not been modified since mixing state data was generated
-        if (entry.energy_per_atom not in mixing_state_data["energy_1"].values) and (  # noqa: PD011
-            entry.energy_per_atom not in mixing_state_data["energy_2"].values  # noqa: PD011
+        if (entry.energy_per_atom not in mixing_state_data["energy_1"].to_numpy()) and (
+            entry.energy_per_atom not in mixing_state_data["energy_2"].to_numpy()
         ):
             raise CompatibilityError(
                 f"WARNING! Discarding {run_type} entry {entry.entry_id} for {entry.formula} "

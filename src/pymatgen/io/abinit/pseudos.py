@@ -1403,7 +1403,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         for idx, density_name in enumerate(["ae_core_density", "pseudo_core_density"]):
             rden = getattr(self, density_name)
             label = "$n_c$" if idx == 1 else r"$\tilde{n}_c$"
-            ax.plot(rden.mesh, rden.mesh * rden.values, label=label, lw=2)  # noqa: PD011
+            ax.plot(rden.mesh, rden.mesh * rden.values, label=label, lw=2)
 
         ax.legend(loc="best")
 
@@ -1431,10 +1431,10 @@ class PawXmlSetup(Pseudo, PawPseudo):
         # ax.annotate("$r_c$", xy=(self.paw_radius + 0.1, 0.1))
 
         for state, rfunc in self.pseudo_partial_waves.items():
-            ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, lw=2, label=f"PS-WAVE: {state}")  # noqa: PD011
+            ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, lw=2, label=f"PS-WAVE: {state}")
 
         for state, rfunc in self.ae_partial_waves.items():
-            ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, lw=2, label=f"AE-WAVE: {state}")  # noqa: PD011
+            ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, lw=2, label=f"AE-WAVE: {state}")
 
         ax.legend(loc="best", shadow=True, fontsize=fontsize)
 
@@ -1460,7 +1460,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         # ax.annotate("$r_c$", xy=(self.paw_radius + 0.1, 0.1))
 
         for state, rfunc in self.projector_functions.items():
-            ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, label=f"TPROJ: {state}")  # noqa: PD011
+            ax.plot(rfunc.mesh, rfunc.mesh * rfunc.values, label=f"TPROJ: {state}")
 
         ax.legend(loc="best", shadow=True, fontsize=fontsize)
 

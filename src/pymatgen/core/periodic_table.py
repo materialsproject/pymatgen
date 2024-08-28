@@ -5,7 +5,6 @@ from __future__ import annotations
 import ast
 import functools
 import json
-import operator
 import re
 import warnings
 from collections import Counter
@@ -559,7 +558,7 @@ class ElementBase(Enum):
                 "L": L_symbols.index(term[1]),
                 "J": float(term[2:]),
             }
-            for term in functools.reduce(operator.iadd, term_symbols, [])
+            for term in [item for sublist in term_symbols for item in sublist]
         }
 
         multi = [int(item["multiplicity"]) for _terms, item in term_symbol_flat.items()]

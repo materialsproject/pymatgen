@@ -2,16 +2,15 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
 from pymatgen.io.aims.sets.core import MDSetGenerator
-from pymatgen.util.testing.aims import Si, compare_files
+from pymatgen.util.testing import TEST_FILES_DIR
 
-MODULE_DIR = Path(__file__).resolve().parents[1]
-SPECIES_DIR = MODULE_DIR / "species_directory"
-REF_PATH = (MODULE_DIR / "aims_input_generator_ref").resolve()
+from ..conftest import Si, compare_files  # noqa: TID252
+
+SPECIES_DIR = TEST_FILES_DIR / "io/aims/species_directory"
+REF_PATH = TEST_FILES_DIR / "io/aims/aims_input_generator_ref"
 
 
 def test_si_md(tmp_path):

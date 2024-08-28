@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import abc
-from collections import namedtuple
 from collections.abc import Iterable
 from enum import Enum, unique
 from pprint import pformat
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 import numpy as np
 from monty.collections import AttrDict
@@ -340,7 +339,14 @@ MANDATORY = MandatoryVariable()
 DEFAULT = DefaultVariable()
 
 
-class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble, MSONable):  # noqa: PYI024
+class SpinModeTuple(NamedTuple):
+    mode: str
+    nsppol: int
+    nspinor: int
+    nspden: int
+
+
+class SpinMode(SpinModeTuple, AbivarAble, MSONable):
     """
     Different configurations of the electron density as implemented in abinit:
     One can use as_spinmode to construct the object via SpinMode.as_spinmode
