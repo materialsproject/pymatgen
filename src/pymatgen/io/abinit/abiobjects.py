@@ -338,14 +338,14 @@ MANDATORY = MandatoryVariable()
 DEFAULT = DefaultVariable()
 
 
-class _SpinMode(NamedTuple):
+class SpinModeTuple(NamedTuple):
     mode: str
     nsppol: int
     nspinor: int
     nspden: int
 
 
-class SpinMode(_SpinMode, AbivarAble, MSONable):
+class SpinMode(SpinModeTuple, AbivarAble, MSONable):
     """
     Different configurations of the electron density as implemented in abinit:
     One can use as_spinmode to construct the object via SpinMode.as_spinmode
