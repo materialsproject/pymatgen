@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 from pymatgen.io.aims.sets.core import RelaxSetGenerator
-from pymatgen.util.testing.aims import O2, Si, comp_system
+from pymatgen.util.testing import TEST_FILES_DIR
 
-MODULE_DIR = Path(__file__).resolve().parents[1]
-SPECIES_DIR = MODULE_DIR / "species_directory"
-REF_PATH = (MODULE_DIR / "aims_input_generator_ref").resolve()
+from ..conftest import O2, Si, comp_system  # noqa: TID252
+
+SPECIES_DIR = TEST_FILES_DIR / "io/aims/species_directory"
+REF_PATH = TEST_FILES_DIR / "io/aims/aims_input_generator_ref"
 
 
 def test_relax_si(tmp_path):

@@ -988,7 +988,7 @@ class DftSet(Cp2kInput):
         if not self.check("MOTION"):
             self.insert(Section("MOTION", subsections={}))
 
-        run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0].upper()  # noqa: PD011
+        run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0].upper()
         run_type = {"GEOMETRY_OPTIMIZATION": "GEO_OPT", "MOLECULAR_DYNAMICS": "MD"}.get(run_type, run_type)
 
         self["MOTION"].insert(Section("PRINT", subsections={}))
@@ -1296,7 +1296,7 @@ class DftSet(Cp2kInput):
                 no: do not explicitly include the last iteration
         """
         assert add_last.lower() in ["no", "numeric", "symbolic"]
-        run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0].upper()  # noqa: PD011
+        run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0].upper()
         if run_type not in ["ENERGY_FORCE", "ENERGY", "WAVEFUNCTION_OPTIMIZATION", "WFN_OPT"] and self.check(
             "FORCE_EVAL/DFT/PRINT"
         ):
@@ -1322,8 +1322,8 @@ class DftSet(Cp2kInput):
         for val in self["force_eval"]["subsys"].subsections.values():
             if (
                 val.name.upper() == "KIND"
-                and val["POTENTIAL"].values[0].upper() == "ALL"  # noqa: PD011
-                and self["force_eval"]["dft"]["qs"]["method"].values[0].upper() != "GAPW"  # noqa: PD011
+                and val["POTENTIAL"].values[0].upper() == "ALL"
+                and self["force_eval"]["dft"]["qs"]["method"].values[0].upper() != "GAPW"
             ):
                 raise Cp2kValidationError("All electron basis sets require GAPW method")
 

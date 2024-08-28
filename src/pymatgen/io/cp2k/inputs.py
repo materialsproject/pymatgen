@@ -111,7 +111,7 @@ class Keyword(MSONable):
             return NotImplemented
         if self.name.upper() == other.name.upper():
             v1 = [val.upper() if isinstance(val, str) else val for val in self.values]
-            v2 = [val.upper() if isinstance(val, str) else val for val in other.values]  # noqa: PD011
+            v2 = [val.upper() if isinstance(val, str) else val for val in other.values]
             if v1 == v2 and self.units == other.units:
                 return True
         return False
