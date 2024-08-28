@@ -56,7 +56,7 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
             raise ValueError(f"The sum of angdeg must be lower than 360, {ang_deg=}")
 
         # This code follows the implementation in ingeo.F90
-        # See also http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#angdeg
+        # See also https://docs.abinit.org/variables/basic/#angdeg
         tol12 = 1e-12
         pi, sin, cos, sqrt = np.pi, np.sin, np.cos, np.sqrt
         r_prim = np.zeros((3, 3))
