@@ -244,6 +244,7 @@ docstring-code-format = true
     "PLR0124",  # comparison-with-itself
     "PLR2004",  # magic-value-comparison
     "PLR6301",  # no-self-use
+    "S101",     # Use of "assert"
 ]
 "src/pymatgen/analysis/*" = ["D"]
 "src/pymatgen/io/*" = ["D"]
