@@ -15,7 +15,7 @@ except ImportError:
 
 
 try:
-    website_down = requests.get("https://www.vasp.at", timeout=60).status_code != 200
+    website_down = requests.get("https://www.vasp.at", timeout=5).status_code != 200
 except requests.exceptions.ConnectionError:
     website_down = True
 
