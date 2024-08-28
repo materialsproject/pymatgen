@@ -71,7 +71,8 @@ class VaspDoc:
         tags = []
         for url in (
             "https://www.vasp.at/wiki/index.php/Category:INCAR_tag",
-            "https://www.vasp.at/wiki/index.php?title=Category:INCAR_tag&pagefrom=ML+FF+LCONF+DISCARD#mw-pages",
+            "https://www.vasp.at/wiki/index.php?title=Category:INCAR_tag&pagefrom=LREAL#mw-pages",
+            "https://www.vasp.at/wiki/index.php?title=Category:INCAR_tag&pagefrom=Profiling#mw-pages",
         ):
             response = requests.get(url, timeout=60)
             soup = BeautifulSoup(response.text, features="html.parser")
