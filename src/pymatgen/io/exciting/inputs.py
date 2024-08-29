@@ -197,7 +197,7 @@ class ExcitingInput(MSONable):
         """
         root = ET.Element("input")
         root.set(
-            "{https://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation",
+            "{http://www.w3.org/2001/XMLSchema-instance}noNamespaceSchemaLocation",
             "http://xml.exciting-code.org/excitinginput.xsd",
         )
         title = ET.SubElement(root, "title")
