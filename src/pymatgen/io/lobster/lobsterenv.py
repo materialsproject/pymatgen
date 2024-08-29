@@ -473,9 +473,6 @@ class LobsterNeighbors(NearNeighbors):
         Returns:
             plt of the COHPs or COBIs or COOPs.
         """
-        # Include COHPPlotter and plot a sum of these COHPs
-        # Might include an option to add Spin channels
-        # TODO: implement only_bonds_to
         cp = CohpPlotter(are_cobis=self.are_cobis, are_coops=self.are_coops)
 
         plotlabel, summed_cohp = self.get_info_cohps_to_neighbors(
