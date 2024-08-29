@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from matplotlib import colors
-from pytest import approx
 
 from pymatgen.io.phonopy import get_gruneisen_ph_bs_symm_line, get_gruneisenparameter
 from pymatgen.phonon.gruneisen import GruneisenParameter
@@ -101,7 +100,7 @@ class TestGruneisenParameter(PymatgenTest):
         self.gruneisen_obj2 = GruneisenParameter.from_dict(new_dict)
 
     def test_frequencies(self):
-        assert self.gruneisen_obj_small.frequencies == approx(
+        assert self.gruneisen_obj_small.frequencies == pytest.approx(
             [0.12642146, 0.12642146, 0.25272004, 8.85202452, 8.85202452, 9.66016595]
         )
 
@@ -110,33 +109,33 @@ class TestGruneisenParameter(PymatgenTest):
         assert self.gruneisen_obj.multiplicities[0] == 2
 
     def test_gruneisen(self):
-        assert self.gruneisen_obj_small.gruneisen[0] == approx(-0.6176464482)
-        assert self.gruneisen_obj_small.gruneisen[5] == approx(1.7574050911)
+        assert self.gruneisen_obj_small.gruneisen[0] == pytest.approx(-0.6176464482)
+        assert self.gruneisen_obj_small.gruneisen[5] == pytest.approx(1.7574050911)
 
     def test_tdos(self):
         tdos = self.gruneisen_obj.tdos
         assert isinstance(tdos, phonopy.phonon.dos.TotalDos)
 
     def test_phdos(self):
-        assert self.gruneisen_obj.phdos.cv(298.15) == approx(45.17772584681599)
+        assert self.gruneisen_obj.phdos.cv(298.15) == pytest.approx(45.17772584681599)
 
     def test_average_gruneisen(self):
-        assert self.gruneisen_obj.average_gruneisen() == approx(1.164231026696211)
-        assert self.gruneisen_obj.average_gruneisen(squared=False) == approx(0.849759667411049)
-        assert self.gruneisen_obj.average_gruneisen(limit_frequencies="debye") == approx(0.848865124114612)
-        assert self.gruneisen_obj.average_gruneisen(limit_frequencies="acoustic") == approx(1.283180896570312)
-        assert self.gruneisen_obj_Si.average_gruneisen() == approx(1.1090815951892143)
+        assert self.gruneisen_obj.average_gruneisen() == pytest.approx(1.164231026696211)
+        assert self.gruneisen_obj.average_gruneisen(squared=False) == pytest.approx(0.849759667411049)
+        assert self.gruneisen_obj.average_gruneisen(limit_frequencies="debye") == pytest.approx(0.848865124114612)
+        assert self.gruneisen_obj.average_gruneisen(limit_frequencies="acoustic") == pytest.approx(1.283180896570312)
+        assert self.gruneisen_obj_Si.average_gruneisen() == pytest.approx(1.1090815951892143)
 
     def test_thermal_conductivity_slack(self):
-        assert self.gruneisen_obj.thermal_conductivity_slack() == approx(77.97582174520458)
-        assert self.gruneisen_obj.thermal_conductivity_slack(t=300) == approx(88.94562145031158)
-        assert self.gruneisen_obj_Si.thermal_conductivity_slack(t=300) == approx(127.69008331982265)
+        assert self.gruneisen_obj.thermal_conductivity_slack() == pytest.approx(77.97582174520458)
+        assert self.gruneisen_obj.thermal_conductivity_slack(t=300) == pytest.approx(88.94562145031158)
+        assert self.gruneisen_obj_Si.thermal_conductivity_slack(t=300) == pytest.approx(127.69008331982265)
 
     def test_debye_temp_phonopy(self):
         # This is the correct conversion when starting from THz in the debye_freq
-        assert self.gruneisen_obj_small.debye_temp_phonopy() == approx(473.31932718764284)
+        assert self.gruneisen_obj_small.debye_temp_phonopy() == pytest.approx(473.31932718764284)
 
     def test_acoustic_debye_temp(self):
-        assert self.gruneisen_obj_small.acoustic_debye_temp == approx(317.54811309631845)
-        assert self.gruneisen_obj.acoustic_debye_temp == approx(342.2046198151735)
-        assert self.gruneisen_obj_Si.acoustic_debye_temp == approx(526.0725636300882)
+        assert self.gruneisen_obj_small.acoustic_debye_temp == pytest.approx(317.54811309631845)
+        assert self.gruneisen_obj.acoustic_debye_temp == pytest.approx(342.2046198151735)
+        assert self.gruneisen_obj_Si.acoustic_debye_temp == pytest.approx(526.0725636300882)

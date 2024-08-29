@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
-from pytest import approx
 
 from pymatgen.core.structure import Structure
 from pymatgen.phonon.thermal_displacements import ThermalDisplacementMatrices
@@ -98,7 +98,7 @@ class TestThermalDisplacement(PymatgenTest):
         )
 
     def test_ucart(self):
-        assert self.thermal.thermal_displacement_matrix_cart[0][0] == approx(0.00516)
+        assert self.thermal.thermal_displacement_matrix_cart[0][0] == pytest.approx(0.00516)
         # U11, U22, U33, U23, U13, U12
         assert_allclose(
             self.thermal.thermal_displacement_matrix_cart_matrixform[0],
@@ -112,7 +112,9 @@ class TestThermalDisplacement(PymatgenTest):
         )
 
     def test_u1_u2_u3(self):
-        assert self.thermal.U1U2U3[0].sort() == approx(np.array([2.893872e-03, 5.691239e-03, 6.854889e-03]).sort())
+        assert self.thermal.U1U2U3[0].sort() == pytest.approx(
+            np.array([2.893872e-03, 5.691239e-03, 6.854889e-03]).sort()
+        )
 
     def test_ustar(self):
         Ustar = self.thermal.Ustar
@@ -268,18 +270,18 @@ class TestThermalDisplacement(PymatgenTest):
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR"),
             temperature=0.0,
         )
-        assert self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["angle"] == approx(0.0)
+        assert self.thermal.compute_directionality_quality_criterion(self.thermal)[0]["angle"] == pytest.approx(0.0)
         assert_allclose(
             self.thermal.compute_directionality_quality_criterion(thermal)[0]["vector0"],
             self.thermal.compute_directionality_quality_criterion(thermal)[1]["vector1"],
         )
 
     def test_angle(self):
-        assert self.thermal._angle_dot([-1, -1, -1], [1, 1, 1]) == approx(180.0)
-        assert self.thermal._angle_dot([1, 1, 1], [1, 1, 1]) == approx(0.0)
+        assert self.thermal._angle_dot([-1, -1, -1], [1, 1, 1]) == pytest.approx(180.0)
+        assert self.thermal._angle_dot([1, 1, 1], [1, 1, 1]) == pytest.approx(0.0)
 
     def test_ratio_prolate(self):
-        assert self.thermal.ratio_prolate[0] == approx(6.854889e-03 / 2.893872e-03)
+        assert self.thermal.ratio_prolate[0] == pytest.approx(6.854889e-03 / 2.893872e-03)
 
     def test_to_structure_with_site_properties(self):
         # test creation of structure with site properties

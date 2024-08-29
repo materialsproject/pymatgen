@@ -3,8 +3,8 @@ from __future__ import annotations
 import copy
 import json
 
+import pytest
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
 
 from pymatgen.electronic_structure.bandstructure import Kpoint
 from pymatgen.phonon.bandstructure import PhononBandStructureSymmLine
@@ -36,8 +36,8 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
         assert self.bs != self.bs2
 
     def test_basic(self):
-        assert self.bs.bands[1][10] == approx(0.7753555184)
-        assert self.bs.bands[5][100] == approx(5.2548379776)
+        assert self.bs.bands[1][10] == pytest.approx(0.7753555184)
+        assert self.bs.bands[5][100] == pytest.approx(5.2548379776)
         assert_array_equal(self.bs.bands.shape, (6, 204))
         assert_array_equal(self.bs.eigendisplacements.shape, (6, 204, 2, 3))
         assert_allclose(
@@ -70,7 +70,7 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
     def test_nac(self):
         assert self.bs.has_nac
         assert not self.bs2.has_nac
-        assert self.bs.get_nac_frequencies_along_dir([1, 1, 0])[3] == approx(4.6084532143)
+        assert self.bs.get_nac_frequencies_along_dir([1, 1, 0])[3] == pytest.approx(4.6084532143)
         assert self.bs.get_nac_frequencies_along_dir([0, 1, 1]) is None
         assert self.bs2.get_nac_frequencies_along_dir([0, 0, 1]) is None
         assert_allclose(
@@ -107,20 +107,20 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
         min_qpoint, min_freq = self.bs.min_freq()
         assert isinstance(min_qpoint, Kpoint)
         assert list(min_qpoint.frac_coords) == [0, 0, 0]
-        assert min_freq == approx(-0.03700895020)
+        assert min_freq == pytest.approx(-0.03700895020)
 
         max_qpoint, max_freq = self.bs.max_freq()
         assert isinstance(max_qpoint, Kpoint)
         assert list(max_qpoint.frac_coords) == [0, 0, 0]
-        assert max_freq == approx(7.391425798)
+        assert max_freq == pytest.approx(7.391425798)
 
         min_qpoint2, min_freq2 = self.bs2.min_freq()
         assert list(min_qpoint2.frac_coords) == [0, 0, 0]
-        assert min_freq2 == approx(-0.0072257889)
+        assert min_freq2 == pytest.approx(-0.0072257889)
 
         max_qpoint2, max_freq2 = self.bs2.max_freq()
         assert list(max_qpoint2.frac_coords) == [0, 0, 0]
-        assert max_freq2 == approx(15.2873634264)
+        assert max_freq2 == pytest.approx(15.2873634264)
 
     def test_get_gamma_point(self):
         for bs in (self.bs, self.bs2):
@@ -130,8 +130,8 @@ class TestPhononBandStructureSymmLine(PymatgenTest):
             assert g_point.label in ("Gamma", "$\\Gamma$")
 
     def test_width(self):
-        assert self.bs.width() == approx(7.3227137833)
-        assert self.bs2.width() == approx(14.7108925878)
+        assert self.bs.width() == pytest.approx(7.3227137833)
+        assert self.bs2.width() == pytest.approx(14.7108925878)
 
-        assert self.bs.width(with_imaginary=True) == approx(7.4284347482)
-        assert self.bs2.width(with_imaginary=True) == approx(15.2945892153)
+        assert self.bs.width(with_imaginary=True) == pytest.approx(7.4284347482)
+        assert self.bs2.width(with_imaginary=True) == pytest.approx(15.2945892153)

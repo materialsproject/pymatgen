@@ -4,7 +4,6 @@ from unittest import TestCase
 
 import numpy as np
 import pytest
-from pytest import approx
 
 from pymatgen.optimization.linear_assignment import LinearAssignment
 
@@ -228,7 +227,7 @@ class TestLinearAssignment(TestCase):
             ]
         )
         la = LinearAssignment(w1)
-        assert la.min_cost == approx(0)
+        assert la.min_cost == pytest.approx(0)
 
     def test_small_range(self):
         # can be tricky for the augment step
@@ -246,7 +245,7 @@ class TestLinearAssignment(TestCase):
                 [5, 6, 6, 6, 7, 6, 6, 5, 6, 7],
             ]
         )
-        assert LinearAssignment(x).min_cost == approx(48)
+        assert LinearAssignment(x).min_cost == pytest.approx(48)
 
     def test_boolean_inputs(self):
         ones = np.ones((135, 135), dtype=bool)
