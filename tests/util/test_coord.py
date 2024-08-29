@@ -5,7 +5,6 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.util import coord
@@ -155,13 +154,13 @@ class TestCoordUtils:
     def test_lattice_points_in_supercell(self):
         supercell = np.array([[1, 3, 5], [-3, 2, 3], [-5, 3, 1]])
         points = coord.lattice_points_in_supercell(supercell)
-        assert len(points) == approx(abs(np.linalg.det(supercell)))
+        assert len(points) == pytest.approx(abs(np.linalg.det(supercell)))
         assert np.min(points) >= -1e-10
         assert np.max(points) <= 1 - 1e-10
 
         supercell = np.array([[-5, -5, -3], [0, -4, -2], [0, -5, -2]])
         points = coord.lattice_points_in_supercell(supercell)
-        assert len(points) == approx(abs(np.linalg.det(supercell)))
+        assert len(points) == pytest.approx(abs(np.linalg.det(supercell)))
         assert np.min(points) >= -1e-10
         assert np.max(points) <= 1 - 1e-10
 
@@ -231,8 +230,8 @@ class TestCoordUtils:
     def test_get_angle(self):
         v1 = (1, 0, 0)
         v2 = (1, 1, 1)
-        assert coord.get_angle(v1, v2) == approx(54.7356103172)
-        assert coord.get_angle(v1, v2, units="radians") == approx(0.9553166181245092)
+        assert coord.get_angle(v1, v2) == pytest.approx(54.7356103172)
+        assert coord.get_angle(v1, v2, units="radians") == pytest.approx(0.9553166181245092)
 
 
 class TestSimplex(TestCase):
@@ -266,7 +265,7 @@ class TestSimplex(TestCase):
 
     def test_volume(self):
         # Should be value of a right tetrahedron.
-        assert self.simplex.volume == approx(1 / 6)
+        assert self.simplex.volume == pytest.approx(1 / 6)
 
     def test_str(self):
         assert str(self.simplex).startswith("3-simplex in 4D space")

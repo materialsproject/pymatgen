@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
-from pytest import approx
+import pytest
 
 from pymatgen.analysis.magnetism.analyzer import CollinearMagneticStructureAnalyzer
 from pymatgen.core.lattice import Lattice
@@ -62,25 +62,25 @@ class TestKPathLatimerMunro(PymatgenTest):
 
         assert sorted(labels) == sorted(["a", "b", "c", "d", "d_{1}", "e", "f", "q", "q_{1}", "Γ"])
 
-        assert kpoints["a"] == approx([0.0, 0.5, 0.0])
+        assert kpoints["a"] == pytest.approx([0.0, 0.5, 0.0])
 
-        assert kpoints["f"] == approx([-0.5, 0.5, 0.5])
+        assert kpoints["f"] == pytest.approx([-0.5, 0.5, 0.5])
 
-        assert kpoints["c"] == approx([0.0, 0.0, 0.5])
+        assert kpoints["c"] == pytest.approx([0.0, 0.0, 0.5])
 
-        assert kpoints["b"] == approx([-0.5, 0.5, 0.0])
+        assert kpoints["b"] == pytest.approx([-0.5, 0.5, 0.0])
 
-        assert kpoints["Γ"] == approx([0, 0, 0])
+        assert kpoints["Γ"] == pytest.approx([0, 0, 0])
 
-        assert kpoints["e"] == approx([0.0, 0.5, 0.5])
+        assert kpoints["e"] == pytest.approx([0.0, 0.5, 0.5])
 
-        assert kpoints["d_{1}"] == approx([0.2530864197530836, 0.25308641975308915, 0.0]) or kpoints["d"] == approx(
-            [0.2530864197530836, 0.25308641975308915, 0.0]
-        )
+        assert kpoints["d_{1}"] == pytest.approx([0.2530864197530836, 0.25308641975308915, 0.0]) or kpoints[
+            "d"
+        ] == pytest.approx([0.2530864197530836, 0.25308641975308915, 0.0])
 
-        assert kpoints["q_{1}"] == approx([0.2530864197530836, 0.25308641975308915, 0.5]) or kpoints["q"] == approx(
-            [0.2530864197530836, 0.25308641975308915, 0.5]
-        )
+        assert kpoints["q_{1}"] == pytest.approx([0.2530864197530836, 0.25308641975308915, 0.5]) or kpoints[
+            "q"
+        ] == pytest.approx([0.2530864197530836, 0.25308641975308915, 0.5])
 
     def test_magnetic_kpath_generation(self):
         struct_file_path = f"{TEST_FILES_DIR}/io/cif/mcif/LaMnO3_magnetic.mcif"
@@ -105,20 +105,20 @@ class TestKPathLatimerMunro(PymatgenTest):
         kpoints = kpath._kpath["kpoints"]
         assert sorted(kpoints) == sorted(["a", "b", "c", "d", "d_{1}", "e", "f", "g", "g_{1}", "Γ"])
 
-        assert kpoints["e"] == approx([-0.5, 0.0, 0.5])
+        assert kpoints["e"] == pytest.approx([-0.5, 0.0, 0.5])
 
-        assert kpoints["g"] == approx([-0.5, -0.5, 0.5])
+        assert kpoints["g"] == pytest.approx([-0.5, -0.5, 0.5])
 
-        assert kpoints["a"] == approx([-0.5, 0.0, 0.0])
+        assert kpoints["a"] == pytest.approx([-0.5, 0.0, 0.0])
 
-        assert kpoints["g_{1}"] == approx([0.5, -0.5, 0.5])
+        assert kpoints["g_{1}"] == pytest.approx([0.5, -0.5, 0.5])
 
-        assert kpoints["f"] == approx([0.0, -0.5, 0.5])
+        assert kpoints["f"] == pytest.approx([0.0, -0.5, 0.5])
 
-        assert kpoints["c"] == approx([0.0, 0.0, 0.5])
+        assert kpoints["c"] == pytest.approx([0.0, 0.0, 0.5])
 
-        assert kpoints["b"] == approx([0.0, -0.5, 0.0])
+        assert kpoints["b"] == pytest.approx([0.0, -0.5, 0.0])
 
-        assert kpoints["Γ"] == approx([0, 0, 0])
+        assert kpoints["Γ"] == pytest.approx([0, 0, 0])
 
-        assert kpoints["d_{1}"] == approx([-0.5, -0.5, 0.0]) or kpoints["d"] == approx([-0.5, -0.5, 0.0])
+        assert kpoints["d_{1}"] == pytest.approx([-0.5, -0.5, 0.0]) or kpoints["d"] == pytest.approx([-0.5, -0.5, 0.0])

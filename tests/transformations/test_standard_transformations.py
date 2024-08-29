@@ -9,7 +9,6 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from monty.json import MontyDecoder
-from pytest import approx
 
 from pymatgen.core import Element, PeriodicSite
 from pymatgen.core.lattice import Lattice
@@ -240,7 +239,9 @@ class TestPartialRemoveSpecieTransformation:
         fast_opt_s = trafo.apply_transformation(struct)
         trafo = PartialRemoveSpecieTransformation("Li+", 0.5, PartialRemoveSpecieTransformation.ALGO_COMPLETE)
         slow_opt_s = trafo.apply_transformation(struct)
-        assert EwaldSummation(fast_opt_s).total_energy == approx(EwaldSummation(slow_opt_s).total_energy, abs=1e-4)
+        assert EwaldSummation(fast_opt_s).total_energy == pytest.approx(
+            EwaldSummation(slow_opt_s).total_energy, abs=1e-4
+        )
         assert fast_opt_s == slow_opt_s
 
     def test_apply_transformations_complete_ranking(self):
@@ -355,7 +356,7 @@ class TestOrderDisorderedStructureTransformation:
             coords,
         )
         output = trafo.apply_transformation(struct, return_ranked_list=3)
-        assert output[0]["energy"] == approx(-234.57813667648315, abs=1e-4)
+        assert output[0]["energy"] == pytest.approx(-234.57813667648315, abs=1e-4)
 
 
 class TestPrimitiveCellTransformation:
@@ -426,7 +427,7 @@ class TestPerturbStructureTransformation:
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
         transformed_struct = trafo.apply_transformation(struct)
         for idx, site in enumerate(transformed_struct):
-            assert site.distance(struct[idx]) == approx(0.05)
+            assert site.distance(struct[idx]) == pytest.approx(0.05)
 
         dct = trafo.as_dict()
         assert isinstance(PerturbStructureTransformation.from_dict(dct), PerturbStructureTransformation)
@@ -462,9 +463,9 @@ class TestDeformStructureTransformation:
         ]
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "O2-", "O2-", "O2-", "O2-"], coords)
         transformed_s = trafo.apply_transformation(struct)
-        assert transformed_s.lattice.a == approx(3.84019793)
-        assert transformed_s.lattice.b == approx(3.84379750)
-        assert transformed_s.lattice.c == approx(3.75022981)
+        assert transformed_s.lattice.a == pytest.approx(3.84019793)
+        assert transformed_s.lattice.b == pytest.approx(3.84379750)
+        assert transformed_s.lattice.c == pytest.approx(3.75022981)
 
         dct = json.loads(json.dumps(trafo.as_dict()))
         assert isinstance(DeformStructureTransformation.from_dict(dct), DeformStructureTransformation)
@@ -527,7 +528,7 @@ class TestScaleToRelaxedTransformation:
         slab_scaling = ScaleToRelaxedTransformation(Cu_init, Cu_fin)
         Au_init = Structure.from_file(f"{surf_dir}/Au_slab_init.cif")
         Au_fin = slab_scaling.apply_transformation(Au_init)
-        assert Au_fin.volume == approx(Au_init.volume)
+        assert Au_fin.volume == pytest.approx(Au_init.volume)
 
         # Test on gb relaxation
         gb_dir = f"{TEST_FILES_DIR}/core/grain_boundary"

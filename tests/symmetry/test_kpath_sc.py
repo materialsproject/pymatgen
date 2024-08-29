@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
-from pytest import approx
+import pytest
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
@@ -62,20 +62,20 @@ class TestBandStructureSC(PymatgenTest):
 
         assert list(kpoints["\\Gamma"]) == [0, 0, 0]
 
-        assert kpoints["A"] == approx([0.25308642, 0.25308642, 0.5])
+        assert kpoints["A"] == pytest.approx([0.25308642, 0.25308642, 0.5])
 
-        assert kpoints["A_1"] == approx([-0.25308642, 0.74691358, 0.5])
+        assert kpoints["A_1"] == pytest.approx([-0.25308642, 0.74691358, 0.5])
 
-        assert kpoints["R"] == approx([0, 0.5, 0.5])
+        assert kpoints["R"] == pytest.approx([0, 0.5, 0.5])
 
-        assert kpoints["S"] == approx([0, 0.5, 0])
+        assert kpoints["S"] == pytest.approx([0, 0.5, 0])
 
-        assert kpoints["T"] == approx([-0.5, 0.5, 0.5])
+        assert kpoints["T"] == pytest.approx([-0.5, 0.5, 0.5])
 
-        assert kpoints["X"] == approx([0.25308642, 0.25308642, 0])
+        assert kpoints["X"] == pytest.approx([0.25308642, 0.25308642, 0])
 
-        assert kpoints["X_1"] == approx([-0.25308642, 0.74691358, 0])
+        assert kpoints["X_1"] == pytest.approx([-0.25308642, 0.74691358, 0])
 
-        assert kpoints["Y"] == approx([-0.5, 0.5, 0])
+        assert kpoints["Y"] == pytest.approx([-0.5, 0.5, 0])
 
-        assert kpoints["Z"] == approx([0, 0, 0.5])
+        assert kpoints["Z"] == pytest.approx([0, 0, 0.5])

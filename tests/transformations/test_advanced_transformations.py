@@ -7,7 +7,6 @@ import numpy as np
 import pytest
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
 
 from pymatgen.analysis.energy_models import IsingModel, SymmetryModel
 from pymatgen.analysis.gb.grain import GrainBoundaryGenerator
@@ -152,7 +151,7 @@ class TestChargeBalanceTransformation:
         struct = Structure(lattice, ["Li+", "Li+", "Li+", "Li+", "Li+", "Li+", "O2-", "O2-"], coords)
         struct_trafo = trafo.apply_transformation(struct)
 
-        assert struct_trafo.charge == approx(0, abs=1e-5)
+        assert struct_trafo.charge == pytest.approx(0, abs=1e-5)
 
 
 @pytest.mark.skipif(not enumlib_present, reason="enum_lib not present.")

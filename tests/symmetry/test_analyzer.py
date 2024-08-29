@@ -6,7 +6,6 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from pytest import approx, raises
 from spglib import SpglibDataset
 
 from pymatgen.core import Lattice, Molecule, PeriodicSite, Site, Species, Structure
@@ -231,10 +230,10 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         assert primitive_structure.formula == "Li2 O1"
         assert primitive_structure.site_properties.get("magmom") is None
         # This isn't what is expected. All the angles should be 60
-        assert primitive_structure.lattice.alpha == approx(60)
-        assert primitive_structure.lattice.beta == approx(60)
-        assert primitive_structure.lattice.gamma == approx(60)
-        assert primitive_structure.volume == approx(structure.volume / 4.0)
+        assert primitive_structure.lattice.alpha == pytest.approx(60)
+        assert primitive_structure.lattice.beta == pytest.approx(60)
+        assert primitive_structure.lattice.gamma == pytest.approx(60)
+        assert primitive_structure.volume == pytest.approx(structure.volume / 4.0)
 
         structure.add_site_property("magmom", [1.0] * len(structure))
         spga = SpacegroupAnalyzer(structure)
@@ -249,10 +248,10 @@ class TestSpacegroupAnalyzer(PymatgenTest):
     def test_get_ir_reciprocal_mesh(self):
         grid = self.sg.get_ir_reciprocal_mesh()
         assert len(grid) == 216
-        assert grid[1][0][0] == approx(0.1)
-        assert grid[1][0][1] == approx(0.0)
-        assert grid[1][0][2] == approx(0.0)
-        assert grid[1][1] == approx(2)
+        assert grid[1][0][0] == pytest.approx(0.1)
+        assert grid[1][0][1] == pytest.approx(0.0)
+        assert grid[1][0][2] == pytest.approx(0.0)
+        assert grid[1][1] == pytest.approx(2)
 
     def test_get_ir_reciprocal_mesh_map(self):
         mesh = (6, 6, 6)
@@ -260,69 +259,71 @@ class TestSpacegroupAnalyzer(PymatgenTest):
         full_grid, mapping = self.sg.get_ir_reciprocal_mesh_map(mesh=mesh)
         assert len(np.unique(mapping)) == len(grid)
         for _, idx in enumerate(np.unique(mapping)):
-            assert full_grid[idx][0] == approx(grid[_][0][0])
-            assert full_grid[idx][1] == approx(grid[_][0][1])
-            assert full_grid[idx][2] == approx(grid[_][0][2])
+            assert full_grid[idx][0] == pytest.approx(grid[_][0][0])
+            assert full_grid[idx][1] == pytest.approx(grid[_][0][1])
+            assert full_grid[idx][2] == pytest.approx(grid[_][0][2])
 
     def test_get_conventional_standard_structure(self):
         structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/bcc_1927.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conventional = spga.get_conventional_standard_structure()
         assert conventional.lattice.angles == (90, 90, 90)
-        assert conventional.lattice.lengths == approx([9.1980270633769461] * 3)
+        assert conventional.lattice.lengths == pytest.approx([9.1980270633769461] * 3)
 
         structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/btet_1915.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conventional = spga.get_conventional_standard_structure()
         assert conventional.lattice.angles == (90, 90, 90)
-        assert conventional.lattice.a == approx(5.0615106678044235)
-        assert conventional.lattice.b == approx(5.0615106678044235)
-        assert conventional.lattice.c == approx(4.2327080177761687)
+        assert conventional.lattice.a == pytest.approx(5.0615106678044235)
+        assert conventional.lattice.b == pytest.approx(5.0615106678044235)
+        assert conventional.lattice.c == pytest.approx(4.2327080177761687)
 
         structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/orci_1010.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conventional = spga.get_conventional_standard_structure()
         assert conventional.lattice.angles == (90, 90, 90)
-        assert conventional.lattice.a == approx(2.9542233922299999)
-        assert conventional.lattice.b == approx(4.6330325651443296)
-        assert conventional.lattice.c == approx(5.373703587040775)
+        assert conventional.lattice.a == pytest.approx(2.9542233922299999)
+        assert conventional.lattice.b == pytest.approx(4.6330325651443296)
+        assert conventional.lattice.c == pytest.approx(5.373703587040775)
 
         structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/orcc_1003.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conventional = spga.get_conventional_standard_structure()
         assert conventional.lattice.angles == (90, 90, 90)
-        assert conventional.lattice.a == approx(4.1430033493799998)
-        assert conventional.lattice.b == approx(31.437979757624728)
-        assert conventional.lattice.c == approx(3.99648651)
+        assert conventional.lattice.a == pytest.approx(4.1430033493799998)
+        assert conventional.lattice.b == pytest.approx(31.437979757624728)
+        assert conventional.lattice.c == pytest.approx(3.99648651)
 
         structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/orac_632475.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conventional = spga.get_conventional_standard_structure()
         assert conventional.lattice.angles == (90, 90, 90)
-        assert conventional.lattice.lengths == approx([3.1790663399999999, 9.9032878699999998, 3.5372412099999999])
+        assert conventional.lattice.lengths == pytest.approx(
+            [3.1790663399999999, 9.9032878699999998, 3.5372412099999999]
+        )
 
         structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/monoc_1028.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conventional = spga.get_conventional_standard_structure()
-        assert conventional.lattice.angles == approx([90, 117.53832420192903, 90])
-        assert conventional.lattice.lengths == approx([14.033435583000625, 3.96052850731, 6.8743926325200002])
+        assert conventional.lattice.angles == pytest.approx([90, 117.53832420192903, 90])
+        assert conventional.lattice.lengths == pytest.approx([14.033435583000625, 3.96052850731, 6.8743926325200002])
         structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/hex_1170.cif")
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conventional = spga.get_conventional_standard_structure()
-        assert conventional.lattice.angles == approx([90, 90, 120])
-        assert conventional.lattice.lengths == approx([3.699919902005897, 3.699919902005897, 6.9779585500000003])
+        assert conventional.lattice.angles == pytest.approx([90, 90, 120])
+        assert conventional.lattice.lengths == pytest.approx([3.699919902005897, 3.699919902005897, 6.9779585500000003])
 
         STRUCTURE = f"{TEST_FILES_DIR}/symmetry/analyzer/tric_684654.json"
 
         structure = Structure.from_file(STRUCTURE)
         spga = SpacegroupAnalyzer(structure, symprec=1e-2)
         conventional = spga.get_conventional_standard_structure()
-        assert conventional.lattice.alpha == approx(74.09581916308757)
-        assert conventional.lattice.beta == approx(75.72817279281173)
-        assert conventional.lattice.gamma == approx(63.63234318667333)
-        assert conventional.lattice.a == approx(3.741372924048738)
-        assert conventional.lattice.b == approx(3.9883228679270686)
-        assert conventional.lattice.c == approx(7.288495840048958)
+        assert conventional.lattice.alpha == pytest.approx(74.09581916308757)
+        assert conventional.lattice.beta == pytest.approx(75.72817279281173)
+        assert conventional.lattice.gamma == pytest.approx(63.63234318667333)
+        assert conventional.lattice.a == pytest.approx(3.741372924048738)
+        assert conventional.lattice.b == pytest.approx(3.9883228679270686)
+        assert conventional.lattice.c == pytest.approx(7.288495840048958)
 
         structure = Structure.from_file(STRUCTURE)
         structure.add_site_property("magmom", [1.0] * len(structure))
@@ -350,8 +351,8 @@ class TestSpacegroupAnalyzer(PymatgenTest):
             structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/{file_name}")
             spga = SpacegroupAnalyzer(structure, symprec=1e-2)
             prim = spga.get_primitive_standard_structure()
-            assert prim.lattice.angles == approx(expected_angles)
-            assert prim.lattice.abc == approx(expected_abc)
+            assert prim.lattice.angles == pytest.approx(expected_angles)
+            assert prim.lattice.abc == pytest.approx(expected_abc)
 
         structure = Structure.from_file(f"{TEST_FILES_DIR}/cif/rhomb_3478_conv.cif")
         structure.add_site_property("magmom", [1.0] * len(structure))
@@ -378,7 +379,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
     def test_bad_structure(self):
         struct = Structure(Lattice.cubic(5), ["H", "H"], [[0.0, 0.0, 0.0], [0.001, 0.0, 0.0]])
-        with raises(SymmetryUndetermined):
+        with pytest.raises(SymmetryUndetermined):
             SpacegroupAnalyzer(struct, 0.1)
 
 
@@ -611,7 +612,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
             for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh]), strict=True):
-                assert weight == approx(expected)
+                assert weight == pytest.approx(expected)
 
         for name in ("SrTiO3", "LiFePO4", "Graphite"):
             struct = PymatgenTest.get_structure(name)
@@ -620,14 +621,14 @@ class TestPointGroupAnalyzer(PymatgenTest):
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
             for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh]), strict=True):
-                assert weight == approx(expected)
+                assert weight == pytest.approx(expected)
 
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.xml.gz")
         spga = SpacegroupAnalyzer(vasp_run.final_structure)
         wts = spga.get_kpoint_weights(vasp_run.actual_kpoints)
 
         for w1, w2 in zip(vasp_run.actual_kpoints_weights, wts, strict=True):
-            assert w1 == approx(w2)
+            assert w1 == pytest.approx(w2)
 
         kpts = [[0, 0, 0], [0.15, 0.15, 0.15], [0.2, 0.2, 0.2]]
         with pytest.raises(

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from pytest import approx
 
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.operations import SymmOp
@@ -130,9 +129,9 @@ class TestSpaceGroup:
         orbit, generators = sg.get_orbit_and_generators(rand_percent)
         assert len(orbit) <= sg.order
         pp = generators[0].operate(orbit[0])
-        assert rand_percent[0] == approx(pp[0])
-        assert rand_percent[1] == approx(pp[1])
-        assert rand_percent[2] == approx(pp[2])
+        assert rand_percent[0] == pytest.approx(pp[0])
+        assert rand_percent[1] == pytest.approx(pp[1])
+        assert rand_percent[2] == pytest.approx(pp[2])
 
     def test_is_compatible(self):
         cubic = Lattice.cubic(1)
