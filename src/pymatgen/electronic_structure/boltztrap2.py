@@ -800,8 +800,8 @@ class BztTransportProperties:
                         self.nelect + dop_car,
                         temp,
                         self.dosweight,
-                        True,  # noqa: FBT003
-                        False,  # noqa: FBT003
+                        refine=True,
+                        try_center=False,
                     )
 
                 N, L0, L1, L2, Lm11 = BL.fermiintegrals(
