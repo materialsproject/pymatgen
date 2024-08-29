@@ -398,10 +398,10 @@ if __name__ == "__main__":
                         perms_used[some_perm] += 1
                     else:
                         perms_used[some_perm] = 1
-                tcurrent = time.process_time()
+                t_now = time.process_time()
                 if n_permutations is None:
-                    raise ValueError("n_permutations is None.")
-                time_left = (n_permutations - idx_perm) * (tcurrent - t0) / idx_perm
+                    raise ValueError(f"{n_permutations=}")
+                time_left = (n_permutations - idx_perm) * (t_now - t0) / idx_perm
                 time_left = f"{time_left:.1f}"
                 idx_perm += 1
             print(

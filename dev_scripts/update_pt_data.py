@@ -253,25 +253,26 @@ def add_electron_affinities():
         data += [row]
     data.pop(0)
 
-    ea = {}
+    element_electron_affinities = {}
     max_Z = max(Element(element).Z for element in Element.__members__)
     for r in data:
         # don't want superheavy elements or less common isotopes
-        if int(r[0]) > max_Z or r[2] in ea:
+        if int(r[0]) > max_Z or r[2] in element_electron_affinities:
             continue
         temp_str = re.sub(r"[\s\(\)]", "", r[3].strip("()[]"))
         # hyphen-like characters used that can't be parsed by .float
         bytes_rep = temp_str.encode("unicode_escape").replace(b"\\u2212", b"-")
-        ea[r[2]] = float(bytes_rep.decode("unicode_escape"))
+        element_electron_affinities[r[2]] = float(bytes_rep.decode("unicode_escape"))
 
-    Z_set = {Element.from_name(element).Z for element in ea}
+    Z_set = {Element.from_name(element).Z for element in element_electron_affinities}
     # Ensure that we have data for up to Uranium
     if not Z_set.issuperset(range(1, 93)):
-        raise RuntimeError("Failed to get data up to Uranium")
-    print(ea)
+        missing_electron_affinities = set(range(1, 93)) - Z_set
+        raise ValueError(f"{missing_electron_affinities=}")
+    print(element_electron_affinities)
     pt = loadfn("../pymatgen/core/periodic_table.json")
     for key, val in pt.items():
-        val["Electron affinity"] = ea.get(Element(key).long_name)
+        val["Electron affinity"] = element_electron_affinities.get(Element(key).long_name)
     dumpfn(pt, "../pymatgen/core/periodic_table.json")
 
 

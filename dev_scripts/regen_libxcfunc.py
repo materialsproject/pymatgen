@@ -35,11 +35,11 @@ def parse_libxc_docs(path):
             else:
                 num, entry = parse_section(section)
                 if num in dct:
-                    raise RuntimeError("num should not be present in dct.")
+                    raise RuntimeError(f"{num=} should not be present in {dct=}.")
                 dct[num] = entry
                 section = []
         if section:
-            raise RuntimeError("section is not empty.")
+            raise RuntimeError(f"Expected empty section, got {section=}")
 
     return dct
 
