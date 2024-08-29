@@ -11,7 +11,7 @@ import pytest
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
-from pytest import MonkeyPatch, approx, mark
+from pytest import MonkeyPatch, approx
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SETTINGS, Lattice, Species, Structure
@@ -62,7 +62,7 @@ TEST_DIR = f"{TEST_FILES_DIR}/io/vasp"
 MonkeyPatch().setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(FAKE_POTCAR_DIR))
 
 NO_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR") is None
-skip_if_no_psp_dir = mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set")
+skip_if_no_psp_dir = pytest.mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set")
 
 dummy_structure = Structure(
     [1, 0, 0, 0, 1, 0, 0, 0, 1],
