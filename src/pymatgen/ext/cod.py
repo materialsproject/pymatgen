@@ -112,7 +112,7 @@ class COD:
         for line in text:
             if line.strip():
                 cod_id, sg = line.split("\t")
-                response = requests.get(f"http://www.crystallography.net/cod/{cod_id.strip()}.cif", timeout=600)
+                response = requests.get(f"http://www.crystallography.net/cod/{cod_id.strip()}.cif", timeout=60)
                 try:
                     struct = Structure.from_str(response.text, fmt="cif", **kwargs)
                     structures.append({"structure": struct, "cod_id": int(cod_id), "sg": sg})

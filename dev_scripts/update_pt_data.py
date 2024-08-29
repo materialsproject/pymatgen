@@ -239,7 +239,7 @@ def gen_iupac_ordering():
 def add_electron_affinities():
     """Update the periodic table data file with electron affinities."""
 
-    req = requests.get("https://wikipedia.org/wiki/Electron_affinity_(data_page)", timeout=600)
+    req = requests.get("https://wikipedia.org/wiki/Electron_affinity_(data_page)", timeout=60)
     soup = BeautifulSoup(req.text, "html.parser")
     table = None
     for table in soup.find_all("table"):
