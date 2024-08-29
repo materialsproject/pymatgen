@@ -117,14 +117,14 @@ class LobsterNeighbors(NearNeighbors):
                 will use LOBSTER charges (Mulliken) instead of valences.
             filename_charge (PathLike): Path to Charge.lobster.
             obj_charge (Charge): Charge object.
-            which_charge (Literal["Mulliken", "Loewdin"]): Source of charge.
+            which_charge ("Mulliken" | "Loewdin"): Source of charge.
             adapt_extremum_to_add_cond (bool): Whether to adapt the limits to only
                 focus on the bonds determined by the additional condition.
             add_additional_data_sg (bool): Add the information from filename_add_bondinglist_sg1.
             filename_blist_sg1 (PathLike): Path to additional ICOOP, ICOBI data for structure graphs.
             filename_blist_sg2 (PathLike): Path to additional ICOOP, ICOBI data for structure graphs.
-            id_blist_sg1 (Literal["icoop", "icobi"]): Identity of data in filename_blist_sg1.
-            id_blist_sg2 (Literal["icoop", "icobi"]): Identity of data in filename_blist_sg2.
+            id_blist_sg1 ("icoop" | "icobi"): Identity of data in filename_blist_sg1.
+            id_blist_sg2 ("icoop" | "icobi"): Identity of data in filename_blist_sg2.
         """
         if filename_icohp is not None:
             self.ICOHP = Icohplist(are_coops=are_coops, are_cobis=are_cobis, filename=filename_icohp)

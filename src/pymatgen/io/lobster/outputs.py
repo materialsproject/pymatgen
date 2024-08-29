@@ -1834,7 +1834,7 @@ class Wavefunction:
 
         Args:
             filename (PathLike): The output file, e.g. "WAVECAR.vasp".
-            part (Literal["real", "imaginary", "density"]): Part of the wavefunction to save.
+            part ("real" | "imaginary" | "density"]): Part of the wavefunction to save.
         """
         if not (
             hasattr(self, "volumetricdata_real")
