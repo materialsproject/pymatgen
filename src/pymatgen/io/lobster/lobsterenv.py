@@ -268,7 +268,7 @@ class LobsterNeighbors(NearNeighbors):
         structure: Structure,
         n: int,
         use_weights: bool = False,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Get coordination number (CN) of site by index.
 
         Args:
