@@ -4,7 +4,6 @@ from unittest import TestCase
 
 import pandas as pd
 import pytest
-from pytest import approx
 
 from pymatgen.core import Structure
 from pymatgen.core.structure import Molecule
@@ -100,10 +99,10 @@ C  -4.440892098501D-01 -1.116307996198d+01  1.933502166311E+01
 """
         xyz = XYZ.from_str(mol_str)
         mol = xyz.molecule
-        assert mol[0].x == approx(0)
-        assert mol[1].y == approx(11.16307996198)
-        assert mol[2].x == approx(-0.4440892098501)
-        assert mol[2].y == approx(-11.16307996198)
+        assert mol[0].x == pytest.approx(0)
+        assert mol[1].y == pytest.approx(11.16307996198)
+        assert mol[2].x == pytest.approx(-0.4440892098501)
+        assert mol[2].y == pytest.approx(-11.16307996198)
         # assert abs(mol[1].z) < 1e-05
 
         mol_str = """    5
@@ -116,10 +115,10 @@ C32-C2-1
  """
         xyz = XYZ.from_str(mol_str)
         mol = xyz.molecule
-        assert mol[0].x == approx(2.70450)
-        assert mol[1].y == approx(1.72490)
-        assert mol[2].x == approx(2.34210)
-        assert mol[3].z == approx(-0.13790)
+        assert mol[0].x == pytest.approx(2.70450)
+        assert mol[1].y == pytest.approx(1.72490)
+        assert mol[2].x == pytest.approx(2.34210)
+        assert mol[3].z == pytest.approx(-0.13790)
 
     def test_from_file(self):
         filepath = f"{TEST_FILES_DIR}/io/xyz/multiple_frame.xyz"

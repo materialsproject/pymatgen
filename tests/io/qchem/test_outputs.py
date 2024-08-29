@@ -7,7 +7,6 @@ import numpy as np
 import pytest
 from monty.serialization import dumpfn, loadfn
 from numpy.testing import assert_allclose
-from pytest import approx
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.outputs import (
@@ -284,7 +283,7 @@ class TestQCOutput(PymatgenTest):
             except ValueError:
                 try:
                     if isinstance(out_data.get(key), dict):
-                        assert out_data.get(key) == approx(single_job_dict[filename].get(key))
+                        assert out_data.get(key) == pytest.approx(single_job_dict[filename].get(key))
                     else:
                         assert_allclose(out_data.get(key), single_job_dict[filename].get(key), atol=1e-6)
                 except AssertionError:
@@ -297,7 +296,7 @@ class TestQCOutput(PymatgenTest):
                     assert sub_output.data.get(key) == multi_job_dict[filename][idx].get(key)
                 except ValueError:
                     if isinstance(sub_output.data.get(key), dict):
-                        assert sub_output.data.get(key) == approx(multi_job_dict[filename][idx].get(key))
+                        assert sub_output.data.get(key) == pytest.approx(multi_job_dict[filename][idx].get(key))
                     else:
                         assert_allclose(sub_output.data.get(key), multi_job_dict[filename][idx].get(key), atol=1e-6)
 
@@ -423,7 +422,7 @@ class TestQCOutput(PymatgenTest):
         data = QCOutput(f"{TEST_DIR}/almo.out").data
         assert data["almo_coupling_states"] == [[[1, 2], [0, 1]], [[0, 1], [1, 2]]]
         assert data["almo_hamiltonian"][0][0] == -156.62929
-        assert data["almo_coupling_eV"] == approx(0.26895)
+        assert data["almo_coupling_eV"] == pytest.approx(0.26895)
 
     def test_pod_parsing(self):
         data = QCOutput(f"{TEST_DIR}/pod2_gs.out").data

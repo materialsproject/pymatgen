@@ -3,8 +3,8 @@ from __future__ import annotations
 from unittest import TestCase
 
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
-from pytest import approx
 
 from pymatgen.io.cp2k.outputs import Cp2kOutput
 from pymatgen.util.testing import TEST_FILES_DIR
@@ -49,17 +49,17 @@ class TestSet(TestCase):
 
     def test_dos(self):
         """Can parse dos files."""
-        assert self.out.data["pdos"]["Si_1"]["s"]["efermi"] == approx(-6.7370756409404455)
-        assert self.out.data["tdos"].energies[0] == approx(-6.781065751604123)
+        assert self.out.data["pdos"]["Si_1"]["s"]["efermi"] == pytest.approx(-6.7370756409404455)
+        assert self.out.data["tdos"].energies[0] == pytest.approx(-6.781065751604123)
 
     def test_chi(self):
         self.out.parse_chi_tensor()
         assert len(self.out.data["chi_total"]) == 1
-        assert self.out.data["PV1"][0] == approx(0.1587)
-        assert self.out.data["PV2"][0] == approx(0.4582)
-        assert self.out.data["PV3"][0] == approx(0.4582)
-        assert self.out.data["ISO"][0] == approx(0.3584)
-        assert self.out.data["ANISO"][0] == approx(0.1498)
+        assert self.out.data["PV1"][0] == pytest.approx(0.1587)
+        assert self.out.data["PV2"][0] == pytest.approx(0.4582)
+        assert self.out.data["PV3"][0] == pytest.approx(0.4582)
+        assert self.out.data["ISO"][0] == pytest.approx(0.3584)
+        assert self.out.data["ANISO"][0] == pytest.approx(0.1498)
         assert_allclose(
             self.out.data["chi_soft"][0],
             [[5.9508, -1.6579, -1.6579], [-1.6579, 5.9508, -1.6579], [-1.6579, -1.6579, 5.9508]],

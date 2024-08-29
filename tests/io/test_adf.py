@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from pytest import approx
+import pytest
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.adf import AdfInput, AdfKey, AdfOutput, AdfTask
@@ -258,15 +258,15 @@ class TestAdfOutput:
     def test_analytical_freq(self):
         filename = f"{TEST_DIR}/analytical_freq/adf.out"
         adf_out = AdfOutput(filename)
-        assert adf_out.final_energy == approx(-0.54340325)
+        assert adf_out.final_energy == pytest.approx(-0.54340325)
         assert len(adf_out.energies) == 4
         assert len(adf_out.structures) == 4
-        assert adf_out.frequencies[0] == approx(1553.931)
-        assert adf_out.frequencies[2] == approx(3793.086)
-        assert adf_out.normal_modes[0][2] == approx(0.071)
-        assert adf_out.normal_modes[0][6] == approx(0.000)
-        assert adf_out.normal_modes[0][7] == approx(-0.426)
-        assert adf_out.normal_modes[0][8] == approx(-0.562)
+        assert adf_out.frequencies[0] == pytest.approx(1553.931)
+        assert adf_out.frequencies[2] == pytest.approx(3793.086)
+        assert adf_out.normal_modes[0][2] == pytest.approx(0.071)
+        assert adf_out.normal_modes[0][6] == pytest.approx(0.000)
+        assert adf_out.normal_modes[0][7] == pytest.approx(-0.426)
+        assert adf_out.normal_modes[0][8] == pytest.approx(-0.562)
 
     def test_numerical_freq(self):
         filename = f"{TEST_DIR}/numerical_freq/adf.out"
@@ -275,17 +275,17 @@ class TestAdfOutput:
         assert len(adf_out.final_structure) == 4
         assert len(adf_out.frequencies) == 6
         assert len(adf_out.normal_modes) == 6
-        assert adf_out.frequencies[0] == approx(938.21)
-        assert adf_out.frequencies[3] == approx(3426.64)
-        assert adf_out.frequencies[4] == approx(3559.35)
-        assert adf_out.frequencies[5] == approx(3559.35)
-        assert adf_out.normal_modes[1][0] == approx(0.067)
-        assert adf_out.normal_modes[1][3] == approx(-0.536)
-        assert adf_out.normal_modes[1][7] == approx(0.000)
-        assert adf_out.normal_modes[1][9] == approx(-0.536)
+        assert adf_out.frequencies[0] == pytest.approx(938.21)
+        assert adf_out.frequencies[3] == pytest.approx(3426.64)
+        assert adf_out.frequencies[4] == pytest.approx(3559.35)
+        assert adf_out.frequencies[5] == pytest.approx(3559.35)
+        assert adf_out.normal_modes[1][0] == pytest.approx(0.067)
+        assert adf_out.normal_modes[1][3] == pytest.approx(-0.536)
+        assert adf_out.normal_modes[1][7] == pytest.approx(0.000)
+        assert adf_out.normal_modes[1][9] == pytest.approx(-0.536)
 
     def test_single_point(self):
         filename = f"{TEST_DIR}/sp/adf.out"
         adf_out = AdfOutput(filename)
-        assert adf_out.final_energy == approx(-0.74399276)
+        assert adf_out.final_energy == pytest.approx(-0.74399276)
         assert len(adf_out.final_structure) == 4

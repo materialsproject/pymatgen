@@ -4,7 +4,6 @@ import unittest
 from unittest import TestCase
 
 import pytest
-from pytest import approx
 
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.core import Molecule, Species, Structure
@@ -184,9 +183,9 @@ class TestGetFreeSphereParams(TestCase):
     def test_get_free_sphere_params(self):
         free_sph_params = get_free_sphere_params(self.structure, rad_dict=self.rad_dict)
         # Zeo results can change in future. Hence loose comparison
-        assert free_sph_params["inc_sph_max_dia"] == approx(2.58251, abs=1e-1)
-        assert free_sph_params["free_sph_max_dia"] == approx(1.29452, abs=1e-1)
-        assert free_sph_params["inc_sph_along_free_sph_path_max_dia"] == approx(2.58251, abs=1e-1)
+        assert free_sph_params["inc_sph_max_dia"] == pytest.approx(2.58251, abs=1e-1)
+        assert free_sph_params["free_sph_max_dia"] == pytest.approx(1.29452, abs=1e-1)
+        assert free_sph_params["inc_sph_along_free_sph_path_max_dia"] == pytest.approx(2.58251, abs=1e-1)
 
 
 @pytest.mark.skipif(zeo is None, reason="zeo not present")

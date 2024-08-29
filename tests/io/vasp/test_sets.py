@@ -11,7 +11,6 @@ import pytest
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
-from pytest import MonkeyPatch, approx, mark
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SETTINGS, Lattice, Species, Structure
@@ -59,10 +58,10 @@ from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, 
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/vasp"
 
-MonkeyPatch().setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(FAKE_POTCAR_DIR))
+pytest.MonkeyPatch().setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(FAKE_POTCAR_DIR))
 
 NO_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR") is None
-skip_if_no_psp_dir = mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set")
+skip_if_no_psp_dir = pytest.mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set")
 
 dummy_structure = Structure(
     [1, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -262,7 +261,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         structure = Structure(self.lattice, ["P", "Fe"], self.coords)
         # Use pytest's monkeypatch to temporarily point pymatgen to a directory
         # containing the wrong POTCARs (LDA potcars in a PBE directory)
-        with MonkeyPatch().context() as monkeypatch:
+        with pytest.MonkeyPatch().context() as monkeypatch:
             monkeypatch.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(f"{VASP_IN_DIR}/wrong_potcars"))
             with pytest.warns(BadInputSetWarning, match="not known by pymatgen"):
                 _ = self.set(structure).potcar
@@ -325,24 +324,24 @@ class TestMITMPRelaxSet(PymatgenTest):
 
         # Si + Fe with NPAR = 4
         uis = {"NPAR": 4}
-        assert self.set(struct, user_incar_settings=uis).estimate_nbands() == approx(16)
-        assert MPRelaxSet(struct, user_incar_settings=uis).estimate_nbands() == approx(20)
+        assert self.set(struct, user_incar_settings=uis).estimate_nbands() == pytest.approx(16)
+        assert MPRelaxSet(struct, user_incar_settings=uis).estimate_nbands() == pytest.approx(20)
 
         # Si + Fe with noncollinear magnetism turned on
         uis = {"LNONCOLLINEAR": True}
-        assert self.set(struct, user_incar_settings=uis).estimate_nbands() == approx(30)
-        assert MPRelaxSet(struct, user_incar_settings=uis).estimate_nbands() == approx(36)
+        assert self.set(struct, user_incar_settings=uis).estimate_nbands() == pytest.approx(30)
+        assert MPRelaxSet(struct, user_incar_settings=uis).estimate_nbands() == pytest.approx(36)
 
     @skip_if_no_psp_dir
     def test_get_incar(self):
         incar = self.mp_set.incar
 
         assert incar["LDAUU"] == [5.3, 0, 0]
-        assert incar["EDIFF"] == approx(0.0012)
+        assert incar["EDIFF"] == pytest.approx(0.0012)
 
         incar = self.mit_set.incar
         assert incar["LDAUU"] == [4.0, 0, 0]
-        assert incar["EDIFF"] == approx(1e-5)
+        assert incar["EDIFF"] == pytest.approx(1e-5)
 
         si = 14
         coords = []
@@ -1154,7 +1153,7 @@ class TestMITMDSet(PymatgenTest):
         assert syms == ["Fe", "P", "O"]
         incar = param.incar
         assert "LDAUU" not in incar
-        assert incar["EDIFF"] == approx(1e-5)
+        assert incar["EDIFF"] == pytest.approx(1e-5)
         assert incar["ALGO"] == "Fast"
         assert incar["ISMEAR"] == 0
         assert incar["IBRION"] == 0
@@ -1197,11 +1196,11 @@ class TestMVLNPTMDSet(PymatgenTest):
 
         incar = npt_set.incar
         assert "LDAUU" not in incar
-        assert incar["EDIFF"] == approx(1e-5)
+        assert incar["EDIFF"] == pytest.approx(1e-5)
         assert incar["LANGEVIN_GAMMA_L"] == 1
         assert incar["LANGEVIN_GAMMA"] == [10, 10, 10]
         enmax = max(npt_set.potcar[idx].keywords["ENMAX"] for idx in range(self.struct.n_elems))
-        assert incar["ENCUT"] == approx(1.5 * enmax)
+        assert incar["ENCUT"] == pytest.approx(1.5 * enmax)
         assert incar["ALGO"] == "Fast"
         assert incar["ISIF"] == 3
         assert incar["MDALGO"] == 3
@@ -1284,7 +1283,7 @@ class TestMITNEBSet(PymatgenTest):
     def test_incar(self):
         incar = self.vis.incar
         assert "LDAUU" not in incar
-        assert incar["EDIFF"] == approx(0.00001)
+        assert incar["EDIFF"] == pytest.approx(0.00001)
 
     def test_kpoints(self):
         kpoints = self.vis.kpoints
@@ -1757,7 +1756,7 @@ class TestMPScanRelaxSet(PymatgenTest):
         bandgap = 0.01
         for bandgap_tol, expected_kspacing in ((0.001, 0.2668137888), (0.02, 0.22)):
             incar = MPScanRelaxSet(self.struct, bandgap=0.01, bandgap_tol=bandgap_tol).incar
-            assert incar["KSPACING"] == approx(expected_kspacing, abs=1e-5), f"{bandgap_tol=}, {bandgap=}"
+            assert incar["KSPACING"] == pytest.approx(expected_kspacing, abs=1e-5), f"{bandgap_tol=}, {bandgap=}"
             assert incar["ISMEAR"] == -5 if bandgap > bandgap_tol else 2
             assert incar["SIGMA"] == 0.05 if bandgap > bandgap_tol else 0.2
 
@@ -1767,7 +1766,7 @@ class TestMPScanRelaxSet(PymatgenTest):
         struct = Structure.from_file(file_path)
         for bandgap, expected in ((10, 0.44), (3, 0.4136617), (1.1, 0.3064757), (0.5, 0.2832948), (0, 0.22)):
             incar = MPScanRelaxSet(struct, bandgap=bandgap).incar
-            assert incar["KSPACING"] == approx(expected, abs=1e-5)
+            assert incar["KSPACING"] == pytest.approx(expected, abs=1e-5)
             assert incar["ISMEAR"] == -5 if bandgap > 1e-4 else 2
             assert incar["SIGMA"] == 0.05 if bandgap > 1e-4 else 0.2
 

@@ -3,7 +3,6 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
 
 from pymatgen.core.structure import Structure
 from pymatgen.core.units import Ha_to_eV, bohr_to_ang
@@ -25,7 +24,7 @@ from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 class TestLatticeFromAbivars(PymatgenTest):
     def test_rprim_acell(self):
         l1 = lattice_from_abivars(acell=3 * [10], rprim=np.eye(3))
-        assert l1.volume == approx(bohr_to_ang**3 * 1000)
+        assert l1.volume == pytest.approx(bohr_to_ang**3 * 1000)
         assert l1.angles == (90, 90, 90)
         l2 = lattice_from_abivars(acell=3 * [10], angdeg=(90, 90, 90))
         assert l1 == l2

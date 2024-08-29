@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 
-from pytest import approx
+import pytest
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.qchem.outputs import check_for_structure_changes
@@ -46,7 +46,7 @@ class TestCRESTOutput(PymatgenTest):
             for j, r in enumerate(c):
                 if openbabel:
                     assert check_for_structure_changes(r[0], expected_sorted_structures[idx][j]) == "no_change"
-                assert float(r[1]) == approx(float(expected_energies[idx][j]), abs=1e-4)
+                assert float(r[1]) == pytest.approx(float(expected_energies[idx][j]), abs=1e-4)
 
         assert crest_out.properly_terminated
         if openbabel:

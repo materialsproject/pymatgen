@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import pytest
-from pytest import approx
 
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.sets import SETTINGS, Cp2kValidationError, DftSet, GaussianTypeOrbitalBasisSet, GthPotential
@@ -66,7 +65,7 @@ class TestDftSet(PymatgenTest):
         }
         set_kwargs = dict.fromkeys(("print_pdos", "print_dos", "print_v_hartree", "print_e_density"), False)
         dft_set = DftSet(Si_structure, basis_and_potential=basis_and_potential, xc_functionals="PBE", **set_kwargs)
-        assert dft_set.cutoff == approx(150)
+        assert dft_set.cutoff == pytest.approx(150)
 
         # Test that printing will activate sections
         assert not dft_set.check("motion")

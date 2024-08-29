@@ -3,7 +3,6 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from pytest import approx
 
 from pymatgen.io.pwscf import PWInput, PWInputError, PWOutput
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
@@ -521,9 +520,9 @@ class TestPWOutput(PymatgenTest):
         self.pw_out = PWOutput(f"{TEST_DIR}/Si.pwscf.out")
 
     def test_properties(self):
-        assert self.pw_out.final_energy == approx(-93.45259708)
+        assert self.pw_out.final_energy == pytest.approx(-93.45259708)
 
     def test_get_celldm(self):
-        assert self.pw_out.get_celldm(1) == approx(10.323)
+        assert self.pw_out.get_celldm(1) == pytest.approx(10.323)
         for i in range(2, 7):
-            assert self.pw_out.get_celldm(i) == approx(0)
+            assert self.pw_out.get_celldm(i) == pytest.approx(0)

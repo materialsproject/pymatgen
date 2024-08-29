@@ -5,7 +5,6 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from pytest import approx
 
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
@@ -87,7 +86,7 @@ class TestUnk(PymatgenTest):
         assert unk.is_noncollinear
         assert_allclose(unk.data.shape, (5, 2, 6, 6, 8))
         assert unk.data[0, 0, 0, 0, 0].real != 0.0
-        assert unk.data[0, 1, 0, 0, 0].real == approx(0.0)
+        assert unk.data[0, 1, 0, 0, 0].real == pytest.approx(0.0)
 
     def test_write_file(self):
         self.unk_std.write_file("UNK00001.1")

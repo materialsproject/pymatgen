@@ -4,7 +4,6 @@ import copy
 from unittest import TestCase
 
 import pytest
-from pytest import approx
 
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.molecule_matcher import MoleculeMatcher
@@ -72,7 +71,7 @@ class TestBabelMolAdaptor(TestCase):
         adaptor.localopt()
         opt_mol = adaptor.pymatgen_mol
         for site in opt_mol[1:]:
-            assert site.distance(opt_mol[0]) == approx(1.09216, abs=1e-1)
+            assert site.distance(opt_mol[0]) == pytest.approx(1.09216, abs=1e-1)
 
     def test_make3d(self):
         mol_0d = pybel.readstring("smi", "CCCC").OBMol
@@ -95,7 +94,7 @@ class TestBabelMolAdaptor(TestCase):
         adaptor.rotor_conformer(*rotor_args, algo="WeightedRotorSearch")
         opt_mol = adaptor.pymatgen_mol
         for site in opt_mol[1:]:
-            assert site.distance(opt_mol[0]) == approx(1.09216, abs=1e-1)
+            assert site.distance(opt_mol[0]) == pytest.approx(1.09216, abs=1e-1)
 
     def test_rotor_search_srs(self):
         mol = copy.deepcopy(self.mol)
@@ -104,7 +103,7 @@ class TestBabelMolAdaptor(TestCase):
         adaptor.rotor_conformer(200, algo="SystematicRotorSearch")
         opt_mol = adaptor.pymatgen_mol
         for site in opt_mol[1:]:
-            assert site.distance(opt_mol[0]) == approx(1.09216, abs=1e-1)
+            assert site.distance(opt_mol[0]) == pytest.approx(1.09216, abs=1e-1)
 
     def test_rotor_search_rrs(self):
         mol = copy.deepcopy(self.mol)
@@ -113,7 +112,7 @@ class TestBabelMolAdaptor(TestCase):
         adaptor.rotor_conformer(250, 50, algo="RandomRotorSearch")
         opt_mol = adaptor.pymatgen_mol
         for site in opt_mol[1:]:
-            assert site.distance(opt_mol[0]) == approx(1.09216, abs=1e-1)
+            assert site.distance(opt_mol[0]) == pytest.approx(1.09216, abs=1e-1)
 
     def test_confab_conformers(self):
         mol = pybel.readstring("smi", "CCCC").OBMol
@@ -123,4 +122,4 @@ class TestBabelMolAdaptor(TestCase):
         assert adaptor.openbabel_mol.NumRotors() == 1
         assert len(conformers) >= 1
         if len(conformers) > 1:
-            assert MoleculeMatcher().get_rmsd(conformers[0], conformers[1]) != approx(0)
+            assert MoleculeMatcher().get_rmsd(conformers[0], conformers[1]) != pytest.approx(0)

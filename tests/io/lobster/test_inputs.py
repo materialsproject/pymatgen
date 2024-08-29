@@ -7,7 +7,6 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
 
 from pymatgen.core.structure import Structure
 from pymatgen.electronic_structure.cohp import IcohpCollection
@@ -158,21 +157,21 @@ class TestCohpcar(PymatgenTest):
         assert self.cohp_KF.efermi == efermi_KF
         assert self.coop_KF.efermi == efermi_KF
 
-        assert self.cohp_bise.energies[0] + self.cohp_bise.efermi == approx(elim_bise[0], abs=1e-4)
-        assert self.cohp_bise.energies[-1] + self.cohp_bise.efermi == approx(elim_bise[1], abs=1e-4)
-        assert self.coop_bise.energies[0] + self.coop_bise.efermi == approx(elim_bise[0], abs=1e-4)
-        assert self.coop_bise.energies[-1] + self.coop_bise.efermi == approx(elim_bise[1], abs=1e-4)
+        assert self.cohp_bise.energies[0] + self.cohp_bise.efermi == pytest.approx(elim_bise[0], abs=1e-4)
+        assert self.cohp_bise.energies[-1] + self.cohp_bise.efermi == pytest.approx(elim_bise[1], abs=1e-4)
+        assert self.coop_bise.energies[0] + self.coop_bise.efermi == pytest.approx(elim_bise[0], abs=1e-4)
+        assert self.coop_bise.energies[-1] + self.coop_bise.efermi == pytest.approx(elim_bise[1], abs=1e-4)
 
-        assert self.cohp_fe.energies[0] + self.cohp_fe.efermi == approx(elim_fe[0], abs=1e-4)
-        assert self.cohp_fe.energies[-1] + self.cohp_fe.efermi == approx(elim_fe[1], abs=1e-4)
-        assert self.coop_fe.energies[0] + self.coop_fe.efermi == approx(elim_fe[0], abs=1e-4)
-        assert self.coop_fe.energies[-1] + self.coop_fe.efermi == approx(elim_fe[1], abs=1e-4)
+        assert self.cohp_fe.energies[0] + self.cohp_fe.efermi == pytest.approx(elim_fe[0], abs=1e-4)
+        assert self.cohp_fe.energies[-1] + self.cohp_fe.efermi == pytest.approx(elim_fe[1], abs=1e-4)
+        assert self.coop_fe.energies[0] + self.coop_fe.efermi == pytest.approx(elim_fe[0], abs=1e-4)
+        assert self.coop_fe.energies[-1] + self.coop_fe.efermi == pytest.approx(elim_fe[1], abs=1e-4)
 
         # Lobster 3.1
-        assert self.cohp_KF.energies[0] + self.cohp_KF.efermi == approx(elim_KF[0], abs=1e-4)
-        assert self.cohp_KF.energies[-1] + self.cohp_KF.efermi == approx(elim_KF[1], abs=1e-4)
-        assert self.coop_KF.energies[0] + self.coop_KF.efermi == approx(elim_KF[0], abs=1e-4)
-        assert self.coop_KF.energies[-1] + self.coop_KF.efermi == approx(elim_KF[1], abs=1e-4)
+        assert self.cohp_KF.energies[0] + self.cohp_KF.efermi == pytest.approx(elim_KF[0], abs=1e-4)
+        assert self.cohp_KF.energies[-1] + self.cohp_KF.efermi == pytest.approx(elim_KF[1], abs=1e-4)
+        assert self.coop_KF.energies[0] + self.coop_KF.efermi == pytest.approx(elim_KF[0], abs=1e-4)
+        assert self.coop_KF.energies[-1] + self.coop_KF.efermi == pytest.approx(elim_KF[1], abs=1e-4)
 
     def test_cohp_data(self):
         lengths_sites_bise = {
@@ -258,13 +257,13 @@ class TestCohpcar(PymatgenTest):
                         assert len(val["COHP"][Spin.up]) == 12
                         assert len(val["COHP"][Spin.down]) == 12
                         for cohp1, cohp2 in zip(val["COHP"][Spin.up], val["COHP"][Spin.down], strict=True):
-                            assert cohp1 == approx(cohp2, abs=1e-4)
+                            assert cohp1 == pytest.approx(cohp2, abs=1e-4)
                     else:
                         assert len(val["cells"]) == 2
                         assert len(val["COHP"][Spin.up]) == 12
                         assert len(val["COHP"][Spin.down]) == 12
                         for cohp1, cohp2 in zip(val["COHP"][Spin.up], val["COHP"][Spin.down], strict=True):
-                            assert cohp1 == approx(cohp2, abs=1e-3)
+                            assert cohp1 == pytest.approx(cohp2, abs=1e-3)
 
     def test_orbital_resolved_cohp(self):
         orbitals = [(Orbital(jj), Orbital(ii)) for ii in range(4) for jj in range(4)]
@@ -305,7 +304,7 @@ class TestCohpcar(PymatgenTest):
             assert orb_set[0][0] == ref_list1[iorb]
             assert str(orb_set[0][1]) == ref_list2[iorb]
 
-        # The sum of the orbital-resolved COHPs should be approximately
+        # The sum of the orbital-resolved COHPs should be pytest.approximately
         # the total COHP. Due to small deviations in the LOBSTER calculation,
         # the precision is not very high though.
         cohp = self.orb.cohp_data["1"]["COHP"][Spin.up]
@@ -618,12 +617,18 @@ class TestIcohplist(TestCase):
         assert self.icoop_fe.icohpcollection.extremum_icohpvalue() == -0.29919
         assert icooplist_bise == self.icoop_bise.icohplist
         assert self.icoop_bise.icohpcollection.extremum_icohpvalue() == 0.24714
-        assert self.icobi.icohplist["1"]["icohp"][Spin.up] == approx(0.58649)
-        assert self.icobi_orbitalwise.icohplist["2"]["icohp"][Spin.up] == approx(0.58649)
-        assert self.icobi_orbitalwise.icohplist["1"]["icohp"][Spin.up] == approx(0.58649)
-        assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.up] == approx(0.58649 / 2, abs=1e-3)
-        assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
-        assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down] == approx(0.58649 / 2, abs=1e-3)
+        assert self.icobi.icohplist["1"]["icohp"][Spin.up] == pytest.approx(0.58649)
+        assert self.icobi_orbitalwise.icohplist["2"]["icohp"][Spin.up] == pytest.approx(0.58649)
+        assert self.icobi_orbitalwise.icohplist["1"]["icohp"][Spin.up] == pytest.approx(0.58649)
+        assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.up] == pytest.approx(
+            0.58649 / 2, abs=1e-3
+        )
+        assert self.icobi_orbitalwise_spinpolarized.icohplist["1"]["icohp"][Spin.down] == pytest.approx(
+            0.58649 / 2, abs=1e-3
+        )
+        assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["icohp"][Spin.down] == pytest.approx(
+            0.58649 / 2, abs=1e-3
+        )
         assert self.icobi.icohpcollection.extremum_icohpvalue() == 0.58649
         assert self.icobi_orbitalwise_spinpolarized.icohplist["2"]["orbitals"]["2s-6s"]["icohp"][Spin.up] == 0.0247
 
@@ -657,8 +662,8 @@ class TestNciCobiList(TestCase):
         assert not self.ncicobi_no_spin_wo.orbital_wise
         assert len(self.ncicobi.ncicobi_list) == 2
         assert self.ncicobi.ncicobi_list["2"]["number_of_atoms"] == 3
-        assert self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == approx(0.00009)
-        assert self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.down] == approx(0.00009)
+        assert self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == pytest.approx(0.00009)
+        assert self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.down] == pytest.approx(0.00009)
         assert self.ncicobi.ncicobi_list["2"]["interaction_type"] == "[X22[0,0,0]->Xs42[0,0,0]->X31[0,0,0]]"
         assert (
             self.ncicobi.ncicobi_list["2"]["ncicobi"][Spin.up] == self.ncicobi_wo.ncicobi_list["2"]["ncicobi"][Spin.up]
@@ -669,7 +674,7 @@ class TestNciCobiList(TestCase):
         assert (
             self.ncicobi.ncicobi_list["2"]["interaction_type"] == self.ncicobi_gz.ncicobi_list["2"]["interaction_type"]
         )
-        assert sum(self.ncicobi.ncicobi_list["2"]["ncicobi"].values()) == approx(
+        assert sum(self.ncicobi.ncicobi_list["2"]["ncicobi"].values()) == pytest.approx(
             self.ncicobi_no_spin.ncicobi_list["2"]["ncicobi"][Spin.up]
         )
 
@@ -717,7 +722,7 @@ class TestDoscar(TestCase):
         assert energies_spin == self.DOSCAR_spin_pol.completedos.energies.tolist()
         assert tdos_up == self.DOSCAR_spin_pol.completedos.densities[Spin.up].tolist()
         assert tdos_down == self.DOSCAR_spin_pol.completedos.densities[Spin.down].tolist()
-        assert fermi == approx(self.DOSCAR_spin_pol.completedos.efermi)
+        assert fermi == pytest.approx(self.DOSCAR_spin_pol.completedos.efermi)
 
         assert_allclose(
             self.DOSCAR_spin_pol.completedos.structure.frac_coords,
@@ -747,7 +752,7 @@ class TestDoscar(TestCase):
 
         assert tdos_nonspin == self.DOSCAR_nonspin_pol.completedos.densities[Spin.up].tolist()
 
-        assert fermi == approx(self.DOSCAR_nonspin_pol.completedos.efermi)
+        assert fermi == pytest.approx(self.DOSCAR_nonspin_pol.completedos.efermi)
 
         assert self.DOSCAR_nonspin_pol.completedos.structure == self.structure
 
@@ -798,7 +803,7 @@ class TestDoscar(TestCase):
         assert energies_spin == self.DOSCAR_spin_pol.tdos.energies.tolist()
         assert tdos_up == self.DOSCAR_spin_pol.tdos.densities[Spin.up].tolist()
         assert tdos_down == self.DOSCAR_spin_pol.tdos.densities[Spin.down].tolist()
-        assert fermi == approx(self.DOSCAR_spin_pol.tdos.efermi)
+        assert fermi == pytest.approx(self.DOSCAR_spin_pol.tdos.efermi)
 
         energies_nonspin = [-11.25000, -7.50000, -3.75000, 0.00000, 3.75000, 7.50000]
         tdos_nonspin = [0.00000, 1.60000, 0.00000, 1.60000, 0.00000, 0.02418]
@@ -806,7 +811,7 @@ class TestDoscar(TestCase):
 
         assert energies_nonspin == self.DOSCAR_nonspin_pol.tdos.energies.tolist()
         assert tdos_nonspin == self.DOSCAR_nonspin_pol.tdos.densities[Spin.up].tolist()
-        assert fermi == approx(self.DOSCAR_nonspin_pol.tdos.efermi)
+        assert fermi == pytest.approx(self.DOSCAR_nonspin_pol.tdos.efermi)
 
     def test_energies(self):
         # first for spin polarized version
@@ -963,7 +968,7 @@ class TestLobsterout(PymatgenTest):
             "user_time": {"h": "0", "min": "0", "s": "20", "ms": "330"},
             "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "310"},
         }
-        assert self.lobsterout_normal.total_spilling[0] == approx([0.044000000000000004][0])
+        assert self.lobsterout_normal.total_spilling[0] == pytest.approx([0.044000000000000004][0])
         assert self.lobsterout_normal.warning_lines == [
             "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
             "Generally, this is not a critical error. But to help you analyze it,",
@@ -1005,7 +1010,9 @@ class TestLobsterout(PymatgenTest):
             "user_time": {"h": "0", "min": "0", "s": "18", "ms": "280"},
             "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "290"},
         }
-        assert self.lobsterout_fatband_grosspop_densityofenergies.total_spilling[0] == approx([0.044000000000000004][0])
+        assert self.lobsterout_fatband_grosspop_densityofenergies.total_spilling[0] == pytest.approx(
+            [0.044000000000000004][0]
+        )
         assert self.lobsterout_fatband_grosspop_densityofenergies.warning_lines == [
             "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
             "Generally, this is not a critical error. But to help you analyze it,",
@@ -1047,7 +1054,7 @@ class TestLobsterout(PymatgenTest):
             "user_time": {"h": "0", "min": "0", "s": "18", "ms": "250"},
             "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "320"},
         }
-        assert self.lobsterout_saveprojection.total_spilling[0] == approx([0.044000000000000004][0])
+        assert self.lobsterout_saveprojection.total_spilling[0] == pytest.approx([0.044000000000000004][0])
         assert self.lobsterout_saveprojection.warning_lines == [
             "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
             "Generally, this is not a critical error. But to help you analyze it,",
@@ -1091,7 +1098,7 @@ class TestLobsterout(PymatgenTest):
             "user_time": {"h": "0", "min": "0", "s": "16", "ms": "79"},
             "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "320"},
         }
-        assert self.lobsterout_skipping_all.total_spilling[0] == approx([0.044000000000000004][0])
+        assert self.lobsterout_skipping_all.total_spilling[0] == pytest.approx([0.044000000000000004][0])
         assert self.lobsterout_skipping_all.warning_lines == [
             "3 of 147 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
             "Generally, this is not a critical error. But to help you analyze it,",
@@ -1114,8 +1121,8 @@ class TestLobsterout(PymatgenTest):
             ]
         ]
         assert self.lobsterout_twospins.basis_type == ["pbeVaspFit2015"]
-        assert self.lobsterout_twospins.charge_spilling[0] == approx(0.36619999999999997)
-        assert self.lobsterout_twospins.charge_spilling[1] == approx(0.36619999999999997)
+        assert self.lobsterout_twospins.charge_spilling[0] == pytest.approx(0.36619999999999997)
+        assert self.lobsterout_twospins.charge_spilling[1] == pytest.approx(0.36619999999999997)
         assert self.lobsterout_twospins.dft_program == "VASP"
         assert self.lobsterout_twospins.elements == ["Ti"]
         assert self.lobsterout_twospins.has_charge
@@ -1144,8 +1151,8 @@ class TestLobsterout(PymatgenTest):
             "user_time": {"h": "0", "min": "0", "s": "22", "ms": "660"},
             "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "310"},
         }
-        assert self.lobsterout_twospins.total_spilling[0] == approx([0.2567][0])
-        assert self.lobsterout_twospins.total_spilling[1] == approx([0.2567][0])
+        assert self.lobsterout_twospins.total_spilling[0] == pytest.approx([0.2567][0])
+        assert self.lobsterout_twospins.total_spilling[1] == pytest.approx([0.2567][0])
         assert self.lobsterout_twospins.warning_lines == [
             "60 of 294 k-points could not be orthonormalized with an accuracy of 1.0E-5.",
             "Generally, this is not a critical error. But to help you analyze it,",
@@ -1156,7 +1163,7 @@ class TestLobsterout(PymatgenTest):
 
         assert self.lobsterout_from_projection.basis_functions == []
         assert self.lobsterout_from_projection.basis_type == []
-        assert self.lobsterout_from_projection.charge_spilling[0] == approx(0.0177)
+        assert self.lobsterout_from_projection.charge_spilling[0] == pytest.approx(0.0177)
         assert self.lobsterout_from_projection.dft_program is None
         assert self.lobsterout_from_projection.elements == []
         assert self.lobsterout_from_projection.has_charge
@@ -1179,7 +1186,7 @@ class TestLobsterout(PymatgenTest):
             "user_time": {"h": "0", "min": "15", "s": "10", "ms": "530"},
             "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "400"},
         }
-        assert self.lobsterout_from_projection.total_spilling[0] == approx([0.1543][0])
+        assert self.lobsterout_from_projection.total_spilling[0] == pytest.approx([0.1543][0])
         assert self.lobsterout_from_projection.warning_lines == []
 
         assert self.lobsterout_GaAs.basis_functions == [
@@ -1197,7 +1204,7 @@ class TestLobsterout(PymatgenTest):
             ],
         ]
         assert self.lobsterout_GaAs.basis_type == ["Bunge", "Bunge"]
-        assert self.lobsterout_GaAs.charge_spilling[0] == approx(0.0089)
+        assert self.lobsterout_GaAs.charge_spilling[0] == pytest.approx(0.0089)
         assert self.lobsterout_GaAs.dft_program == "VASP"
         assert self.lobsterout_GaAs.elements == ["As", "Ga"]
         assert self.lobsterout_GaAs.has_charge
@@ -1224,7 +1231,7 @@ class TestLobsterout(PymatgenTest):
             "user_time": {"h": "0", "min": "0", "s": "12", "ms": "370"},
             "sys_time": {"h": "0", "min": "0", "s": "0", "ms": "180"},
         }
-        assert self.lobsterout_GaAs.total_spilling[0] == approx([0.0859][0])
+        assert self.lobsterout_GaAs.total_spilling[0] == pytest.approx([0.0859][0])
 
         assert self.lobsterout_onethread.number_of_threads == 1
         # Test lobsterout of lobster-4.1.0
@@ -1298,7 +1305,7 @@ class TestLobsterout(PymatgenTest):
                 elif isinstance(item, int):
                     assert ref_data[key] == item
                 elif key in ("charge_spilling", "total_spilling"):
-                    assert item[0] == approx(ref_data[key][0])
+                    assert item[0] == pytest.approx(ref_data[key][0])
                 elif isinstance(item, list | dict):
                     assert item == ref_data[key]
 
@@ -1364,53 +1371,53 @@ class TestFatband(PymatgenTest):
         self.bs_symmline_spin = self.vasprun_SiO2_p.get_band_structure(line_mode=True, force_hybrid_mode=True)
 
     def test_attributes(self):
-        assert list(self.fatband_SiO2_p_x.label_dict["M"]) == approx([0.5, 0.0, 0.0])
+        assert list(self.fatband_SiO2_p_x.label_dict["M"]) == pytest.approx([0.5, 0.0, 0.0])
         assert self.fatband_SiO2_p_x.efermi == self.vasprun_SiO2_p_x.efermi
         lattice1 = self.bs_symmline.lattice_rec.as_dict()
         lattice2 = self.fatband_SiO2_p_x.lattice.as_dict()
         for idx in range(3):
-            assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
+            assert lattice1["matrix"][idx] == pytest.approx(lattice2["matrix"][idx])
         assert self.fatband_SiO2_p_x.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p_x.efermi == -18.245
         assert self.fatband_SiO2_p_x.is_spinpolarized is False
-        assert self.fatband_SiO2_p_x.kpoints_array[3] == approx([0.03409091, 0, 0])
+        assert self.fatband_SiO2_p_x.kpoints_array[3] == pytest.approx([0.03409091, 0, 0])
         assert self.fatband_SiO2_p_x.nbands == 36
         assert self.fatband_SiO2_p_x.p_eigenvals[Spin.up][2][1]["Si1"]["3p_x"] == 0.002
-        assert self.fatband_SiO2_p_x.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
+        assert self.fatband_SiO2_p_x.structure[0].frac_coords == pytest.approx([0.0, 0.47634315, 0.666667])
         assert self.fatband_SiO2_p_x.structure[0].species_string == "Si"
-        assert self.fatband_SiO2_p_x.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
+        assert self.fatband_SiO2_p_x.structure[0].coords == pytest.approx([-1.19607309, 2.0716597, 3.67462144])
 
-        assert list(self.fatband_SiO2_p.label_dict["M"]) == approx([0.5, 0.0, 0.0])
+        assert list(self.fatband_SiO2_p.label_dict["M"]) == pytest.approx([0.5, 0.0, 0.0])
         assert self.fatband_SiO2_p.efermi == self.vasprun_SiO2_p.efermi
         lattice1 = self.bs_symmline2.lattice_rec.as_dict()
         lattice2 = self.fatband_SiO2_p.lattice.as_dict()
         for idx in range(3):
-            assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
+            assert lattice1["matrix"][idx] == pytest.approx(lattice2["matrix"][idx])
         assert self.fatband_SiO2_p.eigenvals[Spin.up][1][1] - self.fatband_SiO2_p.efermi == -18.245
         assert self.fatband_SiO2_p.is_spinpolarized is False
-        assert self.fatband_SiO2_p.kpoints_array[3] == approx([0.03409091, 0, 0])
+        assert self.fatband_SiO2_p.kpoints_array[3] == pytest.approx([0.03409091, 0, 0])
         assert self.fatband_SiO2_p.nbands == 36
         assert self.fatband_SiO2_p.p_eigenvals[Spin.up][2][1]["Si1"]["3p"] == 0.042
-        assert self.fatband_SiO2_p.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
+        assert self.fatband_SiO2_p.structure[0].frac_coords == pytest.approx([0.0, 0.47634315, 0.666667])
         assert self.fatband_SiO2_p.structure[0].species_string == "Si"
-        assert self.fatband_SiO2_p.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
-        assert self.fatband_SiO2_p.efermi == approx(1.0647039)
+        assert self.fatband_SiO2_p.structure[0].coords == pytest.approx([-1.19607309, 2.0716597, 3.67462144])
+        assert self.fatband_SiO2_p.efermi == pytest.approx(1.0647039)
 
-        assert list(self.fatband_SiO2_spin.label_dict["M"]) == approx([0.5, 0.0, 0.0])
+        assert list(self.fatband_SiO2_spin.label_dict["M"]) == pytest.approx([0.5, 0.0, 0.0])
         assert self.fatband_SiO2_spin.efermi == self.vasprun_SiO2_spin.efermi
         lattice1 = self.bs_symmline_spin.lattice_rec.as_dict()
         lattice2 = self.fatband_SiO2_spin.lattice.as_dict()
         for idx in range(3):
-            assert lattice1["matrix"][idx] == approx(lattice2["matrix"][idx])
+            assert lattice1["matrix"][idx] == pytest.approx(lattice2["matrix"][idx])
         assert self.fatband_SiO2_spin.eigenvals[Spin.up][1][1] - self.fatband_SiO2_spin.efermi == -18.245
         assert self.fatband_SiO2_spin.eigenvals[Spin.down][1][1] - self.fatband_SiO2_spin.efermi == -18.245
         assert self.fatband_SiO2_spin.is_spinpolarized
-        assert self.fatband_SiO2_spin.kpoints_array[3] == approx([0.03409091, 0, 0])
+        assert self.fatband_SiO2_spin.kpoints_array[3] == pytest.approx([0.03409091, 0, 0])
         assert self.fatband_SiO2_spin.nbands == 36
 
         assert self.fatband_SiO2_spin.p_eigenvals[Spin.up][2][1]["Si1"]["3p"] == 0.042
-        assert self.fatband_SiO2_spin.structure[0].frac_coords == approx([0.0, 0.47634315, 0.666667])
+        assert self.fatband_SiO2_spin.structure[0].frac_coords == pytest.approx([0.0, 0.47634315, 0.666667])
         assert self.fatband_SiO2_spin.structure[0].species_string == "Si"
-        assert self.fatband_SiO2_spin.structure[0].coords == approx([-1.19607309, 2.0716597, 3.67462144])
+        assert self.fatband_SiO2_spin.structure[0].coords == pytest.approx([-1.19607309, 2.0716597, 3.67462144])
 
     def test_raises(self):
         with pytest.raises(ValueError, match="vasprun_file or efermi have to be provided"):
@@ -1470,12 +1477,12 @@ class TestFatband(PymatgenTest):
         bs_p = self.fatband_SiO2_p.get_bandstructure()
         atom1 = bs_p.structure[0]
         atom2 = self.bs_symmline2.structure[0]
-        assert atom1.frac_coords[0] == approx(atom2.frac_coords[0])
-        assert atom1.frac_coords[1] == approx(atom2.frac_coords[1])
-        assert atom1.frac_coords[2] == approx(atom2.frac_coords[2])
-        assert atom1.coords[0] == approx(atom2.coords[0])
-        assert atom1.coords[1] == approx(atom2.coords[1])
-        assert atom1.coords[2] == approx(atom2.coords[2])
+        assert atom1.frac_coords[0] == pytest.approx(atom2.frac_coords[0])
+        assert atom1.frac_coords[1] == pytest.approx(atom2.frac_coords[1])
+        assert atom1.frac_coords[2] == pytest.approx(atom2.frac_coords[2])
+        assert atom1.coords[0] == pytest.approx(atom2.coords[0])
+        assert atom1.coords[1] == pytest.approx(atom2.coords[1])
+        assert atom1.coords[2] == pytest.approx(atom2.coords[2])
         assert atom1.species_string == atom2.species_string
         assert bs_p.efermi == self.bs_symmline2.efermi
         branch1 = bs_p.branches[0]
@@ -1484,71 +1491,73 @@ class TestFatband(PymatgenTest):
         assert branch2["start_index"] == branch1["start_index"]
         assert branch2["end_index"] == branch1["end_index"]
 
-        assert bs_p.distance[30] == approx(self.bs_symmline2.distance[30])
+        assert bs_p.distance[30] == pytest.approx(self.bs_symmline2.distance[30])
         lattice1 = bs_p.lattice_rec.as_dict()
         lattice2 = self.bs_symmline2.lattice_rec.as_dict()
-        assert lattice1["matrix"][0] == approx(lattice2["matrix"][0])
-        assert lattice1["matrix"][1] == approx(lattice2["matrix"][1])
-        assert lattice1["matrix"][2] == approx(lattice2["matrix"][2])
+        assert lattice1["matrix"][0] == pytest.approx(lattice2["matrix"][0])
+        assert lattice1["matrix"][1] == pytest.approx(lattice2["matrix"][1])
+        assert lattice1["matrix"][2] == pytest.approx(lattice2["matrix"][2])
 
-        assert bs_p.kpoints[8].frac_coords[0] == approx(self.bs_symmline2.kpoints[8].frac_coords[0])
-        assert bs_p.kpoints[8].frac_coords[1] == approx(self.bs_symmline2.kpoints[8].frac_coords[1])
-        assert bs_p.kpoints[8].frac_coords[2] == approx(self.bs_symmline2.kpoints[8].frac_coords[2])
-        assert bs_p.kpoints[8].cart_coords[0] == approx(self.bs_symmline2.kpoints[8].cart_coords[0])
-        assert bs_p.kpoints[8].cart_coords[1] == approx(self.bs_symmline2.kpoints[8].cart_coords[1])
-        assert bs_p.kpoints[8].cart_coords[2] == approx(self.bs_symmline2.kpoints[8].cart_coords[2])
-        assert bs_p.kpoints[50].frac_coords[0] == approx(self.bs_symmline2.kpoints[50].frac_coords[0])
-        assert bs_p.kpoints[50].frac_coords[1] == approx(self.bs_symmline2.kpoints[50].frac_coords[1])
-        assert bs_p.kpoints[50].frac_coords[2] == approx(self.bs_symmline2.kpoints[50].frac_coords[2])
-        assert bs_p.kpoints[50].cart_coords[0] == approx(self.bs_symmline2.kpoints[50].cart_coords[0])
-        assert bs_p.kpoints[50].cart_coords[1] == approx(self.bs_symmline2.kpoints[50].cart_coords[1])
-        assert bs_p.kpoints[50].cart_coords[2] == approx(self.bs_symmline2.kpoints[50].cart_coords[2])
-        assert bs_p.get_band_gap()["energy"] == approx(self.bs_symmline2.get_band_gap()["energy"], abs=1e-2)
-        assert bs_p.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064))
-        assert bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"] == approx(0.003)
-        assert bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"] == approx(
+        assert bs_p.kpoints[8].frac_coords[0] == pytest.approx(self.bs_symmline2.kpoints[8].frac_coords[0])
+        assert bs_p.kpoints[8].frac_coords[1] == pytest.approx(self.bs_symmline2.kpoints[8].frac_coords[1])
+        assert bs_p.kpoints[8].frac_coords[2] == pytest.approx(self.bs_symmline2.kpoints[8].frac_coords[2])
+        assert bs_p.kpoints[8].cart_coords[0] == pytest.approx(self.bs_symmline2.kpoints[8].cart_coords[0])
+        assert bs_p.kpoints[8].cart_coords[1] == pytest.approx(self.bs_symmline2.kpoints[8].cart_coords[1])
+        assert bs_p.kpoints[8].cart_coords[2] == pytest.approx(self.bs_symmline2.kpoints[8].cart_coords[2])
+        assert bs_p.kpoints[50].frac_coords[0] == pytest.approx(self.bs_symmline2.kpoints[50].frac_coords[0])
+        assert bs_p.kpoints[50].frac_coords[1] == pytest.approx(self.bs_symmline2.kpoints[50].frac_coords[1])
+        assert bs_p.kpoints[50].frac_coords[2] == pytest.approx(self.bs_symmline2.kpoints[50].frac_coords[2])
+        assert bs_p.kpoints[50].cart_coords[0] == pytest.approx(self.bs_symmline2.kpoints[50].cart_coords[0])
+        assert bs_p.kpoints[50].cart_coords[1] == pytest.approx(self.bs_symmline2.kpoints[50].cart_coords[1])
+        assert bs_p.kpoints[50].cart_coords[2] == pytest.approx(self.bs_symmline2.kpoints[50].cart_coords[2])
+        assert bs_p.get_band_gap()["energy"] == pytest.approx(self.bs_symmline2.get_band_gap()["energy"], abs=1e-2)
+        assert bs_p.get_projection_on_elements()[Spin.up][0][0]["Si"] == pytest.approx(3 * (0.001 + 0.064))
+        assert bs_p.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"][
+            "3p"
+        ] == pytest.approx(0.003)
+        assert bs_p.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"] == pytest.approx(
             0.002 * 3 + 0.003 * 3
         )
         dict_here = bs_p.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][0][
             0
         ]
-        assert dict_here["Si"]["3s"] == approx(0.192)
-        assert dict_here["Si"]["3p"] == approx(0.003)
-        assert dict_here["O"]["2s"] == approx(0.792)
-        assert dict_here["O"]["2p"] == approx(0.015)
+        assert dict_here["Si"]["3s"] == pytest.approx(0.192)
+        assert dict_here["Si"]["3p"] == pytest.approx(0.003)
+        assert dict_here["O"]["2s"] == pytest.approx(0.792)
+        assert dict_here["O"]["2p"] == pytest.approx(0.015)
 
         bs_spin = self.fatband_SiO2_spin.get_bandstructure()
-        assert bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064))
-        assert bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"]["3p"] == approx(
-            0.003
-        )
-        assert bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"]["2p"] == approx(
-            0.002 * 3 + 0.003 * 3
-        )
+        assert bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"] == pytest.approx(3 * (0.001 + 0.064))
+        assert bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.up][0][0]["Si"][
+            "3p"
+        ] == pytest.approx(0.003)
+        assert bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.up][0][0]["O"][
+            "2p"
+        ] == pytest.approx(0.002 * 3 + 0.003 * 3)
         dict_here = bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[Spin.up][
             0
         ][0]
-        assert dict_here["Si"]["3s"] == approx(0.192)
-        assert dict_here["Si"]["3p"] == approx(0.003)
-        assert dict_here["O"]["2s"] == approx(0.792)
-        assert dict_here["O"]["2p"] == approx(0.015)
+        assert dict_here["Si"]["3s"] == pytest.approx(0.192)
+        assert dict_here["Si"]["3p"] == pytest.approx(0.003)
+        assert dict_here["O"]["2s"] == pytest.approx(0.792)
+        assert dict_here["O"]["2p"] == pytest.approx(0.015)
 
-        assert bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064))
-        assert bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.down][0][0]["Si"]["3p"] == approx(
-            0.003
-        )
-        assert bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.down][0][0]["O"]["2p"] == approx(
-            0.002 * 3 + 0.003 * 3
-        )
+        assert bs_spin.get_projection_on_elements()[Spin.up][0][0]["Si"] == pytest.approx(3 * (0.001 + 0.064))
+        assert bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3p"]})[Spin.down][0][0]["Si"][
+            "3p"
+        ] == pytest.approx(0.003)
+        assert bs_spin.get_projections_on_elements_and_orbitals({"O": ["2p"]})[Spin.down][0][0]["O"][
+            "2p"
+        ] == pytest.approx(0.002 * 3 + 0.003 * 3)
         dict_here = bs_spin.get_projections_on_elements_and_orbitals({"Si": ["3s", "3p"], "O": ["2s", "2p"]})[
             Spin.down
         ][0][0]
-        assert dict_here["Si"]["3s"] == approx(0.192)
-        assert dict_here["Si"]["3p"] == approx(0.003)
-        assert dict_here["O"]["2s"] == approx(0.792)
-        assert dict_here["O"]["2p"] == approx(0.015)
+        assert dict_here["Si"]["3s"] == pytest.approx(0.192)
+        assert dict_here["Si"]["3p"] == pytest.approx(0.003)
+        assert dict_here["O"]["2s"] == pytest.approx(0.792)
+        assert dict_here["O"]["2p"] == pytest.approx(0.015)
         bs_p_x = self.fatband_SiO2_p_x.get_bandstructure()
-        assert bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si"] == approx(3 * (0.001 + 0.064), abs=1e-2)
+        assert bs_p_x.get_projection_on_elements()[Spin.up][0][0]["Si"] == pytest.approx(3 * (0.001 + 0.064), abs=1e-2)
 
 
 class TestLobsterin(PymatgenTest):
@@ -1560,10 +1569,10 @@ class TestLobsterin(PymatgenTest):
 
     def test_from_file(self):
         # Test reading from file
-        assert self.Lobsterin["cohpstartenergy"] == approx(-15.0)
-        assert self.Lobsterin["cohpendenergy"] == approx(5.0)
+        assert self.Lobsterin["cohpstartenergy"] == pytest.approx(-15.0)
+        assert self.Lobsterin["cohpendenergy"] == pytest.approx(5.0)
         assert self.Lobsterin["basisset"] == "pbeVaspFit2015"
-        assert self.Lobsterin["gaussiansmearingwidth"] == approx(0.1)
+        assert self.Lobsterin["gaussiansmearingwidth"] == pytest.approx(0.1)
         assert self.Lobsterin["basisfunctions"][0] == "Fe 3d 4p 4s"
         assert self.Lobsterin["basisfunctions"][1] == "Co 3d 4p 4s"
         assert self.Lobsterin["skipdos"]
@@ -1603,7 +1612,7 @@ class TestLobsterin(PymatgenTest):
         should be case independent.
         """
         # Test __setitem__
-        assert self.Lobsterin["COHPSTARTENERGY"] == approx(-15.0)
+        assert self.Lobsterin["COHPSTARTENERGY"] == pytest.approx(-15.0)
 
         with pytest.raises(KeyError, match="Key hello is currently not available"):
             self.Lobsterin["HELLO"] = True
@@ -1638,10 +1647,10 @@ class TestLobsterin(PymatgenTest):
                 "skipgrosspopulation": True,
             }
         )
-        assert lobsterin["cohpstartenergy"] == approx(-15.0)
-        assert lobsterin["cohpendenergy"] == approx(5.0)
+        assert lobsterin["cohpstartenergy"] == pytest.approx(-15.0)
+        assert lobsterin["cohpendenergy"] == pytest.approx(5.0)
         assert lobsterin["basisset"] == "pbeVaspFit2015"
-        assert lobsterin["gaussiansmearingwidth"] == approx(0.1)
+        assert lobsterin["gaussiansmearingwidth"] == pytest.approx(0.1)
         assert lobsterin["basisfunctions"][0] == "Fe 3d 4p 4s"
         assert lobsterin["basisfunctions"][1] == "Co 3d 4p 4s"
         assert {*lobsterin} >= {"skipdos", "skipcohp", "skipcoop", "skippopulationanalysis", "skipgrosspopulation"}
@@ -1672,10 +1681,10 @@ class TestLobsterin(PymatgenTest):
                 f"{VASP_IN_DIR}/POTCAR_Fe3O4.gz",
                 option=option,
             )
-            assert lobsterin1["cohpstartenergy"] == approx(-35.0)
-            assert lobsterin1["cohpendenergy"] == approx(5.0)
+            assert lobsterin1["cohpstartenergy"] == pytest.approx(-35.0)
+            assert lobsterin1["cohpendenergy"] == pytest.approx(5.0)
             assert lobsterin1["basisset"] == "pbeVaspFit2015"
-            assert lobsterin1["gaussiansmearingwidth"] == approx(0.1)
+            assert lobsterin1["gaussiansmearingwidth"] == pytest.approx(0.1)
             assert lobsterin1["basisfunctions"][0] == "Fe 3d 4p 4s "
             assert lobsterin1["basisfunctions"][1] == "O 2p 2s "
 
@@ -1785,7 +1794,7 @@ class TestLobsterin(PymatgenTest):
     def test_diff(self):
         # test diff
         assert self.Lobsterin.diff(self.Lobsterin2)["Different"] == {}
-        assert self.Lobsterin.diff(self.Lobsterin2)["Same"]["cohpstartenergy"] == approx(-15.0)
+        assert self.Lobsterin.diff(self.Lobsterin2)["Same"]["cohpstartenergy"] == pytest.approx(-15.0)
 
         # test diff in both directions
         for entry in self.Lobsterin.diff(self.Lobsterin3)["Same"]:
@@ -1947,9 +1956,9 @@ class TestLobsterin(PymatgenTest):
         )
         kpoint = Kpoints.from_file(outfile_path)
         assert kpoint.num_kpts == 562
-        assert kpoint.kpts[-1][0] == approx(-0.5)
-        assert kpoint.kpts[-1][1] == approx(0.5)
-        assert kpoint.kpts[-1][2] == approx(0.5)
+        assert kpoint.kpts[-1][0] == pytest.approx(-0.5)
+        assert kpoint.kpts[-1][1] == pytest.approx(0.5)
+        assert kpoint.kpts[-1][2] == pytest.approx(0.5)
         assert kpoint.labels[-1] == "T"
         kpoint2 = Kpoints.from_file(f"{VASP_IN_DIR}/KPOINTS_band.lobster")
 
@@ -1984,9 +1993,9 @@ class TestLobsterin(PymatgenTest):
         kpoint2 = Kpoints.from_file(f"{VASP_OUT_DIR}/IBZKPT.lobster")
 
         for num_kpt, list_kpoint in enumerate(kpoint.kpts):
-            assert list_kpoint[0] == approx(kpoint2.kpts[num_kpt][0])
-            assert list_kpoint[1] == approx(kpoint2.kpts[num_kpt][1])
-            assert list_kpoint[2] == approx(kpoint2.kpts[num_kpt][2])
+            assert list_kpoint[0] == pytest.approx(kpoint2.kpts[num_kpt][0])
+            assert list_kpoint[1] == pytest.approx(kpoint2.kpts[num_kpt][1])
+            assert list_kpoint[2] == pytest.approx(kpoint2.kpts[num_kpt][2])
 
         assert kpoint.num_kpts == 108
 
@@ -2003,9 +2012,9 @@ class TestLobsterin(PymatgenTest):
         kpoint2 = Kpoints.from_file(f"{VASP_OUT_DIR}/IBZKPT.lobster")
 
         for num_kpt, list_kpoint in enumerate(kpoint.kpts):
-            assert list_kpoint[0] == approx(kpoint2.kpts[num_kpt][0])
-            assert list_kpoint[1] == approx(kpoint2.kpts[num_kpt][1])
-            assert list_kpoint[2] == approx(kpoint2.kpts[num_kpt][2])
+            assert list_kpoint[0] == pytest.approx(kpoint2.kpts[num_kpt][0])
+            assert list_kpoint[1] == pytest.approx(kpoint2.kpts[num_kpt][1])
+            assert list_kpoint[2] == pytest.approx(kpoint2.kpts[num_kpt][2])
 
         assert kpoint.num_kpts == 108
 
@@ -2101,28 +2110,30 @@ class TestBandoverlaps(TestCase):
     def test_attributes(self):
         # bandoverlapsdict
         bo_dict = self.band_overlaps1.bandoverlapsdict
-        assert bo_dict[Spin.up]["max_deviations"][0] == approx(0.000278953)
-        assert self.band_overlaps1_new.bandoverlapsdict[Spin.up]["max_deviations"][10] == approx(0.0640933)
-        assert bo_dict[Spin.up]["matrices"][0].item(-1, -1) == approx(0.0188058)
-        assert self.band_overlaps1_new.bandoverlapsdict[Spin.up]["matrices"][10].item(-1, -1) == approx(1.0)
-        assert bo_dict[Spin.up]["matrices"][0].item(0, 0) == approx(1)
-        assert self.band_overlaps1_new.bandoverlapsdict[Spin.up]["matrices"][10].item(0, 0) == approx(0.995849)
+        assert bo_dict[Spin.up]["max_deviations"][0] == pytest.approx(0.000278953)
+        assert self.band_overlaps1_new.bandoverlapsdict[Spin.up]["max_deviations"][10] == pytest.approx(0.0640933)
+        assert bo_dict[Spin.up]["matrices"][0].item(-1, -1) == pytest.approx(0.0188058)
+        assert self.band_overlaps1_new.bandoverlapsdict[Spin.up]["matrices"][10].item(-1, -1) == pytest.approx(1.0)
+        assert bo_dict[Spin.up]["matrices"][0].item(0, 0) == pytest.approx(1)
+        assert self.band_overlaps1_new.bandoverlapsdict[Spin.up]["matrices"][10].item(0, 0) == pytest.approx(0.995849)
 
-        assert bo_dict[Spin.down]["max_deviations"][-1] == approx(4.31567e-05)
-        assert self.band_overlaps1_new.bandoverlapsdict[Spin.down]["max_deviations"][9] == approx(0.064369)
-        assert bo_dict[Spin.down]["matrices"][-1].item(0, -1) == approx(4.0066e-07)
-        assert self.band_overlaps1_new.bandoverlapsdict[Spin.down]["matrices"][9].item(0, -1) == approx(1.37447e-09)
+        assert bo_dict[Spin.down]["max_deviations"][-1] == pytest.approx(4.31567e-05)
+        assert self.band_overlaps1_new.bandoverlapsdict[Spin.down]["max_deviations"][9] == pytest.approx(0.064369)
+        assert bo_dict[Spin.down]["matrices"][-1].item(0, -1) == pytest.approx(4.0066e-07)
+        assert self.band_overlaps1_new.bandoverlapsdict[Spin.down]["matrices"][9].item(0, -1) == pytest.approx(
+            1.37447e-09
+        )
 
         # maxDeviation
-        assert self.band_overlaps1.max_deviation[0] == approx(0.000278953)
-        assert self.band_overlaps1_new.max_deviation[0] == approx(0.39824)
-        assert self.band_overlaps1.max_deviation[-1] == approx(4.31567e-05)
-        assert self.band_overlaps1_new.max_deviation[-1] == approx(0.324898)
+        assert self.band_overlaps1.max_deviation[0] == pytest.approx(0.000278953)
+        assert self.band_overlaps1_new.max_deviation[0] == pytest.approx(0.39824)
+        assert self.band_overlaps1.max_deviation[-1] == pytest.approx(4.31567e-05)
+        assert self.band_overlaps1_new.max_deviation[-1] == pytest.approx(0.324898)
 
-        assert self.band_overlaps2.max_deviation[0] == approx(0.000473319)
-        assert self.band_overlaps2_new.max_deviation[0] == approx(0.403249)
-        assert self.band_overlaps2.max_deviation[-1] == approx(1.48451e-05)
-        assert self.band_overlaps2_new.max_deviation[-1] == approx(0.45154)
+        assert self.band_overlaps2.max_deviation[0] == pytest.approx(0.000473319)
+        assert self.band_overlaps2_new.max_deviation[0] == pytest.approx(0.403249)
+        assert self.band_overlaps2.max_deviation[-1] == pytest.approx(1.48451e-05)
+        assert self.band_overlaps2_new.max_deviation[-1] == pytest.approx(0.45154)
 
     def test_has_good_quality(self):
         assert not self.band_overlaps1.has_good_quality_maxDeviation(limit_maxDeviation=0.1)
@@ -2253,22 +2264,22 @@ class TestGrosspop(TestCase):
 
     def test_attributes(self):
         gross_pop_list = self.grosspop1.list_dict_grosspop
-        assert gross_pop_list[0]["Mulliken GP"]["3s"] == approx(0.52)
-        assert gross_pop_list[0]["Mulliken GP"]["3p_y"] == approx(0.38)
-        assert gross_pop_list[0]["Mulliken GP"]["3p_z"] == approx(0.37)
-        assert gross_pop_list[0]["Mulliken GP"]["3p_x"] == approx(0.37)
-        assert gross_pop_list[0]["Mulliken GP"]["total"] == approx(1.64)
+        assert gross_pop_list[0]["Mulliken GP"]["3s"] == pytest.approx(0.52)
+        assert gross_pop_list[0]["Mulliken GP"]["3p_y"] == pytest.approx(0.38)
+        assert gross_pop_list[0]["Mulliken GP"]["3p_z"] == pytest.approx(0.37)
+        assert gross_pop_list[0]["Mulliken GP"]["3p_x"] == pytest.approx(0.37)
+        assert gross_pop_list[0]["Mulliken GP"]["total"] == pytest.approx(1.64)
         assert gross_pop_list[0]["element"] == "Si"
-        assert gross_pop_list[0]["Loewdin GP"]["3s"] == approx(0.61)
-        assert gross_pop_list[0]["Loewdin GP"]["3p_y"] == approx(0.52)
-        assert gross_pop_list[0]["Loewdin GP"]["3p_z"] == approx(0.52)
-        assert gross_pop_list[0]["Loewdin GP"]["3p_x"] == approx(0.52)
-        assert gross_pop_list[0]["Loewdin GP"]["total"] == approx(2.16)
-        assert gross_pop_list[5]["Mulliken GP"]["2s"] == approx(1.80)
-        assert gross_pop_list[5]["Loewdin GP"]["2s"] == approx(1.60)
+        assert gross_pop_list[0]["Loewdin GP"]["3s"] == pytest.approx(0.61)
+        assert gross_pop_list[0]["Loewdin GP"]["3p_y"] == pytest.approx(0.52)
+        assert gross_pop_list[0]["Loewdin GP"]["3p_z"] == pytest.approx(0.52)
+        assert gross_pop_list[0]["Loewdin GP"]["3p_x"] == pytest.approx(0.52)
+        assert gross_pop_list[0]["Loewdin GP"]["total"] == pytest.approx(2.16)
+        assert gross_pop_list[5]["Mulliken GP"]["2s"] == pytest.approx(1.80)
+        assert gross_pop_list[5]["Loewdin GP"]["2s"] == pytest.approx(1.60)
         assert gross_pop_list[5]["element"] == "O"
-        assert gross_pop_list[8]["Mulliken GP"]["2s"] == approx(1.80)
-        assert gross_pop_list[8]["Loewdin GP"]["2s"] == approx(1.60)
+        assert gross_pop_list[8]["Mulliken GP"]["2s"] == pytest.approx(1.80)
+        assert gross_pop_list[8]["Loewdin GP"]["2s"] == pytest.approx(1.60)
         assert gross_pop_list[8]["element"] == "O"
 
     def test_structure_with_grosspop(self):
@@ -2433,15 +2444,15 @@ class TestWavefunction(PymatgenTest):
             f"{TEST_DIR}/LCAOWaveFunctionAfterLSO1PlotOfSpin1Kpoint1band1.gz"
         )
         assert_array_equal([41, 41, 41], grid)
-        assert points[4][0] == approx(0.0000)
-        assert points[4][1] == approx(0.0000)
-        assert points[4][2] == approx(0.4000)
-        assert real[8] == approx(1.38863e-01)
-        assert imaginary[8] == approx(2.89645e-01)
+        assert points[4][0] == pytest.approx(0.0000)
+        assert points[4][1] == pytest.approx(0.0000)
+        assert points[4][2] == pytest.approx(0.4000)
+        assert real[8] == pytest.approx(1.38863e-01)
+        assert imaginary[8] == pytest.approx(2.89645e-01)
         assert len(imaginary) == 41 * 41 * 41
         assert len(real) == 41 * 41 * 41
         assert len(points) == 41 * 41 * 41
-        assert distance[0] == approx(0.0000)
+        assert distance[0] == pytest.approx(0.0000)
 
     def test_set_volumetric_data(self):
         wave1 = Wavefunction(
@@ -2450,8 +2461,8 @@ class TestWavefunction(PymatgenTest):
         )
 
         wave1.set_volumetric_data(grid=wave1.grid, structure=wave1.structure)
-        assert wave1.volumetricdata_real.data["total"][0, 0, 0] == approx(-3.0966)
-        assert wave1.volumetricdata_imaginary.data["total"][0, 0, 0] == approx(-6.45895e00)
+        assert wave1.volumetricdata_real.data["total"][0, 0, 0] == pytest.approx(-3.0966)
+        assert wave1.volumetricdata_imaginary.data["total"][0, 0, 0] == pytest.approx(-6.45895e00)
 
     def test_get_volumetricdata_real(self):
         wave1 = Wavefunction(
@@ -2459,7 +2470,7 @@ class TestWavefunction(PymatgenTest):
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR_O.gz"),
         )
         volumetricdata_real = wave1.get_volumetricdata_real()
-        assert volumetricdata_real.data["total"][0, 0, 0] == approx(-3.0966)
+        assert volumetricdata_real.data["total"][0, 0, 0] == pytest.approx(-3.0966)
 
     def test_get_volumetricdata_imaginary(self):
         wave1 = Wavefunction(
@@ -2467,7 +2478,7 @@ class TestWavefunction(PymatgenTest):
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR_O.gz"),
         )
         volumetricdata_imaginary = wave1.get_volumetricdata_imaginary()
-        assert volumetricdata_imaginary.data["total"][0, 0, 0] == approx(-6.45895e00)
+        assert volumetricdata_imaginary.data["total"][0, 0, 0] == pytest.approx(-6.45895e00)
 
     def test_get_volumetricdata_density(self):
         wave1 = Wavefunction(
@@ -2475,7 +2486,9 @@ class TestWavefunction(PymatgenTest):
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR_O.gz"),
         )
         volumetricdata_density = wave1.get_volumetricdata_density()
-        assert volumetricdata_density.data["total"][0, 0, 0] == approx((-3.0966 * -3.0966) + (-6.45895 * -6.45895))
+        assert volumetricdata_density.data["total"][0, 0, 0] == pytest.approx(
+            (-3.0966 * -3.0966) + (-6.45895 * -6.45895)
+        )
 
     def test_write_file(self):
         wave1 = Wavefunction(
@@ -2502,12 +2515,12 @@ class TestSitePotentials(PymatgenTest):
     def test_attributes(self):
         assert self.sitepotential.sitepotentials_Loewdin == [-8.77, -17.08, 9.57, 9.57, 8.45]
         assert self.sitepotential.sitepotentials_Mulliken == [-11.38, -19.62, 11.18, 11.18, 10.09]
-        assert self.sitepotential.madelungenergies_Loewdin == approx(-28.64)
-        assert self.sitepotential.madelungenergies_Mulliken == approx(-40.02)
+        assert self.sitepotential.madelungenergies_Loewdin == pytest.approx(-28.64)
+        assert self.sitepotential.madelungenergies_Mulliken == pytest.approx(-40.02)
         assert self.sitepotential.atomlist == ["La1", "Ta2", "N3", "N4", "O5"]
         assert self.sitepotential.types == ["La", "Ta", "N", "N", "O"]
         assert self.sitepotential.num_atoms == 5
-        assert self.sitepotential.ewald_splitting == approx(3.14)
+        assert self.sitepotential.ewald_splitting == pytest.approx(3.14)
 
     def test_get_structure(self):
         structure = self.sitepotential.get_structure_with_site_potentials(f"{TEST_DIR}/POSCAR.perovskite")
@@ -2527,9 +2540,9 @@ class TestMadelungEnergies(PymatgenTest):
         self.madelungenergies = MadelungEnergies(filename=f"{TEST_DIR}/MadelungEnergies.lobster.perovskite")
 
     def test_attributes(self):
-        assert self.madelungenergies.madelungenergies_Loewdin == approx(-28.64)
-        assert self.madelungenergies.madelungenergies_Mulliken == approx(-40.02)
-        assert self.madelungenergies.ewald_splitting == approx(3.14)
+        assert self.madelungenergies.madelungenergies_Loewdin == pytest.approx(-28.64)
+        assert self.madelungenergies.madelungenergies_Mulliken == pytest.approx(-40.02)
+        assert self.madelungenergies.ewald_splitting == pytest.approx(3.14)
 
     def test_msonable(self):
         dict_data = self.madelungenergies.as_dict()

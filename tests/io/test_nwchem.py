@@ -4,7 +4,6 @@ import json
 from unittest import TestCase
 
 import pytest
-from pytest import approx
 
 from pymatgen.core.structure import Molecule
 from pymatgen.io.nwchem import NwInput, NwInputError, NwOutput, NwTask
@@ -404,37 +403,37 @@ class TestNwOutput:
         assert nwo[0]["charge"] == 0
         assert nwo[-1]["charge"] == -1
         assert len(nwo) == 5
-        assert approx(nwo[0]["energies"][-1], abs=1e-2) == -1102.6224491715582
-        assert approx(nwo[2]["energies"][-1], abs=1e-3) == -1102.9986291578023
-        assert approx(nwo_cosmo[5]["energies"][0]["cosmo scf"], abs=1e-3) == -11156.354030653656
-        assert approx(nwo_cosmo[5]["energies"][0]["gas phase"], abs=1e-3) == -11153.374133394364
-        assert approx(nwo_cosmo[5]["energies"][0]["sol phase"], abs=1e-2) == -11156.353632962995
-        assert approx(nwo_cosmo[6]["energies"][0]["cosmo scf"], abs=1e-2) == -11168.818934311605
-        assert approx(nwo_cosmo[6]["energies"][0]["gas phase"], abs=1e-2) == -11166.3624424611462
-        assert approx(nwo_cosmo[6]["energies"][0]["sol phase"], abs=1e-2) == -11168.818934311605
-        assert approx(nwo_cosmo[7]["energies"][0]["cosmo scf"], abs=1e-2) == -11165.227959110889
-        assert approx(nwo_cosmo[7]["energies"][0]["gas phase"], abs=1e-2) == -11165.025443612385
-        assert approx(nwo_cosmo[7]["energies"][0]["sol phase"], abs=1e-2) == -11165.227959110154
+        assert pytest.approx(nwo[0]["energies"][-1], abs=1e-2) == -1102.6224491715582
+        assert pytest.approx(nwo[2]["energies"][-1], abs=1e-3) == -1102.9986291578023
+        assert pytest.approx(nwo_cosmo[5]["energies"][0]["cosmo scf"], abs=1e-3) == -11156.354030653656
+        assert pytest.approx(nwo_cosmo[5]["energies"][0]["gas phase"], abs=1e-3) == -11153.374133394364
+        assert pytest.approx(nwo_cosmo[5]["energies"][0]["sol phase"], abs=1e-2) == -11156.353632962995
+        assert pytest.approx(nwo_cosmo[6]["energies"][0]["cosmo scf"], abs=1e-2) == -11168.818934311605
+        assert pytest.approx(nwo_cosmo[6]["energies"][0]["gas phase"], abs=1e-2) == -11166.3624424611462
+        assert pytest.approx(nwo_cosmo[6]["energies"][0]["sol phase"], abs=1e-2) == -11168.818934311605
+        assert pytest.approx(nwo_cosmo[7]["energies"][0]["cosmo scf"], abs=1e-2) == -11165.227959110889
+        assert pytest.approx(nwo_cosmo[7]["energies"][0]["gas phase"], abs=1e-2) == -11165.025443612385
+        assert pytest.approx(nwo_cosmo[7]["energies"][0]["sol phase"], abs=1e-2) == -11165.227959110154
 
-        assert nwo[1]["hessian"][0][0] == approx(4.60187e01)
-        assert nwo[1]["hessian"][1][2] == approx(-1.14030e-08)
-        assert nwo[1]["hessian"][2][3] == approx(2.60819e01)
-        assert nwo[1]["hessian"][6][6] == approx(1.45055e02)
-        assert nwo[1]["hessian"][11][14] == approx(1.35078e01)
+        assert nwo[1]["hessian"][0][0] == pytest.approx(4.60187e01)
+        assert nwo[1]["hessian"][1][2] == pytest.approx(-1.14030e-08)
+        assert nwo[1]["hessian"][2][3] == pytest.approx(2.60819e01)
+        assert nwo[1]["hessian"][6][6] == pytest.approx(1.45055e02)
+        assert nwo[1]["hessian"][11][14] == pytest.approx(1.35078e01)
 
         # CH4.nwout, line 722
-        assert nwo[0]["forces"][0][3] == approx(-0.001991)
+        assert nwo[0]["forces"][0][3] == pytest.approx(-0.001991)
 
         # N2O4.nwout, line 1071
-        assert nwo_cosmo[0]["forces"][0][4] == approx(0.011948)
+        assert nwo_cosmo[0]["forces"][0][4] == pytest.approx(0.011948)
 
         # There should be four DFT gradients.
         assert len(nwo_cosmo[0]["forces"]) == 4
 
         ie = nwo[4]["energies"][-1] - nwo[2]["energies"][-1]
         ea = nwo[2]["energies"][-1] - nwo[3]["energies"][-1]
-        assert approx(ie) == 0.7575358648355177
-        assert approx(ea, abs=1e-3) == -14.997877958701338
+        assert pytest.approx(ie) == 0.7575358648355177
+        assert pytest.approx(ea, abs=1e-3) == -14.997877958701338
         assert nwo[4]["basis_set"]["C"]["description"] == "6-311++G**"
 
         nwo = NwOutput(f"{TEST_DIR}/H4C3O3_1.nwout")
@@ -465,14 +464,14 @@ class TestNwOutput:
         nwo = NwOutput(f"{TEST_DIR}/phen_tddft.log")
         roots = nwo.parse_tddft()
         assert len(roots["singlet"]) == 20
-        assert roots["singlet"][0]["energy"] == approx(3.9291)
-        assert roots["singlet"][0]["osc_strength"] == approx(0.0)
-        assert roots["singlet"][1]["osc_strength"] == approx(0.00177)
+        assert roots["singlet"][0]["energy"] == pytest.approx(3.9291)
+        assert roots["singlet"][0]["osc_strength"] == pytest.approx(0.0)
+        assert roots["singlet"][1]["osc_strength"] == pytest.approx(0.00177)
 
     def test_get_excitation_spectrum(self):
         nwo = NwOutput(f"{TEST_DIR}/phen_tddft.log")
         spectrum = nwo.get_excitation_spectrum()
         assert len(spectrum.x) == 2000
-        assert spectrum.x[0] == approx(1.9291)
-        assert spectrum.y[0] == approx(0.0)
-        assert spectrum.y[1000] == approx(0.0007423569947114812)
+        assert spectrum.x[0] == pytest.approx(1.9291)
+        assert spectrum.y[0] == pytest.approx(0.0)
+        assert spectrum.y[1000] == pytest.approx(0.0007423569947114812)

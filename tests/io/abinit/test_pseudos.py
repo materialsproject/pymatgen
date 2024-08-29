@@ -6,7 +6,6 @@ from collections import defaultdict
 
 import pytest
 from monty.tempfile import ScratchDir
-from pytest import approx
 
 from pymatgen.io.abinit.pseudos import Pseudo, PseudoTable
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
@@ -138,7 +137,7 @@ class TestPseudo(PymatgenTest):
         assert oxygen.xc.name == "PBE"
         assert oxygen.supports_soc
         assert oxygen.md5 is not None
-        assert oxygen.paw_radius == approx(1.4146523028)
+        assert oxygen.paw_radius == pytest.approx(1.4146523028)
 
         # Test pickle
         new_objs = self.serialize_with_pickle(oxygen)
@@ -150,7 +149,7 @@ class TestPseudo(PymatgenTest):
             assert obj.symbol == "O"
             assert (obj.Z, obj.core, obj.valence) == (8, 2, 6), obj.Z_val == 6
 
-            assert obj.paw_radius == approx(1.4146523028)
+            assert obj.paw_radius == pytest.approx(1.4146523028)
 
     def test_oncvpsp_pseudo_sr(self):
         """Test the ONCVPSP Ge pseudo (scalar relativistic version)."""

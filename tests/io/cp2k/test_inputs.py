@@ -3,7 +3,6 @@ from __future__ import annotations
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
 
 from pymatgen.core.structure import Molecule, Structure
 from pymatgen.io.cp2k.inputs import (
@@ -139,8 +138,8 @@ class TestBasisAndPotential(PymatgenTest):
         assert h_all_elec.potential == "All Electron"
         pot = GthPotential.from_str(POT_HYDROGEN_STR)
         assert pot.potential == "Pseudopotential"
-        assert pot.r_loc == approx(0.2)
-        assert pot.nexp_ppl == approx(2)
+        assert pot.r_loc == pytest.approx(0.2)
+        assert pot.nexp_ppl == pytest.approx(2)
         assert_allclose(pot.c_exp_ppl, [-4.17890044, 0.72446331])
 
         # Basis file can read from strings

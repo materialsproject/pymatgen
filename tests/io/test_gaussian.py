@@ -3,7 +3,6 @@ from __future__ import annotations
 from unittest import TestCase
 
 import pytest
-from pytest import approx
 
 from pymatgen.core.structure import Molecule
 from pymatgen.electronic_structure.core import Spin
@@ -271,7 +270,7 @@ class TestGaussianOutput(TestCase):
     def test_props(self):
         gau = self.gau_out
         assert len(gau.energies) == 3
-        assert gau.energies[-1] == approx(-39.9768775602)
+        assert gau.energies[-1] == pytest.approx(-39.9768775602)
         assert len(gau.structures) == 4
         for mol in gau.structures:
             assert mol.formula == "H4 C1"
@@ -282,7 +281,7 @@ class TestGaussianOutput(TestCase):
         assert gau.num_basis_func == 17
         dct = gau.as_dict()
         assert dct["input"]["functional"] == "hf"
-        assert dct["output"]["final_energy"] == approx(-39.9768775602)
+        assert dct["output"]["final_energy"] == pytest.approx(-39.9768775602)
         assert len(gau.cart_forces) == 3
         assert gau.cart_forces[0][5] == 0.009791094
         assert gau.cart_forces[0][-1] == -0.003263698
@@ -389,18 +388,18 @@ class TestGaussianOutput(TestCase):
     def test_scan(self):
         gau = GaussianOutput(f"{TEST_DIR}/so2_scan.log")
         dct = gau.read_scan()
-        assert approx(dct["energies"][-1]) == -548.02102
+        assert pytest.approx(dct["energies"][-1]) == -548.02102
         assert len(dct["coords"]) == 1
         assert len(dct["energies"]) == len(gau.energies)
         assert len(dct["energies"]) == 21
         gau = GaussianOutput(f"{TEST_DIR}/so2_scan_opt.log")
         assert len(gau.opt_structures) == 21
         dct = gau.read_scan()
-        assert approx(dct["energies"][-1]) == -548.02336
+        assert pytest.approx(dct["energies"][-1]) == -548.02336
         assert len(dct["coords"]) == 2
         assert len(dct["energies"]) == 21
-        assert approx(dct["coords"]["DSO"][6]) == 1.60000
-        assert approx(dct["coords"]["ASO"][2]) == 124.01095
+        assert pytest.approx(dct["coords"]["DSO"][6]) == 1.60000
+        assert pytest.approx(dct["coords"]["ASO"][2]) == 124.01095
         gau = GaussianOutput(f"{TEST_DIR}/H2O_scan_G16.out")
         assert len(gau.opt_structures) == 21
         coords = [
@@ -410,16 +409,16 @@ class TestGaussianOutput(TestCase):
         ]
         assert gau.opt_structures[-1].cart_coords.tolist() == coords
         dct = gau.read_scan()
-        assert approx(dct["energies"][-1]) == -0.00523
+        assert pytest.approx(dct["energies"][-1]) == -0.00523
         assert len(dct["coords"]) == 3
         assert len(dct["energies"]) == 21
-        assert approx(dct["coords"]["R1"][6]) == 0.94710
-        assert approx(dct["coords"]["R2"][17]) == 0.94277
+        assert pytest.approx(dct["coords"]["R1"][6]) == 0.94710
+        assert pytest.approx(dct["coords"]["R2"][17]) == 0.94277
 
     def test_geo_opt(self):
         """Test an optimization where no "input orientation" is outputted."""
         gau = GaussianOutput(f"{TEST_DIR}/acene-n_gaussian09_opt.out")
-        assert approx(gau.energies[-1]) == -1812.58399675
+        assert pytest.approx(gau.energies[-1]) == -1812.58399675
         assert len(gau.structures) == 6
         # Test the first 3 atom coordinates
         coords = [
@@ -433,7 +432,7 @@ class TestGaussianOutput(TestCase):
         gau = GaussianOutput(f"{TEST_DIR}/so2_td.log")
         transitions = gau.read_excitation_energies()
         assert len(transitions) == 4
-        assert transitions[0] == approx((3.9281, 315.64, 0.0054))
+        assert transitions[0] == pytest.approx((3.9281, 315.64, 0.0054))
 
     def test_multiple_parameters(self):
         """Check that input files with multi-parameter keywords

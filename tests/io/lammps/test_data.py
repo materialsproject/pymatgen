@@ -9,7 +9,6 @@ import pandas as pd
 import pytest
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose
-from pytest import approx
 from ruamel.yaml import YAML
 
 from pymatgen.core import Element, Lattice, Molecule, Structure
@@ -32,7 +31,7 @@ class TestLammpsBox(PymatgenTest):
         o_bounds = np.array(self.peptide.bounds)
         ov = np.prod(o_bounds[:, 1] - o_bounds[:, 0])
         assert self.peptide.volume == ov
-        assert self.quartz.volume == approx(113.007331)
+        assert self.quartz.volume == pytest.approx(113.007331)
 
     def test_get_str(self):
         peptide = self.peptide.get_str(5)
@@ -379,12 +378,12 @@ class TestLammpsData(PymatgenTest):
         assert pep.atoms.loc[29, "molecule-ID"] == 1
         assert pep.atoms.loc[29, "type"] == 7
         assert pep.atoms.loc[29, "q"] == -0.020
-        assert pep.atoms.loc[29, "x"] == approx(42.96709)
+        assert pep.atoms.loc[29, "x"] == pytest.approx(42.96709)
         assert pep.atoms.loc[1808, "molecule-ID"] == 576
         assert pep.atoms.loc[1808, "type"] == 14
-        assert pep.atoms.loc[1808, "y"] == approx(58.64352)
+        assert pep.atoms.loc[1808, "y"] == pytest.approx(58.64352)
         assert pep.atoms.loc[1808, "nx"] == -1
-        assert pep.velocities.loc[527, "vz"] == approx(-0.010889)
+        assert pep.velocities.loc[527, "vz"] == pytest.approx(-0.010889)
         assert topo["Bonds"].loc[47, "type"] == 8
         assert topo["Bonds"].loc[47, "atom2"] == 54
         assert topo["Bonds"].loc[953, "atom1"] == 1384
@@ -417,7 +416,7 @@ class TestLammpsData(PymatgenTest):
         quartz = self.quartz
         np.testing.assert_array_equal(quartz.box.tilt, [-2.456700, 0.0, 0.0])
         assert list(quartz.atoms.columns) == ["type", "x", "y", "z"]
-        assert quartz.atoms.loc[7, "x"] == approx(0.299963)
+        assert quartz.atoms.loc[7, "x"] == pytest.approx(0.299963)
         # PairIJ Coeffs section
         virus = self.virus
         pair_ij = virus.force_field["PairIJ Coeffs"]
@@ -480,8 +479,8 @@ class TestLammpsData(PymatgenTest):
         idx = rng.integers(0, 19)
         a = lattice.matrix[0]
         v_a = velocities[idx].dot(a) / np.linalg.norm(a)
-        assert v_a == approx(lammps_data.velocities.loc[idx + 1, "vx"])
-        assert velocities[idx, 1] == approx(lammps_data.velocities.loc[idx + 1, "vy"])
+        assert v_a == pytest.approx(lammps_data.velocities.loc[idx + 1, "vx"])
+        assert velocities[idx, 1] == pytest.approx(lammps_data.velocities.loc[idx + 1, "vy"])
         assert_allclose(lammps_data.masses["mass"], [22.989769, 190.23, 15.9994])
         np.testing.assert_array_equal(lammps_data.atoms["type"], [2] * 4 + [3] * 16)
 
@@ -854,10 +853,10 @@ class TestCombinedData(TestCase):
         assert ec_fec.atoms.loc[29, "molecule-ID"] == 3
         assert ec_fec.atoms.loc[29, "type"] == 5
         assert ec_fec.atoms.loc[29, "q"] == 0.0755
-        assert ec_fec.atoms.loc[29, "x"] == approx(14.442260)
+        assert ec_fec.atoms.loc[29, "x"] == pytest.approx(14.442260)
         assert ec_fec.atoms.loc[14958, "molecule-ID"] == 1496
         assert ec_fec.atoms.loc[14958, "type"] == 11
-        assert ec_fec.atoms.loc[14958, "y"] == approx(41.010962)
+        assert ec_fec.atoms.loc[14958, "y"] == pytest.approx(41.010962)
         assert topo["Bonds"].loc[47, "type"] == 5
         assert topo["Bonds"].loc[47, "atom2"] == 47
         assert topo["Bonds"].loc[953, "atom1"] == 951
@@ -905,10 +904,10 @@ class TestCombinedData(TestCase):
         assert ec_fec.atoms.loc[29, "molecule-ID"] == 3
         assert ec_fec.atoms.loc[29, "type"] == 5
         assert ec_fec.atoms.loc[29, "q"] == 0.0755
-        assert ec_fec.atoms.loc[29, "x"] == approx(14.442260)
+        assert ec_fec.atoms.loc[29, "x"] == pytest.approx(14.442260)
         assert ec_fec.atoms.loc[14958, "molecule-ID"] == 1496
         assert ec_fec.atoms.loc[14958, "type"] == 11
-        assert ec_fec.atoms.loc[14958, "y"] == approx(41.010962)
+        assert ec_fec.atoms.loc[14958, "y"] == pytest.approx(41.010962)
         assert topo["Bonds"].loc[47, "type"] == 5
         assert topo["Bonds"].loc[47, "atom2"] == 47
         assert topo["Bonds"].loc[953, "atom1"] == 951
@@ -1124,10 +1123,10 @@ class TestCombinedData(TestCase):
         assert ec_fec.atoms.loc[29, "molecule-ID"] == 3
         assert ec_fec.atoms.loc[29, "type"] == 5
         assert ec_fec.atoms.loc[29, "q"] == 0.0755
-        assert ec_fec.atoms.loc[29, "x"] == approx(14.442260)
+        assert ec_fec.atoms.loc[29, "x"] == pytest.approx(14.442260)
         assert ec_fec.atoms.loc[14958, "molecule-ID"] == 1496
         assert ec_fec.atoms.loc[14958, "type"] == 11
-        assert ec_fec.atoms.loc[14958, "y"] == approx(41.010962)
+        assert ec_fec.atoms.loc[14958, "y"] == pytest.approx(41.010962)
         assert topo["Bonds"].loc[47, "type"] == 5
         assert topo["Bonds"].loc[47, "atom2"] == 47
         assert topo["Bonds"].loc[953, "atom1"] == 951

@@ -15,7 +15,6 @@ import scipy.constants as const
 from monty.io import zopen
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
-from pytest import MonkeyPatch, approx
 
 from pymatgen.core import SETTINGS
 from pymatgen.core.composition import Composition
@@ -42,7 +41,7 @@ _summ_stats = _gen_potcar_summary_stats(append=False, vasp_psp_dir=str(FAKE_POTC
 
 
 @pytest.fixture(autouse=True)
-def _mock_complete_potcar_summary_stats(monkeypatch: MonkeyPatch) -> None:
+def _mock_complete_potcar_summary_stats(monkeypatch: pytest.MonkeyPatch) -> None:
     # Override POTCAR library to use fake scrambled POTCARs
     monkeypatch.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(FAKE_POTCAR_DIR))
     monkeypatch.setattr(PotcarSingle, "_potcar_summary_stats", _summ_stats)
@@ -290,16 +289,16 @@ direct
     def test_from_md_run(self):
         # Parsing from an MD type run with velocities and predictor corrector data
         poscar = Poscar.from_file(f"{VASP_OUT_DIR}/CONTCAR.MD", check_for_potcar=False)
-        assert np.sum(poscar.velocities) == approx(0.0065417961324)
+        assert np.sum(poscar.velocities) == pytest.approx(0.0065417961324)
         assert poscar.predictor_corrector[0][0][0] == 0.33387820e00
         assert poscar.predictor_corrector[0][1][1] == -0.10583589e-02
         assert poscar.lattice_velocities is None
 
         # Parsing from an MD type run with velocities, predictor corrector data and lattice velocities
         poscar = Poscar.from_file(f"{VASP_OUT_DIR}/CONTCAR.MD.npt", check_for_potcar=False)
-        assert np.sum(poscar.velocities) == approx(-0.06193299494)
+        assert np.sum(poscar.velocities) == pytest.approx(-0.06193299494)
         assert poscar.predictor_corrector[0][0][0] == 0.63981833
-        assert poscar.lattice_velocities.sum() == approx(16.49411358474)
+        assert poscar.lattice_velocities.sum() == pytest.approx(16.49411358474)
 
     def test_write_md_poscar(self):
         # Parsing from an MD type run with velocities and predictor corrector data
@@ -396,18 +395,18 @@ direct
         v = np.array(poscar.velocities)
 
         for x in np.sum(v, axis=0):
-            assert x == approx(0, abs=1e-7)
+            assert x == pytest.approx(0, abs=1e-7)
 
         temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v**2) / (3 * const.k) * 1e10
-        assert temperature == approx(900, abs=1e-4), "Temperature instantiated incorrectly"
+        assert temperature == pytest.approx(900, abs=1e-4), "Temperature instantiated incorrectly"
 
         poscar.set_temperature(700)
         v = np.array(poscar.velocities)
         for x in np.sum(v, axis=0):
-            assert x == approx(0, abs=1e-7), "Velocities initialized with a net momentum"
+            assert x == pytest.approx(0, abs=1e-7), "Velocities initialized with a net momentum"
 
         temperature = struct[0].specie.atomic_mass.to("kg") * np.sum(v**2) / (3 * const.k) * 1e10
-        assert temperature == approx(700, abs=1e-4), "Temperature instantiated incorrectly"
+        assert temperature == pytest.approx(700, abs=1e-4), "Temperature instantiated incorrectly"
 
     def test_write(self):
         filepath = f"{VASP_IN_DIR}/POSCAR"
@@ -1447,7 +1446,7 @@ def test_potcar_summary_stats() -> None:
         assert actual == expected, f"{key=}, {expected=}, {actual=}"
 
 
-def test_gen_potcar_summary_stats(monkeypatch: MonkeyPatch) -> None:
+def test_gen_potcar_summary_stats(monkeypatch: pytest.MonkeyPatch) -> None:
     assert set(_summ_stats) == set(PotcarSingle.functional_dir)
 
     expected_funcs = [x for x in os.listdir(str(FAKE_POTCAR_DIR)) if x in PotcarSingle.functional_dir]

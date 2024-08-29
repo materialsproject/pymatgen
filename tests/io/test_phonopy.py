@@ -8,7 +8,6 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose, assert_array_equal
-from pytest import approx
 
 from pymatgen.core import Element
 from pymatgen.io.phonopy import (
@@ -46,8 +45,8 @@ class TestPhonopyParser(PymatgenTest):
     def test_get_ph_bs(self):
         ph_bs = get_ph_bs_symm_line(f"{TEST_DIR}/NaCl_band.yaml", has_nac=True)
 
-        assert ph_bs.bands[1][10] == approx(0.7753555184)
-        assert ph_bs.bands[5][100] == approx(5.2548379776)
+        assert ph_bs.bands[1][10] == pytest.approx(0.7753555184)
+        assert ph_bs.bands[5][100] == pytest.approx(5.2548379776)
         assert_array_equal(ph_bs.bands.shape, (6, 204))
         assert_array_equal(ph_bs.eigendisplacements.shape, (6, 204, 2, 3))
         assert_allclose(
@@ -56,7 +55,7 @@ class TestPhonopyParser(PymatgenTest):
         )
         assert ph_bs.has_eigendisplacements, True
         assert_array_equal(ph_bs.min_freq()[0].frac_coords, [0, 0, 0])
-        assert ph_bs.min_freq()[1] == approx(-0.03700895020)
+        assert ph_bs.min_freq()[1] == pytest.approx(-0.03700895020)
         assert ph_bs.has_imaginary_freq()
         assert not ph_bs.has_imaginary_freq(tol=0.5)
         assert_allclose(ph_bs.asr_breaking(), [-0.0370089502, -0.0370089502, -0.0221388897])
@@ -64,7 +63,7 @@ class TestPhonopyParser(PymatgenTest):
         assert ph_bs.nb_qpoints == 204
         assert_allclose(ph_bs.qpoints[1].frac_coords, [0.01, 0, 0])
         assert ph_bs.has_nac
-        assert ph_bs.get_nac_frequencies_along_dir([1, 1, 0])[3] == approx(4.6084532143)
+        assert ph_bs.get_nac_frequencies_along_dir([1, 1, 0])[3] == pytest.approx(4.6084532143)
         assert ph_bs.get_nac_frequencies_along_dir([1, 0, 1]) is None
         assert_allclose(
             ph_bs.get_nac_eigendisplacements_along_dir([1, 1, 0])[3][1],
@@ -75,9 +74,9 @@ class TestPhonopyParser(PymatgenTest):
     def test_get_ph_dos(self):
         dos = get_ph_dos(f"{TEST_DIR}/NaCl_total_dos.dat")
 
-        assert dos.densities[15] == approx(0.0001665998)
-        assert dos.frequencies[20] == approx(0.0894965119)
-        assert dos.get_interpolated_value(3.0) == approx(1.2915532670115628)
+        assert dos.densities[15] == pytest.approx(0.0001665998)
+        assert dos.frequencies[20] == pytest.approx(0.0894965119)
+        assert dos.get_interpolated_value(3.0) == pytest.approx(1.2915532670115628)
         assert len(dos.frequencies) == 201
         assert len(dos.densities) == 201
 
@@ -90,8 +89,8 @@ class TestPhonopyParser(PymatgenTest):
         site_Cl = cdos.structure[1]
 
         assert len(cdos.frequencies) == 201
-        assert cdos.pdos[site_Na][30] == approx(0.008058208)
-        assert cdos.pdos[site_Cl][30] == approx(0.0119040783)
+        assert cdos.pdos[site_Na][30] == pytest.approx(0.008058208)
+        assert cdos.pdos[site_Cl][30] == pytest.approx(0.0119040783)
 
         assert Element.Na in cdos.get_element_dos()
         assert Element.Cl in cdos.get_element_dos()
@@ -111,8 +110,8 @@ class TestStructureConversion(PymatgenTest):
         symbols_pmg = {*map(str, struct_pmg.composition)}
         symbols_pmg2 = {*map(str, struct_pmg_round_trip.composition)}
 
-        assert struct_ph.get_cell()[1, 1] == approx(struct_pmg.lattice._matrix[1, 1], abs=1e-7)
-        assert struct_pmg.lattice._matrix[1, 1] == approx(struct_pmg_round_trip.lattice._matrix[1, 1], abs=1e-7)
+        assert struct_ph.get_cell()[1, 1] == pytest.approx(struct_pmg.lattice._matrix[1, 1], abs=1e-7)
+        assert struct_pmg.lattice._matrix[1, 1] == pytest.approx(struct_pmg_round_trip.lattice._matrix[1, 1], abs=1e-7)
         assert symbols_pmg == set(struct_ph.symbols)
         assert symbols_pmg == symbols_pmg2
         assert_allclose(coords_ph[3], struct_pmg.frac_coords[3])
@@ -196,7 +195,7 @@ class TestPhonopyFromForceConstants(TestCase):
         assert bs, PhononBandStructure
         assert bs.nb_bands == 8
         assert bs.nb_qpoints == 8
-        assert bs.bands[2][10] == approx(3.887125285018674)
+        assert bs.bands[2][10] == pytest.approx(3.887125285018674)
 
     def test_get_phonon_band_structure_symm_line_from_fc(self):
         bs = get_phonon_band_structure_symm_line_from_fc(
@@ -209,7 +208,7 @@ class TestPhonopyFromForceConstants(TestCase):
         assert bs, PhononBandStructureSymmLine
         assert bs.nb_bands == 24
         assert bs.nb_qpoints == 48
-        assert bs.bands[2][10] == approx(2.869229797603161)
+        assert bs.bands[2][10] == pytest.approx(2.869229797603161)
 
 
 class TestGruneisen:
@@ -237,8 +236,8 @@ class TestGruneisen:
             structure_path=f"{PHONON_DIR}/gruneisen/eq/POSCAR_Si",
         )
 
-        assert self.gruneisenobject_Si.frequencies[0][0] == approx(0.2523831291)
-        assert self.gruneisenobject_Si.gruneisen[0][0] == approx(-0.1190736091)
+        assert self.gruneisenobject_Si.frequencies[0][0] == pytest.approx(0.2523831291)
+        assert self.gruneisenobject_Si.gruneisen[0][0] == pytest.approx(-0.1190736091)
 
         # catch the exception when no structure is present
         with pytest.raises(ValueError, match="Please provide a structure or structure path"):
@@ -274,5 +273,5 @@ class TestThermalDisplacementMatrices(PymatgenTest):
         # check if correct number of temperatures has been read
         assert len(list_matrices) == 31
 
-        assert list_matrices[-1].temperature == approx(300.0)
-        assert list_matrices[0].temperature == approx(0.0)
+        assert list_matrices[-1].temperature == pytest.approx(300.0)
+        assert list_matrices[0].temperature == pytest.approx(0.0)

@@ -3,8 +3,8 @@ from __future__ import annotations
 import os
 from unittest import TestCase
 
+import pytest
 from numpy.testing import assert_allclose
-from pytest import approx
 
 from pymatgen.core import Molecule, Structure
 from pymatgen.io.feff.inputs import Atoms, Header, Paths, Potential, Tags
@@ -84,17 +84,17 @@ class TestFeffAtoms(TestCase):
     def test_absorber_line(self):
         atoms_lines = self.atoms.get_lines()
         # x
-        assert float(atoms_lines[0][0]) == approx(0.0)
+        assert float(atoms_lines[0][0]) == pytest.approx(0.0)
         # y
-        assert float(atoms_lines[0][1]) == approx(0.0)
+        assert float(atoms_lines[0][1]) == pytest.approx(0.0)
         # z
-        assert float(atoms_lines[0][2]) == approx(0.0)
+        assert float(atoms_lines[0][2]) == pytest.approx(0.0)
         # ipot
         assert int(atoms_lines[0][3]) == 0
         # atom symbol
         assert atoms_lines[0][4] == "O"
         # distance
-        assert float(atoms_lines[0][5]) == approx(0.0)
+        assert float(atoms_lines[0][5]) == pytest.approx(0.0)
         # id
         assert int(atoms_lines[0][6]) == 0
 

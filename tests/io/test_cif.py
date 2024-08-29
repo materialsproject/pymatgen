@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from pytest import approx
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Composition, DummySpecies, Element, Lattice, Species, Structure
@@ -198,12 +197,12 @@ class TestCifIO(PymatgenTest):
         parser = CifParser.from_str(cif_str)
         struct = parser.parse_structures(primitive=False)[0]
         assert struct.formula == "Fe4 P4 O16"
-        assert struct.lattice.a == approx(10.4117668699)
-        assert struct.lattice.b == approx(6.06717187997)
-        assert struct.lattice.c == approx(4.75948953998)
-        assert struct.lattice.alpha == approx(91)
-        assert struct.lattice.beta == approx(92)
-        assert struct.lattice.gamma == approx(93)
+        assert struct.lattice.a == pytest.approx(10.4117668699)
+        assert struct.lattice.b == pytest.approx(6.06717187997)
+        assert struct.lattice.c == pytest.approx(4.75948953998)
+        assert struct.lattice.alpha == pytest.approx(91)
+        assert struct.lattice.beta == pytest.approx(92)
+        assert struct.lattice.gamma == pytest.approx(93)
 
         parser = CifParser(f"{TEST_FILES_DIR}/cif/srycoo.cif")
         assert parser.parse_structures()[0].formula == "Sr11.2 Y4.8 Co16 O42"
@@ -740,7 +739,7 @@ loop_
             parser.parse_structures(on_error="raise")
         parser = CifParser(filepath, occupancy_tolerance=2)
         struct = parser.parse_structures()[0]
-        assert struct[0].species["Al3+"] == approx(0.778)
+        assert struct[0].species["Al3+"] == pytest.approx(0.778)
 
     def test_not_check_occu(self):
         # Test large occupancy with check_occu turned off
@@ -1071,9 +1070,9 @@ Gd1 5.05 5.05 0.0"""
         s_ncl2 = self.mcif_ncl2.parse_structures()[0]
         list_magmoms = [list(m) for m in s_ncl2.site_properties["magmom"]]
         assert list_magmoms[0][0] == 0.0
-        assert list_magmoms[0][1] == approx(5.9160793408726366)
-        assert list_magmoms[1][0] == approx(-5.1234749999999991)
-        assert list_magmoms[1][1] == approx(2.9580396704363183)
+        assert list_magmoms[0][1] == pytest.approx(5.9160793408726366)
+        assert list_magmoms[1][0] == pytest.approx(-5.1234749999999991)
+        assert list_magmoms[1][1] == pytest.approx(2.9580396704363183)
 
         # test creating a structure without oxidation state doesn't raise errors
         s_manual = Structure(Lattice.cubic(4.2), ["Cs", "Cl"], [[0, 0, 0], [0.5, 0.5, 0.5]])

@@ -4,7 +4,6 @@ from unittest import TestCase
 
 import numpy as np
 import pytest
-from pytest import approx
 
 from pymatgen.analysis.graphs import StructureGraph
 from pymatgen.core import Element
@@ -650,9 +649,9 @@ class TestLobsterNeighbors(TestCase):
             edge_properties=True,
             weights=True,
         )
-        assert sg.graph.get_edge_data(0, 1)[0]["ICOHP"] == approx(-0.56541)
-        assert sg.graph.get_edge_data(0, 1)[0]["ICOBI"] == approx(0.08484)
-        assert sg.graph.get_edge_data(0, 1)[0]["ICOOP"] == approx(0.02826)
+        assert sg.graph.get_edge_data(0, 1)[0]["ICOHP"] == pytest.approx(-0.56541)
+        assert sg.graph.get_edge_data(0, 1)[0]["ICOBI"] == pytest.approx(0.08484)
+        assert sg.graph.get_edge_data(0, 1)[0]["ICOOP"] == pytest.approx(0.02826)
         assert sg.graph.get_edge_data(0, 1)[0]["bond_label"] == "21"
         assert sg.graph.get_edge_data(0, 1)[5]["bond_label"] == "30"
         assert isinstance(sg, StructureGraph)
@@ -676,7 +675,7 @@ class TestLobsterNeighbors(TestCase):
     def test_order_parameter(self):
         assert self.chem_env_lobster1_second.get_local_order_parameters(
             structure=Structure.from_file(f"{TEST_DIR}/POSCAR.mp_353.gz"), n=0
-        )["linear"] == approx(1.0)
+        )["linear"] == pytest.approx(1.0)
 
     def test_get_structure_environments(self):
         lse = self.chem_env_lobster1_second.get_light_structure_environment()
@@ -694,16 +693,16 @@ class TestLobsterNeighbors(TestCase):
 
     def test_get_info_icohps_neighbors(self):
         results = self.chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0])
-        assert results[0] == approx(-33.26058)
+        assert results[0] == pytest.approx(-33.26058)
         for bond in results[1]:
-            assert bond == approx(-5.54345, abs=1e-3)
+            assert bond == pytest.approx(-5.54345, abs=1e-3)
         assert results[2] == 6
         assert results[3] == ["27", "30", "48", "49", "64", "73"]
 
         results2 = self.chem_env_lobster1.get_info_icohps_to_neighbors(isites=None)
-        assert results2[0] == approx(-33.26058)
+        assert results2[0] == pytest.approx(-33.26058)
         for bond in results2[1]:
-            assert bond == approx(-5.54345, abs=1e-3)
+            assert bond == pytest.approx(-5.54345, abs=1e-3)
         assert results2[2] == 6
         assert results2[3] == ["27", "30", "48", "49", "64", "73"]
         assert results2[4] == [
@@ -719,7 +718,7 @@ class TestLobsterNeighbors(TestCase):
         # will only look at icohps between cations or anions
         self.chem_env_lobster1.get_info_icohps_to_neighbors(isites=[1])
         assert self.chem_env_lobster1.get_info_icohps_between_neighbors(isites=[1])[2] == 1
-        assert self.chem_env_lobster1.get_info_icohps_between_neighbors(isites=[1])[0] == approx(-0.05507)
+        assert self.chem_env_lobster1.get_info_icohps_between_neighbors(isites=[1])[0] == pytest.approx(-0.05507)
         assert self.chem_env_lobster1.get_info_icohps_between_neighbors(isites=[0])[2] == 15
         # use an example where this is easier to test (e.g., linear environment?)
 
@@ -778,7 +777,7 @@ class TestLobsterNeighbors(TestCase):
             only_bonds_to=None,
             per_bond=False,
         )[1]
-        assert np.sum([coph_thing.icohp[Spin.up], coph_thing.icohp[Spin.down]], axis=0)[300] == approx(
+        assert np.sum([coph_thing.icohp[Spin.up], coph_thing.icohp[Spin.down]], axis=0)[300] == pytest.approx(
             chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0])[0]
         )
 
@@ -790,7 +789,9 @@ class TestLobsterNeighbors(TestCase):
             per_bond=False,
             summed_spin_channels=True,
         )[1]
-        assert coph_thing.icohp[Spin.up][300] == approx(chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0])[0])
+        assert coph_thing.icohp[Spin.up][300] == pytest.approx(
+            chem_env_lobster1.get_info_icohps_to_neighbors(isites=[0])[0]
+        )
 
         plot_label, summed_cohpcar_mp_190_Te = chem_env_lobster1.get_info_cohps_to_neighbors(
             path_to_cohpcar=cohpcar_lobster_mp_190,
