@@ -16,7 +16,7 @@ The general procedure for releasing `pymatgen` comprises the following steps:
 
 ## Initial setup
 
-Pymatgen uses [invoke](http://pyinvoke.org) to automate releases.
+Pymatgen uses [invoke](https://pyinvoke.org) to automate releases.
 You will also need `sphinx` and `doc2dash`.
 
 ```sh

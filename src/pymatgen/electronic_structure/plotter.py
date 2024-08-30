@@ -2238,7 +2238,7 @@ class BSPlotterProjected(BSPlotter):
 class BSDOSPlotter:
     """A joint, aligned band structure and density of states plot. Contributions
     from Jan Pohls as well as the online example from Germain Salvato-Vallverdu:
-    http://gvallver.perso.univ-pau.fr/?p=587.
+    https://gvallver.perso.univ-pau.fr/?p=587.
     """
 
     def __init__(
