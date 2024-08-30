@@ -3575,7 +3575,7 @@ class VolumetricData(BaseVolumetricData):
 
         Args:
             file_name (PathLike): The output file.
-            vasp4_compatible (bool): Whether the format is VASP4 compatible.
+            vasp4_compatible (bool): True if the format is VASP4 compatible.
         """
 
         def format_fortran_float(flt: float) -> str:
