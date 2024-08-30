@@ -1,5 +1,5 @@
 """An interface to the excellent spglib library by Atsushi Togo
-(http://spglib.sourceforge.net/) for pymatgen.
+(https://github.com/spglib/spglib) for pymatgen.
 
 v1.0 - Now works with both ordered and disordered structure.
 v2.0 - Updated for spglib 1.6.

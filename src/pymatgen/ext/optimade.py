@@ -59,7 +59,7 @@ class OptimadeRester:
     # regenerate on-demand from official providers.json using OptimadeRester.refresh_aliases()
     # these aliases are provided as a convenient shortcut for users of the OptimadeRester class
     aliases: ClassVar[dict[str, str]] = {
-        "aflow": "http://aflow.org/API/optimade/",
+        "aflow": "https://aflow.org/API/optimade/",
         "alexandria": "https://alexandria.icams.rub.de/pbe",
         "alexandria.pbe": "https://alexandria.icams.rub.de/pbe",
         "alexandria.pbesol": "https://alexandria.icams.rub.de/pbesol",
@@ -82,8 +82,8 @@ class OptimadeRester:
         "odbx": "https://optimade.odbx.science",
         "odbx.odbx_misc": "https://optimade-misc.odbx.science",
         "odbx.gnome": "https://optimade-gnome.odbx.science",
-        "omdb.omdb_production": "http://optimade.openmaterialsdb.se",
-        "oqmd": "http://oqmd.org/optimade/",
+        "omdb.omdb_production": "https://optimade.openmaterialsdb.se",
+        "oqmd": "https://oqmd.org/optimade/",
         "jarvis": "https://jarvis.nist.gov/optimade/jarvisdft",
         "tcod": "https://www.crystallography.net/tcod/optimade",
         "twodmatpedia": "http://optimade.2dmatpedia.org",

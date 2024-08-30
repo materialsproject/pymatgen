@@ -36,7 +36,7 @@ __date__ = "Apr 28, 2012"
 needs_openbabel = requires(
     openbabel,
     "BabelMolAdaptor requires openbabel to be installed with Python bindings. "
-    "Please get it at http://openbabel.org (version >=3.0.0).",
+    "Please get it at https://openbabel.org (version >=3.0.0).",
 )
 
 

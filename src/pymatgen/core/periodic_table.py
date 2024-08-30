@@ -5,7 +5,6 @@ from __future__ import annotations
 import ast
 import functools
 import json
-import operator
 import re
 import warnings
 from collections import Counter
@@ -87,7 +86,7 @@ class ElementBase(Enum):
             long_name (str): Long name for element. e.g. "Hydrogen".
             A (int) : Atomic mass number (number of protons plus neutrons).
             atomic_radius_calculated (float): Calculated atomic radius for the element. This is the empirical value.
-                Data is obtained from http://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
+                Data is obtained from https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
             van_der_waals_radius (float): Van der Waals radius for the element. This is the empirical value determined
                 from critical reviews of X-ray diffraction, gas kinetic collision cross-section, and other experimental
                 data by Bondi and later workers. The uncertainty in these values is on the order of 0.1 Å.
@@ -559,7 +558,7 @@ class ElementBase(Enum):
                 "L": L_symbols.index(term[1]),
                 "J": float(term[2:]),
             }
-            for term in functools.reduce(operator.iadd, term_symbols, [])
+            for term in [item for sublist in term_symbols for item in sublist]
         }
 
         multi = [int(item["multiplicity"]) for _terms, item in term_symbol_flat.items()]

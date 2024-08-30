@@ -2,12 +2,16 @@ from __future__ import annotations
 
 import copy
 import json
-from pathlib import Path
 
 import pytest
 
 from pymatgen.core import Structure
 from pymatgen.io.aims.sets import AimsInputSet
+from pymatgen.util.testing import TEST_FILES_DIR
+
+IN_FILE_DIR = TEST_FILES_DIR / "io/aims/input_files"
+SPECIES_DIR = TEST_FILES_DIR / "io/aims/species_directory"
+
 
 control_in_str = """
 #===============================================================================
@@ -224,6 +228,7 @@ lattice_vector  2.715000000000e+00  2.715000000000e+00  0.000000000000e+00
 atom  0.000000000000e+00  0.000000000000e+00  0.000000000000e+00 Si
 atom  1.357500000000e+00  1.357500000000e+00  1.357500000000e+00 Si
 """
+
 geometry_in_str_new = """
 #===============================================================================
 # Created using the Atomic Simulation Environment (ASE)
@@ -237,8 +242,6 @@ atom  0.000000000000e+00 -2.715000000000e-02 -2.715000000000e-02 Si
 atom  1.357500000000e+00  1.357500000000e+00  1.357500000000e+00 Si
 """
 
-infile_dir = Path(__file__).parent / "input_files"
-
 
 def check_file(ref: str, test: str) -> bool:
     ref_lines = [line.strip() for line in ref.split("\n") if len(line.strip()) > 0 and line[0] != "#"]
@@ -248,7 +251,6 @@ def check_file(ref: str, test: str) -> bool:
 
 
 def test_input_set():
-    species_dir = infile_dir.parents[1] / "species_directory/"
     Si = Structure(
         lattice=[[0.0, 2.715, 2.715], [2.715, 0.0, 2.715], [2.715, 2.715, 0.0]],
         species=["Si", "Si"],
@@ -256,19 +258,19 @@ def test_input_set():
     )
     params_json = {
         "xc": "pbe",
-        "species_dir": f"{species_dir}/light",
+        "species_dir": f"{SPECIES_DIR}/light",
         "k_grid": [2, 2, 2],
     }
     params_json_rel = {
         "xc": "pbe",
-        "species_dir": f"{species_dir}/light",
+        "species_dir": f"{SPECIES_DIR}/light",
         "k_grid": [2, 2, 2],
         "relax_geometry": "trm 1e-3",
     }
 
     parameters = {
         "xc": "pbe",
-        "species_dir": f"{species_dir}/light",
+        "species_dir": f"{SPECIES_DIR}/light",
         "k_grid": [2, 2, 2],
     }
     props = ("energy", "free_energy", "forces")
