@@ -534,7 +534,7 @@ class ArrayWithUnit(np.ndarray):
         return obj
 
     def __array_finalize__(self, obj) -> None:
-        """See http://docs.scipy.org/doc/numpy/user/basics.subclassing.html
+        """See https://docs.scipy.org/doc/numpy/user/basics.subclassing.html
         for comments.
         """
         if obj is None:

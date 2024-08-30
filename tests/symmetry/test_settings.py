@@ -78,7 +78,7 @@ class TestJonesFaithfulTransformation(TestCase):
 
     def test_transform_symmops(self):
         # reference data for this test taken from GENPOS
-        # http://cryst.ehu.es/cryst/get_gen.html
+        # https://cryst.ehu.es/cryst/get_gen.html
 
         # Fm-3m
         input_symm_ops = """x,y,z

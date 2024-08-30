@@ -1406,7 +1406,7 @@ class OpenBabelNN(NearNeighbors):
     @requires(
         openbabel,
         "BabelMolAdaptor requires openbabel to be installed with "
-        "Python bindings. Please get it at http://openbabel.org "
+        "Python bindings. Please get it at https://openbabel.org "
         "(version >=3.0.0).",
     )
     def __init__(self, order=True) -> None:

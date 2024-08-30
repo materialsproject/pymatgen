@@ -15,7 +15,7 @@ import scipy.constants as const
 from monty.io import zopen
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
-from pytest import MonkeyPatch, approx
+from pytest import approx
 
 from pymatgen.core import SETTINGS
 from pymatgen.core.composition import Composition
@@ -42,7 +42,7 @@ _summ_stats = _gen_potcar_summary_stats(append=False, vasp_psp_dir=str(FAKE_POTC
 
 
 @pytest.fixture(autouse=True)
-def _mock_complete_potcar_summary_stats(monkeypatch: MonkeyPatch) -> None:
+def _mock_complete_potcar_summary_stats(monkeypatch: pytest.MonkeyPatch) -> None:
     # Override POTCAR library to use fake scrambled POTCARs
     monkeypatch.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(FAKE_POTCAR_DIR))
     monkeypatch.setattr(PotcarSingle, "_potcar_summary_stats", _summ_stats)
@@ -1447,7 +1447,7 @@ def test_potcar_summary_stats() -> None:
         assert actual == expected, f"{key=}, {expected=}, {actual=}"
 
 
-def test_gen_potcar_summary_stats(monkeypatch: MonkeyPatch) -> None:
+def test_gen_potcar_summary_stats(monkeypatch: pytest.MonkeyPatch) -> None:
     assert set(_summ_stats) == set(PotcarSingle.functional_dir)
 
     expected_funcs = [x for x in os.listdir(str(FAKE_POTCAR_DIR)) if x in PotcarSingle.functional_dir]
