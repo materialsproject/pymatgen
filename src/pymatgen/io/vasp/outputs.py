@@ -3933,15 +3933,13 @@ class Procar(MSONable):
         return tuple(round(float(val), 5) for val in kpoint_fields)  # tuple to make it hashable,
         # rounded to 5 decimal places to ensure proper kpoint matching
 
-    def _read(self, filename: PathLike, parsed_kpoints=None):
-        """
-        Main function for reading in the PROCAR projections data.
+    def _read(self, filename: PathLike, parsed_kpoints: set[tuple[Kpoint]] | None = None):
+        """Main function for reading in the PROCAR projections data.
 
         Args:
-            filename: Path to PROCAR file to read.
-            parsed_kpoints:
-                set of tuples of already-parsed kpoints (e.g. from multiple zero-weighted bandstructure
-                calculations), to ensure redundant/duplicate parsing.
+            filename (PathLike): Path to PROCAR file to read.
+            parsed_kpoints (set[tuple[Kpoint]]): Set of tuples of already-parsed kpoints (e.g. from multiple
+                zero-weighted bandstructure calculations), to ensure redundant/duplicate parsing.
         """
         if parsed_kpoints is None:
             parsed_kpoints = set()
@@ -4150,8 +4148,7 @@ class Procar(MSONable):
         return elem_proj
 
     def get_occupation(self, atom_index: int, orbital: str) -> dict:
-        """
-        Get the occupation for a particular orbital of a particular atom.
+        """Get the occupation for a particular orbital of a particular atom.
 
         Args:
             atom_num (int): Index of atom in the PROCAR. It should be noted
