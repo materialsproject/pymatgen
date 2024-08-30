@@ -117,7 +117,7 @@ def weisfeiler_lehman_graph_hash(graph: nx.Graph, edge_attr=None, node_attr=None
         .. [1] Shervashidze, Nino, Pascal Schweitzer, Erik Jan Van Leeuwen,
         Kurt Mehlhorn, and Karsten M. Borgwardt. Weisfeiler Lehman
         Graph Kernels. Journal of Machine Learning Research. 2011.
-        http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf
+        https://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf
 
     See Also:
         weisfeiler_lehman_subgraph_hashes
@@ -216,7 +216,7 @@ def weisfeiler_lehman_subgraph_hashes(graph, edge_attr=None, node_attr=None, ite
         .. [1] Shervashidze, Nino, Pascal Schweitzer, Erik Jan Van Leeuwen,
         Kurt Mehlhorn, and Karsten M. Borgwardt. Weisfeiler Lehman
         Graph Kernels. Journal of Machine Learning Research. 2011.
-        http://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf
+        https://www.jmlr.org/papers/volume12/shervashidze11a/shervashidze11a.pdf
         .. [2] Annamalai Narayanan, Mahinthan Chandramohan, Rajasekar Venkatesan,
         Lihui Chen, Yang Liu and Shantanu Jaiswa. graph2vec: Learning
         Distributed Representations of Graphs. arXiv. 2017

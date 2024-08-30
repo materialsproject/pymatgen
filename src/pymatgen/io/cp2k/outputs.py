@@ -5,7 +5,6 @@ for parsing CP2K-related outputs.
 
 from __future__ import annotations
 
-import logging
 import os
 import re
 import warnings
@@ -31,8 +30,6 @@ from pymatgen.io.xyz import XYZ
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
 __status__ = "Production"
-
-logger = logging.getLogger(__name__)
 
 
 class Cp2kOutput:
@@ -180,12 +177,12 @@ class Cp2kOutput:
     @property
     def charge(self) -> float:
         """Charge from the input file."""
-        return self.input["FORCE_EVAL"]["DFT"].get("CHARGE", Keyword("", 0)).values[0]  # noqa: PD011
+        return self.input["FORCE_EVAL"]["DFT"].get("CHARGE", Keyword("", 0)).values[0]
 
     @property
     def multiplicity(self) -> int:
         """The spin multiplicity from input file."""
-        return self.input["FORCE_EVAL"]["DFT"].get("Multiplicity", Keyword("")).values[0]  # noqa: PD011
+        return self.input["FORCE_EVAL"]["DFT"].get("Multiplicity", Keyword("")).values[0]
 
     @property
     def is_molecule(self) -> bool:
@@ -300,7 +297,7 @@ class Cp2kOutput:
             self.structures = []
             gs = self.initial_structure.site_properties.get("ghost")
             if not self.is_molecule:
-                for mol, latt in zip(mols, lattices):
+                for mol, latt in zip(mols, lattices, strict=True):
                     self.structures.append(
                         Structure(
                             lattice=latt,
@@ -523,7 +520,7 @@ class Cp2kOutput:
         if not self.data.get("stress_tensor"):
             self.parse_stresses()
 
-        for i, (structure, energy) in enumerate(zip(self.structures, self.data.get("total_energy"))):
+        for i, (structure, energy) in enumerate(zip(self.structures, self.data.get("total_energy"), strict=True)):
             self.ionic_steps.append(
                 {
                     "structure": structure,
@@ -632,6 +629,7 @@ class Cp2kOutput:
                 for _possible, _name in zip(
                     ["RVV10", "LMKLL", "DRSLL", "DFT-D3", "DFT-D2"],
                     ["RVV10", "LMKLL", "DRSLL", "D3", "D2"],
+                    strict=True,
                 ):
                     if _possible in ll[0]:
                         found = _name
@@ -693,9 +691,9 @@ class Cp2kOutput:
             cell = self.input["force_eval"]["subsys"]["cell"]
             if cell.get("abc"):
                 return [
-                    [cell["abc"].values[0], 0, 0],  # noqa: PD011
-                    [0, cell["abc"].values[1], 0],  # noqa: PD011
-                    [0, 0, cell["abc"].values[2]],  # noqa: PD011
+                    [cell["abc"].values[0], 0, 0],
+                    [0, cell["abc"].values[1], 0],
+                    [0, 0, cell["abc"].values[2]],
                 ]
             return [
                 list(cell.get("A").values),
@@ -717,7 +715,7 @@ class Cp2kOutput:
             reverse=False,
         )
         i = iter(self.data["lattice"])
-        lattices = list(zip(i, i, i))
+        lattices = list(zip(i, i, i, strict=True))
         return lattices[0]
 
     def parse_atomic_kind_info(self):
@@ -932,13 +930,12 @@ class Cp2kOutput:
         pattern = r"\s+(\d)\s+(\w+)\s+(\d+)\s+(-?\d+\.\d+)\s+(-?\d+\.\d+)"
         footer = r".+Total charge"
 
-        d = self.read_table_pattern(
+        if self.read_table_pattern(
             header_pattern=header,
             row_pattern=pattern,
             footer_pattern=footer,
             last_one_only=False,
-        )
-        if d:
+        ):
             print("Found data, but not yet implemented!")
 
     def parse_hirshfeld(self):
@@ -1466,7 +1463,7 @@ class Cp2kOutput:
         dct = np.zeros(npts)
         e_s = np.linspace(min(energies), max(energies), npts)
 
-        for e, _pd in zip(energies, densities):
+        for e, _pd in zip(energies, densities, strict=True):
             weight = np.exp(-(((e_s - e) / width) ** 2)) / (np.sqrt(np.pi) * width)
             dct += _pd * weight
 
@@ -1639,12 +1636,12 @@ def parse_energy_file(energy_file):
         "conserved_quantity",
         "used_time",
     ]
-    df = pd.read_csv(energy_file, skiprows=1, names=columns, sep=r"\s+")
-    df["kinetic_energy"] = df["kinetic_energy"] * Ha_to_eV
-    df["potential_energy"] = df["potential_energy"] * Ha_to_eV
-    df["conserved_quantity"] = df["conserved_quantity"] * Ha_to_eV
-    df.astype(float)
-    return {c: df[c].to_numpy() for c in columns}
+    df_energies = pd.read_csv(energy_file, skiprows=1, names=columns, sep=r"\s+")
+    df_energies["kinetic_energy"] = df_energies["kinetic_energy"] * Ha_to_eV
+    df_energies["potential_energy"] = df_energies["potential_energy"] * Ha_to_eV
+    df_energies["conserved_quantity"] = df_energies["conserved_quantity"] * Ha_to_eV
+    df_energies = df_energies.astype(float)
+    return {c: df_energies[c].to_numpy() for c in columns}
 
 
 # TODO: The DOS file that CP2K outputs as of 2022.1 seems to have a lot of problems.

@@ -82,7 +82,7 @@ class TestInputSet(PymatgenTest):
             _ = inp_set.kwarg3
         expected = [("cif1", sif1), ("cif2", sif2), ("cif3", sif3)]
 
-        for (fname, contents), (exp_fname, exp_contents) in zip(inp_set.items(), expected):
+        for (fname, contents), (exp_fname, exp_contents) in zip(inp_set.items(), expected, strict=True):
             assert fname == exp_fname
             assert contents is exp_contents
 
@@ -100,7 +100,7 @@ class TestInputSet(PymatgenTest):
 
         assert len(inp_set) == 2
         expected = [("cif1", sif1), ("cif3", sif3)]
-        for (fname, contents), (exp_fname, exp_contents) in zip(inp_set.items(), expected):
+        for (fname, contents), (exp_fname, exp_contents) in zip(inp_set.items(), expected, strict=True):
             assert fname == exp_fname
             assert contents is exp_contents
 
@@ -133,7 +133,7 @@ class TestInputSet(PymatgenTest):
         assert temp_inp_set.kwarg1 == 1
         assert temp_inp_set.kwarg2 == "hello"
         assert temp_inp_set._kwargs == inp_set._kwargs
-        for (fname, contents), (fname2, contents2) in zip(temp_inp_set.items(), inp_set.items()):
+        for (fname, contents), (fname2, contents2) in zip(temp_inp_set.items(), inp_set.items(), strict=True):
             assert fname == fname2
             assert contents.structure == contents2.structure
 

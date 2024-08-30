@@ -49,7 +49,7 @@ class TestTrajectory(PymatgenTest):
         if traj_1.species != traj_2.species:
             return False
 
-        return all(frame1 == frame2 for frame1, frame2 in zip(self.traj, traj_2))
+        return all(frame1 == frame2 for frame1, frame2 in zip(self.traj, traj_2, strict=False))
 
     def _get_lattice_species_and_coords(self):
         lattice = ((1, 0, 0), (0, 1, 0), (0, 0, 1))
@@ -390,7 +390,7 @@ class TestTrajectory(PymatgenTest):
         traj_1 = Trajectory(lattice=lattice, species=species, coords=coords, frame_properties=props_1)
 
         # energy and pressure properties
-        props_2 = [{"energy": e, "pressure": p} for e, p in zip(energy_2, pressure_2)]
+        props_2 = [{"energy": e, "pressure": p} for e, p in zip(energy_2, pressure_2, strict=True)]
         traj_2 = Trajectory(lattice=lattice, species=species, coords=coords, frame_properties=props_2)
 
         # no properties

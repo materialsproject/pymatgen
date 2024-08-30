@@ -224,7 +224,7 @@ def get_complete_ph_dos(partial_dos_path, phonopy_yaml_path):
     total_dos = PhononDos(arr[0], arr[1:].sum(axis=0))
 
     partial_doses = {}
-    for site, p_dos in zip(structure, arr[1:]):
+    for site, p_dos in zip(structure, arr[1:], strict=True):
         partial_doses[site] = p_dos.tolist()
 
     return CompletePhononDos(structure, total_dos, partial_doses)
@@ -330,7 +330,7 @@ def get_phonon_dos_from_fc(
     phonon.run_projected_dos(freq_min=freq_min, freq_max=freq_max, freq_pitch=freq_pitch)
 
     dos_raw = phonon.projected_dos.get_partial_dos()
-    p_doses = dict(zip(structure, dos_raw[1]))
+    p_doses = dict(zip(structure, dos_raw[1], strict=True))
 
     total_dos = PhononDos(dos_raw[0], dos_raw[1].sum(axis=0))
     return CompletePhononDos(structure, total_dos, p_doses)
@@ -403,7 +403,7 @@ def get_phonon_band_structure_symm_line_from_fc(
     phonon.run_qpoints(kpoints)
     frequencies = phonon.qpoints.get_frequencies().T
 
-    labels_dict = {a: k for a, k in zip(labels, kpoints) if a != ""}
+    labels_dict = {a: k for a, k in zip(labels, kpoints, strict=True) if a != ""}
 
     return PhononBandStructureSymmLine(kpoints, frequencies, structure.lattice, labels_dict=labels_dict)
 

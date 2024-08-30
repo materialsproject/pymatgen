@@ -3,7 +3,7 @@ requires = [
     "Cython>=0.29.23",
     # Building against NPY2 will support both NPY1 and NPY2
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#build-time-dependency
-    "numpy>=2.0.1",
+    "numpy>=2.1.0",
     "setuptools>=65.0.0",
 ]
 build-backend = "setuptools.build_meta"
@@ -22,7 +22,7 @@ Python Materials Genomics is a robust materials analysis code that defines core 
 and molecules with support for many electronic structure codes. It is currently the core analysis code powering the
 Materials Project (https://materialsproject.org)."""
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 keywords = [
     "ABINIT",
     "VASP",
@@ -49,7 +49,6 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.9",
     "Topic :: Scientific/Engineering :: Chemistry",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Scientific/Engineering :: Physics",
@@ -60,8 +59,6 @@ dependencies = [
     "matplotlib>=3.8",
     "monty>=2024.7.29",
     "networkx>=2.2",
-    # NumPy documentation suggests pinning the current major version as the C API is used
-    # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
     "palettable>=3.3.3",
     "pandas>=2",
     "plotly>=4.5.0",
@@ -69,12 +66,17 @@ dependencies = [
     "requests>=2.32",
     "ruamel.yaml>=0.17.0",
     "scipy>=1.13.0",
+    # scipy<1.14.1 is incompatible with NumPy 2.0 on Windows
+    # https://github.com/scipy/scipy/issues/21052
+    "scipy>=1.14.1; platform_system == 'Windows'",
     "spglib>=2.5.0",
     "sympy>=1.2",
     "tabulate>=0.9",
     "tqdm>=4.60",
     "uncertainties>=3.1.4",
-    'numpy>=1.25.0,<3.0',
+    # NumPy documentation suggests pinning the current major version as the C API is used
+    # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
+    "numpy>=1.25.0,<3",
 ]
 version = "2024.8.9"
 
@@ -94,7 +96,7 @@ abinit = ["netcdf4>=1.7.1"]
 mlp = ["chgnet>=0.3.8", "matgl>=1.1.1"]
 electronic_structure = ["fdint>=2.0.2"]
 ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8"]
-docs = ["sphinx", "sphinx_rtd_theme"]
+docs = ["invoke", "sphinx", "sphinx_rtd_theme", "sphinx_markdown_builder"]
 optional = [
     "ase>=3.23.0",
     # TODO: uv cannot install BoltzTraP2
@@ -106,8 +108,7 @@ optional = [
     "h5py>=3.11.0",
     "jarvis-tools>=2020.7.14",
     "matgl>=1.1.1",
-    # TODO: track https://github.com/matplotlib/matplotlib/issues/28551
-    "matplotlib>=3.8,!=3.9.1",
+    "matplotlib>=3.8",
     "netCDF4>=1.6.5",
     "phonopy>=2.23",
     "seekpath>=2.0.1",
@@ -117,6 +118,7 @@ optional = [
     # "openbabel>=3.1.1; platform_system=='Linux'",
 ]
 numba = ["numba>=0.55"]
+numpy1 = ["numpy>=1.25.0,<2"]  # Test NP1 on Windows (quite buggy ATM)
 
 [project.scripts]
 pmg = "pymatgen.cli.pmg:main"
@@ -172,30 +174,30 @@ before-all = "ln -s /usr/lib64/libgfortran.so.5 /usr/lib64/libgfortran.so.3"
 repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel} --ignore-missing-dependencies"
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py310"
 line-length = 120
+output-format = "concise"
 
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
     # Rule families
-    "ANN",  # flake8-annotations (not ready, require types for ALL args)
-    "ARG",  # Check for unused function arguments
-    "BLE",  # General catch of Exception
-    "C90",  # Check for functions with a high McCabe complexity
-    "COM",  # flake8-commas (conflict with line wrapper)
-    "CPY",  # Missing copyright notice at top of file (need preview mode)
-    "EM",   # Format nice error messages
-    "ERA",  # Check for commented-out code
-    "FIX",  # Check for FIXME, TODO and other developer notes
-    "FURB", # refurb (need preview mode, too many preview errors)
-    "G",    # Validate logging format strings
-    "INP",  # Ban PEP-420 implicit namespace packages
-    "N",    # PEP8-naming (many var/arg names are intended)
-    "PTH",  # Prefer pathlib over os.path
-    "SLF",  # Access "private" class members
-    "T20",  # Check for print/pprint
-    "TD",   # TODO tags related
+    "ANN", # flake8-annotations (not ready, require types for ALL args)
+    "ARG", # Check for unused function arguments
+    "BLE", # General catch of Exception
+    "C90", # Check for functions with a high McCabe complexity
+    "COM", # flake8-commas (conflict with line wrapper)
+    "CPY", # Missing copyright notice at top of file (need preview mode)
+    "EM",  # Format nice error messages
+    "ERA", # Check for commented-out code
+    "FIX", # Check for FIXME, TODO and other developer notes
+    "G",   # Validate logging format strings
+    "INP", # Ban PEP-420 implicit namespace packages
+    "N",   # PEP8-naming (many var/arg names are intended)
+    "PTH", # Prefer pathlib over os.path
+    "SLF", # Access "private" class members
+    "T20", # Check for print/pprint
+    "TD",  # TODO tags related
 
     # Single rules
     "B023",    # Function definition does not bind loop variable
@@ -207,18 +209,18 @@ ignore = [
     "D212",    # Multi-line docstring summary should start at the first line
     "FBT001",  # Boolean-typed positional argument in function definition
     "FBT002",  # Boolean default positional argument in function
-    "NPY201",  # TODO: enable after migration to NumPy 2.0
-    "PD901",   # pandas-df-variable-name
+    "PD011",   # (A lot of false positive on non-Pandas objects)
     "PERF203", # Use of try-except in for/while loop
     "PERF401", # Replace "for" loops with list comprehension
     "PLR0911", # Too many return statements
     "PLR0912", # Too many branches
     "PLR0913", # Too many arguments
     "PLR0915", # Too many statements
-    "PLR2004", # Magic-value-comparison TODO fix these
+    "PLR1702", # Too many nested blocks
+    "PLR2004", # Magic-value-comparison TODO: fix these
     "PLW2901", # Outer for loop variable overwritten by inner assignment target
     "PT013",   # Incorrect import of pytest
-    "S101",    # Use of "assert"
+    "S101",    # Use of "assert"  TODO: fix these
     "S110",    # Log for try-except-pass
     "S112",    # Log for try-except-continue
     "S311",    # Use random module for cryptographic purposes
@@ -239,10 +241,14 @@ isort.known-first-party = ["pymatgen"]
 docstring-code-format = true
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
-# PLR2004: magic-value-comparison
-# PLR6301: no-self-use
-"tests/**" = ["ANN201", "D", "PLR0124", "PLR2004", "PLR6301"]
+"__init__.py" = ["F401"]  # unused-import
+"tests/**" = [
+    "ANN201",   # missing-return-type-undocumented-public-function
+    "D",        # pydocstyle
+    "PLR0124",  # comparison-with-itself
+    "PLR2004",  # magic-value-comparison
+    "PLR6301",  # no-self-use
+    ]
 "src/pymatgen/analysis/*" = ["D"]
 "src/pymatgen/io/*" = ["D"]
 "dev_scripts/*" = ["D"]
@@ -265,15 +271,11 @@ omit = [
 [tool.coverage.report]
 exclude_also = [
     "@deprecated",
-    "@np.deprecate",
     "def __repr__",
     "except ImportError:",
-    "if 0:",
     "if TYPE_CHECKING:",
-    "if __name__ == .__main__.:",
     "if self.debug:",
     "if settings.DEBUG",
-    "if typing.TYPE_CHECKING:",
     "pragma: no cover",
     "raise NotImplementedError",
     "show_plot",

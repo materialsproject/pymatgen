@@ -28,7 +28,7 @@ def alternate(*iterables):
     [1, 2, 3, 4, 5, 6].
     """
     items = []
-    for tup in zip(*iterables):
+    for tup in zip(*iterables, strict=True):
         items.extend(tup)
     return items
 
@@ -266,8 +266,10 @@ class AbinitTimerParser(collections.abc.Iterable):
 
         # Compute the parallel efficiency (total and section efficiency)
         peff = {}
-        ctime_peff = [(min_ncpus * ref_t.wall_time) / (t.wall_time * ncp) for (t, ncp) in zip(timers, ncpus)]
-        wtime_peff = [(min_ncpus * ref_t.cpu_time) / (t.cpu_time * ncp) for (t, ncp) in zip(timers, ncpus)]
+        ctime_peff = [
+            (min_ncpus * ref_t.wall_time) / (t.wall_time * ncp) for (t, ncp) in zip(timers, ncpus, strict=True)
+        ]
+        wtime_peff = [(min_ncpus * ref_t.cpu_time) / (t.cpu_time * ncp) for (t, ncp) in zip(timers, ncpus, strict=True)]
         n = len(timers)
 
         peff["total"] = {}
@@ -280,8 +282,13 @@ class AbinitTimerParser(collections.abc.Iterable):
             ref_sect = ref_t.get_section(sect_name)
             sects = [timer.get_section(sect_name) for timer in timers]
             try:
-                ctime_peff = [(min_ncpus * ref_sect.cpu_time) / (s.cpu_time * ncp) for (s, ncp) in zip(sects, ncpus)]
-                wtime_peff = [(min_ncpus * ref_sect.wall_time) / (s.wall_time * ncp) for (s, ncp) in zip(sects, ncpus)]
+                ctime_peff = [
+                    (min_ncpus * ref_sect.cpu_time) / (s.cpu_time * ncp) for (s, ncp) in zip(sects, ncpus, strict=True)
+                ]
+                wtime_peff = [
+                    (min_ncpus * ref_sect.wall_time) / (s.wall_time * ncp)
+                    for (s, ncp) in zip(sects, ncpus, strict=True)
+                ]
             except ZeroDivisionError:
                 ctime_peff = n * [-1]
                 wtime_peff = n * [-1]
@@ -729,7 +736,7 @@ class AbinitTimer:
         if minval is not None:
             assert minfract is None
 
-            for name, val in zip(names, values):
+            for name, val in zip(names, values, strict=True):
                 if val >= minval:
                     new_names.append(name)
                     new_values.append(val)
@@ -744,7 +751,7 @@ class AbinitTimer:
 
             total = self.sum_sections(key)
 
-            for name, val in zip(names, values):
+            for name, val in zip(names, values, strict=True):
                 if val / total >= minfract:
                     new_names.append(name)
                     new_values.append(val)
@@ -760,7 +767,7 @@ class AbinitTimer:
 
         if sorted:
             # Sort new_values and rearrange new_names.
-            nandv = list(zip(new_names, new_values))
+            nandv = list(zip(new_names, new_values, strict=True))
             nandv.sort(key=lambda t: t[1])
             new_names, new_values = [n[0] for n in nandv], [n[1] for n in nandv]
 

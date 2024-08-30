@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import itertools
-import logging
 import math
 import os
 import re
@@ -24,6 +23,7 @@ from monty.json import MSONable, jsanitize
 from monty.os.path import zpath
 from monty.re import regrep
 from numpy.testing import assert_allclose
+from tqdm import tqdm
 
 from pymatgen.core import Composition, Element, Lattice, Structure
 from pymatgen.core.trajectory import Trajectory
@@ -45,7 +45,8 @@ from pymatgen.util.num import make_symmetric_matrix_from_upper_tri
 from pymatgen.util.typing import Kpoint, Tuple3Floats, Vector3D
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Literal
+    from collections.abc import Callable
+    from typing import Any, Literal
 
     # Avoid name conflict with pymatgen.core.Element
     from xml.etree.ElementTree import Element as XML_Element
@@ -54,8 +55,6 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from pymatgen.util.typing import PathLike
-
-logger = logging.getLogger(__name__)
 
 
 def _parse_parameters(val_type: str, val: str) -> bool | str | float | int:
@@ -606,7 +605,9 @@ class Vasprun(MSONable):
                 return 2 * 3.14159 * np.sqrt(np.sqrt(real**2 + imag**2) - real) * np.sqrt(2) / hc * freq
 
             return list(
-                itertools.starmap(optical_absorb_coeff, zip(self.dielectric_data["density"][0], real_avg, imag_avg))
+                itertools.starmap(
+                    optical_absorb_coeff, zip(self.dielectric_data["density"][0], real_avg, imag_avg, strict=True)
+                )
             )
         return None
 
@@ -1027,7 +1028,7 @@ class Vasprun(MSONable):
                             "A band structure along symmetry lines requires a label "
                             "for each kpoint. Check your KPOINTS file"
                         )
-                    labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts))
+                    labels_dict = dict(zip(kpoint_file.labels, kpoint_file.kpts, strict=True))
                 labels_dict.pop(None, None)  # type: ignore[call-overload]
 
             return BandStructureSymmLine(
@@ -1163,7 +1164,7 @@ class Vasprun(MSONable):
         if not path:
             return None
 
-        if isinstance(path, (str, Path)) and "POTCAR" in str(path):
+        if isinstance(path, str | Path) and "POTCAR" in str(path):
             potcar_paths = [str(path)]
         else:
             # the abspath is needed here in cases where no leading directory is specified,
@@ -1232,7 +1233,7 @@ class Vasprun(MSONable):
                 )
             else:
                 nums = [len(list(g)) for _, g in itertools.groupby(self.atomic_symbols)]
-                potcar_nelect = sum(ps.ZVAL * num for ps, num in zip(potcar, nums))
+                potcar_nelect = sum(ps.ZVAL * num for ps, num in zip(potcar, nums, strict=False))
             charge = potcar_nelect - nelect
 
             for struct in self.structures:
@@ -1244,25 +1245,21 @@ class Vasprun(MSONable):
 
     def as_dict(self) -> dict:
         """JSON-serializable dict representation."""
-        dct = {
+        comp = self.final_structure.composition
+        unique_symbols = sorted(set(self.atomic_symbols))
+        dct: dict[str, Any] = {
             "vasp_version": self.vasp_version,
             "has_vasp_completed": self.converged,
             "nsites": len(self.final_structure),
+            "unit_cell_formula": comp.as_dict(),
+            "reduced_cell_formula": Composition(comp.reduced_formula).as_dict(),
+            "pretty_formula": comp.reduced_formula,
+            "is_hubbard": self.is_hubbard,
+            "hubbards": self.hubbards,
+            "elements": unique_symbols,
+            "nelements": len(unique_symbols),
+            "run_type": self.run_type,
         }
-        comp = self.final_structure.composition
-        dct["unit_cell_formula"] = comp.as_dict()
-        dct["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
-        dct["pretty_formula"] = comp.reduced_formula
-        symbols = [s.split()[1] for s in self.potcar_symbols]
-        symbols = [re.split(r"_", s)[0] for s in symbols]
-        dct["is_hubbard"] = self.is_hubbard
-        dct["hubbards"] = self.hubbards
-
-        unique_symbols = sorted(set(self.atomic_symbols))
-        dct["elements"] = unique_symbols
-        dct["nelements"] = len(unique_symbols)
-
-        dct["run_type"] = self.run_type
 
         vin: dict[str, Any] = {
             "incar": dict(self.incar.items()),
@@ -1496,7 +1493,6 @@ class Vasprun(MSONable):
 
     def _parse_chemical_shielding(self, elem: XML_Element) -> list[dict[str, Any]]:
         """Parse NMR chemical shielding."""
-        calculation = []
         istep: dict[str, Any] = {}
         # not all calculations have a structure
         _struct = elem.find("structure")
@@ -1506,7 +1502,9 @@ class Vasprun(MSONable):
             istep[va.attrib["name"]] = _parse_vasp_array(va)
         istep["structure"] = struct
         istep["electronic_steps"] = []
-        calculation.append(istep)
+        calculation = [
+            istep,
+        ]
         for scstep in elem.findall("scstep"):
             try:
                 e_steps_dict = {i.attrib["name"]: _vasprun_float(i.text) for i in scstep.find("energy").findall("i")}  # type: ignore[union-attr, arg-type]
@@ -1766,24 +1764,21 @@ class BSVasprun(Vasprun):
 
     def as_dict(self) -> dict:
         """JSON-serializable dict representation."""
+        comp = self.final_structure.composition
+        unique_symbols = sorted(set(self.atomic_symbols))
         dct = {
             "vasp_version": self.vasp_version,
             "has_vasp_completed": True,
             "nsites": len(self.final_structure),
+            "unit_cell_formula": comp.as_dict(),
+            "reduced_cell_formula": Composition(comp.reduced_formula).as_dict(),
+            "pretty_formula": comp.reduced_formula,
+            "is_hubbard": self.is_hubbard,
+            "hubbards": self.hubbards,
+            "elements": unique_symbols,
+            "nelements": len(unique_symbols),
+            "run_type": self.run_type,
         }
-
-        comp = self.final_structure.composition
-        dct["unit_cell_formula"] = comp.as_dict()
-        dct["reduced_cell_formula"] = Composition(comp.reduced_formula).as_dict()
-        dct["pretty_formula"] = comp.reduced_formula
-        dct["is_hubbard"] = self.is_hubbard
-        dct["hubbards"] = self.hubbards
-
-        unique_symbols = sorted(set(self.atomic_symbols))
-        dct["elements"] = unique_symbols
-        dct["nelements"] = len(unique_symbols)
-
-        dct["run_type"] = self.run_type
 
         vin: dict[str, Any] = {
             "incar": dict(self.incar),
@@ -2000,13 +1995,13 @@ class Outcar:
                     tokens = [float(i) for i in re.findall(r"[\d\.\-]+", clean)]
                     tokens.pop(0)
                     if read_charge:
-                        charge.append(dict(zip(header, tokens)))
+                        charge.append(dict(zip(header, tokens, strict=True)))
                     elif read_mag_x:
-                        mag_x.append(dict(zip(header, tokens)))
+                        mag_x.append(dict(zip(header, tokens, strict=True)))
                     elif read_mag_y:
-                        mag_y.append(dict(zip(header, tokens)))
+                        mag_y.append(dict(zip(header, tokens, strict=True)))
                     elif read_mag_z:
-                        mag_z.append(dict(zip(header, tokens)))
+                        mag_z.append(dict(zip(header, tokens, strict=True)))
                 elif clean.startswith("tot"):
                     read_charge = False
                     read_mag_x = False
@@ -3230,7 +3225,7 @@ class Outcar:
 
             micro_pyawk(self.filename, search, self)
 
-            self.zval_dict = dict(zip(self.atom_symbols, self.zvals))  # type: ignore[attr-defined]
+            self.zval_dict = dict(zip(self.atom_symbols, self.zvals, strict=True))  # type: ignore[attr-defined]
 
             # Clean up
             del self.atom_symbols  # type: ignore[attr-defined]
@@ -3577,14 +3572,14 @@ class VolumetricData(BaseVolumetricData):
 
     def write_file(
         self,
-        file_name: str | Path,
+        file_name: PathLike,
         vasp4_compatible: bool = False,
     ) -> None:
         """Write the VolumetricData object to a VASP compatible file.
 
         Args:
-            file_name (str): Path to a file
-            vasp4_compatible (bool): True if the format is VASP4 compatible
+            file_name (PathLike): The output file.
+            vasp4_compatible (bool): True if the format is VASP4 compatible.
         """
 
         def format_fortran_float(flt: float) -> str:
@@ -3784,9 +3779,14 @@ class Elfcar(VolumetricData):
         return VolumetricData(self.structure, alpha_data)
 
 
-class Procar:
+class Procar(MSONable):
     """
     PROCAR file reader.
+
+    Updated to use code from easyunfold (https://smtg-bham.github.io/easyunfold; band-structure
+    unfolding package) to allow SOC PROCAR parsing, and parsing multiple PROCAR files together.
+    easyunfold's PROCAR parser can be used if finer control over projections (k-point weighting,
+    normalisation per band, quick orbital sub-selection etc) is needed.
 
     Attributes:
         data (dict): The PROCAR data of the form below. It should VASP uses 1-based indexing,
@@ -3798,48 +3798,245 @@ class Procar:
         nbands (int): Number of bands.
         nkpoints (int): Number of k-points.
         nions (int): Number of ions.
+        nspins (int): Number of spins.
+        is_soc (bool): Whether the PROCAR contains spin-orbit coupling (LSORBIT = True) data.
+        kpoints (np.array): The k-points as an nd.array of shape (nkpoints, 3).
+        occupancies (dict): The occupancies of the bands as a dict of the form:
+            { spin: nd.array accessed with (k-point index, band index) }
+        eigenvalues (dict): The eigenvalues of the bands as a dict of the form:
+            { spin: nd.array accessed with (k-point index, band index) }
+        xyz_data (dict): The PROCAR projections data along the x,y and z magnetisation projection
+            directions, with is_soc = True (see VASP wiki for more info).
+            { 'x'/'y'/'z': nd.array accessed with (k-point index, band index, ion index, orbital index) }
     """
 
-    def __init__(self, filename: PathLike) -> None:
+    def __init__(self, filename: PathLike | list[PathLike]):
         """
         Args:
-            filename: The PROCAR to read.
+            filename: The path to PROCAR(.gz) file to read, or list of paths.
         """
-        headers = None
+        # get PROCAR filenames list to parse:
+        filenames = filename if isinstance(filename, list) else [filename]
+        self.nions: int | None = None  # used to check for consistency in files later
+        self.nspins: int | None = None  # used to check for consistency in files later
+        self.is_soc: bool | None = None  # used to check for consistency in files later
+        self.orbitals = None  # used to check for consistency in files later
+        self.read(filenames)
+
+    def read(self, filenames: list[PathLike]):
+        """
+        Read in PROCAR projections data, possibly from multiple files.
+
+        Args:
+            filenames: List of PROCAR files to read.
+        """
+        parsed_kpoints = None
+        occupancies_list, kpoints_list, weights_list = [], [], []
+        eigenvalues_list, data_list, xyz_data_list = [], [], []
+        phase_factors_list = []
+        for filename in tqdm(filenames, desc="Reading PROCARs", unit="file", disable=len(filenames) == 1):
+            kpoints, weights, eigenvalues, occupancies, data, phase_factors, xyz_data = self._read(
+                filename, parsed_kpoints=parsed_kpoints
+            )
+
+            # Append to respective lists
+            occupancies_list.append(occupancies)
+            kpoints_list.append(kpoints)
+            weights_list.append(weights)
+            eigenvalues_list.append(eigenvalues)
+            data_list.append(data)
+            xyz_data_list.append(xyz_data)
+            phase_factors_list.append(phase_factors)
+
+        # Combine arrays along the kpoints axis:
+        # nbands (axis = 2) could differ between arrays, so set missing values to zero:
+        max_nbands = max(eig_dict[Spin.up].shape[1] for eig_dict in eigenvalues_list)
+        for dict_array in itertools.chain(
+            occupancies_list, eigenvalues_list, data_list, xyz_data_list, phase_factors_list
+        ):
+            if dict_array:
+                for key, array in dict_array.items():
+                    if array.shape[1] < max_nbands:
+                        if len(array.shape) == 2:  # occupancies, eigenvalues
+                            dict_array[key] = np.pad(
+                                array,
+                                ((0, 0), (0, max_nbands - array.shape[2])),
+                                mode="constant",
+                            )
+                        elif len(array.shape) == 4:  # data, phase_factors
+                            dict_array[key] = np.pad(
+                                array,
+                                (
+                                    (0, 0),
+                                    (0, max_nbands - array.shape[2]),
+                                    (0, 0),
+                                    (0, 0),
+                                ),
+                                mode="constant",
+                            )
+                        elif len(array.shape) == 5:  # xyz_data
+                            dict_array[key] = np.pad(
+                                array,
+                                (
+                                    (0, 0),
+                                    (0, max_nbands - array.shape[2]),
+                                    (0, 0),
+                                    (0, 0),
+                                    (0, 0),
+                                ),
+                                mode="constant",
+                            )
+                        else:
+                            raise ValueError("Unexpected array shape encountered!")
+
+        # set nbands, nkpoints, and other attributes:
+        self.nbands = max_nbands
+        self.kpoints = np.concatenate(kpoints_list, axis=0)
+        self.nkpoints = len(self.kpoints)
+        self.occupancies = {
+            spin: np.concatenate([occupancies[spin] for occupancies in occupancies_list], axis=0)
+            for spin in occupancies_list[0]
+        }
+        self.eigenvalues = {
+            spin: np.concatenate([eigenvalues[spin] for eigenvalues in eigenvalues_list], axis=0)
+            for spin in eigenvalues_list[0]
+        }
+        self.weights = np.concatenate(weights_list, axis=0)
+        self.data = {spin: np.concatenate([data[spin] for data in data_list], axis=0) for spin in data_list[0]}
+        self.phase_factors = {
+            spin: np.concatenate([phase_factors[spin] for phase_factors in phase_factors_list], axis=0)
+            for spin in phase_factors_list[0]
+        }
+        if self.is_soc:
+            self.xyz_data: dict | None = {
+                key: np.concatenate([xyz_data[key] for xyz_data in xyz_data_list], axis=0) for key in xyz_data_list[0]
+            }
+        else:
+            self.xyz_data = None
+
+    def _parse_kpoint_line(self, line):
+        """
+        Parse k-point vector from a PROCAR line.
+
+        Sometimes VASP outputs the kpoints joined together like
+        '0.00000000-0.50000000-0.50000000' when there are negative signs,
+        so need to be able to recognise and handle this.
+        """
+        fields = line.split()
+        kpoint_fields = fields[3 : fields.index("weight")]
+        kpoint_fields = [" -".join(field.split("-")).split() for field in kpoint_fields]
+        kpoint_fields = [val for sublist in kpoint_fields for val in sublist]  # flatten
+
+        return tuple(round(float(val), 5) for val in kpoint_fields)  # tuple to make it hashable,
+        # rounded to 5 decimal places to ensure proper kpoint matching
+
+    def _read(self, filename: PathLike, parsed_kpoints: set[tuple[Kpoint]] | None = None):
+        """Main function for reading in the PROCAR projections data.
+
+        Args:
+            filename (PathLike): Path to PROCAR file to read.
+            parsed_kpoints (set[tuple[Kpoint]]): Set of tuples of already-parsed kpoints (e.g. from multiple
+                zero-weighted bandstructure calculations), to ensure redundant/duplicate parsing.
+        """
+        if parsed_kpoints is None:
+            parsed_kpoints = set()
 
         with zopen(filename, mode="rt") as file_handle:
             preamble_expr = re.compile(r"# of k-points:\s*(\d+)\s+# of bands:\s*(\d+)\s+# of ions:\s*(\d+)")
             kpoint_expr = re.compile(r"^k-point\s+(\d+).*weight = ([0-9\.]+)")
             band_expr = re.compile(r"^band\s+(\d+)")
             ion_expr = re.compile(r"^ion.*")
+            total_expr = re.compile(r"^tot.*")
             expr = re.compile(r"^([0-9]+)\s+")
             current_kpoint = 0
             current_band = 0
-            done = False
-            spin = Spin.down
+            spin = Spin.down  # switched to Spin.up for first block
 
             n_kpoints = None
+            kpoints: list[tuple[float, float, float]] = []
             n_bands = None
             n_ions = None
-            weights: list[float] = []
+            weights: np.ndarray[float] | None = None
             headers = None
-            data: dict[Spin, np.ndarray] | None = None
+            data: dict[Spin, np.ndarray] = {}
+            eigenvalues: dict[Spin, np.ndarray] | None = None
+            occupancies: dict[Spin, np.ndarray] | None = None
             phase_factors: dict[Spin, np.ndarray] | None = None
+            xyz_data: dict[str, np.ndarray] | None = None  # 'x'/'y'/'z' as keys for SOC projections dict
+            # keep track of parsed kpoints, to avoid redundant/duplicate parsing with multiple PROCARs:
+            this_procar_parsed_kpoints = (
+                set()
+            )  # set of tuples of parsed (kvectors, 0/1 for Spin.up/down) for this PROCAR
 
+            # first dynamically determine whether PROCAR is SOC or not; SOC PROCARs have 4 lists of projections (
+            # total and x,y,z) for each band, while non-SOC have only 1 list of projections:
+            tot_count = 0
+            band_count = 0
+            for line in file_handle:
+                if total_expr.match(line):
+                    tot_count += 1
+                elif band_expr.match(line):
+                    band_count += 1
+                if band_count == 2:
+                    break
+
+            file_handle.seek(0)  # reset file handle to beginning
+            if tot_count == 1:
+                is_soc = False
+            elif tot_count == 4:
+                is_soc = True
+            else:
+                raise ValueError(
+                    "Number of lines starting with 'tot' in PROCAR does not match expected values (4x or 1x number of "
+                    "lines with 'band'), indicating a corrupted file!"
+                )
+            if self.is_soc is not None and self.is_soc != is_soc:
+                raise ValueError("Mismatch in SOC setting (LSORBIT) in supplied PROCARs!")
+            self.is_soc = is_soc
+
+            skipping_kpoint = False  # true when skipping projections for a previously-parsed kpoint
+            ion_line_count = 0  # printed twice when phase factors present
+            proj_data_parsed_for_band = 0  # 0 for non-SOC, 1-4 for SOC/phase factors
             for line in file_handle:
                 line = line.strip()
-                if band_expr.match(line):
-                    match = band_expr.match(line)
-                    current_band = int(match[1]) - 1  # type: ignore[index]
-                    done = False
+                if ion_expr.match(line):
+                    ion_line_count += 1
 
-                elif kpoint_expr.match(line):
+                if kpoint_expr.match(line):
+                    kvec = self._parse_kpoint_line(line)
                     match = kpoint_expr.match(line)
                     current_kpoint = int(match[1]) - 1  # type: ignore[index]
-                    weights[current_kpoint] = float(match[2])  # type: ignore[index]
                     if current_kpoint == 0:
                         spin = Spin.up if spin == Spin.down else Spin.down
-                    done = False
+
+                    if (
+                        kvec not in parsed_kpoints
+                        and (kvec, {Spin.down: 0, Spin.up: 1}[spin]) not in this_procar_parsed_kpoints
+                    ):
+                        this_procar_parsed_kpoints.add((kvec, {Spin.down: 0, Spin.up: 1}[spin]))
+                        skipping_kpoint = False
+                        if spin == Spin.up:
+                            kpoints.append(kvec)  # only add once
+                    else:  # skip ahead to next kpoint:
+                        skipping_kpoint = True
+                        continue
+
+                    if spin == Spin.up:  # record k-weight only once
+                        weights[current_kpoint] = float(match[2])  # type: ignore[index]
+                    proj_data_parsed_for_band = 0
+
+                elif skipping_kpoint:
+                    continue
+
+                elif band_expr.match(line):
+                    ion_line_count = 0  # printed a second time when phase factors present
+                    match = band_expr.match(line)
+                    current_band = int(match[1]) - 1  # type: ignore[index]
+                    tokens = line.split()
+                    eigenvalues[spin][current_kpoint, current_band] = float(tokens[4])  # type: ignore[index]
+                    occupancies[spin][current_kpoint, current_band] = float(tokens[-1])  # type: ignore[index]
+                    # keep track of parsed projections for each band (1x w/non-SOC, 4x w/SOC):
+                    proj_data_parsed_for_band = 0
 
                 elif headers is None and ion_expr.match(line):
                     headers = line.split()
@@ -3847,10 +4044,11 @@ class Procar:
                     headers.pop(-1)
 
                     data = defaultdict(lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers))))
-
                     phase_factors = defaultdict(
                         lambda: np.full((n_kpoints, n_bands, n_ions, len(headers)), np.nan, dtype=np.complex128)
                     )
+                    if self.is_soc:  # dict keys are now "x", "y", "z" rather than Spin.up/down
+                        xyz_data = defaultdict(lambda: np.zeros((n_kpoints, n_bands, n_ions, len(headers))))
 
                 elif expr.match(line):
                     tokens = line.split()
@@ -3859,11 +4057,15 @@ class Procar:
                     num_data = np.array([float(t) for t in tokens[: len(headers)]])
                     assert phase_factors is not None
 
-                    if not done:
-                        assert data is not None
+                    if proj_data_parsed_for_band == 0:
                         data[spin][current_kpoint, current_band, index, :] = num_data
 
-                    elif len(tokens) > len(headers):
+                    elif self.is_soc and proj_data_parsed_for_band < 4:
+                        proj_direction = {1: "x", 2: "y", 3: "z"}[proj_data_parsed_for_band]
+                        assert xyz_data is not None
+                        xyz_data[proj_direction][current_kpoint, current_band, index, :] = num_data
+
+                    elif len(tokens) > len(headers):  # note no xyz projected phase factors with SOC
                         # New format of PROCAR (VASP 5.4.4)
                         num_data = np.array([float(t) for t in tokens[: 2 * len(headers)]])
                         for orb in range(len(headers)):
@@ -3876,24 +4078,45 @@ class Procar:
                     else:
                         phase_factors[spin][current_kpoint, current_band, index, :] += 1j * num_data
 
-                elif line.startswith("tot"):
-                    done = True
+                elif total_expr.match(line):
+                    proj_data_parsed_for_band += 1
 
                 elif preamble_expr.match(line):
                     match = preamble_expr.match(line)
                     assert match is not None
                     n_kpoints = int(match[1])
                     n_bands = int(match[2])
+                    if eigenvalues is None:  # first spin
+                        weights = np.zeros(n_kpoints)
+                        eigenvalues = defaultdict(lambda: np.zeros((n_kpoints, n_bands)))
+                        occupancies = defaultdict(lambda: np.zeros((n_kpoints, n_bands)))
                     n_ions = int(match[3])
-                    weights = np.zeros(n_kpoints)
 
-            self.nkpoints = n_kpoints
-            self.nbands = n_bands
-            self.nions = n_ions
-            self.weights = weights
+                    if self.nions is not None and self.nions != n_ions:  # parsing multiple PROCARs but nions mismatch!
+                        raise ValueError(f"Mismatch in number of ions in supplied PROCARs: ({n_ions} vs {self.nions})!")
+
+            self.nions = n_ions  # attributes that should be consistent between multiple files are set here
+            if self.orbitals is not None and self.orbitals != headers:  # multiple PROCARs but orbitals mismatch!
+                raise ValueError(f"Mismatch in orbital headers in supplied PROCARs: {headers} vs {self.orbitals}!")
             self.orbitals = headers
-            self.data = data
-            self.phase_factors = phase_factors
+            if self.nspins is not None and self.nspins != len(data):  # parsing multiple PROCARs but nspins mismatch!
+                raise ValueError("Mismatch in number of spin channels in supplied PROCARs!")
+            self.nspins = len(data)
+
+            # chop off empty kpoints in arrays and redetermine nkpoints as we may have skipped previously-parsed kpoints
+            nkpoints = current_kpoint + 1
+            weights = np.array(weights[:nkpoints])  # type: ignore[index]
+            data = {spin: data[spin][:nkpoints] for spin in data}  # type: ignore[index]
+            eigenvalues = {spin: eigenvalues[spin][:nkpoints] for spin in eigenvalues}  # type: ignore[union-attr,index]
+            occupancies = {spin: occupancies[spin][:nkpoints] for spin in occupancies}  # type: ignore[union-attr,index]
+            phase_factors = {spin: phase_factors[spin][:nkpoints] for spin in phase_factors}  # type: ignore[union-attr,index]
+            if self.is_soc:
+                xyz_data = {spin: xyz_data[spin][:nkpoints] for spin in xyz_data}  # type: ignore[union-attr,index]
+
+            # Update the parsed kpoints
+            parsed_kpoints.update({kvec_spin_tuple[0] for kvec_spin_tuple in this_procar_parsed_kpoints})
+
+            return kpoints, weights, eigenvalues, occupancies, data, phase_factors, xyz_data
 
     def get_projection_on_elements(self, structure: Structure) -> dict[Spin, list[list[dict[str, float]]]]:
         """Get a dict of projections on elements.
@@ -4857,7 +5080,7 @@ class Wavecar:
             tcoeffs = self.coeffs[kpoint][band]
 
         mesh = np.zeros(tuple(self.ng), dtype=np.complex128)
-        for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs):  # type: ignore[call-overload]
+        for gp, coeff in zip(self.Gpoints[kpoint], tcoeffs, strict=False):  # type: ignore[call-overload]
             t = tuple(gp.astype(int) + (self.ng / 2).astype(int))
             mesh[t] = coeff
 

@@ -226,7 +226,7 @@ class CollinearMagneticStructureAnalyzer:
             else magmom
             if abs(magmom) > threshold_nonmag and site.species_string not in self.default_magmoms
             else 0
-            for magmom, site in zip(magmoms, structure)
+            for magmom, site in zip(magmoms, structure, strict=True)
         ]
 
         # overwrite existing magmoms with default_magmoms
@@ -791,14 +791,15 @@ class MagneticStructureEnumerator:
         sga = SpacegroupAnalyzer(structure)
         structure_sym = sga.get_symmetrized_structure()
         wyckoff = ["n/a"] * len(structure)
-        for indices, symbol in zip(structure_sym.equivalent_indices, structure_sym.wyckoff_symbols):
+        for indices, symbol in zip(structure_sym.equivalent_indices, structure_sym.wyckoff_symbols, strict=True):
             for index in indices:
                 wyckoff[index] = symbol
         is_magnetic_sites = [site.specie in types_mag_species for site in structure]
         # we're not interested in sites that we don't think are magnetic,
         # set these symbols to None to filter them out later
         wyckoff = [
-            symbol if is_magnetic_site else "n/a" for symbol, is_magnetic_site in zip(wyckoff, is_magnetic_sites)
+            symbol if is_magnetic_site else "n/a"
+            for symbol, is_magnetic_site in zip(wyckoff, is_magnetic_sites, strict=True)
         ]
         structure.add_site_property("wyckoff", wyckoff)
         wyckoff_symbols = set(wyckoff) - {"n/a"}

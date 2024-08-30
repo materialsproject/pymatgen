@@ -27,19 +27,23 @@ jobs:
       matrix:
         # maximize CI coverage of different platforms and python versions while minimizing the
         # total number of jobs. We run all pytest splits with the oldest supported python
-        # version (currently 3.9) on windows (seems most likely to surface errors) and with
+        # version (currently 3.10) on windows (seems most likely to surface errors) and with
         # newest version (currently 3.12) on ubuntu (to get complete coverage on unix).
         config:
           - os: windows-latest
-            python: "3.9"
+            python: "3.10"
             resolution: highest
             extras: ci,optional
+          - os: windows-latest
+            python: "3.10"
+            resolution: highest
+            extras: ci,optional,numpy1  # Test NP1 on Windows (quite buggy ATM)
           - os: ubuntu-latest
-            python: ">3.9"
+            python: ">3.10"
             resolution: lowest-direct
             extras: ci,optional
           - os: macos-latest
-            python: "3.10"
+            python: "3.11"
             resolution: lowest-direct
             extras: ci # test with only required dependencies installed
 

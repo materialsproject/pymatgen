@@ -5,7 +5,6 @@ from __future__ import annotations
 import ast
 import functools
 import json
-import operator
 import re
 import warnings
 from collections import Counter
@@ -23,7 +22,8 @@ from pymatgen.io.core import ParseError
 from pymatgen.util.string import Stringify, formula_double_format
 
 if TYPE_CHECKING:
-    from typing import Any, Callable, Literal
+    from collections.abc import Callable
+    from typing import Any, Literal
 
     from typing_extensions import Self
 
@@ -86,7 +86,7 @@ class ElementBase(Enum):
             long_name (str): Long name for element. e.g. "Hydrogen".
             A (int) : Atomic mass number (number of protons plus neutrons).
             atomic_radius_calculated (float): Calculated atomic radius for the element. This is the empirical value.
-                Data is obtained from http://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
+                Data is obtained from https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
             van_der_waals_radius (float): Van der Waals radius for the element. This is the empirical value determined
                 from critical reviews of X-ray diffraction, gas kinetic collision cross-section, and other experimental
                 data by Bondi and later workers. The uncertainty in these values is on the order of 0.1 Å.
@@ -204,7 +204,7 @@ class ElementBase(Enum):
             if val is None or str(val).startswith("no data"):
                 warnings.warn(f"No data available for {item} for {self.symbol}")
                 val = None
-            elif isinstance(val, (list, dict)):
+            elif isinstance(val, list | dict):
                 pass
             else:
                 try:
@@ -380,10 +380,8 @@ class ElementBase(Enum):
         taken over all positive oxidation states of the element for which
         data is present.
         """
-        if "Ionic radii" in self._data:
-            radii = [v for k, v in self._data["Ionic radii"].items() if int(k) > 0]
-            if radii:
-                return FloatWithUnit(sum(radii) / len(radii), "ang")
+        if "Ionic radii" in self._data and (radii := [v for k, v in self._data["Ionic radii"].items() if int(k) > 0]):
+            return FloatWithUnit(sum(radii) / len(radii), "ang")
         return FloatWithUnit(0.0, "ang")
 
     @property
@@ -392,10 +390,8 @@ class ElementBase(Enum):
         taken over all negative oxidation states of the element for which
         data is present.
         """
-        if "Ionic radii" in self._data:
-            radii = [v for k, v in self._data["Ionic radii"].items() if int(k) < 0]
-            if radii:
-                return FloatWithUnit(sum(radii) / len(radii), "ang")
+        if "Ionic radii" in self._data and (radii := [v for k, v in self._data["Ionic radii"].items() if int(k) < 0]):
+            return FloatWithUnit(sum(radii) / len(radii), "ang")
         return FloatWithUnit(0.0, "ang")
 
     @property
@@ -527,7 +523,7 @@ class ElementBase(Enum):
         # Total ML = sum(ml1, ml2), Total MS = sum(ms1, ms2)
         TL = [sum(ml_ms[comb[e]][0] for e in range(v_e)) for comb in e_config_combs]
         TS = [sum(ml_ms[comb[e]][1] for e in range(v_e)) for comb in e_config_combs]
-        comb_counter = Counter(zip(TL, TS))
+        comb_counter = Counter(zip(TL, TS, strict=True))
 
         term_symbols = []
         L_symbols = "SPDFGHIKLMNOQRTUVWXYZ"
@@ -543,9 +539,9 @@ class ElementBase(Enum):
             for ML in range(-L, L - 1, -1):
                 for MS in np.arange(S, -S + 1, 1):
                     if (ML, MS) in comb_counter:
-                        comb_counter[(ML, MS)] -= 1
-                        if comb_counter[(ML, MS)] == 0:
-                            del comb_counter[(ML, MS)]
+                        comb_counter[ML, MS] -= 1
+                        if comb_counter[ML, MS] == 0:
+                            del comb_counter[ML, MS]
         return term_symbols
 
     @property
@@ -562,7 +558,7 @@ class ElementBase(Enum):
                 "L": L_symbols.index(term[1]),
                 "J": float(term[2:]),
             }
-            for term in functools.reduce(operator.iadd, term_symbols, [])
+            for term in [item for sublist in term_symbols for item in sublist]
         }
 
         multi = [int(item["multiplicity"]) for _terms, item in term_symbol_flat.items()]
@@ -1630,7 +1626,7 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
             of properties that can be determined.
     """
     # If obj is already an Element or Species, return as is
-    if isinstance(obj, (Element, Species, DummySpecies)):
+    if isinstance(obj, Element | Species | DummySpecies):
         if getattr(obj, "_is_named_isotope", None):
             return Element(obj.name) if isinstance(obj, Element) else Species(str(obj))
         return obj

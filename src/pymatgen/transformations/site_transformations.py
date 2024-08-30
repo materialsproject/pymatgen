@@ -378,7 +378,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     def _enumerate_ordering(self, structure: Structure):
         # Generate the disordered structure first.
         struct = structure.copy()
-        for indices, fraction in zip(self.indices, self.fractions):
+        for indices, fraction in zip(self.indices, self.fractions, strict=True):
             for ind in indices:
                 new_sp = {sp: occu * fraction for sp, occu in structure[ind].species.items()}
                 struct[ind] = new_sp
@@ -409,7 +409,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         """
         num_remove_dict = {}
         total_combos = 0
-        for idx, frac in zip(self.indices, self.fractions):
+        for idx, frac in zip(self.indices, self.fractions, strict=True):
             n_to_remove = len(idx) * frac
             if abs(n_to_remove - int(round(n_to_remove))) > 1e-3:
                 raise ValueError("Fraction to remove must be consistent with integer amounts in structure.")

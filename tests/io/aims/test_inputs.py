@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import gzip
 import json
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
@@ -19,9 +19,14 @@ from pymatgen.io.aims.inputs import (
     AimsSpeciesFile,
     SpeciesDefaults,
 )
-from pymatgen.util.testing.aims import compare_single_files as compare_files
+from pymatgen.util.testing import TEST_FILES_DIR
 
-TEST_DIR = Path(__file__).parent / "input_files"
+from .conftest import compare_single_files as compare_files
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+TEST_DIR = TEST_FILES_DIR / "io/aims/input_files"
 
 
 def test_read_write_si_in(tmp_path: Path):
@@ -58,7 +63,7 @@ def test_read_h2o_in(tmp_path: Path):
         [0, -0.763239, -0.477047],
     ]
 
-    assert all(sp.symbol == symb for sp, symb in zip(h2o.structure.species, ["O", "H", "H"]))
+    assert all(sp.symbol == symb for sp, symb in zip(h2o.structure.species, ["O", "H", "H"], strict=True))
     assert_allclose(h2o.structure.cart_coords, in_coords)
 
     h2o_test_from_struct = AimsGeometryIn.from_structure(h2o.structure)

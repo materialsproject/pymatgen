@@ -37,13 +37,13 @@ def analyze_symmetry(args):
         args (dict): Args from argparse.
     """
     tolerance = args.symmetry
-    t = []
+    table_rows = []
     for filename in args.filenames:
         struct = Structure.from_file(filename, primitive=False)
         finder = SpacegroupAnalyzer(struct, tolerance)
         dataset = finder.get_symmetry_dataset()
-        t.append([filename, dataset["international"], dataset["number"], dataset["hall"]])
-    print(tabulate(t, headers=["Filename", "Int Symbol", "Int number", "Hall"]))
+        table_rows.append([filename, dataset.international, dataset.number, dataset.hall])
+    print(tabulate(table_rows, headers=["Filename", "Int Symbol", "Int number", "Hall"]))
 
 
 def analyze_localenv(args):
@@ -56,7 +56,7 @@ def analyze_localenv(args):
     for bond in args.localenv:
         tokens = bond.split("=")
         species = tokens[0].split("-")
-        bonds[(species[0], species[1])] = float(tokens[1])
+        bonds[species[0], species[1]] = float(tokens[1])
     for filename in args.filenames:
         print(f"Analyzing {filename}...")
         data = []

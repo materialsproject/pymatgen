@@ -152,7 +152,7 @@ class SubstitutionProbability:
         """
         assert len(l1) == len(l2)
         p = 1
-        for s1, s2 in zip(l1, l2):
+        for s1, s2 in zip(l1, l2, strict=True):
             p *= self.cond_prob(s1, s2)
         return p
 
@@ -231,9 +231,9 @@ class SubstitutionPredictor:
                 if len(output_species) == len(species):
                     odict = {"probability": functools.reduce(mul, best_case_prob)}
                     if to_this_composition:
-                        odict["substitutions"] = dict(zip(output_species, species))
+                        odict["substitutions"] = dict(zip(output_species, species, strict=True))
                     else:
-                        odict["substitutions"] = dict(zip(species, output_species))
+                        odict["substitutions"] = dict(zip(species, output_species, strict=True))
                     if len(output_species) == len(set(output_species)):
                         output.append(odict)
                     return

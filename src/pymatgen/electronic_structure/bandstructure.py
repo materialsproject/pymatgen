@@ -332,7 +332,7 @@ class BandStructure:
         max_tmp = -float("inf")
         index = kpoint_vbm = None
         for value in self.bands.values():
-            for idx, j in zip(*np.where(value < self.efermi)):
+            for idx, j in zip(*np.where(value < self.efermi), strict=True):
                 if value[idx, j] > max_tmp:
                     max_tmp = float(value[idx, j])
                     index = j
@@ -398,7 +398,7 @@ class BandStructure:
         max_tmp = float("inf")
         index = kpoint_cbm = None
         for value in self.bands.values():
-            for idx, j in zip(*np.where(value >= self.efermi)):
+            for idx, j in zip(*np.where(value >= self.efermi), strict=True):
                 if value[idx, j] < max_tmp:
                     max_tmp = float(value[idx, j])
                     index = j

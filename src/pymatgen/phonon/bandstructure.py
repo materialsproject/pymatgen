@@ -507,14 +507,14 @@ class PhononBandStructureSymmLine(PhononBandStructure):
 
     def write_phononwebsite(self, filename: str | PathLike) -> None:
         """Write a JSON file for the phononwebsite:
-        http://henriquemiranda.github.io/phononwebsite.
+        https://henriquemiranda.github.io/phononwebsite.
         """
         with open(filename, mode="w") as file:
             json.dump(self.as_phononwebsite(), file)
 
     def as_phononwebsite(self) -> dict:
         """Return a dictionary with the phononwebsite format:
-        http://henriquemiranda.github.io/phononwebsite.
+        https://henriquemiranda.github.io/phononwebsite.
         """
         assert self.structure is not None, "Structure is required for as_phononwebsite"
         dct = {}
@@ -598,7 +598,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         eig = self.bands
 
         n_phonons, n_qpoints = self.bands.shape
-        order = np.zeros([n_qpoints, n_phonons], dtype=int)
+        order = np.zeros([n_qpoints, n_phonons], dtype=np.int64)
         order[0] = np.array(range(n_phonons))
 
         # get the atomic masses

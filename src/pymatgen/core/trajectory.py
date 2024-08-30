@@ -8,7 +8,7 @@ import itertools
 import warnings
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import TYPE_CHECKING, Union, cast
+from typing import TYPE_CHECKING, TypeAlias, cast
 
 import numpy as np
 from monty.io import zopen
@@ -30,7 +30,7 @@ __author__ = "Eric Sivonxay, Shyam Dwaraknath, Mingjian Wen, Evan Spotte-Smith"
 __version__ = "0.1"
 __date__ = "Jun 29, 2022"
 
-ValidIndex = Union[int, slice, list[int], np.ndarray]
+ValidIndex: TypeAlias = int | slice | list[int] | np.ndarray
 
 
 class Trajectory(MSONable):
@@ -234,7 +234,7 @@ class Trajectory(MSONable):
             )
 
         # For slice input, return a trajectory
-        if isinstance(frames, (slice, list, np.ndarray)):
+        if isinstance(frames, slice | list | np.ndarray):
             if isinstance(frames, slice):
                 start, stop, step = frames.indices(len(self))
                 selected = list(range(start, stop, step))
@@ -278,7 +278,7 @@ class Trajectory(MSONable):
                 base_positions=self.base_positions,
             )
 
-        raise TypeError(f"bad index={frames!r}, expected one of {str(ValidIndex).split('Union')[1]}")
+        raise TypeError(f"bad index={frames!r}, expected one of [{', '.join(str(ValidIndex).split(' | '))}]")
 
     def get_structure(self, idx: int) -> Structure:
         """Get structure at specified index.
@@ -460,7 +460,7 @@ class Trajectory(MSONable):
 
             lines.append(f"Direct configuration=     {idx + 1}")
 
-            for coord, specie in zip(coords, self.species):
+            for coord, specie in zip(coords, self.species, strict=True):
                 line = f'{" ".join(format_str.format(c) for c in coord)} {specie}'
                 lines.append(line)
 
@@ -642,8 +642,8 @@ class Trajectory(MSONable):
             return prop1
 
         # General case
-        assert prop1 is None or isinstance(prop1, (list, dict))
-        assert prop2 is None or isinstance(prop2, (list, dict))
+        assert prop1 is None or isinstance(prop1, list | dict)
+        assert prop2 is None or isinstance(prop2, list | dict)
 
         p1_candidates: dict[str, Any] = {
             "NoneType": [None] * len1,
@@ -699,10 +699,11 @@ class Trajectory(MSONable):
         n_sites = len(self.coords[0])
         for dct in site_props:
             for key, val in dct.items():
-                assert len(val) == n_sites, (
-                    f"Size of site property {key} {len(val)}) does not equal the "
-                    f"number of sites in the structure {n_sites}."
-                )
+                if len(val) != n_sites:
+                    raise ValueError(
+                        f"Size of site property {key} {len(val)}) does not equal the "
+                        f"number of sites in the structure {n_sites}."
+                    )
 
     def _check_frame_props(self, frame_props: list[dict] | None) -> None:
         """Check data shape of site properties."""

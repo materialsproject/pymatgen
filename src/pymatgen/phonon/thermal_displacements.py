@@ -229,7 +229,7 @@ class ThermalDisplacementMatrices(MSONable):
             file.write("_atom_site_aniso_U_12\n")
             file.write(f"# Additional Data for U_Aniso: {self.temperature}\n")
 
-            for idx, (site, matrix) in enumerate(zip(self.structure, self.Ucif)):
+            for idx, (site, matrix) in enumerate(zip(self.structure, self.Ucif, strict=True)):
                 file.write(
                     f"{site.specie.symbol}{idx} {matrix[0][0]} {matrix[1][1]} {matrix[2][2]}"
                     f" {matrix[1][2]} {matrix[0][2]} {matrix[0][1]}\n"
@@ -267,7 +267,7 @@ class ThermalDisplacementMatrices(MSONable):
               Vectors are given in Cartesian coordinates
         """
         # compare the atoms string at least
-        for spec1, spec2 in zip(self.structure.species, other.structure.species):
+        for spec1, spec2 in zip(self.structure.species, other.structure.species, strict=True):
             if spec1 != spec2:
                 raise ValueError(
                     "Species in both structures are not the same! "
@@ -280,7 +280,9 @@ class ThermalDisplacementMatrices(MSONable):
 
         results = []
         for self_Ucart, other_Ucart in zip(
-            self.thermal_displacement_matrix_cart_matrixform, other.thermal_displacement_matrix_cart_matrixform
+            self.thermal_displacement_matrix_cart_matrixform,
+            other.thermal_displacement_matrix_cart_matrixform,
+            strict=True,
         ):
             result_dict = {}
 
@@ -361,7 +363,7 @@ class ThermalDisplacementMatrices(MSONable):
             # print all U11s (make sure they are in the correct order)
             counter = 1
             # VESTA order: _U_12    _U_13    _atom_site_aniso_U_23
-            for atom_therm, site in zip(matrix_cif, structure):
+            for atom_therm, site in zip(matrix_cif, structure, strict=True):
                 file.write(
                     f"{counter} {site.species_string}{counter} {atom_therm[0]} "
                     f"{atom_therm[1]} {atom_therm[2]} {atom_therm[5]} {atom_therm[4]} {atom_therm[3]}\n"

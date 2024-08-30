@@ -253,7 +253,7 @@ class MoleculeStructureComparator(MSONable):
             for p in all_pairs
         ]
 
-        return [bond for bond, dist, cap in zip(all_pairs, pair_dists, max_length) if dist <= cap]
+        return [bond for bond, dist, cap in zip(all_pairs, pair_dists, max_length, strict=True) if dist <= cap]
 
     def as_dict(self):
         """Get MSONable dict."""

@@ -102,7 +102,7 @@ class XcFunc(MSONable):
     }
 
     # Correspondence between Abinit ixc notation and libxc notation.
-    # see: http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#ixc
+    # see: https://docs.abinit.org/variables/basic/#ixc
     # and 42_libpaw/m_pawpsp.F90 for the implementation.
     # Fortunately, all the other cases are handled with libxc.
     abinitixc_to_libxc: ClassVar[dict[int, dict[str, LibxcFunc]]] = {
@@ -144,7 +144,7 @@ class XcFunc(MSONable):
         return hash(self.name)
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, (str, type(self))):
+        if not isinstance(other, str | type(self)):
             return NotImplemented
         if isinstance(other, type(self)):
             return self.name == other.name

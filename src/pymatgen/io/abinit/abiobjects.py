@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 import abc
-from collections import namedtuple
 from collections.abc import Iterable
 from enum import Enum, unique
 from pprint import pformat
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, NamedTuple, cast
 
 import numpy as np
 from monty.collections import AttrDict
@@ -57,7 +56,7 @@ def lattice_from_abivars(cls=None, *args, **kwargs):
             raise ValueError(f"The sum of angdeg must be lower than 360, {ang_deg=}")
 
         # This code follows the implementation in ingeo.F90
-        # See also http://www.abinit.org/doc/helpfiles/for-v7.8/input_variables/varbas.html#angdeg
+        # See also https://docs.abinit.org/variables/basic/#angdeg
         tol12 = 1e-12
         pi, sin, cos, sqrt = np.pi, np.sin, np.cos, np.sqrt
         r_prim = np.zeros((3, 3))
@@ -150,7 +149,7 @@ def structure_from_abivars(cls=None, *args, **kwargs) -> Structure:
         raise ValueError(f"{len(typat)=} must equal {len(coords)=}")
 
     # Note conversion to int and Fortran --> C indexing
-    typat = np.array(typat, dtype=int)
+    typat = np.array(typat, dtype=np.int64)
     species = [znucl_type[typ - 1] for typ in typat]
 
     return cls(
@@ -339,7 +338,14 @@ MANDATORY = MandatoryVariable()
 DEFAULT = DefaultVariable()
 
 
-class SpinMode(namedtuple("SpinMode", "mode nsppol nspinor nspden"), AbivarAble, MSONable):  # noqa: PYI024
+class SpinModeTuple(NamedTuple):
+    mode: str
+    nsppol: int
+    nspinor: int
+    nspden: int
+
+
+class SpinMode(SpinModeTuple, AbivarAble, MSONable):
     """
     Different configurations of the electron density as implemented in abinit:
     One can use as_spinmode to construct the object via SpinMode.as_spinmode

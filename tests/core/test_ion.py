@@ -56,6 +56,7 @@ class TestIon(TestCase):
             ("Cl-", "Cl[-1]"),
             ("H+", "H[+1]"),
             ("F-", "F[-1]"),
+            ("I-", "I[-1]"),
             ("F2", "F2(aq)"),
             ("H2", "H2(aq)"),
             ("O3", "O3(aq)"),
@@ -69,6 +70,7 @@ class TestIon(TestCase):
             ("CH3COOH", "CH3COOH(aq)"),
             ("CH3OH", "CH3OH(aq)"),
             ("H4CO", "CH3OH(aq)"),
+            ("CO2-", "C2O4[-2]"),
             ("CH4", "CH4(aq)"),
             ("NH4+", "NH4[+1]"),
             ("NH3", "NH3(aq)"),
@@ -81,7 +83,9 @@ class TestIon(TestCase):
             ("Zr(OH)4", "Zr(OH)4(aq)"),
         ]
         for tup in special_formulas:
-            assert Ion.from_formula(tup[0]).reduced_formula == tup[1]
+            assert (
+                Ion.from_formula(tup[0]).reduced_formula == tup[1]
+            ), f"Expected {tup[1]} but got {Ion.from_formula(tup[0]).reduced_formula}"
 
         assert Ion.from_formula("Fe(OH)4+").get_reduced_formula_and_factor(hydrates=True) == ("FeO2.2H2O", 1)
         assert Ion.from_formula("Zr(OH)4").get_reduced_formula_and_factor(hydrates=True) == ("ZrO2.2H2O", 1)

@@ -422,7 +422,7 @@ class TestDiffFit(PymatgenTest):
         all_strains = [Strain.from_voigt(v).zeroed() for vec in vecs.values() for v in vec]
         rng.shuffle(all_strains)
         all_stresses = [Stress.from_voigt(rng.random(6)).zeroed() for _ in all_strains]
-        strain_dict = {k.tobytes(): v for k, v in zip(all_strains, all_stresses)}
+        strain_dict = {k.tobytes(): v for k, v in zip(all_strains, all_stresses, strict=True)}
         ss_dict = get_strain_state_dict(all_strains, all_stresses, add_eq=False)
         # Check length of ss_dict
         assert len(strain_inds) == len(ss_dict)
@@ -430,7 +430,7 @@ class TestDiffFit(PymatgenTest):
         assert set(strain_states) == set(ss_dict)
         for data in ss_dict.values():
             # Check correspondence of strains/stresses
-            for strain, stress in zip(data["strains"], data["stresses"]):
+            for strain, stress in zip(data["strains"], data["stresses"], strict=True):
                 assert_allclose(
                     Stress.from_voigt(stress),
                     strain_dict[Strain.from_voigt(strain).tobytes()],
@@ -472,9 +472,13 @@ class TestDiffFit(PymatgenTest):
 
     def test_fit(self):
         diff_fit(self.strains, self.pk_stresses, self.data_dict["eq_stress"])
-        reduced = [(e, pk) for e, pk in zip(self.strains, self.pk_stresses) if not (abs(abs(e) - 0.05) < 1e-10).any()]
+        reduced = [
+            (e, pk)
+            for e, pk in zip(self.strains, self.pk_stresses, strict=True)
+            if not (abs(abs(e) - 0.05) < 1e-10).any()
+        ]
         # Get reduced dataset
-        r_strains, r_pk_stresses = zip(*reduced)
+        r_strains, r_pk_stresses = zip(*reduced, strict=True)
         c2 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=2)
         c2, c3, _c4 = diff_fit(r_strains, r_pk_stresses, self.data_dict["eq_stress"], order=4)
         c2, c3 = diff_fit(self.strains, self.pk_stresses, self.data_dict["eq_stress"], order=3)

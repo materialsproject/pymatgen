@@ -47,7 +47,7 @@ def diff_incar(args):
     incar2 = Incar.from_file(filepath2)
 
     def format_lists(v):
-        if isinstance(v, (tuple, list)):
+        if isinstance(v, tuple | list):
             return " ".join(f"{len(tuple(group))}*{i:.2f}" for (i, group) in itertools.groupby(v))
         return v
 
@@ -441,10 +441,10 @@ def main():
     args = parser.parse_args()
 
     try:
-        args.func  # noqa: B018
-    except AttributeError:
+        _ = args.func
+    except AttributeError as exc:
         parser.print_help()
-        raise SystemExit("Please specify a command.")
+        raise SystemExit("Please specify a command.") from exc
     return args.func(args)
 
 
