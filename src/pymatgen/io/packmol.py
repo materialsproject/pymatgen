@@ -6,7 +6,7 @@ This module provides a pymatgen I/O interface to PACKMOL.
 which returns a PackmolSet object.
 
 For the run() method to work, you need to install the PACKMOL package.
-See http://m3g.iqm.unicamp.br/packmol for download and setup instructions.
+See https://m3g.iqm.unicamp.br/packmol for download and setup instructions.
 After installation, you may need to add the path of the PACKMOL
 executable to the PATH environment variable.
 

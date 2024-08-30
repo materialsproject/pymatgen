@@ -96,7 +96,7 @@ abinit = ["netcdf4>=1.7.1"]
 mlp = ["chgnet>=0.3.8", "matgl>=1.1.1"]
 electronic_structure = ["fdint>=2.0.2"]
 ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8"]
-docs = ["sphinx", "sphinx_rtd_theme"]
+docs = ["invoke", "sphinx", "sphinx_rtd_theme", "sphinx_markdown_builder"]
 optional = [
     "ase>=3.23.0",
     # TODO: uv cannot install BoltzTraP2

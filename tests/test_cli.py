@@ -11,11 +11,9 @@ from pymatgen.util.testing import TEST_FILES_DIR, VASP_IN_DIR
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from pytest import MonkeyPatch
-
 
 @pytest.fixture
-def cd_tmp_path(tmp_path: Path, monkeypatch: MonkeyPatch):
+def cd_tmp_path(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.chdir(tmp_path)
     return tmp_path
 

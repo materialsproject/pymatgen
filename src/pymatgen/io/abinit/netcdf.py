@@ -73,7 +73,7 @@ class NetcdfReader:
     Wraps and extends netCDF4.Dataset. Read only mode. Supports with statements.
 
     Additional documentation available at:
-        http://netcdf4-python.googlecode.com/svn/trunk/docs/netCDF4-module.html
+        https://unidata.github.io/netcdf4-python/
     """
 
     Error = NetcdfReaderError

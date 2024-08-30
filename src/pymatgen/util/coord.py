@@ -349,7 +349,7 @@ def get_angle(v1: ArrayLike, v2: ArrayLike, units: Literal["degrees", "radians"]
 
 
 class Simplex(MSONable):
-    """A generalized simplex object. See http://wikipedia.org/wiki/Simplex.
+    """A generalized simplex object. See https://wikipedia.org/wiki/Simplex.
 
     Attributes:
         space_dim (int): Dimension of the space. Usually, this is 1 more than the simplex_dim.

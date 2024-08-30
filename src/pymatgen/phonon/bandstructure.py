@@ -507,14 +507,14 @@ class PhononBandStructureSymmLine(PhononBandStructure):
 
     def write_phononwebsite(self, filename: str | PathLike) -> None:
         """Write a JSON file for the phononwebsite:
-        http://henriquemiranda.github.io/phononwebsite.
+        https://henriquemiranda.github.io/phononwebsite.
         """
         with open(filename, mode="w") as file:
             json.dump(self.as_phononwebsite(), file)
 
     def as_phononwebsite(self) -> dict:
         """Return a dictionary with the phononwebsite format:
-        http://henriquemiranda.github.io/phononwebsite.
+        https://henriquemiranda.github.io/phononwebsite.
         """
         if self.structure is None:
             raise RuntimeError("Structure is required for as_phononwebsite")
