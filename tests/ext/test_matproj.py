@@ -81,7 +81,7 @@ class TestMPResterOld(PymatgenTest):
             "total_magnetization",
         }
         mp_id = "mp-1143"
-        vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=600)
+        vals = requests.get(f"https://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=600)
         expected_vals = vals.json()
 
         for prop in props:
@@ -575,7 +575,7 @@ class TestMPResterNewBasic(PymatgenTest):
     #         "total_magnetization",
     #     }
     #     mp_id = "mp-1143"
-    #     vals = requests.get(f"http://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=600)
+    #     vals = requests.get(f"https://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=600)
     #     expected_vals = vals.json()
     #
     #     for prop in props:
