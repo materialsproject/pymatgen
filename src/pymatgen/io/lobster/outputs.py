@@ -434,8 +434,8 @@ class Icohplist(MSONable):
                 n_bonds = len(data_without_orbitals)
 
             labels: list[str] = []
-            atom1s: list[str] = []
-            atom2s: list[str] = []
+            atom1_list: list[str] = []
+            atom2_list: list[str] = []
             lens: list[float] = []
             translations: list[Tuple3Ints] = []
             nums: list[int] = []
@@ -465,8 +465,8 @@ class Icohplist(MSONable):
                         icohp[Spin.down] = float(data_without_orbitals[bond + n_bonds + 1].split()[4])
 
                 labels.append(label)
-                atom1s.append(atom1)
-                atom2s.append(atom2)
+                atom1_list.append(atom1)
+                atom2_list.append(atom2)
                 lens.append(length)
                 translations.append(translation)
                 nums.append(num)
@@ -501,8 +501,8 @@ class Icohplist(MSONable):
                 are_coops=are_coops,
                 are_cobis=are_cobis,
                 list_labels=labels,
-                list_atom1=atom1s,
-                list_atom2=atom2s,
+                list_atom1=atom1_list,
+                list_atom2=atom2_list,
                 list_length=lens,
                 list_translation=translations,  # type: ignore[arg-type]
                 list_num=nums,
