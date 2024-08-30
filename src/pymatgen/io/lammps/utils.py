@@ -382,14 +382,16 @@ class PackmolRunner:
 
             # Sanity check
             if len(mol) != len(ref):
-                raise ValueError("lengths of mol and ref mismatch")
+                raise ValueError(f"lengths of mol {len(mol)} and ref {len(ref)} mismatch")
             if ref.formula != mol.formula:
                 raise ValueError("formula of ref and mol is not the same")
 
             # The packed molecules have the atoms in the same order..sigh!
             for idx, site in enumerate(mol):
                 if site.specie.symbol != ref[idx].specie.symbol:
-                    raise ValueError("symbols of site species and ref mismatch")
+                    raise ValueError(
+                        f"symbols of site species {site.specie.symbol} and ref {ref[idx].specie.symbol} mismatch"
+                    )
                 props.append(getattr(ref[idx], site_property))
 
             mol.add_site_property(site_property, props)
@@ -415,7 +417,7 @@ class PackmolRunner:
         pbm = pybel.Molecule(bma._ob_mol)
 
         if len(pbm.residues) != sum(param["number"] for param in self.param_list):
-            raise ValueError("lengths of pbm.residues and number in param_list mismatch")
+            raise ValueError(f"lengths of pbm.residues {len(pbm.residues)} and number in param_list mismatch")
 
         packed_mol = self.convert_obatoms_to_molecule(
             pbm.residues[0].atoms,

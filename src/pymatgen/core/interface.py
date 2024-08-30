@@ -998,7 +998,7 @@ class GrainBoundaryGenerator:
                     metric = np.array([[1, 0, 0], [0, 1, 0], [0, 0, c2_a2_ratio]])
                 elif lat_type == "o":
                     if ratio is None:
-                        raise ValueError("Invalid ratio for orthorhombic system")
+                        raise ValueError(f"Invalid {ratio=} for orthorhombic system")
                     for idx in range(3):
                         if ratio is not None and ratio[idx] is None:
                             ratio[idx] = 1
@@ -2002,7 +2002,7 @@ class GrainBoundaryGenerator:
 
         # Check r_axis length
         if lat_type in {"c", "t"} and len(r_axis) != 3:
-            raise ValueError("r_axis length incompatible with selected lattice system")
+            raise ValueError(f"expect r_axis length 3 for selected lattice system, got {len(r_axis)}")
 
         # Check lattice axial ratio length
         if lat_type == "o" and (ratio is None or len(ratio) != 3):

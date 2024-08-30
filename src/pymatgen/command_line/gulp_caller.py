@@ -800,7 +800,7 @@ class BuckinghamPotential:
             bush_lewis_flag (str): Flag for using Bush or Lewis potential.
         """
         if bush_lewis_flag not in {"bush", "lewis"}:
-            raise ValueError("bush_lewis_flag should be bush or lewis.")
+            raise ValueError(f"bush_lewis_flag should be bush or lewis, got {bush_lewis_flag}")
         pot_file = "bush.lib" if bush_lewis_flag == "bush" else "lewis.lib"
         with open(os.path.join(os.environ["GULP_LIB"], pot_file)) as file:
             # In lewis.lib there is no shell for cation

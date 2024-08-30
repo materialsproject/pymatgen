@@ -1221,7 +1221,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
         for node in root.find("valence_states"):
             attrib = AttrDict(node.attrib)
             if attrib.id in self.valence_states:
-                raise ValueError("attrib.id in self.valence_states")
+                raise ValueError(f"{attrib.id=} should not be in {self.valence_states=}")
             self.valence_states[attrib.id] = attrib
 
         # Parse the radial grids
@@ -1230,7 +1230,7 @@ class PawXmlSetup(Pseudo, PawPseudo):
             grid_params = node.attrib
             gid = grid_params["id"]
             if gid in self.rad_grids:
-                raise ValueError("gid in rad_grids")
+                raise ValueError(f"{gid=} should not be in {self.rad_grids=}")
 
             self.rad_grids[gid] = self._eval_grid(grid_params)
 

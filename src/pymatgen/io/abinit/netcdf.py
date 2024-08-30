@@ -184,7 +184,7 @@ class NetcdfReader:
                 return var.getValue() if not var.shape else var[:]
 
         if var.shape[-1] != 2:
-            raise ValueError("var.shape[-1] != 2")
+            raise ValueError(f"{var.shape[-1]=}, expect it to be 2")
         if cmode == "c":
             return var[..., 0] + 1j * var[..., 1]
         raise ValueError(f"Wrong value for {cmode=}")

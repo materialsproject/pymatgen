@@ -2516,7 +2516,7 @@ class Outcar:
                 for line in table_body_text.rstrip().split("\n"):
                     ml = row_pat.search(line)
                     if ml is None:
-                        raise RuntimeError("failure to find pattern")
+                        raise RuntimeError(f"failure to find pattern, {ml=}")
                     processed_line = [float(v) for v in ml.groups()]
                     tensor_matrix.append(processed_line)
                 unsym_tensors.append(tensor_matrix)
@@ -3878,7 +3878,7 @@ class Procar:
                 elif preamble_expr.match(line):
                     match = preamble_expr.match(line)
                     if match is None:
-                        raise RuntimeError("Failed to find preamable pattern")
+                        raise RuntimeError(f"Failed to find preamable pattern, {match=}")
                     n_kpoints = int(match[1])
                     n_bands = int(match[2])
                     n_ions = int(match[3])

@@ -929,7 +929,7 @@ class Paths(MSONable):
         self.paths = paths
         self.degeneracies = degeneracies or [1] * len(paths)
         if len(self.degeneracies) != len(self.paths):
-            raise ValueError("lengths of degeneracies and paths mismatch")
+            raise ValueError(f"{len(self.degeneracies)=} and {len(self.paths)=} mismatch")
 
     def __str__(self):
         lines = ["PATH", "---------------"]

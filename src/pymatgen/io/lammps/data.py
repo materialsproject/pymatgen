@@ -260,8 +260,8 @@ class LammpsData(MSONable):
                 keys, and each value is a DataFrame.
             atom_style (str): Output atom_style. Default to "full".
         """
-        if velocities is not None and len(velocities) != len(atoms):
-            raise ValueError("Inconsistency found between atoms and velocities")
+        if velocities is not None and len(atoms) != len(velocities):
+            raise ValueError(f"{len(atoms)=} and {len(velocities)=} mismatch")
 
         if force_field:
             all_ff_kws = SECTION_KEYWORDS["ff"] + SECTION_KEYWORDS["class2"]
@@ -935,12 +935,12 @@ class Topology(MSONable):
         if charges is not None:
             charge_arr = np.array(charges)
             if charge_arr.shape != (len(sites),):
-                raise ValueError("Wrong format for charges")
+                raise ValueError(f"{charge_arr.shape=} and {(len(sites), )=} mismatch")
             charges = charge_arr.tolist()
         if velocities is not None:
             velocities_arr = np.array(velocities)
             if velocities_arr.shape != (len(sites), 3):
-                raise ValueError("Wrong format for velocities")
+                raise ValueError(f"{velocities_arr.shape=} and {(len(sites), 3)=} mismatch")
             velocities = velocities_arr.tolist()
 
         if topologies:
@@ -1293,7 +1293,7 @@ class CombinedData(LammpsData):
             mol_count += self.nums[idx] * mols_in_data
         self.atoms.index += 1
         if len(self.atoms) != len(self._coordinates):
-            raise ValueError("Wrong number of coordinates")
+            raise ValueError(f"{len(self.atoms)=} and {len(self._coordinates)=} mismatch")
         self.atoms.update(self._coordinates)
 
         self.velocities = None

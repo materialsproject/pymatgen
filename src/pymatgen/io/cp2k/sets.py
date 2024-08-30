@@ -1300,7 +1300,7 @@ class DftSet(Cp2kInput):
                 no: do not explicitly include the last iteration
         """
         if add_last.lower() not in {"no", "numeric", "symbolic"}:
-            raise ValueError("add_list should be no/numeric/symbolic")
+            raise ValueError(f"add_list should be no/numeric/symbolic, got {add_last.lower()}")
 
         run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0].upper()
         if run_type not in ["ENERGY_FORCE", "ENERGY", "WAVEFUNCTION_OPTIMIZATION", "WFN_OPT"] and self.check(

@@ -227,7 +227,7 @@ class CifBlock:
 
                 n = len(items) // len(columns)
                 if len(items) % n != 0:
-                    raise ValueError("number of items is not a multiply of n")
+                    raise ValueError(f"number of items {len(items)} is not a multiply of {n=}")
                 loops.append(columns)
                 for k, v in zip(columns * n, items, strict=True):
                     data[k].append(v.strip())

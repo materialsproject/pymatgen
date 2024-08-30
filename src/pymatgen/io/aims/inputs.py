@@ -523,7 +523,7 @@ class AimsControlIn(MSONable):
         content += f"{lim}\n"
 
         if "smearing" in parameters and "occupation_type" in parameters:
-            raise ValueError('"smearing" in parameters and "occupation_type" in parameters')
+            raise ValueError(f'both "smearing" and "occupation_type" in {parameters=}')
 
         for key, value in parameters.items():
             if key in ["species_dir", "plus_u"]:

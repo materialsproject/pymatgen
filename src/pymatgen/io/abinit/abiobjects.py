@@ -726,7 +726,7 @@ class KSampling(AbivarAble, MSONable):
 
         if mode == KSamplingModes.monkhorst:
             if num_kpts != 0:
-                raise ValueError("num_kpts is not zero")
+                raise ValueError(f"expect num_kpts to be zero, got {num_kpts}")
             ngkpt = np.reshape(kpts, 3)
             shiftk = np.reshape(kpt_shifts, (-1, 3))
 
@@ -1617,10 +1617,10 @@ class ExcHamiltonian(AbivarAble):
             raise ValueError("exc_type not in _EXC_TYPES")
         self.algo = algo
         if algo not in self._ALGO2VAR:
-            raise ValueError("algo not in _ALGO2VAR")
+            raise ValueError(f"{algo=} not in {self._ALGO2VAR=}")
         self.with_lf = with_lf
 
-        # if bs_freq_mesh is not given, abinit will select its own mesh.
+        # If bs_freq_mesh is not given, abinit will select its own mesh.
         self.bs_freq_mesh = np.array(bs_freq_mesh) if bs_freq_mesh is not None else bs_freq_mesh
         self.zcut = zcut
         self.optdriver = 99

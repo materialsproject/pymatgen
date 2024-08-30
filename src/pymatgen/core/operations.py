@@ -155,7 +155,7 @@ class SymmOp(MSONable):
         dim = tensor.shape
         rank = len(dim)
         if any(val != 3 for val in dim):
-            raise ValueError("Some dimension is not 3.")
+            raise ValueError("Some dimension in tensor is not 3.")
 
         # Build einstein sum string
         lc = string.ascii_lowercase

@@ -185,13 +185,13 @@ class VolumetricData(MSONable):
             data from point p1 to point p2.
         """
         if type(p1) not in {list, np.ndarray}:
-            raise TypeError("type of p1 should be list or np.ndarray")
+            raise TypeError(f"type of p1 should be list or np.ndarray, got {type(p1)}")
         if len(p1) != 3:
-            raise ValueError("length of p1 should be 3")
+            raise ValueError(f"length of p1 should be 3, got {len(p1)}")
         if type(p2) not in {list, np.ndarray}:
-            raise TypeError("type of p2 should be list or np.ndarray")
+            raise TypeError(f"type of p2 should be list or np.ndarray, got {type(p2)}")
         if len(p2) != 3:
-            raise ValueError("length of p2 should be 3")
+            raise ValueError(f"length of p2 should be 3, got {len(p2)}")
 
         xpts = np.linspace(p1[0], p2[0], num=n)
         ypts = np.linspace(p1[1], p2[1], num=n)

@@ -521,7 +521,7 @@ class ParallelEfficiency(dict):
                 if len(values) > 1:
                     ref_value = values.pop(self._ref_idx)
                     if ref_value != 1.0:
-                        raise ValueError("ref_value is not equal to 1.0")
+                        raise ValueError(f"expect ref_value to be 1.0, got {ref_value}")
 
                 data.append((sect_name, self.estimator(values)))
 
@@ -664,7 +664,7 @@ class AbinitTimer:
         idx = self.section_names.index(section_name)
         sect = self.sections[idx]
         if sect.name != section_name:
-            raise ValueError("sect.name != section_name")
+            raise ValueError(f"{sect.name=} != {section_name=}")
         return sect
 
     def to_csv(self, fileobj=sys.stdout):
@@ -738,7 +738,7 @@ class AbinitTimer:
 
         if minval is not None:
             if minfract is not None:
-                raise ValueError("minfract should be None")
+                raise ValueError(f"minfract should be None, got {minfract}")
 
             for name, val in zip(names, values, strict=True):
                 if val >= minval:
@@ -752,7 +752,7 @@ class AbinitTimer:
 
         elif minfract is not None:
             if minval is not None:
-                raise ValueError("minval should be None")
+                raise ValueError(f"minval should be None, got {minval}")
 
             total = self.sum_sections(key)
 

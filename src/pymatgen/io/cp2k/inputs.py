@@ -504,7 +504,7 @@ class Section(MSONable):
     def insert(self, d: Section | SectionList) -> None:
         """Insert a new section as a subsection of the current one."""
         if not isinstance(d, Section | SectionList):
-            raise TypeError("type of d should be Section or SectionList")
+            raise TypeError(f"type of d should be Section or SectionList, got {type(d)}")
         self.subsections[d.alias or d.name] = copy.deepcopy(d)
 
     def check(self, path: str):
@@ -1958,7 +1958,7 @@ class Kpoints(Section):
         self.kpts = kpts
         self.weights = weights or [1] * len(kpts)
         if len(self.kpts) != len(self.weights):
-            raise ValueError("lengths of kpts and weights mismatch")
+            raise ValueError(f"lengths of kpts {len(self.kpts)} and weights {len(self.weights)} mismatch")
         self.eps_geo = eps_geo
         self.full_grid = full_grid
         self.parallel_group_size = parallel_group_size
