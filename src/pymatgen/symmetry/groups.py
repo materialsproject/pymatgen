@@ -357,7 +357,8 @@ class SpaceGroup(SymmetryGroup):
                         gen_ops.append(op)
                         symm_ops = np.append(symm_ops, [op], axis=0)
             new_ops = gen_ops  # type: ignore[assignment]
-        assert len(symm_ops) == self.order
+        if len(symm_ops) != self.order:
+            raise ValueError("Symmetry operations and its order mismatch.")
         return symm_ops
 
     @classmethod

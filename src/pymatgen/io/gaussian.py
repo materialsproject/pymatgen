@@ -294,7 +294,8 @@ class GaussianInput:
         for line in lines:
             if link0_patt.match(line):
                 match = link0_patt.match(line)
-                assert match is not None
+                if match is None:
+                    raise ValueError("no match found")
                 link0_dict[match[1].strip("=")] = match[2]
 
         route_patt = re.compile(r"^#[sSpPnN]*.*")
@@ -313,7 +314,8 @@ class GaussianInput:
         functional, basis_set, route_paras, dieze_tag = read_route_line(route)
         ind = 2
         title = []
-        assert route_index is not None, "route_index cannot be None"
+        if route_index is None:
+            raise ValueError("route_index cannot be None")
         while lines[route_index + ind].strip():
             title.append(lines[route_index + ind].strip())
             ind += 1

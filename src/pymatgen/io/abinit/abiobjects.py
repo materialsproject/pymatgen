@@ -280,8 +280,9 @@ def structure_to_abivars(
 
 def contract(string):
     """
-    assert contract("1 1 1 2 2 3") == "3*1 2*2 1*3"
-    assert contract("1 1 3 2 3") == "2*1 1*3 1*2 1*3".
+    Examples:
+        assert contract("1 1 1 2 2 3") == "3*1 2*2 1*3"
+        assert contract("1 1 3 2 3") == "2*1 1*3 1*2 1*3".
     """
     if not string:
         return string
@@ -724,7 +725,8 @@ class KSampling(AbivarAble, MSONable):
         abivars = {}
 
         if mode == KSamplingModes.monkhorst:
-            assert num_kpts == 0
+            if num_kpts != 0:
+                raise ValueError(f"expect num_kpts to be zero, got {num_kpts}")
             ngkpt = np.reshape(kpts, 3)
             shiftk = np.reshape(kpt_shifts, (-1, 3))
 
@@ -1465,7 +1467,8 @@ class SelfEnergy(AbivarAble):
         self.gwpara = gwpara
 
         if ppmodel is not None:
-            assert screening.use_hilbert is False
+            if screening.use_hilbert:
+                raise ValueError("cannot use hilbert for screening")
             self.ppmodel = PPModel.as_ppmodel(ppmodel)
 
         self.ecuteps = ecuteps if ecuteps is not None else screening.ecuteps
@@ -1529,7 +1532,8 @@ class SelfEnergy(AbivarAble):
         }
 
         # TODO: problem with the spin
-        # assert len(self.bdgw) == self.nkptgw
+        # if len(self.bdgw) != self.nkptgw:
+        #    raise ValueError("lengths of bdgw and nkptgw mismatch")
 
         # ppmodel variables
         if self.use_ppmodel:
@@ -1603,17 +1607,20 @@ class ExcHamiltonian(AbivarAble):
         self.nband = nband
         self.mbpt_sciss = mbpt_sciss
         self.coulomb_mode = coulomb_mode
-        assert coulomb_mode in self._COULOMB_MODES
+        if coulomb_mode not in self._COULOMB_MODES:
+            raise ValueError("coulomb_mode not in _COULOMB_MODES")
         self.ecuteps = ecuteps
 
         self.mdf_epsinf = mdf_epsinf
         self.exc_type = exc_type
-        assert exc_type in self._EXC_TYPES
+        if exc_type not in self._EXC_TYPES:
+            raise ValueError("exc_type not in _EXC_TYPES")
         self.algo = algo
-        assert algo in self._ALGO2VAR
+        if algo not in self._ALGO2VAR:
+            raise ValueError(f"{algo=} not in {self._ALGO2VAR=}")
         self.with_lf = with_lf
 
-        # if bs_freq_mesh is not given, abinit will select its own mesh.
+        # If bs_freq_mesh is not given, abinit will select its own mesh.
         self.bs_freq_mesh = np.array(bs_freq_mesh) if bs_freq_mesh is not None else bs_freq_mesh
         self.zcut = zcut
         self.optdriver = 99

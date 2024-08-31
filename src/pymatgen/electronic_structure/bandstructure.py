@@ -239,7 +239,8 @@ class BandStructure:
                 Spin.down: [][{Element: [values]}]} format.
                 If there is no projections in the band structure, return {}.
         """
-        assert self.structure is not None
+        if self.structure is None:
+            raise ValueError("structure is None.")
         result: dict[Spin, NDArray] = {}
         for spin, val in self.projections.items():
             result[spin] = [[defaultdict(float) for _ in range(len(self.kpoints))] for _ in range(self.nb_bands)]

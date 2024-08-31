@@ -76,7 +76,8 @@ def preprocessor(data: str, dir: str = ".") -> str:  # noqa: A002
     includes = re.findall(r"(@include.+)", data, re.IGNORECASE)
     for incl in includes:
         inc = incl.split()
-        assert len(inc) == 2  # @include filename
+        if len(inc) != 2:  # @include filename
+            raise ValueError(f"length of inc should be 2, got {len(inc)}")
         inc = inc[1].strip("'")
         inc = inc.strip('"')
         with zopen(os.path.join(dir, inc)) as file:
@@ -84,7 +85,8 @@ def preprocessor(data: str, dir: str = ".") -> str:  # noqa: A002
     variable_sets = re.findall(r"(@SET.+)", data, re.IGNORECASE)
     for match in variable_sets:
         v = match.split()
-        assert len(v) == 3  # @SET VAR value
+        if len(v) != 3:  # @SET VAR value
+            raise ValueError(f"length of v should be 3, got {len(v)}")
         var, value = v[1:]
         data = re.sub(rf"{match}", "", data)
         data = re.sub(rf"\${{?{var}}}?", value, data)
