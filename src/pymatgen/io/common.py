@@ -166,7 +166,7 @@ class VolumetricData(MSONable):
             z (float): Fraction of lattice vector c.
 
         Returns:
-            Value from self.data (potentially interpolated) correspondisng to
+            Value from self.data (potentially interpolated) corresponding to
             the point (x, y, z).
         """
         return self.interpolator([x, y, z])[0]
@@ -185,11 +185,11 @@ class VolumetricData(MSONable):
             data from point p1 to point p2.
         """
         if type(p1) not in {list, np.ndarray}:
-            raise TypeError(f"type of p1 should be list or np.ndarray, got {type(p1)}")
+            raise TypeError(f"type of p1 should be list or np.ndarray, got {type(p1).__name__}")
         if len(p1) != 3:
             raise ValueError(f"length of p1 should be 3, got {len(p1)}")
         if type(p2) not in {list, np.ndarray}:
-            raise TypeError(f"type of p2 should be list or np.ndarray, got {type(p2)}")
+            raise TypeError(f"type of p2 should be list or np.ndarray, got {type(p2).__name__}")
         if len(p2) != 3:
             raise ValueError(f"length of p2 should be 3, got {len(p2)}")
 

@@ -365,7 +365,7 @@ class PhaseDiagram(MSONable):
         else:
             computed_data = MontyDecoder().process_decoded(computed_data)
             if not isinstance(computed_data, dict):
-                raise TypeError(f"expect computed_data as dict, got {type(computed_data)}")
+                raise TypeError(f"computed_data should be dict, got {type(computed_data).__name__}")
 
             # Update keys to be Element objects in case they are strings in pre-computed data
             computed_data["el_refs"] = [(Element(el_str), entry) for el_str, entry in computed_data["el_refs"]]

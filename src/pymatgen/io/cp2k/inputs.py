@@ -504,7 +504,7 @@ class Section(MSONable):
     def insert(self, d: Section | SectionList) -> None:
         """Insert a new section as a subsection of the current one."""
         if not isinstance(d, Section | SectionList):
-            raise TypeError(f"type of d should be Section or SectionList, got {type(d)}")
+            raise TypeError(f"type of d should be Section or SectionList, got {type(d).__name__}")
         self.subsections[d.alias or d.name] = copy.deepcopy(d)
 
     def check(self, path: str):

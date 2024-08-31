@@ -120,7 +120,8 @@ class XRDCalculator(AbstractDiffractionPatternCalculator):
             self.radiation = wavelength
             self.wavelength = WAVELENGTHS[wavelength]
         else:
-            raise TypeError(f"{type(wavelength)=} must be either float, int or str")
+            wavelength_type = type(wavelength).__name__
+            raise TypeError(f"{wavelength_type=} must be either float, int or str")
         self.symprec = symprec
         self.debye_waller_factors = debye_waller_factors or {}
 

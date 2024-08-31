@@ -1185,7 +1185,7 @@ class BasicMultiDataset:
     def append(self, abinit_input):
         """Add a BasicAbinitInput to the list."""
         if not isinstance(abinit_input, BasicAbinitInput):
-            raise TypeError(f"abinit_input should be instance of BasicAbinitInput, got {type(abinit_input)}")
+            raise TypeError(f"abinit_input should be instance of BasicAbinitInput, got {type(abinit_input).__name__}")
         if any(p1 != p2 for p1, p2 in zip(abinit_input.pseudos, abinit_input.pseudos, strict=True)):
             raise ValueError("Pseudos must be consistent when from_inputs is invoked.")
         self._inputs.append(abinit_input)
