@@ -683,11 +683,12 @@ Direct
     @pytest.mark.skip("TODO: need someone to fix this")
     @pytest.mark.skipif(not os.getenv("CI"), reason="Only run this in CI tests")
     def test_get_all_neighbors_crosscheck_old(self):
+        rng = np.random.default_rng()
         for i in range(100):
-            alpha, beta = np.random.rand(2) * 90
-            a, b, c = 3 + np.random.rand(3) * 5
+            alpha, beta = rng.random(2) * 90
+            a, b, c = 3 + rng.random(3) * 5
             species = ["H"] * 5
-            frac_coords = np.random.rand(5, 3)
+            frac_coords = rng.random(5, 3)
             try:
                 lattice = Lattice.from_parameters(a, b, c, alpha, beta, 90)
                 struct = Structure.from_spacegroup("P1", lattice, species, frac_coords)
