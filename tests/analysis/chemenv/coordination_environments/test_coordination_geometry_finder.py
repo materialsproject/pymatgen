@@ -1,10 +1,17 @@
 from __future__ import annotations
 
+import json
+import os
+
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 
+from pymatgen.analysis.chemenv.coordination_environments.chemenv_strategies import (
+    SimpleAbundanceChemenvStrategy,
+    SimplestChemenvStrategy,
+)
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometries import AllCoordinationGeometries
 from pymatgen.analysis.chemenv.coordination_environments.coordination_geometry_finder import (
     AbstractGeometry,
@@ -27,7 +34,7 @@ class TestCoordinationGeometryFinder(PymatgenTest):
             structure_refinement=self.lgf.STRUCTURE_REFINEMENT_NONE,
         )
 
-    #     self.strategies = [SimplestChemenvStrategy(), SimpleAbundanceChemenvStrategy()]
+    # self.strategies = [SimplestChemenvStrategy(), SimpleAbundanceChemenvStrategy()]
 
     def test_abstract_geometry(self):
         cg_ts3 = self.lgf.allcg["TS:3"]
@@ -117,45 +124,47 @@ class TestCoordinationGeometryFinder(PymatgenTest):
         for perm_csm_dict in permutations_symmetry_measures:
             assert perm_csm_dict["symmetry_measure"] == approx(0.140355832317)
 
-    # def _strategy_test(self, strategy):
-    #     files = []
-    #     for _dirpath, _dirnames, filenames in os.walk(json_dir):
-    #         files.extend(filenames)
-    #         break
+    def _strategy_test(self, strategy):
+        files = []
+        for _dirpath, _dirnames, filenames in os.walk(json_dir):
+            files.extend(filenames)
+            break
 
-    #     for _ifile, json_file in enumerate(files):
-    #         with self.subTest(json_file=json_file):
-    #             with open(f"{json_dir}/{json_file}") as file:
-    #                 dct = json.load(file)
+        for _ifile, json_file in enumerate(files):
+            with self.subTest(json_file=json_file):
+                with open(f"{json_dir}/{json_file}") as file:
+                    dct = json.load(file)
 
-    #             atom_indices = dct["atom_indices"]
-    #             expected_geoms = dct["expected_geoms"]
+                atom_indices = dct["atom_indices"]
+                expected_geoms = dct["expected_geoms"]
 
-    #             struct = Structure.from_dict(dct["structure"])
+                struct = Structure.from_dict(dct["structure"])
 
-    #             struct = self.lgf.setup_structure(struct)
-    #             se = self.lgf.compute_structure_environments_detailed_voronoi(
-    #                 only_indices=atom_indices, maximum_distance_factor=1.5
-    #             )
+                struct = self.lgf.setup_structure(struct)
+                se = self.lgf.compute_structure_environments_detailed_voronoi(
+                    only_indices=atom_indices, maximum_distance_factor=1.5
+                )
 
-    #             # All strategies should get the correct environment with their default parameters
-    #             strategy.set_structure_environments(se)
-    #             for ienv, isite in enumerate(atom_indices):
-    #                 ce = strategy.get_site_coordination_environment(struct[isite])
-    #                 try:
-    #                     coord_env = ce[0]
-    #                 except TypeError:
-    #                     coord_env = ce
-    #                 # Check that the environment found is the expected one
-    #                 assert coord_env == expected_geoms[ienv]
+                # All strategies should get the correct environment with their default parameters
+                strategy.set_structure_environments(se)
+                for ienv, isite in enumerate(atom_indices):
+                    ce = strategy.get_site_coordination_environment(struct[isite])
+                    try:
+                        coord_env = ce[0]
+                    except TypeError:
+                        coord_env = ce
+                    # Check that the environment found is the expected one
+                    assert coord_env == expected_geoms[ienv]
 
-    # def test_simplest_chemenv_strategy(self):
-    #     strategy = SimplestChemenvStrategy()
-    #     self._strategy_test(strategy)
+    @pytest.mark.skip("TODO: need someone to fix this")
+    def test_simplest_chemenv_strategy(self):
+        strategy = SimplestChemenvStrategy()
+        self._strategy_test(strategy)
 
-    # def test_simple_abundance_chemenv_strategy(self):
-    #     strategy = SimpleAbundanceChemenvStrategy()
-    #     self._strategy_test(strategy)
+    @pytest.mark.skip("TODO: need someone to fix this")
+    def test_simple_abundance_chemenv_strategy(self):
+        strategy = SimpleAbundanceChemenvStrategy()
+        self._strategy_test(strategy)
 
     def test_perfect_environments(self):
         allcg = AllCoordinationGeometries()

@@ -339,13 +339,13 @@ class TestLobsterNeighbors(TestCase):
         assert self.chem_env_lobster0_second.anion_types == {Element("O")}
 
     def test_get_nn_info(self):
-        # NO_ADDITIONAL_CONDITION = 0
-        # ONLY_ANION_CATION_BONDS = 1
-        # NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 2
-        # ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 3
-        # ONLY_ELEMENT_TO_OXYGEN_BONDS = 4
-        # DO_NOT_CONSIDER_ANION_CATION_BONDS=5
-        # ONLY_CATION_CATION_BONDS=6
+        # 0: NO_ADDITIONAL_CONDITION
+        # 1: ONLY_ANION_CATION_BONDS
+        # 2: NO_ELEMENT_TO_SAME_ELEMENT_BONDS
+        # 3: ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS
+        # 4: ONLY_ELEMENT_TO_OXYGEN_BONDS
+        # 5: DO_NOT_CONSIDER_ANION_CATION_BONDS
+        # 6: ONLY_CATION_CATION_BONDS
 
         # All bonds
         # ReO3
@@ -367,7 +367,7 @@ class TestLobsterNeighbors(TestCase):
             )
             == 2
         )
-        # ONLY_ANION_CATION_BONDS = 1
+        # 1: ONLY_ANION_CATION_BONDS
         assert (
             len(
                 self.chem_env_lobster1.get_nn(
@@ -404,7 +404,7 @@ class TestLobsterNeighbors(TestCase):
             )
             == 8
         )
-        # NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 2
+        # 2: NO_ELEMENT_TO_SAME_ELEMENT_BONDS
         assert (
             len(
                 self.chem_env_lobster2.get_nn(
@@ -423,7 +423,7 @@ class TestLobsterNeighbors(TestCase):
             )
             == 2
         )
-        # ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 3
+        # 3: ONLY_ANION_CATION_BONDS_AND_NO_ELEMENT_TO_SAME_ELEMENT_BONDS
         assert (
             len(
                 self.chem_env_lobster3.get_nn(
@@ -442,7 +442,7 @@ class TestLobsterNeighbors(TestCase):
             )
             == 2
         )
-        # ONLY_ELEMENT_TO_OXYGEN_BONDS = 4
+        # 4: ONLY_ELEMENT_TO_OXYGEN_BONDS
         assert (
             len(
                 self.chem_env_lobster4.get_nn(
@@ -461,7 +461,7 @@ class TestLobsterNeighbors(TestCase):
             )
             == 2
         )
-        # DO_NOT_CONSIDER_ANION_CATION_BONDS=5
+        # 5: DO_NOT_CONSIDER_ANION_CATION_BONDS
         assert (
             len(
                 self.chem_env_lobster5.get_nn(
@@ -480,7 +480,7 @@ class TestLobsterNeighbors(TestCase):
             )
             == 0
         )
-        # ONLY_CATION_CATION_BONDS=6
+        # 6: ONLY_CATION_CATION_BONDS
         assert (
             len(
                 self.chem_env_lobster6.get_nn(
@@ -514,7 +514,7 @@ class TestLobsterNeighbors(TestCase):
             == 8
         )
 
-        # ONLY_ANION_CATION_BONDS = 1
+        # 1: ONLY_ANION_CATION_BONDS
         assert (
             len(
                 self.chem_env_lobster1_second.get_nn(
@@ -555,7 +555,7 @@ class TestLobsterNeighbors(TestCase):
             == 3
         )
 
-        # NO_ELEMENT_TO_SAME_ELEMENT_BONDS = 2
+        # 2: NO_ELEMENT_TO_SAME_ELEMENT_BONDS
         assert (
             len(
                 self.chem_env_lobster2_second.get_nn(
@@ -575,7 +575,7 @@ class TestLobsterNeighbors(TestCase):
             == 4
         )
 
-        # DO_NOT_CONSIDER_ANION_CATION_BONDS=5
+        # 5: DO_NOT_CONSIDER_ANION_CATION_BONDS
         assert (
             len(
                 self.chem_env_lobster5_second.get_nn(
@@ -594,7 +594,7 @@ class TestLobsterNeighbors(TestCase):
             )
             == 0
         )
-        # ONLY_CATION_CATION_BONDS=6
+        # 6: ONLY_CATION_CATION_BONDS
         assert (
             len(
                 self.chem_env_lobster6_second.get_nn(
