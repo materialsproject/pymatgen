@@ -1680,31 +1680,28 @@ class TestMVLScanRelaxSet(PymatgenTest):
         ):
             MVLScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
-    # @skip_if_no_psp_dir
-    # def test_potcar(self):
-    #
-    #     test_potcar_set_1 = self.set(self.struct, user_potcar_functional="PBE_54")
-    #     assert test_potcar_set_1.potcar.functional == "PBE_54"
-    #
-    #     with pytest.raises(
-    #         ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54', 'PBE_64'\)"
-    #     ):
-    #         self.set(self.struct, user_potcar_functional="PBE")
-    #
-    #     # https://github.com/materialsproject/pymatgen/pull/3022
-    #     # same test also in MITMPRelaxSetTest above (for redundancy,
-    #     # should apply to all classes inheriting from VaspInputSet)
-    #     for user_potcar_settings in [{"Fe": "Fe_pv"}, {"W": "W_pv"}, None]:
-    #         for species in [("W", "W"), ("Fe", "W"), ("Fe", "Fe")]:
-    #             struct = Structure(lattice=Lattice.cubic(3), species=species, coords=[[0, 0, 0], [0.5, 0.5, 0.5]])
-    #             relax_set = MPRelaxSet(
-    #                 structure=struct, user_potcar_functional="PBE_54", user_potcar_settings=user_potcar_settings
-    #             )
-    #             expected = {
-    #                 **({"W": "W_sv"} if "W" in struct.symbol_set else {}),
-    #                 **(user_potcar_settings or {}),
-    #             } or None
-    #             assert relax_set.user_potcar_settings == expected
+    @pytest.mark.skip("TODO: need someone to fix this")
+    @skip_if_no_psp_dir
+    def test_potcar_need_fix(self):
+        test_potcar_set_1 = self.set(self.struct, user_potcar_functional="PBE_54")
+        assert test_potcar_set_1.potcar.functional == "PBE_54"
+
+        with pytest.raises(
+            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54', 'PBE_64'\)"
+        ):
+            self.set(self.struct, user_potcar_functional="PBE")
+
+        # https://github.com/materialsproject/pymatgen/pull/3022
+        # same test also in MITMPRelaxSetTest above (for redundancy,
+        # should apply to all classes inheriting from VaspInputSet)
+        for user_potcar_settings in [{"Fe": "Fe_pv"}, {"W": "W_pv"}, None]:
+            for species in [("W", "W"), ("Fe", "W"), ("Fe", "Fe")]:
+                struct = Structure(lattice=Lattice.cubic(3), species=species, coords=[[0, 0, 0], [0.5, 0.5, 0.5]])
+                relax_set = MPRelaxSet(
+                    structure=struct, user_potcar_functional="PBE_54", user_potcar_settings=user_potcar_settings
+                )
+                expected = {**({"W": "W_sv"} if "W" in struct.symbol_set else {}), **(user_potcar_settings or {})}
+                assert relax_set.user_potcar_settings == expected
 
     def test_as_from_dict(self):
         dct = self.mvl_scan_set.as_dict()
