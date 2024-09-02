@@ -348,7 +348,9 @@ class LobsterNeighbors(NearNeighbors):
                     valences=self.valences,
                 )
 
-            assert self.valences is not None
+            if self.valences is None:
+                raise ValueError(f"{self.valences=}")
+
             for idx, val in enumerate(self.valences):
                 if val >= 0.0:
                     new_list_ce_symbols.append(list_ce_symbols[idx])
@@ -411,12 +413,18 @@ class LobsterNeighbors(NearNeighbors):
         """
         if self.valences is None and onlycation_isites:
             raise ValueError("No valences are provided")
+
         if isites is None:
             if onlycation_isites:
-                assert self.valences is not None
+                if self.valences is None:
+                    raise ValueError(f"{self.valences}=")
+
                 isites = [idx for idx in range(len(self.structure)) if self.valences[idx] >= 0.0]
             else:
                 isites = list(range(len(self.structure)))
+
+        if self.Icohpcollection is None:
+            raise ValueError(f"{self.Icohpcollection=}")
 
         summed_icohps: float = 0.0
         list_icohps: list[float] = []
@@ -424,7 +432,6 @@ class LobsterNeighbors(NearNeighbors):
         labels: list[str] = []
         atoms: list[list[str]] = []
         final_isites: list[int] = []
-        assert self.Icohpcollection is not None
         for idx, _site in enumerate(self.structure):
             if idx in isites:
                 for key, icohpsum in zip(self.list_keys[idx], self.list_icohps[idx], strict=True):
@@ -548,7 +555,9 @@ class LobsterNeighbors(NearNeighbors):
 
         # Check that the number of bonds in ICOHPLIST and COHPCAR are identical
         # TODO: Further checks could be implemented
-        assert self.Icohpcollection is not None
+        if self.Icohpcollection is None:
+            raise ValueError(f"{self.Icohpcollection=}")
+
         if len(self.Icohpcollection._list_atom1) != len(self.completecohp.bonds):
             raise ValueError("COHPCAR and ICOHPLIST do not fit together")
 
@@ -572,7 +581,9 @@ class LobsterNeighbors(NearNeighbors):
             # Iterate through labels and atoms and check which bonds can be included
             new_labels = []
             new_atoms = []
-            assert final_isites is not None
+            if final_isites is None:
+                raise ValueError(f"{final_isites=}")
+
             for key, atompair, isite in zip(labels, atoms, final_isites, strict=True):
                 present = False
                 for atomtype in only_bonds_to:
@@ -646,7 +657,9 @@ class LobsterNeighbors(NearNeighbors):
 
         if isites is None:
             if onlycation_isites:
-                assert self.valences is not None
+                if self.valences is None:
+                    raise ValueError(f"{self.valences=}")
+
                 isites = [idx for idx in range(len(self.structure)) if self.valences[idx] >= 0.0]
             else:
                 isites = list(range(len(self.structure)))
@@ -656,7 +669,9 @@ class LobsterNeighbors(NearNeighbors):
         number_bonds: int = 0
         labels: list[str] = []
         atoms: list[list[str]] = []
-        assert self.Icohpcollection is not None
+        if self.Icohpcollection is None:
+            raise ValueError(f"{self.Icohpcollection=}")
+
         for isite in isites:
             for site_idx, n_site in enumerate(self.list_neighsite[isite]):
                 for site2_idx, n_site2 in enumerate(self.list_neighsite[isite]):
@@ -750,7 +765,9 @@ class LobsterNeighbors(NearNeighbors):
         """
         # Get extremum
         if lowerlimit is None and upperlimit is None:
-            assert self.Icohpcollection is not None
+            if self.Icohpcollection is None:
+                raise ValueError(f"{self.Icohpcollection=}")
+
             limits = self._get_limit_from_extremum(
                 self.Icohpcollection,
                 percentage=perc_strength_icohp,
@@ -758,7 +775,8 @@ class LobsterNeighbors(NearNeighbors):
                 additional_condition=additional_condition,
             )
 
-            assert limits is not None
+            if limits is None:
+                raise ValueError(f"{limits=}")
             lowerlimit, upperlimit = limits
 
         elif upperlimit is None or lowerlimit is None:
@@ -780,8 +798,10 @@ class LobsterNeighbors(NearNeighbors):
         # Make sure everything is relative to the given Structure and
         # not just the atoms in the unit cell
         if self.add_additional_data_sg:
-            assert self.bonding_list_1.icohpcollection is not None
-            assert self.bonding_list_2.icohpcollection is not None
+            if self.bonding_list_1.icohpcollection is None:
+                raise ValueError(f"{self.bonding_list_1.icohpcollection=}")
+            if self.bonding_list_2.icohpcollection is None:
+                raise ValueError(f"{self.bonding_list_2.icohpcollection=}")
 
             self.sg_list = [
                 [
@@ -889,7 +909,9 @@ class LobsterNeighbors(NearNeighbors):
         list_coords: list[list[NDArray]] = []
 
         # Run over structure
-        assert self.Icohpcollection is not None
+        if self.Icohpcollection is None:
+            raise ValueError(f"{self.Icohpcollection=}")
+
         for idx, site in enumerate(self.structure):
             icohps = self._get_icohps(
                 icohpcollection=self.Icohpcollection,
@@ -1010,7 +1032,8 @@ class LobsterNeighbors(NearNeighbors):
 
             # Check additional conditions
             val1 = val2 = None
-            assert self.valences is not None
+            if self.valences is None:
+                raise ValueError(f"{self.valences=}")
             if additional_condition in {1, 3, 5, 6}:
                 val1 = self.valences[atomnr1]
                 val2 = self.valences[atomnr2]
@@ -1227,7 +1250,9 @@ class LobsterNeighbors(NearNeighbors):
                 or [max(strongest_icohp*0.15, noise_cutoff), inf].
         """
         extremum_based = None
-        assert self.valences is not None
+
+        if self.valences is None:
+            raise ValueError(f"{self.valences=}")
 
         if not adapt_extremum_to_add_cond or additional_condition == 0:
             extremum_based = icohpcollection.extremum_icohpvalue(summed_spin_channels=True) * percentage

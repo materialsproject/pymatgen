@@ -1318,7 +1318,8 @@ class Species(MSONable, Stringify):
             Shannon radius for specie in the specified environment.
         """
         radii = self._el.data["Shannon radii"]
-        assert self._oxi_state is not None
+        if self._oxi_state is None:
+            raise ValueError("oxi_state is None.")
         radii = radii[str(int(self._oxi_state))][cn]
         if len(radii) == 1:
             key, data = next(iter(radii.items()))
@@ -1358,7 +1359,8 @@ class Species(MSONable, Stringify):
         if len(elec) < 4 or elec[-2][1] != "s" or elec[-1][1] != "d":
             raise AttributeError(f"Invalid element {self.symbol} for crystal field calculation")
 
-        assert self.oxi_state is not None
+        if self.oxi_state is None:
+            raise ValueError("oxi_state is None.")
         n_electrons = elec[-1][2] + elec[-2][2] - self.oxi_state
         if n_electrons < 0 or n_electrons > 10:
             raise AttributeError(f"Invalid oxidation state {self.oxi_state} for element {self.symbol}")
@@ -1634,7 +1636,7 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
     # If obj is an integer, return the Element with atomic number obj
     try:
         flt = float(obj)
-        assert flt == int(flt)
+        assert flt == int(flt)  # noqa: S101
         return Element.from_Z(int(flt))
     except (AssertionError, ValueError, TypeError, KeyError):
         pass
