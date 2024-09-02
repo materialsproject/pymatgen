@@ -66,6 +66,9 @@ dependencies = [
     "requests>=2.32",
     "ruamel.yaml>=0.17.0",
     "scipy>=1.13.0",
+    # scipy<1.14.1 is incompatible with NumPy 2.0 on Windows
+    # https://github.com/scipy/scipy/issues/21052
+    "scipy>=1.14.1; platform_system == 'Windows'",
     "spglib>=2.5.0",
     "sympy>=1.2",
     "tabulate>=0.9",
@@ -93,7 +96,7 @@ abinit = ["netcdf4>=1.7.1"]
 mlp = ["chgnet>=0.3.8", "matgl>=1.1.1"]
 electronic_structure = ["fdint>=2.0.2"]
 ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8"]
-docs = ["sphinx", "sphinx_rtd_theme"]
+docs = ["invoke", "sphinx", "sphinx_rtd_theme", "sphinx_markdown_builder"]
 optional = [
     "ase>=3.23.0",
     # TODO: uv cannot install BoltzTraP2
@@ -206,7 +209,7 @@ ignore = [
     "D212",    # Multi-line docstring summary should start at the first line
     "FBT001",  # Boolean-typed positional argument in function definition
     "FBT002",  # Boolean default positional argument in function
-    "NPY201",  # TODO: enable after migration to NumPy 2.0
+    "PD011",   # (A lot of false positive on non-Pandas objects)
     "PERF203", # Use of try-except in for/while loop
     "PERF401", # Replace "for" loops with list comprehension
     "PLR0911", # Too many return statements
@@ -214,10 +217,9 @@ ignore = [
     "PLR0913", # Too many arguments
     "PLR0915", # Too many statements
     "PLR1702", # Too many nested blocks
-    "PLR2004", # Magic-value-comparison TODO fix these
+    "PLR2004", # Magic-value-comparison TODO: fix these
     "PLW2901", # Outer for loop variable overwritten by inner assignment target
     "PT013",   # Incorrect import of pytest
-    "S101",    # Use of "assert"
     "S110",    # Log for try-except-pass
     "S112",    # Log for try-except-continue
     "S311",    # Use random module for cryptographic purposes
@@ -238,10 +240,15 @@ isort.known-first-party = ["pymatgen"]
 docstring-code-format = true
 
 [tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["F401"]
-# PLR2004: magic-value-comparison
-# PLR6301: no-self-use
-"tests/**" = ["ANN201", "D", "PLR0124", "PLR2004", "PLR6301"]
+"__init__.py" = ["F401"]  # unused-import
+"tests/**" = [
+    "ANN201",   # missing-return-type-undocumented-public-function
+    "D",        # pydocstyle
+    "PLR0124",  # comparison-with-itself
+    "PLR2004",  # magic-value-comparison
+    "PLR6301",  # no-self-use
+    "S101",     # Use of "assert"
+]
 "src/pymatgen/analysis/*" = ["D"]
 "src/pymatgen/io/*" = ["D"]
 "dev_scripts/*" = ["D"]
@@ -264,13 +271,11 @@ omit = [
 [tool.coverage.report]
 exclude_also = [
     "@deprecated",
-    "@np.deprecate",
     "def __repr__",
     "except ImportError:",
     "if TYPE_CHECKING:",
     "if self.debug:",
     "if settings.DEBUG",
-    "if typing.TYPE_CHECKING:",
     "pragma: no cover",
     "raise NotImplementedError",
     "show_plot",

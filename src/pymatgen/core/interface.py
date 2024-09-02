@@ -997,7 +997,8 @@ class GrainBoundaryGenerator:
                     c2_a2_ratio = 1.0 if ratio is None else ratio[0] / ratio[1]
                     metric = np.array([[1, 0, 0], [0, 1, 0], [0, 0, c2_a2_ratio]])
                 elif lat_type == "o":
-                    assert ratio is not None, "Invalid ratio for orthorhombic system"
+                    if ratio is None:
+                        raise ValueError(f"Invalid {ratio=} for orthorhombic system")
                     for idx in range(3):
                         if ratio is not None and ratio[idx] is None:
                             ratio[idx] = 1
@@ -1203,9 +1204,13 @@ class GrainBoundaryGenerator:
                         mv = 1
 
             # Make sure mu, lambda, mv are coprime integers
-            assert mu is not None
-            assert lam is not None
-            assert mv is not None
+            if mu is None:
+                raise ValueError("mu is None.")
+            if lam is None:
+                raise ValueError("lambda is None.")
+            if mv is None:
+                raise ValueError("mv is None.")
+
             if reduce(math.gcd, [mu, lam, mv]) != 1:
                 temp = cast(int, reduce(math.gcd, [mu, lam, mv]))
                 mu = round(mu / temp)
@@ -1253,7 +1258,8 @@ class GrainBoundaryGenerator:
             raise RuntimeError("Sigma >1000 too large. Are you sure what you are doing, Please check the GB if exist")
         # Transform surface, r_axis, r_matrix in terms of primitive lattice
         surface = np.matmul(surface, np.transpose(trans_cry))
-        assert surface is not None
+        if surface is None:
+            raise ValueError("surface is None.")
         fractions = [Fraction(x).limit_denominator() for x in surface]
         least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
         surface = cast(Tuple3Ints, tuple(round(x * least_mul) for x in surface))
@@ -1995,8 +2001,8 @@ class GrainBoundaryGenerator:
         lat_type = lat_type.lower()
 
         # Check r_axis length
-        if lat_type in {"c", "t"}:
-            assert len(r_axis) == 3, "r_axis length incompatible with selected lattice system"
+        if lat_type in {"c", "t"} and len(r_axis) != 3:
+            raise ValueError(f"expect r_axis length 3 for selected lattice system, got {len(r_axis)}")
 
         # Check lattice axial ratio length
         if lat_type == "o" and (ratio is None or len(ratio) != 3):
@@ -2484,9 +2490,8 @@ class Interface(Structure):
             vacuum_over_film: vacuum space above the film in Angstroms. Defaults to 0.
             interface_properties: properties associated with the Interface. Defaults to None.
         """
-        assert (
-            "interface_label" in site_properties
-        ), "Must provide labeling of substrate and film sites in site properties"
+        if "interface_label" not in site_properties:
+            raise RuntimeError("Must provide labeling of substrate and film sites in site properties")
 
         self._in_plane_offset = np.array(in_plane_offset, dtype="float")
         self._gap = gap

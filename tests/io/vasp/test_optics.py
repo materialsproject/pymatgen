@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import sys
-
 import numpy as np
 import pytest
 import scipy.special
@@ -53,10 +51,6 @@ class TestVasprun(PymatgenTest):
         assert len(x_val) == len(y_val) == len(text)
 
 
-@pytest.mark.skipif(
-    sys.platform == "win32" and int(np.__version__[0]) >= 2,
-    reason="Fails on Windows with numpy > 2.0.0, awaiting https://github.com/scipy/scipy/issues/21052 resolution",
-)
 def test_delta_func():
     x = np.array([0, 1, 2, 3, 4, 5])
 

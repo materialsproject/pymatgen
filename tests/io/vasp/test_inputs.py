@@ -15,7 +15,7 @@ import scipy.constants as const
 from monty.io import zopen
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
-from pytest import MonkeyPatch, approx
+from pytest import approx
 
 from pymatgen.core import SETTINGS
 from pymatgen.core.composition import Composition
@@ -42,7 +42,7 @@ _summ_stats = _gen_potcar_summary_stats(append=False, vasp_psp_dir=str(FAKE_POTC
 
 
 @pytest.fixture(autouse=True)
-def _mock_complete_potcar_summary_stats(monkeypatch: MonkeyPatch) -> None:
+def _mock_complete_potcar_summary_stats(monkeypatch: pytest.MonkeyPatch) -> None:
     # Override POTCAR library to use fake scrambled POTCARs
     monkeypatch.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(FAKE_POTCAR_DIR))
     monkeypatch.setattr(PotcarSingle, "_potcar_summary_stats", _summ_stats)
@@ -547,7 +547,7 @@ class TestIncar(PymatgenTest):
 
     def test_copy(self):
         incar2 = self.incar.copy()
-        assert isinstance(incar2, Incar), f"Expected Incar, got {type(incar2)}"
+        assert isinstance(incar2, Incar), f"Expected Incar, got {type(incar2).__name__}"
         assert incar2 == self.incar
         # modify incar2 and check that incar1 is not modified
         incar2["LDAU"] = "F"
@@ -1316,20 +1316,18 @@ class TestPotcar(PymatgenTest):
         assert self.potcar.symbols == ["Fe_pv", "O"]
         assert self.potcar[0].nelectrons == 14
 
-    # def test_default_functional(self):
-    #     potcar = Potcar(["Fe", "P"])
-    #     assert potcar[0].functional_class == "GGA"
-    #     assert potcar[1].functional_class == "GGA"
-    #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
-    #     potcar = Potcar(["Fe", "P"])
-    #     assert potcar[0].functional_class == "LDA"
-    #     assert potcar[1].functional_class == "LDA"
+    @pytest.mark.skip("TODO: need someone to fix this")
+    def test_default_functional(self):
+        potcar = Potcar(["Fe", "P"])
+        assert potcar[0].functional_class == "GGA"
+        assert potcar[1].functional_class == "GGA"
+        SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
+        potcar = Potcar(["Fe", "P"])
+        assert potcar[0].functional_class == "LDA"
+        assert potcar[1].functional_class == "LDA"
 
     def test_pickle(self):
         pickle.dumps(self.potcar)
-
-    # def tearDown(self):
-    #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
 
 
 class TestVaspInput(PymatgenTest):
@@ -1447,7 +1445,7 @@ def test_potcar_summary_stats() -> None:
         assert actual == expected, f"{key=}, {expected=}, {actual=}"
 
 
-def test_gen_potcar_summary_stats(monkeypatch: MonkeyPatch) -> None:
+def test_gen_potcar_summary_stats(monkeypatch: pytest.MonkeyPatch) -> None:
     assert set(_summ_stats) == set(PotcarSingle.functional_dir)
 
     expected_funcs = [x for x in os.listdir(str(FAKE_POTCAR_DIR)) if x in PotcarSingle.functional_dir]

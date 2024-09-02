@@ -554,7 +554,7 @@ class Slab(Structure):
                             break
                     else:
                         # Move unselected atom to the opposite surface.
-                        frac_coords.append(struct_matcher.frac_coords + [0, 0, shift])  # noqa: RUF005
+                        frac_coords.append(struct_matcher.frac_coords + np.array([0, 0, shift]))
 
                 # sort by species to put all similar species together.
                 sp_fcoord = sorted(zip(species, frac_coords, strict=True), key=lambda x: x[0])

@@ -90,7 +90,7 @@ class COD:
         Returns:
             A Structure.
         """
-        response = requests.get(f"http://{self.url}/cod/{cod_id}.cif", timeout=timeout)
+        response = requests.get(f"https://{self.url}/cod/{cod_id}.cif", timeout=timeout)
         return Structure.from_str(response.text, fmt="cif", **kwargs)
 
     @requires(which("mysql"), "mysql must be installed to use this query.")
@@ -112,7 +112,7 @@ class COD:
         for line in text:
             if line.strip():
                 cod_id, sg = line.split("\t")
-                response = requests.get(f"http://www.crystallography.net/cod/{cod_id.strip()}.cif", timeout=600)
+                response = requests.get(f"https://{self.url}/cod/{cod_id.strip()}.cif", timeout=600)
                 try:
                     struct = Structure.from_str(response.text, fmt="cif", **kwargs)
                     structures.append({"structure": struct, "cod_id": int(cod_id), "sg": sg})

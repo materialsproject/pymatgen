@@ -128,19 +128,19 @@ class TestPhononDos(PymatgenTest):
         assert peak_freq == approx(4.9662820761)
 
     def test_get_dos_fp(self):
-        # normalize=True
+        # normalize is True
         dos_fp = self.dos.get_dos_fp(min_f=-1, max_f=5, n_bins=56, normalize=True)
         bin_width = np.diff(dos_fp.frequencies)[0][0]
         assert max(dos_fp.frequencies[0]) <= 5
         assert min(dos_fp.frequencies[0]) >= -1
         assert len(dos_fp.frequencies[0]) == 56
         assert sum(dos_fp.densities * bin_width) == approx(1)
-        # normalize=False
+        # normalize is False
         dos_fp2 = self.dos.get_dos_fp(min_f=-1, max_f=5, n_bins=56, normalize=False)
         bin_width2 = np.diff(dos_fp2.frequencies)[0][0]
         assert sum(dos_fp2.densities * bin_width2) == approx(13.722295798242834)
         assert dos_fp2.bin_width == approx(bin_width2)
-        # binning=False
+        # binning is False
         dos_fp = self.dos.get_dos_fp(min_f=None, max_f=None, n_bins=56, normalize=True, binning=False)
         assert dos_fp.n_bins == len(self.dos.frequencies)
 

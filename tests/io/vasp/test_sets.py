@@ -11,7 +11,7 @@ import pytest
 from monty.json import MontyDecoder
 from monty.serialization import loadfn
 from numpy.testing import assert_allclose
-from pytest import MonkeyPatch, approx, mark
+from pytest import approx
 
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import SETTINGS, Lattice, Species, Structure
@@ -59,10 +59,10 @@ from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, 
 
 TEST_DIR = f"{TEST_FILES_DIR}/io/vasp"
 
-MonkeyPatch().setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(FAKE_POTCAR_DIR))
+pytest.MonkeyPatch().setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(FAKE_POTCAR_DIR))
 
 NO_PSP_DIR = SETTINGS.get("PMG_VASP_PSP_DIR") is None
-skip_if_no_psp_dir = mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set")
+skip_if_no_psp_dir = pytest.mark.skipif(NO_PSP_DIR, reason="PMG_VASP_PSP_DIR is not set")
 
 dummy_structure = Structure(
     [1, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -262,7 +262,7 @@ class TestMITMPRelaxSet(PymatgenTest):
         structure = Structure(self.lattice, ["P", "Fe"], self.coords)
         # Use pytest's monkeypatch to temporarily point pymatgen to a directory
         # containing the wrong POTCARs (LDA potcars in a PBE directory)
-        with MonkeyPatch().context() as monkeypatch:
+        with pytest.MonkeyPatch().context() as monkeypatch:
             monkeypatch.setitem(SETTINGS, "PMG_VASP_PSP_DIR", str(f"{VASP_IN_DIR}/wrong_potcars"))
             with pytest.warns(BadInputSetWarning, match="not known by pymatgen"):
                 _ = self.set(structure).potcar
@@ -1680,31 +1680,28 @@ class TestMVLScanRelaxSet(PymatgenTest):
         ):
             MVLScanRelaxSet(self.struct, user_potcar_functional="PBE")
 
-    # @skip_if_no_psp_dir
-    # def test_potcar(self):
-    #
-    #     test_potcar_set_1 = self.set(self.struct, user_potcar_functional="PBE_54")
-    #     assert test_potcar_set_1.potcar.functional == "PBE_54"
-    #
-    #     with pytest.raises(
-    #         ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54', 'PBE_64'\)"
-    #     ):
-    #         self.set(self.struct, user_potcar_functional="PBE")
-    #
-    #     # https://github.com/materialsproject/pymatgen/pull/3022
-    #     # same test also in MITMPRelaxSetTest above (for redundancy,
-    #     # should apply to all classes inheriting from VaspInputSet)
-    #     for user_potcar_settings in [{"Fe": "Fe_pv"}, {"W": "W_pv"}, None]:
-    #         for species in [("W", "W"), ("Fe", "W"), ("Fe", "Fe")]:
-    #             struct = Structure(lattice=Lattice.cubic(3), species=species, coords=[[0, 0, 0], [0.5, 0.5, 0.5]])
-    #             relax_set = MPRelaxSet(
-    #                 structure=struct, user_potcar_functional="PBE_54", user_potcar_settings=user_potcar_settings
-    #             )
-    #             expected = {
-    #                 **({"W": "W_sv"} if "W" in struct.symbol_set else {}),
-    #                 **(user_potcar_settings or {}),
-    #             } or None
-    #             assert relax_set.user_potcar_settings == expected
+    @pytest.mark.skip("TODO: need someone to fix this")
+    @skip_if_no_psp_dir
+    def test_potcar_need_fix(self):
+        test_potcar_set_1 = self.set(self.struct, user_potcar_functional="PBE_54")
+        assert test_potcar_set_1.potcar.functional == "PBE_54"
+
+        with pytest.raises(
+            ValueError, match=r"Invalid user_potcar_functional='PBE', must be one of \('PBE_52', 'PBE_54', 'PBE_64'\)"
+        ):
+            self.set(self.struct, user_potcar_functional="PBE")
+
+        # https://github.com/materialsproject/pymatgen/pull/3022
+        # same test also in MITMPRelaxSetTest above (for redundancy,
+        # should apply to all classes inheriting from VaspInputSet)
+        for user_potcar_settings in [{"Fe": "Fe_pv"}, {"W": "W_pv"}, None]:
+            for species in [("W", "W"), ("Fe", "W"), ("Fe", "Fe")]:
+                struct = Structure(lattice=Lattice.cubic(3), species=species, coords=[[0, 0, 0], [0.5, 0.5, 0.5]])
+                relax_set = MPRelaxSet(
+                    structure=struct, user_potcar_functional="PBE_54", user_potcar_settings=user_potcar_settings
+                )
+                expected = {**({"W": "W_sv"} if "W" in struct.symbol_set else {}), **(user_potcar_settings or {})}
+                assert relax_set.user_potcar_settings == expected
 
     def test_as_from_dict(self):
         dct = self.mvl_scan_set.as_dict()

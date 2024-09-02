@@ -1613,6 +1613,51 @@ class TestProcar(PymatgenTest):
         assert procar.get_occupation(0, "dxy")[Spin.up] == approx(0.96214813853000025)
         assert procar.get_occupation(0, "dxy")[Spin.down] == approx(0.85796295426000124)
 
+    def test_soc_procar(self):
+        filepath = f"{VASP_OUT_DIR}/PROCAR.SOC.gz"
+        procar = Procar(filepath)
+        assert procar.nions == 4
+        assert procar.nkpoints == 25
+        assert procar.nspins == 1
+        assert procar.is_soc  # SOC PROCAR
+        nb = procar.nbands
+        nk = procar.nkpoints
+        assert procar.eigenvalues[Spin.up].shape == (nk, nb)
+        assert procar.kpoints.shape == (nk, 3)
+        assert len(procar.weights) == nk
+        assert np.all(procar.kpoints[0][0] == 0.0)
+        assert procar.occupancies[Spin.up].shape == (nk, nb)
+
+        # spot check some values:
+        assert procar.data[Spin.up][0, 1, 1, 0] == approx(0.095)
+        assert procar.data[Spin.up][0, 1, 1, 1] == approx(0)
+
+        assert procar.xyz_data["x"][0, 1, 1, 0] == approx(-0.063)
+        assert procar.xyz_data["z"][0, 1, 1, 1] == approx(0)
+
+    def test_multiple_procars(self):
+        filepaths = [f"{VASP_OUT_DIR}/PROCAR.split1.gz", f"{VASP_OUT_DIR}/PROCAR.split2.gz"]
+        procar = Procar(filepaths)
+        assert procar.nions == 4
+        assert procar.nkpoints == 96  # 96 overall, 48 in first PROCAR, 96 in second (48 duplicates)
+        assert procar.nspins == 1  # SOC PROCAR, also with LORBIT = 14
+        assert procar.is_soc  # SOC PROCAR
+        nb = procar.nbands
+        nk = procar.nkpoints
+        assert procar.eigenvalues[Spin.up].shape == (nk, nb)
+        assert procar.kpoints.shape == (nk, 3)
+        assert len(procar.weights) == nk
+        assert procar.occupancies[Spin.up].shape == (nk, nb)
+
+        # spot check some values:
+        assert procar.data[Spin.up][0, 1, 1, 0] == approx(0.094)
+        assert procar.data[Spin.up][0, 1, 1, 1] == approx(0)
+
+        assert procar.xyz_data["x"][0, 1, 1, 0] == approx(0)
+        assert procar.xyz_data["z"][0, 1, 1, 1] == approx(0)
+
+        assert procar.phase_factors[Spin.up][0, 1, 0, 0] == approx(-0.159 + 0.295j)
+
     def test_phase_factors(self):
         filepath = f"{VASP_OUT_DIR}/PROCAR.phase.gz"
         procar = Procar(filepath)
@@ -1783,7 +1828,7 @@ class TestWavecar(PymatgenTest):
 
         orig_gen_g_points = Wavecar._generate_G_points
         try:
-            Wavecar._generate_G_points = lambda _x, _y, gamma: []  # noqa: ARG005, RUF100
+            Wavecar._generate_G_points = lambda _x, _y, gamma: []
             with pytest.raises(ValueError, match=r"not enough values to unpack \(expected 3, got 0\)"):
                 Wavecar(f"{VASP_OUT_DIR}/WAVECAR.N2")
         finally:

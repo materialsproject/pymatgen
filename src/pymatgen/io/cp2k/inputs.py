@@ -111,7 +111,7 @@ class Keyword(MSONable):
             return NotImplemented
         if self.name.upper() == other.name.upper():
             v1 = [val.upper() if isinstance(val, str) else val for val in self.values]
-            v2 = [val.upper() if isinstance(val, str) else val for val in other.values]  # noqa: PD011
+            v2 = [val.upper() if isinstance(val, str) else val for val in other.values]
             if v1 == v2 and self.units == other.units:
                 return True
         return False
@@ -194,7 +194,8 @@ class KeywordList(MSONable):
         Args:
             keywords: A list of keywords. Must all have the same name (case-insensitive)
         """
-        assert all(k.name.upper() == keywords[0].name.upper() for k in keywords) if keywords else True
+        if keywords and any(k.name.upper() != keywords[0].name.upper() for k in keywords):
+            raise ValueError("some keyword is invalid")
         self.name = keywords[0].name if keywords else None
         self.keywords = list(keywords)
 
@@ -500,9 +501,10 @@ class Section(MSONable):
             else:
                 raise TypeError("Can only add sections or keywords.")
 
-    def insert(self, d):
+    def insert(self, d: Section | SectionList) -> None:
         """Insert a new section as a subsection of the current one."""
-        assert isinstance(d, Section | SectionList)
+        if not isinstance(d, Section | SectionList):
+            raise TypeError(f"type of d should be Section or SectionList, got {type(d).__name__}")
         self.subsections[d.alias or d.name] = copy.deepcopy(d)
 
     def check(self, path: str):
@@ -600,7 +602,8 @@ class SectionList(MSONable):
         Args:
             sections: A list of keywords. Must all have the same name (case-insensitive)
         """
-        assert all(k.name.upper() == sections[0].name.upper() for k in sections) if sections else True
+        if sections and any(k.name.upper() != sections[0].name.upper() for k in sections):
+            raise ValueError("some section name is invalid")
         self.name = sections[0].name if sections else None
         self.alias = sections[0].alias if sections else None
         self.sections = list(sections)
@@ -1954,7 +1957,8 @@ class Kpoints(Section):
 
         self.kpts = kpts
         self.weights = weights or [1] * len(kpts)
-        assert len(self.kpts) == len(self.weights)
+        if len(self.kpts) != len(self.weights):
+            raise ValueError(f"lengths of kpts {len(self.kpts)} and weights {len(self.weights)} mismatch")
         self.eps_geo = eps_geo
         self.full_grid = full_grid
         self.parallel_group_size = parallel_group_size

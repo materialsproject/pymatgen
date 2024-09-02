@@ -988,9 +988,7 @@ class DopingTransformation(AbstractTransformation):
         logger.info(f"Composition: {comp}")
 
         for sp in comp:
-            try:
-                sp.oxi_state  # noqa: B018
-            except AttributeError:
+            if not hasattr(sp, "oxi_state"):
                 analyzer = BVAnalyzer()
                 structure = analyzer.get_oxi_state_decorated_structure(structure)
                 comp = structure.composition
@@ -1081,8 +1079,8 @@ class DopingTransformation(AbstractTransformation):
                 else:
                     sp_to_remove = min(supercell.composition, key=lambda el: el.X)
                 # Confirm species are of opposite oxidation states.
-                assert sp_to_remove.oxi_state * sp.oxi_state < 0  # type: ignore[operator]
-
+                if sp_to_remove.oxi_state * sp.oxi_state >= 0:  # type: ignore[operator]
+                    raise ValueError("Species should be of opposite oxidation states.")
                 ox_diff = int(abs(round(sp.oxi_state - ox)))
                 anion_ox = int(abs(sp_to_remove.oxi_state))  # type: ignore[arg-type]
                 nx = supercell.composition[sp_to_remove]
