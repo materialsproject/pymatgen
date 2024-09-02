@@ -150,7 +150,8 @@ class SubstitutionProbability:
             The conditional probability (assuming these species are in
             l2)
         """
-        assert len(l1) == len(l2)
+        if len(l1) != len(l2):
+            raise ValueError("lengths of l1 and l2 mismatch.")
         p = 1
         for s1, s2 in zip(l1, l2, strict=True):
             p *= self.cond_prob(s1, s2)

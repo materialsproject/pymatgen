@@ -547,7 +547,7 @@ class TestIncar(PymatgenTest):
 
     def test_copy(self):
         incar2 = self.incar.copy()
-        assert isinstance(incar2, Incar), f"Expected Incar, got {type(incar2)}"
+        assert isinstance(incar2, Incar), f"Expected Incar, got {type(incar2).__name__}"
         assert incar2 == self.incar
         # modify incar2 and check that incar1 is not modified
         incar2["LDAU"] = "F"

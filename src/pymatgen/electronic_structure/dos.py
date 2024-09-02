@@ -12,6 +12,7 @@ from packaging import version
 from scipy.constants import value as _constant
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import hilbert
+from scipy.special import expit
 from scipy.stats import wasserstein_distance
 
 from pymatgen.core import Structure, get_el_sp
@@ -75,7 +76,7 @@ class DOS(Spectrum):
 
     def get_interpolated_gap(
         self,
-        tol: float = 0.001,
+        tol: float = 1e-4,
         abs_tol: bool = False,
         spin: Spin | None = None,
     ) -> tuple[float, float, float]:
@@ -120,13 +121,11 @@ class DOS(Spectrum):
         end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
         return end - start, end, start
 
-    def get_cbm_vbm(
-        self,
-        tol: float = 0.001,
-        abs_tol: bool = False,
-        spin: Spin | None = None,
-    ) -> tuple[float, float]:
-        """Find the CBM and VBM.
+    def get_cbm_vbm(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
+        """
+        Expects a DOS object and finds the CBM and VBM eigenvalues.
+
+        `tol` may need to be increased for systems with noise/disorder.
 
         Args:
             tol (float): Tolerance in occupations for determining the gap.
@@ -168,13 +167,12 @@ class DOS(Spectrum):
 
         return self.x[i_gap_end], self.x[i_gap_start]
 
-    def get_gap(
-        self,
-        tol: float = 0.001,
-        abs_tol: bool = False,
-        spin: Spin | None = None,
-    ) -> float:
-        """Find the band gap.
+    def get_gap(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> float:
+        """
+        Expects a DOS object and finds the band gap, using the determined
+        VBM and CBM eigenvalues.
+
+        `tol` may need to be increased for systems with noise/disorder.
 
         Args:
             tol (float): Tolerance in occupations for determining the gap.
@@ -306,7 +304,7 @@ class Dos(MSONable):
 
     def get_interpolated_gap(
         self,
-        tol: float = 0.001,
+        tol: float = 1e-4,
         abs_tol: bool = False,
         spin: Spin | None = None,
     ) -> Tuple3Floats:
@@ -325,7 +323,8 @@ class Dos(MSONable):
                 band gap, CBM and VBM.
         """
         tdos = self.get_densities(spin)
-        assert tdos is not None
+        if tdos is None:
+            raise ValueError("tdos is None")
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
 
@@ -348,13 +347,11 @@ class Dos(MSONable):
 
         return end - start, end, start
 
-    def get_cbm_vbm(
-        self,
-        tol: float = 0.001,
-        abs_tol: bool = False,
-        spin: Spin | None = None,
-    ) -> tuple[float, float]:
-        """Find the conduction band minimum (CBM) and valence band maximum (VBM).
+    def get_cbm_vbm(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
+        """
+        Expects a DOS object and finds the CBM and VBM eigenvalues.
+
+        `tol` may need to be increased for systems with noise/disorder.
 
         Args:
             tol (float): Tolerance in occupations for determining the gap.
@@ -369,7 +366,8 @@ class Dos(MSONable):
         """
         # Determine tolerance
         tdos = self.get_densities(spin)
-        assert tdos is not None
+        if tdos is None:
+            raise ValueError("tdos is None")
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
 
@@ -393,7 +391,7 @@ class Dos(MSONable):
 
     def get_gap(
         self,
-        tol: float = 0.001,
+        tol: float = 1e-4,
         abs_tol: bool = False,
         spin: Spin | None = None,
     ) -> float:
@@ -487,6 +485,7 @@ class FermiDos(Dos, MSONable):
         ecbm, evbm = self.get_cbm_vbm()
         self.idx_vbm = int(np.argmin(abs(self.energies - evbm)))
         self.idx_cbm = int(np.argmin(abs(self.energies - ecbm)))
+        self.idx_mid_gap = int(self.idx_vbm + (self.idx_cbm - self.idx_vbm) / 2)
         self.A_to_cm = 1e-8
 
         if bandgap:
@@ -502,7 +501,8 @@ class FermiDos(Dos, MSONable):
             self.energies[idx_fermi:] += (bandgap - (ecbm - evbm)) / 2.0
 
     def get_doping(self, fermi_level: float, temperature: float) -> float:
-        """Calculate the doping (majority carrier concentration) at a given
+        """
+        Calculate the doping (majority carrier concentration) at a given
         Fermi level and temperature. A simple Left Riemann sum is used for
         integrating the density of states over energy & equilibrium Fermi-Dirac
         distribution.
@@ -518,15 +518,15 @@ class FermiDos(Dos, MSONable):
                 (P-type).
         """
         cb_integral = np.sum(
-            self.tdos[self.idx_cbm :]
-            * f0(self.energies[self.idx_cbm :], fermi_level, temperature)
-            * self.de[self.idx_cbm :],
+            self.tdos[self.idx_mid_gap :]
+            * f0(self.energies[self.idx_mid_gap :], fermi_level, temperature)
+            * self.de[self.idx_mid_gap :],
             axis=0,
         )
         vb_integral = np.sum(
-            self.tdos[: self.idx_vbm + 1]
-            * f0(-self.energies[: self.idx_vbm + 1], -fermi_level, temperature)
-            * self.de[: self.idx_vbm + 1],
+            self.tdos[: self.idx_mid_gap + 1]
+            * f0(-self.energies[: self.idx_mid_gap + 1], -fermi_level, temperature)
+            * self.de[: self.idx_mid_gap + 1],
             axis=0,
         )
         return (vb_integral - cb_integral) / (self.volume * self.A_to_cm**3)
@@ -916,7 +916,8 @@ class CompleteDos(Dos):
 
         energies = dos.energies - dos.efermi
         dos_densities = dos.get_densities(spin=spin)
-        assert dos_densities is not None
+        if dos_densities is None:
+            raise ValueError("dos_densities is None")
 
         # Only integrate up to Fermi level
         energies = dos.energies - dos.efermi
@@ -1103,7 +1104,8 @@ class CompleteDos(Dos):
 
         energies = dos.energies - dos.efermi
         dos_densities = dos.get_densities(spin=spin)
-        assert dos_densities is not None
+        if dos_densities is None:
+            raise ValueError("dos_densities is None")
 
         # Only consider a given energy range
         if erange:
@@ -1198,7 +1200,8 @@ class CompleteDos(Dos):
 
         energies = transformed_dos.energies - transformed_dos.efermi
         densities = transformed_dos.get_densities(spin=spin)
-        assert densities is not None
+        if densities is None:
+            raise ValueError("densities is None")
 
         # Only consider a given energy range, if specified
         if erange:
@@ -1257,7 +1260,8 @@ class CompleteDos(Dos):
 
         try:
             densities = pdos[fp_type]
-            assert densities is not None
+            if densities is None:
+                raise ValueError("densities is None")
             if len(energies) < n_bins:
                 inds = np.where((energies >= min_e) & (energies <= max_e))
                 return DosFingerprint(energies[inds], densities[inds], fp_type, len(energies), np.diff(energies)[0])
@@ -1465,7 +1469,8 @@ class LobsterCompleteDos(CompleteDos):
             if s == site:
                 for orb, pdos in atom_dos.items():
                     orbital = _get_orb_lobster(str(orb))
-                    assert orbital is not None
+                    if orbital is None:
+                        raise ValueError("orbital is None")
 
                     if orbital in (Orbital.dxy, Orbital.dxz, Orbital.dyz):
                         t2g_dos.append(pdos)
@@ -1568,7 +1573,8 @@ def f0(E: float, fermi: float, T: float) -> float:
     Returns:
         float: The Fermi-Dirac occupation probability at energy E.
     """
-    return 1.0 / (1.0 + np.exp((E - fermi) / (_constant("Boltzmann constant in eV/K") * T)))
+    exponent = (E - fermi) / (_constant("Boltzmann constant in eV/K") * T)
+    return expit(-exponent)  # scipy logistic sigmoid function; expit(x) = 1/(1+exp(-x))
 
 
 def _get_orb_type_lobster(orb: str) -> OrbitalType | None:

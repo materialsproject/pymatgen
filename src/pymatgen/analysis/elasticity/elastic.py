@@ -82,7 +82,8 @@ class NthOrderElasticTensor(Tensor):
         strain = np.array(strain)
         if strain.shape == (6,):
             strain = Strain.from_voigt(strain)
-        assert strain.shape == (3, 3), "Strain must be 3x3 or Voigt notation"
+        if strain.shape != (3, 3):
+            raise ValueError(f"Strain must be 3x3 or Voigt notation, got {strain.shape=}")
         stress_matrix = self.einsum_sequence([strain] * (self.order - 1)) / factorial(self.order - 1)
         return Stress(stress_matrix)
 

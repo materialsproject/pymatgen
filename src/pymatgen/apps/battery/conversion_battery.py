@@ -80,7 +80,8 @@ class ConversionElectrode(AbstractElectrode):
         if len(profile) < 2:
             return None
 
-        assert working_ion_entry is not None
+        if working_ion_entry is None:
+            raise ValueError("working_ion_entry is None.")
         working_ion_symbol = working_ion_entry.elements[0].symbol
         normalization_els = {el: amt for el, amt in comp.items() if el != Element(working_ion_symbol)}
         framework = comp.as_dict()

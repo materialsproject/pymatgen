@@ -928,7 +928,8 @@ class Paths(MSONable):
         self.atoms = atoms
         self.paths = paths
         self.degeneracies = degeneracies or [1] * len(paths)
-        assert len(self.degeneracies) == len(self.paths)
+        if len(self.degeneracies) != len(self.paths):
+            raise ValueError(f"{len(self.degeneracies)=} and {len(self.paths)=} mismatch")
 
     def __str__(self):
         lines = ["PATH", "---------------"]

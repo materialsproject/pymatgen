@@ -577,7 +577,8 @@ class Tensor(np.ndarray, MSONable):
         obj = cls.from_voigt(base) if 6 in shape else cls(base)
 
         if populate:
-            assert structure, "Populate option must include structure input"
+            if not structure:
+                raise ValueError("Populate option must include structure input")
             obj = obj.populate(structure, vsym=vsym, verbose=verbose)
         elif structure:
             obj = obj.fit_to_structure(structure)
@@ -648,7 +649,8 @@ class Tensor(np.ndarray, MSONable):
                     merge(v, vtrans)
                 guess = type(self).from_voigt(v)
 
-        assert guess.shape == self.shape, "Guess must have same shape"
+        if guess.shape != self.shape:
+            raise ValueError("Guess must have same shape")
         converged = False
         test_new, test_old = [guess.copy()] * 2
         for idx in range(maxiter):
