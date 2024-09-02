@@ -226,7 +226,8 @@ class CifBlock:
                     items.append("".join(deq.popleft()))
 
                 n = len(items) // len(columns)
-                assert len(items) % n == 0
+                if len(items) % n != 0:
+                    raise ValueError(f"{len(items)=} is not a multiple of {n=}")
                 loops.append(columns)
                 for k, v in zip(columns * n, items, strict=True):
                     data[k].append(v.strip())
@@ -1157,7 +1158,8 @@ class CifParser:
         if all_species and len(all_species) == len(all_coords) and len(all_species) == len(all_magmoms):
             site_properties: dict[str, list] = {}
             if any(all_hydrogens):
-                assert len(all_hydrogens) == len(all_coords)
+                if len(all_hydrogens) != len(all_coords):
+                    raise ValueError("lengths of all_hydrogens and all_coords mismatch")
                 site_properties["implicit_hydrogens"] = all_hydrogens
 
             if self.feature_flags["magcif"]:
@@ -1167,7 +1169,8 @@ class CifParser:
                 site_properties = {}
 
             if any(all_labels):
-                assert len(all_labels) == len(all_species)
+                if len(all_labels) != len(all_species):
+                    raise ValueError("lengths of all_labels and all_species mismatch")
             else:
                 all_labels = None  # type: ignore[assignment]
 

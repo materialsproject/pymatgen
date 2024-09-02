@@ -547,7 +547,7 @@ class TestIncar(PymatgenTest):
 
     def test_copy(self):
         incar2 = self.incar.copy()
-        assert isinstance(incar2, Incar), f"Expected Incar, got {type(incar2)}"
+        assert isinstance(incar2, Incar), f"Expected Incar, got {type(incar2).__name__}"
         assert incar2 == self.incar
         # modify incar2 and check that incar1 is not modified
         incar2["LDAU"] = "F"
@@ -1316,20 +1316,18 @@ class TestPotcar(PymatgenTest):
         assert self.potcar.symbols == ["Fe_pv", "O"]
         assert self.potcar[0].nelectrons == 14
 
-    # def test_default_functional(self):
-    #     potcar = Potcar(["Fe", "P"])
-    #     assert potcar[0].functional_class == "GGA"
-    #     assert potcar[1].functional_class == "GGA"
-    #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
-    #     potcar = Potcar(["Fe", "P"])
-    #     assert potcar[0].functional_class == "LDA"
-    #     assert potcar[1].functional_class == "LDA"
+    @pytest.mark.skip("TODO: need someone to fix this")
+    def test_default_functional(self):
+        potcar = Potcar(["Fe", "P"])
+        assert potcar[0].functional_class == "GGA"
+        assert potcar[1].functional_class == "GGA"
+        SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "LDA"
+        potcar = Potcar(["Fe", "P"])
+        assert potcar[0].functional_class == "LDA"
+        assert potcar[1].functional_class == "LDA"
 
     def test_pickle(self):
         pickle.dumps(self.potcar)
-
-    # def tearDown(self):
-    #     SETTINGS["PMG_DEFAULT_FUNCTIONAL"] = "PBE"
 
 
 class TestVaspInput(PymatgenTest):

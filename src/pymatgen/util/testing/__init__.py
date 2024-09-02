@@ -118,9 +118,10 @@ class PymatgenTest(TestCase):
             # Test for equality
             if test_eq:
                 for orig, unpickled in zip(objects, unpickled_objs, strict=True):
-                    assert (
-                        orig == unpickled
-                    ), f"Unpickled and original objects are unequal for {protocol=}\n{orig=}\n{unpickled=}"
+                    if orig != unpickled:
+                        raise ValueError(
+                            f"Unpickled and original objects are unequal for {protocol=}\n{orig=}\n{unpickled=}"
+                        )
 
             # Save the deserialized objects and test for equality.
             objects_by_protocol.append(unpickled_objs)
@@ -139,10 +140,12 @@ class PymatgenTest(TestCase):
         By default, the method tests whether obj is an instance of MSONable.
         This check can be deactivated by setting test_is_subclass=False.
         """
-        if test_is_subclass:
-            assert isinstance(obj, MSONable)
-        assert obj.as_dict() == type(obj).from_dict(obj.as_dict()).as_dict()
+        if test_is_subclass and not isinstance(obj, MSONable):
+            raise TypeError("obj is not MSONable")
+        if obj.as_dict() != type(obj).from_dict(obj.as_dict()).as_dict():
+            raise ValueError("obj could not be reconstructed accurately from its dict representation.")
         json_str = json.dumps(obj.as_dict(), cls=MontyEncoder)
         round_trip = json.loads(json_str, cls=MontyDecoder)
-        assert issubclass(type(round_trip), type(obj)), f"{type(round_trip)} != {type(obj)}"
+        if not issubclass(type(round_trip), type(obj)):
+            raise TypeError(f"{type(round_trip)} != {type(obj)}")
         return json_str

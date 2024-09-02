@@ -293,7 +293,8 @@ class AbinitTimerParser(collections.abc.Iterable):
                 ctime_peff = n * [-1]
                 wtime_peff = n * [-1]
 
-            assert sect_name not in peff
+            if sect_name in peff:
+                raise ValueError("sect_name should not be in peff")
             peff[sect_name] = {}
             peff[sect_name]["cpu_time"] = ctime_peff
             peff[sect_name]["wall_time"] = wtime_peff
@@ -519,7 +520,8 @@ class ParallelEfficiency(dict):
                 values = peff[key][:]
                 if len(values) > 1:
                     ref_value = values.pop(self._ref_idx)
-                    assert ref_value == 1.0
+                    if ref_value != 1.0:
+                        raise ValueError(f"expect ref_value to be 1.0, got {ref_value}")
 
                 data.append((sect_name, self.estimator(values)))
 
@@ -661,7 +663,8 @@ class AbinitTimer:
         """Return section associated to `section_name`."""
         idx = self.section_names.index(section_name)
         sect = self.sections[idx]
-        assert sect.name == section_name
+        if sect.name != section_name:
+            raise ValueError(f"{sect.name=} != {section_name=}")
         return sect
 
     def to_csv(self, fileobj=sys.stdout):
@@ -734,7 +737,8 @@ class AbinitTimer:
         other_val = 0.0
 
         if minval is not None:
-            assert minfract is None
+            if minfract is not None:
+                raise ValueError(f"minfract should be None, got {minfract}")
 
             for name, val in zip(names, values, strict=True):
                 if val >= minval:
@@ -747,7 +751,8 @@ class AbinitTimer:
             new_values.append(other_val)
 
         elif minfract is not None:
-            assert minval is None
+            if minval is not None:
+                raise ValueError(f"minval should be None, got {minval}")
 
             total = self.sum_sections(key)
 
