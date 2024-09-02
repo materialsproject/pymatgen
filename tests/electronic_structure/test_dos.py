@@ -250,7 +250,7 @@ class TestCompleteDos(TestCase):
         assert kurtosis == approx(7.764506941340621)
 
     def test_get_dos_fp(self):
-        # normalize=True
+        # normalize is True
         dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
         bin_width = np.diff(dos_fp.energies)[0][0]
         assert max(dos_fp.energies[0]) <= 0
@@ -258,12 +258,12 @@ class TestCompleteDos(TestCase):
         assert len(dos_fp.energies[0]) == 56
         assert dos_fp.fp_type == "s"
         assert sum(dos_fp.densities * bin_width) == approx(1)
-        # normalize=False
+        # normalize is False
         dos_fp2 = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=False)
         bin_width2 = np.diff(dos_fp2.energies)[0][0]
         assert sum(dos_fp2.densities * bin_width2) == approx(7.279303571428509)
         assert dos_fp2.bin_width == approx(bin_width2)
-        # binning=False
+        # binning is False
         dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=None, max_e=None, n_bins=56, normalize=True, binning=False)
         assert dos_fp.n_bins == len(self.dos.energies)
 

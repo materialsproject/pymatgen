@@ -98,15 +98,14 @@ class TestBandstructureLoader(TestCase):
     def test_get_volume(self):
         assert self.loader.get_volume() == approx(477.6256714925874, abs=1e-5)
 
-    # def test_set_upper_lower_bands(self):
-    #     min_bnd = min(self.loader_sp_up.ebands.min(),
-    #                   self.loader_sp_dn.ebands.min())
-    #     max_bnd = max(self.loader_sp_up.ebands.max(),
-    #                   self.loader_sp_dn.ebands.max())
-    #     self.loader_sp_up.set_upper_lower_bands(min_bnd, max_bnd)
-    #     self.loader_sp_dn.set_upper_lower_bands(min_bnd, max_bnd)
-    #     self.assertTupleEqual(self.loader_sp_up.ebands.shape, (14, 198))
-    #     self.assertTupleEqual(self.loader_sp_dn.ebands.shape, (14, 198))
+    @pytest.mark.skip("TODO: need someone to fix this")
+    def test_set_upper_lower_bands(self):
+        min_bnd = min(self.loader_sp_up.ebands.min(), self.loader_sp_dn.ebands.min())
+        max_bnd = max(self.loader_sp_up.ebands.max(), self.loader_sp_dn.ebands.max())
+        self.loader_sp_up.set_upper_lower_bands(min_bnd, max_bnd)
+        self.loader_sp_dn.set_upper_lower_bands(min_bnd, max_bnd)
+        assert self.loader_sp_up.ebands.shape == (14, 198)
+        assert self.loader_sp_dn.ebands.shape == (14, 198)
 
 
 @pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests...")

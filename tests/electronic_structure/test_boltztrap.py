@@ -211,15 +211,16 @@ class TestBoltztrapAnalyzer(TestCase):
             assert len(sbs_bzt.bands[Spin.up]) == approx(20)
             assert len(sbs_bzt.bands[Spin.up][1]) == approx(143)
 
-    # def test_check_acc_bzt_bands(self):
-    #     structure = loadfn(f"{TEST_DIR}/structure_mp-12103.json")
-    #     sbs = loadfn(f"{TEST_DIR}/dft_bs_sym_line.json")
-    #     sbs_bzt = self.bz_bands.get_symm_bands(structure, -5.25204548)
-    #     corr, werr_vbm, werr_cbm, warn = BoltztrapAnalyzer.check_acc_bzt_bands(sbs_bzt, sbs)
-    #     assert corr[2] == 9.16851750e-05
-    #     assert werr_vbm["K-H"] == 0.18260273521047862
-    #     assert werr_cbm["M-K"] == 0.071552669981356981
-    #     assert not warn
+    @pytest.mark.skip("TODO: need someone to fix this")
+    def test_check_acc_bzt_bands(self):
+        structure = loadfn(f"{TEST_DIR}/structure_mp-12103.json")
+        sbs = loadfn(f"{TEST_DIR}/dft_bs_sym_line.json")
+        sbs_bzt = self.bz_bands.get_symm_bands(structure, -5.25204548)
+        corr, werr_vbm, werr_cbm, warn = BoltztrapAnalyzer.check_acc_bzt_bands(sbs_bzt, sbs)
+        assert corr[2] == 9.16851750e-05
+        assert werr_vbm["K-H"] == 0.18260273521047862
+        assert werr_cbm["M-K"] == 0.071552669981356981
+        assert not warn
 
     def test_get_complete_dos(self):
         structure = loadfn(f"{TEST_DIR}/structure_mp-12103.json")
