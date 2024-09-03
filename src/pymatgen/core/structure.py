@@ -3867,8 +3867,6 @@ class IMolecule(SiteCollection, MSONable):
 class Structure(IStructure, collections.abc.MutableSequence):
     """Mutable version of structure."""
 
-    __hash__ = None  # type: ignore[assignment]
-
     def __init__(
         self,
         lattice: ArrayLike | Lattice,
@@ -3936,6 +3934,10 @@ class Structure(IStructure, collections.abc.MutableSequence):
         )
 
         self._sites: list[PeriodicSite] = list(self._sites)  # type: ignore[assignment]
+
+    def __hash__(self) -> int:
+        """Hash as_dict to account for mutability."""
+        return hash(json.dumps(self.as_dict()))
 
     def __setitem__(
         self,
