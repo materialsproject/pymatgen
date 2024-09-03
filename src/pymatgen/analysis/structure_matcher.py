@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import abc
-from functools import lru_cache
 import itertools
+from functools import lru_cache
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -31,6 +31,7 @@ __email__ = "wrichard@mit.edu"
 __status__ = "Production"
 __date__ = "Dec 3, 2012"
 LRU_CACHE_SIZE = SETTINGS.get("STRUCTURE_MATCHER_CACHE_SIZE", 300)
+
 
 class AbstractComparator(MSONable, abc.ABC):
     """
