@@ -2113,9 +2113,9 @@ class Outcar:
 
         # Check if calculation is non-collinear
         self.noncollinear = False
-        self.read_pattern({"noncollinear": "LNONCOLLINEAR =      T"})
+        self.read_pattern({"noncollinear": r"LNONCOLLINEAR\s*=\s*T"}, terminate_on_match=True)
         if self.data.get("noncollinear", []):
-            self.noncollinear = False
+            self.noncollinear = True
 
         # Check if the calculation type is DFPT
         self.dfpt = False
