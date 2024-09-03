@@ -2106,19 +2106,14 @@ class Outcar:
         self.drift = self.data.get("drift", [])
 
         # Check if calculation is spin polarized
-        self.spin = False
         self.read_pattern({"spin": r"ISPIN\s*=\s*2"}, terminate_on_match=True)
-        if self.data.get("spin", []):
-            self.spin = True
+        self.spin = bool(self.data.get("spin", []))
 
         # Check if calculation is non-collinear
-        self.noncollinear = False
         self.read_pattern({"noncollinear": r"LNONCOLLINEAR\s*=\s*T"}, terminate_on_match=True)
-        if self.data.get("noncollinear", []):
-            self.noncollinear = True
+        self.noncollinear = bool(self.data.get("noncollinear", []))
 
         # Check if the calculation type is DFPT
-        self.dfpt = False
         self.read_pattern(
             {"ibrion": r"IBRION =\s+([\-\d]+)"},
             terminate_on_match=True,
@@ -2127,9 +2122,10 @@ class Outcar:
         if self.data.get("ibrion", [[0]])[0][0] > 6:
             self.dfpt = True
             self.read_internal_strain_tensor()
+        else:
+            self.dfpt = False
 
         # Check if LEPSILON is True and read piezo data if so
-        self.lepsilon = False
         self.read_pattern({"epsilon": r"LEPSILON\s*=\s*T"}, terminate_on_match=True)
         if self.data.get("epsilon", []):
             self.lepsilon = True
@@ -2137,14 +2133,17 @@ class Outcar:
             # Only read ionic contribution if DFPT is turned on
             if self.dfpt:
                 self.read_lepsilon_ionic()
+        else:
+            self.lepsilon = False
 
         # Check if LCALCPOL is True and read polarization data if so
-        self.lcalcpol = False
         self.read_pattern({"calcpol": r"LCALCPOL\s*=\s*T"}, terminate_on_match=True)
         if self.data.get("calcpol", []):
             self.lcalcpol = True
             self.read_lcalcpol()
             self.read_pseudo_zval()
+        else:
+            self.lcalcpol = False
 
         # Read electrostatic potential
         self.electrostatic_potential: list[float] | None = None
@@ -2154,7 +2153,6 @@ class Outcar:
         if self.data.get("electrostatic", []):
             self.read_electrostatic_potential()
 
-        self.nmr_cs = False
         self.read_pattern({"nmr_cs": r"LCHIMAG\s*=\s*(T)"}, terminate_on_match=True)
         if self.data.get("nmr_cs"):
             self.nmr_cs = True
@@ -2162,15 +2160,17 @@ class Outcar:
             self.read_cs_g0_contribution()
             self.read_cs_core_contribution()
             self.read_cs_raw_symmetrized_tensors()
+        else:
+            self.nmr_cs = False
 
-        self.nmr_efg = False
         self.read_pattern({"nmr_efg": r"NMR quadrupolar parameters"})
         if self.data.get("nmr_efg"):
             self.nmr_efg = True
             self.read_nmr_efg()
             self.read_nmr_efg_tensor()
+        else:
+            self.nmr_efg = False
 
-        self.has_onsite_density_matrices = False
         self.read_pattern(
             {"has_onsite_density_matrices": r"onsite density matrix"},
             terminate_on_match=True,
@@ -2178,6 +2178,8 @@ class Outcar:
         if "has_onsite_density_matrices" in self.data:
             self.has_onsite_density_matrices = True
             self.read_onsite_density_matrices()
+        else:
+            self.has_onsite_density_matrices = False
 
         # Store the individual contributions to the final total energy
         final_energy_contribs = {}
