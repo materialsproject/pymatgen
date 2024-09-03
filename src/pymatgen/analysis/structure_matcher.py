@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import abc
+from functools import lru_cache
 import itertools
 from typing import TYPE_CHECKING
 
 import numpy as np
 from monty.json import MSONable
 
-from pymatgen.core import Composition, Lattice, Structure, get_el_sp
+from pymatgen.core import SETTINGS, Composition, Lattice, Structure, get_el_sp
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.util.coord_cython import is_coord_subset_pbc, pbc_shortest_vectors
@@ -29,7 +30,7 @@ __maintainer__ = "William Davidson Richards"
 __email__ = "wrichard@mit.edu"
 __status__ = "Production"
 __date__ = "Dec 3, 2012"
-
+LRU_CACHE_SIZE = SETTINGS.get("STRUCTURE_MATCHER_CACHE_SIZE", 300)
 
 class AbstractComparator(MSONable, abc.ABC):
     """
@@ -940,6 +941,7 @@ class StructureMatcher(MSONable):
         return matches
 
     @classmethod
+    @lru_cache(maxsize=LRU_CACHE_SIZE)
     def _get_reduced_structure(cls, struct: Structure, primitive_cell: bool = True, niggli: bool = True) -> Structure:
         """Helper method to find a reduced structure."""
         reduced = struct.copy()
