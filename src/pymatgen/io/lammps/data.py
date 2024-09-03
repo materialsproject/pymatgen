@@ -1148,8 +1148,8 @@ class ForceField(MSONable):
         for d in topo_coeffs[kw]:
             main_data.append(d["coeffs"])
             distinct_types.append(d["types"])
-            for k in class2_data:
-                class2_data[k].append(d[k])
+            for k, lst in class2_data.items():
+                lst.append(d[k])
         distinct_types = [set(itertools.chain(*(find_eq_types(t, kw) for t in dt))) for dt in distinct_types]
         type_counts = sum(len(dt) for dt in distinct_types)
         type_union = set.union(*distinct_types)

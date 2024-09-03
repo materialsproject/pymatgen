@@ -1453,8 +1453,8 @@ class KPathLatimerMunro(KPathBase):
             for op in self._rpg:
                 to_pop = []
                 k1 = np.dot(op, k0)
-                for ind_key in key_points_copy:
-                    diff = k1 - key_points_copy[ind_key]
+                for ind_key, key in key_points_copy.items():
+                    diff = k1 - key
                     if self._all_ints(diff, atol=self._atol):
                         key_points_inds_orbits[i].append(ind_key)
                         to_pop.append(ind_key)
@@ -1521,8 +1521,7 @@ class KPathLatimerMunro(KPathBase):
             p00 = key_points[l0[0]]
             p01 = key_points[l0[1]]
             pmid0 = p00 + e / pi * (p01 - p00)
-            for ind_key in key_lines_copy:
-                l1 = key_lines_copy[ind_key]
+            for ind_key, l1 in key_lines_copy.items():
                 p10 = key_points[l1[0]]
                 p11 = key_points[l1[1]]
                 equivptspar = False

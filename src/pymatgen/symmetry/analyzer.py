@@ -1425,11 +1425,11 @@ class PointGroupAnalyzer:
 
             while tmp_eq_sets:
                 new_tmp_eq_sets = {}
-                for j in tmp_eq_sets:
+                for j, eq_set in tmp_eq_sets.items():
                     if j in visited:
                         continue
                     visited.add(j)
-                    for k in tmp_eq_sets[j]:
+                    for k in eq_set:
                         new_tmp_eq_sets[k] = eq_sets[k] - visited
                         if idx not in ops[k]:
                             ops[k][idx] = np.dot(ops[j][idx], ops[k][j]) if k != idx else unit_mat

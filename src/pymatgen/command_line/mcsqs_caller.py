@@ -103,8 +103,8 @@ def run_mcsqs(
 
     # Generate clusters
     mcsqs_generate_clusters_cmd = ["mcsqs"]
-    for num in clusters:
-        mcsqs_generate_clusters_cmd.append(f"-{num}={clusters[num]}")
+    for num, cutoff in clusters.items():
+        mcsqs_generate_clusters_cmd.append(f"-{num}={cutoff}")
 
     # Run mcsqs to find clusters
     with Popen(mcsqs_generate_clusters_cmd) as process:
