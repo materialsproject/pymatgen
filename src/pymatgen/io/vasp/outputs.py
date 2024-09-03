@@ -2107,7 +2107,7 @@ class Outcar:
 
         # Check if calculation is spin polarized
         self.spin = False
-        self.read_pattern({"spin": r"ISPIN\s*=\s*2"})
+        self.read_pattern({"spin": r"ISPIN\s*=\s*2"}, terminate_on_match=True)
         if self.data.get("spin", []):
             self.spin = True
 
@@ -2130,7 +2130,7 @@ class Outcar:
 
         # Check if LEPSILON is True and read piezo data if so
         self.lepsilon = False
-        self.read_pattern({"epsilon": r"LEPSILON\s*=\s*T"})
+        self.read_pattern({"epsilon": r"LEPSILON\s*=\s*T"}, terminate_on_match=True)
         if self.data.get("epsilon", []):
             self.lepsilon = True
             self.read_lepsilon()
@@ -2140,7 +2140,7 @@ class Outcar:
 
         # Check if LCALCPOL is True and read polarization data if so
         self.lcalcpol = False
-        self.read_pattern({"calcpol": r"LCALCPOL\s*=\s*T"})
+        self.read_pattern({"calcpol": r"LCALCPOL\s*=\s*T"}, terminate_on_match=True)
         if self.data.get("calcpol", []):
             self.lcalcpol = True
             self.read_lcalcpol()
@@ -2155,7 +2155,7 @@ class Outcar:
             self.read_electrostatic_potential()
 
         self.nmr_cs = False
-        self.read_pattern({"nmr_cs": r"LCHIMAG\s*=\s*(T)"})
+        self.read_pattern({"nmr_cs": r"LCHIMAG\s*=\s*(T)"}, terminate_on_match=True)
         if self.data.get("nmr_cs"):
             self.nmr_cs = True
             self.read_chemical_shielding()
