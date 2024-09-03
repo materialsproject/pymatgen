@@ -178,7 +178,7 @@ class InputSet(MSONable, MutableMapping):
         del self.inputs[key]
 
     def __or__(self, other: dict | Self) -> Self:
-        # enable dict merge operator | for InputSet
+        """Enable dict merge operator |."""
         if isinstance(other, dict):
             other = type(self)(other)
         if not isinstance(other, type(self)):
