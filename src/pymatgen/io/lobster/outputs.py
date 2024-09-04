@@ -70,8 +70,8 @@ class Cohpcar:
         energies (Sequence[float]): Sequence of energies in eV. Note that LOBSTER
             shifts the energies so that the Fermi level is at zero.
         is_spin_polarized (bool): True if the calculation is spin polarized.
-        orb_cohp (dict[str, Dict[str, Dict[str, Any]]]): The orbital-resolved COHPs of the form:
-            orb_cohp[label] = {bond_data["orb_label"]: {
+        orb_res_cohp (dict[str, Dict[str, Dict[str, Any]]]): The orbital-resolved COHPs of the form:
+            orb_res_cohp[label] = {bond_data["orb_label"]: {
                 "COHP": {Spin.up: cohps, Spin.down:cohps},
                 "ICOHP": {Spin.up: icohps, Spin.down: icohps},
                 "orbitals": orbitals,
