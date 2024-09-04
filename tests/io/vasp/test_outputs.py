@@ -936,6 +936,8 @@ class TestOutcar(PymatgenTest):
         # so fine to use == operator here
         assert outcar.magnetization == expected_mag, "Wrong vector magnetization read from Outcar for SOC calculation"
 
+        assert outcar.noncollinear is True
+
     def test_polarization(self):
         filepath = f"{VASP_OUT_DIR}/OUTCAR.BaTiO3.polar"
         outcar = Outcar(filepath)
@@ -943,10 +945,6 @@ class TestOutcar(PymatgenTest):
         assert outcar.noncollinear is False
         assert outcar.p_ion == approx([0.0, 0.0, -5.56684])
         assert outcar.p_elec == approx([0.00024, 0.00019, 3.61674])
-
-    def test_noncollinear(self):
-        outcar_ncl = Outcar(f"{VASP_OUT_DIR}/OUTCAR.noncollinear.gz")
-        assert outcar_ncl.noncollinear is True
 
     def test_pseudo_zval(self):
         filepath = f"{VASP_OUT_DIR}/OUTCAR.BaTiO3.polar"
