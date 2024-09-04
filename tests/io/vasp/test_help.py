@@ -37,4 +37,8 @@ class TestVaspDoc:
     def test_get_incar_tags(self):
         """Get all INCAR tags and check incar_parameters.json file."""
         incar_tags_wiki = VaspDoc.get_incar_tags()
-        assert incar_tags_wiki
+        assert isinstance(incar_tags_wiki, list)
+
+        known_incar_tags = ("ENCUT", "ISMEAR")
+        for tag in known_incar_tags:
+            assert tag in incar_tags_wiki
