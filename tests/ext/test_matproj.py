@@ -33,7 +33,7 @@ elif len(PMG_MAPI_KEY) > 20:
 else:
     MP_URL = "https://materialsproject.org"
 try:
-    skip_mprester_tests = requests.get(MP_URL, timeout=600).status_code != 200
+    skip_mprester_tests = requests.get(MP_URL, timeout=60).status_code != 200
 
 except (ModuleNotFoundError, ImportError, requests.exceptions.ConnectionError):
     # Skip all MPRester tests if some downstream problem on the website, mp-api or whatever.
@@ -81,7 +81,7 @@ class TestMPResterOld(PymatgenTest):
             "total_magnetization",
         }
         mp_id = "mp-1143"
-        vals = requests.get(f"https://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=600)
+        vals = requests.get(f"https://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=60)
         expected_vals = vals.json()
 
         for prop in props:
@@ -575,7 +575,7 @@ class TestMPResterNewBasic(PymatgenTest):
             "total_magnetization",
         }
         mp_id = "mp-1143"
-        vals = requests.get(f"https://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=600)
+        vals = requests.get(f"https://legacy.materialsproject.org/materials/{mp_id}/json/", timeout=60)
         expected_vals = vals.json()
 
         for prop in props:

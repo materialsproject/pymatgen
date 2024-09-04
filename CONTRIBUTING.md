@@ -78,7 +78,7 @@ Given that `pymatgen` is intended to be a long-term code base, we adopt very str
     pre-commit run --all-files  # ensure your entire codebase passes linters
    ```
 
-1. **Python 3**. We only support Python 3.9+.
+1. **Python 3**. We only support Python 3.10+.
 1. **Documentation** is required for all modules, classes and methods. In particular, the method doc strings should make clear the arguments expected and the return values. For complex algorithms (e.g., an Ewald summation), a summary of the algorithm should be provided and preferably with a link to a publication outlining the method in detail.
 
 For the above, if in doubt, please refer to the core classes in `pymatgen` for examples of what is expected.
