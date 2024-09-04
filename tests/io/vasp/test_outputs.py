@@ -936,6 +936,8 @@ class TestOutcar(PymatgenTest):
         # so fine to use == operator here
         assert outcar.magnetization == expected_mag, "Wrong vector magnetization read from Outcar for SOC calculation"
 
+        assert outcar.noncollinear is True
+
     def test_polarization(self):
         filepath = f"{VASP_OUT_DIR}/OUTCAR.BaTiO3.polar"
         outcar = Outcar(filepath)
