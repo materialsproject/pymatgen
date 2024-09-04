@@ -2106,11 +2106,11 @@ class Outcar:
         self.drift = self.data.get("drift", [])
 
         # Check if calculation is spin polarized
-        self.read_pattern({"spin": r"ISPIN\s*=\s*2"}, terminate_on_match=True)
+        self.read_pattern({"spin": r"ISPIN\s*=\s*2"})
         self.spin = bool(self.data.get("spin", []))
 
         # Check if calculation is non-collinear
-        self.read_pattern({"noncollinear": r"LNONCOLLINEAR\s*=\s*T"}, terminate_on_match=True)
+        self.read_pattern({"noncollinear": r"LNONCOLLINEAR\s*=\s*T"})
         self.noncollinear = bool(self.data.get("noncollinear", []))
 
         # Check if the calculation type is DFPT
@@ -2126,7 +2126,7 @@ class Outcar:
             self.dfpt = False
 
         # Check if LEPSILON is True and read piezo data if so
-        self.read_pattern({"epsilon": r"LEPSILON\s*=\s*T"}, terminate_on_match=True)
+        self.read_pattern({"epsilon": r"LEPSILON\s*=\s*T"})
         if self.data.get("epsilon", []):
             self.lepsilon = True
             self.read_lepsilon()
@@ -2137,7 +2137,7 @@ class Outcar:
             self.lepsilon = False
 
         # Check if LCALCPOL is True and read polarization data if so
-        self.read_pattern({"calcpol": r"LCALCPOL\s*=\s*T"}, terminate_on_match=True)
+        self.read_pattern({"calcpol": r"LCALCPOL\s*=\s*T"})
         if self.data.get("calcpol", []):
             self.lcalcpol = True
             self.read_lcalcpol()
@@ -2153,7 +2153,7 @@ class Outcar:
         if self.data.get("electrostatic", []):
             self.read_electrostatic_potential()
 
-        self.read_pattern({"nmr_cs": r"LCHIMAG\s*=\s*(T)"}, terminate_on_match=True)
+        self.read_pattern({"nmr_cs": r"LCHIMAG\s*=\s*(T)"})
         if self.data.get("nmr_cs"):
             self.nmr_cs = True
             self.read_chemical_shielding()
