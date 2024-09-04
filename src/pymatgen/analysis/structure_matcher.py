@@ -33,6 +33,19 @@ __date__ = "Dec 3, 2012"
 LRU_CACHE_SIZE = SETTINGS.get("STRUCTURE_MATCHER_CACHE_SIZE", 300)
 
 
+@lru_cache(maxsize=LRU_CACHE_SIZE)
+def _get_reduced_structure(
+    struct: Structure, primitive_cell: bool, niggli: bool
+) -> Structure:
+    """Helper method to find a reduced structure."""
+    reduced = struct.copy()
+    if niggli:
+        reduced = reduced.get_reduced_structure(reduction_algo="niggli")
+    if primitive_cell:
+        reduced = reduced.get_primitive_structure()
+    return reduced
+
+
 class AbstractComparator(MSONable, abc.ABC):
     """
     Abstract Comparator class. A Comparator defines how sites are compared in
@@ -942,15 +955,8 @@ class StructureMatcher(MSONable):
         return matches
 
     @classmethod
-    @lru_cache(maxsize=LRU_CACHE_SIZE)
     def _get_reduced_structure(cls, struct: Structure, primitive_cell: bool = True, niggli: bool = True) -> Structure:
-        """Helper method to find a reduced structure."""
-        reduced = struct.copy()
-        if niggli:
-            reduced = reduced.get_reduced_structure(reduction_algo="niggli")
-        if primitive_cell:
-            reduced = reduced.get_primitive_structure()
-        return reduced
+        return _get_reduced_structure(struct, primitive_cell, niggli)
 
     def get_rms_anonymous(self, struct1, struct2):
         """
