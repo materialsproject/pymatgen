@@ -973,7 +973,7 @@ class TestStructure(PymatgenTest):
         assert struct.formula == "Li1 S2"
 
     def test_hashable(self):
-        assert isinstance(hash(self.struct),int)
+        assert isinstance(hash(self.struct), int)
 
     def test_sort(self):
         self.struct[0] = "F"
