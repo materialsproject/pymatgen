@@ -34,9 +34,7 @@ LRU_CACHE_SIZE = SETTINGS.get("STRUCTURE_MATCHER_CACHE_SIZE", 300)
 
 
 @lru_cache(maxsize=LRU_CACHE_SIZE)
-def _get_reduced_structure(
-    struct: Structure, primitive_cell: bool, niggli: bool
-) -> Structure:
+def _get_reduced_structure(struct: Structure, primitive_cell: bool, niggli: bool) -> Structure:
     """Helper method to find a reduced structure."""
     reduced = struct.copy()
     if niggli:
