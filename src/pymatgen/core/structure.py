@@ -27,7 +27,7 @@ from typing import TYPE_CHECKING, Literal, cast, get_args
 import numpy as np
 from monty.dev import deprecated
 from monty.io import zopen
-from monty.json import MSONable
+from monty.json import MSONable, jsanitize
 from numpy import cross, eye
 from numpy.linalg import norm
 from ruamel.yaml import YAML
@@ -3936,8 +3936,8 @@ class Structure(IStructure, collections.abc.MutableSequence):
         self._sites: list[PeriodicSite] = list(self._sites)  # type: ignore[assignment]
 
     def __hash__(self) -> int:
-        """Hash as_dict to account for mutability."""
-        return hash(json.dumps(self.as_dict()))
+        """Hash dict representation to account for mutability."""
+        return hash(json.dumps(jsanitize(self)))
 
     def __setitem__(
         self,
