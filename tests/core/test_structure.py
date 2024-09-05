@@ -972,8 +972,9 @@ class TestStructure(PymatgenTest):
         struct[:2] = "S"
         assert struct.formula == "Li1 S2"
 
-    def test_hashable(self):
-        assert isinstance(hash(self.struct), int)
+    def test_not_hashable(self):
+        with pytest.raises(TypeError, match="unhashable type: 'Structure'"):
+            _ = {self.struct: 1}
 
     def test_sort(self):
         self.struct[0] = "F"
