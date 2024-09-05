@@ -1194,7 +1194,7 @@ class SlabGenerator:
         symmetrize: bool = False,
         repair: bool = False,
         ztol: float = 0,
-        filting_out_sym_slabs=True,
+        filter_out_sym_slabs: bool = True,
     ) -> list[Slab]:
         """Generate slabs with shift values calculated from the internal
         gen_possible_terminations func. If the user decide to avoid breaking
