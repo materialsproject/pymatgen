@@ -15,7 +15,7 @@ if "CI" in os.environ:  # test is slow and flaky, skip in CI. see
     pytest.skip(allow_module_level=True, reason="Skip COD test in CI")
 
 try:
-    website_down = requests.get("https://www.crystallography.net", timeout=600).status_code != 200
+    website_down = requests.get("https://www.crystallography.net", timeout=60).status_code != 200
 except (requests.exceptions.ConnectionError, urllib3.exceptions.ConnectTimeoutError):
     website_down = True
 
