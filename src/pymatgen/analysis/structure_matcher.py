@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.json import MSONable
 
-from pymatgen.core import SETTINGS, Composition, Lattice, Structure, get_el_sp
+from pymatgen.core import SETTINGS, Composition, Lattice, Structure, get_el_sp, IStructure
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.util.coord_cython import is_coord_subset_pbc, pbc_shortest_vectors
@@ -31,17 +31,6 @@ __email__ = "wrichard@mit.edu"
 __status__ = "Production"
 __date__ = "Dec 3, 2012"
 LRU_CACHE_SIZE = SETTINGS.get("STRUCTURE_MATCHER_CACHE_SIZE", 300)
-
-
-@lru_cache(maxsize=LRU_CACHE_SIZE)
-def _get_reduced_structure(struct: Structure, primitive_cell: bool, niggli: bool) -> Structure:
-    """Helper method to find a reduced structure."""
-    reduced = struct.copy()
-    if niggli:
-        reduced = reduced.get_reduced_structure(reduction_algo="niggli")
-    if primitive_cell:
-        reduced = reduced.get_primitive_structure()
-    return reduced
 
 
 class AbstractComparator(MSONable, abc.ABC):
@@ -402,6 +391,8 @@ class StructureMatcher(MSONable):
         self._supercell_size = supercell_size
         self._subset = allow_subset
         self._ignored_species = ignored_species
+
+        self._get_reduced_istructure.cache_clear()
 
     def _get_supercell_size(self, s1, s2):
         """Get the supercell size, and whether the supercell should be applied to s1.
@@ -952,9 +943,23 @@ class StructureMatcher(MSONable):
                     break
         return matches
 
+    @staticmethod
+    @lru_cache(maxsize=LRU_CACHE_SIZE)
+    def _get_reduced_istructure(struct: IStructure, primitive_cell: bool = True, niggli: bool = True) -> IStructure:
+        """Helper method to find a reduced imutable structure."""
+        reduced = struct.copy()
+        if niggli:
+            reduced = reduced.get_reduced_structure(reduction_algo="niggli")
+        if primitive_cell:
+            reduced = reduced.get_primitive_structure()
+        return reduced
+    
     @classmethod
     def _get_reduced_structure(cls, struct: Structure, primitive_cell: bool = True, niggli: bool = True) -> Structure:
-        return _get_reduced_structure(struct, primitive_cell, niggli)
+        """Helper method to find a reduced structure."""
+        return Structure.from_sites(
+            cls._get_reduced_istructure(IStructure.from_sites(struct), primitive_cell, niggli)
+        )
 
     def get_rms_anonymous(self, struct1, struct2):
         """

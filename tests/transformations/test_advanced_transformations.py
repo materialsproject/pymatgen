@@ -601,7 +601,7 @@ class TestDisorderedOrderedTransformation(PymatgenTest):
 @pytest.mark.skipif(not mcsqs_cmd, reason="mcsqs not present.")
 class TestSQSTransformation(PymatgenTest):
     def test_apply_transformation(self):
-        pzt_structs = loadfn(f"{TEST_FILES_DIR}/mcsqs/pzt-structs.json")
+        pzt_structs = loadfn(f"{TEST_FILES_DIR}/io/atat/mcsqs/pzt-structs.json")
         trans = SQSTransformation(scaling=[2, 1, 1], search_time=0.01, instances=1, wd=0)
         # nonsensical example just for testing purposes
         struct = self.get_structure("Pb2TiZrO6").copy()
@@ -612,7 +612,7 @@ class TestSQSTransformation(PymatgenTest):
 
     def test_return_ranked_list(self):
         # list of structures
-        pzt_structs_2 = loadfn(f"{TEST_FILES_DIR}/mcsqs/pzt-structs-2.json")
+        pzt_structs_2 = loadfn(f"{TEST_FILES_DIR}/io/atat/mcsqs/pzt-structs-2.json")
 
         n_structs_expected = 1
         sqs_kwargs = {"scaling": 2, "search_time": 0.01, "instances": 8, "wd": 0}
