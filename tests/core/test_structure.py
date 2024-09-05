@@ -938,7 +938,7 @@ class TestStructure(PymatgenTest):
         assert s.reduced_formula == "Al2O3"
 
         try:
-            website_down = requests.get("https://www.crystallography.net", timeout=600).status_code != 200
+            website_down = requests.get("https://www.crystallography.net", timeout=60).status_code != 200
         except (requests.exceptions.ConnectionError, urllib3.exceptions.ConnectTimeoutError):
             website_down = True
         if not website_down:

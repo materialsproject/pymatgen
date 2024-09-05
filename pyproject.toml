@@ -100,6 +100,7 @@ ci = ["pytest-cov>=4", "pytest-split>=0.8", "pytest>=8"]
 docs = ["invoke", "sphinx", "sphinx_rtd_theme", "sphinx_markdown_builder"]
 optional = [
     "ase>=3.23.0",
+    "beautifulsoup4",
     # TODO: uv cannot install BoltzTraP2 at this moment
     # track https://gitlab.com/sousaw/BoltzTraP2/-/merge_requests/21
     # "BoltzTraP2>=24.7.2 ; platform_system != 'Windows'",
