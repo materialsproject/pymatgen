@@ -32,10 +32,11 @@ __status__ = "Production"
 __date__ = "Dec 3, 2012"
 LRU_CACHE_SIZE = SETTINGS.get("STRUCTURE_MATCHER_CACHE_SIZE", 300)
 
+
 class SiteOrderedIStructure(IStructure):
     """
     Imutable structure where the order of sites matters.
-    
+
     In caching reduced structures (see `StructureMatcher._get_reduced_structure`)
     the order of input sites can be important.
     In general, the order of sites in a structure does not matter, but when
@@ -52,6 +53,7 @@ class SiteOrderedIStructure(IStructure):
     def __hash__(self) -> int:
         """Use the composition hash for now."""
         return super().__hash__()
+
 
 class AbstractComparator(MSONable, abc.ABC):
     """
@@ -963,7 +965,9 @@ class StructureMatcher(MSONable):
 
     @staticmethod
     @lru_cache(maxsize=LRU_CACHE_SIZE)
-    def _get_reduced_istructure(struct: SiteOrderedIStructure, primitive_cell: bool = True, niggli: bool = True) -> SiteOrderedIStructure:
+    def _get_reduced_istructure(
+        struct: SiteOrderedIStructure, primitive_cell: bool = True, niggli: bool = True
+    ) -> SiteOrderedIStructure:
         """Helper method to find a reduced imutable structure."""
         reduced = struct.copy()
         if niggli:
@@ -975,7 +979,9 @@ class StructureMatcher(MSONable):
     @classmethod
     def _get_reduced_structure(cls, struct: Structure, primitive_cell: bool = True, niggli: bool = True) -> Structure:
         """Helper method to find a reduced structure."""
-        return Structure.from_sites(cls._get_reduced_istructure(SiteOrderedIStructure.from_sites(struct), primitive_cell, niggli))
+        return Structure.from_sites(
+            cls._get_reduced_istructure(SiteOrderedIStructure.from_sites(struct), primitive_cell, niggli)
+        )
 
     def get_rms_anonymous(self, struct1, struct2):
         """
