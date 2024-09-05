@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 from monty.json import MSONable
 
-from pymatgen.core import SETTINGS, Composition, Lattice, Structure, get_el_sp, IStructure
+from pymatgen.core import SETTINGS, Composition, IStructure, Lattice, Structure, get_el_sp
 from pymatgen.optimization.linear_assignment import LinearAssignment
 from pymatgen.util.coord import lattice_points_in_supercell
 from pymatgen.util.coord_cython import is_coord_subset_pbc, pbc_shortest_vectors
@@ -953,13 +953,11 @@ class StructureMatcher(MSONable):
         if primitive_cell:
             reduced = reduced.get_primitive_structure()
         return reduced
-    
+
     @classmethod
     def _get_reduced_structure(cls, struct: Structure, primitive_cell: bool = True, niggli: bool = True) -> Structure:
         """Helper method to find a reduced structure."""
-        return Structure.from_sites(
-            cls._get_reduced_istructure(IStructure.from_sites(struct), primitive_cell, niggli)
-        )
+        return Structure.from_sites(cls._get_reduced_istructure(IStructure.from_sites(struct), primitive_cell, niggli))
 
     def get_rms_anonymous(self, struct1, struct2):
         """

@@ -975,7 +975,7 @@ class TestStructure(PymatgenTest):
     def test_not_hashable(self):
         with pytest.raises(TypeError, match="unhashable type: 'Structure'"):
             _ = {self.struct: 1}
-            
+
     def test_sort(self):
         self.struct[0] = "F"
         returned = self.struct.sort()
