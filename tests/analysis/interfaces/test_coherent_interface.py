@@ -69,7 +69,7 @@ class TestCoherentInterfaceBuilder(unittest.TestCase):
             zslgen=sub_analyzer,
             termination_ftol=1e-4,
             label_index=True,
-            filting_out_sym_slabs=False,
+            filter_out_sym_slabs=False,
         )
         assert cib.terminations == [
             ("1_Ge_P4/mmm_1", "1_Si_P4/mmm_1"),
