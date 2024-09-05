@@ -32,6 +32,26 @@ __status__ = "Production"
 __date__ = "Dec 3, 2012"
 LRU_CACHE_SIZE = SETTINGS.get("STRUCTURE_MATCHER_CACHE_SIZE", 300)
 
+class SiteOrderedIStructure(IStructure):
+    """
+    Imutable structure where the order of sites matters.
+    
+    In caching reduced structures (see `StructureMatcher._get_reduced_structure`)
+    the order of input sites can be important.
+    In general, the order of sites in a structure does not matter, but when
+    a method like `StructureMatcher.get_s2_like_s1` tries to put s2's sites in
+    the same order as s1, the site order matters.
+    """
+
+    def __eq__(self, other: object) -> bool:
+        """Check for IStructure equality and same site order."""
+        if not super().__eq__(other):
+            return False
+        return list(self.sites) == list(other.sites)
+
+    def __hash__(self) -> int:
+        """Use the composition hash for now."""
+        return super().__hash__()
 
 class AbstractComparator(MSONable, abc.ABC):
     """
@@ -391,8 +411,6 @@ class StructureMatcher(MSONable):
         self._supercell_size = supercell_size
         self._subset = allow_subset
         self._ignored_species = ignored_species
-
-        self._get_reduced_istructure.cache_clear()
 
     def _get_supercell_size(self, s1, s2):
         """Get the supercell size, and whether the supercell should be applied to s1.
@@ -945,7 +963,7 @@ class StructureMatcher(MSONable):
 
     @staticmethod
     @lru_cache(maxsize=LRU_CACHE_SIZE)
-    def _get_reduced_istructure(struct: IStructure, primitive_cell: bool = True, niggli: bool = True) -> IStructure:
+    def _get_reduced_istructure(struct: SiteOrderedIStructure, primitive_cell: bool = True, niggli: bool = True) -> SiteOrderedIStructure:
         """Helper method to find a reduced imutable structure."""
         reduced = struct.copy()
         if niggli:
@@ -957,7 +975,7 @@ class StructureMatcher(MSONable):
     @classmethod
     def _get_reduced_structure(cls, struct: Structure, primitive_cell: bool = True, niggli: bool = True) -> Structure:
         """Helper method to find a reduced structure."""
-        return Structure.from_sites(cls._get_reduced_istructure(IStructure.from_sites(struct), primitive_cell, niggli))
+        return Structure.from_sites(cls._get_reduced_istructure(SiteOrderedIStructure.from_sites(struct), primitive_cell, niggli))
 
     def get_rms_anonymous(self, struct1, struct2):
         """
