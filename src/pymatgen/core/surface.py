@@ -1343,7 +1343,7 @@ class SlabGenerator:
                 slabs.append(self.repair_broken_bonds(slab=slab, bonds=bonds))
 
         # Filter out surfaces that might be the same
-        if filting_out_sym_slabs:
+        if filter_out_sym_slabs:
             matcher = StructureMatcher(ltol=tol, stol=tol, primitive_cell=False, scale=False)
 
             final_slabs: list[Slab] = []
