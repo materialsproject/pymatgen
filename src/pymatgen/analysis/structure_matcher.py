@@ -47,7 +47,6 @@ class SiteOrderedIStructure(IStructure):
     def __eq__(self, other: object) -> bool:
         """Check for IStructure equality and same site order."""
         if not super().__eq__(other):
-
             return False
         other = cast(SiteOrderedIStructure, other)  # make mypy happy
 
