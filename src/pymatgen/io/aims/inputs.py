@@ -529,7 +529,7 @@ class AimsControlIn(MSONable):
         if parameters["xc"] == "LDA":
             parameters["xc"] = "pw-lda"
 
-        spins = np.array([0.0 if isinstance(sp, Element) else sp.spin for sp in structure.species])
+        spins = np.array([getattr(sp, "spin", 0) for sp in structure.species])
         magmom = structure.site_properties.get("magmom", spins)
         if (
             parameters.get("spin", "") == "collinear"
