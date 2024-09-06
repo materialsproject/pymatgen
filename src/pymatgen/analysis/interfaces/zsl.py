@@ -260,19 +260,18 @@ def rel_angle(vec_set1, vec_set2):
 def fast_norm(a):
     """
     Much faster variant of numpy linalg norm.
-
-    Note that if numba is installed, this cannot be provided a list of ints;
-    please ensure input a is an np.array of floats.
     """
+    # numba.njit requires an array of float (not int)
+    a = a.astype(np.float64)
     return np.sqrt(np.dot(a, a))
 
 
 @njit
 def vec_angle(a, b):
     """Calculate angle between two vectors."""
-    cosang = np.dot(a, b)
-    sinang = fast_norm(np.cross(a, b))
-    return np.arctan2(sinang, cosang)
+    cos_ang = np.dot(a, b)
+    sin_ang = fast_norm(np.cross(a, b))
+    return np.arctan2(sin_ang, cos_ang)
 
 
 @njit
@@ -287,6 +286,9 @@ def reduce_vectors(a, b):
     Generate independent and unique basis vectors based on the
     methodology of Zur and McGill.
     """
+    a = a.astype(np.float64)
+    b = b.astype(np.float64)
+
     if np.dot(a, b) < 0:
         return reduce_vectors(a, -b)
 

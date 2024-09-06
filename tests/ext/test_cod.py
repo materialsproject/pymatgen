@@ -15,12 +15,12 @@ if "CI" in os.environ:  # test is slow and flaky, skip in CI. see
     pytest.skip(allow_module_level=True, reason="Skip COD test in CI")
 
 try:
-    website_down = requests.get("https://www.crystallography.net", timeout=600).status_code != 200
+    WEBSITE_DOWN = requests.get("https://www.crystallography.net", timeout=60).status_code != 200
 except (requests.exceptions.ConnectionError, urllib3.exceptions.ConnectTimeoutError):
-    website_down = True
+    WEBSITE_DOWN = True
 
 
-@pytest.mark.skipif(website_down, reason="www.crystallography.net is down")
+@pytest.mark.skipif(WEBSITE_DOWN, reason="www.crystallography.net is down")
 class TestCOD(TestCase):
     @pytest.mark.skipif(not which("mysql"), reason="No mysql")
     def test_get_cod_ids(self):
