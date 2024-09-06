@@ -2890,8 +2890,8 @@ class BoltztrapPlotter:
 
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
         ax.set_ylabel("Seebeck effective mass", fontsize=30)
-        ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
-        ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+        ax.set_xticks(fontsize=25)
+        ax.set_yticks(fontsize=25)
         if output == "tensor":
             ax.legend(
                 [f"{dim}_{T}K" for T in temps for dim in ("x", "y", "z")],
@@ -2949,8 +2949,8 @@ class BoltztrapPlotter:
 
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
         ax.set_ylabel("Complexity Factor", fontsize=30)
-        ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
-        ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+        ax.set_xticks(fontsize=25)
+        ax.set_yticks(fontsize=25)
         if output == "tensor":
             ax.legend(
                 [f"{dim}_{T}K" for T in temps for dim in ("x", "y", "z")],
@@ -2986,8 +2986,8 @@ class BoltztrapPlotter:
             ax.set_xlim(xlim[0], xlim[1])
         ax.set_ylabel("Seebeck \n coefficient  ($\\mu$V/K)", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
-        ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
-        ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+        ax.set_xticks(fontsize=25)
+        ax.set_yticks(fontsize=25)
         plt.tight_layout()
         return ax
 
@@ -3024,8 +3024,8 @@ class BoltztrapPlotter:
         ax.set_ylim([1e13 * relaxation_time, 1e20 * relaxation_time])
         ax.set_ylabel("conductivity,\n $\\Sigma$ (1/($\\Omega$ m))", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30.0)
-        ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
-        ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+        ax.set_xticks(fontsize=25)
+        ax.set_yticks(fontsize=25)
         plt.tight_layout()
         return ax
 
@@ -3063,8 +3063,8 @@ class BoltztrapPlotter:
             ax.set_xlim(xlim)
         ax.set_ylabel("Power factor, ($\\mu$W/(mK$^2$))", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30.0)
-        ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
-        ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+        ax.set_xticks(fontsize=25)
+        ax.set_yticks(fontsize=25)
         plt.tight_layout()
         return ax
 
@@ -3100,8 +3100,8 @@ class BoltztrapPlotter:
             ax.set_xlim(xlim)
         ax.set_ylabel("ZT", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30.0)
-        ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
-        ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+        ax.set_xticks(fontsize=25)
+        ax.set_yticks(fontsize=25)
         plt.tight_layout()
         return ax
 
@@ -3147,18 +3147,15 @@ class BoltztrapPlotter:
 
             ax.legend(loc="best", fontsize=15)
             ax.grid()
-            ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
-            ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+            ax.set_xticks(fontsize=25)
+            ax.set_yticks(fontsize=25)
 
         plt.tight_layout()
 
         return ax
 
     def plot_conductivity_temp(
-        self,
-        doping="all",
-        output: Literal["average", "eigs"] = "average",
-        relaxation_time=1e-14,
+        self, doping="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14
     ):
         """Plot the conductivity in function of temperature for different doping levels.
 
@@ -3204,8 +3201,8 @@ class BoltztrapPlotter:
 
             ax.legend(loc="best", fontsize=15)
             ax.grid()
-            ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
-            ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+            ax.set_xticks(fontsize=25)
+            ax.set_yticks(fontsize=25)
             ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
 
         plt.tight_layout()
@@ -3213,10 +3210,7 @@ class BoltztrapPlotter:
         return ax
 
     def plot_power_factor_temp(
-        self,
-        doping="all",
-        output: Literal["average", "eigs"] = "average",
-        relaxation_time=1e-14,
+        self, doping="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14
     ):
         """Plot the Power Factor in function of temperature for different doping levels.
 
@@ -3262,19 +3256,14 @@ class BoltztrapPlotter:
 
             ax.legend(loc="best", fontsize=15)
             ax.grid()
-            ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
-            ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+            ax.set_xticks(fontsize=25)
+            ax.set_yticks(fontsize=25)
             ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
 
         plt.tight_layout()
         return ax
 
-    def plot_zt_temp(
-        self,
-        doping="all",
-        output: Literal["average", "eigs"] = "average",
-        relaxation_time: float = 1e-14,
-    ):
+    def plot_zt_temp(self, doping="all", output: Literal["average", "eigs"] = "average", relaxation_time=1e-14):
         """Plot the figure of merit zT in function of temperature for different doping levels.
 
         Args:
@@ -3321,8 +3310,8 @@ class BoltztrapPlotter:
 
             ax.legend(loc="best", fontsize=15)
             ax.grid()
-            ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
-            ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+            ax.set_xticks(fontsize=25)
+            ax.set_yticks(fontsize=25)
 
         plt.tight_layout()
         return ax
@@ -3412,8 +3401,8 @@ class BoltztrapPlotter:
             p = "lower right" if idx == 0 else "best"
             ax.legend(loc=p, fontsize=15)
             ax.grid()
-            ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
-            ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+            ax.set_xticks(fontsize=25)
+            ax.set_yticks(fontsize=25)
 
         plt.tight_layout()
 
@@ -3465,8 +3454,8 @@ class BoltztrapPlotter:
             ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
             ax.legend(fontsize=15)
             ax.grid()
-            ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
-            ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+            ax.set_xticks(fontsize=25)
+            ax.set_yticks(fontsize=25)
 
         plt.tight_layout()
 
@@ -3513,8 +3502,8 @@ class BoltztrapPlotter:
             p = "best"  # 'lower right' if i == 0 else ''
             ax.legend(loc=p, fontsize=15)
             ax.grid()
-            ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
-            ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+            ax.set_xticks(fontsize=25)
+            ax.set_yticks(fontsize=25)
 
         plt.tight_layout()
 
@@ -3567,8 +3556,8 @@ class BoltztrapPlotter:
             p = "lower right" if idx == 0 else "best"
             ax.legend(loc=p, fontsize=15)
             ax.grid()
-            ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
-            ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+            ax.set_xticks(fontsize=25)
+            ax.set_yticks(fontsize=25)
 
         plt.tight_layout()
 
@@ -3621,8 +3610,8 @@ class BoltztrapPlotter:
             p = "lower right" if idx == 0 else "best"
             ax.legend(loc=p, fontsize=15)
             ax.grid()
-            ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
-            ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+            ax.set_xticks(fontsize=25)
+            ax.set_yticks(fontsize=25)
 
         plt.tight_layout()
 
@@ -3659,8 +3648,8 @@ class BoltztrapPlotter:
         ax.set_ylim(1e14, 1e22)
         ax.set_ylabel("carrier concentration (cm-3)", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
-        ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
-        ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+        ax.set_xticks(fontsize=25)
+        ax.set_yticks(fontsize=25)
         plt.tight_layout()
         return ax
 
@@ -3682,8 +3671,8 @@ class BoltztrapPlotter:
         ax.set_ylim(1e14, 1e22)
         ax.set_ylabel("Hall carrier concentration (cm-3)", fontsize=30.0)
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
-        ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
-        ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+        ax.set_xticks(fontsize=25)
+        ax.set_yticks(fontsize=25)
         plt.tight_layout()
         return ax
 
