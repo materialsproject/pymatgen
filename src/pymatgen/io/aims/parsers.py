@@ -495,7 +495,7 @@ class AimsOutCalcChunk(AimsOutChunk):
             if prop in results:
                 site_properties[site_key] = results[prop]
 
-        if "magmom" in site_properties and np.abs(np.sum(site_properties["magmom"]) - properties["magmom"]) < 1e-3:
+        if magmom := site_properties.get("magmom") and np.abs(np.sum(magmom) - properties["magmom"]) < 1e-3:
             warn("Total magenetic moment and sum of Mulliken spins is not consistent", Warning, 1)
 
         if lattice is not None:
@@ -771,7 +771,7 @@ class AimsOutCalcChunk(AimsOutChunk):
             self._cache.update(
                 {
                     "mulliken_charges": None,
-                    "mulliken_spins": None,
+                    update(mulliken_charges=None, mulliken_spins=None)
                 }
             )
             return
