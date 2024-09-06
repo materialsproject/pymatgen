@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import os
+import platform
 from unittest import TestCase
 
 import pytest
@@ -111,7 +111,7 @@ class TestFunctionalGroupExtractor(TestCase):
         assert len(all_func) == (len(link) + len(basics))
         assert sorted(all_func) == sorted(link + basics)
 
-    @pytest.mark.skipif(os.name == "nt", reason="Tests for openbabel failing on Win")
+    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_categorize_functional_groups(self):
         all_func = self.extractor.get_all_functional_groups()
         categorized = self.extractor.categorize_functional_groups(all_func)

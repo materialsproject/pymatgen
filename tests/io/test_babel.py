@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-import os
+import platform
 from unittest import TestCase
 
 import pytest
@@ -116,7 +116,7 @@ class TestBabelMolAdaptor(TestCase):
         for site in opt_mol[1:]:
             assert site.distance(opt_mol[0]) == approx(1.09216, abs=1e-1)
 
-    @pytest.mark.skipif(os.name == "nt", reason="Tests for openbabel failing on Win")
+    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_confab_conformers(self):
         mol = pybel.readstring("smi", "CCCC").OBMol
         adaptor = BabelMolAdaptor(mol)

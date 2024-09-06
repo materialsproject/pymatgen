@@ -43,6 +43,7 @@ Electrostatic Potential in Periodic and Nonperiodic Materials,” J. Chem. Theor
 from __future__ import annotations
 
 import os
+import platform
 import subprocess
 import warnings
 from glob import glob
@@ -385,7 +386,7 @@ class ChargemolAnalysis:
             raise FileNotFoundError(f"{atomic_densities_path=} does not exist")
 
         # This is to fix a Chargemol filepath nuance
-        if os.name == "nt":  # Windows
+        if platform.system() == "Windows":
             if atomic_densities_path[-1] != "\\":
                 atomic_densities_path += "\\"
         elif atomic_densities_path[-1] != "/":
