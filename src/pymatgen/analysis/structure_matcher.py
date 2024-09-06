@@ -5,7 +5,7 @@ from __future__ import annotations
 import abc
 import itertools
 from functools import lru_cache
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import numpy as np
 from monty.json import MSONable
@@ -47,7 +47,10 @@ class SiteOrderedIStructure(IStructure):
     def __eq__(self, other: object) -> bool:
         """Check for IStructure equality and same site order."""
         if not super().__eq__(other):
+
             return False
+        other = cast(SiteOrderedIStructure, other)  # make mypy happy
+
         return list(self.sites) == list(other.sites)
 
     def __hash__(self) -> int:
