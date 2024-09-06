@@ -495,8 +495,8 @@ class AimsOutCalcChunk(AimsOutChunk):
             if prop in results:
                 site_properties[site_key] = results[prop]
 
-        if magmom := site_properties.get("magmom") and np.abs(np.sum(magmom) - properties["magmom"]) < 1e-3:
-            warn("Total magenetic moment and sum of Mulliken spins is not consistent", Warning, 1)
+        if (magmom := site_properties.get("magmom")) and np.abs(np.sum(magmom) - properties["magmom"]) < 1e-3:
+            warn("Total magenetic moment and sum of Mulliken spins are not consistent", Warning, 1)
 
         if lattice is not None:
             return Structure(
@@ -768,12 +768,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         """Parse the Mulliken charges and spins."""
         line_start = self.reverse_search_for(["Performing Mulliken charge analysis"])
         if line_start == LINE_NOT_FOUND:
-            self._cache.update(
-                {
-                    "mulliken_charges": None,
-                    update(mulliken_charges=None, mulliken_spins=None)
-                }
-            )
+            self._cache.update(mulliken_charges=None, mulliken_spins=None)
             return
 
         line_start = self.reverse_search_for(["Summary of the per-atom charge analysis"])
