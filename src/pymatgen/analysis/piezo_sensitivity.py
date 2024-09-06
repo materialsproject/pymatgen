@@ -99,7 +99,7 @@ class BornEffectiveCharge:
             BEC_operations[atom].append([])
 
             for op in uniq_point_ops:
-                new = op.transform_tensor(self.bec[relations[atom][1]])
+                new = op.transform_tensor(self.bec[r[1]])
 
                 # Check the matrix it references
                 if np.allclose(new, self.bec[r[0]], atol=opstol):
