@@ -5,7 +5,6 @@ from __future__ import annotations
 import ast
 import functools
 import json
-import operator
 import re
 import warnings
 from collections import Counter
@@ -87,7 +86,7 @@ class ElementBase(Enum):
             long_name (str): Long name for element. e.g. "Hydrogen".
             A (int) : Atomic mass number (number of protons plus neutrons).
             atomic_radius_calculated (float): Calculated atomic radius for the element. This is the empirical value.
-                Data is obtained from http://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
+                Data is obtained from https://wikipedia.org/wiki/Atomic_radii_of_the_elements_(data_page).
             van_der_waals_radius (float): Van der Waals radius for the element. This is the empirical value determined
                 from critical reviews of X-ray diffraction, gas kinetic collision cross-section, and other experimental
                 data by Bondi and later workers. The uncertainty in these values is on the order of 0.1 Å.
@@ -559,7 +558,7 @@ class ElementBase(Enum):
                 "L": L_symbols.index(term[1]),
                 "J": float(term[2:]),
             }
-            for term in functools.reduce(operator.iadd, term_symbols, [])
+            for term in [item for sublist in term_symbols for item in sublist]
         }
 
         multi = [int(item["multiplicity"]) for _terms, item in term_symbol_flat.items()]
@@ -1319,7 +1318,8 @@ class Species(MSONable, Stringify):
             Shannon radius for specie in the specified environment.
         """
         radii = self._el.data["Shannon radii"]
-        assert self._oxi_state is not None
+        if self._oxi_state is None:
+            raise ValueError("oxi_state is None.")
         radii = radii[str(int(self._oxi_state))][cn]
         if len(radii) == 1:
             key, data = next(iter(radii.items()))
@@ -1359,7 +1359,8 @@ class Species(MSONable, Stringify):
         if len(elec) < 4 or elec[-2][1] != "s" or elec[-1][1] != "d":
             raise AttributeError(f"Invalid element {self.symbol} for crystal field calculation")
 
-        assert self.oxi_state is not None
+        if self.oxi_state is None:
+            raise ValueError("oxi_state is None.")
         n_electrons = elec[-1][2] + elec[-2][2] - self.oxi_state
         if n_electrons < 0 or n_electrons > 10:
             raise AttributeError(f"Invalid oxidation state {self.oxi_state} for element {self.symbol}")
@@ -1635,7 +1636,7 @@ def get_el_sp(obj: int | SpeciesLike) -> Element | Species | DummySpecies:
     # If obj is an integer, return the Element with atomic number obj
     try:
         flt = float(obj)
-        assert flt == int(flt)
+        assert flt == int(flt)  # noqa: S101
         return Element.from_Z(int(flt))
     except (AssertionError, ValueError, TypeError, KeyError):
         pass

@@ -458,28 +458,34 @@ class PhononBSPlotter:
             rgb_labels: a list of rgb colors for the labels; if not specified,
                 the colors will be automatically generated.
         """
-        assert self._bs.structure is not None, "Structure is required for get_proj_plot"
+        if self._bs.structure is None:
+            raise ValueError("Structure is required for get_proj_plot")
         elements = [elem.symbol for elem in self._bs.structure.elements]
         if site_comb == "element":
-            assert 2 <= len(elements) <= 4, "the compound must have 2, 3 or 4 unique elements"
+            if len(elements) not in {2, 3, 4}:
+                raise ValueError("the compound must have 2, 3 or 4 unique elements")
             indices: list[list[int]] = [[] for _ in range(len(elements))]
             for idx, elem in enumerate(self._bs.structure.species):
                 for j, unique_species in enumerate(self._bs.structure.elements):
                     if elem == unique_species:
                         indices[j].append(idx)
         else:
-            assert isinstance(site_comb, list)
-            assert 2 <= len(site_comb) <= 4, "the length of site_comb must be 2, 3 or 4"
+            if not isinstance(site_comb, list):
+                raise TypeError("Site_comb should be a list.")
+            if len(site_comb) not in {2, 3, 4}:
+                raise ValueError("the length of site_comb must be 2, 3 or 4")
             all_sites = self._bs.structure.sites
             all_indices = {*range(len(all_sites))}
             for comb in site_comb:
                 for idx in comb:
-                    assert 0 <= idx < len(all_sites), "one or more indices in site_comb does not exist"
+                    if not 0 <= idx < len(all_sites):
+                        raise RuntimeError("one or more indices in site_comb does not exist")
                     all_indices.remove(idx)
             if len(all_indices) != 0:
                 raise ValueError(f"not all {len(all_sites)} indices are included in site_comb")
             indices = site_comb  # type: ignore[assignment]
-        assert rgb_labels is None or len(rgb_labels) == len(indices), "wrong number of rgb_labels"
+        if rgb_labels is not None and len(rgb_labels) != len(indices):
+            raise ValueError("wrong number of rgb_labels")
 
         u = freq_units(units)
         _fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
@@ -663,8 +669,8 @@ class PhononBSPlotter:
         _colors = ("blue", "red", "green", "orange", "purple", "brown", "pink", "gray", "olive")
         if isinstance(other_plotter, PhononBSPlotter):
             other_plotter = {other_plotter._label or "other": other_plotter}
-        if colors:
-            assert len(colors) == len(other_plotter) + 1, "Wrong number of colors"
+        if colors and len(colors) != len(other_plotter) + 1:
+            raise ValueError("Wrong number of colors")
 
         self_data = self.bs_plot_data()
 

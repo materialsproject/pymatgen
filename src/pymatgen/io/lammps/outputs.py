@@ -170,7 +170,8 @@ def parse_lammps_log(filename: str = "log.lammps") -> list[pd.DataFrame]:
             for ts in time_steps:
                 data = {}
                 step = re.match(multi_pattern, ts[0])
-                assert step is not None
+                if step is None:
+                    raise ValueError("step is None")
                 data["Step"] = int(step[1])
                 data |= {k: float(v) for k, v in re.findall(kv_pattern, "".join(ts[1:]))}
                 dicts.append(data)

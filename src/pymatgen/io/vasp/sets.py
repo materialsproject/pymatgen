@@ -342,15 +342,19 @@ class VaspInputSet(InputGenerator, abc.ABC):
             zip_output (bool): If True, output will be zipped into a file with the
                 same name as the InputSet (e.g., MPStaticSet.zip).
         """
+        vasp_input = None
         try:
             vasp_input = self.get_input_set(potcar_spec=potcar_spec)
-        except PMG_VASP_PSP_DIR_Error:
-            assert potcar_spec is False
-            raise ValueError(
-                "PMG_VASP_PSP_DIR is not set."
-                "  Please set the PMG_VASP_PSP_DIR in .pmgrc.yaml"
-                " or use potcar_spec=True argument."
-            )
+        except PMG_VASP_PSP_DIR_Error as exc:
+            if not potcar_spec:
+                raise ValueError(
+                    "PMG_VASP_PSP_DIR is not set."
+                    "  Please set the PMG_VASP_PSP_DIR in .pmgrc.yaml"
+                    " or use potcar_spec=True argument."
+                ) from exc
+
+        if vasp_input is None:
+            raise ValueError("vasp_input is None")
 
         cif_name = None
         if include_cif:
@@ -1900,7 +1904,8 @@ class MPSOCSet(VaspInputSet):
                 # Project MAGMOM to z-axis
                 structure = structure.copy(site_properties={"magmom": [[0, 0, site.magmom] for site in structure]})
 
-        assert VaspInputSet.structure is not None
+        if VaspInputSet.structure is None:
+            raise ValueError("structure is None")
         VaspInputSet.structure.fset(self, structure)
 
 
@@ -1986,7 +1991,7 @@ class MPNMRSet(VaspInputSet):
 class MVLElasticSet(VaspInputSet):
     """
     MVL denotes VASP input sets that are implemented by the Materials Virtual
-    Lab (http://materialsvirtuallab.org) for various research.
+    Lab (https://materialsvirtuallab.org) for various research.
 
     This input set is used to calculate elastic constants in VASP. It is used
     in the following work::
@@ -2019,7 +2024,7 @@ class MVLElasticSet(VaspInputSet):
 class MVLGWSet(VaspInputSet):
     """
     MVL denotes VASP input sets that are implemented by the Materials Virtual
-    Lab (http://materialsvirtuallab.org) for various research. This is a
+    Lab (https://materialsvirtuallab.org) for various research. This is a
     flexible input set for GW calculations.
 
     Note that unlike all other input sets in this module, the PBE_54 series of
@@ -2180,7 +2185,8 @@ class MVLSlabSet(VaspInputSet):
         # attributes aren't going to affect the VASP inputs anyways so
         # converting the slab into a structure should not matter
         # use k_product to calculate kpoints, k_product = kpts[0][0] * a
-        assert self.structure is not None
+        if self.structure is None:
+            raise ValueError("structure is None")
         lattice_abc = self.structure.lattice.abc
         kpt_calc = [
             int(self.k_product / lattice_abc[0] + 0.5),
@@ -2384,7 +2390,8 @@ class MITNEBSet(VaspInputSet):
         if make_dir_if_not_present and not output_dir.exists():
             output_dir.mkdir(parents=True)
         self.incar.write_file(str(output_dir / "INCAR"))
-        assert self.kpoints is not None
+        if self.kpoints is None:
+            raise ValueError("kpoints is None")
         self.kpoints.write_file(str(output_dir / "KPOINTS"))
         self.potcar.write_file(str(output_dir / "POTCAR"))
 
@@ -2400,7 +2407,8 @@ class MITNEBSet(VaspInputSet):
 
             for image in ("00", str(len(self.structures) - 1).zfill(2)):
                 end_point_param.incar.write_file(str(output_dir / image / "INCAR"))
-                assert end_point_param.kpoints is not None
+                if end_point_param.kpoints is None:
+                    raise ValueError("kpoints of end_point_param is None")
                 end_point_param.kpoints.write_file(str(output_dir / image / "KPOINTS"))
                 end_point_param.potcar.write_file(str(output_dir / image / "POTCAR"))
         if write_path_cif:
@@ -2580,7 +2588,8 @@ class MVLNPTMDSet(VaspInputSet):
     def incar_updates(self) -> dict[str, Any]:
         """Updates to the INCAR config for this calculation type."""
         # NPT-AIMD default settings
-        assert self.structure is not None
+        if self.structure is None:
+            raise ValueError("structure is None")
         updates = {
             "ALGO": "Fast",
             "ISIF": 3,

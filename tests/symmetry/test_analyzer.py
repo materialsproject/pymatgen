@@ -6,7 +6,7 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from pytest import approx, raises
+from pytest import approx
 from spglib import SpglibDataset
 
 from pymatgen.core import Lattice, Molecule, PeriodicSite, Site, Species, Structure
@@ -378,7 +378,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
     def test_bad_structure(self):
         struct = Structure(Lattice.cubic(5), ["H", "H"], [[0.0, 0.0, 0.0], [0.001, 0.0, 0.0]])
-        with raises(SymmetryUndetermined):
+        with pytest.raises(SymmetryUndetermined):
             SpacegroupAnalyzer(struct, 0.1)
 
 

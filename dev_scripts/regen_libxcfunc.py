@@ -34,10 +34,12 @@ def parse_libxc_docs(path):
                 section += [line]
             else:
                 num, entry = parse_section(section)
-                assert num not in dct
+                if num in dct:
+                    raise RuntimeError(f"{num=} should not be present in {dct=}.")
                 dct[num] = entry
                 section = []
-        assert section == []
+        if section:
+            raise RuntimeError(f"Expected empty section, got {section=}")
 
     return dct
 

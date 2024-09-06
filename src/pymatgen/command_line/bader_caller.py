@@ -2,7 +2,7 @@
 Fortran code for calculating a Bader charge analysis.
 
 This module depends on a compiled bader executable available in the path.
-Please download the library at http://theory.cm.utexas.edu/henkelman/code/bader/
+Please download the library at https://theory.cm.utexas.edu/henkelman/code/bader/
 and follow the instructions to compile the executable.
 
 If you use this module, please cite:

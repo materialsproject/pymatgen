@@ -6,7 +6,7 @@ This module provides a pymatgen I/O interface to PACKMOL.
 which returns a PackmolSet object.
 
 For the run() method to work, you need to install the PACKMOL package.
-See http://m3g.iqm.unicamp.br/packmol for download and setup instructions.
+See https://m3g.iqm.unicamp.br/packmol for download and setup instructions.
 After installation, you may need to add the path of the PACKMOL
 executable to the PATH environment variable.
 
@@ -213,7 +213,8 @@ class PackmolBoxGen(InputGenerator):
                 raise TypeError("Molecule is not provided in supported format.")
 
             fname = f"packmol_{dct['name']}.xyz"
-            assert mol is not None
+            if mol is None:
+                raise ValueError("mol is None")
             mapping[fname] = mol.to(fmt="xyz")
             if " " in str(fname):
                 file_contents.append(f"structure {fname!r}")

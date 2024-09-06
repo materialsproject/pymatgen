@@ -102,7 +102,7 @@ class WulffShape:
 
     Wulff shape is the convex hull.
     Based on:
-    http://scipy.github.io/devdocs/generated/scipy.spatial.ConvexHull.html
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.ConvexHull.html
 
     Process:
         1. get Wulff simplices

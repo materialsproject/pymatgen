@@ -507,16 +507,17 @@ class PhononBandStructureSymmLine(PhononBandStructure):
 
     def write_phononwebsite(self, filename: str | PathLike) -> None:
         """Write a JSON file for the phononwebsite:
-        http://henriquemiranda.github.io/phononwebsite.
+        https://henriquemiranda.github.io/phononwebsite.
         """
         with open(filename, mode="w") as file:
             json.dump(self.as_phononwebsite(), file)
 
     def as_phononwebsite(self) -> dict:
         """Return a dictionary with the phononwebsite format:
-        http://henriquemiranda.github.io/phononwebsite.
+        https://henriquemiranda.github.io/phononwebsite.
         """
-        assert self.structure is not None, "Structure is required for as_phononwebsite"
+        if self.structure is None:
+            raise RuntimeError("Structure is required for as_phononwebsite")
         dct = {}
 
         # define the lattice
@@ -601,11 +602,12 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         order = np.zeros([n_qpoints, n_phonons], dtype=np.int64)
         order[0] = np.array(range(n_phonons))
 
-        # get the atomic masses
-        assert self.structure is not None, "Structure is required for band_reorder"
+        # Get the atomic masses
+        if self.structure is None:
+            raise RuntimeError("Structure is required for band_reorder")
         atomic_masses = [site.specie.atomic_mass for site in self.structure]
 
-        # get order
+        # Get order
         for nq in range(1, n_qpoints):
             old_eig_vecs = eigenvectors_from_displacements(eigen_displacements[:, nq - 1], atomic_masses)
             new_eig_vecs = eigenvectors_from_displacements(eigen_displacements[:, nq], atomic_masses)

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 
+import pytest
 from numpy.testing import assert_allclose
 from pytest import approx
 from sympy import Number, Symbol
@@ -248,41 +249,43 @@ class TestSurfaceEnergyPlotter(PymatgenTest):
         surf_ene_plotter = SurfaceEnergyPlotter(all_Pt_slab_entries, self.Pt_analyzer.ucell_entry)
         assert surf_ene_plotter.list_of_chempots == self.Pt_analyzer.list_of_chempots
 
-    # def test_monolayer_vs_BE(self):
-    #     for el in self.Oads_analyzer_dict:
-    #         # Test WulffShape for adsorbed surfaces
-    #         analyzer = self.Oads_analyzer_dict[el]
-    #         plt = analyzer.monolayer_vs_BE()
-    #
-    # def test_area_frac_vs_chempot_plot(self):
-    #
-    #     for el in self.Oads_analyzer_dict:
-    #         # Test WulffShape for adsorbed surfaces
-    #         analyzer = self.Oads_analyzer_dict[el]
-    #         plt = analyzer.area_frac_vs_chempot_plot(x_is_u_ads=True)
-    #
-    # def test_chempot_vs_gamma_clean(self):
-    #
-    #     plt = self.Cu_analyzer.chempot_vs_gamma_clean()
-    #     for el in self.Oads_analyzer_dict:
-    #         # Test WulffShape for adsorbed surfaces
-    #         analyzer = self.Oads_analyzer_dict[el]
-    #         plt = analyzer.chempot_vs_gamma_clean(x_is_u_ads=True)
-    #
-    # def test_chempot_vs_gamma_facet(self):
-    #
-    #     for el, val in self.metals_O_entry_dict.items():
-    #         for hkl in val:
-    #             # Test WulffShape for adsorbed surfaces
-    #             analyzer = self.Oads_analyzer_dict[el]
-    #             plt = analyzer.chempot_vs_gamma_facet(hkl)
-    # def test_surface_chempot_range_map(self):
-    #
-    #     for el, val in self.metals_O_entry_dict.items():
-    #         for hkl in val:
-    #             # Test WulffShape for adsorbed surfaces
-    #             analyzer = self.Oads_analyzer_dict[el]
-    #             plt = analyzer.chempot_vs_gamma_facet(hkl)
+    @pytest.mark.skip("TODO: need someone to fix this")
+    def test_monolayer_vs_BE(self):
+        for el in self.Oads_analyzer_dict:
+            # Test WulffShape for adsorbed surfaces
+            analyzer = self.Oads_analyzer_dict[el]
+            analyzer.monolayer_vs_BE()
+
+    @pytest.mark.skip("TODO: need someone to fix this")
+    def test_area_frac_vs_chempot_plot(self):
+        for el in self.Oads_analyzer_dict:
+            # Test WulffShape for adsorbed surfaces
+            analyzer = self.Oads_analyzer_dict[el]
+            analyzer.area_frac_vs_chempot_plot(x_is_u_ads=True)
+
+    @pytest.mark.skip("TODO: need someone to fix this")
+    def test_chempot_vs_gamma_clean(self):
+        self.Cu_analyzer.chempot_vs_gamma_clean()
+        for el in self.Oads_analyzer_dict:
+            # Test WulffShape for adsorbed surfaces
+            analyzer = self.Oads_analyzer_dict[el]
+            analyzer.chempot_vs_gamma_clean(x_is_u_ads=True)
+
+    @pytest.mark.skip("TODO: need someone to fix this")
+    def test_chempot_vs_gamma_facet(self):
+        for el, val in self.metals_O_entry_dict.items():
+            for hkl in val:
+                # Test WulffShape for adsorbed surfaces
+                analyzer = self.Oads_analyzer_dict[el]
+                analyzer.chempot_vs_gamma_facet(hkl)
+
+    @pytest.mark.skip("TODO: need someone to fix this")
+    def test_surface_chempot_range_map(self):
+        for el, val in self.metals_O_entry_dict.items():
+            for hkl in val:
+                # Test WulffShape for adsorbed surfaces
+                analyzer = self.Oads_analyzer_dict[el]
+                analyzer.chempot_vs_gamma_facet(hkl)
 
 
 class TestWorkFunctionAnalyzer(PymatgenTest):

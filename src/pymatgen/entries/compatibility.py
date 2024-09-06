@@ -68,10 +68,12 @@ MP2020_ANION_OXIDATION_STATE_RANGES: dict[str, tuple[int, int]] = {
     "Te": (-2, -1),
 }
 
-assert (  # ping @janosh @rkingsbury on GitHub if this fails
+# Ping @janosh @rkingsbury on GitHub if this fails
+if (
     MP2020_COMPAT_CONFIG["Corrections"]["GGAUMixingCorrections"]["O"]
-    == MP2020_COMPAT_CONFIG["Corrections"]["GGAUMixingCorrections"]["F"]
-), "MP2020Compatibility.yaml expected to have the same Hubbard U corrections for O and F"
+    != MP2020_COMPAT_CONFIG["Corrections"]["GGAUMixingCorrections"]["F"]
+):
+    raise RuntimeError("MP2020Compatibility.yaml expected to have the same Hubbard U corrections for O and F")
 
 AnyComputedEntry: TypeAlias = ComputedEntry | ComputedStructureEntry
 
@@ -826,7 +828,8 @@ class CorrectionsList(Compatibility):
             else:
                 uncer = uncer_dict.get(str(c), 0)
 
-            assert c.__doc__ is not None
+            if c.__doc__ is None:
+                raise RuntimeError("__doc__ of some correction is None.")
             cd = {
                 "name": str(c),
                 "description": c.__doc__.split("Args")[0].strip(),
@@ -1452,7 +1455,8 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # if H2O and O2 energies have been set explicitly via kwargs, then
         # all H2 polymorphs will get the same energy.
         if rform == "H2":
-            assert self.h2_energy is not None, "H2 energy not set"
+            if self.h2_energy is None:
+                raise ValueError("H2 energy not set")
             adjustments.append(
                 ConstantEnergyAdjustment(
                     (self.fit_h2_energy - self.h2_energy) * comp.num_atoms,
