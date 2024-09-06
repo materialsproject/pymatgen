@@ -881,7 +881,7 @@ class SpeciesDefaults(list, MSONable):
         labels = []
         elements = {}
         for label, el in sorted(zip(struct.labels, struct.species, strict=True)):
-            if not isinstance(el, Element):
+            if isinstance(el, Species):
                 el = el.element
             if (label is None) or (el is None):
                 raise ValueError("Something is terribly wrong with the structure")
