@@ -19,7 +19,7 @@ from monty.io import zopen
 from monty.json import MontyDecoder, MSONable
 from monty.os.path import zpath
 
-from pymatgen.core import SETTINGS, Element, Lattice, Molecule, Structure
+from pymatgen.core import SETTINGS, Element, Lattice, Molecule, Species, Structure
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -654,7 +654,7 @@ class AimsControlIn(MSONable):
             basis_set (str | dict[str, str]):
                 a name of a basis set (`light`, `tight`...) or a mapping from site labels to basis set names.
                 The name of a basis set can either correspond to the subfolder in `defaults_2020` folder
-                or be a full path from the `FHI-aims/species_defaults` directory.\
+                or be a full path from the `FHI-aims/species_defaults` directory.
             species_dir (str | Path | None): The base species directory
 
         Returns:
@@ -845,12 +845,13 @@ class SpeciesDefaults(list, MSONable):
         self.labels = labels
         self.basis_set = basis_set
         self.species_dir = species_dir
+
         if elements is None:
             elements = {}
+
         self.elements = {}
         for label in self.labels:
-            if ",spin" in label:
-                label = label.split(",")[0]
+            label = re.sub(r",\s*spin\s*=\s*[+-]?([0-9]*[.])?[0-9]+", "", label)
             self.elements[label] = elements.get(label, label)
         self._set_species()
 
