@@ -774,7 +774,7 @@ class AimsSpeciesFile:
         else:
             species_file_name = "00_Emptium_default"
 
-        aims_species_dir = SETTINGS.get("AIMS_SPECIES_DIR") if species_dir is None else species_dir
+        aims_species_dir = species_dir or SETTINGS.get("AIMS_SPECIES_DIR")
 
         if aims_species_dir is None:
             raise ValueError(
