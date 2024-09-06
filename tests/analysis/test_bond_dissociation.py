@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import platform
 from unittest import TestCase
 
 import pytest
@@ -535,11 +536,13 @@ class TestBondDissociation(TestCase):
         assert len(BDE.filtered_entries) == 16
         assert BDE.bond_dissociation_energies == self.TFSI_correct
 
+    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_pc_neutral_pcm_65(self):
         BDE = BondDissociationEnergies(self.PC_65_principle, self.PC_65_fragments)
         assert len(BDE.filtered_entries) == 36
         assert BDE.bond_dissociation_energies == self.PC_correct
 
+    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_ec_neg_pcm_40(self):
         BDE = BondDissociationEnergies(self.neg_EC_40_principle, self.neg_EC_40_fragments)
         assert len(BDE.filtered_entries) == 18

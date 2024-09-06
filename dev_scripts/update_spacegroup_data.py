@@ -76,13 +76,13 @@ for k, v in SYMM_DATA["space_group_encoding"].items():
 
 SYMM_DATA["space_group_encoding"] = new_symm_data
 
-for spg_idx, spg in enumerate(SYMM_OPS):
+for spg in SYMM_OPS:
     if "(" in spg["hermann_mauguin"]:
-        SYMM_OPS[spg_idx]["hermann_mauguin"] = spg["hermann_mauguin"].split("(")[0]
+        spg["hermann_mauguin"] = spg["hermann_mauguin"].split("(")[0]
 
-    short_h_m = remove_identity_from_full_hermann_mauguin(SYMM_OPS[spg_idx]["hermann_mauguin"])
-    SYMM_OPS[spg_idx]["short_h_m"] = convert_symmops_to_sg_encoding(short_h_m)
-    SYMM_OPS[spg_idx]["hermann_mauguin_u"] = convert_symmops_to_sg_encoding(spg["hermann_mauguin"])
+    short_h_m = remove_identity_from_full_hermann_mauguin(spg["hermann_mauguin"])
+    spg["short_h_m"] = convert_symmops_to_sg_encoding(short_h_m)
+    spg["hermann_mauguin_u"] = convert_symmops_to_sg_encoding(spg["hermann_mauguin"])
 
 for spg_idx, spg in enumerate(SYMM_OPS):
     try:

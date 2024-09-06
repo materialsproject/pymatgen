@@ -1,4 +1,4 @@
-# Runs the complete test suite incl. many external command line dependencies (like Openbabel)
+# Run the complete test suite incl. many external command line dependencies (like Openbabel)
 # as well as the pymatgen.ext package. Coverage used to be computed based on this workflow.
 name: Tests
 
@@ -17,15 +17,15 @@ permissions:
 
 jobs:
   test:
-    # prevent this action from running on forks
+    # Prevent this action from running on forks
     if: github.repository == 'materialsproject/pymatgen'
     defaults:
       run:
-        shell: bash -l {0} # enables conda/mamba env activation by reading bash profile
+        shell: bash -l {0} # Enable conda/mamba env activation by reading bash profile
     strategy:
       fail-fast: false
       matrix:
-        # maximize CI coverage of different platforms and python versions while minimizing the
+        # Maximize CI coverage of different platforms and python versions while minimizing the
         # total number of jobs. We run all pytest splits with the oldest supported python
         # version (currently 3.10) on windows (seems most likely to surface errors) and with
         # newest version (currently 3.12) on ubuntu (to get complete coverage on unix).
@@ -74,15 +74,16 @@ jobs:
       - name: Install ubuntu-only conda dependencies
         if: matrix.config.os == 'ubuntu-latest'
         run: |
-          micromamba install -n pmg -c conda-forge enumlib packmol bader openbabel openff-toolkit pygraphviz --yes
+          micromamba install -n pmg -c conda-forge bader enumlib openff-toolkit packmol pygraphviz tblite --yes
 
       - name: Install pymatgen and dependencies
         run: |
           micromamba activate pmg
 
-          # TODO remove temporary fix. added since uv install torch is flaky.
-          # track https://github.com/astral-sh/uv/issues/1921 for resolution
-          pip install torch --upgrade
+          # TODO1 (use uv over pip) uv install torch is flaky, track #3826
+          # TODO2 (pin torch version): DGL library (matgl) doesn't support torch > 2.2.1,
+          # see: https://discuss.dgl.ai/t/filenotfounderror-cannot-find-dgl-c-graphbolt-library/4302
+          pip install torch==2.2.1
 
           uv pip install cython setuptools wheel
 
@@ -93,9 +94,20 @@ jobs:
         run: |
           micromamba activate pmg
 
-          # TODO: uv cannot install BoltzTraP2 (#3786),
-          # suggesting no NumPy when there is
+          # TODO: uv cannot install BoltzTraP2 at this moment,
+          # track https://gitlab.com/sousaw/BoltzTraP2/-/merge_requests/21
           pip install BoltzTraP2
+
+          # Install BoltzTraP
+          wget -q -O BoltzTraP.tar.bz2 https://owncloud.tuwien.ac.at/index.php/s/s2d55LYlZnioa3s/download
+          tar -jxf BoltzTraP.tar.bz2
+          echo "$(realpath boltztrap-1.2.5/src/)" >> $GITHUB_PATH
+
+          # Install Vampire 5.0
+          wget -q https://vampire.york.ac.uk/resources/release-5/vampire-5.0-linux.tar.gz
+          tar -zxf vampire-5.0-linux.tar.gz
+          mv linux vampire-5.0
+          echo "$(realpath vampire-5.0/)" >> $GITHUB_PATH
 
       - name: pytest split ${{ matrix.split }}
         run: |
@@ -105,7 +117,7 @@ jobs:
   trigger_atomate2_ci:
     needs: test
     runs-on: ubuntu-latest
-    # only run if changes were pushed to master
+    # Only run if changes are pushed to master
     if: github.ref == 'refs/heads/master'
     steps:
       - name: Trigger Atomate2 CI

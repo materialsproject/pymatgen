@@ -24,7 +24,8 @@ try:
 except ImportError:
     openbabel = None
 
-TEST_DIR = f"{TEST_FILES_DIR}/io/qchem/new_qchem_files"
+TEST_DIR = f"{TEST_FILES_DIR}/io/qchem"
+NEW_QCHEM_TEST_DIR = f"{TEST_DIR}/new_qchem_files"
 
 
 __author__ = "Samuel Blau, Brandon Wood, Shyam Dwaraknath, Evan Spotte-Smith, Ryan Kingsbury"
@@ -33,10 +34,10 @@ __version__ = "0.1"
 __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 
-single_job_dict = loadfn(f"{TEST_FILES_DIR}/io/qchem/single_job.json")
-multi_job_dict = loadfn(f"{TEST_FILES_DIR}/io/qchem/multi_job.json")
+SINGLE_JOB_DICT = loadfn(f"{TEST_DIR}/single_job.json")
+MULTI_JOB_DICT = loadfn(f"{TEST_DIR}/multi_job.json")
 
-property_list = {
+PROPERTIES = {
     "errors",
     "multiple_outputs",
     "completion",
@@ -155,9 +156,9 @@ property_list = {
 }
 
 if openbabel is not None:
-    property_list.add("structure_change")
+    PROPERTIES.add("structure_change")
 
-single_job_out_names = {
+SINGLE_JOB_OUT_NAMES = {
     "unable_to_determine_lambda_in_geom_opt.qcout",
     "thiophene_wfs_5_carboxyl.qcout",
     "hf.qcout",
@@ -240,7 +241,7 @@ single_job_out_names = {
     "new_qchem_files/os_gap.qout",
 }
 
-multi_job_out_names = {
+MULTI_JOB_OUT_NAMES = {
     "not_enough_total_memory.qcout",
     "new_qchem_files/VC_solv_eps10.qcout",
     "new_qchem_files/MECLi_solv_eps10.qcout",
@@ -264,59 +265,61 @@ class TestQCOutput(PymatgenTest):
     def generate_single_job_dict():
         """Used to generate test dictionary for single jobs."""
         single_job_dict = {}
-        for file in single_job_out_names:
-            single_job_dict[file] = QCOutput(f"{TEST_FILES_DIR}/molecules/{file}").data
+        for file in SINGLE_JOB_OUT_NAMES:
+            single_job_dict[file] = QCOutput(f"{TEST_DIR}/{file}").data
         dumpfn(single_job_dict, "single_job.json")
 
     @staticmethod
     def generate_multi_job_dict():
         """Used to generate test dictionary for multiple jobs."""
         multi_job_dict = {}
-        for file in multi_job_out_names:
-            outputs = QCOutput.multiple_outputs_from_file(f"{TEST_FILES_DIR}/molecules/{file}", keep_sub_files=False)
+        for file in MULTI_JOB_OUT_NAMES:
+            outputs = QCOutput.multiple_outputs_from_file(f"{TEST_DIR}/{file}", keep_sub_files=False)
             multi_job_dict[file] = [sub_output.data for sub_output in outputs]
         dumpfn(multi_job_dict, "multi_job.json")
 
-    def _test_property(self, key, single_outs, multi_outs):
+    def _check_property(self, key, single_outs, multi_outs):
         for filename, out_data in single_outs.items():
             try:
-                assert out_data.get(key) == single_job_dict[filename].get(key)
+                assert out_data.get(key) == SINGLE_JOB_DICT[filename].get(key)
             except ValueError:
                 try:
                     if isinstance(out_data.get(key), dict):
-                        assert out_data.get(key) == approx(single_job_dict[filename].get(key))
+                        assert out_data.get(key) == approx(SINGLE_JOB_DICT[filename].get(key))
                     else:
-                        assert_allclose(out_data.get(key), single_job_dict[filename].get(key), atol=1e-6)
-                except AssertionError:
-                    raise RuntimeError(f"Issue with {filename=} Exiting...")
-            except AssertionError:
-                raise RuntimeError(f"Issue with {filename=} Exiting...")
+                        assert_allclose(out_data.get(key), SINGLE_JOB_DICT[filename].get(key), atol=1e-6)
+                except AssertionError as exc:
+                    raise RuntimeError(f"Issue with {filename=} Exiting...") from exc
+            except AssertionError as exc:
+                raise RuntimeError(f"Issue with {filename=} Exiting...") from exc
+
         for filename, outputs in multi_outs.items():
             for idx, sub_output in enumerate(outputs):
                 try:
-                    assert sub_output.data.get(key) == multi_job_dict[filename][idx].get(key)
+                    assert sub_output.data.get(key) == MULTI_JOB_DICT[filename][idx].get(key)
                 except ValueError:
                     if isinstance(sub_output.data.get(key), dict):
-                        assert sub_output.data.get(key) == approx(multi_job_dict[filename][idx].get(key))
+                        assert sub_output.data.get(key) == approx(MULTI_JOB_DICT[filename][idx].get(key))
                     else:
-                        assert_allclose(sub_output.data.get(key), multi_job_dict[filename][idx].get(key), atol=1e-6)
+                        assert_allclose(sub_output.data.get(key), MULTI_JOB_DICT[filename][idx].get(key), atol=1e-6)
 
-    @pytest.mark.skip  # self._test_property(key, single_outs, multi_outs) fails with
-    # ValueError: The truth value of an array with more than one element is ambiguous
+    # PR#3985: the following unit test is failing, and it seems that
+    # the array dimension from out_data and SINGLE_JOB_DICT mismatch
+    @pytest.mark.skip(reason="TODO: need someone to fix this")
     @pytest.mark.skipif(openbabel is None, reason="OpenBabel not installed.")
     def test_all(self):
-        single_outs = {file: QCOutput(f"{TEST_FILES_DIR}/molecules/{file}").data for file in single_job_out_names}
+        single_outs = {file: QCOutput(f"{TEST_DIR}/{file}").data for file in SINGLE_JOB_OUT_NAMES}
 
         multi_outs = {
-            file: QCOutput.multiple_outputs_from_file(f"{TEST_FILES_DIR}/molecules/{file}", keep_sub_files=False)
-            for file in multi_job_out_names
+            file: QCOutput.multiple_outputs_from_file(f"{TEST_DIR}/{file}", keep_sub_files=False)
+            for file in MULTI_JOB_OUT_NAMES
         }
 
-        for key in property_list:
-            self._test_property(key, single_outs, multi_outs)
+        for key in PROPERTIES:
+            self._check_property(key, single_outs, multi_outs)
 
     def test_multipole_parsing(self):
-        sp = QCOutput(f"{TEST_DIR}/nbo.qout")
+        sp = QCOutput(f"{NEW_QCHEM_TEST_DIR}/nbo.qout")
 
         mpoles = sp.data["multipoles"]
         assert len(mpoles["quadrupole"]) == 6
@@ -329,7 +332,7 @@ class TestQCOutput(PymatgenTest):
         assert mpoles["hexadecapole"]["YYYY"] == -326.317
         assert mpoles["hexadecapole"]["XYZZ"] == 58.0584
 
-        opt = QCOutput(f"{TEST_DIR}/ts.out")
+        opt = QCOutput(f"{NEW_QCHEM_TEST_DIR}/ts.out")
         mpoles = opt.data["multipoles"]
 
         assert len(mpoles["quadrupole"]) == 5
@@ -345,8 +348,8 @@ class TestQCOutput(PymatgenTest):
         thio_1 = Molecule.from_file(f"{TEST_FILES_DIR}/analysis/structural_change/thiophene1.xyz")
         thio_2 = Molecule.from_file(f"{TEST_FILES_DIR}/analysis/structural_change/thiophene2.xyz")
 
-        frag_1 = Molecule.from_file(f"{TEST_DIR}/test_structure_change/frag_1.xyz")
-        frag_2 = Molecule.from_file(f"{TEST_DIR}/test_structure_change/frag_2.xyz")
+        frag_1 = Molecule.from_file(f"{NEW_QCHEM_TEST_DIR}/test_structure_change/frag_1.xyz")
+        frag_2 = Molecule.from_file(f"{NEW_QCHEM_TEST_DIR}/test_structure_change/frag_2.xyz")
 
         assert check_for_structure_changes(t1, t1) == "no_change"
         assert check_for_structure_changes(t2, t3) == "no_change"
@@ -358,7 +361,7 @@ class TestQCOutput(PymatgenTest):
         assert check_for_structure_changes(frag_1, frag_2) == "bond_change"
 
     def test_nbo_parsing(self):
-        data = QCOutput(f"{TEST_DIR}/nbo.qout").data
+        data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/nbo.qout").data
         assert len(data["nbo_data"]["natural_populations"]) == 3
         assert len(data["nbo_data"]["hybridization_character"]) == 6
         assert len(data["nbo_data"]["perturbation_energy"]) == 2
@@ -369,18 +372,18 @@ class TestQCOutput(PymatgenTest):
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][0] == "RY*"
 
     def test_nbo7_parsing(self):
-        data = QCOutput(f"{TEST_DIR}/nbo7_1.qout").data
+        data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/nbo7_1.qout").data
         assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][9] == 15.73
         assert len(data["nbo_data"]["perturbation_energy"][0]["donor bond index"]) == 84
         assert len(data["nbo_data"]["perturbation_energy"][1]["donor bond index"]) == 29
 
-        data = QCOutput(f"{TEST_DIR}/nbo7_2.qout").data
+        data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/nbo7_2.qout").data
         assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13] == 32.93
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][13] == "LV"
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][12] == "RY"
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 1 symbol"][12] == "Mg"
 
-        data = QCOutput(f"{TEST_DIR}/nbo7_3.qout").data
+        data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/nbo7_3.qout").data
         assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][13] == 34.54
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor type"][13] == "BD*"
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 1 symbol"][13] == "B"
@@ -388,8 +391,8 @@ class TestQCOutput(PymatgenTest):
         assert data["nbo_data"]["perturbation_energy"][0]["acceptor atom 2 number"][13] == 3
 
     def test_nbo5_vs_nbo7_hybridization_character(self):
-        data5 = QCOutput(f"{TEST_DIR}/nbo5_1.qout").data
-        data7 = QCOutput(f"{TEST_DIR}/nbo7_1.qout").data
+        data5 = QCOutput(f"{NEW_QCHEM_TEST_DIR}/nbo5_1.qout").data
+        data7 = QCOutput(f"{NEW_QCHEM_TEST_DIR}/nbo7_1.qout").data
         assert len(data5["nbo_data"]["hybridization_character"]) == len(data7["nbo_data"]["hybridization_character"])
         assert (
             data5["nbo_data"]["hybridization_character"][4]["atom 2 pol coeff"][9]
@@ -403,38 +406,38 @@ class TestQCOutput(PymatgenTest):
         assert data7["nbo_data"]["hybridization_character"][1]["bond index"][7] == "21"
 
     def test_nbo7_infinite_e2pert(self):
-        data = QCOutput(f"{TEST_DIR}/nbo7_inf.qout").data
+        data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/nbo7_inf.qout").data
         assert data["nbo_data"]["perturbation_energy"][0]["perturbation energy"][0] == float("inf")
 
     def test_cdft_parsing(self):
-        data = QCOutput(f"{TEST_DIR}/cdft_simple.qout").data
+        data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/cdft_simple.qout").data
         assert data["cdft_becke_excess_electrons"][0][0] == 0.432641
         assert len(data["cdft_becke_population"][0]) == 12
         assert data["cdft_becke_net_spin"][0][6] == -0.000316
 
     def test_cdft_dc_parsing(self):
         data = QCOutput.multiple_outputs_from_file(
-            f"{TEST_DIR}/cdft_dc.qout",
+            f"{NEW_QCHEM_TEST_DIR}/cdft_dc.qout",
             keep_sub_files=False,
         )[-1].data
         assert data["direct_coupling_eV"] == 0.0103038246
 
     def test_almo_msdft2_parsing(self):
-        data = QCOutput(f"{TEST_DIR}/almo.out").data
+        data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/almo.out").data
         assert data["almo_coupling_states"] == [[[1, 2], [0, 1]], [[0, 1], [1, 2]]]
         assert data["almo_hamiltonian"][0][0] == -156.62929
         assert data["almo_coupling_eV"] == approx(0.26895)
 
     def test_pod_parsing(self):
-        data = QCOutput(f"{TEST_DIR}/pod2_gs.out").data
+        data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/pod2_gs.out").data
         assert data["pod_coupling_eV"] == 0.247818
 
     def test_fodft_parsing(self):
-        data = QCOutput(f"{TEST_DIR}/fodft.out").data
+        data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/fodft.out").data
         assert data["fodft_coupling_eV"] == 0.268383
 
     def test_isosvp_water(self):
-        data = QCOutput(f"{TEST_DIR}/isosvp_water_single.qcout").data
+        data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/isosvp_water_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
         # ISOSVP parameters
         assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 78.39
@@ -448,7 +451,7 @@ class TestQCOutput(PymatgenTest):
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"] is False
 
     def test_isosvp_dielst10(self):
-        data = QCOutput(f"{TEST_DIR}/isosvp_dielst10_single.qcout").data
+        data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/isosvp_dielst10_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
 
         # ISOSVP parameters
@@ -463,7 +466,7 @@ class TestQCOutput(PymatgenTest):
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"] is False
 
     def test_cmirs_benzene(self):
-        data = QCOutput(f"{TEST_DIR}/cmirs_benzene_single.qcout").data
+        data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/cmirs_benzene_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
         assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 2.28
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"]
@@ -473,7 +476,7 @@ class TestQCOutput(PymatgenTest):
         assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == 0.0178177740
 
     def test_cmirs_dielst10(self):
-        data = QCOutput(f"{TEST_DIR}/cmirs_dielst10_single.qcout").data
+        data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/cmirs_dielst10_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
         assert data["solvent_data"]["isosvp"]["isosvp_dielectric"] == 10
         assert data["solvent_data"]["cmirs"]["CMIRS_enabled"]
@@ -483,7 +486,7 @@ class TestQCOutput(PymatgenTest):
         assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == 0.0179866718
 
     def test_cmirs_water(self):
-        data = QCOutput(f"{TEST_DIR}/cmirs_water_single.qcout").data
+        data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/cmirs_water_single.qcout").data
         assert data["solvent_method"] == "ISOSVP"
 
         # ISOSVP parameters
@@ -502,14 +505,14 @@ class TestQCOutput(PymatgenTest):
         assert data["solvent_data"]["cmirs"]["max_pos_field_e"] == 0.0180445935
 
     def test_nbo_hyperbonds(self):
-        data = QCOutput(f"{TEST_DIR}/hyper.qout").data
+        data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/hyper.qout").data
         assert len(data["nbo_data"]["hyperbonds"][0]["hyperbond index"]) == 2
         assert data["nbo_data"]["hyperbonds"][0]["BD(A-B)"][1] == 106
         assert data["nbo_data"]["hyperbonds"][0]["bond atom 2 symbol"][0] == "C"
         assert data["nbo_data"]["hyperbonds"][0]["occ"][1] == 3.0802
 
     def test_nbo_3_c(self):
-        data = QCOutput(f"{TEST_DIR}/3C.qout").data
+        data = QCOutput(f"{NEW_QCHEM_TEST_DIR}/3C.qout").data
         hybrid_char = data["nbo_data"]["hybridization_character"]
         assert len(hybrid_char) == 3
         hybrid_type = hybrid_char[2]["type"]
@@ -527,14 +530,14 @@ class TestQCOutput(PymatgenTest):
         assert perturb_ene[0]["perturbation energy"][3209] == 3.94
 
     def test_qchem_6_1_1(self):
-        qc_out = QCOutput(f"{TEST_FILES_DIR}/io/qchem/6.1.1.wb97xv.out.gz")
+        qc_out = QCOutput(f"{TEST_DIR}/6.1.1.wb97xv.out.gz")
         assert qc_out.data["final_energy"] == -76.43205015
         n_vals = sum(1 for val in qc_out.data.values() if val is not None)
         assert n_vals == 21
 
 
 def test_gradient(tmp_path):
-    with gzip.open(f"{TEST_FILES_DIR}/io/qchem/131.0.gz", "rb") as f_in, open(tmp_path / "131.0", "wb") as f_out:
+    with gzip.open(f"{TEST_DIR}/131.0.gz", "rb") as f_in, open(tmp_path / "131.0", "wb") as f_out:
         shutil.copyfileobj(f_in, f_out)
     gradient = gradient_parser(tmp_path / "131.0")
     assert np.shape(gradient) == (14, 3)
@@ -542,7 +545,7 @@ def test_gradient(tmp_path):
 
 
 def test_hessian(tmp_path):
-    with gzip.open(f"{TEST_FILES_DIR}/io/qchem/132.0.gz", "rb") as f_in, open(tmp_path / "132.0", "wb") as f_out:
+    with gzip.open(f"{TEST_DIR}/132.0.gz", "rb") as f_in, open(tmp_path / "132.0", "wb") as f_out:
         shutil.copyfileobj(f_in, f_out)
     hessian = hessian_parser(tmp_path / "132.0", n_atoms=14)
     assert np.shape(hessian) == (42, 42)
@@ -554,7 +557,7 @@ def test_hessian(tmp_path):
 
 
 def test_prev_orbital_coeffs(tmp_path):
-    with gzip.open(f"{TEST_FILES_DIR}/io/qchem/53.0.gz", "rb") as f_in, open(tmp_path / "53.0", "wb") as f_out:
+    with gzip.open(f"{TEST_DIR}/53.0.gz", "rb") as f_in, open(tmp_path / "53.0", "wb") as f_out:
         shutil.copyfileobj(f_in, f_out)
     orbital_coeffs = orbital_coeffs_parser(tmp_path / "53.0")
     assert len(orbital_coeffs) == 360400

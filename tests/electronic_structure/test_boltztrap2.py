@@ -25,36 +25,36 @@ try:
 except Exception:
     BOLTZTRAP2_PRESENT = False
 
+
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/boltztrap2"
 
+VASP_RUN_FILE = f"{TEST_DIR}/vasprun.xml"
+VASP_RUN = Vasprun(VASP_RUN_FILE, parse_projected_eigen=True)
 
-vasp_run_file = f"{TEST_DIR}/vasprun.xml"
-vasp_run = Vasprun(vasp_run_file, parse_projected_eigen=True)
+VASP_RUN_FILE_SPIN = f"{TEST_DIR}/vasprun_spin.xml"
+VASP_RUN_SPIN = Vasprun(VASP_RUN_FILE_SPIN, parse_projected_eigen=True)
+BAND_STRUCT = loadfn(f"{TEST_DIR}/PbTe_bandstructure.json")
+BAND_STRUCT_SPIN = loadfn(f"{TEST_DIR}/N2_bandstructure.json")
 
-vasp_run_file_spin = f"{TEST_DIR}/vasprun_spin.xml"
-vasp_run_spin = Vasprun(vasp_run_file_spin, parse_projected_eigen=True)
-bs = loadfn(f"{TEST_DIR}/PbTe_bandstructure.json")
-bs_sp = loadfn(f"{TEST_DIR}/N2_bandstructure.json")
-
-bzt_interp_fn = f"{TEST_DIR}/bztInterp.json.gz"
-bzt_transp_fn = f"{TEST_DIR}/bztTranspProps.json.gz"
+BZT_INTERP_FN = f"{TEST_DIR}/bztInterp.json.gz"
+BZT_TRANSP_FN = f"{TEST_DIR}/bztTranspProps.json.gz"
 
 
-@pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests...")
+@pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests.")
 class TestVasprunBSLoader(TestCase):
     def setUp(self):
-        self.loader = VasprunBSLoader(vasp_run)
+        self.loader = VasprunBSLoader(VASP_RUN)
         assert self.loader is not None
-        self.loader = VasprunBSLoader(bs, vasp_run.final_structure)
+        self.loader = VasprunBSLoader(BAND_STRUCT, VASP_RUN.final_structure)
         assert self.loader is not None
-        self.loader = VasprunBSLoader.from_file(vasp_run_file)
+        self.loader = VasprunBSLoader.from_file(VASP_RUN_FILE)
         assert self.loader is not None
 
-        self.loader_sp = VasprunBSLoader(vasp_run_spin)
+        self.loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
         assert self.loader_sp is not None
-        self.loader_sp = VasprunBSLoader(bs_sp, vasp_run_spin.final_structure)
+        self.loader_sp = VasprunBSLoader(BAND_STRUCT_SPIN, VASP_RUN_SPIN.final_structure)
         assert self.loader_sp is not None
-        self.loader_sp = VasprunBSLoader.from_file(vasp_run_file_spin)
+        self.loader_sp = VasprunBSLoader.from_file(VASP_RUN_FILE_SPIN)
         assert self.loader_sp is not None
 
     def test_properties(self):
@@ -80,13 +80,13 @@ class TestVasprunBSLoader(TestCase):
         assert self.loader.get_volume() == approx(477.6256714925874, abs=1e-5)
 
 
-@pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests...")
+@pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests.")
 class TestBandstructureLoader(TestCase):
     def setUp(self):
-        self.loader = BandstructureLoader(bs, vasp_run.structures[-1])
+        self.loader = BandstructureLoader(BAND_STRUCT, VASP_RUN.structures[-1])
         assert self.loader is not None
 
-        self.loader_sp = BandstructureLoader(bs_sp, vasp_run_spin.structures[-1])
+        self.loader_sp = BandstructureLoader(BAND_STRUCT_SPIN, VASP_RUN_SPIN.structures[-1])
         assert self.loader_sp is not None
         assert self.loader_sp.ebands_all.shape == (24, 198)
 
@@ -108,10 +108,10 @@ class TestBandstructureLoader(TestCase):
         assert self.loader_sp_dn.ebands.shape == (14, 198)
 
 
-@pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests...")
+@pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests.")
 class TestVasprunLoader(TestCase):
     def setUp(self):
-        self.loader = VasprunLoader(vasp_run)
+        self.loader = VasprunLoader(VASP_RUN)
         assert self.loader.proj.shape == (120, 20, 2, 9)
         assert self.loader is not None
 
@@ -124,27 +124,28 @@ class TestVasprunLoader(TestCase):
         assert self.loader.get_volume() == approx(477.6256714925874, abs=1e-5)
 
     def test_from_file(self):
-        self.loader = VasprunLoader().from_file(vasp_run_file)
+        self.loader = VasprunLoader().from_file(VASP_RUN_FILE)
         assert self.loader is not None
 
 
-@pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests...")
+@pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests.")
 class TestBztInterpolator(TestCase):
     def setUp(self):
-        self.loader = VasprunBSLoader(vasp_run)
+        self.loader = VasprunBSLoader(VASP_RUN)
         self.bztInterp = BztInterpolator(self.loader, lpfac=2)
         assert self.bztInterp is not None
-        self.bztInterp = BztInterpolator(self.loader, lpfac=2, save_bztInterp=True, fname=bzt_interp_fn)
+        # TODO: following creates file locally, use temp dir
+        self.bztInterp = BztInterpolator(self.loader, lpfac=2, save_bztInterp=True, fname=BZT_INTERP_FN)
         assert self.bztInterp is not None
-        self.bztInterp = BztInterpolator(self.loader, load_bztInterp=True, fname=bzt_interp_fn)
+        self.bztInterp = BztInterpolator(self.loader, load_bztInterp=True, fname=BZT_INTERP_FN)
         assert self.bztInterp is not None
 
-        self.loader_sp = VasprunBSLoader(vasp_run_spin)
+        self.loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
         self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2)
         assert self.bztInterp_sp is not None
-        self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2, save_bztInterp=True, fname=bzt_interp_fn)
+        self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2, save_bztInterp=True, fname=BZT_INTERP_FN)
         assert self.bztInterp_sp is not None
-        self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2, load_bztInterp=True, fname=bzt_interp_fn)
+        self.bztInterp_sp = BztInterpolator(self.loader_sp, lpfac=2, load_bztInterp=True, fname=BZT_INTERP_FN)
         assert self.bztInterp_sp is not None
 
     def test_properties(self):
@@ -205,10 +206,10 @@ class TestBztInterpolator(TestCase):
         assert pdos == approx(272.194174, abs=1e-5)
 
 
-@pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests...")
+@pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests.")
 class TestBztTransportProperties(TestCase):
     def setUp(self):
-        loader = VasprunBSLoader(vasp_run)
+        loader = VasprunBSLoader(VASP_RUN)
         bztInterp = BztInterpolator(loader, lpfac=2)
         self.bztTransp = BztTransportProperties(bztInterp, temp_r=np.arange(300, 600, 100))
         assert self.bztTransp is not None
@@ -224,30 +225,31 @@ class TestBztTransportProperties(TestCase):
             bztInterp,
             temp_r=np.arange(300, 600, 100),
             save_bztTranspProps=True,
-            fname=bzt_transp_fn,
+            fname=BZT_TRANSP_FN,
         )
         assert self.bztTransp is not None
 
         bztInterp = BztInterpolator(loader, lpfac=2)
-        self.bztTransp = BztTransportProperties(bztInterp, load_bztTranspProps=True, fname=bzt_transp_fn)
+        self.bztTransp = BztTransportProperties(bztInterp, load_bztTranspProps=True, fname=BZT_TRANSP_FN)
         assert self.bztTransp is not None
 
-        loader_sp = VasprunBSLoader(vasp_run_spin)
+        loader_sp = VasprunBSLoader(VASP_RUN_SPIN)
         bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
         self.bztTransp_sp = BztTransportProperties(bztInterp_sp, temp_r=np.arange(300, 600, 100))
         assert self.bztTransp_sp is not None
 
         bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
+        # TODO: following creates file locally, use temp dir
         self.bztTransp_sp = BztTransportProperties(
             bztInterp_sp,
             temp_r=np.arange(300, 600, 100),
             save_bztTranspProps=True,
-            fname=bzt_transp_fn,
+            fname=BZT_TRANSP_FN,
         )
         assert self.bztTransp_sp is not None
 
         bztInterp_sp = BztInterpolator(loader_sp, lpfac=2)
-        self.bztTransp_sp = BztTransportProperties(bztInterp_sp, load_bztTranspProps=True, fname=bzt_transp_fn)
+        self.bztTransp_sp = BztTransportProperties(bztInterp_sp, load_bztTranspProps=True, fname=BZT_TRANSP_FN)
         assert self.bztTransp_sp is not None
 
     def test_properties(self):
@@ -305,10 +307,10 @@ class TestBztTransportProperties(TestCase):
             assert self.bztTransp_sp.contain_props_doping
 
 
-@pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests...")
+@pytest.mark.skipif(not BOLTZTRAP2_PRESENT, reason="No boltztrap2, skipping tests.")
 class TestBztPlotter(TestCase):
     def test_plot(self):
-        loader = VasprunBSLoader(vasp_run)
+        loader = VasprunBSLoader(VASP_RUN)
         bztInterp = BztInterpolator(loader, lpfac=2)
         bztTransp = BztTransportProperties(bztInterp, temp_r=np.arange(300, 600, 100))
         self.bztPlotter = BztPlotter(bztTransp, bztInterp)
