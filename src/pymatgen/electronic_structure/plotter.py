@@ -2941,11 +2941,11 @@ class BoltztrapPlotter:
             ax.plot(mu_steps_1, cmplx_fact_1, label=f"{T}K", linewidth=3.0)
             ax.plot(mu_steps_2, cmplx_fact_2, linewidth=3.0)
             if output == "average":
-                plt.gca().get_lines()[1].set_c(plt.gca().get_lines()[0].get_c())
+                ax.gca().get_lines()[1].set_c(ax.gca().get_lines()[0].get_c())
             elif output == "tensor":
-                plt.gca().get_lines()[3].set_c(plt.gca().get_lines()[0].get_c())
-                plt.gca().get_lines()[4].set_c(plt.gca().get_lines()[1].get_c())
-                plt.gca().get_lines()[5].set_c(plt.gca().get_lines()[2].get_c())
+                ax.gca().get_lines()[3].set_c(ax.gca().get_lines()[0].get_c())
+                ax.gca().get_lines()[4].set_c(ax.gca().get_lines()[1].get_c())
+                ax.gca().get_lines()[5].set_c(ax.gca().get_lines()[2].get_c())
 
         ax.set_xlabel("E-E$_f$ (eV)", fontsize=30)
         ax.set_ylabel("Complexity Factor", fontsize=30)
