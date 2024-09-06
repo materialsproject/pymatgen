@@ -10,7 +10,7 @@ import warnings
 from fractions import Fraction
 from functools import reduce
 from itertools import chain, combinations, product
-from typing import TYPE_CHECKING, Literal, Union, cast
+from typing import TYPE_CHECKING, Literal, cast
 
 import numpy as np
 from monty.fractions import lcm
@@ -27,8 +27,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.typing import Tuple3Ints
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-    from typing import Any, Callable
+    from collections.abc import Callable, Sequence
+    from typing import Any
 
     from numpy.typing import ArrayLike, NDArray
     from typing_extensions import Self
@@ -166,7 +166,7 @@ class GrainBoundary(Structure):
             outs.append(f"{idx} {site.species_string} {' '.join(to_str(coord, 12) for coord in site.frac_coords)}")
         return "\n".join(outs)
 
-    def copy(self) -> Self:  # type: ignore[override]
+    def copy(self) -> Self:
         """Make a copy of the GrainBoundary."""
         return type(self)(
             self.lattice,
@@ -261,7 +261,7 @@ class GrainBoundary(Structure):
                 coincident_sites.append(self.sites[idx])
         return coincident_sites
 
-    def as_dict(self) -> dict:  # type: ignore[override]
+    def as_dict(self) -> dict:
         """
         Returns:
             Dictionary representation of GrainBoundary object.
@@ -281,7 +281,7 @@ class GrainBoundary(Structure):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:  # type: ignore[override]
+    def from_dict(cls, dct: dict) -> Self:
         """Generate GrainBoundary from a dict created by as_dict().
 
         Args:
@@ -966,7 +966,7 @@ class GrainBoundaryGenerator:
         # Make sure gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
             r_axis = cast(
-                Union[Tuple3Ints, Tuple4Ints],
+                Tuple3Ints | Tuple4Ints,
                 tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis),
             )
 
@@ -997,7 +997,8 @@ class GrainBoundaryGenerator:
                     c2_a2_ratio = 1.0 if ratio is None else ratio[0] / ratio[1]
                     metric = np.array([[1, 0, 0], [0, 1, 0], [0, 0, c2_a2_ratio]])
                 elif lat_type == "o":
-                    assert ratio is not None, "Invalid ratio for orthorhombic system"
+                    if ratio is None:
+                        raise ValueError(f"Invalid {ratio=} for orthorhombic system")
                     for idx in range(3):
                         if ratio is not None and ratio[idx] is None:
                             ratio[idx] = 1
@@ -1014,11 +1015,11 @@ class GrainBoundaryGenerator:
                 surface = np.matmul(r_axis, metric)
                 fractions = [Fraction(x).limit_denominator() for x in surface]
                 least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
-                surface = cast(Union[Tuple3Ints, Tuple4Ints], tuple(round(x * least_mul) for x in surface))
+                surface = cast(Tuple3Ints | Tuple4Ints, tuple(round(x * least_mul) for x in surface))
 
         if reduce(math.gcd, surface) != 1:
             index = reduce(math.gcd, surface)
-            surface = cast(Union[Tuple3Ints, Tuple4Ints], tuple(round(x / index) for x in surface))
+            surface = cast(Tuple3Ints | Tuple4Ints, tuple(round(x / index) for x in surface))
 
         lam = None
         if lat_type == "h":
@@ -1203,9 +1204,13 @@ class GrainBoundaryGenerator:
                         mv = 1
 
             # Make sure mu, lambda, mv are coprime integers
-            assert mu is not None
-            assert lam is not None
-            assert mv is not None
+            if mu is None:
+                raise ValueError("mu is None.")
+            if lam is None:
+                raise ValueError("lambda is None.")
+            if mv is None:
+                raise ValueError("mv is None.")
+
             if reduce(math.gcd, [mu, lam, mv]) != 1:
                 temp = cast(int, reduce(math.gcd, [mu, lam, mv]))
                 mu = round(mu / temp)
@@ -1253,7 +1258,8 @@ class GrainBoundaryGenerator:
             raise RuntimeError("Sigma >1000 too large. Are you sure what you are doing, Please check the GB if exist")
         # Transform surface, r_axis, r_matrix in terms of primitive lattice
         surface = np.matmul(surface, np.transpose(trans_cry))
-        assert surface is not None
+        if surface is None:
+            raise ValueError("surface is None.")
         fractions = [Fraction(x).limit_denominator() for x in surface]
         least_mul = reduce(lcm, [fraction.denominator for fraction in fractions])
         surface = cast(Tuple3Ints, tuple(round(x * least_mul) for x in surface))
@@ -1269,7 +1275,7 @@ class GrainBoundaryGenerator:
         r_matrix = np.dot(np.dot(np.linalg.inv(trans_cry.T), r_matrix), trans_cry.T)
         # Set one vector of the basis to the rotation axis direction, and
         # obtain the corresponding transform matrix
-        eye = np.eye(3, dtype=int)
+        eye = np.eye(3, dtype=np.int64)
         hh = kk = ll = None
         for hh in range(3):
             if abs(r_axis[hh]) != 0:
@@ -1348,7 +1354,7 @@ class GrainBoundaryGenerator:
                 {sigma1: [angle11,angle12,...], sigma2: [angle21, angle22,...],...}
                 Note: the angles are the rotation angles of one grain respect to
                 the other grain.
-                When generate the microstructures of the grain boundary using these angles,
+                When generating the microstructures of the grain boundary using these angles,
                 you need to analyze the symmetry of the structure. Different angles may
                 result in equivalent microstructures.
         """
@@ -1424,15 +1430,15 @@ class GrainBoundaryGenerator:
                 {sigma1: [angle11, angle12, ...], sigma2: [angle21, angle22, ...], ...}
                 Note: the angles are the rotation angles of one grain respect to
                 the other grain.
-                When generate the microstructures of the grain boundary using these angles,
+                When generating the microstructures of the grain boundary using these angles,
                 you need to analyze the symmetry of the structure. Different angles may
                 result in equivalent microstructures.
         """
         # Make sure math.gcd(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
             r_axis = cast(
-                Union[Tuple3Ints, Tuple4Ints],
-                tuple([round(x / reduce(math.gcd, r_axis)) for x in r_axis]),
+                Tuple3Ints | Tuple4Ints,
+                tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis),
             )
 
         # Transform four index notation to three index notation
@@ -1556,7 +1562,7 @@ class GrainBoundaryGenerator:
 
         # Make sure math.(r_axis) == 1
         if reduce(math.gcd, r_axis) != 1:
-            r_axis = cast(Tuple3Ints, tuple([round(x / reduce(math.gcd, r_axis)) for x in r_axis]))
+            r_axis = cast(Tuple3Ints, tuple(round(x / reduce(math.gcd, r_axis)) for x in r_axis))
         u, v, w = r_axis  # type: ignore[misc]
 
         # Make sure mu, mv are coprime integers
@@ -1669,7 +1675,7 @@ class GrainBoundaryGenerator:
                 {sigma1: [angle11, angle12, ...], sigma2: [angle21, angle22, ...], ...}
                 Note: the angles are the rotation angle of one grain respect to the
                 other grain.
-                When generate the microstructure of the grain boundary using these
+                When generating the microstructure of the grain boundary using these
                 angles, you need to analyze the symmetry of the structure. Different
                 angles may result in equivalent microstructures.
         """
@@ -1774,7 +1780,7 @@ class GrainBoundaryGenerator:
                 {sigma1: [angle11,angle12,...], sigma2: [angle21, angle22,...],...}
                 Note: the angles are the rotation angle of one grain respect to the
                 other grain.
-                When generate the microstructure of the grain boundary using these
+                When generating the microstructure of the grain boundary using these
                 angles, you need to analyze the symmetry of the structure. Different
                 angles may result in equivalent microstructures.
         """
@@ -1995,8 +2001,8 @@ class GrainBoundaryGenerator:
         lat_type = lat_type.lower()
 
         # Check r_axis length
-        if lat_type in {"c", "t"}:
-            assert len(r_axis) == 3, "r_axis length incompatible with selected lattice system"
+        if lat_type in {"c", "t"} and len(r_axis) != 3:
+            raise ValueError(f"expect r_axis length 3 for selected lattice system, got {len(r_axis)}")
 
         # Check lattice axial ratio length
         if lat_type == "o" and (ratio is None or len(ratio) != 3):
@@ -2107,7 +2113,7 @@ class GrainBoundaryGenerator:
         # Quickly generate a supercell, normal is not working in this way
         if quick_gen:
             scale_factor = []
-            eye = np.eye(3, dtype=int)
+            eye = np.eye(3, dtype=np.int64)
             for i, j in enumerate(miller):
                 if j == 0:
                     scale_factor.append(eye[i])
@@ -2484,9 +2490,8 @@ class Interface(Structure):
             vacuum_over_film: vacuum space above the film in Angstroms. Defaults to 0.
             interface_properties: properties associated with the Interface. Defaults to None.
         """
-        assert (
-            "interface_label" in site_properties
-        ), "Must provide labeling of substrate and film sites in site properties"
+        if "interface_label" not in site_properties:
+            raise RuntimeError("Must provide labeling of substrate and film sites in site properties")
 
         self._in_plane_offset = np.array(in_plane_offset, dtype="float")
         self._gap = gap
@@ -2558,7 +2563,9 @@ class Interface(Structure):
     @property
     def substrate_sites(self) -> list[Site]:
         """The site objects in the substrate."""
-        return [site for site, tag in zip(self, self.site_properties["interface_label"]) if "substrate" in tag]
+        return [
+            site for site, tag in zip(self, self.site_properties["interface_label"], strict=True) if "substrate" in tag
+        ]
 
     @property
     def substrate(self) -> Structure:
@@ -2573,14 +2580,14 @@ class Interface(Structure):
     @property
     def film_sites(self) -> list[Site]:
         """The film sites of the interface."""
-        return [site for site, tag in zip(self, self.site_properties["interface_label"]) if "film" in tag]
+        return [site for site, tag in zip(self, self.site_properties["interface_label"], strict=True) if "film" in tag]
 
     @property
     def film(self) -> Structure:
         """A Structure for just the film."""
         return Structure.from_sites(self.film_sites)
 
-    def copy(self) -> Self:  # type: ignore[override]
+    def copy(self) -> Self:
         """Make a copy of the Interface."""
         return type(self).from_dict(self.as_dict())
 
@@ -2685,11 +2692,11 @@ class Interface(Structure):
         new_lattice = Lattice(new_latt_matrix)
         self._lattice = new_lattice
 
-        for site, c_coords in zip(self, self.cart_coords):
+        for site, c_coords in zip(self, self.cart_coords, strict=True):
             site._lattice = new_lattice  # Update the lattice
             site.coords = c_coords  # Put back into original Cartesian space
 
-    def as_dict(self) -> dict:  # type: ignore[override]
+    def as_dict(self) -> dict:
         """MSONable dict."""
         return {
             **super().as_dict(),
@@ -2700,7 +2707,7 @@ class Interface(Structure):
         }
 
     @classmethod
-    def from_dict(cls, dct: dict) -> Self:  # type: ignore[override]
+    def from_dict(cls, dct: dict) -> Self:
         """
         Args:
             dct: dict.

@@ -22,6 +22,7 @@ from __future__ import annotations
 import itertools
 import os
 import warnings
+from typing import TYPE_CHECKING
 
 import numpy as np
 from ruamel.yaml import YAML
@@ -67,6 +68,9 @@ from pymatgen.io.cp2k.inputs import (
 from pymatgen.io.cp2k.utils import get_truncated_coulomb_cutoff, get_unique_site_indices
 from pymatgen.io.vasp.inputs import Kpoints as VaspKpoints
 from pymatgen.io.vasp.inputs import KpointsSupportedModes
+
+if TYPE_CHECKING:
+    from typing import Literal
 
 __author__ = "Nicholas Winner"
 __version__ = "2.0"
@@ -118,7 +122,7 @@ class DftSet(Cp2kInput):
                 speed-ups for this part of the calculation, but the system must have a band gap
                 for OT to be used (higher band-gap --> faster convergence).
             energy_gap (float): Estimate of energy gap for pre-conditioner. Default is -1, leaving
-                it up to cp2k.
+                it up to CP2K.
             eps_default (float): Replaces all EPS_XX Keywords in the DFT section value, ensuring
                 an overall accuracy of at least this much.
             eps_scf (float): The convergence criteria for leaving the SCF loop. Default is 1e-6.
@@ -147,13 +151,13 @@ class DftSet(Cp2kInput):
                 transformation is not analytically correct and uses a truncated polynomial
                 expansion, but is robust to the problems with STRICT, and so is the default.
             linesearch (str): Linesearch method for CG. 2PNT is the default, and is the fastest,
-                but is not as robust as 3PNT. 2PNT is required as of cp2k v9.1 for compatibility
+                but is not as robust as 3PNT. 2PNT is required as of CP2K v9.1 for compatibility
                 with irac+rotation. This may be upgraded in the future. 3PNT can be good for wide
                 gapped transition metal systems as an alternative.
             rotation (bool): Whether or not to allow for rotation of the orbitals in the OT method.
                 This equates to allowing for fractional occupations in the calculation.
             occupation_preconditioner (bool): Whether or not to account for fractional occupations
-                in the preconditioner. This method is not fully integrated as of cp2k v9.1 and is
+                in the preconditioner. This method is not fully integrated as of CP2K v9.1 and is
                 set to false by default.
             cutoff (int): Cutoff energy (in Ry) for the finest level of the multigrid. A high
                 cutoff will allow you to have very accurate calculations PROVIDED that REL_CUTOFF
@@ -210,7 +214,7 @@ class DftSet(Cp2kInput):
         self.insert(ForceEval())
 
         if self.kpoints:
-            # As of cp2k v2022.1 kpoint module is not fully integrated, so even specifying
+            # As of CP2K v2022.1 kpoint module is not fully integrated, so even specifying
             # 0,0,0 will disable certain features. So, you have to drop it all together to
             # get full support
             if (
@@ -358,7 +362,7 @@ class DftSet(Cp2kInput):
 
                     el: {'basis': obj, 'potential': obj}
 
-                2. Provide a hash of the object that matches the keys in the pmg configured cp2k data files.
+                2. Provide a hash of the object that matches the keys in the pmg configured CP2K data files.
 
                     el: {'basis': hash, 'potential': hash}
 
@@ -373,7 +377,7 @@ class DftSet(Cp2kInput):
             Strategy 2: global descriptors
 
                 In this case, any elements not present in the argument will be dealt with by searching the pmg
-                configured cp2k data files to find a objects matching your requirements.
+                configured CP2K data files to find a objects matching your requirements.
 
                     - functional: Find potential and basis that have been optimized for a specific functional like PBE.
                         Can be None if you do not require them to match.
@@ -402,7 +406,7 @@ class DftSet(Cp2kInput):
             desired_basis, desired_aux_basis, desired_potential = None, None, None
             have_element_file = os.path.isfile(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el))
 
-            # Necessary if matching data to cp2k data files
+            # Necessary if matching data to CP2K data files
             if have_element_file:
                 with open(os.path.join(SETTINGS.get("PMG_CP2K_DATA_DIR", "."), el), encoding="utf-8") as file:
                     yaml = YAML(typ="unsafe", pure=True)
@@ -675,7 +679,7 @@ class DftSet(Cp2kInput):
         """
         Attaches a non-scf band structure calc the end of an SCF loop.
 
-        This requires a kpoint calculation, which is not always default in cp2k.
+        This requires a kpoint calculation, which is not always default in CP2K.
 
         Args:
             kpoints_line_density: number of kpoints along each branch in line-mode calc.
@@ -728,7 +732,7 @@ class DftSet(Cp2kInput):
         """
         Basic set for activating hybrid DFT calculation using Auxiliary Density Matrix Method.
 
-        Note 1: When running ADMM with cp2k, memory is very important. If the memory requirements
+        Note 1: When running ADMM with CP2K, memory is very important. If the memory requirements
         exceed what is available (see max_memory), then CP2K will have to calculate the 4-electron
         integrals for HFX during each step of the SCF cycle. ADMM provides a huge speed up by
         making the memory requirements *feasible* to fit into RAM, which means you only need to
@@ -742,14 +746,14 @@ class DftSet(Cp2kInput):
         Args:
             hybrid_functional (str): Type of hybrid functional. This set supports HSE (screened)
                 and PBE0 (truncated). Default is PBE0, which converges easier in the GPW basis
-                used by cp2k.
+                used by CP2K.
             hf_fraction (float): fraction of exact HF exchange energy to mix. Default: 0.25
             gga_x_fraction (float): fraction of gga exchange energy to retain. Default: 0.75
             gga_c_fraction (float): fraction of gga correlation energy to retain. Default: 1.0
             max_memory (int): Maximum memory available to each MPI process (in Mb) in the
                 calculation. Most modern computing nodes will have ~2Gb per core, or 2048 Mb,
                 but check for your specific system. This value should be as large as possible
-                while still leaving some memory for the other parts of cp2k. Important: If
+                while still leaving some memory for the other parts of CP2K. Important: If
                 this value is set larger than the memory limits, CP2K will likely seg-fault.
                 Default: 2000
             cutoff_radius (float): for truncated hybrid functional (i.e. PBE0), this is the cutoff
@@ -988,7 +992,7 @@ class DftSet(Cp2kInput):
         if not self.check("MOTION"):
             self.insert(Section("MOTION", subsections={}))
 
-        run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0].upper()  # noqa: PD011
+        run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0].upper()
         run_type = {"GEOMETRY_OPTIMIZATION": "GEO_OPT", "MOLECULAR_DYNAMICS": "MD"}.get(run_type, run_type)
 
         self["MOTION"].insert(Section("PRINT", subsections={}))
@@ -1075,7 +1079,7 @@ class DftSet(Cp2kInput):
                                 "LIST": Keyword("LIST", f"{t[0]}..{t[1]}"),
                             },
                         )
-                        for t, c in zip(tuples, components)
+                        for t, c in zip(tuples, components, strict=True)
                         if c
                     ]
                 )
@@ -1180,7 +1184,7 @@ class DftSet(Cp2kInput):
                 algorithm="IRAC",
                 linesearch="2PNT",
             )
-            self |= {"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}}  # type: ignore[assignment]
+            self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})  # type: ignore[assignment]
 
     def activate_robust_minimization(self) -> None:
         """Modify the set to use more robust SCF minimization technique."""
@@ -1190,7 +1194,7 @@ class DftSet(Cp2kInput):
             algorithm="STRICT",
             linesearch="3PNT",
         )
-        self |= {"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}}  # type: ignore[assignment]
+        self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})  # type: ignore[assignment]
 
     def activate_very_strict_minimization(self) -> None:
         """Method to modify the set to use very strict SCF minimization scheme."""
@@ -1200,7 +1204,7 @@ class DftSet(Cp2kInput):
             algorithm="STRICT",
             linesearch="GOLD",
         )
-        self |= {"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}}  # type: ignore[assignment]
+        self.update({"FORCE_EVAL": {"DFT": {"SCF": {"OT": ot}}}})  # type: ignore[assignment]
 
     def activate_nonperiodic(self, solver="ANALYTIC") -> None:
         """
@@ -1280,7 +1284,7 @@ class DftSet(Cp2kInput):
         subsys.insert(coord)
         self["FORCE_EVAL"].insert(subsys)
 
-    def modify_dft_print_iters(self, iters, add_last="no"):
+    def modify_dft_print_iters(self, iters, add_last: Literal["no", "numeric", "symbolic"] = "no"):
         """
         Modify all DFT print iterations at once. Common use is to set iters to the max
         number of iterations + 1 and then set add_last to numeric. This would have the
@@ -1295,8 +1299,10 @@ class DftSet(Cp2kInput):
                 symbolic: mark last iteration with the letter "l"
                 no: do not explicitly include the last iteration
         """
-        assert add_last.lower() in ["no", "numeric", "symbolic"]
-        run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0].upper()  # noqa: PD011
+        if add_last.lower() not in {"no", "numeric", "symbolic"}:
+            raise ValueError(f"add_list should be no/numeric/symbolic, got {add_last.lower()}")
+
+        run_type = self["global"].get("run_type", Keyword("run_type", "energy")).values[0].upper()
         if run_type not in ["ENERGY_FORCE", "ENERGY", "WAVEFUNCTION_OPTIMIZATION", "WFN_OPT"] and self.check(
             "FORCE_EVAL/DFT/PRINT"
         ):
@@ -1322,8 +1328,8 @@ class DftSet(Cp2kInput):
         for val in self["force_eval"]["subsys"].subsections.values():
             if (
                 val.name.upper() == "KIND"
-                and val["POTENTIAL"].values[0].upper() == "ALL"  # noqa: PD011
-                and self["force_eval"]["dft"]["qs"]["method"].values[0].upper() != "GAPW"  # noqa: PD011
+                and val["POTENTIAL"].values[0].upper() == "ALL"
+                and self["force_eval"]["dft"]["qs"]["method"].values[0].upper() != "GAPW"
             ):
                 raise Cp2kValidationError("All electron basis sets require GAPW method")
 
@@ -1377,9 +1383,9 @@ class HybridCellOptSet(DftSet):
 
 class Cp2kValidationError(Exception):
     """
-    Cp2k Validation Exception. Not exhausted. May raise validation
+    CP2K validation exception. Not exhausted. May raise validation
     errors for features which actually do work if using a newer version
-    of cp2k.
+    of CP2K.
     """
 
     CP2K_VERSION = "v2022.1"

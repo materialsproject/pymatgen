@@ -120,6 +120,7 @@ def setup_potcars(potcar_dirs: list[str]):
         "potpaw_PBE_54": "POT_GGA_PAW_PBE_54",
         "potpaw_PBE.52": "POT_GGA_PAW_PBE_52",
         "potpaw_PBE.54": "POT_GGA_PAW_PBE_54",
+        "potpaw_PBE.64": "POT_GGA_PAW_PBE_64",
         "potpaw_LDA": "POT_LDA_PAW",
         "potpaw_LDA.52": "POT_LDA_PAW_52",
         "potpaw_LDA.54": "POT_LDA_PAW_54",
@@ -143,7 +144,7 @@ def setup_potcars(potcar_dirs: list[str]):
                     dest = os.path.join(base_dir, os.path.basename(fname))
                     shutil.copy(fname, dest)
                     ext = fname.split(".")[-1]
-                    if ext.upper() in ["Z", "GZ"]:
+                    if ext.upper() in {"Z", "GZ"}:
                         with subprocess.Popen(["gunzip", dest]) as process:
                             process.communicate()
                     elif ext.upper() == "BZ2":
@@ -198,12 +199,12 @@ def build_bader(fortran_command="gfortran"):
     Args:
         fortran_command: The Fortran compiler command.
     """
-    bader_url = "http://theory.cm.utexas.edu/henkelman/code/bader/download/bader.tar.gz"
+    bader_url = "https://theory.cm.utexas.edu/henkelman/code/bader/download/bader.tar.gz"
     cwd = os.getcwd()
     state = True
     try:
-        urlretrieve(bader_url, "bader.tar.gz")
-        subprocess.call(["tar", "-zxf", "bader.tar.gz"])
+        urlretrieve(bader_url, "bader.tar.gz")  # noqa: S310
+        subprocess.call(["/usr/bin/tar", "-zxf", "bader.tar.gz"])
         os.chdir("bader")
         subprocess.call(["cp", "makefile.osx_" + fortran_command, "makefile"])
         subprocess.call(["make"])
@@ -271,7 +272,7 @@ def add_config_var(tokens: list[str], backup_suffix: str) -> None:
             print(f"Existing {rc_path} backed up to {rc_path}{backup_suffix}")
         dct = loadfn(rc_path)
     special_vals = {"true": True, "false": False, "none": None, "null": None}
-    for key, val in zip(tokens[::2], tokens[1::2]):
+    for key, val in zip(tokens[::2], tokens[1::2], strict=True):
         dct[key] = special_vals.get(val.lower(), val)
     dumpfn(dct, rc_path)
     print(f"New {rc_path} written!")

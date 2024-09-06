@@ -5,14 +5,3 @@ pymatgen.util.testing package
    :members:
    :undoc-members:
    :show-inheritance:
-
-Submodules
-----------
-
-pymatgen.util.testing.aims module
----------------------------------
-
-.. automodule:: pymatgen.util.testing.aims
-   :members:
-   :undoc-members:
-   :show-inheritance:

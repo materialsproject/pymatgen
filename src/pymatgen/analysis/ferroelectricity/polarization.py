@@ -307,7 +307,7 @@ class Polarization:
             sites.append(new_site[0])
 
         adjust_pol = []
-        for site, struct in zip(sites, d_structs):
+        for site, struct in zip(sites, d_structs, strict=True):
             adjust_pol.append(np.multiply(site.frac_coords, np.array(struct.lattice.lengths)).ravel())
         return np.array(adjust_pol)
 

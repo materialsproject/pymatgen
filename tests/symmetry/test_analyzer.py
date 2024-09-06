@@ -6,7 +6,7 @@ from unittest import TestCase
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from pytest import approx, raises
+from pytest import approx
 from spglib import SpglibDataset
 
 from pymatgen.core import Lattice, Molecule, PeriodicSite, Site, Species, Structure
@@ -88,11 +88,12 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
     def test_get_point_group_operations(self):
         sg: SpacegroupAnalyzer
+        rng = np.random.default_rng()
         for sg, structure in [(self.sg, self.structure), (self.sg4, self.structure4)]:
             pg_ops = sg.get_point_group_operations()
             frac_symm_ops = sg.get_symmetry_operations()
             symm_ops = sg.get_symmetry_operations(cartesian=True)
-            for fop, op, pgop in zip(frac_symm_ops, symm_ops, pg_ops):
+            for fop, op, pgop in zip(frac_symm_ops, symm_ops, pg_ops, strict=True):
                 # translation vector values should all be 0 or 0.5
                 t = fop.translation_vector * 2
                 assert_allclose(t - np.round(t), 0)
@@ -112,7 +113,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
                 # Make sure this works for any position, not just the atomic
                 # ones.
-                random_fcoord = np.random.uniform(size=(3))
+                random_fcoord = rng.uniform(size=(3))
                 random_ccoord = structure.lattice.get_cartesian_coords(random_fcoord)
                 new_frac = fop.operate(random_fcoord)
                 new_cart = op.operate(random_ccoord)
@@ -377,7 +378,7 @@ class TestSpacegroupAnalyzer(PymatgenTest):
 
     def test_bad_structure(self):
         struct = Structure(Lattice.cubic(5), ["H", "H"], [[0.0, 0.0, 0.0], [0.001, 0.0, 0.0]])
-        with raises(SymmetryUndetermined):
+        with pytest.raises(SymmetryUndetermined):
             SpacegroupAnalyzer(struct, 0.1)
 
 
@@ -576,8 +577,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
         assert pg_analyzer.sch_symbol == "Ih"
 
     def test_symmetrize_molecule1(self):
-        np.random.seed(77)
-        distortion = np.random.randn(len(C2H4), 3) / 10
+        distortion = np.random.default_rng(0).standard_normal((len(C2H4), 3)) / 10
         dist_mol = Molecule(C2H4.species, C2H4.cart_coords + distortion)
 
         eq = iterative_symmetrize(dist_mol, max_n=100, epsilon=1e-7)
@@ -593,8 +593,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
                 assert_allclose(np.dot(ops[idx][j], coords[idx]), coords[j])
 
     def test_symmetrize_molecule2(self):
-        np.random.seed(77)
-        distortion = np.random.randn(len(C2H2F2Br2), 3) / 20
+        distortion = np.random.default_rng(0).standard_normal((len(C2H2F2Br2), 3)) / 20
         dist_mol = Molecule(C2H2F2Br2.species, C2H2F2Br2.cart_coords + distortion)
         pa1 = PointGroupAnalyzer(C2H2F2Br2, tolerance=0.1)
         assert pa1.get_pointgroup().sch_symbol == "Ci"
@@ -611,7 +610,7 @@ class TestPointGroupAnalyzer(PymatgenTest):
             ir_mesh = spga.get_ir_reciprocal_mesh((4, 4, 4))
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
-            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
+            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh]), strict=True):
                 assert weight == approx(expected)
 
         for name in ("SrTiO3", "LiFePO4", "Graphite"):
@@ -620,14 +619,14 @@ class TestPointGroupAnalyzer(PymatgenTest):
             ir_mesh = spga.get_ir_reciprocal_mesh((1, 2, 3))
             weights = [i[1] for i in ir_mesh]
             weights = np.array(weights) / sum(weights)
-            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh])):
+            for expected, weight in zip(weights, spga.get_kpoint_weights([i[0] for i in ir_mesh]), strict=True):
                 assert weight == approx(expected)
 
         vasp_run = Vasprun(f"{VASP_OUT_DIR}/vasprun.xml.gz")
         spga = SpacegroupAnalyzer(vasp_run.final_structure)
         wts = spga.get_kpoint_weights(vasp_run.actual_kpoints)
 
-        for w1, w2 in zip(vasp_run.actual_kpoints_weights, wts):
+        for w1, w2 in zip(vasp_run.actual_kpoints_weights, wts, strict=True):
             assert w1 == approx(w2)
 
         kpts = [[0, 0, 0], [0.15, 0.15, 0.15], [0.2, 0.2, 0.2]]

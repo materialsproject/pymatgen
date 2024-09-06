@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 import os
 
 import pytest
@@ -20,13 +19,8 @@ __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 __credits__ = "Xiaohui Qu"
 
-logger = logging.getLogger(__name__)
-
 
 class TestQCInput(PymatgenTest):
-    # ef setUpClass(cls):
-    # add things that show up over and over again
-
     def test_molecule_template(self):
         species = ["C", "O"]
         coords = [
@@ -1182,7 +1176,7 @@ $end"""
         ref_path = f"{TEST_DIR}/test_ref.qin"
 
         with open(ref_path) as ref_file, open(test_path) as test_file:
-            for l_test, l_ref in zip(test_file, ref_file):
+            for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 # By default, if this statement fails the offending line will be printed
                 assert l_test == l_ref
 
@@ -1197,7 +1191,7 @@ $end"""
         ref_path = f"{TEST_DIR}/test_ref_vdw.qin"
 
         with open(ref_path) as ref_file, open(test_path) as test_file:
-            for l_test, l_ref in zip(test_file, ref_file):
+            for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 # By default, if this statement fails the offending line will be printed
                 assert l_test == l_ref
 
@@ -1210,7 +1204,7 @@ $end"""
         qcinp.write_file(test_path)
 
         with open(test_path) as ref_file, open(ref_path) as test_file:
-            for l_test, l_ref in zip(test_file, ref_file):
+            for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 # By default, if this statement fails the offending line will be printed
                 assert l_test == l_ref
 
@@ -1223,7 +1217,7 @@ $end"""
         ref_path = f"{TEST_DIR}/test_e2pert.qin"
 
         with open(ref_path) as ref_file, open(test_path) as test_file:
-            for l_test, l_ref in zip(test_file, ref_file):
+            for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 assert l_test == l_ref
 
         os.remove(f"{TEST_DIR}/test_e2pert.qin")
@@ -1235,7 +1229,7 @@ $end"""
         ref_path = f"{TEST_DIR}/test_custom_smd.qin"
 
         with open(ref_path) as ref_file, open(test_path) as test_file:
-            for l_test, l_ref in zip(test_file, ref_file):
+            for l_test, l_ref in zip(test_file, ref_file, strict=True):
                 assert l_test == l_ref
 
         os.remove(f"{TEST_DIR}/test_custom_smd.qin")

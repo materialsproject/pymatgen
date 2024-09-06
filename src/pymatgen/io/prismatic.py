@@ -1,4 +1,4 @@
-"""Write Prismatic (http://prism-em.com) input files."""
+"""Write Prismatic (https://prism-em.com) input files."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class Prismatic:
-    """Write Prismatic  (http://prism-em.com) input files.
+    """Write Prismatic (https://prism-em.com) input files.
     This is designed for STEM image simulation.
     """
 

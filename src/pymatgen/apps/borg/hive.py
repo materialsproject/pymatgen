@@ -253,7 +253,7 @@ class SimpleVaspToComputedEntryDrone(VaspToComputedEntryDrone):
 
             param = {"hubbards": {}}
             if "LDAUU" in incar:
-                param["hubbards"] = dict(zip(poscar.site_symbols, incar["LDAUU"]))
+                param["hubbards"] = dict(zip(poscar.site_symbols, incar["LDAUU"], strict=True))
             param["is_hubbard"] = incar.get("LDAU", True) and sum(param["hubbards"].values()) > 0
             param["run_type"] = None
             param["potcar_spec"] = potcar.spec
@@ -418,8 +418,7 @@ class GaussianToComputedEntryDrone(AbstractDrone):
 
 def _get_transformation_history(path):
     """Check for a transformations.json* file and returns the history."""
-    trans_json = glob(f"{path}/transformations.json*")
-    if trans_json:
+    if trans_json := glob(f"{path}/transformations.json*"):
         try:
             with zopen(trans_json[0]) as file:
                 return json.load(file)["history"]

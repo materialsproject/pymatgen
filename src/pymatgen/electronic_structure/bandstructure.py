@@ -239,7 +239,8 @@ class BandStructure:
                 Spin.down: [][{Element: [values]}]} format.
                 If there is no projections in the band structure, return {}.
         """
-        assert self.structure is not None
+        if self.structure is None:
+            raise ValueError("structure is None.")
         result: dict[Spin, NDArray] = {}
         for spin, val in self.projections.items():
             result[spin] = [[defaultdict(float) for _ in range(len(self.kpoints))] for _ in range(self.nb_bands)]
@@ -332,7 +333,7 @@ class BandStructure:
         max_tmp = -float("inf")
         index = kpoint_vbm = None
         for value in self.bands.values():
-            for idx, j in zip(*np.where(value < self.efermi)):
+            for idx, j in zip(*np.where(value < self.efermi), strict=True):
                 if value[idx, j] > max_tmp:
                     max_tmp = float(value[idx, j])
                     index = j
@@ -398,7 +399,7 @@ class BandStructure:
         max_tmp = float("inf")
         index = kpoint_cbm = None
         for value in self.bands.values():
-            for idx, j in zip(*np.where(value >= self.efermi)):
+            for idx, j in zip(*np.where(value >= self.efermi), strict=True):
                 if value[idx, j] < max_tmp:
                     max_tmp = float(value[idx, j])
                     index = j
@@ -1037,7 +1038,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
 
     def get_projections_on_elements_and_orbitals(
         self,
-        el_orb_spec: dict[Element, list],  # type: ignore[override]
+        el_orb_spec: dict[Element, list],
     ) -> dict[Spin, list]:
         """Get projections on elements and specific orbitals.
 

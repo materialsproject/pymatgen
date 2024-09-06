@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import random
 import unittest
 
 import numpy as np
@@ -160,7 +159,7 @@ class TestSlab(PymatgenTest):
             assert total_surf_sites / 2 == 4
 
             # Test if the ratio of surface sites per area is
-            # constant, ie are the surface energies the same
+            # constant, i.e. are the surface energies the same?
             r1 = total_surf_sites / (2 * slab.surface_area)
             slab_gen = SlabGenerator(self.ag_fcc, (3, 1, 0), 10, 10, primitive=False)
             slab = slab_gen.get_slabs()[0]
@@ -375,7 +374,8 @@ class TestSlabGenerator(PymatgenTest):
         assert len(slab_non_prim) == len(slab) * 4
 
         # Some randomized testing of cell vectors
-        for spg_int in np.random.randint(1, 230, 10):
+        rng = np.random.default_rng()
+        for spg_int in rng.integers(1, 230, 10):
             sg = SpaceGroup.from_int_number(spg_int)
             if sg.crystal_system == "hexagonal" or (
                 sg.crystal_system == "trigonal"
@@ -392,11 +392,7 @@ class TestSlabGenerator(PymatgenTest):
             struct = Structure.from_spacegroup(spg_int, lattice, ["H"], [[0, 0, 0]])
             miller = (0, 0, 0)
             while miller == (0, 0, 0):
-                miller = (
-                    random.randint(0, 6),
-                    random.randint(0, 6),
-                    random.randint(0, 6),
-                )
+                miller = tuple(rng.integers(0, 6, size=3, endpoint=True))
             gen = SlabGenerator(struct, miller, 10, 10)
             a_vec, b_vec, _c_vec = gen.oriented_unit_cell.lattice.matrix
             assert np.dot(a_vec, gen._normal) == approx(0)

@@ -402,6 +402,119 @@ CELL_PARAMETERS angstrom
         pw_str = str(pw)
         assert pw_str.strip() == str(PWInput.from_str(pw_str)).strip()
 
+    def test_custom_decimal_precision(self):
+        struct = self.get_structure("Li2O")
+        pw = PWInput(
+            struct,
+            control={"calculation": "scf", "pseudo_dir": "./"},
+            pseudo={
+                "Li+": "Li.pbe-n-kjpaw_psl.0.1.UPF",
+                "O2-": "O.pbe-n-kjpaw_psl.0.1.UPF",
+            },
+            system={"ecutwfc": 50},
+            format_options={"coord_decimals": 9, "indent": 0},
+        )
+        expected = """&CONTROL
+calculation = 'scf',
+pseudo_dir = './',
+/
+&SYSTEM
+ecutwfc = 50,
+ibrav = 0,
+nat = 3,
+ntyp = 2,
+/
+&ELECTRONS
+/
+&IONS
+/
+&CELL
+/
+ATOMIC_SPECIES
+Li+  6.9410 Li.pbe-n-kjpaw_psl.0.1.UPF
+O2-  15.9994 O.pbe-n-kjpaw_psl.0.1.UPF
+ATOMIC_POSITIONS crystal
+O2- 0.000000000 0.000000000 0.000000000
+Li+ 0.750178290 0.750178290 0.750178290
+Li+ 0.249821710 0.249821710 0.249821710
+K_POINTS automatic
+1 1 1 0 0 0
+CELL_PARAMETERS angstrom
+2.917388570 0.097894370 1.520004660
+0.964634060 2.755035610 1.520004660
+0.133206350 0.097894430 3.286917710
+"""
+        assert str(pw).strip() == expected.strip()
+
+    def test_custom_decimal_precision_kpoint_grid_crystal_b(self):
+        struct = self.get_structure("Li2O")
+        struct.remove_oxidation_states()
+        kpoints = [[0.0, 0.0, 0.0], [0.0, 0.5, 0.5], [0.5, 0.0, 0.0], [0.0, 0.0, 0.5], [0.5, 0.5, 0.5]]
+        pw = PWInput(
+            struct,
+            control={"calculation": "scf", "pseudo_dir": "./"},
+            pseudo={
+                "Li": "Li.pbe-n-kjpaw_psl.0.1.UPF",
+                "O": "O.pbe-n-kjpaw_psl.0.1.UPF",
+            },
+            system={"ecutwfc": 50},
+            kpoints_mode="crystal_b",
+            kpoints_grid=kpoints,
+            format_options={"kpoints_crystal_b_indent": 2},
+        )
+        expected = """
+&CONTROL
+  calculation = 'scf',
+  pseudo_dir = './',
+/
+&SYSTEM
+  ecutwfc = 50,
+  ibrav = 0,
+  nat = 3,
+  ntyp = 2,
+/
+&ELECTRONS
+/
+&IONS
+/
+&CELL
+/
+ATOMIC_SPECIES
+  Li  6.9410 Li.pbe-n-kjpaw_psl.0.1.UPF
+  O  15.9994 O.pbe-n-kjpaw_psl.0.1.UPF
+ATOMIC_POSITIONS crystal
+  O 0.000000 0.000000 0.000000
+  Li 0.750178 0.750178 0.750178
+  Li 0.249822 0.249822 0.249822
+K_POINTS crystal_b
+  5
+  0.0000 0.0000 0.0000
+  0.0000 0.5000 0.5000
+  0.5000 0.0000 0.0000
+  0.0000 0.0000 0.5000
+  0.5000 0.5000 0.5000
+CELL_PARAMETERS angstrom
+  2.917389 0.097894 1.520005
+  0.964634 2.755036 1.520005
+  0.133206 0.097894 3.286918
+"""
+        assert str(pw).strip() == expected.strip()
+
+    def test_custom_decimal_precision_write_and_read_str(self):
+        struct = self.get_structure("Li2O")
+        pw = PWInput(
+            struct,
+            control={"calculation": "scf", "pseudo_dir": "./"},
+            pseudo={
+                "Li+": "Li.pbe-n-kjpaw_psl.0.1.UPF",
+                "O2-": "O.pbe-n-kjpaw_psl.0.1.UPF",
+            },
+            system={"ecutwfc": 50},
+            format_options={"coord_decimals": 9},
+        )
+        pw_str = str(pw)
+        assert pw_str.strip() == str(PWInput.from_str(pw_str)).strip()
+
 
 class TestPWOutput(PymatgenTest):
     def setUp(self):

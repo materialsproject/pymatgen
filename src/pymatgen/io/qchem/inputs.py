@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 import re
 from typing import TYPE_CHECKING
 
@@ -25,8 +24,6 @@ __version__ = "0.1"
 __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 __credits__ = "Xiaohui Qu"
-
-logger = logging.getLogger(__name__)
 
 
 class QCInput(InputFile):
@@ -306,7 +303,7 @@ class QCInput(InputFile):
         return multi_job_string
 
     @classmethod
-    def from_str(cls, string: str) -> Self:  # type: ignore[override]
+    def from_str(cls, string: str) -> Self:
         """
         Read QcInput from string.
 
@@ -380,7 +377,7 @@ class QCInput(InputFile):
             file.write(QCInput.multi_job_string(job_list))
 
     @classmethod
-    def from_file(cls, filename: str | Path) -> Self:  # type: ignore[override]
+    def from_file(cls, filename: str | Path) -> Self:
         """
         Create QcInput from file.
 
@@ -693,7 +690,11 @@ class QCInput(InputFile):
                         raise ValueError("Invalid CDFT constraint type!")
 
                 for coef, first, last, type_string in zip(
-                    constraint["coefficients"], constraint["first_atoms"], constraint["last_atoms"], type_strings
+                    constraint["coefficients"],
+                    constraint["first_atoms"],
+                    constraint["last_atoms"],
+                    type_strings,
+                    strict=True,
                 ):
                     if type_string != "":
                         cdft_list.append(f"   {coef} {first} {last} {type_string}")
@@ -847,7 +848,7 @@ class QCInput(InputFile):
         matches = read_pattern(string, patterns)
 
         mol_table = read_table_pattern(string, header_pattern=header, row_pattern=row, footer_pattern=footer)
-        for match, table in zip(matches.get("charge_spin"), mol_table):
+        for match, table in zip(matches.get("charge_spin"), mol_table, strict=True):
             charge = int(match[0])
             spin = int(match[1])
             species = [val[0] for val in table]

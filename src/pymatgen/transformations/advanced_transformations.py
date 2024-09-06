@@ -46,8 +46,8 @@ except ImportError:
     hiphive = None
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
-    from typing import Any, Callable, Literal
+    from collections.abc import Callable, Iterable, Sequence
+    from typing import Any, Literal
 
 
 __author__ = "Shyue Ping Ong, Stephen Dacek, Anubhav Jain, Matthew Horton, Alex Ganose"
@@ -721,7 +721,7 @@ class MagOrderingTransformation(AbstractTransformation):
                 DummySpecies(symbol, spin=Spin.up): constraint.order_parameter,
                 DummySpecies(symbol, spin=Spin.down): 1 - constraint.order_parameter,
             }
-            for symbol, constraint in zip(dummy_species_symbols, order_parameters)
+            for symbol, constraint in zip(dummy_species_symbols, order_parameters, strict=True)
         ]
 
         for site in dummy_struct:
@@ -988,9 +988,7 @@ class DopingTransformation(AbstractTransformation):
         logger.info(f"Composition: {comp}")
 
         for sp in comp:
-            try:
-                sp.oxi_state  # noqa: B018
-            except AttributeError:
+            if not hasattr(sp, "oxi_state"):
                 analyzer = BVAnalyzer()
                 structure = analyzer.get_oxi_state_decorated_structure(structure)
                 comp = structure.composition
@@ -1081,8 +1079,8 @@ class DopingTransformation(AbstractTransformation):
                 else:
                     sp_to_remove = min(supercell.composition, key=lambda el: el.X)
                 # Confirm species are of opposite oxidation states.
-                assert sp_to_remove.oxi_state * sp.oxi_state < 0  # type: ignore[operator]
-
+                if sp_to_remove.oxi_state * sp.oxi_state >= 0:  # type: ignore[operator]
+                    raise ValueError("Species should be of opposite oxidation states.")
                 ox_diff = int(abs(round(sp.oxi_state - ox)))
                 anion_ox = int(abs(sp_to_remove.oxi_state))  # type: ignore[arg-type]
                 nx = supercell.composition[sp_to_remove]
@@ -1752,7 +1750,7 @@ def _round_and_make_arr_singular(arr: np.ndarray) -> np.ndarray:
             col_idx_to_fix = np.where(matches)[0]
 
             # Break ties for the largest absolute magnitude
-            r_idx = np.random.randint(len(col_idx_to_fix))
+            r_idx = np.random.default_rng().integers(len(col_idx_to_fix))
             col_idx_to_fix = col_idx_to_fix[r_idx]
 
             # Round the chosen element away from zero
@@ -2171,7 +2169,7 @@ class MonteCarloRattleTransformation(AbstractTransformation):
         if not seed:
             # if seed is None, use a random RandomState seed but make sure
             # we store that the original seed was None
-            seed = np.random.randint(1, 1000000000)
+            seed = np.random.default_rng().integers(1, 1000000000)
 
         self.random_state = np.random.RandomState(seed)
         self.kwargs = kwargs

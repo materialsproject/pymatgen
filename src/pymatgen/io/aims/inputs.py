@@ -152,7 +152,7 @@ class AimsGeometryIn(MSONable):
         velocities = structure.site_properties.get("velocity", [None for _ in structure.species])
 
         for species, coord, charge, magmom, v in zip(
-            structure.species, structure.cart_coords, charges, magmoms, velocities
+            structure.species, structure.cart_coords, charges, magmoms, velocities, strict=True
         ):
             if isinstance(species, Element):
                 spin = magmom
@@ -547,7 +547,8 @@ class AimsControlIn(MSONable):
                 content += f"#     {param}:{val}\n"
         content += f"{lim}\n"
 
-        assert ("smearing" in parameters and "occupation_type" in parameters) is False
+        if "smearing" in parameters and "occupation_type" in parameters:
+            raise ValueError(f'both "smearing" and "occupation_type" in {parameters=}')
 
         for key, value in parameters.items():
             if key in ["species_dir", "plus_u"]:
@@ -571,7 +572,7 @@ class AimsControlIn(MSONable):
                 content += self.get_aims_control_parameter_str(key, "", "%s")
             elif isinstance(value, bool):
                 content += self.get_aims_control_parameter_str(key, str(value).lower(), ".%s.")
-            elif isinstance(value, (tuple, list)):
+            elif isinstance(value, tuple | list):
                 content += self.get_aims_control_parameter_str(key, " ".join(map(str, value)), "%s")
             elif isinstance(value, str):
                 content += self.get_aims_control_parameter_str(key, value, "%s")
@@ -879,7 +880,7 @@ class SpeciesDefaults(list, MSONable):
         """Initialize species defaults from a structure."""
         labels = []
         elements = {}
-        for label, el in sorted(zip(struct.labels, struct.species)):
+        for label, el in sorted(zip(struct.labels, struct.species, strict=True)):
             if not isinstance(el, Element):
                 el = el.element
             if (label is None) or (el is None):

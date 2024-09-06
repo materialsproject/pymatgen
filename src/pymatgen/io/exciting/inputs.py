@@ -85,12 +85,14 @@ class ExcitingInput(MSONable):
         lockxyz = []
         # get title
         _title = root.find("title")
-        assert _title is not None, "title cannot be None."
+        if _title is None:
+            raise ValueError("title cannot be None.")
         title_in = str(_title.text)
         # Read elements and coordinates
         for nodes in species_node:
             _speciesfile = nodes.get("speciesfile")
-            assert _speciesfile is not None, "speciesfile cannot be None."
+            if _speciesfile is None:
+                raise ValueError("speciesfile cannot be None.")
             symbol = _speciesfile.split(".")[0]
             if len(symbol.split("_")) == 2:
                 symbol = symbol.split("_")[0]
@@ -102,7 +104,8 @@ class ExcitingInput(MSONable):
 
             for atom in nodes.iter("atom"):
                 _coord = atom.get("coord")
-                assert _coord is not None, "coordinate cannot be None."
+                if _coord is None:
+                    raise ValueError("coordinate cannot be None.")
                 x, y, z = _coord.split()
                 positions.append([float(x), float(y), float(z)])
                 elements.append(element)
@@ -113,7 +116,8 @@ class ExcitingInput(MSONable):
                     lxyz = []
 
                     _lockxyz = atom.get("lockxyz")
-                    assert _lockxyz is not None, "lockxyz cannot be None."
+                    if _lockxyz is None:
+                        raise ValueError("lockxyz cannot be None.")
                     for line in _lockxyz.split():
                         if line in ("True", "true"):
                             lxyz.append(True)
@@ -129,7 +133,8 @@ class ExcitingInput(MSONable):
                 p[j] = p[j] * ExcitingInput.bohr2ang
 
         _crystal = struct.find("crystal")
-        assert _crystal is not None, "crystal cannot be None."
+        if _crystal is None:
+            raise ValueError("crystal cannot be None.")
 
         # get the scale attribute
         scale_in = _crystal.get("scale")
@@ -142,7 +147,8 @@ class ExcitingInput(MSONable):
         # get basis vectors and scale them accordingly
         basisnode = _crystal.iter("basevect")
         for vect in basisnode:
-            assert vect.text is not None, "vectors cannot be None."
+            if vect.text is None:
+                raise ValueError("vect.text cannot be None.")
             x, y, z = vect.text.split()
             vectors.append(
                 [

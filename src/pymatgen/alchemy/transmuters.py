@@ -18,8 +18,7 @@ from pymatgen.alchemy.materials import TransformedStructure
 from pymatgen.io.vasp.sets import MPRelaxSet, VaspInputSet
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-    from typing import Callable
+    from collections.abc import Callable, Sequence
 
     from typing_extensions import Self
 
@@ -197,12 +196,12 @@ class StandardTransmuter:
         Args:
             trafo_structs_or_transmuter: A list of transformed structures or a transmuter.
         """
-        if isinstance(trafo_structs_or_transmuter, self.__class__):
-            self.transformed_structures += trafo_structs_or_transmuter.transformed_structures
-        else:
-            for ts in trafo_structs_or_transmuter:
-                assert isinstance(ts, TransformedStructure)
-            self.transformed_structures += trafo_structs_or_transmuter
+        if not isinstance(trafo_structs_or_transmuter, self.__class__) and not all(
+            isinstance(ts, TransformedStructure) for ts in trafo_structs_or_transmuter
+        ):
+            raise TypeError("Some transformed structure has incorrect type.")
+
+        self.transformed_structures += trafo_structs_or_transmuter
 
     @classmethod
     def from_structures(cls, structures, transformations=None, extend_collection=0) -> Self:

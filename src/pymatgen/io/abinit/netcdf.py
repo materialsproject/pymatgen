@@ -73,7 +73,7 @@ class NetcdfReader:
     Wraps and extends netCDF4.Dataset. Read only mode. Supports with statements.
 
     Additional documentation available at:
-        http://netcdf4-python.googlecode.com/svn/trunk/docs/netCDF4-module.html
+        https://unidata.github.io/netcdf4-python/
     """
 
     Error = NetcdfReaderError
@@ -183,7 +183,8 @@ class NetcdfReader:
             except IndexError:
                 return var.getValue() if not var.shape else var[:]
 
-        assert var.shape[-1] == 2
+        if var.shape[-1] != 2:
+            raise ValueError(f"{var.shape[-1]=}, expect it to be 2")
         if cmode == "c":
             return var[..., 0] + 1j * var[..., 1]
         raise ValueError(f"Wrong value for {cmode=}")

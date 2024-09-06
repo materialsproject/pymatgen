@@ -27,7 +27,7 @@ __author__ = "Shyue Ping Ong, Shyam Dwaraknath, Matthew Horton"
 class SymmOp(MSONable):
     """A symmetry operation in Cartesian space. Consists of a rotation plus a
     translation. Implementation is as an affine transformation matrix of rank 4
-    for efficiency. Read: http://wikipedia.org/wiki/Affine_transformation.
+    for efficiency. Read: https://wikipedia.org/wiki/Affine_transformation.
 
     Attributes:
         affine_matrix (np.ndarray): A 4x4 array representing the symmetry operation.
@@ -154,12 +154,13 @@ class SymmOp(MSONable):
         """
         dim = tensor.shape
         rank = len(dim)
-        assert all(val == 3 for val in dim)
+        if any(val != 3 for val in dim):
+            raise ValueError("Some dimension in tensor is not 3.")
 
         # Build einstein sum string
         lc = string.ascii_lowercase
         indices = lc[:rank], lc[rank : 2 * rank]
-        einsum_string = ",".join(a + i for a, i in zip(*indices))
+        einsum_string = ",".join(a + i for a, i in zip(*indices, strict=True))
         einsum_string += f",{indices[::-1][0]}->{indices[::-1][1]}"
         einsum_args = [self.rotation_matrix] * rank + [tensor]
 
@@ -262,7 +263,7 @@ class SymmOp(MSONable):
         Returns:
             SymmOp for a rotation about given axis and translation.
         """
-        if isinstance(axis, (tuple, list)):
+        if isinstance(axis, tuple | list):
             axis = np.array(axis)
 
         vec = np.array(translation_vec)

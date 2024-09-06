@@ -294,7 +294,8 @@ class GaussianInput:
         for line in lines:
             if link0_patt.match(line):
                 match = link0_patt.match(line)
-                assert match is not None
+                if match is None:
+                    raise ValueError("no match found")
                 link0_dict[match[1].strip("=")] = match[2]
 
         route_patt = re.compile(r"^#[sSpPnN]*.*")
@@ -313,7 +314,8 @@ class GaussianInput:
         functional, basis_set, route_paras, dieze_tag = read_route_line(route)
         ind = 2
         title = []
-        assert route_index is not None, "route_index cannot be None"
+        if route_index is None:
+            raise ValueError("route_index cannot be None")
         while lines[route_index + ind].strip():
             title.append(lines[route_index + ind].strip())
             ind += 1
@@ -836,23 +838,23 @@ class GaussianOutput:
                             while "Atom  AN" not in line:
                                 if "Frequencies --" in line:
                                     freqs = map(float, float_patt.findall(line))
-                                    for ifreq, freq in zip(ifreqs, freqs):
+                                    for ifreq, freq in zip(ifreqs, freqs, strict=True):
                                         frequencies[ifreq]["frequency"] = freq
                                 elif "Red. masses --" in line:
                                     r_masses = map(float, float_patt.findall(line))
-                                    for ifreq, r_mass in zip(ifreqs, r_masses):
+                                    for ifreq, r_mass in zip(ifreqs, r_masses, strict=True):
                                         frequencies[ifreq]["r_mass"] = r_mass
                                 elif "Frc consts  --" in line:
                                     f_consts = map(float, float_patt.findall(line))
-                                    for ifreq, f_const in zip(ifreqs, f_consts):
+                                    for ifreq, f_const in zip(ifreqs, f_consts, strict=True):
                                         frequencies[ifreq]["f_constant"] = f_const
                                 elif "IR Inten    --" in line:
                                     IR_intens = map(float, float_patt.findall(line))
-                                    for ifreq, intens in zip(ifreqs, IR_intens):
+                                    for ifreq, intens in zip(ifreqs, IR_intens, strict=True):
                                         frequencies[ifreq]["IR_intensity"] = intens
                                 else:
                                     syms = line.split()[:3]
-                                    for ifreq, sym in zip(ifreqs, syms):
+                                    for ifreq, sym in zip(ifreqs, syms, strict=True):
                                         frequencies[ifreq]["symmetry"] = sym
                                 line = file.readline()
 
@@ -860,7 +862,7 @@ class GaussianOutput:
                             line = file.readline()
                             while normal_mode_patt.search(line):
                                 values = list(map(float, float_patt.findall(line)))
-                                for idx, ifreq in zip(range(0, len(values), 3), ifreqs):
+                                for idx, ifreq in zip(range(0, len(values), 3), ifreqs, strict=True):
                                     frequencies[ifreq]["mode"].extend(values[idx : idx + 3])
                                 line = file.readline()
 
@@ -887,7 +889,7 @@ class GaussianOutput:
                         self.bond_orders = {}
                         for atom_idx in range(n_atoms):
                             for atom_jdx in range(atom_idx + 1, n_atoms):
-                                self.bond_orders[(atom_idx, atom_jdx)] = matrix[atom_idx][atom_jdx]
+                                self.bond_orders[atom_idx, atom_jdx] = matrix[atom_idx][atom_jdx]
                         parse_bond_order = False
 
                     elif termination_patt.search(line):
