@@ -18,7 +18,6 @@ import palettable
 import scipy.interpolate as scint
 from matplotlib.collections import LineCollection
 from matplotlib.gridspec import GridSpec
-from matplotlib.ticker import ScalarFormatter
 from monty.dev import requires
 from monty.json import jsanitize
 
@@ -3205,11 +3204,9 @@ class BoltztrapPlotter:
 
             ax.legend(loc="best", fontsize=15)
             ax.grid()
-
-            ax.yaxis.set_major_formatter(ScalarFormatter())
-            ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
             ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
             ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+            ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
 
         plt.tight_layout()
 
@@ -3265,11 +3262,9 @@ class BoltztrapPlotter:
 
             ax.legend(loc="best", fontsize=15)
             ax.grid()
-
-            ax.yaxis.set_major_formatter(ScalarFormatter())
-            ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
             ax.set_xticklabels(ax.get_xticklabels(), fontsize=25)
             ax.set_yticklabels(ax.get_yticklabels(), fontsize=25)
+            ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
 
         plt.tight_layout()
         return ax
@@ -3467,7 +3462,6 @@ class BoltztrapPlotter:
             if idx == 0:
                 ax.set_ylabel("conductivity $\\sigma$ (1/($\\Omega$ m))", fontsize=30.0)
             ax.set_xlabel("Doping concentration ($cm^{-3}$)", fontsize=30.0)
-            ax.yaxis.set_major_formatter(ScalarFormatter())
             ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
             ax.legend(fontsize=15)
             ax.grid()
@@ -3515,7 +3509,6 @@ class BoltztrapPlotter:
             if idx == 0:
                 ax.set_ylabel("Power Factor  ($\\mu$W/(mK$^2$))", fontsize=30.0)
             ax.set_xlabel("Doping concentration ($cm^{-3}$)", fontsize=30.0)
-            ax.yaxis.set_major_formatter(ScalarFormatter())
             ax.ticklabel_format(style="sci", axis="y", scilimits=(0, 0))
             p = "best"  # 'lower right' if i == 0 else ''
             ax.legend(loc=p, fontsize=15)
