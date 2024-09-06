@@ -153,7 +153,7 @@ class TestBSPlotter(PymatgenTest):
 
     def test_get_ticks(self):
         assert self.plotter.get_ticks()["label"][5] == "K", "wrong tick label"
-        assert self.plotter.get_ticks()["distance"][5] == 2.406607625322699, "wrong tick distance"
+        assert self.plotter.get_ticks()["distance"][5] == pytest.approx(2.406607625322699), "wrong tick distance"
 
     # Minimal baseline testing for get_plot. not a true test. Just checks that
     # it can actually execute.
