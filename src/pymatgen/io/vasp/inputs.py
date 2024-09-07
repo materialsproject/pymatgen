@@ -2743,7 +2743,7 @@ class VaspInput(dict, MSONable):
         """
         super().__init__(**kwargs)
         self._potcar_filename = "POTCAR" + (".spec" if potcar_spec else "")
-        self.update({"INCAR": incar, "KPOINTS": kpoints, "POSCAR": poscar, self._potcar_filename: potcar})
+        self.update({"INCAR": Incar(incar), "KPOINTS": kpoints, "POSCAR": poscar, self._potcar_filename: potcar})
         if optional_files is not None:
             self.update(optional_files)
 
@@ -2771,7 +2771,7 @@ class VaspInput(dict, MSONable):
         """
         sub_dct: dict[str, dict] = {"optional_files": {}}
         for key, val in dct.items():
-            if key in ["INCAR", "POSCAR", "POTCAR", "KPOINTS"]:
+            if key in ("INCAR", "POSCAR", "POTCAR", "KPOINTS"):
                 sub_dct[key.lower()] = MontyDecoder().process_decoded(val)
             elif key not in ["@module", "@class"]:
                 sub_dct["optional_files"][key] = MontyDecoder().process_decoded(val)
@@ -2907,7 +2907,7 @@ class VaspInput(dict, MSONable):
     @property
     def incar(self) -> Incar:
         """INCAR object."""
-        return Incar(self["INCAR"]) if isinstance(self["INCAR"], dict) else self["INCAR"]
+        return self["INCAR"]
 
     @property
     def kpoints(self) -> Kpoints | None:
