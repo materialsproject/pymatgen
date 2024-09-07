@@ -9,7 +9,7 @@ import pytest
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose
 
-from pymatgen.core import SETTINGS
+from pymatgen.core import SETTINGS, Lattice, Species, Structure
 from pymatgen.io.aims.inputs import (
     ALLOWED_AIMS_CUBE_TYPES,
     ALLOWED_AIMS_CUBE_TYPES_STATE,
@@ -80,6 +80,67 @@ def test_read_h2o_in(tmp_path: Path):
         h2o_from_dct = json.load(h2o_ref_json, cls=MontyDecoder)
 
     assert h2o.structure == h2o_from_dct.structure
+
+
+def test_write_spins(tmp_path: Path):
+    mg2mn4o8 = Structure(
+        lattice=Lattice(
+            [
+                [5.06882343, 0.00012488, -2.66110167],
+                [-1.39704234, 4.87249911, -2.66110203],
+                [0.00986091, 0.01308528, 6.17649359],
+            ]
+        ),
+        species=[
+            "Mg",
+            "Mg",
+            Species("Mn", spin=5.0),
+            Species("Mn", spin=5.0),
+            Species("Mn", spin=5.0),
+            Species("Mn", spin=5.0),
+            "O",
+            "O",
+            "O",
+            "O",
+            "O",
+            "O",
+            "O",
+            "O",
+        ],
+        coords=[
+            [0.37489726, 0.62510274, 0.75000002],
+            [0.62510274, 0.37489726, 0.24999998],
+            [-0.00000000, -0.00000000, 0.50000000],
+            [-0.00000000, 0.50000000, 0.00000000],
+            [0.50000000, -0.00000000, 0.50000000],
+            [-0.00000000, -0.00000000, 0.00000000],
+            [0.75402309, 0.77826750, 0.50805882],
+            [0.77020285, 0.24594779, 0.99191316],
+            [0.22173254, 0.24597689, 0.99194116],
+            [0.24597691, 0.22173250, 0.49194118],
+            [0.24594765, 0.77020288, 0.49191313],
+            [0.22979715, 0.75405221, 0.00808684],
+            [0.75405235, 0.22979712, 0.50808687],
+            [0.77826746, 0.75402311, 0.00805884],
+        ],
+    )
+
+    geo_in = AimsGeometryIn.from_structure(mg2mn4o8)
+
+    magmom_lines = [line for line in geo_in.content.split("\n") if "initial_moment" in line]
+    assert len(magmom_lines) == 4
+
+    magmoms = np.array([float(line.strip().split()[-1]) for line in magmom_lines])
+    assert np.all(magmoms == 5.0)
+
+    mg2mn4o8 = Structure(
+        lattice=mg2mn4o8.lattice,
+        species=mg2mn4o8.species,
+        coords=mg2mn4o8.frac_coords,
+        site_properties={"magmom": np.zeros(mg2mn4o8.num_sites)},
+    )
+    with pytest.raises(ValueError, match="species.spin and magnetic moments don't agree. Please only define one"):
+        geo_in = AimsGeometryIn.from_structure(mg2mn4o8)
 
 
 def check_wrong_type_aims_cube(cube_type, exp_err):
