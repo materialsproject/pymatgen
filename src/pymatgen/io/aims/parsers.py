@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import gzip
+import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
-from warnings import warn
 
 import numpy as np
 
@@ -498,7 +498,9 @@ class AimsOutCalcChunk(AimsOutChunk):
         if ((magmom := site_properties.get("magmom")) is not None) and np.abs(
             np.sum(magmom) - properties["magmom"]
         ) < 1e-3:
-            warn("Total magenetic moment and sum of Mulliken spins are not consistent", Warning, 1)
+            warnings.warn(
+                "Total magnetic moment and sum of Mulliken spins are not consistent", UserWarning, stacklevel=1
+            )
 
         if lattice is not None:
             return Structure(
@@ -517,9 +519,7 @@ class AimsOutCalcChunk(AimsOutChunk):
             properties=properties,
         )
 
-    def _parse_lattice_atom_pos(
-        self,
-    ) -> tuple[list[str], list[Vector3D], list[Vector3D], Lattice | None]:
+    def _parse_lattice_atom_pos(self) -> tuple[list[str], list[Vector3D], list[Vector3D], Lattice | None]:
         """Parse the lattice and atomic positions of the structure.
 
         Returns:
@@ -545,7 +545,7 @@ class AimsOutCalcChunk(AimsOutChunk):
             velocities = list(self.initial_structure.site_properties.get("velocity", []))
             lattice = self.initial_lattice
 
-            return (species, coords, velocities, lattice)
+            return species, coords, velocities, lattice
 
         line_start += 1
 

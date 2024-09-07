@@ -705,35 +705,35 @@ class AimsSpeciesFile:
                 if "species" in line:
                     self.label = line.split()[1]
 
-    def __eq__(self, sepcies_2: object) -> bool:
-        """Returns if two speceies are equal"""
-        if not isinstance(sepcies_2, AimsSpeciesFile):
+    def __eq__(self, other: object) -> bool:
+        """True if two species are equal."""
+        if not isinstance(other, AimsSpeciesFile):
             return NotImplemented
-        return self.data == sepcies_2.data
+        return self.data == other.data
 
-    def __lt__(self, sepcies_2: object) -> bool:
-        """Returns if two speceies are equal"""
-        if not isinstance(sepcies_2, AimsSpeciesFile):
+    def __lt__(self, other: object) -> bool:
+        """True if self is less than other."""
+        if not isinstance(other, AimsSpeciesFile):
             return NotImplemented
-        return self.data < sepcies_2.data
+        return self.data < other.data
 
-    def __le__(self, sepcies_2: object) -> bool:
-        """Returns if two speceies are equal"""
-        if not isinstance(sepcies_2, AimsSpeciesFile):
+    def __le__(self, other: object) -> bool:
+        """True if self is less than or equal to other."""
+        if not isinstance(other, AimsSpeciesFile):
             return NotImplemented
-        return self.data <= sepcies_2.data
+        return self.data <= other.data
 
-    def __gt__(self, sepcies_2: object) -> bool:
-        """Returns if two speceies are equal"""
-        if not isinstance(sepcies_2, AimsSpeciesFile):
+    def __gt__(self, other: object) -> bool:
+        """True if self is greater than other."""
+        if not isinstance(other, AimsSpeciesFile):
             return NotImplemented
-        return self.data > sepcies_2.data
+        return self.data > other.data
 
-    def __ge__(self, sepcies_2: object) -> bool:
-        """Returns if two speceies are equal"""
-        if not isinstance(sepcies_2, AimsSpeciesFile):
+    def __ge__(self, other: object) -> bool:
+        """True if self is greater than or equal to other."""
+        if not isinstance(other, AimsSpeciesFile):
             return NotImplemented
-        return self.data >= sepcies_2.data
+        return self.data >= other.data
 
     @classmethod
     def from_file(cls, filename: str, label: str | None = None) -> AimsSpeciesFile:
