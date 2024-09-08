@@ -193,10 +193,10 @@ class VolumetricData(MSONable):
         if len(p2) != 3:
             raise ValueError(f"length of p2 should be 3, got {len(p2)}")
 
-        xpts = np.linspace(p1[0], p2[0], num=n)
-        ypts = np.linspace(p1[1], p2[1], num=n)
-        zpts = np.linspace(p1[2], p2[2], num=n)
-        return [self.value_at(xpts[i], ypts[i], zpts[i]) for i in range(n)]
+        x_pts = np.linspace(p1[0], p2[0], num=n)
+        y_pts = np.linspace(p1[1], p2[1], num=n)
+        z_pts = np.linspace(p1[2], p2[2], num=n)
+        return [self.value_at(x_pts[i], y_pts[i], z_pts[i]) for i in range(n)]
 
     def get_integrated_diff(self, ind, radius, nbins=1):
         """Get integrated difference of atom index ind up to radius. This can be

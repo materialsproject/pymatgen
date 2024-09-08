@@ -332,9 +332,9 @@ class TestLattice(PymatgenTest):
         for lattice in self.families.values():
             assert_allclose(lattice.norm(lattice.matrix, frac_coords=False), lattice.abc, 5)
             assert_allclose(lattice.norm(frac_basis), lattice.abc, 5)
-            for i, vec in enumerate(frac_basis):
+            for idx, vec in enumerate(frac_basis):
                 length = lattice.norm(vec)
-                assert_allclose(length[0], lattice.abc[i], 5)
+                assert_allclose(length[0], lattice.abc[idx], 5)
                 # We always get a ndarray.
                 assert length.shape == (1,)
 

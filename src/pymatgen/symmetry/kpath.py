@@ -1581,7 +1581,7 @@ class KPathLatimerMunro(KPathBase):
         little_groups_points = []  # elements are lists of indices of recip_point_group. the
         # list little_groups_points[i] is the little group for the
         # orbit key_points_inds_orbits[i]
-        for i, orbit in enumerate(key_points_inds_orbits):
+        for idx, orbit in enumerate(key_points_inds_orbits):
             k0 = key_points[orbit[0]]
             little_groups_points.append([])
             for j, op in enumerate(self._rpg):
@@ -1590,14 +1590,14 @@ class KPathLatimerMunro(KPathBase):
                 if not self._all_ints(gamma_to, atol=self._atol):
                     check_gamma = False
                 if check_gamma:
-                    little_groups_points[i].append(j)
+                    little_groups_points[idx].append(j)
 
         # elements are lists of indices of recip_point_group. the list
         # little_groups_lines[i] is
         little_groups_lines = []
         # the little group for the orbit key_points_inds_lines[i]
 
-        for i, orbit in enumerate(key_lines_inds_orbits):
+        for idx, orbit in enumerate(key_lines_inds_orbits):
             l0 = orbit[0]
             v = key_points[l0[1]] - key_points[l0[0]]
             k0 = key_points[l0[0]] + np.e / pi * v
@@ -1608,7 +1608,7 @@ class KPathLatimerMunro(KPathBase):
                 if not self._all_ints(gamma_to, atol=self._atol):
                     check_gamma = False
                 if check_gamma:
-                    little_groups_lines[i].append(j)
+                    little_groups_lines[idx].append(j)
 
         return little_groups_points, little_groups_lines
 
@@ -1658,23 +1658,23 @@ class KPathLatimerMunro(KPathBase):
             xformed_site_coords = [np.dot(rot_mat, site.frac_coords) + t for site in sites]
             permutation = ["a" for i in range(len(sites))]
             not_found = list(range(len(sites)))
-            for i in range(len(sites)):
-                xformed = xformed_site_coords[i]
+            for idx in range(len(sites)):
+                xformed = xformed_site_coords[idx]
                 for k, j in enumerate(not_found):
                     init = init_site_coords[j]
                     diff = xformed - init
                     if self._all_ints(diff, atol=atol):
-                        permutation[i] = j
+                        permutation[idx] = j
                         not_found.pop(k)
                         break
 
             same = np.zeros(len(sites))
             flipped = np.zeros(len(sites))
-            for i, magmom in enumerate(xformed_magmoms):
-                if (magmom == init_magmoms[permutation[i]]).all():
-                    same[i] = 1
-                elif (magmom == -1 * init_magmoms[permutation[i]]).all():
-                    flipped[i] = 1
+            for idx, magmom in enumerate(xformed_magmoms):
+                if (magmom == init_magmoms[permutation[idx]]).all():
+                    same[idx] = 1
+                elif (magmom == -1 * init_magmoms[permutation[idx]]).all():
+                    flipped[idx] = 1
 
             if same.all():  # add symm op without tr
                 mag_ops.append(
@@ -2003,11 +2003,11 @@ class KPathLatimerMunro(KPathBase):
         pop_orbits = []
         pop_labels = []
 
-        for i, orb_cos in enumerate(orbit_cosines_copy):
+        for idx, orb_cos in enumerate(orbit_cosines_copy):
             if np.isclose(orb_cos[0][1], 1.0, atol=atol):
                 # (point orbit index, label index)
-                orbit_labels_unsorted.append((i, orb_cos[0][0]))
-                pop_orbits.append(i)
+                orbit_labels_unsorted.append((idx, orb_cos[0][0]))
+                pop_orbits.append(idx)
                 pop_labels.append(orb_cos[0][0])
 
         orbit_cosines_copy = self._reduce_cosines_array(orbit_cosines_copy, pop_orbits, pop_labels)

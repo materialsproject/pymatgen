@@ -1673,7 +1673,7 @@ class PatchedPhaseDiagram(PhaseDiagram):
         to a dictionary.
 
         NOTE unlike PhaseDiagram the computation involved in constructing the
-        PatchedPhaseDiagram is not saved on serialisation. This is done because
+        PatchedPhaseDiagram is not saved on serialization. This is done because
         hierarchically calling the `PhaseDiagram.as_dict()` method would break the
         link in memory between entries in overlapping patches leading to a
         ballooning of the amount of memory used.
@@ -1694,10 +1694,10 @@ class PatchedPhaseDiagram(PhaseDiagram):
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
-        """Reconstruct PatchedPhaseDiagram from dictionary serialisation.
+        """Reconstruct PatchedPhaseDiagram from dictionary serialization.
 
         NOTE unlike PhaseDiagram the computation involved in constructing the
-        PatchedPhaseDiagram is not saved on serialisation. This is done because
+        PatchedPhaseDiagram is not saved on serialization. This is done because
         hierarchically calling the `PhaseDiagram.as_dict()` method would break the
         link in memory between entries in overlapping patches leading to a
         ballooning of the amount of memory used.
@@ -1725,8 +1725,8 @@ class PatchedPhaseDiagram(PhaseDiagram):
         sorted_spaces = sorted(spaces, key=len, reverse=True)
 
         result = []
-        for i, space_i in enumerate(sorted_spaces):
-            if not any(space_i.issubset(larger_space) for larger_space in sorted_spaces[:i]):
+        for idx, space_i in enumerate(sorted_spaces):
+            if not any(space_i.issubset(larger_space) for larger_space in sorted_spaces[:idx]):
                 result.append(space_i)
 
         return result

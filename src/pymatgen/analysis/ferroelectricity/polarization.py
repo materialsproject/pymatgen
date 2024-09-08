@@ -393,9 +393,9 @@ class Polarization:
         )
         sps = self.same_branch_splines(convert_to_muC_per_cm2=convert_to_muC_per_cm2, all_in_polar=all_in_polar)
         max_jumps = [None, None, None]
-        for i, sp in enumerate(sps):
+        for idx, sp in enumerate(sps):
             if sp is not None:
-                max_jumps[i] = max(tot[:, i].ravel() - sp(range(len(tot[:, i].ravel()))))
+                max_jumps[idx] = max(tot[:, idx].ravel() - sp(range(len(tot[:, idx].ravel()))))
         return max_jumps
 
     def smoothness(self, convert_to_muC_per_cm2=True, all_in_polar=True):

@@ -188,8 +188,8 @@ class AbstractDiffractionPatternCalculator(abc.ABC):
         n_rows = len(structures)
         fig, axes = plt.subplots(nrows=n_rows, ncols=1, sharex=True, squeeze=False)
 
-        for i, (ax, structure) in enumerate(zip(axes.ravel(), structures, strict=True)):
-            self.get_plot(structure, fontsize=fontsize, ax=ax, with_labels=i == n_rows - 1, **kwargs)
+        for idx, (ax, structure) in enumerate(zip(axes.ravel(), structures, strict=True)):
+            self.get_plot(structure, fontsize=fontsize, ax=ax, with_labels=idx == n_rows - 1, **kwargs)
             spg_symbol, spg_number = structure.get_space_group_info()
             ax.set_title(f"{structure.formula} {spg_symbol} ({spg_number}) ")
 
@@ -207,7 +207,7 @@ def get_unique_families(hkls):
         {hkl: multiplicity}: A dict with unique hkl and multiplicity.
     """
 
-    # TODO: Definitely can be sped up.
+    # TODO can definitely be sped up
     def is_perm(hkl1, hkl2) -> bool:
         h1 = np.abs(hkl1)
         h2 = np.abs(hkl2)
