@@ -689,51 +689,24 @@ class AimsControlIn(MSONable):
         return cls(_parameters=decoded["parameters"])
 
 
+@dataclass
 class AimsSpeciesFile:
-    """An FHI-aims single species' defaults file."""
+    """An FHI-aims single species' defaults file.
 
-    def __init__(self, data: str, label: str | None = None) -> None:
-        """
-        Args:
-            data (str): A string of the complete species defaults file
-            label (str): A string representing the name of species
-        """
-        self.data = data
-        self.label = label
+    Attributes:
+        data (str): A string of the complete species defaults file
+        label (str): A string representing the name of species
+    """
+
+    data: str = field(default_factory=str)
+    label: str | None = None
+
+    def __post_init__(self) -> None:
+        """Sets default label"""
         if self.label is None:
-            for line in data.splitlines():
+            for line in self.data.splitlines():
                 if "species" in line:
                     self.label = line.split()[1]
-
-    def __eq__(self, other: object) -> bool:
-        """True if two species are equal."""
-        if not isinstance(other, AimsSpeciesFile):
-            return NotImplemented
-        return self.data == other.data
-
-    def __lt__(self, other: object) -> bool:
-        """True if self is less than other."""
-        if not isinstance(other, AimsSpeciesFile):
-            return NotImplemented
-        return self.data < other.data
-
-    def __le__(self, other: object) -> bool:
-        """True if self is less than or equal to other."""
-        if not isinstance(other, AimsSpeciesFile):
-            return NotImplemented
-        return self.data <= other.data
-
-    def __gt__(self, other: object) -> bool:
-        """True if self is greater than other."""
-        if not isinstance(other, AimsSpeciesFile):
-            return NotImplemented
-        return self.data > other.data
-
-    def __ge__(self, other: object) -> bool:
-        """True if self is greater than or equal to other."""
-        if not isinstance(other, AimsSpeciesFile):
-            return NotImplemented
-        return self.data >= other.data
 
     @classmethod
     def from_file(cls, filename: str, label: str | None = None) -> AimsSpeciesFile:
