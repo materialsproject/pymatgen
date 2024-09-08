@@ -147,8 +147,8 @@ class Polarization:
         self, p_elecs, p_ions, structures: Sequence[Structure], p_elecs_in_cartesian=True, p_ions_in_cartesian=False
     ):
         """
-        p_elecs: np.array of electronic contribution to the polarization with shape [N, 3]
-        p_ions: np.array of ionic contribution to the polarization with shape [N, 3]
+        p_elecs (np.ndarray): electronic contribution to the polarization with shape [N, 3]
+        p_ions (np.ndarray): ionic contribution to the polarization with shape [N, 3]
         p_elecs_in_cartesian: whether p_elecs is along Cartesian directions (rather than lattice directions).
             Default is True because that is the convention for VASP.
         p_ions_in_cartesian: whether p_ions is along Cartesian directions (rather than lattice directions).
@@ -158,13 +158,14 @@ class Polarization:
         if len(p_elecs) != len(p_ions) or len(p_elecs) != len(structures):
             raise ValueError("The number of electronic polarization and ionic polarization values must be equal.")
         if p_elecs_in_cartesian:
-            p_elecs = np.array(
-                [struct.lattice.get_vector_along_lattice_directions(p_elecs[i]) for i, struct in enumerate(structures)]
-            )
+            p_elecs = [
+                struct.lattice.get_vector_along_lattice_directions(p_elecs[idx])
+                for idx, struct in enumerate(structures)
+            ]
         if p_ions_in_cartesian:
-            p_ions = np.array(
-                [struct.lattice.get_vector_along_lattice_directions(p_ions[i]) for i, struct in enumerate(structures)]
-            )
+            p_ions = [
+                struct.lattice.get_vector_along_lattice_directions(p_ions[idx]) for idx, struct in enumerate(structures)
+            ]
         self.p_elecs = np.array(p_elecs)
         self.p_ions = np.array(p_ions)
         self.structures = structures
