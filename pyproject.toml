@@ -263,12 +263,10 @@ addopts = "--durations=30 --quiet -r xXs --color=yes -p no:warnings --import-mod
 [tool.coverage.run]
 parallel = true
 omit = [
-    "pymatgen/cli/feff_plot_cross_section.py",
-    "pymatgen/cli/feff_plot_dos.py",
+    "pymatgen/cli/feff_*.py",
     "pymatgen/cli/pmg_config.py",
     "pymatgen/cli/pmg_plot.py",
     "pymatgen/cli/pmg_potcar.py",
-    "pymatgen/cli/pmg_query.py",
     "pymatgen/dao.py",
 ]
 
