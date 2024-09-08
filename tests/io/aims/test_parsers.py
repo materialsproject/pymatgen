@@ -271,6 +271,8 @@ def test_default_calc_energy_raises_error(empty_calc_chunk):
         "magmom",
         "E_f",
         "dipole",
+        "mulliken_charges",
+        "mulliken_spins",
         "hirshfeld_charges",
         "hirshfeld_volumes",
         "hirshfeld_atomic_dipoles",
@@ -396,6 +398,19 @@ def test_calc_is_metallic(calc_chunk):
 
 def test_calc_converged(calc_chunk):
     assert calc_chunk.converged
+
+
+def test_calc_mulliken_charges(calc_chunk):
+    mulliken_charges = [0.617623, -0.617623]
+    assert_allclose(calc_chunk.mulliken_charges, mulliken_charges)
+    assert_allclose(calc_chunk.results["mulliken_charges"], mulliken_charges)
+
+
+def test_calc_mulliken_spins(calc_chunk):
+    # TARP: False numbers added to test parsing
+    mulliken_spins = [-0.003141, 0.002718]
+    assert_allclose(calc_chunk.mulliken_spins, mulliken_spins)
+    assert_allclose(calc_chunk.results["mulliken_spins"], mulliken_spins)
 
 
 def test_calc_hirshfeld_charges(calc_chunk):

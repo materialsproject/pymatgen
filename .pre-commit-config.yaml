@@ -8,7 +8,7 @@ ci:
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.0
+    rev: v0.6.4
     hooks:
       - id: ruff
         args: [--fix, --unsafe-fixes]
@@ -22,7 +22,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.1
+    rev: v1.11.2
     hooks:
       - id: mypy
 
@@ -65,6 +65,6 @@ repos:
         args: [--drop-empty-cells, --keep-output]
 
   - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.376
+    rev: v1.1.379
     hooks:
       - id: pyright
