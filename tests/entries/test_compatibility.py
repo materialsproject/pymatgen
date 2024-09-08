@@ -13,7 +13,7 @@ import pytest
 from monty.json import MontyDecoder
 from pytest import approx
 
-import pymatgen
+import pymatgen.entries
 from pymatgen.core import Element, Species
 from pymatgen.core.composition import Composition
 from pymatgen.core.lattice import Lattice
@@ -39,7 +39,7 @@ if TYPE_CHECKING:
     from pymatgen.util.typing import CompositionLike
 
 
-MODULE_DIR = os.path.dirname(os.path.abspath(pymatgen.entries.__file__))
+PMG_ENTRIES_DIR = os.path.dirname(os.path.abspath(pymatgen.entries.__file__))
 
 
 class TestCorrectionSpecificity(TestCase):
@@ -1912,7 +1912,7 @@ class TestMaterialsProjectAqueousCompatibility:
 
 class TestAqueousCorrection(TestCase):
     def setUp(self):
-        fp = f"{MODULE_DIR}/MITCompatibility.yaml"
+        fp = f"{PMG_ENTRIES_DIR}/MITCompatibility.yaml"
         self.corr = AqueousCorrection(fp)
 
     def test_compound_energy(self):
@@ -1941,7 +1941,7 @@ class TestMITAqueousCompatibility(TestCase):
     def setUp(self):
         self.compat = MITCompatibility(check_potcar_hash=True)
         self.aqcompat = MITAqueousCompatibility(check_potcar_hash=True)
-        fp = f"{MODULE_DIR}/MITCompatibility.yaml"
+        fp = f"{PMG_ENTRIES_DIR}/MITCompatibility.yaml"
         self.aqcorr = AqueousCorrection(fp)
 
     def test_aqueous_compat(self):

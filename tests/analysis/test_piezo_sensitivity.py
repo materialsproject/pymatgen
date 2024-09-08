@@ -9,7 +9,6 @@ import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 
-import pymatgen
 from pymatgen.analysis.piezo_sensitivity import (
     BornEffectiveCharge,
     ForceConstantMatrix,
@@ -17,6 +16,7 @@ from pymatgen.analysis.piezo_sensitivity import (
     get_piezo,
     rand_piezo,
 )
+from pymatgen.io.phonopy import get_phonopy_structure
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
 
 try:
@@ -217,7 +217,7 @@ class TestPiezoSensitivity(PymatgenTest):
         fcm = ForceConstantMatrix(self.piezo_struct, self.FCM, self.point_ops, self.shared_ops)
         fcm.get_FCM_operations()
         rand_FCM = fcm.get_rand_FCM()
-        structure = pymatgen.io.phonopy.get_phonopy_structure(self.piezo_struct)
+        structure = get_phonopy_structure(self.piezo_struct)
         pn_struct = Phonopy(structure, np.eye(3), np.eye(3))
 
         pn_struct.set_force_constants(rand_FCM)
@@ -288,7 +288,7 @@ class TestPiezoSensitivity(PymatgenTest):
                     atol=1e-3,
                 )
 
-        structure = pymatgen.io.phonopy.get_phonopy_structure(self.piezo_struct)
+        structure = get_phonopy_structure(self.piezo_struct)
         pn_struct = Phonopy(structure, np.eye(3), np.eye(3))
 
         pn_struct.set_force_constants(rand_FCM)
