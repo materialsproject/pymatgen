@@ -1365,14 +1365,16 @@ class TestVaspInput(PymatgenTest):
         assert vasp_input2.as_dict() == self.vasp_input.as_dict()
         # modify the copy and make sure the original is not modified
         vasp_input2["INCAR"]["NSW"] = 100
-        assert vasp_input2["INCAR"]["NSW"] == 100
-        assert self.vasp_input["INCAR"]["NSW"] == 99
+        assert vasp_input2["INCAR"]["NSW"] == 100, f"{vasp_input2['INCAR']['NSW']=}"
+        orig_nsw_val = self.vasp_input["INCAR"]["NSW"]
+        assert orig_nsw_val == 99, f"{orig_nsw_val=}"
 
         # make a shallow copy and make sure the original is modified
         vasp_input3 = self.vasp_input.copy(deep=False)
         vasp_input3["INCAR"]["NSW"] = 100
-        assert vasp_input3["INCAR"]["NSW"] == 100
-        assert self.vasp_input["INCAR"]["NSW"] == 100
+        assert vasp_input3["INCAR"]["NSW"] == 100, f"{vasp_input3['INCAR']['NSW']=}"
+        orig_nsw_val = self.vasp_input["INCAR"]["NSW"]
+        assert orig_nsw_val == 99, f"{orig_nsw_val=}"
 
     def test_run_vasp(self):
         self.vasp_input.run_vasp(".", vasp_cmd=["cat", "INCAR"])
@@ -1402,6 +1404,7 @@ class TestVaspInput(PymatgenTest):
         assert "CONTCAR_Li2O" in vasp_input
 
     def test_input_attr(self):
+        # test attributes match dict keys
         assert all(v == getattr(self.vasp_input, k.lower()) for k, v in self.vasp_input.items())
 
         vis_potcar_spec = VaspInput(
@@ -1411,9 +1414,16 @@ class TestVaspInput(PymatgenTest):
             "\n".join(self.vasp_input.potcar.symbols),
             potcar_spec=True,
         )
-        assert all(k in vis_potcar_spec for k in ("INCAR", "KPOINTS", "POSCAR", "POTCAR.spec"))
+        # test has expected keys
+        assert {*vis_potcar_spec} == {"INCAR", "KPOINTS", "POSCAR", "POTCAR.spec"}
+        # test values match
         assert all(self.vasp_input[k] == getattr(vis_potcar_spec, k.lower()) for k in ("INCAR", "KPOINTS", "POSCAR"))
         assert isinstance(vis_potcar_spec.potcar, str)
+
+        # test incar can be updated in place, see https://github.com/materialsproject/pymatgen/issues/4051
+        assert vis_potcar_spec.incar["NSW"] == 99
+        vis_potcar_spec.incar["NSW"] = 100
+        assert vis_potcar_spec.incar["NSW"] == 100
 
 
 def test_potcar_summary_stats() -> None:
