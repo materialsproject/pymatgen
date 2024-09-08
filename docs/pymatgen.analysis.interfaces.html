@@ -481,10 +481,8 @@ the appropriate transformation matrix.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.interfaces.zsl.fast_norm">
-<span class="sig-name descname"><span class="pre">fast_norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.8.9/src/pymatgen/core/../analysis/interfaces/zsl.py#L259-L267"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.fast_norm" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">fast_norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.8.9/src/pymatgen/core/../analysis/interfaces/zsl.py#L259-L266"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.fast_norm" title="Link to this definition"></a></dt>
 <dd><p>Much faster variant of numpy linalg norm.</p>
-<p>Note that if numba is installed, this cannot be provided a list of ints;
-please ensure input a is an np.array of floats.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -514,13 +512,13 @@ super lattice vectors</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.interfaces.zsl.get_factors">
-<span class="sig-name descname"><span class="pre">get_factors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.8.9/src/pymatgen/core/../analysis/interfaces/zsl.py#L307-L312"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.get_factors" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_factors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.8.9/src/pymatgen/core/../analysis/interfaces/zsl.py#L309-L314"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.get_factors" title="Link to this definition"></a></dt>
 <dd><p>Generate all factors of n.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.interfaces.zsl.is_same_vectors">
-<span class="sig-name descname"><span class="pre">is_same_vectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec_set1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vec_set2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bidirectional</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_length_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.03</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_angle_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.8.9/src/pymatgen/core/../analysis/interfaces/zsl.py#L339-L355"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.is_same_vectors" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">is_same_vectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vec_set1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vec_set2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bidirectional</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_length_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.03</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_angle_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.8.9/src/pymatgen/core/../analysis/interfaces/zsl.py#L341-L357"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.is_same_vectors" title="Link to this definition"></a></dt>
 <dd><p>Determine if two sets of vectors are the same within length and angle
 tolerances
 :param vec_set1: an array of two vectors
@@ -531,7 +529,7 @@ tolerances
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.interfaces.zsl.reduce_vectors">
-<span class="sig-name descname"><span class="pre">reduce_vectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.8.9/src/pymatgen/core/../analysis/interfaces/zsl.py#L284-L304"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.reduce_vectors" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reduce_vectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.8.9/src/pymatgen/core/../analysis/interfaces/zsl.py#L283-L306"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.reduce_vectors" title="Link to this definition"></a></dt>
 <dd><p>Generate independent and unique basis vectors based on the
 methodology of Zur and McGill.</p>
 </dd></dl>
@@ -558,13 +556,13 @@ methodology of Zur and McGill.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.interfaces.zsl.vec_angle">
-<span class="sig-name descname"><span class="pre">vec_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.8.9/src/pymatgen/core/../analysis/interfaces/zsl.py#L270-L275"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.vec_angle" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">vec_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.8.9/src/pymatgen/core/../analysis/interfaces/zsl.py#L269-L274"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.vec_angle" title="Link to this definition"></a></dt>
 <dd><p>Calculate angle between two vectors.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pymatgen.analysis.interfaces.zsl.vec_area">
-<span class="sig-name descname"><span class="pre">vec_area</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.8.9/src/pymatgen/core/../analysis/interfaces/zsl.py#L278-L281"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.vec_area" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">vec_area</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.8.9/src/pymatgen/core/../analysis/interfaces/zsl.py#L277-L280"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.analysis.interfaces.zsl.vec_area" title="Link to this definition"></a></dt>
 <dd><p>Area of lattice plane defined by two vectors.</p>
 </dd></dl>
 

@@ -130,7 +130,7 @@
 <li><a class="reference internal" href="#pymatgen.io.lobster.outputs.Cohpcar.efermi"><code class="docutils literal notranslate"><span class="pre">Cohpcar.efermi</span></code></a></li>
 <li><a class="reference internal" href="#pymatgen.io.lobster.outputs.Cohpcar.energies"><code class="docutils literal notranslate"><span class="pre">Cohpcar.energies</span></code></a></li>
 <li><a class="reference internal" href="#pymatgen.io.lobster.outputs.Cohpcar.is_spin_polarized"><code class="docutils literal notranslate"><span class="pre">Cohpcar.is_spin_polarized</span></code></a></li>
-<li><a class="reference internal" href="#pymatgen.io.lobster.outputs.Cohpcar.orb_cohp"><code class="docutils literal notranslate"><span class="pre">Cohpcar.orb_cohp</span></code></a></li>
+<li><a class="reference internal" href="#pymatgen.io.lobster.outputs.Cohpcar.orb_res_cohp"><code class="docutils literal notranslate"><span class="pre">Cohpcar.orb_res_cohp</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#pymatgen.io.lobster.outputs.Doscar"><code class="docutils literal notranslate"><span class="pre">Doscar</span></code></a><ul>
@@ -1178,10 +1178,10 @@ shifts the energies so that the Fermi level is at zero.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Cohpcar.orb_cohp">
-<span class="sig-name descname"><span class="pre">orb_cohp</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.8.9/src/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Cohpcar.orb_cohp" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="pymatgen.io.lobster.outputs.Cohpcar.orb_res_cohp">
+<span class="sig-name descname"><span class="pre">orb_res_cohp</span></span><a class="reference external" href="https://github.com/materialsproject/pymatgen/blob/v2024.8.9/src/pymatgen/io/lobster/outputs.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pymatgen.io.lobster.outputs.Cohpcar.orb_res_cohp" title="Link to this definition"></a></dt>
 <dd><p>The orbital-resolved COHPs of the form:
-orb_cohp[label] = {bond_data[“orb_label”]: {</p>
+orb_res_cohp[label] = {bond_data[“orb_label”]: {</p>
 <blockquote>
 <div><p>“COHP”: {Spin.up: cohps, Spin.down:cohps},
 “ICOHP”: {Spin.up: icohps, Spin.down: icohps},
