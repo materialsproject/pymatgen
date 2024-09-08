@@ -1453,8 +1453,8 @@ class KPathLatimerMunro(KPathBase):
             for op in self._rpg:
                 to_pop = []
                 k1 = np.dot(op, k0)
-                for ind_key, key in key_points_copy.items():
-                    diff = k1 - key
+                for ind_key, key_point in key_points_copy.items():
+                    diff = k1 - key_point
                     if self._all_ints(diff, atol=self._atol):
                         key_points_inds_orbits[i].append(ind_key)
                         to_pop.append(ind_key)
@@ -1982,7 +1982,7 @@ class KPathLatimerMunro(KPathBase):
     def _reduce_IRBZ(IRBZ_points, boundaries, g, atol):
         in_reduced_section = []
         for point in IRBZ_points:
-            in_reduced_section.append(
+            in_reduced_section += [
                 np.all(
                     [
                         (
@@ -1992,9 +1992,9 @@ class KPathLatimerMunro(KPathBase):
                         for boundary in boundaries
                     ]
                 )
-            )
+            ]
 
-        return [IRBZ_points[i] for i in range(len(IRBZ_points)) if in_reduced_section[i]]
+        return [IRBZ_points[idx] for idx in range(len(IRBZ_points)) if in_reduced_section[idx]]
 
     def _get_orbit_labels(self, orbit_cosines_orig, key_points_inds_orbits, atol):
         orbit_cosines_copy = orbit_cosines_orig.copy()

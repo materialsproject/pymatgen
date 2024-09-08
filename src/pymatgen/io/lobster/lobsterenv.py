@@ -673,9 +673,9 @@ class LobsterNeighbors(NearNeighbors):
             raise ValueError(f"{self.Icohpcollection=}")
 
         for isite in isites:
-            for site_idx, n_site in enumerate(self.list_neighsite[isite]):
+            for site1_idx, n_site in enumerate(self.list_neighsite[isite]):
                 for site2_idx, n_site2 in enumerate(self.list_neighsite[isite]):
-                    if site_idx < site2_idx:
+                    if site1_idx < site2_idx:
                         unitcell1 = self._determine_unit_cell(n_site)
                         unitcell2 = self._determine_unit_cell(n_site2)
 
@@ -813,8 +813,8 @@ class LobsterNeighbors(NearNeighbors):
                                 neighbor.frac_coords
                                 - self.structure[
                                     next(
-                                        isite
-                                        for isite, site in enumerate(self.structure)
+                                        site_idx
+                                        for site_idx, site in enumerate(self.structure)
                                         if neighbor.is_periodic_image(site)
                                     )
                                 ].frac_coords
@@ -825,23 +825,23 @@ class LobsterNeighbors(NearNeighbors):
                         # strength cutoff of the ICOHP
                         # More changes are necessary here if we use ICOBIs for cutoffs
                         "edge_properties": {
-                            "ICOHP": self.list_icohps[ineighbors][ineighbor],
-                            "bond_length": self.list_lengths[ineighbors][ineighbor],
-                            "bond_label": self.list_keys[ineighbors][ineighbor],
+                            "ICOHP": self.list_icohps[neighbors_idx][nbr_idx],
+                            "bond_length": self.list_lengths[neighbors_idx][nbr_idx],
+                            "bond_label": self.list_keys[neighbors_idx][nbr_idx],
                             self.id_blist_sg1.upper(): self.bonding_list_1.icohpcollection.get_icohp_by_label(
-                                self.list_keys[ineighbors][ineighbor]
+                                self.list_keys[neighbors_idx][nbr_idx]
                             ),
                             self.id_blist_sg2.upper(): self.bonding_list_2.icohpcollection.get_icohp_by_label(
-                                self.list_keys[ineighbors][ineighbor]
+                                self.list_keys[neighbors_idx][nbr_idx]
                             ),
                         },
                         "site_index": next(
-                            isite for isite, site in enumerate(self.structure) if neighbor.is_periodic_image(site)
+                            site_idx for site_idx, site in enumerate(self.structure) if neighbor.is_periodic_image(site)
                         ),
                     }
-                    for ineighbor, neighbor in enumerate(neighbors)
+                    for nbr_idx, neighbor in enumerate(neighbors)
                 ]
-                for ineighbors, neighbors in enumerate(self.list_neighsite)
+                for neighbors_idx, neighbors in enumerate(self.list_neighsite)
             ]
         else:
             self.sg_list = [
@@ -863,17 +863,17 @@ class LobsterNeighbors(NearNeighbors):
                         ),
                         "weight": 1,
                         "edge_properties": {
-                            "ICOHP": self.list_icohps[ineighbors][ineighbor],
-                            "bond_length": self.list_lengths[ineighbors][ineighbor],
-                            "bond_label": self.list_keys[ineighbors][ineighbor],
+                            "ICOHP": self.list_icohps[neighbors_idx][nbr_idx],
+                            "bond_length": self.list_lengths[neighbors_idx][nbr_idx],
+                            "bond_label": self.list_keys[neighbors_idx][nbr_idx],
                         },
                         "site_index": next(
                             site_idx for site_idx, site in enumerate(self.structure) if neighbor.is_periodic_image(site)
                         ),
                     }
-                    for ineighbor, neighbor in enumerate(neighbors)
+                    for nbr_idx, neighbor in enumerate(neighbors)
                 ]
-                for ineighbors, neighbors in enumerate(self.list_neighsite)
+                for neighbors_idx, neighbors in enumerate(self.list_neighsite)
             ]
 
     def _find_environments(

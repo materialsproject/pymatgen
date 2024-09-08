@@ -169,9 +169,9 @@ def get_unique_site_indices(struct: Structure | Molecule):
         _sites[itm].append(i)
     sites = {}
     nums = dict.fromkeys(struct.symbol_set, 1)
-    for s, indices in _sites.items():
-        sites[f"{s[0]}_{nums[s[0]]}"] = indices
-        nums[s[0]] += 1
+    for site, val in _sites.items():
+        sites[f"{site[0]}_{nums[site[0]]}"] = val
+        nums[site[0]] += 1
 
     return sites
 
