@@ -1602,7 +1602,7 @@ def _get_orb_lobster(orb: str) -> Orbital | None:
         orb (str): String representation of the orbital.
 
     Returns:
-        Orbital.
+        pymatgen.electronic_structure.core.Orbital
     """
     try:
         return Orbital(_lobster_orb_labs.index(orb[1:]))
