@@ -1453,8 +1453,8 @@ class KPathLatimerMunro(KPathBase):
             for op in self._rpg:
                 to_pop = []
                 k1 = np.dot(op, k0)
-                for ind_key in key_points_copy:
-                    diff = k1 - key_points_copy[ind_key]
+                for ind_key, key_point in key_points_copy.items():
+                    diff = k1 - key_point
                     if self._all_ints(diff, atol=self._atol):
                         key_points_inds_orbits[i].append(ind_key)
                         to_pop.append(ind_key)
@@ -1521,8 +1521,7 @@ class KPathLatimerMunro(KPathBase):
             p00 = key_points[l0[0]]
             p01 = key_points[l0[1]]
             pmid0 = p00 + e / pi * (p01 - p00)
-            for ind_key in key_lines_copy:
-                l1 = key_lines_copy[ind_key]
+            for ind_key, l1 in key_lines_copy.items():
                 p10 = key_points[l1[0]]
                 p11 = key_points[l1[1]]
                 equivptspar = False
@@ -1720,8 +1719,8 @@ class KPathLatimerMunro(KPathBase):
 
     @staticmethod
     def _closewrapped(pos1, pos2, tolerance):
-        pos1 = pos1 % 1.0
-        pos2 = pos2 % 1.0
+        pos1 %= 1.0
+        pos2 %= 1.0
 
         if len(pos1) != len(pos2):
             return False
@@ -1983,7 +1982,7 @@ class KPathLatimerMunro(KPathBase):
     def _reduce_IRBZ(IRBZ_points, boundaries, g, atol):
         in_reduced_section = []
         for point in IRBZ_points:
-            in_reduced_section.append(
+            in_reduced_section += [
                 np.all(
                     [
                         (
@@ -1993,9 +1992,9 @@ class KPathLatimerMunro(KPathBase):
                         for boundary in boundaries
                     ]
                 )
-            )
+            ]
 
-        return [IRBZ_points[i] for i in range(len(IRBZ_points)) if in_reduced_section[i]]
+        return [IRBZ_points[idx] for idx in range(len(IRBZ_points)) if in_reduced_section[idx]]
 
     def _get_orbit_labels(self, orbit_cosines_orig, key_points_inds_orbits, atol):
         orbit_cosines_copy = orbit_cosines_orig.copy()

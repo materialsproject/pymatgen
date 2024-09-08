@@ -1092,14 +1092,14 @@ class StructureEnvironments(MSONable):
                 {"difference": "PREVIOUS DIFFERENCE IS DISMISSIVE", "comparison": "differences_wrt"},
             )
             return differences
-        for isite, self_site_nb_sets in enumerate(self.neighbors_sets):
-            other_site_nb_sets = other.neighbors_sets[isite]
+        for site_idx, self_site_nb_sets in enumerate(self.neighbors_sets):
+            other_site_nb_sets = other.neighbors_sets[site_idx]
             if self_site_nb_sets is None:
                 if other_site_nb_sets is None:
                     continue
                 differences.append(
                     {
-                        "difference": f"neighbors_sets[{isite=}]",
+                        "difference": f"neighbors_sets[{site_idx=}]",
                         "comparison": "has_neighbors",
                         "self": "None",
                         "other": set(other_site_nb_sets),
@@ -1109,7 +1109,7 @@ class StructureEnvironments(MSONable):
             if other_site_nb_sets is None:
                 differences.append(
                     {
-                        "difference": f"neighbors_sets[{isite=}]",
+                        "difference": f"neighbors_sets[{site_idx=}]",
                         "comparison": "has_neighbors",
                         "self": set(self_site_nb_sets),
                         "other": "None",
@@ -1121,7 +1121,7 @@ class StructureEnvironments(MSONable):
             if self_site_cns != other_site_cns:
                 differences.append(
                     {
-                        "difference": f"neighbors_sets[{isite=}]",
+                        "difference": f"neighbors_sets[{site_idx=}]",
                         "comparison": "coordination_numbers",
                         "self": self_site_cns,
                         "other": other_site_cns,
@@ -1136,7 +1136,7 @@ class StructureEnvironments(MSONable):
                 if set_self_site_cn_nb_sets != set_other_site_cn_nb_sets:
                     differences.append(
                         {
-                            "difference": f"neighbors_sets[{isite=}][{cn=}]",
+                            "difference": f"neighbors_sets[{site_idx=}][{cn=}]",
                             "comparison": "neighbors_sets",
                             "self": self_site_cn_nb_sets,
                             "other": other_site_cn_nb_sets,
@@ -1146,13 +1146,13 @@ class StructureEnvironments(MSONable):
                 for nb_set in common_nb_sets:
                     inb_set_self = self_site_cn_nb_sets.index(nb_set)
                     inb_set_other = other_site_cn_nb_sets.index(nb_set)
-                    self_ce = self.ce_list[isite][cn][inb_set_self]
-                    other_ce = other.ce_list[isite][cn][inb_set_other]
+                    self_ce = self.ce_list[site_idx][cn][inb_set_self]
+                    other_ce = other.ce_list[site_idx][cn][inb_set_other]
                     if self_ce != other_ce:
                         if self_ce.is_close_to(other_ce):
                             differences.append(
                                 {
-                                    "difference": f"ce_list[{isite=}][{cn=}][inb_set={inb_set_self}]",
+                                    "difference": f"ce_list[{site_idx=}][{cn=}][inb_set={inb_set_self}]",
                                     "comparison": "__eq__",
                                     "self": self_ce,
                                     "other": other_ce,
@@ -1161,7 +1161,7 @@ class StructureEnvironments(MSONable):
                         else:
                             differences.append(
                                 {
-                                    "difference": f"ce_list[{isite=}][{cn=}][inb_set={inb_set_self}]",
+                                    "difference": f"ce_list[{site_idx=}][{cn=}][inb_set={inb_set_self}]",
                                     "comparison": "is_close_to",
                                     "self": self_ce,
                                     "other": other_ce,
@@ -1187,12 +1187,12 @@ class StructureEnvironments(MSONable):
             return False
         if self.info != other.info:
             return False
-        for isite, site_ces in enumerate(self.ce_list):
-            site_nb_sets_self = self.neighbors_sets[isite]
-            site_nb_sets_other = other.neighbors_sets[isite]
+        for site_idx, site_ces in enumerate(self.ce_list):
+            site_nb_sets_self = self.neighbors_sets[site_idx]
+            site_nb_sets_other = other.neighbors_sets[site_idx]
             if site_nb_sets_self != site_nb_sets_other:
                 return False
-            if site_ces != other.ce_list[isite]:
+            if site_ces != other.ce_list[site_idx]:
                 return False
         return True
 
@@ -1596,12 +1596,12 @@ class LightStructureEnvironments(MSONable):
         fraction_ce_atom_stat = self.statistics_dict["fraction_coordination_environments_atom_present"]
         count_atoms = self.statistics_dict["count_atom_present"]
         count_ce = self.statistics_dict["count_coordination_environments_present"]
-        for isite, site in enumerate(self.structure):
+        for site_idx, site in enumerate(self.structure):
             # Building anion and cation list
             site_species = []
             if self.valences != "undefined":
                 for sp, occ in site.species.items():
-                    valence = self.valences[isite]
+                    valence = self.valences[site_idx]
                     strspecie = str(Species(sp.symbol, valence))
                     if valence < 0:
                         specie_list = self.statistics_dict["anion_list"]
@@ -1622,10 +1622,10 @@ class LightStructureEnvironments(MSONable):
                         atomlist[sp.symbol] += occ
                     site_species.append((sp.symbol, valence, occ))
             # Building environments lists
-            if self.coordination_environments[isite] is not None:
+            if self.coordination_environments[site_idx] is not None:
                 site_envs = [
                     (ce_piece_dict["ce_symbol"], ce_piece_dict["ce_fraction"])
-                    for ce_piece_dict in self.coordination_environments[isite]
+                    for ce_piece_dict in self.coordination_environments[site_idx]
                 ]
                 for ce_symbol, fraction in site_envs:
                     if fraction is None:
@@ -1724,13 +1724,13 @@ class LightStructureEnvironments(MSONable):
         isites = []
         csms = []
         fractions = []
-        for isite, site in enumerate(self.structure):
+        for site_idx, site in enumerate(self.structure):
             if element in [sp.symbol for sp in site.species] and (
-                self.valences == "undefined" or oxi_state == self.valences[isite]
+                self.valences == "undefined" or oxi_state == self.valences[site_idx]
             ):
-                for ce_dict in self.coordination_environments[isite]:
+                for ce_dict in self.coordination_environments[site_idx]:
                     if ce_symbol == ce_dict["ce_symbol"]:
-                        isites.append(isite)
+                        isites.append(site_idx)
                         csms.append(ce_dict["csm"])
                         fractions.append(ce_dict["ce_fraction"])
         return {"isites": isites, "fractions": fractions, "csms": csms}
@@ -1749,13 +1749,13 @@ class LightStructureEnvironments(MSONable):
         allces = {}
         element = specie.symbol
         oxi_state = specie.oxi_state
-        for isite, site in enumerate(self.structure):
+        for site_idx, site in enumerate(self.structure):
             if (
                 element in [sp.symbol for sp in site.species] and self.valences == "undefined"
-            ) or oxi_state == self.valences[isite]:
-                if self.coordination_environments[isite] is None:
+            ) or oxi_state == self.valences[site_idx]:
+                if self.coordination_environments[site_idx] is None:
                     continue
-                for ce_dict in self.coordination_environments[isite]:
+                for ce_dict in self.coordination_environments[site_idx]:
                     if ce_dict["ce_fraction"] < min_fraction:
                         continue
                     if ce_dict["ce_symbol"] not in allces:
@@ -1764,7 +1764,7 @@ class LightStructureEnvironments(MSONable):
                             "fractions": [],
                             "csms": [],
                         }
-                    allces[ce_dict["ce_symbol"]]["isites"].append(isite)
+                    allces[ce_dict["ce_symbol"]]["isites"].append(site_idx)
                     allces[ce_dict["ce_symbol"]]["fractions"].append(ce_dict["ce_fraction"])
                     allces[ce_dict["ce_symbol"]]["csms"].append(ce_dict["csm"])
         return allces
@@ -1876,16 +1876,16 @@ class LightStructureEnvironments(MSONable):
         Returns:
             bool: True if all the sites in the structure have clear environments.
         """
-        for isite in range(len(self.structure)):
-            if self.coordination_environments[isite] is None:
+        for site_idx in range(len(self.structure)):
+            if self.coordination_environments[site_idx] is None:
                 if skip_none:
                     continue
                 return False
-            if len(self.coordination_environments[isite]) == 0:
+            if len(self.coordination_environments[site_idx]) == 0:
                 if skip_empty:
                     continue
                 return False
-            if not self.site_has_clear_environment(isite=isite, conditions=conditions):
+            if not self.site_has_clear_environment(isite=site_idx, conditions=conditions):
                 return False
         return True
 
@@ -1899,14 +1899,14 @@ class LightStructureEnvironments(MSONable):
             list: Clear environments in this structure.
         """
         clear_envs_list = set()
-        for isite in range(len(self.structure)):
-            if self.coordination_environments[isite] is None:
+        for site_idx in range(len(self.structure)):
+            if self.coordination_environments[site_idx] is None:
                 continue
-            if len(self.coordination_environments[isite]) == 0:
+            if len(self.coordination_environments[site_idx]) == 0:
                 continue
-            if self.site_has_clear_environment(isite=isite, conditions=conditions):
+            if self.site_has_clear_environment(isite=site_idx, conditions=conditions):
                 ce = max(
-                    self.coordination_environments[isite],
+                    self.coordination_environments[site_idx],
                     key=lambda x: x["ce_fraction"],
                 )
                 clear_envs_list.add(ce["ce_symbol"])

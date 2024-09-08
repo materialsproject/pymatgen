@@ -1340,7 +1340,7 @@ class QCOutput(MSONable):
         )
         if grad_format_length > 1:
             for _ in range(1, grad_format_length):
-                grad_table_pattern = grad_table_pattern + r"(?:\s*(\-?[\d\.]{9,12}))?"
+                grad_table_pattern += "(?:\\s*(\\-?[\\d\\.]{9,12}))?"
 
         parsed_gradients = read_table_pattern(self.text, grad_header_pattern, grad_table_pattern, footer_pattern)
         if len(parsed_gradients) >= 1:

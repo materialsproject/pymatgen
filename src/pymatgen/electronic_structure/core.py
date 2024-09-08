@@ -142,7 +142,7 @@ class Magmom(MSONable):
 
         magmom: NDArray = np.array(moment, dtype="d")
         if magmom.ndim == 0:
-            magmom = magmom * (0, 0, 1)
+            magmom = magmom * (0, 0, 1)  # (ruff-preview) noqa: PLR6104
 
         self.moment = magmom
 
@@ -243,7 +243,7 @@ class Magmom(MSONable):
             saxis: Vector3D,
         ) -> tuple[Vector3D, Vector3D, Vector3D]:
             """Get the matrix to transform spin axis to z-axis."""
-            saxis = saxis / np.linalg.norm(saxis)
+            saxis /= np.linalg.norm(saxis)
 
             alpha = np.arctan2(saxis[1], saxis[0])
             beta = np.arctan2(np.sqrt(saxis[0] ** 2 + saxis[1] ** 2), saxis[2])
@@ -263,7 +263,7 @@ class Magmom(MSONable):
             saxis: Vector3D,
         ) -> tuple[Vector3D, Vector3D, Vector3D]:
             """Get the inverse of matrix to transform spin axis to z-axis."""
-            saxis = saxis / np.linalg.norm(saxis)
+            saxis /= np.linalg.norm(saxis)
 
             alpha = np.arctan2(saxis[1], saxis[0])
             beta = np.arctan2(np.sqrt(saxis[0] ** 2 + saxis[1] ** 2), saxis[2])

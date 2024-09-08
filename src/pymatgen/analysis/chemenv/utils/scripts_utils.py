@@ -184,8 +184,8 @@ def visualize(cg, zoom=None, vis=None, factor=1.0, view_index=True, faces_color_
         faces_color_override=faces_color_override,
     )
     if view_index:
-        for ineighbor, neighbor in enumerate(structure[1:]):
-            vis.add_text(neighbor.coords, f"{ineighbor}", color=(0, 0, 0))
+        for nbr_idx, neighbor in enumerate(structure[1:]):
+            vis.add_text(neighbor.coords, f"{nbr_idx}", color=(0, 0, 0))
     if zoom is not None:
         vis.zoom(zoom)
     return vis

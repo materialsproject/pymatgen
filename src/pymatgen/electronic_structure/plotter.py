@@ -1223,7 +1223,7 @@ class BSPlotterProjected(BSPlotter):
                     for j in range(len(data["energy"][str(spin)][b][band_idx]) - 1):
                         sum_e = 0.0
                         for el in elt_ordered:
-                            sum_e = sum_e + sum(
+                            sum_e += sum(
                                 proj[b][str(spin)][band_idx][j][str(el)][o]
                                 for o in proj[b][str(spin)][band_idx][j][str(el)]
                             )
@@ -4254,7 +4254,7 @@ def fold_point(p, lattice, coords_are_cartesian=False):
                     smallest_distance = dist
 
     if not np.allclose(closest_lattice_point, (0, 0, 0)):
-        p = p - closest_lattice_point
+        p -= closest_lattice_point
 
     return p
 

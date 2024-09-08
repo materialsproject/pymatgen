@@ -262,9 +262,9 @@ class AbstractChemenvStrategy(MSONable, abc.ABC):
                 uc_psite = psite.to_unit_cell()
                 site_idx = self.structure_environments.structure.index(uc_psite)
             except ValueError:
-                for isite2, site2 in enumerate(self.structure_environments.structure):
+                for site_idx2, site2 in enumerate(self.structure_environments.structure):
                     if psite.is_periodic_image(site2):
-                        site_idx = isite2
+                        site_idx = site_idx2
                         break
         # Get the translation between psite and its corresponding site in the unit cell (Translation I)
         this_site = self.structure_environments.structure[site_idx]

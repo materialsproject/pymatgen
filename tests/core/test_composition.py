@@ -387,8 +387,8 @@ class TestComposition(PymatgenTest):
             "P": 0.222604831158,
             "O": 0.459943320496,
         }
-        for el in correct_wt_frac:
-            assert correct_wt_frac[el] == approx(self.comps[0].get_wt_fraction(el)), "Wrong computed weight fraction"
+        for el, expected in correct_wt_frac.items():
+            assert self.comps[0].get_wt_fraction(el) == approx(expected), "Wrong computed weight fraction"
         assert self.comps[0].get_wt_fraction(Element("S")) == 0, "Wrong computed weight fractions"
 
     def test_from_dict(self):

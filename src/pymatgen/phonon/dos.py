@@ -406,7 +406,7 @@ class PhononDos(MSONable):
 
         # filter maxima based on the threshold
         max_dos = max(self.densities)
-        threshold = threshold * max_dos
+        threshold *= max_dos
         filtered_maxima_freqs = maxima_freqs[self.densities[:-1][maxima] >= threshold]
 
         if len(filtered_maxima_freqs) == 0:

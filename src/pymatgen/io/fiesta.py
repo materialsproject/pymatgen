@@ -275,7 +275,7 @@ class BasisSetReader:
 
         for l_zeta_ng in data_tmp:
             n_l = l_zeta_ng.split("_")[0]
-            n_nlm_orbs = n_nlm_orbs + (2 * int(n_l) + 1)
+            n_nlm_orbs += 2 * int(n_l) + 1
 
         return str(n_nlm_orbs)
 

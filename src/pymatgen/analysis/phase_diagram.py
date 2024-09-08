@@ -1200,7 +1200,7 @@ class PhaseDiagram(MSONable):
 
         for elem in self.elements:
             if elem not in target_comp.elements:
-                target_comp = target_comp + Composition({elem: 0.0})
+                target_comp += Composition({elem: 0.0})
 
         coeff = [-target_comp[elem] for elem in self.elements if elem != dep_elt]
 
@@ -1253,7 +1253,7 @@ class PhaseDiagram(MSONable):
         chempot_ranges = self.get_chempot_range_map([elem for elem in self.elements if elem != open_elt])
         for elem in self.elements:
             if elem not in target_comp.elements:
-                target_comp = target_comp + Composition({elem: 0.0})
+                target_comp += Composition({elem: 0.0})
 
         coeff = [-target_comp[elem] for elem in self.elements if elem != open_elt]
         max_open = -float("inf")
@@ -2086,8 +2086,8 @@ def _get_slsqp_decomp(
             A_transpose[jj, ii] = amounts.get(el, 0)
 
     # NOTE normalize arrays to avoid calls to fractional_composition
-    b = b / np.sum(b)
-    A_transpose = A_transpose / np.sum(A_transpose, axis=0)
+    b /= np.sum(b)
+    A_transpose /= np.sum(A_transpose, axis=0)
 
     # Energies of competing entries
     Es = np.array([comp_entry.energy_per_atom for comp_entry in competing_entries])
@@ -2870,8 +2870,8 @@ class PDPlotter:
 
                 z.append(self._pd.get_form_energy_per_atom(entry) + energy_offset)
             elif self._dim == 4:
-                x_coord = x_coord - offset_3d
-                y_coord = y_coord - offset_3d
+                x_coord -= offset_3d
+                y_coord -= offset_3d
                 textposition = "bottom right"
                 z.append(coords[2])
 
@@ -3460,14 +3460,14 @@ class PDPlotter:
 
             # these steps trace out the boundary pts of the uncertainty window
             outline = points[:, :2].copy()
-            outline[:, 1] = outline[:, 1] + points[:, 2]
+            outline[:, 1] += points[:, 2]
 
             last = -1
             if transformed:
                 last = None  # allows for uncertainty in terminal compounds
 
             flipped_points = np.flip(points[:last, :].copy(), axis=0)
-            flipped_points[:, 1] = flipped_points[:, 1] - flipped_points[:, 2]
+            flipped_points[:, 1] -= flipped_points[:, 2]
             outline = np.vstack((outline, flipped_points[:, :2]))
 
             uncertainty_plot = go.Scatter(
