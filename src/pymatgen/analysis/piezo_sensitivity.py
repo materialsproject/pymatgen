@@ -360,8 +360,7 @@ class ForceConstantMatrix:
         n_sites = len(struct)
         D = (1 / max_force) * 2 * (np.ones([n_sites * 3, n_sites * 3]))
         for op in operations:
-            same = 0
-            transpose = 0
+            same = transpose = 0
             if op[0] == op[1] and op[0] == op[2] and op[0] == op[3]:
                 same = 1
             if op[0] == op[3] and op[1] == op[2]:
@@ -413,8 +412,7 @@ class ForceConstantMatrix:
         """
         operations = self.FCM_operations
         for op in operations:
-            same = 0
-            transpose = 0
+            same = transpose = 0
             if op[0] == op[1] and op[0] == operations[2] and op[0] == op[3]:
                 same = 1
             if op[0] == op[3] and op[1] == op[2]:
@@ -423,10 +421,10 @@ class ForceConstantMatrix:
                 unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = np.zeros([3, 3])
 
                 for symop in op[4]:
-                    tempfcm = unsymmetrized_fcm[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
-                    tempfcm = symop.transform_tensor(tempfcm)
+                    temp_fcm = unsymmetrized_fcm[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
+                    temp_fcm = symop.transform_tensor(temp_fcm)
 
-                    unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += tempfcm
+                    unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += temp_fcm
 
                 if len(op[4]) != 0:
                     unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] /= len(op[4])
@@ -468,8 +466,7 @@ class ForceConstantMatrix:
         Returns:
             3Nx3N numpy array representing the force constant matrix
         """
-        check = 0
-        count = 0
+        check = count = 0
         while check == 0:
             # if re-symmetrizing brings back unstable modes 20 times, the method breaks
             if count > 20:
@@ -535,8 +532,7 @@ class ForceConstantMatrix:
 
             total /= n_sites
             for op in operations:
-                same = 0
-                transpose = 0
+                same = transpose = 0
                 if op[0] == op[1] and op[0] == op[2] and op[0] == op[3]:
                     same = 1
                 if op[0] == op[3] and op[1] == op[2]:

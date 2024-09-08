@@ -10,7 +10,6 @@ more info.
 
     https://docs.lammps.org/atom_style.html
     https://docs.lammps.org/read_data.html
-
 """
 
 from __future__ import annotations
@@ -1277,8 +1276,7 @@ class CombinedData(LammpsData):
             self.force_field = None
 
         self.atoms = pd.DataFrame()
-        mol_count = 0
-        type_count = 0
+        mol_count = type_count = 0
         self.mols_per_data = []
         for idx, mol in enumerate(self.mols):
             atoms_df = mol.atoms.copy()

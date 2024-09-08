@@ -202,7 +202,7 @@ def pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask=None, return_
         return_d2 (bool): whether to also return the squared distances
 
     Returns:
-        np.array: of displacement vectors from frac_coords1 to frac_coords2
+        np.ndarray: of displacement vectors from frac_coords1 to frac_coords2
             first index is frac_coords1 index, second is frac_coords2 index
     """
     return coord_cython.pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask, return_d2)
