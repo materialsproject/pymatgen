@@ -55,7 +55,7 @@ cite_conventional_cell_algo = due.dcite(
 )
 
 
-class SymmetryUndetermined(ValueError):
+class SymmetryUndeterminedError(ValueError):
     """
     An Exception for when symmetry cannot be determined. This might happen
     when, for example, atoms are very close together.
@@ -69,7 +69,7 @@ def _get_symmetry_dataset(cell, symprec, angle_tolerance):
     """
     dataset = spglib.get_symmetry_dataset(cell, symprec=symprec, angle_tolerance=angle_tolerance)
     if dataset is None:
-        raise SymmetryUndetermined
+        raise SymmetryUndeterminedError
     return dataset
 
 
@@ -1416,7 +1416,7 @@ class PointGroupAnalyzer:
                 sym_ops: Twofold nested dictionary. operations[i][j] gives the symmetry
                     operation that maps atom i unto j.
         """
-        unit_mat = np.eye(3)
+        unit_matrix = np.eye(3)
 
         def all_equivalent_atoms_of_i(idx, eq_sets, ops):
             """WORKS INPLACE on operations."""
@@ -1432,7 +1432,7 @@ class PointGroupAnalyzer:
                     for k in eq_set:
                         new_tmp_eq_sets[k] = eq_sets[k] - visited
                         if idx not in ops[k]:
-                            ops[k][idx] = np.dot(ops[j][idx], ops[k][j]) if k != idx else unit_mat
+                            ops[k][idx] = np.dot(ops[j][idx], ops[k][j]) if k != idx else unit_matrix
                         ops[idx][k] = ops[k][idx].T
                 tmp_eq_sets = new_tmp_eq_sets
             return visited, ops
