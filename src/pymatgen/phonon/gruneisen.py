@@ -105,7 +105,7 @@ class GruneisenParameter(MSONable):
         gamma = self.gruneisen
 
         if squared:
-            gamma = gamma**2
+            gamma **= 2
 
         if limit_frequencies == "debye":
             acoustic_debye_freq = self.acoustic_debye_temp * const.value("Boltzmann constant in Hz/K") / const.tera

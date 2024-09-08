@@ -354,7 +354,7 @@ class MagneticSpaceGroup(SymmetryGroup):
                     )
                     centered_ops.append(new_op)
 
-        ops = ops + centered_ops
+        ops += centered_ops
 
         # apply jones faithful transformation
         return [self.jf.transform_symmop(op) for op in ops]

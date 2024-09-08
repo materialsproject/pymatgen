@@ -220,15 +220,14 @@ class FunctionalGroupExtractor:
                     # Add all associated hydrogens into the functional group
                     if neighbor in hydrogens:
                         grp_hs.add(neighbor)
-            func_grp = func_grp | grp_hs
+            func_grp |= grp_hs
 
             func_groups.append(func_grp)
 
         return func_groups
 
     def get_basic_functional_groups(self, func_groups=None):
-        """
-        Identify functional groups that cannot be identified by the Ertl method
+        """Identify functional groups that cannot be identified by the Ertl method
         of get_special_carbon and get_heteroatoms, such as benzene rings, methyl
         groups, and ethyl groups.
 
@@ -243,7 +242,7 @@ class FunctionalGroupExtractor:
         Returns:
             list of sets of ints, representing groups of connected atoms
         """
-        strat = OpenBabelNN()
+        strategy = OpenBabelNN()
 
         hydrogens = {n for n in self.molgraph.graph.nodes if str(self.species[n]) == "H"}
 
@@ -256,7 +255,7 @@ class FunctionalGroupExtractor:
 
         if "methyl" in func_groups:
             for node in carbons:
-                neighbors = strat.get_nn_info(self.molecule, node)
+                neighbors = strategy.get_nn_info(self.molecule, node)
                 hs = {n["site_index"] for n in neighbors if n["site_index"] in hydrogens}
                 # Methyl group is CH3, but this will also catch methane
                 if len(hs) >= 3:
@@ -273,7 +272,7 @@ class FunctionalGroupExtractor:
                 # neighbors are not two carbons and one hydrogen
                 num_deviants = 0
                 for node in ring:
-                    neighbors = strat.get_nn_info(self.molecule, node)
+                    neighbors = strategy.get_nn_info(self.molecule, node)
                     neighbor_spec = sorted(str(self.species[n["site_index"]]) for n in neighbors)
                     if neighbor_spec != ["C", "C", "H"]:
                         num_deviants += 1

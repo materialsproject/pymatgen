@@ -133,7 +133,7 @@ class BornEffectiveCharge:
                     temp_fcm += op.transform_tensor(BEC[self.BEC_operations[atom][1]])
                 BEC[ops[0]] = temp_fcm
                 if len(ops[2]) != 0:
-                    BEC[ops[0]] = BEC[ops[0]] / len(ops[2])
+                    BEC[ops[0]] /= len(ops[2])
 
         # Enforce Acoustic Sum
         disp_charge = np.einsum("ijk->jk", BEC) / n_atoms
@@ -154,9 +154,9 @@ class BornEffectiveCharge:
                 add[ops[0]] = temp_tensor
 
                 if len(ops) != 0:
-                    add[ops[0]] = add[ops[0]] / len(ops[2])
+                    add[ops[0]] /= len(ops[2])
 
-        BEC = BEC - add
+        BEC -= add
 
         return BEC * max_charge
 
@@ -246,7 +246,7 @@ class InternalStrainTensor:
                 )
             IST[atom] = temp_tensor
             if len(ops) != 0:
-                IST[atom] = IST[atom] / len(ops)
+                IST[atom] /= len(ops)
 
         return IST * max_force
 
@@ -376,9 +376,7 @@ class ForceConstantMatrix:
                     D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += temp_fcm
 
                 if len(op[4]) != 0:
-                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = D[
-                        3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
-                    ] / len(op[4])
+                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] /= len(op[4])
 
                 D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = D[
                     3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
@@ -388,7 +386,7 @@ class ForceConstantMatrix:
             temp_tensor = Tensor(np.random.default_rng().random((3, 3)) - 0.5) * max_force
 
             temp_tensor_sum = sum(temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]])
-            temp_tensor_sum = temp_tensor_sum / (len(self.sharedops[op[0]][op[1]]))
+            temp_tensor_sum /= len(self.sharedops[op[0]][op[1]])
             if op[0] != op[1]:
                 for pair in range(len(op[4])):
                     temp_tensor2 = temp_tensor_sum.T
@@ -431,9 +429,7 @@ class ForceConstantMatrix:
                     unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += tempfcm
 
                 if len(op[4]) != 0:
-                    unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = unsymmetrized_fcm[
-                        3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
-                    ] / len(op[4])
+                    unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] /= len(op[4])
                 unsymmetrized_fcm[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = unsymmetrized_fcm[
                     3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
                 ].T
@@ -442,7 +438,7 @@ class ForceConstantMatrix:
             temp_tensor = Tensor(unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3])
             temp_tensor_sum = sum(temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]])
             if len(self.sharedops[op[0]][op[1]]) != 0:
-                temp_tensor_sum = temp_tensor_sum / (len(self.sharedops[op[0]][op[1]]))
+                temp_tensor_sum /= len(self.sharedops[op[0]][op[1]])
 
             # Apply the proper transformation if there is an equivalent already
             if op[0] != op[1]:
@@ -535,9 +531,9 @@ class ForceConstantMatrix:
             pastrow = 0
             total = np.zeros([3, 3])
             for col in range(n_sites):
-                total = total + X[:3, col * 3 : col * 3 + 3]
+                total += X[:3, col * 3 : col * 3 + 3]
 
-            total = total / (n_sites)
+            total /= n_sites
             for op in operations:
                 same = 0
                 transpose = 0
@@ -555,9 +551,7 @@ class ForceConstantMatrix:
                         D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += tempfcm
 
                     if len(op[4]) != 0:
-                        D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = D[
-                            3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
-                        ] / len(op[4])
+                        D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] /= len(op[4])
                     D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = D[
                         3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
                     ].T
@@ -567,10 +561,10 @@ class ForceConstantMatrix:
                 if curr_row != pastrow:
                     total = np.zeros([3, 3])
                     for col in range(n_sites):
-                        total = total + X[curr_row * 3 : curr_row * 3 + 3, col * 3 : col * 3 + 3]
+                        total += X[curr_row * 3 : curr_row * 3 + 3, col * 3 : col * 3 + 3]
                     for col in range(curr_row):
-                        total = total - D[curr_row * 3 : curr_row * 3 + 3, col * 3 : col * 3 + 3]
-                    total = total / (n_sites - curr_row)
+                        total -= D[curr_row * 3 : curr_row * 3 + 3, col * 3 : col * 3 + 3]
+                    total /= n_sites - curr_row
                 pastrow = curr_row
 
                 # Apply the point symmetry operations of the site
@@ -578,7 +572,7 @@ class ForceConstantMatrix:
                 temp_tensor_sum = sum(temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]])
 
                 if len(self.sharedops[op[0]][op[1]]) != 0:
-                    temp_tensor_sum = temp_tensor_sum / (len(self.sharedops[op[0]][op[1]]))
+                    temp_tensor_sum /= len(self.sharedops[op[0]][op[1]])
 
                 # Apply the proper transformation if there is an equivalent already
                 if op[0] != op[1]:
@@ -592,7 +586,7 @@ class ForceConstantMatrix:
 
                 D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = temp_tensor_sum
                 D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = temp_tensor_sum.T
-            fcm = fcm - D
+            fcm -= D
 
         return fcm
 

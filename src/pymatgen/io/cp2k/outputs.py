@@ -1637,9 +1637,9 @@ def parse_energy_file(energy_file):
         "used_time",
     ]
     df_energies = pd.read_csv(energy_file, skiprows=1, names=columns, sep=r"\s+")
-    df_energies["kinetic_energy"] = df_energies["kinetic_energy"] * Ha_to_eV
-    df_energies["potential_energy"] = df_energies["potential_energy"] * Ha_to_eV
-    df_energies["conserved_quantity"] = df_energies["conserved_quantity"] * Ha_to_eV
+    df_energies["kinetic_energy"] *= Ha_to_eV
+    df_energies["potential_energy"] *= Ha_to_eV
+    df_energies["conserved_quantity"] *= Ha_to_eV
     df_energies = df_energies.astype(float)
     return {c: df_energies[c].to_numpy() for c in columns}
 
