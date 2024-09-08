@@ -760,8 +760,7 @@ class CompleteCohp(Cohp):
         fmt = fmt.upper()  # type: ignore[assignment]
         if fmt == "LMTO":
             # TODO: LMTO COOPs and orbital-resolved COHP cannot be handled yet
-            are_coops = False
-            are_cobis = False
+            are_coops = are_cobis = False
             orb_res_cohp = None
             if structure_file is None:
                 structure_file = "CTRL"

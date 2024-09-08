@@ -627,40 +627,27 @@ class GaussianOutput:
 
         bond_order_patt = re.compile(r"Wiberg bond index matrix in the NAO basis:")
 
-        self.properly_terminated = False
-        self.is_pcm = False
+        self.properly_terminated = self.is_pcm = self.is_spin = False
+        self.pcm = self.hessian = self.title = None
         self.stationary_type = "Minimum"
         self.corrections = {}
         self.energies = []
-        self.pcm = None
         self.errors = []
         self.Mulliken_charges = {}
         self.link0 = {}
         self.cart_forces = []
         self.frequencies = []
         self.eigenvalues = []
-        self.is_spin = False
-        self.hessian = None
         self.resumes = []
-        self.title = None
         self.bond_orders = {}
 
-        read_coord = 0
-        read_mulliken = False
-        read_eigen = False
+        read_mulliken = read_eigen = num_basis_found = terminated = parse_forces = False
+        read_mo = parse_hessian = standard_orientation = parse_bond_order = parse_freq = False
+        read_coord = parse_stage = 0
         eigen_txt = []
-        parse_stage = 0
-        num_basis_found = False
-        terminated = False
-        parse_forces = False
         forces = []
-        parse_freq = False
         frequencies = []
-        read_mo = False
-        parse_hessian = False
         route_line = ""
-        standard_orientation = False
-        parse_bond_order = False
         input_structures = []
         std_structures = []
         geom_orientation = None

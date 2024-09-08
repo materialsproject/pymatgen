@@ -2048,11 +2048,7 @@ class TestWaveder(PymatgenTest):
         wder = Waveder.from_binary(f"{VASP_OUT_DIR}/WAVEDER", "float64")
         assert wder.nbands == 36
         assert wder.nkpoints == 56
-        band_i = 0
-        band_j = 0
-        kp_index = 0
-        spin_index = 0
-        cart_dir_index = 0
+        band_i = band_j = kp_index = spin_index = cart_dir_index = 0
         cder = wder.get_orbital_derivative_between_states(band_i, band_j, kp_index, spin_index, cart_dir_index)
         assert cder == approx(-1.33639226092e-103, abs=1e-114)
 

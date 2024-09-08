@@ -20,8 +20,7 @@ try:
     import phonopy
     from phonopy.phonon.dos import TotalDos
 except ImportError:
-    phonopy = None
-    TotalDos = None
+    phonopy = TotalDos = None
 
 if TYPE_CHECKING:
     from collections.abc import Sequence

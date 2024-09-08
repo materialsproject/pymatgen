@@ -323,9 +323,7 @@ class StructureVis:
         Args:
             site: Site to add.
         """
-        start_angle = 0
-        radius = 0
-        total_occu = 0
+        start_angle = radius = total_occu = 0
 
         for specie, occu in site.species.items():
             radius += occu * (

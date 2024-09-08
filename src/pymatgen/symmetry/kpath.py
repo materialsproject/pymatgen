@@ -1303,9 +1303,7 @@ class KPathLatimerMunro(KPathBase):
         point_orbits_in_path = []
         for idx, little_group in enumerate(little_groups_lines):
             add_rep = False
-            nC2 = 0
-            nC3 = 0
-            nsig = 0
+            nC2 = nC3 = nsig = 0
             for opind in little_group:
                 op = self._rpg[opind]
                 if not (op == ID).all():
@@ -1327,8 +1325,7 @@ class KPathLatimerMunro(KPathBase):
                 line = key_lines_inds_orbits[idx][0]
                 ind0 = line[0]
                 ind1 = line[1]
-                found0 = False
-                found1 = False
+                found0 = found1 = False
                 for j, orbit in enumerate(key_points_inds_orbits):
                     if ind0 in orbit:
                         point_orbits_in_path.append(j)
@@ -1403,8 +1400,7 @@ class KPathLatimerMunro(KPathBase):
             bz_as_key_point_inds.append([])
             for j, vert in enumerate(facet):
                 edge_center = (vert + facet[j + 1]) / 2 if j != len(facet) - 1 else (vert + facet[0]) / 2.0
-                duplicatevert = False
-                duplicateedge = False
+                duplicatevert = duplicateedge = False
                 for k, point in enumerate(key_points):
                     if np.allclose(vert, point, atol=self._atol):
                         bz_as_key_point_inds[idx].append(k)
@@ -1524,9 +1520,7 @@ class KPathLatimerMunro(KPathBase):
             for ind_key, l1 in key_lines_copy.items():
                 p10 = key_points[l1[0]]
                 p11 = key_points[l1[1]]
-                equivptspar = False
-                equivptsperp = False
-                equivline = False
+                equivptspar = equivptsperp = equivline = False
 
                 if (
                     np.array([l0[0] in orbit and l1[0] in orbit for orbit in key_points_inds_orbits]).any()
@@ -1702,8 +1696,7 @@ class KPathLatimerMunro(KPathBase):
         recip_point_group = [np.around(np.dot(A, np.dot(R, A_inv)), decimals=2)]
         for op in ops:
             recip = np.around(np.dot(A, np.dot(op, A_inv)), decimals=2)
-            new = True
-            new_coset = True
+            new = new_coset = True
             for thing in recip_point_group:
                 if (thing == recip).all():
                     new = False

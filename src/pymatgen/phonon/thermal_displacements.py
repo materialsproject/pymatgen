@@ -369,8 +369,7 @@ class ThermalDisplacementMatrices(MSONable):
                 counter += 1
             file.write("  0 0 0 0 0 0 0 0\n")
             file.write("VECTR\n")
-            vector_count = 1
-            site_count = 1
+            vector_count = site_count = 1
             for vectors in result:
                 vector0_x = vectors["vector0"][0]
                 vector0_y = vectors["vector0"][1]

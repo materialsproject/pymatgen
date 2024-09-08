@@ -209,8 +209,7 @@ class TestSlab(PymatgenTest):
         all_slabs = [all_Ti_slabs, all_Ag_fcc_slabs]
 
         for slabs in all_slabs:
-            asymmetric_count = 0
-            symmetric_count = 0
+            asymmetric_count = symmetric_count = 0
 
             for slab in slabs:
                 sg = SpacegroupAnalyzer(slab)

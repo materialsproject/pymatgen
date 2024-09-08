@@ -212,8 +212,7 @@ def process_parsed_hess(hess_data):
     dim = int(hess_data[1].split()[1])
     hess = [[0 for _ in range(dim)] for _ in range(dim)]
 
-    row = 0
-    column = 0
+    row = column = 0
     for ii, line in enumerate(hess_data):
         if ii not in [0, 1, len(hess_data) - 1]:
             split_line = line.split()

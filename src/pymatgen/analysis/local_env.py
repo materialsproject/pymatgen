@@ -1770,7 +1770,7 @@ class MinimumOKeeffeNN(NearNeighbors):
         except Exception:
             eln = site.species_string
 
-        reldists_neighs = []
+        rel_dists_neighs = []
         for nn in neighs_dists:
             neigh = nn
             dist = nn.nn_distance
@@ -1778,19 +1778,19 @@ class MinimumOKeeffeNN(NearNeighbors):
                 el2 = neigh.specie.element
             except Exception:
                 el2 = neigh.species_string
-            reldists_neighs.append([dist / get_okeeffe_distance_prediction(eln, el2), neigh])
+            rel_dists_neighs.append([dist / get_okeeffe_distance_prediction(eln, el2), neigh])
 
         siw = []
-        min_reldist = min(reldist for reldist, neigh in reldists_neighs)
-        for reldist, s in reldists_neighs:
-            if reldist < (1 + self.tol) * min_reldist:
-                w = min_reldist / reldist
+        min_rel_dist = min(reldist for reldist, neigh in rel_dists_neighs)
+        for rel_dist, site in rel_dists_neighs:
+            if rel_dist < (1 + self.tol) * min_rel_dist:
+                w = min_rel_dist / rel_dist
                 siw.append(
                     {
-                        "site": s,
-                        "image": self._get_image(structure, s),
+                        "site": site,
+                        "image": self._get_image(structure, site),
                         "weight": w,
-                        "site_index": self._get_original_site(structure, s),
+                        "site_index": self._get_original_site(structure, site),
                     }
                 )
 
@@ -2967,8 +2967,7 @@ class LocalStructOrderParams:
             twothird = 2 / 3.0
             for j in range(n_neighbors):  # Neighbor j is put to the North pole.
                 zaxis = rij_norm[j]
-                kc = 0
-                idx = 0
+                kc = idx = 0
                 for k in range(n_neighbors):  # From neighbor k, we construct
                     if j != k:  # the prime meridian.
                         for idx in range(len(self._types)):

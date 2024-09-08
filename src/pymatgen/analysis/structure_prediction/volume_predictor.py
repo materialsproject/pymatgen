@@ -82,8 +82,7 @@ class RLSVolumePredictor:
                 ):
                     raise ValueError("Not all the ionic radii are available!")
 
-                numerator = 0
-                denominator = 0
+                numerator = denominator = 0
                 # Here, the 1/3 factor on the composition accounts for atomic
                 # packing. We want the number per unit length.
                 for k, v in comp.items():
@@ -102,8 +101,7 @@ class RLSVolumePredictor:
             ref_comp = ref_structure.composition
             # Here, the 1/3 factor on the composition accounts for atomic
             # packing. We want the number per unit length.
-            numerator = 0
-            denominator = 0
+            numerator = denominator = 0
             for k, v in comp.items():
                 numerator += k.atomic_radius * v ** (1 / 3)
             for k, v in ref_comp.items():

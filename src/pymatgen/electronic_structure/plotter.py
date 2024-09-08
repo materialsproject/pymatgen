@@ -1991,8 +1991,7 @@ class BSPlotterProjected(BSPlotter):
                 if len(sum_atoms[elt]) == 1:
                     raise ValueError(f"We do not sum projection over only one atom: {elt}")
 
-        max_number_figs = 0
-        decrease = 0
+        max_number_figs = decrease = 0
         for elt in dictio:
             max_number_figs += len(dictio[elt]) * len(dictpa[elt])
 

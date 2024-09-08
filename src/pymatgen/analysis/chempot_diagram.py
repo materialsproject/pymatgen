@@ -672,9 +672,7 @@ def get_centroid_2d(vertices: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: Giving 2-d centroid coordinates.
     """
-    cx = 0
-    cy = 0
-    a = 0
+    cx = cy = a = 0
 
     for idx in range(len(vertices) - 1):
         xi = vertices[idx, 0]

@@ -322,8 +322,7 @@ def structure_from_ncdata(ncdata, site_properties=None, cls=Structure):
         intgden = ncdata.read_value("intgden")
         nspden = intgden.shape[1]
     except NetcdfReaderError:
-        intgden = None
-        nspden = None
+        intgden = nspden = None
 
     if intgden is not None:
         if nspden == 2:

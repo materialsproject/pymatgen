@@ -63,8 +63,7 @@ class HHIModel:
             if not isinstance(comp_or_form, Composition):
                 comp_or_form = Composition(comp_or_form)
 
-            hhi_p = 0
-            hhi_r = 0
+            hhi_p = hhi_r = 0
 
             for e in comp_or_form.elements:
                 percent = comp_or_form.get_wt_fraction(e)

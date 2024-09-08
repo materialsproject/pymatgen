@@ -87,8 +87,7 @@ def mol_graph_from_openff_mol(molecule: tk.Molecule) -> MoleculeGraph:
     """
     mol_graph = MoleculeGraph.with_empty_graph(Molecule([], []), name="none")
     p_table = {el.Z: str(el) for el in Element}
-    total_charge = 0
-    cum_atoms = 0
+    total_charge = cum_atoms = 0
 
     coords = molecule.conformers[0].magnitude if molecule.conformers is not None else np.zeros((molecule.n_atoms, 3))
     for idx, atom in enumerate(molecule.atoms):

@@ -358,8 +358,7 @@ def compute_environments(chemenv_configuration):
                     deltas = [np.zeros(3, float)]
                 if first_time and StructureVis is not None:
                     vis = StructureVis(show_polyhedron=False, show_unit_cell=True)
-                    vis.show_help = False
-                    first_time = False
+                    vis.show_help = first_time = False
                 else:
                     vis = None  # TODO: following code logic seems buggy
 
@@ -375,17 +374,17 @@ def compute_environments(chemenv_configuration):
                     ce = strategy.get_site_coordination_environment(site)
                     if ce is not None and ce[0] != UNCLEAR_ENVIRONMENT_SYMBOL:
                         for delta in deltas:
-                            psite = PeriodicSite(
+                            p_site = PeriodicSite(
                                 site.species,
                                 site.frac_coords + delta,
                                 site.lattice,
                                 properties=site.properties,
                             )
-                            vis.add_site(psite)
-                            neighbors = strategy.get_site_neighbors(psite)
+                            vis.add_site(p_site)
+                            neighbors = strategy.get_site_neighbors(p_site)
                             draw_cg(
                                 vis,
-                                psite,
+                                p_site,
                                 neighbors,
                                 cg=lgf.allcg.get_geometry_from_mp_symbol(ce[0]),
                                 perm=ce[1]["permutation"],

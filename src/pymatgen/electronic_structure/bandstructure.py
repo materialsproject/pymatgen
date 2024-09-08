@@ -848,8 +848,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
             max_index = -1000
             # spin_index = None
             for idx in range(self.nb_bands):
-                below = False
-                above = False
+                below = above = False
                 for j in range(len(self.kpoints)):
                     if self.bands[Spin.up][idx][j] < self.efermi:
                         below = True
@@ -859,8 +858,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                     max_index = idx
                     # spin_index = Spin.up
                 if self.is_spin_polarized:
-                    below = False
-                    above = False
+                    below = above = False
                     for j in range(len(self.kpoints)):
                         if self.bands[Spin.down][idx][j] < self.efermi:
                             below = True

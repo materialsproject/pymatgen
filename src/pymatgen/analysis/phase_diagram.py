@@ -2408,8 +2408,7 @@ class PDPlotter:
 
         for entry, lines in chempot_ranges.items():
             comp = entry.composition
-            center_x = 0
-            center_y = 0
+            center_x = center_y = 0
             coords = []
             contain_zero = any(comp.get_atomic_fraction(el) == 0 for el in elements)
             is_boundary = (not contain_zero) and sum(comp.get_atomic_fraction(el) for el in elements) == 1
