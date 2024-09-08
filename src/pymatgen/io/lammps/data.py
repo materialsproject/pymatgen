@@ -10,7 +10,6 @@ more info.
 
     https://docs.lammps.org/atom_style.html
     https://docs.lammps.org/read_data.html
-
 """
 
 from __future__ import annotations
