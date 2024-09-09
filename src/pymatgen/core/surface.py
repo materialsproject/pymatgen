@@ -1218,7 +1218,7 @@ class SlabGenerator:
                 can lead to many more possible slabs.
             ztol (float): Fractional tolerance for determine overlapping z-ranges,
                 smaller ztol might result in more possible Slabs.
-            filter_out_sym_slabs (bool): whether to filter out identical slabs with different terminations.
+            filter_out_sym_slabs (bool): If True filter out identical slabs with different terminations.
 
         Returns:
             list[Slab]: All possible Slabs of a particular surface,

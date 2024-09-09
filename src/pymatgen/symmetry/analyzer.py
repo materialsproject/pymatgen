@@ -1535,12 +1535,12 @@ def iterative_symmetrize(
     new = mol
     n = 0
     finished = False
-    eq = {"sym_mol": new, "eq_sets": {}, "sym_ops": {}}
+    eq: dict[str, Molecule | dict] = {"sym_mol": new, "eq_sets": {}, "sym_ops": {}}
     while not finished and n <= max_n:
         previous = new
         PA = PointGroupAnalyzer(previous, tolerance=tolerance)
         eq = PA.symmetrize_molecule()
-        new = eq["sym_mol"]
+        new = eq["sym_mol"]  # type: ignore[assignment]
         finished = np.allclose(new.cart_coords, previous.cart_coords, atol=epsilon)
         n += 1
     return eq

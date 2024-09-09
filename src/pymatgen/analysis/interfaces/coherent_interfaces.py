@@ -34,22 +34,22 @@ class CoherentInterfaceBuilder:
         film_miller: Tuple3Ints,
         substrate_miller: Tuple3Ints,
         zslgen: ZSLGenerator | None = None,
-        termination_ftol=0.25,
-        label_index=False,  # necessary to add index to termination
-        filter_out_sym_slabs=True,
+        termination_ftol: float = 0.25,
+        label_index: bool = False,  # necessary to add index to termination
+        filter_out_sym_slabs: bool = True,
     ):
         """
         Args:
-            substrate_structure: structure of substrate
-            film_structure: structure of film
-            film_miller: miller index of the film layer
-            substrate_miller: miller index for the substrate layer
-            zslgen: BiDirectionalZSL if you want custom lattice matching tolerances for coherency.
-            termination_ftol: tolerance to distinguish different terminating atomic planes.
-            label_index: whether to add an extra index at the beginning of the termination label.
-            filter_out_sym_slabs: whether to filter out identical slabs with different termination,
-            this might need to be set as False to find more non-identical terminations because slab
-            identity separately dose not mean combinational identity.
+            substrate_structure (Structure): substrate structure
+            film_structure (Structure): film structure
+            film_miller (tuple[int, int, int]): miller index for the film layer
+            substrate_miller (tuple[int, int, int]): miller index for the substrate layer
+            zslgen (ZSLGenerator | None): BiDirectionalZSL if you want custom lattice matching tolerances for coherency.
+            termination_ftol (float): tolerance to distinguish different terminating atomic planes.
+            label_index (bool): If True add an extra index at the beginning of the termination label.
+            filter_out_sym_slabs (bool): If True filter out identical slabs with different terminations.
+                This might need to be set as False to find more non-identical terminations because slab
+                identity separately does not mean combinational identity.
         """
         # Bulk structures
         self.substrate_structure = substrate_structure

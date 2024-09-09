@@ -2844,7 +2844,7 @@ def label_termination(slab: Structure, ftol: float = 0.25, t_idx: int | None = N
     Args:
         slab (Slab): film or substrate slab to label termination for
         ftol (float): tolerance for terminating position hierarchical clustering
-        t_idx (None|int): if not None, adding an extra index to the termination label output
+        t_idx (None | int): if not None, adding an extra index to the termination label output
     """
     frac_coords = slab.frac_coords
     n = len(frac_coords)

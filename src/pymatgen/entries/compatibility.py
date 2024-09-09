@@ -555,16 +555,16 @@ class Compatibility(MSONable, abc.ABC):
         if not inplace:
             entry = copy.deepcopy(entry)
 
-        entry = self._process_entry_inplace(entry, **kwargs)
+        entry_or_none = self._process_entry_inplace(entry, **kwargs)
 
-        return entry[0] if entry is not None else None
+        return None if entry_or_none is None else entry_or_none[0]
 
     def _process_entry_inplace(
         self,
         entry: AnyComputedEntry,
         clean: bool = True,
         on_error: Literal["ignore", "warn", "raise"] = "ignore",
-    ) -> ComputedEntry | None:
+    ) -> tuple[AnyComputedEntry, bool] | None:
         """Process a single entry with the chosen Corrections. Note
         that this method will change the data of the original entry.
 
@@ -1533,7 +1533,7 @@ class MaterialsProjectAqueousCompatibility(Compatibility):
         # pre-process entries with the given solid compatibility class
         if self.solid_compat:
             entries = self.solid_compat.process_entries(entries, clean=True, inplace=inplace, n_workers=n_workers)
-            return [entries]
+            return [entries]  # type: ignore[list-item]
 
         # when processing single entries, all H2 polymorphs will get assigned the
         # same energy
