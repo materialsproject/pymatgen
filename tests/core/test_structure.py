@@ -1254,22 +1254,19 @@ class TestStructure(PymatgenTest):
 
         struct = self.struct.copy()
         # actual SymmOp of this struct: (SpacegroupAnalyzer(struct).get_symmetry_operations()[-2])
-        op = SymmOp([[ 0.  ,  0.  , -1.  ,  0.75],
-        [-1.  , -1.  ,  1.  ,  0.5 ],
-        [ 0.  , -1.  ,  1.  ,  0.75],
-        [ 0.  ,  0.  ,  0.  ,  1.  ]])
+        op = SymmOp([[0.0, 0.0, -1.0, 0.75], [-1.0, -1.0, 1.0, 0.5], [0.0, -1.0, 1.0, 0.75], [0.0, 0.0, 0.0, 1.0]])
         struct.apply_operation(op, fractional=True)
         assert struct.get_space_group_info() == spg_info
 
         # same SymmOp in Cartesian coordinates:
-        op = SymmOp([[-0.5, -0.288675028, -0.816496280,
-          3.84019793],
-        [-0.866025723,  0.166666176,  0.471404694,
-          0],
-        [ 0, -0.942808868,  0.333333824,
-          2.35163180],
-        [ 0,  0,  0,
-          1.]])
+        op = SymmOp(
+            [
+                [-0.5, -0.288675028, -0.816496280, 3.84019793],
+                [-0.866025723, 0.166666176, 0.471404694, 0],
+                [0, -0.942808868, 0.333333824, 2.35163180],
+                [0, 0, 0, 1.0],
+            ]
+        )
         struct = self.struct.copy()
         struct.apply_operation(op, fractional=False)
         assert struct.get_space_group_info() == spg_info
