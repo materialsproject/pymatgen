@@ -581,7 +581,7 @@ class InterfacialReactivity(MSONable):
         """List of formulas of potential products. e.g. ['Li','O2','Mn']."""
         products = set()
         for _, _, _, react, _ in self.get_kinks():
-            products = products | {key.reduced_formula for key in react.products}
+            products |= {key.reduced_formula for key in react.products}
         return list(products)
 
 

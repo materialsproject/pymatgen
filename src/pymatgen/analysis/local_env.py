@@ -485,7 +485,7 @@ class NearNeighbors:
             raise ValueError("Shell must be positive")
 
         # Append this site to the list of previously-visited sites
-        _previous_steps = _previous_steps | {(site_idx, _cur_image)}
+        _previous_steps |= {(site_idx, _cur_image)}
 
         # Get all the neighbors of this site
         possible_steps = list(all_nn_info[site_idx])
@@ -1770,7 +1770,7 @@ class MinimumOKeeffeNN(NearNeighbors):
         except Exception:
             eln = site.species_string
 
-        reldists_neighs = []
+        rel_dists_neighs = []
         for nn in neighs_dists:
             neigh = nn
             dist = nn.nn_distance
@@ -1778,19 +1778,19 @@ class MinimumOKeeffeNN(NearNeighbors):
                 el2 = neigh.specie.element
             except Exception:
                 el2 = neigh.species_string
-            reldists_neighs.append([dist / get_okeeffe_distance_prediction(eln, el2), neigh])
+            rel_dists_neighs.append([dist / get_okeeffe_distance_prediction(eln, el2), neigh])
 
         siw = []
-        min_reldist = min(reldist for reldist, neigh in reldists_neighs)
-        for reldist, s in reldists_neighs:
-            if reldist < (1 + self.tol) * min_reldist:
-                w = min_reldist / reldist
+        min_rel_dist = min(reldist for reldist, neigh in rel_dists_neighs)
+        for rel_dist, site in rel_dists_neighs:
+            if rel_dist < (1 + self.tol) * min_rel_dist:
+                w = min_rel_dist / rel_dist
                 siw.append(
                     {
-                        "site": s,
-                        "image": self._get_image(structure, s),
+                        "site": site,
+                        "image": self._get_image(structure, site),
                         "weight": w,
-                        "site_index": self._get_original_site(structure, s),
+                        "site_index": self._get_original_site(structure, site),
                     }
                 )
 
@@ -2967,8 +2967,7 @@ class LocalStructOrderParams:
             twothird = 2 / 3.0
             for j in range(n_neighbors):  # Neighbor j is put to the North pole.
                 zaxis = rij_norm[j]
-                kc = 0
-                idx = 0
+                kc = idx = 0
                 for k in range(n_neighbors):  # From neighbor k, we construct
                     if j != k:  # the prime meridian.
                         for idx in range(len(self._types)):
@@ -2980,14 +2979,14 @@ class LocalStructOrderParams:
                         if np.linalg.norm(xaxis) < very_small:
                             flag_xaxis = True
                         else:
-                            xaxis = xaxis / np.linalg.norm(xaxis)
+                            xaxis /= np.linalg.norm(xaxis)
                             flag_xaxis = False
 
                         if self._comp_azi:
                             flag_yaxis = True
                             yaxis = np.cross(zaxis, xaxis)
                             if np.linalg.norm(yaxis) > very_small:
-                                yaxis = yaxis / np.linalg.norm(yaxis)
+                                yaxis /= np.linalg.norm(yaxis)
                                 flag_yaxis = False
                         else:
                             yaxis = None
@@ -3302,9 +3301,7 @@ class LocalStructOrderParams:
                     for j in range(n_neighbors):
                         ops[idx] += sum(qsp_theta[idx][j])
                     if n_neighbors > 3:
-                        ops[idx] = ops[idx] / float(  # type: ignore[operator]
-                            0.5 * float(n_neighbors * (6 + (n_neighbors - 2) * (n_neighbors - 3)))
-                        )
+                        ops[idx] /= float(0.5 * float(n_neighbors * (6 + (n_neighbors - 2) * (n_neighbors - 3))))  # type: ignore[operator]
                     else:
                         ops[idx] = None  # type: ignore[call-overload]
 
@@ -3314,7 +3311,7 @@ class LocalStructOrderParams:
                         acc = 0.0
                         for d in dist:
                             tmp = self._params[idx][2] * (d - dmean)
-                            acc = acc + math.exp(-0.5 * tmp * tmp)
+                            acc += math.exp(-0.5 * tmp * tmp)
                         for j in range(n_neighbors):
                             ops[idx] = max(qsp_theta[idx][j]) if j == 0 else max(ops[idx], *qsp_theta[idx][j])
                         ops[idx] = acc * ops[idx] / float(n_neighbors)  # type: ignore[operator]
@@ -3335,9 +3332,9 @@ class LocalStructOrderParams:
             # Compute height, side and diagonal length estimates.
             neighscent = np.array([0.0, 0.0, 0.0])
             for neigh in neighsites:
-                neighscent = neighscent + neigh.coords
+                neighscent += neigh.coords
             if n_neighbors > 0:
-                neighscent = neighscent / float(n_neighbors)
+                neighscent /= float(n_neighbors)
             h = np.linalg.norm(neighscent - centvec)
             b = min(distjk_unique) if len(distjk_unique) > 0 else 0
             dhalf = max(distjk_unique) / 2 if len(distjk_unique) > 0 else 0
@@ -3357,7 +3354,7 @@ class LocalStructOrderParams:
                             nmax = 4
 
                         for j in range(min([n_neighbors, nmax])):
-                            ops[idx] = ops[idx] * math.exp(-0.5 * ((aijs[j] - a) * self._params[idx][0]) ** 2)  # type: ignore[operator]
+                            ops[idx] *= math.exp(-0.5 * ((aijs[j] - a) * self._params[idx][0]) ** 2)  # type: ignore[operator]
 
         return ops
 
@@ -3931,7 +3928,7 @@ class CrystalNN(NearNeighbors):
                     # note: 3.3 is max deltaX between 2 elements
                     chemical_weight = 1 + self.x_diff_weight * math.sqrt(abs(X1 - X2) / 3.3)
 
-                entry["weight"] = entry["weight"] * chemical_weight
+                entry["weight"] *= chemical_weight
 
         # sort nearest neighbors from highest to lowest weight
         nn = sorted(nn, key=lambda x: x["weight"], reverse=True)
@@ -3941,7 +3938,7 @@ class CrystalNN(NearNeighbors):
         # renormalize weights so the highest weight is 1.0
         highest_weight = nn[0]["weight"]
         for entry in nn:
-            entry["weight"] = entry["weight"] / highest_weight
+            entry["weight"] /= highest_weight
 
         # adjust solid angle weights based on distance
         if self.distance_cutoffs:
@@ -3968,7 +3965,7 @@ class CrystalNN(NearNeighbors):
                     dist_weight = 1
                 elif dist < cutoff_high:
                     dist_weight = (math.cos((dist - cutoff_low) / (cutoff_high - cutoff_low) * math.pi) + 1) * 0.5
-                entry["weight"] = entry["weight"] * dist_weight
+                entry["weight"] *= dist_weight
 
         # sort nearest neighbors from highest to lowest weight
         nn = sorted(nn, key=lambda x: x["weight"], reverse=True)

@@ -2691,9 +2691,7 @@ class GthPotential(AtomicMetadata):
         nprj_ppnl: dict[int, int] = {}
         hprj_ppnl: dict[int, dict] = {}
         lines = lines[4:]
-        i = 0
-        ll = 0
-        L = 0
+        i = ll = L = 0
 
         while ll < nprj:
             line = lines[i].split()

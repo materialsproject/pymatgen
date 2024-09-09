@@ -140,7 +140,7 @@ class LDos(MSONable):
             for forb_val in forb.values():
                 density = [ldos[pot_index][j][forb_val + 1] for j in range(d_length)]
                 for j in range(d_length):
-                    t_dos[j] = t_dos[j] + density[j]
+                    t_dos[j] += density[j]
         _t_dos: dict = {Spin.up: t_dos}
 
         dos = Dos(e_fermi, dos_energies, _t_dos)

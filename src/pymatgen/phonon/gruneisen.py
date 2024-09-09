@@ -20,8 +20,7 @@ try:
     import phonopy
     from phonopy.phonon.dos import TotalDos
 except ImportError:
-    phonopy = None
-    TotalDos = None
+    phonopy = TotalDos = None
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -105,7 +104,7 @@ class GruneisenParameter(MSONable):
         gamma = self.gruneisen
 
         if squared:
-            gamma = gamma**2
+            gamma = gamma**2  # (ruff-preview) noqa: PLR6104
 
         if limit_frequencies == "debye":
             acoustic_debye_freq = self.acoustic_debye_temp * const.value("Boltzmann constant in Hz/K") / const.tera

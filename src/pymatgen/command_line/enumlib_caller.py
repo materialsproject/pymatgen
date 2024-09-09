@@ -348,8 +348,7 @@ class EnumlibAdaptor:
             )
             inv_org_latt = np.linalg.inv(original_latt.matrix)
         else:
-            ordered_structure = None
-            inv_org_latt = None
+            ordered_structure = inv_org_latt = None
 
         for file in glob("vasp.*"):
             with open(file) as file:

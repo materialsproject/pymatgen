@@ -668,8 +668,7 @@ class CoordinationGeometry:
             if self.ce_symbol in ["S:1", "L:2"]:
                 self._pauling_stability_ratio = 0.0
             else:
-                min_dist_anions = 1_000_000
-                min_dist_cation_anion = 1_000_000
+                min_dist_anions = min_dist_cation_anion = 1_000_000
                 for ipt1 in range(len(self.points)):
                     pt1 = np.array(self.points[ipt1])
                     min_dist_cation_anion = min(min_dist_cation_anion, np.linalg.norm(pt1 - self.central_site))

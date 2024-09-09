@@ -10,7 +10,6 @@ more info.
 
     https://docs.lammps.org/atom_style.html
     https://docs.lammps.org/read_data.html
-
 """
 
 from __future__ import annotations
@@ -1145,11 +1144,11 @@ class ForceField(MSONable):
 
         main_data, distinct_types = [], []
         class2_data: dict = {key: [] for key in topo_coeffs[kw][0] if key in CLASS2_KEYWORDS.get(kw, [])}
-        for d in topo_coeffs[kw]:
-            main_data.append(d["coeffs"])
-            distinct_types.append(d["types"])
-            for k in class2_data:
-                class2_data[k].append(d[k])
+        for dct in topo_coeffs[kw]:
+            main_data.append(dct["coeffs"])
+            distinct_types.append(dct["types"])
+            for key, lst in class2_data.items():
+                lst.append(dct[key])
         distinct_types = [set(itertools.chain(*(find_eq_types(t, kw) for t in dt))) for dt in distinct_types]
         type_counts = sum(len(dt) for dt in distinct_types)
         type_union = set.union(*distinct_types)
@@ -1277,8 +1276,7 @@ class CombinedData(LammpsData):
             self.force_field = None
 
         self.atoms = pd.DataFrame()
-        mol_count = 0
-        type_count = 0
+        mol_count = type_count = 0
         self.mols_per_data = []
         for idx, mol in enumerate(self.mols):
             atoms_df = mol.atoms.copy()

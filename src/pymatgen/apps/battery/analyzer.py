@@ -173,7 +173,7 @@ class BatteryAnalyzer:
 
         num_a = set()
         for oxid_el in oxid_els:
-            num_a = num_a | self._get_int_removals_helper(self.comp.copy(), oxid_el, oxid_els, num_a)
+            num_a |= self._get_int_removals_helper(self.comp.copy(), oxid_el, oxid_els, num_a)
         # convert from num A in structure to num A removed
         num_working_ion = self.comp[Species(self.working_ion.symbol, self.working_ion_charge)]
         return {num_working_ion - a for a in num_a}
@@ -220,13 +220,13 @@ class BatteryAnalyzer:
             spec.oxi_state * spec_amts_oxi[spec] for spec in spec_amts_oxi if spec.symbol not in self.working_ion.symbol
         )
         a = max(0, -oxi_noA / self.working_ion_charge)
-        num_a = num_a | {a}
+        num_a |= {a}
 
         # recursively try the other oxidation states
         if a == 0:
             return num_a
         for red in redox_els:
-            num_a = num_a | self._get_int_removals_helper(spec_amts_oxi.copy(), red, redox_els, num_a)
+            num_a |= self._get_int_removals_helper(spec_amts_oxi.copy(), red, redox_els, num_a)
         return num_a
 
 

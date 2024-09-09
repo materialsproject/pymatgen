@@ -1158,9 +1158,7 @@ class GrainBoundaryGenerator:
             u, v, w = cast(Tuple3Ints, r_axis)
             mu = mv = None  # type: ignore[assignment]
             if lat_type == "c":
-                mu = 1
-                lam = 1
-                mv = 1
+                mu = lam = mv = 1
             elif lat_type == "t":
                 if ratio is None:
                     mu, mv = (1, 1)
@@ -2225,7 +2223,7 @@ class GrainBoundaryGenerator:
                 if max_j == max_search:
                     warnings.warn("Cannot find the perpendicular c vector, please increase max_search")
                     break
-                max_j = 3 * max_j
+                max_j *= 3
                 max_j = min(max_j, max_search)
                 jj = np.arange(0, max_j + 1)
                 combination = []

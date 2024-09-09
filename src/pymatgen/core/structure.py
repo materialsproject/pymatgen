@@ -1113,7 +1113,7 @@ class IStructure(SiteCollection, MSONable):
         """
         scale_matrix = np.array(scaling_matrix, int)
         if scale_matrix.shape != (3, 3):
-            scale_matrix = scale_matrix * np.eye(3)
+            scale_matrix = scale_matrix * np.eye(3)  # (ruff-preview) noqa: PLR6104
         new_lattice = Lattice(np.dot(scale_matrix, self.lattice.matrix))
 
         frac_lattice = lattice_points_in_supercell(scale_matrix)
@@ -1524,7 +1524,7 @@ class IStructure(SiteCollection, MSONable):
             spacegroup_symbol, international_number
 
         Raises:
-            pymatgen.symmetry.analyzer.SymmetryUndetermined if symmetry cannot
+            pymatgen.symmetry.analyzer.SymmetryUndeterminedError if symmetry cannot
             be determined. This can happen for numerical reasons, for example if
             atoms are placed unphysically close together.
         """
@@ -4567,7 +4567,7 @@ class Structure(IStructure, collections.abc.MutableSequence):
                 if mode.lower()[0] == "s":
                     species += sp
                 offset = self[i].frac_coords - coords
-                coords = coords + ((offset - np.round(offset)) / (n + 2)).astype(coords.dtype)
+                coords += ((offset - np.round(offset)) / (n + 2)).astype(coords.dtype)
                 for key in props:
                     if props[key] is not None and self[i].properties[key] != props[key]:
                         if mode.lower()[0] == "a" and isinstance(props[key], float):

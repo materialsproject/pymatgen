@@ -877,7 +877,7 @@ class Cp2kOutput:
         # "Information at step =" Summary block (floating point terms)
         total_energy = re.compile(r"\s+Total Energy\s+=\s+(-?\d+.\d+)")
         real_energy_change = re.compile(r"\s+Real energy change\s+=\s+(-?\d+.\d+)")
-        prediced_change_in_energy = re.compile(r"\s+Predicted change in energy\s+=\s+(-?\d+.\d+)")
+        predicted_change_in_energy = re.compile(r"\s+Predicted change in energy\s+=\s+(-?\d+.\d+)")
         scaling_factor = re.compile(r"\s+Scaling factor\s+=\s+(-?\d+.\d+)")
         step_size = re.compile(r"\s+Step size\s+=\s+(-?\d+.\d+)")
         trust_radius = re.compile(r"\s+Trust radius\s+=\s+(-?\d+.\d+)")
@@ -891,7 +891,7 @@ class Cp2kOutput:
             {
                 "total_energy": total_energy,
                 "real_energy_change": real_energy_change,
-                "predicted_change_in_energy": prediced_change_in_energy,
+                "predicted_change_in_energy": predicted_change_in_energy,
                 "scaling_factor": scaling_factor,
                 "step_size": step_size,
                 "trust_radius": trust_radius,
@@ -939,7 +939,7 @@ class Cp2kOutput:
             print("Found data, but not yet implemented!")
 
     def parse_hirshfeld(self):
-        """Parse the hirshfeld population analysis for each step."""
+        """Parse the Hirshfeld population analysis for each step."""
         uks = self.spin_polarized
         header = r"Hirshfeld Charges.+Net charge"
         footer = r"^$"
@@ -959,7 +959,7 @@ class Cp2kOutput:
                     population.append(site[4])
                     net_charge.append(site[5])
                 hirshfeld = [{"population": population[j], "net_charge": net_charge[j]} for j in range(len(population))]
-                self.structures[i].add_site_property("hirshfield", hirshfeld)
+                self.structures[i].add_site_property("hirshfeld", hirshfeld)
         else:
             pattern = (
                 r"\s+(\d)\s+(\w+)\s+(\d+)\s+(-?\d+\.\d+)\s+"
@@ -987,7 +987,7 @@ class Cp2kOutput:
                     }
                     for j in range(len(population))
                 ]
-                self.structures[i].add_site_property("hirshfield", hirshfeld)
+                self.structures[i].add_site_property("hirshfeld", hirshfeld)
 
     def parse_mo_eigenvalues(self):
         """Parse the MO eigenvalues from the CP2K output file. Will get the eigenvalues (and band gap)
@@ -1637,9 +1637,9 @@ def parse_energy_file(energy_file):
         "used_time",
     ]
     df_energies = pd.read_csv(energy_file, skiprows=1, names=columns, sep=r"\s+")
-    df_energies["kinetic_energy"] = df_energies["kinetic_energy"] * Ha_to_eV
-    df_energies["potential_energy"] = df_energies["potential_energy"] * Ha_to_eV
-    df_energies["conserved_quantity"] = df_energies["conserved_quantity"] * Ha_to_eV
+    df_energies["kinetic_energy"] *= Ha_to_eV
+    df_energies["potential_energy"] *= Ha_to_eV
+    df_energies["conserved_quantity"] *= Ha_to_eV
     df_energies = df_energies.astype(float)
     return {c: df_energies[c].to_numpy() for c in columns}
 

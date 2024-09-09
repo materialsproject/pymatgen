@@ -987,7 +987,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         n_bands = max(possible_val_1, possible_val_2) + n_mag
 
         if self.incar.get("LNONCOLLINEAR") is True:
-            n_bands = n_bands * 2
+            n_bands *= 2
 
         if n_par := self.incar.get("NPAR"):
             n_bands = (np.floor((n_bands + n_par - 1) / n_par)) * n_par

@@ -142,8 +142,8 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
     if isinstance(multiplicity, int) or len(multiplicity) == 1:
         mult = multiplicity if isinstance(multiplicity, int) else multiplicity[0]
         nodes = graph.nodes(data=True)
-        inodes = [isite for isite, data in nodes]
-        indices_nodes = {isite: inodes.index(isite) for isite in inodes}
+        node_indices = [idx for idx, data in nodes]
+        indices_nodes = {idx: node_indices.index(idx) for idx in node_indices}
         edges = graph.edges(data=True, keys=True)
         connecting_edges = []
         other_edges = []

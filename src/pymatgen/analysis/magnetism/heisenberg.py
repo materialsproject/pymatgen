@@ -394,10 +394,7 @@ class HeisenbergMapper:
         fm_struct, afm_struct = None, None
         mag_min = np.inf
         mag_max = 0.001
-        fm_e = 0
-        afm_e = 0
-        fm_e_min = 0
-        afm_e_min = 0
+        fm_e = afm_e = fm_e_min = afm_e_min = 0
 
         # epas = [e / len(s) for (e, s) in zip(self.energies, self.ordered_structures)]
 
@@ -589,8 +586,7 @@ class HeisenbergMapper:
             float: Exchange parameter J_exc in meV
         """
         # Get unique site identifiers
-        i_index = 0
-        j_index = 0
+        i_index = j_index = 0
         for k, v in self.unique_site_ids.items():
             if i in k:
                 i_index = v

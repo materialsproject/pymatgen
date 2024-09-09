@@ -96,15 +96,15 @@ def run_mcsqs(
         # Set supercell to identity (will make supercell with pymatgen)
         with open("sqscell.out", mode="w") as file:
             file.write("1\n1 0 0\n0 1 0\n0 0 1\n")
-        structure = structure * scaling
+        structure *= scaling
         mcsqs_find_sqs_cmd = ["mcsqs", "-rc", f"-n {n_atoms}"]
 
     structure.to(filename="rndstr.in")
 
     # Generate clusters
     mcsqs_generate_clusters_cmd = ["mcsqs"]
-    for num in clusters:
-        mcsqs_generate_clusters_cmd.append(f"-{num}={clusters[num]}")
+    for num, cutoff in clusters.items():
+        mcsqs_generate_clusters_cmd.append(f"-{num}={cutoff}")
 
     # Run mcsqs to find clusters
     with Popen(mcsqs_generate_clusters_cmd) as process:

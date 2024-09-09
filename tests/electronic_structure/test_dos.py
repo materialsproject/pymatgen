@@ -66,8 +66,8 @@ class TestFermiDos(TestCase):
         fermi_range = [fermi0 - 0.5, fermi0, fermi0 + 2.0, fermi0 + 2.2]
         dopings = [self.dos.get_doping(fermi_level=fermi_lvl, temperature=T) for fermi_lvl in fermi_range]
         ref_dopings = [3.48077e21, 1.9235e18, -2.6909e16, -4.8723e19]
-        for i, c_ref in enumerate(ref_dopings):
-            assert abs(dopings[i] / c_ref - 1.0) <= 0.01
+        for idx, c_ref in enumerate(ref_dopings):
+            assert abs(dopings[idx] / c_ref - 1.0) <= 0.01
 
         calc_fermis = [self.dos.get_fermi(concentration=c, temperature=T) for c in ref_dopings]
         for j, f_ref in enumerate(fermi_range):
@@ -80,11 +80,11 @@ class TestFermiDos(TestCase):
         new_cbm, new_vbm = sci_dos.get_cbm_vbm()
         assert new_cbm - old_cbm == approx((3.0 - old_gap) / 2.0)
         assert old_vbm - new_vbm == approx((3.0 - old_gap) / 2.0)
-        for i, c_ref in enumerate(ref_dopings):
+        for idx, c_ref in enumerate(ref_dopings):
             if c_ref < 0:
-                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[i] == approx(0.47, abs=1e-2)
+                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[idx] == approx(0.47, abs=1e-2)
             else:
-                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[i] == approx(-0.47, abs=1e-2)
+                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[idx] == approx(-0.47, abs=1e-2)
 
         assert sci_dos.get_fermi_interextrapolated(-1e26, 300) == approx(7.5108, abs=1e-4)
         assert sci_dos.get_fermi_interextrapolated(1e26, 300) == approx(-1.4182, abs=1e-4)

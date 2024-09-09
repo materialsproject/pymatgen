@@ -123,12 +123,12 @@ class TestTrajectory(PymatgenTest):
         self.traj.to_displacements()
         self.traj.to_positions()
 
-        assert all(struct == self.structures[i] for i, struct in enumerate(self.traj))
+        assert all(struct == self.structures[idx] for idx, struct in enumerate(self.traj))
 
         self.traj_mols.to_displacements()
         self.traj_mols.to_positions()
 
-        assert all(mol == self.molecules[i] for i, mol in enumerate(self.traj_mols))
+        assert all(mol == self.molecules[idx] for idx, mol in enumerate(self.traj_mols))
 
     def test_site_properties(self):
         lattice, species, coords = self._get_lattice_species_and_coords()
@@ -448,7 +448,9 @@ class TestTrajectory(PymatgenTest):
         traj = Trajectory.from_structures(structures, constant_lattice=False)
 
         # Check if lattices were properly stored
-        assert all(np.allclose(struct.lattice.matrix, structures[i].lattice.matrix) for i, struct in enumerate(traj))
+        assert all(
+            np.allclose(struct.lattice.matrix, structures[idx].lattice.matrix) for idx, struct in enumerate(traj)
+        )
 
         # Check if the file is written correctly when lattice is not constant.
         traj.write_Xdatcar(filename=f"{self.tmp_path}/traj_test_XDATCAR")

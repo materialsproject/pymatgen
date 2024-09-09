@@ -7,7 +7,6 @@ from pathlib import Path
 
 import numpy as np
 
-import pymatgen
 from pymatgen.analysis.graphs import MoleculeGraph
 from pymatgen.analysis.local_env import OpenBabelNN, metal_edge_extender
 from pymatgen.core import Element, Molecule
@@ -88,8 +87,7 @@ def mol_graph_from_openff_mol(molecule: tk.Molecule) -> MoleculeGraph:
     """
     mol_graph = MoleculeGraph.with_empty_graph(Molecule([], []), name="none")
     p_table = {el.Z: str(el) for el in Element}
-    total_charge = 0
-    cum_atoms = 0
+    total_charge = cum_atoms = 0
 
     coords = molecule.conformers[0].magnitude if molecule.conformers is not None else np.zeros((molecule.n_atoms, 3))
     for idx, atom in enumerate(molecule.atoms):
@@ -161,7 +159,7 @@ def get_atom_map(inferred_mol: tk.Molecule, openff_mol: tk.Molecule) -> tuple[bo
 
 
 def infer_openff_mol(
-    mol_geometry: pymatgen.core.Molecule,
+    mol_geometry: Molecule,
 ) -> tk.Molecule:
     """Infer an OpenFF Molecule from a Pymatgen Molecule.
 
@@ -180,9 +178,7 @@ def infer_openff_mol(
     return mol_graph_to_openff_mol(mol_graph)
 
 
-def add_conformer(
-    openff_mol: tk.Molecule, geometry: pymatgen.core.Molecule | None
-) -> tuple[tk.Molecule, dict[int, int]]:
+def add_conformer(openff_mol: tk.Molecule, geometry: Molecule | None) -> tuple[tk.Molecule, dict[int, int]]:
     """
     Add conformers to an OpenFF Molecule based on the provided geometry.
 
@@ -211,7 +207,7 @@ def add_conformer(
                 f"An isomorphism cannot be found between smile {openff_mol.to_smiles()}"
                 f"and the provided molecule {geometry}."
             )
-        new_mol = pymatgen.core.Molecule.from_sites([geometry.sites[i] for i in atom_map.values()])
+        new_mol = Molecule.from_sites([geometry.sites[i] for i in atom_map.values()])
         openff_mol.add_conformer(new_mol.cart_coords * unit.angstrom)
     else:
         atom_map = {i: i for i in range(openff_mol.n_atoms)}
@@ -259,7 +255,7 @@ def assign_partial_charges(
 
 def create_openff_mol(
     smile: str,
-    geometry: pymatgen.core.Molecule | str | Path | None = None,
+    geometry: Molecule | str | Path | None = None,
     charge_scaling: float = 1,
     partial_charges: list[float] | None = None,
     backup_charge_method: str = "am1bcc",
@@ -287,7 +283,7 @@ def create_openff_mol(
         tk.Molecule: The created OpenFF Molecule.
     """
     if isinstance(geometry, str | Path):
-        geometry = pymatgen.core.Molecule.from_file(str(geometry))
+        geometry = Molecule.from_file(str(geometry))
 
     if partial_charges is not None:
         if geometry is None:

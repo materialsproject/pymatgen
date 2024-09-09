@@ -43,7 +43,7 @@ class CRESTOutput(MSONable):
             and output files.
         Sets the attributes:
             cmd_options: Dict of type {flag: value}
-            sorted_structrues_energies: n x m x 2 list, for n conformers,
+            sorted_structures_energies: n x m x 2 list, for n conformers,
                 m rotamers per conformer, and tuple of
                 [Molecule, energy]
             properly_terminated: True or False if run properly terminated.
@@ -68,12 +68,12 @@ class CRESTOutput(MSONable):
             print(f"Input file {split_cmd[0]} not found")
 
         # Get CREST input flags
-        for i, entry in enumerate(split_cmd):
+        for idx, entry in enumerate(split_cmd):
             value = None
             if entry and "-" in entry:
                 option = entry[1:]
-                if i < len(split_cmd) and "-" not in split_cmd[i + 1]:
-                    value = split_cmd[i + 1]
+                if idx < len(split_cmd) and "-" not in split_cmd[idx + 1]:
+                    value = split_cmd[idx + 1]
                 self.cmd_options[option] = value
         # Get input charge for decorating parsed molecules
         chg = 0
@@ -137,10 +137,10 @@ class CRESTOutput(MSONable):
                 start = 0
                 for n, d in enumerate(conformer_degeneracies):
                     self.sorted_structures_energies.append([])
-                    i = 0
-                    for i in range(start, start + d):
-                        self.sorted_structures_energies[n].append([rotamer_structures[i], energies[i]])
-                    start = i + 1
+                    idx = 0
+                    for idx in range(start, start + d):
+                        self.sorted_structures_energies[n].append([rotamer_structures[idx], energies[idx]])
+                    start = idx + 1
             except FileNotFoundError:
                 print(f"{final_rotamer_filename} not found, no rotamer list processed")
 
