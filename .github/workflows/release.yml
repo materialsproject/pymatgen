@@ -57,8 +57,9 @@ jobs:
           CIBW_BUILD: cp${{ matrix.python-version }}-*
 
       - name: Save artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
+          name: dist-${{ matrix.os }}-${{ matrix.python-version }}
           path: ./wheelhouse/*.whl
 
   release:
@@ -76,7 +77,8 @@ jobs:
       - name: Get build artifacts
         uses: actions/download-artifact@v4.1.7
         with:
-          name: artifact
+          pattern: dist-*
+          merge-multiple: true
           path: dist
 
       - name: Publish to PyPi or TestPyPI
