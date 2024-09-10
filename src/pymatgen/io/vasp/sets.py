@@ -275,7 +275,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         if self.user_potcar_functional != self._config_dict.get("POTCAR_FUNCTIONAL", "PBE"):
             warnings.warn(
                 "Overriding the POTCAR functional is generally not recommended "
-                " as it significantly affect the results of calculations and "
+                " as it significantly affects the results of calculations and "
                 "compatibility with other calculations done with the same "
                 "input set. Note that some POTCAR symbols specified in "
                 "the configuration file may not be available in the selected "
@@ -286,7 +286,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         if self.user_potcar_settings:
             warnings.warn(
                 "Overriding POTCARs is generally not recommended as it "
-                "significantly affect the results of calculations and "
+                "significantly affects the results of calculations and "
                 "compatibility with other calculations done with the same "
                 "input set. In many instances, it is better to write a "
                 "subclass of a desired input set and override the POTCAR in "
@@ -299,6 +299,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         if not isinstance(self.structure, Structure):
             self._structure: Structure | None = None
         else:
+            # TODO is this needed? should it be self._structure = self.structure (needs explanation either way)
             self.structure = self.structure
 
         if isinstance(self.prev_incar, Path | str):
