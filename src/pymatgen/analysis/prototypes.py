@@ -24,8 +24,8 @@ from pymatgen.util.due import Doi, due
 if TYPE_CHECKING:
     from pymatgen.core import Structure
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
-AFLOW_PROTOTYPE_LIBRARY = loadfn(f"{module_dir}/aflow_prototypes.json")
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+AFLOW_PROTOTYPE_LIBRARY = loadfn(f"{MODULE_DIR}/aflow_prototypes.json")
 
 
 @due.dcite(

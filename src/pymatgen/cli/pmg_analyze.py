@@ -119,8 +119,7 @@ def get_magnetizations(dirc: str, ion_list: list[int]):
                     for ion in all_ions:
                         row.append(str(_mags[ion]))
                     data.append(row)
-                    if len(all_ions) > max_row:
-                        max_row = len(all_ions)
+                    max_row = max(len(all_ions), max_row)
                 except Exception:
                     pass
 

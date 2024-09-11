@@ -118,10 +118,10 @@ def release_github(ctx: Context, version: str) -> None:
     """
     with open("docs/CHANGES.md", encoding="utf-8") as file:
         contents = file.read()
-    tokens = re.split(r"\-+", contents)
+    tokens = re.split(r"\n\#\#\s", contents)
     desc = tokens[1].strip()
     tokens = desc.split("\n")
-    desc = "\n".join(tokens[:-1]).strip()
+    desc = "\n".join(tokens[1:]).strip()
     payload = {
         "tag_name": f"v{version}",
         "target_commitish": "master",
@@ -134,7 +134,7 @@ def release_github(ctx: Context, version: str) -> None:
         "https://api.github.com/repos/materialsproject/pymatgen/releases",
         data=json.dumps(payload),
         headers={"Authorization": f"token {os.environ['GITHUB_RELEASES_TOKEN']}"},
-        timeout=600,
+        timeout=60,
     )
     print(response.text)
 
@@ -160,7 +160,7 @@ def update_changelog(ctx: Context, version: str | None = None, dry_run: bool = F
             pr_number = re_match[1]
             contributor, pr_name = re_match[2].split("/", 1)
             response = requests.get(
-                f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}", timeout=600
+                f"https://api.github.com/repos/materialsproject/pymatgen/pulls/{pr_number}", timeout=60
             )
             lines += [f"* PR #{pr_number} from @{contributor} {pr_name}"]
             json_resp = response.json()

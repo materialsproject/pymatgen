@@ -332,7 +332,7 @@ def get_delta(x0: float, sigma: float, nx: int, dx: float, ismear: int = 3) -> N
         ismear: The smearing parameter used by the ``step_func``.
 
     Returns:
-        np.array: Array of size `nx` with delta function on the desired outputgrid.
+        np.ndarray: Array of size `nx` with delta function on the desired outputgrid.
     """
     xgrid = np.linspace(0, nx * dx, nx, endpoint=False)
     xgrid -= x0
@@ -356,7 +356,7 @@ def get_step(x0: float, sigma: float, nx: int, dx: float, ismear: int) -> float:
         ismear: The smearing parameter used by the ``step_func``.
 
     Returns:
-        np.array: Array of size `nx` with step function on the desired outputgrid.
+        np.ndarray: Array of size `nx` with step function on the desired outputgrid.
     """
     xgrid = np.linspace(0, nx * dx, nx, endpoint=False)
     xgrid -= x0
@@ -393,7 +393,7 @@ def epsilon_imag(
         mask: Mask for the bands/kpoint/spin index to include in the calculation
 
     Returns:
-        np.array: Array of size `nedos` with the imaginary part of the dielectric function.
+        np.ndarray: Array of size `nedos` with the imaginary part of the dielectric function.
     """
     norm_kweights = np.array(kweights) / np.sum(kweights)
     egrid = np.linspace(0, nedos * deltae, nedos, endpoint=False)
@@ -460,7 +460,7 @@ def kramers_kronig(
         cshift: The shift of the imaginary part of the dielectric function.
 
     Returns:
-        np.array: Array of size `nedos` with the complex dielectric function.
+        np.ndarray: Array of size `nedos` with the complex dielectric function.
     """
     egrid = np.linspace(0, deltae * nedos, nedos)
     csfhit = cshift * 1.0j

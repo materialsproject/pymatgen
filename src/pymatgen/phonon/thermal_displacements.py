@@ -122,14 +122,14 @@ class ThermalDisplacementMatrices(MSONable):
             3d numpy array including thermal displacements, first dimensions are the atoms
         """
         reduced_matrix = np.zeros((len(thermal_displacement), 6))
-        for imat, mat in enumerate(thermal_displacement):
+        for idx, mat in enumerate(thermal_displacement):
             # xx, yy, zz, yz, xz, xy
-            reduced_matrix[imat][0] = mat[0][0]
-            reduced_matrix[imat][1] = mat[1][1]
-            reduced_matrix[imat][2] = mat[2][2]
-            reduced_matrix[imat][3] = mat[1][2]
-            reduced_matrix[imat][4] = mat[0][2]
-            reduced_matrix[imat][5] = mat[0][1]
+            reduced_matrix[idx][0] = mat[0][0]
+            reduced_matrix[idx][1] = mat[1][1]
+            reduced_matrix[idx][2] = mat[2][2]
+            reduced_matrix[idx][3] = mat[1][2]
+            reduced_matrix[idx][4] = mat[0][2]
+            reduced_matrix[idx][5] = mat[0][1]
         return reduced_matrix
 
     @property
@@ -203,10 +203,8 @@ class ThermalDisplacementMatrices(MSONable):
         Returns:
             np.array: eigenvalues of Ucart. First dimension are the atoms in the structure.
         """
-        u1u2u3_eig_vals = []
-        for mat in self.thermal_displacement_matrix_cart_matrixform:
-            u1u2u3_eig_vals.append(np.linalg.eig(mat)[0])
-        return u1u2u3_eig_vals
+        thermal_disp_matrix = self.thermal_displacement_matrix_cart_matrixform
+        return [np.linalg.eig(mat)[0] for mat in thermal_disp_matrix]
 
     def write_cif(self, filename: str) -> None:
         """Write a CIF including thermal displacements.
@@ -229,7 +227,7 @@ class ThermalDisplacementMatrices(MSONable):
             file.write("_atom_site_aniso_U_12\n")
             file.write(f"# Additional Data for U_Aniso: {self.temperature}\n")
 
-            for idx, (site, matrix) in enumerate(zip(self.structure, self.Ucif)):
+            for idx, (site, matrix) in enumerate(zip(self.structure, self.Ucif, strict=True)):
                 file.write(
                     f"{site.specie.symbol}{idx} {matrix[0][0]} {matrix[1][1]} {matrix[2][2]}"
                     f" {matrix[1][2]} {matrix[0][2]} {matrix[0][1]}\n"
@@ -267,7 +265,7 @@ class ThermalDisplacementMatrices(MSONable):
               Vectors are given in Cartesian coordinates
         """
         # compare the atoms string at least
-        for spec1, spec2 in zip(self.structure.species, other.structure.species):
+        for spec1, spec2 in zip(self.structure.species, other.structure.species, strict=True):
             if spec1 != spec2:
                 raise ValueError(
                     "Species in both structures are not the same! "
@@ -280,7 +278,9 @@ class ThermalDisplacementMatrices(MSONable):
 
         results = []
         for self_Ucart, other_Ucart in zip(
-            self.thermal_displacement_matrix_cart_matrixform, other.thermal_displacement_matrix_cart_matrixform
+            self.thermal_displacement_matrix_cart_matrixform,
+            other.thermal_displacement_matrix_cart_matrixform,
+            strict=True,
         ):
             result_dict = {}
 
@@ -347,9 +347,9 @@ class ThermalDisplacementMatrices(MSONable):
             file.write("  0.000000   0.000000   0.000000   0.000000   0.000000   0.000000\n")  # error on parameters
             file.write("STRUC\n")
 
-            for isite, site in enumerate(structure, start=1):
+            for site_idx, site in enumerate(structure, start=1):
                 file.write(
-                    f"{isite} {site.species_string} {site.species_string}{isite} 1.0000 {site.frac_coords[0]} "
+                    f"{site_idx} {site.species_string} {site.species_string}{site_idx} 1.0000 {site.frac_coords[0]} "
                     f"{site.frac_coords[1]} {site.frac_coords[2]} 1a 1\n"
                 )
                 file.write(" 0.000000 0.000000 0.000000 0.00\n")  # error on positions - zero here
@@ -361,7 +361,7 @@ class ThermalDisplacementMatrices(MSONable):
             # print all U11s (make sure they are in the correct order)
             counter = 1
             # VESTA order: _U_12    _U_13    _atom_site_aniso_U_23
-            for atom_therm, site in zip(matrix_cif, structure):
+            for atom_therm, site in zip(matrix_cif, structure, strict=True):
                 file.write(
                     f"{counter} {site.species_string}{counter} {atom_therm[0]} "
                     f"{atom_therm[1]} {atom_therm[2]} {atom_therm[5]} {atom_therm[4]} {atom_therm[3]}\n"
@@ -369,8 +369,7 @@ class ThermalDisplacementMatrices(MSONable):
                 counter += 1
             file.write("  0 0 0 0 0 0 0 0\n")
             file.write("VECTR\n")
-            vector_count = 1
-            site_count = 1
+            vector_count = site_count = 1
             for vectors in result:
                 vector0_x = vectors["vector0"][0]
                 vector0_y = vectors["vector0"][1]

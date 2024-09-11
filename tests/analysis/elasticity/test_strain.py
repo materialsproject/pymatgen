@@ -61,10 +61,10 @@ class TestDeformation(PymatgenTest):
         assert_allclose(strained_non.sites[1].coords, [3.8872306, 1.224e-6, 2.3516318], atol=1e-7)
 
         # Check convention for applying transformation
-        for vec, defo_vec in zip(self.structure.lattice.matrix, strained_non.lattice.matrix):
+        for vec, defo_vec in zip(self.structure.lattice.matrix, strained_non.lattice.matrix, strict=True):
             new_vec = np.dot(self.non_ind_defo, np.transpose(vec))
             assert_allclose(new_vec, defo_vec)
-        for coord, defo_coord in zip(self.structure.cart_coords, strained_non.cart_coords):
+        for coord, defo_coord in zip(self.structure.cart_coords, strained_non.cart_coords, strict=True):
             new_coord = np.dot(self.non_ind_defo, np.transpose(coord))
             assert_allclose(new_coord, defo_coord)
 

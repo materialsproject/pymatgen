@@ -166,8 +166,8 @@ class TranslateSitesTransformation(AbstractTransformation):
         """
         struct = structure.copy()
         if self.translation_vector.shape == (len(self.indices_to_move), 3):
-            for i, idx in enumerate(self.indices_to_move):
-                struct.translate_sites(idx, self.translation_vector[i], self.vector_in_frac_coords)
+            for idx, idx in enumerate(self.indices_to_move):
+                struct.translate_sites(idx, self.translation_vector[idx], self.vector_in_frac_coords)
         else:
             struct.translate_sites(self.indices_to_move, self.translation_vector, self.vector_in_frac_coords)
         return struct
@@ -316,7 +316,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
             for ii, t_sites in enumerate(tested_sites):
                 t_energy = all_structures[ii]["energy"]
                 if abs((energy - t_energy) / len(s_new)) < 1e-5 and sg.are_symmetrically_equivalent(
-                    sites_to_remove, t_sites, symm_prec=symprec
+                    set(sites_to_remove), set(t_sites), symm_prec=symprec
                 ):
                     already_tested = True
 
@@ -378,7 +378,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
     def _enumerate_ordering(self, structure: Structure):
         # Generate the disordered structure first.
         struct = structure.copy()
-        for indices, fraction in zip(self.indices, self.fractions):
+        for indices, fraction in zip(self.indices, self.fractions, strict=True):
             for ind in indices:
                 new_sp = {sp: occu * fraction for sp, occu in structure[ind].species.items()}
                 struct[ind] = new_sp
@@ -409,7 +409,7 @@ class PartialRemoveSitesTransformation(AbstractTransformation):
         """
         num_remove_dict = {}
         total_combos = 0
-        for idx, frac in zip(self.indices, self.fractions):
+        for idx, frac in zip(self.indices, self.fractions, strict=True):
             n_to_remove = len(idx) * frac
             if abs(n_to_remove - int(round(n_to_remove))) > 1e-3:
                 raise ValueError("Fraction to remove must be consistent with integer amounts in structure.")

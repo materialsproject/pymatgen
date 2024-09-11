@@ -375,7 +375,7 @@ class TestConnectedComponent(PymatgenTest):
         assert cc.periodicity == "2D"
         assert_allclose(cc.periodicity_vectors, [[0, 1, 0], [1, 1, 0]])
         assert isinstance(cc.periodicity_vectors, list)
-        assert cc.periodicity_vectors[0].dtype is np.dtype(int)
+        assert cc.periodicity_vectors[0].dtype is np.dtype(np.int64)
 
         # Test a 3d periodicity
         graph = nx.MultiGraph()
@@ -445,7 +445,7 @@ class TestConnectedComponent(PymatgenTest):
         assert cc.periodicity == "3D"
         assert_allclose(cc.periodicity_vectors, [[0, 1, 0], [1, 1, 0], [1, 1, 1]])
         assert isinstance(cc.periodicity_vectors, list)
-        assert cc.periodicity_vectors[0].dtype is np.dtype(int)
+        assert cc.periodicity_vectors[0].dtype is np.dtype(np.int64)
 
     def test_real_systems(self):
         # Initialize geometry and connectivity finders
@@ -459,15 +459,15 @@ class TestConnectedComponent(PymatgenTest):
         se = lgf.compute_structure_environments(only_atoms=["Li", "Fe", "P"], maximum_distance_factor=1.2)
         lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)
         # Make sure the initial structure and environments are correct
-        for isite in range(4):
-            assert lse.structure[isite].specie.symbol == "Li"
-            assert lse.coordination_environments[isite][0]["ce_symbol"] == "O:6"
-        for isite in range(4, 8):
-            assert lse.structure[isite].specie.symbol == "Fe"
-            assert lse.coordination_environments[isite][0]["ce_symbol"] == "O:6"
-        for isite in range(8, 12):
-            assert lse.structure[isite].specie.symbol == "P"
-            assert lse.coordination_environments[isite][0]["ce_symbol"] == "T:4"
+        for site_idx in range(4):
+            assert lse.structure[site_idx].specie.symbol == "Li"
+            assert lse.coordination_environments[site_idx][0]["ce_symbol"] == "O:6"
+        for site_idx in range(4, 8):
+            assert lse.structure[site_idx].specie.symbol == "Fe"
+            assert lse.coordination_environments[site_idx][0]["ce_symbol"] == "O:6"
+        for site_idx in range(8, 12):
+            assert lse.structure[site_idx].specie.symbol == "P"
+            assert lse.coordination_environments[site_idx][0]["ce_symbol"] == "T:4"
         # Get the connectivity including all environments and check results
         sc = cf.get_structure_connectivity(lse)
         assert len(sc.environment_subgraphs) == 0  # Connected component not computed by default
@@ -765,18 +765,18 @@ Node #11 P (T:4), connected to :
         se = lgf.compute_structure_environments(only_atoms=["Li", "Fe", "Mn", "P"], maximum_distance_factor=1.2)
         lse = LightStructureEnvironments.from_structure_environments(strategy=strategy, structure_environments=se)
         # Make sure the initial structure and environments are correct
-        for isite in range(4):
-            assert lse.structure[isite].specie.symbol == "Li"
-            assert lse.coordination_environments[isite][0]["ce_symbol"] == "O:6"
-        for isite in range(4, 5):
-            assert lse.structure[isite].specie.symbol == "Mn"
-            assert lse.coordination_environments[isite][0]["ce_symbol"] == "O:6"
-        for isite in range(5, 8):
-            assert lse.structure[isite].specie.symbol == "Fe"
-            assert lse.coordination_environments[isite][0]["ce_symbol"] == "O:6"
-        for isite in range(8, 12):
-            assert lse.structure[isite].specie.symbol == "P"
-            assert lse.coordination_environments[isite][0]["ce_symbol"] == "T:4"
+        for site_idx in range(4):
+            assert lse.structure[site_idx].specie.symbol == "Li"
+            assert lse.coordination_environments[site_idx][0]["ce_symbol"] == "O:6"
+        for site_idx in range(4, 5):
+            assert lse.structure[site_idx].specie.symbol == "Mn"
+            assert lse.coordination_environments[site_idx][0]["ce_symbol"] == "O:6"
+        for site_idx in range(5, 8):
+            assert lse.structure[site_idx].specie.symbol == "Fe"
+            assert lse.coordination_environments[site_idx][0]["ce_symbol"] == "O:6"
+        for site_idx in range(8, 12):
+            assert lse.structure[site_idx].specie.symbol == "P"
+            assert lse.coordination_environments[site_idx][0]["ce_symbol"] == "T:4"
         # Get the connectivity including all environments and check results
         sc = cf.get_structure_connectivity(lse)
         assert len(sc.environment_subgraphs) == 0  # Connected component not computed by default

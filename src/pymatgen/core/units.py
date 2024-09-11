@@ -267,7 +267,7 @@ class Unit(collections.abc.Mapping):
         units_old = sorted(old_base.items(), key=lambda d: _UNAME2UTYPE[d[0]])
         factor: float = old_factor / new_factor
 
-        for old, new in zip(units_old, units_new):
+        for old, new in zip(units_old, units_new, strict=True):
             if old[1] != new[1]:
                 raise UnitError(f"Units {old} and {new} are not compatible!")
             c = ALL_UNITS[_UNAME2UTYPE[old[0]]]
@@ -534,7 +534,7 @@ class ArrayWithUnit(np.ndarray):
         return obj
 
     def __array_finalize__(self, obj) -> None:
-        """See http://docs.scipy.org/doc/numpy/user/basics.subclassing.html
+        """See https://docs.scipy.org/doc/numpy/user/basics.subclassing.html
         for comments.
         """
         if obj is None:
@@ -819,7 +819,7 @@ def unitized(unit):
             val = func(*args, **kwargs)
             unit_type = _UNAME2UTYPE[unit]
 
-            if isinstance(val, (FloatWithUnit, ArrayWithUnit)):
+            if isinstance(val, FloatWithUnit | ArrayWithUnit):
                 return val.to(unit)
 
             if isinstance(val, collections.abc.Sequence):

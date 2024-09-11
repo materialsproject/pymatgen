@@ -23,7 +23,7 @@ __email__ = "bkmedasani@lbl.gov,wenhao@mit.edu"
 __status__ = "Production"
 __date__ = "Jun 22, 2013M"
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 _anions = set(map(Element, ["O", "S", "F", "Cl", "Br", "N", "P"]))
 _cations = set(
@@ -408,12 +408,12 @@ class GulpIO:
                 # If structure is oxidation state decorated, use that first.
                 el = [site.specie.symbol for site in structure]
                 valences = [site.specie.oxi_state for site in structure]
-                val_dict = dict(zip(el, valences))
+                val_dict = dict(zip(el, valences, strict=True))
             except AttributeError:
                 bv = BVAnalyzer()
                 el = [site.specie.symbol for site in structure]
                 valences = bv.get_valences(structure)
-                val_dict = dict(zip(el, valences))
+                val_dict = dict(zip(el, valences, strict=True))
 
         # Try bush library first
         bpb = BuckinghamPotential("bush")
@@ -490,7 +490,7 @@ class GulpIO:
         bv = BVAnalyzer()
         el = [site.specie.symbol for site in structure]
         valences = bv.get_valences(structure)
-        el_val_dict = dict(zip(el, valences))
+        el_val_dict = dict(zip(el, valences, strict=True))
 
         gin = "species \n"
         qerf_str = "qerfc\n"
@@ -799,7 +799,8 @@ class BuckinghamPotential:
         Args:
             bush_lewis_flag (str): Flag for using Bush or Lewis potential.
         """
-        assert bush_lewis_flag in {"bush", "lewis"}
+        if bush_lewis_flag not in {"bush", "lewis"}:
+            raise ValueError(f"bush_lewis_flag should be bush or lewis, got {bush_lewis_flag}")
         pot_file = "bush.lib" if bush_lewis_flag == "bush" else "lewis.lib"
         with open(os.path.join(os.environ["GULP_LIB"], pot_file)) as file:
             # In lewis.lib there is no shell for cation
@@ -868,7 +869,7 @@ class TersoffPotential:
 
     def __init__(self):
         """Init TersoffPotential."""
-        with open(f"{module_dir}/OxideTersoffPotentials") as file:
+        with open(f"{MODULE_DIR}/OxideTersoffPotentials") as file:
             data = {}
             for row in file:
                 metaloxi = row.split()[0]

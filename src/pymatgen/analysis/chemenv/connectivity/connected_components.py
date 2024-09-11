@@ -121,7 +121,7 @@ def draw_network(env_graph, pos, ax, sg=None, periodicity_vectors=None):
             xytext=xy_text_offset,
             textcoords="offset points",
         )
-        seen[(u, v)] = rad
+        seen[u, v] = rad
         ax.add_patch(e)
 
 
@@ -142,8 +142,8 @@ def make_supergraph(graph, multiplicity, periodicity_vectors):
     if isinstance(multiplicity, int) or len(multiplicity) == 1:
         mult = multiplicity if isinstance(multiplicity, int) else multiplicity[0]
         nodes = graph.nodes(data=True)
-        inodes = [isite for isite, data in nodes]
-        indices_nodes = {isite: inodes.index(isite) for isite in inodes}
+        node_indices = [idx for idx, data in nodes]
+        indices_nodes = {idx: node_indices.index(idx) for idx in node_indices}
         edges = graph.edges(data=True, keys=True)
         connecting_edges = []
         other_edges = []
@@ -242,13 +242,13 @@ class ConnectedComponent(MSONable):
                     edge_data = None
 
                 elif (env_node1, env_node2, key) in links_data:
-                    edge_data = links_data[(env_node1, env_node2, key)]
+                    edge_data = links_data[env_node1, env_node2, key]
                 elif (env_node2, env_node1, key) in links_data:
-                    edge_data = links_data[(env_node2, env_node1, key)]
+                    edge_data = links_data[env_node2, env_node1, key]
                 elif (env_node1, env_node2) in links_data:
-                    edge_data = links_data[(env_node1, env_node2)]
+                    edge_data = links_data[env_node1, env_node2]
                 elif (env_node2, env_node1) in links_data:
-                    edge_data = links_data[(env_node2, env_node1)]
+                    edge_data = links_data[env_node2, env_node1]
                 else:
                     edge_data = None
 

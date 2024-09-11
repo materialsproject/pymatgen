@@ -102,7 +102,7 @@ class WulffShape:
 
     Wulff shape is the convex hull.
     Based on:
-    http://scipy.github.io/devdocs/generated/scipy.spatial.ConvexHull.html
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.ConvexHull.html
 
     Process:
         1. get Wulff simplices
@@ -202,7 +202,7 @@ class WulffShape:
         recp = self.structure.lattice.reciprocal_lattice_crystallographic
         recp_symm_ops = self.lattice.get_recp_symmetry_operation(self.symprec)
 
-        for i, (hkl, energy) in enumerate(zip(self.hkl_list, self.e_surf_list)):
+        for idx, (hkl, energy) in enumerate(zip(self.hkl_list, self.e_surf_list, strict=True)):
             for op in recp_symm_ops:
                 miller = tuple(int(x) for x in op.operate(hkl))
                 if miller not in all_hkl:
@@ -211,8 +211,8 @@ class WulffShape:
                     normal /= np.linalg.norm(normal)
                     normal_pt = [x * energy for x in normal]
                     dual_pt = [x / energy for x in normal]
-                    color_plane = color_ind[divmod(i, len(color_ind))[1]]
-                    planes.append(WulffFacet(normal, energy, normal_pt, dual_pt, color_plane, i, hkl))
+                    color_plane = color_ind[divmod(idx, len(color_ind))[1]]
+                    planes.append(WulffFacet(normal, energy, normal_pt, dual_pt, color_plane, idx, hkl))
 
         # sort by e_surf
         planes.sort(key=lambda x: x.e_surf)
@@ -271,27 +271,27 @@ class WulffShape:
         color_list = [off_color] * len(self.hkl_list)
         color_proxy_on_wulff = []
         miller_on_wulff = []
-        e_surf_on_wulff = [(i, e_surf) for i, e_surf in enumerate(self.e_surf_list) if self.on_wulff[i]]
+        e_surf_on_wulff = [(idx, e_surf) for idx, e_surf in enumerate(self.e_surf_list) if self.on_wulff[idx]]
 
         c_map = plt.get_cmap(color_set)
         e_surf_on_wulff.sort(key=lambda x: x[1], reverse=False)
         e_surf_on_wulff_list = [x[1] for x in e_surf_on_wulff]
         if len(e_surf_on_wulff) > 1:
-            cnorm = mpl.colors.Normalize(vmin=min(e_surf_on_wulff_list), vmax=max(e_surf_on_wulff_list))
+            color_norm = mpl.colors.Normalize(vmin=min(e_surf_on_wulff_list), vmax=max(e_surf_on_wulff_list))
         else:
             # if there is only one hkl on wulff, choose the color of the median
-            cnorm = mpl.colors.Normalize(
+            color_norm = mpl.colors.Normalize(
                 vmin=min(e_surf_on_wulff_list) - 0.1,
                 vmax=max(e_surf_on_wulff_list) + 0.1,
             )
-        scalar_map = mpl.cm.ScalarMappable(norm=cnorm, cmap=c_map)
+        scalar_map = mpl.cm.ScalarMappable(norm=color_norm, cmap=c_map)
 
-        for i, e_surf in e_surf_on_wulff:
-            color_list[i] = scalar_map.to_rgba(e_surf, alpha=alpha)
-            if tuple(self.miller_list[i]) in custom_colors:
-                color_list[i] = custom_colors[tuple(self.miller_list[i])]
-            color_proxy_on_wulff.append(plt.Rectangle((2, 2), 1, 1, fc=color_list[i], alpha=alpha))
-            miller_on_wulff.append(self.input_miller_fig[i])
+        for idx, e_surf in e_surf_on_wulff:
+            color_list[idx] = scalar_map.to_rgba(e_surf, alpha=alpha)
+            if tuple(self.miller_list[idx]) in custom_colors:
+                color_list[idx] = custom_colors[tuple(self.miller_list[idx])]
+            color_proxy_on_wulff.append(plt.Rectangle((2, 2), 1, 1, fc=color_list[idx], alpha=alpha))
+            miller_on_wulff.append(self.input_miller_fig[idx])
         scalar_map.set_array([x[1] for x in e_surf_on_wulff])
         color_proxy = [plt.Rectangle((2, 2), 1, 1, fc=x, alpha=alpha) for x in color_list]
 
@@ -625,12 +625,12 @@ class WulffShape:
     @property
     def miller_area_dict(self) -> dict[tuple, float]:
         """{hkl: area_hkl on wulff}."""
-        return dict(zip(self.miller_list, self.color_area))
+        return dict(zip(self.miller_list, self.color_area, strict=True))
 
     @property
     def miller_energy_dict(self) -> dict[tuple, float]:
         """{hkl: surface energy_hkl}."""
-        return dict(zip(self.miller_list, self.e_surf_list))
+        return dict(zip(self.miller_list, self.e_surf_list, strict=True))
 
     @property
     def surface_area(self) -> float:

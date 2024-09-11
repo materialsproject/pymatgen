@@ -47,8 +47,7 @@ def estimate_band_connection(prev_eigvecs, eigvecs, prev_band_order) -> list[int
     metric = np.abs(np.dot(prev_eigvecs.conjugate().T, eigvecs))
     connection_order = []
     for overlaps in metric:
-        max_val = 0
-        max_idx = 0
+        max_val = max_idx = 0
         for idx in reversed(range(len(metric))):
             val = overlaps[idx]
             if idx in connection_order:
@@ -507,16 +506,17 @@ class PhononBandStructureSymmLine(PhononBandStructure):
 
     def write_phononwebsite(self, filename: str | PathLike) -> None:
         """Write a JSON file for the phononwebsite:
-        http://henriquemiranda.github.io/phononwebsite.
+        https://henriquemiranda.github.io/phononwebsite.
         """
         with open(filename, mode="w") as file:
             json.dump(self.as_phononwebsite(), file)
 
     def as_phononwebsite(self) -> dict:
         """Return a dictionary with the phononwebsite format:
-        http://henriquemiranda.github.io/phononwebsite.
+        https://henriquemiranda.github.io/phononwebsite.
         """
-        assert self.structure is not None, "Structure is required for as_phononwebsite"
+        if self.structure is None:
+            raise RuntimeError("Structure is required for as_phononwebsite")
         dct = {}
 
         # define the lattice
@@ -555,8 +555,7 @@ class PhononBandStructureSymmLine(PhononBandStructure):
                 hsq_dict[nq] = q_pt.label
 
         # get distances
-        dist = 0
-        nq_start = 0
+        dist = nq_start = 0
         distances = [dist]
         line_breaks = []
         for nq in range(1, len(qpoints)):
@@ -598,14 +597,15 @@ class PhononBandStructureSymmLine(PhononBandStructure):
         eig = self.bands
 
         n_phonons, n_qpoints = self.bands.shape
-        order = np.zeros([n_qpoints, n_phonons], dtype=int)
+        order = np.zeros([n_qpoints, n_phonons], dtype=np.int64)
         order[0] = np.array(range(n_phonons))
 
-        # get the atomic masses
-        assert self.structure is not None, "Structure is required for band_reorder"
+        # Get the atomic masses
+        if self.structure is None:
+            raise RuntimeError("Structure is required for band_reorder")
         atomic_masses = [site.specie.atomic_mass for site in self.structure]
 
-        # get order
+        # Get order
         for nq in range(1, n_qpoints):
             old_eig_vecs = eigenvectors_from_displacements(eigen_displacements[:, nq - 1], atomic_masses)
             new_eig_vecs = eigenvectors_from_displacements(eigen_displacements[:, nq], atomic_masses)

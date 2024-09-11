@@ -184,7 +184,7 @@ class Lobsterin(UserDict, MSONable):
         except KeyError as exc:
             raise KeyError(f"{key=} is not available") from exc
 
-    def __contains__(self, key: str) -> bool:  # type: ignore[override]
+    def __contains__(self, key: str) -> bool:
         """To avoid cases sensitivity problems."""
         return super().__contains__(key.lower().strip())
 
@@ -249,7 +249,8 @@ class Lobsterin(UserDict, MSONable):
             overwritedict (dict): dict that can be used to update lobsterin, e.g. {"skipdos": True}
         """
         # Update previous entries
-        self |= {} if overwritedict is None else overwritedict
+        if overwritedict is not None:
+            self.update(overwritedict)
 
         with open(path, mode="w", encoding="utf-8") as file:
             for key in self:
@@ -322,7 +323,7 @@ class Lobsterin(UserDict, MSONable):
             incar_input (PathLike): path to input INCAR
             incar_output (PathLike): path to output INCAR
             poscar_input (PathLike): path to input POSCAR
-            isym (Literal[-1, 0]): ISYM value.
+            isym (-1 | 0): ISYM value.
             further_settings (dict): A dict can be used to include further settings, e.g. {"ISMEAR":-5}
         """
         # Read INCAR from file, which will be modified
@@ -456,7 +457,7 @@ class Lobsterin(UserDict, MSONable):
             POSCAR_input (PathLike): path to POSCAR
             KPOINTS_output (PathLike): path to output KPOINTS
             reciprocal_density (int): Grid density
-            isym (Literal[-1, 0]): ISYM value.
+            isym (-1 | 0): ISYM value.
             from_grid (bool): If True KPOINTS will be generated with the help of a grid given in input_grid.
                 Otherwise, they will be generated from the reciprocal_density
             input_grid (tuple): grid to generate the KPOINTS file

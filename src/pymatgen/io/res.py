@@ -23,9 +23,9 @@ from pymatgen.entries.computed_entries import ComputedStructureEntry
 from pymatgen.io.core import ParseError
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Callable, Iterator
     from pathlib import Path
-    from typing import Any, Callable, Literal
+    from typing import Any, Literal
 
     from typing_extensions import Self
 

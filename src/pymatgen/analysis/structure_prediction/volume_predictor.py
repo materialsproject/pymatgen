@@ -17,12 +17,7 @@ bond_params = loadfn(f"{MODULE_DIR}/DLS_bond_params.yaml")
 
 
 def _is_ox(structure):
-    for elem in structure.composition:
-        try:
-            elem.oxi_state  # noqa: B018
-        except AttributeError:
-            return False
-    return True
+    return all(hasattr(elem, "oxi_state") for elem in structure.composition)
 
 
 class RLSVolumePredictor:
@@ -87,8 +82,7 @@ class RLSVolumePredictor:
                 ):
                     raise ValueError("Not all the ionic radii are available!")
 
-                numerator = 0
-                denominator = 0
+                numerator = denominator = 0
                 # Here, the 1/3 factor on the composition accounts for atomic
                 # packing. We want the number per unit length.
                 for k, v in comp.items():
@@ -107,8 +101,7 @@ class RLSVolumePredictor:
             ref_comp = ref_structure.composition
             # Here, the 1/3 factor on the composition accounts for atomic
             # packing. We want the number per unit length.
-            numerator = 0
-            denominator = 0
+            numerator = denominator = 0
             for k, v in comp.items():
                 numerator += k.atomic_radius * v ** (1 / 3)
             for k, v in ref_comp.items():
@@ -209,7 +202,8 @@ class DLSVolumePredictor:
                 if sp1 in bp_dict and sp2 in bp_dict:
                     expected_dist = bp_dict[sp1] + bp_dict[sp2]
                 else:
-                    assert sp1.atomic_radius is not None
+                    if sp1.atomic_radius is None:
+                        raise ValueError("atomic_radius of sp1 is None.")
                     expected_dist = sp1.atomic_radius + sp2.atomic_radius
 
                 if not smallest_ratio or nn.nn_distance / expected_dist < smallest_ratio:

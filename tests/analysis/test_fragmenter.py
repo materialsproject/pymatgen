@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import platform
+
 import pytest
 
 from pymatgen.analysis.fragmenter import Fragmenter
@@ -67,6 +69,7 @@ class TestFragmentMolecule(PymatgenTest):
         fragmenter = Fragmenter(molecule=self.pc_frag1, depth=0)
         assert fragmenter.total_unique_fragments == 12
 
+    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_babel_pc_old_defaults(self):
         pytest.importorskip("openbabel")
         fragmenter = Fragmenter(molecule=self.pc, open_rings=True)
@@ -109,6 +112,7 @@ class TestFragmentMolecule(PymatgenTest):
         fragmenter = Fragmenter(molecule=self.tfsi, depth=0)
         assert fragmenter.total_unique_fragments == 156
 
+    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_babel_pc_with_ro_depth_0_vs_depth_10(self):
         pytest.importorskip("openbabel")
         fragmenter0 = Fragmenter(molecule=self.pc, depth=0, open_rings=True, opt_steps=1000)
@@ -152,6 +156,7 @@ class TestFragmentMolecule(PymatgenTest):
         )
         assert frag2.new_unique_fragments == 295 - 12
 
+    @pytest.mark.skipif(platform.system() == "Windows", reason="Tests for openbabel failing on Win")
     def test_pc_then_ec_depth_10(self):
         pytest.importorskip("openbabel")
         fragPC = Fragmenter(molecule=self.pc, depth=10, open_rings=True)

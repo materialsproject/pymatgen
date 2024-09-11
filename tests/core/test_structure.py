@@ -9,6 +9,8 @@ from unittest import skipIf
 
 import numpy as np
 import pytest
+import requests
+import urllib3
 from monty.json import MontyDecoder, MontyEncoder
 from numpy.testing import assert_allclose, assert_array_equal
 from pytest import approx
@@ -620,7 +622,7 @@ class TestIStructure(PymatgenTest):
             assert len(all_nn[idx][0]) == 4
             assert len(all_nn[idx]) == len(struct.get_neighbors(site, rand_radius))
 
-        for site, nns in zip(struct, all_nn):
+        for site, nns in zip(struct, all_nn, strict=True):
             for nn in nns:
                 assert nn[0].is_periodic_image(struct[nn[2]])
                 dist = sum((site.coords - nn[0].coords) ** 2) ** 0.5
@@ -678,67 +680,69 @@ Direct
             assert_allclose(cy_indices2, py_indices2)
             assert len(cy_offsets) == len(py_offsets)
 
-    # @skipIf(not os.getenv("CI"), reason="Only run this in CI tests")
-    # def test_get_all_neighbors_crosscheck_old(self):
-    #     for i in range(100):
-    #         alpha, beta = np.random.rand(2) * 90
-    #         a, b, c = 3 + np.random.rand(3) * 5
-    #         species = ["H"] * 5
-    #         frac_coords = np.random.rand(5, 3)
-    #         try:
-    #             lattice = Lattice.from_parameters(a, b, c, alpha, beta, 90)
-    #             struct = Structure.from_spacegroup("P1", lattice, species, frac_coords)
-    #             for nn_new, nn_old in zip(struct.get_all_neighbors(4), struct.get_all_neighbors_old(4)):
-    #                 sites1 = [i[0] for i in nn_new]
-    #                 sites2 = [i[0] for i in nn_old]
-    #                 assert set(sites1) == set(sites2)
-    #             break
-    #         except Exception:
-    #             pass
-    #     else:
-    #         raise ValueError("No valid structure tested.")
+    @pytest.mark.skip("TODO: need someone to fix this")
+    @pytest.mark.skipif(not os.getenv("CI"), reason="Only run this in CI tests")
+    def test_get_all_neighbors_crosscheck_old(self):
+        rng = np.random.default_rng()
+        for i in range(100):
+            alpha, beta = rng.random(2) * 90
+            a, b, c = 3 + rng.random(3) * 5
+            species = ["H"] * 5
+            frac_coords = rng.random(5, 3)
+            try:
+                lattice = Lattice.from_parameters(a, b, c, alpha, beta, 90)
+                struct = Structure.from_spacegroup("P1", lattice, species, frac_coords)
+                for nn_new, nn_old in zip(struct.get_all_neighbors(4), struct.get_all_neighbors_old(4), strict=False):
+                    sites1 = [i[0] for i in nn_new]
+                    sites2 = [i[0] for i in nn_old]
+                    assert set(sites1) == set(sites2)
+                break
+            except Exception:
+                pass
+        else:
+            raise ValueError("No valid structure tested.")
 
-    #     from pymatgen.electronic_structure.core import Spin
+        from pymatgen.electronic_structure.core import Spin
 
-    #     d = {
-    #         "@module": "pymatgen.core.structure",
-    #         "@class": "Structure",
-    #         "charge": None,
-    #         "lattice": {
-    #             "matrix": [
-    #                 [0.0, 0.0, 5.5333],
-    #                 [5.7461, 0.0, 3.518471486290303e-16],
-    #                 [-4.692662837312786e-16, 7.6637, 4.692662837312786e-16],
-    #             ],
-    #             "a": 5.5333,
-    #             "b": 5.7461,
-    #             "c": 7.6637,
-    #             "alpha": 90.0,
-    #             "beta": 90.0,
-    #             "gamma": 90.0,
-    #             "volume": 243.66653780778103,
-    #         },
-    #         "sites": [
-    #             {
-    #                 "species": [{"element": "Mn", "oxidation_state": 0, "spin": Spin.down, "occu": 1}],
-    #                 "abc": [0.0, 0.5, 0.5],
-    #                 "xyz": [2.8730499999999997, 3.83185, 4.1055671618015446e-16],
-    #                 "label": "Mn0+,spin=-1",
-    #                 "properties": {},
-    #             },
-    #             {
-    #                 "species": [{"element": "Mn", "oxidation_state": None, "occu": 1.0}],
-    #                 "abc": [1.232595164407831e-32, 0.5, 0.5],
-    #                 "xyz": [2.8730499999999997, 3.83185, 4.105567161801545e-16],
-    #                 "label": "Mn",
-    #                 "properties": {},
-    #             },
-    #         ],
-    #     }
-    #     struct = Structure.from_dict(d)
-    #     assert {i[0] for i in struct.get_neighbors(struct[0], 0.05)} == {
-    #         i[0] for i in struct.get_neighbors_old(struct[0], 0.05)
-    #     }
+        d = {
+            "@module": "pymatgen.core.structure",
+            "@class": "Structure",
+            "charge": None,
+            "lattice": {
+                "matrix": [
+                    [0.0, 0.0, 5.5333],
+                    [5.7461, 0.0, 3.518471486290303e-16],
+                    [-4.692662837312786e-16, 7.6637, 4.692662837312786e-16],
+                ],
+                "a": 5.5333,
+                "b": 5.7461,
+                "c": 7.6637,
+                "alpha": 90.0,
+                "beta": 90.0,
+                "gamma": 90.0,
+                "volume": 243.66653780778103,
+            },
+            "sites": [
+                {
+                    "species": [{"element": "Mn", "oxidation_state": 0, "spin": Spin.down, "occu": 1}],
+                    "abc": [0.0, 0.5, 0.5],
+                    "xyz": [2.8730499999999997, 3.83185, 4.1055671618015446e-16],
+                    "label": "Mn0+,spin=-1",
+                    "properties": {},
+                },
+                {
+                    "species": [{"element": "Mn", "oxidation_state": None, "occu": 1.0}],
+                    "abc": [1.232595164407831e-32, 0.5, 0.5],
+                    "xyz": [2.8730499999999997, 3.83185, 4.105567161801545e-16],
+                    "label": "Mn",
+                    "properties": {},
+                },
+            ],
+        }
+        struct = Structure.from_dict(d)
+        assert {i[0] for i in struct.get_neighbors(struct[0], 0.05)} == {
+            i[0] for i in struct.get_neighbors_old(struct[0], 0.05)
+        }
 
     def test_get_symmetric_neighbor_list(self):
         # tetragonal group with all bonds related by symmetry
@@ -783,7 +787,7 @@ Direct
             [[3.1] * 3, [0.11] * 3, [-1.91] * 3, [0.5] * 3],
         )
         all_nn = struct.get_all_neighbors(0.2, include_index=True)
-        for site, nns in zip(struct, all_nn):
+        for site, nns in zip(struct, all_nn, strict=True):
             for nn in nns:
                 assert nn[0].is_periodic_image(struct[nn[2]])
                 d = sum((site.coords - nn[0].coords) ** 2) ** 0.5
@@ -932,8 +936,14 @@ class TestStructure(PymatgenTest):
         s = Structure.from_id("mp-1143")
         assert isinstance(s, Structure)
         assert s.reduced_formula == "Al2O3"
-        s = Structure.from_id("1101077", source="COD")
-        assert s.reduced_formula == "LiV2O4"
+
+        try:
+            website_down = requests.get("https://www.crystallography.net", timeout=60).status_code != 200
+        except (requests.exceptions.ConnectionError, urllib3.exceptions.ConnectTimeoutError):
+            website_down = True
+        if not website_down:
+            s = Structure.from_id("1101077", source="COD")
+            assert s.reduced_formula == "LiV2O4"
 
     def test_mutable_sequence_methods(self):
         struct = self.struct
@@ -1227,6 +1237,7 @@ class TestStructure(PymatgenTest):
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
         struct = self.struct.copy()
+        spg_info = struct.get_space_group_info()
         returned = struct.apply_operation(op)
         assert returned is struct
         assert_allclose(
@@ -1234,11 +1245,31 @@ class TestStructure(PymatgenTest):
             [[0, 3.840198, 0], [-3.325710, 1.920099, 0], [2.217138, -0, 3.135509]],
             atol=1e-6,
         )
+        assert returned.get_space_group_info() == spg_info
 
-        op = SymmOp([[1, 1, 0, 0.5], [1, 0, 0, 0.5], [0, 0, 1, 0.5], [0, 0, 0, 1]])
+        op = SymmOp([[1, 1, 0, 0.5], [1, 0, 0, 0.5], [0, 0, 1, 0.5], [0, 0, 0, 1]])  # not a SymmOp of this struct
         struct = self.struct.copy()
         struct.apply_operation(op, fractional=True)
         assert_allclose(struct.lattice.matrix, [[5.760297, 3.325710, 0], [3.840198, 0, 0], [0, -2.217138, 3.135509]], 5)
+
+        struct = self.struct.copy()
+        # actual SymmOp of this struct: (SpacegroupAnalyzer(struct).get_symmetry_operations()[-2])
+        op = SymmOp([[0.0, 0.0, -1.0, 0.75], [-1.0, -1.0, 1.0, 0.5], [0.0, -1.0, 1.0, 0.75], [0.0, 0.0, 0.0, 1.0]])
+        struct.apply_operation(op, fractional=True)
+        assert struct.get_space_group_info() == spg_info
+
+        # same SymmOp in Cartesian coordinates:
+        op = SymmOp(
+            [
+                [-0.5, -0.288675028, -0.816496280, 3.84019793],
+                [-0.866025723, 0.166666176, 0.471404694, 0],
+                [0, -0.942808868, 0.333333824, 2.35163180],
+                [0, 0, 0, 1.0],
+            ]
+        )
+        struct = self.struct.copy()
+        struct.apply_operation(op, fractional=False)
+        assert struct.get_space_group_info() == spg_info
 
     def test_apply_strain(self):
         struct = self.struct
@@ -1578,7 +1609,7 @@ class TestStructure(PymatgenTest):
         struct = self.struct.copy()
         struct[0] = "C"
         assert struct.formula == "Si1 C1"
-        struct[(0, 1)] = "Ge"
+        struct[0, 1] = "Ge"
         assert struct.formula == "Ge2"
         struct[:2] = "Sn"
         assert struct.formula == "Sn2"
@@ -1680,6 +1711,8 @@ class TestStructure(PymatgenTest):
         assert not hasattr(calculator, "dynamics")
         assert self.cu_structure == struct_copy, "original structure was modified"
 
+    @pytest.mark.skip(reason="chgnet is failing with Numpy 1, see #3992")
+    @pytest.mark.skipif(int(np.__version__[0]) >= 2, reason="chgnet is not built against NumPy 2.0")
     def test_relax_chgnet(self):
         pytest.importorskip("chgnet")
         struct_copy = self.cu_structure.copy()
@@ -1703,6 +1736,8 @@ class TestStructure(PymatgenTest):
         assert custom_relaxed.calc.results.get("energy") == approx(-6.0151076, abs=1e-4)
         assert custom_relaxed.volume == approx(40.044794644, abs=1e-4)
 
+    @pytest.mark.skip(reason="chgnet is failing with Numpy 1, see #3992")
+    @pytest.mark.skipif(int(np.__version__[0]) >= 2, reason="chgnet is not built against NumPy 2.0")
     def test_calculate_chgnet(self):
         pytest.importorskip("chgnet")
         struct = self.get_structure("Si")
@@ -1910,7 +1945,7 @@ class TestIMolecule(PymatgenTest):
         mol = self.mol.copy()
         mol[0] = "Si"
         assert mol.formula == "Si1 H4"
-        mol[(0, 1)] = "Ge"
+        mol[0, 1] = "Ge"
         assert mol.formula == "Ge2 H3"
         mol[:2] = "Sn"
         assert mol.formula == "Sn2 H3"
@@ -2349,7 +2384,7 @@ class TestMolecule(PymatgenTest):
 
     def test_extract_cluster(self):
         species = self.mol.species * 2
-        coords = [*self.mol.cart_coords, *(self.mol.cart_coords + [10, 0, 0])]  # noqa: RUF005
+        coords = [*self.mol.cart_coords, *(self.mol.cart_coords + np.array([10, 0, 0]))]
         mol = Molecule(species, coords)
         cluster = Molecule.from_sites(mol.extract_cluster([mol[0]]))
         assert mol.formula == "H8 C2"

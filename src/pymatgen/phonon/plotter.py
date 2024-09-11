@@ -19,9 +19,9 @@ from pymatgen.phonon.gruneisen import GruneisenPhononBandStructureSymmLine
 from pymatgen.util.plotting import add_fig_kwargs, get_ax_fig, pretty_plot
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    from collections.abc import Callable, Sequence
     from os import PathLike
-    from typing import Any, Callable, Literal
+    from typing import Any, Literal
 
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure
@@ -189,7 +189,7 @@ class PhononDosPlotter:
         all_frequencies.reverse()
         all_pts = []
         colors = ("blue", "red", "green", "orange", "purple", "brown", "pink", "gray", "olive")
-        for idx, (key, frequencies, densities) in enumerate(zip(keys, all_frequencies, all_densities)):
+        for idx, (key, frequencies, densities) in enumerate(zip(keys, all_frequencies, all_densities, strict=True)):
             color = self._doses[key].get("color", colors[idx % n_colors])
             linewidth = self._doses[key].get("linewidth", 3)
             kwargs = {
@@ -197,7 +197,7 @@ class PhononDosPlotter:
                 for key, val in self._doses[key].items()
                 if key not in ["frequencies", "densities", "color", "linewidth"]
             }
-            all_pts.extend(list(zip(frequencies, densities)))
+            all_pts.extend(list(zip(frequencies, densities, strict=True)))
             if invert_axes:
                 xs, ys = densities, frequencies
             else:
@@ -313,8 +313,7 @@ class PhononBSPlotter:
         ticks = self.get_ticks()
 
         # zip to sanitize, only plot the uniq values
-        ticks_labels = list(zip(*zip(ticks["distance"], ticks["label"])))
-        if ticks_labels:
+        if ticks_labels := list(zip(*zip(ticks["distance"], ticks["label"], strict=True), strict=True)):
             ax.set_xticks(ticks_labels[0])
             ax.set_xticklabels(ticks_labels[1])
 
@@ -375,7 +374,7 @@ class PhononBSPlotter:
 
         data = self.bs_plot_data()
         kwargs.setdefault("color", "blue")
-        for dists, freqs in zip(data["distances"], data["frequency"]):
+        for dists, freqs in zip(data["distances"], data["frequency"], strict=True):
             for idx in range(self.n_bands):
                 ys = [freqs[idx][j] * u.factor for j in range(len(dists))]
                 ax.plot(dists, ys, **kwargs)
@@ -459,28 +458,34 @@ class PhononBSPlotter:
             rgb_labels: a list of rgb colors for the labels; if not specified,
                 the colors will be automatically generated.
         """
-        assert self._bs.structure is not None, "Structure is required for get_proj_plot"
+        if self._bs.structure is None:
+            raise ValueError("Structure is required for get_proj_plot")
         elements = [elem.symbol for elem in self._bs.structure.elements]
         if site_comb == "element":
-            assert 2 <= len(elements) <= 4, "the compound must have 2, 3 or 4 unique elements"
+            if len(elements) not in {2, 3, 4}:
+                raise ValueError("the compound must have 2, 3 or 4 unique elements")
             indices: list[list[int]] = [[] for _ in range(len(elements))]
             for idx, elem in enumerate(self._bs.structure.species):
                 for j, unique_species in enumerate(self._bs.structure.elements):
                     if elem == unique_species:
                         indices[j].append(idx)
         else:
-            assert isinstance(site_comb, list)
-            assert 2 <= len(site_comb) <= 4, "the length of site_comb must be 2, 3 or 4"
+            if not isinstance(site_comb, list):
+                raise TypeError("Site_comb should be a list.")
+            if len(site_comb) not in {2, 3, 4}:
+                raise ValueError("the length of site_comb must be 2, 3 or 4")
             all_sites = self._bs.structure.sites
             all_indices = {*range(len(all_sites))}
             for comb in site_comb:
                 for idx in comb:
-                    assert 0 <= idx < len(all_sites), "one or more indices in site_comb does not exist"
+                    if not 0 <= idx < len(all_sites):
+                        raise RuntimeError("one or more indices in site_comb does not exist")
                     all_indices.remove(idx)
             if len(all_indices) != 0:
                 raise ValueError(f"not all {len(all_sites)} indices are included in site_comb")
             indices = site_comb  # type: ignore[assignment]
-        assert rgb_labels is None or len(rgb_labels) == len(indices), "wrong number of rgb_labels"
+        if rgb_labels is not None and len(rgb_labels) != len(indices):
+            raise ValueError("wrong number of rgb_labels")
 
         u = freq_units(units)
         _fig, ax = plt.subplots(figsize=(12, 8), dpi=300)
@@ -664,8 +669,8 @@ class PhononBSPlotter:
         _colors = ("blue", "red", "green", "orange", "purple", "brown", "pink", "gray", "olive")
         if isinstance(other_plotter, PhononBSPlotter):
             other_plotter = {other_plotter._label or "other": other_plotter}
-        if colors:
-            assert len(colors) == len(other_plotter) + 1, "Wrong number of colors"
+        if colors and len(colors) != len(other_plotter) + 1:
+            raise ValueError("Wrong number of colors")
 
         self_data = self.bs_plot_data()
 
@@ -700,7 +705,7 @@ class PhononBSPlotter:
         color_self = ax.lines[0].get_color()
         ax.plot([], [], label=self._label or self_label, linewidth=2 * line_width, color=color_self)
         linestyle = other_kwargs.get("linestyle", "-")
-        for color_other, label_other in zip(colors_other, other_plotter):
+        for color_other, label_other in zip(colors_other, other_plotter, strict=True):
             ax.plot([], [], label=label_other, linewidth=2 * line_width, color=color_other, linestyle=linestyle)
             ax.legend(**legend_kwargs)
 
@@ -965,7 +970,7 @@ class GruneisenPlotter:
         ax.set_ylabel(r"$\mathrm{Grüneisen\ parameter}$")
 
         n_points = len(ys) - 1
-        for idx, (xi, yi) in enumerate(zip(xs, ys)):
+        for idx, (xi, yi) in enumerate(zip(xs, ys, strict=True)):
             color = (1.0 / n_points * idx, 0, 1.0 / n_points * (n_points - idx))
 
             ax.plot(xi, yi, marker, color=color, markersize=markersize)
@@ -1091,7 +1096,9 @@ class GruneisenPhononBSPlotter(PhononBSPlotter):
         )
 
         sc = None
-        for (dists_inx, dists), (_, freqs) in zip(enumerate(data["distances"]), enumerate(data["frequency"])):
+        for (dists_inx, dists), (_, freqs) in zip(
+            enumerate(data["distances"]), enumerate(data["frequency"]), strict=True
+        ):
             for band_idx in range(self.n_bands):
                 if plot_ph_bs_with_gruneisen:
                     ys = [freqs[band_idx][j] * u.factor for j in range(len(dists))]

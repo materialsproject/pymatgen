@@ -213,7 +213,7 @@ class ChemicalPotentialDiagram(MSONable):
 
         domains: dict[str, list] = {entry.reduced_formula: [] for entry in entries}
 
-        for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets):
+        for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets, strict=True):
             for v in facet:
                 if v < len(entries):
                     this_entry = entries[v]
@@ -252,7 +252,7 @@ class ChemicalPotentialDiagram(MSONable):
         inds.extend([self._min_entries.index(el) for el in self.el_refs.values()])
 
         hyperplanes = data[inds]
-        hyperplanes[:, -1] = hyperplanes[:, -1] * -1
+        hyperplanes[:, -1] *= -1
         hyperplane_entries = [self._min_entries[idx] for idx in inds]
 
         return hyperplanes, hyperplane_entries
@@ -578,7 +578,7 @@ class ChemicalPotentialDiagram(MSONable):
             return f"<br> μ<sub>{element}</sub> - μ<sub>{element}</sub><sup>o</sup> (eV)"
 
         axes_layout = {}
-        for ax, el in zip(axes, elements):
+        for ax, el in zip(axes, elements, strict=True):
             layout = plotly_layouts[layout_name].copy()
             layout["title"] = get_chempot_axis_title(el)
             axes_layout[ax] = layout
@@ -646,7 +646,7 @@ def simple_pca(data: np.ndarray, k: int = 2) -> tuple[np.ndarray, np.ndarray, np
     Returns:
         tuple: projected data, eigenvalues, eigenvectors
     """
-    data = data - np.mean(data.T, axis=1)  # centering the data
+    data -= np.mean(data.T, axis=1)  # centering the data
     cov = np.cov(data.T)  # calculating covariance matrix
     v, w = np.linalg.eig(cov)  # performing eigendecomposition
     idx = v.argsort()[::-1]  # sorting the components
@@ -670,11 +670,9 @@ def get_centroid_2d(vertices: np.ndarray) -> np.ndarray:
             circumferentially
 
     Returns:
-        np.array: Giving 2-d centroid coordinates.
+        np.ndarray: Giving 2-d centroid coordinates.
     """
-    cx = 0
-    cy = 0
-    a = 0
+    cx = cy = a = 0
 
     for idx in range(len(vertices) - 1):
         xi = vertices[idx, 0]

@@ -166,7 +166,7 @@ class VolumetricData(MSONable):
             z (float): Fraction of lattice vector c.
 
         Returns:
-            Value from self.data (potentially interpolated) correspondisng to
+            Value from self.data (potentially interpolated) corresponding to
             the point (x, y, z).
         """
         return self.interpolator([x, y, z])[0]
@@ -184,14 +184,19 @@ class VolumetricData(MSONable):
             List of n data points (mostly interpolated) representing a linear slice of the
             data from point p1 to point p2.
         """
-        assert type(p1) in [list, np.ndarray]
-        assert type(p2) in [list, np.ndarray]
-        assert len(p1) == 3
-        assert len(p2) == 3
-        xpts = np.linspace(p1[0], p2[0], num=n)
-        ypts = np.linspace(p1[1], p2[1], num=n)
-        zpts = np.linspace(p1[2], p2[2], num=n)
-        return [self.value_at(xpts[i], ypts[i], zpts[i]) for i in range(n)]
+        if type(p1) not in {list, np.ndarray}:
+            raise TypeError(f"type of p1 should be list or np.ndarray, got {type(p1).__name__}")
+        if len(p1) != 3:
+            raise ValueError(f"length of p1 should be 3, got {len(p1)}")
+        if type(p2) not in {list, np.ndarray}:
+            raise TypeError(f"type of p2 should be list or np.ndarray, got {type(p2).__name__}")
+        if len(p2) != 3:
+            raise ValueError(f"length of p2 should be 3, got {len(p2)}")
+
+        x_pts = np.linspace(p1[0], p2[0], num=n)
+        y_pts = np.linspace(p1[1], p2[1], num=n)
+        z_pts = np.linspace(p1[2], p2[2], num=n)
+        return [self.value_at(x_pts[i], y_pts[i], z_pts[i]) for i in range(n)]
 
     def get_integrated_diff(self, ind, radius, nbins=1):
         """Get integrated difference of atom index ind up to radius. This can be

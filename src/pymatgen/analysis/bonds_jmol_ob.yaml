@@ -1,7 +1,7 @@
 # Default bond distances (when charge is unknown) from JMol.
 # As per JMol docs:
 # "Values taken from OpenBabel.
-# http://sourceforge.net/p/openbabel/code/485/tree/openbabel/trunk/data/element.txt (dated 10/20/2004)
+# https://sourceforge.net/p/openbabel/code/485/tree/openbabel/trunk/data/element.txt (dated 10/20/2004)
 # These values are a mix of common ion (Ba2+, Na+) distances and covalent distances."
 
 Ac: 1.88

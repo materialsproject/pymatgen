@@ -163,7 +163,7 @@ class CoherentInterfaceBuilder:
         self._terminations = {
             (film_label, sub_label): (film_shift, sub_shift)
             for (film_label, film_shift), (sub_label, sub_shift) in product(
-                zip(film_terminations, film_shifts), zip(sub_terminations, sub_shifts)
+                zip(film_terminations, film_shifts, strict=True), zip(sub_terminations, sub_shifts, strict=True)
             )
         }
         self.terminations = list(self._terminations)
@@ -292,9 +292,7 @@ def get_rot_3d_for_2d(film_matrix, sub_matrix) -> np.ndarray:
     sub_matrix = np.array(sub_matrix)
     sub_matrix = sub_matrix.tolist()[:2]
     temp_sub = np.cross(sub_matrix[0], sub_matrix[1]).astype(float)  # conversion to float necessary if using numba
-    temp_sub = temp_sub * fast_norm(
-        np.array(film_matrix[2], dtype=float)
-    )  # conversion to float necessary if using numba
+    temp_sub *= fast_norm(np.array(film_matrix[2], dtype=float))  # conversion to float necessary if using numba
     sub_matrix.append(temp_sub)
 
     transform_matrix = np.transpose(np.linalg.solve(film_matrix, sub_matrix))

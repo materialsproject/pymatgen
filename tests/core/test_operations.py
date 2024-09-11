@@ -168,8 +168,8 @@ class TestSymmOp(PymatgenTest):
         is_too_close = np.abs([from_b, to_b] - floored) > 1 - tol
         floored[is_too_close] += 1
         r_b = self.op.apply_rotation_only(r_a) - floored[0] + floored[1]
-        from_b = from_b % 1
-        to_b = to_b % 1
+        from_b %= 1
+        to_b %= 1
         assert self.op.are_symmetrically_related_vectors(from_a, to_a, r_a, from_b, to_b, r_b)[0]
         assert not self.op.are_symmetrically_related_vectors(from_a, to_a, r_a, from_b, to_b, r_b)[1]
         assert self.op.are_symmetrically_related_vectors(to_a, from_a, -r_a, from_b, to_b, r_b)[0]
@@ -216,9 +216,7 @@ class TestSymmOp(PymatgenTest):
         assert op4 == op5
         assert op3 == op5
 
-        # TODO: assertWarns not in Python 2.x unittest
-        # update PymatgenTest for unittest2?
-        # self.assertWarns(UserWarning, self.op.as_xyz_str)
+        self.assertWarns(UserWarning, self.op.as_xyz_str)
 
         symm_op = SymmOp.from_xyz_str("0.5+x, 0.25+y, 0.75+z")
         assert_allclose(symm_op.translation_vector, [0.5, 0.25, 0.75])
@@ -261,7 +259,7 @@ class TestMagSymmOp(PymatgenTest):
 
         transformed_magmoms = [[1, 2, 3], [-1, -2, -3], [1, -2, 3], [1, 2, -3]]
 
-        for xyzt_string, transformed_magmom in zip(xyzt_strings, transformed_magmoms):
+        for xyzt_string, transformed_magmom in zip(xyzt_strings, transformed_magmoms, strict=True):
             for magmom in magmoms:
                 op = MagSymmOp.from_xyzt_str(xyzt_string)
                 assert_allclose(transformed_magmom, op.operate_magmom(magmom).global_moment)

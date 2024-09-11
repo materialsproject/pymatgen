@@ -2,7 +2,7 @@
 Fortran code for calculating a Bader charge analysis.
 
 This module depends on a compiled bader executable available in the path.
-Please download the library at http://theory.cm.utexas.edu/henkelman/code/bader/
+Please download the library at https://theory.cm.utexas.edu/henkelman/code/bader/
 and follow the instructions to compile the executable.
 
 If you use this module, please cite:
@@ -218,7 +218,7 @@ class BaderAnalysis:
             if line.startswith("-"):
                 break
             vals = map(float, line.split()[1:])
-            data.append(dict(zip(headers, vals)))
+            data.append(dict(zip(headers, vals, strict=True)))
 
         for line in lines:
             tokens = line.strip().split(":")
@@ -277,6 +277,7 @@ class BaderAnalysis:
             self.chgcar.structure,
             self.chgcar.structure.frac_coords,
             atom_chgcars,
+            strict=True,
         ):
             # Find the index of the atom in the charge density atom
             index = np.round(np.multiply(loc, chg.dim))

@@ -218,7 +218,7 @@ class Slab(Structure):
         return np.linalg.norm(np.cross(matrix[0], matrix[1]))
 
     @classmethod
-    def from_dict(cls, dct: dict[str, Any]) -> Self:  # type: ignore[override]
+    def from_dict(cls, dct: dict[str, Any]) -> Self:
         """
         Args:
             dct: dict.
@@ -242,7 +242,7 @@ class Slab(Structure):
             energy=dct["energy"],
         )
 
-    def as_dict(self, **kwargs) -> dict:  # type: ignore[override]
+    def as_dict(self, **kwargs) -> dict:
         """MSONable dict."""
         dct = super().as_dict(**kwargs)
         dct["@module"] = type(self).__module__
@@ -255,7 +255,7 @@ class Slab(Structure):
         dct["energy"] = self.energy
         return dct
 
-    def copy(self, site_properties: dict[str, Any] | None = None) -> Self:  # type: ignore[override]
+    def copy(self, site_properties: dict[str, Any] | None = None) -> Self:
         """Get a copy of the Slab, with options to update site properties.
 
         Args:
@@ -554,10 +554,10 @@ class Slab(Structure):
                             break
                     else:
                         # Move unselected atom to the opposite surface.
-                        frac_coords.append(struct_matcher.frac_coords + [0, 0, shift])  # noqa: RUF005
+                        frac_coords.append(struct_matcher.frac_coords + np.array([0, 0, shift]))
 
                 # sort by species to put all similar species together.
-                sp_fcoord = sorted(zip(species, frac_coords), key=lambda x: x[0])
+                sp_fcoord = sorted(zip(species, frac_coords, strict=True), key=lambda x: x[0])
                 species = [x[0] for x in sp_fcoord]
                 frac_coords = [x[1] for x in sp_fcoord]
                 slab = type(self)(
@@ -828,10 +828,10 @@ def get_slab_regions(
     # If slab is noncontiguous
     if frac_coords:
         # Locate the lowest site within the upper Slab
-        last_fcoords = []
+        last_frac_coords = []
         last_indices = []
         while frac_coords:
-            last_fcoords = copy.copy(frac_coords)
+            last_frac_coords = copy.copy(frac_coords)
             last_indices = copy.copy(indices)
 
             site = slab[indices[frac_coords.index(min(frac_coords))]]
@@ -850,7 +850,7 @@ def get_slab_regions(
         for site in slab:
             if all(nn.index not in all_indices for nn in slab.get_neighbors(site, blength)):
                 upper_fcoords.append(site.frac_coords[2])
-        coords: list = copy.copy(frac_coords) if frac_coords else copy.copy(last_fcoords)
+        coords: list = copy.copy(frac_coords) if frac_coords else copy.copy(last_frac_coords)
         min_top = slab[last_indices[coords.index(min(coords))]].frac_coords[2]
         return [(0, max(upper_fcoords)), (min_top, 1)]
 
@@ -949,9 +949,9 @@ class SlabGenerator:
                 or "bulk_equivalent" not in initial_structure.site_properties
             ):
                 spg_analyzer = SpacegroupAnalyzer(initial_structure)
-                initial_structure.add_site_property("bulk_wyckoff", spg_analyzer.get_symmetry_dataset()["wyckoffs"])
+                initial_structure.add_site_property("bulk_wyckoff", spg_analyzer.get_symmetry_dataset().wyckoffs)
                 initial_structure.add_site_property(
-                    "bulk_equivalent", spg_analyzer.get_symmetry_dataset()["equivalent_atoms"].tolist()
+                    "bulk_equivalent", spg_analyzer.get_symmetry_dataset().equivalent_atoms.tolist()
                 )
 
         def calculate_surface_normal() -> np.ndarray:
@@ -971,7 +971,7 @@ class SlabGenerator:
             """
             slab_scale_factor = []
             non_orth_ind = []
-            eye = np.eye(3, dtype=int)
+            eye = np.eye(3, dtype=np.int64)
             for idx, miller_idx in enumerate(miller_index):
                 if miller_idx == 0:
                     # If lattice vector is perpendicular to surface normal, i.e.,
@@ -1112,7 +1112,7 @@ class SlabGenerator:
         frac_coords -= np.floor(frac_coords)  # wrap to the [0, 1) range
 
         # Scale down z-coordinate by the number of layers
-        frac_coords[:, 2] = frac_coords[:, 2] / n_layers
+        frac_coords[:, 2] /= n_layers
 
         # Duplicate atom layers by stacking along the z-axis
         all_coords = []
@@ -1685,8 +1685,8 @@ def generate_all_slabs(
 
 
 # Load the reconstructions_archive JSON file
-module_dir = os.path.dirname(os.path.abspath(__file__))
-with open(f"{module_dir}/reconstructions_archive.json", encoding="utf-8") as data_file:
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+with open(f"{MODULE_DIR}/reconstructions_archive.json", encoding="utf-8") as data_file:
     RECONSTRUCTIONS_ARCHIVE = json.load(data_file)
 
 
@@ -1696,7 +1696,7 @@ def get_d(slab: Slab) -> float:
     sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
 
     distance = None
-    for site, next_site in zip(sorted_sites, sorted_sites[1:]):
+    for site, next_site in itertools.pairwise(sorted_sites):
         if not isclose(site.frac_coords[2], next_site.frac_coords[2], abs_tol=1e-6):
             distance = next_site.frac_coords[2] - site.frac_coords[2]
             break
@@ -2119,7 +2119,7 @@ def hkl_transformation(
     transf_hkl = np.array([idx // divisor for idx in transf_hkl])
 
     # Get positive Miller index
-    if len([i for i in transf_hkl if i < 0]) > 1:
+    if sum(idx < 0 for idx in transf_hkl) > 1:
         transf_hkl *= -1
 
     return tuple(transf_hkl)

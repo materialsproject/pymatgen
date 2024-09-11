@@ -2,22 +2,21 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
 from pymatgen.io.aims.sets.core import MDSetGenerator
-from pymatgen.util.testing.aims import Si, compare_files
+from pymatgen.util.testing import TEST_FILES_DIR
 
-module_dir = Path(__file__).resolve().parents[1]
-species_dir = module_dir / "species_directory"
-ref_path = (module_dir / "aims_input_generator_ref").resolve()
+from ..conftest import Si, compare_files  # noqa: TID252
+
+SPECIES_DIR = TEST_FILES_DIR / "io/aims/species_directory"
+REF_PATH = TEST_FILES_DIR / "io/aims/aims_input_generator_ref"
 
 
 def test_si_md(tmp_path):
     # default behaviour
     parameters = {
-        "species_dir": str(species_dir / "light"),
+        "species_dir": str(SPECIES_DIR / "light"),
         "k_grid": [2, 2, 2],
     }
     test_name = "md-si"
@@ -46,4 +45,4 @@ def test_si_md(tmp_path):
     input_set = generator.get_input_set(Si)
     input_set.write_input(tmp_path / test_name)
 
-    return compare_files(test_name, tmp_path, ref_path)
+    return compare_files(test_name, tmp_path, REF_PATH)

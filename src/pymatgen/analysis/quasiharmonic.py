@@ -350,7 +350,7 @@ class QuasiHarmonicDebyeApprox:
         dct["gibbs_free_energy"] = self.gibbs_free_energy
         dct["temperatures"] = self.temperatures
         dct["optimum_volumes"] = self.optimum_volumes
-        for v, t in zip(self.optimum_volumes, self.temperatures):
+        for v, t in zip(self.optimum_volumes, self.temperatures, strict=True):
             dct["debye_temperature"].append(self.debye_temperature(v))
             dct["gruneisen_parameter"].append(self.gruneisen_parameter(t, v))
             dct["thermal_conductivity"].append(self.thermal_conductivity(t, v))

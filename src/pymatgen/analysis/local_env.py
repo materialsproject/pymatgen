@@ -14,6 +14,7 @@ from bisect import bisect_left
 from collections import defaultdict
 from copy import deepcopy
 from functools import lru_cache
+from itertools import pairwise
 from typing import TYPE_CHECKING, Literal, NamedTuple, get_args
 
 import numpy as np
@@ -50,16 +51,16 @@ __email__ = "nils.e.r.zimmermann@gmail.com"
 __status__ = "Production"
 __date__ = "August 17, 2017"
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 yaml = YAML()
 
-with open(f"{module_dir}/op_params.yaml") as file:
+with open(f"{MODULE_DIR}/op_params.yaml") as file:
     default_op_params = yaml.load(file)
 
-with open(f"{module_dir}/cn_opt_params.yaml") as file:
+with open(f"{MODULE_DIR}/cn_opt_params.yaml") as file:
     cn_opt_params = yaml.load(file)
 
-with open(f"{module_dir}/ionic_radii.json") as file:
+with open(f"{MODULE_DIR}/ionic_radii.json") as file:
     _ion_radii = json.load(file)
 
 
@@ -82,13 +83,13 @@ class ValenceIonicRadiusEvaluator:
     def radii(self):
         """List of ionic radii of elements in the order of sites."""
         elems = [site.species_string for site in self._structure]
-        return dict(zip(elems, self._ionic_radii))
+        return dict(zip(elems, self._ionic_radii, strict=True))
 
     @property
     def valences(self):
         """List of oxidation states of elements in the order of sites."""
         el = [site.species_string for site in self._structure]
-        return dict(zip(el, self._valences))
+        return dict(zip(el, self._valences, strict=True))
 
     @property
     def structure(self):
@@ -484,7 +485,7 @@ class NearNeighbors:
             raise ValueError("Shell must be positive")
 
         # Append this site to the list of previously-visited sites
-        _previous_steps = _previous_steps | {(site_idx, _cur_image)}
+        _previous_steps |= {(site_idx, _cur_image)}
 
         # Get all the neighbors of this site
         possible_steps = list(all_nn_info[site_idx])
@@ -521,7 +522,7 @@ class NearNeighbors:
         #  And, different first steps might results in the same neighbor
         #  Now, we condense those neighbors into a single entry per neighbor
         all_sites = {}
-        for first_site, term_sites in zip(allowed_steps, terminal_neighbors):
+        for first_site, term_sites in zip(allowed_steps, terminal_neighbors, strict=True):
             for term_site in term_sites:
                 key = (term_site["site_index"], tuple(term_site["image"]))
 
@@ -572,7 +573,7 @@ class NearNeighbors:
             return site.index
 
         for idx, struc_site in enumerate(structure):
-            if isinstance(structure, (IStructure, Structure)):
+            if isinstance(structure, IStructure | Structure):
                 if site.is_periodic_image(struc_site):
                     return idx
             elif site == struc_site:
@@ -821,7 +822,7 @@ class VoronoiNN(NearNeighbors):
             indices.extend([(x[2],) + x[3] for x in neighs])
 
         # Get the non-duplicates (using the site indices for numerical stability)
-        indices = np.array(indices, dtype=int)
+        indices = np.array(indices, dtype=np.int64)
         indices, uniq_inds = np.unique(indices, return_index=True, axis=0)  # type: ignore[assignment]
         sites = [sites[idx] for idx in uniq_inds]
 
@@ -895,7 +896,7 @@ class VoronoiNN(NearNeighbors):
                 # qvoronoi returns vertices in CCW order, so I can break
                 # the face up in to segments (0,1,2), (0,2,3), ... to compute
                 # its area where each number is a vertex size
-                for j, k in zip(vind[1:], vind[2:]):
+                for j, k in pairwise(vind[1:]):
                     volume += vol_tetra(
                         center_coords,
                         all_vertices[vind[0]],
@@ -1211,7 +1212,7 @@ class JmolNN(NearNeighbors):
         self.min_bond_distance = min_bond_distance
 
         # Load elemental radii table
-        bonds_file = f"{module_dir}/bonds_jmol_ob.yaml"
+        bonds_file = f"{MODULE_DIR}/bonds_jmol_ob.yaml"
         with open(bonds_file) as file:
             yaml = YAML()
             self.el_radius = yaml.load(file)
@@ -1288,7 +1289,7 @@ class JmolNN(NearNeighbors):
         for nn in structure.get_neighbors(site, max_rad):
             dist = nn.nn_distance
             # Confirm neighbor based on bond length specific to atom pair
-            if dist <= (bonds[(site.specie, nn.specie)]) and (nn.nn_distance > self.min_bond_distance):
+            if dist <= (bonds[site.specie, nn.specie]) and (nn.nn_distance > self.min_bond_distance):
                 weight = min_rad / dist
                 siw.append(
                     {
@@ -1364,7 +1365,7 @@ class MinimumDistanceNN(NearNeighbors):
         """
         site = structure[n]
         neighs_dists = structure.get_neighbors(site, self.cutoff)
-        is_periodic = isinstance(structure, (Structure, IStructure))
+        is_periodic = isinstance(structure, Structure | IStructure)
         siw = []
         if self.get_all_sites:
             for nn in neighs_dists:
@@ -1405,7 +1406,7 @@ class OpenBabelNN(NearNeighbors):
     @requires(
         openbabel,
         "BabelMolAdaptor requires openbabel to be installed with "
-        "Python bindings. Please get it at http://openbabel.org "
+        "Python bindings. Please get it at https://openbabel.org "
         "(version >=3.0.0).",
     )
     def __init__(self, order=True) -> None:
@@ -1490,7 +1491,7 @@ class OpenBabelNN(NearNeighbors):
 
         return siw
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:  # type: ignore[override]
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:
         """
         Obtain a MoleculeGraph object using this NearNeighbor
         class. Requires the optional dependency networkx
@@ -1637,7 +1638,7 @@ class CovalentBondNN(NearNeighbors):
 
         return siw
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> MoleculeGraph:  # type: ignore[override]
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> MoleculeGraph:
         """
         Obtain a MoleculeGraph object using this NearNeighbor class.
 
@@ -1769,7 +1770,7 @@ class MinimumOKeeffeNN(NearNeighbors):
         except Exception:
             eln = site.species_string
 
-        reldists_neighs = []
+        rel_dists_neighs = []
         for nn in neighs_dists:
             neigh = nn
             dist = nn.nn_distance
@@ -1777,19 +1778,19 @@ class MinimumOKeeffeNN(NearNeighbors):
                 el2 = neigh.specie.element
             except Exception:
                 el2 = neigh.species_string
-            reldists_neighs.append([dist / get_okeeffe_distance_prediction(eln, el2), neigh])
+            rel_dists_neighs.append([dist / get_okeeffe_distance_prediction(eln, el2), neigh])
 
         siw = []
-        min_reldist = min(reldist for reldist, neigh in reldists_neighs)
-        for reldist, s in reldists_neighs:
-            if reldist < (1 + self.tol) * min_reldist:
-                w = min_reldist / reldist
+        min_rel_dist = min(reldist for reldist, neigh in rel_dists_neighs)
+        for rel_dist, site in rel_dists_neighs:
+            if rel_dist < (1 + self.tol) * min_rel_dist:
+                w = min_rel_dist / rel_dist
                 siw.append(
                     {
-                        "site": s,
-                        "image": self._get_image(structure, s),
+                        "site": site,
+                        "image": self._get_image(structure, site),
                         "weight": w,
-                        "site_index": self._get_original_site(structure, s),
+                        "site_index": self._get_original_site(structure, site),
                     }
                 )
 
@@ -2397,8 +2398,8 @@ class LocalStructOrderParams:
         self._cos_n_p[1] = [math.cos(float(p)) for p in phis]
 
         for idx in range(2, self._max_trig_order + 1):
-            self._pow_sin_t[idx] = [e[0] * e[1] for e in zip(self._pow_sin_t[idx - 1], self._pow_sin_t[1])]
-            self._pow_cos_t[idx] = [e[0] * e[1] for e in zip(self._pow_cos_t[idx - 1], self._pow_cos_t[1])]
+            self._pow_sin_t[idx] = [e[0] * e[1] for e in zip(self._pow_sin_t[idx - 1], self._pow_sin_t[1], strict=True)]
+            self._pow_cos_t[idx] = [e[0] * e[1] for e in zip(self._pow_cos_t[idx - 1], self._pow_cos_t[1], strict=True)]
             self._sin_n_p[idx] = [math.sin(float(idx) * float(p)) for p in phis]
             self._cos_n_p[idx] = [math.cos(float(idx) * float(p)) for p in phis]
 
@@ -2427,7 +2428,9 @@ class LocalStructOrderParams:
         sqrt_5_pi = math.sqrt(5 / math.pi)
 
         pre_y_2_2 = [0.25 * sqrt_15_2pi * val for val in self._pow_sin_t[2]]
-        pre_y_2_1 = [0.5 * sqrt_15_2pi * val[0] * val[1] for val in zip(self._pow_sin_t[1], self._pow_cos_t[1])]
+        pre_y_2_1 = [
+            0.5 * sqrt_15_2pi * val[0] * val[1] for val in zip(self._pow_sin_t[1], self._pow_cos_t[1], strict=True)
+        ]
 
         acc = 0.0
 
@@ -2498,13 +2501,16 @@ class LocalStructOrderParams:
         sqrt_1_pi = math.sqrt(1 / math.pi)
 
         pre_y_4_4 = [i16_3 * sqrt_35_2pi * val for val in self._pow_sin_t[4]]
-        pre_y_4_3 = [i8_3 * sqrt_35_pi * val[0] * val[1] for val in zip(self._pow_sin_t[3], self._pow_cos_t[1])]
+        pre_y_4_3 = [
+            i8_3 * sqrt_35_pi * val[0] * val[1] for val in zip(self._pow_sin_t[3], self._pow_cos_t[1], strict=True)
+        ]
         pre_y_4_2 = [
-            i8_3 * sqrt_5_2pi * val[0] * (7 * val[1] - 1.0) for val in zip(self._pow_sin_t[2], self._pow_cos_t[2])
+            i8_3 * sqrt_5_2pi * val[0] * (7 * val[1] - 1.0)
+            for val in zip(self._pow_sin_t[2], self._pow_cos_t[2], strict=True)
         ]
         pre_y_4_1 = [
             i8_3 * sqrt_5_pi * val[0] * (7 * val[1] - 3 * val[2])
-            for val in zip(self._pow_sin_t[1], self._pow_cos_t[3], self._pow_cos_t[1])
+            for val in zip(self._pow_sin_t[1], self._pow_cos_t[3], self._pow_cos_t[1], strict=True)
         ]
 
         acc = 0.0
@@ -2607,17 +2613,20 @@ class LocalStructOrderParams:
         sqrt_13_pi = math.sqrt(13 / math.pi)
 
         pre_y_6_6 = [i64 * sqrt_3003_pi * val for val in self._pow_sin_t[6]]
-        pre_y_6_5 = [i32_3 * sqrt_1001_pi * val[0] * val[1] for val in zip(self._pow_sin_t[5], self._pow_cos_t[1])]
+        pre_y_6_5 = [
+            i32_3 * sqrt_1001_pi * val[0] * val[1] for val in zip(self._pow_sin_t[5], self._pow_cos_t[1], strict=True)
+        ]
         pre_y_6_4 = [
-            i32_3 * sqrt_91_2pi * val[0] * (11 * val[1] - 1.0) for val in zip(self._pow_sin_t[4], self._pow_cos_t[2])
+            i32_3 * sqrt_91_2pi * val[0] * (11 * val[1] - 1.0)
+            for val in zip(self._pow_sin_t[4], self._pow_cos_t[2], strict=True)
         ]
         pre_y_6_3 = [
             i32 * sqrt_1365_pi * val[0] * (11 * val[1] - 3 * val[2])
-            for val in zip(self._pow_sin_t[3], self._pow_cos_t[3], self._pow_cos_t[1])
+            for val in zip(self._pow_sin_t[3], self._pow_cos_t[3], self._pow_cos_t[1], strict=True)
         ]
         pre_y_6_2 = [
             i64 * sqrt_1365_pi * val[0] * (33 * val[1] - 18 * val[2] + 1.0)
-            for val in zip(self._pow_sin_t[2], self._pow_cos_t[4], self._pow_cos_t[2])
+            for val in zip(self._pow_sin_t[2], self._pow_cos_t[4], self._pow_cos_t[2], strict=True)
         ]
         pre_y_6_1 = [
             i16 * sqrt_273_2pi * val[0] * (33 * val[1] - 30 * val[2] + 5 * val[3])
@@ -2626,6 +2635,7 @@ class LocalStructOrderParams:
                 self._pow_cos_t[5],
                 self._pow_cos_t[3],
                 self._pow_cos_t[1],
+                strict=True,
             )
         ]
 
@@ -2957,8 +2967,7 @@ class LocalStructOrderParams:
             twothird = 2 / 3.0
             for j in range(n_neighbors):  # Neighbor j is put to the North pole.
                 zaxis = rij_norm[j]
-                kc = 0
-                idx = 0
+                kc = idx = 0
                 for k in range(n_neighbors):  # From neighbor k, we construct
                     if j != k:  # the prime meridian.
                         for idx in range(len(self._types)):
@@ -2970,14 +2979,14 @@ class LocalStructOrderParams:
                         if np.linalg.norm(xaxis) < very_small:
                             flag_xaxis = True
                         else:
-                            xaxis = xaxis / np.linalg.norm(xaxis)
+                            xaxis /= np.linalg.norm(xaxis)
                             flag_xaxis = False
 
                         if self._comp_azi:
                             flag_yaxis = True
                             yaxis = np.cross(zaxis, xaxis)
                             if np.linalg.norm(yaxis) > very_small:
-                                yaxis = yaxis / np.linalg.norm(yaxis)
+                                yaxis /= np.linalg.norm(yaxis)
                                 flag_yaxis = False
                         else:
                             yaxis = None
@@ -3292,9 +3301,7 @@ class LocalStructOrderParams:
                     for j in range(n_neighbors):
                         ops[idx] += sum(qsp_theta[idx][j])
                     if n_neighbors > 3:
-                        ops[idx] = ops[idx] / float(  # type: ignore[operator]
-                            0.5 * float(n_neighbors * (6 + (n_neighbors - 2) * (n_neighbors - 3)))
-                        )
+                        ops[idx] /= float(0.5 * float(n_neighbors * (6 + (n_neighbors - 2) * (n_neighbors - 3))))  # type: ignore[operator]
                     else:
                         ops[idx] = None  # type: ignore[call-overload]
 
@@ -3304,7 +3311,7 @@ class LocalStructOrderParams:
                         acc = 0.0
                         for d in dist:
                             tmp = self._params[idx][2] * (d - dmean)
-                            acc = acc + math.exp(-0.5 * tmp * tmp)
+                            acc += math.exp(-0.5 * tmp * tmp)
                         for j in range(n_neighbors):
                             ops[idx] = max(qsp_theta[idx][j]) if j == 0 else max(ops[idx], *qsp_theta[idx][j])
                         ops[idx] = acc * ops[idx] / float(n_neighbors)  # type: ignore[operator]
@@ -3325,9 +3332,9 @@ class LocalStructOrderParams:
             # Compute height, side and diagonal length estimates.
             neighscent = np.array([0.0, 0.0, 0.0])
             for neigh in neighsites:
-                neighscent = neighscent + neigh.coords
+                neighscent += neigh.coords
             if n_neighbors > 0:
-                neighscent = neighscent / float(n_neighbors)
+                neighscent /= float(n_neighbors)
             h = np.linalg.norm(neighscent - centvec)
             b = min(distjk_unique) if len(distjk_unique) > 0 else 0
             dhalf = max(distjk_unique) / 2 if len(distjk_unique) > 0 else 0
@@ -3347,7 +3354,7 @@ class LocalStructOrderParams:
                             nmax = 4
 
                         for j in range(min([n_neighbors, nmax])):
-                            ops[idx] = ops[idx] * math.exp(-0.5 * ((aijs[j] - a) * self._params[idx][0]) ** 2)  # type: ignore[operator]
+                            ops[idx] *= math.exp(-0.5 * ((aijs[j] - a) * self._params[idx][0]) ** 2)  # type: ignore[operator]
 
         return ops
 
@@ -3680,7 +3687,7 @@ class EconNN(NearNeighbors):
             mefir = _get_mean_fictive_ionic_radius(firs, minimum_fir=mefir)
 
         siw = []
-        for nn, fir in zip(neighbors, firs):
+        for nn, fir in zip(neighbors, firs, strict=True):
             if nn.nn_distance < self.cutoff:
                 w = math.exp(1 - (fir / mefir) ** 6)
                 if w > self.tol:
@@ -3921,7 +3928,7 @@ class CrystalNN(NearNeighbors):
                     # note: 3.3 is max deltaX between 2 elements
                     chemical_weight = 1 + self.x_diff_weight * math.sqrt(abs(X1 - X2) / 3.3)
 
-                entry["weight"] = entry["weight"] * chemical_weight
+                entry["weight"] *= chemical_weight
 
         # sort nearest neighbors from highest to lowest weight
         nn = sorted(nn, key=lambda x: x["weight"], reverse=True)
@@ -3931,7 +3938,7 @@ class CrystalNN(NearNeighbors):
         # renormalize weights so the highest weight is 1.0
         highest_weight = nn[0]["weight"]
         for entry in nn:
-            entry["weight"] = entry["weight"] / highest_weight
+            entry["weight"] /= highest_weight
 
         # adjust solid angle weights based on distance
         if self.distance_cutoffs:
@@ -3958,7 +3965,7 @@ class CrystalNN(NearNeighbors):
                     dist_weight = 1
                 elif dist < cutoff_high:
                     dist_weight = (math.cos((dist - cutoff_low) / (cutoff_high - cutoff_low) * math.pi) + 1) * 0.5
-                entry["weight"] = entry["weight"] * dist_weight
+                entry["weight"] *= dist_weight
 
         # sort nearest neighbors from highest to lowest weight
         nn = sorted(nn, key=lambda x: x["weight"], reverse=True)
@@ -4000,7 +4007,7 @@ class CrystalNN(NearNeighbors):
 
         return self.transform_to_length(self.NNData(nn, cn_weights, cn_nninfo), length)
 
-    def get_cn(self, structure: Structure, n: int, **kwargs) -> float:  # type: ignore[override]
+    def get_cn(self, structure: Structure, n: int, **kwargs) -> float:
         """Get coordination number, CN, of site with index n in structure.
 
         Args:
@@ -4184,8 +4191,7 @@ class CutOffDictNN(NearNeighbors):
         for (sp1, sp2), dist in self.cut_off_dict.items():
             lookup_dict[sp1][sp2] = dist
             lookup_dict[sp2][sp1] = dist
-            if dist > self._max_dist:
-                self._max_dist = dist
+            self._max_dist = max(dist, self._max_dist)
         self._lookup_dict = lookup_dict
 
     @property
@@ -4226,7 +4232,7 @@ class CutOffDictNN(NearNeighbors):
             A CutOffDictNN using the preset cut-off dictionary.
         """
         if preset == "vesta_2019":
-            cut_offs = loadfn(f"{module_dir}/vesta_cutoffs.yaml")
+            cut_offs = loadfn(f"{MODULE_DIR}/vesta_cutoffs.yaml")
             return cls(cut_off_dict=cut_offs)
 
         raise ValueError(f"Unknown {preset=}")
@@ -4306,7 +4312,7 @@ class Critic2NN(NearNeighbors):
         """
         return True
 
-    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:  # type: ignore[override]
+    def get_bonded_structure(self, structure: Structure, decorate: bool = False) -> StructureGraph:
         """
         Args:
             structure (Structure): Input structure

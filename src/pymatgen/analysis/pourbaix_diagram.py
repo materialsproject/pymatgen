@@ -275,7 +275,9 @@ class MultiEntry(PourbaixEntry):
         if attr in ["energy", "npH", "nH2O", "nPhi", "conc_term", "composition", "uncorrected_energy", "elements"]:
             # TODO: Composition could be changed for compat with sum
             start = Composition() if attr == "composition" else 0
-            weighted_values = (getattr(entry, attr) * weight for entry, weight in zip(self.entry_list, self.weights))
+            weighted_values = (
+                getattr(entry, attr) * weight for entry, weight in zip(self.entry_list, self.weights, strict=True)
+            )
             return sum(weighted_values, start)
 
         # Attributes that are just lists of entry attributes
@@ -287,7 +289,7 @@ class MultiEntry(PourbaixEntry):
 
     @property
     def name(self):
-        """MultiEntry name, i. e. the name of each entry joined by ' + '."""
+        """MultiEntry name, i.e. the name of each entry joined by ' + '."""
         return " + ".join(entry.name for entry in self.entry_list)
 
     def __repr__(self):
@@ -604,8 +606,7 @@ class PourbaixDiagram(MSONable):
         else:
             # Serial processing of multi-entry generation
             for combo in all_combos:
-                multi_entry = self.process_multientry(combo, prod_comp=tot_comp)
-                if multi_entry:
+                if multi_entry := self.process_multientry(combo, prod_comp=tot_comp):
                     multi_entries.append(multi_entry)
 
         return multi_entries
@@ -694,7 +695,7 @@ class PourbaixDiagram(MSONable):
 
     @staticmethod
     def get_pourbaix_domains(pourbaix_entries, limits=None):
-        """Get a set of Pourbaix stable domains (i. e. polygons) in
+        """Get a set of Pourbaix stable domains (i.e. polygons) in
         pH-V space from a list of pourbaix_entries.
 
         This function works by using scipy's HalfspaceIntersection
@@ -745,7 +746,7 @@ class PourbaixDiagram(MSONable):
 
         # organize the boundary points by entry
         pourbaix_domains = {entry: [] for entry in pourbaix_entries}
-        for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets):
+        for intersection, facet in zip(hs_int.intersections, hs_int.dual_facets, strict=True):
             for v in facet:
                 if v < len(pourbaix_entries):
                     this_entry = pourbaix_entries[v]
@@ -798,7 +799,7 @@ class PourbaixDiagram(MSONable):
             V (float, list[float]): voltage at which to find the decomposition
 
         Returns:
-            Decomposition energy for the entry, i. e. the energy above
+            Decomposition energy for the entry, i.e. the energy above
                 the "Pourbaix hull" in eV/atom at the given conditions
         """
         # Check composition consistency between entry and Pourbaix diagram:

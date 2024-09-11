@@ -120,6 +120,7 @@ def setup_potcars(potcar_dirs: list[str]):
         "potpaw_PBE_54": "POT_GGA_PAW_PBE_54",
         "potpaw_PBE.52": "POT_GGA_PAW_PBE_52",
         "potpaw_PBE.54": "POT_GGA_PAW_PBE_54",
+        "potpaw_PBE.64": "POT_GGA_PAW_PBE_64",
         "potpaw_LDA": "POT_LDA_PAW",
         "potpaw_LDA.52": "POT_LDA_PAW_52",
         "potpaw_LDA.54": "POT_LDA_PAW_54",
@@ -198,7 +199,7 @@ def build_bader(fortran_command="gfortran"):
     Args:
         fortran_command: The Fortran compiler command.
     """
-    bader_url = "http://theory.cm.utexas.edu/henkelman/code/bader/download/bader.tar.gz"
+    bader_url = "https://theory.cm.utexas.edu/henkelman/code/bader/download/bader.tar.gz"
     cwd = os.getcwd()
     state = True
     try:
@@ -271,7 +272,7 @@ def add_config_var(tokens: list[str], backup_suffix: str) -> None:
             print(f"Existing {rc_path} backed up to {rc_path}{backup_suffix}")
         dct = loadfn(rc_path)
     special_vals = {"true": True, "false": False, "none": None, "null": None}
-    for key, val in zip(tokens[::2], tokens[1::2]):
+    for key, val in zip(tokens[::2], tokens[1::2], strict=True):
         dct[key] = special_vals.get(val.lower(), val)
     dumpfn(dct, rc_path)
     print(f"New {rc_path} written!")

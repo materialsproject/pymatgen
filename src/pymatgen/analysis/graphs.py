@@ -34,8 +34,8 @@ except ImportError:
     igraph = None
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
-    from typing import Any, Callable
+    from collections.abc import Callable, Sequence
+    from typing import Any
 
     from igraph import Graph
     from numpy.typing import ArrayLike
@@ -429,8 +429,7 @@ class StructureGraph(MSONable):
         # there should only ever be at most one edge
         # between a given (site, jimage) pair and another
         # (site, jimage) pair
-        existing_edge_data = self.graph.get_edge_data(from_index, to_index)
-        if existing_edge_data:
+        if existing_edge_data := self.graph.get_edge_data(from_index, to_index):
             for d in existing_edge_data.values():
                 if d["to_jimage"] == to_jimage:
                     if warn_duplicates:
@@ -718,7 +717,7 @@ class StructureGraph(MSONable):
 
         if graph_dict is not None:
             for u, v in graph_dict:
-                edge_props = graph_dict[(u, v)]
+                edge_props = graph_dict[u, v]
                 # default of (0, 0, 0) says that all edges should stay inside the initial image
                 to_jimage = edge_props.get("to_jimage", (0, 0, 0))
                 weight = edge_props.pop("weight", None)
@@ -1236,7 +1235,7 @@ class StructureGraph(MSONable):
                     # find new to_jimage
                     # use np.around to fix issues with finite precision leading to incorrect image
                     v_expec_image = np.around(v_expec_frac, decimals=3)
-                    v_expec_image = v_expec_image - v_expec_image % 1
+                    v_expec_image -= v_expec_image % 1
 
                     v_expec_frac = np.subtract(v_expec_frac, v_expec_image)
                     v_expect = new_structure.lattice.get_cartesian_coords(v_expec_frac)
@@ -1287,12 +1286,10 @@ class StructureGraph(MSONable):
     def _edges_to_str(cls, g) -> str:
         header = "from    to  to_image    "
         header_line = "----  ----  ------------"
-        edge_weight_name = g.graph["edge_weight_name"]
-        if edge_weight_name:
+        if g.graph["edge_weight_name"]:
             print_weights = True
             edge_label = g.graph["edge_weight_name"]
-            edge_weight_units = g.graph["edge_weight_units"]
-            if edge_weight_units:
+            if edge_weight_units := g.graph["edge_weight_units"]:
                 edge_label += f" ({edge_weight_units})"
             header += f"  {edge_label}"
             header_line += f"  {'-' * max([18, len(edge_label)])}"
@@ -2100,12 +2097,12 @@ class MoleculeGraph(MSONable):
         # alter any bonds before partition, to avoid remapping
         if alterations is not None:
             for u, v in alterations:
-                if "weight" in alterations[(u, v)]:
-                    weight = alterations[(u, v)].pop("weight")
-                    edge_properties = alterations[(u, v)] if len(alterations[(u, v)]) != 0 else None
+                if "weight" in alterations[u, v]:
+                    weight = alterations[u, v].pop("weight")
+                    edge_properties = alterations[u, v] if len(alterations[u, v]) != 0 else None
                     original.alter_edge(u, v, new_weight=weight, new_edge_properties=edge_properties)
                 else:
-                    original.alter_edge(u, v, new_edge_properties=alterations[(u, v)])
+                    original.alter_edge(u, v, new_edge_properties=alterations[u, v])
 
         return original.get_disconnected_fragments()
 
@@ -2163,7 +2160,7 @@ class MoleculeGraph(MSONable):
                 for from_index, to_index, key in remapped.edges:
                     edge_props = fragment.get_edge_data(from_index, to_index, key=key)
 
-                    edges[(from_index, to_index)] = edge_props
+                    edges[from_index, to_index] = edge_props
 
                 unique_mol_graph_list.append(
                     self.from_edges(
@@ -2264,7 +2261,7 @@ class MoleculeGraph(MSONable):
 
             if graph_dict is not None:
                 for u, v in graph_dict:
-                    edge_props = graph_dict[(u, v)]
+                    edge_props = graph_dict[u, v]
                     weight = edge_props.pop("weight", None)
                     self.add_edge(
                         mapping[u],
@@ -2673,12 +2670,10 @@ class MoleculeGraph(MSONable):
     def _edges_to_str(cls, g):
         header = "from    to  to_image    "
         header_line = "----  ----  ------------"
-        edge_weight_name = g.graph["edge_weight_name"]
-        if edge_weight_name:
+        if g.graph["edge_weight_name"]:
             print_weights = ["weight"]
             edge_label = g.graph["edge_weight_name"]
-            edge_weight_units = g.graph["edge_weight_units"]
-            if edge_weight_units:
+            if edge_weight_units := g.graph["edge_weight_units"]:
                 edge_label += f" ({edge_weight_units})"
             header += f"  {edge_label}"
             header_line += f"  {'-' * max([18, len(edge_label)])}"

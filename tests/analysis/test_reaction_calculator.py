@@ -519,7 +519,7 @@ class TestComputedReaction(TestCase):
         assert str(new_rxn) == "2 Li + O2 -> Li2O2"
 
     def test_all_entries(self):
-        for coeff, entry in zip(self.rxn.coeffs, self.rxn.all_entries):
+        for coeff, entry in zip(self.rxn.coeffs, self.rxn.all_entries, strict=True):
             if coeff > 0:
                 assert entry.reduced_formula == "Li2O2"
                 assert entry.energy == approx(-959.64693323)

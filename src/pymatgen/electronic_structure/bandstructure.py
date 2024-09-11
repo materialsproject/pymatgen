@@ -239,7 +239,8 @@ class BandStructure:
                 Spin.down: [][{Element: [values]}]} format.
                 If there is no projections in the band structure, return {}.
         """
-        assert self.structure is not None
+        if self.structure is None:
+            raise ValueError("structure is None.")
         result: dict[Spin, NDArray] = {}
         for spin, val in self.projections.items():
             result[spin] = [[defaultdict(float) for _ in range(len(self.kpoints))] for _ in range(self.nb_bands)]
@@ -332,7 +333,7 @@ class BandStructure:
         max_tmp = -float("inf")
         index = kpoint_vbm = None
         for value in self.bands.values():
-            for idx, j in zip(*np.where(value < self.efermi)):
+            for idx, j in zip(*np.where(value < self.efermi), strict=True):
                 if value[idx, j] > max_tmp:
                     max_tmp = float(value[idx, j])
                     index = j
@@ -398,7 +399,7 @@ class BandStructure:
         max_tmp = float("inf")
         index = kpoint_cbm = None
         for value in self.bands.values():
-            for idx, j in zip(*np.where(value >= self.efermi)):
+            for idx, j in zip(*np.where(value >= self.efermi), strict=True):
                 if value[idx, j] < max_tmp:
                     max_tmp = float(value[idx, j])
                     index = j
@@ -847,8 +848,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
             max_index = -1000
             # spin_index = None
             for idx in range(self.nb_bands):
-                below = False
-                above = False
+                below = above = False
                 for j in range(len(self.kpoints)):
                     if self.bands[Spin.up][idx][j] < self.efermi:
                         below = True
@@ -858,8 +858,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                     max_index = idx
                     # spin_index = Spin.up
                 if self.is_spin_polarized:
-                    below = False
-                    above = False
+                    below = above = False
                     for j in range(len(self.kpoints)):
                         if self.bands[Spin.down][idx][j] < self.efermi:
                             below = True
@@ -874,7 +873,7 @@ class BandStructureSymmLine(BandStructure, MSONable):
                 for k in range(len(old_dict["bands"][spin])):
                     for v in range(len(old_dict["bands"][spin][k])):
                         if k >= max_index:
-                            old_dict["bands"][spin][k][v] = old_dict["bands"][spin][k][v] + shift
+                            old_dict["bands"][spin][k][v] += shift
 
         else:
             shift = new_band_gap - self.get_band_gap()["energy"]
@@ -883,8 +882,8 @@ class BandStructureSymmLine(BandStructure, MSONable):
                 for k in range(len(old_dict["bands"][spin])):
                     for v in range(len(old_dict["bands"][spin][k])):
                         if old_dict["bands"][spin][k][v] >= old_dict["cbm"]["energy"]:
-                            old_dict["bands"][spin][k][v] = old_dict["bands"][spin][k][v] + shift
-            old_dict["efermi"] = old_dict["efermi"] + shift
+                            old_dict["bands"][spin][k][v] += shift
+            old_dict["efermi"] += shift
 
         return self.from_dict(old_dict)
 
@@ -1037,7 +1036,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
 
     def get_projections_on_elements_and_orbitals(
         self,
-        el_orb_spec: dict[Element, list],  # type: ignore[override]
+        el_orb_spec: dict[Element, list],
     ) -> dict[Spin, list]:
         """Get projections on elements and specific orbitals.
 

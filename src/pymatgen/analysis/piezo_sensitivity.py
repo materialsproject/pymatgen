@@ -99,7 +99,7 @@ class BornEffectiveCharge:
             BEC_operations[atom].append([])
 
             for op in uniq_point_ops:
-                new = op.transform_tensor(self.bec[relations[atom][1]])
+                new = op.transform_tensor(self.bec[r[1]])
 
                 # Check the matrix it references
                 if np.allclose(new, self.bec[r[0]], atol=opstol):
@@ -133,7 +133,7 @@ class BornEffectiveCharge:
                     temp_fcm += op.transform_tensor(BEC[self.BEC_operations[atom][1]])
                 BEC[ops[0]] = temp_fcm
                 if len(ops[2]) != 0:
-                    BEC[ops[0]] = BEC[ops[0]] / len(ops[2])
+                    BEC[ops[0]] /= len(ops[2])
 
         # Enforce Acoustic Sum
         disp_charge = np.einsum("ijk->jk", BEC) / n_atoms
@@ -154,9 +154,9 @@ class BornEffectiveCharge:
                 add[ops[0]] = temp_tensor
 
                 if len(ops) != 0:
-                    add[ops[0]] = add[ops[0]] / len(ops[2])
+                    add[ops[0]] /= len(ops[2])
 
-        BEC = BEC - add
+        BEC -= add
 
         return BEC * max_charge
 
@@ -246,7 +246,7 @@ class InternalStrainTensor:
                 )
             IST[atom] = temp_tensor
             if len(ops) != 0:
-                IST[atom] = IST[atom] / len(ops)
+                IST[atom] /= len(ops)
 
         return IST * max_force
 
@@ -360,8 +360,7 @@ class ForceConstantMatrix:
         n_sites = len(struct)
         D = (1 / max_force) * 2 * (np.ones([n_sites * 3, n_sites * 3]))
         for op in operations:
-            same = 0
-            transpose = 0
+            same = transpose = 0
             if op[0] == op[1] and op[0] == op[2] and op[0] == op[3]:
                 same = 1
             if op[0] == op[3] and op[1] == op[2]:
@@ -376,9 +375,7 @@ class ForceConstantMatrix:
                     D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += temp_fcm
 
                 if len(op[4]) != 0:
-                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = D[
-                        3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
-                    ] / len(op[4])
+                    D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] /= len(op[4])
 
                 D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = D[
                     3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
@@ -388,7 +385,7 @@ class ForceConstantMatrix:
             temp_tensor = Tensor(np.random.default_rng().random((3, 3)) - 0.5) * max_force
 
             temp_tensor_sum = sum(temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]])
-            temp_tensor_sum = temp_tensor_sum / (len(self.sharedops[op[0]][op[1]]))
+            temp_tensor_sum /= len(self.sharedops[op[0]][op[1]])
             if op[0] != op[1]:
                 for pair in range(len(op[4])):
                     temp_tensor2 = temp_tensor_sum.T
@@ -415,8 +412,7 @@ class ForceConstantMatrix:
         """
         operations = self.FCM_operations
         for op in operations:
-            same = 0
-            transpose = 0
+            same = transpose = 0
             if op[0] == op[1] and op[0] == operations[2] and op[0] == op[3]:
                 same = 1
             if op[0] == op[3] and op[1] == op[2]:
@@ -425,15 +421,13 @@ class ForceConstantMatrix:
                 unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = np.zeros([3, 3])
 
                 for symop in op[4]:
-                    tempfcm = unsymmetrized_fcm[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
-                    tempfcm = symop.transform_tensor(tempfcm)
+                    temp_fcm = unsymmetrized_fcm[3 * op[2] : 3 * op[2] + 3, 3 * op[3] : 3 * op[3] + 3]
+                    temp_fcm = symop.transform_tensor(temp_fcm)
 
-                    unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += tempfcm
+                    unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += temp_fcm
 
                 if len(op[4]) != 0:
-                    unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = unsymmetrized_fcm[
-                        3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
-                    ] / len(op[4])
+                    unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] /= len(op[4])
                 unsymmetrized_fcm[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = unsymmetrized_fcm[
                     3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
                 ].T
@@ -442,7 +436,7 @@ class ForceConstantMatrix:
             temp_tensor = Tensor(unsymmetrized_fcm[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3])
             temp_tensor_sum = sum(temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]])
             if len(self.sharedops[op[0]][op[1]]) != 0:
-                temp_tensor_sum = temp_tensor_sum / (len(self.sharedops[op[0]][op[1]]))
+                temp_tensor_sum /= len(self.sharedops[op[0]][op[1]])
 
             # Apply the proper transformation if there is an equivalent already
             if op[0] != op[1]:
@@ -472,8 +466,7 @@ class ForceConstantMatrix:
         Returns:
             3Nx3N numpy array representing the force constant matrix
         """
-        check = 0
-        count = 0
+        check = count = 0
         while check == 0:
             # if re-symmetrizing brings back unstable modes 20 times, the method breaks
             if count > 20:
@@ -535,12 +528,11 @@ class ForceConstantMatrix:
             pastrow = 0
             total = np.zeros([3, 3])
             for col in range(n_sites):
-                total = total + X[:3, col * 3 : col * 3 + 3]
+                total += X[:3, col * 3 : col * 3 + 3]
 
-            total = total / (n_sites)
+            total /= n_sites
             for op in operations:
-                same = 0
-                transpose = 0
+                same = transpose = 0
                 if op[0] == op[1] and op[0] == op[2] and op[0] == op[3]:
                     same = 1
                 if op[0] == op[3] and op[1] == op[2]:
@@ -555,9 +547,7 @@ class ForceConstantMatrix:
                         D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] += tempfcm
 
                     if len(op[4]) != 0:
-                        D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = D[
-                            3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
-                        ] / len(op[4])
+                        D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] /= len(op[4])
                     D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = D[
                         3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3
                     ].T
@@ -567,10 +557,10 @@ class ForceConstantMatrix:
                 if curr_row != pastrow:
                     total = np.zeros([3, 3])
                     for col in range(n_sites):
-                        total = total + X[curr_row * 3 : curr_row * 3 + 3, col * 3 : col * 3 + 3]
+                        total += X[curr_row * 3 : curr_row * 3 + 3, col * 3 : col * 3 + 3]
                     for col in range(curr_row):
-                        total = total - D[curr_row * 3 : curr_row * 3 + 3, col * 3 : col * 3 + 3]
-                    total = total / (n_sites - curr_row)
+                        total -= D[curr_row * 3 : curr_row * 3 + 3, col * 3 : col * 3 + 3]
+                    total /= n_sites - curr_row
                 pastrow = curr_row
 
                 # Apply the point symmetry operations of the site
@@ -578,7 +568,7 @@ class ForceConstantMatrix:
                 temp_tensor_sum = sum(temp_tensor.transform(symm_op) for symm_op in self.sharedops[op[0]][op[1]])
 
                 if len(self.sharedops[op[0]][op[1]]) != 0:
-                    temp_tensor_sum = temp_tensor_sum / (len(self.sharedops[op[0]][op[1]]))
+                    temp_tensor_sum /= len(self.sharedops[op[0]][op[1]])
 
                 # Apply the proper transformation if there is an equivalent already
                 if op[0] != op[1]:
@@ -592,7 +582,7 @@ class ForceConstantMatrix:
 
                 D[3 * op[0] : 3 * op[0] + 3, 3 * op[1] : 3 * op[1] + 3] = temp_tensor_sum
                 D[3 * op[1] : 3 * op[1] + 3, 3 * op[0] : 3 * op[0] + 3] = temp_tensor_sum.T
-            fcm = fcm - D
+            fcm -= D
 
         return fcm
 

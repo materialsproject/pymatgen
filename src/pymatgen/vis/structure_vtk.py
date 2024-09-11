@@ -28,8 +28,8 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
     from typing import ClassVar
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
-EL_COLORS = loadfn(f"{module_dir}/ElementColorSchemes.yaml")
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+EL_COLORS = loadfn(f"{MODULE_DIR}/ElementColorSchemes.yaml")
 
 
 class StructureVis:
@@ -257,7 +257,7 @@ class StructureVis:
                         exclude = True
                         break
                     max_radius = max(max_radius, sp.average_ionic_radius)
-                    color = color + occu * np.array(self.el_color_mapping.get(sp.symbol, [0, 0, 0]))
+                    color += occu * np.array(self.el_color_mapping.get(sp.symbol, [0, 0, 0]))
 
                 if not exclude:
                     max_radius = (1 + self.poly_radii_tol_factor) * (max_radius + anion_radius)
@@ -323,9 +323,7 @@ class StructureVis:
         Args:
             site: Site to add.
         """
-        start_angle = 0
-        radius = 0
-        total_occu = 0
+        start_angle = radius = total_occu = 0
 
         for specie, occu in site.species.items():
             radius += occu * (
@@ -1007,9 +1005,9 @@ class MultiStructuresVis(StructureVis):
             opacity = tag.get("opacity", 0.5)
             if site_index == "unit_cell_all":
                 struct_radii = self.all_vis_radii[self.istruct]
-                for isite, _site in enumerate(self.current_structure):
-                    vis_radius = 1.5 * tag.get("radius", struct_radii[isite])
-                    tags[(isite, (0, 0, 0))] = {
+                for site_idx in range(len(self.current_structure)):
+                    vis_radius = 1.5 * tag.get("radius", struct_radii[site_idx])
+                    tags[site_idx, (0, 0, 0)] = {
                         "radius": vis_radius,
                         "color": color,
                         "opacity": opacity,
@@ -1022,21 +1020,21 @@ class MultiStructuresVis(StructureVis):
                 vis_radius = tag["radius_factor"] * self.all_vis_radii[self.istruct][site_index]
             else:
                 vis_radius = 1.5 * self.all_vis_radii[self.istruct][site_index]
-            tags[(site_index, cell_index)] = {
+            tags[site_index, cell_index] = {
                 "radius": vis_radius,
                 "color": color,
                 "opacity": opacity,
             }
         for site_and_cell_index, tag_style in tags.items():
-            isite, cell_index = site_and_cell_index
-            site = self.current_structure[isite]
+            site_idx, cell_index = site_and_cell_index
+            site = self.current_structure[site_idx]
             if cell_index == (0, 0, 0):
                 coords = site.coords
             else:
-                fcoords = site.frac_coords + np.array(cell_index)
+                frac_coords = site.frac_coords + np.array(cell_index)
                 site_image = PeriodicSite(
                     site.species,
-                    fcoords,
+                    frac_coords,
                     self.current_structure.lattice,
                     to_unit_cell=False,
                     coords_are_cartesian=False,
@@ -1097,20 +1095,20 @@ class MultiStructuresVis(StructureVis):
             warning (str): Warning.
         """
         self.warning_txt_mapper = vtk.vtkTextMapper()
-        tprops = self.warning_txt_mapper.GetTextProperty()
-        tprops.SetFontSize(14)
-        tprops.SetFontFamilyToTimes()
-        tprops.SetColor(1, 0, 0)
-        tprops.BoldOn()
-        tprops.SetJustificationToRight()
+        text_props = self.warning_txt_mapper.GetTextProperty()
+        text_props.SetFontSize(14)
+        text_props.SetFontFamilyToTimes()
+        text_props.SetColor(1, 0, 0)
+        text_props.BoldOn()
+        text_props.SetJustificationToRight()
         self.warning_txt = f"WARNING : {warning}"
         self.warning_txt_actor = vtk.vtkActor2D()
         self.warning_txt_actor.VisibilityOn()
         self.warning_txt_actor.SetMapper(self.warning_txt_mapper)
         self.ren.AddActor(self.warning_txt_actor)
         self.warning_txt_mapper.SetInput(self.warning_txt)
-        winsize = self.ren_win.GetSize()
-        self.warning_txt_actor.SetPosition(winsize[0] - 10, 10)
+        win_size = self.ren_win.GetSize()
+        self.warning_txt_actor.SetPosition(win_size[0] - 10, 10)
         self.warning_txt_actor.VisibilityOn()
 
     def erase_warning(self):
@@ -1123,20 +1121,20 @@ class MultiStructuresVis(StructureVis):
             info (str): Information.
         """
         self.info_txt_mapper = vtk.vtkTextMapper()
-        tprops = self.info_txt_mapper.GetTextProperty()
-        tprops.SetFontSize(14)
-        tprops.SetFontFamilyToTimes()
-        tprops.SetColor(0, 0, 1)
-        tprops.BoldOn()
-        tprops.SetVerticalJustificationToTop()
+        t_prop = self.info_txt_mapper.GetTextProperty()
+        t_prop.SetFontSize(14)
+        t_prop.SetFontFamilyToTimes()
+        t_prop.SetColor(0, 0, 1)
+        t_prop.BoldOn()
+        t_prop.SetVerticalJustificationToTop()
         self.info_txt = f"INFO : {info}"
         self.info_txt_actor = vtk.vtkActor2D()
         self.info_txt_actor.VisibilityOn()
         self.info_txt_actor.SetMapper(self.info_txt_mapper)
         self.ren.AddActor(self.info_txt_actor)
         self.info_txt_mapper.SetInput(self.info_txt)
-        winsize = self.ren_win.GetSize()
-        self.info_txt_actor.SetPosition(10, winsize[1] - 10)
+        win_size = self.ren_win.GetSize()
+        self.info_txt_actor.SetPosition(10, win_size[1] - 10)
         self.info_txt_actor.VisibilityOn()
 
     def erase_info(self):
