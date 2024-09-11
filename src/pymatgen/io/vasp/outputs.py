@@ -4284,7 +4284,7 @@ def get_band_structure_from_vasp_multiple_branches(
         None is there's a parsing error.
     """
     # TODO: Add better error handling
-    if os.path.isfile(f"{dir_name}/branch_0"):
+    if os.path.isdir(f"{dir_name}/branch_0"):
         # Get all branch directory names
         branch_dir_names = [os.path.abspath(d) for d in glob(f"{dir_name}/branch_*") if os.path.isdir(d)]
 
