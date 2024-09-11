@@ -4281,31 +4281,27 @@ def get_band_structure_from_vasp_multiple_branches(
 
     Returns:
         A BandStructure/BandStructureSymmLine Object.
-        None is there's a parsing error.
+        None if there is a parsing error.
     """
-    # TODO: Add better error handling
     if os.path.isdir(f"{dir_name}/branch_0"):
-        # Get all branch directory names
+        # Get and sort all branch directories
         branch_dir_names = [os.path.abspath(d) for d in glob(f"{dir_name}/branch_*") if os.path.isdir(d)]
-
-        # Sort by the directory name (e.g, branch_10)
         sorted_branch_dir_names = sorted(branch_dir_names, key=lambda x: int(x.split("_")[-1]))
 
-        # Populate branches with Bandstructure instances
-        branches = []
-        for dname in sorted_branch_dir_names:
-            xml_file = f"{dname}/vasprun.xml"
-            if os.path.isfile(xml_file):
-                run = Vasprun(xml_file, parse_projected_eigen=projections)
-                branches.append(run.get_band_structure(efermi=efermi))
-            else:
-                # TODO: It might be better to throw an exception
-                warnings.warn(f"Skipping {dname}. Unable to find {xml_file}", stacklevel=2)
+        # Collect BandStructure from all branches
+        bs_branches: list[BandStructure | BandStructureSymmLine] = []
+        for directory in sorted_branch_dir_names:
+            xml_file = f"{directory}/vasprun.xml"
+            if not os.path.isfile(xml_file):
+                raise FileNotFoundError(f"cannot find vasprun.xml in {directory=}")
 
-        return get_reconstructed_band_structure(branches, efermi)
+            run = Vasprun(xml_file, parse_projected_eigen=projections)
+            bs_branches.append(run.get_band_structure(efermi=efermi))
 
+        return get_reconstructed_band_structure(bs_branches, efermi)
+
+    # Read vasprun.xml directly if no branch head (branch_0) is found
     xml_file = f"{dir_name}/vasprun.xml"
-    # Better handling of Errors
     if os.path.isfile(xml_file):
         return Vasprun(xml_file, parse_projected_eigen=projections).get_band_structure(
             kpoints_filename=None, efermi=efermi
