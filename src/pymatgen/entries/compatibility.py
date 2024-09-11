@@ -559,7 +559,7 @@ class Compatibility(MSONable, abc.ABC):
     ) -> ComputedEntry | None:
         """Process a single entry with the chosen Corrections.
         Note that this method may change the original entry.
-        
+
         Args:
             entry (ComputedEntry): A ComputedEntry object.
             inplace (bool): Whether to adjust the entry in place. Defaults to True.
@@ -583,7 +583,7 @@ class Compatibility(MSONable, abc.ABC):
     ) -> tuple[AnyComputedEntry, bool] | None:
         """Process a single entry with the chosen Corrections. Note
         that this method will change the data of the original entry.
-        
+
         Args:
             entry (AnyComputedEntry): An AnyComputedEntry object.
             clean (bool): Whether to remove any previously-applied energy adjustments.
