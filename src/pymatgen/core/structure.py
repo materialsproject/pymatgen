@@ -4297,8 +4297,9 @@ class Structure(IStructure, collections.abc.MutableSequence):
             def operate_site(site):
                 return PeriodicSite(
                     site.species,
-                    symm_op.operate(site.frac_coords),
+                    site.lattice.get_cartesian_coords(symm_op.operate(site.frac_coords)),
                     self._lattice,
+                    coords_are_cartesian=True,
                     properties=site.properties,
                     skip_checks=True,
                     label=site.label,

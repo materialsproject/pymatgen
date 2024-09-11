@@ -2028,7 +2028,7 @@ class PotcarSingle:
         """MD5 hash of the entire PotcarSingle."""
         # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
         # https://github.com/materialsproject/pymatgen/issues/2804
-        md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
+        md5 = hashlib.md5(usedforsecurity=False)
         md5.update(self.data.encode("utf-8"))
         return md5.hexdigest()
 
@@ -2064,7 +2064,7 @@ class PotcarSingle:
         self.hash_str = hash_str
         # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
         # https://github.com/materialsproject/pymatgen/issues/2804
-        md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
+        md5 = hashlib.md5(usedforsecurity=False)
         md5.update(hash_str.lower().encode("utf-8"))
         return md5.hexdigest()
 
