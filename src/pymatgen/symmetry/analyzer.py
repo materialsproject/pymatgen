@@ -1,5 +1,5 @@
 """An interface to the excellent spglib library by Atsushi Togo
-(http://spglib.sourceforge.net/) for pymatgen.
+(https://github.com/spglib/spglib) for pymatgen.
 
 v1.0 - Now works with both ordered and disordered structure.
 v2.0 - Updated for spglib 1.6.
@@ -55,7 +55,7 @@ cite_conventional_cell_algo = due.dcite(
 )
 
 
-class SymmetryUndetermined(ValueError):
+class SymmetryUndeterminedError(ValueError):
     """
     An Exception for when symmetry cannot be determined. This might happen
     when, for example, atoms are very close together.
@@ -69,7 +69,7 @@ def _get_symmetry_dataset(cell, symprec, angle_tolerance):
     """
     dataset = spglib.get_symmetry_dataset(cell, symprec=symprec, angle_tolerance=angle_tolerance)
     if dataset is None:
-        raise SymmetryUndetermined
+        raise SymmetryUndeterminedError
     return dataset
 
 
@@ -296,7 +296,7 @@ class SpacegroupAnalyzer:
         sym_ops = []
         mat = self._structure.lattice.matrix.T
         inv_mat = np.linalg.inv(mat)
-        for rot, trans in zip(rotation, translation):
+        for rot, trans in zip(rotation, translation, strict=True):
             if cartesian:
                 rot = np.dot(mat, np.dot(rot, inv_mat))
                 trans = np.dot(trans, self._structure.lattice.matrix)
@@ -429,7 +429,7 @@ class SpacegroupAnalyzer:
         mapping, grid = spglib.get_ir_reciprocal_mesh(np.array(mesh), self._cell, is_shift=shift, symprec=self._symprec)
 
         results = []
-        for idx, count in zip(*np.unique(mapping, return_counts=True)):
+        for idx, count in zip(*np.unique(mapping, return_counts=True), strict=True):
             results.append(((grid[idx] + shift * (0.5, 0.5, 0.5)) / mesh, count))
         return results
 
@@ -1366,7 +1366,7 @@ class PointGroupAnalyzer:
                 sym_ops: Twofold nested dictionary. operations[i][j] gives the symmetry
                     operation that maps atom i unto j.
         """
-        UNIT = np.eye(3)
+        unit_matrix = np.eye(3)
         eq_sets: dict[int, set] = defaultdict(set)
         operations: dict[int, dict] = defaultdict(dict)
         symm_ops = [op.rotation_matrix for op in generate_full_symmops(self.symmops, self.tol)]
@@ -1380,24 +1380,24 @@ class PointGroupAnalyzer:
 
         for index in get_clustered_indices():
             sites = self.centered_mol.cart_coords[index]
-            for i, reference in zip(index, sites):
+            for idx, reference in zip(index, sites, strict=True):
                 for op in symm_ops:
                     rotated = np.dot(op, sites.T).T
                     matched_indices = find_in_coord_list(rotated, reference, self.tol)
                     matched_indices = {dict(enumerate(index))[i] for i in matched_indices}
-                    eq_sets[i] |= matched_indices
+                    eq_sets[idx] |= matched_indices
 
-                    if i not in operations:
-                        operations[i] = {j: op.T if j != i else UNIT for j in matched_indices}
+                    if idx not in operations:
+                        operations[idx] = {j: op.T if j != idx else unit_matrix for j in matched_indices}
                     else:
                         for j in matched_indices:
-                            if j not in operations[i]:
-                                operations[i][j] = op.T if j != i else UNIT
+                            if j not in operations[idx]:
+                                operations[idx][j] = op.T if j != idx else unit_matrix
                     for j in matched_indices:
                         if j not in operations:
-                            operations[j] = {i: op if j != i else UNIT}
-                        elif i not in operations[j]:
-                            operations[j][i] = op if j != i else UNIT
+                            operations[j] = {idx: op if j != idx else unit_matrix}
+                        elif idx not in operations[j]:
+                            operations[j][idx] = op if j != idx else unit_matrix
 
         return {"eq_sets": eq_sets, "sym_ops": operations}
 
@@ -1416,7 +1416,7 @@ class PointGroupAnalyzer:
                 sym_ops: Twofold nested dictionary. operations[i][j] gives the symmetry
                     operation that maps atom i unto j.
         """
-        unit_mat = np.eye(3)
+        unit_matrix = np.eye(3)
 
         def all_equivalent_atoms_of_i(idx, eq_sets, ops):
             """WORKS INPLACE on operations."""
@@ -1425,14 +1425,14 @@ class PointGroupAnalyzer:
 
             while tmp_eq_sets:
                 new_tmp_eq_sets = {}
-                for j in tmp_eq_sets:
+                for j, eq_set in tmp_eq_sets.items():
                     if j in visited:
                         continue
                     visited.add(j)
-                    for k in tmp_eq_sets[j]:
+                    for k in eq_set:
                         new_tmp_eq_sets[k] = eq_sets[k] - visited
                         if idx not in ops[k]:
-                            ops[k][idx] = np.dot(ops[j][idx], ops[k][j]) if k != idx else unit_mat
+                            ops[k][idx] = np.dot(ops[j][idx], ops[k][j]) if k != idx else unit_matrix
                         ops[idx][k] = ops[k][idx].T
                 tmp_eq_sets = new_tmp_eq_sets
             return visited, ops
@@ -1485,15 +1485,15 @@ class PointGroupAnalyzer:
         eq = self.get_equivalent_atoms()
         eq_sets, ops = eq["eq_sets"], eq["sym_ops"]
         coords = self.centered_mol.cart_coords.copy()
-        for i, eq_indices in eq_sets.items():
+        for idx, eq_indices in eq_sets.items():
             for j in eq_indices:
-                coords[j] = np.dot(ops[j][i], coords[j])
-            coords[i] = np.mean(coords[list(eq_indices)], axis=0)
+                coords[j] = np.dot(ops[j][idx], coords[j])
+            coords[idx] = np.mean(coords[list(eq_indices)], axis=0)
             for j in eq_indices:
-                if j == i:
+                if j == idx:
                     continue
-                coords[j] = np.dot(ops[i][j], coords[i])
-                coords[j] = np.dot(ops[i][j], coords[i])
+                coords[j] = np.dot(ops[idx][j], coords[idx])
+                coords[j] = np.dot(ops[idx][j], coords[idx])
         molecule = Molecule(species=self.centered_mol.species_and_occu, coords=coords)
         return {"sym_mol": molecule, "eq_sets": eq_sets, "sym_ops": ops}
 
@@ -1503,47 +1503,41 @@ def iterative_symmetrize(
     max_n: int = 10,
     tolerance: float = 0.3,
     epsilon: float = 1e-2,
-) -> dict:
+) -> dict[Literal["sym_mol", "eq_sets", "sym_ops"], Molecule | dict]:
     """Get a symmetrized molecule.
 
-    The equivalent atoms obtained via
-    :meth:`~pymatgen.symmetry.analyzer.PointGroupAnalyzer.get_equivalent_atoms`
+    The equivalent atoms obtained via `PointGroupAnalyzer.get_equivalent_atoms`
     are rotated, mirrored... unto one position.
-    Then the average position is calculated.
-    The average position is rotated, mirrored... back with the inverse
-    of the previous symmetry operations, which gives the
-    symmetrized molecule
+    Then the average position is calculated, which is rotated, mirrored...
+    back with the inverse of the previous symmetry operations, giving the
+    symmetrized molecule.
 
     Args:
         mol (Molecule): A pymatgen Molecule instance.
         max_n (int): Maximum number of iterations.
-        tolerance (float): Tolerance for detecting symmetry.
-            Gets passed as Argument into
-            ~pymatgen.analyzer.symmetry.PointGroupAnalyzer.
+        tolerance (float): Tolerance for detecting symmetry with PointGroupAnalyzer.
         epsilon (float): If the element-wise absolute difference of two
             subsequently symmetrized structures is smaller epsilon,
             the iteration stops before max_n is reached.
 
     Returns:
-        dict: with three possible keys:
-            sym_mol: A symmetrized molecule instance.
+        dict with three keys:
+            sym_mol: A symmetrized Molecule instance.
             eq_sets: A dictionary of indices mapping to sets of indices, each key maps to indices
                 of all equivalent atoms. The keys are guaranteed to be not equivalent.
-            sym_ops: Twofold nested dictionary. operations[i][j] gives the symmetry operation
+            sym_ops: Two-fold nested dictionary. operations[i][j] gives the symmetry operation
                 that maps atom i unto j.
     """
-    new = mol
-    n = 0
-    finished = False
-    eq: dict[str, Molecule | dict] = {"sym_mol": new, "eq_sets": {}, "sym_ops": {}}
-    while not finished and n <= max_n:
-        previous = new
-        PA = PointGroupAnalyzer(previous, tolerance=tolerance)
-        eq = PA.symmetrize_molecule()
-        new = eq["sym_mol"]  # type: ignore[assignment]
-        finished = np.allclose(new.cart_coords, previous.cart_coords, atol=epsilon)
-        n += 1
-    return eq
+    new_mol: Molecule = mol
+    sym_mol: dict = {"sym_mol": new_mol, "eq_sets": {}, "sym_ops": {}}
+    for _ in range(max_n):
+        prev_mol: Molecule = new_mol
+        sym_mol = PointGroupAnalyzer(prev_mol, tolerance=tolerance).symmetrize_molecule()
+        new_mol = sym_mol["sym_mol"]
+
+        if np.allclose(new_mol.cart_coords, prev_mol.cart_coords, atol=epsilon):
+            break
+    return sym_mol
 
 
 def cluster_sites(
@@ -1579,9 +1573,9 @@ def cluster_sites(
         if avg_dist[f_cluster[idx]] < tol:
             origin_site = idx if give_only_index else site
         elif give_only_index:
-            clustered_sites[(avg_dist[f_cluster[idx]], site.species)].append(idx)
+            clustered_sites[avg_dist[f_cluster[idx]], site.species].append(idx)
         else:
-            clustered_sites[(avg_dist[f_cluster[idx]], site.species)].append(site)
+            clustered_sites[avg_dist[f_cluster[idx]], site.species].append(site)
     return origin_site, clustered_sites
 
 
