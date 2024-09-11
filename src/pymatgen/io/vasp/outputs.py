@@ -4281,7 +4281,7 @@ def get_band_structure_from_vasp_multiple_branches(
 
     Returns:
         A BandStructure/BandStructureSymmLine Object.
-        None if there is a parsing error.
+        None if no vasprun.xml found in given directory and branch directory.
     """
     if os.path.isdir(f"{dir_name}/branch_0"):
         # Get and sort all branch directories
@@ -4291,22 +4291,24 @@ def get_band_structure_from_vasp_multiple_branches(
         # Collect BandStructure from all branches
         bs_branches: list[BandStructure | BandStructureSymmLine] = []
         for directory in sorted_branch_dir_names:
-            xml_file = f"{directory}/vasprun.xml"
-            if not os.path.isfile(xml_file):
+            vasprun_file = f"{directory}/vasprun.xml"
+            if not os.path.isfile(vasprun_file):
                 raise FileNotFoundError(f"cannot find vasprun.xml in {directory=}")
 
-            run = Vasprun(xml_file, parse_projected_eigen=projections)
+            run = Vasprun(vasprun_file, parse_projected_eigen=projections)
             bs_branches.append(run.get_band_structure(efermi=efermi))
 
         return get_reconstructed_band_structure(bs_branches, efermi)
 
     # Read vasprun.xml directly if no branch head (branch_0) is found
-    xml_file = f"{dir_name}/vasprun.xml"
-    if os.path.isfile(xml_file):
-        return Vasprun(xml_file, parse_projected_eigen=projections).get_band_structure(
+    vasprun_file = f"{dir_name}/vasprun.xml"
+    if os.path.isfile(vasprun_file):
+        warnings.warn(f"no branch found, reading directly from {dir_name=}", stacklevel=2)
+        return Vasprun(vasprun_file, parse_projected_eigen=projections).get_band_structure(
             kpoints_filename=None, efermi=efermi
         )
 
+    warnings.warn(f"failed to find any vasprun.xml file in selected {dir_name=}", stacklevel=2)
     return None
 
 

@@ -12,13 +12,15 @@ from xml.etree import ElementTree as ET
 import numpy as np
 import pytest
 from monty.io import zopen
+from monty.shutil import decompress_file
+from monty.tempfile import ScratchDir
 from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.core import Element
 from pymatgen.core.lattice import Lattice
 from pymatgen.core.structure import Structure
-from pymatgen.electronic_structure.bandstructure import BandStructureSymmLine
+from pymatgen.electronic_structure.bandstructure import BandStructure, BandStructureSymmLine
 from pymatgen.electronic_structure.core import Magmom, Orbital, OrbitalType, Spin
 from pymatgen.entries.compatibility import MaterialsProjectCompatibility
 from pymatgen.io.vasp.inputs import Incar, Kpoints, Poscar, Potcar
@@ -39,6 +41,7 @@ from pymatgen.io.vasp.outputs import (
     Wavecar,
     Waveder,
     Xdatcar,
+    get_band_structure_from_vasp_multiple_branches,
 )
 from pymatgen.io.wannier90 import Unk
 from pymatgen.util.testing import FAKE_POTCAR_DIR, TEST_FILES_DIR, VASP_IN_DIR, VASP_OUT_DIR, PymatgenTest
@@ -1429,13 +1432,38 @@ class TestOszicar(PymatgenTest):
         assert len(oszicar.electronic_steps) == len(oszicar.ionic_steps)
         assert len(oszicar.all_energies) == 60
         assert oszicar.final_energy == approx(-526.63928)
-        assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
+        assert set(oszicar.ionic_steps[-1]) == {"F", "E0", "dE", "mag"}
 
     def test_static(self):
         fpath = f"{TEST_DIR}/fixtures/static_silicon/OSZICAR"
         oszicar = Oszicar(fpath)
         assert oszicar.final_energy == approx(-10.645278)
-        assert set(oszicar.ionic_steps[-1]) == set({"F", "E0", "dE", "mag"})
+        assert set(oszicar.ionic_steps[-1]) == {"F", "E0", "dE", "mag"}
+
+
+class TestGetBandStructureFromVaspMultipleBranches:
+    def test_read_multi_branches(self):
+        pass
+
+    def test_missing_vasprun_in_branch_dir(self):
+        """Test vasprun.xml missing from branch_*."""
+
+    def test_no_branch_head(self):
+        """Test branch_0 is missing and read dir_name/vasprun.xml directly."""
+        with ScratchDir("."):
+            copyfile(f"{VASP_OUT_DIR}/vasprun.force_hybrid_like_calc.xml.gz", "./vasprun.xml.gz")
+            decompress_file("./vasprun.xml.gz")
+
+            with pytest.warns(match="no branch found, reading directly from"):
+                bs = get_band_structure_from_vasp_multiple_branches(".")
+            assert isinstance(bs, BandStructure)
+
+    def test_cannot_read_anything(self):
+        """Test no branch_0/, no dir_name/vasprun.xml, nothing."""
+        with pytest.warns(match="failed to find any vasprun.xml file in selected"):
+            with ScratchDir("."):
+                bs = get_band_structure_from_vasp_multiple_branches(".")
+            assert bs is None
 
 
 class TestLocpot(PymatgenTest):
