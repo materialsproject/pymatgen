@@ -2327,7 +2327,7 @@ class AtomicMetadata(MSONable):
         """Get a hash of this object."""
         # usedforsecurity=False needed in FIPS mode (Federal Information Processing Standards)
         # https://github.com/materialsproject/pymatgen/issues/2804
-        md5 = hashlib.new("md5", usedforsecurity=False)  # hashlib.md5(usedforsecurity=False) is py39+
+        md5 = hashlib.md5(usedforsecurity=False)
         md5.update(self.get_str().lower().encode("utf-8"))
         return md5.hexdigest()
 
@@ -2691,9 +2691,7 @@ class GthPotential(AtomicMetadata):
         nprj_ppnl: dict[int, int] = {}
         hprj_ppnl: dict[int, dict] = {}
         lines = lines[4:]
-        i = 0
-        ll = 0
-        L = 0
+        i = ll = L = 0
 
         while ll < nprj:
             line = lines[i].split()

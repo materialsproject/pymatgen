@@ -8,7 +8,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 from pytest import approx
 
-import pymatgen
+import pymatgen.core
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Lattice, Structure
 from pymatgen.core.surface import (
@@ -25,6 +25,8 @@ from pymatgen.core.surface import (
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.groups import SpaceGroup
 from pymatgen.util.testing import TEST_FILES_DIR, PymatgenTest
+
+PMG_CORE_DIR = os.path.dirname(pymatgen.core.__file__)
 
 
 class TestSlab(PymatgenTest):
@@ -207,8 +209,7 @@ class TestSlab(PymatgenTest):
         all_slabs = [all_Ti_slabs, all_Ag_fcc_slabs]
 
         for slabs in all_slabs:
-            asymmetric_count = 0
-            symmetric_count = 0
+            asymmetric_count = symmetric_count = 0
 
             for slab in slabs:
                 sg = SpacegroupAnalyzer(slab)
@@ -250,7 +251,7 @@ class TestSlab(PymatgenTest):
             sorted_sites = sorted(slab, key=lambda site: site.frac_coords[2])
             site = sorted_sites[-1]
             point = np.array(site.frac_coords)
-            point[2] = point[2] + 0.1
+            point[2] += 0.1
             point2 = slab.get_symmetric_site(point)
             slab.append("O", point)
             slab.append("O", point2)
@@ -608,8 +609,7 @@ class ReconstructionGeneratorTests(PymatgenTest):
         self.Fe = Structure.from_spacegroup("Im-3m", lattice, species, coords)
         self.Si = Structure.from_spacegroup("Fd-3m", Lattice.cubic(5.430500), ["Si"], [(0, 0, 0.5)])
 
-        pmg_core_dir = os.path.dirname(pymatgen.core.__file__)
-        with open(f"{pmg_core_dir}/reconstructions_archive.json") as data_file:
+        with open(f"{PMG_CORE_DIR}/reconstructions_archive.json") as data_file:
             self.rec_archive = json.load(data_file)
 
     def test_build_slab(self):

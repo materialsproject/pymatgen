@@ -1235,7 +1235,7 @@ class StructureGraph(MSONable):
                     # find new to_jimage
                     # use np.around to fix issues with finite precision leading to incorrect image
                     v_expec_image = np.around(v_expec_frac, decimals=3)
-                    v_expec_image = v_expec_image - v_expec_image % 1
+                    v_expec_image -= v_expec_image % 1
 
                     v_expec_frac = np.subtract(v_expec_frac, v_expec_image)
                     v_expect = new_structure.lattice.get_cartesian_coords(v_expec_frac)

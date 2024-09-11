@@ -174,7 +174,7 @@ def pretty_polyfit_plot(x: ArrayLike, y: ArrayLike, deg: int = 1, xlabel=None, y
         kwargs: Keyword args passed to pretty_plot.
 
     Returns:
-        matplotlib.pyplot object.
+        plt.Axes
     """
     ax = pretty_plot(**kwargs)
     pp = np.polyfit(x, y, deg)

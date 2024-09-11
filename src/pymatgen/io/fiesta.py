@@ -226,11 +226,9 @@ class BasisSetReader:
 
         preamble = []
         basis_set = {}
-        parse_preamble = False
-        parse_lmax_nnlo = False
+        parse_preamble = parse_lmax_nnlo = False
         parse_nl_orbital = False
-        nnlo = None
-        lmax = None
+        nnlo = lmax = None
         l_angular = zeta = ng = None
 
         for line in lines.split("\n"):
@@ -275,7 +273,7 @@ class BasisSetReader:
 
         for l_zeta_ng in data_tmp:
             n_l = l_zeta_ng.split("_")[0]
-            n_nlm_orbs = n_nlm_orbs + (2 * int(n_l) + 1)
+            n_nlm_orbs += 2 * int(n_l) + 1
 
         return str(n_nlm_orbs)
 
@@ -761,8 +759,7 @@ class FiestaOutput:
         total_time_patt = re.compile(r"\s*total \s+ time: \s+  ([\d.]+) .*", re.VERBOSE)
 
         GW_results = {}
-        parse_gw_results = False
-        parse_total_time = False
+        parse_gw_results = parse_total_time = False
 
         for line in output.split("\n"):
             if parse_total_time:
@@ -840,8 +837,7 @@ class BSEOutput:
         total_time_patt = re.compile(r"\s*total \s+ time: \s+  ([\d.]+) .*", re.VERBOSE)
 
         BSE_results = {}
-        parse_BSE_results = False
-        parse_total_time = False
+        parse_BSE_results = parse_total_time = False
 
         for line in output.split("\n"):
             if parse_total_time:

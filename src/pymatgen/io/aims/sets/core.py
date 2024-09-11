@@ -76,7 +76,8 @@ class RelaxSetGenerator(AimsInputGenerator):
         elif isinstance(structure, Structure):
             updates["relax_unit_cell"] = "none"
 
-        return updates
+        prev_parameters.update(updates)
+        return prev_parameters
 
 
 @dataclass

@@ -1237,6 +1237,7 @@ class TestStructure(PymatgenTest):
     def test_apply_operation(self):
         op = SymmOp.from_axis_angle_and_translation([0, 0, 1], 90)
         struct = self.struct.copy()
+        spg_info = struct.get_space_group_info()
         returned = struct.apply_operation(op)
         assert returned is struct
         assert_allclose(
@@ -1244,11 +1245,31 @@ class TestStructure(PymatgenTest):
             [[0, 3.840198, 0], [-3.325710, 1.920099, 0], [2.217138, -0, 3.135509]],
             atol=1e-6,
         )
+        assert returned.get_space_group_info() == spg_info
 
-        op = SymmOp([[1, 1, 0, 0.5], [1, 0, 0, 0.5], [0, 0, 1, 0.5], [0, 0, 0, 1]])
+        op = SymmOp([[1, 1, 0, 0.5], [1, 0, 0, 0.5], [0, 0, 1, 0.5], [0, 0, 0, 1]])  # not a SymmOp of this struct
         struct = self.struct.copy()
         struct.apply_operation(op, fractional=True)
         assert_allclose(struct.lattice.matrix, [[5.760297, 3.325710, 0], [3.840198, 0, 0], [0, -2.217138, 3.135509]], 5)
+
+        struct = self.struct.copy()
+        # actual SymmOp of this struct: (SpacegroupAnalyzer(struct).get_symmetry_operations()[-2])
+        op = SymmOp([[0.0, 0.0, -1.0, 0.75], [-1.0, -1.0, 1.0, 0.5], [0.0, -1.0, 1.0, 0.75], [0.0, 0.0, 0.0, 1.0]])
+        struct.apply_operation(op, fractional=True)
+        assert struct.get_space_group_info() == spg_info
+
+        # same SymmOp in Cartesian coordinates:
+        op = SymmOp(
+            [
+                [-0.5, -0.288675028, -0.816496280, 3.84019793],
+                [-0.866025723, 0.166666176, 0.471404694, 0],
+                [0, -0.942808868, 0.333333824, 2.35163180],
+                [0, 0, 0, 1.0],
+            ]
+        )
+        struct = self.struct.copy()
+        struct.apply_operation(op, fractional=False)
+        assert struct.get_space_group_info() == spg_info
 
     def test_apply_strain(self):
         struct = self.struct

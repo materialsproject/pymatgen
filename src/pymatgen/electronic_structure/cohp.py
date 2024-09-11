@@ -760,8 +760,7 @@ class CompleteCohp(Cohp):
         fmt = fmt.upper()  # type: ignore[assignment]
         if fmt == "LMTO":
             # TODO: LMTO COOPs and orbital-resolved COHP cannot be handled yet
-            are_coops = False
-            are_cobis = False
+            are_coops = are_cobis = False
             orb_res_cohp = None
             if structure_file is None:
                 structure_file = "CTRL"
@@ -1251,9 +1250,9 @@ class IcohpCollection(MSONable):
                 warnings.warn("One of the ICOHP values is an average over bonds. This is currently not considered.")
 
             if icohp._is_spin_polarized and summed_spin_channels:
-                sum_icohp = sum_icohp + icohp.summed_icohp
+                sum_icohp += icohp.summed_icohp
             else:
-                sum_icohp = sum_icohp + icohp.icohpvalue(spin)
+                sum_icohp += icohp.icohpvalue(spin)
 
         return sum_icohp / divisor
 

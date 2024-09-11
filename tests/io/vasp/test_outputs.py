@@ -1926,33 +1926,33 @@ class TestWavecar(PymatgenTest):
         chgcar = wavecar.get_parchg(poscar, 0, 0, spin=0, phase=False)
         assert "total" in chgcar.data
         assert "diff" not in chgcar.data
-        assert np.prod(chgcar.data["total"].shape) == np.prod(wavecar.ng * 2)
+        assert chgcar.data["total"].size == np.prod(wavecar.ng * 2)
         assert np.all(chgcar.data["total"] > 0.0)
 
         chgcar = wavecar.get_parchg(poscar, 0, 0, spin=0, phase=True)
         assert "total" in chgcar.data
         assert "diff" not in chgcar.data
-        assert np.prod(chgcar.data["total"].shape) == np.prod(wavecar.ng * 2)
+        assert chgcar.data["total"].size == np.prod(wavecar.ng * 2)
         assert not np.all(chgcar.data["total"] > 0.0)
 
         wavecar = Wavecar(f"{VASP_OUT_DIR}/WAVECAR.N2.spin")
         chgcar = wavecar.get_parchg(poscar, 0, 0, phase=False, scale=1)
         assert "total" in chgcar.data
         assert "diff" in chgcar.data
-        assert np.prod(chgcar.data["total"].shape) == np.prod(wavecar.ng)
+        assert chgcar.data["total"].size == np.prod(wavecar.ng)
         assert np.all(chgcar.data["total"] > 0.0)
         assert not np.all(chgcar.data["diff"] > 0.0)
 
         chgcar = wavecar.get_parchg(poscar, 0, 0, spin=0, phase=False)
         assert "total" in chgcar.data
         assert "diff" not in chgcar.data
-        assert np.prod(chgcar.data["total"].shape) == np.prod(wavecar.ng * 2)
+        assert chgcar.data["total"].size == np.prod(wavecar.ng * 2)
         assert np.all(chgcar.data["total"] > 0.0)
 
         chgcar = wavecar.get_parchg(poscar, 0, 0, spin=0, phase=True)
         assert "total" in chgcar.data
         assert "diff" not in chgcar.data
-        assert np.prod(chgcar.data["total"].shape) == np.prod(wavecar.ng * 2)
+        assert chgcar.data["total"].size == np.prod(wavecar.ng * 2)
         assert not np.all(chgcar.data["total"] > 0.0)
 
         wavecar = self.w_ncl
@@ -1960,7 +1960,7 @@ class TestWavecar(PymatgenTest):
         chgcar = wavecar.get_parchg(poscar, -1, 0, phase=False, spinor=None)
         assert "total" in chgcar.data
         assert "diff" not in chgcar.data
-        assert np.prod(chgcar.data["total"].shape) == np.prod(wavecar.ng * 2)
+        assert chgcar.data["total"].size == np.prod(wavecar.ng * 2)
         # this assert was disabled as it started failing during the numpy v2 migration
         # on 2024-08-06. unclear what it was testing in the first place
         # assert not np.all(chgcar.data["total"] > 0.0)
@@ -1968,14 +1968,14 @@ class TestWavecar(PymatgenTest):
         chgcar = wavecar.get_parchg(poscar, -1, 0, phase=True, spinor=0)
         assert "total" in chgcar.data
         assert "diff" not in chgcar.data
-        assert np.prod(chgcar.data["total"].shape) == np.prod(wavecar.ng * 2)
+        assert chgcar.data["total"].size == np.prod(wavecar.ng * 2)
         assert not np.all(chgcar.data["total"] > 0.0)
 
         wavecar.coeffs[-1] = [np.zeros((2, 100))]
         chgcar = wavecar.get_parchg(poscar, -1, 0, phase=False, spinor=1)
         assert "total" in chgcar.data
         assert "diff" not in chgcar.data
-        assert np.prod(chgcar.data["total"].shape) == np.prod(wavecar.ng * 2)
+        assert chgcar.data["total"].size == np.prod(wavecar.ng * 2)
         assert_allclose(chgcar.data["total"], 0.0)
 
     def test_write_unks(self):
@@ -2048,11 +2048,7 @@ class TestWaveder(PymatgenTest):
         wder = Waveder.from_binary(f"{VASP_OUT_DIR}/WAVEDER", "float64")
         assert wder.nbands == 36
         assert wder.nkpoints == 56
-        band_i = 0
-        band_j = 0
-        kp_index = 0
-        spin_index = 0
-        cart_dir_index = 0
+        band_i = band_j = kp_index = spin_index = cart_dir_index = 0
         cder = wder.get_orbital_derivative_between_states(band_i, band_j, kp_index, spin_index, cart_dir_index)
         assert cder == approx(-1.33639226092e-103, abs=1e-114)
 

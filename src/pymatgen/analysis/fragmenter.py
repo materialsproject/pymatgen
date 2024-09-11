@@ -169,8 +169,8 @@ class Fragmenter(MSONable):
         check if the resulting fragment is present in self.unique_fragments and add it if it is not.
         """
         new_frag_dict = {}
-        for old_frag_key in old_frag_dict:
-            for old_frag in old_frag_dict[old_frag_key]:
+        for old_frags in old_frag_dict.values():
+            for old_frag in old_frags:
                 for edge in old_frag.graph.edges:
                     bond = [(edge[0], edge[1])]
                     fragments = []

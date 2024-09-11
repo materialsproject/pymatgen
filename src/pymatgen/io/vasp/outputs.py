@@ -1699,10 +1699,8 @@ class BSVasprun(Vasprun):
         self.separate_spins = separate_spins
 
         with zopen(filename, mode="rt") as file:
-            self.efermi = None
-            parsed_header = False
-            in_kpoints_opt = False
-            self.eigenvalues = self.projected_eigenvalues = None
+            self.efermi = self.eigenvalues = self.projected_eigenvalues = None
+            parsed_header = in_kpoints_opt = False
             self.kpoints_opt_props = None
             for event, elem in ET.iterparse(file, events=["start", "end"]):
                 tag = elem.tag
@@ -1982,10 +1980,7 @@ class Outcar:
 
         # For single atom systems, VASP doesn't print a total line, so
         # reverse parsing is very difficult
-        read_charge = False
-        read_mag_x = False
-        read_mag_y = False  # for SOC calculations only
-        read_mag_z = False
+        read_charge = read_mag_x = read_mag_y = read_mag_z = False  # for SOC calculations only
         all_lines.reverse()
         for clean in all_lines:
             if read_charge or read_mag_x or read_mag_y or read_mag_z:
@@ -2004,10 +1999,7 @@ class Outcar:
                     elif read_mag_z:
                         mag_z.append(dict(zip(header, tokens, strict=True)))
                 elif clean.startswith("tot"):
-                    read_charge = False
-                    read_mag_x = False
-                    read_mag_y = False
-                    read_mag_z = False
+                    read_charge = read_mag_x = read_mag_y = read_mag_z = False
             if clean == "total charge":
                 charge = []
                 read_charge = True
@@ -3485,8 +3477,7 @@ class VolumetricData(BaseVolumetricData):
         dim: list[int] = []
         dimline = ""
         read_dataset = False
-        ngrid_pts = 0
-        data_count = 0
+        ngrid_pts = data_count = 0
         poscar = None
         with zopen(filename, mode="rt") as file:
             for line in file:
@@ -3952,16 +3943,13 @@ class Procar(MSONable):
             ion_expr = re.compile(r"^ion.*")
             total_expr = re.compile(r"^tot.*")
             expr = re.compile(r"^([0-9]+)\s+")
-            current_kpoint = 0
-            current_band = 0
+            current_kpoint = current_band = 0
             spin = Spin.down  # switched to Spin.up for first block
 
             n_kpoints = None
             kpoints: list[tuple[float, float, float]] = []
-            n_bands = None
-            n_ions = None
+            n_bands = n_ions = headers = None
             weights: np.ndarray[float] | None = None
-            headers = None
             data: dict[Spin, np.ndarray] = {}
             eigenvalues: dict[Spin, np.ndarray] | None = None
             occupancies: dict[Spin, np.ndarray] | None = None
@@ -3974,8 +3962,7 @@ class Procar(MSONable):
 
             # first dynamically determine whether PROCAR is SOC or not; SOC PROCARs have 4 lists of projections (
             # total and x,y,z) for each band, while non-SOC have only 1 list of projections:
-            tot_count = 0
-            band_count = 0
+            tot_count = band_count = 0
             for line in file_handle:
                 if total_expr.match(line):
                     tot_count += 1
@@ -4531,8 +4518,7 @@ class Xdatcar:
         lines.extend((" ".join(self.site_symbols), " ".join(map(str, self.natoms))))
 
         format_str = f"{{:.{significant_figures}f}}"
-        ionicstep_cnt = 1
-        output_cnt = 1
+        ionicstep_cnt = output_cnt = 1
         for cnt, structure in enumerate(self.structures, start=1):
             ionicstep_cnt = cnt
             if (
@@ -5153,7 +5139,7 @@ class Wavecar:
 
         # Scaling of ng for the fft grid, need to restore value at the end
         temp_ng = self.ng
-        self.ng = self.ng * scale
+        self.ng = self.ng * scale  # (ruff-preview) noqa: PLR6104
         N = np.prod(self.ng)
 
         data = {}

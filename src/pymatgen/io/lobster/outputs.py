@@ -70,8 +70,8 @@ class Cohpcar:
         energies (Sequence[float]): Sequence of energies in eV. Note that LOBSTER
             shifts the energies so that the Fermi level is at zero.
         is_spin_polarized (bool): True if the calculation is spin polarized.
-        orb_cohp (dict[str, Dict[str, Dict[str, Any]]]): The orbital-resolved COHPs of the form:
-            orb_cohp[label] = {bond_data["orb_label"]: {
+        orb_res_cohp (dict[str, Dict[str, Dict[str, Any]]]): The orbital-resolved COHPs of the form:
+            orb_res_cohp[label] = {bond_data["orb_label"]: {
                 "COHP": {Spin.up: cohps, Spin.down:cohps},
                 "ICOHP": {Spin.up: icohps, Spin.down: icohps},
                 "orbitals": orbitals,
@@ -315,8 +315,7 @@ class Cohpcar:
             orbs = [re.findall(r"\]\[(.*)\]", site)[0] for site in sites]
             orb_label, orbitals = get_orb_from_str(orbs)
         else:
-            orbitals = None
-            orb_label = None
+            orbitals = orb_label = None
 
         return {
             "sites": site_indices,
@@ -1390,8 +1389,7 @@ class Fatband:
                     ]
 
             idx_kpt = -1
-            linenumber = 0
-            iband = 0
+            linenumber = iband = 0
             for line in lines[1:-1]:
                 if line.split()[0] == "#":
                     KPOINT = np.array(
@@ -1404,8 +1402,7 @@ class Fatband:
                     if ifilename == 0:
                         kpoints_array.append(KPOINT)
 
-                    linenumber = 0
-                    iband = 0
+                    linenumber = iband = 0
                     idx_kpt += 1
                 if linenumber == self.nbands:
                     iband = 0

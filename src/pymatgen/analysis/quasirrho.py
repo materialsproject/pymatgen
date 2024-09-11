@@ -226,9 +226,7 @@ class QuasiRRHO:
             er = 3 * ideal_gas_const * self.temp / 2
 
         # Vibrational component of Entropy and Energy
-        ev = 0
-        sv_quasiRRHO = 0
-        sv = 0
+        ev = sv_quasiRRHO = sv = 0
 
         for vt in vib_temps:
             ev += vt * (1 / 2 + 1 / (np.exp(vt / self.temp) - 1))

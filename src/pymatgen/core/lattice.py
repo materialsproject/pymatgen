@@ -1060,12 +1060,12 @@ class Lattice(MSONable):
                 q = round(u[k - 1, i - 1])
                 if q != 0:
                     # Reduce the k-th basis vector
-                    a[:, k - 1] = a[:, k - 1] - q * a[:, i - 1]
-                    mapping[:, k - 1] = mapping[:, k - 1] - q * mapping[:, i - 1]
+                    a[:, k - 1] -= q * a[:, i - 1]
+                    mapping[:, k - 1] -= q * mapping[:, i - 1]
                     uu = list(u[i - 1, 0 : (i - 1)])
                     uu.append(1)
                     # Update the GS coefficients
-                    u[k - 1, 0:i] = u[k - 1, 0:i] - q * np.array(uu)
+                    u[k - 1, 0:i] -= q * np.array(uu)
 
             # Check the Lovasz condition
             if np.dot(b[:, k - 1], b[:, k - 1]) >= (delta - abs(u[k - 1, k - 2]) ** 2) * np.dot(
@@ -1818,7 +1818,7 @@ def get_points_in_spheres(
             else:
                 all_frac_coords.append(image_offsets[:, kk : kk + 1])
         all_frac_coords = np.concatenate(all_frac_coords, axis=1)
-        image_offsets = image_offsets - all_frac_coords
+        image_offsets -= all_frac_coords
         coords_in_cell = np.dot(all_frac_coords, matrix)
 
         # Filter out those beyond max range

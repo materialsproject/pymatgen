@@ -130,7 +130,7 @@ class TestCoordinationGeometryFinder(PymatgenTest):
             files.extend(filenames)
             break
 
-        for _ifile, json_file in enumerate(files):
+        for json_file in files:
             with self.subTest(json_file=json_file):
                 with open(f"{json_dir}/{json_file}") as file:
                     dct = json.load(file)

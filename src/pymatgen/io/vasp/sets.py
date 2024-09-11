@@ -49,7 +49,7 @@ from monty.serialization import loadfn
 from pymatgen.analysis.structure_matcher import StructureMatcher
 from pymatgen.core import Element, PeriodicSite, SiteCollection, Species, Structure
 from pymatgen.io.core import InputGenerator
-from pymatgen.io.vasp.inputs import Incar, Kpoints, PMG_VASP_PSP_DIR_Error, Poscar, Potcar, VaspInput
+from pymatgen.io.vasp.inputs import Incar, Kpoints, PmgVaspPspDirError, Poscar, Potcar, VaspInput
 from pymatgen.io.vasp.outputs import Outcar, Vasprun
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.symmetry.bandstructure import HighSymmKpath
@@ -275,7 +275,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         if self.user_potcar_functional != self._config_dict.get("POTCAR_FUNCTIONAL", "PBE"):
             warnings.warn(
                 "Overriding the POTCAR functional is generally not recommended "
-                " as it significantly affect the results of calculations and "
+                " as it significantly affects the results of calculations and "
                 "compatibility with other calculations done with the same "
                 "input set. Note that some POTCAR symbols specified in "
                 "the configuration file may not be available in the selected "
@@ -286,7 +286,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         if self.user_potcar_settings:
             warnings.warn(
                 "Overriding POTCARs is generally not recommended as it "
-                "significantly affect the results of calculations and "
+                "significantly affects the results of calculations and "
                 "compatibility with other calculations done with the same "
                 "input set. In many instances, it is better to write a "
                 "subclass of a desired input set and override the POTCAR in "
@@ -299,6 +299,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         if not isinstance(self.structure, Structure):
             self._structure: Structure | None = None
         else:
+            # TODO is this needed? should it be self._structure = self.structure (needs explanation either way)
             self.structure = self.structure
 
         if isinstance(self.prev_incar, Path | str):
@@ -345,13 +346,12 @@ class VaspInputSet(InputGenerator, abc.ABC):
         vasp_input = None
         try:
             vasp_input = self.get_input_set(potcar_spec=potcar_spec)
-        except PMG_VASP_PSP_DIR_Error as exc:
+        except PmgVaspPspDirError:
             if not potcar_spec:
-                raise ValueError(
-                    "PMG_VASP_PSP_DIR is not set."
-                    "  Please set the PMG_VASP_PSP_DIR in .pmgrc.yaml"
-                    " or use potcar_spec=True argument."
-                ) from exc
+                raise PmgVaspPspDirError(
+                    "PMG_VASP_PSP_DIR is not set. Please set PMG_VASP_PSP_DIR"
+                    " in .pmgrc.yaml or use potcar_spec=True argument."
+                ) from None
 
         if vasp_input is None:
             raise ValueError("vasp_input is None")
@@ -988,7 +988,7 @@ class VaspInputSet(InputGenerator, abc.ABC):
         n_bands = max(possible_val_1, possible_val_2) + n_mag
 
         if self.incar.get("LNONCOLLINEAR") is True:
-            n_bands = n_bands * 2
+            n_bands *= 2
 
         if n_par := self.incar.get("NPAR"):
             n_bands = (np.floor((n_bands + n_par - 1) / n_par)) * n_par

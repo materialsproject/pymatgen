@@ -165,9 +165,7 @@ class TestIcohpValue(TestCase):
 class TestCombinedIcohp(TestCase):
     def setUp(self):
         # without spin polarization:
-        are_coops = False
-        are_cobis = False
-        is_spin_polarized = False
+        are_coops = are_cobis = is_spin_polarized = False
         list_atom2 = ["K2", "K2", "K2", "K2", "K2", "K2"]
         list_icohp = [
             {Spin.up: -0.40075},

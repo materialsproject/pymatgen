@@ -734,10 +734,8 @@ class AdfOutput:
         mode_patt = re.compile(r"\s+(\d+)\.([A-Za-z]+)\s+(.*)")
         coord_patt = re.compile(r"\s+(\d+)\s+([A-Za-z]+)" + 6 * r"\s+([0-9\.-]+)")
         coord_on_patt = re.compile(r"\s+\*\s+R\sU\sN\s+T\sY\sP\sE\s:\sFREQUENCIES\s+\*")
-        parse_freq = False
-        parse_mode = False
-        n_next = 0
-        n_strike = 0
+        parse_freq = parse_mode = False
+        n_next = n_strike = 0
         sites = []
 
         self.frequencies = []
@@ -748,8 +746,7 @@ class AdfOutput:
             parse_coord = False
             n_atoms = 0
         else:
-            find_structure = False
-            parse_coord = False
+            find_structure = parse_coord = False
             n_atoms = len(self.final_structure)
 
         with open(self.filename) as file:

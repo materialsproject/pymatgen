@@ -114,8 +114,8 @@ class StructureConnectivity(MSONable):
                         exists = True
                         break
             elif isite == nb_index_unitcell:
-                for isite1, ineighb1, data1 in existing_edges:
-                    if isite1 == ineighb1 and (
+                for site_idx1, ineighb1, data1 in existing_edges:
+                    if site_idx1 == ineighb1 and (
                         np.allclose(data1["delta"], nb_image_cell) or np.allclose(data1["delta"], -nb_image_cell)
                     ):
                         exists = True
@@ -164,7 +164,7 @@ class StructureConnectivity(MSONable):
         # Initialize graph for a subset of environments
         self._environment_subgraph = nx.MultiGraph()
         # Add the sites with the required environment(s)
-        for isite, ce_this_site_all in enumerate(self.light_structure_environments.coordination_environments):
+        for site_idx, ce_this_site_all in enumerate(self.light_structure_environments.coordination_environments):
             if ce_this_site_all is None:
                 continue
             if len(ce_this_site_all) == 0:
@@ -173,16 +173,16 @@ class StructureConnectivity(MSONable):
             if ce_this_site in environments_symbols:
                 if only_atoms is None:
                     env_node = get_environment_node(
-                        self.light_structure_environments.structure[isite],
-                        isite,
+                        self.light_structure_environments.structure[site_idx],
+                        site_idx,
                         ce_this_site,
                     )
                     self._environment_subgraph.add_node(env_node)
                 elif self.light_structure_environments.structure.is_ordered:
-                    if self.light_structure_environments.structure[isite].specie.symbol in only_atoms:
+                    if self.light_structure_environments.structure[site_idx].specie.symbol in only_atoms:
                         env_node = get_environment_node(
-                            self.light_structure_environments.structure[isite],
-                            isite,
+                            self.light_structure_environments.structure[site_idx],
+                            site_idx,
                             ce_this_site,
                         )
                         self._environment_subgraph.add_node(env_node)
@@ -190,13 +190,13 @@ class StructureConnectivity(MSONable):
                     # TODO add the possibility of a "constraint" on the minimum percentage
                     # of the atoms on the site
                     this_site_elements = [
-                        sp.symbol for sp in self.light_structure_environments.structure[isite].species_and_occu
+                        sp.symbol for sp in self.light_structure_environments.structure[site_idx].species_and_occu
                     ]
                     for elem_symbol in this_site_elements:
                         if elem_symbol in only_atoms:
                             env_node = get_environment_node(
-                                self.light_structure_environments.structure[isite],
-                                isite,
+                                self.light_structure_environments.structure[site_idx],
+                                site_idx,
                                 ce_this_site,
                             )
                             self._environment_subgraph.add_node(env_node)

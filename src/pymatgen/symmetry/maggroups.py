@@ -354,7 +354,7 @@ class MagneticSpaceGroup(SymmetryGroup):
                     )
                     centered_ops.append(new_op)
 
-        ops = ops + centered_ops
+        ops += centered_ops
 
         # apply jones faithful transformation
         return [self.jf.transform_symmop(op) for op in ops]
@@ -391,8 +391,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         Args:
             lattice (Lattice): A Lattice.
             tol (float): The tolerance to check for equality of lengths.
-            angle_tol (float): The tolerance to check for equality of angles
-                in degrees.
+            angle_tol (float): The tolerance to check for equality of angles in degrees.
 
         Returns:
             bool: True if the lattice is compatible with the conventional cell.
@@ -403,7 +402,7 @@ class MagneticSpaceGroup(SymmetryGroup):
         crys_system = self.crystal_system
 
         def check(param, ref, tolerance):
-            return all(abs(i - j) < tolerance for i, j in zip(param, ref, strict=True) if j is not None)
+            return all(abs(idx - j) < tolerance for idx, j in zip(param, ref, strict=True) if j is not None)
 
         if crys_system == "cubic":
             a = abc[0]
