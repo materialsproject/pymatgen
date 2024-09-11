@@ -114,8 +114,8 @@ class TestGruneisenParameter(PymatgenTest):
         assert self.gruneisen_obj_small.gruneisen[5] == approx(1.7574050911)
 
     def test_tdos(self):
-        tdos = self.gruneisen_obj.tdos
-        assert isinstance(tdos, phonopy.phonon.dos.TotalDos)
+        tot_dos = self.gruneisen_obj.tdos
+        assert isinstance(tot_dos, phonopy.phonon.dos.TotalDos)
 
     def test_phdos(self):
         assert self.gruneisen_obj.phdos.cv(298.15) == approx(45.17772584681599)

@@ -64,7 +64,7 @@ def to_matrix(xx, yy, zz, xy, yz, xz):
         xz (float): xz component of the matrix.
 
     Returns:
-        np.array: The matrix, as a 3x3 numpy array.
+        np.ndarray: The matrix, as a 3x3 numpy array.
     """
     return np.array([[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]])
 
@@ -79,7 +79,7 @@ def parse_dielectric_data(data):
             a list of ``[xx, yy, zz, xy , xz, yz ]`` dielectric tensor elements.
 
     Returns:
-        np.array: a Nx3 numpy array. Each row contains the eigenvalues
+        np.ndarray: a Nx3 numpy array. Each row contains the eigenvalues
             for the corresponding row in `data`.
     """
     return np.array([np.linalg.eig(to_matrix(*eps))[0] for eps in data])
@@ -98,7 +98,7 @@ def absorption_coefficient(dielectric):
             - element 2: imaginary dielectric tensors, in ``[xx, yy, zz, xy, xz, yz]`` format.
 
     Returns:
-        np.array: absorption coefficient using eV as frequency units (cm^-1).
+        np.ndarray: absorption coefficient using eV as frequency units (cm^-1).
     """
     energies_in_eV = np.array(dielectric[0])
     real_dielectric = parse_dielectric_data(dielectric[1])
@@ -170,7 +170,7 @@ def slme(
 
     # Make sure the absorption coefficient has the right units (m^{-1})
     if absorbance_in_inverse_centimeters:
-        material_absorbance_data = material_absorbance_data * 100
+        material_absorbance_data *= 100
 
     # Load the Air Mass 1.5 Global tilt solar spectrum
     solar_spectrum_data_file = str(os.path.join(os.path.dirname(__file__), "am1.5G.dat"))

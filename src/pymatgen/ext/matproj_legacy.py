@@ -1393,7 +1393,7 @@ class _MPResterLegacy:
             # Prefer reconstructed surfaces, which have lower surface energies.
             if (miller not in miller_energy_map) or surf["is_reconstructed"]:
                 miller_energy_map[miller] = surf["surface_energy"]
-        millers, energies = zip(*miller_energy_map.items())
+        millers, energies = zip(*miller_energy_map.items(), strict=True)
         return WulffShape(lattice, millers, energies)
 
     def get_gb_data(
@@ -1570,7 +1570,7 @@ class _MPResterLegacy:
 
     @staticmethod
     def _check_nomad_exist(url) -> bool:
-        response = requests.get(url=url, timeout=600)
+        response = requests.get(url=url, timeout=60)
         if response.status_code != 200:
             return False
         content = json.loads(response.text)

@@ -133,7 +133,7 @@ def get_linear_interpolated_value(x_values: ArrayLike, y_values: ArrayLike, x: f
     Returns:
         Value at x.
     """
-    arr = np.array(sorted(zip(x_values, y_values), key=lambda d: d[0]))
+    arr = np.array(sorted(zip(x_values, y_values, strict=True), key=lambda d: d[0]))
 
     indices = np.where(arr[:, 0] >= x)[0]
 
@@ -202,7 +202,7 @@ def pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask=None, return_
         return_d2 (bool): whether to also return the squared distances
 
     Returns:
-        np.array: of displacement vectors from frac_coords1 to frac_coords2
+        np.ndarray: of displacement vectors from frac_coords1 to frac_coords2
             first index is frac_coords1 index, second is frac_coords2 index
     """
     return coord_cython.pbc_shortest_vectors(lattice, frac_coords1, frac_coords2, mask, return_d2)
@@ -267,7 +267,9 @@ def is_coord_subset_pbc(subset, superset, atol: float = 1e-8, mask=None, pbc: Pb
     """
     c1 = np.array(subset, dtype=np.float64)
     c2 = np.array(superset, dtype=np.float64)
-    mask_arr = np.array(mask, dtype=int) if mask is not None else np.zeros((len(subset), len(superset)), dtype=int)
+    mask_arr = (
+        np.array(mask, dtype=np.int64) if mask is not None else np.zeros((len(subset), len(superset)), dtype=np.int64)
+    )
     atol = np.zeros(3, dtype=np.float64) + atol
     return coord_cython.is_coord_subset_pbc(c1, c2, atol, mask_arr, pbc)
 
@@ -299,7 +301,8 @@ def lattice_points_in_supercell(supercell_matrix):
     frac_points = np.dot(all_points, np.linalg.inv(supercell_matrix))
 
     t_vecs = frac_points[np.all(frac_points < 1 - 1e-10, axis=1) & np.all(frac_points >= -1e-10, axis=1)]
-    assert len(t_vecs) == round(abs(np.linalg.det(supercell_matrix)))
+    if len(t_vecs) != round(abs(np.linalg.det(supercell_matrix))):
+        raise ValueError("The number of transformed vectors mismatch.")
     return t_vecs
 
 
@@ -346,7 +349,7 @@ def get_angle(v1: ArrayLike, v2: ArrayLike, units: Literal["degrees", "radians"]
 
 
 class Simplex(MSONable):
-    """A generalized simplex object. See http://wikipedia.org/wiki/Simplex.
+    """A generalized simplex object. See https://wikipedia.org/wiki/Simplex.
 
     Attributes:
         space_dim (int): Dimension of the space. Usually, this is 1 more than the simplex_dim.
@@ -447,7 +450,8 @@ class Simplex(MSONable):
                         break
                 if not found:
                     barys.append(p)
-        assert len(barys) < 3, "More than 2 intersections found"
+        if len(barys) >= 3:
+            raise ValueError("More than 2 intersections found")
         return [self.point_from_bary_coords(b) for b in barys]
 
     def __eq__(self, other: object) -> bool:

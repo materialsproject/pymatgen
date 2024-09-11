@@ -51,8 +51,8 @@ if TYPE_CHECKING:
 try:
     from BoltzTraP2 import bandlib as BL
     from BoltzTraP2 import fite, sphere, units
-except ImportError:
-    raise BoltztrapError("BoltzTraP2 has to be installed and working")
+except ImportError as exc:
+    raise BoltztrapError("BoltzTraP2 has to be installed and working") from exc
 
 
 __author__ = "Francesco Ricci"
@@ -554,7 +554,7 @@ class BztInterpolator:
             spins = [Spin.up]
 
         energies = []
-        for spin, eb, vvb in zip(spins, eband_ud, vvband_ud):
+        for spin, eb, vvb in zip(spins, eband_ud, vvband_ud, strict=True):
             energies, densities, _vvdos, _cdos = BL.BTPDOS(eb, vvb, npts=npts_mu, erange=enr)
 
             if T:
@@ -572,10 +572,14 @@ class BztInterpolator:
     def get_partial_doses(self, tdos, eband_ud, spins, enr, npts_mu, T, progress):
         """Return a CompleteDos object interpolating the projections.
 
-        tdos: total dos previously calculated
-        npts_mu: number of energy points of the Dos
-        T: parameter used to smooth the Dos
-        progress: Default False, If True a progress bar is shown.
+        Args:
+            tdos: total dos previously calculated
+            eband_ud: list of bands for each spin
+            spins: list of spins
+            enr: energy range
+            npts_mu: number of energy points of the Dos
+            T: parameter used to smooth the Dos
+            progress: Default False, If True a progress bar is shown.
         """
         if not self.data.proj:
             raise BoltztrapError("No projections loaded.")
@@ -589,7 +593,7 @@ class BztInterpolator:
         else:
             bar = None
 
-        for spin, eb in zip(spins, eband_ud):
+        for spin, eb in zip(spins, eband_ud, strict=True):
             for idx, site in enumerate(self.data.structure):
                 if site not in pdoss:
                     pdoss[site] = {}
@@ -800,8 +804,8 @@ class BztTransportProperties:
                         self.nelect + dop_car,
                         temp,
                         self.dosweight,
-                        True,  # noqa: FBT003
-                        False,  # noqa: FBT003
+                        refine=True,
+                        try_center=False,
                     )
 
                 N, L0, L1, L2, Lm11 = BL.fermiintegrals(
@@ -944,7 +948,7 @@ class BztPlotter:
 
     Example:
         bztPlotter = BztPlotter(bztTransp,bztInterp)
-        fig = self.bztPlotter.plot_props('S', 'mu', 'temp', temps=[300, 500])
+        fig = self.bztPlotter.plot_props("S", "mu", "temp", temps=[300, 500])
         fig.show()
     """
 

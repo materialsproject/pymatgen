@@ -9,7 +9,6 @@ For additional flexibility and automation, use the atomate2-lammps implementatio
 
 from __future__ import annotations
 
-import logging
 import os
 from dataclasses import dataclass, field
 from string import Template
@@ -26,9 +25,8 @@ __author__ = "Ryan Kingsbury, Guillaume Brunin (Matgenix)"
 __copyright__ = "Copyright 2021, The Materials Project"
 __version__ = "0.2"
 
-logger = logging.getLogger(__name__)
-module_dir = os.path.dirname(os.path.abspath(__file__))
-template_dir = f"{module_dir}/templates"
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATE_DIR = f"{MODULE_DIR}/templates"
 
 
 @dataclass
@@ -128,7 +126,7 @@ class LammpsMinimization(BaseLammpsGenerator):
                 If False, stage names are not printed and all commands appear in a single block.
         """
         if template is None:
-            template = f"{template_dir}/minimization.template"
+            template = f"{TEMPLATE_DIR}/minimization.template"
         settings = {
             "units": units,
             "atom_style": atom_style,

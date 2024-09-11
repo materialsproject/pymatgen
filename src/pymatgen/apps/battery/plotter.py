@@ -133,7 +133,7 @@ class VoltageProfilePlotter:
             **kwargs: passed to plotly.graph_objects.Layout
         """
         font_dict = font_dict or {"family": "Arial", "size": 24, "color": "#000000"}
-        hover_temp = "Voltage : %{y:.2f} V"
+        hover_temp = "Voltage (V): %{y:.2f}<br>x: %{x:.3f}"
 
         data = []
         working_ion_symbols = set()

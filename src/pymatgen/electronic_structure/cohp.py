@@ -193,7 +193,7 @@ class Cohp(MSONable):
             limit (float): Only COHP higher than this value will be considered.
         """
         populations = self.cohp
-        n_energies_below_efermi = len([energy for energy in self.energies if energy <= self.efermi])
+        n_energies_below_efermi = sum(energy <= self.efermi for energy in self.energies)
 
         if populations is None:
             return None
@@ -384,10 +384,12 @@ class CompleteCohp(Cohp):
             divided_cohp = self.all_cohps[label].get_cohp(spin=None, integrated=False)
             divided_icohp = self.all_cohps[label].get_icohp(spin=None)
 
-        assert divided_cohp is not None
+        if divided_cohp is None:
+            raise ValueError("divided_cohp is None")
 
         if summed_spin_channels and Spin.down in self.cohp:
-            assert divided_icohp is not None
+            if divided_icohp is None:
+                raise ValueError("divided_icohp is None")
             final_cohp: dict[Spin, Any] = {Spin.up: np.sum([divided_cohp[Spin.up], divided_cohp[Spin.down]], axis=0)}
             final_icohp: dict[Spin, Any] | None = {
                 Spin.up: np.sum([divided_icohp[Spin.up], divided_icohp[Spin.down]], axis=0)
@@ -424,12 +426,15 @@ class CompleteCohp(Cohp):
         # Check if COHPs are spin polarized
         first_cohpobject = self.get_cohp_by_label(label_list[0])
         summed_cohp = first_cohpobject.cohp.copy()
-        assert first_cohpobject.icohp is not None
+        if first_cohpobject.icohp is None:
+            raise ValueError("icohp of first_cohpobject is None")
         summed_icohp = first_cohpobject.icohp.copy()
         for label in label_list[1:]:
             cohp = self.get_cohp_by_label(label)
             icohp = cohp.icohp
-            assert icohp is not None
+            if icohp is None:
+                raise ValueError("icohp is None")
+
             summed_cohp[Spin.up] = np.sum([summed_cohp[Spin.up], cohp.cohp[Spin.up]], axis=0)
 
             if Spin.down in summed_cohp:
@@ -487,15 +492,19 @@ class CompleteCohp(Cohp):
 
         # Check if COHPs are spin polarized
         first_cohpobject = self.get_orbital_resolved_cohp(label_list[0], orbital_list[0])
-        assert first_cohpobject is not None
-        assert first_cohpobject.icohp is not None
+        if first_cohpobject is None:
+            raise ValueError("first_cohpobject is None")
+        if first_cohpobject.icohp is None:
+            raise ValueError("icohp of first_cohpobject is None")
         summed_cohp = first_cohpobject.cohp.copy()
         summed_icohp = first_cohpobject.icohp.copy()
 
         for idx, label in enumerate(label_list[1:], start=1):
             cohp = self.get_orbital_resolved_cohp(label, orbital_list[idx])
-            assert cohp is not None
-            assert cohp.icohp is not None
+            if cohp is None:
+                raise ValueError("cohp is None.")
+            if cohp.icohp is None:
+                raise ValueError("icohp of cohp is None.")
             summed_cohp[Spin.up] = np.sum([summed_cohp[Spin.up], cohp.cohp.copy()[Spin.up]], axis=0)
             if Spin.down in summed_cohp:
                 summed_cohp[Spin.down] = np.sum([summed_cohp[Spin.down], cohp.cohp.copy()[Spin.down]], axis=0)
@@ -552,7 +561,7 @@ class CompleteCohp(Cohp):
         if self.orb_res_cohp is None:
             return None
 
-        if isinstance(orbitals, (list, tuple)):
+        if isinstance(orbitals, list | tuple):
             cohp_orbs = [val["orbitals"] for val in self.orb_res_cohp[label].values()]
             orbs = []
             for orbital in orbitals:
@@ -704,7 +713,8 @@ class CompleteCohp(Cohp):
         else:
             orb_cohp = {}
 
-        assert avg_cohp is not None
+        if avg_cohp is None:
+            raise ValueError("avg_cohp is None")
         return cls(
             structure,
             avg_cohp,
@@ -750,8 +760,7 @@ class CompleteCohp(Cohp):
         fmt = fmt.upper()  # type: ignore[assignment]
         if fmt == "LMTO":
             # TODO: LMTO COOPs and orbital-resolved COHP cannot be handled yet
-            are_coops = False
-            are_cobis = False
+            are_coops = are_cobis = False
             orb_res_cohp = None
             if structure_file is None:
                 structure_file = "CTRL"
@@ -1062,10 +1071,11 @@ class IcohpValue(MSONable):
         if not self.is_spin_polarized and spin == Spin.down:
             raise ValueError("The calculation was not performed with spin polarization")
 
-        if isinstance(orbitals, (tuple, list)):
+        if isinstance(orbitals, tuple | list):
             orbitals = f"{orbitals[0]}-{orbitals[1]}"
 
-        assert self._orbitals is not None
+        if self._orbitals is None:
+            raise ValueError("self._orbitals is None")
         return self._orbitals[orbitals]["icohp"][spin]
 
     @property
@@ -1093,8 +1103,10 @@ class IcohpValue(MSONable):
         Returns:
             dict[str, float]: "str(Orbital1)-str(Ortibal2)": ICOHP value in eV.
         """
+        if self._orbitals is None:
+            raise ValueError("_orbitals attrib is None.")
+
         orbital_icohp = {}
-        assert self._orbitals is not None
         for orb, item in self._orbitals.items():
             orbital_icohp[orb] = (
                 item["icohp"][Spin.up] + item["icohp"][Spin.down] if self._is_spin_polarized else item["icohp"][Spin.up]
@@ -1202,7 +1214,7 @@ class IcohpCollection(MSONable):
         if orbitals is None:
             return icohp.summed_icohp if summed_spin_channels else icohp.icohpvalue(spin)
 
-        if isinstance(orbitals, (tuple, list)):
+        if isinstance(orbitals, tuple | list):
             orbitals = f"{orbitals[0]}-{orbitals[1]}"
 
         if summed_spin_channels:
@@ -1238,9 +1250,9 @@ class IcohpCollection(MSONable):
                 warnings.warn("One of the ICOHP values is an average over bonds. This is currently not considered.")
 
             if icohp._is_spin_polarized and summed_spin_channels:
-                sum_icohp = sum_icohp + icohp.summed_icohp
+                sum_icohp += icohp.summed_icohp
             else:
-                sum_icohp = sum_icohp + icohp.icohpvalue(spin)
+                sum_icohp += icohp.icohpvalue(spin)
 
         return sum_icohp / divisor
 
@@ -1344,14 +1356,12 @@ class IcohpCollection(MSONable):
         for value in self._icohplist.values():
             if not value.is_spin_polarized or not summed_spin_channels:
                 if not self._are_coops and not self._are_cobis:
-                    if value.icohpvalue(spin) < extremum:
-                        extremum = value.icohpvalue(spin)
+                    extremum = min(value.icohpvalue(spin), extremum)
                 elif value.icohpvalue(spin) > extremum:
                     extremum = value.icohpvalue(spin)
 
             elif not self._are_coops and not self._are_cobis:
-                if value.summed_icohp < extremum:
-                    extremum = value.summed_icohp
+                extremum = min(value.summed_icohp, extremum)
 
             elif value.summed_icohp > extremum:
                 extremum = value.summed_icohp
@@ -1404,10 +1414,13 @@ def get_integrated_cohp_in_energy_range(
         icohps = cohp.all_cohps[label].get_icohp(spin=None)
     else:
         _icohps = cohp.get_orbital_resolved_cohp(label=label, orbitals=orbital)
-        assert _icohps is not None
+        if _icohps is None:
+            raise ValueError("_icohps is None")
         icohps = _icohps.icohp
 
-    assert icohps is not None
+    if icohps is None:
+        raise ValueError("ichops is None")
+
     summedicohp = {}
     if summed_spin_channels and Spin.down in icohps:
         summedicohp[Spin.up] = icohps[Spin.up] + icohps[Spin.down]

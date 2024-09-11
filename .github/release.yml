@@ -22,6 +22,8 @@ changelog:
       labels: [refactor]
     - title: 🧪 Tests
       labels: [tests]
+    - title: 🧹 Linting
+      labels: [linting]
     - title: 🔒 Security Fixes
       labels: [security]
     - title: 🏥 Package Health

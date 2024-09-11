@@ -677,7 +677,7 @@ class Tags(dict):
             else:
                 eels_keys = ["BEAM_ENERGY", "ANGLES", "MESH", "POSITION"]
             eels_dict = {"ENERGY": Tags._stringify_val(eels_params[0].split()[1:])}
-            for k, v in zip(eels_keys, eels_params[1:]):
+            for k, v in zip(eels_keys, eels_params[1:], strict=True):
                 eels_dict[k] = str(v)
             params[str(eels_params[0].split()[0])] = eels_dict
 
@@ -928,7 +928,8 @@ class Paths(MSONable):
         self.atoms = atoms
         self.paths = paths
         self.degeneracies = degeneracies or [1] * len(paths)
-        assert len(self.degeneracies) == len(self.paths)
+        if len(self.degeneracies) != len(self.paths):
+            raise ValueError(f"{len(self.degeneracies)=} and {len(self.paths)=} mismatch")
 
     def __str__(self):
         lines = ["PATH", "---------------"]

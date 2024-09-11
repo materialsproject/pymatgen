@@ -207,7 +207,7 @@ class Substitutor(MSONable):
             if functools.reduce(mul, best_case_prob) > self._threshold:
                 if len(output_species) == len(species_list):
                     odict = {
-                        "substitutions": dict(zip(species_list, output_species)),
+                        "substitutions": dict(zip(species_list, output_species, strict=True)),
                         "probability": functools.reduce(mul, best_case_prob),
                     }
                     output.append(odict)

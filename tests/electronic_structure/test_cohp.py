@@ -165,9 +165,7 @@ class TestIcohpValue(TestCase):
 class TestCombinedIcohp(TestCase):
     def setUp(self):
         # without spin polarization:
-        are_coops = False
-        are_cobis = False
-        is_spin_polarized = False
+        are_coops = are_cobis = is_spin_polarized = False
         list_atom2 = ["K2", "K2", "K2", "K2", "K2", "K2"]
         list_icohp = [
             {Spin.up: -0.40075},
@@ -900,6 +898,7 @@ class TestCompleteCohp(PymatgenTest):
         for cohp1, cohp2 in zip(
             self.cobi_multi_B2H6.get_cohp_by_label("average").cohp[Spin.up],
             self.cobi_multi_B2H6_average2.get_cohp_by_label("average").cohp[Spin.up],
+            strict=True,
         ):
             print(cohp1)
             print(cohp2)
@@ -908,18 +907,21 @@ class TestCompleteCohp(PymatgenTest):
         for cohp1, cohp2 in zip(
             self.cobi_multi_B2H6.get_cohp_by_label("average").cohp[Spin.down],
             self.cobi_multi_B2H6_average2.get_cohp_by_label("average").cohp[Spin.down],
+            strict=True,
         ):
             assert cohp1 == approx(cohp2, abs=1e-4)
 
         for icohp1, icohp2 in zip(
             self.cobi_multi_B2H6.get_cohp_by_label("average").icohp[Spin.up],
             self.cobi_multi_B2H6_average2.get_cohp_by_label("average").icohp[Spin.up],
+            strict=True,
         ):
             assert icohp1 == approx(icohp2, abs=1e-4)
 
         for icohp1, icohp2 in zip(
             self.cobi_multi_B2H6.get_cohp_by_label("average").icohp[Spin.down],
             self.cobi_multi_B2H6_average2.get_cohp_by_label("average").icohp[Spin.down],
+            strict=True,
         ):
             assert icohp1 == approx(icohp2, abs=1e-4)
 

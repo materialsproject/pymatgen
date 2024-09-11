@@ -8,14 +8,20 @@ from typing import TYPE_CHECKING, NamedTuple, cast
 
 import numpy as np
 from monty.json import MSONable
+from packaging import version
 from scipy.constants import value as _constant
 from scipy.ndimage import gaussian_filter1d
 from scipy.signal import hilbert
+from scipy.special import expit
+from scipy.stats import wasserstein_distance
 
 from pymatgen.core import Structure, get_el_sp
 from pymatgen.core.spectrum import Spectrum
 from pymatgen.electronic_structure.core import Orbital, OrbitalType, Spin
 from pymatgen.util.coord import get_linear_interpolated_value
+
+if version.parse(np.__version__) < version.parse("2.0.0"):
+    np.trapezoid = np.trapz  # noqa: NPY201
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -70,7 +76,7 @@ class DOS(Spectrum):
 
     def get_interpolated_gap(
         self,
-        tol: float = 0.001,
+        tol: float = 1e-4,
         abs_tol: bool = False,
         spin: Spin | None = None,
     ) -> tuple[float, float, float]:
@@ -115,13 +121,11 @@ class DOS(Spectrum):
         end = get_linear_interpolated_value(terminal_dens, terminal_energies, tol)
         return end - start, end, start
 
-    def get_cbm_vbm(
-        self,
-        tol: float = 0.001,
-        abs_tol: bool = False,
-        spin: Spin | None = None,
-    ) -> tuple[float, float]:
-        """Find the CBM and VBM.
+    def get_cbm_vbm(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
+        """
+        Expects a DOS object and finds the CBM and VBM eigenvalues.
+
+        `tol` may need to be increased for systems with noise/disorder.
 
         Args:
             tol (float): Tolerance in occupations for determining the gap.
@@ -163,13 +167,12 @@ class DOS(Spectrum):
 
         return self.x[i_gap_end], self.x[i_gap_start]
 
-    def get_gap(
-        self,
-        tol: float = 0.001,
-        abs_tol: bool = False,
-        spin: Spin | None = None,
-    ) -> float:
-        """Find the band gap.
+    def get_gap(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> float:
+        """
+        Expects a DOS object and finds the band gap, using the determined
+        VBM and CBM eigenvalues.
+
+        `tol` may need to be increased for systems with noise/disorder.
 
         Args:
             tol (float): Tolerance in occupations for determining the gap.
@@ -301,7 +304,7 @@ class Dos(MSONable):
 
     def get_interpolated_gap(
         self,
-        tol: float = 0.001,
+        tol: float = 1e-4,
         abs_tol: bool = False,
         spin: Spin | None = None,
     ) -> Tuple3Floats:
@@ -320,7 +323,8 @@ class Dos(MSONable):
                 band gap, CBM and VBM.
         """
         tdos = self.get_densities(spin)
-        assert tdos is not None
+        if tdos is None:
+            raise ValueError("tdos is None")
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
 
@@ -343,13 +347,11 @@ class Dos(MSONable):
 
         return end - start, end, start
 
-    def get_cbm_vbm(
-        self,
-        tol: float = 0.001,
-        abs_tol: bool = False,
-        spin: Spin | None = None,
-    ) -> tuple[float, float]:
-        """Find the conduction band minimum (CBM) and valence band maximum (VBM).
+    def get_cbm_vbm(self, tol: float = 1e-4, abs_tol: bool = False, spin: Spin | None = None) -> tuple[float, float]:
+        """
+        Expects a DOS object and finds the CBM and VBM eigenvalues.
+
+        `tol` may need to be increased for systems with noise/disorder.
 
         Args:
             tol (float): Tolerance in occupations for determining the gap.
@@ -364,7 +366,8 @@ class Dos(MSONable):
         """
         # Determine tolerance
         tdos = self.get_densities(spin)
-        assert tdos is not None
+        if tdos is None:
+            raise ValueError("tdos is None")
         if not abs_tol:
             tol = tol * tdos.sum() / tdos.shape[0]
 
@@ -388,7 +391,7 @@ class Dos(MSONable):
 
     def get_gap(
         self,
-        tol: float = 0.001,
+        tol: float = 1e-4,
         abs_tol: bool = False,
         spin: Spin | None = None,
     ) -> float:
@@ -482,6 +485,7 @@ class FermiDos(Dos, MSONable):
         ecbm, evbm = self.get_cbm_vbm()
         self.idx_vbm = int(np.argmin(abs(self.energies - evbm)))
         self.idx_cbm = int(np.argmin(abs(self.energies - ecbm)))
+        self.idx_mid_gap = int(self.idx_vbm + (self.idx_cbm - self.idx_vbm) / 2)
         self.A_to_cm = 1e-8
 
         if bandgap:
@@ -497,7 +501,8 @@ class FermiDos(Dos, MSONable):
             self.energies[idx_fermi:] += (bandgap - (ecbm - evbm)) / 2.0
 
     def get_doping(self, fermi_level: float, temperature: float) -> float:
-        """Calculate the doping (majority carrier concentration) at a given
+        """
+        Calculate the doping (majority carrier concentration) at a given
         Fermi level and temperature. A simple Left Riemann sum is used for
         integrating the density of states over energy & equilibrium Fermi-Dirac
         distribution.
@@ -513,15 +518,15 @@ class FermiDos(Dos, MSONable):
                 (P-type).
         """
         cb_integral = np.sum(
-            self.tdos[self.idx_cbm :]
-            * f0(self.energies[self.idx_cbm :], fermi_level, temperature)
-            * self.de[self.idx_cbm :],
+            self.tdos[self.idx_mid_gap :]
+            * f0(self.energies[self.idx_mid_gap :], fermi_level, temperature)
+            * self.de[self.idx_mid_gap :],
             axis=0,
         )
         vb_integral = np.sum(
-            self.tdos[: self.idx_vbm + 1]
-            * f0(-self.energies[: self.idx_vbm + 1], -fermi_level, temperature)
-            * self.de[: self.idx_vbm + 1],
+            self.tdos[: self.idx_mid_gap + 1]
+            * f0(-self.energies[: self.idx_mid_gap + 1], -fermi_level, temperature)
+            * self.de[: self.idx_mid_gap + 1],
             axis=0,
         )
         return (vb_integral - cb_integral) / (self.volume * self.A_to_cm**3)
@@ -647,12 +652,24 @@ class FermiDos(Dos, MSONable):
         }
 
 
-class FingerPrint(NamedTuple):
-    """The DOS fingerprint."""
+class DosFingerprint(NamedTuple):
+    """
+    Represents a Density of States (DOS) fingerprint.
 
-    energies: NDArray
-    densities: NDArray
-    type: str
+    This named tuple is used to store information related to the Density of States (DOS)
+    in a material. It includes the energies, densities, type, number of bins, and bin width.
+
+    Args:
+        energies: The energy values associated with the DOS.
+        densities: The corresponding density values for each energy.
+        fp_type: The type of DOS fingerprint.
+        n_bins: The number of bins used in the fingerprint.
+        bin_width: The width of each bin in the DOS fingerprint.
+    """
+
+    energies: np.ndarray
+    densities: np.ndarray
+    fp_type: str
     n_bins: int
     bin_width: float
 
@@ -899,11 +916,14 @@ class CompleteDos(Dos):
 
         energies = dos.energies - dos.efermi
         dos_densities = dos.get_densities(spin=spin)
-        assert dos_densities is not None
+        if dos_densities is None:
+            raise ValueError("dos_densities is None")
 
         # Only integrate up to Fermi level
         energies = dos.energies - dos.efermi
-        return np.trapz(dos_densities[energies < 0], x=energies[energies < 0]) / np.trapz(dos_densities, x=energies)
+        return np.trapezoid(dos_densities[energies < 0], x=energies[energies < 0]) / np.trapezoid(
+            dos_densities, x=energies
+        )
 
     def get_band_center(
         self,
@@ -1084,7 +1104,8 @@ class CompleteDos(Dos):
 
         energies = dos.energies - dos.efermi
         dos_densities = dos.get_densities(spin=spin)
-        assert dos_densities is not None
+        if dos_densities is None:
+            raise ValueError("dos_densities is None")
 
         # Only consider a given energy range
         if erange:
@@ -1099,7 +1120,7 @@ class CompleteDos(Dos):
             p = energies
 
         # Take the nth moment
-        return np.trapz(p**n * dos_densities, x=energies) / np.trapz(dos_densities, x=energies)
+        return np.trapezoid(p**n * dos_densities, x=energies) / np.trapezoid(dos_densities, x=energies)
 
     def get_hilbert_transform(
         self,
@@ -1179,7 +1200,8 @@ class CompleteDos(Dos):
 
         energies = transformed_dos.energies - transformed_dos.efermi
         densities = transformed_dos.get_densities(spin=spin)
-        assert densities is not None
+        if densities is None:
+            raise ValueError("densities is None")
 
         # Only consider a given energy range, if specified
         if erange:
@@ -1191,14 +1213,14 @@ class CompleteDos(Dos):
 
     def get_dos_fp(
         self,
-        type: str = "summed_pdos",  # noqa: A002
+        fp_type: str = "summed_pdos",
         binning: bool = True,
         min_e: float | None = None,
         max_e: float | None = None,
         n_bins: int = 256,
         normalize: bool = True,
-    ) -> FingerPrint:
-        """Generate the DOS FingerPrint.
+    ) -> DosFingerprint:
+        """Generate the DOS fingerprint.
 
         Based on the work of:
             F. Knoop, T. A. r Purcell, M. Scheffler, C. Carbogno, J. Open Source Softw. 2020, 5, 2671.
@@ -1206,7 +1228,7 @@ class CompleteDos(Dos):
             Copyright (c) 2020 Florian Knoop, Thomas A.R.Purcell, Matthias Scheffler, Christian Carbogno.
 
         Args:
-            type (str): The FingerPrint type, can be "{s/p/d/f/summed}_{pdos/tdos}"
+            fp_type (str): The FingerPrint type, can be "{s/p/d/f/summed}_{pdos/tdos}"
                 (default is summed_pdos).
             binning (bool): Whether to bin the DOS FingerPrint using np.linspace and n_bins.
                 Default is True.
@@ -1216,10 +1238,10 @@ class CompleteDos(Dos):
             normalize (bool): Whether to normalize the integrated DOS to 1. Default is True.
 
         Raises:
-            ValueError: If "type" is not one of the accepted values.
+            ValueError: If "fp_type" is not one of the accepted values.
 
         Returns:
-            FingerPrint(energies, densities, type, n_bins): The DOS fingerprint.
+            DosFingerprint(energies, densities, type, n_bins): The DOS fingerprint.
         """
         energies = self.energies - self.efermi
 
@@ -1237,12 +1259,12 @@ class CompleteDos(Dos):
         pdos["tdos"] = self.get_densities()
 
         try:
-            densities = pdos[type]
-            assert densities is not None
-
+            densities = pdos[fp_type]
+            if densities is None:
+                raise ValueError("densities is None")
             if len(energies) < n_bins:
                 inds = np.where((energies >= min_e) & (energies <= max_e))
-                return FingerPrint(energies[inds], densities[inds], type, len(energies), np.diff(energies)[0])
+                return DosFingerprint(energies[inds], densities[inds], fp_type, len(energies), np.diff(energies)[0])
 
             if binning:
                 ener_bounds = np.linspace(min_e, max_e, n_bins + 1)
@@ -1256,7 +1278,7 @@ class CompleteDos(Dos):
 
             dos_rebin = np.zeros(ener.shape)
 
-            for ii, e1, e2 in zip(range(len(ener)), ener_bounds[:-1], ener_bounds[1:]):
+            for ii, e1, e2 in zip(range(len(ener)), ener_bounds[:-1], ener_bounds[1:], strict=False):
                 inds = np.where((energies >= e1) & (energies < e2))
                 dos_rebin[ii] = np.sum(densities[inds])
 
@@ -1267,20 +1289,20 @@ class CompleteDos(Dos):
             else:
                 dos_rebin_sc = dos_rebin
 
-            return FingerPrint(np.array([ener]), dos_rebin_sc, type, n_bins, bin_width)
+            return DosFingerprint(np.array([ener]), dos_rebin_sc, fp_type, n_bins, bin_width)
 
         except KeyError as exc:
             raise ValueError(
-                "Please recheck type requested, either the orbital projections unavailable in input DOS or "
+                "Please recheck fp_type requested, either the orbital projections unavailable in input DOS or "
                 "there's a typo in type."
             ) from exc
 
     @staticmethod
-    def fp_to_dict(fp: FingerPrint) -> dict[str, NDArray]:
+    def fp_to_dict(fp: DosFingerprint) -> dict[str, NDArray]:
         """Convert a DOS FingerPrint into a dict.
 
         Args:
-            fp (FingerPrint): The DOS FingerPrint to convert.
+            fp (DosFingerprint): The DOS FingerPrint to convert.
 
         Returns:
             dict(Keys=type, Values=np.array(energies, densities)): The FingerPrint as dict.
@@ -1289,33 +1311,37 @@ class CompleteDos(Dos):
 
     @staticmethod
     def get_dos_fp_similarity(
-        fp1: FingerPrint,
-        fp2: FingerPrint,
+        fp1: DosFingerprint,
+        fp2: DosFingerprint,
         col: int = 1,
         pt: int | Literal["All"] = "All",
         normalize: bool = False,
-        tanimoto: bool = False,
+        metric: Literal["tanimoto", "wasserstein", "cosine-sim"] = "tanimoto",
     ) -> float:
         """Calculate the similarity index (dot product) of two DOS FingerPrints.
 
         Args:
-            fp1 (FingerPrint): The 1st DOS FingerPrint.
-            fp2 (FingerPrint): The 2nd DOS FingerPrint.
-            col (int): The item in the fingerprints (0: energies, 1: densities)
-                to take the dot product of (default is 1).
-            pt (int | "ALL") : The index of the point that the dot product is
-                to be taken (default is All).
-            normalize (bool): Whether to normalize the scalar product to 1 (default is False).
-            tanimoto (bool): Whether to compute Tanimoto index (default is False).
+            fp1 (DosFingerprint): The 1st dos fingerprint object
+            fp2 (DosFingerprint): The 2nd dos fingerprint object
+            col (int): The item in the fingerprints (0:energies,1: densities) to compute
+                the similarity index of (default is 1)
+            pt (int or str) : The index of the point that the dot product is to be taken (default is All)
+            normalize (bool): If True normalize the scalar product to 1 (default is False)
+            metric (Literal): Metric used to compute similarity default is "tanimoto".
 
         Raises:
-            ValueError: If both tanimoto and normalize are True.
+            ValueError: If metric other than tanimoto, wasserstein and "cosine-sim" is requested.
+            ValueError:  If normalize is set to True along with the metric.
 
         Returns:
             float: Similarity index given by the dot product.
         """
-        fp1_dict = fp1 if isinstance(fp1, dict) else CompleteDos.fp_to_dict(fp1)
-        fp2_dict = fp2 if isinstance(fp2, dict) else CompleteDos.fp_to_dict(fp2)
+        valid_metrics = ("tanimoto", "wasserstein", "cosine-sim")
+        if metric not in valid_metrics:
+            raise ValueError(f"Invalid {metric=}, choose from {valid_metrics}.")
+
+        fp1_dict = CompleteDos.fp_to_dict(fp1) if not isinstance(fp1, dict) else fp1
+        fp2_dict = CompleteDos.fp_to_dict(fp2) if not isinstance(fp2, dict) else fp2
 
         if pt == "All":
             vec1 = np.array([pt[col] for pt in fp1_dict.values()]).flatten()
@@ -1324,18 +1350,24 @@ class CompleteDos(Dos):
             vec1 = fp1_dict[fp1[2][pt]][col]
             vec2 = fp2_dict[fp2[2][pt]][col]
 
-        if not normalize:
-            rescale = np.linalg.norm(vec1) ** 2 + np.linalg.norm(vec2) ** 2 - np.dot(vec1, vec2) if tanimoto else 1.0
-
+        if not normalize and metric == "tanimoto":
+            rescale = np.linalg.norm(vec1) ** 2 + np.linalg.norm(vec2) ** 2 - np.dot(vec1, vec2)
             return np.dot(vec1, vec2) / rescale
 
-        if not tanimoto:
+        if not normalize and metric == "wasserstein":
+            return wasserstein_distance(
+                u_values=np.cumsum(vec1 * fp1.bin_width), v_values=np.cumsum(vec2 * fp2.bin_width)
+            )
+
+        if normalize and metric == "cosine-sim":
             rescale = np.linalg.norm(vec1) * np.linalg.norm(vec2)
             return np.dot(vec1, vec2) / rescale
 
-        raise ValueError(
-            "Cannot compute similarity index. Please set either normalize=True or tanimoto=True or both to False."
-        )
+        if not normalize and metric == "cosine-sim":
+            rescale = 1.0
+            return np.dot(vec1, vec2) / rescale
+
+        raise ValueError("Cannot compute similarity index. When normalize=True, then please set metric=cosine-sim")
 
     @classmethod
     def from_dict(cls, dct: dict) -> Self:
@@ -1397,7 +1429,7 @@ _lobster_orb_labs = (
 class LobsterCompleteDos(CompleteDos):
     """Extended CompleteDos for LOBSTER."""
 
-    def get_site_orbital_dos(self, site: PeriodicSite, orbital: str) -> Dos:  # type: ignore[override]
+    def get_site_orbital_dos(self, site: PeriodicSite, orbital: str) -> Dos:
         """Get the DOS for a particular orbital of a particular site.
 
         Args:
@@ -1437,7 +1469,8 @@ class LobsterCompleteDos(CompleteDos):
             if s == site:
                 for orb, pdos in atom_dos.items():
                     orbital = _get_orb_lobster(str(orb))
-                    assert orbital is not None
+                    if orbital is None:
+                        raise ValueError("orbital is None")
 
                     if orbital in (Orbital.dxy, Orbital.dxz, Orbital.dyz):
                         t2g_dos.append(pdos)
@@ -1448,7 +1481,7 @@ class LobsterCompleteDos(CompleteDos):
             "e_g": Dos(self.efermi, self.energies, functools.reduce(add_densities, eg_dos)),
         }
 
-    def get_spd_dos(self) -> dict[str, Dos]:  # type: ignore[override]
+    def get_spd_dos(self) -> dict[str, Dos]:
         """Get orbital projected DOS.
 
         For example, if 3s and 4s are included in the basis of some element,
@@ -1469,7 +1502,7 @@ class LobsterCompleteDos(CompleteDos):
 
         return {orb: Dos(self.efermi, self.energies, densities) for orb, densities in spd_dos.items()}  # type: ignore[misc]
 
-    def get_element_spd_dos(self, el: SpeciesLike) -> dict[str, Dos]:  # type: ignore[override]
+    def get_element_spd_dos(self, el: SpeciesLike) -> dict[str, Dos]:
         """Get element and s/p/d projected DOS.
 
         Args:
@@ -1540,7 +1573,8 @@ def f0(E: float, fermi: float, T: float) -> float:
     Returns:
         float: The Fermi-Dirac occupation probability at energy E.
     """
-    return 1.0 / (1.0 + np.exp((E - fermi) / (_constant("Boltzmann constant in eV/K") * T)))
+    exponent = (E - fermi) / (_constant("Boltzmann constant in eV/K") * T)
+    return expit(-exponent)  # scipy logistic sigmoid function; expit(x) = 1/(1+exp(-x))
 
 
 def _get_orb_type_lobster(orb: str) -> OrbitalType | None:
@@ -1568,7 +1602,7 @@ def _get_orb_lobster(orb: str) -> Orbital | None:
         orb (str): String representation of the orbital.
 
     Returns:
-        Orbital.
+        pymatgen.electronic_structure.core.Orbital
     """
     try:
         return Orbital(_lobster_orb_labs.index(orb[1:]))

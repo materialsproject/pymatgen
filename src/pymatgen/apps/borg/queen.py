@@ -110,8 +110,7 @@ class BorgQueen:
 def order_assimilation(args):
     """Internal helper method for BorgQueen to process assimilation."""
     path, drone, data, status = args
-    new_data = drone.assimilate(path)
-    if new_data:
+    if new_data := drone.assimilate(path):
         data.append(json.dumps(new_data, cls=MontyEncoder))
     status["count"] += 1
     count = status["count"]

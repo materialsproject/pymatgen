@@ -235,7 +235,7 @@ class TestMultiDataset(PymatgenTest):
         assert new_multi.ndtset == multi.ndtset
         assert new_multi.structure == multi.structure
 
-        for old_inp, new_inp in zip(multi, new_multi):
+        for old_inp, new_inp in zip(multi, new_multi, strict=True):
             assert old_inp is not new_inp
             assert old_inp.as_dict() == new_inp.as_dict()
 

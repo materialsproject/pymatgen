@@ -84,7 +84,7 @@ class Site(collections.abc.Hashable, MSONable):
             return props[attr]
         raise AttributeError(f"{attr=} not found on {type(self).__name__}")
 
-    def __getitem__(self, el: Element) -> float:  # type: ignore[override]
+    def __getitem__(self, el: Element) -> float:
         """Get the occupancy for element."""
         return self.species[el]
 
@@ -102,7 +102,7 @@ class Site(collections.abc.Hashable, MSONable):
             and self.properties == other.properties
         )
 
-    def __hash__(self) -> int:  # type: ignore[override]
+    def __hash__(self) -> int:
         """Minimally effective hash function that just distinguishes between Sites
         with different elements.
         """
@@ -329,7 +329,7 @@ class PeriodicSite(Site, MSONable):
         frac_coords = lattice.get_fractional_coords(coords) if coords_are_cartesian else coords
 
         if to_unit_cell:
-            frac_coords = np.array([np.mod(f, 1) if p else f for p, f in zip(lattice.pbc, frac_coords)])
+            frac_coords = np.array([np.mod(f, 1) if p else f for p, f in zip(lattice.pbc, frac_coords, strict=True)])
 
         if not skip_checks:
             frac_coords = np.array(frac_coords)
@@ -475,7 +475,7 @@ class PeriodicSite(Site, MSONable):
 
     def to_unit_cell(self, in_place: bool = False) -> Self | None:
         """Move frac coords to within the unit cell."""
-        frac_coords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, self.frac_coords)]
+        frac_coords = [np.mod(f, 1) if p else f for p, f in zip(self.lattice.pbc, self.frac_coords, strict=True)]
         if in_place:
             self.frac_coords = np.array(frac_coords)
             return None

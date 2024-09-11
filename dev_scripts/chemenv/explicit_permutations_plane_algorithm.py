@@ -44,16 +44,14 @@ if __name__ == "__main__":
             raise ValueError("Should all be separation plane")
 
         perms_on_file = f"Permutations on file in this algorithm ({len(sep_plane_algo._permutations)}) "
-        print(perms_on_file)
-        print(sep_plane_algo._permutations)
+        print(f"{perms_on_file}\n{sep_plane_algo._permutations}")
         permutations = sep_plane_algo.safe_separation_permutations(
             ordered_plane=sep_plane_algo.ordered_plane, ordered_point_groups=sep_plane_algo.ordered_point_groups
         )
 
         sep_plane_algo._permutations = permutations
 
-        print(f"Test permutations ({len(permutations)}) :")
-        print(permutations)
+        print(f"Test permutations ({len(permutations)}):\n{permutations}")
 
         lgf = LocalGeometryFinder()
         lgf.setup_parameters(structure_refinement=lgf.STRUCTURE_REFINEMENT_NONE)

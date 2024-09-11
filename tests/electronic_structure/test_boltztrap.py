@@ -6,6 +6,7 @@ from unittest import TestCase
 
 import pytest
 from monty.serialization import loadfn
+from numpy.testing import assert_allclose
 from pytest import approx
 
 from pymatgen.electronic_structure.bandstructure import BandStructure
@@ -14,21 +15,15 @@ from pymatgen.electronic_structure.core import OrbitalType, Spin
 from pymatgen.util.testing import TEST_FILES_DIR
 
 try:
-    from ase.io.cube import read_cube
-except ImportError:
-    read_cube = None
-
-try:
     import fdint
 except ImportError:
     fdint = None
 
+
 TEST_DIR = f"{TEST_FILES_DIR}/electronic_structure/boltztrap"
 
-x_trans = which("x_trans")
 
-
-@pytest.mark.skipif(not x_trans, reason="No x_trans.")
+@pytest.mark.skipif(not which("x_trans"), reason="No x_trans.")
 class TestBoltztrapAnalyzer(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -187,9 +182,9 @@ class TestBoltztrapAnalyzer(TestCase):
             [-1.36897140e-17, 8.74169648e-17, 2.21151980e01],
         ]
 
-        assert self.bz.get_average_eff_mass(output="tensor")["p"][300][2] == approx(ref, abs=1e-4)
-        assert self.bz.get_average_eff_mass(output="tensor", doping_levels=False)[300][500] == approx(ref2, 4)
-        assert self.bz.get_average_eff_mass(output="average")["n"][300][2] == approx(1.53769093989, abs=1e-4)
+        assert_allclose(self.bz.get_average_eff_mass(output="tensor")["p"][300][2], ref, atol=1e-4)
+        assert_allclose(self.bz.get_average_eff_mass(output="tensor", doping_levels=False)[300][500], ref2, rtol=4)
+        assert_allclose(self.bz.get_average_eff_mass(output="average")["n"][300][2], 1.53769093989, atol=1e-4)
 
     def test_get_carrier_concentration(self):
         assert self.bz.get_carrier_concentration()[300][39] / 1e22 == approx(6.4805156617179151, abs=1e-4)
@@ -204,20 +199,23 @@ class TestBoltztrapAnalyzer(TestCase):
         sbs = loadfn(f"{TEST_DIR}/dft_bs_sym_line.json")
         kpoints = [kp.frac_coords for kp in sbs.kpoints]
         labels_dict = {k: sbs.labels_dict[k].frac_coords for k in sbs.labels_dict}
-        for kpt_line, label_dict in zip([None, sbs.kpoints, kpoints], [None, sbs.labels_dict, labels_dict]):
+        for kpt_line, label_dict in zip(
+            [None, sbs.kpoints, kpoints], [None, sbs.labels_dict, labels_dict], strict=True
+        ):
             sbs_bzt = self.bz_bands.get_symm_bands(structure, -5.25204548, kpt_line=kpt_line, labels_dict=label_dict)
             assert len(sbs_bzt.bands[Spin.up]) == approx(20)
             assert len(sbs_bzt.bands[Spin.up][1]) == approx(143)
 
-    # def test_check_acc_bzt_bands(self):
-    #     structure = loadfn(f"{TEST_DIR}/structure_mp-12103.json")
-    #     sbs = loadfn(f"{TEST_DIR}/dft_bs_sym_line.json")
-    #     sbs_bzt = self.bz_bands.get_symm_bands(structure, -5.25204548)
-    #     corr, werr_vbm, werr_cbm, warn = BoltztrapAnalyzer.check_acc_bzt_bands(sbs_bzt, sbs)
-    #     assert corr[2] == 9.16851750e-05
-    #     assert werr_vbm["K-H"] == 0.18260273521047862
-    #     assert werr_cbm["M-K"] == 0.071552669981356981
-    #     assert not warn
+    @pytest.mark.skip("TODO: need someone to fix this")
+    def test_check_acc_bzt_bands(self):
+        structure = loadfn(f"{TEST_DIR}/structure_mp-12103.json")
+        sbs = loadfn(f"{TEST_DIR}/dft_bs_sym_line.json")
+        sbs_bzt = self.bz_bands.get_symm_bands(structure, -5.25204548)
+        corr, werr_vbm, werr_cbm, warn = BoltztrapAnalyzer.check_acc_bzt_bands(sbs_bzt, sbs)
+        assert corr[2] == 9.16851750e-05
+        assert werr_vbm["K-H"] == 0.18260273521047862
+        assert werr_cbm["M-K"] == 0.071552669981356981
+        assert not warn
 
     def test_get_complete_dos(self):
         structure = loadfn(f"{TEST_DIR}/structure_mp-12103.json")

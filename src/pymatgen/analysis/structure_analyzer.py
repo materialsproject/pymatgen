@@ -154,7 +154,7 @@ class VoronoiAnalyzer:
         Returns:
             plt.Axes: Matplotlib Axes object with the plotted Voronoi analysis.
         """
-        labels, val = zip(*voronoi_ensemble)
+        labels, val = zip(*voronoi_ensemble, strict=True)
         arr = np.array(val, dtype=float)
         arr /= np.sum(arr)
         pos = np.arange(len(arr)) + 0.5  # the bar centers on the y axis
@@ -457,9 +457,7 @@ class OxideType:
                 return "hydroxide", int(len(np.where(dist_matrix < relative_cutoff * 0.93)[0]) / 2)
         dist_matrix = lattice.get_all_distances(o_sites_frac_coords, o_sites_frac_coords)
         np.fill_diagonal(dist_matrix, 1000)
-        is_superoxide = False
-        is_peroxide = False
-        is_ozonide = False
+        is_superoxide = is_peroxide = is_ozonide = False
         bond_atoms = []
         if np.any(dist_matrix < relative_cutoff * 1.35):
             bond_atoms = np.where(dist_matrix < relative_cutoff * 1.35)[0]

@@ -129,10 +129,7 @@ def draw_cg(
                 faces = cg.faces(neighbors)
                 edges = cg.edges(neighbors)
             symbol = next(iter(site.species)).symbol
-            if faces_color_override:
-                color = faces_color_override
-            else:
-                color = [float(i) / 255 for i in vis.el_color_mapping[symbol]]
+            color = faces_color_override or [float(i) / 255 for i in vis.el_color_mapping[symbol]]
             vis.add_faces(faces, color, opacity=0.4)
             vis.add_edges(edges)
         if show_perfect:
@@ -187,8 +184,8 @@ def visualize(cg, zoom=None, vis=None, factor=1.0, view_index=True, faces_color_
         faces_color_override=faces_color_override,
     )
     if view_index:
-        for ineighbor, neighbor in enumerate(structure[1:]):
-            vis.add_text(neighbor.coords, f"{ineighbor}", color=(0, 0, 0))
+        for nbr_idx, neighbor in enumerate(structure[1:]):
+            vis.add_text(neighbor.coords, f"{nbr_idx}", color=(0, 0, 0))
     if zoom is not None:
         vis.zoom(zoom)
     return vis
@@ -361,8 +358,7 @@ def compute_environments(chemenv_configuration):
                     deltas = [np.zeros(3, float)]
                 if first_time and StructureVis is not None:
                     vis = StructureVis(show_polyhedron=False, show_unit_cell=True)
-                    vis.show_help = False
-                    first_time = False
+                    vis.show_help = first_time = False
                 else:
                     vis = None  # TODO: following code logic seems buggy
 
@@ -378,17 +374,17 @@ def compute_environments(chemenv_configuration):
                     ce = strategy.get_site_coordination_environment(site)
                     if ce is not None and ce[0] != UNCLEAR_ENVIRONMENT_SYMBOL:
                         for delta in deltas:
-                            psite = PeriodicSite(
+                            p_site = PeriodicSite(
                                 site.species,
                                 site.frac_coords + delta,
                                 site.lattice,
                                 properties=site.properties,
                             )
-                            vis.add_site(psite)
-                            neighbors = strategy.get_site_neighbors(psite)
+                            vis.add_site(p_site)
+                            neighbors = strategy.get_site_neighbors(p_site)
                             draw_cg(
                                 vis,
-                                psite,
+                                p_site,
                                 neighbors,
                                 cg=lgf.allcg.get_geometry_from_mp_symbol(ce[0]),
                                 perm=ce[1]["permutation"],

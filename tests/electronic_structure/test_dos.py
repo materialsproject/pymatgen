@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from unittest import TestCase
 
 import numpy as np
@@ -65,8 +66,8 @@ class TestFermiDos(TestCase):
         fermi_range = [fermi0 - 0.5, fermi0, fermi0 + 2.0, fermi0 + 2.2]
         dopings = [self.dos.get_doping(fermi_level=fermi_lvl, temperature=T) for fermi_lvl in fermi_range]
         ref_dopings = [3.48077e21, 1.9235e18, -2.6909e16, -4.8723e19]
-        for i, c_ref in enumerate(ref_dopings):
-            assert abs(dopings[i] / c_ref - 1.0) <= 0.01
+        for idx, c_ref in enumerate(ref_dopings):
+            assert abs(dopings[idx] / c_ref - 1.0) <= 0.01
 
         calc_fermis = [self.dos.get_fermi(concentration=c, temperature=T) for c in ref_dopings]
         for j, f_ref in enumerate(fermi_range):
@@ -79,11 +80,11 @@ class TestFermiDos(TestCase):
         new_cbm, new_vbm = sci_dos.get_cbm_vbm()
         assert new_cbm - old_cbm == approx((3.0 - old_gap) / 2.0)
         assert old_vbm - new_vbm == approx((3.0 - old_gap) / 2.0)
-        for i, c_ref in enumerate(ref_dopings):
+        for idx, c_ref in enumerate(ref_dopings):
             if c_ref < 0:
-                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[i] == approx(0.47, abs=1e-2)
+                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[idx] == approx(0.47, abs=1e-2)
             else:
-                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[i] == approx(-0.47, abs=1e-2)
+                assert sci_dos.get_fermi(c_ref, temperature=T) - fermi_range[idx] == approx(-0.47, abs=1e-2)
 
         assert sci_dos.get_fermi_interextrapolated(-1e26, 300) == approx(7.5108, abs=1e-4)
         assert sci_dos.get_fermi_interextrapolated(1e26, 300) == approx(-1.4182, abs=1e-4)
@@ -249,57 +250,68 @@ class TestCompleteDos(TestCase):
         assert kurtosis == approx(7.764506941340621)
 
     def test_get_dos_fp(self):
-        # normalize=True
-        dos_fp = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        # normalize is True
+        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
         bin_width = np.diff(dos_fp.energies)[0][0]
         assert max(dos_fp.energies[0]) <= 0
         assert min(dos_fp.energies[0]) >= -10
         assert len(dos_fp.energies[0]) == 56
-        assert dos_fp.type == "s"
+        assert dos_fp.fp_type == "s"
         assert sum(dos_fp.densities * bin_width) == approx(1)
-        # normalize=False
-        dos_fp2 = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, n_bins=56, normalize=False)
+        # normalize is False
+        dos_fp2 = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=False)
         bin_width2 = np.diff(dos_fp2.energies)[0][0]
         assert sum(dos_fp2.densities * bin_width2) == approx(7.279303571428509)
         assert dos_fp2.bin_width == approx(bin_width2)
-        # binning=False
-        dos_fp = self.dos.get_dos_fp(type="s", min_e=None, max_e=None, n_bins=56, normalize=True, binning=False)
+        # binning is False
+        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=None, max_e=None, n_bins=56, normalize=True, binning=False)
         assert dos_fp.n_bins == len(self.dos.energies)
 
     def test_get_dos_fp_similarity(self):
-        dos_fp = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        dos_fp2 = self.dos.get_dos_fp(type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, tanimoto=True)
+        # Tanimoto
+        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        dos_fp2 = self.dos.get_dos_fp(fp_type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="tanimoto")
         assert similarity_index == approx(0.3342481451042263)
 
-        dos_fp = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        dos_fp2 = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, tanimoto=True)
+        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        dos_fp2 = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="tanimoto")
         assert similarity_index == approx(1)
 
+        # Wasserstein
+        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        dos_fp2 = self.dos.get_dos_fp(fp_type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        similarity_index = self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="wasserstein")
+        assert similarity_index == approx(0.2668440595873588)
+
     def test_dos_fp_exceptions(self):
-        dos_fp = self.dos.get_dos_fp(type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
-        dos_fp2 = self.dos.get_dos_fp(type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        dos_fp = self.dos.get_dos_fp(fp_type="s", min_e=-10, max_e=0, n_bins=56, normalize=True)
+        dos_fp2 = self.dos.get_dos_fp(fp_type="tdos", min_e=-10, max_e=0, n_bins=56, normalize=True)
         # test exceptions
         with pytest.raises(
             ValueError,
-            match="Cannot compute similarity index. Please set either "
-            "normalize=True or tanimoto=True or both to False.",
+            match="Cannot compute similarity index. When normalize=True, then please set metric=cosine-sim",
         ):
-            self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, tanimoto=True, normalize=True)
+            self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric="tanimoto", normalize=True)
         with pytest.raises(
             ValueError,
-            match="Please recheck type requested, either the orbital "
+            match="Please recheck fp_type requested, either the orbital "
             "projections unavailable in input DOS or there's a typo in type.",
         ):
-            self.dos.get_dos_fp(type="k", min_e=-10, max_e=0, n_bins=56, normalize=True)
+            self.dos.get_dos_fp(fp_type="k", min_e=-10, max_e=0, n_bins=56, normalize=True)
+
+        valid_metrics = ("tanimoto", "wasserstein", "cosine-sim")
+        metric = "Dot"
+        with pytest.raises(ValueError, match=re.escape(f"Invalid {metric=}, choose from {valid_metrics}.")):
+            self.dos.get_dos_fp_similarity(dos_fp, dos_fp2, col=1, metric=metric, normalize=False)
 
 
 class TestDOS(PymatgenTest):
     def setUp(self):
         with open(f"{TEST_DIR}/complete_dos.json") as file:
             dct = json.load(file)
-            ys = list(zip(dct["densities"]["1"], dct["densities"]["-1"]))
+            ys = list(zip(dct["densities"]["1"], dct["densities"]["-1"], strict=True))
             self.dos = DOS(dct["energies"], ys, dct["efermi"])
 
     def test_get_gap(self):

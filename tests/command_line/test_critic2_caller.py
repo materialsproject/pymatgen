@@ -90,6 +90,22 @@ class TestCritic2Analysis(TestCase):
         self.c2o_new_format = Critic2Analysis(structure, reference_stdout_new_format)
 
     def test_to_from_dict(self):
+        """
+        reference dictionary for c2o.critical_points[0].as_dict()
+        {'@class': 'CriticalPoint',
+         '@module': 'pymatgen.command_line.critic2_caller',
+         'coords': None,
+         'field': 93848.0413,
+         'field_gradient': 0.0,
+         'field_hessian': [[-2593274446000.0, -3.873587547e-19, -1.704530713e-08],
+                           [-3.873587547e-19, -2593274446000.0, 1.386877485e-18],
+                           [-1.704530713e-08, 1.386877485e-18, -2593274446000.0]],
+         'frac_coords': [0.333333, 0.666667, 0.213295],
+         'index': 0,
+         'multiplicity': 1.0,
+         'point_group': 'D3h',
+         'type': < CriticalPointType.nucleus: 'nucleus' >}
+        """
         assert len(self.c2o.critical_points) == 6
         assert len(self.c2o.nodes) == 14
         assert len(self.c2o.edges) == 10
@@ -97,21 +113,6 @@ class TestCritic2Analysis(TestCase):
         assert len(self.c2o_new_format.critical_points) == 6
         assert len(self.c2o_new_format.nodes) == 14
         assert len(self.c2o_new_format.edges) == 10
-
-        # reference dictionary for c2o.critical_points[0].as_dict()
-        # {'@class': 'CriticalPoint',
-        #  '@module': 'pymatgen.command_line.critic2_caller',
-        #  'coords': None,
-        #  'field': 93848.0413,
-        #  'field_gradient': 0.0,
-        #  'field_hessian': [[-2593274446000.0, -3.873587547e-19, -1.704530713e-08],
-        #                    [-3.873587547e-19, -2593274446000.0, 1.386877485e-18],
-        #                    [-1.704530713e-08, 1.386877485e-18, -2593274446000.0]],
-        #  'frac_coords': [0.333333, 0.666667, 0.213295],
-        #  'index': 0,
-        #  'multiplicity': 1.0,
-        #  'point_group': 'D3h',
-        #  'type': < CriticalPointType.nucleus: 'nucleus' >}
 
         assert str(self.c2o.critical_points[0].type) == "CriticalPointType.nucleus"
 

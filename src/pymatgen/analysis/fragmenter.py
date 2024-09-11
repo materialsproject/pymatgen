@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import copy
-import logging
 from typing import TYPE_CHECKING
 
 from monty.json import MSONable
@@ -22,8 +21,6 @@ __maintainer__ = "Samuel Blau"
 __email__ = "samblau1@gmail.com"
 __status__ = "Beta"
 __date__ = "8/21/19"
-
-logger = logging.getLogger(__name__)
 
 
 class Fragmenter(MSONable):
@@ -172,8 +169,8 @@ class Fragmenter(MSONable):
         check if the resulting fragment is present in self.unique_fragments and add it if it is not.
         """
         new_frag_dict = {}
-        for old_frag_key in old_frag_dict:
-            for old_frag in old_frag_dict[old_frag_key]:
+        for old_frags in old_frag_dict.values():
+            for old_frag in old_frags:
                 for edge in old_frag.graph.edges:
                     bond = [(edge[0], edge[1])]
                     fragments = []

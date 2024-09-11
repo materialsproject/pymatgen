@@ -25,8 +25,8 @@ __email__ = "ajain@lbl.gov"
 __date__ = "Oct 27, 2014"
 
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
-csv_path = f"{module_dir}/hhi_data.csv"
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+HHI_CSV_PATH = f"{MODULE_DIR}/hhi_data.csv"
 
 
 @singleton
@@ -37,7 +37,7 @@ class HHIModel:
         """Init for HHIModel."""
         self.symbol_hhip_hhir = {}  # symbol->(HHI_production, HHI reserve)
 
-        with open(csv_path) as file:
+        with open(HHI_CSV_PATH) as file:
             for line in file:
                 if line[0] != "#":
                     symbol, hhi_production, hhi_reserve = line.split(",")
@@ -63,8 +63,7 @@ class HHIModel:
             if not isinstance(comp_or_form, Composition):
                 comp_or_form = Composition(comp_or_form)
 
-            hhi_p = 0
-            hhi_r = 0
+            hhi_p = hhi_r = 0
 
             for e in comp_or_form.elements:
                 percent = comp_or_form.get_wt_fraction(e)

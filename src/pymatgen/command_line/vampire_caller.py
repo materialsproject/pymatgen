@@ -31,16 +31,27 @@ __email__ = "ncfrey@lbl.gov"
 __status__ = "Development"
 __date__ = "June 2019"
 
-VAMPEXE = which("vampire-serial")
+VAMP_EXE = which("vampire-serial")
 
 
 class VampireCaller:
-    """Run Vampire on a material with magnetic ordering and exchange parameter information to compute the critical
-    temperature with classical Monte Carlo.
+    """Run Vampire on a material with magnetic ordering and exchange parameter
+    information to compute the critical temperature with classical Monte Carlo.
+
+    Attributes:
+            sgraph (StructureGraph): Ground state graph.
+            unique_site_ids (dict): Maps each site to its unique identifier
+            nn_interactions (dict): {i: j} pairs of NN interactions
+                between unique sites.
+            ex_params (dict): Exchange parameter values (meV/atom)
+            mft_t (float): Mean field theory estimate of critical T
+            mat_name (str): Formula unit label for input files
+            mat_id_dict (dict): Maps sites to material id # for vampire
+                indexing.
     """
 
     @requires(
-        VAMPEXE,
+        VAMP_EXE,
         "VampireCaller requires vampire-serial to be in the path."
         "Please follow the instructions at https://vampire.york.ac.uk/download/.",
     )
@@ -73,17 +84,6 @@ class VampireCaller:
             avg (bool): If True, simply use <J> exchange parameter estimate.
                 If False, attempt to use NN, NNN, etc. interactions.
             user_input_settings (dict): optional commands for VAMPIRE Monte Carlo
-
-        Attributes:
-            sgraph (StructureGraph): Ground state graph.
-            unique_site_ids (dict): Maps each site to its unique identifier
-            nn_interactions (dict): {i: j} pairs of NN interactions
-                between unique sites.
-            ex_params (dict): Exchange parameter values (meV/atom)
-            mft_t (float): Mean field theory estimate of critical T
-            mat_name (str): Formula unit label for input files
-            mat_id_dict (dict): Maps sites to material id # for vampire
-                indexing.
 
         Todo:
             * Create input files in a temp folder that gets cleaned up after run terminates
@@ -130,7 +130,7 @@ class VampireCaller:
         self._create_ucf()
 
         # Call Vampire
-        with subprocess.Popen(["vampire-serial"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
+        with subprocess.Popen([VAMP_EXE], stdout=subprocess.PIPE, stderr=subprocess.PIPE) as process:
             _stdout, stderr = process.communicate()
             stdout: str = _stdout.decode()
 
@@ -381,20 +381,19 @@ class VampireCaller:
         names = ["T", "m_total", *[f"m_{idx + 1}" for idx in range(n_mats)], "X_x", "X_y", "X_z", "X_m", "nan"]
 
         # Parsing vampire MC output
-        df = pd.read_csv(vamp_stdout, sep="\t", skiprows=9, header=None, names=names)
-        df = df.drop("nan", axis=1)
+        df_stdout = pd.read_csv(vamp_stdout, sep="\t", skiprows=9, header=None, names=names).drop("nan", axis=1)
 
-        parsed_out = df.to_json()
+        parsed_out = df_stdout.to_json()
 
         # Max of susceptibility <-> critical temp
-        critical_temp = df.iloc[df.X_m.idxmax()]["T"]
+        critical_temp = df_stdout.iloc[df_stdout.X_m.idxmax()]["T"]
 
         return parsed_out, critical_temp
 
 
 class VampireOutput(MSONable):
     """This class processes results from a Vampire Monte Carlo simulation
-    and returns the critical temperature.
+    and parses the critical temperature.
     """
 
     def __init__(self, parsed_out=None, nmats=None, critical_temp=None):

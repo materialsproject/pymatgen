@@ -22,15 +22,15 @@ if TYPE_CHECKING:
 # JACS, 1991, 113(9), 3226-3229. doi:10.1021/ja00009a002.
 ELECTRONEG = [Element(sym) for sym in "H B C Si N P As Sb O S Se Te F Cl Br I".split()]
 
-module_dir = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Read in BV parameters.
 BV_PARAMS = {}
-for key, val in loadfn(f"{module_dir}/bvparam_1991.yaml").items():
+for key, val in loadfn(f"{MODULE_DIR}/bvparam_1991.yaml").items():
     BV_PARAMS[Element(key)] = val
 
 # Read in YAML containing data-mined ICSD BV data.
-all_data = loadfn(f"{module_dir}/icsd_bv.yaml")
+all_data = loadfn(f"{MODULE_DIR}/icsd_bv.yaml")
 ICSD_BV_DATA = {Species.from_str(sp): data for sp, data in all_data["bvsum"].items()}
 PRIOR_PROB = {Species.from_str(sp): data for sp, data in all_data["occurrence"].items()}
 
@@ -403,7 +403,7 @@ class BVAnalyzer:
         if self._best_vset:
             if structure.is_ordered:
                 assigned = {}
-                for val, sites in zip(self._best_vset, equi_sites):
+                for val, sites in zip(self._best_vset, equi_sites, strict=True):
                     for site in sites:
                         assigned[site] = val
 
@@ -414,7 +414,7 @@ class BVAnalyzer:
                 new_best_vset.append([])
             for ival, val in enumerate(self._best_vset):
                 new_best_vset[attrib[ival]].append(val)
-            for val, sites in zip(new_best_vset, equi_sites):
+            for val, sites in zip(new_best_vset, equi_sites, strict=True):
                 for site in sites:
                     assigned[site] = val
 
