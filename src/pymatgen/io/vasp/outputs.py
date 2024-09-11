@@ -4262,29 +4262,30 @@ class VaspParseError(ParseError):
 
 
 def get_band_structure_from_vasp_multiple_branches(
-    dir_name: str,
+    dir_name: PathLike,
     efermi: float | None = None,
     projections: bool = False,
 ) -> BandStructureSymmLine | BandStructure | None:
     """Get band structure info from a VASP directory.
 
-    It takes into account that a run can be divided in several branches named
-    "branch_x". If the run has not been divided in branches the method will
-    turn to parsing vasprun.xml directly.
+    It takes into account that a run can be divided in several branches,
+    each inside a directory named "branch_x". If the run has not been
+    divided in branches the function will turn to parse vasprun.xml
+    directly from the selected directory.
 
     Args:
-        dir_name: Directory containing all bandstructure runs.
-        efermi: Efermi for bandstructure.
-        projections: True if you want to get the data on site projections if
-            any. Note that this is sometimes very large
+        dir_name (PathLike): Parent directory containing all bandstructure runs.
+        efermi (float): Fermi level for bandstructure.
+        projections (bool): True if you want to get the data on site
+            projections if any. Note that this is sometimes very large
 
     Returns:
-        A BandStructure Object.
+        A BandStructure/BandStructureSymmLine Object.
         None is there's a parsing error.
     """
-    # TODO: Add better error handling!!!
+    # TODO: Add better error handling
     if os.path.isfile(f"{dir_name}/branch_0"):
-        # Get all branch dir names
+        # Get all branch directory names
         branch_dir_names = [os.path.abspath(d) for d in glob(f"{dir_name}/branch_*") if os.path.isdir(d)]
 
         # Sort by the directory name (e.g, branch_10)
@@ -4299,7 +4300,7 @@ def get_band_structure_from_vasp_multiple_branches(
                 branches.append(run.get_band_structure(efermi=efermi))
             else:
                 # TODO: It might be better to throw an exception
-                warnings.warn(f"Skipping {dname}. Unable to find {xml_file}")
+                warnings.warn(f"Skipping {dname}. Unable to find {xml_file}", stacklevel=2)
 
         return get_reconstructed_band_structure(branches, efermi)
 
