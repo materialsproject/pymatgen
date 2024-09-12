@@ -4308,8 +4308,7 @@ def get_band_structure_from_vasp_multiple_branches(
             kpoints_filename=None, efermi=efermi
         )
 
-    warnings.warn(f"failed to find any vasprun.xml file in selected {dir_name=}", stacklevel=2)
-    return None
+    raise FileNotFoundError(f"failed to find any vasprun.xml in selected {dir_name=}")
 
 
 class Xdatcar:

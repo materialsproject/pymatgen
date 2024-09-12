@@ -1459,11 +1459,9 @@ class TestGetBandStructureFromVaspMultipleBranches:
             assert isinstance(bs, BandStructure)
 
     def test_cannot_read_anything(self):
-        """Test no branch_0/, no dir_name/vasprun.xml, nothing."""
-        with pytest.warns(match="failed to find any vasprun.xml file in selected"):
-            with ScratchDir("."):
-                bs = get_band_structure_from_vasp_multiple_branches(".")
-            assert bs is None
+        """Test no branch_0/, no dir_name/vasprun.xml, no vasprun.xml at all."""
+        with pytest.raises(FileNotFoundError, match="failed to find any vasprun.xml in selected"), ScratchDir("."):
+            get_band_structure_from_vasp_multiple_branches(".")
 
 
 class TestLocpot(PymatgenTest):
