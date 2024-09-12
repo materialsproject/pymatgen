@@ -76,6 +76,12 @@ jobs:
         run: |
           micromamba install -n pmg -c conda-forge bader enumlib openff-toolkit packmol pygraphviz tblite --yes
 
+      # - name: Install the latest version of uv
+      #   uses: astral-sh/setup-uv@v2
+      #   with:
+      #     enable-cache: true
+      #     version: "latest"
+
       - name: Install pymatgen and dependencies
         run: |
           micromamba activate pmg
