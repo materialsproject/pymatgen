@@ -71,6 +71,8 @@ jobs:
       # - name: Install uv
       #   run: micromamba run -n pmg pip install uv
 
+      # Try let uv cache work
+
       - name: Install ubuntu-only conda dependencies
         if: matrix.config.os == 'ubuntu-latest'
         run: |
