@@ -1099,7 +1099,7 @@ class Composition(collections.abc.Hashable, collections.abc.Mapping, MSONable, S
             factor: Coefficient for this parse, e.g. (PO4)2 will feed in PO4
                 as the fuzzy_formula with a coefficient of 2.
 
-        Returns:
+        Yields:
             list[tuple[Composition, int]]: A list of tuples, with the first element being a Composition
                 and the second element being the number of points awarded that Composition interpretation.
         """
