@@ -82,10 +82,9 @@ jobs:
           # TODO1 (use uv over pip) uv install torch is flaky, track #3826
           # TODO2 (pin torch version): DGL library (matgl) doesn't support torch > 2.2.1,
           # see: https://discuss.dgl.ai/t/filenotfounderror-cannot-find-dgl-c-graphbolt-library/4302
-          # DEBUG: attach timestamp in ms
-          pip install torch==2.2.1 --verbose 2>&1 | while IFS= read -r line; do echo "$(date '+%Y-%m-%d %H:%M:%S.%3N') $line"; done
+          pip install torch==2.2.1
 
-          uv pip install --editable '.[${{ matrix.config.extras }}]' --resolution=${{ matrix.config.resolution }} --verbose 2>&1 | while IFS= read -r line; do echo "$(date '+%Y-%m-%d %H:%M:%S.%3N') $line"; done
+          uv pip install --editable '.[${{ matrix.config.extras }}]' --resolution=${{ matrix.config.resolution }}
 
       - name: Install optional Ubuntu dependencies
         if: matrix.config.os == 'ubuntu-latest'
