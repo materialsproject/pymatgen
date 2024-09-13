@@ -348,8 +348,8 @@ class AdsorbateSiteFinder:
         sites. Helper method for the find_adsorption_sites algorithm.
 
         Args:
-            site_list (list of sites): list of sites
-            indices (list of ints): list of ints from which to select
+            site_list (list[Site]): sites from which to select
+            indices (list[int]): indices of sites from which to select
                 sites from site list
             cartesian (bool): whether to get average fractional or
                 Cartesian coordinate
@@ -543,7 +543,7 @@ class AdsorbateSiteFinder:
             atom (str): atom corresponding to substitutional dopant
             sub_both_sides (bool): If true, substitute an equivalent
                 site on the other surface
-            target_species (list): List of specific species to substitute
+            target_species (list): Specific species to substitute
             range_tol (float): Find viable substitution sites at a specific
                 distance from the surface +- this tolerance
             dist_from_surf (float): Distance from the surface to find viable

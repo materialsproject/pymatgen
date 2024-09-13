@@ -382,25 +382,18 @@ class FiestaInput(MSONable):
         self.bse_tddft_options.update(npsi_bse=n_excitations, nit_bse=nit_bse)
 
     def dump_bse_data_in_gw_run(self, BSE_dump=True):
-        """
-        Args:
-            BSE_dump: bool.
+        """Set the "do_bse" variable to 1 or 0 in cell.in.
 
-        Returns:
-            set the "do_bse" variable to one in cell.in
+        Args:
+            BSE_dump (bool): Defaults to True.
         """
-        if BSE_dump:
-            self.bse_tddft_options.update(do_bse=1, do_tddft=0)
-        else:
-            self.bse_tddft_options.update(do_bse=0, do_tddft=0)
+        self.bse_tddft_options.update(do_bse=int(BSE_dump), do_tddft=0)
 
     def dump_tddft_data_in_gw_run(self, tddft_dump: bool = True):
-        """
-        Args:
-            TDDFT_dump: bool.
+        """Set the do_tddft variable to 1 or 0 in cell.in.
 
-        Returns:
-            set the do_tddft variable to one in cell.in
+        Args:
+            tddft_dump (bool): Defaults to True.
         """
         self.bse_tddft_options.update(do_bse="0", do_tddft="1" if tddft_dump else "0")
 

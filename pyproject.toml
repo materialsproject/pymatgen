@@ -165,10 +165,6 @@ include = ["pymatgen", "pymatgen.*"]
 lint = ["mypy>=1.10.0", "pre-commit>=3.7.1", "ruff>=0.4.9"]
 test = ["pytest-cov>=5.0.0", "pytest-split>=0.9.0", "pytest>=8.2.2"]
 
-[tool.versioningit.vcs]
-method = "git"
-default-tag = "0.0.1"
-
 [tool.cibuildwheel.linux]
 archs = ["auto64"]
 skip = ["*musllinux*"]
