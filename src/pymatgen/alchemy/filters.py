@@ -214,16 +214,21 @@ class RemoveDuplicatesFilter(AbstractStructureFilter):
 class RemoveExistingFilter(AbstractStructureFilter):
     """This filter removes structures existing in a given list from the transmuter."""
 
-    def __init__(self, existing_structures, structure_matcher=None, symprec=None):
+    def __init__(
+        self,
+        existing_structures: list[Structure],
+        structure_matcher: dict | StructureMatcher | None = None,
+        symprec: float | None = None,
+    ) -> None:
         """Remove existing structures based on the structure matcher
         and symmetry (if symprec is given).
 
         Args:
-            existing_structures: List of existing structures to compare with
-            structure_matcher: Provides a structure matcher to be used for
+            existing_structures (list[Structure]): Existing structures to compare with.
+            structure_matcher (dict | StructureMatcher, optional): Will be used for
                 structure comparison.
-            symprec: The precision in the symmetry finder algorithm if None (
-                default value), no symmetry check is performed and only the
+            symprec (float | None): The precision in the symmetry finder algorithm.
+                If None (default value), no symmetry check is performed and only the
                 structure matcher is used. A recommended value is 1e-5.
         """
         self.symprec = symprec
@@ -241,15 +246,15 @@ class RemoveExistingFilter(AbstractStructureFilter):
             finder = SpacegroupAnalyzer(s, symprec=self.symprec)
             return finder.get_space_group_number()
 
-        for s in self.existing_structures:
+        for struct in self.existing_structures:
             if (
                 (
                     self.structure_matcher._comparator.get_hash(structure.composition)
-                    == self.structure_matcher._comparator.get_hash(s.composition)
+                    == self.structure_matcher._comparator.get_hash(struct.composition)
                     and self.symprec is None
                 )
-                or get_sg(s) == get_sg(structure)
-            ) and self.structure_matcher.fit(s, structure):
+                or get_sg(struct) == get_sg(structure)
+            ) and self.structure_matcher.fit(struct, structure):
                 return False
 
         self.structure_list.append(structure)

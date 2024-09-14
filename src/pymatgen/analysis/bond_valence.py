@@ -460,18 +460,18 @@ def get_z_ordered_elmap(comp):
     return sorted((elem, comp[elem]) for elem in comp)
 
 
-def add_oxidation_state_by_site_fraction(structure, oxidation_states):
+def add_oxidation_state_by_site_fraction(structure: Structure, oxidation_states: list[list[int]]) -> Structure:
     """
     Add oxidation states to a structure by fractional site.
 
     Args:
-        oxidation_states (list): List of list of oxidation states for each
+        oxidation_states (list[list[int]]): List of list of oxidation states for each
             site fraction for each site.
             e.g. [[2, 4], [3], [-2], [-2], [-2]]
     """
     try:
         for idx, site in enumerate(structure):
-            new_sp = defaultdict(float)
+            new_sp: dict[Species, float] = defaultdict(float)
             for j, (el, occu) in enumerate(get_z_ordered_elmap(site.species)):
                 specie = Species(el.symbol, oxidation_states[idx][j])
                 new_sp[specie] += occu
