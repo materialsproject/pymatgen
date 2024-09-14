@@ -1454,7 +1454,7 @@ class TestGetBandStructureFromVaspMultipleBranches:
             copyfile(f"{VASP_OUT_DIR}/vasprun.force_hybrid_like_calc.xml.gz", "./vasprun.xml.gz")
             decompress_file("./vasprun.xml.gz")
 
-            with pytest.warns(match="no branch found, reading directly from"):
+            with pytest.warns(DeprecationWarning, match="no branch dir found, reading directly from"):
                 bs = get_band_structure_from_vasp_multiple_branches(".")
             assert isinstance(bs, BandStructure)
 
