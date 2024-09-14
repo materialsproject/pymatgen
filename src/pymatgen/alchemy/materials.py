@@ -47,7 +47,7 @@ class TransformedStructure(MSONable):
 
         Args:
             structure (Structure): Input structure
-            transformations (list[Transformation]): List of transformations to apply.
+            transformations (list[Transformation]): Transformations to apply.
             history (list[Transformation]): Previous history.
             other_parameters (dict): Additional parameters to be added.
         """
@@ -355,7 +355,7 @@ class TransformedStructure(MSONable):
         """Generate a StructureNL from TransformedStructure.
 
         Args:
-            authors (List[str]): List of authors contributing to the generated StructureNL.
+            authors (List[str]): Authors contributing to the generated StructureNL.
             **kwargs (Any): All kwargs supported by StructureNL.
 
         Returns:

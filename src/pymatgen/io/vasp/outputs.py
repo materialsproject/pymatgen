@@ -2486,10 +2486,8 @@ class Outcar:
         self.data["cs_core_contribution"] = core_contrib
 
     def read_cs_raw_symmetrized_tensors(self) -> None:
-        """Parse the matrix form of NMR tensor before corrected to table.
-
-        Returns:
-            nsymmetrized tensors list in the order of atoms.
+        """Parse the matrix form of NMR tensor before corrected to table
+        and set as self.data["unsym_cs_tensor"].
         """
         header_pattern = r"\s+-{50,}\s+\s+Absolute Chemical Shift tensors\s+\s+-{50,}$"
         first_part_pattern = r"\s+UNSYMMETRIZED TENSORS\s+$"

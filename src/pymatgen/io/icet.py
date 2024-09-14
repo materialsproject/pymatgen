@@ -79,9 +79,6 @@ class IcetSQS:
                 "monte carlo" otherwise.
             sqs_kwargs (dict): kwargs to pass to the icet SQS generators.
                 See self.sqs_kwarg_names for possible options.
-
-        Returns:
-            None
         """
         if ClusterSpace is None:
             raise ImportError("IcetSQS requires the icet package. Use `pip install icet`")
@@ -173,25 +170,24 @@ class IcetSQS:
             clusters=str(self._get_cluster_space()),
         )
 
-    def _get_site_composition(self) -> None:
+    def _get_site_composition(self) -> dict[str, dict]:
         """Get Icet-format composition from structure.
 
         Returns:
             Dict with sublattice compositions specified by uppercase letters,
-                e.g. In_x Ga_1-x As becomes:
-                {
+                e.g. In_x Ga_1-x As becomes: {
                     "A": {"In": x, "Ga": 1 - x},
                     "B": {"As": 1}
                 }
         """
         uppercase_letters = list(ascii_uppercase)
-        idx = 0
         self.composition: dict[str, dict] = {}
         for idx, site in enumerate(self._structure):
             site_comp = site.species.as_dict()
             if site_comp not in self.composition.values():
                 self.composition[uppercase_letters[idx]] = site_comp
-                idx += 1
+
+        return self.composition
 
     def _get_cluster_space(self) -> ClusterSpace:
         """Generate the ClusterSpace object for icet."""

@@ -1370,9 +1370,6 @@ class GrainBoundaryTransformation(AbstractTransformation):
                 will be removed. Default to 0.7.
             quick_gen (bool): whether to quickly generate a supercell, if set to true, no need to
                 find the smallest cell.
-
-        Returns:
-            Grain boundary structure (gb (Structure) object).
         """
         self.rotation_axis = rotation_axis
         self.rotation_angle = rotation_angle
