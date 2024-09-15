@@ -389,13 +389,16 @@ class Icohplist(MSONable):
         # and we don't need the header.
         if self._icohpcollection is None:
             with zopen(filename, mode="rt") as file:
-                lines = file.read().split("\n")[1:-1]
+                all_lines = file.read().split("\n")
+                lines = all_lines[1:-1] if "spin" not in all_lines[1] else all_lines[2:-1]
             if len(lines) == 0:
                 raise RuntimeError("ICOHPLIST file contains no data.")
 
             # Determine LOBSTER version
-            if len(lines[0].split()) == 8:
+            if len(lines[0].split()) == 8 and "spin" not in all_lines[1]:
                 version = "3.1.1"
+            elif (len(lines[0].split()) == 8 or len(lines[0].split()) == 9) and "spin" in all_lines[1]:
+                version = "5.1.0"
             elif len(lines[0].split()) == 6:
                 version = "2.2.1"
                 warnings.warn("Please consider using a newer LOBSTER version. See www.cohp.de.")
@@ -405,7 +408,10 @@ class Icohplist(MSONable):
             # If the calculation is spin polarized, the line in the middle
             # of the file will be another header line.
             # TODO: adapt this for orbital-wise stuff
-            self.is_spin_polarized = "distance" in lines[len(lines) // 2]
+            if version in ("3.1.1", "2.2.1"):
+                self.is_spin_polarized = "distance" in lines[len(lines) // 2]
+            else:  # if version == "5.1.0":
+                self.is_spin_polarized = len(lines[0].split()) == 9
 
             # Check if is orbital-wise ICOHPLIST
             # TODO: include case where there is only one ICOHP
@@ -449,7 +455,13 @@ class Icohplist(MSONable):
                 atom2 = line_parts[2]
                 length = float(line_parts[3])
 
-                if version == "3.1.1":
+                if version == "5.1.0":
+                    num = 1
+                    translation = (int(line_parts[4]), int(line_parts[5]), int(line_parts[6]))
+                    icohp[Spin.up] = float(line_parts[7])
+                    if self.is_spin_polarized:
+                        icohp[Spin.down] = float(line_parts[8])
+                elif version == "3.1.1":
                     num = 1
                     translation = (int(line_parts[4]), int(line_parts[5]), int(line_parts[6]))
                     icohp[Spin.up] = float(line_parts[7])
@@ -474,7 +486,10 @@ class Icohplist(MSONable):
             list_orb_icohp: list[dict] | None = None
             if self.orbitalwise:
                 list_orb_icohp = []
-                n_orbs = len(data_orbitals) // 2 if self.is_spin_polarized else len(data_orbitals)
+                if version != "5.1.0":
+                    n_orbs = len(data_orbitals) // 2 if self.is_spin_polarized else len(data_orbitals)
+                else:
+                    n_orbs = len(data_orbitals)
 
                 for i_orb in range(n_orbs):
                     data_orb = data_orbitals[i_orb]
@@ -485,8 +500,10 @@ class Icohplist(MSONable):
                     orb_label, orbitals = get_orb_from_str(orbs)
                     icohp[Spin.up] = float(line_parts[7])
 
-                    if self.is_spin_polarized:
+                    if self.is_spin_polarized and version != "5.1.0":
                         icohp[Spin.down] = float(data_orbitals[n_orbs + i_orb].split()[7])
+                    elif self.is_spin_polarized and version == "5.1.0":
+                        icohp[Spin.down] = float(data_orbitals[i_orb].split()[8])
 
                     if len(list_orb_icohp) < int(label):
                         list_orb_icohp.append({orb_label: {"icohp": icohp, "orbitals": orbitals}})
