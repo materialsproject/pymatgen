@@ -1640,12 +1640,35 @@ class Grosspop(MSONable):
             small_dict: dict[str, Any] = {}
             for line in lines[3:]:
                 cleanlines = [idx for idx in line.split(" ") if idx != ""]
-                if len(cleanlines) == 5:
+                if len(cleanlines) == 4:
+                    pass
+                elif len(cleanlines) == 5 and cleanlines[0].isdigit():
                     small_dict = {"Mulliken GP": {}, "Loewdin GP": {}, "element": cleanlines[1]}
                     small_dict["Mulliken GP"][cleanlines[2]] = float(cleanlines[3])
                     small_dict["Loewdin GP"][cleanlines[2]] = float(cleanlines[4])
+                elif len(cleanlines) == 5 and not cleanlines[0].isdigit():
+                    small_dict["Mulliken GP"][cleanlines[0]] = {
+                        Spin.up: float(cleanlines[1]),
+                        Spin.down: float(cleanlines[2]),
+                    }
+                    small_dict["Loewdin GP"][cleanlines[0]] = {
+                        Spin.up: float(cleanlines[3]),
+                        Spin.down: float(cleanlines[4]),
+                    }
+                    if "total" in cleanlines[0]:
+                        self.list_dict_grosspop.append(small_dict)
+                elif len(cleanlines) == 7:
+                    small_dict = {"Mulliken GP": {}, "Loewdin GP": {}, "element": cleanlines[1]}
+                    small_dict["Mulliken GP"][cleanlines[2]] = {
+                        Spin.up: float(cleanlines[3]),
+                        Spin.down: float(cleanlines[4]),
+                    }
+                    small_dict["Loewdin GP"][cleanlines[2]] = {
+                        Spin.up: float(cleanlines[5]),
+                        Spin.down: float(cleanlines[6]),
+                    }
 
-                elif len(cleanlines) > 0:
+                elif len(cleanlines) > 0 and "spin" not in line:
                     small_dict["Mulliken GP"][cleanlines[0]] = float(cleanlines[1])
                     small_dict["Loewdin GP"][cleanlines[0]] = float(cleanlines[2])
                     if "total" in cleanlines[0]:
