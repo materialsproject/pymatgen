@@ -910,6 +910,7 @@ class Lobsterout(MSONable):
         has_density_of_energies (bool): Whether DensityOfEnergy.lobster is present.
         has_fatbands (bool): Whether fatband calculation was performed.
         has_grosspopulation (bool): Whether GROSSPOP.lobster is present.
+        has_polarization (bool): Whether POLARIZATION.lobster is present.
         info_lines (str): Additional information on the run.
         info_orthonormalization (str): Information on orthonormalization.
         is_restart_from_projection (bool): Whether that calculation was restarted
@@ -950,6 +951,7 @@ class Lobsterout(MSONable):
         "has_bandoverlaps",
         "has_fatbands",
         "has_grosspopulation",
+        "has_polarization",
         "has_density_of_energies",
     }
 
@@ -1012,19 +1014,31 @@ class Lobsterout(MSONable):
             self.has_doscar_lso = (
                 "writing DOSCAR.LSO.lobster..." in lines and "SKIPPING writing DOSCAR.LSO.lobster..." not in lines
             )
-            self.has_cohpcar = (
-                "writing COOPCAR.lobster and ICOOPLIST.lobster..." in lines
-                and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in lines
-            )
-            self.has_coopcar = (
-                "writing COHPCAR.lobster and ICOHPLIST.lobster..." in lines
-                and "SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster..." not in lines
-            )
-            self.has_cobicar = (
-                "writing COBICAR.lobster and ICOBILIST.lobster..." in lines
-                and "SKIPPING writing COBICAR.lobster and ICOBILIST.lobster..." not in lines
-            )
+            if "5.1" not in self.lobster_version:
+                self.has_cohpcar = (
+                    "writing COOPCAR.lobster and ICOOPLIST.lobster..." in lines
+                    and "SKIPPING writing COOPCAR.lobster and ICOOPLIST.lobster..." not in lines
+                )
+                self.has_coopcar = (
+                    "writing COHPCAR.lobster and ICOHPLIST.lobster..." in lines
+                    and "SKIPPING writing COHPCAR.lobster and ICOHPLIST.lobster..." not in lines
+                )
+                self.has_cobicar = (
+                    "writing COBICAR.lobster and ICOBILIST.lobster..." in lines
+                    and "SKIPPING writing COBICAR.lobster and ICOBILIST.lobster..." not in lines
+                )
+            else:
+                self.has_cohpcar = (
+                    "writing COOPCAR.lobster..." in lines and "SKIPPING writing COOPCAR.lobster..." not in lines
+                )
+                self.has_coopcar = (
+                    "writing COHPCAR.lobster..." in lines and "SKIPPING writing COHPCAR.lobster..." not in lines
+                )
+                self.has_cobicar = (
+                    "writing COBICAR.lobster..." in lines and "SKIPPING writing COBICAR.lobster..." not in lines
+                )
 
+            self.has_polarization = "writing polarization to POLARIZATION.lobster..." in lines
             self.has_charge = "SKIPPING writing CHARGE.lobster..." not in lines
             self.has_projection = "saving projection to projectionData.lobster..." in lines
             self.has_bandoverlaps = (
@@ -1068,6 +1082,7 @@ class Lobsterout(MSONable):
             "has_bandoverlaps": self.has_bandoverlaps,
             "has_fatbands": self.has_fatbands,
             "has_grosspopulation": self.has_grosspopulation,
+            "has_polarization": self.has_polarization,
             "has_density_of_energies": self.has_density_of_energies,
         }
 
