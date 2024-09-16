@@ -28,6 +28,7 @@ from pymatgen.io.vasp.inputs import (
     Incar,
     Kpoints,
     KpointsSupportedModes,
+    PmgVaspPspDirError,
     Poscar,
     Potcar,
     PotcarSingle,
@@ -1211,7 +1212,16 @@ class TestPotcarSingle(TestCase):
         # test FileNotFoundError on non-existent PMG_VASP_PSP_DIR in SETTINGS
         PMG_VASP_PSP_DIR = "missing-dir"
         symbol, functional = "Fe", "PBE_64"
-        with (
+        with (  # test PMG_VASP_PSP_DIR not set in SETTINGS
+            patch.dict(SETTINGS, PMG_VASP_PSP_DIR=None),
+            pytest.raises(
+                PmgVaspPspDirError,
+                match=re.escape("Set PMG_VASP_PSP_DIR=<directory-path> in .pmgrc.yaml (needed to find POTCARs)"),
+            ),
+        ):
+            PotcarSingle.from_symbol_and_functional(symbol, functional)
+
+        with (  # test FileNotFoundError on non-existent PMG_VASP_PSP_DIR in SETTINGS
             patch.dict(SETTINGS, PMG_VASP_PSP_DIR=PMG_VASP_PSP_DIR),
             pytest.raises(FileNotFoundError, match=f"{PMG_VASP_PSP_DIR=} does not exist."),
         ):
