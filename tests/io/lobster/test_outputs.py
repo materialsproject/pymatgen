@@ -980,6 +980,7 @@ class TestLobsterout(PymatgenTest):
             "has_bandoverlaps": True,
             "has_fatbands": False,
             "has_grosspopulation": False,
+            "has_polarization": False,
             "has_density_of_energies": False,
         }
         for key, item in self.lobsterout_normal.get_doc().items():
