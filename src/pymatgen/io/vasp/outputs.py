@@ -624,7 +624,7 @@ class Vasprun(MSONable):
             while set(final_elec_steps[idx]) == to_check:
                 idx += 1
             return idx + 1 != self.parameters["NELM"]
-        elif self.incar.get("ALGO", "").upper() == "EXACT" and self.incar.get("NELM") == 1:
+        if self.incar.get("ALGO", "").upper() == "EXACT" and self.incar.get("NELM") == 1:
             return True
         return len(final_elec_steps) < self.parameters["NELM"]
 
