@@ -68,24 +68,21 @@ jobs:
         run: |
           micromamba create -n pmg python=${{ matrix.config.python }} --yes
 
-      - name: Install uv
-        run: micromamba run -n pmg pip install uv
-
       - name: Install ubuntu-only conda dependencies
         if: matrix.config.os == 'ubuntu-latest'
         run: |
           micromamba install -n pmg -c conda-forge bader enumlib openff-toolkit packmol pygraphviz tblite --yes
 
-      - name: Install pymatgen and dependencies
+      - name: Install pymatgen and dependencies via uv
         run: |
           micromamba activate pmg
+
+          pip install uv
 
           # TODO1 (use uv over pip) uv install torch is flaky, track #3826
           # TODO2 (pin torch version): DGL library (matgl) doesn't support torch > 2.2.1,
           # see: https://discuss.dgl.ai/t/filenotfounderror-cannot-find-dgl-c-graphbolt-library/4302
           uv pip install torch==2.2.1
-
-          uv pip install cython setuptools wheel
 
           uv pip install --editable '.[${{ matrix.config.extras }}]' --resolution=${{ matrix.config.resolution }}
 
