@@ -1071,7 +1071,7 @@ class LobsterBandStructureSymmLine(BandStructureSymmLine):
 
 
 @overload
-def get_reconstructed_band_structure(  # type: ignore[overload-overlap]
+def get_reconstructed_band_structure(
     list_bs: list[BandStructure],
     efermi: float | None = None,
 ) -> BandStructure:
