@@ -12,6 +12,8 @@ from xml.etree import ElementTree as ET
 import numpy as np
 import pytest
 from monty.io import zopen
+from monty.shutil import decompress_file
+from monty.tempfile import ScratchDir
 from numpy.testing import assert_allclose
 from pytest import approx
 
@@ -799,7 +801,11 @@ class TestVasprun(PymatgenTest):
 
 
 class TestOutcar(PymatgenTest):
-    def test_init(self):
+    def test_init_from_compressed(self):
+        """Test for both compressed and uncomressed versions,
+        because there was a bug in monty causing different
+        behaviour.
+        """
         outcar = Outcar(f"{VASP_OUT_DIR}/OUTCAR.gz")
         expected_mag = (
             {"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005},
@@ -844,6 +850,34 @@ class TestOutcar(PymatgenTest):
         for k in outcar.final_energy_contribs:
             toten += outcar.final_energy_contribs[k]
         assert toten == approx(outcar.final_energy, abs=1e-6)
+
+    def test_init_from_uncompressed(self):
+        with ScratchDir("."):
+            copyfile(f"{VASP_OUT_DIR}/OUTCAR.gz", "./OUTCAR.gz")
+            decompress_file("./OUTCAR.gz")
+            outcar = Outcar("./OUTCAR")
+
+        expected_mag = (
+            {"d": 0.0, "p": 0.003, "s": 0.002, "tot": 0.005},
+            {"d": 0.798, "p": 0.008, "s": 0.007, "tot": 0.813},
+            {"d": 0.798, "p": 0.008, "s": 0.007, "tot": 0.813},
+            {"d": 0.0, "p": -0.117, "s": 0.005, "tot": -0.112},
+            {"d": 0.0, "p": -0.165, "s": 0.004, "tot": -0.162},
+            {"d": 0.0, "p": -0.117, "s": 0.005, "tot": -0.112},
+            {"d": 0.0, "p": -0.165, "s": 0.004, "tot": -0.162},
+        )
+        expected_chg = (
+            {"p": 0.154, "s": 0.078, "d": 0.0, "tot": 0.232},
+            {"p": 0.707, "s": 0.463, "d": 8.316, "tot": 9.486},
+            {"p": 0.707, "s": 0.463, "d": 8.316, "tot": 9.486},
+            {"p": 3.388, "s": 1.576, "d": 0.0, "tot": 4.964},
+            {"p": 3.365, "s": 1.582, "d": 0.0, "tot": 4.947},
+            {"p": 3.388, "s": 1.576, "d": 0.0, "tot": 4.964},
+            {"p": 3.365, "s": 1.582, "d": 0.0, "tot": 4.947},
+        )
+
+        assert outcar.magnetization == approx(expected_mag, abs=1e-5), "Wrong magnetization read from Outcar"
+        assert outcar.charge == approx(expected_chg, abs=1e-5), "Wrong charge read from Outcar"
 
     def test_stopped_old(self):
         filepath = f"{VASP_OUT_DIR}/OUTCAR.stopped.gz"
