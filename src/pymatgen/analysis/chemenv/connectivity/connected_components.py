@@ -211,9 +211,6 @@ class ConnectedComponent(MSONable):
             environments_data: Data of environment nodes.
             links_data: Data of links between environment nodes.
             graph: Graph of the connected component.
-
-        Returns:
-            ConnectedComponent: Instance of this class
         """
         self._periodicity_vectors: list[list] | None = None
         self._primitive_reduced_connected_subgraph = None

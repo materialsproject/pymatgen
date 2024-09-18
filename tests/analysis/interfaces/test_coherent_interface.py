@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import unittest
+
 from numpy.testing import assert_allclose
 
 from pymatgen.analysis.interfaces.coherent_interfaces import (
@@ -8,6 +10,9 @@ from pymatgen.analysis.interfaces.coherent_interfaces import (
     get_2d_transform,
     get_rot_3d_for_2d,
 )
+from pymatgen.analysis.interfaces.substrate_analyzer import SubstrateAnalyzer
+from pymatgen.core.lattice import Lattice
+from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.util.testing import PymatgenTest
 
@@ -44,3 +49,31 @@ class TestInterfaceBuilder(PymatgenTest):
         # SP: this test is super fragile and the result fluctuates between 6, 30 and 42 for
         # no apparent reason. The author should fix this.
         assert len(list(builder.get_interfaces(termination=("O2_Pmmm_1", "Si_R-3m_1")))) >= 6
+
+
+class TestCoherentInterfaceBuilder(unittest.TestCase):
+    def setUp(self):
+        # build substrate & film structure
+        basis = [[0, 0, 0], [0.25, 0.25, 0.25]]
+        self.substrate = Structure(Lattice.cubic(a=5.431), ["Si", "Si"], basis)
+        self.film = Structure(Lattice.cubic(a=5.658), ["Ge", "Ge"], basis)
+
+    def test_termination_searching(self):
+        sub_analyzer = SubstrateAnalyzer()
+        matches = list(sub_analyzer.calculate(substrate=self.substrate, film=self.film))
+        cib = CoherentInterfaceBuilder(
+            film_structure=self.film,
+            substrate_structure=self.substrate,
+            film_miller=matches[0].film_miller,
+            substrate_miller=matches[0].substrate_miller,
+            zslgen=sub_analyzer,
+            termination_ftol=1e-4,
+            label_index=True,
+            filter_out_sym_slabs=False,
+        )
+        assert cib.terminations == [
+            ("1_Ge_P4/mmm_1", "1_Si_P4/mmm_1"),
+            ("1_Ge_P4/mmm_1", "2_Si_P4/mmm_1"),
+            ("2_Ge_P4/mmm_1", "1_Si_P4/mmm_1"),
+            ("2_Ge_P4/mmm_1", "2_Si_P4/mmm_1"),
+        ], "termination results wrong"

@@ -1035,7 +1035,7 @@ class _MPResterLegacy:
         data=None,
         histories=None,
         created_at=None,
-    ):
+    ) -> list[str]:
         """Submits a list of structures to the Materials Project as SNL files.
         The argument list mirrors the arguments for the StructureNL object,
         except that a list of structures with the same metadata is used as an
@@ -1065,7 +1065,7 @@ class _MPResterLegacy:
             created_at (datetime): A datetime object
 
         Returns:
-            A list of inserted submission ids.
+            list[str]: Inserted submission ids.
         """
         from pymatgen.util.provenance import StructureNL
 
@@ -1079,7 +1079,7 @@ class _MPResterLegacy:
             histories,
             created_at,
         )
-        self.submit_snl(snl_list)
+        return self.submit_snl(snl_list)
 
     def submit_snl(self, snl):
         """Submits a list of StructureNL to the Materials Project site.
@@ -1093,10 +1093,10 @@ class _MPResterLegacy:
             of StructureNL objects
 
         Returns:
-            A list of inserted submission ids.
+            list[str]: Inserted submission ids.
 
         Raises:
-            MPRestError
+            MPRestError: If submission fails.
         """
         snl = snl if isinstance(snl, list) else [snl]
         json_data = [s.as_dict() for s in snl]
