@@ -6,6 +6,10 @@ nav_order: 4
 
 # Changelog
 
+## v2024.9.17.1
+
+- Emergency release No. 2 to fix yet another regression in chempot diagram. (Thanks @yang-ruoxi for fixing.)
+
 ## v2024.9.17
 
 - Emergency release to fix broken phase diagram plotting due to completely unnecessary refactoring. (Thanks @yang-ruoxi for fixing.)

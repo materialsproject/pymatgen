@@ -78,7 +78,7 @@ dependencies = [
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#runtime-dependency-version-ranges
     "numpy>=1.25.0,<3",
 ]
-version = "2024.9.17"
+version = "2024.9.17.1"
 
 [project.urls]
 Homepage = "https://pymatgen.org"
