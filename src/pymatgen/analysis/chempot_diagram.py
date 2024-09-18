@@ -646,7 +646,7 @@ def simple_pca(data: np.ndarray, k: int = 2) -> tuple[np.ndarray, np.ndarray, np
     Returns:
         tuple: projected data, eigenvalues, eigenvectors
     """
-    data -= np.mean(data.T, axis=1)  # centering the data
+    data = data - np.mean(data.T, axis=1)  # centering the data
     cov = np.cov(data.T)  # calculating covariance matrix
     v, w = np.linalg.eig(cov)  # performing eigendecomposition
     idx = v.argsort()[::-1]  # sorting the components
