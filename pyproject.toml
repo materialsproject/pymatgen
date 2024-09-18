@@ -5,6 +5,7 @@ requires = [
     # https://numpy.org/devdocs/dev/depending_on_numpy.html#build-time-dependency
     "numpy>=2.1.0",
     "setuptools>=65.0.0",
+    "setuptools-scm>=8",  # include all Git tracked files as package data file
 ]
 build-backend = "setuptools.build_meta"
 
@@ -129,9 +130,6 @@ pmg = "pymatgen.cli.pmg:main"
 feff_plot_cross_section = "pymatgen.cli.feff_plot_cross_section:main"
 feff_plot_dos = "pymatgen.cli.feff_plot_dos:main"
 get_environment = "pymatgen.cli.get_environment:main"
-
-[tool.setuptools.package-data]
- "*" = ["*", ]  # include everything under src/ dir as data files
 
 [tool.setuptools.packages.find]
 where = ["src"]
